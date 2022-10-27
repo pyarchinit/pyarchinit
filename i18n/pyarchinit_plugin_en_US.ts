@@ -1,11 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
 <TS version="2.1" language="en_GB">
+    <extra-po-header-language>en_GB</extra-po-header-language>
+    <extra-po-header-language_team></extra-po-header-language_team>
+    <extra-po-header-last_translator></extra-po-header-last_translator>
+    <extra-po-header-po_revision_date></extra-po-header-po_revision_date>
+    <extra-po-header-pot_creation_date></extra-po-header-pot_creation_date>
+    <extra-po-header-project_id_version></extra-po-header-project_id_version>
+    <extra-po-header-x_generator>Poedit 3.1.1</extra-po-header-x_generator>
+    <extra-po-headers>Project-Id-Version,POT-Creation-Date,PO-Revision-Date,Last-Translator,Language-Team,Language,MIME-Version,Content-Type,Content-Transfer-Encoding,Plural-Forms,X-Language,X-Source-Language,X-Qt-Contexts,X-Generator</extra-po-headers>
 <context>
     <name>DBmanagment</name>
     <message>
         <location filename="../gui/ui/dbmanagment.ui" line="442"/>
         <source>Pyarchinit Backup</source>
+        <translatorcomment>Stratigraphic Unit
+</translatorcomment>
         <translation>Pyarchinit Backup</translation>
     </message>
     <message>
@@ -999,7 +1009,7 @@
     <message>
         <location filename="../gui/ui/Archeozoology.ui" line="1597"/>
         <source>Età</source>
-        <translation type="obsolete">Age</translation>
+        <translation>Age</translation>
     </message>
     <message>
         <location filename="../gui/ui/Archeozoology.ui" line="1620"/>
@@ -1239,7 +1249,7 @@ p, li { white-space: pre-wrap; }
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:7.8pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Sans&apos;; font-size:10pt;&quot;&gt;Crea un confronto a 4 variabili con istogramma di frequenza, curva di densità e curva cumulativa&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="obsolete">&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+        <translation>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:7.8pt; font-weight:400; font-style:normal;&quot;&gt;
@@ -2229,7 +2239,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/Detsesso.ui" line="2056"/>
         <source>Tuberosità front. e par.</source>
-        <translation type="obsolete">Tuberosity front. and par.</translation>
+        <translation>Tuberosity front. and par.</translation>
     </message>
     <message>
         <location filename="../gui/ui/Detsesso.ui" line="2859"/>
@@ -2761,7 +2771,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="858"/>
         <source>Tags Unità Stratigrafiche</source>
-        <translation type="obsolete">Tags Stratigraphic Units</translation>
+        <translation>Tags Stratigraphic Units</translation>
     </message>
     <message>
         <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="870"/>
@@ -2821,7 +2831,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="1099"/>
         <source>Unità Stratigrafiche</source>
-        <translation type="obsolete">Stratigraphic Units</translation>
+        <translation>Stratigraphic Units</translation>
     </message>
     <message>
         <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="1694"/>
@@ -3981,17 +3991,17 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/Inv_Materiali.ui" line="2297"/>
         <source>Tipo quantità </source>
-        <translation type="obsolete">Quantity </translation>
+        <translation>Quantity </translation>
     </message>
     <message>
         <location filename="../gui/ui/Inv_Materiali.ui" line="2302"/>
         <source>Unità di misura </source>
-        <translation type="obsolete">Unit of measurement </translation>
+        <translation>Unit of measurement </translation>
     </message>
     <message>
         <location filename="../gui/ui/Inv_Materiali.ui" line="2307"/>
         <source>Quantità</source>
-        <translation type="obsolete">Quantity</translation>
+        <translation>Quantity</translation>
     </message>
     <message>
         <location filename="../gui/ui/Inv_Materiali.ui" line="2352"/>
@@ -4199,7 +4209,7 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot;-qt-paragraph-type:empty; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;The US views can be called up from the US tab by activating the gis viewer &lt;/span&gt;&lt;img src=&quot;:/icons/GIS2.png&quot; /&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; and then doing a search&lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot;-qt-paragraph-type:empty; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;and from the periodisation tab with the &lt;/span&gt;&lt;img src=&quot;:/icons/GIS2.png&quot; /&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; button to display the current period/phase and the  &lt;/span&gt;&lt;img src=&quot;:/icons/layers-icon2.png&quot; /&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; button to load all periods&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;and from the periodization tab with the &lt;/span&gt;&lt;img src=&quot;:/icons/GIS2.png&quot; /&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; button to display the current period/phase and the  &lt;/span&gt;&lt;img src=&quot;:/icons/layers-icon2.png&quot; /&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; button to load all periods&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
 </context>
 <context>
@@ -5595,7 +5605,7 @@ Step 1 - Aprire il file test_area.py dentro alla cartella pyarchinit (la cartell
 Step 2 - editare la funzione def run_test e salvare il file.
 
 Step 3 - Riavviare Qgis e cliccare sul pulsante Run Test per verificare l&apos;output della vostra funzione.</source>
-        <translation type="obsolete">This is a testing section to test functions.
+        <translation>This is a testing section to test functions.
 
 
 Procedure
@@ -5623,7 +5633,7 @@ Step 3 - Restart Qgis and click on the Run Test button to check the output of yo
     <message>
         <location filename="../gui/ui/Site.ui" line="1909"/>
         <source>Tipo di unità stratigrafica</source>
-        <translation type="obsolete">Type of stratigraphic unit</translation>
+        <translation>Type of stratigraphic unit</translation>
     </message>
     <message>
         <location filename="../gui/ui/Site.ui" line="1947"/>
@@ -5934,7 +5944,7 @@ Step 3 - Restart Qgis and click on the Run Test button to check the output of yo
     <message>
         <location filename="../gui/ui/Struttura.ui" line="1163"/>
         <source>N°</source>
-        <translation type="obsolete">N°</translation>
+        <translation>N°</translation>
     </message>
     <message>
         <location filename="../gui/ui/Struttura.ui" line="1221"/>
@@ -5982,12 +5992,12 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/Struttura.ui" line="1347"/>
         <source>Periodizzazione</source>
-        <translation>Periodisation</translation>
+        <translation>Periodization</translation>
     </message>
     <message>
         <location filename="../gui/ui/Struttura.ui" line="1362"/>
         <source>Periodizzazione </source>
-        <translation>Periodisation </translation>
+        <translation>Periodization</translation>
     </message>
     <message>
         <location filename="../gui/ui/Struttura.ui" line="1375"/>
@@ -6082,7 +6092,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/Struttura.ui" line="1776"/>
         <source>Quantità </source>
-        <translation type="obsolete">Quantity </translation>
+        <translation>Quantity </translation>
     </message>
     <message>
         <location filename="../gui/ui/Struttura.ui" line="1826"/>
@@ -6250,12 +6260,12 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/Thesaurus.ui" line="959"/>
         <source>site_table</source>
-        <translation type="unfinished">site_table</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../gui/ui/Thesaurus.ui" line="964"/>
         <source>us_table</source>
-        <translation type="unfinished">us_table</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../gui/ui/Thesaurus.ui" line="969"/>
@@ -6380,7 +6390,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/Thesaurus.ui" line="1240"/>
         <source>Dati descrittivi</source>
-        <translation>Descriptive data</translation>
+        <translation>Description data</translation>
     </message>
 </context>
 <context>
@@ -6393,7 +6403,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/US_USM.ui" line="980"/>
         <source>Localizzazione</source>
-        <translation>Localization</translation>
+        <translation>Location</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="1443"/>
@@ -6418,7 +6428,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/US_USM.ui" line="3748"/>
         <source>Settore</source>
-        <translation>Field</translation>
+        <translation>Sector</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="4673"/>
@@ -6428,12 +6438,12 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/US_USM.ui" line="5583"/>
         <source>Saggio</source>
-        <translation>Trench</translation>
+        <translation>Excavation test</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="6535"/>
         <source>A</source>
-        <translation>To</translation>
+        <translation>A</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="6540"/>
@@ -6633,7 +6643,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/US_USM.ui" line="14174"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;GIS VIEW USM&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;GIS VIEW USM&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;GIS VIEW WSU&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="14184"/>
@@ -6648,7 +6658,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/US_USM.ui" line="15140"/>
         <source>Singole schede US</source>
-        <translation>Single SU cards</translation>
+        <translation>Single SU form</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="16078"/>
@@ -6663,7 +6673,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/US_USM.ui" line="17029"/>
         <source>search !!!</source>
-        <translation>search!!!</translation>
+        <translation>search !!!</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="17506"/>
@@ -6673,7 +6683,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/US_USM.ui" line="17968"/>
         <source>Rec step</source>
-        <translation>Rec step aerobics</translation>
+        <translation>Rec step</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="18432"/>
@@ -6763,12 +6773,12 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/US_USM.ui" line="28487"/>
         <source>Fognatura</source>
-        <translation>Sewerage</translation>
+        <translation>Sewer</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="28492"/>
         <source>Fondazione</source>
-        <translation>Founding</translation>
+        <translation>Foundation</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="28497"/>
@@ -6778,7 +6788,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/US_USM.ui" line="28502"/>
         <source>Livellamento</source>
-        <translation>Leveling</translation>
+        <translation>Levelling</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="28507"/>
@@ -6808,7 +6818,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/US_USM.ui" line="29949"/>
         <source>Dati descrittivi</source>
-        <translation>Descriptive data</translation>
+        <translation>Description data</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="29980"/>
@@ -6823,12 +6833,12 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/US_USM.ui" line="29994"/>
         <source>Elementi datanti</source>
-        <translation>Dating elements</translation>
+        <translation>Date elements</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="30036"/>
         <source>Interpretazione </source>
-        <translation>Interpretation </translation>
+        <translation>Interpretation</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="30064"/>
@@ -6886,7 +6896,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/US_USM.ui" line="30267"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Periodizzazione&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Periodisation&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Periodization&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="30312"/>
@@ -6926,12 +6936,12 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/US_USM.ui" line="30524"/>
         <source>Struttura</source>
-        <translation>Architecture</translation>
+        <translation>Structure</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="30547"/>
         <source>Rapporti stratigrafici</source>
-        <translation>Stratigraphic reports</translation>
+        <translation>Stratigraphic relationships</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="34271"/>
@@ -6961,12 +6971,12 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/US_USM.ui" line="30799"/>
         <source>Unità tipo</source>
-        <translation type="obsolete">Unit type</translation>
+        <translation>Type Unit</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="30809"/>
         <source>Periodizzazione</source>
-        <translation>Periodisation</translation>
+        <translation>Periodization</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="30820"/>
@@ -6981,12 +6991,12 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/US_USM.ui" line="30892"/>
         <source>Inclusi Artificiali</source>
-        <translation>Including Artificial</translation>
+        <translation>Artefact</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="32863"/>
         <source>Criteri distinzione</source>
-        <translation>Distinction criteria</translation>
+        <translation>Criteria for distinction</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="30907"/>
@@ -6996,7 +7006,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/US_USM.ui" line="30923"/>
         <source>Formazione</source>
-        <translation>Lineup</translation>
+        <translation>Formation</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="30949"/>
@@ -7066,7 +7076,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/US_USM.ui" line="31092"/>
         <source>Modo formazione</source>
-        <translation>Training mode</translation>
+        <translation>Formation process</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="33957"/>
@@ -7076,12 +7086,12 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/US_USM.ui" line="32464"/>
         <source>inserisci riga</source>
-        <translation>insert line</translation>
+        <translation>insert row</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="32486"/>
         <source>rimuovi riga</source>
-        <translation>remove line</translation>
+        <translation>remove row</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="31203"/>
@@ -7176,12 +7186,12 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/US_USM.ui" line="31646"/>
         <source>Responsabile compilazione sul campo</source>
-        <translation>Responsible field compilation</translation>
+        <translation>Field Compilation Manager</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="31662"/>
         <source>Data schedatura</source>
-        <translation>Date of filing</translation>
+        <translation>Filing date</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="31704"/>
@@ -7191,37 +7201,37 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/US_USM.ui" line="31711"/>
         <source>Data rilevazione</source>
-        <translation>Date recognition</translation>
+        <translation>Survey Date</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="31738"/>
         <source>Ref. TM</source>
-        <translation>Reference Material Tab</translation>
+        <translation>Ref. TM</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="31745"/>
         <source>Ref. N.</source>
-        <translation>Reference no.</translation>
+        <translation>Ref. No.</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="31752"/>
         <source>Data rielaborazione</source>
-        <translation>Date of revision</translation>
+        <translation>Revised date</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="31807"/>
         <source>Ref. RA</source>
-        <translation>Reference archeological artifact</translation>
+        <translation>Ref. RA</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="31814"/>
         <source>Responsabile scientifico delle indagini</source>
-        <translation>Scientific responsible for the investigations</translation>
+        <translation>Scientifically responsible for investigations</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="31840"/>
         <source>Responsabile rielaborazione</source>
-        <translation>Responsible for rework</translation>
+        <translation>Responsible for redrafting</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="31884"/>
@@ -7331,47 +7341,47 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/US_USM.ui" line="32131"/>
         <source>Quota assoluta (metri)</source>
-        <translation>Absolute elevation (meters)</translation>
+        <translation>Absolute altitude (metres)</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="32166"/>
         <source>Quota relativa (metri)</source>
-        <translation>Relative elevation (meters)</translation>
+        <translation>Relative altitude (metres)</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="32195"/>
         <source>Quota max assoluta (metri)</source>
-        <translation>Absolute max elevation (meters)</translation>
+        <translation>Absolute maximum height (metres)</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="32224"/>
         <source>Quota max relativa  (metri)</source>
-        <translation>Relative max elevation(meters)</translation>
+        <translation>Relative maximum height (metres)</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="32253"/>
         <source>Quota min assoluta (metri)</source>
-        <translation>Absolute minimum height (meters)</translation>
+        <translation>Absolute minimum altitude (metres)</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="32282"/>
         <source>Quota min relativa  (metri)</source>
-        <translation>Relative minimum height (meters)</translation>
+        <translation>Relative min. altitude (metres)</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="32311"/>
         <source>Altezza min. (metri)</source>
-        <translation>Height min. (meters)</translation>
+        <translation>Min. height (metres)</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="32340"/>
         <source>Profondità min. (metri) </source>
-        <translation type="obsolete">Depth min. (meters) </translation>
+        <translation>Min. depth (metres)</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="32369"/>
         <source>Profondità max. (metri) </source>
-        <translation type="obsolete">Max. depth (meters) </translation>
+        <translation>Max. depth (meters) </translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="32399"/>
@@ -7426,12 +7436,12 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/US_USM.ui" line="32755"/>
         <source>Sezione muraria</source>
-        <translation>Masonry section</translation>
+        <translation>Wall section</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="32771"/>
         <source>Modulo</source>
-        <translation>Form</translation>
+        <translation>Module</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="32785"/>
@@ -7456,7 +7466,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/US_USM.ui" line="32903"/>
         <source>Provenienza materiali</source>
-        <translation>Material origin</translation>
+        <translation>Material provenance</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="32919"/>
@@ -7501,12 +7511,12 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/US_USM.ui" line="33339"/>
         <source>Forma</source>
-        <translation>Form</translation>
+        <translation>Shape</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="33079"/>
         <source>Impasto</source>
-        <translation>Dough</translation>
+        <translation>Ceramic mix</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="33381"/>
@@ -7546,12 +7556,12 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/US_USM.ui" line="33554"/>
         <source>Dura</source>
-        <translation>Dura</translation>
+        <translation>Strong</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="33559"/>
         <source>Molto dura</source>
-        <translation>Very hard</translation>
+        <translation>Very strong</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="33199"/>
@@ -7571,7 +7581,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/US_USM.ui" line="33214"/>
         <source>Spezzoni</source>
-        <translation>Sections</translation>
+        <translation>Chunks</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="33238"/>
@@ -7581,7 +7591,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/US_USM.ui" line="33243"/>
         <source>Poco depurato</source>
-        <translation>Little purified</translation>
+        <translation>Poorly purified</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="33260"/>
@@ -7591,12 +7601,12 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/US_USM.ui" line="33265"/>
         <source>Filari ondulati</source>
-        <translation>Corrugated Wires</translation>
+        <translation>Undulating rows</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="33270"/>
         <source>Spina pesce</source>
-        <translation>Spina fish</translation>
+        <translation>Fishbone</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="33275"/>
@@ -7611,7 +7621,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/US_USM.ui" line="33291"/>
         <source>Elementi Litici</source>
-        <translation>Lithium Elements</translation>
+        <translation>Lithic Elements</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="33353"/>
@@ -7636,7 +7646,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/US_USM.ui" line="33424"/>
         <source>Sfaldati</source>
-        <translation>Scalded</translation>
+        <translation>Flaky</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="33429"/>
@@ -7646,7 +7656,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/US_USM.ui" line="33434"/>
         <source>Sbozzati</source>
-        <translation>Hexammered</translation>
+        <translation>Blanks</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="33439"/>
@@ -7666,12 +7676,12 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/US_USM.ui" line="33466"/>
         <source>Irregolari</source>
-        <translation>Irregular</translation>
+        <translation>Irregulars</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="33490"/>
         <source>A scalpello</source>
-        <translation>Chiseled</translation>
+        <translation>Chisel</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="33495"/>
@@ -7681,7 +7691,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/US_USM.ui" line="33500"/>
         <source>A martellina</source>
-        <translation>Hammer</translation>
+        <translation>A hammer</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="33517"/>
@@ -7716,7 +7726,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/US_USM.ui" line="33619"/>
         <source>Inerti</source>
-        <translation>Inert</translation>
+        <translation>Inerts</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="33710"/>
@@ -7756,7 +7766,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/US_USM.ui" line="33977"/>
         <source>quota min (metri)</source>
-        <translation>min Elevation (meters)</translation>
+        <translation>min. altitude (metres)</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="34023"/>
@@ -7776,7 +7786,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/US_USM.ui" line="34345"/>
         <source>quota max (metri)</source>
-        <translation>max Elevation (meters)</translation>
+        <translation>maximum altitude (metres)</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="34380"/>
@@ -7831,27 +7841,27 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/US_USM.ui" line="35621"/>
         <source>vai alla scheda</source>
-        <translation>go to the sheet</translation>
+        <translation>go to tab</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="35635"/>
         <source>descrizione</source>
-        <translation>descrizione</translation>
+        <translation>description</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="35640"/>
         <source>d_stratigrafica</source>
-        <translation>d_stratigrafica</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="35645"/>
         <source>d_interpretativa</source>
-        <translation>d_interpretativa</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="35650"/>
         <source>unita_tipo</source>
-        <translation>unita_tipo</translation>
+        <translation>unit_type</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="35658"/>
@@ -7916,7 +7926,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/US_USM.ui" line="41827"/>
         <source>Check rapporti stratigrafici</source>
-        <translation>Check stratigraphic reports</translation>
+        <translation>Check stratigraphic relationships</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="43197"/>
@@ -7971,7 +7981,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/US_USM.ui" line="46986"/>
         <source>Show Selcted Features</source>
-        <translation>Show Selcted Features</translation>
+        <translation>Show Selected Features</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="46954"/>
@@ -7986,12 +7996,12 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/US_USM.ui" line="46989"/>
         <source>Apri schede US</source>
-        <translation>Open SU tab</translation>
+        <translation>Open SU form</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="47009"/>
         <source>Attivazione Preview pianta US</source>
-        <translation>Activation Preview SU plant</translation>
+        <translation>Activation Preview SU map</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="47019"/>
@@ -8021,7 +8031,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/US_USM.ui" line="47166"/>
         <source>Esportazione Tavole</source>
-        <translation>Export drawing boards</translation>
+        <translation>Export Tables</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="47186"/>
@@ -8036,7 +8046,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/US_USM.ui" line="48106"/>
         <source>Elenco Foto con Thumbnail</source>
-        <translation>Photo List with Thumbnail</translation>
+        <translation>Thumbnail Photo List</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="48567"/>
@@ -8046,12 +8056,12 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/US_USM.ui" line="49026"/>
         <source>Elenco Foto senza Thumbnail</source>
-        <translation>List Photos without Thumbnail</translation>
+        <translation>List of Photos without Thumbnail</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="49475"/>
         <source>Schede US</source>
-        <translation>SU Cards</translation>
+        <translation>SU form</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="49924"/>
@@ -8121,7 +8131,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/US_USM.ui" line="57223"/>
         <source>Pagg.</source>
-        <translation>Pagg.</translation>
+        <translation>Pp.</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="57678"/>
@@ -8134,7 +8144,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/UT_ui.ui" line="20"/>
         <source>pyArchInit Archeologia del Territorio- Scheda UT</source>
-        <translation>pyArchInit Archaeology of the Territory - UT sheet</translation>
+        <translation>pyArchInit Archaeology of the Territory - UT form</translation>
     </message>
     <message>
         <location filename="../gui/ui/UT_ui.ui" line="60"/>
@@ -8949,7 +8959,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="2204"/>
         <source>Del</source>
-        <translation>Del</translation>
+        <translation>Delete</translation>
     </message>
     <message>
         <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1542"/>
@@ -9079,12 +9089,12 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1953"/>
         <source>US</source>
-        <translation>SU</translation>
+        <translation>US</translation>
     </message>
     <message>
         <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1962"/>
         <source>PERIODIZZAZIONE</source>
-        <translation>Periodisation</translation>
+        <translation>PERIODIZZAZIONE</translation>
     </message>
     <message>
         <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1971"/>
@@ -9635,7 +9645,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/pyarchinit_directory_creator_ui.ui" line="701"/>
         <source>Unità Stratigrafiche</source>
-        <translation type="obsolete">Stratigraphic Units</translation>
+        <translation>Stratigraphic Units</translation>
     </message>
     <message>
         <location filename="../gui/ui/pyarchinit_directory_creator_ui.ui" line="708"/>
@@ -9653,7 +9663,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/Deteta.ui" line="435"/>
         <source>pyArchInit Gestione Scavi - Scheda Determinazione Età di Morte</source>
-        <translation type="obsolete">pyArchInit Excavation Management - Death Age Determination</translation>
+        <translation>pyArchInit Excavation Management - Death Age Determination</translation>
     </message>
     <message>
         <location filename="../gui/ui/Deteta.ui" line="455"/>
@@ -9947,7 +9957,7 @@ p, li { white-space: pre-wrap; }
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Lucida Grande&apos;; font-size:13pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt;&quot;&gt; Assenza di granulosità; è possibile un&apos;isolata e fine porosità.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="obsolete">&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+        <translation>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Lucida Grande&apos;; font-size:13pt; font-weight:400; font-style:normal;&quot;&gt;
@@ -9966,7 +9976,7 @@ p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Lucida Grande&apos;; font-size:13pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt;&quot;&gt;Il bordo è fine e può essere a filo con la superficie auricolare, &lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt;&quot;&gt;o leggermente sollevato e forma un angolo.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="obsolete">&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+        <translation>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Lucida Grande&apos;; font-size:13pt; font-weight:400; font-style:normal;&quot;&gt;
@@ -10039,7 +10049,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/Deteta.ui" line="1982"/>
         <source>Modificazione della tuberosità iliaca</source>
-        <translation type="obsolete">Modification of iliac tuberosity</translation>
+        <translation>Modification of iliac tuberosity</translation>
     </message>
     <message>
         <location filename="../gui/ui/Deteta.ui" line="2016"/>
@@ -10327,7 +10337,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/Deteta.ui" line="4275"/>
         <source>Acsadi e Nemeskéri, 1970</source>
-        <translation type="obsolete">Acsadi and Nemeskéri, 1970</translation>
+        <translation>Acsadi and Nemeskéri, 1970</translation>
     </message>
 </context>
 <context>
@@ -10463,7 +10473,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/pyarchinit_images_export_ui.ui" line="728"/>
         <source>Unità Stratigrafiche</source>
-        <translation type="obsolete">Stratigraphic Units</translation>
+        <translation>Stratigraphic Units</translation>
     </message>
 </context>
 <context>
@@ -10496,7 +10506,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/Pdf_export.ui" line="646"/>
         <source>Unità Stratigrafiche</source>
-        <translation type="obsolete">Stratigraphic Units</translation>
+        <translation>Stratigraphic Units</translation>
     </message>
     <message>
         <location filename="../gui/ui/Pdf_export.ui" line="696"/>
@@ -10531,7 +10541,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/Pdf_export.ui" line="876"/>
         <source>Periodizzazione</source>
-        <translation>Periodisation</translation>
+        <translation>Periodization</translation>
     </message>
     <message>
         <location filename="../gui/ui/Pdf_export.ui" line="913"/>
@@ -11086,7 +11096,7 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>GdalTools</name>
     <message>
-        <location filename="../tabs/Archeozoology.py" line="2427"/>
+        <location filename="../tabs/Archeozoology.py" line="2314"/>
         <source>Clipper</source>
         <translation>Clipper</translation>
     </message>

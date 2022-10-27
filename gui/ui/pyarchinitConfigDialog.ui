@@ -502,6 +502,127 @@
    <bool>true</bool>
   </property>
   <layout class="QGridLayout" name="gridLayout_16">
+   <item row="0" column="1">
+    <widget class="QgsDockWidget" name="mDockWidget">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>152</width>
+       <height>200</height>
+      </size>
+     </property>
+     <property name="windowIcon">
+      <iconset resource="../../resources/resources.qrc">
+       <normaloff>:/icons/toolbox.png</normaloff>:/icons/toolbox.png</iconset>
+     </property>
+     <property name="floating">
+      <bool>true</bool>
+     </property>
+     <property name="windowTitle">
+      <string>Advance Setting to compare db sqlite</string>
+     </property>
+     <widget class="QWidget" name="dockWidgetContents">
+      <widget class="QLabel" name="label_22">
+       <property name="geometry">
+        <rect>
+         <x>9</x>
+         <y>30</y>
+         <width>134</width>
+         <height>16</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Scegli un opzione e premi ok</string>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="pushButton_compare">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>80</y>
+         <width>75</width>
+         <height>23</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>OK</string>
+       </property>
+      </widget>
+      <widget class="QComboBox" name="comboBox_compare">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>50</y>
+         <width>108</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="editable">
+        <bool>true</bool>
+       </property>
+       <item>
+        <property name="text">
+         <string>--schema</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>--summary</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>--changeset FILE</string>
+        </property>
+       </item>
+      </widget>
+      <widget class="QPushButton" name="pushButton_convertdb">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>150</y>
+         <width>75</width>
+         <height>23</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Convert</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="label_44">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>130</y>
+         <width>131</width>
+         <height>16</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Converti in Spatialite v5</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="label_45">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>10</y>
+         <width>134</width>
+         <height>16</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Confronta db</string>
+       </property>
+      </widget>
+     </widget>
+    </widget>
+   </item>
    <item row="0" column="0">
     <widget class="QTabWidget" name="tabWidget">
      <property name="enabled">
@@ -2779,127 +2900,6 @@
      </widget>
     </widget>
    </item>
-   <item row="0" column="1">
-    <widget class="QgsDockWidget" name="mDockWidget">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="minimumSize">
-      <size>
-       <width>152</width>
-       <height>200</height>
-      </size>
-     </property>
-     <property name="windowIcon">
-      <iconset resource="../../resources/resources.qrc">
-       <normaloff>:/icons/toolbox.png</normaloff>:/icons/toolbox.png</iconset>
-     </property>
-     <property name="floating">
-      <bool>true</bool>
-     </property>
-     <property name="windowTitle">
-      <string>Advance Setting to compare db sqlite</string>
-     </property>
-     <widget class="QWidget" name="dockWidgetContents">
-      <widget class="QLabel" name="label_22">
-       <property name="geometry">
-        <rect>
-         <x>9</x>
-         <y>30</y>
-         <width>134</width>
-         <height>16</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>Scegli un opzione e premi ok</string>
-       </property>
-      </widget>
-      <widget class="QPushButton" name="pushButton_compare">
-       <property name="geometry">
-        <rect>
-         <x>10</x>
-         <y>80</y>
-         <width>75</width>
-         <height>23</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>OK</string>
-       </property>
-      </widget>
-      <widget class="QComboBox" name="comboBox_compare">
-       <property name="geometry">
-        <rect>
-         <x>10</x>
-         <y>50</y>
-         <width>108</width>
-         <height>20</height>
-        </rect>
-       </property>
-       <property name="editable">
-        <bool>true</bool>
-       </property>
-       <item>
-        <property name="text">
-         <string>--schema</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>--summary</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>--changeset FILE</string>
-        </property>
-       </item>
-      </widget>
-      <widget class="QPushButton" name="pushButton_convertdb">
-       <property name="geometry">
-        <rect>
-         <x>10</x>
-         <y>150</y>
-         <width>75</width>
-         <height>23</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>Convert</string>
-       </property>
-      </widget>
-      <widget class="QLabel" name="label_44">
-       <property name="geometry">
-        <rect>
-         <x>10</x>
-         <y>130</y>
-         <width>131</width>
-         <height>16</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>Converti in Spatialite v5</string>
-       </property>
-      </widget>
-      <widget class="QLabel" name="label_45">
-       <property name="geometry">
-        <rect>
-         <x>10</x>
-         <y>10</y>
-         <width>134</width>
-         <height>16</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>Confronta db</string>
-       </property>
-      </widget>
-     </widget>
-    </widget>
-   </item>
   </layout>
  </widget>
  <customwidgets>
@@ -2951,12 +2951,12 @@
    <slot>toggleUserVisible()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>515</x>
+     <x>803</x>
      <y>688</y>
     </hint>
     <hint type="destinationlabel">
-     <x>680</x>
-     <y>647</y>
+     <x>988</x>
+     <y>658</y>
     </hint>
    </hints>
   </connection>
@@ -2971,8 +2971,8 @@
      <y>22</y>
     </hint>
     <hint type="destinationlabel">
-     <x>118</x>
-     <y>141</y>
+     <x>130</x>
+     <y>163</y>
     </hint>
    </hints>
   </connection>
@@ -2983,12 +2983,12 @@
    <slot>clearEditText()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>462</x>
-     <y>59</y>
+     <x>817</x>
+     <y>72</y>
     </hint>
     <hint type="destinationlabel">
-     <x>462</x>
-     <y>89</y>
+     <x>817</x>
+     <y>105</y>
     </hint>
    </hints>
   </connection>
@@ -2999,12 +2999,12 @@
    <slot>clearEditText()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>462</x>
-     <y>89</y>
+     <x>817</x>
+     <y>105</y>
     </hint>
     <hint type="destinationlabel">
-     <x>462</x>
-     <y>59</y>
+     <x>817</x>
+     <y>72</y>
     </hint>
    </hints>
   </connection>
@@ -3015,12 +3015,12 @@
    <slot>clearEditText()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>470</x>
-     <y>222</y>
+     <x>608</x>
+     <y>225</y>
     </hint>
     <hint type="destinationlabel">
-     <x>529</x>
-     <y>252</y>
+     <x>817</x>
+     <y>255</y>
     </hint>
    </hints>
   </connection>
@@ -3031,12 +3031,12 @@
    <slot>clearEditText()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>470</x>
-     <y>282</y>
+     <x>608</x>
+     <y>285</y>
     </hint>
     <hint type="destinationlabel">
-     <x>529</x>
-     <y>312</y>
+     <x>817</x>
+     <y>315</y>
     </hint>
    </hints>
   </connection>

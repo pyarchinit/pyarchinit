@@ -4,7 +4,7 @@
 # be supported until version 2.0
 
 # This file should be included when you package your plugin.
-
+# commento nuovo
 # Mandatory items:
 
 
@@ -13,7 +13,7 @@ name=pyArchInit
 qgisMinimumVersion=3.22
 description=pyarchinit an tool for archaeological works
 
-version=4.1.0
+version=4.3.3
 
 author=Luca Mandolesi&Enzo Cocca
 email=pyarchinit@gmail.com
@@ -25,7 +25,32 @@ tracker=https://github.com/pyarchinit/pyarchinit/issues
 repository=https://github.com/pyarchinit/pyarchinit
 
 
-changelog=release4.1.0
+changelog=release4.3.3
+
+    -fix update tablewidget relationships for EM(set same rows)
+    -fix template csv  thesaurus
+    -fix english lang for pyarchinit_db_manager.py to create new form automatic
+
+
+  release4.3.2
+
+    -import csv to thesaurus
+    -template csv  thesaurus
+
+  release4.3.1
+
+    -update info
+
+  release4.3.0
+
+    -#509 issue
+
+  release4.2.0
+
+    -#507 issue
+    -#508 issue
+
+  release4.1.0
 
     -validazione e inserimento rapporti per EM
 

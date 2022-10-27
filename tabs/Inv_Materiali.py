@@ -40,6 +40,7 @@ from ..modules.db.pyarchinit_conn_strings import Connection
 from ..modules.db.pyarchinit_db_manager import Pyarchinit_db_management
 from ..modules.db.pyarchinit_utility import Utility
 from ..modules.utility.csv_writer import UnicodeWriter
+from ..modules.utility.media_ponderata_sperimentale import *
 from ..modules.utility.delegateComboBox import ComboBoxDelegate
 from ..modules.utility.pyarchinit_error_check import Error_check
 from ..modules.utility.pyarchinit_exp_Findssheet_pdf import generate_reperti_pdf
@@ -452,7 +453,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
 
         parameter1 = dlg.TYPE_QUANT
         parameters2 = dlg.ITEMS
-        # QMessageBox.warning(self, "Test Parametri Quant", str(parameters2),  QMessageBox.Ok)
+        #QMessageBox.warning(self, "Test Parametri Quant", str(parameters2),  QMessageBox.Ok)
 
         contatore = 0
         # tipi di quantificazione
@@ -479,7 +480,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                         csv_dataset.append(sing_list)
 
                     filename = ('%s%squant_forme_minime.csv') % (self.QUANT_PATH, os.sep)
-                    QMessageBox.warning(self, "Esportazione", str(filename), QMessageBox.Ok)
+                    #QMessageBox.warning(self, "Esportazione", str(filename), QMessageBox.Ok)
                     f = open(filename, 'wb')
                     Uw = UnicodeWriter(f)
                     Uw.writerows(csv_dataset)
@@ -491,7 +492,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
 
             elif parameter1 == 'Frammenti':
                 for i in range(len(self.DATA_LIST)):
-                    temp_dataset = ()
+                    #temp_dataset = ()
 
                     temp_dataset = (self.parameter_quant_creator(parameters2, i), int(self.DATA_LIST[i].totale_frammenti))
 
@@ -646,9 +647,9 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                     self.plot_chart(dataset_sum, 'Graph for fragments', 'Nr. Fragments')
                 else:
                     QMessageBox.warning(self, "Warning", "There are no data to represent", QMessageBox.Ok)              
-        """ experimental disabled
-        wind = QMessageBox.warning(self, "Attenzione", "Vuoi esportare le medie ponderate?",  QMessageBox.Cancel, 1)
-        if wind == 1:
+        """experimental disabled
+        wind = QMessageBox.warning(self, "Attenzione", "Vuoi esportare le medie ponderate?",  QMessageBox.Ok|QMessageBox.Cancel)
+        if wind == QMessageBox.Ok:
             conversion_dict = {"I sec. a.C." : (-99, 0),
                                                 "II sec. a.C.": (-199, -100),
                                                 "III sec. a.C.": (-299, -200),

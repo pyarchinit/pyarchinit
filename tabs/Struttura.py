@@ -236,8 +236,11 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
 
             # SIGNALS & SLOTS Functions
         self.comboBox_sigla_struttura.editTextChanged.connect(self.add_value_to_categoria)
+        if len(self.DATA_LIST)==0:
+            self.comboBox_sito.setCurrentIndex(0)
+        else:
+            self.comboBox_sito.setCurrentIndex(1)
 
-        # SIGNALS & SLOTS Functions
         self.comboBox_sito.currentIndexChanged.connect(self.charge_periodo_iniz_list)
         self.comboBox_sito.currentIndexChanged.connect(self.charge_periodo_fin_list)
         self.comboBox_per_iniz.currentIndexChanged.connect(self.charge_fase_iniz_list)
@@ -255,19 +258,48 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
     def on_pushButton_print_pressed(self):
         if self.L=='it':
             if self.checkBox_s_us.isChecked():
-                US_pdf_sheet = generate_struttura_pdf()
-                data_list = self.generate_list_pdf()
-                US_pdf_sheet.build_Struttura_sheets(data_list)
-                QMessageBox.warning(self, 'Ok',"Esportazione terminata Schede Strutture",QMessageBox.Ok)
+                Struttura_pdf_sheet = generate_struttura_pdf()  # deve essere importata la classe
+                data_list = self.generate_list_pdf()  # deve essere aggiunta la funzione
+                Struttura_pdf_sheet.build_Struttura_sheets(data_list)  # deve essere aggiunto il file per generare i pdf
+                QMessageBox.warning(self, 'Ok',"Esportazione terminata Schede Struttura",QMessageBox.Ok)
             else:   
                 pass
             if self.checkBox_e_us.isChecked() :
-                US_index_pdf = generate_struttura_pdf()
+                Struttura_index_pdf = generate_struttura_pdf()
                 data_list = self.generate_list_pdf()
-                
-                US_index_pdf.build_index_Struttura(data_list, data_list[0][0])
-                QMessageBox.warning(self, 'Ok',"Esportazione terminata Elenco Strutture",QMessageBox.Ok)
-                    
+            
+                try:               
+                    if bool(data_list):
+                        Struttura_index_pdf.build_index_Struttura(data_list, data_list[0][0])
+                        QMessageBox.warning(self, 'Ok',"Esportazione terminata Elenco Struttura",QMessageBox.Ok)
+                    else:
+                        QMessageBox.warning(self, 'ATTENZIONE',"L'elenco Struttura non può essere esportato devi riempire prima la scheda Struttura",QMessageBox.Ok)
+                except Exception as e :
+                    QMessageBox.warning(self, 'ATTENZIONE',str(e),QMessageBox.Ok)
+            else:
+                pass
+            
+        
+        else:
+            if self.checkBox_s_us.isChecked():
+                Struttura_pdf_sheet = generate_struttura_pdf()  # deve essere importata la classe
+                data_list = self.generate_list_pdf()  # deve essere aggiunta la funzione
+                Struttura_pdf_sheet.build_Struttura_sheets(data_list)  # deve essere aggiunto il file per generare i pdf
+                QMessageBox.warning(self, 'Ok',"Exportation Done",QMessageBox.Ok)
+            else:   
+                pass
+            if self.checkBox_e_us.isChecked() :
+                Struttura_index_pdf = generate_struttura_pdf()
+                data_list = self.generate_list_pdf()
+            
+                try:               
+                    if bool(data_list):
+                        Struttura_index_pdf.build_index_Struttura(data_list, data_list[0][0])
+                        QMessageBox.warning(self, 'Ok',"Exportation list done",QMessageBox.Ok)
+                    else:
+                        QMessageBox.warning(self, 'Warning',"The Structure list cannot be exported you have to fill in the Structure tabs before",QMessageBox.Ok)
+                except Exception as e :
+                    QMessageBox.warning(self, 'Warning',str(e),QMessageBox.Ok)
             else:
                 pass
             # if self.checkBox_e_foto_t.isChecked():
@@ -1736,63 +1768,97 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
                     QMessageBox.warning(self, "Message", "%s %d %s" % strings, QMessageBox.Ok)
         self.enable_button_search(1)
 
-    def on_pushButton_pdf_index_exp_pressed(self):
-        if self.L=='it':
-            Struttura_index_pdf = generate_struttura_pdf()
-            data_list = self.generate_list_pdf()
-            Struttura_index_pdf.build_index_Struttura(data_list, data_list[0][0])
-        elif self.L=='de':
-            Struttura_index_pdf = generate_struttura_pdf()
-            data_list = self.generate_list_pdf()
-            Struttura_index_pdf.build_index_Struttura_de(data_list, data_list[0][0])    
-        else:
-            Struttura_index_pdf = generate_struttura_pdf()
-            data_list = self.generate_list_pdf()
-            Struttura_index_pdf.build_index_Struttura_en(data_list, data_list[0][0])
-    def on_pushButton_pdf_exp_pressed(self):
-        if self.L=='it':
-            Struttura_pdf_sheet = generate_struttura_pdf()  # deve essere importata la classe
-            data_list = self.generate_list_pdf()  # deve essere aggiunta la funzione
-            Struttura_pdf_sheet.build_Struttura_sheets(data_list)  # deve essere aggiunto il file per generare i pdf
-        elif self.L=='de':
-            Struttura_pdf_sheet = generate_struttura_pdf()  # deve essere importata la classe
-            data_list = self.generate_list_pdf()  # deve essere aggiunta la funzione
-            Struttura_pdf_sheet.build_Struttura_sheets_de(data_list)  # deve essere aggiunto il file per generare i pdf
+    # def on_pushButton_pdf_index_exp_pressed(self):
+        # if self.L=='it':
+            # Struttura_index_pdf = generate_struttura_pdf()
+            # data_list = self.generate_list_pdf()
+            # Struttura_index_pdf.build_index_Struttura(data_list, data_list[0][0])
+        # elif self.L=='de':
+            # Struttura_index_pdf = generate_struttura_pdf()
+            # data_list = self.generate_list_pdf()
+            # Struttura_index_pdf.build_index_Struttura_de(data_list, data_list[0][0])    
+        # else:
+            # Struttura_index_pdf = generate_struttura_pdf()
+            # data_list = self.generate_list_pdf()
+            # Struttura_index_pdf.build_index_Struttura_en(data_list, data_list[0][0])
+    # def on_pushButton_pdf_exp_pressed(self):
+        # if self.L=='it':
+            # if self.checkBox_s_us.isChecked():
+                # Struttura_pdf_sheet = generate_struttura_pdf()  # deve essere importata la classe
+                # data_list = self.generate_list_pdf()  # deve essere aggiunta la funzione
+                # Struttura_pdf_sheet.build_Struttura_sheets(data_list)  # deve essere aggiunto il file per generare i pdf
+                # QMessageBox.warning(self, 'Ok',"Esportazione terminata Schede Struttura",QMessageBox.Ok)
+            # else:   
+                # pass
+            # if self.checkBox_e_us.isChecked() :
+                # Struttura_index_pdf = generate_struttura_pdf()
+                # data_list = self.generate_list_pdf()
             
-        else:
-            Struttura_pdf_sheet = generate_struttura_pdf()  # deve essere importata la classe
-            data_list = self.generate_list_pdf()  # deve essere aggiunta la funzione
-            Struttura_pdf_sheet.build_Struttura_sheets_en(data_list)  # deve essere aggiunto il file per generare i pdf 
+                # try:               
+                    # if bool(data_list):
+                        # Struttura_index_pdf.build_index_Struttura(data_list, data_list[0][0])
+                        # QMessageBox.warning(self, 'Ok',"Esportazione terminata Elenco Struttura",QMessageBox.Ok)
+                    # else:
+                        # QMessageBox.warning(self, 'ATTENZIONE',"L'elenco Struttura non può essere esportato devi riempire prima la scheda Struttura",QMessageBox.Ok)
+                # except Exception as e :
+                    # QMessageBox.warning(self, 'ATTENZIONE',str(e),QMessageBox.Ok)
+            # else:
+                # pass
+            
+        
+        # else:
+            # if self.checkBox_s_us.isChecked():
+                # Struttura_pdf_sheet = generate_struttura_pdf()  # deve essere importata la classe
+                # data_list = self.generate_list_pdf()  # deve essere aggiunta la funzione
+                # Struttura_pdf_sheet.build_Struttura_sheets(data_list)  # deve essere aggiunto il file per generare i pdf
+                # QMessageBox.warning(self, 'Ok',"Exportation Done",QMessageBox.Ok)
+            # else:   
+                # pass
+            # if self.checkBox_e_us.isChecked() :
+                # Struttura_index_pdf = generate_struttura_pdf()
+                # data_list = self.generate_list_pdf()
+            
+                # try:               
+                    # if bool(data_list):
+                        # Struttura_index_pdf.build_index_Struttura(data_list, data_list[0][0])
+                        # QMessageBox.warning(self, 'Ok',"Exportation list done",QMessageBox.Ok)
+                    # else:
+                        # QMessageBox.warning(self, 'Warning',"The Structure list cannot be exported you have to fill in the Structure tabs before",QMessageBox.Ok)
+                # except Exception as e :
+                    # QMessageBox.warning(self, 'Warning',str(e),QMessageBox.Ok)
+            # else:
+                # pass
+            
     def generate_list_pdf(self):
         data_list = []
 
         for i in range(len(self.DATA_LIST)):
             sito = str(self.DATA_LIST[i].sito)
-            sigla_struttura = '{}{}'.format(
-                str(self.DATA_LIST[i].sigla_struttura), str(self.DATA_LIST[i].numero_struttura))
-
-            res_strutt = self.DB_MANAGER.query_bool(
-                {"sito": "'" + str(sito) + "'", "struttura": "'" + str(sigla_struttura) + "'"}, "US")
+            sigla_st = '{}{}{}'.format(str(self.DATA_LIST[i].sigla_struttura),'-', str(self.DATA_LIST[i].numero_struttura))            
+            res_strutt = self.DB_MANAGER.query_bool({"sito": "'" + str(sito) + "'", "struttura": "'" + str(sigla_st) + "'"}, "US")
             us_strutt_list = []
-            if bool(res_strutt):
-                for rs in res_strutt:
-                    us_strutt_list.append([str(rs.sito), str(rs.area), str(rs.us)])
-
+            #if bool(res_strutt):
+            for rs in res_strutt:
+                us_strutt_list.append([str(rs.sito), str(rs.area), int(rs.us)])
+                
+            res_quote_strutt=''
             quote_strutt = []
-            if bool(us_strutt_list):
-                for sing_us in us_strutt_list:
-                    res_quote_strutt = self.DB_MANAGER.select_quote_from_db_sql(sing_us[0], sing_us[1], sing_us[2])
-                    if bool(res_quote_strutt):
-                        for sing_us in res_quote_strutt:
-                            sing_quota_value = str(sing_us[5])
-                            if sing_quota_value[0] == '-':
-                                sing_quota_value = sing_quota_value[:7]
-                            else:
-                                sing_quota_value = sing_quota_value[:6]
+            #if bool(us_strutt_list):
+            for sing_us in us_strutt_list:
+                res_quote_strutt = self.DB_MANAGER.select_quote_from_db_sql(sing_us[0], sing_us[1], sing_us[2])
+                
+            #if bool(res_quote_strutt):
+            for sing_us2 in res_quote_strutt:
+                sing_quota_value = str(sing_us2[5])
+               
+                if sing_quota_value[0] == '-':
+                    sing_quota_value = sing_quota_value[:7]
+                else:
+                    sing_quota_value = sing_quota_value[:6]
 
-                            sing_quota = [sing_quota_value, sing_us[4]]
-                            quote_strutt.append(sing_quota)
-                        quote_strutt.sort()
+                sing_quota = [sing_quota_value, sing_us2[4]]
+                quote_strutt.append(sing_quota)
+            quote_strutt.sort()
 
             if bool(quote_strutt):
                 quota_min_strutt = '%s %s' % (quote_strutt[0][0], quote_strutt[0][1])

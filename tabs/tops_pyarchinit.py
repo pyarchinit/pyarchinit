@@ -185,7 +185,7 @@ class pyarchinit_TOPS(QDialog, MAIN_DIALOG_CLASS):
                         q = float(ID_Z[0])
 
 
-                        # expression1 = QgsExpression('x($geometry)+{}'.format(x))
+                        #expression1 = QgsExpression('x($geometry)+{}'.format(x))
                         # expression2 = QgsExpression('y($geometry)+{}'.format(y))
                         # context = QgsExpressionContext()
                         # scope = QgsExpressionContextScope()

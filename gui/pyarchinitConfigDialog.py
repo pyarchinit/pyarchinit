@@ -19,28 +19,21 @@
 /***************************************************************************/
 """
 from __future__ import absolute_import
-import sys
-import traceback
+
 import os
 import sqlite3
-import time
+
 import sqlalchemy as sa
-from osgeo import ogr
+
 from sqlalchemy.event import listen
 import platform
 from builtins import range
 from builtins import str
-import pandas as pd
-from pandas import DataFrame
-import ftplib
+
 from ftplib import FTP
-import subprocess
-from geoalchemy2 import *
-from sqlalchemy.sql import select, func, text
-from geoalchemy2 import func as funcgeom
+
 from sqlalchemy import create_engine
-from sqlalchemy.dialects import postgresql
-from sqlalchemy.dialects.postgresql import insert
+
 from sqlalchemy.ext.compiler import compiles
 from sqlalchemy.sql.expression import *
 from qgis.PyQt.QtGui import QDesktopServices
@@ -52,11 +45,11 @@ from qgis.core import  *
 from modules.db.pyarchinit_conn_strings import Connection
 from modules.db.pyarchinit_db_manager import Pyarchinit_db_management
 from modules.db.pyarchinit_utility import Utility
-from modules.db.pyarchinit_db_update import DB_update
+
 from modules.db.db_createdump import CreateDatabase, RestoreSchema, DropDatabase, SchemaDump
 from modules.utility.pyarchinit_OS_utility import Pyarchinit_OS_Utility
 
-from modules.utility.pyarchinit_print_utility import Print_utility
+
 MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), 'ui', 'pyarchinitConfigDialog.ui'))
 
 
@@ -88,7 +81,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
 
         s = QgsSettings()
         self.mDockWidget.setHidden(True)
-        
+
         self.load_dict()
         self.charge_data()
         self.db_active()
@@ -3140,8 +3133,11 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         filename=dbpath.split("/")[-1]
         if filename:
 
-            self.lineEdit_database_rd.setText(filename)
-            s.setValue('',filename)
+                self.lineEdit_database_rd.setText(filename)
+                s.setValue('',filename)
+
+
+
 
     def setPathDBsqlite2(self):
         s = QgsSettings()
@@ -3291,6 +3287,8 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             self.lineEdit_Port.setText('')
             self.lineEdit_User.setText('')
 
+
+
     def set_db_import_from_parameter(self):
         #QMessageBox.warning(self, "ok", "entered in read.", QMessageBox.Ok)
 
@@ -3309,6 +3307,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             self.lineEdit_pass_rd.setText('')
             self.lineEdit_database_rd.setText('pyarchinit_db.sqlite')
             self.lineEdit_port_rd.setText('')
+
 
     def set_db_import_to_parameter(self):
         #QMessageBox.warning(self, "ok", "entered in write", QMessageBox.Ok)
@@ -4617,6 +4616,9 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                         return 0
                 self.progress_bar.reset()
                 QMessageBox.information(self, "Message", "Data Loaded")
+
+
+
     def on_pushButton_import_pressed(self):
         if self.L=='it':
 

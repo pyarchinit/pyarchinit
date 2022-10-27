@@ -98,6 +98,6 @@ The dependencies can be installed also using the [modules_installer.py](/scripts
 * Scavi di Amiternum (AQ)
 * Scavi della villa di Poggio Gramignano, Lugnano in Teverina TR
 * Scavi della necropoli etrusca di Trocchi, Bomarzo, VT
-* Maasser el-Shouf Archaeological Project in Libano
+* Maasser el-Shouf Archaeological Project (Libano), Dott.ssa Silvia Festuccia - Dott. ssa Myriam Ziadé (UniSOB-DGA)
 * Università di Pisa - Villa dei Vetti o anche dell'Oratorio a Capraia e Limite, professor Federico Cantini
 * Università di Chieti - Castelseprio Casa Piccoli (Varese) - Prof. Vasco La Salvia, Dott. Marco Moderato

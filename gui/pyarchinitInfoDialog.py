@@ -57,6 +57,11 @@ class pyArchInitDialog_Info(QDialog, MAIN_DIALOG_CLASS):
                         adArte srl - Rimini - www.adarteinfo.it<br><br><br>
                         """
         self.text += """<b>Special thanks for testing to:</b><br>
+                        Tutti i soci e collaboratori di adArte srl<br>
+                        Roberto Montagnetti<br>
+                        Paolo Rosati<br>
+                        Michele Fait<br>
+                        UNAQUANTUM<br>
                         Giovanni Manghi<br>
                         Jerzy Sikora<br>
                         Michele Zappitelli<br>
@@ -79,7 +84,7 @@ class pyArchInitDialog_Info(QDialog, MAIN_DIALOG_CLASS):
                         or email me pyarchinit@gmail.com<br><br>
                         """
         self.text += """<b>Site:</b><br>
-                        <a href="https://github.com/pyarchinit/pyarchinit">https://github.com/pyarchinit/pyarchinit</a>
+                        <a href="http://pyarchinit.org">http://pyarchinit.org</a>
         """
         self.textBrowser.setText(self.img+self.text)
 

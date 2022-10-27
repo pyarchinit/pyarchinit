@@ -28,10 +28,10 @@ import sys
 from builtins import range
 from builtins import str
 from qgis.PyQt.QtCore import QUrl
-from qgis.PyQt.QtWidgets import QDialog, QMessageBox,QCompleter,QComboBox
+from qgis.PyQt.QtWidgets import QFileDialog,QDialog, QMessageBox,QCompleter,QComboBox
 from qgis.PyQt.uic import loadUiType
 from qgis.core import QgsSettings
-# from qgis.PyQt.QtWebKitWidgets.QWebView import *
+import csv, sqlite3
 from ..modules.db.pyarchinit_conn_strings import Connection
 from ..modules.db.pyarchinit_db_manager import Pyarchinit_db_management
 from ..modules.db.pyarchinit_utility import Utility
@@ -56,6 +56,7 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
     DATA_LIST_REC_TEMP = []
     REC_CORR = 0
     REC_TOT = 0
+    HOME = os.environ['PYARCHINIT_HOME']
     if L=='it':
         STATUS_ITEMS = {"b": "Usa", "f": "Trova", "n": "Nuovo Record"}
     else :
@@ -170,7 +171,18 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
         except Exception as e:
             QMessageBox.warning(self, "Connection system", str(e), QMessageBox.Ok)
         self.comboBox_sigla_estesa.editTextChanged.connect(self.find_text)
+        self.check_db()
     
+    def check_db(self):
+        conn = Connection()
+        conn_str = conn.conn_str()
+        test_conn = conn_str.find('sqlite')
+
+        if test_conn == 0:
+            self.pushButton_import_csvthesaurus.setHidden(False)
+        else:
+            self.pushButton_import_csvthesaurus.setHidden(True)
+        
     def find_text(self):
         
         if self.comboBox_sigla_estesa.currentText()=='':
@@ -182,7 +194,41 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
             self.comboBox_sigla_estesa.setInsertPolicy(QComboBox.NoInsert) 
         self.webView_adarte.load(QUrl(uri))
         self.webView_adarte.show()
+    
+
+    def  on_pushButton_import_csvthesaurus_pressed(self):
+        '''funzione valida solo per sqlite'''
         
+        s = QgsSettings()
+        dbpath = QFileDialog.getOpenFileName(
+            self,
+            "Set file name",
+            '',
+            " csv pyarchinit thesaurus (*.csv)"
+        )[0]
+        filename=dbpath#.split("/")[-1]
+        try:
+            conn = Connection()
+            conn_str = conn.conn_str()
+            conn_sqlite = conn.databasename()
+            
+            sqlite_DB_path = '{}{}{}'.format(self.HOME, os.sep,
+                                           "pyarchinit_DB_folder")
+            
+            con = sqlite3.connect(sqlite_DB_path +os.sep+ conn_sqlite["db_name"])
+            cur = con.cursor()
+            
+            with open(str(filename),'r') as fin: 
+                dr = csv.DictReader(fin) # comma is default delimiter
+                to_db = [(i['nome_tabella'], i['sigla'], i['sigla_estesa'], i['descrizione'],i['tipologia_sigla'], i['lingua']) for i in dr]
+
+            cur.executemany("INSERT INTO pyarchinit_thesaurus_sigle (nome_tabella, sigla, sigla_estesa, descrizione, tipologia_sigla, lingua ) VALUES (?, ?, ?,?,?,?);", to_db)
+            con.commit()
+            con.close()
+            
+        except AssertionError as e:
+            QMessageBox.warning(self, 'error', str(e), QMessageBox.Ok)
+        self.pushButton_view_all.click()  
     def enable_button(self, n):
         self.pushButton_connect.setEnabled(n)
 

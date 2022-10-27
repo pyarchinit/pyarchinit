@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <graphml xmlns="http://graphml.graphdrawing.org/xmlns" xmlns:java="http://www.yworks.com/xml/yfiles-common/1.0/java" xmlns:sys="http://www.yworks.com/xml/yfiles-common/markup/primitives/2.0" xmlns:x="http://www.yworks.com/xml/yfiles-common/markup/2.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:y="http://www.yworks.com/xml/graphml" xmlns:yed="http://www.yworks.com/xml/yed/3" xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns http://www.yworks.com/xml/schema/graphml/1.1/ygraphml.xsd">
-  <!--Created by yEd 3.19.1.1-->
+  <!--Created by yEd 3.21.1-->
   <key for="port" id="d0" yfiles.type="portgraphics"/>
   <key for="port" id="d1" yfiles.type="portgeometry"/>
   <key for="port" id="d2" yfiles.type="portuserdata"/>
@@ -22,7 +22,7 @@
       <data key="d6" xml:space="preserve"><![CDATA[inventory of planimetries in the 2nd BC]]></data>
       <data key="d7">
         <y:GenericNode configuration="com.yworks.bpmn.Artifact.withShadow">
-          <y:Geometry height="55.0" width="35.0" x="0.0" y="30.0"/>
+          <y:Geometry height="55.0" width="35.0" x="0.0" y="1316.3828125"/>
           <y:Fill color="#FFFFFFE6" transparent="false"/>
           <y:BorderStyle color="#000000" type="line" width="1.0"/>
           <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="18.701171875" horizontalTextPosition="center" iconTextGap="4" modelName="internal" modelPosition="c" textColor="#000000" verticalTextPosition="bottom" visible="true" width="16.0" x="9.5" xml:space="preserve" y="18.1494140625">D.</y:NodeLabel>
@@ -41,7 +41,7 @@
       <data key="d4" xml:space="preserve"/>
       <data key="d7">
         <y:SVGNode>
-          <y:Geometry height="25.0" width="25.0" x="65.0" y="45.0"/>
+          <y:Geometry height="25.0" width="25.0" x="65.0" y="1331.3828125"/>
           <y:Fill color="#CCCCFF" transparent="false"/>
           <y:BorderStyle color="#000000" type="line" width="1.0"/>
           <y:NodeLabel alignment="center" autoSizePolicy="content" borderDistance="0.0" fontFamily="Dialog" fontSize="10" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="16.2509765625" horizontalTextPosition="center" iconTextGap="4" modelName="corners" modelPosition="nw" textColor="#000000" underlinedText="true" verticalTextPosition="bottom" visible="true" width="14.0" x="-14.0" xml:space="preserve" y="-16.2509765625">D.</y:NodeLabel>
@@ -57,7 +57,7 @@
       <data key="d4" xml:space="preserve"/>
       <data key="d7">
         <y:GenericNode configuration="com.yworks.bpmn.Artifact.withShadow">
-          <y:Geometry height="30.0" width="62.75" x="120.0" y="42.5"/>
+          <y:Geometry height="30.0" width="62.75" x="120.0" y="1328.8828125"/>
           <y:Fill color="#FFFFFFE6" transparent="false"/>
           <y:BorderStyle color="#000000" type="line" width="1.0"/>
           <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="18.701171875" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#000000" verticalTextPosition="bottom" visible="true" width="48.021484375" x="7.3642578125" xml:space="preserve" y="5.6494140625">property<y:LabelModel><y:SmartNodeLabelModel distance="4.0"/></y:LabelModel><y:ModelParameter><y:SmartNodeLabelModelParameter labelRatioX="0.0" labelRatioY="0.0" nodeRatioX="0.0" nodeRatioY="0.0" offsetX="0.0" offsetY="0.0" upX="0.0" upY="-1.0"/></y:ModelParameter></y:NodeLabel>
@@ -75,7 +75,7 @@
       <data key="d4" xml:space="preserve"/>
       <data key="d7">
         <y:SVGNode>
-          <y:Geometry height="25.0" width="25.0" x="212.75" y="45.0"/>
+          <y:Geometry height="25.0" width="25.0" x="212.75" y="1331.3828125"/>
           <y:Fill color="#CCCCFF" transparent="false"/>
           <y:BorderStyle color="#000000" type="line" width="1.0"/>
           <y:NodeLabel alignment="center" autoSizePolicy="content" borderDistance="0.0" fontFamily="Dialog" fontSize="10" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="16.2509765625" horizontalTextPosition="center" iconTextGap="4" modelName="corners" modelPosition="nw" textColor="#000000" underlinedText="true" verticalTextPosition="bottom" visible="true" width="14.0" x="-14.0" xml:space="preserve" y="-16.2509765625">C.</y:NodeLabel>
@@ -87,16 +87,15 @@
       </data>
     </node>
     <node id="n4">
-      <data key="d3" xml:space="preserve"><![CDATA[ef567789-f690-4499-8fa2-986b9e7a1384]]></data>
+      <data key="d3"/>
       <data key="d4" xml:space="preserve"/>
-      <data key="d6" xml:space="preserve"><![CDATA[Special Find: drum of column]]></data>
       <data key="d7">
         <y:ShapeNode>
-          <y:Geometry height="30.0" width="63.89077774580642" x="267.75" y="42.5"/>
-          <y:Fill color="#FFFFFF" transparent="false"/>
-          <y:BorderStyle color="#000000" type="line" width="1.0"/>
-          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="18.701171875" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#000000" verticalTextPosition="bottom" visible="true" width="19.333984375" x="22.27839668540321" xml:space="preserve" y="5.6494140625">SF<y:LabelModel><y:SmartNodeLabelModel distance="4.0"/></y:LabelModel><y:ModelParameter><y:SmartNodeLabelModelParameter labelRatioX="0.0" labelRatioY="0.0" nodeRatioX="0.0" nodeRatioY="0.0" offsetX="0.0" offsetY="0.0" upX="0.0" upY="-1.0"/></y:ModelParameter></y:NodeLabel>
-          <y:Shape type="octagon"/>
+          <y:Geometry height="20.0" width="20.0" x="267.75" y="1333.8828125"/>
+          <y:Fill color="#C0C0C07F" transparent="false"/>
+          <y:BorderStyle color="#000000" type="line" width="2.0"/>
+          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" hasText="false" height="4.0" horizontalTextPosition="center" iconTextGap="4" modelName="internal" modelPosition="c" textColor="#000000" verticalTextPosition="bottom" visible="true" width="4.0" x="8.0" y="8.0"/>
+          <y:Shape type="ellipse"/>
         </y:ShapeNode>
       </data>
     </node>
@@ -105,7 +104,7 @@
       <data key="d4" xml:space="preserve"/>
       <data key="d7">
         <y:ShapeNode>
-          <y:Geometry height="20.0" width="20.0" x="361.6407777458064" y="47.5"/>
+          <y:Geometry height="20.0" width="20.0" x="367.75" y="1333.8828125"/>
           <y:Fill color="#C0C0C07F" transparent="false"/>
           <y:BorderStyle color="#000000" type="line" width="2.0"/>
           <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" hasText="false" height="4.0" horizontalTextPosition="center" iconTextGap="4" modelName="internal" modelPosition="c" textColor="#000000" verticalTextPosition="bottom" visible="true" width="4.0" x="8.0" y="8.0"/>
@@ -118,7 +117,7 @@
       <data key="d4" xml:space="preserve"/>
       <data key="d7">
         <y:ShapeNode>
-          <y:Geometry height="20.0" width="20.0" x="461.6407777458064" y="47.5"/>
+          <y:Geometry height="20.0" width="20.0" x="417.75" y="1333.8828125"/>
           <y:Fill color="#C0C0C07F" transparent="false"/>
           <y:BorderStyle color="#000000" type="line" width="2.0"/>
           <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" hasText="false" height="4.0" horizontalTextPosition="center" iconTextGap="4" modelName="internal" modelPosition="c" textColor="#000000" verticalTextPosition="bottom" visible="true" width="4.0" x="8.0" y="8.0"/>
@@ -131,7 +130,7 @@
       <data key="d4" xml:space="preserve"/>
       <data key="d7">
         <y:ShapeNode>
-          <y:Geometry height="20.0" width="20.0" x="511.6407777458064" y="47.5"/>
+          <y:Geometry height="20.0" width="20.0" x="517.75" y="1333.8828125"/>
           <y:Fill color="#C0C0C07F" transparent="false"/>
           <y:BorderStyle color="#000000" type="line" width="2.0"/>
           <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" hasText="false" height="4.0" horizontalTextPosition="center" iconTextGap="4" modelName="internal" modelPosition="c" textColor="#000000" verticalTextPosition="bottom" visible="true" width="4.0" x="8.0" y="8.0"/>
@@ -144,7 +143,7 @@
       <data key="d4" xml:space="preserve"/>
       <data key="d7">
         <y:ShapeNode>
-          <y:Geometry height="20.0" width="20.0" x="611.6407777458064" y="47.5"/>
+          <y:Geometry height="20.0" width="20.0" x="567.75" y="1333.8828125"/>
           <y:Fill color="#C0C0C07F" transparent="false"/>
           <y:BorderStyle color="#000000" type="line" width="2.0"/>
           <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" hasText="false" height="4.0" horizontalTextPosition="center" iconTextGap="4" modelName="internal" modelPosition="c" textColor="#000000" verticalTextPosition="bottom" visible="true" width="4.0" x="8.0" y="8.0"/>
@@ -153,127 +152,25 @@
       </data>
     </node>
     <node id="n9">
-      <data key="d3" xml:space="preserve"><![CDATA[357fa417-c36f-4d09-8dc7-3392ee07d3f2]]></data>
+      <data key="d3"/>
       <data key="d4" xml:space="preserve"/>
-      <data key="d6" xml:space="preserve"><![CDATA[US]]></data>
       <data key="d7">
         <y:ShapeNode>
-          <y:Geometry height="30.0" width="90.1038716577541" x="661.6407777458064" y="42.5"/>
-          <y:Fill color="#FFFFFF" transparent="false"/>
-          <y:BorderStyle color="#000000" type="line" width="1.0"/>
-          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="18.701171875" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#000000" verticalTextPosition="bottom" visible="true" width="44.013671875" x="23.04509989137705" xml:space="preserve" y="5.6494140625">USM01<y:LabelModel><y:SmartNodeLabelModel distance="4.0"/></y:LabelModel><y:ModelParameter><y:SmartNodeLabelModelParameter labelRatioX="0.0" labelRatioY="0.0" nodeRatioX="0.0" nodeRatioY="0.0" offsetX="0.0" offsetY="0.0" upX="0.0" upY="-1.0"/></y:ModelParameter></y:NodeLabel>
-          <y:Shape type="rectangle"/>
+          <y:Geometry height="20.0" width="20.0" x="667.75" y="1333.8828125"/>
+          <y:Fill color="#C0C0C07F" transparent="false"/>
+          <y:BorderStyle color="#000000" type="line" width="2.0"/>
+          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" hasText="false" height="4.0" horizontalTextPosition="center" iconTextGap="4" modelName="internal" modelPosition="c" textColor="#000000" verticalTextPosition="bottom" visible="true" width="4.0" x="8.0" y="8.0"/>
+          <y:Shape type="ellipse"/>
         </y:ShapeNode>
       </data>
     </node>
     <node id="n10">
-      <data key="d3" xml:space="preserve"><![CDATA[d7e58322-9a20-42a7-af12-f762c2e1d5a6]]></data>
-      <data key="d4" xml:space="preserve"/>
-      <data key="d5" xml:space="preserve"/>
-      <data key="d6" xml:space="preserve"><![CDATA[Series of USs]]></data>
-      <data key="d7">
-        <y:ShapeNode>
-          <y:Geometry height="30.0" width="85.39917931309901" x="781.7446494035605" y="42.5"/>
-          <y:Fill color="#FFFFFF" transparent="false"/>
-          <y:BorderStyle color="#000000" type="line" width="1.0"/>
-          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="18.701171875" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#000000" verticalTextPosition="bottom" visible="true" width="44.013671875" x="20.692753719049506" xml:space="preserve" y="5.6494140625">USM02<y:LabelModel><y:SmartNodeLabelModel distance="4.0"/></y:LabelModel><y:ModelParameter><y:SmartNodeLabelModelParameter labelRatioX="0.0" labelRatioY="0.0" nodeRatioX="0.0" nodeRatioY="0.0" offsetX="0.0" offsetY="0.0" upX="0.0" upY="-1.0"/></y:ModelParameter></y:NodeLabel>
-          <y:Shape type="ellipse"/>
-        </y:ShapeNode>
-      </data>
-    </node>
-    <node id="n11">
-      <data key="d3" xml:space="preserve"><![CDATA[a765ff1d-fd5f-409d-a80b-ccbb9028f1bc]]></data>
-      <data key="d4" xml:space="preserve"/>
-      <data key="d5" xml:space="preserve"/>
-      <data key="d6" xml:space="preserve"><![CDATA[Structural Virtual Stratigraphic Unit ]]></data>
-      <data key="d7">
-        <y:ShapeNode>
-          <y:Geometry height="30.0" width="65.328125" x="0.0" y="1413.8828125"/>
-          <y:Fill color="#000000" transparent="false"/>
-          <y:BorderStyle color="#000000" type="line" width="1.0"/>
-          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="18.701171875" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#FFFFFF" verticalTextPosition="bottom" visible="true" width="42.021484375" x="11.6533203125" xml:space="preserve" y="5.6494140625">USV03<y:LabelModel><y:SmartNodeLabelModel distance="4.0"/></y:LabelModel><y:ModelParameter><y:SmartNodeLabelModelParameter labelRatioX="0.0" labelRatioY="0.0" nodeRatioX="0.0" nodeRatioY="0.0" offsetX="0.0" offsetY="0.0" upX="0.0" upY="-1.0"/></y:ModelParameter></y:NodeLabel>
-          <y:Shape type="parallelogram"/>
-        </y:ShapeNode>
-      </data>
-    </node>
-    <node id="n12">
-      <data key="d3" xml:space="preserve"><![CDATA[c16b25e5-0437-4577-a30b-9901ce26e4d0]]></data>
-      <data key="d4" xml:space="preserve"/>
-      <data key="d5" xml:space="preserve"/>
-      <data key="d6" xml:space="preserve"><![CDATA[Non structural Virtual Stratigraphic Unit]]></data>
-      <data key="d7">
-        <y:ShapeNode>
-          <y:Geometry height="30.0" width="65.328125" x="95.328125" y="1413.8828125"/>
-          <y:Fill color="#000000" transparent="false"/>
-          <y:BorderStyle color="#000000" type="line" width="1.0"/>
-          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="18.701171875" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#FFFFFF" verticalTextPosition="bottom" visible="true" width="42.021484375" x="11.6533203125" xml:space="preserve" y="5.6494140625">USV04<y:LabelModel><y:SmartNodeLabelModel distance="4.0"/></y:LabelModel><y:ModelParameter><y:SmartNodeLabelModelParameter labelRatioX="0.0" labelRatioY="0.0" nodeRatioX="0.0" nodeRatioY="0.0" offsetX="0.0" offsetY="0.0" upX="0.0" upY="-1.0"/></y:ModelParameter></y:NodeLabel>
-          <y:Shape type="hexagon"/>
-        </y:ShapeNode>
-      </data>
-    </node>
-    <node id="n13">
-      <data key="d3" xml:space="preserve"><![CDATA[f20d26a9-1c93-4514-82e3-50aefd54a0a1]]></data>
-      <data key="d4" xml:space="preserve"/>
-      <data key="d5" xml:space="preserve"/>
-      <data key="d6" xml:space="preserve"><![CDATA[Series of Virtual Stratigraphic Units]]></data>
-      <data key="d7">
-        <y:ShapeNode>
-          <y:Geometry height="30.0" width="77.38960378787874" x="190.65625" y="1413.8828125"/>
-          <y:Fill color="#000000" transparent="false"/>
-          <y:BorderStyle color="#000000" type="line" width="1.0"/>
-          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="18.701171875" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#FFFFFF" verticalTextPosition="bottom" visible="true" width="42.021484375" x="17.68405970643937" xml:space="preserve" y="5.6494140625">USV05<y:LabelModel><y:SmartNodeLabelModel distance="4.0"/></y:LabelModel><y:ModelParameter><y:SmartNodeLabelModelParameter labelRatioX="0.0" labelRatioY="0.0" nodeRatioX="0.0" nodeRatioY="0.0" offsetX="0.0" offsetY="0.0" upX="0.0" upY="-1.0"/></y:ModelParameter></y:NodeLabel>
-          <y:Shape type="ellipse"/>
-        </y:ShapeNode>
-      </data>
-    </node>
-    <node id="n14">
-      <data key="d3" xml:space="preserve"><![CDATA[e6cd9439-e401-47b3-85d0-6853973621f8]]></data>
-      <data key="d4" xml:space="preserve"/>
-      <data key="d5" xml:space="preserve"/>
-      <data key="d6" xml:space="preserve"><![CDATA[Digital Restoration of a Special Find]]></data>
-      <data key="d7">
-        <y:ShapeNode>
-          <y:Geometry height="30.0" width="65.328125" x="298.04585378787874" y="1413.8828125"/>
-          <y:Fill color="#000000" transparent="false"/>
-          <y:BorderStyle color="#000000" type="line" width="1.0"/>
-          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="18.701171875" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#FFFFFF" verticalTextPosition="bottom" visible="true" width="42.021484375" x="11.6533203125" xml:space="preserve" y="5.6494140625">USV06<y:LabelModel><y:SmartNodeLabelModel distance="4.0"/></y:LabelModel><y:ModelParameter><y:SmartNodeLabelModelParameter labelRatioX="0.0" labelRatioY="0.0" nodeRatioX="0.0" nodeRatioY="0.0" offsetX="0.0" offsetY="0.0" upX="0.0" upY="-1.0"/></y:ModelParameter></y:NodeLabel>
-          <y:Shape type="octagon"/>
-        </y:ShapeNode>
-      </data>
-    </node>
-    <node id="n15">
-      <data key="d3"/>
-      <data key="d4" xml:space="preserve"/>
-      <data key="d7">
-        <y:ShapeNode>
-          <y:Geometry height="20.0" width="20.0" x="393.37397878787874" y="1418.8828125"/>
-          <y:Fill color="#C0C0C07F" transparent="false"/>
-          <y:BorderStyle color="#000000" type="line" width="2.0"/>
-          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" hasText="false" height="4.0" horizontalTextPosition="center" iconTextGap="4" modelName="internal" modelPosition="c" textColor="#000000" verticalTextPosition="bottom" visible="true" width="4.0" x="8.0" y="8.0"/>
-          <y:Shape type="ellipse"/>
-        </y:ShapeNode>
-      </data>
-    </node>
-    <node id="n16">
-      <data key="d3"/>
-      <data key="d4" xml:space="preserve"/>
-      <data key="d7">
-        <y:ShapeNode>
-          <y:Geometry height="20.0" width="20.0" x="493.37397878787874" y="1418.8828125"/>
-          <y:Fill color="#C0C0C07F" transparent="false"/>
-          <y:BorderStyle color="#000000" type="line" width="2.0"/>
-          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" hasText="false" height="4.0" horizontalTextPosition="center" iconTextGap="4" modelName="internal" modelPosition="c" textColor="#000000" verticalTextPosition="bottom" visible="true" width="4.0" x="8.0" y="8.0"/>
-          <y:Shape type="ellipse"/>
-        </y:ShapeNode>
-      </data>
-    </node>
-    <node id="n17">
       <data key="d3" xml:space="preserve"><![CDATA[aef78563-19a9-426f-8ac8-915c1416a6cd]]></data>
       <data key="d4" xml:space="preserve"/>
       <data key="d6" xml:space="preserve"><![CDATA[_continuity]]></data>
       <data key="d7">
         <y:SVGNode>
-          <y:Geometry height="26.456684112548828" width="26.456680297851562" x="543.3739787878787" y="1415.6544704437256"/>
+          <y:Geometry height="26.456684112548828" width="26.456680297851562" x="717.75" y="1330.6544704437256"/>
           <y:Fill color="#CCCCFF" transparent="false"/>
           <y:BorderStyle color="#000000" type="line" width="1.0"/>
           <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" hasText="false" height="4.0" horizontalTextPosition="center" iconTextGap="4" modelName="sandwich" modelPosition="s" textColor="#000000" verticalTextPosition="bottom" visible="true" width="4.0" x="11.228340148925781" y="30.456684112548828"/>
@@ -284,21 +181,20 @@
         </y:SVGNode>
       </data>
     </node>
-    <node id="n18" yfiles.foldertype="group">
+    <node id="n11" yfiles.foldertype="group">
       <data key="d3" xml:space="preserve"><![CDATA[cc3ba0b0-6c97-4c00-a796-d8ef93b5f10d]]></data>
       <data key="d4" xml:space="preserve"/>
       <data key="d6" xml:space="preserve"><![CDATA[Stratigrafia]]></data>
       <data key="d7">
         <y:TableNode configuration="YED_TABLE_NODE">
-          <y:Geometry height="2627.765625" width="1593.063492063492" x="599.8306590857303" y="115.0"/>
+          <y:Geometry height="2627.765625" width="1593.063492063492" x="774.2066802978516" y="30.0"/>
           <y:Fill color="#ECF5FF" color2="#0042F440" transparent="false"/>
           <y:BorderStyle hasColor="false" type="line" width="1.0"/>
           <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="15" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="22.37646484375" horizontalTextPosition="center" iconTextGap="4" modelName="internal" modelPosition="t" textColor="#000000" verticalTextPosition="bottom" visible="true" width="158.25537109375" x="717.404060484871" xml:space="preserve" y="4.0">Archaeological Context</y:NodeLabel>
           <y:NodeLabel alignment="center" autoSizePolicy="content" backgroundColor="#CCFFCC" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasLineColor="false" height="18.701171875" horizontalTextPosition="center" iconTextGap="4" modelName="custom" rotationAngle="270.0" textColor="#000000" verticalTextPosition="bottom" visible="true" width="76.041015625" x="3.0" xml:space="preserve" y="161.9794921875">Post antiquity<y:LabelModel><y:RowNodeLabelModel offset="3.0"/></y:LabelModel><y:ModelParameter><y:RowNodeLabelModelParameter horizontalPosition="0.0" id="row_0" inside="true"/></y:ModelParameter></y:NodeLabel>
           <y:NodeLabel alignment="center" autoSizePolicy="content" backgroundColor="#FF9900" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasLineColor="false" height="18.701171875" horizontalTextPosition="center" iconTextGap="4" modelName="custom" rotationAngle="270.0" textColor="#000000" verticalTextPosition="bottom" visible="true" width="36.6953125" x="3.0" xml:space="preserve" y="1988.661865234375">epoch<y:LabelModel><y:RowNodeLabelModel offset="3.0"/></y:LabelModel><y:ModelParameter><y:RowNodeLabelModelParameter horizontalPosition="0.0" id="row_1" inside="true"/></y:ModelParameter></y:NodeLabel>
           <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="18.701171875" horizontalTextPosition="center" iconTextGap="4" modelName="custom" rotationAngle="270.0" textColor="#000000" verticalTextPosition="bottom" visible="true" width="42.009765625" x="3.0" xml:space="preserve" y="33.9951171875">Humus<y:LabelModel><y:RowNodeLabelModel offset="3.0"/></y:LabelModel><y:ModelParameter><y:RowNodeLabelModelParameter horizontalPosition="0.0" id="row_2" inside="true"/></y:ModelParameter></y:NodeLabel>
-          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="18.701171875" horizontalTextPosition="center" iconTextGap="4" modelName="custom" rotationAngle="270.0" textColor="#000000" verticalTextPosition="bottom" visible="true" width="51.361328125" x="3.0" xml:space="preserve" y="2577.0849609375">Geologic
-<y:LabelModel><y:RowNodeLabelModel offset="3.0"/></y:LabelModel><y:ModelParameter><y:RowNodeLabelModelParameter horizontalPosition="0.0" id="row_3" inside="true"/></y:ModelParameter></y:NodeLabel>
+          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="18.701171875" horizontalTextPosition="center" iconTextGap="4" modelName="custom" rotationAngle="270.0" textColor="#000000" verticalTextPosition="bottom" visible="true" width="51.361328125" x="3.0" xml:space="preserve" y="2577.0849609375">Geologic<y:LabelModel><y:RowNodeLabelModel offset="3.0"/></y:LabelModel><y:ModelParameter><y:RowNodeLabelModelParameter horizontalPosition="0.0" id="row_3" inside="true"/></y:ModelParameter></y:NodeLabel>
           <y:NodeLabel alignment="center" autoSizePolicy="content" backgroundColor="#FFCC7F" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasLineColor="false" height="18.701171875" horizontalTextPosition="center" iconTextGap="4" modelName="custom" rotationAngle="270.0" textColor="#000000" verticalTextPosition="bottom" visible="true" width="61.369140625" x="3.0" xml:space="preserve" y="847.442138671875">epoch Rec<y:LabelModel><y:RowNodeLabelModel offset="3.0"/></y:LabelModel><y:ModelParameter><y:RowNodeLabelModelParameter horizontalPosition="0.0" id="row_4" inside="true"/></y:ModelParameter></y:NodeLabel>
           <y:StyleProperties>
             <y:Property name="y.view.tabular.TableNodePainter.ALTERNATE_ROW_STYLE">
@@ -354,9 +250,127 @@
           </y:Table>
         </y:TableNode>
       </data>
-      <graph edgedefault="directed" id="n18:"/>
+      <graph edgedefault="directed" id="n11:"/>
     </node>
-    <edge id="e0" source="n5" target="n6">
+    <node id="n12">
+      <data key="d3" xml:space="preserve"><![CDATA[4d774ba5-4c4a-461a-9a36-d2c77c8292cf]]></data>
+      <data key="d4" xml:space="preserve"/>
+      <data key="d6" xml:space="preserve"><![CDATA[Documentary Stratigrphic Unit]]></data>
+      <data key="d7">
+        <y:ShapeNode>
+          <y:Geometry height="30.0" width="90.1038716577541" x="0.0" y="2687.765625"/>
+          <y:Fill color="#FFFFFF" transparent="false"/>
+          <y:BorderStyle color="#D86400" type="line" width="4.0"/>
+          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="18.701171875" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#000000" verticalTextPosition="bottom" visible="true" width="42.68359375" x="23.71013895387705" xml:space="preserve" y="5.6494140625">USD10<y:LabelModel><y:SmartNodeLabelModel distance="4.0"/></y:LabelModel><y:ModelParameter><y:SmartNodeLabelModelParameter labelRatioX="0.0" labelRatioY="0.0" nodeRatioX="0.0" nodeRatioY="0.0" offsetX="0.0" offsetY="0.0" upX="0.0" upY="-1.0"/></y:ModelParameter></y:NodeLabel>
+          <y:Shape type="roundrectangle"/>
+        </y:ShapeNode>
+      </data>
+    </node>
+    <node id="n13">
+      <data key="d3" xml:space="preserve"><![CDATA[536d3c56-e136-42aa-8c49-428e167e3c72]]></data>
+      <data key="d4" xml:space="preserve"/>
+      <data key="d5" xml:space="preserve"/>
+      <data key="d6" xml:space="preserve"><![CDATA[Virtual Special Find]]></data>
+      <data key="d7">
+        <y:ShapeNode>
+          <y:Geometry height="30.0" width="65.328125" x="120.1038716577541" y="2687.765625"/>
+          <y:Fill color="#000000" transparent="false"/>
+          <y:BorderStyle color="#B19F61" type="line" width="4.0"/>
+          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="18.701171875" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#FFFFFF" verticalTextPosition="bottom" visible="true" width="40.685546875" x="12.3212890625" xml:space="preserve" y="5.6494140625">VSF01<y:LabelModel><y:SmartNodeLabelModel distance="4.0"/></y:LabelModel><y:ModelParameter><y:SmartNodeLabelModelParameter labelRatioX="0.0" labelRatioY="0.0" nodeRatioX="0.0" nodeRatioY="0.0" offsetX="0.0" offsetY="0.0" upX="0.0" upY="-1.0"/></y:ModelParameter></y:NodeLabel>
+          <y:Shape type="octagon"/>
+        </y:ShapeNode>
+      </data>
+    </node>
+    <node id="n14">
+      <data key="d3" xml:space="preserve"><![CDATA[9e336004-d2cf-4e78-b2d1-5f6b84692a09]]></data>
+      <data key="d4" xml:space="preserve"/>
+      <data key="d5" xml:space="preserve"/>
+      <data key="d6" xml:space="preserve"><![CDATA[Special Find]]></data>
+      <data key="d7">
+        <y:ShapeNode>
+          <y:Geometry height="30.0" width="63.89077774580642" x="215.4319966577541" y="2687.765625"/>
+          <y:Fill color="#FFFFFF" transparent="false"/>
+          <y:BorderStyle color="#D8BD30" type="line" width="4.0"/>
+          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="18.701171875" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#000000" verticalTextPosition="bottom" visible="true" width="32.681640625" x="15.604568560403209" xml:space="preserve" y="5.6494140625">SF01<y:LabelModel><y:SmartNodeLabelModel distance="4.0"/></y:LabelModel><y:ModelParameter><y:SmartNodeLabelModelParameter labelRatioX="0.0" labelRatioY="0.0" nodeRatioX="0.0" nodeRatioY="0.0" offsetX="0.0" offsetY="0.0" upX="0.0" upY="-1.0"/></y:ModelParameter></y:NodeLabel>
+          <y:Shape type="octagon"/>
+        </y:ShapeNode>
+      </data>
+    </node>
+    <node id="n15">
+      <data key="d3" xml:space="preserve"><![CDATA[ec7c6622-bb0c-4c12-ae5a-e0c2dc8da3de]]></data>
+      <data key="d4" xml:space="preserve"/>
+      <data key="d5" xml:space="preserve"/>
+      <data key="d6" xml:space="preserve"><![CDATA[USV/n]]></data>
+      <data key="d7">
+        <y:ShapeNode>
+          <y:Geometry height="30.0" width="65.328125" x="309.3227744035605" y="2687.765625"/>
+          <y:Fill color="#000000" transparent="false"/>
+          <y:BorderStyle color="#31792D" type="line" width="4.0"/>
+          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="18.701171875" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#FFFFFF" verticalTextPosition="bottom" visible="true" width="48.6953125" x="8.31640625" xml:space="preserve" y="5.6494140625">USV102<y:LabelModel><y:SmartNodeLabelModel distance="4.0"/></y:LabelModel><y:ModelParameter><y:SmartNodeLabelModelParameter labelRatioX="0.0" labelRatioY="0.0" nodeRatioX="0.0" nodeRatioY="0.0" offsetX="0.0" offsetY="0.0" upX="0.0" upY="-1.0"/></y:ModelParameter></y:NodeLabel>
+          <y:Shape type="hexagon"/>
+        </y:ShapeNode>
+      </data>
+    </node>
+    <node id="n16">
+      <data key="d3" xml:space="preserve"><![CDATA[2c14411a-03ff-4854-9628-66c118a7be94]]></data>
+      <data key="d4" xml:space="preserve"/>
+      <data key="d5" xml:space="preserve"/>
+      <data key="d6" xml:space="preserve"><![CDATA[Series of USV/n]]></data>
+      <data key="d7">
+        <y:ShapeNode>
+          <y:Geometry height="30.0" width="77.38960378787874" x="404.6508994035605" y="2687.765625"/>
+          <y:Fill color="#000000" transparent="false"/>
+          <y:BorderStyle color="#31792D" type="line" width="4.0"/>
+          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="18.701171875" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#FFFFFF" verticalTextPosition="bottom" visible="true" width="48.6953125" x="14.34714564393937" xml:space="preserve" y="5.6494140625">USV106<y:LabelModel><y:SmartNodeLabelModel distance="4.0"/></y:LabelModel><y:ModelParameter><y:SmartNodeLabelModelParameter labelRatioX="0.0" labelRatioY="0.0" nodeRatioX="0.0" nodeRatioY="0.0" offsetX="0.0" offsetY="0.0" upX="0.0" upY="-1.0"/></y:ModelParameter></y:NodeLabel>
+          <y:Shape type="ellipse"/>
+        </y:ShapeNode>
+      </data>
+    </node>
+    <node id="n17">
+      <data key="d3" xml:space="preserve"><![CDATA[a30081da-56b7-4656-b8ef-da52bc957fa2]]></data>
+      <data key="d4" xml:space="preserve"/>
+      <data key="d5" xml:space="preserve"/>
+      <data key="d6" xml:space="preserve"><![CDATA[Series of USs]]></data>
+      <data key="d7">
+        <y:ShapeNode>
+          <y:Geometry height="30.0" width="85.39917931309901" x="512.0405031914393" y="2687.765625"/>
+          <y:Fill color="#FFFFFF" transparent="false"/>
+          <y:BorderStyle color="#9B3333" type="line" width="4.0"/>
+          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="18.701171875" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#000000" verticalTextPosition="bottom" visible="true" width="44.013671875" x="20.692753719049506" xml:space="preserve" y="5.6494140625">USM02<y:LabelModel><y:SmartNodeLabelModel distance="4.0"/></y:LabelModel><y:ModelParameter><y:SmartNodeLabelModelParameter labelRatioX="0.0" labelRatioY="0.0" nodeRatioX="0.0" nodeRatioY="0.0" offsetX="0.0" offsetY="0.0" upX="0.0" upY="-1.0"/></y:ModelParameter></y:NodeLabel>
+          <y:Shape type="ellipse"/>
+        </y:ShapeNode>
+      </data>
+    </node>
+    <node id="n18">
+      <data key="d3" xml:space="preserve"><![CDATA[3dad704b-4382-41b1-9ae2-41abfef32783]]></data>
+      <data key="d4" xml:space="preserve"/>
+      <data key="d5" xml:space="preserve"/>
+      <data key="d6" xml:space="preserve"><![CDATA[USV/s]]></data>
+      <data key="d7">
+        <y:ShapeNode>
+          <y:Geometry height="30.0" width="65.328125" x="627.4396825045383" y="2687.765625"/>
+          <y:Fill color="#000000" transparent="false"/>
+          <y:BorderStyle color="#248FE7" type="line" width="4.0"/>
+          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="18.701171875" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#FFFFFF" verticalTextPosition="bottom" visible="true" width="48.6953125" x="8.31640625" xml:space="preserve" y="5.6494140625">USV100<y:LabelModel><y:SmartNodeLabelModel distance="4.0"/></y:LabelModel><y:ModelParameter><y:SmartNodeLabelModelParameter labelRatioX="0.0" labelRatioY="0.0" nodeRatioX="0.0" nodeRatioY="0.0" offsetX="0.0" offsetY="0.0" upX="0.0" upY="-1.0"/></y:ModelParameter></y:NodeLabel>
+          <y:Shape type="parallelogram"/>
+        </y:ShapeNode>
+      </data>
+    </node>
+    <node id="n19">
+      <data key="d3" xml:space="preserve"><![CDATA[71938edc-a332-445e-9f65-8c162907b3c8]]></data>
+      <data key="d4" xml:space="preserve"/>
+      <data key="d6" xml:space="preserve"><![CDATA[Stratigraphic Unit]]></data>
+      <data key="d7">
+        <y:ShapeNode>
+          <y:Geometry height="30.0" width="90.1038716577541" x="722.7678075045383" y="2687.765625"/>
+          <y:Fill color="#FFFFFF" transparent="false"/>
+          <y:BorderStyle color="#9B3333" type="line" width="4.0"/>
+          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="18.701171875" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#000000" verticalTextPosition="bottom" visible="true" width="44.013671875" x="23.04509989137705" xml:space="preserve" y="5.6494140625">USM01<y:LabelModel><y:SmartNodeLabelModel distance="4.0"/></y:LabelModel><y:ModelParameter><y:SmartNodeLabelModelParameter labelRatioX="0.0" labelRatioY="0.0" nodeRatioX="0.0" nodeRatioY="0.0" offsetX="0.0" offsetY="0.0" upX="0.0" upY="-1.0"/></y:ModelParameter></y:NodeLabel>
+          <y:Shape type="rectangle"/>
+        </y:ShapeNode>
+      </data>
+    </node>
+    <edge id="e0" source="n4" target="n5">
       <data key="d9" xml:space="preserve"><![CDATA[4436fc5e-ae56-4eae-9b62-6d0079b1efbb]]></data>
       <data key="d10" xml:space="preserve"/>
       <data key="d13">
@@ -368,7 +382,7 @@
         </y:PolyLineEdge>
       </data>
     </edge>
-    <edge id="e1" source="n7" target="n8">
+    <edge id="e1" source="n6" target="n7">
       <data key="d9" xml:space="preserve"><![CDATA[f8eab808-6f19-4e55-be7b-46d95b9334fb]]></data>
       <data key="d10" xml:space="preserve"/>
       <data key="d13">
@@ -380,7 +394,7 @@
         </y:PolyLineEdge>
       </data>
     </edge>
-    <edge id="e2" source="n15" target="n16">
+    <edge id="e2" source="n8" target="n9">
       <data key="d9" xml:space="preserve"><![CDATA[736442cf-b8ad-4cb1-a872-4cc7e8966afb]]></data>
       <data key="d10" xml:space="preserve"/>
       <data key="d13">
@@ -388,7 +402,7 @@
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0"/>
           <y:LineStyle color="#000000" type="line" width="1.0"/>
           <y:Arrows source="none" target="none"/>
-          <y:EdgeLabel alignment="center" configuration="AutoFlippingLabel" distance="2.0" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="18.701171875" horizontalTextPosition="center" iconTextGap="4" modelName="custom" preferredPlacement="anywhere" ratio="0.5" textColor="#000000" verticalTextPosition="bottom" visible="false" width="48.6953125" x="15.652329617956866" xml:space="preserve" y="20.6494140625">si lega a<y:LabelModel><y:SmartEdgeLabelModel autoRotationEnabled="false" defaultAngle="0.0" defaultDistance="10.0"/></y:LabelModel><y:ModelParameter><y:SmartEdgeLabelModelParameter angle="0.0" distance="30.0" distanceToCenter="true" position="right" ratio="0.5" segment="0"/></y:ModelParameter><y:PreferredPlacementDescriptor angle="0.0" angleOffsetOnRightSide="0" angleReference="absolute" angleRotationOnRightSide="co" distance="-1.0" frozen="true" placement="anywhere" side="anywhere" sideReference="relative_to_edge_flow"/></y:EdgeLabel>
+          <y:EdgeLabel alignment="center" configuration="AutoFlippingLabel" distance="2.0" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="18.701171875" horizontalTextPosition="center" iconTextGap="4" modelName="custom" preferredPlacement="anywhere" ratio="0.5" textColor="#000000" verticalTextPosition="bottom" visible="false" width="48.6953125" x="15.65234375" xml:space="preserve" y="20.6494140625">si lega a<y:LabelModel><y:SmartEdgeLabelModel autoRotationEnabled="false" defaultAngle="0.0" defaultDistance="10.0"/></y:LabelModel><y:ModelParameter><y:SmartEdgeLabelModelParameter angle="0.0" distance="30.0" distanceToCenter="true" position="right" ratio="0.5" segment="0"/></y:ModelParameter><y:PreferredPlacementDescriptor angle="0.0" angleOffsetOnRightSide="0" angleReference="absolute" angleRotationOnRightSide="co" distance="-1.0" frozen="true" placement="anywhere" side="anywhere" sideReference="relative_to_edge_flow"/></y:EdgeLabel>
           <y:BendStyle smoothed="false"/>
         </y:PolyLineEdge>
       </data>

@@ -433,14 +433,95 @@ class Node:
             label.appendChild(doc.createTextNode('{}'.format(a).replace('DOC','D.')))
         
         else:
-            label.appendChild(doc.createTextNode('{}'.format(a).replace('USVA','USV').replace('USVB','USV').replace('USVC','USV').replace('USVD','USV').replace('Extractor','D.').replace('Combinar','C.')))     
-        if 'USV' in a:    
+            label.appendChild(doc.createTextNode('{}'.format(a).replace('USVA','USV').replace('USVB','USV').replace('USVC','USV').replace('Extractor','D.').replace('Combinar','C.')))     
+        if 'USVA' in a:    
             
             fill.setAttribute('color','#000000')
             fill.setAttribute('transparent','false')
-            border.setAttribute('color','#000000')
+            border.setAttribute('color','#248fe7')
             border.setAttribute('type','line')
-            border.setAttribute('width','1.0')
+            border.setAttribute('width','3.0')
+            label.setAttribute('alignment','center')
+            label.setAttribute('autoSizePolicy','content')
+            label.setAttribute('fontFamily','Dialog')
+            label.setAttribute('fontSize','12')
+            label.setAttribute('fontStyle','plain')
+            label.setAttribute('hasBackgroundColor','false')
+            label.setAttribute('hasLineColor','false')
+            label.setAttribute('height','18.701171875')
+            label.setAttribute('horizontalTextPosition','center')
+            label.setAttribute('iconTextGap','4')
+            label.setAttribute('modelName','custom')
+            label.setAttribute('modelPosition','c')
+            label.setAttribute('textColor','#FFFFFF')
+            label.setAttribute('visible','true')
+            label.setAttribute('width','34.017578125')
+            label.setAttribute('x','27.9912109375')
+            label.setAttribute('xml:space','preserve')
+            label.setAttribute('y','5.6494140625')
+        
+        elif 'USVB' in a:    
+            
+            fill.setAttribute('color','#000000')
+            fill.setAttribute('transparent','false')
+            border.setAttribute('color','#31792d')
+            border.setAttribute('type','line')
+            border.setAttribute('width','3.0')
+            label.setAttribute('alignment','center')
+            label.setAttribute('autoSizePolicy','content')
+            label.setAttribute('fontFamily','Dialog')
+            label.setAttribute('fontSize','12')
+            label.setAttribute('fontStyle','plain')
+            label.setAttribute('hasBackgroundColor','false')
+            label.setAttribute('hasLineColor','false')
+            label.setAttribute('height','18.701171875')
+            label.setAttribute('horizontalTextPosition','center')
+            label.setAttribute('iconTextGap','4')
+            label.setAttribute('modelName','custom')
+            label.setAttribute('modelPosition','c')
+            label.setAttribute('textColor','#FFFFFF')
+            label.setAttribute('visible','true')
+            label.setAttribute('width','34.017578125')
+            label.setAttribute('x','27.9912109375')
+            label.setAttribute('xml:space','preserve')
+            label.setAttribute('y','5.6494140625')
+        
+        
+        elif 'USVC' in a:    
+            
+            fill.setAttribute('color','#000000')
+            fill.setAttribute('transparent','false')
+            border.setAttribute('color','#31792d')
+            border.setAttribute('type','line')
+            border.setAttribute('width','3.0')
+            label.setAttribute('alignment','center')
+            label.setAttribute('autoSizePolicy','content')
+            label.setAttribute('fontFamily','Dialog')
+            label.setAttribute('fontSize','12')
+            label.setAttribute('fontStyle','plain')
+            label.setAttribute('hasBackgroundColor','false')
+            label.setAttribute('hasLineColor','false')
+            label.setAttribute('height','18.701171875')
+            label.setAttribute('horizontalTextPosition','center')
+            label.setAttribute('iconTextGap','4')
+            label.setAttribute('modelName','custom')
+            label.setAttribute('modelPosition','c')
+            label.setAttribute('textColor','#FFFFFF')
+            label.setAttribute('visible','true')
+            label.setAttribute('width','34.017578125')
+            label.setAttribute('x','27.9912109375')
+            label.setAttribute('xml:space','preserve')
+            label.setAttribute('y','5.6494140625')
+        
+        
+        
+        elif 'USD' in a:    
+            
+            fill.setAttribute('color','#ffffff')
+            fill.setAttribute('transparent','false')
+            border.setAttribute('color','#d86400')
+            border.setAttribute('type','line')
+            border.setAttribute('width','3.0')
             label.setAttribute('alignment','center')
             label.setAttribute('autoSizePolicy','content')
             label.setAttribute('fontFamily','Dialog')
@@ -464,9 +545,9 @@ class Node:
             
             fill.setAttribute('color','#C0C0C0')
             fill.setAttribute('transparent','false')
-            border.setAttribute('color','#000000')
+            border.setAttribute('color','#9b3333')
             border.setAttribute('type','line')
-            border.setAttribute('width','1.0')
+            border.setAttribute('width','3.0')
             label.setAttribute('alignment','center')
             label.setAttribute('autoSizePolicy','content')
             label.setAttribute('fontFamily','DialogInput')
@@ -490,9 +571,9 @@ class Node:
             
             fill.setAttribute('color','#FFFFFF')
             fill.setAttribute('transparent','false')
-            border.setAttribute('color','#000000')
+            border.setAttribute('color','#9b3333')
             border.setAttribute('type','line')
-            border.setAttribute('width','1.0')
+            border.setAttribute('width','3.0')
             label.setAttribute('alignment','center')
             label.setAttribute('autoSizePolicy','content')
             label.setAttribute('fontFamily','DialogInput')
@@ -516,9 +597,9 @@ class Node:
             
             fill.setAttribute('color','#FFFFFF')
             fill.setAttribute('transparent','false')
-            border.setAttribute('color','#000000')
+            border.setAttribute('color','#9b3333')
             border.setAttribute('type','line')
-            border.setAttribute('width','1.0')
+            border.setAttribute('width','3.0')
             label.setAttribute('alignment','center')
             label.setAttribute('autoSizePolicy','content')
             label.setAttribute('fontFamily','DialogInput')
@@ -542,9 +623,9 @@ class Node:
             
             fill.setAttribute('color','#C0C0C0')
             fill.setAttribute('transparent','false')
-            border.setAttribute('color','#000000')
+            border.setAttribute('color','#9b3333')
             border.setAttribute('type','line')
-            border.setAttribute('width','1.0')
+            border.setAttribute('width','3.0')
             label.setAttribute('alignment','center')
             label.setAttribute('autoSizePolicy','content')
             label.setAttribute('fontFamily','DialogInput')
@@ -570,7 +651,7 @@ class Node:
             fill.setAttribute('transparent','false')
             border.setAttribute('color','#000000')
             border.setAttribute('type','line')
-            border.setAttribute('width','1.0')
+            border.setAttribute('width','3.0')
             label.setAttribute('alignment','center')
             label.setAttribute('autoSizePolicy','content')
             label.setAttribute('fontFamily','Dialog')
@@ -593,9 +674,34 @@ class Node:
         elif 'SF' in a:            
             fill.setAttribute('color','#FFFFFF')
             fill.setAttribute('transparent','false')
-            border.setAttribute('color','#000000')
+            border.setAttribute('color','#d8bd30')
             border.setAttribute('type','line')
-            border.setAttribute('width','1.0')
+            border.setAttribute('width','3.0')
+            label.setAttribute('alignment','center')
+            label.setAttribute('autoSizePolicy','content')
+            label.setAttribute('fontFamily','DialogInput')
+            label.setAttribute('fontSize','12')
+            label.setAttribute('fontStyle','bold')
+            label.setAttribute('hasBackgroundColor','false')
+            label.setAttribute('hasLineColor','false')
+            label.setAttribute('height','18.701171875')
+            label.setAttribute('horizontalTextPosition','center')
+            label.setAttribute('iconTextGap','4')
+            label.setAttribute('modelName','internal')
+            label.setAttribute('modelPosition','c')
+            label.setAttribute('textColor','#000000')
+            label.setAttribute('visible','true')
+            label.setAttribute('width','34.017578125')
+            label.setAttribute('x','27.9912109375')
+            label.setAttribute('xml:space','preserve')
+            label.setAttribute('y','5.6494140625')
+        
+        elif 'VSF' in a:            
+            fill.setAttribute('color','#000000')
+            fill.setAttribute('transparent','false')
+            border.setAttribute('color','#b19f61')
+            border.setAttribute('type','line')
+            border.setAttribute('width','3.0')
             label.setAttribute('alignment','center')
             label.setAttribute('autoSizePolicy','content')
             label.setAttribute('fontFamily','DialogInput')
@@ -618,9 +724,9 @@ class Node:
         elif 'SUS' in a:            
             fill.setAttribute('color','#FFFFFF')
             fill.setAttribute('transparent','false')
-            border.setAttribute('color','#000000')
+            border.setAttribute('color','#9b3333')
             border.setAttribute('type','line')
-            border.setAttribute('width','1.0')
+            border.setAttribute('width','3.0')
             label.setAttribute('alignment','center')
             label.setAttribute('autoSizePolicy','content')
             label.setAttribute('fontFamily','DialogInput')
@@ -750,7 +856,9 @@ class Node:
             label.setAttribute('x','27.9912109375')
             label.setAttribute('xml:space','preserve')
             label.setAttribute('y','5.6494140625')
-            
+        
+
+        
         snode.appendChild(fill)
         snode.appendChild(border)           
         
@@ -769,14 +877,16 @@ class Node:
             
             shape.setAttribute('type','ellipse')
             snode.appendChild(shape)
-        elif 'USVD' in a:
-            
-            shape.setAttribute('type','octagon')
-            snode.appendChild(shape)    
+        
         elif 'US' in a:
            
             shape.setAttribute('type','rectangle')
             snode.appendChild(shape)
+        elif 'USD' in a:
+           
+            shape.setAttribute('type','rectangle')
+            snode.appendChild(shape)
+        
         elif 'USM' in a:
             
             shape.setAttribute('type','rectangle')
@@ -801,6 +911,11 @@ class Node:
             
             shape.setAttribute('type','octagon')
             snode.appendChild(shape)
+        elif 'VSF' in a:
+            
+            shape.setAttribute('type','octagon')
+            snode.appendChild(shape)
+        
         elif 'SUS' in a:
             
             shape.setAttribute('type','ellipse')
