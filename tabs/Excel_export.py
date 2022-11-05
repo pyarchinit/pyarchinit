@@ -122,7 +122,7 @@ class pyarchinit_excel_export(QDialog, MAIN_DIALOG_CLASS):
             
     def charge_list(self):
         # lista sito
-        sito_vl = self.UTILITY.tup_2_list_III(self.DB_MANAGER.group_by('site_table', 'sito', 'SITE'))
+        sito_vl = self.UTILITY.tup_2_list_III(self.DB_MANAGER.group_by('site_table', 'site', 'SITE'))
         try:
             sito_vl.remove('')
         except:
@@ -196,7 +196,7 @@ class pyarchinit_excel_export(QDialog, MAIN_DIALOG_CLASS):
             if self.checkBox_site.isChecked():
                 name_= '%s' % (sito_location+'_Site_' +  time.strftime('%Y%m%d_') + '.xlsx')
                 dump_dir=os.path.join(sito_path, name_)
-                cur.execute("SELECT * FROM site_table where sito='%s';" % sito_location)
+                cur.execute("SELECT * FROM site_table where site='%s';" % sito_location)
                 rows = cur.fetchall()
                 col_names = []
                 for i in cur.description:
@@ -211,7 +211,7 @@ class pyarchinit_excel_export(QDialog, MAIN_DIALOG_CLASS):
             if self.checkBox_uw.isChecked():
                 divelog_= '%s' % (sito_location+'_US_' +  time.strftime('%Y%m%d_') + '.xlsx')
                 dump_dir=os.path.join(sito_path, divelog_)
-                cur.execute("SELECT * FROM us_table where sito='%s';" % sito_location)
+                cur.execute("SELECT * FROM us_table where site='%s';" % sito_location)
                 rows = cur.fetchall()
                 col_names = []
                 for i in cur.description:
@@ -226,7 +226,7 @@ class pyarchinit_excel_export(QDialog, MAIN_DIALOG_CLASS):
             if self.checkBox_art.isChecked():
                 art_= '%s' % (sito_location+'_artefact_' +  time.strftime('%Y%m%d_') + '.xlsx')
                 dump_dir=os.path.join(sito_path, art_)
-                cur.execute("SELECT * FROM inventario_materiali_table where sito='%s';" % sito_location)
+                cur.execute("SELECT * FROM inventario_materiali_table where site='%s';" % sito_location)
                 rows = cur.fetchall()
                 col_names = []
                 for i in cur.description:
@@ -241,7 +241,7 @@ class pyarchinit_excel_export(QDialog, MAIN_DIALOG_CLASS):
             if self.checkBox_pottery.isChecked():
                 pottery_= '%s' % (sito_location+'_Structures_' +  time.strftime('%Y%m%d_') + '.xlsx')
                 dump_dir=os.path.join(sito_path, pottery_)
-                cur.execute("SELECT * FROM struttura_table where sito='%s';" % sito_location)
+                cur.execute("SELECT * FROM struttura_table where site='%s';" % sito_location)
                 rows = cur.fetchall()
                 col_names = []
                 for i in cur.description:
@@ -256,7 +256,7 @@ class pyarchinit_excel_export(QDialog, MAIN_DIALOG_CLASS):
             if self.checkBox_anchor.isChecked():
                 anchor_= '%s' % (sito_location+'_Taphonomy_' +  time.strftime('%Y%m%d_') + '.xlsx')
                 dump_dir=os.path.join(sito_path, anchor_)
-                cur.execute("SELECT * FROM tomba_table where sito='%s';" % sito_location)
+                cur.execute("SELECT * FROM tomba_table where site='%s';" % sito_location)
                 rows = cur.fetchall()
                 col_names = []
                 for i in cur.description:
@@ -284,7 +284,7 @@ class pyarchinit_excel_export(QDialog, MAIN_DIALOG_CLASS):
             if self.checkBox_site.isChecked():
                 name_= '%s' % (sito_location+'_Site_' +  time.strftime('%Y%m%d_') + '.xlsx')
                 dump_dir=os.path.join(sito_path, name_)
-                cur.execute("SELECT * FROM site_table where sito='%s';" % sito_location)
+                cur.execute("SELECT * FROM site_table where site='%s';" % sito_location)
                 rows = cur.fetchall()
                 col_names = []
                 for i in cur.description:
@@ -299,7 +299,7 @@ class pyarchinit_excel_export(QDialog, MAIN_DIALOG_CLASS):
             if self.checkBox_uw.isChecked():
                 divelog_= '%s' % (sito_location+'_US_' +  time.strftime('%Y%m%d_') + '.xlsx')
                 dump_dir=os.path.join(sito_path, divelog_)
-                cur.execute("SELECT * FROM us_table where sito='%s';" % sito_location)
+                cur.execute("SELECT * FROM us_table where site='%s';" % sito_location)
                 rows = cur.fetchall()
                 col_names = []
                 for i in cur.description:
@@ -314,7 +314,7 @@ class pyarchinit_excel_export(QDialog, MAIN_DIALOG_CLASS):
             if self.checkBox_art.isChecked():
                 art_= '%s' % (sito_location+'_artefact_' +  time.strftime('%Y%m%d_') + '.xlsx')
                 dump_dir=os.path.join(sito_path, art_)
-                cur.execute("SELECT * FROM inventario_materiali_table where sito='%s';" % sito_location)
+                cur.execute("SELECT * FROM inventario_materiali_table where site='%s';" % sito_location)
                 rows = cur.fetchall()
                 col_names = []
                 for i in cur.description:
@@ -329,7 +329,7 @@ class pyarchinit_excel_export(QDialog, MAIN_DIALOG_CLASS):
             if self.checkBox_pottery.isChecked():
                 pottery_= '%s' % (sito_location+'_Structures_' +  time.strftime('%Y%m%d_') + '.xlsx')
                 dump_dir=os.path.join(sito_path, pottery_)
-                cur.execute("SELECT * FROM struttura_table where sito='%s';" % sito_location)
+                cur.execute("SELECT * FROM struttura_table where site='%s';" % sito_location)
                 rows = cur.fetchall()
                 col_names = []
                 for i in cur.description:
