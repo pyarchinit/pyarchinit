@@ -108,7 +108,7 @@ class Pyarchinit_db_management(object):
         return test
 
         # insert statement
-    def insert_pyus(self, *arg):
+    def insert_pyus(self, *arg):                     
         pyus = PYUS(arg[0],
                 arg[1],
                 arg[2],
