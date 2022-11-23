@@ -144,7 +144,7 @@ class pyarchinit_Interactive_Matrix(QDialog, MAIN_DIALOG_CLASS):
                     
                     if sing_rapp[0] == 'Taglia' or sing_rapp[0] == 'Cuts' or sing_rapp[0] == 'Schneidet':
                         if sing_rapp[1] != '':
-                            harris_rapp1 = (un_t+us+'_'+defin+'_'+datazione,str(sing_rapp[2])+str(sing_rapp[1])+'_'+str(sing_rapp[3].replace(' ','_')+'_'+str(sing_rapp[4])))
+                            harris_rapp1 = (un_t+'-'+us+'_'+defin+'_'+datazione,str(sing_rapp[2])+str(sing_rapp[1])+'_'+str(sing_rapp[3].replace(' ','_')+'_'+str(sing_rapp[4])))
                             negative.append(harris_rapp1)
                             
                     
@@ -296,7 +296,7 @@ class pyarchinit_Interactive_Matrix(QDialog, MAIN_DIALOG_CLASS):
                     
                     if sing_rapp[0] == 'Taglia' or sing_rapp[0] == 'Cuts' or sing_rapp[0] == 'Schneidet':
                         if sing_rapp[1] != '':
-                            harris_rapp1 = (us,str(sing_rapp[1]))
+                            harris_rapp1 = ('-'+us,str(sing_rapp[1]))
                             negative.append(harris_rapp1)
                             
                     
