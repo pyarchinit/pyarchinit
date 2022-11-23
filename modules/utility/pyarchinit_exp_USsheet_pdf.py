@@ -2085,7 +2085,7 @@ class single_US_pdf_sheet(object):
             else:
                 area = Paragraph("<b>AREA/BUILDING/STRUCTURE</b><br/>" + str(self.area),styNormal)
             
-            saggio = Paragraph("<b>ESSAY</b><br/>" + self.saggio, styNormal)
+            saggio = Paragraph("<b>TEST PIT</b><br/>" + self.saggio, styNormal)
             ambiente = Paragraph("<b>PLACE</b><br/>" + self.ambient, styNormal)
             posizione = Paragraph("<b>PLACE POSITION</b><br/>" + self.posizione, styNormal)
             settore = Paragraph("<b>SECTOR</b><br/>" + self.settore, styNormal)
@@ -2451,7 +2451,7 @@ class single_US_pdf_sheet(object):
             else:
                 area = Paragraph("<b>AREA/BUILDING/STRUCTURE</b><br/>" + str(self.area),styNormal)
             
-            saggio = Paragraph("<b>ESSAY</b><br/>" + self.saggio, styNormal)
+            saggio = Paragraph("<b>TEST PIT</b><br/>" + self.saggio, styNormal)
             ambiente = Paragraph("<b>PLACE</b><br/>" + self.ambient, styNormal)
             posizione = Paragraph("<b>PLACE POSITION</b><br/>" + self.posizione, styNormal)
             settore = Paragraph("<b>SECTOR</b><br/>" + self.settore, styNormal)
