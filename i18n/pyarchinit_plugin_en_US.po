@@ -13,7 +13,7 @@ msgstr ""
 "X-Language: en_GB\n"
 "X-Source-Language: C\n"
 "X-Qt-Contexts: true\n"
-"X-Generator: Poedit 3.1.1\n"
+"X-Generator: Poedit 3.2\n"
 
 # Stratigraphic Unit
 #: ../gui/ui/dbmanagment.ui:442
@@ -6174,8 +6174,7 @@ msgid ""
 "<html><head/><body><p>Carica tutte vie per singole strutture</p></body></"
 "html>"
 msgstr ""
-"<html><head/><body><p>Load all routes for individual structures</p></body></"
-"html>"
+"<html><head/><body><p>Load all  for single structures</p></body></html>"
 
 #: ../gui/ui/Struttura.ui:807
 msgctxt "DialogStruttura|"
@@ -6290,7 +6289,7 @@ msgstr "Periodization"
 #: ../gui/ui/Struttura.ui:1375
 msgctxt "DialogStruttura|"
 msgid "Iniziale "
-msgstr "Initial "
+msgstr "Initial"
 
 #: ../gui/ui/Struttura.ui:1388
 msgctxt "DialogStruttura|"
@@ -6315,7 +6314,7 @@ msgstr "Extended dating"
 #: ../gui/ui/Struttura.ui:1472
 msgctxt "DialogStruttura|"
 msgid "Rapporti"
-msgstr "Reports"
+msgstr "Relationships"
 
 #: ../gui/ui/Struttura.ui:1875
 msgctxt "DialogStruttura|"
@@ -6350,12 +6349,12 @@ msgstr "Number"
 #: ../gui/ui/Struttura.ui:1604
 msgctxt "DialogStruttura|"
 msgid "Rapporti struttura"
-msgstr "Structure Reports"
+msgstr "Structure relationship"
 
 #: ../gui/ui/Struttura.ui:1610
 msgctxt "DialogStruttura|"
 msgid "Elementi costruttivi"
-msgstr "Constructional features"
+msgstr "Building elements"
 
 #: ../gui/ui/Struttura.ui:1632
 msgctxt "DialogStruttura|"
@@ -6370,12 +6369,12 @@ msgstr "Artefacts"
 #: ../gui/ui/Struttura.ui:1735
 msgctxt "DialogStruttura|"
 msgid "Elementi strutturali"
-msgstr "Structural features"
+msgstr "Structural components"
 
 #: ../gui/ui/Struttura.ui:1771
 msgctxt "DialogStruttura|"
 msgid "Tipologia elemento"
-msgstr "Features type"
+msgstr "Typology element"
 
 #: ../gui/ui/Struttura.ui:1776
 msgctxt "DialogStruttura|"
@@ -6400,7 +6399,7 @@ msgstr "Measure type"
 #: ../gui/ui/Struttura.ui:1916
 msgctxt "DialogStruttura|"
 msgid "Unita' di misura"
-msgstr "Unit of measurement"
+msgstr "Measurement unit"
 
 #: ../gui/ui/Struttura.ui:1921
 msgctxt "DialogStruttura|"
@@ -6543,49 +6542,51 @@ msgid "Sigla estesa"
 msgstr "Extended acronym"
 
 #: ../gui/ui/Thesaurus.ui:959
+#, fuzzy
 msgctxt "DialogThesaurus|"
 msgid "site_table"
-msgstr ""
+msgstr "site_table"
 
 #: ../gui/ui/Thesaurus.ui:964
+#, fuzzy
 msgctxt "DialogThesaurus|"
 msgid "us_table"
-msgstr ""
+msgstr "us_table"
 
 #: ../gui/ui/Thesaurus.ui:969
 msgctxt "DialogThesaurus|"
 msgid "inventario_materiali_table"
-msgstr ""
+msgstr "inventario_materiali_table"
 
 #: ../gui/ui/Thesaurus.ui:974
 msgctxt "DialogThesaurus|"
 msgid "campioni_table"
-msgstr ""
+msgstr "campioni_table"
 
 #: ../gui/ui/Thesaurus.ui:979
 msgctxt "DialogThesaurus|"
 msgid "inventario_lapidei_table"
-msgstr ""
+msgstr "inventario_lapidei_table"
 
 #: ../gui/ui/Thesaurus.ui:984
 msgctxt "DialogThesaurus|"
 msgid "struttura_table"
-msgstr ""
+msgstr "struttura_table"
 
 #: ../gui/ui/Thesaurus.ui:989
 msgctxt "DialogThesaurus|"
 msgid "tomba_table"
-msgstr ""
+msgstr "tomba_table"
 
 #: ../gui/ui/Thesaurus.ui:994
 msgctxt "DialogThesaurus|"
 msgid "individui_table"
-msgstr ""
+msgstr "individui_table"
 
 #: ../gui/ui/Thesaurus.ui:1002
 msgctxt "DialogThesaurus|"
 msgid "Tipologia sigla"
-msgstr "Type code"
+msgstr "Number code"
 
 #: ../gui/ui/Thesaurus.ui:1009
 msgctxt "DialogThesaurus|"
@@ -6660,17 +6661,17 @@ msgstr "3.4"
 #: ../gui/ui/Thesaurus.ui:1202
 msgctxt "DialogThesaurus|"
 msgid "it_IT"
-msgstr "en_EN"
+msgstr "it_IT"
 
 #: ../gui/ui/Thesaurus.ui:1207
 msgctxt "DialogThesaurus|"
 msgid "en_US"
-msgstr "en_SU"
+msgstr "en_US"
 
 #: ../gui/ui/Thesaurus.ui:1222
 msgctxt "DialogThesaurus|"
 msgid "Visualizza elenco sigle"
-msgstr "View acronyms list"
+msgstr "View list of code"
 
 #: ../gui/ui/Thesaurus.ui:1240
 msgctxt "DialogThesaurus|"
@@ -6680,7 +6681,7 @@ msgstr "Description data"
 #: ../gui/ui/US_USM.ui:481
 msgctxt "DialogUS|"
 msgid "pyArchInit Gestione Scavi - Scheda US/USM"
-msgstr "pyArchInit Excavation Management - SU/WSU sheet"
+msgstr "pyArchInit Excavation Management - SU/WSU form"
 
 #: ../gui/ui/US_USM.ui:980
 msgctxt "DialogUS|"
@@ -6705,7 +6706,7 @@ msgstr "Square/Wall"
 #: ../gui/ui/US_USM.ui:3290
 msgctxt "DialogUS|"
 msgid "Nr. Cat. Interno"
-msgstr "No. Cat. Inside"
+msgstr "No. Cat. Interno"
 
 #: ../gui/ui/US_USM.ui:3748
 msgctxt "DialogUS|"
@@ -6720,7 +6721,7 @@ msgstr "Room"
 #: ../gui/ui/US_USM.ui:5583
 msgctxt "DialogUS|"
 msgid "Saggio"
-msgstr "Excavation test"
+msgstr "Test pit"
 
 #: ../gui/ui/US_USM.ui:6535
 msgctxt "DialogUS|"
@@ -6867,18 +6868,14 @@ msgctxt "DialogUS|"
 msgid ""
 "<html><head/><body><p>Ricerca testo sul layer selezionato nel layer panel</"
 "p></body></html>"
-msgstr ""
-"<html><head/><body><p>Text search on the selected layer in the panel layer</"
-"p></body></html>"
+msgstr "Text search on the selected layer in  panel layer"
 
 #: ../gui/ui/US_USM.ui:9462
 msgctxt "DialogUS|"
 msgid ""
 "<html><head/><body><p>Apre il percorso dove si salvano i pdf esportati</p></"
 "body></html>"
-msgstr ""
-"<html><head/><body><p>Opens the path where exported pdfs are saved</p></"
-"body></html>"
+msgstr "Opens the path where exported pdfs are saved"
 
 #: ../gui/ui/US_USM.ui:9924
 msgctxt "DialogUS|"
@@ -6888,7 +6885,7 @@ msgstr "Next rec"
 #: ../gui/ui/US_USM.ui:10398
 msgctxt "DialogUS|"
 msgid "<html><head/><body><p>GIS Viewer US</p></body></html>"
-msgstr "<html><head/><body><p>GIS Viewer US</p></body></html>"
+msgstr "GIS Viewer US"
 
 #: ../gui/ui/US_USM.ui:10401
 msgctxt "DialogUS|"
@@ -6913,7 +6910,7 @@ msgstr "New record"
 #: ../gui/ui/US_USM.ui:12297
 msgctxt "DialogUS|"
 msgid "new search"
-msgstr "new search"
+msgstr "New search"
 
 #: ../gui/ui/US_USM.ui:12768
 msgctxt "DialogUS|"
@@ -8169,12 +8166,12 @@ msgstr "description"
 #: ../gui/ui/US_USM.ui:35640
 msgctxt "DialogUS|"
 msgid "d_stratigrafica"
-msgstr ""
+msgstr "d_stratigraphic"
 
 #: ../gui/ui/US_USM.ui:35645
 msgctxt "DialogUS|"
 msgid "d_interpretativa"
-msgstr ""
+msgstr "d_interpretative"
 
 #: ../gui/ui/US_USM.ui:35650
 msgctxt "DialogUS|"
