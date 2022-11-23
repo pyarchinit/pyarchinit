@@ -25,7 +25,19 @@ tracker=https://github.com/pyarchinit/pyarchinit/issues
 repository=https://github.com/pyarchinit/pyarchinit
 
 
-changelog=release4.3.2
+changelog=release4.3.4
+
+    -add negative symbol for SU into the matrix
+
+  release4.3.3
+
+    -fix update tablewidget relationships for EM(set same rows)
+    -fix template csv  thesaurus
+    -fix english lang for pyarchinit_db_manager.py to create new form automatic
+
+
+
+  release4.3.2
 
     -import csv to thesaurus
     -template csv  thesaurus
