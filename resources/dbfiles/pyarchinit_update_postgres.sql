@@ -153,7 +153,7 @@ WITH (
 ALTER TABLE pyarchinit_documentazione
   OWNER TO postgres;
 --------------------------------------------------------------------------------------
-CREATE SEQUENCE IF NOT EXISTS pyarchinit_us_negative_doc_gid_seq
+ CREATE SEQUENCE IF NOT EXISTS pyarchinit_us_negative_doc_gid_seq
   INCREMENT 1
   MINVALUE 1
   MAXVALUE 9223372036854775807
@@ -163,45 +163,22 @@ ALTER TABLE pyarchinit_us_negative_doc_gid_seq
   OWNER TO postgres;
 
 -------------------------------------------------------------------------------------- 
-CREATE TABLE IF NOT EXISTS pyarchinit_us_negative_doc
+CREATE TABLE IF NOT EXISTS public.pyarchinit_us_negative_doc
 (
-  gid serial NOT NULL,
-  the_geom geometry(LineString,-1),
-  sito_n character varying,
-  area_n character varying,
-  us_n bigint,
-  tipo_doc_n character varying,
-  nome_doc_n character varying,
-  "LblSize" integer,
-  "LblColor" character varying(7),
-  "LblBold" integer,
-  "LblItalic" integer,
-  "LblUnderl" integer,
-  "LblStrike" integer,
-  "LblFont" character varying(100),
-  "LblX" numeric(20,5),
-  "LblY" numeric(20,5),
-  "LblSclMin" integer,
-  "LblSclMax" integer,
-  "LblAlignH" character varying(15),
-  "LblAlignV" character varying(15),
-  "LblRot" numeric(20,5),
-  CONSTRAINT pyarchinit_us_negative_doc_pkey PRIMARY KEY (gid)
+    gid integer NOT NULL DEFAULT nextval('pyarchinit_us_negative_doc_gid_seq'::regclass),
+    sito_n character varying COLLATE pg_catalog."default",
+    area_n character varying COLLATE pg_catalog."default",
+    us_n integer,
+    tipo_doc_n character varying COLLATE pg_catalog."default",
+    nome_doc_n character varying COLLATE pg_catalog."default",
+    the_geom geometry(LineString,32636),
+    CONSTRAINT pyarchinit_us_negative_doc_pkey PRIMARY KEY (gid)
 )
-WITH (
-  OIDS=FALSE
-);
-ALTER TABLE pyarchinit_us_negative_doc
-  OWNER TO postgres;
 
--- Index: sidx_pyarchinit_us_negative_doc_geom
+TABLESPACE pg_default;
 
--- DROP INDEX sidx_pyarchinit_us_negative_doc_geom;
-
-CREATE INDEX IF NOT EXISTS sidx_pyarchinit_us_negative_doc_geom
-  ON pyarchinit_us_negative_doc
-  USING gist
-  (the_geom);
+ALTER TABLE IF EXISTS public.pyarchinit_us_negative_doc
+    OWNER to postgres;
 
 
 --------------------------------------------------------------------------------------
@@ -249,47 +226,47 @@ ALTER TABLE pyarchinit_doc_view
   
 --------------------------------------------------------------------------------------  
   
-	CREATE OR REPLACE VIEW pyarchinit_us_negative_doc_view AS SELECT 
-	gid,
-	sito_n ,
-	area_n ,
-	us_n , 
-	tipo_doc_n ,
-	nome_doc_n ,
-	the_geom,
-	id_us ,
-	sito ,
-	us ,
-	d_stratigrafica ,
-	d_interpretativa ,
-	descrizione ,
-	interpretazione ,
-	periodo_iniziale ,
-	fase_iniziale ,
-	periodo_finale , 
-	fase_finale ,
-	scavato ,
-	attivita,
-	anno_scavo ,
-	metodo_di_scavo ,
-	inclusi ,
-	campioni ,
-	rapporti ,
-	data_schedatura ,
-	schedatore ,
-	formazione ,
-	stato_di_conservazione ,
-	colore ,
-	consistenza,
-	struttura,
-	cont_per ,
-	order_layer ,
-	documentazione 
-	FROM pyarchinit_us_negative_doc 
-	JOIN us_table ON  sito_n ::text = sito AND area_n ::text = area AND us_n = us;
+CREATE OR REPLACE VIEW public.pyarchinit_us_negative_doc_view
+ AS
+ SELECT pyarchinit_us_negative_doc.gid,
+    pyarchinit_us_negative_doc.sito_n,
+    pyarchinit_us_negative_doc.area_n,
+    pyarchinit_us_negative_doc.us_n,
+    pyarchinit_us_negative_doc.tipo_doc_n,
+    pyarchinit_us_negative_doc.nome_doc_n,
+    pyarchinit_us_negative_doc.the_geom,
+    us_table.id_us,
+    us_table.sito,
+    us_table.us,
+    us_table.d_stratigrafica,
+    us_table.d_interpretativa,
+    us_table.descrizione,
+    us_table.interpretazione,
+    us_table.periodo_iniziale,
+    us_table.fase_iniziale,
+    us_table.periodo_finale,
+    us_table.fase_finale,
+    us_table.scavato,
+    us_table.attivita,
+    us_table.anno_scavo,
+    us_table.metodo_di_scavo,
+    us_table.inclusi,
+    us_table.campioni,
+    us_table.rapporti,
+    us_table.data_schedatura,
+    us_table.schedatore,
+    us_table.formazione,
+    us_table.stato_di_conservazione,
+    us_table.colore,
+    us_table.consistenza,
+    us_table.struttura,
+    us_table.cont_per,
+    us_table.order_layer,
+    us_table.documentazione
+   FROM pyarchinit_us_negative_doc
+     JOIN us_table ON pyarchinit_us_negative_doc.sito_n::text = us_table.sito AND pyarchinit_us_negative_doc.area_n::text = us_table.area::text AND pyarchinit_us_negative_doc.us_n = us_table.us;
 
-
-ALTER TABLE pyarchinit_us_negative_doc_view
+ALTER TABLE public.pyarchinit_us_negative_doc_view
     OWNER TO postgres;
 	
 

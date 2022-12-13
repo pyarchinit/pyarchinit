@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1000</width>
-    <height>652</height>
+    <width>1169</width>
+    <height>700</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -990,6 +990,9 @@
            <property name="rowCount">
             <number>1</number>
            </property>
+           <attribute name="horizontalHeaderDefaultSectionSize">
+            <number>248</number>
+           </attribute>
            <row>
             <property name="text">
              <string/>
@@ -1016,7 +1019,7 @@
           <widget class="QgsDockWidget" name="mDockWidget">
            <property name="minimumSize">
             <size>
-             <width>649</width>
+             <width>757</width>
              <height>281</height>
             </size>
            </property>
@@ -1054,26 +1057,13 @@
             <layout class="QGridLayout" name="gridLayout_12">
              <item row="0" column="1">
               <layout class="QGridLayout" name="gridLayout_7">
-               <item row="2" column="0">
-                <widget class="QLabel" name="label_7">
+               <item row="3" column="1">
+                <widget class="QComboBox" name="comboBox_area">
                  <property name="enabled">
                   <bool>true</bool>
                  </property>
-                 <property name="frameShape">
-                  <enum>QFrame::StyledPanel</enum>
-                 </property>
-                 <property name="frameShadow">
-                  <enum>QFrame::Plain</enum>
-                 </property>
-                 <property name="text">
-                  <string>Sito</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="1" column="3">
-                <widget class="QRadioButton" name="radioButton_tomba">
-                 <property name="text">
-                  <string>Tomba</string>
+                 <property name="editable">
+                  <bool>true</bool>
                  </property>
                 </widget>
                </item>
@@ -1093,10 +1083,113 @@
                  </property>
                 </widget>
                </item>
-               <item row="1" column="2">
+               <item row="1" column="3">
                 <widget class="QRadioButton" name="radioButton_materiali">
                  <property name="text">
                   <string>Materiali</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="5" column="1">
+                <widget class="QComboBox" name="comboBox_sigla_struttura">
+                 <property name="editable">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+               <item row="6" column="0">
+                <widget class="QLabel" name="label_13">
+                 <property name="frameShape">
+                  <enum>QFrame::StyledPanel</enum>
+                 </property>
+                 <property name="text">
+                  <string>Nr. st.</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="4" column="1">
+                <widget class="QComboBox" name="comboBox_us">
+                 <property name="enabled">
+                  <bool>true</bool>
+                 </property>
+                 <property name="editable">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="1" colspan="5">
+                <widget class="QLabel" name="label_6">
+                 <property name="enabled">
+                  <bool>true</bool>
+                 </property>
+                 <property name="frameShape">
+                  <enum>QFrame::StyledPanel</enum>
+                 </property>
+                 <property name="frameShadow">
+                  <enum>QFrame::Plain</enum>
+                 </property>
+                 <property name="text">
+                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:10pt; font-weight:600;&quot;&gt;Cerca le immagini taggate&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="1" colspan="5">
+                <widget class="QComboBox" name="comboBox_sito">
+                 <property name="enabled">
+                  <bool>true</bool>
+                 </property>
+                 <property name="editable">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+               <item row="5" column="0">
+                <widget class="QLabel" name="label_12">
+                 <property name="frameShape">
+                  <enum>QFrame::StyledPanel</enum>
+                 </property>
+                 <property name="text">
+                  <string>Sigla st.</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="1">
+                <widget class="QRadioButton" name="radioButton_us">
+                 <property name="text">
+                  <string>Unità Stratigrafiche</string>
+                 </property>
+                 <property name="checked">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="0">
+                <widget class="QLabel" name="label_7">
+                 <property name="enabled">
+                  <bool>true</bool>
+                 </property>
+                 <property name="frameShape">
+                  <enum>QFrame::StyledPanel</enum>
+                 </property>
+                 <property name="frameShadow">
+                  <enum>QFrame::Plain</enum>
+                 </property>
+                 <property name="text">
+                  <string>Sito</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="5">
+                <widget class="QRadioButton" name="radioButton_struttura">
+                 <property name="text">
+                  <string>Struttura</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="4">
+                <widget class="QRadioButton" name="radioButton_tomba">
+                 <property name="text">
+                  <string>Tomba</string>
                  </property>
                 </widget>
                </item>
@@ -1120,16 +1213,6 @@
                  </property>
                 </widget>
                </item>
-               <item row="1" column="1">
-                <widget class="QRadioButton" name="radioButton_us">
-                 <property name="text">
-                  <string>Unità Stratigrafiche</string>
-                 </property>
-                 <property name="checked">
-                  <bool>true</bool>
-                 </property>
-                </widget>
-               </item>
                <item row="3" column="0">
                 <widget class="QLabel" name="label_9">
                  <property name="enabled">
@@ -1146,20 +1229,6 @@
                  </property>
                 </widget>
                </item>
-               <item row="5" column="1">
-                <widget class="QComboBox" name="comboBox_sigla_struttura">
-                 <property name="editable">
-                  <bool>true</bool>
-                 </property>
-                </widget>
-               </item>
-               <item row="1" column="4">
-                <widget class="QRadioButton" name="radioButton_struttura">
-                 <property name="text">
-                  <string>Struttura</string>
-                 </property>
-                </widget>
-               </item>
                <item row="6" column="1">
                 <widget class="QComboBox" name="comboBox_nr_struttura">
                  <property name="editable">
@@ -1167,69 +1236,10 @@
                  </property>
                 </widget>
                </item>
-               <item row="5" column="0">
-                <widget class="QLabel" name="label_12">
-                 <property name="frameShape">
-                  <enum>QFrame::StyledPanel</enum>
-                 </property>
+               <item row="1" column="2">
+                <widget class="QRadioButton" name="radioButton_pottery">
                  <property name="text">
-                  <string>Sigla st.</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="6" column="0">
-                <widget class="QLabel" name="label_13">
-                 <property name="frameShape">
-                  <enum>QFrame::StyledPanel</enum>
-                 </property>
-                 <property name="text">
-                  <string>Nr. st.</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="0" column="1" colspan="4">
-                <widget class="QLabel" name="label_6">
-                 <property name="enabled">
-                  <bool>true</bool>
-                 </property>
-                 <property name="frameShape">
-                  <enum>QFrame::StyledPanel</enum>
-                 </property>
-                 <property name="frameShadow">
-                  <enum>QFrame::Plain</enum>
-                 </property>
-                 <property name="text">
-                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:10pt; font-weight:600;&quot;&gt;Cerca le immagini taggate&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="2" column="1" colspan="4">
-                <widget class="QComboBox" name="comboBox_sito">
-                 <property name="enabled">
-                  <bool>true</bool>
-                 </property>
-                 <property name="editable">
-                  <bool>true</bool>
-                 </property>
-                </widget>
-               </item>
-               <item row="3" column="1">
-                <widget class="QComboBox" name="comboBox_area">
-                 <property name="enabled">
-                  <bool>true</bool>
-                 </property>
-                 <property name="editable">
-                  <bool>true</bool>
-                 </property>
-                </widget>
-               </item>
-               <item row="4" column="1">
-                <widget class="QComboBox" name="comboBox_us">
-                 <property name="enabled">
-                  <bool>true</bool>
-                 </property>
-                 <property name="editable">
-                  <bool>true</bool>
+                  <string>Pottery</string>
                  </property>
                 </widget>
                </item>
@@ -1520,6 +1530,112 @@
         <zorder>pushButton_assignTags_US</zorder>
         <zorder></zorder>
         <zorder>mDockWidget</zorder>
+       </widget>
+       <widget class="QWidget" name="tab_5">
+        <attribute name="title">
+         <string>Tags Pottery</string>
+        </attribute>
+        <layout class="QGridLayout" name="gridLayout_16">
+         <item row="0" column="0">
+          <layout class="QGridLayout" name="gridLayout_15">
+           <item row="0" column="3">
+            <widget class="QPushButton" name="pushButton_removeRow_POT">
+             <property name="maximumSize">
+              <size>
+               <width>30</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>-</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="2">
+            <widget class="QPushButton" name="pushButton_addRow_POT">
+             <property name="maximumSize">
+              <size>
+               <width>30</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>+</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QLabel" name="label_28">
+             <property name="text">
+              <string>Tags manager</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="0">
+            <spacer name="horizontalSpacer_6">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>40</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+          </layout>
+         </item>
+         <item row="1" column="0">
+          <widget class="QTableWidget" name="tableWidgetTags_POT">
+           <attribute name="horizontalHeaderMinimumSectionSize">
+            <number>40</number>
+           </attribute>
+           <attribute name="horizontalHeaderDefaultSectionSize">
+            <number>187</number>
+           </attribute>
+           <row>
+            <property name="text">
+             <string/>
+            </property>
+           </row>
+           <column>
+            <property name="text">
+             <string>ID Number</string>
+            </property>
+           </column>
+           <column>
+            <property name="text">
+             <string>Name site</string>
+            </property>
+           </column>
+           <column>
+            <property name="text">
+             <string>Area</string>
+            </property>
+           </column>
+           <column>
+            <property name="text">
+             <string>SU</string>
+            </property>
+           </column>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <widget class="QPushButton" name="pushButton_assignTags_POT">
+           <property name="maximumSize">
+            <size>
+             <width>30</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="icon">
+            <iconset resource="../../resources/resources.qrc">
+             <normaloff>:/icons/add_tag.png</normaloff>:/icons/add_tag.png</iconset>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </widget>
        <widget class="QWidget" name="tab">
         <attribute name="title">
@@ -2121,6 +2237,7 @@
  </customwidgets>
  <resources>
   <include location="../../resources/resources.qrc"/>
+  <include location="../../../HFF-master/resources/resources.qrc"/>
  </resources>
  <connections>
   <connection>
