@@ -25,7 +25,12 @@ tracker=https://github.com/pyarchinit/pyarchinit/issues
 repository=https://github.com/pyarchinit/pyarchinit
 
 
-changelog=release4.3.4
+changelog=release4.3.5
+
+    -add pottery table and form
+
+
+  release4.3.4
 
     -add negative symbol for SU into the matrix
 
