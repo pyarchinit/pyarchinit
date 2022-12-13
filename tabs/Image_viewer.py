@@ -1141,7 +1141,7 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                             MU = Media_utility()
                             MUR = Media_utility_resize()
                             media_max_num_id = self.DB_MANAGER.max_num_id(self.MAPPER_TABLE_CLASS,
-                                                                          self.ID_TABLE)  # db recupera il valore più alto ovvero l'ultimo immesso per l'immagine originale
+                                                                                                              self.ID_TABLE)  # db recupera il valore più alto ovvero l'ultimo immesso per l'immagine originale
                             thumb_path = conn.thumb_path()
                             thumb_path_str = thumb_path['thumb_path']
                             thumb_resize = conn.thumb_resize()
@@ -1181,6 +1181,7 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                             data_for_thumb = self.db_search_check(self.MAPPER_TABLE_CLASS_thumb, 'media_filename',
                                                                   media_filename)  # recupera i valori della thumb in base al valore id_media del file originale
                             try:
+                                self.iconListWidget.clear()
                                 thumb_path = data_for_thumb[0].filepath_thumb
                                 item.setData(Qt.UserRole, thumb_path)
                                 icon = QIcon(str(thumb_path_str)+filepath_thumb)  # os.path.join('%s/%s' % (directory.toUtf8(), image)))
@@ -1297,10 +1298,10 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                             # self.tableWidgetTags_US.setItem(row,2,QTableWidgetItem(boxes[s2]))
                     # except Exception as e:
                         # QMessageBox.warning(self, "Messaggio", "Sistema di aggiornamento lista Sito: " + str(e), QMessageBox.Ok)
-            
-            self.charge_data ()
-            self.view_num_rec()
-            self.open_images()
+            #self.iconListWidget.clear()
+            #self.charge_data ()
+            #self.view_num_rec()
+            #self.open_images()
             #self.iconListWidget.clear()
     def insert_record_media(self, mediatype, filename, filetype, filepath):
         self.mediatype = mediatype
