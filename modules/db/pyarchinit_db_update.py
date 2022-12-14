@@ -63,26 +63,28 @@ class DB_update(object):
         if not table_column_names_list.__contains__('sector'):
             self.engine.execute(
                 "ALTER TABLE pottery_table ADD COLUMN sector text")
-        if table_column_names_list.__contains__('diametro_max'):
-            self.engine.execute(
-                "ALTER TABLE pottery_table ALTER COLUMN diametro_max TYPE Numeric(7,3)")
+        try:
+            if table_column_names_list.__contains__('diametro_max'):
+                self.engine.execute(
+                    "ALTER TABLE pottery_table ALTER COLUMN diametro_max TYPE Numeric(7,3)")
 
-        if table_column_names_list.__contains__('diametro_rim'):
-            self.engine.execute(
-                "ALTER TABLE pottery_table ALTER COLUMN diametro_rim TYPE Numeric(7,3)")
+            if table_column_names_list.__contains__('diametro_rim'):
+                self.engine.execute(
+                    "ALTER TABLE pottery_table ALTER COLUMN diametro_rim TYPE Numeric(7,3)")
 
-        if table_column_names_list.__contains__('diametro_bottom'):
-            self.engine.execute(
-                "ALTER TABLE pottery_table ALTER COLUMN diametro_bottom TYPE Numeric(7,3)")
+            if table_column_names_list.__contains__('diametro_bottom'):
+                self.engine.execute(
+                    "ALTER TABLE pottery_table ALTER COLUMN diametro_bottom TYPE Numeric(7,3)")
 
-        if table_column_names_list.__contains__('diametro_height'):
-            self.engine.execute(
-                "ALTER TABLE pottery_table ALTER COLUMN diametro_height TYPE Numeric(7,3)")
+            if table_column_names_list.__contains__('diametro_height'):
+                self.engine.execute(
+                    "ALTER TABLE pottery_table ALTER COLUMN diametro_height TYPE Numeric(7,3)")
 
-        if table_column_names_list.__contains__('diametro_preserved'):
-            self.engine.execute(
-                "ALTER TABLE pottery_table ALTER COLUMN diametro_preserved TYPE Numeric(7,3)")
-
+            if table_column_names_list.__contains__('diametro_preserved'):
+                self.engine.execute(
+                    "ALTER TABLE pottery_table ALTER COLUMN diametro_preserved TYPE Numeric(7,3)")
+        except:
+            pass
 
 
         ####invetario_materiali_table
