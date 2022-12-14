@@ -35,24 +35,24 @@ class DB_update(object):
         self.metadata = MetaData(self.engine)
 
     def update_table(self):
-        ####invetario_materiali_table
-        table = Table("pyunitastratigrafiche", self.metadata, autoload=True)
-        table_column_names_list = []
-
-        for i in table.columns:
-            table_column_names_list.append(str(i.name))
-        if table_column_names_list.__contains__('coord'):
-            self.engine.execute(
-                "ALTER TABLE pyunitastratigrafiche ALTER COLUMN coord TYPE text")
-
-        table = Table("pyunitastratigrafiche_usm", self.metadata, autoload=True)
-        table_column_names_list = []
-
-        for i in table.columns:
-            table_column_names_list.append(str(i.name))
-        if table_column_names_list.__contains__('coord'):
-            self.engine.execute(
-                "ALTER TABLE pyunitastratigrafiche ALTER COLUMN coord TYPE text")
+        # ####invetario_materiali_table
+        # table = Table("pyunitastratigrafiche", self.metadata, autoload=True)
+        # table_column_names_list = []
+        #
+        # for i in table.columns:
+        #     table_column_names_list.append(str(i.name))
+        # if table_column_names_list.__contains__('coord'):
+        #     self.engine.execute(
+        #         "ALTER TABLE pyunitastratigrafiche ALTER COLUMN coord TYPE text")
+        #
+        # table = Table("pyunitastratigrafiche_usm", self.metadata, autoload=True)
+        # table_column_names_list = []
+        #
+        # for i in table.columns:
+        #     table_column_names_list.append(str(i.name))
+        # if table_column_names_list.__contains__('coord'):
+        #     self.engine.execute(
+        #         "ALTER TABLE pyunitastratigrafiche ALTER COLUMN coord TYPE text")
 
         ####invetario_materiali_table
         table = Table("pottery_table", self.metadata, autoload=True)
