@@ -1606,20 +1606,14 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
             
             if result==QMessageBox.Ok:
                   
-                rs= self.DB_MANAGER.insert_number_of_us_records(str(sing_tags[0]),str(sing_tags[1]),str(sing_tags[2]),'US')
-                
-                if self.L=='it':
-                    rs = self.DB_MANAGER.insert_number_of_us_records(str(sing_tags[0]), str(sing_tags[1]),
-                                                                     str(sing_tags[2]), 'US')
-                    QMessageBox.information(self, "Info",  "US creata", QMessageBox.Ok)
-                if self.L=='de':
-                    rs = self.DB_MANAGER.insert_number_of_us_records(str(sing_tags[0]), str(sing_tags[1]),
-                                                                     str(sing_tags[2]), 'SE')
-                    QMessageBox.information(self, "Info",  "Formular erstellt", QMessageBox.Ok)
+                rs= self.DB_MANAGER.insert_number_of_us_records(str(sing_tags[0]),str(sing_tags[1]),str(sing_tags[2]))
+
+                if self.L == 'it':
+                    QMessageBox.information(self, "Info", "Scheda creata", QMessageBox.Ok)
+                if self.L == 'de':
+                    QMessageBox.information(self, "Info", "Formular erstellt", QMessageBox.Ok)
                 else:
-                    rs = self.DB_MANAGER.insert_number_of_us_records(str(sing_tags[0]), str(sing_tags[1]),
-                                                                     str(sing_tags[2]), 'SU')
-                    QMessageBox.information(self, "Info",  "Form created", QMessageBox.Ok)
+                    QMessageBox.information(self, "Info", "Form created", QMessageBox.Ok)
                 
                 return rs
             else:
@@ -1637,7 +1631,7 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
         for r in record_us_list:
             
             us_list.append([r[0].id_us, 'US', 'us_table'])
-        # QMessageBox.information(self, "Scheda US", str(us_list), QMessageBox.Ok)
+            #QMessageBox.information(self, "Scheda US", str(us_list), QMessageBox.Ok)
         return us_list
     def remove_US(self):
         tags_list = self.table2dict('self.tableWidgetTags_US')
