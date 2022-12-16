@@ -1593,19 +1593,21 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                            'area': "'" + str(sing_tags[1]) + "'",
                            'us': "'" + str(sing_tags[2]) + "'"
                            }
-            record_us_list.append(self.DB_MANAGER.query_bool(search_dict, 'US'))
-            
+            j=self.DB_MANAGER.query_bool(search_dict, 'US')
+            record_us_list.append(j)
+
         if not record_us_list[0]:
             if self.L=='it':
                 result=QMessageBox.warning(self, "Attenzione",  "Scheda US non presente. Vuoi generala? Clicca ok oppure Annulla per abortire", QMessageBox.Ok|QMessageBox.Cancel)
             elif self.L=='de':
                 result=QMessageBox.warning(self, "Warnung", "SE-Karte nicht vorhanden. Sie wollen es generieren? Klicken Sie auf OK oder Abbrechen, um abzubrechen", QMessageBox.Ok|QMessageBox.Cancel)
             else:
-                result=QMessageBox.warning(self, "Warning", "SU form not present. Do you want to generate it? Click OK or Cancel to abort", QMessageBox.Ok|QMessageBox.Cancel)    
-                
-            
+                result=QMessageBox.warning(self, "Warning", "SU form not present. Do you want to generate it? Click OK or Cancel to abort", QMessageBox.Ok|QMessageBox.Cancel)
+
+
             if result==QMessageBox.Ok:
-                  
+
+
                 rs= self.DB_MANAGER.insert_number_of_us_records(str(sing_tags[0]),str(sing_tags[1]),str(sing_tags[2]))
 
                 if self.L == 'it':
@@ -1614,25 +1616,29 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                     QMessageBox.information(self, "Info", "Formular erstellt", QMessageBox.Ok)
                 else:
                     QMessageBox.information(self, "Info", "Form created", QMessageBox.Ok)
-                
+
+                #record_us_list[0].pop()
                 return rs
             else:
                 if self.L=='it':
-                
+
                     QMessageBox.information(self, "Info", "Azione annullata", QMessageBox.Ok)
                 elif self.L=='de':
-                
+
                     QMessageBox.information(self, "Info", "Aktion abgebrochen", QMessageBox.Ok)
                 else:
-                
+
                     QMessageBox.information(self, "Info", "Action cancelled", QMessageBox.Ok)
+
                 return
+
         us_list = []
         for r in record_us_list:
-            
+
             us_list.append([r[0].id_us, 'US', 'us_table'])
-            #QMessageBox.information(self, "Scheda US", str(us_list), QMessageBox.Ok)
+        QMessageBox.information(self, "Scheda US", str(us_list), QMessageBox.Ok)
         return us_list
+            #record_us_list[0].pop()
     def remove_US(self):
         tags_list = self.table2dict('self.tableWidgetTags_US')
         record_us_list = []
@@ -1960,8 +1966,11 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
         """
         items_selected =self.iconListWidget.selectedItems()
         us_list = self.generate_US()
+
+
         if not us_list:
             return
+
         for item in items_selected:
             for us_data in us_list:
                 id_orig_item = item.text()  # return the name of original file
@@ -2362,20 +2371,20 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
             temp_data_list = self.DB_MANAGER.query_sort(id_list, [self.ID_TABLE_THUMB], 'asc', self.MAPPER_TABLE_CLASS_thumb, self.ID_TABLE_THUMB)
             for i in temp_data_list:
                 self.DATA_LIST.append(i)
-    def table2dict(self, n):
-        self.tablename = n
-        row = eval(self.tablename+".rowCount()")
-        col = eval(self.tablename+".columnCount()")
-        lista=[]
-        for r in range(row):
-            sub_list = []
-            for c in range(col):
-                value = eval(self.tablename+".item(r,c)")
-                if value != None:
-                    sub_list.append(unicode(value.text()))
-            if bool(sub_list) == True:
-                lista.append(sub_list)
-        return lista
+    # def table2dict(self, n):
+    #     self.tablename = n
+    #     row = eval(self.tablename+".rowCount()")
+    #     col = eval(self.tablename+".columnCount()")
+    #     lista=[]
+    #     for r in range(row):
+    #         sub_list = []
+    #         for c in range(col):
+    #             value = eval(self.tablename+".item(r,c)")
+    #             if value != None:
+    #                 sub_list.append(unicode(value.text()))
+    #         if bool(sub_list) == True:
+    #             lista.append(sub_list)
+    #     return lista
     def view_num_rec(self):
         num_data_begin = self.NUM_DATA_BEGIN
         num_data_begin +=1
