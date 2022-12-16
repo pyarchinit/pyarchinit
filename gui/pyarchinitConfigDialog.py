@@ -4649,6 +4649,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                     'UT': 'id_ut',
                     'PERIODIZZAZIONE': 'id_perfas',
                     'INVENTARIO_MATERIALI': 'id_invmat',
+                    'POTTERY':'id_rep',
                     'STRUTTURA': 'id_struttura',
                     'TOMBA': 'id_tomba',
                     'SCHEDAIND': 'id_scheda_ind',
@@ -4668,6 +4669,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                     'AUSGRABUNGSSTÄTTE': 'id_sito',
                     'PERIODISIERUNG': 'id_perfas',
                     'ARTEFAKT-INVENTAR': 'id_invmat',
+                    'POTTERY': 'id_rep',
                     'STRUKTUREN': 'id_struttura',
                     'TAPHONOMIE': 'id_tomba',
                     'INDIVIDUEL': 'id_scheda_ind',
@@ -4685,6 +4687,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                     'SITE': 'id_sito',
                     'PERIODIATION': 'id_perfas',
                     'ARTEFACT': 'id_invmat',
+                    'POTTERY': 'id_rep',
                     'STRUCTURE': 'id_struttura',
                     'TAPHONOMY': 'id_tomba',
                     'INDIVIDUAL': 'id_scheda_ind',
@@ -4838,6 +4841,65 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 QMessageBox.information(self, "Message", "Data Loaded")
 
             #### US TABLE
+
+            ####SITE TABLE
+            if mapper_class_write == 'POTTERY':
+
+                for sing_rec in range(len(data_list_toimp)):
+
+                    try:
+                        data = self.DB_MANAGER_write.insert_pottery_values(
+                            self.DB_MANAGER_write.max_num_id(mapper_class_write,
+                                                             id_table_class_mapper_conv_dict[
+                                                                 mapper_class_write]) + 1,
+                            data_list_toimp[sing_rec].id_number,
+                            data_list_toimp[sing_rec].sito,
+                            data_list_toimp[sing_rec].area,
+                            data_list_toimp[sing_rec].us,
+                            data_list_toimp[sing_rec].box,
+                            data_list_toimp[sing_rec].photo,
+                            data_list_toimp[sing_rec].drawing,
+                            data_list_toimp[sing_rec].anno,
+                            data_list_toimp[sing_rec].fabric,
+                            data_list_toimp[sing_rec].percent,
+                            data_list_toimp[sing_rec].material,
+                            data_list_toimp[sing_rec].form,
+                            data_list_toimp[sing_rec].specific_form,
+                            data_list_toimp[sing_rec].ware,
+                            data_list_toimp[sing_rec].munsell,
+                            data_list_toimp[sing_rec].surf_trat,
+                            data_list_toimp[sing_rec].exdeco,
+                            data_list_toimp[sing_rec].intdeco,
+                            data_list_toimp[sing_rec].wheel_made,
+                            data_list_toimp[sing_rec].descrip_ex_deco,
+                            data_list_toimp[sing_rec].descrip_in_deco,
+                            data_list_toimp[sing_rec].note,
+                            data_list_toimp[sing_rec].diametro_max,
+                            data_list_toimp[sing_rec].qty,
+                            data_list_toimp[sing_rec].diametro_rim,
+                            data_list_toimp[sing_rec].diametro_bottom,
+                            data_list_toimp[sing_rec].diametro_height,
+                            data_list_toimp[sing_rec].diametro_preserved,
+                            data_list_toimp[sing_rec].specific_shape,
+                            data_list_toimp[sing_rec].bag,
+                            data_list_toimp[sing_rec].sector)
+
+                        self.DB_MANAGER_write.insert_data_session(data)
+
+                        value = (float(sing_rec) / float(len(data_list_toimp))) * 100
+                        self.progress_bar.setValue(value)
+
+                        QApplication.processEvents()
+
+                    except Exception as e:
+
+                        QMessageBox.warning(self, "Errore", "Error ! \n" + str(e), QMessageBox.Ok)
+                        return 0
+                self.progress_bar.reset()
+                QMessageBox.information(self, "Message", "Data Loaded")
+
+                #### US TABLE
+
 
 
             if  mapper_class_write == 'US':
