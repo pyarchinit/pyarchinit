@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>1181</width>
-    <height>843</height>
+    <height>845</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -2261,8 +2261,8 @@
         <rect>
          <x>0</x>
          <y>10</y>
-         <width>891</width>
-         <height>201</height>
+         <width>1141</width>
+         <height>611</height>
         </rect>
        </property>
        <property name="font">
@@ -2275,7 +2275,7 @@
         </font>
        </property>
        <property name="currentIndex">
-        <number>0</number>
+        <number>1</number>
        </property>
        <widget class="QWidget" name="tab_7">
         <attribute name="title">
@@ -2405,8 +2405,8 @@
           <rect>
            <x>18</x>
            <y>45</y>
-           <width>856</width>
-           <height>301</height>
+           <width>1111</width>
+           <height>521</height>
           </rect>
          </property>
          <property name="sizePolicy">
