@@ -69,8 +69,8 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
     ID_TABLE_US = "id_us"
     MAPPER_TABLE_CLASS_mat = 'INVENTARIO_MATERIALI'
     ID_TABLE_MAT = "id_invmat"
-    MAPPER_TABLE_CLASS_mat = 'POTTERY'
-    ID_TABLE_MAT = "id_rep"
+    MAPPER_TABLE_CLASS_pot = 'POTTERY'
+    ID_TABLE_POT = "id_rep"
     NOME_SCHEDA = "Scheda Media Manager"
     TABLE_THUMB_NAME = 'media_thumb_table'
     MAPPER_TABLE_CLASS_thumb = 'MEDIA_THUMB'
@@ -1081,20 +1081,21 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                         value = (float(n)/float(len(image_list)))*100
                         self.progressBar.setValue(value)
                         QApplication.processEvents()
-                if bool(idunique_video_check):
-                    if self.L=='it':
-                        QMessageBox.information(self, "Info", "I video sono già caricati nel database")
-                    elif self.L=='de':
-                        QMessageBox.information(self, "Info", "Videos sind bereits in die Datenbank hochgeladen")
-                    else:
-                        QMessageBox.information(self, "Info", "The videos are already uploaded to the database")
-                elif not bool(idunique_video_check):
-                    if self.L=='it':
-                        QMessageBox.information(self, "Message", "Video caricati! Puoi taggarle")
-                    elif self.L=='de':
-                        QMessageBox.information(self, "Message", "Hochgeladene Videos! Sie können sie taggen")
-                    else:
-                        QMessageBox.information(self, "Message", "Uploaded videos! You can tag them")    
+
+                    if bool(idunique_video_check):
+                        if self.L=='it':
+                            QMessageBox.information(self, "Info", "I video sono già caricati nel database")
+                        elif self.L=='de':
+                            QMessageBox.information(self, "Info", "Videos sind bereits in die Datenbank hochgeladen")
+                        else:
+                            QMessageBox.information(self, "Info", "The videos are already uploaded to the database")
+                    elif not bool(idunique_video_check):
+                        if self.L=='it':
+                            QMessageBox.information(self, "Message", "Video caricati! Puoi taggarle")
+                        elif self.L=='de':
+                            QMessageBox.information(self, "Message", "Hochgeladene Videos! Sie können sie taggen")
+                        else:
+                            QMessageBox.information(self, "Message", "Uploaded videos! You can tag them")
             
             except:
                 if self.L=='it':
@@ -1200,24 +1201,24 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                         self.progressBar.setValue(value)
                         QApplication.processEvents()
                     
-                if bool(idunique_image_check):
-                    if self.L=='it':
-                        QMessageBox.information(self, "Info", "Le immagini sono già caricate nel database")
-                    elif self.L=='de':
-                        QMessageBox.information(self, "Info", "Die Bilder sind bereits in die Datenbank geladen")
-                    else:
-                        QMessageBox.information(self, "Info", "The images are already uploaded to the database")
-                elif not bool(idunique_image_check):
-                    if self.L=='it':
-                        QMessageBox.information(self, "Message", "Immagini caricate! Puoi taggarle")
-                    elif self.L=='de':
-                        QMessageBox.information(self, "Message", "Bilder hochgeladen! Sie können sie markieren")
-                    else:
-                        QMessageBox.information(self, "Message", "Uploaded images! You can tag them")    
+                    if bool(idunique_image_check):
+                        if self.L=='it':
+                            QMessageBox.information(self, "Info", "Le immagini sono già caricate nel database")
+                        elif self.L=='de':
+                            QMessageBox.information(self, "Info", "Die Bilder sind bereits in die Datenbank geladen")
+                        else:
+                            QMessageBox.information(self, "Info", "The images are already uploaded to the database")
+                    elif not bool(idunique_image_check):
+                        if self.L=='it':
+                            QMessageBox.information(self, "Message", "Immagini caricate! Puoi taggarle")
+                        elif self.L=='de':
+                            QMessageBox.information(self, "Message", "Bilder hochgeladen! Sie können sie markieren")
+                        else:
+                            QMessageBox.information(self, "Message", "Uploaded images! You can tag them")
             except:
                 if self.L=='it':
                     QMessageBox.warning(self, "Warning", "controlla che il nome del file non abbia caratteri speciali", QMessageBox.Ok)
-                if self.L=='de':
+                elif self.L=='de':
                     QMessageBox.warning(self, "Warning", "prüfen, ob der Dateiname keine Sonderzeichen enthält", QMessageBox.Ok)
                 else:
                     QMessageBox.warning(self, "Warning", "check that the file name has no special characters", QMessageBox.Ok)    
