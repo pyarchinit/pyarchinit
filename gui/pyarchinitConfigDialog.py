@@ -163,7 +163,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             self.setComboBoxEnable(["self.lineEdit_DBname"], "True")
         self.comboBox_Database.currentIndexChanged.connect(self.customize)
         self.test()
-        #self.test2()
+        self.test2()
         self.test3()
         self.comboBox_mapper_read.currentIndexChanged.connect(self.check_table)
         self.comboBox_geometry_read.currentIndexChanged.connect(self.check_geometry_table)
@@ -2269,496 +2269,95 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             
             con = sqlite3.connect(sqlite_DB_path +os.sep+ conn_sqlite["db_name"])
             cur = con.cursor()
-            drop_ = '''DROP TABLE IF EXISTS sqlitestudio_temp_table2;'''
-            cur.execute(drop_)
-            drop_2 = '''DROP TABLE IF EXISTS sqlitestudio_temp_table;'''
-            # cur.execute(drop_2)
-            # drop_3 = '''DROP VIEW IF EXISTS pyarchinit_strutture_view;'''
-            # cur.execute(drop_3)
-            # drop_4 = '''DROP VIEW IF EXISTS pyarchinit_site_view;'''
-            # cur.execute(drop_4)
-            cur.executescript('''PRAGMA foreign_keys = 0;
+
+            cur.executescript('''
+                PRAGMA foreign_keys = 0;
+            
                 
-                DROP VIEW if EXISTS inventario_materiali_view;
-                CREATE VIEW inventario_materiali_view AS
-                    SELECT 
-                           a.id_sito AS id_sito,
-                           a.sito_nome AS sito_nome,
-                           a.descr_sito AS descr_sito,
-                           a.the_geom AS the_geom,
-                           b.rowid AS rowid_1,
-                           b.id_invmat AS id_invmat,
-                           b.sito AS sito,
-                           b.numero_inventario AS numero_inventario,
-                           b.tipo_reperto AS tipo_reperto,
-                           b.criterio_schedatura AS criterio_schedatura,
-                           b.definizione AS definizione,
-                           b.descrizione AS descrizione,
-                           b.area AS area,
-                           b.us AS us,
-                           b.lavato AS lavato,
-                           b.nr_cassa AS nr_cassa,
-                           b.luogo_conservazione AS luogo_conservazione,
-                           b.stato_conservazione AS stato_conservazione,
-                           b.datazione_reperto AS datazione_reperto,
-                           b.elementi_reperto AS elementi_reperto,
-                           b.misurazioni AS misurazioni,
-                           b.rif_biblio AS rif_biblio,
-                           b.tecnologie AS tecnologie,
-                           b.forme_minime AS forme_minime,
-                           b.forme_massime AS forme_massime,
-                           b.totale_frammenti AS totale_frammenti,
-                           b.corpo_ceramico AS corpo_ceramico,
-                           b.rivestimento AS rivestimento,
-                           b.diametro_orlo AS diametro_orlo,
-                           b.peso AS peso,
-                           b.tipo AS tipo,
-                           b.eve_orlo AS eve_orlo,
-                           b.repertato AS repertato,
-                           b.diagnostico AS diagnostico,
-                           b.n_reperto AS n_reperto
-                      FROM pyarchinit_siti AS a
-                           JOIN
-                           inventario_materiali_table AS b ON (a.sito_nome = b.sito);
-                PRAGMA foreign_keys = 1;
-                PRAGMA foreign_keys = 0;
-                DROP VIEW if EXISTS pyarchinit_doc_view;
-                PRAGMA foreign_keys = 1;
-                PRAGMA foreign_keys = 0;
-                CREATE VIEW pyarchinit_doc_view AS
-                    SELECT a.rowid AS rowid,
-                           a.id_documentazione AS id_documentazione,
-                           a.sito AS sito,
-                           a.nome_doc AS nome_doc,
-                           a.data AS data,
-                           a.tipo_documentazione AS tipo_documentazione,
-                           a.sorgente AS sorgente,
-                           a.scala AS scala,
-                           a.disegnatore AS disegnatore,
-                           a.note AS note,
-                           b.rowid AS rowid_1,
-                           
-                           b.sito AS sito_1,
-                           b.nome_doc AS nome_doc_1,
-                           b.tipo_doc AS tipo_doc,
-                           b.path_qgis_pj AS path_qgis_pj,
-                           b.the_geom AS the_geom
-                      FROM documentazione_table AS a
-                           JOIN
-                           pyarchinit_documentazione AS b ON (a.sito = b.sito AND 
-                                                              a.nome_doc = b.nome_doc AND 
-                                                              a.tipo_documentazione = b.tipo_doc);
-                
-                PRAGMA foreign_keys = 1;
-                PRAGMA foreign_keys = 0;
-                DROP VIEW if EXISTS pyarchinit_individui_view;
-                PRAGMA foreign_keys = 1;
-                PRAGMA foreign_keys = 0;
-                CREATE VIEW pyarchinit_individui_view AS
-                    SELECT a.rowid AS rowid,
-                           a.id_scheda_ind AS id_scheda_ind,
-                           a.sito AS sito,
-                           a.area AS area,
-                           a.us AS us,
-                           a.nr_individuo AS nr_individuo,
-                           a.data_schedatura AS data_schedatura,
-                           a.schedatore AS schedatore,
-                           a.sesso AS sesso,
-                           a.eta_min AS eta_min,
-                           a.eta_max AS eta_max,
-                           a.classi_eta AS classi_eta,
-                           a.osservazioni AS osservazioni,
-                           b.rowid AS rowid_1,
-                          
-                           b.sito AS sito_1,
-                           b.sigla_struttura AS sigla_struttura,
-                           b.note AS note,
-                           b.id_individuo AS id_individuo,
-                           b.the_geom AS the_geom
-                      FROM individui_table AS a
-                           JOIN
-                           pyarchinit_individui AS b ON (a.sito = b.sito AND 
-                                                         a.nr_individuo = b.id_individuo);
-                PRAGMA foreign_keys = 1;
-                PRAGMA foreign_keys = 0;
-                DROP VIEW if EXISTS pyarchinit_quote_view;
-                PRAGMA foreign_keys = 1;
-                PRAGMA foreign_keys = 0;
-                CREATE VIEW pyarchinit_quote_view AS
-                    SELECT a.rowid AS rowid,
-                           a.id_us AS id_us,
-                           a.sito AS sito,
-                           a.area AS area,
-                           a.us AS us,
-                           a.d_stratigrafica AS d_stratigrafica,
-                           a.d_interpretativa AS d_interpretativa,
-                           a.descrizione AS descrizione,
-                           a.interpretazione AS interpretazione,
-                           a.periodo_iniziale AS periodo_iniziale,
-                           a.fase_iniziale AS fase_iniziale,
-                           a.periodo_finale AS periodo_finale,
-                           a.fase_finale AS fase_finale,
-                           a.scavato AS scavato,
-                           a.attivita AS attivita,
-                           a.anno_scavo AS anno_scavo,
-                           a.metodo_di_scavo AS metodo_di_scavo,
-                           a.inclusi AS inclusi,
-                           a.campioni AS campioni,
-                           a.rapporti AS rapporti,
-                           a.data_schedatura AS data_schedatura,
-                           a.schedatore AS schedatore,
-                           a.formazione AS formazione,
-                           a.stato_di_conservazione AS stato_di_conservazione,
-                           a.colore AS colore,
-                           a.consistenza AS consistenza,
-                           a.struttura AS struttura,
-                           a.cont_per AS cont_per,
-                           a.order_layer AS order_layer,
-                           a.documentazione AS documentazione,
-                           b.rowid AS rowid_1,
-                           
-                           b.sito_q AS sito_q,
-                           b.area_q AS area_q,
-                           b.us_q AS us_q,
-                           b.unita_misu_q AS unita_misu_q,
-                           b.quota_q AS quota_q,
-                           b.data AS data,
-                           b.disegnatore AS disegnatore,
-                           b.rilievo_originale AS rilievo_originale,
-                           b.the_geom AS the_geom
-                      FROM us_table AS a
-                           JOIN
-                           pyarchinit_quote AS b ON (a.sito = b.sito_q AND 
-                                                     a.area = b.area_q AND 
-                                                     a.us = b.us_q) 
-                     ORDER BY a.order_layer DESC;
-                
-                PRAGMA foreign_keys = 1;
-                PRAGMA foreign_keys = 0;
-                DROP VIEW if EXISTS pyarchinit_reperti_view;
-                PRAGMA foreign_keys = 1;
-                PRAGMA foreign_keys = 0;
-                CREATE VIEW pyarchinit_reperti_view AS
-                    SELECT a.rowid AS rowid,
-                           a.the_geom AS the_geom,
-                           a.id_rep AS id_rep,
-                           a.siti AS siti,
-                           a.link AS link,
-                           b.rowid AS rowid_1,
-                           b.id_invmat AS id_invmat,
-                           b.sito AS sito,
-                           b.numero_inventario AS numero_inventario,
-                           b.tipo_reperto AS tipo_reperto,
-                           b.criterio_schedatura AS criterio_schedatura,
-                           b.definizione AS definizione,
-                           b.descrizione AS descrizione,
-                           b.area AS area,
-                           b.us AS us,
-                           b.lavato AS lavato,
-                           b.nr_cassa AS nr_cassa,
-                           b.luogo_conservazione AS luogo_conservazione,
-                           b.stato_conservazione AS stato_conservazione,
-                           b.datazione_reperto AS datazione_reperto,
-                           b.elementi_reperto AS elementi_reperto,
-                           b.misurazioni AS misurazioni,
-                           b.rif_biblio AS rif_biblio,
-                           b.tecnologie AS tecnologie,
-                           b.forme_minime AS forme_minime,
-                           b.forme_massime AS forme_massime,
-                           b.totale_frammenti AS totale_frammenti,
-                           b.corpo_ceramico AS corpo_ceramico,
-                           b.rivestimento AS rivestimento
-                      FROM pyarchinit_reperti AS a
-                           JOIN
-                           inventario_materiali_table_toimp AS b ON (a.siti = b.sito AND 
-                                                                     a.id_rep = b.numero_inventario);
-                
-                
-                PRAGMA foreign_keys = 1;
-                PRAGMA foreign_keys = 0;
-                DROP VIEW if EXISTS pyarchinit_sezioni_view;
-                PRAGMA foreign_keys = 1;
-                PRAGMA foreign_keys = 0;
-                CREATE VIEW pyarchinit_sezioni_view AS
-                    SELECT a.rowid AS rowid,
-                           
-                           a.sito AS sito,
-                           a.area AS area,
-                           a.the_geom AS the_geom,
-                           a.tipo_doc AS tipo_doc,
-                           a.nome_doc AS nome_doc,
-                           b.rowid AS rowid_1,
-                           b.id_documentazione AS id_documentazione,
-                           b.sito AS sito_1,
-                           b.nome_doc AS nome_doc_1,
-                           b.data AS data,
-                           b.tipo_documentazione AS tipo_documentazione,
-                           b.sorgente AS sorgente,
-                           b.scala AS scala,
-                           b.disegnatore AS disegnatore,
-                           b.note AS note
-                      FROM pyarchinit_sezioni AS a
-                           JOIN
-                           documentazione_table AS b ON (a.sito = b.sito AND 
-                                                         a.tipo_doc = b.tipo_documentazione AND 
-                                                         a.nome_doc = b.nome_doc);
-                
-                PRAGMA foreign_keys = 1;
-                PRAGMA foreign_keys = 0;
-                DROP VIEW IF EXISTS pyarchinit_site_view;
-                PRAGMA foreign_keys = 1;
-                PRAGMA foreign_keys = 0;
-                CREATE VIEW pyarchinit_site_view AS
-                    SELECT a.rowid AS rowid,
-                           
-                           a.id_sito AS id_sito,
-                           a.sito_nome AS sito_nome,
-                           a.descr_sito AS descr_sito,
-                           a.the_geom AS the_geom,
-                           b.rowid AS rowid_1,
-                           b.id_sito AS id_sito_1,
-                           b.sito AS sito,
-                           b.nazione AS nazione,
-                           b.regione AS regione,
-                           b.comune AS comune,
-                           b.descrizione AS descrizione,
-                           b.provincia AS provincia,
-                           b.definizione_sito AS definizione_sito
-                      FROM pyarchinit_siti AS a
-                           JOIN
-                           site_table AS b ON (a.sito_nome = b.sito) 
-                     ORDER BY b.definizione_sito;
-                
-                
-                PRAGMA foreign_keys = 1;
-                PRAGMA foreign_keys = 0;
-                DROP VIEW IF EXISTS pyarchinit_siti_polygonal_view;
-                PRAGMA foreign_keys = 1;
-                PRAGMA foreign_keys = 0;
-                CREATE VIEW pyarchinit_siti_polygonal_view AS
-                    SELECT a.rowid AS rowid,
-                           
-                           a.sito_id AS sito_id,
-                           a.the_geom AS the_geom,
-                           b.rowid AS rowid_1,
-                           b.id_sito AS id_sito,
-                           b.sito AS sito,
-                           b.nazione AS nazione,
-                           b.regione AS regione,
-                           b.comune AS comune,
-                           b.descrizione AS descrizione,
-                           b.provincia AS provincia,
-                           b.definizione_sito AS definizione_sito
-                      FROM pyarchinit_siti_polygonal AS a
-                           JOIN
-                           site_table AS b ON (a.sito_id = b.sito) 
-                     ORDER BY b.sito,
-                              b.descrizione;
-                              
-                
-                
-                PRAGMA foreign_keys = 1;
-                PRAGMA foreign_keys = 0;
-                DROP VIEW IF EXISTS pyarchinit_strutture_view;
-                PRAGMA foreign_keys = 1;
-                PRAGMA foreign_keys = 0;
-                CREATE VIEW pyarchinit_strutture_view AS
-                    SELECT a.rowid AS rowid,
-                           
-                           a.sito AS sito,
-                           a.id_strutt AS id_strutt,
-                           a.per_iniz AS per_iniz,
-                           a.per_fin AS per_fin,
-                           a.dataz_ext AS dataz_ext,
-                           a.fase_iniz AS fase_iniz,
-                           a.fase_fin AS fase_fin,
-                           a.descrizione AS descrizione,
-                           a.the_geom AS the_geom,
-                           a.sigla_strut AS sigla_strut,
-                           a.nr_strut AS nr_strut,
-                           b.rowid AS rowid_1,
-                           b.id_struttura AS id_struttura,
-                           b.sito AS sito_1,
-                           b.sigla_struttura AS sigla_struttura,
-                           b.numero_struttura AS numero_struttura,
-                           b.categoria_struttura AS categoria_struttura,
-                           b.tipologia_struttura AS tipologia_struttura,
-                           b.definizione_struttura AS definizione_struttura,
-                           b.descrizione AS descrizione_1,
-                           b.interpretazione AS interpretazione,
-                           b.periodo_iniziale AS periodo_iniziale,
-                           b.fase_iniziale AS fase_iniziale,
-                           b.periodo_finale AS periodo_finale,
-                           b.fase_finale AS fase_finale,
-                           b.datazione_estesa AS datazione_estesa,
-                           b.materiali_impiegati AS materiali_impiegati,
-                           b.elementi_strutturali AS elementi_strutturali,
-                           b.rapporti_struttura AS rapporti_struttura,
-                           b.misure_struttura AS misure_struttura
-                      FROM pyarchinit_strutture_ipotesi AS a
-                           JOIN
-                           struttura_table AS b ON (a.sito = b.sito AND 
-                                                    a.sigla_strut = b.sigla_struttura AND 
-                                                    a.nr_strut = b.numero_struttura);
-                
-                PRAGMA foreign_keys = 1;
-                PRAGMA foreign_keys = 0;
-                DROP VIEW if exists pyarchinit_tomba_view;
-                PRAGMA foreign_keys = 1;
-                PRAGMA foreign_keys = 0;
-                CREATE VIEW pyarchinit_tomba_view AS
-                    SELECT a.id_tomba AS id_tomba,
-                           a.sito AS sito,
-                           a.area AS area,
-                           a.nr_scheda_taf AS nr_scheda_taf,
-                           a.sigla_struttura AS sigla_struttura,
-                           a.nr_struttura AS nr_struttura,
-                           a.nr_individuo AS nr_individuo,
-                           a.rito AS rito,
-                           a.descrizione_taf AS descrizione_taf,
-                           a.interpretazione_taf AS interpretazione_taf,
-                           a.segnacoli AS segnacoli,
-                           a.canale_libatorio_si_no AS canale_libatorio_si_no,
-                           a.oggetti_rinvenuti_esterno AS oggetti_rinvenuti_esterno,
-                           a.stato_di_conservazione AS stato_di_conservazione,
-                           a.copertura_tipo AS copertura_tipo,
-                           a.tipo_contenitore_resti AS tipo_contenitore_resti,
-                           a.tipo_deposizione AS tipo_deposizione,
-                           a.tipo_sepoltura AS tipo_sepoltura,
-                           a.corredo_presenza AS corredo_presenza,
-                           a.corredo_tipo AS corredo_tipo,
-                           a.corredo_descrizione AS corredo_descrizione,
-                           b.rowid AS rowid,
-                           
-                           b.sito AS sito_1,
-                           b.nr_scheda AS nr_scheda,
-                           b.the_geom AS the_geom
-                      FROM tomba_table AS a
-                           JOIN
-                           pyarchinit_tafonomia AS b ON (a.sito = b.sito AND 
-                                                         a.nr_scheda_taf = b.nr_scheda) 
-                     ORDER BY a.nr_scheda_taf;
-                
-                PRAGMA foreign_keys = 1;
-                PRAGMA foreign_keys = 0;
-                DROP VIEW IF EXISTS pyarchinit_us_negative_doc_view;
-                PRAGMA foreign_keys = 1;
-                PRAGMA foreign_keys = 0;
-                CREATE VIEW pyarchinit_us_negative_doc_view AS
-                    SELECT a.rowid AS rowid,
-                           
-                           a.sito_n AS sito_n,
-                           a.area_n AS area_n,
-                           a.us_n AS us_n,
-                           a.tipo_doc_n AS tipo_doc_n,
-                           a.nome_doc_n AS nome_doc_n,
-                           a.the_geom AS the_geom,
-                           b.rowid AS rowid_1,
-                           b.id_us AS id_us,
-                           b.sito AS sito,
-                           b.area AS area,
-                           b.us AS us,
-                           b.d_stratigrafica AS d_stratigrafica,
-                           b.d_interpretativa AS d_interpretativa,
-                           b.descrizione AS descrizione,
-                           b.interpretazione AS interpretazione,
-                           b.periodo_iniziale AS periodo_iniziale,
-                           b.fase_iniziale AS fase_iniziale,
-                           b.periodo_finale AS periodo_finale,
-                           b.fase_finale AS fase_finale,
-                           b.scavato AS scavato,
-                           b.attivita AS attivita,
-                           b.anno_scavo AS anno_scavo,
-                           b.metodo_di_scavo AS metodo_di_scavo,
-                           b.inclusi AS inclusi,
-                           b.campioni AS campioni,
-                           b.rapporti AS rapporti,
-                           b.data_schedatura AS data_schedatura,
-                           b.schedatore AS schedatore,
-                           b.formazione AS formazione,
-                           b.stato_di_conservazione AS stato_di_conservazione,
-                           b.colore AS colore,
-                           b.consistenza AS consistenza,
-                           b.struttura AS struttura,
-                           b.cont_per AS cont_per,
-                           b.order_layer AS order_layer,
-                           b.documentazione AS documentazione,
-                           b.unita_tipo AS unita_tipo,
-                           b.settore AS settore,
-                           b.quad_par AS quad_par,
-                           b.ambient AS ambient,
-                           b.saggio AS saggio,
-                           b.elem_datanti AS elem_datanti,
-                           b.funz_statica AS funz_statica,
-                           b.lavorazione AS lavorazione,
-                           b.spess_giunti AS spess_giunti,
-                           b.letti_posa AS letti_posa,
-                           b.alt_mod AS alt_mod,
-                           b.un_ed_riass AS un_ed_riass,
-                           b.reimp AS reimp,
-                           b.posa_opera AS posa_opera,
-                           b.quota_min_usm AS quota_min_usm,
-                           b.quota_max_usm AS quota_max_usm,
-                           b.cons_legante AS cons_legante,
-                           b.col_legante AS col_legante,
-                           b.aggreg_legante AS aggreg_legante,
-                           b.con_text_mat AS con_text_mat,
-                           b.col_materiale AS col_materiale,
-                           b.inclusi_materiali_usm AS inclusi_materiali_usm,
-                           b.n_catalogo_generale AS n_catalogo_generale,
-                           b.n_catalogo_interno AS n_catalogo_interno,
-                           b.n_catalogo_internazionale AS n_catalogo_internazionale,
-                           b.soprintendenza AS soprintendenza,
-                           b.quota_relativa AS quota_relativa,
-                           b.quota_abs AS quota_abs,
-                           b.ref_tm AS ref_tm,
-                           b.ref_ra AS ref_ra,
-                           b.ref_n AS ref_n,
-                           b.posizione AS posizione,
-                           b.criteri_distinzione AS criteri_distinzione,
-                           b.modo_formazione AS modo_formazione,
-                           b.componenti_organici AS componenti_organici,
-                           b.componenti_inorganici AS componenti_inorganici,
-                           b.lunghezza_max AS lunghezza_max,
-                           b.altezza_max AS altezza_max,
-                           b.altezza_min AS altezza_min,
-                           b.profondita_max AS profondita_max,
-                           b.profondita_min AS profondita_min,
-                           b.larghezza_media AS larghezza_media,
-                           b.quota_max_abs AS quota_max_abs,
-                           b.quota_max_rel AS quota_max_rel,
-                           b.quota_min_abs AS quota_min_abs,
-                           b.quota_min_rel AS quota_min_rel,
-                           b.osservazioni AS osservazioni,
-                           b.datazione AS datazione,
-                           b.flottazione AS flottazione,
-                           b.setacciatura AS setacciatura,
-                           b.affidabilita AS affidabilita,
-                           b.direttore_us AS direttore_us,
-                           b.responsabile_us AS responsabile_us,
-                           b.cod_ente_schedatore AS cod_ente_schedatore,
-                           b.data_rilevazione AS data_rilevazione,
-                           b.data_rielaborazione AS data_rielaborazione,
-                           b.lunghezza_usm AS lunghezza_usm,
-                           b.altezza_usm AS altezza_usm,
-                           b.spessore_usm AS spessore_usm,
-                           b.tecnica_muraria_usm AS tecnica_muraria_usm,
-                           b.modulo_usm AS modulo_usm,
-                           b.campioni_malta_usm AS campioni_malta_usm,
-                           b.campioni_mattone_usm AS campioni_mattone_usm,
-                           b.campioni_pietra_usm AS campioni_pietra_usm,
-                           b.provenienza_materiali_usm AS provenienza_materiali_usm,
-                           b.criteri_distinzione_usm AS criteri_distinzione_usm,
-                           b.uso_primario_usm AS uso_primario_usm
-                      FROM pyarchinit_us_negative_doc AS a
-                           JOIN
-                           us_table AS b ON (a.sito_n = b.sito AND 
-                                             a.area_n = b.area AND 
-                                             a.us_n = b.us);
+                    DROP VIEW IF EXISTS pyarchinit_reperti_view;
+                    CREATE VIEW pyarchinit_reperti_view AS
+                        SELECT a.rowid AS rowid,
+                        a.the_geom AS the_geom,
+                        a.id_rep AS id_rep,
+                        a.siti AS siti,
+                        a.link AS link,
+                        b.rowid AS rowid_1,
+                        b.id_invmat AS id_invmat,
+                        b.sito AS sito,
+                        b.numero_inventario AS numero_inventario,
+                        b.tipo_reperto AS tipo_reperto,
+                        b.criterio_schedatura AS criterio_schedatura,
+                        b.definizione AS definizione,
+                        b.descrizione AS descrizione,
+                        b.area AS area,
+                        b.us AS us,
+                        b.lavato AS lavato,
+                        b.nr_cassa AS nr_cassa,
+                        b.luogo_conservazione AS luogo_conservazione,
+                        b.stato_conservazione AS stato_conservazione,
+                        b.datazione_reperto AS datazione_reperto,
+                        b.elementi_reperto AS elementi_reperto,
+                        b.misurazioni AS misurazioni,
+                        b.rif_biblio AS rif_biblio,
+                        b.tecnologie AS tecnologie,
+                        b.forme_minime AS forme_minime,
+                        b.forme_massime AS forme_massime,
+                        b.totale_frammenti AS totale_frammenti,
+                        b.corpo_ceramico AS corpo_ceramico,
+                        b.rivestimento AS rivestimento,
+                        b.n_reperto as n_reperto
+                        FROM pyarchinit_reperti AS a
+                        JOIN
+                        inventario_materiali_table AS b ON (a.siti = b.sito AND 
+                        a.id_rep = b.numero_inventario);
                         
                         PRAGMA foreign_keys = 1;
+                        PRAGMA foreign_keys = 0;
+                        CREATE TABLE IF NOT EXISTS pottery_table (
+                            id_rep             INTEGER        NOT NULL,
+                            id_number          INTEGER,
+                            sito               TEXT,
+                            area               TEXT,
+                            us                 INTEGER,
+                            box                INTEGER,
+                            photo              TEXT,
+                            drawing            TEXT,
+                            anno               INTEGER,
+                            fabric             TEXT,
+                            percent            TEXT,
+                            material           TEXT,
+                            form               TEXT,
+                            specific_form      TEXT,
+                            ware               TEXT,
+                            munsell            TEXT,
+                            surf_trat          TEXT,
+                            exdeco             TEXT,
+                            intdeco            TEXT,
+                            wheel_made         TEXT,
+                            descrip_ex_deco    TEXT,
+                            descrip_in_deco    TEXT,
+                            note               TEXT,
+                            diametro_max       NUMERIC (7, 3),
+                            qty                INTEGER,
+                            diametro_rim       NUMERIC (7, 3),
+                            diametro_bottom    NUMERIC (7, 3),
+                            diametro_height    NUMERIC (7, 3),
+                            diametro_preserved NUMERIC (7, 3),
+                            specific_shape     TEXT,
+                            bag                INTEGER,
+                            sector             TEXT,
+                            PRIMARY KEY (
+                                id_rep
+                            ),
+                            CONSTRAINT ID_rep_unico UNIQUE (
+                                sito,
+                                id_number
+                            )
+                        );
+                    
+                PRAGMA foreign_keys = 1;   
             ''')
-            c.close()
+            #c.close()
         except KeyError as e:
             pass#QMessageBox.warning(self, "ok", str(e), QMessageBox.Ok)
     def setComboBoxEnable(self, f, v):
