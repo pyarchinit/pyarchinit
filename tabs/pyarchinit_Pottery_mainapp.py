@@ -38,9 +38,9 @@ from qgis.PyQt.uic import loadUiType
 from ..modules.utility.settings import Settings
 from ..gui.imageViewer import ImageViewer
 from ..gui.sortpanelmain import SortPanelMain
-from ..gui.quantpanelmain import QuantPanelMain
+from ..gui.quantpanelmain_pottery import QuantPanelMain
 from ..modules.utility.pyarchinit_exp_POTTERYsheet_pdf import generate_POTTERY_pdf
-
+from ..modules.utility.csv_writer import UnicodeWriter
 
 
 from ..modules.db.pyarchinit_conn_strings import Connection
@@ -50,7 +50,7 @@ from ..modules.utility.pyarchinit_error_check import Error_check
 from ..modules.db.pyarchinit_utility import Utility
 from ..gui.pyarchinitConfigDialog import pyArchInitDialog_Config
 
-from numpy import *
+import numpy as np
 
 MAIN_DIALOG_CLASS, _ = loadUiType(
     os.path.join(os.path.dirname(__file__), os.pardir, 'gui', 'ui', 'pyarchinit_Pottery_ui.ui'))
@@ -580,11 +580,12 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
             for i in range(len(self.DATA_LIST)):
                 temp_dataset = ()
                 try:
-                    temp_dataset = (self.parameter_quant_creator(parameters2, i), int(self.DATA_LIST[i].box))
-                    contatore += int(self.DATA_LIST[i].box) #conteggio totale
+                    temp_dataset = (self.parameter_quant_creator(parameters2, i), int(self.DATA_LIST[i].qty))
+                    contatore += int(self.DATA_LIST[i].qty) #conteggio totale
                     dataset.append(temp_dataset)
-                except:
-                    pass
+                except  Exception as e:
+                    #QMessageBox.warning(self, "Error", str(e),  QMessageBox.Ok)
+                    print(e)
             #QMessageBox.warning(self, "Totale", str(contatore),  QMessageBox.Ok)
             if bool(dataset):
                 dataset_sum = self.UTILITY.sum_list_of_tuples_for_value(dataset)
@@ -592,7 +593,7 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
                 for sing_tup in dataset_sum:
                     sing_list = [sing_tup[0], str(sing_tup[1])]
                     csv_dataset.append(sing_list)
-                filename = ('%s%squant_qty.txt') % (self.QUANT_PATH, os.sep)
+                filename = ('%s%squant_qty.csv') % (self.QUANT_PATH, os.sep)
                 #QMessageBox.warning(self, "Esportazione", str(filename), MessageBox.Ok)
                 f = open(filename, 'wb')
                 Uw = UnicodeWriter(f)
