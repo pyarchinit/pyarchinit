@@ -162,9 +162,9 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         elif self.comboBox_Database.currentText()=='postgres':
             self.setComboBoxEnable(["self.lineEdit_DBname"], "True")
         self.comboBox_Database.currentIndexChanged.connect(self.customize)
-        self.test()
+        #self.test()
         self.test2()
-        self.test3()
+        #self.test3()
         self.comboBox_mapper_read.currentIndexChanged.connect(self.check_table)
         self.comboBox_geometry_read.currentIndexChanged.connect(self.check_geometry_table)
         self.mFeature_field_rd.currentTextChanged.connect(self.value_check)
