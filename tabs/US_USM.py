@@ -810,7 +810,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.comboBox_sito.currentIndexChanged.connect(self.geometry_unitastratigrafiche)### rallenta molto
         self.comboBox_sito.currentIndexChanged.connect(self.charge_insert_ra)
         self.comboBox_sito.currentTextChanged.connect(self.charge_insert_ra)
-        #self.charge_insert_ra()
+        #self.comboBox_sito.currentIndexChanged.connect(self.charge_insert_ra_pottery)
+        #self.comboBox_sito.currentTextChanged.connect(self.charge_insert_ra_pottery)
         self.search_1.currentTextChanged.connect(self.update_filter)
         self.comboBox_per_fin.currentIndexChanged.connect(self.charge_fase_fin_list)
         self.toolButton_pdfpath.clicked.connect(self.setPathpdf)
@@ -1227,16 +1228,29 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             }
         
             inv_vl = self.DB_MANAGER.query_bool(search_dict_inv,'INVENTARIO_MATERIALI')
+            inv_vl2 = self.DB_MANAGER.query_bool(search_dict_inv, 'POTTERY')
+
             inv_list = []
+            inv_list2 = []
             for i in range(len(inv_vl)):
-                inv_list.append(str(inv_vl[i].n_reperto))
+                inv_list.append(str(inv_vl[i].definizione)+' '+str(inv_vl[i].n_reperto))
+                #inv_list2.append('pottery_'+str(inv_vl2[e].id_number))
                 inv_list.sort()
+                #inv_list2.sort()
+            for i in range(len(inv_vl2)):
+                #inv_list.append(str(inv_vl[i].tipo_reperto)+'_'+str(inv_vl[i].n_reperto))
+                inv_list2.append('pottery '+str(inv_vl2[i].id_number))
+                #inv_list.sort()
+                inv_list2.sort()
+
             try:
                 inv_vl.remove('')
+                inv_vl2.remove('')
             except :
                 pass
             self.comboBox_ref_ra.clear()
             self.comboBox_ref_ra.addItems(self.UTILITY.remove_dup_from_list(inv_list))
+            self.comboBox_ref_ra.addItems(self.UTILITY.remove_dup_from_list(inv_list2))
             if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Finden" or "Find":
                 self.comboBox_ref_ra.setEditText("")
             elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Aktuell " or "Current":
@@ -1246,7 +1260,42 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                     except :
                         pass
         except:
-            pass                
+            pass
+
+    def charge_insert_ra_pottery(self):
+        try:
+
+            us = str(self.lineEdit_us.text())
+
+            search_dict_inv = {
+
+                'sito': "'" + str(self.comboBox_sito.currentText()) + "'",
+                'area': "'" + str(eval("self.DATA_LIST[int(self.REC_CORR)].area")) + "'",
+                'us': "'" + str(eval("self.DATA_LIST[int(self.REC_CORR)].us")) + "'"
+            }
+
+            inv_vl = self.DB_MANAGER.query_bool(search_dict_inv, 'POTTERY')
+            inv_list = []
+            for i in range(len(inv_vl)):
+                inv_list.append(str(inv_vl[i].id_number))
+                inv_list.sort()
+            try:
+                inv_vl.remove('')
+            except:
+                pass
+            self.comboBox_ref_ra.clear()
+            self.comboBox_ref_ra.addItems(self.UTILITY.remove_dup_from_list(inv_list))
+            if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Finden" or "Find":
+                self.comboBox_ref_ra.setEditText("")
+            elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Aktuell " or "Current":
+                if len(self.DATA_LIST) > 0:
+                    try:
+                        self.comboBox_ref_ra.setEditText(self.DATA_LIST[self.rec_num].ref_ra)
+                    except:
+                        pass
+        except:
+            pass
+
     def listview_us(self):
         if self.checkBox_query.isChecked():
             conn = Connection()
@@ -3051,12 +3100,14 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             else:
             
                 QMessageBox.information(self, "Warning" , "There is no such site: "'"'+ str(sito_set_str) +'"'" in this tab, Please disable the 'site choice' from the plugin configuration tab to see all records or create the tab",QMessageBox.Ok) 
+
     def generate_list_foto(self):
         data_list_foto = []
         for i in range(len(self.DATA_LIST)):
             conn = Connection()
             thumb_path = conn.thumb_path()
             thumb_path_str = thumb_path['thumb_path']
+            
             if thumb_path_str=='':
                 if self.L=='it':
                     QMessageBox.information(self, "Info", "devi settare prima la path per salvare le thumbnail . Vai in impostazioni di sistema/ path setting ")
@@ -3419,21 +3470,23 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             if self.checkBox_e_foto_t.isChecked():
                 US_index_pdf = generate_US_pdf()
                 data_list_foto = self.generate_list_foto()
+                #QMessageBox.information(self, 'Ok',str(data_list_foto[0][0]),QMessageBox.Ok)
                 try:
-                        if bool(data_list_foto):
-                            US_index_pdf.build_index_Foto_en(data_list_foto, data_list_foto[0][0])
-                            QMessageBox.warning(self, 'Ok',"Export finished SU List",QMessageBox.Ok)
-                        else:
-                            QMessageBox.warning(self, 'WARNING', 'The photo list cannot be exported because you do not have tagged images.',QMessageBox.Ok)
+                    if bool(data_list_foto):
+                        US_index_pdf.build_index_Foto_en(data_list_foto, data_list_foto[0][0])
+                        QMessageBox.information(self, 'Ok',"Export finished SU List",QMessageBox.Ok)
+                    else:
+                        QMessageBox.warning(self, 'WARNING', 'The photo list cannot be exported because you do not have tagged images.',QMessageBox.Ok)
                 except Exception as e :
                     QMessageBox.warning(self, 'WARNING',str(e),QMessageBox.Ok)
+            
             if self.checkBox_e_foto.isChecked():
                 US_index_pdf = generate_US_pdf()
                 data_list_foto = self.generate_list_foto()
                 try:
                         if bool(data_list_foto):
                             US_index_pdf.build_index_Foto_2_en(data_list_foto, data_list_foto[0][0])
-                            QMessageBox.warning(self, 'Ok', "Export finished Photo List without thumbanil",QMessageBox.Ok)
+                            QMessageBox.information(self, 'Ok', "Export finished Photo List without thumbanil",QMessageBox.Ok)
                         else:
                             QMessageBox.warning(self, 'WARNING', "The photo list cannot be exported because you do not have tagged images.",QMessageBox.Ok)
                 except Exception as e :

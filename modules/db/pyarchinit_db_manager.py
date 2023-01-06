@@ -41,7 +41,7 @@ from modules.utility.pyarchinit_OS_utility import Pyarchinit_OS_Utility
 from sqlalchemy.dialects import postgresql
 from sqlalchemy.dialects.postgresql import insert
 
-from modules.db.pyarchinit_db_mapper import US, UT, SITE, PERIODIZZAZIONE, \
+from modules.db.pyarchinit_db_mapper import US, UT, SITE, PERIODIZZAZIONE, POTTERY, \
     STRUTTURA, SCHEDAIND, INVENTARIO_MATERIALI, DETSESSO, DOCUMENTAZIONE, DETETA, MEDIA, \
     MEDIA_THUMB, MEDIATOENTITY, MEDIAVIEW, TOMBA, CAMPIONI, PYARCHINIT_THESAURUS_SIGLE, \
     ARCHEOZOOLOGY, INVENTARIO_LAPIDEI, PDF_ADMINISTRATOR,PYUS ,PYUSM,PYSITO_POINT,PYSITO_POLYGON,PYQUOTE,PYQUOTEUSM, \
@@ -108,7 +108,44 @@ class Pyarchinit_db_management(object):
         return test
 
         # insert statement
-    def insert_pyus(self, *arg):                     
+
+    def insert_pottery_values(self, *arg):
+        """Istanzia la classe POTTERY da pyarchinit_db_mapper"""
+        pottery = POTTERY(arg[0],
+                  arg[1],
+                  arg[2],
+                  arg[3],
+                  arg[4],
+                  arg[5],
+                  arg[6],
+                  arg[7],
+                  arg[8],
+                  arg[9],
+                  arg[10],
+                  arg[11],
+                  arg[12],
+                  arg[13],
+                  arg[14],
+                  arg[15],
+                  arg[16],
+                  arg[17],
+                  arg[18],
+                  arg[19],
+                  arg[20],
+                  arg[21],
+                  arg[22],
+                  arg[23],
+                  arg[24],
+                  arg[25],
+                  arg[26],
+                  arg[27],
+                  arg[28],
+                  arg[29],
+                  arg[30],
+                  arg[31])
+
+        return pottery
+    def insert_pyus(self, *arg):
         pyus = PYUS(arg[0],
                 arg[1],
                 arg[2],
@@ -1486,7 +1523,17 @@ class Pyarchinit_db_management(object):
         res = self.engine.execute(sql_query_string)
         rows= res.fetchall()
         return rows
-    
+
+    def select_medianame_pot_from_db_sql(self, sito, area, us):
+        sql_query_string = (
+                               "SELECT c.filepath, a.media_name FROM media_to_entity_table as a,  pottery_table as b, media_thumb_table as c WHERE b.id_rep=a.id_entity and c.id_media=a.id_media  and b.sito= '%s' and b.area='%s' and b.us = '%s' and entity_type='CERAMICA'") % (
+                           sito, area, us)
+
+        res = self.engine.execute(sql_query_string)
+        rows = res.fetchall()
+        return rows
+
+
     def select_medianame_ra_from_db_sql(self,sito,area,us):
         sql_query_string = ("SELECT c.filepath, a.media_name FROM media_to_entity_table as a,  inventario_materiali_table as b, media_thumb_table as c WHERE b.id_invmat=a.id_entity and c.id_media=a.id_media  and b.sito= '%s' and b.area='%s' and b.us = '%s' and entity_type='REPERTO'")%(sito,area,us) 
         
@@ -1622,23 +1669,29 @@ class Pyarchinit_db_management(object):
         
         # return
     
-    def insert_number_of_us_records(self, sito, area, n_us, unita_tipo):
+    def insert_number_of_us_records(self, sito, area, n_us):
         id_us = self.max_num_id('US', 'id_us')
         #text = "SCHEDA CREATA IN AUTOMATICO"
         l=QgsSettings().value("locale/userLocale")[0:2]
 
         if l == 'it':
             text = "SCHEDA CREATA IN AUTOMATICO"
+            unita_tipo='US'
         else:
             text = "FORM MADE AUTOMATIC"
+            unita_tipo = 'SU'
         id_us += 1
 
-        data_ins = self.insert_values(id_us, sito, area, n_us, text, '', '', '', '', '', '', '', '', '', '', '', '[]',
+        data_ins = self.insert_values(id_us, sito, area, n_us, '', '', '', '', '', '', '', '', '', '', '', '', '[]',
                                       '[]', '[]', '', '', '', '', '', '', '', '', '0', '[]', unita_tipo, '', '', '', '',
-                                      '', '', '', '', '', '', '', '', '', None, None, '', '[]','[]', '[]', '[]', '[]','','','','',None,None,'','','','','','','[]','[]',None,None,None,None,None,None,None,None,None,None,'','','','','','','','','','',None,None,None,'','','','','','','','','','','','','','','','','','','','','','','','','','','','','')
-                                           
+                                      '', '', '', '', '', '', '', '', '', None, None, '', '[]', '[]', '[]', '[]', '[]',
+                                      '', '', '', '', None, None, '', '', '', '', '', '', '[]', '[]', None, None, None,
+                                      None, None, None, None, None, None, None, '', '', '', '', '', '', '', '', '', '',
+                                      None, None, None, '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
+                                      '', '', '', '', '', '', '', '', '', '', '', '', '')
+
         self.insert_data_session(data_ins)
-        
+
         return
     
     def insert_number_of_reperti_records(self, sito, numero_invetario):
@@ -1655,8 +1708,21 @@ class Pyarchinit_db_management(object):
         
         
         return
-    
-    
+
+    def insert_number_of_pottery_records(self,  id_number,sito, area,us):
+        id_rep = self.max_num_id('POTTERY', 'id_rep')
+
+        l = QgsSettings().value("locale/userLocale")[0:2]
+
+        id_rep += 1
+
+        data_ins = self.insert_pottery_values(id_rep, id_number, sito, area, us, 0, '', '', 0, '', '', '', '',
+                                              '', '', '', '', '', '', '', '', '', '', None, 0, None, None, None, None, '',
+                                              0,'')
+
+        self.insert_data_session(data_ins)
+
+        return
     
     
     

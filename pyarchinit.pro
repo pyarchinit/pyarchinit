@@ -28,6 +28,7 @@ SOURCES = 	 tabs/__init__.py\
 			 tabs/Excel_export.py\
 			 tabs/pyarchinit_setting_matrix.py\
 			 tabs/tops_pyarchinit.py\
+			 tabs/pyarchinit_Pottery_mainapp.py\
 			 gui/__init__.py\
 			 gui/dbmanagment.py\
 			 gui/imageViewer.py\
@@ -67,7 +68,8 @@ SOURCES = 	 tabs/__init__.py\
 			 modules/utility/pyarchinit_print_utility.py\
 			 modules/utility/settings.py\
 			 modules/utility/test_dirname.py\
-			 modules/utility/testtable_checkbox.py		
+			 modules/utility/testtable_checkbox.py\
+			 modules/utility/pyarchinit_exp_POTTERYsheet_pdf.py			
 
 FORMS =   	gui/ui/Archeozoology.ui\
 			gui/ui/Campioni.ui\
@@ -107,6 +109,7 @@ FORMS =   	gui/ui/Archeozoology.ui\
 			gui/ui/gpkg_export.ui\
 			gui/ui/Print_map.ui\
 			gui/ui/Tops2pyarchinit.ui\
+			gui/ui/pyarchinit_Pottery_ui.ui\
 
 TRANSLATIONS = i18n/pyarchinit_plugin_it_IT.ts \
                i18n/pyarchinit_plugin_de_DE.ts \

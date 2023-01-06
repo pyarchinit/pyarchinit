@@ -1950,7 +1950,7 @@ class Pyarchinit_pyqgis(QDialog):
             group.setExpanded(False)
             myGroup1 = group.insertGroup(1, "Place reference")
             myGroup2 = group.insertGroup(2, "Lines refernces")        
-            myGroup3 = group.insertGroup(3, "Footprints")
+            myGroup3 = group.insertGroup(3, "Space requirements")
             
         
         #myGroup4 = group.insertGroup(4, "Base Map")
@@ -2632,7 +2632,7 @@ class Pyarchinit_pyqgis(QDialog):
             group.setExpanded(False)
             myGroup1 = group.insertGroup(1, "Place reference")
             myGroup2 = group.insertGroup(2, "Lines refernces")        
-            myGroup3 = group.insertGroup(3, "Footprints")
+            myGroup3 = group.insertGroup(3, "Space requirements")
         myGroup1.setExpanded(False)
         myGroup2.setExpanded(False)
         myGroup3.setExpanded(False)

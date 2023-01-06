@@ -1,55 +1,91 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE TS>
-<TS version="2.1" language="es_ES">
-    <extra-po-header-language>es_ES</extra-po-header-language>
-    <extra-po-header-language_team></extra-po-header-language_team>
-    <extra-po-header-last_translator></extra-po-header-last_translator>
-    <extra-po-header-po_revision_date></extra-po-header-po_revision_date>
-    <extra-po-header-pot_creation_date></extra-po-header-pot_creation_date>
-    <extra-po-header-project_id_version></extra-po-header-project_id_version>
-    <extra-po-header-x_generator>Poedit 3.0</extra-po-header-x_generator>
-    <extra-po-headers>MIME-Version,Content-Type,Content-Transfer-Encoding,Plural-Forms,X-Language,X-Source-Language,X-Qt-Contexts,Project-Id-Version,POT-Creation-Date,PO-Revision-Date,Last-Translator,Language-Team,Language,X-Generator</extra-po-headers>
+<!DOCTYPE TS><TS version="2.0" language="es_ES" sourcelanguage="">
 <context>
     <name>DBmanagment</name>
     <message>
-        <location filename="../gui/ui/dbmanagment.ui" line="442"/>
+        <location filename="../gui/ui/dbmanagment.ui" line="472"/>
         <source>Pyarchinit Backup</source>
         <translation type="unfinished">Copia de seguridad de Pyarchinit</translation>
     </message>
     <message>
-        <location filename="../gui/ui/dbmanagment.ui" line="483"/>
+        <location filename="../gui/ui/dbmanagment.ui" line="554"/>
         <source>             Backup e Restore DB Pyarchinit</source>
         <translation type="unfinished">             Copia de seguridad y restauración de la base de datos de Pyarchinit</translation>
     </message>
     <message>
-        <location filename="../gui/ui/dbmanagment.ui" line="521"/>
+        <location filename="../gui/ui/dbmanagment.ui" line="573"/>
         <source>Backup db pyarchinit (per win e linux)</source>
         <translation type="unfinished">Pyarchinit db backup (para win y linux)</translation>
     </message>
     <message>
-        <location filename="../gui/ui/dbmanagment.ui" line="540"/>
+        <location filename="../gui/ui/dbmanagment.ui" line="620"/>
         <source>Scegli un file del backup e ripristinalo</source>
         <translation type="unfinished">Elegir un archivo de la copia de seguridad y restaurarlo</translation>
     </message>
     <message>
-        <location filename="../gui/ui/dbmanagment.ui" line="559"/>
+        <location filename="../gui/ui/dbmanagment.ui" line="495"/>
         <source>Backup postgres</source>
         <translation>Copia de seguridad de Postgres</translation>
     </message>
     <message>
-        <location filename="../gui/ui/dbmanagment.ui" line="578"/>
+        <location filename="../gui/ui/dbmanagment.ui" line="537"/>
         <source>Backup sqlite</source>
         <translation type="unfinished">Copia de seguridad de sqlite</translation>
     </message>
     <message>
-        <location filename="../gui/ui/dbmanagment.ui" line="600"/>
+        <location filename="../gui/ui/dbmanagment.ui" line="642"/>
         <source>Scegli il file da ripristinare</source>
         <translation type="unfinished">Elija el archivo a restaurar</translation>
     </message>
     <message>
-        <location filename="../gui/ui/dbmanagment.ui" line="622"/>
+        <location filename="../gui/ui/dbmanagment.ui" line="746"/>
         <source>Ripristina</source>
         <translation>Restaurar</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/dbmanagment.ui" line="660"/>
+        <source>Host</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/dbmanagment.ui" line="670"/>
+        <source>localhost</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/dbmanagment.ui" line="677"/>
+        <source>Database</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/dbmanagment.ui" line="687"/>
+        <source>pyarchinit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/dbmanagment.ui" line="697"/>
+        <source>Port</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/dbmanagment.ui" line="707"/>
+        <source>5432</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/dbmanagment.ui" line="714"/>
+        <source>Username</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/dbmanagment.ui" line="767"/>
+        <source>postgres</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/dbmanagment.ui" line="757"/>
+        <source>Password</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1006,8 +1042,8 @@
     </message>
     <message>
         <location filename="../gui/ui/Archeozoology.ui" line="1597"/>
-        <source>Età</source>
-        <translation type="unfinished">Edad</translation>
+        <source>Et&#xe0;</source>
+        <translation type="obsolete">Edad</translation>
     </message>
     <message>
         <location filename="../gui/ui/Archeozoology.ui" line="1620"/>
@@ -1254,8 +1290,8 @@ p, li { white-space: pre-wrap; }
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:7.8pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Sans&apos;; font-size:10pt;&quot;&gt;Crea un confronto a 4 variabili con istogramma di frequenza, curva di densità e curva cumulativa&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished">&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Sans&apos;; font-size:10pt;&quot;&gt;Crea un confronto a 4 variabili con istogramma di frequenza, curva di densit&#xe0; e curva cumulativa&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="obsolete">&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:7.8pt; font-weight:400; font-style:normal;&quot;&gt;
@@ -1666,6 +1702,20 @@ p, li { white-space: pre-wrap; }
         <location filename="../gui/ui/Archeozoology.ui" line="7041"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;bello&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;hermoso&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message encoding="UTF-8">
+        <location filename="../gui/ui/Archeozoology.ui" line="1597"/>
+        <source>Età</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message encoding="UTF-8">
+        <location filename="../gui/ui/Archeozoology.ui" line="2112"/>
+        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:7.8pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Sans&apos;; font-size:10pt;&quot;&gt;Crea un confronto a 4 variabili con istogramma di frequenza, curva di densità e curva cumulativa&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2248,8 +2298,8 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <location filename="../gui/ui/Detsesso.ui" line="2056"/>
-        <source>Tuberosità front. e par.</source>
-        <translation type="unfinished">Tuberosidad frontal y lateral</translation>
+        <source>Tuberosit&#xe0; front. e par.</source>
+        <translation type="obsolete">Tuberosidad frontal y lateral</translation>
     </message>
     <message>
         <location filename="../gui/ui/Detsesso.ui" line="2859"/>
@@ -2418,6 +2468,11 @@ p, li { white-space: pre-wrap; }
         <location filename="../gui/ui/Detsesso.ui" line="2941"/>
         <source>Relazione tra il contorno dell&apos;arco dell&apos;ischio e della sup. auricolare</source>
         <translation type="unfinished">Relación entre el contorno del arco del isquion y el supraauricular</translation>
+    </message>
+    <message encoding="UTF-8">
+        <location filename="../gui/ui/Detsesso.ui" line="2056"/>
+        <source>Tuberosità front. e par.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2699,254 +2754,289 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>DialogImageViewer</name>
     <message>
-        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="447"/>
+        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="474"/>
         <source>Dialog</source>
         <translation type="unfinished">Diálogo</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="479"/>
+        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="506"/>
         <source>DBMS Toolbar</source>
         <translation type="unfinished">Barra de herramientas del SGBD</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="502"/>
+        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="529"/>
         <source>View alls records</source>
         <translation type="unfinished">Ver todos los registros</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="530"/>
+        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="557"/>
         <source>Order by</source>
         <translation type="unfinished">Pedir por</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="556"/>
+        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="583"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Ultimi 25 foto&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Últimas 25 fotos&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="582"/>
+        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="609"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Carica le foto nel database (link) e visualizza le stesse nella listWidget&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Subir fotos a la base de datos (enlace) y mostrarlas en el listWidget&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="616"/>
+        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="643"/>
         <source>searchbar</source>
         <translation type="unfinished">barra de búsqueda</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="636"/>
+        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="663"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Rimuovi le thumbnail selezionate&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Eliminar las miniaturas seleccionadas&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="656"/>
+        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="683"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Rimuovi tutti i tag selezionati all&apos;immagine&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Eliminar todas las etiquetas seleccionadas de la imagen&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="682"/>
+        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="709"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Torna indietro di 25 foto alla volta&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Retroceder 25 fotos a la vez&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="708"/>
+        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="735"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Avanza di 25 foto alla volta&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Avanzar 25 fotos a la vez&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="722"/>
+        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="749"/>
         <source>Rimuovi barra di ricerca</source>
         <translation type="unfinished">Eliminar la barra de búsqueda</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="754"/>
+        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="781"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Prime 25 foto&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Las primeras 25 fotos&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="800"/>
+        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="827"/>
         <source>ID tag</source>
         <translation type="unfinished">Etiquetas de identificación</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="812"/>
+        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="839"/>
         <source>Categoria Tag</source>
         <translation type="unfinished">Etiquetas de la categoría</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="824"/>
+        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="851"/>
         <source>Tag</source>
         <translation type="unfinished">Etiquetas</translation>
     </message>
     <message>
         <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="858"/>
-        <source>Tags Unità Stratigrafiche</source>
-        <translation type="unfinished">Etiquetas Unidades estratigráficas</translation>
+        <source>Tags Unit&#xe0; Stratigrafiche</source>
+        <translation type="obsolete">Etiquetas Unidades estratigráficas</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="870"/>
+        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="897"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Con questo bottone si assegna il tag alla foto selezionata corrispondente al sito area e us indicato&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Este botón se utiliza para etiquetar la foto seleccionada correspondiente a la zona indicada y a nuestro sitio&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="1724"/>
+        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="1851"/>
         <source>Tags manager</source>
         <translation type="unfinished">Etiquetas gerente</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="1737"/>
+        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="1864"/>
         <source>+</source>
         <translation type="unfinished">+</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="1750"/>
+        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="1877"/>
         <source>-</source>
         <translation type="unfinished">-</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="1768"/>
+        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="1895"/>
         <source>Sito</source>
         <translation>Sitio</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="1118"/>
+        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="1225"/>
         <source>Area</source>
         <translation type="unfinished">Área</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="1065"/>
+        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="1079"/>
         <source>US</source>
         <translation type="unfinished">EU</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="1012"/>
+        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="1039"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Barra di ricerca&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Barra de búsqueda&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="1024"/>
+        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="1051"/>
         <source>Barra di ricerca delle immagini</source>
         <translation type="unfinished">Barra de búsqueda de imágenes</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="1049"/>
+        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="1189"/>
         <source>Tomba</source>
         <translation type="unfinished">Tumba</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="1072"/>
+        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="1086"/>
         <source>Materiali</source>
         <translation>Materiales</translation>
     </message>
     <message>
         <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="1099"/>
-        <source>Unità Stratigrafiche</source>
-        <translation type="unfinished">Unidades estratigráficas</translation>
+        <source>Unit&#xe0; Stratigrafiche</source>
+        <translation type="obsolete">Unidades estratigráficas</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="1694"/>
+        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="1821"/>
         <source>Struttura</source>
         <translation type="unfinished">Estructura</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="1773"/>
+        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="1900"/>
         <source>Sigla st.</source>
         <translation type="unfinished">Abreviatura st.</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="1159"/>
+        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="1103"/>
         <source>Nr. st.</source>
         <translation type="unfinished">Nº de la calle</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="1175"/>
+        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="1129"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:10pt; font-weight:600;&quot;&gt;Cerca le immagini taggate&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:10pt; font-weight:600;&quot;&gt;Buscar imágenes etiquetadas&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="1231"/>
+        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="1265"/>
         <source>DB Info</source>
         <translation type="unfinished">Información DB</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="1289"/>
+        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="1323"/>
         <source>1</source>
         <translation type="unfinished">1</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="1309"/>
+        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="1343"/>
         <source>record n.</source>
         <translation type="unfinished">registro no.</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="1332"/>
+        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="1366"/>
         <source>record tot.</source>
         <translation type="unfinished">récord total.</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="1359"/>
+        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="1393"/>
         <source>Status</source>
         <translation type="unfinished">Estado</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="1382"/>
+        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="1416"/>
         <source>Ordinamento</source>
         <translation type="unfinished">Clasificación</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="1499"/>
+        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="1626"/>
         <source>Tags Inventario Materiali</source>
         <translation type="unfinished">Etiquetas Inventario de materiales</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="1665"/>
+        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="1792"/>
         <source>Numero Inventario</source>
         <translation type="unfinished">Número de inventario</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="1792"/>
+        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="1919"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Assegna i tag alle foto materiali selezionate corrispondenti al sito e numero inventario&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Asigna etiquetas a las fotos de material seleccionadas correspondientes al sitio y al número de inventario&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="1595"/>
+        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="1722"/>
         <source>Tags Tomba</source>
         <translation type="unfinished">Etiquetas Tumba</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="1778"/>
+        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="1905"/>
         <source>Nr. St.</source>
         <translation type="unfinished">Nr. St.</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="1818"/>
+        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="1945"/>
         <source>Tags</source>
         <translation type="unfinished">Etiquetas</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="1845"/>
+        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="1972"/>
         <source>Numero Totale Immagini</source>
         <translation type="unfinished">Número total de imágenes</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="1858"/>
+        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="1985"/>
         <source>Immagini visualizzate</source>
         <translation type="unfinished">Imágenes mostradas</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="2031"/>
+        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="2161"/>
         <source>Attiva/disattiva la visualizzazione dei tags</source>
         <translation type="unfinished">Activa/desactiva la visualización de etiquetas</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="2034"/>
+        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="2164"/>
         <source>Tags viewer on/off</source>
         <translation type="unfinished">Visor de etiquetas activado/desactivado</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="2068"/>
+        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="2198"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Rimuovi un tag alla volta selezionandolo dalla TabWidget TAG&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Elimine una etiqueta a la vez seleccionándola en el TabWidget TAG&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message encoding="UTF-8">
+        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="885"/>
+        <source>Tags Unità Stratigrafiche</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message encoding="UTF-8">
+        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="1156"/>
+        <source>Unità Stratigrafiche</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="1239"/>
+        <source>Pottery</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="1533"/>
+        <source>Tags Pottery</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="1598"/>
+        <source>ID Number</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="1603"/>
+        <source>Name site</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_image_viewer_dialog.ui" line="2145"/>
+        <source>%p%</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2980,614 +3070,619 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>DialogInd</name>
     <message>
-        <location filename="../gui/ui/Schedaind.ui" line="435"/>
+        <location filename="../gui/ui/Schedaind.ui" line="462"/>
         <source>pyArchInit Gestione Scavi - Scheda Individuo</source>
         <translation type="unfinished">pyArchInit Gestión de excavaciones - Ficha individual</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Schedaind.ui" line="462"/>
+        <location filename="../gui/ui/Schedaind.ui" line="1278"/>
         <source>Grado/importanza</source>
         <translation type="unfinished">Grado/importancia</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Schedaind.ui" line="469"/>
+        <location filename="../gui/ui/Schedaind.ui" line="1285"/>
         <source>Dati descrittivi</source>
         <translation type="unfinished">Datos descriptivos</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Schedaind.ui" line="485"/>
+        <location filename="../gui/ui/Schedaind.ui" line="1301"/>
         <source>Data</source>
         <translation type="unfinished">Fecha</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Schedaind.ui" line="516"/>
+        <location filename="../gui/ui/Schedaind.ui" line="1332"/>
         <source>Schedatore</source>
         <translation type="unfinished">Programador</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Schedaind.ui" line="547"/>
+        <location filename="../gui/ui/Schedaind.ui" line="1363"/>
         <source>Osservazioni</source>
         <translation type="unfinished">Comentarios</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Schedaind.ui" line="569"/>
+        <location filename="../gui/ui/Schedaind.ui" line="1385"/>
         <source>Orientamento e Posizione</source>
         <translation type="unfinished">Orientación y posición</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Schedaind.ui" line="592"/>
+        <location filename="../gui/ui/Schedaind.ui" line="1408"/>
         <source>Lunghezza scheletro</source>
         <translation type="unfinished">Longitud del esqueleto</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Schedaind.ui" line="610"/>
+        <location filename="../gui/ui/Schedaind.ui" line="1426"/>
         <source>Azimut</source>
         <translation type="unfinished">Azimut</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Schedaind.ui" line="906"/>
+        <location filename="../gui/ui/Schedaind.ui" line="1722"/>
         <source>Non determinabile</source>
         <translation type="unfinished">No se puede determinar</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Schedaind.ui" line="646"/>
+        <location filename="../gui/ui/Schedaind.ui" line="1462"/>
         <source>Nord</source>
         <translation type="unfinished">Norte</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Schedaind.ui" line="651"/>
+        <location filename="../gui/ui/Schedaind.ui" line="1467"/>
         <source>Est</source>
         <translation type="unfinished">Este</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Schedaind.ui" line="656"/>
+        <location filename="../gui/ui/Schedaind.ui" line="1472"/>
         <source>Ovest</source>
         <translation type="unfinished">Oeste</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Schedaind.ui" line="661"/>
+        <location filename="../gui/ui/Schedaind.ui" line="1477"/>
         <source>Sud</source>
         <translation type="unfinished">Sur</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Schedaind.ui" line="666"/>
+        <location filename="../gui/ui/Schedaind.ui" line="1482"/>
         <source>Nord-Est</source>
         <translation type="unfinished">Noreste</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Schedaind.ui" line="671"/>
+        <location filename="../gui/ui/Schedaind.ui" line="1487"/>
         <source>Nord-Ovest</source>
         <translation type="unfinished">Noroeste</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Schedaind.ui" line="676"/>
+        <location filename="../gui/ui/Schedaind.ui" line="1492"/>
         <source>Sud-Est</source>
         <translation type="unfinished">Sureste</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Schedaind.ui" line="681"/>
+        <location filename="../gui/ui/Schedaind.ui" line="1497"/>
         <source>Sud-Ovest</source>
         <translation type="unfinished">Suroeste</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Schedaind.ui" line="700"/>
+        <location filename="../gui/ui/Schedaind.ui" line="1516"/>
         <source>Asse</source>
         <translation type="unfinished">Eje</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Schedaind.ui" line="715"/>
+        <location filename="../gui/ui/Schedaind.ui" line="1531"/>
         <source>Piano giacitura</source>
         <translation type="unfinished">Plano de distribución</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Schedaind.ui" line="730"/>
+        <location filename="../gui/ui/Schedaind.ui" line="1546"/>
         <source>Posizione cranio</source>
         <translation type="unfinished">Posición del cráneo</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Schedaind.ui" line="745"/>
+        <location filename="../gui/ui/Schedaind.ui" line="1561"/>
         <source>Posizione arti inferiori</source>
         <translation type="unfinished">Posición de las extremidades inferiores</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Schedaind.ui" line="766"/>
+        <location filename="../gui/ui/Schedaind.ui" line="1582"/>
         <source>Braccia lungo il corpo</source>
         <translation type="unfinished">Brazos a lo largo del cuerpo</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Schedaind.ui" line="771"/>
+        <location filename="../gui/ui/Schedaind.ui" line="1587"/>
         <source>Braccia Incrociate sul petto</source>
         <translation type="unfinished">Brazos cruzados sobre el pecho</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Schedaind.ui" line="776"/>
+        <location filename="../gui/ui/Schedaind.ui" line="1592"/>
         <source>Braccia Incrociate sul bacino</source>
         <translation type="unfinished">Brazos cruzados sobre la pelvis</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Schedaind.ui" line="781"/>
+        <location filename="../gui/ui/Schedaind.ui" line="1597"/>
         <source>Mani congiunte sul petto</source>
         <translation type="unfinished">Manos unidas en el pecho</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Schedaind.ui" line="786"/>
+        <location filename="../gui/ui/Schedaind.ui" line="1602"/>
         <source>Mani congiunte sul bacino  </source>
         <translation type="unfinished">Manos unidas en la pelvis</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Schedaind.ui" line="802"/>
+        <location filename="../gui/ui/Schedaind.ui" line="1618"/>
         <source>Posizione arti superiori</source>
         <translation type="unfinished">Posición del miembro superior</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Schedaind.ui" line="824"/>
+        <location filename="../gui/ui/Schedaind.ui" line="1640"/>
         <source>Distesi</source>
         <translation type="unfinished">Acostado</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Schedaind.ui" line="829"/>
+        <location filename="../gui/ui/Schedaind.ui" line="1645"/>
         <source>Incrociati</source>
         <translation type="unfinished">Cruzado</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Schedaind.ui" line="834"/>
+        <location filename="../gui/ui/Schedaind.ui" line="1650"/>
         <source>Asimmetrici</source>
         <translation type="unfinished">Asimétrico</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Schedaind.ui" line="858"/>
+        <location filename="../gui/ui/Schedaind.ui" line="1674"/>
         <source>Orientamento e posizione del corpo</source>
         <translation type="unfinished">Orientación y posición del cuerpo</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Schedaind.ui" line="911"/>
+        <location filename="../gui/ui/Schedaind.ui" line="1727"/>
         <source>Supino</source>
         <translation type="unfinished">Supino</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Schedaind.ui" line="916"/>
+        <location filename="../gui/ui/Schedaind.ui" line="1732"/>
         <source>Prono</source>
         <translation type="unfinished">Prono</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Schedaind.ui" line="921"/>
+        <location filename="../gui/ui/Schedaind.ui" line="1737"/>
         <source>Posizione fetale</source>
         <translation type="unfinished">Posición fetal</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Schedaind.ui" line="926"/>
+        <location filename="../gui/ui/Schedaind.ui" line="1742"/>
         <source>Su lato dx</source>
         <translation type="unfinished">En el lado derecho</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Schedaind.ui" line="931"/>
+        <location filename="../gui/ui/Schedaind.ui" line="1747"/>
         <source>Su lato sx</source>
         <translation type="unfinished">En el lado izquierdo</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Schedaind.ui" line="959"/>
+        <location filename="../gui/ui/Schedaind.ui" line="1775"/>
         <source>Resti osteologici</source>
         <translation type="unfinished">Restos osteológicos</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Schedaind.ui" line="997"/>
+        <location filename="../gui/ui/Schedaind.ui" line="1813"/>
         <source>Tipo caratteristica</source>
         <translation type="unfinished">Tipo de característica</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Schedaind.ui" line="1002"/>
+        <location filename="../gui/ui/Schedaind.ui" line="1818"/>
         <source>Posizione</source>
         <translation type="unfinished">Ubicación</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Schedaind.ui" line="1438"/>
+        <location filename="../gui/ui/Schedaind.ui" line="2254"/>
         <source>-</source>
         <translation type="unfinished">-</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Schedaind.ui" line="1163"/>
+        <location filename="../gui/ui/Schedaind.ui" line="1979"/>
         <source>+</source>
         <translation type="unfinished">+</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Schedaind.ui" line="1100"/>
+        <location filename="../gui/ui/Schedaind.ui" line="1916"/>
         <source>Tipo misura</source>
         <translation type="unfinished">Tipo de medición</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Schedaind.ui" line="1105"/>
+        <location filename="../gui/ui/Schedaind.ui" line="1921"/>
         <source>Unita&apos; di misura</source>
         <translation type="unfinished">Unidades de medida</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Schedaind.ui" line="1110"/>
+        <location filename="../gui/ui/Schedaind.ui" line="1926"/>
         <source>Valore</source>
         <translation type="unfinished">Valor</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Schedaind.ui" line="1169"/>
+        <location filename="../gui/ui/Schedaind.ui" line="1985"/>
         <source>Altre caratteristiche</source>
         <translation type="unfinished">Otras características</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Schedaind.ui" line="1192"/>
+        <location filename="../gui/ui/Schedaind.ui" line="2008"/>
         <source>CLASSI DI ETA&apos;</source>
         <translation type="unfinished">CLASES DE EDAD</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Schedaind.ui" line="1216"/>
+        <location filename="../gui/ui/Schedaind.ui" line="2032"/>
         <source>Adulto giovane (20-29)</source>
         <translation type="unfinished">Adulto joven (20-29)</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Schedaind.ui" line="1221"/>
+        <location filename="../gui/ui/Schedaind.ui" line="2037"/>
         <source>Adulto maturo (30-50)</source>
         <translation type="unfinished">Adulto maduro (30-50)</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Schedaind.ui" line="1226"/>
+        <location filename="../gui/ui/Schedaind.ui" line="2042"/>
         <source>Adulto di eta&apos; avanzata (&gt;50)</source>
         <translation type="unfinished">Adultos mayores (&gt;50)</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Schedaind.ui" line="1277"/>
+        <location filename="../gui/ui/Schedaind.ui" line="2093"/>
         <source>STIMA DEL SESSO</source>
         <translation type="unfinished">ESTIMACIÓN DE GÉNERO</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Schedaind.ui" line="1296"/>
+        <location filename="../gui/ui/Schedaind.ui" line="2112"/>
         <source>Non identificabile</source>
         <translation type="unfinished">No identificable</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Schedaind.ui" line="1301"/>
+        <location filename="../gui/ui/Schedaind.ui" line="2117"/>
         <source>Maschio</source>
         <translation type="unfinished">Hombre</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Schedaind.ui" line="1306"/>
+        <location filename="../gui/ui/Schedaind.ui" line="2122"/>
         <source>Femmina</source>
         <translation type="unfinished">Mujer</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Schedaind.ui" line="1311"/>
+        <location filename="../gui/ui/Schedaind.ui" line="2127"/>
         <source>Indeterminato</source>
         <translation type="unfinished">Sin especificar</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Schedaind.ui" line="1331"/>
+        <location filename="../gui/ui/Schedaind.ui" line="2147"/>
         <source>STIMA DELL&apos;ETA&apos; DI MORTE (in anni)</source>
         <translation type="unfinished">DECLARACIÓN DE LA EDAD DE LA MUERTE (en años)</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Schedaind.ui" line="3018"/>
+        <location filename="../gui/ui/Schedaind.ui" line="3027"/>
         <source>0</source>
         <translation type="unfinished">0</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Schedaind.ui" line="1816"/>
+        <location filename="../gui/ui/Schedaind.ui" line="2284"/>
         <source>1</source>
         <translation type="unfinished">1</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Schedaind.ui" line="1473"/>
+        <location filename="../gui/ui/Schedaind.ui" line="2289"/>
         <source>2</source>
         <translation type="unfinished">2</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Schedaind.ui" line="1478"/>
+        <location filename="../gui/ui/Schedaind.ui" line="2294"/>
         <source>3</source>
         <translation type="unfinished">3</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Schedaind.ui" line="1483"/>
+        <location filename="../gui/ui/Schedaind.ui" line="2299"/>
         <source>4</source>
         <translation type="unfinished">4</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Schedaind.ui" line="1488"/>
+        <location filename="../gui/ui/Schedaind.ui" line="2304"/>
         <source>5</source>
         <translation type="unfinished">5</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Schedaind.ui" line="1493"/>
+        <location filename="../gui/ui/Schedaind.ui" line="2309"/>
         <source>6</source>
         <translation type="unfinished">6</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Schedaind.ui" line="1498"/>
+        <location filename="../gui/ui/Schedaind.ui" line="2314"/>
         <source>7</source>
         <translation type="unfinished">7</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Schedaind.ui" line="1503"/>
+        <location filename="../gui/ui/Schedaind.ui" line="2319"/>
         <source>8</source>
         <translation type="unfinished">8</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Schedaind.ui" line="1508"/>
+        <location filename="../gui/ui/Schedaind.ui" line="2324"/>
         <source>9</source>
         <translation type="unfinished">9</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Schedaind.ui" line="1513"/>
+        <location filename="../gui/ui/Schedaind.ui" line="2329"/>
         <source>10</source>
         <translation type="unfinished">10</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Schedaind.ui" line="1518"/>
+        <location filename="../gui/ui/Schedaind.ui" line="2334"/>
         <source>20</source>
         <translation type="unfinished">20</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Schedaind.ui" line="1523"/>
+        <location filename="../gui/ui/Schedaind.ui" line="2339"/>
         <source>30</source>
         <translation type="unfinished">30</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Schedaind.ui" line="1528"/>
+        <location filename="../gui/ui/Schedaind.ui" line="2344"/>
         <source>40</source>
         <translation type="unfinished">40</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Schedaind.ui" line="1533"/>
+        <location filename="../gui/ui/Schedaind.ui" line="2349"/>
         <source>50</source>
         <translation type="unfinished">50</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Schedaind.ui" line="1538"/>
+        <location filename="../gui/ui/Schedaind.ui" line="2354"/>
         <source>60</source>
         <translation type="unfinished">60</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Schedaind.ui" line="1543"/>
+        <location filename="../gui/ui/Schedaind.ui" line="2359"/>
         <source>70</source>
         <translation type="unfinished">70</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Schedaind.ui" line="1548"/>
+        <location filename="../gui/ui/Schedaind.ui" line="2364"/>
         <source>80</source>
         <translation type="unfinished">80</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Schedaind.ui" line="1553"/>
+        <location filename="../gui/ui/Schedaind.ui" line="2369"/>
         <source>90</source>
         <translation type="unfinished">90</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Schedaind.ui" line="1580"/>
+        <location filename="../gui/ui/Schedaind.ui" line="501"/>
         <source>DBMS Toolbar</source>
         <translation type="unfinished">Barra de herramientas del SGBD</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Schedaind.ui" line="1600"/>
+        <location filename="../gui/ui/Schedaind.ui" line="521"/>
         <source>DB Info</source>
         <translation type="unfinished">Información DB</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Schedaind.ui" line="1617"/>
+        <location filename="../gui/ui/Schedaind.ui" line="538"/>
         <source>Ordinamento</source>
         <translation type="unfinished">Clasificación</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Schedaind.ui" line="1713"/>
+        <location filename="../gui/ui/Schedaind.ui" line="634"/>
         <source>Status</source>
         <translation type="unfinished">Estado</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Schedaind.ui" line="1735"/>
+        <location filename="../gui/ui/Schedaind.ui" line="656"/>
         <source>record n.</source>
         <translation type="unfinished">registro no.</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Schedaind.ui" line="1783"/>
+        <location filename="../gui/ui/Schedaind.ui" line="704"/>
         <source>record tot.</source>
         <translation type="unfinished">récord total.</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Schedaind.ui" line="1846"/>
+        <location filename="../gui/ui/Schedaind.ui" line="2389"/>
         <source>Export PDF</source>
         <translation type="unfinished">Exportación de PDF</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Schedaind.ui" line="1874"/>
+        <location filename="../gui/ui/Schedaind.ui" line="795"/>
         <source>search !!!</source>
         <translation type="unfinished">¡¡¡Búsqueda!!!</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Schedaind.ui" line="1902"/>
+        <location filename="../gui/ui/Schedaind.ui" line="823"/>
         <source>Order by</source>
         <translation type="unfinished">Pedir por</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Schedaind.ui" line="1930"/>
+        <location filename="../gui/ui/Schedaind.ui" line="851"/>
         <source>View alls records</source>
         <translation type="unfinished">Ver todos los registros</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Schedaind.ui" line="1958"/>
+        <location filename="../gui/ui/Schedaind.ui" line="879"/>
         <source>Save</source>
         <translation type="unfinished">Guardar</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Schedaind.ui" line="1989"/>
+        <location filename="../gui/ui/Schedaind.ui" line="910"/>
         <source>New record</source>
         <translation type="unfinished">Nuevo récord</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Schedaind.ui" line="2017"/>
+        <location filename="../gui/ui/Schedaind.ui" line="938"/>
         <source>Last rec</source>
         <translation type="unfinished">Ultimo rec</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Schedaind.ui" line="2045"/>
+        <location filename="../gui/ui/Schedaind.ui" line="966"/>
         <source>Prev rec</source>
         <translation type="unfinished">Prev rec</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Schedaind.ui" line="2073"/>
+        <location filename="../gui/ui/Schedaind.ui" line="994"/>
         <source>Next rec</source>
         <translation type="unfinished">Siguiente rec</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Schedaind.ui" line="2101"/>
+        <location filename="../gui/ui/Schedaind.ui" line="1022"/>
         <source>Delete record</source>
         <translation type="unfinished">Borrar registro</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Schedaind.ui" line="2190"/>
+        <location filename="../gui/ui/Schedaind.ui" line="1111"/>
         <source>Ctrl+G</source>
         <translation type="unfinished">Ctrl+G</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Schedaind.ui" line="2232"/>
+        <location filename="../gui/ui/Schedaind.ui" line="1153"/>
         <source>Mostra immagini</source>
         <translation type="unfinished">Mostrar imágenes</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Schedaind.ui" line="2260"/>
+        <location filename="../gui/ui/Schedaind.ui" line="1181"/>
         <source>First rec</source>
         <translation type="unfinished">Primer rec</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Schedaind.ui" line="2288"/>
+        <location filename="../gui/ui/Schedaind.ui" line="1209"/>
         <source>new search</source>
         <translation type="unfinished">nueva búsqueda</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Schedaind.ui" line="2312"/>
+        <location filename="../gui/ui/Schedaind.ui" line="1233"/>
         <source>Connection test</source>
         <translation type="unfinished">Prueba de conexión</translation>
     </message>
     <message>
         <location filename="../gui/ui/Schedaind.ui" line="2349"/>
         <source>Esportazioni Individui</source>
-        <translation type="unfinished">Exportaciones Personas físicas</translation>
+        <translation type="obsolete">Exportaciones Personas físicas</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Schedaind.ui" line="2359"/>
+        <location filename="../gui/ui/Schedaind.ui" line="2406"/>
         <source>Elenco Foto con Thumbnail</source>
         <translation type="unfinished">Lista de fotos en miniatura</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Schedaind.ui" line="2378"/>
+        <location filename="../gui/ui/Schedaind.ui" line="2442"/>
         <source>Stampa</source>
         <translation type="unfinished">Imprimir</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Schedaind.ui" line="2398"/>
+        <location filename="../gui/ui/Schedaind.ui" line="2423"/>
         <source>Elenco Foto senza Thumbnail</source>
         <translation type="unfinished">Lista de fotos sin miniaturas</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Schedaind.ui" line="2405"/>
+        <location filename="../gui/ui/Schedaind.ui" line="2413"/>
         <source>Schede Individui</source>
         <translation type="unfinished">Tarjetas individuales</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Schedaind.ui" line="2412"/>
+        <location filename="../gui/ui/Schedaind.ui" line="2396"/>
         <source>Elenco Individui</source>
         <translation type="unfinished">Lista de personas</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Schedaind.ui" line="2425"/>
+        <location filename="../gui/ui/Schedaind.ui" line="2465"/>
         <source>Converti in Word</source>
         <translation type="unfinished">Convertir a Word</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Schedaind.ui" line="2647"/>
+        <location filename="../gui/ui/Schedaind.ui" line="2668"/>
         <source>Si</source>
         <translation type="unfinished">Sí</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Schedaind.ui" line="2652"/>
+        <location filename="../gui/ui/Schedaind.ui" line="2673"/>
         <source>No</source>
         <translation type="unfinished">No</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Schedaind.ui" line="2553"/>
+        <location filename="../gui/ui/Schedaind.ui" line="2574"/>
         <source>Completo</source>
         <translation type="unfinished">Completa</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Schedaind.ui" line="2571"/>
+        <location filename="../gui/ui/Schedaind.ui" line="2592"/>
         <source>Disturbato</source>
         <translation type="unfinished">Perturbado</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Schedaind.ui" line="2589"/>
+        <location filename="../gui/ui/Schedaind.ui" line="2610"/>
         <source>In connessione</source>
         <translation type="unfinished">En relación con</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Schedaind.ui" line="2677"/>
+        <location filename="../gui/ui/Schedaind.ui" line="2698"/>
         <source>Sito </source>
         <translation>Sitio </translation>
     </message>
     <message>
-        <location filename="../gui/ui/Schedaind.ui" line="2741"/>
+        <location filename="../gui/ui/Schedaind.ui" line="2762"/>
         <source>N. Struttura</source>
         <translation type="unfinished">N. Estructura</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Schedaind.ui" line="2756"/>
+        <location filename="../gui/ui/Schedaind.ui" line="2777"/>
         <source>N. Individuo</source>
         <translation type="unfinished">N. Individual</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Schedaind.ui" line="2792"/>
+        <location filename="../gui/ui/Schedaind.ui" line="2813"/>
         <source>Area</source>
         <translation type="unfinished">Área</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Schedaind.ui" line="2799"/>
+        <location filename="../gui/ui/Schedaind.ui" line="2820"/>
         <source>Sigla struttura</source>
         <translation type="unfinished">Abreviatura de la estructura</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Schedaind.ui" line="2878"/>
+        <location filename="../gui/ui/Schedaind.ui" line="2899"/>
         <source>US</source>
         <translation type="unfinished">EU</translation>
     </message>
     <message>
         <location filename="../gui/ui/Schedaind.ui" line="2941"/>
         <source>Pdf2Word</source>
-        <translation type="unfinished">Pdf2Word</translation>
+        <translation type="obsolete">Pdf2Word</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Schedaind.ui" line="2948"/>
+        <location filename="../gui/ui/Schedaind.ui" line="2957"/>
         <source>PDF path</source>
         <translation type="unfinished">Ruta de acceso en PDF</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Schedaind.ui" line="2961"/>
+        <location filename="../gui/ui/Schedaind.ui" line="2970"/>
         <source>choose the pdf convert to word</source>
         <translation type="unfinished">elegir el pdf convertir a word</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Schedaind.ui" line="2968"/>
+        <location filename="../gui/ui/Schedaind.ui" line="2977"/>
         <source>...</source>
         <translation type="unfinished">...</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Schedaind.ui" line="2975"/>
+        <location filename="../gui/ui/Schedaind.ui" line="2984"/>
         <source>Convert</source>
         <translation type="unfinished">Convertir</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Schedaind.ui" line="2993"/>
+        <location filename="../gui/ui/Schedaind.ui" line="3002"/>
         <source>Pagg.</source>
         <translation type="unfinished">Pg.</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Schedaind.ui" line="3012"/>
+        <location filename="../gui/ui/Schedaind.ui" line="3021"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Lo &amp;quot;0&amp;quot; indica la prima pagina da convertire&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;El &amp;quot;0&amp;quot; indica la primera página a convertir&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Schedaind.ui" line="3025"/>
+        <location filename="../gui/ui/Schedaind.ui" line="3034"/>
         <source>to</source>
         <translation type="unfinished">a</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Schedaind.ui" line="2950"/>
+        <source>Convert to doc file</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3601,7 +3696,7 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>DialogInteractiveMatrix</name>
     <message>
-        <location filename="../gui/ui/Interactive_matrix.ui" line="438"/>
+        <location filename="../gui/ui/Interactive_matrix.ui" line="23"/>
         <source>pyArchInit Gestione Scavi - Sistema Matrix Interattivo</source>
         <translation type="unfinished">pyArchInit Gestión de excavaciones - Sistema de matriz interactiva</translation>
     </message>
@@ -3609,559 +3704,594 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>DialogInventarioMateriali</name>
     <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="435"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="462"/>
         <source>pyArchInit Gestione Scavi - Inventario materiali</source>
         <translation type="unfinished">pyArchInit Gestión de excavaciones - Inventario de materiales</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="450"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1613"/>
         <source>Repertato</source>
         <translation type="unfinished">Repertorio</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="462"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="677"/>
         <source>Diagnostico</source>
         <translation type="unfinished">Diagnóstico</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="486"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="520"/>
         <source>Definizione reperto</source>
         <translation type="unfinished">Encontrar la definición</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="531"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="2743"/>
         <source>Classe materiale</source>
         <translation type="unfinished">Clase de material</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="546"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="689"/>
         <source>Stato di conservazione</source>
         <translation type="unfinished">Estado de conservación</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="576"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="2677"/>
         <source> Tipo Contenitore</source>
         <translation type="unfinished"> Tipo de contenedor</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="2910"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="2630"/>
         <source>No</source>
         <translation type="unfinished">No</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="2905"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="2635"/>
         <source>Si</source>
         <translation type="unfinished">Sí</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="624"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1580"/>
         <source>Sito</source>
         <translation>Sitio</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="648"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="812"/>
         <source>Tipo reperto</source>
         <translation type="unfinished">Encontrar el tipo</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="663"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="496"/>
         <source>US</source>
         <translation type="unfinished">EU</translation>
     </message>
     <message>
         <location filename="../gui/ui/Inv_Materiali.ui" line="696"/>
         <source>Esportazioni Elenco Materiali e Casse</source>
-        <translation type="unfinished">Lista de exportación de materiales y cajas</translation>
+        <translation type="obsolete">Lista de exportación de materiales y cajas</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="708"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="2780"/>
         <source>Elenco Repertati</source>
         <translation type="unfinished">Directorio</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="732"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="2828"/>
         <source>Stampa</source>
         <translation type="unfinished">Imprimir</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="754"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="2804"/>
         <source>Elenco Inventario Materiali</source>
         <translation type="unfinished">Lista de inventario de materiales</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="766"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="2792"/>
         <source>Schede Reperti</source>
         <translation type="unfinished">Tarjetas de resultados</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="778"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="2768"/>
         <source>Elenco Casse</source>
         <translation type="unfinished">Lista de oradores</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="796"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="2856"/>
         <source>Converti in Word</source>
         <translation type="unfinished">Convertir a Word</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="849"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="625"/>
         <source>Nr. Reperto (RA)</source>
         <translation type="unfinished">Prueba nº (RA)</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="870"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1598"/>
         <source>Nr. Inventario</source>
         <translation type="unfinished">Número de inventario</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="891"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="2698"/>
         <source>Area</source>
         <translation type="unfinished">Área</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="903"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="547"/>
         <source>Lavato</source>
         <translation type="unfinished">Lavado</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="949"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1521"/>
         <source>Reperto ceramico</source>
         <translation type="unfinished">Artefacto de cerámica</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="954"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1526"/>
         <source>Reperto metallico</source>
         <translation type="unfinished">Objeto metálico</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="959"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1531"/>
         <source>Reperto vitreo</source>
         <translation type="unfinished">Hallazgo vítreo</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="964"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1536"/>
         <source>Reperto ligneo</source>
         <translation type="unfinished">Artefacto de madera</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="969"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1541"/>
         <source>Reperto osseo lavorato</source>
         <translation type="unfinished">Hueso trabajado</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="974"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1546"/>
         <source>Reperto osteologico animale</source>
         <translation type="unfinished">Hallazgo osteológico animal</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="979"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1551"/>
         <source>Reperto osteologico umano</source>
         <translation type="unfinished">Hallazgo osteológico humano</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="984"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1556"/>
         <source>Reperto cartaceo</source>
         <translation type="unfinished">Copia impresa</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="989"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1561"/>
         <source>Malacofauna</source>
         <translation type="unfinished">Malacofauna</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="1031"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="829"/>
         <source>DBMS Toolbar</source>
         <translation type="unfinished">Barra de herramientas del SGBD</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="1046"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="844"/>
         <source>DB Info</source>
         <translation type="unfinished">Información DB</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="1058"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="856"/>
         <source>Connection test</source>
         <translation type="unfinished">Prueba de conexión</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="1089"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="887"/>
         <source>Ctrl+G</source>
         <translation type="unfinished">Ctrl+G</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="1115"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="913"/>
         <source>Ordinamento</source>
         <translation type="unfinished">Clasificación</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="1202"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1000"/>
         <source>Status</source>
         <translation type="unfinished">Estado</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="1227"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1025"/>
         <source>New record</source>
         <translation type="unfinished">Nuevo récord</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="1252"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1050"/>
         <source>Last rec</source>
         <translation type="unfinished">Ultimo rec</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="1277"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1075"/>
         <source>Order by</source>
         <translation type="unfinished">Pedir por</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="1302"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1100"/>
         <source>First rec</source>
         <translation type="unfinished">Primer rec</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="1327"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1125"/>
         <source>View alls records</source>
         <translation type="unfinished">Ver todos los registros</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="1352"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1150"/>
         <source>search !!!</source>
         <translation type="unfinished">¡¡¡Búsqueda!!!</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="1377"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1175"/>
         <source>new search</source>
         <translation type="unfinished">nueva búsqueda</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="1405"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1203"/>
         <source>Delete record</source>
         <translation type="unfinished">Borrar registro</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="1430"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1228"/>
         <source>Prev rec</source>
         <translation type="unfinished">Prev rec</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="1455"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1253"/>
         <source>Save</source>
         <translation type="unfinished">Guardar</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="1483"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1281"/>
         <source>Next rec</source>
         <translation type="unfinished">Siguiente rec</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="1518"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1316"/>
         <source>Elenco US/Foto</source>
         <translation type="unfinished">Lista de Estados Unidos/Fotos</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="1598"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1399"/>
         <source>record n.</source>
         <translation type="unfinished">registro no.</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="1670"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1471"/>
         <source>1</source>
         <translation type="unfinished">1</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="1640"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1441"/>
         <source>record tot.</source>
         <translation type="unfinished">récord total.</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="1690"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1668"/>
         <source>Descrizione</source>
         <translation type="unfinished">Descripción</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="1701"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1689"/>
         <source>Descrizione </source>
         <translation type="unfinished">Descripción</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="1711"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1699"/>
         <source>Datazione reperto</source>
         <translation type="unfinished">Datación del artefacto</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="1734"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1722"/>
         <source>Dati quantitativi</source>
         <translation type="unfinished">Datos cuantitativos</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="1747"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1735"/>
         <source>Elementi reperto</source>
         <translation type="unfinished">Encontrar elementos</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="2392"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="2380"/>
         <source>inserisci riga</source>
         <translation type="unfinished">insertar línea</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="2404"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="2392"/>
         <source>rimuovi riga</source>
         <translation type="unfinished">eliminar la línea</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="1818"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1806"/>
         <source>Elemento rinvenuto</source>
         <translation type="unfinished">Elemento encontrado</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="2153"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="2141"/>
         <source>Unita&apos; di misura</source>
         <translation type="unfinished">Unidades de medida</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="2158"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="2146"/>
         <source>Quantita&apos;</source>
         <translation type="unfinished">Cantidad</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="1866"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1854"/>
         <source>Forme minime</source>
         <translation type="unfinished">Formas mínimas</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="1896"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1884"/>
         <source>Forme massime</source>
         <translation type="unfinished">Formas máximas</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="1923"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1911"/>
         <source>Totale frammenti</source>
         <translation type="unfinished">Total de fragmentos</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="1956"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1944"/>
         <source>Peso</source>
         <translation type="unfinished">Peso</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="1968"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1956"/>
         <source>Diametro orlo</source>
         <translation type="unfinished">Diámetro de la llanta</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="1980"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1968"/>
         <source>grammi</source>
         <translation type="unfinished">gramos</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="1992"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1980"/>
         <source>cm</source>
         <translation type="unfinished">cm</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="2004"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1992"/>
         <source>E.v.e. orlo</source>
         <translation type="unfinished">E.v.e. hem</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="2016"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="2004"/>
         <source>%</source>
         <translation type="unfinished">%</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="2043"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="2031"/>
         <source>calc</source>
         <translation type="unfinished">calc</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="2077"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="2065"/>
         <source>Misurazioni</source>
         <translation type="unfinished">Medidas</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="2148"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="2136"/>
         <source>Tipo di misura</source>
         <translation type="unfinished">Tipo de medición</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="2340"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="2328"/>
         <source>Tecnologie</source>
         <translation type="unfinished">Tecnologías</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="2287"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="2275"/>
         <source>Tipo tecnologia</source>
         <translation type="unfinished">Tipo de tecnología</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="2292"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="2280"/>
         <source>Posizione</source>
         <translation type="unfinished">Ubicación</translation>
     </message>
     <message>
         <location filename="../gui/ui/Inv_Materiali.ui" line="2297"/>
-        <source>Tipo quantità </source>
-        <translation type="unfinished">Tipo de cantidad</translation>
+        <source>Tipo quantit&#xe0; </source>
+        <translation type="obsolete">Tipo de cantidad</translation>
     </message>
     <message>
         <location filename="../gui/ui/Inv_Materiali.ui" line="2302"/>
-        <source>Unità di misura </source>
-        <translation type="unfinished">Unidad de medida</translation>
+        <source>Unit&#xe0; di misura </source>
+        <translation type="obsolete">Unidad de medida</translation>
     </message>
     <message>
         <location filename="../gui/ui/Inv_Materiali.ui" line="2307"/>
-        <source>Quantità</source>
-        <translation type="unfinished">Cantidad</translation>
+        <source>Quantit&#xe0;</source>
+        <translation type="obsolete">Cantidad</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="2352"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="2340"/>
         <source>Corpo ceramico</source>
         <translation type="unfinished">Cuerpo de cerámica</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="2364"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="2352"/>
         <source>Rivestimento</source>
         <translation type="unfinished">Recubrimiento</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="2372"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="2360"/>
         <source>Rif Biblio</source>
         <translation type="unfinished">Biblio Ref</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="2380"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="2368"/>
         <source>Rif. Bibliografici</source>
         <translation type="unfinished">Referencias bibliográficas</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="2445"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="2433"/>
         <source>Autore</source>
         <translation type="unfinished">Autor</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="2450"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="2438"/>
         <source>Anno</source>
         <translation type="unfinished">Año</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="2455"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="2443"/>
         <source>Titolo</source>
         <translation type="unfinished">Título</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="2460"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="2448"/>
         <source>Pag.</source>
         <translation type="unfinished">Página</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="2465"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="2453"/>
         <source>Fig.</source>
         <translation type="unfinished">Fig.</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="2476"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="2464"/>
         <source>Quantificazioni</source>
         <translation type="unfinished">Cuantificaciones</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="2491"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="2479"/>
         <source>Impostazione quantificazione</source>
         <translation type="unfinished">Ajuste de la cuantificación</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="2581"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="2574"/>
         <source>Insufficiente</source>
         <translation type="unfinished">Insuficiente</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="2586"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="2579"/>
         <source>Scarso</source>
         <translation type="unfinished">Pobre</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="2591"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="2584"/>
         <source>Buono</source>
         <translation type="unfinished">Bien</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="2596"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="2589"/>
         <source>Discreto</source>
         <translation type="unfinished">Discreto</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="2601"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="2594"/>
         <source>Ottimo</source>
         <translation type="unfinished">Excelente</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="2620"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="2659"/>
         <source>Luogo di conservazione</source>
         <translation type="unfinished">Lugar de almacenamiento</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="2678"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="2557"/>
         <source>Inserisci un valore</source>
         <translation type="unfinished">Introduzca un valor</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="2691"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="477"/>
         <source>Tipologia</source>
         <translation type="unfinished">Tipología</translation>
     </message>
     <message>
         <location filename="../gui/ui/Inv_Materiali.ui" line="2718"/>
         <source>Pdf2Word</source>
-        <translation type="unfinished">Pdf2Word</translation>
+        <translation type="obsolete">Pdf2Word</translation>
     </message>
     <message>
         <location filename="../gui/ui/Inv_Materiali.ui" line="2744"/>
         <source>Pdf path</source>
-        <translation type="unfinished">Ruta de acceso al pdf</translation>
+        <translation type="obsolete">Ruta de acceso al pdf</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="2762"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="3778"/>
         <source>choose the pdf convert to word</source>
         <translation type="unfinished">elegir el pdf convertir a word</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="2774"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="4227"/>
         <source>...</source>
         <translation type="unfinished">...</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="2781"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="4676"/>
         <source>Convert</source>
         <translation type="unfinished">Convertir</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="2821"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="5578"/>
         <source>Pagg.</source>
         <translation type="unfinished">Pg.</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="2845"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="6039"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Lo &amp;quot;0&amp;quot; indica la prima pagina da convertire&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;El &amp;quot;0&amp;quot; indica la primera página a convertir&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="2851"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="6045"/>
         <source>0</source>
         <translation type="unfinished">0</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="2863"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="6494"/>
         <source>to</source>
         <translation type="unfinished">a</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="3008"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="647"/>
         <source>Rif. Struttura</source>
         <translation type="unfinished">Estructura Ref</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Inv_Materiali.ui" line="3020"/>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="704"/>
         <source>Nr. Cassa</source>
         <translation type="unfinished">Caso No</translation>
+    </message>
+    <message encoding="UTF-8">
+        <location filename="../gui/ui/Inv_Materiali.ui" line="1811"/>
+        <source>Tipo di quantità</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message encoding="UTF-8">
+        <location filename="../gui/ui/Inv_Materiali.ui" line="2285"/>
+        <source>Tipo quantità </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message encoding="UTF-8">
+        <location filename="../gui/ui/Inv_Materiali.ui" line="2290"/>
+        <source>Unità di misura </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message encoding="UTF-8">
+        <location filename="../gui/ui/Inv_Materiali.ui" line="2295"/>
+        <source>Quantità</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="2756"/>
+        <source>Export pdf</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="2874"/>
+        <source>Convert to doc file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Inv_Materiali.ui" line="3323"/>
+        <source>PDF path</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -4463,239 +4593,837 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>DialogPeriodoFase</name>
     <message>
-        <location filename="../gui/ui/Periodizzazione.ui" line="441"/>
+        <location filename="../gui/ui/Periodizzazione.ui" line="468"/>
         <source>pyArchInit Gestione Scavi - Periodizzazione di scavo</source>
         <translation type="unfinished">pyArchInit Gestión de las excavaciones - Periodización de las excavaciones</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Periodizzazione.ui" line="497"/>
+        <location filename="../gui/ui/Periodizzazione.ui" line="524"/>
         <source>DBMS Toolbar</source>
         <translation type="unfinished">Barra de herramientas del SGBD</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Periodizzazione.ui" line="512"/>
+        <location filename="../gui/ui/Periodizzazione.ui" line="539"/>
         <source>Status</source>
         <translation type="unfinished">Estado</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Periodizzazione.ui" line="530"/>
+        <location filename="../gui/ui/Periodizzazione.ui" line="557"/>
         <source>record n.</source>
         <translation type="unfinished">registro no.</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Periodizzazione.ui" line="552"/>
+        <location filename="../gui/ui/Periodizzazione.ui" line="579"/>
         <source>Prev rec</source>
         <translation type="unfinished">Prev rec</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Periodizzazione.ui" line="578"/>
+        <location filename="../gui/ui/Periodizzazione.ui" line="605"/>
         <source>search !!!</source>
         <translation type="unfinished">¡¡¡Búsqueda!!!</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Periodizzazione.ui" line="604"/>
+        <location filename="../gui/ui/Periodizzazione.ui" line="631"/>
         <source>Next rec</source>
         <translation type="unfinished">Siguiente rec</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Periodizzazione.ui" line="633"/>
+        <location filename="../gui/ui/Periodizzazione.ui" line="660"/>
         <source>Delete record</source>
         <translation type="unfinished">Borrar registro</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Periodizzazione.ui" line="658"/>
+        <location filename="../gui/ui/Periodizzazione.ui" line="685"/>
         <source>DB Info</source>
         <translation type="unfinished">Información DB</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Periodizzazione.ui" line="673"/>
+        <location filename="../gui/ui/Periodizzazione.ui" line="700"/>
         <source>Ordinamento</source>
         <translation type="unfinished">Clasificación</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Periodizzazione.ui" line="737"/>
+        <location filename="../gui/ui/Periodizzazione.ui" line="764"/>
         <source>Last rec</source>
         <translation type="unfinished">Ultimo rec</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Periodizzazione.ui" line="763"/>
+        <location filename="../gui/ui/Periodizzazione.ui" line="790"/>
         <source>New record</source>
         <translation type="unfinished">Nuevo récord</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Periodizzazione.ui" line="1350"/>
+        <location filename="../gui/ui/Periodizzazione.ui" line="1377"/>
         <source>1</source>
         <translation type="unfinished">1</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Periodizzazione.ui" line="1176"/>
+        <location filename="../gui/ui/Periodizzazione.ui" line="1203"/>
         <source>2</source>
         <translation type="unfinished">2</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Periodizzazione.ui" line="1181"/>
+        <location filename="../gui/ui/Periodizzazione.ui" line="1208"/>
         <source>3</source>
         <translation type="unfinished">3</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Periodizzazione.ui" line="1186"/>
+        <location filename="../gui/ui/Periodizzazione.ui" line="1213"/>
         <source>4</source>
         <translation type="unfinished">4</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Periodizzazione.ui" line="1191"/>
+        <location filename="../gui/ui/Periodizzazione.ui" line="1218"/>
         <source>5</source>
         <translation type="unfinished">5</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Periodizzazione.ui" line="1196"/>
+        <location filename="../gui/ui/Periodizzazione.ui" line="1223"/>
         <source>6</source>
         <translation type="unfinished">6</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Periodizzazione.ui" line="1201"/>
+        <location filename="../gui/ui/Periodizzazione.ui" line="1228"/>
         <source>7</source>
         <translation type="unfinished">7</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Periodizzazione.ui" line="1206"/>
+        <location filename="../gui/ui/Periodizzazione.ui" line="1233"/>
         <source>8</source>
         <translation type="unfinished">8</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Periodizzazione.ui" line="1211"/>
+        <location filename="../gui/ui/Periodizzazione.ui" line="1238"/>
         <source>9</source>
         <translation type="unfinished">9</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Periodizzazione.ui" line="1216"/>
+        <location filename="../gui/ui/Periodizzazione.ui" line="1243"/>
         <source>10</source>
         <translation type="unfinished">10</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Periodizzazione.ui" line="1221"/>
+        <location filename="../gui/ui/Periodizzazione.ui" line="1248"/>
         <source>11</source>
         <translation type="unfinished">11</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Periodizzazione.ui" line="847"/>
+        <location filename="../gui/ui/Periodizzazione.ui" line="874"/>
         <source>12</source>
         <translation type="unfinished">12</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Periodizzazione.ui" line="1226"/>
+        <location filename="../gui/ui/Periodizzazione.ui" line="1253"/>
         <source>13</source>
         <translation type="unfinished">13</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Periodizzazione.ui" line="857"/>
+        <location filename="../gui/ui/Periodizzazione.ui" line="884"/>
         <source>14</source>
         <translation type="unfinished">14</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Periodizzazione.ui" line="1231"/>
+        <location filename="../gui/ui/Periodizzazione.ui" line="1258"/>
         <source>15</source>
         <translation type="unfinished">15</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Periodizzazione.ui" line="882"/>
+        <location filename="../gui/ui/Periodizzazione.ui" line="909"/>
         <source>View alls records</source>
         <translation type="unfinished">Ver todos los registros</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Periodizzazione.ui" line="904"/>
+        <location filename="../gui/ui/Periodizzazione.ui" line="931"/>
         <source>record tot.</source>
         <translation type="unfinished">récord total.</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Periodizzazione.ui" line="920"/>
+        <location filename="../gui/ui/Periodizzazione.ui" line="947"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Carica Viewer per tutti i Periodi e Fasi&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Cargar el visor de todos los periodos y fases&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Periodizzazione.ui" line="937"/>
+        <location filename="../gui/ui/Periodizzazione.ui" line="964"/>
         <source>Sito</source>
         <translation>Sitio</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Periodizzazione.ui" line="950"/>
+        <location filename="../gui/ui/Periodizzazione.ui" line="977"/>
         <source>Codice periodo</source>
         <translation type="unfinished">Código de periodo</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Periodizzazione.ui" line="981"/>
+        <location filename="../gui/ui/Periodizzazione.ui" line="1008"/>
         <source>Dati descrittivi</source>
         <translation type="unfinished">Datos descriptivos</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Periodizzazione.ui" line="1443"/>
+        <location filename="../gui/ui/Periodizzazione.ui" line="1470"/>
         <source>0</source>
         <translation type="unfinished">0</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Periodizzazione.ui" line="1007"/>
+        <location filename="../gui/ui/Periodizzazione.ui" line="1034"/>
         <source>Finale </source>
         <translation type="unfinished">Final</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Periodizzazione.ui" line="1026"/>
+        <location filename="../gui/ui/Periodizzazione.ui" line="1053"/>
         <source>Save</source>
         <translation type="unfinished">Guardar</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Periodizzazione.ui" line="1055"/>
+        <location filename="../gui/ui/Periodizzazione.ui" line="1082"/>
         <source>new search</source>
         <translation type="unfinished">nueva búsqueda</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Periodizzazione.ui" line="1081"/>
+        <location filename="../gui/ui/Periodizzazione.ui" line="1108"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Carica viewer per singolo Periodo e Fase&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Carga de visor para un solo Período y Fase&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Periodizzazione.ui" line="1107"/>
+        <location filename="../gui/ui/Periodizzazione.ui" line="1134"/>
         <source>Order by</source>
         <translation type="unfinished">Pedir por</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Periodizzazione.ui" line="1133"/>
+        <location filename="../gui/ui/Periodizzazione.ui" line="1160"/>
         <source>First rec</source>
         <translation type="unfinished">Primer rec</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Periodizzazione.ui" line="1363"/>
+        <location filename="../gui/ui/Periodizzazione.ui" line="1390"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Datazione estesa del periodo culturale (Timespan).&lt;/p&gt;&lt;p&gt;es: I sec. a.C.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Datación ampliada del periodo cultural (Timespan).&lt;/p&gt;&lt;p&gt;por ejemplo: siglo I a.C.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Periodizzazione.ui" line="1379"/>
+        <location filename="../gui/ui/Periodizzazione.ui" line="1406"/>
         <source>Datazione</source>
         <translation type="unfinished">Citas</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Periodizzazione.ui" line="1392"/>
+        <location filename="../gui/ui/Periodizzazione.ui" line="1419"/>
         <source>Fase</source>
         <translation type="unfinished">Fase</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Periodizzazione.ui" line="1407"/>
+        <location filename="../gui/ui/Periodizzazione.ui" line="1434"/>
         <source>Cronologia </source>
         <translation type="unfinished">Cronología</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Periodizzazione.ui" line="1420"/>
+        <location filename="../gui/ui/Periodizzazione.ui" line="1447"/>
         <source>Iniziale </source>
         <translation type="unfinished">Inicialmente</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Periodizzazione.ui" line="1471"/>
+        <location filename="../gui/ui/Periodizzazione.ui" line="1498"/>
         <source>Periodo</source>
         <translation type="unfinished">Periodo</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Periodizzazione.ui" line="1493"/>
+        <location filename="../gui/ui/Periodizzazione.ui" line="1520"/>
         <source>C</source>
         <translation type="unfinished">C</translation>
+    </message>
+</context>
+<context>
+    <name>DialogPottery</name>
+    <message>
+        <location filename="../gui/ui/pyarchinit_Pottery_ui.ui" line="20"/>
+        <source>pyArchInit Gestione Scavi - Scheda US</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_Pottery_ui.ui" line="55"/>
+        <source>Order by</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_Pottery_ui.ui" line="86"/>
+        <source>Export PDF</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_Pottery_ui.ui" line="114"/>
+        <source>View alls records</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_Pottery_ui.ui" line="186"/>
+        <source>Ctrl+G</source>
+        <translation type="unfinished">Ctrl+G</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_Pottery_ui.ui" line="219"/>
+        <source>search !!!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_Pottery_ui.ui" line="247"/>
+        <source>Save</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_Pottery_ui.ui" line="287"/>
+        <source>Mostra immagini</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_Pottery_ui.ui" line="315"/>
+        <source>new search</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_Pottery_ui.ui" line="343"/>
+        <source>New record</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_Pottery_ui.ui" line="371"/>
+        <source>Last rec</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_Pottery_ui.ui" line="399"/>
+        <source>Next rec</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_Pottery_ui.ui" line="427"/>
+        <source>First rec</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_Pottery_ui.ui" line="455"/>
+        <source>Delete record</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_Pottery_ui.ui" line="505"/>
+        <source>Prev rec</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_Pottery_ui.ui" line="1209"/>
+        <source>C</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_Pottery_ui.ui" line="576"/>
+        <source>Ordinamento</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_Pottery_ui.ui" line="631"/>
+        <source>Status</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_Pottery_ui.ui" line="692"/>
+        <source>record tot.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_Pottery_ui.ui" line="1159"/>
+        <source>1</source>
+        <translation type="unfinished">1</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_Pottery_ui.ui" line="740"/>
+        <source>record n.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_Pottery_ui.ui" line="791"/>
+        <source>US</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_Pottery_ui.ui" line="2387"/>
+        <source>Year</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_Pottery_ui.ui" line="845"/>
+        <source>Sector</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_Pottery_ui.ui" line="861"/>
+        <source>Box</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_Pottery_ui.ui" line="900"/>
+        <source>Inserisci un valore</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_Pottery_ui.ui" line="913"/>
+        <source>Area</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_Pottery_ui.ui" line="946"/>
+        <source>2022</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_Pottery_ui.ui" line="958"/>
+        <source>Sito </source>
+        <translation type="unfinished">Sitio </translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_Pottery_ui.ui" line="990"/>
+        <source>Bag</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_Pottery_ui.ui" line="1005"/>
+        <source>Count</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_Pottery_ui.ui" line="1164"/>
+        <source>2</source>
+        <translation type="unfinished">2</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_Pottery_ui.ui" line="1169"/>
+        <source>3</source>
+        <translation type="unfinished">3</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_Pottery_ui.ui" line="1174"/>
+        <source>4</source>
+        <translation type="unfinished">4</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_Pottery_ui.ui" line="1179"/>
+        <source>5</source>
+        <translation type="unfinished">5</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_Pottery_ui.ui" line="1184"/>
+        <source>6</source>
+        <translation type="unfinished">6</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_Pottery_ui.ui" line="1189"/>
+        <source>7</source>
+        <translation type="unfinished">7</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_Pottery_ui.ui" line="1194"/>
+        <source>8</source>
+        <translation type="unfinished">8</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_Pottery_ui.ui" line="1199"/>
+        <source>A</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_Pottery_ui.ui" line="1204"/>
+        <source>B</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_Pottery_ui.ui" line="1238"/>
+        <source>ID Number</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_Pottery_ui.ui" line="1263"/>
+        <source>Description data</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_Pottery_ui.ui" line="1278"/>
+        <source>Note</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_Pottery_ui.ui" line="1371"/>
+        <source>Description Internal Decoration</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_Pottery_ui.ui" line="1403"/>
+        <source>Description External Decoration</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_Pottery_ui.ui" line="1427"/>
+        <source>Technical Data</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_Pottery_ui.ui" line="1442"/>
+        <source>Photo</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_Pottery_ui.ui" line="1474"/>
+        <source>Drawing</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_Pottery_ui.ui" line="1506"/>
+        <source>Fabric</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_Pottery_ui.ui" line="1529"/>
+        <source>Fine ware</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_Pottery_ui.ui" line="1534"/>
+        <source>Medium fine ware</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_Pottery_ui.ui" line="1539"/>
+        <source>Medium coarse ware</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_Pottery_ui.ui" line="1544"/>
+        <source>Coarse ware</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_Pottery_ui.ui" line="1561"/>
+        <source>Percent</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_Pottery_ui.ui" line="1584"/>
+        <source>&lt;5</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_Pottery_ui.ui" line="1589"/>
+        <source>5-25</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_Pottery_ui.ui" line="1594"/>
+        <source>26-50</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_Pottery_ui.ui" line="1599"/>
+        <source>51-90</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_Pottery_ui.ui" line="1604"/>
+        <source>&gt;90</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_Pottery_ui.ui" line="1621"/>
+        <source>Material</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_Pottery_ui.ui" line="1644"/>
+        <source>Ceramic</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_Pottery_ui.ui" line="1649"/>
+        <source>Stone</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_Pottery_ui.ui" line="1666"/>
+        <source>Munsell color</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_Pottery_ui.ui" line="1706"/>
+        <source>Surface tratment</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_Pottery_ui.ui" line="1729"/>
+        <source>Slipped red</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_Pottery_ui.ui" line="1734"/>
+        <source>Buff</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_Pottery_ui.ui" line="1751"/>
+        <source>Wheel made</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_Pottery_ui.ui" line="2095"/>
+        <source>Yes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_Pottery_ui.ui" line="2100"/>
+        <source>No</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_Pottery_ui.ui" line="1796"/>
+        <source>Shape</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_Pottery_ui.ui" line="1819"/>
+        <source>Open</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_Pottery_ui.ui" line="1824"/>
+        <source>Close</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_Pottery_ui.ui" line="1829"/>
+        <source>Undeterminable</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_Pottery_ui.ui" line="1846"/>
+        <source>Specific Shape</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_Pottery_ui.ui" line="1877"/>
+        <source>Bowl</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_Pottery_ui.ui" line="1882"/>
+        <source>Lid</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_Pottery_ui.ui" line="1887"/>
+        <source>Jar</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_Pottery_ui.ui" line="1892"/>
+        <source>Spouted jar</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_Pottery_ui.ui" line="1897"/>
+        <source>Cup</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_Pottery_ui.ui" line="1914"/>
+        <source>Specific Part</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_Pottery_ui.ui" line="1940"/>
+        <source>Rim</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_Pottery_ui.ui" line="1945"/>
+        <source>Neck</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_Pottery_ui.ui" line="1950"/>
+        <source>Handle</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_Pottery_ui.ui" line="1955"/>
+        <source>Wall</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_Pottery_ui.ui" line="1960"/>
+        <source>Base</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_Pottery_ui.ui" line="1977"/>
+        <source>Ware</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_Pottery_ui.ui" line="2000"/>
+        <source>Fine</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_Pottery_ui.ui" line="2005"/>
+        <source>Medium</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_Pottery_ui.ui" line="2010"/>
+        <source>Coarse</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_Pottery_ui.ui" line="2027"/>
+        <source>Internal decoration</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_Pottery_ui.ui" line="2072"/>
+        <source>External decoration</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_Pottery_ui.ui" line="2117"/>
+        <source>Diameter Max</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_Pottery_ui.ui" line="2149"/>
+        <source>Diameter Rim</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_Pottery_ui.ui" line="2181"/>
+        <source>Diameter Bottom</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_Pottery_ui.ui" line="2197"/>
+        <source>Total Height</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_Pottery_ui.ui" line="2229"/>
+        <source>Preserved Height</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_Pottery_ui.ui" line="2269"/>
+        <source>Supplements</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_Pottery_ui.ui" line="2302"/>
+        <source>Bibliography</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_Pottery_ui.ui" line="2318"/>
+        <source>Insert row</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_Pottery_ui.ui" line="2334"/>
+        <source>Delete row</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_Pottery_ui.ui" line="2382"/>
+        <source>Author</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_Pottery_ui.ui" line="2392"/>
+        <source>Title</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_Pottery_ui.ui" line="2397"/>
+        <source>Pag.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_Pottery_ui.ui" line="2402"/>
+        <source>Fig.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_Pottery_ui.ui" line="2413"/>
+        <source>Statistic</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_Pottery_ui.ui" line="2456"/>
+        <source>Settings</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_Pottery_ui.ui" line="2486"/>
+        <source>Pdf2Word</source>
+        <translation type="unfinished">Pdf2Word</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_Pottery_ui.ui" line="2505"/>
+        <source>choose the pdf convert to word</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_Pottery_ui.ui" line="2518"/>
+        <source>...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_Pottery_ui.ui" line="2548"/>
+        <source>PDF path</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_Pottery_ui.ui" line="2561"/>
+        <source>Convert</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_Pottery_ui.ui" line="2586"/>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The &amp;quot;0&amp;quot; is the first page to convert&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_Pottery_ui.ui" line="2592"/>
+        <source>0</source>
+        <translation type="unfinished">0</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_Pottery_ui.ui" line="2621"/>
+        <source>Pagg.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_Pottery_ui.ui" line="2634"/>
+        <source>to</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_Pottery_ui.ui" line="2664"/>
+        <source>Pottery export pdf</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_Pottery_ui.ui" line="2671"/>
+        <source>Photo list with Thumbnail</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_Pottery_ui.ui" line="2678"/>
+        <source>Photo list without Thumbnail</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_Pottery_ui.ui" line="2703"/>
+        <source>Print</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -5405,208 +6133,208 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>DialogSite</name>
     <message>
-        <location filename="../gui/ui/Site.ui" line="452"/>
+        <location filename="../gui/ui/Site.ui" line="479"/>
         <source>pyArchInit Gestione Scavi - Scheda Sito</source>
         <translation type="unfinished">pyArchInit Gestión de la excavación - Ficha de la obra</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Site.ui" line="475"/>
+        <location filename="../gui/ui/Site.ui" line="502"/>
         <source>DBMS Toolbar</source>
         <translation type="unfinished">Barra de herramientas del SGBD</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Site.ui" line="500"/>
+        <location filename="../gui/ui/Site.ui" line="527"/>
         <source>DB Info</source>
         <translation type="unfinished">Información DB</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Site.ui" line="520"/>
+        <location filename="../gui/ui/Site.ui" line="547"/>
         <source>Status</source>
         <translation type="unfinished">Estado</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Site.ui" line="543"/>
+        <location filename="../gui/ui/Site.ui" line="570"/>
         <source>Ordinamento</source>
         <translation type="unfinished">Clasificación</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Site.ui" line="654"/>
+        <location filename="../gui/ui/Site.ui" line="681"/>
         <source>record n.</source>
         <translation type="unfinished">registro no.</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Site.ui" line="748"/>
+        <location filename="../gui/ui/Site.ui" line="775"/>
         <source>1</source>
         <translation type="unfinished">1</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Site.ui" line="711"/>
+        <location filename="../gui/ui/Site.ui" line="738"/>
         <source>record tot.</source>
         <translation type="unfinished">récord total.</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Site.ui" line="776"/>
+        <location filename="../gui/ui/Site.ui" line="803"/>
         <source>Save</source>
         <translation type="unfinished">Guardar</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Site.ui" line="810"/>
+        <location filename="../gui/ui/Site.ui" line="837"/>
         <source>First rec</source>
         <translation type="unfinished">Primer rec</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Site.ui" line="844"/>
+        <location filename="../gui/ui/Site.ui" line="871"/>
         <source>C</source>
         <translation type="unfinished">C</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Site.ui" line="868"/>
+        <location filename="../gui/ui/Site.ui" line="895"/>
         <source>Prev rec</source>
         <translation type="unfinished">Prev rec</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Site.ui" line="902"/>
+        <location filename="../gui/ui/Site.ui" line="929"/>
         <source>Delete record</source>
         <translation type="unfinished">Borrar registro</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Site.ui" line="925"/>
+        <location filename="../gui/ui/Site.ui" line="952"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Carica il view puntuale del sito&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Sube la vista del sitio a tiempo&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Site.ui" line="956"/>
+        <location filename="../gui/ui/Site.ui" line="983"/>
         <source>View alls records</source>
         <translation type="unfinished">Ver todos los registros</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Site.ui" line="987"/>
+        <location filename="../gui/ui/Site.ui" line="1014"/>
         <source>search !!!</source>
         <translation type="unfinished">¡¡¡Búsqueda!!!</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Site.ui" line="1018"/>
+        <location filename="../gui/ui/Site.ui" line="1045"/>
         <source>Order by</source>
         <translation type="unfinished">Pedir por</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Site.ui" line="1041"/>
+        <location filename="../gui/ui/Site.ui" line="1068"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Layer archeologici da vettorializzare (sito corrente)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Capas arqueológicas a vectorizar (sitio actual)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Site.ui" line="1067"/>
+        <location filename="../gui/ui/Site.ui" line="1094"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Layer archeologici da vettorializzare (tutti i siti)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Capas arqueológicas a vectorizar (todos los yacimientos)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Site.ui" line="1098"/>
+        <location filename="../gui/ui/Site.ui" line="1125"/>
         <source>Next rec</source>
         <translation type="unfinished">Siguiente rec</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Site.ui" line="1129"/>
+        <location filename="../gui/ui/Site.ui" line="1156"/>
         <source>new search</source>
         <translation type="unfinished">nueva búsqueda</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Site.ui" line="1160"/>
+        <location filename="../gui/ui/Site.ui" line="1187"/>
         <source>New record</source>
         <translation type="unfinished">Nuevo récord</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Site.ui" line="1191"/>
+        <location filename="../gui/ui/Site.ui" line="1218"/>
         <source>Last rec</source>
         <translation type="unfinished">Ultimo rec</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Site.ui" line="1217"/>
+        <location filename="../gui/ui/Site.ui" line="1244"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;WMS Vincoli archeoligici&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;WMS Limitaciones arqueológicas&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Site.ui" line="1243"/>
+        <location filename="../gui/ui/Site.ui" line="1270"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R script for least cost path&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Script de R para la ruta de menor coste&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Site.ui" line="1333"/>
+        <location filename="../gui/ui/Site.ui" line="1390"/>
         <source>Dati descrittivi</source>
         <translation type="unfinished">Datos descriptivos</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Site.ui" line="1378"/>
+        <location filename="../gui/ui/Site.ui" line="1435"/>
         <source>Nazione</source>
         <translation type="unfinished">Nación</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Site.ui" line="1396"/>
+        <location filename="../gui/ui/Site.ui" line="1453"/>
         <source>Regione</source>
         <translation type="unfinished">Región</translation>
     </message>
     <message>
         <location filename="../gui/ui/Site.ui" line="1420"/>
         <source>Italia</source>
-        <translation type="unfinished">Italia</translation>
+        <translation type="obsolete">Italia</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Site.ui" line="1459"/>
+        <location filename="../gui/ui/Site.ui" line="1511"/>
         <source>Provincia</source>
         <translation type="unfinished">Provincia</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Site.ui" line="1477"/>
+        <location filename="../gui/ui/Site.ui" line="1529"/>
         <source>Comune</source>
         <translation type="unfinished">Municipio</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Site.ui" line="1549"/>
+        <location filename="../gui/ui/Site.ui" line="1601"/>
         <source>Sito</source>
         <translation>Sitio</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Site.ui" line="1580"/>
+        <location filename="../gui/ui/Site.ui" line="1632"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;a href=&quot;https://www.youtube.com/watch?v=l1nVPHf_1wI&amp;t=50s&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;Doc&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;a href=&quot;https://www.youtube.com/watch?v=l1nVPHf_1wI&amp;t=50s&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;Doc&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Site.ui" line="1599"/>
+        <location filename="../gui/ui/Site.ui" line="1651"/>
         <source>Inserisci un valore</source>
         <translation type="unfinished">Introduzca un valor</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Site.ui" line="1663"/>
+        <location filename="../gui/ui/Site.ui" line="1715"/>
         <source>...</source>
         <translation type="unfinished">...</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Site.ui" line="1736"/>
+        <location filename="../gui/ui/Site.ui" line="1788"/>
         <source>Nome</source>
         <translation>Nombre</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Site.ui" line="1754"/>
+        <location filename="../gui/ui/Site.ui" line="1806"/>
         <source>Definizione</source>
         <translation type="unfinished">Definición</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Site.ui" line="1772"/>
+        <location filename="../gui/ui/Site.ui" line="1824"/>
         <source>Cartella</source>
         <translation type="unfinished">Carpeta</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Site.ui" line="1819"/>
+        <location filename="../gui/ui/Site.ui" line="1871"/>
         <source>Genera un numero arbitrario di schede US per il sito corrente</source>
         <translation type="unfinished">Generar un número arbitrario de tarjetas estadounidenses para el sitio actual</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Site.ui" line="1832"/>
+        <location filename="../gui/ui/Site.ui" line="1884"/>
         <source>Run test</source>
         <translation type="unfinished">Ejecutar la prueba</translation>
     </message>
     <message>
         <location filename="../gui/ui/Site.ui" line="1848"/>
-        <source>Questa è una sezione di testing per sperimentare funzioni.
+        <source>Questa &#xe8; una sezione di testing per sperimentare funzioni.
 
 
 Procedura
@@ -5615,7 +6343,7 @@ Step 1 - Aprire il file test_area.py dentro alla cartella pyarchinit (la cartell
 Step 2 - editare la funzione def run_test e salvare il file.
 
 Step 3 - Riavviare Qgis e cliccare sul pulsante Run Test per verificare l&apos;output della vostra funzione.</source>
-        <translation type="unfinished">Esta es una sección de pruebas para experimentar con las funciones.
+        <translation type="obsolete">Esta es una sección de pruebas para experimentar con las funciones.
 
 
 Procedimiento
@@ -5626,164 +6354,197 @@ Paso 2 - editar la función def run_test y guardar el archivo.
 Paso 3 - Reinicie Qgis y haga clic en el botón Ejecutar prueba para comprobar la salida de su función.</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Site.ui" line="1872"/>
+        <location filename="../gui/ui/Site.ui" line="1924"/>
         <source>Numero di schede da creare</source>
         <translation type="unfinished">Número de tarjetas a crear</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Site.ui" line="1896"/>
+        <location filename="../gui/ui/Site.ui" line="1948"/>
         <source>US</source>
         <translation type="unfinished">EU</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Site.ui" line="1901"/>
+        <location filename="../gui/ui/Site.ui" line="1953"/>
         <source>USM</source>
         <translation type="unfinished">EUM</translation>
     </message>
     <message>
         <location filename="../gui/ui/Site.ui" line="1909"/>
-        <source>Tipo di unità stratigrafica</source>
-        <translation type="unfinished">Tipo de unidad estratigráfica</translation>
+        <source>Tipo di unit&#xe0; stratigrafica</source>
+        <translation type="obsolete">Tipo de unidad estratigráfica</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Site.ui" line="1947"/>
+        <location filename="../gui/ui/Site.ui" line="1999"/>
         <source>Numero Area</source>
         <translation type="unfinished">Número de área</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Site.ui" line="1971"/>
+        <location filename="../gui/ui/Site.ui" line="2023"/>
         <source>Numero di scheda US da cui partire</source>
         <translation type="unfinished">Número de tarjeta de EU. para empezar</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Site.ui" line="1988"/>
+        <location filename="../gui/ui/Site.ui" line="2040"/>
         <source>Genera US</source>
         <translation type="unfinished">Generar US</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Site.ui" line="2007"/>
+        <location filename="../gui/ui/Site.ui" line="2059"/>
         <source>Esporta relazione di scavo per questo sito (Versione di sviluppo)</source>
         <translation type="unfinished">Exportar informe de excavación para este sitio (versión de desarrollo)</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Site.ui" line="2023"/>
+        <location filename="../gui/ui/Site.ui" line="2075"/>
         <source>Esporta</source>
         <translation type="unfinished">Exportar</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Site.ui" line="2039"/>
+        <location filename="../gui/ui/Site.ui" line="2091"/>
         <source>Carica tutti i layer per poter inserire nuove geometrie</source>
         <translation type="unfinished">Cargar todas las capas para insertar nuevas geometrías</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Site.ui" line="2042"/>
+        <location filename="../gui/ui/Site.ui" line="2094"/>
         <source>Gis viewer</source>
         <translation type="unfinished">Visor Gis</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Site.ui" line="2058"/>
+        <location filename="../gui/ui/Site.ui" line="2110"/>
         <source>Abilita il caricamento delle ricerche</source>
         <translation type="unfinished">Habilitar la carga de las búsquedas</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Site.ui" line="2085"/>
+        <location filename="../gui/ui/Site.ui" line="2137"/>
         <source>MovecostToPyarchinit</source>
         <translation type="unfinished">MovecostToPyarchinit</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Site.ui" line="2226"/>
+        <location filename="../gui/ui/Site.ui" line="2278"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R function for calculating least-cost corridor between point locations using a polygon area to download the dtm&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Función de R para calcular el corredor de menor coste entre ubicaciones de puntos utilizando un área de polígono para descargar el dtm&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Site.ui" line="2104"/>
+        <location filename="../gui/ui/Site.ui" line="2156"/>
         <source>movecorr by polygon</source>
         <translation type="unfinished">movecorr por polígono</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Site.ui" line="2117"/>
+        <location filename="../gui/ui/Site.ui" line="2169"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R function for calculating accumulated anisotropic slope-dependant cost of movement across the terrain and least-cost paths from a point origin&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Función R para calcular el coste acumulado del movimiento en función de la pendiente a través del terreno y las rutas de menor coste desde un punto de origen&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Site.ui" line="2124"/>
+        <location filename="../gui/ui/Site.ui" line="2176"/>
         <source>movecost</source>
         <translation type="unfinished">movecost</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Site.ui" line="2137"/>
+        <location filename="../gui/ui/Site.ui" line="2189"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R function for calculating accumulated anisotropic slope-dependant cost of movement across the terrain and least-cost paths from a point origin using a polygon area to download the dtm&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Función de R para calcular el coste acumulado anisotrópico dependiente de la pendiente del movimiento a través del terreno y las rutas de menor coste desde un punto de origen utilizando un área de polígono para descargar el dtm&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Site.ui" line="2143"/>
+        <location filename="../gui/ui/Site.ui" line="2195"/>
         <source>movecost by polygon</source>
         <translation type="unfinished">coste del movimiento por polígono</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Site.ui" line="2156"/>
+        <location filename="../gui/ui/Site.ui" line="2208"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R function for calculating slope-dependant walking cost boundary(ies) around point location(s)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Función de R para calcular los límites del coste de la marcha en función de la pendiente en torno a la ubicación de los puntos&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Site.ui" line="2162"/>
+        <location filename="../gui/ui/Site.ui" line="2214"/>
         <source>movebound</source>
         <translation type="unfinished">movebound</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Site.ui" line="2175"/>
+        <location filename="../gui/ui/Site.ui" line="2227"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R function for calculating slope-dependant walking cost boundary(ies) around point location(s) using a polygon area to download the dtm&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Función de R para calcular los límites del coste de la marcha en función de la pendiente en torno a la ubicación del punto o puntos utilizando un área poligonal para descargar el dtm&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Site.ui" line="2181"/>
+        <location filename="../gui/ui/Site.ui" line="2233"/>
         <source>movebound by polygon</source>
         <translation type="unfinished">desplazarse por el polígono</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Site.ui" line="2245"/>
+        <location filename="../gui/ui/Site.ui" line="2297"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R function for calculating least-cost corridor between point locations&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Función de R para calcular el corredor de menor coste entre ubicaciones de puntos&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Site.ui" line="2200"/>
+        <location filename="../gui/ui/Site.ui" line="2252"/>
         <source>movcorr</source>
         <translation type="unfinished">movcorr</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Site.ui" line="2213"/>
+        <location filename="../gui/ui/Site.ui" line="2265"/>
         <source>Add scripts</source>
         <translation type="unfinished">Añadir guiones</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Site.ui" line="2232"/>
+        <location filename="../gui/ui/Site.ui" line="2284"/>
         <source>movealloc by polygon</source>
         <translation type="unfinished">movealloc por polígono</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Site.ui" line="2251"/>
+        <location filename="../gui/ui/Site.ui" line="2303"/>
         <source>movalloc</source>
         <translation type="unfinished">movalloc</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Site.ui" line="2291"/>
+        <location filename="../gui/ui/Site.ui" line="2343"/>
         <source>Help</source>
         <translation type="unfinished">Ayuda</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Site.ui" line="2330"/>
+        <location filename="../gui/ui/Site.ui" line="2382"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;a href=&quot;https://www.youtube.com/watch?v=l1nVPHf_1wI&amp;t&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;Video Tutorial&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;a href=&quot;https://www.youtube.com/watch?v=l1nVPHf_1wI&amp;t&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;Video Tutoriales&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Site.ui" line="2363"/>
+        <location filename="../gui/ui/Site.ui" line="2415"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;a href=&quot;https://www.facebook.com/UnaQuantumInc&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;unaquantum&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;a href=&quot;https://www.facebook.com/UnaQuantumInc&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;no es un quantum&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Site.ui" line="2398"/>
+        <location filename="../gui/ui/Site.ui" line="2450"/>
         <source>https://pyarchinit.github.io/pyarchinit_doc/03_ilplugin.html#scheda-sito</source>
         <translation type="unfinished">https://pyarchinit.github.io/pyarchinit_doc/03_ilplugin.html#scheda-sito</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Site.ui" line="1290"/>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Base map: Goggle maps and WIKI maps&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Site.ui" line="1335"/>
+        <source>Inserisci un indirizzo per ricercarlo e schiaccia zoom on</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message encoding="UTF-8">
+        <location filename="../gui/ui/Site.ui" line="1900"/>
+        <source>Questa è una sezione di testing per sperimentare funzioni.
+
+
+Procedura
+Step 1 - Aprire il file test_area.py dentro alla cartella pyarchinit (la cartella si trova dentro al vostro utente /.qgis/python/plugins/pyarchinit)
+
+Step 2 - editare la funzione def run_test e salvare il file.
+
+Step 3 - Riavviare Qgis e cliccare sul pulsante Run Test per verificare l&apos;output della vostra funzione.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message encoding="UTF-8">
+        <location filename="../gui/ui/Site.ui" line="1961"/>
+        <source>Tipo di unità stratigrafica</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Site.ui" line="2512"/>
+        <source>Zoom on</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -5837,152 +6598,152 @@ Paso 3 - Reinicie Qgis y haga clic en el botón Ejecutar prueba para comprobar l
 <context>
     <name>DialogStruttura</name>
     <message>
-        <location filename="../gui/ui/Struttura.ui" line="435"/>
+        <location filename="../gui/ui/Struttura.ui" line="462"/>
         <source>pyArchInit Gestione Scavi - Scheda Struttura</source>
         <translation type="unfinished">pyArchInit Gestión de excavaciones - Hoja de estructura</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Struttura.ui" line="456"/>
+        <location filename="../gui/ui/Struttura.ui" line="483"/>
         <source>DBMS Toolbar</source>
         <translation type="unfinished">Barra de herramientas del SGBD</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Struttura.ui" line="470"/>
+        <location filename="../gui/ui/Struttura.ui" line="497"/>
         <source>First rec</source>
         <translation type="unfinished">Primer rec</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Struttura.ui" line="489"/>
+        <location filename="../gui/ui/Struttura.ui" line="516"/>
         <source>Next rec</source>
         <translation type="unfinished">Siguiente rec</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Struttura.ui" line="508"/>
+        <location filename="../gui/ui/Struttura.ui" line="535"/>
         <source>Last rec</source>
         <translation type="unfinished">Ultimo rec</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Struttura.ui" line="527"/>
+        <location filename="../gui/ui/Struttura.ui" line="554"/>
         <source>New record</source>
         <translation type="unfinished">Nuevo récord</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Struttura.ui" line="546"/>
+        <location filename="../gui/ui/Struttura.ui" line="573"/>
         <source>Save</source>
         <translation type="unfinished">Guardar</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Struttura.ui" line="568"/>
+        <location filename="../gui/ui/Struttura.ui" line="595"/>
         <source>new search</source>
         <translation type="unfinished">nueva búsqueda</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Struttura.ui" line="587"/>
+        <location filename="../gui/ui/Struttura.ui" line="614"/>
         <source>search !!!</source>
         <translation type="unfinished">¡¡¡Búsqueda!!!</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Struttura.ui" line="606"/>
+        <location filename="../gui/ui/Struttura.ui" line="633"/>
         <source>Order by</source>
         <translation type="unfinished">Pedir por</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Struttura.ui" line="625"/>
+        <location filename="../gui/ui/Struttura.ui" line="652"/>
         <source>View alls records</source>
         <translation type="unfinished">Ver todos los registros</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Struttura.ui" line="647"/>
+        <location filename="../gui/ui/Struttura.ui" line="674"/>
         <source>Delete record</source>
         <translation type="unfinished">Borrar registro</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Struttura.ui" line="666"/>
+        <location filename="../gui/ui/Struttura.ui" line="693"/>
         <source>Prev rec</source>
         <translation type="unfinished">Prev rec</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Struttura.ui" line="732"/>
+        <location filename="../gui/ui/Struttura.ui" line="759"/>
         <source>Connection test</source>
         <translation type="unfinished">Prueba de conexión</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Struttura.ui" line="770"/>
+        <location filename="../gui/ui/Struttura.ui" line="797"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Carica tutte vie per singole strutture&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Cargar todas las rutas de las estructuras individuales&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Struttura.ui" line="807"/>
+        <location filename="../gui/ui/Struttura.ui" line="834"/>
         <source>DB Info</source>
         <translation type="unfinished">Información DB</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Struttura.ui" line="823"/>
+        <location filename="../gui/ui/Struttura.ui" line="850"/>
         <source>Ordinamento</source>
         <translation type="unfinished">Clasificación</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Struttura.ui" line="916"/>
+        <location filename="../gui/ui/Struttura.ui" line="943"/>
         <source>Status</source>
         <translation type="unfinished">Estado</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Struttura.ui" line="937"/>
+        <location filename="../gui/ui/Struttura.ui" line="1020"/>
         <source>record n.</source>
         <translation type="unfinished">registro no.</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Struttura.ui" line="1013"/>
+        <location filename="../gui/ui/Struttura.ui" line="1006"/>
         <source>1</source>
         <translation type="unfinished">1</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Struttura.ui" line="982"/>
+        <location filename="../gui/ui/Struttura.ui" line="1037"/>
         <source>record tot.</source>
         <translation type="unfinished">récord total.</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Struttura.ui" line="1139"/>
+        <location filename="../gui/ui/Struttura.ui" line="1166"/>
         <source>Sito </source>
         <translation>Sitio </translation>
     </message>
     <message>
-        <location filename="../gui/ui/Struttura.ui" line="1151"/>
+        <location filename="../gui/ui/Struttura.ui" line="1178"/>
         <source>Sigla struttura</source>
         <translation type="unfinished">Abreviatura de la estructura</translation>
     </message>
     <message>
         <location filename="../gui/ui/Struttura.ui" line="1163"/>
-        <source>N°</source>
-        <translation type="unfinished">N°</translation>
+        <source>N&#xb0;</source>
+        <translation type="obsolete">N°</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Struttura.ui" line="1221"/>
+        <location filename="../gui/ui/Struttura.ui" line="1218"/>
         <source>Categoria</source>
         <translation type="unfinished">Categoría</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Struttura.ui" line="1233"/>
+        <location filename="../gui/ui/Struttura.ui" line="1206"/>
         <source>Tipologia</source>
         <translation type="unfinished">Tipología</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Struttura.ui" line="1245"/>
+        <location filename="../gui/ui/Struttura.ui" line="1244"/>
         <source>Definizione</source>
         <translation type="unfinished">Definición</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Struttura.ui" line="1278"/>
+        <location filename="../gui/ui/Struttura.ui" line="1305"/>
         <source>Dati descrittivi</source>
         <translation type="unfinished">Datos descriptivos</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Struttura.ui" line="1290"/>
+        <location filename="../gui/ui/Struttura.ui" line="1317"/>
         <source>Descrizione </source>
         <translation type="unfinished">Descripción</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Struttura.ui" line="1308"/>
+        <location filename="../gui/ui/Struttura.ui" line="1335"/>
         <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
@@ -5995,412 +6756,507 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Lucida Grande&apos;; font-size:13pt;&quot;&gt;&lt;br /&gt;&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Struttura.ui" line="1324"/>
+        <location filename="../gui/ui/Struttura.ui" line="1351"/>
         <source>Interpretazione </source>
         <translation type="unfinished">Interpretación</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Struttura.ui" line="1347"/>
+        <location filename="../gui/ui/Struttura.ui" line="1374"/>
         <source>Periodizzazione</source>
         <translation type="unfinished">Periodización</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Struttura.ui" line="1362"/>
+        <location filename="../gui/ui/Struttura.ui" line="1389"/>
         <source>Periodizzazione </source>
         <translation type="unfinished">Periodización</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Struttura.ui" line="1375"/>
+        <location filename="../gui/ui/Struttura.ui" line="1402"/>
         <source>Iniziale </source>
         <translation type="unfinished">Inicialmente</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Struttura.ui" line="1388"/>
+        <location filename="../gui/ui/Struttura.ui" line="1415"/>
         <source>Finale </source>
         <translation type="unfinished">Final</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Struttura.ui" line="1425"/>
+        <location filename="../gui/ui/Struttura.ui" line="1464"/>
         <source>Periodo </source>
         <translation type="unfinished">Periodo</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Struttura.ui" line="1418"/>
+        <location filename="../gui/ui/Struttura.ui" line="1457"/>
         <source>Fase </source>
         <translation type="unfinished">Fase</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Struttura.ui" line="1457"/>
+        <location filename="../gui/ui/Struttura.ui" line="1500"/>
         <source>Datazione estesa</source>
         <translation type="unfinished">Datación ampliada</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Struttura.ui" line="1472"/>
+        <location filename="../gui/ui/Struttura.ui" line="1515"/>
         <source>Rapporti</source>
         <translation type="unfinished">Informes</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Struttura.ui" line="1875"/>
+        <location filename="../gui/ui/Struttura.ui" line="2120"/>
         <source>-</source>
         <translation type="unfinished">-</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Struttura.ui" line="1857"/>
+        <location filename="../gui/ui/Struttura.ui" line="2102"/>
         <source>+</source>
         <translation type="unfinished">+</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Struttura.ui" line="1564"/>
+        <location filename="../gui/ui/Struttura.ui" line="1606"/>
         <source>Tipo di rapporto</source>
         <translation type="unfinished">Tipo de informe</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Struttura.ui" line="1569"/>
+        <location filename="../gui/ui/Struttura.ui" line="1611"/>
         <source>Sito</source>
         <translation>Sitio</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Struttura.ui" line="1574"/>
+        <location filename="../gui/ui/Struttura.ui" line="1616"/>
         <source>Sigla</source>
         <translation type="unfinished">Abreviatura</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Struttura.ui" line="1579"/>
+        <location filename="../gui/ui/Struttura.ui" line="1621"/>
         <source>Numero</source>
         <translation type="unfinished">Número</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Struttura.ui" line="1604"/>
+        <location filename="../gui/ui/Struttura.ui" line="1646"/>
         <source>Rapporti struttura</source>
         <translation type="unfinished">Informes de estructura</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Struttura.ui" line="1610"/>
+        <location filename="../gui/ui/Struttura.ui" line="1652"/>
         <source>Elementi costruttivi</source>
         <translation type="unfinished">Elementos de construcción</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Struttura.ui" line="1632"/>
+        <location filename="../gui/ui/Struttura.ui" line="1710"/>
         <source>Materiali impiegati</source>
         <translation type="unfinished">Materiales utilizados</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Struttura.ui" line="1668"/>
+        <location filename="../gui/ui/Struttura.ui" line="1695"/>
         <source>Materiali</source>
         <translation>Materiales</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Struttura.ui" line="1735"/>
+        <location filename="../gui/ui/Struttura.ui" line="1775"/>
         <source>Elementi strutturali</source>
         <translation type="unfinished">Elementos estructurales</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Struttura.ui" line="1771"/>
+        <location filename="../gui/ui/Struttura.ui" line="1810"/>
         <source>Tipologia elemento</source>
         <translation type="unfinished">Tipo de elemento</translation>
     </message>
     <message>
         <location filename="../gui/ui/Struttura.ui" line="1776"/>
-        <source>Quantità </source>
-        <translation type="unfinished">Cantidad</translation>
+        <source>Quantit&#xe0; </source>
+        <translation type="obsolete">Cantidad</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Struttura.ui" line="1826"/>
+        <location filename="../gui/ui/Struttura.ui" line="2071"/>
         <source>Misure</source>
         <translation type="unfinished">Medidas</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Struttura.ui" line="1839"/>
+        <location filename="../gui/ui/Struttura.ui" line="2084"/>
         <source>Misurazione</source>
         <translation type="unfinished">Medición de</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Struttura.ui" line="1911"/>
+        <location filename="../gui/ui/Struttura.ui" line="2156"/>
         <source>Tipo misura</source>
         <translation type="unfinished">Tipo de medición</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Struttura.ui" line="1916"/>
+        <location filename="../gui/ui/Struttura.ui" line="2161"/>
         <source>Unita&apos; di misura</source>
         <translation type="unfinished">Unidades de medida</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Struttura.ui" line="1921"/>
+        <location filename="../gui/ui/Struttura.ui" line="2166"/>
         <source>Valore</source>
         <translation type="unfinished">Valor</translation>
     </message>
     <message>
         <location filename="../gui/ui/Struttura.ui" line="1930"/>
         <source>Tools</source>
-        <translation type="unfinished">Herramientas</translation>
+        <translation type="obsolete">Herramientas</translation>
     </message>
     <message>
         <location filename="../gui/ui/Struttura.ui" line="1946"/>
         <source>Carica tutti i layer per poter inserire nuove geometrie</source>
-        <translation type="unfinished">Cargar todas las capas para insertar nuevas geometrías</translation>
+        <translation type="obsolete">Cargar todas las capas para insertar nuevas geometrías</translation>
     </message>
     <message>
         <location filename="../gui/ui/Struttura.ui" line="1939"/>
         <source>Carica i poligoni di struttura</source>
-        <translation type="unfinished">Polígonos de la estructura de carga</translation>
+        <translation type="obsolete">Polígonos de la estructura de carga</translation>
     </message>
     <message>
         <location filename="../gui/ui/Struttura.ui" line="1949"/>
         <source>Gis viewer</source>
-        <translation type="unfinished">Visor Gis</translation>
+        <translation type="obsolete">Visor Gis</translation>
+    </message>
+    <message encoding="UTF-8">
+        <location filename="../gui/ui/Struttura.ui" line="1190"/>
+        <source>N°</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message encoding="UTF-8">
+        <location filename="../gui/ui/Struttura.ui" line="1815"/>
+        <source>Quantità </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Struttura.ui" line="1887"/>
+        <source>Pdf2Word</source>
+        <translation type="unfinished">Pdf2Word</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Struttura.ui" line="1894"/>
+        <source>PDF path</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Struttura.ui" line="1907"/>
+        <source>choose the pdf convert to word</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Struttura.ui" line="1914"/>
+        <source>...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Struttura.ui" line="1921"/>
+        <source>Convert</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Struttura.ui" line="1948"/>
+        <source>Esportazioni Strutture</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Struttura.ui" line="1967"/>
+        <source>Stampa</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Struttura.ui" line="1984"/>
+        <source>Schede Strutture</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Struttura.ui" line="1991"/>
+        <source>Elenco Strutture</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Struttura.ui" line="2004"/>
+        <source>Converti in Word</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Struttura.ui" line="2019"/>
+        <source>Pagg.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Struttura.ui" line="2038"/>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Lo &amp;quot;0&amp;quot; indica la prima pagina da convertire&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Struttura.ui" line="2044"/>
+        <source>0</source>
+        <translation type="unfinished">0</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Struttura.ui" line="2051"/>
+        <source>to</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>DialogThesaurus</name>
     <message>
-        <location filename="../gui/ui/Thesaurus.ui" line="435"/>
+        <location filename="../gui/ui/Thesaurus.ui" line="462"/>
         <source>pyArchInit Gestione Beni culturali - Thesaurus</source>
         <translation type="unfinished">pyArchInit Gestión del Patrimonio Cultural - Tesauro</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Thesaurus.ui" line="455"/>
+        <location filename="../gui/ui/Thesaurus.ui" line="480"/>
         <source>DBMS Toolbar</source>
         <translation type="unfinished">Barra de herramientas del SGBD</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Thesaurus.ui" line="462"/>
+        <location filename="../gui/ui/Thesaurus.ui" line="487"/>
         <source>Connection test</source>
         <translation type="unfinished">Prueba de conexión</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Thesaurus.ui" line="471"/>
+        <location filename="../gui/ui/Thesaurus.ui" line="655"/>
         <source>First rec</source>
         <translation type="unfinished">Primer rec</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Thesaurus.ui" line="485"/>
+        <location filename="../gui/ui/Thesaurus.ui" line="496"/>
         <source>Next rec</source>
         <translation type="unfinished">Siguiente rec</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Thesaurus.ui" line="499"/>
+        <location filename="../gui/ui/Thesaurus.ui" line="510"/>
         <source>Last rec</source>
         <translation type="unfinished">Ultimo rec</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Thesaurus.ui" line="518"/>
+        <location filename="../gui/ui/Thesaurus.ui" line="529"/>
         <source>New record</source>
         <translation type="unfinished">Nuevo récord</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Thesaurus.ui" line="537"/>
+        <location filename="../gui/ui/Thesaurus.ui" line="548"/>
         <source>Save</source>
         <translation type="unfinished">Guardar</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Thesaurus.ui" line="559"/>
+        <location filename="../gui/ui/Thesaurus.ui" line="570"/>
         <source>new search</source>
         <translation type="unfinished">nueva búsqueda</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Thesaurus.ui" line="578"/>
+        <location filename="../gui/ui/Thesaurus.ui" line="589"/>
         <source>search !!!</source>
         <translation type="unfinished">¡¡¡Búsqueda!!!</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Thesaurus.ui" line="597"/>
+        <location filename="../gui/ui/Thesaurus.ui" line="608"/>
         <source>Order by</source>
         <translation type="unfinished">Pedir por</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Thesaurus.ui" line="616"/>
+        <location filename="../gui/ui/Thesaurus.ui" line="627"/>
         <source>View alls records</source>
         <translation type="unfinished">Ver todos los registros</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Thesaurus.ui" line="638"/>
+        <location filename="../gui/ui/Thesaurus.ui" line="677"/>
         <source>Delete record</source>
         <translation type="unfinished">Borrar registro</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Thesaurus.ui" line="652"/>
+        <location filename="../gui/ui/Thesaurus.ui" line="641"/>
         <source>Prev rec</source>
         <translation type="unfinished">Prev rec</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Thesaurus.ui" line="688"/>
+        <location filename="../gui/ui/Thesaurus.ui" line="720"/>
         <source>DB Info</source>
         <translation type="unfinished">Información DB</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Thesaurus.ui" line="704"/>
+        <location filename="../gui/ui/Thesaurus.ui" line="736"/>
         <source>Ordinamento</source>
         <translation type="unfinished">Clasificación</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Thesaurus.ui" line="797"/>
+        <location filename="../gui/ui/Thesaurus.ui" line="829"/>
         <source>Status</source>
         <translation type="unfinished">Estado</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Thesaurus.ui" line="818"/>
+        <location filename="../gui/ui/Thesaurus.ui" line="850"/>
         <source>record n.</source>
         <translation type="unfinished">registro no.</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Thesaurus.ui" line="894"/>
+        <location filename="../gui/ui/Thesaurus.ui" line="926"/>
         <source>1</source>
         <translation type="unfinished">1</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Thesaurus.ui" line="863"/>
+        <location filename="../gui/ui/Thesaurus.ui" line="895"/>
         <source>record tot.</source>
         <translation type="unfinished">récord total.</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Thesaurus.ui" line="907"/>
+        <location filename="../gui/ui/Thesaurus.ui" line="941"/>
         <source>Thesaurus</source>
         <translation type="unfinished">Tesauro</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Thesaurus.ui" line="913"/>
+        <location filename="../gui/ui/Thesaurus.ui" line="1199"/>
         <source>Lingua</source>
         <translation type="unfinished">Idioma</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Thesaurus.ui" line="920"/>
+        <location filename="../gui/ui/Thesaurus.ui" line="1022"/>
         <source>Sigla estesa</source>
         <translation type="unfinished">Acrónimo ampliado</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Thesaurus.ui" line="959"/>
+        <location filename="../gui/ui/Thesaurus.ui" line="979"/>
         <source>site_table</source>
         <translation type="unfinished">tabla_de_sitio</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Thesaurus.ui" line="964"/>
+        <location filename="../gui/ui/Thesaurus.ui" line="984"/>
         <source>us_table</source>
         <translation type="unfinished">us_table</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Thesaurus.ui" line="969"/>
+        <location filename="../gui/ui/Thesaurus.ui" line="989"/>
         <source>inventario_materiali_table</source>
         <translation type="unfinished">tabla_de_inventario_de_materiales</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Thesaurus.ui" line="974"/>
+        <location filename="../gui/ui/Thesaurus.ui" line="994"/>
         <source>campioni_table</source>
         <translation type="unfinished">tabla_de_muestras</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Thesaurus.ui" line="979"/>
+        <location filename="../gui/ui/Thesaurus.ui" line="999"/>
         <source>inventario_lapidei_table</source>
         <translation type="unfinished">tabla_de_inventario_de_los_lapidos</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Thesaurus.ui" line="984"/>
+        <location filename="../gui/ui/Thesaurus.ui" line="1004"/>
         <source>struttura_table</source>
         <translation type="unfinished">estructura_de_tabla</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Thesaurus.ui" line="989"/>
+        <location filename="../gui/ui/Thesaurus.ui" line="1009"/>
         <source>tomba_table</source>
         <translation type="unfinished">tabla_de_tumba</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Thesaurus.ui" line="994"/>
+        <location filename="../gui/ui/Thesaurus.ui" line="1014"/>
         <source>individui_table</source>
         <translation type="unfinished">tabla_de_individuos</translation>
     </message>
     <message>
         <location filename="../gui/ui/Thesaurus.ui" line="1002"/>
         <source>Tipologia sigla</source>
-        <translation type="unfinished">Tipo de acrónimo</translation>
+        <translation type="obsolete">Tipo de acrónimo</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Thesaurus.ui" line="1009"/>
+        <location filename="../gui/ui/Thesaurus.ui" line="1061"/>
         <source>Nome tabella</source>
         <translation type="unfinished">Nombre de la tabla</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Thesaurus.ui" line="1080"/>
+        <location filename="../gui/ui/Thesaurus.ui" line="1150"/>
         <source>Sigla</source>
         <translation type="unfinished">Abreviatura</translation>
     </message>
     <message>
         <location filename="../gui/ui/Thesaurus.ui" line="1116"/>
         <source>1.1</source>
-        <translation type="unfinished">1.1</translation>
+        <translation type="obsolete">1.1</translation>
     </message>
     <message>
         <location filename="../gui/ui/Thesaurus.ui" line="1121"/>
         <source>2.1</source>
-        <translation type="unfinished">2.1</translation>
+        <translation type="obsolete">2.1</translation>
     </message>
     <message>
         <location filename="../gui/ui/Thesaurus.ui" line="1126"/>
         <source>2.2</source>
-        <translation type="unfinished">2.2</translation>
+        <translation type="obsolete">2.2</translation>
     </message>
     <message>
         <location filename="../gui/ui/Thesaurus.ui" line="1131"/>
         <source>2.3</source>
-        <translation type="unfinished">2.3</translation>
+        <translation type="obsolete">2.3</translation>
     </message>
     <message>
         <location filename="../gui/ui/Thesaurus.ui" line="1136"/>
         <source>2.4</source>
-        <translation type="unfinished">2.4</translation>
+        <translation type="obsolete">2.4</translation>
     </message>
     <message>
         <location filename="../gui/ui/Thesaurus.ui" line="1141"/>
         <source>2.5</source>
-        <translation type="unfinished">2.5</translation>
+        <translation type="obsolete">2.5</translation>
     </message>
     <message>
         <location filename="../gui/ui/Thesaurus.ui" line="1146"/>
         <source>2.6</source>
-        <translation type="unfinished">2.6</translation>
+        <translation type="obsolete">2.6</translation>
     </message>
     <message>
         <location filename="../gui/ui/Thesaurus.ui" line="1151"/>
         <source>2.7</source>
-        <translation type="unfinished">2.7</translation>
+        <translation type="obsolete">2.7</translation>
     </message>
     <message>
         <location filename="../gui/ui/Thesaurus.ui" line="1156"/>
         <source>3.1</source>
-        <translation type="unfinished">3.1</translation>
+        <translation type="obsolete">3.1</translation>
     </message>
     <message>
         <location filename="../gui/ui/Thesaurus.ui" line="1161"/>
         <source>3.2</source>
-        <translation type="unfinished">3.2</translation>
+        <translation type="obsolete">3.2</translation>
     </message>
     <message>
         <location filename="../gui/ui/Thesaurus.ui" line="1166"/>
         <source>3.3</source>
-        <translation type="unfinished">3.3</translation>
+        <translation type="obsolete">3.3</translation>
     </message>
     <message>
         <location filename="../gui/ui/Thesaurus.ui" line="1171"/>
         <source>3.4</source>
-        <translation type="unfinished">3.4</translation>
+        <translation type="obsolete">3.4</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Thesaurus.ui" line="1202"/>
+        <location filename="../gui/ui/Thesaurus.ui" line="1105"/>
         <source>it_IT</source>
         <translation type="unfinished">es_ES</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Thesaurus.ui" line="1207"/>
+        <location filename="../gui/ui/Thesaurus.ui" line="1110"/>
         <source>en_US</source>
         <translation type="unfinished">es_US</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Thesaurus.ui" line="1222"/>
+        <location filename="../gui/ui/Thesaurus.ui" line="1075"/>
         <source>Visualizza elenco sigle</source>
         <translation type="unfinished">Ver lista de acrónimos</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Thesaurus.ui" line="1240"/>
+        <location filename="../gui/ui/Thesaurus.ui" line="1221"/>
         <source>Dati descrittivi</source>
         <translation type="unfinished">Datos descriptivos</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Thesaurus.ui" line="691"/>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;import  thesaurus from csv&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Thesaurus.ui" line="1157"/>
+        <source>Numero sigla</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Thesaurus.ui" line="1192"/>
+        <source>Vedi lista codici</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -6491,102 +7347,102 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished">H</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="40858"/>
+        <location filename="../gui/ui/US_USM.ui" line="48889"/>
         <source>1</source>
         <translation type="unfinished">1</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="40863"/>
+        <location filename="../gui/ui/US_USM.ui" line="48894"/>
         <source>2</source>
         <translation type="unfinished">2</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="40868"/>
+        <location filename="../gui/ui/US_USM.ui" line="48899"/>
         <source>3</source>
         <translation type="unfinished">3</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="40873"/>
+        <location filename="../gui/ui/US_USM.ui" line="48904"/>
         <source>4</source>
         <translation type="unfinished">4</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="40878"/>
+        <location filename="../gui/ui/US_USM.ui" line="48909"/>
         <source>5</source>
         <translation type="unfinished">5</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="40883"/>
+        <location filename="../gui/ui/US_USM.ui" line="48914"/>
         <source>6</source>
         <translation type="unfinished">6</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="40888"/>
+        <location filename="../gui/ui/US_USM.ui" line="48919"/>
         <source>7</source>
         <translation type="unfinished">7</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="40893"/>
+        <location filename="../gui/ui/US_USM.ui" line="48924"/>
         <source>8</source>
         <translation type="unfinished">8</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="40898"/>
+        <location filename="../gui/ui/US_USM.ui" line="48929"/>
         <source>9</source>
         <translation type="unfinished">9</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="40903"/>
+        <location filename="../gui/ui/US_USM.ui" line="48934"/>
         <source>10</source>
         <translation type="unfinished">10</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="23743"/>
+        <location filename="../gui/ui/US_USM.ui" line="24210"/>
         <source>11</source>
         <translation type="unfinished">11</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="23748"/>
+        <location filename="../gui/ui/US_USM.ui" line="24215"/>
         <source>12</source>
         <translation type="unfinished">12</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="23753"/>
+        <location filename="../gui/ui/US_USM.ui" line="24220"/>
         <source>13</source>
         <translation type="unfinished">13</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="23758"/>
+        <location filename="../gui/ui/US_USM.ui" line="24225"/>
         <source>14</source>
         <translation type="unfinished">14</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="23763"/>
+        <location filename="../gui/ui/US_USM.ui" line="24230"/>
         <source>15</source>
         <translation type="unfinished">15</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="23768"/>
+        <location filename="../gui/ui/US_USM.ui" line="24235"/>
         <source>16</source>
         <translation type="unfinished">16</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="23773"/>
+        <location filename="../gui/ui/US_USM.ui" line="24240"/>
         <source>17</source>
         <translation type="unfinished">17</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="23778"/>
+        <location filename="../gui/ui/US_USM.ui" line="24245"/>
         <source>18</source>
         <translation type="unfinished">18</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="23783"/>
+        <location filename="../gui/ui/US_USM.ui" line="24250"/>
         <source>19</source>
         <translation type="unfinished">19</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="23788"/>
+        <location filename="../gui/ui/US_USM.ui" line="24255"/>
         <source>20</source>
         <translation type="unfinished">20</translation>
     </message>
@@ -6616,12 +7472,12 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished">Visor GIS</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="47061"/>
+        <location filename="../gui/ui/US_USM.ui" line="55122"/>
         <source>Ctrl+G</source>
         <translation type="unfinished">Ctrl+G</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="35672"/>
+        <location filename="../gui/ui/US_USM.ui" line="35073"/>
         <source>Save</source>
         <translation type="unfinished">Guardar</translation>
     </message>
@@ -6701,22 +7557,22 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished">Pedir por</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="18916"/>
+        <location filename="../gui/ui/US_USM.ui" line="19383"/>
         <source>DB Info</source>
         <translation type="unfinished">Información DB</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="19380"/>
+        <location filename="../gui/ui/US_USM.ui" line="18913"/>
         <source>record tot.</source>
         <translation type="unfinished">récord total.</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="20332"/>
+        <location filename="../gui/ui/US_USM.ui" line="20817"/>
         <source>Status</source>
         <translation type="unfinished">Estado</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="21763"/>
+        <location filename="../gui/ui/US_USM.ui" line="21284"/>
         <source>record n.</source>
         <translation type="unfinished">registro no.</translation>
     </message>
@@ -6731,127 +7587,127 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished">Identificadores</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="30794"/>
+        <location filename="../gui/ui/US_USM.ui" line="30953"/>
         <source>US</source>
         <translation type="unfinished">EU</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="24280"/>
+        <location filename="../gui/ui/US_USM.ui" line="27519"/>
         <source>USM</source>
         <translation type="unfinished">EUM</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="24742"/>
+        <location filename="../gui/ui/US_USM.ui" line="25648"/>
         <source>Area</source>
         <translation type="unfinished">Área</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="30804"/>
+        <location filename="../gui/ui/US_USM.ui" line="30963"/>
         <source>Definizione stratigrafica</source>
         <translation type="unfinished">Definición estratigráfica</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="26589"/>
+        <location filename="../gui/ui/US_USM.ui" line="23666"/>
         <source>Sito </source>
         <translation>Sitio </translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="27050"/>
+        <location filename="../gui/ui/US_USM.ui" line="26109"/>
         <source>Unita tipo</source>
         <translation type="unfinished">Tipo de unidad</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="27511"/>
+        <location filename="../gui/ui/US_USM.ui" line="29024"/>
         <source>US/USM</source>
         <translation type="unfinished">US/EUM</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="40407"/>
+        <location filename="../gui/ui/US_USM.ui" line="48438"/>
         <source>Inserisci un valore</source>
         <translation type="unfinished">Introduzca un valor</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="28477"/>
+        <location filename="../gui/ui/US_USM.ui" line="28517"/>
         <source>Attivita&apos; di cantiere</source>
         <translation type="unfinished">Actividades en la obra</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="28482"/>
+        <location filename="../gui/ui/US_USM.ui" line="28522"/>
         <source>Abbandono</source>
         <translation type="unfinished">Abandono</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="28487"/>
+        <location filename="../gui/ui/US_USM.ui" line="28527"/>
         <source>Fognatura</source>
         <translation type="unfinished">Alcantarillado</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="28492"/>
+        <location filename="../gui/ui/US_USM.ui" line="28532"/>
         <source>Fondazione</source>
         <translation type="unfinished">Fundación</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="28497"/>
+        <location filename="../gui/ui/US_USM.ui" line="28537"/>
         <source>Fossa da grano</source>
         <translation type="unfinished">Foso de grano</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="28502"/>
+        <location filename="../gui/ui/US_USM.ui" line="28542"/>
         <source>Livellamento</source>
         <translation type="unfinished">Nivelación</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="28507"/>
+        <location filename="../gui/ui/US_USM.ui" line="28547"/>
         <source>Muro</source>
         <translation type="unfinished">Pared</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="28512"/>
+        <location filename="../gui/ui/US_USM.ui" line="28552"/>
         <source>Pavimentazione</source>
         <translation type="unfinished">Suelos</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="28517"/>
+        <location filename="../gui/ui/US_USM.ui" line="28557"/>
         <source>Pavimentazione a mosaico</source>
         <translation type="unfinished">Suelo de mosaico</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="28522"/>
+        <location filename="../gui/ui/US_USM.ui" line="28562"/>
         <source>Palo</source>
         <translation type="unfinished">Polo</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="28978"/>
+        <location filename="../gui/ui/US_USM.ui" line="28035"/>
         <source>Definizione Interpretativa</source>
         <translation type="unfinished">Definición interpretativa</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="29949"/>
+        <location filename="../gui/ui/US_USM.ui" line="30056"/>
         <source>Dati descrittivi</source>
         <translation type="unfinished">Datos descriptivos</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="29980"/>
+        <location filename="../gui/ui/US_USM.ui" line="30087"/>
         <source>Descrizione </source>
         <translation type="unfinished">Descripción</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="29987"/>
+        <location filename="../gui/ui/US_USM.ui" line="30094"/>
         <source>Osservazioni</source>
         <translation type="unfinished">Comentarios</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="29994"/>
+        <location filename="../gui/ui/US_USM.ui" line="30101"/>
         <source>Elementi datanti</source>
         <translation type="unfinished">Elementos de la fecha</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="30036"/>
+        <location filename="../gui/ui/US_USM.ui" line="30143"/>
         <source>Interpretazione </source>
         <translation type="unfinished">Interpretación</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="30064"/>
+        <location filename="../gui/ui/US_USM.ui" line="30171"/>
         <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
@@ -6864,1515 +7720,1670 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Lucida Grande&apos;; font-size:13pt;&quot;&gt;&lt;br /&gt;&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="30084"/>
+        <location filename="../gui/ui/US_USM.ui" line="30191"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Dati descrittivi&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Datos descriptivos&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="30092"/>
+        <location filename="../gui/ui/US_USM.ui" line="30199"/>
         <source>Periodizzazione - Rapporti Stratigrafici</source>
         <translation type="unfinished">Periodización - Relaciones estratigráficas</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="30388"/>
+        <location filename="../gui/ui/US_USM.ui" line="30482"/>
         <source>Periodo </source>
         <translation type="unfinished">Periodo</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="30417"/>
+        <location filename="../gui/ui/US_USM.ui" line="30511"/>
         <source>Fase </source>
         <translation type="unfinished">Fase</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="30200"/>
+        <location filename="../gui/ui/US_USM.ui" line="30294"/>
         <source>Metodo di scavo</source>
         <translation type="unfinished">Método de excavación</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="30213"/>
+        <location filename="../gui/ui/US_USM.ui" line="30307"/>
         <source>Anno</source>
         <translation type="unfinished">Año</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="30232"/>
+        <location filename="../gui/ui/US_USM.ui" line="30326"/>
         <source>Datazione</source>
         <translation type="unfinished">Citas</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="30245"/>
+        <location filename="../gui/ui/US_USM.ui" line="30339"/>
         <source>Scavato</source>
         <translation type="unfinished">Excavado</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="30267"/>
+        <location filename="../gui/ui/US_USM.ui" line="30361"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Periodizzazione&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Periodización&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="30312"/>
+        <location filename="../gui/ui/US_USM.ui" line="30406"/>
         <source>Meccanico</source>
         <translation type="unfinished">Mecánico</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="30317"/>
+        <location filename="../gui/ui/US_USM.ui" line="30411"/>
         <source>Stratigrafico</source>
         <translation type="unfinished">Estratigrafía</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="32953"/>
+        <location filename="../gui/ui/US_USM.ui" line="33259"/>
         <source>Si</source>
         <translation type="unfinished">Sí</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="32958"/>
+        <location filename="../gui/ui/US_USM.ui" line="33264"/>
         <source>No</source>
         <translation type="unfinished">No</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="30436"/>
+        <location filename="../gui/ui/US_USM.ui" line="30530"/>
         <source>Iniziale </source>
         <translation type="unfinished">Inicialmente</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="30455"/>
+        <location filename="../gui/ui/US_USM.ui" line="30549"/>
         <source>Finale </source>
         <translation type="unfinished">Final</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="30499"/>
+        <location filename="../gui/ui/US_USM.ui" line="30593"/>
         <source>Attivita&apos;</source>
         <translation type="unfinished">Actividad&apos;</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="30524"/>
+        <location filename="../gui/ui/US_USM.ui" line="30618"/>
         <source>Struttura</source>
         <translation type="unfinished">Estructura</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="30547"/>
+        <location filename="../gui/ui/US_USM.ui" line="30701"/>
         <source>Rapporti stratigrafici</source>
         <translation type="unfinished">Relaciones estratigráficas</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="34271"/>
+        <location filename="../gui/ui/US_USM.ui" line="34577"/>
         <source>+</source>
         <translation type="unfinished">+</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="30594"/>
+        <location filename="../gui/ui/US_USM.ui" line="30824"/>
         <source>Vai all&apos;US</source>
         <translation type="unfinished">Ir a EU</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="34227"/>
+        <location filename="../gui/ui/US_USM.ui" line="34533"/>
         <source>-</source>
         <translation type="unfinished">-</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="30694"/>
+        <location filename="../gui/ui/US_USM.ui" line="30773"/>
         <source>Tipo di rapporto</source>
         <translation type="unfinished">Tipo de informe</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="30789"/>
+        <location filename="../gui/ui/US_USM.ui" line="30948"/>
         <source>Rapp</source>
         <translation type="unfinished">Reps</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="30799"/>
-        <source>Unità tipo</source>
-        <translation type="unfinished">Tipo de unidad</translation>
+        <source>Unit&#xe0; tipo</source>
+        <translation type="obsolete">Tipo de unidad</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="30809"/>
+        <location filename="../gui/ui/US_USM.ui" line="30968"/>
         <source>Periodizzazione</source>
         <translation type="unfinished">Periodización</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="30820"/>
+        <location filename="../gui/ui/US_USM.ui" line="31126"/>
         <source>Dati Fisici - Dati Schedatura</source>
         <translation type="unfinished">Datos físicos - Datos de registro</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="30853"/>
+        <location filename="../gui/ui/US_USM.ui" line="31159"/>
         <source>Flottazione</source>
         <translation type="unfinished">Flotación</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="30892"/>
+        <location filename="../gui/ui/US_USM.ui" line="31198"/>
         <source>Inclusi Artificiali</source>
         <translation type="unfinished">Incluido el artificial</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="32863"/>
+        <location filename="../gui/ui/US_USM.ui" line="33169"/>
         <source>Criteri distinzione</source>
         <translation type="unfinished">Criterios de distinción</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="30907"/>
+        <location filename="../gui/ui/US_USM.ui" line="31213"/>
         <source>Posizione</source>
         <translation type="unfinished">Ubicación</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="30923"/>
+        <location filename="../gui/ui/US_USM.ui" line="31229"/>
         <source>Formazione</source>
         <translation type="unfinished">Formación</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="30949"/>
+        <location filename="../gui/ui/US_USM.ui" line="31255"/>
         <source>Artificiale</source>
         <translation type="unfinished">Artificial</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="30954"/>
+        <location filename="../gui/ui/US_USM.ui" line="31260"/>
         <source>Naturale</source>
         <translation>Natural</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="34158"/>
+        <location filename="../gui/ui/US_USM.ui" line="34464"/>
         <source>Colore</source>
         <translation>Color</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="30997"/>
+        <location filename="../gui/ui/US_USM.ui" line="31303"/>
         <source>Apporto</source>
         <translation type="unfinished">Entrada</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="31002"/>
+        <location filename="../gui/ui/US_USM.ui" line="31308"/>
         <source>Sottrazione</source>
         <translation type="unfinished">Resta</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="31007"/>
+        <location filename="../gui/ui/US_USM.ui" line="31313"/>
         <source>Accumulo</source>
         <translation type="unfinished">Acumulación</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="31012"/>
+        <location filename="../gui/ui/US_USM.ui" line="31318"/>
         <source>Frana</source>
         <translation type="unfinished">Desprendimiento de tierras</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="31039"/>
+        <location filename="../gui/ui/US_USM.ui" line="31345"/>
         <source>Marrone</source>
         <translation type="unfinished">Marrón</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="31044"/>
+        <location filename="../gui/ui/US_USM.ui" line="31350"/>
         <source>Marrone chiaro</source>
         <translation type="unfinished">Marrón claro</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="31049"/>
+        <location filename="../gui/ui/US_USM.ui" line="31355"/>
         <source>Marrone scuro</source>
         <translation type="unfinished">marron oscuro</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="31059"/>
+        <location filename="../gui/ui/US_USM.ui" line="31365"/>
         <source>Giallo</source>
         <translation type="unfinished">Amarillo</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="31064"/>
+        <location filename="../gui/ui/US_USM.ui" line="31370"/>
         <source>Giallo scuro</source>
         <translation type="unfinished">Amarillo oscuro</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="31069"/>
+        <location filename="../gui/ui/US_USM.ui" line="31375"/>
         <source>Giallo chiaro</source>
         <translation type="unfinished">Amarillo claro</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="31092"/>
+        <location filename="../gui/ui/US_USM.ui" line="31398"/>
         <source>Modo formazione</source>
         <translation type="unfinished">Modo de entrenamiento</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="33957"/>
+        <location filename="../gui/ui/US_USM.ui" line="34263"/>
         <source>Consistenza</source>
         <translation type="unfinished">Consistencia</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="32464"/>
+        <location filename="../gui/ui/US_USM.ui" line="32770"/>
         <source>inserisci riga</source>
         <translation type="unfinished">insertar línea</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="32486"/>
+        <location filename="../gui/ui/US_USM.ui" line="32792"/>
         <source>rimuovi riga</source>
         <translation type="unfinished">eliminar la línea</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="31203"/>
+        <location filename="../gui/ui/US_USM.ui" line="31509"/>
         <source>Affidabilita&apos;</source>
         <translation type="unfinished">Fiabilidad</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="31265"/>
+        <location filename="../gui/ui/US_USM.ui" line="31571"/>
         <source>Comp. inorganici</source>
         <translation type="unfinished">Comp. inorgánico</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="31336"/>
+        <location filename="../gui/ui/US_USM.ui" line="31642"/>
         <source>Argillosa</source>
         <translation type="unfinished">Clayey</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="31341"/>
+        <location filename="../gui/ui/US_USM.ui" line="31647"/>
         <source>Compatta</source>
         <translation type="unfinished">Compacto</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="31346"/>
+        <location filename="../gui/ui/US_USM.ui" line="31652"/>
         <source>Friabile</source>
         <translation type="unfinished">Friable</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="31351"/>
+        <location filename="../gui/ui/US_USM.ui" line="31657"/>
         <source>Sabbiosa</source>
         <translation type="unfinished">Sandy</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="31406"/>
+        <location filename="../gui/ui/US_USM.ui" line="31712"/>
         <source>                     Campioni                </source>
         <translation type="unfinished">                     Campeones</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="31414"/>
+        <location filename="../gui/ui/US_USM.ui" line="31720"/>
         <source>Setacciatura</source>
         <translation type="unfinished">Cribado</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="31465"/>
+        <location filename="../gui/ui/US_USM.ui" line="31771"/>
         <source>Comp. organici</source>
         <translation type="unfinished">Comp. orgánico</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="31610"/>
+        <location filename="../gui/ui/US_USM.ui" line="31916"/>
         <source>Scarso</source>
         <translation type="unfinished">Pobre</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="31529"/>
+        <location filename="../gui/ui/US_USM.ui" line="31835"/>
         <source>Buona</source>
         <translation>Bueno</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="31534"/>
+        <location filename="../gui/ui/US_USM.ui" line="31840"/>
         <source>Discreta</source>
         <translation type="unfinished">Discreto</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="31539"/>
+        <location filename="../gui/ui/US_USM.ui" line="31845"/>
         <source>Ottima</source>
         <translation type="unfinished">Excelente</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="31579"/>
+        <location filename="../gui/ui/US_USM.ui" line="31885"/>
         <source>Stato conservazione </source>
         <translation type="unfinished">Estado de conservación</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="31605"/>
+        <location filename="../gui/ui/US_USM.ui" line="31911"/>
         <source>Insufficiente</source>
         <translation type="unfinished">Insuficiente</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="31615"/>
+        <location filename="../gui/ui/US_USM.ui" line="31921"/>
         <source>Buono</source>
         <translation type="unfinished">Bien</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="31620"/>
+        <location filename="../gui/ui/US_USM.ui" line="31926"/>
         <source>Discreto</source>
         <translation type="unfinished">Discreto</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="31625"/>
+        <location filename="../gui/ui/US_USM.ui" line="31931"/>
         <source>Ottimo</source>
         <translation type="unfinished">Excelente</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="31646"/>
+        <location filename="../gui/ui/US_USM.ui" line="31952"/>
         <source>Responsabile compilazione sul campo</source>
         <translation type="unfinished">Gestor de recopilación de campo</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="31662"/>
+        <location filename="../gui/ui/US_USM.ui" line="31968"/>
         <source>Data schedatura</source>
         <translation type="unfinished">Fecha de presentación</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="31704"/>
+        <location filename="../gui/ui/US_USM.ui" line="32010"/>
         <source>Cod. Ente Schedatore</source>
         <translation type="unfinished">Cod</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="31711"/>
+        <location filename="../gui/ui/US_USM.ui" line="32017"/>
         <source>Data rilevazione</source>
         <translation type="unfinished">Fecha de la encuesta</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="31738"/>
+        <location filename="../gui/ui/US_USM.ui" line="32044"/>
         <source>Ref. TM</source>
         <translation type="unfinished">Ref. TM</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="31745"/>
+        <location filename="../gui/ui/US_USM.ui" line="32051"/>
         <source>Ref. N.</source>
         <translation type="unfinished">Número de referencia</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="31752"/>
+        <location filename="../gui/ui/US_USM.ui" line="32058"/>
         <source>Data rielaborazione</source>
         <translation type="unfinished">Fecha de tramitación</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="31807"/>
+        <location filename="../gui/ui/US_USM.ui" line="32113"/>
         <source>Ref. RA</source>
         <translation type="unfinished">Ref. RA</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="31814"/>
+        <location filename="../gui/ui/US_USM.ui" line="32120"/>
         <source>Responsabile scientifico delle indagini</source>
         <translation type="unfinished">Responsable científico de las investigaciones</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="31840"/>
+        <location filename="../gui/ui/US_USM.ui" line="32146"/>
         <source>Responsabile rielaborazione</source>
         <translation type="unfinished">Responsable de la tramitación</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="31884"/>
+        <location filename="../gui/ui/US_USM.ui" line="32190"/>
         <source>; </source>
         <translation>; </translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="31897"/>
+        <location filename="../gui/ui/US_USM.ui" line="32203"/>
         <source>Soprintendenza</source>
         <translation type="unfinished">Superintendencia</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="31944"/>
+        <location filename="../gui/ui/US_USM.ui" line="32250"/>
         <source>Sabap - Emilia Romagna</source>
         <translation type="unfinished">Sabap - Emilia Romagna</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="31949"/>
+        <location filename="../gui/ui/US_USM.ui" line="32255"/>
         <source>Sabap - Campania</source>
         <translation type="unfinished">Sabap - Campania</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="31954"/>
+        <location filename="../gui/ui/US_USM.ui" line="32260"/>
         <source>Sabap - Puglia</source>
         <translation type="unfinished">Sabap - Apulia</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="31959"/>
+        <location filename="../gui/ui/US_USM.ui" line="32265"/>
         <source>Sabap - Lazio</source>
         <translation type="unfinished">Sabap - Lacio</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="31964"/>
+        <location filename="../gui/ui/US_USM.ui" line="32270"/>
         <source>Sabap - Lombardia</source>
         <translation type="unfinished">Sabap - Lombardía</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="31969"/>
+        <location filename="../gui/ui/US_USM.ui" line="32275"/>
         <source>Sabap - Piemonte</source>
         <translation type="unfinished">Sabap - Piamonte</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="31974"/>
+        <location filename="../gui/ui/US_USM.ui" line="32280"/>
         <source>Sabap - Liguria</source>
         <translation type="unfinished">Sabap - Liguria</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="31979"/>
+        <location filename="../gui/ui/US_USM.ui" line="32285"/>
         <source>Sabap - Umbria</source>
         <translation type="unfinished">Sabap - Umbría</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="31984"/>
+        <location filename="../gui/ui/US_USM.ui" line="32290"/>
         <source>Sabap - Molise</source>
         <translation type="unfinished">Sabap - Molise</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="31989"/>
+        <location filename="../gui/ui/US_USM.ui" line="32295"/>
         <source>Sabap - Calabria</source>
         <translation type="unfinished">Sabap - Calabria</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="31994"/>
+        <location filename="../gui/ui/US_USM.ui" line="32300"/>
         <source>Sabap - Sicilia</source>
         <translation type="unfinished">Sabap - Sicilia</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="31999"/>
+        <location filename="../gui/ui/US_USM.ui" line="32305"/>
         <source>Sabap - Basilicata</source>
         <translation type="unfinished">Sabap - Basilicata</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="32004"/>
+        <location filename="../gui/ui/US_USM.ui" line="32310"/>
         <source>Sabap - Veneto</source>
         <translation type="unfinished">Sabap - Véneto</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="32009"/>
+        <location filename="../gui/ui/US_USM.ui" line="32315"/>
         <source>Sabap - Marche</source>
         <translation type="unfinished">Sabap - Marche</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="32014"/>
+        <location filename="../gui/ui/US_USM.ui" line="32320"/>
         <source>Sabap - Toscana</source>
         <translation type="unfinished">Sabap - Toscana</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="32025"/>
+        <location filename="../gui/ui/US_USM.ui" line="32331"/>
         <source>Misure US</source>
         <translation type="unfinished">Medidas estadounidenses</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="32042"/>
+        <location filename="../gui/ui/US_USM.ui" line="32348"/>
         <source>Lunghezza media (metri)</source>
         <translation type="unfinished">Longitud media (metros)</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="32065"/>
+        <location filename="../gui/ui/US_USM.ui" line="32371"/>
         <source>Larghezza max (metri)</source>
         <translation type="unfinished">Anchura máxima (metros)</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="32088"/>
+        <location filename="../gui/ui/US_USM.ui" line="32394"/>
         <source>Spessore (metri)</source>
         <translation type="unfinished">Espesor (metros)</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="32131"/>
+        <location filename="../gui/ui/US_USM.ui" line="32437"/>
         <source>Quota assoluta (metri)</source>
         <translation type="unfinished">Altura absoluta (metros)</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="32166"/>
+        <location filename="../gui/ui/US_USM.ui" line="32472"/>
         <source>Quota relativa (metri)</source>
         <translation type="unfinished">Altura relativa (metros)</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="32195"/>
+        <location filename="../gui/ui/US_USM.ui" line="32501"/>
         <source>Quota max assoluta (metri)</source>
         <translation type="unfinished">Altura máxima absoluta (metros)</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="32224"/>
+        <location filename="../gui/ui/US_USM.ui" line="32530"/>
         <source>Quota max relativa  (metri)</source>
         <translation type="unfinished">Altura máxima relativa (metros)</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="32253"/>
+        <location filename="../gui/ui/US_USM.ui" line="32559"/>
         <source>Quota min assoluta (metri)</source>
         <translation type="unfinished">Altitud absoluta mínima (metros)</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="32282"/>
+        <location filename="../gui/ui/US_USM.ui" line="32588"/>
         <source>Quota min relativa  (metri)</source>
         <translation type="unfinished">Altura mínima relativa (metros)</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="32311"/>
+        <location filename="../gui/ui/US_USM.ui" line="32617"/>
         <source>Altezza min. (metri)</source>
         <translation type="unfinished">Altura mínima (metros)</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="32340"/>
-        <source>Profondità min. (metri) </source>
-        <translation type="unfinished">Profundidad mínima (metros)</translation>
+        <source>Profondit&#xe0; min. (metri) </source>
+        <translation type="obsolete">Profundidad mínima (metros)</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="32369"/>
-        <source>Profondità max. (metri) </source>
-        <translation type="unfinished">Profundidad máxima (metros)</translation>
+        <source>Profondit&#xe0; max. (metri) </source>
+        <translation type="obsolete">Profundidad máxima (metros)</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="32399"/>
+        <location filename="../gui/ui/US_USM.ui" line="32705"/>
         <source>Documentazione</source>
         <translation type="unfinished">Documentación</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="32434"/>
+        <location filename="../gui/ui/US_USM.ui" line="32740"/>
         <source>Tipo documentazione</source>
         <translation type="unfinished">Tipo de documentación</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="32439"/>
+        <location filename="../gui/ui/US_USM.ui" line="32745"/>
         <source>Riferimenti</source>
         <translation type="unfinished">Referencias</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="32515"/>
+        <location filename="../gui/ui/US_USM.ui" line="32821"/>
         <source>Aggiorna doc</source>
         <translation type="unfinished">Actualización del documento</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="32528"/>
+        <location filename="../gui/ui/US_USM.ui" line="32834"/>
         <source>Visualizza documentazione</source>
         <translation type="unfinished">Ver documentación</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="32538"/>
+        <location filename="../gui/ui/US_USM.ui" line="32844"/>
         <source>Tecnica Edilizia USM</source>
         <translation type="unfinished">Tecnología de los edificios EUM</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="32544"/>
+        <location filename="../gui/ui/US_USM.ui" line="32850"/>
         <source>Dati specifici USM </source>
         <translation type="unfinished">Datos específicos de EUM</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="32574"/>
+        <location filename="../gui/ui/US_USM.ui" line="32880"/>
         <source>Lunghezza USM  (metri)</source>
         <translation type="unfinished">Longitud del EUM (metros)</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="32581"/>
+        <location filename="../gui/ui/US_USM.ui" line="32887"/>
         <source>Altezza USM  (metri)</source>
         <translation type="unfinished">Altura del EUM (metros)</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="32722"/>
+        <location filename="../gui/ui/US_USM.ui" line="33028"/>
         <source>Superficie analizzata</source>
         <translation type="unfinished">Superficie analizada</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="32755"/>
+        <location filename="../gui/ui/US_USM.ui" line="33061"/>
         <source>Sezione muraria</source>
         <translation type="unfinished">Sección de la pared</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="32771"/>
+        <location filename="../gui/ui/US_USM.ui" line="33077"/>
         <source>Modulo</source>
         <translation type="unfinished">Módulo</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="32785"/>
+        <location filename="../gui/ui/US_USM.ui" line="33091"/>
         <source>Tipologia dell&apos;opera</source>
         <translation type="unfinished">Tipo de trabajo</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="32830"/>
+        <location filename="../gui/ui/US_USM.ui" line="33136"/>
         <source>Reimpiego</source>
         <translation type="unfinished">Reutilizar</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="32870"/>
+        <location filename="../gui/ui/US_USM.ui" line="33176"/>
         <source>Campioni malta</source>
         <translation type="unfinished">Muestras de mortero</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="32887"/>
+        <location filename="../gui/ui/US_USM.ui" line="33193"/>
         <source>Campioni mattone</source>
         <translation type="unfinished">Muestras de ladrillos</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="32903"/>
+        <location filename="../gui/ui/US_USM.ui" line="33209"/>
         <source>Provenienza materiali</source>
         <translation type="unfinished">Origen del material</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="32919"/>
+        <location filename="../gui/ui/US_USM.ui" line="33225"/>
         <source>Tecnica costruttiva</source>
         <translation type="unfinished">Técnica de construcción</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="32926"/>
+        <location filename="../gui/ui/US_USM.ui" line="33232"/>
         <source>Campioni pietra</source>
         <translation type="unfinished">Muestras de piedra</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="32975"/>
+        <location filename="../gui/ui/US_USM.ui" line="33281"/>
         <source>Uso primario</source>
         <translation type="unfinished">Uso principal</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="32989"/>
+        <location filename="../gui/ui/US_USM.ui" line="33295"/>
         <source>Orientamento</source>
         <translation type="unfinished">Orientación</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="33009"/>
+        <location filename="../gui/ui/US_USM.ui" line="33315"/>
         <source>Descrizione Materiali</source>
         <translation type="unfinished">Descripción de los materiales</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="33016"/>
+        <location filename="../gui/ui/US_USM.ui" line="33322"/>
         <source>Laterizi</source>
         <translation type="unfinished">Ladrillos</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="33304"/>
+        <location filename="../gui/ui/US_USM.ui" line="33610"/>
         <source>Materiali</source>
         <translation>Materiales</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="33332"/>
+        <location filename="../gui/ui/US_USM.ui" line="33638"/>
         <source>Lavorazione</source>
         <translation type="unfinished">Procesamiento</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="33339"/>
+        <location filename="../gui/ui/US_USM.ui" line="33645"/>
         <source>Forma</source>
         <translation type="unfinished">Formulario</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="33079"/>
+        <location filename="../gui/ui/US_USM.ui" line="33385"/>
         <source>Impasto</source>
         <translation type="unfinished">Masa</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="33381"/>
+        <location filename="../gui/ui/US_USM.ui" line="33687"/>
         <source>Posa in opera</source>
         <translation type="unfinished">Colocación de</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="33123"/>
+        <location filename="../gui/ui/US_USM.ui" line="33429"/>
         <source>Mattoni</source>
         <translation type="unfinished">Ladrillos</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="33140"/>
+        <location filename="../gui/ui/US_USM.ui" line="33446"/>
         <source>Crudi</source>
         <translation type="unfinished">Crudo</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="33145"/>
+        <location filename="../gui/ui/US_USM.ui" line="33451"/>
         <source>Cotti</source>
         <translation type="unfinished">Cocinado</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="33150"/>
+        <location filename="../gui/ui/US_USM.ui" line="33456"/>
         <source>Cotti al sole</source>
         <translation type="unfinished">Horneado al sol</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="33155"/>
+        <location filename="../gui/ui/US_USM.ui" line="33461"/>
         <source>Semifusi</source>
         <translation type="unfinished">Semifundido</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="33549"/>
+        <location filename="../gui/ui/US_USM.ui" line="33855"/>
         <source>Tenera</source>
         <translation type="unfinished">Tender</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="33554"/>
+        <location filename="../gui/ui/US_USM.ui" line="33860"/>
         <source>Dura</source>
         <translation type="unfinished">Dura</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="33559"/>
+        <location filename="../gui/ui/US_USM.ui" line="33865"/>
         <source>Molto dura</source>
         <translation type="unfinished">Muy difícil</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="33199"/>
+        <location filename="../gui/ui/US_USM.ui" line="33505"/>
         <source>Triangolari</source>
         <translation type="unfinished">Triangular</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="33204"/>
+        <location filename="../gui/ui/US_USM.ui" line="33510"/>
         <source>Quadrati</source>
         <translation type="unfinished">Cuadros</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="33209"/>
+        <location filename="../gui/ui/US_USM.ui" line="33515"/>
         <source>Rettangolari</source>
         <translation type="unfinished">Rectangular</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="33214"/>
+        <location filename="../gui/ui/US_USM.ui" line="33520"/>
         <source>Spezzoni</source>
         <translation type="unfinished">Recortes</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="33238"/>
+        <location filename="../gui/ui/US_USM.ui" line="33544"/>
         <source>Depurato</source>
         <translation type="unfinished">Purificado</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="33243"/>
+        <location filename="../gui/ui/US_USM.ui" line="33549"/>
         <source>Poco depurato</source>
         <translation type="unfinished">Mal purificado</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="33260"/>
+        <location filename="../gui/ui/US_USM.ui" line="33566"/>
         <source>Filari orizzontali</source>
         <translation type="unfinished">Filas horizontales</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="33265"/>
+        <location filename="../gui/ui/US_USM.ui" line="33571"/>
         <source>Filari ondulati</source>
         <translation type="unfinished">Filas onduladas</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="33270"/>
+        <location filename="../gui/ui/US_USM.ui" line="33576"/>
         <source>Spina pesce</source>
         <translation type="unfinished">Tapón de pescado</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="33275"/>
+        <location filename="../gui/ui/US_USM.ui" line="33581"/>
         <source>Alternati</source>
         <translation type="unfinished">Alternativas</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="33280"/>
+        <location filename="../gui/ui/US_USM.ui" line="33586"/>
         <source>Sfalsati</source>
         <translation type="unfinished">Escalonado</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="33291"/>
+        <location filename="../gui/ui/US_USM.ui" line="33597"/>
         <source>Elementi Litici</source>
         <translation type="unfinished">Elementos líticos</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="33353"/>
+        <location filename="../gui/ui/US_USM.ui" line="33659"/>
         <source>Taglio</source>
         <translation type="unfinished">Cortar</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="33397"/>
+        <location filename="../gui/ui/US_USM.ui" line="33703"/>
         <source>Tufo </source>
         <translation type="unfinished">Tuff</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="33402"/>
+        <location filename="../gui/ui/US_USM.ui" line="33708"/>
         <source>Calcare</source>
         <translation type="unfinished">Caliza</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="33407"/>
+        <location filename="../gui/ui/US_USM.ui" line="33713"/>
         <source>Altro</source>
         <translation type="unfinished">Más</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="33424"/>
+        <location filename="../gui/ui/US_USM.ui" line="33730"/>
         <source>Sfaldati</source>
         <translation type="unfinished">Escamas</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="33429"/>
+        <location filename="../gui/ui/US_USM.ui" line="33735"/>
         <source>Spaccati</source>
         <translation type="unfinished">Divisiones</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="33434"/>
+        <location filename="../gui/ui/US_USM.ui" line="33740"/>
         <source>Sbozzati</source>
         <translation type="unfinished">Fichas</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="33439"/>
+        <location filename="../gui/ui/US_USM.ui" line="33745"/>
         <source>Squadrati</source>
         <translation type="unfinished">Cuadrado</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="33444"/>
+        <location filename="../gui/ui/US_USM.ui" line="33750"/>
         <source>Spianati</source>
         <translation type="unfinished">Aplanado</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="33461"/>
+        <location filename="../gui/ui/US_USM.ui" line="33767"/>
         <source>Regolare</source>
         <translation type="unfinished">Regular</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="33466"/>
+        <location filename="../gui/ui/US_USM.ui" line="33772"/>
         <source>Irregolari</source>
         <translation type="unfinished">Irregulares</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="33490"/>
+        <location filename="../gui/ui/US_USM.ui" line="33796"/>
         <source>A scalpello</source>
         <translation type="unfinished">Cincel</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="33495"/>
+        <location filename="../gui/ui/US_USM.ui" line="33801"/>
         <source>A sega</source>
         <translation type="unfinished">Sierra</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="33500"/>
+        <location filename="../gui/ui/US_USM.ui" line="33806"/>
         <source>A martellina</source>
         <translation type="unfinished">Un martillo</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="33517"/>
+        <location filename="../gui/ui/US_USM.ui" line="33823"/>
         <source>Corsi regolari</source>
         <translation type="unfinished">Cursos regulares</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="33522"/>
+        <location filename="../gui/ui/US_USM.ui" line="33828"/>
         <source>Corsi irregolari</source>
         <translation type="unfinished">Cursos irregulares</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="33527"/>
+        <location filename="../gui/ui/US_USM.ui" line="33833"/>
         <source>Corsi alternati</source>
         <translation type="unfinished">Cursos alternos</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="33532"/>
+        <location filename="../gui/ui/US_USM.ui" line="33838"/>
         <source>Sparsi</source>
         <translation type="unfinished">Dispersos</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="33593"/>
+        <location filename="../gui/ui/US_USM.ui" line="33899"/>
         <source>Leganti USM</source>
         <translation type="unfinished">Carpetas EUM</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="34040"/>
+        <location filename="../gui/ui/US_USM.ui" line="34346"/>
         <source>Aggregati</source>
         <translation type="unfinished">Agregados</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="33619"/>
+        <location filename="../gui/ui/US_USM.ui" line="33925"/>
         <source>Inerti</source>
         <translation type="unfinished">Inertes</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="33710"/>
+        <location filename="../gui/ui/US_USM.ui" line="34016"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Caratteristiche del legante&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Características del aglutinante&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="33717"/>
+        <location filename="../gui/ui/US_USM.ui" line="34023"/>
         <source>Tipo legante</source>
         <translation type="unfinished">Tipo de carpeta</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="33768"/>
+        <location filename="../gui/ui/US_USM.ui" line="34074"/>
         <source>Rifinitura</source>
         <translation type="unfinished">Acabado</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="33845"/>
+        <location filename="../gui/ui/US_USM.ui" line="34151"/>
         <source>Spessore legante (cm)</source>
         <translation type="unfinished">Espesor del aglutinante (cm)</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="34316"/>
+        <location filename="../gui/ui/US_USM.ui" line="34622"/>
         <source>Inclusi</source>
         <translation type="unfinished">Incluyendo</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="33949"/>
+        <location filename="../gui/ui/US_USM.ui" line="34255"/>
         <source>Tenace</source>
         <translation type="unfinished">Tenaz</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="33965"/>
+        <location filename="../gui/ui/US_USM.ui" line="34271"/>
         <source>Altre caratteristiche USM</source>
         <translation type="unfinished">Otras características de EUM</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="33977"/>
+        <location filename="../gui/ui/US_USM.ui" line="34283"/>
         <source>quota min (metri)</source>
         <translation type="unfinished">altura mínima (metros)</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="34023"/>
+        <location filename="../gui/ui/US_USM.ui" line="34329"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Caratteristiche dei materiali da costruzione&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Características de los materiales de construcción&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="34033"/>
+        <location filename="../gui/ui/US_USM.ui" line="34339"/>
         <source>Consistenza e Texture</source>
         <translation type="unfinished">Consistencia y textura</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="34204"/>
+        <location filename="../gui/ui/US_USM.ui" line="34510"/>
         <source>Consistenza/texture</source>
         <translation type="unfinished">Consistencia/textura</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="34345"/>
+        <location filename="../gui/ui/US_USM.ui" line="34651"/>
         <source>quota max (metri)</source>
         <translation type="unfinished">altura máxima (metros)</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="34380"/>
+        <location filename="../gui/ui/US_USM.ui" line="34686"/>
         <source>Caratteristiche dei giunti</source>
         <translation type="unfinished">Características conjuntas</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="34404"/>
+        <location filename="../gui/ui/US_USM.ui" line="34710"/>
         <source>Unita edilizia riassuntiva</source>
         <translation type="unfinished">Resumen de la unidad de construcción</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="34411"/>
+        <location filename="../gui/ui/US_USM.ui" line="34717"/>
         <source>Funzione statica</source>
         <translation type="unfinished">Función estática</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="34490"/>
+        <location filename="../gui/ui/US_USM.ui" line="34796"/>
         <source>Spessore giunti</source>
         <translation type="unfinished">Espesor de la junta</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="34534"/>
+        <location filename="../gui/ui/US_USM.ui" line="34840"/>
         <source>Altezza modulo 5 corsi</source>
         <translation type="unfinished">Módulo de altura 5 cursos</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="34550"/>
+        <location filename="../gui/ui/US_USM.ui" line="34856"/>
         <source>Letti di posa</source>
         <translation type="unfinished">Colocación de camas</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="34570"/>
+        <location filename="../gui/ui/US_USM.ui" line="34876"/>
         <source>Media</source>
         <translation type="unfinished">Medios de comunicación</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="35051"/>
         <source>Media View</source>
-        <translation type="unfinished">Vista de los medios de comunicación</translation>
+        <translation type="obsolete">Vista de los medios de comunicación</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="35598"/>
+        <location filename="../gui/ui/US_USM.ui" line="35002"/>
         <source>Lista US</source>
         <translation>Lista de UE</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="35605"/>
+        <location filename="../gui/ui/US_USM.ui" line="35009"/>
         <source>Colonna</source>
         <translation type="unfinished">Columna</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="35621"/>
+        <location filename="../gui/ui/US_USM.ui" line="35066"/>
         <source>vai alla scheda</source>
         <translation type="unfinished">ir a la pestaña</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="35635"/>
         <source>descrizione</source>
-        <translation type="unfinished">descripción</translation>
+        <translation type="obsolete">descripción</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="35640"/>
         <source>d_stratigrafica</source>
-        <translation type="unfinished">d_estratigrafía</translation>
+        <translation type="obsolete">d_estratigrafía</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="35645"/>
         <source>d_interpretativa</source>
-        <translation type="unfinished">d_interpretación</translation>
+        <translation type="obsolete">d_interpretación</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="35650"/>
         <source>unita_tipo</source>
-        <translation type="unfinished">tipo_de_unidad</translation>
+        <translation type="obsolete">tipo_de_unidad</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="35658"/>
+        <location filename="../gui/ui/US_USM.ui" line="35026"/>
         <source>Testo</source>
         <translation type="unfinished">Texto</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="35665"/>
+        <location filename="../gui/ui/US_USM.ui" line="35080"/>
         <source>Revert</source>
         <translation type="unfinished">Revertir</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="35692"/>
+        <location filename="../gui/ui/US_USM.ui" line="35046"/>
         <source>CheckBox</source>
         <translation type="unfinished">CheckBox</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="36177"/>
+        <location filename="../gui/ui/US_USM.ui" line="35565"/>
         <source>Help</source>
         <translation type="unfinished">Ayuda</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="36656"/>
+        <location filename="../gui/ui/US_USM.ui" line="38784"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;a href=&quot;https://www.youtube.com/watch?v=7JdLJiEehaY&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;Video Tutorial&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;a href=&quot;https://www.youtube.com/watch?v=7JdLJiEehaY&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;Video Tutoriales&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="37129"/>
+        <location filename="../gui/ui/US_USM.ui" line="39257"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;a href=&quot;https://www.facebook.com/UnaQuantumInc&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;unaquantum&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;a href=&quot;https://www.facebook.com/UnaQuantumInc&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;no es un quantum&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="38081"/>
+        <location filename="../gui/ui/US_USM.ui" line="40209"/>
         <source>https://pyarchinit.github.io/pyarchinit_doc/03_ilplugin.html#scheda-us-usm</source>
         <translation type="unfinished">https://pyarchinit.github.io/pyarchinit_doc/03_ilplugin.html#scheda-us-usm</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="38551"/>
+        <location filename="../gui/ui/US_USM.ui" line="46582"/>
         <source>Tool Box</source>
         <translation type="unfinished">Caja de herramientas</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="39015"/>
+        <location filename="../gui/ui/US_USM.ui" line="47046"/>
         <source>Sistemi di controllo</source>
         <translation type="unfinished">Sistemas de control</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="39472"/>
+        <location filename="../gui/ui/US_USM.ui" line="47503"/>
         <source>TOOLS</source>
         <translation type="unfinished">HERRAMIENTAS</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="39921"/>
+        <location filename="../gui/ui/US_USM.ui" line="47952"/>
         <source>Selezione del sito per i controlli</source>
         <translation type="unfinished">Selección del emplazamiento de los controles</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="41365"/>
+        <location filename="../gui/ui/US_USM.ui" line="49396"/>
         <source>Check, go!!!!</source>
         <translation type="unfinished">¡¡¡¡Comprobar, ir!!!!</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="41827"/>
+        <location filename="../gui/ui/US_USM.ui" line="49858"/>
         <source>Check rapporti stratigrafici</source>
         <translation type="unfinished">Comprobar las relaciones estratigráficas</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="43197"/>
+        <location filename="../gui/ui/US_USM.ui" line="52154"/>
         <source>Export Matrix</source>
         <translation type="unfinished">Matriz de exportación</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="43668"/>
+        <location filename="../gui/ui/US_USM.ui" line="51222"/>
         <source>Ordine startigrafico</source>
         <translation type="unfinished">Orden estratigráfico</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="44132"/>
+        <location filename="../gui/ui/US_USM.ui" line="53538"/>
         <source>Crea codice periodo</source>
         <translation type="unfinished">Crear un código de periodo</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="44135"/>
+        <location filename="../gui/ui/US_USM.ui" line="53541"/>
         <source>1- Crea codice periodo</source>
         <translation type="unfinished">1- Crear un código de periodo</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="45058"/>
+        <location filename="../gui/ui/US_USM.ui" line="51690"/>
         <source>Crea Codice Periodo</source>
         <translation type="unfinished">Crear código de periodo</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="45507"/>
         <source>Graphml</source>
-        <translation type="unfinished">Graphml</translation>
+        <translation type="obsolete">Graphml</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="45965"/>
+        <location filename="../gui/ui/US_USM.ui" line="53074"/>
         <source>Esporta Matrix</source>
         <translation type="unfinished">Matriz de exportación</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="46873"/>
+        <location filename="../gui/ui/US_USM.ui" line="54475"/>
         <source>Export to Extended Matrix</source>
         <translation type="unfinished">Exportar a la matriz ampliada</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="46891"/>
+        <location filename="../gui/ui/US_USM.ui" line="54952"/>
         <source>Funzioni di controllo</source>
         <translation type="unfinished">Funciones de control</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="46915"/>
+        <location filename="../gui/ui/US_USM.ui" line="54976"/>
         <source>Visualizzazione GIS</source>
         <translation type="unfinished">Visualización del SIG</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="46986"/>
+        <location filename="../gui/ui/US_USM.ui" line="55047"/>
         <source>Show Selcted Features</source>
         <translation type="unfinished">Mostrar características seleccionadas</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="46954"/>
+        <location filename="../gui/ui/US_USM.ui" line="55015"/>
         <source>Disegna US</source>
         <translation type="unfinished">Dibujar en EU</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="46970"/>
+        <location filename="../gui/ui/US_USM.ui" line="55031"/>
         <source>Apri schede US selezionate</source>
         <translation type="unfinished">Abrir las pestañas estadounidenses seleccionadas</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="46989"/>
+        <location filename="../gui/ui/US_USM.ui" line="55050"/>
         <source>Apri schede US</source>
         <translation type="unfinished">Abrir las pestañas de Estados Unidos</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="47009"/>
+        <location filename="../gui/ui/US_USM.ui" line="55070"/>
         <source>Attivazione Preview pianta US</source>
         <translation type="unfinished">Activación previa de la planta de Estados Unidos</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="47019"/>
+        <location filename="../gui/ui/US_USM.ui" line="55080"/>
         <source>Preview pianta US</source>
         <translation type="unfinished">Vista previa de la planta de EU</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="47051"/>
+        <location filename="../gui/ui/US_USM.ui" line="55112"/>
         <source>Pan tool</source>
         <translation type="unfinished">Herramienta de paneo</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="47054"/>
+        <location filename="../gui/ui/US_USM.ui" line="55115"/>
         <source>Pan</source>
         <translation type="unfinished">Pan</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="47102"/>
+        <location filename="../gui/ui/US_USM.ui" line="55163"/>
         <source>Mostra immagini</source>
         <translation type="unfinished">Mostrar imágenes</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="47129"/>
+        <location filename="../gui/ui/US_USM.ui" line="55190"/>
         <source>Esportazioni</source>
         <translation type="unfinished">Exportaciones</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="47166"/>
+        <location filename="../gui/ui/US_USM.ui" line="55227"/>
         <source>Esportazione Tavole</source>
         <translation type="unfinished">Tablas de exportación</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="47186"/>
+        <location filename="../gui/ui/US_USM.ui" line="55247"/>
         <source>Open folder</source>
         <translation type="unfinished">Abrir carpeta</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="47657"/>
         <source>Esportazioni US</source>
-        <translation type="unfinished">Exportaciones estadounidenses</translation>
+        <translation type="obsolete">Exportaciones estadounidenses</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="48106"/>
+        <location filename="../gui/ui/US_USM.ui" line="36472"/>
         <source>Elenco Foto con Thumbnail</source>
         <translation type="unfinished">Lista de fotos en miniatura</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="48567"/>
+        <location filename="../gui/ui/US_USM.ui" line="37831"/>
         <source>Stampa</source>
         <translation type="unfinished">Imprimir</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="49026"/>
+        <location filename="../gui/ui/US_USM.ui" line="37370"/>
         <source>Elenco Foto senza Thumbnail</source>
         <translation type="unfinished">Lista de fotos sin miniaturas</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="49475"/>
+        <location filename="../gui/ui/US_USM.ui" line="36921"/>
         <source>Schede US</source>
         <translation type="unfinished">Tarjetas estadounidenses</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="49924"/>
+        <location filename="../gui/ui/US_USM.ui" line="36023"/>
         <source>Elenco US</source>
         <translation type="unfinished">Lista de Estados Unidos</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="50379"/>
+        <location filename="../gui/ui/US_USM.ui" line="38296"/>
         <source>Converti in Word</source>
         <translation type="unfinished">Convertir a Word</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="50839"/>
+        <location filename="../gui/ui/US_USM.ui" line="40225"/>
         <source>Dot2Graphml</source>
         <translation type="unfinished">Dot2Graphml</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="51288"/>
+        <location filename="../gui/ui/US_USM.ui" line="41572"/>
         <source>path output graphml</source>
         <translation type="unfinished">ruta de salida graphml</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="54468"/>
+        <location filename="../gui/ui/US_USM.ui" line="43837"/>
         <source>...</source>
         <translation type="unfinished">...</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="52635"/>
+        <location filename="../gui/ui/US_USM.ui" line="40674"/>
         <source>path input dot file</source>
         <translation type="unfinished">archivo de puntos de entrada de la ruta</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="53084"/>
+        <location filename="../gui/ui/US_USM.ui" line="42470"/>
         <source>export to graphml</source>
         <translation type="unfinished">exportar a graphml</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="53552"/>
         <source>Pdf2Word</source>
-        <translation type="unfinished">Pdf2Word</translation>
+        <translation type="obsolete">Pdf2Word</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="54013"/>
+        <location filename="../gui/ui/US_USM.ui" line="43388"/>
         <source>choose the pdf convert to word</source>
         <translation type="unfinished">elegir el pdf convertir a word</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="55382"/>
+        <location filename="../gui/ui/US_USM.ui" line="42933"/>
         <source>PDF path</source>
         <translation type="unfinished">Ruta de acceso en PDF</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="55837"/>
+        <location filename="../gui/ui/US_USM.ui" line="44286"/>
         <source>Convert</source>
         <translation type="unfinished">Convertir</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="56304"/>
+        <location filename="../gui/ui/US_USM.ui" line="45649"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Lo &amp;quot;0&amp;quot; indica la prima pagina da convertire&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;El &amp;quot;0&amp;quot; indica la primera página a convertir&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="56310"/>
+        <location filename="../gui/ui/US_USM.ui" line="45655"/>
         <source>0</source>
         <translation type="unfinished">0</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="57223"/>
+        <location filename="../gui/ui/US_USM.ui" line="45188"/>
         <source>Pagg.</source>
         <translation type="unfinished">Pg.</translation>
     </message>
     <message>
-        <location filename="../gui/ui/US_USM.ui" line="57678"/>
+        <location filename="../gui/ui/US_USM.ui" line="46104"/>
         <source>to</source>
         <translation type="unfinished">a</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="24148"/>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;sezione area&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="27524"/>
+        <source>USVA</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="27529"/>
+        <source>USVB</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="27534"/>
+        <source>USVC</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="27539"/>
+        <source>USD</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="27544"/>
+        <source>CON</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="27549"/>
+        <source>VSF</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="27554"/>
+        <source>SF</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="27559"/>
+        <source>SUS</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="27564"/>
+        <source>Combinar</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="27569"/>
+        <source>Extractor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="27574"/>
+        <source>DOC</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="27579"/>
+        <source>property</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="30786"/>
+        <source>Update relation. for EM</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="30849"/>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Controllo rapporti errori stratigrafci&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="30852"/>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;controllo rapporti stratigrafici&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="30894"/>
+        <source>Insert or update inverse relat.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message encoding="UTF-8">
+        <location filename="../gui/ui/US_USM.ui" line="30958"/>
+        <source>Unità tipo</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="30976"/>
+        <source>Update</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="31014"/>
+        <source>Check relationships </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="31033"/>
+        <source>Close</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="31104"/>
+        <source>Fix</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message encoding="UTF-8">
+        <location filename="../gui/ui/US_USM.ui" line="32646"/>
+        <source>Profondità min. (metri) </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message encoding="UTF-8">
+        <location filename="../gui/ui/US_USM.ui" line="32675"/>
+        <source>Profondità max. (metri) </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="34888"/>
+        <source>Media view</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="35574"/>
+        <source>Esportazioni US-USM</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="42484"/>
+        <source>Convert to doc file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="50758"/>
+        <source>Export Graphml</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="51232"/>
+        <source>csv2us</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="54016"/>
+        <source>Interactive Matrix</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/US_USM.ui" line="54026"/>
+        <source>Graphml2csv</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>DialogUT</name>
     <message>
-        <location filename="../gui/ui/UT_ui.ui" line="20"/>
+        <location filename="../gui/ui/UT_ui.ui" line="467"/>
         <source>pyArchInit Archeologia del Territorio- Scheda UT</source>
         <translation type="unfinished">pyArchInit Arqueología del Territorio - Ficha UT</translation>
     </message>
     <message>
-        <location filename="../gui/ui/UT_ui.ui" line="60"/>
+        <location filename="../gui/ui/UT_ui.ui" line="490"/>
         <source>DBMS Toolbar</source>
         <translation type="unfinished">Barra de herramientas del SGBD</translation>
     </message>
     <message>
         <location filename="../gui/ui/UT_ui.ui" line="67"/>
         <source>Reload DB</source>
-        <translation type="unfinished">Recarga de la base de datos</translation>
+        <translation type="obsolete">Recarga de la base de datos</translation>
     </message>
     <message>
-        <location filename="../gui/ui/UT_ui.ui" line="76"/>
+        <location filename="../gui/ui/UT_ui.ui" line="742"/>
         <source>First rec</source>
         <translation type="unfinished">Primer rec</translation>
     </message>
     <message>
-        <location filename="../gui/ui/UT_ui.ui" line="90"/>
+        <location filename="../gui/ui/UT_ui.ui" line="634"/>
         <source>Prev rec</source>
         <translation type="unfinished">Prev rec</translation>
     </message>
     <message>
-        <location filename="../gui/ui/UT_ui.ui" line="104"/>
+        <location filename="../gui/ui/UT_ui.ui" line="541"/>
         <source>Next rec</source>
         <translation type="unfinished">Siguiente rec</translation>
     </message>
     <message>
-        <location filename="../gui/ui/UT_ui.ui" line="118"/>
+        <location filename="../gui/ui/UT_ui.ui" line="773"/>
         <source>Last rec</source>
         <translation type="unfinished">Ultimo rec</translation>
     </message>
     <message>
-        <location filename="../gui/ui/UT_ui.ui" line="137"/>
+        <location filename="../gui/ui/UT_ui.ui" line="603"/>
         <source>New record</source>
         <translation type="unfinished">Nuevo récord</translation>
     </message>
     <message>
-        <location filename="../gui/ui/UT_ui.ui" line="156"/>
+        <location filename="../gui/ui/UT_ui.ui" line="866"/>
         <source>Save</source>
         <translation type="unfinished">Guardar</translation>
     </message>
     <message>
-        <location filename="../gui/ui/UT_ui.ui" line="178"/>
+        <location filename="../gui/ui/UT_ui.ui" line="807"/>
         <source>Delete record</source>
         <translation type="unfinished">Borrar registro</translation>
     </message>
     <message>
-        <location filename="../gui/ui/UT_ui.ui" line="210"/>
+        <location filename="../gui/ui/UT_ui.ui" line="962"/>
         <source>new search</source>
         <translation type="unfinished">nueva búsqueda</translation>
     </message>
     <message>
-        <location filename="../gui/ui/UT_ui.ui" line="229"/>
+        <location filename="../gui/ui/UT_ui.ui" line="931"/>
         <source>search !!!</source>
         <translation type="unfinished">¡¡¡Búsqueda!!!</translation>
     </message>
     <message>
-        <location filename="../gui/ui/UT_ui.ui" line="248"/>
+        <location filename="../gui/ui/UT_ui.ui" line="711"/>
         <source>Order by</source>
         <translation type="unfinished">Pedir por</translation>
     </message>
     <message>
-        <location filename="../gui/ui/UT_ui.ui" line="267"/>
+        <location filename="../gui/ui/UT_ui.ui" line="900"/>
         <source>View alls records</source>
         <translation type="unfinished">Ver todos los registros</translation>
     </message>
     <message>
-        <location filename="../gui/ui/UT_ui.ui" line="316"/>
+        <location filename="../gui/ui/UT_ui.ui" line="1549"/>
         <source>DB Info</source>
         <translation type="unfinished">Información DB</translation>
     </message>
     <message>
-        <location filename="../gui/ui/UT_ui.ui" line="332"/>
+        <location filename="../gui/ui/UT_ui.ui" line="1683"/>
         <source>Ordinamento</source>
         <translation type="unfinished">Clasificación</translation>
     </message>
     <message>
-        <location filename="../gui/ui/UT_ui.ui" line="425"/>
+        <location filename="../gui/ui/UT_ui.ui" line="1603"/>
         <source>Status</source>
         <translation type="unfinished">Estado</translation>
     </message>
     <message>
-        <location filename="../gui/ui/UT_ui.ui" line="446"/>
+        <location filename="../gui/ui/UT_ui.ui" line="1626"/>
         <source>record n.</source>
         <translation type="unfinished">registro no.</translation>
     </message>
     <message>
-        <location filename="../gui/ui/UT_ui.ui" line="611"/>
+        <location filename="../gui/ui/UT_ui.ui" line="1663"/>
         <source>1</source>
         <translation type="unfinished">1</translation>
     </message>
     <message>
-        <location filename="../gui/ui/UT_ui.ui" line="491"/>
+        <location filename="../gui/ui/UT_ui.ui" line="1747"/>
         <source>record tot.</source>
         <translation type="unfinished">récord total.</translation>
     </message>
     <message>
-        <location filename="../gui/ui/UT_ui.ui" line="583"/>
+        <location filename="../gui/ui/UT_ui.ui" line="1805"/>
         <source>Inserisci un valore</source>
         <translation type="unfinished">Introduzca un valor</translation>
     </message>
     <message>
         <location filename="../gui/ui/UT_ui.ui" line="616"/>
         <source>2</source>
-        <translation type="unfinished">2</translation>
+        <translation type="obsolete">2</translation>
     </message>
     <message>
         <location filename="../gui/ui/UT_ui.ui" line="621"/>
         <source>3</source>
-        <translation type="unfinished">3</translation>
+        <translation type="obsolete">3</translation>
     </message>
     <message>
         <location filename="../gui/ui/UT_ui.ui" line="626"/>
         <source>4</source>
-        <translation type="unfinished">4</translation>
+        <translation type="obsolete">4</translation>
     </message>
     <message>
         <location filename="../gui/ui/UT_ui.ui" line="631"/>
         <source>5</source>
-        <translation type="unfinished">5</translation>
+        <translation type="obsolete">5</translation>
     </message>
     <message>
         <location filename="../gui/ui/UT_ui.ui" line="636"/>
         <source>6</source>
-        <translation type="unfinished">6</translation>
+        <translation type="obsolete">6</translation>
     </message>
     <message>
         <location filename="../gui/ui/UT_ui.ui" line="641"/>
         <source>7</source>
-        <translation type="unfinished">7</translation>
+        <translation type="obsolete">7</translation>
     </message>
     <message>
         <location filename="../gui/ui/UT_ui.ui" line="646"/>
         <source>8</source>
-        <translation type="unfinished">8</translation>
+        <translation type="obsolete">8</translation>
     </message>
     <message>
         <location filename="../gui/ui/UT_ui.ui" line="651"/>
         <source>9</source>
-        <translation type="unfinished">9</translation>
+        <translation type="obsolete">9</translation>
     </message>
     <message>
         <location filename="../gui/ui/UT_ui.ui" line="656"/>
         <source>10</source>
-        <translation type="unfinished">10</translation>
+        <translation type="obsolete">10</translation>
     </message>
     <message>
         <location filename="../gui/ui/UT_ui.ui" line="661"/>
         <source>11</source>
-        <translation type="unfinished">11</translation>
+        <translation type="obsolete">11</translation>
     </message>
     <message>
         <location filename="../gui/ui/UT_ui.ui" line="666"/>
         <source>12</source>
-        <translation type="unfinished">12</translation>
+        <translation type="obsolete">12</translation>
     </message>
     <message>
         <location filename="../gui/ui/UT_ui.ui" line="671"/>
         <source>13</source>
-        <translation type="unfinished">13</translation>
+        <translation type="obsolete">13</translation>
     </message>
     <message>
         <location filename="../gui/ui/UT_ui.ui" line="676"/>
         <source>14</source>
-        <translation type="unfinished">14</translation>
+        <translation type="obsolete">14</translation>
     </message>
     <message>
         <location filename="../gui/ui/UT_ui.ui" line="681"/>
         <source>15</source>
-        <translation type="unfinished">15</translation>
+        <translation type="obsolete">15</translation>
     </message>
     <message>
         <location filename="../gui/ui/UT_ui.ui" line="686"/>
         <source>16</source>
-        <translation type="unfinished">16</translation>
+        <translation type="obsolete">16</translation>
     </message>
     <message>
         <location filename="../gui/ui/UT_ui.ui" line="691"/>
         <source>17</source>
-        <translation type="unfinished">17</translation>
+        <translation type="obsolete">17</translation>
     </message>
     <message>
         <location filename="../gui/ui/UT_ui.ui" line="696"/>
         <source>18</source>
-        <translation type="unfinished">18</translation>
+        <translation type="obsolete">18</translation>
     </message>
     <message>
         <location filename="../gui/ui/UT_ui.ui" line="701"/>
         <source>19</source>
-        <translation type="unfinished">19</translation>
+        <translation type="obsolete">19</translation>
     </message>
     <message>
         <location filename="../gui/ui/UT_ui.ui" line="706"/>
         <source>20</source>
-        <translation type="unfinished">20</translation>
+        <translation type="obsolete">20</translation>
     </message>
     <message>
-        <location filename="../gui/ui/UT_ui.ui" line="738"/>
+        <location filename="../gui/ui/UT_ui.ui" line="1818"/>
         <source>Progetto</source>
         <translation type="unfinished">Proyecto</translation>
     </message>
     <message>
         <location filename="../gui/ui/UT_ui.ui" line="761"/>
         <source>UT</source>
-        <translation type="unfinished">UT</translation>
+        <translation type="obsolete">UT</translation>
     </message>
     <message>
         <location filename="../gui/ui/UT_ui.ui" line="781"/>
         <source>UTabc</source>
-        <translation type="unfinished">UTabc</translation>
+        <translation type="obsolete">UTabc</translation>
     </message>
     <message>
-        <location filename="../gui/ui/UT_ui.ui" line="822"/>
+        <location filename="../gui/ui/UT_ui.ui" line="2332"/>
         <source>Dati descrittivi</source>
         <translation type="unfinished">Datos descriptivos</translation>
     </message>
     <message>
-        <location filename="../gui/ui/UT_ui.ui" line="1337"/>
+        <location filename="../gui/ui/UT_ui.ui" line="2352"/>
         <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
@@ -8385,294 +9396,364 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:&apos;Lucida Grande&apos;; font-size:13pt;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../gui/ui/UT_ui.ui" line="845"/>
+        <location filename="../gui/ui/UT_ui.ui" line="2340"/>
         <source>Descrizione </source>
         <translation type="unfinished">Descripción</translation>
     </message>
     <message>
-        <location filename="../gui/ui/UT_ui.ui" line="861"/>
+        <location filename="../gui/ui/UT_ui.ui" line="2363"/>
         <source>Interpretazione </source>
         <translation type="unfinished">Interpretación</translation>
     </message>
     <message>
-        <location filename="../gui/ui/UT_ui.ui" line="873"/>
+        <location filename="../gui/ui/UT_ui.ui" line="2381"/>
         <source>Definizione UT</source>
         <translation type="unfinished">Definición de UT</translation>
     </message>
     <message>
-        <location filename="../gui/ui/UT_ui.ui" line="881"/>
+        <location filename="../gui/ui/UT_ui.ui" line="1834"/>
         <source>Localizzazione</source>
         <translation type="unfinished">Localización</translation>
     </message>
     <message>
         <location filename="../gui/ui/UT_ui.ui" line="915"/>
         <source>Nazione</source>
-        <translation type="unfinished">Nación</translation>
+        <translation type="obsolete">Nación</translation>
     </message>
     <message>
-        <location filename="../gui/ui/UT_ui.ui" line="927"/>
+        <location filename="../gui/ui/UT_ui.ui" line="1955"/>
         <source>Regione</source>
         <translation type="unfinished">Región</translation>
     </message>
     <message>
         <location filename="../gui/ui/UT_ui.ui" line="940"/>
         <source>Localizzazione non georeferenziata</source>
-        <translation type="unfinished">Localización no georreferenciada</translation>
+        <translation type="obsolete">Localización no georreferenciada</translation>
     </message>
     <message>
-        <location filename="../gui/ui/UT_ui.ui" line="980"/>
+        <location filename="../gui/ui/UT_ui.ui" line="1919"/>
         <source>nr civico</source>
         <translation type="unfinished">número de casa</translation>
     </message>
     <message>
-        <location filename="../gui/ui/UT_ui.ui" line="1066"/>
+        <location filename="../gui/ui/UT_ui.ui" line="1967"/>
         <source>Frazione</source>
         <translation type="unfinished">Fracción</translation>
     </message>
     <message>
-        <location filename="../gui/ui/UT_ui.ui" line="1078"/>
+        <location filename="../gui/ui/UT_ui.ui" line="1889"/>
         <source>Comune</source>
         <translation type="unfinished">Municipio</translation>
     </message>
     <message>
-        <location filename="../gui/ui/UT_ui.ui" line="1090"/>
+        <location filename="../gui/ui/UT_ui.ui" line="2036"/>
         <source>Provincia</source>
         <translation type="unfinished">Provincia</translation>
     </message>
     <message>
         <location filename="../gui/ui/UT_ui.ui" line="1102"/>
         <source>Localita&apos;</source>
-        <translation type="unfinished">Ubicación</translation>
+        <translation type="obsolete">Ubicación</translation>
     </message>
     <message>
-        <location filename="../gui/ui/UT_ui.ui" line="1114"/>
+        <location filename="../gui/ui/UT_ui.ui" line="1979"/>
         <source>Indirizzo</source>
         <translation type="unfinished">Dirección</translation>
     </message>
     <message>
         <location filename="../gui/ui/UT_ui.ui" line="1136"/>
         <source>Loc. georef</source>
-        <translation type="unfinished">Loc. georef</translation>
+        <translation type="obsolete">Loc. georef</translation>
     </message>
     <message>
-        <location filename="../gui/ui/UT_ui.ui" line="1148"/>
+        <location filename="../gui/ui/UT_ui.ui" line="2251"/>
         <source>Localizzazione georeferenziata</source>
         <translation type="unfinished">Localización georreferenciada</translation>
     </message>
     <message>
-        <location filename="../gui/ui/UT_ui.ui" line="1185"/>
+        <location filename="../gui/ui/UT_ui.ui" line="2291"/>
         <source>Carta topografica IGM</source>
         <translation type="unfinished">Mapa topográfico IGM</translation>
     </message>
     <message>
-        <location filename="../gui/ui/UT_ui.ui" line="1192"/>
+        <location filename="../gui/ui/UT_ui.ui" line="2274"/>
         <source>Carta CTR</source>
         <translation type="unfinished">Mapa CTR</translation>
     </message>
     <message>
-        <location filename="../gui/ui/UT_ui.ui" line="1199"/>
+        <location filename="../gui/ui/UT_ui.ui" line="2185"/>
         <source>Foglio catastale</source>
         <translation type="unfinished">Ficha catastral</translation>
     </message>
     <message>
         <location filename="../gui/ui/UT_ui.ui" line="1270"/>
         <source>Descrizione sito</source>
-        <translation type="unfinished">Descripción del sitio</translation>
+        <translation type="obsolete">Descripción del sitio</translation>
     </message>
     <message>
-        <location filename="../gui/ui/UT_ui.ui" line="1354"/>
+        <location filename="../gui/ui/UT_ui.ui" line="2112"/>
         <source>Descrizione  luogo</source>
         <translation type="unfinished">Descripción de la ubicación</translation>
     </message>
     <message>
         <location filename="../gui/ui/UT_ui.ui" line="1400"/>
         <source>Rilievo e Ricognizione</source>
-        <translation type="unfinished">Encuesta y reconocimiento</translation>
+        <translation type="obsolete">Encuesta y reconocimiento</translation>
     </message>
     <message>
         <location filename="../gui/ui/UT_ui.ui" line="1416"/>
         <source>Geometria</source>
-        <translation type="unfinished">Geometría</translation>
+        <translation type="obsolete">Geometría</translation>
     </message>
     <message>
-        <location filename="../gui/ui/UT_ui.ui" line="1432"/>
+        <location filename="../gui/ui/UT_ui.ui" line="2237"/>
         <source>Coord. Geografiche</source>
         <translation type="unfinished">Coord. Geografía</translation>
     </message>
     <message>
-        <location filename="../gui/ui/UT_ui.ui" line="1445"/>
+        <location filename="../gui/ui/UT_ui.ui" line="2138"/>
         <source>Coord. Piane</source>
         <translation type="unfinished">Coord. Llanuras</translation>
     </message>
     <message>
-        <location filename="../gui/ui/UT_ui.ui" line="1458"/>
+        <location filename="../gui/ui/UT_ui.ui" line="2224"/>
         <source>Quota</source>
         <translation type="unfinished">Compartir</translation>
     </message>
     <message>
         <location filename="../gui/ui/UT_ui.ui" line="1471"/>
         <source>Descrizione empirica del suolo</source>
-        <translation type="unfinished">Descripción empírica del suelo</translation>
+        <translation type="obsolete">Descripción empírica del suelo</translation>
     </message>
     <message>
-        <location filename="../gui/ui/UT_ui.ui" line="1487"/>
+        <location filename="../gui/ui/UT_ui.ui" line="2264"/>
         <source>Andamento terreno/pendenza</source>
         <translation type="unfinished">Desarrollo del terreno/pendiente</translation>
     </message>
     <message>
-        <location filename="../gui/ui/UT_ui.ui" line="1503"/>
+        <location filename="../gui/ui/UT_ui.ui" line="2198"/>
         <source>Utilizzo suolo/Vegetazione</source>
         <translation type="unfinished">Uso de la tierra/Vegetación</translation>
     </message>
     <message>
-        <location filename="../gui/ui/UT_ui.ui" line="1526"/>
+        <location filename="../gui/ui/UT_ui.ui" line="2396"/>
         <source>Dati UT</source>
         <translation type="unfinished">Datos de la UT</translation>
     </message>
     <message>
-        <location filename="../gui/ui/UT_ui.ui" line="1563"/>
+        <location filename="../gui/ui/UT_ui.ui" line="2411"/>
         <source>Data</source>
         <translation type="unfinished">Fecha</translation>
     </message>
     <message>
         <location filename="../gui/ui/UT_ui.ui" line="1570"/>
         <source>Ora/meteo</source>
-        <translation type="unfinished">Tiempo/clima</translation>
+        <translation type="obsolete">Tiempo/clima</translation>
     </message>
     <message>
-        <location filename="../gui/ui/UT_ui.ui" line="1577"/>
+        <location filename="../gui/ui/UT_ui.ui" line="2425"/>
         <source>Responsabile</source>
         <translation type="unfinished">Responsable</translation>
     </message>
     <message>
         <location filename="../gui/ui/UT_ui.ui" line="1605"/>
         <source>Dimensioni UT (mq)</source>
-        <translation type="unfinished">Dimensiones de la UT (metros cuadrados)</translation>
+        <translation type="obsolete">Dimensiones de la UT (metros cuadrados)</translation>
     </message>
     <message>
         <location filename="../gui/ui/UT_ui.ui" line="1651"/>
         <source>Reperti per mq</source>
-        <translation type="unfinished">Hallazgos por m2</translation>
+        <translation type="obsolete">Hallazgos por m2</translation>
     </message>
     <message>
         <location filename="../gui/ui/UT_ui.ui" line="1667"/>
         <source>lineEdit_rep_datanti</source>
-        <translation type="unfinished">lineEdit_rep_datants</translation>
+        <translation type="obsolete">lineEdit_rep_datants</translation>
     </message>
     <message>
         <location filename="../gui/ui/UT_ui.ui" line="1728"/>
         <source>Periodo I</source>
-        <translation type="unfinished">Período I</translation>
+        <translation type="obsolete">Período I</translation>
     </message>
     <message>
         <location filename="../gui/ui/UT_ui.ui" line="1744"/>
         <source>Datazione I</source>
-        <translation type="unfinished">Citas I</translation>
+        <translation type="obsolete">Citas I</translation>
     </message>
     <message>
         <location filename="../gui/ui/UT_ui.ui" line="1760"/>
         <source>Intepretazione I</source>
-        <translation type="unfinished">Interpretación I</translation>
+        <translation type="obsolete">Interpretación I</translation>
     </message>
     <message>
         <location filename="../gui/ui/UT_ui.ui" line="1821"/>
         <source>Periodo II</source>
-        <translation type="unfinished">Período II</translation>
+        <translation type="obsolete">Período II</translation>
     </message>
     <message>
         <location filename="../gui/ui/UT_ui.ui" line="1837"/>
         <source>Datazione II</source>
-        <translation type="unfinished">Fecha II</translation>
+        <translation type="obsolete">Fecha II</translation>
     </message>
     <message>
         <location filename="../gui/ui/UT_ui.ui" line="1853"/>
         <source>Intepretazione II</source>
-        <translation type="unfinished">Interpretación II</translation>
+        <translation type="obsolete">Interpretación II</translation>
     </message>
     <message>
-        <location filename="../gui/ui/UT_ui.ui" line="1884"/>
+        <location filename="../gui/ui/UT_ui.ui" line="2544"/>
         <source>Enti tutela e vincoli</source>
         <translation type="unfinished">Organismos de protección y aplicación de la ley</translation>
     </message>
     <message>
-        <location filename="../gui/ui/UT_ui.ui" line="1915"/>
+        <location filename="../gui/ui/UT_ui.ui" line="2567"/>
         <source>Indagini preliminari</source>
         <translation type="unfinished">Investigaciones preliminares</translation>
     </message>
     <message>
-        <location filename="../gui/ui/UT_ui.ui" line="1926"/>
+        <location filename="../gui/ui/UT_ui.ui" line="2589"/>
         <source>Documentazione</source>
         <translation type="unfinished">Documentación</translation>
     </message>
     <message>
-        <location filename="../gui/ui/UT_ui.ui" line="2035"/>
+        <location filename="../gui/ui/UT_ui.ui" line="2698"/>
         <source>inserisci riga</source>
         <translation type="unfinished">insertar línea</translation>
     </message>
     <message>
-        <location filename="../gui/ui/UT_ui.ui" line="2047"/>
+        <location filename="../gui/ui/UT_ui.ui" line="2710"/>
         <source>rimuovi riga</source>
         <translation type="unfinished">eliminar la línea</translation>
     </message>
     <message>
-        <location filename="../gui/ui/UT_ui.ui" line="2008"/>
+        <location filename="../gui/ui/UT_ui.ui" line="2671"/>
         <source>Tipo documentazione</source>
         <translation type="unfinished">Tipo de documentación</translation>
     </message>
     <message>
-        <location filename="../gui/ui/UT_ui.ui" line="2013"/>
+        <location filename="../gui/ui/UT_ui.ui" line="2676"/>
         <source>Riferimenti</source>
         <translation type="unfinished">Referencias</translation>
     </message>
     <message>
-        <location filename="../gui/ui/UT_ui.ui" line="2022"/>
+        <location filename="../gui/ui/UT_ui.ui" line="2685"/>
         <source>Bibliografia</source>
         <translation type="unfinished">Bibliografía</translation>
     </message>
     <message>
-        <location filename="../gui/ui/UT_ui.ui" line="2101"/>
+        <location filename="../gui/ui/UT_ui.ui" line="2764"/>
         <source>Riferimenti bibliografici</source>
         <translation type="unfinished">Referencias bibliográficas</translation>
     </message>
     <message>
         <location filename="../gui/ui/UT_ui.ui" line="2194"/>
         <source>Tools</source>
-        <translation type="unfinished">Herramientas</translation>
+        <translation type="obsolete">Herramientas</translation>
     </message>
     <message>
-        <location filename="../gui/ui/UT_ui.ui" line="2127"/>
+        <location filename="../gui/ui/UT_ui.ui" line="993"/>
         <source>Show Selcted Features</source>
         <translation type="unfinished">Mostrar características seleccionadas</translation>
     </message>
     <message>
         <location filename="../gui/ui/UT_ui.ui" line="2232"/>
         <source>Visualizza UT</source>
-        <translation type="unfinished">Ver UT</translation>
+        <translation type="obsolete">Ver UT</translation>
     </message>
     <message>
-        <location filename="../gui/ui/UT_ui.ui" line="2161"/>
+        <location filename="../gui/ui/UT_ui.ui" line="653"/>
         <source>Export PDF</source>
         <translation type="unfinished">Exportación de PDF</translation>
     </message>
     <message>
         <location filename="../gui/ui/UT_ui.ui" line="2164"/>
         <source>Singole schede UT</source>
-        <translation type="unfinished">Tarjetas individuales UT</translation>
+        <translation type="obsolete">Tarjetas individuales UT</translation>
     </message>
     <message>
         <location filename="../gui/ui/UT_ui.ui" line="2213"/>
         <source>Visualizzazione GIS</source>
-        <translation type="unfinished">Visualización del SIG</translation>
+        <translation type="obsolete">Visualización del SIG</translation>
     </message>
     <message>
         <location filename="../gui/ui/UT_ui.ui" line="2251"/>
         <source>Esportazioni PDF</source>
-        <translation type="unfinished">Exportaciones en PDF</translation>
+        <translation type="obsolete">Exportaciones en PDF</translation>
     </message>
     <message>
         <location filename="../gui/ui/UT_ui.ui" line="2280"/>
         <source>Ctrl+G</source>
-        <translation type="unfinished">Ctrl+G</translation>
+        <translation type="obsolete">Ctrl+G</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/UT_ui.ui" line="572"/>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;WMS Vincoli archeoligici&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/UT_ui.ui" line="687"/>
+        <source>C</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/UT_ui.ui" line="832"/>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Base map: Goggle maps and WIKI maps&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/UT_ui.ui" line="1468"/>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Apre il percorso dove si salvano i pdf esportati&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/UT_ui.ui" line="1766"/>
+        <source>Scheda UT</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message encoding="UTF-8">
+        <location filename="../gui/ui/UT_ui.ui" line="1877"/>
+        <source>Località</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/UT_ui.ui" line="2024"/>
+        <source>CAP</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/UT_ui.ui" line="2067"/>
+        <source>Geo-Rriferimenti</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/UT_ui.ui" line="2418"/>
+        <source>Meteo</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/UT_ui.ui" line="2452"/>
+        <source>Periodo</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/UT_ui.ui" line="2468"/>
+        <source>Datazione</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message encoding="UTF-8">
+        <location filename="../gui/ui/UT_ui.ui" line="2498"/>
+        <source>Grado di visibilità</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message encoding="UTF-8">
+        <location filename="../gui/ui/UT_ui.ui" line="2514"/>
+        <source>Grado di potenzialità archeologica</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/UT_ui.ui" line="2773"/>
+        <source>Media</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -8686,927 +9767,957 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>Dialog_Config</name>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="483"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="489"/>
         <source>Impostazioni del sistema</source>
         <translation type="unfinished">Configuración del sistema</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="548"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="675"/>
         <source>Parametri di connessione</source>
         <translation type="unfinished">Parámetros de conexión</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="572"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="699"/>
         <source>Experimental</source>
         <translation type="unfinished">Experimental</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="607"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="734"/>
         <source>Si</source>
         <translation type="unfinished">Sí</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="612"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="739"/>
         <source>No</source>
         <translation type="unfinished">No</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="622"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="749"/>
         <source>DB Settings</source>
         <translation type="unfinished">Configuración de la base de datos</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="2563"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="2703"/>
         <source>User</source>
         <translation type="unfinished">Usuario</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="656"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="783"/>
         <source>dbname</source>
         <translation type="unfinished">dbname</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1928"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="2158"/>
         <source>Host</source>
         <translation type="unfinished">Anfitrión</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="673"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="800"/>
         <source>DBname</source>
         <translation type="unfinished">DBname</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1296"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1426"/>
         <source>host</source>
         <translation type="unfinished">host</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="2144"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="2049"/>
         <source>sqlite</source>
         <translation type="unfinished">sqlite</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="2149"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="2054"/>
         <source>postgres</source>
         <translation type="unfinished">postgres</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="2164"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1810"/>
         <source>Database</source>
         <translation type="unfinished">Base de datos</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="735"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="862"/>
         <source>port</source>
         <translation type="unfinished">puerto</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="745"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="872"/>
         <source>dbuser</source>
         <translation type="unfinished">dbuser</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="2278"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="2418"/>
         <source>...</source>
         <translation type="unfinished">...</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="2638"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="2778"/>
         <source>Port</source>
         <translation type="unfinished">Puerto</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="2648"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="2788"/>
         <source>Password</source>
         <translation type="unfinished">Contraseña</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="786"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="913"/>
         <source>Path Settings</source>
         <translation type="unfinished">Configuración de la ruta</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="830"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="957"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Funzione per allineare e aggiornare db postgres&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Función para alinear y actualizar db postgres&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="833"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="960"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Funzione per allinere e aggiornare db postgres&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Función para alinear y actualizar postgres db&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="880"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1007"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Funzione per aggiornare e allineare i database sqlite&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Función para actualizar y alinear bases de datos sqlite&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="915"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1042"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Inserire l&apos;EPSG del database. funzione da utilizzare quando si deve aggiornare /allineare il database&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Introduzca la EPSG de la base de datos. función que se utilizará al actualizar/alinear la base de datos&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="921"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1048"/>
         <source>insert epsg code</source>
         <translation type="unfinished">insertar código epsg</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="976"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1103"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Advance setting per comparare il databse sqlite in uso e verificare il mismatch per poter correggere manualmente in caso l&apos;allineamento automatico non funzioni&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Ajuste avanzado para comparar la base de datos sqlite en uso y comprobar si hay desajustes, de modo que se pueda hacer una corrección manual si la alineación automática no funciona&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="979"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1106"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Advance setting per comparare  il databse sqlite in uso e verificare il mismatch per poter correggere manualmente in caso l&apos;allineamento automatico non funzioni&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Ajuste avanzado para comparar la base de datos sqlite en uso y comprobar si hay desajustes, de modo que se pueda hacer una corrección manual si la alineación automática no funciona&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1019"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1146"/>
         <source>Image resize</source>
         <translation type="unfinished">Cambio de tamaño de la imagen</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1040"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1167"/>
         <source>Thumbnail path</source>
         <translation type="unfinished">Ruta de las miniaturas</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1050"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1177"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Attivazione del sito che si vuole usare&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Activación del sitio que desea utilizar&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1053"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1180"/>
         <source>Attiva query sito</source>
         <translation type="unfinished">Activar la consulta del sitio</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1066"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1196"/>
         <source>Logo path</source>
         <translation type="unfinished">Trayectoria del logotipo</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1109"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1239"/>
         <source>Summary</source>
         <translation type="unfinished">Resumen</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1134"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1264"/>
         <source>Salva i parametri</source>
         <translation type="unfinished">Guardar parámetros</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1161"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1291"/>
         <source>Installazione DB</source>
         <translation type="unfinished">Instalación de la base de datos</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1167"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1297"/>
         <source>Installa il database (PostgreSQL/PostGIS)</source>
         <translation type="unfinished">Instalar la base de datos (PostgreSQL/PostGIS)</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1244"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1374"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;puoi inserire il numero di porta differente&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;puede introducir un número de puerto diferente&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1190"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1320"/>
         <source>Inserisci password</source>
         <translation type="unfinished">Introduzca la contraseña</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1197"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1327"/>
         <source>5432</source>
         <translation type="unfinished">5432</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1200"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1330"/>
         <source>port (5432)</source>
         <translation type="unfinished">puerto (5432)</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1348"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1478"/>
         <source>Installa</source>
         <translation type="unfinished">Instalar</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1391"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1521"/>
         <source>Seleziona SRID</source>
         <translation type="unfinished">Seleccione SRID</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1234"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1364"/>
         <source>Inserisci utente</source>
         <translation type="unfinished">Introduzca el usuario</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1247"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1377"/>
         <source>Inserisci numero porta</source>
         <translation type="unfinished">Introduzca el número de la puerta</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1257"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1387"/>
         <source>user</source>
         <translation type="unfinished">usuario</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1365"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1495"/>
         <source>pyarchinit</source>
         <translation type="unfinished">pyarchinit</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1374"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1504"/>
         <source>db name</source>
         <translation type="unfinished">nombre de la base de datos</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1381"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1511"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;Puoi inserire un nome differente da quello presente&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;Puede introducir un nombre distinto al actual&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1384"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1514"/>
         <source>Inserisci nome db</source>
         <translation type="unfinished">Introduzca el nombre de la base de datos</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1293"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1423"/>
         <source>localhost</source>
         <translation type="unfinished">localhost</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1303"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1433"/>
         <source>Inserisi host</source>
         <translation type="unfinished">Insertar anfitrión</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1322"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1452"/>
         <source>Installa il database (SpatiaLite)</source>
         <translation type="unfinished">Instalar la base de datos (SpatiaLite)</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1417"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1547"/>
         <source>Tool di importazione</source>
         <translation type="unfinished">Herramienta de importación</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1887"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="2320"/>
         <source>Username</source>
         <translation type="unfinished">Nombre de usuario</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1464"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="2282"/>
         <source>Abort</source>
         <translation type="unfinished">Abortar</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1480"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1783"/>
         <source>Tabelle</source>
         <translation type="unfinished">Tablas</translation>
     </message>
     <message>
         <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1490"/>
         <source>Converti db</source>
-        <translation type="unfinished">Convertir db</translation>
+        <translation type="obsolete">Convertir db</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="2204"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="2334"/>
         <source>Del</source>
         <translation type="unfinished">Del</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1542"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="2201"/>
         <source>Importazione dati</source>
         <translation type="unfinished">Importación de datos</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1572"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="2140"/>
         <source>Import Table</source>
         <translation type="unfinished">Tabla de importación</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1591"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="2030"/>
         <source>Risorsa</source>
         <translation type="unfinished">Recursos</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1623"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="2306"/>
         <source>Destinazione</source>
         <translation type="unfinished">Destino</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1630"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="2275"/>
         <source>Valore</source>
         <translation type="unfinished">Valor</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1658"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1555"/>
         <source>Nome campo</source>
         <translation type="unfinished">Nombre del campo</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1668"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="2175"/>
         <source>Ignore</source>
         <translation type="unfinished">Ignora</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1717"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1572"/>
         <source>Import Geometry</source>
         <translation type="unfinished">Importar geometría</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1740"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1856"/>
         <source>PYSITO_POLYGON</source>
         <translation type="unfinished">PYSITO_POLYGON</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1749"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1865"/>
         <source>PYSITO_POINT</source>
         <translation type="unfinished">PUNTO_PISITO</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1758"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1874"/>
         <source>PYUS</source>
         <translation type="unfinished">PYUS</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1767"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1883"/>
         <source>PYUSM</source>
         <translation type="unfinished">PYUSM</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1776"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1892"/>
         <source>PYQUOTE</source>
         <translation type="unfinished">PYQUOTE</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1785"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1901"/>
         <source>PYQUOTEUSM</source>
         <translation type="unfinished">PYQUOTEUSM</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1794"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1910"/>
         <source>PYUS_NEGATIVE</source>
         <translation type="unfinished">PYUS_NEGATIVE</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1803"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1919"/>
         <source>PYSTRUTTURE</source>
         <translation type="unfinished">PISTRUCTURA</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1812"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1928"/>
         <source>PYREPERTI</source>
         <translation type="unfinished">PYREPERTI</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1821"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1937"/>
         <source>PYINDIVIDUI</source>
         <translation type="unfinished">PYINDIVIDUI</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1830"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1946"/>
         <source>PYCAMPIONI</source>
         <translation type="unfinished">PYCAMPIONS</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1839"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1955"/>
         <source>PYTOMBA</source>
         <translation type="unfinished">PYTOMBA</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1848"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1964"/>
         <source>PYSEZIONI</source>
         <translation type="unfinished">PYSEZIONI</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1857"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1973"/>
         <source>PYDOCUMENTAZIONE</source>
         <translation type="unfinished">DOCUMENTACIÓN</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1866"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1982"/>
         <source>PYLINEERIFERIMENTO</source>
         <translation type="unfinished">PYLINEREFERENCE</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1875"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1991"/>
         <source>PYRIPARTIZIONI_SPAZIALI</source>
         <translation type="unfinished">PIRIDIVISIONES_ESPACIALES</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1944"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1599"/>
         <source>SITE</source>
         <translation type="unfinished">SITIO</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1953"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1608"/>
         <source>US</source>
         <translation type="unfinished">EU</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1962"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1617"/>
         <source>PERIODIZZAZIONE</source>
         <translation type="unfinished">PERIODIZACIÓN</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1971"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1626"/>
         <source>INVENTARIO_MATERIALI</source>
         <translation type="unfinished">INVENTARIO_DE_MATERIALES</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1980"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1635"/>
         <source>STRUTTURA</source>
         <translation type="unfinished">ESTRUCTURA</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1989"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1644"/>
         <source>TOMBA</source>
         <translation type="unfinished">TOMBA</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1998"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1653"/>
         <source>PYARCHINIT_THESAURUS_SIGLE</source>
         <translation type="unfinished">PYARCHINIT_THESAURUS_SIGLE</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="2007"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1662"/>
         <source>SCHEDAIND</source>
         <translation type="unfinished">PROGRAMAIND</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="2016"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1671"/>
         <source>DETSESSO</source>
         <translation type="unfinished">DETSESS</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="2025"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1680"/>
         <source>DETETA</source>
         <translation type="unfinished">DETETA</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="2034"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1689"/>
         <source>ARCHEOZOOLOGY</source>
         <translation type="unfinished">ARQUEOZOOLOGÍA</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="2043"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1698"/>
         <source>CAMPIONI</source>
         <translation type="unfinished">CAMPEONES</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="2052"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1707"/>
         <source>DOCUMENTAZIONE</source>
         <translation type="unfinished">DOCUMENTACIÓN</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="2061"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1716"/>
         <source>MEDIA</source>
         <translation type="unfinished">MEDIA</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="2070"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1725"/>
         <source>MEDIA_THUMB</source>
         <translation type="unfinished">MEDIA_THUMB</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="2079"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1734"/>
         <source>MEDIATOENTITY</source>
         <translation type="unfinished">MEDIATOENTIDAD</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="2088"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1743"/>
         <source>UT</source>
         <translation type="unfinished">UT</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="2097"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1752"/>
         <source>ALL</source>
         <translation type="unfinished">TODOS</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="2112"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="2225"/>
         <source>Geometrie</source>
         <translation type="unfinished">Geometrías</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="2157"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="2151"/>
         <source>Inserisci il nome del campo e/o il valore da importare (opzionale)</source>
         <translation type="unfinished">Introduzca el nombre del campo y/o el valor a importar (opcional)</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="2171"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="2003"/>
         <source>Replace</source>
         <translation type="unfinished">Sustituir</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="2214"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="2354"/>
         <source>Graphviz</source>
         <translation type="unfinished">Graphviz</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="2220"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="2360"/>
         <source>Il percorso alla cartella /bin di Graphviz da aggiungere nella variabile d&apos;ambiente PATH</source>
         <translation type="unfinished">La ruta de acceso a la carpeta /bin Graphviz que debe añadirse en la variable de entorno PATH</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="2285"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="2425"/>
         <source>Salva</source>
         <translation type="unfinished">Guardar</translation>
     </message>
     <message>
         <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="2262"/>
         <source>R</source>
-        <translation type="unfinished">R</translation>
+        <translation type="obsolete">R</translation>
     </message>
     <message>
         <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="2268"/>
         <source>Il percorso alla cartella /bin di R da aggiungere nella variabile d&apos;ambiente PATH</source>
-        <translation type="unfinished">La ruta del directorio R /bin que debe añadirse en la variable de entorno PATH</translation>
+        <translation type="obsolete">La ruta del directorio R /bin que debe añadirse en la variable de entorno PATH</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="2337"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="2477"/>
         <source>Help</source>
         <translation type="unfinished">Ayuda</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="2376"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="2516"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;a href=&quot;https://www.youtube.com/watch?v=n1725UcbFWQ&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;Video Tutorial&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;a href=&quot;https://www.youtube.com/watch?v=n1725UcbFWQ&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;Video Tutoriales&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="2409"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="2549"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;a href=&quot;https://www.facebook.com/UnaQuantumInc&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;unaquantum&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;a href=&quot;https://www.facebook.com/UnaQuantumInc&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;no es un quantum&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="2443"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="2583"/>
         <source>https://pyarchinit.github.io/pyarchinit_doc/index.html</source>
         <translation type="unfinished">https://pyarchinit.github.io/pyarchinit_doc/index.html</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="2496"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="2636"/>
         <source>FTP to Lizmap</source>
         <translation type="unfinished">FTP a Lizmap</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="2507"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="2647"/>
         <source>ip adress</source>
         <translation type="unfinished">dirección ip</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="2533"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="2673"/>
         <source>Status connection</source>
         <translation type="unfinished">Conexión de estado</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="2553"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="2693"/>
         <source>Dialog List</source>
         <translation type="unfinished">Lista de diálogos</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="2605"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="2745"/>
         <source>Input</source>
         <translation type="unfinished">Entrada</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="2658"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="2798"/>
         <source>Download file</source>
         <translation type="unfinished">Descargar archivos</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="2668"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="2808"/>
         <source>Chage directory</source>
         <translation type="unfinished">Directorio de la empresa</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="2678"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="2818"/>
         <source>Upload file</source>
         <translation type="unfinished">Carga de archivos</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="2694"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="2834"/>
         <source>Connect</source>
         <translation type="unfinished">Conectar</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="2704"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="2844"/>
         <source>Delete file</source>
         <translation type="unfinished">Eliminar el archivo</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="2714"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="2854"/>
         <source>Delete directory</source>
         <translation type="unfinished">Borrar directorio</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="2730"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="2870"/>
         <source>Disconnect</source>
         <translation type="unfinished">Desconectar</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="2753"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="2893"/>
         <source>Create Directory</source>
         <translation type="unfinished">Crear directorio</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="2785"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="527"/>
         <source>Advance Setting to compare db sqlite</source>
         <translation type="unfinished">Configuración avanzada para comparar db sqlite</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="2798"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="540"/>
         <source>Scegli un opzione e premi ok</source>
         <translation type="unfinished">Elige una opción y pulsa ok</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="2811"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="553"/>
         <source>OK</source>
         <translation type="unfinished">OK</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="2828"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="570"/>
         <source>--schema</source>
         <translation type="unfinished">--sistema</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="2833"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="575"/>
         <source>--summary</source>
         <translation type="unfinished">--resumen</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="2838"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="580"/>
         <source>--changeset FILE</source>
         <translation type="unfinished">--fichero de cambios</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="2852"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="594"/>
         <source>Convert</source>
         <translation type="unfinished">Convertir</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="2865"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="607"/>
         <source>Converti in Spatialite v5</source>
         <translation type="unfinished">Convertir a Spatialite v5</translation>
     </message>
     <message>
-        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="2878"/>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="620"/>
         <source>Confronta db</source>
         <translation type="unfinished">Comparar db</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="1793"/>
+        <source>Converti db to spatialite</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="2344"/>
+        <source>Converti db to postgres</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="2402"/>
+        <source>PosgreSQL</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/pyarchinitConfigDialog.ui" line="2408"/>
+        <source>Il percorso alla cartella /bin di Postgres da aggiungere nella variabile d&apos;ambiente PATH</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>Dialog_Matrix</name>
     <message>
-        <location filename="../gui/ui/Setting_Matrix.ui" line="438"/>
+        <location filename="../gui/ui/Setting_Matrix.ui" line="468"/>
         <source>Setting matrix</source>
         <translation type="unfinished">Matriz de ajuste</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Setting_Matrix.ui" line="1828"/>
+        <location filename="../gui/ui/Setting_Matrix.ui" line="2832"/>
         <source>solid</source>
         <translation type="unfinished">sólido</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Setting_Matrix.ui" line="1838"/>
+        <location filename="../gui/ui/Setting_Matrix.ui" line="2837"/>
         <source>strocked</source>
         <translation type="unfinished">acariciado</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Setting_Matrix.ui" line="1833"/>
+        <location filename="../gui/ui/Setting_Matrix.ui" line="2827"/>
         <source>dashed</source>
         <translation type="unfinished">guiones</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Setting_Matrix.ui" line="1843"/>
+        <location filename="../gui/ui/Setting_Matrix.ui" line="2842"/>
         <source>dotted</source>
         <translation type="unfinished">punteado</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Setting_Matrix.ui" line="1848"/>
+        <location filename="../gui/ui/Setting_Matrix.ui" line="2847"/>
         <source>bold</source>
         <translation type="unfinished">negrita</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Setting_Matrix.ui" line="1516"/>
+        <location filename="../gui/ui/Setting_Matrix.ui" line="2515"/>
         <source>Colore</source>
         <translation>Color</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Setting_Matrix.ui" line="1639"/>
+        <location filename="../gui/ui/Setting_Matrix.ui" line="2638"/>
         <source>Riempimento</source>
         <translation type="unfinished">Llenando</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Setting_Matrix.ui" line="1683"/>
+        <location filename="../gui/ui/Setting_Matrix.ui" line="2682"/>
         <source>Stile tratto</source>
         <translation type="unfinished">Estilo de trazo</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Setting_Matrix.ui" line="1696"/>
+        <location filename="../gui/ui/Setting_Matrix.ui" line="2695"/>
         <source>Grandezza aggancio</source>
         <translation type="unfinished">Tamaño del acoplamiento</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Setting_Matrix.ui" line="1884"/>
+        <location filename="../gui/ui/Setting_Matrix.ui" line="2883"/>
         <source>.5</source>
         <translation type="unfinished">.5</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Setting_Matrix.ui" line="1879"/>
+        <location filename="../gui/ui/Setting_Matrix.ui" line="2878"/>
         <source>.1</source>
         <translation type="unfinished">.1</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Setting_Matrix.ui" line="1605"/>
+        <location filename="../gui/ui/Setting_Matrix.ui" line="2604"/>
         <source>.3</source>
         <translation type="unfinished">.3</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Setting_Matrix.ui" line="1874"/>
+        <location filename="../gui/ui/Setting_Matrix.ui" line="2873"/>
         <source>1</source>
         <translation type="unfinished">1</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Setting_Matrix.ui" line="1889"/>
+        <location filename="../gui/ui/Setting_Matrix.ui" line="2888"/>
         <source>1.5</source>
         <translation type="unfinished">1.5</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Setting_Matrix.ui" line="1894"/>
+        <location filename="../gui/ui/Setting_Matrix.ui" line="2893"/>
         <source>2</source>
         <translation type="unfinished">2</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Setting_Matrix.ui" line="1899"/>
+        <location filename="../gui/ui/Setting_Matrix.ui" line="2898"/>
         <source>3</source>
         <translation type="unfinished">3</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Setting_Matrix.ui" line="1656"/>
+        <location filename="../gui/ui/Setting_Matrix.ui" line="2655"/>
         <source>filled</source>
         <translation type="unfinished">rellenado</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Setting_Matrix.ui" line="661"/>
+        <location filename="../gui/ui/Setting_Matrix.ui" line="698"/>
         <source>US positive</source>
         <translation type="unfinished">Positivo para EU</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Setting_Matrix.ui" line="1718"/>
+        <location filename="../gui/ui/Setting_Matrix.ui" line="2712"/>
         <source>normal</source>
         <translation type="unfinished">normal</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Setting_Matrix.ui" line="1713"/>
+        <location filename="../gui/ui/Setting_Matrix.ui" line="2717"/>
         <source>none</source>
         <translation>ninguno</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Setting_Matrix.ui" line="1733"/>
+        <location filename="../gui/ui/Setting_Matrix.ui" line="2732"/>
         <source>box</source>
         <translation type="unfinished">caja</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Setting_Matrix.ui" line="1738"/>
+        <location filename="../gui/ui/Setting_Matrix.ui" line="2737"/>
         <source>dot</source>
         <translation type="unfinished">punto</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Setting_Matrix.ui" line="1743"/>
+        <location filename="../gui/ui/Setting_Matrix.ui" line="2742"/>
         <source>icurve</source>
         <translation type="unfinished">icurve</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Setting_Matrix.ui" line="1748"/>
+        <location filename="../gui/ui/Setting_Matrix.ui" line="2747"/>
         <source>curve</source>
         <translation type="unfinished">curvas</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Setting_Matrix.ui" line="1728"/>
+        <location filename="../gui/ui/Setting_Matrix.ui" line="2727"/>
         <source>inv</source>
         <translation type="unfinished">inv</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Setting_Matrix.ui" line="1723"/>
+        <location filename="../gui/ui/Setting_Matrix.ui" line="2722"/>
         <source>tee</source>
         <translation type="unfinished">tee</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Setting_Matrix.ui" line="1546"/>
+        <location filename="../gui/ui/Setting_Matrix.ui" line="2545"/>
         <source>oval</source>
         <translation type="unfinished">oval</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Setting_Matrix.ui" line="1551"/>
+        <location filename="../gui/ui/Setting_Matrix.ui" line="2550"/>
         <source>triangle</source>
         <translation type="unfinished">triángulo</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Setting_Matrix.ui" line="1541"/>
+        <location filename="../gui/ui/Setting_Matrix.ui" line="2540"/>
         <source>circle</source>
         <translation type="unfinished">círculo</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Setting_Matrix.ui" line="1556"/>
+        <location filename="../gui/ui/Setting_Matrix.ui" line="2555"/>
         <source>plaintext</source>
         <translation type="unfinished">texto sin formato</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Setting_Matrix.ui" line="1561"/>
+        <location filename="../gui/ui/Setting_Matrix.ui" line="2560"/>
         <source>octagon</source>
         <translation type="unfinished">octógono</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Setting_Matrix.ui" line="1869"/>
+        <location filename="../gui/ui/Setting_Matrix.ui" line="2868"/>
         <source>.8</source>
         <translation type="unfinished">.8</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Setting_Matrix.ui" line="1490"/>
+        <location filename="../gui/ui/Setting_Matrix.ui" line="2489"/>
         <source>Forma nodo</source>
         <translation type="unfinished">Forma del nudo</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Setting_Matrix.ui" line="1670"/>
+        <location filename="../gui/ui/Setting_Matrix.ui" line="2669"/>
         <source>Aggancio</source>
         <translation type="unfinished">Acoplamiento</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Setting_Matrix.ui" line="1575"/>
+        <location filename="../gui/ui/Setting_Matrix.ui" line="2574"/>
         <source>Larghezza tratto</source>
         <translation type="unfinished">Ancho del trazo</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Setting_Matrix.ui" line="1503"/>
+        <location filename="../gui/ui/Setting_Matrix.ui" line="2502"/>
         <source>Stile nodo</source>
         <translation type="unfinished">Estilo de nudo</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Setting_Matrix.ui" line="1446"/>
+        <location filename="../gui/ui/Setting_Matrix.ui" line="2445"/>
         <source>white</source>
         <translation type="unfinished">blanco</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Setting_Matrix.ui" line="1451"/>
+        <location filename="../gui/ui/Setting_Matrix.ui" line="2450"/>
         <source>yellow</source>
         <translation type="unfinished">amarillo</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Setting_Matrix.ui" line="1456"/>
+        <location filename="../gui/ui/Setting_Matrix.ui" line="2455"/>
         <source>gray</source>
         <translation type="unfinished">gris</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Setting_Matrix.ui" line="1461"/>
+        <location filename="../gui/ui/Setting_Matrix.ui" line="2460"/>
         <source>green</source>
         <translation type="unfinished">verde</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Setting_Matrix.ui" line="1471"/>
+        <location filename="../gui/ui/Setting_Matrix.ui" line="2470"/>
         <source>blue</source>
         <translation type="unfinished">azul</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Setting_Matrix.ui" line="1476"/>
+        <location filename="../gui/ui/Setting_Matrix.ui" line="2475"/>
         <source>red</source>
         <translation type="unfinished">rojo</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Setting_Matrix.ui" line="918"/>
+        <location filename="../gui/ui/Setting_Matrix.ui" line="955"/>
         <source>Print Periodizzazione</source>
         <translation type="unfinished">Imprimir Periodización</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Setting_Matrix.ui" line="928"/>
+        <location filename="../gui/ui/Setting_Matrix.ui" line="965"/>
         <source>Print legenda</source>
         <translation type="unfinished">Imprimir leyenda</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Setting_Matrix.ui" line="938"/>
+        <location filename="../gui/ui/Setting_Matrix.ui" line="975"/>
         <source>300</source>
         <translation type="unfinished">300</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Setting_Matrix.ui" line="1466"/>
+        <location filename="../gui/ui/Setting_Matrix.ui" line="2465"/>
         <source>cyan</source>
         <translation type="unfinished">cian</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Setting_Matrix.ui" line="1753"/>
+        <location filename="../gui/ui/Setting_Matrix.ui" line="2752"/>
         <source>diamond</source>
         <translation type="unfinished">diamante</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Setting_Matrix.ui" line="1286"/>
+        <location filename="../gui/ui/Setting_Matrix.ui" line="1323"/>
         <source>US negative</source>
         <translation type="unfinished">Negativo para los EU</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Setting_Matrix.ui" line="1767"/>
+        <location filename="../gui/ui/Setting_Matrix.ui" line="1804"/>
         <source>US conteporanee</source>
         <translation type="unfinished">EU. contemporáneo</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Setting_Matrix.ui" line="2285"/>
+        <source>USV connection</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Setting_Matrix.ui" line="2766"/>
+        <source>USV property</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -9658,8 +10769,8 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <location filename="../gui/ui/pyarchinit_directory_creator_ui.ui" line="701"/>
-        <source>Unità Stratigrafiche</source>
-        <translation type="unfinished">Unidades estratigráficas</translation>
+        <source>Unit&#xe0; Stratigrafiche</source>
+        <translation type="obsolete">Unidades estratigráficas</translation>
     </message>
     <message>
         <location filename="../gui/ui/pyarchinit_directory_creator_ui.ui" line="708"/>
@@ -9671,13 +10782,18 @@ p, li { white-space: pre-wrap; }
         <source>Reperti</source>
         <translation type="unfinished">Hallazgos</translation>
     </message>
+    <message encoding="UTF-8">
+        <location filename="../gui/ui/pyarchinit_directory_creator_ui.ui" line="701"/>
+        <source>Unità Stratigrafiche</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>Dialog_eta</name>
     <message>
         <location filename="../gui/ui/Deteta.ui" line="435"/>
-        <source>pyArchInit Gestione Scavi - Scheda Determinazione Età di Morte</source>
-        <translation type="unfinished">gestión de excavaciones pyArchInit - Hoja de determinación de la edad de la muerte</translation>
+        <source>pyArchInit Gestione Scavi - Scheda Determinazione Et&#xe0; di Morte</source>
+        <translation type="obsolete">gestión de excavaciones pyArchInit - Hoja de determinación de la edad de la muerte</translation>
     </message>
     <message>
         <location filename="../gui/ui/Deteta.ui" line="455"/>
@@ -9970,8 +11086,8 @@ p, li { white-space: pre-wrap; }
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Lucida Grande&apos;; font-size:13pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt;&quot;&gt; Assenza di granulosità; è possibile un&apos;isolata e fine porosità.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished">&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt;&quot;&gt; Assenza di granulosit&#xe0;; &#xe8; possibile un&apos;isolata e fine porosit&#xe0;.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="obsolete">&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Lucida Grande&apos;; font-size:13pt; font-weight:400; font-style:normal;&quot;&gt;
@@ -9988,9 +11104,9 @@ p, li { white-space: pre-wrap; }
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Lucida Grande&apos;; font-size:13pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt;&quot;&gt;Il bordo è fine e può essere a filo con la superficie auricolare, &lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt;&quot;&gt;Il bordo &#xe8; fine e pu&#xf2; essere a filo con la superficie auricolare, &lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt;&quot;&gt;o leggermente sollevato e forma un angolo.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished">&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+        <translation type="obsolete">&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Lucida Grande&apos;; font-size:13pt; font-weight:400; font-style:normal;&quot;&gt;
@@ -10062,8 +11178,8 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <location filename="../gui/ui/Deteta.ui" line="1982"/>
-        <source>Modificazione della tuberosità iliaca</source>
-        <translation type="unfinished">Modificación de la tuberosidad ilíaca</translation>
+        <source>Modificazione della tuberosit&#xe0; iliaca</source>
+        <translation type="obsolete">Modificación de la tuberosidad ilíaca</translation>
     </message>
     <message>
         <location filename="../gui/ui/Deteta.ui" line="2016"/>
@@ -10350,29 +11466,63 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <location filename="../gui/ui/Deteta.ui" line="4275"/>
+        <source>Acsadi e Nemesk&#xe9;ri, 1970</source>
+        <translation type="obsolete">Acsadi y Nemeskéri, 1970</translation>
+    </message>
+    <message encoding="UTF-8">
+        <location filename="../gui/ui/Deteta.ui" line="435"/>
+        <source>pyArchInit Gestione Scavi - Scheda Determinazione Età di Morte</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message encoding="UTF-8">
+        <location filename="../gui/ui/Deteta.ui" line="1774"/>
+        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Lucida Grande&apos;; font-size:13pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt;&quot;&gt; Assenza di granulosità; è possibile un&apos;isolata e fine porosità.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message encoding="UTF-8">
+        <location filename="../gui/ui/Deteta.ui" line="1922"/>
+        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Lucida Grande&apos;; font-size:13pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt;&quot;&gt;Il bordo è fine e può essere a filo con la superficie auricolare, &lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt;&quot;&gt;o leggermente sollevato e forma un angolo.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message encoding="UTF-8">
+        <location filename="../gui/ui/Deteta.ui" line="1982"/>
+        <source>Modificazione della tuberosità iliaca</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message encoding="UTF-8">
+        <location filename="../gui/ui/Deteta.ui" line="4275"/>
         <source>Acsadi e Nemeskéri, 1970</source>
-        <translation type="unfinished">Acsadi y Nemeskéri, 1970</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>Dialog_gpkg</name>
     <message>
-        <location filename="../gui/ui/gpkg_export.ui" line="432"/>
+        <location filename="../gui/ui/gpkg_export.ui" line="459"/>
         <source>Impacchetta per GPKG</source>
         <translation type="unfinished">Embalaje para GPKG</translation>
     </message>
     <message>
-        <location filename="../gui/ui/gpkg_export.ui" line="450"/>
+        <location filename="../gui/ui/gpkg_export.ui" line="481"/>
         <source>Vector</source>
         <translation type="unfinished">Vector</translation>
     </message>
     <message>
-        <location filename="../gui/ui/gpkg_export.ui" line="473"/>
+        <location filename="../gui/ui/gpkg_export.ui" line="504"/>
         <source>...</source>
         <translation type="unfinished">...</translation>
     </message>
     <message>
-        <location filename="../gui/ui/gpkg_export.ui" line="486"/>
+        <location filename="../gui/ui/gpkg_export.ui" line="517"/>
         <source>Raster</source>
         <translation type="unfinished">Raster</translation>
     </message>
@@ -10486,8 +11636,13 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <location filename="../gui/ui/pyarchinit_images_export_ui.ui" line="728"/>
+        <source>Unit&#xe0; Stratigrafiche</source>
+        <translation type="obsolete">Unidades estratigráficas</translation>
+    </message>
+    <message encoding="UTF-8">
+        <location filename="../gui/ui/pyarchinit_images_export_ui.ui" line="728"/>
         <source>Unità Stratigrafiche</source>
-        <translation type="unfinished">Unidades estratigráficas</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -10519,8 +11674,8 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <location filename="../gui/ui/Pdf_export.ui" line="646"/>
-        <source>Unità Stratigrafiche</source>
-        <translation type="unfinished">Unidades estratigráficas</translation>
+        <source>Unit&#xe0; Stratigrafiche</source>
+        <translation type="obsolete">Unidades estratigráficas</translation>
     </message>
     <message>
         <location filename="../gui/ui/Pdf_export.ui" line="696"/>
@@ -10562,266 +11717,271 @@ p, li { white-space: pre-wrap; }
         <source>Strutture</source>
         <translation type="unfinished">Instalaciones</translation>
     </message>
+    <message encoding="UTF-8">
+        <location filename="../gui/ui/Pdf_export.ui" line="646"/>
+        <source>Unità Stratigrafiche</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>Dialog_tomba</name>
     <message>
-        <location filename="../gui/ui/Tomba.ui" line="441"/>
+        <location filename="../gui/ui/Tomba.ui" line="468"/>
         <source>pyArchInit Gestione Scavi - Scheda Tomba</source>
         <translation type="unfinished">pyArchInit Gestión de la excavación - Ficha de la tumba</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tomba.ui" line="596"/>
+        <location filename="../gui/ui/Tomba.ui" line="623"/>
         <source>Fase </source>
         <translation type="unfinished">Fase</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tomba.ui" line="544"/>
+        <location filename="../gui/ui/Tomba.ui" line="571"/>
         <source>Iniziale </source>
         <translation type="unfinished">Inicialmente</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tomba.ui" line="557"/>
+        <location filename="../gui/ui/Tomba.ui" line="584"/>
         <source>Finale </source>
         <translation type="unfinished">Final</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tomba.ui" line="569"/>
+        <location filename="../gui/ui/Tomba.ui" line="596"/>
         <source>Datazione estesa</source>
         <translation type="unfinished">Datación ampliada</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tomba.ui" line="582"/>
+        <location filename="../gui/ui/Tomba.ui" line="609"/>
         <source>Periodizzazione:</source>
         <translation type="unfinished">Periodización:</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tomba.ui" line="610"/>
+        <location filename="../gui/ui/Tomba.ui" line="637"/>
         <source>Periodo </source>
         <translation type="unfinished">Periodo</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tomba.ui" line="649"/>
+        <location filename="../gui/ui/Tomba.ui" line="676"/>
         <source>DBMS Toolbar</source>
         <translation type="unfinished">Barra de herramientas del SGBD</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tomba.ui" line="661"/>
+        <location filename="../gui/ui/Tomba.ui" line="688"/>
         <source>Connection test</source>
         <translation type="unfinished">Prueba de conexión</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tomba.ui" line="681"/>
+        <location filename="../gui/ui/Tomba.ui" line="708"/>
         <source>First rec</source>
         <translation type="unfinished">Primer rec</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tomba.ui" line="706"/>
+        <location filename="../gui/ui/Tomba.ui" line="733"/>
         <source>Prev rec</source>
         <translation type="unfinished">Prev rec</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tomba.ui" line="731"/>
+        <location filename="../gui/ui/Tomba.ui" line="758"/>
         <source>View alls records</source>
         <translation type="unfinished">Ver todos los registros</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tomba.ui" line="2381"/>
+        <location filename="../gui/ui/Tomba.ui" line="2515"/>
         <source>Ctrl+G</source>
         <translation type="unfinished">Ctrl+G</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tomba.ui" line="825"/>
+        <location filename="../gui/ui/Tomba.ui" line="852"/>
         <source>Last rec</source>
         <translation type="unfinished">Ultimo rec</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tomba.ui" line="850"/>
+        <location filename="../gui/ui/Tomba.ui" line="877"/>
         <source>Order by</source>
         <translation type="unfinished">Pedir por</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tomba.ui" line="892"/>
+        <location filename="../gui/ui/Tomba.ui" line="919"/>
         <source>Next rec</source>
         <translation type="unfinished">Siguiente rec</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tomba.ui" line="917"/>
+        <location filename="../gui/ui/Tomba.ui" line="944"/>
         <source>New record</source>
         <translation type="unfinished">Nuevo récord</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tomba.ui" line="974"/>
+        <location filename="../gui/ui/Tomba.ui" line="1001"/>
         <source>Save</source>
         <translation type="unfinished">Guardar</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tomba.ui" line="1005"/>
+        <location filename="../gui/ui/Tomba.ui" line="1032"/>
         <source>Delete record</source>
         <translation type="unfinished">Borrar registro</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tomba.ui" line="1030"/>
+        <location filename="../gui/ui/Tomba.ui" line="1057"/>
         <source>new search</source>
         <translation type="unfinished">nueva búsqueda</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tomba.ui" line="1055"/>
+        <location filename="../gui/ui/Tomba.ui" line="1082"/>
         <source>search !!!</source>
         <translation type="unfinished">¡¡¡Búsqueda!!!</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tomba.ui" line="1083"/>
+        <location filename="../gui/ui/Tomba.ui" line="1110"/>
         <source>Export PDF</source>
         <translation type="unfinished">Exportación de PDF</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tomba.ui" line="1125"/>
+        <location filename="../gui/ui/Tomba.ui" line="1152"/>
         <source>DB Info</source>
         <translation type="unfinished">Información DB</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tomba.ui" line="1141"/>
+        <location filename="../gui/ui/Tomba.ui" line="1168"/>
         <source>Ordinamento</source>
         <translation type="unfinished">Clasificación</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tomba.ui" line="1234"/>
+        <location filename="../gui/ui/Tomba.ui" line="1261"/>
         <source>Status</source>
         <translation type="unfinished">Estado</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tomba.ui" line="1255"/>
+        <location filename="../gui/ui/Tomba.ui" line="1282"/>
         <source>record n.</source>
         <translation type="unfinished">registro no.</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tomba.ui" line="1331"/>
+        <location filename="../gui/ui/Tomba.ui" line="1358"/>
         <source>1</source>
         <translation type="unfinished">1</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tomba.ui" line="1300"/>
+        <location filename="../gui/ui/Tomba.ui" line="1327"/>
         <source>record tot.</source>
         <translation type="unfinished">récord total.</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tomba.ui" line="1346"/>
+        <location filename="../gui/ui/Tomba.ui" line="1373"/>
         <source>Area</source>
         <translation type="unfinished">Área</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tomba.ui" line="1359"/>
+        <location filename="../gui/ui/Tomba.ui" line="1386"/>
         <source>Nr Scheda</source>
         <translation type="unfinished">Número de tarjeta</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tomba.ui" line="1377"/>
+        <location filename="../gui/ui/Tomba.ui" line="1404"/>
         <source>Sito </source>
         <translation>Sitio </translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tomba.ui" line="1508"/>
+        <location filename="../gui/ui/Tomba.ui" line="1535"/>
         <source>Dati descrittivi</source>
         <translation type="unfinished">Datos descriptivos</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tomba.ui" line="1535"/>
+        <location filename="../gui/ui/Tomba.ui" line="1562"/>
         <source>Tipo rituale</source>
         <translation type="unfinished">Tipo de ritual</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tomba.ui" line="1564"/>
+        <location filename="../gui/ui/Tomba.ui" line="1591"/>
         <source>Tipo sepoltura</source>
         <translation type="unfinished">Tipo de entierro</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tomba.ui" line="1600"/>
+        <location filename="../gui/ui/Tomba.ui" line="1627"/>
         <source>Ad inumazione</source>
         <translation type="unfinished">Entierro</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tomba.ui" line="1605"/>
+        <location filename="../gui/ui/Tomba.ui" line="1632"/>
         <source>Riduzione</source>
         <translation type="unfinished">Reducción</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tomba.ui" line="1610"/>
+        <location filename="../gui/ui/Tomba.ui" line="1637"/>
         <source>Ad incinerazione diretta</source>
         <translation type="unfinished">Incineración directa</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tomba.ui" line="1615"/>
+        <location filename="../gui/ui/Tomba.ui" line="1642"/>
         <source>Ad incinerazione indiretta</source>
         <translation type="unfinished">Incineración indirecta</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tomba.ui" line="1620"/>
+        <location filename="../gui/ui/Tomba.ui" line="1647"/>
         <source>Mummuficazione</source>
         <translation type="unfinished">Momento de la momificación</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tomba.ui" line="1667"/>
+        <location filename="../gui/ui/Tomba.ui" line="1694"/>
         <source>Tipo tomba</source>
         <translation type="unfinished">Tipo de tumba</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tomba.ui" line="1674"/>
+        <location filename="../gui/ui/Tomba.ui" line="1701"/>
         <source>Tipo deposizione</source>
         <translation type="unfinished">Tipo de depósito</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tomba.ui" line="1707"/>
+        <location filename="../gui/ui/Tomba.ui" line="1734"/>
         <source>In cassa fittile</source>
         <translation type="unfinished">En una caja de arcilla</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tomba.ui" line="1712"/>
+        <location filename="../gui/ui/Tomba.ui" line="1739"/>
         <source>In cassa lignea</source>
         <translation type="unfinished">En caja de madera</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tomba.ui" line="1717"/>
+        <location filename="../gui/ui/Tomba.ui" line="1744"/>
         <source>In urna litica</source>
         <translation type="unfinished">En urna lítica</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tomba.ui" line="1722"/>
+        <location filename="../gui/ui/Tomba.ui" line="1749"/>
         <source>Nella terra</source>
         <translation type="unfinished">En la tierra</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tomba.ui" line="1756"/>
+        <location filename="../gui/ui/Tomba.ui" line="1783"/>
         <source>Tipo copertura</source>
         <translation type="unfinished">Tipo de cubierta</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tomba.ui" line="1789"/>
+        <location filename="../gui/ui/Tomba.ui" line="1816"/>
         <source>Non rilevabile</source>
         <translation type="unfinished">No detectable</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tomba.ui" line="1794"/>
+        <location filename="../gui/ui/Tomba.ui" line="1821"/>
         <source>Copertura assente</source>
         <translation type="unfinished">No hay cobertura</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tomba.ui" line="1799"/>
+        <location filename="../gui/ui/Tomba.ui" line="1826"/>
         <source>Tegole alla cappuccina</source>
         <translation type="unfinished">Azulejos capuchinos</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tomba.ui" line="1804"/>
+        <location filename="../gui/ui/Tomba.ui" line="1831"/>
         <source>In cassa</source>
         <translation type="unfinished">En la caja</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tomba.ui" line="1829"/>
+        <location filename="../gui/ui/Tomba.ui" line="1856"/>
         <source>Descrizione </source>
         <translation type="unfinished">Descripción</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tomba.ui" line="1852"/>
+        <location filename="../gui/ui/Tomba.ui" line="1879"/>
         <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
@@ -10834,62 +11994,62 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Lucida Grande&apos;; font-size:13pt;&quot;&gt;&lt;br /&gt;&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tomba.ui" line="1866"/>
+        <location filename="../gui/ui/Tomba.ui" line="1893"/>
         <source>Corredo</source>
         <translation type="unfinished">Kit</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tomba.ui" line="1879"/>
+        <location filename="../gui/ui/Tomba.ui" line="1906"/>
         <source>Corredo assente</source>
         <translation type="unfinished">No hay kit</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tomba.ui" line="1884"/>
+        <location filename="../gui/ui/Tomba.ui" line="1911"/>
         <source>Corredo presente</source>
         <translation type="unfinished">Equipo actual</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tomba.ui" line="2253"/>
+        <location filename="../gui/ui/Tomba.ui" line="2280"/>
         <source>Non determinabile</source>
         <translation type="unfinished">No se puede determinar</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tomba.ui" line="1906"/>
+        <location filename="../gui/ui/Tomba.ui" line="1933"/>
         <source>-</source>
         <translation type="unfinished">-</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tomba.ui" line="2026"/>
+        <location filename="../gui/ui/Tomba.ui" line="2053"/>
         <source>New Column</source>
         <translation type="unfinished">Nueva columna</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tomba.ui" line="2043"/>
+        <location filename="../gui/ui/Tomba.ui" line="2070"/>
         <source>+</source>
         <translation type="unfinished">+</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tomba.ui" line="2243"/>
+        <location filename="../gui/ui/Tomba.ui" line="2270"/>
         <source>Si</source>
         <translation type="unfinished">Sí</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tomba.ui" line="2248"/>
+        <location filename="../gui/ui/Tomba.ui" line="2275"/>
         <source>No</source>
         <translation type="unfinished">No</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tomba.ui" line="2093"/>
+        <location filename="../gui/ui/Tomba.ui" line="2120"/>
         <source>Descrizione</source>
         <translation type="unfinished">Descripción</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tomba.ui" line="2110"/>
+        <location filename="../gui/ui/Tomba.ui" line="2137"/>
         <source>Canale libatorio</source>
         <translation type="unfinished">Canal liberal</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tomba.ui" line="2133"/>
+        <location filename="../gui/ui/Tomba.ui" line="2160"/>
         <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
@@ -10902,217 +12062,235 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Lucida Grande&apos;; font-size:13pt;&quot;&gt;&lt;br /&gt;&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tomba.ui" line="2154"/>
+        <location filename="../gui/ui/Tomba.ui" line="2181"/>
         <source>Ogg. rinv. all&apos;esterno (riferimeto RA)</source>
         <translation type="unfinished">Objeto de derivación externa (derivación RA)</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tomba.ui" line="2171"/>
+        <location filename="../gui/ui/Tomba.ui" line="2198"/>
         <source>Corredo tomba</source>
         <translation type="unfinished">Bienes funerarios</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tomba.ui" line="2178"/>
+        <location filename="../gui/ui/Tomba.ui" line="2205"/>
         <source>Presenza corredo</source>
         <translation type="unfinished">Presencia de equipos</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tomba.ui" line="2925"/>
+        <location filename="../gui/ui/Tomba.ui" line="2882"/>
         <source>; </source>
         <translation>; </translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tomba.ui" line="2211"/>
+        <location filename="../gui/ui/Tomba.ui" line="2238"/>
         <source>Segnacoli</source>
         <translation type="unfinished">Señalización</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tomba.ui" line="2262"/>
+        <location filename="../gui/ui/Tomba.ui" line="2289"/>
         <source>Altre caratteristiche</source>
         <translation type="unfinished">Otras características</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tomba.ui" line="2300"/>
+        <location filename="../gui/ui/Tomba.ui" line="2327"/>
         <source>Interpretazione </source>
         <translation type="unfinished">Interpretación</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tomba.ui" line="2310"/>
+        <location filename="../gui/ui/Tomba.ui" line="2337"/>
         <source>Tools</source>
         <translation type="unfinished">Herramientas</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tomba.ui" line="2323"/>
+        <location filename="../gui/ui/Tomba.ui" line="2482"/>
         <source>Attivazione Preview pianta US</source>
         <translation type="unfinished">Activación previa de la planta de Estados Unidos</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tomba.ui" line="2336"/>
+        <location filename="../gui/ui/Tomba.ui" line="2508"/>
         <source>Preview pianta US</source>
         <translation type="unfinished">Vista previa de la planta de EU</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tomba.ui" line="2371"/>
+        <location filename="../gui/ui/Tomba.ui" line="2352"/>
         <source>Pan tool</source>
         <translation type="unfinished">Herramienta de paneo</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tomba.ui" line="2420"/>
+        <location filename="../gui/ui/Tomba.ui" line="2554"/>
         <source>Apri schede US selezionate</source>
         <translation type="unfinished">Abrir las pestañas estadounidenses seleccionadas</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tomba.ui" line="2437"/>
+        <location filename="../gui/ui/Tomba.ui" line="2571"/>
         <source>Show Selcted Features</source>
         <translation type="unfinished">Mostrar características seleccionadas</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tomba.ui" line="2440"/>
+        <location filename="../gui/ui/Tomba.ui" line="2574"/>
         <source>apri schede US</source>
         <translation type="unfinished">abrir las pestañas de Estados Unidos</translation>
     </message>
     <message>
         <location filename="../gui/ui/Tomba.ui" line="2479"/>
         <source>Pdf2Word</source>
-        <translation type="unfinished">Pdf2Word</translation>
+        <translation type="obsolete">Pdf2Word</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tomba.ui" line="2498"/>
+        <location filename="../gui/ui/Tomba.ui" line="2608"/>
         <source>choose the pdf convert to word</source>
         <translation type="unfinished">elegir el pdf convertir a word</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tomba.ui" line="2511"/>
+        <location filename="../gui/ui/Tomba.ui" line="2615"/>
         <source>...</source>
         <translation type="unfinished">...</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tomba.ui" line="2541"/>
+        <location filename="../gui/ui/Tomba.ui" line="2595"/>
         <source>PDF path</source>
         <translation type="unfinished">Ruta de acceso en PDF</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tomba.ui" line="2554"/>
+        <location filename="../gui/ui/Tomba.ui" line="2622"/>
         <source>Convert</source>
         <translation type="unfinished">Convertir</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tomba.ui" line="2579"/>
+        <location filename="../gui/ui/Tomba.ui" line="2659"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Lo &amp;quot;0&amp;quot; indica la prima pagina da convertire&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;El &amp;quot;0&amp;quot; indica la primera página a convertir&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tomba.ui" line="2585"/>
+        <location filename="../gui/ui/Tomba.ui" line="2665"/>
         <source>0</source>
         <translation type="unfinished">0</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tomba.ui" line="2614"/>
+        <location filename="../gui/ui/Tomba.ui" line="2640"/>
         <source>Pagg.</source>
         <translation type="unfinished">Pg.</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tomba.ui" line="2627"/>
+        <location filename="../gui/ui/Tomba.ui" line="2672"/>
         <source>to</source>
         <translation type="unfinished">a</translation>
     </message>
     <message>
         <location filename="../gui/ui/Tomba.ui" line="2645"/>
         <source>Esportazioni Tombe</source>
-        <translation type="unfinished">Tumbas de exportación</translation>
+        <translation type="obsolete">Tumbas de exportación</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tomba.ui" line="2655"/>
+        <location filename="../gui/ui/Tomba.ui" line="2401"/>
         <source>Elenco Foto con Thumbnail</source>
         <translation type="unfinished">Lista de fotos en miniatura</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tomba.ui" line="2674"/>
+        <location filename="../gui/ui/Tomba.ui" line="2437"/>
         <source>Stampa</source>
         <translation type="unfinished">Imprimir</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tomba.ui" line="2694"/>
+        <location filename="../gui/ui/Tomba.ui" line="2418"/>
         <source>Elenco Foto senza Thumbnail</source>
         <translation type="unfinished">Lista de fotos sin miniaturas</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tomba.ui" line="2701"/>
+        <location filename="../gui/ui/Tomba.ui" line="2408"/>
         <source>Schede Tombe</source>
         <translation type="unfinished">Cartas de la tumba</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tomba.ui" line="2708"/>
+        <location filename="../gui/ui/Tomba.ui" line="2391"/>
         <source>Elenco Tombe</source>
         <translation type="unfinished">Lista de tumbas</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tomba.ui" line="2721"/>
+        <location filename="../gui/ui/Tomba.ui" line="2460"/>
         <source>Converti in Word</source>
         <translation type="unfinished">Convertir a Word</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tomba.ui" line="2749"/>
+        <location filename="../gui/ui/Tomba.ui" line="2706"/>
         <source>Rif. struttura</source>
         <translation type="unfinished">Estructura ref</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tomba.ui" line="2815"/>
+        <location filename="../gui/ui/Tomba.ui" line="2772"/>
         <source>Sigla</source>
         <translation type="unfinished">Abreviatura</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tomba.ui" line="2822"/>
+        <location filename="../gui/ui/Tomba.ui" line="2779"/>
         <source>N.riferimento</source>
         <translation type="unfinished">Número de referencia</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tomba.ui" line="2853"/>
+        <location filename="../gui/ui/Tomba.ui" line="2810"/>
         <source>Insufficiente</source>
         <translation type="unfinished">Insuficiente</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tomba.ui" line="2858"/>
+        <location filename="../gui/ui/Tomba.ui" line="2815"/>
         <source>Scarso</source>
         <translation type="unfinished">Pobre</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tomba.ui" line="2863"/>
+        <location filename="../gui/ui/Tomba.ui" line="2820"/>
         <source>Sufficiente</source>
         <translation>Adecuado</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tomba.ui" line="2868"/>
+        <location filename="../gui/ui/Tomba.ui" line="2825"/>
         <source>Discreto</source>
         <translation type="unfinished">Discreto</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tomba.ui" line="2873"/>
+        <location filename="../gui/ui/Tomba.ui" line="2830"/>
         <source>Buono</source>
         <translation type="unfinished">Bien</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tomba.ui" line="2878"/>
+        <location filename="../gui/ui/Tomba.ui" line="2835"/>
         <source>Ottimo</source>
         <translation type="unfinished">Excelente</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tomba.ui" line="2896"/>
+        <location filename="../gui/ui/Tomba.ui" line="2853"/>
         <source>Stato di conservazione</source>
         <translation type="unfinished">Estado de conservación</translation>
     </message>
     <message>
-        <location filename="../gui/ui/Tomba.ui" line="2949"/>
+        <location filename="../gui/ui/Tomba.ui" line="2906"/>
         <source>Nr Individuo</source>
         <translation type="unfinished">No. Individual</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Tomba.ui" line="2384"/>
+        <source>Esportazione PDF</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Tomba.ui" line="2588"/>
+        <source>Convert to doc file</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>GdalTools</name>
     <message>
-        <location filename="../tabs/Archeozoology.py" line="2427"/>
+        <location filename="../tabs/Archeozoology.py" line="2314"/>
         <source>Clipper</source>
         <translation type="unfinished">Clipper</translation>
+    </message>
+</context>
+<context>
+    <name>GeoCoding</name>
+    <message>
+        <location filename="../tabs/Site.py" line="1483"/>
+        <source>Reverse pyarchinit geocoding</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -11130,7 +12308,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../gui/ui/pyarchinit_plugin.ui" line="153"/>
         <source>https://www.adarteinfo.it/</source>
-        <translation type="unfinished">https://www.adarteinfo.it/</translation>
+        <translation type="obsolete">https://www.adarteinfo.it/</translation>
     </message>
     <message>
         <location filename="../gui/ui/pyarchinit_plugin.ui" line="165"/>
@@ -11232,6 +12410,172 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Sans Serif&apos;; font-size:9pt;&quot;&gt;Lista de correo en línea&lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;a href=&quot;pyarchinit-users@googlegroups.com&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;pyarchinit-users@googlegroups.com&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
+    <message>
+        <location filename="../gui/ui/pyarchinit_plugin.ui" line="153"/>
+        <source>https://pyarchinitdoc.readthedocs.io/it/latest/</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>TotalopenstationTopyarchinit</name>
+    <message>
+        <location filename="../gui/ui/Tops2pyarchinit.ui" line="14"/>
+        <source>TotalopenstationTopyarchinit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Tops2pyarchinit.ui" line="173"/>
+        <source>...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Tops2pyarchinit.ui" line="65"/>
+        <source>geomax_gsi</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Tops2pyarchinit.ui" line="70"/>
+        <source>geomax_txt</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Tops2pyarchinit.ui" line="75"/>
+        <source>leica_gsi</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Tops2pyarchinit.ui" line="80"/>
+        <source>leica_tcr_1205</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Tops2pyarchinit.ui" line="85"/>
+        <source>leica_tcr_705</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Tops2pyarchinit.ui" line="90"/>
+        <source>topcon_gts</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Tops2pyarchinit.ui" line="95"/>
+        <source>topcon_ascii</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Tops2pyarchinit.ui" line="100"/>
+        <source>topcon_gt7</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Tops2pyarchinit.ui" line="105"/>
+        <source>sokkia_sdr33</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Tops2pyarchinit.ui" line="110"/>
+        <source>trimble_dc</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Tops2pyarchinit.ui" line="115"/>
+        <source>trimble_are</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Tops2pyarchinit.ui" line="120"/>
+        <source>nikon_raw_v200</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Tops2pyarchinit.ui" line="125"/>
+        <source>zeiss_r5</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Tops2pyarchinit.ui" line="130"/>
+        <source>zeiss_rec_500</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Tops2pyarchinit.ui" line="135"/>
+        <source>landxml</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Tops2pyarchinit.ui" line="143"/>
+        <source>Format input</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Tops2pyarchinit.ui" line="156"/>
+        <source>Process</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Tops2pyarchinit.ui" line="180"/>
+        <source>Format output</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Tops2pyarchinit.ui" line="188"/>
+        <source>csv pyarchinit_us</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Tops2pyarchinit.ui" line="193"/>
+        <source>csv pyarchinit_rif</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Tops2pyarchinit.ui" line="198"/>
+        <source>csv pyarchinit_sample</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/Tops2pyarchinit.ui" line="206"/>
+        <source>input Z</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>pyarchinit geocoding</name>
+    <message>
+        <location filename="../tabs/Site.py" line="1511"/>
+        <source>pyarchinit geocoding plugin error</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tabs/Site.py" line="1461"/>
+        <source>Click on the map to obtain the address</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tabs/Site.py" line="1487"/>
+        <source>Reverse pyarchinit geocoding error</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tabs/Site.py" line="1481"/>
+        <source>&lt;strong&gt;Empty result&lt;/strong&gt;.&lt;br&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tabs/Site.py" line="1495"/>
+        <source>pyarchinit geocoding error</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tabs/Site.py" line="1515"/>
+        <source>Not found</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../tabs/Site.py" line="1858"/>
+        <source>On-the-fly reprojection must be enabled if the destination CRS is not EPSG:4326. Please enable on-the-fly reprojection.</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>quantPanel</name>
@@ -11292,6 +12636,14 @@ p, li { white-space: pre-wrap; }
         <location filename="../gui/ui/sortpanelmain.ui" line="550"/>
         <source>Discendente</source>
         <translation type="unfinished">Descendiente</translation>
+    </message>
+</context>
+<context>
+    <name>v</name>
+    <message>
+        <location filename="../tabs/Site.py" line="1483"/>
+        <source>Reverse geocoding found the following address:&lt;br&gt;&lt;strong&gt;%s&lt;/strong&gt;</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 </TS>

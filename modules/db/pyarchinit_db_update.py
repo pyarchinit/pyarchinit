@@ -35,6 +35,58 @@ class DB_update(object):
         self.metadata = MetaData(self.engine)
 
     def update_table(self):
+        # ####invetario_materiali_table
+        # table = Table("pyunitastratigrafiche", self.metadata, autoload=True)
+        # table_column_names_list = []
+        #
+        # for i in table.columns:
+        #     table_column_names_list.append(str(i.name))
+        # if table_column_names_list.__contains__('coord'):
+        #     self.engine.execute(
+        #         "ALTER TABLE pyunitastratigrafiche ALTER COLUMN coord TYPE text")
+        #
+        # table = Table("pyunitastratigrafiche_usm", self.metadata, autoload=True)
+        # table_column_names_list = []
+        #
+        # for i in table.columns:
+        #     table_column_names_list.append(str(i.name))
+        # if table_column_names_list.__contains__('coord'):
+        #     self.engine.execute(
+        #         "ALTER TABLE pyunitastratigrafiche ALTER COLUMN coord TYPE text")
+
+        ####invetario_materiali_table
+        table = Table("pottery_table", self.metadata, autoload=True)
+        table_column_names_list = []
+
+        for i in table.columns:
+            table_column_names_list.append(str(i.name))
+        if not table_column_names_list.__contains__('sector'):
+            self.engine.execute(
+                "ALTER TABLE pottery_table ADD COLUMN sector text")
+        try:
+            if table_column_names_list.__contains__('diametro_max'):
+                self.engine.execute(
+                    "ALTER TABLE pottery_table ALTER COLUMN diametro_max TYPE Numeric(7,3)")
+
+            if table_column_names_list.__contains__('diametro_rim'):
+                self.engine.execute(
+                    "ALTER TABLE pottery_table ALTER COLUMN diametro_rim TYPE Numeric(7,3)")
+
+            if table_column_names_list.__contains__('diametro_bottom'):
+                self.engine.execute(
+                    "ALTER TABLE pottery_table ALTER COLUMN diametro_bottom TYPE Numeric(7,3)")
+
+            if table_column_names_list.__contains__('diametro_height'):
+                self.engine.execute(
+                    "ALTER TABLE pottery_table ALTER COLUMN diametro_height TYPE Numeric(7,3)")
+
+            if table_column_names_list.__contains__('diametro_preserved'):
+                self.engine.execute(
+                    "ALTER TABLE pottery_table ALTER COLUMN diametro_preserved TYPE Numeric(7,3)")
+        except:
+            pass
+
+
         ####invetario_materiali_table
         table = Table("inventario_materiali_table", self.metadata, autoload=True)
         table_column_names_list = []

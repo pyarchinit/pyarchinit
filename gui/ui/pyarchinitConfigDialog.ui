@@ -1632,6 +1632,15 @@
            </item>
            <item>
             <property name="text">
+             <string>POTTERY</string>
+            </property>
+            <property name="icon">
+             <iconset resource="../../resources/resources.qrc">
+              <normaloff>:/icons/pottery.png</normaloff>:/icons/pottery.png</iconset>
+            </property>
+           </item>
+           <item>
+            <property name="text">
              <string>STRUTTURA</string>
             </property>
             <property name="icon">
