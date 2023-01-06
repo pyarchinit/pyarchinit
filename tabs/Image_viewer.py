@@ -69,6 +69,8 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
     ID_TABLE_US = "id_us"
     MAPPER_TABLE_CLASS_mat = 'INVENTARIO_MATERIALI'
     ID_TABLE_MAT = "id_invmat"
+    MAPPER_TABLE_CLASS_pot = 'POTTERY'
+    ID_TABLE_POT = "id_rep"
     NOME_SCHEDA = "Scheda Media Manager"
     TABLE_THUMB_NAME = 'media_thumb_table'
     MAPPER_TABLE_CLASS_thumb = 'MEDIA_THUMB'
@@ -152,6 +154,7 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
         self.view_num_rec()
     def remove_all(self):
         self.tableWidgetTags_US.setRowCount(1)
+        self.tableWidgetTags_POT.setRowCount(1)
         self.tableWidgetTags_MAT.setRowCount(1)
         self.tableWidgetTags_tomba.setRowCount(1)
         self.tableWidgetTags_tomba_2.setRowCount(1)
@@ -207,11 +210,15 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                 QMessageBox.warning(self, "Messaggio", "Sistema di aggiornamento lista Sito: " + str(e), QMessageBox.Ok)
     def customize_gui(self):
         self.tableWidgetTags_US.setColumnWidth(0, 300)
-        self.tableWidgetTags_US.setColumnWidth(1, 100)
-        self.tableWidgetTags_US.setColumnWidth(2, 100)
+        self.tableWidgetTags_US.setColumnWidth(1, 80)
+        self.tableWidgetTags_US.setColumnWidth(2, 80)
         #self.tableWidgetTags_US.setColumnWidth(3, 100)
         self.tableWidgetTags_MAT.setColumnWidth(0, 300)
-        self.tableWidgetTags_MAT.setColumnWidth(1, 150)
+        self.tableWidgetTags_MAT.setColumnWidth(1, 100)
+        self.tableWidgetTags_POT.setColumnWidth(0, 100)
+        self.tableWidgetTags_POT.setColumnWidth(1, 100)
+        self.tableWidgetTags_POT.setColumnWidth(2, 100)
+        self.tableWidgetTags_POT.setColumnWidth(3, 100)
         self.tableWidgetTags_tomba.setColumnWidth(0, 300)
         self.tableWidgetTags_tomba.setColumnWidth(1, 150)
         self.tableWidgetTags_tomba_2.setColumnWidth(0, 300)
@@ -252,8 +259,10 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
         self.tableWidgetTags_US.setItemDelegateForColumn(0, self.delegateSites)
         self.tableWidgetTags_US.setItemDelegateForColumn(1, self.delegateArea)
         #self.tableWidgetTags_US.setItemDelegateForColumn(2, self.delegateUS)
-        
-        
+
+        self.tableWidgetTags_POT.setItemDelegateForColumn(1, self.delegateSites)
+        self.tableWidgetTags_POT.setItemDelegateForColumn(2, self.delegateArea)
+        #self.tableWidgetTags_POT.setItemDelegateForColumn(3, self.delegateUS)
         self.tableWidgetTags_MAT.setItemDelegateForColumn(0, self.delegateSites)
         self.tableWidgetTags_tomba.setItemDelegateForColumn(0, self.delegateSites)
         
@@ -536,12 +545,13 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                         QMessageBox.warning(self, "WARNING", "No record found!", QMessageBox.Ok)   
                     self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR+1)
                     self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
-                    self.fill_fields(self.REC_CORR)
+
                     self.BROWSE_STATUS = "b"
                     self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
                     self.setComboBoxEnable(["self.comboBox_sito"],"True")
                     self.setComboBoxEnable(["self.comboBox_area"],"True")
                     self.setComboBoxEnable(["self.comboBox_us"],"True")
+                    self.fill_fields(self.REC_CORR)
                 else:
                     self.DATA_LIST = []
                     self.empty_fields()
@@ -599,7 +609,7 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                 icon = QIcon(thumb_path_str+thumb_path)
                 item.setIcon(icon)
                 self.iconListWidget.addItem(item)
-        if self.radioButton_materiali.isChecked():
+        if self.radioButton_pottery.isChecked():
             sito = str(self.comboBox_sito.currentText())
             area = str(self.comboBox_area.currentText())
             us = str(self.comboBox_us.currentText())
@@ -610,7 +620,7 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
             }
             u = Utility()
             search_dict = u.remove_empty_items_fr_dict(search_dict)
-            us_vl = self.DB_MANAGER.select_medianame_ra_from_db_sql(sito,area,us)
+            us_vl = self.DB_MANAGER.select_medianame_pot_from_db_sql(sito,area,us)
             if not bool(search_dict):
                 if self.L=='it':
                     QMessageBox.warning(self, "ATTENZIONE", "Inserisci un valore", QMessageBox.Ok)
@@ -677,7 +687,7 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
             self.iconListWidget.clear()
             thumb_path = conn.thumb_path()
             thumb_path_str = thumb_path['thumb_path']
-            record_us_list = self.DB_MANAGER.select_medianame_ra_from_db_sql(sito,area,us)
+            record_us_list = self.DB_MANAGER.select_medianame_pot_from_db_sql(sito,area,us)
             for i in record_us_list:
                 search_dict = {'media_filename': "'" + str(i.media_name) + "'"}
                 u = Utility()
@@ -689,7 +699,96 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                 icon = QIcon(thumb_path_str+thumb_path)
                 item.setIcon(icon)
                 self.iconListWidget.addItem(item)
-        
+        if self.radioButton_materiali.isChecked():
+            sito = str(self.comboBox_sito.currentText())
+            area = str(self.comboBox_area.currentText())
+            us = str(self.comboBox_us.currentText())
+            search_dict = {
+                'sito': "'" + str(sito) + "'",
+                'area': "'" + str(area) + "'",
+                'us': "'" + str(us) + "'"
+            }
+            u = Utility()
+            search_dict = u.remove_empty_items_fr_dict(search_dict)
+            us_vl = self.DB_MANAGER.select_medianame_ra_from_db_sql(sito, area, us)
+            if not bool(search_dict):
+                if self.L == 'it':
+                    QMessageBox.warning(self, "ATTENZIONE", "Inserisci un valore", QMessageBox.Ok)
+                elif self.L == 'de':
+                    QMessageBox.warning(self, "ACHTUNG", "Einen Wert einfügen", QMessageBox.Ok)
+                else:
+                    QMessageBox.warning(self, "WARNING", "Insert a value", QMessageBox.Ok)
+            else:
+                res = self.DB_MANAGER.select_medianame_ra_from_db_sql(sito, area, us)
+                if not bool(res):
+                    if self.L == 'it':
+                        QMessageBox.warning(self, "ATTENZIONE", "Non è stato trovato nessun record!", QMessageBox.Ok)
+                    elif self.L == 'de':
+                        QMessageBox.warning(self, "ACHTUNG", "Keinen Record gefunden!", QMessageBox.Ok)
+                    else:
+                        QMessageBox.warning(self, "WARNING", "No record found!", QMessageBox.Ok)
+                    self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR + 1)
+                    self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
+                    self.fill_fields(self.REC_CORR)
+                    self.BROWSE_STATUS = "b"
+                    self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
+                    self.setComboBoxEnable(["self.comboBox_sito"], "True")
+                    self.setComboBoxEnable(["self.comboBox_area"], "True")
+                    self.setComboBoxEnable(["self.comboBox_us"], "True")
+                else:
+                    self.DATA_LIST = []
+                    self.empty_fields()
+                    for i in res:
+                        self.DATA_LIST.append(i)
+                    self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
+                    self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
+                    self.fill_fields()
+                    self.BROWSE_STATUS = "b"
+                    self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
+                    self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR + 1)
+                    if self.L == 'it':
+                        if self.REC_TOT == 1:
+                            strings = ("E' stato trovato", self.REC_TOT, "record")
+
+                        else:
+                            strings = ("Sono stati trovati", self.REC_TOT, "records")
+
+                    elif self.L == 'de':
+                        if self.REC_TOT == 1:
+                            strings = ("Es wurde gefunden", self.REC_TOT, "record")
+
+                        else:
+                            strings = ("Sie wurden gefunden", self.REC_TOT, "records")
+
+                    else:
+                        if self.REC_TOT == 1:
+                            strings = ("It has been found", self.REC_TOT, "record")
+
+                        else:
+                            strings = ("They have been found", self.REC_TOT, "records")
+                    self.setComboBoxEnable(["self.comboBox_sito"], "True")
+                    self.setComboBoxEnable(["self.comboBox_area"], "True")
+                    self.setComboBoxEnable(["self.comboBox_us"], "True")
+                    QMessageBox.warning(self, "Messaggio", "%s %d %s" % strings, QMessageBox.Ok)
+            self.NUM_DATA_BEGIN = 1
+            self.NUM_DATA_END = len(self.DATA_LIST)
+            self.view_num_rec()
+            self.open_images()
+            self.iconListWidget.clear()
+            thumb_path = conn.thumb_path()
+            thumb_path_str = thumb_path['thumb_path']
+            record_us_list = self.DB_MANAGER.select_medianame_ra_from_db_sql(sito, area, us)
+            for i in record_us_list:
+                search_dict = {'media_filename': "'" + str(i.media_name) + "'"}
+                u = Utility()
+                search_dict = u.remove_empty_items_fr_dict(search_dict)
+                mediathumb_data = self.DB_MANAGER.query_bool(search_dict, "MEDIA_THUMB")
+                thumb_path = str(mediathumb_data[0].filepath)
+                item = QListWidgetItem(str(i.media_name))
+                item.setData(Qt.UserRole, str(i.media_name))
+                icon = QIcon(thumb_path_str + thumb_path)
+                item.setIcon(icon)
+                self.iconListWidget.addItem(item)
         if self.radioButton_tomba.isChecked():
             sito = str(self.comboBox_sito.currentText())
             area = str(self.comboBox_area.currentText())
@@ -982,20 +1081,21 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                         value = (float(n)/float(len(image_list)))*100
                         self.progressBar.setValue(value)
                         QApplication.processEvents()
-                if bool(idunique_video_check):
-                    if self.L=='it':
-                        QMessageBox.information(self, "Info", "I video sono già caricati nel database")
-                    elif self.L=='de':
-                        QMessageBox.information(self, "Info", "Videos sind bereits in die Datenbank hochgeladen")
-                    else:
-                        QMessageBox.information(self, "Info", "The videos are already uploaded to the database")
-                elif not bool(idunique_video_check):
-                    if self.L=='it':
-                        QMessageBox.information(self, "Message", "Video caricati! Puoi taggarle")
-                    elif self.L=='de':
-                        QMessageBox.information(self, "Message", "Hochgeladene Videos! Sie können sie taggen")
-                    else:
-                        QMessageBox.information(self, "Message", "Uploaded videos! You can tag them")    
+
+                    if bool(idunique_video_check):
+                        if self.L=='it':
+                            QMessageBox.information(self, "Info", "I video sono già caricati nel database")
+                        elif self.L=='de':
+                            QMessageBox.information(self, "Info", "Videos sind bereits in die Datenbank hochgeladen")
+                        else:
+                            QMessageBox.information(self, "Info", "The videos are already uploaded to the database")
+                    elif not bool(idunique_video_check):
+                        if self.L=='it':
+                            QMessageBox.information(self, "Message", "Video caricati! Puoi taggarle")
+                        elif self.L=='de':
+                            QMessageBox.information(self, "Message", "Hochgeladene Videos! Sie können sie taggen")
+                        else:
+                            QMessageBox.information(self, "Message", "Uploaded videos! You can tag them")
             
             except:
                 if self.L=='it':
@@ -1010,6 +1110,7 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
             self.open_images()
     
     def getDirectory(self):
+        self.iconListWidget.clear()
         thumb_path = conn.thumb_path()
         thumb_path_str = thumb_path['thumb_path']      
         if thumb_path_str=='':
@@ -1041,7 +1142,7 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                             MU = Media_utility()
                             MUR = Media_utility_resize()
                             media_max_num_id = self.DB_MANAGER.max_num_id(self.MAPPER_TABLE_CLASS,
-                                                                          self.ID_TABLE)  # db recupera il valore più alto ovvero l'ultimo immesso per l'immagine originale
+                                                                                                              self.ID_TABLE)  # db recupera il valore più alto ovvero l'ultimo immesso per l'immagine originale
                             thumb_path = conn.thumb_path()
                             thumb_path_str = thumb_path['thumb_path']
                             thumb_resize = conn.thumb_resize()
@@ -1081,6 +1182,7 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                             data_for_thumb = self.db_search_check(self.MAPPER_TABLE_CLASS_thumb, 'media_filename',
                                                                   media_filename)  # recupera i valori della thumb in base al valore id_media del file originale
                             try:
+                                self.iconListWidget.clear()
                                 thumb_path = data_for_thumb[0].filepath_thumb
                                 item.setData(Qt.UserRole, thumb_path)
                                 icon = QIcon(str(thumb_path_str)+filepath_thumb)  # os.path.join('%s/%s' % (directory.toUtf8(), image)))
@@ -1099,24 +1201,24 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                         self.progressBar.setValue(value)
                         QApplication.processEvents()
                     
-                if bool(idunique_image_check):
-                    if self.L=='it':
-                        QMessageBox.information(self, "Info", "Le immagini sono già caricate nel database")
-                    elif self.L=='de':
-                        QMessageBox.information(self, "Info", "Die Bilder sind bereits in die Datenbank geladen")
-                    else:
-                        QMessageBox.information(self, "Info", "The images are already uploaded to the database")
-                elif not bool(idunique_image_check):
-                    if self.L=='it':
-                        QMessageBox.information(self, "Message", "Immagini caricate! Puoi taggarle")
-                    elif self.L=='de':
-                        QMessageBox.information(self, "Message", "Bilder hochgeladen! Sie können sie markieren")
-                    else:
-                        QMessageBox.information(self, "Message", "Uploaded images! You can tag them")    
+                    if bool(idunique_image_check):
+                        if self.L=='it':
+                            QMessageBox.information(self, "Info", "Le immagini sono già caricate nel database")
+                        elif self.L=='de':
+                            QMessageBox.information(self, "Info", "Die Bilder sind bereits in die Datenbank geladen")
+                        else:
+                            QMessageBox.information(self, "Info", "The images are already uploaded to the database")
+                    elif not bool(idunique_image_check):
+                        if self.L=='it':
+                            QMessageBox.information(self, "Message", "Immagini caricate! Puoi taggarle")
+                        elif self.L=='de':
+                            QMessageBox.information(self, "Message", "Bilder hochgeladen! Sie können sie markieren")
+                        else:
+                            QMessageBox.information(self, "Message", "Uploaded images! You can tag them")
             except:
                 if self.L=='it':
                     QMessageBox.warning(self, "Warning", "controlla che il nome del file non abbia caratteri speciali", QMessageBox.Ok)
-                if self.L=='de':
+                elif self.L=='de':
                     QMessageBox.warning(self, "Warning", "prüfen, ob der Dateiname keine Sonderzeichen enthält", QMessageBox.Ok)
                 else:
                     QMessageBox.warning(self, "Warning", "check that the file name has no special characters", QMessageBox.Ok)    
@@ -1197,11 +1299,11 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                             # self.tableWidgetTags_US.setItem(row,2,QTableWidgetItem(boxes[s2]))
                     # except Exception as e:
                         # QMessageBox.warning(self, "Messaggio", "Sistema di aggiornamento lista Sito: " + str(e), QMessageBox.Ok)
-            
-            self.charge_data ()
-            self.view_num_rec()
-            self.open_images()
-    
+            #self.iconListWidget.clear()
+            #self.charge_data ()
+            #self.view_num_rec()
+            #self.open_images()
+            #self.iconListWidget.clear()
     def insert_record_media(self, mediatype, filename, filetype, filepath):
         self.mediatype = mediatype
         self.filename = filename
@@ -1492,46 +1594,52 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                            'area': "'" + str(sing_tags[1]) + "'",
                            'us': "'" + str(sing_tags[2]) + "'"
                            }
-            record_us_list.append(self.DB_MANAGER.query_bool(search_dict, 'US'))
-            
+            j=self.DB_MANAGER.query_bool(search_dict, 'US')
+            record_us_list.append(j)
+
         if not record_us_list[0]:
             if self.L=='it':
                 result=QMessageBox.warning(self, "Attenzione",  "Scheda US non presente. Vuoi generala? Clicca ok oppure Annulla per abortire", QMessageBox.Ok|QMessageBox.Cancel)
             elif self.L=='de':
                 result=QMessageBox.warning(self, "Warnung", "SE-Karte nicht vorhanden. Sie wollen es generieren? Klicken Sie auf OK oder Abbrechen, um abzubrechen", QMessageBox.Ok|QMessageBox.Cancel)
             else:
-                result=QMessageBox.warning(self, "Warning", "SU form not present. Do you want to generate it? Click OK or Cancel to abort", QMessageBox.Ok|QMessageBox.Cancel)    
-                
-            
+                result=QMessageBox.warning(self, "Warning", "SU form not present. Do you want to generate it? Click OK or Cancel to abort", QMessageBox.Ok|QMessageBox.Cancel)
+
+
             if result==QMessageBox.Ok:
-                  
-                rs= self.DB_MANAGER.insert_number_of_us_records(str(sing_tags[0]),str(sing_tags[1]),str(sing_tags[2]),'US')
-                
-                if self.L=='it':
-                    QMessageBox.information(self, "Info",  "US creata", QMessageBox.Ok)
-                if self.L=='de':
-                    QMessageBox.information(self, "Info",  "Formular erstellt", QMessageBox.Ok)
+
+
+                rs= self.DB_MANAGER.insert_number_of_us_records(str(sing_tags[0]),str(sing_tags[1]),str(sing_tags[2]))
+
+                if self.L == 'it':
+                    QMessageBox.information(self, "Info", "Scheda creata", QMessageBox.Ok)
+                if self.L == 'de':
+                    QMessageBox.information(self, "Info", "Formular erstellt", QMessageBox.Ok)
                 else:
-                    QMessageBox.information(self, "Info",  "Form created", QMessageBox.Ok)
-                
+                    QMessageBox.information(self, "Info", "Form created", QMessageBox.Ok)
+
+                #record_us_list[0].pop()
                 return rs
             else:
                 if self.L=='it':
-                
+
                     QMessageBox.information(self, "Info", "Azione annullata", QMessageBox.Ok)
                 elif self.L=='de':
-                
+
                     QMessageBox.information(self, "Info", "Aktion abgebrochen", QMessageBox.Ok)
                 else:
-                
+
                     QMessageBox.information(self, "Info", "Action cancelled", QMessageBox.Ok)
+
                 return
+
         us_list = []
         for r in record_us_list:
-            
+
             us_list.append([r[0].id_us, 'US', 'us_table'])
-        # QMessageBox.information(self, "Scheda US", str(us_list), QMessageBox.Ok)
+        QMessageBox.information(self, "Scheda US", str(us_list), QMessageBox.Ok)
         return us_list
+            #record_us_list[0].pop()
     def remove_US(self):
         tags_list = self.table2dict('self.tableWidgetTags_US')
         record_us_list = []
@@ -1545,6 +1653,77 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
         for r in record_us_list:
             us_list.remove([r[0].id_us, 'US', 'us_table'])
         return us_list
+
+    def generate_Pottery(self):
+        tags_list = self.table2dict('self.tableWidgetTags_POT')
+        record_rep_list = []
+        for sing_tags in tags_list:
+            search_dict = {
+                           'id_number': "'" + str(sing_tags[0]) + "'",
+                           'sito': "'" + str(sing_tags[1]) + "'",
+                           'area': "'" + str(sing_tags[2]) + "'",
+                           'us': "'" + str(sing_tags[3]) + "'",
+                           }
+            record_rep_list.append(self.DB_MANAGER.query_bool(search_dict, 'POTTERY'))
+        if not record_rep_list[0]:
+            if self.L == 'it':
+                result = QMessageBox.warning(self, "Attenzione",
+                                             "Scheda Reperti non presente. Vuoi generala? Clicca ok oppure Annulla per abortire",
+                                             QMessageBox.Ok | QMessageBox.Cancel)
+            elif self.L == 'de':
+                result = QMessageBox.warning(self, "Warnung",
+                                             "Karte nicht vorhanden. Sie wollen es generieren? Klicken Sie auf OK oder Abbrechen, um abzubrechen",
+                                             QMessageBox.Ok | QMessageBox.Cancel)
+            else:
+                result = QMessageBox.warning(self, "Warning",
+                                             "Form not present. Do you want to generate it? Click OK or Cancel to abort",
+                                             QMessageBox.Ok | QMessageBox.Cancel)
+            if result == QMessageBox.Ok:
+                rs = self.DB_MANAGER.insert_number_of_pottery_records(int(sing_tags[0]), str(sing_tags[1]),str(sing_tags[2]),int(sing_tags[3]))
+                if self.L == 'it':
+                    QMessageBox.information(self, "Info", "Scheda creata", QMessageBox.Ok)
+                if self.L == 'de':
+                    QMessageBox.information(self, "Info", "Formular erstellt", QMessageBox.Ok)
+                else:
+                    QMessageBox.information(self, "Info", "Form created", QMessageBox.Ok)
+
+                return rs
+            else:
+                if self.L == 'it':
+
+                    QMessageBox.information(self, "Info", "Azione annullata", QMessageBox.Ok)
+                elif self.L == 'de':
+
+                    QMessageBox.information(self, "Info", "Aktion abgebrochen", QMessageBox.Ok)
+                else:
+
+                    QMessageBox.information(self, "Info", "Action cancelled", QMessageBox.Ok)
+                return
+        rep_list = []
+        for r in record_rep_list:
+            rep_list.append([r[0].id_rep, 'CERAMICA', 'pottery_table'])
+        return rep_list
+
+    def remove_pottery(self):
+        tags_list = self.table2dict('self.tableWidgetTags_POT')
+        record_mat_list = []
+        for sing_tags in tags_list:
+            search_dict = {
+                'id_number': "'" + str(sing_tags[0]) + "'",
+                'sito': "'" + str(sing_tags[1]) + "'",
+            }
+            record_mat_list.remove(self.DB_MANAGER.query_bool(search_dict, 'POTTERY'))
+        rep_list = []
+        for r in record_rep_list:
+            rep_list.append([r[0].id_rep, 'CERAMICA', 'pottery_table'])
+        return rep_list
+
+
+
+
+
+
+
     def generate_Reperti(self):
         tags_list = self.table2dict('self.tableWidgetTags_MAT')
         record_rep_list = []
@@ -1759,6 +1938,11 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
         self.insert_new_row('self.tableWidgetTags_US')
     def on_pushButton_removeRow_US_pressed(self):
         self.remove_row('self.tableWidgetTags_US')
+    def on_pushButton_addRow_POT_pressed(self):
+        self.insert_new_row('self.tableWidgetTags_POT')
+    def on_pushButton_removeRow_POT_pressed(self):
+        self.remove_row('self.tableWidgetTags_POT')
+
     def on_pushButton_addRow_MAT_pressed(self):
         self.insert_new_row('self.tableWidgetTags_MAT')
     def on_pushButton_removeRow_MAT_pressed(self):
@@ -1783,8 +1967,11 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
         """
         items_selected =self.iconListWidget.selectedItems()
         us_list = self.generate_US()
+
+
         if not us_list:
             return
+
         for item in items_selected:
             for us_data in us_list:
                 id_orig_item = item.text()  # return the name of original file
@@ -1792,6 +1979,30 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                 media_data = self.DB_MANAGER.query_bool(search_dict, 'MEDIA')
                 self.insert_mediaToEntity_rec(us_data[0], us_data[1], us_data[2], media_data[0].id_media,
                                               media_data[0].filepath, media_data[0].filename)
+
+
+    def on_pushButton_assignTags_POT_pressed(self):
+        """
+        id_mediaToEntity,
+        id_entity,
+        entity_type,
+        table_name,
+        id_media,
+        filepath,
+        media_name
+        """
+        items_selected = self.iconListWidget.selectedItems()
+        reperti_list = self.generate_Pottery()
+        if not reperti_list:
+            return
+        for item in items_selected:
+            for reperti_data in reperti_list:
+                id_orig_item = item.text()  # return the name of original file
+                search_dict = {'filename': "'" + str(id_orig_item) + "'"}
+                media_data = self.DB_MANAGER.query_bool(search_dict, 'MEDIA')
+                self.insert_mediaToEntity_rec(reperti_data[0], reperti_data[1], reperti_data[2], media_data[0].id_media,
+                                              media_data[0].filepath, media_data[0].filename)
+
     def on_pushButton_assignTags_MAT_pressed(self):
         """
         id_mediaToEntity,
@@ -2161,20 +2372,20 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
             temp_data_list = self.DB_MANAGER.query_sort(id_list, [self.ID_TABLE_THUMB], 'asc', self.MAPPER_TABLE_CLASS_thumb, self.ID_TABLE_THUMB)
             for i in temp_data_list:
                 self.DATA_LIST.append(i)
-    def table2dict(self, n):
-        self.tablename = n
-        row = eval(self.tablename+".rowCount()")
-        col = eval(self.tablename+".columnCount()")
-        lista=[]
-        for r in range(row):
-            sub_list = []
-            for c in range(col):
-                value = eval(self.tablename+".item(r,c)")
-                if value != None:
-                    sub_list.append(unicode(value.text()))
-            if bool(sub_list) == True:
-                lista.append(sub_list)
-        return lista
+    # def table2dict(self, n):
+    #     self.tablename = n
+    #     row = eval(self.tablename+".rowCount()")
+    #     col = eval(self.tablename+".columnCount()")
+    #     lista=[]
+    #     for r in range(row):
+    #         sub_list = []
+    #         for c in range(col):
+    #             value = eval(self.tablename+".item(r,c)")
+    #             if value != None:
+    #                 sub_list.append(unicode(value.text()))
+    #         if bool(sub_list) == True:
+    #             lista.append(sub_list)
+    #     return lista
     def view_num_rec(self):
         num_data_begin = self.NUM_DATA_BEGIN
         num_data_begin +=1
@@ -2229,6 +2440,18 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                                 ##              #else
                                 mediaToEntity_list.append(
                                     [str(sing_res_media.id_entity), sing_res_media.entity_type, US_string])
+
+                            elif sing_res_media.entity_type == 'CERAMICA':
+                                search_dict = {'id_rep': "'" + str(sing_res_media.id_entity) + "'"}
+                                u = Utility()
+                                search_dict = u.remove_empty_items_fr_dict(search_dict)
+                                rep_data = self.DB_MANAGER.query_bool(search_dict, "POTTERY")
+                                Pot_string = ('Sito: %s - N. Inv.: %d') % (
+                                    rep_data[0].sito, rep_data[0].id_number)
+                                ##              #else
+                                mediaToEntity_list.append(
+                                    [str(sing_res_media.id_entity), sing_res_media.entity_type, Pot_string])
+
                             elif sing_res_media.entity_type == 'REPERTO':
                                 search_dict = {'id_invmat': "'" + str(sing_res_media.id_entity) + "'"}
                                 u = Utility()

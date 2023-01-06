@@ -20,6 +20,7 @@
 """
 from sqlalchemy.orm import mapper
 
+
 from modules.db.entities.ARCHEOZOOLOGY import ARCHEOZOOLOGY
 from modules.db.entities.CAMPIONI import CAMPIONI
 from modules.db.entities.DETETA import DETETA
@@ -58,6 +59,8 @@ from modules.db.entities.PYDOCUMENTAZIONE import PYDOCUMENTAZIONE
 from modules.db.entities.PYLINEERIFERIMENTO import PYLINEERIFERIMENTO
 from modules.db.entities.PYRIPARTIZIONI_SPAZIALI import PYRIPARTIZIONI_SPAZIALI
 from modules.db.entities.PYSEZIONI import PYSEZIONI
+from modules.db.entities.POTTERY import POTTERY
+
 from modules.db.structures.Archeozoology_table import Fauna
 from modules.db.structures.Campioni_table import Campioni_table
 from modules.db.structures.DETETA_table import DETETA_table
@@ -95,6 +98,7 @@ from modules.db.structures.pydocumentazione import pydocumentazione
 from modules.db.structures.pylineeriferimento import pylineeriferimento
 from modules.db.structures.pyripartizioni_spaziali import pyripartizioni_spaziali
 from modules.db.structures.pysezioni import pysezioni
+from modules.db.structures.Pottery_table import Pottery_table
 
 try:
     # mapper
@@ -210,7 +214,10 @@ try:
     
     # mapper
     mapper(PYSEZIONI, pysezioni.pysezioni)
+
+    # mapper
+    mapper(POTTERY, Pottery_table.pottery_table)
     
 
-except:
-    pass
+except Exception as e:
+    print(e)
