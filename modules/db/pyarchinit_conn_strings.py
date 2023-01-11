@@ -25,7 +25,7 @@ import traceback
 from ..utility.settings import Settings
 from ..utility.pyarchinit_OS_utility import Pyarchinit_OS_Utility
 from qgis.PyQt.QtWidgets import QDialog, QMessageBox
-
+from sshtunnel import open_tunnel
 class Connection(object):
     HOME = os.environ['PYARCHINIT_HOME']
     RESOURCES_PATH = os.path.join(os.path.dirname(__file__), os.pardir, os.pardir, 'resources')
@@ -47,7 +47,14 @@ class Connection(object):
                      "host": settings.HOST,
                      "port": settings.PORT,
                      "db_name": settings.DATABASE,
-                     "password": settings.PASSWORD}
+                     "password": settings.PASSWORD,
+                     "pkey": settings.PKEY,
+                     "sshpassword": settings.SSHPASSWORD,
+                     "sshuser": settings.SSHUSER,
+                     "sship": settings.SSHIP,
+                     "sshport": settings.SSHPORT,
+                     "remoteip": settings.REMOTEIP,
+                     "sshdbport": settings.SSHDBPORT}
         
         if conn_str_dict["server"] == 'postgres':
             try:
@@ -62,6 +69,33 @@ class Connection(object):
                 "postgresql", conn_str_dict["user"], conn_str_dict["password"], conn_str_dict["host"],
                 conn_str_dict["port"], conn_str_dict["db_name"])
            
+        elif conn_str_dict["server"] == 'postgres SSH':
+            try:
+                server = open_tunnel(
+
+                    (conn_str_dict["sship"], conn_str_dict["sshport"]),  # Remote server IP and SSH port
+
+                    ssh_username=conn_str_dict["sshuser"],
+
+                    ssh_password = conn_str_dict["sshpassword"],
+
+                    ssh_pkey=conn_str_dict["pkey"],
+
+                    remote_bind_address=(conn_str_dict["remoteip"], conn_str_dict["sshdbport"]))  # PostgreSQL server IP and sever port on remote
+
+                # machine
+                #port = server.local_bind_port
+                # server.stop() #start ssh sever
+                server.start()
+                conn_str = "%s://%s:%s@%s:%s/%s%s" % (
+                    "postgresql", conn_str_dict["user"], conn_str_dict["password"], conn_str_dict["host"],
+                    conn_str_dict["port"], conn_str_dict["db_name"], "?sslmode=allow")
+                test = True
+            except:
+                QMessageBox.warning(self, "Attenzione", 'Problema', QMessageBox.Ok)
+                conn_str = "%s://%s:%s@%s:%d/%s" % (
+                    "postgresql", conn_str_dict["user"], conn_str_dict["password"], conn_str_dict["host"],
+                    conn_str_dict["port"], conn_str_dict["db_name"])
         elif conn_str_dict["server"] == 'sqlite':
             sqlite_DB_path = '{}{}{}'.format(self.HOME, os.sep,
                                            "pyarchinit_DB_folder")
@@ -181,3 +215,94 @@ class Connection(object):
         logo = {"logo": settings.LOGO}
 
         return logo
+
+    def pkey_path(self):
+        cfg_rel_path = os.path.join(os.sep, 'pyarchinit_DB_folder', 'config.cfg')
+        file_path = '{}{}'.format(self.HOME, cfg_rel_path)
+        conf = open(file_path, "r")
+
+        data = conf.read()
+        settings = Settings(data)
+        settings.set_configuration()
+        conf.close()
+        pkey = {"pkey": settings.PKEY}
+
+        return pkey
+
+    def sshpassword(self):
+        cfg_rel_path = os.path.join(os.sep, 'pyarchinit_DB_folder', 'config.cfg')
+        file_path = '{}{}'.format(self.HOME, cfg_rel_path)
+        conf = open(file_path, "r")
+
+        data = conf.read()
+        settings = Settings(data)
+        settings.set_configuration()
+        conf.close()
+        sshpassword = {"sshpassword": settings.SSHPASSWORD}
+
+        return sshpassword
+
+    def sshuser(self):
+        cfg_rel_path = os.path.join(os.sep, 'pyarchinit_DB_folder', 'config.cfg')
+        file_path = '{}{}'.format(self.HOME, cfg_rel_path)
+        conf = open(file_path, "r")
+
+        data = conf.read()
+        settings = Settings(data)
+        settings.set_configuration()
+        conf.close()
+        sshuser = {"sshuser": settings.SSHUSER}
+
+        return sshuser
+
+    def sship(self):
+        cfg_rel_path = os.path.join(os.sep, 'pyarchinit_DB_folder', 'config.cfg')
+        file_path = '{}{}'.format(self.HOME, cfg_rel_path)
+        conf = open(file_path, "r")
+
+        data = conf.read()
+        settings = Settings(data)
+        settings.set_configuration()
+        conf.close()
+        sship = {"sship": settings.SSHIP}
+
+        return SSHIP
+
+    def sshport(self):
+        cfg_rel_path = os.path.join(os.sep, 'pyarchinit_DB_folder', 'config.cfg')
+        file_path = '{}{}'.format(self.HOME, cfg_rel_path)
+        conf = open(file_path, "r")
+
+        data = conf.read()
+        settings = Settings(data)
+        settings.set_configuration()
+        conf.close()
+        sshport = {"sshport": settings.SSHPORT}
+
+        return sshport
+
+    def remoteip(self):
+        cfg_rel_path = os.path.join(os.sep, 'pyarchinit_DB_folder', 'config.cfg')
+        file_path = '{}{}'.format(self.HOME, cfg_rel_path)
+        conf = open(file_path, "r")
+
+        data = conf.read()
+        settings = Settings(data)
+        settings.set_configuration()
+        conf.close()
+        remoteip = {"remoteip": settings.REMOTEIP}
+
+        return remoteip
+
+    def sshdbport(self):
+        cfg_rel_path = os.path.join(os.sep, 'pyarchinit_DB_folder', 'config.cfg')
+        file_path = '{}{}'.format(self.HOME, cfg_rel_path)
+        conf = open(file_path, "r")
+
+        data = conf.read()
+        settings = Settings(data)
+        settings.set_configuration()
+        conf.close()
+        sshdbport = {"sshdbport": settings.SSHDBPORT}
+
+        return sshdbport
