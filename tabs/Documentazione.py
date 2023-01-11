@@ -24,6 +24,8 @@ import os
 import sys
 from builtins import range
 from builtins import str
+
+from qgis.PyQt.QtCore import *
 from qgis.PyQt.QtWidgets import QDialog, QMessageBox
 from qgis.PyQt.uic import loadUiType
 from qgis.core import QgsSettings
@@ -310,24 +312,83 @@ class pyarchinit_Documentazione(QDialog, MAIN_DIALOG_CLASS):
                 ####################################
 
     def charge_list(self):
-
+        l = QgsSettings().value("locale/userLocale", QVariant)[0:2]
+        lang = ""
+        for key, values in self.LANG.items():
+            if values.__contains__(l):
+                lang = str(key)
+        lang = "'" + lang + "'"
         # lista sito
 
         sito_vl = self.UTILITY.tup_2_list_III(self.DB_MANAGER.group_by('site_table', 'sito', 'SITE'))
-
         try:
             sito_vl.remove('')
-        except:
-            pass
+        except Exception as e:
+            if str(e) == "list.remove(x): x not in list":
+                pass
+            else:
+                if self.L == 'it':
+                    QMessageBox.warning(self, "Messaggio", "Sistema di aggiornamento lista Sito: " + str(e),
+                                        QMessageBox.Ok)
+                elif self.L == 'en':
+                    QMessageBox.warning(self, "Message", "Site list update system: " + str(e), QMessageBox.Ok)
+                elif self.L == 'de':
+                    QMessageBox.warning(self, "Nachricht", "Aktualisierungssystem für die Ausgrabungstätte: " + str(e),
+                                        QMessageBox.Ok)
+                else:
+                    pass
         self.comboBox_sito_doc.clear()
+        #self.comboBox_sito_rappcheck.clear()
         sito_vl.sort()
         self.comboBox_sito_doc.addItems(sito_vl)
-        
-        
-        
-        
-       
-    
+        #self.comboBox_sito_rappcheck.addItems(sito_vl)
+
+        # lista tipo documentazione
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'" + 'documentazione_table' + "'",
+            'tipologia_sigla': "'" + '9.1' + "'"
+        }
+        tipo_di_documentazione = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        valuesDoc = []
+        valuesDoc2 = []
+        if self.L == 'it':
+            valuesDoc.append("ICCD-Piante")
+            valuesDoc.append("ICCD-Piante&Sezioni")
+            valuesDoc.append("ICCD-Sezioni")
+            valuesDoc.append("ICCD-Prospetti")
+            valuesDoc.append("ICCD-Foto")
+        elif self.L == 'de':
+            valuesDoc.append("Pflanzen")
+            valuesDoc.append("Sektionen")
+            valuesDoc.append("Prospekte")
+            valuesDoc.append("Foto")
+        else:
+            valuesDoc.append("Maps")
+            valuesDoc.append("Sections")
+            valuesDoc.append("Elevations")
+            valuesDoc.append("Photo")
+
+        for i in range(len(tipo_di_documentazione)):
+            valuesDoc2.append(tipo_di_documentazione[i].sigla_estesa)
+        valuesDoc.sort()
+        valuesDoc2.sort()
+        self.comboBox_tipo_doc.addItems(valuesDoc)
+        self.comboBox_tipo_doc.addItems(valuesDoc2)
+
+        # lista tipo documentazione
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'" + 'documentazione_table' + "'",
+            'tipologia_sigla': "'" + '9.2' + "'"
+        }
+        sorgente = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        valuesSor = []
+        for i in range(len(sorgente)):
+            valuesSor.append(sorgente[i].sigla_estesa)
+        valuesSor.sort()
+
+        self.comboBox_sorgente_doc.addItems(valuesSor)
     ###################################
 
 

@@ -1014,6 +1014,11 @@
               <string>individui_table</string>
              </property>
             </item>
+            <item>
+             <property name="text">
+              <string>documentazione_table</string>
+             </property>
+            </item>
            </widget>
           </item>
           <item row="5" column="1">

@@ -2144,6 +2144,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         valuesDoc = []
         if self.L=='it':
             valuesDoc.append("ICCD-Piante")
+            valuesDoc.append("ICCD-Piante&Sezioni")
             valuesDoc.append("ICCD-Sezioni")
             valuesDoc.append("ICCD-Prospetti")
             valuesDoc.append("ICCD-Foto")

@@ -358,6 +358,7 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
         list6=['6.1','6.2','6.3','6.4','6.5','6.6','6.7','6.8']
         list7=['7.1','7.2','7.3','7.4','7.5','7.6','7.7','701.701','702.702']
         list8=['8.1','8.2','8.3','8.4','8.5','801.801']
+        list9 = ['9.1', '9.2']
         if self.comboBox_nome_tabella.currentText()=='site_table':
             
             self.comboBox_tipologia_sigla.clear()
@@ -383,7 +384,9 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
         if self.comboBox_nome_tabella.currentText()=='individui_table':
             self.comboBox_tipologia_sigla.clear()
             self.comboBox_tipologia_sigla.addItems(list8)
-    
+        if self.comboBox_nome_tabella.currentText()=='documentazione_table':
+            self.comboBox_tipologia_sigla.clear()
+            self.comboBox_tipologia_sigla.addItems(list9)
     
     def on_pushButton_sort_pressed(self):
         if self.check_record_state() == 1:
