@@ -41,6 +41,15 @@ class Settings(object):
     THUMB_RESIZE = ""
     SITE_SET = ""
     LOGO = ""
+    PKEY = ""
+    SSHPASSWORD = ""
+    SSHUSER = ""
+    SSHIP = ""
+    SSHPORT = ""
+    REMOTEIP = ""
+    SSHDBPORT = ""
+
+
     RESOURCES_PATH = os.path.join(os.path.dirname(__file__), os.pardir, os.pardir, 'resources')
     OS_UTILITY = Pyarchinit_OS_Utility()
     HOME = os.environ['PYARCHINIT_HOME']
@@ -53,6 +62,14 @@ class Settings(object):
     text = (b'THUMB_RESIZE')
     text_a = (b'SITE_SET')
     text_b = (b'LOGO')
+
+    text_1 = (b'PKEY')
+    text_2 = (b'SSHPASSWORD')
+    text_3 = (b'SSHUSER')
+    text_4 = (b'SSHIP')
+    text_5 = (b'SSHPORT')
+    text_6 = (b'REMOTEIP')
+    text_7 = (b'SSHDBPORT')
 
     if text in data:
         pass
@@ -73,8 +90,57 @@ class Settings(object):
     else:
         conf.seek(-3, 2)
         conf.read(1)
-        conf.write(b"','LOGO' : 'insert path for the image logo'}")
-    
+        conf.write(b"','LOGO' : 'insert path for the image logo'")
+
+    if text_1 in data:
+        pass
+    else:
+        conf.seek(-3, 2)
+        conf.read(1)
+        conf.write(b"','PKEY' : 'insert path pkey'")
+
+    if text_2 in data:
+        pass
+    else:
+        conf.seek(-3, 2)
+        conf.read(1)
+        conf.write(b"','SSHPASSWORD' : ''")
+
+    if text_3 in data:
+        pass
+    else:
+        conf.seek(-3, 2)
+        conf.read(1)
+        conf.write(b"','SSHUSER' : ''")
+
+    if text_4 in data:
+        pass
+    else:
+        conf.seek(-3, 2)
+        conf.read(1)
+        conf.write(b"','SSHIP' : ''")
+
+    if text_5 in data:
+        pass
+    else:
+        conf.seek(-3, 2)
+        conf.read(1)
+        conf.write(b"','SSHPORT' : ''")
+
+    if text_6 in data:
+        pass
+    else:
+        conf.seek(-3, 2)
+        conf.read(1)
+        conf.write(b"','REMOTEIP' : ''")
+
+    if text_7 in data:
+        pass
+    else:
+        conf.seek(-3, 2)
+        conf.read(1)
+        conf.write(b"','SSHDBPORT' : ''}")
+
     conf.close()
 
     def __init__(self, s):
@@ -93,4 +159,12 @@ class Settings(object):
         self.THUMB_RESIZE = self.configuration['THUMB_RESIZE']
         self.SITE_SET = self.configuration['SITE_SET']
         self.LOGO = self.configuration['LOGO']
+        self.PKEY = self.configuration['PKEY']
+        self.SSHPASSWORD = self.configuration['SSHPASSWORD']
+        self.SSHUSER = self.configuration['SSHUSER']
+        self.SSHIP = self.configuration['SSHIP']
+        self.SSHPORT = self.configuration['SSHPORT']
+        self.REMOTEIP = self.configuration['REMOTEIP']
+        self.SSHDBPORT = self.configuration['SSHDBPORT']
+
         PLUGIN_PATH = path = os.path.dirname(__file__)

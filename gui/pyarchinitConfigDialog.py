@@ -48,7 +48,7 @@ from modules.db.pyarchinit_utility import Utility
 
 from modules.db.db_createdump import CreateDatabase, RestoreSchema, DropDatabase, SchemaDump
 from modules.utility.pyarchinit_OS_utility import Pyarchinit_OS_Utility
-
+from sshtunnel import open_tunnel
 
 MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), 'ui', 'pyarchinitConfigDialog.ui'))
 
@@ -81,7 +81,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
 
         s = QgsSettings()
         self.mDockWidget.setHidden(True)
-
+        #self.groupBox_ssh.setHidden(True)
         self.load_dict()
         self.charge_data()
         self.db_active()
@@ -120,6 +120,10 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         self.pushButton_import.clicked.connect(self.on_pushButton_import_pressed)
         self.graphviz_bin = s.value('pyArchInit/graphvizBinPath', None, type=str)
 
+        self.toolButton_pkey_2.clicked.connect(self.setPathPkey2)
+        #self.pbnOpenpkey_2.clicked.connect(self.openpkeyDir)
+        self.toolButton_pkey.clicked.connect(self.setPathPkey)
+        #self.pbnOpenpkey.clicked.connect(self.openpkeyDir)
         if self.graphviz_bin:
             self.lineEditGraphviz.setText(self.graphviz_bin)
 
@@ -157,10 +161,16 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         
         self.check()
         #self.upd_individui_table()
-        if self.comboBox_Database.currentText()=='sqlite':
+        if self.comboBox_Database.currentText() == 'sqlite':
             self.setComboBoxEnable(["self.lineEdit_DBname"], "False")
-        elif self.comboBox_Database.currentText()=='postgres':
+            self.groupBox_ssh.setHidden(True)
+        if self.comboBox_Database.currentText() == 'postgres':
             self.setComboBoxEnable(["self.lineEdit_DBname"], "True")
+            self.groupBox_ssh.setHidden(True)
+        if self.comboBox_Database.currentText() == 'postgres SSH':
+            self.setComboBoxEnable(["self.lineEdit_DBname"], "True")
+            self.groupBox_ssh.setHidden(False)
+
         self.comboBox_Database.currentIndexChanged.connect(self.customize)
         #self.test()
         self.test2()
@@ -169,12 +179,24 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         self.comboBox_geometry_read.currentIndexChanged.connect(self.check_geometry_table)
         self.mFeature_field_rd.currentTextChanged.connect(self.value_check)
         self.mFeature_field_rd.currentTextChanged.connect(self.value_check_geometry)
-        
+
+        self.comboBox_Database.currentTextChanged.connect(self.ssh_connect)
         self.comboBox_server_rd.currentTextChanged.connect(self.convert_db)
         self.comboBox_server_wt.currentTextChanged.connect(self.convert_db)
         self.pushButton_convert_db_sl.setHidden(True)
         self.pushButton_convert_db_pg.setHidden(True)
-    
+
+
+    def ssh_connect(self):
+        if self.comboBox_Database.currentText() == 'sqlite':
+            #self.setComboBoxEnable(["self.lineEdit_DBname"], "False")
+            self.groupBox_ssh.setHidden(True)
+        if self.comboBox_Database.currentText() == 'postgres':
+            #self.setComboBoxEnable(["self.lineEdit_DBname"], "True")
+            self.groupBox_ssh.setHidden(True)
+        if self.comboBox_Database.currentText() == 'postgres SSH':
+            #self.setComboBoxEnable(["self.lineEdit_DBname"], "True")
+            self.groupBox_ssh.setHidden(False)
     def convert_db(self):
         if self.comboBox_server_rd.currentText()=='postgres':
             self.pushButton_convert_db_pg.setHidden(True)
@@ -2721,6 +2743,35 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             # self.pushButton_upd_sqlite.setEnabled(False)
             # self.pushButton_upd_postgres.setEnabled(True)
         self.comboBox_sito.clear()
+
+
+    def setPathPkey(self):
+        s = QgsSettings()
+        dbpath = QFileDialog.getOpenFileName(
+            self,
+            "Set file name",
+            self.DBFOLDER,
+            "all(*.*)"
+        )[0]
+        #filename = dbpath.split("/")[-1]
+        if dbpath:
+            self.lineEdit_pkey.setText(dbpath)
+            s.setValue('', dbpath)
+
+
+    def setPathPkey2(self):
+        s = QgsSettings()
+        dbpath = QFileDialog.getOpenFileName(
+            self,
+            "Set file name",
+            self.DBFOLDER,
+            "all(*.*)"
+        )[0]
+        #filename = dbpath.split("/")[-1]
+        if dbpath:
+            self.lineEdit_pkey_2.setText(dbpath)
+            s.setValue('', dbpath)
+
     def setPathDBsqlite1(self):
         s = QgsSettings()
         dbpath = QFileDialog.getOpenFileName(
@@ -2875,9 +2926,31 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
     def set_db_parameter(self):
         if self.comboBox_Database.currentText() == 'postgres':
             self.lineEdit_DBname.setText("pyarchinit")
-            self.lineEdit_Host.setText('127.0.0.1')
+            self.lineEdit_Host.setText('localhost')
             self.lineEdit_Port.setText('5432')
             self.lineEdit_User.setText('postgres')
+            self.lineEdit_pkey.setText('')
+            self.lineEdit_sshpassword.setText('')
+            self.lineEdit_sshuser.setText('')
+            self.lineEdit_sship.setText('')
+            self.lineEdit_sshport.setText('')
+            self.lineEdit_remoteip.setText('')
+            self.lineEdit_sshdbport.setText('')
+
+
+        if self.comboBox_Database.currentText() == 'postgres SSH':
+            self.lineEdit_DBname.setText("pyarchinit")
+            self.lineEdit_Host.setText('localhost')
+            self.lineEdit_Port.setText('5432')
+            self.lineEdit_User.setText('postgres')
+            self.lineEdit_pkey.setText('')
+            self.lineEdit_sshpassword.setText('')
+            self.lineEdit_sshuser.setText('')
+            self.lineEdit_sship.setText('')
+            self.lineEdit_sshport.setText('22')
+            self.lineEdit_remoteip.setText('localhost')
+            self.lineEdit_sshdbport.setText('5432')
+
 
         if self.comboBox_Database.currentText() == 'sqlite':
             self.lineEdit_DBname.setText("pyarchinit_db.sqlite")
@@ -2885,7 +2958,13 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             self.lineEdit_Password.setText('')
             self.lineEdit_Port.setText('')
             self.lineEdit_User.setText('')
-
+            self.lineEdit_pkey.setText('')
+            self.lineEdit_sshpassword.setText('')
+            self.lineEdit_sshuser.setText('')
+            self.lineEdit_sship.setText('')
+            self.lineEdit_sshport.setText('')
+            self.lineEdit_remoteip.setText('')
+            self.lineEdit_sshdbport.setText('')
 
 
     def set_db_import_from_parameter(self):
@@ -3038,14 +3117,41 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         if not bool(self.lineEdit_db_passwd.text()):
             QMessageBox.warning(self, "INFO", "Non dimenticarti di inserire la password", QMessageBox.Ok)
         else:
+            if self.groupBox_ssh_2.isChecked():
+                server = open_tunnel(
 
-            create_database = CreateDatabase(self.lineEdit_dbname.text(), self.lineEdit_db_host.text(),
+                    (self.lineEdit_sship_2.text(), int(self.lineEdit_sshport_2.text())),  # Remote server IP and SSH port
+
+                    ssh_username=self.lineEdit_sshuser_2.text(),
+
+                    # try:
+                    #     ssh_password=self.lineEdit_sshpassword_2.text()
+                    # except:
+                    #     pass
+
+
+                    ssh_pkey=self.lineEdit_pkey_2.text(),
+
+                    remote_bind_address=(self.lineEdit_remoteip_2.text(),
+                                         int(self.lineEdit_sshdbport_2.text())))  # PostgreSQL server IP and sever port on remote machine
+
+
+                try:
+                    server.start()
+                except Exception as e:
+                    QMessageBox.warning(self, "Error", str(e) +'\n'+ str(server))
+                create_database = CreateDatabase(self.lineEdit_dbname.text(), self.lineEdit_db_host.text(),
+                                                 self.lineEdit_port_db.text(), self.lineEdit_db_user.text(),
+                                                 self.lineEdit_db_passwd.text())
+
+
+
+            else:
+                create_database = CreateDatabase(self.lineEdit_dbname.text(), self.lineEdit_db_host.text(),
                                              self.lineEdit_port_db.text(), self.lineEdit_db_user.text(),
                                              self.lineEdit_db_passwd.text())
 
             ok, db_url = create_database.createdb()
-
-
             if ok:
                 try:
                     RestoreSchema(db_url, schema_file).restore_schema()
