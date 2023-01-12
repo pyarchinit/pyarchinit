@@ -77,25 +77,29 @@ class Connection(object):
 
                     ssh_username=conn_str_dict["sshuser"],
 
-                    ssh_password = conn_str_dict["sshpassword"],
+                    #ssh_password = conn_str_dict["sshpassword"],
 
                     ssh_pkey=conn_str_dict["pkey"],
 
                     remote_bind_address=(conn_str_dict["remoteip"], conn_str_dict["sshdbport"]))  # PostgreSQL server IP and sever port on remote
 
                 # machine
-                #port = server.local_bind_port
+
                 # server.stop() #start ssh sever
+
                 server.start()
+                port = str(server.local_bind_port)
                 conn_str = "%s://%s:%s@%s:%s/%s%s" % (
                     "postgresql", conn_str_dict["user"], conn_str_dict["password"], conn_str_dict["host"],
                     conn_str_dict["port"], conn_str_dict["db_name"], "?sslmode=allow")
                 test = True
-            except:
-                QMessageBox.warning(self, "Attenzione", 'Problema', QMessageBox.Ok)
-                conn_str = "%s://%s:%s@%s:%d/%s" % (
+            except Exception as e:
+                QMessageBox.warning(self, "Attenzione", str(e)+'\n'+str(server), QMessageBox.Ok)
+                conn_str = "%s://%s:%s@%s:%s/%s" % (
                     "postgresql", conn_str_dict["user"], conn_str_dict["password"], conn_str_dict["host"],
                     conn_str_dict["port"], conn_str_dict["db_name"])
+
+
         elif conn_str_dict["server"] == 'sqlite':
             sqlite_DB_path = '{}{}{}'.format(self.HOME, os.sep,
                                            "pyarchinit_DB_folder")

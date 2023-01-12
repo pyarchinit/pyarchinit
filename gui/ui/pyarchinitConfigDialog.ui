@@ -647,7 +647,7 @@
       <enum>QTabWidget::Rounded</enum>
      </property>
      <property name="currentIndex">
-      <number>1</number>
+      <number>0</number>
      </property>
      <property name="elideMode">
       <enum>Qt::ElideMiddle</enum>
@@ -1323,7 +1323,7 @@
           <item row="0" column="4">
            <widget class="QToolButton" name="toolButton_pkey">
             <property name="enabled">
-             <bool>false</bool>
+             <bool>true</bool>
             </property>
             <property name="text">
              <string>...</string>
@@ -1333,7 +1333,7 @@
           <item row="0" column="5">
            <widget class="QPushButton" name="pbnOpenpkey">
             <property name="enabled">
-             <bool>false</bool>
+             <bool>true</bool>
             </property>
             <property name="text">
              <string/>
