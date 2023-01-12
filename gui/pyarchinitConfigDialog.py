@@ -33,6 +33,7 @@ from builtins import str
 from ftplib import FTP
 
 from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
 
 from sqlalchemy.ext.compiler import compiles
 from sqlalchemy.sql.expression import *
@@ -89,7 +90,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         self.pushButton_upd_postgres.setEnabled(True)
         self.pushButton_upd_sqlite.setEnabled(False)
         self.comboBox_sito.setCurrentText(self.sito_active())
-        self.comboBox_sito.currentIndexChanged.connect(self.summary)
+        #self.comboBox_sito.currentIndexChanged.connect(self.summary)
         self.comboBox_Database.currentIndexChanged.connect(self.db_active)
         self.comboBox_Database.currentIndexChanged.connect(self.set_db_parameter)
         
@@ -3033,7 +3034,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         
         self.comboBox_Database.update()
         try:
-            if not bool(self.lineEdit_Password.text()) and str(self.comboBox_Database.currentText())=='postgres':
+            if not bool(self.lineEdit_Password.text()) and str(self.comboBox_Database.currentText())=='postgres': #or str(self.comboBox_Database.currentText())=='postgres SSH':
                 QMessageBox.warning(self, "INFO", 'non dimenticarti di inserire la password',QMessageBox.Ok)
             else:
                 self.PARAMS_DICT['SERVER'] = str(self.comboBox_Database.currentText())
@@ -3047,6 +3048,14 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 self.PARAMS_DICT['EXPERIMENTAL'] = str(self.comboBox_experimental.currentText())
                 self.PARAMS_DICT['SITE_SET'] = str(self.comboBox_sito.currentText())
                 self.PARAMS_DICT['LOGO'] = str(self.lineEdit_logo.text())
+                self.PARAMS_DICT['PKEY'] = str(self.lineEdit_pkey.text())
+                self.PARAMS_DICT['SSHPASSWORD'] = str(self.lineEdit_sshpassword.text())
+                self.PARAMS_DICT['SSHUSER'] = str(self.lineEdit_sshuser.text())
+                self.PARAMS_DICT['SSHIP'] = str(self.lineEdit_sship.text())
+                self.PARAMS_DICT['SSHPORT'] = str(self.lineEdit_sshport.text())
+                self.PARAMS_DICT['REMOTEIP'] = str(self.lineEdit_remoteip.text())
+                self.PARAMS_DICT['SSHDBPORT'] = str(self.lineEdit_sshdbport.text())
+
                 self.save_dict()
 
                 if str(self.comboBox_Database.currentText())=='postgres':
@@ -3075,7 +3084,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
 
         except Exception as e:
             if self.L=='it':
-                QMessageBox.warning(self, "INFO", "Problema di connessione al db. Controlla i paramatri inseriti", QMessageBox.Ok)
+                QMessageBox.warning(self, "INFO", "Problema di connessione al db. Controlla i paramatri inseriti"+'\n'+str(e), QMessageBox.Ok)
             elif self.L=='de':
                 QMessageBox.warning(self, "INFO", "Db-Verbindungsproblem. Überprüfen Sie die eingegebenen Parameter", QMessageBox.Ok)
             else:
@@ -3140,87 +3149,202 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                     server.start()
                 except Exception as e:
                     QMessageBox.warning(self, "Error", str(e) +'\n'+ str(server))
+
+                port =str(server.local_bind_port)
+
+
+                engine=create_engine('postgresql://postgres2:postgres@127.0.0.1:'+port+'/postgres2')
+                Session = sessionmaker(bind=engine)
+                session = Session()
+                with engine.connect() :
+                    create_database = CreateDatabase(self.lineEdit_dbname.text(), self.lineEdit_db_host.text(),
+                                                     port, self.lineEdit_db_user.text(),
+                                                     self.lineEdit_db_passwd.text())
+
+                    ok, db_url = create_database.createdb()
+                    # except Exception as e:
+                    #     QMessageBox.warning(self, "Error", str(e) )
+
+
+
+
+                    if ok:
+                        try:
+                            RestoreSchema(db_url, schema_file).restore_schema()
+                        except Exception as e:
+                            if self.L=='it':
+                                QMessageBox.warning(self, "INFO", "Devi essere superutente per creare un db. Vedi l'errore seguente", QMessageBox.Ok)
+                            elif self.L=='de':
+                                QMessageBox.warning(self, "INFO", "Sie müssen Superuser sein, um eine Db anzulegen. Siehe folgenden Fehler", QMessageBox.Ok)
+                            else:
+                                QMessageBox.warning(self, "INFO", "You have to be super user to create a db. See the following error", QMessageBox.Ok)
+                            DropDatabase(db_url).dropdb()
+                            ok = False
+                            raise e
+
+                    if ok:
+                        crsid = self.selectorCrsWidget.crs().authid()
+                        srid = crsid.split(':')[1]
+
+                        res = RestoreSchema(db_url).update_geom_srid('public', srid)
+
+                        # create views
+                        RestoreSchema(db_url, view_file).restore_schema()
+                        #set owner
+                        if self.lineEdit_db_user.text() != 'postgres':
+                            RestoreSchema(db_url).set_owner(self.lineEdit_db_user.text())
+
+                    if self.L=='it':
+                        if ok and res:
+
+                            msg = QMessageBox.warning(self, 'INFO', 'Installazione avvenuta con successo, vuoi connetterti al nuovo DB?',
+                                                      QMessageBox.Ok | QMessageBox.Cancel)
+                            if msg == QMessageBox.Ok:
+                                self.comboBox_Database.setCurrentText('postgres SSH')
+                                self.lineEdit_Host.setText(self.lineEdit_db_host.text())
+                                self.lineEdit_DBname.setText(self.lineEdit_dbname.text())
+                                self.lineEdit_Port.setText(self.lineEdit_port_db.text())
+                                self.lineEdit_User.setText(self.lineEdit_db_user.text())
+                                self.lineEdit_Password.setText(self.lineEdit_db_passwd.text())
+                                self.lineEdit_pkey.setText(self.lineEdit_pkey_2.text())
+                                self.lineEdit_sshpassword.setText(self.lineEdit_sshpassword_2.text())
+                                self.lineEdit_sshuser.setText(self.lineEdit_sshuser_2.text())
+                                self.lineEdit_sship.setText(self.lineEdit_sship_2.text())
+                                self.lineEdit_sshport.setText(self.lineEdit_sshport_2.text())
+                                self.lineEdit_remoteip.setText(self.lineEdit_remoteip_2.text())
+                                self.lineEdit_sshdbport.setText(self.lineEdit_sshdbport_2.text())
+
+
+                                self.on_pushButton_save_pressed()
+                        else:
+                            QMessageBox.warning(self, "INFO", "Database esistente", QMessageBox.Ok)
+                    elif self.L=='de':
+                        if ok and res:
+                            msg = QMessageBox.warning(self, 'INFO', 'Erfolgreiche Installation, möchten Sie sich mit der neuen Datenbank verbinden?',
+                                                      QMessageBox.Ok | QMessageBox.Cancel)
+                            if msg == QMessageBox.Ok:
+                                self.comboBox_Database.setCurrentText('postgres SSH')
+                                self.lineEdit_Host.setText(self.lineEdit_db_host.text())
+                                self.lineEdit_DBname.setText(self.lineEdit_dbname.text())
+                                self.lineEdit_Port.setText(self.lineEdit_port_db.text())
+                                self.lineEdit_User.setText(self.lineEdit_db_user.text())
+                                self.lineEdit_Password.setText(self.lineEdit_db_passwd.text())
+                                self.lineEdit_pkey.setText(self.lineEdit_pkey_2.text())
+                                self.lineEdit_sshpassword.setText(self.lineEdit_sshpassword_2.text())
+                                self.lineEdit_sshuser.setText(self.lineEdit_sshuser_2.text())
+                                self.lineEdit_sship.setText(self.lineEdit_sship_2.text())
+                                self.lineEdit_sshport.setText(self.lineEdit_sshport_2.text())
+                                self.lineEdit_remoteip.setText(self.lineEdit_remoteip_2.text())
+                                self.lineEdit_sshdbport.setText(self.lineEdit_sshdbport_2.text())
+                                self.on_pushButton_save_pressed()
+                        else:
+                            QMessageBox.warning(self, "INFO", "die Datenbank existiert", QMessageBox.Ok)
+                    else:
+                        if ok and res:
+                            msg = QMessageBox.warning(self, 'INFO', 'Successful installation, do you want to connect to the new DB?',
+                                                      QMessageBox.Ok | QMessageBox.Cancel)
+                            if msg == QMessageBox.Ok:
+                                self.comboBox_Database.setCurrentText('postgres SSH')
+                                self.lineEdit_Host.setText(self.lineEdit_db_host.text())
+                                self.lineEdit_DBname.setText(self.lineEdit_dbname.text())
+                                self.lineEdit_Port.setText(self.lineEdit_port_db.text())
+                                self.lineEdit_User.setText(self.lineEdit_db_user.text())
+                                self.lineEdit_Password.setText(self.lineEdit_db_passwd.text())
+                                self.lineEdit_pkey.setText(self.lineEdit_pkey_2.text())
+                                self.lineEdit_sshpassword.setText(self.lineEdit_sshpassword_2.text())
+                                self.lineEdit_sshuser.setText(self.lineEdit_sshuser_2.text())
+                                self.lineEdit_sship.setText(self.lineEdit_sship_2.text())
+                                self.lineEdit_sshport.setText(self.lineEdit_sshport_2.text())
+                                self.lineEdit_remoteip.setText(self.lineEdit_remoteip_2.text())
+                                self.lineEdit_sshdbport.setText(self.lineEdit_sshdbport_2.text())
+                                self.on_pushButton_save_pressed()
+                        else:
+                            QMessageBox.warning(self, "INFO", "The DB exist already", QMessageBox.Ok)
+
+            else:
                 create_database = CreateDatabase(self.lineEdit_dbname.text(), self.lineEdit_db_host.text(),
                                                  self.lineEdit_port_db.text(), self.lineEdit_db_user.text(),
                                                  self.lineEdit_db_passwd.text())
+                ok, db_url = create_database.createdb()
+                if ok:
+                    try:
+                        RestoreSchema(db_url, schema_file).restore_schema()
+                    except Exception as e:
+                        if self.L == 'it':
+                            QMessageBox.warning(self, "INFO",
+                                                "Devi essere superutente per creare un db. Vedi l'errore seguente",
+                                                QMessageBox.Ok)
+                        elif self.L == 'de':
+                            QMessageBox.warning(self, "INFO",
+                                                "Sie müssen Superuser sein, um eine Db anzulegen. Siehe folgenden Fehler",
+                                                QMessageBox.Ok)
+                        else:
+                            QMessageBox.warning(self, "INFO",
+                                                "You have to be super user to create a db. See the following error",
+                                                QMessageBox.Ok)
+                        DropDatabase(db_url).dropdb()
+                        ok = False
+                        raise e
 
+                if ok:
+                    crsid = self.selectorCrsWidget.crs().authid()
+                    srid = crsid.split(':')[1]
 
+                    res = RestoreSchema(db_url).update_geom_srid('public', srid)
 
-            else:
-                create_database = CreateDatabase(self.lineEdit_dbname.text(), self.lineEdit_db_host.text(),
-                                             self.lineEdit_port_db.text(), self.lineEdit_db_user.text(),
-                                             self.lineEdit_db_passwd.text())
+                    # create views
+                    RestoreSchema(db_url, view_file).restore_schema()
+                    # set owner
+                    if self.lineEdit_db_user.text() != 'postgres':
+                        RestoreSchema(db_url).set_owner(self.lineEdit_db_user.text())
 
-            ok, db_url = create_database.createdb()
-            if ok:
-                try:
-                    RestoreSchema(db_url, schema_file).restore_schema()
-                except Exception as e:
-                    if self.L=='it':
-                        QMessageBox.warning(self, "INFO", "Devi essere superutente per creare un db. Vedi l'errore seguente", QMessageBox.Ok)
-                    elif self.L=='de':
-                        QMessageBox.warning(self, "INFO", "Sie müssen Superuser sein, um eine Db anzulegen. Siehe folgenden Fehler", QMessageBox.Ok)
+                if self.L == 'it':
+                    if ok and res:
+
+                        msg = QMessageBox.warning(self, 'INFO',
+                                                  'Installazione avvenuta con successo, vuoi connetterti al nuovo DB?',
+                                                  QMessageBox.Ok | QMessageBox.Cancel)
+                        if msg == QMessageBox.Ok:
+                            self.comboBox_Database.setCurrentText('postgres')
+                            self.lineEdit_Host.setText(self.lineEdit_db_host.text())
+                            self.lineEdit_DBname.setText(self.lineEdit_dbname.text())
+                            self.lineEdit_Port.setText(self.lineEdit_port_db.text())
+                            self.lineEdit_User.setText(self.lineEdit_db_user.text())
+                            self.lineEdit_Password.setText(self.lineEdit_db_passwd.text())
+                            self.on_pushButton_save_pressed()
                     else:
-                        QMessageBox.warning(self, "INFO", "You have to be super user to create a db. See the following error", QMessageBox.Ok)
-                    DropDatabase(db_url).dropdb()
-                    ok = False
-                    raise e
-
-            if ok:
-                crsid = self.selectorCrsWidget.crs().authid()
-                srid = crsid.split(':')[1]
-
-                res = RestoreSchema(db_url).update_geom_srid('public', srid)
-
-                # create views
-                RestoreSchema(db_url, view_file).restore_schema()
-                #set owner
-                if self.lineEdit_db_user.text() != 'postgres':
-                    RestoreSchema(db_url).set_owner(self.lineEdit_db_user.text())
-
-            if self.L=='it':
-                if ok and res:
-
-                    msg = QMessageBox.warning(self, 'INFO', 'Installazione avvenuta con successo, vuoi connetterti al nuovo DB?',
-                                              QMessageBox.Ok | QMessageBox.Cancel)
-                    if msg == QMessageBox.Ok:
-                        self.comboBox_Database.setCurrentText('postgres')
-                        self.lineEdit_Host.setText(self.lineEdit_db_host.text())
-                        self.lineEdit_DBname.setText(self.lineEdit_dbname.text())
-                        self.lineEdit_Port.setText(self.lineEdit_port_db.text())
-                        self.lineEdit_User.setText(self.lineEdit_db_user.text())
-                        self.lineEdit_Password.setText(self.lineEdit_db_passwd.text())
-                        self.on_pushButton_save_pressed()
+                        QMessageBox.warning(self, "INFO", "Database esistente", QMessageBox.Ok)
+                elif self.L == 'de':
+                    if ok and res:
+                        msg = QMessageBox.warning(self, 'INFO',
+                                                  'Erfolgreiche Installation, möchten Sie sich mit der neuen Datenbank verbinden?',
+                                                  QMessageBox.Ok | QMessageBox.Cancel)
+                        if msg == QMessageBox.Ok:
+                            self.comboBox_Database.setCurrentText('postgres')
+                            self.lineEdit_Host.setText(self.lineEdit_db_host.text())
+                            self.lineEdit_DBname.setText(self.lineEdit_dbname.text())
+                            self.lineEdit_Port.setText(self.lineEdit_port_db.text())
+                            self.lineEdit_User.setText(self.lineEdit_db_user.text())
+                            self.lineEdit_Password.setText(self.lineEdit_db_passwd.text())
+                            self.on_pushButton_save_pressed()
+                    else:
+                        QMessageBox.warning(self, "INFO", "die Datenbank existiert", QMessageBox.Ok)
                 else:
-                    QMessageBox.warning(self, "INFO", "Database esistente", QMessageBox.Ok)
-            elif self.L=='de':
-                if ok and res:
-                    msg = QMessageBox.warning(self, 'INFO', 'Erfolgreiche Installation, möchten Sie sich mit der neuen Datenbank verbinden?',
-                                              QMessageBox.Ok | QMessageBox.Cancel)
-                    if msg == QMessageBox.Ok:
-                        self.comboBox_Database.setCurrentText('postgres')
-                        self.lineEdit_Host.setText(self.lineEdit_db_host.text())
-                        self.lineEdit_DBname.setText(self.lineEdit_dbname.text())
-                        self.lineEdit_Port.setText(self.lineEdit_port_db.text())
-                        self.lineEdit_User.setText(self.lineEdit_db_user.text())
-                        self.lineEdit_Password.setText(self.lineEdit_db_passwd.text())
-                        self.on_pushButton_save_pressed()
-                else:
-                    QMessageBox.warning(self, "INFO", "die Datenbank existiert", QMessageBox.Ok)
-            else:
-                if ok and res:
-                    msg = QMessageBox.warning(self, 'INFO', 'Successful installation, do you want to connect to the new DB?',
-                                              QMessageBox.Ok | QMessageBox.Cancel)
-                    if msg == QMessageBox.Ok:
-                        self.comboBox_Database.setCurrentText('postgres')
-                        self.lineEdit_Host.setText(self.lineEdit_db_host.text())
-                        self.lineEdit_DBname.setText(self.lineEdit_dbname.text())
-                        self.lineEdit_Port.setText(self.lineEdit_port_db.text())
-                        self.lineEdit_User.setText(self.lineEdit_db_user.text())
-                        self.lineEdit_Password.setText(self.lineEdit_db_passwd.text())
-                        self.on_pushButton_save_pressed()
-                else:
-                    QMessageBox.warning(self, "INFO", "The DB exist already", QMessageBox.Ok)
+                    if ok and res:
+                        msg = QMessageBox.warning(self, 'INFO',
+                                                  'Successful installation, do you want to connect to the new DB?',
+                                                  QMessageBox.Ok | QMessageBox.Cancel)
+                        if msg == QMessageBox.Ok:
+                            self.comboBox_Database.setCurrentText('postgres')
+                            self.lineEdit_Host.setText(self.lineEdit_db_host.text())
+                            self.lineEdit_DBname.setText(self.lineEdit_dbname.text())
+                            self.lineEdit_Port.setText(self.lineEdit_port_db.text())
+                            self.lineEdit_User.setText(self.lineEdit_db_user.text())
+                            self.lineEdit_Password.setText(self.lineEdit_db_passwd.text())
+                            self.on_pushButton_save_pressed()
+                    else:
+                        QMessageBox.warning(self, "INFO", "The DB exist already", QMessageBox.Ok)
+
     def select_version_sql(self):
         conn = Connection()
         db_url = conn.conn_str()
@@ -3707,7 +3831,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
 
 
     def try_connection(self):
-        self.summary()
+        #self.summary()
         
         conn = Connection()
         conn_str = conn.conn_str()
@@ -3728,7 +3852,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                     self.toolButton_db.setEnabled(True)
                     self.pushButton_upd_postgres.setEnabled(False)
                     self.pushButton_upd_sqlite.setEnabled(True)
-                elif self.comboBox_Database.currentText() == 'postgres':
+                elif self.comboBox_Database.currentText() == 'postgres' or self.comboBox_Database.currentText() == 'postgres SSH':
                     #self.comboBox_Database.currentIndexChanged.connect(self.set_db_parameter)
                     self.toolButton_db.setEnabled(False)
                     self.pushButton_upd_sqlite.setEnabled(False)
@@ -3751,7 +3875,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                     self.toolButton_db.setEnabled(True)
                     self.pushButton_upd_postgres.setEnabled(False)
                     self.pushButton_upd_sqlite.setEnabled(True)
-                elif self.comboBox_Database.currentText() == 'postgres':
+                elif self.comboBox_Database.currentText() == 'postgres' or self.comboBox_Database.currentText() == 'postgres SSH':
                     #self.comboBox_Database.currentIndexChanged.connect(self.set_db_parameter)
                     self.toolButton_db.setEnabled(False)
                     self.pushButton_upd_sqlite.setEnabled(False)
@@ -3775,7 +3899,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                     self.toolButton_db.setEnabled(True)
                     self.pushButton_upd_postgres.setEnabled(False)
                     self.pushButton_upd_sqlite.setEnabled(True)
-                elif self.comboBox_Database.currentText() == 'postgres':
+                elif self.comboBox_Database.currentText() == 'postgres' or self.comboBox_Database.currentText() == 'postgres SSH':
                     #self.comboBox_Database.currentIndexChanged.connect(self.set_db_parameter)
                     self.toolButton_db.setEnabled(False)
                     self.pushButton_upd_sqlite.setEnabled(False)
@@ -3804,6 +3928,17 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             self.comboBox_experimental.setEditText("No")
         self.comboBox_sito.setCurrentText(self.PARAMS_DICT['SITE_SET'])    ###############
         self.lineEdit_logo.setText(self.PARAMS_DICT['LOGO'])
+
+        self.lineEdit_pkey.setText(self.PARAMS_DICT['PKEY'])
+        self.lineEdit_sshpassword.setText(self.PARAMS_DICT['SSHPASSWORD'])
+        self.lineEdit_sshuser.setText(self.PARAMS_DICT['SSHUSER'])
+        self.lineEdit_sship.setText(self.PARAMS_DICT['SSHIP'])
+        self.lineEdit_sshport.setText(self.PARAMS_DICT['SSHPORT'])
+        self.lineEdit_remoteip.setText(self.PARAMS_DICT['REMOTEIP'])
+        self.lineEdit_sshdbport.setText(self.PARAMS_DICT['SSHDBPORT'])
+
+
+
     def test_def(self):
         pass
 

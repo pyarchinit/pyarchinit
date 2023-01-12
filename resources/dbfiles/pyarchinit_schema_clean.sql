@@ -760,6 +760,73 @@ ALTER TABLE public.periodizzazione_table_id_perfas_seq OWNER TO postgres;
 ALTER SEQUENCE public.periodizzazione_table_id_perfas_seq OWNED BY public.periodizzazione_table.id_perfas;
 
 --
+-- TOC entry 316 (class 1259 OID 193559)
+-- Name: pottery_table; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.pottery_table (
+    id_rep integer NOT NULL,
+    id_number integer,
+    sito text,
+    area text,
+    us integer,
+    box integer,
+    photo text,
+    drawing text,
+    anno integer,
+    fabric text,
+    percent text,
+    material text,
+    form text,
+    specific_form text,
+    ware text,
+    munsell text,
+    surf_trat text,
+    exdeco character varying(4),
+    intdeco character varying(4),
+    wheel_made character varying(4),
+    descrip_ex_deco text,
+    descrip_in_deco text,
+    note text,
+    diametro_max numeric(7,3),
+    qty integer,
+    diametro_rim numeric(7,3),
+    diametro_bottom numeric(7,3),
+    diametro_height numeric(7,3),
+    diametro_preserved numeric(7,3),
+    specific_shape text,
+    bag integer,
+    sector text
+);
+
+
+ALTER TABLE public.pottery_table OWNER TO postgres;
+
+--
+-- TOC entry 317 (class 1259 OID 193564)
+-- Name: pottery_table_id_rep_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.pottery_table_id_rep_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.pottery_table_id_rep_seq OWNER TO postgres;
+
+--
+-- TOC entry 5419 (class 0 OID 0)
+-- Dependencies: 317
+-- Name: pottery_table_id_rep_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.pottery_table_id_rep_seq OWNED BY public.pottery_table.id_rep;
+
+
+--
 -- TOC entry 333 (class 1259 OID 32728)
 -- Name: pyarchinit_campionature; Type: TABLE; Schema: public; Owner: postgres
 --
@@ -2339,7 +2406,12 @@ ALTER TABLE ONLY public.pdf_administrator_table ALTER COLUMN id_pdf_administrato
 
 ALTER TABLE ONLY public.periodizzazione_table ALTER COLUMN id_perfas SET DEFAULT nextval('public.periodizzazione_table_id_perfas_seq'::regclass);
 
+--
+-- TOC entry 4818 (class 2604 OID 193730)
+-- Name: pottery_table id_rep; Type: DEFAULT; Schema: public; Owner: postgres
+--
 
+ALTER TABLE ONLY public.pottery_table ALTER COLUMN id_rep SET DEFAULT nextval('public.pottery_table_id_rep_seq'::regclass);
 
 --
 -- TOC entry 4480 (class 2604 OID 33169)
@@ -2603,7 +2675,13 @@ ALTER TABLE ONLY public.pdf_administrator_table
 ALTER TABLE ONLY public.periodizzazione_table
     ADD CONSTRAINT "ID_perfas_unico" UNIQUE (sito, periodo, fase);
 
+--
+-- TOC entry 5120 (class 2606 OID 193786)
+-- Name: pottery_table ID_rep_unico; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
 
+ALTER TABLE ONLY public.pottery_table
+    ADD CONSTRAINT "ID_rep_unico" UNIQUE (id_number, sito);
 --
 -- TOC entry 4749 (class 2606 OID 41044)
 -- Name: pyarchinit_rou_thesaurus ID_rou_pk; Type: CONSTRAINT; Schema: public; Owner: postgres
@@ -2854,7 +2932,13 @@ ALTER TABLE ONLY public.pdf_administrator_table
 ALTER TABLE ONLY public.periodizzazione_table
     ADD CONSTRAINT periodizzazione_table_pkey PRIMARY KEY (id_perfas);
 
+--
+-- TOC entry 5122 (class 2606 OID 193834)
+-- Name: pottery_table pottery_table_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
 
+ALTER TABLE ONLY public.pottery_table
+    ADD CONSTRAINT pottery_table_pkey PRIMARY KEY (id_rep);
 --
 -- TOC entry 4747 (class 2606 OID 41138)
 -- Name: pyarchinit_ripartizioni_temporali periodo_fase_unico; Type: CONSTRAINT; Schema: public; Owner: postgres
