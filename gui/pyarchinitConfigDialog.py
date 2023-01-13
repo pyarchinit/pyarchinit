@@ -3127,7 +3127,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             QMessageBox.warning(self, "INFO", "Non dimenticarti di inserire la password", QMessageBox.Ok)
         else:
             if self.groupBox_ssh_2.isChecked():
-                server = open_tunnel(
+                server1 = open_tunnel(
 
                     (self.lineEdit_sship_2.text(), int(self.lineEdit_sshport_2.text())),  # Remote server IP and SSH port
 
@@ -3146,9 +3146,9 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
 
 
                 try:
-                    server.start()
+                    server1.start()
                 except Exception as e:
-                    QMessageBox.warning(self, "Error", str(e) +'\n'+ str(server))
+                    QMessageBox.warning(self, "Error", str(e) +'\n'+ str(server1))
 
                 port =str(server.local_bind_port)
 
