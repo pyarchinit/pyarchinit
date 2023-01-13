@@ -69,42 +69,32 @@ class Connection(object):
                 "postgresql", conn_str_dict["user"], conn_str_dict["password"], conn_str_dict["host"],
                 conn_str_dict["port"], conn_str_dict["db_name"])
            
-        elif conn_str_dict["server"] == 'postgres SSH':
-            try:
-                server = open_tunnel(
+        if conn_str_dict["server"] == 'postgres SSH':
+            #try:
+            c= open_tunnel(
 
-                    (conn_str_dict["sship"], conn_str_dict["sshport"]),  # Remote server IP and SSH port
+                ('150.145.56.133', 22),  # Remote server IP and SSH port
 
-                    ssh_username=conn_str_dict["sshuser"],
+                ssh_username='enzo',
 
-                    #ssh_password = conn_str_dict["sshpassword"],
+                #ssh_password = conn_str_dict["sshpassword"],
 
-                    ssh_pkey=conn_str_dict["pkey"],
+                ssh_pkey=conn_str_dict["pkey"],
 
-                    remote_bind_address=(conn_str_dict["remoteip"], conn_str_dict["sshdbport"]))  # PostgreSQL server IP and sever port on remote
+                remote_bind_address=('localhost', 5432))  # PostgreSQL server IP and sever port on remote
 
-                # machine
-
-                # server.stop() #start ssh sever
-
-                server.start()
-                port = str(server.local_bind_port)
-                conn_str = "%s://%s:%s@%s:%s/%s%s" % (
-                    "postgresql", conn_str_dict["user"], conn_str_dict["password"], conn_str_dict["host"],
-                    conn_str_dict["port"], conn_str_dict["db_name"], "?sslmode=allow")
-                test = True
-            except Exception as e:
-                QMessageBox.warning(self, "Attenzione", str(e)+'\n'+str(server), QMessageBox.Ok)
-                conn_str = "%s://%s:%s@%s:%s/%s" % (
-                    "postgresql", conn_str_dict["user"], conn_str_dict["password"], conn_str_dict["host"],
-                    conn_str_dict["port"], conn_str_dict["db_name"])
+            c.start()
+            # except Exception as e:
+            #     print(e)#QMessageBox.warning(self, "Attenzione", str(e)+'\n'+str(server), QMessageBox.Ok)
+                #conn_str = 'postgresql://postgres2:postgres@127.0.0.1:'+sshport+'/%s' % (
+                     #conn_str_dict["db_name"])
 
 
-        elif conn_str_dict["server"] == 'sqlite':
+        if conn_str_dict["server"] == 'sqlite':
             sqlite_DB_path = '{}{}{}'.format(self.HOME, os.sep,
                                            "pyarchinit_DB_folder")
             dbname_abs = sqlite_DB_path + os.sep + conn_str_dict["db_name"]
-            conn_str = "%s:///%s" % (conn_str_dict["server"], dbname_abs)
+            conn_str = "%s:///%s" % ('sqlite', dbname_abs)
         else:
             conn_str = None
     
