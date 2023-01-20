@@ -95,25 +95,25 @@ try:
 except Exception as e:
     missing_libraries.append(str(e))
 
-try:
-    import pkg_resources
-
-    pkg_resources.require("pdf2docx==0.5.3")
-
-except Exception as e:
-    missing_libraries.append(str(e))
+# try:
+#     import pkg_resources
+#
+#     pkg_resources.require("pdf2docx==0.5.6")
+#
+# except Exception as e:
+#     missing_libraries.append(str(e))
 
     #if platform.system() == 'Windows':
         #pip_path = sys.exec_prefix
 
         #cmd = '{}\bin/pip3'.format(pip_path)
         #subprocess.call(['pip', 'install', 'pdf2docx==0.4.6'], shell=False)
-    if platform.system() == 'Darwin':
-        
-        pip_path=sys.exec_prefix
-        
-        cmd = '{}/bin/pip3'.format(pip_path)
-        subprocess.call([cmd, 'install', 'pdf2docx==0.5.3' ], shell=False)
+    # if platform.system() == 'Darwin':
+    #
+    #     pip_path=sys.exec_prefix
+    #
+    #     cmd = '{}/bin/pip3'.format(pip_path)
+    #     subprocess.call([cmd, 'install', 'pdf2docx==0.5.3' ], shell=False)
 
 try:
     import sqlalchemy_utils

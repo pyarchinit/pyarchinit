@@ -1528,7 +1528,7 @@
         <enum>QTabWidget::Rounded</enum>
        </property>
        <property name="currentIndex">
-        <number>3</number>
+        <number>0</number>
        </property>
        <widget class="QWidget" name="tab">
         <attribute name="title">
@@ -2450,6 +2450,9 @@ p, li { white-space: pre-wrap; }
              </item>
              <item row="2" column="1">
               <widget class="QPushButton" name="pushButton_word">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
                <property name="maximumSize">
                 <size>
                  <width>122</width>

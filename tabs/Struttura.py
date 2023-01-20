@@ -25,7 +25,7 @@ from __future__ import absolute_import
 import os
 from datetime import date
 import platform
-from pdf2docx import parse
+#from pdf2docx import parse
 import sys
 from builtins import range
 from builtins import str
@@ -410,21 +410,21 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
                             # QMessageBox.warning(self, 'WARNUNG', 'Die Fotoliste kann nicht exportiert werden, da Sie keine markierten Bilder haben.',QMessageBox.Ok)
                 # except Exception as e :
                     # QMessageBox.warning(self, 'WARNUNG',str(e),QMessageBox.Ok)
-    def on_pushButton_convert_pressed(self):
-        # if not bool(self.setPathpdf()):    
-            # QMessageBox.warning(self, "INFO", "devi scegliere un file pdf",
-                                # QMessageBox.Ok)
-        try:
-            pdf_file = self.lineEdit_pdf_path.text()
-            filename=pdf_file.split("/")[-1]
-            docx_file = self.PDFFOLDER+'/'+filename+'.docx'
-            # convert pdf to docx
-            parse(pdf_file, docx_file, start=self.lineEdit_pag1.text(), end=self.lineEdit_pag2.text())
-            QMessageBox.information(self, "INFO", "Conversion completed",
-                                QMessageBox.Ok)
-        except Exception as e:
-            QMessageBox.warning(self, "Error", str(e),
-                                QMessageBox.Ok)
+    # def on_pushButton_convert_pressed(self):
+    #     # if not bool(self.setPathpdf()):
+    #         # QMessageBox.warning(self, "INFO", "devi scegliere un file pdf",
+    #                             # QMessageBox.Ok)
+    #     try:
+    #         pdf_file = self.lineEdit_pdf_path.text()
+    #         filename=pdf_file.split("/")[-1]
+    #         docx_file = self.PDFFOLDER+'/'+filename+'.docx'
+    #         # convert pdf to docx
+    #         parse(pdf_file, docx_file, start=self.lineEdit_pag1.text(), end=self.lineEdit_pag2.text())
+    #         QMessageBox.information(self, "INFO", "Conversion completed",
+    #                             QMessageBox.Ok)
+    #     except Exception as e:
+    #         QMessageBox.warning(self, "Error", str(e),
+    #                             QMessageBox.Ok)
     
     def openpdfDir(self):
         HOME = os.environ['PYARCHINIT_HOME']
