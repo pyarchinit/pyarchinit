@@ -2073,7 +2073,15 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                                               media_data[0].filepath, media_data[0].filename)
     
     ##################################funzione per eliminare le thumbnail###########################################
+    def remove_img1(self, path, img_name):
+        os.remove(path + img_name)
+    def remove_img2(self, path, img_name):
+        os.remove(path + img_name)
     def on_pushButton_remove_thumb_pressed(self):
+        thumb_path = conn.thumb_path()
+        thumb_path_str = thumb_path['thumb_path']
+        thumb_resize = conn.thumb_resize()
+        thumb_resize_str = thumb_resize['thumb_resize']
         items_selected = self.iconListWidget.selectedItems()
         if bool (items_selected):
             if self.L=='it':
@@ -2089,6 +2097,10 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                             id_orig_item = item.text()  # return the name of original file
                             s= str(id_orig_item)
                             self.DB_MANAGER.delete_thumb_from_db_sql(s)
+                            search_dict = {'filename': "'" + str(id_orig_item) + "'"}
+                            id_media = self.DB_MANAGER.query_bool(search_dict, 'MEDIA')
+                            self.remove_img1(thumb_path_str,str(id_media[0].id_media)+'_'+s+'_thumb'+'.png')
+                            self.remove_img2(thumb_resize_str ,str(id_media[0].id_media)+'_'+s+'.png')
                     except Exception as e:
                         QMessageBox.warning(self, "Info", "error: " + str(e))    
                     self.iconListWidget.clear()
@@ -2108,6 +2120,10 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                             id_orig_item = item.text()  # return the name of original file
                             s= str(id_orig_item)
                             self.DB_MANAGER.delete_thumb_from_db_sql(s)
+                            search_dict = {'filename': "'" + str(id_orig_item) + "'"}
+                            id_media = self.DB_MANAGER.query_bool(search_dict, 'MEDIA')
+                            self.remove_img1(thumb_path_str, str(id_media[0].id_media) + '_' + s + '_thumb' + '.png')
+                            self.remove_img2(thumb_resize_str, str(id_media[0].id_media) + '_' + s + '.png')
                     except Exception as e:
                         QMessageBox.warning(self, "Info", "error: " + str(e))    
                     self.iconListWidget.clear()
@@ -2134,6 +2150,10 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                     self.charge_data()
                     self.view_num_rec()
                     QMessageBox.warning(self, "Info", "Thumbnail deleted")
+                    search_dict = {'filename': "'" + str(id_orig_item) + "'"}
+                    id_media = self.DB_MANAGER.query_bool(search_dict, 'MEDIA')
+                    self.remove_img1(thumb_path_str, str(id_media[0].id_media) + '_' + s + '_thumb' + '.png')
+                    self.remove_img2(thumb_resize_str, str(id_media[0].id_media) + '_' + s + '.png')
         else:
             if self.L=='it':
                 QMessageBox.warning(self, "Info", "devi selezionare una thumbnail!")
