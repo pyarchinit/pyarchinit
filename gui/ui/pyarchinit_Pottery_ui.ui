@@ -23,7 +23,7 @@
    <string>pyArchInit Gestione Scavi - Scheda Ceramica</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="E:/oman/alkhutm 2017-2018/versioni pyarchinit/pyarchinit/modules/gui/resources.qrc">
+   <iconset>
     <normaloff>:/images/pottery.png</normaloff>:/images/pottery.png</iconset>
   </property>
   <property name="styleSheet">
@@ -2704,6 +2704,9 @@
          </item>
          <item row="0" column="0">
           <widget class="QPushButton" name="pushButton_word">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
            <property name="minimumSize">
             <size>
              <width>0</width>

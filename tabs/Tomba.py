@@ -22,7 +22,7 @@
 from __future__ import absolute_import
 import os
 import platform
-from pdf2docx import parse
+#from pdf2docx import parse
 from datetime import date
 import cv2
 from builtins import range
@@ -2706,21 +2706,21 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
         if dbpath:
             self.lineEdit_pdf_path.setText(dbpath)
             s.setValue('',dbpath)
-    def on_pushButton_convert_pressed(self):
-        # if not bool(self.setPathpdf()):    
-            # QMessageBox.warning(self, "INFO", "devi scegliere un file pdf",
-                                # QMessageBox.Ok)
-        try:
-            pdf_file = self.lineEdit_pdf_path.text()
-            filename=pdf_file.split("/")[-1]
-            docx_file = self.PDFFOLDER+'/'+filename+'.docx'
-            # convert pdf to docx
-            parse(pdf_file, docx_file, start=self.lineEdit_pag1.text(), end=self.lineEdit_pag2.text())
-            QMessageBox.information(self, "INFO", "Conversion completed",
-                                QMessageBox.Ok)
-        except Exception as e:
-            QMessageBox.warning(self, "Error", str(e),
-                                QMessageBox.Ok)
+    # def on_pushButton_convert_pressed(self):
+    #     # if not bool(self.setPathpdf()):
+    #         # QMessageBox.warning(self, "INFO", "devi scegliere un file pdf",
+    #                             # QMessageBox.Ok)
+    #     try:
+    #         pdf_file = self.lineEdit_pdf_path.text()
+    #         filename=pdf_file.split("/")[-1]
+    #         docx_file = self.PDFFOLDER+'/'+filename+'.docx'
+    #         # convert pdf to docx
+    #         parse(pdf_file, docx_file, start=self.lineEdit_pag1.text(), end=self.lineEdit_pag2.text())
+    #         QMessageBox.information(self, "INFO", "Conversion completed",
+    #                             QMessageBox.Ok)
+    #     except Exception as e:
+    #         QMessageBox.warning(self, "Error", str(e),
+    #                             QMessageBox.Ok)
     def openpdfDir(self):
         HOME = os.environ['PYARCHINIT_HOME']
         path = '{}{}{}'.format(HOME, os.sep, "pyarchinit_PDF_folder")
