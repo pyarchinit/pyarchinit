@@ -2672,47 +2672,47 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         conservazione_vl.sort()
         self.comboBox_conservazione.addItems(conservazione_vl)
         # lista schedatore
-        # self.comboBox_schedatore.clear()
-        # search_dict = {
-            # 'lingua': lang,
-            # 'nome_tabella': "'" + 'us_table' + "'",
-            # 'tipologia_sigla': "'" + '2.16' + "'"
-        #}
-        # schedatore = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
-        # schedatore_vl = []
-        # for i in range(len(schedatore)):
-            # if schedatore[i].sigla_estesa not in schedatore_vl:
-                # schedatore_vl.append(schedatore[i].sigla_estesa)
-        # schedatore_vl.sort()
-        # self.comboBox_schedatore.addItems(schedatore_vl)
-        # # lista direttore us
-        # self.comboBox_direttore_us.clear()
-        # search_dict = {
-            # 'lingua': lang,
-            # 'nome_tabella': "'" + 'us_table' + "'",
-            # 'tipologia_sigla': "'" + '2.17' + "'"
-        # }
-        # direttore_us = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
-        # direttore_us_vl = []
-        # for i in range(len(direttore_us)):
-            # if direttore_us[i].sigla_estesa not in direttore_us_vl:
-                # direttore_us_vl.append(direttore_us[i].sigla_estesa)
-        # direttore_us_vl.sort()
-        # self.comboBox_direttore_us.addItems(direttore_us_vl)
+        self.comboBox_schedatore.clear()
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'" + 'us_table' + "'",
+            'tipologia_sigla': "'" + '2.16' + "'"
+        }
+        schedatore = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        schedatore_vl = []
+        for i in range(len(schedatore)):
+            if schedatore[i].sigla_estesa not in schedatore_vl:
+                schedatore_vl.append(schedatore[i].sigla_estesa)
+        schedatore_vl.sort()
+        self.comboBox_schedatore.addItems(schedatore_vl)
+        #lista direttore us
+        self.comboBox_direttore_us.clear()
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'" + 'us_table' + "'",
+            'tipologia_sigla': "'" + '2.17' + "'"
+        }
+        direttore_us = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        direttore_us_vl = []
+        for i in range(len(direttore_us)):
+            if direttore_us[i].sigla_estesa not in direttore_us_vl:
+                direttore_us_vl.append(direttore_us[i].sigla_estesa)
+        direttore_us_vl.sort()
+        self.comboBox_direttore_us.addItems(direttore_us_vl)
         # # lista responsabile us
-        # self.comboBox_responsabile_us.clear()
-        # search_dict = {
-            # 'lingua': lang,
-            # 'nome_tabella': "'" + 'us_table' + "'",
-            # 'tipologia_sigla': "'" + '2.18' + "'"
-        # }
-        # responsabile_us = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
-        # responsabile_us_vl = []
-        # for i in range(len(responsabile_us)):
-            # if responsabile_us[i].sigla_estesa not in responsabile_us_vl:
-                # responsabile_us_vl.append(responsabile_us[i].sigla_estesa)
-        # responsabile_us_vl.sort()
-        # self.comboBox_responsabile_us.addItems(responsabile_us_vl)
+        self.comboBox_responsabile_us.clear()
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'" + 'us_table' + "'",
+            'tipologia_sigla': "'" + '2.18' + "'"
+        }
+        responsabile_us = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        responsabile_us_vl = []
+        for i in range(len(responsabile_us)):
+            if responsabile_us[i].sigla_estesa not in responsabile_us_vl:
+                responsabile_us_vl.append(responsabile_us[i].sigla_estesa)
+        responsabile_us_vl.sort()
+        self.comboBox_responsabile_us.addItems(responsabile_us_vl)
         
         
         # # lista tipologia_opera
