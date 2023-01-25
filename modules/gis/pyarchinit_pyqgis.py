@@ -1714,6 +1714,8 @@ class Pyarchinit_pyqgis(QDialog):
                 QgsProject.instance().addMapLayers([layerUS], False)
             else:
                 QMessageBox.warning(self, "Pyarchinit", "OK Layer US non valido", QMessageBox.Ok)                    
+
+
     def loadMapPreview(self, gidstr):
         """ if has geometry column load to map canvas """
         layerToSet = []
@@ -1732,24 +1734,29 @@ class Pyarchinit_pyqgis(QDialog):
 
             uri.setConnection(settings.HOST, settings.PORT, settings.DATABASE, settings.USER, settings.PASSWORD)
 
-            uri.setDataSource("public", "pyarchinit_quote_view", "the_geom", gidstr, "id_us")
-            layerQUOTE = QgsVectorLayer(uri.uri(), "pyarchinit_quote_view", "postgres")
-
-            if layerQUOTE.isValid():
-                # style_path = '{}{}'.format(self.LAYER_STYLE_PATH, 'stile_quote.qml')
-                # layerQUOTE.loadNamedStyle(style_path)
-                QgsProject.instance().addMapLayers([layerQUOTE], False)
-                layerToSet.append(layerQUOTE)
+            # uri.setDataSource("public", "pyarchinit_quote_view", "the_geom", gidstr, "id_us")
+            # layerQUOTE = QgsVectorLayer(uri.uri(), "pyarchinit_quote_view", "postgres")
+            #
+            # if layerQUOTE.isValid():
+            #     # style_path = '{}{}'.format(self.LAYER_STYLE_PATH, 'stile_quote.qml')
+            #     # layerQUOTE.loadNamedStyle(style_path)
+            #     QgsProject.instance().addMapLayers([layerQUOTE], False)
+            #     layerToSet.append(layerQUOTE)
 
             uri.setDataSource("public", "pyarchinit_us_view", "the_geom", gidstr, "id_us")
             layerUS = QgsVectorLayer(uri.uri(), "Unita' Stratigrafiche", "postgres")
 
             if layerUS.isValid():
-                # self.USLayerId = layerUS.getLayerID()
-                # style_path = '{}{}'.format(self.LAYER_STYLE_PATH, 'us_caratterizzazioni.qml')
-                # layerUS.loadNamedStyle(style_path)
+                # QMessageBox.warning(self, "Pyarchinit", "OK ayer US valido",   #QMessageBox.Ok)
+                style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view_preview.qml')
+                layerUS.loadNamedStyle(style_path)
+                style_path_us = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view_dot.qml')
+                layerUS_us.loadNamedStyle(style_path_us)
                 QgsProject.instance().addMapLayers([layerUS], False)
+                QgsProject.instance().addMapLayers([layerUS_us], False)
+
                 layerToSet.append(layerUS)
+                layerToSet.append(layerUS_us)
 
                 # layerQuote
             
@@ -1761,16 +1768,19 @@ class Pyarchinit_pyqgis(QDialog):
             uri = QgsDataSourceUri()
             uri.setDatabase(db_file_path)
 
-            # layerQuote
-            uri.setDataSource('', 'pyarchinit_quote_view', 'the_geom', gidstr, "ROWID")
-            layerQUOTE = QgsVectorLayer(uri.uri(), 'pyarchinit_quote_view', 'spatialite')
+            uri_us = QgsDataSourceUri()
+            uri_us.setDatabase(db_file_path)
 
-            if layerQUOTE.isValid():
+            # layerQuote
+            #uri.setDataSource('', 'pyarchinit_quote_view', 'the_geom', gidstr, "ROWID")
+            #layerQUOTE = QgsVectorLayer(uri.uri(), 'pyarchinit_quote_view', 'spatialite')
+
+            #if layerQUOTE.isValid():
                 ###QMessageBox.warning(self, "Pyarchinit", "OK Layer Quote valido",#QMessageBox.Ok)
-                style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'quote_us_view.qml')
-                layerQUOTE.loadNamedStyle(style_path)
-                QgsProject.instance().addMapLayers([layerQUOTE], False)
-                layerToSet.append(layerQUOTE)
+                #style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'quote_us_view.qml')
+                #layerQUOTE.loadNamedStyle(style_path)
+                #QgsProject.instance().addMapLayers([layerQUOTE], False)
+                #layerToSet.append(layerQUOTE)
             else:
                 pass
                 # QMessageBox.warning(self, "Pyarchinit", "OK Layer Quote non valido",   #QMessageBox.Ok)
@@ -1778,12 +1788,20 @@ class Pyarchinit_pyqgis(QDialog):
             uri.setDataSource('', 'pyarchinit_us_view', 'the_geom', gidstr, "ROWID")
             layerUS = QgsVectorLayer(uri.uri(), 'pyarchinit_us_view', 'spatialite')
 
+            uri_us.setDataSource('', 'pyarchinit_us_view', 'the_geom', 'id_us', "ROWID")
+            layerUS_us = QgsVectorLayer(uri_us.uri(), 'pyarchinit_us_view', 'spatialite')
+
             if layerUS.isValid():
                 # QMessageBox.warning(self, "Pyarchinit", "OK ayer US valido",   #QMessageBox.Ok)
-                style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
+                style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view_preview.qml')
                 layerUS.loadNamedStyle(style_path)
+                style_path_us = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view_dot.qml')
+                layerUS_us.loadNamedStyle(style_path_us)
                 QgsProject.instance().addMapLayers([layerUS], False)
+                QgsProject.instance().addMapLayers([layerUS_us], False)
+
                 layerToSet.append(layerUS)
+                layerToSet.append(layerUS_us)
             else:
                 pass
                 # QMessageBox.warning(self, "Pyarchinit", "NOT! Layer US not valid",#QMessageBox.Ok)
@@ -1808,7 +1826,7 @@ class Pyarchinit_pyqgis(QDialog):
 
             uri.setConnection(settings.HOST, settings.PORT, settings.DATABASE, settings.USER, settings.PASSWORD)
             # docstr =  docstr
-            docstr = ' "nome_doc" = \'A-B\' '
+            #docstr = ' "nome_doc" = \'A-B\' '
             # layerUS
             ##          uri.setDataSource("public", "pyarchinit_us_view", "the_geom", sing_layer, "id_us")
             uri.setDataSource("public", "pyarchinit_us_view", "the_geom", docstr, "id_us")
@@ -1842,7 +1860,7 @@ class Pyarchinit_pyqgis(QDialog):
             uri.setDatabase(db_file_path)
 
             # docstr =  docstr
-            docstr = ' "nome_doc" = \'A-B\' '
+            #docstr = ' "nome_doc" = \'A-B\' '
 
             uri.setDataSource('', 'pyarchinit_us_view', 'the_geom', docstr, "ROWID")
 
