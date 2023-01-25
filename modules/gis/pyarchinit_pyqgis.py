@@ -1781,8 +1781,8 @@ class Pyarchinit_pyqgis(QDialog):
                 #layerQUOTE.loadNamedStyle(style_path)
                 #QgsProject.instance().addMapLayers([layerQUOTE], False)
                 #layerToSet.append(layerQUOTE)
-            else:
-                pass
+            #else:
+                #pass
                 # QMessageBox.warning(self, "Pyarchinit", "OK Layer Quote non valido",   #QMessageBox.Ok)
 
             uri.setDataSource('', 'pyarchinit_us_view', 'the_geom', gidstr, "ROWID")
