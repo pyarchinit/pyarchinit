@@ -11,7 +11,7 @@
 [general]
 name=pyArchInit
 qgisMinimumVersion=3.22
-description=pyarchinit an tool for archaeological works
+description=pyarchinit a tool for archaeological works
 
 version=4.3.9
 
