@@ -1719,7 +1719,6 @@ class Pyarchinit_pyqgis(QDialog):
     def loadMapPreview(self, gidstr):
         """ if has geometry column load to map canvas """
         layerToSet = []
-        srs = QgsCoordinateReferenceSystem(self.SRS, QgsCoordinateReferenceSystem.PostgisCrsId)
         sqlite_DB_path = '{}{}{}'.format(self.HOME, os.sep, "pyarchinit_DB_folder")
         path_cfg = '{}{}{}'.format(sqlite_DB_path, os.sep, 'config.cfg')
         conf = open(path_cfg, "r")
@@ -1729,37 +1728,31 @@ class Pyarchinit_pyqgis(QDialog):
         settings.set_configuration()
 
         if settings.SERVER == 'postgres':
-            uri = QgsDataSourceUri()
-            # set host name, port, database name, username and password
+            uri_u = QgsDataSourceUri()
+            uri_u.setConnection(settings.HOST, settings.PORT, settings.DATABASE, settings.USER, settings.PASSWORD)
 
-            uri.setConnection(settings.HOST, settings.PORT, settings.DATABASE, settings.USER, settings.PASSWORD)
 
-            # uri.setDataSource("public", "pyarchinit_quote_view", "the_geom", gidstr, "id_us")
-            # layerQUOTE = QgsVectorLayer(uri.uri(), "pyarchinit_quote_view", "postgres")
-            #
-            # if layerQUOTE.isValid():
-            #     # style_path = '{}{}'.format(self.LAYER_STYLE_PATH, 'stile_quote.qml')
-            #     # layerQUOTE.loadNamedStyle(style_path)
-            #     QgsProject.instance().addMapLayers([layerQUOTE], False)
-            #     layerToSet.append(layerQUOTE)
+            uri_u.setDataSource("public", "pyarchinit_us_view", "the_geom", gidstr, "gid")
+            layerUS = QgsVectorLayer(uri_u.uri(), "Unita Stratigrafiche in uso", "postgres")
 
-            uri.setDataSource("public", "pyarchinit_us_view", "the_geom", gidstr, "id_us")
-            layerUS = QgsVectorLayer(uri.uri(), "Unita' Stratigrafiche", "postgres")
+
+            uri_u.setDataSource("public", "pyarchinit_us_view", "the_geom", "","gid")
+            layerUS_us = QgsVectorLayer(uri_u.uri(), "mappa completa", "postgres")
 
             if layerUS.isValid():
-                # QMessageBox.warning(self, "Pyarchinit", "OK ayer US valido",   #QMessageBox.Ok)
+
                 style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view_preview.qml')
-                layerUS.loadNamedStyle(style_path)
+
                 style_path_us = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view_dot.qml')
                 layerUS_us.loadNamedStyle(style_path_us)
+                layerUS.loadNamedStyle(style_path)
+
                 QgsProject.instance().addMapLayers([layerUS], False)
                 QgsProject.instance().addMapLayers([layerUS_us], False)
 
-                layerToSet.append(layerUS)
                 layerToSet.append(layerUS_us)
+                layerToSet.append(layerUS)
 
-                # layerQuote
-            
             return layerToSet
 
         elif settings.SERVER == 'sqlite':
@@ -1770,20 +1763,6 @@ class Pyarchinit_pyqgis(QDialog):
 
             uri_us = QgsDataSourceUri()
             uri_us.setDatabase(db_file_path)
-
-            # layerQuote
-            #uri.setDataSource('', 'pyarchinit_quote_view', 'the_geom', gidstr, "ROWID")
-            #layerQUOTE = QgsVectorLayer(uri.uri(), 'pyarchinit_quote_view', 'spatialite')
-
-            #if layerQUOTE.isValid():
-                ###QMessageBox.warning(self, "Pyarchinit", "OK Layer Quote valido",#QMessageBox.Ok)
-                #style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'quote_us_view.qml')
-                #layerQUOTE.loadNamedStyle(style_path)
-                #QgsProject.instance().addMapLayers([layerQUOTE], False)
-                #layerToSet.append(layerQUOTE)
-            #else:
-                #pass
-                # QMessageBox.warning(self, "Pyarchinit", "OK Layer Quote non valido",   #QMessageBox.Ok)
 
             uri.setDataSource('', 'pyarchinit_us_view', 'the_geom', gidstr, "ROWID")
             layerUS = QgsVectorLayer(uri.uri(), 'pyarchinit_us_view', 'spatialite')
