@@ -2082,10 +2082,10 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         # self.tableWidget_rapporti.sortItems(0,QtCore.Qt.AscendingOrder)
         self.tableWidget_documentazione.setColumnWidth(0, 150)
         self.tableWidget_documentazione.setColumnWidth(1, 300)
-        
+        self.tableWidget_rapporti.setItemDelegateForColumn(1, IntegerDelegate(self.tableWidget_rapporti))
         self.mapPreview = QgsMapCanvas(self)
         self.mapPreview.setCanvasColor(QColor(225, 225, 225))
-        self.tabWidget.addTab(self.mapPreview, "Piante")
+        self.tabWidget.addTab(self.mapPreview, "Map preview")
         # media prevew system
         
         self.iconListWidget.setLineWidth(2)
@@ -2115,7 +2115,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             self.delegateRS.def_values(valuesRS)
             self.delegateRS.def_editable('False')
             self.tableWidget_rapporti.setItemDelegateForColumn(0,self.delegateRS)
-           
+
         elif self.L=='en':
             valuesRS = ["Same as", "Connected to", "Covers", "Covered by", "Fills", "Filled by", "Cuts", "Cutted by", "Abuts", "Supports", ">","<","<<",">>","<->",""]
             self.delegateRS = ComboBoxDelegate()
@@ -3614,10 +3614,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         else: 
             return x
     def on_pushButton_graphml_pressed(self):
-        # if not bool(self.setPathpdf()):    
-            # QMessageBox.warning(self, "INFO", "devi scegliere un file pdf",
-                                # QMessageBox.Ok)
-        
+
         dottoxml='{}{}{}'.format(self.BIN, os.sep, 'dottoxml.py')
         try:
             input_file = self.lineEdit_input.text()
@@ -7186,4 +7183,19 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         elif platform.system() == "Darwin":
             subprocess.Popen(["open", path])
         else:
-            subprocess.Popen(["xdg-open", path])         
+            subprocess.Popen(["xdg-open", path])
+
+
+class IntegerDelegate(QtWidgets.QStyledItemDelegate):
+    def __init__(self, parent=None):
+        super(IntegerDelegate, self).__init__(parent)
+
+    def createEditor(self, parent, option, index):
+        editor = QtWidgets.QLineEdit(parent)
+        validator = QtGui.QIntValidator()
+        editor.setValidator(validator)
+        return editor
+
+
+
+
