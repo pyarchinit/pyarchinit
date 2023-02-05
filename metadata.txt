@@ -13,7 +13,7 @@ name=pyArchInit
 qgisMinimumVersion=3.22
 description=pyarchinit a tool for archaeological works
 
-version=4.3.9
+version=4.4.0
 
 author=Luca Mandolesi&Enzo Cocca
 email=pyarchinit@gmail.com
@@ -25,16 +25,21 @@ tracker=https://github.com/pyarchinit/pyarchinit/issues
 repository=https://github.com/pyarchinit/pyarchinit
 
 
-changelog=release4.3.9
+changelog=release4.4.0
+    -#525
+    -update tablwwidget_rapporti Allow only numer in the SU column
+
+  release4.3.9
     -updated map preview into us form
     -#523
+
   release4.3.8
     -add function remove image from folder path
 
   release4.3.7
     -update documentation form #522
-  release4.3.6
 
+  release4.3.6
     -add pottery for import tool
     -add pottery for export image
     -add pottery for import media manager
@@ -42,310 +47,207 @@ changelog=release4.3.9
     -fixed bug inv_Materiali_ui
     -fixed minor bugs
 
-
   release4.3.5
-
     -add pottery table and form
 
-
   release4.3.4
-
     -add negative symbol for SU into the matrix
 
   release4.3.3
-
     -fix update tablewidget relationships for EM(set same rows)
     -fix template csv  thesaurus
     -fix english lang for pyarchinit_db_manager.py to create new form automatic
 
-
-
   release4.3.2
-
     -import csv to thesaurus
     -template csv  thesaurus
 
   release4.3.2
-
     -update info
 
   release4.3.0
-
     -#509 issue
 
   release4.2.0
-
     -#507 issue
     -#508 issue
 
   release4.1.0
-
     -validazione e inserimento rapporti per EM
 
-
   release4.0.9
-
     -validazione e inserimento rapporti inversi
 
   release4.0.8
-
     -update matrix codice periodo
 
   release4.0.7
-
     -fix issue #498
     -system backup and restore postgres db
 
   release4.0.6
-
     -fixed system backup to postgres
 
   release4.0.5
-
     -update cont_per to postgres
 
   release4.0.4
-
     -fix bug #486
 
   release4.0.3
-
     -update package
 
   release4.0.2
-
-
     -fix bug for mac
 
   release4.0.1
-
-
     -fix minor bug gui matrix
 
-
   release4.0.0
-
-
     -create ext-libs
 
-
   release3.9.19
-
-
     -create ext-libs
 
   release3.9.18
-
     -fix #460
     -pyarchinit_tomba_view
 
   release3.9.17
-
-
     -fix bug #458 #459
     -fix bug  #459
-  release3.9.17
 
+  release3.9.17
     -fix bug #456
     -fix bug #458
-  release3.9.15
 
+  release3.9.15
     -fixed minor bug
 
   release3.9.14
-
     -fixed exportmatix pyarchinit
 
   release3.9.13
-
     -fixed svg symbol for EM
     -add unita_tipo column into pyunitastartigrafiche, pyunitastartigrafiche_usm e pyarchinit_quote, pyarchinit_quote_usm
 
   release3.9.12
-
     -add vocabulary online into thesaurus form
     -update matrix for EM
-  release3.9.11
 
+  release3.9.11
     -fix quote export pdf
 
   release3.9.10
-
     -add option autoincrement invetario materiali
     -fix minor bugs
 
   release3.9.9
-
     -update export form pdf
 
   release3.9.8.18
-
     -add totalopenstaion2pyarchinit form
 
-
   release3.9.8.17
-
     -add wms igm 25000
     -update pregressbar in media manager
     -fix combox_sito in config form
 
-
-
   release3.9.8.16
-
     -update wms vincoli on base of the comune attribute
 
   release3.9.8.15
-
     -fix install python packages
 
   release3.9.8.14
-
     -fix export matrid to ED
     -update sqlalchemy to 1.4.27
     -fix update database to import data
 
-
   release3.9.8.9
-
     -add form to export to gpkg (vector and raster)
     - ui gpkg on the top
     -change background color ui
-  -------------------------------------------------------------------------------
-
 
   release3.9.8.7
-
     -update table widget rapporti
-  -------------------------------------------------------------------------------
-
 
   release3.9.8.6
-
     -change table widget rapporti
-  -------------------------------------------------------------------------------
 
   release3.9.8.5
-
     -rscript update
-  -------------------------------------------------------------------------------
 
   release3.9.8.4
-
     -fix bug rapport check
-  -------------------------------------------------------------------------------
 
   release3.9.8.3
-
     -fix bug inventario materiali
-  -------------------------------------------------------------------------------
 
   release3.9.8.2
-
     -add r script to least cost path
-  -------------------------------------------------------------------------------
 
 
   release3.9.8.1
-
     -remove tkinter module
     -update folder installation: add spatialite_convert and EM_palette
-  -------------------------------------------------------------------------------
-
 
   release3.9.8
-
     -add tkinter module
-  -------------------------------------------------------------------------------
-
-
 
   release3.9.7
-
     -function for convert db for spatialite 5
-  -------------------------------------------------------------------------------
-
-
-
 
   release3.9.5
     -fix db sqlite
-  ------------------------------------------------------------------------------- 
-   release3.9.4
+
+  release3.9.4
     -update db sqlite / postgres
     -add layer pyunitasreatigrafiche_usm e pyarchinit_quote_usm
     -add view pyarchinit_usm_view pyarchinit_quote_usm_view
     -update grpups layer
-   ------------------------------------------------------------------------------- 
 
-   release3.9.3
+  release3.9.3
     -fix bug esportazione pdf usm
 
-   -------------------------------------------------------------------------------
-
-   release3.9.2
+  release3.9.2
     -wms vincoli archeologici
 
-   -------------------------------------------------------------------------------
-
-   release3.9.1
+  release3.9.1
     -update connessione
-
-   -------------------------------------------------------------------------------
 
   release3.9
     -update area
     -timeout basemap
-   -------------------------------------------------------------------------------
 
-   release3.8.3
+  release3.8.3
     -update area
     -timeout basemap
-   -------------------------------------------------------------------------------
 
-   release3.8.2
-
+  release3.8.2
     -add base map
     -add wms map
 
-   -------------------------------------------------------------------------------
-
-   release3.8.1
-
+  release3.8.1
     -uneditable combobox active site
 
-   -------------------------------------------------------------------------------
-
-   release3.8
-
+  release3.8
     -new icon
 	-update template qpt
 	-fix bug create view postgres
 
-   -------------------------------------------------------------------------------
-
-   release3.7
-
+  release3.7
     -new icon
 	-update form site
 	-update pyarchinit_pyqgis
 
-   -------------------------------------------------------------------------------
+  release3.6
+    -deleting area from periodizzazione form
 
+  release3.5
+    -add print map dialog
 
-
-   release3.6
-
-        -deleting area from periodizzazione form
-
-   -------------------------------------------------------------------------------
-
-   release3.5
-
-        -add print map dialog
-
-   -------------------------------------------------------------------------------
-   release3.4
+  release3.4
 
         -fix bug struttura e periodi view
         -fix bug postgres update
