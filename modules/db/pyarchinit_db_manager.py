@@ -44,7 +44,7 @@ from sqlalchemy.dialects.postgresql import insert
 from modules.db.pyarchinit_db_mapper import US, UT, SITE, PERIODIZZAZIONE, POTTERY, \
     STRUTTURA, SCHEDAIND, INVENTARIO_MATERIALI, DETSESSO, DOCUMENTAZIONE, DETETA, MEDIA, \
     MEDIA_THUMB, MEDIATOENTITY, MEDIAVIEW, TOMBA, CAMPIONI, PYARCHINIT_THESAURUS_SIGLE, \
-    ARCHEOZOOLOGY, INVENTARIO_LAPIDEI, PDF_ADMINISTRATOR,PYUS ,PYUSM,PYSITO_POINT,PYSITO_POLYGON,PYQUOTE,PYQUOTEUSM, \
+    INVENTARIO_LAPIDEI, PDF_ADMINISTRATOR,PYUS ,PYUSM,PYSITO_POINT,PYSITO_POLYGON,PYQUOTE,PYQUOTEUSM, \
     PYUS_NEGATIVE, PYSTRUTTURE, PYREPERTI, PYINDIVIDUI, PYCAMPIONI, PYTOMBA, PYDOCUMENTAZIONE, PYLINEERIFERIMENTO, \
     PYRIPARTIZIONI_SPAZIALI, PYSEZIONI
 from modules.db.pyarchinit_db_update import DB_update
@@ -839,42 +839,42 @@ class Pyarchinit_db_management(object):
 
         return thesaurus
 
-    def insert_values_archeozoology(self, *arg):
-        """Istanzia la classe ARCHEOZOOLOGY da pyarchinit_db_mapper"""
+    # def insert_values_archeozoology(self, *arg):
+        # """Istanzia la classe ARCHEOZOOLOGY da pyarchinit_db_mapper"""
 
-        archeozoology = ARCHEOZOOLOGY(arg[0],
-                                        arg[1],
-                                        arg[2],
-                                        arg[3],
-                                        arg[4],
-                                        arg[5],
-                                        arg[6],
-                                        arg[7],
-                                        arg[8],
-                                        arg[9],
-                                        arg[10],
-                                        arg[11],
-                                        arg[12],
-                                        arg[13],
-                                        arg[14],
-                                        arg[15],
-                                        arg[16],
-                                        arg[17],
-                                        arg[18],
-                                        arg[19],
-                                        arg[20],
-                                        arg[21],
-                                        arg[22],
-                                        arg[23],
-                                        arg[24],
-                                        arg[25],
-                                        arg[26],
-                                        arg[27],
-                                        arg[28],
-                                        arg[29],
-                                        arg[30])
+        # archeozoology = ARCHEOZOOLOGY(arg[0],
+                                        # arg[1],
+                                        # arg[2],
+                                        # arg[3],
+                                        # arg[4],
+                                        # arg[5],
+                                        # arg[6],
+                                        # arg[7],
+                                        # arg[8],
+                                        # arg[9],
+                                        # arg[10],
+                                        # arg[11],
+                                        # arg[12],
+                                        # arg[13],
+                                        # arg[14],
+                                        # arg[15],
+                                        # arg[16],
+                                        # arg[17],
+                                        # arg[18],
+                                        # arg[19],
+                                        # arg[20],
+                                        # arg[21],
+                                        # arg[22],
+                                        # arg[23],
+                                        # arg[24],
+                                        # arg[25],
+                                        # arg[26],
+                                        # arg[27],
+                                        # arg[28],
+                                        # arg[29],
+                                        # arg[30])
 
-        return archeozoology
+        # return archeozoology
 
     def insert_values_Lapidei(self, *arg):
         """Istanzia la classe Inventario_Lapidei da pyarchinit_db_mapper"""

@@ -2458,38 +2458,38 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.comboBox_sito.addItems(sito_vl)
         self.comboBox_sito_rappcheck.addItems(sito_vl)
         
-        responsabile_vl = self.UTILITY.tup_2_list_III(self.DB_MANAGER.group_by('us_table', 'schedatore', 'US'))
-        try:
-            responsabile_vl.remove('')
-        except:
-            pass
-            
-        self.comboBox_schedatore.clear()
-        responsabile_vl.sort()
-        self.comboBox_schedatore.addItems(responsabile_vl)
-        
-        
-        responsabile2_vl = self.UTILITY.tup_2_list_III(self.DB_MANAGER.group_by('us_table', 'direttore_us', 'US'))
-        try:
-            responsabile2_vl.remove('')
-        except:
-            pass
-            
-        self.comboBox_direttore_us.clear()
-        responsabile2_vl.sort()
-        self.comboBox_direttore_us.addItems(responsabile2_vl)
-        
-        
-        responsabile3_vl = self.UTILITY.tup_2_list_III(self.DB_MANAGER.group_by('us_table', 'responsabile_us', 'US'))
-        try:
-            responsabile3_vl.remove('')
-        except:
-            pass
-            
-        self.comboBox_responsabile_us.clear()
-        responsabile3_vl.sort()
-        self.comboBox_responsabile_us.addItems(responsabile3_vl)
-        
+        # responsabile_vl = self.UTILITY.tup_2_list_III(self.DB_MANAGER.group_by('us_table', 'schedatore', 'US'))
+        # try:
+        #     responsabile_vl.remove('')
+        # except:
+        #     pass
+        #
+        # self.comboBox_schedatore.clear()
+        # responsabile_vl.sort()
+        # self.comboBox_schedatore.addItems(responsabile_vl)
+        #
+        #
+        # responsabile2_vl = self.UTILITY.tup_2_list_III(self.DB_MANAGER.group_by('us_table', 'direttore_us', 'US'))
+        # try:
+        #     responsabile2_vl.remove('')
+        # except:
+        #     pass
+        #
+        # self.comboBox_direttore_us.clear()
+        # responsabile2_vl.sort()
+        # self.comboBox_direttore_us.addItems(responsabile2_vl)
+        #
+        #
+        # responsabile3_vl = self.UTILITY.tup_2_list_III(self.DB_MANAGER.group_by('us_table', 'responsabile_us', 'US'))
+        # try:
+        #     responsabile3_vl.remove('')
+        # except:
+        #     pass
+        #
+        # self.comboBox_responsabile_us.clear()
+        # responsabile3_vl.sort()
+        # self.comboBox_responsabile_us.addItems(responsabile3_vl)
+        #
         
         
         

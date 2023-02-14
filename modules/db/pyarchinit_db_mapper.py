@@ -21,7 +21,7 @@
 from sqlalchemy.orm import mapper
 
 
-from modules.db.entities.ARCHEOZOOLOGY import ARCHEOZOOLOGY
+#from modules.db.entities.ARCHEOZOOLOGY import ARCHEOZOOLOGY
 from modules.db.entities.CAMPIONI import CAMPIONI
 from modules.db.entities.DETETA import DETETA
 from modules.db.entities.DETSESSO import DETSESSO
@@ -61,7 +61,7 @@ from modules.db.entities.PYRIPARTIZIONI_SPAZIALI import PYRIPARTIZIONI_SPAZIALI
 from modules.db.entities.PYSEZIONI import PYSEZIONI
 from modules.db.entities.POTTERY import POTTERY
 
-from modules.db.structures.Archeozoology_table import Fauna
+#from modules.db.structures.Archeozoology_table import Fauna
 from modules.db.structures.Campioni_table import Campioni_table
 from modules.db.structures.DETETA_table import DETETA_table
 from modules.db.structures.DETSESSO_table import DETSESSO_table
@@ -102,7 +102,7 @@ from modules.db.structures.Pottery_table import Pottery_table
 
 try:
     # mapper
-    mapper(ARCHEOZOOLOGY, Fauna.fauna)
+    #mapper(ARCHEOZOOLOGY, Fauna.fauna)
 
     # mapper
     mapper(CAMPIONI, Campioni_table.campioni_table)
