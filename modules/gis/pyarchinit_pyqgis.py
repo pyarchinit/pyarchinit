@@ -3904,8 +3904,7 @@ class Order_layers_DEPRECATED(object):
 class Order_layer_v2(object):
     order_dict = {}
     order_count = 0
-    db = ''  # Pyarchinit_db_management('sqlite:////Users//Windows//pyarchinit_DB_folder//pyarchinit_db.sqlite')
-    # db.connection()
+    db = ''
     L=QgsSettings().value("locale/userLocale")[0:2]
     SITO = ""
     AREA = ""
@@ -3950,11 +3949,11 @@ class Order_layer_v2(object):
                 # le us che derivano dall'uguaglianza vanno aggiunte al rec_list_str
             rec = rec_list_str+matrix_us_equal_level#rec_list_str+
             if self.L=='it':
-                value_list_post = value_list_equal = self.create_list_values(['Copre', 'Riempie', 'Taglia', 'Si appoggia a'], rec)
+                value_list_post = self.create_list_values(['Copre', 'Riempie', 'Taglia', 'Si appoggia a'], rec)
             elif self.L=='de':
-                value_list_post = value_list_equal = self.create_list_values(["Liegt über","Verfüllt","Schneidet","Stützt sich auf"], rec)
+                value_list_post = self.create_list_values(["Liegt über","Verfüllt","Schneidet","Stützt sich auf"], rec)
             else:
-                value_list_post = value_list_equal = self.create_list_values(["Covers","Fills","Cuts","Abuts"], rec)
+                value_list_post = self.create_list_values(["Covers","Fills","Cuts","Abuts"], rec)
             
             res_t = self.db.query_in_contains(value_list_post, self.SITO, self.AREA)
 

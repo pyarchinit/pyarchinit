@@ -26,7 +26,7 @@ from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QAction, QToolButton, QMenu
 from qgis.core import QgsApplication, QgsSettings
 from .pyarchinitDockWidget import PyarchinitPluginDialog
-from .tabs.Archeozoology import pyarchinit_Archeozoology
+#from .tabs.Archeozoology import pyarchinit_Archeozoology
 from .tabs.Campioni import pyarchinit_Campioni
 from .tabs.Deteta import pyarchinit_Deteta
 from .tabs.Detsesso import pyarchinit_Detsesso
@@ -999,10 +999,10 @@ class PyArchInitPlugin(object):
         pluginEta = pyarchinit_Deteta(self.iface)
         pluginEta.show()
         self.pluginGui = pluginEta  # save
-    def runArcheozoology(self):
-        pluginArchezoology = pyarchinit_Archeozoology(self.iface)
-        pluginArchezoology.show()
-        self.pluginGui = pluginArchezoology  # save
+    # def runArcheozoology(self):
+        # pluginArchezoology = pyarchinit_Archeozoology(self.iface)
+        # pluginArchezoology.show()
+        # self.pluginGui = pluginArchezoology  # save
     def runUT(self):
         pluginUT = pyarchinit_UT(self.iface)
         pluginUT.show()

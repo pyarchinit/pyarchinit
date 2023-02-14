@@ -25,7 +25,7 @@ from qgis.PyQt.QtXml import *
 from qgis.PyQt.uic import loadUiType
 from qgis.gui import QgsDockWidget
 
-from .tabs.Archeozoology import pyarchinit_Archeozoology
+#from .tabs.Archeozoology import pyarchinit_Archeozoology
 from .tabs.Deteta import pyarchinit_Deteta
 from .tabs.Detsesso import pyarchinit_Detsesso
 from .tabs.Gis_Time_controller import pyarchinit_Gis_Time_Controller
@@ -148,10 +148,10 @@ class PyarchinitPluginDialog(QgsDockWidget, MAIN_DIALOG_CLASS):
         pluginEta.show()
         self.pluginGui = pluginEta  # save
 
-    def runArcheozoology(self):
-        pluginArchezoology = pyarchinit_Archeozoology(self.iface)
-        pluginArchezoology.show()
-        self.pluginGui = pluginArchezoology  # save
+    # def runArcheozoology(self):
+        # pluginArchezoology = pyarchinit_Archeozoology(self.iface)
+        # pluginArchezoology.show()
+        # self.pluginGui = pluginArchezoology  # save
 
     def runUT(self):
         pluginUT = pyarchinit_UT(self.iface)
