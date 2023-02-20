@@ -190,8 +190,8 @@ class HarrisMatrix:
             subprocess.Popen(['tred',dot_file],
                              #shell=True,
                              stdout=out,
-                             stderr=err)
-                             #startupinfo=si if Pyarchinit_OS_Utility.isWindows()else None)
+                             stderr=err,
+                             startupinfo=si if Pyarchinit_OS_Utility.isWindows()else None)
         tred_file = os.path.join(matrix_path, filename + '_tred.dot')
         ######################trasformazione in jsone xdot_jason###########################################
         # with open(os.path.join(matrix_path, filename + '_tred.gml'), "w") as out:
