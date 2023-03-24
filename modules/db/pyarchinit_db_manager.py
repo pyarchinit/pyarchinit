@@ -1670,17 +1670,17 @@ class Pyarchinit_db_management(object):
         
         # return
     
-    def insert_number_of_us_records(self, sito, area, n_us):
+    def insert_number_of_us_records(self, sito, area, n_us,unita_tipo):
         id_us = self.max_num_id('US', 'id_us')
         #text = "SCHEDA CREATA IN AUTOMATICO"
         l=QgsSettings().value("locale/userLocale")[0:2]
 
         if l == 'it':
             text = "SCHEDA CREATA IN AUTOMATICO"
-            unita_tipo='US'
+            #unita_tipo
         else:
             text = "FORM MADE AUTOMATIC"
-            unita_tipo = 'SU'
+            #unita_tipo = 'SU'
         id_us += 1
 
         data_ins = self.insert_values(id_us, sito, area, n_us, '', '', '', '', '', '', '', '', '', '', '', '', '[]',
