@@ -52,6 +52,7 @@ class Inventario_materiali_table:
                                        Column('n_reperto', Integer),
                                        Column('tipo_contenitore', String(200)),
                                        Column('struttura', String(200)),
+                                       Column('years', Integer),
                                        # explicit/composite unique constraint.  'name' is optional.
                                        
                                        #Index('idx_n_reperto', 'sito', 'n_reperto', unique=True),

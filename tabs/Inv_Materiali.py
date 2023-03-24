@@ -30,12 +30,12 @@ import numpy as np
 import sys
 from builtins import range
 from builtins import str
-from qgis.PyQt.QtCore import Qt, QSize, QVariant
-from qgis.PyQt.QtGui import QIcon
+from qgis.PyQt.QtCore import Qt, QSize, QVariant,QFileInfo
+from qgis.PyQt.QtGui import QIcon, QColor
 from qgis.PyQt.QtWidgets import *
 from qgis.PyQt.uic import loadUiType
 from qgis.core import QgsSettings
-
+from qgis.gui import QgsMapCanvas, QgsMapToolPan
 from ..modules.db.pyarchinit_conn_strings import Connection
 from ..modules.db.pyarchinit_db_manager import Pyarchinit_db_management
 from ..modules.db.pyarchinit_utility import Utility
@@ -119,7 +119,8 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             "Diagnostico": 'diagnostico',
             "RA":'n_reperto',
             "Tipo contenitore":'tipo_contenitore',
-            "Struttura":'struttura'
+            "Struttura":'struttura',
+            "Anno":'years'
         }
         QUANT_ITEMS = ['Tipo reperto',
                        'Classe materiale',
@@ -128,7 +129,8 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                        'Rivestimento',
                        "Tipo",
                        "Datazione reperto",
-                       "RA"]
+                       "RA",
+                       "Anno"]
 
         SORT_ITEMS = [
             ID_TABLE,
@@ -158,7 +160,8 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             "Diagnostico",
             "RA",
             "Tipo contenitore",
-            "Struttura"
+            "Struttura",
+            "Anno"
         ]
     if L =='de':
         CONVERSION_DICT = {
@@ -189,7 +192,8 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             "Diagnose": 'diagnostico',
             "RA":'n_reperto',
             "Behältertyp":'tipo_contenitore',
-            "Strukturen":'struttura'
+            "Strukturen":'struttura',
+            "Year":'years'
         }
         QUANT_ITEMS = ['Art des Artefakts',
                        'Materialklasse',
@@ -198,7 +202,8 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                        'Oberflächenbehandlung',
                        'Typ',
                        'Datierung - Artefakt',
-                       'RA']
+                       'RA',
+                       'Year']
 
         SORT_ITEMS = [
             ID_TABLE,
@@ -228,7 +233,8 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             "Diagnose",
             "RA",
             "Behältertyp",
-            "Strukturen"
+            "Strukturen",
+            "Year"
         ]
     if L =='en':
         CONVERSION_DICT = {
@@ -259,7 +265,8 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             "Diagnostic": 'diagnostico',
             "RA":'n_reperto',
             "Type of container":'tipo_contenitore',
-            "Structure":'struttura'
+            "Structure":'struttura',
+            "Year":'years'
         }
         QUANT_ITEMS = ['Artefact type',
                        'Material class',
@@ -268,7 +275,8 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                        'Coating',
                        'Type',
                        'Artefact period',
-                       'RA']
+                       'RA',
+                       'Year']
 
         SORT_ITEMS = [
             ID_TABLE,
@@ -298,7 +306,8 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             "Diagnostic",
             "RA",
             "Type of container",
-            "Structure"
+            "Structure",
+            "Year"
         ]   
     TABLE_FIELDS = [
         "sito",
@@ -331,7 +340,8 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         'diagnostico',
         'n_reperto',
         'tipo_contenitore',
-        'struttura'
+        'struttura',
+        'years'
     ]
 
     TABLE_FIELDS_UPDATE = [
@@ -363,7 +373,8 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         'diagnostico',
         'n_reperto',
         'tipo_contenitore',
-        'struttura'
+        'struttura',
+        'year'
     ]
 
     LANG = {
@@ -414,7 +425,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         #self.numero_invetario()
         self.toolButton_pdfpath.clicked.connect(self.setPathpdf)
         self.customize_gui()
-    
+        self.loadMapPreview()
     def setnone(self):
         if self.lineEdit_tipo_contenitore.text=='None' or None:
             self.lineEdit_tipo_contenitore.clear()
@@ -869,6 +880,19 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                     msg = "Warning bug detected! Report it to the developer. Error: ".format(str(e))
                     self.iface.messageBar().pushMessage(self.tr(msg), Qgis.Warning, 0)
 
+
+    def loadMapPreview(self, mode = 0):
+        if mode == 0:
+            """ if has geometry column load to map canvas """
+            gidstr = self.ID_TABLE + " = " + str(
+                eval("self.DATA_LIST[int(self.REC_CORR)]." + self.ID_TABLE))
+            layerToSet = self.pyQGIS.loadMapPreviewReperti(gidstr)
+            #QMessageBox.warning(self, "layer to set", '\n'.join([l.name() for l in layerToSet]), QMessageBox.Ok)
+            self.mapPreview.setLayers(layerToSet)
+            self.mapPreview.zoomToFullExtent()
+        elif mode == 1:
+            self.mapPreview.setLayers([])
+            self.mapPreview.zoomToFullExtent()
     def customize_gui(self):
 
         l = QgsSettings().value("locale/userLocale", QVariant)
@@ -898,6 +922,19 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         #self.iconListWidget.setSelectionMode(QAbstractItemView.ExtendedSelection)
         self.iconListWidget.itemDoubleClicked.connect(self.openWide_image)
 
+        # Crea un nuovo widget che conterrà il map canvas
+        canvas_widget = QWidget()
+
+        # Crea un layout verticale per il widget
+        canvas_layout = QVBoxLayout(canvas_widget)
+
+
+        # Aggiungi il map canvas al layout
+
+        self.mapPreview = QgsMapCanvas(canvas_widget)
+        canvas_layout.addWidget(self.mapPreview)
+        #self.mapPreview.setCanvasColor(QColor(225, 225, 225))
+        self.tabWidget.addTab(canvas_widget, "Map preview")
 
         if self.L=='it':
             valuesTE = ["frammento", "frammenti", "intero", "integro"]
@@ -1343,6 +1380,24 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         self.comboBox_lavato.addItems(lavato_vl)
 
 
+        # lista anno
+
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'" + 'inventario_materiali_table' + "'",
+            'tipologia_sigla': "'" + '3.11' + "'"
+        }
+
+        year_ = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        valuesyear = []
+
+        for i in range(len(year_)):
+            valuesyear.append(year_[i].sigla_estesa)
+
+        valuesyear.sort()
+        self.comboBox_year.addItems(valuesyear)
+
+
     def msg_sito(self):
         #self.model_a.database().close()
         conn = Connection()
@@ -1637,21 +1692,21 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         data_list_foto = []
         for i in range(len(self.DATA_LIST)):
         
-            # conn = Connection()
+            conn = Connection()
             
             
-            # thumb_path = conn.thumb_path()
-            # thumb_path_str = thumb_path['thumb_path']
+            thumb_path = conn.thumb_path()
+            thumb_path_str = thumb_path['thumb_path']
             
-            # search_dict = {'id_entity': "'"+ str(eval("self.DATA_LIST[i].id_invmat"))+"'", 'entity_type' : "'REPERTO'"}
-            
-            # record_doc_list = self.DB_MANAGER.query_bool(search_dict, 'MEDIAVIEW')
-        
+            search_dict = {'id_entity': "'"+ str(eval("self.DATA_LIST[i].id_invmat"))+"'", 'entity_type' : "'REPERTO'"}
+
+            record_doc_list = self.DB_MANAGER.query_bool(search_dict, 'MEDIAVIEW')
+
          
             
-            # for media in record_doc_list:
+            for media in record_doc_list:
             
-                # thumbnail = (thumb_path_str+media.filepath)
+                thumbnail = (thumb_path_str+media.filepath)
                 
                     
                 
@@ -1660,7 +1715,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                 
                 str(self.DATA_LIST[i].sito.replace('_',' ')), #1
                 str(self.DATA_LIST[i].n_reperto),  #6 
-                #str(thumbnail),
+                str(thumbnail),
                 str(self.DATA_LIST[i].us),    #3
                 str(self.DATA_LIST[i].definizione),#4
                 str(self.DATA_LIST[i].datazione_reperto), #5
@@ -1673,9 +1728,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
     def generate_list(self):
         data_list = []
         for i in range(len(self.DATA_LIST)):
-        
-            
-                
+
             
             data_list.append([
                 str(self.DATA_LIST[i].sito.replace('_',' ')), #0
@@ -1687,40 +1740,96 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                 str(self.DATA_LIST[i].n_reperto),  #6 
                 str(self.DATA_LIST[i].tipo_contenitore), #7
                 str(self.DATA_LIST[i].nr_cassa), #8
-                str(self.DATA_LIST[i].luogo_conservazione)])#9
+                str(self.DATA_LIST[i].luogo_conservazione),
+                str(self.DATA_LIST[i].years)])#9
                     
             
         return data_list
+
+
+
+
+
     def generate_list_pdf(self):
+
         data_list = []
+        conn = Connection()
+
+        thumb_resize = conn.thumb_resize()
+        thumb_path_str = thumb_resize['thumb_resize']
+
+
         for i in range(len(self.DATA_LIST)):
+            search_dict = {'id_entity': "'" + str(eval("self.DATA_LIST[i].id_invmat")) + "'",
+                           'entity_type': "'REPERTO'"}
+
+            record_doc_list = self.DB_MANAGER.query_bool(search_dict, 'MEDIAVIEW')
+            img_list=[]
+
+
+            ## QMessageBox.warning(self, "layer to set", '\n'.join([l.name() for l in layerToSet]), QMessageBox.Ok)
+            gidstr = self.ID_TABLE + " = " + str(
+                eval("self.DATA_LIST[i]." + self.ID_TABLE))
+            layertoset = self.pyQGIS.loadMapPreviewReperti(gidstr)
+            #QMessageBox.warning(self, "layer to set", str(gidstr), QMessageBox.Ok)
+            self.mapPreview.setLayers(layertoset)
+            # Itera sui vettori per esportarli come immagini
+            image_path = self.PDFFOLDER + '\\' + str(eval("self.DATA_LIST[i]." + self.ID_TABLE)) + ".png"
+            for layer in self.mapPreview.layers():
+                # Imposta l'estensione del canvas sulla geometria del layer
+                self.mapPreview.setExtent(layer.extent())
+
+
+                self.mapPreview.saveAsImage(image_path)
+                # self.mapPreview.zoomToFullExtent()
+                self.mapPreview.refresh()
+            for media in record_doc_list:
+                try:
+                    thumb= (thumb_path_str + str(media.path_resize))
+                    img_list.append(thumb)
+                except AssertionError as e:
+                    QMessageBox.warning(self,'message',str(e))
+
+            #QMessageBox.warning(self, 'message', str(img_list[0]))
+            if image_path:
+                image_path=image_path
+            else:
+                image_path=''
+            if img_list:
+                a = img_list[0]
+            else:
+                a=''
             data_list.append([
-                str(self.DATA_LIST[i].id_invmat),  # 1 - id_invmat
-                str(self.DATA_LIST[i].sito.replace('_',' ')),  # 2 - sito
-                int(self.DATA_LIST[i].numero_inventario),  # 3 - numero_inventario
-                str(self.DATA_LIST[i].tipo_reperto),  # 4 - tipo_reperto
-                str(self.DATA_LIST[i].criterio_schedatura),  # 5 - criterio_schedatura
-                str(self.DATA_LIST[i].definizione),  # 6 - definizione
-                str(self.DATA_LIST[i].descrizione),  # 7 - descrizione
-                str(self.DATA_LIST[i].area),  # 8 - area
-                str(self.DATA_LIST[i].us),  # 9 - us
-                str(self.DATA_LIST[i].lavato),  # 10 - lavato
-                str(self.DATA_LIST[i].nr_cassa),  # 11 - nr_cassa
-                str(self.DATA_LIST[i].luogo_conservazione),  # 12 - luogo_conservazione
-                str(self.DATA_LIST[i].stato_conservazione),  # 13 - stato_conservazione
-                str(self.DATA_LIST[i].datazione_reperto),  # 14 - datazione_reperto
-                str(self.DATA_LIST[i].elementi_reperto),  # 15 - elementi_reperto
-                str(self.DATA_LIST[i].misurazioni),  # 16 - misurazioni
-                str(self.DATA_LIST[i].rif_biblio),  # 17 - rif_biblio
-                str(self.DATA_LIST[i].tecnologie),  # 18 - misurazioni
-                str(self.DATA_LIST[i].tipo),  # 19 - tipo
-                str(self.DATA_LIST[i].corpo_ceramico),  # 20 - corpo_ceramico
-                str(self.DATA_LIST[i].rivestimento),  # 21 - rivestimento
-                str(self.DATA_LIST[i].repertato),  # 22 - repertato
-                str(self.DATA_LIST[i].diagnostico),
-                str(self.DATA_LIST[i].n_reperto),
-                str(self.DATA_LIST[i].tipo_contenitore)# 23 - diagnostico
-            ])
+                    str(self.DATA_LIST[i].id_invmat),  # 1 - id_invmat
+                    str(self.DATA_LIST[i].sito.replace('_',' ')),  # 2 - sito
+                    int(self.DATA_LIST[i].numero_inventario),  # 3 - numero_inventario
+                    str(self.DATA_LIST[i].tipo_reperto),  # 4 - tipo_reperto
+                    str(self.DATA_LIST[i].criterio_schedatura),  # 5 - criterio_schedatura
+                    str(self.DATA_LIST[i].definizione),  # 6 - definizione
+                    str(self.DATA_LIST[i].descrizione),  # 7 - descrizione
+                    str(self.DATA_LIST[i].area),  # 8 - area
+                    str(self.DATA_LIST[i].us),  # 9 - us
+                    str(self.DATA_LIST[i].lavato),  # 10 - lavato
+                    str(self.DATA_LIST[i].nr_cassa),  # 11 - nr_cassa
+                    str(self.DATA_LIST[i].luogo_conservazione),  # 12 - luogo_conservazione
+                    str(self.DATA_LIST[i].stato_conservazione),  # 13 - stato_conservazione
+                    str(self.DATA_LIST[i].datazione_reperto),  # 14 - datazione_reperto
+                    str(self.DATA_LIST[i].elementi_reperto),  # 15 - elementi_reperto
+                    str(self.DATA_LIST[i].misurazioni),  # 16 - misurazioni
+                    str(self.DATA_LIST[i].rif_biblio),  # 17 - rif_biblio
+                    str(self.DATA_LIST[i].tecnologie),  # 18 - misurazioni
+                    str(self.DATA_LIST[i].tipo),  # 19 - tipo
+                    str(self.DATA_LIST[i].corpo_ceramico),  # 20 - corpo_ceramico
+                    str(self.DATA_LIST[i].rivestimento),  # 21 - rivestimento
+                    str(self.DATA_LIST[i].repertato),  # 22 - repertato
+                    str(self.DATA_LIST[i].diagnostico),
+                    str(self.DATA_LIST[i].n_reperto),
+                    str(self.DATA_LIST[i].tipo_contenitore),
+                    str(self.DATA_LIST[i].years),# 23 - diagnostico
+                    str(a),
+                    #str(image_path)
+                ])
+        #QMessageBox.warning(self, 'message', str(t))
         return data_list
     def on_pushButton_print_pressed(self):
         if self.L=='it':
@@ -1894,7 +2003,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             self.PDFFOLDER,
             " PDF (*.pdf)"
         )[0]
-        #filename=dbpath.split("/")[-1]
+
         if dbpath:
              
             self.lineEdit_pdf_path.setText(dbpath)
@@ -2417,6 +2526,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                 n_reperto,
                 str(self.lineEdit_tipo_contenitore.text()),
                 str(self.comboBox_struttura.currentText()),
+                str(self.comboBox_year.currentText()),
             )
             
             
@@ -2869,6 +2979,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                 self.TABLE_FIELDS[28]: n_reperto,
                 self.TABLE_FIELDS[29]: "'" + str(self.lineEdit_tipo_contenitore.text()) + "'",
                 self.TABLE_FIELDS[30]: "'" + str(self.comboBox_struttura.currentText()) + "'",
+                self.TABLE_FIELDS[31]: "'" + str(self.comboBox_year.currentText()) + "'",
             }
 
             u = Utility()
@@ -3287,6 +3398,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         self.lineEdit_n_reperto.clear()
         self.lineEdit_tipo_contenitore.clear()
         self.comboBox_struttura.setEditText("")  # 9 - diagnostico
+        self.comboBox_year.setEditText("")  # 9 - diagnostico
     def empty_fields_nosite(self):
         elementi_reperto_row_count = self.tableWidget_elementi_reperto.rowCount()
         misurazioni_row_count = self.tableWidget_misurazioni.rowCount()
@@ -3339,6 +3451,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         self.lineEdit_n_reperto.clear()
         self.lineEdit_tipo_contenitore.clear()
         self.comboBox_struttura.setEditText("")  # 9 - diagnostico
+        self.comboBox_year.setEditText("")  # 9 - diagnostico
     def fill_fields(self, n=0):
         self.rec_num = n
         # QMessageBox.warning(self, "check fill fields", str(self.rec_num),  QMessageBox.Ok)
@@ -3482,10 +3595,11 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             self.lineEdit_tipo_contenitore.setText(str(self.DATA_LIST[self.rec_num].tipo_contenitore))
             self.comboBox_struttura.setEditText(
                 str(self.DATA_LIST[self.rec_num].struttura))
+            self.comboBox_year.setEditText(
+                str(self.DATA_LIST[self.rec_num].years))
             if self.toolButtonPreviewMedia.isChecked():
                 self.loadMediaPreview()
-            self.comboBox_struttura.setEditText(
-                str(self.DATA_LIST[self.rec_num].struttura))
+            self.loadMapPreview()
         except :
             pass#QMessageBox.warning(self, "Error Fill Fields", str(e), QMessageBox.Ok)
 
@@ -3597,6 +3711,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             str(n_reperto),
             str(self.lineEdit_tipo_contenitore.text()),# 28 - diagnostico
             str(self.comboBox_struttura.currentText()),
+            str(self.comboBox_year.currentText()),
         ]
 
     def enable_button(self, n):

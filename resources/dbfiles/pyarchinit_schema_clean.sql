@@ -427,7 +427,8 @@ CREATE TABLE public.inventario_materiali_table (
     diagnostico character varying(3),
 	n_reperto integer,
 	tipo_contenitore character varying(200),
-	struttura character varying(200)
+	struttura character varying(200),
+	years integer
 );
 
 

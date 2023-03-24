@@ -1094,7 +1094,7 @@ ALTER TABLE ONLY public.pottery_table
 ALTER TABLE ONLY public.pottery_table
     ADD CONSTRAINT pottery_table_pkey PRIMARY KEY (id_rep);
 
-
+ALTER TABLE public.inventario_materiali_table ADD COLUMN IF NOT EXISTS years integer;
 ALTER TABLE public.pyunitastratigrafiche ALTER COLUMN coord TYPE text;
 ALTER TABLE public.pyunitastratigrafiche_usm ALTER COLUMN coord TYPE text;
 
