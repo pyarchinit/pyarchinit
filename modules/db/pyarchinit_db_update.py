@@ -83,6 +83,8 @@ class DB_update(object):
             if table_column_names_list.__contains__('diametro_preserved'):
                 self.engine.execute(
                     "ALTER TABLE pottery_table ALTER COLUMN diametro_preserved TYPE Numeric(7,3)")
+
+
         except:
             pass
 
@@ -93,6 +95,11 @@ class DB_update(object):
         
         for i in table.columns:
             table_column_names_list.append(str(i.name))
+
+        if not table_column_names_list.__contains__('years'):
+            self.engine.execute(
+                "ALTER TABLE inventario_materiali_table ADD COLUMN years integer")
+
         if not table_column_names_list.__contains__('stato_conservazione'):
             self.engine.execute(
                 "ALTER TABLE inventario_materiali_table ADD COLUMN stato_conservazione varchar DEFAULT ''")
