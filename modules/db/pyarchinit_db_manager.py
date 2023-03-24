@@ -1683,7 +1683,7 @@ class Pyarchinit_db_management(object):
             #unita_tipo = 'SU'
         id_us += 1
 
-        data_ins = self.insert_values(id_us, sito, area, n_us, '', '', '', '', '', '', '', '', '', '', '', '', '[]',
+        data_ins = self.insert_values(id_us, sito, area, n_us, text, '', '', '', '', '', '', '', '', '', '', '', '[]',
                                       '[]', '[]', '', '', '', '', '', '', '', '', '0', '[]', unita_tipo, '', '', '', '',
                                       '', '', '', '', '', '', '', '', '', None, None, '', '[]', '[]', '[]', '[]', '[]',
                                       '', '', '', '', None, None, '', '', '', '', '', '', '[]', '[]', None, None, None,
