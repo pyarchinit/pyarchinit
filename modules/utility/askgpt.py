@@ -5,10 +5,22 @@ import sys
 import time
 
 from qgis.PyQt.QtWidgets import *
+
 try:
-	import openai
-except:
-	pass
+    import openai
+
+    print("openai is already installed")
+except ImportError:
+    print("openai is not installed, installing...")
+    if sys.platform.startswith("win"):
+        subprocess.check_call(["pip", "install", "openai"])
+    elif sys.platform.startswith("darwin"):
+        subprocess.check_call(["pip3", "install", "openai"])
+    elif sys.platform.startswith("linux"):
+        subprocess.check_call(["pip", "install", "openai"])
+    else:
+        raise Exception(f"Unsupported platform: {sys.platform}")
+    print("openai installed successfully")
 class MyApp(QWidget):
 
     def __init__(self, api_key, parent=None):
