@@ -249,7 +249,7 @@ class single_US_pdf_sheet(object):
         self.tipo_legante_usm= data[111]
         self.rifinitura_usm= data[112]
         self.materiale_p= data[113]
-        self.consistenza_p= data[113]
+        self.consistenza_p= data[114]
     def unzip_componenti(self):
         org = eval(self.componenti_organici)
         inorg = eval(self.componenti_inorganici)
@@ -1363,7 +1363,7 @@ class single_US_pdf_sheet(object):
                 ['00', '01', sop, '03', '04' , '05', '06','07' , '08','09', '10', label_sas, '12', '13', '14', '15', '16', '17'],
                 [sito, '01', '02', '03', '04', '05' , '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17'],
                 [area, '01', '02', '03', '04', '05' , '06', '07', '08', '09', '10', saggio, '12', '13', '14', '15', '16', '17'],
-                [ambiente, '01', '02', '03', posizione, '04' , '06', settore, '08', quadrato, '10', quote, '12', '13', label_NAT, '15', label_ART, '17'],
+                [ambiente, '01', '02', '03', posizione, '05' , '06', settore, '08', quadrato, '10', quote, '12', '13', label_NAT, '15', label_ART, '17'],
                 [piante, '01', prospetti, '03', sezioni, '05', '06',foto, '08', '09', '10', tabelle_materiali, '12', '13', '14', '15', '16', '17'],
                 [d_stratigrafica, '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17'],
                 [criteri_distinzione, '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17'],
