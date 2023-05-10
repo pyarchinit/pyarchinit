@@ -233,7 +233,7 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
 
     def contenuto(self,b):
 
-        text= MyApp.ask_gpt(f'forniscimi qualche descrizione riguardo a questo contenuto{b}, tenendo presente che il contesto è archeologico',self.apikey_gpt()),
+        text= MyApp.ask_gpt(self,f'forniscimi qualche descrizione riguardo a questo contenuto{b}, tenendo presente che il contesto è archeologico',self.apikey_gpt()),
 
         return text
 
