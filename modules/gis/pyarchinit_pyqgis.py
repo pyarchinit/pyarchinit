@@ -446,7 +446,7 @@ class Pyarchinit_pyqgis(QDialog):
             
             
             
-            
+
             
             layer_name_pos = "Sezione - "+ str(data[0].sito)+ ": " + str(data[0].tipo_documentazione) + ": " + str(data[0].nome_doc)
             uri.setDataSource('', 'pyarchinit_sezioni_view', 'the_geom', sezstr, "ROWID")
@@ -456,10 +456,10 @@ class Pyarchinit_pyqgis(QDialog):
                 QMessageBox.warning(self, "Pyarchinit", "Layer Sezioni valido", QMessageBox.Ok)
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerPos))
                 QgsProject.instance().addMapLayers([layerPos], False)
-           
+
             else:
                 QMessageBox.warning(self, "Pyarchinit", "Layer Sezioni non valido", QMessageBox.Ok)
-            
+
             
             
             
@@ -481,7 +481,7 @@ class Pyarchinit_pyqgis(QDialog):
             
             
             
-            
+
             
             layer_name_pos = "Registro Doc - "+str(data[0].sito)+ ": " + str(data[0].tipo_documentazione) + ": " + str(data[0].nome_doc)
             uri.setDataSource('', 'pyarchinit_doc_view', 'the_geom', docstr, "ROWID")
@@ -491,7 +491,7 @@ class Pyarchinit_pyqgis(QDialog):
                 QMessageBox.warning(self, "Pyarchinit", "Layer Registro Documentazione valido", QMessageBox.Ok)
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerPos))
                 QgsProject.instance().addMapLayers([layerPos], False)
-           
+
             else:
                 QMessageBox.warning(self, "Pyarchinit", "Layer Registro Documentazione non valido", QMessageBox.Ok)
                 
@@ -510,16 +510,16 @@ class Pyarchinit_pyqgis(QDialog):
             else:
                 pass
 
-            
+
             uri = QgsDataSourceUri()
             uri.setDatabase(db_file_path)
 
             layer_name_neg = "US Negative - "+str(data[0].sito)+ ": " + str(data[0].tipo_documentazione) + ": " + str(data[0].nome_doc)
             uri.setDataSource('', 'pyarchinit_us_negative_doc_view', 'the_geom', gdrst, "ROWID")
             layerNeg = QgsVectorLayer(uri.uri(), layer_name_neg, 'spatialite')
-            
 
-           
+
+
             if layerNeg.isValid():
                 QMessageBox.warning(self, "Pyarchinit", "OK Layer US Negative valido", QMessageBox.Ok)
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerNeg))
@@ -543,10 +543,10 @@ class Pyarchinit_pyqgis(QDialog):
                 pass
             
 
-            layer_name_pos = "US Positive - "+ str(data[0].tipo_documentazione) + ": " + str(data[0].nome_doc)
+            layer_name_pos = "US orizzontali - "+ str(data[0].tipo_documentazione) + ": " + str(data[0].nome_doc)
 
             uri.setDataSource("public", 'pyarchinit_us_view', 'the_geom', docstr, "ROWID")
-            
+
             layerPos = QgsVectorLayer(uri.uri(), layer_name_pos, 'spatialite')
 
             if layerPos.isValid():
@@ -555,19 +555,56 @@ class Pyarchinit_pyqgis(QDialog):
                 QgsProject.instance().addMapLayers([layerPos], False)
                 self.canvas = QgsMapCanvas()
                 self.canvas.setExtent(layerPos.extent())
-            
-            layer_name_pos = "USM - "+ str(data[0].tipo_documentazione) + ": " + str(data[0].nome_doc)
+
+
+
+
+
+            layer_name_verticali = "US Verticali - "+ str(data[0].tipo_documentazione) + ": " + str(data[0].nome_doc)
 
             uri.setDataSource("public", 'pyarchinit_usm_view', 'the_geom', docstr, "ROWID")
-            
-            layerPos = QgsVectorLayer(uri.uri(), layer_name_pos, 'spatialite')
+
+            layerverticali = QgsVectorLayer(uri.uri(), layer_name_verticali, 'spatialite')
 
             if layerPos.isValid():
                 QMessageBox.warning(self, "Pyarchinit", "OK Layer USM valido", QMessageBox.Ok)
+                group.insertChildNode(-1, QgsLayerTreeLayer(layerverticali))
+                QgsProject.instance().addMapLayers([layerverticali], False)
+                self.canvas = QgsMapCanvas()
+                self.canvas.setExtent(layerPos.extent())
+
+            docstr_grezzo = ""
+            if len(data) == 1:
+                docstr = "sito = '" + str(data[0].sito) + "' AND tipo_doc = '" + str(data[0].tipo_documentazione) + "'"
+            elif len(data) > 1:
+                docstr = "(sito = '" + str(data[0].sito) + "' AND tipo_doc = '" + str(
+                    data[0].tipo_documentazione) + "')"
+                for i in range(len(data)):
+                    docstr += " OR (sito = '" + str(data[0].sito) + "' AND tipo_doc = '" + str(
+                        data[0].tipo_documentazione) + "')"
+            else:
+                pass
+
+
+            layer_name_pos = "US Disegno - " + str(data[0].tipo_documentazione)
+
+            uri.setDataSource("public", 'pyunitastratigrafiche', 'the_geom', docstr_grezzo, "gid")
+
+            layerPos = QgsVectorLayer(uri.uri(), layer_name_pos, 'spatialite')
+
+            if layerPos.isValid():
+                # self.USLayerId = layerUS.getLayerID()
+                style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_vuote.qml')
+
+
+                layerPos.loadNamedStyle(style_path)
+                QMessageBox.warning(self, "Pyarchinit", "OK Layer US disegno valido", QMessageBox.Ok)
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerPos))
                 QgsProject.instance().addMapLayers([layerPos], False)
                 self.canvas = QgsMapCanvas()
                 self.canvas.setExtent(layerPos.extent())
+
+
         elif settings.SERVER == 'postgres':
             
 
@@ -592,7 +629,7 @@ class Pyarchinit_pyqgis(QDialog):
                 pass
             
 
-            layer_name_pos = str(data[0].tipo_documentazione) + ": " + str(data[0].nome_doc)
+            layer_name_pos = "US orizzontali - "+str(data[0].tipo_documentazione) + ": " + str(data[0].nome_doc)
 
             uri.setDataSource("", 'pyarchinit_us_view', 'the_geom', docstr, "gid")
             
@@ -605,7 +642,22 @@ class Pyarchinit_pyqgis(QDialog):
                 self.canvas = QgsMapCanvas()
                 self.canvas.setExtent(layerPos.extent())
 
-            layer_name_pos = str(data[0].tipo_documentazione) + ": " + str(data[0].nome_doc)
+            us_name_pos = "US Disegno grezzo - "+str(data[0].tipo_documentazione)
+
+            uri.setDataSource("", 'pyunitastratigrafiche', 'the_geom', docstr_grezzo, "gid")
+
+            usPos = QgsVectorLayer(uri.uri(), us_name_pos, 'postgres')
+
+            if usPos.isValid():
+                QMessageBox.warning(self, "Pyarchinit", "OK Layer US valido", QMessageBox.Ok)
+                group.insertChildNode(-1, QgsLayerTreeLayer(usPos))
+                QgsProject.instance().addMapLayers([layerPos], False)
+                self.canvas = QgsMapCanvas()
+                self.canvas.setExtent(usPos.extent())
+
+
+
+            layer_name_pos = "US Verticali - "+ str(data[0].tipo_documentazione) + ": " + str(data[0].nome_doc)
 
             uri.setDataSource("", 'pyarchinit_usm_view', 'the_geom', docstr, "gid")
             
@@ -619,7 +671,7 @@ class Pyarchinit_pyqgis(QDialog):
                 self.canvas.setExtent(layerPos.extent())
             
             
-            layer_name_neg = str(data[0].tipo_documentazione) + ": " + str(data[0].nome_doc) + " - negative"
+            layer_name_neg = "US Negative - "+str(data[0].tipo_documentazione) + ": " + str(data[0].nome_doc) + " - negative"
 
             '''docstrn = "sito_n = '" + str(data[0].sito) + "' AND nome_doc_n = '" + str(
                 data[0].nome_doc) + "' AND tipo_doc_n = '" + str(data[0].tipo_documentazione) + "')"
@@ -666,7 +718,7 @@ class Pyarchinit_pyqgis(QDialog):
                 pass
             
             
-            layer_name_pos = str(data[0].tipo_documentazione) + ": " + str(data[0].nome_doc)
+            layer_name_pos = "Registro doc - "+str(data[0].tipo_documentazione) + ": " + str(data[0].nome_doc)
             uri.setDataSource("", 'pyarchinit_doc_view', 'the_geom', docstr, "gid")
             ##          uri.setDataSource('','pyarchinit_doc_view_b', 'the_geom', docstr, "ROWID")
             layerPos = QgsVectorLayer(uri.uri(), layer_name_pos, 'postgres')
@@ -678,9 +730,19 @@ class Pyarchinit_pyqgis(QDialog):
                 #self.canvas.setExtent(layerPos.extent())
             else:
                 QMessageBox.warning(self, "Pyarchinit", "Layer US non valido", QMessageBox.Ok)
-                
 
-            
+            layer_name_pos = "Sezione - " + str(data[0].sito) + ": " + str(data[0].tipo_documentazione) + ": " + str(
+                data[0].nome_doc)
+            uri.setDataSource('', 'pyarchinit_sezioni_view', 'the_geom', sezstr, "gid")
+            ##          uri.setDataSource('','pyarchinit_doc_view_b', 'the_geom', docstr, "ROWID")
+            layerPos = QgsVectorLayer(uri.uri(), layer_name_pos, 'postgres')
+            if layerPos.isValid():
+                QMessageBox.warning(self, "Pyarchinit", "Layer Sezioni valido", QMessageBox.Ok)
+                group.insertChildNode(-1, QgsLayerTreeLayer(layerPos))
+                QgsProject.instance().addMapLayers([layerPos], False)
+
+            else:
+                QMessageBox.warning(self, "Pyarchinit", "Layer Sezioni non valido", QMessageBox.Ok)
 
     def charge_vector_layers_doc_from_scheda_US(self, lista_draw_doc):
         # data riceve 5 valori che saranno: sito, area, US, nome_doc e tipo_doc
