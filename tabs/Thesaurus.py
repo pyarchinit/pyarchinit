@@ -21,14 +21,14 @@
 from __future__ import absolute_import
 
 import os
+import re
 from datetime import date
-import urllib
 
 import sys
 from builtins import range
 from builtins import str
 from qgis.PyQt.QtCore import QUrl
-from qgis.PyQt.QtWidgets import QFileDialog,QDialog, QMessageBox,QCompleter,QComboBox
+from qgis.PyQt.QtWidgets import QFileDialog,QDialog, QMessageBox,QCompleter,QComboBox,QInputDialog
 from qgis.PyQt.uic import loadUiType
 from qgis.core import QgsSettings
 import csv, sqlite3
@@ -37,6 +37,7 @@ from ..modules.db.pyarchinit_db_manager import Pyarchinit_db_management
 from ..modules.db.pyarchinit_utility import Utility
 from ..modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis
 from ..modules.utility.pyarchinit_error_check import Error_check
+from ..modules.utility.askgpt import MyApp
 from ..gui.sortpanelmain import SortPanelMain
 
 MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), os.pardir, 'gui', 'ui', 'Thesaurus.ui'))
@@ -172,7 +173,52 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
             QMessageBox.warning(self, "Connection system", str(e), QMessageBox.Ok)
         self.comboBox_sigla_estesa.editTextChanged.connect(self.find_text)
         self.check_db()
-    
+
+    def apikey_gpt(self):
+        #HOME = os.environ['PYARCHINIT_HOME']
+        BIN = '{}{}{}'.format(self.HOME, os.sep, "bin")
+        api_key = ""
+        # Verifica se il file gpt_api_key.txt esiste
+        path_key = os.path.join(BIN, 'gpt_api_key.txt')
+        if os.path.exists(path_key):
+
+            # Leggi l'API Key dal file
+            with open(path_key, 'r') as f:
+                api_key = f.read().strip()
+                try:
+
+                    return api_key
+
+                except:
+                    reply = QMessageBox.question(None, 'Warning', 'Apikey non valida' + '\n'
+                                                 + 'Clicca ok per inserire la chiave',
+                                                 QMessageBox.Ok | QMessageBox.Cancel)
+                    if reply == QMessageBox.Ok:
+
+                        api_key, ok = QInputDialog.getText(None, 'Apikey gpt', 'Inserisci apikey valida:')
+                        if ok:
+                            # Salva la nuova API Key nel file
+                            with open(path_key, 'w') as f:
+                                f.write(api_key)
+                                f.close()
+                            with open(path_key, 'r') as f:
+                                api_key = f.read().strip()
+                    else:
+                        return api_key
+
+
+        else:
+            # Chiedi all'utente di inserire una nuova API Key
+            api_key, ok = QInputDialog.getText(None, 'Apikey gpt', 'Inserisci apikey:')
+            if ok:
+                # Salva la nuova API Key nel file
+                with open(path_key, 'w') as f:
+                    f.write(api_key)
+                    f.close()
+                with open(path_key, 'r') as f:
+                    api_key = f.read().strip()
+
+        return api_key
     def check_db(self):
         conn = Connection()
         conn_str = conn.conn_str()
@@ -182,16 +228,62 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
             self.pushButton_import_csvthesaurus.setHidden(False)
         else:
             self.pushButton_import_csvthesaurus.setHidden(True)
-        
+
+    def contenuto(self, b):
+        text = MyApp.ask_gpt(self,
+                             f'forniscimi una descrizione e 3 link wikipidia riguardo a questo contenuto {b}, tenendo presente che il contesto è archeologico',
+                             self.apikey_gpt())
+        #url_pattern = r"(https?:\/\/\S+)"
+        #urls = re.findall(url_pattern, text)
+        return text#, urls
+    def webview(self):
+        description=str(self.textEdit_descrizione_sigla.toPlainText())
+
+        links = re.findall("(?P<url>https?://[^\s]+)", description)
+
+        # Create an HTML string to display in the QWebView
+        html_string = "<html><body>"
+        html_string += "<p>" + description.replace("\n", "<br>") + "</p>"
+        html_string += "<ul>"
+        for link in links:
+            html_string += f"<li><a href='{link}'>{link}</a></li>"
+        html_string += "</ul>"
+        html_string += "</body></html>"
+        vista=html_string
+        QMessageBox.information(self, 'testo', str(html_string))
+        # Display the HTML in a QWebView widget
+        url=QUrl("about:blank")
+        self.webView_adarte.setHtml(vista,url)
+
+
+        # Show the QWebView widget
+        self.webView_adarte.show()
+    def handleComboActivated(self, index):
+        selected_text = self.comboBox_sigla_estesa.itemText(index)
+        generate_text = self.contenuto(selected_text)
+        reply = QMessageBox.information(self, 'Info', generate_text, QMessageBox.Ok | QMessageBox.Cancel)
+        if reply == QMessageBox.Ok:
+            self.textEdit_descrizione_sigla.setText(generate_text)
+
+    def on_suggerimenti_pressed(self):
+        s = self.contenuto(self.comboBox_sigla_estesa.currentText())
+        generate_text = s
+        QMessageBox.information(self, 'info', str(generate_text), QMessageBox.Ok | QMessageBox.Cancel)
+
+        if QMessageBox.Ok:
+            self.textEdit_descrizione_sigla.setText(str(generate_text))
+            self.webview()
+        else:
+            pass
     def find_text(self):
-        
+
         if self.comboBox_sigla_estesa.currentText()=='':
             uri= 'https://vast-lab.org/thesaurus/ra/vocab/index.php?'
         else:
-            
+
             uri= 'https://vast-lab.org/thesaurus/ra/vocab/index.php?ws=t&xstring='+ self.comboBox_sigla_estesa.currentText()+'&hasTopTerm=&hasNote=NA&fromDate=&termDeep=&boton=Conferma&xsearch=1#xstring'
-            self.comboBox_sigla_estesa.completer().setCompletionMode(QCompleter.PopupCompletion) 
-            self.comboBox_sigla_estesa.setInsertPolicy(QComboBox.NoInsert) 
+            self.comboBox_sigla_estesa.completer().setCompletionMode(QCompleter.PopupCompletion)
+            self.comboBox_sigla_estesa.setInsertPolicy(QComboBox.NoInsert)
         self.webView_adarte.load(QUrl(uri))
         self.webView_adarte.show()
     
