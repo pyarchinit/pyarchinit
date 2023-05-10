@@ -2368,7 +2368,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             gidstr = self.ID_TABLE + " = " + str(
                 eval("self.DATA_LIST[int(self.REC_CORR)]." + self.ID_TABLE))
             layerToSet = self.pyQGIS.loadMapPreview(gidstr)
-            QMessageBox.warning(self, "layer to set", '\n'.join([l.name() for l in layerToSet]), QMessageBox.Ok)
+            #QMessageBox.warning(self, "layer to set", '\n'.join([l.name() for l in layerToSet]), QMessageBox.Ok)
             self.mapPreview.setLayers(layerToSet)
             self.mapPreview.zoomToFullExtent()
         elif mode == 1:
@@ -5943,6 +5943,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 us = ""
             ##qmin_usm
             if self.lineEdit_qmin_usm.text() != "":
+
                 qmin_usm = float(self.lineEdit_qmin_usm.text())
             else:
                 qmin_usm = None
