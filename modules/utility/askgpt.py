@@ -28,8 +28,8 @@ class MyApp(QWidget):
         self.api_key = api_key
 
     def ask_gpt(self, prompt):
-        if not hasattr(openai, "api_key") or openai.api_key != self.api_key:
-            openai.api_key = self.api_key
+
+        openai.api_key = self.api_key
         for _ in range(3):  # retry up to 3 times
             try:
                 response = openai.Completion.create(
