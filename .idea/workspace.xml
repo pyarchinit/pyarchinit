@@ -4,37 +4,26 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="13d9711e-af47-4516-9a74-091c329d410d" name="Changes" comment="fix minor bug">
-      <change afterPath="$PROJECT_DIR$/gui/ui/pyarchinit_Pottery_ui.ui" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/modules/db/entities/POTTERY.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/modules/db/structures/Pottery_table.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/modules/utility/pyarchinit_exp_POTTERYsheet_pdf.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tabs/pyarchinit_Pottery_mainapp.py" afterDir="false" />
+    <list default="true" id="13d9711e-af47-4516-9a74-091c329d410d" name="Changes" comment="fixed update reverese rapport">
+      <change afterPath="$PROJECT_DIR$/modules/utility/askgpt.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gui/ui/Thesaurus.ui" beforeDir="false" afterPath="$PROJECT_DIR$/gui/ui/Thesaurus.ui" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/gui/ui/US_USM.ui" beforeDir="false" afterPath="$PROJECT_DIR$/gui/ui/US_USM.ui" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gui/ui/pyarchinit_image_viewer_dialog.ui" beforeDir="false" afterPath="$PROJECT_DIR$/gui/ui/pyarchinit_image_viewer_dialog.ui" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/i18n/pyarchinit_plugin_ar_LB.ts" beforeDir="false" afterPath="$PROJECT_DIR$/i18n/pyarchinit_plugin_ar_LB.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/i18n/pyarchinit_plugin_de_DE.ts" beforeDir="false" afterPath="$PROJECT_DIR$/i18n/pyarchinit_plugin_de_DE.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/i18n/pyarchinit_plugin_en_US.qm" beforeDir="false" afterPath="$PROJECT_DIR$/i18n/pyarchinit_plugin_en_US.qm" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/i18n/pyarchinit_plugin_en_US.ts" beforeDir="false" afterPath="$PROJECT_DIR$/i18n/pyarchinit_plugin_en_US.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/i18n/pyarchinit_plugin_es_ES.ts" beforeDir="false" afterPath="$PROJECT_DIR$/i18n/pyarchinit_plugin_es_ES.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/i18n/pyarchinit_plugin_fr_FR.ts" beforeDir="false" afterPath="$PROJECT_DIR$/i18n/pyarchinit_plugin_fr_FR.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/i18n/pyarchinit_plugin_it_IT.ts" beforeDir="false" afterPath="$PROJECT_DIR$/i18n/pyarchinit_plugin_it_IT.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/db/pyarchinit_db_manager.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/db/pyarchinit_db_manager.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/db/pyarchinit_db_mapper.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/db/pyarchinit_db_mapper.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/db/pyarchinit_db_structure.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/db/pyarchinit_db_update.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/db/pyarchinit_db_update.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/gis/pyarchinit_pyqgis.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/gis/pyarchinit_pyqgis.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pyarchinit.pro" beforeDir="false" afterPath="$PROJECT_DIR$/pyarchinit.pro" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pyarchinitPlugin.py" beforeDir="false" afterPath="$PROJECT_DIR$/pyarchinitPlugin.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/dbfiles/pyarchinit_update_postgres.sql" beforeDir="false" afterPath="$PROJECT_DIR$/resources/dbfiles/pyarchinit_update_postgres.sql" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tabs/Image_viewer.py" beforeDir="false" afterPath="$PROJECT_DIR$/tabs/Image_viewer.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/utility/pyarchinit_exp_USsheet_pdf.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/utility/pyarchinit_exp_USsheet_pdf.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tabs/Thesaurus.py" beforeDir="false" afterPath="$PROJECT_DIR$/tabs/Thesaurus.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tabs/US_USM.py" beforeDir="false" afterPath="$PROJECT_DIR$/tabs/US_USM.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Python Script" />
+      </list>
+    </option>
   </component>
   <component name="Git.Settings">
     <favorite-branches>
@@ -52,11 +41,10 @@
     </favorite-branches>
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="pyarchinit_db_english" />
+        <entry key="$PROJECT_DIR$" value="master" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
-    <option name="UPDATE_TYPE" value="REBASE" />
   </component>
   <component name="GithubDefaultAccount">
     <option name="defaultAccountId" value="3716b4d5-8ed8-402e-a24e-43894efbf059" />
@@ -85,8 +73,8 @@
   </component>
   <component name="PropertiesComponent">{
   &quot;keyToString&quot;: {
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/enzoc/AppData/Roaming/QGIS/QGIS3/profiles/default/python/plugins/pyarchinit/modules/db/structures/Pottery_table.py&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.customizations&quot;
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/enzoc/OneDrive/ED2Graphml&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;settings.codegpt&quot;
   }
 }</component>
   <component name="PyConsoleOptionsProvider">
@@ -128,9 +116,6 @@
     <recent_temporary>
       <list>
         <item itemvalue="Python.test" />
-        <item itemvalue="Python.test" />
-        <item itemvalue="Python.test" />
-        <item itemvalue="Python.test" />
       </list>
     </recent_temporary>
   </component>
@@ -142,83 +127,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1636816115136</updated>
-    </task>
-    <task id="LOCAL-00011" summary="v3.9.8.16">
-      <created>1637594574692</created>
-      <option name="number" value="00011" />
-      <option name="presentableId" value="LOCAL-00011" />
-      <option name="project" value="LOCAL" />
-      <updated>1637594574692</updated>
-    </task>
-    <task id="LOCAL-00012" summary="update">
-      <created>1639033406448</created>
-      <option name="number" value="00012" />
-      <option name="presentableId" value="LOCAL-00012" />
-      <option name="project" value="LOCAL" />
-      <updated>1639033406448</updated>
-    </task>
-    <task id="LOCAL-00013" summary="update">
-      <created>1639034179337</created>
-      <option name="number" value="00013" />
-      <option name="presentableId" value="LOCAL-00013" />
-      <option name="project" value="LOCAL" />
-      <updated>1639034179337</updated>
-    </task>
-    <task id="LOCAL-00014" summary="update author">
-      <created>1639035811951</created>
-      <option name="number" value="00014" />
-      <option name="presentableId" value="LOCAL-00014" />
-      <option name="project" value="LOCAL" />
-      <updated>1639035811951</updated>
-    </task>
-    <task id="LOCAL-00015" summary="update author">
-      <created>1639041519153</created>
-      <option name="number" value="00015" />
-      <option name="presentableId" value="LOCAL-00015" />
-      <option name="project" value="LOCAL" />
-      <updated>1639041519153</updated>
-    </task>
-    <task id="LOCAL-00016" summary="toponomastica wfs">
-      <created>1639429176562</created>
-      <option name="number" value="00016" />
-      <option name="presentableId" value="LOCAL-00016" />
-      <option name="project" value="LOCAL" />
-      <updated>1639429176562</updated>
-    </task>
-    <task id="LOCAL-00017" summary="toponomastica wfs">
-      <created>1645776550839</created>
-      <option name="number" value="00017" />
-      <option name="presentableId" value="LOCAL-00017" />
-      <option name="project" value="LOCAL" />
-      <updated>1645776550839</updated>
-    </task>
-    <task id="LOCAL-00018" summary="fix bug english version">
-      <created>1648523407860</created>
-      <option name="number" value="00018" />
-      <option name="presentableId" value="LOCAL-00018" />
-      <option name="project" value="LOCAL" />
-      <updated>1648523407860</updated>
-    </task>
-    <task id="LOCAL-00019" summary="fix bug english version">
-      <created>1648606293100</created>
-      <option name="number" value="00019" />
-      <option name="presentableId" value="LOCAL-00019" />
-      <option name="project" value="LOCAL" />
-      <updated>1648606293100</updated>
-    </task>
-    <task id="LOCAL-00020" summary="fix bug english version">
-      <created>1649157707828</created>
-      <option name="number" value="00020" />
-      <option name="presentableId" value="LOCAL-00020" />
-      <option name="project" value="LOCAL" />
-      <updated>1649157707828</updated>
-    </task>
-    <task id="LOCAL-00021" summary="v3.9.14">
-      <created>1649160627944</created>
-      <option name="number" value="00021" />
-      <option name="presentableId" value="LOCAL-00021" />
-      <option name="project" value="LOCAL" />
-      <updated>1649160627944</updated>
     </task>
     <task id="LOCAL-00022" summary="v3.9.14">
       <created>1649165457258</created>
@@ -486,7 +394,84 @@
       <option name="project" value="LOCAL" />
       <updated>1668772905034</updated>
     </task>
-    <option name="localTasksCounter" value="60" />
+    <task id="LOCAL-00060" summary="update metadata">
+      <created>1675189795154</created>
+      <option name="number" value="00060" />
+      <option name="presentableId" value="LOCAL-00060" />
+      <option name="project" value="LOCAL" />
+      <updated>1675189795154</updated>
+    </task>
+    <task id="LOCAL-00061" summary="#525">
+      <created>1675594710744</created>
+      <option name="number" value="00061" />
+      <option name="presentableId" value="LOCAL-00061" />
+      <option name="project" value="LOCAL" />
+      <updated>1675594710745</updated>
+    </task>
+    <task id="LOCAL-00062" summary="v4.4.0">
+      <created>1675594731401</created>
+      <option name="number" value="00062" />
+      <option name="presentableId" value="LOCAL-00062" />
+      <option name="project" value="LOCAL" />
+      <updated>1675594731401</updated>
+    </task>
+    <task id="LOCAL-00063" summary="fix bug on schedatore fields">
+      <created>1676364385259</created>
+      <option name="number" value="00063" />
+      <option name="presentableId" value="LOCAL-00063" />
+      <option name="project" value="LOCAL" />
+      <updated>1676364385259</updated>
+    </task>
+    <task id="LOCAL-00064" summary="v4.4.1">
+      <created>1676364467912</created>
+      <option name="number" value="00064" />
+      <option name="presentableId" value="LOCAL-00064" />
+      <option name="project" value="LOCAL" />
+      <updated>1676364467912</updated>
+    </task>
+    <task id="LOCAL-00065" summary="fix bug matrix export without period">
+      <created>1676914047586</created>
+      <option name="number" value="00065" />
+      <option name="presentableId" value="LOCAL-00065" />
+      <option name="project" value="LOCAL" />
+      <updated>1676914047586</updated>
+    </task>
+    <task id="LOCAL-00066" summary="v4.4.2">
+      <created>1676914115542</created>
+      <option name="number" value="00066" />
+      <option name="presentableId" value="LOCAL-00066" />
+      <option name="project" value="LOCAL" />
+      <updated>1676914115542</updated>
+    </task>
+    <task id="LOCAL-00067" summary="v4.4.3">
+      <created>1679660836831</created>
+      <option name="number" value="00067" />
+      <option name="presentableId" value="LOCAL-00067" />
+      <option name="project" value="LOCAL" />
+      <updated>1679660836832</updated>
+    </task>
+    <task id="LOCAL-00068" summary="v4.4.3">
+      <created>1679660896243</created>
+      <option name="number" value="00068" />
+      <option name="presentableId" value="LOCAL-00068" />
+      <option name="project" value="LOCAL" />
+      <updated>1679660896243</updated>
+    </task>
+    <task id="LOCAL-00069" summary="fixed update reverese rapport">
+      <created>1679661991338</created>
+      <option name="number" value="00069" />
+      <option name="presentableId" value="LOCAL-00069" />
+      <option name="project" value="LOCAL" />
+      <updated>1679661991338</updated>
+    </task>
+    <task id="LOCAL-00070" summary="fixed update reverese rapport">
+      <created>1679662089681</created>
+      <option name="number" value="00070" />
+      <option name="presentableId" value="LOCAL-00070" />
+      <option name="project" value="LOCAL" />
+      <updated>1679662089681</updated>
+    </task>
+    <option name="localTasksCounter" value="71" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -517,15 +502,6 @@
     <ignored-roots>
       <path value="$PROJECT_DIR$/ext-libs/totalopenstation-0.5.2-py3.9.egg/totalopenstation_" />
     </ignored-roots>
-    <MESSAGE value="update author" />
-    <MESSAGE value="toponomastica wfs" />
-    <MESSAGE value="fix bug english version" />
-    <MESSAGE value="v3.9.14" />
-    <MESSAGE value="v.3.9.15" />
-    <MESSAGE value="pyarchini tomba view" />
-    <MESSAGE value="#460" />
-    <MESSAGE value="v3.9.18" />
-    <MESSAGE value="v3.9.19" />
     <MESSAGE value="v4.0.0" />
     <MESSAGE value="add" />
     <MESSAGE value="fix minor bug gui matrix" />
@@ -542,7 +518,16 @@
     <MESSAGE value="fix update tablewidget relationships for EM" />
     <MESSAGE value="v4.3.3" />
     <MESSAGE value="fix minor bug" />
-    <option name="LAST_COMMIT_MESSAGE" value="fix minor bug" />
+    <MESSAGE value="update metadata" />
+    <MESSAGE value="#525" />
+    <MESSAGE value="v4.4.0" />
+    <MESSAGE value="fix bug on schedatore fields" />
+    <MESSAGE value="v4.4.1" />
+    <MESSAGE value="fix bug matrix export without period" />
+    <MESSAGE value="v4.4.2" />
+    <MESSAGE value="v4.4.3" />
+    <MESSAGE value="fixed update reverese rapport" />
+    <option name="LAST_COMMIT_MESSAGE" value="fixed update reverese rapport" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

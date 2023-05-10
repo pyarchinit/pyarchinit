@@ -20,6 +20,7 @@
 from __future__ import absolute_import
 
 import psycopg2
+
 import sqlite3 as sq
 from xml.etree.ElementTree import ElementTree as ET
 import csv
@@ -40,7 +41,6 @@ from qgis.PyQt.uic import loadUiType
 from qgis.core import *
 from qgis.gui import QgsMapCanvas, QgsMapToolPan
 from qgis.PyQt.QtSql import QSqlDatabase, QSqlTableModel
-import re
 from .Interactive_matrix import *
 from ..modules.utility.pyarchinit_OS_utility import Pyarchinit_OS_Utility
 from ..modules.db.pyarchinit_conn_strings import Connection
@@ -53,7 +53,7 @@ from ..modules.utility.pyarchinit_error_check import Error_check
 from ..modules.utility.pyarchinit_exp_USsheet_pdf import generate_US_pdf
 from ..modules.utility.pyarchinit_print_utility import Print_utility
 from ..modules.utility.settings import Settings
-#from ..modules.utility.layout_loader import LayoutLoader
+from ..modules.utility.askgpt import MyApp
 from .pyarchinit_setting_matrix import Setting_Matrix
 from ..searchLayers import SearchLayers
 from ..gui.imageViewer import ImageViewer
@@ -842,6 +842,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.tableWidget_rapporti.itemChanged.connect(self.check_listoflist)
         # self.tableWidget_rapporti.itemChanged.connect(self.search_l)
 
+
     def clean_comments(self,text_to_clean):
         clean_text = text_to_clean.split("##")[0].replace("\n", "")
         return clean_text
@@ -987,7 +988,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         except AssertionError as e:
             QMessageBox.warning(self, 'error', str(e), QMessageBox.Ok)
         else:
-            QMessageBox.information(self, 'error', 'done', QMessageBox.Ok)
+            QMessageBox.information(self, 'ok', 'done', QMessageBox.Ok)
         self.pushButton_view_all.click()
 
     def on_pushButton_fix_pressed(self):
@@ -4327,10 +4328,10 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             self.periodi_to_rapporti_stratigrafici_check(sito_check, area_check)
             self.automaticform_check(sito_check, area_check)
         except Exception as e:
-            self.listWidget_rapp.addItem(str(e))
+            self.listWidget_rapp.addItem(MyApp.ask_gpt(self,f'spiegami l errore {e}'))
         else:
             if self.L=='it':
-                self.listWidget_rapp.addItem("Controllo Rapporti Stratigrafici.\nControllo eseguito con successo.")
+                self.listWidget_rapp.addItem("Monitoraggio dei rapporti stratigrafici. \n Controllo eseguito con successo")
             elif self.L=='de':
                 Qself.listWidget_rapp.addItem("Prüfen der stratigraphischen Beziehung.  Kontrolle erfolgereich")
             else:
@@ -5601,6 +5602,26 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.SORT_STATUS = "n"
         self.label_sort.setText(self.SORTED_ITEMS[self.SORT_STATUS])
         # records surf functions
+
+    def view_all(self):
+
+        self.checkBox_query.setChecked(False)
+        if self.checkBox_query.isChecked():
+            self.model_a.database().close()
+        self.empty_fields()
+        self.charge_records()
+        self.fill_fields()
+        self.BROWSE_STATUS = "b"
+        self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
+        if type(self.REC_CORR) == "<class 'str'>":
+            corr = 0
+        else:
+            corr = self.REC_CORR
+        self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR + 1)
+        self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
+        self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
+        self.SORT_STATUS = "n"
+        self.label_sort.setText(self.SORTED_ITEMS[self.SORT_STATUS])
     def on_pushButton_first_rec_pressed(self):
         
         self.checkBox_query.setChecked(False)
@@ -7186,6 +7207,238 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             subprocess.Popen(["xdg-open", path])
 
 
+    def check_db(self):
+        conn = Connection()
+        conn_str = conn.conn_str()
+        test_conn = conn_str.find('sqlite')
+
+        if test_conn == 0:
+            self.pushButton_import_ed2pyarchinit.setHidden(False)
+        else:
+            self.pushButton_import_ed2pyarchinit.setHidden(True)
+
+    def cast_tipo_dati(self,valore):
+        try:
+            return int(valore)
+        except ValueError:
+            try:
+                return float(valore)
+            except ValueError:
+                if valore == '':
+                    return None
+                else:
+                    return str(valore)
+    def on_pushButton_import_ed2pyarchinit_pressed(self):
+        '''funzione valida solo per sqlite'''
+
+        s = QgsSettings()
+        dbpath = QFileDialog.getOpenFileName(
+            self,
+            "Set file name",
+            '',
+            " CSV (*.csv)"
+        )[0]
+        filename = dbpath  # .split("/")[-1]
+        try:
+            conn = Connection()
+            conn.conn_str()
+            conn_sqlite = conn.databasename()
+
+            sqlite_DB_path = '{}{}{}'.format(self.HOME, os.sep,
+                                             "pyarchinit_DB_folder")
+
+            con = sq.connect(sqlite_DB_path + os.sep + conn_sqlite["db_name"])
+            cur = con.cursor()
+
+            """
+            funzioni per convertire i tipi di campi.
+            Necessario per inserire e salvare i dati nel database
+            """
+            def converti_int(valore):
+                if valore == '':
+                    return '0'
+                else:
+                    return valore
+            def converti_float(valore):
+                if valore == '':
+                    return None
+                else:
+                    return valore
+            def converti_list(valore):
+                if valore=='':
+                    return '[]'
+                else:
+                    return valore
+            with open(filename, 'r') as fin:
+                dr = csv.DictReader(fin)  # comma is default delimiter
+
+                to_db =[(i['sito'],i['area'],i['us'],i['d_stratigrafica'],i['d_interpretativa'],
+                         i['descrizione'],i['interpretazione'],i['periodo_iniziale'],
+                         i['fase_iniziale'],i['periodo_finale'],i['fase_finale'],
+                         i['scavato'],i['attivita'],i['anno_scavo'],i['metodo_di_scavo'],
+                         converti_list(i['inclusi']),converti_list(i['campioni']),
+                         converti_list(i['rapporti']),i['data_schedatura'],i['schedatore'],
+                         i['formazione'],i['stato_di_conservazione'],i['colore'],i['consistenza'],
+                         i['struttura'],i['cont_per'],converti_int(i['order_layer']),
+                         converti_list(i['documentazione']),i['unita_tipo'],
+                         i['settore'],i['quad_par'],i['ambient'],
+                         i['saggio'],i['elem_datanti'],i['funz_statica'],i['lavorazione'],
+                         i['spess_giunti'],i['letti_posa'],i['alt_mod'],i['un_ed_riass'],
+                         i['reimp'],i['posa_opera'],converti_float(i['quota_min_usm']),converti_float(i['quota_max_usm']),
+                         i['cons_legante'],converti_list(i['col_legante']),converti_list(i['aggreg_legante']),
+                         converti_list(i['con_text_mat']),converti_list(i['col_materiale']),converti_list(i['inclusi_materiali_usm']),
+                         i['n_catalogo_generale'],i['n_catalogo_interno'],
+                         i['n_catalogo_internazionale'],i['soprintendenza'],
+                         converti_float(i['quota_relativa']),converti_float(i['quota_abs']),i['ref_tm'],
+                         i['ref_ra'],i['ref_n'],i['posizione'],i['criteri_distinzione'],
+                         i['modo_formazione'],converti_list(i['componenti_organici']),converti_list(i['componenti_inorganici']),
+                         converti_float(i['lunghezza_max']),converti_float(i['altezza_max']),converti_float(i['altezza_min']),
+                         converti_float(i['profondita_max']),converti_float(i['profondita_min']),converti_float(i['larghezza_media']),
+                         converti_float(i['quota_max_abs']),converti_float(i['quota_max_rel']),converti_float(i['quota_min_abs']),
+                         converti_float(i['quota_min_rel']),i['osservazioni'],i['datazione'],
+                         i['flottazione'],i['setacciatura'],i['affidabilita'],
+                         i['direttore_us'],i['responsabile_us'],i['cod_ente_schedatore'],
+                         i['data_rilevazione'],i['data_rielaborazione'],converti_float(i['lunghezza_usm']),
+                         converti_float(i['altezza_usm']),converti_float(i['spessore_usm']),i['tecnica_muraria_usm'],
+                         i['modulo_usm'],i['campioni_malta_usm'],i['campioni_mattone_usm'],
+                         i['campioni_pietra_usm'],i['provenienza_materiali_usm'],
+                         i['criteri_distinzione_usm'],i['uso_primario_usm'],
+                         i['tipologia_opera'],i['sezione_muraria'],i['superficie_analizzata'],
+                         i['orientamento'],i['materiali_lat'],i['lavorazione_lat'],
+                         i['consistenza_lat'],i['forma_lat'],i['colore_lat'],i['impasto_lat'],
+                         i['forma_p'],i['colore_p'],i['taglio_p'],i['posa_opera_p'],
+                         i['inerti_usm'],i['tipo_legante_usm'],i['rifinitura_usm'],
+                         i['materiale_p'],i['consistenza_p'],converti_list(i['rapporti2']),i['doc_usv'])
+                        for i in dr]
+
+
+            cur.executemany(
+                """INSERT INTO us_table (
+                sito,
+                area,
+                us,
+                d_stratigrafica,
+                d_interpretativa,
+                descrizione,
+                interpretazione,
+                periodo_iniziale,
+                fase_iniziale,
+                periodo_finale,
+                fase_finale,
+                scavato,
+                attivita,
+                anno_scavo,
+                metodo_di_scavo,
+                inclusi,
+                campioni,
+                rapporti,                
+                data_schedatura,
+                schedatore,
+                formazione,
+                stato_di_conservazione,
+                colore,
+                consistenza,
+                struttura,
+                cont_per,
+                order_layer,
+                documentazione,
+                unita_tipo,
+                settore,
+                quad_par,
+                ambient,
+                saggio,
+                elem_datanti,
+                funz_statica,
+                lavorazione,
+                spess_giunti,
+                letti_posa,
+                alt_mod,
+                un_ed_riass,
+                reimp,
+                posa_opera,
+                quota_min_usm,
+                quota_max_usm,
+                cons_legante,
+                col_legante,
+                aggreg_legante,
+                con_text_mat,
+                col_materiale,
+                inclusi_materiali_usm, 
+                n_catalogo_generale,
+                n_catalogo_interno,
+                n_catalogo_internazionale,
+                soprintendenza,
+                quota_relativa,
+                quota_abs,
+                ref_tm,
+                ref_ra,
+                ref_n,
+                posizione,
+                criteri_distinzione,
+                modo_formazione,
+                componenti_organici,
+                componenti_inorganici,
+                lunghezza_max,
+                altezza_max,
+                altezza_min,
+                profondita_max,
+                profondita_min,
+                larghezza_media,
+                quota_max_abs,
+                quota_max_rel,
+                quota_min_abs,
+                quota_min_rel,
+                osservazioni,
+                datazione,
+                flottazione,
+                setacciatura,
+                affidabilita,
+                direttore_us,
+                responsabile_us,
+                cod_ente_schedatore,
+                data_rilevazione,
+                data_rielaborazione,
+                lunghezza_usm,
+                altezza_usm,
+                spessore_usm,
+                tecnica_muraria_usm,
+                modulo_usm,
+                campioni_malta_usm,
+                campioni_mattone_usm,
+                campioni_pietra_usm,
+                provenienza_materiali_usm,
+                criteri_distinzione_usm,
+                uso_primario_usm,
+                tipologia_opera,
+                sezione_muraria,
+                superficie_analizzata,
+                orientamento,
+                materiali_lat,
+                lavorazione_lat,
+                consistenza_lat,
+                forma_lat,
+                colore_lat,
+                impasto_lat,
+                forma_p,
+                colore_p,
+                taglio_p,
+                posa_opera_p,
+                inerti_usm,
+                tipo_legante_usm,
+                rifinitura_usm,
+                materiale_p,
+                consistenza_p,
+                rapporti2,
+                doc_usv) VALUES (?,?,?,?,?, ?, ?,?,?,?, ?, ?,?,?,?, ?, ?,?,?,?, ?, ?,?,?,?, ?, ?,?,?,?, ?, ?,?,?,?, ?, ?,?,?,?, ?, ?,?,?,?, ?, ?,?,?,?, ?, ?,?,?,?, ?, ?,?,?,?, ?, ?,?,?,?, ?, ?,?,?,?, ?, ?,?,?,?, ?, ?,?,?,?, ?, ?,?,?,?, ?, ?,?,?,?, ?, ?,?,?,?, ?, ?,?,?,?, ?, ?,?,?,?, ?, ?,?,?,?, ?, ?,?,?,?,?);""", to_db)
+            con.commit()
+            con.close()
+
+        except AssertionError as e:
+            QMessageBox.warning(self, 'error', str(e), QMessageBox.Ok)
+
+        else:
+            QMessageBox.information(self, 'OK', 'Imported complited', QMessageBox.Ok)
+        self.view_all()
 class IntegerDelegate(QtWidgets.QStyledItemDelegate):
     def __init__(self, parent=None):
         super(IntegerDelegate, self).__init__(parent)
