@@ -5,8 +5,10 @@ import sys
 import time
 
 from qgis.PyQt.QtWidgets import *
-import openai
-
+try:
+	import openai
+except:
+	pass
 class MyApp(QWidget):
 
     def __init__(self, api_key, parent=None):
