@@ -21,10 +21,9 @@
 from __future__ import absolute_import
 
 import os
-import time
+import re
 from datetime import date
-import urllib
-import time
+
 import sys
 from builtins import range
 from builtins import str
@@ -229,14 +228,36 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
             self.pushButton_import_csvthesaurus.setHidden(False)
         else:
             self.pushButton_import_csvthesaurus.setHidden(True)
-        
 
-    def contenuto(self,b):
+    def contenuto(self, b):
+        text = MyApp.ask_gpt(self,
+                             f'forniscimi una descrizione e 3 link wikipidia riguardo a questo contenuto {b}, tenendo presente che il contesto è archeologico',
+                             self.apikey_gpt())
+        #url_pattern = r"(https?:\/\/\S+)"
+        #urls = re.findall(url_pattern, text)
+        return text#, urls
+    def webview(self):
+        description=str(self.textEdit_descrizione_sigla.toPlainText())
 
-        text= MyApp.ask_gpt(self,f'forniscimi qualche descrizione riguardo a questo contenuto{b}, tenendo presente che il contesto è archeologico',self.apikey_gpt()),
+        links = re.findall("(?P<url>https?://[^\s]+)", description)
 
-        return text
+        # Create an HTML string to display in the QWebView
+        html_string = "<html><body>"
+        html_string += "<p>" + description.replace("\n", "<br>") + "</p>"
+        html_string += "<ul>"
+        for link in links:
+            html_string += f"<li><a href='{link}'>{link}</a></li>"
+        html_string += "</ul>"
+        html_string += "</body></html>"
+        vista=html_string
+        QMessageBox.information(self, 'testo', str(html_string))
+        # Display the HTML in a QWebView widget
+        url=QUrl("about:blank")
+        self.webView_adarte.setHtml(vista,url)
 
+
+        # Show the QWebView widget
+        self.webView_adarte.show()
     def handleComboActivated(self, index):
         selected_text = self.comboBox_sigla_estesa.itemText(index)
         generate_text = self.contenuto(selected_text)
@@ -251,6 +272,9 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
 
         if QMessageBox.Ok:
             self.textEdit_descrizione_sigla.setText(str(generate_text))
+            self.webview()
+        else:
+            pass
     def find_text(self):
 
         if self.comboBox_sigla_estesa.currentText()=='':
