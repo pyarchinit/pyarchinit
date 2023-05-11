@@ -21,12 +21,12 @@ import os
 import re
 
 from qgis.PyQt.uic import loadUiType
-from qgis.PyQt.QtWidgets import QDialog, QAbstractItemView, QTableWidgetItem
+from qgis.PyQt.QtWidgets import QDialog, QAbstractItemView, QTableWidgetItem,QMessageBox
 from qgis.PyQt.QtCore import QThread
 
 from qgis.core import QgsVectorLayer, Qgis, QgsSettings, QgsProject, QgsMapLayer
 from .searchWorker import Worker
-
+from .modules.db.pyarchinit_db_manager import Pyarchinit_db_management
 
 FORM_CLASS, _ = loadUiType(os.path.join(
     os.path.dirname(__file__), 'searchlayers.ui'))
@@ -34,6 +34,7 @@ FORM_CLASS, _ = loadUiType(os.path.join(
 
 class LayerSearchDialog(QDialog, FORM_CLASS):
     L=QgsSettings().value("locale/userLocale")[0:2]
+    DB_MANAGER=''
     def __init__(self, iface, parent):
         '''Initialize the LayerSearch dialog box'''
         super(LayerSearchDialog, self).__init__(parent)
@@ -257,7 +258,18 @@ class LayerSearchDialog(QDialog, FORM_CLASS):
     def on_pushButton_go_to_scheda_pressed(self):
         # field_position = self.pyQGIS.findFieldFrDict(self.ID_TABLE) #ricava la posizione del campo
         layer = self.iface.mapCanvas().currentLayer()
-        fieldname = self.ID_TABLE
+        if layer is not None:
+            # Recupero i nomi dei campi presenti nel layer
+            fields = layer.fields()
+
+            # Cerco l'id del campo che contiene l'identificatore univoco
+            for field in fields:
+                if 'id_' or 'gid' in field.name().lower():
+                    fieldname = field.name()
+                    break
+            else:
+                # Nessun campo contiene l'identificatore univoco
+                pass
         if not layer:
             if self.L=='it':
                 QMessageBox.warning(self, 'ATTENZIONE', "Nessun elemento selezionato", QMessageBox.Ok)
@@ -274,20 +286,20 @@ class LayerSearchDialog(QDialog, FORM_CLASS):
             attr_list = feat.attributes()
             id_list.append(attr_list[field_position])
             # viene impostata la query per il database
-        items, order_type = [self.ID_TABLE], "asc"
-        self.empty_fields()
+        items, order_type = [fieldname], "asc"
+        #self.empty_fields()
         self.DATA_LIST = []
         temp_data_list = self.DB_MANAGER.query_sort(id_list, items, order_type, self.MAPPER_TABLE_CLASS, self.ID_TABLE)
         for us in temp_data_list:
             self.DATA_LIST.append(us)
             # vengono riempiti i campi con i dati trovati
-        self.fill_fields()
+        #self.fill_fields()
         self.BROWSE_STATUS = 'b'
-        self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
-        if type(self.REC_CORR) == "<type 'str'>":
-            corr = 0
-        else:
-            corr = self.REC_CORR
-        self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR + 1)
-        self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
-        self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
+        #self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
+        #if type(self.REC_CORR) == "<type 'str'>":
+            #corr = 0
+        #else:
+            #corr = self.REC_CORR
+        #self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR + 1)
+        #self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
+        #self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
