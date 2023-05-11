@@ -97,17 +97,27 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
                           "You MUST RESTART QGIS".format(str(e))
 
     def set_max_num(self):
-        us_layer = next((l for l in QgsProject.instance().mapLayersByName('US view')), None)
+        us_layer = self.iface.mapCanvas().currentLayer()
         if not us_layer:
-            print("No US view layers found")
+            print("No layer selected")
             return
         fields = us_layer.fields()
 
         self.fieldname = next((field.name() for field in fields if 'datazione' in field.name().lower()), '')
 
-        # Crea un dizionario che mappa ogni attributo "order_layer" al suo attributo "datazione" corrispondente
-        self.datazione_dict = {feature.attribute("order_layer"): feature.attribute(self.fieldname) for feature in
-                               us_layer.getFeatures()}
+        if not self.fieldname:
+            print("No 'datazione' field found")
+            return
+
+        # Crea un dizionario che mappa ogni attributo "order_layer" a una lista di attributi "datazione" corrispondenti
+        self.datazione_dict = {}
+        for feature in us_layer.getFeatures():
+            order_layer = feature.attribute("order_layer")
+            datazione = feature.attribute(self.fieldname)
+            if order_layer in self.datazione_dict:
+                self.datazione_dict[order_layer].append(datazione)
+            else:
+                self.datazione_dict[order_layer] = [datazione]
 
         max_num_order_layer = self.DB_MANAGER.max_num_id(self.MAPPER_TABLE_CLASS, "order_layer") + 1,
         self.dial_relative_cronology.setMaximum(max_num_order_layer[0])
@@ -118,8 +128,11 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
         self.update_datazione(self.dial_relative_cronology.value())
 
     def update_datazione(self, value):
-        # Cerca il valore dello spinBox nel dizionario e imposta il valore del lineEdit_datazione corrispondente
-        self.lineEdit_datazione.setText(str(self.datazione_dict.get(value, '')))
+        # Cerca il valore dello spinBox nel dizionario e imposta il valore del textEdit_datazione corrispondente
+        datazioni = self.datazione_dict.get(value, [])
+        # Rimuove i duplicati convertendo la lista in un set
+        unique_datazioni = set(datazioni)
+        self.textEdit_datazione.setPlainText('\n'.join(map(str, unique_datazioni)))
 
     def liststring(self, sito, area, i, e):
         new_sub_set_string = f"order_layer <= {self.ORDER_LAYER_VALUE} AND sito IN ('{sito}') AND area IN ('{area}')"
@@ -131,18 +144,16 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
         area = "','".join(self.UTILITY.tup_2_list_III(self.DB_MANAGER.group_by('us_table', 'area', 'US')))
 
         self.ORDER_LAYER_VALUE = v
-        us_layer = next((l for l in QgsProject.instance().mapLayersByName('US view')), None)
-        quote_layer = next((l for l in QgsProject.instance().mapLayersByName('Quote view')), None)
+        us_layer = self.iface.mapCanvas().currentLayer()
+        quote_layer = self.iface.mapCanvas().currentLayer()
 
         if not us_layer or not quote_layer:
             QgsMessageLog.logMessage('I layer Quote View e US View devono essere caricati.', 'Avviso')
             return
 
-        data_providers = [layer.dataProvider() for layer in (us_layer, quote_layer) if len(layer) > 0]
+        data_providers = [layer.dataProvider() for layer in (us_layer, quote_layer) if layer is not None]
         for dp in data_providers:
             self.liststring(sito, area, us_layer, dp)
-
-
 
     def on_pushButton_visualize_pressed(self):
         op_cron_iniz = '<='
