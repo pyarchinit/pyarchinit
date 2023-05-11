@@ -97,71 +97,52 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
                           "You MUST RESTART QGIS".format(str(e))
 
     def set_max_num(self):
+        us_layer = next((l for l in QgsProject.instance().mapLayersByName('US view')), None)
+        if not us_layer:
+            print("No US view layers found")
+            return
+        fields = us_layer.fields()
+
+        self.fieldname = next((field.name() for field in fields if 'datazione' in field.name().lower()), '')
+
+        # Crea un dizionario che mappa ogni attributo "order_layer" al suo attributo "datazione" corrispondente
+        self.datazione_dict = {feature.attribute("order_layer"): feature.attribute(self.fieldname) for feature in
+                               us_layer.getFeatures()}
 
         max_num_order_layer = self.DB_MANAGER.max_num_id(self.MAPPER_TABLE_CLASS, "order_layer") + 1,
         self.dial_relative_cronology.setMaximum(max_num_order_layer[0])
         self.spinBox_relative_cronology.setMaximum(max_num_order_layer[0])
 
+        self.spinBox_relative_cronology.valueChanged.connect(self.update_datazione)
+        self.update_datazione(self.spinBox_relative_cronology.value())
+        self.update_datazione(self.dial_relative_cronology.value())
 
-    def liststring(self,sito,area,i,e):
-        try:
-            newSubSetString = "order_layer <= {}".format(self.ORDER_LAYER_VALUE)  # 4D dimension
-            newSubSetString += f" AND sito IN ('{sito}')"  # Use IN clause to check against multiple values
-            newSubSetString += f" AND area IN ('{area}')"  # Use IN clause to check against multiple values
+    def update_datazione(self, value):
+        # Cerca il valore dello spinBox nel dizionario e imposta il valore del lineEdit_datazione corrispondente
+        self.lineEdit_datazione.setText(str(self.datazione_dict.get(value, '')))
 
-            i.setSubsetString(newSubSetString)
-            e.setSubsetString(newSubSetString)
-        except:
-            pass
-    def define_order_layer_value(self,v):
-        sito = self.UTILITY.tup_2_list_III(self.DB_MANAGER.group_by('us_table', 'sito', 'US'))
-        area = self.UTILITY.tup_2_list_III(self.DB_MANAGER.group_by('us_table', 'area', 'US'))
+    def liststring(self, sito, area, i, e):
+        new_sub_set_string = f"order_layer <= {self.ORDER_LAYER_VALUE} AND sito IN ('{sito}') AND area IN ('{area}')"
+        i.setSubsetString(new_sub_set_string)
+        e.setSubsetString(new_sub_set_string)
 
+    def define_order_layer_value(self, v):
+        sito = "','".join(self.UTILITY.tup_2_list_III(self.DB_MANAGER.group_by('us_table', 'sito', 'US')))
+        area = "','".join(self.UTILITY.tup_2_list_III(self.DB_MANAGER.group_by('us_table', 'area', 'US')))
 
         self.ORDER_LAYER_VALUE = v
-        sito = "','".join(sito)  # Join list items with commas and quotes
-        area = "','".join(area)  # Join list items with commas and quotes
-        us = QgsProject.instance().mapLayersByName('US view')
-        quote = QgsProject.instance().mapLayersByName('Quote view')
-        if len(quote) == 0 or len(us) == 0:
-            #Avviso dell'assenza dei layer
+        us_layer = next((l for l in QgsProject.instance().mapLayersByName('US view')), None)
+        quote_layer = next((l for l in QgsProject.instance().mapLayersByName('Quote view')), None)
+
+        if not us_layer or not quote_layer:
             QgsMessageLog.logMessage('I layer Quote View e US View devono essere caricati.', 'Avviso')
-            #self.iface.messageBar().pushMessage("Help",
-                                                #"You must to load pyarchinit_us_view and/or select it from pyarchinit GeoDatabase",
-                                                #level=Qgis.Warning)
-        if len(quote) == 0 and len(us) == 0:
-            # Avviso dell'assenza dei layer
-            QgsMessageLog.logMessage('I layer Quote View e US View devono essere caricati.', 'Avviso')
-            self.iface.messageBar().pushMessage("Help",
-            "You must to load US view and/or Quote view",
-            level=Qgis.Warning)
-            #QMessageBox.warning(self,'Attezione','I layer Quote View e US View devono essere caricati.')
-        if len(us) > 0:
-            us = us[0]
-            us = us.dataProvider()
-            self.liststring(sito,area,us,quote)
+            return
 
-        if len(quote) > 0:
-            quote = quote[0]
-            quote = quote.dataProvider()
-            self.liststring(sito, area, us, quote)
+        data_providers = [layer.dataProvider() for layer in (us_layer, quote_layer) if len(layer) > 0]
+        for dp in data_providers:
+            self.liststring(sito, area, us_layer, dp)
 
 
-
-
-
-
-            # QgsMessageLog.logMessage(
-            #     "You must to load pyarchinit_us_view and/or select it from pyarchinit GeoDatabase" + str(e))
-            # self.iface.messageBar().pushMessage("Help",
-            #                                     "You must to load pyarchinit_us_view and/or select it from pyarchinit GeoDatabase",
-            #                                     level=Qgis.Warning)
-
-    def reset_query(self):
-        self.ORDER_LAYER_VALUE = v
-        self.ORDER_SITO=s
-        self.ORDER_AREA=a
-        
 
     def on_pushButton_visualize_pressed(self):
         op_cron_iniz = '<='
