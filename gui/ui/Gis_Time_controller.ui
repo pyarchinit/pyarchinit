@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>500</width>
+    <width>600</width>
     <height>481</height>
    </rect>
   </property>
@@ -24,7 +24,7 @@
   </property>
   <property name="maximumSize">
    <size>
-    <width>500</width>
+    <width>600</width>
     <height>500</height>
    </size>
   </property>
@@ -483,6 +483,12 @@
    <iconset resource="../../resources/resources.qrc">
     <normaloff>:/icons/iconTimeControll.png</normaloff>:/icons/iconTimeControll.png</iconset>
   </property>
+  <property name="sizeGripEnabled">
+   <bool>true</bool>
+  </property>
+  <property name="modal">
+   <bool>true</bool>
+  </property>
   <layout class="QGridLayout" name="gridLayout_3">
    <item row="0" column="0">
     <widget class="QTabWidget" name="tabWidget">
@@ -652,6 +658,9 @@ p, li { white-space: pre-wrap; }
       </layout>
      </widget>
     </widget>
+   </item>
+   <item row="0" column="1">
+    <widget class="QListWidget" name="listWidget"/>
    </item>
   </layout>
  </widget>
