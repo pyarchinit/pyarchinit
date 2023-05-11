@@ -25,9 +25,6 @@ from builtins import str
 from builtins import range
 import sys
 import os
-# TODO: must be fixed
-# from olefile.olefile import v
-
 from qgis.PyQt.QtWidgets import QApplication, QDialog, QMessageBox
 from qgis.PyQt.uic import loadUiType
 from qgis.core import Qgis, QgsMessageLog, QgsSettings, QgsProject
@@ -203,9 +200,6 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
                     QMessageBox.warning(self, "Alert", "There are no geometries to display", QMessageBox.Ok)    
             else:
                 self.pyQGIS.charge_vector_layers(us_res_dep)
-
-
-## Class end
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
