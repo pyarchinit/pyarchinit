@@ -1296,39 +1296,7 @@ class Pyarchinit_db_management(object):
         else:
             return int(res_max_num_id)
 
-    # def max_num_id_time(self, table_class, field_id, site, us):
-    #     Session = sessionmaker(bind=self.engine, autoflush=True, autocommit=True)
-    #     session = Session()
-    #     try:
-    #         column = getattr(table_class, field_id)  # Ensure table_class and field_id are valid attributes
-    #         result = session.query(func.max(column)). \
-    #                      filter(table_class.site == site). \
-    #                      filter(table_class.us == us). \
-    #                      scalar() or 0  # Use scalar() to get single value, handle case where result is None
-    #         return int(result)
-    #     except AttributeError:
-    #         # Handle if table_class or field_id are invalid
-    #         return 0
-    #     finally:
-    #         session.close()
 
-    # def max_num_id2(self, tc, f):
-        # self.table_class = tc
-        # self.field_id = f
-
-        # Session = sessionmaker(bind=self.engine, autoflush=True, autocommit=True)
-        # session = Session()
-        # exec_str = "session.query(func.max({}.{}))".format(self.table_class, self.field_id)
-        # exec_str = exec_str.on_conflict_do_nothing(index_elements="{}".format( self.field_id))
-        # max_id_func = eval(exec_str)
-        # res_all = max_id_func.all()
-        # res_max_num_id = res_all[0][0]
-        # session.close()
-        # if not res_max_num_id:
-            # return 0
-        # else:
-            # return int(res_max_num_id)
-    
     def dir_query(self):
         Session = sessionmaker(bind=self.engine, autoflush=True, autocommit=True)
         session = Session()
