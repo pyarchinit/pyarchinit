@@ -25,9 +25,10 @@ from builtins import str
 from builtins import range
 import sys
 import os
-from qgis.PyQt.QtWidgets import QApplication, QDialog, QMessageBox
+from qgis.PyQt.QtWidgets import QListWidgetItem,QApplication, QDialog, QMessageBox,QListWidget,QPushButton,QVBoxLayout,QAbstractItemView
+from qgis.PyQt.QtCore import Qt
 from qgis.PyQt.uic import loadUiType
-from qgis.core import Qgis, QgsMessageLog, QgsSettings, QgsProject
+from qgis.core import Qgis, QgsMessageLog, QgsSettings, QgsProject,QgsMapLayer
 from ..modules.db.pyarchinit_utility import Utility
 from ..modules.db.pyarchinit_conn_strings import Connection
 from ..modules.db.pyarchinit_db_manager import Pyarchinit_db_management
@@ -38,6 +39,45 @@ MAIN_DIALOG_CLASS, _ = loadUiType(
     os.path.join(os.path.dirname(__file__), os.pardir, 'gui', 'ui', 'Gis_Time_controller.ui'))
 
 
+# class LayerSelectionDialog(QDialog):
+#     def __init__(self):
+#         super().__init__()
+#         self.setWindowTitle('Select Layers')
+#         self.layout = QVBoxLayout(self)
+#
+#         self.layer_list = QListWidget()
+#         for layer in QgsProject.instance().mapLayers().values():
+#             if layer.type() == QgsMapLayer.VectorLayer:
+#                 item = QListWidgetItem(layer.name())
+#                 item.setFlags(item.flags() | Qt.ItemIsUserCheckable)
+#                 item.setCheckState(Qt.Unchecked)
+#                 self.layer_list.addItem(item)
+#
+#         self.layout.addWidget(self.layer_list)
+#         self.setLayout(self.layout)
+#
+#     def get_selected_layers(self):
+#         selected_layers = []
+#         for i in range(self.layer_list.count()):
+#             item = self.layer_list.item(i)
+#             if item.checkState() == Qt.Checked:
+#                 selected_layers.append(item.text())
+#         return selected_layers
+#
+#     def populateList(self):
+#         layers = QgsProject.instance().mapLayers().values()
+#         for layer in layers:
+#             self.listWidget.addItem(layer.name())
+#
+#         self.listWidget.setSelectionMode(QAbstractItemView.MultiSelection)
+#
+#     def selectedLayers(self):
+#         selected_layers = []
+#         for item in self.listWidget.selectedItems():
+#             layer = next((l for l in QgsProject.instance().mapLayers().values() if l.name() == item.text()), None)
+#             if layer:
+#                 selected_layers.append(layer)
+#         return selected_layers
 class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
     L=QgsSettings().value("locale/userLocale")[0:2]
     MSG_BOX_TITLE = "PyArchInit - Gis Time Management"
@@ -60,6 +100,21 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
             self.connect()
         except:
             pass
+        self.listWidget.clear()
+        self.listWidget.clear()
+        self.listWidget.clear()
+        all_layers = QgsProject.instance().mapLayers().values()
+        self.relevant_layers = [layer for layer in all_layers if
+                           layer.dataProvider().fields().indexFromName('order_layer') != -1]
+
+        for layer in self.relevant_layers:
+            item = QListWidgetItem(layer.name())
+            item.setFlags(item.flags() | Qt.ItemIsUserCheckable)
+            item.setCheckState(Qt.Unchecked)
+            self.listWidget.addItem(item)
+
+        self.listWidget.itemChanged.connect(self.update_selected_layers)
+
 
         self.dial_relative_cronology.valueChanged.connect(self.set_max_num)
         self.spinBox_relative_cronology.valueChanged.connect(self.set_max_num)
@@ -69,6 +124,7 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
 
         self.spinBox_relative_cronology.valueChanged.connect(self.define_order_layer_value)
         self.spinBox_relative_cronology.valueChanged.connect(self.dial_relative_cronology.setValue)
+        self.listWidget.itemSelectionChanged.connect(self.update_selected_layers)
 
     def connect(self):
         conn = Connection()
@@ -93,28 +149,45 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
                     msg = "The connection failed {}. " \
                           "You MUST RESTART QGIS".format(str(e))
 
+    def update_selected_layers(self):
+        selected_layer_names = [self.listWidget.item(i).text() for i in range(self.listWidget.count()) if
+                                self.listWidget.item(i).checkState() == Qt.Checked]
+        self.selected_layers = [layer for layer in self.relevant_layers if layer.name() in selected_layer_names]
+
+    # def update_selected_layers(self):
+    #     selected_layer_names = [item.text() for item in self.listWidget.selectedItems()]
+    #     all_layers = QgsProject.instance().mapLayers().values()
+    #     self.selected_layers = [layer for layer in all_layers if layer.name() in selected_layer_names]
+
+    def update_layers(self, layers):
+        # 'layers' è una lista di oggetti QgsMapLayer.
+        # Qui implementi la logica per gestire i layer selezionati.
+        self.selected_layers = layers  # memorizza i layer selezionati in un attributo dell'istanza
+
     def set_max_num(self):
-        us_layer = self.iface.mapCanvas().currentLayer()
-        if not us_layer:
+
+
+        if self.selected_layers is None or not self.selected_layers:
             print("No layer selected")
             return
-        fields = us_layer.fields()
 
-        self.fieldname = next((field.name() for field in fields if 'datazione' in field.name().lower()), '')
-
-        if not self.fieldname:
-            print("No 'datazione' field found")
-            return
-
-        # Crea un dizionario che mappa ogni attributo "order_layer" a una lista di attributi "datazione" corrispondenti
         self.datazione_dict = {}
-        for feature in us_layer.getFeatures():
-            order_layer = feature.attribute("order_layer")
-            datazione = feature.attribute(self.fieldname)
-            if order_layer in self.datazione_dict:
-                self.datazione_dict[order_layer].append(datazione)
-            else:
-                self.datazione_dict[order_layer] = [datazione]
+
+        for us_layer in self.selected_layers:
+            fields = us_layer.fields()
+            self.fieldname = next((field.name() for field in fields if 'datazione' in field.name().lower()), '')
+            if not self.fieldname:
+                print(f"No 'datazione' field found in layer {us_layer.name()}")
+                continue
+
+            # Crea un dizionario che mappa ogni attributo "order_layer" a una lista di attributi "datazione" corrispondenti
+            for feature in us_layer.getFeatures():
+                order_layer = feature.attribute("order_layer")
+                datazione = feature.attribute(self.fieldname)
+                if order_layer in self.datazione_dict:
+                    self.datazione_dict[order_layer].append(datazione)
+                else:
+                    self.datazione_dict[order_layer] = [datazione]
 
         max_num_order_layer = self.DB_MANAGER.max_num_id(self.MAPPER_TABLE_CLASS, "order_layer") + 1,
         self.dial_relative_cronology.setMaximum(max_num_order_layer[0])
@@ -123,6 +196,20 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
         self.spinBox_relative_cronology.valueChanged.connect(self.update_datazione)
         self.update_datazione(self.spinBox_relative_cronology.value())
         self.update_datazione(self.dial_relative_cronology.value())
+
+    def define_order_layer_value(self, v):
+        if self.selected_layers is None or not self.selected_layers:
+            QgsMessageLog.logMessage('I layer Quote View e US View devono essere caricati.', 'Avviso')
+            return
+
+        sito = "','".join(self.UTILITY.tup_2_list_III(self.DB_MANAGER.group_by('us_table', 'sito', 'US')))
+        area = "','".join(self.UTILITY.tup_2_list_III(self.DB_MANAGER.group_by('us_table', 'area', 'US')))
+
+        self.ORDER_LAYER_VALUE = v
+
+        for layer in self.selected_layers:
+            data_provider = layer.dataProvider()
+            self.liststring(sito, area, layer, data_provider)
 
     def update_datazione(self, value):
         # Cerca il valore dello spinBox nel dizionario e imposta il valore del textEdit_datazione corrispondente
@@ -136,21 +223,6 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
         i.setSubsetString(new_sub_set_string)
         e.setSubsetString(new_sub_set_string)
 
-    def define_order_layer_value(self, v):
-        sito = "','".join(self.UTILITY.tup_2_list_III(self.DB_MANAGER.group_by('us_table', 'sito', 'US')))
-        area = "','".join(self.UTILITY.tup_2_list_III(self.DB_MANAGER.group_by('us_table', 'area', 'US')))
-
-        self.ORDER_LAYER_VALUE = v
-        us_layer = self.iface.mapCanvas().currentLayer()
-        quote_layer = self.iface.mapCanvas().currentLayer()
-
-        if not us_layer or not quote_layer:
-            QgsMessageLog.logMessage('I layer Quote View e US View devono essere caricati.', 'Avviso')
-            return
-
-        data_providers = [layer.dataProvider() for layer in (us_layer, quote_layer) if layer is not None]
-        for dp in data_providers:
-            self.liststring(sito, area, us_layer, dp)
 
     def on_pushButton_visualize_pressed(self):
         op_cron_iniz = '<='
