@@ -38,46 +38,6 @@ from .US_USM import pyarchinit_US
 MAIN_DIALOG_CLASS, _ = loadUiType(
     os.path.join(os.path.dirname(__file__), os.pardir, 'gui', 'ui', 'Gis_Time_controller.ui'))
 
-
-# class LayerSelectionDialog(QDialog):
-#     def __init__(self):
-#         super().__init__()
-#         self.setWindowTitle('Select Layers')
-#         self.layout = QVBoxLayout(self)
-#
-#         self.layer_list = QListWidget()
-#         for layer in QgsProject.instance().mapLayers().values():
-#             if layer.type() == QgsMapLayer.VectorLayer:
-#                 item = QListWidgetItem(layer.name())
-#                 item.setFlags(item.flags() | Qt.ItemIsUserCheckable)
-#                 item.setCheckState(Qt.Unchecked)
-#                 self.layer_list.addItem(item)
-#
-#         self.layout.addWidget(self.layer_list)
-#         self.setLayout(self.layout)
-#
-#     def get_selected_layers(self):
-#         selected_layers = []
-#         for i in range(self.layer_list.count()):
-#             item = self.layer_list.item(i)
-#             if item.checkState() == Qt.Checked:
-#                 selected_layers.append(item.text())
-#         return selected_layers
-#
-#     def populateList(self):
-#         layers = QgsProject.instance().mapLayers().values()
-#         for layer in layers:
-#             self.listWidget.addItem(layer.name())
-#
-#         self.listWidget.setSelectionMode(QAbstractItemView.MultiSelection)
-#
-#     def selectedLayers(self):
-#         selected_layers = []
-#         for item in self.listWidget.selectedItems():
-#             layer = next((l for l in QgsProject.instance().mapLayers().values() if l.name() == item.text()), None)
-#             if layer:
-#                 selected_layers.append(layer)
-#         return selected_layers
 class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
     L=QgsSettings().value("locale/userLocale")[0:2]
     MSG_BOX_TITLE = "PyArchInit - Gis Time Management"
@@ -154,10 +114,6 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
                                 self.listWidget.item(i).checkState() == Qt.Checked]
         self.selected_layers = [layer for layer in self.relevant_layers if layer.name() in selected_layer_names]
 
-    # def update_selected_layers(self):
-    #     selected_layer_names = [item.text() for item in self.listWidget.selectedItems()]
-    #     all_layers = QgsProject.instance().mapLayers().values()
-    #     self.selected_layers = [layer for layer in all_layers if layer.name() in selected_layer_names]
 
     def update_layers(self, layers):
         # 'layers' è una lista di oggetti QgsMapLayer.
