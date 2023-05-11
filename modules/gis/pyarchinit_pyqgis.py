@@ -235,19 +235,21 @@ class Pyarchinit_pyqgis(QDialog):
             
                 
             uri.setDataSource('', 'pyarchinit_us_view', 'the_geom', gidstr, "ROWID")
-            layerUS = QgsVectorLayer(uri.uri(), name_layer_s, 'spatialite')
+            layerUS = QgsVectorLayer(uri.uri(), '', 'spatialite')
             ###################################################################
             if layerUS.isValid():
-                # self.USLayerId = layerUS.getLayerID()
-                # style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_caratterizzazioni.qml')
-                # layerUS.loadNamedStyle(style_path)
+                unique_name = self.unique_layer_name(name_layer_s)
+                layerUS.setName(unique_name)
+
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerUS))
                 QgsProject.instance().addMapLayers([layerUS], False)
                 
             uri.setDataSource('', 'pyarchinit_quote_view', 'the_geom', gidstr, "ROWID")
-            layerQUOTE = QgsVectorLayer(uri.uri(), name_layer_q, 'spatialite')
+            layerQUOTE = QgsVectorLayer(uri.uri(), '', 'spatialite')
 
             if layerQUOTE.isValid():
+                unique_name = self.unique_layer_name(name_layer_q)
+                layerQUOTE.setName(unique_name)
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerQUOTE))
                 QgsProject.instance().addMapLayers([layerQUOTE], False)
 
@@ -270,7 +272,10 @@ class Pyarchinit_pyqgis(QDialog):
             layerUS = QgsVectorLayer(uri.uri(), name_layer_s, "postgres")
 
             if layerUS.isValid():
-                layerUS.setCrs(srs)
+
+                unique_name = self.unique_layer_name(name_layer_s)
+                layerUS.setName(unique_name)
+
                 # self.USLayerId = layerUS.getLayerID()
                 style_path = '{}{}'.format(self.LAYER_STYLE_PATH, 'us_caratterizzazioni.qml')
                 # style_path = QFileDialog.getOpenFileName(self, 'Open file', self.LAYER_STYLE_PATH)
@@ -279,13 +284,17 @@ class Pyarchinit_pyqgis(QDialog):
                 QgsProject.instance().addMapLayers([layerUS], False)
 
             uri.setDataSource("public", "pyarchinit_quote_view", "the_geom", gidstr, "gid")
-            layerQUOTE = QgsVectorLayer(uri.uri(), name_layer_q, "postgres")
+            layerQUOTE = QgsVectorLayer(uri.uri(), '', "postgres")
 
             if layerQUOTE.isValid():
-                layerQUOTE.setCrs(srs)
+
                 style_path = '{}{}'.format(self.LAYER_STYLE_PATH, 'stile_quote.qml')
                 layerQUOTE.loadNamedStyle(style_path)
                 try:
+
+                    unique_name = self.unique_layer_name(name_layer_q)
+                    layerQUOTE.setName(unique_name)
+
                     group.insertChildNode(-1, QgsLayerTreeLayer(layerQUOTE))
                     QgsProject.instance().addMapLayers([layerQUOTE], False)
                 except Exception as e:
@@ -336,30 +345,32 @@ class Pyarchinit_pyqgis(QDialog):
             uri.setDatabase(db_file_path)
             
             uri.setDataSource('', 'pyarchinit_quote_view', 'the_geom', gidstr, "ROWID")
-            layerQUOTE = QgsVectorLayer(uri.uri(), name_layer_q, 'spatialite')
+            layerQUOTE = QgsVectorLayer(uri.uri(), '', 'spatialite')
 
             if layerQUOTE.isValid():
-                # self.USLayerId = layerUS.getLayerID()
+                unique_name = self.unique_layer_name(name_layer_q)
+                layerQUOTE.setName(unique_name)
                 style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'quote_us_view.qml')
                 layerQUOTE.loadNamedStyle(style_path)
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerQUOTE))
                 QgsProject.instance().addMapLayers([layerQUOTE], False)
             else:
-                QMessageBox.warning(self, "Pyarchinit", "OK Layer valid", QMessageBox.Ok)
+                pass
             
             uri.setDataSource('', 'pyarchinit_us_view', 'the_geom', gidstr, "ROWID")
-            layerUS = QgsVectorLayer(uri.uri(), name_layer_s, 'spatialite')
+            layerUS = QgsVectorLayer(uri.uri(), '', 'spatialite')
 
             if layerUS.isValid():
-                QMessageBox.warning(self, "Pyarchinit", "OK Layer valid", QMessageBox.Ok)
+                #QMessageBox.warning(self, "Pyarchinit", "OK Layer valid", QMessageBox.Ok)
 
-                # self.USLayerId = layerUS.getLayerID()
+                unique_name = self.unique_layer_name(name_layer_s)
+                layerUS.setName(unique_name)
                 style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
                 layerUS.loadNamedStyle(style_path)
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerUS))
                 QgsProject.instance().addMapLayers([layerUS], False)
             else:
-                QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
+                pass
 
             
 
@@ -375,10 +386,11 @@ class Pyarchinit_pyqgis(QDialog):
             srs = QgsCoordinateReferenceSystem(self.SRS, QgsCoordinateReferenceSystem.PostgisCrsId)
             
             uri.setDataSource("public", "pyarchinit_quote_view", "the_geom", gidstr, "gid")
-            layerQUOTE = QgsVectorLayer(uri.uri(), name_layer_q, "postgres")
+            layerQUOTE = QgsVectorLayer(uri.uri(), '', "postgres")
 
             if layerQUOTE.isValid():
-                layerQUOTE.setCrs(srs)
+                unique_name = self.unique_layer_name(name_layer_q)
+                layerQUOTE.setName(unique_name)
                 style_path = '{}{}'.format(self.LAYER_STYLE_PATH, 'stile_quote.qml')
                 layerQUOTE.loadNamedStyle(style_path)
                 try:
@@ -391,10 +403,11 @@ class Pyarchinit_pyqgis(QDialog):
                 QMessageBox.warning(self, "Pyarchinit", "OK Layer Quote non valido", QMessageBox.Ok)
             
             uri.setDataSource("public", "pyarchinit_us_view", "the_geom", gidstr, "gid")
-            layerUS = QgsVectorLayer(uri.uri(),name_layer_s , "postgres")
+            layerUS = QgsVectorLayer(uri.uri(),'' , "postgres")
 
             if layerUS.isValid():
-                layerUS.setCrs(srs)
+                unique_name = self.unique_layer_name(name_layer_s)
+                layerUS.setName(unique_name)
                 # self.USLayerId = layerUS.getLayersID()
                 style_path = '{}{}'.format(self.LAYER_STYLE_PATH, 'us_caratterizzazioni.qml')
                 # style_path = QFileDialog.getOpenFileName(self, 'Open file', self.LAYER_STYLE_PATH)
@@ -1128,19 +1141,22 @@ class Pyarchinit_pyqgis(QDialog):
             uri.setDatabase(db_file_path)
             
             uri.setDataSource('', 'pyarchinit_quote_view', 'the_geom', gidstr, "ROWID")
-            layerQUOTE = QgsVectorLayer(uri.uri(), name_layer_q, 'spatialite')
+            layerQUOTE = QgsVectorLayer(uri.uri(), '', 'spatialite')
 
             if layerQUOTE.isValid():
                 # self.USLayerId = layerUS.getLayerID()
                 style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'quote_us_view.qml')
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerQUOTE))
                 layerQUOTE.loadNamedStyle(style_path)
+                unique_name = self.unique_layer_name(name_layer_q)
+                layerQUOTE.setName(unique_name)
+                QgsProject.instance().addMapLayers([layerQUOTE], False)
                 QgsProject.instance().addMapLayers([layerQUOTE], False)
             else:
                 QMessageBox.warning(self, "Pyarchinit", "OK Layer not valid", QMessageBox.Ok)
             
             uri.setDataSource('', 'pyarchinit_us_view', 'the_geom', gidstr, "ROWID")
-            layerUS = QgsVectorLayer(uri.uri(), name_layer_s, 'spatialite')
+            layerUS = QgsVectorLayer(uri.uri(), '', 'spatialite')
 
             if layerUS.isValid():
                 QMessageBox.warning(self, "Pyarchinit", "OK Layer US valido", QMessageBox.Ok)
@@ -1152,6 +1168,8 @@ class Pyarchinit_pyqgis(QDialog):
 
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerUS))
                 layerUS.loadNamedStyle(style_path)
+                unique_name = self.unique_layer_name(name_layer_s)
+                layerUS.setName(unique_name)
                 QgsProject.instance().addMapLayers([layerUS], False)
                 # originalSubsetString = layerUS.subsetString() 4D dimension
                 # newSubSetString = "%s OR id_us = '0'" % (originalSubsetString) 4D dimension
@@ -1178,10 +1196,11 @@ class Pyarchinit_pyqgis(QDialog):
             srs = QgsCoordinateReferenceSystem(self.SRS, QgsCoordinateReferenceSystem.PostgisCrsId)
             
             uri.setDataSource("public", "pyarchinit_quote_view", "the_geom", gidstr, "gid")
-            layerQUOTE = QgsVectorLayer(uri.uri(), name_layer_q, "postgres")
+            layerQUOTE = QgsVectorLayer(uri.uri(), '', "postgres")
 
             if layerQUOTE.isValid():
-                layerQUOTE.setCrs(srs)
+                unique_name = self.unique_layer_name(name_layer_q)
+                layerQUOTE.setName(unique_name)
                 style_path = '{}{}'.format(self.LAYER_STYLE_PATH, 'stile_quote.qml')
                 layerQUOTE.loadNamedStyle(style_path)
                 try:
@@ -1197,10 +1216,11 @@ class Pyarchinit_pyqgis(QDialog):
             
             
             uri.setDataSource("public", "pyarchinit_us_view", "the_geom", gidstr, "gid")
-            layerUS = QgsVectorLayer(uri.uri(), name_layer_s, "postgres")
+            layerUS = QgsVectorLayer(uri.uri(), '', "postgres")
 
             if layerUS.isValid():
-                layerUS.setCrs(srs)
+                unique_name = self.unique_layer_name(name_layer_s)
+                layerUS.setName(unique_name)
                 # self.USLayerId = layerUS.getLayersID()
                 style_path = '{}{}'.format(self.LAYER_STYLE_PATH, 'us_caratterizzazioni.qml')
                 # style_path = QFileDialog.getOpenFileName(self, 'Open file', self.LAYER_STYLE_PATH)
@@ -1258,10 +1278,11 @@ class Pyarchinit_pyqgis(QDialog):
             uri.setDatabase(db_file_path)
             
             uri.setDataSource('', 'pyarchinit_quote_usm_view', 'the_geom', gidstr, "ROWID")
-            layerQUOTE = QgsVectorLayer(uri.uri(), name_layer_q, 'spatialite')
+            layerQUOTE = QgsVectorLayer(uri.uri(), '', 'spatialite')
 
             if layerQUOTE.isValid():
-                # self.USLayerId = layerUS.getLayerID()
+                unique_name = self.unique_layer_name(name_layer_q)
+                layerQUOTE.setName(unique_name)
                 style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'quote_us_view.qml')
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerQUOTE))
                 layerQUOTE.loadNamedStyle(style_path)
@@ -1270,10 +1291,11 @@ class Pyarchinit_pyqgis(QDialog):
                 QMessageBox.warning(self, "Pyarchinit", "OK Layer not valid", QMessageBox.Ok)
             
             uri.setDataSource('', 'pyarchinit_usm_view', 'the_geom', gidstr, "ROWID")
-            layerUS = QgsVectorLayer(uri.uri(), name_layer_s, 'spatialite')
+            layerUS = QgsVectorLayer(uri.uri(), '', 'spatialite')
 
             if layerUS.isValid():
-                QMessageBox.warning(self, "Pyarchinit", "OK Layer USM valido", QMessageBox.Ok)
+                unique_name = self.unique_layer_name(name_layer_s)
+                layerUS.setName(unique_name)
 
                 # self.USLayerId = layerUS.getLayerID()
                 style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
@@ -1308,10 +1330,11 @@ class Pyarchinit_pyqgis(QDialog):
             srs = QgsCoordinateReferenceSystem(self.SRS, QgsCoordinateReferenceSystem.PostgisCrsId)
             
             uri.setDataSource("public", "pyarchinit_quote_usm_view", "the_geom", gidstr, "gid")
-            layerQUOTE = QgsVectorLayer(uri.uri(), name_layer_q, "postgres")
+            layerQUOTE = QgsVectorLayer(uri.uri(), '', "postgres")
 
             if layerQUOTE.isValid():
-                layerQUOTE.setCrs(srs)
+                unique_name = self.unique_layer_name(name_layer_q)
+                layerQUOTE.setName(unique_name)
                 style_path = '{}{}'.format(self.LAYER_STYLE_PATH, 'stile_quote.qml')
                 layerQUOTE.loadNamedStyle(style_path)
                 try:
@@ -1327,11 +1350,12 @@ class Pyarchinit_pyqgis(QDialog):
             
             
             uri.setDataSource("public", "pyarchinit_usm_view", "the_geom", gidstr, "gid")
-            layerUS = QgsVectorLayer(uri.uri(), name_layer_s, "postgres")
+            layerUS = QgsVectorLayer(uri.uri(), '', "postgres")
 
             if layerUS.isValid():
-                layerUS.setCrs(srs)
-                # self.USLayerId = layerUS.getLayersID()
+                unique_name = self.unique_layer_name(name_layer_s)
+                layerUS.setName(unique_name)
+                #layerUS.setCrs(srs)
                 style_path = '{}{}'.format(self.LAYER_STYLE_PATH, 'us_caratterizzazioni.qml')
                 # style_path = QFileDialog.getOpenFileName(self, 'Open file', self.LAYER_STYLE_PATH)
                 layerUS.loadNamedStyle(style_path)
@@ -3848,10 +3872,18 @@ class Pyarchinit_pyqgis(QDialog):
             else:
                 QMessageBox.warning(self, "Pyarchinit", "Layer Individui non valido", QMessageBox.Ok)
 
-    
-    
-    
-    
+    def unique_layer_name(self,base_name):
+        '''
+        funzione per creare un nome unico alle view quando vengono caricate
+        '''
+
+        project = QgsProject.instance()
+        i = 1
+        new_name = base_name
+        while project.mapLayersByName(new_name):
+            i += 1
+            new_name = f"{base_name}_{i}"
+        return new_name
     
     
     
@@ -3863,176 +3895,7 @@ class Pyarchinit_pyqgis(QDialog):
         except urllib.error.URLError:
             
             return False
-    
-    
-    
-    
-    
-    
-    
-    # def pyarchinit_basemap(basemap_name):
-        # basemap_name = 'Google Maps'
-        # basemap_url = 'mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}'
-        
-        
-        
-        # basemap_uri = "type=xyz&zmin=0&zmax=22&url=http://"+requests.utils.quote(basemap_url)
-        # xyz_layer = qgis.utils.iface.addRasterLayer(basemap_uri, basemap_name, "wms") 
-        # if not xyz_layer.isValid():
-             # QMessageBox.warning(None, "Basemap", 'Basemap loaded error!')        
 
-        # basemap_uri1 = "http://"+basemap_url
-        # source = ["connections-xyz",basemap_name,"","","",basemap_uri1,"","22","0"]   
-        # connectionType = source[0]
-        # connectionName = source[1]
-        # QSettings().setValue("qgis/%s/%s/authcfg" % (connectionType, connectionName), source[2])
-        # QSettings().setValue("qgis/%s/%s/password" % (connectionType, connectionName), source[3])
-        # QSettings().setValue("qgis/%s/%s/referer" % (connectionType, connectionName), source[4])
-        # QSettings().setValue("qgis/%s/%s/url" % (connectionType, connectionName), source[5])
-        # QSettings().setValue("qgis/%s/%s/username" % (connectionType, connectionName), source[6])
-        # QSettings().setValue("qgis/%s/%s/zmax" % (connectionType, connectionName), source[7])
-        # QSettings().setValue("qgis/%s/%s/zmin" % (connectionType, connectionName), source[8])
-        # qgis.utils.iface.reloadConnections()     
-class Order_layers_DEPRECATED(object):
-    HOME = os.environ['PYARCHINIT_HOME']
-
-    REPORT_PATH = '{}{}{}'.format(HOME, os.sep, "pyarchinit_Report_folder")
-
-    LISTA_US = []  # lista che contiene tutte le US singole prese dai singoli rapporti stratigrafici
-    DIZ_ORDER_LAYERS = {}  # contiene una serie di chiavi valori dove la chiave e' il livello di ordinamento e il valore l'US relativa
-    MAX_VALUE_KEYS = -1  # contiene l'indice progressivo dei livelli del dizionario
-    TUPLE_TO_REMOVING = []  # contiene le tuple da rimuovere dai rapporti stratigrafici man mano che si passa ad un livello successivo
-    LISTA_RAPPORTI = ""
-
-    """variabili di controllo di paradossi nei rapporti stratigrafici"""
-    status = 0  # contiene lo stato della lunghezza della lista dei rapporti stratigrafici
-    check_status = 0  # il valore aumenta se la lunghezza della lista dei rapporti stratigrafici non cambia. Va in errore dopo 4000 ripetizioni del loop stratigraficocambia
-    stop_while = ''  # assume il valore 'stop' dopo 4000 ripetizioni ed esce dal loop
-
-    def __init__(self, lr):
-        self.LISTA_RAPPORTI = lr  # istanzia la classe con una lista di tuple rappresentanti i rapporti stratigrafici
-        
-        # f = open('C:\\test_matrix_1.txt', 'w') #to delete
-        # f.write(str(self.lista_rapporti))
-        # f.close()
-        self.LISTA_RAPPORTI.sort()  # ordina la lista dei rapporti stratigrafici E' IN POSIZIONE GIUSTA??? MEGLIO DENTRO AL WHILE?
-        self.status = len(
-            self.LISTA_RAPPORTI)  # assegna la lunghezza della lista dei rapporti per verificare se cambia nel corso del loop
-
-        # print self.lista_rapporti
-
-    def main(self):
-        # esegue la funzione per creare la lista valori delle US dai singoli rapporti stratigrafici
-        self.add_values_to_lista_us()  # fin qui  e' ok controllo da ufficio
-        # finche la lista US contiene valori la funzione bool ritorna True e il ciclo while prosegue NON E' VVVEROOO!!
-
-        len_lista = len(self.LISTA_RAPPORTI)
-
-        while bool(self.LISTA_RAPPORTI) == True and self.stop_while == '':
-            # viene eseguito il ciclo per ogni US contenuto nella lista delle US
-            # QMessageBox.warning(self, "Pyarchinit", str(self.LISTA_RAPPORTI), #QMessageBox.Ok)
-            self.loop_on_lista_us()
-            # dovrebbero rimanere le US che non hanno altre US, dopo
-        if bool(self.LISTA_RAPPORTI) == False and bool(self.LISTA_US) == True:
-            for sing_us in self.LISTA_US:
-                self.add_key_value_to_diz(sing_us)
-        return self.DIZ_ORDER_LAYERS
-
-    ##BLOCCO OK
-    def add_values_to_lista_us(self):
-        # crea la lista valori delle US dai singoli rapporti stratigrafici
-        for i in self.LISTA_RAPPORTI:
-            if i[0] == i[1]:
-                msg = str(i)
-                filename_errori_in_add_value = '{}{}{}'.format(self.REPORT_PATH, os.sep, 'errori_in_add_value.txt')
-                f = open(filename_errori_in_add_value, "w")
-                f.write(msg)
-                f.close()
-                # self.stop_while = "stop"
-            else:
-                if self.LISTA_US.count(i[0]) == 0:
-                    self.LISTA_US.append(i[0])
-                if self.LISTA_US.count(i[1]) == 0:
-                    self.LISTA_US.append(i[1])
-        self.LISTA_US.sort()
-
-        filename_errori_in_add_value = '{}{}{}'.format(self.REPORT_PATH, os.sep, 'test_lista_us.txt')
-        f = open(filename_errori_in_add_value, "w")
-        f.write(str(self.LISTA_US))
-        f.close()
-
-        # print "lista us", str(self.LISTA_US)
-
-    ##BLOCCO OK
-
-    def loop_on_lista_us(self):
-        # se il valore di stop_while rimane vuoto (ovvero non vi sono paradossi stratigrafici) parte la ricerca del livello da assegnare all'US
-        ##      if self.stop_while == '':
-        for i in self.LISTA_US:
-            if self.check_position(
-                    i) == 1:  # se la funzione check_position ritorna 1 significa che e' stata trovata l'US che va nel prossimo livello e in seguito viene rimossa
-                self.LISTA_US.remove(i)
-            else:
-                # se il valore ritornato e' 0 significa che e' necessario passare all'US successiva in lista US e la lista delle tuple da rimuovere e' svuotata
-                self.TUPLE_TO_REMOVING = []
-                # se il valore di status non cambia significa che non e' stata trovata l'US da rimuovere. Se cio' accade per + di 4000 volte e' possibile che vi sia un paradosso e lo script va in errore
-            if self.status == len(self.LISTA_RAPPORTI):
-                self.check_status += 1
-                # print self.check_status
-                if self.check_status > 10:
-                    self.stop_while = ''
-            else:
-                # se entro le 4000 ricerche il valore cambia il check status torna a 0 e lo script va avanti
-                self.check_status = 0
-
-    def check_position(self, n):
-        # riceve un numero di US dalla lista_US
-        num_us = n
-        # assegna 0 alla variabile check
-        check = 0
-        # inizia l'iterazione sUlla lista rapporti
-        for i in self.LISTA_RAPPORTI:
-            # se la tupla assegnata a i contiene in prima posizione il numero di US, ovvero e' un'US che viene dopo le altre nella sequenza, check diventa 1 e non si ha un nuovo livello stratigrafico
-            if i[1] == num_us:
-                # print "num_us", num_us
-                check = 1
-                self.TUPLE_TO_REMOVING = []
-                # break
-                # se invece il valore e' sempre e solo in posizione 1, ovvero e' in cima ai rapporti stratigrafici viene assegnata la tupla di quei rapporti stratigrafici per essere rimossa in seguito
-            elif i[0] == num_us:
-                msg = "check_tuple: \n" + str(i) + "  Lista rapporti presenti: \n" + str(
-                    self.LISTA_RAPPORTI) + '---' + str(i)
-                filename_check_position = '{}{}{}'.format(self.REPORT_PATH, os.sep, 'check_tuple.txt')
-                f = open(filename_check_position, "w")
-                f.write(msg)
-                f.close()
-                self.TUPLE_TO_REMOVING.append(i)
-                # se alla fine dell'iterazione check e' rimasto 0, significa che quell'US e' in cima ai rapporti stratigrafici e si passa all'assegnazione di un nuovo livello stratigrafico nel dizionario
-        if bool(self.TUPLE_TO_REMOVING):
-            # viene eseguita la funzione di aggiunta valori al dizionario passandogli il numero di US
-            self.add_key_value_to_diz(num_us)
-            # vengono rimosse tutte le tuple in cui e' presente l'us assegnata al dizionario e la lista di tuple viene svuotata
-            for i in self.TUPLE_TO_REMOVING:
-                try:
-                    self.LISTA_RAPPORTI.remove(i)
-                except Exception as e:
-                    msg = "check_position: \n" + str(i) + "  Lista rapporti presenti: \n" + str(
-                        self.LISTA_RAPPORTI) + str(e)
-                    filename_check_position = '{}{}{}'.format(self.REPORT_PATH, os.sep, 'check_position.txt')
-                    f = open(filename_check_position, "w")
-                    f.write(msg)
-                    f.close()
-            self.TUPLE_TO_REMOVING = []
-            # la funzione ritorna il valore 1
-            return 1
-
-    def add_key_value_to_diz(self, n):
-        self.num_us_value = n  # numero di US da inserire nel dizionario
-        self.MAX_VALUE_KEYS += 1  # il valore globale del numero di chiave aumenta di 1
-        self.DIZ_ORDER_LAYERS[
-            self.MAX_VALUE_KEYS] = self.num_us_value  # viene assegnata una nuova coppia di chiavi-valori
-
-    
 class Order_layer_v2(object):
     order_dict = {}
     order_count = 0
