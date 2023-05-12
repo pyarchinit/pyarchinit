@@ -115,7 +115,7 @@
      <item>
       <widget class="QPushButton" name="pushButton_goto_scheda">
        <property name="enabled">
-        <bool>true</bool>
+        <bool>false</bool>
        </property>
        <property name="text">
         <string>Apri la scheda</string>
