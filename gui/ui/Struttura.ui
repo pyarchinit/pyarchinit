@@ -1068,7 +1068,7 @@
        <item row="1" column="2">
         <widget class="QLineEdit" name="numero_struttura">
          <property name="enabled">
-          <bool>true</bool>
+          <bool>false</bool>
          </property>
          <property name="minimumSize">
           <size>
@@ -1094,7 +1094,7 @@
        <item row="1" column="1">
         <widget class="QComboBox" name="comboBox_sigla_struttura">
          <property name="enabled">
-          <bool>true</bool>
+          <bool>false</bool>
          </property>
          <property name="minimumSize">
           <size>
