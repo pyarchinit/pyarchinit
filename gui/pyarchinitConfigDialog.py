@@ -493,7 +493,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             try:
                 self.mFeature_value_rd.clearEditText()
                 self.mFeature_value_rd.update()
-                self.value_check()
+                self.value_check(table)
             except:
                 pass
         else:
@@ -695,10 +695,10 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         try:
             self.mFeature_value_rd.clearEditText()
             self.mFeature_value_rd.update()
-            self.value_check()
+            self.value_check(table)
         except:
             pass
-    def value_check(self):
+    def value_check(self,table):
         try:
             self.mFeature_value_rd.clear()
             self.mFeature_value_rd.update()
@@ -926,7 +926,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             try:
                 self.mFeature_value_rd.clearEditText()
                 self.mFeature_value_rd.update()
-                self.value_check_geometry()
+                self.value_check_geometry(table)
             except:
                 pass
     
@@ -1118,12 +1118,12 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         try:
             self.mFeature_value_rd.clearEditText()
             self.mFeature_value_rd.update()
-            self.value_check_geometry()
+            self.value_check_geometry(table)
         except:
             pass
     
     
-    def value_check_geometry(self):
+    def value_check_geometry(self,table):
         try:
             self.mFeature_value_rd.clear()
             self.mFeature_value_rd.update()
@@ -2735,7 +2735,9 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 self.lineEdit_database_rd.setText(filename)
                 s.setValue('',filename)
 
-
+        self.comboBox_Database.setCurrentText('sqlite')
+        self.lineEdit_DBname.setText(filename)
+        self.on_pushButton_save_pressed()
 
 
     def setPathDBsqlite2(self):
