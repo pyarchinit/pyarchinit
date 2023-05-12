@@ -1153,7 +1153,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                         self.tableWidget_rapporti.selectRow(0)
                         self.on_pushButton_go_to_us_pressed()    
                     else:
-                        QMessageBox.warning(self,'','Check if you are duplicate SU or WSU')
+                        QMessageBox.warning(self,'','Controlla se hai duplicato una US o USM')
                     
                 elif not bool(res): 
                     
