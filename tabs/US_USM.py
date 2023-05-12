@@ -776,12 +776,6 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.pushButton_update.setHidden(True)
         self.progressBar_2.setHidden(True)
         self.progressBar_3.setHidden(True)
-        # if self.comboBox_per_iniz.currentText() =='':
-            # self.checkBox_validate.setHidden(True)
-        # else:
-            # self.checkBox_validate.setHidden(False)
-        # lstSelection = [0,1]
-        #self.pushButton_next_rec.pressed.connect(self.selectRows(lstSelection))
         self.currentLayerId = None
         self.search = SearchLayers(iface)
         
