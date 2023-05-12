@@ -1767,22 +1767,22 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             img_list=[]
 
 
-            ## QMessageBox.warning(self, "layer to set", '\n'.join([l.name() for l in layerToSet]), QMessageBox.Ok)
-            gidstr = self.ID_TABLE + " = " + str(
-                eval("self.DATA_LIST[i]." + self.ID_TABLE))
-            layertoset = self.pyQGIS.loadMapPreviewReperti(gidstr)
-            #QMessageBox.warning(self, "layer to set", str(gidstr), QMessageBox.Ok)
-            self.mapPreview.setLayers(layertoset)
-            # Itera sui vettori per esportarli come immagini
-            image_path = self.PDFFOLDER + '\\' + str(eval("self.DATA_LIST[i]." + self.ID_TABLE)) + ".png"
-            for layer in self.mapPreview.layers():
-                # Imposta l'estensione del canvas sulla geometria del layer
-                self.mapPreview.setExtent(layer.extent())
-
-
-                self.mapPreview.saveAsImage(image_path)
-                # self.mapPreview.zoomToFullExtent()
-                self.mapPreview.refresh()
+            # ## QMessageBox.warning(self, "layer to set", '\n'.join([l.name() for l in layerToSet]), QMessageBox.Ok)
+            # gidstr = self.ID_TABLE + " = " + str(
+            #     eval("self.DATA_LIST[i]." + self.ID_TABLE))
+            # layertoset = self.pyQGIS.loadMapPreviewReperti(gidstr)
+            # #QMessageBox.warning(self, "layer to set", str(gidstr), QMessageBox.Ok)
+            # self.mapPreview.setLayers(layertoset)
+            # # Itera sui vettori per esportarli come immagini
+            # image_path = self.PDFFOLDER + '\\' + str(eval("self.DATA_LIST[i]." + self.ID_TABLE)) + ".png"
+            # for layer in self.mapPreview.layers():
+            #     # Imposta l'estensione del canvas sulla geometria del layer
+            #     self.mapPreview.setExtent(layer.extent())
+            #
+            #
+            #     self.mapPreview.saveAsImage(image_path)
+            #     # self.mapPreview.zoomToFullExtent()
+            #     self.mapPreview.refresh()
             for media in record_doc_list:
                 try:
                     thumb= (thumb_path_str + str(media.path_resize))
@@ -1791,10 +1791,10 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                     QMessageBox.warning(self,'message',str(e))
 
             #QMessageBox.warning(self, 'message', str(img_list[0]))
-            if image_path:
-                image_path=image_path
-            else:
-                image_path=''
+            # if image_path:
+            #     image_path=image_path
+            # else:
+            #     image_path=''
             if img_list:
                 a = img_list[0]
             else:
@@ -1825,8 +1825,9 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                     str(self.DATA_LIST[i].diagnostico),
                     str(self.DATA_LIST[i].n_reperto),
                     str(self.DATA_LIST[i].tipo_contenitore),
+                    str(self.DATA_LIST[i].struttura),
                     str(self.DATA_LIST[i].years),# 23 - diagnostico
-                    str(a),
+                    str(a)
                     #str(image_path)
                 ])
         #QMessageBox.warning(self, 'message', str(t))

@@ -149,9 +149,11 @@ class single_Finds_pdf_sheet(object):
         self.misurazioni = data[15]
         self.rif_biblio = data[16]
         self.tecnologie = data[17]
+        self.tipo = data[18]
         self.repertato = data[21]
         self.diagnostico = data[22]
         self.n_reperto = data[23]
+        self.struttura = data[24]
         self.years = data[25]
         self.thumbnail= data[26]
         #self.map = data[27]
@@ -198,13 +200,15 @@ class single_Finds_pdf_sheet(object):
         logo = Image(logo_path)
         logo.drawHeight = 1.5 * inch * logo.drawHeight / logo.drawWidth
         logo.drawWidth = 1.5 * inch
-
-        if self.thumbnail:
-            th= Image(self.thumbnail)
-            th.drawHeight = 2.5 * inch * th.drawHeight / th.drawWidth
-            th.drawWidth = 2.5 * inch
-            th.hAlign = "CENTER"
-        elif not self.thumbnail.endswith('.png') :
+        try:
+            if self.thumbnail:
+                th= Image(self.thumbnail)
+                th.drawHeight = 2.5 * inch * th.drawHeight / th.drawWidth
+                th.drawWidth = 2.5 * inch
+                th.hAlign = "CENTER"
+        except:
+            pass
+        if not self.thumbnail.endswith('.png') :
 
             # else:
             #     # if th == None:
@@ -217,14 +221,14 @@ class single_Finds_pdf_sheet(object):
         #     mp.drawHeight = 6 * inch * mp.drawHeight / mp.drawWidth
         #     mp.drawWidth = 6 * inch
 
-        elif not self.map:
-            mp = Paragraph("<b>Map</b><br/>" + str('Localizzazione non inserita'), styNormal)
+        # elif not self.map:
+        #     mp = Paragraph("<b>Map</b><br/>" + str('Localizzazione non inserita'), styNormal)
 
-        elif not self.map.endswith('.png'):
-
-            # else:
-            #     # if th == None:
-            mp=Paragraph("<b>Map</b><br/>" + str('Localizzazione non inserita'), styNormal)
+        # elif not self.map.endswith('.png'):
+        #
+        #     # else:
+        #     #     # if th == None:
+        #     mp=Paragraph("<b>Map</b><br/>" + str('Localizzazione non inserita'), styNormal)
         if str(self.n_reperto)=='0':
             print("no schede RA")
             pass
@@ -238,6 +242,7 @@ class single_Finds_pdf_sheet(object):
             area = Paragraph("<b>Area</b><br/>" + str(self.area), styNormal)
             us = Paragraph("<b>US</b><br/>" + str(self.us), styNormal)
             anno = Paragraph("<b>Anno</b><br/>" + str(self.years), styNormal)
+            struttura = Paragraph("<b>Rif. Struttura</b><br/>" + str(self.struttura), styNormal)
             # 3 row
             criterio_schedatura = Paragraph("<b>Classe materiale</b><br/>" + self.criterio_schedatura, styNormal)
 
@@ -311,7 +316,7 @@ class single_Finds_pdf_sheet(object):
                         except:
                             pass
             tecnologie = Paragraph("<b>Tecnologie</b><br/>" + tecnologie, styNormal)
-
+            tipologia = Paragraph("<b>Tipologia</b><br/>" + self.tipo, styNormal)
             # 9 row
             rif_biblio = ''
             if eval(self.rif_biblio):
@@ -347,7 +352,7 @@ class single_Finds_pdf_sheet(object):
             cell_schema = [  # 00, 01, 02, 03, 04, 05, 06, 07, 08, 09 rows
                 [intestazione, '01', '02', '03', '04', '05', '06', '07', '08', logo, '10', '11', '12', '13', '14', '15', '16', '17'],  # 0 row ok
                 [sito, '01', '02', '03', '04', n_reperto, '06', '07','08' , '09', '10', th, '12', '13', '14', '15', '16', '17'],  # 1 row ok
-                [area, '01', '03', '03',us, '05', '06', '07', anno, '09', '10', '11', '12', '13', '14', '15', '16', '17'],  # 2 row ok
+                [area, '01', '02', us, '04','05', anno, '07', struttura, '09', '10', '11', '12', '13', '14', '15', '16', '17'],  # 2 row ok
                 [tipo_reperto, '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17'],
                 [criterio_schedatura, '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17'],
                 [definizione, '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17'],
@@ -360,7 +365,7 @@ class single_Finds_pdf_sheet(object):
 
                 [elementi_reperto, '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17'],  # 6 row ok
                 [misurazioni, '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17'],  # 7 row ok
-                [tecnologie, '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17'],  # 8 row ok
+                [tecnologie, '01', '02', '03', '04', '05', '06', '07', '08', tipologia, '10', '11', '12', '13', '14', '15', '16', '17'],  # 8 row ok
                 [rif_biblio, '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17'],  # 9 row ok
                 [repertato, '01', '02', diagnostico, '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17'],  # 10 row ok
                 [lavato, '01', '02', nr_cassa, '04', '05', luogo_conservazione, '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17'],
@@ -388,9 +393,10 @@ class single_Finds_pdf_sheet(object):
                 ('ALIGN', (11, 1), (17, 5), 'CENTER'),
                 # 2 row
                 #('SPAN', (0, 2), (3, 2)),  # rif stratigrafici
-                ('SPAN', (0, 2), (3, 2)),  # area
-                ('SPAN', (4, 2), (7, 2)),  # us
-                ('SPAN', (8, 2), (10, 2)),  # anno
+                ('SPAN', (0, 2), (2, 2)),  # area
+                ('SPAN', (3, 2), (5, 2)),  # us
+                ('SPAN', (6, 2), (7, 2)),  # anno
+                ('SPAN', (8, 2), (10, 2)),  # struttura
                 ('VALIGN', (0, 2), (10, 2), 'TOP'),
 
                 # 3 row
@@ -414,7 +420,8 @@ class single_Finds_pdf_sheet(object):
                 ('SPAN', (0, 12), (17, 12)),  # misurazioni
 
                 # 8 row
-                ('SPAN', (0, 13), (17, 13)),  # tecnologie
+                ('SPAN', (0, 13), (8, 13)),  # tecnologie
+                ('SPAN', (9, 13), (17, 13)),  # tipologia
 
                 # 17 row
                 ('SPAN', (0, 14), (17, 14)),  # bibliografia
