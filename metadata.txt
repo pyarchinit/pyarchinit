@@ -13,7 +13,7 @@ name=pyArchInit
 qgisMinimumVersion=3.22
 description=pyarchinit a tool for archaeological works
 
-version=4.4.3
+version=4.4.4
 
 author=Luca Mandolesi&Enzo Cocca
 email=pyarchinit@gmail.com
@@ -25,7 +25,16 @@ tracker=https://github.com/pyarchinit/pyarchinit/issues
 repository=https://github.com/pyarchinit/pyarchinit
 
 
-changelog=release4.4.3
+changelog=release4.4.4
+    fix issues:
+    #531,#533,#535,#383,#536,#537,#540,#541,##543,#546,#542
+
+    -update datazione estesa in scheda us
+    -update pyarchini_pyqgs: add unique name
+    -add gpt to thesaurus
+
+
+  release4.4.3
     -add image in report artefact pdf
 
 
