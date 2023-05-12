@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>600</width>
+    <width>800</width>
     <height>481</height>
    </rect>
   </property>
@@ -24,13 +24,13 @@
   </property>
   <property name="maximumSize">
    <size>
-    <width>600</width>
+    <width>800</width>
     <height>500</height>
    </size>
   </property>
   <property name="sizeIncrement">
    <size>
-    <width>400</width>
+    <width>800</width>
     <height>156</height>
    </size>
   </property>
@@ -643,6 +643,15 @@ p, li { white-space: pre-wrap; }
         <widget class="QTextEdit" name="textEdit_datazione">
          <property name="enabled">
           <bool>false</bool>
+         </property>
+         <property name="frameShape">
+          <enum>QFrame::StyledPanel</enum>
+         </property>
+         <property name="frameShadow">
+          <enum>QFrame::Raised</enum>
+         </property>
+         <property name="lineWidth">
+          <number>1</number>
          </property>
          <property name="sizeAdjustPolicy">
           <enum>QAbstractScrollArea::AdjustToContents</enum>
