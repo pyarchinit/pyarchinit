@@ -475,7 +475,7 @@
    <item row="9" column="1" colspan="8">
     <widget class="QComboBox" name="comboBox_sito">
      <property name="enabled">
-      <bool>true</bool>
+      <bool>false</bool>
      </property>
      <property name="font">
       <font>
