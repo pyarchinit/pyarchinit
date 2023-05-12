@@ -1187,9 +1187,9 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
 
                     self.setComboBoxEditable(["self.comboBox_sito"], 1)
                     self.setComboBoxEditable(["self.comboBox_sigla_struttura"], 1)
-                    self.setComboBoxEnable(["self.comboBox_sito"], "False")
-                    self.setComboBoxEnable(["self.comboBox_sigla_struttura"], "False")
-                    self.setComboBoxEnable(["self.numero_struttura"], "False")
+                    self.setComboBoxEnable(["self.comboBox_sito"], False)
+                    self.setComboBoxEnable(["self.comboBox_sigla_struttura"], False)
+                    self.setComboBoxEnable(["self.numero_struttura"], False)
 
                     self.fill_fields(self.REC_CORR)
                     self.enable_button(1)
@@ -1578,11 +1578,11 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
                     self.setComboBoxEnable(["self.comboBox_sigla_struttura"], True)
                     self.setComboBoxEnable(["self.numero_struttura"], True)
 
-                    self.setComboBoxEnable(["self.textEdit_descrizione_struttura"], "False")
-                    self.setComboBoxEnable(["self.textEdit_interpretazione_struttura"], "False")
+                    self.setComboBoxEnable(["self.textEdit_descrizione_struttura"], False)
+                    self.setComboBoxEnable(["self.textEdit_interpretazione_struttura"], False)
                     self.setTableEnable(["self.tableWidget_materiali_impiegati", "self.tableWidget_elementi_strutturali",
                                          "self.tableWidget_rapporti",
-                                         "self.tableWidget_misurazioni"], "False")
+                                         "self.tableWidget_misurazioni"], False)
 
                     ###
                     self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
@@ -1599,11 +1599,11 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
                     self.setComboBoxEnable(["self.comboBox_sigla_struttura"], True)
                     self.setComboBoxEnable(["self.numero_struttura"], True)
 
-                    self.setComboBoxEnable(["self.textEdit_descrizione_struttura"], "False")
-                    self.setComboBoxEnable(["self.textEdit_interpretazione_struttura"], "False")
+                    self.setComboBoxEnable(["self.textEdit_descrizione_struttura"], False)
+                    self.setComboBoxEnable(["self.textEdit_interpretazione_struttura"], False)
                     self.setTableEnable(["self.tableWidget_materiali_impiegati", "self.tableWidget_elementi_strutturali",
                                          "self.tableWidget_rapporti",
-                                         "self.tableWidget_misurazioni"], "False")
+                                         "self.tableWidget_misurazioni"], False)
 
                     ###
                     self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
@@ -1694,18 +1694,18 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
                     self.BROWSE_STATUS = "b"
                     self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
 
-                    self.setComboBoxEnable(["self.comboBox_sito"], "False")
-                    self.setComboBoxEnable(["self.comboBox_sigla_struttura"], "False")
-                    self.setComboBoxEnable(["self.numero_struttura"], "False")
+                    self.setComboBoxEnable(["self.comboBox_sito"], False)
+                    self.setComboBoxEnable(["self.comboBox_sigla_struttura"], False)
+                    self.setComboBoxEnable(["self.numero_struttura"], False)
                     self.setComboBoxEditable(["self.comboBox_sito"], 1)
                     self.setComboBoxEditable(["self.comboBox_sigla_struttura"], 1)
 
-                    self.setComboBoxEnable(["self.textEdit_descrizione_struttura"], "True")
-                    self.setComboBoxEnable(["self.textEdit_interpretazione_struttura"], "True")
+                    self.setComboBoxEnable(["self.textEdit_descrizione_struttura"], True)
+                    self.setComboBoxEnable(["self.textEdit_interpretazione_struttura"], True)
                     self.setTableEnable(
                         ["self.tableWidget_materiali_impiegati", "self.tableWidget_elementi_strutturali",
                          "self.tableWidget_rapporti",
-                         "self.tableWidget_misurazioni"], "True")
+                         "self.tableWidget_misurazioni"], True)
 
                     self.fill_fields(self.REC_CORR)
                 else:
@@ -1754,16 +1754,16 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
                                 self.pyQGIS.charge_structure_from_research(self.DATA_LIST)          
                     self.setComboBoxEditable(["self.comboBox_sito"], 1)
                     self.setComboBoxEditable(["self.comboBox_sigla_struttura"], 1)
-                    self.setComboBoxEnable(["self.comboBox_sito"], "False")
-                    self.setComboBoxEnable(["self.comboBox_sigla_struttura"], "False")
-                    self.setComboBoxEnable(["self.numero_struttura"], "False")
+                    self.setComboBoxEnable(["self.comboBox_sito"], False)
+                    self.setComboBoxEnable(["self.comboBox_sigla_struttura"], False)
+                    self.setComboBoxEnable(["self.numero_struttura"], False)
 
-                    self.setComboBoxEnable(["self.textEdit_descrizione_struttura"], "True")
-                    self.setComboBoxEnable(["self.textEdit_interpretazione_struttura"], "True")
+                    self.setComboBoxEnable(["self.textEdit_descrizione_struttura"], True)
+                    self.setComboBoxEnable(["self.textEdit_interpretazione_struttura"], True)
                     self.setTableEnable(
                         ["self.tableWidget_materiali_impiegati", "self.tableWidget_elementi_strutturali",
                          "self.tableWidget_rapporti",
-                         "self.tableWidget_misurazioni"], "True")
+                         "self.tableWidget_misurazioni"], True)
 
                     QMessageBox.warning(self, "Message", "%s %d %s" % strings, QMessageBox.Ok)
         self.enable_button_search(1)
