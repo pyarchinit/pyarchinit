@@ -454,7 +454,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         if self.lineEdit_nr_cassa.text=='None' or None:
             self.lineEdit_nr_cassa.clear()
             self.lineEdit_nr_cassa.setText('')
-            self.lineEdit_nr_cassa.update()           
+            self.lineEdit_nr_cassa.update()
     def on_pushButtonQuant_pressed(self):
         dlg = QuantPanelMain(self)
         dlg.insertItems(self.QUANT_ITEMS)
@@ -492,12 +492,14 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
 
                     filename = ('%s%squant_forme_minime.csv') % (self.QUANT_PATH, os.sep)
                     #QMessageBox.warning(self, "Esportazione", str(filename), QMessageBox.Ok)
-                    f = open(filename, 'wb')
-                    Uw = UnicodeWriter(f)
-                    Uw.writerows(csv_dataset)
-                    f.close()
+                    with  open(filename, 'wb') as f:
+                        Uw = UnicodeWriter(f)
+                        Uw.writerows(csv_dataset)
+                        f.close()
 
                     self.plot_chart(dataset_sum, 'Grafico per Forme minime', 'Nr. Forme')
+                    #self.torta_chart(dataset_sum, 'Grafico per Forme minime', 'Nr. Forme')
+                    #self.matrice_chart(dataset_sum, 'Grafico per Forme minime', 'Nr. Forme')
                 else:
                     QMessageBox.warning(self, "Attenzione", "Non ci sono dati da rappresentare", QMessageBox.Ok)
 
@@ -555,10 +557,10 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
 
                     filename = ('%s%squant_Minimale_Anzahl_der_Gefäßindividuen.csv') % (self.QUANT_PATH, os.sep)
                     QMessageBox.warning(self, "Exportation", str(filename), QMessageBox.Ok)
-                    f = open(filename, 'wb')
-                    Uw = UnicodeWriter(f)
-                    Uw.writerows(csv_dataset)
-                    f.close()
+                    with open(filename, 'wb') as f:
+                        Uw = UnicodeWriter(f)
+                        Uw.writerows(csv_dataset)
+                        f.close()
 
                     self.plot_chart(dataset_sum, 'Diagramm für Minimale Anzahl der Gefäßindividuen', 'Nr. Anzahl')
                 else:
@@ -585,10 +587,10 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                         csv_dataset.append(sing_list)
 
                     filename = ('%s%squant_Fragmente.csv') % (self.QUANT_PATH, os.sep)
-                    f = open(filename, 'wb')
-                    Uw = UnicodeWriter(f)
-                    Uw.writerows(csv_dataset)
-                    f.close()
+                    with open(filename, 'wb') as f:
+                        Uw = UnicodeWriter(f)
+                        Uw.writerows(csv_dataset)
+                        f.close()
                     # QMessageBox.warning(self, "Esportazione", "Esportazione del file "+ str(filename) + "avvenuta con successo. I dati si trovano nella cartella pyarchinit_Quantificazioni_folder sotto al vostro Utente", MessageBox.Ok)
 
 
@@ -618,10 +620,10 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
 
                     filename = ('%s%squant_min_shape.csv') % (self.QUANT_PATH, os.sep)
                     QMessageBox.warning(self, "Exportation", str(filename), QMessageBox.Ok)
-                    f = open(filename, 'wb')
-                    Uw = UnicodeWriter(f)
-                    Uw.writerows(csv_dataset)
-                    f.close()
+                    with open(filename, 'wb') as f:
+                        Uw = UnicodeWriter(f)
+                        Uw.writerows(csv_dataset)
+                        f.close()
 
                     self.plot_chart(dataset_sum, 'Graph for min shape', 'Nr. Shape')
                 else:
@@ -658,7 +660,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                     self.plot_chart(dataset_sum, 'Graph for fragments', 'Nr. Fragments')
                 else:
                     QMessageBox.warning(self, "Warning", "There are no data to represent", QMessageBox.Ok)              
-        """experimental disabled
+        '''experimental disabled
         wind = QMessageBox.warning(self, "Attenzione", "Vuoi esportare le medie ponderate?",  QMessageBox.Ok|QMessageBox.Cancel)
         if wind == QMessageBox.Ok:
             conversion_dict = {"I sec. a.C." : (-99, 0),
@@ -753,11 +755,11 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                 csv_dataset.append(sing_list)
 
             filename = ('%s%squant_medie_pond.csv') % (self.QUANT_PATH, os.sep)
-            f = open(filename, 'wb')
-            Uw = UnicodeWriter(f)
-            Uw.writerows(csv_dataset)
-            f.close()
-            """
+            with  open(filename, 'wb') as f:
+                Uw = UnicodeWriter(f)
+                Uw.writerows(csv_dataset)
+                f.close()
+            '''
 
     def parameter_quant_creator(self, par_list, n_rec):
         self.parameter_list = par_list
@@ -777,40 +779,64 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
 
     def plot_chart(self, d, t, yl):
         self.data_list = d
+        x, values = [], []
+        if isinstance(self.data_list, list):
+            teams, values = zip(*self.data_list)
+            x = list(range(len(teams)))
+        self.widget.canvas.ax.clear()
+        bars = self.widget.canvas.ax.bar(x, height=values, width=0.5, align='center', alpha=0.4, picker=5)
+        self.widget.canvas.ax.set_title(t)
+        self.widget.canvas.ax.set_ylabel(yl)
+        l = ['""' for _ in teams]
+        for bar, team in zip(bars, teams):
+            val = int(bar.get_height())
+            x_pos = bar.get_x() + 0.25
+            label = f"{team} - {val}"
+            y_pos = 0.1
+            self.widget.canvas.ax.tick_params(axis='x', labelsize=8)
+            self.widget.canvas.ax.text(x_pos, y_pos, label, zorder=0, ha='center', va='bottom', size='x-small', rotation=90)
+        self.widget.canvas.draw()
+
+
+    def torta_chart(self, d, t, yl):
+        self.data_list = d
+        self.title = t
+        self.ylabel = yl
+        if isinstance(self.data_list, list):
+            data_diz = {item[0]: item[1] for item in self.data_list}
+            labels, values = zip(*data_diz.items())
+
+            # Crea un nuovo grafico a torta
+            self.widget.canvas.ax.clear()
+            self.widget.canvas.ax.pie(values, labels=labels, autopct='%1.1f%%')
+            self.widget.canvas.ax.axis('equal')
+            self.widget.canvas.ax.set_title(self.title)
+            self.widget.canvas.ax.set_ylabel(self.ylabel)
+            self.widget.canvas.draw()
+
+    def matrice_chart(self, d, t, yl):
+        self.data_list = d
         self.title = t
         self.ylabel = yl
         if type(self.data_list) == list:
             data_diz = {}
             for item in self.data_list:
                 data_diz[item[0]] = item[1]
-        x = list(range(len(data_diz)))
-        n_bars = len(data_diz)
-        values = list(data_diz.values())
-        teams = list(data_diz.keys())
-        ind = np.arange(n_bars)
-        #randomNumbers = random.sample(range(0, 10), 10)
+
+        # Prepara i dati per la matrice di correlazione
+        matrix_data = np.array(list(data_diz.values()))
+
+        # Calcola la matrice di correlazione
+        correlation_matrix = np.corrcoef(matrix_data)
+
+        # Crea un nuovo grafico per la matrice di correlazione
         self.widget.canvas.ax.clear()
-        #QMessageBox.warning(self, "Alert", str(teams) ,  QMessageBox.Ok)
-        bars = self.widget.canvas.ax.bar(x, height=values, width=0.5, align='center', alpha=0.4,picker=5)
-        #guardare il metodo barh per barre orizzontali
+        cax = self.widget.canvas.ax.matshow(correlation_matrix, cmap='coolwarm')
         self.widget.canvas.ax.set_title(self.title)
         self.widget.canvas.ax.set_ylabel(self.ylabel)
-        l = []
-        for team in teams:
-            l.append('""')
-        #self.widget.canvas.ax.set_xticklabels(x , ""   ,size = 'x-small', rotation = 0)
-        n = 0
-        for bar in bars:
-            val = int(bar.get_height())
-            x_pos = bar.get_x() + 0.25
-            label  = teams[n]+ ' - ' + str(val)
-            y_pos = 0.1 #bar.get_height() - bar.get_height() + 1
-            self.widget.canvas.ax.tick_params(axis='x', labelsize=8)
-            #self.widget.canvas.ax.set_xticklabels(ind + x, ['fg'], position = (x_pos,y_pos), xsize = 'small', rotation = 90)
-            self.widget.canvas.ax.text(x_pos, y_pos, label,zorder=0, ha='center', va='bottom',size = 'x-small', rotation = 90)
-            n+=1
-        #self.widget.canvas.ax.plot(randomNumbers)
+        self.widget.canvas.fig.colorbar(cax)
         self.widget.canvas.draw()
+
 
     def on_pushButton_connect_pressed(self):
         # self.setComboBoxEditable(["self.comboBox_sito"],1)
