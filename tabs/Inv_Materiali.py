@@ -425,7 +425,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         #self.numero_invetario()
         self.toolButton_pdfpath.clicked.connect(self.setPathpdf)
         self.customize_gui()
-        self.loadMapPreview()
+        #self.loadMapPreview()
     def setnone(self):
         if self.lineEdit_tipo_contenitore.text=='None' or None:
             self.lineEdit_tipo_contenitore.clear()
