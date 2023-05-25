@@ -98,7 +98,7 @@ class DB_update(object):
 
         if not table_column_names_list.__contains__('years'):
             self.engine.execute(
-                "ALTER TABLE inventario_materiali_table ADD COLUMN years integer")
+                "ALTER TABLE inventario_materiali_table ADD COLUMN years BIGINT")
 
         if not table_column_names_list.__contains__('stato_conservazione'):
             self.engine.execute(
@@ -121,13 +121,13 @@ class DB_update(object):
             self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN tecnologie text")
 
         if not table_column_names_list.__contains__('forme_minime'):
-            self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN forme_minime integer DEFAULT 0")
+            self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN forme_minime BIGINT DEFAULT 0")
 
         if not table_column_names_list.__contains__('forme_massime'):
-            self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN forme_massime integer DEFAULT 0")
+            self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN forme_massime BIGINT DEFAULT 0")
 
         if not table_column_names_list.__contains__('totale_frammenti'):
-            self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN totale_frammenti integer DEFAULT 0")
+            self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN totale_frammenti BIGINT DEFAULT 0")
 
         if not table_column_names_list.__contains__('corpo_ceramico'):
             self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN corpo_ceramico varchar(20)")
@@ -159,7 +159,7 @@ class DB_update(object):
             self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN diagnostico varchar(3)")
             self.engine.execute("update inventario_materiali_table set diagnostico = ''No")
         if not table_column_names_list.__contains__('n_reperto'):
-            self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN n_reperto INTEGER")
+            self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN n_reperto BIGINT")
         if not table_column_names_list.__contains__('tipo_contenitore'):
             self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN tipo_contenitore varchar DEFAULT ''")
         if not table_column_names_list.__contains__('struttura'):
@@ -187,7 +187,7 @@ class DB_update(object):
             self.engine.execute("ALTER TABLE site_table ADD COLUMN sito_path varchar DEFAULT 'inserisci path' ")
 
         if not table_column_names_list.__contains__('find_check'):
-            self.engine.execute("ALTER TABLE site_table ADD COLUMN find_check INTEGER DEFAULT 0")
+            self.engine.execute("ALTER TABLE site_table ADD COLUMN find_check BIGINT DEFAULT 0")
 
         ####US_table
         table = Table("us_table", self.metadata, autoload=True)
@@ -475,9 +475,9 @@ class DB_update(object):
             table_column_names_list.append(str(i.name))
 
         if not table_column_names_list.__contains__('cont_per'):
-            self.engine.execute("ALTER TABLE periodizzazione_table ADD COLUMN cont_per integer DEFAULT '' ")
+            self.engine.execute("ALTER TABLE periodizzazione_table ADD COLUMN cont_per BIGINT DEFAULT '' ")
         # if not table_column_names_list.__contains__('area'):
-            # self.engine.execute("ALTER TABLE periodizzazione_table ADD COLUMN area integer")
+            # self.engine.execute("ALTER TABLE periodizzazione_table ADD COLUMN area BIGINT")
         
         ####tomba_table
         table = Table("tomba_table", self.metadata, autoload=True)
@@ -486,16 +486,16 @@ class DB_update(object):
             table_column_names_list.append(str(i.name))
 
         if not table_column_names_list.__contains__('periodo_iniziale'):
-            self.engine.execute("ALTER TABLE tomba_table ADD COLUMN periodo_iniziale integer")
+            self.engine.execute("ALTER TABLE tomba_table ADD COLUMN periodo_iniziale BIGINT")
 
         if not table_column_names_list.__contains__('fase_iniziale'):
-            self.engine.execute("ALTER TABLE tomba_table ADD COLUMN fase_iniziale integer")
+            self.engine.execute("ALTER TABLE tomba_table ADD COLUMN fase_iniziale BIGINT")
 
         if not table_column_names_list.__contains__('periodo_finale'):
-            self.engine.execute("ALTER TABLE tomba_table ADD COLUMN periodo_finale integer")
+            self.engine.execute("ALTER TABLE tomba_table ADD COLUMN periodo_finale BIGINT")
 
         if not table_column_names_list.__contains__('fase_finale'):
-            self.engine.execute("ALTER TABLE tomba_table ADD COLUMN fase_finale integer")
+            self.engine.execute("ALTER TABLE tomba_table ADD COLUMN fase_finale BIGINT")
 
         if not table_column_names_list.__contains__('datazione_estesa'):
             self.engine.execute("ALTER TABLE tomba_table ADD COLUMN datazione_estesa text")
@@ -619,7 +619,7 @@ class DB_update(object):
             self.engine.execute( "ALTER TABLE pyarchinit_strutture_ipotesi ADD COLUMN sigla_strut varchar(3) DEFAULT 'NoD'")
         
         if not table_column_names_list.__contains__('nr_strut'):
-            self.engine.execute("ALTER TABLE pyarchinit_strutture_ipotesi ADD COLUMN nr_strut integer DEFAULT 0 ")
+            self.engine.execute("ALTER TABLE pyarchinit_strutture_ipotesi ADD COLUMN nr_strut BIGINT DEFAULT 0 ")
         
        
         table = Table("pyarchinit_sezioni", self.metadata, autoload=True)

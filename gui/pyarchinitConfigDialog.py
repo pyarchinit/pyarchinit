@@ -230,7 +230,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
     
     
     def on_pushButton_convert_db_pg_pressed(self):
-        ok=QMessageBox.warning(self, "Attenzione", 'Vuoi sovrascrivere il db.\n clicca ok oppure cancell per aggiornare', QMessageBox.Ok | QMessageBox.Cancel)
+        ok=QMessageBox.warning(self, "Attenzione", 'Vuoi sovrascrivere il db?\n clicca ok oppure cancell per aggiornare', QMessageBox.Ok | QMessageBox.Cancel)
         
         self.comboBox_Database.update()
         conn = Connection()
@@ -2735,9 +2735,9 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 self.lineEdit_database_rd.setText(filename)
                 s.setValue('',filename)
 
-        self.comboBox_Database.setCurrentText('sqlite')
-        self.lineEdit_DBname.setText(filename)
-        self.on_pushButton_save_pressed()
+        #self.comboBox_Database.setCurrentText('sqlite')
+        #self.lineEdit_DBname.setText(filename)
+        #self.on_pushButton_save_pressed()
 
 
     def setPathDBsqlite2(self):
@@ -2753,6 +2753,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
 
             self.lineEdit_database_wt.setText(filename)
             s.setValue('',filename)
+
     def openthumbDir(self):
         s = QgsSettings()
         dbpath = QFileDialog.getOpenFileName(
@@ -2915,8 +2916,13 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         #self.comboBox_server_wt.clear()
         if self.comboBox_server_wt.currentText() == 'postgres' and not self.comboBox_Database.currentText()=='postgres':
             QMessageBox.warning(self, "Attenzione", "Devi essere connesso\n prima al db di postgres", QMessageBox.Ok)
-            #self.comboBox_server_wt.clear()
-        if self.comboBox_server_wt.currentText() == 'postgres' and self.comboBox_Database.currentText()=='postgres':   
+            self.comboBox_server_wt.clear()
+
+        if self.comboBox_server_wt.currentText() == 'sqlite' and not self.comboBox_Database.currentText()=='sqlite':
+            QMessageBox.warning(self, "Attenzione", "Devi essere connesso\n prima al db di sqlite", QMessageBox.Ok)
+            self.comboBox_server_wt.clear()
+
+        if self.comboBox_server_wt.currentText() == 'postgres' and self.comboBox_Database.currentText()=='postgres':
             
             self.lineEdit_host_wt.setText(str(self.lineEdit_Host.text()))
             
@@ -2929,7 +2935,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             self.lineEdit_pass_wt.setText(str(self.lineEdit_Password.text()))
 
         
-        if self.comboBox_server_wt.currentText() == 'sqlite':   
+        if self.comboBox_server_wt.currentText() == 'sqlite'and self.comboBox_Database.currentText()=='sqlite':
             #QMessageBox.warning(self, "ok", "entered in if", QMessageBox.Ok)
             #self.self.comboBox_server_wt.clear()
             self.lineEdit_host_wt.setText('')
