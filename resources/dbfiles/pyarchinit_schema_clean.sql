@@ -12,26 +12,26 @@ SET default_tablespace = '';
 --
 
 CREATE TABLE public.archeozoology_table (
-    id_archzoo integer NOT NULL,
+    id_archzoo BIGINT NOT NULL,
     sito text,
     area text,
-    us integer,
+    us BIGINT,
     quadrato text,
-    coord_x integer,
-    coord_y integer,
-    bos_bison integer,
-    calcinati integer,
-    camoscio integer,
-    capriolo integer,
-    cervo integer,
-    combusto integer,
-    coni integer,
-    pdi integer,
-    stambecco integer,
-    strie integer,
-    canidi integer,
-    ursidi integer,
-    megacero integer
+    coord_x BIGINT,
+    coord_y BIGINT,
+    bos_bison BIGINT,
+    calcinati BIGINT,
+    camoscio BIGINT,
+    capriolo BIGINT,
+    cervo BIGINT,
+    combusto BIGINT,
+    coni BIGINT,
+    pdi BIGINT,
+    stambecco BIGINT,
+    strie BIGINT,
+    canidi BIGINT,
+    ursidi BIGINT,
+    megacero BIGINT
 );
 
 
@@ -67,15 +67,15 @@ ALTER SEQUENCE public.archeozoology_table_id_archzoo_seq OWNED BY public.archeoz
 --
 
 CREATE TABLE public.campioni_table (
-    id_campione integer NOT NULL,
+    id_campione BIGINT NOT NULL,
     sito text,
-    nr_campione integer,
+    nr_campione BIGINT,
     tipo_campione text,
     descrizione text,
     area character varying(20),
-    us integer,
-    numero_inventario_materiale integer,
-    nr_cassa integer,
+    us BIGINT,
+    numero_inventario_materiale BIGINT,
+    nr_cassa BIGINT,
     luogo_conservazione text
 );
 
@@ -112,63 +112,63 @@ ALTER SEQUENCE public.campioni_table_id_campione_seq OWNED BY public.campioni_ta
 --
 
 CREATE TABLE public.deteta_table (
-    id_det_eta integer NOT NULL,
+    id_det_eta BIGINT NOT NULL,
     sito text,
-    nr_individuo integer,
-    sinf_min integer,
-    sinf_max integer,
-    sinf_min_2 integer,
-    sinf_max_2 integer,
-    "SSPIA" integer,
-    "SSPIB" integer,
-    "SSPIC" integer,
-    "SSPID" integer,
-    sup_aur_min integer,
-    sup_aur_max integer,
-    sup_aur_min_2 integer,
-    sup_aur_max_2 integer,
-    ms_sup_min integer,
-    ms_sup_max integer,
-    ms_inf_min integer,
-    ms_inf_max integer,
-    usura_min integer,
-    usura_max integer,
-    "Id_endo" integer,
-    "Is_endo" integer,
-    "IId_endo" integer,
-    "IIs_endo" integer,
-    "IIId_endo" integer,
-    "IIIs_endo" integer,
-    "IV_endo" integer,
-    "V_endo" integer,
-    "VI_endo" integer,
-    "VII_endo" integer,
-    "VIIId_endo" integer,
-    "VIIIs_endo" integer,
-    "IXd_endo" integer,
-    "IXs_endo" integer,
-    "Xd_endo" integer,
-    "Xs_endo" integer,
-    endo_min integer,
-    endo_max integer,
-    volta_1 integer,
-    volta_2 integer,
-    volta_3 integer,
-    volta_4 integer,
-    volta_5 integer,
-    volta_6 integer,
-    volta_7 integer,
-    lat_6 integer,
-    lat_7 integer,
-    lat_8 integer,
-    lat_9 integer,
-    lat_10 integer,
-    volta_min integer,
-    volta_max integer,
-    ant_lat_min integer,
-    ant_lat_max integer,
-    ecto_min integer,
-    ecto_max integer
+    nr_individuo BIGINT,
+    sinf_min BIGINT,
+    sinf_max BIGINT,
+    sinf_min_2 BIGINT,
+    sinf_max_2 BIGINT,
+    "SSPIA" BIGINT,
+    "SSPIB" BIGINT,
+    "SSPIC" BIGINT,
+    "SSPID" BIGINT,
+    sup_aur_min BIGINT,
+    sup_aur_max BIGINT,
+    sup_aur_min_2 BIGINT,
+    sup_aur_max_2 BIGINT,
+    ms_sup_min BIGINT,
+    ms_sup_max BIGINT,
+    ms_inf_min BIGINT,
+    ms_inf_max BIGINT,
+    usura_min BIGINT,
+    usura_max BIGINT,
+    "Id_endo" BIGINT,
+    "Is_endo" BIGINT,
+    "IId_endo" BIGINT,
+    "IIs_endo" BIGINT,
+    "IIId_endo" BIGINT,
+    "IIIs_endo" BIGINT,
+    "IV_endo" BIGINT,
+    "V_endo" BIGINT,
+    "VI_endo" BIGINT,
+    "VII_endo" BIGINT,
+    "VIIId_endo" BIGINT,
+    "VIIIs_endo" BIGINT,
+    "IXd_endo" BIGINT,
+    "IXs_endo" BIGINT,
+    "Xd_endo" BIGINT,
+    "Xs_endo" BIGINT,
+    endo_min BIGINT,
+    endo_max BIGINT,
+    volta_1 BIGINT,
+    volta_2 BIGINT,
+    volta_3 BIGINT,
+    volta_4 BIGINT,
+    volta_5 BIGINT,
+    volta_6 BIGINT,
+    volta_7 BIGINT,
+    lat_6 BIGINT,
+    lat_7 BIGINT,
+    lat_8 BIGINT,
+    lat_9 BIGINT,
+    lat_10 BIGINT,
+    volta_min BIGINT,
+    volta_max BIGINT,
+    ant_lat_min BIGINT,
+    ant_lat_max BIGINT,
+    ecto_min BIGINT,
+    ecto_max BIGINT
 );
 
 
@@ -204,43 +204,43 @@ ALTER SEQUENCE public.deteta_table_id_det_eta_seq OWNED BY public.deteta_table.i
 --
 
 CREATE TABLE public.detsesso_table (
-    id_det_sesso integer NOT NULL,
+    id_det_sesso BIGINT NOT NULL,
     sito text,
-    num_individuo integer,
-    glab_grado_imp integer,
-    pmast_grado_imp integer,
-    pnuc_grado_imp integer,
-    pzig_grado_imp integer,
-    arcsop_grado_imp integer,
-    tub_grado_imp integer,
-    pocc_grado_imp integer,
-    inclfr_grado_imp integer,
-    zig_grado_imp integer,
-    msorb_grado_imp integer,
-    glab_valori integer,
-    pmast_valori integer,
-    pnuc_valori integer,
-    pzig_valori integer,
-    arcsop_valori integer,
-    tub_valori integer,
-    pocc_valori integer,
-    inclfr_valori integer,
-    zig_valori integer,
-    msorb_valori integer,
-    palato_grado_imp integer,
-    mfmand_grado_imp integer,
-    mento_grado_imp integer,
-    anmand_grado_imp integer,
-    minf_grado_imp integer,
-    brmont_grado_imp integer,
-    condm_grado_imp integer,
-    palato_valori integer,
-    mfmand_valori integer,
-    mento_valori integer,
-    anmand_valori integer,
-    minf_valori integer,
-    brmont_valori integer,
-    condm_valori integer,
+    num_individuo BIGINT,
+    glab_grado_imp BIGINT,
+    pmast_grado_imp BIGINT,
+    pnuc_grado_imp BIGINT,
+    pzig_grado_imp BIGINT,
+    arcsop_grado_imp BIGINT,
+    tub_grado_imp BIGINT,
+    pocc_grado_imp BIGINT,
+    inclfr_grado_imp BIGINT,
+    zig_grado_imp BIGINT,
+    msorb_grado_imp BIGINT,
+    glab_valori BIGINT,
+    pmast_valori BIGINT,
+    pnuc_valori BIGINT,
+    pzig_valori BIGINT,
+    arcsop_valori BIGINT,
+    tub_valori BIGINT,
+    pocc_valori BIGINT,
+    inclfr_valori BIGINT,
+    zig_valori BIGINT,
+    msorb_valori BIGINT,
+    palato_grado_imp BIGINT,
+    mfmand_grado_imp BIGINT,
+    mento_grado_imp BIGINT,
+    anmand_grado_imp BIGINT,
+    minf_grado_imp BIGINT,
+    brmont_grado_imp BIGINT,
+    condm_grado_imp BIGINT,
+    palato_valori BIGINT,
+    mfmand_valori BIGINT,
+    mento_valori BIGINT,
+    anmand_valori BIGINT,
+    minf_valori BIGINT,
+    brmont_valori BIGINT,
+    condm_valori BIGINT,
     sex_cr_tot real,
     ind_cr_sex character varying(100),
     "sup_p_I" character varying(1),
@@ -293,7 +293,7 @@ ALTER SEQUENCE public.detsesso_table_id_det_sesso_seq OWNED BY public.detsesso_t
 --
 
 CREATE TABLE public.documentazione_table (
-    id_documentazione integer NOT NULL,
+    id_documentazione BIGINT NOT NULL,
     sito text,
     nome_doc text,
     data text,
@@ -337,11 +337,11 @@ ALTER SEQUENCE public.documentazione_table_id_documentazione_seq OWNED BY public
 --
 
 CREATE TABLE public.individui_table (
-    id_scheda_ind integer NOT NULL,
+    id_scheda_ind BIGINT NOT NULL,
     sito text,
     area character varying(20),
     us text,
-    nr_individuo integer,
+    nr_individuo BIGINT,
     data_schedatura character varying(100),
     schedatore character varying(100),
     sesso character varying(100),
@@ -350,7 +350,7 @@ CREATE TABLE public.individui_table (
     classi_eta character varying(100),
     osservazioni text,
 	sigla_struttura character varying(100),
-	nr_struttura integer,
+	nr_struttura BIGINT,
 	completo_si_no character varying(4),
     disturbato_si_no character varying(4),
     in_connessione_si_no character varying(4),
@@ -396,17 +396,17 @@ ALTER SEQUENCE public.individui_table_id_scheda_ind_seq OWNED BY public.individu
 --
 
 CREATE TABLE public.inventario_materiali_table (
-    id_invmat integer NOT NULL,
+    id_invmat BIGINT NOT NULL,
     sito text,
-    numero_inventario integer,
+    numero_inventario BIGINT,
     tipo_reperto text,
     criterio_schedatura text,
     definizione text,
     descrizione text,
-    area integer,
-    us integer,
+    area BIGINT,
+    us BIGINT,
     lavato character varying(3),
-    nr_cassa integer,
+    nr_cassa BIGINT,
     luogo_conservazione text,
     stato_conservazione character varying (200) DEFAULT ''::character varying,
     datazione_reperto character varying(200) DEFAULT ''::character varying,
@@ -414,9 +414,9 @@ CREATE TABLE public.inventario_materiali_table (
     misurazioni text,
     rif_biblio text,
     tecnologie text,
-    forme_minime integer DEFAULT 0,
-    forme_massime integer DEFAULT 0,
-    totale_frammenti integer DEFAULT 0,
+    forme_minime BIGINT DEFAULT 0,
+    forme_massime BIGINT DEFAULT 0,
+    totale_frammenti BIGINT DEFAULT 0,
     corpo_ceramico character varying(200),
     rivestimento character varying(200),
     diametro_orlo numeric(7,3) DEFAULT 0,
@@ -425,10 +425,10 @@ CREATE TABLE public.inventario_materiali_table (
     eve_orlo numeric(7,3) DEFAULT 0,
     repertato character varying(3),
     diagnostico character varying(3),
-	n_reperto integer,
+	n_reperto BIGINT,
 	tipo_contenitore character varying(200),
 	struttura character varying(200),
-	years integer
+	years BIGINT
 );
 
 
@@ -464,17 +464,17 @@ ALTER SEQUENCE public.inventario_materiali_table_id_invmat_seq OWNED BY public.i
 --
 
 CREATE TABLE public.inventario_materiali_table_toimp (
-    id_invmat integer NOT NULL,
+    id_invmat BIGINT NOT NULL,
     sito text,
-    numero_inventario integer,
+    numero_inventario BIGINT,
     tipo_reperto text,
     criterio_schedatura text,
     definizione text,
     descrizione text,
-    area integer,
-    us integer,
+    area BIGINT,
+    us BIGINT,
     lavato character varying(2),
-    nr_cassa integer,
+    nr_cassa BIGINT,
     luogo_conservazione text,
     stato_conservazione character varying(20),
     datazione_reperto character varying(30),
@@ -518,7 +518,7 @@ ALTER SEQUENCE public.inventario_materiali_table_toimp_id_invmat_seq OWNED BY pu
 --
 
 CREATE TABLE public.media_table (
-    id_media integer NOT NULL,
+    id_media BIGINT NOT NULL,
     mediatype text,
     filename text,
     filetype character varying(10),
@@ -560,8 +560,8 @@ ALTER SEQUENCE public.media_table_id_media_seq OWNED BY public.media_table.id_me
 --
 
 CREATE TABLE public.media_thumb_table (
-    id_media_thumb integer NOT NULL,
-    id_media integer,
+    id_media_thumb BIGINT NOT NULL,
+    id_media BIGINT,
     mediatype text,
     media_filename text,
     media_thumb_filename text,
@@ -603,11 +603,11 @@ ALTER SEQUENCE public.media_thumb_table_id_media_thumb_seq OWNED BY public.media
 --
 
 CREATE TABLE public.media_to_entity_table (
-    "id_mediaToEntity" integer NOT NULL,
-    id_entity integer,
+    "id_mediaToEntity" BIGINT NOT NULL,
+    id_entity BIGINT,
     entity_type text,
     table_name text,
-    id_media integer,
+    id_media BIGINT,
     filepath text,
     media_name text
 );
@@ -645,12 +645,12 @@ ALTER SEQUENCE public."media_to_entity_table_id_mediaToEntity_seq" OWNED BY publ
 --
 
 CREATE TABLE public.media_to_us_table (
-    "id_mediaToUs" integer NOT NULL,
-    id_us integer,
+    "id_mediaToUs" BIGINT NOT NULL,
+    id_us BIGINT,
     sito text,
     area character varying(20),
-    us integer,
-    id_media integer,
+    us BIGINT,
+    id_media BIGINT,
     filepath text
 );
 
@@ -682,7 +682,7 @@ ALTER SEQUENCE public."media_to_us_table_id_mediaToUs_seq" OWNED BY public.media
 
 
 CREATE TABLE public.pdf_administrator_table (
-    id_pdf_administrator integer NOT NULL,
+    id_pdf_administrator BIGINT NOT NULL,
     table_name text,
     schema_griglia text,
     schema_fusione_celle text,
@@ -722,16 +722,16 @@ ALTER SEQUENCE public.pdf_administrator_table_id_pdf_administrator_seq OWNED BY 
 --
 
 CREATE TABLE public.periodizzazione_table (
-    id_perfas integer NOT NULL,
+    id_perfas BIGINT NOT NULL,
     sito text,
-    periodo integer,
+    periodo BIGINT,
     fase text,
-    cron_iniziale integer,
-    cron_finale integer,
+    cron_iniziale BIGINT,
+    cron_finale BIGINT,
     descrizione text,
     datazione_estesa character varying(300),
-    cont_per integer,
-	area integer
+    cont_per BIGINT,
+	area BIGINT
 );
 
 
@@ -766,15 +766,15 @@ ALTER SEQUENCE public.periodizzazione_table_id_perfas_seq OWNED BY public.period
 --
 
 CREATE TABLE public.pottery_table (
-    id_rep integer NOT NULL,
-    id_number integer,
+    id_rep BIGINT NOT NULL,
+    id_number BIGINT,
     sito text,
     area text,
-    us integer,
-    box integer,
+    us BIGINT,
+    box BIGINT,
     photo text,
     drawing text,
-    anno integer,
+    anno BIGINT,
     fabric text,
     percent text,
     material text,
@@ -790,13 +790,13 @@ CREATE TABLE public.pottery_table (
     descrip_in_deco text,
     note text,
     diametro_max numeric(7,3),
-    qty integer,
+    qty BIGINT,
     diametro_rim numeric(7,3),
     diametro_bottom numeric(7,3),
     diametro_height numeric(7,3),
     diametro_preserved numeric(7,3),
     specific_shape text,
-    bag integer,
+    bag BIGINT,
     sector text
 );
 
@@ -833,12 +833,12 @@ ALTER SEQUENCE public.pottery_table_id_rep_seq OWNED BY public.pottery_table.id_
 --
 
 CREATE TABLE public.pyarchinit_campionature (
-    gid integer NOT NULL,
-    id_campion integer,
+    gid BIGINT NOT NULL,
+    id_campion BIGINT,
     sito character varying(200),
     tipo_campi character varying(200),
     datazione_ character varying(200),
-    cronologia integer,
+    cronologia BIGINT,
     link_immag character varying(500),
     sigla_camp character varying,
     the_geom public.geometry(Point,-1)
@@ -868,7 +868,7 @@ ALTER TABLE public.pyarchinit_codici_tipologia_id_seq OWNER TO postgres;
 --
 
 CREATE TABLE public.pyarchinit_codici_tipologia (
-    id integer DEFAULT nextval('public.pyarchinit_codici_tipologia_id_seq'::regclass) NOT NULL,
+    id BIGINT DEFAULT nextval('public.pyarchinit_codici_tipologia_id_seq'::regclass) NOT NULL,
     tipologia_progetto character varying,
     tipologia_definizione_tipologia character varying,
     tipologia_gruppo character varying,
@@ -888,12 +888,12 @@ ALTER TABLE public.pyarchinit_codici_tipologia OWNER TO postgres;
 --
 
 CREATE TABLE public.pyarchinit_individui (
-    gid integer NOT NULL,
+    gid BIGINT NOT NULL,
     sito character varying(255),
     sigla_struttura character varying(255),
     note character varying(255),
     the_geom public.geometry(Point,-1),
-    id_individuo integer
+    id_individuo BIGINT
 );
 
 
@@ -929,13 +929,13 @@ ALTER SEQUENCE public.pyarchinit_individui_gid_seq OWNED BY public.pyarchinit_in
 --
 
 CREATE TABLE public.pyarchinit_inventario_materiali (
-    idim_pk integer NOT NULL,
+    idim_pk BIGINT NOT NULL,
     sito character varying(150),
-    area integer,
-    us integer,
-    nr_cassa integer,
+    area BIGINT,
+    us BIGINT,
+    nr_cassa BIGINT,
     tipo_materiale character varying(120) DEFAULT 'Ceramica'::character varying,
-    nr_reperto integer,
+    nr_reperto BIGINT,
     lavato_si_no character(2) DEFAULT 'si'::bpchar,
     descrizione_rep character varying
 );
@@ -969,7 +969,7 @@ ALTER TABLE public.pyarchinit_linee_rif_gid_seq OWNER TO postgres;
 --
 
 CREATE TABLE public.pyarchinit_linee_rif (
-    gid integer DEFAULT nextval('public.pyarchinit_linee_rif_gid_seq'::regclass) NOT NULL,
+    gid BIGINT DEFAULT nextval('public.pyarchinit_linee_rif_gid_seq'::regclass) NOT NULL,
     sito character varying(300),
     definizion character varying(80),
     descrizion character varying(80),
@@ -1001,14 +1001,14 @@ ALTER TABLE public.pyarchinit_punti_rif_gid_seq OWNER TO postgres;
 --
 
 CREATE TABLE public.pyarchinit_punti_rif (
-    gid integer DEFAULT nextval('public.pyarchinit_punti_rif_gid_seq'::regclass) NOT NULL,
+    gid BIGINT DEFAULT nextval('public.pyarchinit_punti_rif_gid_seq'::regclass) NOT NULL,
     sito character varying(80),
     def_punto character varying(80),
     id_punto character varying(80),
     quota double precision,
     the_geom public.geometry(Point,-1),
     unita_misura_quota character varying,
-    area integer,
+    area BIGINT,
     orientamento numeric(5,2)
 );
 
@@ -1021,10 +1021,10 @@ ALTER TABLE public.pyarchinit_punti_rif OWNER TO postgres;
 --
 
 CREATE TABLE public.pyuscarlinee (
-    gid integer NOT NULL,
+    gid BIGINT NOT NULL,
     sito_l character varying(150),
-    area_l integer,
-    us_l integer,
+    area_l BIGINT,
+    us_l BIGINT,
     tipo_us_l character varying(150),
     the_geom public.geometry(LineString,-1)
 );
@@ -1038,10 +1038,10 @@ ALTER TABLE public.pyuscarlinee OWNER TO postgres;
 --
 
 CREATE TABLE public.us_table (
-    id_us integer NOT NULL,
+    id_us BIGINT NOT NULL,
     sito text,
     area character varying(20),
-    us integer,
+    us BIGINT,
     d_stratigrafica character varying(255),
     d_interpretativa character varying(255),
     descrizione text,
@@ -1065,7 +1065,7 @@ CREATE TABLE public.us_table (
     consistenza character varying(20),
     struttura character varying(30),
     cont_per character varying(200),
-    order_layer integer DEFAULT 0,
+    order_layer BIGINT DEFAULT 0,
     documentazione text,
     unita_tipo character varying DEFAULT 'US'::character varying,
     settore text DEFAULT ''::text,
@@ -1176,10 +1176,10 @@ ALTER TABLE public.pyarchinit_quote_usm_gid_seq OWNER TO postgres;
 --
 
 CREATE TABLE public.pyarchinit_quote (
-    gid integer DEFAULT nextval('public.pyarchinit_quote_gid_seq'::regclass) NOT NULL,
+    gid BIGINT DEFAULT nextval('public.pyarchinit_quote_gid_seq'::regclass) NOT NULL,
     sito_q character varying(80),
-    area_q integer,
-    us_q integer,
+    area_q BIGINT,
+    us_q BIGINT,
     unita_misu_q character varying(80),
     quota_q double precision,
     the_geom public.geometry(Point,-1),
@@ -1197,10 +1197,10 @@ ALTER TABLE public.pyarchinit_quote OWNER TO postgres;
 --
 
 CREATE TABLE public.pyarchinit_quote_usm (
-    gid integer DEFAULT nextval('public.pyarchinit_quote_usm_gid_seq'::regclass) NOT NULL,
+    gid BIGINT DEFAULT nextval('public.pyarchinit_quote_usm_gid_seq'::regclass) NOT NULL,
     sito_q character varying(80),
-    area_q integer,
-    us_q integer,
+    area_q BIGINT,
+    us_q BIGINT,
     unita_misu_q character varying(80),
     quota_q double precision,
     the_geom public.geometry(Point,-1),
@@ -1233,7 +1233,7 @@ ALTER TABLE public.pyarchinit_ripartizioni_spaziali_gid_seq OWNER TO postgres;
 --
 
 CREATE TABLE public.pyarchinit_ripartizioni_spaziali (
-    gid integer DEFAULT nextval('public.pyarchinit_ripartizioni_spaziali_gid_seq'::regclass) NOT NULL,
+    gid BIGINT DEFAULT nextval('public.pyarchinit_ripartizioni_spaziali_gid_seq'::regclass) NOT NULL,
     id_rs character varying(80),
     sito_rs character varying(80),
     the_geom public.geometry(Polygon,-1),
@@ -1253,10 +1253,10 @@ CREATE TABLE public.pyarchinit_ripartizioni_temporali (
     sito character varying,
     sigla_periodo character varying(10),
     sigla_fase character varying(10),
-    cronologia_numerica integer,
-    cronologia_numerica_finale integer,
+    cronologia_numerica BIGINT,
+    cronologia_numerica_finale BIGINT,
     datazione_estesa_stringa character varying,
-    id_periodo integer NOT NULL,
+    id_periodo BIGINT NOT NULL,
     descrizione character varying
 );
 
@@ -1293,7 +1293,7 @@ ALTER SEQUENCE public.pyarchinit_ripartizioni_temporali_id_periodo_seq OWNED BY 
 --
 
 CREATE TABLE public.pyarchinit_rou_thesaurus (
-    "ID_rou" integer NOT NULL,
+    "ID_rou" BIGINT NOT NULL,
     valore_ro character varying,
     rou_descrizione character varying
 );
@@ -1346,10 +1346,10 @@ ALTER TABLE public.pyarchinit_sezioni_gid_seq OWNER TO postgres;
 --
 
 CREATE TABLE public.pyarchinit_sezioni (
-    gid integer DEFAULT nextval('public.pyarchinit_sezioni_gid_seq'::regclass) NOT NULL,
+    gid BIGINT DEFAULT nextval('public.pyarchinit_sezioni_gid_seq'::regclass) NOT NULL,
     id_sezione character varying(80),
     sito character varying(80),
-    area integer,
+    area BIGINT,
     descr character varying(80),
     the_geom public.geometry(LineString,-1),
 	tipo_doc text,
@@ -1380,7 +1380,7 @@ ALTER TABLE public.pyarchinit_siti_gid_seq OWNER TO postgres;
 --
 
 CREATE TABLE public.pyarchinit_siti (
-    gid integer DEFAULT nextval('public.pyarchinit_siti_gid_seq'::regclass) NOT NULL,
+    gid BIGINT DEFAULT nextval('public.pyarchinit_siti_gid_seq'::regclass) NOT NULL,
     sito_nome character varying(80),
     the_geom public.geometry(Point,-1),
     link character varying(300)
@@ -1413,7 +1413,7 @@ ALTER TABLE public.pyarchinit_siti_polygonal_gid_seq OWNER TO postgres;
 --
 
 CREATE TABLE public.pyarchinit_siti_polygonal (
-    gid integer DEFAULT nextval('public.pyarchinit_siti_polygonal_gid_seq'::regclass) NOT NULL,
+    gid BIGINT DEFAULT nextval('public.pyarchinit_siti_polygonal_gid_seq'::regclass) NOT NULL,
     sito_id character varying(80),
     the_geom public.geometry(Polygon,-1)
 );
@@ -1448,7 +1448,7 @@ ALTER TABLE public.pyarchinit_sondaggi_gid_seq OWNER TO postgres;
 --
 
 CREATE TABLE public.pyarchinit_sondaggi (
-    gid integer DEFAULT nextval('public.pyarchinit_sondaggi_gid_seq'::regclass) NOT NULL,
+    gid BIGINT DEFAULT nextval('public.pyarchinit_sondaggi_gid_seq'::regclass) NOT NULL,
     sito character varying(80),
     id_sondagg character varying(80),
     the_geom public.geometry(Polygon,-1)
@@ -1478,17 +1478,17 @@ ALTER TABLE public.pyarchinit_strutture_ipotesi_gid_seq OWNER TO postgres;
 --
 
 CREATE TABLE public.pyarchinit_strutture_ipotesi (
-    gid integer DEFAULT nextval('public.pyarchinit_strutture_ipotesi_gid_seq'::regclass) NOT NULL,
+    gid BIGINT DEFAULT nextval('public.pyarchinit_strutture_ipotesi_gid_seq'::regclass) NOT NULL,
     sito character varying(80),
     id_strutt character varying(80),
-    per_iniz integer,
-    per_fin integer,
+    per_iniz BIGINT,
+    per_fin BIGINT,
     dataz_ext character varying(80),
     the_geom public.geometry(Polygon,-1),
-    fase_iniz integer,
-    fase_fin integer,
+    fase_iniz BIGINT,
+    fase_fin BIGINT,
     descrizione character varying,
-    nr_strut integer DEFAULT 0,
+    nr_strut BIGINT DEFAULT 0,
     sigla_strut character varying(3) DEFAULT 'NoD'::character varying
 );
 
@@ -1501,19 +1501,19 @@ ALTER TABLE public.pyarchinit_strutture_ipotesi OWNER TO postgres;
 --
 
 CREATE TABLE public.struttura_table (
-    id_struttura integer NOT NULL,
+    id_struttura BIGINT NOT NULL,
     sito text,
     sigla_struttura text,
-    numero_struttura integer,
+    numero_struttura BIGINT,
     categoria_struttura text,
     tipologia_struttura text,
     definizione_struttura text,
     descrizione text,
     interpretazione text,
-    periodo_iniziale integer,
-    fase_iniziale integer,
-    periodo_finale integer,
-    fase_finale integer,
+    periodo_iniziale BIGINT,
+    fase_iniziale BIGINT,
+    periodo_finale BIGINT,
+    fase_finale BIGINT,
     datazione_estesa character varying(300),
     materiali_impiegati text,
     elementi_strutturali text,
@@ -1531,11 +1531,11 @@ ALTER TABLE public.struttura_table OWNER TO postgres;
 --
 
 CREATE TABLE public.pyarchinit_tafonomia (
-    gid integer NOT NULL,
+    gid BIGINT NOT NULL,
     the_geom public.geometry(Point,-1),
-    id_tafonomia_pk bigint,
+    id_tafonomia_pk BIGINT,
     sito character varying,
-    nr_scheda bigint
+    nr_scheda BIGINT
 );
 
 
@@ -1571,12 +1571,12 @@ ALTER SEQUENCE public.pyarchinit_tafonomia_gid_seq OWNED BY public.pyarchinit_ta
 --
 
 CREATE TABLE public.tomba_table (
-    id_tomba integer NOT NULL,
+    id_tomba BIGINT NOT NULL,
     sito text,
-	area integer,
-    nr_scheda_taf integer,
+	area BIGINT,
+    nr_scheda_taf BIGINT,
     sigla_struttura text,
-    nr_struttura integer,
+    nr_struttura BIGINT,
     nr_individuo text,
     rito text,
     descrizione_taf text,
@@ -1592,10 +1592,10 @@ CREATE TABLE public.tomba_table (
     corredo_presenza text,
     corredo_tipo text,
     corredo_descrizione text,
-    periodo_iniziale integer,
-    fase_iniziale integer,
-    periodo_finale integer,
-    fase_finale integer,
+    periodo_iniziale BIGINT,
+    fase_iniziale BIGINT,
+    periodo_finale BIGINT,
+    fase_finale BIGINT,
     datazione_estesa text
 );
 
@@ -1609,7 +1609,7 @@ ALTER TABLE public.tomba_table OWNER TO postgres;
 --
 
 CREATE TABLE public.pyarchinit_thesaurus_sigle (
-    id_thesaurus_sigle integer NOT NULL,
+    id_thesaurus_sigle BIGINT NOT NULL,
     nome_tabella character varying,
     sigla character(3),
     sigla_estesa character varying,
@@ -1665,7 +1665,7 @@ ALTER TABLE public.pyarchinit_tipologia_sepolture_gid_seq OWNER TO postgres;
 --
 
 CREATE TABLE public.pyarchinit_tipologia_sepolture (
-    gid integer DEFAULT nextval('public.pyarchinit_tipologia_sepolture_gid_seq'::regclass) NOT NULL,
+    gid BIGINT DEFAULT nextval('public.pyarchinit_tipologia_sepolture_gid_seq'::regclass) NOT NULL,
     id_sepoltura character varying(80),
     azimut double precision,
     tipologia character varying(80),
@@ -1688,24 +1688,24 @@ ALTER TABLE public.pyarchinit_tipologia_sepolture OWNER TO postgres;
 --
 
 CREATE TABLE public.pyarchinit_us_negative_doc (
-    gid integer NOT NULL,
+    gid BIGINT NOT NULL,
     the_geom public.geometry(LineString,-1),
     sito_n character varying,
     area_n character varying,
-    us_n bigint,
+    us_n BIGINT,
     tipo_doc_n character varying,
     nome_doc_n character varying,
-    "LblSize" integer,
+    "LblSize" BIGINT,
     "LblColor" character varying(7),
-    "LblBold" integer,
-    "LblItalic" integer,
-    "LblUnderl" integer,
-    "LblStrike" integer,
+    "LblBold" BIGINT,
+    "LblItalic" BIGINT,
+    "LblUnderl" BIGINT,
+    "LblStrike" BIGINT,
     "LblFont" character varying(100),
     "LblX" numeric(20,5),
     "LblY" numeric(20,5),
-    "LblSclMin" integer,
-    "LblSclMax" integer,
+    "LblSclMin" BIGINT,
+    "LblSclMax" BIGINT,
     "LblAlignH" character varying(15),
     "LblAlignV" character varying(15),
     "LblRot" numeric(20,5)
@@ -1774,11 +1774,11 @@ ALTER TABLE public.pyunitastratigrafiche_usm_gid_seq OWNER TO postgres;
 --
 
 CREATE TABLE public.pyunitastratigrafiche (
-    gid integer DEFAULT nextval('public.pyunitastratigrafiche_gid_seq'::regclass) NOT NULL,
-    area_s integer,
+    gid BIGINT DEFAULT nextval('public.pyunitastratigrafiche_gid_seq'::regclass) NOT NULL,
+    area_s BIGINT,
     scavo_s character varying(80),
-    us_s integer,
-    stratigraph_index_us integer,
+    us_s BIGINT,
+    stratigraph_index_us BIGINT,
     tipo_us_s character varying(250),
     rilievo_originale character varying(250),
     disegnatore character varying(250),
@@ -1799,11 +1799,11 @@ ALTER TABLE public.pyunitastratigrafiche OWNER TO postgres;
 --
 
 CREATE TABLE public.pyunitastratigrafiche_usm (
-    gid integer DEFAULT nextval('public.pyunitastratigrafiche_usm_gid_seq'::regclass) NOT NULL,
-    area_s integer,
+    gid BIGINT DEFAULT nextval('public.pyunitastratigrafiche_usm_gid_seq'::regclass) NOT NULL,
+    area_s BIGINT,
     scavo_s character varying(80),
-    us_s integer,
-    stratigraph_index_us integer,
+    us_s BIGINT,
+    stratigraph_index_us BIGINT,
     tipo_us_s character varying(250),
     rilievo_originale character varying(250),
     disegnatore character varying(250),
@@ -1824,12 +1824,12 @@ ALTER TABLE public.pyunitastratigrafiche_usm OWNER TO postgres;
 --
 
 CREATE TABLE public.pyuscaratterizzazioni (
-    gid integer NOT NULL,
-    area_c integer,
+    gid BIGINT NOT NULL,
+    area_c BIGINT,
     scavo_c character varying(80),
-    us_c integer,
+    us_c BIGINT,
     the_geom public.geometry(MultiPolygon,-1),
-    stratigraph_index_car integer DEFAULT 1,
+    stratigraph_index_car BIGINT DEFAULT 1,
     tipo_us_c character varying
 );
 
@@ -1866,10 +1866,10 @@ ALTER SEQUENCE public.pyuscarlinee_gid_seq OWNED BY public.pyuscarlinee.gid;
 --
 
 CREATE TABLE public.relashionship_check_table (
-    id_rel_check integer NOT NULL,
+    id_rel_check BIGINT NOT NULL,
     sito text,
     area text,
-    us integer,
+    us BIGINT,
     rel_type text,
     sito_rel text,
     area_rel text,
@@ -1910,7 +1910,7 @@ ALTER SEQUENCE public.relashionship_check_table_id_rel_check_seq OWNED BY public
 --
 
 CREATE TABLE public.riipartizione_territoriale (
-    id_div_terr_pk integer NOT NULL,
+    id_div_terr_pk BIGINT NOT NULL,
     tipo text NOT NULL,
     nome text NOT NULL,
     tipo_localizzazione text NOT NULL,
@@ -1950,9 +1950,9 @@ ALTER SEQUENCE public.riipartizione_territoriale_id_div_terr_pk_seq OWNED BY pub
 --
 
 CREATE TABLE public.riipartizione_territoriale_to_rip_terr (
-    id_rel_rip_ter_pk integer NOT NULL,
-    id_rip_prim integer NOT NULL,
-    id_rip_second integer NOT NULL
+    id_rel_rip_ter_pk BIGINT NOT NULL,
+    id_rip_prim BIGINT NOT NULL,
+    id_rip_second BIGINT NOT NULL
 );
 
 
@@ -1987,7 +1987,7 @@ ALTER SEQUENCE public.riipartizione_territoriale_to_rip_terr_id_rel_rip_ter_pk_s
 --
 
 CREATE TABLE public.site_table (
-    id_sito integer NOT NULL,
+    id_sito BIGINT NOT NULL,
     sito text,
     nazione character varying(100),
     regione character varying(100),
@@ -1995,7 +1995,7 @@ CREATE TABLE public.site_table (
     descrizione text,
     provincia character varying DEFAULT 'inserici un valore'::character varying,
     definizione_sito character varying DEFAULT 'inserici un valore'::character varying,
-    find_check integer DEFAULT 0
+    find_check BIGINT DEFAULT 0
 );
 
 
@@ -2116,9 +2116,9 @@ ALTER TABLE public.pyarchinit_reperti_gid_seq OWNER TO postgres;
 
 CREATE TABLE public.pyarchinit_reperti
 (
-    gid integer NOT NULL ,
+    gid BIGINT NOT NULL ,
     the_geom geometry(Point,-1),
-    id_rep integer,
+    id_rep BIGINT,
     siti character varying(255),
     link character varying(255)
 );
@@ -2130,10 +2130,10 @@ ALTER TABLE public.pyarchinit_reperti
 
 -- DROP INDEX public.sidx_pyarchinit_reperti_the_geom;
 CREATE TABLE public.us_table_toimp (
-    id_us integer NOT NULL,
+    id_us BIGINT NOT NULL,
     sito text,
     area character varying(20),
-    us integer,
+    us BIGINT,
     d_stratigrafica character varying(255),
     d_interpretativa character varying(255),
     descrizione text,
@@ -2157,7 +2157,7 @@ CREATE TABLE public.us_table_toimp (
     consistenza character varying(20),
     struttura character varying(30),
     cont_per character varying,
-    order_layer integer,
+    order_layer BIGINT,
     documentazione text
 );
 
@@ -2194,9 +2194,9 @@ ALTER SEQUENCE public.us_table_toimp_id_us_seq OWNED BY public.us_table_toimp.id
 --
 
 CREATE TABLE public.ut_table (
-    id_ut integer NOT NULL,
+    id_ut BIGINT NOT NULL,
     progetto character varying(100),
-    nr_ut integer,
+    nr_ut BIGINT,
     ut_letterale character varying(100),
     def_ut character varying(100),
     descrizione_ut text,
@@ -2259,9 +2259,9 @@ ALTER TABLE public.ut_table_id_ut_seq OWNER TO postgres;
 
 CREATE TABLE pyarchinit_documentazione
 (
-  gid integer NOT NULL,
+  gid BIGINT NOT NULL,
   the_geom geometry(LineString,-1),
-  id_doc integer,
+  id_doc BIGINT,
   sito character varying(200),
   nome_doc character varying(200),
   tipo_doc character varying(200),
