@@ -23,7 +23,7 @@ from __future__ import absolute_import
 
 import os
 import platform
-import sys
+import subprocess
 from builtins import str
 from qgis.PyQt.QtWidgets import QDialog, QMessageBox
 from qgis.PyQt.uic import loadUiType
@@ -102,6 +102,9 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
         #self.HOME = os.environ['PYARCHINIT_HOME']
 
     def on_pushButton_exp_icons_pressed(self):
+
+        images_found = False
+
         sito = str(self.comboBox_sito.currentText())
         conn = Connection()
         conn_str = conn.conn_str()
@@ -138,7 +141,7 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
                             sing_Periodo_path = ('%s%sPeriod - %s') % (sito_folder, os.sep, sing_per_dir)
                         else:
                             sing_Periodo_path = ('%s%sPeriod - %s') % (sito_folder, os.sep, sing_per_dir)
-                        self.OS_UTILITY.create_dir(sing_Periodo_path)
+                        #self.OS_UTILITY.create_dir(sing_Periodo_path)
                         
                         
                         
@@ -157,7 +160,7 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
                             sing_Fase_path = ('%s%sPhase - %s') % (sing_Periodo_path, os.sep, sing_fase_dir)
                         else:
                             sing_Fase_path = ('%s%sPhase - %s') % (sing_Periodo_path, os.sep, sing_fase_dir)
-                        self.OS_UTILITY.create_dir(sing_Fase_path)
+                        #self.OS_UTILITY.create_dir(sing_Fase_path)
                             
                             
                             
@@ -182,18 +185,27 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
                             sing_US_path = ('%s%sSE - %s') % (sing_Fase_path , os.sep, sing_us_dir)
                         else:
                             sing_US_path = ('%s%sSU - %s') % (sing_Fase_path , os.sep, sing_us_dir)
-                        self.OS_UTILITY.create_dir(sing_US_path)
+                        #self.OS_UTILITY.create_dir(sing_US_path)
 
                         search_dict = {'id_entity': sing_us.id_us, 'entity_type': "'" + "US" + "'"}
 
                         u = Utility()
                         search_dict = u.remove_empty_items_fr_dict(search_dict)
+
                         search_images_res = self.DB_MANAGER.query_bool(search_dict, 'MEDIAVIEW')
 
+                        # Controlla se ci sono immagini prima di creare la directory
+                        #devo ancora testare
+                    if len(search_images_res) > 0:
+                        self.OS_UTILITY.create_dir(sing_Periodo_path)
+                        self.OS_UTILITY.create_dir(sing_Fase_path)
+                        self.OS_UTILITY.create_dir(sing_US_path)
                         for sing_media in search_images_res:
-                            self.OS_UTILITY.copy_file_img(thumb_resize_str+str(sing_media.path_resize), sing_US_path)
-                    
-                        search_images_res = ""
+                            self.OS_UTILITY.copy_file_img(thumb_resize_str + str(sing_media.path_resize),
+                                                          sing_US_path)
+
+                        images_found = True
+
                     ###################Reperti################################################
                     reperti_res = self.db_search_DB('INVENTARIO_MATERIALI', 'sito', sito)
                     
@@ -215,7 +227,7 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
                                 sing_Periodo_path = ('%s%sPeriod - %s') % (sito_folder, os.sep, sing_per_dir)
                             else:
                                 sing_Periodo_path = ('%s%sPeriod - %s') % (sito_folder, os.sep, sing_per_dir)
-                            self.OS_UTILITY.create_dir(sing_Periodo_path)
+                            #self.OS_UTILITY.create_dir(sing_Periodo_path)
                             
                             
                             
@@ -234,7 +246,7 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
                                 sing_Fase_path = ('%s%sPhase - %s') % (sing_Periodo_path, os.sep, sing_fase_dir)
                             else:
                                 sing_Fase_path = ('%s%sPhase - %s') % (sing_Periodo_path, os.sep, sing_fase_dir)
-                            self.OS_UTILITY.create_dir(sing_Fase_path)
+                            #self.OS_UTILITY.create_dir(sing_Fase_path)
                                 
                                 
                             sing_reperti_num = str(a.numero_inventario)
@@ -254,7 +266,7 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
                                 sing_REPERTI_path = ('%s%sRA - %s') % (sing_Fase_path, os.sep, sing_reperti_dir)
                             else:
                                 sing_REPERTI_path = ('%s%sAA - %s') % (sing_Fase_path, os.sep, sing_reperti_dir)
-                            self.OS_UTILITY.create_dir(sing_REPERTI_path)
+                            #self.OS_UTILITY.create_dir(sing_REPERTI_path)
 
                             search_dict = {'id_entity': a.id_invmat, 'entity_type': "'" + "REPERTO" + "'"}
 
@@ -262,8 +274,14 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
                             search_dict = u.remove_empty_items_fr_dict(search_dict)
                             search_images_res = self.DB_MANAGER.query_bool(search_dict, 'MEDIAVIEW')
 
+                        if len(search_images_res) > 0:
+                            self.OS_UTILITY.create_dir(sing_Periodo_path)
+                            self.OS_UTILITY.create_dir(sing_Fase_path)
+                            self.OS_UTILITY.create_dir(sing_REPERTI_path)
                             for sing_media in search_images_res:
-                                self.OS_UTILITY.copy_file_img(thumb_resize_str+str(sing_media.path_resize), sing_REPERTI_path)
+                                self.OS_UTILITY.copy_file_img(thumb_resize_str + str(sing_media.path_resize),
+                                                              sing_REPERTI_path)
+                            images_found = True
                     #################################Tombe####################################################
                     tomba_res = self.db_search_DB('TOMBA', 'sito', sito)
                     
@@ -284,7 +302,7 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
                                 sing_Periodo_path = ('%s%sPeriod - %s') % (sito_folder, os.sep, sing_per_dir)
                             else:
                                 sing_Periodo_path = ('%s%sPeriod - %s') % (sito_folder, os.sep, sing_per_dir)
-                            self.OS_UTILITY.create_dir(sing_Periodo_path)
+                            #self.OS_UTILITY.create_dir(sing_Periodo_path)
                             
                             
                             
@@ -303,7 +321,7 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
                                 sing_Fase_path = ('%s%sPhase - %s') % (sing_Periodo_path, os.sep, sing_fase_dir)
                             else:
                                 sing_Fase_path = ('%s%sPhase - %s') % (sing_Periodo_path, os.sep, sing_fase_dir)
-                            self.OS_UTILITY.create_dir(sing_Fase_path)
+                            #self.OS_UTILITY.create_dir(sing_Fase_path)
                             
                             sing_tomba_num = str(sing_t.nr_scheda_taf)
                             prefix = '0'
@@ -321,7 +339,7 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
                             else:
                                 sing_TOMBA_path = ('%s%sGrave - %s') % (sing_Fase_path, os.sep, sing_tomba_dir)    
                             
-                            self.OS_UTILITY.create_dir(sing_TOMBA_path)
+                            #self.OS_UTILITY.create_dir(sing_TOMBA_path)
 
                             search_dict = {'id_entity': sing_t.id_tomba, 'entity_type': "'" + "TOMBA" + "'"}
 
@@ -329,10 +347,15 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
                             search_dict = u.remove_empty_items_fr_dict(search_dict)
                             search_images_res = self.DB_MANAGER.query_bool(search_dict, 'MEDIAVIEW')
 
+                        if len(search_images_res) > 0:
+                            self.OS_UTILITY.create_dir(sing_Periodo_path)
+                            self.OS_UTILITY.create_dir(sing_Fase_path)
+                            self.OS_UTILITY.create_dir(sing_TOMBA_path)
                             for sing_media in search_images_res:
-                                self.OS_UTILITY.copy_file_img(thumb_resize_str+str(sing_media.path_resize), sing_TOMBA_path)
+                                self.OS_UTILITY.copy_file_img(thumb_resize_str + str(sing_media.path_resize),
+                                                              sing_TOMBA_path)
                             
-                            search_images_res = ""
+                            images_found=True
                 
                 ##############################Strutture#####################################################################
                 
@@ -355,7 +378,7 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
                             sing_Periodo_path = ('%s%sPeriod - %s') % (sito_folder, os.sep, sing_per_dir)
                         else:
                             sing_Periodo_path = ('%s%sPeriod - %s') % (sito_folder, os.sep, sing_per_dir)
-                        self.OS_UTILITY.create_dir(sing_Periodo_path)
+                        #self.OS_UTILITY.create_dir(sing_Periodo_path)
                         
                         
                         
@@ -374,7 +397,7 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
                             sing_Fase_path = ('%s%sPhase - %s') % (sing_Periodo_path, os.sep, sing_fase_dir)
                         else:
                             sing_Fase_path = ('%s%sPhase - %s') % (sing_Periodo_path, os.sep, sing_fase_dir)
-                        self.OS_UTILITY.create_dir(sing_Fase_path)
+                        #self.OS_UTILITY.create_dir(sing_Fase_path)
                             
                             
                             
@@ -384,13 +407,13 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
                         
                         sing_us_dir = prefix + str(sing_us_num)
                         if self.L=='it':
-                            sing_US_path = ('%s%sStruttura - %s') % (sing_Fase_path , os.sep, sing_us_num)
+                            sing_ST_path = ('%s%sStruttura - %s') % (sing_Fase_path , os.sep, sing_us_dir)
                         elif self.L=='de':
-                            sing_US_path = ('%s%sStruktur - %s') % (sing_Fase_path , os.sep, sing_us_num)
+                            sing_ST_path = ('%s%sStruktur - %s') % (sing_Fase_path , os.sep, sing_us_dir)
                         else:
-                            sing_US_path = ('%s%sStructure - %s') % (sing_Fase_path , os.sep, sing_us_num)
+                            sing_ST_path = ('%s%sStructure - %s') % (sing_Fase_path , os.sep, sing_us_dir)
                         
-                        self.OS_UTILITY.create_dir(sing_US_path)
+                        #self.OS_UTILITY.create_dir(sing_US_path)
 
                         search_dict = {'id_entity': sing_s.id_struttura, 'entity_type': "'" + "STRUTTURA" + "'"}
 
@@ -398,19 +421,15 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
                         search_dict = u.remove_empty_items_fr_dict(search_dict)
                         search_images_res = self.DB_MANAGER.query_bool(search_dict, 'MEDIAVIEW')
 
+                    if len(search_images_res) > 0:
+                        self.OS_UTILITY.create_dir(sing_Periodo_path)
+                        self.OS_UTILITY.create_dir(sing_Fase_path)
+                        self.OS_UTILITY.create_dir(sing_ST_path)
                         for sing_media in search_images_res:
-                            try:
-                                self.OS_UTILITY.copy_file_img(thumb_resize_str+str(sing_media.path_resize), sing_US_path)
-                            except:
-                                pass
-                        search_images_res = ""
-                    if self.L=='it':
-                        QMessageBox.warning(self, "Alert", "Creazione directories terminata", QMessageBox.Ok)
-                    elif self.L=='de':
-                        QMessageBox.warning(self, "Alert", "Verzeichniserstellung abgeschlossen", QMessageBox.Ok)
-                    else:
-                        QMessageBox.warning(self, "Alert", "Directory creation complete", QMessageBox.Ok)
+                            self.OS_UTILITY.copy_file_img(thumb_resize_str + str(sing_media.path_resize),
+                                                          sing_ST_path)
 
+                        images_found = True
                 ##############################Pottery#####################################################################
 
                 pottery_res = self.db_search_DB('POTTERY', 'sito', sito)
@@ -432,7 +451,7 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
                             sing_Periodo_path = ('%s%sPeriod - %s') % (sito_folder, os.sep, sing_per_dir)
                         else:
                             sing_Periodo_path = ('%s%sPeriod - %s') % (sito_folder, os.sep, sing_per_dir)
-                        self.OS_UTILITY.create_dir(sing_Periodo_path)
+                        #self.OS_UTILITY.create_dir(sing_Periodo_path)
 
                         sing_fase_num = str(sing_us.us)
                         prefix = ''
@@ -449,7 +468,7 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
                             sing_Fase_path = ('%s%sPhase - %s') % (sing_Periodo_path, os.sep, sing_fase_dir)
                         else:
                             sing_Fase_path = ('%s%sPhase - %s') % (sing_Periodo_path, os.sep, sing_fase_dir)
-                        self.OS_UTILITY.create_dir(sing_Fase_path)
+                        #self.OS_UTILITY.create_dir(sing_Fase_path)
 
                         sing_reperti_num = str(a.id_number)
                         prefix = '0'
@@ -468,7 +487,7 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
                             sing_REPERTI_path = ('%s%sID - %s') % (sing_Fase_path, os.sep, sing_reperti_dir)
                         else:
                             sing_REPERTI_path = ('%s%sID - %s') % (sing_Fase_path, os.sep, sing_reperti_dir)
-                        self.OS_UTILITY.create_dir(sing_REPERTI_path)
+                        #self.OS_UTILITY.create_dir(sing_REPERTI_path)
 
                         search_dict = {'id_entity': a.id_rep, 'entity_type': "'" + "CERAMICA" + "'"}
 
@@ -476,12 +495,31 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
                         search_dict = u.remove_empty_items_fr_dict(search_dict)
                         search_images_res = self.DB_MANAGER.query_bool(search_dict, 'MEDIAVIEW')
 
-                        for sing_media in search_images_res:
-                            self.OS_UTILITY.copy_file_img(thumb_resize_str + str(sing_media.path_resize),
-                                                          sing_REPERTI_path)
+                        if len(search_images_res) > 0:
+                            self.OS_UTILITY.create_dir(sing_Periodo_path)
+                            self.OS_UTILITY.create_dir(sing_Fase_path)
+                            self.OS_UTILITY.create_dir(sing_REPERTI_path)
+                            for sing_media in search_images_res:
+                                self.OS_UTILITY.copy_file_img(thumb_resize_str + str(sing_media.path_resize),
+                                                              sing_REPERTI_path)
+                            images_found=True
 
 
+                    if images_found:
+                        if self.L == 'it':
+                            QMessageBox.warning(self, "Alert", "Creazione directories terminata", QMessageBox.Ok)
+                        elif self.L == 'de':
+                            QMessageBox.warning(self, "Alert", "Verzeichniserstellung abgeschlossen", QMessageBox.Ok)
+                        else:
+                            QMessageBox.warning(self, "Alert", "Directory creation complete", QMessageBox.Ok)
 
+                    else:
+                        if self.L == 'it':
+                            QMessageBox.warning(self, "Alert", "Non ci sono immagini da esportare", QMessageBox.Ok)
+                        elif self.L == 'de':
+                            QMessageBox.warning(self, "Alert", "No image", QMessageBox.Ok)
+                        else:
+                            QMessageBox.warning(self, "Alert", "No Image to export", QMessageBox.Ok)
             ############################immagini us##########################################################
             elif self.comboBox_export.currentIndex()==1:
                 
@@ -511,7 +549,7 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
                             sing_Periodo_path = ('%s%sPeriod - %s') % (us_folder_1, os.sep, sing_per_dir)
                         else:
                             sing_Periodo_path = ('%s%sPeriod - %s') % (us_folder_1, os.sep, sing_per_dir)
-                        self.OS_UTILITY.create_dir(sing_Periodo_path)
+                        #self.OS_UTILITY.create_dir(sing_Periodo_path)
                         
                         
                         
@@ -530,7 +568,7 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
                             sing_Fase_path = ('%s%sPhase - %s') % (sing_Periodo_path, os.sep, sing_fase_dir)
                         else:
                             sing_Fase_path = ('%s%sPhase - %s') % (sing_Periodo_path, os.sep, sing_fase_dir)
-                        self.OS_UTILITY.create_dir(sing_Fase_path)
+                        #self.OS_UTILITY.create_dir(sing_Fase_path)
                             
                             
                             
@@ -556,7 +594,7 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
                         else:
                             sing_US_path = ('%s%sSU - %s') % (sing_Fase_path , os.sep, sing_us_dir)    
                         
-                        self.OS_UTILITY.create_dir(sing_US_path)
+                        #self.OS_UTILITY.create_dir(sing_US_path)
 
                         search_dict = {'id_entity': sing_us.id_us, 'entity_type': "'" + "US" + "'"}
 
@@ -564,20 +602,32 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
                         search_dict = u.remove_empty_items_fr_dict(search_dict)
                         search_images_res = self.DB_MANAGER.query_bool(search_dict, 'MEDIAVIEW')
 
-                        for sing_media in search_images_res:
-                            self.OS_UTILITY.copy_file_img(thumb_resize_str+str(sing_media.path_resize), sing_US_path)
-                    
-                        search_images_res = ""
-                        
-                
-                
-                    if self.L=='it':
-                        QMessageBox.warning(self, "Alert", "Creazione directories terminata", QMessageBox.Ok)
-                    elif self.L=='de':
-                        QMessageBox.warning(self, "Alert", "Verzeichniserstellung abgeschlossen", QMessageBox.Ok)
+                        if len(search_images_res) > 0:
+                            self.OS_UTILITY.create_dir(sing_Periodo_path)
+                            self.OS_UTILITY.create_dir(sing_Fase_path)
+                            self.OS_UTILITY.create_dir(sing_US_path)
+                            for sing_media in search_images_res:
+                                self.OS_UTILITY.copy_file_img(thumb_resize_str + str(sing_media.path_resize),
+                                                              sing_US_path)
+
+                            images_found=True
+                    if images_found:
+                        if self.L == 'it':
+                            QMessageBox.warning(self, "Alert", "Creazione directories terminata", QMessageBox.Ok)
+                        elif self.L == 'de':
+                            QMessageBox.warning(self, "Alert", "Verzeichniserstellung abgeschlossen",
+                                                QMessageBox.Ok)
+                        else:
+                            QMessageBox.warning(self, "Alert", "Directory creation complete", QMessageBox.Ok)
+
                     else:
-                        QMessageBox.warning(self, "Alert", "Directory creation complete", QMessageBox.Ok)
-            
+                        if self.L == 'it':
+                            QMessageBox.warning(self, "Alert", "Non ci sono immagini da esportare", QMessageBox.Ok)
+                        elif self.L == 'de':
+                            QMessageBox.warning(self, "Alert", "No image", QMessageBox.Ok)
+                        else:
+                            QMessageBox.warning(self, "Alert", "No Image to export", QMessageBox.Ok)
+
             
             
             
@@ -619,8 +669,6 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
                             sing_US_path = ('%s%sSE - %s') % (sito_folder2 , os.sep, sing_us_dir)
                         else:
                             sing_US_path = ('%s%sSU - %s') % (sito_folder2 , os.sep, sing_us_dir)    
-                        
-                        self.OS_UTILITY.create_dir(sing_US_path)
 
                         search_dict = {'id_entity': sing_us.id_us, 'entity_type': "'" + "US" + "'"}
 
@@ -628,16 +676,30 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
                         search_dict = u.remove_empty_items_fr_dict(search_dict)
                         search_images_res = self.DB_MANAGER.query_bool(search_dict, 'MEDIAVIEW')
 
-                        for sing_media in search_images_res:
-                            self.OS_UTILITY.copy_file_img(thumb_resize_str+str(sing_media.path_resize), sing_US_path)
-                    
-                        search_images_res = ""
-                    if self.L=='it':
-                        QMessageBox.warning(self, "Alert", "Creazione directories terminata", QMessageBox.Ok)
-                    elif self.L=='de':
-                        QMessageBox.warning(self, "Alert", "Verzeichniserstellung abgeschlossen", QMessageBox.Ok)
+                        if len(search_images_res) > 0:
+
+                            self.OS_UTILITY.create_dir(sing_US_path)
+                            for sing_media in search_images_res:
+                                self.OS_UTILITY.copy_file_img(thumb_resize_str + str(sing_media.path_resize),
+                                                              sing_US_path)
+
+                            images_found = True
+                    if images_found:
+                        if self.L == 'it':
+                            QMessageBox.warning(self, "Alert", "Creazione directories terminata", QMessageBox.Ok)
+                        elif self.L == 'de':
+                            QMessageBox.warning(self, "Alert", "Verzeichniserstellung abgeschlossen",
+                                                QMessageBox.Ok)
+                        else:
+                            QMessageBox.warning(self, "Alert", "Directory creation complete", QMessageBox.Ok)
+
                     else:
-                        QMessageBox.warning(self, "Alert", "Directory creation complete", QMessageBox.Ok)
+                        if self.L == 'it':
+                            QMessageBox.warning(self, "Alert", "Non ci sono immagini da esportare", QMessageBox.Ok)
+                        elif self.L == 'de':
+                            QMessageBox.warning(self, "Alert", "No image", QMessageBox.Ok)
+                        else:
+                            QMessageBox.warning(self, "Alert", "No Image to export", QMessageBox.Ok)
             
             
             
@@ -674,7 +736,7 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
                         
                         sing_us_dir = prefix + str(sing_us_num)
                         sing_US_path = ('%s%sID - %s') % (sito_folder3 , os.sep, sing_us_dir)
-                        self.OS_UTILITY.create_dir(sing_US_path)
+                        #self.OS_UTILITY.create_dir(sing_US_path)
 
                         search_dict = {'id_entity': sing_us.id_rep, 'entity_type': "'" + "CERAMICA" + "'"}
 
@@ -682,16 +744,30 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
                         search_dict = u.remove_empty_items_fr_dict(search_dict)
                         search_images_res = self.DB_MANAGER.query_bool(search_dict, 'MEDIAVIEW')
 
-                        for sing_media in search_images_res:
-                            self.OS_UTILITY.copy_file_img(thumb_resize_str+str(sing_media.path_resize), sing_US_path)
-                    
-                        search_images_res = ""
-                    if self.L=='it':
-                        QMessageBox.warning(self, "Alert", "Creazione directories terminata", QMessageBox.Ok)
-                    elif self.L=='de':
-                        QMessageBox.warning(self, "Alert", "Verzeichniserstellung abgeschlossen", QMessageBox.Ok)
+                        if len(search_images_res) > 0:
+                            # self.OS_UTILITY.create_dir(sing_def_path)
+                            self.OS_UTILITY.create_dir(sing_US_path)
+                            for sing_media in search_images_res:
+                                self.OS_UTILITY.copy_file_img(thumb_resize_str + str(sing_media.path_resize),
+                                                              sing_US_path)
+
+                            images_found=True
+                    if images_found:
+                        if self.L == 'it':
+                            QMessageBox.warning(self, "Alert", "Creazione directories terminata", QMessageBox.Ok)
+                        elif self.L == 'de':
+                            QMessageBox.warning(self, "Alert", "Verzeichniserstellung abgeschlossen",
+                                                QMessageBox.Ok)
+                        else:
+                            QMessageBox.warning(self, "Alert", "Directory creation complete", QMessageBox.Ok)
+
                     else:
-                        QMessageBox.warning(self, "Alert", "Directory creation complete", QMessageBox.Ok)
+                        if self.L == 'it':
+                            QMessageBox.warning(self, "Alert", "Non ci sono immagini da esportare", QMessageBox.Ok)
+                        elif self.L == 'de':
+                            QMessageBox.warning(self, "Alert", "No image", QMessageBox.Ok)
+                        else:
+                            QMessageBox.warning(self, "Alert", "No Image to export", QMessageBox.Ok)
             
             elif self.comboBox_export.currentIndex()==11:
                 
@@ -710,7 +786,7 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
                         
                         #sing_per_dir = prefix + str(sing_per_num)
                         sing_def_path = ('%s%sSpecific shape - %s') % (sito_folder4, os.sep, sing_per_num)
-                        self.OS_UTILITY.create_dir(sing_def_path)
+                        #self.OS_UTILITY.create_dir(sing_def_path)
                         
                         sing_us_num = str(sing_us.id_number)
                         prefix = '0'
@@ -728,7 +804,7 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
                         
                         sing_us_dir = prefix + str(sing_us_num)
                         sing_US_path = ('%s%sID - %s') % (sing_def_path , os.sep, sing_us_dir)
-                        self.OS_UTILITY.create_dir(sing_US_path)
+                        #self.OS_UTILITY.create_dir(sing_US_path)
 
                         search_dict = {'id_entity': sing_us.id_rep, 'entity_type': "'" + "CERAMICA" + "'"}
 
@@ -736,16 +812,30 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
                         search_dict = u.remove_empty_items_fr_dict(search_dict)
                         search_images_res = self.DB_MANAGER.query_bool(search_dict, 'MEDIAVIEW')
 
-                        for sing_media in search_images_res:
-                            self.OS_UTILITY.copy_file_img(thumb_resize_str+str(sing_media.path_resize), sing_US_path)
-                    
-                        search_images_res = ""
-                    if self.L=='it':
-                        QMessageBox.warning(self, "Alert", "Creazione directories terminata", QMessageBox.Ok)
-                    elif self.L=='de':
-                        QMessageBox.warning(self, "Alert", "Verzeichniserstellung abgeschlossen", QMessageBox.Ok)
+                        if len(search_images_res) > 0:
+                            self.OS_UTILITY.create_dir(sing_def_path)
+                            self.OS_UTILITY.create_dir(sing_US_path)
+                            for sing_media in search_images_res:
+                                self.OS_UTILITY.copy_file_img(thumb_resize_str + str(sing_media.path_resize),
+                                                              sing_US_path)
+
+                            images_found = True
+                    if images_found:
+                        if self.L == 'it':
+                            QMessageBox.warning(self, "Alert", "Creazione directories terminata", QMessageBox.Ok)
+                        elif self.L == 'de':
+                            QMessageBox.warning(self, "Alert", "Verzeichniserstellung abgeschlossen",
+                                                QMessageBox.Ok)
+                        else:
+                            QMessageBox.warning(self, "Alert", "Directory creation complete", QMessageBox.Ok)
+
                     else:
-                        QMessageBox.warning(self, "Alert", "Directory creation complete", QMessageBox.Ok)
+                        if self.L == 'it':
+                            QMessageBox.warning(self, "Alert", "Non ci sono immagini da esportare", QMessageBox.Ok)
+                        elif self.L == 'de':
+                            QMessageBox.warning(self, "Alert", "No image", QMessageBox.Ok)
+                        else:
+                            QMessageBox.warning(self, "Alert", "No Image to export", QMessageBox.Ok)
             
             
             
@@ -782,7 +872,7 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
                         
                         sing_us_dir = prefix + str(sing_us_num)
                         sing_US_path = ('%s%sRA - %s') % (sito_folder3 , os.sep, sing_us_dir)
-                        self.OS_UTILITY.create_dir(sing_US_path)
+                        #self.OS_UTILITY.create_dir(sing_US_path)
 
                         search_dict = {'id_entity': sing_us.id_invmat, 'entity_type': "'" + "REPERTO" + "'"}
 
@@ -790,16 +880,32 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
                         search_dict = u.remove_empty_items_fr_dict(search_dict)
                         search_images_res = self.DB_MANAGER.query_bool(search_dict, 'MEDIAVIEW')
 
-                        for sing_media in search_images_res:
-                            self.OS_UTILITY.copy_file_img(thumb_resize_str+str(sing_media.path_resize), sing_US_path)
-                    
-                        search_images_res = ""
-                    if self.L=='it':
-                        QMessageBox.warning(self, "Alert", "Creazione directories terminata", QMessageBox.Ok)
-                    elif self.L=='de':
-                        QMessageBox.warning(self, "Alert", "Verzeichniserstellung abgeschlossen", QMessageBox.Ok)
+                        if len(search_images_res) > 0:
+                            #self.OS_UTILITY.create_dir(sing_Periodo_path)
+                            #self.OS_UTILITY.create_dir(sing_Fase_path)
+                            self.OS_UTILITY.create_dir(sing_US_path)
+                            for sing_media in search_images_res:
+                                self.OS_UTILITY.copy_file_img(thumb_resize_str + str(sing_media.path_resize),
+                                                              sing_US_path)
+                            images_found = True
+                    if images_found:
+                        if self.L == 'it':
+                            QMessageBox.warning(self, "Alert", "Creazione directories terminata",
+                                                QMessageBox.Ok)
+                        elif self.L == 'de':
+                            QMessageBox.warning(self, "Alert", "Verzeichniserstellung abgeschlossen",
+                                                QMessageBox.Ok)
+                        else:
+                            QMessageBox.warning(self, "Alert", "Directory creation complete", QMessageBox.Ok)
+
                     else:
-                        QMessageBox.warning(self, "Alert", "Directory creation complete", QMessageBox.Ok)
+                        if self.L == 'it':
+                            QMessageBox.warning(self, "Alert", "Non ci sono immagini da esportare",
+                                                QMessageBox.Ok)
+                        elif self.L == 'de':
+                            QMessageBox.warning(self, "Alert", "No image", QMessageBox.Ok)
+                        else:
+                            QMessageBox.warning(self, "Alert", "No Image to export", QMessageBox.Ok)
             
             elif self.comboBox_export.currentIndex()==4:
                 
@@ -818,7 +924,7 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
                         
                         #sing_per_dir = prefix + str(sing_per_num)
                         sing_def_path = ('%s%sDefinizione - %s') % (sito_folder4, os.sep, sing_per_num)
-                        self.OS_UTILITY.create_dir(sing_def_path)
+                        #self.OS_UTILITY.create_dir(sing_def_path)
                         
                         sing_us_num = str(sing_us.numero_inventario)
                         prefix = '0'
@@ -836,7 +942,7 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
                         
                         sing_us_dir = prefix + str(sing_us_num)
                         sing_US_path = ('%s%sRA - %s') % (sing_def_path , os.sep, sing_us_dir)
-                        self.OS_UTILITY.create_dir(sing_US_path)
+                        #self.OS_UTILITY.create_dir(sing_US_path)
 
                         search_dict = {'id_entity': sing_us.id_invmat, 'entity_type': "'" + "REPERTO" + "'"}
 
@@ -844,17 +950,34 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
                         search_dict = u.remove_empty_items_fr_dict(search_dict)
                         search_images_res = self.DB_MANAGER.query_bool(search_dict, 'MEDIAVIEW')
 
-                        for sing_media in search_images_res:
-                            self.OS_UTILITY.copy_file_img(thumb_resize_str+str(sing_media.path_resize), sing_US_path)
-                    
-                        search_images_res = ""
-                    if self.L=='it':
-                        QMessageBox.warning(self, "Alert", "Creazione directories terminata", QMessageBox.Ok)
-                    elif self.L=='de':
-                        QMessageBox.warning(self, "Alert", "Verzeichniserstellung abgeschlossen", QMessageBox.Ok)
+                        if len(search_images_res) > 0:
+                            self.OS_UTILITY.create_dir(sing_def_path)
+                            #self.OS_UTILITY.create_dir(sing_Fase_path)
+                            self.OS_UTILITY.create_dir(sing_US_path)
+                            for sing_media in search_images_res:
+                                self.OS_UTILITY.copy_file_img(thumb_resize_str + str(sing_media.path_resize),
+                                                              sing_US_path)
+
+                            images_found = True
+                    if images_found:
+                        if self.L == 'it':
+                            QMessageBox.warning(self, "Alert", "Creazione directories terminata",
+                                                QMessageBox.Ok)
+                        elif self.L == 'de':
+                            QMessageBox.warning(self, "Alert", "Verzeichniserstellung abgeschlossen",
+                                                QMessageBox.Ok)
+                        else:
+                            QMessageBox.warning(self, "Alert", "Directory creation complete", QMessageBox.Ok)
+
                     else:
-                        QMessageBox.warning(self, "Alert", "Directory creation complete", QMessageBox.Ok)
-           
+                        if self.L == 'it':
+                            QMessageBox.warning(self, "Alert", "Non ci sono immagini da esportare",
+                                                QMessageBox.Ok)
+                        elif self.L == 'de':
+                            QMessageBox.warning(self, "Alert", "No image", QMessageBox.Ok)
+                        else:
+                            QMessageBox.warning(self, "Alert", "No Image to export", QMessageBox.Ok)
+
             elif self.comboBox_export.currentIndex()==5:
                 
                 us_res5 = self.db_search_DB('INVENTARIO_MATERIALI', 'sito', sito)
@@ -878,7 +1001,7 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
                         else:
                             sing_def_path = ('%s%sDefinition - %s') % (sito_folder5, os.sep, sing_per_num)
                         
-                        self.OS_UTILITY.create_dir(sing_def_path)
+                        #self.OS_UTILITY.create_dir(sing_def_path)
                         
                         
                         sing_tipo_num = str(sing_us.tipo_reperto)
@@ -889,7 +1012,7 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
                             sing_tipo_path = ('%s%sDefinition - %s') % (sing_def_path , os.sep, sing_tipo_num)
                         else:
                             sing_tipo_path = ('%s%sDefinition - %s') % (sing_def_path , os.sep, sing_tipo_num)    
-                        self.OS_UTILITY.create_dir(sing_tipo_path)
+                        #self.OS_UTILITY.create_dir(sing_tipo_path)
                         
                         sing_us_num = str(sing_us.numero_inventario)
                         prefix = '0'
@@ -913,7 +1036,7 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
                             sing_US_path = ('%s%sEA - %s') % (sing_tipo_path , os.sep, sing_us_dir)
                         else:
                             sing_US_path = ('%s%sAA - %s') % (sing_tipo_path , os.sep, sing_us_dir)
-                        self.OS_UTILITY.create_dir(sing_US_path)
+                        #self.OS_UTILITY.create_dir(sing_US_path)
 
                         search_dict = {'id_entity': sing_us.id_invmat, 'entity_type': "'" + "REPERTO" + "'"}
 
@@ -921,16 +1044,33 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
                         search_dict = u.remove_empty_items_fr_dict(search_dict)
                         search_images_res = self.DB_MANAGER.query_bool(search_dict, 'MEDIAVIEW')
 
-                        for sing_media in search_images_res:
-                            self.OS_UTILITY.copy_file_img(thumb_resize_str+str(sing_media.path_resize), sing_US_path)
-                    
-                        search_images_res = ""
-                    if self.L=='it':
-                        QMessageBox.warning(self, "Alert", "Creazione directories terminata", QMessageBox.Ok)
-                    elif self.L=='de':
-                        QMessageBox.warning(self, "Alert", "Verzeichniserstellung abgeschlossen", QMessageBox.Ok)
+                        if len(search_images_res) > 0:
+                            self.OS_UTILITY.create_dir(sing_def_path)
+                            self.OS_UTILITY.create_dir(sing_tipo_path)
+                            self.OS_UTILITY.create_dir(sing_US_path)
+                            for sing_media in search_images_res:
+                                self.OS_UTILITY.copy_file_img(thumb_resize_str + str(sing_media.path_resize),
+                                                              sing_US_path)
+
+                            images_found = True
+                    if images_found:
+                        if self.L == 'it':
+                            QMessageBox.warning(self, "Alert", "Creazione directories terminata",
+                                                QMessageBox.Ok)
+                        elif self.L == 'de':
+                            QMessageBox.warning(self, "Alert", "Verzeichniserstellung abgeschlossen",
+                                                QMessageBox.Ok)
+                        else:
+                            QMessageBox.warning(self, "Alert", "Directory creation complete", QMessageBox.Ok)
+
                     else:
-                        QMessageBox.warning(self, "Alert", "Directory creation complete", QMessageBox.Ok)
+                        if self.L == 'it':
+                            QMessageBox.warning(self, "Alert", "Non ci sono immagini da esportare",
+                                                QMessageBox.Ok)
+                        elif self.L == 'de':
+                            QMessageBox.warning(self, "Alert", "No image", QMessageBox.Ok)
+                        else:
+                            QMessageBox.warning(self, "Alert", "No Image to export", QMessageBox.Ok)
                 
             
             #############################################immagini Tomba############################################
@@ -964,7 +1104,7 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
                         else:
                             sing_US_path = ('%s%sGrave - %s') % (sito_folder6 , os.sep, sing_us_dir)
                         
-                        self.OS_UTILITY.create_dir(sing_US_path)
+                        #self.OS_UTILITY.create_dir(sing_US_path)
 
                         search_dict = {'id_entity': sing_us.id_tomba, 'entity_type': "'" + "TOMBA" + "'"}
 
@@ -972,16 +1112,33 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
                         search_dict = u.remove_empty_items_fr_dict(search_dict)
                         search_images_res = self.DB_MANAGER.query_bool(search_dict, 'MEDIAVIEW')
 
-                        for sing_media in search_images_res:
-                            self.OS_UTILITY.copy_file_img(thumb_resize_str+str(sing_media.path_resize), sing_US_path)
-                    
-                        search_images_res = ""
-                if self.L=='it':
-                    QMessageBox.warning(self, "Alert", "Creazione directories terminata", QMessageBox.Ok)
-                elif self.L=='de':
-                    QMessageBox.warning(self, "Alert", "Verzeichniserstellung abgeschlossen", QMessageBox.Ok)
-                else:
-                    QMessageBox.warning(self, "Alert", "Directory creation complete", QMessageBox.Ok)
+                        if len(search_images_res) > 0:
+                            #self.OS_UTILITY.create_dir(sing_Periodo_path)
+                            #self.OS_UTILITY.create_dir(sing_Fase_path)
+                            self.OS_UTILITY.create_dir(sing_US_path)
+                            for sing_media in search_images_res:
+                                self.OS_UTILITY.copy_file_img(thumb_resize_str + str(sing_media.path_resize),
+                                                              sing_US_path)
+
+                            images_found = True
+                    if images_found:
+                        if self.L == 'it':
+                            QMessageBox.warning(self, "Alert", "Creazione directories terminata",
+                                                QMessageBox.Ok)
+                        elif self.L == 'de':
+                            QMessageBox.warning(self, "Alert", "Verzeichniserstellung abgeschlossen",
+                                                QMessageBox.Ok)
+                        else:
+                            QMessageBox.warning(self, "Alert", "Directory creation complete", QMessageBox.Ok)
+
+                    else:
+                        if self.L == 'it':
+                            QMessageBox.warning(self, "Alert", "Non ci sono immagini da esportare",
+                                                QMessageBox.Ok)
+                        elif self.L == 'de':
+                            QMessageBox.warning(self, "Alert", "No image", QMessageBox.Ok)
+                        else:
+                            QMessageBox.warning(self, "Alert", "No Image to export", QMessageBox.Ok)
             
             elif self.comboBox_export.currentIndex()==7:
                 
@@ -1011,7 +1168,7 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
                             sing_Periodo_path = ('%s%sPeriod - %s') % (sito_folder7, os.sep, sing_per_dir)
                         else:
                             sing_Periodo_path = ('%s%sPeriod - %s') % (sito_folder7, os.sep, sing_per_dir)
-                        self.OS_UTILITY.create_dir(sing_Periodo_path)
+                        #self.OS_UTILITY.create_dir(sing_Periodo_path)
                         
                         
                         
@@ -1030,7 +1187,7 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
                             sing_Fase_path = ('%s%sPhase - %s') % (sing_Periodo_path, os.sep, sing_fase_dir)
                         else:
                             sing_Fase_path = ('%s%sPhase - %s') % (sing_Periodo_path, os.sep, sing_fase_dir)
-                        self.OS_UTILITY.create_dir(sing_Fase_path)
+                        #self.OS_UTILITY.create_dir(sing_Fase_path)
                          
                         sing_us_num = str(sing_us.nr_scheda_taf)
                         prefix = '0'
@@ -1048,7 +1205,7 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
                         else:
                             sing_US_path = ('%s%sGrave - %s') % (sing_Fase_path , os.sep, sing_us_dir)
                         
-                        self.OS_UTILITY.create_dir(sing_US_path)
+                        #self.OS_UTILITY.create_dir(sing_US_path)
 
                         search_dict = {'id_entity': sing_us.id_tomba, 'entity_type': "'" + "TOMBA" + "'"}
 
@@ -1056,17 +1213,31 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
                         search_dict = u.remove_empty_items_fr_dict(search_dict)
                         search_images_res = self.DB_MANAGER.query_bool(search_dict, 'MEDIAVIEW')
 
-                        for sing_media in search_images_res:
-                            self.OS_UTILITY.copy_file_img(thumb_resize_str+str(sing_media.path_resize), sing_US_path)
-                    
-                        search_images_res = ""
-                    if self.L=='it':
-                        QMessageBox.warning(self, "Alert", "Creazione directories terminata", QMessageBox.Ok)
-                    elif self.L=='de':
-                        QMessageBox.warning(self, "Alert", "Verzeichniserstellung abgeschlossen", QMessageBox.Ok)
-                    else:
-                        QMessageBox.warning(self, "Alert", "Directory creation complete", QMessageBox.Ok)
+                        if len(search_images_res) > 0:
+                            self.OS_UTILITY.create_dir(sing_Periodo_path)
+                            self.OS_UTILITY.create_dir(sing_Fase_path)
+                            self.OS_UTILITY.create_dir(sing_US_path)
+                            for sing_media in search_images_res:
+                                self.OS_UTILITY.copy_file_img(thumb_resize_str + str(sing_media.path_resize),
+                                                              sing_US_path)
 
+                            images_found = True
+                    if images_found:
+                        if self.L == 'it':
+                            QMessageBox.warning(self, "Alert", "Creazione directories terminata", QMessageBox.Ok)
+                        elif self.L == 'de':
+                            QMessageBox.warning(self, "Alert", "Verzeichniserstellung abgeschlossen",
+                                                QMessageBox.Ok)
+                        else:
+                            QMessageBox.warning(self, "Alert", "Directory creation complete", QMessageBox.Ok)
+
+                    else:
+                        if self.L == 'it':
+                            QMessageBox.warning(self, "Alert", "Non ci sono immagini da esportare", QMessageBox.Ok)
+                        elif self.L == 'de':
+                            QMessageBox.warning(self, "Alert", "No image", QMessageBox.Ok)
+                        else:
+                            QMessageBox.warning(self, "Alert", "No Image to export", QMessageBox.Ok)
 
 
             
@@ -1093,7 +1264,7 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
                         else:
                             sing_US_path = ('%s%sStructure - %s') % (sito_folder8 , os.sep, sing_us_num)
                         
-                        self.OS_UTILITY.create_dir(sing_US_path)
+                        #self.OS_UTILITY.create_dir(sing_US_path)
 
                         search_dict = {'id_entity': sing_us.id_struttura, 'entity_type': "'" + "STRUTTURA" + "'"}
 
@@ -1101,18 +1272,30 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
                         search_dict = u.remove_empty_items_fr_dict(search_dict)
                         search_images_res = self.DB_MANAGER.query_bool(search_dict, 'MEDIAVIEW')
 
-                        for sing_media in search_images_res:
-                            try:
-                                self.OS_UTILITY.copy_file_img(thumb_resize_str+str(sing_media.path_resize), sing_US_path)
-                            except:
-                                pass
-                        search_images_res = ""
-                    if self.L=='it':
-                        QMessageBox.warning(self, "Alert", "Creazione directories terminata", QMessageBox.Ok)
-                    elif self.L=='de':
-                        QMessageBox.warning(self, "Alert", "Verzeichniserstellung abgeschlossen", QMessageBox.Ok)
+                        if len(search_images_res) > 0:
+                            #self.OS_UTILITY.create_dir(sing_Periodo_path)
+                            #self.OS_UTILITY.create_dir(sing_Fase_path)
+                            self.OS_UTILITY.create_dir(sing_US_path)
+                            for sing_media in search_images_res:
+                                self.OS_UTILITY.copy_file_img(thumb_resize_str + str(sing_media.path_resize),
+                                                              sing_US_path)
+                            images_found = True
+                    if images_found:
+                        if self.L == 'it':
+                            QMessageBox.warning(self, "Alert", "Creazione directories terminata", QMessageBox.Ok)
+                        elif self.L == 'de':
+                            QMessageBox.warning(self, "Alert", "Verzeichniserstellung abgeschlossen",
+                                                QMessageBox.Ok)
+                        else:
+                            QMessageBox.warning(self, "Alert", "Directory creation complete", QMessageBox.Ok)
+
                     else:
-                        QMessageBox.warning(self, "Alert", "Directory creation complete", QMessageBox.Ok)
+                        if self.L == 'it':
+                            QMessageBox.warning(self, "Alert", "Non ci sono immagini da esportare", QMessageBox.Ok)
+                        elif self.L == 'de':
+                            QMessageBox.warning(self, "Alert", "No image", QMessageBox.Ok)
+                        else:
+                            QMessageBox.warning(self, "Alert", "No Image to export", QMessageBox.Ok)
            
             elif self.comboBox_export.currentIndex()==9:
                 
@@ -1146,7 +1329,7 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
                             sing_Periodo_path = ('%s%sPeriod - %s') % (sito_folder9, os.sep, sing_per_dir)
                         else:
                             sing_Periodo_path = ('%s%sPeriod - %s') % (sito_folder9, os.sep, sing_per_dir)
-                        self.OS_UTILITY.create_dir(sing_Periodo_path)
+                        #self.OS_UTILITY.create_dir(sing_Periodo_path)
                         
                         
                         
@@ -1165,13 +1348,13 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
                             sing_Fase_path = ('%s%sPhase - %s') % (sing_Periodo_path, os.sep, sing_fase_dir)
                         else:
                             sing_Fase_path = ('%s%sPhase - %s') % (sing_Periodo_path, os.sep, sing_fase_dir)
-                        self.OS_UTILITY.create_dir(sing_Fase_path)
+                        #self.OS_UTILITY.create_dir(sing_Fase_path)
                            
                         sing_us_num = str(sing_us.sigla_struttura+str(sing_us.numero_struttura))
                             
                         sing_us_dir = prefix + str(sing_us_num)
                         sing_US_path = ('%s%sStruttura - %s') % (sing_Fase_path , os.sep, sing_us_num)
-                        self.OS_UTILITY.create_dir(sing_US_path)
+                        #self.OS_UTILITY.create_dir(sing_US_path)
 
                         search_dict = {'id_entity': sing_us.id_struttura, 'entity_type': "'" + "STRUTTURA" + "'"}
 
@@ -1179,18 +1362,32 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
                         search_dict = u.remove_empty_items_fr_dict(search_dict)
                         search_images_res = self.DB_MANAGER.query_bool(search_dict, 'MEDIAVIEW')
 
-                        for sing_media in search_images_res:
-                            try:
-                                self.OS_UTILITY.copy_file_img(thumb_resize_str+str(sing_media.path_resize), sing_US_path)
-                            except:
-                                pass
-                        search_images_res = ""
-                    if self.L=='it':
-                        QMessageBox.warning(self, "Alert", "Creazione directories terminata", QMessageBox.Ok)
-                    elif self.L=='de':
-                        QMessageBox.warning(self, "Alert", "Verzeichniserstellung abgeschlossen", QMessageBox.Ok)
+                        if len(search_images_res) > 0:
+                            self.OS_UTILITY.create_dir(sing_Periodo_path)
+                            self.OS_UTILITY.create_dir(sing_Fase_path)
+                            self.OS_UTILITY.create_dir(sing_US_path)
+                            for sing_media in search_images_res:
+                                self.OS_UTILITY.copy_file_img(thumb_resize_str + str(sing_media.path_resize),
+                                                              sing_US_path)
+                            images_found = True
+                    if images_found:
+                        if self.L == 'it':
+                            QMessageBox.warning(self, "Alert", "Creazione directories terminata",
+                                                QMessageBox.Ok)
+                        elif self.L == 'de':
+                            QMessageBox.warning(self, "Alert", "Verzeichniserstellung abgeschlossen",
+                                                QMessageBox.Ok)
+                        else:
+                            QMessageBox.warning(self, "Alert", "Directory creation complete", QMessageBox.Ok)
+
                     else:
-                        QMessageBox.warning(self, "Alert", "Directory creation complete", QMessageBox.Ok)
+                        if self.L == 'it':
+                            QMessageBox.warning(self, "Alert", "Non ci sono immagini da esportare",
+                                                QMessageBox.Ok)
+                        elif self.L == 'de':
+                            QMessageBox.warning(self, "Alert", "No image", QMessageBox.Ok)
+                        else:
+                            QMessageBox.warning(self, "Alert", "No Image to export", QMessageBox.Ok)
         
         except Exception as e:
             if self.L=='it':
