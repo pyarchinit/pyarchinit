@@ -4246,39 +4246,44 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                     # QMessageBox.warning(self, "ACHTUNG", "Problem der Dateneingabe", QMessageBox.Ok)
                 # else:
                     # QMessageBox.warning(self, "Warning", "Problem with data entry", QMessageBox.Ok) 
+
     def on_pushButton_save_pressed(self):
-        
-        
+
+        # Define messages for each language
+        messages = {
+            'it': {
+                'change_warning': "Il record e' stato modificato. Vuoi salvare le modifiche?",
+                'no_changes': "Non è stata realizzata alcuna modifica.",
+                'data_entry_problem': "Problema nell'inserimento dati"
+            },
+            'de': {
+                'change_warning': "Der Record wurde geändert. Möchtest du die Änderungen speichern?",
+                'no_changes': "Keine Änderung vorgenommen",
+                'data_entry_problem': "Problem der Dateneingabe"
+            },
+            'en': {
+                'change_warning': "The record has been changed. Do you want to save the changes?",
+                'no_changes': "No changes have been made",
+                'data_entry_problem': "Problem with data entry"
+            }
+        }
+
         self.checkBox_query.setChecked(False)
         if self.checkBox_query.isChecked():
             self.model_a.database().close()
         if self.BROWSE_STATUS == "b":
             if self.data_error_check() == 0:
                 if self.records_equal_check() == 1:
-                    if self.L=='it':
-                        self.update_if(QMessageBox.warning(self, 'Errore',
-                                                           "Il record e' stato modificato. Vuoi salvare le modifiche?",QMessageBox.Ok | QMessageBox.Cancel))
-                    elif self.L=='de':
-                        self.update_if(QMessageBox.warning(self, 'Error',
-                                                           "Der Record wurde geändert. Möchtest du die Änderungen speichern?",
-                                                           QMessageBox.Ok | QMessageBox.Cancel))
-                    else:
-                        self.update_if(QMessageBox.warning(self, 'Error',
-                                                           "The record has been changed. Do you want to save the changes?",
-                                                           QMessageBox.Ok | QMessageBox.Cancel))
+                    self.update_if(QMessageBox.warning(self, 'Error',
+                                                       messages[self.L]['change_warning'],
+                                                       QMessageBox.Ok | QMessageBox.Cancel))
                     self.empty_fields()
                     self.SORT_STATUS = "n"
                     self.label_sort.setText(self.SORTED_ITEMS[self.SORT_STATUS])
                     self.enable_button(1)
-                    
                     self.fill_fields(self.REC_CORR)
                 else:
-                    if self.L=='it':
-                        QMessageBox.warning(self, "ATTENZIONE", "Non è stata realizzata alcuna modifica.", QMessageBox.Ok)
-                    elif self.L=='de':
-                        QMessageBox.warning(self, "ACHTUNG", "Keine Änderung vorgenommen", QMessageBox.Ok)
-                    else:
-                        QMessageBox.warning(self, "Warning", "No changes have been made", QMessageBox.Ok)       
+                    QMessageBox.warning(self, "ATTENZIONE", messages[self.L]['no_changes'], QMessageBox.Ok)
         else:
             if self.data_error_check() == 0:
                 test_insert = self.insert_new_rec()
@@ -4303,52 +4308,98 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                     self.fill_fields(self.REC_CORR)
                     self.enable_button(1)
             else:
-                if self.L=='it':
-                    QMessageBox.warning(self, "ATTENZIONE", "Problema nell'inserimento dati", QMessageBox.Ok)
-                elif self.L=='de':
-                    QMessageBox.warning(self, "ACHTUNG", "Problem der Dateneingabe", QMessageBox.Ok)
-                else:
-                    QMessageBox.warning(self, "Warning", "Problem with data entry", QMessageBox.Ok) 
+                QMessageBox.warning(self, "ATTENZIONE", messages[self.L]['data_entry_problem'], QMessageBox.Ok)
+
+    def apikey_gpt(self):
+        #HOME = os.environ['PYARCHINIT_HOME']
+        BIN = '{}{}{}'.format(self.HOME, os.sep, "bin")
+        api_key = ""
+        # Verifica se il file gpt_api_key.txt esiste
+        path_key = os.path.join(BIN, 'gpt_api_key.txt')
+        if os.path.exists(path_key):
+
+            # Leggi l'API Key dal file
+            with open(path_key, 'r') as f:
+                api_key = f.read().strip()
+                try:
+
+                    return api_key
+
+                except:
+                    reply = QMessageBox.question(None, 'Warning', 'Apikey non valida' + '\n'
+                                                 + 'Clicca ok per inserire la chiave',
+                                                 QMessageBox.Ok | QMessageBox.Cancel)
+                    if reply == QMessageBox.Ok:
+
+                        api_key, ok = QInputDialog.getText(None, 'Apikey gpt', 'Inserisci apikey valida:')
+                        if ok:
+                            # Salva la nuova API Key nel file
+                            with open(path_key, 'w') as f:
+                                f.write(api_key)
+                                f.close()
+                            with open(path_key, 'r') as f:
+                                api_key = f.read().strip()
+                    else:
+                        return api_key
+
+
+        else:
+            # Chiedi all'utente di inserire una nuova API Key
+            api_key, ok = QInputDialog.getText(None, 'Apikey gpt', 'Inserisci apikey:')
+            if ok:
+                # Salva la nuova API Key nel file
+                with open(path_key, 'w') as f:
+                    f.write(api_key)
+                    f.close()
+                with open(path_key, 'r') as f:
+                    api_key = f.read().strip()
+
+        return api_key
+
+
+
     def on_pushButton_rapp_check_pressed(self):
         sito_check = str(self.comboBox_sito_rappcheck.currentText())
         area_check = str(self.comboBox_area_rappcheck.currentText())
         try:
             self.rapporti_stratigrafici_check(sito_check, area_check)
             self.def_strati_to_rapporti_stratigrafici_check(sito_check, area_check)  # SPERIMENTALE
-        except Exception as e:
-            QMessageBox.warning(self, "Initial Message", str(e), QMessageBox.Ok)
+        except AssertionError as e:
+            QMessageBox.critical(self, "Error", f"An error occurred while performing the check: {str(e)}",
+                                 QMessageBox.Ok)
+            print(f"Error: {str(e)}")
         else:
-            if self.L=='it':
-                QMessageBox.warning(self, "Messaggio",
-                                    "Controllo Rapporti Stratigrafici. \n Controllo eseguito con successo", QMessageBox.Ok)
-            elif self.L=='de':
-                QMessageBox.warning(self, "Message",
-                                    "Prüfen der stratigraphischen Beziehung.  Kontrolle erfolgereich", QMessageBox.Ok)
-            else:
-                QMessageBox.warning(self, "Message",
-                                    "Monitoring of stratigraphic relationships. \n Control performed successfully", QMessageBox.Ok)                     
-    
+            success_message = {
+                'it': "Controllo Rapporti Stratigrafici e Definizione Stratigrafica a Rapporti Stratigrafici eseguito con successo",
+                'de': "Prüfen der stratigraphischen Beziehung und Definition Stratigraphische zu Stratigraphische Berichte erfolgereich durchgeführt",
+                'en': "Monitoring of stratigraphic relationships and Definition Stratigraphic to Stratigraphic Reports performed successfully"
+            }
+            QMessageBox.information(self, "Success", success_message.get(self.L, "Message"), QMessageBox.Ok)
+
     def on_pushButton_h_check_pressed(self):
         self.listWidget_rapp.clear()
         sito_check = str(self.comboBox_sito.currentText())
         area_check = str(self.comboBox_area.currentText())
         try:
-            
             self.rapporti_stratigrafici_check(sito_check, area_check)
             self.def_strati_to_rapporti_stratigrafici_check(sito_check, area_check)  # SPERIMENTALE
             self.periodi_to_rapporti_stratigrafici_check(sito_check, area_check)
             self.automaticform_check(sito_check, area_check)
         except Exception as e:
-            self.listWidget_rapp.addItem(MyApp.ask_gpt(self,f'spiegami l errore {e}'))
-        else:
-            if self.L=='it':
-                self.listWidget_rapp.addItem("Monitoraggio dei rapporti stratigrafici. \n Controllo eseguito con successo")
-            elif self.L=='de':
-                Qself.listWidget_rapp.addItem("Prüfen der stratigraphischen Beziehung.  Kontrolle erfolgereich")
+            if self.apikey_gpt:
+                errorMessage = MyApp.ask_gpt(self, f'spiegami l errore {e}', self.apikey_gpt)
             else:
-                self.listWidget_rapp.addItem("Monitoring of stratigraphic relationships. \n Control performed successfully")  
-    
-    
+                errorMessage = f'Errore: {e}'
+            self.listWidget_rapp.addItem(errorMessage)
+            print(f"Error: {errorMessage}")
+        else:
+            success_message = {
+                'it': "Controllo dei Rapporti Stratigrafici, Definizione Stratigrafica a Rapporti Stratigrafici, Periodi a Rapporti Stratigrafici e Automaticform eseguito con successo",
+                'de': "Prüfen der stratigraphischen Beziehung, Definition Stratigraphische zu Stratigraphische Berichte, Perioden zu Stratigraphische Berichte und Automaticform erfolgereich durchgeführt",
+                'en': "Monitoring of Stratigraphic Relationships, Definition Stratigraphic to Stratigraphic Reports, Periods to Stratigraphic Reports and Automaticform performed successfully"
+            }
+            self.listWidget_rapp.addItem(success_message.get(self.L, "Message"))
+
     def data_error_check(self):
         test = 0
         EC = Error_check()
