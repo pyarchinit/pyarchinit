@@ -950,32 +950,6 @@
       <layout class="QGridLayout" name="gridLayout_5">
        <item row="0" column="0">
         <layout class="QGridLayout" name="gridLayout_4">
-         <item row="0" column="0">
-          <widget class="QLabel" name="label">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>500</width>
-             <height>10</height>
-            </size>
-           </property>
-           <property name="font">
-            <font>
-             <weight>75</weight>
-             <italic>false</italic>
-             <bold>true</bold>
-            </font>
-           </property>
-           <property name="text">
-            <string>Sistema di Esportazione Immagini</string>
-           </property>
-          </widget>
-         </item>
          <item row="1" column="0">
           <widget class="QComboBox" name="comboBox_sito">
            <property name="enabled">
@@ -1008,6 +982,101 @@
            <property name="frame">
             <bool>true</bool>
            </property>
+          </widget>
+         </item>
+         <item row="0" column="0">
+          <widget class="QLabel" name="label">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>500</width>
+             <height>10</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <weight>75</weight>
+             <italic>false</italic>
+             <bold>true</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string>Sistema di Esportazione Immagini</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <widget class="QComboBox" name="comboBox_year">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">background-color: rgb(255, 255, 255);</string>
+           </property>
+           <property name="editable">
+            <bool>true</bool>
+           </property>
+           <item>
+            <property name="text">
+             <string/>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>2023</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>2022</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>2021</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>2020</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>2019</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>2018</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>2017</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>2016</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>2015</string>
+            </property>
+           </item>
           </widget>
          </item>
         </layout>
@@ -1095,6 +1164,11 @@
            <item>
             <property name="text">
              <string>Pottery / Specific shape </string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Pottery / US</string>
             </property>
            </item>
           </widget>
