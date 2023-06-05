@@ -192,14 +192,32 @@ class single_Finds_pdf_sheet(object):
 
         lo_path_str = lo_path['logo']
         home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
-        
+
         if not bool(lo_path_str):
             logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
+            logo = Image(logo_path)
+            logo.drawHeight = 1.5 * inch * logo.drawHeight / logo.drawWidth
+            logo.drawWidth = 1.5 * inch
         else:
-            logo_path=lo_path_str
-        logo = Image(logo_path)
-        logo.drawHeight = 1.5 * inch * logo.drawHeight / logo.drawWidth
-        logo.drawWidth = 1.5 * inch
+            logo_path = lo_path_str
+            # logo = Image(logo_path)
+            # logo.drawHeight = 1.5 * inch * logo.drawHeight / logo.drawWidth
+            # logo.drawWidth = 1.5 * inch
+            logo = Image(logo_path)
+            width, height = logo.drawWidth, logo.drawHeight
+            aspect = width / height
+
+            max_width = .5 * inch
+            max_height = .5 * inch
+
+            if aspect > .4:
+                # If image is wide
+                logo.drawWidth = max_width
+                logo.drawHeight = max_width / aspect
+            else:
+                # If image is tall or square
+                logo.drawHeight = max_height
+                logo.drawWidth = max_height * aspect
         try:
             if self.thumbnail:
                 th= Image(self.thumbnail)
@@ -484,11 +502,29 @@ class single_Finds_pdf_sheet(object):
         home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
         if not bool(lo_path_str):
             logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
+            logo = Image(logo_path)
+            logo.drawHeight = 1.5 * inch * logo.drawHeight / logo.drawWidth
+            logo.drawWidth = 1.5 * inch
         else:
-            logo_path=lo_path_str
-        logo = Image(logo_path)
-        logo.drawHeight = 1.5 * inch * logo.drawHeight / logo.drawWidth
-        logo.drawWidth = 1.5 * inch
+            logo_path = lo_path_str
+            # logo = Image(logo_path)
+            # logo.drawHeight = 1.5 * inch * logo.drawHeight / logo.drawWidth
+            # logo.drawWidth = 1.5 * inch
+            logo = Image(logo_path)
+            width, height = logo.drawWidth, logo.drawHeight
+            aspect = width / height
+
+            max_width = .5 * inch
+            max_height = .5 * inch
+
+            if aspect > .4:
+                # If image is wide
+                logo.drawWidth = max_width
+                logo.drawHeight = max_width / aspect
+            else:
+                # If image is tall or square
+                logo.drawHeight = max_height
+                logo.drawWidth = max_height * aspect
         if self.thumbnail:
             th = Image(self.thumbnail)
             th.drawHeight = 2.5 * inch * th.drawHeight / th.drawWidth
@@ -771,11 +807,30 @@ class single_Finds_pdf_sheet(object):
 
         if not bool(lo_path_str):
             logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
+            logo = Image(logo_path)
+            logo.drawHeight = 1.5 * inch * logo.drawHeight / logo.drawWidth
+            logo.drawWidth = 1.5 * inch
         else:
             logo_path = lo_path_str
-        logo = Image(logo_path)
-        logo.drawHeight = .5 * inch * logo.drawHeight / logo.drawWidth
-        logo.drawWidth = .5 * inch
+            #logo = Image(logo_path)
+            #logo.drawHeight = 1.5 * inch * logo.drawHeight / logo.drawWidth
+            #logo.drawWidth = 1.5 * inch
+            logo = Image(logo_path)
+            width, height = logo.drawWidth, logo.drawHeight
+            aspect = width / height
+
+            max_width = .5 * inch
+            max_height = .5 * inch
+
+            if aspect > .4:
+                # If image is wide
+                logo.drawWidth = max_width
+                logo.drawHeight = max_width / aspect
+            else:
+                # If image is tall or square
+                logo.drawHeight = max_height
+                logo.drawWidth = max_height * aspect
+
         try:
             if self.thumbnail:
                 th = Image(self.thumbnail)
@@ -788,22 +843,7 @@ class single_Finds_pdf_sheet(object):
             # else:
             #     # if th == None:
             th = Paragraph("<b>IMG</b><br/>" + str('Immagine non presente nel database'), styNormal)
-        # QMessageBox.information(None,'',str(self.map))
-        # if self.map:
-        #
-        #     mp= Image(self.map)
-        #
-        #     mp.drawHeight = 6 * inch * mp.drawHeight / mp.drawWidth
-        #     mp.drawWidth = 6 * inch
 
-        # elif not self.map:
-        #     mp = Paragraph("<b>Map</b><br/>" + str('Localizzazione non inserita'), styNormal)
-
-        # elif not self.map.endswith('.png'):
-        #
-        #     # else:
-        #     #     # if th == None:
-        #     mp=Paragraph("<b>Map</b><br/>" + str('Localizzazione non inserita'), styNormal)
         if str(self.n_reperto) == '0':
             print("no RA")
             pass
@@ -899,13 +939,13 @@ class single_Finds_pdf_sheet(object):
                 for i in eval(self.rif_biblio):  # gigi
                     if rif_biblio == '':
                         try:
-                            rif_biblio += ("<b>Author: %s, Year: %s, Title: %s, Pag.: %s, Fig.: %s") % (
+                            rif_biblio += ("<b>Author: %s, Year: %s, Title: %s, Pag.: %s, Fig.: %s</b>") % (
                                 str(i[0]), str(i[1]), str(i[2]), str(i[3]), str(i[4]))
                         except:
                             pass
                     else:
                         try:
-                            rif_biblio += ("<b>Author: %s, Year: %s, Title: %s, Pag.: %s, Fig.: %s") % (
+                            rif_biblio += ("<b>Author: %s, Year: %s, Title: %s, Pag.: %s, Fig.: %s</b>") % (
                                 str(i[0]), str(i[1]), str(i[2]), str(i[3]), str(i[4]))
                         except:
                             pass
