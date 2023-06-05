@@ -153,9 +153,9 @@ class single_Finds_pdf_sheet(object):
         self.repertato = data[21]
         self.diagnostico = data[22]
         self.n_reperto = data[23]
-        self.struttura = data[24]
-        self.years = data[25]
-        self.thumbnail= data[26]
+        self.struttura = data[25]
+        self.years = data[26]
+        self.thumbnail= data[27]
         #self.map = data[27]
     def datestrfdate(self):
         now = date.today()
@@ -513,7 +513,8 @@ class single_Finds_pdf_sheet(object):
             area = Paragraph("<b>Areal</b><br/>" + str(self.area), styNormal)
             us = Paragraph("<b>SE</b><br/>" + str(self.us), styNormal)
             anno = Paragraph("<b>Year</b><br/>" + str(self.years), styNormal)
-
+            tipologia = Paragraph("<b>Tipology</b><br/>" + self.tipo, styNormal)
+            struttura = Paragraph("<b>Structure</b><br/>" + self.struttura, styNormal)
             # 3 row
             criterio_schedatura = Paragraph("<b>Anmeldeparameter</b><br/>" + self.criterio_schedatura, styNormal)
             tipo_reperto = Paragraph("<b>Art der Feststellung</b><br/>" + self.tipo_reperto, styNormal)
@@ -622,8 +623,8 @@ class single_Finds_pdf_sheet(object):
                  '16', '17'],  # 0 row ok
                 [sito, '01', '02', '03', '04', n_reperto, '06', '07', '08', '09', '10', th, '12', '13', '14', '15',
                  '16', '17'],  # 1 row ok
-                [area, '01', '03', '03', us, '05', '06', '07', anno, '09', '10', '11', '12', '13', '14', '15', '16',
-                 '17'],  # 2 row ok
+                [area, '01', '02', us, '04', '05', anno, '07', struttura, '09', '10', '11', '12', '13', '14', '15',
+                 '16', '17'],  # 2 row ok
                 [tipo_reperto, '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15',
                  '16', '17'],
                 [criterio_schedatura, '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13',
@@ -646,8 +647,8 @@ class single_Finds_pdf_sheet(object):
                  '15', '16', '17'],  # 6 row ok
                 [misurazioni, '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15',
                  '16', '17'],  # 7 row ok
-                [tecnologie, '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15',
-                 '16', '17'],  # 8 row ok
+                [tecnologie, '01', '02', '03', '04', '05', '06', '07', '08', tipologia, '10', '11', '12', '13', '14',
+                 '15', '16', '17'],  # 8 row ok
                 [rif_biblio, '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15',
                  '16', '17'],  # 9 row ok
                 [repertato, '01', '02', diagnostico, '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14',
@@ -678,9 +679,10 @@ class single_Finds_pdf_sheet(object):
                 ('ALIGN', (11, 1), (17, 5), 'CENTER'),
                 # 2 row
                 # ('SPAN', (0, 2), (3, 2)),  # rif stratigrafici
-                ('SPAN', (0, 2), (3, 2)),  # area
-                ('SPAN', (4, 2), (7, 2)),  # us
-                ('SPAN', (8, 2), (10, 2)),  # anno
+                ('SPAN', (0, 2), (2, 2)),  # area
+                ('SPAN', (3, 2), (5, 2)),  # us
+                ('SPAN', (6, 2), (7, 2)),  # anno
+                ('SPAN', (8, 2), (10, 2)),  # struttura
                 ('VALIGN', (0, 2), (10, 2), 'TOP'),
 
                 # 3 row
@@ -703,7 +705,8 @@ class single_Finds_pdf_sheet(object):
                 ('SPAN', (0, 12), (17, 12)),  # misurazioni
 
                 # 8 row
-                ('SPAN', (0, 13), (17, 13)),  # tecnologie
+                ('SPAN', (0, 13), (8, 13)),  # tecnologie
+                ('SPAN', (9, 13), (17, 13)),  # tipologia
 
                 # 17 row
                 ('SPAN', (0, 14), (17, 14)),  # bibliografia
@@ -729,7 +732,7 @@ class single_Finds_pdf_sheet(object):
             colWidths = (15, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 20, 30, 30, 30, 30, 30)
             rowHeights = (30, 40, 30, 30, 30, 30, 130, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30)
 
-            t = Table(cell_schema, colWidths = colWidths, rowHeights = rowHeights, style = table_style)
+            t = Table(cell_schema, colWidths=colWidths, rowHeights=rowHeights, style=table_style)
             # lst.append(logo)
             # t = Table(cell_schema, colWidths=50, rowHeights=None, style=table_style)
 
@@ -755,36 +758,56 @@ class single_Finds_pdf_sheet(object):
         # format labels
 
         # 0 row
-        intestazione = Paragraph("<b>ARTEFACT FORM<br/>" + str(self.datestrfdate()) + "</b>", styNormal)
+        intestazione = Paragraph("<b>Artefact Card<br/></b>", styNormal)
         # intestazione2 = Paragraph("<b>pyArchInit</b>", styNormal)
 
         home = os.environ['PYARCHINIT_HOME']
 
         conn = Connection()
         lo_path = conn.logo_path()
+
         lo_path_str = lo_path['logo']
         home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
+
         if not bool(lo_path_str):
             logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
         else:
-            logo_path=lo_path_str
+            logo_path = lo_path_str
         logo = Image(logo_path)
-        logo.drawHeight = 1.5 * inch * logo.drawHeight / logo.drawWidth
-        logo.drawWidth = 1.5 * inch
-        logo.hAlign = "LEFT"
-        if self.thumbnail:
-            th = Image(self.thumbnail)
-            th.drawHeight = 2.5 * inch * th.drawHeight / th.drawWidth
-            th.drawWidth = 2.5 * inch
-            th.hAlign = "CENTER"
-        elif not self.thumbnail.endswith('.png'):
-
+        logo.drawHeight = .5 * inch * logo.drawHeight / logo.drawWidth
+        logo.drawWidth = .5 * inch
+        try:
+            if self.thumbnail:
+                th = Image(self.thumbnail)
+                th.drawHeight = 2.5 * inch * th.drawHeight / th.drawWidth
+                th.drawWidth = 2.5 * inch
+                th.hAlign = "CENTER"
+        except:
+            pass
+        if not self.thumbnail.endswith('.png'):
             # else:
             #     # if th == None:
-            th=Paragraph("<b>IMG</b><br/>" + str('Image not present into db'), styNormal)
-        if str(self.n_reperto)=='0':
+            th = Paragraph("<b>IMG</b><br/>" + str('Immagine non presente nel database'), styNormal)
+        # QMessageBox.information(None,'',str(self.map))
+        # if self.map:
+        #
+        #     mp= Image(self.map)
+        #
+        #     mp.drawHeight = 6 * inch * mp.drawHeight / mp.drawWidth
+        #     mp.drawWidth = 6 * inch
+
+        # elif not self.map:
+        #     mp = Paragraph("<b>Map</b><br/>" + str('Localizzazione non inserita'), styNormal)
+
+        # elif not self.map.endswith('.png'):
+        #
+        #     # else:
+        #     #     # if th == None:
+        #     mp=Paragraph("<b>Map</b><br/>" + str('Localizzazione non inserita'), styNormal)
+        if str(self.n_reperto) == '0':
             print("no RA")
             pass
+
         else:
             # 1 row
             sito = Paragraph("<b>Name Site</b><br/>" + str(self.sito), styNormal)
@@ -797,15 +820,16 @@ class single_Finds_pdf_sheet(object):
             area = Paragraph("<b>Area</b><br/>" + str(self.area), styNormal)
             us = Paragraph("<b>SU</b><br/>" + str(self.us), styNormal)
             anno = Paragraph("<b>Year</b><br/>" + str(self.years), styNormal)
-
+            tipologia = Paragraph("<b>Tipology</b><br/>" + self.tipo, styNormal)
+            struttura = Paragraph("<b>Structure</b><br/>" + self.struttura, styNormal)
             # 3 row
-            criterio_schedatura = Paragraph("<b>Scheduling criteria</b><br/>" + self.criterio_schedatura, styNormal)
+            criterio_schedatura = Paragraph("<b>Filing criteria</b><br/>" + self.criterio_schedatura, styNormal)
             tipo_reperto = Paragraph("<b>Artefact Type</b><br/>" + self.tipo_reperto, styNormal)
             definizione = Paragraph("<b>Definition</b><br/>" + self.definizione, styNormal)
 
             # 4 row
             stato_conservazione = Paragraph("<b>Status of conservation</b><br/>" + self.stato_conservazione, styNormal)
-            datazione = Paragraph("<b>Datation</b><br/>" + self.datazione_reperto, styNormal)
+            datazione = Paragraph("<b>Epoch</b><br/>" + self.datazione_reperto, styNormal)
 
             # 5 row
             descrizione = ''
@@ -906,8 +930,8 @@ class single_Finds_pdf_sheet(object):
                  '16', '17'],  # 0 row ok
                 [sito, '01', '02', '03', '04', n_reperto, '06', '07', '08', '09', '10', th, '12', '13', '14', '15',
                  '16', '17'],  # 1 row ok
-                [area, '01', '03', '03', us, '05', '06', '07', anno, '09', '10', '11', '12', '13', '14', '15', '16',
-                 '17'],  # 2 row ok
+                [area, '01', '02', us, '04', '05', anno, '07', struttura, '09', '10', '11', '12', '13', '14', '15',
+                 '16', '17'],  # 2 row ok
                 [tipo_reperto, '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15',
                  '16', '17'],
                 [criterio_schedatura, '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13',
@@ -930,8 +954,8 @@ class single_Finds_pdf_sheet(object):
                  '15', '16', '17'],  # 6 row ok
                 [misurazioni, '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15',
                  '16', '17'],  # 7 row ok
-                [tecnologie, '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15',
-                 '16', '17'],  # 8 row ok
+                [tecnologie, '01', '02', '03', '04', '05', '06', '07', '08', tipologia, '10', '11', '12', '13', '14',
+                 '15', '16', '17'],  # 8 row ok
                 [rif_biblio, '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15',
                  '16', '17'],  # 9 row ok
                 [repertato, '01', '02', diagnostico, '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14',
@@ -962,9 +986,10 @@ class single_Finds_pdf_sheet(object):
                 ('ALIGN', (11, 1), (17, 5), 'CENTER'),
                 # 2 row
                 # ('SPAN', (0, 2), (3, 2)),  # rif stratigrafici
-                ('SPAN', (0, 2), (3, 2)),  # area
-                ('SPAN', (4, 2), (7, 2)),  # us
-                ('SPAN', (8, 2), (10, 2)),  # anno
+                ('SPAN', (0, 2), (2, 2)),  # area
+                ('SPAN', (3, 2), (5, 2)),  # us
+                ('SPAN', (6, 2), (7, 2)),  # anno
+                ('SPAN', (8, 2), (10, 2)),  # struttura
                 ('VALIGN', (0, 2), (10, 2), 'TOP'),
 
                 # 3 row
@@ -987,7 +1012,8 @@ class single_Finds_pdf_sheet(object):
                 ('SPAN', (0, 12), (17, 12)),  # misurazioni
 
                 # 8 row
-                ('SPAN', (0, 13), (17, 13)),  # tecnologie
+                ('SPAN', (0, 13), (8, 13)),  # tecnologie
+                ('SPAN', (9, 13), (17, 13)),  # tipologia
 
                 # 17 row
                 ('SPAN', (0, 14), (17, 14)),  # bibliografia
@@ -1013,7 +1039,7 @@ class single_Finds_pdf_sheet(object):
             colWidths = (15, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 20, 30, 30, 30, 30, 30)
             rowHeights = (30, 40, 30, 30, 30, 30, 130, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30)
 
-            t = Table(cell_schema, colWidths = colWidths, rowHeights = rowHeights, style = table_style)
+            t = Table(cell_schema, colWidths=colWidths, rowHeights=rowHeights, style=table_style)
             # lst.append(logo)
             # t = Table(cell_schema, colWidths=50, rowHeights=None, style=table_style)
 
@@ -1679,12 +1705,12 @@ class FOTO_index_pdf_sheet(object):
         self.sito= data[0]
         self.n_reperto=data[1]
         self.thumbnail = data[2]
-        self.us = data[2]
-        self.definizione = data[3]
-        self.datazione_reperto= data[4]
-        self.stato_conservazione =data[5]
-        self.tipo_contenitore =data[6]
-        self.nr_cassa= data[7]
+        self.us = data[3]
+        self.definizione = data[4]
+        self.datazione_reperto= data[5]
+        self.stato_conservazione =data[6]
+        self.tipo_contenitore =data[7]
+        self.nr_cassa= data[8]
         
         
         
@@ -1700,9 +1726,7 @@ class FOTO_index_pdf_sheet(object):
         styNormal.fontName = 'Cambria'
         
 
-        # conn = Connection()
-    
-        # thumb_path = conn.thumb_path()
+
         
         n_reperto = Paragraph("<b>Numero reperto</b><br/>" + str(self.n_reperto), styNormal)
         us = Paragraph("<b>US</b><br/>" + str(self.us), styNormal)
@@ -1714,21 +1738,22 @@ class FOTO_index_pdf_sheet(object):
         else:
             tipo_contenitore = Paragraph("<b>Tipo di contenitore</b><br/>"+ str(self.tipo_contenitore), styNormal)
         nr_cassa = Paragraph("<b>Numero contenitore</b><br/>"+ str(self.nr_cassa), styNormal)
-        
-        
-        
-        if self.thumbnail:
-            logo= Image(self.thumbnail)
-            logo.drawHeight = 1 * inch * logo.drawHeight / logo.drawWidth
-            logo.drawWidth = 1 * inch
-            logo.hAlign = "CENTER"
-            thumbnail= logo
-        else:
-            thumbnail= ''
+        try:
+            if bool(self.thumbnail):
+                th = Image(self.thumbnail)
+                th.drawHeight = 1 * inch * th.drawHeight / th.drawWidth
+                th.drawWidth = 1 * inch
+                th.hAlign = "CENTER"
+                foto = th
+            else:
+                foto = Paragraph("<b>IMG</b><br/>" + str('Not in database'), styNormal)
+        except:
+            foto = Paragraph("<b>IMG</b><br/>" + str('Immagine taggata\n ma manca la thubmnail'), styNormal)
+
         
         data = [                
                 n_reperto,
-                thumbnail,
+                foto,
                 us,
                 definizione,
                 datazione_reperto,
@@ -1752,7 +1777,7 @@ class FOTO_index_pdf_sheet(object):
         conn = Connection()
     
         thumb_path = conn.thumb_path()
-        
+
         n_reperto = Paragraph("<b>Aretfact number</b><br/>" + str(self.n_reperto), styNormal)
         us = Paragraph("<b>SU</b><br/>" + str(self.us), styNormal)
         definizione = Paragraph("<b>Artefact type</b><br/>" + str(self.definizione), styNormal)
@@ -1763,10 +1788,20 @@ class FOTO_index_pdf_sheet(object):
         else:
             tipo_contenitore = Paragraph("<b>Container type</b><br/>"+ str(self.tipo_contenitore), styNormal)
         nr_cassa = Paragraph("<b>Container number</b><br/>"+ str(self.nr_cassa), styNormal)
-        
+        try:
+            if bool(self.thumbnail):
+                th = Image(self.thumbnail)
+                th.drawHeight = 1 * inch * th.drawHeight / th.drawWidth
+                th.drawWidth = 1 * inch
+                th.hAlign = "CENTER"
+                foto = th
+            else:
+                foto = Paragraph("<b>IMG</b><br/>" + str('Not in database'), styNormal)
+        except:
+            foto = Paragraph("<b>IMG</b><br/>" + str('Tagged image \n but thubmnail missing'), styNormal)
         data = [                
                 n_reperto,
-                thumbnail,
+                foto,
                 us,
                 definizione,
                 datazione_reperto,
@@ -1801,10 +1836,20 @@ class FOTO_index_pdf_sheet(object):
         else:
             tipo_contenitore = Paragraph("<b>Typ des Container</b><br/>"+ str(self.tipo_contenitore), styNormal)
         nr_cassa = Paragraph("<b>Container-Nummer</b><br/>"+ str(self.nr_cassa), styNormal)
-        
+        try:
+            if bool(self.thumbnail):
+                th = Image(self.thumbnail)
+                th.drawHeight = 1 * inch * th.drawHeight / th.drawWidth
+                th.drawWidth = 1 * inch
+                th.hAlign = "CENTER"
+                foto = th
+            else:
+                foto = Paragraph("<b>IMG</b><br/>" + str('Not in database'), styNormal)
+        except:
+            foto = Paragraph("<b>IMG</b><br/>" + str('Afbeelding getagd\n, maar dubbeltag ontbreekt'), styNormal)
         data = [                
                 n_reperto,
-                thumbnail,
+                foto,
                 us,
                 definizione,
                 datazione_reperto,
@@ -1827,7 +1872,7 @@ class FOTO_index_pdf_sheet_2(object):
         
         self.sito= data[0]
         self.numero_inventario= data[1]
-        self.foto = data[2]
+        #self.foto = data[2]
         self.us = data[3]
         self.tipo_reperto = data[4]
         self.repertato= data[5]
@@ -1853,10 +1898,10 @@ class FOTO_index_pdf_sheet_2(object):
         
         numero_inventario = Paragraph("<b>Numero inv.</b><br/>" + str(self.numero_inventario), styNormal)
         us = Paragraph("<b>US</b><br/>" + str(self.us), styNormal)
-        if bool(self.foto):
-            foto = Paragraph("<b>IMG</b><br/>" + str(self.foto), styNormal)
-        else:
-            pass
+        # if bool(self.foto):
+        #     foto = Paragraph("<b>IMG</b><br/>" + str(self.foto), styNormal)
+        # else:
+        #     pass
         tipo_reperto = Paragraph("<b>Tipo reperto</b><br/>" + str(self.tipo_reperto), styNormal)
         repertato = Paragraph("<b>Repertato</b><br/>" + str(self.repertato), styNormal)
         if self.repertato=='No':
@@ -1873,7 +1918,7 @@ class FOTO_index_pdf_sheet_2(object):
         data = [
                 numero_inventario,
                 us ,
-                foto,
+                #foto,
                 tipo_reperto,
                 repertato,
                 n_reperto,
@@ -1898,10 +1943,10 @@ class FOTO_index_pdf_sheet_2(object):
         
         numero_inventario = Paragraph("<b>Inventory Number</b><br/>" + str(self.numero_inventario), styNormal)
         us = Paragraph("<b>SU</b><br/>" + str(self.us), styNormal)
-        if bool(self.foto):
-            foto = Paragraph("<b>IMG</b><br/>" + str(self.foto), styNormal)
-        else:
-            pass
+        # if bool(self.foto):
+        #     foto = Paragraph("<b>IMG</b><br/>" + str(self.foto), styNormal)
+        # else:
+        #     pass
         tipo_reperto = Paragraph("<b>Artefact type</b><br/>" + str(self.tipo_reperto), styNormal)
         repertato = Paragraph("<b>Aretfact</b><br/>" + str(self.repertato), styNormal)
         if self.repertato=='No':
@@ -1916,7 +1961,7 @@ class FOTO_index_pdf_sheet_2(object):
         data = [
                 numero_inventario,
                 us ,
-                foto,
+                #foto,
                 tipo_reperto,
                 repertato,
                 n_reperto,
@@ -1941,10 +1986,10 @@ class FOTO_index_pdf_sheet_2(object):
         
         numero_inventario = Paragraph("<b>Artefaktnummer</b><br/>" + str(self.numero_inventario), styNormal)
         us = Paragraph("<b>SE</b><br/>" + str(self.us), styNormal)
-        if bool(self.foto):
-            foto = Paragraph("<b>IMG</b><br/>" + str(self.foto), styNormal)
-        else:
-            pass
+        # if bool(self.foto):
+        #     foto = Paragraph("<b>IMG</b><br/>" + str(self.foto), styNormal)
+        # else:
+        #     pass
         tipo_reperto = Paragraph("<b>Artefakttyp</b><br/>" + str(self.tipo_reperto), styNormal)
         repertato = Paragraph("<b>Artefakt</b><br/>" + str(self.repertato), styNormal)
         if self.repertato=='No':
@@ -1960,7 +2005,7 @@ class FOTO_index_pdf_sheet_2(object):
         data = [
                 numero_inventario,
                 us ,
-                foto,
+                #foto,
                 tipo_reperto,
                 repertato,
                 n_reperto,
@@ -2031,7 +2076,7 @@ class generate_reperti_pdf(object):
             table_data.append(exp_index.getTable())
 
         styles = exp_index.makeStyles()
-        colWidths = [100, 50, 100, 100,100,100,100, 100]
+        colWidths = [100, 100, 50, 100,100,100,100, 100]
 
         table_data_formatted = Table(table_data, colWidths, style=styles)
         table_data_formatted.hAlign = "LEFT"
@@ -2041,7 +2086,7 @@ class generate_reperti_pdf(object):
 
         dt = datetime.datetime.now()
         filename = ('%s%s%s') % (
-        self.PDF_path, os.sep, 'Elenco Reperti.pdf')
+        self.PDF_path, os.sep, 'Elenco Reperti thumbnail.pdf')
         f = open(filename, "wb")
 
         doc = SimpleDocTemplate(f, pagesize=(29 * cm, 21 * cm), showBoundary=0, topMargin=15, bottomMargin=40,
@@ -2091,7 +2136,7 @@ class generate_reperti_pdf(object):
             table_data.append(exp_index.getTable_en())
 
         styles = exp_index.makeStyles()
-        colWidths = [100, 50, 100, 100,100,100,100, 100]
+        colWidths = [100, 100, 50, 100,100,100,100, 100]
 
         table_data_formatted = Table(table_data, colWidths, style=styles)
         table_data_formatted.hAlign = "LEFT"
@@ -2101,7 +2146,7 @@ class generate_reperti_pdf(object):
 
         dt = datetime.datetime.now()
         filename = ('%s%s%s_%s_%s_%s_%s_%s_%s%s') % (
-        self.PDF_path, os.sep, 'List Artefact', dt.day, dt.month, dt.year, dt.hour, dt.minute, dt.second, ".pdf")
+        self.PDF_path, os.sep, 'List Artefact thumnail', dt.day, dt.month, dt.year, dt.hour, dt.minute, dt.second, ".pdf")
         f = open(filename, "wb")
 
         doc = SimpleDocTemplate(f, pagesize=(29 * cm, 21 * cm), showBoundary=0, topMargin=15, bottomMargin=40,
@@ -2153,7 +2198,7 @@ class generate_reperti_pdf(object):
             table_data.append(exp_index.getTable_de())
 
         styles = exp_index.makeStyles()
-        colWidths = [100, 50, 100, 100,100,100,100,100]
+        colWidths = [100, 100, 50, 100,100,100,100,100]
 
         table_data_formatted = Table(table_data, colWidths, style=styles)
         table_data_formatted.hAlign = "LEFT"
@@ -2213,7 +2258,7 @@ class generate_reperti_pdf(object):
             table_data.append(exp_index.getTable())
 
         styles = exp_index.makeStyles()
-        colWidths = [50, 50, 100,50,100,100,100,150,100]
+        colWidths = [50, 50, 50,100,100,100,150,100]
 
         table_data_formatted = Table(table_data, colWidths, style=styles)
         table_data_formatted.hAlign = "LEFT"
@@ -2274,7 +2319,7 @@ class generate_reperti_pdf(object):
             table_data.append(exp_index.getTable_en())
 
         styles = exp_index.makeStyles()
-        colWidths = [50, 50, 100,50,100,100,100,150,100]
+        colWidths = [50, 50, 50,100,100,80,80,100]
 
         table_data_formatted = Table(table_data, colWidths, style=styles)
         table_data_formatted.hAlign = "LEFT"
@@ -2335,7 +2380,7 @@ class generate_reperti_pdf(object):
             table_data.append(exp_index.getTable_de())
 
         styles = exp_index.makeStyles()
-        colWidths = [50, 50, 100,50,100,100,100,150,100]
+        colWidths = [50, 50, 50,100,100,100,150,100]
 
         table_data_formatted = Table(table_data, colWidths, style=styles)
         table_data_formatted.hAlign = "LEFT"
