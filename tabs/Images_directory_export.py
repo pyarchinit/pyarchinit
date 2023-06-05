@@ -106,6 +106,10 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
         images_found = False
 
         sito = str(self.comboBox_sito.currentText())
+        selected_year = self.comboBox_year.currentText() if self.comboBox_year.currentText() else None
+        us_res = self.db_search_DB('US', 'sito', sito, anno=selected_year)
+        reperti_res = self.db_search_DB('INVENTARIO_MATERIALI', 'sito', sito, anno=selected_year)
+        pottery_res = self.db_search_DB('POTTERY', 'sito', sito, anno=selected_year)
         conn = Connection()
         conn_str = conn.conn_str()
         thumb_resize = conn.thumb_resize()
@@ -113,7 +117,7 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
         try:
             if self.comboBox_export.currentIndex()==0:
                 
-                us_res = self.db_search_DB('US', 'sito', sito)
+                #us_res = self.db_search_DB('US', 'sito', sito)
                 sito_path = '{}{}{}'.format(self.HOME, os.sep, "pyarchinit_image_export")
                 self.OS_UTILITY.create_dir(sito_path)
                 if bool(us_res):
@@ -206,156 +210,156 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
 
                         images_found = True
 
-                    ###################Reperti################################################
-                    reperti_res = self.db_search_DB('INVENTARIO_MATERIALI', 'sito', sito)
-                    
-                    if bool(reperti_res):
-                        
-                        for sing_us,a in zip(us_res, reperti_res):
-                            sing_per_num = str(sing_us.area)
-                            prefix = ''
-                            sing_per_num_len = len(sing_per_num)
-                            if sing_per_num_len == 1:
-                                prefix = prefix * 1
-                            
-                            else:
-                                pass
-                            sing_per_dir = prefix + str(sing_per_num)
-                            if self.L=='it':
-                                sing_Periodo_path = ('%s%sPeriodo - %s') % (sito_folder, os.sep, sing_per_dir)
-                            elif self.L=='de':
-                                sing_Periodo_path = ('%s%sPeriod - %s') % (sito_folder, os.sep, sing_per_dir)
-                            else:
-                                sing_Periodo_path = ('%s%sPeriod - %s') % (sito_folder, os.sep, sing_per_dir)
-                            #self.OS_UTILITY.create_dir(sing_Periodo_path)
-                            
-                            
-                            
-                            sing_fase_num = str(sing_us.us)
-                            prefix = ''
-                            sing_fase_num_len = len(sing_fase_num)
-                            if sing_fase_num_len == 1:
-                                prefix = prefix * 1
-                            
-                            else:
-                                pass
-                            sing_fase_dir = prefix + str(sing_fase_num)
-                            if self.L=='it':
-                                sing_Fase_path = ('%s%sFase - %s') % (sing_Periodo_path, os.sep, sing_fase_dir)
-                            elif self.L=='de':
-                                sing_Fase_path = ('%s%sPhase - %s') % (sing_Periodo_path, os.sep, sing_fase_dir)
-                            else:
-                                sing_Fase_path = ('%s%sPhase - %s') % (sing_Periodo_path, os.sep, sing_fase_dir)
-                            #self.OS_UTILITY.create_dir(sing_Fase_path)
-                                
-                                
-                            sing_reperti_num = str(a.numero_inventario)
-                            prefix = '0'
-                            sing_reperti_num_len = len(sing_reperti_num)
-                            if sing_reperti_num_len == 1:
-                                prefix = prefix * 4
-                            elif sing_reperti_num_len == 2:
-                                prefix = prefix * 3
-                            elif sing_reperti_num_len == 3:
-                                prefix = prefix * 2
-                            else:
-                                pass
+                ###################Reperti################################################
+                #reperti_res = self.db_search_DB('INVENTARIO_MATERIALI', 'sito', sito)
 
-                            sing_reperti_dir = prefix + str(sing_reperti_num)
-                            if self.L=='it':
-                                sing_REPERTI_path = ('%s%sRA - %s') % (sing_Fase_path, os.sep, sing_reperti_dir)
-                            else:
-                                sing_REPERTI_path = ('%s%sAA - %s') % (sing_Fase_path, os.sep, sing_reperti_dir)
-                            #self.OS_UTILITY.create_dir(sing_REPERTI_path)
+                if bool(reperti_res):
 
-                            search_dict = {'id_entity': a.id_invmat, 'entity_type': "'" + "REPERTO" + "'"}
+                    for sing_us,a in zip(us_res, reperti_res):
+                        sing_per_num = str(sing_us.area)
+                        prefix = ''
+                        sing_per_num_len = len(sing_per_num)
+                        if sing_per_num_len == 1:
+                            prefix = prefix * 1
 
-                            u = Utility()
-                            search_dict = u.remove_empty_items_fr_dict(search_dict)
-                            search_images_res = self.DB_MANAGER.query_bool(search_dict, 'MEDIAVIEW')
+                        else:
+                            pass
+                        sing_per_dir = prefix + str(sing_per_num)
+                        if self.L=='it':
+                            sing_Periodo_path = ('%s%sPeriodo - %s') % (sito_folder, os.sep, sing_per_dir)
+                        elif self.L=='de':
+                            sing_Periodo_path = ('%s%sPeriod - %s') % (sito_folder, os.sep, sing_per_dir)
+                        else:
+                            sing_Periodo_path = ('%s%sPeriod - %s') % (sito_folder, os.sep, sing_per_dir)
+                        #self.OS_UTILITY.create_dir(sing_Periodo_path)
 
-                        if len(search_images_res) > 0:
-                            self.OS_UTILITY.create_dir(sing_Periodo_path)
-                            self.OS_UTILITY.create_dir(sing_Fase_path)
-                            self.OS_UTILITY.create_dir(sing_REPERTI_path)
-                            for sing_media in search_images_res:
-                                self.OS_UTILITY.copy_file_img(thumb_resize_str + str(sing_media.path_resize),
-                                                              sing_REPERTI_path)
-                            images_found = True
-                    #################################Tombe####################################################
-                    tomba_res = self.db_search_DB('TOMBA', 'sito', sito)
-                    
-                    if bool(tomba_res):
-                        for sing_t in  tomba_res:
-                            sing_per_num = str(sing_t.periodo_iniziale)
-                            prefix = ''
-                            sing_per_num_len = len(sing_per_num)
-                            if sing_per_num_len == 1:
-                                prefix = prefix * 1
-                            
-                            else:
-                                pass
-                            sing_per_dir = prefix + str(sing_per_num)
-                            if self.L=='it':
-                                sing_Periodo_path = ('%s%sPeriodo - %s') % (sito_folder, os.sep, sing_per_dir)
-                            elif self.L=='de':
-                                sing_Periodo_path = ('%s%sPeriod - %s') % (sito_folder, os.sep, sing_per_dir)
-                            else:
-                                sing_Periodo_path = ('%s%sPeriod - %s') % (sito_folder, os.sep, sing_per_dir)
-                            #self.OS_UTILITY.create_dir(sing_Periodo_path)
-                            
-                            
-                            
-                            sing_fase_num = str(sing_t.fase_iniziale)
-                            prefix = ''
-                            sing_fase_num_len = len(sing_fase_num)
-                            if sing_fase_num_len == 1:
-                                prefix = prefix * 1
-                            
-                            else:
-                                pass
-                            sing_fase_dir = prefix + str(sing_fase_num)
-                            if self.L=='it':
-                                sing_Fase_path = ('%s%sFase - %s') % (sing_Periodo_path, os.sep, sing_fase_dir)
-                            elif self.L=='de':
-                                sing_Fase_path = ('%s%sPhase - %s') % (sing_Periodo_path, os.sep, sing_fase_dir)
-                            else:
-                                sing_Fase_path = ('%s%sPhase - %s') % (sing_Periodo_path, os.sep, sing_fase_dir)
-                            #self.OS_UTILITY.create_dir(sing_Fase_path)
-                            
-                            sing_tomba_num = str(sing_t.nr_scheda_taf)
-                            prefix = '0'
-                            sing_tomba_num_len = len(sing_tomba_num)
-                            if sing_tomba_num_len == 1:
-                                prefix = prefix * 1
-                            else:
-                                pass
 
-                            sing_tomba_dir = prefix + str(sing_tomba_num)
-                            if self.L=='it':
-                                sing_TOMBA_path = ('%s%sTB - %s') % (sing_Fase_path, os.sep, sing_tomba_dir)
-                            elif self.L=='de':
-                                sing_TOMBA_path = ('%s%sGrab - %s') % (sing_Fase_path, os.sep, sing_tomba_dir)
-                            else:
-                                sing_TOMBA_path = ('%s%sGrave - %s') % (sing_Fase_path, os.sep, sing_tomba_dir)    
-                            
-                            #self.OS_UTILITY.create_dir(sing_TOMBA_path)
 
-                            search_dict = {'id_entity': sing_t.id_tomba, 'entity_type': "'" + "TOMBA" + "'"}
+                        sing_fase_num = str(sing_us.us)
+                        prefix = ''
+                        sing_fase_num_len = len(sing_fase_num)
+                        if sing_fase_num_len == 1:
+                            prefix = prefix * 1
 
-                            u = Utility()
-                            search_dict = u.remove_empty_items_fr_dict(search_dict)
-                            search_images_res = self.DB_MANAGER.query_bool(search_dict, 'MEDIAVIEW')
+                        else:
+                            pass
+                        sing_fase_dir = prefix + str(sing_fase_num)
+                        if self.L=='it':
+                            sing_Fase_path = ('%s%sFase - %s') % (sing_Periodo_path, os.sep, sing_fase_dir)
+                        elif self.L=='de':
+                            sing_Fase_path = ('%s%sPhase - %s') % (sing_Periodo_path, os.sep, sing_fase_dir)
+                        else:
+                            sing_Fase_path = ('%s%sPhase - %s') % (sing_Periodo_path, os.sep, sing_fase_dir)
+                        #self.OS_UTILITY.create_dir(sing_Fase_path)
 
-                        if len(search_images_res) > 0:
-                            self.OS_UTILITY.create_dir(sing_Periodo_path)
-                            self.OS_UTILITY.create_dir(sing_Fase_path)
-                            self.OS_UTILITY.create_dir(sing_TOMBA_path)
-                            for sing_media in search_images_res:
-                                self.OS_UTILITY.copy_file_img(thumb_resize_str + str(sing_media.path_resize),
-                                                              sing_TOMBA_path)
-                            
-                            images_found=True
+
+                        sing_reperti_num = str(a.numero_inventario)
+                        prefix = '0'
+                        sing_reperti_num_len = len(sing_reperti_num)
+                        if sing_reperti_num_len == 1:
+                            prefix = prefix * 4
+                        elif sing_reperti_num_len == 2:
+                            prefix = prefix * 3
+                        elif sing_reperti_num_len == 3:
+                            prefix = prefix * 2
+                        else:
+                            pass
+
+                        sing_reperti_dir = prefix + str(sing_reperti_num)
+                        if self.L=='it':
+                            sing_REPERTI_path = ('%s%sRA - %s') % (sing_Fase_path, os.sep, sing_reperti_dir)
+                        else:
+                            sing_REPERTI_path = ('%s%sAA - %s') % (sing_Fase_path, os.sep, sing_reperti_dir)
+                        #self.OS_UTILITY.create_dir(sing_REPERTI_path)
+
+                        search_dict = {'id_entity': a.id_invmat, 'entity_type': "'" + "REPERTO" + "'"}
+
+                        u = Utility()
+                        search_dict = u.remove_empty_items_fr_dict(search_dict)
+                        search_images_res = self.DB_MANAGER.query_bool(search_dict, 'MEDIAVIEW')
+
+                    if len(search_images_res) > 0:
+                        self.OS_UTILITY.create_dir(sing_Periodo_path)
+                        self.OS_UTILITY.create_dir(sing_Fase_path)
+                        self.OS_UTILITY.create_dir(sing_REPERTI_path)
+                        for sing_media in search_images_res:
+                            self.OS_UTILITY.copy_file_img(thumb_resize_str + str(sing_media.path_resize),
+                                                          sing_REPERTI_path)
+                        images_found = True
+                #################################Tombe####################################################
+                tomba_res = self.db_search_DB('TOMBA', 'sito', sito)
+
+                if bool(tomba_res):
+                    for sing_t in  tomba_res:
+                        sing_per_num = str(sing_t.periodo_iniziale)
+                        prefix = ''
+                        sing_per_num_len = len(sing_per_num)
+                        if sing_per_num_len == 1:
+                            prefix = prefix * 1
+
+                        else:
+                            pass
+                        sing_per_dir = prefix + str(sing_per_num)
+                        if self.L=='it':
+                            sing_Periodo_path = ('%s%sPeriodo - %s') % (sito_folder, os.sep, sing_per_dir)
+                        elif self.L=='de':
+                            sing_Periodo_path = ('%s%sPeriod - %s') % (sito_folder, os.sep, sing_per_dir)
+                        else:
+                            sing_Periodo_path = ('%s%sPeriod - %s') % (sito_folder, os.sep, sing_per_dir)
+                        #self.OS_UTILITY.create_dir(sing_Periodo_path)
+
+
+
+                        sing_fase_num = str(sing_t.fase_iniziale)
+                        prefix = ''
+                        sing_fase_num_len = len(sing_fase_num)
+                        if sing_fase_num_len == 1:
+                            prefix = prefix * 1
+
+                        else:
+                            pass
+                        sing_fase_dir = prefix + str(sing_fase_num)
+                        if self.L=='it':
+                            sing_Fase_path = ('%s%sFase - %s') % (sing_Periodo_path, os.sep, sing_fase_dir)
+                        elif self.L=='de':
+                            sing_Fase_path = ('%s%sPhase - %s') % (sing_Periodo_path, os.sep, sing_fase_dir)
+                        else:
+                            sing_Fase_path = ('%s%sPhase - %s') % (sing_Periodo_path, os.sep, sing_fase_dir)
+                        #self.OS_UTILITY.create_dir(sing_Fase_path)
+
+                        sing_tomba_num = str(sing_t.nr_scheda_taf)
+                        prefix = '0'
+                        sing_tomba_num_len = len(sing_tomba_num)
+                        if sing_tomba_num_len == 1:
+                            prefix = prefix * 1
+                        else:
+                            pass
+
+                        sing_tomba_dir = prefix + str(sing_tomba_num)
+                        if self.L=='it':
+                            sing_TOMBA_path = ('%s%sTB - %s') % (sing_Fase_path, os.sep, sing_tomba_dir)
+                        elif self.L=='de':
+                            sing_TOMBA_path = ('%s%sGrab - %s') % (sing_Fase_path, os.sep, sing_tomba_dir)
+                        else:
+                            sing_TOMBA_path = ('%s%sGrave - %s') % (sing_Fase_path, os.sep, sing_tomba_dir)
+
+                        #self.OS_UTILITY.create_dir(sing_TOMBA_path)
+
+                        search_dict = {'id_entity': sing_t.id_tomba, 'entity_type': "'" + "TOMBA" + "'"}
+
+                        u = Utility()
+                        search_dict = u.remove_empty_items_fr_dict(search_dict)
+                        search_images_res = self.DB_MANAGER.query_bool(search_dict, 'MEDIAVIEW')
+
+                    if len(search_images_res) > 0:
+                        self.OS_UTILITY.create_dir(sing_Periodo_path)
+                        self.OS_UTILITY.create_dir(sing_Fase_path)
+                        self.OS_UTILITY.create_dir(sing_TOMBA_path)
+                        for sing_media in search_images_res:
+                            self.OS_UTILITY.copy_file_img(thumb_resize_str + str(sing_media.path_resize),
+                                                          sing_TOMBA_path)
+
+                        images_found=True
                 
                 ##############################Strutture#####################################################################
                 
@@ -432,7 +436,7 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
                         images_found = True
                 ##############################Pottery#####################################################################
 
-                pottery_res = self.db_search_DB('POTTERY', 'sito', sito)
+                #pottery_res = self.db_search_DB('POTTERY', 'sito', sito)
                 if bool(pottery_res):
 
                     for sing_us, a in zip(us_res, pottery_res):
@@ -523,17 +527,17 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
             ############################immagini us##########################################################
             elif self.comboBox_export.currentIndex()==1:
                 
-                us_res1 = self.db_search_DB('US', 'sito', sito)
+                #us_res = self.db_search_DB('US', 'sito', sito)
                 sito_path1 = '{}{}{}'.format(self.HOME, os.sep, "pyarchinit_image_export")
                 self.OS_UTILITY.create_dir(sito_path1)
-                if bool(us_res1):
+                if bool(us_res):
                     if self.L=='it':
                         us_folder_1 =  '{}{}{}'.format(sito_path1, os.sep, self.comboBox_sito.currentText() +' - '+ str('US in periodi e fasi'))
                     elif self.L=='de':
                         us_folder_1 =  '{}{}{}'.format(sito_path1, os.sep, self.comboBox_sito.currentText() +' - '+ str('SE in Perioden und Phasen'))
                     else:
                         us_folder_1 =  '{}{}{}'.format(sito_path1, os.sep, self.comboBox_sito.currentText() +' - '+ str('SU in period e phase'))
-                    for sing_us in us_res1:
+                    for sing_us in us_res:
                         sing_per_num = str(sing_us.periodo_iniziale)
                         prefix = ''
                         sing_per_num_len = len(sing_per_num)
@@ -633,10 +637,10 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
             
             elif self.comboBox_export.currentIndex()==2:
                 
-                us_res2 = self.db_search_DB('US', 'sito', sito)
+                #us_res2 = self.db_search_DB('US', 'sito', sito)
                 sito_path2 = '{}{}{}'.format(self.HOME, os.sep, "pyarchinit_image_export")
                 self.OS_UTILITY.create_dir(sito_path2)
-                if bool(us_res2):
+                if bool(us_res):
                     if self.L=='it':
                         sito_folder2 =  '{}{}{}'.format(sito_path2, os.sep, self.comboBox_sito.currentText() +' - '+ str('US'))
                     elif self.L=='de':
@@ -646,7 +650,7 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
                     
                     # Periodo_path = '{}{}{}'.format(sito_folder, os.sep, "Periodo")
                     # self.OS_UTILITY.create_dir(Periodo_path)
-                    for sing_us in us_res2:
+                    for sing_us in us_res:
                         
                         sing_us_num = str(sing_us.us)
                         prefix = '0'
@@ -708,17 +712,17 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
             
             elif self.comboBox_export.currentIndex()==10:
                 
-                us_res3 = self.db_search_DB('POTTERY', 'sito', sito)
+                #us_res3 = self.db_search_DB('POTTERY', 'sito', sito)
                 sito_path3 = '{}{}{}'.format(self.HOME, os.sep, "pyarchinit_image_export")
                 self.OS_UTILITY.create_dir(sito_path3)
-                if bool(us_res3):
+                if bool(pottery_res):
                     if self.L=='it':
                         sito_folder3 =  '{}{}{}'.format(sito_path3, os.sep, self.comboBox_sito.currentText() +' - '+ str('ID'))
                     elif self.L=='de':
                         sito_folder3 =  '{}{}{}'.format(sito_path3, os.sep, self.comboBox_sito.currentText() +' - '+ str('ID'))
                     else:
                         sito_folder3 =  '{}{}{}'.format(sito_path3, os.sep, self.comboBox_sito.currentText() +' - '+ str('ID'))
-                    for sing_us in us_res3:
+                    for sing_us in pottery_res:
                         
                         sing_us_num = str(sing_us.id_number)
                         prefix = '0'
@@ -771,17 +775,17 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
             
             elif self.comboBox_export.currentIndex()==11:
                 
-                us_res4 = self.db_search_DB('POTTERY', 'sito', sito)
+                #us_res4 = self.db_search_DB('POTTERY', 'sito', sito)
                 sito_path4 = '{}{}{}'.format(self.HOME, os.sep, "pyarchinit_image_export")
                 self.OS_UTILITY.create_dir(sito_path4)
-                if bool(us_res4):
+                if bool(pottery_res):
                     if self.L=='it':
                         sito_folder4 =  '{}{}{}'.format(sito_path4, os.sep, self.comboBox_sito.currentText() +' - '+ str('Forma'))
                     elif self.L=='de':
                         sito_folder4 =  '{}{}{}'.format(sito_path4, os.sep, self.comboBox_sito.currentText() +' - '+ str('Specific shape'))
                     else:
                         sito_folder4 =  '{}{}{}'.format(sito_path4, os.sep, self.comboBox_sito.currentText() +' - '+ str('Specific shape'))
-                    for sing_us in us_res4:
+                    for sing_us in pottery_res:
                         sing_per_num = str(sing_us.specific_form)
                         
                         #sing_per_dir = prefix + str(sing_per_num)
@@ -844,17 +848,17 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
             
             elif self.comboBox_export.currentIndex()==3:
                 
-                us_res3 = self.db_search_DB('INVENTARIO_MATERIALI', 'sito', sito)
+                #us_res3 = self.db_search_DB('INVENTARIO_MATERIALI', 'sito', sito)
                 sito_path3 = '{}{}{}'.format(self.HOME, os.sep, "pyarchinit_image_export")
                 self.OS_UTILITY.create_dir(sito_path3)
-                if bool(us_res3):
+                if bool(reperti_res):
                     if self.L=='it':
                         sito_folder3 =  '{}{}{}'.format(sito_path3, os.sep, self.comboBox_sito.currentText() +' - '+ str('RA'))
                     elif self.L=='de':
                         sito_folder3 =  '{}{}{}'.format(sito_path3, os.sep, self.comboBox_sito.currentText() +' - '+ str('EA'))
                     else:
                         sito_folder3 =  '{}{}{}'.format(sito_path3, os.sep, self.comboBox_sito.currentText() +' - '+ str('AA'))
-                    for sing_us in us_res3:
+                    for sing_us in reperti_res:
                         
                         sing_us_num = str(sing_us.numero_inventario)
                         prefix = '0'
@@ -909,17 +913,17 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
             
             elif self.comboBox_export.currentIndex()==4:
                 
-                us_res4 = self.db_search_DB('INVENTARIO_MATERIALI', 'sito', sito)
+                #us_res4 = self.db_search_DB('INVENTARIO_MATERIALI', 'sito', sito)
                 sito_path4 = '{}{}{}'.format(self.HOME, os.sep, "pyarchinit_image_export")
                 self.OS_UTILITY.create_dir(sito_path4)
-                if bool(us_res4):
+                if bool(reperti_res):
                     if self.L=='it':
                         sito_folder4 =  '{}{}{}'.format(sito_path4, os.sep, self.comboBox_sito.currentText() +' - '+ str('RA Definizione Materiali'))
                     elif self.L=='de':
                         sito_folder4 =  '{}{}{}'.format(sito_path4, os.sep, self.comboBox_sito.currentText() +' - '+ str('EA Materialdefinition'))
                     else:
                         sito_folder4 =  '{}{}{}'.format(sito_path4, os.sep, self.comboBox_sito.currentText() +' - '+ str('AA Material Definition'))
-                    for sing_us in us_res4:
+                    for sing_us in reperti_res:
                         sing_per_num = str(sing_us.definizione)
                         
                         #sing_per_dir = prefix + str(sing_per_num)
@@ -980,10 +984,10 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
 
             elif self.comboBox_export.currentIndex()==5:
                 
-                us_res5 = self.db_search_DB('INVENTARIO_MATERIALI', 'sito', sito)
+                #reperti_res = self.db_search_DB('INVENTARIO_MATERIALI', 'sito', sito)
                 sito_path5 = '{}{}{}'.format(self.HOME, os.sep, "pyarchinit_image_export")
                 self.OS_UTILITY.create_dir(sito_path5)
-                if bool(us_res5):
+                if bool(reperti_res):
                     if self.L=='it':
                         sito_folder5 =  '{}{}{}'.format(sito_path5, os.sep, self.comboBox_sito.currentText() +' - '+ str('RA Tipo Reperto'))
                     elif self.L=='de':
@@ -991,7 +995,7 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
                     else:
                         sito_folder5 =  '{}{}{}'.format(sito_path5, os.sep, self.comboBox_sito.currentText() +' - '+ str('AA Type Artefact'))
                     
-                    for sing_us in us_res5:
+                    for sing_us in reperti_res:
                         sing_per_num = str(sing_us.definizione)
                         
                         if self.L=='it':
@@ -1400,12 +1404,35 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
 
 
 
-    def db_search_DB(self, table_class, field, value):
+    # def db_search_DB(self, table_class, field, value):
+    #     self.table_class = table_class
+    #     self.field = field
+    #     self.value = value
+    #
+    #     search_dict = {self.field: "'" + str(self.value) + "'"}
+    #
+    #     u = Utility()
+    #     search_dict = u.remove_empty_items_fr_dict(search_dict)
+    #
+    #     res = self.DB_MANAGER.query_bool(search_dict, self.table_class)
+    #
+    #     return res
+    def db_search_DB(self, table_class, field_1, value_1, field_2="", value_2="", anno=None):
         self.table_class = table_class
-        self.field = field
-        self.value = value
 
-        search_dict = {self.field: "'" + str(self.value) + "'"}
+        if value_2:
+            search_dict = {field_1: "'" + str(value_1) + "'", field_2: "'" + str(value_2) + "'"}
+        else:
+            search_dict = {field_1: "'" + str(value_1) + "'"}
+
+        # Aggiungere l'anno alla ricerca se è stato fornito
+        if anno:
+            if table_class == 'US':
+                search_dict['anno_scavo'] = str(anno)
+            elif table_class == 'REPERTI':
+                search_dict['years'] = str(anno)
+            elif table_class == 'POTTERY':
+                search_dict['anno'] = str(anno)
 
         u = Utility()
         search_dict = u.remove_empty_items_fr_dict(search_dict)
@@ -1413,7 +1440,6 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
         res = self.DB_MANAGER.query_bool(search_dict, self.table_class)
 
         return res
-
 
 # if __name__ == '__main__':
     # app = QApplication(sys.argv)
