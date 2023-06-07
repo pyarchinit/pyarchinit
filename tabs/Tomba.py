@@ -36,6 +36,7 @@ from qgis.PyQt.uic import loadUiType
 from qgis.core import Qgis, QgsSettings,QgsGeometry
 from qgis.gui import QgsMapCanvas, QgsMapToolPan
 from ..modules.utility.delegateComboBox import ComboBoxDelegate
+from ..modules.utility.pyarchinit_media_utility import *
 from ..modules.db.pyarchinit_conn_strings import Connection
 from ..modules.db.pyarchinit_db_manager import Pyarchinit_db_management
 from ..modules.db.pyarchinit_utility import Utility
@@ -352,7 +353,8 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
         self.currentLayerId = None
         self.mDockWidget_export.setHidden(True)
         self.mDockWidget_3.setHidden(True)
-        
+        self.setAcceptDrops(True)
+        self.iconListWidget.setDragDropMode(QAbstractItemView.DragDrop)
         try:
             self.on_pushButton_connect_pressed()
         except Exception as e:
@@ -631,6 +633,321 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
         elif mode == 1:
             self.mapPreview.setLayers([])
             self.mapPreview.zoomToFullExtent()
+    def dropEvent(self, event):
+        mimeData = event.mimeData()
+        accepted_formats = ["jpg", "jpeg", "png", "tiff", "tif", "bmp", "mp4", "avi", "mov", "mkv", "flv"]
+        if mimeData.hasUrls():
+            for url in mimeData.urls():
+                try:
+                    path = url.toLocalFile()
+                    if os.path.isfile(path):
+                        filename = os.path.basename(path)
+                        filetype = filename.split(".")[-1]
+                        if filetype.lower() in accepted_formats:
+                            self.load_and_process_image(path)
+                        else:
+                            QMessageBox.warning(self, "Error", f"Unsupported file type: {filetype}", QMessageBox.Ok)
+                except Exception as e:
+                    QMessageBox.warning(self, "Error", f"Failed to process the file: {str(e)}", QMessageBox.Ok)
+        super().dropEvent(event)
+
+    def dragEnterEvent(self, event):
+        if event.mimeData().hasUrls():
+            event.acceptProposedAction()
+        else:
+            event.ignore()
+
+    def dragMoveEvent(self, event):
+        event.acceptProposedAction()
+
+    def insert_record_media(self, mediatype, filename, filetype, filepath):
+        self.mediatype = mediatype
+        self.filename = filename
+        self.filetype = filetype
+        self.filepath = filepath
+        try:
+            data = self.DB_MANAGER.insert_media_values(
+                self.DB_MANAGER.max_num_id('MEDIA', 'id_media') + 1,
+                str(self.mediatype),  # 1 - mediatyype
+                str(self.filename),  # 2 - filename
+                str(self.filetype),  # 3 - filetype
+                str(self.filepath),  # 4 - filepath
+                str('Insert description'),  # 5 - descrizione
+                str("['imagine']"))  # 6 - tags
+            try:
+                self.DB_MANAGER.insert_data_session(data)
+                return 1
+            except Exception as e:
+                e_str = str(e)
+                if e_str.__contains__("Integrity"):
+                    msg = self.filename + ": Image already in the database"
+                else:
+                    msg = e
+                # QMessageBox.warning(self, "Errore", "Warning 1 ! \n"+ str(msg),  QMessageBox.Ok)
+                return 0
+        except Exception as e:
+            QMessageBox.warning(self, "Error", "Warning 2 ! \n" + str(e), QMessageBox.Ok)
+            return 0
+
+    def insert_record_mediathumb(self, media_max_num_id, mediatype, filename, filename_thumb, filetype, filepath_thumb,
+                                 filepath_resize):
+        self.media_max_num_id = media_max_num_id
+        self.mediatype = mediatype
+        self.filename = filename
+        self.filename_thumb = filename_thumb
+        self.filetype = filetype
+        self.filepath_thumb = filepath_thumb
+        self.filepath_resize = filepath_resize
+        try:
+            data = self.DB_MANAGER.insert_mediathumb_values(
+                self.DB_MANAGER.max_num_id('MEDIA_THUMB', 'id_media_thumb') + 1,
+                str(self.media_max_num_id),  # 1 - media_max_num_id
+                str(self.mediatype),  # 2 - mediatype
+                str(self.filename),  # 3 - filename
+                str(self.filename_thumb),  # 4 - filename_thumb
+                str(self.filetype),  # 5 - filetype
+                str(self.filepath_thumb),  # 6 - filepath_thumb
+                str(self.filepath_resize))  # 6 - filepath_thumb
+            try:
+                self.DB_MANAGER.insert_data_session(data)
+                return 1
+            except Exception as e:
+                e_str = str(e)
+                if e_str.__contains__("Integrity"):
+                    msg = self.filename + ": thumb already present into the database"
+                else:
+                    msg = e
+                # QMessageBox.warning(self, "Error", "warming 1 ! \n"+ str(msg),  QMessageBox.Ok)
+                return 0
+        except Exception as e:
+            QMessageBox.warning(self, "Error", "Warning 2 ! \n" + str(e), QMessageBox.Ok)
+            return 0
+
+    def insert_mediaToEntity_rec(self, id_entity, entity_type, table_name, id_media, filepath, media_name):
+        """
+        id_mediaToEntity,
+        id_entity,
+        entity_type,
+        table_name,
+        id_media,
+        filepath,
+        media_name"""
+        self.id_entity = id_entity
+        self.entity_type = entity_type
+        self.table_name = table_name
+        self.id_media = id_media
+        self.filepath = filepath
+        self.media_name = media_name
+        try:
+            data = self.DB_MANAGER.insert_media2entity_values(
+                self.DB_MANAGER.max_num_id('MEDIATOENTITY', 'id_mediaToEntity') + 1,
+                int(self.id_entity),  # 1 - id_entity
+                str(self.entity_type),  # 2 - entity_type
+                str(self.table_name),  # 3 - table_name
+                int(self.id_media),  # 4 - us
+                str(self.filepath),  # 5 - filepath
+                str(self.media_name))  # 6 - media_name
+            try:
+                self.DB_MANAGER.insert_data_session(data)
+                return 1
+            except Exception as e:
+                e_str = str(e)
+                if e_str.__contains__("Integrity"):
+                    msg = self.ID_TABLE + " already present into the database"
+                else:
+                    msg = e
+                QMessageBox.warning(self, "Error", "Warning 1 ! \n" + str(msg), QMessageBox.Ok)
+                return 0
+        except Exception as e:
+            QMessageBox.warning(self, "Error", "Warning 2 ! \n" + str(e), QMessageBox.Ok)
+            return 0
+
+    def delete_mediaToEntity_rec(self, id_entity, entity_type, table_name, id_media, filepath, media_name):
+        """
+        id_mediaToEntity,
+        id_entity,
+        entity_type,
+        table_name,
+        id_media,
+        filepath,
+        media_name"""
+        self.id_entity = id_entity
+        self.entity_type = entity_type
+        self.table_name = table_name
+        self.id_media = id_media
+        self.filepath = filepath
+        self.media_name = media_name
+        try:
+            data = self.DB_MANAGER.insert_media2entity_values(
+                self.DB_MANAGER.max_num_id('MEDIATOENTITY', 'id_mediaToEntity') + 1,
+                int(self.id_entity),  # 1 - id_entity
+                str(self.entity_type),  # 2 - entity_type
+                str(self.table_name),  # 3 - table_name
+                int(self.id_media),  # 4 - us
+                str(self.filepath),  # 5 - filepath
+                str(self.media_name))
+        except Exception as e:
+            QMessageBox.warning(self, "Error", "Warning 2 ! \n" + str(e), QMessageBox.Ok)
+            return 0
+
+    def generate_reperti(self):
+        # tags_list = self.table2dict('self.tableWidgetTags_US')
+        record_rep_list = []
+        sito = self.comboBox_sito.currentText()
+
+        nv = self.lineEdit_nr_scheda.text()
+        # for sing_tags in tags_list:
+        search_dict = {'sito': "'" + str(sito) + "'",
+                       'nr_scheda_taf': "'" + str(nv) + "'"
+                       }
+        j = self.DB_MANAGER.query_bool(search_dict, 'TOMBA')
+        record_rep_list.append(j)
+        # QMessageBox.information(self, 'search db', str(record_us_list))
+        rep_list = []
+        for r in record_rep_list:
+            rep_list.append([r[0].id_tomba, 'TOMBA', 'tomba_table'])
+        return rep_list
+
+    def assignTags_reperti(self, item):
+        """
+        id_mediaToEntity,
+        id_entity,
+        entity_type,
+        table_name,
+        id_media,
+        filepath,
+        media_name
+        """
+        rep_list = self.generate_reperti()
+        # QMessageBox.information(self,'search db',str(us_list))
+        if not rep_list:
+            return
+
+        for rep_data in rep_list:
+            id_orig_item = item.text()  # return the name of original file
+            search_dict = {'filename': "'" + str(id_orig_item) + "'"}
+            media_data = self.DB_MANAGER.query_bool(search_dict, 'MEDIA')
+            self.insert_mediaToEntity_rec(rep_data[0], rep_data[1], rep_data[2], media_data[0].id_media,
+                                          media_data[0].filepath, media_data[0].filename)
+
+    def load_and_process_image(self, filepath):
+        media_resize_suffix = ''
+        media_thumb_suffix = ''
+        conn = Connection()
+        thumb_path = conn.thumb_path()
+        thumb_path_str = thumb_path['thumb_path']
+        filename = os.path.basename(filepath)
+        filename, filetype = filename.split(".")[0], filename.split(".")[1]
+        # Check the media type based on the file extension
+        accepted_image_formats = ["jpg", "jpeg", "png", "tiff", "tif", "btm"]
+        accepted_video_formats = ["mp4", "avi", "mov", "mkv", "flv"]
+        if filetype.lower() in accepted_image_formats:
+            mediatype = 'image'
+            media_thumb_suffix = '_thumb.png'
+            media_resize_suffix = '.png'
+
+        elif filetype.lower() in accepted_video_formats:
+            mediatype = 'video'
+            media_thumb_suffix = '_video.png'
+
+
+        else:
+            # Handle unrecognized media type
+            raise ValueError(f"Unrecognized media type for file {filename}.{filetype}")
+
+        if mediatype == 'video':
+            if filetype.lower() == 'mp4':
+                media_resize_suffix = '.mp4'
+            elif filetype.lower() == 'avi':
+                media_resize_suffix = '.avi'
+            elif filetype.lower() == 'mov':
+                media_resize_suffix = '.mov'
+            elif filetype.lower() == 'mkv':
+                media_resize_suffix = '.mkv'
+            elif filetype.lower() == 'flv':
+                media_resize_suffix = '.flv'
+
+        # Check and insert record in the database
+        idunique_image_check = self.db_search_check('MEDIA', 'filepath', filepath)
+
+        try:
+            if bool(idunique_image_check):
+
+                return
+            else:
+                # mediatype = 'image'
+                self.insert_record_media(mediatype, filename, filetype, filepath)
+                MU = Media_utility()
+                MUR = Media_utility_resize()
+                MU_video = Video_utility()
+                MUR_video = Video_utility_resize()
+                media_max_num_id = self.DB_MANAGER.max_num_id('MEDIA', 'id_media')
+                thumb_path = conn.thumb_path()
+                thumb_path_str = thumb_path['thumb_path']
+                thumb_resize = conn.thumb_resize()
+                thumb_resize_str = thumb_resize['thumb_resize']
+                filenameorig = filename
+                filename_thumb = str(media_max_num_id) + "_" + filename + media_thumb_suffix
+                filename_resize = str(media_max_num_id) + "_" + filename + media_resize_suffix
+                filepath_thumb = filename_thumb
+                filepath_resize = filename_resize
+                self.SORT_ITEMS_CONVERTED = []
+
+                try:
+                    if mediatype == 'video':
+                        vcap = cv2.VideoCapture(filepath)
+                        res, im_ar = vcap.read()
+                        while im_ar.mean() < 1 and res:
+                            res, im_ar = vcap.read()
+                        im_ar = cv2.resize(im_ar, (100, 100), 0, 0, cv2.INTER_LINEAR)
+                        # to save we have two options
+                        outputfile = '{}.png'.format(os.path.dirname(filepath) + '/' + filename)
+                        cv2.imwrite(outputfile, im_ar)
+                        MU_video.resample_images(media_max_num_id, outputfile, filenameorig, thumb_path_str,
+                                                 media_thumb_suffix)
+                        MUR_video.resample_images(media_max_num_id, filepath, filenameorig, thumb_resize_str,
+                                                  media_resize_suffix)
+                    else:
+                        MU.resample_images(media_max_num_id, filepath, filenameorig, thumb_path_str, media_thumb_suffix)
+                        MUR.resample_images(media_max_num_id, filepath, filenameorig, thumb_resize_str,
+                                            media_resize_suffix)
+                except Exception as e:
+                    QMessageBox.warning(self, "Cucu", str(e), QMessageBox.Ok)
+                self.insert_record_mediathumb(media_max_num_id, mediatype, filename, filename_thumb, filetype,
+                                              filepath_thumb, filepath_resize)
+
+                item = QListWidgetItem(str(filenameorig))
+                item.setData(Qt.UserRole, str(media_max_num_id))
+                icon = QIcon(str(thumb_path_str) + filepath_thumb)
+                item.setIcon(icon)
+                self.iconListWidget.addItem(item)
+
+            self.assignTags_reperti(item)
+
+
+
+        except:
+            if self.L == 'it':
+                QMessageBox.warning(self, "Warning", "controlla che il nome del file non abbia caratteri speciali",
+                                    QMessageBox.Ok)
+            if self.L == 'de':
+                QMessageBox.warning(self, "Warning", "prüfen, ob der Dateiname keine Sonderzeichen enthält",
+                                    QMessageBox.Ok)
+            else:
+                QMessageBox.warning(self, "Warning", "check that the file name has no special characters",
+                                    QMessageBox.Ok)
+
+    def db_search_check(self, table_class, field, value):
+        self.table_class = table_class
+        self.field = field
+        self.value = value
+        search_dict = {self.field: "'" + str(self.value) + "'"}
+        u = Utility()
+        search_dict = u.remove_empty_items_fr_dict(search_dict)
+        res = self.DB_MANAGER.query_bool(search_dict, self.table_class)
+        return res
+
+
     def loadMediaPreview(self):
         self.iconListWidget.clear()
         conn = Connection()

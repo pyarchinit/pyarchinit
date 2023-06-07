@@ -4,14 +4,14 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="13d9711e-af47-4516-9a74-091c329d410d" name="Changes" comment="fixed update reverese rapport">
-      <change afterPath="$PROJECT_DIR$/modules/utility/askgpt.py" afterDir="false" />
+    <list default="true" id="13d9711e-af47-4516-9a74-091c329d410d" name="Changes" comment="fix bug #554">
+      <change afterPath="$PROJECT_DIR$/gui/ui/pippackageinstaller.ui" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gui/ui/Thesaurus.ui" beforeDir="false" afterPath="$PROJECT_DIR$/gui/ui/Thesaurus.ui" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/gui/ui/US_USM.ui" beforeDir="false" afterPath="$PROJECT_DIR$/gui/ui/US_USM.ui" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/utility/pyarchinit_exp_USsheet_pdf.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/utility/pyarchinit_exp_USsheet_pdf.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tabs/Thesaurus.py" beforeDir="false" afterPath="$PROJECT_DIR$/tabs/Thesaurus.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tabs/Inv_Materiali.py" beforeDir="false" afterPath="$PROJECT_DIR$/tabs/Inv_Materiali.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tabs/Tomba.py" beforeDir="false" afterPath="$PROJECT_DIR$/tabs/Tomba.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tabs/US_USM.py" beforeDir="false" afterPath="$PROJECT_DIR$/tabs/US_USM.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tabs/pyarchinit_Pottery_mainapp.py" beforeDir="false" afterPath="$PROJECT_DIR$/tabs/pyarchinit_Pottery_mainapp.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -46,9 +46,6 @@
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="GithubDefaultAccount">
-    <option name="defaultAccountId" value="3716b4d5-8ed8-402e-a24e-43894efbf059" />
-  </component>
   <component name="GithubPullRequestsUISettings">
     <option name="selectedUrlAndAccountId">
       <UrlAndAccount>
@@ -74,7 +71,7 @@
   <component name="PropertiesComponent">{
   &quot;keyToString&quot;: {
     &quot;last_opened_file_path&quot;: &quot;C:/Users/enzoc/OneDrive/ED2Graphml&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;settings.codegpt&quot;
+    &quot;settings.editor.selected.configurable&quot;: &quot;com.nnthink.aixcoder.config.Config&quot;
   }
 }</component>
   <component name="PyConsoleOptionsProvider">
@@ -127,41 +124,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1636816115136</updated>
-    </task>
-    <task id="LOCAL-00022" summary="v3.9.14">
-      <created>1649165457258</created>
-      <option name="number" value="00022" />
-      <option name="presentableId" value="LOCAL-00022" />
-      <option name="project" value="LOCAL" />
-      <updated>1649165457258</updated>
-    </task>
-    <task id="LOCAL-00023" summary="fix minor bug">
-      <created>1649401469775</created>
-      <option name="number" value="00023" />
-      <option name="presentableId" value="LOCAL-00023" />
-      <option name="project" value="LOCAL" />
-      <updated>1649401469775</updated>
-    </task>
-    <task id="LOCAL-00024" summary="fix minor bug">
-      <created>1649401483094</created>
-      <option name="number" value="00024" />
-      <option name="presentableId" value="LOCAL-00024" />
-      <option name="project" value="LOCAL" />
-      <updated>1649401483094</updated>
-    </task>
-    <task id="LOCAL-00025" summary="v.3.9.15">
-      <created>1649401549447</created>
-      <option name="number" value="00025" />
-      <option name="presentableId" value="LOCAL-00025" />
-      <option name="project" value="LOCAL" />
-      <updated>1649401549447</updated>
-    </task>
-    <task id="LOCAL-00026" summary="pyarchini tomba view">
-      <created>1649660794989</created>
-      <option name="number" value="00026" />
-      <option name="presentableId" value="LOCAL-00026" />
-      <option name="project" value="LOCAL" />
-      <updated>1649660794990</updated>
     </task>
     <task id="LOCAL-00027" summary="v3.9.18">
       <created>1649660860116</created>
@@ -471,7 +433,42 @@
       <option name="project" value="LOCAL" />
       <updated>1679662089681</updated>
     </task>
-    <option name="localTasksCounter" value="71" />
+    <task id="LOCAL-00071" summary="#551 #552">
+      <created>1685957017361</created>
+      <option name="number" value="00071" />
+      <option name="presentableId" value="LOCAL-00071" />
+      <option name="project" value="LOCAL" />
+      <updated>1685957017362</updated>
+    </task>
+    <task id="LOCAL-00072" summary="update exportazione image directory">
+      <created>1685957064012</created>
+      <option name="number" value="00072" />
+      <option name="presentableId" value="LOCAL-00072" />
+      <option name="project" value="LOCAL" />
+      <updated>1685957064013</updated>
+    </task>
+    <task id="LOCAL-00073" summary="#553">
+      <created>1685962205273</created>
+      <option name="number" value="00073" />
+      <option name="presentableId" value="LOCAL-00073" />
+      <option name="project" value="LOCAL" />
+      <updated>1685962205273</updated>
+    </task>
+    <task id="LOCAL-00074" summary="v.4.4.7">
+      <created>1685962287924</created>
+      <option name="number" value="00074" />
+      <option name="presentableId" value="LOCAL-00074" />
+      <option name="project" value="LOCAL" />
+      <updated>1685962287924</updated>
+    </task>
+    <task id="LOCAL-00075" summary="fix bug #554">
+      <created>1686118804359</created>
+      <option name="number" value="00075" />
+      <option name="presentableId" value="LOCAL-00075" />
+      <option name="project" value="LOCAL" />
+      <updated>1686118804359</updated>
+    </task>
+    <option name="localTasksCounter" value="76" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -502,11 +499,6 @@
     <ignored-roots>
       <path value="$PROJECT_DIR$/ext-libs/totalopenstation-0.5.2-py3.9.egg/totalopenstation_" />
     </ignored-roots>
-    <MESSAGE value="v4.0.0" />
-    <MESSAGE value="add" />
-    <MESSAGE value="fix minor bug gui matrix" />
-    <MESSAGE value="v4.0.1" />
-    <MESSAGE value="update _mod_spatialite.so for mac" />
     <MESSAGE value="#471 fix bug for mac" />
     <MESSAGE value="fix bug load video for mac" />
     <MESSAGE value="fix bug #486" />
@@ -527,7 +519,12 @@
     <MESSAGE value="v4.4.2" />
     <MESSAGE value="v4.4.3" />
     <MESSAGE value="fixed update reverese rapport" />
-    <option name="LAST_COMMIT_MESSAGE" value="fixed update reverese rapport" />
+    <MESSAGE value="#551 #552" />
+    <MESSAGE value="update exportazione image directory" />
+    <MESSAGE value="#553" />
+    <MESSAGE value="v.4.4.7" />
+    <MESSAGE value="fix bug #554" />
+    <option name="LAST_COMMIT_MESSAGE" value="fix bug #554" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -541,6 +538,11 @@
           <url>file://$PROJECT_DIR$/gui/dbmanagment.py</url>
           <line>21</line>
           <option name="timeStamp" value="3" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/__init__.py</url>
+          <line>20</line>
+          <option name="timeStamp" value="4" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
