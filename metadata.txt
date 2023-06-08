@@ -13,7 +13,7 @@ name=pyArchInit
 qgisMinimumVersion=3.22
 description=pyarchinit a tool for archaeological works
 
-version=4.5.0
+version=4.5.1
 
 author=Luca Mandolesi&Enzo Cocca
 email=pyarchinit@gmail.com
@@ -25,7 +25,10 @@ tracker=https://github.com/pyarchinit/pyarchinit/issues
 repository=https://github.com/pyarchinit/pyarchinit
 
 
-changelog=release4.5.0
+changelog=release4.5.1
+    -add remove and assign tags in US ,Artefacr ,Pottery and tomb forms
+
+  release4.5.0
     -add drag and drop image function
 
   release4.4.7
