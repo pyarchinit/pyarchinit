@@ -1343,7 +1343,7 @@
         <widget class="QgsDockWidget" name="mDockWidget">
          <widget class="QWidget" name="dockWidgetContents">
           <layout class="QGridLayout" name="gridLayout_4">
-           <item row="0" column="0">
+           <item row="1" column="0">
             <widget class="QListWidget" name="iconListWidget">
              <property name="font">
               <font>
@@ -1401,6 +1401,26 @@
              </property>
              <property name="sortingEnabled">
               <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="0">
+            <widget class="QPushButton" name="pushButton_removetags">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>20</width>
+               <height>20</height>
+              </size>
+             </property>
+             <property name="icon">
+              <iconset resource="../../resources/resources.qrc">
+               <normaloff>:/icons/remove_tag.png</normaloff>:/icons/remove_tag.png</iconset>
              </property>
             </widget>
            </item>

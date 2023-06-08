@@ -4,10 +4,14 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="13d9711e-af47-4516-9a74-091c329d410d" name="Changes" comment="fix bug #554">
+    <list default="true" id="13d9711e-af47-4516-9a74-091c329d410d" name="Changes" comment="v4.5.0">
       <change afterPath="$PROJECT_DIR$/gui/ui/pippackageinstaller.ui" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gui/ui/Inv_Materiali.ui" beforeDir="false" afterPath="$PROJECT_DIR$/gui/ui/Inv_Materiali.ui" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gui/ui/Tomba.ui" beforeDir="false" afterPath="$PROJECT_DIR$/gui/ui/Tomba.ui" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/gui/ui/US_USM.ui" beforeDir="false" afterPath="$PROJECT_DIR$/gui/ui/US_USM.ui" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gui/ui/pyarchinit_Pottery_ui.ui" beforeDir="false" afterPath="$PROJECT_DIR$/gui/ui/pyarchinit_Pottery_ui.ui" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/db/pyarchinit_db_manager.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/db/pyarchinit_db_manager.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tabs/Inv_Materiali.py" beforeDir="false" afterPath="$PROJECT_DIR$/tabs/Inv_Materiali.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tabs/Tomba.py" beforeDir="false" afterPath="$PROJECT_DIR$/tabs/Tomba.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tabs/US_USM.py" beforeDir="false" afterPath="$PROJECT_DIR$/tabs/US_USM.py" afterDir="false" />
@@ -124,13 +128,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1636816115136</updated>
-    </task>
-    <task id="LOCAL-00027" summary="v3.9.18">
-      <created>1649660860116</created>
-      <option name="number" value="00027" />
-      <option name="presentableId" value="LOCAL-00027" />
-      <option name="project" value="LOCAL" />
-      <updated>1649660860116</updated>
     </task>
     <task id="LOCAL-00028" summary="#460">
       <created>1649667987618</created>
@@ -468,7 +465,14 @@
       <option name="project" value="LOCAL" />
       <updated>1686118804359</updated>
     </task>
-    <option name="localTasksCounter" value="76" />
+    <task id="LOCAL-00076" summary="v4.5.0">
+      <created>1686167228860</created>
+      <option name="number" value="00076" />
+      <option name="presentableId" value="LOCAL-00076" />
+      <option name="project" value="LOCAL" />
+      <updated>1686167228861</updated>
+    </task>
+    <option name="localTasksCounter" value="77" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -499,7 +503,6 @@
     <ignored-roots>
       <path value="$PROJECT_DIR$/ext-libs/totalopenstation-0.5.2-py3.9.egg/totalopenstation_" />
     </ignored-roots>
-    <MESSAGE value="#471 fix bug for mac" />
     <MESSAGE value="fix bug load video for mac" />
     <MESSAGE value="fix bug #486" />
     <MESSAGE value="readme update" />
@@ -524,7 +527,8 @@
     <MESSAGE value="#553" />
     <MESSAGE value="v.4.4.7" />
     <MESSAGE value="fix bug #554" />
-    <option name="LAST_COMMIT_MESSAGE" value="fix bug #554" />
+    <MESSAGE value="v4.5.0" />
+    <option name="LAST_COMMIT_MESSAGE" value="v4.5.0" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

@@ -1483,7 +1483,14 @@ class Pyarchinit_db_management(object):
     
         res = self.engine.execute(sql_query_string)
         # rows= res.fetchall()
-        return res    
+        return res
+
+    def remove_tags_from_db_sql_scheda(self, s,n):
+        sql_query_string = ("DELETE FROM media_to_entity_table WHERE id_entity  = '%s' and media_name= '%s' ") % (s,n)
+
+        res = self.engine.execute(sql_query_string)
+        # rows= res.fetchall()
+        return res
     def delete_thumb_from_db_sql(self,s):
         sql_query_string = ("DELETE FROM media_thumb_table WHERE media_filename  = '%s'") % (s)
     
