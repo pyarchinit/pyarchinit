@@ -1334,106 +1334,114 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         conn = Connection()
         thumb_path = conn.thumb_path()
         thumb_path_str = thumb_path['thumb_path']
-        filename = os.path.basename(filepath)
-        filename, filetype = filename.split(".")[0], filename.split(".")[1]
-        # Check the media type based on the file extension
-        accepted_image_formats = ["jpg", "jpeg", "png", "tiff", "tif", "btm"]
-        accepted_video_formats = ["mp4", "avi", "mov", "mkv", "flv"]
-        if filetype.lower() in accepted_image_formats:
-            mediatype = 'image'
-            media_thumb_suffix = '_thumb.png'
-            media_resize_suffix = '.png'
-
-        elif filetype.lower() in accepted_video_formats:
-            mediatype = 'video'
-            media_thumb_suffix = '_video.png'
-
-
+        if thumb_path_str=='':
+            if self.L=='it':
+                QMessageBox.information(self, "Info", "devi settare prima la path per salvare le thumbnail e i video. Vai in impostazioni di sistema/ path setting ")
+            elif self.L=='de':
+                QMessageBox.information(self, "Info", "müssen Sie zuerst den Pfad zum Speichern der Miniaturansichten und Videos festlegen. Gehen Sie zu System-/Pfad-Einstellung")
+            else:
+                QMessageBox.information(self, "Message", "you must first set the path to save the thumbnails and videos. Go to system/path setting")
         else:
-            # Handle unrecognized media type
-            raise ValueError(f"Unrecognized media type for file {filename}.{filetype}")
+            filename = os.path.basename(filepath)
+            filename, filetype = filename.split(".")[0], filename.split(".")[1]
+            # Check the media type based on the file extension
+            accepted_image_formats = ["jpg", "jpeg", "png", "tiff", "tif", "btm"]
+            accepted_video_formats = ["mp4", "avi", "mov", "mkv", "flv"]
+            if filetype.lower() in accepted_image_formats:
+                mediatype = 'image'
+                media_thumb_suffix = '_thumb.png'
+                media_resize_suffix = '.png'
 
-        if mediatype == 'video':
-            if filetype.lower() == 'mp4':
-                media_resize_suffix = '.mp4'
-            elif filetype.lower() == 'avi':
-                media_resize_suffix = '.avi'
-            elif filetype.lower() == 'mov':
-                media_resize_suffix = '.mov'
-            elif filetype.lower() == 'mkv':
-                media_resize_suffix = '.mkv'
-            elif filetype.lower() == 'flv':
-                media_resize_suffix = '.flv'
+            elif filetype.lower() in accepted_video_formats:
+                mediatype = 'video'
+                media_thumb_suffix = '_video.png'
 
-        # Check and insert record in the database
-        idunique_image_check = self.db_search_check('MEDIA', 'filepath', filepath)
 
-        try:
-            if bool(idunique_image_check):
-
-                return
             else:
-                # mediatype = 'image'
-                self.insert_record_media(mediatype, filename, filetype, filepath)
-                MU = Media_utility()
-                MUR = Media_utility_resize()
-                MU_video = Video_utility()
-                MUR_video = Video_utility_resize()
-                media_max_num_id = self.DB_MANAGER.max_num_id('MEDIA', 'id_media')
-                thumb_path = conn.thumb_path()
-                thumb_path_str = thumb_path['thumb_path']
-                thumb_resize = conn.thumb_resize()
-                thumb_resize_str = thumb_resize['thumb_resize']
-                filenameorig = filename
-                filename_thumb = str(media_max_num_id) + "_" + filename + media_thumb_suffix
-                filename_resize = str(media_max_num_id) + "_" + filename + media_resize_suffix
-                filepath_thumb = filename_thumb
-                filepath_resize = filename_resize
-                self.SORT_ITEMS_CONVERTED = []
+                # Handle unrecognized media type
+                raise ValueError(f"Unrecognized media type for file {filename}.{filetype}")
 
-                try:
-                    if mediatype == 'video':
-                        vcap = cv2.VideoCapture(filepath)
-                        res, im_ar = vcap.read()
-                        while im_ar.mean() < 1 and res:
+            if mediatype == 'video':
+                if filetype.lower() == 'mp4':
+                    media_resize_suffix = '.mp4'
+                elif filetype.lower() == 'avi':
+                    media_resize_suffix = '.avi'
+                elif filetype.lower() == 'mov':
+                    media_resize_suffix = '.mov'
+                elif filetype.lower() == 'mkv':
+                    media_resize_suffix = '.mkv'
+                elif filetype.lower() == 'flv':
+                    media_resize_suffix = '.flv'
+
+            # Check and insert record in the database
+            idunique_image_check = self.db_search_check('MEDIA', 'filepath', filepath)
+
+            try:
+                if bool(idunique_image_check):
+
+                    return
+                else:
+                    # mediatype = 'image'
+                    self.insert_record_media(mediatype, filename, filetype, filepath)
+                    MU = Media_utility()
+                    MUR = Media_utility_resize()
+                    MU_video = Video_utility()
+                    MUR_video = Video_utility_resize()
+                    media_max_num_id = self.DB_MANAGER.max_num_id('MEDIA', 'id_media')
+                    thumb_path = conn.thumb_path()
+                    thumb_path_str = thumb_path['thumb_path']
+                    thumb_resize = conn.thumb_resize()
+                    thumb_resize_str = thumb_resize['thumb_resize']
+                    filenameorig = filename
+                    filename_thumb = str(media_max_num_id) + "_" + filename + media_thumb_suffix
+                    filename_resize = str(media_max_num_id) + "_" + filename + media_resize_suffix
+                    filepath_thumb = filename_thumb
+                    filepath_resize = filename_resize
+                    self.SORT_ITEMS_CONVERTED = []
+
+                    try:
+                        if mediatype == 'video':
+                            vcap = cv2.VideoCapture(filepath)
                             res, im_ar = vcap.read()
-                        im_ar = cv2.resize(im_ar, (100, 100), 0, 0, cv2.INTER_LINEAR)
-                        # to save we have two options
-                        outputfile = '{}.png'.format(os.path.dirname(filepath) + '/' + filename)
-                        cv2.imwrite(outputfile, im_ar)
-                        MU_video.resample_images(media_max_num_id, outputfile, filenameorig, thumb_path_str,
-                                                 media_thumb_suffix)
-                        MUR_video.resample_images(media_max_num_id, filepath, filenameorig, thumb_resize_str,
-                                                  media_resize_suffix)
-                    else:
-                        MU.resample_images(media_max_num_id, filepath, filenameorig, thumb_path_str, media_thumb_suffix)
-                        MUR.resample_images(media_max_num_id, filepath, filenameorig, thumb_resize_str,
-                                            media_resize_suffix)
-                except Exception as e:
-                    QMessageBox.warning(self, "Cucu", str(e), QMessageBox.Ok)
-                self.insert_record_mediathumb(media_max_num_id, mediatype, filename, filename_thumb, filetype,
-                                              filepath_thumb, filepath_resize)
+                            while im_ar.mean() < 1 and res:
+                                res, im_ar = vcap.read()
+                            im_ar = cv2.resize(im_ar, (100, 100), 0, 0, cv2.INTER_LINEAR)
+                            # to save we have two options
+                            outputfile = '{}.png'.format(os.path.dirname(filepath) + '/' + filename)
+                            cv2.imwrite(outputfile, im_ar)
+                            MU_video.resample_images(media_max_num_id, outputfile, filenameorig, thumb_path_str,
+                                                     media_thumb_suffix)
+                            MUR_video.resample_images(media_max_num_id, filepath, filenameorig, thumb_resize_str,
+                                                      media_resize_suffix)
+                        else:
+                            MU.resample_images(media_max_num_id, filepath, filenameorig, thumb_path_str, media_thumb_suffix)
+                            MUR.resample_images(media_max_num_id, filepath, filenameorig, thumb_resize_str,
+                                                media_resize_suffix)
+                    except Exception as e:
+                        QMessageBox.warning(self, "Cucu", str(e), QMessageBox.Ok)
+                    self.insert_record_mediathumb(media_max_num_id, mediatype, filename, filename_thumb, filetype,
+                                                  filepath_thumb, filepath_resize)
 
-                item = QListWidgetItem(str(filenameorig))
-                item.setData(Qt.UserRole, str(media_max_num_id))
-                icon = QIcon(str(thumb_path_str) + filepath_thumb)
-                item.setIcon(icon)
-                self.iconListWidget.addItem(item)
+                    item = QListWidgetItem(str(filenameorig))
+                    item.setData(Qt.UserRole, str(media_max_num_id))
+                    icon = QIcon(str(thumb_path_str) + filepath_thumb)
+                    item.setIcon(icon)
+                    self.iconListWidget.addItem(item)
 
-            self.assignTags_reperti(item)
+                self.assignTags_reperti(item)
 
 
 
-        except:
-            if self.L == 'it':
-                QMessageBox.warning(self, "Warning", "controlla che il nome del file non abbia caratteri speciali",
-                                    QMessageBox.Ok)
-            if self.L == 'de':
-                QMessageBox.warning(self, "Warning", "prüfen, ob der Dateiname keine Sonderzeichen enthält",
-                                    QMessageBox.Ok)
-            else:
-                QMessageBox.warning(self, "Warning", "check that the file name has no special characters",
-                                    QMessageBox.Ok)
+            except:
+                if self.L == 'it':
+                    QMessageBox.warning(self, "Warning", "controlla che il nome del file non abbia caratteri speciali",
+                                        QMessageBox.Ok)
+                if self.L == 'de':
+                    QMessageBox.warning(self, "Warning", "prüfen, ob der Dateiname keine Sonderzeichen enthält",
+                                        QMessageBox.Ok)
+                else:
+                    QMessageBox.warning(self, "Warning", "check that the file name has no special characters",
+                                        QMessageBox.Ok)
 
     def db_search_check(self, table_class, field, value):
         self.table_class = table_class
@@ -1444,6 +1452,94 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         search_dict = u.remove_empty_items_fr_dict(search_dict)
         res = self.DB_MANAGER.query_bool(search_dict, self.table_class)
         return res
+
+    def on_pushButton_removetags_pressed(self):
+        def r_id():
+            sito = self.comboBox_sito.currentText()
+
+            record_us_list=[]
+            nv = self.lineEdit_num_inv.text()
+            # for sing_tags in tags_list:
+            search_dict = {'sito': "'" + str(sito) + "'",
+                           'numero_inventario': "'" + str(nv) + "'"
+                           }
+            j = self.DB_MANAGER.query_bool(search_dict, 'INVENTARIO_MATERIALI')
+            record_us_list.append(j)
+            # QMessageBox.information(self, 'search db', str(record_us_list))
+            us_list = []
+            for r in record_us_list:
+                a=r[0].id_invmat
+            #QMessageBox.information(self,'ok',str(a))# QMessageBox.information(self, "Scheda US", str(us_list), QMessageBox.Ok)
+            return a
+
+        if not bool(self.iconListWidget.selectedItems()):
+            if self.L == 'it':
+
+                msg = QMessageBox.warning(self, "Attenzione!!!",
+                                          "devi selezionare prima l'immagine",
+                                          QMessageBox.Ok)
+
+            elif self.L == 'de':
+
+                msg = QMessageBox.warning(self, "Warnung",
+                                          "moet je eerst de afbeelding selecteren",
+                                          QMessageBox.Ok)
+            else:
+
+                msg = QMessageBox.warning(self, "Warning",
+                                          "you must first select an image",
+                                          QMessageBox.Ok)
+        else:
+            if self.L == 'it':
+                msg = QMessageBox.warning(self, "Warning",
+                                          "Vuoi veramente cancellare i tags dalle thumbnail selezionate? \n L'azione è irreversibile",
+                                          QMessageBox.Ok | QMessageBox.Cancel)
+                if msg == QMessageBox.Cancel:
+                    QMessageBox.warning(self, "Messaggio!!!", "Azione Annullata!")
+                else:
+                    items_selected = self.iconListWidget.selectedItems()
+                for item in items_selected:
+                    id_orig_item = item.text()  # return the name of original file
+
+                    # s = self.iconListWidget.item(0, 0).text()
+                    self.DB_MANAGER.remove_tags_from_db_sql_scheda(r_id(), id_orig_item)
+                    row = self.iconListWidget.row(item)
+                    self.iconListWidget.takeItem(row)
+                QMessageBox.warning(self, "Info", "Tags rimossi!")
+            elif self.L == 'de':
+                msg = QMessageBox.warning(self, "Warning",
+                                          "Wollen Sie wirklich die Tags aus den ausgewählten Miniaturbildern löschen? \n Die Aktion ist unumkehrbar",
+                                          QMessageBox.Ok | QMessageBox.Cancel)
+                if msg == QMessageBox.Cancel:
+                    QMessageBox.warning(self, "Warnung", "Azione Annullata!")
+                else:
+                    items_selected = self.iconListWidget.selectedItems()
+                for item in items_selected:
+                    id_orig_item = item.text()  # return the name of original file
+
+                    # s = self.iconListWidget.item(0, 0).text()
+                    self.DB_MANAGER.remove_tags_from_db_sql_scheda(r_id(), id_orig_item)
+                    row = self.iconListWidget.row(item)
+                    self.iconListWidget.takeItem(row)
+                QMessageBox.warning(self, "Info", "Tags entfernt")
+
+            else:
+                msg = QMessageBox.warning(self, "Warning",
+                                          "Do you really want to delete the tags from the selected thumbnails? \n The action is irreversible",
+                                          QMessageBox.Ok | QMessageBox.Cancel)
+                if msg == QMessageBox.Cancel:
+                    QMessageBox.warning(self, "Warning", "Action cancelled")
+                else:
+                    items_selected = self.iconListWidget.selectedItems()
+                for item in items_selected:
+                    id_orig_item = item.text()  # return the name of original file
+
+                    #s = self.iconListWidget.item(0, 0).text()
+                    self.DB_MANAGER.remove_tags_from_db_sql_scheda(r_id(),id_orig_item)
+                    row = self.iconListWidget.row(item)
+                    self.iconListWidget.takeItem(row)  # remove the item from the list
+
+                QMessageBox.warning(self, "Info", "Tags removed")
     def loadMediaPreview(self, mode=0):
         self.iconListWidget.clear()
         conn = Connection()
