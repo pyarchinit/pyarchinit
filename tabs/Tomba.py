@@ -1041,7 +1041,252 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
                     self.iconListWidget.takeItem(row)  # remove the item from the list
 
                 QMessageBox.warning(self, "Info", "Tags removed")
+    def on_pushButton_all_images_pressed(self):
+        record_us_list = self.DB_MANAGER.query('MEDIA_THUMB')
 
+        # Verifica se record_us_list è vuota
+        if not record_us_list:
+            QMessageBox.information(self, "Informazione", "Non ci sono immagini da mostrare.")
+            return  # Termina la funzione
+
+        conn = Connection()
+
+
+        thumb_path = conn.thumb_path()
+        thumb_path_str = thumb_path['thumb_path']
+
+        # Inizializza la QListWidget fuori dal ciclo
+        self.new_list_widget = QListWidget()
+        ##self.new_list_widget.setFixedSize(200, 300)
+        self.new_list_widget.setSelectionMode(QAbstractItemView.SingleSelection)  # Permette selezioni multiple
+
+
+        # Aggiungi un pulsante "Fatto"
+        header_item = QListWidgetItem("Le righe selezionate in giallo indicano immagini non taggate ")
+        # Puoi utilizzare il seguente codice per cambiare l'aspetto dell'header
+        header_item.setBackground(QColor('lightgrey'))
+        header_item.setFlags(header_item.flags() & ~Qt.ItemIsSelectable)  # rendi l'item non selezionabile
+        self.new_list_widget.addItem(header_item)
+        for i in record_us_list:
+            search_dict = {'id_media': "'" + str(i.id_media) + "'"}
+            u = Utility()
+            search_dict = u.remove_empty_items_fr_dict(search_dict)
+            mediathumb_data = self.DB_MANAGER.query_bool(search_dict, "MEDIA_THUMB")
+            thumb_path = str(mediathumb_data[0].filepath)
+
+            # Crea un nuovo dizionario di ricerca per MEDIATOENTITY
+            search_dict = {'id_media': "'" + str(i.id_media) + "'", 'entity_type': "'TOMBA'"}
+            search_dict = u.remove_empty_items_fr_dict(search_dict)
+
+            mediatoentity_data = self.DB_MANAGER.query_bool(search_dict, "MEDIATOENTITY")
+
+            #
+
+            # Crea l'elemento QListWidgetItem
+            item = QListWidgetItem(str(i.media_filename))
+            item.setData(Qt.UserRole, str(i.media_filename))
+            icon = QIcon(thumb_path_str + thumb_path)
+            item.setIcon(icon)
+
+
+
+            # Se l'elemento corrisponde, imposta lo sfondo in giallo e mostra ulteriori informazioni
+            if mediatoentity_data:
+                item.setBackground(QColor("white"))
+
+                # Crea un nuovo dizionario di ricerca per l'US
+                search_dict_us = {'id_tomba': "'" + str(mediatoentity_data[0].id_entity) + "'"}
+                search_dict_us = u.remove_empty_items_fr_dict(search_dict_us)
+
+                # Query the US table
+                us_data = self.DB_MANAGER.query_bool(search_dict_us, "TOMBA")
+
+                # Se l'US esiste, aggiungi il suo nome all'elemento
+                if us_data:
+                    item.setText(item.text() + " - Tomba: " + str(us_data[0].nr_scheda_taf))
+                else:
+                    item.setText(item.text() + " - Tomba: Non trovato")
+
+            else:
+                item.setBackground(QColor("yellow"))
+
+            # Aggiungi l'elemento alla QListWidget qui
+            self.new_list_widget.addItem(item)
+
+        #QMessageBox.information(self, 'ok', str(i) + '\n' + str(thumb_path) + '\n' + str(item))
+        done_button = QPushButton("TAG")
+
+        def update_done_button():
+            if not self.new_list_widget.selectedItems():
+                done_button.setHidden(True)
+            else:
+                done_button.setHidden(False)
+                done_button.clicked.connect(self.on_done_selecting_all)
+
+        self.new_list_widget.itemSelectionChanged.connect(update_done_button)
+        # Aggiungi la QListWidget e il pulsante a un layout
+        # Initialize a variable to keep track of the maximum width
+        max_width = 0
+
+        # Iterate over all items in the QListWidget
+        for i in range(self.new_list_widget.count()):
+            item = self.new_list_widget.item(i)
+
+            # Get the width of the item
+            item_width = self.new_list_widget.visualItemRect(item).width()
+
+            # Update the maximum width if this item is wider
+            if item_width > max_width:
+                max_width = item_width
+
+        # Set the width of the QListWidget
+        self.new_list_widget.setFixedWidth(max_width)
+        layout = QVBoxLayout()
+        # Crea un campo di input per la ricerca
+        self.search_field = QLineEdit()
+        self.search_field.setPlaceholderText("Cerca...")
+
+        # Connette il campo di ricerca a una funzione di filtraggio
+        self.search_field.textChanged.connect(self.filter_items)
+
+        # Aggiungi il campo di ricerca al layout sopra la QListWidget
+        layout.insertWidget(0, self.search_field)
+        layout.addWidget(self.new_list_widget)
+        layout.addWidget(done_button)
+
+        # Imposta il fattore di estensione per i widget nel layout
+        # Il primo parametro è l'indice del widget e il secondo parametro è il fattore di estensione
+        # In questo caso, new_list_widget ha un indice di 0 e done_button ha un indice di 1
+        layout.setStretchFactor(self.new_list_widget, 5)  # new_list_widget avrà 3 volte più spazio di done_button
+        layout.setStretchFactor(done_button, 1)  # done_button avrà 1/3 dello spazio di new_list_widget
+
+        # Imposta il layout sulla tua finestra o su un altro widget
+        self.setLayout(layout)
+
+        # Crea un nuovo widget per contenere la QListWidget e il pulsante, e applica il layout
+        self.widget = QWidget()
+        self.widget.setLayout(layout)
+        self.widget.adjustSize()
+        self.widget.show()
+
+    def filter_items(self):
+        # Ottieni il testo corrente nel campo di ricerca
+        search_text = self.search_field.text()
+
+        # Per ogni item nella QListWidget
+        for i in range(self.new_list_widget.count()):
+            item = self.new_list_widget.item(i)
+
+            # Se l'item contiene il testo di ricerca, mostralo
+            if search_text.lower() in item.text().lower():
+                item.setHidden(False)
+            else:  # Altrimenti, nascondilo
+                item.setHidden(True)
+    def on_done_selecting_all(self):
+
+        def r_list():
+            sito = self.comboBox_sito.currentText()
+            #area = self.comboBox_area.currentText()
+            us = self.lineEdit_nr_scheda.text()
+            record_us_list=[]
+            #for sing_tags in selected_us:
+            search_dict = {'sito': "'" + str(sito)+ "'",
+                           #'area': "'" + str(area) + "'",
+                           'nr_scheda_taf': "'" + str(us) + "'"
+                           }
+            j = self.DB_MANAGER.query_bool(search_dict, 'TOMBA')
+            record_us_list.append(j)
+            us_list = []
+            for r in record_us_list:
+                us_list.append([r[0].id_tomba, 'TOMBA', 'tomba_table'])
+            # QMessageBox.information(self, "Scheda US", str(us_list), QMessageBox.Ok)
+            return us_list
+
+        items_selected = self.new_list_widget.selectedItems()
+        for item in items_selected:
+            for us_data in r_list():
+                id_orig_item = item.text()  # return the name of original file
+                search_dict = {'filename': "'" + str(id_orig_item) + "'"}
+                media_data = self.DB_MANAGER.query_bool(search_dict, 'MEDIA')
+
+                # Check if media_data is not empty
+                if media_data:
+                    # Check if this image is already in the database
+                    search_dict = {'id_media': "'" + str(media_data[0].id_media) + "'"}
+                    existing_entry = self.DB_MANAGER.query_bool(search_dict, 'MEDIATOENTITY')
+
+                    # If this image is already in the database, continue with the next item
+                    if existing_entry:
+                        continue
+
+                    self.insert_mediaToEntity_rec(us_data[0], us_data[1], us_data[2], media_data[0].id_media,
+                                                  media_data[0].filepath, media_data[0].filename)
+                else:
+                    pass
+                    #QMessageBox.warning(self, "Attenzione",
+                                        #"Immagine già taggata: " + str(id_orig_item))
+                    # After tagging the image, update the corresponding QListWidgetItem
+
+        # After tagging, update the iconListWidget
+        self.fill_iconListWidget()
+        self.update_list_widget_item(item)
+    def update_list_widget_item(self,item):
+        #items_selected = self.new_list_widg)et.selectedItems(
+        search_dict = {'media_name': "'" + str(item.text()) + "'"}
+        u = Utility()
+        search_dict = u.remove_empty_items_fr_dict(search_dict)
+        mediatoentity_data = self.DB_MANAGER.query_bool(search_dict, "MEDIATOENTITY")
+
+        # Update the QListWidgetItem based on whether it matches
+        if mediatoentity_data:
+            item.setBackground(QColor("white"))
+
+            # Create a new search dictionary for the US
+            search_dict_us = {'id_us': "'" + str(mediatoentity_data[0].id_entity) + "'"}
+            search_dict_us = u.remove_empty_items_fr_dict(search_dict_us)
+
+            # Query the US table
+            us_data = self.DB_MANAGER.query_bool(search_dict_us, "TOMBA")
+
+            # If the US exists, add its name to the item
+            if us_data:
+                item.setText(item.text() + " - US: " + str(us_data[0].nr_scheda_taf))
+            else:
+                item.setText(item.text() + " - US: Not found")
+
+        else:
+            item.setBackground(QColor("yellow"))
+
+    def fill_iconListWidget(self):
+        #self.iconListWidget.clear()  # pulisci prima il widget
+        items_selected = self.new_list_widget.selectedItems()
+        for item in items_selected:
+            item.text()
+        # Prendi i dati dal tuo database o dalla tua fonte dati
+        #data = self.DB_MANAGER.query('MEDIA_THUMB')
+        search_dict = {'media_filename': "'" + str(item.text()) + "'"}
+        u = Utility()
+        search_dict = u.remove_empty_items_fr_dict(search_dict)
+        data = self.DB_MANAGER.query_bool(search_dict, "MEDIA_THUMB")
+        #QMessageBox.information(self, 'ok',str(item.text()))
+        conn = Connection()
+
+        thumb_path = conn.thumb_path()
+        thumb_path_str = thumb_path['thumb_path']
+        # crea un nuovo QListWidgetItem
+        if data:
+            list_item = QListWidgetItem(data[0].media_filename)  # utilizza il nome del file come testo dell'elemento
+            list_item.setData(Qt.UserRole,data[0].media_filename)  # utilizza il nome del file come dati personalizzati dell'elemento
+
+            # crea una QIcon con l'immagine
+            #icon = QIcon(thumb_path_str + thumb_path)
+            icon = QIcon(thumb_path_str + data[0].filepath)  # utilizza il percorso del file per creare l'icona
+            #QMessageBox.information(self,'ok',str(thumb_path_str + data[0].filepath))
+            # imposta l'icona dell'elemento
+            list_item.setIcon(icon)
+
+            # aggiungi l'elemento al QListWidget
+            self.iconListWidget.addItem(list_item)
     def loadMediaPreview(self):
         self.iconListWidget.clear()
         conn = Connection()
