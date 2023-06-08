@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>692</width>
-    <height>901</height>
+    <width>1027</width>
+    <height>833</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -1386,6 +1386,26 @@
          <string>Dati descrittivi</string>
         </attribute>
         <layout class="QGridLayout" name="gridLayout_11">
+         <item row="0" column="2">
+          <widget class="QPushButton" name="pushButton_removetags">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>20</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="icon">
+            <iconset resource="../../resources/resources.qrc">
+             <normaloff>:/icons/remove_tag.png</normaloff>:/icons/remove_tag.png</iconset>
+           </property>
+          </widget>
+         </item>
          <item row="2" column="0">
           <layout class="QGridLayout" name="gridLayout_10">
            <item row="0" column="0">
@@ -1734,13 +1754,13 @@ p, li { white-space: pre-wrap; }
            </item>
           </layout>
          </item>
-         <item row="1" column="1" rowspan="2">
+         <item row="1" column="2" rowspan="2">
           <widget class="QListWidget" name="iconListWidget"/>
          </item>
          <item row="0" column="1">
-          <widget class="QPushButton" name="pushButton_removetags">
+          <widget class="QPushButton" name="pushButton_all_images">
            <property name="sizePolicy">
-            <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+            <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
@@ -1753,7 +1773,7 @@ p, li { white-space: pre-wrap; }
            </property>
            <property name="icon">
             <iconset resource="../../resources/resources.qrc">
-             <normaloff>:/icons/remove_tag.png</normaloff>:/icons/remove_tag.png</iconset>
+             <normaloff>:/icons/photo2.png</normaloff>:/icons/photo2.png</iconset>
            </property>
           </widget>
          </item>
