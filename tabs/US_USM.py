@@ -2912,7 +2912,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             search_dict = {'id_media': "'" + str(i.id_media) + "'", 'entity_type': "'US'"}
             search_dict = u.remove_empty_items_fr_dict(search_dict)
 
-            mediatoentity_data = self.DB_MANAGER.query_bool(search_dict, "MEDIATOENTITY")
+
 
             #
 
@@ -2922,30 +2922,30 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             icon = QIcon(thumb_path_str + thumb_path)
             item.setIcon(icon)
 
-
-
+            mediatoentity_data = self.DB_MANAGER.query_bool(search_dict, "MEDIATOENTITY")
             # Se l'elemento corrisponde, imposta lo sfondo in giallo e mostra ulteriori informazioni
-            if mediatoentity_data:
-                item.setBackground(QColor("white"))
+            for g in mediatoentity_data:
+                if mediatoentity_data:
+                    item.setBackground(QColor("white"))
 
-                # Crea un nuovo dizionario di ricerca per l'US
-                search_dict_us = {'id_us': "'" + str(mediatoentity_data[0].id_entity) + "'"}
-                search_dict_us = u.remove_empty_items_fr_dict(search_dict_us)
+                    # Crea un nuovo dizionario di ricerca per l'US
+                    search_dict_us = {'id_us': "'" + str(g.id_entity) + "'"}
+                    search_dict_us = u.remove_empty_items_fr_dict(search_dict_us)
 
-                # Query the US table
-                us_data = self.DB_MANAGER.query_bool(search_dict_us, "US")
+                    # Query the US table
+                    us_data = self.DB_MANAGER.query_bool(search_dict_us, "US")
 
-                # Se l'US esiste, aggiungi il suo nome all'elemento
-                if us_data:
-                    item.setText(item.text() + " - US: " + str(us_data[0].us))
+                    # Se l'US esiste, aggiungi il suo nome all'elemento
+                    if us_data:
+                        item.setText(item.text() + " - US: " + str(us_data[0].us))
+                    else:
+                        item.setText(item.text() + " - US: Non trovato")
+
                 else:
-                    item.setText(item.text() + " - US: Non trovato")
+                    item.setBackground(QColor("yellow"))
 
-            else:
-                item.setBackground(QColor("yellow"))
-
-            # Aggiungi l'elemento alla QListWidget qui
-            self.new_list_widget.addItem(item)
+                # Aggiungi l'elemento alla QListWidget qui
+                self.new_list_widget.addItem(item)
 
         #QMessageBox.information(self, 'ok', str(i) + '\n' + str(thumb_path) + '\n' + str(item))
         done_button = QPushButton("TAG")
