@@ -1603,7 +1603,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
 
                 # Se l'US esiste, aggiungi il suo nome all'elemento
                 if us_data:
-                    item.setText(item.text() + " - Manufatto: " + str(us_data[0].nr_scheda_taf))
+                    item.setText(item.text() + " - Manufatto: " + str(us_data[0].numero_inventario))
                 else:
                     item.setText(item.text() + " - Manufatto: Non trovato")
 
@@ -1694,7 +1694,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                            #'area': "'" + str(area) + "'",
                            'numero_inventario': "'" + str(nv) + "'"
                            }
-            j = self.DB_MANAGER.query_bool(search_dict, 'INVETARIO_MATERIALI')
+            j = self.DB_MANAGER.query_bool(search_dict, 'INVENTARIO_MATERIALI')
             record_us_list.append(j)
             us_list = []
             for r in record_us_list:
@@ -1746,7 +1746,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             search_dict_us = u.remove_empty_items_fr_dict(search_dict_us)
 
             # Query the US table
-            us_data = self.DB_MANAGER.query_bool(search_dict_us, "INVETARIO_MATERIALI")
+            us_data = self.DB_MANAGER.query_bool(search_dict_us, "INVENTARIO_MATERIALI")
 
             # If the US exists, add its name to the item
             if us_data:
