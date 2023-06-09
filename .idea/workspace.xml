@@ -4,11 +4,13 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="13d9711e-af47-4516-9a74-091c329d410d" name="Changes" comment="V4.5.1">
-      <change afterPath="$PROJECT_DIR$/gui/ui/pippackageinstaller.ui" afterDir="false" />
+    <list default="true" id="13d9711e-af47-4516-9a74-091c329d410d" name="Changes" comment="V4.5.2">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gui/ui/US_USM.ui" beforeDir="false" afterPath="$PROJECT_DIR$/gui/ui/US_USM.ui" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/db/pyarchinit_db_manager.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/db/pyarchinit_db_manager.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tabs/Inv_Materiali.py" beforeDir="false" afterPath="$PROJECT_DIR$/tabs/Inv_Materiali.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tabs/Tomba.py" beforeDir="false" afterPath="$PROJECT_DIR$/tabs/Tomba.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tabs/US_USM.py" beforeDir="false" afterPath="$PROJECT_DIR$/tabs/US_USM.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tabs/pyarchinit_Pottery_mainapp.py" beforeDir="false" afterPath="$PROJECT_DIR$/tabs/pyarchinit_Pottery_mainapp.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -121,27 +123,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1636816115136</updated>
-    </task>
-    <task id="LOCAL-00030" summary="v3.9.19">
-      <created>1651472386957</created>
-      <option name="number" value="00030" />
-      <option name="presentableId" value="LOCAL-00030" />
-      <option name="project" value="LOCAL" />
-      <updated>1651472386958</updated>
-    </task>
-    <task id="LOCAL-00031" summary="v4.0.0">
-      <created>1651492155682</created>
-      <option name="number" value="00031" />
-      <option name="presentableId" value="LOCAL-00031" />
-      <option name="project" value="LOCAL" />
-      <updated>1651492155682</updated>
-    </task>
-    <task id="LOCAL-00032" summary="v4.0.0">
-      <created>1651492952651</created>
-      <option name="number" value="00032" />
-      <option name="presentableId" value="LOCAL-00032" />
-      <option name="project" value="LOCAL" />
-      <updated>1651492952651</updated>
     </task>
     <task id="LOCAL-00033" summary="v4.0.0">
       <created>1651494049907</created>
@@ -465,7 +446,28 @@
       <option name="project" value="LOCAL" />
       <updated>1686221246065</updated>
     </task>
-    <option name="localTasksCounter" value="79" />
+    <task id="LOCAL-00079" summary="V4.5.2">
+      <created>1686266776951</created>
+      <option name="number" value="00079" />
+      <option name="presentableId" value="LOCAL-00079" />
+      <option name="project" value="LOCAL" />
+      <updated>1686266776951</updated>
+    </task>
+    <task id="LOCAL-00080" summary="V4.5.2">
+      <created>1686292911624</created>
+      <option name="number" value="00080" />
+      <option name="presentableId" value="LOCAL-00080" />
+      <option name="project" value="LOCAL" />
+      <updated>1686292911624</updated>
+    </task>
+    <task id="LOCAL-00081" summary="V4.5.2">
+      <created>1686295993562</created>
+      <option name="number" value="00081" />
+      <option name="presentableId" value="LOCAL-00081" />
+      <option name="project" value="LOCAL" />
+      <updated>1686295993562</updated>
+    </task>
+    <option name="localTasksCounter" value="82" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -496,7 +498,6 @@
     <ignored-roots>
       <path value="$PROJECT_DIR$/ext-libs/totalopenstation-0.5.2-py3.9.egg/totalopenstation_" />
     </ignored-roots>
-    <MESSAGE value="readme update" />
     <MESSAGE value="v4.3.2_seper" />
     <MESSAGE value="import csv for thesaurus" />
     <MESSAGE value="fix english automatic form" />
@@ -521,7 +522,8 @@
     <MESSAGE value="v4.5.0" />
     <MESSAGE value="Add remove and assign tags from SU,ToMB and poteery and material forms" />
     <MESSAGE value="V4.5.1" />
-    <option name="LAST_COMMIT_MESSAGE" value="V4.5.1" />
+    <MESSAGE value="V4.5.2" />
+    <option name="LAST_COMMIT_MESSAGE" value="V4.5.2" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -543,7 +545,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/tabs/US_USM.py</url>
-          <line>3116</line>
+          <line>3237</line>
           <option name="timeStamp" value="5" />
         </line-breakpoint>
       </breakpoints>

@@ -21,7 +21,7 @@
 
 import os
 import sqlalchemy as db
-
+import math
 from sqlalchemy.sql.expression import *
 from sqlalchemy.event import listen
 import psycopg2
@@ -1539,6 +1539,28 @@ class Pyarchinit_db_management(object):
         res = self.engine.execute(sql_query_string)
         rows= res.fetchall()
         return rows
+
+    def get_total_pages(self, filter_query, page_size):
+        # Esegui una query per contare il numero totale di record che corrispondono al filtro
+        sql_query_string = (
+                               "SELECT COUNT(*) FROM media_thumb_table as a, media_to_entity_table as b  %s") % filter_query
+        res = self.engine.execute(sql_query_string)
+        total_records = res.scalar()  # .scalar() restituisce il primo elemento della prima riga, che in questo caso è il conteggio
+
+        # Calcola e restituisci il numero totale di pagine
+        total_pages = math.ceil(total_records / page_size)
+        return total_pages
+
+    def select_thumb(self, filter_query, page_number, page_size):
+        start_index = (page_number - 1) * page_size
+        sql_query_string = (
+            "SELECT * FROM media_thumb_table as a, media_to_entity_table as b us_table as c {} "
+            "LIMIT {} OFFSET {}"
+        ).format(filter_query, page_size, start_index)
+        res = self.engine.execute(sql_query_string)
+        rows = res.fetchall()
+        return rows
+
     def select_ra_from_db_sql(self,sito,area,us):
         sql_query_string = ("SELECT n_reperto from inventario_materiali_table WHERE sito = '%s' and area = '%s' and us = '%s'")%(sito,area,us) 
         
