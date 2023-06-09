@@ -21,12 +21,12 @@
 """
 from __future__ import absolute_import
 
-import os
+import math
 from datetime import date
 import platform
 import cv2
 import numpy as np
-import sys
+import functools
 from builtins import range
 from builtins import str
 from qgis.PyQt.QtCore import Qt, QSize, QVariant,QFileInfo
@@ -1472,7 +1472,8 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             #QMessageBox.information(self,'ok',str(a))# QMessageBox.information(self, "Scheda US", str(us_list), QMessageBox.Ok)
             return a
 
-        if not bool(self.iconListWidget.selectedItems()):
+        items_selected = self.iconListWidget.selectedItems()
+        if not bool(items_selected):
             if self.L == 'it':
 
                 msg = QMessageBox.warning(self, "Attenzione!!!",
@@ -1497,15 +1498,15 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                 if msg == QMessageBox.Cancel:
                     QMessageBox.warning(self, "Messaggio!!!", "Azione Annullata!")
                 else:
-                    items_selected = self.iconListWidget.selectedItems()
-                for item in items_selected:
-                    id_orig_item = item.text()  # return the name of original file
+                    # items_selected = self.iconListWidget.selectedItems()
+                    for item in items_selected:
+                        id_orig_item = item.text()  # return the name of original file
 
-                    # s = self.iconListWidget.item(0, 0).text()
-                    self.DB_MANAGER.remove_tags_from_db_sql_scheda(r_id(), id_orig_item)
-                    row = self.iconListWidget.row(item)
-                    self.iconListWidget.takeItem(row)
-                QMessageBox.warning(self, "Info", "Tags rimossi!")
+                        # s = self.iconListWidget.item(0, 0).text()
+                        self.DB_MANAGER.remove_tags_from_db_sql_scheda(r_id(), id_orig_item)
+                        row = self.iconListWidget.row(item)
+                        self.iconListWidget.takeItem(row)
+                    QMessageBox.warning(self, "Info", "Tags rimossi!")
             elif self.L == 'de':
                 msg = QMessageBox.warning(self, "Warning",
                                           "Wollen Sie wirklich die Tags aus den ausgewählten Miniaturbildern löschen? \n Die Aktion ist unumkehrbar",
@@ -1513,15 +1514,15 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                 if msg == QMessageBox.Cancel:
                     QMessageBox.warning(self, "Warnung", "Azione Annullata!")
                 else:
-                    items_selected = self.iconListWidget.selectedItems()
-                for item in items_selected:
-                    id_orig_item = item.text()  # return the name of original file
+                    # items_selected = self.iconListWidget.selectedItems()
+                    for item in items_selected:
+                        id_orig_item = item.text()  # return the name of original file
 
-                    # s = self.iconListWidget.item(0, 0).text()
-                    self.DB_MANAGER.remove_tags_from_db_sql_scheda(r_id(), id_orig_item)
-                    row = self.iconListWidget.row(item)
-                    self.iconListWidget.takeItem(row)
-                QMessageBox.warning(self, "Info", "Tags entfernt")
+                        # s = self.iconListWidget.item(0, 0).text()
+                        self.DB_MANAGER.remove_tags_from_db_sql_scheda(r_id(), id_orig_item)
+                        row = self.iconListWidget.row(item)
+                        self.iconListWidget.takeItem(row)
+                    QMessageBox.warning(self, "Info", "Tags entfernt")
 
             else:
                 msg = QMessageBox.warning(self, "Warning",
@@ -1530,90 +1531,32 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                 if msg == QMessageBox.Cancel:
                     QMessageBox.warning(self, "Warning", "Action cancelled")
                 else:
-                    items_selected = self.iconListWidget.selectedItems()
-                for item in items_selected:
-                    id_orig_item = item.text()  # return the name of original file
+                    # items_selected = self.iconListWidget.selectedItems()
+                    for item in items_selected:
+                        id_orig_item = item.text()  # return the name of original file
 
-                    #s = self.iconListWidget.item(0, 0).text()
-                    self.DB_MANAGER.remove_tags_from_db_sql_scheda(r_id(),id_orig_item)
-                    row = self.iconListWidget.row(item)
-                    self.iconListWidget.takeItem(row)  # remove the item from the list
+                        # s = self.iconListWidget.item(0, 0).text()
+                        self.DB_MANAGER.remove_tags_from_db_sql_scheda(r_id(), id_orig_item)
+                        row = self.iconListWidget.row(item)
+                        self.iconListWidget.takeItem(row)  # remove the item from the list
 
-                QMessageBox.warning(self, "Info", "Tags removed")
+                    QMessageBox.warning(self, "Info", "Tags removed")
 
     def on_pushButton_all_images_pressed(self):
         record_us_list = self.DB_MANAGER.query('MEDIA_THUMB')
 
+        et = {'entity_type': "'REPERTO'"}
+        ser = self.DB_MANAGER.query_bool(et, 'MEDIATOENTITY')
         # Verifica se record_us_list è vuota
-        if not record_us_list:
+        if not record_us_list and not ser:
             QMessageBox.information(self, "Informazione", "Non ci sono immagini da mostrare.")
             return  # Termina la funzione
 
-        conn = Connection()
-
-
-        thumb_path = conn.thumb_path()
-        thumb_path_str = thumb_path['thumb_path']
-
         # Inizializza la QListWidget fuori dal ciclo
         self.new_list_widget = QListWidget()
-        ##self.new_list_widget.setFixedSize(200, 300)
+        # ##self.new_list_widget.setFixedSize(200, 300)
         self.new_list_widget.setSelectionMode(QAbstractItemView.SingleSelection)  # Permette selezioni multiple
 
-
-        # Aggiungi un pulsante "Fatto"
-        header_item = QListWidgetItem("Le righe selezionate in giallo indicano immagini non taggate ")
-        # Puoi utilizzare il seguente codice per cambiare l'aspetto dell'header
-        header_item.setBackground(QColor('lightgrey'))
-        header_item.setFlags(header_item.flags() & ~Qt.ItemIsSelectable)  # rendi l'item non selezionabile
-        self.new_list_widget.addItem(header_item)
-        for i in record_us_list:
-            search_dict = {'id_media': "'" + str(i.id_media) + "'"}
-            u = Utility()
-            search_dict = u.remove_empty_items_fr_dict(search_dict)
-            mediathumb_data = self.DB_MANAGER.query_bool(search_dict, "MEDIA_THUMB")
-            thumb_path = str(mediathumb_data[0].filepath)
-
-            # Crea un nuovo dizionario di ricerca per MEDIATOENTITY
-            search_dict = {'id_media': "'" + str(i.id_media) + "'", 'entity_type': "'REPERTO'"}
-            search_dict = u.remove_empty_items_fr_dict(search_dict)
-
-            mediatoentity_data = self.DB_MANAGER.query_bool(search_dict, "MEDIATOENTITY")
-
-            #
-
-            # Crea l'elemento QListWidgetItem
-            item = QListWidgetItem(str(i.media_filename))
-            item.setData(Qt.UserRole, str(i.media_filename))
-            icon = QIcon(thumb_path_str + thumb_path)
-            item.setIcon(icon)
-
-
-
-            # Se l'elemento corrisponde, imposta lo sfondo in giallo e mostra ulteriori informazioni
-            if mediatoentity_data:
-                item.setBackground(QColor("white"))
-
-                # Crea un nuovo dizionario di ricerca per l'US
-                search_dict_us = {'id_invmat': "'" + str(mediatoentity_data[0].id_entity) + "'"}
-                search_dict_us = u.remove_empty_items_fr_dict(search_dict_us)
-
-                # Query the US table
-                us_data = self.DB_MANAGER.query_bool(search_dict_us, "INVENTARIO_MATERIALI")
-
-                # Se l'US esiste, aggiungi il suo nome all'elemento
-                if us_data:
-                    item.setText(item.text() + " - Manufatto: " + str(us_data[0].numero_inventario))
-                else:
-                    item.setText(item.text() + " - Manufatto: Non trovato")
-
-            else:
-                item.setBackground(QColor("yellow"))
-
-            # Aggiungi l'elemento alla QListWidget qui
-            self.new_list_widget.addItem(item)
-
-        #QMessageBox.information(self, 'ok', str(i) + '\n' + str(thumb_path) + '\n' + str(item))
         done_button = QPushButton("TAG")
 
         def update_done_button():
@@ -1623,34 +1566,51 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                 done_button.setHidden(False)
                 done_button.clicked.connect(self.on_done_selecting_all)
 
-        self.new_list_widget.itemSelectionChanged.connect(update_done_button)
-        # Aggiungi la QListWidget e il pulsante a un layout
-        # Initialize a variable to keep track of the maximum width
-        max_width = 0
+        self.new_list_widget.itemSelectionChanged.connect(
+            update_done_button)  # Aggiungi un layout per le etichette dei numeri delle pagine
+        self.pageLayout = QHBoxLayout()
+        self.current_page_label = QLabel()  # Creiamo l'etichetta per la pagina corrente
+        self.total_pages_label = QLabel()  # Creiamo l'etichetta per il totale delle pagine
 
-        # Iterate over all items in the QListWidget
-        for i in range(self.new_list_widget.count()):
-            item = self.new_list_widget.item(i)
+        self.pageLayout.addWidget(self.current_page_label)  # Aggiungiamo l'etichetta della pagina corrente al layout
+        self.pageLayout.addWidget(self.total_pages_label)  # Aggiungiamo l'etichetta del totale delle pagine al layout
 
-            # Get the width of the item
-            item_width = self.new_list_widget.visualItemRect(item).width()
+        # Aggiungi un pulsante "Indietro"
+        self.prevButton = QPushButton("<<")
+        self.prevButton.clicked.connect(self.go_to_previous_page)
+        self.pageLayout.addWidget(self.prevButton)
 
-            # Update the maximum width if this item is wider
-            if item_width > max_width:
-                max_width = item_width
+        # Aggiungi le etichette dei numeri delle pagine
+        self.pageLabels = []
+        for i in range(1, 6):
+            label = QLabel(str(i))
+            label.setAlignment(Qt.AlignCenter)
+            label.setMinimumWidth(30)
+            label.setFrameStyle(QFrame.Panel | QFrame.Sunken)
+            label.setMargin(2)
+            label.mousePressEvent = functools.partial(self.on_page_label_clicked, i)
+            self.pageLabels.append(label)
+            self.pageLayout.addWidget(label)
 
-        # Set the width of the QListWidget
-        self.new_list_widget.setFixedWidth(max_width)
+        # Aggiungi un pulsante "Avanti"
+        self.nextButton = QPushButton(">>")
+        self.nextButton.clicked.connect(self.go_to_next_page)
+        self.pageLayout.addWidget(self.nextButton)
+
         layout = QVBoxLayout()
         # Crea un campo di input per la ricerca
         self.search_field = QLineEdit()
         self.search_field.setPlaceholderText("Cerca...")
+        self.current_filter_text = ""
 
-        # Connette il campo di ricerca a una funzione di filtraggio
-        self.search_field.textChanged.connect(self.filter_items)
+        self.page_size = 10  # Numero di immagini per pagina
+        self.current_page = 1  # Pagina corrente
+        self.total_pages = 0  # Numero totale di pagine
 
         # Aggiungi il campo di ricerca al layout sopra la QListWidget
         layout.insertWidget(0, self.search_field)
+
+        layout.addLayout(self.pageLayout)
         layout.addWidget(self.new_list_widget)
         layout.addWidget(done_button)
 
@@ -1669,19 +1629,176 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         self.widget.adjustSize()
         self.widget.show()
 
+        self.load_images()
+
+        # Connette il campo di ricerca a una funzione di filtraggio
+        self.search_field.textChanged.connect(self.filter_items)
+
+    def load_images(self, filter_text=None):
+        conn = Connection()
+        thumb_path = conn.thumb_path()
+        thumb_path_str = thumb_path['thumb_path']
+        u = Utility()
+        # Ottieni tutti i record delle immagini
+        all_images = self.DB_MANAGER.query('MEDIA_THUMB')
+
+        # Ottieni tutte le immagini taggate
+        tagged_images = self.DB_MANAGER.query('MEDIATOENTITY')
+
+        # Ottieni gli id_media di tutte le immagini taggate
+        tagged_ids = [i.id_media for i in tagged_images]
+
+        # Filtra tutte le immagini per ottenere solo quelle non taggate
+        untagged_images = [i for i in all_images if i.id_media not in tagged_ids]
+
+        # Inizializza l'elenco delle immagini 'US' come un duplicato delle immagini non taggate
+        us_images = untagged_images[:]
+
+        for image in all_images:
+            # Crea un nuovo dizionario di ricerca per MEDIATOENTITY
+            search_dict = {'id_media': "'" + str(image.id_media) + "'",
+                           'entity_type': "'REPERTO'"}
+            search_dict = u.remove_empty_items_fr_dict(search_dict)
+
+            # Recupera l'elenco di 'US' associati all'immagine
+            mediatoentity_data = self.DB_MANAGER.query_bool(search_dict, "MEDIATOENTITY")
+
+            # Se l'immagine ha una o più 'US' associate, aggiungila all'elenco
+            if mediatoentity_data:
+                us_images.append(image)
+
+        # A questo punto, 'us_images' dovrebbe contenere tutte le immagini non taggate
+        # e quelle taggate con almeno un 'US', senza duplicati.
+
+
+
+        if filter_text:  # se il filtro è attivo
+            record_us_list = [i for i in record_us_list if filter_text.lower() in i.media_filename.lower()]
+
+        # il resto del tuo codice...
+
+        # Calcola gli indici di inizio e fine per la pagina corrente
+        start_index = (self.current_page - 1) * self.page_size
+        end_index = start_index + self.page_size
+
+        # Ottieni i record delle immagini per la pagina corrente
+        self.record_us_list = us_images[start_index:end_index]
+
+        # Pulisci la QListWidget prima di aggiungere le nuove immagini
+        self.new_list_widget.clear()
+
+        # Aggiungi l'intestazione alla QListWidget
+        header_item = QListWidgetItem(
+            "Le righe selezionate in giallo indicano immagini non taggate\n Da questo strumento solo le righe selezionate gialle posso essere taggate ")
+        header_item.setBackground(QColor('lightgrey'))
+        header_item.setFlags(header_item.flags() & ~Qt.ItemIsSelectable)  # rendi l'item non selezionabile
+        self.new_list_widget.addItem(header_item)
+        # Aggiungi le immagini alla QListWidget
+
+        for i in self.record_us_list:
+            search_dict = {'id_media': "'" + str(i.id_media) + "'"}
+            u = Utility()
+            search_dict = u.remove_empty_items_fr_dict(search_dict)
+            mediathumb_data = self.DB_MANAGER.query_bool(search_dict, "MEDIA_THUMB")
+            thumb_path = str(mediathumb_data[0].filepath)
+
+            # Crea un nuovo dizionario di ricerca per MEDIATOENTITY
+            search_dict = {'id_media': "'" + str(i.id_media) + "'",
+                           'entity_type': "'REPERTO'"}
+            search_dict = u.remove_empty_items_fr_dict(search_dict)
+            # Recupera l'elenco di US associati all'immagine
+            mediatoentity_data = self.DB_MANAGER.query_bool(search_dict, "MEDIATOENTITY")
+            us_list = [str(g.id_entity) for g in
+                       mediatoentity_data]  # Se 'entity_type' è 'US', aggiungi l'id_media a us_images
+            # Rimuovi i duplicati dalla lista convertendola in un set e poi di nuovo in una lista
+            # us_list = list(set(us_list))
+
+            if us_list:
+                # us_list = [g.id_entity for g in mediatoentity_data if 'US' in g.entity_type]
+                item = QListWidgetItem(str(i.media_filename))
+                item.setData(Qt.UserRole, str(i.media_filename))
+                icon = QIcon(thumb_path_str + thumb_path)
+                item.setIcon(icon)
+
+                item.setBackground(QColor("white"))
+
+                # Inizializza una lista vuota per i nomi delle US
+                us_names = []
+
+                for us_id in us_list:
+                    # Crea un nuovo dizionario di ricerca per l'US
+                    search_dict_us = {'id_invmat': us_id}
+                    search_dict_us = u.remove_empty_items_fr_dict(search_dict_us)
+
+                    # Query the US table
+                    us_data = self.DB_MANAGER.query_bool(search_dict_us, "INVENTARIO_MATERIALI")
+
+                    # Se l'US esiste, aggiungi il suo nome alla lista
+                    if us_data:
+                        us_names.extend([str(us.numero_inventario) for us in us_data])
+
+                # Se ci sono dei nomi US, aggiungi questi all'elemento
+                if us_names:
+                    item.setText(item.text() + " - Manufatto: " + ', '.join(us_names))
+                else:
+                    pass  # oppure: item.setText(item.text() + " - US: Non trovato")
+            # item.setText(item.text() + " - US: Non trovato")
+
+            else:
+                # us_list = [g.id_entity for g in mediatoentity_data if 'US' in g.entity_type]
+                item = QListWidgetItem(str(i.media_filename))
+                item.setData(Qt.UserRole, str(i.media_filename))
+                icon = QIcon(thumb_path_str + thumb_path)
+                item.setIcon(icon)
+
+                item.setBackground(QColor("yellow"))
+
+                # Aggiungi l'elemento alla QListWidget
+            # self.new_list_widget.clear()
+            self.new_list_widget.addItem(item)
+
+        # Calcola il numero totale di pagine
+
+        self.total_pages = math.ceil(len(us_images) / self.page_size)
+
+        # Aggiorna l'aspetto delle etichette dei numeri delle pagine
+        self.update_page_labels()
+
+    def update_page_labels(self):
+        # Disabilita il pulsante "Indietro" se siamo alla prima pagina
+        self.prevButton.setEnabled(self.current_page > 1)
+
+        # Disabilita il pulsante "Avanti" se siamo all'ultima pagina
+        self.nextButton.setEnabled(self.current_page < self.total_pages)
+
+        # Aggiorna l'aspetto delle etichette dei numeri delle pagine
+        for label in self.pageLabels:
+            page_number = int(label.text())
+            label.setEnabled(page_number != self.current_page)
+
+        # Aggiorna l'etichetta della pagina corrente e del totale delle pagine
+        self.current_page_label.setText(f"Pagina corrente: {self.current_page}")
+        self.total_pages_label.setText(f"Totale pagine: {self.total_pages}")
+
+    def go_to_previous_page(self):
+        if self.current_page > 1:
+            self.current_page -= 1
+            self.load_images(self.current_filter_text)
+
+    def go_to_next_page(self):
+        if self.current_page < self.total_pages:
+            self.current_page += 1
+            self.load_images(self.current_filter_text)
+
+    def on_page_label_clicked(self, page, _=None):
+        if page != self.current_page:
+            self.current_page = page
+            self.load_images(self.current_filter_text)
+
     def filter_items(self):
         # Ottieni il testo corrente nel campo di ricerca
-        search_text = self.search_field.text()
-
-        # Per ogni item nella QListWidget
-        for i in range(self.new_list_widget.count()):
-            item = self.new_list_widget.item(i)
-
-            # Se l'item contiene il testo di ricerca, mostralo
-            if search_text.lower() in item.text().lower():
-                item.setHidden(False)
-            else:  # Altrimenti, nascondilo
-                item.setHidden(True)
+        search_text = self.search_field.text().lower()
+        self.load_images(search_text)
     def on_done_selecting_all(self):
 
         def r_list():
