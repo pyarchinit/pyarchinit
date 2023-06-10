@@ -33,7 +33,8 @@ import cv2
 import math
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QMessageBox
-import matplotlib as plt
+from PIL import Image
+import matplotlib.pyplot as plt
 from qgis.PyQt.QtCore import *
 from qgis.PyQt.QtGui import QColor, QIcon
 from qgis.PyQt.QtWidgets import *
@@ -766,6 +767,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.pyQGIS = Pyarchinit_pyqgis(iface)
         self.setupUi(self)
         self.setAcceptDrops(True)
+        self.fig = None
+        self.canvas = None
         self.iconListWidget.setDragDropMode(QAbstractItemView.DragDrop)
         self.mDockWidget_2.setHidden(True)
         self.mDockWidget_export.setHidden(True)
@@ -4656,9 +4659,15 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             if path:
                 # Legge l'immagine dal percorso del file
                 image = Image.open(path)
-                plt.imshow(image)
-                plt.axis('off')  # Rimuove gli assi
-                plt.show()
+                # Crea una figura e un canvas e li salva come attributi dell'oggetto
+                self.fig = plt.figure()
+                self.canvas = self.fig.add_subplot(111)
+
+                # Visualizza l'immagine sul canvas
+                self.canvas.imshow(image)
+                self.canvas.axis('off')  # Rimuove gli assi
+
+                plt.show()  # Mostra l'immagine
         except AssertionError as e:
             print(e)
 
