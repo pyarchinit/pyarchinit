@@ -26,6 +26,7 @@ import math
 from datetime import date
 import cv2
 from builtins import range
+from collections import OrderedDict
 from builtins import str
 from qgis.PyQt.QtWidgets import *
 from qgis.PyQt.uic import loadUiType
@@ -1101,7 +1102,7 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
         layout = QVBoxLayout()
         # Crea un campo di input per la ricerca
         self.search_field = QLineEdit()
-        self.search_field.setPlaceholderText("Cerca...")
+        self.search_field.setPlaceholderText("Cerca...poi schiaccia invio")
         self.current_filter_text = ""
 
         self.page_size = 10  # Numero di immagini per pagina
@@ -1133,7 +1134,7 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
         self.load_images()
 
         # Connette il campo di ricerca a una funzione di filtraggio
-        self.search_field.textChanged.connect(self.filter_items)
+        self.search_field.returnPressed.connect(self.filter_items)
 
     def load_images(self, filter_text=None):
         conn = Connection()
@@ -1171,19 +1172,17 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
         # A questo punto, 'us_images' dovrebbe contenere tutte le immagini non taggate
         # e quelle taggate con almeno un 'US', senza duplicati.
 
-
-
         if filter_text:  # se il filtro è attivo
-            record_us_list = [i for i in record_us_list if filter_text.lower() in i.media_filename.lower()]
-
-
+            filtered_images = [i for i in us_images if filter_text.lower() in i.media_filename.lower()]
+        else:
+            filtered_images = us_images
 
         # Calcola gli indici di inizio e fine per la pagina corrente
         start_index = (self.current_page - 1) * self.page_size
         end_index = start_index + self.page_size
 
         # Ottieni i record delle immagini per la pagina corrente
-        self.record_us_list = us_images[start_index:end_index]
+        self.record_us_list = filtered_images[start_index:end_index]
 
         # Pulisci la QListWidget prima di aggiungere le nuove immagini
         self.new_list_widget.clear()
@@ -1202,7 +1201,23 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
             search_dict = u.remove_empty_items_fr_dict(search_dict)
             mediathumb_data = self.DB_MANAGER.query_bool(search_dict, "MEDIA_THUMB")
             thumb_path = str(mediathumb_data[0].filepath)
+            # Verifica se l'immagine è già in cache
+            if thumb_path not in self.image_cache:
+                # Se non è in cache, carica l'immagine
+                icon = QIcon(thumb_path_str + thumb_path)
 
+                # Se la cache ha raggiunto il limite, rimuove l'elemento più vecchio
+                if len(self.image_cache) >= self.cache_limit:
+                    self.image_cache.popitem(last=False)
+
+                # Aggiunge l'immagine alla cache
+                self.image_cache[thumb_path] = icon
+            else:
+                # Se è in cache, utilizza l'icona dalla cache
+                icon = self.image_cache[thumb_path]
+
+                # Aggiorna l'ordine della cache spostando l'elemento utilizzato alla fine
+                self.image_cache.move_to_end(thumb_path)
             # Crea un nuovo dizionario di ricerca per MEDIATOENTITY
             search_dict = {'id_media': "'" + str(i.id_media) + "'",
                            'entity_type': "'TOMBA'"}
@@ -1260,7 +1275,7 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
 
         # Calcola il numero totale di pagine
 
-        self.total_pages = math.ceil(len(us_images) / self.page_size)
+        self.total_pages = math.ceil(len(filtered_images) / self.page_size)
 
         # Aggiorna l'aspetto delle etichette dei numeri delle pagine
         self.update_page_labels()
@@ -1298,8 +1313,8 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
 
     def filter_items(self):
         # Ottieni il testo corrente nel campo di ricerca
-        search_text = self.search_field.text().lower()
-        self.load_images(search_text)
+        self.current_filter_text = self.search_field.text().lower()
+        self.load_images(self.current_filter_text)
     def on_done_selecting_all(self):
 
         def r_list():
