@@ -1011,6 +1011,56 @@ class Pyarchinit_db_management(object):
         session.close()
         return res
 
+    def query_limit_offset(self, table_name, filter_text=None, limit=None, offset=None):
+        # Inizializza la sessione
+        Session = sessionmaker(bind=self.engine)
+        session = Session()
+
+        # Ottieni la tabella
+        table = Table(table_name, MetaData(bind=self.engine), autoload_with=self.engine)
+
+        # Costruisci la query
+        query = select(table)
+
+        # Se c'è un testo da filtrare
+        if filter_text:
+            query = query.where(table.c.media_filename.ilike(f"%{filter_text}%")).order_by(table.c.media_filename)
+
+        # Se c'è un limite e un offset
+        if limit is not None and offset is not None:
+            query = query.limit(limit).offset(offset)
+
+        # Esegui la query e ottieni i risultati
+        records = session.execute(query).fetchall()
+
+        # Chiudi la sessione
+        session.close()
+
+        return records
+
+    def count_total_images(self, table_name, filter_text=None):
+        # Inizializza la sessione
+        Session = sessionmaker(bind=self.engine)
+        session = Session()
+
+        # Ottieni la tabella
+        table = Table(table_name, MetaData(bind=self.engine), autoload_with=self.engine)
+
+        # Costruisci la query per ottenere il conteggio totale delle immagini
+        query = select(func.count('*')).select_from(table)
+
+        # Se c'è un testo da filtrare
+        if filter_text:
+            query = query.where(table.c.title.ilike(f"%{filter_text}%"))
+
+        # Esegui la query e ottieni il conteggio
+        total_images = session.execute(query).scalar()
+
+        # Chiudi la sessione
+        session.close()
+
+        return total_images
+
     def query_bool(self, params, table):
         u = Utility()
         params = u.remove_empty_items_fr_dict(params)
@@ -1551,16 +1601,22 @@ class Pyarchinit_db_management(object):
         total_pages = math.ceil(total_records / page_size)
         return total_pages
 
-    def select_thumb(self, filter_query, page_number, page_size):
+    def select_thumb(self, page_number, page_size):
         start_index = (page_number - 1) * page_size
         sql_query_string = (
-            "SELECT * FROM media_thumb_table as a, media_to_entity_table as b us_table as c {} "
-            "LIMIT {} OFFSET {}"
-        ).format(filter_query, page_size, start_index)
+            "SELECT * FROM media_thumb_table LIMIT {} OFFSET {}"
+        ).format( page_size, start_index)
         res = self.engine.execute(sql_query_string)
         rows = res.fetchall()
         return rows
-
+    def select_original(self, page_number, page_size):
+        start_index = (page_number - 1) * page_size
+        sql_query_string = (
+            "SELECT * FROM media_to_entity_table LIMIT {} OFFSET {}"
+        ).format( page_size, start_index)
+        res = self.engine.execute(sql_query_string)
+        rows = res.fetchall()
+        return rows
     def select_ra_from_db_sql(self,sito,area,us):
         sql_query_string = ("SELECT n_reperto from inventario_materiali_table WHERE sito = '%s' and area = '%s' and us = '%s'")%(sito,area,us) 
         

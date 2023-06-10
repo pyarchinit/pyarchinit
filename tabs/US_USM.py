@@ -792,6 +792,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
         # Numero massimo di elementi nella cache
         self.cache_limit = 100
+
         
         try:
             self.on_pushButton_connect_pressed()
@@ -2981,7 +2982,11 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         conn = Connection()
         thumb_path = conn.thumb_path()
         thumb_path_str = thumb_path['thumb_path']
-        u=Utility()
+        u = Utility()
+
+        # Calcola l'offset per la pagina corrente
+        #offset = (self.current_page - 1) * self.page_size
+
         # Ottieni tutti i record delle immagini
         all_images = self.DB_MANAGER.query('MEDIA_THUMB')
 
@@ -2997,116 +3002,56 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         # Inizializza l'elenco delle immagini 'US' come un duplicato delle immagini non taggate
         us_images = untagged_images[:]
 
-        for image in all_images:
-            # Crea un nuovo dizionario di ricerca per MEDIATOENTITY
-            search_dict = {'id_media': "'" + str(image.id_media) + "'",
-                           'entity_type': "'US'"}
-            search_dict = u.remove_empty_items_fr_dict(search_dict)
-
-            # Recupera l'elenco di 'US' associati all'immagine
-            mediatoentity_data = self.DB_MANAGER.query_bool(search_dict, "MEDIATOENTITY")
-
-            # Se l'immagine ha una o più 'US' associate, aggiungila all'elenco
-            if mediatoentity_data:
-                us_images.append(image)
-
-        # A questo punto, 'us_images' dovrebbe contenere tutte le immagini non taggate
-        # e quelle taggate con almeno un 'US', senza duplicati.
-
-        if filter_text:  # se il filtro è attivo
-            filtered_images = [i for i in us_images if filter_text.lower() in i.media_filename.lower()]
-        else:
-            filtered_images = us_images
-
-        # Calcola gli indici di inizio e fine per la pagina corrente
-        start_index = (self.current_page - 1) * self.page_size
-        end_index = start_index + self.page_size
-
-        # Ottieni i record delle immagini per la pagina corrente
-        self.record_us_list = filtered_images[start_index:end_index]
-
-        # Pulisci la QListWidget prima di aggiungere le nuove immagini
-        self.new_list_widget.clear()
 
 
-        # Aggiungi l'intestazione alla QListWidget
-        header_item = QListWidgetItem(
-            "Le righe selezionate in giallo indicano immagini non taggate\n Da questo strumento solo le righe selezionate gialle posso essere taggate ")
-        header_item.setBackground(QColor('lightgrey'))
-        header_item.setFlags(header_item.flags() & ~Qt.ItemIsSelectable)  # rendi l'item non selezionabile
-        self.new_list_widget.addItem(header_item)
-        # Aggiungi le immagini alla QListWidget
 
-        for i in self.record_us_list:
-            search_dict = {'id_media': "'" + str(i.id_media) + "'"}
-            u = Utility()
-            search_dict = u.remove_empty_items_fr_dict(search_dict)
-            mediathumb_data = self.DB_MANAGER.query_bool(search_dict, "MEDIA_THUMB")
-            thumb_path = str(mediathumb_data[0].filepath)
-            # Verifica se l'immagine è già in cache
-            if thumb_path not in self.image_cache:
-                # Se non è in cache, carica l'immagine
-                icon = QIcon(thumb_path_str + thumb_path)
 
-                # Se la cache ha raggiunto il limite, rimuove l'elemento più vecchio
-                if len(self.image_cache) >= self.cache_limit:
-                    self.image_cache.popitem(last=False)
+        if len(all_images)>100:
 
-                # Aggiunge l'immagine alla cache
-                self.image_cache[thumb_path] = icon
+            if filter_text:  # se il filtro è attivo
+                filtered_images = [i for i in untagged_images if filter_text.lower() in i.media_filename.lower()]
             else:
-                # Se è in cache, utilizza l'icona dalla cache
-                icon = self.image_cache[thumb_path]
+                filtered_images = us_images
+            # Calcola gli indici di inizio e fine per la pagina corrente
+            start_index = (self.current_page - 1) * self.page_size
+            end_index = start_index + self.page_size
 
-                # Aggiorna l'ordine della cache spostando l'elemento utilizzato alla fine
-                self.image_cache.move_to_end(thumb_path)
-            # Crea un nuovo dizionario di ricerca per MEDIATOENTITY
-            search_dict = {'id_media': "'" + str(i.id_media) + "'",
-                           'entity_type': "'US'"}
-            search_dict = u.remove_empty_items_fr_dict(search_dict)
-            # Recupera l'elenco di US associati all'immagine
-            mediatoentity_data = self.DB_MANAGER.query_bool(search_dict, "MEDIATOENTITY")
-            us_list = [str(g.id_entity) for g in mediatoentity_data]# Se 'entity_type' è 'US', aggiungi l'id_media a us_images
-            # Rimuovi i duplicati dalla lista convertendola in un set e poi di nuovo in una lista
-            #us_list = list(set(us_list))
+            # Ottieni i record delle immagini per la pagina corrente
+            self.record_us_list = filtered_images[start_index:end_index]
+            # Pulisci la QListWidget prima di aggiungere le nuove immagini
+            self.new_list_widget.clear()
+            # Aggiungi l'intestazione alla QListWidget
+            header_item = QListWidgetItem(
+                "Le righe selezionate in giallo indicano immagini non taggate\n Da questo strumento solo le righe selezionate gialle posso essere taggate ")
+            header_item.setBackground(QColor('lightgrey'))
+            header_item.setFlags(header_item.flags() & ~Qt.ItemIsSelectable)  # rendi l'item non selezionabile
+            self.new_list_widget.addItem(header_item)
+            # Aggiungi le immagini alla QListWidget
 
-            if us_list:
-                # us_list = [g.id_entity for g in mediatoentity_data if 'US' in g.entity_type]
-                item = QListWidgetItem(str(i.media_filename))
-                item.setData(Qt.UserRole, str(i.media_filename))
-                icon = QIcon(thumb_path_str + thumb_path)
-                item.setIcon(icon)
+            for i in self.record_us_list:
+                search_dict = {'id_media': "'" + str(i.id_media) + "'"}
+                u = Utility()
+                search_dict = u.remove_empty_items_fr_dict(search_dict)
+                mediathumb_data = self.DB_MANAGER.query_bool(search_dict, "MEDIA_THUMB")
+                thumb_path = str(mediathumb_data[0].filepath)
+                # Verifica se l'immagine è già in cache
+                if thumb_path not in self.image_cache:
+                    # Se non è in cache, carica l'immagine
+                    icon = QIcon(thumb_path_str + thumb_path)
 
-                item.setBackground(QColor("white"))
+                    # Se la cache ha raggiunto il limite, rimuove l'elemento più vecchio
+                    if len(self.image_cache) >= self.cache_limit:
+                        self.image_cache.popitem(last=False)
 
-
-
-                # Inizializza una lista vuota per i nomi delle US
-                us_names = []
-
-                for us_id in us_list:
-                    # Crea un nuovo dizionario di ricerca per l'US
-                    search_dict_us = {'id_us': us_id}
-                    search_dict_us = u.remove_empty_items_fr_dict(search_dict_us)
-
-                    # Query the US table
-                    us_data = self.DB_MANAGER.query_bool(search_dict_us, "US")
-
-                    # Se l'US esiste, aggiungi il suo nome alla lista
-                    if us_data:
-                        us_names.extend([str(us.us) for us in us_data])
-
-                # Se ci sono dei nomi US, aggiungi questi all'elemento
-                if us_names:
-                    item.setText(item.text() + " - US: " + ', '.join(us_names))
+                    # Aggiunge l'immagine alla cache
+                    self.image_cache[thumb_path] = icon
                 else:
-                    pass  # oppure: item.setText(item.text() + " - US: Non trovato")
-            # item.setText(item.text() + " - US: Non trovato")
+
+                    icon = self.image_cache[thumb_path]
 
 
+                self.image_cache.move_to_end(thumb_path)
 
-            else:
-                # us_list = [g.id_entity for g in mediatoentity_data if 'US' in g.entity_type]
                 item = QListWidgetItem(str(i.media_filename))
                 item.setData(Qt.UserRole, str(i.media_filename))
                 icon = QIcon(thumb_path_str + thumb_path)
@@ -3114,16 +3059,120 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
                 item.setBackground(QColor("yellow"))
 
+                self.new_list_widget.addItem(item)
+
+
+        else:
+            for image in all_images:
+                # Crea un nuovo dizionario di ricerca per MEDIATOENTITY
+                search_dict = {'id_media': "'" + str(image.id_media) + "'",
+                               'entity_type': "'US'"}
+                search_dict = u.remove_empty_items_fr_dict(search_dict)
+
+                # Recupera l'elenco di 'US' associati all'immagine
+                mediatoentity_data = self.DB_MANAGER.query_bool(search_dict, "MEDIATOENTITY")
+
+                # Se l'immagine ha una o più 'US' associate, aggiungila all'elenco
+                if mediatoentity_data:
+                    us_images.append(image)
+
+            if filter_text:  # se il filtro è attivo
+                filtered_images = [i for i in untagged_images if filter_text.lower() in i.media_filename.lower()]
+            else:
+                filtered_images = us_images
+            # Calcola gli indici di inizio e fine per la pagina corrente
+            start_index = (self.current_page - 1) * self.page_size
+            end_index = start_index + self.page_size
+
+            # Ottieni i record delle immagini per la pagina corrente
+            self.record_us_list = filtered_images[start_index:end_index]
+            # Pulisci la QListWidget prima di aggiungere le nuove immagini
+            self.new_list_widget.clear()
+            # Aggiungi l'intestazione alla QListWidget
+            header_item = QListWidgetItem(
+                "Le righe selezionate in giallo indicano immagini non taggate\n Da questo strumento solo le righe selezionate gialle posso essere taggate ")
+            header_item.setBackground(QColor('lightgrey'))
+            header_item.setFlags(header_item.flags() & ~Qt.ItemIsSelectable)  # rendi l'item non selezionabile
+            self.new_list_widget.addItem(header_item)
+            # Aggiungi le immagini alla QListWidget
+
+            for i in self.record_us_list:
+                search_dict = {'id_media': "'" + str(i.id_media) + "'"}
+                u = Utility()
+                search_dict = u.remove_empty_items_fr_dict(search_dict)
+                mediathumb_data = self.DB_MANAGER.query_bool(search_dict, "MEDIA_THUMB")
+                thumb_path = str(mediathumb_data[0].filepath)
+                # Verifica se l'immagine è già in cache
+                if thumb_path not in self.image_cache:
+                    # Se non è in cache, carica l'immagine
+                    icon = QIcon(thumb_path_str + thumb_path)
+
+                    # Se la cache ha raggiunto il limite, rimuove l'elemento più vecchio
+                    if len(self.image_cache) >= self.cache_limit:
+                        self.image_cache.popitem(last=False)
+
+                    # Aggiunge l'immagine alla cache
+                    self.image_cache[thumb_path] = icon
+                else:
+                    # Se è in cache, utilizza l'icona dalla cache
+                    icon = self.image_cache[thumb_path]
+
+                    # Aggiorna l'ordine della cache spostando l'elemento utilizzato alla fine
+                self.image_cache.move_to_end(thumb_path)
+                # Crea un nuovo dizionario di ricerca per MEDIATOENTITY
+                search_dict = {'id_media': "'" + str(i.id_media) + "'",
+                              'entity_type': "'US'"}
+                search_dict = u.remove_empty_items_fr_dict(search_dict)
+                #Recupera l'elenco di US associati all'immagine
+                mediatoentity_data = self.DB_MANAGER.query_bool(search_dict, "MEDIATOENTITY")
+                us_list = [str(g.id_entity) for g in mediatoentity_data]# Se 'entity_type' è 'US', aggiungi l'id_media a us_images
+                #Rimuovi i duplicati dalla lista convertendola in un set e poi di nuovo in una lista
+                us_list = list(set(us_list))
+                us_list = [g.id_entity for g in mediatoentity_data if 'US' in g.entity_type]
+                item = QListWidgetItem(str(i.media_filename))
+                item.setData(Qt.UserRole, str(i.media_filename))
+                icon = QIcon(thumb_path_str + thumb_path)
+                item.setIcon(icon)
+                if us_list:
+
+
+                    item.setBackground(QColor("white"))
+
+
+
+                    # Inizializza una lista vuota per i nomi delle US
+                    us_names = []
+
+                    for us_id in us_list:
+                        # Crea un nuovo dizionario di ricerca per l'US
+                        search_dict_us = {'id_us': us_id}
+                        search_dict_us = u.remove_empty_items_fr_dict(search_dict_us)
+
+                        # Query the US table
+                        us_data = self.DB_MANAGER.query_bool(search_dict_us, "US")
+
+                        # Se l'US esiste, aggiungi il suo nome alla lista
+                        if us_data:
+                            us_names.extend([str(us.us) for us in us_data])
+
+                    # Se ci sono dei nomi US, aggiungi questi all'elemento
+                    if us_names:
+                        item.setText(item.text() + " - US: " + ', '.join(us_names))
+                    else:
+                        pass  # oppure: item.setText(item.text() + " - US: Non trovato")
+                else:
+
+                    item.setBackground(QColor("yellow"))
+
                 # Aggiungi l'elemento alla QListWidget
-            #self.new_list_widget.clear()
-            self.new_list_widget.addItem(item)
+                # self.new_list_widget.clear()
+                self.new_list_widget.addItem(item)
 
-        # Calcola il numero totale di pagine
+            # Calcola il numero totale di pagine
+            self.total_pages = math.ceil(len(filtered_images) / self.page_size)
 
-        self.total_pages = math.ceil(len(filtered_images) / self.page_size)
-
-        # Aggiorna l'aspetto delle etichette dei numeri delle pagine
-        self.update_page_labels()
+            # Aggiorna l'aspetto delle etichette dei numeri delle pagine
+            self.update_page_labels()
 
     def update_page_labels(self):
         # Disabilita il pulsante "Indietro" se siamo alla prima pagina

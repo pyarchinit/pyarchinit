@@ -4,8 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="13d9711e-af47-4516-9a74-091c329d410d" name="Changes" comment="v4.5.3">
+    <list default="true" id="13d9711e-af47-4516-9a74-091c329d410d" name="Changes" comment="v4.5.4">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/db/pyarchinit_db_manager.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/db/pyarchinit_db_manager.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tabs/Inv_Materiali.py" beforeDir="false" afterPath="$PROJECT_DIR$/tabs/Inv_Materiali.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tabs/Tomba.py" beforeDir="false" afterPath="$PROJECT_DIR$/tabs/Tomba.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tabs/US_USM.py" beforeDir="false" afterPath="$PROJECT_DIR$/tabs/US_USM.py" afterDir="false" />
@@ -122,20 +123,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1636816115136</updated>
-    </task>
-    <task id="LOCAL-00039" summary="v4.0.1">
-      <created>1651823850984</created>
-      <option name="number" value="00039" />
-      <option name="presentableId" value="LOCAL-00039" />
-      <option name="project" value="LOCAL" />
-      <updated>1651823850984</updated>
-    </task>
-    <task id="LOCAL-00040" summary="update _mod_spatialite.so for mac">
-      <created>1652333772965</created>
-      <option name="number" value="00040" />
-      <option name="presentableId" value="LOCAL-00040" />
-      <option name="project" value="LOCAL" />
-      <updated>1652333772965</updated>
     </task>
     <task id="LOCAL-00041" summary="#471 fix bug for mac">
       <created>1652355755187</created>
@@ -466,7 +453,21 @@
       <option name="project" value="LOCAL" />
       <updated>1686388659617</updated>
     </task>
-    <option name="localTasksCounter" value="88" />
+    <task id="LOCAL-00088" summary="fix bug search text images tagged">
+      <created>1686406637856</created>
+      <option name="number" value="00088" />
+      <option name="presentableId" value="LOCAL-00088" />
+      <option name="project" value="LOCAL" />
+      <updated>1686406637856</updated>
+    </task>
+    <task id="LOCAL-00089" summary="v4.5.4">
+      <created>1686406732572</created>
+      <option name="number" value="00089" />
+      <option name="presentableId" value="LOCAL-00089" />
+      <option name="project" value="LOCAL" />
+      <updated>1686406732572</updated>
+    </task>
+    <option name="localTasksCounter" value="90" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -497,8 +498,6 @@
     <ignored-roots>
       <path value="$PROJECT_DIR$/ext-libs/totalopenstation-0.5.2-py3.9.egg/totalopenstation_" />
     </ignored-roots>
-    <MESSAGE value="fix english automatic form" />
-    <MESSAGE value="thesaurus template" />
     <MESSAGE value="fix update tablewidget relationships for EM" />
     <MESSAGE value="v4.3.3" />
     <MESSAGE value="fix minor bug" />
@@ -522,7 +521,9 @@
     <MESSAGE value="V4.5.2" />
     <MESSAGE value="preview matrix" />
     <MESSAGE value="v4.5.3" />
-    <option name="LAST_COMMIT_MESSAGE" value="v4.5.3" />
+    <MESSAGE value="fix bug search text images tagged" />
+    <MESSAGE value="v4.5.4" />
+    <option name="LAST_COMMIT_MESSAGE" value="v4.5.4" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
