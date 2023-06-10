@@ -33,7 +33,7 @@ import cv2
 import math
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QMessageBox
-
+import matplotlib as plt
 from qgis.PyQt.QtCore import *
 from qgis.PyQt.QtGui import QColor, QIcon
 from qgis.PyQt.QtWidgets import *
@@ -4642,6 +4642,26 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             subprocess.Popen(["open", path])
         else:
             subprocess.Popen(["xdg-open", path])
+
+    def on_pushButton_viewmatrix_pressed(self):
+        try:
+            id_us_dict = {}
+            for i in range(len(self.DATA_LIST)):
+                id_us_dict[self.DATA_LIST[i].us] = self.DATA_LIST[i].id_us
+            dlg = pyarchinit_view_Matrix(self.iface, self.DATA_LIST, id_us_dict)
+            data_plot = dlg.generate_matrix()
+            # Visualizza l'immagine con matplotlib
+            HOME = os.environ['PYARCHINIT_HOME']
+            path = '{}{}{}{}'.format(HOME, os.sep, "pyarchinit_Matrix_folder/",'Harris_matrix_viewtred.dot.jpg')
+            if path:
+                # Legge l'immagine dal percorso del file
+                image = Image.open(path)
+                plt.imshow(image)
+                plt.axis('off')  # Rimuove gli assi
+                plt.show()
+        except AssertionError as e:
+            print(e)
+
     def on_pushButton_export_matrix_pressed(self):
         if self.checkBox_ED.isChecked():
             
