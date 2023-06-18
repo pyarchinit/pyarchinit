@@ -23,7 +23,7 @@ from __future__ import absolute_import
 
 import os
 from datetime import date
-
+import pandas as pd
 import sys
 from builtins import range
 from builtins import str
@@ -161,7 +161,9 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
     ]
 
     DB_SERVER = "not defined"  ####nuovo sistema sort
-
+    HOME = os.environ['PYARCHINIT_HOME']
+    BIN = '{}{}{}'.format(HOME, os.sep, "bin")
+    CSV=os.path.join(BIN,'epoche_storiche.csv')
     def __init__(self, iface):
         super().__init__()
         self.iface = iface
@@ -175,6 +177,7 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
         self.fill_fields()
         self.set_sito()
         self.msg_sito()
+        self.read_epoche()
     def enable_button(self, n):
         self.pushButton_connect.setEnabled(n)
 
@@ -284,7 +287,73 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
                     self.iface.messageBar().pushMessage(self.tr(msg), Qgis.Warning, 0)  
                 else:
                     msg = "Warning bug detected! Report it to the developer. Error: ".format(str(e))
-                    self.iface.messageBar().pushMessage(self.tr(msg), Qgis.Warning, 0)   
+                    self.iface.messageBar().pushMessage(self.tr(msg), Qgis.Warning, 0)
+
+    def read_epoche(self):
+        # Memorizza il valore corrente del comboBox
+        current_value = self.comboBox_per_estesa.currentText()
+        #QMessageBox.information(self,'ok',str(current_value))
+        # Leggi il file CSV
+        df = pd.read_csv(self.CSV)
+        # Stampa le prime righe per verificare il contenuto
+        print(df.head())
+        # Estrai l'epoca e gli anni dal dataframe
+        epoche = df['Periodo'].tolist()
+        evento = df['Evento'].tolist()
+        anni = df['Anno/Secolo'].tolist()
+
+        # Elabora gli anni
+        anni_inizio = []
+        anni_fine = []
+        anno_inizio = 0
+        anno_fine = 0
+        for anno in anni:
+            split_anni = anno.split('-')
+            if len(split_anni) == 2:
+                anno_inizio_str = split_anni[0].replace('a.C.', '').replace('d.C.', '').strip()
+                anno_fine_str = split_anni[1].replace('a.C.', '').replace('d.C.', '').strip()
+                try:
+                    if 'a.C.' in anno:
+                        anno_inizio = -int(anno_inizio_str)
+                        anno_fine = -int(anno_fine_str)
+                    elif 'milioni di anni fa' in anno:
+                        # assumiamo che il numero di milioni di anni sia sempre un numero intero
+                        milioni_di_anni = int(anno_inizio_str.split()[0])
+                        anno_inizio = -milioni_di_anni * 1000000
+                        milioni_di_anni = int(anno_fine_str.split()[0])
+                        anno_fine = -milioni_di_anni * 1000000
+                    else:
+                        anno_inizio = int(anno_inizio_str)
+                        anno_fine = int(anno_fine_str)
+
+                    anni_inizio.append(anno_inizio)
+                    anni_fine.append(anno_fine)
+                except ValueError:
+                    print(f'Impossibile convertire l\'anno: "{anno}" in un intero.')
+            else:
+                print(f'Impossibile processare l\'anno: "{anno}". Formato non riconosciuto.')
+
+        formatted_epoche = []  # questo conterrà le stringhe formattate 'epoca - evento'
+
+        for epoca, evento, anno_inizio, anno_fine in zip(epoche, evento, anni_inizio, anni_fine):
+            f = f'{epoca} - {evento} ({anno_inizio} : {anno_fine})'
+            formatted_epoche.append(f)  # aggiungi la stringa formattata alla lista
+            if self.comboBox_per_estesa.findText(f) == -1:  # -1 significa che il testo non è stato trovato
+                self.comboBox_per_estesa.addItem(f, (anno_inizio, anno_fine))
+
+        # Connetti il segnale di cambiamento della selezione della combo box a un nuovo metodo
+        self.comboBox_per_estesa.currentIndexChanged.connect(self.update_anni)
+
+        # Ripristina il valore corrente del comboBox, se esiste nella lista
+        if current_value not in formatted_epoche:
+            self.comboBox_per_estesa.setCurrentText(current_value)
+
+    def update_anni(self, index):
+        # Quando l'indice della combo box cambia, imposta i valori delle line edit
+        if index >= 0:  # -1 indica nessuna selezione
+            anni = self.comboBox_per_estesa.itemData(index)  # Ottieni gli anni associati all'elemento selezionato
+            self.lineEdit_cron_iniz.setText(str(anni[0]))
+            self.lineEdit_cron_fin.setText(str(anni[1]))
 
     def charge_list_sito(self):
 
@@ -628,7 +697,7 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
         test = 0
         EC = Error_check()
 
-        data_estesa = self.lineEdit_per_estesa.text()
+        data_estesa = self.comboBox_per_estesa.currentText()
         if self.L=='it':
             if data_estesa != "":
                 if EC.data_lenght(data_estesa, 299) == 0:
@@ -771,7 +840,7 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
                 int(cron_iniz),  # 4 - Cron iniziale
                 int(cron_fin),  # 5 - Cron finale
                 str(self.textEdit_descrizione_per.toPlainText()),  # 6 - Descrizione
-                str(self.lineEdit_per_estesa.text()),  # 7 - Periodizzazione estesa
+                str(self.comboBox_per_estesa.currentText()),  # 7 - Periodizzazione estesa
                 int(cont_per))
                 #int(area))    # 8 - Cont_per
 
@@ -1102,7 +1171,7 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
                 'cron_iniziale': cron_iniziale,  # 4 - Cron iniziale
                 'cron_finale': cron_finale,  # 5 - Crion finale
                 'descrizione': str(self.textEdit_descrizione_per.toPlainText()),  # 6 - Descrizione
-                'datazione_estesa': "'" + str(self.lineEdit_per_estesa.text()) + "'",  # 7 - Periodizzazione estesa
+                'datazione_estesa': "'" + str(self.comboBox_per_estesa.currentText()) + "'",  # 7 - Periodizzazione estesa
                 'cont_per': "'" + str(self.lineEdit_codice_periodo.text()) + "'",  # 8 - Codice periodo
                 #'area' : area
             }
@@ -1180,7 +1249,7 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
             cont_per = self.lineEdit_codice_periodo.text()
             per_label = self.comboBox_periodo.currentText()
             fas_label = self.comboBox_fase.currentText()
-            dat=self.lineEdit_per_estesa.text()
+            dat=self.comboBox_per_estesa.currentText()
             self.pyQGIS.charge_vector_layers_periodo(sito_p, int(cont_per), per_label, fas_label,dat)
             self.pyQGIS.charge_vector_usm_layers_periodo(sito_p, int(cont_per), per_label, fas_label,dat)
     def on_pushButton_all_period_pressed(self):
@@ -1334,7 +1403,7 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
         self.comboBox_fase.setEditText("")  # 3 - Fase
         self.lineEdit_cron_iniz.clear()  # 4 - Cronologia iniziale
         self.lineEdit_cron_fin.clear()  # 5 - Cronologia finale
-        self.lineEdit_per_estesa.clear()  # 6 - Datazione estesa
+        self.comboBox_per_estesa.setEditText("")  # 6 - Datazione estesa
         self.textEdit_descrizione_per.clear()  # 7 - Descrizione
         self.lineEdit_codice_periodo.clear()
         #self.comboBox_area.setEditText("")        # 8 - Codice periodo
@@ -1345,7 +1414,7 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
         self.comboBox_fase.setEditText("")  # 3 - Fase
         self.lineEdit_cron_iniz.clear()  # 4 - Cronologia iniziale
         self.lineEdit_cron_fin.clear()  # 5 - Cronologia finale
-        self.lineEdit_per_estesa.clear()  # 6 - Datazione estesa
+        self.comboBox_per_estesa.setEditText("")  # 6 - Datazione estesa
         self.textEdit_descrizione_per.clear()  # 7 - Descrizione
         self.lineEdit_codice_periodo.clear()
         #self.comboBox_area.setEditText("")        # 8 - Codice periodo
@@ -1368,7 +1437,7 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
             else:
                 self.lineEdit_cron_fin.setText(str(self.DATA_LIST[self.rec_num].cron_finale))
 
-            str(self.lineEdit_per_estesa.setText(self.DATA_LIST[self.rec_num].datazione_estesa))  # 6 - Datazione estesa
+            str(self.comboBox_per_estesa.setEditText(self.DATA_LIST[self.rec_num].datazione_estesa))  # 6 - Datazione estesa
             str(self.textEdit_descrizione_per.setText(self.DATA_LIST[self.rec_num].descrizione))  # 7 - Descrizione
 
             if not self.DATA_LIST[self.rec_num].cont_per:  # 8 - Codice periodo
@@ -1409,7 +1478,7 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
             str(cron_iniz),  # 4 - Cron iniziale
             str(cron_fin),  # 5 - Cron finale
             str(self.textEdit_descrizione_per.toPlainText()),  # 6 - Descrizioene
-            str(self.lineEdit_per_estesa.text()),  # 7 - Cron estesa
+            str(self.comboBox_per_estesa.currentText()),  # 7 - Cron estesa
             str(cont_per)]
             #str(self.comboBox_area.currentText())]  # 8 - Cont_per
 
