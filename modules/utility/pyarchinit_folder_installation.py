@@ -291,5 +291,5 @@ class pyarchinit_Folder_installation(object):
         self.OS_UTILITY.copy_file_img(dottoxml_copy_from_path, dottoxml_copy_to_path)
         self.OS_UTILITY.copy_file_img(dot_copy_from_path, dot_copy_to_path)
         self.OS_UTILITY.copy_file_img(X11Colors_copy_from_path, X11Colors_copy_to_path)
-        #self.OS_UTILITY.copy_file_img(csv_copy_from_path, csv_copy_to_path)
-        #self.OS_UTILITY.copy_file_img(epoche_copy_from_path, epoche_copy_to_path)
+        self.OS_UTILITY.copy_file(csv_copy_from_path, csv_copy_to_path)
+        self.OS_UTILITY.copy_file(epoche_copy_from_path, epoche_copy_to_path)
