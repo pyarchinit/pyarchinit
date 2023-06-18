@@ -94,6 +94,10 @@ class pyarchinit_Folder_installation(object):
         csv_copy_from_path_rel = os.path.join(os.sep, 'dbfiles', 'thesaurus_template.csv')
         csv_copy_from_path = '{}{}'.format(self.RESOURCES_PATH, csv_copy_from_path_rel)
         csv_copy_to_path = '{}{}{}'.format(home_bin_export_path, os.sep, 'thesaurus_template.csv')
+
+        epoche_copy_from_path_rel = os.path.join(os.sep, 'dbfiles', 'epoche_storiche.csv')
+        epoche_copy_from_path = '{}{}'.format(self.RESOURCES_PATH, epoche_copy_from_path_rel)
+        epoche_copy_to_path = '{}{}{}'.format(home_bin_export_path, os.sep, 'epoche_storiche.csv')
         
         # self.OS_UTILITY.copy_file(f_copy_from_bin, f_copy_to_bin)
         self.OS_UTILITY.copy_file(db_copy_from_bin, db_copy_to_bin)
@@ -106,6 +110,7 @@ class pyarchinit_Folder_installation(object):
         self.OS_UTILITY.copy_file(dot_copy_from_path, dot_copy_to_path)
         self.OS_UTILITY.copy_file(X11Colors_copy_from_path, X11Colors_copy_to_path)
         self.OS_UTILITY.copy_file(csv_copy_from_path, csv_copy_to_path)
+        self.OS_UTILITY.copy_file(epoche_copy_from_path, epoche_copy_to_path)
         
         db_copy_from_path_rel = os.path.join(os.sep, 'dbfiles', 'pyarchinit_db.sqlite')
         db_copy_from_path = '{}{}'.format(self.RESOURCES_PATH, db_copy_from_path_rel)
@@ -241,6 +246,10 @@ class pyarchinit_Folder_installation(object):
         csv_copy_from_path_rel = os.path.join(os.sep, 'dbfiles', 'thesaurus_template.csv')
         csv_copy_from_path = '{}{}'.format(self.RESOURCES_PATH, csv_copy_from_path_rel)
         csv_copy_to_path = '{}{}{}'.format(home_bin_export_path, os.sep, 'thesaurus_template.csv')
+
+        epoche_copy_from_path_rel = os.path.join(os.sep, 'dbfiles', 'epoche_storiche.csv')
+        epoche_copy_from_path = '{}{}'.format(self.RESOURCES_PATH, epoche_copy_from_path_rel)
+        epoche_copy_to_path = '{}{}{}'.format(home_bin_export_path, os.sep, 'epoche_storiche.csv')
         
         profile_zip = os.path.join(os.sep, 'dbfiles', 'profile.zip')
         profile_zip_copy_from_path = '{}{}'.format(self.RESOURCES_PATH, profile_zip)
@@ -282,4 +291,5 @@ class pyarchinit_Folder_installation(object):
         self.OS_UTILITY.copy_file_img(dottoxml_copy_from_path, dottoxml_copy_to_path)
         self.OS_UTILITY.copy_file_img(dot_copy_from_path, dot_copy_to_path)
         self.OS_UTILITY.copy_file_img(X11Colors_copy_from_path, X11Colors_copy_to_path)
-        self.OS_UTILITY.copy_file_img(X11Colors_copy_from_path, csv_copy_to_path)
+        #self.OS_UTILITY.copy_file_img(csv_copy_from_path, csv_copy_to_path)
+        #self.OS_UTILITY.copy_file_img(epoche_copy_from_path, epoche_copy_to_path)
