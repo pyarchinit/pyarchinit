@@ -34,6 +34,7 @@ from ..modules.db.pyarchinit_conn_strings import Connection
 from ..modules.db.pyarchinit_db_manager import Pyarchinit_db_management
 from ..modules.db.pyarchinit_utility import Utility
 from ..modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis
+from ..modules.utility.askgpt import MyApp
 from ..modules.utility.pyarchinit_error_check import Error_check
 from ..modules.utility.pyarchinit_exp_Periodizzazionesheet_pdf import generate_Periodizzazione_pdf
 from ..gui.sortpanelmain import SortPanelMain
@@ -354,6 +355,80 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
             anni = self.comboBox_per_estesa.itemData(index)  # Ottieni gli anni associati all'elemento selezionato
             self.lineEdit_cron_iniz.setText(str(anni[0]))
             self.lineEdit_cron_fin.setText(str(anni[1]))
+
+
+    def contenuto(self, b):
+        text = MyApp.ask_gpt(self,
+                             f'forniscimi una descrizione e 3 link wikipidia riguardo a questo contenuto {b}, tenendo presente che il contesto è archeologico',
+                             self.apikey_gpt())
+        #url_pattern = r"(https?:\/\/\S+)"
+        #urls = re.findall(url_pattern, text)
+        return text#, urls
+
+    def handleComboActivated(self, index):
+        selected_text = self.comboBox_per_estesa.itemText(index)
+        generate_text = self.contenuto(selected_text)
+        reply = QMessageBox.information(self, 'Info', generate_text, QMessageBox.Ok | QMessageBox.Cancel)
+        if reply == QMessageBox.Ok:
+            self.textEdit_descrizione_per.setText(generate_text)
+
+    def on_suggerimenti_pressed(self):
+        s = self.contenuto(self.comboBox_per_estesa.currentText())
+        generate_text = s
+        QMessageBox.information(self, 'info', str(generate_text), QMessageBox.Ok | QMessageBox.Cancel)
+
+        if QMessageBox.Ok:
+            self.textEdit_descrizione_per.setText(str(generate_text))
+
+        else:
+            pass
+
+
+    def apikey_gpt(self):
+        #HOME = os.environ['PYARCHINIT_HOME']
+        BIN = '{}{}{}'.format(self.HOME, os.sep, "bin")
+        api_key = ""
+        # Verifica se il file gpt_api_key.txt esiste
+        path_key = os.path.join(BIN, 'gpt_api_key.txt')
+        if os.path.exists(path_key):
+
+            # Leggi l'API Key dal file
+            with open(path_key, 'r') as f:
+                api_key = f.read().strip()
+                try:
+
+                    return api_key
+
+                except:
+                    reply = QMessageBox.question(None, 'Warning', 'Apikey non valida' + '\n'
+                                                 + 'Clicca ok per inserire la chiave',
+                                                 QMessageBox.Ok | QMessageBox.Cancel)
+                    if reply == QMessageBox.Ok:
+
+                        api_key, ok = QInputDialog.getText(None, 'Apikey gpt', 'Inserisci apikey valida:')
+                        if ok:
+                            # Salva la nuova API Key nel file
+                            with open(path_key, 'w') as f:
+                                f.write(api_key)
+                                f.close()
+                            with open(path_key, 'r') as f:
+                                api_key = f.read().strip()
+                    else:
+                        return api_key
+
+
+        else:
+            # Chiedi all'utente di inserire una nuova API Key
+            api_key, ok = QInputDialog.getText(None, 'Apikey gpt', 'Inserisci apikey:')
+            if ok:
+                # Salva la nuova API Key nel file
+                with open(path_key, 'w') as f:
+                    f.write(api_key)
+                    f.close()
+                with open(path_key, 'r') as f:
+                    api_key = f.read().strip()
+
+        return api_key
 
     def charge_list_sito(self):
 
