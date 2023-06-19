@@ -805,10 +805,10 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             self.comboBox_sito.setCurrentIndex(1)
         
             
-        self.comboBox_sito.currentIndexChanged.connect(self.charge_periodo_iniz_list)
+        #self.comboBox_sito.currentIndexChanged.connect(self.charge_periodo_iniz_list)
         self.comboBox_sito.currentTextChanged.connect(self.charge_periodo_iniz_list)
-        self.comboBox_per_iniz.currentIndexChanged.connect(self.charge_periodo_fin_list)
-        self.comboBox_sito.currentIndexChanged.connect(self.charge_struttura_list)
+        #self.comboBox_per_iniz.currentIndexChanged.connect(self.charge_periodo_fin_list)
+        #self.comboBox_sito.currentIndexChanged.connect(self.charge_struttura_list)
         self.comboBox_sito.currentTextChanged.connect(self.charge_struttura_list)
         self.comboBox_per_iniz.currentIndexChanged.connect(self.charge_periodo_fin_list)
         self.comboBox_per_iniz.currentIndexChanged.connect(self.charge_fase_iniz_list)
@@ -853,7 +853,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
         self.tableWidget_rapporti.itemChanged.connect(self.check_listoflist)
 
-
+        self.view_all()
     def clean_comments(self,text_to_clean):
         clean_text = text_to_clean.split("##")[0].replace("\n", "")
         return clean_text
@@ -1572,9 +1572,9 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         except:
             pass
     def charge_periodo_iniz_list(self):
-        
-        try: 
-            
+
+        try:
+
             sito = str(self.comboBox_sito.currentText())
             area = str(self.comboBox_area.currentText())
             search_dict = {
@@ -1602,11 +1602,13 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                     except:
                         pass  # non vi sono periodi per questo scavo
         except:
-            pass  
+            pass
+
+
     def charge_periodo_fin_list(self):
         
         try:
-            
+
             sito = str(self.comboBox_sito.currentText())
             area = str(self.comboBox_area.currentText())
             search_dict = {
