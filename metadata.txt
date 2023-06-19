@@ -13,7 +13,7 @@ name=pyArchInit
 qgisMinimumVersion=3.22
 description=pyarchinit a tool for archaeological works
 
-version=4.5.6
+version=4.5.7
 
 author=Luca Mandolesi&Enzo Cocca
 email=pyarchinit@gmail.com
@@ -25,7 +25,11 @@ tracker=https://github.com/pyarchinit/pyarchinit/issues
 repository=https://github.com/pyarchinit/pyarchinit
 
 
-changelog=release4.5.6
+changelog=release4.5.7
+    -update gpt-3-turbo-16k
+    -add to periodizzazione form gpt-3-turbo-16k
+
+  release4.5.6
     -add csv periodizzazione per la scheda periodizzazione
     -change datazione estesa in combobox in scheda periodizzazione
     -fix minor bug
