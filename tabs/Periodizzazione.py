@@ -27,7 +27,7 @@ import pandas as pd
 import sys
 from builtins import range
 from builtins import str
-from qgis.PyQt.QtWidgets import QDialog, QMessageBox
+from qgis.PyQt.QtWidgets import QDialog, QMessageBox, QInputDialog
 from qgis.PyQt.uic import loadUiType
 from qgis.core import QgsSettings
 from ..modules.db.pyarchinit_conn_strings import Connection

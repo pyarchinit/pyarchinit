@@ -22,9 +22,12 @@
 
 from qgis.PyQt.QtWidgets import QApplication, QDialog
 from qgis.PyQt.uic import loadUiType
+from qgis.PyQt.QtCore import QUrl
+from qgis.PyQt.QtGui import QDesktopServices
 
 import os
 import configparser
+import webbrowser
 from PIL import Image
 MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), 'ui', 'pyarchinitInfoDialog.ui'))
 
@@ -40,17 +43,15 @@ class pyArchInitDialog_Info(QDialog, MAIN_DIALOG_CLASS):
         config = configparser.ConfigParser()
         metadata_file = os.path.join(os.path.dirname(__file__), os.pardir, 'metadata.txt')
         config.read(metadata_file)
-        
-        
-        
-        
-        
+
+
+
         self.text = "<b>PyArchinit version: " + config['general']['version'] + "</b><br>" \
                     "<i>Archeological GIS Tools - PyArchInit it's a tool to manage archaeological dataset with an high portability on the main platform</i><br><br>"
 
         self.img ="<img src ="+logo_path+"><br><br>"
-        
-        
+
+
         self.text +="""<b>Developers:</b><br>
                         Luca Mandolesi<br>
                         Enzo Cocca<br>
@@ -84,7 +85,22 @@ class pyArchInitDialog_Info(QDialog, MAIN_DIALOG_CLASS):
                         or email me pyarchinit@gmail.com<br><br>
                         """
         self.text += """<b>Site:</b><br>
-                        <a href="http://pyarchinit.org">http://pyarchinit.org</a>
-        """
+                        <a href="http://pyarchinit.org">http://pyarchinit.org</a><br>
+                        """
+
+        self.text += """<b>Donazioni:</b><br>
+                                <a href="https://www.paypal.com/donate/?business=3MAT9YSJN7G98&no_recurring=0&item_name=Sviluppo+e+implementazione+di+pyarchinit&currency_code=EUR">Donazione sviluppo pyarchinit con paypal</a>
+                """
+        #webbrowser.open(self.text2)
         self.textBrowser.setText(self.img+self.text)
+        self.textBrowser.setOpenLinks(True)  # Abilita la gestione dei link
+        self.textBrowser.setHtml(self.img + self.text)
+        self.textBrowser.anchorClicked.connect(self.open_link)
+
+    def open_link(self, url):
+        QDesktopServices.openUrl(QUrl(url.toString()))
+        self.textBrowser.setHtml(self.img + self.text)  # Ripristina l'HTML nel QTextBrowser
+
+
+
 

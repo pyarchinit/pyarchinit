@@ -20,7 +20,7 @@
 """
 
 import os
-
+import sqlite3
 from builtins import object
 from builtins import range
 from builtins import str
@@ -41,7 +41,7 @@ class Pyarchinit_pyqgis(QDialog):
     FILEPATH = os.path.dirname(__file__)
     LAYER_STYLE_PATH = '{}{}{}{}'.format(FILEPATH, os.sep, 'styles', os.sep)
     LAYER_STYLE_PATH_SPATIALITE = '{}{}{}{}'.format(FILEPATH, os.sep, 'styles_spatialite', os.sep)
-    SRS = 3004
+    #SRS = 3004
     L=QgsSettings().value("locale/userLocale")[0:2]
     USLayerId = ""
     
@@ -223,7 +223,13 @@ class Pyarchinit_pyqgis(QDialog):
         if settings.SERVER == 'sqlite':
             sqliteDB_path = os.path.join(os.sep, 'pyarchinit_DB_folder', settings.DATABASE)
             db_file_path = '{}{}'.format(self.HOME, sqliteDB_path)
+            # Open a connection to the SpatiaLite database
+            conn = sqlite3.connect(db_file_path)
+            cursor = conn.cursor()
 
+            # Extract the SRID from the 'pyarchinit_individui' table
+            cursor.execute("SELECT srid FROM geometry_columns WHERE f_table_name = 'pyarchinit_siti'")
+            srid = cursor.fetchone()[0]
             gidstr = "id_us = '" + str(data[0]) + "'"
             if len(data) > 1:
                 for i in range(len(data)):
@@ -238,6 +244,9 @@ class Pyarchinit_pyqgis(QDialog):
             layerUS = QgsVectorLayer(uri.uri(), '', 'spatialite')
             ###################################################################
             if layerUS.isValid():
+                # Create a CRS using a predefined SRID
+                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                layerUS.setCrs(crs)
                 unique_name = self.unique_layer_name(name_layer_s)
                 layerUS.setName(unique_name)
 
@@ -248,6 +257,9 @@ class Pyarchinit_pyqgis(QDialog):
             layerQUOTE = QgsVectorLayer(uri.uri(), '', 'spatialite')
 
             if layerQUOTE.isValid():
+                # Create a CRS using a predefined SRID
+                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                layerQUOTE.setCrs(crs)
                 unique_name = self.unique_layer_name(name_layer_q)
                 layerQUOTE.setName(unique_name)
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerQUOTE))
@@ -266,7 +278,7 @@ class Pyarchinit_pyqgis(QDialog):
                 for i in range(len(data)):
                     gidstr += " OR id_us = " + str(data[i])
 
-            srs = QgsCoordinateReferenceSystem(self.SRS, QgsCoordinateReferenceSystem.PostgisCrsId)
+            #srs = QgsCoordinateReferenceSystem(self.SRS, QgsCoordinateReferenceSystem.PostgisCrsId)
 
             uri.setDataSource("public", "pyarchinit_us_view", "the_geom", gidstr, "gid")
             layerUS = QgsVectorLayer(uri.uri(), name_layer_s, "postgres")
@@ -338,7 +350,16 @@ class Pyarchinit_pyqgis(QDialog):
         if settings.SERVER == 'sqlite':
             sqliteDB_path = os.path.join(os.sep, 'pyarchinit_DB_folder', settings.DATABASE)
             db_file_path = '{}{}'.format(self.HOME, sqliteDB_path)
+            # Open a connection to the SpatiaLite database
+            conn = sqlite3.connect(db_file_path)
+            cursor = conn.cursor()
 
+            # Extract the SRID from the 'pyarchinit_individui' table
+            cursor.execute("SELECT srid FROM geometry_columns WHERE f_table_name = 'pyarchinit_siti'")
+            srid = cursor.fetchone()[0]
+
+            # Close the database connection
+            conn.close()
             gidstr = "id_us = '" + str(self.idus) + "'"
 
             uri = QgsDataSourceUri()
@@ -348,6 +369,9 @@ class Pyarchinit_pyqgis(QDialog):
             layerQUOTE = QgsVectorLayer(uri.uri(), '', 'spatialite')
 
             if layerQUOTE.isValid():
+                # Create a CRS using a predefined SRID
+                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                layerQUOTE.setCrs(crs)
                 unique_name = self.unique_layer_name(name_layer_q)
                 layerQUOTE.setName(unique_name)
                 style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'quote_us_view.qml')
@@ -362,7 +386,8 @@ class Pyarchinit_pyqgis(QDialog):
 
             if layerUS.isValid():
                 #QMessageBox.warning(self, "Pyarchinit", "OK Layer valid", QMessageBox.Ok)
-
+                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                layerUS.setCrs(crs)
                 unique_name = self.unique_layer_name(name_layer_s)
                 layerUS.setName(unique_name)
                 style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
@@ -383,7 +408,7 @@ class Pyarchinit_pyqgis(QDialog):
 
             gidstr = "id_us = " + str(self.idus)
 
-            srs = QgsCoordinateReferenceSystem(self.SRS, QgsCoordinateReferenceSystem.PostgisCrsId)
+            #srs = QgsCoordinateReferenceSystem(self.SRS, QgsCoordinateReferenceSystem.PostgisCrsId)
             
             uri.setDataSource("public", "pyarchinit_quote_view", "the_geom", gidstr, "gid")
             layerQUOTE = QgsVectorLayer(uri.uri(), '', "postgres")
@@ -441,7 +466,16 @@ class Pyarchinit_pyqgis(QDialog):
         if settings.SERVER == 'sqlite':
             sqliteDB_path = os.path.join(os.sep, 'pyarchinit_DB_folder', settings.DATABASE)
             db_file_path = '{}{}'.format(self.HOME, sqliteDB_path)
+            # Open a connection to the SpatiaLite database
+            conn = sqlite3.connect(db_file_path)
+            cursor = conn.cursor()
 
+            # Extract the SRID from the 'pyarchinit_individui' table
+            cursor.execute("SELECT srid FROM geometry_columns WHERE f_table_name = 'pyarchinit_siti'")
+            srid = cursor.fetchone()[0]
+
+            # Close the database connection
+            conn.close()
             sezstr = ""
             if len(data) == 1:
                 sezstr = "sito = '" + str(data[0].sito) + "' AND nome_doc = '" + str(
@@ -466,7 +500,10 @@ class Pyarchinit_pyqgis(QDialog):
             ##          uri.setDataSource('','pyarchinit_doc_view_b', 'the_geom', docstr, "ROWID")
             layerPos = QgsVectorLayer(uri.uri(), layer_name_pos, 'spatialite')
             if layerPos.isValid():
-                QMessageBox.warning(self, "Pyarchinit", "Layer Sezioni valido", QMessageBox.Ok)
+                # Create a CRS using a predefined SRID
+                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                layerPos.setCrs(crs)
+                #QMessageBox.warning(self, "Pyarchinit", "Layer Sezioni valido", QMessageBox.Ok)
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerPos))
                 QgsProject.instance().addMapLayers([layerPos], False)
 
@@ -501,7 +538,10 @@ class Pyarchinit_pyqgis(QDialog):
             ##          uri.setDataSource('','pyarchinit_doc_view_b', 'the_geom', docstr, "ROWID")
             layerPos = QgsVectorLayer(uri.uri(), layer_name_pos, 'spatialite')
             if layerPos.isValid():
-                QMessageBox.warning(self, "Pyarchinit", "Layer Registro Documentazione valido", QMessageBox.Ok)
+                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                layerPos.setCrs(crs)
+
+                #QMessageBox.warning(self, "Pyarchinit", "Layer Registro Documentazione valido", QMessageBox.Ok)
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerPos))
                 QgsProject.instance().addMapLayers([layerPos], False)
 
@@ -534,7 +574,9 @@ class Pyarchinit_pyqgis(QDialog):
 
 
             if layerNeg.isValid():
-                QMessageBox.warning(self, "Pyarchinit", "OK Layer US Negative valido", QMessageBox.Ok)
+                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                layerNeg.setCrs(crs)
+                #QMessageBox.warning(self, "Pyarchinit", "OK Layer US Negative valido", QMessageBox.Ok)
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerNeg))
                 QgsProject.instance().addMapLayers([layerNeg], False)
               
@@ -563,7 +605,9 @@ class Pyarchinit_pyqgis(QDialog):
             layerPos = QgsVectorLayer(uri.uri(), layer_name_pos, 'spatialite')
 
             if layerPos.isValid():
-                QMessageBox.warning(self, "Pyarchinit", "OK Layer US valido", QMessageBox.Ok)
+                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                layerPos.setCrs(crs)
+                #QMessageBox.warning(self, "Pyarchinit", "OK Layer US valido", QMessageBox.Ok)
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerPos))
                 QgsProject.instance().addMapLayers([layerPos], False)
                 self.canvas = QgsMapCanvas()
@@ -580,7 +624,9 @@ class Pyarchinit_pyqgis(QDialog):
             layerverticali = QgsVectorLayer(uri.uri(), layer_name_verticali, 'spatialite')
 
             if layerPos.isValid():
-                QMessageBox.warning(self, "Pyarchinit", "OK Layer USM valido", QMessageBox.Ok)
+                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                layerPos.setCrs(crs)
+                #QMessageBox.warning(self, "Pyarchinit", "OK Layer USM valido", QMessageBox.Ok)
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerverticali))
                 QgsProject.instance().addMapLayers([layerverticali], False)
                 self.canvas = QgsMapCanvas()
@@ -606,12 +652,13 @@ class Pyarchinit_pyqgis(QDialog):
             layerPos = QgsVectorLayer(uri.uri(), layer_name_pos, 'spatialite')
 
             if layerPos.isValid():
-                # self.USLayerId = layerUS.getLayerID()
+                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                layerPos.setCrs(crs)
                 style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_vuote.qml')
 
 
                 layerPos.loadNamedStyle(style_path)
-                QMessageBox.warning(self, "Pyarchinit", "OK Layer US disegno valido", QMessageBox.Ok)
+                #QMessageBox.warning(self, "Pyarchinit", "OK Layer US disegno valido", QMessageBox.Ok)
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerPos))
                 QgsProject.instance().addMapLayers([layerPos], False)
                 self.canvas = QgsMapCanvas()
@@ -627,7 +674,7 @@ class Pyarchinit_pyqgis(QDialog):
 
             
 
-            srs = QgsCoordinateReferenceSystem(self.SRS, QgsCoordinateReferenceSystem.PostgisCrsId)
+            #srs = QgsCoordinateReferenceSystem(self.SRS, QgsCoordinateReferenceSystem.PostgisCrsId)
             docstr = ""
             if len(data) == 1:
                 docstr = "sito = '" + str(data[0].sito) + "' AND nome_doc = '" + str(
@@ -649,7 +696,7 @@ class Pyarchinit_pyqgis(QDialog):
             layerPos = QgsVectorLayer(uri.uri(), layer_name_pos, 'postgres')
 
             if layerPos.isValid():
-                QMessageBox.warning(self, "Pyarchinit", "OK Layer US valido", QMessageBox.Ok)
+                #QMessageBox.warning(self, "Pyarchinit", "OK Layer US valido", QMessageBox.Ok)
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerPos))
                 QgsProject.instance().addMapLayers([layerPos], False)
                 self.canvas = QgsMapCanvas()
@@ -662,7 +709,7 @@ class Pyarchinit_pyqgis(QDialog):
             usPos = QgsVectorLayer(uri.uri(), us_name_pos, 'postgres')
 
             if usPos.isValid():
-                QMessageBox.warning(self, "Pyarchinit", "OK Layer US valido", QMessageBox.Ok)
+                #QMessageBox.warning(self, "Pyarchinit", "OK Layer US valido", QMessageBox.Ok)
                 group.insertChildNode(-1, QgsLayerTreeLayer(usPos))
                 QgsProject.instance().addMapLayers([layerPos], False)
                 self.canvas = QgsMapCanvas()
@@ -677,7 +724,7 @@ class Pyarchinit_pyqgis(QDialog):
             layerPos = QgsVectorLayer(uri.uri(), layer_name_pos, 'postgres')
 
             if layerPos.isValid():
-                QMessageBox.warning(self, "Pyarchinit", "OK Layer USM valido", QMessageBox.Ok)
+                #QMessageBox.warning(self, "Pyarchinit", "OK Layer USM valido", QMessageBox.Ok)
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerPos))
                 QgsProject.instance().addMapLayers([layerPos], False)
                 self.canvas = QgsMapCanvas()
@@ -708,7 +755,7 @@ class Pyarchinit_pyqgis(QDialog):
             layerNeg = QgsVectorLayer(uri.uri(), layer_name_neg, 'postgres')
 
             if layerNeg.isValid():
-                QMessageBox.warning(self, "Pyarchinit", "OK Layer US Negative valido", QMessageBox.Ok)
+                #QMessageBox.warning(self, "Pyarchinit", "OK Layer US Negative valido", QMessageBox.Ok)
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerNeg))
                 QgsProject.instance().addMapLayers([layerNeg], False)
 
@@ -736,7 +783,7 @@ class Pyarchinit_pyqgis(QDialog):
             ##          uri.setDataSource('','pyarchinit_doc_view_b', 'the_geom', docstr, "ROWID")
             layerPos = QgsVectorLayer(uri.uri(), layer_name_pos, 'postgres')
             if layerPos.isValid():
-                QMessageBox.warning(self, "Pyarchinit", "OK Layer US valido", QMessageBox.Ok)
+                #QMessageBox.warning(self, "Pyarchinit", "OK Layer US valido", QMessageBox.Ok)
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerPos))
                 QgsProject.instance().addMapLayers([layerPos], False)
                 #self.canvas = QgsMapCanvas()
@@ -750,7 +797,7 @@ class Pyarchinit_pyqgis(QDialog):
             ##          uri.setDataSource('','pyarchinit_doc_view_b', 'the_geom', docstr, "ROWID")
             layerPos = QgsVectorLayer(uri.uri(), layer_name_pos, 'postgres')
             if layerPos.isValid():
-                QMessageBox.warning(self, "Pyarchinit", "Layer Sezioni valido", QMessageBox.Ok)
+                #QMessageBox.warning(self, "Pyarchinit", "Layer Sezioni valido", QMessageBox.Ok)
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerPos))
                 QgsProject.instance().addMapLayers([layerPos], False)
 
@@ -831,7 +878,16 @@ class Pyarchinit_pyqgis(QDialog):
         if settings.SERVER == 'sqlite':
             sqliteDB_path = os.path.join(os.sep, 'pyarchinit_DB_folder', settings.DATABASE)
             db_file_path = '{}{}'.format(self.HOME, sqliteDB_path)
+            # Open a connection to the SpatiaLite database
+            conn = sqlite3.connect(db_file_path)
+            cursor = conn.cursor()
 
+            # Extract the SRID from the 'pyarchinit_individui' table
+            cursor.execute("SELECT srid FROM geometry_columns WHERE f_table_name = 'pyarchinit_siti'")
+            srid = cursor.fetchone()[0]
+
+            # Close the database connection
+            conn.close()
             doc_from_us_str = "sito = '" + sito + "' AND tipo_doc = '" + tipo_documentazione + "' AND nome_doc = '" + nome_doc + "'"
             # if len(data) > 1:
             # for i in range(len(data)):
@@ -844,7 +900,12 @@ class Pyarchinit_pyqgis(QDialog):
             layerUS = QgsVectorLayer(uri.uri(), name_layer_d, 'spatialite')
 
             if layerUS.isValid():
-                QMessageBox.warning(self, "Pyarchinit", "OK Layer US valido", QMessageBox.Ok)
+                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                layerUS.setCrs(crs)
+                # Create a CRS using a predefined SRID
+                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                layerUS.setCrs(crs)
+                #QMessageBox.warning(self, "Pyarchinit", "OK Layer US valido", QMessageBox.Ok)
 
                 # self.USLayerId = layerUS.getLayerID()
                 # style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
@@ -870,7 +931,10 @@ class Pyarchinit_pyqgis(QDialog):
             layerUSneg = QgsVectorLayer(uri.uri(), name_layer_s_n, 'spatialite')
 
             if layerUSneg.isValid():
-                QMessageBox.warning(self, "Pyarchinit", "OK Layer US negative valido", QMessageBox.Ok)
+                # Create a CRS using a predefined SRID
+                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                layerUSneg.setCrs(crs)
+                #QMessageBox.warning(self, "Pyarchinit", "OK Layer US negative valido", QMessageBox.Ok)
 
                 # self.USLayerId = layerUS.getLayerID()
                 # style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
@@ -896,8 +960,9 @@ class Pyarchinit_pyqgis(QDialog):
             layerUS = QgsVectorLayer(uri.uri(), name_layer_s, 'spatialite')
 
             if layerUS.isValid():
-                QMessageBox.warning(self, "Pyarchinit", "OK Layer valid", QMessageBox.Ok)
-
+                #QMessageBox.warning(self, "Pyarchinit", "OK Layer valid", QMessageBox.Ok)
+                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                layerUS.setCrs(crs)
                 # self.USLayerId = layerUS.getLayerID()
                 # style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
                 # style_path = QtGui.QFileDialog.getOpenFileName(self, 'Open file',self.LAYER_STYLE_PATH)
@@ -929,8 +994,9 @@ class Pyarchinit_pyqgis(QDialog):
             layerUS = QgsVectorLayer(uri.uri(), name_layer_sw, 'spatialite')
 
             if layerUS.isValid():
-                QMessageBox.warning(self, "Pyarchinit", "OK Layer valid", QMessageBox.Ok)
-
+                #QMessageBox.warning(self, "Pyarchinit", "OK Layer valid", QMessageBox.Ok)
+                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                layerUS.setCrs(crs)
                 # self.USLayerId = layerUS.getLayerID()
                 # style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
                 # style_path = QtGui.QFileDialog.getOpenFileName(self, 'Open file',self.LAYER_STYLE_PATH)
@@ -977,7 +1043,7 @@ class Pyarchinit_pyqgis(QDialog):
             layerUS = QgsVectorLayer(uri.uri(), name_layer_d, 'postgres')
 
             if layerUS.isValid():
-                QMessageBox.warning(self, "Pyarchinit", "OK Layer US valido", QMessageBox.Ok)
+                #QMessageBox.warning(self, "Pyarchinit", "OK Layer US valido", QMessageBox.Ok)
 
                 # self.USLayerId = layerUS.getLayerID()
                 # style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
@@ -1003,7 +1069,7 @@ class Pyarchinit_pyqgis(QDialog):
             layerUSneg = QgsVectorLayer(uri.uri(), name_layer_s_n, 'postgres')
 
             if layerUSneg.isValid():
-                QMessageBox.warning(self, "Pyarchinit", "OK Layer US negative valido", QMessageBox.Ok)
+                #QMessageBox.warning(self, "Pyarchinit", "OK Layer US negative valido", QMessageBox.Ok)
 
                 # self.USLayerId = layerUS.getLayerID()
                 # style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
@@ -1061,7 +1127,7 @@ class Pyarchinit_pyqgis(QDialog):
             layerUS = QgsVectorLayer(uri.uri(), name_layer_sw, 'postgres')
 
             if layerUS.isValid():
-                QMessageBox.warning(self, "Pyarchinit", "OK Layer valid", QMessageBox.Ok)
+                #QMessageBox.warning(self, "Pyarchinit", "OK Layer valid", QMessageBox.Ok)
 
                 # self.USLayerId = layerUS.getLayerID()
                 # style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
@@ -1131,7 +1197,16 @@ class Pyarchinit_pyqgis(QDialog):
         if settings.SERVER == 'sqlite':
             sqliteDB_path = os.path.join(os.sep, 'pyarchinit_DB_folder', settings.DATABASE)
             db_file_path = '{}{}'.format(self.HOME, sqliteDB_path)
+            # Open a connection to the SpatiaLite database
+            conn = sqlite3.connect(db_file_path)
+            cursor = conn.cursor()
 
+            # Extract the SRID from the 'pyarchinit_individui' table
+            cursor.execute("SELECT srid FROM geometry_columns WHERE f_table_name = 'pyarchinit_siti'")
+            srid = cursor.fetchone()[0]
+
+            # Close the database connection
+            conn.close()
             gidstr = "id_us = '" + str(data[0].id_us) + "'"
             if len(data) > 1:
                 for i in range(len(data)):
@@ -1144,6 +1219,10 @@ class Pyarchinit_pyqgis(QDialog):
             layerQUOTE = QgsVectorLayer(uri.uri(), '', 'spatialite')
 
             if layerQUOTE.isValid():
+
+                # Create a CRS using a predefined SRID
+                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                layerQUOTE.setCrs(crs)
                 # self.USLayerId = layerUS.getLayerID()
                 style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'quote_us_view.qml')
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerQUOTE))
@@ -1159,7 +1238,10 @@ class Pyarchinit_pyqgis(QDialog):
             layerUS = QgsVectorLayer(uri.uri(), '', 'spatialite')
 
             if layerUS.isValid():
-                QMessageBox.warning(self, "Pyarchinit", "OK Layer US valido", QMessageBox.Ok)
+                # Create a CRS using a predefined SRID
+                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                layerUS.setCrs(crs)
+                #QMessageBox.warning(self, "Pyarchinit", "OK Layer US valido", QMessageBox.Ok)
 
                 # self.USLayerId = layerUS.getLayerID()
                 style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
@@ -1193,7 +1275,7 @@ class Pyarchinit_pyqgis(QDialog):
                 for i in range(len(data)):
                     gidstr += " OR id_us = " + str(data[i].id_us)
 
-            srs = QgsCoordinateReferenceSystem(self.SRS, QgsCoordinateReferenceSystem.PostgisCrsId)
+            #srs = QgsCoordinateReferenceSystem(self.SRS, QgsCoordinateReferenceSystem.PostgisCrsId)
             
             uri.setDataSource("public", "pyarchinit_quote_view", "the_geom", gidstr, "gid")
             layerQUOTE = QgsVectorLayer(uri.uri(), '', "postgres")
@@ -1219,6 +1301,7 @@ class Pyarchinit_pyqgis(QDialog):
             layerUS = QgsVectorLayer(uri.uri(), '', "postgres")
 
             if layerUS.isValid():
+
                 unique_name = self.unique_layer_name(name_layer_s)
                 layerUS.setName(unique_name)
                 # self.USLayerId = layerUS.getLayersID()
@@ -1268,7 +1351,16 @@ class Pyarchinit_pyqgis(QDialog):
         if settings.SERVER == 'sqlite':
             sqliteDB_path = os.path.join(os.sep, 'pyarchinit_DB_folder', settings.DATABASE)
             db_file_path = '{}{}'.format(self.HOME, sqliteDB_path)
+            # Open a connection to the SpatiaLite database
+            conn = sqlite3.connect(db_file_path)
+            cursor = conn.cursor()
 
+            # Extract the SRID from the 'pyarchinit_individui' table
+            cursor.execute("SELECT srid FROM geometry_columns WHERE f_table_name = 'pyarchinit_siti'")
+            srid = cursor.fetchone()[0]
+
+            # Close the database connection
+            conn.close()
             gidstr = "id_us = '" + str(data[0].id_us) + "'"
             if len(data) > 1:
                 for i in range(len(data)):
@@ -1281,6 +1373,9 @@ class Pyarchinit_pyqgis(QDialog):
             layerQUOTE = QgsVectorLayer(uri.uri(), '', 'spatialite')
 
             if layerQUOTE.isValid():
+                # Create a CRS using a predefined SRID
+                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                layerQUOTE.setCrs(crs)
                 unique_name = self.unique_layer_name(name_layer_q)
                 layerQUOTE.setName(unique_name)
                 style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'quote_us_view.qml')
@@ -1294,6 +1389,8 @@ class Pyarchinit_pyqgis(QDialog):
             layerUS = QgsVectorLayer(uri.uri(), '', 'spatialite')
 
             if layerUS.isValid():
+                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                layerUS.setCrs(crs)
                 unique_name = self.unique_layer_name(name_layer_s)
                 layerUS.setName(unique_name)
 
@@ -1327,7 +1424,7 @@ class Pyarchinit_pyqgis(QDialog):
                 for i in range(len(data)):
                     gidstr += " OR id_us = " + str(data[i].id_us)
 
-            srs = QgsCoordinateReferenceSystem(self.SRS, QgsCoordinateReferenceSystem.PostgisCrsId)
+            #srs = QgsCoordinateReferenceSystem(self.SRS, QgsCoordinateReferenceSystem.PostgisCrsId)
             
             uri.setDataSource("public", "pyarchinit_quote_usm_view", "the_geom", gidstr, "gid")
             layerQUOTE = QgsVectorLayer(uri.uri(), '', "postgres")
@@ -1405,7 +1502,16 @@ class Pyarchinit_pyqgis(QDialog):
         if settings.SERVER == 'sqlite':
             sqliteDB_path = os.path.join(os.sep, 'pyarchinit_DB_folder', settings.DATABASE)
             db_file_path = '{}{}'.format(self.HOME, sqliteDB_path)
+            # Open a connection to the SpatiaLite database
+            conn = sqlite3.connect(db_file_path)
+            cursor = conn.cursor()
 
+            # Extract the SRID from the 'pyarchinit_individui' table
+            cursor.execute("SELECT srid FROM geometry_columns WHERE f_table_name = 'pyarchinit_siti'")
+            srid = cursor.fetchone()[0]
+
+            # Close the database connection
+            conn.close()
             uri = QgsDataSourceUri()
             uri.setDatabase(db_file_path)
 
@@ -1415,6 +1521,9 @@ class Pyarchinit_pyqgis(QDialog):
             layerQUOTE = QgsVectorLayer(uri.uri(), layer_name_label_quote, 'spatialite')
 
             if layerQUOTE.isValid():
+                # Create a CRS using a predefined SRID
+                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                layerQUOTE.setCrs(crs)
                 # self.USLayerId = layerUS.getLayerID()
                 style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'quote_us_view.qml')
                 layerQUOTE.loadNamedStyle(style_path)
@@ -1424,9 +1533,11 @@ class Pyarchinit_pyqgis(QDialog):
             uri.setDataSource('', 'pyarchinit_us_view', 'the_geom', cont_per_string, "ROWID")
             layerUS = QgsVectorLayer(uri.uri(), layer_name_label_us, 'spatialite')
             
-            srs = QgsCoordinateReferenceSystem(self.SRS, QgsCoordinateReferenceSystem.PostgisCrsId)
+
 
             if layerUS.isValid():
+                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                layerUS.setCrs(crs)
                 style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
                 layerUS.loadNamedStyle(style_path)
                 
@@ -1445,7 +1556,7 @@ class Pyarchinit_pyqgis(QDialog):
             uri.setConnection(settings.HOST, settings.PORT, settings.DATABASE, settings.USER, settings.PASSWORD)
             cont_per_string = "sito = '" + self.sito_p + "' AND (" + " cont_per = '" + self.cont_per + "' OR cont_per LIKE '" + self.cont_per + "/%' OR cont_per LIKE '%/" + self.cont_per + "' OR cont_per LIKE '%/" + self.cont_per + "/%')"
 
-            srs = QgsCoordinateReferenceSystem(self.SRS, QgsCoordinateReferenceSystem.PostgisCrsId)
+            #srs = QgsCoordinateReferenceSystem(self.SRS, QgsCoordinateReferenceSystem.PostgisCrsId)
             
             uri.setDataSource("public", "pyarchinit_quote_view", "the_geom", cont_per_string, "gid")
             layerQUOTE = QgsVectorLayer(uri.uri(), layer_name_label_quote, "postgres")
@@ -1516,7 +1627,16 @@ class Pyarchinit_pyqgis(QDialog):
         if settings.SERVER == 'sqlite':
             sqliteDB_path = os.path.join(os.sep, 'pyarchinit_DB_folder', settings.DATABASE)
             db_file_path = '{}{}'.format(self.HOME, sqliteDB_path)
+            # Open a connection to the SpatiaLite database
+            conn = sqlite3.connect(db_file_path)
+            cursor = conn.cursor()
 
+            # Extract the SRID from the 'pyarchinit_individui' table
+            cursor.execute("SELECT srid FROM geometry_columns WHERE f_table_name = 'pyarchinit_siti'")
+            srid = cursor.fetchone()[0]
+
+            # Close the database connection
+            conn.close()
             uri = QgsDataSourceUri()
             uri.setDatabase(db_file_path)
 
@@ -1526,6 +1646,9 @@ class Pyarchinit_pyqgis(QDialog):
             layerQUOTE = QgsVectorLayer(uri.uri(), layer_name_label_quote, 'spatialite')
 
             if layerQUOTE.isValid():
+                # Create a CRS using a predefined SRID
+                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                layerQUOTE.setCrs(crs)
                 # self.USLayerId = layerUS.getLayerID()
                 style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'quote_view.qml')
                 layerQUOTE.loadNamedStyle(style_path)
@@ -1535,9 +1658,11 @@ class Pyarchinit_pyqgis(QDialog):
             uri.setDataSource('', 'pyarchinit_usm_view', 'the_geom', cont_per_string, "ROWID")
             layerUS = QgsVectorLayer(uri.uri(), layer_name_label_us, 'spatialite')
             
-            srs = QgsCoordinateReferenceSystem(self.SRS, QgsCoordinateReferenceSystem.PostgisCrsId)
+            #srs = QgsCoordinateReferenceSystem(self.SRS, QgsCoordinateReferenceSystem.PostgisCrsId)
 
             if layerUS.isValid():
+                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                layerUS.setCrs(crs)
                 style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
                 layerUS.loadNamedStyle(style_path)
                 
@@ -1556,12 +1681,12 @@ class Pyarchinit_pyqgis(QDialog):
             uri.setConnection(settings.HOST, settings.PORT, settings.DATABASE, settings.USER, settings.PASSWORD)
             cont_per_string = "sito = '" + self.sito_p + "' AND (" + " cont_per = '" + self.cont_per + "' OR cont_per LIKE '" + self.cont_per + "/%' OR cont_per LIKE '%/" + self.cont_per + "' OR cont_per LIKE '%/" + self.cont_per + "/%')"
 
-            srs = QgsCoordinateReferenceSystem(self.SRS, QgsCoordinateReferenceSystem.PostgisCrsId)
+            #srs = QgsCoordinateReferenceSystem(self.SRS, QgsCoordinateReferenceSystem.PostgisCrsId)
             
             uri.setDataSource("public", "pyarchinit_quote_usm_view", "the_geom", cont_per_string, "gid")
             layerQUOTE = QgsVectorLayer(uri.uri(), layer_name_label_quote, "postgres")
             if layerQUOTE.isValid():
-                layerQUOTE.setCrs(srs)
+                #layerQUOTE.setCrs(srs)
                 style_path = '{}{}'.format(self.LAYER_STYLE_PATH, 'stile_quote.qml')
                 layerQUOTE.loadNamedStyle(style_path)
                 try:
@@ -1573,7 +1698,7 @@ class Pyarchinit_pyqgis(QDialog):
             uri.setDataSource("public", "pyarchinit_usm_view", "the_geom", cont_per_string, "gid")
             layerUS = QgsVectorLayer(uri.uri(), layer_name_label_us, "postgres")
             if layerUS.isValid():
-                layerUS.setCrs(srs)
+                #layerUS.setCrs(srs)
                 # self.USLayerId = layerUS.getLayerID()
                 style_path = '{}{}'.format(self.LAYER_STYLE_PATH, 'us_caratterizzazioni.qml')
                 # style_path = QFileDialog.getOpenFileName(self, 'Open file', self.LAYER_STYLE_PATH)
@@ -1622,7 +1747,16 @@ class Pyarchinit_pyqgis(QDialog):
         if settings.SERVER == 'sqlite':
             sqliteDB_path = os.path.join(os.sep, 'pyarchinit_DB_folder', settings.DATABASE)
             db_file_path = '{}{}'.format(self.HOME, sqliteDB_path)
+            # Open a connection to the SpatiaLite database
+            conn = sqlite3.connect(db_file_path)
+            cursor = conn.cursor()
 
+            # Extract the SRID from the 'pyarchinit_individui' table
+            cursor.execute("SELECT srid FROM geometry_columns WHERE f_table_name = 'pyarchinit_siti'")
+            srid = cursor.fetchone()[0]
+
+            # Close the database connection
+            conn.close()
             uri = QgsDataSourceUri()
             uri.setDatabase(db_file_path)
 
@@ -1634,6 +1768,9 @@ class Pyarchinit_pyqgis(QDialog):
             layerQUOTE = QgsVectorLayer(uri.uri(), layer_name_label_quote, 'spatialite')
 
             if layerQUOTE.isValid():
+                # Create a CRS using a predefined SRID
+                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                layerQUOTE.setCrs(crs)
                 # self.USLayerId = layerUS.getLayerID()
                 style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'quote_us_view.qml')
                 layerQUOTE.loadNamedStyle(style_path)
@@ -1645,9 +1782,8 @@ class Pyarchinit_pyqgis(QDialog):
             
 
             if layerUS.isValid():
-                #QMessageBox.warning(self, "Pyarchinit", "OK Layer US valido", QMessageBox.Ok)
-
-                # self.USLayerId = layerUS.getLayerID()
+                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                layerUS.setCrs(crs)
                 style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
                 layerUS.loadNamedStyle(style_path)
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerUS))
@@ -1657,7 +1793,7 @@ class Pyarchinit_pyqgis(QDialog):
 
             
             
-            srs = QgsCoordinateReferenceSystem(self.SRS, QgsCoordinateReferenceSystem.PostgisCrsId)
+            #srs = QgsCoordinateReferenceSystem(self.SRS, QgsCoordinateReferenceSystem.PostgisCrsId)
 
         elif settings.SERVER == 'postgres':
             uri = QgsDataSourceUri()
@@ -1665,12 +1801,12 @@ class Pyarchinit_pyqgis(QDialog):
             uri.setConnection(settings.HOST, settings.PORT, settings.DATABASE, settings.USER, settings.PASSWORD)
             cont_per_string = "sito = '" + self.sito_p + "' AND (" + " cont_per = '" + self.cont_per + "' OR cont_per LIKE '" + self.cont_per + "/%' OR cont_per LIKE '%/" + self.cont_per + "' OR cont_per LIKE '%/" + self.cont_per + "/%')"
 
-            srs = QgsCoordinateReferenceSystem(self.SRS, QgsCoordinateReferenceSystem.PostgisCrsId)
+            #srs = QgsCoordinateReferenceSystem(self.SRS, QgsCoordinateReferenceSystem.PostgisCrsId)
             
             uri.setDataSource("public", "pyarchinit_quote_view", "the_geom", cont_per_string, "gid")
             layerQUOTE = QgsVectorLayer(uri.uri(), layer_name_label_quote, "postgres")
             if layerQUOTE.isValid():
-                layerQUOTE.setCrs(srs)
+                #layerQUOTE.setCrs(srs)
                 style_path = '{}{}'.format(self.LAYER_STYLE_PATH, 'stile_quote.qml')
                 layerQUOTE.loadNamedStyle(style_path)
                 try:
@@ -1682,7 +1818,7 @@ class Pyarchinit_pyqgis(QDialog):
             uri.setDataSource("public", "pyarchinit_us_view", "the_geom", cont_per_string, "gid")
             layerUS = QgsVectorLayer(uri.uri(), layer_name_label_us, "postgres")
             if layerUS.isValid():
-                layerUS.setCrs(srs)
+                #layerUS.setCrs(srs)
                 # self.USLayerId = layerUS.getLayerID()
                 style_path = '{}{}'.format(self.LAYER_STYLE_PATH, 'us_caratterizzazioni.qml')
                 # style_path = QFileDialog.getOpenFileName(self, 'Open file', self.LAYER_STYLE_PATH)
@@ -1731,7 +1867,16 @@ class Pyarchinit_pyqgis(QDialog):
         if settings.SERVER == 'sqlite':
             sqliteDB_path = os.path.join(os.sep, 'pyarchinit_DB_folder', settings.DATABASE)
             db_file_path = '{}{}'.format(self.HOME, sqliteDB_path)
+            # Open a connection to the SpatiaLite database
+            conn = sqlite3.connect(db_file_path)
+            cursor = conn.cursor()
 
+            # Extract the SRID from the 'pyarchinit_individui' table
+            cursor.execute("SELECT srid FROM geometry_columns WHERE f_table_name = 'pyarchinit_siti'")
+            srid = cursor.fetchone()[0]
+
+            # Close the database connection
+            conn.close()
             uri = QgsDataSourceUri()
             uri.setDatabase(db_file_path)
 
@@ -1743,6 +1888,9 @@ class Pyarchinit_pyqgis(QDialog):
             layerQUOTE = QgsVectorLayer(uri.uri(), layer_name_label_quote, 'spatialite')
 
             if layerQUOTE.isValid():
+                # Create a CRS using a predefined SRID
+                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                layerQUOTE.setCrs(crs)
                 # self.USLayerId = layerUS.getLayerID()
                 style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'quote_us_view.qml')
                 layerQUOTE.loadNamedStyle(style_path)
@@ -1754,9 +1902,8 @@ class Pyarchinit_pyqgis(QDialog):
             
 
             if layerUS.isValid():
-                #QMessageBox.warning(self, "Pyarchinit", "OK Layer US valido", QMessageBox.Ok)
-
-                # self.USLayerId = layerUS.getLayerID()
+                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                layerUS.setCrs(crs)
                 style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
                 layerUS.loadNamedStyle(style_path)
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerUS))
@@ -1766,7 +1913,7 @@ class Pyarchinit_pyqgis(QDialog):
 
             
             
-            srs = QgsCoordinateReferenceSystem(self.SRS, QgsCoordinateReferenceSystem.PostgisCrsId)
+            #srs = QgsCoordinateReferenceSystem(self.SRS, QgsCoordinateReferenceSystem.PostgisCrsId)
 
         elif settings.SERVER == 'postgres':
             uri = QgsDataSourceUri()
@@ -1774,12 +1921,12 @@ class Pyarchinit_pyqgis(QDialog):
             uri.setConnection(settings.HOST, settings.PORT, settings.DATABASE, settings.USER, settings.PASSWORD)
             cont_per_string = "sito = '" + self.sito_p + "' AND (" + " cont_per = '" + self.cont_per + "' OR cont_per LIKE '" + self.cont_per + "/%' OR cont_per LIKE '%/" + self.cont_per + "' OR cont_per LIKE '%/" + self.cont_per + "/%')"
 
-            srs = QgsCoordinateReferenceSystem(self.SRS, QgsCoordinateReferenceSystem.PostgisCrsId)
+            #srs = QgsCoordinateReferenceSystem(self.SRS, QgsCoordinateReferenceSystem.PostgisCrsId)
             
             uri.setDataSource("public", "pyarchinit_quote_usm_view", "the_geom", cont_per_string, "gid")
             layerQUOTE = QgsVectorLayer(uri.uri(), layer_name_label_quote, "postgres")
             if layerQUOTE.isValid():
-                layerQUOTE.setCrs(srs)
+                #layerQUOTE.setCrs(srs)
                 style_path = '{}{}'.format(self.LAYER_STYLE_PATH, 'stile_quote.qml')
                 layerQUOTE.loadNamedStyle(style_path)
                 try:
@@ -1791,7 +1938,7 @@ class Pyarchinit_pyqgis(QDialog):
             uri.setDataSource("public", "pyarchinit_usm_view", "the_geom", cont_per_string, "gid")
             layerUS = QgsVectorLayer(uri.uri(), layer_name_label_us, "postgres")
             if layerUS.isValid():
-                layerUS.setCrs(srs)
+                #layerUS.setCrs(srs)
                 # self.USLayerId = layerUS.getLayerID()
                 style_path = '{}{}'.format(self.LAYER_STYLE_PATH, 'us_caratterizzazioni.qml')
                 # style_path = QFileDialog.getOpenFileName(self, 'Open file', self.LAYER_STYLE_PATH)
@@ -1844,6 +1991,16 @@ class Pyarchinit_pyqgis(QDialog):
         elif settings.SERVER == 'sqlite':
             sqliteDB_path = os.path.join(os.sep, 'pyarchinit_DB_folder', settings.DATABASE)
             db_file_path = '{}{}'.format(self.HOME, sqliteDB_path)
+            # Open a connection to the SpatiaLite database
+            conn = sqlite3.connect(db_file_path)
+            cursor = conn.cursor()
+
+            # Extract the SRID from the 'pyarchinit_individui' table
+            cursor.execute("SELECT srid FROM geometry_columns WHERE f_table_name = 'pyarchinit_siti'")
+            srid = cursor.fetchone()[0]
+
+            # Close the database connection
+            conn.close()
             uri = QgsDataSourceUri()
             uri.setDatabase(db_file_path)
 
@@ -1857,6 +2014,10 @@ class Pyarchinit_pyqgis(QDialog):
             layerUS_us = QgsVectorLayer(uri_us.uri(), 'pyarchinit_us_view', 'spatialite')
 
             if layerUS.isValid():
+                # Create a CRS using a predefined SRID
+                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                layerUS_us.setCrs(crs)
+                layerUS.setCrs(crs)
                 # QMessageBox.warning(self, "Pyarchinit", "OK ayer US valido",   #QMessageBox.Ok)
                 style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view_preview.qml')
                 layerUS.loadNamedStyle(style_path)
@@ -1915,6 +2076,16 @@ class Pyarchinit_pyqgis(QDialog):
         elif settings.SERVER == 'sqlite':
             sqliteDB_path = os.path.join(os.sep, 'pyarchinit_DB_folder', settings.DATABASE)
             db_file_path = '{}{}'.format(self.HOME, sqliteDB_path)
+            # Open a connection to the SpatiaLite database
+            conn = sqlite3.connect(db_file_path)
+            cursor = conn.cursor()
+
+            # Extract the SRID from the 'pyarchinit_individui' table
+            cursor.execute("SELECT srid FROM geometry_columns WHERE f_table_name = 'pyarchinit_siti'")
+            srid = cursor.fetchone()[0]
+
+            # Close the database connection
+            conn.close()
             uri = QgsDataSourceUri()
             uri.setDatabase(db_file_path)
 
@@ -1928,6 +2099,10 @@ class Pyarchinit_pyqgis(QDialog):
             layerUS_us = QgsVectorLayer(uri_us.uri(), 'pyarchinit_us_view', 'spatialite')
 
             if layerUS.isValid():
+                # Create a CRS using a predefined SRID
+                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                layerUS_us.setCrs(crs)
+                layerUS.setCrs(crs)
                 # QMessageBox.warning(self, "Pyarchinit", "OK ayer US valido",   #QMessageBox.Ok)
                 style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view_preview.qml')
                 layerUS.loadNamedStyle(style_path)
@@ -1946,7 +2121,7 @@ class Pyarchinit_pyqgis(QDialog):
     def loadMapPreviewDoc(self,docstr):
         """ if has geometry column load to map canvas """
         layerToSet = []
-        srs = QgsCoordinateReferenceSystem(self.SRS, QgsCoordinateReferenceSystem.PostgisCrsId)
+        #srs = QgsCoordinateReferenceSystem(self.SRS, QgsCoordinateReferenceSystem.PostgisCrsId)
         sqlite_DB_path = '{}{}{}'.format(self.HOME, os.sep, "pyarchinit_DB_folder")
         path_cfg = '{}{}{}'.format(sqlite_DB_path, os.sep, 'config.cfg')
         conf = open(path_cfg, "r")
@@ -1968,7 +2143,7 @@ class Pyarchinit_pyqgis(QDialog):
             layerUS = QgsVectorLayer(uri.uri(), "pyarchinit_doc_view_b", "postgres")
 
             if layerUS.isValid():
-                QMessageBox.warning(self, "WARNING", "OK layer ", QMessageBox.Ok)
+                #QMessageBox.warning(self, "WARNING", "OK layer ", QMessageBox.Ok)
                 ##              style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
                 ##              layerUS.loadNamedStyle(style_path)
                 QgsProject.instance().addMapLayers([layerUS], False)
@@ -1991,6 +2166,16 @@ class Pyarchinit_pyqgis(QDialog):
         elif settings.SERVER == 'sqlite':
             sqliteDB_path = os.path.join(os.sep, 'pyarchinit_DB_folder', settings.DATABASE)
             db_file_path = '{}{}'.format(self.HOME, sqliteDB_path)
+            # Open a connection to the SpatiaLite database
+            conn = sqlite3.connect(db_file_path)
+            cursor = conn.cursor()
+
+            # Extract the SRID from the 'pyarchinit_individui' table
+            cursor.execute("SELECT srid FROM geometry_columns WHERE f_table_name = 'pyarchinit_siti'")
+            srid = cursor.fetchone()[0]
+
+            # Close the database connection
+            conn.close()
             uri = QgsDataSourceUri()
             uri.setDatabase(db_file_path)
 
@@ -2002,7 +2187,10 @@ class Pyarchinit_pyqgis(QDialog):
             layerUS = QgsVectorLayer(uri.uri(), 'pyarchinit_us_view', 'spatialite')
 
             if layerUS.isValid():
-                QMessageBox.warning(self, "Pyarchinit", "OK ayer US valido", QMessageBox.Ok)
+                # Create a CRS using a predefined SRID
+                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                layerUS.setCrs(crs)
+                #QMessageBox.warning(self, "Pyarchinit", "OK ayer US valido", QMessageBox.Ok)
                 ##              style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
                 ##              layerUS.loadNamedStyle(style_path)
                 QgsProject.instance().addMapLayers([layerUS], False)
@@ -2111,33 +2299,47 @@ class Pyarchinit_pyqgis(QDialog):
         myGroup2.setExpanded(False)
         myGroup3.setExpanded(False)
         #myGroup4.setExpanded(False)    
+
+
         if settings.SERVER == 'sqlite':
             sqliteDB_path = os.path.join(os.sep, 'pyarchinit_DB_folder', settings.DATABASE)
             db_file_path = '{}{}'.format(self.HOME, sqliteDB_path)
             uri = QgsDataSourceUri()
             uri.setDatabase(db_file_path)
-            
-            
+
+            # Open a connection to the SpatiaLite database
+            conn = sqlite3.connect(db_file_path)
+            cursor = conn.cursor()
+
+            # Extract the SRID from the 'pyarchinit_individui' table
+            cursor.execute("SELECT srid FROM geometry_columns WHERE f_table_name = 'pyarchinit_individui'")
+            srid = cursor.fetchone()[0]
+
+            # Close the database connection
+            conn.close()
+
             layer_name = 'pyarchinit_individui'
             layer_name_conv = "'" + str(layer_name) + "'"
-            ##value_conv = ('"sito = %s"') % ("'" + str(self.val) + "'")
+
             cmq_set_uri_data_source = "uri.setDataSource('',%s, %s)" % (layer_name_conv, "'the_geom'")
             eval(cmq_set_uri_data_source)
+
             layer_label = self.LAYERS_CONVERT_DIZ[layer_name]
             layer_label_conv = "'" + layer_label + "'"
+
             cmq_set_vector_layer = "QgsVectorLayer(uri.uri(), %s, 'spatialite')" % (layer_label_conv)
             layer = eval(cmq_set_vector_layer)
 
             if layer.isValid():
-                # self.USLayerId = layerUS.getLayerID()
-                ##style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
-                ##ayerUS.loadNamedStyle(style_path)
+                # Create a CRS using the SRID we extracted
+                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                layer.setCrs(crs)
+
                 myGroup1.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
             else:
                 QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
-            
-            
+
             layer_name = 'pyarchinit_linee_rif'
             layer_name_conv = "'" + str(layer_name) + "'"
             #value_conv = ('"sito = %s"') % ("'" + str(self.val) + "'")
@@ -2149,9 +2351,9 @@ class Pyarchinit_pyqgis(QDialog):
             layer = eval(cmq_set_vector_layer)
 
             if layer.isValid():
-                # self.USLayerId = layerUS.getLayerID()
-                ##style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
-                ##ayerUS.loadNamedStyle(style_path)
+                # Create a CRS using the SRID we extracted
+                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                layer.setCrs(crs)
                 myGroup2.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
             else:
@@ -2168,9 +2370,9 @@ class Pyarchinit_pyqgis(QDialog):
             layer = eval(cmq_set_vector_layer)
 
             if layer.isValid():
-                # self.USLayerId = layerUS.getLayerID()
-                ##style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
-                ##ayerUS.loadNamedStyle(style_path)
+                # Create a CRS using the SRID we extracted
+                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                layer.setCrs(crs)
                 myGroup1.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
             else:
@@ -2188,9 +2390,9 @@ class Pyarchinit_pyqgis(QDialog):
             layer = eval(cmq_set_vector_layer)
 
             if layer.isValid():
-                # self.USLayerId = layerUS.getLayerID()
-                ##style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
-                ##ayerUS.loadNamedStyle(style_path)
+                # Create a CRS using the SRID we extracted
+                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                layer.setCrs(crs)
                 myGroup1.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
             else:
@@ -2208,9 +2410,9 @@ class Pyarchinit_pyqgis(QDialog):
             layer = eval(cmq_set_vector_layer)
 
             if layer.isValid():
-                # self.USLayerId = layerUS.getLayerID()
-                ##style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
-                ##ayerUS.loadNamedStyle(style_path)
+                # Create a CRS using the SRID we extracted
+                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                layer.setCrs(crs)
                 myGroup2.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
             else:
@@ -2227,9 +2429,9 @@ class Pyarchinit_pyqgis(QDialog):
             layer = eval(cmq_set_vector_layer)
             
             if layer.isValid():
-                # self.USLayerId = layerUS.getLayerID()
-                ##style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
-                ##ayerUS.loadNamedStyle(style_path)
+                # Create a CRS using the SRID we extracted
+                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                layer.setCrs(crs)
                 myGroup3.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
                 
@@ -2247,9 +2449,9 @@ class Pyarchinit_pyqgis(QDialog):
             layer = eval(cmq_set_vector_layer)
 
             if layer.isValid():
-                # self.USLayerId = layerUS.getLayerID()
-                ##style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
-                ##ayerUS.loadNamedStyle(style_path)
+                # Create a CRS using the SRID we extracted
+                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                layer.setCrs(crs)
                 myGroup1.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
             else:
@@ -2268,9 +2470,9 @@ class Pyarchinit_pyqgis(QDialog):
             layer = eval(cmq_set_vector_layer)
             
             if layer.isValid():
-                # self.USLayerId = layerUS.getLayerID()
-                ##style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
-                ##ayerUS.loadNamedStyle(style_path)
+                # Create a CRS using the SRID we extracted
+                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                layer.setCrs(crs)
                 myGroup3.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
                 
@@ -2288,9 +2490,9 @@ class Pyarchinit_pyqgis(QDialog):
             layer = eval(cmq_set_vector_layer)
 
             if layer.isValid():
-                # self.USLayerId = layerUS.getLayerID()
-                ##style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
-                ##ayerUS.loadNamedStyle(style_path)
+                # Create a CRS using the SRID we extracted
+                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                layer.setCrs(crs)
                 myGroup1.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
             else:
@@ -2310,6 +2512,9 @@ class Pyarchinit_pyqgis(QDialog):
             layer = eval(cmq_set_vector_layer)
 
             if layer.isValid():
+                # Create a CRS using the SRID we extracted
+                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                layer.setCrs(crs)
                 myGroup3.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
             else:
@@ -2326,6 +2531,9 @@ class Pyarchinit_pyqgis(QDialog):
             layer = eval(cmq_set_vector_layer)
 
             if layer.isValid():
+                # Create a CRS using the SRID we extracted
+                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                layer.setCrs(crs)
                 myGroup1.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
             else:
@@ -2342,6 +2550,9 @@ class Pyarchinit_pyqgis(QDialog):
             layer = eval(cmq_set_vector_layer)
 
             if layer.isValid():
+                # Create a CRS using the SRID we extracted
+                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                layer.setCrs(crs)
                 myGroup1.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
             else:
@@ -2360,6 +2571,9 @@ class Pyarchinit_pyqgis(QDialog):
             layer = eval(cmq_set_vector_layer)
 
             if layer.isValid():
+                # Create a CRS using the SRID we extracted
+                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                layer.setCrs(crs)
                 myGroup1.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
             else:
@@ -2377,6 +2591,9 @@ class Pyarchinit_pyqgis(QDialog):
             layer = eval(cmq_set_vector_layer)
 
             if layer.isValid():
+                # Create a CRS using the SRID we extracted
+                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                layer.setCrs(crs)
                 myGroup3.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
             else:
@@ -2393,9 +2610,9 @@ class Pyarchinit_pyqgis(QDialog):
             layer = eval(cmq_set_vector_layer)
 
             if layer.isValid():
-                # self.USLayerId = layerUS.getLayerID()
-                ##style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
-                ##ayerUS.loadNamedStyle(style_path)
+                # Create a CRS using the SRID we extracted
+                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                layer.setCrs(crs)
                 myGroup2.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
             else:
@@ -2414,6 +2631,9 @@ class Pyarchinit_pyqgis(QDialog):
             layer = eval(cmq_set_vector_layer)
 
             if layer.isValid():
+                # Create a CRS using the SRID we extracted
+                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                layer.setCrs(crs)
                 myGroup3.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
             else:
@@ -2430,6 +2650,9 @@ class Pyarchinit_pyqgis(QDialog):
             layer = eval(cmq_set_vector_layer)
 
             if layer.isValid():
+                # Create a CRS using the SRID we extracted
+                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                layer.setCrs(crs)
                 myGroup2.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
             else:
@@ -2440,7 +2663,6 @@ class Pyarchinit_pyqgis(QDialog):
             uri = QgsDataSourceUri()
             # set host name, port, database name, username and password
             uri.setConnection(settings.HOST, settings.PORT, settings.DATABASE, settings.USER, settings.PASSWORD)
-            srs = QgsCoordinateReferenceSystem(self.SRS, QgsCoordinateReferenceSystem.PostgisCrsId)
 
             layer_name = 'pyarchinit_individui'
             layer_name_conv = "'" + str(layer_name) + "'"
@@ -2795,6 +3017,19 @@ class Pyarchinit_pyqgis(QDialog):
             db_file_path = '{}{}'.format(self.HOME, sqliteDB_path)
             uri = QgsDataSourceUri()
             uri.setDatabase(db_file_path)
+            # Open a connection to the SpatiaLite database
+            conn = sqlite3.connect(db_file_path)
+            cursor = conn.cursor()
+
+            # Extract the SRID from the 'pyarchinit_individui' table
+            cursor.execute("SELECT srid FROM geometry_columns WHERE f_table_name = 'pyarchinit_individui'")
+            srid = cursor.fetchone()[0]
+
+            # Close the database connection
+            conn.close()
+
+
+
 
             layer_name = 'pyarchinit_individui'
             layer_name_conv = "'" + str(layer_name) + "'"
@@ -2807,9 +3042,10 @@ class Pyarchinit_pyqgis(QDialog):
             layer = eval(cmq_set_vector_layer)
 
             if layer.isValid():
-                # self.USLayerId = layerUS.getLayerID()
-                ##style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
-                ##ayerUS.loadNamedStyle(style_path)
+                # Create a CRS using the SRID we extracted
+                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                layer.setCrs(crs)
+
                 myGroup1.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
             else:
@@ -2827,9 +3063,9 @@ class Pyarchinit_pyqgis(QDialog):
             layer = eval(cmq_set_vector_layer)
 
             if layer.isValid():
-                # self.USLayerId = layerUS.getLayerID()
-                ##style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
-                ##ayerUS.loadNamedStyle(style_path)
+                # Create a CRS using the SRID we extracted
+                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                layer.setCrs(crs)
                 myGroup2.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
             else:
@@ -2846,9 +3082,9 @@ class Pyarchinit_pyqgis(QDialog):
             layer = eval(cmq_set_vector_layer)
 
             if layer.isValid():
-                # self.USLayerId = layerUS.getLayerID()
-                ##style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
-                ##ayerUS.loadNamedStyle(style_path)
+                # Create a CRS using the SRID we extracted
+                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                layer.setCrs(crs)
                 myGroup1.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
             else:
@@ -2866,9 +3102,9 @@ class Pyarchinit_pyqgis(QDialog):
             layer = eval(cmq_set_vector_layer)
 
             if layer.isValid():
-                # self.USLayerId = layerUS.getLayerID()
-                ##style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
-                ##ayerUS.loadNamedStyle(style_path)
+                # Create a CRS using the SRID we extracted
+                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                layer.setCrs(crs)
                 myGroup1.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
             else:
@@ -2886,9 +3122,9 @@ class Pyarchinit_pyqgis(QDialog):
             layer = eval(cmq_set_vector_layer)
 
             if layer.isValid():
-                # self.USLayerId = layerUS.getLayerID()
-                ##style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
-                ##ayerUS.loadNamedStyle(style_path)
+                # Create a CRS using the SRID we extracted
+                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                layer.setCrs(crs)
                 myGroup2.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
             else:
@@ -2905,9 +3141,9 @@ class Pyarchinit_pyqgis(QDialog):
             layer = eval(cmq_set_vector_layer)
 
             if layer.isValid():
-                # self.USLayerId = layerUS.getLayerID()
-                ##style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
-                ##ayerUS.loadNamedStyle(style_path)
+                # Create a CRS using the SRID we extracted
+                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                layer.setCrs(crs)
                 myGroup3.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
             else:
@@ -2924,9 +3160,9 @@ class Pyarchinit_pyqgis(QDialog):
             layer = eval(cmq_set_vector_layer)
 
             if layer.isValid():
-                # self.USLayerId = layerUS.getLayerID()
-                ##style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
-                ##ayerUS.loadNamedStyle(style_path)
+                # Create a CRS using the SRID we extracted
+                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                layer.setCrs(crs)
                 myGroup1.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
             else:
@@ -2944,9 +3180,9 @@ class Pyarchinit_pyqgis(QDialog):
             layer = eval(cmq_set_vector_layer)
 
             if layer.isValid():
-                # self.USLayerId = layerUS.getLayerID()
-                ##style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
-                ##ayerUS.loadNamedStyle(style_path)
+                # Create a CRS using the SRID we extracted
+                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                layer.setCrs(crs)
                 myGroup3.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
             else:
@@ -2963,9 +3199,9 @@ class Pyarchinit_pyqgis(QDialog):
             layer = eval(cmq_set_vector_layer)
 
             if layer.isValid():
-                # self.USLayerId = layerUS.getLayerID()
-                ##style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
-                ##ayerUS.loadNamedStyle(style_path)
+                # Create a CRS using the SRID we extracted
+                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                layer.setCrs(crs)
                 myGroup1.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
             else:
@@ -2983,6 +3219,9 @@ class Pyarchinit_pyqgis(QDialog):
             layer = eval(cmq_set_vector_layer)
 
             if layer.isValid():
+                # Create a CRS using the SRID we extracted
+                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                layer.setCrs(crs)
                 myGroup3.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
             else:
@@ -2999,6 +3238,9 @@ class Pyarchinit_pyqgis(QDialog):
             layer = eval(cmq_set_vector_layer)
 
             if layer.isValid():
+                # Create a CRS using the SRID we extracted
+                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                layer.setCrs(crs)
                 myGroup1.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
             else:
@@ -3015,6 +3257,9 @@ class Pyarchinit_pyqgis(QDialog):
             layer = eval(cmq_set_vector_layer)
 
             if layer.isValid():
+                # Create a CRS using the SRID we extracted
+                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                layer.setCrs(crs)
                 myGroup1.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
             else:
@@ -3033,6 +3278,9 @@ class Pyarchinit_pyqgis(QDialog):
             layer = eval(cmq_set_vector_layer)
 
             if layer.isValid():
+                # Create a CRS using the SRID we extracted
+                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                layer.setCrs(crs)
                 myGroup1.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
             else:
@@ -3050,6 +3298,9 @@ class Pyarchinit_pyqgis(QDialog):
             layer = eval(cmq_set_vector_layer)
 
             if layer.isValid():
+                # Create a CRS using the SRID we extracted
+                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                layer.setCrs(crs)
                 myGroup3.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
             else:
@@ -3066,9 +3317,9 @@ class Pyarchinit_pyqgis(QDialog):
             layer = eval(cmq_set_vector_layer)
 
             if layer.isValid():
-                # self.USLayerId = layerUS.getLayerID()
-                ##style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
-                ##ayerUS.loadNamedStyle(style_path)
+                # Create a CRS using the SRID we extracted
+                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                layer.setCrs(crs)
                 myGroup2.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
             else:
@@ -3087,6 +3338,9 @@ class Pyarchinit_pyqgis(QDialog):
             layer = eval(cmq_set_vector_layer)
 
             if layer.isValid():
+                # Create a CRS using the SRID we extracted
+                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                layer.setCrs(crs)
                 myGroup3.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
             else:
@@ -3103,6 +3357,9 @@ class Pyarchinit_pyqgis(QDialog):
             layer = eval(cmq_set_vector_layer)
 
             if layer.isValid():
+                # Create a CRS using the SRID we extracted
+                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                layer.setCrs(crs)
                 myGroup2.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
             else:
@@ -3112,7 +3369,7 @@ class Pyarchinit_pyqgis(QDialog):
 
             uri = QgsDataSourceUri()
             uri.setConnection(settings.HOST, settings.PORT, settings.DATABASE, settings.USER, settings.PASSWORD)
-            srs = QgsCoordinateReferenceSystem(self.SRS, QgsCoordinateReferenceSystem.PostgisCrsId)
+            #srs = QgsCoordinateReferenceSystem(self.SRS, QgsCoordinateReferenceSystem.PostgisCrsId)
 
             layer_name = 'pyarchinit_individui'
             layer_name_conv = "'" + str(layer_name) + "'"
@@ -3448,11 +3705,20 @@ class Pyarchinit_pyqgis(QDialog):
         root = QgsProject.instance().layerTreeRoot()
         group = root.addGroup(groupName)
         group.setExpanded(False)
-        
+
         if settings.SERVER == 'sqlite':
             sqliteDB_path = os.path.join(os.sep, 'pyarchinit_DB_folder', settings.DATABASE)
             db_file_path = '{}{}'.format(self.HOME, sqliteDB_path)
+            # Open a connection to the SpatiaLite database
+            conn = sqlite3.connect(db_file_path)
+            cursor = conn.cursor()
 
+            # Extract the SRID from the 'pyarchinit_individui' table
+            cursor.execute("SELECT srid FROM geometry_columns WHERE f_table_name = 'pyarchinit_siti'")
+            srid = cursor.fetchone()[0]
+
+            # Close the database connection
+            conn.close()
             gidstr = "sito_nome= '" + str(data[0].sito) + "'"
             if len(data) > 1:
                 for i in range(len(data)):
@@ -3465,13 +3731,16 @@ class Pyarchinit_pyqgis(QDialog):
             layerSITE = QgsVectorLayer(uri.uri(), 'pyarchinit_site_view', 'spatialite')
 
             if layerSITE.isValid():
-                QMessageBox.warning(self, "Pyarchinit", "OK Layer Sito valido", QMessageBox.Ok)
+                # Create a CRS using a predefined SRID
+                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                layerSITE.setCrs(crs)
 
                 self.iface.mapCanvas().setExtent(layerSITE.extent())
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerSITE))
                 QgsProject.instance().addMapLayers([layerSITE], False)
             else:
                 QMessageBox.warning(self, "Pyarchinit", "Layer US non valido", QMessageBox.Ok)
+
 
         elif settings.SERVER == 'postgres':
 
@@ -3487,7 +3756,7 @@ class Pyarchinit_pyqgis(QDialog):
             layerSITE = QgsVectorLayer(uri.uri(), 'pyarchinit_site_view', 'postgres')
 
             if layerSITE.isValid():
-                QMessageBox.warning(self, "Pyarchinit", "OK Layer Sito valido", QMessageBox.Ok)
+                #QMessageBox.warning(self, "Pyarchinit", "OK Layer Sito valido", QMessageBox.Ok)
 
                 # self.USLayerId = layerUS.getLayerID()
                 ##              style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
@@ -3525,7 +3794,13 @@ class Pyarchinit_pyqgis(QDialog):
         if settings.SERVER == 'sqlite':
             sqliteDB_path = os.path.join(os.sep, 'pyarchinit_DB_folder', settings.DATABASE)
             db_file_path = '{}{}'.format(self.HOME, sqliteDB_path)
+            # Open a connection to the SpatiaLite database
+            conn = sqlite3.connect(db_file_path)
+            cursor = conn.cursor()
 
+            # Extract the SRID from the 'pyarchinit_individui' table
+            cursor.execute("SELECT srid FROM geometry_columns WHERE f_table_name = 'pyarchinit_siti'")
+            srid = cursor.fetchone()[0]
             gidstr = "numero_inventario = '" + str(data[0].numero_inventario) + "'"
             if len(data) > 1:
                 for i in range(len(data)):
@@ -3538,7 +3813,10 @@ class Pyarchinit_pyqgis(QDialog):
             layerUS = QgsVectorLayer(uri.uri(), name_layer, 'spatialite')
 
             if layerUS.isValid():
-                QMessageBox.warning(self, "Pyarchinit", "OK Layer US valido", QMessageBox.Ok)
+                # Create a CRS using a predefined SRID
+                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                layerUS.setCrs(crs)
+                #QMessageBox.warning(self, "Pyarchinit", "OK Layer US valido", QMessageBox.Ok)
 
                 
 
@@ -3560,13 +3838,13 @@ class Pyarchinit_pyqgis(QDialog):
                 for i in range(len(data)):
                     gidstr += " OR numero_inventario = " + str(data[i].numero_inventario)
 
-            srs = QgsCoordinateReferenceSystem(self.SRS, QgsCoordinateReferenceSystem.PostgisCrsId)
+            #srs = QgsCoordinateReferenceSystem(self.SRS, QgsCoordinateReferenceSystem.PostgisCrsId)
 
             uri.setDataSource("public", "pyarchinit_reperti_view", "the_geom", gidstr, "gid")
             layerUS = QgsVectorLayer(uri.uri(), name_layer, "postgres")
 
             if layerUS.isValid():
-                layerUS.setCrs(srs)
+                #layerUS.setCrs(srs)
                 
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerUS))
                 QgsProject.instance().addMapLayers([layerUS], False)
@@ -3602,7 +3880,13 @@ class Pyarchinit_pyqgis(QDialog):
         if settings.SERVER == 'sqlite':
             sqliteDB_path = os.path.join(os.sep, 'pyarchinit_DB_folder', settings.DATABASE)
             db_file_path = '{}{}'.format(self.HOME, sqliteDB_path)
+            # Open a connection to the SpatiaLite database
+            conn = sqlite3.connect(db_file_path)
+            cursor = conn.cursor()
 
+            # Extract the SRID from the 'pyarchinit_individui' table
+            cursor.execute("SELECT srid FROM geometry_columns WHERE f_table_name = 'pyarchinit_siti'")
+            srid = cursor.fetchone()[0]
             gidstr = "nr_scheda_taf = '" + str(data[0].nr_scheda_taf) + "'"
             if len(data) > 1:
                 for i in range(len(data)):
@@ -3615,7 +3899,11 @@ class Pyarchinit_pyqgis(QDialog):
             layerUS = QgsVectorLayer(uri.uri(), name_layer, 'spatialite')
 
             if layerUS.isValid():
-                QMessageBox.warning(self, "Pyarchinit", "OK Layer US valido", QMessageBox.Ok)
+                # Create a CRS using a predefined SRID
+                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                layerUS.setCrs(crs)
+
+                #QMessageBox.warning(self, "Pyarchinit", "OK Layer US valido", QMessageBox.Ok)
 
                 
 
@@ -3637,13 +3925,13 @@ class Pyarchinit_pyqgis(QDialog):
                 for i in range(len(data)):
                     gidstr += " OR nr_scheda_taf = " + str(data[i].nr_scheda_taf)
 
-            srs = QgsCoordinateReferenceSystem(self.SRS, QgsCoordinateReferenceSystem.PostgisCrsId)
+            #srs = QgsCoordinateReferenceSystem(self.SRS, QgsCoordinateReferenceSystem.PostgisCrsId)
 
             uri.setDataSource("public", "pyarchinit_tomba_view", "the_geom", gidstr, "gid")
             layerUS = QgsVectorLayer(uri.uri(), name_layer, "postgres")
 
             if layerUS.isValid():
-                layerUS.setCrs(srs)
+                #layerUS.setCrs(srs)
                 
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerUS))
                 QgsProject.instance().addMapLayers([layerUS], False)
@@ -3681,7 +3969,13 @@ class Pyarchinit_pyqgis(QDialog):
             sqliteDB_path = os.path.join(os.sep, 'pyarchinit_DB_folder', settings.DATABASE)
             db_file_path = '{}{}'.format(self.HOME, sqliteDB_path)
 
-            
+            # Open a connection to the SpatiaLite database
+            conn = sqlite3.connect(db_file_path)
+            cursor = conn.cursor()
+
+            # Extract the SRID from the 'pyarchinit_individui' table
+            cursor.execute("SELECT srid FROM geometry_columns WHERE f_table_name = 'pyarchinit_siti'")
+            srid = cursor.fetchone()[0]
             string = "sito = '" + self.sito_p + "' AND  sigla_struttura = '" + self.sigla_st + "' AND numero_struttura= '" + self.n_st + "'"
             
             #gidstr = "id_struttura = '" + str(self.data[0].id_struttura) + "'"
@@ -3696,6 +3990,10 @@ class Pyarchinit_pyqgis(QDialog):
             layerSTRUTTURA = QgsVectorLayer(uri.uri(), 'pyarchinit_strutture_view', 'spatialite')
 
             if layerSTRUTTURA.isValid():
+                # Create a CRS using a predefined SRID
+                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                layerSTRUTTURA.setCrs(crs)
+
                 #QMessageBox.warning(self, "Pyarchinit", "OK Layer Struttura valido", QMessageBox.Ok)
 
                 self.iface.mapCanvas().setExtent(layerSTRUTTURA.extent())
@@ -3753,7 +4051,13 @@ class Pyarchinit_pyqgis(QDialog):
         if settings.SERVER == 'sqlite':
             sqliteDB_path = os.path.join(os.sep, 'pyarchinit_DB_folder', settings.DATABASE)
             db_file_path = '{}{}'.format(self.HOME, sqliteDB_path)
+            # Open a connection to the SpatiaLite database
+            conn = sqlite3.connect(db_file_path)
+            cursor = conn.cursor()
 
+            # Extract the SRID from the 'pyarchinit_individui' table
+            cursor.execute("SELECT srid FROM geometry_columns WHERE f_table_name = 'pyarchinit_siti'")
+            srid = cursor.fetchone()[0]
             gidstr = "id_struttura = '" + str(data[0].id_struttura) + "'"
             if len(data) > 1:
                 for i in range(len(data)):
@@ -3766,7 +4070,10 @@ class Pyarchinit_pyqgis(QDialog):
             layerSTRUTTURA = QgsVectorLayer(uri.uri(), 'pyarchinit_strutture_view', 'spatialite')
 
             if layerSTRUTTURA.isValid():
-                QMessageBox.warning(self, "Pyarchinit", "OK Layer Struttura valido", QMessageBox.Ok)
+                # Create a CRS using a predefined SRID
+                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                layerSTRUTTURA.setCrs(crs)
+                #QMessageBox.warning(self, "Pyarchinit", "OK Layer Struttura valido", QMessageBox.Ok)
 
                 self.iface.mapCanvas().setExtent(layerSTRUTTURA.extent())
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerSTRUTTURA))
@@ -3789,7 +4096,7 @@ class Pyarchinit_pyqgis(QDialog):
             layerSTRUTTURA = QgsVectorLayer(uri.uri(), 'pyarchinit_strutture_view', 'postgres')
 
             if layerSTRUTTURA.isValid():
-                QMessageBox.warning(self, "Pyarchinit", "OK Layer Struttura valido", QMessageBox.Ok)
+                #QMessageBox.warning(self, "Pyarchinit", "OK Layer Struttura valido", QMessageBox.Ok)
 
                 self.iface.mapCanvas().setExtent(layerSTRUTTURA.extent())
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerSTRUTTURA))
@@ -3819,7 +4126,13 @@ class Pyarchinit_pyqgis(QDialog):
         if settings.SERVER == 'sqlite':
             sqliteDB_path = os.path.join(os.sep, 'pyarchinit_DB_folder', settings.DATABASE)
             db_file_path = '{}{}'.format(self.HOME, sqliteDB_path)
+            # Open a connection to the SpatiaLite database
+            conn = sqlite3.connect(db_file_path)
+            cursor = conn.cursor()
 
+            # Extract the SRID from the 'pyarchinit_individui' table
+            cursor.execute("SELECT srid FROM geometry_columns WHERE f_table_name = 'pyarchinit_siti'")
+            srid = cursor.fetchone()[0]
             gidstr = "id_scheda_ind = '" + str(data[0].id_scheda_ind) + "'"
             if len(data) > 1:
                 for i in range(len(data)):
@@ -3832,7 +4145,10 @@ class Pyarchinit_pyqgis(QDialog):
             layerIndividui = QgsVectorLayer(uri.uri(), 'pyarchinit_individui_view', 'spatialite')
 
             if layerIndividui.isValid():
-                QMessageBox.warning(self, "Pyarchinit", "OK Layer Individui valido", QMessageBox.Ok)
+                # Create a CRS using a predefined SRID
+                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                layerIndividui.setCrs(crs)
+                #QMessageBox.warning(self, "Pyarchinit", "OK Layer Individui valido", QMessageBox.Ok)
 
                 # self.USLayerId = layerUS.getLayerID()
                 ##              style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
@@ -3861,7 +4177,7 @@ class Pyarchinit_pyqgis(QDialog):
             layerIndividui = QgsVectorLayer(uri.uri(), 'pyarchinit_individui_view', 'postgres')
 
             if layerIndividui.isValid():
-                QMessageBox.warning(self, "Pyarchinit", "OK Layer Individui valido", QMessageBox.Ok)
+                #QMessageBox.warning(self, "Pyarchinit", "OK Layer Individui valido", QMessageBox.Ok)
 
                 # self.USLayerId = layerUS.getLayerID()
                 ##              style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
