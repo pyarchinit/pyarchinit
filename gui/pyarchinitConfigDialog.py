@@ -4271,39 +4271,39 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 }
             elif self.L=='de':
                 id_table_class_mapper_conv_dict = {
-                    'SE': 'id_us',
-                    'TE': 'id_ut',
-                    'AUSGRABUNGSSTÄTTE': 'id_sito',
-                    'PERIODISIERUNG': 'id_perfas',
-                    'ARTEFAKT-INVENTAR': 'id_invmat',
-                    'POTTERY': 'id_rep',
-                    'STRUKTUREN': 'id_struttura',
-                    'TAPHONOMIE': 'id_tomba',
-                    'INDIVIDUEL': 'id_scheda_ind',
-                    'BEISPIELS': 'id_campione',
-                    'DOKUMENTATION': 'id_documentazione',
+                    'SITE':'id_sito',
+                    'US': 'id_us',
+                    'UT': 'id_ut',
+                    'PERIODIZZAZIONE': 'id_perfas',
+                    'INVENTARIO_MATERIALI': 'id_invmat',
+                    'POTTERY':'id_rep',
+                    'STRUTTURA': 'id_struttura',
+                    'TOMBA': 'id_tomba',
+                    'SCHEDAIND': 'id_scheda_ind',
+                    'CAMPIONI': 'id_campione',
+                    'DOCUMENTAZIONE': 'id_documentazione',
                     'PYARCHINIT_THESAURUS_SIGLE': 'id_thesaurus_sigle',
                     'MEDIA': 'id_media',
                     'MEDIA_THUMB': 'id_media_thumb',
-                    'MEDIATOENTITY':'id_mediaToEntity'
+                    'MEDIATOENTITY':'id_mediaToEntity',
                 }
             else:
                 id_table_class_mapper_conv_dict = {
-                    'SU': 'id_us',
-                    'TU': 'id_ut',
-                    'SITE': 'id_sito',
-                    'PERIODIATION': 'id_perfas',
-                    'ARTEFACT': 'id_invmat',
-                    'POTTERY': 'id_rep',
-                    'STRUCTURE': 'id_struttura',
-                    'TAPHONOMY': 'id_tomba',
-                    'INDIVIDUAL': 'id_scheda_ind',
-                    'SAMPLE': 'id_campione',
-                    'DOCUMENTATION': 'id_documentazione',
+                    'SITE':'id_sito',
+                    'US': 'id_us',
+                    'UT': 'id_ut',
+                    'PERIODIZZAZIONE': 'id_perfas',
+                    'INVENTARIO_MATERIALI': 'id_invmat',
+                    'POTTERY':'id_rep',
+                    'STRUTTURA': 'id_struttura',
+                    'TOMBA': 'id_tomba',
+                    'SCHEDAIND': 'id_scheda_ind',
+                    'CAMPIONI': 'id_campione',
+                    'DOCUMENTAZIONE': 'id_documentazione',
                     'PYARCHINIT_THESAURUS_SIGLE': 'id_thesaurus_sigle',
                     'MEDIA': 'id_media',
                     'MEDIA_THUMB': 'id_media_thumb',
-                    'MEDIATOENTITY':'id_mediaToEntity'
+                    'MEDIATOENTITY':'id_mediaToEntity',
                 }
             # creazione del cursore di lettura
             """if os.name == 'posix':
