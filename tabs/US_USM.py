@@ -32,38 +32,26 @@ import pandas as pd
 import cv2
 import math
 from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtWidgets import QMessageBox
-from PIL import Image
-import matplotlib.pyplot as plt
 from collections import OrderedDict
-from qgis.PyQt.QtCore import *
-from qgis.PyQt.QtGui import QColor, QIcon
-from qgis.PyQt.QtWidgets import *
-from qgis.PyQt.uic import loadUiType
 from qgis.core import *
 from qgis.gui import QgsMapCanvas, QgsMapToolPan
 from qgis.PyQt.QtSql import QSqlDatabase, QSqlTableModel
 from .Interactive_matrix import *
-from ..modules.utility.pyarchinit_OS_utility import Pyarchinit_OS_Utility
 from ..modules.utility.pyarchinit_media_utility import *
-
 from ..modules.db.pyarchinit_conn_strings import Connection
 from ..modules.db.pyarchinit_db_manager import Pyarchinit_db_management
 from ..modules.db.pyarchinit_utility import Utility
 from ..modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis, Order_layer_v2
 from ..modules.utility.delegateComboBox import ComboBoxDelegate
 from ..modules.utility.pyarchinit_error_check import Error_check
-#from ..modules.utility.pyarchinit_exp_Periodosheet_pdf import generate_US_pdf
 from ..modules.utility.pyarchinit_exp_USsheet_pdf import generate_US_pdf
 from ..modules.utility.pyarchinit_print_utility import Print_utility
 from ..modules.utility.settings import Settings
 from ..modules.utility.askgpt import MyApp
-from .pyarchinit_setting_matrix import Setting_Matrix
 from ..searchLayers import SearchLayers
 from ..gui.imageViewer import ImageViewer
 from ..gui.pyarchinitConfigDialog import pyArchInitDialog_Config
 from ..gui.sortpanelmain import SortPanelMain
-from ..resources.resources_rc import *
 
 MAIN_DIALOG_CLASS, _ = loadUiType(
     os.path.join(os.path.dirname(__file__), os.pardir, 'gui', 'ui', 'US_USM.ui'))
@@ -853,7 +841,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
         self.tableWidget_rapporti.itemChanged.connect(self.check_listoflist)
 
-        self.view_all()
+        #self.view_all()
     def clean_comments(self,text_to_clean):
         clean_text = text_to_clean.split("##")[0].replace("\n", "")
         return clean_text
@@ -7387,9 +7375,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             cmd = '{}.insertRow(int({}))'.format(self.table_name, row)
             eval(cmd)
             for col in range(len(self.data_list[row])):
-                # item = self.comboBox_sito.setEditText(self.data_list[0][col]
-                # item = QTableWidgetItem(self.data_list[row][col])
-                # TODO SL: evauation of QTableWidget does not work porperly
+
                 exec_str = '{}.setItem(int({}),int({}),QTableWidgetItem(self.data_list[row][col]))'.format(self.table_name, row, col)
                 eval(exec_str)
         max_row_num = len(self.data_list)
@@ -7397,6 +7383,9 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         if value == '':
             cmd = ("%s.removeRow(%d)") % (self.table_name, max_row_num)
             eval(cmd)
+
+
+
     def insert_new_row(self, table_name):
         """insert new row into a table based on table_name"""
         cmd = table_name + ".insertRow(0)"
