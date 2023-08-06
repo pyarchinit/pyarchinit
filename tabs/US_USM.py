@@ -31,7 +31,7 @@ import time
 import pandas as pd
 import cv2
 import math
-from PyQt5 import QtCore, QtGui, QtWidgets
+from qgis.PyQt import QtGui, QtWidgets
 from collections import OrderedDict
 from qgis.core import *
 from qgis.gui import QgsMapCanvas, QgsMapToolPan
@@ -791,9 +791,9 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             self.comboBox_sito.setCurrentIndex(0)
         else:
             self.comboBox_sito.setCurrentIndex(1)
-        
-            
-        #self.comboBox_sito.currentIndexChanged.connect(self.charge_periodo_iniz_list)
+
+        self.pn_edit()
+        self.comboBox_unita_tipo.currentIndexChanged.connect(self.pn_edit)
         self.comboBox_sito.currentTextChanged.connect(self.charge_periodo_iniz_list)
         #self.comboBox_per_iniz.currentIndexChanged.connect(self.charge_periodo_fin_list)
         #self.comboBox_sito.currentIndexChanged.connect(self.charge_struttura_list)
@@ -842,6 +842,13 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.tableWidget_rapporti.itemChanged.connect(self.check_listoflist)
 
         #self.view_all()
+    def pn_edit(self):
+        if self.comboBox_unita_tipo.currentText() == 'USM' or self.comboBox_unita_tipo.currentText() == 'WSU' or self.comboBox_unita_tipo.currentText() == 'SE':
+            self.comboBox_pn.setHidden(True)
+            self.label_133.setHidden(True)
+        else:
+            self.comboBox_pn.setHidden(False)
+            self.label_133.setHidden(False)
     def clean_comments(self,text_to_clean):
         clean_text = text_to_clean.split("##")[0].replace("\n", "")
         return clean_text
@@ -1029,14 +1036,12 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             print(str(e))
     
     def search_rapp(self):
-        # Clear current selection.
-        #self.tableWidget_rapporti.setCurrentItem(None)
-
+        s=''
         if not s:
             # Empty string, don't search.
             return
 
-        matching_items = self.tableWidget_rapporti.findItems('1',MatchContains)
+        matching_items = self.tableWidget_rapporti.findItems('1',QtCore.Qt.MatchContains)
         if matching_items:
             # We have found something.
             item = matching_items[0]  # Take the first.
@@ -1061,7 +1066,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 #print(us)
                 rapp_item = self.tableWidget_rapporti.item(rowIndex,0)
                 rapp = str(rapp_item.text())
-                
+
                 
                 self.save_rapp()
                 
@@ -1182,6 +1187,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
     
     
     def change_label(self):
+
         if self.comboBox_unita_tipo.currentText()=='DOC':
             self.label_5.setText('Riferimento documentazione')
             self.comboBox_def_intepret.setHidden(True)
@@ -1208,7 +1214,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             self.label_5.setText('Descrizione')    
         if self.comboBox_unita_tipo.currentText()=='SF':
             self.label_5.setText('Descrizione')
-        
+        if self.comboBox_unita_tipo.currentText()=='US' or self.comboBox_unita_tipo.currentText()=='USM' or self.comboBox_unita_tipo.currentText()=='SU' or self.comboBox_unita_tipo.currentText()=='WSU' or self.comboBox_unita_tipo.currentText()=='SE'or self.comboBox_unita_tipo.currentText()=='WSE':
+            self.label_5.setText('Definizione Interpretativa')
         
     def refresh(self):
         
@@ -1520,15 +1527,12 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Aktuell " or "Current":
             if len(self.DATA_LIST) > 0:
                 try:
-                    self.comboBox_struttura.setEditText(self.DATA_LIST[self.rec_num].sigla_struttura+'-'+numero_struttura)
+                    self.comboBox_struttura.setEditText(self.DATA_LIST[self.rec_num].sigla_struttura+'-'+self.DATA_LIST[self.rec_num].numero_struttura)
                 except:
                     pass  # non vi sono periodi per questo scavo
     def geometry_unitastratigrafiche(self):
         try:
-            sito = str(self.comboBox_sito.currentText())
-            area = str(self.comboBox_area.currentText())
-            us = str(self.lineEdit_us.text())
-        
+
             search_dict = {
                 'scavo_s': "'" +str(self.comboBox_sito.currentText()) + "'",
                 'area_s': "'" + str(eval("self.DATA_LIST[int(self.REC_CORR)].area")) + "'",
@@ -1564,10 +1568,10 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         try:
 
             sito = str(self.comboBox_sito.currentText())
-            area = str(self.comboBox_area.currentText())
+
             search_dict = {
-                'sito': "'" + sito + "'",
-                #'area': "'" + str(eval("self.DATA_LIST[int(self.REC_CORR)].area")) + "'",
+                'sito': "'" + sito + "'"
+
             }
             periodo_vl = self.DB_MANAGER.query_bool(search_dict, 'PERIODIZZAZIONE')
             periodo_list = []
@@ -1598,10 +1602,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         try:
 
             sito = str(self.comboBox_sito.currentText())
-            area = str(self.comboBox_area.currentText())
             search_dict = {
-                'sito': "'" + sito + "'",
-                #'area': "'" + str(eval("self.DATA_LIST[int(self.REC_CORR)].area")) + "'",
+                'sito': "'" + sito + "'"
             }
             periodo_vl = self.DB_MANAGER.query_bool(search_dict, 'PERIODIZZAZIONE')
             periodo_list = []
@@ -1624,7 +1626,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         except:
             pass  # non vi sono periodi per questo scavo
     def charge_fase_iniz_list(self):
-        #if self.comboBox_fas_iniz.activated: 
+
         try:
             search_dict = {
                 'sito': "'" + str(self.comboBox_sito.currentText()) + "'",
@@ -1648,7 +1650,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         except:
             pass
     def charge_fase_fin_list(self):
-        #if self.comboBox_fas_fin.activated: 
+
         try:
             search_dict = {
                 'sito': "'" + str(self.comboBox_sito.currentText()) + "'",
