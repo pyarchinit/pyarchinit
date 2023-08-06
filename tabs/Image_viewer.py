@@ -311,8 +311,8 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                     pass
                 self.comboBox_sigla_struttura.clear()
                 self.comboBox_sigla_struttura.addItems(self.UTILITY.remove_dup_from_list(us_list))
-            except:
-                MessageBox.warning(self, "Warning", str(e), QMessageBox.Ok)
+            except Exception as e:
+                QMessageBox.warning(self, "Warning", str(e), QMessageBox.Ok)
     def charge_nr_st_list(self):
         sito = str(self.comboBox_sito.currentText())
         if self.radioButton_struttura.isChecked():
@@ -336,8 +336,8 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                     pass
                 self.comboBox_nr_struttura.clear()
                 self.comboBox_nr_struttura.addItems(self.UTILITY.remove_dup_from_list(us_list))
-            except:
-                MessageBox.warning(self, "Warning", str(e), QMessageBox.Ok)
+            except Exception as e:
+                QMessageBox.warning(self, "Warning", str(e), QMessageBox.Ok)
     def charge_us_list(self):
         sito = str(self.comboBox_sito.currentText())
         if self.radioButton_us.isChecked():
@@ -363,8 +363,8 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                     pass
                 self.comboBox_us.clear()
                 self.comboBox_us.addItems(self.UTILITY.remove_dup_from_list(us_list))
-            except:
-                MessageBox.warning(self, "Warning", str(e), QMessageBox.Ok)
+            except Exception as e:
+                QMessageBox.warning(self, "Warning", str(e), QMessageBox.Ok)
         if self.radioButton_materiali.isChecked():
             try: 
                 self.label_8.clear()
@@ -388,9 +388,11 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                     pass
                 self.comboBox_us.clear()
                 self.comboBox_us.addItems(self.UTILITY.remove_dup_from_list(us_list))
-        
-            except:
-                MessageBox.warning(self, "Warning", str(e), QMessageBox.Ok)
+
+
+            except Exception as e:
+
+                QMessageBox.warning(self, "Warning", str(e), QMessageBox.Ok)
         if self.radioButton_tomba.isChecked():
             try:
                 self.label_8.clear()
@@ -414,8 +416,8 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                     pass
                 self.comboBox_us.clear()
                 self.comboBox_us.addItems(self.UTILITY.remove_dup_from_list(us_list))
-            except:
-                MessageBox.warning(self, "Warning", str(e), QMessageBox.Ok)    
+            except Exception as e:
+                QMessageBox.warning(self, "Warning", str(e), QMessageBox.Ok)
     def charge_area_list(self):
         if self.radioButton_us.isChecked():
             sito = str(self.comboBox_sito.currentText())
@@ -978,6 +980,7 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                 self.iconListWidget.addItem(item)
     
     def getDirectoryVideo(self):
+        self.iconListWidget.clear()
         thumb_path = conn.thumb_path()
         thumb_path_str = thumb_path['thumb_path']      
         if thumb_path_str=='':
@@ -988,7 +991,7 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
             else:
                 QMessageBox.information(self, "Message", "you must first set the path to save the thumbnails and videos. Go to system/path setting")
         else:    
-            video_list=[]
+            image_list=[]
             directory = QFileDialog.getExistingDirectory(self, "Directory", "Choose a directory:",
                                                          QFileDialog.ShowDirsOnly)
             if not directory:
@@ -1042,7 +1045,7 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                                 QMessageBox.warning(self, "Cucu", str(e), QMessageBox.Ok)
 
                             try:
-                                for i in enumerate(image):
+                                for i in enumerate(video):
                                     image_list.append(i[0])
                                 for n in range(len(image_list)):
                                     value = (float(n)/float(len(image_list)))*100
@@ -1067,6 +1070,7 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                             data_for_thumb = self.db_search_check(self.MAPPER_TABLE_CLASS_thumb, 'media_filename',
                                                                   media_filename)  # recupera i valori della thumb in base al valore id_media del file originale
                             try:
+                                self.iconListWidget.clear()
                                 thumb_path = data_for_thumb[0].filepath_thumb
                                 item.setData(Qt.UserRole, thumb_path)
                                 icon = QIcon(str(thumb_path_str)+filepath_thumb)  # os.path.join('%s/%s' % (directory.toUtf8(), image)))
@@ -1075,7 +1079,7 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                             except:
                                 pass
                 
-                    for i in enumerate(image):
+                    for i in enumerate(video):
                         image_list.append(i[0])
                     for n in range(len(image_list)):
                         value = (float(n)/float(len(image_list)))*100
