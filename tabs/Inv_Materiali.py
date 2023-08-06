@@ -21,35 +21,36 @@
 """
 from __future__ import absolute_import
 
+import functools
 import math
-from datetime import date
 import platform
+import subprocess
+from builtins import range
+from collections import OrderedDict
+from datetime import date
 import cv2
 import numpy as np
-import functools
-from builtins import range
-from builtins import str
-from qgis.PyQt.QtCore import Qt, QSize, QVariant,QFileInfo
+from qgis.PyQt.QtCore import Qt, QSize, QVariant
 from qgis.PyQt.QtGui import QIcon, QColor
 from qgis.PyQt.QtWidgets import *
 from qgis.PyQt.uic import loadUiType
-from qgis.core import QgsSettings
-from qgis.gui import QgsMapCanvas, QgsMapToolPan
-from collections import OrderedDict
-from ..modules.utility.pyarchinit_media_utility import *
+from qgis.core import QgsSettings, Qgis
+from qgis.gui import QgsMapCanvas
+
+from ..gui.imageViewer import ImageViewer
+from ..gui.pyarchinitConfigDialog import pyArchInitDialog_Config
+from ..gui.quantpanelmain import QuantPanelMain
+from ..gui.sortpanelmain import SortPanelMain
 from ..modules.db.pyarchinit_conn_strings import Connection
 from ..modules.db.pyarchinit_db_manager import Pyarchinit_db_management
 from ..modules.db.pyarchinit_utility import Utility
+from ..modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis
 from ..modules.utility.csv_writer import UnicodeWriter
-from ..modules.utility.media_ponderata_sperimentale import *
 from ..modules.utility.delegateComboBox import ComboBoxDelegate
 from ..modules.utility.pyarchinit_error_check import Error_check
 from ..modules.utility.pyarchinit_exp_Findssheet_pdf import generate_reperti_pdf
-from ..modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis
-from ..gui.imageViewer import ImageViewer
-from ..gui.quantpanelmain import QuantPanelMain
-from ..gui.sortpanelmain import SortPanelMain
-from ..gui.pyarchinitConfigDialog import pyArchInitDialog_Config
+from ..modules.utility.pyarchinit_media_utility import *
+
 MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), os.pardir, 'gui', 'ui', 'Inv_Materiali.ui'))
 
 
@@ -934,38 +935,17 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                 lang = str(key)
         lang = "'" + lang + "'"
 
-        # media prevew system
-
-        #self.iconListWidget.setFrameShape(QFrame.StyledPanel)
-        #self.iconListWidget.setFrameShadow(QFrame.Sunken)
         self.iconListWidget.setLineWidth(2)
         self.iconListWidget.setMidLineWidth(2)
-        #self.iconListWidget.setProperty("showDropIndicator", False)
         self.iconListWidget.setIconSize(QSize(150, 150))
-        #self.iconListWidget.setMovement(QListView.Snap)
-        #self.iconListWidget.setResizeMode(QListView.Adjust)
-        #self.iconListWidget.setLayoutMode(QListView.Batched)
-        #self.iconListWidget.setGridSize(QSize(160, 160))
-        #self.iconListWidget.setViewMode(QListView.IconMode)
-        #self.iconListWidget.setUniformItemSizes(True)
-        #self.iconListWidget.setBatchSize(1000)
-        #self.iconListWidget.setObjectName("iconListWidget")
-        #self.iconListWidget.SelectionMode()
-        #self.iconListWidget.setSelectionMode(QAbstractItemView.ExtendedSelection)
         self.iconListWidget.itemDoubleClicked.connect(self.openWide_image)
-
         # Crea un nuovo widget che conterrà il map canvas
         canvas_widget = QWidget()
-
         # Crea un layout verticale per il widget
         canvas_layout = QVBoxLayout(canvas_widget)
-
-
         # Aggiungi il map canvas al layout
-
         self.mapPreview = QgsMapCanvas(canvas_widget)
         canvas_layout.addWidget(self.mapPreview)
-        #self.mapPreview.setCanvasColor(QColor(225, 225, 225))
         self.tabWidget.addTab(canvas_widget, "Map preview")
 
         if self.L=='it':
