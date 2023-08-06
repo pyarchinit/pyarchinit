@@ -20,7 +20,6 @@
 """
 
 import os
-import sqlalchemy as db
 import math
 from sqlalchemy.sql.expression import *
 from sqlalchemy.event import listen
@@ -30,17 +29,12 @@ from builtins import range
 from builtins import str
 from builtins import zip
 from sqlalchemy import and_, or_, Table, select, func, asc,UniqueConstraint
-from geoalchemy2 import *
 from sqlalchemy.engine import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql.schema import MetaData
 from qgis.core import *
-from qgis.utils import iface
 from qgis.PyQt.QtWidgets import QMessageBox
 from modules.utility.pyarchinit_OS_utility import Pyarchinit_OS_Utility
-from sqlalchemy.dialects import postgresql
-from sqlalchemy.dialects.postgresql import insert
-
 from modules.db.pyarchinit_db_mapper import US, UT, SITE, PERIODIZZAZIONE, POTTERY, \
     STRUTTURA, SCHEDAIND, INVENTARIO_MATERIALI, DETSESSO, DOCUMENTAZIONE, DETETA, MEDIA, \
     MEDIA_THUMB, MEDIATOENTITY, MEDIAVIEW, TOMBA, CAMPIONI, PYARCHINIT_THESAURUS_SIGLE, \
@@ -49,11 +43,7 @@ from modules.db.pyarchinit_db_mapper import US, UT, SITE, PERIODIZZAZIONE, POTTE
     PYRIPARTIZIONI_SPAZIALI, PYSEZIONI
 from modules.db.pyarchinit_db_update import DB_update
 from modules.db.pyarchinit_utility import Utility
-from sqlalchemy.ext.compiler import compiles
 
-from modules.db.pyarchinit_conn_strings import Connection
-
-        
 
 class Pyarchinit_db_management(object):
     metadata = ''
