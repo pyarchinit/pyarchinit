@@ -30,7 +30,7 @@ class pyus_negative:
                      Column('us_n', Integer),
                      Column('tipo_doc_n', Text),
                      Column('nome_doc_n', Text),
-                     Column('the_geom', Geometry(geometry_type='LINESTARING')),
+                     Column('the_geom', Geometry(geometry_type='LINESTRING')),
                      # explicit/composite unique constraint.  'name' is optional.
                      UniqueConstraint('gid')
                      )
