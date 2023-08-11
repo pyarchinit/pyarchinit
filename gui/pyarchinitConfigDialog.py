@@ -3895,7 +3895,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                         value = (float(sing_rec)/float(len(data_list_toimp)))*100
                         self.progress_bar.setValue(value)
                         QApplication.processEvents()
-                    except Exception as e :
+                    except Exception as e:
                         QMessageBox.warning(self, "Errore", "Error ! \n"+ str(e),  QMessageBox.Ok)
                         return 0
                 self.progress_bar.reset()
@@ -3941,7 +3941,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                         value = (float(sing_rec)/float(len(data_list_toimp)))*100
                         self.progress_bar.setValue(value)
                         QApplication.processEvents()
-                    except Exception as e :
+                    except AssertionError as e :
                         QMessageBox.warning(self, "Errore", "Error ! \n"+ str(e),  QMessageBox.Ok)
                         return 0
                 self.progress_bar.reset()

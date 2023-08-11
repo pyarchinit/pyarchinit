@@ -33,7 +33,7 @@ class pyquote_usm:
                      Column('data', Integer),
                      Column('disegnatore', Text),
                      Column('rilievo_originale', Text),
-                     Column('the_geom', Text),
+                     Column('the_geom', Geometry(geometry_type='POINT')),
                      Column('unita_tipo_q', Text),
                      # explicit/composite unique constraint.  'name' is optional.
                      UniqueConstraint('gid')

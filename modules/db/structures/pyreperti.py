@@ -28,7 +28,7 @@ class pyreperti:
                      Column('id_rep', Integer),
                      Column('siti', Text),
                      Column('link', Text),
-                     Column('the_geom', Text),
+                     Column('the_geom', Geometry(geometry_type='POINT')),
                      # explicit/composite unique constraint.  'name' is optional.
                      UniqueConstraint('gid')
                      )

@@ -26,7 +26,7 @@ class pysito_polygon:
     pysito_polygon = Table('pyarchinit_siti_polygonal', metadata,
                      Column('gid', Integer, primary_key=True),  # 0
                      Column('sito_id', Text),
-                     Column('the_geom', Text),
+                     Column('the_geom', Geometry(geometry_type='POLYGON')),
                      # explicit/composite unique constraint.  'name' is optional.
                      UniqueConstraint('gid')
                      )
