@@ -28,7 +28,7 @@ class pylineeriferimento:
                      Column('sito', Text),
                      Column('definizion', Text),
                      Column('descrizion', Text),
-                     Column('the_geom', Text),
+                     Column('the_geom', Geometry(geometry_type='LINESTRING')),
                      # explicit/composite unique constraint.  'name' is optional.
                      UniqueConstraint('gid')
                      )

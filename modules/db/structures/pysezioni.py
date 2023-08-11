@@ -30,7 +30,7 @@ class pysezioni:
                          Column('area', Integer),
                          Column('descr', Text),
                          
-                         Column('the_geom', Text),
+                         Column('the_geom', Geometry(geometry_type='LINESTRING')),
                          Column('tipo_doc', Text),
                          Column('nome_doc', Text),
                          # explicit/composite unique constraint.  'name' is optional.

@@ -36,7 +36,7 @@ class pyunitastratigrafiche_usm:
                      Column('tipo_doc', Text),  # 9
                      Column('nome_doc', Text),  # 10
                      Column('coord', Text),
-                     Column('the_geom', Text),
+                     Column('the_geom', Geometry(geometry_type='MULTIPOLYGON')),
                      Column('unita_tipo_s', Text),  # 2
                      # explicit/composite unique constraint.  'name' is optional.
                      UniqueConstraint('gid', name='ID_us_unico_s')

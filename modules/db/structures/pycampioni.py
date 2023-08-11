@@ -32,7 +32,7 @@ class pycampioni:
                      Column('cronologia', Integer),
                      Column('link_immag', Text),
                      Column('sigla_camp', Text),
-                     Column('the_geom', Text),
+                     Column('the_geom', Geometry(geometry_type='POINT')),
                      # explicit/composite unique constraint.  'name' is optional.
                      UniqueConstraint('gid')
                      )

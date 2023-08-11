@@ -26,7 +26,7 @@ class pysito_point:
     pysito_point = Table('pyarchinit_siti', metadata,
                      Column('gid', Integer, primary_key=True),  # 0
                      Column('sito_nome', Text),
-                     Column('the_geom', Text),
+                     Column('the_geom', Geometry(geometry_type='POINT')),
                      # explicit/composite unique constraint.  'name' is optional.
                      UniqueConstraint('gid')
                      )

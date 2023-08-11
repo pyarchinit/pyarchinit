@@ -29,7 +29,7 @@ class pyripartizioni_spaziali:
                      Column('sito_rs', Text),
                      Column('tip_rip', Text),
                      Column('descr_rs', Text),
-                     Column('the_geom', Text),
+                     Column('the_geom', Geometry(geometry_type='POLYGON')),
                      # explicit/composite unique constraint.  'name' is optional.
                      UniqueConstraint('gid')
                      )
