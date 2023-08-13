@@ -32,26 +32,38 @@ import pandas as pd
 import cv2
 import math
 from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtWidgets import QMessageBox
+from PIL import Image
+import matplotlib.pyplot as plt
 from collections import OrderedDict
+from qgis.PyQt.QtCore import *
+from qgis.PyQt.QtGui import QColor, QIcon
+from qgis.PyQt.QtWidgets import *
+from qgis.PyQt.uic import loadUiType
 from qgis.core import *
 from qgis.gui import QgsMapCanvas, QgsMapToolPan
 from qgis.PyQt.QtSql import QSqlDatabase, QSqlTableModel
 from .Interactive_matrix import *
+from ..modules.utility.pyarchinit_OS_utility import Pyarchinit_OS_Utility
 from ..modules.utility.pyarchinit_media_utility import *
+
 from ..modules.db.pyarchinit_conn_strings import Connection
 from ..modules.db.pyarchinit_db_manager import Pyarchinit_db_management
 from ..modules.db.pyarchinit_utility import Utility
 from ..modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis, Order_layer_v2
 from ..modules.utility.delegateComboBox import ComboBoxDelegate
 from ..modules.utility.pyarchinit_error_check import Error_check
+#from ..modules.utility.pyarchinit_exp_Periodosheet_pdf import generate_US_pdf
 from ..modules.utility.pyarchinit_exp_USsheet_pdf import generate_US_pdf
 from ..modules.utility.pyarchinit_print_utility import Print_utility
 from ..modules.utility.settings import Settings
 from ..modules.utility.askgpt import MyApp
+from .pyarchinit_setting_matrix import Setting_Matrix
 from ..searchLayers import SearchLayers
 from ..gui.imageViewer import ImageViewer
 from ..gui.pyarchinitConfigDialog import pyArchInitDialog_Config
 from ..gui.sortpanelmain import SortPanelMain
+from ..resources.resources_rc import *
 
 MAIN_DIALOG_CLASS, _ = loadUiType(
     os.path.join(os.path.dirname(__file__), os.pardir, 'gui', 'ui', 'US_USM.ui'))
@@ -841,7 +853,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
         self.tableWidget_rapporti.itemChanged.connect(self.check_listoflist)
 
-        #self.view_all()
+        #
     def clean_comments(self,text_to_clean):
         clean_text = text_to_clean.split("##")[0].replace("\n", "")
         return clean_text
@@ -1850,18 +1862,83 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 QMessageBox.warning(self,'',str(e))
         else:
             pass
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    def on_pushButton_go_to_us_pressed(self):    
-        #self.save_us()
+
+    def on_pushButton_go_to_us_pressed(self):
         try:
+            if self.BROWSE_STATUS == "b":
+                if self.data_error_check() == 0:
+                    if self.records_equal_check() == 1:
+                        # Store the user response
+                        if self.L == 'it':
+                            response = QMessageBox.warning(self, 'Attenzione',
+                                                           "Il record e' stato modificato. Vuoi salvare le modifiche? \n Clicca OK per salvare o Annulla per abortire.\n Poi riselezione l'US su cui vuoi andare",
+                                                           QMessageBox.Ok | QMessageBox.Cancel)
+                        elif self.L == 'de':
+                            response = QMessageBox.warning(self, 'Error',
+                                                           "Der Record wurde geändert. Möchtest du die Änderungen speichern?",
+                                                           QMessageBox.Ok | QMessageBox.Cancel)
+                        else:
+                            response = QMessageBox.warning(self, 'Error',
+                                                           "The record has been changed. Do you want to save the changes?",
+                                                           QMessageBox.Ok | QMessageBox.Cancel)
+
+                        # Check the user response and act accordingly
+                        if response == QMessageBox.Ok:
+                            self.update_if(response)
+                            self.SORT_STATUS = "n"
+                            self.label_sort.setText(self.SORTED_ITEMS[self.SORT_STATUS])
+                            self.enable_button(1)
+                            #self.fill_fields(self.REC_CORR)
+                            table_name = "self.tableWidget_rapporti"
+                            rowSelected_cmd = ("%s.selectedIndexes()") % (table_name)
+                            rowSelected = eval(rowSelected_cmd)
+                            rowIndex = (rowSelected[0].row())
+                            sito = str(self.comboBox_sito.currentText())
+                            area = str(self.comboBox_area.currentText())
+                            us_item = self.tableWidget_rapporti.item(rowIndex, 1)
+                            us = str(us_item.text())
+                            search_dict = {'sito': "'" + str(sito) + "'",
+                                           'area': "'" + str(area) + "'",
+                                           'us': us}
+                            u = Utility()
+                            search_dict = u.remove_empty_items_fr_dict(search_dict)
+                            res = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
+                            self.empty_fields()
+                            self.DATA_LIST = []
+                            for i in res:
+                                self.DATA_LIST.append(i)
+                            self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
+                            self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
+                            self.fill_fields()
+                            self.BROWSE_STATUS = "b"
+                            self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
+                            self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR + 1)
+
+                    else:
+                        pass
+            else:
+                if self.data_error_check() == 0:
+                    test_insert = self.insert_new_rec()
+                    if test_insert == 1:
+                        self.empty_fields()
+                        self.label_sort.setText(self.SORTED_ITEMS["n"])
+                        self.charge_list()
+                        self.set_sito()
+                        self.charge_records()
+                        self.BROWSE_STATUS = "b"
+                        self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
+                        self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), len(self.DATA_LIST) - 1
+                        self.set_rec_counter(self.REC_TOT, self.REC_CORR + 1)
+                        self.set_rec_counter(self.REC_TOT, self.REC_CORR + 1)
+                        self.setComboBoxEditable(["self.comboBox_sito"], 1)
+                        self.fill_fields(self.REC_CORR)
+                        self.enable_button(1)
+
+                else:
+                    pass
+
+
+
             table_name = "self.tableWidget_rapporti"
             rowSelected_cmd = ("%s.selectedIndexes()") % (table_name)
             rowSelected = eval(rowSelected_cmd)
@@ -1877,12 +1954,12 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             search_dict = u.remove_empty_items_fr_dict(search_dict)
             res = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
             if not bool(res):
-                
+
                 #self.DB_MANAGER.insert_number_of_us_records(sito,area,us,'US')
-                        
+
                 if self.L=='it':
                     QMessageBox.warning(self, "ATTENZIONE", "Non e' stato trovato alcun record!", QMessageBox.Ok)
-                    
+
                 elif self.L=='de':
                     QMessageBox.warning(self, "ACHTUNG", "kein Eintrag gefunden!", QMessageBox.Ok)
                 else:
@@ -1915,7 +1992,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                         strings = ("has been found", self.REC_TOT, "record")
                     if self.toolButtonGis.isChecked():
                         self.pyQGIS.charge_vector_layers(self.DATA_LIST)
-                
+
                     if self.toolButton_usm.isChecked():
                         self.pyQGIS.charge_usm_layers(self.DATA_LIST)
                 else:
@@ -1929,7 +2006,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                         self.pyQGIS.charge_vector_layers(self.DATA_LIST)
                     if self.toolButton_usm.isChecked():
                         self.pyQGIS.charge_usm_layers(self.DATA_LIST)
-                
+
                 self.setComboBoxEnable(["self.comboBox_sito"], "False")
                 self.setComboBoxEnable(["self.comboBox_area"], "False")
                 self.setComboBoxEnable(["self.lineEdit_us"], "False")
@@ -7375,7 +7452,9 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             cmd = '{}.insertRow(int({}))'.format(self.table_name, row)
             eval(cmd)
             for col in range(len(self.data_list[row])):
-
+                # item = self.comboBox_sito.setEditText(self.data_list[0][col]
+                # item = QTableWidgetItem(self.data_list[row][col])
+                # TODO SL: evauation of QTableWidget does not work porperly
                 exec_str = '{}.setItem(int({}),int({}),QTableWidgetItem(self.data_list[row][col]))'.format(self.table_name, row, col)
                 eval(exec_str)
         max_row_num = len(self.data_list)
@@ -7383,9 +7462,6 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         if value == '':
             cmd = ("%s.removeRow(%d)") % (self.table_name, max_row_num)
             eval(cmd)
-
-
-
     def insert_new_row(self, table_name):
         """insert new row into a table based on table_name"""
         cmd = table_name + ".insertRow(0)"
