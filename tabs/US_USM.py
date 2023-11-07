@@ -6527,7 +6527,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 quota_min_abs,  # 73
                 quota_min_rel,  # 74
                 str(self.textEdit_osservazioni.toPlainText()),  # 75 osservazioni
-                str(self.lineEdit_datazione.text()),  # 76 datazione
+                #str(self.lineEdit_datazione.text()),  # 76 datazione
                 str(self.comboBox_flottazione.currentText()),  # 77 flottazione
                 str(self.comboBox_setacciatura.currentText()),  # 78 setacciatura
                 str(self.comboBox_affidabilita.currentText()),  # 79 affidabilita
@@ -7192,9 +7192,9 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 self.TABLE_FIELDS[68]:quota_max_abs,  # 71
                 self.TABLE_FIELDS[69]:quota_max_rel,  # 72
                 self.TABLE_FIELDS[70]:quota_min_abs,  # 73
-                self.TABLE_FIELDS[71]:quota_min_rel,  # 74
+                #self.TABLE_FIELDS[71]:quota_min_rel,  # 74
                 self.TABLE_FIELDS[72]: "'" + str(self.textEdit_osservazioni.toPlainText()) + "'",  # 75 osservazioni
-                self.TABLE_FIELDS[73]: "'" + str(self.lineEdit_datazione.text()) + "'",  # 76 datazione
+                #self.TABLE_FIELDS[73]: "'" + str(self.lineEdit_datazione.text()) + "'",  # 76 datazione
                 self.TABLE_FIELDS[74]: "'" + str(self.comboBox_flottazione.currentText()) + "'",  # 77 flottazione
                 self.TABLE_FIELDS[75]: "'" + str(self.comboBox_setacciatura.currentText()) + "'",  # 78 setacciatura
                 self.TABLE_FIELDS[76]: "'" + str(self.comboBox_affidabilita.currentText()) + "'",  # 79 affidabilita
@@ -7235,7 +7235,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 self.TABLE_FIELDS[111]: "'" + str(self.comboBox_consistenza_p.currentText()) + "'",  # 95 uso primario usm
             }
             u = Utility()
-            search_dict = u.remove_empty_items_fr_dict(search_dict)
+            search_dict1 = u.remove_empty_items_fr_dict(search_dict)
             if not bool(search_dict):
                 if self.L=='it':
                     QMessageBox.warning(self, "ATTENZIONE", "Non è stata impostata nessuna ricerca!!!", QMessageBox.Ok)
@@ -7244,7 +7244,9 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 else:
                     QMessageBox.warning(self, " WARNING", "No search has been set!!!", QMessageBox.Ok)      
             else:
-                res = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
+                res = self.DB_MANAGER.query_bool(search_dict1, self.MAPPER_TABLE_CLASS)
+
+
                 if not bool(res):
                     if self.L=='it':
                         QMessageBox.warning(self, "ATTENZIONE", "Non è stato trovato nessun record!", QMessageBox.Ok)
