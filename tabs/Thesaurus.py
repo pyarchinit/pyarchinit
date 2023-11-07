@@ -27,6 +27,9 @@ from datetime import date
 import sys
 from builtins import range
 from builtins import str
+
+import openai
+import requests
 from qgis.PyQt.QtCore import QUrl
 from qgis.PyQt.QtWidgets import QFileDialog,QDialog, QMessageBox,QCompleter,QComboBox,QInputDialog
 from qgis.PyQt.uic import loadUiType
@@ -174,51 +177,56 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
         self.comboBox_sigla_estesa.editTextChanged.connect(self.find_text)
         self.check_db()
 
+    def read_api_key(self, path):
+        with open(path, 'r') as f:
+            return f.read().strip()
+
+    def write_api_key(self, path, api_key):
+        with open(path, 'w') as f:
+            f.write(api_key)
+
+    def is_valid_api_key(self,api_key):
+        openai.api_key = api_key
+
+        try:
+            # Testa la chiave API effettuando una richiesta di completamento
+            response = openai.Completion.create(
+                engine="text-davinci-002",  # Sostituisci con il motore che intendi utilizzare
+                prompt="Translate the following English text to French: '{}'",
+                max_tokens=5
+            )
+            if response:
+                return True
+        except openai.Error as e:
+            print(f"Received an error: {e}")
+            return False
+
     def apikey_gpt(self):
-        #HOME = os.environ['PYARCHINIT_HOME']
-        BIN = '{}{}{}'.format(self.HOME, os.sep, "bin")
-        api_key = ""
-        # Verifica se il file gpt_api_key.txt esiste
+        BIN = os.path.join(self.HOME, "bin")
         path_key = os.path.join(BIN, 'gpt_api_key.txt')
+
         if os.path.exists(path_key):
+            api_key = self.read_api_key(path_key)
 
-            # Leggi l'API Key dal file
-            with open(path_key, 'r') as f:
-                api_key = f.read().strip()
-                try:
-
+            if self.is_valid_api_key(api_key):
+                return api_key
+            else:
+                reply = QMessageBox.question(None, 'Warning', 'Apikey non valida' + '\n'
+                                             + 'Clicca ok per inserire la chiave',
+                                             QMessageBox.Ok | QMessageBox.Cancel)
+                if reply == QMessageBox.Ok:
+                    api_key, ok = QInputDialog.getText(None, 'Apikey gpt', 'Inserisci apikey valida:')
+                    if ok:
+                        self.write_api_key(path_key, api_key)
+                        return self.read_api_key(path_key)
+                else:
                     return api_key
 
-                except:
-                    reply = QMessageBox.question(None, 'Warning', 'Apikey non valida' + '\n'
-                                                 + 'Clicca ok per inserire la chiave',
-                                                 QMessageBox.Ok | QMessageBox.Cancel)
-                    if reply == QMessageBox.Ok:
-
-                        api_key, ok = QInputDialog.getText(None, 'Apikey gpt', 'Inserisci apikey valida:')
-                        if ok:
-                            # Salva la nuova API Key nel file
-                            with open(path_key, 'w') as f:
-                                f.write(api_key)
-                                f.close()
-                            with open(path_key, 'r') as f:
-                                api_key = f.read().strip()
-                    else:
-                        return api_key
-
-
         else:
-            # Chiedi all'utente di inserire una nuova API Key
             api_key, ok = QInputDialog.getText(None, 'Apikey gpt', 'Inserisci apikey:')
             if ok:
-                # Salva la nuova API Key nel file
-                with open(path_key, 'w') as f:
-                    f.write(api_key)
-                    f.close()
-                with open(path_key, 'r') as f:
-                    api_key = f.read().strip()
-
-        return api_key
+                self.write_api_key(path_key, api_key)
+                return self.read_api_key(path_key)
     def check_db(self):
         conn = Connection()
         conn_str = conn.conn_str()
