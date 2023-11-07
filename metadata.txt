@@ -13,7 +13,7 @@ name=pyArchInit
 qgisMinimumVersion=3.22
 description=pyarchinit a tool for archaeological works
 
-version=4.6.1
+version=4.6.2
 
 author=Luca Mandolesi&Enzo Cocca
 email=pyarchinit@gmail.com
@@ -25,7 +25,13 @@ tracker=https://github.com/pyarchinit/pyarchinit/issues
 repository=https://github.com/pyarchinit/pyarchinit
 
 
-changelog=release4.6.1
+changelog=release4.6.2
+   -Correct typographical errors, update file paths in workspace.xml,
+   add new files and components, and update environment configurations in misc.xml and workspace.xml.
+   -Update Python scripts to handle pip installation, Postgres detection,
+   and improve API key management for OpenAI GPT-3 integration.
+
+  release4.6.1
    -fix bug import data on postgis
 
   release4.6.0
