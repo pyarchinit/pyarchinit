@@ -12,7 +12,7 @@
 
 In QGIS add this link for the master version:
 
-_https://pyarchinit.org/pyarchinit_repository_
+_http://pyarchinit.org/pyarchinit_repository_
 
 
 
