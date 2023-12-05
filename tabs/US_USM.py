@@ -852,7 +852,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.comboBox_per_iniz.currentTextChanged.connect(self.check_v)
 
         self.tableWidget_rapporti.itemChanged.connect(self.check_listoflist)
-
+        self.update_dating()
         #
     def clean_comments(self,text_to_clean):
         clean_text = text_to_clean.split("##")[0].replace("\n", "")
@@ -1722,6 +1722,22 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         except:
             pass
 
+
+    # This function should be connected to the button click event
+    def update_dating(self):
+        try:
+            updates_made = self.DB_MANAGER.update_us_dating_from_periodizzazione()
+            if updates_made > 0:
+                # Inform the user that updates have been made
+                QMessageBox.information(self, "Success",
+                                        f"All 'Dating' fields have been updated successfully. Total updates made: {updates_made}",
+                                        QMessageBox.Ok)
+            else:
+                # Inform the user that no updates were necessary
+                QMessageBox.information(self, "No Updates", "No 'Dating' fields needed to be updated.",
+                                        QMessageBox.Ok)
+        except Exception as e:
+            QMessageBox.critical(self, "Error", f"An error occurred while updating 'Dating': {e}", QMessageBox.Ok)
 
     def on_pushButton_draw_doc_pressed(self):
         sito = str(self.comboBox_sito.currentText())
@@ -6990,6 +7006,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.pyQGIS.charge_vector_layers(sing_layer)
         self.pyQGIS.charge_usm_layers(sing_layer)
     def on_pushButton_crea_codice_periodo_pressed(self):
+
         try:
             self.set_sito()
             sito = str(self.comboBox_sito.currentText())
@@ -7011,6 +7028,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             elif self.L=='en':   
                 QMessageBox.warning(self, "Attention", str(e), QMessageBox.Ok)
     def on_pushButton_search_go_pressed(self):
+
+
         self.checkBox_query.setChecked(False)
         if self.BROWSE_STATUS != "f":
             if self.L=='it':
@@ -7183,56 +7202,56 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             # 63 componenti organici
             #    self.TABLE_FIELDS[63]: "'" + str(self.comboBox_componenti_inorganici.currentText()) + "'",
             # 64 componenti inorganici
-                self.TABLE_FIELDS[62]:lunghezza_max,  # 65
-                self.TABLE_FIELDS[63]:altezza_max,  # 66
-                self.TABLE_FIELDS[64]:altezza_min,  # 67
-                self.TABLE_FIELDS[65]:profondita_max,  # 68
-                self.TABLE_FIELDS[66]:profondita_min,  # 69
-                self.TABLE_FIELDS[67]:larghezza_media,  # 70
-                self.TABLE_FIELDS[68]:quota_max_abs,  # 71
-                self.TABLE_FIELDS[69]:quota_max_rel,  # 72
-                self.TABLE_FIELDS[70]:quota_min_abs,  # 73
-                self.TABLE_FIELDS[71]:quota_min_rel,  # 74
-                self.TABLE_FIELDS[72]: "'" + str(self.textEdit_osservazioni.toPlainText()) + "'",  # 75 osservazioni
-                self.TABLE_FIELDS[73]: "'" + str(self.lineEdit_datazione.text()) + "'",  # 76 datazione
-                self.TABLE_FIELDS[74]: "'" + str(self.comboBox_flottazione.currentText()) + "'",  # 77 flottazione
-                self.TABLE_FIELDS[75]: "'" + str(self.comboBox_setacciatura.currentText()) + "'",  # 78 setacciatura
-                self.TABLE_FIELDS[76]: "'" + str(self.comboBox_affidabilita.currentText()) + "'",  # 79 affidabilita
-                self.TABLE_FIELDS[77]: "'" + str(self.comboBox_direttore_us.currentText()) + "'",  # 80 direttore us
-                self.TABLE_FIELDS[78]: "'" + str(self.comboBox_responsabile_us.currentText()) + "'", # 81 responsabile us
-                self.TABLE_FIELDS[79]: "'" + str(self.lineEdit_cod_ente_schedatore.text()) + "'", # 82 cod ente schedatore
-                self.TABLE_FIELDS[80]: "'" + str(self.lineEdit_data_rilevazione.text()) + "'",  # 83 data rilevazione
-                self.TABLE_FIELDS[81]: "'" + str(self.lineEdit_data_rielaborazione.text()) + "'", # 84 data rielaborazione
-                self.TABLE_FIELDS[82]: lunghezza_usm,  # 85
-                self.TABLE_FIELDS[83]: altezza_usm,  # 86
-                self.TABLE_FIELDS[84]: spessore_usm,  # 87
-                self.TABLE_FIELDS[85]: "'" + str(self.comboBox_tecnica_muraria_usm.currentText()) + "'", # 88 tecnica muraria usm
-                self.TABLE_FIELDS[86]: "'" + str(self.comboBox_modulo_usm.currentText()) + "'", # 89 modulo usm
-                self.TABLE_FIELDS[87]: "'" + str(self.lineEdit_campioni_malta_usm.text()) + "'", # 90 campioni malta usm
-                self.TABLE_FIELDS[88]: "'" + str(self.lineEdit_campioni_mattone_usm.text()) + "'", # 91 campioni mattone usm
-                self.TABLE_FIELDS[89]: "'" + str(self.lineEdit_campioni_pietra_usm.text()) + "'", # 92 campioni pietra usm
-                self.TABLE_FIELDS[90]: "'" + str(self.lineEdit_provenienza_materiali_usm.text()) + "'", # 93 provenienza_materiali_usm
-                self.TABLE_FIELDS[91]: "'" + str(self.lineEdit_criteri_distinzione_usm.text()) + "'", # 94 criteri distinzione usm
-                self.TABLE_FIELDS[92]: "'" + str(self.comboBox_uso_primario_usm.currentText()) + "'",  # 95 uso primario usm
-                self.TABLE_FIELDS[93]: "'" + str(self.comboBox_tipologia_opera.currentText()) + "'",  # 95 uso primario usm
-                self.TABLE_FIELDS[94]: "'" + str(self.comboBox_sezione_muraria.currentText()) + "'" , # 95 uso primario usm
-                self.TABLE_FIELDS[95]: "'" + str(self.comboBox_superficie_analizzata.currentText()) + "'" , # 95 uso primario usm
-                self.TABLE_FIELDS[96]: "'" + str(self.comboBox_orientamento.currentText()) + "'" , # 95 uso primario usm
-                self.TABLE_FIELDS[97]: "'" + str(self.comboBox_materiali_lat.currentText()) + "'",  # 95 uso primario usm
-                self.TABLE_FIELDS[98]: "'" + str(self.comboBox_lavorazione_lat.currentText()) + "'",  # 95 uso primario usm
-                self.TABLE_FIELDS[99]: "'" + str(self.comboBox_consistenza_lat.currentText()) + "'",  # 95 uso primario usm
-                self.TABLE_FIELDS[100]: "'" + str(self.comboBox_forma_lat.currentText()) + "'" , # 95 uso primario usm
-                self.TABLE_FIELDS[101]: "'" + str(self.comboBox_colore_lat.currentText()) + "'",  # 95 uso primario usm
-                self.TABLE_FIELDS[102]: "'" + str(self.comboBox_impasto_lat.currentText()) + "'", # 95 uso primario usm
-                self.TABLE_FIELDS[103]: "'" + str(self.comboBox_forma_p.currentText()) + "'" , # 95 uso primario usm
-                self.TABLE_FIELDS[104]: "'" + str(self.comboBox_colore_p.currentText()) + "'",  # 95 uso primario usm
-                self.TABLE_FIELDS[105]: "'" + str(self.comboBox_taglio_p.currentText()) + "'" , # 95 uso primario usm
-                self.TABLE_FIELDS[106]: "'" + str(self.comboBox_posa_opera_p.currentText()) + "'",  # 95 uso primario usm
-                self.TABLE_FIELDS[107]: "'" + str(self.comboBox_inerti_usm.currentText()) + "'",  # 95 uso primario usm
-                self.TABLE_FIELDS[108]: "'" + str(self.comboBox_tipo_legante_usm.currentText()) + "'",  # 95 uso primario usm
-                self.TABLE_FIELDS[109]: "'" + str(self.comboBox_rifinitura_usm.currentText()) + "'",  # 95 uso primario usm
-                self.TABLE_FIELDS[110]: "'" + str(self.comboBox_materiale_p.currentText()) + "'",  # 95 uso primario usm
-                self.TABLE_FIELDS[111]: "'" + str(self.comboBox_consistenza_p.currentText()) + "'",  # 95 uso primario usm
+                self.TABLE_FIELDS[64]:lunghezza_max,  # 65
+                self.TABLE_FIELDS[65]:altezza_max,  # 66
+                self.TABLE_FIELDS[66]:altezza_min,  # 67
+                self.TABLE_FIELDS[67]:profondita_max,  # 68
+                self.TABLE_FIELDS[68]:profondita_min,  # 69
+                self.TABLE_FIELDS[69]:larghezza_media,  # 70
+                self.TABLE_FIELDS[70]:quota_max_abs,  # 71
+                self.TABLE_FIELDS[71]:quota_max_rel,  # 72
+                self.TABLE_FIELDS[72]:quota_min_abs,  # 73
+                self.TABLE_FIELDS[73]:quota_min_rel,  # 74
+                self.TABLE_FIELDS[74]: "'" + str(self.textEdit_osservazioni.toPlainText()) + "'",  # 75 osservazioni
+                self.TABLE_FIELDS[75]: "'" + str(self.lineEdit_datazione.text()) + "'",  # 76 datazione
+                self.TABLE_FIELDS[76]: "'" + str(self.comboBox_flottazione.currentText()) + "'",  # 77 flottazione
+                self.TABLE_FIELDS[77]: "'" + str(self.comboBox_setacciatura.currentText()) + "'",  # 78 setacciatura
+                self.TABLE_FIELDS[78]: "'" + str(self.comboBox_affidabilita.currentText()) + "'",  # 79 affidabilita
+                self.TABLE_FIELDS[79]: "'" + str(self.comboBox_direttore_us.currentText()) + "'",  # 80 direttore us
+                self.TABLE_FIELDS[80]: "'" + str(self.comboBox_responsabile_us.currentText()) + "'", # 81 responsabile us
+                self.TABLE_FIELDS[81]: "'" + str(self.lineEdit_cod_ente_schedatore.text()) + "'", # 82 cod ente schedatore
+                self.TABLE_FIELDS[82]: "'" + str(self.lineEdit_data_rilevazione.text()) + "'",  # 83 data rilevazione
+                self.TABLE_FIELDS[83]: "'" + str(self.lineEdit_data_rielaborazione.text()) + "'", # 84 data rielaborazione
+                self.TABLE_FIELDS[84]: lunghezza_usm,  # 85
+                self.TABLE_FIELDS[85]: altezza_usm,  # 86
+                self.TABLE_FIELDS[86]: spessore_usm,  # 87
+                self.TABLE_FIELDS[87]: "'" + str(self.comboBox_tecnica_muraria_usm.currentText()) + "'", # 88 tecnica muraria usm
+                self.TABLE_FIELDS[88]: "'" + str(self.comboBox_modulo_usm.currentText()) + "'", # 89 modulo usm
+                self.TABLE_FIELDS[89]: "'" + str(self.lineEdit_campioni_malta_usm.text()) + "'", # 90 campioni malta usm
+                self.TABLE_FIELDS[90]: "'" + str(self.lineEdit_campioni_mattone_usm.text()) + "'", # 91 campioni mattone usm
+                self.TABLE_FIELDS[91]: "'" + str(self.lineEdit_campioni_pietra_usm.text()) + "'", # 92 campioni pietra usm
+                self.TABLE_FIELDS[92]: "'" + str(self.lineEdit_provenienza_materiali_usm.text()) + "'", # 93 provenienza_materiali_usm
+                self.TABLE_FIELDS[93]: "'" + str(self.lineEdit_criteri_distinzione_usm.text()) + "'", # 94 criteri distinzione usm
+                self.TABLE_FIELDS[94]: "'" + str(self.comboBox_uso_primario_usm.currentText()) + "'",  # 95 uso primario usm
+                self.TABLE_FIELDS[95]: "'" + str(self.comboBox_tipologia_opera.currentText()) + "'",  # 95 uso primario usm
+                self.TABLE_FIELDS[96]: "'" + str(self.comboBox_sezione_muraria.currentText()) + "'" , # 95 uso primario usm
+                self.TABLE_FIELDS[97]: "'" + str(self.comboBox_superficie_analizzata.currentText()) + "'" , # 95 uso primario usm
+                self.TABLE_FIELDS[98]: "'" + str(self.comboBox_orientamento.currentText()) + "'" , # 95 uso primario usm
+                self.TABLE_FIELDS[99]: "'" + str(self.comboBox_materiali_lat.currentText()) + "'",  # 95 uso primario usm
+                self.TABLE_FIELDS[100]: "'" + str(self.comboBox_lavorazione_lat.currentText()) + "'",  # 95 uso primario usm
+                self.TABLE_FIELDS[101]: "'" + str(self.comboBox_consistenza_lat.currentText()) + "'",  # 95 uso primario usm
+                self.TABLE_FIELDS[102]: "'" + str(self.comboBox_forma_lat.currentText()) + "'" , # 95 uso primario usm
+                self.TABLE_FIELDS[103]: "'" + str(self.comboBox_colore_lat.currentText()) + "'",  # 95 uso primario usm
+                self.TABLE_FIELDS[104]: "'" + str(self.comboBox_impasto_lat.currentText()) + "'", # 95 uso primario usm
+                self.TABLE_FIELDS[105]: "'" + str(self.comboBox_forma_p.currentText()) + "'" , # 95 uso primario usm
+                self.TABLE_FIELDS[106]: "'" + str(self.comboBox_colore_p.currentText()) + "'",  # 95 uso primario usm
+                self.TABLE_FIELDS[107]: "'" + str(self.comboBox_taglio_p.currentText()) + "'" , # 95 uso primario usm
+                self.TABLE_FIELDS[108]: "'" + str(self.comboBox_posa_opera_p.currentText()) + "'",  # 95 uso primario usm
+                self.TABLE_FIELDS[109]: "'" + str(self.comboBox_inerti_usm.currentText()) + "'",  # 95 uso primario usm
+                self.TABLE_FIELDS[110]: "'" + str(self.comboBox_tipo_legante_usm.currentText()) + "'",  # 95 uso primario usm
+                self.TABLE_FIELDS[111]: "'" + str(self.comboBox_rifinitura_usm.currentText()) + "'",  # 95 uso primario usm
+                self.TABLE_FIELDS[112]: "'" + str(self.comboBox_materiale_p.currentText()) + "'",  # 95 uso primario usm
+                self.TABLE_FIELDS[113]: "'" + str(self.comboBox_consistenza_p.currentText()) + "'",  # 95 uso primario usm
             }
             u = Utility()
             search_dict1 = u.remove_empty_items_fr_dict(search_dict)
