@@ -19,7 +19,7 @@ _http://pyarchinit.org/pyarchinit_repository_
 ## Installing from zip
 
 ### Linux/Windows/MacOS
-1. Download the zip archive from github
+1. Download the zip archive from GitHub
 2. Install the python packages requirements (see [Dependencies](#dependencies) paragraph)
 3. Open QGIS and then from Plugin manager use Install from ZIP to install the plugin
 
@@ -42,7 +42,7 @@ _http://pyarchinit.org/pyarchinit_repository_
 
 you need install Cambria font. If you don't have already installed, automatically the folder with cambria font  will open 
 
-you need just double click on all file with cambria name.
+you need just double-click on all file with cambria name.
 * cambria.ttc
 * Cambria.ttf
 * cambriab.ttf
@@ -88,7 +88,7 @@ The dependencies can be installed also using the [modules_installer.py](/scripts
 * Scavo di Vicolo del Bologna a Roma centro
 * Scavo del comprensorio di S. Giovanni Bosco sull’Appia nuova
 * Scavi della Regione Lazio in Via delle Antenne, Roma
-* Ricognizioni archeologiche adArte Srl 
+* Ricognizioni archeologiche adArte S.R.L. 
 * Viarch adArte Srl
 * Carta Archeologica Comune di Rimini
 * Carta Archeologica Comune di Santarcangelo di Romagna
