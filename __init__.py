@@ -17,12 +17,26 @@
  *                                                                       *
  ***************************************************************************/
 """
+import ensurepip
+import subprocess
+import sys
+
+try:
+    # Tenta di importare pip
+    import pip
+except ImportError:
+    # Se l'importazione fallisce, installa pip
+    subprocess.call(['python', '-m', 'ensurepip'])
+
+        
+    # Aggiorna pip all'ultima versione
+    subprocess.call(['python', '-m', 'pip', 'install', '--upgrade', 'pip'])
+
+# Da questo punto in poi, puoi assumere che pip sia installato e aggiornato
 
 import os
 from os import path
 import re
-import subprocess
-import sys
 import traceback
 import platform
 from qgis.PyQt.QtWidgets import QMessageBox,QCheckBox
@@ -192,7 +206,7 @@ if not Pyarchinit_OS_Utility.checkPostgresInstallation() and s.value('pyArchInit
 
 
 packages = [
-    #'pyaper',
+    'postgres',
     'graphviz',
 ]
 
@@ -234,7 +248,14 @@ for p in packages:
                     
                     subprocess.Popen(["open", path])
                
-                    
+    if p.startswith('postgres'):
+        try:
+            subprocess.call(['pg_dump', '-V'])
+        except Exception as e:
+            #if L=='it':
+            QMessageBox.warning(None, 'Pyarchinit',
+                            "INFO: Sembra che postgres non sia installato sul vostro sistema o che non abbiate impostato il percorso in Pyarchinit config. In ogni caso il modulo python di graphviz sarà installato sul vostro sistema, ma la funzionalità di esportazione del matrix dal plugin pyarchinit sarà disabilitata.",
+                            QMessageBox.Ok | QMessageBox.Cancel)
         
         
 def classFactory(iface):
