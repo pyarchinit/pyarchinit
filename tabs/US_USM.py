@@ -20,7 +20,7 @@
 from __future__ import absolute_import
 
 import psycopg2
-
+import traceback
 import sqlite3 as sq
 from xml.etree.ElementTree import ElementTree as ET
 import csv
@@ -1090,7 +1090,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                     rapp='Si appoggia a'             
                 elif rapp =='Filled by':
                     rapp='Fills'             
-                elif rapp =='Cutted by':
+                elif rapp =='Cut by':
                     rapp='Cuts' 
                 elif rapp =='Covered by':
                     rapp='Covers' 
@@ -1099,7 +1099,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 elif rapp =='Fills':
                     rapp='Filled by'             
                 elif rapp =='Cuts':
-                    rapp='Cutted by' 
+                    rapp='Cut by' 
                 elif rapp =='Covers':
                     rapp='Covered by' 
                 elif rapp =='Supports':
@@ -2225,7 +2225,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             self.tableWidget_rapporti.setItemDelegateForColumn(0,self.delegateRS)
 
         elif self.L=='en':
-            valuesRS = ["Same as", "Connected to", "Covers", "Covered by", "Fills", "Filled by", "Cuts", "Cutted by", "Abuts", "Supports", ">","<","<<",">>","<->",""]
+            valuesRS = ["Same as", "Connected to", "Covers", "Covered by", "Fills", "Filled by", "Cuts", "Cut by", "Abuts", "Supports", ">","<","<<",">>","<->",""]
             self.delegateRS = ComboBoxDelegate()
             self.delegateRS.def_values(valuesRS)
             self.delegateRS.def_editable('False')
@@ -2237,7 +2237,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             self.delegateRS.def_editable('False')
             self.tableWidget_rapporti.setItemDelegateForColumn(0,self.delegateRS)
         else:
-            valuesRS = ["Same as", "Connected to", "Covers", "Covered by", "Fills", "Filled by", "Cuts", "Cutted by", "Abuts", "Supports", ">","<","<<",">>","<->",""]
+            valuesRS = ["Same as", "Connected to", "Covers", "Covered by", "Fills", "Filled by", "Cuts", "Cut by", "Abuts", "Supports", ">","<","<<",">>","<->",""]
             self.delegateRS = ComboBoxDelegate()
             self.delegateRS.def_values(valuesRS)
             self.delegateRS.def_editable('False')
@@ -5369,19 +5369,34 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             self.periodi_to_rapporti_stratigrafici_check(sito_check, area_check)
             self.automaticform_check(sito_check, area_check)
         except Exception as e:
-            if self.apikey_gpt:
-                errorMessage = MyApp.ask_gpt(self, f'spiegami l errore {e}', self.apikey_gpt)
+            full_exception = traceback.format_exc()
+
+            if MyApp.is_connected(self):
+                models = ["gpt-3.5-turbo-16k","gpt-4"]  # Replace with actual model names
+                combo = QComboBox()
+                combo.addItems(models)
+                selected_model, ok = QInputDialog.getItem(self, "Select Model", "Choose a model for GPT:", models, 0,
+                                                          False)
+
+                if ok and selected_model:
+                    gpt_response = MyApp.ask_gpt(self, f"spiegami l'errore {full_exception}", self.apikey_gpt(),
+                                                 selected_model)
+                    combined_message = f"Error: {e}\nGPT Response: {gpt_response}"
+                    self.listWidget_rapp.addItem(combined_message)
+                elif not ok:
+                    self.listWidget_rapp.addItem("Model selection was canceled.")
             else:
-                errorMessage = f'Errore: {e}'
-            self.listWidget_rapp.addItem(errorMessage)
-            print(f"Error: {errorMessage}")
+                self.listWidget_rapp.addItem(f"Error: {e}")
+
         else:
-            success_message = {
-                'it': "Controllo dei Rapporti Stratigrafici, Definizione Stratigrafica a Rapporti Stratigrafici, Periodi a Rapporti Stratigrafici e Automaticform eseguito con successo",
-                'de': "Prüfen der stratigraphischen Beziehung, Definition Stratigraphische zu Stratigraphische Berichte, Perioden zu Stratigraphische Berichte und Automaticform erfolgereich durchgeführt",
-                'en': "Monitoring of Stratigraphic Relationships, Definition Stratigraphic to Stratigraphic Reports, Periods to Stratigraphic Reports and Automaticform performed successfully"
-            }
-            self.listWidget_rapp.addItem(success_message.get(self.L, "Message"))
+                success_message = {
+                    'it': "Controllo dei Rapporti Stratigrafici, Definizione Stratigrafica a Rapporti Stratigrafici, Periodi a Rapporti Stratigrafici e Automaticform eseguito con successo",
+                    'de': "Prüfen der stratigraphischen Beziehung, Definition Stratigraphische zu Stratigraphische Berichte, Perioden zu Stratigraphische Berichte und Automaticform erfolgereich durchgeführt",
+                    'en': "Monitoring of Stratigraphic Relationships, Definition Stratigraphic to Stratigraphic Reports, Periods to Stratigraphic Reports and Automaticform performed successfully"
+                }
+                self.listWidget_rapp.addItem(success_message.get(self.L, "Message"))
+
+
 
     def data_error_check(self):
         test = 0
@@ -5831,8 +5846,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                            'Covered by': 'Covers',
                            'Fills': 'Filled by',
                            'Filled by':'Fills', 
-                           'Cuts': 'Cutted by',
-                           'Cutted by': 'Cuts',
+                           'Cuts': 'Cut by',
+                           'Cut by': 'Cuts',
                            'Abuts': 'Supports',
                            'Supports': 'Abuts', 
                            'Connected to': 'Connected to',
@@ -5946,8 +5961,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                            'Covered by': 'Covers',
                            'Fills': 'Filled by',
                            'Filled by':'Fills', 
-                           'Cuts': 'Cutted by',
-                           'Cutted by': 'Cuts',
+                           'Cuts': 'Cut by',
+                           'Cut by': 'Cuts',
                            'Abuts': 'Supports',
                            'Supports': 'Abuts', 
                            'Connected to': 'Connected to',
@@ -6068,8 +6083,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                            'Covered by': 'Covers',
                            'Fills': 'Filled by',
                            'Filled by':'Fills', 
-                           'Cuts': 'Cutted by',
-                           'Cutted by': 'Cuts',
+                           'Cuts': 'Cut by',
+                           'Cut by': 'Cuts',
                            'Abuts': 'Supports',
                            'Supports': 'Abuts', 
                            'Connected to': 'Connected to',
@@ -6206,10 +6221,10 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                     
                         if sing_rapp[0] == 'Cuts' and int(sing_rapp[4].replace('-',''))<self.concat(int(periodo_in),int(fase_in)):
                             
-                            report2 = '%s : %d : %s- Shuld be Cutted by %s : %s-%s' % (
+                            report2 = '%s : %d : %s- Shuld be Cut by %s : %s-%s' % (
                                 ut, int(us),str(sing_rapp[4]), sing_rapp[1],  str(periodo_in),str(fase_in))
                                 
-                        if sing_rapp[0] == 'Cutted by' and int(sing_rapp[4].replace('-',''))>self.concat(int(periodo_in),int(fase_in)):
+                        if sing_rapp[0] == 'Cut by' and int(sing_rapp[4].replace('-',''))>self.concat(int(periodo_in),int(fase_in)):
                         
                             report2 = '%s : %d : %s- Shuld be Cuts %s : %s-%s' % (
                                 ut, int(us),str(sing_rapp[4]), sing_rapp[1], str(periodo_in),str(fase_in))
