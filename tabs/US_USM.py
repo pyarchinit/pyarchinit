@@ -33,8 +33,6 @@ import cv2
 import math
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QMessageBox
-from PIL import Image
-import matplotlib.pyplot as plt
 from collections import OrderedDict
 from qgis.PyQt.QtCore import *
 from qgis.PyQt.QtGui import QColor, QIcon
@@ -44,7 +42,6 @@ from qgis.core import *
 from qgis.gui import QgsMapCanvas, QgsMapToolPan
 from qgis.PyQt.QtSql import QSqlDatabase, QSqlTableModel
 from .Interactive_matrix import *
-from ..modules.utility.pyarchinit_OS_utility import Pyarchinit_OS_Utility
 from ..modules.utility.pyarchinit_media_utility import *
 
 from ..modules.db.pyarchinit_conn_strings import Connection
@@ -53,12 +50,10 @@ from ..modules.db.pyarchinit_utility import Utility
 from ..modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis, Order_layer_v2
 from ..modules.utility.delegateComboBox import ComboBoxDelegate
 from ..modules.utility.pyarchinit_error_check import Error_check
-#from ..modules.utility.pyarchinit_exp_Periodosheet_pdf import generate_US_pdf
 from ..modules.utility.pyarchinit_exp_USsheet_pdf import generate_US_pdf
 from ..modules.utility.pyarchinit_print_utility import Print_utility
 from ..modules.utility.settings import Settings
 from ..modules.utility.askgpt import MyApp
-from .pyarchinit_setting_matrix import Setting_Matrix
 from ..searchLayers import SearchLayers
 from ..gui.imageViewer import ImageViewer
 from ..gui.pyarchinitConfigDialog import pyArchInitDialog_Config
@@ -2399,24 +2394,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         for i in range(len(tipo_inclusi_campioni)):
             valuesINCL_CAMP.append(tipo_inclusi_campioni[i].sigla_estesa)
         valuesINCL_CAMP.sort()
-        #valuesINCL_CAMP = ["Terra",
-         #                  "Pietre",
-         #                  "Laterizio",
-         #                  "Ciottoli",
-         #                  "Calcare",
-         #                  "Calce",
-          #                 "Carboni",
-         #                  "Concotto",
-         #                  "Ghiaia",
-         #                  "Cariossidi",
-         #                  "Malacofauna",
-          #                 "Sabbia",
-          #                 "Malta",
-          #                 "Ceramica",
-          #                 "Metalli",
-          #                 "Fr. ossei umani",
-           #                "Fr. ossei animali",
-           #                "Fr. lapidei"]
+
         self.delegateINCL_CAMP = ComboBoxDelegate()
         valuesINCL_CAMP.sort()
         self.delegateINCL_CAMP.def_values(valuesINCL_CAMP)
@@ -2437,43 +2415,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.delegateINCL.def_values(valuesINCL)
         self.delegateINCL.def_editable('False')
         self.tableWidget_inclusi.setItemDelegateForColumn(0, self.delegateINCL)
-    # def loadMedialist(self):
-        # self.tableWidget_foto.clear()
-        # col =['Sito','Area','US','Definizione']
-        # self.tableWidget_foto.setHorizontalHeaderLabels(col)
-        # numRows = self.tableWidget_foto.setRowCount(100)
-        # try: 
-            # search_dict = {
-                # 'sito': "'" + str(eval("self.DATA_LIST[int(self.REC_CORR)]. " + self.ID_SITO)) + "'"}
-            # record_us_list = self.DB_MANAGER.query_bool(search_dict, 'US')
-            # nus=0
-            # for b in record_us_list:
-                # if nus== 0:
-                    # self.tableWidget_foto.setItem(nus, 0, QTableWidgetItem(str(b.sito)))
-                    # self.tableWidget_foto.setItem(nus, 1, QTableWidgetItem(str(b.area)))
-                    # self.tableWidget_foto.setItem(nus, 3, QTableWidgetItem(str(b.d_stratigrafica)))
-                    # self.tableWidget_foto.setItem(nus, 2, QTableWidgetItem(str(b.us)))    
-                    # nus+=1
-                # else:
-                    # self.tableWidget_foto.setItem(nus, 0, QTableWidgetItem(str(b.sito)))
-                    # self.tableWidget_foto.setItem(nus, 1, QTableWidgetItem(str(b.area)))
-                    # self.tableWidget_foto.setItem(nus, 3, QTableWidgetItem(str(b.d_stratigrafica)))
-                    # self.tableWidget_foto.setItem(nus, 2, QTableWidgetItem(str(b.us)))    
-                    # nus+=1 
-        # except:
-            # pass
-        # search_dict = {
-            # 'id_entity': "'" + str(eval("self.DATA_LIST[int(self.REC_CORR)]." + self.ID_TABLE)) + "'",
-            # 'entity_type': "'US'"}
-        # record_media_list = self.DB_MANAGER.query_bool(search_dict, 'MEDIATOENTITY')
-        # n=0
-        # for a in record_media_list:
-            # if n== 0:
-                # self.tableWidget_foto.setItem(n, 3,QTableWidgetItem(str(a.media_name)))
-                # n+=1
-            # else:
-                # self.tableWidget_foto.setItem(n, 3,QTableWidgetItem(str(a.media_name)))
-                # n+=1
+
     def loadMapPreview(self, mode=0):
         if mode == 0:
             """ if has geometry column load to map canvas """
@@ -8550,7 +8492,122 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         else:
             QMessageBox.information(self, 'OK', 'Imported complited', QMessageBox.Ok)
         self.view_all()
+
+    # This method is part of your main application window class
+    def on_pushButton_filter_us_pressed(self):
+        self.empty_fields()
+        # Create and show the dialog
+        filter_dialog = USFilterDialog(self.DB_MANAGER, self)
+        result = filter_dialog.exec_()  # Show the dialog and wait for it to close
+
+        if result:
+            # Get the selected US IDs from the dialog
+            selected_us_ids = filter_dialog.get_selected_us()
+
+            # Sort DATA_LIST based on the selected US IDs
+            sorted_data_list = sorted(
+                self.DATA_LIST,
+                key=lambda record: selected_us_ids.index(record.us) if record.us in selected_us_ids else -1
+            )
+
+            # Filter out any records that are not in selected_us_ids
+            filtered_data_list = [record for record in sorted_data_list if record.us in selected_us_ids]
+
+            # Update the UI with the filtered and sorted data
+            if filtered_data_list:
+                self.DATA_LIST = filtered_data_list  # Update the main data list with the filtered results
+                self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
+                self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR + 1)
+                self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
+                self.fill_fields()  # Assuming fill_fields takes a record as a parameter
+                self.BROWSE_STATUS = "b"
+                self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
+            else:
+                QMessageBox.information(self, 'No Results', "No records match the selected filters.", QMessageBox.Ok)
+
+
+class USFilterDialog(QDialog):
+    def __init__(self, db_manager, parent=None):
+        super().__init__(parent)
+        self.db_manager = db_manager
+        self.selected_us = []
+        self.initUI()
+
+    def initUI(self):
+        layout = QVBoxLayout(self)
+
+        # Create list widget
+        self.list_widget = QListWidget(self)
+        layout.addWidget(self.list_widget)
+
+        # Populate list widget with checkboxes
+        self.populate_list_with_us()
+
+        # Create filter button
+        filter_button = QPushButton('Filter', self)
+        filter_button.clicked.connect(self.apply_filter)
+        layout.addWidget(filter_button)
+
+        # Set dialog layout
+        self.setLayout(layout)
+
+    def populate_list_with_us(self):
+        # Fetch US records from the database
+        us_records = self.db_manager.query_all('us_table')
+        for us_record in us_records:
+            # Create a QListWidgetItem
+            list_item = QListWidgetItem(self.list_widget)
+            # Create a checkbox for each US record
+            checkbox = QCheckBox(f"US {us_record.us}")
+            checkbox.us = us_record.us  # Store the US ID in the checkbox object
+            # Add the QListWidgetItem to the list widget
+            self.list_widget.addItem(list_item)
+            # Set the checkbox as the item's widget
+            self.list_widget.setItemWidget(list_item, checkbox)
+
+    def apply_filter(self):
+        # Clear the selected US list
+        self.selected_us.clear()
+
+        # Check which checkboxes are checked and add the US IDs to the selected list
+        for i in range(self.list_widget.count()):
+            item = self.list_widget.item(i)
+            checkbox = self.list_widget.itemWidget(item)
+            if checkbox.isChecked():
+                us_id = int(checkbox.text().split(' ')[1])  # Extract the US ID from the checkbox text
+                self.selected_us.append(us_id)
+
+        print(f"Selected US IDs: {self.selected_us}")  # Debug print statement
+        self.accept()
+
+    def get_selected_us(self):
+        # Return the list of selected US IDs
+        return self.selected_us
+
 class IntegerDelegate(QtWidgets.QStyledItemDelegate):
+    """
+        The IntegerDelegate class is a subclass of QStyledItemDelegate from the PyQt5 library. It is used to create a delegate for editing integer values in a Qt model/view framework.
+        Example Usage
+        # Import the necessary libraries
+        from PyQt5 import QtGui, QtWidgets
+
+        # Create an instance of the IntegerDelegate class
+        delegate = IntegerDelegate()
+
+        # Set the delegate for a specific column in a QTableView
+        tableView.setItemDelegateForColumn(columnIndex, delegate)
+        Code Analysis
+        Main functionalities
+        The main functionality of the IntegerDelegate class is to provide a custom editor for integer values in a Qt model/view framework. It creates a QLineEdit widget as the editor and sets a QIntValidator to ensure that only valid integer values can be entered.
+    
+        Methods
+        createEditor(parent, option, index): This method is called when a cell in the view needs to be edited. It creates and returns a QLineEdit widget as the editor for the cell. It also sets a QIntValidator to ensure that only valid integer values can be entered.
+
+        Fields
+        None
+
+    """
+
     def __init__(self, parent=None):
         super(IntegerDelegate, self).__init__(parent)
 
