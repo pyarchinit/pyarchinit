@@ -1106,7 +1106,57 @@ class Pyarchinit_db_management(object):
         session.close()
         return res
     
-    
+    def query_all_us(self, table_class_str, column_name='us'):
+        """
+        Retrieve all records from a specified table and return values of a specific column.
+
+        :param table_class_str: The name of the table class as a string.
+        :param column_name: The name of the column to retrieve values from.
+        :return: A list of values from the specified column of all records.
+        """
+        # Reflect the table from the database
+        table = Table(table_class_str, self.metadata, autoload_with=self.engine)
+
+        # Create a session
+        Session = sessionmaker(bind=self.engine)
+        session = Session()
+
+        try:
+            # Query all records from the table
+            query = session.query(table).all()
+            # Extract the 'us' column values
+            us_values = [getattr(record, column_name, None) for record in query]
+            return us_values
+        except Exception as e:
+            print(f"An error occurred while querying all records: {e}")
+            return []
+        finally:
+            # Close the session
+            session.close()
+    def query_all(self, table_class_str):
+        """
+        Retrieve all records from a specified table.
+
+        :param table_class_str: The name of the table class as a string.
+        :return: A list of all records from the specified table.
+        """
+        # Reflect the table from the database
+        table = Table(table_class_str, self.metadata, autoload_with=self.engine)
+
+        # Create a session
+        Session = sessionmaker(bind=self.engine)
+        session = Session()
+
+        try:
+            # Query all records from the table
+            query = session.query(table).all()
+            return query
+        except Exception as e:
+            print(f"An error occurred while querying all records: {e}")
+            return []
+        finally:
+            # Close the session
+            session.close()
     
     def query_bool_special(self, params, table):
         u = Utility()
