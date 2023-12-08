@@ -1061,6 +1061,37 @@ class Pyarchinit_db_management(object):
 
         return total_images
 
+    def query_bool_us(self, params, table_class):
+
+        u = Utility()
+        params = u.remove_empty_items_fr_dict(params)
+
+        # Create a session
+        Session = sessionmaker(bind=self.engine)
+        session = Session()
+
+        # Start with an empty list of conditions
+        conditions = []
+
+        # Iterate over the parameters to create conditions
+        for key, value in params.items():
+            column = getattr(table_class, key)
+            if isinstance(value, str):
+                conditions.append(column.like(value))
+            else:
+                conditions.append(column == value)
+
+        # Construct the query with the conditions
+        query = session.query(table_class).filter(and_(*conditions))
+
+        # Execute the query and fetch all results
+        res = query.all()
+
+        # Close the session
+        session.close()
+
+        return res
+
     def query_bool(self, params, table):
         u = Utility()
         params = u.remove_empty_items_fr_dict(params)
@@ -1105,7 +1136,57 @@ class Pyarchinit_db_management(object):
         '''
         session.close()
         return res
-    
+    # def query_bool(self, params, table_class_name):
+    #     u = Utility()
+    #     params = u.remove_empty_items_fr_dict(params)
+    #
+    #     # Create a session
+    #     Session = sessionmaker(bind=self.engine)
+    #     session = Session()
+    #
+    #     # Mapping of table class names to class references
+    #     table_classes = {
+    #         'US':US, 'UT': UT, 'SITE': SITE, 'PERIODIZZAZIONE': PERIODIZZAZIONE, 'POTTERY': POTTERY,
+    #         'STRUTTURA': STRUTTURA, 'SCHEDAIND': SCHEDAIND, 'INVENTARIO_MATERIALI': INVENTARIO_MATERIALI,
+    #         'DETSESSO': DETSESSO, 'DOCUMENTAZIONE': DOCUMENTAZIONE, 'DETETA': DETETA, 'MEDIA': MEDIA,
+    #         'MEDIA_THUMB': MEDIA_THUMB, 'MEDIATOENTITY': MEDIATOENTITY, 'MEDIAVIEW': MEDIAVIEW,
+    #         'TOMBA': TOMBA, 'CAMPIONI': CAMPIONI, 'PYARCHINIT_THESAURUS_SIGLE': PYARCHINIT_THESAURUS_SIGLE,
+    #         'INVENTARIO_LAPIDEI': INVENTARIO_LAPIDEI, 'PDF_ADMINISTRATOR': PDF_ADMINISTRATOR,
+    #         'PYUS': PYUS, 'PYUSM': PYUSM, 'PYSITO_POINT': PYSITO_POINT, 'PYSITO_POLYGON': PYSITO_POLYGON,
+    #         'PYQUOTE': PYQUOTE, 'PYQUOTEUSM': PYQUOTEUSM, 'PYUS_NEGATIVE': PYUS_NEGATIVE,
+    #         'PYSTRUTTURE': PYSTRUTTURE, 'PYREPERTI': PYREPERTI, 'PYINDIVIDUI': PYINDIVIDUI,
+    #         'PYCAMPIONI': PYCAMPIONI, 'PYTOMBA': PYTOMBA, 'PYDOCUMENTAZIONE': PYDOCUMENTAZIONE,
+    #         'PYLINEERIFERIMENTO': PYLINEERIFERIMENTO, 'PYRIPARTIZIONI_SPAZIALI': PYRIPARTIZIONI_SPAZIALI,
+    #         'PYSEZIONI': PYSEZIONI
+    #         # Add other table class mappings here
+    #     }
+    #
+    #     # Get the table class from the mapping
+    #     table_class = table_classes.get(table_class_name)
+    #     if not table_class:
+    #         raise ValueError(f"No table class found for {table_class_name}")
+    #
+    #     # Start with an empty list of conditions
+    #     conditions = []
+    #
+    #     # Iterate over the parameters to create conditions
+    #     for key, value in params.items():
+    #         column = getattr(table_class, key)
+    #         if isinstance(value, str):
+    #             conditions.append(column.like(value))
+    #         else:
+    #             conditions.append(column == value)
+    #
+    #     # Construct the query with the conditions
+    #     query = session.query(table_class).filter(and_(*conditions))
+    #
+    #     # Execute the query and fetch all results
+    #     res = query.all()
+    #
+    #     # Close the session
+    #     session.close()
+    #
+    #     return res
     def query_all_us(self, table_class_str, column_name='us'):
         """
         Retrieve all records from a specified table and return values of a specific column.
