@@ -13,7 +13,7 @@ name=pyArchInit
 qgisMinimumVersion=3.22
 description=pyarchinit a tool for archaeological works
 
-version=4.6.3
+version=4.6.4
 
 author=Luca Mandolesi&Enzo Cocca
 email=pyarchinit@gmail.com
@@ -25,7 +25,11 @@ tracker=https://github.com/pyarchinit/pyarchinit/issues
 repository=https://github.com/pyarchinit/pyarchinit
 
 
-changelog=release4.6.3
+changelog=release4.6.4
+    Add query_all_us method to db_manager and refactor related UI components.
+    Refactor codebase to standardise docstrings and import statements, remove unused variables, and improve code formatting for consistency.
+
+  release4.6.3
     f526e500(Implement automatic 'Dating' field update in US_USM module and adjust related field mappings.)
     590c7414(Add update_us_dating_from_periodizzazione function to synchronize 'Dating' fields with periodizzazione data.)
     86c67071(Add new icon.png to enhance visual appeal.)
