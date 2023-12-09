@@ -13,7 +13,7 @@ name=pyArchInit
 qgisMinimumVersion=3.22
 description=pyarchinit a tool for archaeological works
 
-version=4.6.4
+version=4.6.5
 
 author=Luca Mandolesi&Enzo Cocca
 email=pyarchinit@gmail.com
@@ -25,7 +25,10 @@ tracker=https://github.com/pyarchinit/pyarchinit/issues
 repository=https://github.com/pyarchinit/pyarchinit
 
 
-changelog=release4.6.4
+changelog=release4.6.5
+    Update image thumbnail creation method to use bicubic interpolation for better image quality and change the interpolation method for resizing to Lanczos.
+
+  release4.6.4
     Add query_all_us method to db_manager and refactor related UI components.
     Refactor codebase to standardise docstrings and import statements, remove unused variables, and improve code formatting for consistency.
 
