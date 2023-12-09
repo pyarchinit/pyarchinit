@@ -37,7 +37,7 @@ class Media_utility(object):
 >>> width, height = (150, 110)        # ridimensiono l'immagine l' originale era 300x350px
 >>> size = (width, height)            # assegno grandezza e altezza
 >>> new_image_thumbnail = r"C:\test\snake_small.png" # che sia pitone grande o  pitone piccolo l' importante che pitone è
->>> image.thumbnail(size, Image.ANTIALIAS) # creo la thumbnail vera e propria con antialias ma potevamo anche bicubic bilinear ecc
+>>> image.thumbnail(size, Image.BICUBIC) # creo la thumbnail vera e propria con antialias ma potevamo anche bicubic bilinear ecc
 >>> image.save(new_image_thumbnail)        # salvo la nuova immagine "thumbnail"
 """
 
@@ -53,7 +53,7 @@ class Media_utility(object):
         outfile = ('%s%s_%s%s') % (
         self.outpath, str(self.max_num_id), os.path.splitext(self.infile)[0], self.thumb_suffix)
         im = Image.open(infile)
-        im.thumbnail(size, Image.ANTIALIAS)
+        im.thumbnail(size, Image.LANCZOS)
         im.save(outfile, dpi=(100, 100))
 
 
@@ -80,7 +80,7 @@ class Media_utility_resize(object):
         outfile = ('%s%s_%s%s') % (
         self.outpath, str(self.max_num_id), os.path.splitext(self.infile)[0], self.thumb_suffix)
         im = Image.open(infile)
-        im.thumbnail(size, Image.ANTIALIAS)
+        im.thumbnail(size, Image.LANZCOS)
         im.save(outfile, dpi=(300, 300))
 
 
