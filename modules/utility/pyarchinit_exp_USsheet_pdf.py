@@ -1186,7 +1186,7 @@ class single_US_pdf_sheet(object):
         lst.append(logo)
         if str(self.unita_tipo)== 'US':
             unita_tipo = Paragraph(str(self.unita_tipo), styUnitaTipo)
-            label_ente_responsabile = Paragraph("<b>ENTE RESPONSABILE</b>", styNormal2)
+            label_ente_responsabile = Paragraph("<b>ENTE RESPONSABILE</b><br/>" +(self.cod_ente_schedatore), styNormal2)
             #label_catalogo_internazionale = Paragraph("<b>N° CATALOGO INTERNAZIONALE</b>", styNormal)
             ente_responsabile = Paragraph(str(self.n_catalogo_generale), styNormal)
             #catalogo_internazionale = Paragraph(str(self.n_catalogo_internazionale), styNormal)
@@ -1552,7 +1552,7 @@ class single_US_pdf_sheet(object):
             return t
         elif str(self.unita_tipo)=='USM':
             unita_tipo = Paragraph(str(self.unita_tipo), styUnitaTipo)
-            label_ente_responsabile = Paragraph("<b>ENTE RESPONSABILE</b>", styNormal)
+            label_ente_responsabile = Paragraph("<b>ENTE RESPONSABILE</b><br/>"+str(self.cod_ente_schedatore), styNormal)
             #label_catalogo_internazionale = Paragraph("<b>N° CATALOGO INTERNAZIONALE</b>", styNormal)
             ente_responsabile = Paragraph(str(self.n_catalogo_generale), styNormal)
             #catalogo_internazionale = Paragraph(str(self.n_catalogo_internazionale), styNormal)
@@ -2069,7 +2069,7 @@ class single_US_pdf_sheet(object):
         lst.append(logo)
         if str(self.unita_tipo)== 'SU':
             unita_tipo = Paragraph(str(self.unita_tipo), styUnitaTipo)
-            label_ente_responsabile = Paragraph("<b>RESPONSIBLE INSTITUTION</b>", styNormal)
+            label_ente_responsabile = Paragraph("<b>RESPONSIBLE INSTITUTION</b><br/>"+str(self.cod_ente_schedatore), styNormal)
             #label_catalogo_internazionale = Paragraph("<b>N° CATALOGO INTERNAZIONALE</b>", styNormal)
             ente_responsabile = Paragraph(str(self.n_catalogo_generale), styNormal)
             #catalogo_internazionale = Paragraph(str(self.n_catalogo_internazionale), styNormal)
@@ -2435,7 +2435,7 @@ class single_US_pdf_sheet(object):
             return t
         elif str(self.unita_tipo)=='WSU':
             unita_tipo = Paragraph(str(self.unita_tipo), styUnitaTipo)
-            label_ente_responsabile = Paragraph("<b>RESPONSIBLE INSTITUTION</b>", styNormal)
+            label_ente_responsabile = Paragraph("<b>RESPONSIBLE INSTITUTION</b><br/>"+str(self.cod_ente_schedatore), styNormal)
             #label_catalogo_internazionale = Paragraph("<b>N° CATALOGO INTERNAZIONALE</b>", styNormal)
             ente_responsabile = Paragraph(str(self.n_catalogo_generale), styNormal)
             #catalogo_internazionale = Paragraph(str(self.n_catalogo_internazionale), styNormal)
@@ -2957,7 +2957,7 @@ class single_US_pdf_sheet(object):
         lst.append(logo)
         if str(self.unita_tipo)== 'SE':
             unita_tipo = Paragraph(str(self.unita_tipo), styUnitaTipo)
-            label_ente_responsabile = Paragraph("<b>CambriaNTWORTLICHE STELLE</b>", styNormal)
+            label_ente_responsabile = Paragraph("<b>CambriaNTWORTLICHE STELLE</b><br/>"+str(self.cod_ente_schedatore), styNormal)
             #label_catalogo_internazionale = Paragraph("<b>N° CATALOGO INTERNAZIONALE</b>", styNormal)
             ente_responsabile = Paragraph(str(self.n_catalogo_generale), styNormal)
             #catalogo_internazionale = Paragraph(str(self.n_catalogo_internazionale), styNormal)
@@ -3326,7 +3326,7 @@ class single_US_pdf_sheet(object):
             return t
         elif str(self.unita_tipo)=='MSE':
             unita_tipo = Paragraph(str(self.unita_tipo), styUnitaTipo)
-            label_ente_responsabile = Paragraph("<b>CambriaNTWORTLICHE STELLE</b>", styNormal)
+            label_ente_responsabile = Paragraph("<b>CambriaNTWORTLICHE STELLE</b><br/>"+str(self.cod_ente_schedatore), styNormal)
             #label_catalogo_internazionale = Paragraph("<b>N° CATALOGO INTERNAZIONALE</b>", styNormal)
             ente_responsabile = Paragraph(str(self.n_catalogo_generale), styNormal)
             #catalogo_internazionale = Paragraph(str(self.n_catalogo_internazionale), styNormal)
