@@ -13,7 +13,7 @@ name=pyArchInit
 qgisMinimumVersion=3.22
 description=pyarchinit a tool for archaeological works
 
-version=4.6.6
+version=4.6.7
 
 author=Luca Mandolesi&Enzo Cocca
 email=pyarchinit@gmail.com
@@ -25,11 +25,12 @@ tracker=https://github.com/pyarchinit/pyarchinit/issues
 repository=https://github.com/pyarchinit/pyarchinit
 
 
-changelog=release4.6.6
+changelog=4.6.7
 
+  release4.6.6
+    Add the institution code to the label "ENTE RESPONSABILE" for the US sheet PDF export.
 
   release4.6.5
-    Add the institution code to the label "ENTE RESPONSABILE" for the US sheet PDF export.
 
 
   release4.6.4
