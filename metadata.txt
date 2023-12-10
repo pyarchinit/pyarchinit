@@ -13,7 +13,7 @@ name=pyArchInit
 qgisMinimumVersion=3.22
 description=pyarchinit a tool for archaeological works
 
-version=4.6.5
+version=4.6.6
 
 author=Luca Mandolesi&Enzo Cocca
 email=pyarchinit@gmail.com
@@ -25,8 +25,12 @@ tracker=https://github.com/pyarchinit/pyarchinit/issues
 repository=https://github.com/pyarchinit/pyarchinit
 
 
-changelog=release4.6.5
-    Update image thumbnail creation method to use bicubic interpolation for better image quality and change the interpolation method for resizing to Lanczos.
+changelog=release4.6.6
+
+
+  release4.6.5
+    Add the institution code to the label "ENTE RESPONSABILE" for the US sheet PDF export.
+
 
   release4.6.4
     Add query_all_us method to db_manager and refactor related UI components.
