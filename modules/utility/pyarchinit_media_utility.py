@@ -23,9 +23,9 @@
 from __future__ import print_function
 import shutil
 from PIL import Image
-from builtins import object
+
 from builtins import str
-from qgis.PyQt.QtWidgets import QMessageBox
+
 from ..db.pyarchinit_conn_strings import *
 
 
@@ -80,7 +80,7 @@ class Media_utility_resize(object):
         outfile = ('%s%s_%s%s') % (
         self.outpath, str(self.max_num_id), os.path.splitext(self.infile)[0], self.thumb_suffix)
         im = Image.open(infile)
-        im.thumbnail(size, Image.LANZCOS)
+        im.thumbnail(size, Image.LANCZOS)
         im.save(outfile, dpi=(300, 300))
 
 
