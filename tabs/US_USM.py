@@ -2744,50 +2744,81 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         res = self.DB_MANAGER.query_bool(search_dict, self.table_class)
         return res
     def on_pushButton_assigntags_pressed(self):
-        # Prendi tutte le US dal database
-        all_us = self.DB_MANAGER.query('US')
-        # Sort the US records in ascending order
-        sorted_us = sorted(all_us, key=lambda x: (x.sito, x.area, x.us))
-        # Crea un QListWidget
-        self.us_listwidget = QListWidget()
-        #Crea una "intestazione" come primo elemento
-        header_item = QListWidgetItem("Sito - Area - US")
-        # Puoi utilizzare il seguente codice per cambiare l'aspetto dell'header
-        header_item.setBackground(QColor('lightgrey'))
-        header_item.setFlags(header_item.flags() & ~Qt.ItemIsSelectable)  # rendi l'item non selezionabile
-        self.us_listwidget.addItem(header_item)
-        # Aggiungi tutte le US al QListWidget
-        for us in sorted_us:
-            # Unisci sito, area e us in una stringa singola
-            item_string = f"{us.sito} - {us.area} - {us.us}"
-            # Crea un nuovo QListWidgetItem con la stringa
-            item = QListWidgetItem(item_string)
-            # Aggiungi l'item al QListWidget
-            self.us_listwidget.addItem(item)
 
-
-        # Mostra il QListWidget all'utente e attendi che l'utente faccia una selezione
-        self.us_listwidget.show()
-        self.us_listwidget.setSelectionMode(QAbstractItemView.MultiSelection)  # Permette selezioni multiple
-
-        # Aggiungi un pulsante "Fatto"
-        done_button = QPushButton("Fatto")
+        # Check the locale and set the button text and message box content
+        L = QgsSettings().value("locale/userLocale")[0:2]
+        if L == 'it':
+            done_button_text = "Fatto"
+            warning_title = "Attenzione"
+            warning_text = "Devi selezionare una o più US"
+        elif L == 'de':
+            done_button_text = "Fertig"
+            warning_title = "Achtung"
+            warning_text = "Sie müssen eine oder mehrere US auswählen"
+        else:  # Default to English
+            done_button_text = "Done"
+            warning_title = "Attention"
+            warning_text = "You must select one or more US"
+        # Check if there are selected items in the iconListWidget
         if not self.iconListWidget.selectedItems():
-            QMessageBox.warning(self,'attenzione','Devi selezionare una o più immagini da taggare')
-        else:
-            done_button.clicked.connect(self.on_done_selecting)
+            QMessageBox.warning(self, warning_title, warning_text)
+            return  # Exit the function if there are no selected images
 
-        # Aggiungi la QListWidget e il pulsante a un layout
+        # Query all US records from the database and sort them
+        all_us = self.DB_MANAGER.query('US')
+        sorted_us = sorted(all_us, key=lambda x: (x.sito, x.area, x.us))
+
+        # Create a QListWidget and populate it with sorted US records
+        self.us_listwidget = QListWidget()
+        header_item = QListWidgetItem("Sito - Area - US")
+        header_item.setBackground(QColor('lightgrey'))
+        header_item.setFlags(header_item.flags() & ~Qt.ItemIsSelectable)
+        self.us_listwidget.addItem(header_item)
+        for us in sorted_us:
+            item_string = f"{us.sito} - {us.area} - {us.us}"
+            self.us_listwidget.addItem(QListWidgetItem(item_string))
+
+        # Set selection mode to allow multiple selections
+        self.us_listwidget.setSelectionMode(QAbstractItemView.MultiSelection)
+
+        # Create a "Done" button and connect it to the slot
+        done_button = QPushButton(done_button_text)
+        done_button.clicked.connect(self.on_done_selecting)
+
+        # Create a layout and add the QListWidget and "Done" button
         layout = QVBoxLayout()
         layout.addWidget(self.us_listwidget)
         layout.addWidget(done_button)
 
-        # Crea un nuovo widget per contenere la QListWidget e il pulsante, e applica il layout
+        # Create a widget to contain the QListWidget and button, and set the layout
         self.widget = QWidget()
         self.widget.setLayout(layout)
         self.widget.show()
 
     def on_done_selecting(self):
+        # Check the locale and set the button text and message box content
+        L = QgsSettings().value("locale/userLocale")[0:2]
+        if L == 'it':
+            done_button_text = "Fatto"
+            warning_title = "Attenzione"
+            warning_text = "Devi selezionare una o più US"
+        elif L == 'de':
+            done_button_text = "Fertig"
+            warning_title = "Achtung"
+            warning_text = "Sie müssen eine oder mehrere US auswählen"
+        else:  # Default to English
+            done_button_text = "Done"
+            warning_title = "Attention"
+            warning_text = "You must select one or more US"
+
+        # Handle the event when the "Done" button is clicked
+        selected_items = self.us_listwidget.selectedItems()
+        if not selected_items:
+            # Show a warning message if no items are selected
+            QMessageBox.warning(self, warning_title, warning_text)
+        else:
+            # Process the selected items
+            pass  # Replace with the code to handle the selected US records
 
         def r_list():
 
