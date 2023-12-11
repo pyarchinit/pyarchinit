@@ -807,10 +807,10 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.comboBox_sito.currentTextChanged.connect(self.charge_struttura_list)
         self.comboBox_per_iniz.currentIndexChanged.connect(self.charge_periodo_fin_list)
         self.comboBox_per_iniz.currentIndexChanged.connect(self.charge_fase_iniz_list)
-        self.comboBox_per_iniz.currentIndexChanged.connect(self.charge_datazione_list)
-        self.comboBox_fas_iniz.currentIndexChanged.connect(self.charge_datazione_list)
-        self.comboBox_per_fin.currentIndexChanged.connect(self.charge_datazione_list)  # Aggiunta della connessione
-        self.comboBox_fas_fin.currentIndexChanged.connect(self.charge_datazione_list)  # Aggiunta della connessione
+        #self.comboBox_per_iniz.currentIndexChanged.connect(self.charge_datazione_list)
+        #self.comboBox_fas_iniz.currentIndexChanged.connect(self.charge_datazione_list)
+        #self.comboBox_per_fin.currentIndexChanged.connect(self.charge_datazione_list)  # Aggiunta della connessione
+        #self.comboBox_fas_fin.currentIndexChanged.connect(self.charge_datazione_list)  # Aggiunta della connessione
 
 
         self.comboBox_sito.currentTextChanged.connect(self.geometry_unitastratigrafiche)### rallenta molto
@@ -5121,7 +5121,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             else:
                 self.tabWidget.setCurrentIndex(0)
                 self.loadMapPreview(1)
-
+      
     def on_pushButton_addRaster_pressed(self):
         if self.toolButtonGis.isChecked():
             self.pyQGIS.addRasterLayer()
@@ -5133,9 +5133,27 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         if bool(self.DATA_LIST):
             if self.data_error_check() == 1:
                 pass
-
+            
         if self.BROWSE_STATUS != "n":
-            if bool(self.comboBox_sito.currentText()) and self.comboBox_sito.currentText()==sito_set_str:
+            if bool(self.comboBox_sito.currentText()) and self.comboBox_sito.currentText() == sito_set_str:
+                # Call the functions directly without connecting them to signals
+                self.charge_periodo_iniz_list()
+                self.charge_periodo_fin_list()
+
+                try:
+                    self.comboBox_fas_iniz.currentIndexChanged.disconnect()
+                    self.comboBox_per_iniz.currentIndexChanged.disconnect()
+                except TypeError:
+                    pass  # Ignore the error if no connections exist
+                self.comboBox_fas_iniz.currentIndexChanged.connect(self.charge_datazione_list)
+
+                try:
+                    self.comboBox_fas_fin.currentIndexChanged.disconnect()
+                    self.comboBox_per_fin.currentIndexChanged.disconnect()
+                except TypeError:
+                    pass  # Ignore the error if no connections exist
+                self.comboBox_fas_fin.currentIndexChanged.connect(self.charge_datazione_list)
+
                 self.BROWSE_STATUS = "n"
                 self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
                 self.empty_fields_nosite()
