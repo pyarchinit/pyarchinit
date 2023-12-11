@@ -5097,6 +5097,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 QMessageBox.warning(self, "Messaggio",
                                     "Modalita' Preview US attivata. Le piante delle US saranno visualizzate nella sezione Piante",
                                     QMessageBox.Ok)
+                self.tabWidget.setCurrentIndex(10)  # Set the current tab to the map preview tab
                 self.loadMapPreview()
             else:
                 self.loadMapPreview(1)
@@ -5105,42 +5106,22 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 QMessageBox.warning(self, "Message",
                                     "Modalität' Preview der aktivierten SE. Die Plana der SE werden in der Auswahl der Plana visualisiert",
                                     QMessageBox.Ok)
+                self.tabWidget.setCurrentIndex(10)  # Set the current tab to the map preview tab
                 self.loadMapPreview()
             else:
+                self.tabWidget.setCurrentIndex(0)
                 self.loadMapPreview(1)
         else:
             if self.toolButtonPreview.isChecked():
                 QMessageBox.warning(self, "Message",
                                     "Preview SU mode enabled. US plants will be displayed in the Plants section",
                                     QMessageBox.Ok)
+                self.tabWidget.setCurrentIndex(10)  # Set the current tab to the map preview tab
                 self.loadMapPreview()
             else:
+                self.tabWidget.setCurrentIndex(0)
                 self.loadMapPreview(1)
-    # def on_toolButtonPreviewMedia_toggled(self):
-        # if self.L=='it':
-            # if self.toolButtonPreviewMedia.isChecked() == True:
-                # QMessageBox.warning(self, "Messaggio",
-                                    # "Modalita' Preview Media US attivata. Le immagini delle US saranno visualizzate nella sezione Media",
-                                    # QMessageBox.Ok)
-                # self.loadMediaPreview()
-            # else:
-                # self.loadMediaPreview(1)
-        # elif self.L=='de':
-            # if self.toolButtonPreviewMedia.isChecked()== True:
-                # QMessageBox.warning(self, "Message",
-                                    # "Modalität' Preview Media SE aktiviert. Die Bilder der SE werden in der Preview media Auswahl visualisiert",
-                                    # QMessageBox.Ok)
-                # self.loadMediaPreview()
-            # else:
-                # self.loadMediaPreview(1)
-        # else:
-            # if self.toolButtonPreviewMedia.isChecked()== True:
-                # QMessageBox.warning(self, "Message",
-                                    # "SU Media Preview mode enabled. US images will be displayed in the Media section",
-                                    # QMessageBox.Ok)
-                # self.loadMediaPreview()
-            # else:
-                # self.loadMediaPreview(1)        
+
     def on_pushButton_addRaster_pressed(self):
         if self.toolButtonGis.isChecked():
             self.pyQGIS.addRasterLayer()
@@ -5152,21 +5133,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         if bool(self.DATA_LIST):
             if self.data_error_check() == 1:
                 pass
-            # else:
-                # if self.BROWSE_STATUS == "b":
-                    # if self.DATA_LIST:
-                        # if self.records_equal_check() == 1:
-                            # if self.L=='it':
-                                # self.update_if(QMessageBox.warning(self, 'Errore',
-                                                                   # "Il record e' stato modificato. Vuoi salvare le modifiche?",QMessageBox.Ok | QMessageBox.Cancel))
-                            # elif self.L=='de':
-                                # self.update_if(QMessageBox.warning(self, 'Error',
-                                                                   # "Der Record wurde geändert. Möchtest du die Änderungen speichern?",
-                                                                   # QMessageBox.Ok | QMessageBox.Cancel))
-                            # else:
-                                # self.update_if(QMessageBox.warning(self, 'Error',
-                                                                   # "The record has been changed. Do you want to save the changes?",
-                                                                   # QMessageBox.Ok | QMessageBox.Cancel))
+
         if self.BROWSE_STATUS != "n":
             if bool(self.comboBox_sito.currentText()) and self.comboBox_sito.currentText()==sito_set_str:
                 self.BROWSE_STATUS = "n"
