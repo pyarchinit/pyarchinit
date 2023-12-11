@@ -2746,6 +2746,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
     def on_pushButton_assigntags_pressed(self):
         # Prendi tutte le US dal database
         all_us = self.DB_MANAGER.query('US')
+        # Sort the US records in ascending order
+        sorted_us = sorted(all_us, key=lambda x: (x.sito, x.area, x.us))
         # Crea un QListWidget
         self.us_listwidget = QListWidget()
         #Crea una "intestazione" come primo elemento
@@ -2755,7 +2757,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         header_item.setFlags(header_item.flags() & ~Qt.ItemIsSelectable)  # rendi l'item non selezionabile
         self.us_listwidget.addItem(header_item)
         # Aggiungi tutte le US al QListWidget
-        for us in all_us:
+        for us in sorted_us:
             # Unisci sito, area e us in una stringa singola
             item_string = f"{us.sito} - {us.area} - {us.us}"
             # Crea un nuovo QListWidgetItem con la stringa
