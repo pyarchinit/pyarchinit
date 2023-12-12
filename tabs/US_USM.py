@@ -8560,14 +8560,29 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
 
 class USFilterDialog(QDialog):
+    L = QgsSettings().value("locale/userLocale")[0:2]
     def __init__(self, db_manager, parent=None):
         super().__init__(parent)
         self.db_manager = db_manager
         self.selected_us = []
+        self.us_records = []  # Store all US records
         self.initUI()
 
     def initUI(self):
+
+        if self.L=='it':
+
+            self.setWindowTitle("Filtro UUSS Records")  # Set the window title
+        else:
+            self.setWindowTitle("Filter SU Records")  # Set the window title
+
         layout = QVBoxLayout(self)
+
+        # Create search bar
+        self.search_bar = QLineEdit(self)
+        self.search_bar.setPlaceholderText("Search...")
+        self.search_bar.textChanged.connect(self.filter_list)  # Connect textChanged signal to filter function
+        layout.addWidget(self.search_bar)
 
         # Create list widget
         self.list_widget = QListWidget(self)
@@ -8585,18 +8600,29 @@ class USFilterDialog(QDialog):
         self.setLayout(layout)
 
     def populate_list_with_us(self):
-        # Fetch US records from the database
-        us_records = self.db_manager.query_all('us_table')
-        for us_record in us_records:
-            # Create a QListWidgetItem
+        # Fetch US records from the database and sort them
+        self.us_records = sorted(self.db_manager.query_all('us_table'), key=lambda x: x.us)
+        self.update_list_widget(self.us_records)
+
+    def update_list_widget(self, records):
+        # Clear the list widget
+        self.list_widget.clear()
+
+        # Repopulate the list widget with given records
+        for us_record in records:
             list_item = QListWidgetItem(self.list_widget)
-            # Create a checkbox for each US record
-            checkbox = QCheckBox(f"US {us_record.us}")
-            checkbox.us = us_record.us  # Store the US ID in the checkbox object
-            # Add the QListWidgetItem to the list widget
+
+            checkbox = QCheckBox(f"{us_record.unita_tipo} {us_record.us}")
+
+            checkbox.us = us_record.us
             self.list_widget.addItem(list_item)
-            # Set the checkbox as the item's widget
             self.list_widget.setItemWidget(list_item, checkbox)
+
+    def filter_list(self, text):
+        # Filter US records based on the search text
+        filtered_records = [us_record for us_record in self.us_records if str(us_record.us).startswith(text)]
+        self.update_list_widget(filtered_records)
+
 
     def apply_filter(self):
         # Clear the selected US list
