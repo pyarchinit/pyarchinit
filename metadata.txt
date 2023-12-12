@@ -13,7 +13,7 @@ name=pyArchInit
 qgisMinimumVersion=3.22
 description=pyarchinit a tool for archaeological works
 
-version=4.6.7
+version=4.6.8
 
 author=Luca Mandolesi&Enzo Cocca
 email=pyarchinit@gmail.com
@@ -25,7 +25,25 @@ tracker=https://github.com/pyarchinit/pyarchinit/issues
 repository=https://github.com/pyarchinit/pyarchinit
 
 
-changelog=4.6.7
+changelog=release4.6.8
+   Refactor US_USM.py to add functionality for filtering and updating the list widget based on search text.
+
+  release4.6.7
+    - Update subcontrol position and margin values in QgsCollapsibleGroupBoxBasic title class.
+    - Refactor the styling of QgsCollapsibleGroupBox::title and QgsCollapsibleGroupBoxBasic::title to have a consistent margin and position.
+    - Refactor QgsCollapsibleGroupBoxBasic and QgsCollapsibleGroupBox title subcontrol CSS styling to use consistent top positioning.
+    - "Adjust top position of QgsCollapsibleGroupBoxBasic and QgsCollapsibleGroupBox title"
+    - Update margin and position for QgsCollapsibleGroupBoxBasic and QgsCollapsibleGroupBox titles.
+    - Refactor subcontrol-origin and subcontrol-position CSS properties, adjusting the margin and position values for QgsCollapsibleGroupBoxBasic::title and QgsCollapsibleGroupBox::title.
+    - Update QgsCollapsibleGroupBox title styling for margin and position.
+    - Update subcontrol-position and top values in QgsCollapsibleGroupBoxBasic and QgsCollapsibleGroupBox::title.
+    - Update the styling for the collapsible group box titles to have a margin-left of 20px, margin-right of 5px, and a top position of 2px.
+    - Update the background color of QgsCollapsibleGroupBoxBasic and QgsCollapsibleGroupBox title to rgb(180, 180, 180).
+    - "Adjust margins and positioning of QgsCollapsibleGroupBox title elements"
+    - Update subcontrol position and top margin values in QgsCollapsibleGroupBoxBasic and QgsCollapsibleGroupBox titles.
+    - "Adjust the subcontrol positioning and margins for QgsCollapsibleGroupBox title."
+    - Update UI for Preview pianta US and show selected features button, change icon and tooltip for show selected features button, and change label text for visualizzazione GIS and attivazione preview pianta US.
+    - Refactor the code to change the font of a QLabel widget to Times New Roman with a size of 8 and a weight of 50, update the text of a QToolButton widget to "Apri schede US selezionate", and change the width of a QLabel widget from 75 to 78.
 
   release4.6.6
     Add the institution code to the label "ENTE RESPONSABILE" for the US sheet PDF export.
