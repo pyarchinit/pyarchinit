@@ -25,847 +25,197 @@ tracker=https://github.com/pyarchinit/pyarchinit/issues
 repository=https://github.com/pyarchinit/pyarchinit
 
 
-changelog=release4.6.8
-   Refactor US_USM.py to add functionality for filtering and updating the list widget based on search text.
-
-  release4.6.7
-    - Update subcontrol position and margin values in QgsCollapsibleGroupBoxBasic title class.
-    - Refactor the styling of QgsCollapsibleGroupBox::title and QgsCollapsibleGroupBoxBasic::title to have a consistent margin and position.
-    - Refactor QgsCollapsibleGroupBoxBasic and QgsCollapsibleGroupBox title subcontrol CSS styling to use consistent top positioning.
-    - "Adjust top position of QgsCollapsibleGroupBoxBasic and QgsCollapsibleGroupBox title"
-    - Update margin and position for QgsCollapsibleGroupBoxBasic and QgsCollapsibleGroupBox titles.
-    - Refactor subcontrol-origin and subcontrol-position CSS properties, adjusting the margin and position values for QgsCollapsibleGroupBoxBasic::title and QgsCollapsibleGroupBox::title.
-    - Update QgsCollapsibleGroupBox title styling for margin and position.
-    - Update subcontrol-position and top values in QgsCollapsibleGroupBoxBasic and QgsCollapsibleGroupBox::title.
-    - Update the styling for the collapsible group box titles to have a margin-left of 20px, margin-right of 5px, and a top position of 2px.
-    - Update the background color of QgsCollapsibleGroupBoxBasic and QgsCollapsibleGroupBox title to rgb(180, 180, 180).
-    - "Adjust margins and positioning of QgsCollapsibleGroupBox title elements"
-    - Update subcontrol position and top margin values in QgsCollapsibleGroupBoxBasic and QgsCollapsibleGroupBox titles.
-    - "Adjust the subcontrol positioning and margins for QgsCollapsibleGroupBox title."
-    - Update UI for Preview pianta US and show selected features button, change icon and tooltip for show selected features button, and change label text for visualizzazione GIS and attivazione preview pianta US.
-    - Refactor the code to change the font of a QLabel widget to Times New Roman with a size of 8 and a weight of 50, update the text of a QToolButton widget to "Apri schede US selezionate", and change the width of a QLabel widget from 75 to 78.
-
-  release4.6.6
-    Add the institution code to the label "ENTE RESPONSABILE" for the US sheet PDF export.
-
-  release4.6.5
-
-
-  release4.6.4
-    Add query_all_us method to db_manager and refactor related UI components.
-    Refactor codebase to standardise docstrings and import statements, remove unused variables, and improve code formatting for consistency.
-
-  release4.6.3
-    f526e500(Implement automatic 'Dating' field update in US_USM module and adjust related field mappings.)
-    590c7414(Add update_us_dating_from_periodizzazione function to synchronize 'Dating' fields with periodizzazione data.)
-    86c67071(Add new icon.png to enhance visual appeal.)
-    6e993932(Add a new README.md file to provide project information and instructions.)
-    a2c0a235(Correct capitalisation and punctuation in README.md for clarity and consistency.)
-    d3cee7d5(Ensure pip is installed and updated during initialization, handle postgres check, and remove redundant imports.)
-    7fceab6a(Uncomment fields related to 'datazione' and 'quota_min_rel' in US_USM.py to enable their functionality.)
-
-  release4.6.2
-   -Correct typographical errors, update file paths in workspace.xml,
-   add new files and components, and update environment configurations in misc.xml and workspace.xml.
-   -Update Python scripts to handle pip installation, Postgres detection,
-   and improve API key management for OpenAI GPT-3 integration.
-
-  release4.6.1
-   -fix bug import data on postgis
-
-  release4.6.0
-   -fix bug us scheda
-
-  release4.5.9
-   -fix epsg bugs in pyarchinit plugin config
-
-  release4.5.8
-   -#544
-
-  release4.5.7
-    -update gpt-3-turbo-16k
-    -add to periodizzazione form gpt-3-turbo-16k
-
-  release4.5.6
-    -add csv periodizzazione per la scheda periodizzazione
-    -change datazione estesa in combobox in scheda periodizzazione
-    -fix minor bug
-
-  release4.5.5
-    -fix bug
-
-  release4.5.4
-    -fix bug search text images tagged
-
-  release4.5.3
-    -preview matrix
-
-  release4.5.2
-    -fix bug
-
-  release4.5.1
-    -add remove and assign tags in US ,Artefacr ,Pottery and tomb forms
-
-  release4.5.0
-    -add drag and drop image function
-
-  release4.4.7
-    fix issues:
-    -#553,#553,#551
-    -UPDATE EXPORT IMAGE DIRECTORY
-
-  release4.4.6
-    fix issues:
-    -fix minor bugs
-
-  release4.4.5
-    fix issues:
-    #547
-
-  release4.4.4
-    fix issues:
-    #531,#533,#535,#383,#536,#537,#540,#541,##543,#546,#542
-
-    -update datazione estesa in scheda us
-    -update pyarchini_pyqgs: add unique name
-    -add gpt to thesaurus
-
-
-  release4.4.3
-    -add image in report artefact pdf
-
-
-  release4.4.2
-    -fix bug matrix export without period
-
-  release4.4.1
-    -fix bug on schedatore fields
-
-  release4.4.0
-    -#525
-    -update tablwwidget_rapporti Allow only numer in the SU column
-
-  release4.3.9
-    -updated map preview into us form
-    -#523
-
-  release4.3.8
-    -add function remove image from folder path
-
-  release4.3.7
-    -update documentation form #522
-
-  release4.3.6
-    -add pottery for import tool
-    -add pottery for export image
-    -add pottery for import media manager
-    -add quantpanel main pottery
-    -fixed bug inv_Materiali_ui
-    -fixed minor bugs
-
-  release4.3.5
-    -add pottery table and form
-
-  release4.3.4
-    -add negative symbol for SU into the matrix
-
-  release4.3.3
-    -fix update tablewidget relationships for EM(set same rows)
-    -fix template csv  thesaurus
-    -fix english lang for pyarchinit_db_manager.py to create new form automatic
-
-  release4.3.2
-    -import csv to thesaurus
-    -template csv  thesaurus
-
-  release4.3.2
-    -update info
-
-  release4.3.0
-    -#509 issue
-
-  release4.2.0
-    -#507 issue
-    -#508 issue
-
-  release4.1.0
-    -validazione e inserimento rapporti per EM
-
-  release4.0.9
-    -validazione e inserimento rapporti inversi
-
-  release4.0.8
-    -update matrix codice periodo
-
-  release4.0.7
-    -fix issue #498
-    -system backup and restore postgres db
-
-  release4.0.6
-    -fixed system backup to postgres
-
-  release4.0.5
-    -update cont_per to postgres
-
-  release4.0.4
-    -fix bug #486
-
-  release4.0.3
-    -update package
-
-  release4.0.2
-    -fix bug for mac
-
-  release4.0.1
-    -fix minor bug gui matrix
-
-  release4.0.0
-    -create ext-libs
-
-  release3.9.19
-    -create ext-libs
-
-  release3.9.18
-    -fix #460
-    -pyarchinit_tomba_view
-
-  release3.9.17
-    -fix bug #458 #459
-    -fix bug  #459
-
-  release3.9.17
-    -fix bug #456
-    -fix bug #458
-
-  release3.9.15
-    -fixed minor bug
-
-  release3.9.14
-    -fixed exportmatix pyarchinit
-
-  release3.9.13
-    -fixed svg symbol for EM
-    -add unita_tipo column into pyunitastartigrafiche, pyunitastartigrafiche_usm e pyarchinit_quote, pyarchinit_quote_usm
-
-  release3.9.12
-    -add vocabulary online into thesaurus form
-    -update matrix for EM
-
-  release3.9.11
-    -fix quote export pdf
-
-  release3.9.10
-    -add option autoincrement invetario materiali
-    -fix minor bugs
-
-  release3.9.9
-    -update export form pdf
-
-  release3.9.8.18
-    -add totalopenstaion2pyarchinit form
-
-  release3.9.8.17
-    -add wms igm 25000
-    -update pregressbar in media manager
-    -fix combox_sito in config form
-
-  release3.9.8.16
-    -update wms vincoli on base of the comune attribute
-
-  release3.9.8.15
-    -fix install python packages
-
-  release3.9.8.14
-    -fix export matrid to ED
-    -update sqlalchemy to 1.4.27
-    -fix update database to import data
-
-  release3.9.8.9
-    -add form to export to gpkg (vector and raster)
-    - ui gpkg on the top
-    -change background color ui
-
-  release3.9.8.7
-    -update table widget rapporti
-
-  release3.9.8.6
-    -change table widget rapporti
-
-  release3.9.8.5
-    -rscript update
-
-  release3.9.8.4
-    -fix bug rapport check
-
-  release3.9.8.3
-    -fix bug inventario materiali
-
-  release3.9.8.2
-    -add r script to least cost path
-
-
-  release3.9.8.1
-    -remove tkinter module
-    -update folder installation: add spatialite_convert and EM_palette
-
-  release3.9.8
-    -add tkinter module
-
-  release3.9.7
-    -function for convert db for spatialite 5
-
-  release3.9.5
-    -fix db sqlite
-
-  release3.9.4
-    -update db sqlite / postgres
-    -add layer pyunitasreatigrafiche_usm e pyarchinit_quote_usm
-    -add view pyarchinit_usm_view pyarchinit_quote_usm_view
-    -update grpups layer
-
-  release3.9.3
-    -fix bug esportazione pdf usm
-
-  release3.9.2
-    -wms vincoli archeologici
-
-  release3.9.1
-    -update connessione
-
-  release3.9
-    -update area
-    -timeout basemap
-
-  release3.8.3
-    -update area
-    -timeout basemap
-
-  release3.8.2
-    -add base map
-    -add wms map
-
-  release3.8.1
-    -uneditable combobox active site
-
-  release3.8
-    -new icon
-	-update template qpt
-	-fix bug create view postgres
-
-  release3.7
-    -new icon
-	-update form site
-	-update pyarchinit_pyqgis
-
-  release3.6
-    -deleting area from periodizzazione form
-
-  release3.5
-    -add print map dialog
-
-  release3.4
-
-        -fix bug struttura e periodi view
-        -fix bug postgres update
-
-   -------------------------------------------------------------------------------
-
-   release3.3
-        -update template qpt
-        -view all period in subfolder
-        -fix bug struttura
-        -view structures
-   -------------------------------------------------------------------------------
-
-   release3.2
-        -add template qpt
-        -make your map system
-   -------------------------------------------------------------------------------
-
-   release3.1
-        -add subgroup layer
-        -group view period and phase
-   -------------------------------------------------------------------------------
-
-   release3
-        -add group layer
-   -------------------------------------------------------------------------------
-
-   release2.5.5
-        -update postgres
-   -------------------------------------------------------------------------------
-
-   release2.5.4
-        -update trigger
-   -------------------------------------------------------------------------------
-
-   release2.5.3
-        -update dbname in parametri connessione
-   -------------------------------------------------------------------------------
-
-
-   release2.5.2
-        -#418
-   -------------------------------------------------------------------------------
-
-   release2.5.1
-        -#417
-   -------------------------------------------------------------------------------
-
-
-   release2.5.0
-        -#413
-   -------------------------------------------------------------------------------
-
-
-   release2.4.9
-        -#413
-   -------------------------------------------------------------------------------
-
-
-   release2.4.8
-        -add abort system intp parametri config
-   -------------------------------------------------------------------------------
-
-   release2.4.7
-        -reperti fixed index numero reperto
-   -------------------------------------------------------------------------------
-
-   release2.4.6
-        -reperti fixed index numero reperto
-   -------------------------------------------------------------------------------
-
-   release2.4.5
-        -tomba view
-        -research tomba
-        -file config
-        export image directoires
-   -------------------------------------------------------------------------------
-
-
-   release2.4.4
-        -update
-   -------------------------------------------------------------------------------
-   
-   release2.4.3
-        -update
-   -------------------------------------------------------------------------------
-
-   release2.4.2
-        -update
-   -------------------------------------------------------------------------------
-   release2.4.1
-        -update
-   -------------------------------------------------------------------------------
-   release2.4.0
-        -update
-   -------------------------------------------------------------------------------
-   release2.3.2
-        -update
-   -------------------------------------------------------------------------------
-
-   release2.3.1
-        -update
-   -------------------------------------------------------------------------------
-
-   release2.3.0
-        -update matrix
-   -------------------------------------------------------------------------------
-
-   release2.2.9
-        -update order layer
-   -------------------------------------------------------------------------------
-
-
-   release2.2.8
-        -update lang export all forms
-   -------------------------------------------------------------------------------
-
-   release2.2.7
-        -update lang export all forms
-   -------------------------------------------------------------------------------
-
-   release2.2.5
-        -update lang scheda indv
-   -------------------------------------------------------------------------------
-
-   release2.2.4
-        -update lang scheda indv
-   -------------------------------------------------------------------------------
-
-   release2.2.3
-        -update lang image viewer
-   -------------------------------------------------------------------------------
-   release2.2.2
-        -update
-   -------------------------------------------------------------------------------
-   release2.2.1
-        -settaggio matrix
-        -add en and de language
-   -------------------------------------------------------------------------------
-
-   release2.2.0
-        -settaggio matrix
-   -------------------------------------------------------------------------------
-   release2.1.9
-        -fix bug import reperti
-   -------------------------------------------------------------------------------
-   release2.1.8
-        -fix bug import reperti
-   -------------------------------------------------------------------------------
-   release2.1.7
-        -fix bug save
-   -------------------------------------------------------------------------------
-   release2.1.6
-        -fix bug thesaurus
-   -------------------------------------------------------------------------------
-
-   release2.1.5
-        -update us
-   -------------------------------------------------------------------------------
-
-   release2.1.4
-        -update us
-   -------------------------------------------------------------------------------
-
-   release2.1.3
-        -#290
-   -------------------------------------------------------------------------------
-   release2.1.2
-        -#297
-   -------------------------------------------------------------------------------
-   release2.1.1
-        -update export image
-   -------------------------------------------------------------------------------
-
-   release2.1.0
-        -fix bug #295
-        -fig bug #296
-   -------------------------------------------------------------------------------
-
-   release2.0.9
-        -add struttura view in media manger
-   -------------------------------------------------------------------------------
-   release2.0.8
-        -update order layer #288
-        - update export image in period and phase
-   -------------------------------------------------------------------------------
-
-   release2.0.7
-        -create vector layer
-   -------------------------------------------------------------------------------
-   release2.0.6:
-        -create form us, reperti and tomba from media manger if not exists
-   -------------------------------------------------------------------------------
-   release2.0.5:
-        -update pyqgis layer tomba
-   -------------------------------------------------------------------------------
-
-   release2.0.4:
-        -update pyqgis layer tomba
-   -------------------------------------------------------------------------------
-   release2.0.3:
-        -update usm
-   -------------------------------------------------------------------------------
-
-   release2.0.2:
-        -update database
-   -------------------------------------------------------------------------------
-
-   release2.0.1:
-        -update database
-   -------------------------------------------------------------------------------
-
-   release2.0.0:
-        -new features
-     	-fix bug
-        -add new field
-        -new icons
-        -set all layout
-   -------------------------------------------------------------------------------
-
-   release1.1.13:
-
-     	-fix bug
-
-   --------------------------------------------------------------------------------
-
-
-   release1.1.12:
-
-     	-fix bug
-
-   --------------------------------------------------------------------------------
-
-
-   release1.1.10:
-
-     	-update pyarchinit config
-     	-insert automatic enumerate n inv
-     	-fix bug
-
-   --------------------------------------------------------------------------------
-
-
-
-   release1.1.9:
-
-     	-update pyarchinit config
-
-   --------------------------------------------------------------------------------
-
-
-   release1.1.8:
-
-     	-update trigger db sqlite
-
-   --------------------------------------------------------------------------------
-
-
-   release1.1.7:
-
-     	-update db
-     	-update ui inv materiali
-     	-auto incrment n_reperto
-
-   --------------------------------------------------------------------------------
-
-
-   release1.1.6:
-
-     	-update db
-
-
-   --------------------------------------------------------------------------------
-
-
-
-   release1.1.5:
-
-     	-update db
-     	-add position
-     	-update form us ui
-
-   --------------------------------------------------------------------------------
-   release1.1.4:
-
-     	- export usm
-
-   --------------------------------------------------------------------------------
-   release1.1.3:
-
-     	- update matrix
-
-   --------------------------------------------------------------------------------
-
-   release1.1.2:
-
-     	- update reperti.ui
-
-   --------------------------------------------------------------------------------
-
-   release1.1.1:
-
-     	- update us.ui
-
-   --------------------------------------------------------------------------------
-
-
-   release1.1.0:
-     	-update matrix exportation
-     	- update us.ui
-
-   ----------------------------------------------------------------------------
-   ----------------------------------------------------------------------------
-   release1.0.9:
-     	-update matrix exportation
-
-   -----------------------------------------------------------------------------
-   release1.0.8:
-     	-update matrix exportation
-     	-add new filed in table periodization: area
-
-  	-----------------------------------------------------------------------------
-
-
-  	-----------------------------------------------------------------------------
-
-   release1.0.7:
-     	-add pagine into conversion function
-
-  	-----------------------------------------------------------------------------
-
-   release1.0.6:
-     	-add funzione pdf2word
-     	-add period name into matrix image
-
-  	-----------------------------------------------------------------------------
-
-   release1.0.5:
-     	-export iccd US
-  	-----------------------------------------------------------------------------
-
-   release1.0.4:
-     	-fix bug to export list phtot thumb to pg
-  	-----------------------------------------------------------------------------
-
-
-   release1.0.3:
-     	-fix query pyarchinit config dialog
-
-  	-----------------------------------------------------------------------------
-
-
-    release1.0.1:
-     	-aggiornamento update file di configurazione
-
-  	-----------------------------------------------------------------------------
-
-    release1.0.0:
-     	-aggiornamento installazione e update db postgres
-	    -video manger
-	    -list site from config form
-	    -list us in tableview
-  	-----------------------------------------------------------------------------
-
-
-
-	release0.8.6:
-     	-aggiornamento installazione e update db postgres
-  	-----------------------------------------------------------------------------
-
-
-
-	release0.8.5:
-     	-aggiornamento installazione e update db postgres
-  	-----------------------------------------------------------------------------
-
-
-       release0.8.3:
-     	-aggiornamento db sqlite: aggiorna il db con l'apposita funzione, è stato cambiato 
-	il campo area da integer a text
-  	-----------------------------------------------------------------------------
-
-	release0.8.2:
-     	-Fixed bug per visualizzazione media preview e grafico statistica in inventario materiali
-  	-----------------------------------------------------------------------------
-	
-	
-	release0.8.1:
-     	-Esportazione foto order by media name
-  	-----------------------------------------------------------------------------
-
-	release0.8.0:
-     	-Raggruppamento us durante esportazione foto
-  	-----------------------------------------------------------------------------
-
-	release0.7.5:
-     	-fixed minor bug
-     	- fix instalation on mac
-  	-----------------------------------------------------------------------------
-
-	release0.7.4:
-     	-fixed bug save data tablewidget
-  	-----------------------------------------------------------------------------
-
-	release0.7.3:
-     	-fixed bug import layr from site form
-     	- update db sqlite
-  	-----------------------------------------------------------------------------
-
-     	release0.7.2:
-     	-add into import layers Media
-  	-----------------------------------------------------------------------------
-     
-     	release0.7.1:
-     	-fix bug image viw split function
-  	-----------------------------------------------------------------------------
-     
-     	release0.7.0:
-     	-image view: auto fill tablewidget US TAG from selected image
-  	-----------------------------------------------------------------------------
-     
-    	release0.6.9:
-     	-vector search function
-  	-----------------------------------------------------------------------------
-    
-    	release0.6.8:
-  	-connection with struttura table
-  	-----------------------------------------------------------------------------
-   	release0.6.7:
-  	-minor bug fix
-  	-----------------------------------------------------------------------------
-   	release0.6.6:
-  	-resize image view
-  
-  	-----------------------------------------------------------------------------
-  
-  	release0.6.5:
-  	-update barra di ricerca in image view
-  
-  	-----------------------------------------------------------------------------
-   	release0.6.4:
-  	-changed view exp pdf us and list
-  	-add order by on exp pdf list photo
-  	-add option exp photo without thumbnail
-  
-  	-----------------------------------------------------------------------------
-  	release0.6.3:
-  	-bug fix export pdf us
-  
-  	-----------------------------------------------------------------------------
-    
-    	release0.6.2:
-  	-bug fix
-  	-image view uppdate
-  	-image view update reperti
-  	-----------------------------------------------------------------------------
-   	release0.6.1:
-  
-  	-fix bug
-  
-  	-----------------------------------------------------------------------------
-  
-  	release0.6:
-  
-  	-image view uppdate
-  
-  	-----------------------------------------------------------------------------
-   
-   
-   	release0.5:
-  	- fix bug export pdf US
-  	- add print pdf photo list
-  	- add list widget move from US form
-  
-  	-----------------------------------------------------------------------------
-   
-   
-   	release0.4:
-  	- fix bug export pdf US
- 	- add print pdf photo list
-  	- add list widget move from US form
-  
-  	-----------------------------------------------------------------------------
-   
-  	release0.3.9:
-  	- fix bug toolbar image viewer
-  	-----------------------------------------------------------------------------
-
-  	release0.3.7:
-  	- UI Improvements
- 	 - update sql
-  	-----------------------------------------------------------------------------
- 
-  	release0.3.6:
-  	- UI Improvements
-  	- update database
-  	- minor bug fixed
-  	-----------------------------------------------------------------------------
-  	release0.3.5:
-  	- UI Improvements
-  	- more languages support: English, Deutsch
-  	- minor bug fixed
+changelog=4.6.8 Refactor US_USM.py to add functionality for filtering and updating the list widget based on search text.
+  4.6.7 Update subcontrol position and margin values in QgsCollapsibleGroupBoxBasic title class. Refactor the styling of QgsCollapsibleGroupBox::title and QgsCollapsibleGroupBoxBasic::title to have a consistent margin and position. Adjust top position of QgsCollapsibleGroupBoxBasic and QgsCollapsibleGroupBox title. Update margin and position for QgsCollapsibleGroupBoxBasic and QgsCollapsibleGroupBox titles. Refactor subcontrol-origin and subcontrol-position CSS properties, adjusting the margin and position values for QgsCollapsibleGroupBoxBasic::title and QgsCollapsibleGroupBox::title. Update QgsCollapsibleGroupBox title styling for margin and position. Update subcontrol-position and top values in QgsCollapsibleGroupBoxBasic and QgsCollapsibleGroupBox::title. Update the styling for the collapsible group box titles to have a margin-left of 20px, margin-right of 5px, and a top position of 2px. Update the background color of QgsCollapsibleGroupBoxBasic and QgsCollapsibleGroupBox title to rgb(180, 180, 180). Adjust margins and positioning of QgsCollapsibleGroupBox title elements. Update subcontrol position and top margin values in QgsCollapsibleGroupBoxBasic and QgsCollapsibleGroupBox titles. Adjust the subcontrol positioning and margins for QgsCollapsibleGroupBox title.
+  4.6.6 Add the institution code to the label "ENTE RESPONSABILE" for the US sheet PDF export.
+  4.6.5 [Description of changes]
+  4.6.4 Add query_all_us method to db_manager and refactor related UI components.
+  4.6.3 Implement automatic 'Dating' field update in US_USM module and adjust related field mappings.
+  4.6.2 Correct typographical errors, update file paths in workspace.xml.
+  4.6.1 Fix bug import data on postgis.
+  4.6.0 Fix bug us scheda.
+  4.5.9 Fix epsg bugs in pyarchinit plugin config.
+  4.5.8 #544.
+  4.5.7 Update gpt-3-turbo-16k and add to periodizzazione form gpt-3-turbo-16k.
+  4.5.6 Add csv periodizzazione per la scheda periodizzazione.
+  4.5.5 Fix bug.
+  4.5.4 Fix bug search text images tagged.
+  4.5.3 Preview matrix.
+  4.5.2 Fix bug.
+  4.5.1 Add remove and assign tags in US, Artefact, Pottery, and Tomb forms.
+  4.5.0 Add drag and drop image function.
+  4.4.7 Fix issues #553, #553, #551, UPDATE EXPORT IMAGE DIRECTORY.
+  4.4.6 Fix issues fix minor bugs.
+  4.4.5 Fix issues #547.
+  4.4.4 Fix issues #531, #533, #535, #383, #536, #537, #540, #541, ##543, #546, #542.
+  4.4.3 Add image in report artefact PDF.
+  4.4.2 Fix bug matrix export without period.
+  4.4.1 Fix bug on schedatore fields.
+  4.4.0 #525, update tablwwidget_rapporti Allow only numer in the SU column.
+  4.3.9 Updated map preview into us form, #523.
+  4.3.8 Add function remove image from folder path.
+  4.3.7 Update documentation form #522.
+  4.3.6 Add pottery for import tool, add pottery for export image, add pottery for import media manager, add quantpanel main pottery, fixed bug inv_Materiali_ui, fixed minor bugs.
+  4.3.5 Add pottery table and form.
+  4.3.4 Add negative symbol for SU into the matrix.
+  4.3.3 Fix update tablewidget relationships for EM(set same rows), fix template csv thesaurus.
+  4.3.2 Import csv to thesaurus, template csv thesaurus.
+  4.3.1 Update info.
+  4.3.0 #509 issue.
+  4.2.0 #507 issue, #508 issue.
+  4.1.0 Validazione e inserimento rapporti per EM.
+  4.0.9 Validazione e inserimento rapporti inversi.
+  4.0.8 Update matrix codice periodo.
+  4.0.7 Fix issue #498, system backup and restore postgres db.
+  4.0.6 Fixed system backup to postgres.
+  4.0.5 Update cont_per to postgres.
+  4.0.4 Fix bug #486.
+  4.0.3 Update package.
+  4.0.2 Fix bug for mac.
+  4.0.1 Fix minor bug gui matrix.
+  4.0.0 Create ext-libs.
+  3.9.19 Create ext-libs.
+  3.9.18 Fix #460, pyarchinit_tomba_view.
+  3.9.17 Fix bug #458 #459, fix bug #459.
+  3.9.16 Fix bug #456, fix bug #458.
+  3.9.15 Fixed minor bug.
+  3.9.14 Fixed export matrix to ED.
+  3.9.13 Fixed svg symbol for EM, add unita_tipo column into pyunitastartigrafiche, pyunitastartigrafiche_usm e pyarchinit_quote, pyarchinit_quote_usm.
+  3.9.12 Add vocabulary online into thesaurus form, update matrix for EM.
+  3.9.11 Fix quote export pdf.
+  3.9.10 Add option autoincrement invetario materiali, fix minor bugs.
+  3.9.9 Update export form pdf.
+  3.9.8.18 Add totalopenstaion2pyarchinit form.
+  3.9.8.17 Add wms igm 25000, update pregressbar in media manager, fix combox_sito in config form.
+  3.9.8.16 Update wms vincoli on base of the comune attribute.
+  3.9.8.15 Fix install python packages.
+  3.9.8.14 Fix export matrix to ED, update sqlalchemy to 1.4.27, fix update database to import data.
+  3.9.8.9 Add form to export to gpkg (vector and raster), ui gpkg on the top, change background color ui.
+  3.9.8.7 Update table widget rapporti.
+  3.9.8.6 Change table widget rapporti.
+  3.9.8.5 Rscript update.
+  3.9.8.4 Fix bug rapport check.
+  3.9.8.3 Fix bug inventario materiali.
+  3.9.8.2 Add r script to least cost path.
+  3.9.8.1 Remove tkinter module, update folder installation add spatialite_convert and EM_palette.
+  3.9.8 Add tkinter module.
+  3.9.7 Function for convert db for spatialite 5.
+  3.9.5 Fix database issues for SQLite.
+  3.9.4 Update database for SQLite/Postgres, add layer pyunitastartigrafiche_usm and pyarchinit_quote_usm, add view pyarchinit_usm_view and pyarchinit_quote_usm_view, update groups layer.
+  3.9.3 Fix bug in exportation of PDF for USM.
+  3.9.2 Add WMS for archaeological constraints.
+  3.9.1 Update connection settings.
+  3.9 Update area management, timeout settings for basemap.
+  3.8.3 Update area management, timeout settings for basemap.
+  3.8.2 Add base map, add WMS map.
+  3.8.1 Make combobox for active site uneditable.
+  3.8 New icon, update QPT template, fix bug in creating view for Postgres.
+  3.7 New icon, update site form, update pyarchinit_pyqgis.
+  3.6 Remove 'area' from periodizzazione form.
+  3.5 Add print map dialog.
+  3.4 Fix bugs in structure and periods view, fix bug in Postgres update.
+  3.3 Update QPT template, view all periods in subfolder, fix bug in structure view, view structures.
+  3.2 Add QPT template, create your own map system.
+  3.1 Add subgroup layer, group view period and phase.
+  3.0 Add group layer.
+  2.5.5 Update Postgres database.
+  2.5.4 Update trigger settings.
+  2.5.3 Update dbname in connection parameters.
+  2.5.2 Issue #418 resolved.
+  2.5.1 Issue #417 resolved.
+  2.5.0 Issue #413 resolved.
+  2.4.9 Issue #413 resolved.
+  2.4.8 Add abort system into config parameters.
+  2.4.7 Reperti fixed index numero reperto.
+  2.4.6 Reperti fixed index numero reperto.
+  2.4.5 Tomba view, research tomba, config file, export image directories.
+  2.4.4 Update.
+  2.4.3 Update.
+  2.4.2 Update.
+  2.4.1 Update.
+  2.4.0 Update.
+  2.3.2 Update.
+  2.3.1 Update.
+  2.3.0 Update matrix.
+  2.2.9 Update order layer.
+  2.2.8 Update lang export all forms.
+  2.2.7 Update lang export all forms.
+  2.2.5 Update lang scheda indv.
+  2.2.4 Update lang scheda indv.
+  2.2.3 Update lang image viewer.
+  2.2.2 Update.
+  2.2.1 Matrix settings, add EN and DE language support.
+  2.2.0 Matrix settings.
+  2.1.9 Fix bug in import reperti.
+  2.1.8 Fix bug in import reperti.
+  2.1.7 Fix bug in save function.
+  2.1.6 Fix bug in thesaurus.
+  2.1.5 Update US form.
+  2.1.4 Export USM.
+  2.1.3 Update matrix.
+  2.1.2 Update reperti UI.
+  2.1.1 Update US UI.
+  2.1.0 Update matrix exportation, update US UI.
+  2.0.9 Update matrix exportation.
+  2.0.8 Add area field to periodization table.
+  2.0.7 Print map dialog.
+  2.0.6 Connection with struttura table.
+  2.0.5 Resize image viewer.
+  2.0.4 Update barra di ricerca in image view.
+  2.0.3 Changed view exp PDF US and list.
+  2.0.2 Add order by on exp PDF list photo.
+  2.0.1 Add option exp photo without thumbnail.
+  2.0.0 New features, fix bug, add new field, new icons, set all layout.
+  1.1.13 Fix bug.
+  1.1.12 Fix bug.
+  1.1.10 Update pyarchinit config, insert automatic enumerate n inv, fix bug.
+  1.1.9 Update pyarchinit config.
+  1.1.8 Update trigger db SQLite.
+  1.1.7 Update db, update UI inv materiali, auto increment n_reperto.
+  1.1.6 Update db.
+  1.1.5 Update db, add position, update form US UI.
+  1.1.4 Export USM.
+  1.1.3 Update matrix.
+  1.1.2 Update reperti UI.
+  1.1.1 Update US UI.
+  1.1.0 Update matrix exportation, update US UI.
+  1.0.9 Update matrix exportation.
+  1.0.8 Raggruppamento US during photo export.
+  1.0.7 UI improvements, fix installation on Mac.
+  1.0.6 Fixed bug save data tablewidget.
+  1.0.5 Export ICCD US.
+  1.0.4 Fix bug to export list photo thumb to PG.
+  1.0.3 Fix query pyarchinit config dialog.
+  1.0.1 Aggiornamento update file di configurazione.
+  1.0.0 Aggiornamento installazione e update db postgres, video manager, list site from config form, list US in tableview.
+  0.8.6 Aggiornamento installazione e update db postgres.
+  0.8.5 Aggiornamento installazione e update db postgres.
+  0.8.3 Aggiornamento db SQLite aggiorna il db con l'apposita funzione, è stato cambiato il campo area da integer a text.
+  0.8.2 Fixed bug per visualizzazione media preview e grafico statistica in inventario materiali.
+  0.8.1 Esportazione foto order by media name.
+  0.8.0 Raggruppamento US durante esportazione foto.
+  0.7.5 Fixed minor bug, fix installation on Mac.
+  0.7.4 Fixed bug save data tablewidget.
+  0.7.3 Fixed bug import layer from site form, update db SQLite.
+  0.7.2 Add into import layers Media.
+  0.7.1 Fix bug image view split function.
+  0.7.0 Image view auto fill tablewidget US TAG from selected image.
+  0.6.9 Vector search function.
+  0.6.8 Connection with struttura table.
+  0.6.7 Minor bug fix.
+  0.6.6 Resize image view.
+  0.6.5 Update barra di ricerca in image view.
+  0.6.4 Changed view exp PDF US and list, add order by on exp PDF list photo, add option exp photo without thumbnail.
+  0.6.3 Bug fix export PDF US.
+  0.6.2 Bug fix, image view update, image view update reperti.
+  0.6.1 Fix bug.
+  0.6 Image view update.
+  0.5 Fix bug export PDF US, add print PDF photo list, add list widget move from US form.
+  0.4 Fix bug export PDF US, add print PDF photo list, add list widget move from US form.
+  0.3.9 Fix bug toolbar image viewer.
+  0.3.7 UI Improvements, update SQL.
+  0.3.6 UI Improvements, update database, minor bug fixed.
+  0.3.5 UI Improvements, more languages support English, Deutsch, minor bug fixed.
 
 tags=archaeology, analysis, database, digitizing, postgres, postgis, spatialite, sqlite, archeologia, funerary archaeology, pottery, bones, excavations, scavi, archeologici, siti, carte, archeologiche, carta di potenzialita, strutture, antiche, tempio, medioevo, romana, preistoria, roman, medieval, prehistoric
 
