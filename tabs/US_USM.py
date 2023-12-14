@@ -63,6 +63,7 @@ from ..resources.resources_rc import *
 MAIN_DIALOG_CLASS, _ = loadUiType(
     os.path.join(os.path.dirname(__file__), os.pardir, 'gui', 'ui', 'US_USM.ui'))
 class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
+    ''' This class creates the main dialog for the US form'''
     L=QgsSettings().value("locale/userLocale")[0:2]
     if L=='it':
         MSG_BOX_TITLE = "PyArchInit - Scheda US"
@@ -1304,6 +1305,9 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             pass
 
     def listview_us(self):
+        '''
+            This function is used to filter the 'Unità Stratigrafiche' table.
+        '''
         if self.checkBox_query.isChecked():
             conn = Connection()
             conn_str = conn.conn_str()
@@ -1438,6 +1442,9 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
     
     
     def value_check(self):
+        '''
+            This function is used to filter the 'Unità Stratigrafiche' table.
+        '''
         try:
             
             if self.field.currentTextChanged:
@@ -1455,6 +1462,10 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         except :
             pass#QMessageBox.warning(self, "Attenzione", str(e), QMessageBox.Ok)  
     def update_filter(self, s): 
+        '''
+            This function is used to filter the 'Unità Stratigrafiche' table.
+        '''
+
         if self.checkBox_query.isChecked():
             conn = Connection()            
             conn_str = conn.conn_str()    
@@ -1505,9 +1516,14 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         else:    
             self.checkBox_query.setChecked(False)
     def on_pushButton_globalsearch_pressed(self):
-        self.search.showSearchDialog()    
+        '''
+            This function is used to search for a specific record in the database.
+        '''
+        self.search.showSearchDialog()
     def charge_struttura_list(self):
-         
+        '''
+            This function charges the 'Struttura' combobox with the values from the 'Struttura' table.
+        '''
         sito = str(self.comboBox_sito.currentText())
         search_dict = {
             'sito': "'" + sito + "'"
@@ -1531,6 +1547,9 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 except:
                     pass  # non vi sono periodi per questo scavo
     def geometry_unitastratigrafiche(self):
+        '''
+            This function charges the 'Posizione' combobox with the values from the 'Unità Stratigrafiche' table.
+        '''
         try:
             sito = str(self.comboBox_sito.currentText())
             area = str(self.comboBox_area.currentText())
@@ -1567,7 +1586,9 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         except:
             pass
     def charge_periodo_iniz_list(self):
-
+        '''
+            This function charges the 'Periodo' combobox with the values from the 'Periodizzazione' table.
+        '''
         try:
 
             sito = str(self.comboBox_sito.currentText())
@@ -1601,7 +1622,9 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
 
     def charge_periodo_fin_list(self):
-        
+        '''
+            This function charges the 'Periodo' combobox with the values from the 'Periodizzazione' table.
+        '''
         try:
 
             sito = str(self.comboBox_sito.currentText())
@@ -1631,7 +1654,10 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         except:
             pass  # non vi sono periodi per questo scavo
     def charge_fase_iniz_list(self):
-        #if self.comboBox_fas_iniz.activated: 
+
+        '''
+            This function charges the 'Fase' combobox with the values from the 'Periodizzazione' table.
+        '''
         try:
             search_dict = {
                 'sito': "'" + str(self.comboBox_sito.currentText()) + "'",
@@ -1655,7 +1681,10 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         except:
             pass
     def charge_fase_fin_list(self):
-        #if self.comboBox_fas_fin.activated: 
+        '''
+            This function charges the 'Fase' combobox with the values from the 'Periodizzazione' table.
+        '''
+        #if self.comboBox_fas_fin.activated:
         try:
             search_dict = {
                 'sito': "'" + str(self.comboBox_sito.currentText()) + "'",
@@ -1680,6 +1709,9 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             pass
 
     def charge_datazione_list(self):
+        '''
+            This function charges the 'Datazione' combobox with the values from the 'Periodizzazione' table.
+        '''
         try:
             search_dict_iniz = {
                 'sito': "'" + str(self.comboBox_sito.currentText()) + "'",
@@ -1720,6 +1752,10 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
     # This function should be connected to the button click event
     def update_dating(self):
+        '''
+            This function updates the 'Dating' field for all US records in the database.
+        '''
+
         try:
             updates_made = self.DB_MANAGER.update_us_dating_from_periodizzazione()
             if updates_made > 0:
