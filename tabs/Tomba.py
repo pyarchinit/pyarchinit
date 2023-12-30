@@ -370,7 +370,7 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
         self.lineEdit_nr_scheda.textChanged.connect(self.charge_struttura_list)
         #self.comboBox_sito.currentTextChanged.connect(self.charge_struttura_list)
         self.lineEdit_nr_scheda.textChanged.connect(self.charge_struttura_nr)
-        self.lineEdit_nr_scheda.textChanged.connect(self.charge_individuo_list)
+        self.comboBox_sigla_struttura.currentIndexChanged.connect(self.charge_individuo_list)
         self.lineEdit_nr_scheda.textChanged.connect(self.charge_oggetti_esterno_list)
         
         # SIGNALS & SLOTS Functions
@@ -378,12 +378,12 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
         self.lineEdit_nr_scheda.textChanged.connect(self.charge_periodo_iniz_list)
         self.lineEdit_nr_scheda.textChanged.connect(self.charge_periodo_fin_list)
 
-        
+        self.comboBox_per_iniz.currentIndexChanged.connect(self.charge_periodo_fin_list)
         self.comboBox_per_iniz.currentIndexChanged.connect(self.charge_fase_iniz_list)
         
         self.comboBox_per_fin.currentIndexChanged.connect(self.charge_fase_fin_list)
-        self.comboBox_per_iniz.currentIndexChanged.connect(self.charge_datazione_list)
-        self.comboBox_fas_iniz.currentIndexChanged.connect(self.charge_datazione_list)
+        #self.comboBox_per_iniz.currentIndexChanged.connect(self.charge_datazione_list)
+        #self.comboBox_fas_iniz.currentIndexChanged.connect(self.charge_datazione_list)
         sito = self.comboBox_sito.currentText()
         self.comboBox_sito.setEditText(sito)
         self.toolButton_pdfpath.clicked.connect(self.setPathpdf)
@@ -394,6 +394,7 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
         self.set_sito()
         self.msg_sito()
         self.numero_invetario()
+        self.update_dating()
     def numero_invetario(self):
         # self.set_sito()
         contatore = 0
@@ -551,7 +552,7 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
                 self.charge_list()
                 self.fill_fields()
             else:
-                
+
                 if self.L=='it':
                     QMessageBox.warning(self,"BENVENUTO", "Benvenuto in pyArchInit " + self.NOME_SCHEDA + ". Il database e' vuoto. Premi 'Ok' e buon lavoro!",
                                         QMessageBox.Ok)
@@ -566,6 +567,7 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
                 self.charge_list()
                 self.BROWSE_STATUS = 'x'
                 self.on_pushButton_new_rec_pressed()
+
         except Exception as e:
             e = str(e)
             if e.find("no such table"):
@@ -621,7 +623,6 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
         self.setComboBoxEditable(["self.comboBox_nr_struttura"], 1)
         self.setComboBoxEditable(["self.comboBox_nr_individuo"], 1)
         self.setComboBoxEditable(["self.comboBox_oggetti_esterno"], 1)
-        self.setComboBoxEditable(["self.comboBox_datazione_estesa"], 1)
         self.setComboBoxEditable(["self.comboBox_per_fin"], 1)
         self.setComboBoxEditable(["self.comboBox_fas_fin"], 1)
         self.setComboBoxEditable(["self.comboBox_per_iniz"], 1)
@@ -1800,60 +1801,65 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
                 QMessageBox.information(self, "Warnung" , "Es gibt keine solche archäologische Stätte: "'""'+ str(sito_set_str) +'"'" in dieser Registerkarte, Bitte deaktivieren Sie die 'Site-Wahl' in der Plugin-Konfigurationsregisterkarte, um alle Datensätze zu sehen oder die Registerkarte zu erstellen",QMessageBox.Ok) 
             else:
             
-                QMessageBox.information(self, "Warning" , "There is no such site: "'"'+ str(sito_set_str) +'"'" in this tab, Please disable the 'site choice' from the plugin configuration tab to see all records or create the tab",QMessageBox.Ok) 
-    def charge_periodo_iniz_list(self):
-        try:    
-            sito = str(self.comboBox_sito.currentText())
+                QMessageBox.information(self, "Warning" , "There is no such site: "'"'+ str(sito_set_str) +'"'" in this tab, Please disable the 'site choice' from the plugin configuration tab to see all records or create the tab",QMessageBox.Ok)
 
+    def charge_periodo_iniz_list(self):
+        '''
+            This function charges the 'Periodo' combobox with the values from the 'Periodizzazione' table.
+        '''
+        try:
+
+            sito = str(self.comboBox_sito.currentText())
+            area = str(self.comboBox_area.currentText())
             search_dict = {
                 'sito': "'" + sito + "'",
-                #'area': "'" + str(eval("self.DATA_LIST[int(self.REC_CORR)].area"))+ "'"
+                # 'area': "'" + str(eval("self.DATA_LIST[int(self.REC_CORR)].area")) + "'",
             }
-
             periodo_vl = self.DB_MANAGER.query_bool(search_dict, 'PERIODIZZAZIONE')
-
             periodo_list = []
-
             for i in range(len(periodo_vl)):
                 periodo_list.append(str(periodo_vl[i].periodo))
             try:
                 periodo_vl.remove('')
             except:
                 pass
-
+            #
             self.comboBox_per_iniz.clear()
             self.comboBox_per_iniz.addItems(self.UTILITY.remove_dup_from_list(periodo_list))
-
             if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Finden" or "Find":
                 self.comboBox_per_iniz.setEditText("")
             elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Aktuell " or "Current":
                 if len(self.DATA_LIST) > 0:
                     try:
                         self.comboBox_per_iniz.setEditText(self.DATA_LIST[self.rec_num].periodo_iniziale)
+                        self.comboBox_per_iniz.show()
                     except:
                         pass  # non vi sono periodi per questo scavo
         except:
             pass
-    def charge_periodo_fin_list(self):
-        try:
-            search_dict = {
-                'sito': "'" + str(self.comboBox_sito.currentText()) + "'",
-                #'area': "'" + str(eval("self.DATA_LIST[int(self.REC_CORR)].area"))+ "'"
-            }
 
+    def charge_periodo_fin_list(self):
+        '''
+            This function charges the 'Periodo' combobox with the values from the 'Periodizzazione' table.
+        '''
+        try:
+
+            sito = str(self.comboBox_sito.currentText())
+            area = str(self.comboBox_area.currentText())
+            search_dict = {
+                'sito': "'" + sito + "'",
+                # 'area': "'" + str(eval("self.DATA_LIST[int(self.REC_CORR)].area")) + "'",
+            }
             periodo_vl = self.DB_MANAGER.query_bool(search_dict, 'PERIODIZZAZIONE')
             periodo_list = []
-
             for i in range(len(periodo_vl)):
                 periodo_list.append(str(periodo_vl[i].periodo))
             try:
                 periodo_vl.remove('')
             except:
                 pass
-
             self.comboBox_per_fin.clear()
             self.comboBox_per_fin.addItems(self.UTILITY.remove_dup_from_list(periodo_list))
-
             if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Finden" or "Find":
                 self.comboBox_per_fin.setEditText("")
             elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Aktuell " or "Current":
@@ -1863,30 +1869,29 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
                     except:
                         pass
         except:
-            pass
+            pass  # non vi sono periodi per questo scavo
+
     def charge_fase_iniz_list(self):
+
+        '''
+            This function charges the 'Fase' combobox with the values from the 'Periodizzazione' table.
+        '''
         try:
             search_dict = {
                 'sito': "'" + str(self.comboBox_sito.currentText()) + "'",
                 'periodo': "'" + str(self.comboBox_per_iniz.currentText()) + "'",
             }
-
             fase_list_vl = self.DB_MANAGER.query_bool(search_dict, 'PERIODIZZAZIONE')
-
             fase_list = []
-
             for i in range(len(fase_list_vl)):
                 fase_list.append(str(fase_list_vl[i].fase))
             try:
                 fase_list.remove('')
             except:
                 pass
-
             self.comboBox_fas_iniz.clear()
-
             fase_list.sort()
             self.comboBox_fas_iniz.addItems(self.UTILITY.remove_dup_from_list(fase_list))
-
             if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Finden" or "Find":
                 self.comboBox_fas_iniz.setEditText("")
             else:
@@ -1895,27 +1900,26 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
             pass
 
     def charge_fase_fin_list(self):
+        '''
+            This function charges the 'Fase' combobox with the values from the 'Periodizzazione' table.
+        '''
+        # if self.comboBox_fas_fin.activated:
         try:
             search_dict = {
                 'sito': "'" + str(self.comboBox_sito.currentText()) + "'",
-                'periodo': "'" + str(self.comboBox_per_fin.currentText()) + "'",
+                'periodo': "'" + str(self.comboBox_per_fin.currentText()) + "'"
             }
-
             fase_list_vl = self.DB_MANAGER.query_bool(search_dict, 'PERIODIZZAZIONE')
-
             fase_list = []
-
             for i in range(len(fase_list_vl)):
                 fase_list.append(str(fase_list_vl[i].fase))
             try:
                 fase_list.remove('')
             except:
                 pass
-
             self.comboBox_fas_fin.clear()
             fase_list.sort()
             self.comboBox_fas_fin.addItems(self.UTILITY.remove_dup_from_list(fase_list))
-
             if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Finden" or "Find":
                 self.comboBox_fas_fin.setEditText("")
             else:
@@ -1924,32 +1928,67 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
             pass
 
     def charge_datazione_list(self):
-        
+        '''
+            This function charges the 'Datazione' combobox with the values from the 'Periodizzazione' table.
+        '''
         try:
-            search_dict = {
+            search_dict_iniz = {
                 'sito': "'" + str(self.comboBox_sito.currentText()) + "'",
                 'periodo': "'" + str(self.comboBox_per_iniz.currentText()) + "'",
                 'fase': "'" + str(self.comboBox_fas_iniz.currentText()) + "'"
             }
-            datazione_list_vl = self.DB_MANAGER.query_bool(search_dict, 'PERIODIZZAZIONE')
-            datazione_list = []
-            for i in range(len(datazione_list_vl)):
-                datazione_list.append(str(datazione_list_vl[i].datazione_estesa))
-            try:
-                datazione_list.remove('')
-            except:
-                pass
-            self.comboBox_datazione_estesa.clear()
-            datazione_list.sort()
-            self.comboBox_datazione_estesa.addItems(self.UTILITY.remove_dup_from_list(datazione_list))
-            if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Finden" or "Find":
-                self.comboBox_datazione_estesa.setEditText("")
+            search_dict_fin = {
+                'sito': "'" + str(self.comboBox_sito.currentText()) + "'",
+                'periodo': "'" + str(self.comboBox_per_fin.currentText()) + "'",
+                'fase': "'" + str(self.comboBox_fas_fin.currentText()) + "'"
+            }
+            datazione_list_vl_iniz = self.DB_MANAGER.query_bool(search_dict_iniz, 'PERIODIZZAZIONE')
+            datazione_list_vl_fin = self.DB_MANAGER.query_bool(search_dict_fin, 'PERIODIZZAZIONE')
+
+            datazione_list_iniz = [str(item.datazione_estesa) for item in datazione_list_vl_iniz if
+                                   str(item.datazione_estesa) != '']
+            datazione_list_fin = [str(item.datazione_estesa) for item in datazione_list_vl_fin if
+                                  str(item.datazione_estesa) != '']
+
+            self.lineEdit_datazione.clear()
+            if datazione_list_iniz:
+                datazione_list_iniz.sort()
+                periodo_iniziale = datazione_list_iniz[-1]
+                if datazione_list_fin:
+                    datazione_list_fin.sort()
+                    periodo_finale = datazione_list_fin[-1]
+                    if periodo_finale and str(self.comboBox_per_fin.currentText()) != '':
+                        self.lineEdit_datazione.setText(f"{periodo_iniziale} / {periodo_finale}")
+                    else:
+                        self.lineEdit_datazione.setText(periodo_iniziale)
+                else:
+                    self.lineEdit_datazione.setText(periodo_iniziale)
             else:
-                self.comboBox_datazione_estesa.setEditText(self.DATA_LIST[self.rec_num].datazione_estesa)
+                self.lineEdit_datazione.setText("")
         except:
             pass
-     
-    def charge_struttura_nr(self): 
+
+    # This function should be connected to the button click event
+    def update_dating(self):
+        '''
+            This function updates the 'Dating' field for all US records in the database.
+        '''
+
+        try:
+            updates_made = self.DB_MANAGER.update_us_dating_from_periodizzazione()
+            if updates_made > 0:
+                # Inform the user that updates have been made
+                QMessageBox.information(self, "Success",
+                                        f"All 'Dating' fields have been updated successfully. Total updates made: {updates_made}",
+                                        QMessageBox.Ok)
+            else:
+                # Inform the user that no updates were necessary
+                QMessageBox.information(self, "No Updates", "No 'Dating' fields needed to be updated.",
+                                        QMessageBox.Ok)
+        except Exception as e:
+            QMessageBox.critical(self, "Error", f"An error occurred while updating 'Dating': {e}", QMessageBox.Ok)
+
+    def charge_struttura_nr(self):
         
         search_dict = {
             'sito': "'" + str(self.comboBox_sito.currentText()) + "'"
@@ -1985,7 +2024,7 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
             'sito': "'" + str(self.comboBox_sito.currentText()) + "'"
         }
 
-        struttura_vl = self.DB_MANAGER.query_bool(search_dict, 'STRUTTURA')
+        struttura_vl = self.DB_MANAGER.query_bool(search_dict, 'SCHEDAIND')
         sigla_struttura_list = []
         for i in range(len(struttura_vl)):
             sigla_struttura_list.append(str(struttura_vl[i].sigla_struttura))
@@ -2019,11 +2058,14 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
                 
                 'sito': "'" + sito + "'",
                 #'area': "'" + str(eval("self.DATA_LIST[int(self.REC_CORR)].area"))+ "'",
-                'sigla_struttura': "'"+ str(eval("self.DATA_LIST[int(self.REC_CORR)].sigla_struttura"))+"'",
-                'nr_struttura': "'"+ str(eval("self.DATA_LIST[int(self.REC_CORR)].nr_struttura"))+"'"
+                #'sigla_struttura': "'"+ str(eval("self.DATA_LIST[int(self.REC_CORR)].sigla_struttura"))+"'",
+                #'nr_struttura': "'"+ str(eval("self.DATA_LIST[int(self.REC_CORR)].nr_struttura"))+"'"
+                'sigla_struttura': "'" + str(self.comboBox_sigla_struttura.currentText()) + "'",
+                'nr_struttura': "'" + str(self.comboBox_nr_struttura.currentText()) + "'"
             }
             inv_vl = self.DB_MANAGER.query_bool(search_dict,'SCHEDAIND')
             inv_list = []
+
             for i in range(len(inv_vl)):
                 inv_list.append(str(inv_vl[i].nr_individuo))
             try:
@@ -2038,7 +2080,7 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
                 if len(self.DATA_LIST) > 0:
                     try:
                         self.comboBox_nr_individuo.setEditText(self.DATA_LIST[self.rec_num].nr_individuo)
-                        
+
                     except :
                         pass
         except:
@@ -2210,6 +2252,7 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
 
     
     def on_pushButton_new_rec_pressed(self):
+
         conn = Connection()
         
         sito_set= conn.sito_set()
@@ -2224,6 +2267,24 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
                             pass
         if self.BROWSE_STATUS != "n":
             if bool(self.comboBox_sito.currentText()) and self.comboBox_sito.currentText()==sito_set_str:
+                # Call the functions directly without connecting them to signals
+                self.charge_periodo_iniz_list()
+                self.charge_periodo_fin_list()
+
+                try:
+                    self.comboBox_fas_iniz.currentIndexChanged.disconnect()
+                    self.comboBox_per_iniz.currentIndexChanged.disconnect()
+                except TypeError:
+                    pass  # Ignore the error if no connections exist
+                self.comboBox_fas_iniz.currentIndexChanged.connect(self.charge_datazione_list)
+
+                try:
+                    self.comboBox_fas_fin.currentIndexChanged.disconnect()
+                    self.comboBox_per_fin.currentIndexChanged.disconnect()
+                except TypeError:
+                    pass  # Ignore the error if no connections exist
+                self.comboBox_fas_fin.currentIndexChanged.connect(self.charge_datazione_list)
+
                 self.BROWSE_STATUS = "n"
                 self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
                 self.empty_fields_nosite()
@@ -2238,6 +2299,7 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
                 self.set_rec_counter('', '')
                 self.label_sort.setText(self.SORTED_ITEMS["n"])
                 self.numero_invetario()
+                self.lineEdit_datazione.clear()
             else:
                 self.BROWSE_STATUS = "n"
                 self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
@@ -2254,6 +2316,7 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
                 self.set_rec_counter('', '')
                 self.label_sort.setText(self.SORTED_ITEMS["n"])
                 self.numero_invetario()
+                self.lineEdit_datazione.clear()
             self.enable_button(0)
 
     def on_pushButton_save_pressed(self):
@@ -2347,22 +2410,22 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
         
         
         if self.comboBox_per_iniz.currentText() == "":
-            per_iniz = ''
+            per_iniz = None
         else:
             per_iniz = int(self.comboBox_per_iniz.currentText())
 
         if self.comboBox_fas_iniz.currentText() == "":
-            fas_iniz = ''
+            fas_iniz = None
         else:
             fas_iniz = int(self.comboBox_fas_iniz.currentText())
 
         if self.comboBox_per_fin.currentText() == "":
-            per_fin = ''
+            per_fin = None
         else:
             per_fin = int(self.comboBox_per_fin.currentText())
 
         if self.comboBox_fas_fin.currentText() == "":
-            fas_fin = ''
+            fas_fin = None
         else:
             fas_fin = int(self.comboBox_fas_fin.currentText())
 
@@ -2394,7 +2457,7 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
                 fas_iniz,  # 30 - fase iniziale
                 per_fin,  # 31 - periodo finale iniziale
                 fas_fin,  # 32 - fase finale
-                str(self.comboBox_datazione_estesa.currentText()))
+                str(self.lineEdit_datazione.text()))
             try:
                 self.DB_MANAGER.insert_data_session(data)
                 return 1
@@ -2768,13 +2831,13 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
                 self.TABLE_FIELDS[2]: nr_scheda,
                 self.TABLE_FIELDS[3]: "'" + str(self.comboBox_sigla_struttura.currentText()) + "'",
                 self.TABLE_FIELDS[4]: nr_struttura,
-                # self.TABLE_FIELDS[5]: "'" + str(self.comboBox_nr_individuo.currentText) + "'",
+                self.TABLE_FIELDS[5]: "'" + str(self.comboBox_nr_individuo.currentText) + "'",
                 self.TABLE_FIELDS[6]: "'" + str(self.comboBox_rito.currentText()) + "'",
                 self.TABLE_FIELDS[7]: "'" + str(self.textEdit_descrizione_taf.toPlainText()) + "'",                
                 self.TABLE_FIELDS[8]: "'" + str(self.textEdit_interpretazione_taf.toPlainText()) + "'",                
                 self.TABLE_FIELDS[9]: "'" + str(self.comboBox_segnacoli.currentText()) + "'",
                 self.TABLE_FIELDS[10]: "'" + str(self.comboBox_canale_libatorio.currentText()) + "'",
-                #self.TABLE_FIELDS[11]: "'" + str(self.comboBox_oggetti_esterno.currentText()) + "'",
+                self.TABLE_FIELDS[11]: "'" + str(self.comboBox_oggetti_esterno.currentText()) + "'",
                 self.TABLE_FIELDS[12]: "'" + str(self.comboBox_conservazione_taf.currentText()) + "'",
                 self.TABLE_FIELDS[13]: "'" + str(self.comboBox_copertura_tipo.currentText()) + "'",
                 self.TABLE_FIELDS[14]: "'" + str(self.comboBox_tipo_contenitore_resti.currentText()) + "'",
@@ -2786,7 +2849,7 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
                 self.TABLE_FIELDS[21]: fase_iniziale, 
                 self.TABLE_FIELDS[22]: periodo_finale,
                 self.TABLE_FIELDS[23]: fase_finale,
-                self.TABLE_FIELDS[24]: "'" +str(self.comboBox_datazione_estesa.currentText())+ "'" 
+                self.TABLE_FIELDS[24]: "'" +str(self.lineEdit_datazione.text())+ "'"
                 }
             
             u = Utility()
@@ -2807,7 +2870,7 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
                     elif self.L=='de':
                         QMessageBox.warning(self, "Warnung", "Keinen Record gefunden!", QMessageBox.Ok)
                     else:
-                        QMessageBox.warning(self, "WARNING," "No record found!", QMessageBox.Ok) 
+                        QMessageBox.warning(self, "WARNING", "No record found!", QMessageBox.Ok)
 
                     self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR + 1)
                     self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
@@ -2816,20 +2879,7 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
                     self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
 
                     self.setComboBoxEnable(["self.comboBox_sito"], "False")
-                    # self.setComboBoxEditable(["self.comboBox_sigla_struttura"], 1)
-                    # self.setComboBoxEditable(["self.comboBox_nr_struttura"], 1)
-                    self.setComboBoxEditable(["self.comboBox_nr_individuo"], 0)
-                    self.setComboBoxEditable(["self.comboBox_oggetti_esterno"], 0)
-                    # self.setComboBoxEnable(["self.lineEdit_nr_scheda"], "True")
-                    # self.setComboBoxEnable(["self.comboBox_sito"], "True")
-                    # self.setComboBoxEnable(["self.comboBox_sigla_struttura"], "True")
-                    # self.setComboBoxEnable(["self.comboBox_nr_struttura"], "True")
-                    self.setComboBoxEnable(["self.comboBox_nr_individuo"], "False")
-                    self.setComboBoxEnable(["self.comboBox_oggetti_esterno"], "False")
-                    # self.setComboBoxEnable(["self.textEdit_descrizione_taf"], "True")
-                    # self.setComboBoxEnable(["self.textEdit_interpretazione_taf"], "True")
-                    # self.setComboBoxEnable(["self.textEdit_descrizione_corredo"], "True")
-                    # self.setTableEnable(["self.tableWidget_corredo_tipo"], "True")
+
                     self.fill_fields(self.REC_CORR)
                 else:
                     self.DATA_LIST = []
@@ -2871,19 +2921,6 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
                                 self.pyQGIS.charge_tomba_layers(self.DATA_LIST)
 
                     self.setComboBoxEnable(["self.comboBox_sito"], "False")
-                    # self.setComboBoxEditable(["self.comboBox_sigla_struttura"], 1)
-                    # self.setComboBoxEditable(["self.comboBox_nr_struttura"], 1)
-                    # self.setComboBoxEditable(["self.comboBox_nr_individuo"], 1)
-                    # self.setComboBoxEnable(["self.lineEdit_nr_scheda"], "False")
-                    # self.setComboBoxEnable(["self.comboBox_sito"], "False")
-                    # self.setComboBoxEnable(["self.comboBox_sigla_struttura"], "False")
-                    # self.setComboBoxEnable(["self.comboBox_nr_struttura"], "False")
-                    self.setComboBoxEnable(["self.comboBox_nr_individuo"], "True")
-                    self.setComboBoxEnable(["self.comboBox_oggetti_esterno"], "True")
-                    # self.setComboBoxEnable(["self.textEdit_descrizione_taf"], "True")
-                    # self.setComboBoxEnable(["self.textEdit_interpretazione_taf"], "True")
-                    # self.setComboBoxEnable(["self.textEdit_descrizione_corredo"], "True")
-                    self.setTableEnable(["self.tableWidget_corredo_tipo"], "True")
 
                     QMessageBox.warning(self, "Message", "%s %d %s" % strings, QMessageBox.Ok)
         self.enable_button_search(1)
@@ -3193,7 +3230,7 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
         self.comboBox_fas_iniz.setEditText("")  # 10 - fase iniziale
         self.comboBox_per_fin.setEditText("")  # 11 - periodo finale iniziale
         self.comboBox_fas_fin.setEditText("")  # 12 - fase finale
-        self.comboBox_datazione_estesa.setEditText("")  # 13 - datazione estesa
+        self.lineEdit_datazione.clear()  # 13 - datazione estesa
         self.iconListWidget.clear()
     def empty_fields(self):
         corredo_tipo_row_count = self.tableWidget_corredo_tipo.rowCount()
@@ -3229,7 +3266,7 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
         self.comboBox_fas_iniz.setEditText("")  # 10 - fase iniziale
         self.comboBox_per_fin.setEditText("")  # 11 - periodo finale iniziale
         self.comboBox_fas_fin.setEditText("")  # 12 - fase finale
-        self.comboBox_datazione_estesa.setEditText("")  # 13 - datazione estesa
+        self.lineEdit_datazione.clear()  # 13 - datazione estesa
         self.iconListWidget.clear()
     def fill_fields(self, n=0):
         self.rec_num = n
@@ -3271,7 +3308,7 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
        
             self.comboBox_fas_fin.setEditText(str(self.DATA_LIST[self.rec_num].fase_finale))
 
-            self.comboBox_datazione_estesa.setEditText(str(self.DATA_LIST[self.rec_num].datazione_estesa))  
+            self.lineEdit_datazione.setText(str(self.DATA_LIST[self.rec_num].datazione_estesa))
             if self.toolButtonPreview.isChecked():
                 self.loadMapPreview()
             if self.toolButtonPreviewMedia.isChecked():
@@ -3308,22 +3345,22 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
         
 
         if self.comboBox_per_iniz.currentText() == "":
-            periodo_iniziale = ''
+            periodo_iniziale = None
         else:
             periodo_iniziale = self.comboBox_per_iniz.currentText()
 
         if self.comboBox_fas_iniz.currentText() == "":
-            fase_iniziale = ''
+            fase_iniziale = None
         else:
             fase_iniziale = self.comboBox_fas_iniz.currentText()
 
         if self.comboBox_per_fin.currentText() == "":
-            periodo_finale = ''
+            periodo_finale = None
         else:
             periodo_finale = self.comboBox_per_fin.currentText()
 
         if self.comboBox_fas_fin.currentText() == "":
-            fase_finale = ''
+            fase_finale = None
         else:
             fase_finale = self.comboBox_fas_fin.currentText()
 
@@ -3358,7 +3395,7 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
             str(fase_iniziale),  # 6 - descrizioene
             str(periodo_finale),  # 6 - descrizioene
             str(fase_finale),  # 6 - descrizioene
-            str(self.comboBox_datazione_estesa.currentText())
+            str(self.lineEdit_datazione.text())
         ]
 
     def set_LIST_REC_CORR(self):

@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1027</width>
+    <width>847</width>
     <height>833</height>
    </rect>
   </property>
@@ -2817,6 +2817,20 @@ p, li { white-space: pre-wrap; }
    </item>
    <item row="7" column="0" colspan="2">
     <layout class="QGridLayout" name="gridLayout_20">
+     <item row="2" column="0">
+      <widget class="QLabel" name="label_24">
+       <property name="text">
+        <string>Periodo </string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="3">
+      <widget class="QLabel" name="label_21">
+       <property name="text">
+        <string>Periodo </string>
+       </property>
+      </widget>
+     </item>
      <item row="2" column="1">
       <widget class="QLabel" name="label_22">
        <property name="text">
@@ -2824,18 +2838,18 @@ p, li { white-space: pre-wrap; }
        </property>
       </widget>
      </item>
-     <item row="4" column="6">
-      <widget class="QComboBox" name="comboBox_datazione_estesa">
+     <item row="5" column="0">
+      <widget class="QComboBox" name="comboBox_per_iniz">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
        </property>
-       <property name="minimumSize">
+       <property name="maximumSize">
         <size>
-         <width>0</width>
-         <height>0</height>
+         <width>71</width>
+         <height>16777215</height>
         </size>
        </property>
        <property name="editable">
@@ -2843,8 +2857,65 @@ p, li { white-space: pre-wrap; }
        </property>
       </widget>
      </item>
-     <item row="4" column="4">
+     <item row="5" column="3">
+      <widget class="QComboBox" name="comboBox_per_fin">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>71</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="editable">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="4">
+      <widget class="QLabel" name="label_34">
+       <property name="text">
+        <string>Fase </string>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="1">
+      <widget class="QComboBox" name="comboBox_fas_iniz">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>71</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="editable">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="4">
       <widget class="QComboBox" name="comboBox_fas_fin">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>71</width>
+         <height>16777215</height>
+        </size>
+       </property>
        <property name="editable">
         <bool>true</bool>
        </property>
@@ -2863,31 +2934,6 @@ p, li { white-space: pre-wrap; }
        </property>
       </widget>
      </item>
-     <item row="1" column="3">
-      <widget class="QLabel" name="label_16">
-       <property name="minimumSize">
-        <size>
-         <width>0</width>
-         <height>15</height>
-        </size>
-       </property>
-       <property name="text">
-        <string>Finale </string>
-       </property>
-      </widget>
-     </item>
-     <item row="4" column="5">
-      <widget class="QLabel" name="label_20">
-       <property name="font">
-        <font>
-         <family>MS Shell Dlg 2</family>
-        </font>
-       </property>
-       <property name="text">
-        <string>Datazione estesa</string>
-       </property>
-      </widget>
-     </item>
      <item row="0" column="0" colspan="4">
       <widget class="QLabel" name="label_13">
        <property name="font">
@@ -2901,35 +2947,7 @@ p, li { white-space: pre-wrap; }
        </property>
       </widget>
      </item>
-     <item row="4" column="3">
-      <widget class="QComboBox" name="comboBox_per_fin">
-       <property name="editable">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="4">
-      <widget class="QLabel" name="label_34">
-       <property name="text">
-        <string>Fase </string>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="3">
-      <widget class="QLabel" name="label_21">
-       <property name="text">
-        <string>Periodo </string>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="0">
-      <widget class="QLabel" name="label_24">
-       <property name="text">
-        <string>Periodo </string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="2" rowspan="4">
+     <item row="1" column="2" rowspan="5">
       <widget class="Line" name="line_4">
        <property name="enabled">
         <bool>false</bool>
@@ -2948,17 +2966,38 @@ p, li { white-space: pre-wrap; }
        </property>
       </widget>
      </item>
-     <item row="4" column="0">
-      <widget class="QComboBox" name="comboBox_per_iniz">
-       <property name="editable">
-        <bool>true</bool>
+     <item row="1" column="3">
+      <widget class="QLabel" name="label_16">
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>15</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>Finale </string>
        </property>
       </widget>
      </item>
-     <item row="4" column="1">
-      <widget class="QComboBox" name="comboBox_fas_iniz">
-       <property name="editable">
-        <bool>true</bool>
+     <item row="2" column="5">
+      <widget class="QLabel" name="label_20">
+       <property name="font">
+        <font>
+         <family>MS Shell Dlg 2</family>
+        </font>
+       </property>
+       <property name="text">
+        <string>Datazione estesa</string>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="5">
+      <widget class="QLineEdit" name="lineEdit_datazione">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="readOnly">
+        <bool>false</bool>
        </property>
       </widget>
      </item>
