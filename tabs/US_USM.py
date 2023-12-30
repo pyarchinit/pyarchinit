@@ -59,6 +59,8 @@ from ..gui.imageViewer import ImageViewer
 from ..gui.pyarchinitConfigDialog import pyArchInitDialog_Config
 from ..gui.sortpanelmain import SortPanelMain
 from ..resources.resources_rc import *
+from sqlalchemy import create_engine, text
+from sqlalchemy.orm import sessionmaker
 
 MAIN_DIALOG_CLASS, _ = loadUiType(
     os.path.join(os.path.dirname(__file__), os.pardir, 'gui', 'ui', 'US_USM.ui'))
@@ -801,26 +803,15 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             self.comboBox_sito.setCurrentIndex(1)
         
             
-        #self.comboBox_sito.currentIndexChanged.connect(self.charge_periodo_iniz_list)
+
         self.comboBox_sito.currentTextChanged.connect(self.charge_periodo_iniz_list)
-        #self.comboBox_per_iniz.currentIndexChanged.connect(self.charge_periodo_fin_list)
-        #self.comboBox_sito.currentIndexChanged.connect(self.charge_struttura_list)
         self.comboBox_sito.currentTextChanged.connect(self.charge_struttura_list)
         self.comboBox_per_iniz.currentIndexChanged.connect(self.charge_periodo_fin_list)
         self.comboBox_per_iniz.currentIndexChanged.connect(self.charge_fase_iniz_list)
-        #self.comboBox_per_iniz.currentIndexChanged.connect(self.charge_datazione_list)
-        #self.comboBox_fas_iniz.currentIndexChanged.connect(self.charge_datazione_list)
-        #self.comboBox_per_fin.currentIndexChanged.connect(self.charge_datazione_list)  # Aggiunta della connessione
-        #self.comboBox_fas_fin.currentIndexChanged.connect(self.charge_datazione_list)  # Aggiunta della connessione
-
-
         self.comboBox_sito.currentTextChanged.connect(self.geometry_unitastratigrafiche)### rallenta molto
-        
         self.comboBox_sito.currentIndexChanged.connect(self.geometry_unitastratigrafiche)### rallenta molto
         self.comboBox_sito.currentIndexChanged.connect(self.charge_insert_ra)
         self.comboBox_sito.currentTextChanged.connect(self.charge_insert_ra)
-        #self.comboBox_sito.currentIndexChanged.connect(self.charge_insert_ra_pottery)
-        #self.comboBox_sito.currentTextChanged.connect(self.charge_insert_ra_pottery)
         self.search_1.currentTextChanged.connect(self.update_filter)
         self.comboBox_per_fin.currentIndexChanged.connect(self.charge_fase_fin_list)
         self.toolButton_pdfpath.clicked.connect(self.setPathpdf)
@@ -4700,29 +4691,72 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             server=settings.SERVER    
             
             if server=='postgres':
-                connessione ="dbname=%s user=%s host=%s password=%s port=%s" % (db_names,db_username,host,database_password,port)
-                
-                
-                conn = psycopg2.connect(connessione)
-                cur = conn.cursor()
-                # WITH RECURSIVE cte AS (
-                  # SELECT id,
-                         # SUBSTR(test, 1, STRPOS(test || ';', ';') - 1) col,
-                         # SUBSTR(test, STRPOS(test || ';', ';') + 1) rest
-                  # FROM (SELECT id, REPLACE(REPLACE(REPLACE(test, '[[', '['), ']]', ']'), '],[', '];[') test FROM tablename) t
-                  # UNION ALL
-                  # SELECT id,
-                         # SUBSTR(rest, 1, STRPOS(rest || ';', ';') - 1),
-                         # SUBSTR(rest, STRPOS(rest || ';', ';') + 1)
-                  # FROM cte
-                  # WHERE LENGTH(rest) > 0
-                # )
-                # SELECT STRING_AGG(CASE WHEN col LIKE '[''a'',%' OR col LIKE '[''b'',%' THEN col END, ',') x,
-                       # STRING_AGG(CASE WHEN col LIKE '[''c'',%' THEN col END, ',') y,
-                       # STRING_AGG(CASE WHEN col LIKE '[''d'',%' THEN col END, ',') z
-                # FROM cte
-                # GROUP BY id
-        
+                pass
+                # # Create an SQLAlchemy engine instance
+                # engine = create_engine(f"postgresql://{db_username}:{database_password}@{host}:{port}/{db_names}")
+                #
+                # # Create a session
+                # Session = sessionmaker(bind=engine)
+                # session = Session()
+                #
+                # try:
+                #     # Perform your query using SQLAlchemy ORM or Core
+                #     result2 = session.execute(text("""
+                #         WITH RECURSIVE cte AS (
+                #             SELECT id_us,
+                #                    SPLIT_PART(rapporti, ';', 1) AS col,
+                #                    SUBSTRING(rapporti FROM POSITION(';' IN rapporti) + 1) AS rest
+                #             FROM (
+                #                 SELECT id_us, REGEXP_REPLACE(rapporti, '\[\[|\]\]|\],\[', ';', 'g') AS rapporti
+                #                 FROM us_table
+                #                 WHERE sito = :sito_location
+                #             ) AS foo
+                #             UNION ALL
+                #             SELECT id_us,
+                #                    SPLIT_PART(rest, ';', 1),
+                #                    SUBSTRING(rest FROM POSITION(';' IN rest) + 1)
+                #             FROM cte
+                #             WHERE rest <> ''
+                #         )
+                #         SELECT id_us,
+                #                STRING_AGG(CASE WHEN col LIKE 'Copre%' OR col LIKE 'Taglia%' OR col LIKE 'Riempie%' OR col LIKE 'Si appoggia a%' OR col LIKE 'Covers%' OR col LIKE 'Cuts%' OR col LIKE 'Fills%' OR col LIKE 'Abuts%' THEN col END, ',') AS post,
+                #                STRING_AGG(CASE WHEN col LIKE 'Coperto da%' OR col LIKE 'Riempito da%' OR col LIKE 'Tagliato da%' OR col LIKE 'Gli si appoggia%' OR col LIKE 'Covered by%' OR col LIKE 'Filled by%' OR col LIKE 'Cut by%' OR col LIKE 'Supports%' THEN col END, ',') AS ante,
+                #                STRING_AGG(CASE WHEN col LIKE 'Si lega a%' OR col LIKE 'Uguale a%' OR col LIKE 'Connected to%' OR col LIKE 'Same as%' THEN col END, ',') AS contemp
+                #         FROM cte
+                #         GROUP BY id_us
+                #         ORDER BY id_us;
+                #     """), {'sito_location': sito_location})
+                #
+                #     rows2 = result2.fetchall()
+                #     col_names2 = ['Rapporto Posteriore', 'Rapporto Anteriore', 'Rapporto Contemporaneo']
+                #     t2 = pd.DataFrame(rows2, columns=col_names2).applymap(self.list2pipe)
+                #     t2.to_excel(writer, sheet_name='Rapporti', index=False)
+                #
+                #     # Configure the Excel sheets' column widths
+                #     worksheet1 = writer.sheets['US']
+                #     worksheet1.set_column('A:A', 30)
+                #     worksheet1.set_column('B:B', 30)
+                #     worksheet1.set_column('C:C', 30)
+                #     worksheet1.set_column('D:D', 30)
+                #
+                #     worksheet2 = writer.sheets['Rapporti']
+                #     worksheet2.set_column('A:A', 30)
+                #     worksheet2.set_column('B:B', 30)
+                #     worksheet2.set_column('C:C', 30)
+                #
+                #     # Close the Pandas Excel writer and output the Excel file
+                #     writer.close()
+                #     QMessageBox.information(self, "INFO", "Conversion completed", QMessageBox.Ok)
+                #
+                # except Exception as e:
+                #     # Handle any errors that occur during the database operations
+                #     QMessageBox.warning(self, "Error", str(e), QMessageBox.Ok)
+                # finally:
+                #     # Ensure the database session is closed when done
+                #     session.close()
+
+
+
             elif server=='sqlite':        
             
                 
@@ -4756,7 +4790,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 t1.to_excel(writer, sheet_name='US',index=False)
                 
                 cur2.execute("""WITH cte AS 
-                    (   SELECT rowid ,
+                    ( SELECT rowid ,
                    SUBSTR(rapporti,  1, INSTR(rapporti || ';', ';') -1) col,
                    SUBSTR(rapporti, INSTR(rapporti || ';', ';') + 1) rest
                    FROM (SELECT rowid, REPLACE(REPLACE(REPLACE(rapporti, '[[', '['), ']]', ']'), '], [', '];[') rapporti FROM us_table
@@ -4792,7 +4826,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 worksheet2.set_column('A:A', 30, None)
                 worksheet2.set_column('B:B', 30, None)
                 worksheet2.set_column('C:C', 30, None)
-                writer.save()
+                writer.close()
             QMessageBox.information(self, "INFO", "Conversion completed",
                                     QMessageBox.Ok)
         except KeyError as e:
@@ -5175,6 +5209,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 # Call the functions directly without connecting them to signals
                 self.charge_periodo_iniz_list()
                 self.charge_periodo_fin_list()
+
 
                 try:
                     self.comboBox_fas_iniz.currentIndexChanged.disconnect()
