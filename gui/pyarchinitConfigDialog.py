@@ -3801,10 +3801,10 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             ####CREA LA STRINGA DI CONNESSIONE IN LETTURA
             if conn_str_dict_read["server"] == 'postgres':
                 try:
-                    conn_str_read = "%s://%s:%s@%s:%s/%s%s?charset=utf8" % (
+                    conn_str_read = "%s://%s:%s@%s:%s/%s" % (
                         "postgresql", conn_str_dict_read["user"], conn_str_dict_read["password"],
                         conn_str_dict_read["host"],
-                        conn_str_dict_read["port"], conn_str_dict_read["db_name"], "?sslmode=allow")
+                        conn_str_dict_read["port"], conn_str_dict_read["db_name"])
                 except:
                     conn_str_read = "%s://%s:%s@%s:%d/%s" % (
                         "postgresql", conn_str_dict_read["user"], conn_str_dict_read["password"],
@@ -4311,6 +4311,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             elif os.name == 'nt':
                 home = os.environ['HOMEPATH']"""
             ####RICAVA I DATI IN LETTURA PER LA CONNESSIONE DALLA GUI
+            conn_str_read=''
             conn_str_dict_read = {
                 "server": str(self.comboBox_server_rd.currentText()),
                 "user": str(self.lineEdit_username_rd.text()),
@@ -4319,20 +4320,23 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 "port": str(self.lineEdit_port_rd.text()),
                 "db_name": str(self.lineEdit_database_rd.text())
             }
+            
             ####CREA LA STRINGA DI CONNESSIONE IN LETTURA
             if conn_str_dict_read["server"] == 'postgres':
-
                 try:
-                    conn_str_read = "%s://%s:%s@%s:%s/%s%s" % (
-                        "postgresql", conn_str_dict_read["user"], conn_str_dict_read["password"],
-                        conn_str_dict_read["host"],
-                        conn_str_dict_read["port"], conn_str_dict_read["db_name"], "?sslmode=allow")
-                except:
-                    conn_str_read = "%s://%s:%s@%s:%d/%s" % (
+                    conn_str_read = "%s://%s:%s@%s:%s/%s" % (
                         "postgresql", conn_str_dict_read["user"], conn_str_dict_read["password"],
                         conn_str_dict_read["host"],
                         conn_str_dict_read["port"], conn_str_dict_read["db_name"])
+                except Exception as e:
+                    print(
+                        "Error in connection parameter. <br> If they are correct restart QGIS. <br> Error: " + str(e))
 
+                else:
+                    conn_str_read = "%s://%s:%s@%s:%s/%s" % (
+                        "postgresql", conn_str_dict_read["user"], conn_str_dict_read["password"],
+                        conn_str_dict_read["host"],
+                        conn_str_dict_read["port"], conn_str_dict_read["db_name"])
 
 
             elif conn_str_dict_read["server"] == 'sqlite':

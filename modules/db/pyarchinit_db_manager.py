@@ -80,7 +80,9 @@ class Pyarchinit_db_management(object):
         else:
             dbapi_conn.load_extension('mod_spatialite.so')  
     def connection(self):
+        global conn
         test = True
+
         try:
             test_conn = self.conn_str.find("sqlite")
             if test_conn == 0:
