@@ -4518,9 +4518,9 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 for sing_rec in range(len(data_list_toimp)):
                     try:
                         data = self.DB_MANAGER_write.insert_values(
-                            self.DB_MANAGER_write.max_num_id(mapper_class_write,
-                                                             id_table_class_mapper_conv_dict[mapper_class_write]) + 1,
-
+                            #self.DB_MANAGER_write.max_num_id(mapper_class_write,
+                            #                                 id_table_class_mapper_conv_dict[mapper_class_write]) + 1,
+                            data_list_toimp[sing_rec].id_us,
                             data_list_toimp[sing_rec].sito,
                             data_list_toimp[sing_rec].area,
                             data_list_toimp[sing_rec].us,
