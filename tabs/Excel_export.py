@@ -205,7 +205,7 @@ class pyarchinit_excel_export(QDialog, MAIN_DIALOG_CLASS):
                 a=pd.DataFrame(rows,columns=col_names)
                 writer = pd.ExcelWriter(dump_dir, engine='xlsxwriter')
                 b=a.to_excel(writer, sheet_name='Sheet1')
-                writer.save()
+                writer.close()
                 #QMessageBox.warning(self, "Message","ok" , QMessageBox.Ok)
                         
             if self.checkBox_uw.isChecked():
@@ -220,7 +220,7 @@ class pyarchinit_excel_export(QDialog, MAIN_DIALOG_CLASS):
                 a=pd.DataFrame(rows,columns=col_names)
                 writer = pd.ExcelWriter(dump_dir, engine='xlsxwriter')
                 a.to_excel(writer, sheet_name='Sheet1',index=True)
-                writer.save()
+                writer.close()
                 #QMessageBox.warning(self, "Message","ok" , QMessageBox.Ok)    
                      
             if self.checkBox_art.isChecked():
@@ -235,7 +235,7 @@ class pyarchinit_excel_export(QDialog, MAIN_DIALOG_CLASS):
                 a=pd.DataFrame(rows,columns=col_names)
                 writer = pd.ExcelWriter(dump_dir, engine='xlsxwriter')
                 a.to_excel(writer, sheet_name='Sheet1',index=True)
-                writer.save()
+                writer.close()
                 #QMessageBox.warning(self, "Message","ok" , QMessageBox.Ok)                
                     
             if self.checkBox_pottery.isChecked():
@@ -250,7 +250,7 @@ class pyarchinit_excel_export(QDialog, MAIN_DIALOG_CLASS):
                 a=pd.DataFrame(rows,columns=col_names)
                 writer = pd.ExcelWriter(dump_dir, engine='xlsxwriter')
                 a.to_excel(writer, sheet_name='Sheet1',index=True)
-                writer.save()
+                writer.close()
                 #QMessageBox.warning(self, "Message","ok" , QMessageBox.Ok)                      
             
             if self.checkBox_anchor.isChecked():
@@ -265,7 +265,7 @@ class pyarchinit_excel_export(QDialog, MAIN_DIALOG_CLASS):
                 a=pd.DataFrame(rows,columns=col_names)
                 writer = pd.ExcelWriter(dump_dir, engine='xlsxwriter')
                 a.to_excel(writer, sheet_name='Sheet1',index=True)
-                writer.save()
+                writer.close()
                 #QMessageBox.warning(self, "Message","ok" , QMessageBox.Ok)         
                     # for i in temp_data_list:
                     # self.DATA_LIST.append(i)
@@ -293,7 +293,7 @@ class pyarchinit_excel_export(QDialog, MAIN_DIALOG_CLASS):
                 a=pd.DataFrame(rows,columns=col_names)
                 writer = pd.ExcelWriter(dump_dir, engine='xlsxwriter')
                 b=a.to_excel(writer, sheet_name='Sheet1')
-                writer.save()
+                #writer.close()
                 #QMessageBox.warning(self, "Message","ok" , QMessageBox.Ok)
                         
             if self.checkBox_uw.isChecked():
@@ -308,7 +308,7 @@ class pyarchinit_excel_export(QDialog, MAIN_DIALOG_CLASS):
                 a=pd.DataFrame(rows,columns=col_names)
                 writer = pd.ExcelWriter(dump_dir, engine='xlsxwriter')
                 a.to_excel(writer, sheet_name='Sheet1',index=True)
-                writer.save()
+                writer.close()
                 #QMessageBox.warning(self, "Message","ok" , QMessageBox.Ok)    
                      
             if self.checkBox_art.isChecked():
@@ -323,7 +323,7 @@ class pyarchinit_excel_export(QDialog, MAIN_DIALOG_CLASS):
                 a=pd.DataFrame(rows,columns=col_names)
                 writer = pd.ExcelWriter(dump_dir, engine='xlsxwriter')
                 a.to_excel(writer, sheet_name='Sheet1',index=True)
-                writer.save()
+                writer.close()
                 #QMessageBox.warning(self, "Message","ok" , QMessageBox.Ok)                
                     
             if self.checkBox_pottery.isChecked():
@@ -338,7 +338,7 @@ class pyarchinit_excel_export(QDialog, MAIN_DIALOG_CLASS):
                 a=pd.DataFrame(rows,columns=col_names)
                 writer = pd.ExcelWriter(dump_dir, engine='xlsxwriter')
                 a.to_excel(writer, sheet_name='Sheet1',index=True)
-                writer.save()
+                writer.close()
                 #QMessageBox.warning(self, "Message","ok" , QMessageBox.Ok)                      
             
             if self.checkBox_anchor.isChecked():
@@ -353,7 +353,7 @@ class pyarchinit_excel_export(QDialog, MAIN_DIALOG_CLASS):
                 a=pd.DataFrame(rows,columns=col_names)
                 writer = pd.ExcelWriter(dump_dir, engine='xlsxwriter')
                 a.to_excel(writer, sheet_name='Sheet1',index=True)
-                writer.save()
+                writer.close()
                 #QMessageBox.warning(self, "Message","ok" , QMessageBox.Ok)         
                     # for i in temp_data_list:
                     # self.DATA_LIST.append(i)
