@@ -4460,9 +4460,10 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
 
                     try:
                         data = self.DB_MANAGER_write.insert_pottery_values(
-                            self.DB_MANAGER_write.max_num_id(mapper_class_write,
-                                                             id_table_class_mapper_conv_dict[
-                                                                 mapper_class_write]) + 1,
+                            #self.DB_MANAGER_write.max_num_id(mapper_class_write,
+                            #                                 id_table_class_mapper_conv_dict[
+                            #                                     mapper_class_write]) + 1,
+                            data_list_toimp[sing_rec].id_rep,
                             data_list_toimp[sing_rec].id_number,
                             data_list_toimp[sing_rec].sito,
                             data_list_toimp[sing_rec].area,
@@ -4692,9 +4693,10 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 for sing_rec in range(len(data_list_toimp)):
                     try:
                         data = self.DB_MANAGER_write.insert_values_reperti(
-                            self.DB_MANAGER_write.max_num_id(mapper_class_write,
-                                                             id_table_class_mapper_conv_dict[mapper_class_write]) + 1,
+                            #self.DB_MANAGER_write.max_num_id(mapper_class_write,
+                            #                                 id_table_class_mapper_conv_dict[mapper_class_write]) + 1,
 
+                            data_list_toimp[sing_rec].id_invmat,
                             data_list_toimp[sing_rec].sito,
                             data_list_toimp[sing_rec].numero_inventario,
                             data_list_toimp[sing_rec].tipo_reperto,
@@ -4748,8 +4750,10 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 for sing_rec in range(len(data_list_toimp)):
                     try:
                         data = self.DB_MANAGER_write.insert_struttura_values(
-                            self.DB_MANAGER_write.max_num_id(mapper_class_write,
-                                                             id_table_class_mapper_conv_dict[mapper_class_write]) + 1,
+                            #self.DB_MANAGER_write.max_num_id(mapper_class_write,
+                            #                                 id_table_class_mapper_conv_dict[mapper_class_write]) + 1,
+
+                            data_list_toimp[sing_rec].id_struttura,
                             data_list_toimp[sing_rec].sito,
                             data_list_toimp[sing_rec].sigla_struttura,
                             data_list_toimp[sing_rec].numero_struttura,
@@ -4822,8 +4826,9 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                     try:
                         data = self.DB_MANAGER_write.insert_values_tomba(
 
-                            self.DB_MANAGER_write.max_num_id(mapper_class_write,
-                                                             id_table_class_mapper_conv_dict[mapper_class_write]) + 1,
+                            #self.DB_MANAGER_write.max_num_id(mapper_class_write,
+                            #                                 id_table_class_mapper_conv_dict[mapper_class_write]) + 1,
+                            data_list_toimp[sing_rec].id_tomba,
                             str(data_list_toimp[sing_rec].sito),
                             str(data_list_toimp[sing_rec].area),
                             str(data_list_toimp[sing_rec].nr_scheda_taf),
