@@ -1428,6 +1428,68 @@ class Pyarchinit_db_management(object):
         eval(session_exec_str)
         session.close()
 
+
+    def update_tomba_dating_from_periodizzazione(self):
+        # Reflect the tables from the database
+        tomba_table = Table('tomba_table', self.metadata, autoload_with=self.engine)
+        periodizzazione_table = Table('periodizzazione_table', self.metadata, autoload_with=self.engine)
+
+        # Create a session
+        Session = sessionmaker(bind=self.engine)
+        session = Session()
+
+        try:
+            # Start a transaction
+            with session.begin():
+                # Select all records from tomba_table
+                tomba_records = session.query(tomba_table).all()
+
+                updates_made = 0
+                for tomba_record in tomba_records:
+                    # Skip records with empty 'periodo' or 'fase'
+                    if not tomba_record.periodo_iniziale or not tomba_record.fase_iniziale:
+                        continue
+                    # Find the corresponding periodizzazione records
+                    periodizzazione_iniziale = session.query(periodizzazione_table). \
+                        filter_by(periodo=tomba_record.periodo_iniziale, fase=tomba_record.fase_iniziale).first()
+
+                    if bool(tomba_record.periodo_finale):
+                        periodizzazione_finale = session.query(periodizzazione_table). \
+                            filter_by(periodo=tomba_record.periodo_finale, fase=tomba_record.fase_finale).first()
+
+                    # Concatenate the 'datazione_estesa' values if both are present
+                    datazione_string = ""
+                    if periodizzazione_iniziale and periodizzazione_finale:
+                        datazione_string = f"{periodizzazione_iniziale.datazione_estesa}/{periodizzazione_finale.datazione_estesa}"
+                    elif periodizzazione_iniziale:
+                        datazione_string = periodizzazione_iniziale.datazione_estesa
+
+                    if periodizzazione_iniziale or periodizzazione_finale:
+                        # Check if the current 'Dating' value is different from the new value
+                        current_dating = getattr(tomba_record, 'datazione_estesa', None)
+                        if datazione_string and current_dating != datazione_string:
+                            # Update the 'Dating' field in tomba_table
+                            session.query(tomba_table). \
+                                filter_by(id_tomba=tomba_record.id_tomba). \
+                                update({'datazione_estesa': datazione_string}, synchronize_session=False)
+                            updates_made += 1
+
+                # Print the number of updates made
+                print(f"All 'Dating' fields have been updated successfully. Total updates made: {updates_made}")
+
+            # Commit the changes
+            session.commit()
+            return updates_made  # Return the count of updates made
+        except Exception as e:
+            # Rollback the transaction on error
+            session.rollback()
+            QMessageBox.warning(None, 'ok',f"An error occurred while updating 'Dating': {e}")
+            raise e  # Re-raise the exception to be handled by the calling function
+        finally:
+            # Close the session
+            session.close()
+
+
     def update_us_dating_from_periodizzazione(self):
         # Reflect the tables from the database
         us_table = Table('us_table', self.metadata, autoload_with=self.engine)
