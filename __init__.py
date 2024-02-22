@@ -141,24 +141,16 @@ try:
     import xlsxwriter
 except Exception as e:
     missing_libraries.append(str(e))
-try:
-    import pkg_resources
 
-    pkg_resources.require("opencv-python")
+try:
     import cv2 
 except Exception as e:
-    missing_libraries.append(str(e))
-    #if platform.system() == 'Windows':
-        #pip_path = sys.exec_prefix
+    print(e)#missing_libraries.append(str(e))
+    if platform.system() == 'Windows':
+        subprocess.call(['pip', 'install', 'opencv-python','--user'])
 
-        #cmd = '{}\bin/pip3'.format(pip_path)
-        #subprocess.call(['pip', 'install', 'opencv-python'], shell=False)
-
-    if platform.system() == 'Darwin':
-        pip_path = sys.exec_prefix
-
-        cmd = '{}/bin/pip3'.format(pip_path)
-        subprocess.call([cmd, 'install', 'opencv-python'], shell=False)
+    elif platform.system() == 'Darwin':
+        subprocess.call(["/Applications/QGIS.app/Contents/MacOS/bin/python3", "-m", "pip","install",'opencv-python','--user'])
 
 try:
     import pandas
@@ -197,10 +189,10 @@ if install_libraries:
     
 
 s = QgsSettings()
-if not Pyarchinit_OS_Utility.checkGraphvizInstallation() and s.value('pyArchInit/graphvizBinPath'):
+if not Pyarchinit_OS_Utility.checkgraphvizinstallation() and s.value('pyArchInit/graphvizBinPath'):
     os.environ['PATH'] += os.pathsep + os.path.normpath(s.value('pyArchInit/graphvizBinPath'))
     
-if not Pyarchinit_OS_Utility.checkPostgresInstallation() and s.value('pyArchInit/postgresBinPath'):
+if not Pyarchinit_OS_Utility.checkpostgresinstallation() and s.value('pyArchInit/postgresBinPath'):
     os.environ['PATH'] += os.pathsep + os.path.normpath(s.value('pyArchInit/postgresBinPath'))    
 
 
@@ -213,6 +205,16 @@ packages = [
 
 for p in packages:
             
+    if p.startswith('postgres'):
+        try:
+            subprocess.call(['pg_dump', '-V'])
+        except Exception as e:
+        #except Exception as e:
+            #if L=='it':
+            QMessageBox.warning(None, 'Pyarchinit',
+                            "INFO: Sembra che postgres non sia installato sul vostro sistema o che non abbiate impostato il percorso in Pyarchinit config. ",
+                            QMessageBox.Ok | QMessageBox.Cancel)
+
     if p.startswith('graphviz'):
         try:
             subprocess.call(['dot', '-V'])
@@ -229,35 +231,26 @@ for p in packages:
             else:
                 QMessageBox.warning(None, 'Pyarchinit',
                                 "INFO: It seems that Graphviz is not installed on your system or you don't have set the path in Pyarchinit config. Anyway the graphviz python module will be installed on your system, but the export matrix functionality from pyarchinit plugin will be disabled.",
-                                QMessageBox.Ok | QMessageBox.Cancel)                    
+                                QMessageBox.Ok | QMessageBox.Cancel)
     
-        if platform.system() == "Darwin":
-            location =  os.path.expanduser("~/Library/Fonts")
-                     
-                    
-            if not path.exists(location+'/cambria.ttc'):
-            
-                QMessageBox.warning(None, 'Pyarchinit',
-                    "INFO: Il font Cambria sembra non essere installato. per installarlo clicca Ok\n e poi doppio click su cambria.*\Dopo ricarica il plugin",
-                    QMessageBox.Ok)   
-                   
-                if QMessageBox.Ok:
-                    
-                    HOME = os.environ['PYARCHINIT_HOME']
-                    path = '{}{}{}'.format(HOME, os.sep, "bin")
-                    
-                    subprocess.Popen(["open", path])
+
                
-    if p.startswith('postgres'):
-        try:
-            subprocess.call(['pg_dump', '-V'])
-        except Exception as e:
-            #if L=='it':
-            QMessageBox.warning(None, 'Pyarchinit',
-                            "INFO: Sembra che postgres non sia installato sul vostro sistema o che non abbiate impostato il percorso in Pyarchinit config. In ogni caso il modulo python di graphviz sarà installato sul vostro sistema, ma la funzionalità di esportazione del matrix dal plugin pyarchinit sarà disabilitata.",
-                            QMessageBox.Ok | QMessageBox.Cancel)
-        
-        
+
+
+if platform.system() == "Darwin":
+    location = os.path.expanduser("~/Library/Fonts")
+
+    if not path.exists(location + '/cambria.ttc'):
+
+        QMessageBox.warning(None, 'Pyarchinit',
+                            "INFO: Il font Cambria sembra non essere installato. per installarlo clicca Ok\n e poi doppio click su cambria.*\Dopo ricarica il plugin",
+                            QMessageBox.Ok)
+
+        if QMessageBox.Ok:
+            HOME = os.environ['PYARCHINIT_HOME']
+            path = '{}{}{}'.format(HOME, os.sep, "bin")
+
+            subprocess.Popen(["open", path])
 def classFactory(iface):
     
                 
