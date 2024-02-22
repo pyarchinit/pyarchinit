@@ -62,7 +62,7 @@ class Pyarchinit_OS_Utility(object):
                     raise
 
     @staticmethod
-    def checkGraphvizInstallation():
+    def checkgraphvizinstallation():
         try:
             subprocess.call(['dot', '-V'])
             return True
@@ -70,7 +70,7 @@ class Pyarchinit_OS_Utility(object):
             return False
     
     @staticmethod
-    def checkPostgresInstallation():
+    def checkpostgresinstallation():
         try:
             subprocess.call(['pg_dump','-V'])
             return True
