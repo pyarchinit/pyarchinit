@@ -1985,7 +1985,7 @@ class generate_tomba_pdf(object):
 
         if self.L=='it':
             filename = '{}{}{}'.format(self.PDF_path, os.sep, 'Elenco Tomba.pdf')
-        elif self.L=='it':
+        elif self.L=='de':
             filename = '{}{}{}'.format(self.PDF_path, os.sep, 'Listen_thaphonomie.pdf')
         else:
             filename = '{}{}{}'.format(self.PDF_path, os.sep, 'List_taphonomic.pdf')    
