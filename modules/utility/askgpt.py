@@ -2,19 +2,21 @@
 from qgis.PyQt.QtWidgets import *
 import socket
 import sys, subprocess
-def install_package(package_name):
-    try:
-        subprocess.check_call([sys.executable, "-m", "pip", "install", package_name], shell=False)
-        print(f"{package_name} installed successfully")
-    except subprocess.CalledProcessError as e:
-        print(f"Failed to install {package_name}. Error: {e}")
-
 try:
     import openai
+
     print("openai is already installed")
 except ImportError:
     print("openai is not installed, installing...")
-    install_package("openai")
+    if sys.platform.startswith("win"):
+        subprocess.check_call(["pip", "install", "openai"],shell = False)
+    elif sys.platform.startswith("darwin"):
+        subprocess.check_call([ "python3", "-m", "pip", "install", "openai"],shell = False )
+    elif sys.platform.startswith("linux"):
+        subprocess.check_call(["pip", "install", "openai"],shell = False)
+    else:
+        raise Exception(f"Unsupported platform: {sys.platform}")
+    print("openai installed successfully")
 import time
 import os
 class MyApp(QWidget):
