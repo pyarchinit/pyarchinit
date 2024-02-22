@@ -9,11 +9,11 @@ try:
 except ImportError:
     print("openai is not installed, installing...")
     if sys.platform.startswith("win"):
-        subprocess.check_call(["pip", "install", "openai"],shell = False)
+        subprocess.call(["pip", "install", "openai"],shell = False)
     elif sys.platform.startswith("darwin"):
-        subprocess.check_call([ "python3", "-m", "pip", "install", "openai"],shell = False )
+        subprocess.call([ "/Applications/QGIS.app/Contents/MacOS/bin/python3", "-m", "pip","install", "openai"],shell = False )
     elif sys.platform.startswith("linux"):
-        subprocess.check_call(["pip", "install", "openai"],shell = False)
+        subprocess.call(["pip", "install", "openai"],shell = False)
     else:
         raise Exception(f"Unsupported platform: {sys.platform}")
     print("openai installed successfully")
