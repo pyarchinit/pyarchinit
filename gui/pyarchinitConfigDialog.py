@@ -119,11 +119,10 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         self.pushButton_compare.clicked.connect(self.compare)
         self.pushButton_import.clicked.connect(self.on_pushButton_import_pressed)
         self.graphviz_bin = s.value('pyArchInit/graphvizBinPath', None, type=str)
-
         if self.graphviz_bin:
             self.lineEditGraphviz.setText(self.graphviz_bin)
 
-        if Pyarchinit_OS_Utility.checkGraphvizInstallation():
+        if Pyarchinit_OS_Utility.checkgraphvizinstallation():
             self.pushButtonGraphviz.setEnabled(False)
             self.pbnSaveEnvironPath.setEnabled(False)
             self.lineEditGraphviz.setEnabled(False)
@@ -132,7 +131,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         if self.postgres_bin:
             self.lineEditPostgres.setText(self.postgres_bin)
 
-        if Pyarchinit_OS_Utility.checkPostgresInstallation():
+        if Pyarchinit_OS_Utility.checkpostgresinstallation():
             self.pushButtonPostgres.setEnabled(False)
             self.pbnSaveEnvironPathPostgres.setEnabled(False)
             self.lineEditPostgres.setEnabled(False)
