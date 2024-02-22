@@ -2200,7 +2200,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             if values.__contains__(l):
                 lang = str(key)
         lang = "'" + lang + "'"
-        if not Pyarchinit_OS_Utility.checkGraphvizInstallation():
+        if not Pyarchinit_OS_Utility.checkgraphvizinstallation():
             self.pushButton_export_matrix.setEnabled(False)
             self.pushButton_export_matrix.setToolTip("Funzione disabilitata")
         self.tableWidget_rapporti.setColumnWidth(0, 120)
