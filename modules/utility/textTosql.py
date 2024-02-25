@@ -1,5 +1,5 @@
 import requests
-from PyQt5.QtWidgets import QMessageBox
+from qgis.PyQt.QtWidgets import QMessageBox
 
 from . import database_schema
 
