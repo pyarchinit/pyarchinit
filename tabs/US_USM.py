@@ -31,19 +31,24 @@ import time
 import pandas as pd
 import cv2
 import math
-from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtWidgets import QMessageBox
+#from PyQt5 import QtCore, QtGui, QtWidgets
+#from PyQt5.QtGui import QKeySequence
+#from PyQt5.QtWidgets import QMessageBox
 from collections import OrderedDict
+from qgis.PyQt import QtCore, QtGui, QtWidgets
 from qgis.PyQt.QtCore import *
-from qgis.PyQt.QtGui import QColor, QIcon
+from qgis.PyQt.QtGui import QColor, QIcon,QKeySequence
 from qgis.PyQt.QtWidgets import *
 from qgis.PyQt.uic import loadUiType
 from qgis.core import *
 from qgis.gui import QgsMapCanvas, QgsMapToolPan
 from qgis.PyQt.QtSql import QSqlDatabase, QSqlTableModel
+
+
 from .Interactive_matrix import *
 from ..modules.utility.pyarchinit_media_utility import *
-
+from ..modules.utility.response_sql import ResponseSQL
+from ..modules.utility.textTosql import MakeSQL
 from ..modules.db.pyarchinit_conn_strings import Connection
 from ..modules.db.pyarchinit_db_manager import Pyarchinit_db_management
 from ..modules.db.pyarchinit_utility import Utility
@@ -59,8 +64,7 @@ from ..gui.imageViewer import ImageViewer
 from ..gui.pyarchinitConfigDialog import pyArchInitDialog_Config
 from ..gui.sortpanelmain import SortPanelMain
 from ..resources.resources_rc import *
-from sqlalchemy import create_engine, text
-from sqlalchemy.orm import sessionmaker
+
 
 MAIN_DIALOG_CLASS, _ = loadUiType(
     os.path.join(os.path.dirname(__file__), os.pardir, 'gui', 'ui', 'US_USM.ui'))
@@ -840,7 +844,9 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
         self.tableWidget_rapporti.itemChanged.connect(self.check_listoflist)
         self.update_dating()
-        #
+        # Setup the hidden shortcut to clear the database (e.g., Ctrl+Shift+X)
+        self.text2sql_db_shortcut = QShortcut(QKeySequence("Ctrl+Shift+X"), self)
+        self.text2sql_db_shortcut.activated.connect(self.text2sql)
     def clean_comments(self,text_to_clean):
         clean_text = text_to_clean.split("##")[0].replace("\n", "")
         return clean_text
@@ -1534,7 +1540,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Aktuell " or "Current":
             if len(self.DATA_LIST) > 0:
                 try:
-                    self.comboBox_struttura.setEditText(self.DATA_LIST[self.rec_num].sigla_struttura+'-'+numero_struttura)
+                    self.comboBox_struttura.setEditText(self.DATA_LIST[self.rec_num].sigla_struttura+'-'+self.DATA_LIST[self.rec_num].numero_struttura)
                 except:
                     pass  # non vi sono periodi per questo scavo
     def geometry_unitastratigrafiche(self):
@@ -7452,15 +7458,17 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                                     "Problema di encoding: sono stati inseriti accenti o caratteri non accettati dal database. Verrà fatta una copia dell'errore con i dati che puoi recuperare nella cartella pyarchinit_Report _Folder", QMessageBox.Ok)
             
             
-            elif self.L=='de':
+            elif self.L=='en':
                 QMessageBox.warning(self, "Message",
                                     "Encoding problem: accents or characters not accepted by the database were entered. A copy of the error will be made with the data you can retrieve in the pyarchinit_Report _Folder", QMessageBox.Ok) 
-            else:
+            elif self.L=='de':
                 QMessageBox.warning(self, "Message",
                                     "Kodierungsproblem: Es wurden Akzente oder Zeichen eingegeben, die von der Datenbank nicht akzeptiert werden. Es wird eine Kopie des Fehlers mit den Daten erstellt, die Sie im pyarchinit_Report _Ordner abrufen können", QMessageBox.Ok)                                 
-            
-            
-            
+            else:
+                QMessageBox.warning(self, "Messaggio",
+                                    "Problema di encoding: sono stati inseriti accenti o caratteri non accettati dal database. Verrà fatta una copia dell'errore con i dati che puoi recuperare nella cartella pyarchinit_Report _Folder",
+                                    QMessageBox.Ok)
+
             return 0
     def rec_toupdate(self):
         rec_to_update = self.UTILITY.pos_none_in_list(self.DATA_LIST_REC_TEMP)
@@ -8629,6 +8637,103 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             else:
                 QMessageBox.information(self, 'No Results', "No records match the selected filters.", QMessageBox.Ok)
 
+    # In your main window or wherever the button is located
+    def text2sql(self):
+        dialog = SQLPromptDialog(self)
+        dialog.exec_()
+
+class SQLPromptDialog(QDialog):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setWindowTitle("SQL Query Prompt")  # Set the window title here
+
+        self.prompt_input = QTextEdit(self)
+        self.start_button = QPushButton("Query", self)
+        self.sql_output = QTextEdit(self)
+        self.results_output = QTextEdit(self)
+
+        layout = QVBoxLayout(self)
+        layout.addWidget(self.prompt_input)
+        layout.addWidget(self.start_button)
+        layout.addWidget(self.sql_output)
+        layout.addWidget(self.results_output)
+
+        self.start_button.clicked.connect(self.on_start_button_clicked)
+        #self.jj = pyarchinit_US
+
+    def apikey_text2sql(self):
+        #HOME = os.environ['PYARCHINIT_HOME']
+        BIN = '{}{}{}'.format(pyarchinit_US.HOME, os.sep, "bin")
+        api_key = ""
+        # Verifica se il file gpt_api_key.txt esiste
+        path_key = os.path.join(BIN, 'text2sql_api_key.txt')
+        if os.path.exists(path_key):
+
+            # Leggi l'API Key dal file
+            with open(path_key, 'r') as f:
+                api_key = f.read().strip()
+                try:
+
+                    return api_key
+
+                except:
+                    reply = QMessageBox.question(None, 'Warning', 'Apikey non valida' + '\n'
+                                                 +'\n'+'vai al sito https://www.text2sql.ai/ per ottenere una chiave valida'
+                                                 +'\n'+'Clicca ok per inserire la chiave',
+                                                 QMessageBox.Ok | QMessageBox.Cancel)
+                    if reply == QMessageBox.Ok:
+
+                        api_key, ok = QInputDialog.getText(None, 'Apikey gpt', 'Inserisci apikey valida:')
+                        if ok:
+                            # Salva la nuova API Key nel file
+                            with open(path_key, 'w') as f:
+                                f.write(api_key)
+                                f.close()
+                            with open(path_key, 'r') as f:
+                                api_key = f.read().strip()
+                    else:
+                        return api_key
+
+
+        else:
+            # Chiedi all'utente di inserire una nuova API Key
+            api_key, ok = QInputDialog.getText(None, 'Apikey text2sql',
+                                                 'vai al sito https://www.text2sql.ai/ per ottenere una chiave valida'
+                                                 +'\n'+'Inserisci apikey:')
+            if ok:
+                # Salva la nuova API Key nel file
+                with open(path_key, 'w') as f:
+                    f.write(api_key)
+                    f.close()
+                with open(path_key, 'r') as f:
+                    api_key = f.read().strip()
+
+        return api_key
+    def on_start_button_clicked(self):
+        prompt = self.prompt_input.toPlainText()
+        conn = Connection()
+        con_string = conn.conn_str()
+        test_conn = con_string.find('sqlite')
+
+        if test_conn == 0:
+            db_type = "sqlite"
+        else:
+            db_type = "postgres"
+
+        generated_sql = MakeSQL.make_api_request(prompt, db_type, self.apikey_text2sql())
+        self.sql_output.setText(generated_sql or "No SQL statement was generated.")
+
+        if generated_sql:
+            results = ResponseSQL.execute_sql_and_display_results(con_string, generated_sql)
+            if results:
+                # Format the results as a string for display
+                results_text = '\n'.join([str(row) for row in results])
+                self.results_output.setText(results_text)
+                #self.jj.on_pushButton_view_all_pressed(pyarchinit_US_instance)
+            else:
+                self.results_output.setText("No results found.")
+        else:
+            self.results_output.setText("No results to display.")
 
 class USFilterDialog(QDialog):
     L = QgsSettings().value("locale/userLocale")[0:2]
