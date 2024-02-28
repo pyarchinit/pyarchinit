@@ -34,7 +34,12 @@ import math
 #from PyQt5 import QtCore, QtGui, QtWidgets
 #from PyQt5.QtGui import QKeySequence
 #from PyQt5.QtWidgets import QMessageBox
-from collections import OrderedDict
+from collections import OrderedDict, Counter
+
+import matplotlib
+matplotlib.use('QT5Agg')  # Assicurati di chiamare use() prima di importare FigureCanvas
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+
 from qgis.PyQt import QtCore, QtGui, QtWidgets
 from qgis.PyQt.QtCore import *
 from qgis.PyQt.QtGui import QColor, QIcon,QKeySequence
@@ -8639,30 +8644,151 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
     # In your main window or wherever the button is located
     def text2sql(self):
-        dialog = SQLPromptDialog(self)
+        dialog = SQLPromptDialog(iface=self.iface)
         dialog.exec_()
 
+# class SQLPromptDialog(QDialog):
+#     def __init__(self, parent=None):
+#         super().__init__(parent)
+#         self.setWindowTitle("SQL Query Prompt")  # Set the window title here
+#
+#         self.prompt_input = QTextEdit(self)
+#         self.start_button = QPushButton("Query", self)
+#         self.sql_output = QTextEdit(self)
+#         self.results_output = QTextEdit(self)
+#
+#         layout = QVBoxLayout(self)
+#         layout.addWidget(self.prompt_input)
+#         layout.addWidget(self.start_button)
+#         layout.addWidget(self.sql_output)
+#         layout.addWidget(self.results_output)
+#
+#         self.start_button.clicked.connect(self.on_start_button_clicked)
+#         #self.jj = pyarchinit_US
+#
+#     def apikey_text2sql(self):
+#         #HOME = os.environ['PYARCHINIT_HOME']
+#         BIN = '{}{}{}'.format(pyarchinit_US.HOME, os.sep, "bin")
+#         api_key = ""
+#         # Verifica se il file gpt_api_key.txt esiste
+#         path_key = os.path.join(BIN, 'text2sql_api_key.txt')
+#         if os.path.exists(path_key):
+#
+#             # Leggi l'API Key dal file
+#             with open(path_key, 'r') as f:
+#                 api_key = f.read().strip()
+#                 try:
+#
+#                     return api_key
+#
+#                 except:
+#                     reply = QMessageBox.question(None, 'Warning', 'Apikey non valida' + '\n'
+#                                                  +'\n'+'vai al sito https://www.text2sql.ai/ per ottenere una chiave valida'
+#                                                  +'\n'+'Clicca ok per inserire la chiave',
+#                                                  QMessageBox.Ok | QMessageBox.Cancel)
+#                     if reply == QMessageBox.Ok:
+#
+#                         api_key, ok = QInputDialog.getText(None, 'Apikey gpt', 'Inserisci apikey valida:')
+#                         if ok:
+#                             # Salva la nuova API Key nel file
+#                             with open(path_key, 'w') as f:
+#                                 f.write(api_key)
+#                                 f.close()
+#                             with open(path_key, 'r') as f:
+#                                 api_key = f.read().strip()
+#                     else:
+#                         return api_key
+#
+#
+#         else:
+#             # Chiedi all'utente di inserire una nuova API Key
+#             api_key, ok = QInputDialog.getText(None, 'Apikey text2sql',
+#                                                  'vai al sito https://www.text2sql.ai/ per ottenere una chiave valida'
+#                                                  +'\n'+'Inserisci apikey:')
+#             if ok:
+#                 # Salva la nuova API Key nel file
+#                 with open(path_key, 'w') as f:
+#                     f.write(api_key)
+#                     f.close()
+#                 with open(path_key, 'r') as f:
+#                     api_key = f.read().strip()
+#
+#         return api_key
+#     def on_start_button_clicked(self):
+#         prompt = self.prompt_input.toPlainText()
+#         conn = Connection()
+#         con_string = conn.conn_str()
+#         test_conn = con_string.find('sqlite')
+#
+#         if test_conn == 0:
+#             db_type = "sqlite"
+#         else:
+#             db_type = "postgres"
+#
+#         generated_sql = MakeSQL.make_api_request(prompt, db_type, self.apikey_text2sql())
+#         self.sql_output.setText(generated_sql or "No SQL statement was generated.")
+#
+#         if generated_sql:
+#             results = ResponseSQL.execute_sql_and_display_results(con_string, generated_sql)
+#             if results:
+#                 # Format the results as a string for display
+#                 results_text = '\n'.join([str(row) for row in results])
+#                 self.results_output.setText(results_text)
+#                 #self.jj.on_pushButton_view_all_pressed(pyarchinit_US_instance)
+#             else:
+#                 self.results_output.setText("No results found.")
+#         else:
+#             self.results_output.setText("No results to display.")
+
+
 class SQLPromptDialog(QDialog):
-    def __init__(self, parent=None):
+    def __init__(self, iface, parent=None):
         super().__init__(parent)
-        self.setWindowTitle("SQL Query Prompt")  # Set the window title here
-
+        self.data = None
+        self.iface = iface
+        self.setWindowTitle("SQL Query Prompt")
         self.prompt_input = QTextEdit(self)
-        self.start_button = QPushButton("Query", self)
-        self.sql_output = QTextEdit(self)
-        self.results_output = QTextEdit(self)
+        self.start_button = QPushButton("Execute Query", self)
+        self.explain_button = QPushButton("Explain Query", self)
+        self.explain_button.setEnabled(False)
 
+        self.sql_output = QTextEdit(self)
+        self.prompt_input.textChanged.connect(self.handle_text_changed)
+
+
+        self.results_output = QTextEdit(self)
+        self.export_to_excel_button = QPushButton("Export to Excel", self)
+        self.export_to_excel_button.setEnabled(False)
+        self.create_graph_button = QPushButton("Create Graph", self)
+        self.create_graph_button.setEnabled(False)
         layout = QVBoxLayout(self)
         layout.addWidget(self.prompt_input)
         layout.addWidget(self.start_button)
+        layout.addWidget(self.explain_button)
         layout.addWidget(self.sql_output)
         layout.addWidget(self.results_output)
+        layout.addWidget(self.export_to_excel_button)
+        layout.addWidget(self.create_graph_button)
 
         self.start_button.clicked.connect(self.on_start_button_clicked)
-        #self.jj = pyarchinit_US
+        self.explain_button.clicked.connect(self.on_explainsql_button_clicked)
+        self.export_to_excel_button.clicked.connect(self.on_export_to_excel_button_clicked)
+        self.create_graph_button.clicked.connect(self.on_create_graph_button_clicked)
+        #self.explain_button.clicked.connect(self.on_explain_button_clicked)
 
+    def handle_text_changed(self):
+        if self.is_sql_query(self.prompt_input.toPlainText()):
+            self.explain_button.setEnabled(True)
+        else:
+            self.explain_button.setEnabled(False)
+    @staticmethod
+    def is_sql_query(query):
+        keywords = ['select', 'update', 'insert', 'delete', 'create', 'drop', 'alter',
+                    'truncate', 'grant', 'revoke', 'commit', 'rollback', 'savepoint', 'set', 'show']
+        return any(re.search(f'^{keyword}', query, re.IGNORECASE) for keyword in keywords)
     def apikey_text2sql(self):
-        #HOME = os.environ['PYARCHINIT_HOME']
+
+
         BIN = '{}{}{}'.format(pyarchinit_US.HOME, os.sep, "bin")
         api_key = ""
         # Verifica se il file gpt_api_key.txt esiste
@@ -8709,6 +8835,8 @@ class SQLPromptDialog(QDialog):
                     api_key = f.read().strip()
 
         return api_key
+
+
     def on_start_button_clicked(self):
         prompt = self.prompt_input.toPlainText()
         conn = Connection()
@@ -8723,17 +8851,174 @@ class SQLPromptDialog(QDialog):
         generated_sql = MakeSQL.make_api_request(prompt, db_type, self.apikey_text2sql())
         self.sql_output.setText(generated_sql or "No SQL statement was generated.")
 
-        if generated_sql:
-            results = ResponseSQL.execute_sql_and_display_results(con_string, generated_sql)
-            if results:
-                # Format the results as a string for display
-                results_text = '\n'.join([str(row) for row in results])
-                self.results_output.setText(results_text)
-                #self.jj.on_pushButton_view_all_pressed(pyarchinit_US_instance)
+        try:
+            if generated_sql:
+                results = ResponseSQL.execute_sql_and_display_results(con_string, generated_sql)
+                if results:
+                    self.populate_results_list(results)
+                    self.export_to_excel_button.setEnabled(True)
+                    # Check if the table has exactly 2 columns
+                    if self.results_table.columnCount() == 2:
+
+                        self.create_graph_button.setEnabled(True)
+                    else:
+                        self.results_output.setText("il risultato non è adatto per creare un grafico.\n"
+                                                    "devono essere presenti solo due colonne,\n "
+                                                    "di cui la prima è la categoria e la seconda le quantità")
+                        self.create_graph_button.setEnabled(False)
+                else:
+                    self.results_output.setText("No results found.")
+                    self.export_to_excel_button.setEnabled(False)
+                    self.create_graph_button.setEnabled(False)
             else:
-                self.results_output.setText("No results found.")
+                self.results_output.setText("No results to display.")
+                self.export_to_excel_button.setEnabled(False)
+                self.create_graph_button.setEnabled(False)
+        except Exception as e:
+            self.results_output.setText(f"An error occurred: {e}")
+
+    def on_explainsql_button_clicked(self):
+        global tr, generated_explain
+        L=QgsSettings().value("locale/userLocale")[0:2]
+        prompt = self.prompt_input.toPlainText()
+
+        if L == "it":
+            tr=". Traduci in italiano"
+            generated_explain = MakeSQL.explain_request(prompt + f"{tr}", self.apikey_text2sql())
         else:
-            self.results_output.setText("No results to display.")
+            generated_explain = MakeSQL.explain_request(prompt, self.apikey_text2sql())
+        self.sql_output.setText(generated_explain)
+        #QMessageBox.information(self, 'Explain', f'Generated Explain: {generated_explain}', QMessageBox.Ok)
+
+    def populate_results_list(self, results):
+        # Assumiamo che 'results' sia una lista di tuple o RowProxy da una query SQLAlchemy core o ORM
+
+        if results:
+            # Se stai utilizzando il core di SQLAlchemy, puoi ottenere i nomi delle colonne così
+            # Per le query ORM, questo approccio deve essere adattato
+            column_names = results[0].keys() if results else []
+
+            row, col = len(results), len(column_names)
+            self.results_table = QTableWidget(row, col)
+
+            # Imposta i nomi delle colonne nella QTableWidget
+            self.results_table.setHorizontalHeaderLabels(column_names)
+
+            # Popola la tabella con i risultati
+            for i, row_data in enumerate(results):
+                for j, value in enumerate(row_data):
+                    item = QTableWidgetItem(str(value))
+                    self.results_table.setItem(i, j, item)
+
+            # Aggiungi la tabella al layout
+            self.layout().addWidget(self.results_table)
+
+    def on_export_to_excel_button_clicked(self):
+        EXC = '{}{}{}'.format(pyarchinit_US.HOME, os.sep, "pyarchinit_EXCEL_folder")
+
+        # Conta il numero di righe e colonne nella tabella
+        rows = self.results_table.rowCount()
+        cols = self.results_table.columnCount()
+
+        # Raccogli i dati dalla tabella
+        data = []
+        for row in range(rows):
+            rowdata = []
+            for col in range(cols):
+                item = self.results_table.item(row, col)
+                if item is not None:
+                    rowdata.append(item.text())
+                else:
+                    rowdata.append('')
+            data.append(rowdata)
+
+        # Raccogli i nomi delle colonne dalla tabella per usarli come intestazioni nel DataFrame
+        column_headers = [self.results_table.horizontalHeaderItem(i).text() for i in range(cols)]
+
+        # Crea DataFrame con i dati e le intestazioni delle colonne
+        df = pd.DataFrame(data, columns=column_headers)
+        exc_result = os.path.join(EXC, 'export_result_sql.xlsx')
+
+        # Salva in Excel
+        df.to_excel(exc_result, index=False)
+        self.results_output.setText(f"Exported in {exc_result}")
+
+    def on_create_graph_button_clicked(self):
+        try:
+            # Raccogli i dati da `results_table`
+            data = []
+            for i in range(self.results_table.rowCount()):
+                category = self.results_table.item(i, 0).text()
+                value = float(self.results_table.item(i, 1).text())
+                data.append((category, value))
+
+            # Crea la finestra di dialogo del grafico e passa i dati
+            self.graph_window = GraphWindow()
+            self.graph_window.plot(data)  # Assumiamo che `plot` disegni il grafico
+
+            # Crea un nuovo QDockWidget e imposta il graph_window come suo widget
+            dockWidget = QDockWidget("Graph Widget", self)
+            dockWidget.setWidget(self.graph_window)  # Imposta il graph_window come widget del dock
+
+            # Aggiungi il dock widget all'interfaccia utente di QGIS
+            self.iface.addDockWidget(Qt.BottomDockWidgetArea, dockWidget)
+            dockWidget.show()  # Assicurati che il dock widget sia visibile
+        except Exception as e:
+            self.results_output.setText(f"An error occurred: {e}")
+
+    def on_explain_button_clicked(self):
+        prompt = self.prompt_input.toPlainText()
+class MplCanvas(FigureCanvas):
+    def __init__(self, parent=None):
+        fig = Figure()
+        self.axes = fig.add_subplot(111)
+        super().__init__(fig)
+
+
+class GraphWindow(QDockWidget):
+    def __init__(self):
+        super(GraphWindow, self).__init__()  # Utilizza super() per inizializzare la classe base
+
+        # Crea un'istanza di MplCanvas
+        self.canvas = MplCanvas()
+
+        # Usa setWidget per aggiungere il canvas al QDockWidget
+        self.setWidget(self.canvas)
+
+    def plot(self, data):
+        # La tua logica di plotting va qui, usando `data`
+        self.canvas.figure.clear()
+        ax = self.canvas.figure.add_subplot(111)
+        categories, values = zip(*data)  # Se i dati sono passati come tuple di (categoria, valore)
+        #ax.bar(categories, values)
+        # Configura ulteriormente il grafico come desiderato
+        #self.canvas.draw()
+
+        # calculate categories totals
+        total_categories = Counter(category for category, value in data)
+
+        # calculate total values
+        total_values = sum(value for category, value in data)
+
+        # create labels and calculate percentages
+        labels = [category for category, value in data]
+        values = [value for category, value in data]
+        percentages = [value / total_values * 100 for value in values]
+
+
+        bars = ax.bar(labels, percentages)
+
+        # rotate labels if they overlap
+        self.canvas.figure.autofmt_xdate()
+
+        # add totals and percentages on top of each bar
+        for i, bar in enumerate(bars):
+            yval = bar.get_height()
+            total = total_categories[labels[i]]
+            ax.text(bar.get_x() + bar.get_width() / 2, yval + 0.01,
+                    f"{yval:.1f}%", ha='center', va='bottom')
+
+        self.canvas.figure.canvas.draw_idle()
 
 class USFilterDialog(QDialog):
     L = QgsSettings().value("locale/userLocale")[0:2]

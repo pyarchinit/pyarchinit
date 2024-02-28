@@ -18,7 +18,7 @@ class ResponseSQL:
                 else:
                     connection.execute(sql)
                     #connection.commit()  # Commit the transaction for INSERT/UPDATE/DELETE
-                    return 'Database aggiornato'  # No result set to return
+                    return 'Database updated'  # No result set to return
         except SQLAlchemyError as e:
             print(f"SQLAlchemy Error: {e}")
             return None
