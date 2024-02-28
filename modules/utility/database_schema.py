@@ -11,7 +11,7 @@ from modules.db.structures_metadata.Inventario_materiali_table import Inventario
 # from modules.db.structures_metadata.Media_table import Media_table
 # from modules.db.structures_metadata.Media_thumb_table import Media_thumb_table
 from modules.db.structures_metadata.Media_to_Entity_table import Media_to_Entity_table
-# from modules.db.structures_metadata.Media_to_Entity_table_view import Media_to_Entity_table_view
+from modules.db.structures_metadata.Media_to_Entity_table_view import Media_to_Entity_table_view
 # from modules.db.structures_metadata.PDF_administrator_table import PDF_administrator_table
 from modules.db.structures_metadata.Periodizzazione_table import Periodizzazione_table
 # from modules.db.structures_metadata.Pyarchinit_thesaurus_sigle import Pyarchinit_thesaurus_sigle
@@ -55,7 +55,7 @@ Inventario_materiali_table.define_table(metadata)
 # Media_table(metadata)
 # Media_thumb_table(metadata)
 Media_to_Entity_table.define_table(metadata)
-#Media_to_Entity_table_view.define_table(metadata)
+Media_to_Entity_table_view.define_table(metadata)
 # PDF_administrator_table(metadata)
 Periodizzazione_table.define_table(metadata)
 # Pyarchinit_thesaurus_sigle(metadata)
