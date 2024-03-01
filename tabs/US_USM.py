@@ -19,8 +19,7 @@
 """
 from __future__ import absolute_import
 
-import psycopg2
-import traceback
+import logging
 import sqlite3 as sq
 from xml.etree.ElementTree import ElementTree as ET
 import csv
@@ -31,15 +30,12 @@ import time
 import pandas as pd
 import cv2
 import math
-#from PyQt5 import QtCore, QtGui, QtWidgets
-#from PyQt5.QtGui import QKeySequence
-#from PyQt5.QtWidgets import QMessageBox
 from collections import OrderedDict, Counter
 
 import matplotlib
+
 matplotlib.use('QT5Agg')  # Assicurati di chiamare use() prima di importare FigureCanvas
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
-
 from qgis.PyQt import QtCore, QtGui, QtWidgets
 from qgis.PyQt.QtCore import *
 from qgis.PyQt.QtGui import QColor, QIcon,QKeySequence
@@ -81,7 +77,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
     elif L=='en':
         MSG_BOX_TITLE = "PyArchInit - SU form"
     elif L=='de':
-        MSG_BOX_TITLE = "PyArchInit - SE formular"  
+        MSG_BOX_TITLE = "PyArchInit - SE formular"
     DATA_LIST = []
     DATA_LIST_REC_CORR = []
     DATA_LIST_REC_TEMP = []
@@ -90,10 +86,10 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
     SITO = pyArchInitDialog_Config
     if L=='it':
         STATUS_ITEMS = {"b": "Usa", "f": "Trova", "n": "Nuovo Record"}
-    
+
     if L=='de':
         STATUS_ITEMS = {"b": "Aktuell ", "f": "Finden", "n": "Neuer Rekord"}
-    
+
     else :
         STATUS_ITEMS = {"b": "Current", "f": "Find", "n": "New Record"}
     BROWSE_STATUS = "b"
@@ -115,7 +111,28 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
     NOME_SCHEDA = "Scheda US"
     ID_TABLE = "id_us"
     ID_SITO ="sito"
-
+    RAPP_MAP = {
+        'Riempito da': 'Riempie',
+        'Tagliato da': 'Taglia',
+        'Coperto da': 'Copre',
+        'Si appoggia a': 'Gli si appoggia',
+        'Riempie': 'Riempito da',
+        'Taglia': 'Tagliato da',
+        'Copre': 'Coperto da',
+        'Gli si appoggia': 'Si appoggia a',
+        'Filled by': 'Fills',
+        'Cut by': 'Cuts',
+        'Covered by': 'Covers',
+        'Abuts': 'Supports',
+        'Fills': 'Filled by',
+        'Cuts': 'Cut by',
+        'Covers': 'Covered by',
+        'Supports': 'Abuts',
+        '>>': '<<',
+        '<<': '>>',
+        '>': '<',
+        '<': '>',
+    }
     if L=='it':
         CONVERSION_DICT = {
             ID_TABLE: ID_TABLE,
@@ -1001,29 +1018,26 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.pushButton_view_all.click()
 
     def on_pushButton_fix_pressed(self):
-        sito = "'"+self.comboBox_sito.currentText()+"'"
-        area = "'"+self.comboBox_area.currentText()+"'"
-        search_dict = {'sito': sito, 'area': area}
-        records = self.DB_MANAGER.query_bool(search_dict,
-                                             self.MAPPER_TABLE_CLASS)
-                                          
-        #self.on_pushButton_next_rec_pressed()
-        for rec in range(len(records)):
+        sito = self.comboBox_sito.currentText()
+        area = self.comboBox_area.currentText()
+        search_dict = {'sito': f"'{sito}'", 'area': f"'{area}'"}
+        records = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
+
+        # Assuming view_all() refreshes the table view with the updated records,
+        # it should be called once after all updates are made.
+        # The same goes for check_listoflist(), if it's meant to validate all rows,
+        # it should be called once. If these methods need to be called per row,
+        # then they should be included in the loop.
+
+
+        # Process each record and update the UI accordingly
+        for _ in records:
             self.checkBox_validation_rapp.setChecked(True)
-            #self.on_pushButton_next_rec_pressed()
-            for row in range(self.tableWidget_rapporti.rowCount()):
-                table_item = self.tableWidget_rapporti.item(row, 1)
-                # row_data = table_item.data(QtCore.Qt.UserRole)
-                # row_id = row_data
-                self.tableWidget_rapporti.selectRow(row)  
-                
+
             self.check_listoflist()
-            #self.on_pushButton_next_rec_pressed()
-                
-            value = (float(row)/float(self.tableWidget_rapporti.rowCount()))*100
-            self.progressBar_3.setValue(value)
-            QApplication.processEvents()
-        self.progressBar_3.reset()       
+        #self.view_all()
+
+
     def unit_type_select(self):
         try: 
             dialog = QInputDialog()
@@ -1055,8 +1069,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
     def check_listoflist(self):
         if self.checkBox_validation_rapp.isChecked():
             try:
-                
-                
+
+
                 table_name = "self.tableWidget_rapporti"
                 rowSelected_cmd = ("%s.selectedItems()") % (table_name)
                 rowSelected = eval(rowSelected_cmd)
@@ -1071,49 +1085,49 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 #print(us)
                 rapp_item = self.tableWidget_rapporti.item(rowIndex,0)
                 rapp = str(rapp_item.text())
-                
-                
+
+
                 self.save_rapp()
-                
+
                 if rapp =='Riempito da':
-                    rapp='Riempie'             
+                    rapp='Riempie'
                 elif rapp =='Tagliato da':
-                    rapp='Taglia' 
+                    rapp='Taglia'
                 elif rapp =='Coperto da':
-                    rapp='Copre' 
+                    rapp='Copre'
                 elif rapp =='Si appoggia a':
-                    rapp='Gli si appoggia' 
+                    rapp='Gli si appoggia'
                 elif rapp =='Riempie':
-                    rapp='Riempito da'             
+                    rapp='Riempito da'
                 elif rapp =='Taglia':
-                    rapp='Tagliato da' 
+                    rapp='Tagliato da'
                 elif rapp =='Copre':
-                    rapp='Coperto da' 
+                    rapp='Coperto da'
                 elif rapp =='Gli si appoggia':
-                    rapp='Si appoggia a'             
+                    rapp='Si appoggia a'
                 elif rapp =='Filled by':
-                    rapp='Fills'             
+                    rapp='Fills'
                 elif rapp =='Cut by':
-                    rapp='Cuts' 
+                    rapp='Cuts'
                 elif rapp =='Covered by':
-                    rapp='Covers' 
+                    rapp='Covers'
                 elif rapp =='Abuts':
-                    rapp='Supports' 
+                    rapp='Supports'
                 elif rapp =='Fills':
-                    rapp='Filled by'             
+                    rapp='Filled by'
                 elif rapp =='Cuts':
-                    rapp='Cut by' 
+                    rapp='Cut by'
                 elif rapp =='Covers':
-                    rapp='Covered by' 
+                    rapp='Covered by'
                 elif rapp =='Supports':
-                    rapp='Abuts'    
-                
+                    rapp='Abuts'
+
                 elif rapp =='>>':
-                    rapp='<<'     
+                    rapp='<<'
                 elif rapp =='<<':
                     rapp='>>'
                 elif rapp =='>':
-                    rapp='<'     
+                    rapp='<'
                 elif rapp =='<':
                     rapp='>'
                 search_dict = {'sito': "'" + str(sito) + "'",
@@ -1122,19 +1136,19 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 u = Utility()
                 search_dict = u.remove_empty_items_fr_dict(search_dict)
                 res = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
-                
-                
+
+
                 if bool(res):
                     #self.tableWidget_rapporti.setCurrentItem(None)
                     #items = self.tableWidget_rapporti.findItems(us, Qt.MatchCase)
                     items = self.tableWidget_rapporti.findItems(us,Qt.MatchExactly)
                     #QMessageBox.warning(self,'',str(len(items)))
-                    
+
                     self.on_pushButton_go_to_us_pressed()
                     self.checkBox_validation_rapp.setChecked(False)
                     items2 = self.tableWidget_rapporti.findItems(us_current,Qt.MatchExactly)
                     #QMessageBox.warning(self,'',str(len(items2)))
-                    
+
                     if str(len(items))=='1' and str(len(items2))=='1':
                         try:
                             item=items2[0]
@@ -1145,45 +1159,51 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                         self.tableWidget_rapporti.setItem(y,0,QtWidgets.QTableWidgetItem(rapp))
                         self.tableWidget_rapporti.setItem(y,1,QtWidgets.QTableWidgetItem(us_current))
                         self.save_rapp()
-                        
+
                         self.tableWidget_rapporti.selectRow(y)
-                        self.on_pushButton_go_to_us_pressed() 
+                        self.on_pushButton_go_to_us_pressed()
                         #self.checkBox_validation_rapp.setChecked(False)
-                        
+
                     elif str(len(items))=='1' and str(len(items2))=='0':
-                    
+
                         self.on_pushButton_insert_row_rapporti_pressed()
                         self.tableWidget_rapporti.currentRow()
                         self.tableWidget_rapporti.setItem(0,0,QtWidgets.QTableWidgetItem(rapp))
                         self.tableWidget_rapporti.setItem(0,1,QtWidgets.QTableWidgetItem(us_current))
                         self.save_rapp()
                         self.tableWidget_rapporti.selectRow(0)
-                        self.on_pushButton_go_to_us_pressed()    
+                        self.on_pushButton_go_to_us_pressed()
                     else:
                         QMessageBox.warning(self,'','Controlla se hai duplicato una US o USM')
-                    
-                elif not bool(res): 
-                    
+
+                elif not bool(res):
+
                     tf=self.unit_type_select()
-                            
+
                     self.DB_MANAGER.insert_number_of_us_records(sito,area,us,tf)
-                    
-                    self.on_pushButton_go_to_us_pressed() 
+
+                    self.on_pushButton_go_to_us_pressed()
                     self.on_pushButton_insert_row_rapporti_pressed()
                     self.tableWidget_rapporti.currentRow()
-                    
+
                     a=self.tableWidget_rapporti.setItem(0,0,QtWidgets.QTableWidgetItem(rapp))
                     b=self.tableWidget_rapporti.setItem(0,1,QtWidgets.QTableWidgetItem(us_current))
-                    
+
                     self.save_rapp()
                     self.tableWidget_rapporti.selectRow(0)
                     self.on_pushButton_go_to_us_pressed()
-                   
-            except:         
-                pass
-    
+
+            except:
+                pass#QMessageBox.warning(self, 'error', str(e), QMessageBox.Ok)
+
+
         else:
-            pass
+            pass#QMessageBox.warning(self, 'error', 'Please select a rapport', QMessageBox.Ok)
+
+
+
+
+
     def check_v(self):
         if self.comboBox_per_iniz.currentText() =='':
             self.checkBox_validate.setHidden(True)
@@ -2062,7 +2082,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         except:
             pass
 
-        
+
     def on_pushButton_go_to_scheda_pressed(self):
         try:
             #table_name = "self.table"
@@ -4583,27 +4603,11 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             self.PDFFOLDER,
             " PDF (*.pdf)"
         )[0]
-        #filename=dbpath.split("/")[-1]
+
         if dbpath:
             self.lineEdit_pdf_path.setText(dbpath)
             s.setValue('',dbpath)
-    # def on_pushButton_convert_pressed(self):
-    #     # if not bool(self.setPathpdf()):
-    #         # QMessageBox.warning(self, "INFO", "devi scegliere un file pdf",
-    #                             # QMessageBox.Ok)
-    #     try:
-    #         pdf_file = self.lineEdit_pdf_path.text()
-    #         filename=pdf_file.split("/")[-1]
-    #         docx_file = self.PDFFOLDER+'/'+filename+'.docx'
-    #         # convert pdf to docx
-    #         parse(pdf_file, docx_file, start=self.lineEdit_pag1.text(), end=self.lineEdit_pag2.text())
-    #
-    #         QMessageBox.information(self, "INFO", "Conversion completed",
-    #                             QMessageBox.Ok)
-    #     except Exception as e:
-    #         QMessageBox.warning(self, "Error", str(e),
-    #                             QMessageBox.Ok)
-    
+
     def setPathdot(self):
         s = QgsSettings()
         dbpath = QFileDialog.getOpenFileName(
@@ -4612,7 +4616,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             self.MATRIX_PATH,
             " Dot (*.dot)"
         )[0]
-        #filename=dbpath.split("/")[-1]
+
         if dbpath:
             self.lineEdit_input.setText(dbpath)
             s.setValue('',dbpath)
@@ -4625,7 +4629,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             self.MATRIX_PATH,
             " Graphml (*.graphml)"
         )[0]
-        #filename=dbpath.split("/")[-1]
+
         if dbpath:
             self.lineEdit_output.setText(dbpath)
             s.setValue('',dbpath)
@@ -4714,28 +4718,35 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 #     # Perform your query using SQLAlchemy ORM or Core
                 #     result2 = session.execute(text("""
                 #         WITH RECURSIVE cte AS (
-                #             SELECT id_us,
-                #                    SPLIT_PART(rapporti, ';', 1) AS col,
-                #                    SUBSTRING(rapporti FROM POSITION(';' IN rapporti) + 1) AS rest
-                #             FROM (
-                #                 SELECT id_us, REGEXP_REPLACE(rapporti, '\[\[|\]\]|\],\[', ';', 'g') AS rapporti
-                #                 FROM us_table
-                #                 WHERE sito = :sito_location
-                #             ) AS foo
-                #             UNION ALL
-                #             SELECT id_us,
-                #                    SPLIT_PART(rest, ';', 1),
-                #                    SUBSTRING(rest FROM POSITION(';' IN rest) + 1)
+                #                 SELECT
+                #                     rowid,
+                #                     SPLIT_PART(rapporti, ';', 1) AS col,
+                #                     SUBSTRING(rapporti FROM POSITION(';' IN rapporti) + 1) AS rest
+                #                 FROM (
+                #                     SELECT
+                #                         rowid,
+                #                         REPLACE(REPLACE(REPLACE(rapporti, '[[', '['), ']]', ']'), '], [', '];[') AS rapporti
+                #                     FROM us_table
+                #                     WHERE sito = 'sito_location'
+                #                 ) AS initial
+                #
+                #                 UNION ALL
+                #
+                #                 SELECT
+                #                     rowid,
+                #                     SPLIT_PART(rest, ';', 1),
+                #                     SUBSTRING(rest FROM POSITION(';' IN rest) + 1)
+                #                 FROM cte
+                #                 WHERE LENGTH(rest) > 0
+                #             )
+                #             SELECT
+                #                 STRING_AGG(CASE WHEN col LIKE '[Copre,%' OR col LIKE '[Taglia,%' OR col LIKE '[Riempie,%' OR col LIKE '[Si appoggia a,%' THEN col END, ',') AS post,
+                #                 STRING_AGG(CASE WHEN col LIKE '[Coperto da,%' OR col LIKE '[Riempito da,%' OR col LIKE '[Tagliato da,%' OR col LIKE '[Gli si appoggia,%' THEN col END, ',') AS ante,
+                #                 STRING_AGG(CASE WHEN col LIKE '[Si lega a,%' OR col LIKE '[Uguale a,%' THEN col END, ',') AS contemp
                 #             FROM cte
-                #             WHERE rest <> ''
-                #         )
-                #         SELECT id_us,
-                #                STRING_AGG(CASE WHEN col LIKE 'Copre%' OR col LIKE 'Taglia%' OR col LIKE 'Riempie%' OR col LIKE 'Si appoggia a%' OR col LIKE 'Covers%' OR col LIKE 'Cuts%' OR col LIKE 'Fills%' OR col LIKE 'Abuts%' THEN col END, ',') AS post,
-                #                STRING_AGG(CASE WHEN col LIKE 'Coperto da%' OR col LIKE 'Riempito da%' OR col LIKE 'Tagliato da%' OR col LIKE 'Gli si appoggia%' OR col LIKE 'Covered by%' OR col LIKE 'Filled by%' OR col LIKE 'Cut by%' OR col LIKE 'Supports%' THEN col END, ',') AS ante,
-                #                STRING_AGG(CASE WHEN col LIKE 'Si lega a%' OR col LIKE 'Uguale a%' OR col LIKE 'Connected to%' OR col LIKE 'Same as%' THEN col END, ',') AS contemp
-                #         FROM cte
-                #         GROUP BY id_us
-                #         ORDER BY id_us;
+                #             GROUP BY rowid
+                #             ORDER BY rowid;
+                #
                 #     """), {'sito_location': sito_location})
                 #
                 #     rows2 = result2.fetchall()
@@ -4768,7 +4779,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
 
 
-            elif server=='sqlite':        
+            elif server=='sqlite' and self.L=='it':
             
                 
                 sqlite_DB_path = '{}{}{}'.format(self.HOME, os.sep,"pyarchinit_DB_folder")
@@ -4838,6 +4849,10 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 worksheet2.set_column('B:B', 30, None)
                 worksheet2.set_column('C:C', 30, None)
                 writer.close()
+
+            else:
+                pass
+
             QMessageBox.information(self, "INFO", "Conversion completed",
                                     QMessageBox.Ok)
         except KeyError as e:
@@ -4957,11 +4972,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             # report errori rapporti stratigrafici
             data = []
             # Blocca il sistema di ordinamento su un sito ed area specifci in base alla ricerca eseguita sulla scheda US
-            
-            
-            
-            
-            
+
             for sing_rec in self.DATA_LIST:
                 us = sing_rec.us
                 rapporti_stratigrafici = eval(sing_rec.rapporti)
@@ -6743,7 +6754,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             return 0  
             # records surf functions
     def on_pushButton_view_all_pressed(self):
-        
+
         self.checkBox_query.setChecked(False)
         if self.checkBox_query.isChecked():
             self.model_a.database().close()
@@ -6769,19 +6780,21 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         if self.checkBox_query.isChecked():
             self.model_a.database().close()
         self.empty_fields()
-        self.charge_records()
+        #self.charge_records()
         self.fill_fields()
         self.BROWSE_STATUS = "b"
         self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
-        if type(self.REC_CORR) == "<class 'str'>":
+        if isinstance(self.REC_CORR, str):
             corr = 0
         else:
             corr = self.REC_CORR
+
         self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR + 1)
         self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
         self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
         self.SORT_STATUS = "n"
         self.label_sort.setText(self.SORTED_ITEMS[self.SORT_STATUS])
+
     def on_pushButton_first_rec_pressed(self):
         
         self.checkBox_query.setChecked(False)
@@ -8647,98 +8660,6 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         dialog = SQLPromptDialog(iface=self.iface)
         dialog.exec_()
 
-# class SQLPromptDialog(QDialog):
-#     def __init__(self, parent=None):
-#         super().__init__(parent)
-#         self.setWindowTitle("SQL Query Prompt")  # Set the window title here
-#
-#         self.prompt_input = QTextEdit(self)
-#         self.start_button = QPushButton("Query", self)
-#         self.sql_output = QTextEdit(self)
-#         self.results_output = QTextEdit(self)
-#
-#         layout = QVBoxLayout(self)
-#         layout.addWidget(self.prompt_input)
-#         layout.addWidget(self.start_button)
-#         layout.addWidget(self.sql_output)
-#         layout.addWidget(self.results_output)
-#
-#         self.start_button.clicked.connect(self.on_start_button_clicked)
-#         #self.jj = pyarchinit_US
-#
-#     def apikey_text2sql(self):
-#         #HOME = os.environ['PYARCHINIT_HOME']
-#         BIN = '{}{}{}'.format(pyarchinit_US.HOME, os.sep, "bin")
-#         api_key = ""
-#         # Verifica se il file gpt_api_key.txt esiste
-#         path_key = os.path.join(BIN, 'text2sql_api_key.txt')
-#         if os.path.exists(path_key):
-#
-#             # Leggi l'API Key dal file
-#             with open(path_key, 'r') as f:
-#                 api_key = f.read().strip()
-#                 try:
-#
-#                     return api_key
-#
-#                 except:
-#                     reply = QMessageBox.question(None, 'Warning', 'Apikey non valida' + '\n'
-#                                                  +'\n'+'vai al sito https://www.text2sql.ai/ per ottenere una chiave valida'
-#                                                  +'\n'+'Clicca ok per inserire la chiave',
-#                                                  QMessageBox.Ok | QMessageBox.Cancel)
-#                     if reply == QMessageBox.Ok:
-#
-#                         api_key, ok = QInputDialog.getText(None, 'Apikey gpt', 'Inserisci apikey valida:')
-#                         if ok:
-#                             # Salva la nuova API Key nel file
-#                             with open(path_key, 'w') as f:
-#                                 f.write(api_key)
-#                                 f.close()
-#                             with open(path_key, 'r') as f:
-#                                 api_key = f.read().strip()
-#                     else:
-#                         return api_key
-#
-#
-#         else:
-#             # Chiedi all'utente di inserire una nuova API Key
-#             api_key, ok = QInputDialog.getText(None, 'Apikey text2sql',
-#                                                  'vai al sito https://www.text2sql.ai/ per ottenere una chiave valida'
-#                                                  +'\n'+'Inserisci apikey:')
-#             if ok:
-#                 # Salva la nuova API Key nel file
-#                 with open(path_key, 'w') as f:
-#                     f.write(api_key)
-#                     f.close()
-#                 with open(path_key, 'r') as f:
-#                     api_key = f.read().strip()
-#
-#         return api_key
-#     def on_start_button_clicked(self):
-#         prompt = self.prompt_input.toPlainText()
-#         conn = Connection()
-#         con_string = conn.conn_str()
-#         test_conn = con_string.find('sqlite')
-#
-#         if test_conn == 0:
-#             db_type = "sqlite"
-#         else:
-#             db_type = "postgres"
-#
-#         generated_sql = MakeSQL.make_api_request(prompt, db_type, self.apikey_text2sql())
-#         self.sql_output.setText(generated_sql or "No SQL statement was generated.")
-#
-#         if generated_sql:
-#             results = ResponseSQL.execute_sql_and_display_results(con_string, generated_sql)
-#             if results:
-#                 # Format the results as a string for display
-#                 results_text = '\n'.join([str(row) for row in results])
-#                 self.results_output.setText(results_text)
-#                 #self.jj.on_pushButton_view_all_pressed(pyarchinit_US_instance)
-#             else:
-#                 self.results_output.setText("No results found.")
-#         else:
-#             self.results_output.setText("No results to display.")
 
 
 class SQLPromptDialog(QDialog):
@@ -9136,7 +9057,5 @@ class IntegerDelegate(QtWidgets.QStyledItemDelegate):
         validator = QtGui.QIntValidator()
         editor.setValidator(validator)
         return editor
-
-
 
 
