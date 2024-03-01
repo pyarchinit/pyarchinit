@@ -1023,14 +1023,6 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         search_dict = {'sito': f"'{sito}'", 'area': f"'{area}'"}
         records = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
 
-        # Assuming view_all() refreshes the table view with the updated records,
-        # it should be called once after all updates are made.
-        # The same goes for check_listoflist(), if it's meant to validate all rows,
-        # it should be called once. If these methods need to be called per row,
-        # then they should be included in the loop.
-
-
-        # Process each record and update the UI accordingly
         for _ in records:
             self.checkBox_validation_rapp.setChecked(True)
 
