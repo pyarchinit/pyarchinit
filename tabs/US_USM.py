@@ -831,12 +831,13 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             
 
         self.comboBox_sito.currentTextChanged.connect(self.charge_periodo_iniz_list)
+        self.comboBox_unita_tipo.currentTextChanged.connect(self.charge_struttura_list)
         self.comboBox_sito.currentTextChanged.connect(self.charge_struttura_list)
         self.comboBox_per_iniz.currentIndexChanged.connect(self.charge_periodo_fin_list)
         self.comboBox_per_iniz.currentIndexChanged.connect(self.charge_fase_iniz_list)
         self.comboBox_sito.currentTextChanged.connect(self.geometry_unitastratigrafiche)### rallenta molto
         self.comboBox_sito.currentIndexChanged.connect(self.geometry_unitastratigrafiche)### rallenta molto
-        self.comboBox_sito.currentIndexChanged.connect(self.charge_insert_ra)
+        self.comboBox_unita_tipo.currentTextChanged.connect(self.charge_insert_ra)
         self.comboBox_sito.currentTextChanged.connect(self.charge_insert_ra)
         self.search_1.currentTextChanged.connect(self.update_filter)
         self.comboBox_per_fin.currentIndexChanged.connect(self.charge_fase_fin_list)
@@ -863,7 +864,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         
         
         self.comboBox_per_iniz.currentTextChanged.connect(self.check_v)
-
+        self.charge_insert_ra()
         self.tableWidget_rapporti.itemChanged.connect(self.check_listoflist)
         self.update_dating()
         # Setup the hidden shortcut to clear the database (e.g., Ctrl+Shift+X)
@@ -1237,52 +1238,49 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         for i in self.DATA_LIST:
             self.us_t()
         return
+
+
     def charge_insert_ra(self):
         try:
-            
-            us =str(self.lineEdit_us.text())
-        
+            current_sito = "'"+str(self.comboBox_sito.currentText())+"'"
+            current_area = "'" + str(self.DATA_LIST[self.REC_CORR].area) + "'"
+            current_us = "'" + str(self.DATA_LIST[self.REC_CORR].us) + "'"
+
+            # Ensure current_area and current_us are not None
+            if current_area is None or current_us is None:
+                return
+
             search_dict_inv = {
-                
-                'sito': "'" +str(self.comboBox_sito.currentText()) + "'",
-                'area': "'" + str(eval("self.DATA_LIST[int(self.REC_CORR)].area"))+ "'",
-                'us': "'" + str(eval("self.DATA_LIST[int(self.REC_CORR)].us"))+"'"
+                'sito': current_sito,
+                'area': current_area,
+                'us': current_us
             }
-        
-            inv_vl = self.DB_MANAGER.query_bool(search_dict_inv,'INVENTARIO_MATERIALI')
+
+            inv_vl = self.DB_MANAGER.query_bool(search_dict_inv, 'INVENTARIO_MATERIALI')
             inv_vl2 = self.DB_MANAGER.query_bool(search_dict_inv, 'POTTERY')
 
-            inv_list = []
-            inv_list2 = []
-            for i in range(len(inv_vl)):
-                inv_list.append(str(inv_vl[i].definizione)+' '+str(inv_vl[i].n_reperto))
-                #inv_list2.append('pottery_'+str(inv_vl2[e].id_number))
-                inv_list.sort()
-                #inv_list2.sort()
-            for i in range(len(inv_vl2)):
-                #inv_list.append(str(inv_vl[i].tipo_reperto)+'_'+str(inv_vl[i].n_reperto))
-                inv_list2.append('pottery '+str(inv_vl2[i].id_number))
-                #inv_list.sort()
-                inv_list2.sort()
+            # Build lists using list comprehensions
+            inv_list = [f"{item.tipo_reperto} {item.n_reperto}" for item in inv_vl if
+                        item.tipo_reperto and item.n_reperto]
+            inv_list2 = [f"{item.material} {item.id_number}" for item in inv_vl2 if item.material and item.id_number]
 
-            try:
-                inv_vl.remove('')
-                inv_vl2.remove('')
-            except :
-                pass
+            # Sort and remove duplicates
+            inv_list = sorted(set(inv_list))
+            inv_list2 = sorted(set(inv_list2))
+
+            # Update the QComboBox
             self.comboBox_ref_ra.clear()
-            self.comboBox_ref_ra.addItems(self.UTILITY.remove_dup_from_list(inv_list))
-            self.comboBox_ref_ra.addItems(self.UTILITY.remove_dup_from_list(inv_list2))
-            if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Finden" or "Find":
+            self.comboBox_ref_ra.addItems(inv_list + inv_list2)
+
+            # Set the edit text based on the browse status
+            browse_status = self.STATUS_ITEMS.get(self.BROWSE_STATUS, "")
+            if browse_status in ["Trova", "Finden", "Find"]:
                 self.comboBox_ref_ra.setEditText("")
-            elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Aktuell " or "Current":
-                if len(self.DATA_LIST) > 0:
-                    try:
-                        self.comboBox_ref_ra.setEditText(self.DATA_LIST[self.rec_num].ref_ra)
-                    except :
-                        pass
-        except:
-            pass
+            elif browse_status in ["Usa", "Aktuell", "Current"] and self.DATA_LIST:
+                self.comboBox_ref_ra.setEditText(self.DATA_LIST[self.rec_num].ref_ra)
+
+        except Exception as e:
+            print(f"An error occurred in charge_insert_ra: {e}")
 
     def charge_insert_ra_pottery(self):
         try:
@@ -8661,7 +8659,8 @@ class SQLPromptDialog(QDialog):
         self.iface = iface
         self.setWindowTitle("SQL Query Prompt")
         self.prompt_input = QTextEdit(self)
-        self.start_button = QPushButton("Execute Query", self)
+        self.start_button = QPushButton("Create Query", self)
+        self.start_sql_button = QPushButton("Execute Query", self)
         self.explain_button = QPushButton("Explain Query", self)
         self.explain_button.setEnabled(False)
 
@@ -8677,6 +8676,7 @@ class SQLPromptDialog(QDialog):
         layout = QVBoxLayout(self)
         layout.addWidget(self.prompt_input)
         layout.addWidget(self.start_button)
+        layout.addWidget(self.start_sql_button)
         layout.addWidget(self.explain_button)
         layout.addWidget(self.sql_output)
         layout.addWidget(self.results_output)
@@ -8684,6 +8684,7 @@ class SQLPromptDialog(QDialog):
         layout.addWidget(self.create_graph_button)
 
         self.start_button.clicked.connect(self.on_start_button_clicked)
+        self.start_sql_button.clicked.connect(self.on_start_sql_query_clicked)
         self.explain_button.clicked.connect(self.on_explainsql_button_clicked)
         self.export_to_excel_button.clicked.connect(self.on_export_to_excel_button_clicked)
         self.create_graph_button.clicked.connect(self.on_create_graph_button_clicked)
@@ -8761,12 +8762,26 @@ class SQLPromptDialog(QDialog):
         else:
             db_type = "postgres"
 
-        generated_sql = MakeSQL.make_api_request(prompt, db_type, self.apikey_text2sql())
-        self.sql_output.setText(generated_sql or "No SQL statement was generated.")
+        self.generated_sql = MakeSQL.make_api_request(prompt, db_type, self.apikey_text2sql())
+        self.sql_output.setText(self.generated_sql or "No SQL statement was generated.")
+
+
+
+
+
+    def on_start_sql_query_clicked(self):
+        conn = Connection()
+        con_string = conn.conn_str()
+        test_conn = con_string.find('sqlite')
+
+        if test_conn == 0:
+            "sqlite"
+        else:
+            "postgres"
 
         try:
-            if generated_sql:
-                results = ResponseSQL.execute_sql_and_display_results(con_string, generated_sql)
+            if self.generated_sql:
+                results = ResponseSQL.execute_sql_and_display_results(con_string, self.generated_sql)
                 if results:
                     self.populate_results_list(results)
                     self.export_to_excel_button.setEnabled(True)
