@@ -1260,9 +1260,9 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             inv_vl2 = self.DB_MANAGER.query_bool(search_dict_inv, 'POTTERY')
 
             # Build lists using list comprehensions
-            inv_list = [f"{item.tipo_reperto} {item.n_reperto}" for item in inv_vl if
-                        item.tipo_reperto and item.n_reperto]
-            inv_list2 = [f"{item.material} {item.id_number}" for item in inv_vl2 if item.material and item.id_number]
+            inv_list = [f"{item.n_reperto}" for item in inv_vl if
+                        item.n_reperto]
+            inv_list2 = [f"{item.id_number})" for item in inv_vl2 if item.id_number]
 
             # Sort and remove duplicates
             inv_list = sorted(set(inv_list))
@@ -8658,12 +8658,20 @@ class SQLPromptDialog(QDialog):
         self.data = None
         self.iface = iface
         self.setWindowTitle("SQL Query Prompt")
+        # Create UI elements
+        self.select_prompt_button = QPushButton("Select Prompt", self)
+        self.prompt_combobox = QComboBox(self)
+        BIN = '{}{}{}'.format(pyarchinit_US.HOME, os.sep, "bin")
+
+        # Verifica se il file gpt_api_key.txt esiste
+        self.path_prompt = os.path.join(BIN, 'last_five_prompts.txt')
+        self.last_five_prompts = self.load_prompts_from_file()
         self.prompt_input = QTextEdit(self)
         self.start_button = QPushButton("Create Query", self)
         self.start_sql_button = QPushButton("Execute Query", self)
         self.explain_button = QPushButton("Explain Query", self)
         self.explain_button.setEnabled(False)
-
+        self.clear_button = QPushButton("Clear", self)
         self.sql_output = QTextEdit(self)
         self.prompt_input.textChanged.connect(self.handle_text_changed)
 
@@ -8674,21 +8682,69 @@ class SQLPromptDialog(QDialog):
         self.create_graph_button = QPushButton("Create Graph", self)
         self.create_graph_button.setEnabled(False)
         layout = QVBoxLayout(self)
+        layout.addWidget(self.select_prompt_button)
+        layout.addWidget(self.prompt_combobox)
         layout.addWidget(self.prompt_input)
         layout.addWidget(self.start_button)
         layout.addWidget(self.start_sql_button)
         layout.addWidget(self.explain_button)
+        layout.addWidget(self.clear_button)
         layout.addWidget(self.sql_output)
         layout.addWidget(self.results_output)
         layout.addWidget(self.export_to_excel_button)
         layout.addWidget(self.create_graph_button)
 
+        # Connect button click to method
+        self.select_prompt_button.clicked.connect(self.on_select_prompt_clicked)
+
         self.start_button.clicked.connect(self.on_start_button_clicked)
         self.start_sql_button.clicked.connect(self.on_start_sql_query_clicked)
         self.explain_button.clicked.connect(self.on_explainsql_button_clicked)
+        self.clear_button.clicked.connect(self.prompt_input.clear)
+        self.clear_button.clicked.connect(self.sql_output.clear)
+        self.clear_button.clicked.connect(self.results_output.clear)
         self.export_to_excel_button.clicked.connect(self.on_export_to_excel_button_clicked)
         self.create_graph_button.clicked.connect(self.on_create_graph_button_clicked)
-        #self.explain_button.clicked.connect(self.on_explain_button_clicked)
+        # Connect signals to slots
+        self.prompt_combobox.currentIndexChanged.connect(self.on_prompt_selected)
+
+
+    def on_prompt_selected(self, index):
+        # Get the selected prompt text and set it in the prompt_input
+        selected_prompt = self.prompt_combobox.itemText(index)
+        self.prompt_input.setPlainText(selected_prompt)
+
+    def update_prompt_ui(self):
+        # Update the UI elements related to prompts
+        # For example, refresh the QComboBox with the latest prompts
+        self.prompt_combobox.clear()
+        self.prompt_combobox.addItems(self.last_five_prompts)
+    def on_select_prompt_clicked(self):
+        # Populate the dropdown with the last five prompts
+        self.prompt_combobox.clear()
+        self.prompt_combobox.addItems(self.last_five_prompts)
+
+    def record_prompt(self, prompt):
+        self.last_five_prompts.insert(0, prompt)
+        self.last_five_prompts = self.last_five_prompts[:5]
+        self.save_prompts_to_file()
+
+    def load_prompts_from_file(self):
+        if os.path.exists(self.path_prompt):
+            with open(self.path_prompt, 'r') as file:
+                prompts = file.read().splitlines()
+                return prompts[:5]  # Ensure only the last five are loaded
+        else:
+            # If the file doesn't exist, return an empty list and create the file
+            with open(self.path_prompt, 'w') as file:
+                pass  # Just create the file, no need to write anything yet
+        return []
+
+    def save_prompts_to_file(self):
+        with open(self.path_prompt, 'w') as file:
+            for prompt in self.last_five_prompts:
+                file.write(f"{prompt}\n")
+
 
     def handle_text_changed(self):
         if self.is_sql_query(self.prompt_input.toPlainText()):
@@ -8764,42 +8820,54 @@ class SQLPromptDialog(QDialog):
 
         self.generated_sql = MakeSQL.make_api_request(prompt, db_type, self.apikey_text2sql())
         self.sql_output.setText(self.generated_sql or "No SQL statement was generated.")
+        # Retrieve the text from QPlainTextEdit
 
 
-
-
-
+        # Check if the prompt is not empty
+        if prompt.strip():
+            # Record the prompt
+            self.record_prompt(prompt)
+            # Optionally clear the input field or provide feedback to the user
+            self.prompt_input.clear()
+            # Update the UI if necessary, e.g., refresh the list of last prompts
+            self.update_prompt_ui()
+        else:
+            # Handle the case where the prompt is empty
+            print("Prompt is empty, not saving.")
     def on_start_sql_query_clicked(self):
         conn = Connection()
         con_string = conn.conn_str()
-        test_conn = con_string.find('sqlite')
-
-        if test_conn == 0:
-            "sqlite"
-        else:
-            "postgres"
 
         try:
             if self.generated_sql:
+                # Execute the SQL query and get the results
                 results = ResponseSQL.execute_sql_and_display_results(con_string, self.generated_sql)
-                if results:
+
+                # Check if results were returned for a SELECT query
+                if isinstance(results, list):
+                    # Populate the UI with the results
                     self.populate_results_list(results)
                     self.export_to_excel_button.setEnabled(True)
-                    # Check if the table has exactly 2 columns
-                    if self.results_table.columnCount() == 2:
 
+                    # Enable graph creation if the results have exactly 2 columns
+                    if len(results[0]) == 2:
                         self.create_graph_button.setEnabled(True)
                     else:
-                        self.results_output.setText("il risultato non è adatto per creare un grafico.\n"
-                                                    "devono essere presenti solo due colonne,\n "
-                                                    "di cui la prima è la categoria e la seconda le quantità")
+                        self.results_output.setText("The result is not suitable for creating a graph.\n"
+                                                    "There must be only two columns,\n"
+                                                    "of which the first is the category and the second the quantities.")
                         self.create_graph_button.setEnabled(False)
+                elif isinstance(results, str):
+                    # For non-SELECT queries, display a message and do not enable table/graph related buttons
+                    self.results_output.setText(results)
+                    self.export_to_excel_button.setEnabled(False)
+                    self.create_graph_button.setEnabled(False)
                 else:
                     self.results_output.setText("No results found.")
                     self.export_to_excel_button.setEnabled(False)
                     self.create_graph_button.setEnabled(False)
             else:
-                self.results_output.setText("No results to display.")
+                self.results_output.setText("No SQL query to execute.")
                 self.export_to_excel_button.setEnabled(False)
                 self.create_graph_button.setEnabled(False)
         except Exception as e:
