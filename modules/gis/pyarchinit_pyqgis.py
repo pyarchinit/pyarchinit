@@ -3950,7 +3950,7 @@ class Pyarchinit_pyqgis(QDialog):
         self.sito_p = sito_p
         self.sigla_st = sigla_st
         self.n_st = str(n_st)
-        self.dothejob()
+        #self.dothejob()
 
         cfg_rel_path = os.path.join(os.sep, 'pyarchinit_DB_folder', 'config.cfg')
         file_path = '{}{}'.format(self.HOME, cfg_rel_path)
