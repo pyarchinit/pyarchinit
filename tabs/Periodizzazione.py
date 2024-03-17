@@ -27,7 +27,7 @@ import pandas as pd
 import sys
 from builtins import range
 from builtins import str
-from qgis.PyQt.QtWidgets import QDialog, QMessageBox, QInputDialog
+from qgis.PyQt.QtWidgets import QDialog, QMessageBox, QInputDialog, QComboBox
 from qgis.PyQt.uic import loadUiType
 from qgis.core import QgsSettings
 from ..modules.db.pyarchinit_conn_strings import Connection
@@ -358,12 +358,19 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
 
 
     def contenuto(self, b):
-        text = MyApp.ask_gpt(self,
-                             f'forniscimi una descrizione e 3 link wikipidia riguardo a questo contenuto {b}, tenendo presente che il contesto è archeologico',
-                             self.apikey_gpt())
-        #url_pattern = r"(https?:\/\/\S+)"
-        #urls = re.findall(url_pattern, text)
-        return text#, urls
+        models = ["gpt-3.5-turbo-16k", "gpt-4"]  # Replace with actual model names
+        combo = QComboBox()
+        combo.addItems(models)
+        selected_model, ok = QInputDialog.getItem(self, "Select Model", "Choose a model for GPT:", models, 0,
+                                                  False)
+
+        if ok and selected_model:
+            text = MyApp.ask_gpt(self,
+                                 f'forniscimi una descrizione e 3 link wikipidia riguardo a questo contenuto {b}, tenendo presente che il contesto è archeologico',
+                                 self.apikey_gpt(),selected_model)
+            #url_pattern = r"(https?:\/\/\S+)"
+            #urls = re.findall(url_pattern, text)
+            return text#, urls
 
     def handleComboActivated(self, index):
         selected_text = self.comboBox_per_estesa.itemText(index)
