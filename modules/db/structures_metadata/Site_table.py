@@ -9,16 +9,9 @@ from modules.db.pyarchinit_conn_strings import Connection
 
 
 class Site_table:
-    # connection string postgres"
-    internal_connection = Connection()
-
-    # create engine and metadata
-
-    engine = create_engine(internal_connection.conn_str(), echo=True, convert_unicode=True)
-    metadata = MetaData(engine)
-
-    # define tables
-    site_table = Table('site_table', metadata,
+    @classmethod
+    def define_table(cls, metadata):
+        return Table('site_table', metadata,
                        Column('id_sito', Integer, primary_key=True),
                        Column('sito', Text),
                        Column('nazione', String(100)),
@@ -33,5 +26,3 @@ class Site_table:
                        # explicit/composite unique constraint.  'name' is optional.
                        UniqueConstraint('sito', name='ID_sito_unico')
                        )
-
-    metadata.create_all(engine)
