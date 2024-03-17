@@ -16,13 +16,9 @@ from modules.db.pyarchinit_conn_strings import Connection
 # tutte le modifiche vengono applicate al database.
 
 class pyripartizioni_spaziali:
-    # Connessione a postgres
-    internal_connection = Connection()
-    # Creazione del motore e dei metadati
-    engine = create_engine(internal_connection.conn_str(), echo=False, convert_unicode=True)
-    metadata = MetaData(engine)
-    # Definizione della tabella per verifica fill fields 20/10/2016 OK
-    pyripartizioni_spaziali = Table('pyarchinit_ripartizioni_spaziali', metadata,
+    @classmethod
+    def define_table(cls, metadata):
+        return Table('pyarchinit_ripartizioni_spaziali', metadata,
                      Column('gid', Integer, primary_key=True),  # 0
                      Column('id_rs', Text),
                      Column('sito_rs', Text),
@@ -32,6 +28,3 @@ class pyripartizioni_spaziali:
                      # Vincolo unico esplicito/composito. 'name' è opzionale.
                      UniqueConstraint('gid')
                      )
-    # Applicazione delle modifiche al database
-    metadata.create_all(engine)
-    

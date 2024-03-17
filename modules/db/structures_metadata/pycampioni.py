@@ -11,18 +11,9 @@ from modules.db.pyarchinit_conn_strings import Connection
 
 
 class pycampioni:
-    # connection string postgres
-    internal_connection = Connection()
-
-    # create engine and metadata
-
-    engine = create_engine(internal_connection.conn_str(), echo=False, convert_unicode=True)
-
-    # engine.connect()
-    metadata = MetaData(engine)
-
-    # define tables check per verifica fill fields 20/10/2016 OK
-    pycampioni = Table('pyarchinit_campionature', metadata,
+    @classmethod
+    def define_table(cls, metadata):
+        return Table('pyarchinit_campionature', metadata,
                        Column('gid', Integer, primary_key=True),  # 0
                        Column('id_campion', Integer),
                        Column('sito', Text),
@@ -35,5 +26,3 @@ class pycampioni:
                        # explicit/composite unique constraint.  'name' is optional.
                        UniqueConstraint('gid')
                        )
-
-    metadata.create_all(engine)
