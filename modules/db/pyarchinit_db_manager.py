@@ -1094,6 +1094,53 @@ class Pyarchinit_db_management(object):
 
         return res
 
+    def query_bool_like(self, params, table, join_operator='or'):
+
+        meta = MetaData(bind=self.engine)
+        table_to_query = Table(table, meta, autoload_with=self.engine)
+
+        u = Utility()
+        params = u.remove_empty_items_fr_dict(params)
+
+        list_keys_values = list(params.items())
+        sito_filter = None  # This will hold the 'sito' filter
+        filters = []
+        for sing_couple_n in range(len(list_keys_values)):
+            key, value = list_keys_values[sing_couple_n]
+            column = getattr(table_to_query.c, key)
+            if key == "settore" or key == "struttura" or key == "quad_par" or key == "ambient" or key == "saggio" or key == "area":
+                value_list = value.split(", ")
+                filters.append(or_(*[column.ilike(f'%{field_value}%') for field_value in value_list]))
+            else:
+                if key == 'sito':
+                    sito_filter = column.ilike(f'%{value}%')
+                else:
+                    filters.append(column.ilike(f'%{value}%'))
+
+        Session = sessionmaker(bind=self.engine, autoflush=True, autocommit=True)
+        session = Session()
+
+        # choose join_operator based on given argument
+
+
+        join_operator_func = and_ if join_operator == 'and' else or_
+        # Add 'sito' filter
+        if sito_filter is not None:
+            filters.insert(0, sito_filter)
+
+        query = session.query(table_to_query).filter(and_(*[filters.pop(0)]), join_operator_func(*filters))
+        # Convert query to a SQL string
+        # sql_query_str = str(query.statement.compile(dialect=self.engine.dialect))
+        #
+        # with open("C:\\Users\\enzoc\\Desktop\\test_import.txt", "w") as t:
+        #     t.write(str(sql_query_str))
+
+        # Execute query
+        res = query.all()
+
+        session.close()
+        return res
+
     def query_bool(self, params, table):
         u = Utility()
         params = u.remove_empty_items_fr_dict(params)
@@ -1104,8 +1151,8 @@ class Pyarchinit_db_management(object):
 
         for sing_couple_n in range(len(list_keys_values)):
             if sing_couple_n == 0:
-                if type(list_keys_values[sing_couple_n][1]) != "<type 'str'>":
-                    field_value_string = table + ".%s == %s" % (
+                if not isinstance(list_keys_values[sing_couple_n][1], str):
+                    field_value_string = table + ".%s == u%s" % (
                     list_keys_values[sing_couple_n][0], list_keys_values[sing_couple_n][1])
                 else:
                     field_value_string = table + ".%s == u%s" % (
@@ -1489,7 +1536,6 @@ class Pyarchinit_db_management(object):
             # Close the session
             session.close()
 
-
     def update_us_dating_from_periodizzazione(self):
         # Reflect the tables from the database
         us_table = Table('us_table', self.metadata, autoload_with=self.engine)
@@ -1507,45 +1553,48 @@ class Pyarchinit_db_management(object):
 
                 updates_made = 0
                 for us_record in us_records:
-                    # Skip records with empty 'periodo' or 'fase'
-                    if not us_record.periodo_iniziale or not us_record.fase_iniziale:
-                        continue
-                    # Find the corresponding periodizzazione records
-                    periodizzazione_iniziale = session.query(periodizzazione_table). \
-                        filter_by(periodo=us_record.periodo_iniziale, fase=us_record.fase_iniziale).first()
+                    periodizzazione_iniziale, periodizzazione_finale = None, None
 
-                    if bool(us_record.periodo_finale):
+                    if us_record.periodo_iniziale and us_record.fase_iniziale:
+                        periodizzazione_iniziale = session.query(periodizzazione_table). \
+                            filter_by(periodo=us_record.periodo_iniziale, fase=us_record.fase_iniziale).first()
+
+                    if not periodizzazione_iniziale:
+                        # Update the 'Dating' field in us_table to None if periodizzazione_iniziale does not exist
+                        session.query(us_table). \
+                            filter_by(id_us=us_record.id_us). \
+                            update({'datazione': None}, synchronize_session=False)
+                        updates_made += 1
+                        continue
+
+                    if us_record.periodo_finale and us_record.fase_finale:
                         periodizzazione_finale = session.query(periodizzazione_table). \
                             filter_by(periodo=us_record.periodo_finale, fase=us_record.fase_finale).first()
 
-                    # Concatenate the 'datazione_estesa' values if both are present
                     datazione_string = ""
                     if periodizzazione_iniziale and periodizzazione_finale:
                         datazione_string = f"{periodizzazione_iniziale.datazione_estesa}/{periodizzazione_finale.datazione_estesa}"
                     elif periodizzazione_iniziale:
                         datazione_string = periodizzazione_iniziale.datazione_estesa
 
-                    if periodizzazione_iniziale or periodizzazione_finale:
-                        # Check if the current 'Dating' value is different from the new value
-                        current_dating = getattr(us_record, 'datazione', None)
-                        if datazione_string and current_dating != datazione_string:
-                            # Update the 'Dating' field in us_table
-                            session.query(us_table). \
-                                filter_by(id_us=us_record.id_us). \
-                                update({'datazione': datazione_string}, synchronize_session=False)
-                            updates_made += 1
+                    current_dating = getattr(us_record, 'datazione', None)
+                    if datazione_string != current_dating:
+                        # Update the 'Dating' field in us_table
+                        session.query(us_table). \
+                            filter_by(id_us=us_record.id_us). \
+                            update({'datazione': datazione_string}, synchronize_session=False)
+                        updates_made += 1
 
                 # Print the number of updates made
                 print(f"All 'Dating' fields have been updated successfully. Total updates made: {updates_made}")
 
-            # Commit the changes
             session.commit()
             return updates_made  # Return the count of updates made
         except Exception as e:
-            # Rollback the transaction on error
+            # Rollback the transaction in case of error
             session.rollback()
-            QMessageBox.warning(None, 'ok',f"An error occurred while updating 'Dating': {e}")
-            raise e  # Re-raise the exception to be handled by the calling function
+            QMessageBox.warning(None, 'ok', f"An error occurred while updating 'Dating': {e}")
+            raise e  # Re-raise the exception
         finally:
             # Close the session
             session.close()
