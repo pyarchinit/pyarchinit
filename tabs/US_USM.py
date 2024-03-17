@@ -19,6 +19,7 @@
 """
 from __future__ import absolute_import
 
+import ast
 import logging
 import sqlite3 as sq
 from xml.etree.ElementTree import ElementTree as ET
@@ -65,7 +66,7 @@ from ..gui.imageViewer import ImageViewer
 from ..gui.pyarchinitConfigDialog import pyArchInitDialog_Config
 from ..gui.sortpanelmain import SortPanelMain
 from ..resources.resources_rc import *
-
+from sqlalchemy import create_engine, MetaData, Table, select, update, and_
 
 MAIN_DIALOG_CLASS, _ = loadUiType(
     os.path.join(os.path.dirname(__file__), os.pardir, 'gui', 'ui', 'US_USM.ui'))
@@ -393,7 +394,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             "wsu material source" : "provenienza_materiali_usm",
             "wsu distinction criteria" : "criteri_distinzione_usm",
             "primary use wsu" : "uso_primario_usm"
-        }       
+        }
     if L=='it':
         SORT_ITEMS = [
             ID_TABLE,  #0
@@ -780,16 +781,17 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         "EN_US": ['en_US','EN_US','en','EN'],
         "DE": ['de_DE','de','DE', 'DE_DE']
     }
-    
+
     REPORT_PATH = '{}{}{}'.format(HOME, os.sep, "pyarchinit_Report_folder")
     MATRIX_PATH = '{}{}{}'.format(HOME, os.sep, "pyarchinit_Matrix_folder")
     BIN = '{}{}{}'.format(HOME, os.sep, "bin")
     DB_SERVER = "not defined"  ####nuovo sistema sort
-    
+
     def __init__(self, iface):
         super().__init__()
         self.iface = iface
         self.pyQGIS = Pyarchinit_pyqgis(iface)
+
         self.setupUi(self)
         self.setAcceptDrops(True)
         self.fig = None
@@ -817,7 +819,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         # Numero massimo di elementi nella cache
         self.cache_limit = 100
 
-        
+
         try:
             self.on_pushButton_connect_pressed()
         except Exception as e:
@@ -827,8 +829,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             self.comboBox_sito.setCurrentIndex(0)
         else:
             self.comboBox_sito.setCurrentIndex(1)
-        
-            
+
+
 
         self.comboBox_sito.currentTextChanged.connect(self.charge_periodo_iniz_list)
         self.comboBox_unita_tipo.currentTextChanged.connect(self.charge_struttura_list)
@@ -856,20 +858,184 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.show()
         self.checkBox_query.update()
         self.checkBox_query.stateChanged.connect(self.listview_us)###anche questo
-        
+
         self.tableWidget_rapporti.itemSelectionChanged.connect(self.us_t)
-        
+
         self.comboBox_unita_tipo.currentTextChanged.connect(self.change_label)
         self.field.currentTextChanged.connect(self.value_check)
-        
-        
+
+
         self.comboBox_per_iniz.currentTextChanged.connect(self.check_v)
         self.charge_insert_ra()
+        self.charge_struttura_list()
         self.tableWidget_rapporti.itemChanged.connect(self.check_listoflist)
         self.update_dating()
-        # Setup the hidden shortcut to clear the database (e.g., Ctrl+Shift+X)
+        # Imposta il collegamento nascosto per attivare text2sql
         self.text2sql_db_shortcut = QShortcut(QKeySequence("Ctrl+Shift+X"), self)
         self.text2sql_db_shortcut.activated.connect(self.text2sql)
+        # Imposta la scorciatoia da tastiera per l'aggiornamento
+        self.update_shortcut = QShortcut(QKeySequence("Ctrl+U"), self)
+        self.update_shortcut.activated.connect(self.update_rapporti_col)
+
+        self.update2_shortcut = QShortcut(QKeySequence("Ctrl+P"), self)
+        self.update2_shortcut.activated.connect(self.update_rapporti_col_2)
+        #self.delete_all_shortcut = QtWidgets.QAction(self)
+        # Imposta la scorciatoia da tastiera per eliminare tutti i record filtrati
+        self.delete_all_shortcut=QShortcut(QKeySequence('Ctrl+Shift+D'), self)
+        self.delete_all_shortcut.activated.connect(self.delete_all_filtered_records)
+
+
+        self.use_like_query = False
+        self.new_search_shortcut = QShortcut(QKeySequence('Ctrl+Shift+N'), self)
+        self.new_search_shortcut.activated.connect(self.switch_search_mode)
+
+        self.view_all()
+    def get_input_prompt(self, label):
+        if self.L == 'it':
+            return QInputDialog.getText(self, "Input", f"Inserire il {label}")
+        else:
+            return QInputDialog.getText(self, "Input", f"Insert the {label}")
+
+    def show_warning(self, message):
+        if self.L == 'it':
+            QMessageBox.warning(self, "Input", f"Sito o {message} non forniti.")
+            return
+        QMessageBox.warning(self, "Input", f"Site or {message} not provided.")
+
+    def show_error(self, error, original_message):
+        if self.L == 'it':
+            QMessageBox.warning(self, "Error", f"Si è verificato un errore durante {original_message}: {error}",
+                                QMessageBox.Ok)
+            return
+        QMessageBox.warning(self, "Error", f"An error occurred during {original_message}: {error}", QMessageBox.Ok)
+
+    def update_rapporti_col(self):
+        conn = Connection()
+        conn_str = conn.conn_str()
+        metadata = MetaData()
+        engine = create_engine(conn_str)
+
+        us_table = Table('us_table', metadata, autoload_with=engine)
+
+        var1, ok1 = self.get_input_prompt("nome del sito")
+        var2, ok2 = self.get_input_prompt("nome dell'area")
+
+        if not (ok1 and ok2):
+            self.show_warning("area")
+            return  # Exit the function if the user canceled the operation
+
+        if not var1 or not var2:
+            self.show_warning("area")
+            return  # Exit the function if site or area is not provided
+
+        try:
+            with engine.connect() as connection:
+                stmt = select([us_table.c.id_us, us_table.c.rapporti]).where(
+                    us_table.c.sito == var1, us_table.c.area == var2
+                )
+                rows = connection.execute(stmt).fetchall()
+                for row in rows:
+                    id, rapporti_str = row
+                    if rapporti_str and rapporti_str != "[[]]":
+                        try:
+                            rapporti_list = ast.literal_eval(rapporti_str)
+                        except ValueError as e:
+                            self.show_error(e, "la conversione della stringa in una lista di liste")
+                            continue
+                        updated_rapporti_list = [sublist + [var2, var1] if sublist else sublist for sublist in
+                                                 rapporti_list]
+                        updated_rapporti_str = str(updated_rapporti_list)
+                        update_stmt = (
+                            update(us_table).where(us_table.c.id_us == id).values(rapporti=updated_rapporti_str)
+                        )
+                        connection.execute(update_stmt)
+        except Exception as e:
+            self.show_error(e, "l'aggiornamento")
+
+    def update_rapporti_col_2(self):
+        conn = Connection()
+        conn_str = conn.conn_str()
+        metadata = MetaData()
+        engine = create_engine(conn_str)
+
+        us_table = Table('us_table', metadata, autoload_with=engine)
+        var1, ok1 = self.get_input_prompt("nome del sito")  # Sito
+
+        if not ok1 or not var1:
+            self.show_warning("sito non specificato")
+            return  # Exit if no site is provided
+
+        try:
+            with engine.connect() as connection:
+                stmt = select([us_table]).where(us_table.c.sito == var1)
+                rows = connection.execute(stmt).fetchall()
+
+                for row in rows:
+                    id_us, rapporti_str = row.id_us, row.rapporti
+                    if rapporti_str and rapporti_str != "[[]]":
+                        try:
+                            rapporti_list = ast.literal_eval(rapporti_str)
+                            updated_rapporti_list = []
+
+                            for sublist in rapporti_list:
+                                # Assumi che la prima posizione di ogni sottolista contenga l'identificativo della us
+                                us_id = sublist[1]
+                                current_area = sublist[2]  # Assumendo che l'area sia nella terza posizione
+
+                                # Determina l'area corretta per la us nel sito dato
+                                correct_area = self.find_correct_area_for_us(us_id, var1, connection)
+
+                                # Se l'area nella sottolista è già corretta, lasciala inalterata
+                                if correct_area == current_area:
+                                    updated_rapporti_list.append(sublist)
+                                else:
+                                    # Altrimenti, aggiorna l'area con quella corretta
+                                    # Assumendo che vuoi mantenere gli altri elementi della sottolista invariati
+                                    updated_sublist = sublist.copy()
+                                    updated_sublist[2] = correct_area  # Aggiorna l'area
+                                    updated_rapporti_list.append(updated_sublist)
+
+                            updated_rapporti_str = str(updated_rapporti_list)
+                            update_stmt = update(us_table).where(us_table.c.id_us == id_us).values(
+                                rapporti=updated_rapporti_str)
+                            connection.execute(update_stmt)
+
+                        except ValueError as e:
+                            self.show_error(e, "la conversione della stringa in una lista di liste")
+                            continue
+        except Exception as e:
+            self.show_error(e, "l'aggiornamento")
+
+    def find_correct_area_for_us(self, us, sito, connection):
+        """
+        Questa funzione cerca nel database l'area corretta per una data unità stratigrafica (us)
+        e sito, basandosi sul vincolo di unicità tra sito, area e us.
+
+        Parametri:
+        us_id (str): L'identificativo dell'unità stratigrafica (us).
+        sito (str): Il nome del sito.
+        connection: Un oggetto connessione al database.
+
+        Ritorna:
+        str: L'area corretta per la data us e sito.
+        """
+        conn = Connection()
+        conn_str = conn.conn_str()
+        metadata = MetaData()
+        engine = create_engine(conn_str)
+        us_table = Table('us_table', metadata,
+                         autoload_with=engine)  # Assicurati di avere accesso a `metadata` e `engine`
+
+        # Esegue la query per trovare l'area corrispondente alla combinazione di us e sito
+        stmt = select([us_table.c.area]).where(and_(us_table.c.us == us, us_table.c.sito == sito))
+        result = connection.execute(stmt).fetchone()
+
+        if result:
+            return result[0]  # Restituisce l'area trovata
+        else:
+            # Gestisci il caso in cui non viene trovata nessuna corrispondenza, ad esempio restituendo un valore predefinito o sollevando un'eccezione
+            return "Area non trovata"  # O solleva un'eccezione
+
     def clean_comments(self,text_to_clean):
         clean_text = text_to_clean.split("##")[0].replace("\n", "")
         return clean_text
@@ -1032,7 +1198,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
 
     def unit_type_select(self):
-        try: 
+        try:
             dialog = QInputDialog()
             dialog.resize(QtCore.QSize(200, 100))
             if self.L=='it':
@@ -1044,7 +1210,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             return Unit
         except KeyError as e:
             print(str(e))
-    
+
     def search_rapp(self):
         # Clear current selection.
         #self.tableWidget_rapporti.setCurrentItem(None)
@@ -1202,8 +1368,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             self.checkBox_validate.setHidden(True)
         else:
             self.checkBox_validate.setHidden(False)
-    
-    
+
+
     def change_label(self):
         if self.comboBox_unita_tipo.currentText()=='DOC':
             self.label_5.setText('Riferimento documentazione')
@@ -1228,13 +1394,13 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         if self.comboBox_unita_tipo.currentText()=='Extractor':
             self.label_5.setText('Descrizione estrattore')
         if self.comboBox_unita_tipo.currentText()=='SUS':
-            self.label_5.setText('Descrizione')    
+            self.label_5.setText('Descrizione')
         if self.comboBox_unita_tipo.currentText()=='SF':
             self.label_5.setText('Descrizione')
-        
-        
+
+
     def refresh(self):
-        
+
         for i in self.DATA_LIST:
             self.us_t()
         return
@@ -1336,30 +1502,30 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             if test_conn == 0:
                 sqlite_DB_path = '{}{}{}'.format(self.HOME, os.sep,
                                            "pyarchinit_DB_folder")
-                
-                db = QSqlDatabase("QSQLITE") 
+
+                db = QSqlDatabase("QSQLITE")
                 db.setDatabaseName(sqlite_DB_path +os.sep+ conn_sqlite["db_name"])
                 db.open()
-                self.model_a = QSqlTableModel(db = db) 
-                self.table.setModel(self.model_a) 
-                self.model_a.setTable("us_table") 
+                self.model_a = QSqlTableModel(db = db)
+                self.table.setModel(self.model_a)
+                self.model_a.setTable("us_table")
                 self.model_a.setEditStrategy(QSqlTableModel.OnManualSubmit)
                 self.pushButton_submit.clicked.connect(self.submit)
                 self.pushButton_revert.clicked.connect(self.model_a.revertAll)
-                column_titles = { 
-                    "sito": "SITO", 
-                    "area": "Area", 
-                    "us": "US"} 
-                for n, t in column_titles.items(): 
-                    idx = self.model_a.fieldIndex( n) 
+                column_titles = {
+                    "sito": "SITO",
+                    "area": "Area",
+                    "us": "US"}
+                for n, t in column_titles.items():
+                    idx = self.model_a.fieldIndex( n)
                     self.model_a.setHeaderData( idx, Qt.Horizontal, t)
                 if bool (sito_set_str):
-                    filter_str = "sito = '{}'".format(str(self.comboBox_sito.currentText())) 
+                    filter_str = "sito = '{}'".format(str(self.comboBox_sito.currentText()))
                     self.model_a.setFilter(filter_str)
-                    self.model_a.select() 
+                    self.model_a.select()
                 else:
-                    self.model_a.select() 
-            
+                    self.model_a.select()
+
                 uri = QgsDataSourceUri()
                 uri.setDatabase(sqlite_DB_path +os.sep+ conn_sqlite["db_name"])
                 schema = ''
@@ -1369,7 +1535,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 vlayer = QgsVectorLayer(uri.uri(), table, 'spatialite')
                 pr = vlayer.dataProvider()
                 fi= pr.fields().names()[1:-1]
-                
+
                 self.field.clear()
                 self.field.addItems(fi)
                 try:
@@ -1379,31 +1545,31 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 except:
                     pass
             else:
-                
-                
+
+
                 db = QSqlDatabase.addDatabase("QPSQL")
                 db.setHostName(conn_host["host"])
                 db.setDatabaseName(conn_sqlite["db_name"])
                 db.setPort(int(port_int))
                 db.setUserName(conn_user['user'])
-                db.setPassword(conn_password['password']) 
+                db.setPassword(conn_password['password'])
                 db.open()
-                self.model_a = QSqlTableModel(db = db) 
-                self.table.setModel(self.model_a) 
+                self.model_a = QSqlTableModel(db = db)
+                self.table.setModel(self.model_a)
                 self.model_a.setTable("us_table")
                 self.model_a.setEditStrategy(QSqlTableModel.OnManualSubmit)
                 self.pushButton_submit.clicked.connect(self.submit)
                 self.pushButton_revert.clicked.connect(self.model_a.revertAll)
                 if bool (sito_set_str):
-                    filter_str = "sito = '{}'".format(str(self.comboBox_sito.currentText())) 
+                    filter_str = "sito = '{}'".format(str(self.comboBox_sito.currentText()))
                     self.model_a.setFilter(filter_str)
                     self.model_a.select()
                 else:
-                    self.model_a.select() 
-        
+                    self.model_a.select()
+
                 uri = QgsDataSourceUri()
                 uri.setConnection(conn_host["host"], conn_port["port"], conn_sqlite["db_name"], conn_user['user'], conn_password['password'])
-                schema = 'public'                
+                schema = 'public'
                 table = 'us_table'
                 geom_column = ''
                 uri.setDataSource(schema, table,geom_column)
@@ -1412,7 +1578,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 fi= pr.fields().names()[1:-1]
                 pr = vlayer.dataProvider()
                 fi= pr.fields().names()[1:-1]
-                
+
                 self.field.clear()
                 self.field.addItems(fi)
                 try:
@@ -1434,31 +1600,31 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                     QMessageBox.information(self, "Datensatz",  "Datensatz gespeichert")
                 else:
                     QMessageBox.information(self, "Record",  "record saved")
-            
+
             else:
                 self.model_a.database().rollback()
                 if self.L=='it':
                     QMessageBox.warning(self, "Cached Table",
-                            "Il db ha segnalato un errore: %s" % self.model_a.lastError().text())    
-        
+                            "Il db ha segnalato un errore: %s" % self.model_a.lastError().text())
+
                 elif self.L=='de':
                     QMessageBox.warning(self, "Cached Table",
-                            "Die Datenbank meldete einen Fehler: %s" % self.model_a.lastError().text())    
-                            
+                            "Die Datenbank meldete einen Fehler: %s" % self.model_a.lastError().text())
+
                 else:
                     QMessageBox.warning(self, "Cached Table",
-                            "The database reported an error: %s" % self.model_a.lastError().text())                
-        
-        else:    
+                            "The database reported an error: %s" % self.model_a.lastError().text())
+
+        else:
             self.checkBox_query.setChecked(False)
-    
-    
+
+
     def value_check(self):
         '''
             This function is used to filter the 'Unità Stratigrafiche' table.
         '''
         try:
-            
+
             if self.field.currentTextChanged:
                 sito_vl2 = self.UTILITY.tup_2_list_III(self.DB_MANAGER.group_by('us_table', self.field.currentText(),'US'))
 
@@ -1468,41 +1634,41 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 pass
             self.search_1.clear()
             sito_vl2.sort()
-            
+
             self.search_1.addItems(sito_vl2)
             self.search_1.update()
         except :
-            pass#QMessageBox.warning(self, "Attenzione", str(e), QMessageBox.Ok)  
-    def update_filter(self, s): 
+            pass#QMessageBox.warning(self, "Attenzione", str(e), QMessageBox.Ok)
+    def update_filter(self, s):
         '''
             This function is used to filter the 'Unità Stratigrafiche' table.
         '''
 
         if self.checkBox_query.isChecked():
-            conn = Connection()            
-            conn_str = conn.conn_str()    
+            conn = Connection()
+            conn_str = conn.conn_str()
             sito_set= conn.sito_set()
             sito_set_str = sito_set['sito_set']
             test_conn = conn_str.find('sqlite')
             s_field = self.field.currentText()
             s = re.sub("[\w_][\W_] +", "", s)
             if test_conn == 0:
-                
-                
+
+
                 try:
                     if bool(sito_set_str):
-                        filter_str = "{} LIKE '%{}%' and sito = '{}'".format(s_field,s,str(self.comboBox_sito.currentText())) 
+                        filter_str = "{} LIKE '%{}%' and sito = '{}'".format(s_field,s,str(self.comboBox_sito.currentText()))
                         if bool(filter_str):
                             self.model_a.setFilter(filter_str)
                             self.model_a.select()
                         else:
                             pass
-                    
+
                     else:
-                        filter_str = "{} LIKE '%{}%'".format(s_field,s) 
+                        filter_str = "{} LIKE '%{}%'".format(s_field,s)
                         if bool(filter_str):
                             self.model_a.setFilter(filter_str)
-                            self.model_a.select() 
+                            self.model_a.select()
                         else:
                             pass
                 except :
@@ -1517,47 +1683,56 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                         else:
                             pass
                     else:
-                        filter_str = "{} LIKE '%{}%'".format(s_field,s) 
+                        filter_str = "{} LIKE '%{}%'".format(s_field,s)
                         if bool(filter_str):
                             self.model_a.setFilter(filter_str)
-                            self.model_a.select() 
+                            self.model_a.select()
                         else:
                             pass
                 except :
                     pass#QMessageBox.warning(self, "Warning", str(e), QMessageBox.Ok)
-        else:    
+        else:
             self.checkBox_query.setChecked(False)
     def on_pushButton_globalsearch_pressed(self):
         '''
             This function is used to search for a specific record in the database.
         '''
         self.search.showSearchDialog()
+
+
+
+    def format_struttura_item(self,struttura):
+        return f"{struttura.sigla_struttura}-{struttura.numero_struttura}"
+
     def charge_struttura_list(self):
         '''
             This function charges the 'Struttura' combobox with the values from the 'Struttura' table.
         '''
-        sito = str(self.comboBox_sito.currentText())
+        FIND_STATUS_KEYS = ["Trova", "Finden", "Find"]
+        CURRENT_STATUS_KEYS = ["Usa", "Aktuell", "Current"]
+
+        site = str(self.comboBox_sito.currentText())
         search_dict = {
-            'sito': "'" + sito + "'"
+            'sito': f"'{site}'"
         }
-        struttura_vl = self.DB_MANAGER.query_bool(search_dict, 'STRUTTURA')
-        struttura_list = []
-        for i in range(len(struttura_vl)):
-            struttura_list.append(str(struttura_vl[i].sigla_struttura+'-'+str(struttura_vl[i].numero_struttura)))
-        try:
-            struttura_vl.remove('')
-        except:
-            pass
+        structures_query_result = self.DB_MANAGER.query_bool(search_dict, 'STRUTTURA')
+        structures_list = [self.format_struttura_item(s) for s in structures_query_result]
+
         self.comboBox_struttura.clear()
-        self.comboBox_struttura.addItems(self.UTILITY.remove_dup_from_list(struttura_list))
-        if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Finden" or "Find":
+        self.comboBox_struttura.addItems(self.UTILITY.remove_dup_from_list(structures_list))
+
+        current_status = self.STATUS_ITEMS[self.BROWSE_STATUS]
+        if current_status in FIND_STATUS_KEYS:
             self.comboBox_struttura.setEditText("")
-        elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Aktuell " or "Current":
-            if len(self.DATA_LIST) > 0:
-                try:
-                    self.comboBox_struttura.setEditText(self.DATA_LIST[self.rec_num].sigla_struttura+'-'+self.DATA_LIST[self.rec_num].numero_struttura)
-                except:
-                    pass  # non vi sono periodi per questo scavo
+        elif current_status in CURRENT_STATUS_KEYS:
+            #if len(self.DATA_LIST) > 0:
+            try:
+                self.comboBox_struttura.setEditText(self.format_struttura_item(self.DATA_LIST[self.rec_num]))
+            except Exception as e:
+                # You might consider logging the error messages to improve
+                # debugging. Replace `print` with a logger as necessary.
+                pass#QMessageBox.warning(self, 'Warning', f"Error setting edit text: {e}")
+
     def geometry_unitastratigrafiche(self):
         '''
             This function charges the 'Posizione' combobox with the values from the 'Unità Stratigrafiche' table.
@@ -1566,29 +1741,29 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             sito = str(self.comboBox_sito.currentText())
             area = str(self.comboBox_area.currentText())
             us = str(self.lineEdit_us.text())
-        
+
             search_dict = {
                 'scavo_s': "'" +str(self.comboBox_sito.currentText()) + "'",
                 'area_s': "'" + str(eval("self.DATA_LIST[int(self.REC_CORR)].area")) + "'",
                 'us_s': "'" + str(eval("self.DATA_LIST[int(self.REC_CORR)].us"))+"'"
-                
+
             }
-        
+
             geometry_vl = self.DB_MANAGER.query_bool(search_dict,'PYUS')
             geometry_list = []
-            
+
             for i in range(len(geometry_vl)):
                 geometry_list.append(str(geometry_vl[i].coord))
             try:
                 geometry_vl.remove('')
             except:
                 pass
-        
+
             self.comboBox_posizione.clear()
             self.comboBox_posizione.addItems(self.UTILITY.remove_dup_from_list(geometry_list))
             if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Finden" or "Find":
                 self.comboBox_posizione.setEditText("")
-            elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Aktuell " or "Current":     
+            elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Aktuell " or "Current":
                 if len(self.DATA_LIST) > 0:
                     try:
                         self.comboBox_posizione.setEditText(self.DATA_LIST[self.rec_num].posizione)
@@ -1622,7 +1797,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             self.comboBox_per_iniz.addItems(self.UTILITY.remove_dup_from_list(periodo_list))
             if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Finden" or "Find":
                 self.comboBox_per_iniz.setEditText("")
-            elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Aktuell " or "Current": 
+            elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Aktuell " or "Current":
                 if len(self.DATA_LIST) > 0:
                     try:
                         self.comboBox_per_iniz.setEditText(self.DATA_LIST[self.rec_num].periodo_iniziale)
@@ -1657,7 +1832,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             self.comboBox_per_fin.addItems(self.UTILITY.remove_dup_from_list(periodo_list))
             if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Finden" or "Find":
                 self.comboBox_per_fin.setEditText("")
-            elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Aktuell " or "Current": 
+            elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Aktuell " or "Current":
                 if len(self.DATA_LIST) > 0:
                     try:
                         self.comboBox_per_fin.setEditText(self.DATA_LIST[self.rec_num].periodo_iniziale)
@@ -1752,14 +1927,18 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                     periodo_finale = datazione_list_fin[-1]
                     if periodo_finale and str(self.comboBox_per_fin.currentText()) != '':
                         self.lineEdit_datazione.setText(f"{periodo_iniziale} / {periodo_finale}")
+                        self.lineEdit_datazione.update()
                     else:
                         self.lineEdit_datazione.setText(periodo_iniziale)
+                        self.lineEdit_datazione.update()
                 else:
                     self.lineEdit_datazione.setText(periodo_iniziale)
+                    self.lineEdit_datazione.update()
             else:
                 self.lineEdit_datazione.setText("")
-        except:
-            pass
+                self.lineEdit_datazione.update()
+        except Exception as e:
+            QMessageBox.warning(self, "Warning", f"An error occurred while charging 'Datazione {e}'.", QMessageBox.Ok)
 
 
     # This function should be connected to the button click event
@@ -1767,20 +1946,20 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         '''
             This function updates the 'Dating' field for all US records in the database.
         '''
-
+        self.charge_datazione_list()
         try:
             updates_made = self.DB_MANAGER.update_us_dating_from_periodizzazione()
             if updates_made > 0:
                 # Inform the user that updates have been made
-                QMessageBox.information(self, "Success",
-                                        f"All 'Dating' fields have been updated successfully. Total updates made: {updates_made}",
-                                        QMessageBox.Ok)
+                print(f"All 'Dating' fields have been updated successfully. "
+                      f"Total updates made: {updates_made}")
+
             else:
                 # Inform the user that no updates were necessary
-                QMessageBox.information(self, "No Updates", "No 'Dating' fields needed to be updated.",
-                                        QMessageBox.Ok)
+                pass#QMessageBox.information(self, "No Updates", "No 'Dating' fields needed to be updated.",
+                                        #QMessageBox.Ok)
         except Exception as e:
-            QMessageBox.critical(self, "Error", f"An error occurred while updating 'Dating': {e}", QMessageBox.Ok)
+            print(f"An error occurred while updating 'Dating': {e}")
 
     def on_pushButton_draw_doc_pressed(self):
         sito = str(self.comboBox_sito.currentText())
@@ -1810,7 +1989,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                         self.update_if(QMessageBox.warning(self, 'Error',
                                                            "Der Record wurde geändert. Möchtest du die Änderungen speichern?",
                                                            QMessageBox.Ok | QMessageBox.Cancel))
-                                                           
+
                     else:
                         self.update_if(QMessageBox.warning(self, 'Error',
                                                            "The record has been changed. Do you want to save the changes?",
@@ -1819,11 +1998,11 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                     self.label_sort.setText(self.SORTED_ITEMS[self.SORT_STATUS])
                     self.enable_button(1)
                     self.fill_fields(self.REC_CORR)
-                    
+
             else:
                 pass
-                
-        
+
+
         else:
             if self.data_error_check() == 0:
                 test_insert = self.insert_new_rec()
@@ -1832,7 +2011,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                     self.label_sort.setText(self.SORTED_ITEMS["n"])
                     self.charge_list()
                     self.set_sito()
-                    self.charge_records()
+                    self.charge_records_n()
                     self.BROWSE_STATUS = "b"
                     self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
                     self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), len(self.DATA_LIST) - 1
@@ -1840,23 +2019,23 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
                     self.set_rec_counter(self.REC_TOT, self.REC_CORR + 1)
                     self.setComboBoxEditable(["self.comboBox_sito"], 1)
-                    
+
                     self.fill_fields(self.REC_CORR)
                     self.enable_button(1)
-                    
+
             else:
                 pass
-                
-  
-        
-    
+
+
+
+
     def selectRows(self):
         # seleziona tutte le row della tablewidget dei rapporti
         for row in range(self.tableWidget_rapporti.rowCount()):
             table_item = self.tableWidget_rapporti.item(row, 1)
             row_data = table_item.data(QtCore.Qt.UserRole)
             row_id = row_data
-            self.tableWidget_rapporti.selectRow(row)  
+            self.tableWidget_rapporti.selectRow(row)
 
     def on_pushButton_update_pressed(self):
         sito = "'"+self.comboBox_sito.currentText()+"'"
@@ -1869,54 +2048,58 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             self.selectRows()
             self.on_pushButton_next_rec_pressed()
             self.us_t()
-                
+
             self.save_rapp()
             value = (float(rec)/float(len(records)))*100
             self.progressBar_2.setValue(value)
             QApplication.processEvents()
-        self.progressBar_2.reset()        
+        self.progressBar_2.reset()
     def us_t(self):
         if self.checkBox_validate.isChecked():
             try:
 
                 table_name = "self.tableWidget_rapporti"
-                
+
                 rowSelected_cmd = ("%s.selectedItems()") % (table_name)
                 rowSelected = eval(rowSelected_cmd)
-                
+
                 for i  in rowSelected:
                     s= self.tableWidget_rapporti.rowCount()
                     self.tableWidget_rapporti2.setRowCount(s)
                     rowIndex = (i.row())
                     sito = str(self.comboBox_sito.currentText())
                     area = str(self.comboBox_area.currentText())
-                
+
                     us_item = self.tableWidget_rapporti.item(rowIndex, 1)
-                   
+                    sito_item = self.tableWidget_rapporti.item(rowIndex, 3)
+                    area_item = self.tableWidget_rapporti.item(rowIndex, 2)
+                    sito_ = str(sito_item.text())
+                    area_ = str(area_item.text())
                     us_ = str(us_item.text())
                     rapp_item = self.tableWidget_rapporti.item(rowIndex, 0)
                     rapp_ = str(rapp_item.text())
-                
-                    search_dict = {'sito': "'" + str(sito) + "'",
-                                   'area': "'" + str(area) + "'",
+
+                    search_dict = {'sito': "'" + sito_ + "'",
+                                   'area': "'" + area_ + "'",
                                    'us': us_}
                     u = Utility()
                     search_dict = u.remove_empty_items_fr_dict(search_dict)
                     res = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
-                
-               
-            
+
+
+
                     for p in res:
                         #
-                        
+
                         self.tableWidget_rapporti2.setItem(rowIndex,0,QtWidgets.QTableWidgetItem(rapp_))
                         self.tableWidget_rapporti2.setItem(rowIndex,1,QtWidgets.QTableWidgetItem(us_))
                         self.tableWidget_rapporti2.setItem(rowIndex,2,QtWidgets.QTableWidgetItem(p.unita_tipo))
                         self.tableWidget_rapporti2.setItem(rowIndex,3,QtWidgets.QTableWidgetItem(p.d_interpretativa))
                         self.tableWidget_rapporti2.setItem(rowIndex,4,QtWidgets.QTableWidgetItem(p.periodo_iniziale+'-'+p.fase_iniziale))
-                        
+                        self.tableWidget_rapporti2.setItem(rowIndex,5,QtWidgets.QTableWidgetItem(area_))
+                        self.tableWidget_rapporti2.setItem(rowIndex,6,QtWidgets.QTableWidgetItem(sito_))
                     self.tableWidget_rapporti2.update()
-                    
+
             except Exception as e:
                 QMessageBox.warning(self,'',str(e))
         else:
@@ -1952,12 +2135,14 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                             rowSelected_cmd = ("%s.selectedIndexes()") % (table_name)
                             rowSelected = eval(rowSelected_cmd)
                             rowIndex = (rowSelected[0].row())
-                            sito = str(self.comboBox_sito.currentText())
-                            area = str(self.comboBox_area.currentText())
+                            sito_item = self.tableWidget_rapporti.item(rowIndex, 3)
+                            area_item = self.tableWidget_rapporti.item(rowIndex, 2)
+                            sito_ = str(sito_item.text())
+                            area_ = str(area_item.text())
                             us_item = self.tableWidget_rapporti.item(rowIndex, 1)
                             us = str(us_item.text())
-                            search_dict = {'sito': "'" + str(sito) + "'",
-                                           'area': "'" + str(area) + "'",
+                            search_dict = {'sito': "'" +sito_ + "'",
+                                           'area': "'" + area_ + "'",
                                            'us': us}
                             u = Utility()
                             search_dict = u.remove_empty_items_fr_dict(search_dict)
@@ -2002,12 +2187,14 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             rowSelected_cmd = ("%s.selectedIndexes()") % (table_name)
             rowSelected = eval(rowSelected_cmd)
             rowIndex = (rowSelected[0].row())
-            sito = str(self.comboBox_sito.currentText())
-            area = str(self.comboBox_area.currentText())
+            sito_item = self.tableWidget_rapporti.item(rowIndex, 3)
+            area_item = self.tableWidget_rapporti.item(rowIndex, 2)
+            sito_ = str(sito_item.text())
+            area_ = str(area_item.text())
             us_item = self.tableWidget_rapporti.item(rowIndex, 1)
             us = str(us_item.text())
-            search_dict = {'sito': "'" + str(sito) + "'",
-                           'area': "'" + str(area) + "'",
+            search_dict = {'sito': "'" + sito_ + "'",
+                           'area': "'" + area_ + "'",
                            'us': us}
             u = Utility()
             search_dict = u.remove_empty_items_fr_dict(search_dict)
@@ -2079,16 +2266,14 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             #rowSelected_cmd = ("%s.selectedIndexes()") % (table_name)
             rowSelected = self.table.currentIndex()#eval(rowSelected_cmd)
             rowIndex = rowSelected.row()
-            sito_item = self.table.model().index(rowIndex,1)
-            area_item = self.table.model().index(rowIndex,2)
-            #us = str(self.lineEdit_us.text())
-            us_item = self.table.model().index(rowIndex,3)
-            #for i in us_item:
-            sito =self.table.model().data(sito_item)
-            area= self.table.model().data(area_item)
-            us = self.table.model().data(us_item)
-            search_dict = {'sito': "'" + str(sito) + "'",
-                           'area': "'" + str(area) + "'",
+            sito_item = self.tableWidget_rapporti.item(rowIndex, 3)
+            area_item = self.tableWidget_rapporti.item(rowIndex, 2)
+            sito_ = str(sito_item.text())
+            area_ = str(area_item.text())
+            us_item = self.tableWidget_rapporti.item(rowIndex, 1)
+            us = str(us_item.text())
+            search_dict = {'sito': "'" + sito_ + "'",
+                           'area': "'" + area_ + "'",
                            'us': us}
             u = Utility()
             search_dict = u.remove_empty_items_fr_dict(search_dict)
@@ -2113,7 +2298,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                                 QMessageBox.Ok)
             else:
                 QMessageBox.warning(self, "Alert", "You didn't select any row. Python error: %s " % (str(e)),
-                                QMessageBox.Ok)  
+                                QMessageBox.Ok)
     def enable_button(self, n):
         self.pushButton_list.setEnabled(n)
         self.pushButton_new_rec.setEnabled(n)
@@ -2151,13 +2336,13 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.pushButton_insert_row_documentazione.setEnabled(n)
         self.pushButton_remove_row_documentazione.setEnabled(n)
     def on_pushButton_connect_pressed(self):
-        
+
         conn = Connection()
         conn_str = conn.conn_str()
         test_conn = conn_str.find('sqlite')
         if test_conn == 0:
             self.DB_SERVER = "sqlite"
-            
+
         try:
             self.DB_MANAGER = Pyarchinit_db_management(conn_str)
             self.DB_MANAGER.connection()
@@ -2180,10 +2365,10 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                                         QMessageBox.Ok)
                 elif self.L=='de':
                     QMessageBox.warning(self,"WILLKOMMEN","WILLKOMMEN in pyArchInit" + "SE-MSE formular"+ ". Die Datenbank ist leer. Tippe 'Ok' und aufgehts!",
-                                        QMessageBox.Ok) 
+                                        QMessageBox.Ok)
                 else:
                     QMessageBox.warning(self,"WELCOME", "Welcome in pyArchInit" + "Samples SU-WSU" + ". The DB is empty. Push 'Ok' and Good Work!",
-                                        QMessageBox.Ok)    
+                                        QMessageBox.Ok)
                 self.charge_list()
                 self.BROWSE_STATUS = 'x'
                 self.setComboBoxEnable(["self.comboBox_area"], "True")
@@ -2196,24 +2381,24 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                     msg = "La connessione e' fallita {}. " \
                           "E' NECESSARIO RIAVVIARE QGIS oppure rilevato bug! Segnalarlo allo sviluppatore".format(str(e))
                     self.iface.messageBar().pushMessage(self.tr(msg), Qgis.Warning, 0)
-                    
+
                 elif self.L=='de':
                     msg = "Verbindungsfehler {}. " \
                           " QGIS neustarten oder es wurde ein bug gefunden! Fehler einsenden".format(str(e))
                     self.iface.messageBar().pushMessage(self.tr(msg), Qgis.Warning, 0)
                 else:
                     msg = "The connection failed {}. " \
-                          "You MUST RESTART QGIS or bug detected! Report it to the developer".format(str(e))        
+                          "You MUST RESTART QGIS or bug detected! Report it to the developer".format(str(e))
             else:
                 if self.L=='it':
                     msg = "Attenzione rilevato bug! Segnalarlo allo sviluppatore. Errore: ".format(str(e))
                     self.iface.messageBar().pushMessage(self.tr(msg), Qgis.Warning, 0)
                 elif self.L=='de':
                     msg = "ACHTUNG. Es wurde ein bug gefunden! Fehler einsenden: ".format(str(e))
-                    self.iface.messageBar().pushMessage(self.tr(msg), Qgis.Warning, 0)  
+                    self.iface.messageBar().pushMessage(self.tr(msg), Qgis.Warning, 0)
                 else:
                     msg = "Warning bug detected! Report it to the developer. Error: ".format(str(e))
-                    self.iface.messageBar().pushMessage(self.tr(msg), Qgis.Warning, 0)    
+                    self.iface.messageBar().pushMessage(self.tr(msg), Qgis.Warning, 0)
     def customize_GUI(self):
         l = QgsSettings().value("locale/userLocale", QVariant)[0:2]
         lang = ""
@@ -2226,11 +2411,15 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             self.pushButton_export_matrix.setToolTip("Funzione disabilitata")
         self.tableWidget_rapporti.setColumnWidth(0, 120)
         self.tableWidget_rapporti.setColumnWidth(1, 80)
+        self.tableWidget_rapporti.setColumnWidth(2, 30)
+        self.tableWidget_rapporti.setColumnWidth(3, 50)
         self.tableWidget_rapporti2.setColumnWidth(0, 80)
         self.tableWidget_rapporti2.setColumnWidth(1, 50)
         self.tableWidget_rapporti2.setColumnWidth(2, 50)
         self.tableWidget_rapporti2.setColumnWidth(3, 200)
         self.tableWidget_rapporti2.setColumnWidth(4, 100)
+        self.tableWidget_rapporti2.setColumnWidth(5, 30)
+        self.tableWidget_rapporti2.setColumnWidth(6, 50)
         # self.tableWidget_rapporti2.sortItems(0,QtCore.Qt.AscendingOrder)
         # self.tableWidget_rapporti.sortItems(0,QtCore.Qt.AscendingOrder)
         self.tableWidget_documentazione.setColumnWidth(0, 150)
@@ -2248,7 +2437,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.iconListWidget.setMidLineWidth(2)
         #self.iconListWidget.setProperty("showDropIndicator", False)
         self.iconListWidget.setIconSize(QSize(430, 570))
-        
+
         self.iconListWidget.setUniformItemSizes(True)
         self.iconListWidget.setObjectName("iconListWidget")
         self.iconListWidget.SelectionMode()
@@ -2256,7 +2445,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.iconListWidget.itemDoubleClicked.connect(self.openWide_image)
         #self.listWidget_2.itemDoubleClicked.connect(self.opentepmplatePreview)
         # comboBox customizations
-        
+
         self.setComboBoxEditable(["self.comboBox_per_fin"], 1)
         self.setComboBoxEditable(["self.comboBox_fas_fin"], 1)
         self.setComboBoxEditable(["self.comboBox_per_iniz"], 1)
@@ -2314,7 +2503,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             valuesDoc.append("Sections")
             valuesDoc.append("Elevations")
             valuesDoc.append("Photo")
-        
+
         for i in range(len(tipo_di_documentazione)):
             valuesDoc.append(tipo_di_documentazione[i].sigla_estesa)
         #valuesDoc.sort()
@@ -2322,10 +2511,10 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.delegateDoc.def_values(valuesDoc)
         self.delegateDoc.def_editable('False')
         self.tableWidget_documentazione.setItemDelegateForColumn(0, self.delegateDoc)
-        
-        
-        
-        
+
+
+
+
         # lista colore legante usm
         search_dict = {
             'lingua': lang,
@@ -3458,16 +3647,16 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         for item in items:
             dlg = ImageViewer()
             id_orig_item = item.text()  # return the name of original file
-            search_dict = {'media_filename': "'" + str(id_orig_item) + "'" , 'mediatype': "'" + 'video' + "'"} 
+            search_dict = {'media_filename': "'" + str(id_orig_item) + "'" , 'mediatype': "'" + 'video' + "'"}
             u = Utility()
             search_dict = u.remove_empty_items_fr_dict(search_dict)
             #try:
             res = self.DB_MANAGER.query_bool(search_dict, "MEDIA_THUMB")
-            search_dict_2 = {'media_filename': "'" + str(id_orig_item) + "'" , 'mediatype': "'" + 'image' + "'"}  
+            search_dict_2 = {'media_filename': "'" + str(id_orig_item) + "'" , 'mediatype': "'" + 'image' + "'"}
             search_dict_2 = u.remove_empty_items_fr_dict(search_dict_2)
             #try:
             res_2 = self.DB_MANAGER.query_bool(search_dict_2, "MEDIA_THUMB")
-            search_dict_3 = {'media_filename': "'" + str(id_orig_item) + "'"}  
+            search_dict_3 = {'media_filename': "'" + str(id_orig_item) + "'"}
             search_dict_3 = u.remove_empty_items_fr_dict(search_dict_3)
             #try:
             res_3 = self.DB_MANAGER.query_bool(search_dict_3, "MEDIA_THUMB")
@@ -3477,7 +3666,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             if bool(res):
                 os.startfile(str(thumb_resize_str+file_path_3))
             elif bool(res_2):
-                dlg.show_image(str(thumb_resize_str+file_path_3))  
+                dlg.show_image(str(thumb_resize_str+file_path_3))
                 dlg.exec_()
     def charge_list(self):
         l = QgsSettings().value("locale/userLocale", QVariant)
@@ -3507,7 +3696,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         sito_vl.sort()
         self.comboBox_sito.addItems(sito_vl)
         self.comboBox_sito_rappcheck.addItems(sito_vl)
-        
+
         # responsabile_vl = self.UTILITY.tup_2_list_III(self.DB_MANAGER.group_by('us_table', 'schedatore', 'US'))
         # try:
         #     responsabile_vl.remove('')
@@ -3540,11 +3729,11 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         # responsabile3_vl.sort()
         # self.comboBox_responsabile_us.addItems(responsabile3_vl)
         #
-        
-        
-        
-        
-        self.comboBox_settore.clear()       
+
+
+
+
+        self.comboBox_settore.clear()
         search_dict = {
             'lingua': lang,
             'nome_tabella': "'" + 'us_table' + "'",
@@ -3763,8 +3952,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 responsabile_us_vl.append(responsabile_us[i].sigla_estesa)
         responsabile_us_vl.sort()
         self.comboBox_responsabile_us.addItems(responsabile_us_vl)
-        
-        
+
+
         # # lista tipologia_opera
         self.comboBox_tipologia_opera.clear()
         search_dict = {
@@ -4093,26 +4282,26 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         sito_set= conn.sito_set()
         sito_set_str = sito_set['sito_set']
         if bool(self.comboBox_sito.currentText()) and self.comboBox_sito.currentText()==sito_set_str:
-            
+
             if self.L=='it':
-                QMessageBox.information(self, "OK" ,"Sei connesso al sito: %s" % str(sito_set_str),QMessageBox.Ok) 
-        
+                QMessageBox.information(self, "OK" ,"Sei connesso al sito: %s" % str(sito_set_str),QMessageBox.Ok)
+
             elif self.L=='de':
-                QMessageBox.information(self, "OK", "Sie sind mit der archäologischen Stätte verbunden: %s" % str(sito_set_str),QMessageBox.Ok) 
-                
+                QMessageBox.information(self, "OK", "Sie sind mit der archäologischen Stätte verbunden: %s" % str(sito_set_str),QMessageBox.Ok)
+
             else:
-                QMessageBox.information(self, "OK", "You are connected to the site: %s" % str(sito_set_str),QMessageBox.Ok)     
-        
-        elif sito_set_str=='':    
+                QMessageBox.information(self, "OK", "You are connected to the site: %s" % str(sito_set_str),QMessageBox.Ok)
+
+        elif sito_set_str=='':
             if self.L=='it':
-                msg = QMessageBox.information(self, "Attenzione" ,"Non hai settato alcun sito. Vuoi settarne uno? click Ok altrimenti Annulla per  vedere tutti i record",QMessageBox.Ok | QMessageBox.Cancel) 
+                msg = QMessageBox.information(self, "Attenzione" ,"Non hai settato alcun sito. Vuoi settarne uno? click Ok altrimenti Annulla per  vedere tutti i record",QMessageBox.Ok | QMessageBox.Cancel)
             elif self.L=='de':
-                msg = QMessageBox.information(self, "Achtung", "Sie haben keine archäologischen Stätten eingerichtet. Klicken Sie auf OK oder Abbrechen, um alle Datensätze zu sehen",QMessageBox.Ok | QMessageBox.Cancel) 
+                msg = QMessageBox.information(self, "Achtung", "Sie haben keine archäologischen Stätten eingerichtet. Klicken Sie auf OK oder Abbrechen, um alle Datensätze zu sehen",QMessageBox.Ok | QMessageBox.Cancel)
             else:
-                msg = QMessageBox.information(self, "Warning" , "You have not set up any archaeological site. Do you want to set one? click Ok otherwise Cancel to see all records",QMessageBox.Ok | QMessageBox.Cancel) 
+                msg = QMessageBox.information(self, "Warning" , "You have not set up any archaeological site. Do you want to set one? click Ok otherwise Cancel to see all records",QMessageBox.Ok | QMessageBox.Cancel)
             if msg == QMessageBox.Cancel:
                 pass
-            else: 
+            else:
                 dlg = pyArchInitDialog_Config(self)
                 dlg.charge_list()
                 dlg.exec_()
@@ -4143,14 +4332,14 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 pass#
         except Exception as e:
             if self.L=='it':
-            
-                QMessageBox.information(self, "Attenzione" ,"Non esiste questo sito: "'"'+str(sito_set_str) +'"'" in questa scheda, Per favore distattiva la 'scelta sito' dalla scheda di configurazione plugin per vedere tutti i record oppure crea la scheda",QMessageBox.Ok) 
+
+                QMessageBox.information(self, "Attenzione" ,"Non esiste questo sito: "'"'+str(sito_set_str) +'"'" in questa scheda, Per favore distattiva la 'scelta sito' dalla scheda di configurazione plugin per vedere tutti i record oppure crea la scheda",QMessageBox.Ok)
             elif self.L=='de':
-            
-                QMessageBox.information(self, "Warnung" , "Es gibt keine solche archäologische Stätte: "'""'+ str(sito_set_str) +'"'" in dieser Registerkarte, Bitte deaktivieren Sie die 'Site-Wahl' in der Plugin-Konfigurationsregisterkarte, um alle Datensätze zu sehen oder die Registerkarte zu erstellen",QMessageBox.Ok) 
+
+                QMessageBox.information(self, "Warnung" , "Es gibt keine solche archäologische Stätte: "'""'+ str(sito_set_str) +'"'" in dieser Registerkarte, Bitte deaktivieren Sie die 'Site-Wahl' in der Plugin-Konfigurationsregisterkarte, um alle Datensätze zu sehen oder die Registerkarte zu erstellen",QMessageBox.Ok)
             else:
-            
-                QMessageBox.information(self, "Warning" , "There is no such site: "'"'+ str(sito_set_str) +'"'" in this tab, Please disable the 'site choice' from the plugin configuration tab to see all records or create the tab",QMessageBox.Ok) 
+
+                QMessageBox.information(self, "Warning" , "There is no such site: "'"'+ str(sito_set_str) +'"'" in this tab, Please disable the 'site choice' from the plugin configuration tab to see all records or create the tab",QMessageBox.Ok)
 
     def generate_list_foto(self):
         data_list_foto = []
@@ -4158,7 +4347,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             conn = Connection()
             thumb_path = conn.thumb_path()
             thumb_path_str = thumb_path['thumb_path']
-            
+
             if thumb_path_str=='':
                 if self.L=='it':
                     QMessageBox.information(self, "Info", "devi settare prima la path per salvare le thumbnail . Vai in impostazioni di sistema/ path setting ")
@@ -4166,7 +4355,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                     QMessageBox.information(self, "Info", "müssen Sie zuerst den Pfad zum Speichern der Miniaturansichten und Videos festlegen. Gehen Sie zu System-/Pfad-Einstellung")
                 else:
                     QMessageBox.information(self, "Message", "you must first set the path to save the thumbnails and videos. Go to system/path setting")
-            else:    
+            else:
                 search_dict = {'id_entity': "'"+ str(eval("self.DATA_LIST[i].id_us"))+"'", 'entity_type' : "'US'"}
                 record_doc_list = self.DB_MANAGER.query_bool(search_dict, 'MEDIAVIEW')
                 for media in record_doc_list:
@@ -4182,7 +4371,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                         str(self.DATA_LIST[i].area), #1
                         str(self.DATA_LIST[i].us),    #2
                         str(self.DATA_LIST[i].unita_tipo),#3
-                        str(self.DATA_LIST[i].d_stratigrafica),  #4 
+                        str(self.DATA_LIST[i].d_stratigrafica),  #4
                         str(foto),#5
                         str(thumbnail)])#6
         return data_list_foto
@@ -4211,7 +4400,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             if bool(quote):
                 quota_min = '%s %s' % (quote[0][0], quote[0][1])
                 quota_max = '%s %s' % (quote[-1][0], quote[-1][1])
-                
+
             else:
                 if self.L=='it':
                     quota_min = ""
@@ -4234,16 +4423,16 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                     piante = elenco_piante
                 else:
                     if self.L=='it':
-                        piante = "US disegnata su base GIS" 
+                        piante = "US disegnata su base GIS"
                     elif self.L=='de':
-                        piante = "SE im GIS gezeichnet" 
+                        piante = "SE im GIS gezeichnet"
                     else:
                         piante= "SU draft on GIS"
             else:
                 if self.L=='it':
-                    piante = "US disegnata su base GIS" 
+                    piante = "US disegnata su base GIS"
                 elif self.L=='de':
-                    piante = "SE im GIS gezeichnet" 
+                    piante = "SE im GIS gezeichnet"
                 else:
                     piante= "SU draft on GIS"
             if self.DATA_LIST[i].quota_min_usm == None:
@@ -4460,12 +4649,12 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 data_list = self.generate_list_pdf()
                 US_pdf_sheet.build_US_sheets(data_list)
                 QMessageBox.warning(self, 'Ok',"Esportazione terminata Schede US",QMessageBox.Ok)
-            else:   
+            else:
                 pass
             if self.checkBox_e_us.isChecked() :
                 US_index_pdf = generate_US_pdf()
                 data_list = self.generate_list_pdf()
-                try:               
+                try:
                     if bool(data_list):
                         US_index_pdf.build_index_US(data_list, data_list[0][0])
                         QMessageBox.warning(self, 'Ok',"Esportazione terminata Elenco US",QMessageBox.Ok)
@@ -4497,18 +4686,18 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                             QMessageBox.warning(self, 'ATTENZIONE',"L'elenco foto non può essere esportato perchè non hai immagini taggate.",QMessageBox.Ok)
                 except Exception as e :
                     QMessageBox.warning(self, 'ATTENZIONE',str(e),QMessageBox.Ok)
-        elif self.L=='en':  
+        elif self.L=='en':
             if self.checkBox_s_us.isChecked():
                 US_pdf_sheet = generate_US_pdf()
                 data_list = self.generate_list_pdf()
                 US_pdf_sheet.build_US_sheets_en(data_list)
                 QMessageBox.warning(self, 'Ok',"Export finished SU Forms",QMessageBox.Ok)
-            else:   
+            else:
                 pass
             if self.checkBox_e_us.isChecked() :
                 US_index_pdf = generate_US_pdf()
                 data_list = self.generate_list_pdf()
-                try:               
+                try:
                     if bool(data_list):
                         US_index_pdf.build_index_US_en(data_list, data_list[0][0])
                         QMessageBox.warning(self, 'Ok',"Export finished SU List",QMessageBox.Ok)
@@ -4530,7 +4719,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                         QMessageBox.warning(self, 'WARNING', 'The photo list cannot be exported because you do not have tagged images.',QMessageBox.Ok)
                 except Exception as e :
                     QMessageBox.warning(self, 'WARNING',str(e),QMessageBox.Ok)
-            
+
             if self.checkBox_e_foto.isChecked():
                 US_index_pdf = generate_US_pdf()
                 data_list_foto = self.generate_list_foto()
@@ -4548,12 +4737,12 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 data_list = self.generate_list_pdf()
                 US_pdf_sheet.build_US_sheets_de(data_list)
                 QMessageBox.warning(self, "Okay", "Export beendet",QMessageBox.Ok)
-            else:   
+            else:
                 pass
             if self.checkBox_e_us.isChecked() :
                 US_index_pdf = generate_US_pdf()
                 data_list = self.generate_list_pdf()
-                try:               
+                try:
                     if bool(data_list):
                         US_index_pdf.build_index_US_de(data_list, data_list[0][0])
                         QMessageBox.warning(self, "Okay", "Export beendet",QMessageBox.Ok)
@@ -4610,7 +4799,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         if dbpath:
             self.lineEdit_input.setText(dbpath)
             s.setValue('',dbpath)
-    
+
     def setPathgraphml(self):
         s = QgsSettings()
         dbpath = QFileDialog.getSaveFileName(
@@ -4623,7 +4812,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         if dbpath:
             self.lineEdit_output.setText(dbpath)
             s.setValue('',dbpath)
-    
+
     def setDoc_ref(self):
         s = QgsSettings()
         dbpath = QFileDialog.getSaveFileName(
@@ -4639,13 +4828,13 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
     def list2pipe(self,x):
         lista =[]
         if isinstance(x,str) and x.startswith('[') and '], ['  and ', ' in x:
-            
+
             return ', '.join(str(e) for e in eval(x)).replace("]",'').replace("['Copre',",'').replace("['Coperto da',",'').replace("['Riempie',",'').replace("['Riempito da',",'').replace("['Taglia',",'').replace("['Tagliato da',",'').replace("['Si appoggia a',",'').replace("['Gli si appoggia',",'').replace("['Si lega a',",'').replace("['Uguale a',",'').replace("'",'').replace("Copre,",'').replace("Coperto da,",'').replace("Riempie,",'').replace("Riempito da,",'').replace("Taglia,",'').replace("Tagliato da,",'').replace("Si appoggia a,",'').replace("Gli si appoggia,",'').replace("Si lega a,",'').replace("Uguale a,",'')
-        
-        
-        elif isinstance(x,str) and x.startswith('['):    
+
+
+        elif isinstance(x,str) and x.startswith('['):
             return ', '.join(str(e) for e in eval(x)[0])
-        else: 
+        else:
             return x
     def on_pushButton_graphml_pressed(self):
 
@@ -4653,7 +4842,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         try:
             input_file = self.lineEdit_input.text()
             output_file = self.lineEdit_output.text()
-            
+
             python_path = sys.exec_prefix
             python_version = sys.version[:3]
 
@@ -4664,21 +4853,21 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             else:
                 cmd = '{}/bin/python{}'.format(python_path, python_version)
             subprocess.call(['python', dottoxml,'-f', 'Graphml',input_file, output_file], shell=True)
-            
+
             with open(output_file, 'r') as file :
                 filedata = file.read()
-            
+
                 # Replace the target string
                 filedata = filedata.replace("b'", '')
                 filedata = filedata.replace("graphml>'", 'graphml>')
                 # Write the file out again
-                
-            
+
+
             with open(output_file, 'w') as file:
-              
+
                 file.write(filedata)
-                
-           
+
+
             sito_location = str(self.comboBox_sito.currentText())
             cfg_rel_path = os.path.join(os.sep, 'pyarchinit_DB_folder', 'config.cfg')
             file_path = '{}{}'.format(self.HOME, cfg_rel_path)
@@ -4686,15 +4875,15 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             data = conf.read()
             settings = Settings(data)
             settings.set_configuration()
-            conf.close()    
-            
+            conf.close()
+
             db_username = settings.USER
             host = settings.HOST
             port = settings.PORT
             database_password=settings.PASSWORD
             db_names = settings.DATABASE
-            server=settings.SERVER    
-            
+            server=settings.SERVER
+
             if server=='postgres':
                 pass
                 # # Create an SQLAlchemy engine instance
@@ -4770,37 +4959,37 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
 
             elif server=='sqlite' and self.L=='it':
-            
-                
+
+
                 sqlite_DB_path = '{}{}{}'.format(self.HOME, os.sep,"pyarchinit_DB_folder")
-                
+
                 file_path_sqlite = sqlite_DB_path+os.sep+db_names
                 conn = sq.connect(file_path_sqlite)
                 conn.enable_load_extension(True)
-                
-                
+
+
                 #now we can load the extension
                 # depending on your OS and sqlite/spatialite version you might need to add 
                 # '.so' (Linux) or '.dll' (Windows) to the extension name
 
                 #mod_spatialite (recommended)
-                conn.execute('SELECT load_extension("mod_spatialite")')   
-                conn.execute('SELECT InitSpatialMetaData(1);')  
+                conn.execute('SELECT load_extension("mod_spatialite")')
+                conn.execute('SELECT InitSpatialMetaData(1);')
                 cur = conn.cursor()
                 cur2 = conn.cursor()
-                
+
                 name_= '%s' % (sito_location+'_' +  time.strftime('%Y%m%d_') + '.xlsx')
                 dump_dir=os.path.join(self.MATRIX_PATH, name_)
                 writer = pd.ExcelWriter(dump_dir, engine='xlsxwriter')
                 workbook  = writer.book
-                
-                
+
+
                 cur.execute("SELECT  area, us, attivita,datazione From us_table where sito='%s' order by rowid;" % sito_location)
                 rows1 = cur.fetchall()
                 col_names1 = ['Area','US','Attività','Epoca']
                 t1=pd.DataFrame(rows1,columns=col_names1).applymap(self.list2pipe)
                 t1.to_excel(writer, sheet_name='US',index=False)
-                
+
                 cur2.execute("""WITH cte AS 
                     ( SELECT rowid ,
                    SUBSTR(rapporti,  1, INSTR(rapporti || ';', ';') -1) col,
@@ -4825,15 +5014,15 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 col_names2 = ['Rapporto Posteriore','Rapporto Anteriore', 'Rapporto Contemporaneo']
                 t2=pd.DataFrame(rows2,columns=col_names2).applymap(self.list2pipe)
                 t2.to_excel(writer, sheet_name='Rapporti',index=False)
-                
+
                 worksheet1 = writer.sheets['US']
                 worksheet1.set_column('A:A', 30, None)
                 worksheet1.set_column('B:B', 30, None)
                 worksheet1.set_column('C:C', 30, None)
                 worksheet1.set_column('D:D', 30, None)
                 worksheet1.set_column('E:E', 30, None)
-                
-                
+
+
                 worksheet2 = writer.sheets['Rapporti']
                 worksheet2.set_column('A:A', 30, None)
                 worksheet2.set_column('B:B', 30, None)
@@ -4848,8 +5037,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         except KeyError as e:
             QMessageBox.warning(self, "Error", str(e),
                                 QMessageBox.Ok)
-       
-        
+
+
     def openpdfDir(self):
         HOME = os.environ['PYARCHINIT_HOME']
         path = '{}{}{}'.format(HOME, os.sep, "pyarchinit_PDF_folder")
@@ -4887,14 +5076,14 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
     def on_pushButton_export_matrix_pressed(self):
         if self.checkBox_ED.isChecked():
-            
+
             id_us_dict = {}
             for i in range(len(self.DATA_LIST)):
                 id_us_dict[self.DATA_LIST[i].us] = self.DATA_LIST[i].id_us
-                
+
             dlg = pyarchinit_Interactive_Matrix(self.iface, self.DATA_LIST, id_us_dict)
             data_plot=dlg.generate_matrix_2()
-            
+
             # ###interactive matrix###
             # matrix_path = '{}{}{}'.format(self.HOME, os.sep, "pyarchinit_Matrix_folder")
             # filename='Harris_matrix2ED_graphml.dot'
@@ -4908,7 +5097,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 id_us_dict[self.DATA_LIST[i].us] = self.DATA_LIST[i].id_us
             dlg = pyarchinit_Interactive_Matrix(self.iface, self.DATA_LIST, id_us_dict)
             data_plot=dlg.generate_matrix()
-            
+
             ###interactive matrix###
         # if self.checkBox_IM.isChecked():    
             # matrix_path = '{}{}{}'.format(self.HOME, os.sep, "pyarchinit_Matrix_folder")
@@ -4969,10 +5158,10 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 # [l.pop(4) for l in rapporti_stratigrafici]
                 # [l.pop(3) for l in rapporti_stratigrafici]
                 # [l.pop(2) for l in rapporti_stratigrafici]
-                
+
                 for sing_rapp in rapporti_stratigrafici:
-                    
-                    
+
+
                     if len(sing_rapp) !=2:##cambiato da 2 a 5
                         if self.L=='it':
                             msg_nr_rapp = msg_nr_rapp + str(sing_rapp[0]) + "relativo a: " + str(us) + " \n"
@@ -5002,8 +5191,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                     # OK
                     ## QMessageBox.warning(self, "Messaggio", "DATA LIST" + str(data), QMessageBox.Ok)
                     # Blocca il sistema di ordinamento su un sito ed area specifci in base alla ricerca eseguita sulla scheda US
-            
-            
+
+
             sito = self.DATA_LIST[0].sito  # self.comboBox_sito_rappcheck.currentText()
             area = self.DATA_LIST[0].area  # self.comboBox_area.currentText()
             # script order layer from pyqgis
@@ -5013,7 +5202,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             #QMessageBox.warning(None, "Messaggio", "DATA LIST" + str(order_layer_dict), QMessageBox.Ok)
             # order_number = ""
             # us = ""
-            for k, v in order_layer_dict.items():#era iteritems prima 
+            for k, v in order_layer_dict.items():#era iteritems prima
                 order_number = str(k)
                 us = v
                 # QMessageBox.warning(None, "Messaggio", "DATA LIST" + str(k)+str(v), QMessageBox.Ok)
@@ -5106,7 +5295,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
         except Exception as e:
             QMessageBox.warning(self, 'ATTENZIONE', str(e), QMessageBox.Ok)
-    
+
     def on_pushButton_sort_pressed(self):
         self.checkBox_query.setChecked(False)
         if self.checkBox_query.isChecked():
@@ -5203,19 +5392,19 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             else:
                 self.tabWidget.setCurrentIndex(0)
                 self.loadMapPreview(1)
-      
+
     def on_pushButton_addRaster_pressed(self):
         if self.toolButtonGis.isChecked():
             self.pyQGIS.addRasterLayer()
     def on_pushButton_new_rec_pressed(self):
         conn = Connection()
-        
+
         sito_set= conn.sito_set()
         sito_set_str = sito_set['sito_set']
         if bool(self.DATA_LIST):
             if self.data_error_check() == 1:
                 pass
-            
+
         if self.BROWSE_STATUS != "n":
             if bool(self.comboBox_sito.currentText()) and self.comboBox_sito.currentText() == sito_set_str:
                 # Call the functions directly without connecting them to signals
@@ -5240,7 +5429,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 self.BROWSE_STATUS = "n"
                 self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
                 self.empty_fields_nosite()
-                
+
                 self.setComboBoxEditable(["self.comboBox_area"], 1)
                 self.setComboBoxEditable(["self.comboBox_unita_tipo"], 1)
                 self.setComboBoxEnable(["self.comboBox_sito"], False)
@@ -5252,7 +5441,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
                 self.set_rec_counter('', '')
                 self.label_sort.setText(self.SORTED_ITEMS["n"])
-                
+
             else:
                 self.BROWSE_STATUS = "n"
                 self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
@@ -5266,32 +5455,32 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 self.setComboBoxEnable(["self.comboBox_unita_tipo"], "True")
                 self.SORT_STATUS = "n"
                 self.label_sort.setText(self.SORTED_ITEMS[self.SORT_STATUS])
-                
+
                 self.set_rec_counter('', '')
                 self.label_sort.setText(self.SORTED_ITEMS["n"])
-                
-            
+
+
             self.enable_button(0)
-    
+
     def save_rapp(self):
-        
-        
+
+
         self.checkBox_query.setChecked(False)
         if self.checkBox_query.isChecked():
             self.model_a.database().close()
         if self.BROWSE_STATUS == "b":
             if self.data_error_check() == 0:
                 if self.records_equal_check() == 1:
-                    
+
                     if self.update_if(QMessageBox.Ok):
                         QMessageBox.Ok
-                        
-                    
+
+
                     # self.empty_fields()
                     # self.SORT_STATUS = "n"
                     # self.label_sort.setText(self.SORTED_ITEMS[self.SORT_STATUS])
                     # self.enable_button(1)
-                    
+
                     # self.fill_fields(self.REC_CORR)
                 # else:
                     # if self.L=='it':
@@ -5299,7 +5488,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                     # elif self.L=='de':
                         # QMessageBox.warning(self, "ACHTUNG", "Keine Änderung vorgenommen", QMessageBox.Ok)
                     # else:
-                        # QMessageBox.warning(self, "Warning", "No changes have been made", QMessageBox.Ok)       
+                        # QMessageBox.warning(self, "Warning", "No changes have been made", QMessageBox.Ok)
         # else:
             # if self.data_error_check() == 0:
                 # test_insert = self.insert_new_rec()
@@ -5329,7 +5518,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 # elif self.L=='de':
                     # QMessageBox.warning(self, "ACHTUNG", "Problem der Dateneingabe", QMessageBox.Ok)
                 # else:
-                    # QMessageBox.warning(self, "Warning", "Problem with data entry", QMessageBox.Ok) 
+                    # QMessageBox.warning(self, "Warning", "Problem with data entry", QMessageBox.Ok)
 
     def on_pushButton_save_pressed(self):
 
@@ -5365,6 +5554,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                     self.SORT_STATUS = "n"
                     self.label_sort.setText(self.SORTED_ITEMS[self.SORT_STATUS])
                     self.enable_button(1)
+                    self.update_dating()
                     self.fill_fields(self.REC_CORR)
                 else:
                     QMessageBox.warning(self, "ATTENZIONE", messages[self.L]['no_changes'], QMessageBox.Ok)
@@ -5375,7 +5565,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                     self.empty_fields()
                     self.SORT_STATUS = "n"
                     self.label_sort.setText(self.SORTED_ITEMS[self.SORT_STATUS])
-                    self.charge_records()
+                    self.charge_records_n()
                     self.charge_list()
                     self.set_sito()
                     self.BROWSE_STATUS = "b"
@@ -5389,11 +5579,12 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                     self.setComboBoxEnable(["self.comboBox_area"], "False")
                     self.setComboBoxEnable(["self.lineEdit_us"], "False")
                     self.setComboBoxEnable(["self.comboBox_unita_tipo"], "True")
+                    self.update_dating()
                     self.fill_fields(self.REC_CORR)
                     self.enable_button(1)
             else:
                 QMessageBox.warning(self, "ATTENZIONE", messages[self.L]['data_entry_problem'], QMessageBox.Ok)
-
+        self.update_dating()
     def apikey_gpt(self):
         #HOME = os.environ['PYARCHINIT_HOME']
         BIN = '{}{}{}'.format(self.HOME, os.sep, "bin")
@@ -5657,21 +5848,21 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             # if EC.data_lenght(anno_scavo,3) == 0:
             #       QMessageBox.warning(self, "ATTENZIONE", "Campo Anno. \n immettere una sola data (es. 2014)",  QMessageBox.Ok)
             #       test = 1
-            
+
             if formazione != "":
                 if EC.data_lenght(d_interpretativa, 254) == 0:
                     QMessageBox.warning(self, "ATTENZIONE",
                                         "Campo definizione interpreta. \n Il valore non deve superare i 255 caratteri alfanumerici",
                                         QMessageBox.Ok)
                     test = 1
-            
+
             if formazione != "":
                 if EC.data_lenght(d_stratigrafica, 254) == 0:
                     QMessageBox.warning(self, "ATTENZIONE",
                                         "Campo definizione stratigrafica. \n Il valore non deve superare i 255 caratteri alfanumerici",
                                         QMessageBox.Ok)
                     test = 1
-            
+
             if formazione != "":
                 if EC.data_lenght(formazione, 19) == 0:
                     QMessageBox.warning(self, "ATTENZIONE",
@@ -5776,7 +5967,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                                         "Feld Struktur. \n Der Wert darf nicht mehr als 30 alphanumerische Zeichen enthalten",
                                         QMessageBox.Ok)
                     test = 1
-        else:   
+        else:
             if EC.data_is_empty(str(self.comboBox_sito.currentText())) == 0:
                 QMessageBox.warning(self, "WARNING", "Site Field. \n The field must not be empty", QMessageBox.Ok)
                 test = 1
@@ -5886,9 +6077,9 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 test = 1
         """
         return test
-    
+
     def automaticform_check(self, sito_check, area_check):
-        
+
         search_dict = {'sito': "'" + str(sito_check) + "'", 'area': "'" + str(area_check) + "'"}
         records = self.DB_MANAGER.query_bool(search_dict,
                                              self.MAPPER_TABLE_CLASS)  # carica tutti i dati di uno scavo ordinati per numero di US
@@ -5900,7 +6091,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 sito_check)
         else:
             report_rapporti3 = 'Control and count of forms automatically created - Site: %s \n' % (
-                sito_check)     
+                sito_check)
         for rec in range(len(records)):
             sito = "'" + str(records[rec].sito) + "'"
             area = "'" + str(records[rec].area) + "'"
@@ -5924,11 +6115,11 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                     report3 = 'Sito: %s, Area: %s, US: %d - %s. Review it ' % (
                         sito, area, int(us), def_stratigrafica)
             if report3 != "":
-                report_rapporti3 = report_rapporti3 + report3 + '\n' 
+                report_rapporti3 = report_rapporti3 + report3 + '\n'
                 # self.listWidget_rapp.item(0).setForeground(QtCore.Qt.blue)
                 # self.listWidget_rapp.item(1).setForeground(QtCore.Qt.blue)
-                #self.listWidget_rapp.clear() 
-        self.listWidget_rapp.addItem(report_rapporti3)    
+                #self.listWidget_rapp.clear()
+        self.listWidget_rapp.addItem(report_rapporti3)
         HOME = os.environ['PYARCHINIT_HOME']
         report_path = '{}{}{}'.format(HOME, os.sep, "pyarchinit_Report_folder")
         if self.L=='it':
@@ -5936,21 +6127,21 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         elif self.L=='de':
             filename = '{}{}{}'.format(report_path, os.sep, 'log_def_strat_to_SE relation.txt')
         elif self.L=='en':
-            filename = '{}{}{}'.format(report_path, os.sep, 'log_strat_def_to_SU relation.txt') 
+            filename = '{}{}{}'.format(report_path, os.sep, 'log_strat_def_to_SU relation.txt')
         f = open(filename, "w")
         f.write(report_rapporti3)
         f.close()
-    
+
     def rapporti_stratigrafici_check(self, sito_check, area_check):
         self.listWidget_rapp.clear()
         conversion_dict = {'Covers':'Covered by',
                            'Covered by': 'Covers',
                            'Fills': 'Filled by',
-                           'Filled by':'Fills', 
+                           'Filled by':'Fills',
                            'Cuts': 'Cut by',
                            'Cut by': 'Cuts',
                            'Abuts': 'Supports',
-                           'Supports': 'Abuts', 
+                           'Supports': 'Abuts',
                            'Connected to': 'Connected to',
                            'Same as':'Same as',
                            'Copre':'Coperto da',
@@ -5987,7 +6178,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         elif self.L=='de':
             report_rapporti = 'Kontrollbericht Stratigraphische Beziehungen - Ausgrabungsstätte: %s \n' % (sito_check)
         else:
-            report_rapporti = 'Control report Stratigraphic relationships - Site: %s \n' % (sito_check)   
+            report_rapporti = 'Control report Stratigraphic relationships - Site: %s \n' % (sito_check)
         for rec in range(len(records)):
             sito = "'" + str(records[rec].sito) + "'"
             area = "'" + str(records[rec].area) + "'"
@@ -5996,16 +6187,16 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             rapporti = eval(rapporti)
             report = ''
             for sing_rapp in rapporti:  # itera sulla serie di rapporti
-                
-                
+
+
                 if str(us).find('0') or str(us).find('1') >=0:
                     if len(sing_rapp) == 2:
-                        
+
                         rapp_converted = conversion_dict[sing_rapp[0]]
-                        
+
                         serch_dict_rapp = {'sito': sito, 'area': area, 'us': sing_rapp[1]}
                         us_rapp = self.DB_MANAGER.query_bool(serch_dict_rapp, self.MAPPER_TABLE_CLASS)
-                        
+
                         if not bool(us_rapp):
                             if self.L=='it':
                                 report = 'Sito: %s, Area: %s, US: %d %s US: %d: Scheda US non esistente' % (
@@ -6015,13 +6206,13 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                                     sito, area, int(us), sing_rapp[0], int(sing_rapp[1]))
                             else:
                                 report = 'Site: %s, Area: %s, SU: %d %s SU: %d: SU form not-existent' % (
-                                    sito, area, int(us), sing_rapp[0], int(sing_rapp[1]))       
+                                    sito, area, int(us), sing_rapp[0], int(sing_rapp[1]))
                             # new system rapp_check
                         else:
                             rapporti_check = eval(us_rapp[0].rapporti)
-                            
+
                             us_rapp_check=('%s') % str(us)
-                            
+
                             if rapporti_check.count([rapp_converted, us_rapp_check]) == 1:
                                 report = ""
                             else:
@@ -6033,19 +6224,19 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                                         sito, area, int(us), sing_rapp[0], int(sing_rapp[1]))
                                 else:
                                     report = 'Site: %s, Area: %s, SU: %d %s SU: %d: relashionships not verified' % (
-                                        sito, area, int(us), sing_rapp[0], int(sing_rapp[1]))       
-                        
+                                        sito, area, int(us), sing_rapp[0], int(sing_rapp[1]))
+
                 if report != "":
                     report_rapporti = report_rapporti + report + '\n'
-                   
+
         self.listWidget_rapp.addItem(report_rapporti)
-            
+
             # self.progressBar_3.setHidden(False)
             # value = (float(rec)/float(len(records)))*100
             # self.progressBar_3.setValue(value)
             # QApplication.processEvents()
         # self.progressBar_3.reset()           
-        
+
         HOME = os.environ['PYARCHINIT_HOME']
         report_path = '{}{}{}'.format(HOME, os.sep, "pyarchinit_Report_folder")
         if self.L=='it':
@@ -6053,7 +6244,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         elif self.L=='de':
             filename = '{}{}{}'.format(report_path, os.sep, 'log_SE.txt')
         else:
-            filename = '{}{}{}'.format(report_path, os.sep, 'log_SU_relations.txt')     
+            filename = '{}{}{}'.format(report_path, os.sep, 'log_SU_relations.txt')
         f = open(filename, "w")
         f.write(report_rapporti)
         f.close()
@@ -6061,11 +6252,11 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         conversion_dict = {'Covers':'Covered by',
                            'Covered by': 'Covers',
                            'Fills': 'Filled by',
-                           'Filled by':'Fills', 
+                           'Filled by':'Fills',
                            'Cuts': 'Cut by',
                            'Cut by': 'Cuts',
                            'Abuts': 'Supports',
-                           'Supports': 'Abuts', 
+                           'Supports': 'Abuts',
                            'Connected to': 'Connected to',
                            'Same as':'Same as',
                            'Copre':'Coperto da',
@@ -6105,7 +6296,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 sito_check)
         else:
             report_rapporti1 = 'Control report Definition Stratigraphic to Stratigraphic Reports - Site: %s \n' % (
-                sito_check)     
+                sito_check)
         for rec in range(len(records)):
             sito = "'" + str(records[rec].sito) + "'"
             area = "'" + str(records[rec].area) + "'"
@@ -6113,8 +6304,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             def_stratigrafica = "'" + str(records[rec].d_stratigrafica) + "'"
             rapporti = records[rec].rapporti  # caricati i rapporti nella variabile
             rapporti = eval(rapporti)
-            
-           
+
+
             for sing_rapp in rapporti:  # itera sulla serie di rapporti
                 report = ""
                 if def_stratigrafica.find('Strato') >= 0:  # Paradosso strati che tagliano o si legano
@@ -6146,7 +6337,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                             # sito, area, int(us), def_stratigrafica, sing_rapp[0], int(sing_rapp[1]))
                 if report != "":
                     report_rapporti1 = report_rapporti1 + report + '\n'
-                #versione tedesca   
+                #versione tedesca
                 elif def_stratigrafica.find('Stratum') >= 0:  # Paradosso strati che tagliano o si legano
                     if sing_rapp[0] == 'Bindet an':
                         report = 'Sito: %s, Area: %s, SE: %d - %s: die startum %s US: %d: ' % (
@@ -6160,10 +6351,10 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                         # report = 'Sito: %s, Area: %s, SE: %d - %s: die startum %s US: %d: ' % (
                             # sito, area, int(us), def_stratigrafica, sing_rapp[0], int(sing_rapp[1]))
                 if report != "":
-                    report_rapporti1 = report_rapporti1 + report + '\n' 
-                
-        self.listWidget_rapp.addItem(report_rapporti1)    
-             
+                    report_rapporti1 = report_rapporti1 + report + '\n'
+
+        self.listWidget_rapp.addItem(report_rapporti1)
+
         HOME = os.environ['PYARCHINIT_HOME']
         report_path = '{}{}{}'.format(HOME, os.sep, "pyarchinit_Report_folder")
         if self.L=='it':
@@ -6171,23 +6362,23 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         elif self.L=='de':
             filename = '{}{}{}'.format(report_path, os.sep, 'log_def_strat_to_SE relation.txt')
         elif self.L=='en':
-            filename = '{}{}{}'.format(report_path, os.sep, 'log_strat_def_to_SU relation.txt') 
+            filename = '{}{}{}'.format(report_path, os.sep, 'log_strat_def_to_SU relation.txt')
         f = open(filename, "w")
         f.write(report_rapporti1)
         f.close()
-    
+
     def concat(self,a, b):
         return eval(f"{a}{b}")
-    
+
     def periodi_to_rapporti_stratigrafici_check(self, sito_check, area_check):
         conversion_dict = {'Covers':'Covered by',
                            'Covered by': 'Covers',
                            'Fills': 'Filled by',
-                           'Filled by':'Fills', 
+                           'Filled by':'Fills',
                            'Cuts': 'Cut by',
                            'Cut by': 'Cuts',
                            'Abuts': 'Supports',
-                           'Supports': 'Abuts', 
+                           'Supports': 'Abuts',
                            'Connected to': 'Connected to',
                            'Same as':'Same as',
                            'Copre':'Coperto da',
@@ -6227,156 +6418,156 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 sito_check)
         else:
             report_rapporti2 = 'Control report Periodization/Type Unit to Stratigraphic Reports - Site: %s \n' % (
-                sito_check)     
+                sito_check)
         for rec in range(len(records)):
             sito = "'" + str(records[rec].sito) + "'"
             area = "'" + str(records[rec].area) + "'"
             us = int(records[rec].us)
             periodo_in = str(records[rec].periodo_iniziale)
             fase_in = str(records[rec].fase_iniziale)
-            periodo_fin =  str(records[rec].periodo_finale) 
-            fase_fin =  str(records[rec].fase_iniziale) 
+            periodo_fin =  str(records[rec].periodo_finale)
+            fase_fin =  str(records[rec].fase_iniziale)
             ut=str(records[rec].unita_tipo)
             rapporti = records[rec].rapporti  # caricati i rapporti nella variabile
             rapporti = eval(rapporti)
             rapporti2 = records[rec].rapporti2  # caricati i rapporti nella variabile
             rapporti2 = eval(rapporti2)
-            
-            
+
+
             for sing_rapp in rapporti2:  # itera sulla serie di rapporti
                 report = ""
                 report2 = ""
-                
+
                 # rapp_sing=sing_rapp[4].split()
                 # QMessageBox.information(self,'',str(rapp_sing))
                 if str(periodo_in).find('1') or str(periodo_in).find('2') or str(periodo_in).find('3') or str(periodo_in).find('4') or str(periodo_in).find('5') or str(periodo_in).find('6') or str(periodo_in).find('7') or str(periodo_in).find('8') or str(periodo_in).find('9') or str(periodo_in).find('10') or str(periodo_in).find('11') or str(periodo_in).find('12') or str(periodo_in).find('13') or str(periodo_in).find('14') or str(periodo_in).find('15')>=0:
-                    
+
                     if str(periodo_in)+'-'+str(fase_in)!=sing_rapp[4]:
                         if sing_rapp[0] == 'Si lega a' or sing_rapp[0] == 'Uguale a' or sing_rapp[0] == 'Same as' or sing_rapp[0] == 'Connected to':
                             report = 'Sito: %s, Area: %s, %s: %d -  Il periodo e fase iniziale %s: deve essere: %s corrispondente con la %s : %d: ' % (
                                 sito, area, ut, int(us), str(periodo_in)+'-'+str(fase_in), sing_rapp[0], sing_rapp[2], int(sing_rapp[1]))
-                    
+
                     # if not bool(sing_rapp):
-                        # report2:'la table widget deve essere riempita' 
+                        # report2:'la table widget deve essere riempita'
                     if sing_rapp[0] == 'Si lega a' and sing_rapp[2]=='US':
-                    
+
                         report2 = '%s : %d - %s : %d: devono essere USM' % (
                             ut, int(us), sing_rapp[2], int(sing_rapp[1]))
-                    
+
                     if sing_rapp[0] == 'Connected to' and sing_rapp[2]=='SU':
-                    
+
                         report2 = '%s : %d - %s : %d: should be WSU' % (
                             ut, int(us), sing_rapp[2], int(sing_rapp[1]))
-                    
+
                     if sing_rapp[0] == 'Uguale a' and sing_rapp[2]=='USM':
-                    
+
                         report2 = '%s : %d - %s : %d: devono essere US' % (
                             ut, int(us), sing_rapp[2], int(sing_rapp[1]))
-            
+
                     if sing_rapp[0] == 'Same as' and sing_rapp[2]=='WSU':
-                    
+
                         report2 = '%s : %d - %s : %d: should be SU' % (
                             ut, int(us), sing_rapp[2], int(sing_rapp[1]))
-                    
+
                     if sing_rapp[0] == 'Si appoggia a' and sing_rapp[2]=='US':
-                    
+
                         report2 = '%s : %d - %s : %d: devono essere USM' % (
                             ut, int(us), sing_rapp[2], int(sing_rapp[1]))
-                            
+
                     if sing_rapp[0] == 'Gli si appoggia' and sing_rapp[2]=='US':
-                    
+
                         report2 = '%s : %d - %s : %d: devono essere USM' % (
                             ut, int(us), sing_rapp[2], int(sing_rapp[1]))
-                
+
                     if sing_rapp[0] == 'Abuts' and sing_rapp[2]=='SU':
-                    
+
                         report2 = '%s : %d - %s : %d: should be WSU' % (
                             ut, int(us), sing_rapp[2], int(sing_rapp[1]))
-                            
+
                     if sing_rapp[0] == 'Supports' and sing_rapp[2]=='SU':
-                    
+
                         report2 = '%s : %d - %s : %d: should be WSU' % (
                             ut, int(us), sing_rapp[2], int(sing_rapp[1]))
-                
+
                     if sing_rapp[4]!='-':
-                    
+
                         if sing_rapp[0] == 'Covers' and int(sing_rapp[4].replace('-',''))<self.concat(int(periodo_in),int(fase_in)):
-                            
+
                             report2 = '%s : %d : %s- should be Covered by %s : %s-%s' % (
                                 ut, int(us),str(sing_rapp[4]), sing_rapp[1],  str(periodo_in),str(fase_in))
-                                
+
                         if sing_rapp[0] == 'Covered by' and int(sing_rapp[4].replace('-',''))>self.concat(int(periodo_in),int(fase_in)):
-                        
+
                             report2 = '%s : %d : %s- should be Covers %s : %s-%s' % (
                                 ut, int(us),str(sing_rapp[4]), sing_rapp[1], str(periodo_in),str(fase_in))
-                    
+
                         if sing_rapp[0] == 'Fills' and int(sing_rapp[4].replace('-',''))<self.concat(int(periodo_in),int(fase_in)):
-                            
+
                             report2 = '%s : %d : %s- Should be Filled by %s : %s-%s' % (
                                 ut, int(us),str(sing_rapp[4]), sing_rapp[1],  str(periodo_in),str(fase_in))
-                                
+
                         if sing_rapp[0] == 'Filled by' and int(sing_rapp[4].replace('-',''))>self.concat(int(periodo_in),int(fase_in)):
-                        
+
                             report2 = '%s : %d : %s- Shuld be Fills %s : %s-%s' % (
                                 ut, int(us),str(sing_rapp[4]), sing_rapp[1], str(periodo_in),str(fase_in))
-                    
+
                         if sing_rapp[0] == 'Cuts' and int(sing_rapp[4].replace('-',''))<self.concat(int(periodo_in),int(fase_in)):
-                            
+
                             report2 = '%s : %d : %s- Shuld be Cut by %s : %s-%s' % (
                                 ut, int(us),str(sing_rapp[4]), sing_rapp[1],  str(periodo_in),str(fase_in))
-                                
+
                         if sing_rapp[0] == 'Cut by' and int(sing_rapp[4].replace('-',''))>self.concat(int(periodo_in),int(fase_in)):
-                        
+
                             report2 = '%s : %d : %s- Shuld be Cuts %s : %s-%s' % (
                                 ut, int(us),str(sing_rapp[4]), sing_rapp[1], str(periodo_in),str(fase_in))
-                        
+
                         if sing_rapp[0] == 'Abuts' and int(sing_rapp[4].replace('-',''))<self.concat(int(periodo_in),int(fase_in)):
-                            
+
                             report2 = '%s : %d : %s- Shuld be Supports %s : %s-%s' % (
                                 ut, int(us),str(sing_rapp[4]), sing_rapp[1],  str(periodo_in),str(fase_in))
-                                
+
                         if sing_rapp[0] == 'Supports' and int(sing_rapp[4].replace('-',''))>self.concat(int(periodo_in),int(fase_in)):
-                        
+
                             report2 = '%s : %d : %s- Shuld be Abuts %s : %s-%s' % (
                                 ut, int(us),str(sing_rapp[4]), sing_rapp[1], str(periodo_in),str(fase_in))
-                                          
+
                         if sing_rapp[0] == 'Copre' and int(sing_rapp[4].replace('-',''))<self.concat(int(periodo_in),int(fase_in)):
-                            
+
                             report2 = '%s : %d : %s- Dovrebbe essere Coperto da %s : %s-%s' % (
                                 ut, int(us),str(sing_rapp[4]), sing_rapp[1],  str(periodo_in),str(fase_in))
-                                
+
                         if sing_rapp[0] == 'Coperto da' and int(sing_rapp[4].replace('-',''))>self.concat(int(periodo_in),int(fase_in)):
-                        
+
                             report2 = '%s : %d : %s- Dovrebbe Coprire %s : %s-%s' % (
                                 ut, int(us),str(sing_rapp[4]), sing_rapp[1], str(periodo_in),str(fase_in))
-                    
+
                         if sing_rapp[0] == 'Riempie' and int(sing_rapp[4].replace('-',''))<self.concat(int(periodo_in),int(fase_in)):
-                            
+
                             report2 = '%s : %d : %s- Dovrebbe essere Riempito da %s : %s-%s' % (
                                 ut, int(us),str(sing_rapp[4]), sing_rapp[1],  str(periodo_in),str(fase_in))
-                                
+
                         if sing_rapp[0] == 'Riempito da' and int(sing_rapp[4].replace('-',''))>self.concat(int(periodo_in),int(fase_in)):
-                        
+
                             report2 = '%s : %d : %s- Dovrebbe Riempire %s : %s-%s' % (
                                 ut, int(us),str(sing_rapp[4]), sing_rapp[1], str(periodo_in),str(fase_in))
-                    
+
                         if sing_rapp[0] == 'Taglia' and int(sing_rapp[4].replace('-',''))<self.concat(int(periodo_in),int(fase_in)):
-                            
+
                             report2 = '%s : %d : %s- Dovrebbe essere Tagliato da %s : %s-%s' % (
                                 ut, int(us),str(sing_rapp[4]), sing_rapp[1],  str(periodo_in),str(fase_in))
-                                
+
                         if sing_rapp[0] == 'Tagliato da' and int(sing_rapp[4].replace('-',''))>self.concat(int(periodo_in),int(fase_in)):
-                        
+
                             report2 = '%s : %d : %s- Dovrebbe Tagliare %s : %s-%s' % (
                                 ut, int(us),str(sing_rapp[4]), sing_rapp[1], str(periodo_in),str(fase_in))
-                    
+
                         if sing_rapp[0] == 'Si appoggia a' and int(sing_rapp[4].replace('-',''))<self.concat(int(periodo_in),int(fase_in)):
-                            
+
                             report2 = '%s : %d : %s- Dovrebbe essere Gli si appoggia %s : %s-%s' % (
                                 ut, int(us),str(sing_rapp[4]), sing_rapp[1],  str(periodo_in),str(fase_in))
-                                
+
                         if sing_rapp[0] == 'Gli si appoggia' and int(sing_rapp[4].replace('-',''))>self.concat(int(periodo_in),int(fase_in)):
-                        
+
                             report2 = '%s : %d : %s- Dovrebbe Si appoggia a %s : %s-%s' % (
                                 ut, int(us),str(sing_rapp[4]), sing_rapp[1], str(periodo_in),str(fase_in))
                     if sing_rapp[4]=='-':
@@ -6384,16 +6575,16 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                             report2 = 'Manca la peridizzazione in %s %s'% (sing_rapp[2], sing_rapp[1])
                         else:
                             report2 = 'Missing the periodization in %s %s'% (sing_rapp[2], sing_rapp[1])
-                
-                
-                
+
+
+
                 if report2 != "":
                     report_rapporti2 = report_rapporti2 + report + report2+'\n'
-                
-        self.listWidget_rapp.addItem(report_rapporti2)    
-        
-           
-          
+
+        self.listWidget_rapp.addItem(report_rapporti2)
+
+
+
         HOME = os.environ['PYARCHINIT_HOME']
         report_path = '{}{}{}'.format(HOME, os.sep, "pyarchinit_Report_folder")
         if self.L=='it':
@@ -6401,11 +6592,11 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         elif self.L=='de':
             filename = '{}{}{}'.format(report_path, os.sep, 'log_per_ut_to_SE relation.txt')
         elif self.L=='en':
-            filename = '{}{}{}'.format(report_path, os.sep, 'log_per_ut_to_SU relation.txt') 
+            filename = '{}{}{}'.format(report_path, os.sep, 'log_per_ut_to_SU relation.txt')
         f = open(filename, "w")
         f.write(report_rapporti2)
         f.close()
-   
+
     def insert_new_rec(self):
         # TableWidget
         #Rapporti
@@ -6659,10 +6850,10 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                         QMessageBox.warning(self, "Error", "Error: " + str(msg), QMessageBox.Ok)
                     elif self.L=='de':
                         msg = self.ID_TABLE + " bereits in der Datenbank"
-                        QMessageBox.warning(self, "Error", "Error: " + str(msg), QMessageBox.Ok)  
+                        QMessageBox.warning(self, "Error", "Error: " + str(msg), QMessageBox.Ok)
                     else:
                         msg = self.ID_TABLE + " exist in db"
-                        QMessageBox.warning(self, "Error", "Error: " + str(msg), QMessageBox.Ok)  
+                        QMessageBox.warning(self, "Error", "Error: " + str(msg), QMessageBox.Ok)
                 else:
                     msg = e
                     QMessageBox.warning(self, "Error", "Error 1 \n" + str(msg), QMessageBox.Ok)
@@ -6673,17 +6864,17 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             # insert new row into tableWidget
     def on_pushButton_insert_row_rapporti_pressed(self):
         self.insert_new_row('self.tableWidget_rapporti')
-        
+
     def on_pushButton_remove_row_rapporti_pressed(self):
         self.remove_row('self.tableWidget_rapporti')
 
     def on_pushButton_insert_row_rapporti2_pressed(self):
-       
+
         self.insert_new_row('self.tableWidget_rapporti2')
     def on_pushButton_remove_row_rapporti2_pressed(self):
-        
+
         self.remove_row('self.tableWidget_rapporti2')
-    
+
     def on_pushButton_insert_row_inclusi_pressed(self):
         self.insert_new_row('self.tableWidget_inclusi')
     def on_pushButton_remove_row_inclusi_pressed(self):
@@ -6741,7 +6932,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 self.update_if(
                     QMessageBox.warning(self, "Error", "The record has been changed. You want to save the changes?",
                                         QMessageBox.Ok | QMessageBox.Cancel))
-            return 0  
+            return 0
             # records surf functions
     def on_pushButton_view_all_pressed(self):
 
@@ -6749,7 +6940,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         if self.checkBox_query.isChecked():
             self.model_a.database().close()
         self.empty_fields()
-        self.charge_records()
+        self.charge_records_n()
         self.fill_fields()
         self.BROWSE_STATUS = "b"
         self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
@@ -6762,7 +6953,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
         self.SORT_STATUS = "n"
         self.label_sort.setText(self.SORTED_ITEMS[self.SORT_STATUS])
-        # records surf functions
+
 
     def view_all(self):
 
@@ -6770,7 +6961,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         if self.checkBox_query.isChecked():
             self.model_a.database().close()
         self.empty_fields()
-        #self.charge_records()
+        self.charge_records()
         self.fill_fields()
         self.BROWSE_STATUS = "b"
         self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
@@ -6786,7 +6977,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.label_sort.setText(self.SORTED_ITEMS[self.SORT_STATUS])
 
     def on_pushButton_first_rec_pressed(self):
-        
+
         self.checkBox_query.setChecked(False)
         if self.checkBox_query.isChecked():
             self.model_a.database().close()
@@ -6838,9 +7029,9 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         if self.checkBox_query.isChecked():
             self.model_a.database().close()
         rec_goto = int(self.lineEdit_goto.text())
-        
-        
-        
+
+
+
         if self.check_record_state() == 1:
             pass
         else:
@@ -6855,8 +7046,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 self.set_rec_counter(self.REC_TOT, self.REC_CORR + 1)
             except :#Exception as e:
                 pass#QMessageBox.warning(self, "Error", str(e), QMessageBox.Ok)
-    
-    
+
+
         if self.checkBox_validate.isChecked():
             self.selectRows()
             # while True:
@@ -6906,6 +7097,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                     self.charge_list()
                     self.fill_fields()
                     self.set_sito()
+                    self.view_all()
         elif self.L=='de':
             msg = QMessageBox.warning(self, "Achtung!!!",
                                       "Willst du wirklich diesen Eintrag löschen? \n Der Vorgang ist unumkehrbar",
@@ -6970,11 +7162,46 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                     self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
                     self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR + 1)
                     self.charge_list()
-                    self.fill_fields()  
+                    self.fill_fields()
                     self.set_sito()
             self.SORT_STATUS = "n"
             self.label_sort.setText(self.SORTED_ITEMS[self.SORT_STATUS])
             #
+
+    def delete_all_filtered_records(self):
+        # Se non ci sono record da eliminare, emetti un avvertimento e interrompi
+        if not self.DATA_LIST:
+            QMessageBox.warning(self, "Warning", "No records to delete!", QMessageBox.Ok)
+            return
+
+        # Chiedi conferma all'utente prima di eliminare i record
+        if self.L == 'it':
+            msg = QMessageBox.warning(self, "Attenzione!!!",
+                                      "Vuoi veramente eliminare i record? \n L'azione è irreversibile",
+                                      QMessageBox.Ok | QMessageBox.Cancel)
+        elif self.L == 'de':
+            msg = QMessageBox.warning(self, "Achtung!!!",
+                                      "Willst du wirklich diese Einträge löschen? \n Der Vorgang ist unumkehrbar",
+                                      QMessageBox.Ok | QMessageBox.Cancel)
+        else:
+            msg = QMessageBox.warning(self, "Warning!!!",
+                                      "Do you really want to delete the records? \n Action is irreversible.",
+                                      QMessageBox.Ok | QMessageBox.Cancel)
+
+        # Se l'utente ha annullato, interrompi
+        if msg == QMessageBox.Cancel:
+            QMessageBox.warning(self, "Message!!!", "Action cancelled!", QMessageBox.Ok)
+            return
+
+        # Cancella ogni record
+        for record in self.DATA_LIST:
+            id_to_delete = getattr(record, self.ID_TABLE)
+            self.DB_MANAGER.delete_one_record(self.TABLE_NAME, self.ID_TABLE, id_to_delete)
+
+        # Ricarica l'elenco dei record e aggiorna l'interfaccia utente
+        self.charge_records()
+        self.view_all()
+
     def on_pushButton_new_search_pressed(self):
         self.checkBox_query.setChecked(False)
         if self.checkBox_query.isChecked():
@@ -6984,7 +7211,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         else:
             self.enable_button_search(0)
             conn = Connection()
-        
+
             sito_set= conn.sito_set()
             sito_set_str = sito_set['sito_set']
             if self.BROWSE_STATUS != "f":
@@ -7021,7 +7248,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                     self.set_rec_counter('', '')
                     self.label_sort.setText(self.SORTED_ITEMS["n"])
                     #self.charge_list()
-                    
+
                 else:
                     self.BROWSE_STATUS = "f"
                     ###
@@ -7078,15 +7305,170 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 QMessageBox.warning(self, "INFO", "Codice periodo aggiornato per lo scavo %s" % (sito), QMessageBox.Ok)
             elif self.L=='de':
                 QMessageBox.warning(self, "INFO", "Der Zeitstellungscode wurde für die Ausgrabung hochgeladen %s" % (sito), QMessageBox.Ok)
-            elif self.L=='en':   
+            elif self.L=='en':
                 QMessageBox.warning(self, "INFO", "Updated period code for excavation %s" % (sito), QMessageBox.Ok)
         except KeyError as e:
             if self.L=='it':
                 QMessageBox.warning(self, "Attenzione", str(e), QMessageBox.Ok)
             elif self.L=='de':
                 QMessageBox.warning(self, "Achtung", str(e), QMessageBox.Ok)
-            elif self.L=='en':   
+            elif self.L=='en':
                 QMessageBox.warning(self, "Attention", str(e), QMessageBox.Ok)
+
+    def switch_search_mode(self):
+        self.use_like_query = not self.use_like_query
+        if self.use_like_query:
+            QMessageBox.information(self, "Search mode changed",
+                                    "Query_bool_like mode is now active. Use Ctrl+Shift+N to deactivate.")
+
+            # Disable all the fields
+            self.comboBox_sito.setEnabled(False)
+            self.comboBox_area.setEnabled(False)
+            self.comboBox_unita_tipo.setEnabled(False)
+            self.lineEdit_us.setEnabled(False)
+            self.comboBox_def_strat.setEnabled(False)
+            self.comboBox_def_intepret.setEnabled(False)
+            self.textEdit_descrizione.setEnabled(False)
+            self.textEdit_interpretazione.setEnabled(False)
+            self.comboBox_per_iniz.setEnabled(False)
+            self.comboBox_fas_iniz.setEnabled(False)
+            self.comboBox_per_fin.setEnabled(False)
+            self.comboBox_fas_fin.setEnabled(False)
+            self.comboBox_scavato.setEnabled(False)
+            self.lineEdit_attivita.setEnabled(False)
+            self.lineEdit_anno.setEnabled(False)
+            self.comboBox_metodo.setEnabled(False)
+            self.lineEdit_data_schedatura.setEnabled(False)
+            self.comboBox_schedatore.setEnabled(False)
+            self.comboBox_formazione.setEnabled(False)
+            self.comboBox_conservazione.setEnabled(False)
+            self.comboBox_colore.setEnabled(False)
+            self.comboBox_consistenza.setEnabled(False)
+            self.comboBox_struttura.setEnabled(False)
+            self.lineEdit_codice_periodo.setEnabled(False)
+            self.lineEditOrderLayer.setEnabled(False)
+            self.comboBox_unita_edilizia_riassuntiva_usm.setEnabled(False)
+            self.comboBox_reimpiego_usm.setEnabled(False)
+            self.comboBox_posa_in_opera_usm.setEnabled(False)
+            self.textEdit_osservazioni.setEnabled(False)
+            self.lineEdit_datazione.setEnabled(False)
+            self.comboBox_flottazione.setEnabled(False)
+            self.comboBox_setacciatura.setEnabled(False)
+            self.comboBox_affidabilita.setEnabled(False)
+            self.comboBox_direttore_us.setEnabled(False)
+            self.comboBox_responsabile_us.setEnabled(False)
+            self.lineEdit_cod_ente_schedatore.setEnabled(False)
+            self.lineEdit_data_rilevazione.setEnabled(False)
+            self.lineEdit_data_rielaborazione.setEnabled(False)
+            self.comboBox_tecnica_muraria_usm.setEnabled(False)
+            self.comboBox_modulo_usm.setEnabled(False)
+            self.lineEdit_campioni_malta_usm.setEnabled(False)
+            self.lineEdit_campioni_mattone_usm.setEnabled(False)
+            self.lineEdit_campioni_pietra_usm.setEnabled(False)
+            self.lineEdit_provenienza_materiali_usm.setEnabled(False)
+            self.lineEdit_criteri_distinzione_usm.setEnabled(False)
+            self.comboBox_uso_primario_usm.setEnabled(False)
+            self.comboBox_tipologia_opera.setEnabled(False)
+            self.comboBox_sezione_muraria.setEnabled(False)
+            self.comboBox_superficie_analizzata.setEnabled(False)
+            self.comboBox_orientamento.setEnabled(False)
+            self.comboBox_materiali_lat.setEnabled(False)
+            self.comboBox_lavorazione_lat.setEnabled(False)
+            self.comboBox_consistenza_lat.setEnabled(False)
+            self.comboBox_forma_lat.setEnabled(False)
+            self.comboBox_colore_lat.setEnabled(False)
+            self.comboBox_impasto_lat.setEnabled(False)
+            self.comboBox_forma_p.setEnabled(False)
+            self.comboBox_colore_p.setEnabled(False)
+            self.comboBox_taglio_p.setEnabled(False)
+            self.comboBox_posa_opera_p.setEnabled(False)
+            self.comboBox_inerti_usm.setEnabled(False)
+            self.comboBox_tipo_legante_usm.setEnabled(False)
+            self.comboBox_rifinitura_usm.setEnabled(False)
+            self.comboBox_materiale_p.setEnabled(False)
+            self.comboBox_consistenza_p.setEnabled(False)
+
+            # And then enable those specific fields you mentioned:
+            self.comboBox_area.setEnabled(True)
+            self.comboBox_struttura.setEnabled(True)
+            self.lineEdit_quadrato.setEnabled(True)
+            self.comboBox_settore.setEnabled(True)
+            self.lineEdit_ambiente.setEnabled(True)
+            self.lineEdit_saggio.setEnabled(True)
+        else:
+            #QMessageBox.information(self, "Search mode changed",
+                                    #"Regular query_bool mode is now deactive. Use Ctrl+Shift+N to activate query_bool_like mode.")
+
+            self.comboBox_sito.setEnabled(False)
+            self.comboBox_area.setEnabled(False)
+            self.comboBox_unita_tipo.setEnabled(True)
+            self.lineEdit_us.setEnabled(False)
+            self.comboBox_def_strat.setEnabled(True)
+            self.comboBox_def_intepret.setEnabled(True)
+            self.textEdit_descrizione.setEnabled(True)
+            self.textEdit_interpretazione.setEnabled(True)
+            self.comboBox_per_iniz.setEnabled(True)
+            self.comboBox_fas_iniz.setEnabled(True)
+            self.comboBox_per_fin.setEnabled(True)
+            self.comboBox_fas_fin.setEnabled(True)
+            self.comboBox_scavato.setEnabled(True)
+            self.lineEdit_attivita.setEnabled(True)
+            self.lineEdit_anno.setEnabled(True)
+            self.comboBox_metodo.setEnabled(True)
+            self.lineEdit_data_schedatura.setEnabled(True)
+            self.comboBox_schedatore.setEnabled(True)
+            self.comboBox_formazione.setEnabled(True)
+            self.comboBox_conservazione.setEnabled(True)
+            self.comboBox_colore.setEnabled(True)
+            self.comboBox_consistenza.setEnabled(True)
+            self.comboBox_struttura.setEnabled(True)
+            self.lineEdit_codice_periodo.setEnabled(True)
+            self.lineEditOrderLayer.setEnabled(True)
+            self.comboBox_unita_edilizia_riassuntiva_usm.setEnabled(True)
+            self.comboBox_reimpiego_usm.setEnabled(True)
+            self.comboBox_posa_in_opera_usm.setEnabled(True)
+            self.textEdit_osservazioni.setEnabled(True)
+            self.lineEdit_datazione.setEnabled(True)
+            self.comboBox_flottazione.setEnabled(True)
+            self.comboBox_setacciatura.setEnabled(True)
+            self.comboBox_affidabilita.setEnabled(True)
+            self.comboBox_direttore_us.setEnabled(True)
+            self.comboBox_responsabile_us.setEnabled(True)
+            self.lineEdit_cod_ente_schedatore.setEnabled(True)
+            self.lineEdit_data_rilevazione.setEnabled(True)
+            self.lineEdit_data_rielaborazione.setEnabled(True)
+            self.comboBox_tecnica_muraria_usm.setEnabled(True)
+            self.comboBox_modulo_usm.setEnabled(True)
+            self.lineEdit_campioni_malta_usm.setEnabled(True)
+            self.lineEdit_campioni_mattone_usm.setEnabled(True)
+            self.lineEdit_campioni_pietra_usm.setEnabled(True)
+            self.lineEdit_provenienza_materiali_usm.setEnabled(True)
+            self.lineEdit_criteri_distinzione_usm.setEnabled(True)
+            self.comboBox_uso_primario_usm.setEnabled(True)
+            self.comboBox_tipologia_opera.setEnabled(True)
+            self.comboBox_sezione_muraria.setEnabled(True)
+            self.comboBox_superficie_analizzata.setEnabled(True)
+            self.comboBox_orientamento.setEnabled(True)
+            self.comboBox_materiali_lat.setEnabled(True)
+            self.comboBox_lavorazione_lat.setEnabled(True)
+            self.comboBox_consistenza_lat.setEnabled(True)
+            self.comboBox_forma_lat.setEnabled(True)
+            self.comboBox_colore_lat.setEnabled(True)
+            self.comboBox_impasto_lat.setEnabled(True)
+            self.comboBox_forma_p.setEnabled(True)
+            self.comboBox_colore_p.setEnabled(True)
+            self.comboBox_taglio_p.setEnabled(True)
+            self.comboBox_posa_opera_p.setEnabled(True)
+            self.comboBox_inerti_usm.setEnabled(True)
+            self.comboBox_tipo_legante_usm.setEnabled(True)
+            self.comboBox_rifinitura_usm.setEnabled(True)
+            self.comboBox_materiale_p.setEnabled(True)
+            self.comboBox_consistenza_p.setEnabled(True)
+            self.setTableEnable(
+                ["self.tableWidget_campioni", "self.tableWidget_rapporti", "self.tableWidget_inclusi",
+                 "self.tableWidget_organici", "self.tableWidget_inorganici", "self.tableWidget_documentazione",
+                 "self.tableWidget_rapporti2"], "True")
+            self.use_like_query = False
     def on_pushButton_search_go_pressed(self):
 
 
@@ -7100,7 +7482,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                                     QMessageBox.Ok)
             else:
                 QMessageBox.warning(self, "WARNING", "To perform a new search click on the 'new search' button ",
-                                    QMessageBox.Ok)                     
+                                    QMessageBox.Ok)
         else:
             # TableWidget
             if self.lineEdit_us.text() != "":
@@ -7194,145 +7576,166 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 spessore_usm = None
             else:
                 spessore_usm = float(self.lineEdit_spessore_usm.text())
+
+            search_dict_like = {
+                self.TABLE_FIELDS[0]: self.comboBox_sito.currentText(),  # 1 - Sito
+                self.TABLE_FIELDS[1]: self.comboBox_area.currentText(),
+                self.TABLE_FIELDS[24]: self.comboBox_struttura.currentText(),  # 22 - struttura
+                self.TABLE_FIELDS[29]: self.comboBox_settore.currentText(),  # 24 - order layer
+                self.TABLE_FIELDS[30]: self.lineEdit_quadrato.text(),
+                self.TABLE_FIELDS[31]: self.lineEdit_ambiente.text(),  # 30 quadrato
+                self.TABLE_FIELDS[32]: self.lineEdit_saggio.text()
+                # 30 quadrato
+            }
+
             search_dict = {
-                self.TABLE_FIELDS[0]: "'" + str(self.comboBox_sito.currentText()) + "'",  # 1 - Sito
-                self.TABLE_FIELDS[1]: "'" + str(self.comboBox_area.currentText()) + "'",  # 2 - Area
+                self.TABLE_FIELDS[0]:  "'"+ str(self.comboBox_sito.currentText())+"'",  # 1 - Sito
+                self.TABLE_FIELDS[1]:  "'" +str(self.comboBox_area.currentText()) +"'",  # 2 - Area
                 self.TABLE_FIELDS[2]: us,  # 3 - US
-                self.TABLE_FIELDS[3]: "'" + str(self.comboBox_def_strat.currentText()) + "'",
+                self.TABLE_FIELDS[3]:  "'" +str(self.comboBox_def_strat.currentText()) +"'",
                 # 4 - Definizione stratigrafica
-                self.TABLE_FIELDS[4]: "'" + str(self.comboBox_def_intepret.currentText()) + "'",
+                self.TABLE_FIELDS[4]:  "'" +str(self.comboBox_def_intepret.currentText()) +"'",
                 # 5 - Definizione intepretata
-                self.TABLE_FIELDS[5]: str(self.textEdit_descrizione.toPlainText()),  # 6 - descrizione
-                self.TABLE_FIELDS[6]: str(self.textEdit_interpretazione.toPlainText()),  # 7 - interpretazione
-                self.TABLE_FIELDS[7]: "'" + str(self.comboBox_per_iniz.currentText()) + "'",  # 8 - periodo iniziale
-                self.TABLE_FIELDS[8]: "'" + str(self.comboBox_fas_iniz.currentText()) + "'",  # 9 - fase iniziale
-                self.TABLE_FIELDS[9]: "'" + str(self.comboBox_per_fin.currentText()) + "'",
+                self.TABLE_FIELDS[5]: "'" +str(self.textEdit_descrizione.toPlainText())+"'",  # 6 - descrizione
+                self.TABLE_FIELDS[6]: "'" +str(self.textEdit_interpretazione.toPlainText())+"'",  # 7 - interpretazione
+                self.TABLE_FIELDS[7]:  "'" +str(self.comboBox_per_iniz.currentText()) +"'",  # 8 - periodo iniziale
+                self.TABLE_FIELDS[8]:  "'" +str(self.comboBox_fas_iniz.currentText())+"'" ,  # 9 - fase iniziale
+                self.TABLE_FIELDS[9]:  "'" +str(self.comboBox_per_fin.currentText()) +"'",
                 # 10 - periodo finale iniziale
-                self.TABLE_FIELDS[10]: "'" + str(self.comboBox_fas_fin.currentText()) + "'",  # 11 - fase finale
-                self.TABLE_FIELDS[11]: "'" + str(self.comboBox_scavato.currentText()) + "'",  # 12 - scavato
-                self.TABLE_FIELDS[12]: "'" + str(self.lineEdit_attivita.text()) + "'",  # 13 - attivita
-                self.TABLE_FIELDS[13]: "'" + str(self.lineEdit_anno.text()) + "'",  # 14 - anno scavo
-                self.TABLE_FIELDS[14]: "'" + str(self.comboBox_metodo.currentText()) + "'",  # 15 - metodo
-                self.TABLE_FIELDS[18]: "'" + str(self.lineEdit_data_schedatura.text()) + "'",  # 16 - data schedatura
-                self.TABLE_FIELDS[19]: "'" + str(self.comboBox_schedatore.currentText()) + "'",  # 17 - schedatore
-                self.TABLE_FIELDS[20]: "'" + str(self.comboBox_formazione.currentText()) + "'",  # 18 - formazione
-                self.TABLE_FIELDS[21]: "'" + str(self.comboBox_conservazione.currentText()) + "'",  # 19 - conservazione
-                self.TABLE_FIELDS[22]: "'" + str(self.comboBox_colore.currentText()) + "'",  # 20 - colore
-                self.TABLE_FIELDS[23]: "'" + str(self.comboBox_consistenza.currentText()) + "'",  # 21 - consistenza
-                self.TABLE_FIELDS[24]: "'" + str(self.comboBox_struttura.currentText()) + "'",  # 22 - struttura
-                self.TABLE_FIELDS[25]: "'" + str(self.lineEdit_codice_periodo.text()) + "'",  # 23 - codice_periodo
-                self.TABLE_FIELDS[26]: "'" + str(self.lineEditOrderLayer.text()) + "'",  # 24 - order layer
-                self.TABLE_FIELDS[28]: "'" + str(self.comboBox_unita_tipo.currentText()) + "'",  # 24 - order layer
-                self.TABLE_FIELDS[29]: "'" + str(self.comboBox_settore.currentText()) + "'",  # 24 - order layer
-                self.TABLE_FIELDS[30]: "'" + str(self.lineEdit_quadrato.text()) + "'",  # 30 quadrato
-                self.TABLE_FIELDS[31]: "'" + str(self.lineEdit_ambiente.text()) + "'",  # 30 quadrato
-                self.TABLE_FIELDS[32]: "'" + str(self.lineEdit_saggio.text()) + "'",  # 30 quadrato
-                self.TABLE_FIELDS[33]: str(self.textEdit_elementi_datanti.toPlainText()),  # 6 - descrizione
-                self.TABLE_FIELDS[34]: "'" + str(self.comboBox_funz_statica_usm.currentText()) + "'",
+                self.TABLE_FIELDS[10]:  "'" +str(self.comboBox_fas_fin.currentText())+"'" ,  # 11 - fase finale
+                self.TABLE_FIELDS[11]:  "'" +str(self.comboBox_scavato.currentText()) +"'",  # 12 - scavato
+                self.TABLE_FIELDS[12]:  "'" +str(self.lineEdit_attivita.text()) +"'",  # 13 - attivita
+                self.TABLE_FIELDS[13]:  "'" +str(self.lineEdit_anno.text()) +"'",  # 14 - anno scavo
+                self.TABLE_FIELDS[14]:  "'" +str(self.comboBox_metodo.currentText()) +"'",  # 15 - metodo
+                self.TABLE_FIELDS[18]:  "'" +str(self.lineEdit_data_schedatura.text()) +"'",  # 16 - data schedatura
+                self.TABLE_FIELDS[19]:  "'" +str(self.comboBox_schedatore.currentText()) +"'",  # 17 - schedatore
+                self.TABLE_FIELDS[20]:  "'" +str(self.comboBox_formazione.currentText())+"'" ,  # 18 - formazione
+                self.TABLE_FIELDS[21]:  "'" +str(self.comboBox_conservazione.currentText()) +"'",  # 19 - conservazione
+                self.TABLE_FIELDS[22]:  "'" +str(self.comboBox_colore.currentText())+"'" ,  # 20 - colore
+                self.TABLE_FIELDS[23]:  "'" +str(self.comboBox_consistenza.currentText())+"'" ,  # 21 - consistenza
+                self.TABLE_FIELDS[24]:  "'" +str(self.comboBox_struttura.currentText())+"'",  # 22 - struttura
+                self.TABLE_FIELDS[25]:  "'" +str(self.lineEdit_codice_periodo.text()) +"'",  # 23 - codice_periodo
+                self.TABLE_FIELDS[26]:  "'" +str(self.lineEditOrderLayer.text())+"'" ,  # 24 - order layer
+                self.TABLE_FIELDS[28]:  "'" +str(self.comboBox_unita_tipo.currentText()) +"'",  # 24 - order layer
+                self.TABLE_FIELDS[29]:  "'" +str(self.comboBox_settore.currentText())+"'" ,  # 24 - order layer
+                self.TABLE_FIELDS[30]:  "'" +str(self.lineEdit_quadrato.text())+"'" ,  # 30 quadrato
+                self.TABLE_FIELDS[31]:  "'" +str(self.lineEdit_ambiente.text())+"'" ,  # 30 quadrato
+                self.TABLE_FIELDS[32]:  "'" +str(self.lineEdit_saggio.text())+"'" ,  # 30 quadrato
+                self.TABLE_FIELDS[33]: "'" +str(self.textEdit_elementi_datanti.toPlainText())+"'",  # 6 - descrizione
+                self.TABLE_FIELDS[34]:  "'" +str(self.comboBox_funz_statica_usm.currentText())+"'" ,
                 # 24 - order layer
-                self.TABLE_FIELDS[35]: "'" + str(self.comboBox_lavorazione_usm.currentText()) + "'",  # 30 quadrato
-                self.TABLE_FIELDS[36]: "'" + str(self.lineEdit_spessore_giunti_usm.text()) + "'",  # 30 quadrato
-                self.TABLE_FIELDS[37]: "'" + str(self.lineEdit_letti_di_posa_giunti_usm.text()) + "'",
-                self.TABLE_FIELDS[38]: "'" + str(self.lineEdit_h_modulo_c_corsi_usm.text()) + "'",
-                self.TABLE_FIELDS[39]: "'" + str(self.comboBox_unita_edilizia_riassuntiva_usm.currentText()) + "'",
-                self.TABLE_FIELDS[40]: "'" + str(self.comboBox_reimpiego_usm.currentText()) + "'",
-                self.TABLE_FIELDS[41]: "'" + str(self.comboBox_posa_in_opera_usm.currentText()) + "'",
+                self.TABLE_FIELDS[35]:  "'" +str(self.comboBox_lavorazione_usm.currentText()) +"'",  # 30 quadrato
+                self.TABLE_FIELDS[36]:  "'" +str(self.lineEdit_spessore_giunti_usm.text())+"'" ,  # 30 quadrato
+                self.TABLE_FIELDS[37]:  "'" +str(self.lineEdit_letti_di_posa_giunti_usm.text()) +"'",
+                self.TABLE_FIELDS[38]:  "'" +str(self.lineEdit_h_modulo_c_corsi_usm.text())+"'" ,
+                self.TABLE_FIELDS[39]:  "'" +str(self.comboBox_unita_edilizia_riassuntiva_usm.currentText())+"'" ,
+                self.TABLE_FIELDS[40]:  "'" +str(self.comboBox_reimpiego_usm.currentText()) +"'",
+                self.TABLE_FIELDS[41]:  "'" +str(self.comboBox_posa_in_opera_usm.currentText())+"'" ,
                 self.TABLE_FIELDS[42]: qmin_usm,
                 self.TABLE_FIELDS[43]: qmax_usm,
-                self.TABLE_FIELDS[44]: "'" + str(self.comboBox_consistenza_legante_usm.currentText()) + "'",
-                self.TABLE_FIELDS[50]: "'" + str(self.lineEdit_n_catalogo_generale.text()) + "'",
+                self.TABLE_FIELDS[44]:  "'" +str(self.comboBox_consistenza_legante_usm.currentText())+"'" ,
+                self.TABLE_FIELDS[50]:  "'" +str(self.lineEdit_n_catalogo_generale.text()) +"'",
             # 51 nr catalogo generale campi aggiunti per archeo 3.0 e allineamento ICCD
-                self.TABLE_FIELDS[51]: "'" + str(self.lineEdit_n_catalogo_interno.text()) + "'",
+                self.TABLE_FIELDS[51]:  "'" +str(self.lineEdit_n_catalogo_interno.text())+"'" ,
             # 52 nr catalogo interno
-                self.TABLE_FIELDS[52]: "'" + str(self.lineEdit_n_catalogo_internazionale.text()) + "'",
+                self.TABLE_FIELDS[52]:  "'" +str(self.lineEdit_n_catalogo_internazionale.text()) +"'",
             # 53 nr catalogo internazionale
-                self.TABLE_FIELDS[53]: "'" + str(self.comboBox_soprintendenza.currentText()) + "'",
+                self.TABLE_FIELDS[53]:  "'" +str(self.comboBox_soprintendenza.currentText()) +"'",
             # 54 nr soprintendenza
                 self.TABLE_FIELDS[54]:  quota_relativa,  # 55 quota relativa
                 self.TABLE_FIELDS[55]:  quota_abs,  # 56 quota abs
-                self.TABLE_FIELDS[56]: "'" + str(self.lineEdit_ref_tm.text()) + "'",  # 57 ref tm
-                self.TABLE_FIELDS[57]: "'" + str(self.comboBox_ref_ra.currentText()) + "'",  # 58 ref ra
-                self.TABLE_FIELDS[58]: "'" + str(self.lineEdit_ref_n.text()) + "'",  # 59 ref n
-                self.TABLE_FIELDS[59]: "'" + str(self.comboBox_posizione.currentText()) + "'",  # 60 posizione
-                self.TABLE_FIELDS[60]: "'" + str(self.lineEdit_criteri_distinzione.text()) + "'",
+                self.TABLE_FIELDS[56]:  "'" +str(self.lineEdit_ref_tm.text()) +"'",  # 57 ref tm
+                self.TABLE_FIELDS[57]:  "'" +str(self.comboBox_ref_ra.currentText()) +"'",  # 58 ref ra
+                self.TABLE_FIELDS[58]:  "'" +str(self.lineEdit_ref_n.text()) +"'",  # 59 ref n
+                self.TABLE_FIELDS[59]:  "'" +str(self.comboBox_posizione.currentText())+"'" ,  # 60 posizione
+                self.TABLE_FIELDS[60]:  "'" +str(self.lineEdit_criteri_distinzione.text())+"'" ,
             # 61 criteri distinzione
-                self.TABLE_FIELDS[61]: "'" + str(self.comboBox_modo_formazione.currentText()) + "'",
+                self.TABLE_FIELDS[61]:  "'" +str(self.comboBox_modo_formazione.currentText()) +"'",
             # 62 modo formazione
-            #    self.TABLE_FIELDS[62]: "'" + str(self.comboBox_componenti_organici.currentText()) + "'",
+            #    self.TABLE_FIELDS[62]:  str(self.comboBox_componenti_organici.currentText()) ,
             # 63 componenti organici
-            #    self.TABLE_FIELDS[63]: "'" + str(self.comboBox_componenti_inorganici.currentText()) + "'",
+            #    self.TABLE_FIELDS[63]:  str(self.comboBox_componenti_inorganici.currentText()) ,
             # 64 componenti inorganici
-                self.TABLE_FIELDS[64]:lunghezza_max,  # 65
-                self.TABLE_FIELDS[65]:altezza_max,  # 66
-                self.TABLE_FIELDS[66]:altezza_min,  # 67
-                self.TABLE_FIELDS[67]:profondita_max,  # 68
-                self.TABLE_FIELDS[68]:profondita_min,  # 69
-                self.TABLE_FIELDS[69]:larghezza_media,  # 70
-                self.TABLE_FIELDS[70]:quota_max_abs,  # 71
-                self.TABLE_FIELDS[71]:quota_max_rel,  # 72
-                self.TABLE_FIELDS[72]:quota_min_abs,  # 73
-                self.TABLE_FIELDS[73]:quota_min_rel,  # 74
-                self.TABLE_FIELDS[74]: "'" + str(self.textEdit_osservazioni.toPlainText()) + "'",  # 75 osservazioni
-                self.TABLE_FIELDS[75]: "'" + str(self.lineEdit_datazione.text()) + "'",  # 76 datazione
-                self.TABLE_FIELDS[76]: "'" + str(self.comboBox_flottazione.currentText()) + "'",  # 77 flottazione
-                self.TABLE_FIELDS[77]: "'" + str(self.comboBox_setacciatura.currentText()) + "'",  # 78 setacciatura
-                self.TABLE_FIELDS[78]: "'" + str(self.comboBox_affidabilita.currentText()) + "'",  # 79 affidabilita
-                self.TABLE_FIELDS[79]: "'" + str(self.comboBox_direttore_us.currentText()) + "'",  # 80 direttore us
-                self.TABLE_FIELDS[80]: "'" + str(self.comboBox_responsabile_us.currentText()) + "'", # 81 responsabile us
-                self.TABLE_FIELDS[81]: "'" + str(self.lineEdit_cod_ente_schedatore.text()) + "'", # 82 cod ente schedatore
-                self.TABLE_FIELDS[82]: "'" + str(self.lineEdit_data_rilevazione.text()) + "'",  # 83 data rilevazione
-                self.TABLE_FIELDS[83]: "'" + str(self.lineEdit_data_rielaborazione.text()) + "'", # 84 data rielaborazione
+                self.TABLE_FIELDS[64]:  lunghezza_max,  # 65
+                self.TABLE_FIELDS[65]:  altezza_max,  # 66
+                self.TABLE_FIELDS[66]:  altezza_min,  # 67
+                self.TABLE_FIELDS[67]:  profondita_max,  # 68
+                self.TABLE_FIELDS[68]:  profondita_min,  # 69
+                self.TABLE_FIELDS[69]:  larghezza_media,  # 70
+                self.TABLE_FIELDS[70]:  quota_max_abs,  # 71
+                self.TABLE_FIELDS[71]:  quota_max_rel,  # 72
+                self.TABLE_FIELDS[72]:  quota_min_abs,  # 73
+                self.TABLE_FIELDS[73]:  quota_min_rel,  # 74
+                self.TABLE_FIELDS[74]:  "'" +str(self.textEdit_osservazioni.toPlainText())+"'" ,  # 75 osservazioni
+                self.TABLE_FIELDS[75]:  "'" +str(self.lineEdit_datazione.text())+"'",  # 76 datazione
+                self.TABLE_FIELDS[76]:  "'" +str(self.comboBox_flottazione.currentText()) +"'",  # 77 flottazione
+                self.TABLE_FIELDS[77]:  "'" +str(self.comboBox_setacciatura.currentText()) +"'",  # 78 setacciatura
+                self.TABLE_FIELDS[78]:  "'" +str(self.comboBox_affidabilita.currentText()) +"'",  # 79 affidabilita
+                self.TABLE_FIELDS[79]:  "'" +str(self.comboBox_direttore_us.currentText()) +"'",  # 80 direttore us
+                self.TABLE_FIELDS[80]:  "'" +str(self.comboBox_responsabile_us.currentText())+"'" , # 81 responsabile us
+                self.TABLE_FIELDS[81]:  "'" +str(self.lineEdit_cod_ente_schedatore.text()) +"'", # 82 cod ente schedatore
+                self.TABLE_FIELDS[82]:  "'" +str(self.lineEdit_data_rilevazione.text())+"'" ,  # 83 data rilevazione
+                self.TABLE_FIELDS[83]:  "'" +str(self.lineEdit_data_rielaborazione.text())+"'" , # 84 data rielaborazione
                 self.TABLE_FIELDS[84]: lunghezza_usm,  # 85
                 self.TABLE_FIELDS[85]: altezza_usm,  # 86
                 self.TABLE_FIELDS[86]: spessore_usm,  # 87
-                self.TABLE_FIELDS[87]: "'" + str(self.comboBox_tecnica_muraria_usm.currentText()) + "'", # 88 tecnica muraria usm
-                self.TABLE_FIELDS[88]: "'" + str(self.comboBox_modulo_usm.currentText()) + "'", # 89 modulo usm
-                self.TABLE_FIELDS[89]: "'" + str(self.lineEdit_campioni_malta_usm.text()) + "'", # 90 campioni malta usm
-                self.TABLE_FIELDS[90]: "'" + str(self.lineEdit_campioni_mattone_usm.text()) + "'", # 91 campioni mattone usm
-                self.TABLE_FIELDS[91]: "'" + str(self.lineEdit_campioni_pietra_usm.text()) + "'", # 92 campioni pietra usm
-                self.TABLE_FIELDS[92]: "'" + str(self.lineEdit_provenienza_materiali_usm.text()) + "'", # 93 provenienza_materiali_usm
-                self.TABLE_FIELDS[93]: "'" + str(self.lineEdit_criteri_distinzione_usm.text()) + "'", # 94 criteri distinzione usm
-                self.TABLE_FIELDS[94]: "'" + str(self.comboBox_uso_primario_usm.currentText()) + "'",  # 95 uso primario usm
-                self.TABLE_FIELDS[95]: "'" + str(self.comboBox_tipologia_opera.currentText()) + "'",  # 95 uso primario usm
-                self.TABLE_FIELDS[96]: "'" + str(self.comboBox_sezione_muraria.currentText()) + "'" , # 95 uso primario usm
-                self.TABLE_FIELDS[97]: "'" + str(self.comboBox_superficie_analizzata.currentText()) + "'" , # 95 uso primario usm
-                self.TABLE_FIELDS[98]: "'" + str(self.comboBox_orientamento.currentText()) + "'" , # 95 uso primario usm
-                self.TABLE_FIELDS[99]: "'" + str(self.comboBox_materiali_lat.currentText()) + "'",  # 95 uso primario usm
-                self.TABLE_FIELDS[100]: "'" + str(self.comboBox_lavorazione_lat.currentText()) + "'",  # 95 uso primario usm
-                self.TABLE_FIELDS[101]: "'" + str(self.comboBox_consistenza_lat.currentText()) + "'",  # 95 uso primario usm
-                self.TABLE_FIELDS[102]: "'" + str(self.comboBox_forma_lat.currentText()) + "'" , # 95 uso primario usm
-                self.TABLE_FIELDS[103]: "'" + str(self.comboBox_colore_lat.currentText()) + "'",  # 95 uso primario usm
-                self.TABLE_FIELDS[104]: "'" + str(self.comboBox_impasto_lat.currentText()) + "'", # 95 uso primario usm
-                self.TABLE_FIELDS[105]: "'" + str(self.comboBox_forma_p.currentText()) + "'" , # 95 uso primario usm
-                self.TABLE_FIELDS[106]: "'" + str(self.comboBox_colore_p.currentText()) + "'",  # 95 uso primario usm
-                self.TABLE_FIELDS[107]: "'" + str(self.comboBox_taglio_p.currentText()) + "'" , # 95 uso primario usm
-                self.TABLE_FIELDS[108]: "'" + str(self.comboBox_posa_opera_p.currentText()) + "'",  # 95 uso primario usm
-                self.TABLE_FIELDS[109]: "'" + str(self.comboBox_inerti_usm.currentText()) + "'",  # 95 uso primario usm
-                self.TABLE_FIELDS[110]: "'" + str(self.comboBox_tipo_legante_usm.currentText()) + "'",  # 95 uso primario usm
-                self.TABLE_FIELDS[111]: "'" + str(self.comboBox_rifinitura_usm.currentText()) + "'",  # 95 uso primario usm
-                self.TABLE_FIELDS[112]: "'" + str(self.comboBox_materiale_p.currentText()) + "'",  # 95 uso primario usm
-                self.TABLE_FIELDS[113]: "'" + str(self.comboBox_consistenza_p.currentText()) + "'",  # 95 uso primario usm
+                self.TABLE_FIELDS[87]:  "'" +str(self.comboBox_tecnica_muraria_usm.currentText())+"'" , # 88 tecnica muraria usm
+                self.TABLE_FIELDS[88]:  "'" +str(self.comboBox_modulo_usm.currentText()) +"'", # 89 modulo usm
+                self.TABLE_FIELDS[89]:  "'" +str(self.lineEdit_campioni_malta_usm.text())+"'" , # 90 campioni malta usm
+                self.TABLE_FIELDS[90]:  "'" +str(self.lineEdit_campioni_mattone_usm.text())+"'" , # 91 campioni mattone usm
+                self.TABLE_FIELDS[91]:  "'" +str(self.lineEdit_campioni_pietra_usm.text())+"'" , # 92 campioni pietra usm
+                self.TABLE_FIELDS[92]:  "'" +str(self.lineEdit_provenienza_materiali_usm.text())+"'" , # 93 provenienza_materiali_usm
+                self.TABLE_FIELDS[93]:  "'" +str(self.lineEdit_criteri_distinzione_usm.text()) +"'", # 94 criteri distinzione usm
+                self.TABLE_FIELDS[94]:  "'" +str(self.comboBox_uso_primario_usm.currentText())+"'" ,  # 95 uso primario usm
+                self.TABLE_FIELDS[95]:  "'" +str(self.comboBox_tipologia_opera.currentText())+"'" ,  # 95 uso primario usm
+                self.TABLE_FIELDS[96]:  "'" +str(self.comboBox_sezione_muraria.currentText()) +"'" , # 95 uso primario usm
+                self.TABLE_FIELDS[97]:  "'" +str(self.comboBox_superficie_analizzata.currentText()) +"'" , # 95 uso primario usm
+                self.TABLE_FIELDS[98]:  "'" +str(self.comboBox_orientamento.currentText()) +"'" , # 95 uso primario usm
+                self.TABLE_FIELDS[99]:  "'" +str(self.comboBox_materiali_lat.currentText()) +"'",  # 95 uso primario usm
+                self.TABLE_FIELDS[100]:  "'" +str(self.comboBox_lavorazione_lat.currentText()) +"'",  # 95 uso primario usm
+                self.TABLE_FIELDS[101]:  "'" +str(self.comboBox_consistenza_lat.currentText()) +"'",  # 95 uso primario usm
+                self.TABLE_FIELDS[102]:  "'" +str(self.comboBox_forma_lat.currentText())  +"'", # 95 uso primario usm
+                self.TABLE_FIELDS[103]:  "'" +str(self.comboBox_colore_lat.currentText()) +"'",  # 95 uso primario usm
+                self.TABLE_FIELDS[104]:  "'" +str(self.comboBox_impasto_lat.currentText()) +"'", # 95 uso primario usm
+                self.TABLE_FIELDS[105]:  "'" +str(self.comboBox_forma_p.currentText()) +"'" , # 95 uso primario usm
+                self.TABLE_FIELDS[106]:  "'" +str(self.comboBox_colore_p.currentText()) +"'",  # 95 uso primario usm
+                self.TABLE_FIELDS[107]:  "'" +str(self.comboBox_taglio_p.currentText())  +"'", # 95 uso primario usm
+                self.TABLE_FIELDS[108]:  "'" +str(self.comboBox_posa_opera_p.currentText()) +"'",  # 95 uso primario usm
+                self.TABLE_FIELDS[109]:  "'" +str(self.comboBox_inerti_usm.currentText()) +"'",  # 95 uso primario usm
+                self.TABLE_FIELDS[110]:  "'" +str(self.comboBox_tipo_legante_usm.currentText()) +"'",  # 95 uso primario usm
+                self.TABLE_FIELDS[111]:  "'" +str(self.comboBox_rifinitura_usm.currentText()) +"'",  # 95 uso primario usm
+                self.TABLE_FIELDS[112]:  "'" +str(self.comboBox_materiale_p.currentText()) +"'",  # 95 uso primario usm
+                self.TABLE_FIELDS[113]:  "'" +str(self.comboBox_consistenza_p.currentText()) +"'",  # 95 uso primario usm
             }
+            # Remove empty items
             u = Utility()
-            search_dict1 = u.remove_empty_items_fr_dict(search_dict)
-            if not bool(search_dict):
-                if self.L=='it':
-                    QMessageBox.warning(self, "ATTENZIONE", "Non è stata impostata nessuna ricerca!!!", QMessageBox.Ok)
-                elif self.L=='de':
-                    QMessageBox.warning(self, "ACHTUNG", "Keine Abfrage definiert!!!", QMessageBox.Ok)
-                else:
-                    QMessageBox.warning(self, " WARNING", "No search has been set!!!", QMessageBox.Ok)      
+            search_dict = u.remove_empty_items_fr_dict(search_dict)
+            search_dict_like = u.remove_empty_items_fr_dict(search_dict_like)
+
+            if not search_dict:
+                QMessageBox.warning(self, "WARNING", "No search is set", QMessageBox.Ok)
             else:
-                res = self.DB_MANAGER.query_bool(search_dict1, self.MAPPER_TABLE_CLASS)
+                if self.use_like_query:
+                    message = "Scegli l'operatore di unione:\n\n" + \
+                              "'and': restituisce solo i records dove tutte le condizioni sono vere. " + \
+                              "Ad esempio, se stai cercando una 'struttura' in un 'settore' e un 'sito' specifici, scegli 'and'. " + \
+                              "Se vuoi trovare la struttura 'ST1', nel settore 'SE2', del sito 'Monte Testaccio', otterrai records dove tutte queste condizioni sono soddisfatte.\n\n" + \
+                              "'or': restituisce i records dove almeno una condizione è vera. " + \
+                              "Ad esempio, se stai cercando records nella struttura 'ST1' o nel settore 'SE2' o nel sito 'Monte Testaccio', scegli 'or'. " + \
+                              "In questo caso, otterrai i records dove una qualsiasi di queste condizioni è soddisfatta."
 
-
+                    items = ['and', 'or']
+                    join_operator, okPressed = QInputDialog.getItem(self, "Input", message, items, 0, False)
+                    res = self.DB_MANAGER.query_bool_like(search_dict_like, 'us_table',join_operator)
+                else:
+                    res = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
                 if not bool(res):
                     if self.L=='it':
                         QMessageBox.warning(self, "ATTENZIONE", "Non è stato trovato nessun record!", QMessageBox.Ok)
                     elif self.L=='de':
                         QMessageBox.warning(self, "ACHTUNG", "Keinen Record gefunden!", QMessageBox.Ok)
                     else:
-                        QMessageBox.warning(self, "WARNING", "No record found!", QMessageBox.Ok)        
+                        QMessageBox.warning(self, "WARNING", "No record found!", QMessageBox.Ok)
                     self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR + 1)
                     self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
                     self.BROWSE_STATUS = "b"
@@ -7349,7 +7752,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                     self.fill_fields(self.REC_CORR)
                 else:
                     self.DATA_LIST = []
-                    for i in res:
+                    for i  in res:
                         self.DATA_LIST.append(i)
                     self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
                     self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
@@ -7362,41 +7765,41 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                             strings = ("E' stato trovato", self.REC_TOT, "record")
                             if self.toolButtonGis.isChecked():
                                 self.pyQGIS.charge_vector_layers(self.DATA_LIST)
-                            if self.toolButton_usm.isChecked():    
+                            if self.toolButton_usm.isChecked():
                                 self.pyQGIS.charge_usm_layers(self.DATA_LIST)
                         else:
                             strings = ("Sono stati trovati", self.REC_TOT, "records")
                             if self.toolButtonGis.isChecked():
                                 self.pyQGIS.charge_vector_layers(self.DATA_LIST)
-                            if self.toolButton_usm.isChecked():    
+                            if self.toolButton_usm.isChecked():
                                 self.pyQGIS.charge_usm_layers(self.DATA_LIST)
                     elif self.L=='de':
                         if self.REC_TOT == 1:
                             strings = ("Es wurde gefunden", self.REC_TOT, "record")
                             if self.toolButtonGis.isChecked():
                                 self.pyQGIS.charge_vector_layers(self.DATA_LIST)
-                            if self.toolButton_usm.isChecked():    
+                            if self.toolButton_usm.isChecked():
                                 self.pyQGIS.charge_usm_layers(self.DATA_LIST)
                         else:
                             strings = ("Sie wurden gefunden", self.REC_TOT, "records")
                             if self.toolButtonGis.isChecked():
                                 self.pyQGIS.charge_vector_layers(self.DATA_LIST)
-                            if self.toolButton_usm.isChecked():    
+                            if self.toolButton_usm.isChecked():
                                 self.pyQGIS.charge_usm_layers(self.DATA_LIST)
                     else:
                         if self.REC_TOT == 1:
                             strings = ("It has been found", self.REC_TOT, "record")
                             if self.toolButtonGis.isChecked():
                                 self.pyQGIS.charge_vector_layers(self.DATA_LIST)
-                            if self.toolButton_usm.isChecked():    
+                            if self.toolButton_usm.isChecked():
                                 self.pyQGIS.charge_usm_layers(self.DATA_LIST)
                         else:
                             strings = ("They have been found", self.REC_TOT, "records")
                             if self.toolButtonGis.isChecked():
                                 self.pyQGIS.charge_vector_layers(self.DATA_LIST)
-                            if self.toolButton_usm.isChecked():    
+                            if self.toolButton_usm.isChecked():
                                 self.pyQGIS.charge_usm_layers(self.DATA_LIST)
-                    
+
                     self.setComboBoxEnable(["self.comboBox_sito"], "False")
                     self.setComboBoxEnable(["self.comboBox_area"], "False")
                     self.setComboBoxEnable(["self.lineEdit_us"], "False")
@@ -7416,34 +7819,48 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                     self.setComboBoxEnable(["self.textEdit_descrizione"], "True")
                     self.setComboBoxEnable(["self.textEdit_interpretazione"], "True")
                     QMessageBox.warning(self, "Message", "%s %d %s" % strings, QMessageBox.Ok)
+        self.use_like_query = False  # Reimposta il flag dopo la ricerca
         self.enable_button_search(1)
+
     def update_if(self, msg):
-        rec_corr = self.REC_CORR
+        # Save current record
         if msg == QMessageBox.Ok:
             test = self.update_record()
             if test == 1:
+
+                # reload IDs
                 id_list = []
                 for i in self.DATA_LIST:
                     id_list.append(eval("i." + self.ID_TABLE))
                 self.DATA_LIST = []
+
+                # reload sorted data
                 if self.SORT_STATUS == "n":
                     temp_data_list = self.DB_MANAGER.query_sort(id_list, [self.ID_TABLE], 'asc',
                                                                 self.MAPPER_TABLE_CLASS,
-                                                                self.ID_TABLE)  
+                                                                self.ID_TABLE)
                 else:
                     temp_data_list = self.DB_MANAGER.query_sort(id_list, self.SORT_ITEMS_CONVERTED, self.SORT_MODE,
                                                                 self.MAPPER_TABLE_CLASS, self.ID_TABLE)
                 for i in temp_data_list:
                     self.DATA_LIST.append(i)
+
+                #
+                # We skip the incrementing step
+                #
+                # check boundaries, if at end, loop to start
+                # self.REC_CORR += 1
+                # if self.REC_CORR >= len(self.DATA_LIST):
+                #    self.REC_CORR = 0
+
+                # other settings
                 self.BROWSE_STATUS = "b"
                 self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
-                if type(self.REC_CORR) == "<type 'str'>":
-                    corr = 0
-                else:
-                    corr = self.REC_CORR
+                self.label_sort.setText(self.SORTED_ITEMS[self.SORT_STATUS])
+                self.set_rec_counter(self.REC_TOT, self.REC_CORR + 1)
+
                 return 1
-            elif test == 0:
-                return 0
+            #elif test
     def update_record(self):
         try:
             self.DB_MANAGER.update(self.MAPPER_TABLE_CLASS,
@@ -7454,7 +7871,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             return 1
         except Exception as e:
             str(e)
-            save_file='{}{}{}'.format(self.HOME, os.sep,"pyarchinit_Report_folder") 
+            save_file='{}{}{}'.format(self.HOME, os.sep,"pyarchinit_Report_folder")
             file_=os.path.join(save_file,'error_encodig_data_recover.txt')
             with open(file_, "a") as fh:
                 try:
@@ -7464,14 +7881,14 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             if self.L=='it':
                 QMessageBox.warning(self, "Messaggio",
                                     "Problema di encoding: sono stati inseriti accenti o caratteri non accettati dal database. Verrà fatta una copia dell'errore con i dati che puoi recuperare nella cartella pyarchinit_Report _Folder", QMessageBox.Ok)
-            
-            
+
+
             elif self.L=='en':
                 QMessageBox.warning(self, "Message",
-                                    "Encoding problem: accents or characters not accepted by the database were entered. A copy of the error will be made with the data you can retrieve in the pyarchinit_Report _Folder", QMessageBox.Ok) 
+                                    "Encoding problem: accents or characters not accepted by the database were entered. A copy of the error will be made with the data you can retrieve in the pyarchinit_Report _Folder", QMessageBox.Ok)
             elif self.L=='de':
                 QMessageBox.warning(self, "Message",
-                                    "Kodierungsproblem: Es wurden Akzente oder Zeichen eingegeben, die von der Datenbank nicht akzeptiert werden. Es wird eine Kopie des Fehlers mit den Daten erstellt, die Sie im pyarchinit_Report _Ordner abrufen können", QMessageBox.Ok)                                 
+                                    "Kodierungsproblem: Es wurden Akzente oder Zeichen eingegeben, die von der Datenbank nicht akzeptiert werden. Es wird eine Kopie des Fehlers mit den Daten erstellt, die Sie im pyarchinit_Report _Ordner abrufen können", QMessageBox.Ok)
             else:
                 QMessageBox.warning(self, "Messaggio",
                                     "Problema di encoding: sono stati inseriti accenti o caratteri non accettati dal database. Verrà fatta una copia dell'errore con i dati che puoi recuperare nella cartella pyarchinit_Report _Folder",
@@ -7482,6 +7899,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         rec_to_update = self.UTILITY.pos_none_in_list(self.DATA_LIST_REC_TEMP)
         return rec_to_update
         # custom functions
+
     def charge_records(self):
         self.DATA_LIST = []
         if self.DB_SERVER == 'sqlite':
@@ -7495,6 +7913,24 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                                                         self.ID_TABLE)
             for i in temp_data_list:
                 self.DATA_LIST.append(i)
+
+    def charge_records_n(self):
+        self.DATA_LIST = []
+        if self.DB_SERVER == 'sqlite':
+            for i in self.DB_MANAGER.query(self.MAPPER_TABLE_CLASS):
+                self.DATA_LIST.append(i)
+        else:
+            id_list = []
+            for i in self.DB_MANAGER.query(self.MAPPER_TABLE_CLASS):
+                id_list.append(eval("i." + self.ID_TABLE))
+            # Ordina in base a 'id_us' in ordine decrescente
+            temp_data_list = self.DB_MANAGER.query_sort(id_list, [self.ID_TABLE], 'desc', self.MAPPER_TABLE_CLASS,
+                                                        self.ID_TABLE)
+            for i in temp_data_list:
+                self.DATA_LIST.append(i)
+            # Inverti la lista per mantenere l'ordine originale
+            self.DATA_LIST.reverse()
+
     def datestrfdate(self):
         now = date.today()
         today = now.strftime("%d-%m-%Y")
@@ -7605,7 +8041,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         for i in range(rapporti_row_count2):
             self.tableWidget_rapporti2.removeRow(0)
         self.insert_new_row("self.tableWidget_rapporti2")
-        
+
         colore_legante_usm_row_count = self.tableWidget_colore_legante_usm.rowCount()
         for i in range(colore_legante_usm_row_count):
             self.tableWidget_colore_legante_usm.removeRow(0)
@@ -7630,7 +8066,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             self.lineEdit_data_schedatura.setText(self.datestrfdate())  # 20 - data schedatura
         else:
             self.lineEdit_data_schedatura.setText("")  # 20 - data schedatura
-       
+
         self.comboBox_schedatore.setEditText("")  # 21 - schedatore
         self.comboBox_formazione.setEditText("")  # 22 - formazione
         self.comboBox_conservazione.setEditText("")  # 23 - conservazione
@@ -7729,7 +8165,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         organici_row_count = self.tableWidget_organici.rowCount()
         inorganici_row_count = self.tableWidget_inorganici.rowCount()
         documentazione_row_count = self.tableWidget_documentazione.rowCount()
-        
+
         self.comboBox_area.setEditText("")  # 2 - Area
         self.lineEdit_us.clear()  # 3 - US
         self.comboBox_def_strat.setEditText("")  # 4 - Definizione stratigrafica
@@ -7766,8 +8202,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             self.tableWidget_documentazione.removeRow(0)
         for i in range(rapporti_row_count2):
             self.tableWidget_rapporti2.removeRow(0)
-        self.insert_new_row("self.tableWidget_rapporti2")     
-        
+        self.insert_new_row("self.tableWidget_rapporti2")
+
         self.insert_new_row("self.tableWidget_documentazione")  # 19 - documentazione
         colore_legante_usm_row_count = self.tableWidget_colore_legante_usm.rowCount()
         for i in range(colore_legante_usm_row_count):
@@ -7793,7 +8229,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             self.lineEdit_data_schedatura.setText(self.datestrfdate())  # 20 - data schedatura
         else:
             self.lineEdit_data_schedatura.setText("")  # 20 - data schedatura
-        
+
         self.comboBox_schedatore.setEditText("")  # 21 - schedatore
         self.comboBox_formazione.setEditText("")  # 22 - formazione
         self.comboBox_conservazione.setEditText("")  # 23 - conservazione
@@ -7913,7 +8349,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             str(self.comboBox_conservazione.setEditText(self.DATA_LIST[self.rec_num].stato_di_conservazione))  # 22 - conservazione
             str(self.comboBox_colore.setEditText(self.DATA_LIST[self.rec_num].colore))  # 23 - colore
             str(self.comboBox_consistenza.setEditText(self.DATA_LIST[self.rec_num].consistenza))  # 24 - consistenza
-            str(self.comboBox_struttura.setEditText(self.DATA_LIST[self.rec_num].struttura)) # 25 - struttura
+            str(self.comboBox_struttura.setDefaultText(self.DATA_LIST[self.rec_num].struttura)) # 25 - struttura
             if not self.DATA_LIST[self.rec_num].cont_per:
                 self.lineEdit_codice_periodo.setText("")
             else:
@@ -8043,25 +8479,25 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             str(self.lineEdit_provenienza_materiali_usm.setText(self.DATA_LIST[self.rec_num].provenienza_materiali_usm))  # 93 provenienza_materiali_usm
             str(self.lineEdit_criteri_distinzione_usm.setText(self.DATA_LIST[self.rec_num].criteri_distinzione_usm))  # 94 criteri distinzione usm
             str(self.comboBox_uso_primario_usm.setEditText(self.DATA_LIST[self.rec_num].uso_primario_usm))  # 95 uso primario usm
-            str(self.comboBox_tipologia_opera.setEditText(self.DATA_LIST[self.rec_num].tipologia_opera)) 
-            str(self.comboBox_sezione_muraria.setEditText(self.DATA_LIST[self.rec_num].sezione_muraria)) 
-            str(self.comboBox_superficie_analizzata.setEditText(self.DATA_LIST[self.rec_num].superficie_analizzata)) 
-            str(self.comboBox_orientamento.setEditText(self.DATA_LIST[self.rec_num].orientamento)) 
-            str(self.comboBox_materiali_lat.setEditText(self.DATA_LIST[self.rec_num].materiali_lat)) 
-            str(self.comboBox_lavorazione_lat.setEditText(self.DATA_LIST[self.rec_num].lavorazione_lat)) 
-            str(self.comboBox_consistenza_lat.setEditText(self.DATA_LIST[self.rec_num].consistenza_lat)) 
-            str(self.comboBox_forma_lat.setEditText(self.DATA_LIST[self.rec_num].forma_lat)) 
-            str(self.comboBox_colore_lat.setEditText(self.DATA_LIST[self.rec_num].colore_lat)) 
-            str(self.comboBox_impasto_lat.setEditText(self.DATA_LIST[self.rec_num].impasto_lat)) 
-            str(self.comboBox_forma_p.setEditText(self.DATA_LIST[self.rec_num].forma_p)) 
-            str(self.comboBox_colore_p.setEditText(self.DATA_LIST[self.rec_num].colore_p)) 
-            str(self.comboBox_taglio_p.setEditText(self.DATA_LIST[self.rec_num].taglio_p)) 
-            str(self.comboBox_posa_opera_p.setEditText(self.DATA_LIST[self.rec_num].posa_opera_p)) 
-            str(self.comboBox_inerti_usm.setEditText(self.DATA_LIST[self.rec_num].inerti_usm)) 
-            str(self.comboBox_tipo_legante_usm.setEditText(self.DATA_LIST[self.rec_num].tipo_legante_usm)) 
-            str(self.comboBox_rifinitura_usm.setEditText(self.DATA_LIST[self.rec_num].rifinitura_usm)) 
-            str(self.comboBox_materiale_p.setEditText(self.DATA_LIST[self.rec_num].materiale_p)) 
-            str(self.comboBox_consistenza_p.setEditText(self.DATA_LIST[self.rec_num].consistenza_p)) 
+            str(self.comboBox_tipologia_opera.setEditText(self.DATA_LIST[self.rec_num].tipologia_opera))
+            str(self.comboBox_sezione_muraria.setEditText(self.DATA_LIST[self.rec_num].sezione_muraria))
+            str(self.comboBox_superficie_analizzata.setEditText(self.DATA_LIST[self.rec_num].superficie_analizzata))
+            str(self.comboBox_orientamento.setEditText(self.DATA_LIST[self.rec_num].orientamento))
+            str(self.comboBox_materiali_lat.setEditText(self.DATA_LIST[self.rec_num].materiali_lat))
+            str(self.comboBox_lavorazione_lat.setEditText(self.DATA_LIST[self.rec_num].lavorazione_lat))
+            str(self.comboBox_consistenza_lat.setEditText(self.DATA_LIST[self.rec_num].consistenza_lat))
+            str(self.comboBox_forma_lat.setEditText(self.DATA_LIST[self.rec_num].forma_lat))
+            str(self.comboBox_colore_lat.setEditText(self.DATA_LIST[self.rec_num].colore_lat))
+            str(self.comboBox_impasto_lat.setEditText(self.DATA_LIST[self.rec_num].impasto_lat))
+            str(self.comboBox_forma_p.setEditText(self.DATA_LIST[self.rec_num].forma_p))
+            str(self.comboBox_colore_p.setEditText(self.DATA_LIST[self.rec_num].colore_p))
+            str(self.comboBox_taglio_p.setEditText(self.DATA_LIST[self.rec_num].taglio_p))
+            str(self.comboBox_posa_opera_p.setEditText(self.DATA_LIST[self.rec_num].posa_opera_p))
+            str(self.comboBox_inerti_usm.setEditText(self.DATA_LIST[self.rec_num].inerti_usm))
+            str(self.comboBox_tipo_legante_usm.setEditText(self.DATA_LIST[self.rec_num].tipo_legante_usm))
+            str(self.comboBox_rifinitura_usm.setEditText(self.DATA_LIST[self.rec_num].rifinitura_usm))
+            str(self.comboBox_materiale_p.setEditText(self.DATA_LIST[self.rec_num].materiale_p))
+            str(self.comboBox_consistenza_p.setEditText(self.DATA_LIST[self.rec_num].consistenza_p))
             self.tableInsertData("self.tableWidget_rapporti2", self.DATA_LIST[self.rec_num].rapporti2)
             str(self.mQgsFileWidget.setText(self.DATA_LIST[self.rec_num].doc_usv)) # 18 - rapporti
             # gestione tool
@@ -8070,7 +8506,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             if self.toolButtonPreviewMedia.isChecked():
                 self.loadMediaPreview()
         except:
-            pass 
+            pass
     def set_rec_counter(self, t, c):
         self.rec_tot = t
         self.rec_corr = c
@@ -8314,7 +8750,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.DATA_LIST_REC_CORR = []
         for i in self.TABLE_FIELDS:
             self.DATA_LIST_REC_CORR.append(eval("unicode(self.DATA_LIST[self.REC_CORR]." + i + ")"))
-       
+
     def records_equal_check(self):
         # self.set_sito()
         self.set_LIST_REC_TEMP()
@@ -8368,7 +8804,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         elif platform.system() == "Darwin":
             subprocess.Popen(["open", path])
         else:
-            subprocess.Popen(["xdg-open", path]) 
+            subprocess.Popen(["xdg-open", path])
     def on_pushButton_open_dir_tavole_pressed(self):
         HOME = os.environ['PYARCHINIT_HOME']
         path = '{}{}{}'.format(HOME, os.sep, "pyarchinit_MAPS_folder")
