@@ -108,6 +108,7 @@ class pyarchinit_Interactive_Matrix(QDialog, MAIN_DIALOG_CLASS):
         conteporane=[]
         connection=[]
         connection_to=[]
+
         for sing_rec in self.DATA_LIST:
             try:
                 us = str(sing_rec.us)
@@ -218,38 +219,25 @@ class pyarchinit_Interactive_Matrix(QDialog, MAIN_DIALOG_CLASS):
                 sing_per = [cluster_label, periodo_label]
                 
                 sing_us = []
-                sing_ut=[]
-                
+
             elif self.L=='de':
                 periodo_label = "Period %s : Phase %s : %s" % (str(i[0]), str(i[1]),str(i[2]))
 
                 sing_per = [cluster_label, periodo_label]
                 
                 sing_us = []
-                sing_ut=[]
-            
-            
+
             else:
                 periodo_label = "Period %s : Phase %s : %s" % (str(i[0]), str(i[1]), str(i[2]))
 
                 sing_per = [cluster_label, periodo_label]
 
                 sing_us = []  
-                sing_ut = []
+
             for rec in us_group:
-                #sing_ut.append(rec.unita_tipo)
-                #sing_ut.append(rec.unita_tipo)
-                # try: 
-                    # if 'DOC' in rec.unita_tipo:
-                        # sing_us.append(rec.unita_tipo+str(rec.us)+'_'+rec.doc_usv.replace(' ','_')+'_'+rec.periodo_iniziale+'-'+rec.fase_iniziale)
-                    # else:
+
                 sing_us.append(rec.unita_tipo+str(rec.us)+'_'+rec.d_interpretativa.replace(' ','_')+'_'+rec.periodo_iniziale+'-'+rec.fase_iniziale)
-                # except:
-                    # pass
-                # else:
-                    # sing_us.append(rec.unita_tipo+str(rec.us)+'_'+rec.d_interpretativa.replace(' ','_')+'_'+rec.periodo_iniziale+'-'+rec.fase_iniziale)
-                #sing_def.append(rec.d_stratigrafica)
-            
+
             sing_per.insert(0, sing_us )
             #sing_per.insert(0, sing_ut )
             periodi_us_list.append(sing_per)
@@ -271,137 +259,129 @@ class pyarchinit_Interactive_Matrix(QDialog, MAIN_DIALOG_CLASS):
             QMessageBox.information(self, "Info", "Exportation complited", QMessageBox.Ok)    
              
         return data_plotting_2
+
     def generate_matrix(self):
         data = []
-        negative =[]
-        conteporane=[]
-        
+        negative = []
+        conteporane = []
+        # QMessageBox.information(None, "Info", str(self.DATA_LIST[0].us), QMessageBox.Ok)
         for sing_rec in self.DATA_LIST:
             us = str(sing_rec.us)
-            un_t = str(sing_rec.unita_tipo)##per inserire il termine US o USM
-            #datazione = str(sing_rec.datazione)##per inserire la datazione estesa
-            #defin = str(sing_rec.d_stratigrafica.replace(' ','_'))##per inserire la definizione startigrafica
-            
+            un_t = str(sing_rec.unita_tipo)
+            sito = str(sing_rec.sito)
+
+            area = str(sing_rec.area)
+
             rapporti_stratigrafici = eval(sing_rec.rapporti)
-            
+            rapporti_stratigrafici2 = eval(sing_rec.rapporti2)
+
             try:
-                for  sing_rapp in rapporti_stratigrafici:
-                    
-                    if   sing_rapp[0] == 'Covers' or  sing_rapp[0] == 'Abuts' or  sing_rapp[0] == 'Fills' or  sing_rapp[0] == 'Copre' or  sing_rapp[0] == 'Si appoggia a' or  sing_rapp[0] == 'Riempie'   or  sing_rapp[0] == 'Verfüllt' or sing_rapp[0] == 'Bindet an' or  sing_rapp[0] == 'Entspricht' :
+                for sing_rapp in rapporti_stratigrafici:
+                    if sing_rapp[0] in ['Covers', 'Abuts', 'Fills', 'Copre', 'Si appoggia a', 'Riempie', 'Verfüllt',
+                                        'Bindet an', 'Entspricht']:
                         if sing_rapp[1] != '':
-                            harris_rapp = (us,str(sing_rapp[1]))
+                            harris_rapp = (area + '_' + 'US' + us, str(sing_rapp[2]) + '_' + 'US' + str(sing_rapp[1]))
                             data.append(harris_rapp)
-                        
-                        
-                    
-                    if sing_rapp[0] == 'Taglia' or sing_rapp[0] == 'Cuts' or sing_rapp[0] == 'Schneidet':
+
+                    if sing_rapp[0] in ['Taglia', 'Cuts', 'Schneidet']:
                         if sing_rapp[1] != '':
-                            harris_rapp1 = (us,str(sing_rapp[1]))
+                            harris_rapp1 = (area + '_' + 'US' + us, str(sing_rapp[2]) + '_' + 'US' + str(sing_rapp[1]))
                             negative.append(harris_rapp1)
-                            
-                    
-                    if sing_rapp[0] == 'Si lega a' or  sing_rapp[0] == 'Uguale a' or sing_rapp[0] == 'Connected to' or  sing_rapp[0] == 'Same as'or sing_rapp[0] == 'Liegt über' or  sing_rapp[0] == 'Stützt sich auf':
+
+                    if sing_rapp[0] in ['Si lega a', 'Uguale a', 'Connected to', 'Same as', 'Liegt über',
+                                        'Stützt sich auf']:
                         if sing_rapp[1] != '':
-                            harris_rapp2 = (us,str(sing_rapp[1]))
+                            harris_rapp2 = (area + '_' + 'US' + us, str(sing_rapp[2]) + '_' + 'US' + str(sing_rapp[1]))
                             conteporane.append(harris_rapp2)
-                    
-                    
             except Exception as e:
-                    
-                    if self.L=='it':
-                        QMessageBox.warning(self, "Warning", "Problema nel sistema di esportazione del Matrix:" + str(e),
+                print(f"Errore durante la generazione della matrice: {e}")
+
+
+            except Exception as e:
+
+                if self.L == 'it':
+                    QMessageBox.warning(self, "Warning", "Problema nel sistema di esportazione del Matrix:" + str(e),
                                         QMessageBox.Ok)
-                    elif self.L=='de':
-                        QMessageBox.warning(self, "Warnung", "Problem im Matrix-Exportsystem:" + str(e),
+                elif self.L == 'de':
+                    QMessageBox.warning(self, "Warnung", "Problem im Matrix-Exportsystem:" + str(e),
                                         QMessageBox.Ok)
-                                        
-                    else:
-                        QMessageBox.warning(self, "Warning", "Problem in the Matrix export system:" + str(e),
-                                        QMessageBox.Ok)                    
+
+                else:
+                    QMessageBox.warning(self, "Warning", "Problem in the Matrix export system:" + str(e),
+                                        QMessageBox.Ok)
         sito = self.DATA_LIST[0].sito
-        #area = self.DATA_LIST[1].area
+        #area = self.DATA_LIST[0].area
+
         search_dict = {
             'sito': "'" + str(sito) + "'",
-            #'area': "'" + str(area) + "'"
+
+
+
         }
 
         periodizz_data_list = self.DB_MANAGER.query_bool(search_dict, 'PERIODIZZAZIONE')
 
         periodi_data_values = []
-        
-        
-        
-        
-        for a in periodizz_data_list:
-            periodi_data_values.append([a.periodo, a.fase,a.datazione_estesa])
 
+        for a in periodizz_data_list:
+            periodi_data_values.append([a.cont_per, a.datazione_estesa, a.periodo,a.fase])
+
+        # Clear the previous contents of the list
         periodi_us_list = []
 
         clust_number = 0
-        for i in periodi_data_values:
-            search_dict = {
-                'sito': "'" + str(sito) + "'",
-                'periodo_iniziale': "'" + str(i[0]) + "'",
-                'fase_iniziale': "'" + str(i[1]) + "'",
-                'datazione':"'" + str(i[2]) + "'"
-            }
-            search_dict2 = {
-                'sito': "'" + str(sito) + "'",
-                'periodo_iniziale': "'" + str(i[0]) + "'",
-                'fase_iniziale': "'" + str(i[1]) + "'"
-            }
-            us_group = self.DB_MANAGER.query_bool(search_dict2, 'US')
 
-            cluster_label = "cluster%s" % (clust_number)
+        # Get all the areas
+        areas = set([rec.area for rec in self.DATA_LIST if rec.sito == sito])  # update here
+        #per = set([rec.fase_iniziale for rec in self.DATA_LIST if rec.sito == sito])  # update here
+        cluster_label = "cluster%s" % clust_number
 
-            if self.L=='it':
-                periodo_label = "Periodo %s : Fase %s : %s" % (str(i[0]), str(i[1]),str(i[2]))
-                
-                sing_per = [cluster_label, periodo_label]
-                
-                sing_us = []
-                sing_ut=[]
-                
-            elif self.L=='de':
-                periodo_label = "Period %s : Phase %s : %s" % (str(i[0]), str(i[1]),str(i[2]))
+        # Iterate over the unique areas
+        for area in areas:
 
-                sing_per = [cluster_label, periodo_label]
-                
-                sing_us = []
-                sing_ut=[]
-            
-            
-            else:
-                periodo_label = "Period %s : Phase %s : %s" % (str(i[0]), str(i[1]), str(i[2]))
 
-                sing_per = [cluster_label, periodo_label]
 
-                sing_us = []  
-                sing_ut = []
-            for rec in us_group:
-                #sing_ut.append(rec.unita_tipo)
-                #sing_ut.append(rec.unita_tipo)
-                
-                sing_us.append(rec.us)
-                #sing_def.append(rec.d_stratigrafica)
-            
-            sing_per.insert(0, sing_us )
-            #sing_per.insert(0, sing_ut )
-            periodi_us_list.append(sing_per)
+            for i in periodi_data_values:
+                search_dict2 = {
+                    'sito': "'" + str(sito) + "'",
+                    'area': "'" + str(area) + "'",  # add 'area' to the search_dict2
+                    'periodo_iniziale': "'" + str(i[2]) + "'",
+                    'fase_iniziale': "'" + str(i[3]) + "'"
 
-            clust_number += 1
-        
-        matrix_exp = HarrisMatrix(data,negative,conteporane,'','',periodi_us_list)
-        
+                }
+                us_group = self.DB_MANAGER.query_bool(search_dict2, 'US')
+
+                periodo_label = "%s" % (str(i[1]))
+
+                sing_us = [rec.area + '_' + 'US' + str(rec.us)  for rec in
+                           us_group]  # create list of 'us' under the same 'area', 'periodo_iniziale' and 'fase_iniziale'
+
+                sing_per = [periodo_label,
+                            sing_us]  # create a nested list for each 'periodo_fase' with its corresponding list of 'us'
+
+                area_label = "%s" % str(area)  # create area label
+                sing_area = [cluster_label, area_label,
+                             sing_per]  # create list that includes area label and the nested 'sing_per' list
+
+                sito_label = "%s" % str(sito)  # create sito label
+                sing_sito = [cluster_label, sito_label,
+                             sing_area]  # create list that includes sito label and the nested 'sing_area' list
+
+                periodi_us_list.append(sing_sito)  # append the nested 'sing_sito' list to the 'periodi_us_list'
+
+                clust_number += 1
+
+        matrix_exp = HarrisMatrix(data, negative, conteporane, '', '', periodi_us_list)
+
         data_plotting = matrix_exp.export_matrix
-        
-        if self.L=='it':
+
+        if self.L == 'it':
             QMessageBox.information(self, "Info", "Esportazione completata", QMessageBox.Ok)
-        elif self.L=='de':
+        elif self.L == 'de':
             QMessageBox.information(self, "Info", "Exportieren kompliziert", QMessageBox.Ok)
         else:
-            QMessageBox.information(self, "Info", "Exportation complited", QMessageBox.Ok)    
-           
+            QMessageBox.information(self, "Info", "Exportation complited", QMessageBox.Ok)
+
         return data_plotting
 
 class pyarchinit_view_Matrix(QDialog, MAIN_DIALOG_CLASS):
@@ -473,7 +453,8 @@ class pyarchinit_view_Matrix(QDialog, MAIN_DIALOG_CLASS):
             un_t = str(sing_rec.unita_tipo)  ##per inserire il termine US o USM
             # datazione = str(sing_rec.datazione)##per inserire la datazione estesa
             # defin = str(sing_rec.d_stratigrafica.replace(' ','_'))##per inserire la definizione startigrafica
-
+            sito = str(sing_rec.sito)
+            area = str(sing_rec.area)
             rapporti_stratigrafici = eval(sing_rec.rapporti)
 
             try:
