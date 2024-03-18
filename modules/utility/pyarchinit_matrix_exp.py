@@ -46,13 +46,13 @@ class HarrisMatrix:
 
         global periodo_key, periodo, us_list
         G = Digraph(engine='dot', strict=False)
-        G.attr(rankdir='TB')
+        G.attr(rankdir='TB', viewport="", ratio="auto")
         G.attr(compound='true')
         G.graph_attr['pad'] = "0.5"
         G.graph_attr['nodesep'] = "1"
-        G.graph_attr['ranksep'] = "1.5"
+        G.graph_attr['ranksep'] = "3"
         G.graph_attr['splines'] = 'ortho'
-        G.graph_attr['dpi'] = "300"  # Assumi che questo valore sia corretto
+        G.graph_attr['dpi'] = str(self.dialog.lineEdit_dpi.text())
 
         elist1 = []
         elist2 = []
@@ -81,46 +81,56 @@ class HarrisMatrix:
             self.periodi = sorted(self.periodi, key=lambda x: x[2][0])  # Assuming x[2][0] is the date/period marker
 
             # Crea i subgraph per siti, aree e periodi
-            for cluster_id, sito, area_info in self.periodi:
-                area_id, periodo_info = area_info[1], area_info[2]
-                periodo, us_list = periodo_info
-                site_key = f'cluster_{sito}'
-                area_key = f'{site_key}_area_{area_id}'
-                periodo_key = f'{area_key}_periodo_{periodo.replace("_", " ")}'
+            for entry in self.periodi:
+                cluster, sito, area_info = entry
+                datazione, periodo_info = area_info[2]
+                periodo, fase_info = periodo_info
+                fase, us_list = fase_info
+
+                site_key = f'cluster_{cluster}'
+                area_key = f'{site_key}_sito_{sito}'
+                periodo_key = f'cluster_{area_key}_per_{periodo}'
+                fase_key = f'cluster_{periodo_key}_fase_{fase}'
 
                 with G.subgraph(name=site_key) as site:
-                    site.attr(color="white")  # Remove border by setting it as white
+                    site.attr(color="lightgray", style='filled')  # Remove border by setting it as white
                     site.attr(rank='same')  # Force this subgraph to the highest level
                     site.attr(label=sito.replace("_", " "))  # Create the site node
                     site.node('node0', shape='plaintext', label='', width='0', height='0')  # Create an empty node to force the site node to the top
 
                     if periodo:
                         with site.subgraph(name=periodo_key) as p:
-                            p.attr(label=periodo, style='filled', color='lightyellow', rank='same')
-                            p.attr(shape='plaintext', width='0', height='0')
-                            with p.subgraph(name='cluster_cont') as temp:
-                                temp.attr(rankdir='LR', rank='same', style='invis')
+                            p.attr(label=datazione, margin='100',area='150',labeljust='l', style='filled', color='lightblue', rank='same')
+                            p.attr(shape='plaintext')
 
-                                negative_sources = {source for source, _ in self.negative}
-                                conteporene_sources = {source for source, _ in self.conteporene}
+                            with p.subgraph(name=fase_key) as f:
+                                f.attr(label=fase, labeljust='l',area='200',margin='150',style='filled,dashed', fillcolor='#FFFFE080', color='black',
+                                       rank='same', penwidth='1.5')
+                                # nodi invisibili per "espandere" il cluster
 
-                                for us in us_list:
-                                    if us in us_rilevanti:
-                                        label_name = 'Area' + us.replace("_", " ")
+                                with f.subgraph(name='cluster_cont') as temp:
+                                    temp.attr(rankdir='LR',label='',style='invis')
+
+                                    negative_sources = {source for source, _ in self.negative}
+                                    conteporene_sources = {source for source, _ in self.conteporene}
+
+                                    for us in us_list:
+                                        if us in us_rilevanti:
+                                            label_name = 'Area' + us.replace("_", " ")
 
 
-                                        if us in negative_sources:
-                                            # change color for negative us
-                                            p.node('Area' + us.replace("_", " "), label=label_name, shape=str(self.dialog.combo_box_6.currentText()),
-                                                   style='filled', color=str(self.dialog.combo_box_2.currentText()))
-                                        elif us in conteporene_sources:
-                                            # change color for conteporene us
-                                            temp.node('Area' + us.replace("_", " "), label=label_name, shape=str(self.dialog.combo_box_18.currentText()),
-                                                    color=str(self.dialog.combo_box_17.currentText()), style='filled')
-                                        else:
-                                            # default color
-                                            p.node('Area' + us.replace("_", " "), label=label_name, shape=str(self.dialog.combo_box_3.currentText()),
-                                                   style='filled', color=str(self.dialog.combo_box.currentText()))
+                                            if us in negative_sources:
+                                                # change color for negative us
+                                                f.node('Area' + us.replace("_", " "), label=label_name, shape=str(self.dialog.combo_box_6.currentText()),
+                                                       style='filled', rank='same', color=str(self.dialog.combo_box_2.currentText()))
+                                            elif us in conteporene_sources:
+                                                # change color for conteporene us
+                                                temp.node('Area' + us.replace("_", " "), label=label_name, shape=str(self.dialog.combo_box_18.currentText()),
+                                                        color=str(self.dialog.combo_box_17.currentText()), style='filled')
+                                            else:
+                                                # default color
+                                                f.node('Area' + us.replace("_", " "), label=label_name, shape=str(self.dialog.combo_box_3.currentText()),
+                                                       style='filled', color=str(self.dialog.combo_box.currentText()))
         for bb in self.sequence:
             if bb[0] in us_rilevanti and bb[1] in us_rilevanti:
                 a = (f"{'Area'+bb[0].replace('_', ' ')}", f"{'Area'+bb[1].replace('_', ' ')}")
@@ -136,6 +146,7 @@ class HarrisMatrix:
             e.node_attr['penwidth'] = str(self.dialog.combo_box_5.currentText())
             e.edge_attr['penwidth'] = str(self.dialog.combo_box_5.currentText())
             e.edge_attr['style'] = str(self.dialog.combo_box_10.currentText())
+            e.edge_attr['color'] = '#00000080'
             e.edge_attr.update(arrowhead=str(self.dialog.combo_box_11.currentText()),
                                arrowsize=str(self.dialog.combo_box_12.currentText()))
 
@@ -154,8 +165,9 @@ class HarrisMatrix:
                         b.node_attr['penwidth'] = str(self.dialog.combo_box_19.currentText())
                         b.edge_attr['penwidth'] = str(self.dialog.combo_box_19.currentText())
                         b.edge_attr['style'] = str(self.dialog.combo_box_23.currentText())
-                        b.edge_attr['constarint'] = 'False'
-                        b.edge_attr.update(arrowhead=str(self.dialog.combo_box_21.currentText()),
+
+                        b.edge_attr['color'] = '#00000080'
+                        b.edge_attr.update(constraint='False',arrowhead=str(self.dialog.combo_box_21.currentText()),
                                            arrowsize=str(self.dialog.combo_box_24.currentText()))
 
 
@@ -174,6 +186,8 @@ class HarrisMatrix:
                         a.node_attr['penwidth'] = str(self.dialog.combo_box_7.currentText())
                         a.edge_attr['penwidth'] = str(self.dialog.combo_box_7.currentText())
                         a.edge_attr['style'] = str(self.dialog.combo_box_15.currentText())
+                        a.edge_attr['color'] = '#00000080'
+                        a.edge_attr['constarint'] = 'false'
                         a.edge_attr.update(arrowhead=str(self.dialog.combo_box_14.currentText()),
                                            arrowsize=str(self.dialog.combo_box_16.currentText()))
 

@@ -324,7 +324,7 @@ class pyarchinit_Interactive_Matrix(QDialog, MAIN_DIALOG_CLASS):
         periodi_data_values = []
 
         for a in periodizz_data_list:
-            periodi_data_values.append([a.cont_per, a.datazione_estesa, a.periodo,a.fase])
+            periodi_data_values.append([a.cont_per, a.datazione_estesa, a.periodo,a.fase, a.descrizione])
 
         # Clear the previous contents of the list
         periodi_us_list = []
@@ -356,8 +356,15 @@ class pyarchinit_Interactive_Matrix(QDialog, MAIN_DIALOG_CLASS):
                 sing_us = [rec.area + '_' + 'US' + str(rec.us)  for rec in
                            us_group]  # create list of 'us' under the same 'area', 'periodo_iniziale' and 'fase_iniziale'
 
+                fase = "Fase%s: %s" % (str(i[3]),str(i[4]))
+                sing_fase = [fase, sing_us]  # create a nested list for each 'periodo_fase' with its corresponding list of 'us'
+
+                periodo = "%s" % (str(i[2]))
+                sing_per = [periodo,
+                             sing_fase]  # create a nested list for each 'periodo_fase' with its corresponding list of 'us'
+
                 sing_per = [periodo_label,
-                            sing_us]  # create a nested list for each 'periodo_fase' with its corresponding list of 'us'
+                            sing_per]  # create a nested list for each 'periodo_fase' with its corresponding list of 'us'
 
                 area_label = "%s" % str(area)  # create area label
                 sing_area = [cluster_label, area_label,
