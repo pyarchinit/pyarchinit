@@ -147,6 +147,7 @@ class HarrisMatrix:
             e.edge_attr['penwidth'] = str(self.dialog.combo_box_5.currentText())
             e.edge_attr['style'] = str(self.dialog.combo_box_10.currentText())
             e.edge_attr['color'] = '#00000080'
+            e.edge_attr['len'] = '0'
             e.edge_attr.update(arrowhead=str(self.dialog.combo_box_11.currentText()),
                                arrowsize=str(self.dialog.combo_box_12.currentText()))
 
@@ -187,7 +188,7 @@ class HarrisMatrix:
                         a.edge_attr['penwidth'] = str(self.dialog.combo_box_7.currentText())
                         a.edge_attr['style'] = str(self.dialog.combo_box_15.currentText())
                         a.edge_attr['color'] = '#00000080'
-                        a.edge_attr['constarint'] = 'false'
+                        a.edge_attr['len'] = '0'
                         a.edge_attr.update(arrowhead=str(self.dialog.combo_box_14.currentText()),
                                            arrowsize=str(self.dialog.combo_box_16.currentText()))
 
