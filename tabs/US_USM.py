@@ -22,6 +22,7 @@ from __future__ import absolute_import
 import ast
 import logging
 import sqlite3 as sq
+from datetime import date
 from xml.etree.ElementTree import ElementTree as ET
 import csv
 import sys
@@ -112,6 +113,9 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
     NOME_SCHEDA = "Scheda US"
     ID_TABLE = "id_us"
     ID_SITO ="sito"
+
+    RELATIONSHIP_TYPES = ['Cuts', 'Covers', 'Abuts', 'Fills', 'Taglia', 'Copre', 'Si appoggia a', 'Riempie',
+                          'Schneidet', 'Liegt über', 'Stützt sich auf', 'Verfüllt']
     RAPP_MAP = {
         'Riempito da': 'Riempie',
         'Tagliato da': 'Taglia',
@@ -944,11 +948,13 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                             continue
                         updated_rapporti_list = [sublist + [var2, var1] if sublist else sublist for sublist in
                                                  rapporti_list]
-                        updated_rapporti_str = str(updated_rapporti_list)
+                        updated_rapporti_list2 = [sub[:4] for sub in updated_rapporti_list] #mantine solo i primi 4 elementi di ogni lista nelle liste
+                        updated_rapporti_str = str(updated_rapporti_list2)
                         update_stmt = (
                             update(us_table).where(us_table.c.id_us == id).values(rapporti=updated_rapporti_str)
                         )
                         connection.execute(update_stmt)
+
         except Exception as e:
             self.show_error(e, "l'aggiornamento")
 
@@ -970,8 +976,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 stmt = select([us_table]).where(us_table.c.sito == var1)
                 rows = connection.execute(stmt).fetchall()
 
-                for row in rows:
-                    id_us, rapporti_str = row.id_us, row.rapporti
+                for row_j in rows:
+                    id_us, rapporti_str = row_j.id_us, row_j.rapporti
                     if rapporti_str and rapporti_str != "[[]]":
                         try:
                             rapporti_list = ast.literal_eval(rapporti_str)
@@ -995,7 +1001,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                                     updated_sublist[2] = correct_area  # Aggiorna l'area
                                     updated_rapporti_list.append(updated_sublist)
 
-                            updated_rapporti_str = str(updated_rapporti_list)
+                            updated_rapporti_list2 = [sub[:4] for sub in updated_rapporti_list]#verificare
+                            updated_rapporti_str = str(updated_rapporti_list2)
                             update_stmt = update(us_table).where(us_table.c.id_us == id_us).values(
                                 rapporti=updated_rapporti_str)
                             connection.execute(update_stmt)
@@ -1245,7 +1252,10 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 rapp_item = self.tableWidget_rapporti.item(rowIndex,0)
                 rapp = str(rapp_item.text())
 
-
+                area_item = self.tableWidget_rapporti.item(rowIndex, 2)
+                ar_ = str(area_item.text())
+                sito_item = self.tableWidget_rapporti.item(rowIndex, 3)
+                sito_ = str(sito_item.text())
                 self.save_rapp()
 
                 if rapp =='Riempito da':
@@ -1289,8 +1299,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                     rapp='<'
                 elif rapp =='<':
                     rapp='>'
-                search_dict = {'sito': "'" + str(sito) + "'",
-                               'area': "'" + str(area) + "'",
+                search_dict = {'sito': "'" + str(sito_) + "'",
+                               'area': "'" + str(ar_)+ "'",
                                'us': us}
                 u = Utility()
                 search_dict = u.remove_empty_items_fr_dict(search_dict)
@@ -1298,37 +1308,44 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
 
                 if bool(res):
-                    #self.tableWidget_rapporti.setCurrentItem(None)
-                    #items = self.tableWidget_rapporti.findItems(us, Qt.MatchCase)
-                    items = self.tableWidget_rapporti.findItems(us,Qt.MatchExactly)
-                    #QMessageBox.warning(self,'',str(len(items)))
 
+                    items = self.tableWidget_rapporti.findItems(us,Qt.MatchExactly)
+                    items_area = self.tableWidget_rapporti.findItems(ar_, Qt.MatchExactly)
+                    items_sito = self.tableWidget_rapporti.findItems(sito_, Qt.MatchExactly)
                     self.on_pushButton_go_to_us_pressed()
                     self.checkBox_validation_rapp.setChecked(False)
                     items2 = self.tableWidget_rapporti.findItems(us_current,Qt.MatchExactly)
-                    #QMessageBox.warning(self,'',str(len(items2)))
-
-                    if str(len(items))=='1' and str(len(items2))=='1':
+                    items_area2 = self.tableWidget_rapporti.findItems(area, Qt.MatchExactly)
+                    items_sito2 = self.tableWidget_rapporti.findItems(sito, Qt.MatchExactly)
+                    QMessageBox.information(self, 'caso1', f"{str(len(items))} - {str(len(items2))}  - {str(len(items_area))} - {str(len(items_sito))} -  {str(len(items_area2))} - {str(len(items_sito2))}")
+                    if str(len(items))=='1' and str(len(items2))=='1':# and str(len(items_area))=='1' and str(len(items_sito))=='1' and str(len(items_area2))=='3' and str(len(items_sito2))=='5':
                         try:
                             item=items2[0]
                             self.tableWidget_rapporti.setCurrentItem(item)
+                            item_area = items_area2[0]
+                            self.tableWidget_rapporti.setCurrentItem(item_area)
+                            item_sito = items_sito2[0]
+                            self.tableWidget_rapporti.setCurrentItem(item_sito)
                         except:
                             pass
                         y=self.tableWidget_rapporti.currentRow()
                         self.tableWidget_rapporti.setItem(y,0,QtWidgets.QTableWidgetItem(rapp))
                         self.tableWidget_rapporti.setItem(y,1,QtWidgets.QTableWidgetItem(us_current))
+                        self.tableWidget_rapporti.setItem(y, 2, QtWidgets.QTableWidgetItem(area))
+                        self.tableWidget_rapporti.setItem(y, 3, QtWidgets.QTableWidgetItem(sito))
                         self.save_rapp()
 
                         self.tableWidget_rapporti.selectRow(y)
                         self.on_pushButton_go_to_us_pressed()
-                        #self.checkBox_validation_rapp.setChecked(False)
 
-                    elif str(len(items))=='1' and str(len(items2))=='0':
+                    elif str(len(items))=='1' and str(len(items2))=='0':# and str(len(items_area))=='1' and str(len(items_sito))=='1' and str(len(items_area2))=='0' and str(len(items_sito2))=='0':
 
                         self.on_pushButton_insert_row_rapporti_pressed()
                         self.tableWidget_rapporti.currentRow()
                         self.tableWidget_rapporti.setItem(0,0,QtWidgets.QTableWidgetItem(rapp))
                         self.tableWidget_rapporti.setItem(0,1,QtWidgets.QTableWidgetItem(us_current))
+                        self.tableWidget_rapporti.setItem(0, 2, QtWidgets.QTableWidgetItem(area))
+                        self.tableWidget_rapporti.setItem(0, 3, QtWidgets.QTableWidgetItem(sito))
                         self.save_rapp()
                         self.tableWidget_rapporti.selectRow(0)
                         self.on_pushButton_go_to_us_pressed()
@@ -1339,7 +1356,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
                     tf=self.unit_type_select()
 
-                    self.DB_MANAGER.insert_number_of_us_records(sito,area,us,tf)
+                    self.DB_MANAGER.insert_number_of_us_records(sito_,ar_,us,tf)
 
                     self.on_pushButton_go_to_us_pressed()
                     self.on_pushButton_insert_row_rapporti_pressed()
@@ -1347,6 +1364,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
                     a=self.tableWidget_rapporti.setItem(0,0,QtWidgets.QTableWidgetItem(rapp))
                     b=self.tableWidget_rapporti.setItem(0,1,QtWidgets.QTableWidgetItem(us_current))
+                    c=self.tableWidget_rapporti.setItem(0,2, QtWidgets.QTableWidgetItem(area))
+                    d=self.tableWidget_rapporti.setItem(0,3, QtWidgets.QTableWidgetItem(sito))
 
                     self.save_rapp()
                     self.tableWidget_rapporti.selectRow(0)
@@ -5055,7 +5074,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             for i in range(len(self.DATA_LIST)):
                 id_us_dict[self.DATA_LIST[i].us] = self.DATA_LIST[i].id_us
             dlg = pyarchinit_view_Matrix(self.iface, self.DATA_LIST, id_us_dict)
-            data_plot = dlg.generate_matrix()
+            dlg.generate_matrix()
             # Visualizza l'immagine con matplotlib
             HOME = os.environ['PYARCHINIT_HOME']
             path = '{}{}{}{}'.format(HOME, os.sep, "pyarchinit_Matrix_folder/",'Harris_matrix_viewtred.dot.jpg')
@@ -5130,6 +5149,19 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             self.launch_order_layer_if(QMessageBox.warning(self, 'ATTENZIONE',
                                                        "Are you sure you want to go on? If there are stratigraphic paradoxes, the system could crush!",
                                                        QMessageBox.Ok | QMessageBox.Cancel))
+
+
+    def format_message(self, sing_rapp, us):
+        base_msg = sing_rapp[0]
+        relativity_msg_mappings = {
+            'it': "relativo a: ",
+            'de': "bezüglich: ",
+            'en': "concerning: "
+        }
+        default_relativity_msg = relativity_msg_mappings.get(self.L, "concerning: ")
+        return base_msg + default_relativity_msg + str(us) + " \n"
+
+
     def launch_order_layer_if(self, msg):
         if msg == QMessageBox.Ok:
             # report errori rapporti stratigrafici
@@ -5148,43 +5180,32 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 msg_nr_rapp = "The report number is missing in the SU: \n"
                 msg_paradx_rapp = "Paradox in relationships: \n"
                 msg_us_mancanti = "The following SU forms are missing from the reports: \n"
-            # report errori rapporti stratigrafici
-            data = []
-            # Blocca il sistema di ordinamento su un sito ed area specifci in base alla ricerca eseguita sulla scheda US
 
+            msg_nr_rapp = msg_tipo_rapp = ""
+            data = []
             for sing_rec in self.DATA_LIST:
                 us = sing_rec.us
+                area = sing_rec.area
+                sito = sing_rec.sito
                 rapporti_stratigrafici = eval(sing_rec.rapporti)
-                # [l.pop(4) for l in rapporti_stratigrafici]
-                # [l.pop(3) for l in rapporti_stratigrafici]
-                # [l.pop(2) for l in rapporti_stratigrafici]
-
                 for sing_rapp in rapporti_stratigrafici:
-
-
-                    if len(sing_rapp) !=2:##cambiato da 2 a 5
-                        if self.L=='it':
-                            msg_nr_rapp = msg_nr_rapp + str(sing_rapp[0]) + "relativo a: " + str(us) + " \n"
-                        elif self.L=='de':
-                            msg_nr_rapp = msg_nr_rapp + str(sing_rapp[0]) + "bezüglich: " + str(us) + " \n"
-                        else:
-                            msg_nr_rapp = msg_nr_rapp + str(sing_rapp[0]) + "concerning: " + str(us) + " \n"
+                    if len(sing_rapp) != 4:  # cambiato da 2 a 5
+                        msg_nr_rapp += self.format_message(sing_rapp, us)
                     try:
-                        if sing_rapp[0] == 'Cuts' or  sing_rapp[0] == 'Covers' or  sing_rapp[0] == 'Abuts' or  sing_rapp[0] == 'Fills' or sing_rapp[0] == 'Taglia' or  sing_rapp[0] == 'Copre' or  sing_rapp[0] == 'Si appoggia a' or  sing_rapp[0] == 'Riempie'  or  sing_rapp[0] == 'Schneidet' or  sing_rapp[0] == 'Liegt über' or  sing_rapp[0] == 'Stützt sich auf' or  sing_rapp[0] == 'Verfüllt':
+                        if sing_rapp[0] in self.RELATIONSHIP_TYPES:
                             try:
                                 if sing_rapp[1] != '':
-                                    harris_rapp = (int(us), int(sing_rapp[1]))
-                                    ##                                  if harris_rapp== (1, 67):
-                                    ##                                      QMessageBox.warning(self, "Messaggio", "Magagna", QMessageBox.Ok)
+                                    harris_rapp = (str(us) + str(area) + str(sito),
+                                                   str(sing_rapp[1]) + str(sing_rapp[2]) + str(sing_rapp[3]))
                                     data.append(harris_rapp)
-                            except:
-                                msg_nr_rapp = msg_nr_rapp + str(us) + " \n"
+                            except Exception as e:
+                                msg_nr_rapp += str(us) + " \n"
                     except:
-                        msg_tipo_rapp = msg_tipo_rapp + str(us) + " \n"
+                        msg_tipo_rapp += str(us) + " \n"
             for i in data:
                 temp_tup = (i[1], i[
                     0])  # controlla che nn vi siano rapporti inversi dentro la lista DA PROBLEMI CON GLI UGUALE A E I SI LEGA A
-                # QMessageBox.warning(self, "Messaggio", "Temp_tup" + str(temp_tup), QMessageBox.Ok)
+                #QMessageBox.warning(self, "Messaggio", "Temp_tup" + str(temp_tup), QMessageBox.Ok)
                 if data.count(temp_tup) != 0:
                     msg_paradx_rapp = msg_paradx_rapp + '\n' + str(i) + '\n' + str(temp_tup)
                     data.remove(i)
@@ -5202,56 +5223,61 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             #QMessageBox.warning(None, "Messaggio", "DATA LIST" + str(order_layer_dict), QMessageBox.Ok)
             # order_number = ""
             # us = ""
-            for k, v in order_layer_dict.items():#era iteritems prima
-                order_number = str(k)
-                us = v
-                # QMessageBox.warning(None, "Messaggio", "DATA LIST" + str(k)+str(v), QMessageBox.Ok)
-                for sing_us in v:
-                    search_dict = {'sito': "'"+str(sito)+"'", 'area': "'"+str(area)+"'",
-                                   'us': int(sing_us)}
-                    #QMessageBox.warning(None, "Messaggio", "DATA LIST" + str(search_dict), QMessageBox.Ok)
-                    try:
-                        records = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)  # carica tutti i dati di uno scavo ordinati per numero di US
-                        #QMessageBox.warning(None, "Messaggio", "records" + str(records), QMessageBox.Ok)
-                        a= self.DB_MANAGER.update(self.MAPPER_TABLE_CLASS, self.ID_TABLE, [int(records[0].id_us)], ['order_layer'], [order_number])
-                        #QMessageBox.warning(None, "Messaggio", "records" + str(a), QMessageBox.Ok)
-                        self.on_pushButton_view_all_pressed()
-                    except Exception as e:
-                        QMessageBox.warning(self, u'ACHTUNG', str(e), QMessageBox.Ok)
-            # blocco output errori
-            if self.L=='it':
-                filename_tipo_rapporti_mancanti = '{}{}{}'.format(self.REPORT_PATH, os.sep, 'tipo_rapporti_mancanti.txt')
-                filename_nr_rapporti_mancanti = '{}{}{}'.format(self.REPORT_PATH, os.sep, 'nr_rapporti_mancanti.txt')
-                filename_paradosso_rapporti = '{}{}{}'.format(self.REPORT_PATH, os.sep, 'paradosso_rapporti.txt')
-                filename_us_mancanti = '{}{}{}'.format(self.REPORT_PATH, os.sep, 'us_mancanti.txt')
-            elif self.L=='de':
-                filename_tipo_rapporti_mancanti = '{}{}{}'.format(self.REPORT_PATH, os.sep, 'type_missing_relationships.txt')
-                filename_nr_rapporti_mancanti = '{}{}{}'.format(self.REPORT_PATH, os.sep, 'nr_missing relashionships.txt')
-                filename_paradosso_rapporti = '{}{}{}'.format(self.REPORT_PATH, os.sep, 'relashionships_paradox.txt')
-                filename_us_mancanti = '{}{}{}'.format(self.REPORT_PATH, os.sep, 'su_missing.txt')
+
+            if order_layer_dict is not None:
+                for k, v in order_layer_dict.items():
+                    order_number = k
+                    us_v = v
+                    #QMessageBox.warning(self, "Messaggio", f"order{order_number} - us{us_v}", QMessageBox.Ok)
+                    for sing_us in us_v:
+                        search_dict = {'sito': "'"+str(sito)+"'", 'area': "'"+str(area)+"'",
+                                       'us': int(sing_us)}
+                        #QMessageBox.warning(None, "Messaggio", "DATA LIST" + str(search_dict), QMessageBox.Ok)
+                        try:
+                            records = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)  # carica tutti i dati di uno scavo ordinati per numero di US
+                            #QMessageBox.warning(None, "Messaggio", "records" + str(records), QMessageBox.Ok)
+                            self.DB_MANAGER.update(self.MAPPER_TABLE_CLASS, self.ID_TABLE, [int(records[0].id_us)], ['order_layer'], [order_number])
+
+                            self.on_pushButton_view_all_pressed()
+                        except Exception as e:
+                            QMessageBox.warning(self, 'Attenzione', str(e), QMessageBox.Ok)
+                # blocco output errori
+                if self.L=='it':
+                    filename_tipo_rapporti_mancanti = '{}{}{}'.format(self.REPORT_PATH, os.sep, 'tipo_rapporti_mancanti.txt')
+                    filename_nr_rapporti_mancanti = '{}{}{}'.format(self.REPORT_PATH, os.sep, 'nr_rapporti_mancanti.txt')
+                    filename_paradosso_rapporti = '{}{}{}'.format(self.REPORT_PATH, os.sep, 'paradosso_rapporti.txt')
+                    filename_us_mancanti = '{}{}{}'.format(self.REPORT_PATH, os.sep, 'us_mancanti.txt')
+                elif self.L=='de':
+                    filename_tipo_rapporti_mancanti = '{}{}{}'.format(self.REPORT_PATH, os.sep, 'type_missing_relationships.txt')
+                    filename_nr_rapporti_mancanti = '{}{}{}'.format(self.REPORT_PATH, os.sep, 'nr_missing relashionships.txt')
+                    filename_paradosso_rapporti = '{}{}{}'.format(self.REPORT_PATH, os.sep, 'relashionships_paradox.txt')
+                    filename_us_mancanti = '{}{}{}'.format(self.REPORT_PATH, os.sep, 'su_missing.txt')
+                else:
+                    filename_tipo_rapporti_mancanti = '{}{}{}'.format(self.REPORT_PATH, os.sep, 'type_missing_relationships.txt')
+                    filename_nr_rapporti_mancanti = '{}{}{}'.format(self.REPORT_PATH, os.sep, 'nr_missing relashionships.txt')
+                    filename_paradosso_rapporti = '{}{}{}'.format(self.REPORT_PATH, os.sep, 'relashionships_paradox.txt')
+                    filename_us_mancanti = '{}{}{}'.format(self.REPORT_PATH, os.sep, 'su_missing.txt')
+                self.testing(filename_tipo_rapporti_mancanti, str(msg_tipo_rapp))
+                self.testing(filename_nr_rapporti_mancanti, str(msg_nr_rapp))
+                self.testing(filename_paradosso_rapporti, str(msg_paradx_rapp))
+                self.testing(filename_us_mancanti, str(msg_us_mancanti))
+                if self.L=='it':
+                    QMessageBox.warning(self, u'ATTENZIONE', u"Sistema di ordinamento Terminato", QMessageBox.Ok)
+                elif self.L=='de':
+                    QMessageBox.warning(self, u'ACHTUNG', "Ordnungssystem beendet", QMessageBox.Ok)
+                else:
+                    QMessageBox.warning(self, u'WARNING', "Sorting system Complete", QMessageBox.Ok)
             else:
-                filename_tipo_rapporti_mancanti = '{}{}{}'.format(self.REPORT_PATH, os.sep, 'type_missing_relationships.txt')
-                filename_nr_rapporti_mancanti = '{}{}{}'.format(self.REPORT_PATH, os.sep, 'nr_missing relashionships.txt')
-                filename_paradosso_rapporti = '{}{}{}'.format(self.REPORT_PATH, os.sep, 'relashionships_paradox.txt')
-                filename_us_mancanti = '{}{}{}'.format(self.REPORT_PATH, os.sep, 'su_missing.txt')
-            self.testing(filename_tipo_rapporti_mancanti, str(msg_tipo_rapp))
-            self.testing(filename_nr_rapporti_mancanti, str(msg_nr_rapp))
-            self.testing(filename_paradosso_rapporti, str(msg_paradx_rapp))
-            self.testing(filename_us_mancanti, str(msg_us_mancanti))
-            if self.L=='it':
-                QMessageBox.warning(self, u'ATTENZIONE', u"Sistema di ordinamento Terminato", QMessageBox.Ok)
-            elif self.L=='de':
-                QMessageBox.warning(self, u'ACHTUNG', "Ordnungssystem beendet", QMessageBox.Ok)
-            else:
-                QMessageBox.warning(self, u'WARNING', "Sorting system Complete", QMessageBox.Ok)
-        else:
-            if self.L=='it':
-                QMessageBox.warning(self, u'ATTENZIONE', u"Sistema di ordinamento US abortito", QMessageBox.Ok)
-            elif self.L=='de':
-                QMessageBox.warning(self, 'ACHTUNG', u"Ordnungssystem verlassen", QMessageBox.Ok)
-            else:
-                QMessageBox.warning(self, 'WARNING', "SU aborted sorting system", QMessageBox.Ok)
+                if self.L=='it':
+                    QMessageBox.warning(self, u'ATTENZIONE', u"Sistema di ordinamento US abortito", QMessageBox.Ok)
+                elif self.L=='de':
+                    QMessageBox.warning(self, 'ACHTUNG', u"Ordnungssystem verlassen", QMessageBox.Ok)
+                else:
+                    QMessageBox.warning(self, 'WARNING', "SU aborted sorting system", QMessageBox.Ok)
            # blocco output errori
+        else:
+            print("order_layer_dict is None. Cannot iterate over it.")
+
     def on_toolButtonPan_toggled(self):
         self.toolPan = QgsMapToolPan(self.mapPreview)
         self.mapPreview.setMapTool(self.toolPan)
@@ -9078,6 +9104,10 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 self.fill_fields()  # Assuming fill_fields takes a record as a parameter
                 self.BROWSE_STATUS = "b"
                 self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
+                if self.toolButtonGis.isChecked():
+                    self.pyQGIS.charge_vector_layers(self.DATA_LIST)
+                if self.toolButton_usm.isChecked():
+                    self.pyQGIS.charge_usm_layers(self.DATA_LIST)
             else:
                 QMessageBox.information(self, 'No Results', "No records match the selected filters.", QMessageBox.Ok)
 
