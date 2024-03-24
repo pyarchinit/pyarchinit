@@ -43,6 +43,8 @@ class HarrisMatrix:
 
     @property
     def export_matrix(self):
+        # Genera un grafico utilizzando Digraph per visualizzare relazioni tra elementi, inclusi periodi, fasi e unità di servizio.
+        # Il grafico include colori e stili personalizzati per rappresentare diverse relazioni e tipi di unità di servizio.
 
         global periodo_key, periodo, us_list
         G = Digraph(engine='dot', strict=False)
@@ -78,8 +80,7 @@ class HarrisMatrix:
 
         if self.dialog.checkBox_period.isChecked():
 
-            self.periodi = sorted(self.periodi, key=lambda x: x[2][0])  # Assuming x[2][0] is the date/period marker
-
+            self.periodi = sorted(self.periodi, key=lambda x: x[2][0])  # Supponendo che x[2][0] sia l'indicatore di data/periodo
             # Crea i subgraph per siti, aree e periodi
             for entry in self.periodi:
                 cluster, sito, area_info = entry
@@ -93,11 +94,10 @@ class HarrisMatrix:
                 fase_key = f'cluster_{periodo_key}_fase_{fase}'
 
                 with G.subgraph(name=site_key) as site:
-                    site.attr(color="lightgray", style='filled')  # Remove border by setting it as white
-                    site.attr(rank='same')  # Force this subgraph to the highest level
-                    site.attr(label=sito.replace("_", " "))  # Create the site node
-                    site.node('node0', shape='plaintext', label='', width='0', height='0')  # Create an empty node to force the site node to the top
-
+                    site.attr(color="lightgray", style='filled')  # Rimuovi il bordo impostandolo come bianco
+                    site.attr(rank='same') # Forza questo sottografo al livello più alto
+                    site.attr(label=sito.replace("_", " ")) # Crea il nodo del sito
+                    site.node('node0', shape='plaintext', label='', width='0', Height='0') # Crea un nodo vuoto per forzare il nodo del sito in alto
                     if periodo:
                         with site.subgraph(name=periodo_key) as p:
                             p.attr(label=datazione, margin='100',area='150',labeljust='l', style='filled', color='lightblue', rank='same')
@@ -106,7 +106,6 @@ class HarrisMatrix:
                             with p.subgraph(name=fase_key) as f:
                                 f.attr(label=fase, labeljust='l',area='200',margin='150',style='filled,dashed', fillcolor='#FFFFE080', color='black',
                                        rank='same', penwidth='1.5')
-                                # nodi invisibili per "espandere" il cluster
 
                                 with f.subgraph(name='cluster_cont') as temp:
                                     temp.attr(rankdir='LR',label='',style='invis')
@@ -120,15 +119,15 @@ class HarrisMatrix:
 
 
                                             if us in negative_sources:
-                                                # change color for negative us
+                                                # cambia colore per noi negativo
                                                 f.node('Area' + us.replace("_", " "), label=label_name, shape=str(self.dialog.combo_box_6.currentText()),
                                                        style='filled', rank='same', color=str(self.dialog.combo_box_2.currentText()))
                                             elif us in conteporene_sources:
-                                                # change color for conteporene us
+                                               #cambia colore per conteporene noi
                                                 temp.node('Area' + us.replace("_", " "), label=label_name, shape=str(self.dialog.combo_box_18.currentText()),
                                                         color=str(self.dialog.combo_box_17.currentText()), style='filled')
                                             else:
-                                                # default color
+                                                # colore predefinito
                                                 f.node('Area' + us.replace("_", " "), label=label_name, shape=str(self.dialog.combo_box_3.currentText()),
                                                        style='filled', color=str(self.dialog.combo_box.currentText()))
         for bb in self.sequence:
@@ -686,3 +685,203 @@ class ViewHarrisMatrix:
         return g, f
         # return f
 
+    @property
+    def export_matrix_3(self):
+        # Genera un grafico utilizzando Digraph per visualizzare relazioni tra elementi, inclusi periodi, fasi e unità di servizio.
+        # Il grafico include colori e stili personalizzati per rappresentare diverse relazioni e tipi di unità di servizio.
+
+        global periodo_key, periodo, us_list
+        G = Digraph(engine='dot', strict=False)
+        G.attr(rankdir='TB')
+        G.attr(compound='true')
+        G.graph_attr['pad'] = "0.5"
+        G.graph_attr['nodesep'] = "1"
+        G.graph_attr['ranksep'] = "3"
+        G.graph_attr['splines'] = 'ortho'
+        G.graph_attr['dpi'] = '300'
+
+        elist1 = []
+        elist2 = []
+        elist3 = []
+
+        # Costruisci l'insieme delle US coinvolte in una relazione
+        us_rilevanti = set()
+        for source, target in self.sequence:
+            us_rilevanti.add(source)
+            us_rilevanti.add(target)
+        for source, target in self.conteporene:
+            us_rilevanti.add(source)
+            us_rilevanti.add(target)
+        for source, target in self.negative:
+            us_rilevanti.add(source)
+            us_rilevanti.add(target)
+        for source, target in self.connection:
+            us_rilevanti.add(source)
+            us_rilevanti.add(target)
+        for source, target in self.connection_to:
+            us_rilevanti.add(source)
+            us_rilevanti.add(target)
+
+        self.periodi = sorted(self.periodi, key=lambda x: x[2][0])
+        # Crea i subgraph per siti, aree e periodi
+        for entry in self.periodi:
+            cluster, sito, area_info = entry
+            datazione, periodo_info = area_info[2]
+            periodo, fase_info = periodo_info
+            fase, us_list = fase_info
+
+            site_key = f'cluster_{cluster}'
+            area_key = f'{site_key}_sito_{sito}'
+            periodo_key = f'cluster_{area_key}_per_{periodo}'
+            fase_key = f'cluster_{periodo_key}_fase_{fase}'
+
+            with G.subgraph(name=site_key) as site:
+                site.attr(color="lightgray", style='filled')  # Rimuovi il bordo impostandolo come bianco
+                site.attr(rank='same')  # Forza questo sottografo al livello più alto
+                site.attr(label=sito.replace("_", " "))  # Crea il nodo del sito
+                site.node('node0', shape='plaintext', label='', width='0',
+                          Height='0')  # Crea un nodo vuoto per forzare il nodo del sito in alto
+                if periodo:
+                    with site.subgraph(name=periodo_key) as p:
+                        p.attr(label=datazione, margin='100', area='150', labeljust='l', style='filled',
+                               color='lightblue', rank='same')
+                        p.attr(shape='plaintext')
+
+                        with p.subgraph(name=fase_key) as f:
+                            f.attr(label=fase, labeljust='l', area='200', margin='150', style='filled,dashed',
+                                   fillcolor='#FFFFE080', color='black',
+                                   rank='same', penwidth='1.5')
+
+                            with f.subgraph(name='cluster_cont') as temp:
+                                temp.attr(rankdir='LR', label='', style='invis')
+
+                                negative_sources = {source for source, _ in self.negative}
+                                conteporene_sources = {source for source, _ in self.conteporene}
+
+                                for us in us_list:
+                                    if us in us_rilevanti:
+                                        label_name = 'Area' + us.replace("_", " ")
+
+                                        if us in negative_sources:
+                                            # cambia colore per noi negativo
+                                            f.node('Area' + us.replace("_", " "), label=label_name,
+                                                   shape='box',
+                                                   style='filled', rank='same',
+                                                   color='gray')
+                                        elif us in conteporene_sources:
+                                            # cambia colore per conteporene noi
+                                            temp.node('Area' + us.replace("_", " "), label=label_name,
+                                                      shape='box',
+                                                      color='white',
+                                                      style='filled')
+                                        else:
+                                            # colore predefinito
+                                            f.node('Area' + us.replace("_", " "), label=label_name,
+                                                   shape='box',
+                                                   style='filled', color='white')
+        for bb in self.sequence:
+            if bb[0] in us_rilevanti and bb[1] in us_rilevanti:
+                a = (f"{'Area' + bb[0].replace('_', ' ')}", f"{'Area' + bb[1].replace('_', ' ')}")
+                elist1.append(a)
+
+        with G.subgraph(name='main') as e:
+
+            e.attr(rankdir='TB')
+            e.edges(elist1)
+            e.node_attr['shape'] = 'box'
+            e.node_attr['style'] = 'solid'
+            e.node_attr.update(style='filled', fillcolor='white')
+            e.node_attr['color'] = 'black'
+            e.node_attr['penwidth'] = '.5'
+            e.edge_attr['penwidth'] = '.5'
+            e.edge_attr['style'] = 'solid'
+            e.edge_attr.update(arrowhead='normal',
+                               arrowsize='.8')
+
+            for cc in self.conteporene:
+                if cc[0] in us_rilevanti and cc[1] in us_rilevanti:
+                    a = (f"{'Area' + cc[0].replace('_', ' ')}", f"{'Area' + cc[1].replace('_', ' ')}")
+                    elist3.append(a)
+                    with G.subgraph(name='main1') as b:
+                        b.edges(elist3)
+                        b.node_attr['shape'] = 'box'
+                        b.node_attr['style'] = 'solid'
+                        b.node_attr.update(style='filled', fillcolor='white')
+                        b.node_attr['color'] = 'black'
+                        b.node_attr['penwidth'] = '.5'
+                        b.edge_attr['penwidth'] = '.5'
+                        b.edge_attr['style'] = 'solid'
+                        b.edge_attr.update(arrowhead='none',
+                                           arrowsize='.8')
+
+            for dd in self.negative:
+                if dd[0] in us_rilevanti and dd[1] in us_rilevanti:
+                    a = (f"{'Area' + dd[0].replace('_', ' ')}", f"{'Area' + dd[1].replace('_', ' ')}")
+                    elist2.append(a)
+
+                    with G.subgraph(name='main2') as a:
+                        a.edges(elist2)
+                        a.node_attr['shape'] = 'box'
+                        a.node_attr['style'] = 'solid'
+                        a.node_attr.update(style='filled', fillcolor='gray')
+                        a.node_attr['color'] = 'gray'
+                        a.node_attr['penwidth'] = '.5'
+                        a.edge_attr['penwidth'] = '.5'
+                        a.edge_attr['style'] = 'dashed'
+                        a.edge_attr.update(constraint='False',arrowhead='normal',
+                                           arrowsize='.8')
+
+
+
+        def showMessage(message, title='Info', icon=QMessageBox.Information):
+            msgBox = QMessageBox()
+            msgBox.setIcon(icon)
+            msgBox.setWindowTitle(title)
+            msgBox.setText(message)
+            msgBox.exec_()
+
+        try:
+            # Assumi che self.HOME sia già definito
+            matrix_path = '{}{}{}'.format(self.HOME, os.sep, "pyarchinit_Matrix_folder")
+            filename = 'Harris_matrix'
+
+            # Rendering del file DOT
+            G.format = 'dot'
+            dot_file = G.render(directory=matrix_path, filename=filename)
+            tred_output_file_path = os.path.join(matrix_path, f"{filename}_viewtred.dot")
+
+            error_file_path = os.path.join(matrix_path, 'matrix_error.txt')
+        except Exception as e:
+            # showMessage(f"Errore durante la creazione del file DOT: {e}", title='Errore', icon=QMessageBox.Critical)
+            return
+
+        startupinfo = None
+        if Pyarchinit_OS_Utility.isWindows():
+            startupinfo = subprocess.STARTUPINFO()
+            startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+            startupinfo.wShowWindow = subprocess.SW_HIDE
+
+        try:
+
+            with open(tred_output_file_path, "w") as out_file, open(error_file_path, "w") as err_file:
+                subprocess.call(['tred', dot_file], stdout=out_file, stderr=err_file, startupinfo=startupinfo)
+            # showMessage("Comando `tred` eseguito con successo.")
+        except Exception as e:
+            # showMessage(f"Errore durante l'esecuzione di `tred`: {e}", title='Errore', icon=QMessageBox.Critical)
+            return
+        if os.path.getsize(error_file_path) > 0:
+            with open(error_file_path, "r") as err_file:
+                print()  # errors = err_file.read()
+                # showMessage(f"Errori durante l'esecuzione di `tred`:\n{errors}", title='Errore')
+                # icon=QMessageBox.Warning)
+        else:
+            print()  # showMessage("Nessun errore riportato da `tred`.")
+
+        try:
+            g = Source.from_file(tred_output_file_path, format='jpg')
+            g.render()
+            print()  # showMessage("Rendering del grafico completato.")
+            # return g (Considera che in una GUI, potresti voler gestire il risultato in modo diverso)
+        except Exception as e:
+            print()  # showMessage(f"Errore durante il rendering del grafico finale: {e}", title='Errore',
+            # icon=QMessageBox.Critical)

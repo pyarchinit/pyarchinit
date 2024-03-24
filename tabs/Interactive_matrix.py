@@ -578,6 +578,183 @@ class pyarchinit_view_Matrix(QDialog, MAIN_DIALOG_CLASS):
 
         return data_plotting
 
+class pyarchinit_view_Matrix_pre(QDialog, MAIN_DIALOG_CLASS):
+    L = QgsSettings().value("locale/userLocale")[0:2]
+    MSG_BOX_TITLE = "PyArchInit - Harrys Matrix"
+    DB_MANAGER = ""
+    DATA_LIST = ""
+    ID_US_DICT = {}
 
+    HOME = os.environ['PYARCHINIT_HOME']
+
+    def __init__(self, iface, data_list, id_us_dict):
+        super().__init__()
+        self.iface = iface
+        self.pyQGIS = Pyarchinit_pyqgis(iface)
+        self.DATA_LIST = data_list
+        self.ID_US_DICT = id_us_dict
+        self.setupUi(self)
+
+        ##      self.textbox.setText('1 2 3 4')
+        # self.on_draw()
+        try:
+            self.DB_connect()
+        except:
+            pass
+
+    def DB_connect(self):
+        conn = Connection()
+        conn_str = conn.conn_str()
+        try:
+            self.DB_MANAGER = Pyarchinit_db_management(conn_str)
+            self.DB_MANAGER.connection()
+        except Exception as e:
+            e = str(e)
+
+            if self.L == 'it':
+                QMessageBox.warning(self, "Attenzione",
+                                    "bug! Scrivere allo sviluppatore <br> Error: <br>" + str(e),
+                                    QMessageBox.Ok)
+            if self.L == 'it':
+                QMessageBox.warning(self, "Warnung",
+                                    "bug! Schreiben Sie an den Entwickler <br> Error: <br>" + str(e),
+                                    QMessageBox.Ok)
+
+            else:
+                QMessageBox.warning(self, "Alert",
+                                    "bug! write to the developer <br> Error: <br>" + str(e),
+                                    QMessageBox.Ok)
+
+    def urlify(self, s):
+
+        # Rimuove tutti i caratteri che non sono parole (tutto tranne i numeri e le lettere)
+        s = re.sub(r"[^\w\s]", ' ', s)
+
+        # Sostituire tutti gli spazi bianchi con un underscore
+        s = re.sub(r"\s+", '_', s)
+
+        return s
+
+    def generate_matrix_3(self):
+        data = []
+        negative = []
+        conteporane = []
+        # QMessageBox.information(None, "Info", str(self.DATA_LIST[0].us), QMessageBox.Ok)
+        for sing_rec in self.DATA_LIST:
+            us = str(sing_rec['us'])
+
+
+            area = str(sing_rec['area'])
+
+            rapporti_stratigrafici = eval(sing_rec['rapporti'])
+
+
+            try:
+                for sing_rapp in rapporti_stratigrafici:
+                    if sing_rapp[0] in ['Covers', 'Abuts', 'Fills', 'Copre', 'Si appoggia a', 'Riempie', 'Verfüllt',
+                                        'Bindet an', 'Entspricht']:
+                        if sing_rapp[1] != '':
+                            harris_rapp = (area + '_' + 'US' + us, str(sing_rapp[2]) + '_' + 'US' + str(sing_rapp[1]))
+                            data.append(harris_rapp)
+
+                    if sing_rapp[0] in ['Taglia', 'Cuts', 'Schneidet']:
+                        if sing_rapp[1] != '':
+                            harris_rapp1 = (area + '_' + 'US' + us, str(sing_rapp[2]) + '_' + 'US' + str(sing_rapp[1]))
+                            negative.append(harris_rapp1)
+
+                    if sing_rapp[0] in ['Si lega a', 'Uguale a', 'Connected to', 'Same as', 'Liegt über',
+                                        'Stützt sich auf']:
+                        if sing_rapp[1] != '':
+                            harris_rapp2 = (area + '_' + 'US' + us, str(sing_rapp[2]) + '_' + 'US' + str(sing_rapp[1]))
+                            conteporane.append(harris_rapp2)
+            except Exception as e:
+                print(f"Errore durante la generazione della matrice: {e}")
+
+
+            except Exception as e:
+
+                if self.L == 'it':
+                    QMessageBox.warning(self, "Warning", "Problema nel sistema di esportazione del Matrix:" + str(e),
+                                        QMessageBox.Ok)
+                elif self.L == 'de':
+                    QMessageBox.warning(self, "Warnung", "Problem im Matrix-Exportsystem:" + str(e),
+                                        QMessageBox.Ok)
+
+                else:
+                    QMessageBox.warning(self, "Warning", "Problem in the Matrix export system:" + str(e),
+                                        QMessageBox.Ok)
+        sito = self.DATA_LIST[0]['sito']
+        # area = self.DATA_LIST[0].area
+
+        search_dict = {
+            'sito': "'" + str(sito) + "'",
+
+        }
+
+        periodizz_data_list = self.DB_MANAGER.query_bool(search_dict, 'PERIODIZZAZIONE')
+
+        periodi_data_values = []
+
+        for a in periodizz_data_list:
+            periodi_data_values.append([a.cont_per, a.datazione_estesa, a.periodo, a.fase, a.descrizione])
+
+        # Clear the previous contents of the list
+        periodi_us_list = []
+
+        clust_number = 0
+
+        # Get all the areas
+        areas = set([rec['area'] for rec in self.DATA_LIST if rec['sito'] == sito])
+
+        # per = set([rec.fase_iniziale for rec in self.DATA_LIST if rec.sito == sito])  # update here
+        cluster_label = "cluster%s" % clust_number
+
+        # Iterate over the unique areas
+        for area in areas:
+
+            for i in periodi_data_values:
+                search_dict2 = {
+                    'sito': "'" + str(sito) + "'",
+                    'area': "'" + str(area) + "'",  # add 'area' to the search_dict2
+                    'periodo_iniziale': "'" + str(i[2]) + "'",
+                    'fase_iniziale': "'" + str(i[3]) + "'"
+
+                }
+                us_group = self.DB_MANAGER.query_bool(search_dict2, 'US')
+
+                periodo_label = "%s" % (str(i[1]))
+
+                sing_us = [rec.area + '_' + 'US' + str(rec.us) for rec in
+                           us_group]  # create list of 'us' under the same 'area', 'periodo_iniziale' and 'fase_iniziale'
+
+                fase = "Fase%s: %s" % (str(i[3]), str(i[4]))
+                sing_fase = [fase,
+                             sing_us]  # create a nested list for each 'periodo_fase' with its corresponding list of 'us'
+
+                periodo = "%s" % (str(i[2]))
+                sing_per = [periodo,
+                            sing_fase]  # create a nested list for each 'periodo_fase' with its corresponding list of 'us'
+
+                sing_per = [periodo_label,
+                            sing_per]  # create a nested list for each 'periodo_fase' with its corresponding list of 'us'
+
+                area_label = "%s" % str(area)  # create area label
+                sing_area = [cluster_label, area_label,
+                             sing_per]  # create list that includes area label and the nested 'sing_per' list
+
+                sito_label = "%s" % str(sito)  # create sito label
+                sing_sito = [cluster_label, sito_label,
+                             sing_area]  # create list that includes sito label and the nested 'sing_area' list
+
+                periodi_us_list.append(sing_sito)  # append the nested 'sing_sito' list to the 'periodi_us_list'
+
+                clust_number += 1
+
+        matrix_exp = ViewHarrisMatrix(data, negative, conteporane, '', '', periodi_us_list)
+
+        data_plotting = matrix_exp.export_matrix_3
+
+
+        return data_plotting
 
         
