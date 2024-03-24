@@ -21,22 +21,54 @@
 """
 
 from __future__ import absolute_import
-from builtins import str
-from builtins import range
-import sys
-import os
-from qgis.PyQt.QtWidgets import QListWidgetItem,QApplication, QDialog, QMessageBox,QListWidget,QPushButton,QVBoxLayout,QAbstractItemView
-from qgis.PyQt.QtCore import Qt
-from qgis.PyQt.uic import loadUiType
-from qgis.core import Qgis, QgsMessageLog, QgsSettings, QgsProject,QgsMapLayer
-from ..modules.db.pyarchinit_utility import Utility
-from ..modules.db.pyarchinit_conn_strings import Connection
-from ..modules.db.pyarchinit_db_manager import Pyarchinit_db_management
-from ..modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis
-from .US_USM import pyarchinit_US
 
+import sys
+
+
+from qgis.PyQt.QtGui import QPixmap, QPainter, QImage
+
+
+from qgis.PyQt.QtWidgets import QVBoxLayout, QGraphicsScene,  QGraphicsView, QListWidgetItem,QApplication, QDialog, QMessageBox
+from qgis.PyQt.QtCore import Qt
+
+from qgis.core import Qgis, QgsMessageLog, QgsProject
+from ..modules.db.pyarchinit_utility import Utility
+
+from .US_USM import pyarchinit_US
+from .Interactive_matrix import *
 MAIN_DIALOG_CLASS, _ = loadUiType(
     os.path.join(os.path.dirname(__file__), os.pardir, 'gui', 'ui', 'Gis_Time_controller.ui'))
+
+
+class ZoomableGraphicsView(QGraphicsView):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setRenderHint(QPainter.Antialiasing)
+        self.setRenderHint(QPainter.SmoothPixmapTransform)
+        self.setDragMode(QGraphicsView.ScrollHandDrag)
+
+    def wheelEvent(self, event):
+
+        # Zoom Factor
+        zoomInFactor = 1.25
+        zoomOutFactor = 1 / zoomInFactor
+
+        # Save the scene pos
+        oldPos = self.mapToScene(event.pos())
+
+        # Zoom
+        if event.angleDelta().y() > 0:
+            zoomFactor = zoomInFactor
+        else:
+            zoomFactor = zoomOutFactor
+        self.scale(zoomFactor, zoomFactor)
+
+        # Get the new position
+        newPos = self.mapToScene(event.pos())
+
+        # Move scene to old position
+        delta = newPos - oldPos
+        self.translate(delta.x(), delta.y())
 
 class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
     L=QgsSettings().value("locale/userLocale")[0:2]
@@ -60,13 +92,14 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
             self.connect()
         except:
             pass
+        self.selected_layers = None
         self.listWidget.clear()
         self.listWidget.clear()
         self.listWidget.clear()
         all_layers = QgsProject.instance().mapLayers().values()
         self.relevant_layers = [layer for layer in all_layers if
                            layer.dataProvider().fields().indexFromName('order_layer') != -1]
-
+        #self.spinBox_relative_cronology.setHidden(True)
         for layer in self.relevant_layers:
             item = QListWidgetItem(layer.name())
             item.setFlags(item.flags() | Qt.ItemIsUserCheckable)
@@ -86,6 +119,10 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
         self.spinBox_relative_cronology.valueChanged.connect(self.dial_relative_cronology.setValue)
         self.listWidget.itemSelectionChanged.connect(self.update_selected_layers)
 
+        #self.update_graphics_view_test()
+        self.spinBox_relative_cronology.valueChanged.connect(self.update_graphics_view)
+        if self.checkBox_matrix.isChecked():
+            self.update_graphics_view()
     def connect(self):
         conn = Connection()
         conn_str = conn.conn_str()
@@ -124,7 +161,7 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
 
 
         if self.selected_layers is None or not self.selected_layers:
-            print("No layer selected")
+            self.listWidget.addItem('I layer Quote View e US View devono essere caricati.')
             return
 
         self.datazione_dict = {}
@@ -132,6 +169,7 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
         for us_layer in self.selected_layers:
             fields = us_layer.fields()
             self.fieldname = next((field.name() for field in fields if 'datazione' in field.name().lower()), '')
+
             if not self.fieldname:
                 print(f"No 'datazione' field found in layer {us_layer.name()}")
                 continue
@@ -140,10 +178,13 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
             for feature in us_layer.getFeatures():
                 order_layer = feature.attribute("order_layer")
                 datazione = feature.attribute(self.fieldname)
+
                 if order_layer in self.datazione_dict:
                     self.datazione_dict[order_layer].append(datazione)
+
                 else:
                     self.datazione_dict[order_layer] = [datazione]
+
 
         max_num_order_layer = self.DB_MANAGER.max_num_id(self.MAPPER_TABLE_CLASS, "order_layer") + 1,
         self.dial_relative_cronology.setMaximum(max_num_order_layer[0])
@@ -152,6 +193,65 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
         self.spinBox_relative_cronology.valueChanged.connect(self.update_datazione)
         self.update_datazione(self.spinBox_relative_cronology.value())
         self.update_datazione(self.dial_relative_cronology.value())
+
+
+
+
+
+    def update_graphics_view(self):
+        if self.checkBox_matrix.isChecked():
+            try:
+                self.id_us_dict = {}
+
+                data_list = []
+                for layer in self.selected_layers:
+
+                    fields = layer.fields()
+                    self.fieldname = next((field.name() for field in fields if 'datazione' in field.name().lower()), '')
+                    if not self.fieldname:
+                        print(f"No 'datazione' field found in layer {layer.name()}")
+                        continue
+                    #self.us = next((field.name() for field in fields if 'us' in field.name().lower()), '')
+                    #self.rapporti = next((field.name() for field in fields if 'rapporti' in field.name().lower()), '')
+                    # Crea un dizionario che mappa ogni attributo "us" a una lista di attributi "datazione" corrispondenti
+
+                    for feature in layer.getFeatures():
+                        data_dict = {field.name(): feature[field.name()] for field in feature.fields()}
+                        data_list.append(data_dict)
+                        order_layer = feature.attribute("order_layer")
+                        datazione = feature.attribute(self.fieldname)
+                        if order_layer in self.id_us_dict:
+                            self.id_us_dict[order_layer].append(datazione)
+                        else:
+                            self.id_us_dict[order_layer] = [datazione]
+
+                dlg = pyarchinit_view_Matrix_pre(self.iface, data_list, self.id_us_dict)
+                dlg.generate_matrix_3()
+                HOME = os.environ['PYARCHINIT_HOME']
+                path = '{}{}{}{}'.format(HOME, os.sep, "pyarchinit_Matrix_folder/", 'Harris_matrix_viewtred.dot.jpg')
+                if path:
+                    # Rimuovi la graphicsView esistente dal layout
+                    self.horizontalLayout_2.removeWidget(self.graphicsView)
+
+                    # Crea una nuova ZoomableGraphicsView
+                    self.graphicsView = ZoomableGraphicsView()
+
+                    # Aggiungi la ZoomableGraphicsView al layout
+                    self.horizontalLayout_2.addWidget(self.graphicsView)
+
+                    # Procedi come prima
+                    pixmap = QPixmap(path)
+                    scene = QGraphicsScene()
+                    scene.addPixmap(pixmap)
+                    self.graphicsView.setScene(scene)
+                    self.graphicsView.setFocus()
+                    self.graphicsView.fitInView(scene.itemsBoundingRect(), Qt.KeepAspectRatio)
+
+
+
+            except AssertionError as e:
+
+                QMessageBox.warning(self, "Alert", str(e))
 
     def define_order_layer_value(self, v):
         if self.selected_layers is None or not self.selected_layers:
@@ -166,6 +266,9 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
         for layer in self.selected_layers:
             data_provider = layer.dataProvider()
             self.liststring(sito, area, layer, data_provider)
+
+
+
 
     def update_datazione(self, value):
         # Cerca il valore dello spinBox nel dizionario e imposta il valore del textEdit_datazione corrispondente
@@ -229,8 +332,10 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
             else:
                 self.pyQGIS.charge_vector_layers(us_res_dep)
 
-if __name__ == "__main__":
-    app = QApplication(sys.argv)
-    ui = pyarchinit_US()
-    ui.show()
-    sys.exit(app.exec_())
+            try:
+                self.update_graphics_view()
+            except AssertionError as e:
+                QMessageBox.warning(self, "Attenzione", 'Devi selezionare prima il layer us view nella toc')
+
+
+
