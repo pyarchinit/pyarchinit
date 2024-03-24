@@ -20,6 +20,7 @@
 from __future__ import absolute_import
 
 import ast
+import json
 import logging
 import sqlite3 as sq
 from datetime import date
@@ -5221,10 +5222,9 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             # QMessageBox.warning(None, "Messaggio", "DATA LIST" + str(OL), QMessageBox.Ok)
             order_layer_dict = OL.main_order_layer()
             #QMessageBox.warning(None, "Messaggio", "DATA LIST" + str(order_layer_dict), QMessageBox.Ok)
-            # order_number = ""
-            # us = ""
 
-            if order_layer_dict is not None:
+            #order_layer_dict = json.loads(order_layer_dict)
+            try:
                 for k, v in order_layer_dict.items():
                     order_number = k
                     us_v = v
@@ -5241,7 +5241,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                             self.on_pushButton_view_all_pressed()
                         except Exception as e:
                             QMessageBox.warning(self, 'Attenzione', str(e), QMessageBox.Ok)
-                # blocco output errori
+                #QMessageBox.warning(self, "Messaggio", f"order{order_number} - us{us_v}", QMessageBox.Ok)
                 if self.L=='it':
                     filename_tipo_rapporti_mancanti = '{}{}{}'.format(self.REPORT_PATH, os.sep, 'tipo_rapporti_mancanti.txt')
                     filename_nr_rapporti_mancanti = '{}{}{}'.format(self.REPORT_PATH, os.sep, 'nr_rapporti_mancanti.txt')
@@ -5267,16 +5267,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                     QMessageBox.warning(self, u'ACHTUNG', "Ordnungssystem beendet", QMessageBox.Ok)
                 else:
                     QMessageBox.warning(self, u'WARNING', "Sorting system Complete", QMessageBox.Ok)
-            else:
-                if self.L=='it':
-                    QMessageBox.warning(self, u'ATTENZIONE', u"Sistema di ordinamento US abortito", QMessageBox.Ok)
-                elif self.L=='de':
-                    QMessageBox.warning(self, 'ACHTUNG', u"Ordnungssystem verlassen", QMessageBox.Ok)
-                else:
-                    QMessageBox.warning(self, 'WARNING', "SU aborted sorting system", QMessageBox.Ok)
-           # blocco output errori
-        else:
-            print("order_layer_dict is None. Cannot iterate over it.")
+            except Exception as e:
+                QMessageBox.information(None, 'ok', f"{e}")
 
     def on_toolButtonPan_toggled(self):
         self.toolPan = QgsMapToolPan(self.mapPreview)

@@ -37,6 +37,7 @@ from ..utility.settings import Settings
 
 
 class Pyarchinit_pyqgis(QDialog):
+
     HOME = os.environ['PYARCHINIT_HOME']
     FILEPATH = os.path.dirname(__file__)
     LAYER_STYLE_PATH = '{}{}{}{}'.format(FILEPATH, os.sep, 'styles', os.sep)
@@ -4214,6 +4215,7 @@ class Pyarchinit_pyqgis(QDialog):
             return False
 
 class Order_layer_v2(object):
+    MAX_LOOP_COUNT = 10
     order_dict = {}
     order_count = 0
     db = ''
@@ -4229,29 +4231,30 @@ class Order_layer_v2(object):
     def main_order_layer(self):
         # ricava la base delle us del matrix a cui non succedono altre US
         matrix_us_level = self.find_base_matrix()
-        
+        #result = None
+
         self.insert_into_dict(matrix_us_level)
-        # il test per il ciclo while viene settato a 0(zero)
+        #QMessageBox.warning(None, "Messaggio", "DATA LIST" + str(matrix_us_level), QMessageBox.Ok)
         test = 0
         while test == 0:
             rec_list_str = []
             for i in matrix_us_level:
                 rec_list_str.append(str(i))
                 # cerca prima di tutto se ci sono us uguali o che si legano alle US sottostanti
-                #QMessageBox.warning(None, "Messaggio", "DATA LIST" + str(i), QMessageBox.Ok)
+            #QMessageBox.warning(None, "Messaggio", "DATA LIST" + str(rec_list_str), QMessageBox.Ok)
             if self.L=='it':
-                value_list_equal = self.create_list_values(['Uguale a', 'Si lega a'], rec_list_str)
+                value_list_equal = self.create_list_values(['Uguale a', 'Si lega a'], rec_list_str, self.AREA, self.SITO)
             elif self.L=='de':
-                value_list_equal = self.create_list_values(["Entspricht", "Bindet an"], rec_list_str)
+                value_list_equal = self.create_list_values(["Entspricht", "Bindet an"], rec_list_str, self.AREA, self.SITO)
             else:
-                value_list_equal = self.create_list_values(['Same as','Connected to'], rec_list_str)
+                value_list_equal = self.create_list_values(['Same as','Connected to'], rec_list_str, self.AREA, self.SITO)
             
             res = self.db.query_in_contains(value_list_equal, self.SITO, self.AREA)
 
             matrix_us_equal_level = []
             for r in res:
                 matrix_us_equal_level.append(str(r.us))
-
+            #QMessageBox.information(None, 'matrix_us_equal_level', f"{value_list_equal}")
             if matrix_us_equal_level:
                 self.insert_into_dict(matrix_us_equal_level, 1)
                 # se res bool == True
@@ -4261,18 +4264,21 @@ class Order_layer_v2(object):
                 # le us che derivano dall'uguaglianza vanno aggiunte al rec_list_str
             rec = rec_list_str+matrix_us_equal_level#rec_list_str+
             if self.L=='it':
-                value_list_post = self.create_list_values(['Copre', 'Riempie', 'Taglia', 'Si appoggia a'], rec)
+                value_list_post = self.create_list_values(['>>','Copre', 'Riempie', 'Taglia', 'Si appoggia a'], rec,self.AREA, self.SITO)
             elif self.L=='de':
                 value_list_post = self.create_list_values(["Liegt über","Verfüllt","Schneidet","Stützt sich auf"], rec)
             else:
                 value_list_post = self.create_list_values(["Covers","Fills","Cuts","Abuts"], rec)
-            
-            res_t = self.db.query_in_contains(value_list_post, self.SITO, self.AREA)
 
+            #QMessageBox.information(None, 'value_list_post', f"{value_list_post}", QMessageBox.Ok)
+            res_t = self.db.query_in_contains(value_list_post, self.SITO, self.AREA)
+            #QMessageBox.information(None, 'res_t', f"{res_t}", QMessageBox.Ok)
             matrix_us_level = []
             for e in res_t:
+                #QMessageBox.information(None, "res_t", f"{e}", QMessageBox.Ok)
                 matrix_us_level.append(str(e.us))
-                
+
+
             if not matrix_us_level:
                 test = 1
                 
@@ -4285,28 +4291,34 @@ class Order_layer_v2(object):
             else:
                 self.insert_into_dict(matrix_us_level, 1)
 
+            #QMessageBox.information(None, 'ok', f"{matrix_us_level}")
+
+
     def find_base_matrix(self):
         res = self.db.select_not_like_from_db_sql(self.SITO, self.AREA)
         
         rec_list = []
         for rec in res:
             rec_list.append(str(rec.us))
-        #QMessageBox.warning(None, "Messaggio", "DATA LIST" + str(rec_list), QMessageBox.Ok)
+        #QMessageBox.warning(None, "Messaggio", "find base_matrix by sql" + str(rec_list), QMessageBox.Ok)
         return rec_list
 
-    def create_list_values(self, rapp_type_list, value_list):
+    def create_list_values(self, rapp_type_list, value_list, ar, si):
         self.rapp_type_list = rapp_type_list
         self.value_list = value_list
+        self.ar = ar
+        self.si = si
 
         value_list_to_find = []
+
         for sing_value in self.value_list:
             for sing_rapp in self.rapp_type_list:
-                
-                sql_query_string = "['%s', '%s']" % (sing_rapp, sing_value)  # funziona!!!
-               
+
+                sql_query_string = "['%s', '%s', '%s', '%s']" % (sing_rapp, sing_value, self.ar, self.si)  # funziona!!!
+
                 value_list_to_find.append(sql_query_string)
-        
-        #QMessageBox.warning(None, "rapp1", str(rapp_type_list), QMessageBox.Ok)
+
+        #QMessageBox.warning(None, "rapp1", str(value_list_to_find), QMessageBox.Ok)
         return value_list_to_find
 
     def us_extractor(self, res):

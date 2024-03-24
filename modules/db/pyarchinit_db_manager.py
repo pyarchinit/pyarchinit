@@ -18,7 +18,7 @@
  *                                                                         *
  ***************************************************************************/
 """
-
+import ast
 import os
 import sqlalchemy as db
 import math
@@ -1991,10 +1991,10 @@ class Pyarchinit_db_management(object):
         sql_query_string = ("SELECT %s FROM us_table")% (unita_tipo)
         res = self.engine.execute(sql_query_string)
         return res
-    
+
     def query_in_contains(self, value_list, sitof, areaf):
         self.value_list = value_list
-       
+
         Session = sessionmaker(bind=self.engine, autoflush=True, autocommit=True)
         session = Session()
 
@@ -2009,6 +2009,25 @@ class Pyarchinit_db_management(object):
             # res_list.extend(us for us, in session.query(US.us).filter(or_(*[US.rapporti.contains(v) for v in chunk])))
         session.close()
         return res_list
+
+    # def query_in_contains(self, value_list, sitof, areaf):
+    #     # use a copy of the list to avoid emptying the input list
+    #     values = value_list[:]
+    #     Session = sessionmaker(bind=self.engine, autoflush=True, autocommit=True)
+    #     session = Session()
+    #     res_list = []
+    #     n = len(values) - 1 if values else 0  # handle empty list
+    #     while values:
+    #         chunk = values[0:n]
+    #         values = values[n:]
+    #         try:
+    #             res_list.extend(session.query(US).filter_by(sito=sitof).filter_by(area=areaf).filter(
+    #                 or_(*[US.rapporti.contains(v) for v in chunk])))
+    #         except Exception as e:
+    #             print(f"Error while executing query: {e}")
+    #             continue
+    #     session.close()
+    #     return res_list
 
     def insert_arbitrary_number_of_us_records(self, us_range, sito, area, n_us, unita_tipo):
         id_us = self.max_num_id('US', 'id_us')
@@ -2157,31 +2176,52 @@ class Pyarchinit_db_management(object):
     ##
     ##      return res
 
+    # def select_not_like_from_db_sql(self, sitof, areaf):
+    #     # NB per funzionare con postgres è necessario che al posto di " ci sia '
+    #     l=QgsSettings().value("locale/userLocale")[0:2]
+    #     Session = sessionmaker(bind=self.engine, autoflush=True, autocommit=True)
+    #     session = Session()
+    #
+    #     if l=='it':
+    #         res = session.query(US).filter_by(sito=sitof).filter_by(area=areaf).filter(
+    #             and_(~US.rapporti.like("%'>>'%"),~US.rapporti.like("%'Copre'%"), ~US.rapporti.like("%'Riempie'%"),
+    #                  ~US.rapporti.like("%'Taglia'%"), ~US.rapporti.like("%'Si appoggia a'%")))
+    #             # MyModel.query.filter(sqlalchemy.not_(Mymodel.name.contains('a_string')))
+    #     elif l=='en':
+    #         res = session.query(US).filter_by(sito=sitof).filter_by(area=areaf).filter(
+    #             and_(~US.rapporti.like("%'Cuts'%"), ~US.rapporti.like("%'Abuts'%"),
+    #                  ~US.rapporti.like("%'Covers'%"), ~US.rapporti.like("%'Fills'%")))
+    #         # MyModel.query.filter(sqlalchemy.not_(Mymodel.name.contains('a_string')))
+    #     elif l=='de':
+    #         res = session.query(US).filter_by(sito=sitof).filter_by(area=areaf).filter(
+    #             and_(~US.rapporti.like("%'Schneidet'%"), ~US.rapporti.like("%'Stützt sich auf'%"),
+    #                  ~US.rapporti.like("%'Liegt über'%"), ~US.rapporti.like("%'Verfüllt'%")))
+    #         # MyModel.query.filter(sqlalchemy.not_(Mymodel.name.contains('a_string')))
+    #     session.close()
+    #     #QMessageBox.warning(None, "Messaggio", "DATA LIST" + str(res), QMessageBox.Ok)
+    #     return res
+
     def select_not_like_from_db_sql(self, sitof, areaf):
-        # NB per funzionare con postgres è necessario che al posto di " ci sia '
-        l=QgsSettings().value("locale/userLocale")[0:2]
+        l = QgsSettings().value("locale/userLocale")[0:2]
         Session = sessionmaker(bind=self.engine, autoflush=True, autocommit=True)
         session = Session()
-        
-        if l=='it':
-            res = session.query(US).filter_by(sito=sitof).filter_by(area=areaf).filter(
-                and_(~US.rapporti.like("%'Copre'%"), ~US.rapporti.like("%'Riempie'%"),
-                     ~US.rapporti.like("%'Taglia'%"), ~US.rapporti.like("%'Si appoggia a'%")))
-                # MyModel.query.filter(sqlalchemy.not_(Mymodel.name.contains('a_string')))
-        elif l=='en':
-            res = session.query(US).filter_by(sito=sitof).filter_by(area=areaf).filter(
-                and_(~US.rapporti.like("%'Cuts'%"), ~US.rapporti.like("%'Abuts'%"),
-                     ~US.rapporti.like("%'Covers'%"), ~US.rapporti.like("%'Fills'%")))
-            # MyModel.query.filter(sqlalchemy.not_(Mymodel.name.contains('a_string')))
-        elif l=='de':
-            res = session.query(US).filter_by(sito=sitof).filter_by(area=areaf).filter(
-                and_(~US.rapporti.like("%'Schneidet'%"), ~US.rapporti.like("%'Stützt sich auf'%"),
-                     ~US.rapporti.like("%'Liegt über'%"), ~US.rapporti.like("%'Verfüllt'%")))
-            # MyModel.query.filter(sqlalchemy.not_(Mymodel.name.contains('a_string')))
+        res = None
+
+        if l == 'it':
+            filters = ["%'>>'%", "%'Copre'%", "%'Riempie'%", "%'Taglia'%", "%'Si appoggia a'%"]
+        elif l == 'en':
+            filters = ["%'>>'%","%'Cuts'%", "%'Abuts'%", "%'Covers'%", "%'Fills'%"]
+        elif l == 'de':
+            filters = ["%'>>'%","%'Schneidet'%", "%'Stützt sich auf'%", "%'Liegt über'%", "%'Verfüllt'%"]
+        else:
+            filters = []  # Add fallback filters or handle this case differently.
+
+        for f in filters:
+            res = session.query(US).filter_by(sito=sitof).filter_by(area=areaf).filter(~US.rapporti.like(f))
+
         session.close()
-        #QMessageBox.warning(None, "Messaggio", "DATA LIST" + str(res), QMessageBox.Ok)
         return res
-        
+
     def query_in_idusb(self):
         pass
 
