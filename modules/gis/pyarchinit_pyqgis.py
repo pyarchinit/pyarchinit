@@ -4310,7 +4310,7 @@ class Order_layer_v2(object):
         self.si = si
 
         value_list_to_find = []
-
+        QMessageBox.warning(None, "rapp1", str(self.rapp_type_list) + '-' + str(self.value_list), QMessageBox.Ok)
         for sing_value in self.value_list:
             for sing_rapp in self.rapp_type_list:
 

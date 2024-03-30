@@ -2499,6 +2499,13 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             self.delegateRS.def_values(valuesRS)
             self.delegateRS.def_editable('False')
             self.tableWidget_rapporti.setItemDelegateForColumn(0,self.delegateRS)
+
+        value_site = [self.comboBox_sito.currentText()]
+        self.delegatesito = ComboBoxDelegate()
+        self.delegatesito.def_values(value_site)
+        self.delegatesito.def_editable('False')
+        self.tableWidget_rapporti.setItemDelegateForColumn(3, self.delegatesito)
+
         # lista tipo documentazione
         search_dict = {
             'lingua': lang,
