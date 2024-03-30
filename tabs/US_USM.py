@@ -72,6 +72,34 @@ from sqlalchemy import create_engine, MetaData, Table, select, update, and_
 
 MAIN_DIALOG_CLASS, _ = loadUiType(
     os.path.join(os.path.dirname(__file__), os.pardir, 'gui', 'ui', 'US_USM.ui'))
+
+
+
+class ProgressDialog:
+    def __init__(self):
+        self.progressDialog = QProgressDialog()
+        self.progressDialog.setWindowTitle("Aggiornamento rapporti area e sito")
+        self.progressDialog.setLabelText("Inizializzazione...")
+        #self.progressDialog.setCancelButtonText("")  # Disallow cancelling
+        self.progressDialog.setRange(0, 0)
+        self.progressDialog.setModal(True)
+        self.progressDialog.show()
+
+    def setValue(self, value):
+        self.progressDialog.setValue(value)
+        if value < value +1:  # Assuming that 100 is the maximum value
+            self.progressDialog.setLabelText(f"Aggiornamento in corso... {value}")
+        else:
+            self.progressDialog.setLabelText("Finito")
+            #self.progressDialog.close()
+
+
+    def closeEvent(self, event):
+        self.progressDialog.close()
+        event.ignore()
+
+
+
 class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
     ''' This class creates the main dialog for the US form'''
     L=QgsSettings().value("locale/userLocale")[0:2]
@@ -880,10 +908,10 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.text2sql_db_shortcut.activated.connect(self.text2sql)
         # Imposta la scorciatoia da tastiera per l'aggiornamento
         self.update_shortcut = QShortcut(QKeySequence("Ctrl+U"), self)
-        self.update_shortcut.activated.connect(self.update_rapporti_col)
+        self.update_shortcut.activated.connect(self.update_all_areas)
 
-        self.update2_shortcut = QShortcut(QKeySequence("Ctrl+P"), self)
-        self.update2_shortcut.activated.connect(self.update_rapporti_col_2)
+        #self.update2_shortcut = QShortcut(QKeySequence("Ctrl+P"), self)
+        #self.update2_shortcut.activated.connect(self.update_rapporti_col_2)
         #self.delete_all_shortcut = QtWidgets.QAction(self)
         # Imposta la scorciatoia da tastiera per eliminare tutti i record filtrati
         self.delete_all_shortcut=QShortcut(QKeySequence('Ctrl+Shift+D'), self)
@@ -895,6 +923,36 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.new_search_shortcut.activated.connect(self.switch_search_mode)
 
         self.view_all()
+
+
+
+
+
+
+    def on_pushButton_trick_pressed(self):
+        # Crea un oggetto QDialog
+        dialog = QDialog()
+
+        # Imposta alcune proprietà per la finestra di dialogo
+        dialog.setWindowTitle("Scorciatoie da tastiera")
+        dialog.setFixedWidth(400)
+
+        # Crea un oggetto QLabel con il testo degli shortcut
+        text = """
+            Ctrl+Shift+X : Attiva text2sql
+            Ctrl+U : Aggiorna Tablewidget rapporti (aggiunge e aggiorna area e sito)
+            Ctrl+Shift+D : Elimina tutti i record filtrati
+            Ctrl+Shift+N : Cambia modalità di ricerca
+            """
+        label = QLabel(text)
+
+        # Imposta l'oggetto QLabel come layout della finestra di dialogo
+        dialog.setLayout(QVBoxLayout())
+        dialog.layout().addWidget(label)
+
+        # Mostra la finestra di dialogo
+        dialog.exec_()
+
     def get_input_prompt(self, label):
         if self.L == 'it':
             return QInputDialog.getText(self, "Input", f"Inserire il {label}")
@@ -914,7 +972,38 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             return
         QMessageBox.warning(self, "Error", f"An error occurred during {original_message}: {error}", QMessageBox.Ok)
 
-    def update_rapporti_col(self):
+    def update_all_areas(self):
+        all_areas = self.get_all_areas()
+
+        dialog = ProgressDialog()
+
+
+        for i, area in enumerate(all_areas):
+            self.update_rapporti_col(self.comboBox_sito.currentText(), area)
+            dialog.setValue(i + 1)
+
+        self.update_rapporti_col_2()
+        dialog.setValue(len(all_areas) + 1)
+    def get_all_areas(self):
+        conn = Connection()
+        conn_str = conn.conn_str()
+        metadata = MetaData()
+        engine = create_engine(conn_str)
+
+        # Assuming areas are represented in a table named 'area_table'
+        area_table = Table('us_table', metadata, autoload_with=engine)
+
+        with engine.connect() as connection:
+            # Assuming the name of the area is saved in a column named 'area_name'
+            stmt = select([area_table.c.area])
+            result = connection.execute(stmt)
+
+            # Fetch all rows from the result and return only the area names
+            all_areas = [row['area'] for row in result]
+
+        return all_areas
+
+    def update_rapporti_col(self, sito, area):
         conn = Connection()
         conn_str = conn.conn_str()
         metadata = MetaData()
@@ -922,21 +1011,14 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
         us_table = Table('us_table', metadata, autoload_with=engine)
 
-        var1, ok1 = self.get_input_prompt("nome del sito")
-        var2, ok2 = self.get_input_prompt("nome dell'area")
-
-        if not (ok1 and ok2):
-            self.show_warning("area")
-            return  # Exit the function if the user canceled the operation
-
-        if not var1 or not var2:
-            self.show_warning("area")
+        if not sito or not area:
+            self.show_warning("Sito o area non specificato.")
             return  # Exit the function if site or area is not provided
 
         try:
             with engine.connect() as connection:
                 stmt = select([us_table.c.id_us, us_table.c.rapporti]).where(
-                    us_table.c.sito == var1, us_table.c.area == var2
+                    us_table.c.sito == sito, us_table.c.area == area
                 )
                 rows = connection.execute(stmt).fetchall()
                 for row in rows:
@@ -947,9 +1029,10 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                         except ValueError as e:
                             self.show_error(e, "la conversione della stringa in una lista di liste")
                             continue
-                        updated_rapporti_list = [sublist + [var2, var1] if sublist else sublist for sublist in
+                        updated_rapporti_list = [sublist + [area, sito] if sublist else sublist for sublist in
                                                  rapporti_list]
-                        updated_rapporti_list2 = [sub[:4] for sub in updated_rapporti_list] #mantine solo i primi 4 elementi di ogni lista nelle liste
+                        updated_rapporti_list2 = [sub[:4] for sub in
+                                                  updated_rapporti_list]  # mantine solo i primi 4 elementi di ogni lista nelle liste
                         updated_rapporti_str = str(updated_rapporti_list2)
                         update_stmt = (
                             update(us_table).where(us_table.c.id_us == id).values(rapporti=updated_rapporti_str)
@@ -959,16 +1042,19 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         except Exception as e:
             self.show_error(e, "l'aggiornamento")
 
+
+
     def update_rapporti_col_2(self):
+
         conn = Connection()
         conn_str = conn.conn_str()
         metadata = MetaData()
         engine = create_engine(conn_str)
 
         us_table = Table('us_table', metadata, autoload_with=engine)
-        var1, ok1 = self.get_input_prompt("nome del sito")  # Sito
+        var1 = self.comboBox_sito.currentText()  # Sito
 
-        if not ok1 or not var1:
+        if not var1:
             self.show_warning("sito non specificato")
             return  # Exit if no site is provided
 
@@ -1007,12 +1093,15 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                             update_stmt = update(us_table).where(us_table.c.id_us == id_us).values(
                                 rapporti=updated_rapporti_str)
                             connection.execute(update_stmt)
+                            # Update progress dialog
 
                         except ValueError as e:
                             self.show_error(e, "la conversione della stringa in una lista di liste")
                             continue
+            self.view_all()
         except Exception as e:
             self.show_error(e, "l'aggiornamento")
+
 
     def find_correct_area_for_us(self, us, sito, connection):
         """
@@ -9597,5 +9686,4 @@ class IntegerDelegate(QtWidgets.QStyledItemDelegate):
         validator = QtGui.QIntValidator()
         editor.setValidator(validator)
         return editor
-
 
