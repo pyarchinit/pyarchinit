@@ -19,27 +19,25 @@
  *                                                                         *
  ***************************************************************************/
 """
-
 from __future__ import absolute_import
 
-import sys
-
+import logging
+import time
 
 from qgis.PyQt.QtGui import QPixmap, QPainter, QImage
+from qgis.PyQt.QtWidgets import QFileDialog, QGraphicsScene,  QGraphicsView, QListWidgetItem, QDialog, QMessageBox
+from qgis.PyQt.QtCore import Qt, pyqtSlot, QCoreApplication, QThread
+from qgis.core import Qgis,QgsLayoutFrame, QgsMessageLog, QgsProject, QgsLayoutExporter, QgsApplication, QgsLayoutItemMap, QgsReadWriteContext, QgsPrintLayout,QgsLayoutMultiFrame, QgsLayoutItemHtml
+from qgis.PyQt.QtXml import QDomDocument
 
-
-from qgis.PyQt.QtWidgets import QVBoxLayout, QGraphicsScene,  QGraphicsView, QListWidgetItem,QApplication, QDialog, QMessageBox
-from qgis.PyQt.QtCore import Qt
-
-from qgis.core import Qgis, QgsMessageLog, QgsProject
 from ..modules.db.pyarchinit_utility import Utility
-
-from .US_USM import pyarchinit_US
 from .Interactive_matrix import *
 MAIN_DIALOG_CLASS, _ = loadUiType(
     os.path.join(os.path.dirname(__file__), os.pardir, 'gui', 'ui', 'Gis_Time_controller.ui'))
 
 
+
+logging.basicConfig(filename='C:\\Users\\enzoc\\pyarchinit\\gis_time_controller.log', level=logging.INFO)
 class ZoomableGraphicsView(QGraphicsView):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -82,6 +80,8 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
     UTILITY=Utility()
     def __init__(self, iface):
         super().__init__()
+
+        #self.max_num_order_layer = None
         self.iface = iface
 
         self.pyQGIS = Pyarchinit_pyqgis(iface)
@@ -107,19 +107,13 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
             self.listWidget.addItem(item)
 
         self.listWidget.itemChanged.connect(self.update_selected_layers)
-
-
         self.dial_relative_cronology.valueChanged.connect(self.set_max_num)
         self.spinBox_relative_cronology.valueChanged.connect(self.set_max_num)
-
         self.dial_relative_cronology.valueChanged.connect(self.define_order_layer_value)
         self.dial_relative_cronology.valueChanged.connect(self.spinBox_relative_cronology.setValue)
-
         self.spinBox_relative_cronology.valueChanged.connect(self.define_order_layer_value)
         self.spinBox_relative_cronology.valueChanged.connect(self.dial_relative_cronology.setValue)
         self.listWidget.itemSelectionChanged.connect(self.update_selected_layers)
-
-        #self.update_graphics_view_test()
         self.spinBox_relative_cronology.valueChanged.connect(self.update_graphics_view)
         if self.checkBox_matrix.isChecked():
             self.update_graphics_view()
@@ -185,10 +179,14 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
                 else:
                     self.datazione_dict[order_layer] = [datazione]
 
-
-        max_num_order_layer = self.DB_MANAGER.max_num_id(self.MAPPER_TABLE_CLASS, "order_layer") + 1,
-        self.dial_relative_cronology.setMaximum(max_num_order_layer[0])
-        self.spinBox_relative_cronology.setMaximum(max_num_order_layer[0])
+        max_num_order_layer = self.DB_MANAGER.max_num_id(self.MAPPER_TABLE_CLASS, "order_layer")
+        if max_num_order_layer is not None:
+            max_num_order_layer += 1
+            self.dial_relative_cronology.setMaximum(max_num_order_layer)
+            self.spinBox_relative_cronology.setMaximum(max_num_order_layer)
+        else:
+            # handle the error
+            print("Errore: max_num_order_layer è None")
 
         self.spinBox_relative_cronology.valueChanged.connect(self.update_datazione)
         self.update_datazione(self.spinBox_relative_cronology.value())
@@ -339,3 +337,150 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
 
 
 
+    def on_pushButton_atlas_pressed(self):
+        self.generate_images()
+
+    def load_template(self, template_path):
+        project = QgsProject.instance()
+        manager = project.layoutManager()
+
+        layout = QgsPrintLayout(project)
+        layout.initializeDefaults()
+
+        with open(template_path) as template_file:
+            template_content = template_file.read()
+
+        doc = QDomDocument()
+        doc.setContent(template_content)
+
+        read_context = QgsReadWriteContext()
+        layout.readXml(doc.documentElement(), doc, read_context)
+
+        layout_name = 'nombre_del_layout'
+        existing_layout = manager.layoutByName(layout_name)
+        if existing_layout:
+            # Elimina l'esistente layout
+            manager.removeLayout(existing_layout)
+
+        layout.setName(layout_name)
+        manager.addLayout(layout)
+        self.current_layout = layout
+
+
+
+    def generate_images(self):
+        # Aprire un dialogo per la selezione del percorso del file
+        self.path = QFileDialog.getExistingDirectory(self, 'Selezionare una cartella', '/')
+        if not self.path:
+            return
+        # Get reference to active QgsMapCanvas:
+        logging.info('Start generating images.')
+        canvas = self.iface.mapCanvas()
+        # Carica il template
+        HOME = os.environ['PYARCHINIT_HOME']
+        path = '{}{}{}{}'.format(HOME, os.sep, "bin/profile/template/", 'test.qpt')
+        self.load_template(path)
+        if not self.current_layout:
+            return
+
+        max_num_order_layer = self.DB_MANAGER.max_num_id(self.MAPPER_TABLE_CLASS, "order_layer")
+        for value in range(self.spinBox_relative_cronology.minimum(), max_num_order_layer):
+            #QMessageBox.information(None, 'ok', f"Valore corrente: {value}, massimo: {max_value}")
+        # il tuo codice
+
+        #for value in range(self.spinBox_relative_cronology.minimum(), self.spinBox_relative_cronology.maximum()):
+
+            self.current_value = value
+            self.image_saved = False
+
+            # Imposta il valore dello spinbox sul valore corrente
+            self.spinBox_relative_cronology.setValue(value)
+
+            # Aggiorna i dati del layer in base al valore corrente dello spinbox
+            #logging.info('Update layer data.')
+            self.define_order_layer_value(value)
+
+            # Aggiorna la visualizzazione della mappa per assicurarsi che mostri gli aggiornamenti ai dati del layer
+
+            canvas.refresh()
+            QCoreApplication.processEvents()  # Process system events to allow the refresh to start
+            QThread.sleep(2)  # Wait for a second
+            while canvas.isDrawing():
+                QCoreApplication.processEvents()
+            #QThread.sleep(2)
+
+            #QMessageBox.information(None, 'ok', f"{self.current_layout}")# Define the area of the layout to be exported
+
+            layoutItemMap = [i for i in self.current_layout.items() if isinstance(i, QgsLayoutItemMap)][0]
+
+            # Ottieni l'elemento HTML dalla layout
+            html_item = None
+            for i in self.current_layout.items():
+                if hasattr(i, 'id') and i.id() == '123':#123 è l'id dell'elemento HTML
+                    html_item = i
+                    break
+            if html_item is None:
+                print("Couldn't find HTML item")
+                return
+            #QMessageBox.information(None, 'ok', str(type(html_item)))
+            if isinstance(html_item, QgsLayoutFrame):
+                # Ottieni il multiframe a cui appartiene questo frame
+                multi_frame = html_item.multiFrame()
+
+                #QMessageBox.information(None, 'ok', f"Multi frame: {multi_frame}, type: {type(multi_frame)}")# Controlla se il multiframe è un QgsLayoutItemHtml
+                if isinstance(multi_frame, QgsLayoutItemHtml):
+                    title_html = f"<h1>Tavola {value}</h1>"
+                    multi_frame.setHtml(title_html)
+                    #QMessageBox.information(None, 'ok', f"HTML content: {multi_frame.html()}")
+                    self.current_layout.refresh()
+                    multi_frame.loadHtml()
+                    #break
+
+            self.id_us_dict = {}
+
+            data_list = []
+            for layer in self.selected_layers:
+
+                fields = layer.fields()
+                self.fieldname = next((field.name() for field in fields if 'datazione' in field.name().lower()), '')
+                if not self.fieldname:
+                    print(f"No 'datazione' field found in layer {layer.name()}")
+                    continue
+                # self.us = next((field.name() for field in fields if 'us' in field.name().lower()), '')
+                # self.rapporti = next((field.name() for field in fields if 'rapporti' in field.name().lower()), '')
+                # Crea un dizionario che mappa ogni attributo "us" a una lista di attributi "datazione" corrispondenti
+
+                for feature in layer.getFeatures():
+                    data_dict = {field.name(): feature[field.name()] for field in feature.fields()}
+                    data_list.append(data_dict)
+                    order_layer = feature.attribute("order_layer")
+                    datazione = feature.attribute(self.fieldname)
+                    #if order_layer in self.id_us_dict:
+                        #self.id_us_dict[order_layer].append(datazione)
+                    #else:
+                        #self.id_us_dict[order_layer] = [datazione]
+
+            dlg = pyarchinit_view_Matrix_pre(self.iface, data_list, self.id_us_dict)
+            dlg.generate_matrix_3()
+
+            exporter = QgsLayoutExporter(self.current_layout)
+            image_path = f"{self.path}/Tavola_{value}.jpg"
+            exporter.exportToImage(image_path, QgsLayoutExporter.ImageExportSettings())
+            # Rimuovi la graphicsView esistente dal layout
+            self.horizontalLayout_2.removeWidget(self.graphicsView)
+
+            # Crea una nuova ZoomableGraphicsView
+            self.graphicsView = ZoomableGraphicsView()
+
+            # Aggiungi la ZoomableGraphicsView al layout
+            self.horizontalLayout_2.addWidget(self.graphicsView)
+
+            # Procedi come prima
+            pixmap = QPixmap(image_path)
+            scene = QGraphicsScene()
+            scene.addPixmap(pixmap)
+            self.graphicsView.setScene(scene)
+            self.graphicsView.setFocus()
+            self.graphicsView.fitInView(scene.itemsBoundingRect(), Qt.KeepAspectRatio)
+
+            #QThread.sleep(1)  # aspetta per 1 secondo

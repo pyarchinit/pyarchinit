@@ -738,6 +738,13 @@ p, li { white-space: pre-wrap; }
     </layout>
    </item>
    <item>
+    <widget class="QPushButton" name="pushButton_atlas">
+     <property name="text">
+      <string>Atlas Stampa Tavole Periiodo</string>
+     </property>
+    </widget>
+   </item>
+   <item>
     <widget class="QTextEdit" name="textEdit_datazione">
      <property name="enabled">
       <bool>false</bool>

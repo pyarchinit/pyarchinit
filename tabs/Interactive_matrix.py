@@ -273,7 +273,6 @@ class pyarchinit_Interactive_Matrix(QDialog, MAIN_DIALOG_CLASS):
             area = str(sing_rec.area)
 
             rapporti_stratigrafici = eval(sing_rec.rapporti)
-            rapporti_stratigrafici2 = eval(sing_rec.rapporti2)
 
             try:
                 for sing_rapp in rapporti_stratigrafici:

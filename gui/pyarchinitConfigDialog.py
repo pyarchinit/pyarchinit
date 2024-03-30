@@ -84,8 +84,9 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
 
         self.load_dict()
         self.charge_data()
-        self.db_active()
+        self.summary()
         self.lineEdit_DBname.textChanged.connect(self.db_uncheck)
+        self.lineEdit_DBname.textChanged.connect(self.db_name_change)
         self.pushButton_upd_postgres.setEnabled(True)
         self.pushButton_upd_sqlite.setEnabled(False)
         self.comboBox_sito.setCurrentText(self.sito_active())
@@ -173,6 +174,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         self.comboBox_server_wt.currentTextChanged.connect(self.convert_db)
         self.pushButton_convert_db_sl.setHidden(True)
         self.pushButton_convert_db_pg.setHidden(True)
+        #self.db_active()
     
     def convert_db(self):
         if self.comboBox_server_rd.currentText()=='postgres':
@@ -1184,28 +1186,28 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         
     def test(self):
         try:
-            
+
             conn = Connection()
             conn_str = conn.conn_str()
             conn_sqlite = conn.databasename()
-            
+
             sqlite_DB_path = '{}{}{}'.format(self.HOME, os.sep,
                                            "pyarchinit_DB_folder")
-            
+
             con = sqlite3.connect(sqlite_DB_path +os.sep+ conn_sqlite["db_name"])
             cur = con.cursor()
-            
-          
-            
+
+
+
             delete_tab='''DELETE FROM geometry_columns WHERE f_geometry_column = 'geom';'''
             cur.execute(delete_tab)
             drop_ = '''DROP TABLE IF EXISTS sqlitestudio_temp_table2;'''
             cur.execute(drop_)
             drop_2 = '''DROP TABLE IF EXISTS sqlitestudio_temp_table;'''
-            
-            
-            
-            
+
+
+
+
             cur.executescript('''
             
             
@@ -2251,7 +2253,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 
                 
                         ''')
-            
+
         except Exception as e:
             pass#QMessageBox.warning(self, "ok", "entered in if", QMessageBox.Ok)
     
@@ -2775,7 +2777,98 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             QMessageBox.warning(self, "INFO", "Directory not found",
                                 QMessageBox.Ok)
 
+    def db_name_change(self):
+        # Save and clear comboBox_sito
+        self.save_and_clear_comboBox_sito()
+
+        # Update toolButton after save operation
+        self.tool_ok()
+
+        # Fetch site_table grouped by 'sito' and 'SITE' and converts it into a list
+        site_values_list = self.UTILITY.tup_2_list_III(self.DB_MANAGER.group_by('site_table', 'sito', 'SITE'))
+
+        # Set the current text of comboBox_sito to the first item of site_values_list
+        self.comboBox_sito.setCurrentText(site_values_list[0])
+
+        # Save after comboBox_sito text change
+        self.save_p()
+
+    def save_and_clear_comboBox_sito(self):
+        # Save current state
+        self.save_p()
+
+        # Clear comboBox_sito
+        self.comboBox_sito.clear()
+
+        # Save after clearing
+        self.save_p()
+
+    def save_p(self):
+
+        self.comboBox_Database.update()
+        try:
+            if not bool(self.lineEdit_Password.text()) and str(self.comboBox_Database.currentText()) == 'postgres':
+                QMessageBox.warning(self, "INFO", 'non dimenticarti di inserire la password', QMessageBox.Ok)
+            else:
+                self.PARAMS_DICT['SERVER'] = str(self.comboBox_Database.currentText())
+                self.PARAMS_DICT['HOST'] = str(self.lineEdit_Host.text())
+                self.PARAMS_DICT['DATABASE'] = str(self.lineEdit_DBname.text())
+                self.PARAMS_DICT['PASSWORD'] = str(self.lineEdit_Password.text())
+                self.PARAMS_DICT['PORT'] = str(self.lineEdit_Port.text())
+                self.PARAMS_DICT['USER'] = str(self.lineEdit_User.text())
+                self.PARAMS_DICT['THUMB_PATH'] = str(self.lineEdit_Thumb_path.text())
+                self.PARAMS_DICT['THUMB_RESIZE'] = str(self.lineEdit_Thumb_resize.text())
+                self.PARAMS_DICT['EXPERIMENTAL'] = str(self.comboBox_experimental.currentText())
+                self.PARAMS_DICT['SITE_SET'] = str(self.comboBox_sito.currentText())
+                self.PARAMS_DICT['LOGO'] = str(self.lineEdit_logo.text())
+                self.save_dict()
+
+                if str(self.comboBox_Database.currentText()) == 'postgres':
+
+                    b = str(self.select_version_sql())
+
+                    a = "90313"
+
+                    if a == b:
+                        link = 'https://www.postgresql.org/download/'
+                        if self.L == 'it':
+                            msg = "Stai utilizzando la versione di Postgres: " + str(
+                                b) + ". Tale versione è diventata obsoleta e potresti riscontrare degli errori. Aggiorna PostgreSQL ad una versione più recente. <br><a href='%s'>PostgreSQL</a>" % link
+                        if self.L == 'de':
+                            msg = "Sie benutzen die Postgres-Version: " + str(
+                                b) + ". Diese Version ist veraltet, und Sie werden möglicherweise einige Fehler finden. Aktualisieren Sie PostgreSQL auf eine neuere Version. <br><a href='%s'>PostgreSQL</a>" % link
+                        else:
+                            msg = "You are using the Postgres version: " + str(
+                                b) + ". This version has become obsolete and you may find some errors. Update PostgreSQL to a newer version. <br><a href='%s'>PostgreSQL</a>" % link
+                        QMessageBox.information(self, "INFO", msg, QMessageBox.Ok)
+                    else:
+                        pass
+                else:
+                    pass
+
+                self.connection_up()
+
+        except Exception as e:
+            if self.L == 'it':
+                QMessageBox.warning(self, "INFO", "Problema di connessione al db. Controlla i paramatri inseriti",
+                                    QMessageBox.Ok)
+            elif self.L == 'de':
+                QMessageBox.warning(self, "INFO", "Db-Verbindungsproblem. Überprüfen Sie die eingegebenen Parameter",
+                                    QMessageBox.Ok)
+            else:
+                QMessageBox.warning(self, "INFO", "Db connection problem. Check the parameters inserted",
+                                    QMessageBox.Ok)
+
+    def tool_ok(self):
+
+        self.toolButton_active.isChecked()
+
+        self.charge_list()
+
+
+
     def setPathDB(self):
+
         s = QgsSettings()
         dbpath = QFileDialog.getOpenFileName(
             self,
@@ -3554,7 +3647,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
 
     def on_pushButton_crea_database_sl_pressed(self):
 
-
+        self.comboBox_sito.clear()
         db_file = os.path.join(os.path.dirname(__file__), os.pardir, 'resources', 'dbfiles',
                                    'pyarchinit.sqlite')
 
@@ -3686,6 +3779,88 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 QMessageBox.warning(self, "Alert", "Errore di connessione: <br>" +
                     "Cambia i parametri e riprova a connetterti. Oppure aggiorna il database con l'apposita funzione che trovi in basso a sinistra",
                                     QMessageBox.Ok)
+
+    def connection_up(self):
+        self.summary()
+
+        conn = Connection()
+        conn_str = conn.conn_str()
+
+        self.DB_MANAGER = Pyarchinit_db_management(conn_str)
+        test = self.DB_MANAGER.connection()
+
+        if self.L == 'it':
+            if test:
+                #QMessageBox.information(self, "Messaggio", "Connessione avvenuta con successo", QMessageBox.Ok)
+                self.pushButton_upd_postgres.setEnabled(False)
+                self.pushButton_upd_sqlite.setEnabled(True)
+            else:
+                self.comboBox_Database.update()
+                self.comboBox_sito.clear()
+                if self.comboBox_Database.currentText() == 'sqlite':
+                    # self.comboBox_Database.editTextChanged.connect(self.set_db_parameter)
+                    self.toolButton_db.setEnabled(True)
+                    self.pushButton_upd_postgres.setEnabled(False)
+                    self.pushButton_upd_sqlite.setEnabled(True)
+                elif self.comboBox_Database.currentText() == 'postgres':
+                    # self.comboBox_Database.currentIndexChanged.connect(self.set_db_parameter)
+                    self.toolButton_db.setEnabled(False)
+                    self.pushButton_upd_sqlite.setEnabled(False)
+                    self.pushButton_upd_postgres.setEnabled(True)
+                #self.comboBox_sito.clear()
+
+                QMessageBox.warning(self, "Alert", "Errore di connessione: <br>" +
+                                    "Cambia i parametri e riprova a connetterti. Oppure aggiorna il database con l'apposita funzione che trovi in basso a sinistra",
+                                    QMessageBox.Ok)
+        elif self.L == 'de':
+            if test:
+                #QMessageBox.information(self, "Messaggio", "Connessione avvenuta con successo", QMessageBox.Ok)
+                self.pushButton_upd_postgres.setEnabled(False)
+                self.pushButton_upd_sqlite.setEnabled(True)
+            else:
+                self.comboBox_Database.update()
+                #self.comboBox_sito.clear()
+                if self.comboBox_Database.currentText() == 'sqlite':
+                    # self.comboBox_Database.editTextChanged.connect(self.set_db_parameter)
+                    self.toolButton_db.setEnabled(True)
+                    self.pushButton_upd_postgres.setEnabled(False)
+                    self.pushButton_upd_sqlite.setEnabled(True)
+                elif self.comboBox_Database.currentText() == 'postgres':
+                    # self.comboBox_Database.currentIndexChanged.connect(self.set_db_parameter)
+                    self.toolButton_db.setEnabled(False)
+                    self.pushButton_upd_sqlite.setEnabled(False)
+                    self.pushButton_upd_postgres.setEnabled(True)
+                #self.comboBox_sito.clear()
+
+                QMessageBox.warning(self, "Alert", "Errore di connessione: <br>" +
+                                    "Cambia i parametri e riprova a connetterti. Oppure aggiorna il database con l'apposita funzione che trovi in basso a sinistra",
+                                    QMessageBox.Ok)
+
+        else:
+            if test:
+                #QMessageBox.information(self, "Messaggio", "Connessione avvenuta con successo", QMessageBox.Ok)
+                self.pushButton_upd_postgres.setEnabled(False)
+                self.pushButton_upd_sqlite.setEnabled(True)
+            else:
+                self.comboBox_Database.update()
+                self.comboBox_sito.clear()
+                if self.comboBox_Database.currentText() == 'sqlite':
+                    # self.comboBox_Database.editTextChanged.connect(self.set_db_parameter)
+                    self.toolButton_db.setEnabled(True)
+                    self.pushButton_upd_postgres.setEnabled(False)
+                    self.pushButton_upd_sqlite.setEnabled(True)
+                elif self.comboBox_Database.currentText() == 'postgres':
+                    # self.comboBox_Database.currentIndexChanged.connect(self.set_db_parameter)
+                    self.toolButton_db.setEnabled(False)
+                    self.pushButton_upd_sqlite.setEnabled(False)
+                    self.pushButton_upd_postgres.setEnabled(True)
+                #self.comboBox_sito.clear()
+
+                QMessageBox.warning(self, "Alert", "Errore di connessione: <br>" +
+                                    "Cambia i parametri e riprova a connetterti. Oppure aggiorna il database con l'apposita funzione che trovi in basso a sinistra",
+                                    QMessageBox.Ok)
+
+
     def charge_data(self):
         # load data from config.cfg file
         
@@ -3709,6 +3884,9 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         pass
 
     def on_toolButton_active_toggled(self):
+
+
+
         if self.L=='it':
             if self.toolButton_active.isChecked():
                 
@@ -3734,7 +3912,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 QMessageBox.information(self, "Pyarchinit", "Query system deactivated", QMessageBox.Ok)
     def charge_list(self):
 
-        self.try_connection()
+        #self.try_connection()
         sito_vl = self.UTILITY.tup_2_list_III(self.DB_MANAGER.group_by('site_table', 'sito', 'SITE'))
 
         try:
