@@ -1928,7 +1928,7 @@ QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-
          </font>
         </property>
         <property name="toolTip">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&amp;lt;html&amp;gt;&amp;lt;head/&amp;gt;&amp;lt;body&amp;gt;&amp;lt;p&amp;gt;Inserire da Thesaurus la definizione interpretativa&amp;lt;/p&amp;gt;&amp;lt;/body&amp;gt;&amp;lt;/html&amp;gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         <string>Inserire da Thesaurus la definizione interpretativa</string>
         </property>
         <property name="editable">
          <bool>true</bool>
@@ -2465,7 +2465,7 @@ QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-
          </font>
         </property>
         <property name="toolTip">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Inserire il valore dell'US. [Valore integer]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         <string>Inserire il valore dell'US. [Valore integer]</string>
         </property>
        </widget>
       </item>
@@ -2939,7 +2939,7 @@ QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-
          </size>
         </property>
         <property name="toolTip">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Bottone per aggigugere la path alla documentazione per EM&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         <string>Bottone per aggigugere la path alla documentazione per EM</string>
         </property>
         <property name="text">
          <string>...</string>
@@ -3421,10 +3421,7 @@ QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-
          </font>
         </property>
         <property name="toolTip">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Inserire l'area di lavoro. [valore integer]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-        </property>
-        <property name="whatsThis">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;sezione area&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         <string>Inserire l'area di lavoro. [valore integer]</string>
         </property>
         <property name="editable">
          <bool>true</bool>
@@ -4451,7 +4448,7 @@ QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-
          </font>
         </property>
         <property name="toolTip">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&amp;lt;html&amp;gt;&amp;lt;head/&amp;gt;&amp;lt;body&amp;gt;&amp;lt;p&amp;gt;Inserire da Thesaurus la definizionestratigrafica&amp;lt;/p&amp;gt;&amp;lt;/body&amp;gt;&amp;lt;/html&amp;gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         <string>Inserire da Thesaurus la definizionestratigrafica</string>
         </property>
         <property name="editable">
          <bool>true</bool>
@@ -4933,7 +4930,7 @@ QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-
          </font>
         </property>
         <property name="toolTip">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Inserire il tipo di unità&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         <string>Inserire il tipo di unità</string>
         </property>
         <property name="styleSheet">
          <string notr="true">background-color: rgb(255, 255, 255);</string>
@@ -5940,7 +5937,7 @@ QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-
          <bool>true</bool>
         </property>
         <property name="toolTip">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Inserire il nome del sito archeologico&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         <string>Inserire il nome del sito archeologico</string>
         </property>
         <property name="editable">
          <bool>true</bool>
@@ -5973,7 +5970,7 @@ QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-
          </sizepolicy>
         </property>
         <property name="toolTip">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Inserire la path alla documentazione per EM. Usal il bottone affinco per aggiugngere la path&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         <string>Inserire la path alla documentazione per EM. Usal il bottone affinco per aggiugngere la path</string>
         </property>
         <property name="clearButtonEnabled">
          <bool>true</bool>
@@ -16824,7 +16821,7 @@ background-color: rgb(180, 180, 180);QgsCollapsibleGroupBoxBasic::title, QgsColl
         </font>
        </property>
        <property name="toolTip">
-        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Crea nuovo record&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        <string>Crea nuovo record</string>
        </property>
        <property name="text">
         <string/>
@@ -17301,7 +17298,7 @@ background-color: rgb(180, 180, 180);QgsCollapsibleGroupBoxBasic::title, QgsColl
         </font>
        </property>
        <property name="toolTip">
-        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Ripristino di visualizzazione di tutti i record&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        <string>Ripristino di visualizzazione di tutti i record</string>
        </property>
        <property name="text">
         <string/>
@@ -18225,7 +18222,7 @@ background-color: rgb(180, 180, 180);QgsCollapsibleGroupBoxBasic::title, QgsColl
         </palette>
        </property>
        <property name="toolTip">
-        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Ultimo record&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        <string>Ultimo record</string>
        </property>
        <property name="text">
         <string/>
@@ -18702,7 +18699,7 @@ background-color: rgb(180, 180, 180);QgsCollapsibleGroupBoxBasic::title, QgsColl
         </font>
        </property>
        <property name="toolTip">
-        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Ordinamento dei record in base ad un campo che scegli&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        <string>Ordinamento dei record in base ad un campo che scegli</string>
        </property>
        <property name="text">
         <string/>
@@ -19190,7 +19187,7 @@ background-color: rgb(180, 180, 180);QgsCollapsibleGroupBoxBasic::title, QgsColl
         </palette>
        </property>
        <property name="toolTip">
-        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Attivazione GIS Viewer delle unità stratigrafiche verticali&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        <string>Attivazione GIS Viewer delle unità stratigrafiche verticali</string>
        </property>
        <property name="text">
         <string>GIS Viewer</string>
@@ -19670,7 +19667,7 @@ background-color: rgb(180, 180, 180);QgsCollapsibleGroupBoxBasic::title, QgsColl
         </palette>
        </property>
        <property name="toolTip">
-        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Attivazione GIS Viewer delle unità stratigrafiche veritcali&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        <string>Attivazione GIS Viewer delle unità stratigrafiche veritcali</string>
        </property>
        <property name="text">
         <string/>
@@ -20150,7 +20147,7 @@ background-color: rgb(180, 180, 180);QgsCollapsibleGroupBoxBasic::title, QgsColl
         </font>
        </property>
        <property name="toolTip">
-        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Salva il record&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        <string>Salva il record</string>
        </property>
        <property name="text">
         <string/>
@@ -20173,7 +20170,7 @@ background-color: rgb(180, 180, 180);QgsCollapsibleGroupBoxBasic::title, QgsColl
      <item row="3" column="14">
       <widget class="QPushButton" name="pushButton_filter_us">
        <property name="toolTip">
-        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Filtraggio su più unità stratigrafiche&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        <string>Filtraggio su più unità stratigrafiche</string>
        </property>
        <property name="text">
         <string>filter</string>
@@ -20637,7 +20634,7 @@ background-color: rgb(180, 180, 180);QgsCollapsibleGroupBoxBasic::title, QgsColl
         </palette>
        </property>
        <property name="toolTip">
-        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Record precedente&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        <string>Record precedente</string>
        </property>
        <property name="text">
         <string/>
@@ -21114,7 +21111,7 @@ background-color: rgb(180, 180, 180);QgsCollapsibleGroupBoxBasic::title, QgsColl
         </font>
        </property>
        <property name="toolTip">
-        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Avvio ricerca.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        <string>Avvio ricerca.</string>
        </property>
        <property name="text">
         <string/>
@@ -21576,7 +21573,7 @@ background-color: rgb(180, 180, 180);QgsCollapsibleGroupBoxBasic::title, QgsColl
         </palette>
        </property>
        <property name="toolTip">
-        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Gestione di esportazione matrix e controllo stratigrafico&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        <string>Gestione di esportazione matrix e controllo stratigrafico</string>
        </property>
        <property name="text">
         <string/>
@@ -22502,7 +22499,7 @@ background-color: rgb(180, 180, 180);QgsCollapsibleGroupBoxBasic::title, QgsColl
         </palette>
        </property>
        <property name="toolTip">
-        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Primo record&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        <string>Primo record</string>
        </property>
        <property name="text">
         <string/>
@@ -22970,7 +22967,7 @@ background-color: rgb(180, 180, 180);QgsCollapsibleGroupBoxBasic::title, QgsColl
         </palette>
        </property>
        <property name="toolTip">
-        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Reocrd successivo&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        <string>Reocrd successivo</string>
        </property>
        <property name="text">
         <string/>
@@ -22990,7 +22987,7 @@ background-color: rgb(180, 180, 180);QgsCollapsibleGroupBoxBasic::title, QgsColl
      <item row="2" column="14">
       <widget class="QToolButton" name="toolButtonPreview">
        <property name="toolTip">
-        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Visualizzazione e localizzazione della/e us nella finestra mappa&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        <string>Visualizzazione e localizzazione della/e us nella finestra mappa</string>
        </property>
        <property name="text">
         <string>Preview pianta US</string>
@@ -23944,7 +23941,7 @@ background-color: rgb(180, 180, 180);QgsCollapsibleGroupBoxBasic::title, QgsColl
         </palette>
        </property>
        <property name="toolTip">
-        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Apre il percorso dove si salvano i pdf esportati&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        <string>Apre il percorso dove si salvano i pdf esportati</string>
        </property>
        <property name="text">
         <string/>
@@ -28245,7 +28242,7 @@ background-color: rgb(180, 180, 180);QgsCollapsibleGroupBoxBasic::title, QgsColl
         <enum>Qt::DefaultContextMenu</enum>
        </property>
        <property name="toolTip">
-        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Numero totale dei record&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        <string>Numero totale dei record</string>
        </property>
        <property name="frameShape">
         <enum>QFrame::Box</enum>
@@ -28727,7 +28724,7 @@ background-color: rgb(180, 180, 180);QgsCollapsibleGroupBoxBasic::title, QgsColl
         <enum>Qt::DefaultContextMenu</enum>
        </property>
        <property name="toolTip">
-        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Numero record corrente&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        <string>Numero record corrente</string>
        </property>
        <property name="frameShape">
         <enum>QFrame::Box</enum>
@@ -29680,9 +29677,6 @@ background-color: rgb(180, 180, 180);QgsCollapsibleGroupBoxBasic::title, QgsColl
        <bold>false</bold>
       </font>
      </property>
-     <property name="toolTip">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;La periodizzazione è collegata alla scheda Periodizzazione.Creare quindi prima una scheda di periodizzazione e assegnare un codice ad ogni periodo/fase. Dopo di che le combobox periodi e fasi verranno popolate e si potrà scegliere il valore da assegnare&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-     </property>
      <property name="styleSheet">
       <string notr="true"/>
      </property>
@@ -29693,7 +29687,7 @@ background-color: rgb(180, 180, 180);QgsCollapsibleGroupBoxBasic::title, QgsColl
       <enum>QTabWidget::Rounded</enum>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <property name="elideMode">
       <enum>Qt::ElideNone</enum>
