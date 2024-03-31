@@ -2778,7 +2778,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                                 QMessageBox.Ok)
 
     def db_name_change(self):
-        # Save and clear comboBox_sito
+        self.comboBox_Database.update()
         self.save_and_clear_comboBox_sito()
 
         # Update toolButton after save operation

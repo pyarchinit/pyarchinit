@@ -1993,6 +1993,7 @@ class Pyarchinit_db_management(object):
         return res
 
     def query_in_contains(self, value_list, sitof, areaf):
+
         self.value_list = value_list
 
         Session = sessionmaker(bind=self.engine, autoflush=True, autocommit=True)
@@ -2000,8 +2001,9 @@ class Pyarchinit_db_management(object):
 
         res_list = []
         n = len(self.value_list) - 1
-        # QMessageBox.warning(None, "Messaggio", str(n), QMessageBox.Ok)
+
         while self.value_list:
+
             chunk = self.value_list[0:n]
             self.value_list = self.value_list[n:]
             res_list.extend(session.query(US).filter_by(sito=sitof).filter_by(area=areaf).filter(
@@ -2009,6 +2011,24 @@ class Pyarchinit_db_management(object):
             # res_list.extend(us for us, in session.query(US.us).filter(or_(*[US.rapporti.contains(v) for v in chunk])))
         session.close()
         return res_list
+
+    # def query_in_contains(self, value_list, sitof, areaf):
+    #     self.value_list = value_list
+    #     Session = sessionmaker(bind=self.engine, autoflush=True, autocommit=True)
+    #     session = Session()
+    #     res_list = []
+    #     n = 500  # smaller chunk size
+    #
+    #     while self.value_list:
+    #         chunk = self.value_list[:n]
+    #         self.value_list = self.value_list[n:]
+    #         chunk_query = session.query(US).filter_by(sito=sitof).filter_by(area=areaf).filter(
+    #             or_(*[US.rapporti.contains(v) for v in chunk])).all()
+    #         res_list.extend(chunk_query)
+    #
+    #     session.close()
+    #     return res_list
+
 
     # def query_in_contains(self, value_list, sitof, areaf):
     #     # use a copy of the list to avoid emptying the input list

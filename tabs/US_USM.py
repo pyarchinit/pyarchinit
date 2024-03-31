@@ -5364,7 +5364,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 else:
                     QMessageBox.warning(self, u'WARNING', "Sorting system Complete", QMessageBox.Ok)
             except Exception as e:
-                QMessageBox.information(None, 'ok', f"{e}")
+                print(f"{e}")
 
     def on_toolButtonPan_toggled(self):
         self.toolPan = QgsMapToolPan(self.mapPreview)
