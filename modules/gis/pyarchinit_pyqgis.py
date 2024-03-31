@@ -4229,6 +4229,14 @@ class Order_layer_v2(object):
         self.SITO = SITOol
         self.AREA = AREAol
 
+
+    def center_on_screen(self, widget):
+        frame_gm = widget.frameGeometry()
+        screen = QApplication.desktop().screenNumber(QApplication.desktop().cursor().pos())
+        center_point = QApplication.desktop().screenGeometry(screen).center()
+        frame_gm.moveCenter(center_point)
+        widget.move(frame_gm.topLeft())
+
     def main_order_layer(self):
         """
 
@@ -4240,6 +4248,8 @@ class Order_layer_v2(object):
 
         """
         # ricava la base delle us del matrix a cui non succedono altre US
+
+        #progress_dialog = ProgressDialog()
         matrix_us_level = self.find_base_matrix()
         #result = None
 
@@ -4249,6 +4259,9 @@ class Order_layer_v2(object):
         start_time = time.time()
         error_occurred = False
         cycle_count = 0
+
+        # Set the maximum value of the progress bar
+        #progress_bar.setMaximum(1000)
         try:
             while test == 0:
                 # your code here
@@ -4263,6 +4276,7 @@ class Order_layer_v2(object):
                 if cycle_count > 1000:
                     print("Maximum cycle count reached!")
                     break
+
                 rec_list_str = []
                 for i in matrix_us_level:
                     rec_list_str.append(str(i))
@@ -4283,11 +4297,7 @@ class Order_layer_v2(object):
                 #QMessageBox.information(None, 'matrix_us_equal_level', f"{value_list_equal}")
                 if matrix_us_equal_level:
                     self.insert_into_dict(matrix_us_equal_level, 1)
-                    # se res bool == True
 
-                    # aggiunge le us al dizionario nel livello in xui trova l'us uguale a cui è uguale
-                    # se l'US è già presente non la aggiunge
-                    # le us che derivano dall'uguaglianza vanno aggiunte al rec_list_str
                 rec = rec_list_str+matrix_us_equal_level#rec_list_str+
                 if self.L=='it':
                     value_list_post = self.create_list_values(['>>','Copre', 'Riempie', 'Taglia', 'Si appoggia a','Covers','Fills','Cuts','Abuts'], rec,self.AREA, self.SITO)
@@ -4299,24 +4309,19 @@ class Order_layer_v2(object):
                 #QMessageBox.information(None, 'value_list_post', f"{value_list_post}", QMessageBox.Ok)
                 #try:
                 res_t = self.db.query_in_contains(value_list_post, self.SITO, self.AREA)
-
-
-
                 matrix_us_level = []
                 for e in res_t:
                     #QMessageBox.information(None, "res_t", f"{e}", QMessageBox.Ok)
                     matrix_us_level.append(str(e.us))
 
-
-
-                if not matrix_us_level or self.order_count >= 1000 or time.time() - start_time > 60:
+                if not matrix_us_level or self.order_count >= 1000 or time.time() - start_time > 90:
                     test = 1
 
                     return self.order_dict if self.order_count < 1000 else "error"
 
-
                 else:
                     self.insert_into_dict(matrix_us_level, 1)
+            #progress_dialog.closeEvent(Ignore)
 
         except Exception as e:
             QMessageBox.warning(None, "Attenzione", "La lista delle us generate supera il limite depth max 1000."
@@ -4393,3 +4398,27 @@ class MyError(Exception):
 
     def __str__(self):
         return repr(self.value)
+
+
+class ProgressDialog:
+    def __init__(self):
+        self.progressDialog = QProgressDialog()
+        self.progressDialog.setWindowTitle("Aggiornamento rapporti area e sito")
+        self.progressDialog.setLabelText("Inizializzazione...")
+        #self.progressDialog.setCancelButtonText("")  # Disallow cancelling
+        self.progressDialog.setRange(0, 0)
+        self.progressDialog.setModal(True)
+        self.progressDialog.show()
+
+    def setValue(self, value):
+        self.progressDialog.setValue(value)
+        if value < value +1:  # Assuming that 100 is the maximum value
+            self.progressDialog.setLabelText(f"Aggiornamento in corso... {value}")
+        else:
+            self.progressDialog.setLabelText("Finito")
+            #self.progressDialog.close()
+
+
+    def closeEvent(self, event):
+        self.progressDialog.close()
+        event.ignore()
