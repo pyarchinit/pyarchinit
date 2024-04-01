@@ -85,6 +85,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         self.load_dict()
         self.charge_data()
         self.summary()
+        self.db_active()
         self.lineEdit_DBname.textChanged.connect(self.db_uncheck)
         self.lineEdit_DBname.textChanged.connect(self.db_name_change)
         self.pushButton_upd_postgres.setEnabled(True)
@@ -174,7 +175,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         self.comboBox_server_wt.currentTextChanged.connect(self.convert_db)
         self.pushButton_convert_db_sl.setHidden(True)
         self.pushButton_convert_db_pg.setHidden(True)
-        #self.db_active()
+
     
     def convert_db(self):
         if self.comboBox_server_rd.currentText()=='postgres':
@@ -2778,28 +2779,34 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                                 QMessageBox.Ok)
 
     def db_name_change(self):
-        self.comboBox_Database.update()
-        self.save_and_clear_comboBox_sito()
+        if str(self.comboBox_Database.currentText()) == 'sqlite':
+            self.comboBox_Database.update()
+            self.save_and_clear_comboBox_sito()
 
-        # Update toolButton after save operation
-        self.tool_ok()
+            # Update toolButton after save operation
+            self.tool_ok()
 
-        # Fetch site_table grouped by 'sito' and 'SITE' and converts it into a list
-        site_values_list = self.UTILITY.tup_2_list_III(self.DB_MANAGER.group_by('site_table', 'sito', 'SITE'))
 
-        # Set the current text of comboBox_sito to the first item of site_values_list
-        self.comboBox_sito.setCurrentText(site_values_list[0])
 
-        # Save after comboBox_sito text change
-        self.save_p()
+            # Fetch site_table grouped by 'sito' and 'SITE' and converts it into a list
+            site_values_list = self.UTILITY.tup_2_list_III(self.DB_MANAGER.group_by('site_table', 'sito', 'SITE'))
+
+            # Set the current text of comboBox_sito to the first item of site_values_list
+            self.comboBox_sito.setCurrentText(site_values_list[0])
+
+            # Save after comboBox_sito text change
+            self.save_p()
+        else:
+            self.comboBox_Database.update()
+            self.save_and_clear_comboBox_sito()
+            #self.tool_ok()
+            self.save_p()
 
     def save_and_clear_comboBox_sito(self):
         # Save current state
         self.save_p()
-
         # Clear comboBox_sito
         self.comboBox_sito.clear()
-
         # Save after clearing
         self.save_p()
 
@@ -2808,7 +2815,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         self.comboBox_Database.update()
         try:
             if not bool(self.lineEdit_Password.text()) and str(self.comboBox_Database.currentText()) == 'postgres':
-                QMessageBox.warning(self, "INFO", 'non dimenticarti di inserire la password', QMessageBox.Ok)
+                print('non dimenticarti di inserire la password')
             else:
                 self.PARAMS_DICT['SERVER'] = str(self.comboBox_Database.currentText())
                 self.PARAMS_DICT['HOST'] = str(self.lineEdit_Host.text())
@@ -2862,9 +2869,10 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
     def tool_ok(self):
 
         self.toolButton_active.isChecked()
-
-        self.charge_list()
-
+        if str(self.comboBox_Database.currentText()) == 'sqlite':
+            self.charge_list()
+        else:
+            pass
 
 
     def setPathDB(self):
@@ -3056,6 +3064,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         try:
             if not bool(self.lineEdit_Password.text()) and str(self.comboBox_Database.currentText())=='postgres':
                 QMessageBox.warning(self, "INFO", 'non dimenticarti di inserire la password',QMessageBox.Ok)
+
             else:
                 self.PARAMS_DICT['SERVER'] = str(self.comboBox_Database.currentText())
                 self.PARAMS_DICT['HOST'] = str(self.lineEdit_Host.text())
