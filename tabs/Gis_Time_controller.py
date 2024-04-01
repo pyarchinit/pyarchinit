@@ -24,10 +24,11 @@ from __future__ import absolute_import
 import logging
 import time
 
+import psutil
 from qgis.PyQt.QtGui import QPixmap, QPainter, QImage
 from qgis.PyQt.QtWidgets import QFileDialog, QGraphicsScene,  QGraphicsView, QListWidgetItem, QDialog, QMessageBox
 from qgis.PyQt.QtCore import Qt, pyqtSlot, QCoreApplication, QThread
-from qgis.core import Qgis,QgsLayoutFrame, QgsMessageLog, QgsProject, QgsLayoutExporter, QgsApplication, QgsLayoutItemMap, QgsReadWriteContext, QgsPrintLayout,QgsLayoutMultiFrame, QgsLayoutItemHtml
+from qgis.core import Qgis,QgsLayoutFrame, QgsMessageLog, QgsProject, QgsLayoutExporter, QgsApplication, QgsLayoutItemMap, QgsReadWriteContext, QgsPrintLayout,QgsLayoutMultiFrame, QgsLayoutItemHtml, QgsLayoutItemPicture
 from qgis.PyQt.QtXml import QDomDocument
 
 from ..modules.db.pyarchinit_utility import Utility
@@ -105,6 +106,7 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
             item.setFlags(item.flags() | Qt.ItemIsUserCheckable)
             item.setCheckState(Qt.Unchecked)
             self.listWidget.addItem(item)
+        self.abort = False
 
         self.listWidget.itemChanged.connect(self.update_selected_layers)
         self.dial_relative_cronology.valueChanged.connect(self.set_max_num)
@@ -117,6 +119,9 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
         self.spinBox_relative_cronology.valueChanged.connect(self.update_graphics_view)
         if self.checkBox_matrix.isChecked():
             self.update_graphics_view()
+
+        self.stop_button.clicked.connect(self.stop_image_generation)
+
     def connect(self):
         conn = Connection()
         conn_str = conn.conn_str()
@@ -379,17 +384,19 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
         # Carica il template
         HOME = os.environ['PYARCHINIT_HOME']
         path = '{}{}{}{}'.format(HOME, os.sep, "bin/profile/template/", 'test.qpt')
+
         self.load_template(path)
         if not self.current_layout:
             return
-
+        #matrix_image_path = '{}{}{}{}'.format(HOME, os.sep, "pyarchinit_Matrix_folder",
+                                              #"Harris_matrix_viewtred.dot.jpg")  # path dell'immagine della matrice
+        #if os.path.isfile(matrix_image_path):
+            #os.remove(matrix_image_path)
         max_num_order_layer = self.DB_MANAGER.max_num_id(self.MAPPER_TABLE_CLASS, "order_layer")
         for value in range(self.spinBox_relative_cronology.minimum(), max_num_order_layer):
-            #QMessageBox.information(None, 'ok', f"Valore corrente: {value}, massimo: {max_value}")
-        # il tuo codice
-
-        #for value in range(self.spinBox_relative_cronology.minimum(), self.spinBox_relative_cronology.maximum()):
-
+            if self.abort:
+                self.abort = False  # resetta l'attributo per il prossimo utilizzo
+                break
             self.current_value = value
             self.image_saved = False
 
@@ -460,9 +467,43 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
                     #else:
                         #self.id_us_dict[order_layer] = [datazione]
 
-            dlg = pyarchinit_view_Matrix_pre(self.iface, data_list, self.id_us_dict)
-            dlg.generate_matrix_3()
+            # Ottieni l'elemento immagine dal layout
+            image_item = None
+            for i in self.current_layout.items():
+                if hasattr(i, 'id') and i.id() == 'matrix':  # 'matrix' è l'id dell'elemento immagine
+                    image_item = i
+                    break
+            if image_item is None:
+                print("Couldn't find Image item")
+                return
 
+            # controllo se il checkbox 'matrix' è attivo
+            if bool(self.checkBox_matrix.isChecked()):
+                dlg = pyarchinit_view_Matrix_pre(self.iface, data_list, self.id_us_dict)
+                dlg.generate_matrix_3()
+                matrix_image = '{}{}{}{}'.format(HOME, os.sep, "pyarchinit_Matrix_folder/",
+                                                 "Harris_matrix_viewtred.jpg")  # path dell'immagine della matrice
+
+                if matrix_image:
+                    # Impostare l'immagine della matrice sull'elemento immagine
+                    if isinstance(image_item, QgsLayoutItemPicture):
+
+                        image_item.setPicturePath(matrix_image)
+                        image_item.setMode(QgsLayoutItemPicture.FormatRaster)
+
+
+
+
+                else:
+                    QMessageBox.warning(self, "Attenzione",
+                                        "L'immagine della matrice non è stata generata correttamente")
+                image_item.setVisibility(True)
+
+            else:
+                # Se il checkbox 'matrix' non è spuntato, rendi l'elemento immagine invisibile
+                image_item.setVisibility(False)
+
+            self.current_layout.refresh()
             exporter = QgsLayoutExporter(self.current_layout)
             image_path = f"{self.path}/Tavola_{value}.jpg"
             exporter.exportToImage(image_path, QgsLayoutExporter.ImageExportSettings())
@@ -483,4 +524,15 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
             self.graphicsView.setFocus()
             self.graphicsView.fitInView(scene.itemsBoundingRect(), Qt.KeepAspectRatio)
 
-            #QThread.sleep(1)  # aspetta per 1 secondo
+    def stop_processes_named(self, name):
+        for proc in psutil.process_iter(['pid', 'name']):
+            # Verifica se il nome del processo corrisponde a quello che stai cercando
+            if proc.info['name'] == name:
+                try:
+                    proc.kill()  # Termina il processo
+                except psutil.NoSuchProcess:
+                    QgsMessageBox.information(None, 'Avviso', f"Processo {name} non trovato")
+    def stop_image_generation(self):
+
+        self.stop_processes_named('dot.exe')
+        self.abort = True
