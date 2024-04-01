@@ -745,6 +745,13 @@ p, li { white-space: pre-wrap; }
     </widget>
    </item>
    <item>
+    <widget class="QPushButton" name="stop_button">
+     <property name="text">
+      <string>Arresta processo stampa</string>
+     </property>
+    </widget>
+   </item>
+   <item>
     <widget class="QTextEdit" name="textEdit_datazione">
      <property name="enabled">
       <bool>false</bool>

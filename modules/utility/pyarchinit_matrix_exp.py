@@ -848,7 +848,7 @@ class ViewHarrisMatrix:
             # Rendering del file DOT
             G.format = 'dot'
             dot_file = G.render(directory=matrix_path, filename=filename)
-            tred_output_file_path = os.path.join(matrix_path, f"{filename}_viewtred.dot")
+            tred_output_file_path = os.path.join(matrix_path, f"{filename}_viewtred")
 
             error_file_path = os.path.join(matrix_path, 'matrix_error.txt')
         except Exception as e:
