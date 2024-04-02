@@ -26,6 +26,8 @@ import zipfile
 from builtins import object
 from builtins import str
 
+from PyQt5.QtWidgets import QMessageBox
+
 from .pyarchinit_OS_utility import Pyarchinit_OS_Utility
 
 
@@ -98,7 +100,8 @@ class pyarchinit_Folder_installation(object):
         epoche_copy_from_path_rel = os.path.join(os.sep, 'dbfiles', 'epoche_storiche.csv')
         epoche_copy_from_path = '{}{}'.format(self.RESOURCES_PATH, epoche_copy_from_path_rel)
         epoche_copy_to_path = '{}{}{}'.format(home_bin_export_path, os.sep, 'epoche_storiche.csv')
-        
+
+
         # self.OS_UTILITY.copy_file(f_copy_from_bin, f_copy_to_bin)
         self.OS_UTILITY.copy_file(db_copy_from_bin, db_copy_to_bin)
         self.OS_UTILITY.copy_file(em_copy_from_path, em_copy_to_path)
@@ -111,7 +114,7 @@ class pyarchinit_Folder_installation(object):
         self.OS_UTILITY.copy_file(X11Colors_copy_from_path, X11Colors_copy_to_path)
         self.OS_UTILITY.copy_file(csv_copy_from_path, csv_copy_to_path)
         self.OS_UTILITY.copy_file(epoche_copy_from_path, epoche_copy_to_path)
-        
+        #self.OS_UTILITY.copy_file(template_copy_from_path, template_copy_to_path)
         db_copy_from_path_rel = os.path.join(os.sep, 'dbfiles', 'pyarchinit_db.sqlite')
         db_copy_from_path = '{}{}'.format(self.RESOURCES_PATH, db_copy_from_path_rel)
         db_copy_to_path = '{}{}{}'.format(home_DB_path, os.sep, 'pyarchinit_db.sqlite')
@@ -250,7 +253,9 @@ class pyarchinit_Folder_installation(object):
         epoche_copy_from_path_rel = os.path.join(os.sep, 'dbfiles', 'epoche_storiche.csv')
         epoche_copy_from_path = '{}{}'.format(self.RESOURCES_PATH, epoche_copy_from_path_rel)
         epoche_copy_to_path = '{}{}{}'.format(home_bin_export_path, os.sep, 'epoche_storiche.csv')
-        
+
+
+
         profile_zip = os.path.join(os.sep, 'dbfiles', 'profile.zip')
         profile_zip_copy_from_path = '{}{}'.format(self.RESOURCES_PATH, profile_zip)
         test=os.path.join(home_bin_export_path,'profile')
@@ -260,7 +265,8 @@ class pyarchinit_Folder_installation(object):
         else:
             pass# with zipfile.ZipFile(profile_zip_copy_from_path, 'r') as zip_ref:
                 # zip_ref.extractall(test)
-        
+
+
         rs_zip = os.path.join(os.sep, 'dbfiles', 'rscripts.zip')
         rs_zip_copy_from_path = '{}{}'.format(self.RESOURCES_PATH, rs_zip)
         test2=os.path.join(home_bin_export_path,'rscripts')
@@ -280,8 +286,10 @@ class pyarchinit_Folder_installation(object):
         else:
             with zipfile.ZipFile(cambria_zip_copy_from_path, 'r') as zip2_ref:
                 zip2_ref.extractall(test3)
-        
-        #self.OS_UTILITY.copy_file(f_copy_from_bin, f_copy_to_bin)
+        template_copy_from_path_rel = os.path.join(os.sep, 'dbfiles', 'test.qpt')
+        template_copy_from_path = '{}{}'.format(self.RESOURCES_PATH, template_copy_from_path_rel)
+        template_copy_to_path = '{}{}{}{}{}'.format(home_bin_export_path, os.sep, 'profile/','template/', 'test.qpt')
+
         self.OS_UTILITY.copy_file(db_copy_from_bin, db_copy_to_bin)
         self.OS_UTILITY.copy_file(em_copy_from_path, em_copy_to_path)
         self.OS_UTILITY.copy_file(wc_copy_from_path, wc_copy_to_path)
@@ -293,3 +301,4 @@ class pyarchinit_Folder_installation(object):
         self.OS_UTILITY.copy_file_img(X11Colors_copy_from_path, X11Colors_copy_to_path)
         self.OS_UTILITY.copy_file(csv_copy_from_path, csv_copy_to_path)
         self.OS_UTILITY.copy_file(epoche_copy_from_path, epoche_copy_to_path)
+        self.OS_UTILITY.copy_file(template_copy_from_path, template_copy_to_path)
