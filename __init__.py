@@ -17,7 +17,7 @@
  *                                                                       *
  ***************************************************************************/
 """
-import ensurepip
+
 import subprocess
 import sys
 
@@ -37,10 +37,9 @@ except ImportError:
 import os
 from os import path
 import re
-import traceback
 import platform
-from qgis.PyQt.QtWidgets import QMessageBox,QCheckBox
-from qgis.core import QgsMessageLog, Qgis, QgsSettings
+from qgis.PyQt.QtWidgets import QMessageBox
+from qgis.core import QgsSettings
 from .modules.utility.pyarchinit_OS_utility import Pyarchinit_OS_Utility
 from .modules.utility.pyarchinit_folder_installation import pyarchinit_Folder_installation
 L=QgsSettings().value("locale/userLocale")[0:2]
@@ -109,26 +108,6 @@ try:
 except Exception as e:
     missing_libraries.append(str(e))
 
-# try:
-#     import pkg_resources
-#
-#     pkg_resources.require("pdf2docx==0.5.6")
-#
-# except Exception as e:
-#     missing_libraries.append(str(e))
-
-    #if platform.system() == 'Windows':
-        #pip_path = sys.exec_prefix
-
-        #cmd = '{}\bin/pip3'.format(pip_path)
-        #subprocess.call(['pip', 'install', 'pdf2docx==0.4.6'], shell=False)
-    # if platform.system() == 'Darwin':
-    #
-    #     pip_path=sys.exec_prefix
-    #
-    #     cmd = '{}/bin/pip3'.format(pip_path)
-    #     subprocess.call([cmd, 'install', 'pdf2docx==0.5.3' ], shell=False)
-
 try:
     import sqlalchemy_utils
 except Exception as e:
@@ -164,15 +143,6 @@ try:
 
 except Exception as e:
     missing_libraries.append(str(e))
-
-    
-# try:
-    # import pkg_resources
-
-    # pkg_resources.require("pygraphviz==1.9.0")
-
-# except Exception as e:
-    # missing_libraries.append(str(e))
 
 
 install_libraries = []
