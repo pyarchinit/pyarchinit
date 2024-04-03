@@ -1,31 +1,23 @@
 
 from qgis.PyQt.QtWidgets import *
 import socket
-import subprocess
-import sys
-
+import sys, subprocess
 try:
     import openai
-
-    if openai.__version__ == '0.27.8':
-        print("OpenAI v0.27.8 is already installed.")
-    else:
-        raise ImportError('Incompatible version of OpenAI is installed. Installing version 0.27.8...')
-
+    if opneai.__version__ != "0.27.8":
+        raise ImportError
+        print("openai is already installed")
 except ImportError:
+    print("openai is not installed, installing...")
     if sys.platform.startswith("win"):
-        subprocess.check_call([sys.executable, "-m", "pip", "install", "openai==0.27.8"], shell=False)
+        subprocess.call(["pip", "install", "openai==0.27.8"],shell = False)
     elif sys.platform.startswith("darwin"):
-        subprocess.check_call(
-            ["/Applications/QGIS.app/Contents/MacOS/bin/python3", "-m", "pip", "install", "openai==0.27.8"],
-            shell=False)
+        subprocess.call([ "/Applications/QGIS.app/Contents/MacOS/bin/python3", "-m", "pip","install", "openai==0.27.8"],shell = False )
     elif sys.platform.startswith("linux"):
-        subprocess.check_call([sys.executable, "-m", "pip", "install", "openai==0.27.8"], shell=False)
+        subprocess.call(["pip", "install", "openai==0.27.8"],shell = False)
     else:
         raise Exception(f"Unsupported platform: {sys.platform}")
-
-    print("OpenAI v0.27.8 installed successfully")
-
+    print("openai installed successfully")
 import time
 import os
 class MyApp(QWidget):

@@ -24,11 +24,18 @@ import subprocess, sys
 try:
     import psutil
 
-    print("Psutil is already installed")
+
 except ImportError:
-    print("Psutil is not installed, installing...")
-    subprocess.check_call([sys.executable, "-m", "pip", "install", "psutil"])
-    print("Psutil installed successfully")
+    print("openai is not installed, installing...")
+    if sys.platform.startswith("win"):
+        subprocess.call(["pip", "install", "psutil"],shell = False)
+    elif sys.platform.startswith("darwin"):
+        subprocess.call([ "/Applications/QGIS.app/Contents/MacOS/bin/python3", "-m", "pip","install", "psutil"],shell = False )
+    elif sys.platform.startswith("linux"):
+        subprocess.call(["pip", "install", "psutil"],shell = False)
+    else:
+        raise Exception(f"Unsupported platform: {sys.platform}")
+    print("openai installed successfully")
 from qgis.PyQt.QtGui import QPixmap, QPainter, QImage
 from qgis.PyQt.QtWidgets import QFileDialog, QGraphicsScene,  QGraphicsView, QListWidgetItem, QDialog, QMessageBox
 from qgis.PyQt.QtCore import Qt, pyqtSlot, QCoreApplication, QThread
