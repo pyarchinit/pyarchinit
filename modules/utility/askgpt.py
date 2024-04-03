@@ -4,7 +4,7 @@ import socket
 import sys, subprocess
 try:
     import openai
-    if opneai.__version__ != "0.27.8":
+    if openai.__version__ != "0.27.8":
         raise ImportError
         print("openai is already installed")
 except ImportError:
