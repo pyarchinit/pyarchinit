@@ -18,6 +18,23 @@ except ImportError:
     else:
         raise Exception(f"Unsupported platform: {sys.platform}")
     print("openai installed successfully")
+
+try:
+    import openpyxl
+
+except ImportError:
+    print("openpyxl is not installed, installing...")
+    if sys.platform.startswith("win"):
+        subprocess.call(["pip", "install", "openpyxl"],shell = False)
+    elif sys.platform.startswith("darwin"):
+        subprocess.call([ "/Applications/QGIS.app/Contents/MacOS/bin/python3", "-m", "pip","install", "openpyxl"],shell = False )
+    elif sys.platform.startswith("linux"):
+        subprocess.call(["pip", "install", "openpyxl"],shell = False)
+    else:
+        raise Exception(f"Unsupported platform: {sys.platform}")
+    print("openpyxl installed successfully")
+
+
 import time
 import os
 class MyApp(QWidget):
