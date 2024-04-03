@@ -20,9 +20,15 @@
  ***************************************************************************/
 """
 from __future__ import absolute_import
+import subprocess, sys
+try:
+    import psutil
 
-
-import psutil
+    print("Psutil is already installed")
+except ImportError:
+    print("Psutil is not installed, installing...")
+    subprocess.check_call([sys.executable, "-m", "pip", "install", "psutil"])
+    print("Psutil installed successfully")
 from qgis.PyQt.QtGui import QPixmap, QPainter, QImage
 from qgis.PyQt.QtWidgets import QFileDialog, QGraphicsScene,  QGraphicsView, QListWidgetItem, QDialog, QMessageBox
 from qgis.PyQt.QtCore import Qt, pyqtSlot, QCoreApplication, QThread
