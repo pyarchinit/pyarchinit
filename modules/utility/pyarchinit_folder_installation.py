@@ -19,15 +19,9 @@
 """
 
 import os
-from os import path
 from os.path import expanduser
-import shutil
 import zipfile
 from builtins import object
-from builtins import str
-
-from PyQt5.QtWidgets import QMessageBox
-
 from .pyarchinit_OS_utility import Pyarchinit_OS_Utility
 
 
