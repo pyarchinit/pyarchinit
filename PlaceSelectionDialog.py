@@ -20,21 +20,8 @@
 
 
 import os
-
-# Import the PyQt and QGIS libraries
-try:
-    from qgis.core import Qgis
-    from PyQt5.QtCore import *
-    from PyQt5.QtGui import *
-    from PyQt5.QtWidgets import *
-    from PyQt5 import uic
-    QT_VERSION=5
-    os.environ['QT_API'] = 'pyqt5'
-except:
-    from PyQt4.QtCore import *
-    from PyQt4.QtGui import *
-    from PyQt4 import uic
-    QT_VERSION=4
+from qgis.PyQt.QtWidgets import QDialog
+from qgis.PyQt import uic
 
 # create the dialog for GeoCoding
 class PlaceSelectionDialog(QDialog):

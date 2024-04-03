@@ -21,7 +21,6 @@ from __future__ import absolute_import
 
 import os
 
-from qgis.PyQt.QtXml import *
 from qgis.PyQt.uic import loadUiType
 from qgis.gui import QgsDockWidget
 

@@ -21,8 +21,6 @@
 """
 from __future__ import absolute_import
 
-import logging
-import time
 
 import psutil
 from qgis.PyQt.QtGui import QPixmap, QPainter, QImage
@@ -36,9 +34,6 @@ from .Interactive_matrix import *
 MAIN_DIALOG_CLASS, _ = loadUiType(
     os.path.join(os.path.dirname(__file__), os.pardir, 'gui', 'ui', 'Gis_Time_controller.ui'))
 
-
-
-logging.basicConfig(filename='C:\\Users\\enzoc\\pyarchinit\\gis_time_controller.log', level=logging.INFO)
 class ZoomableGraphicsView(QGraphicsView):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -388,10 +383,7 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
         self.load_template(path)
         if not self.current_layout:
             return
-        #matrix_image_path = '{}{}{}{}'.format(HOME, os.sep, "pyarchinit_Matrix_folder",
-                                              #"Harris_matrix_viewtred.dot.jpg")  # path dell'immagine della matrice
-        #if os.path.isfile(matrix_image_path):
-            #os.remove(matrix_image_path)
+
         max_num_order_layer = self.DB_MANAGER.max_num_id(self.MAPPER_TABLE_CLASS, "order_layer")
         for value in range(self.spinBox_relative_cronology.minimum(), max_num_order_layer):
             if self.abort:

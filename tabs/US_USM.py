@@ -5771,8 +5771,10 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         area_check = str(self.comboBox_area.currentText())
         try:
             self.rapporti_stratigrafici_check(sito_check, area_check)
-            self.def_strati_to_rapporti_stratigrafici_check(sito_check, area_check)  # SPERIMENTALE
-            self.periodi_to_rapporti_stratigrafici_check(sito_check, area_check)
+            if self.checkBox_validate.isChecked():
+                self.def_strati_to_rapporti_stratigrafici_check(sito_check, area_check)  # SPERIMENTALE
+
+                self.periodi_to_rapporti_stratigrafici_check(sito_check, area_check)
             self.automaticform_check(sito_check, area_check)
         except Exception as e:
             full_exception = traceback.format_exc()
@@ -6484,6 +6486,20 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
     def concat(self,a, b):
         return eval(f"{a}{b}")
 
+    def report_with_phrase(self, ut, us, sing_rapp, periodo_in, fase_in, sito, area):
+        replaced_str = sing_rapp[4].replace('-', '')
+
+        if replaced_str:
+            replaced_str = int(replaced_str)
+        else:
+            replaced_str = 0 # or any default integer value
+
+        if sing_rapp[0] in ['Si lega a', 'Uguale a', 'Same as', 'Connected to'] and replaced_str != periodo_in:
+            return 'Sito: %s, Area: %s, %s: %d -  Il periodo e fase iniziale %s: deve essere: %s corrispondente con la %s : %d: ' % (
+                sito, area, ut, us, str(periodo_in) + '-' + str(fase_in), sing_rapp[0], sing_rapp[2], int(sing_rapp[1]))
+
+        return ""
+
     def periodi_to_rapporti_stratigrafici_check(self, sito_check, area_check):
         conversion_dict = {'Covers':'Covered by',
                            'Covered by': 'Covers',
@@ -6547,20 +6563,13 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             rapporti2 = records[rec].rapporti2  # caricati i rapporti nella variabile
             rapporti2 = eval(rapporti2)
 
-
             for sing_rapp in rapporti2:  # itera sulla serie di rapporti
                 report = ""
-                report2 = ""
 
-                # rapp_sing=sing_rapp[4].split()
-                # QMessageBox.information(self,'',str(rapp_sing))
-                if str(periodo_in).find('1') or str(periodo_in).find('2') or str(periodo_in).find('3') or str(periodo_in).find('4') or str(periodo_in).find('5') or str(periodo_in).find('6') or str(periodo_in).find('7') or str(periodo_in).find('8') or str(periodo_in).find('9') or str(periodo_in).find('10') or str(periodo_in).find('11') or str(periodo_in).find('12') or str(periodo_in).find('13') or str(periodo_in).find('14') or str(periodo_in).find('15')>=0:
+                periodo_in_value_found = any(str(periodo_in).find(str(i)) for i in range(1, 50))
 
-                    if str(periodo_in)+'-'+str(fase_in)!=sing_rapp[4]:
-                        if sing_rapp[0] == 'Si lega a' or sing_rapp[0] == 'Uguale a' or sing_rapp[0] == 'Same as' or sing_rapp[0] == 'Connected to':
-                            report = 'Sito: %s, Area: %s, %s: %d -  Il periodo e fase iniziale %s: deve essere: %s corrispondente con la %s : %d: ' % (
-                                sito, area, ut, int(us), str(periodo_in)+'-'+str(fase_in), sing_rapp[0], sing_rapp[2], int(sing_rapp[1]))
-
+                if periodo_in_value_found:
+                    report = self.report_with_phrase(ut, us, sing_rapp, periodo_in, fase_in, sito, area)
                     # if not bool(sing_rapp):
                         # report2:'la table widget deve essere riempita'
                     if sing_rapp[0] == 'Si lega a' and sing_rapp[2]=='US':
