@@ -387,7 +387,7 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
         if not self.path:
             return
         # Get reference to active QgsMapCanvas:
-        logging.info('Start generating images.')
+        #logging.info('Start generating images.')
         canvas = self.iface.mapCanvas()
         # Carica il template
         HOME = os.environ['PYARCHINIT_HOME']
