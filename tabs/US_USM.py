@@ -6565,7 +6565,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
             for sing_rapp in rapporti2:  # itera sulla serie di rapporti
                 report = ""
-
+                report2=''
                 periodo_in_value_found = any(str(periodo_in).find(str(i)) for i in range(1, 50))
 
                 if periodo_in_value_found:
