@@ -43,6 +43,10 @@ class HarrisMatrix:
 
     @property
     def export_matrix(self):
+        """
+        Export the matrix as a graph using Digraph to visualize relationships between elements, including periods, phases, and service units.
+        The graph includes custom colors and styles to represent different relationships and types of service units.
+        """
         # Genera un grafico utilizzando Digraph per visualizzare relazioni tra elementi, inclusi periodi, fasi e unità di servizio.
         # Il grafico include colori e stili personalizzati per rappresentare diverse relazioni e tipi di unità di servizio.
 
@@ -281,15 +285,28 @@ class HarrisMatrix:
                                       arrowsize=str(self.dialog.combo_box_24.currentText()))
 
         def node_loops_to_self(objects):
+            """
+            This function checks if there are any loops in the graph. A loop in a graph is a situation where a node is connected to itself.
+
+            Parameters:
+            objects (list): A list of lists. Each inner list represents a set of edges in the graph, where each edge is a tuple of two elements (source, target).
+
+            Returns:
+            bool: True if there is at least one loop in the graph, False otherwise.
+            """
             for obj in objects:
                 for source, target in obj:
                     if source == target:
                         return True
             return False
 
+        # Define the edges of the graph
         objects = [self.sequence, self.conteporene, self.negative, self.connection, self.connection_to]
+
+        # Check if the graph has any loops
         has_loop = node_loops_to_self(objects)
 
+        # If the graph has loops, display a warning message
         if has_loop:
             QMessageBox.warning(None, "Warning", "The graph contains loops, the rendering may not be correct")
 
