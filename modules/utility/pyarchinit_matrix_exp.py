@@ -280,6 +280,19 @@ class HarrisMatrix:
                                       arrowhead=str(self.dialog.combo_box_21.currentText()),
                                       arrowsize=str(self.dialog.combo_box_24.currentText()))
 
+        def node_loops_to_self(objects):
+            for obj in objects:
+                for source, target in obj:
+                    if source == target:
+                        return True
+            return False
+
+        objects = [self.sequence, self.conteporene, self.negative, self.connection, self.connection_to]
+        has_loop = node_loops_to_self(objects)
+
+        if has_loop:
+            QMessageBox.warning(None, "Warning", "The graph contains loops, the rendering may not be correct")
+
         def showMessage(message, title='Info', icon=QMessageBox.Information):
             msgBox = QMessageBox()
             msgBox.setIcon(icon)
@@ -296,7 +309,11 @@ class HarrisMatrix:
 
             # Rendering del file DOT
             G.format = 'dot'
-            dot_file = G.render(directory=matrix_path, filename=filename)
+            try:
+                dot_file = G.render(directory=matrix_path, filename=filename)
+            except Exception as e:
+                showMessage(f"Errore durante il rendering del file DOT: {e}", title='Errore', icon=QMessageBox.Critical)
+                return
             tred_output_file_path = os.path.join(matrix_path, f"{filename}_tred.dot")
 
             error_file_path = os.path.join(matrix_path, 'matrix_error.txt')
@@ -316,7 +333,7 @@ class HarrisMatrix:
                 subprocess.call(['tred', dot_file], stdout=out_file, stderr=err_file, startupinfo=startupinfo)
             #showMessage("Comando `tred` eseguito con successo.")
         except Exception as e:
-            #showMessage(f"Errore durante l'esecuzione di `tred`: {e}", title='Errore', icon=QMessageBox.Critical)
+            showMessage(f"Errore durante l'esecuzione di `tred`: {e}", title='Errore', icon=QMessageBox.Critical)
             return
         if os.path.getsize(error_file_path) > 0:
             with open(error_file_path, "r") as err_file:
@@ -852,7 +869,7 @@ class ViewHarrisMatrix:
 
             error_file_path = os.path.join(matrix_path, 'matrix_error.txt')
         except Exception as e:
-            # showMessage(f"Errore durante la creazione del file DOT: {e}", title='Errore', icon=QMessageBox.Critical)
+            showMessage(f"Errore durante la creazione del file DOT: {e}", title='Errore', icon=QMessageBox.Critical)
             return
 
         startupinfo = None
@@ -867,21 +884,21 @@ class ViewHarrisMatrix:
                 subprocess.call(['tred', dot_file], stdout=out_file, stderr=err_file, startupinfo=startupinfo)
             # showMessage("Comando `tred` eseguito con successo.")
         except Exception as e:
-            # showMessage(f"Errore durante l'esecuzione di `tred`: {e}", title='Errore', icon=QMessageBox.Critical)
+            showMessage(f"Errore durante l'esecuzione di `tred`: {e}", title='Errore', icon=QMessageBox.Critical)
             return
         if os.path.getsize(error_file_path) > 0:
             with open(error_file_path, "r") as err_file:
-                print()  # errors = err_file.read()
-                # showMessage(f"Errori durante l'esecuzione di `tred`:\n{errors}", title='Errore')
-                # icon=QMessageBox.Warning)
+                errors = err_file.read()
+                showMessage(f"Errori durante l'esecuzione di `tred`:\n{errors}", title='Errore',
+                icon=QMessageBox.Warning)
         else:
-            print()  # showMessage("Nessun errore riportato da `tred`.")
+            showMessage("Nessun errore riportato da `tred`.")
 
         try:
             g = Source.from_file(tred_output_file_path, format='jpg')
             g.render()
-            print()  # showMessage("Rendering del grafico completato.")
+            showMessage("Rendering del grafico completato.")
             # return g (Considera che in una GUI, potresti voler gestire il risultato in modo diverso)
         except Exception as e:
-            print()  # showMessage(f"Errore durante il rendering del grafico finale: {e}", title='Errore',
-            # icon=QMessageBox.Critical)
+            showMessage(f"Errore durante il rendering del grafico finale: {e}", title='Errore',
+            icon=QMessageBox.Critical)
