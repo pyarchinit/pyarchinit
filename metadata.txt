@@ -13,7 +13,7 @@ name=pyArchInit
 qgisMinimumVersion=3.22
 description=pyarchinit a tool for archaeological works
 
-version=4.7.0
+version=4.7.1
 
 author=Luca Mandolesi&Enzo Cocca
 email=pyarchinit@gmail.com
@@ -25,7 +25,8 @@ tracker=https://github.com/pyarchinit/pyarchinit/issues
 repository=https://github.com/pyarchinit/pyarchinit
 
 
-changelog=4.7.0 Refactor matrix generation and presentation code, Add query for boolean-like operation and improve code functionality, Uncomment database structure metadata and definition Refactor table definition across db module classes, Add functionality to update 'rapporti' column.
+changelog=4.7.1 mayor fix bug and change order by in us-usm view
+  4.7.0 Refactor matrix generation and presentation code, Add query for boolean-like operation and improve code functionality, Uncomment database structure metadata and definition Refactor table definition across db module classes, Add functionality to update 'rapporti' column.
   4.6.9 #601
   4.6.8 Refactor US_USM.py to add functionality for filtering and updating the list widget based on search text.
   4.6.7 Update subcontrol position and margin values in QgsCollapsibleGroupBoxBasic title class. Refactor the styling of QgsCollapsibleGroupBox::title and QgsCollapsibleGroupBoxBasic::title to have a consistent margin and position. Adjust top position of QgsCollapsibleGroupBoxBasic and QgsCollapsibleGroupBox title. Update margin and position for QgsCollapsibleGroupBoxBasic and QgsCollapsibleGroupBox titles. Refactor subcontrol-origin and subcontrol-position CSS properties, adjusting the margin and position values for QgsCollapsibleGroupBoxBasic::title and QgsCollapsibleGroupBox::title. Update QgsCollapsibleGroupBox title styling for margin and position. Update subcontrol-position and top values in QgsCollapsibleGroupBoxBasic and QgsCollapsibleGroupBox::title. Update the styling for the collapsible group box titles to have a margin-left of 20px, margin-right of 5px, and a top position of 2px. Update the background color of QgsCollapsibleGroupBoxBasic and QgsCollapsibleGroupBox title to rgb(180, 180, 180). Adjust margins and positioning of QgsCollapsibleGroupBox title elements. Update subcontrol position and top margin values in QgsCollapsibleGroupBoxBasic and QgsCollapsibleGroupBox titles. Adjust the subcontrol positioning and margins for QgsCollapsibleGroupBox title.
