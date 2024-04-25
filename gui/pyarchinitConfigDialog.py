@@ -2791,8 +2791,10 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             # Fetch site_table grouped by 'sito' and 'SITE' and converts it into a list
             site_values_list = self.UTILITY.tup_2_list_III(self.DB_MANAGER.group_by('site_table', 'sito', 'SITE'))
 
-            # Set the current text of comboBox_sito to the first item of site_values_list
-            self.comboBox_sito.setCurrentText(site_values_list[0])
+            if len(site_values_list) > 0:
+                self.comboBox_sito.setCurrentText(site_values_list[0])
+            else:
+                self.comboBox_sito.setCurrentText('')  # or some default value
 
             # Save after comboBox_sito text change
             self.save_p()
