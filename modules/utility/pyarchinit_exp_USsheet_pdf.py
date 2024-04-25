@@ -48,7 +48,7 @@ pdfmetrics.registerFont(TTFont('CambriaZ', 'cambriaz.ttf'))
 registerFontFamily('Cambria',normal='Cambria')
 
 
-
+from qgis.PyQt.QtWidgets import QMessageBox
 from ..db.pyarchinit_conn_strings import Connection
 from .pyarchinit_OS_utility import *
 from PIL import Image as giggino
@@ -4813,41 +4813,25 @@ class generate_US_pdf(object):
         logo.hAlign = "CENTER"
         
         elements_us_iccd = []
+
         for i in range(len(records)):
+
             single_us_sheet = single_US_pdf_sheet(records[i])
             elements_us_iccd.append(logo)
             elements_us_iccd.append(Spacer(4, 6))
-            elements_us_iccd.append(single_us_sheet.create_sheet_archeo3_usm_fields_2()) 
-            
+            elements_us_iccd.append(single_us_sheet.create_sheet_archeo3_usm_fields_2())
             elements_us_iccd.append(PageBreak())
-            
-            
-            #terza versione scheda US SENZA CAMPI US formato Ministeriale ICCD
-            
-            
+
+
+
+        #terza versione scheda US SENZA CAMPI US formato Ministeriale ICCD
+
+
         dt = datetime.datetime.now()
-        
-        
-        
-        #us
-        # filename = ('%s%s%s_%s_%s_%s_%s_%s_%s%s') % (
-        # self.PDF_path, os.sep, 'scheda_US', dt.day, dt.month, dt.year, dt.hour, dt.minute, dt.second, ".pdf")
-        # f = open(filename, "wb")
 
-        # doc = SimpleDocTemplate(f, pagesize=A4)
-        # doc.build(elements_us_pyarchinit, canvasmaker=NumberedCanvas_USsheet)
 
-        # f.close()
 
-        # #ususm
-        # filename = ('%s%s%s_%s_%s_%s_%s_%s_%s%s') % (
-        # self.PDF_path, os.sep, 'scheda_USUSM', dt.day, dt.month, dt.year, dt.hour, dt.minute, dt.second, ".pdf")
-        # f = open(filename, "wb")
 
-        # doc = SimpleDocTemplate(f, pagesize=A4)
-        # doc.build(elements_ususm_pyarchinit, canvasmaker=NumberedCanvas_USsheet)
-
-        # f.close()
 
         #usICCD
         filename = ('%s%s%s') % (
@@ -4881,12 +4865,15 @@ class generate_US_pdf(object):
         
         elements_us_iccd = []
         for i in range(len(records)):
-            single_us_sheet = single_US_pdf_sheet(records[i])
-            elements_us_iccd.append(logo)
-            elements_us_iccd.append(Spacer(4, 6))
-            elements_us_iccd.append(single_us_sheet.create_sheet_en()) 
-            
-            elements_us_iccd.append(PageBreak())
+            try:
+                single_us_sheet = single_US_pdf_sheet(records[i])
+                elements_us_iccd.append(logo)
+                elements_us_iccd.append(Spacer(4, 6))
+                elements_us_iccd.append(single_us_sheet.create_sheet_archeo3_usm_fields_2())
+                elements_us_iccd.append(PageBreak())
+            except TypeError:
+                QMessageBox.warnig(None, 'attenzione', f"Issue with record: {records[i]}")
+                break
             
             
             #terza versione scheda US SENZA CAMPI US formato Ministeriale ICCD
@@ -4948,12 +4935,15 @@ class generate_US_pdf(object):
         
         elements_us_iccd = []
         for i in range(len(records)):
-            single_us_sheet = single_US_pdf_sheet(records[i])
-            elements_us_iccd.append(logo)
-            elements_us_iccd.append(Spacer(4, 6))
-            elements_us_iccd.append(single_us_sheet.create_sheet_de()) 
-            
-            elements_us_iccd.append(PageBreak())
+            try:
+                single_us_sheet = single_US_pdf_sheet(records[i])
+                elements_us_iccd.append(logo)
+                elements_us_iccd.append(Spacer(4, 6))
+                elements_us_iccd.append(single_us_sheet.create_sheet_archeo3_usm_fields_2())
+                elements_us_iccd.append(PageBreak())
+            except TypeError:
+                QMessageBox.warnig(None, 'attenzione', f"Issue with record: {records[i]}")
+                break
             
             
             #terza versione scheda US SENZA CAMPI US formato Ministeriale ICCD
