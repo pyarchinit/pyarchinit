@@ -24,6 +24,19 @@ from graphviz import Digraph, Source
 from .pyarchinit_OS_utility import Pyarchinit_OS_Utility
 from ...tabs.pyarchinit_setting_matrix import *
 class HarrisMatrix:
+    """
+        This class is used to create a Harris Matrix, a tool used in archaeology to depict the temporal succession of archaeological contexts.
+
+        Attributes:
+        L (str): The user's locale.
+        HOME (str): The home directory for the PyArchInit application.
+        DB_MANAGER (str): The database manager for the application.
+        TABLE_NAME (str): The name of the table in the database.
+        MAPPER_TABLE_CLASS (str): The mapper table class for the application.
+        ID_TABLE (str): The ID of the table.
+        MATRIX (Setting_Matrix): The matrix settings for the application.
+        """
+
     L=QgsSettings().value("locale/userLocale")[0:2]
     HOME = os.environ['PYARCHINIT_HOME']
     DB_MANAGER = ""
@@ -32,6 +45,17 @@ class HarrisMatrix:
     ID_TABLE = "id_us"
     MATRIX = Setting_Matrix()
     def __init__(self, sequence,negative,conteporene,connection,connection_to,periodi):
+        """
+        The constructor for the HarrisMatrix class.
+
+        Parameters:
+        sequence (list): A list of sequences.
+        negative (list): A list of negative relationships.
+        conteporene (list): A list of contemporary relationships.
+        connection (list): A list of connections.
+        connection_to (list): A list of connections to other elements.
+        periodi (list): A list of periods.
+        """
         self.sequence = sequence
         self.negative = negative
         self.periodi=periodi
