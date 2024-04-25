@@ -922,7 +922,10 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.new_search_shortcut = QShortcut(QKeySequence('Ctrl+Shift+N'), self)
         self.new_search_shortcut.activated.connect(self.switch_search_mode)
 
-        self.view_all()
+        try:
+            self.view_all()
+        except:
+            return
 
 
 
