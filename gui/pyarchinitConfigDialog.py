@@ -4080,11 +4080,15 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                             data_list_toimp[sing_rec].the_geom,
                             data_list_toimp[sing_rec].unita_tipo_s)
                         self.DB_MANAGER_write.insert_data_session(data)
-                        value = (float(sing_rec)/float(len(data_list_toimp)))*100
-                        self.progress_bar.setValue(value)
+                        # Calculate the progress as a percentage
+                        value = (float(sing_rec) / float(len(data_list_toimp))) * 100
+                        # Convert the progress value to an integer
+                        int_value = int(value)
+                        # Update the progress bar with the integer value
+                        self.progress_bar.setValue(int_value)
                         QApplication.processEvents()
                     except Exception as e:
-                        QMessageBox.warning(self, "Errore", "Error ! \n"+ str(e),  QMessageBox.Ok)
+                        QMessageBox.warning(self, "Errore", "Error ! \n" + str(e), QMessageBox.Ok)
                         return 0
                 self.progress_bar.reset()
                 QMessageBox.information(self, "Message", "Data Loaded")
@@ -4108,11 +4112,15 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                             data_list_toimp[sing_rec].the_geom,
                             data_list_toimp[sing_rec].unita_tipo_s)
                         self.DB_MANAGER_write.insert_data_session(data)
-                        value = (float(sing_rec)/float(len(data_list_toimp)))*100
-                        self.progress_bar.setValue(value)
+                        # Calculate the progress as a percentage
+                        value = (float(sing_rec) / float(len(data_list_toimp))) * 100
+                        # Convert the progress value to an integer
+                        int_value = int(value)
+                        # Update the progress bar with the integer value
+                        self.progress_bar.setValue(int_value)
                         QApplication.processEvents()
-                    except Exception as e :
-                        QMessageBox.warning(self, "Errore", "Error ! \n"+ str(e),  QMessageBox.Ok)
+                    except Exception as e:
+                        QMessageBox.warning(self, "Errore", "Error ! \n" + str(e), QMessageBox.Ok)
                         return 0
                 self.progress_bar.reset()
                 QMessageBox.information(self, "Message", "Data Loaded")
@@ -4126,11 +4134,15 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                             data_list_toimp[sing_rec].sito_nome,
                             data_list_toimp[sing_rec].the_geom)
                         self.DB_MANAGER_write.insert_data_session(data)
-                        value = (float(sing_rec)/float(len(data_list_toimp)))*100
-                        self.progress_bar.setValue(value)
+                        # Calculate the progress as a percentage
+                        value = (float(sing_rec) / float(len(data_list_toimp))) * 100
+                        # Convert the progress value to an integer
+                        int_value = int(value)
+                        # Update the progress bar with the integer value
+                        self.progress_bar.setValue(int_value)
                         QApplication.processEvents()
-                    except AssertionError as e :
-                        QMessageBox.warning(self, "Errore", "Error ! \n"+ str(e),  QMessageBox.Ok)
+                    except Exception as e:
+                        QMessageBox.warning(self, "Errore", "Error ! \n" + str(e), QMessageBox.Ok)
                         return 0
                 self.progress_bar.reset()
                 QMessageBox.information(self, "Message", "Data Loaded")
@@ -4143,11 +4155,15 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                             data_list_toimp[sing_rec].sito_id,
                             data_list_toimp[sing_rec].the_geom)
                         self.DB_MANAGER_write.insert_data_session(data)
-                        value = (float(sing_rec)/float(len(data_list_toimp)))*100
-                        self.progress_bar.setValue(value)
+                        # Calculate the progress as a percentage
+                        value = (float(sing_rec) / float(len(data_list_toimp))) * 100
+                        # Convert the progress value to an integer
+                        int_value = int(value)
+                        # Update the progress bar with the integer value
+                        self.progress_bar.setValue(int_value)
                         QApplication.processEvents()
-                    except Exception as e :
-                        QMessageBox.warning(self, "Errore", "Error ! \n"+ str(e),  QMessageBox.Ok)
+                    except Exception as e:
+                        QMessageBox.warning(self, "Errore", "Error ! \n" + str(e), QMessageBox.Ok)
                         return 0
                 self.progress_bar.reset()
                 QMessageBox.information(self, "Message", "Data Loaded")
@@ -4168,11 +4184,15 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                             data_list_toimp[sing_rec].the_geom,
                             data_list_toimp[sing_rec].unita_tipo_q)
                         self.DB_MANAGER_write.insert_data_session(data)
-                        value = (float(sing_rec)/float(len(data_list_toimp)))*100
-                        self.progress_bar.setValue(value)
+                        # Calculate the progress as a percentage
+                        value = (float(sing_rec) / float(len(data_list_toimp))) * 100
+                        # Convert the progress value to an integer
+                        int_value = int(value)
+                        # Update the progress bar with the integer value
+                        self.progress_bar.setValue(int_value)
                         QApplication.processEvents()
-                    except Exception as e :
-                        QMessageBox.warning(self, "Errore", "Error ! \n"+ str(e),  QMessageBox.Ok)
+                    except Exception as e:
+                        QMessageBox.warning(self, "Errore", "Error ! \n" + str(e), QMessageBox.Ok)
                         return 0
                 self.progress_bar.reset()
                 QMessageBox.information(self, "Message", "Data Loaded")
@@ -4193,11 +4213,15 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                             data_list_toimp[sing_rec].the_geom,
                             data_list_toimp[sing_rec].unita_tipo_q)
                         self.DB_MANAGER_write.insert_data_session(data)
-                        value = (float(sing_rec)/float(len(data_list_toimp)))*100
-                        self.progress_bar.setValue(value)
+                        # Calculate the progress as a percentage
+                        value = (float(sing_rec) / float(len(data_list_toimp))) * 100
+                        # Convert the progress value to an integer
+                        int_value = int(value)
+                        # Update the progress bar with the integer value
+                        self.progress_bar.setValue(int_value)
                         QApplication.processEvents()
-                    except Exception as e :
-                        QMessageBox.warning(self, "Errore", "Error ! \n"+ str(e),  QMessageBox.Ok)
+                    except Exception as e:
+                        QMessageBox.warning(self, "Errore", "Error ! \n" + str(e), QMessageBox.Ok)
                         return 0
                 self.progress_bar.reset()
                 QMessageBox.information(self, "Message", "Data Loaded")
@@ -4215,11 +4239,15 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                             data_list_toimp[sing_rec].nome_doc_n,
                             data_list_toimp[sing_rec].the_geom)
                         self.DB_MANAGER_write.insert_data_session(data)
-                        value = (float(sing_rec)/float(len(data_list_toimp)))*100
-                        self.progress_bar.setValue(value)
+                        # Calculate the progress as a percentage
+                        value = (float(sing_rec) / float(len(data_list_toimp))) * 100
+                        # Convert the progress value to an integer
+                        int_value = int(value)
+                        # Update the progress bar with the integer value
+                        self.progress_bar.setValue(int_value)
                         QApplication.processEvents()
-                    except Exception as e :
-                        QMessageBox.warning(self, "Errore", "Error ! \n"+ str(e),  QMessageBox.Ok)
+                    except Exception as e:
+                        QMessageBox.warning(self, "Errore", "Error ! \n" + str(e), QMessageBox.Ok)
                         return 0
                 self.progress_bar.reset()
                 QMessageBox.information(self, "Message", "Data Loaded")
@@ -4241,11 +4269,15 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                             data_list_toimp[sing_rec].sigla_strut,
                             data_list_toimp[sing_rec].nr_strut)
                         self.DB_MANAGER_write.insert_data_session(data)
-                        value = (float(sing_rec)/float(len(data_list_toimp)))*100
-                        self.progress_bar.setValue(value)
+                        # Calculate the progress as a percentage
+                        value = (float(sing_rec) / float(len(data_list_toimp))) * 100
+                        # Convert the progress value to an integer
+                        int_value = int(value)
+                        # Update the progress bar with the integer value
+                        self.progress_bar.setValue(int_value)
                         QApplication.processEvents()
-                    except Exception as e :
-                        QMessageBox.warning(self, "Errore", "Error ! \n"+ str(e),  QMessageBox.Ok)
+                    except Exception as e:
+                        QMessageBox.warning(self, "Errore", "Error ! \n" + str(e), QMessageBox.Ok)
                         return 0
                 self.progress_bar.reset()
                 QMessageBox.information(self, "Message", "Data Loaded")
@@ -4260,11 +4292,15 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                             data_list_toimp[sing_rec].link ,
                             data_list_toimp[sing_rec].the_geom)
                         self.DB_MANAGER_write.insert_data_session(data)
-                        value = (float(sing_rec)/float(len(data_list_toimp)))*100
-                        self.progress_bar.setValue(value)
+                        # Calculate the progress as a percentage
+                        value = (float(sing_rec) / float(len(data_list_toimp))) * 100
+                        # Convert the progress value to an integer
+                        int_value = int(value)
+                        # Update the progress bar with the integer value
+                        self.progress_bar.setValue(int_value)
                         QApplication.processEvents()
-                    except Exception as e :
-                        QMessageBox.warning(self, "Errore", "Error ! \n"+ str(e),  QMessageBox.Ok)
+                    except Exception as e:
+                        QMessageBox.warning(self, "Errore", "Error ! \n" + str(e), QMessageBox.Ok)
                         return 0
                 self.progress_bar.reset()
                 QMessageBox.information(self, "Message", "Data Loaded")
@@ -4280,11 +4316,15 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                             data_list_toimp[sing_rec].id_individuo,
                             data_list_toimp[sing_rec].the_geom)
                         self.DB_MANAGER_write.insert_data_session(data)
-                        value = (float(sing_rec)/float(len(data_list_toimp)))*100
-                        self.progress_bar.setValue(value)
+                        # Calculate the progress as a percentage
+                        value = (float(sing_rec) / float(len(data_list_toimp))) * 100
+                        # Convert the progress value to an integer
+                        int_value = int(value)
+                        # Update the progress bar with the integer value
+                        self.progress_bar.setValue(int_value)
                         QApplication.processEvents()
-                    except Exception as e :
-                        QMessageBox.warning(self, "Errore", "Error ! \n"+ str(e),  QMessageBox.Ok)
+                    except Exception as e:
+                        QMessageBox.warning(self, "Errore", "Error ! \n" + str(e), QMessageBox.Ok)
                         return 0
                 self.progress_bar.reset()
                 QMessageBox.information(self, "Message", "Data Loaded")
@@ -4321,11 +4361,15 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                             data_list_toimp[sing_rec].nr_scheda,
                             data_list_toimp[sing_rec].the_geom)
                         self.DB_MANAGER_write.insert_data_session(data)
-                        value = (float(sing_rec)/float(len(data_list_toimp)))*100
-                        self.progress_bar.setValue(value)
+                        # Calculate the progress as a percentage
+                        value = (float(sing_rec) / float(len(data_list_toimp))) * 100
+                        # Convert the progress value to an integer
+                        int_value = int(value)
+                        # Update the progress bar with the integer value
+                        self.progress_bar.setValue(int_value)
                         QApplication.processEvents()
-                    except Exception as e :
-                        QMessageBox.warning(self, "Errore", "Error ! \n"+ str(e),  QMessageBox.Ok)
+                    except Exception as e:
+                        QMessageBox.warning(self, "Errore", "Error ! \n" + str(e), QMessageBox.Ok)
                         return 0
                 self.progress_bar.reset()
                 QMessageBox.information(self, "Message", "Data Loaded")
@@ -4342,11 +4386,15 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                             data_list_toimp[sing_rec].geom,
                             data_list_toimp[sing_rec].the_geom)
                         self.DB_MANAGER_write.insert_data_session(data)
-                        value = (float(sing_rec)/float(len(data_list_toimp)))*100
-                        self.progress_bar.setValue(value)
+                        # Calculate the progress as a percentage
+                        value = (float(sing_rec) / float(len(data_list_toimp))) * 100
+                        # Convert the progress value to an integer
+                        int_value = int(value)
+                        # Update the progress bar with the integer value
+                        self.progress_bar.setValue(int_value)
                         QApplication.processEvents()
-                    except Exception as e :
-                        QMessageBox.warning(self, "Errore", "Error ! \n"+ str(e),  QMessageBox.Ok)
+                    except Exception as e:
+                        QMessageBox.warning(self, "Errore", "Error ! \n" + str(e), QMessageBox.Ok)
                         return 0
                 self.progress_bar.reset()
                 QMessageBox.information(self, "Message", "Data Loaded")
@@ -4361,11 +4409,15 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                             data_list_toimp[sing_rec].descrizion,
                             data_list_toimp[sing_rec].the_geom)
                         self.DB_MANAGER_write.insert_data_session(data)
-                        value = (float(sing_rec)/float(len(data_list_toimp)))*100
-                        self.progress_bar.setValue(value)
+                        # Calculate the progress as a percentage
+                        value = (float(sing_rec) / float(len(data_list_toimp))) * 100
+                        # Convert the progress value to an integer
+                        int_value = int(value)
+                        # Update the progress bar with the integer value
+                        self.progress_bar.setValue(int_value)
                         QApplication.processEvents()
-                    except Exception as e :
-                        QMessageBox.warning(self, "Errore", "Error ! \n"+ str(e),  QMessageBox.Ok)
+                    except Exception as e:
+                        QMessageBox.warning(self, "Errore", "Error ! \n" + str(e), QMessageBox.Ok)
                         return 0
                 self.progress_bar.reset()
                 QMessageBox.information(self, "Message", "Data Loaded")
@@ -4381,11 +4433,15 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                             data_list_toimp[sing_rec].descr_rs,
                             data_list_toimp[sing_rec].the_geom)
                         self.DB_MANAGER_write.insert_data_session(data)
-                        value = (float(sing_rec)/float(len(data_list_toimp)))*100
-                        self.progress_bar.setValue(value)
+                        # Calculate the progress as a percentage
+                        value = (float(sing_rec) / float(len(data_list_toimp))) * 100
+                        # Convert the progress value to an integer
+                        int_value = int(value)
+                        # Update the progress bar with the integer value
+                        self.progress_bar.setValue(int_value)
                         QApplication.processEvents()
-                    except Exception as e :
-                        QMessageBox.warning(self, "Errore", "Error ! \n"+ str(e),  QMessageBox.Ok)
+                    except Exception as e:
+                        QMessageBox.warning(self, "Errore", "Error ! \n" + str(e), QMessageBox.Ok)
                         return 0
                 self.progress_bar.reset()
                 QMessageBox.information(self, "Message", "Data Loaded")
@@ -4403,11 +4459,15 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                             data_list_toimp[sing_rec].tipo_doc,
                             data_list_toimp[sing_rec].nome_doc)
                         self.DB_MANAGER_write.insert_data_session(data)
-                        value = (float(sing_rec)/float(len(data_list_toimp)))*100
-                        self.progress_bar.setValue(value)
+                        # Calculate the progress as a percentage
+                        value = (float(sing_rec) / float(len(data_list_toimp))) * 100
+                        # Convert the progress value to an integer
+                        int_value = int(value)
+                        # Update the progress bar with the integer value
+                        self.progress_bar.setValue(int_value)
                         QApplication.processEvents()
-                    except AssertionError as e :
-                        QMessageBox.warning(self, "Errore", "Error ! \n"+ str(e),  QMessageBox.Ok)
+                    except Exception as e:
+                        QMessageBox.warning(self, "Errore", "Error ! \n" + str(e), QMessageBox.Ok)
                         return 0
                 self.progress_bar.reset()
                 QMessageBox.information(self, "Message", "Data Loaded")
@@ -4627,14 +4687,15 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
 
                         self.DB_MANAGER_write.insert_data_session(data)
 
-                        value = (float(sing_rec)/float(len(data_list_toimp)))*100
-                        self.progress_bar.setValue(value)
-
+                        # Calculate the progress as a percentage
+                        value = (float(sing_rec) / float(len(data_list_toimp))) * 100
+                        # Convert the progress value to an integer
+                        int_value = int(value)
+                        # Update the progress bar with the integer value
+                        self.progress_bar.setValue(int_value)
                         QApplication.processEvents()
-
-                    except Exception as e :
-
-                        QMessageBox.warning(self, "Errore", "Error ! \n"+ str(e),  QMessageBox.Ok)
+                    except Exception as e:
+                        QMessageBox.warning(self, "Errore", "Error ! \n" + str(e), QMessageBox.Ok)
                         return 0
                 self.progress_bar.reset()
                 QMessageBox.information(self, "Message", "Data Loaded")
@@ -4686,13 +4747,14 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
 
                         self.DB_MANAGER_write.insert_data_session(data)
 
+                        # Calculate the progress as a percentage
                         value = (float(sing_rec) / float(len(data_list_toimp))) * 100
-                        self.progress_bar.setValue(value)
-
+                        # Convert the progress value to an integer
+                        int_value = int(value)
+                        # Update the progress bar with the integer value
+                        self.progress_bar.setValue(int_value)
                         QApplication.processEvents()
-
                     except Exception as e:
-
                         QMessageBox.warning(self, "Errore", "Error ! \n" + str(e), QMessageBox.Ok)
                         return 0
                 self.progress_bar.reset()
@@ -4833,17 +4895,15 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
 
                         self.DB_MANAGER_write.insert_data_session(data)
 
-                        value = (float(sing_rec)/float(len(data_list_toimp)))*100
-                        self.progress_bar.setValue(value)
-
+                        # Calculate the progress as a percentage
+                        value = (float(sing_rec) / float(len(data_list_toimp))) * 100
+                        # Convert the progress value to an integer
+                        int_value = int(value)
+                        # Update the progress bar with the integer value
+                        self.progress_bar.setValue(int_value)
                         QApplication.processEvents()
-
-
-
-
-                    except Exception as e :
-                        e_error= str(e)
-                        QMessageBox.warning(self, "Errore", "Error ! \n"+ str(e),  QMessageBox.Ok)
+                    except Exception as e:
+                        QMessageBox.warning(self, "Errore", "Error ! \n" + str(e), QMessageBox.Ok)
                         return 0
                 self.progress_bar.reset()
                 QMessageBox.information(self, "Message", "Data Loaded")
@@ -4865,14 +4925,15 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
 
                         self.DB_MANAGER_write.insert_data_session(data)
 
-                        value = (float(sing_rec)/float(len(data_list_toimp)))*100
-                        self.progress_bar.setValue(value)
-
+                        # Calculate the progress as a percentage
+                        value = (float(sing_rec) / float(len(data_list_toimp))) * 100
+                        # Convert the progress value to an integer
+                        int_value = int(value)
+                        # Update the progress bar with the integer value
+                        self.progress_bar.setValue(int_value)
                         QApplication.processEvents()
-
-                    except :
-
-                        QMessageBox.warning(self, "Errore", "Error ! \n"+ "duplicate key",  QMessageBox.Ok)
+                    except Exception as e:
+                        QMessageBox.warning(self, "Errore", "Error ! \n" + str(e), QMessageBox.Ok)
                         return 0
                 self.progress_bar.reset()
                 QMessageBox.information(self, "Message", "Data Loaded")
@@ -4922,14 +4983,15 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
 
                         self.DB_MANAGER_write.insert_data_session(data)
 
-                        value = (float(sing_rec)/float(len(data_list_toimp)))*100
-                        self.progress_bar.setValue(value)
-
+                        # Calculate the progress as a percentage
+                        value = (float(sing_rec) / float(len(data_list_toimp))) * 100
+                        # Convert the progress value to an integer
+                        int_value = int(value)
+                        # Update the progress bar with the integer value
+                        self.progress_bar.setValue(int_value)
                         QApplication.processEvents()
-
-                    except Exception as e :
-
-                        QMessageBox.warning(self, "Errore", str(e),  QMessageBox.Ok)
+                    except Exception as e:
+                        QMessageBox.warning(self, "Errore", "Error ! \n" + str(e), QMessageBox.Ok)
                         return 0
                 self.progress_bar.reset()
                 QMessageBox.information(self, "Message", "Data Loaded")
@@ -4963,13 +5025,15 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
 
                         self.DB_MANAGER_write.insert_data_session(data)
 
-                        value = (float(sing_rec)/float(len(data_list_toimp)))*100
-                        self.progress_bar.setValue(value)
-
+                        # Calculate the progress as a percentage
+                        value = (float(sing_rec) / float(len(data_list_toimp))) * 100
+                        # Convert the progress value to an integer
+                        int_value = int(value)
+                        # Update the progress bar with the integer value
+                        self.progress_bar.setValue(int_value)
                         QApplication.processEvents()
-                    except :
-
-                        QMessageBox.warning(self, "Errore", "Error ! \n"+ "duplicate key",  QMessageBox.Ok)
+                    except Exception as e:
+                        QMessageBox.warning(self, "Errore", "Error ! \n" + str(e), QMessageBox.Ok)
                         return 0
                 self.progress_bar.reset()
                 QMessageBox.information(self, "Message", "Data Loaded")
@@ -5046,14 +5110,15 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
 
                         self.DB_MANAGER_write.insert_data_session(data)
 
-                        value = (float(sing_rec)/float(len(data_list_toimp)))*100
-                        self.progress_bar.setValue(value)
-
+                        # Calculate the progress as a percentage
+                        value = (float(sing_rec) / float(len(data_list_toimp))) * 100
+                        # Convert the progress value to an integer
+                        int_value = int(value)
+                        # Update the progress bar with the integer value
+                        self.progress_bar.setValue(int_value)
                         QApplication.processEvents()
-
-                    except Exception as e :
-
-                        QMessageBox.warning(self, "Errore", str(e),  QMessageBox.Ok)
+                    except Exception as e:
+                        QMessageBox.warning(self, "Errore", "Error ! \n" + str(e), QMessageBox.Ok)
                         return 0
                 self.progress_bar.reset()
                 QMessageBox.information(self, "Message", "Data Loaded")
@@ -5112,14 +5177,15 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
 
                         self.DB_MANAGER_write.insert_data_session(data)
 
-                        value = (float(sing_rec)/float(len(data_list_toimp)))*100
-                        self.progress_bar.setValue(value)
-
+                        # Calculate the progress as a percentage
+                        value = (float(sing_rec) / float(len(data_list_toimp))) * 100
+                        # Convert the progress value to an integer
+                        int_value = int(value)
+                        # Update the progress bar with the integer value
+                        self.progress_bar.setValue(int_value)
                         QApplication.processEvents()
-
-                    except :
-
-                        QMessageBox.warning(self, "Errore", "Error ! \n"+ "duplicate key",  QMessageBox.Ok)
+                    except Exception as e:
+                        QMessageBox.warning(self, "Errore", "Error ! \n" + str(e), QMessageBox.Ok)
                         return 0
                 self.progress_bar.reset()
                 QMessageBox.information(self, "Message", "Data Loaded")
@@ -5172,15 +5238,15 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
 
                         self.DB_MANAGER_write.insert_data_session(data)
 
-                        value = (float(sing_rec)/float(len(data_list_toimp)))*100
-                        self.progress_bar.setValue(value)
-
+                        # Calculate the progress as a percentage
+                        value = (float(sing_rec) / float(len(data_list_toimp))) * 100
+                        # Convert the progress value to an integer
+                        int_value = int(value)
+                        # Update the progress bar with the integer value
+                        self.progress_bar.setValue(int_value)
                         QApplication.processEvents()
-
-                    except Exception as  e:
-                        e_str = str(e)
-                        QMessageBox.warning(self, "Errore", "Error ! \n"+ "duplicate key",  QMessageBox.Ok)
-
+                    except Exception as e:
+                        QMessageBox.warning(self, "Errore", "Error ! \n" + str(e), QMessageBox.Ok)
                         return 0
 
                 self.progress_bar.reset()
@@ -5239,15 +5305,15 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
 
                         self.DB_MANAGER_write.insert_data_session(data)
 
-                        value = (float(sing_rec)/float(len(data_list_toimp)))*100
-                        self.progress_bar.setValue(value)
-
+                        # Calculate the progress as a percentage
+                        value = (float(sing_rec) / float(len(data_list_toimp))) * 100
+                        # Convert the progress value to an integer
+                        int_value = int(value)
+                        # Update the progress bar with the integer value
+                        self.progress_bar.setValue(int_value)
                         QApplication.processEvents()
-
-
-                    except :
-
-                        QMessageBox.warning(self, "Errore", "Error ! \n"+ "duplicate key",  QMessageBox.Ok)
+                    except Exception as e:
+                        QMessageBox.warning(self, "Errore", "Error ! \n" + str(e), QMessageBox.Ok)
                         return 0
                 self.progress_bar.reset()
                 QMessageBox.information(self, "Message", "Data Loaded")
@@ -5274,14 +5340,15 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
 
                         self.DB_MANAGER_write.insert_data_session(data)
 
-                        value = (float(sing_rec)/float(len(data_list_toimp)))*100
-                        self.progress_bar.setValue(value)
-
+                        # Calculate the progress as a percentage
+                        value = (float(sing_rec) / float(len(data_list_toimp))) * 100
+                        # Convert the progress value to an integer
+                        int_value = int(value)
+                        # Update the progress bar with the integer value
+                        self.progress_bar.setValue(int_value)
                         QApplication.processEvents()
-
-                    except Exception as e :
-
-                        QMessageBox.warning(self, "Errore", "Error ! \n"+ str(e),  QMessageBox.Ok)
+                    except Exception as e:
+                        QMessageBox.warning(self, "Errore", "Error ! \n" + str(e), QMessageBox.Ok)
                         return 0
                 self.progress_bar.reset()
                 QMessageBox.information(self, "Message", "Data Loaded")
@@ -5303,14 +5370,15 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
 
                         self.DB_MANAGER_write.insert_data_session(data)
 
-                        value = (float(sing_rec)/float(len(data_list_toimp)))*100
-                        self.progress_bar.setValue(value)
-
+                        # Calculate the progress as a percentage
+                        value = (float(sing_rec) / float(len(data_list_toimp))) * 100
+                        # Convert the progress value to an integer
+                        int_value = int(value)
+                        # Update the progress bar with the integer value
+                        self.progress_bar.setValue(int_value)
                         QApplication.processEvents()
-                    except Exception as  e:
-                        e_str = str(e)
-                        QMessageBox.warning(self, "Errore", "Error ! \n"+ str(e),  QMessageBox.Ok)
-
+                    except Exception as e:
+                        QMessageBox.warning(self, "Errore", "Error ! \n" + str(e), QMessageBox.Ok)
                         return 0
                 self.progress_bar.reset()
                 QMessageBox.information(self, "Message", "Data Loaded")
@@ -5333,15 +5401,15 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
 
                         self.DB_MANAGER_write.insert_data_session(data)
 
-                        value = (float(sing_rec)/float(len(data_list_toimp)))*100
-                        self.progress_bar.setValue(value)
-
+                        # Calculate the progress as a percentage
+                        value = (float(sing_rec) / float(len(data_list_toimp))) * 100
+                        # Convert the progress value to an integer
+                        int_value = int(value)
+                        # Update the progress bar with the integer value
+                        self.progress_bar.setValue(int_value)
                         QApplication.processEvents()
-
-                    except Exception as  e:
-                        e_str = str(e)
-                        QMessageBox.warning(self, "Errore", "Error ! \n"+ "duplicate key",  QMessageBox.Ok)
-
+                    except Exception as e:
+                        QMessageBox.warning(self, "Errore", "Error ! \n" + str(e), QMessageBox.Ok)
                         return 0
                 self.progress_bar.reset()
                 QMessageBox.information(self, "Message", "Data Loaded")
@@ -5364,14 +5432,15 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
 
                         self.DB_MANAGER_write.insert_data_session(data)
 
-                        value = (float(sing_rec)/float(len(data_list_toimp)))*100
-                        self.progress_bar.setValue(value)
-
+                        # Calculate the progress as a percentage
+                        value = (float(sing_rec) / float(len(data_list_toimp))) * 100
+                        # Convert the progress value to an integer
+                        int_value = int(value)
+                        # Update the progress bar with the integer value
+                        self.progress_bar.setValue(int_value)
                         QApplication.processEvents()
-                    except Exception as  e:
-                        e_str = str(e)
-                        QMessageBox.warning(self, "Errore", "Error ! \n"+ str(e),  QMessageBox.Ok)
-
+                    except Exception as e:
+                        QMessageBox.warning(self, "Errore", "Error ! \n" + str(e), QMessageBox.Ok)
                         return 0
                 self.progress_bar.reset()
                 QMessageBox.information(self, "Message", "Data Loaded")
