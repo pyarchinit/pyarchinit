@@ -2129,7 +2129,6 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                     self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), len(self.DATA_LIST) - 1
                     self.set_rec_counter(self.REC_TOT, self.REC_CORR + 1)
 
-                    self.set_rec_counter(self.REC_TOT, self.REC_CORR + 1)
                     self.setComboBoxEditable(["self.comboBox_sito"], 1)
 
                     self.fill_fields(self.REC_CORR)
