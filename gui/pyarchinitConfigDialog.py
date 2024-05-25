@@ -4036,7 +4036,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             if conn_str_dict_write["server"] == 'postgres':
                 try:
                     conn_str_write = "%s://%s:%s@%s:%s/%s%s?charset=utf8" % (
-                        "postgresql", conn_str_dict_writed["user"], conn_str_dict_write["password"],
+                        "postgresql", conn_str_dict_write["user"], conn_str_dict_write["password"],
                         conn_str_dict_write["host"], conn_str_dict_write["port"], conn_str_dict_write["db_name"],
                         "?sslmode=allow")
                 except:
