@@ -28,11 +28,13 @@ import sys
 from builtins import range
 from builtins import str
 
-import openai
+
+from openai import OpenAI
 import requests
 from qgis.PyQt.QtCore import QUrl
-from qgis.PyQt.QtWidgets import QFileDialog,QDialog, QMessageBox,QCompleter,QComboBox,QInputDialog
+from qgis.PyQt.QtWidgets import QApplication, QFileDialog,QDialog, QMessageBox,QCompleter,QComboBox,QInputDialog
 from qgis.PyQt.uic import loadUiType
+from qgis.core import Qgis
 from qgis.core import QgsSettings
 import csv, sqlite3
 from ..modules.db.pyarchinit_conn_strings import Connection
@@ -185,48 +187,53 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
         with open(path, 'w') as f:
             f.write(api_key)
 
-    def is_valid_api_key(self,api_key):
-        openai.api_key = api_key
 
-        try:
-            # Testa la chiave API effettuando una richiesta di completamento
-            response = openai.Completion.create(
-                engine="text-davinci-002",  # Sostituisci con il motore che intendi utilizzare
-                prompt="Translate the following English text to French: '{}'",
-                max_tokens=5
-            )
-            if response:
-                return True
-        except openai.Error as e:
-            print(f"Received an error: {e}")
-            return False
 
     def apikey_gpt(self):
-        BIN = os.path.join(self.HOME, "bin")
+        # HOME = os.environ['PYARCHINIT_HOME']
+        BIN = '{}{}{}'.format(self.HOME, os.sep, "bin")
+        api_key = ""
+        # Verifica se il file gpt_api_key.txt esiste
         path_key = os.path.join(BIN, 'gpt_api_key.txt')
-
         if os.path.exists(path_key):
-            api_key = self.read_api_key(path_key)
 
-            if self.is_valid_api_key(api_key):
-                return api_key
-            else:
-                reply = QMessageBox.question(None, 'Warning', 'Apikey non valida' + '\n'
-                                             + 'Clicca ok per inserire la chiave',
-                                             QMessageBox.Ok | QMessageBox.Cancel)
-                if reply == QMessageBox.Ok:
-                    api_key, ok = QInputDialog.getText(None, 'Apikey gpt', 'Inserisci apikey valida:')
-                    if ok:
-                        self.write_api_key(path_key, api_key)
-                        return self.read_api_key(path_key)
-                else:
+            # Leggi l'API Key dal file
+            with open(path_key, 'r') as f:
+                api_key = f.read().strip()
+                try:
+
                     return api_key
 
+                except:
+                    reply = QMessageBox.question(None, 'Warning', 'Apikey non valida' + '\n'
+                                                 + 'Clicca ok per inserire la chiave',
+                                                 QMessageBox.Ok | QMessageBox.Cancel)
+                    if reply == QMessageBox.Ok:
+
+                        api_key, ok = QInputDialog.getText(None, 'Apikey gpt', 'Inserisci apikey valida:')
+                        if ok:
+                            # Salva la nuova API Key nel file
+                            with open(path_key, 'w') as f:
+                                f.write(api_key)
+                                f.close()
+                            with open(path_key, 'r') as f:
+                                api_key = f.read().strip()
+                    else:
+                        return api_key
+
+
         else:
+            # Chiedi all'utente di inserire una nuova API Key
             api_key, ok = QInputDialog.getText(None, 'Apikey gpt', 'Inserisci apikey:')
             if ok:
-                self.write_api_key(path_key, api_key)
-                return self.read_api_key(path_key)
+                # Salva la nuova API Key nel file
+                with open(path_key, 'w') as f:
+                    f.write(api_key)
+                    f.close()
+                with open(path_key, 'r') as f:
+                    api_key = f.read().strip()
+
+        return api_key
     def check_db(self):
         conn = Connection()
         conn_str = conn.conn_str()
@@ -238,20 +245,47 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
             self.pushButton_import_csvthesaurus.setHidden(True)
 
     def contenuto(self, b):
-        models = ["gpt-3.5-turbo-16k", "gpt-4"]  # Replace with actual model names
+        models = ["gpt-4o", "gpt-4-turbo"]  # Replace with actual model names
+        os.environ["OPENAI_API_KEY"] = self.apikey_gpt()
         combo = QComboBox()
         combo.addItems(models)
         selected_model, ok = QInputDialog.getItem(self, "Select Model", "Choose a model for GPT:", models, 0,
                                                   False)
 
         if ok and selected_model:
+            client = OpenAI()
 
-            text = MyApp.ask_gpt(self,
-                                 f'forniscimi una descrizione e 3 link wikipidia riguardo a questo contenuto {b}, tenendo presente che il contesto è archeologico',
-                                 self.apikey_gpt(),selected_model)
-            #url_pattern = r"(https?:\/\/\S+)"
-            #urls = re.findall(url_pattern, text)
-            return text#, urls
+            response = client.chat.completions.create(
+                model=selected_model,
+                messages=[
+                    {"role": "user", "content": f"forniscimi una descrizione e 3 link wikipidia riguardo a questo "
+                                                f"contenuto {b}, tenendo presente che il contesto è archeologico"}
+                ],
+                stream=True
+            )
+
+            combined_message = "GPT Response:\n "
+            self.textEdit_descrizione_sigla.setPlainText(combined_message)
+
+            try:
+                end = ''
+
+                for chunk in response:
+                    if chunk.choices[0].delta.content is not None:
+                        # print(chunk.choices[0].delta.content, end="")
+                        combined_message += chunk.choices[0].delta.content
+                        combined_message += end
+                        # Rendi i link cliccabili
+                        self.textEdit_descrizione_sigla.setPlainText(combined_message)
+                        QApplication.processEvents()
+                return combined_message
+            except requests.exceptions.JSONDecodeError as e:
+                print("Error decoding JSON response:", e)
+
+                return str(e)
+
+        elif not ok:
+            return "Model selection was canceled."
     def webview(self):
         description=str(self.textEdit_descrizione_sigla.toPlainText())
 
@@ -284,7 +318,7 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
     def on_suggerimenti_pressed(self):
         s = self.contenuto(self.comboBox_sigla_estesa.currentText())
         generate_text = s
-        QMessageBox.information(self, 'info', str(generate_text), QMessageBox.Ok | QMessageBox.Cancel)
+        #QMessageBox.information(self, 'info', str(generate_text), QMessageBox.Ok | QMessageBox.Cancel)
 
         if QMessageBox.Ok:
             self.textEdit_descrizione_sigla.setText(str(generate_text))
@@ -1350,10 +1384,10 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
         f.close()
 
 
-## Class end
-
-if __name__ == "__main__":
-    app = QApplication(sys.argv)
-    ui = pyarchinit_US()
-    ui.show()
-    sys.exit(app.exec_())
+# ## Class end
+#
+# if __name__ == "__main__":
+#     app = QApplication(sys.argv)
+#     ui = pyarchinit_US()
+#     ui.show()
+#     sys.exit(app.exec_())

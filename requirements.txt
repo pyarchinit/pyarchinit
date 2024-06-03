@@ -9,8 +9,12 @@
  opencv-python==4.9.0.80
  pytesseract==0.3.10
  psutil==5.9.8
- openai==0.27.8
+ openai==1.30.3
  openpyxl==3.1.2
  PypeR==1.1.2
  matplotlib==3.8.4
  pandas==2.2.2
+ requests==2.32.2
+ PyMuPDF==1.24.4
+ nltk==3.6.6
+ python-docx==1.1.2

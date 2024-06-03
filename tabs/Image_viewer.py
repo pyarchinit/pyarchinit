@@ -53,6 +53,7 @@ from ..modules.db.pyarchinit_conn_strings import *
 from ..modules.db.pyarchinit_db_manager import *
 from ..modules.db.pyarchinit_utility import *
 from ..modules.utility.pyarchinit_media_utility import *
+from ..modules.utility.skatch_gpt import GPTWindow
 MAIN_DIALOG_CLASS, _ = loadUiType(
     os.path.join(os.path.dirname(__file__), os.pardir, 'gui', 'ui', 'pyarchinit_image_viewer_dialog.ui'))
 conn = Connection()
@@ -159,6 +160,10 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
         self.tableWidgetTags_tomba.setRowCount(1)
         self.tableWidgetTags_tomba_2.setRowCount(1)
     
+    def on_pushButton_gptsketch_pressed(self):
+        self.gpt_window = GPTWindow()
+        self.gpt_window.show()
+
     def split_2(self):
         items_selected = self.iconListWidget.selectedItems()#seleziono le icone
         res=[]

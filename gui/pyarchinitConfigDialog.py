@@ -3921,15 +3921,19 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             else:
                 self.comboBox_sito.clear()
                 QMessageBox.information(self, "Pyarchinit", "Query system deactivated", QMessageBox.Ok)
+
     def charge_list(self):
-
-        #self.try_connection()
-        sito_vl = self.UTILITY.tup_2_list_III(self.DB_MANAGER.group_by('site_table', 'sito', 'SITE'))
-
         try:
-            sito_vl.remove('')
-        except:
-            pass
+            # Ensure DB_MANAGER is correctly instantiated and has the group_by method
+            if hasattr(self.DB_MANAGER, 'group_by'):
+                sito_vl = self.UTILITY.tup_2_list_III(self.DB_MANAGER.group_by('site_table', 'sito', 'SITE'))
+                sito_vl.remove('')
+            else:
+                raise AttributeError("DB_MANAGER does not have the method 'group_by'")
+        except Exception as e:
+            print(f"Error in charge_list: {e}")
+            sito_vl = []
+
         self.comboBox_sito.clear()
         sito_vl.sort()
         self.comboBox_sito.addItems(sito_vl)

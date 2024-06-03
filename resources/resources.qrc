@@ -89,5 +89,6 @@
     <file>icons/basemap.png</file>
 	<file>icons/tops.png</file>
 	<file>icons/H_check.png</file>
+    <file>icons/gpt.png</file>
   </qresource>
 </RCC>
