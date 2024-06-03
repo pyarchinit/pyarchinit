@@ -20,30 +20,27 @@
 from __future__ import absolute_import
 
 import ast
-import json
-import logging
+import csv
+import functools
+import math
+import platform
 import sqlite3 as sq
+import sys
+import time
+from collections import OrderedDict, Counter
 from datetime import date
 from xml.etree.ElementTree import ElementTree as ET
-import csv
-import sys
-import functools
-import platform
-import time
-import pandas as pd
-import cv2
-import math
-from collections import OrderedDict, Counter
 
+import cv2
 import matplotlib
+import pandas as pd
+import requests
+from openai import OpenAI
 
 matplotlib.use('QT5Agg')  # Assicurati di chiamare use() prima di importare FigureCanvas
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from qgis.PyQt import QtCore, QtGui, QtWidgets
-from qgis.PyQt.QtCore import *
-from qgis.PyQt.QtGui import QColor, QIcon,QKeySequence
-from qgis.PyQt.QtWidgets import *
-from qgis.PyQt.uic import loadUiType
+from qgis.PyQt.QtGui import QKeySequence
 from qgis.core import *
 from qgis.gui import QgsMapCanvas, QgsMapToolPan
 from qgis.PyQt.QtSql import QSqlDatabase, QSqlTableModel
@@ -62,12 +59,11 @@ from ..modules.utility.pyarchinit_error_check import Error_check
 from ..modules.utility.pyarchinit_exp_USsheet_pdf import generate_US_pdf
 from ..modules.utility.pyarchinit_print_utility import Print_utility
 from ..modules.utility.settings import Settings
-from ..modules.utility.askgpt import MyApp
+from ..modules.utility.skatch_gpt import GPTWindow
 from ..searchLayers import SearchLayers
 from ..gui.imageViewer import ImageViewer
 from ..gui.pyarchinitConfigDialog import pyArchInitDialog_Config
 from ..gui.sortpanelmain import SortPanelMain
-from ..resources.resources_rc import *
 from sqlalchemy import create_engine, MetaData, Table, select, update, and_
 
 MAIN_DIALOG_CLASS, _ = loadUiType(
@@ -822,11 +818,13 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
     def __init__(self, iface):
         super().__init__()
+
         self.iface = iface
         self.pyQGIS = Pyarchinit_pyqgis(iface)
 
         self.setupUi(self)
         self.setAcceptDrops(True)
+        self.report_rapporti2 = None
         self.fig = None
         self.canvas = None
         self.iconListWidget.setDragDropMode(QAbstractItemView.DragDrop)
@@ -921,7 +919,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.use_like_query = False
         self.new_search_shortcut = QShortcut(QKeySequence('Ctrl+Shift+N'), self)
         self.new_search_shortcut.activated.connect(self.switch_search_mode)
-
+        self.pushButton_sketchgpt.clicked.connect(self.sketchgpt)
         try:
             self.view_all()
         except:
@@ -930,7 +928,9 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
 
 
-
+    def sketchgpt(self):
+        self.gpt_window = GPTWindow()
+        self.gpt_window.show()
 
     def on_pushButton_trick_pressed(self):
         # Crea un oggetto QDialog
@@ -2161,9 +2161,14 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             self.us_t()
 
             self.save_rapp()
-            value = (float(rec)/float(len(records)))*100
-            self.progressBar_2.setValue(value)
+            # Calculate the progress as a percentage
+            value = (float(rec) / float(len(records))) * 100
+            # Convert the progress value to an integer
+            int_value = int(value)
+            # Update the progress bar with the integer value
+            self.progressBar_2.setValue(int_value)
             QApplication.processEvents()
+
         self.progressBar_2.reset()
     def us_t(self):
         if self.checkBox_validate.isChecked():
@@ -4423,42 +4428,48 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 dlg = pyArchInitDialog_Config(self)
                 dlg.charge_list()
                 dlg.exec_()
+
     def set_sito(self):
-        #self.model_a.database().close()
+
         conn = Connection()
-        sito_set= conn.sito_set()
+        sito_set = conn.sito_set()
         sito_set_str = sito_set['sito_set']
         try:
-            if bool (sito_set_str):
-                search_dict = {
-                    'sito': "'" + str(sito_set_str) + "'"}  # 1 - Sito
+            if sito_set_str:
+                search_dict = {'sito': "'" + str(sito_set_str) + "'"}  # 1 - Sito
                 u = Utility()
                 search_dict = u.remove_empty_items_fr_dict(search_dict)
                 res = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
-                self.DATA_LIST = []
-                for i in res:
-                    self.DATA_LIST.append(i)
-                self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
-                self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]  ####darivedere
-                self.fill_fields()
-                self.BROWSE_STATUS = "b"
-                self.SORT_STATUS = "n"
-                self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
-                self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR + 1)
-                self.setComboBoxEnable(["self.comboBox_sito"], "False")
+                self.DATA_LIST = list(res)  # Convert the result to a list directly
+                if self.DATA_LIST:  # Check if DATA_LIST is not empty
+                    self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
+                    self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
+                    self.fill_fields()
+                    self.BROWSE_STATUS = "b"
+                    self.SORT_STATUS = "n"
+                    self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
+                    self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR + 1)
+                    self.setComboBoxEnable(["self.comboBox_sito"], "False")
+                else:
+                    raise ValueError("No records found for the specified site.")
             else:
-                pass#
+                pass
         except Exception as e:
-            if self.L=='it':
-
-                QMessageBox.information(self, "Attenzione" ,"Non esiste questo sito: "'"'+str(sito_set_str) +'"'" in questa scheda, Per favore distattiva la 'scelta sito' dalla scheda di configurazione plugin per vedere tutti i record oppure crea la scheda",QMessageBox.Ok)
-            elif self.L=='de':
-
-                QMessageBox.information(self, "Warnung" , "Es gibt keine solche archäologische Stätte: "'""'+ str(sito_set_str) +'"'" in dieser Registerkarte, Bitte deaktivieren Sie die 'Site-Wahl' in der Plugin-Konfigurationsregisterkarte, um alle Datensätze zu sehen oder die Registerkarte zu erstellen",QMessageBox.Ok)
+            if self.L == 'it':
+                QMessageBox.information(self, "Attenzione",
+                                        f"Non esiste questo sito: '{sito_set_str}' in questa scheda. "
+                                        "Per favore disattiva la 'scelta sito' dalla scheda di configurazione plugin per vedere tutti i record oppure crea la scheda.",
+                                        QMessageBox.Ok)
+            elif self.L == 'de':
+                QMessageBox.information(self, "Warnung",
+                                        f"Es gibt keine solche archäologische Stätte: '{sito_set_str}' in dieser Registerkarte. "
+                                        "Bitte deaktivieren Sie die 'Site-Wahl' in der Plugin-Konfigurationsregisterkarte, um alle Datensätze zu sehen oder die Registerkarte zu erstellen.",
+                                        QMessageBox.Ok)
             else:
-
-                QMessageBox.information(self, "Warning" , "There is no such site: "'"'+ str(sito_set_str) +'"'" in this tab, Please disable the 'site choice' from the plugin configuration tab to see all records or create the tab",QMessageBox.Ok)
-
+                QMessageBox.information(self, "Warning",
+                                        f"There is no such site: '{sito_set_str}' in this tab. "
+                                        "Please disable the 'site choice' from the plugin configuration tab to see all records or create the tab.",
+                                        QMessageBox.Ok)
     def generate_list_foto(self):
         data_list_foto = []
         for i in range(len(self.DATA_LIST)):
@@ -4757,7 +4768,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
     @pyqtSlot(int, int)
     def updateProgressBar(self, tav, tot):
         value = (float(tav) / float(tot)) * 100
-        self.progressBar.setValue(value)
+        int_value = int(value)
+        self.progressBar.setValue(int_value)
         # text = ' di '.join([str(tav), str(tot)])
         # self.countLabel.setText(text)
     def on_pushButton_print_pressed(self):
@@ -5771,6 +5783,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.listWidget_rapp.clear()
         sito_check = str(self.comboBox_sito.currentText())
         area_check = str(self.comboBox_area.currentText())
+        models = ["gpt-4o", "gpt-4-turbo"]
         try:
             self.rapporti_stratigrafici_check(sito_check, area_check)
             if self.checkBox_validate.isChecked():
@@ -5781,30 +5794,59 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         except Exception as e:
             full_exception = traceback.format_exc()
 
-            if MyApp.is_connected(self):
-                models = ["gpt-3.5-turbo-16k","gpt-4"]  # Replace with actual model names
-                combo = QComboBox()
-                combo.addItems(models)
-                selected_model, ok = QInputDialog.getItem(self, "Select Model", "Choose a model for GPT:", models, 0,
-                                                          False)
+            os.environ["OPENAI_API_KEY"] = self.apikey_gpt()
+            combo = QComboBox()
+            combo.addItems(models)
+            selected_model, ok = QInputDialog.getItem(self, "Select Model", "Choose a model for GPT:", models, 0,
+                                                      False)
 
-                if ok and selected_model:
-                    gpt_response = MyApp.ask_gpt(self, f"spiegami l'errore {full_exception}", self.apikey_gpt(),
-                                                 selected_model)
-                    combined_message = f"Error: {e}\nGPT Response: {gpt_response}"
-                    self.listWidget_rapp.addItem(combined_message)
-                elif not ok:
-                    self.listWidget_rapp.addItem("Model selection was canceled.")
-            else:
-                self.listWidget_rapp.addItem(f"Error: {e}")
+            if ok and selected_model:
+                client = OpenAI()
+
+                response = client.chat.completions.create(
+                    model=selected_model,
+                    messages=[
+                        {"role": "user", "content": f"spiegami questo errore: \n {full_exception}\n\n"},
+                                                    f"e se necessario genera dei link utili per approfondire"
+                    ],
+                    stream=True
+                )
+
+                combined_message = "GPT Response:\n "
+                self.listWidget_rapp.addItem(combined_message)
+
+                try:
+                    end = ''
+
+                    for chunk in response:
+                        if chunk.choices[0].delta.content is not None:
+                            # print(chunk.choices[0].delta.content, end="")
+                            combined_message += chunk.choices[0].delta.content
+                            combined_message += end
+                            # Rendi i link cliccabili
+                            # combined_message = re.sub(r'(https?://\S+)', r'<a href="\1">\1</a>', combined_message)
+
+                            self.listWidget_rapp.takeItem(self.listWidget_rapp.count() - 1)
+                            self.listWidget_rapp.addItem(combined_message)
+                            # self.listWidget_ai.scrollToBottom()
+                            QApplication.processEvents()
+                except requests.exceptions.JSONDecodeError as e:
+                    print("Error decoding JSON response:", e)
+
+                    self.listWidget_rapp.addItem(e)
+
+            elif not ok:
+                self.listWidget_rapp.addItem("Model selection was canceled.")
 
         else:
-                success_message = {
-                    'it': "Controllo dei Rapporti Stratigrafici, Definizione Stratigrafica a Rapporti Stratigrafici, Periodi a Rapporti Stratigrafici e Automaticform eseguito con successo",
-                    'de': "Prüfen der stratigraphischen Beziehung, Definition Stratigraphische zu Stratigraphische Berichte, Perioden zu Stratigraphische Berichte und Automaticform erfolgereich durchgeführt",
-                    'en': "Monitoring of Stratigraphic Relationships, Definition Stratigraphic to Stratigraphic Reports, Periods to Stratigraphic Reports and Automaticform performed successfully"
-                }
-                self.listWidget_rapp.addItem(success_message.get(self.L, "Message"))
+
+
+            success_message = {
+                'it': "Controllo dei Rapporti Stratigrafici, Definizione Stratigrafica a Rapporti Stratigrafici, Periodi a Rapporti Stratigrafici e Automaticform eseguito con successo",
+                'de': "Prüfen der stratigraphischen Beziehung, Definition Stratigraphische zu Stratigraphische Berichte, Perioden zu Stratigraphische Berichte und Automaticform erfolgereich durchgeführt",
+                'en': "Monitoring of Stratigraphic Relationships, Definition Stratigraphic to Stratigraphic Reports, Periods to Stratigraphic Reports and Automaticform performed successfully"
+            }
+            self.listWidget_rapp.addItem(success_message.get(self.L, "Message"))
 
 
 
@@ -6704,9 +6746,9 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
 
                 if report2 != "":
-                    report_rapporti2 = report_rapporti2 + report + report2+'\n'
+                    self.report_rapporti2 = report_rapporti2 + report + report2+'\n'
 
-        self.listWidget_rapp.addItem(report_rapporti2)
+        self.listWidget_rapp.addItem(self.report_rapporti2)
 
 
 
@@ -8962,6 +9004,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                     return None
                 else:
                     return str(valore)
+
     def on_pushButton_import_ed2pyarchinit_pressed(self):
         '''funzione valida solo per sqlite'''
 
@@ -8970,7 +9013,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             self,
             "Set file name",
             '',
-            " CSV (*.csv)"
+            "CSV (*.csv)"
         )[0]
         filename = dbpath  # .split("/")[-1]
         try:
@@ -8978,33 +9021,28 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             conn.conn_str()
             conn_sqlite = conn.databasename()
 
-            sqlite_DB_path = '{}{}{}'.format(self.HOME, os.sep,
-                                             "pyarchinit_DB_folder")
+            if not conn_sqlite["db_name"].endswith(".sqlite"):
+                QMessageBox.warning(self, "Errore", "L'importazione dei dati è supportata solo per SQLite.")
+                return
 
+            sqlite_DB_path = '{}{}{}'.format(self.HOME, os.sep, "pyarchinit_DB_folder")
             con = sq.connect(sqlite_DB_path + os.sep + conn_sqlite["db_name"])
             cur = con.cursor()
 
-            """
-            funzioni per convertire i tipi di campi.
-            Necessario per inserire e salvare i dati nel database
-            """
             def converti_int(valore):
-                if valore == '':
-                    return '0'
-                else:
-                    return valore
+                return '0' if valore == '' else valore
+
             def converti_float(valore):
-                if valore == '':
-                    return None
-                else:
-                    return valore
+                return None if valore == '' else valore
+
             def converti_list(valore):
-                if valore=='':
-                    return '[]'
-                else:
-                    return valore
+                return '[]' if valore == '' else valore
+
             with open(filename, 'r') as fin:
-                dr = csv.DictReader(fin)  # comma is default delimiter
+                first_line = fin.readline()
+                delimiter = ',' if ',' in first_line else ';'
+                fin.seek(0)
+                dr = csv.DictReader(fin, delimiter=delimiter)
 
                 to_db =[(i['sito'],i['area'],i['us'],i['d_stratigrafica'],i['d_interpretativa'],
                          i['descrizione'],i['interpretazione'],i['periodo_iniziale'],
@@ -9045,8 +9083,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                          i['materiale_p'],i['consistenza_p'],converti_list(i['rapporti2']),i['doc_usv'])
                         for i in dr]
 
-
-            cur.executemany(
+            try:
+                cur.executemany(
                 """INSERT INTO us_table (
                 sito,
                 area,
@@ -9164,8 +9202,11 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 consistenza_p,
                 rapporti2,
                 doc_usv) VALUES (?,?,?,?,?, ?, ?,?,?,?, ?, ?,?,?,?, ?, ?,?,?,?, ?, ?,?,?,?, ?, ?,?,?,?, ?, ?,?,?,?, ?, ?,?,?,?, ?, ?,?,?,?, ?, ?,?,?,?, ?, ?,?,?,?, ?, ?,?,?,?, ?, ?,?,?,?, ?, ?,?,?,?, ?, ?,?,?,?, ?, ?,?,?,?, ?, ?,?,?,?, ?, ?,?,?,?, ?, ?,?,?,?, ?, ?,?,?,?, ?, ?,?,?,?, ?, ?,?,?,?, ?, ?,?,?,?,?);""", to_db)
-            con.commit()
-            con.close()
+                con.commit()
+            except sq.IntegrityError as e:
+                QMessageBox.critical(self, "Errore", f"Errore di integrità: {str(e)}")
+            finally:
+                con.close()
 
         except AssertionError as e:
             QMessageBox.warning(self, 'error', str(e), QMessageBox.Ok)
@@ -9698,3 +9739,8 @@ class IntegerDelegate(QtWidgets.QStyledItemDelegate):
         editor.setValidator(validator)
         return editor
 
+if __name__ == "__main__":
+    app = QApplication(sys.argv)
+    mainWin = GPTWindow()
+    mainWin.show()
+    sys.exit(app.exec_())
