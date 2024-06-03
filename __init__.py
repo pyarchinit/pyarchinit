@@ -41,6 +41,8 @@ import os
 from os import path
 import subprocess
 import platform
+
+from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QMessageBox, QDialog, QVBoxLayout, QLabel, QPushButton, QProgressBar, QTableWidget, QTableWidgetItem, QCheckBox, QHeaderView
 import threading
 from qgis.core import QgsSettings
@@ -108,6 +110,8 @@ class InstallDialog(QDialog):
         self.initUI()
 
     def initUI(self):
+
+
         layout = QVBoxLayout()
 
         self.label = QLabel("Select packages to install:")
@@ -120,7 +124,9 @@ class InstallDialog(QDialog):
         for i, package in enumerate(self.packages):
             self.table.setItem(i, 0, QTableWidgetItem(package))
             checkbox = QCheckBox()
+            checkbox.setChecked(True)
             self.table.setCellWidget(i, 1, checkbox)
+
 
         layout.addWidget(self.table)
 
@@ -132,9 +138,11 @@ class InstallDialog(QDialog):
         layout.addWidget(self.progress)
 
         self.setLayout(layout)
-        self.setWindowTitle("Package Installer")
+        self.setWindowTitle("PyArchInit - Installazione pacchetti")
+        self.set_icon(os.path.abspath(os.path.join(os.path.dirname(__file__), "logo_pyarchinit.png")))
         self.setGeometry(300, 300, 400, 300)
-
+    def set_icon(self, icon_path):
+        self.setWindowIcon(QIcon(icon_path))
     def install_selected_packages(self):
         selected_packages = []
         for i in range(self.table.rowCount()):
