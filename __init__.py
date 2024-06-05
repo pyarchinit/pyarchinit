@@ -21,7 +21,7 @@
 
 import subprocess
 import sys
-
+from shlex import quote as shlex_quote
 
 try:
     # Tenta di importare pip
@@ -85,13 +85,15 @@ def install(package):
     try:
         if platform.system() == 'Windows' and is_osgeo4w():
             python_executable = get_osgeo4w_python()
+        if platform.system() == 'Windows':
+            python_executable = 'python'
         else:
-            python_executable = sys.executable
+            python_executable = 'python3'
 
-        subprocess.run([python_executable, "-m", "pip", "install", package], stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True, shell=True)
+        subprocess.run([shlex_quote(python_executable), "-m", "pip", "install", shlex_quote(package), "--user"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True, shell=True)
     except subprocess.CalledProcessError as e:
         print(f"Errore durante l'installazione del pacchetto {package}: {e}")
-        subprocess.run([python_executable, "-m", "pip", "install", package,  '--user'], stdout=subprocess.PIPE,
+        subprocess.run([shlex_quote(python_executable), "-m", "pip", "install", package], stdout=subprocess.PIPE,
                        stderr=subprocess.PIPE, check=True, shell=True)
 
 # def is_package_installed(package):
