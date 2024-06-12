@@ -25,6 +25,7 @@ import sqlite3
 
 import sqlalchemy as sa
 
+
 from sqlalchemy.event import listen
 import platform
 from builtins import range
@@ -3923,21 +3924,26 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 QMessageBox.information(self, "Pyarchinit", "Query system deactivated", QMessageBox.Ok)
 
     def charge_list(self):
+        conn = Connection()
+        conn_str = conn.conn_str()
+
+        self.DB_MANAGER = Pyarchinit_db_management(conn_str)
+        test = self.DB_MANAGER.connection()
+        # Verifica che self.DB_MANAGER sia un'istanza della classe DBManager
+        if not isinstance(self.DB_MANAGER, Pyarchinit_db_management):
+            raise TypeError("self.DB_MANAGER is not an instance of DBManager")
+
+        sito_vl = self.UTILITY.tup_2_list_III(self.DB_MANAGER.group_by('site_table', 'sito', 'SITE'))
         try:
-            # Ensure DB_MANAGER is correctly instantiated and has the group_by method
-            if hasattr(self.DB_MANAGER, 'group_by'):
-                sito_vl = self.UTILITY.tup_2_list_III(self.DB_MANAGER.group_by('site_table', 'sito', 'SITE'))
-                sito_vl.remove('')
-            else:
-                raise AttributeError("DB_MANAGER does not have the method 'group_by'")
+            sito_vl.remove('')
         except Exception as e:
-            print(f"Error in charge_list: {e}")
-            sito_vl = []
+            # if str(e) == "list.remove(x): x not in list":
+            pass
 
         self.comboBox_sito.clear()
         sito_vl.sort()
         self.comboBox_sito.addItems(sito_vl)
-    
+
             
     def on_pushButton_import_geometry_pressed(self):
         
