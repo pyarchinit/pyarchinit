@@ -22,89 +22,56 @@
 import subprocess
 import sys
 from shlex import quote as shlex_quote
-
+from importlib.metadata import distributions
+import os
+from os import path
+import platform
 try:
     # Tenta di importare pip
     import pip
 
 except ImportError:
-    # Se l'importazione fallisce, installa pip
-    subprocess.call(['python', '-m', 'ensurepip'])
+    if platform.system()=='Darwin':
 
-    # Aggiorna pip all'ultima versione
-    subprocess.call(['python', '-m', 'pip', 'install', '--upgrade', 'pip'])
+        QGIS_PREFIX_PATH = '/Applications/QGIS.app/Contents/MacOS'  # Replace with your QGIS installation path
+        python_executable = os.path.join(QGIS_PREFIX_PATH, 'bin', 'python3')
+
+        # Se l'importazione fallisce, installa pip
+        subprocess.call([python_executable, '-m', 'ensurepip'])
+
+        # Aggiorna pip all'ultima versione
+        subprocess.call([python_executable, '-m', 'pip', 'install', '--upgrade', 'pip'])
+    elif platform.system()=='Windows':
+        # Se l'importazione fallisce, installa pip
+        subprocess.call(['python', '-m', 'ensurepip'])
+
+        # Aggiorna pip all'ultima versione
+        subprocess.call(['python', '-m', 'pip', 'install', '--upgrade', 'pip'])
 
 # Da questo punto in poi, puoi assumere che pip sia installato e aggiornato
 
-
-import os
-from os import path
-import subprocess
-import platform
-
+from qgis.PyQt.QtCore import QObject,pyqtSignal,QThread
 from qgis.PyQt.QtGui import QIcon
-from qgis.PyQt.QtWidgets import QMessageBox, QDialog, QVBoxLayout, QLabel, QPushButton, QProgressBar, QTableWidget, QTableWidgetItem, QCheckBox, QHeaderView
-import threading
+from qgis.PyQt.QtWidgets import (QMessageBox, QDialog, QVBoxLayout, QLabel, QPushButton, QProgressBar, QTableWidget,
+                                 QTableWidgetItem, QCheckBox, QHeaderView)
 from qgis.core import QgsSettings
 from .modules.utility.pyarchinit_OS_utility import Pyarchinit_OS_Utility
 from .modules.utility.pyarchinit_folder_installation import pyarchinit_Folder_installation
 
-s = QgsSettings()
-L = QgsSettings().value("locale/userLocale")[0:2]
-sys.path.append(os.path.dirname(__file__))
-sys.path.insert(0, os.path.abspath(
-    os.path.join(os.path.dirname(__file__), 'resources')))
-sys.path.insert(0, os.path.abspath(
-    os.path.join(os.path.dirname(__file__), 'gui', 'ui')))
+def show_install_dialog(packages):
+    dialog = InstallDialog(packages)
+    dialog.exec_()
+class Worker(QObject):
+    finished = pyqtSignal()  # signal emitted when the worker is done
+    progress = pyqtSignal(int)  # signal emitted to update the progress bar
 
-pyarchinit_home = os.path.expanduser("~") + os.sep + 'pyarchinit'
-fi = pyarchinit_Folder_installation()
-if not os.path.exists(pyarchinit_home):
-    fi.install_dir()
-else:
-    os.environ['PYARCHINIT_HOME'] = pyarchinit_home
+    def install_packages(self, packages):
+        total = len(packages)
+        for i, package in enumerate(packages):
+            self.progress.emit(int((i + 1) / total * 100))  # emit progress signal
+            install(package)
 
-confing_path = os.path.join(os.sep, pyarchinit_home, 'pyarchinit_DB_folder', 'config.cfg')
-logo_iccd = os.path.join(os.sep, pyarchinit_home, 'pyarchinit_DB_folder', 'logo.jpg')
-if not os.path.isfile(confing_path):
-    fi.installConfigFile(os.path.dirname(confing_path))
-
-fi.installConfigFile(os.path.dirname(logo_iccd))
-
-
-def is_osgeo4w():
-    return 'OSGEO4W_ROOT' in os.environ
-
-def get_osgeo4w_python():
-    osgeo4w_root = os.environ.get('OSGEO4W_ROOT')
-    if osgeo4w_root:
-        return os.path.join(osgeo4w_root, 'bin', 'python-qgis.bat')
-    return sys.executable
-
-def install(package):
-    try:
-        if platform.system() == 'Windows' and is_osgeo4w():
-            python_executable = get_osgeo4w_python()
-        if platform.system() == 'Windows':
-            python_executable = 'python'
-        else:
-            python_executable = 'python3'
-
-        subprocess.run([shlex_quote(python_executable), "-m", "pip", "install", shlex_quote(package), "--user"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True, shell=True)
-    except subprocess.CalledProcessError as e:
-        print(f"Errore durante l'installazione del pacchetto {package}: {e}")
-        subprocess.run([shlex_quote(python_executable), "-m", "pip", "install", package], stdout=subprocess.PIPE,
-                       stderr=subprocess.PIPE, check=True, shell=True)
-
-# def is_package_installed(package):
-#     try:
-#         __import__(package)
-#         return True
-#     except ImportError:
-#         return False
-#
-# QMessageBox.Worning(None, 'Pyarchinit - b3', is_package_installed())
-#             # Example usage in a QGIS plugin
+        self.finished.emit()  # emit finished signal
 class InstallDialog(QDialog):
     def __init__(self, packages):
         super().__init__()
@@ -145,6 +112,7 @@ class InstallDialog(QDialog):
         self.setGeometry(300, 300, 400, 300)
     def set_icon(self, icon_path):
         self.setWindowIcon(QIcon(icon_path))
+
     def install_selected_packages(self):
         selected_packages = []
         for i in range(self.table.rowCount()):
@@ -152,28 +120,90 @@ class InstallDialog(QDialog):
                 selected_packages.append(self.table.item(i, 0).text())
 
         if selected_packages:
-            threading.Thread(target=self.install_packages, args=(selected_packages,)).start()
+            self.thread = QThread(self)
+            self.worker = Worker()
+            self.worker.moveToThread(self.thread)
+            self.thread.started.connect(lambda: self.worker.install_packages(selected_packages))
 
-    def install_packages(self, packages):
-        total = len(packages)
-        for i, package in enumerate(packages):
-            self.label.setText(f"Installing {package}...")
-            self.progress.setValue(int((i + 1) / total * 100))
-            install(package)
+            self.worker.finished.connect(self.thread.quit)
+            self.worker.finished.connect(self.worker.deleteLater)
+            self.thread.finished.connect(self.thread.deleteLater)
+            self.worker.progress.connect(self.update_progress)  # connect progress signal to some slot
+            self.worker.finished.connect(self.finish_install)  # connect finish signal to some slot
+
+            self.thread.start()
+
+    def update_progress(self, value):
+        self.progress.setValue(value)
+        self.label.setText(f"Installing package...")
+
+    def finish_install(self):
         self.label.setText("Installation complete")
         self.accept()
 
-def show_install_dialog(packages):
-    dialog = InstallDialog(packages)
-    dialog.exec_()
+#app = QApplication(sys.argv)
+
+
+s = QgsSettings()
+#L = QgsSettings().value("locale/userLocale")[0:2]
+sys.path.append(os.path.dirname(__file__))
+sys.path.insert(0, os.path.abspath(
+    os.path.join(os.path.dirname(__file__), 'resources')))
+sys.path.insert(0, os.path.abspath(
+    os.path.join(os.path.dirname(__file__), 'gui', 'ui')))
+
+pyarchinit_home = os.path.expanduser("~") + os.sep + 'pyarchinit'
+fi = pyarchinit_Folder_installation()
+if not os.path.exists(pyarchinit_home):
+    fi.install_dir()
+else:
+    os.environ['PYARCHINIT_HOME'] = pyarchinit_home
+
+confing_path = os.path.join(os.sep, pyarchinit_home, 'pyarchinit_DB_folder', 'config.cfg')
+logo_iccd = os.path.join(os.sep, pyarchinit_home, 'pyarchinit_DB_folder', 'logo.jpg')
+if not os.path.isfile(confing_path):
+    fi.installConfigFile(os.path.dirname(confing_path))
+
+fi.installConfigFile(os.path.dirname(logo_iccd))
+
+
+def is_osgeo4w():
+    return 'OSGEO4W_ROOT' in os.environ
+
+def get_osgeo4w_python():
+    osgeo4w_root = os.environ.get('OSGEO4W_ROOT')
+    if osgeo4w_root:
+        return os.path.join(osgeo4w_root, 'bin', 'python-qgis.bat')
+    return sys.executable
 
 
 
+def install(package):
 
 
-from importlib.metadata import distributions
+    #global result
+    if platform.system() == 'Windows' and is_osgeo4w():
+        python_executable = get_osgeo4w_python()
+        subprocess.run([python_executable, "-m", "pip", "install", shlex_quote(package)],
+                       stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True, shell=True)
+    elif platform.system() == 'Windows':
+        python_executable = 'python'
+        subprocess.run([python_executable, "-m", "pip", "install", shlex_quote(package), "--user"],
+                       stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True, shell=True)
+    elif platform.system()=='Darwin':
+
+        QGIS_PREFIX_PATH = '/Applications/QGIS.app/Contents/MacOS'  # Replace with your QGIS installation path
+        python_executable = os.path.join(QGIS_PREFIX_PATH, 'bin', 'python3')
+        subprocess.run([python_executable, "-m", "pip", "install", shlex_quote(package)],
+                                stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
+    else:
+
+        python_executable = 'python3'
+        subprocess.run([python_executable, "-m", "pip", "install", shlex_quote(package)],
+                       stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
 
 
+#QMessageBox.information(None, 'ok', str(result.stdout) + '-' + str(result.stderr))
 
 installed_packages_or = {pkg.metadata['Name'] + '==' + pkg.version for pkg in distributions()}
 
@@ -215,29 +245,31 @@ for p in packages:
         try:
             subprocess.call(['pg_dump', '-V'])
         except Exception as e:
+            print(e)
             # except Exception as e:
             # if L=='it':
-            QMessageBox.warning(None, 'Pyarchinit',
-                                "INFO: Sembra che postgres non sia installato sul vostro sistema o che non abbiate impostato il percorso in Pyarchinit config. ",
-                                QMessageBox.Ok | QMessageBox.Cancel)
+            #QMessageBox.warning(None, 'Pyarchinit',
+                                #"INFO: Sembra che postgres non sia installato sul vostro sistema o che non abbiate impostato il percorso in Pyarchinit config. ",
+                                #QMessageBox.Ok | QMessageBox.Cancel)
 
     if p.startswith('graphviz'):
         try:
             subprocess.call(['dot', '-V'])
         except Exception as e:
-            if L == 'it':
-                QMessageBox.warning(None, 'Pyarchinit',
-                                    "INFO: Sembra che Graphviz non sia installato sul vostro sistema o che non abbiate impostato il percorso in Pyarchinit config. In ogni caso il modulo python di graphviz sarà installato sul vostro sistema, ma la funzionalità di esportazione del matrix dal plugin pyarchinit sarà disabilitata.",
-                                    QMessageBox.Ok | QMessageBox.Cancel)
-            elif L == 'de':
-                QMessageBox.warning(None, 'Pyarchinit',
-                                    "INFO: Es scheint, dass Graphviz nicht auf Ihrem System installiert ist oder dass Sie den Pfad in der Pyarchinit-Konfiguration nicht festgelegt haben. Wie auch immer, das Graphviz-Python-Modul wird auf Ihrem System installiert sein, aber die Exportmatrix-Funktionalität aus dem Pyarchinit-Plugin wird deaktiviert sein.",
-                                    QMessageBox.Ok | QMessageBox.Cancel)
+            print(e)
+            #if L == 'it':
+                #QMessageBox.warning(None, 'Pyarchinit',
+                                    #"INFO: Sembra che Graphviz non sia installato sul vostro sistema o che non abbiate impostato il percorso in Pyarchinit config. In ogni caso il modulo python di graphviz sarà installato sul vostro sistema, ma la funzionalità di esportazione del matrix dal plugin pyarchinit sarà disabilitata.",
+                                    #QMessageBox.Ok | QMessageBox.Cancel)
+            #if L == 'de':
+                #QMessageBox.warning(None, 'Pyarchinit',
+                                    #"INFO: Es scheint, dass Graphviz nicht auf Ihrem System installiert ist oder dass Sie den Pfad in der Pyarchinit-Konfiguration nicht festgelegt haben. Wie auch immer, das Graphviz-Python-Modul wird auf Ihrem System installiert sein, aber die Exportmatrix-Funktionalität aus dem Pyarchinit-Plugin wird deaktiviert sein.",
+                                    #QMessageBox.Ok | QMessageBox.Cancel)
 
-            else:
-                QMessageBox.warning(None, 'Pyarchinit',
-                                    "INFO: It seems that Graphviz is not installed on your system or you don't have set the path in Pyarchinit config. Anyway the graphviz python module will be installed on your system, but the export matrix functionality from pyarchinit plugin will be disabled.",
-                                    QMessageBox.Ok | QMessageBox.Cancel)
+            #else:
+                #QMessageBox.warning(None, 'Pyarchinit',
+                                    #"INFO: It seems that Graphviz is not installed on your system or you don't have set the path in Pyarchinit config. Anyway the graphviz python module will be installed on your system, but the export matrix functionality from pyarchinit plugin will be disabled.",
+                                    #QMessageBox.Ok | QMessageBox.Cancel)
 
 if platform.system() == "Darwin":
     location = os.path.expanduser("~/Library/Fonts")
