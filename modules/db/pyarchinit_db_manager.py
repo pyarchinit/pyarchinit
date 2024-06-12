@@ -1152,10 +1152,10 @@ class Pyarchinit_db_management(object):
         for sing_couple_n in range(len(list_keys_values)):
             if sing_couple_n == 0:
                 if not isinstance(list_keys_values[sing_couple_n][1], str):
-                    field_value_string = table + ".%s == u%s" % (
+                    field_value_string = table + ".%s == %s" % (
                     list_keys_values[sing_couple_n][0], list_keys_values[sing_couple_n][1])
                 else:
-                    field_value_string = table + ".%s == u%s" % (
+                    field_value_string = table + ".%s == %s" % (
                     list_keys_values[sing_couple_n][0], list_keys_values[sing_couple_n][1])
             else:
                 if type(list_keys_values[sing_couple_n][1]) == "<type 'str'>":
@@ -1178,11 +1178,11 @@ class Pyarchinit_db_management(object):
         query_str = "session.query(" + table + ").filter(and_(" + field_value_string + ")).all()"
         res = eval(query_str)
 
-        '''
-        t = open("/test_import.txt", "w")
-        t.write(str(query_str))
-        t.close()
-        '''
+        #'''
+        #t = open(r"C:\Users\enzoc\pyarchinit\pyarchinit_DB_folder\test_import.txt", "w")
+        #t.write(str(query_str))
+        #t.close()
+        #'''
         session.close()
         return res
     # def query_bool(self, params, table_class_name):
