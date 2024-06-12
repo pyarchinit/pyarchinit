@@ -924,7 +924,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             self.view_all()
         except:
             return
-
+        self.report_rapporti=''
+        self.list_rapporti=[]
 
 
 
@@ -1289,11 +1290,12 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         area = self.comboBox_area.currentText()
         search_dict = {'sito': f"'{sito}'", 'area': f"'{area}'"}
         records = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
-
+        self.list_rapporti.append(self.report_rapporti)
         for _ in records:
             self.checkBox_validation_rapp.setChecked(True)
 
             self.check_listoflist()
+            #self.check_inverse_relationships(self.list_rapporti)
         #self.view_all()
 
 
@@ -1410,7 +1412,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                     items2 = self.tableWidget_rapporti.findItems(us_current,Qt.MatchExactly)
                     items_area2 = self.tableWidget_rapporti.findItems(area, Qt.MatchExactly)
                     items_sito2 = self.tableWidget_rapporti.findItems(sito, Qt.MatchExactly)
-                    QMessageBox.information(self, 'caso1', f"{str(len(items))} - {str(len(items2))}  - {str(len(items_area))} - {str(len(items_sito))} -  {str(len(items_area2))} - {str(len(items_sito2))}")
+                    #QMessageBox.information(self, 'caso1', f"{str(len(items))} - {str(len(items2))}  - {str(len(items_area))} - {str(len(items_sito))} -  {str(len(items_area2))} - {str(len(items_sito2))}")
                     if str(len(items))=='1' and str(len(items2))=='1':# and str(len(items_area))=='1' and str(len(items_sito))=='1' and str(len(items_area2))=='3' and str(len(items_sito2))=='5':
                         try:
                             item=items2[0]
@@ -1471,8 +1473,66 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         else:
             pass#QMessageBox.warning(self, 'error', 'Please select a rapport', QMessageBox.Ok)
 
+    def check_inverse_relationships(self, unverified_list_str):
+        #QMessageBox.warning(self, 'Error',f"unverified_list: {unverified_list}")
+        if self.checkBox_validation_rapp.isChecked():
+            try:
+                inverse_rapp_dict = {
+                    'Riempito da': 'Riempie', 'Tagliato da': 'Taglia', 'Coperto da': 'Copre',
+                    'Si appoggia a': 'Gli si appoggia',
+                    'Riempie': 'Riempito da', 'Taglia': 'Tagliato da', 'Copre': 'Coperto da',
+                    'Gli si appoggia': 'Si appoggia a',
+                    'Filled by': 'Fills', 'Cut by': 'Cuts', 'Covered by': 'Covers', 'Abuts': 'Supports',
+                    'Fills': 'Filled by', 'Cuts': 'Cut by', 'Covers': 'Covered by', 'Supports': 'Abuts',
+                    '>>': '<<', '<<': '>>', '>': '<', '<': '>'
+                }
+
+                # Convert the string to a list of lines
+                unverified_list = unverified_list_str
+
+                for line in unverified_list:
+                    if "Sito:" in line:
+                        # Example line: "Sito: 'Geta', Area: '1', US: 14 Coperto da US: 8 Area: 1: Rapporto non verificato"
+                        parts = line.split(", ")
+                        sito = parts[0].split(": ")[1].strip("'")
+                        area = parts[1].split(": ")[1].strip("'")
+                        us = parts[2].split(": ")[1].strip("'")
+                        relationship_part = parts[3].split(" ")
+                        relationship = " ".join(relationship_part[:-3])
+                        target_us = relationship_part[-3]
+                        target_area = relationship_part[-1].strip(": Rapporto non verificato")
+
+                        inverse_rapp = inverse_rapp_dict.get(relationship, relationship)
+
+                        # Check if the inverse relationship already exists
+                        search_dict = {'sito': "'" + str(sito) + "'", 'area': "'" + str(target_area) + "'",
+                                       'us': target_us}
+                        u = Utility()
+                        search_dict = u.remove_empty_items_fr_dict(search_dict)
+                        res = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
+
+                        if not bool(res):
+                            # Find the row corresponding to the target US
+                            items = self.tableWidget_rapporti.findItems(target_us, Qt.MatchExactly)
+                            if items:
+                                for item in items:
+                                    if item.column() == 2:  # Assuming US is in column 2
+                                        row = item.row()
+                                        self.tableWidget_rapporti.setItem(row, 0,
+                                                                          QtWidgets.QTableWidgetItem(inverse_rapp))
+                                        self.tableWidget_rapporti.setItem(row, 1, QtWidgets.QTableWidgetItem(us))
+                                        self.tableWidget_rapporti.setItem(row, 2, QtWidgets.QTableWidgetItem(area))
+                                        self.tableWidget_rapporti.setItem(row, 3, QtWidgets.QTableWidgetItem(sito))
+                                        self.save_rapp()
+                                        break
+                            else:
+                                QMessageBox.warning(self, 'Error',f"Target US {target_us} not found in the table.")
+                        else:
+                            QMessageBox.warning(self, 'Error',f"Inverse relationship for US {target_us} already exists.")
 
 
+            except Exception as e:
+                QMessageBox.warning(self, 'Error', str(e), QMessageBox.Ok)
 
 
     def check_v(self):
@@ -4405,7 +4465,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         sito_set= conn.sito_set()
         sito_set_str = sito_set['sito_set']
         if bool(self.comboBox_sito.currentText()) and self.comboBox_sito.currentText()==sito_set_str:
-
+            self.comboBox_sito.setCurrentText(sito_set_str)
             if self.L=='it':
                 QMessageBox.information(self, "OK" ,"Sei connesso al sito: %s" % str(sito_set_str),QMessageBox.Ok)
 
@@ -4453,7 +4513,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 else:
                     raise ValueError("No records found for the specified site.")
             else:
-                pass
+                pass#self.setComboBoxEnable(["self.comboBox_sito"], "True")
         except Exception as e:
             if self.L == 'it':
                 QMessageBox.information(self, "Attenzione",
@@ -5765,7 +5825,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         sito_check = str(self.comboBox_sito_rappcheck.currentText())
         area_check = str(self.comboBox_area_rappcheck.currentText())
         try:
-            self.rapporti_stratigrafici_check(sito_check, area_check)
+            self.rapporti_stratigrafici_check(sito_check)
             self.def_strati_to_rapporti_stratigrafici_check(sito_check, area_check)  # SPERIMENTALE
         except AssertionError as e:
             QMessageBox.critical(self, "Error", f"An error occurred while performing the check: {str(e)}",
@@ -5785,12 +5845,12 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         area_check = str(self.comboBox_area.currentText())
         models = ["gpt-4o", "gpt-4-turbo"]
         try:
-            self.rapporti_stratigrafici_check(sito_check, area_check)
+            self.rapporti_stratigrafici_check(sito_check)
             if self.checkBox_validate.isChecked():
-                self.def_strati_to_rapporti_stratigrafici_check(sito_check, area_check)  # SPERIMENTALE
+                self.def_strati_to_rapporti_stratigrafici_check(sito_check)  # SPERIMENTALE
 
-                self.periodi_to_rapporti_stratigrafici_check(sito_check, area_check)
-            self.automaticform_check(sito_check, area_check)
+                self.periodi_to_rapporti_stratigrafici_check(sito_check)
+            self.automaticform_check(sito_check)
         except Exception as e:
             full_exception = traceback.format_exc()
 
@@ -5806,8 +5866,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 response = client.chat.completions.create(
                     model=selected_model,
                     messages=[
-                        {"role": "user", "content": f"spiegami questo errore: \n {full_exception}\n\n"},
-                                                    f"e se necessario genera dei link utili per approfondire"
+                        {"role": "user", "content": f"spiegami questo errore: {full_exception} e se necessario genera dei link utili per approfondire"}
                     ],
                     stream=True
                 )
@@ -6238,9 +6297,9 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         """
         return test
 
-    def automaticform_check(self, sito_check, area_check):
+    def automaticform_check(self, sito_check):
 
-        search_dict = {'sito': "'" + str(sito_check) + "'", 'area': "'" + str(area_check) + "'"}
+        search_dict = {'sito': "'" + str(sito_check) + "'"}
         records = self.DB_MANAGER.query_bool(search_dict,
                                              self.MAPPER_TABLE_CLASS)  # carica tutti i dati di uno scavo ordinati per numero di US
         if self.L=='it':
@@ -6256,9 +6315,9 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             sito = "'" + str(records[rec].sito) + "'"
             area = "'" + str(records[rec].area) + "'"
             us = int(records[rec].us)
-            def_stratigrafica = "'" + str(records[rec].d_stratigrafica) + "'"
-            rapporti = records[rec].rapporti  # caricati i rapporti nella variabile
-            rapporti = eval(def_stratigrafica)
+            def_stratigrafica = '"' + str(records[rec].d_stratigrafica) + '"'
+            #rapporti = records[rec].rapporti  # caricati i rapporti nella variabile
+            #rapporti = eval(def_stratigrafica)
             #for sing_rapp in range(len(records)):  # itera sulla serie di rapporti
             report3 = ""
 
@@ -6292,110 +6351,136 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         f.write(report_rapporti3)
         f.close()
 
-    def rapporti_stratigrafici_check(self, sito_check, area_check):
+    def rapporti_stratigrafici_check(self, sito_check):
+        global rapporti_check
         self.listWidget_rapp.clear()
-        conversion_dict = {'Covers':'Covered by',
+        conversion_dict = {'Covers': 'Covered by',
                            'Covered by': 'Covers',
                            'Fills': 'Filled by',
-                           'Filled by':'Fills',
+                           'Filled by': 'Fills',
                            'Cuts': 'Cut by',
                            'Cut by': 'Cuts',
                            'Abuts': 'Supports',
                            'Supports': 'Abuts',
                            'Connected to': 'Connected to',
-                           'Same as':'Same as',
-                           'Copre':'Coperto da',
+                           'Same as': 'Same as',
+                           'Copre': 'Coperto da',
                            'Coperto da': 'Copre',
                            'Riempie': 'Riempito da',
-                           'Riempito da' : 'Riempie',
+                           'Riempito da': 'Riempie',
                            'Taglia': 'Tagliato da',
                            'Tagliato da': 'Taglia',
                            'Si appoggia a': 'Gli si appoggia',
                            'Gli si appoggia': 'Si appoggia a',
                            'Si lega a': 'Si lega a',
-                           'Uguale a':'Uguale a',
-                           'Liegt über':'Liegt unter',
-                           'Liegt unter':'Liegt über',
-                           'Schneidet':'Wird geschnitten',
-                           'Wird geschnitten':'Schneidet',
-                           'Verfüllt':'Wird verfüllt durch',
-                           'Wird verfüllt durch':'Verfüllt',
-                           'Stützt sich auf':'Wird gestüzt von',
-                           'Wird gestüzt von':'Stützt sich auf',
-                           'Bindet an':'Bindet an',
-                           'Entspricht':'Entspricht',
-                           '>>':'<<',
-                           '<<':'>>',
-                           '<':'>',
-                           '>':'<',
-                           '<->':'<->'
+                           'Uguale a': 'Uguale a',
+                           'Liegt über': 'Liegt unter',
+                           'Liegt unter': 'Liegt über',
+                           'Schneidet': 'Wird geschnitten',
+                           'Wird geschnitten': 'Schneidet',
+                           'Verfüllt': 'Wird verfüllt durch',
+                           'Wird verfüllt durch': 'Verfüllt',
+                           'Stützt sich auf': 'Wird gestüzt von',
+                           'Wird gestüzt von': 'Stützt sich auf',
+                           'Bindet an': 'Bindet an',
+                           'Entspricht': 'Entspricht',
+                           '>>': '<<',
+                           '<<': '>>',
+                           '<': '>',
+                           '>': '<',
+                           '<->': '<->'
                            }
-        search_dict = {'sito': "'" + str(sito_check) + "'", 'area': "'" + str(area_check) + "'"}
+        search_dict = {'sito': "'" + str(sito_check) + "'"}
         records = self.DB_MANAGER.query_bool(search_dict,
                                              self.MAPPER_TABLE_CLASS)  # carica tutti i dati di uno scavo ordinati per numero di US
-        if self.L=='it':
-            report_rapporti = 'Report controllo Rapporti Stratigrafici - Sito: %s \n' % (sito_check)
-        elif self.L=='de':
-            report_rapporti = 'Kontrollbericht Stratigraphische Beziehungen - Ausgrabungsstätte: %s \n' % (sito_check)
+        if self.L == 'it':
+            self.report_rapporti = 'Report controllo Rapporti Stratigrafici - Sito: %s \n' % (sito_check)
+        elif self.L == 'de':
+            self.report_rapporti = 'Kontrollbericht Stratigraphische Beziehungen - Ausgrabungsstätte: %s \n' % (sito_check)
         else:
-            report_rapporti = 'Control report Stratigraphic relationships - Site: %s \n' % (sito_check)
+            self.report_rapporti = 'Control report Stratigraphic relationships - Site: %s \n' % (sito_check)
+        count_0 = 0
+        count_1 = 0
+
         for rec in range(len(records)):
-            sito = "'" + str(records[rec].sito) + "'"
-            area = "'" + str(records[rec].area) + "'"
+            sito = "'" + str(records[rec].sito).strip("'") + "'"
+            area = "'" + str(records[rec].area).strip("'") + "'"
             us = int(records[rec].us)
             rapporti = records[rec].rapporti  # caricati i rapporti nella variabile
             rapporti = eval(rapporti)
             report = ''
-            for sing_rapp in rapporti:  # itera sulla serie di rapporti
 
-
-                if str(us).find('0') or str(us).find('1') >=0:
-                    if len(sing_rapp) == 2:
-
+            # Itera sulla serie di rapporti
+            for sing_rapp in rapporti:
+                #sing_rapp = sing_rapp[:3]
+                # Verifica che la stringa 'us' contenga '0' o '1'
+                if str(us).find('0') >= 0 or str(us).find('1') >= 0:
+                    # Gestisci caso in cui sing_rapp ha una lunghezza di 4
+                    if len(sing_rapp) == 4:
                         rapp_converted = conversion_dict[sing_rapp[0]]
-
-                        serch_dict_rapp = {'sito': sito, 'area': area, 'us': sing_rapp[1]}
+                        serch_dict_rapp = {'sito': sito, 'area': sing_rapp[2], 'us': int(sing_rapp[1])}
                         us_rapp = self.DB_MANAGER.query_bool(serch_dict_rapp, self.MAPPER_TABLE_CLASS)
 
+                        try:
+                            us_sing_rapp = int(sing_rapp[1])
+                        except ValueError:
+                            raise TypeError(f"Expected an integer for sing_rapp[1], got {sing_rapp[1]} instead")
+
                         if not bool(us_rapp):
-                            if self.L=='it':
-                                report = 'Sito: %s, Area: %s, US: %d %s US: %d: Scheda US non esistente' % (
-                                    sito, area, int(us), sing_rapp[0], int(sing_rapp[1]))
-                            elif self.L=='de':
-                                report = 'Ausgrabungsstätte: %s, Areal: %s, SE: %d %s SE: %d: SE formular nicht existent' % (
-                                    sito, area, int(us), sing_rapp[0], int(sing_rapp[1]))
-                            else:
-                                report = 'Site: %s, Area: %s, SU: %d %s SU: %d: SU form not-existent' % (
-                                    sito, area, int(us), sing_rapp[0], int(sing_rapp[1]))
-                            # new system rapp_check
+                            report_template = {
+                                'it': 'Sito: %s, Area: %s, US: %d %s US: %d Area: %s: Scheda US non esistente',
+                                'de': 'Ausgrabungsstätte: %s, Areal: %s, SE: %d %s SE: %d Area: %s: SE formular nicht existent',
+                                'en': 'Site: %s, Area: %s, SU: %d %s SU: %d Area: %s: SU form not-existent'
+                            }
+
+                            language = self.L if self.L in report_template else 'en'
+                            report = report_template[language] % (
+                            sito, area, int(us), sing_rapp[0], us_sing_rapp, sing_rapp[2])
                         else:
+
                             rapporti_check = eval(us_rapp[0].rapporti)
+                            #QMessageBox.information(self, 'ok', str(rapporti_check))
+                            us_rapp_check = '%d' % int(us)
+                            area_rapp_check = '%s' % area.strip("'")
+                            sito_rapp_check = '%s' % sito.strip("'")
 
-                            us_rapp_check=('%s') % str(us)
+                            s = [rapp_converted, us_rapp_check, area_rapp_check, sito_rapp_check]
 
-                            if rapporti_check.count([rapp_converted, us_rapp_check]) == 1:
+                            #QMessageBox.information(self, 'ok', f"Rapporto verificato: {s}")
+                            if rapporti_check.count(s) == 1:
+
+
                                 report = ""
                             else:
-                                if self.L=='it':
-                                    report = 'Sito: %s, Area: %s, US: %d %s US: %d: Rapporto non verificato' % (
-                                        sito, area, int(us), sing_rapp[0], int(sing_rapp[1]))
-                                elif self.L=='de':
-                                    report = 'Ausgrabungsstätte: %s, Areal: %s, SE: %d %s SE: %d: nicht geprüfter Bericht' % (
-                                        sito, area, int(us), sing_rapp[0], int(sing_rapp[1]))
+                                if self.L == 'it':
+                                    report = 'Sito: %s, Area: %s, US: %d %s US: %d Area: %s: Rapporto non verificato' % (
+                                        sito, area, int(us), sing_rapp[0], int(sing_rapp[1]), sing_rapp[2])
+                                elif self.L == 'de':
+                                    report = 'Ausgrabungsstätte: %s, Areal: %s, SE: %d %s SE: %d Area: %s: nicht geprüfter Bericht' % (
+                                        sito, area, int(us), sing_rapp[0], int(sing_rapp[1]), sing_rapp[2])
                                 else:
-                                    report = 'Site: %s, Area: %s, SU: %d %s SU: %d: relashionships not verified' % (
-                                        sito, area, int(us), sing_rapp[0], int(sing_rapp[1]))
+                                    report = 'Site: %s, Area: %s, SU: %d %s SU: %d Area: %s: relationships not verified' % (
+                                        sito, area, int(us), sing_rapp[0], int(sing_rapp[1]), sing_rapp[2])
+
+                                if rapporti_check.count([rapp_converted, us_rapp_check, area_rapp_check]) == 0:
+                                    count_0 += 1
+
+                                elif rapporti_check.count([rapp_converted, us_rapp_check, area_rapp_check]) != 1:
+                                    count_1 += 1
+
+                    # Gestisci caso in cui sing_rapp ha una lunghezza diversa da 4
+                    else:
+                        # Aggiungi qui la logica per gestire il caso con diversa lunghezza di sing_rapp
+                        pass
 
                 if report != "":
-                    report_rapporti = report_rapporti + report + '\n'
+                    self.report_rapporti += report + '\n'
 
-        self.listWidget_rapp.addItem(report_rapporti)
+        self.listWidget_rapp.addItem(self.report_rapporti)
+        # Costruisci il messaggio finale includendo rapporti_check
+        #final_message = f"Count of 0: {count_0}, Count of 1: {count_1}\nRapporti Check: {rapporti_check}"
+        #QMessageBox.information(self, 'ok', final_message)
 
-            # self.progressBar_3.setHidden(False)
-            # value = (float(rec)/float(len(records)))*100
-            # self.progressBar_3.setValue(value)
-            # QApplication.processEvents()
-        # self.progressBar_3.reset()           
 
         HOME = os.environ['PYARCHINIT_HOME']
         report_path = '{}{}{}'.format(HOME, os.sep, "pyarchinit_Report_folder")
@@ -6406,9 +6491,10 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         else:
             filename = '{}{}{}'.format(report_path, os.sep, 'log_SU_relations.txt')
         f = open(filename, "w")
-        f.write(report_rapporti)
+        f.write(self.report_rapporti)
         f.close()
-    def def_strati_to_rapporti_stratigrafici_check(self, sito_check, area_check):
+        return self.report_rapporti
+    def def_strati_to_rapporti_stratigrafici_check(self, sito_check):
         conversion_dict = {'Covers':'Covered by',
                            'Covered by': 'Covers',
                            'Fills': 'Filled by',
@@ -6445,7 +6531,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                            '>':'<',
                            '<->':'<->'
                            }
-        search_dict = {'sito': "'" + str(sito_check) + "'", 'area': "'" + str(area_check) + "'"}
+        search_dict = {'sito': "'" + str(sito_check) + "'"}
         records = self.DB_MANAGER.query_bool(search_dict,
                                              self.MAPPER_TABLE_CLASS)  # carica tutti i dati di uno scavo ordinati per numero di US
         if self.L=='it':
@@ -6544,7 +6630,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
         return ""
 
-    def periodi_to_rapporti_stratigrafici_check(self, sito_check, area_check):
+    def periodi_to_rapporti_stratigrafici_check(self, sito_check):
         conversion_dict = {'Covers':'Covered by',
                            'Covered by': 'Covers',
                            'Fills': 'Filled by',
@@ -6581,7 +6667,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                            '>':'<',
                            '<->':'<->'
                            }
-        search_dict = {'sito': "'" + str(sito_check) + "'", 'area': "'" + str(area_check) + "'"}
+        search_dict = {'sito': "'" + str(sito_check) + "'"}
         records = self.DB_MANAGER.query_bool(search_dict,
                                              self.MAPPER_TABLE_CLASS)  # carica tutti i dati di uno scavo ordinati per numero di US
         if self.L=='it':
@@ -8912,26 +8998,40 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             str(rapporti2),
             str(self.mQgsFileWidget.text()),# 18 - rapporti
         ]
+
     def set_LIST_REC_CORR(self):
+        print(f"self.REC_CORR: {self.REC_CORR}, len(self.DATA_LIST): {len(self.DATA_LIST)}")
+
+        if self.REC_CORR < 0 or self.REC_CORR >= len(self.DATA_LIST):
+            raise IndexError("self.REC_CORR is out of range")
 
         self.DATA_LIST_REC_CORR = []
         for i in self.TABLE_FIELDS:
-            self.DATA_LIST_REC_CORR.append(eval("unicode(self.DATA_LIST[self.REC_CORR]." + i + ")"))
+            try:
+                self.DATA_LIST_REC_CORR.append(eval("unicode(self.DATA_LIST[self.REC_CORR]." + i + ")"))
+            except IndexError as e:
+                print(f"IndexError: {e} - self.REC_CORR: {self.REC_CORR}, len(self.DATA_LIST): {len(self.DATA_LIST)}")
+                raise
+            except Exception as e:
+                print(f"Unexpected error: {e}")
+                raise
 
     def records_equal_check(self):
-        # self.set_sito()
-        self.set_LIST_REC_TEMP()
-        self.set_LIST_REC_CORR()
-        """
-        area TEST
-        tes = str(self.DATA_LIST_REC_CORR) + str(self.DATA_LIST_REC_TEMP)
-        self.testing("C:\\Users\\Luca\\pyarchinit_Test_folder\\tes_equal.txt", tes)
-        #QMessageBox.warning(self, "Errore", str(self.DATA_LIST_REC_CORR) + str(self.DATA_LIST_REC_TEMP),  QMessageBox.Ok)
-        """
-        if self.DATA_LIST_REC_CORR == self.DATA_LIST_REC_TEMP:
+        try:
+            #self.set_sito()
+            self.set_LIST_REC_TEMP()
+            self.set_LIST_REC_CORR()
+
+            if self.DATA_LIST_REC_CORR == self.DATA_LIST_REC_TEMP:
+                return 0
+            else:
+                return 1
+        except IndexError as e:
+            print(f"IndexError: {e}")
             return 0
-        else:
-            return 1
+        except Exception as e:
+            print(f"Unexpected error: {e}")
+        return 0
     def setComboBoxEditable(self, f, n):
         field_names = f
         value = n
