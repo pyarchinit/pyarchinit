@@ -3,7 +3,7 @@ name=pyArchInit
 qgisMinimumVersion=3.22
 description=pyarchinit a tool for archaeological works
 
-version=4.7.4
+version=4.7.5
 
 author=Luca Mandolesi&Enzo Cocca
 email=pyarchinit@gmail.com
@@ -15,7 +15,9 @@ tracker=https://github.com/pyarchinit/pyarchinit/issues
 repository=https://github.com/pyarchinit/pyarchinit
 
 
-changelog=4.7.3 Update application dependencies and improve GPT functionality
+changelog=4.7.5 fix bug error
+  4.7.4 Update
+  4.7.3 Update application dependencies and improve GPT functionality
   4.7.2 fix pkg installation
   4.7.1 mayor fix bug and change order by in us-usm view
   4.7.0 Refactor matrix generation and presentation code, Add query for boolean-like operation and improve code functionality, Uncomment database structure metadata and definition Refactor table definition across db module classes, Add functionality to update 'rapporti' column.
