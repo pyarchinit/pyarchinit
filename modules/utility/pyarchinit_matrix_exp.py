@@ -374,7 +374,7 @@ class HarrisMatrix:
                 subprocess.call(['tred', dot_file], stdout=out_file, stderr=err_file, startupinfo=startupinfo)
             #showMessage("Comando `tred` eseguito con successo.")
         except Exception as e:
-            showMessage(f"Errore durante l'esecuzione di `tred`: {e}", title='Errore', icon=QMessageBox.Critical)
+            #showMessage(f"Errore durante l'esecuzione di `tred`: {e}", title='Errore', icon=QMessageBox.Critical)
             return
         if os.path.getsize(error_file_path) > 0:
             with open(error_file_path, "r") as err_file:
@@ -925,7 +925,7 @@ class ViewHarrisMatrix:
                 subprocess.call(['tred', dot_file], stdout=out_file, stderr=err_file, startupinfo=startupinfo)
             # showMessage("Comando `tred` eseguito con successo.")
         except Exception as e:
-            showMessage(f"Errore durante l'esecuzione di `tred`: {e}", title='Errore', icon=QMessageBox.Critical)
+            #showMessage(f"Errore durante l'esecuzione di `tred`: {e}", title='Errore', icon=QMessageBox.Critical)
             return
         if os.path.getsize(error_file_path) > 0:
             with open(error_file_path, "r") as err_file:
@@ -933,12 +933,12 @@ class ViewHarrisMatrix:
                 showMessage(f"Errori durante l'esecuzione di `tred`:\n{errors}", title='Errore',
                 icon=QMessageBox.Warning)
         else:
-            showMessage("Nessun errore riportato da `tred`.")
+            pass#showMessage("Nessun errore riportato da `tred`.")
 
         try:
             g = Source.from_file(tred_output_file_path, format='jpg')
             g.render()
-            showMessage("Rendering del grafico completato.")
+            #showMessage("Rendering del grafico completato.")
             # return g (Considera che in una GUI, potresti voler gestire il risultato in modo diverso)
         except Exception as e:
             showMessage(f"Errore durante il rendering del grafico finale: {e}", title='Errore',
