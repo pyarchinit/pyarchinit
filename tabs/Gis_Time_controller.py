@@ -20,6 +20,8 @@
  ***************************************************************************/
 """
 from __future__ import absolute_import
+
+import platform
 import subprocess, sys
 try:
     import psutil
@@ -532,12 +534,18 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
     def stop_processes_named(self, name):
         for proc in psutil.process_iter(['pid', 'name']):
             # Verifica se il nome del processo corrisponde a quello che stai cercando
-            if proc.info['name'] == name:
+            process_info = proc.as_dict(attrs=['pid', 'name'])
+            if process_info['name'] == name:
                 try:
                     proc.kill()  # Termina il processo
                 except psutil.NoSuchProcess:
-                    QgsMessageBox.information(None, 'Avviso', f"Processo {name} non trovato")
-    def stop_image_generation(self):
+                    QMessageBox.information(None, 'Avviso', f"Processo {name} non trovato")
 
-        self.stop_processes_named('dot.exe')
+    def stop_image_generation(self):
+        if platform.system() == 'Windows':
+            self.stop_processes_named('dot.exe')
+        elif platform.system() == 'Darwin':  # macOS
+            self.stop_processes_named('dot')
+        elif platform.system() == 'Linux':
+            self.stop_processes_named('dot')
         self.abort = True
