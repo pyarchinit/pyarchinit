@@ -371,7 +371,7 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
         read_context = QgsReadWriteContext()
         layout.readXml(doc.documentElement(), doc, read_context)
 
-        layout_name = 'nombre_del_layout'
+        layout_name = 'layout_Time_Manager'
         existing_layout = manager.layoutByName(layout_name)
         if existing_layout:
             # Elimina l'esistente layout
