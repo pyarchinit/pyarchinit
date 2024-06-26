@@ -280,9 +280,9 @@ class pyarchinit_Folder_installation(object):
         else:
             with zipfile.ZipFile(cambria_zip_copy_from_path, 'r') as zip2_ref:
                 zip2_ref.extractall(test3)
-        template_copy_from_path_rel = os.path.join(os.sep, 'dbfiles', 'test.qpt')
+        template_copy_from_path_rel = os.path.join(os.sep, 'dbfiles', 'layout_TimeManager.qpt')
         template_copy_from_path = '{}{}'.format(self.RESOURCES_PATH, template_copy_from_path_rel)
-        template_copy_to_path = '{}{}{}{}{}'.format(home_bin_export_path, os.sep, 'profile/','template/', 'test.qpt')
+        template_copy_to_path = '{}{}{}{}{}'.format(home_bin_export_path, os.sep, 'profile/','template/', 'layout_TimeManager.qpt')
 
         self.OS_UTILITY.copy_file(db_copy_from_bin, db_copy_to_bin)
         self.OS_UTILITY.copy_file(em_copy_from_path, em_copy_to_path)
