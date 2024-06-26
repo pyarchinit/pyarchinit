@@ -393,7 +393,7 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
         canvas = self.iface.mapCanvas()
         # Carica il template
         HOME = os.environ['PYARCHINIT_HOME']
-        path = '{}{}{}{}'.format(HOME, os.sep, "bin/profile/template/", 'test.qpt')
+        path = '{}{}{}{}'.format(HOME, os.sep, "bin/profile/template/", 'layout_TimeManager.qpt')
 
         self.load_template(path)
         if not self.current_layout:
