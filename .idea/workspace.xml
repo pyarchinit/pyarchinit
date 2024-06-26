@@ -5,14 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="13d9711e-af47-4516-9a74-091c329d410d" name="Changes" comment="Refactor progress bar update logic and clean up duplicated code&#10;&#10;Enhanced progress bar update by modifying the calculation and update logic. Now, it accurately calculates the progress as a percentage and stores it as an integer, improving performance. This update applies across multiple files. Redundant code lines were also eliminated for a cleaner, more readable code.">
-      <change afterPath="$PROJECT_DIR$/install_dialog.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/pyarchinit.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/pyarchinit.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gui/pyarchinitConfigDialog.py" beforeDir="false" afterPath="$PROJECT_DIR$/gui/pyarchinitConfigDialog.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -160,6 +155,7 @@
     &quot;Python.reformat_dir.executor&quot;: &quot;Run&quot;,
     &quot;Python.test_matrix.executor&quot;: &quot;Run&quot;,
     &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;ToolWindowCodeGPT.ShowToolbar&quot;: &quot;false&quot;,
     &quot;git-widget-placeholder&quot;: &quot;master&quot;,
     &quot;last_opened_file_path&quot;: &quot;C:/Users/enzoc/AppData/Roaming/QGIS/QGIS3/profiles/default/python/plugins/pyarchinit/resources/dbfiles&quot;,
@@ -171,6 +167,11 @@
   &quot;keyToStringList&quot;: {
     &quot;DatabaseDriversLRU&quot;: [
       &quot;postgresql&quot;
+    ],
+    &quot;GitStage.ChangesTree.GroupingKeys&quot;: [
+      &quot;directory&quot;,
+      &quot;module&quot;,
+      &quot;repository&quot;
     ],
     &quot;stardust.markdown.MarkdownSplitEditorSuppressor:keyList&quot;: []
   }
@@ -308,8 +309,8 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-js-predefined-1d06a55b98c1-91d5c284f522-JavaScript-PY-241.15989.155" />
-        <option value="bundled-python-sdk-babbdf50b680-7c6932dee5e4-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-241.15989.155" />
+        <option value="bundled-js-predefined-1d06a55b98c1-0b3e54e931b4-JavaScript-PY-241.18034.82" />
+        <option value="bundled-python-sdk-975db3bf15a3-2767605e8bc2-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-241.18034.82" />
       </set>
     </attachedChunks>
   </component>
@@ -387,6 +388,16 @@
       <workItem from="1716615823639" duration="4366000" />
       <workItem from="1716622182359" duration="2582000" />
       <workItem from="1716624807977" duration="1209000" />
+      <workItem from="1719036483915" duration="12000" />
+      <workItem from="1719036506333" duration="706000" />
+      <workItem from="1719152615154" duration="3778000" />
+      <workItem from="1719248749850" duration="17000" />
+      <workItem from="1719297774407" duration="46000" />
+      <workItem from="1719297830745" duration="28000" />
+      <workItem from="1719337332856" duration="11000" />
+      <workItem from="1719390728359" duration="913000" />
+      <workItem from="1719392327182" duration="17000" />
+      <workItem from="1719393200112" duration="300000" />
     </task>
     <task id="LOCAL-00022" summary="v3.9.14">
       <created>1649165457258</created>
@@ -731,7 +742,7 @@
       <option name="project" value="LOCAL" />
       <updated>1679662089681</updated>
     </task>
-    <option name="localTasksCounter" value="112" />
+    <option name="localTasksCounter" value="113" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -775,8 +786,6 @@
     <ignored-roots>
       <path value="$PROJECT_DIR$/ext-libs/totalopenstation-0.5.2-py3.9.egg/totalopenstation_" />
     </ignored-roots>
-    <MESSAGE value="Fix typo" />
-    <MESSAGE value="Fix typo in" />
     <MESSAGE value="Fix typo in documentation" />
     <MESSAGE value="Fix typo in documentation by" />
     <MESSAGE value="Fix typo in documentation by replacing" />
@@ -800,7 +809,9 @@
     <MESSAGE value="Update view us and usm.&#10;&#10;chandge order by in ORDER BY &#10;    &quot;b&quot;.&quot;order_layer&quot;, &#10;    &quot;a&quot;.&quot;stratigraph_index_us&quot; DESC, &#10;    &quot;a&quot;.&quot;gid&quot;;" />
     <MESSAGE value="Update version and changelog in metadata&#10;&#10;The metadata.txt file has been updated with a new version number, 4.7.1 from 4.7.0. The changelog has also been modified reflecting major bug fixes and changes made to the order by in us-usm view for this version." />
     <MESSAGE value="Refactor progress bar update logic and clean up duplicated code&#10;&#10;Enhanced progress bar update by modifying the calculation and update logic. Now, it accurately calculates the progress as a percentage and stores it as an integer, improving performance. This update applies across multiple files. Redundant code lines were also eliminated for a cleaner, more readable code." />
-    <option name="LAST_COMMIT_MESSAGE" value="Refactor progress bar update logic and clean up duplicated code&#10;&#10;Enhanced progress bar update by modifying the calculation and update logic. Now, it accurately calculates the progress as a percentage and stores it as an integer, improving performance. This update applies across multiple files. Redundant code lines were also eliminated for a cleaner, more readable code." />
+    <MESSAGE value="Update process termination and error handling&#10;&#10;Updated the process termination function to handle different operating systems. The new code will now terminate processes based on the platform. Also, some error messages in `pyarchinit_matrix_exp.py` were commented out to prevent them from disrupting the flow of the program." />
+    <MESSAGE value="Add platform-specific process termination in Gis_Time_controller&#10;&#10;The commit introduces platform check (Windows, MacOS and Linux) in `Gis_Time_controller.py` for process termination. It also comments out error messages in `pyarchinit_matrix_exp.py` to prevent error pop-ups, reducing user interruptions during execution. These adjustments aim to enhance cross-platform compatibility and user experience." />
+    <option name="LAST_COMMIT_MESSAGE" value="Add platform-specific process termination in Gis_Time_controller&#10;&#10;The commit introduces platform check (Windows, MacOS and Linux) in `Gis_Time_controller.py` for process termination. It also comments out error messages in `pyarchinit_matrix_exp.py` to prevent error pop-ups, reducing user interruptions during execution. These adjustments aim to enhance cross-platform compatibility and user experience." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -827,7 +838,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/tabs/Gis_Time_controller.py</url>
-          <line>23</line>
+          <line>25</line>
           <option name="timeStamp" value="6" />
         </line-breakpoint>
       </breakpoints>
