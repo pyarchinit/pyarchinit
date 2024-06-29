@@ -17,8 +17,7 @@
  *                                                                       *
  ***************************************************************************/
 """
-
-
+import shutil
 import subprocess
 import sys
 from shlex import quote as shlex_quote
@@ -202,6 +201,17 @@ def install(package):
         subprocess.run([python_executable, "-m", "pip", "install", shlex_quote(package)],
                        stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
 
+if platform.system()=='Darwin':
+    # Define the path to the directory
+    directory_path = "/Applications/QGIS.app/Contents/Resources/python/site-packages/opencv_contrib_python-4.3.0.36-py3.9-macosx-10.13.0-x86_64.egg/"
+
+    # Check if the directory exists
+    if os.path.exists(directory_path):
+        # Delete the directory and its contents
+        shutil.rmtree(directory_path)
+        print(f"Directory {directory_path} has been deleted.")
+    else:
+        print(f"Directory {directory_path} does not exist.")
 
 #QMessageBox.information(None, 'ok', str(result.stdout) + '-' + str(result.stderr))
 

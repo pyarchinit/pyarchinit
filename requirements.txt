@@ -6,7 +6,7 @@
  graphviz==0.20.3
  pysftp==0.2.9
  XlsxWriter==3.2.0
- opencv-python==4.9.0.80
+ opencv-python==4.10.0.84
  pytesseract==0.3.10
  psutil==5.9.8
  openai==1.30.3
