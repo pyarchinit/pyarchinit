@@ -172,7 +172,7 @@ def is_osgeo4w():
 def get_osgeo4w_python():
     osgeo4w_root = os.environ.get('OSGEO4W_ROOT')
     if osgeo4w_root:
-        return os.path.join(osgeo4w_root, 'bin', 'python-qgis.bat')
+        return os.path.join(osgeo4w_root, 'bin', 'python-qgis-ltr.bat')
     return sys.executable
 
 
