@@ -384,12 +384,11 @@ class single_Finds_pdf_sheet(object):
                 [elementi_reperto, '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17'],  # 6 row ok
                 [misurazioni, '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17'],  # 7 row ok
                 [tecnologie, '01', '02', '03', '04', '05', '06', '07', '08', tipologia, '10', '11', '12', '13', '14', '15', '16', '17'],  # 8 row ok
-                [rif_biblio, '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17'],  # 9 row ok
+                #[rif_biblio, '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17'],  # 9 row ok
                 [repertato, '01', '02', diagnostico, '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17'],  # 10 row ok
                 [lavato, '01', '02', nr_cassa, '04', '05', luogo_conservazione, '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17'],
-                #[mp, '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15',
-                 #'16', '17'],  # 5 row ok
-                # 12 row ok
+                [rif_biblio, '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15',
+                 '16', '17'],  # 9 row ok
             ]
 
             # table style
@@ -410,7 +409,7 @@ class single_Finds_pdf_sheet(object):
                 ('VALIGN', (11, 1), (17, 5), 'MIDDLE'),
                 ('ALIGN', (11, 1), (17, 5), 'CENTER'),
                 # 2 row
-                #('SPAN', (0, 2), (3, 2)),  # rif stratigrafici
+                # ('SPAN', (0, 2), (3, 2)),  # rif stratigrafici
                 ('SPAN', (0, 2), (2, 2)),  # area
                 ('SPAN', (3, 2), (5, 2)),  # us
                 ('SPAN', (6, 2), (7, 2)),  # anno
@@ -421,7 +420,7 @@ class single_Finds_pdf_sheet(object):
                 ('SPAN', (0, 3), (10, 3)),  # tipo_reperto
                 ('SPAN', (0, 4), (10, 4)),  # criterio_schedatura
                 ('SPAN', (0, 5), (10, 5)),  # definizione
-                #('VALIGN', (0, 3), (17, 3), 'TOP'),
+                # ('VALIGN', (0, 3), (17, 3), 'TOP'),
                 ('SPAN', (0, 6), (17, 9)),  # descrizione
                 ('VALIGN', (0, 6), (17, 17), 'TOP'),
                 # 4 row
@@ -429,7 +428,6 @@ class single_Finds_pdf_sheet(object):
                 ('SPAN', (5, 10), (17, 10)),  # conservazione
 
                 # 5 row
-
 
                 # 6 row
                 ('SPAN', (0, 11), (17, 11)),  # elementi_reperto
@@ -441,30 +439,29 @@ class single_Finds_pdf_sheet(object):
                 ('SPAN', (0, 13), (8, 13)),  # tecnologie
                 ('SPAN', (9, 13), (17, 13)),  # tipologia
 
-                # 17 row
-                ('SPAN', (0, 14), (17, 14)),  # bibliografia
-
                 # 10 row
-                ('SPAN', (0, 15), (2, 15)),  # Repertato Diagnostico
-                ('SPAN', (3, 15), (17, 15)),   # Repertato Diagnostico
+                ('SPAN', (0, 14), (2, 14)),  # Repertato Diagnostico
+                ('SPAN', (3, 14), (17, 14)),  # Repertato Diagnostico
 
                 # 11 row
-               # ('SPAN', (0, 15), (17, 15)),  # Riferimenti magazzino - Titolo
+                # ('SPAN', (0, 15), (17, 15)),  # Riferimenti magazzino - Titolo
 
                 # 12 row
-                ('SPAN', (0, 16), (2, 16)),  # Riferimenti magazzino - lavato
-                ('SPAN', (3, 16), (5, 16)),  # Riferimenti magazzino - nr_cassa
-                ('SPAN', (6, 16), (17, 16)),  # Riferimenti magazzino - luogo conservazione
-                #('SPAN', (0, 17), (17, 17)),  # localizzazione us su mappa
-                #('VALIGN', (0, 17), (17, 17), 'MIDDLE'),
-                #('ALIGN', (0, 17), (17, 17), 'CENTER'),
-
+                ('SPAN', (0, 15), (2, 15)),  # Riferimenti magazzino - lavato
+                ('SPAN', (3, 15), (5, 15)),  # Riferimenti magazzino - nr_cassa
+                ('SPAN', (6, 15), (17, 15)),  # Riferimenti magazzino - luogo conservazione
+                # ('SPAN', (0, 17), (17, 17)),  # localizzazione us su mappa
+                # ('VALIGN', (0, 17), (17, 17), 'MIDDLE'),
+                # ('ALIGN', (0, 17), (17, 17), 'CENTER'),
+                # 17 row
+                ('SPAN', (0, 16), (17, 16)),  # bibliografia
 
                 ('VALIGN', (0, 10), (-1, -1), 'TOP')
 
             ]
-            colWidths = (15, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 20, 30, 30, 30, 30,30)
-            rowHeights = (30, 40, 30, 30, 30, 30, 130, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30)
+            colWidths = (15, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 20, 30, 30, 30, 30, 30)
+            rowHeights = [30, 40, 30, 30, 30, 30, 130, 30, 30, 30, 30, 30, 30, 30, 30, 30, None]
+            # Ensure rowHeights is a list
 
             t = Table(cell_schema, colWidths = colWidths, rowHeights = rowHeights, style = table_style)
             #lst.append(logo)
@@ -996,15 +993,13 @@ class single_Finds_pdf_sheet(object):
                  '16', '17'],  # 7 row ok
                 [tecnologie, '01', '02', '03', '04', '05', '06', '07', '08', tipologia, '10', '11', '12', '13', '14',
                  '15', '16', '17'],  # 8 row ok
-                [rif_biblio, '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15',
-                 '16', '17'],  # 9 row ok
+
                 [repertato, '01', '02', diagnostico, '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14',
                  '15', '16', '17'],  # 10 row ok
                 [lavato, '01', '02', nr_cassa, '04', '05', luogo_conservazione, '07', '08', '09', '10', '11', '12',
                  '13', '14', '15', '16', '17'],
-                # [mp, '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15',
-                # '16', '17'],  # 5 row ok
-                # 12 row ok
+                [rif_biblio, '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15',
+                 '16', '17'],  # 9 row ok
             ]
 
             # table style
@@ -1055,29 +1050,31 @@ class single_Finds_pdf_sheet(object):
                 ('SPAN', (0, 13), (8, 13)),  # tecnologie
                 ('SPAN', (9, 13), (17, 13)),  # tipologia
 
-                # 17 row
-                ('SPAN', (0, 14), (17, 14)),  # bibliografia
+
 
                 # 10 row
-                ('SPAN', (0, 15), (2, 15)),  # Repertato Diagnostico
-                ('SPAN', (3, 15), (17, 15)),  # Repertato Diagnostico
+                ('SPAN', (0, 14), (2, 14)),  # Repertato Diagnostico
+                ('SPAN', (3, 14), (17, 14)),  # Repertato Diagnostico
 
                 # 11 row
                 # ('SPAN', (0, 15), (17, 15)),  # Riferimenti magazzino - Titolo
 
                 # 12 row
-                ('SPAN', (0, 16), (2, 16)),  # Riferimenti magazzino - lavato
-                ('SPAN', (3, 16), (5, 16)),  # Riferimenti magazzino - nr_cassa
-                ('SPAN', (6, 16), (17, 16)),  # Riferimenti magazzino - luogo conservazione
+                ('SPAN', (0, 15), (2, 15)),  # Riferimenti magazzino - lavato
+                ('SPAN', (3, 15), (5, 15)),  # Riferimenti magazzino - nr_cassa
+                ('SPAN', (6, 15), (17, 15)),  # Riferimenti magazzino - luogo conservazione
                 # ('SPAN', (0, 17), (17, 17)),  # localizzazione us su mappa
                 # ('VALIGN', (0, 17), (17, 17), 'MIDDLE'),
                 # ('ALIGN', (0, 17), (17, 17), 'CENTER'),
+                # 17 row
+                ('SPAN', (0, 16), (17, 16)),  # bibliografia
 
                 ('VALIGN', (0, 10), (-1, -1), 'TOP')
 
             ]
             colWidths = (15, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 20, 30, 30, 30, 30, 30)
-            rowHeights = (30, 40, 30, 30, 30, 30, 130, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30)
+            rowHeights = (30, 40, 30, 30, 30, 30, 130, 30, 30, 30, 30, 30, 30, 30, 30, 30, 130)
+            # Ensure rowHeights is a list
 
             t = Table(cell_schema, colWidths=colWidths, rowHeights=rowHeights, style=table_style)
             # lst.append(logo)
