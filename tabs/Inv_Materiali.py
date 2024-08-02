@@ -36,6 +36,7 @@ from qgis.PyQt.uic import loadUiType
 from qgis.core import QgsSettings
 from qgis.gui import QgsMapCanvas, QgsMapToolPan
 from collections import OrderedDict
+import subprocess
 from ..modules.utility.pyarchinit_media_utility import *
 from ..modules.db.pyarchinit_conn_strings import Connection
 from ..modules.db.pyarchinit_db_manager import Pyarchinit_db_management
