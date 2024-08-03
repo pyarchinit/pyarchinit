@@ -40,6 +40,7 @@ from openai import OpenAI
 matplotlib.use('QT5Agg')  # Assicurati di chiamare use() prima di importare FigureCanvas
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from qgis.PyQt import QtCore, QtGui, QtWidgets
+from qgis.PyQt.QtWidgets import QDockWidget
 from qgis.PyQt.QtGui import QKeySequence
 from qgis.core import *
 from qgis.gui import QgsMapCanvas, QgsMapToolPan
@@ -832,7 +833,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.mDockWidget_export.setHidden(True)
         self.mDockWidget_3.setHidden(True)
         self.mDockWidget_4.setHidden(True)
-        self.mDockWidget_h_check.setHidden(True)
+        self.mDockWidget_h.setHidden(True)
         self.mQgsFileWidget.setHidden(True)
         self.toolButton_file_doc.setHidden(True)
         self.mDockWidget_5.setHidden(True)
@@ -1316,12 +1317,12 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
     def search_rapp(self):
         # Clear current selection.
         #self.tableWidget_rapporti.setCurrentItem(None)
-
+        s=''
         if not s:
             # Empty string, don't search.
             return
 
-        matching_items = self.tableWidget_rapporti.findItems('1',MatchContains)
+        matching_items = self.tableWidget_rapporti.findItems('1',Qt.MatchContains)
         if matching_items:
             # We have found something.
             item = matching_items[0]  # Take the first.
