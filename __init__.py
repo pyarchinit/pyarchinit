@@ -182,11 +182,44 @@ def get_osgeo4w_python():
 
 
 
+def is_ubuntu():
+    return platform.system() == 'Linux' and 'Ubuntu' in platform.version()
+
+def get_ubuntu_package_name(package):
+    # This function maps pip package names to Ubuntu package names
+    # You may need to expand this dictionary for more packages
+    ubuntu_packages = {
+        'SQLAlchemy': 'python3-sqlalchemy',
+        'SQLAlchemy-Utils': 'python3-sqlalchemy-utils',
+        'GeoAlchemy2': 'python3-geoalchemy2',
+        'reportlab': 'python3-reportlab',
+        'graphviz': 'python3-graphviz',
+        'XlsxWriter': 'python3-xlsxwriter',
+        'opencv-python': 'python3-opencv',
+        'pytesseract': 'python3-pytesseract',
+        'psutil': 'python3-psutil',
+        'openai': 'python3-openai',
+        'openpyxl': 'python3-openpyxl',
+        'matplotlib': 'python3-matplotlib',
+        'pandas': 'python3-pandas',
+        'requests': 'python3-requests',
+        'PyMuPDF': 'python3-fitz',
+        'nltk': 'python3-nltk',
+        'python-docx': 'python3-docx',
+    }
+    return ubuntu_packages.get(package.split('==')[0], package)
+
 def install(package):
-
-
-    #global result
-    if platform.system() == 'Windows' and is_osgeo4w():
+    if is_ubuntu():
+        ubuntu_package = get_ubuntu_package_name(package)
+        try:
+            subprocess.run(['sudo', 'apt', 'install', '-y', ubuntu_package],
+                           check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        except subprocess.CalledProcessError:
+            print(f"Failed to install {ubuntu_package} via apt. Falling back to pip.")
+            subprocess.run([sys.executable, "-m", "pip", "install", shlex_quote(package)],
+                           check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    elif platform.system() == 'Windows' and is_osgeo4w():
         python_executable = get_osgeo4w_python()
         subprocess.run([python_executable, "-m", "pip", "install", shlex_quote(package)],
                        stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True, shell=True)
@@ -194,17 +227,16 @@ def install(package):
         python_executable = 'python'
         subprocess.run([python_executable, "-m", "pip", "install", shlex_quote(package), "--user"],
                        stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True, shell=True)
-    elif platform.system()=='Darwin':
-
-        QGIS_PREFIX_PATH = '/Applications/QGIS.app/Contents/MacOS'  # Replace with your QGIS installation path
+    elif platform.system() == 'Darwin':
+        QGIS_PREFIX_PATH = '/Applications/QGIS.app/Contents/MacOS'
         python_executable = os.path.join(QGIS_PREFIX_PATH, 'bin', 'python3')
         subprocess.run([python_executable, "-m", "pip", "install", shlex_quote(package)],
-                                stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
+                       stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
     else:
-
         python_executable = 'python3'
         subprocess.run([python_executable, "-m", "pip", "install", shlex_quote(package)],
                        stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
+
 
 if platform.system()=='Darwin':
     # Define the path to the directory
@@ -286,20 +318,68 @@ for p in packages:
                                     #"INFO: It seems that Graphviz is not installed on your system or you don't have set the path in Pyarchinit config. Anyway the graphviz python module will be installed on your system, but the export matrix functionality from pyarchinit plugin will be disabled.",
                                     #QMessageBox.Ok | QMessageBox.Cancel)
 
-if platform.system() == "Darwin":
-    location = os.path.expanduser("~/Library/Fonts")
+def install(package):
+    if is_ubuntu():
+        ubuntu_package = get_ubuntu_package_name(package)
+        try:
+            subprocess.run(['sudo', 'apt', 'install', '-y', ubuntu_package],
+                           check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        except subprocess.CalledProcessError:
+            print(f"Failed to install {ubuntu_package} via apt. Falling back to pip.")
+            subprocess.run([sys.executable, "-m", "pip", "install", shlex_quote(package)],
+                           check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    elif platform.system() == 'Windows' and is_osgeo4w():
+        python_executable = get_osgeo4w_python()
+        subprocess.run([python_executable, "-m", "pip", "install", shlex_quote(package)],
+                       stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True, shell=True)
+    elif platform.system() == 'Windows':
+        python_executable = 'python'
+        subprocess.run([python_executable, "-m", "pip", "install", shlex_quote(package), "--user"],
+                       stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True, shell=True)
+    elif platform.system() == 'Darwin':
+        QGIS_PREFIX_PATH = '/Applications/QGIS.app/Contents/MacOS'
+        python_executable = os.path.join(QGIS_PREFIX_PATH, 'bin', 'python3')
+        subprocess.run([python_executable, "-m", "pip", "install", shlex_quote(package)],
+                       stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
+    else:
+        python_executable = 'python3'
+        subprocess.run([python_executable, "-m", "pip", "install", shlex_quote(package)],
+                       stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
 
-    if not path.exists(location + '/cambria.ttc'):
-
+def install_fonts():
+    if platform.system() == "Darwin":
+        location = os.path.expanduser("~/Library/Fonts")
+        if not os.path.exists(location + '/cambria.ttc'):
+            QMessageBox.warning(None, 'Pyarchinit',
+                                "INFO: Il font Cambria sembra non essere installato. Per installarlo clicca Ok\n e poi doppio click su cambria.*\nDopo ricarica il plugin",
+                                QMessageBox.Ok)
+            if QMessageBox.Ok:
+                HOME = os.environ['PYARCHINIT_HOME']
+                path = '{}{}{}'.format(HOME, os.sep, "bin")
+                subprocess.Popen(["open", path])
+    elif is_ubuntu():
+        location = os.path.expanduser("~/.local/share/fonts")
+        if not os.path.exists(location + '/cambria.ttc'):
+            QMessageBox.warning(None, 'Pyarchinit',
+                                "INFO: Il font Cambria sembra non essere installato. Per installarlo clicca Ok\n e poi esegui il comando fornito nel terminale.",
+                                QMessageBox.Ok)
+            if QMessageBox.Ok:
+                HOME = os.environ['PYARCHINIT_HOME']
+                font_path = '{}{}{}'.format(HOME, os.sep, "bin/cambria.ttc")
+                install_command = f"mkdir -p {location} && cp {font_path} {location} && fc-cache -f -v"
+                QMessageBox.information(None, 'Pyarchinit',
+                                        f"Esegui questo comando nel terminale:\n\n{install_command}\n\nDopo ricarica il plugin",
+                                        QMessageBox.Ok)
+    elif platform.system() == "Windows":
+        # Existing Windows font installation logic here
+        pass
+    else:
         QMessageBox.warning(None, 'Pyarchinit',
-                            "INFO: Il font Cambria sembra non essere installato. per installarlo clicca Ok\n e poi doppio click su cambria.*\Dopo ricarica il plugin",
+                            "Il tuo sistema operativo non è supportato per l'installazione automatica dei font. Installa manualmente il font Cambria.",
                             QMessageBox.Ok)
 
-        if QMessageBox.Ok:
-            HOME = os.environ['PYARCHINIT_HOME']
-            path = '{}{}{}'.format(HOME, os.sep, "bin")
-
-            subprocess.Popen(["open", path])
+# Call this function at the appropriate place in your script
+install_fonts()
 
 
 
