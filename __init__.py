@@ -304,47 +304,6 @@ for p in packages:
             subprocess.call(['dot', '-V'])
         except Exception as e:
             print(e)
-            #if L == 'it':
-                #QMessageBox.warning(None, 'Pyarchinit',
-                                    #"INFO: Sembra che Graphviz non sia installato sul vostro sistema o che non abbiate impostato il percorso in Pyarchinit config. In ogni caso il modulo python di graphviz sarà installato sul vostro sistema, ma la funzionalità di esportazione del matrix dal plugin pyarchinit sarà disabilitata.",
-                                    #QMessageBox.Ok | QMessageBox.Cancel)
-            #if L == 'de':
-                #QMessageBox.warning(None, 'Pyarchinit',
-                                    #"INFO: Es scheint, dass Graphviz nicht auf Ihrem System installiert ist oder dass Sie den Pfad in der Pyarchinit-Konfiguration nicht festgelegt haben. Wie auch immer, das Graphviz-Python-Modul wird auf Ihrem System installiert sein, aber die Exportmatrix-Funktionalität aus dem Pyarchinit-Plugin wird deaktiviert sein.",
-                                    #QMessageBox.Ok | QMessageBox.Cancel)
-
-            #else:
-                #QMessageBox.warning(None, 'Pyarchinit',
-                                    #"INFO: It seems that Graphviz is not installed on your system or you don't have set the path in Pyarchinit config. Anyway the graphviz python module will be installed on your system, but the export matrix functionality from pyarchinit plugin will be disabled.",
-                                    #QMessageBox.Ok | QMessageBox.Cancel)
-
-def install(package):
-    if is_ubuntu():
-        ubuntu_package = get_ubuntu_package_name(package)
-        try:
-            subprocess.run(['sudo', 'apt', 'install', '-y', ubuntu_package],
-                           check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        except subprocess.CalledProcessError:
-            print(f"Failed to install {ubuntu_package} via apt. Falling back to pip.")
-            subprocess.run([sys.executable, "-m", "pip", "install", shlex_quote(package)],
-                           check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    elif platform.system() == 'Windows' and is_osgeo4w():
-        python_executable = get_osgeo4w_python()
-        subprocess.run([python_executable, "-m", "pip", "install", shlex_quote(package)],
-                       stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True, shell=True)
-    elif platform.system() == 'Windows':
-        python_executable = 'python'
-        subprocess.run([python_executable, "-m", "pip", "install", shlex_quote(package), "--user"],
-                       stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True, shell=True)
-    elif platform.system() == 'Darwin':
-        QGIS_PREFIX_PATH = '/Applications/QGIS.app/Contents/MacOS'
-        python_executable = os.path.join(QGIS_PREFIX_PATH, 'bin', 'python3')
-        subprocess.run([python_executable, "-m", "pip", "install", shlex_quote(package)],
-                       stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
-    else:
-        python_executable = 'python3'
-        subprocess.run([python_executable, "-m", "pip", "install", shlex_quote(package)],
-                       stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
 
 def install_fonts():
     if platform.system() == "Darwin":
