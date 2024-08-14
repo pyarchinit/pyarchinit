@@ -56,7 +56,7 @@ from qgis.PyQt.QtWidgets import (QMessageBox, QDialog, QVBoxLayout, QLabel, QPus
 from qgis.core import QgsSettings
 from .modules.utility.pyarchinit_OS_utility import Pyarchinit_OS_Utility
 from .modules.utility.pyarchinit_folder_installation import pyarchinit_Folder_installation
-
+from .modules.utility.install_caladea_font import install_caladea
 def show_install_dialog(packages):
     dialog = InstallDialog(packages)
     dialog.exec_()
@@ -317,21 +317,8 @@ def install_fonts():
                 path = '{}{}{}'.format(HOME, os.sep, "bin")
                 subprocess.Popen(["open", path])
     elif is_ubuntu():
-        location = os.path.expanduser("~/.local/share/fonts")
-        if not os.path.exists(location + '/cambria.ttc'):
-            QMessageBox.warning(None, 'Pyarchinit',
-                                "INFO: Il font Cambria sembra non essere installato. Per installarlo clicca Ok\n e poi esegui il comando fornito nel terminale.",
-                                QMessageBox.Ok)
-            if QMessageBox.Ok:
-                HOME = os.environ['PYARCHINIT_HOME']
-                font_path = '{}{}{}'.format(HOME, os.sep, "bin/cambria.ttc")
-                install_command = f"mkdir -p {location} && cp {font_path} {location} && fc-cache -f -v"
-                QMessageBox.information(None, 'Pyarchinit',
-                                        f"Esegui questo comando nel terminale:\n\n{install_command}\n\nDopo ricarica il plugin",
-                                        QMessageBox.Ok)
-    elif platform.system() == "Windows":
-        # Existing Windows font installation logic here
-        pass
+        install_caladea_f()
+
     else:
         QMessageBox.warning(None, 'Pyarchinit',
                             "Il tuo sistema operativo non è supportato per l'installazione automatica dei font. Installa manualmente il font Cambria.",
@@ -340,6 +327,15 @@ def install_fonts():
 # Call this function at the appropriate place in your script
 install_fonts()
 
+
+def install_caladea_f():
+    location = os.path.expanduser("~/.local/share/fonts")
+    if not os.path.exists(location + '/caladea.ttc'):
+        QMessageBox.warning(None, 'Pyarchinit',
+                            "INFO: Il font Caladea sembra non essere installato. Per installarlo clicca Ok\n e poi esegui il comando fornito nel terminale.",
+                            QMessageBox.Ok)
+        if QMessageBox.Ok:
+            install_caladea()
 
 
 def classFactory(iface):
