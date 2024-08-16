@@ -31,13 +31,13 @@ import shutil
 
 import platform
 import cv2
-import pytesseract
+#import pytesseract
 import numpy as np
 #####################nuovi#######################
 from PIL import ImageGrab
 import time
-from pytesseract import Output
-pytesseract.pytesseract.tesseract_cmd = 'C:\\Program Files\\Tesseract-OCR\\tesseract.exe'# funziona meglio 
+#from pytesseract import Output
+#pytesseract.pytesseract.tesseract_cmd = 'C:\\Program Files\\Tesseract-OCR\\tesseract.exe'# funziona meglio
 ###############################
 from qgis import PyQt
 from qgis.PyQt.QtCore import *
