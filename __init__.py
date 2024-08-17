@@ -316,27 +316,24 @@ def install_fonts():
                 HOME = os.environ['PYARCHINIT_HOME']
                 path = '{}{}{}'.format(HOME, os.sep, "bin")
                 subprocess.Popen(["open", path])
-    elif is_ubuntu():
-        install_caladea_f()
+    # elif is_ubuntu():
+    #     install_caladea_f()
 
-    else:
-        QMessageBox.warning(None, 'Pyarchinit',
-                            "Il tuo sistema operativo non è supportato per l'installazione automatica dei font. Installa manualmente il font Cambria.",
-                            QMessageBox.Ok)
+
 
 # Call this function at the appropriate place in your script
 install_fonts()
 
 
-def install_caladea_f():
-    location = os.path.expanduser("~/.local/share/fonts")
-    if not os.path.exists(location + '/caladea.ttc'):
-        QMessageBox.warning(None, 'Pyarchinit',
-                            "INFO: Il font Caladea sembra non essere installato. Per installarlo clicca Ok\n e poi esegui il comando fornito nel terminale.",
-                            QMessageBox.Ok)
-        if QMessageBox.Ok:
-            install_caladea()
-
+# def install_caladea_f():
+#     location = os.path.expanduser("~/.local/share/fonts")
+#     if not os.path.exists(location + '/caladea.ttc'):
+#         QMessageBox.warning(None, 'Pyarchinit',
+#                             "INFO: Il font Caladea sembra non essere installato. Per installarlo clicca Ok\n e poi esegui il comando fornito nel terminale.",
+#                             QMessageBox.Ok)
+#         if QMessageBox.Ok:
+#             install_caladea()
+#
 
 def classFactory(iface):
 
