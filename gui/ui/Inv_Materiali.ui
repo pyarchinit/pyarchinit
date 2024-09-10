@@ -476,6 +476,7 @@
      </property>
      <property name="font">
       <font>
+       <family>Times New Roman</family>
        <pointsize>9</pointsize>
       </font>
      </property>
@@ -509,6 +510,7 @@
      </property>
      <property name="font">
       <font>
+       <family>Times New Roman</family>
        <pointsize>9</pointsize>
       </font>
      </property>
@@ -524,6 +526,7 @@
     <widget class="QLabel" name="label_38">
      <property name="font">
       <font>
+       <family>Times New Roman</family>
        <pointsize>9</pointsize>
       </font>
      </property>
@@ -545,8 +548,12 @@
      </property>
      <property name="font">
       <font>
+       <family>Times New Roman</family>
        <pointsize>9</pointsize>
       </font>
+     </property>
+     <property name="toolTip">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Numero d'invetario locale o provvisorio. Questo è un campo obbligatorio&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="text">
       <string/>
@@ -560,6 +567,7 @@
     <widget class="QComboBox" name="comboBox_diagnostico">
      <property name="font">
       <font>
+       <family>Times New Roman</family>
        <pointsize>9</pointsize>
       </font>
      </property>
@@ -587,6 +595,7 @@
     <widget class="QLabel" name="label_39">
      <property name="font">
       <font>
+       <family>Times New Roman</family>
        <pointsize>9</pointsize>
       </font>
      </property>
@@ -602,8 +611,12 @@
      </property>
      <property name="font">
       <font>
+       <family>Times New Roman</family>
        <pointsize>9</pointsize>
       </font>
+     </property>
+     <property name="toolTip">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Numero d'invetario RA&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="text">
       <string/>
@@ -622,6 +635,7 @@
       <widget class="QLabel" name="label_32">
        <property name="font">
         <font>
+         <family>Times New Roman</family>
          <pointsize>9</pointsize>
         </font>
        </property>
@@ -634,6 +648,7 @@
       <widget class="QLabel" name="label_44">
        <property name="font">
         <font>
+         <family>Times New Roman</family>
          <pointsize>9</pointsize>
         </font>
        </property>
@@ -649,6 +664,7 @@
       <widget class="QPushButton" name="pushButton_connect">
        <property name="font">
         <font>
+         <family>Times New Roman</family>
          <pointsize>9</pointsize>
         </font>
        </property>
@@ -667,6 +683,7 @@
        </property>
        <property name="font">
         <font>
+         <family>Times New Roman</family>
          <pointsize>9</pointsize>
         </font>
        </property>
@@ -706,6 +723,7 @@
         <widget class="QLabel" name="label_45">
          <property name="font">
           <font>
+           <family>Times New Roman</family>
            <pointsize>9</pointsize>
           </font>
          </property>
@@ -727,6 +745,7 @@
          </property>
          <property name="font">
           <font>
+           <family>Times New Roman</family>
            <pointsize>9</pointsize>
           </font>
          </property>
@@ -760,6 +779,7 @@
         <widget class="QLabel" name="label_sort">
          <property name="font">
           <font>
+           <family>Times New Roman</family>
            <pointsize>9</pointsize>
           </font>
          </property>
@@ -793,6 +813,7 @@
         <widget class="QLabel" name="label_35">
          <property name="font">
           <font>
+           <family>Times New Roman</family>
            <pointsize>9</pointsize>
           </font>
          </property>
@@ -808,60 +829,7 @@
      </item>
      <item row="2" column="0" rowspan="2" colspan="2">
       <layout class="QGridLayout" name="gridLayout_17">
-       <item row="1" column="7">
-        <widget class="QPushButton" name="pushButton_delete">
-         <property name="enabled">
-          <bool>true</bool>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>30</width>
-           <height>16777215</height>
-          </size>
-         </property>
-         <property name="font">
-          <font>
-           <pointsize>9</pointsize>
-          </font>
-         </property>
-         <property name="toolTip">
-          <string>Delete record</string>
-         </property>
-         <property name="text">
-          <string/>
-         </property>
-         <property name="icon">
-          <iconset resource="../../resources/resources.qrc">
-           <normaloff>:/icons/delete.png</normaloff>:/icons/delete.png</iconset>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="9">
-        <widget class="QPushButton" name="pushButton_search_go">
-         <property name="maximumSize">
-          <size>
-           <width>30</width>
-           <height>16777215</height>
-          </size>
-         </property>
-         <property name="font">
-          <font>
-           <pointsize>9</pointsize>
-          </font>
-         </property>
-         <property name="toolTip">
-          <string>search !!!</string>
-         </property>
-         <property name="text">
-          <string/>
-         </property>
-         <property name="icon">
-          <iconset resource="../../resources/resources.qrc">
-           <normaloff>:/icons/search.png</normaloff>:/icons/search.png</iconset>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="10">
+       <item row="0" column="11">
         <widget class="QPushButton" name="pushButton_new_rec">
          <property name="maximumSize">
           <size>
@@ -871,6 +839,7 @@
          </property>
          <property name="font">
           <font>
+           <family>Times New Roman</family>
            <pointsize>9</pointsize>
           </font>
          </property>
@@ -886,57 +855,7 @@
          </property>
         </widget>
        </item>
-       <item row="1" column="8">
-        <widget class="QPushButton" name="pushButton_new_search">
-         <property name="maximumSize">
-          <size>
-           <width>30</width>
-           <height>16777215</height>
-          </size>
-         </property>
-         <property name="font">
-          <font>
-           <pointsize>9</pointsize>
-          </font>
-         </property>
-         <property name="toolTip">
-          <string>new search</string>
-         </property>
-         <property name="text">
-          <string/>
-         </property>
-         <property name="icon">
-          <iconset resource="../../resources/resources.qrc">
-           <normaloff>:/icons/new_search.png</normaloff>:/icons/new_search.png</iconset>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="6">
-        <widget class="QPushButton" name="pushButton_first_rec">
-         <property name="maximumSize">
-          <size>
-           <width>30</width>
-           <height>16777215</height>
-          </size>
-         </property>
-         <property name="font">
-          <font>
-           <pointsize>9</pointsize>
-          </font>
-         </property>
-         <property name="toolTip">
-          <string>First rec</string>
-         </property>
-         <property name="text">
-          <string/>
-         </property>
-         <property name="icon">
-          <iconset resource="../../resources/resources.qrc">
-           <normaloff>:/icons/5_leftArrows.png</normaloff>:/icons/5_leftArrows.png</iconset>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="11">
+       <item row="0" column="12">
         <widget class="QPushButton" name="pushButton_save">
          <property name="maximumSize">
           <size>
@@ -946,6 +865,7 @@
          </property>
          <property name="font">
           <font>
+           <family>Times New Roman</family>
            <pointsize>9</pointsize>
           </font>
          </property>
@@ -964,7 +884,59 @@
          </property>
         </widget>
        </item>
-       <item row="0" column="8">
+       <item row="1" column="12">
+        <widget class="QPushButton" name="pushButton_view_all_2">
+         <property name="maximumSize">
+          <size>
+           <width>30</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="font">
+          <font>
+           <family>Times New Roman</family>
+           <pointsize>9</pointsize>
+          </font>
+         </property>
+         <property name="toolTip">
+          <string>View alls records</string>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="icon">
+          <iconset resource="../../resources/resources.qrc">
+           <normaloff>:/icons/view_all.png</normaloff>:/icons/view_all.png</iconset>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="7">
+        <widget class="QPushButton" name="pushButton_first_rec">
+         <property name="maximumSize">
+          <size>
+           <width>30</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="font">
+          <font>
+           <family>Times New Roman</family>
+           <pointsize>9</pointsize>
+          </font>
+         </property>
+         <property name="toolTip">
+          <string>First rec</string>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="icon">
+          <iconset resource="../../resources/resources.qrc">
+           <normaloff>:/icons/5_leftArrows.png</normaloff>:/icons/5_leftArrows.png</iconset>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="9">
         <widget class="QPushButton" name="pushButton_next_rec">
          <property name="maximumSize">
           <size>
@@ -974,6 +946,7 @@
          </property>
          <property name="font">
           <font>
+           <family>Times New Roman</family>
            <pointsize>9</pointsize>
           </font>
          </property>
@@ -989,7 +962,36 @@
          </property>
         </widget>
        </item>
-       <item row="0" column="7">
+       <item row="1" column="7">
+        <widget class="QPushButton" name="pushButton_open_dir">
+         <property name="minimumSize">
+          <size>
+           <width>30</width>
+           <height>20</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>30</width>
+           <height>20</height>
+          </size>
+         </property>
+         <property name="font">
+          <font>
+           <family>Times New Roman</family>
+           <pointsize>9</pointsize>
+          </font>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="icon">
+          <iconset resource="../../resources/resources.qrc">
+           <normaloff>:/icons/directoryExp.png</normaloff>:/icons/directoryExp.png</iconset>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="8">
         <widget class="QPushButton" name="pushButton_prev_rec">
          <property name="maximumSize">
           <size>
@@ -999,6 +1001,7 @@
          </property>
          <property name="font">
           <font>
+           <family>Times New Roman</family>
            <pointsize>9</pointsize>
           </font>
          </property>
@@ -1014,8 +1017,8 @@
          </property>
         </widget>
        </item>
-       <item row="0" column="9">
-        <widget class="QPushButton" name="pushButton_last_rec">
+       <item row="1" column="11">
+        <widget class="QPushButton" name="pushButton_sort">
          <property name="maximumSize">
           <size>
            <width>30</width>
@@ -1024,18 +1027,45 @@
          </property>
          <property name="font">
           <font>
+           <family>Times New Roman</family>
            <pointsize>9</pointsize>
           </font>
          </property>
          <property name="toolTip">
-          <string>Last rec</string>
+          <string>Order by</string>
          </property>
          <property name="text">
           <string/>
          </property>
          <property name="icon">
           <iconset resource="../../resources/resources.qrc">
-           <normaloff>:/icons/7_rightArrows.png</normaloff>:/icons/7_rightArrows.png</iconset>
+           <normaloff>:/icons/sort.png</normaloff>:/icons/sort.png</iconset>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="10">
+        <widget class="QPushButton" name="pushButton_search_go">
+         <property name="maximumSize">
+          <size>
+           <width>30</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="font">
+          <font>
+           <family>Times New Roman</family>
+           <pointsize>9</pointsize>
+          </font>
+         </property>
+         <property name="toolTip">
+          <string>search !!!</string>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="icon">
+          <iconset resource="../../resources/resources.qrc">
+           <normaloff>:/icons/search.png</normaloff>:/icons/search.png</iconset>
          </property>
         </widget>
        </item>
@@ -1080,84 +1110,6 @@
          </property>
         </widget>
        </item>
-       <item row="1" column="11">
-        <widget class="QPushButton" name="pushButton_view_all_2">
-         <property name="maximumSize">
-          <size>
-           <width>30</width>
-           <height>16777215</height>
-          </size>
-         </property>
-         <property name="font">
-          <font>
-           <pointsize>9</pointsize>
-          </font>
-         </property>
-         <property name="toolTip">
-          <string>View alls records</string>
-         </property>
-         <property name="text">
-          <string/>
-         </property>
-         <property name="icon">
-          <iconset resource="../../resources/resources.qrc">
-           <normaloff>:/icons/view_all.png</normaloff>:/icons/view_all.png</iconset>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="6">
-        <widget class="QPushButton" name="pushButton_open_dir">
-         <property name="minimumSize">
-          <size>
-           <width>30</width>
-           <height>20</height>
-          </size>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>30</width>
-           <height>20</height>
-          </size>
-         </property>
-         <property name="font">
-          <font>
-           <pointsize>9</pointsize>
-          </font>
-         </property>
-         <property name="text">
-          <string/>
-         </property>
-         <property name="icon">
-          <iconset resource="../../resources/resources.qrc">
-           <normaloff>:/icons/directoryExp.png</normaloff>:/icons/directoryExp.png</iconset>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="10">
-        <widget class="QPushButton" name="pushButton_sort">
-         <property name="maximumSize">
-          <size>
-           <width>30</width>
-           <height>16777215</height>
-          </size>
-         </property>
-         <property name="font">
-          <font>
-           <pointsize>9</pointsize>
-          </font>
-         </property>
-         <property name="toolTip">
-          <string>Order by</string>
-         </property>
-         <property name="text">
-          <string/>
-         </property>
-         <property name="icon">
-          <iconset resource="../../resources/resources.qrc">
-           <normaloff>:/icons/sort.png</normaloff>:/icons/sort.png</iconset>
-         </property>
-        </widget>
-       </item>
        <item row="0" column="5">
         <widget class="QToolButton" name="toolButtonPreviewMedia">
          <property name="enabled">
@@ -1184,6 +1136,110 @@
          </property>
         </widget>
        </item>
+       <item row="1" column="8">
+        <widget class="QPushButton" name="pushButton_delete">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>30</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="font">
+          <font>
+           <family>Times New Roman</family>
+           <pointsize>9</pointsize>
+          </font>
+         </property>
+         <property name="toolTip">
+          <string>Delete record</string>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="icon">
+          <iconset resource="../../resources/resources.qrc">
+           <normaloff>:/icons/delete.png</normaloff>:/icons/delete.png</iconset>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="9">
+        <widget class="QPushButton" name="pushButton_new_search">
+         <property name="maximumSize">
+          <size>
+           <width>30</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="font">
+          <font>
+           <family>Times New Roman</family>
+           <pointsize>9</pointsize>
+          </font>
+         </property>
+         <property name="toolTip">
+          <string>new search</string>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="icon">
+          <iconset resource="../../resources/resources.qrc">
+           <normaloff>:/icons/new_search.png</normaloff>:/icons/new_search.png</iconset>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="10">
+        <widget class="QPushButton" name="pushButton_last_rec">
+         <property name="maximumSize">
+          <size>
+           <width>30</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="font">
+          <font>
+           <family>Times New Roman</family>
+           <pointsize>9</pointsize>
+          </font>
+         </property>
+         <property name="toolTip">
+          <string>Last rec</string>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="icon">
+          <iconset resource="../../resources/resources.qrc">
+           <normaloff>:/icons/7_rightArrows.png</normaloff>:/icons/7_rightArrows.png</iconset>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="6">
+        <widget class="QPushButton" name="pushButton_export_ica">
+         <property name="minimumSize">
+          <size>
+           <width>30</width>
+           <height>20</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>30</width>
+           <height>20</height>
+          </size>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="icon">
+          <iconset resource="../../resources/resources.qrc">
+           <normaloff>:/icons/excel-export.png</normaloff>:/icons/excel-export.png</iconset>
+         </property>
+        </widget>
+       </item>
       </layout>
      </item>
      <item row="3" column="2">
@@ -1192,6 +1248,7 @@
         <widget class="QLabel" name="label_33">
          <property name="font">
           <font>
+           <family>Times New Roman</family>
            <pointsize>9</pointsize>
           </font>
          </property>
@@ -1207,6 +1264,7 @@
         <widget class="QLabel" name="label_rec_corrente">
          <property name="font">
           <font>
+           <family>Times New Roman</family>
            <pointsize>9</pointsize>
           </font>
          </property>
@@ -1234,6 +1292,7 @@
         <widget class="QLabel" name="label_36">
          <property name="font">
           <font>
+           <family>Times New Roman</family>
            <pointsize>9</pointsize>
           </font>
          </property>
@@ -1249,6 +1308,7 @@
         <widget class="QLabel" name="label_rec_tot">
          <property name="font">
           <font>
+           <family>Times New Roman</family>
            <pointsize>9</pointsize>
           </font>
          </property>
@@ -1286,6 +1346,7 @@
      </property>
      <property name="font">
       <font>
+       <family>Times New Roman</family>
        <pointsize>9</pointsize>
       </font>
      </property>
@@ -1313,6 +1374,7 @@
      </property>
      <property name="font">
       <font>
+       <family>Times New Roman</family>
        <pointsize>9</pointsize>
       </font>
      </property>
@@ -1349,6 +1411,7 @@
      </property>
      <property name="font">
       <font>
+       <family>Times New Roman</family>
        <pointsize>9</pointsize>
       </font>
      </property>
@@ -1358,6 +1421,7 @@
     <widget class="QLineEdit" name="lineEdit_nr_cassa">
      <property name="font">
       <font>
+       <family>Times New Roman</family>
        <pointsize>9</pointsize>
       </font>
      </property>
@@ -1376,6 +1440,7 @@
      </property>
      <property name="font">
       <font>
+       <family>Times New Roman</family>
        <pointsize>9</pointsize>
       </font>
      </property>
@@ -1403,6 +1468,7 @@
      </property>
      <property name="font">
       <font>
+       <family>Times New Roman</family>
        <pointsize>9</pointsize>
       </font>
      </property>
@@ -1418,6 +1484,7 @@
     <widget class="QLineEdit" name="lineEdit_tipo">
      <property name="font">
       <font>
+       <family>Times New Roman</family>
        <pointsize>9</pointsize>
       </font>
      </property>
@@ -1433,6 +1500,7 @@
      </property>
      <property name="font">
       <font>
+       <family>Times New Roman</family>
        <pointsize>9</pointsize>
       </font>
      </property>
@@ -1445,6 +1513,7 @@
     <widget class="QLabel" name="label_31">
      <property name="font">
       <font>
+       <family>Times New Roman</family>
        <pointsize>9</pointsize>
       </font>
      </property>
@@ -1464,6 +1533,7 @@
     <widget class="QComboBox" name="comboBox_repertato">
      <property name="font">
       <font>
+       <family>Times New Roman</family>
        <pointsize>9</pointsize>
       </font>
      </property>
@@ -1491,6 +1561,7 @@
     <widget class="QLineEdit" name="lineEdit_luogo_conservazione">
      <property name="font">
       <font>
+       <family>Times New Roman</family>
        <pointsize>9</pointsize>
       </font>
      </property>
@@ -1524,6 +1595,7 @@
      </property>
      <property name="font">
       <font>
+       <family>Times New Roman</family>
        <pointsize>9</pointsize>
       </font>
      </property>
@@ -1559,6 +1631,7 @@
     <widget class="QLineEdit" name="lineEdit_area">
      <property name="font">
       <font>
+       <family>Times New Roman</family>
        <pointsize>9</pointsize>
       </font>
      </property>
@@ -1571,6 +1644,7 @@
     <widget class="QLineEdit" name="lineEdit_us">
      <property name="font">
       <font>
+       <family>Times New Roman</family>
        <pointsize>9</pointsize>
       </font>
      </property>
@@ -1589,6 +1663,7 @@
      </property>
      <property name="font">
       <font>
+       <family>Times New Roman</family>
        <pointsize>9</pointsize>
       </font>
      </property>
@@ -1599,6 +1674,9 @@
    </item>
    <item row="3" column="5">
     <widget class="QCheckBox" name="checkBox_auto_inv">
+     <property name="toolTip">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;tenere spuntata questa casella per avere il il numero d'invetario repertato sequenziale&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
      <property name="text">
       <string/>
      </property>
@@ -1623,6 +1701,7 @@
      </property>
      <property name="font">
       <font>
+       <family>Times New Roman</family>
        <pointsize>9</pointsize>
       </font>
      </property>
@@ -1698,6 +1777,7 @@
      </property>
      <property name="font">
       <font>
+       <family>Times New Roman</family>
        <pointsize>9</pointsize>
       </font>
      </property>
@@ -1725,6 +1805,7 @@
      </property>
      <property name="font">
       <font>
+       <family>Times New Roman</family>
        <pointsize>9</pointsize>
       </font>
      </property>
@@ -1740,6 +1821,7 @@
     <widget class="QLabel" name="label_2">
      <property name="font">
       <font>
+       <family>Times New Roman</family>
        <pointsize>9</pointsize>
       </font>
      </property>
@@ -1752,6 +1834,7 @@
     <widget class="QComboBox" name="comboBox_conservazione">
      <property name="font">
       <font>
+       <family>Times New Roman</family>
        <pointsize>9</pointsize>
       </font>
      </property>
@@ -1801,6 +1884,7 @@
      </property>
      <property name="font">
       <font>
+       <family>Times New Roman</family>
        <pointsize>9</pointsize>
       </font>
      </property>
@@ -1823,6 +1907,7 @@
     <widget class="QLabel" name="label_30">
      <property name="font">
       <font>
+       <family>Times New Roman</family>
        <pointsize>9</pointsize>
       </font>
      </property>
@@ -1835,6 +1920,7 @@
     <widget class="QLabel" name="label_27">
      <property name="font">
       <font>
+       <family>Times New Roman</family>
        <pointsize>9</pointsize>
       </font>
      </property>
@@ -1865,6 +1951,7 @@
      </property>
      <property name="font">
       <font>
+       <family>Times New Roman</family>
        <pointsize>9</pointsize>
       </font>
      </property>
@@ -1892,6 +1979,7 @@
     <widget class="QLabel" name="label_26">
      <property name="font">
       <font>
+       <family>Times New Roman</family>
        <pointsize>9</pointsize>
       </font>
      </property>
@@ -1907,6 +1995,7 @@
     <widget class="QLabel" name="label_19">
      <property name="font">
       <font>
+       <family>Times New Roman</family>
        <pointsize>9</pointsize>
       </font>
      </property>
@@ -1932,6 +2021,7 @@
     <widget class="QTabWidget" name="tabWidget">
      <property name="font">
       <font>
+       <family>Times New Roman</family>
        <pointsize>9</pointsize>
       </font>
      </property>
@@ -2043,6 +2133,7 @@
           <widget class="QLabel" name="label_20">
            <property name="font">
             <font>
+             <family>Times New Roman</family>
              <pointsize>9</pointsize>
             </font>
            </property>
@@ -2055,6 +2146,7 @@
           <widget class="QPushButton" name="pushButton_insert_row_elementi">
            <property name="font">
             <font>
+             <family>Times New Roman</family>
              <pointsize>9</pointsize>
             </font>
            </property>
@@ -2067,6 +2159,7 @@
           <widget class="QPushButton" name="pushButton_remove_row_elementi">
            <property name="font">
             <font>
+             <family>Times New Roman</family>
              <pointsize>9</pointsize>
             </font>
            </property>
@@ -2085,8 +2178,12 @@
            </property>
            <property name="font">
             <font>
+             <family>Times New Roman</family>
              <pointsize>9</pointsize>
             </font>
+           </property>
+           <property name="toolTip">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;esempio:&lt;/p&gt;&lt;p&gt;elemento rinvenuto: pareti&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;tipo di quantità: frammento o frammenti o intero&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;quantità: 5&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
            </property>
            <property name="frameShape">
             <enum>QFrame::StyledPanel</enum>
@@ -2139,6 +2236,7 @@
         <widget class="Line" name="line">
          <property name="font">
           <font>
+           <family>Times New Roman</family>
            <pointsize>9</pointsize>
           </font>
          </property>
@@ -2153,6 +2251,7 @@
           <widget class="QLineEdit" name="lineEdit_diametro_orlo">
            <property name="font">
             <font>
+             <family>Times New Roman</family>
              <pointsize>9</pointsize>
             </font>
            </property>
@@ -2162,6 +2261,7 @@
           <widget class="QLabel" name="label_8">
            <property name="font">
             <font>
+             <family>Times New Roman</family>
              <pointsize>9</pointsize>
             </font>
            </property>
@@ -2180,6 +2280,7 @@
            </property>
            <property name="font">
             <font>
+             <family>Times New Roman</family>
              <pointsize>9</pointsize>
             </font>
            </property>
@@ -2192,6 +2293,7 @@
           <widget class="QLabel" name="label_9">
            <property name="font">
             <font>
+             <family>Times New Roman</family>
              <pointsize>9</pointsize>
             </font>
            </property>
@@ -2210,6 +2312,7 @@
            </property>
            <property name="font">
             <font>
+             <family>Times New Roman</family>
              <pointsize>9</pointsize>
             </font>
            </property>
@@ -2219,6 +2322,7 @@
           <widget class="QLabel" name="label_10">
            <property name="font">
             <font>
+             <family>Times New Roman</family>
              <pointsize>9</pointsize>
             </font>
            </property>
@@ -2234,6 +2338,7 @@
            </property>
            <property name="font">
             <font>
+             <family>Times New Roman</family>
              <pointsize>9</pointsize>
             </font>
            </property>
@@ -2243,6 +2348,7 @@
           <widget class="QLineEdit" name="lineEdit_peso">
            <property name="font">
             <font>
+             <family>Times New Roman</family>
              <pointsize>9</pointsize>
             </font>
            </property>
@@ -2252,6 +2358,7 @@
           <widget class="QLabel" name="label_14">
            <property name="font">
             <font>
+             <family>Times New Roman</family>
              <pointsize>9</pointsize>
             </font>
            </property>
@@ -2264,6 +2371,7 @@
           <widget class="QLabel" name="label_15">
            <property name="font">
             <font>
+             <family>Times New Roman</family>
              <pointsize>9</pointsize>
             </font>
            </property>
@@ -2276,6 +2384,7 @@
           <widget class="QLabel" name="label_16">
            <property name="font">
             <font>
+             <family>Times New Roman</family>
              <pointsize>9</pointsize>
             </font>
            </property>
@@ -2288,6 +2397,7 @@
           <widget class="QLabel" name="label_17">
            <property name="font">
             <font>
+             <family>Times New Roman</family>
              <pointsize>9</pointsize>
             </font>
            </property>
@@ -2300,6 +2410,7 @@
           <widget class="QLabel" name="label_24">
            <property name="font">
             <font>
+             <family>Times New Roman</family>
              <pointsize>9</pointsize>
             </font>
            </property>
@@ -2312,6 +2423,7 @@
           <widget class="QLabel" name="label_25">
            <property name="font">
             <font>
+             <family>Times New Roman</family>
              <pointsize>9</pointsize>
             </font>
            </property>
@@ -2324,6 +2436,7 @@
           <widget class="QLineEdit" name="lineEdit_eve_orlo">
            <property name="font">
             <font>
+             <family>Times New Roman</family>
              <pointsize>9</pointsize>
             </font>
            </property>
@@ -2339,6 +2452,7 @@
            </property>
            <property name="font">
             <font>
+             <family>Times New Roman</family>
              <pointsize>9</pointsize>
             </font>
            </property>
@@ -2353,6 +2467,7 @@
         <spacer name="verticalSpacer_2">
          <property name="font">
           <font>
+           <family>Times New Roman</family>
            <pointsize>9</pointsize>
           </font>
          </property>
@@ -2373,6 +2488,7 @@
           <widget class="QLabel" name="label_21">
            <property name="font">
             <font>
+             <family>Times New Roman</family>
              <pointsize>9</pointsize>
             </font>
            </property>
@@ -2385,6 +2501,7 @@
           <widget class="QPushButton" name="pushButton_insert_row_misure">
            <property name="font">
             <font>
+             <family>Times New Roman</family>
              <pointsize>9</pointsize>
             </font>
            </property>
@@ -2397,6 +2514,7 @@
           <widget class="QPushButton" name="pushButton_remove_row_misure">
            <property name="font">
             <font>
+             <family>Times New Roman</family>
              <pointsize>9</pointsize>
             </font>
            </property>
@@ -2415,8 +2533,12 @@
            </property>
            <property name="font">
             <font>
+             <family>Times New Roman</family>
              <pointsize>9</pointsize>
             </font>
+           </property>
+           <property name="toolTip">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;esempio:&lt;/p&gt;&lt;p&gt;tipo di misura: Lunghezza&lt;/p&gt;&lt;p&gt;Unità di misura: cm&lt;/p&gt;&lt;p&gt;Valore: 3&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
            </property>
            <property name="frameShape">
             <enum>QFrame::StyledPanel</enum>
@@ -2458,7 +2580,7 @@
            </column>
            <column>
             <property name="text">
-             <string>Quantita'</string>
+             <string>Valore</string>
             </property>
            </column>
           </widget>
@@ -2476,6 +2598,7 @@
         <widget class="QLabel" name="label_11">
          <property name="font">
           <font>
+           <family>Times New Roman</family>
            <pointsize>8</pointsize>
           </font>
          </property>
@@ -2488,6 +2611,7 @@
         <widget class="QLineEdit" name="lineEditRivestimento">
          <property name="font">
           <font>
+           <family>Times New Roman</family>
            <pointsize>8</pointsize>
           </font>
          </property>
@@ -2503,6 +2627,7 @@
          </property>
          <property name="font">
           <font>
+           <family>Times New Roman</family>
            <pointsize>8</pointsize>
           </font>
          </property>
@@ -2515,6 +2640,7 @@
         <spacer name="verticalSpacer_4">
          <property name="font">
           <font>
+           <family>Times New Roman</family>
            <pointsize>8</pointsize>
           </font>
          </property>
@@ -2539,6 +2665,7 @@
          </property>
          <property name="font">
           <font>
+           <family>Times New Roman</family>
            <pointsize>8</pointsize>
           </font>
          </property>
@@ -2551,6 +2678,7 @@
         <widget class="QLineEdit" name="lineEditCorpoCeramico">
          <property name="font">
           <font>
+           <family>Times New Roman</family>
            <pointsize>8</pointsize>
           </font>
          </property>
@@ -2566,6 +2694,7 @@
          </property>
          <property name="font">
           <font>
+           <family>Times New Roman</family>
            <pointsize>8</pointsize>
           </font>
          </property>
@@ -2628,6 +2757,7 @@
         <widget class="QLabel" name="label_23">
          <property name="font">
           <font>
+           <family>Times New Roman</family>
            <pointsize>8</pointsize>
            <weight>75</weight>
            <bold>true</bold>
@@ -2642,6 +2772,7 @@
         <widget class="QLabel" name="label_12">
          <property name="font">
           <font>
+           <family>Times New Roman</family>
            <pointsize>8</pointsize>
           </font>
          </property>
@@ -2654,6 +2785,7 @@
         <spacer name="horizontalSpacer_5">
          <property name="font">
           <font>
+           <family>Times New Roman</family>
            <pointsize>8</pointsize>
           </font>
          </property>
@@ -2682,6 +2814,7 @@
             <widget class="QCheckBox" name="checkBox_e_us">
              <property name="font">
               <font>
+               <family>Times New Roman</family>
                <pointsize>9</pointsize>
               </font>
              </property>
@@ -2694,6 +2827,7 @@
             <widget class="QCheckBox" name="checkBox_e_foto_t">
              <property name="font">
               <font>
+               <family>Times New Roman</family>
                <pointsize>9</pointsize>
               </font>
              </property>
@@ -2706,6 +2840,7 @@
             <widget class="QCheckBox" name="checkBox_s_us">
              <property name="font">
               <font>
+               <family>Times New Roman</family>
                <pointsize>9</pointsize>
               </font>
              </property>
@@ -2718,6 +2853,7 @@
             <widget class="QCheckBox" name="checkBox_e_foto">
              <property name="font">
               <font>
+               <family>Times New Roman</family>
                <pointsize>9</pointsize>
               </font>
              </property>
@@ -2742,6 +2878,7 @@
              </property>
              <property name="font">
               <font>
+               <family>Times New Roman</family>
                <pointsize>9</pointsize>
               </font>
              </property>
@@ -2773,6 +2910,7 @@
              </property>
              <property name="font">
               <font>
+               <family>Times New Roman</family>
                <pointsize>9</pointsize>
               </font>
              </property>
@@ -6895,6 +7033,7 @@
           <widget class="QPushButton" name="pushButton_insert_row_rif_biblio">
            <property name="font">
             <font>
+             <family>Times New Roman</family>
              <pointsize>9</pointsize>
             </font>
            </property>
@@ -6907,6 +7046,7 @@
           <widget class="QPushButton" name="pushButton_remove_row_rif_biblio">
            <property name="font">
             <font>
+             <family>Times New Roman</family>
              <pointsize>9</pointsize>
             </font>
            </property>
@@ -6919,6 +7059,7 @@
           <widget class="QTableWidget" name="tableWidget_rif_biblio">
            <property name="font">
             <font>
+             <family>Times New Roman</family>
              <pointsize>9</pointsize>
             </font>
            </property>
