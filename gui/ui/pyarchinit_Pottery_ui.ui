@@ -9,7 +9,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1181</width>
+    <width>1187</width>
     <height>845</height>
    </rect>
   </property>
@@ -476,6 +476,7 @@
        </property>
        <property name="font">
         <font>
+         <family>Times New Roman</family>
          <pointsize>9</pointsize>
         </font>
        </property>
@@ -547,6 +548,7 @@
     <widget class="QLabel" name="label_43">
      <property name="font">
       <font>
+       <family>Times New Roman</family>
        <pointsize>9</pointsize>
        <weight>75</weight>
        <bold>true</bold>
@@ -564,6 +566,7 @@
     <widget class="QLabel" name="label_sort">
      <property name="font">
       <font>
+       <family>.AppleSystemUIFont</family>
        <pointsize>9</pointsize>
        <weight>75</weight>
        <bold>true</bold>
@@ -602,6 +605,7 @@
     <widget class="QLabel" name="label_34">
      <property name="font">
       <font>
+       <family>Times New Roman</family>
        <pointsize>9</pointsize>
        <weight>75</weight>
        <bold>true</bold>
@@ -625,6 +629,7 @@
      </property>
      <property name="font">
       <font>
+       <family>.AppleSystemUIFont</family>
        <pointsize>9</pointsize>
        <weight>75</weight>
        <bold>true</bold>
@@ -663,6 +668,7 @@
     <widget class="QLabel" name="label_28">
      <property name="font">
       <font>
+       <family>Times New Roman</family>
        <pointsize>9</pointsize>
        <weight>75</weight>
        <bold>true</bold>
@@ -711,6 +717,7 @@
     <widget class="QLabel" name="label_27">
      <property name="font">
       <font>
+       <family>Times New Roman</family>
        <pointsize>9</pointsize>
        <weight>75</weight>
        <bold>true</bold>
@@ -761,6 +768,7 @@
       <widget class="QLabel" name="label_3">
        <property name="font">
         <font>
+         <family>Times New Roman</family>
          <pointsize>9</pointsize>
         </font>
        </property>
@@ -801,6 +809,7 @@
        </property>
        <property name="font">
         <font>
+         <family>.AppleSystemUIFont</family>
          <pointsize>9</pointsize>
          <weight>75</weight>
          <bold>true</bold>
@@ -818,6 +827,7 @@
       <widget class="QLabel" name="label_7">
        <property name="font">
         <font>
+         <family>Times New Roman</family>
          <pointsize>9</pointsize>
         </font>
        </property>
@@ -855,6 +865,7 @@
        </property>
        <property name="font">
         <font>
+         <family>.AppleSystemUIFont</family>
          <pointsize>9</pointsize>
          <weight>75</weight>
          <bold>true</bold>
@@ -886,6 +897,7 @@
       <widget class="QLabel" name="label_2">
        <property name="font">
         <font>
+         <family>Times New Roman</family>
          <pointsize>9</pointsize>
         </font>
        </property>
@@ -898,6 +910,7 @@
       <widget class="Line" name="line_8">
        <property name="font">
         <font>
+         <family>Times New Roman</family>
          <pointsize>9</pointsize>
          <weight>75</weight>
          <bold>true</bold>
@@ -931,6 +944,7 @@
       <widget class="QLabel" name="label">
        <property name="font">
         <font>
+         <family>Times New Roman</family>
          <pointsize>9</pointsize>
         </font>
        </property>
@@ -975,6 +989,7 @@
       <widget class="QLabel" name="label_24">
        <property name="font">
         <font>
+         <family>Times New Roman</family>
          <pointsize>9</pointsize>
         </font>
        </property>
@@ -999,6 +1014,7 @@
        </property>
        <property name="font">
         <font>
+         <family>.AppleSystemUIFont</family>
          <pointsize>9</pointsize>
          <weight>75</weight>
          <bold>true</bold>
@@ -1074,6 +1090,7 @@
        </property>
        <property name="font">
         <font>
+         <family>.AppleSystemUIFont</family>
          <pointsize>9</pointsize>
         </font>
        </property>
@@ -1095,6 +1112,7 @@
        </property>
        <property name="font">
         <font>
+         <family>.AppleSystemUIFont</family>
          <pointsize>9</pointsize>
          <weight>75</weight>
          <bold>true</bold>
@@ -1118,6 +1136,7 @@
        </property>
        <property name="font">
         <font>
+         <family>.AppleSystemUIFont</family>
          <pointsize>9</pointsize>
          <weight>75</weight>
          <bold>true</bold>
@@ -1211,6 +1230,7 @@
       <widget class="QLabel" name="id">
        <property name="font">
         <font>
+         <family>Times New Roman</family>
          <pointsize>9</pointsize>
         </font>
        </property>
@@ -1243,8 +1263,8 @@
        <string>Description data</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_5">
-       <item row="5" column="0">
-        <widget class="QTextEdit" name="textEdit_descrip_ex_deco">
+       <item row="2" column="0">
+        <widget class="QLabel" name="label_4">
          <property name="font">
           <font>
            <family>MS Shell Dlg 2</family>
@@ -1254,8 +1274,8 @@
            <bold>false</bold>
           </font>
          </property>
-         <property name="styleSheet">
-          <string notr="true">background-color: rgb(255, 255, 255);</string>
+         <property name="text">
+          <string>Description Internal Decoration</string>
          </property>
         </widget>
        </item>
@@ -1275,8 +1295,8 @@
          </property>
         </widget>
        </item>
-       <item row="2" column="0">
-        <widget class="QLabel" name="label_4">
+       <item row="1" column="0">
+        <widget class="QTextEdit" name="textEdit_note">
          <property name="font">
           <font>
            <family>MS Shell Dlg 2</family>
@@ -1286,13 +1306,13 @@
            <bold>false</bold>
           </font>
          </property>
-         <property name="text">
-          <string>Description Internal Decoration</string>
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(255, 255, 255);</string>
          </property>
         </widget>
        </item>
-       <item row="1" column="0">
-        <widget class="QTextEdit" name="textEdit_note">
+       <item row="5" column="0">
+        <widget class="QTextEdit" name="textEdit_descrip_ex_deco">
          <property name="font">
           <font>
            <family>MS Shell Dlg 2</family>
@@ -1339,10 +1359,36 @@
          </property>
         </widget>
        </item>
-       <item row="0" column="1" rowspan="6">
-        <widget class="QgsDockWidget" name="mDockWidget">
-         <widget class="QWidget" name="dockWidgetContents">
+       <item row="1" column="1" rowspan="5">
+        <widget class="QDockWidget" name="mDockWidget">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="MinimumExpanding" vsizetype="Expanding">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <widget class="QWidget" name="dockWidgetContents_2">
           <layout class="QGridLayout" name="gridLayout_4">
+           <item row="0" column="0">
+            <widget class="QPushButton" name="pushButton_all_images">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>20</width>
+               <height>20</height>
+              </size>
+             </property>
+             <property name="icon">
+              <iconset resource="../../resources/resources.qrc">
+               <normaloff>:/icons/photo2.png</normaloff>:/icons/photo2.png</iconset>
+             </property>
+            </widget>
+           </item>
            <item row="0" column="1">
             <widget class="QPushButton" name="pushButton_removetags">
              <property name="sizePolicy">
@@ -1367,7 +1413,7 @@
             <widget class="QListWidget" name="iconListWidget">
              <property name="font">
               <font>
-               <family>Calibri</family>
+               <family>Times New Roman</family>
                <pointsize>9</pointsize>
                <weight>50</weight>
                <italic>false</italic>
@@ -1375,72 +1421,58 @@
               </font>
              </property>
              <property name="frameShape">
-              <enum>QFrame::WinPanel</enum>
+              <enum>QFrame::StyledPanel</enum>
              </property>
              <property name="frameShadow">
               <enum>QFrame::Sunken</enum>
+             </property>
+             <property name="sizeAdjustPolicy">
+              <enum>QAbstractScrollArea::AdjustToContents</enum>
              </property>
              <property name="showDropIndicator" stdset="0">
               <bool>true</bool>
              </property>
              <property name="dragEnabled">
-              <bool>true</bool>
+              <bool>false</bool>
              </property>
              <property name="dragDropOverwriteMode">
-              <bool>true</bool>
+              <bool>false</bool>
              </property>
              <property name="dragDropMode">
-              <enum>QAbstractItemView::DragDrop</enum>
+              <enum>QAbstractItemView::NoDragDrop</enum>
              </property>
              <property name="defaultDropAction">
-              <enum>Qt::IgnoreAction</enum>
+              <enum>Qt::CopyAction</enum>
              </property>
              <property name="movement">
-              <enum>QListView::Snap</enum>
+              <enum>QListView::Static</enum>
+             </property>
+             <property name="flow">
+              <enum>QListView::TopToBottom</enum>
              </property>
              <property name="isWrapping" stdset="0">
-              <bool>true</bool>
+              <bool>false</bool>
              </property>
              <property name="resizeMode">
               <enum>QListView::Adjust</enum>
              </property>
              <property name="viewMode">
-              <enum>QListView::IconMode</enum>
+              <enum>QListView::ListMode</enum>
              </property>
              <property name="uniformItemSizes">
               <bool>true</bool>
              </property>
              <property name="batchSize">
-              <number>200</number>
+              <number>100</number>
              </property>
              <property name="wordWrap">
-              <bool>true</bool>
+              <bool>false</bool>
              </property>
              <property name="selectionRectVisible">
-              <bool>true</bool>
+              <bool>false</bool>
              </property>
              <property name="sortingEnabled">
               <bool>true</bool>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="0">
-            <widget class="QPushButton" name="pushButton_all_images">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>20</width>
-               <height>20</height>
-              </size>
-             </property>
-             <property name="icon">
-              <iconset resource="../../resources/resources.qrc">
-               <normaloff>:/icons/photo2.png</normaloff>:/icons/photo2.png</iconset>
              </property>
             </widget>
            </item>

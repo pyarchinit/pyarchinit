@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1371</width>
-    <height>852</height>
+    <width>1290</width>
+    <height>856</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -498,6 +498,8 @@
        </property>
        <property name="font">
         <font>
+         <family>Times New Roman</family>
+         <pointsize>13</pointsize>
          <weight>75</weight>
          <bold>true</bold>
         </font>
@@ -522,6 +524,7 @@
          </property>
          <property name="font">
           <font>
+           <family>Times New Roman</family>
            <pointsize>9</pointsize>
           </font>
          </property>
@@ -550,6 +553,7 @@
          </property>
          <property name="font">
           <font>
+           <family>Times New Roman</family>
            <pointsize>9</pointsize>
           </font>
          </property>
@@ -815,6 +819,8 @@
       <widget class="QLabel" name="label_2">
        <property name="font">
         <font>
+         <family>Times New Roman</family>
+         <pointsize>13</pointsize>
          <weight>75</weight>
          <bold>true</bold>
         </font>
@@ -945,6 +951,8 @@
       <widget class="QLabel" name="label_4">
        <property name="font">
         <font>
+         <family>Times New Roman</family>
+         <pointsize>13</pointsize>
          <weight>75</weight>
          <bold>true</bold>
         </font>
@@ -1284,7 +1292,7 @@
            <property name="minimumSize">
             <size>
              <width>757</width>
-             <height>281</height>
+             <height>306</height>
             </size>
            </property>
            <property name="baseSize">
@@ -1515,6 +1523,8 @@
                 <widget class="QLabel" name="label_42">
                  <property name="font">
                   <font>
+                   <family>Times New Roman</family>
+                   <pointsize>13</pointsize>
                    <weight>75</weight>
                    <bold>true</bold>
                   </font>
@@ -1595,6 +1605,7 @@
                   <widget class="QLabel" name="label_31">
                    <property name="font">
                     <font>
+                     <family>Times New Roman</family>
                      <pointsize>9</pointsize>
                      <weight>75</weight>
                      <bold>true</bold>
@@ -1618,6 +1629,7 @@
                   <widget class="QLabel" name="label_32">
                    <property name="font">
                     <font>
+                     <family>Times New Roman</family>
                      <pointsize>9</pointsize>
                      <weight>75</weight>
                      <bold>true</bold>
@@ -1645,6 +1657,7 @@
                   <widget class="QLabel" name="label_34">
                    <property name="font">
                     <font>
+                     <family>Times New Roman</family>
                      <pointsize>9</pointsize>
                      <weight>75</weight>
                      <bold>true</bold>
@@ -1668,6 +1681,7 @@
                   <widget class="QLabel" name="label_43">
                    <property name="font">
                     <font>
+                     <family>Times New Roman</family>
                      <pointsize>9</pointsize>
                      <weight>75</weight>
                      <bold>true</bold>
@@ -1709,6 +1723,7 @@
                    </property>
                    <property name="font">
                     <font>
+                     <family>Times New Roman</family>
                      <pointsize>10</pointsize>
                      <weight>75</weight>
                      <bold>true</bold>
@@ -1750,6 +1765,7 @@
                    </property>
                    <property name="font">
                     <font>
+                     <family>Times New Roman</family>
                      <pointsize>9</pointsize>
                      <weight>75</weight>
                      <bold>true</bold>
@@ -2098,7 +2114,7 @@
        </widget>
        <widget class="QWidget" name="tab_4">
         <attribute name="title">
-         <string>Struttura</string>
+         <string>Tags Struttura</string>
         </attribute>
         <widget class="QWidget" name="layoutWidget">
          <property name="geometry">
@@ -2222,6 +2238,7 @@
        </property>
        <property name="font">
         <font>
+         <family>Times New Roman</family>
          <pointsize>14</pointsize>
          <weight>75</weight>
          <bold>true</bold>

@@ -24,10 +24,11 @@ from __future__ import absolute_import
 from builtins import str
 from builtins import range
 
-from qgis.PyQt.QtWidgets import QDialog, QMessageBox
+from qgis.PyQt.QtWidgets import QDialog, QMessageBox, QApplication
 from qgis.PyQt.uic import loadUiType
 from qgis.core import Qgis, QgsSettings
 import psycopg2
+
 from ..modules.utility.settings import Settings
 import platform
 import subprocess
@@ -107,7 +108,7 @@ class pyarchinit_excel_export(QDialog, MAIN_DIALOG_CLASS):
                 self.iface.messageBar().pushMessage(self.tr(msg), Qgis.Warning, 0)
             else:
                 msg = "The connection failed {}. " \
-                      "You MUST RESTART QGIS or bug detected! Report it to the developer".format(str(e))        
+                      "You MUST RESTART QGIS or bug detected! Report it to the developer".format(str(e))
         else:
             if self.L=='it':
                 msg = "Attenzione rilevato bug! Segnalarlo allo sviluppatore. Errore: ".format(str(e))
@@ -222,22 +223,51 @@ class pyarchinit_excel_export(QDialog, MAIN_DIALOG_CLASS):
                 a.to_excel(writer, sheet_name='Sheet1',index=True)
                 writer.close()
                 #QMessageBox.warning(self, "Message","ok" , QMessageBox.Ok)    
-                     
+
             if self.checkBox_art.isChecked():
-                art_= '%s' % (sito_location+'_artefact_' +  time.strftime('%Y%m%d_') + '.xlsx')
-                dump_dir=os.path.join(sito_path, art_)
-                cur.execute("SELECT * FROM inventario_materiali_table where sito='%s';" % sito_location)
-                rows = cur.fetchall()
-                col_names = []
-                for i in cur.description:
-                  col_names.append(i[0])
-       
-                a=pd.DataFrame(rows,columns=col_names)
+                art_ = '%s' % (sito_location + '_artefact_' + time.strftime('%Y%m%d_') + '.xlsx')
+                dump_dir = os.path.join(sito_path, art_)
+
+                # Query per inventario_materiali_table
+                query_inventario = """
+                SELECT * FROM inventario_materiali_table 
+                WHERE sito = %s
+                """
+
+                cur.execute(query_inventario, (sito_location,))
+                rows_inventario = cur.fetchall()
+                col_names_inventario = [i[0] for i in cur.description]
+
+                df_inventario = pd.DataFrame(rows_inventario, columns=col_names_inventario)
+
+                # Query per media_names
+                query_media = """
+                SELECT id_entity, GROUP_CONCAT(media_name, ', ') as media_names
+                FROM media_to_entity_table
+                WHERE table_name = 'inventario_materiali_table' AND id_entity IN (
+                    SELECT id_invmat FROM inventario_materiali_table WHERE sito = %s
+                )
+                GROUP BY id_entity
+                """
+
+                cur.execute(query_media, (sito_location,))
+                rows_media = cur.fetchall()
+                df_media = pd.DataFrame(rows_media, columns=['id_invmat', 'media_names'])
+
+                # Unisci i due DataFrame
+                df_final = pd.merge(df_inventario, df_media, on='id_invmat', how='left')
+
+                # Sostituisci i valori NaN con stringhe vuote
+                df_final['media_names'] = df_final['media_names'].fillna('')
+
+                # Esporta in Excel
                 writer = pd.ExcelWriter(dump_dir, engine='xlsxwriter')
-                a.to_excel(writer, sheet_name='Sheet1',index=True)
+                df_final.to_excel(writer, sheet_name='Sheet1', index=False)
                 writer.close()
-                #QMessageBox.warning(self, "Message","ok" , QMessageBox.Ok)                
-                    
+
+                QMessageBox.information(self, 'ok',f"Colonne esportate: {df_final.columns.tolist()}")  # Per debug
+                #QMessageBox.information(self, "Esportazione completata", f"File Excel salvato in:\n{dump_dir}")
+
             if self.checkBox_pottery.isChecked():
                 pottery_= '%s' % (sito_location+'_Structures_' +  time.strftime('%Y%m%d_') + '.xlsx')
                 dump_dir=os.path.join(sito_path, pottery_)
@@ -252,25 +282,47 @@ class pyarchinit_excel_export(QDialog, MAIN_DIALOG_CLASS):
                 a.to_excel(writer, sheet_name='Sheet1',index=True)
                 writer.close()
                 #QMessageBox.warning(self, "Message","ok" , QMessageBox.Ok)                      
-            
-            if self.checkBox_anchor.isChecked():
-                anchor_= '%s' % (sito_location+'_Taphonomy_' +  time.strftime('%Y%m%d_') + '.xlsx')
-                dump_dir=os.path.join(sito_path, anchor_)
-                cur.execute("SELECT * FROM tomba_table where sito='%s';" % sito_location)
-                rows = cur.fetchall()
-                col_names = []
-                for i in cur.description:
-                  col_names.append(i[0])
-       
-                a=pd.DataFrame(rows,columns=col_names)
+
+            if self.checkBox_art.isChecked():
+                art_ = '%s' % (sito_location + '_artefact_' + time.strftime('%Y%m%d_') + '.xlsx')
+                dump_dir = os.path.join(sito_path, art_)
+
+                # Query per inventario_materiali_table
+                query_inventario = """
+                SELECT * FROM inventario_materiali_table 
+                WHERE sito = %s
+                """
+
+                cur.execute(query_inventario, (sito_location,))
+                rows_inventario = cur.fetchall()
+                col_names_inventario = [i[0] for i in cur.description]
+
+                df_inventario = pd.DataFrame(rows_inventario, columns=col_names_inventario)
+
+                # Query per media_names
+                query_media = """
+                SELECT id_entity, GROUP_CONCAT(media_name, ', ') as media_names
+                FROM media_to_entity_table
+                WHERE table_name = 'inventario_materiali_table' AND id_entity IN (
+                    SELECT id_invmat FROM inventario_materiali_table WHERE sito = %s
+                )
+                GROUP BY id_entity
+                """
+
+                cur.execute(query_media, (sito_location,))
+                rows_media = cur.fetchall()
+                df_media = pd.DataFrame(rows_media, columns=['id_invmat', 'media_names'])
+
+                # Unisci i due DataFrame
+                df_final = pd.merge(df_inventario, df_media, on='id_invmat', how='left')
+
+                # Sostituisci i valori NaN con stringhe vuote
+                df_final['media_names'] = df_final['media_names'].fillna('')
+
+                # Esporta in Excel
                 writer = pd.ExcelWriter(dump_dir, engine='xlsxwriter')
-                a.to_excel(writer, sheet_name='Sheet1',index=True)
+                df_final.to_excel(writer, sheet_name='Sheet1', index=False)
                 writer.close()
-                #QMessageBox.warning(self, "Message","ok" , QMessageBox.Ok)         
-                    # for i in temp_data_list:
-                    # self.DATA_LIST.append(i)
-            QMessageBox.warning(self, "Message","Exported completed" , QMessageBox.Ok)
-        
            
         
         elif server=='sqlite':        
@@ -310,22 +362,41 @@ class pyarchinit_excel_export(QDialog, MAIN_DIALOG_CLASS):
                 a.to_excel(writer, sheet_name='Sheet1',index=True)
                 writer.close()
                 #QMessageBox.warning(self, "Message","ok" , QMessageBox.Ok)    
-                     
+
             if self.checkBox_art.isChecked():
-                art_= '%s' % (sito_location+'_artefact_' +  time.strftime('%Y%m%d_') + '.xlsx')
-                dump_dir=os.path.join(sito_path, art_)
-                cur.execute("SELECT * FROM inventario_materiali_table where sito='%s';" % sito_location)
+                art_ = '%s' % (sito_location + '_artefact_' + time.strftime('%Y%m%d_') + '.xlsx')
+                dump_dir = os.path.join(sito_path, art_)
+
+                query = """
+                SELECT 
+                    i.*, 
+                    (SELECT GROUP_CONCAT(m.media_name, ', ')
+                     FROM media_to_entity_table m
+                     WHERE m.id_entity = i.id_invmat
+                       AND m.table_name = 'inventario_materiali_table'
+                    ) as media_names
+                FROM 
+                    inventario_materiali_table i
+                WHERE 
+                    i.sito = ?
+                """
+
+                cur.execute(query, (sito_location,))
+
                 rows = cur.fetchall()
-                col_names = []
-                for i in cur.description:
-                  col_names.append(i[0])
-       
-                a=pd.DataFrame(rows,columns=col_names)
+
+                col_names = [i[0] for i in cur.description]
+
+                a = pd.DataFrame(rows, columns=col_names)
+
+                # Gestione dei valori NULL per la colonna media_names
+                a['media_names'] = a['media_names'].fillna('')
+
                 writer = pd.ExcelWriter(dump_dir, engine='xlsxwriter')
-                a.to_excel(writer, sheet_name='Sheet1',index=True)
+                a.to_excel(writer, sheet_name='Sheet1', index=True)
                 writer.close()
-                #QMessageBox.warning(self, "Message","ok" , QMessageBox.Ok)                
-                    
+                # QMessageBox.warning(self, "Message", "ok", QMessageBox.Ok)
+
             if self.checkBox_pottery.isChecked():
                 pottery_= '%s' % (sito_location+'_Structures_' +  time.strftime('%Y%m%d_') + '.xlsx')
                 dump_dir=os.path.join(sito_path, pottery_)

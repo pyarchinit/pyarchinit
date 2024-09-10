@@ -21,12 +21,18 @@ from __future__ import absolute_import
 
 import ast
 import csv
-import functools
+
 import math
 import platform
 import sqlite3 as sq
 import sys
 import time
+import numpy as np
+import urllib.parse
+import pyvista as pv
+import vtk
+from pyvistaqt import QtInteractor
+import functools
 from collections import OrderedDict, Counter
 from datetime import date
 from xml.etree.ElementTree import ElementTree as ET
@@ -37,10 +43,12 @@ import pandas as pd
 import requests
 from openai import OpenAI
 
+
+
 matplotlib.use('QT5Agg')  # Assicurati di chiamare use() prima di importare FigureCanvas
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from qgis.PyQt import QtCore, QtGui, QtWidgets
-from qgis.PyQt.QtWidgets import QDockWidget
+
 from qgis.PyQt.QtGui import QKeySequence
 from qgis.core import *
 from qgis.gui import QgsMapCanvas, QgsMapToolPan
@@ -48,6 +56,7 @@ from qgis.PyQt.QtSql import QSqlDatabase, QSqlTableModel
 
 
 from .Interactive_matrix import *
+from ..modules.utility.VideoPlayer import VideoPlayerWindow
 from ..modules.utility.pyarchinit_media_utility import *
 from ..modules.utility.response_sql import ResponseSQL
 from ..modules.utility.textTosql import MakeSQL
@@ -70,7 +79,7 @@ from sqlalchemy import create_engine, MetaData, Table, select, update, and_
 MAIN_DIALOG_CLASS, _ = loadUiType(
     os.path.join(os.path.dirname(__file__), os.pardir, 'gui', 'ui', 'US_USM.ui'))
 
-
+#from ..modules.utility.screen_adaptative import ScreenAdaptive
 
 class ProgressDialog:
     def __init__(self):
@@ -825,9 +834,11 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
         self.setupUi(self)
         self.setAcceptDrops(True)
+
         self.report_rapporti2 = None
         self.fig = None
         self.canvas = None
+        self.video_player=None
         self.iconListWidget.setDragDropMode(QAbstractItemView.DragDrop)
         self.mDockWidget_2.setHidden(True)
         self.mDockWidget_export.setHidden(True)
@@ -2852,7 +2863,9 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
     def dropEvent(self, event):
         mimeData = event.mimeData()
-        accepted_formats = ["jpg", "jpeg", "png", "tiff","tif", "bmp","mp4", "avi", "mov", "mkv", "flv"]
+        accepted_formats = ["jpg", "jpeg", "png", "tiff", "tif", "bmp", "mp4", "avi", "mov", "mkv", "flv", "obj", "stl",
+                            "ply", "fbx", "3ds"]
+
         if mimeData.hasUrls():
             for url in mimeData.urls():
                 try:
@@ -3044,38 +3057,43 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                                           media_data[0].filepath, media_data[0].filename)
 
     def load_and_process_image(self, filepath):
-        media_resize_suffix=''
-        media_thumb_suffix=''
+        media_resize_suffix = ''
+        media_thumb_suffix = ''
         conn = Connection()
         thumb_path = conn.thumb_path()
         thumb_path_str = thumb_path['thumb_path']
-        if thumb_path_str=='':
-            if self.L=='it':
-                QMessageBox.information(self, "Info", "devi settare prima la path per salvare le thumbnail e i video. Vai in impostazioni di sistema/ path setting ")
-            elif self.L=='de':
-                QMessageBox.information(self, "Info", "müssen Sie zuerst den Pfad zum Speichern der Miniaturansichten und Videos festlegen. Gehen Sie zu System-/Pfad-Einstellung")
+        if thumb_path_str == '':
+            if self.L == 'it':
+                QMessageBox.information(self, "Info",
+                                        "devi settare prima la path per salvare le thumbnail e i video. Vai in impostazioni di sistema/ path setting ")
+            elif self.L == 'de':
+                QMessageBox.information(self, "Info",
+                                        "müssen Sie zuerst den Pfad zum Speichern der Miniaturansichten und Videos festlegen. Gehen Sie zu System-/Pfad-Einstellung")
             else:
-                QMessageBox.information(self, "Message", "you must first set the path to save the thumbnails and videos. Go to system/path setting")
+                QMessageBox.information(self, "Message",
+                                        "you must first set the path to save the thumbnails and videos. Go to system/path setting")
         else:
             filename = os.path.basename(filepath)
             filename, filetype = filename.split(".")[0], filename.split(".")[1]
             # Check the media type based on the file extension
-            accepted_image_formats = ["jpg", "jpeg", "png", "tiff", "tif", "btm"]
+            accepted_image_formats = ["jpg", "jpeg", "png", "tiff", "tif", "bmp"]
             accepted_video_formats = ["mp4", "avi", "mov", "mkv", "flv"]
+            accepted_3d_formats = ["obj", "stl", "ply", "fbx", "3ds"]
+
             if filetype.lower() in accepted_image_formats:
                 mediatype = 'image'
                 media_thumb_suffix = '_thumb.png'
                 media_resize_suffix = '.png'
-
             elif filetype.lower() in accepted_video_formats:
                 mediatype = 'video'
                 media_thumb_suffix = '_video.png'
-
-
+                media_resize_suffix = '.' + filetype.lower()
+            elif filetype.lower() in accepted_3d_formats:
+                mediatype = '3d_model'
+                media_thumb_suffix = '_3d_thumb.png'
+                media_resize_suffix = '.' + filetype.lower()
             else:
-                # Handle unrecognized media type
                 raise ValueError(f"Unrecognized media type for file {filename}.{filetype}")
-
 
             if mediatype == 'video':
                 if filetype.lower() == 'mp4':
@@ -3089,6 +3107,17 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 elif filetype.lower() == 'flv':
                     media_resize_suffix = '.flv'
 
+            elif mediatype == '3d_model':
+                if filetype.lower() == 'obj':
+                    media_resize_suffix = '.obj'
+                elif filetype.lower() == 'ply':
+                    media_resize_suffix = '.ply'
+                elif filetype.lower() == 'fbx':
+                    media_resize_suffix = '.fbx'
+                elif filetype.lower() == '3ds':
+                    media_resize_suffix = '.3ds'
+                elif filetype.lower() == 'stl':
+                    media_resize_suffix = '.stl'
             # Check and insert record in the database
             idunique_image_check = self.db_search_check('MEDIA', 'filepath', filepath)
 
@@ -3097,7 +3126,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
                     return
                 else:
-                    #mediatype = 'image'
+                    # mediatype = 'image'
                     self.insert_record_media(mediatype, filename, filetype, filepath)
                     MU = Media_utility()
                     MUR = Media_utility_resize()
@@ -3116,20 +3145,30 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                     self.SORT_ITEMS_CONVERTED = []
 
                     try:
-                        if mediatype=='video':
+
+                        if mediatype == '3d_model':
+                            self.process_3d_model(media_max_num_id, filepath, filename, thumb_path_str,
+                                                  thumb_resize_str,
+                                                  media_thumb_suffix, media_resize_suffix)
+
+                        elif mediatype == 'video':
                             vcap = cv2.VideoCapture(filepath)
                             res, im_ar = vcap.read()
                             while im_ar.mean() < 1 and res:
                                 res, im_ar = vcap.read()
                             im_ar = cv2.resize(im_ar, (100, 100), 0, 0, cv2.INTER_LINEAR)
                             # to save we have two options
-                            outputfile = '{}.png'.format(os.path.dirname(filepath)+'/'+filename)
+                            outputfile = '{}.png'.format(os.path.dirname(filepath) + '/' + filename)
                             cv2.imwrite(outputfile, im_ar)
-                            MU_video.resample_images(media_max_num_id, outputfile, filenameorig, thumb_path_str, media_thumb_suffix)
-                            MUR_video.resample_images(media_max_num_id, filepath, filenameorig, thumb_resize_str, media_resize_suffix)
+                            MU_video.resample_images(media_max_num_id, outputfile, filenameorig, thumb_path_str,
+                                                     media_thumb_suffix)
+                            MUR_video.resample_images(media_max_num_id, filepath, filenameorig, thumb_resize_str,
+                                                      media_resize_suffix)
                         else:
-                            MU.resample_images(media_max_num_id, filepath, filenameorig, thumb_path_str, media_thumb_suffix)
-                            MUR.resample_images(media_max_num_id, filepath, filenameorig, thumb_resize_str, media_resize_suffix)
+                            MU.resample_images(media_max_num_id, filepath, filenameorig, thumb_path_str,
+                                               media_thumb_suffix)
+                            MUR.resample_images(media_max_num_id, filepath, filenameorig, thumb_resize_str,
+                                                media_resize_suffix)
                     except Exception as e:
                         QMessageBox.warning(self, "Cucu", str(e), QMessageBox.Ok)
                     self.insert_record_mediathumb(media_max_num_id, mediatype, filename, filename_thumb, filetype,
@@ -3145,14 +3184,22 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
 
 
-            except:
+
+            except AssertionError as e:
+
                 if self.L == 'it':
                     QMessageBox.warning(self, "Warning", "controlla che il nome del file non abbia caratteri speciali",
+
                                         QMessageBox.Ok)
+
                 if self.L == 'de':
-                    QMessageBox.warning(self, "Warning", "prüfen, ob der Dateiname keine Sonderzeichen enthält", QMessageBox.Ok)
+
+                    QMessageBox.warning(self, "Warning", "prüfen, ob der Dateiname keine Sonderzeichen enthält",
+                                        QMessageBox.Ok)
+
                 else:
-                    QMessageBox.warning(self, "Warning", "check that the file name has no special characters", QMessageBox.Ok)
+
+                    QMessageBox.warning(self, "Warning", str(e), QMessageBox.Ok)
 
 
     def db_search_check(self, table_class, field, value):
@@ -3822,36 +3869,493 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             self.iconListWidget.addItem(item)
         # elif mode == 1:
             # self.iconListWidget.clear()
+
+
+    def load_and_process_3d_model(self, filepath):
+        filename = os.path.basename(filepath)
+        filename, filetype = filename.split(".")[0], filename.split(".")[1]
+        mediatype = '3d_model'
+
+        # Inserisci il record nel database
+        self.insert_record_media(mediatype, filename, filetype, filepath)
+
+        # Genera una thumbnail del modello 3D
+        thumbnail_path = self.generate_3d_thumbnail(filepath)
+
+        # Inserisci il record della thumbnail
+        media_max_num_id = self.DB_MANAGER.max_num_id('MEDIA', 'id_media')
+        self.insert_record_mediathumb(media_max_num_id, mediatype, filename, f"{filename}_thumb.png", 'png',
+                                      thumbnail_path, filepath)
+
+        # Aggiungi l'item alla lista
+        item = QListWidgetItem(str(filename))
+        item.setData(Qt.UserRole, str(media_max_num_id))
+        icon = QIcon(thumbnail_path)
+        item.setIcon(icon)
+        self.iconListWidget.addItem(item)
+
+        self.assignTags_US(item)
+
+
+    def show_3d_model(self, file_path):
+        mesh = pv.read(file_path)
+        points = []
+        measuring = False
+        measurement_objects = []
+
+
+        main_widget = QWidget()
+        main_layout = QHBoxLayout()
+        main_widget.setLayout(main_layout)
+
+        frame = QFrame()
+        layout = QVBoxLayout()
+
+        plotter = QtInteractor(frame)
+
+        debug_widget = QTextEdit()
+        debug_widget.setReadOnly(True)
+
+        def add_debug_message(message, important=False):
+            timestamp = QDateTime.currentDateTime().toString("yyyy-MM-dd HH:mm:ss")
+            formatted_message = f"[{timestamp}] {message}"
+            if important:
+                formatted_message = f"<b>{formatted_message}</b>"
+            debug_widget.append(formatted_message)
+            debug_widget.ensureCursorVisible()
+
+            max_messages = 1000
+            if debug_widget.document().blockCount() > max_messages:
+                cursor = debug_widget.textCursor()
+                cursor.movePosition(cursor.Start)
+                cursor.select(cursor.LineUnderCursor)
+                cursor.removeSelectedText()
+                cursor.deletePreviousChar()
+                cursor.movePosition(cursor.End)
+                debug_widget.setTextCursor(cursor)
+
+        def mouse_click_callback(obj, event):
+            nonlocal measuring, points
+            if event == "LeftButtonPressEvent" and measuring:
+                x, y = plotter.interactor.GetEventPosition()
+                add_debug_message(f"Evento di clic a posizione schermo: (x: {x}, y: {y})")
+
+                picker = vtk.vtkCellPicker()
+                picker.SetTolerance(10)  # Aumenta la tolleranza per migliorare il picking
+                picker.Pick(x, y, 0, plotter.renderer)
+
+                if picker.GetCellId() != -1:
+                    point = np.array(picker.GetPickPosition())
+                    add_debug_message(f"Punto selezionato nello spazio del modello: {point}")
+
+                    closest_point_id = mesh.find_closest_point(point)
+                    closest_point = mesh.points[closest_point_id]
+                    add_debug_message(f"Punto più vicino sulla superficie della mesh: {closest_point}")
+
+                    on_left_click(closest_point)
+                else:
+                    add_debug_message("Nessun punto sulla superficie trovato", important=True)
+
+        plotter.interactor.AddObserver(vtk.vtkCommand.LeftButtonPressEvent, mouse_click_callback)
+
+        layout.addWidget(plotter.interactor)
+        plotter.clear()
+
+        texture_file = os.path.splitext(file_path)[0] + '.jpg'
+        if os.path.exists(texture_file):
+            texture = pv.read_texture(texture_file)
+            plotter.add_mesh(mesh, texture=texture, show_edges=False)
+        else:
+            plotter.add_mesh(mesh, show_edges=False)
+
+        instructions_widget = QTextEdit()
+        instructions_widget.setReadOnly(True)
+        instructions_widget.hide()
+
+        instructions = (
+            "Trackball Controls:\n"
+            "- Rotate: Left-click and drag\n"
+            "- Pan: Right-click and drag\n"
+            "- Zoom: Mouse wheel or middle-click and drag\n"
+            "- Reset view: 'r'\n"
+            "- Start/Stop measuring: 'o'\n"
+            "- Show bounding box measures: 'm'\n"
+            "- Export image: 'e'\n"
+            "- Clear measurements: 'c'\n"
+            "\nMain Views:\n"
+            "- XY View (top): 'z'\n"
+            "- YZ View (front): 'x'\n"
+            "- XZ View (side): 'y'\n"
+            "- ZY View (back): 'w'\n"
+            "- ZX View (opposite side): 'v'\n"
+            "- YX View (bottom): 'b'"
+        )
+        instructions_widget.setText(instructions)
+
+        def toggle_instructions():
+            if instructions_widget.isHidden():
+                instructions_widget.show()
+            else:
+                instructions_widget.hide()
+
+        instructions_button = QPushButton("Toggle Instructions")
+        instructions_button.clicked.connect(toggle_instructions)
+        layout.addWidget(instructions_button)
+
+        frame.setLayout(layout)
+        main_layout.addWidget(frame)
+        main_layout.addWidget(instructions_widget)
+        #main_layout.addWidget(debug_widget)
+
+        def toggle_measure():
+            nonlocal measuring, points
+            measuring = not measuring
+            points.clear()
+            if measuring:
+                add_debug_message("Misurazione iniziata", important=True)
+            else:
+                add_debug_message("Misurazione terminata", important=True)
+
+        def on_left_click(picked_point):
+            nonlocal points
+            if not measuring:
+                return
+
+            add_debug_message(f"Punto selezionato: {picked_point}")
+
+            if picked_point is not None:
+                points.append(picked_point)
+                sphere = pv.Sphere(radius=mesh.length * 0.005,
+                                   center=picked_point)  # Aumenta leggermente il raggio della sfera per una miglior visibilità
+                sphere_actor = plotter.add_mesh(sphere, color='red')
+                measurement_objects.append(sphere_actor)
+
+                add_debug_message(f"Punto aggiunto. Totale punti: {len(points)}")
+                if len(points) == 2:
+                    add_debug_message("Due punti raccolti. Misurazione in corso...", important=True)
+                    measure_distance(points[0], points[1])
+                    points.clear()
+            else:
+                add_debug_message("Nessun punto selezionato", important=True)
+
+        def verify_coordinates(coord1, coord2):
+            add_debug_message(f"Verifica delle coordinate:\nPunto1: {coord1}\nPunto2: {coord2}", important=True)
+
+        def measure_distance(point1, point2):
+            add_debug_message(f"Misurazione della distanza tra {point1} e {point2}")
+            distance = np.linalg.norm(np.array(point1) - np.array(point2))
+
+            line = pv.Line(point1, point2)
+            line_actor = plotter.add_mesh(line, color='red', line_width=2)
+            measurement_objects.append(line_actor)
+            add_debug_message("Linea aggiunta")
+
+            labels = plotter.add_point_labels([point1, point2], ["P1", "P2"], point_size=1, font_size=6)
+            measurement_objects.append(labels)
+            add_debug_message("Etichette dei punti aggiunte")
+
+            mid_point = (np.array(point1) + np.array(point2)) / 2
+            distance_label = plotter.add_point_labels([mid_point], [f"{distance:.2f} cm"], point_size=0, font_size=6)
+            measurement_objects.append(distance_label)
+            add_debug_message("Etichetta della distanza aggiunta")
+
+            verify_coordinates(point1, mid_point)  # Verifica le coordinate durante la misura
+
+            plotter.render()
+            add_debug_message(f"Distanza misurata: {distance:.2f} cm", important=True)
+
+        def clear_measurements():
+            nonlocal measurement_objects, points
+            for obj in measurement_objects:
+                plotter.remove_actor(obj)
+            measurement_objects.clear()
+            points.clear()
+            plotter.render()
+
+        def export_image():
+            try:
+                options = QFileDialog.Options()
+                file_path, _ = QFileDialog.getSaveFileName(self, "Save Image", "",
+                                                           "PNG Files (*.png);;All Files (*)", options=options)
+                if file_path:
+                    camera = plotter.camera_position
+                    width_cm, height_cm = 15, 10
+                    width_inches, height_inches = width_cm / 2.54, height_cm / 2.54
+                    dpi = 300
+                    width_pixels, height_pixels = int(width_inches * dpi), int(height_inches * dpi)
+                    plotter.screenshot(file_path, transparent_background=False,
+                                       window_size=(width_pixels, height_pixels),
+                                       return_img=False)
+                    plotter.camera_position = camera
+                    add_debug_message(f"Immagine salvata come {file_path}", important=True)
+                    QMessageBox.information(self, "Success", f"Image saved {file_path} to 300 DPI (15x10 cm)")
+            except Exception as e:
+                add_debug_message(f'Error: {str(e)}', important=True)
+                QMessageBox.warning(self, "Error", f"Error saving image: {str(e)}")
+
+
+
+        def get_visible_faces(plotter, mesh):
+            camera_position = np.array(plotter.camera_position[0])
+            center = np.array(mesh.center)
+            direction = camera_position - center
+            normals = np.array([
+                [1, 0, 0], [-1, 0, 0],
+                [0, 1, 0], [0, -1, 0],
+                [0, 0, 1], [0, 0, -1]
+            ])
+            return [i for i, normal in enumerate(normals) if np.dot(direction, normal) > 0]
+
+        def edge_visibility(edge, visible_faces):
+            edge_to_faces = {
+                (0, 1): [0, 2, 4], (1, 2): [0, 1, 4], (2, 3): [0, 3, 4], (3, 0): [0, 2, 4],
+                (4, 5): [1, 2, 5], (5, 6): [1, 3, 5], (6, 7): [1, 3, 5], (7, 4): [1, 2, 5],
+                (0, 4): [2, 4, 5], (1, 5): [1, 4, 5], (2, 6): [1, 3, 5], (3, 7): [2, 3, 5]
+            }
+            return any(face in visible_faces for face in edge_to_faces[edge])
+
+        def calculate_label_position(p1, p2, offset_factor=0.1):
+            mid_point = (p1 + p2) / 2
+            direction = p2 - p1
+            length = np.linalg.norm(direction)
+            normalized_direction = direction / length
+            perpendicular = np.cross(normalized_direction, [0, 0, 1])
+            if np.allclose(perpendicular, 0):
+                perpendicular = np.cross(normalized_direction, [0, 1, 0])
+            perpendicular = perpendicular / np.linalg.norm(perpendicular)
+            return mid_point + perpendicular * (length * offset_factor)
+
+        def create_oriented_label(plotter, position, text, direction, is_vertical=False):
+            vtk_text = vtk.vtkBillboardTextActor3D()
+            vtk_text.SetPosition(position)
+            vtk_text.SetInput(text)
+            vtk_text.GetTextProperty().SetFontSize(6)
+            vtk_text.GetTextProperty().SetColor(0, 0, 0)  # Testo nero
+            vtk_text.GetTextProperty().SetBackgroundColor(1, 1, 1)  # Sfondo bianco
+            vtk_text.GetTextProperty().SetBackgroundOpacity(0.8)
+            vtk_text.GetTextProperty().SetJustificationToCentered()
+            vtk_text.GetTextProperty().SetVerticalJustificationToCentered()
+
+            if is_vertical:
+                angle = 90
+            else:
+                angle = np.degrees(np.arctan2(direction[1], direction[0]))
+            vtk_text.SetOrientation(0, 0, angle)
+
+            plotter.add_actor(vtk_text)
+            return vtk_text
+
+        self.last_update_time = 0
+        self.update_interval = 0.5  # Secondi tra gli aggiornamenti
+        bounding_box_visible = False
+
+        def show_measures():
+            nonlocal bounding_box_visible, measurement_objects
+            if not bounding_box_visible:
+                return
+
+            current_time = time.time()
+            if current_time - self.last_update_time < self.update_interval:
+                return
+            self.last_update_time = current_time
+
+            # Rimuovi le misure esistenti
+            for obj in measurement_objects:
+                plotter.remove_actor(obj)
+            measurement_objects = []
+
+            bounds = mesh.bounds
+            x_min, x_max, y_min, y_max, z_min, z_max = bounds
+            point = np.array([
+                [x_min, y_min, z_min], [x_max, y_min, z_min], [x_max, y_max, z_min], [x_min, y_max, z_min],
+                [x_min, y_min, z_max], [x_max, y_min, z_max], [x_max, y_max, z_max], [x_min, y_max, z_max]
+            ])
+
+            edges = [
+                (0, 1),  # Larghezza (X)
+                (0, 3),  # Profondità (Y)
+                (0, 4)  # Altezza (Z)
+            ]
+
+            get_visible_faces(plotter, mesh)
+
+            for i, edge in enumerate(edges):
+                #if edge_visibility(edge):
+                p1, p2 = point[edge[0]], point[edge[1]]
+                distance = np.linalg.norm(p2 - p1) * 100
+
+                label_position = calculate_label_position(p1, p2)
+
+                line = pv.Line(p1, p2)
+                line_actor = plotter.add_mesh(line, color='black', line_width=0.8)
+                measurement_objects.append(line_actor)
+
+                label = f"{distance:.2f} cm"
+                is_vertical = (i == 2)  # L'etichetta verticale è per l'altezza (Z)
+                label_actor = create_oriented_label(plotter, label_position, label, p2 - p1, is_vertical)
+                measurement_objects.append(label_actor)
+
+            plotter.render()
+
+        def toggle_bounding_box_measures():
+            nonlocal bounding_box_visible
+            bounding_box_visible = not bounding_box_visible
+            if bounding_box_visible:
+                show_measures()
+                add_debug_message("Misure del bounding box attivate", important=True)
+            else:
+                for obj in measurement_objects:
+                    plotter.remove_actor(obj)
+                measurement_objects.clear()
+                plotter.render()
+                add_debug_message("Misure del bounding box disattivate", important=True)
+
+        def camera_changed(obj, event):
+            if bounding_box_visible:
+                show_measures()
+
+        plotter.iren.add_observer('InteractionEvent', camera_changed)
+
+        def reset_view():
+            plotter.reset_camera()
+
+        def change_view(direction):
+            getattr(plotter, f'view_{direction}')()
+
+        plotter.add_key_event("o", toggle_measure)
+        plotter.add_key_event("c", clear_measurements)
+        plotter.add_key_event('e', export_image)
+        plotter.add_key_event('m', toggle_bounding_box_measures)
+        plotter.add_key_event('r', reset_view)
+        plotter.add_key_event('x', lambda: change_view('yz'))
+        plotter.add_key_event('y', lambda: change_view('xz'))
+        plotter.add_key_event('z', lambda: change_view('xy'))
+        plotter.add_key_event('w', lambda: change_view('zy'))
+        plotter.add_key_event('v', lambda: change_view('zx'))
+        plotter.add_key_event('b', lambda: change_view('yx'))
+
+        plotter.add_orientation_widget(plotter.enable_trackball_style())
+        plotter.enable_trackball_style()
+        frame.show()
+        return main_widget
+
+    def generate_3d_thumbnail(self, filepath):
+
+        mesh = pv.read(filepath)
+        plotter = pv.Plotter(off_screen=True)
+        plotter.add_mesh(mesh)
+        plotter.camera_position = 'xy'
+
+        # Genera un nome file unico per la thumbnail
+        thumbnail_filename = f"{os.path.splitext(os.path.basename(filepath))[0]}_thumb.png"
+        thumbnail_path = os.path.join(self.thumb_path, thumbnail_filename)
+
+        plotter.screenshot(thumbnail_path)
+        return thumbnail_path
+
+    def process_3d_model(self, media_max_num_id, filepath, filename, thumb_path_str, thumb_resize_str,
+                         media_thumb_suffix, media_resize_suffix):
+        import pyvista as pv
+
+        # Carica il modello 3D
+        mesh = pv.read(filepath)
+
+        # Genera una thumbnail
+        plotter = pv.Plotter(off_screen=True)
+        plotter.add_mesh(mesh)
+        plotter.camera_position = 'xy'
+        thumbnail_path = os.path.join(thumb_path_str, f"{media_max_num_id}_{filename}{media_thumb_suffix}")
+        plotter.screenshot(thumbnail_path)
+
+        # Copia il file originale nella cartella di resize (non possiamo ridimensionare un modello 3D come un'immagine)
+        import shutil
+        resize_path = os.path.join(thumb_resize_str, f"{media_max_num_id}_{filename}{media_resize_suffix}")
+        shutil.copy(filepath, resize_path)
+        # Controlla se esiste una texture JPG con lo stesso nome del modello
+        texture_filename = os.path.splitext(filename)[0] + ".jpg"
+        texture_filepath = os.path.join(os.path.dirname(filepath), texture_filename)
+
+        if os.path.exists(texture_filepath):
+            # Se la texture esiste, copiala nella cartella di resize
+            texture_resize_path = os.path.join(thumb_resize_str, f"{media_max_num_id}_{texture_filename}")
+            shutil.copy(texture_filepath, texture_resize_path)
+
+        return thumbnail_path, resize_path
+
     def openWide_image(self):
         items = self.iconListWidget.selectedItems()
         conn = Connection()
-        conn_str = conn.conn_str()
+
         thumb_resize = conn.thumb_resize()
         thumb_resize_str = thumb_resize['thumb_resize']
-        for item in items:
-            dlg = ImageViewer()
-            id_orig_item = item.text()  # return the name of original file
-            search_dict = {'media_filename': "'" + str(id_orig_item) + "'" , 'mediatype': "'" + 'video' + "'"}
+
+        def process_file_path(file_path):
+            return urllib.parse.unquote(file_path)
+
+        def show_image(file_path):
+            dlg = ImageViewer(self)
+            dlg.show_image(file_path)
+            dlg.exec_()
+
+        def show_video(file_path):
+            if self.video_player is None:
+                self.video_player = VideoPlayerWindow(self, db_manager=self.DB_MANAGER,
+                                                      icon_list_widget=self.iconListWidget,
+                                                      main_class=self)
+            self.video_player.set_video(file_path)
+            self.video_player.show()
+
+        def show_media(file_path, media_type):
+            full_path = os.path.join(thumb_resize_str, file_path)
+            if media_type == 'video':
+                show_video(full_path)
+            elif media_type == 'image':
+                show_image(full_path)
+            elif media_type == '3d_model':
+                self.show_3d_model(file_path)
+            else:
+                QMessageBox.warning(self, "Error", f"Unsupported media type: {media_type}", QMessageBox.Ok)
+
+        def query_media(search_dict, table="MEDIA_THUMB"):
             u = Utility()
             search_dict = u.remove_empty_items_fr_dict(search_dict)
-            #try:
-            res = self.DB_MANAGER.query_bool(search_dict, "MEDIA_THUMB")
-            search_dict_2 = {'media_filename': "'" + str(id_orig_item) + "'" , 'mediatype': "'" + 'image' + "'"}
-            search_dict_2 = u.remove_empty_items_fr_dict(search_dict_2)
-            #try:
-            res_2 = self.DB_MANAGER.query_bool(search_dict_2, "MEDIA_THUMB")
-            search_dict_3 = {'media_filename': "'" + str(id_orig_item) + "'"}
-            search_dict_3 = u.remove_empty_items_fr_dict(search_dict_3)
-            #try:
-            res_3 = self.DB_MANAGER.query_bool(search_dict_3, "MEDIA_THUMB")
-            # file_path = str(res[0].path_resize)
-            # file_path_2 = str(res_2[0].path_resize)
-            file_path_3 = str(res_3[0].path_resize)
-            if bool(res):
-                os.startfile(str(thumb_resize_str+file_path_3))
-            elif bool(res_2):
-                dlg.show_image(str(thumb_resize_str+file_path_3))
-                dlg.exec_()
+            try:
+                return self.DB_MANAGER.query_bool(search_dict, table)
+            except Exception as e:
+                QMessageBox.warning(self, "Error", f"Database query failed: {str(e)}", QMessageBox.Ok)
+                return None
+
+        for item in items:
+            id_orig_item = item.text()
+            search_dict = {'media_filename': f"'{id_orig_item}'"}
+            res = query_media(search_dict)
+
+            if res:
+
+                file_path = process_file_path(os.path.join(thumb_resize_str, str(res[0].path_resize)))
+
+                media_type = res[0].mediatype
+
+                if media_type == '3d_model':
+                    widget_3d = self.show_3d_model(file_path)
+
+                    # Crea un nuovo QDialog per contenere il widget 3D
+                    dialog = QDialog(self)
+                    dialog.setWindowTitle("3D Model Viewer")
+                    dialog_layout = QVBoxLayout()
+                    dialog_layout.addWidget(widget_3d)
+                    dialog.setLayout(dialog_layout)
+
+                    # Imposta le dimensioni del dialog
+                    dialog.resize(800, 600)  # Puoi modificare queste dimensioni come preferisci
+
+                    # Mostra il dialog
+                    dialog.exec_()
+                else:
+                    show_media(file_path, media_type)
+            else:
+                QMessageBox.warning(self, "Error", f"File not found: {id_orig_item}", QMessageBox.Ok)
+
     def charge_list(self):
         l = QgsSettings().value("locale/userLocale", QVariant)
         lang = ""
@@ -9410,11 +9914,19 @@ class SQLPromptDialog(QDialog):
         self.clear_button.clicked.connect(self.prompt_input.clear)
         self.clear_button.clicked.connect(self.sql_output.clear)
         self.clear_button.clicked.connect(self.results_output.clear)
+        self.clear_button.clicked.connect(self.clear_results_table)
+
         self.export_to_excel_button.clicked.connect(self.on_export_to_excel_button_clicked)
         self.create_graph_button.clicked.connect(self.on_create_graph_button_clicked)
         # Connect signals to slots
         self.prompt_combobox.currentIndexChanged.connect(self.on_prompt_selected)
 
+    def clear_results_table(self):
+        if hasattr(self, 'results_table'):
+            self.results_table.clear()
+            self.results_table.setRowCount(0)
+            self.results_table.setColumnCount(0)
+            self.results_table.hide()
 
     def on_prompt_selected(self, index):
         # Get the selected prompt text and set it in the prompt_input
@@ -9594,17 +10106,22 @@ class SQLPromptDialog(QDialog):
         #QMessageBox.information(self, 'Explain', f'Generated Explain: {generated_explain}', QMessageBox.Ok)
 
     def populate_results_list(self, results):
-        # Assumiamo che 'results' sia una lista di tuple o RowProxy da una query SQLAlchemy core o ORM
-
         if results:
-            # Se stai utilizzando il core di SQLAlchemy, puoi ottenere i nomi delle colonne così
-            # Per le query ORM, questo approccio deve essere adattato
             column_names = results[0].keys() if results else []
-
             row, col = len(results), len(column_names)
-            self.results_table = QTableWidget(row, col)
 
-            # Imposta i nomi delle colonne nella QTableWidget
+            # Controlla se la tabella esiste già
+            if not hasattr(self, 'results_table'):
+                # Se non esiste, crea una nuova TableWidget
+                self.results_table = QTableWidget(row, col)
+                self.layout().addWidget(self.results_table)
+            else:
+                # Se esiste, pulisci la tabella esistente e imposta le nuove dimensioni
+                self.results_table.clear()
+                self.results_table.setRowCount(row)
+                self.results_table.setColumnCount(col)
+
+            # Imposta i nomi delle colonne
             self.results_table.setHorizontalHeaderLabels(column_names)
 
             # Popola la tabella con i risultati
@@ -9613,8 +10130,12 @@ class SQLPromptDialog(QDialog):
                     item = QTableWidgetItem(str(value))
                     self.results_table.setItem(i, j, item)
 
-            # Aggiungi la tabella al layout
-            self.layout().addWidget(self.results_table)
+            # Assicurati che la tabella sia visibile
+            self.results_table.show()
+        else:
+            # Se non ci sono risultati, nascondi la tabella se esiste
+            if hasattr(self, 'results_table'):
+                self.results_table.hide()
 
     def on_export_to_excel_button_clicked(self):
         EXC = '{}{}{}'.format(pyarchinit_US.HOME, os.sep, "pyarchinit_EXCEL_folder")

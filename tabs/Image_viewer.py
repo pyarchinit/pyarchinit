@@ -19,37 +19,22 @@
  ***************************************************************************/
 '''
 from __future__ import absolute_import
-import os
+
+from datetime import date
 from os import *
-import time
-import sys
-from builtins import range
-from builtins import str
-import PIL as Image
-from PIL import *
-import shutil
 
 import platform
 import cv2
-#import pytesseract
-import numpy as np
-#####################nuovi#######################
-from PIL import ImageGrab
-import time
-#from pytesseract import Output
-#pytesseract.pytesseract.tesseract_cmd = 'C:\\Program Files\\Tesseract-OCR\\tesseract.exe'# funziona meglio
-###############################
-from qgis import PyQt
+
 from qgis.PyQt.QtCore import *
 from qgis.PyQt.QtGui import *
 from qgis.PyQt.QtWidgets import *
 from qgis.PyQt.uic import loadUiType
-from qgis.core import QgsSettings
-from ..gui.pyarchinitConfigDialog import pyArchInitDialog_Config
+
 from ..gui.imageViewer import ImageViewer
 from ..gui.sortpanelmain import SortPanelMain
 from ..modules.utility.delegateComboBox import ComboBoxDelegate
-from ..modules.db.pyarchinit_conn_strings import *
+
 from ..modules.db.pyarchinit_db_manager import *
 from ..modules.db.pyarchinit_utility import *
 from ..modules.utility.pyarchinit_media_utility import *
@@ -59,6 +44,7 @@ MAIN_DIALOG_CLASS, _ = loadUiType(
 conn = Connection()
 class Main(QDialog,MAIN_DIALOG_CLASS):
     L=QgsSettings().value("locale/userLocale")[0:2]
+    FILE_MODE = 'a'
     delegateSites = ''
     DB_MANAGER = ""
     TABLE_NAME = 'media_table'
@@ -316,8 +302,8 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                     pass
                 self.comboBox_sigla_struttura.clear()
                 self.comboBox_sigla_struttura.addItems(self.UTILITY.remove_dup_from_list(us_list))
-            except:
-                MessageBox.warning(self, "Warning", str(e), QMessageBox.Ok)
+            except Exception as e:
+                QMessageBox.warning(self, "Warning", str(e), QMessageBox.Ok)
     def charge_nr_st_list(self):
         sito = str(self.comboBox_sito.currentText())
         if self.radioButton_struttura.isChecked():
@@ -341,8 +327,8 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                     pass
                 self.comboBox_nr_struttura.clear()
                 self.comboBox_nr_struttura.addItems(self.UTILITY.remove_dup_from_list(us_list))
-            except:
-                MessageBox.warning(self, "Warning", str(e), QMessageBox.Ok)
+            except Exception as e:
+                QMessageBox.warning(self, "Warning", str(e), QMessageBox.Ok)
     def charge_us_list(self):
         sito = str(self.comboBox_sito.currentText())
         if self.radioButton_us.isChecked():
@@ -368,8 +354,8 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                     pass
                 self.comboBox_us.clear()
                 self.comboBox_us.addItems(self.UTILITY.remove_dup_from_list(us_list))
-            except:
-                MessageBox.warning(self, "Warning", str(e), QMessageBox.Ok)
+            except Exception as e:
+                QMessageBox.warning(self, "Warning", str(e), QMessageBox.Ok)
         if self.radioButton_materiali.isChecked():
             try: 
                 self.label_8.clear()
@@ -393,9 +379,10 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                     pass
                 self.comboBox_us.clear()
                 self.comboBox_us.addItems(self.UTILITY.remove_dup_from_list(us_list))
-        
-            except:
-                MessageBox.warning(self, "Warning", str(e), QMessageBox.Ok)
+
+
+            except Exception as e:
+                QMessageBox.warning(self, "Warning", str(e), QMessageBox.Ok)
         if self.radioButton_tomba.isChecked():
             try:
                 self.label_8.clear()
@@ -419,8 +406,8 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                     pass
                 self.comboBox_us.clear()
                 self.comboBox_us.addItems(self.UTILITY.remove_dup_from_list(us_list))
-            except:
-                MessageBox.warning(self, "Warning", str(e), QMessageBox.Ok)    
+            except Exception as e:
+                QMessageBox.warning(self, "Warning", str(e), QMessageBox.Ok)
     def charge_area_list(self):
         if self.radioButton_us.isChecked():
             sito = str(self.comboBox_sito.currentText())
@@ -983,6 +970,7 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                 self.iconListWidget.addItem(item)
     
     def getDirectoryVideo(self):
+        global idunique_video_check, filepath_thumb
         thumb_path = conn.thumb_path()
         thumb_path_str = thumb_path['thumb_path']      
         if thumb_path_str=='':
@@ -1031,7 +1019,7 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                             filenameorig = filenamev
                             filename_thumb = str(media_max_num_id) + "_" + filenamev + media_thumb_suffix
                             filename_resize = str(media_max_num_id) + "_" +filenamev + media_resize_suffix
-                            filepath_thumb =  filename_thumb
+                            filepath_thumb = filename_thumb
                             filepath_resize = filename_resize
                             self.SORT_ITEMS_CONVERTED = []
                             # crea la thumbnail
@@ -1047,10 +1035,10 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                                 QMessageBox.warning(self, "Cucu", str(e), QMessageBox.Ok)
 
                             try:
-                                for i in enumerate(image):
-                                    image_list.append(i[0])
-                                for n in range(len(image_list)):
-                                    value = (float(n)/float(len(image_list)))*100
+                                for i in enumerate(video):
+                                    video_list.append(i[0])
+                                for n in range(len(video_list)):
+                                    value = (float(n)/float(len(video_list)))*100
                                     self.progressBar.setValue(value)
                                     QApplication.processEvents()
                             except:
@@ -1080,10 +1068,10 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                             except:
                                 pass
                 
-                    for i in enumerate(image):
-                        image_list.append(i[0])
-                    for n in range(len(image_list)):
-                        value = (float(n)/float(len(image_list)))*100
+                    for i in enumerate(video):
+                        video_list.append(i[0])
+                    for n in range(len(video_list)):
+                        value = (float(n)/float(len(video_list)))*100
                         self.progressBar.setValue(value)
                         QApplication.processEvents()
 
@@ -1115,6 +1103,7 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
             self.open_images()
     
     def getDirectory(self):
+        global filepath_thumb, idunique_image_check
         self.iconListWidget.clear()
         thumb_path = conn.thumb_path()
         thumb_path_str = thumb_path['thumb_path']      
@@ -1591,6 +1580,7 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
         return sito_vl
     
     def generate_US(self):
+        global sing_tags
         tags_list = self.table2dict('self.tableWidgetTags_US')
         record_us_list = []
         
@@ -1604,17 +1594,17 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
 
         if not record_us_list[0]:
             if self.L=='it':
-                result=QMessageBox.warning(self, "Attenzione",  "Scheda US non presente. Vuoi generala? Clicca ok oppure Annulla per abortire", QMessageBox.Ok|QMessageBox.Cancel)
-            elif self.L=='de':
-                result=QMessageBox.warning(self, "Warnung", "SE-Karte nicht vorhanden. Sie wollen es generieren? Klicken Sie auf OK oder Abbrechen, um abzubrechen", QMessageBox.Ok|QMessageBox.Cancel)
+                result = QMessageBox.warning(self, "Attenzione",  "Scheda US non presente. Vuoi generala? Clicca ok oppure Annulla per abortire", QMessageBox.Ok|QMessageBox.Cancel)
+            elif self.L == 'de':
+                result = QMessageBox.warning(self, "Warnung", "SE-Karte nicht vorhanden. Sie wollen es generieren? Klicken Sie auf OK oder Abbrechen, um abzubrechen", QMessageBox.Ok|QMessageBox.Cancel)
             else:
-                result=QMessageBox.warning(self, "Warning", "SU form not present. Do you want to generate it? Click OK or Cancel to abort", QMessageBox.Ok|QMessageBox.Cancel)
+                result = QMessageBox.warning(self, "Warning", "SU form not present. Do you want to generate it? Click OK or Cancel to abort", QMessageBox.Ok|QMessageBox.Cancel)
 
 
-            if result==QMessageBox.Ok:
+            if result == QMessageBox.Ok:
 
 
-                rs= self.DB_MANAGER.insert_number_of_us_records(str(sing_tags[0]),str(sing_tags[1]),str(sing_tags[2]))
+                rs = self.DB_MANAGER.insert_number_of_us_records(str(sing_tags[0]), str(sing_tags[1]), str(sing_tags[2]))
 
                 if self.L == 'it':
                     QMessageBox.information(self, "Info", "Scheda creata", QMessageBox.Ok)
@@ -1660,6 +1650,7 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
         return us_list
 
     def generate_Pottery(self):
+        global sing_tags
         tags_list = self.table2dict('self.tableWidgetTags_POT')
         record_rep_list = []
         for sing_tags in tags_list:
@@ -1719,7 +1710,7 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
             }
             record_mat_list.remove(self.DB_MANAGER.query_bool(search_dict, 'POTTERY'))
         rep_list = []
-        for r in record_rep_list:
+        for r in record_mat_list:
             rep_list.append([r[0].id_rep, 'CERAMICA', 'pottery_table'])
         return rep_list
 
@@ -1730,6 +1721,7 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
 
 
     def generate_Reperti(self):
+        global sing_tags
         tags_list = self.table2dict('self.tableWidgetTags_MAT')
         record_rep_list = []
         for sing_tags in tags_list:
@@ -1778,11 +1770,12 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                            }
                 record_mat_list.remove(self.DB_MANAGER.query_bool(search_dict, 'INVENTARIO_MATERIALI'))
         rep_list = []
-        for r in record_rep_list:
+        for r in record_mat_list:
             rep_list.append([r[0].id_invmat, 'REPERTO', 'inventario_materiali_table'])
         return rep_list
     
     def generate_Tombe(self):
+        global sing_tags
         tags_list = self.table2dict('self.tableWidgetTags_tomba')
         record_tmb_list = []
         for sing_tags in tags_list:
@@ -1837,6 +1830,7 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
     
     
     def generate_Tombe_2(self):
+        global sing_tags
         tags_list = self.table2dict('self.tableWidgetTags_tomba_2')
         record_tmb_list = []
         for sing_tags in tags_list:
@@ -2083,6 +2077,7 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
     def remove_img2(self, path, img_name):
         os.remove(path + img_name)
     def on_pushButton_remove_thumb_pressed(self):
+        global id_orig_item, s
         thumb_path = conn.thumb_path()
         thumb_path_str = thumb_path['thumb_path']
         thumb_resize = conn.thumb_resize()
@@ -2169,6 +2164,7 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
     
     ###################funzione poer rimuovere un tag alla volta dal tabklewidget##############
     def on_pushButton_remove_tags_pressed(self):
+        global items_selected
         if not bool(self.tableWidget_tags.selectedItems()):
             if self.L=='it':
                 
@@ -2364,7 +2360,7 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
             str(e)
             save_file='{}{}{}'.format(self.HOME, os.sep,"pyarchinit_Report_folder") 
             file_=os.path.join(save_file,'error_encodig_data_recover.txt')
-            with open(file_, "a") as fh:
+            with open(file_, 0) as fh:
                 try:
                     raise ValueError(str(e))
                 except ValueError as s:
@@ -2382,9 +2378,10 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                                     "Kodierungsproblem: Es wurden Akzente oder Zeichen eingegeben, die von der Datenbank nicht akzeptiert werden. Es wird eine Kopie des Fehlers mit den Daten erstellt, die Sie im pyarchinit_Report _Ordner abrufen können", QMessageBox.Ok)
             return 0
     def rec_toupdate(self):
-        rec_to_update = self.UTILITY.pos_none_in_list(self.DATA_LIST_REC_TEMP)
-        return rec_to_update
         self.DATA_LIST = []
+        #rec_to_update = self.UTILITY.pos_none_in_list(self.DATA_LIST_REC_TEMP)
+        #return rec_to_update
+
         id_list = []
         if self.DB_SERVER == 'sqlite':
             for i in self.DB_MANAGER.query(self.MAPPER_TABLE_CLASS_thumb):
@@ -2428,6 +2425,7 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
             # QMessageBox.warning(self, "Errore", "Vai Gigi 1",  QMessageBox.Ok)
             self.open_tags()
     def open_tags(self):
+        global res_mediaToEntity
         if self.toolButton_tags_on_off.isChecked():
             items = self.iconListWidget.selectedItems()
             items_list = []

@@ -56,7 +56,7 @@ from qgis.PyQt.QtWidgets import (QMessageBox, QDialog, QVBoxLayout, QLabel, QPus
 from qgis.core import QgsSettings
 from .modules.utility.pyarchinit_OS_utility import Pyarchinit_OS_Utility
 from .modules.utility.pyarchinit_folder_installation import pyarchinit_Folder_installation
-#from .modules.utility.install_caladea_font import install_caladea
+
 def show_install_dialog(packages):
     dialog = InstallDialog(packages)
     dialog.exec_()

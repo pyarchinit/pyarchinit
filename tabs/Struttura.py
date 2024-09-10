@@ -23,17 +23,32 @@
 from __future__ import absolute_import
 
 import os
+import subprocess
+import time
+from collections import OrderedDict
 from datetime import date
 import platform
-#from pdf2docx import parse
-import sys
+
+import cv2
+import numpy as np
+import urllib.parse
+import pyvista as pv
+import vtk
+from pyvistaqt import QtInteractor
+
 from builtins import range
 from builtins import str
-from qgis.PyQt.QtCore import QVariant
-from qgis.PyQt.QtWidgets import QDialog, QMessageBox,QTableWidgetItem
+from qgis.PyQt.QtGui import QIcon, QColor
+from qgis.PyQt.QtCore import QVariant, QSize, QDateTime, Qt
+from qgis.PyQt.QtWidgets import QDialog, QListWidgetItem, QListWidget, QPushButton, QVBoxLayout, QWidget, QHBoxLayout, QFrame, \
+    QTextEdit, QMessageBox, QTableWidgetItem, QAbstractItemView, QFileDialog, QApplication
 from qgis.PyQt.uic import loadUiType
-from qgis.core import QgsSettings
+from qgis.core import QgsSettings, Qgis
 
+from ..gui.imageViewer import ImageViewer
+from ..modules.utility.VideoPlayerStruttura import VideoPlayerWindow
+from ..modules.utility.pyarchinit_media_utility import Media_utility, Media_utility_resize, Video_utility, \
+    Video_utility_resize
 from ..modules.db.pyarchinit_conn_strings import Connection
 from ..modules.db.pyarchinit_db_manager import Pyarchinit_db_management
 from ..modules.db.pyarchinit_utility import Utility
@@ -228,13 +243,28 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
         self.currentLayerId = None
         self.mDockWidget_export.setHidden(True)
         self.mDockWidget_3.setHidden(True)
-        
+        self.video_player = None
+
         try:
             self.on_pushButton_connect_pressed()
         except Exception as e:
             QMessageBox.warning(self, "Connection system", str(e), QMessageBox.Ok)
 
             # SIGNALS & SLOTS Functions
+        self.pyQGIS = Pyarchinit_pyqgis(iface)
+        self.currentLayerId = None
+        self.setAcceptDrops(True)
+        self.iconListWidget.setDragDropMode(QAbstractItemView.DragDrop)
+        # Dizionario per memorizzare le immagini in cache
+        self.image_cache = OrderedDict()
+
+        # Numero massimo di elementi nella cache
+        self.cache_limit = 100
+        try:
+            self.on_pushButton_connect_pressed()
+        except Exception as e:
+            QMessageBox.warning(self, "Connection system", str(e), QMessageBox.Ok)
+
         self.comboBox_sigla_struttura.editTextChanged.connect(self.add_value_to_categoria)
         if len(self.DATA_LIST)==0:
             self.comboBox_sito.setCurrentIndex(0)
@@ -255,6 +285,1076 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
         self.customize_GUI()
         self.set_sito()
         self.msg_sito()
+
+
+    def loadMediaPreview(self):
+        self.iconListWidget.clear()
+        conn = Connection()
+        thumb_path = conn.thumb_path()
+        thumb_path_str = thumb_path['thumb_path']
+        # if mode == 0:
+        # """ if has geometry column load to map canvas """
+        rec_list = self.ID_TABLE + " = " + str(
+            eval("self.DATA_LIST[int(self.REC_CORR)]." + self.ID_TABLE))
+        search_dict = {
+            'id_entity': "'" + str(eval("self.DATA_LIST[int(self.REC_CORR)]." + self.ID_TABLE)) + "'",
+            'entity_type': "'STRUTTURA'"}
+        record_us_list = self.DB_MANAGER.query_bool(search_dict, 'MEDIATOENTITY')
+        for i in record_us_list:
+            search_dict = {'id_media': "'" + str(i.id_media) + "'"}
+            u = Utility()
+            search_dict = u.remove_empty_items_fr_dict(search_dict)
+            mediathumb_data = self.DB_MANAGER.query_bool(search_dict, "MEDIA_THUMB")
+            thumb_path = str(mediathumb_data[0].filepath)
+            item = QListWidgetItem(str(i.media_name))
+            item.setData(Qt.UserRole, str(i.media_name))
+            icon = QIcon(thumb_path_str+thumb_path)
+            item.setIcon(icon)
+            self.iconListWidget.addItem(item)
+
+    def loadMapPreview(self, mode=0):
+        if mode == 0:
+            """ if has geometry column load to map canvas """
+            gidstr = self.ID_TABLE + " = " + str(
+                eval("self.DATA_LIST[int(self.REC_CORR)]." + self.ID_TABLE))
+            layerToSet = self.pyQGIS.loadMapPreview(gidstr)
+            #QMessageBox.warning(self, "layer to set", '\n'.join([l.name() for l in layerToSet]), QMessageBox.Ok)
+            self.mapPreview.setLayers(layerToSet)
+            self.mapPreview.zoomToFullExtent()
+        elif mode == 1:
+            self.mapPreview.setLayers([])
+            self.mapPreview.zoomToFullExtent()
+
+    def dropEvent(self, event):
+        mimeData = event.mimeData()
+        accepted_formats = ["jpg", "jpeg", "png", "tiff", "tif", "bmp", "mp4", "avi", "mov", "mkv", "flv", "obj", "stl",
+                            "ply", "fbx", "3ds"]
+
+        if mimeData.hasUrls():
+            for url in mimeData.urls():
+                try:
+                    path = url.toLocalFile()
+                    if os.path.isfile(path):
+                        filename = os.path.basename(path)
+                        filetype = filename.split(".")[-1]
+                        if filetype.lower() in accepted_formats:
+                            self.load_and_process_image(path)
+                        else:
+                            QMessageBox.warning(self, "Error", f"Unsupported file type: {filetype}", QMessageBox.Ok)
+                except Exception as e:
+                    QMessageBox.warning(self, "Error", f"Failed to process the file: {str(e)}", QMessageBox.Ok)
+        super().dropEvent(event)
+
+    def dragEnterEvent(self, event):
+        if event.mimeData().hasUrls():
+            event.acceptProposedAction()
+        else:
+            event.ignore()
+
+    def dragMoveEvent(self, event):
+        event.acceptProposedAction()
+    def insert_record_media(self, mediatype, filename, filetype, filepath):
+        self.mediatype = mediatype
+        self.filename = filename
+        self.filetype = filetype
+        self.filepath = filepath
+        try:
+            data = self.DB_MANAGER.insert_media_values(
+                self.DB_MANAGER.max_num_id('MEDIA', 'id_media') + 1,
+                str(self.mediatype),  # 1 - mediatyype
+                str(self.filename),  # 2 - filename
+                str(self.filetype),  # 3 - filetype
+                str(self.filepath),  # 4 - filepath
+                str('Insert description'),  # 5 - descrizione
+                str("['imagine']"))  # 6 - tags
+            try:
+                self.DB_MANAGER.insert_data_session(data)
+                return 1
+            except Exception as  e:
+                e_str = str(e)
+                if e_str.__contains__("Integrity"):
+                    msg = self.filename + ": Image already in the database"
+                else:
+                    msg = e
+                #QMessageBox.warning(self, "Errore", "Warning 1 ! \n"+ str(msg),  QMessageBox.Ok)
+                return 0
+        except Exception as  e:
+            QMessageBox.warning(self, "Error", "Warning 2 ! \n"+str(e),  QMessageBox.Ok)
+            return 0
+    def insert_record_mediathumb(self, media_max_num_id, mediatype, filename, filename_thumb, filetype, filepath_thumb, filepath_resize):
+        self.media_max_num_id = media_max_num_id
+        self.mediatype = mediatype
+        self.filename = filename
+        self.filename_thumb = filename_thumb
+        self.filetype = filetype
+        self.filepath_thumb = filepath_thumb
+        self.filepath_resize = filepath_resize
+        try:
+            data = self.DB_MANAGER.insert_mediathumb_values(
+                self.DB_MANAGER.max_num_id('MEDIA_THUMB', 'id_media_thumb') + 1,
+                str(self.media_max_num_id),  # 1 - media_max_num_id
+                str(self.mediatype),  # 2 - mediatype
+                str(self.filename),  # 3 - filename
+                str(self.filename_thumb),  # 4 - filename_thumb
+                str(self.filetype),  # 5 - filetype
+                str(self.filepath_thumb),  # 6 - filepath_thumb
+                str(self.filepath_resize))  # 6 - filepath_thumb
+            try:
+                self.DB_MANAGER.insert_data_session(data)
+                return 1
+            except Exception as e:
+                e_str = str(e)
+                if e_str.__contains__("Integrity"):
+                    msg = self.filename + ": thumb already present into the database"
+                else:
+                    msg = e
+                #QMessageBox.warning(self, "Error", "warming 1 ! \n"+ str(msg),  QMessageBox.Ok)
+                return 0
+        except Exception as  e:
+            QMessageBox.warning(self, "Error", "Warning 2 ! \n"+str(e),  QMessageBox.Ok)
+            return 0
+    def insert_mediaToEntity_rec(self, id_entity, entity_type, table_name, id_media, filepath, media_name):
+        """
+        id_mediaToEntity,
+        id_entity,
+        entity_type,
+        table_name,
+        id_media,
+        filepath,
+        media_name"""
+        self.id_entity = id_entity
+        self.entity_type = entity_type
+        self.table_name = table_name
+        self.id_media = id_media
+        self.filepath = filepath
+        self.media_name = media_name
+        try:
+            data = self.DB_MANAGER.insert_media2entity_values(
+                self.DB_MANAGER.max_num_id('MEDIATOENTITY', 'id_mediaToEntity') + 1,
+                int(self.id_entity),  # 1 - id_entity
+                str(self.entity_type),  # 2 - entity_type
+                str(self.table_name),  # 3 - table_name
+                int(self.id_media),  # 4 - us
+                str(self.filepath),  # 5 - filepath
+                str(self.media_name))  # 6 - media_name
+            try:
+                self.DB_MANAGER.insert_data_session(data)
+                return 1
+            except Exception as  e:
+                e_str = str(e)
+                if e_str.__contains__("Integrity"):
+                    msg = self.ID_TABLE + " already present into the database"
+                else:
+                    msg = e
+                QMessageBox.warning(self, "Error", "Warning 1 ! \n"+ str(msg),  QMessageBox.Ok)
+                return 0
+        except Exception as  e:
+            QMessageBox.warning(self, "Error", "Warning 2 ! \n"+str(e),  QMessageBox.Ok)
+            return 0
+    def delete_mediaToEntity_rec(self, id_entity, entity_type, table_name, id_media, filepath, media_name):
+        """
+        id_mediaToEntity,
+        id_entity,
+        entity_type,
+        table_name,
+        id_media,
+        filepath,
+        media_name"""
+        self.id_entity = id_entity
+        self.entity_type = entity_type
+        self.table_name = table_name
+        self.id_media = id_media
+        self.filepath = filepath
+        self.media_name = media_name
+        try:
+            data = self.DB_MANAGER.insert_media2entity_values(
+            self.DB_MANAGER.max_num_id('MEDIATOENTITY', 'id_mediaToEntity')+1,
+            int(self.id_entity),                                                    #1 - id_entity
+            str(self.entity_type),                                              #2 - entity_type
+            str(self.table_name),                                               #3 - table_name
+            int(self.id_media),                                                     #4 - us
+            str(self.filepath),                                                     #5 - filepath
+            str(self.media_name))
+        except Exception as  e:
+            QMessageBox.warning(self, "Error", "Warning 2 ! \n"+str(e),  QMessageBox.Ok)
+            return 0
+
+    def generate_US(self):
+
+        record_us_list = []
+        sito = self.comboBox_sito.currentText()
+        sigla = self.comboBox_sigla_struttura.currentText()
+        nv = self.numero_struttura.text()
+
+        search_dict = {'sito': "'" + str(sito) + "'",
+                       'sigla_struttura': "'" + str(sigla) + "'",
+                       'numero_struttura': "'" + str(nv) + "'"
+
+                       }
+        j = self.DB_MANAGER.query_bool(search_dict, 'STRUTTURA')
+        record_us_list.append(j)
+        #QMessageBox.information(self, 'search db', str(record_us_list))
+        us_list = []
+        for r in record_us_list:
+            us_list.append([r[0].id_struttura, 'STRUTTURA', 'struttura_table'])
+        #QMessageBox.information(self, "Scheda US", str(us_list), QMessageBox.Ok)
+        return us_list
+    def assignTags_US(self, item):
+
+        us_list = self.generate_US()
+
+        if not us_list:
+            return
+
+        for us_data in us_list:
+            id_orig_item = item.text()  # return the name of original file
+            search_dict = {'filename': "'" + str(id_orig_item) + "'"}
+            media_data = self.DB_MANAGER.query_bool(search_dict, 'MEDIA')
+            self.insert_mediaToEntity_rec(us_data[0], us_data[1], us_data[2], media_data[0].id_media,
+                                          media_data[0].filepath, media_data[0].filename)
+
+    def load_and_process_image(self, filepath):
+        media_resize_suffix = ''
+        media_thumb_suffix = ''
+        conn = Connection()
+        thumb_path = conn.thumb_path()
+        thumb_path_str = thumb_path['thumb_path']
+        if thumb_path_str == '':
+            if self.L == 'it':
+                QMessageBox.information(self, "Info",
+                                        "devi settare prima la path per salvare le thumbnail e i video. Vai in impostazioni di sistema/ path setting ")
+            elif self.L == 'de':
+                QMessageBox.information(self, "Info",
+                                        "müssen Sie zuerst den Pfad zum Speichern der Miniaturansichten und Videos festlegen. Gehen Sie zu System-/Pfad-Einstellung")
+            else:
+                QMessageBox.information(self, "Message",
+                                        "you must first set the path to save the thumbnails and videos. Go to system/path setting")
+        else:
+            filename = os.path.basename(filepath)
+            filename, filetype = filename.split(".")[0], filename.split(".")[1]
+            # Check the media type based on the file extension
+            accepted_image_formats = ["jpg", "jpeg", "png", "tiff", "tif", "bmp"]
+            accepted_video_formats = ["mp4", "avi", "mov", "mkv", "flv"]
+            accepted_3d_formats = ["obj", "stl", "ply", "fbx", "3ds"]
+
+            if filetype.lower() in accepted_image_formats:
+                mediatype = 'image'
+                media_thumb_suffix = '_thumb.png'
+                media_resize_suffix = '.png'
+            elif filetype.lower() in accepted_video_formats:
+                mediatype = 'video'
+                media_thumb_suffix = '_video.png'
+                media_resize_suffix = '.' + filetype.lower()
+            elif filetype.lower() in accepted_3d_formats:
+                mediatype = '3d_model'
+                media_thumb_suffix = '_3d_thumb.png'
+                media_resize_suffix = '.' + filetype.lower()
+            else:
+                raise ValueError(f"Unrecognized media type for file {filename}.{filetype}")
+
+            if mediatype == 'video':
+                if filetype.lower() == 'mp4':
+                    media_resize_suffix = '.mp4'
+                elif filetype.lower() == 'avi':
+                    media_resize_suffix = '.avi'
+                elif filetype.lower() == 'mov':
+                    media_resize_suffix = '.mov'
+                elif filetype.lower() == 'mkv':
+                    media_resize_suffix = '.mkv'
+                elif filetype.lower() == 'flv':
+                    media_resize_suffix = '.flv'
+
+            elif mediatype == '3d_model':
+                if filetype.lower() == 'obj':
+                    media_resize_suffix = '.obj'
+                elif filetype.lower() == 'ply':
+                    media_resize_suffix = '.ply'
+                elif filetype.lower() == 'fbx':
+                    media_resize_suffix = '.fbx'
+                elif filetype.lower() == '3ds':
+                    media_resize_suffix = '.3ds'
+                elif filetype.lower() == 'stl':
+                    media_resize_suffix = '.stl'
+            # Check and insert record in the database
+            idunique_image_check = self.db_search_check('MEDIA', 'filepath', filepath)
+
+            try:
+                if bool(idunique_image_check):
+
+                    return
+                else:
+                    # mediatype = 'image'
+                    self.insert_record_media(mediatype, filename, filetype, filepath)
+                    MU = Media_utility()
+                    MUR = Media_utility_resize()
+                    MU_video = Video_utility()
+                    MUR_video = Video_utility_resize()
+                    media_max_num_id = self.DB_MANAGER.max_num_id('MEDIA', 'id_media')
+                    thumb_path = conn.thumb_path()
+                    thumb_path_str = thumb_path['thumb_path']
+                    thumb_resize = conn.thumb_resize()
+                    thumb_resize_str = thumb_resize['thumb_resize']
+                    filenameorig = filename
+                    filename_thumb = str(media_max_num_id) + "_" + filename + media_thumb_suffix
+                    filename_resize = str(media_max_num_id) + "_" + filename + media_resize_suffix
+                    filepath_thumb = filename_thumb
+                    filepath_resize = filename_resize
+                    self.SORT_ITEMS_CONVERTED = []
+
+                    try:
+
+                        if mediatype == '3d_model':
+                            self.process_3d_model(media_max_num_id, filepath, filename, thumb_path_str,
+                                                  thumb_resize_str,
+                                                  media_thumb_suffix, media_resize_suffix)
+
+                        elif mediatype == 'video':
+                            vcap = cv2.VideoCapture(filepath)
+                            res, im_ar = vcap.read()
+                            while im_ar.mean() < 1 and res:
+                                res, im_ar = vcap.read()
+                            im_ar = cv2.resize(im_ar, (100, 100), 0, 0, cv2.INTER_LINEAR)
+                            # to save we have two options
+                            outputfile = '{}.png'.format(os.path.dirname(filepath) + '/' + filename)
+                            cv2.imwrite(outputfile, im_ar)
+                            MU_video.resample_images(media_max_num_id, outputfile, filenameorig, thumb_path_str,
+                                                     media_thumb_suffix)
+                            MUR_video.resample_images(media_max_num_id, filepath, filenameorig, thumb_resize_str,
+                                                      media_resize_suffix)
+                        else:
+                            MU.resample_images(media_max_num_id, filepath, filenameorig, thumb_path_str,
+                                               media_thumb_suffix)
+                            MUR.resample_images(media_max_num_id, filepath, filenameorig, thumb_resize_str,
+                                                media_resize_suffix)
+                    except Exception as e:
+                        QMessageBox.warning(self, "Cucu", str(e), QMessageBox.Ok)
+                    self.insert_record_mediathumb(media_max_num_id, mediatype, filename, filename_thumb, filetype,
+                                                  filepath_thumb, filepath_resize)
+
+                    item = QListWidgetItem(str(filenameorig))
+                    item.setData(Qt.UserRole, str(media_max_num_id))
+                    icon = QIcon(str(thumb_path_str) + filepath_thumb)
+                    item.setIcon(icon)
+                    self.iconListWidget.addItem(item)
+
+                self.assignTags_US(item)
+
+
+
+
+            except AssertionError as e:
+
+                if self.L == 'it':
+                    QMessageBox.warning(self, "Warning", "controlla che il nome del file non abbia caratteri speciali",
+
+                                        QMessageBox.Ok)
+
+                if self.L == 'de':
+
+                    QMessageBox.warning(self, "Warning", "prüfen, ob der Dateiname keine Sonderzeichen enthält",
+                                        QMessageBox.Ok)
+
+                else:
+
+                    QMessageBox.warning(self, "Warning", str(e), QMessageBox.Ok)
+
+
+    def db_search_check(self, table_class, field, value):
+        self.table_class = table_class
+        self.field = field
+        self.value = value
+        search_dict = {self.field: "'" + str(self.value) + "'"}
+        u = Utility()
+        search_dict = u.remove_empty_items_fr_dict(search_dict)
+        res = self.DB_MANAGER.query_bool(search_dict, self.table_class)
+        return res
+    def on_pushButton_assigntags_pressed(self):
+
+        # Check the locale and set the button text and message box content
+        L = QgsSettings().value("locale/userLocale")[0:2]
+        if L == 'it':
+            done_button_text = "Fatto"
+            warning_title = "Attenzione"
+            warning_text = "Devi selezionare una o più US"
+        elif L == 'de':
+            done_button_text = "Fertig"
+            warning_title = "Achtung"
+            warning_text = "Sie müssen eine oder mehrere US auswählen"
+        else:  # Default to English
+            done_button_text = "Done"
+            warning_title = "Attention"
+            warning_text = "You must select one or more US"
+        # Check if there are selected items in the iconListWidget
+        if not self.iconListWidget.selectedItems():
+            QMessageBox.warning(self, warning_title, warning_text)
+            return  # Exit the function if there are no selected images
+
+        # Query all US records from the database and sort them
+        all_us = self.DB_MANAGER.query('STRUTTURA')
+        sorted_us = sorted(all_us, key=lambda x: (x.sito, x.area, x.us))
+
+        # Create a QListWidget and populate it with sorted US records
+        self.us_listwidget = QListWidget()
+        header_item = QListWidgetItem("Sito - Sigla - Struttura")
+        header_item.setBackground(QColor('lightgrey'))
+        header_item.setFlags(header_item.flags() & ~Qt.ItemIsSelectable)
+        self.us_listwidget.addItem(header_item)
+        for us in sorted_us:
+            item_string = f"{us.sito} - {us.sigla_struttura} - {us.numero_struttura}"
+            self.us_listwidget.addItem(QListWidgetItem(item_string))
+
+        # Set selection mode to allow multiple selections
+        self.us_listwidget.setSelectionMode(QAbstractItemView.MultiSelection)
+
+        # Create a "Done" button and connect it to the slot
+        done_button = QPushButton(done_button_text)
+        done_button.clicked.connect(self.on_done_selecting)
+
+        # Create a layout and add the QListWidget and "Done" button
+        layout = QVBoxLayout()
+        layout.addWidget(self.us_listwidget)
+        layout.addWidget(done_button)
+
+        # Create a widget to contain the QListWidget and button, and set the layout
+        self.widget = QWidget()
+        self.widget.setLayout(layout)
+        self.widget.show()
+
+    def on_done_selecting(self):
+        # Check the locale and set the button text and message box content
+        L = QgsSettings().value("locale/userLocale")[0:2]
+        if L == 'it':
+            done_button_text = "Fatto"
+            warning_title = "Attenzione"
+            warning_text = "Devi selezionare una o più US"
+        elif L == 'de':
+            done_button_text = "Fertig"
+            warning_title = "Achtung"
+            warning_text = "Sie müssen eine oder mehrere US auswählen"
+        else:  # Default to English
+            done_button_text = "Done"
+            warning_title = "Attention"
+            warning_text = "You must select one or more US"
+
+        # Handle the event when the "Done" button is clicked
+        selected_items = self.us_listwidget.selectedItems()
+        if not selected_items:
+            # Show a warning message if no items are selected
+            QMessageBox.warning(self, warning_title, warning_text)
+        else:
+            # Process the selected items
+            pass  # Replace with the code to handle the selected US records
+
+        def r_list():
+
+            # Ottieni le US selezionate dall'utente
+            selected_us = [item.text().split(' - ') for item in self.us_listwidget.selectedItems()]
+            record_us_list=[]
+            for sing_tags in selected_us:
+                search_dict = {'sito': "'" + str(sing_tags[0]) + "'",
+                               'sigla_struttura': "'" + str(sing_tags[1]) + "'",
+                               'numero_struttura': "'" + str(sing_tags[2]) + "'"
+                               }
+                j = self.DB_MANAGER.query_bool(search_dict, 'STRUTTURA')
+                record_us_list.append(j)
+            us_list = []
+            for r in record_us_list:
+                us_list.append([r[0].id_struttura, 'STRUTTURA', 'struttura_table'])
+            # QMessageBox.information(self, "Scheda US", str(us_list), QMessageBox.Ok)
+            return us_list
+
+
+        #QMessageBox.information(self, 'ok', str(r_list()))
+        items_selected=self.iconListWidget.selectedItems()
+        for item in items_selected:
+            for us_data in r_list():
+
+
+
+                id_orig_item = item.text()  # return the name of original file
+                search_dict = {'filename': "'" + str(id_orig_item) + "'"}
+                media_data = self.DB_MANAGER.query_bool(search_dict, 'MEDIA')
+                self.insert_mediaToEntity_rec(us_data[0], us_data[1], us_data[2], media_data[0].id_media,
+                                              media_data[0].filepath, media_data[0].filename)
+
+        self.widget.close()  # Chiude il widget dopo che l'utente ha premuto "Fatto"
+
+    def on_pushButton_removetags_pressed(self):
+        def r_id():
+            record_us_list=[]
+            sito = self.comboBox_sito.currentText()
+            sigla = self.comboBox_sigla_struttura.currentText()
+            nv = self.numero_struttura.text()
+
+            search_dict = {'sito': "'" + str(sito) + "'",
+                           'sigla_struttura': "'" + str(sigla) + "'",
+                           'numero_struttura': "'" + str(nv) + "'"
+
+                           }
+            j = self.DB_MANAGER.query_bool(search_dict, 'STRUTTURA')
+            record_us_list.append(j)
+            # QMessageBox.information(self, 'search db', str(record_us_list))
+            us_list = []
+            for r in record_us_list:
+                a=r[0].id_us
+            #QMessageBox.information(self,'ok',str(a))# QMessageBox.information(self, "Scheda US", str(us_list), QMessageBox.Ok)
+            return a
+        items_selected=self.iconListWidget.selectedItems()
+        if not bool(items_selected):
+            if self.L == 'it':
+
+                msg = QMessageBox.warning(self, "Attenzione!!!",
+                                          "devi selezionare prima l'immagine",
+                                          QMessageBox.Ok)
+
+            elif self.L == 'de':
+
+                msg = QMessageBox.warning(self, "Warnung",
+                                          "moet je eerst de afbeelding selecteren",
+                                          QMessageBox.Ok)
+            else:
+
+                msg = QMessageBox.warning(self, "Warning",
+                                          "you must first select an image",
+                                          QMessageBox.Ok)
+        else:
+            if self.L == 'it':
+                msg = QMessageBox.warning(self, "Warning",
+                                          "Vuoi veramente cancellare i tags dalle thumbnail selezionate? \n L'azione è irreversibile",
+                                          QMessageBox.Ok | QMessageBox.Cancel)
+                if msg == QMessageBox.Cancel:
+                    QMessageBox.warning(self, "Messaggio!!!", "Azione Annullata!")
+                else:
+                    #items_selected = self.iconListWidget.selectedItems()
+                    for item in items_selected:
+                        id_orig_item = item.text()  # return the name of original file
+
+                        # s = self.iconListWidget.item(0, 0).text()
+                        self.DB_MANAGER.remove_tags_from_db_sql_scheda(r_id(), id_orig_item)
+                        row = self.iconListWidget.row(item)
+                        self.iconListWidget.takeItem(row)
+                    QMessageBox.warning(self, "Info", "Tags rimossi!")
+            elif self.L == 'de':
+                msg = QMessageBox.warning(self, "Warning",
+                                          "Wollen Sie wirklich die Tags aus den ausgewählten Miniaturbildern löschen? \n Die Aktion ist unumkehrbar",
+                                          QMessageBox.Ok | QMessageBox.Cancel)
+                if msg == QMessageBox.Cancel:
+                    QMessageBox.warning(self, "Warnung", "Azione Annullata!")
+                else:
+                    #items_selected = self.iconListWidget.selectedItems()
+                    for item in items_selected:
+                        id_orig_item = item.text()  # return the name of original file
+
+                        # s = self.iconListWidget.item(0, 0).text()
+                        self.DB_MANAGER.remove_tags_from_db_sql_scheda(r_id(), id_orig_item)
+                        row = self.iconListWidget.row(item)
+                        self.iconListWidget.takeItem(row)
+                    QMessageBox.warning(self, "Info", "Tags entfernt")
+
+            else:
+                msg = QMessageBox.warning(self, "Warning",
+                                          "Do you really want to delete the tags from the selected thumbnails? \n The action is irreversible",
+                                          QMessageBox.Ok | QMessageBox.Cancel)
+                if msg == QMessageBox.Cancel:
+                    QMessageBox.warning(self, "Warning", "Action cancelled")
+                else:
+                    #items_selected = self.iconListWidget.selectedItems()
+                    for item in items_selected:
+                        id_orig_item = item.text()  # return the name of original file
+
+                        #s = self.iconListWidget.item(0, 0).text()
+                        self.DB_MANAGER.remove_tags_from_db_sql_scheda(r_id(),id_orig_item)
+                        row = self.iconListWidget.row(item)
+                        self.iconListWidget.takeItem(row)  # remove the item from the list
+
+                    QMessageBox.warning(self, "Info", "Tags removed")
+
+
+    def load_and_process_3d_model(self, filepath):
+        filename = os.path.basename(filepath)
+        filename, filetype = filename.split(".")[0], filename.split(".")[1]
+        mediatype = '3d_model'
+
+        # Inserisci il record nel database
+        self.insert_record_media(mediatype, filename, filetype, filepath)
+
+        # Genera una thumbnail del modello 3D
+        thumbnail_path = self.generate_3d_thumbnail(filepath)
+
+        # Inserisci il record della thumbnail
+        media_max_num_id = self.DB_MANAGER.max_num_id('MEDIA', 'id_media')
+        self.insert_record_mediathumb(media_max_num_id, mediatype, filename, f"{filename}_thumb.png", 'png',
+                                      thumbnail_path, filepath)
+
+        # Aggiungi l'item alla lista
+        item = QListWidgetItem(str(filename))
+        item.setData(Qt.UserRole, str(media_max_num_id))
+        icon = QIcon(thumbnail_path)
+        item.setIcon(icon)
+        self.iconListWidget.addItem(item)
+
+        self.assignTags_US(item)
+
+
+    def show_3d_model(self, file_path):
+        mesh = pv.read(file_path)
+        points = []
+        measuring = False
+        measurement_objects = []
+
+
+        main_widget = QWidget()
+        main_layout = QHBoxLayout()
+        main_widget.setLayout(main_layout)
+
+        frame = QFrame()
+        layout = QVBoxLayout()
+
+        plotter = QtInteractor(frame)
+
+        debug_widget = QTextEdit()
+        debug_widget.setReadOnly(True)
+
+        def add_debug_message(message, important=False):
+            timestamp = QDateTime.currentDateTime().toString("yyyy-MM-dd HH:mm:ss")
+            formatted_message = f"[{timestamp}] {message}"
+            if important:
+                formatted_message = f"<b>{formatted_message}</b>"
+            debug_widget.append(formatted_message)
+            debug_widget.ensureCursorVisible()
+
+            max_messages = 1000
+            if debug_widget.document().blockCount() > max_messages:
+                cursor = debug_widget.textCursor()
+                cursor.movePosition(cursor.Start)
+                cursor.select(cursor.LineUnderCursor)
+                cursor.removeSelectedText()
+                cursor.deletePreviousChar()
+                cursor.movePosition(cursor.End)
+                debug_widget.setTextCursor(cursor)
+
+        def mouse_click_callback(obj, event):
+            nonlocal measuring, points
+            if event == "LeftButtonPressEvent" and measuring:
+                x, y = plotter.interactor.GetEventPosition()
+                add_debug_message(f"Evento di clic a posizione schermo: (x: {x}, y: {y})")
+
+                picker = vtk.vtkCellPicker()
+                picker.SetTolerance(10)  # Aumenta la tolleranza per migliorare il picking
+                picker.Pick(x, y, 0, plotter.renderer)
+
+                if picker.GetCellId() != -1:
+                    point = np.array(picker.GetPickPosition())
+                    add_debug_message(f"Punto selezionato nello spazio del modello: {point}")
+
+                    closest_point_id = mesh.find_closest_point(point)
+                    closest_point = mesh.points[closest_point_id]
+                    add_debug_message(f"Punto più vicino sulla superficie della mesh: {closest_point}")
+
+                    on_left_click(closest_point)
+                else:
+                    add_debug_message("Nessun punto sulla superficie trovato", important=True)
+
+        plotter.interactor.AddObserver(vtk.vtkCommand.LeftButtonPressEvent, mouse_click_callback)
+
+        layout.addWidget(plotter.interactor)
+        plotter.clear()
+
+        texture_file = os.path.splitext(file_path)[0] + '.jpg'
+        if os.path.exists(texture_file):
+            texture = pv.read_texture(texture_file)
+            plotter.add_mesh(mesh, texture=texture, show_edges=False)
+        else:
+            plotter.add_mesh(mesh, show_edges=False)
+
+        instructions_widget = QTextEdit()
+        instructions_widget.setReadOnly(True)
+        instructions_widget.hide()
+
+        instructions = (
+            "Trackball Controls:\n"
+            "- Rotate: Left-click and drag\n"
+            "- Pan: Right-click and drag\n"
+            "- Zoom: Mouse wheel or middle-click and drag\n"
+            "- Reset view: 'r'\n"
+            "- Start/Stop measuring: 'o'\n"
+            "- Show bounding box measures: 'm'\n"
+            "- Export image: 'e'\n"
+            "- Clear measurements: 'c'\n"
+            "\nMain Views:\n"
+            "- XY View (top): 'z'\n"
+            "- YZ View (front): 'x'\n"
+            "- XZ View (side): 'y'\n"
+            "- ZY View (back): 'w'\n"
+            "- ZX View (opposite side): 'v'\n"
+            "- YX View (bottom): 'b'"
+        )
+        instructions_widget.setText(instructions)
+
+        def toggle_instructions():
+            if instructions_widget.isHidden():
+                instructions_widget.show()
+            else:
+                instructions_widget.hide()
+
+        instructions_button = QPushButton("Toggle Instructions")
+        instructions_button.clicked.connect(toggle_instructions)
+        layout.addWidget(instructions_button)
+
+        frame.setLayout(layout)
+        main_layout.addWidget(frame)
+        main_layout.addWidget(instructions_widget)
+        #main_layout.addWidget(debug_widget)
+
+        def toggle_measure():
+            nonlocal measuring, points
+            measuring = not measuring
+            points.clear()
+            if measuring:
+                add_debug_message("Misurazione iniziata", important=True)
+            else:
+                add_debug_message("Misurazione terminata", important=True)
+
+        def on_left_click(picked_point):
+            nonlocal points
+            if not measuring:
+                return
+
+            add_debug_message(f"Punto selezionato: {picked_point}")
+
+            if picked_point is not None:
+                points.append(picked_point)
+                sphere = pv.Sphere(radius=mesh.length * 0.005,
+                                   center=picked_point)  # Aumenta leggermente il raggio della sfera per una miglior visibilità
+                sphere_actor = plotter.add_mesh(sphere, color='red')
+                measurement_objects.append(sphere_actor)
+
+                add_debug_message(f"Punto aggiunto. Totale punti: {len(points)}")
+                if len(points) == 2:
+                    add_debug_message("Due punti raccolti. Misurazione in corso...", important=True)
+                    measure_distance(points[0], points[1])
+                    points.clear()
+            else:
+                add_debug_message("Nessun punto selezionato", important=True)
+
+        def verify_coordinates(coord1, coord2):
+            add_debug_message(f"Verifica delle coordinate:\nPunto1: {coord1}\nPunto2: {coord2}", important=True)
+
+        def measure_distance(point1, point2):
+            add_debug_message(f"Misurazione della distanza tra {point1} e {point2}")
+            distance = np.linalg.norm(np.array(point1) - np.array(point2))
+
+            line = pv.Line(point1, point2)
+            line_actor = plotter.add_mesh(line, color='red', line_width=2)
+            measurement_objects.append(line_actor)
+            add_debug_message("Linea aggiunta")
+
+            labels = plotter.add_point_labels([point1, point2], ["P1", "P2"], point_size=1, font_size=6)
+            measurement_objects.append(labels)
+            add_debug_message("Etichette dei punti aggiunte")
+
+            mid_point = (np.array(point1) + np.array(point2)) / 2
+            distance_label = plotter.add_point_labels([mid_point], [f"{distance:.2f} cm"], point_size=0, font_size=6)
+            measurement_objects.append(distance_label)
+            add_debug_message("Etichetta della distanza aggiunta")
+
+            verify_coordinates(point1, mid_point)  # Verifica le coordinate durante la misura
+
+            plotter.render()
+            add_debug_message(f"Distanza misurata: {distance:.2f} cm", important=True)
+
+        def clear_measurements():
+            nonlocal measurement_objects, points
+            for obj in measurement_objects:
+                plotter.remove_actor(obj)
+            measurement_objects.clear()
+            points.clear()
+            plotter.render()
+
+        def export_image():
+            try:
+                options = QFileDialog.Options()
+                file_path, _ = QFileDialog.getSaveFileName(self, "Save Image", "",
+                                                           "PNG Files (*.png);;All Files (*)", options=options)
+                if file_path:
+                    camera = plotter.camera_position
+                    width_cm, height_cm = 15, 10
+                    width_inches, height_inches = width_cm / 2.54, height_cm / 2.54
+                    dpi = 300
+                    width_pixels, height_pixels = int(width_inches * dpi), int(height_inches * dpi)
+                    plotter.screenshot(file_path, transparent_background=False,
+                                       window_size=(width_pixels, height_pixels),
+                                       return_img=False)
+                    plotter.camera_position = camera
+                    add_debug_message(f"Immagine salvata come {file_path}", important=True)
+                    QMessageBox.information(self, "Success", f"Image saved {file_path} to 300 DPI (15x10 cm)")
+            except Exception as e:
+                add_debug_message(f'Error: {str(e)}', important=True)
+                QMessageBox.warning(self, "Error", f"Error saving image: {str(e)}")
+
+
+
+        def get_visible_faces(plotter, mesh):
+            camera_position = np.array(plotter.camera_position[0])
+            center = np.array(mesh.center)
+            direction = camera_position - center
+            normals = np.array([
+                [1, 0, 0], [-1, 0, 0],
+                [0, 1, 0], [0, -1, 0],
+                [0, 0, 1], [0, 0, -1]
+            ])
+            return [i for i, normal in enumerate(normals) if np.dot(direction, normal) > 0]
+
+        def edge_visibility(edge, visible_faces):
+            edge_to_faces = {
+                (0, 1): [0, 2, 4], (1, 2): [0, 1, 4], (2, 3): [0, 3, 4], (3, 0): [0, 2, 4],
+                (4, 5): [1, 2, 5], (5, 6): [1, 3, 5], (6, 7): [1, 3, 5], (7, 4): [1, 2, 5],
+                (0, 4): [2, 4, 5], (1, 5): [1, 4, 5], (2, 6): [1, 3, 5], (3, 7): [2, 3, 5]
+            }
+            return any(face in visible_faces for face in edge_to_faces[edge])
+
+        def calculate_label_position(p1, p2, offset_factor=0.1):
+            mid_point = (p1 + p2) / 2
+            direction = p2 - p1
+            length = np.linalg.norm(direction)
+            normalized_direction = direction / length
+            perpendicular = np.cross(normalized_direction, [0, 0, 1])
+            if np.allclose(perpendicular, 0):
+                perpendicular = np.cross(normalized_direction, [0, 1, 0])
+            perpendicular = perpendicular / np.linalg.norm(perpendicular)
+            return mid_point + perpendicular * (length * offset_factor)
+
+        def create_oriented_label(plotter, position, text, direction, is_vertical=False):
+            vtk_text = vtk.vtkBillboardTextActor3D()
+            vtk_text.SetPosition(position)
+            vtk_text.SetInput(text)
+            vtk_text.GetTextProperty().SetFontSize(6)
+            vtk_text.GetTextProperty().SetColor(0, 0, 0)  # Testo nero
+            vtk_text.GetTextProperty().SetBackgroundColor(1, 1, 1)  # Sfondo bianco
+            vtk_text.GetTextProperty().SetBackgroundOpacity(0.8)
+            vtk_text.GetTextProperty().SetJustificationToCentered()
+            vtk_text.GetTextProperty().SetVerticalJustificationToCentered()
+
+            if is_vertical:
+                angle = 90
+            else:
+                angle = np.degrees(np.arctan2(direction[1], direction[0]))
+            vtk_text.SetOrientation(0, 0, angle)
+
+            plotter.add_actor(vtk_text)
+            return vtk_text
+
+        self.last_update_time = 0
+        self.update_interval = 0.5  # Secondi tra gli aggiornamenti
+        bounding_box_visible = False
+
+        def show_measures():
+            nonlocal bounding_box_visible, measurement_objects
+            if not bounding_box_visible:
+                return
+
+            current_time = time.time()
+            if current_time - self.last_update_time < self.update_interval:
+                return
+            self.last_update_time = current_time
+
+            # Rimuovi le misure esistenti
+            for obj in measurement_objects:
+                plotter.remove_actor(obj)
+            measurement_objects = []
+
+            bounds = mesh.bounds
+            x_min, x_max, y_min, y_max, z_min, z_max = bounds
+            point = np.array([
+                [x_min, y_min, z_min], [x_max, y_min, z_min], [x_max, y_max, z_min], [x_min, y_max, z_min],
+                [x_min, y_min, z_max], [x_max, y_min, z_max], [x_max, y_max, z_max], [x_min, y_max, z_max]
+            ])
+
+            edges = [
+                (0, 1),  # Larghezza (X)
+                (0, 3),  # Profondità (Y)
+                (0, 4)  # Altezza (Z)
+            ]
+
+            get_visible_faces(plotter, mesh)
+
+            for i, edge in enumerate(edges):
+                #if edge_visibility(edge):
+                p1, p2 = point[edge[0]], point[edge[1]]
+                distance = np.linalg.norm(p2 - p1) * 100
+
+                label_position = calculate_label_position(p1, p2)
+
+                line = pv.Line(p1, p2)
+                line_actor = plotter.add_mesh(line, color='black', line_width=0.8)
+                measurement_objects.append(line_actor)
+
+                label = f"{distance:.2f} cm"
+                is_vertical = (i == 2)  # L'etichetta verticale è per l'altezza (Z)
+                label_actor = create_oriented_label(plotter, label_position, label, p2 - p1, is_vertical)
+                measurement_objects.append(label_actor)
+
+            plotter.render()
+
+        def toggle_bounding_box_measures():
+            nonlocal bounding_box_visible
+            bounding_box_visible = not bounding_box_visible
+            if bounding_box_visible:
+                show_measures()
+                add_debug_message("Misure del bounding box attivate", important=True)
+            else:
+                for obj in measurement_objects:
+                    plotter.remove_actor(obj)
+                measurement_objects.clear()
+                plotter.render()
+                add_debug_message("Misure del bounding box disattivate", important=True)
+
+        def camera_changed(obj, event):
+            if bounding_box_visible:
+                show_measures()
+
+        plotter.iren.add_observer('InteractionEvent', camera_changed)
+
+        def reset_view():
+            plotter.reset_camera()
+
+        def change_view(direction):
+            getattr(plotter, f'view_{direction}')()
+
+        plotter.add_key_event("o", toggle_measure)
+        plotter.add_key_event("c", clear_measurements)
+        plotter.add_key_event('e', export_image)
+        plotter.add_key_event('m', toggle_bounding_box_measures)
+        plotter.add_key_event('r', reset_view)
+        plotter.add_key_event('x', lambda: change_view('yz'))
+        plotter.add_key_event('y', lambda: change_view('xz'))
+        plotter.add_key_event('z', lambda: change_view('xy'))
+        plotter.add_key_event('w', lambda: change_view('zy'))
+        plotter.add_key_event('v', lambda: change_view('zx'))
+        plotter.add_key_event('b', lambda: change_view('yx'))
+
+        plotter.add_orientation_widget(plotter.enable_trackball_style())
+        plotter.enable_trackball_style()
+        frame.show()
+        return main_widget
+
+    def generate_3d_thumbnail(self, filepath):
+
+        mesh = pv.read(filepath)
+        plotter = pv.Plotter(off_screen=True)
+        plotter.add_mesh(mesh)
+        plotter.camera_position = 'xy'
+
+        # Genera un nome file unico per la thumbnail
+        thumbnail_filename = f"{os.path.splitext(os.path.basename(filepath))[0]}_thumb.png"
+        thumbnail_path = os.path.join(self.thumb_path, thumbnail_filename)
+
+        plotter.screenshot(thumbnail_path)
+        return thumbnail_path
+
+    def process_3d_model(self, media_max_num_id, filepath, filename, thumb_path_str, thumb_resize_str,
+                         media_thumb_suffix, media_resize_suffix):
+        import pyvista as pv
+
+        # Carica il modello 3D
+        mesh = pv.read(filepath)
+
+        # Genera una thumbnail
+        plotter = pv.Plotter(off_screen=True)
+        plotter.add_mesh(mesh)
+        plotter.camera_position = 'xy'
+        thumbnail_path = os.path.join(thumb_path_str, f"{media_max_num_id}_{filename}{media_thumb_suffix}")
+        plotter.screenshot(thumbnail_path)
+
+        # Copia il file originale nella cartella di resize (non possiamo ridimensionare un modello 3D come un'immagine)
+        import shutil
+        resize_path = os.path.join(thumb_resize_str, f"{media_max_num_id}_{filename}{media_resize_suffix}")
+        shutil.copy(filepath, resize_path)
+        # Controlla se esiste una texture JPG con lo stesso nome del modello
+        texture_filename = os.path.splitext(filename)[0] + ".jpg"
+        texture_filepath = os.path.join(os.path.dirname(filepath), texture_filename)
+
+        if os.path.exists(texture_filepath):
+            # Se la texture esiste, copiala nella cartella di resize
+            texture_resize_path = os.path.join(thumb_resize_str, f"{media_max_num_id}_{texture_filename}")
+            shutil.copy(texture_filepath, texture_resize_path)
+
+        return thumbnail_path, resize_path
+
+    def openWide_image(self):
+        items = self.iconListWidget.selectedItems()
+        conn = Connection()
+
+        thumb_resize = conn.thumb_resize()
+        thumb_resize_str = thumb_resize['thumb_resize']
+
+        def process_file_path(file_path):
+            return urllib.parse.unquote(file_path)
+
+        def show_image(file_path):
+            dlg = ImageViewer(self)
+            dlg.show_image(file_path)
+            dlg.exec_()
+
+        def show_video(file_path):
+            if self.video_player is None:
+                self.video_player = VideoPlayerWindow(self, db_manager=self.DB_MANAGER,
+                                                      icon_list_widget=self.iconListWidget,
+                                                      main_class=self)
+            self.video_player.set_video(file_path)
+            self.video_player.show()
+
+        def show_media(file_path, media_type):
+            full_path = os.path.join(thumb_resize_str, file_path)
+            if media_type == 'video':
+                show_video(full_path)
+            elif media_type == 'image':
+                show_image(full_path)
+            elif media_type == '3d_model':
+                self.show_3d_model(file_path)
+            else:
+                QMessageBox.warning(self, "Error", f"Unsupported media type: {media_type}", QMessageBox.Ok)
+
+        def query_media(search_dict, table="MEDIA_THUMB"):
+            u = Utility()
+            search_dict = u.remove_empty_items_fr_dict(search_dict)
+            try:
+                return self.DB_MANAGER.query_bool(search_dict, table)
+            except Exception as e:
+                QMessageBox.warning(self, "Error", f"Database query failed: {str(e)}", QMessageBox.Ok)
+                return None
+
+        for item in items:
+            id_orig_item = item.text()
+            search_dict = {'media_filename': f"'{id_orig_item}'"}
+            res = query_media(search_dict)
+
+            if res:
+
+                file_path = process_file_path(os.path.join(thumb_resize_str, str(res[0].path_resize)))
+
+                media_type = res[0].mediatype
+
+                if media_type == '3d_model':
+                    widget_3d = self.show_3d_model(file_path)
+
+                    # Crea un nuovo QDialog per contenere il widget 3D
+                    dialog = QDialog(self)
+                    dialog.setWindowTitle("3D Model Viewer")
+                    dialog_layout = QVBoxLayout()
+                    dialog_layout.addWidget(widget_3d)
+                    dialog.setLayout(dialog_layout)
+
+                    # Imposta le dimensioni del dialog
+                    dialog.resize(800, 600)  # Puoi modificare queste dimensioni come preferisci
+
+                    # Mostra il dialog
+                    dialog.exec_()
+                else:
+                    show_media(file_path, media_type)
+            else:
+                QMessageBox.warning(self, "Error", f"File not found: {id_orig_item}", QMessageBox.Ok)
+
     def on_pushButton_print_pressed(self):
         if self.L=='it':
             if self.checkBox_s_us.isChecked():
@@ -577,6 +1677,23 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
             if values.__contains__(l):
                 lang = str(key)
         lang = "'" + lang + "'"
+
+        # media prevew system
+        self.iconListWidget.setDragEnabled(True)
+        self.iconListWidget.setAcceptDrops(True)
+        self.iconListWidget.setDropIndicatorShown(True)
+
+        self.iconListWidget.setLineWidth(2)
+        self.iconListWidget.setMidLineWidth(2)
+        # self.iconListWidget.setProperty("showDropIndicator", False)
+        self.iconListWidget.setIconSize(QSize(430, 570))
+
+        self.iconListWidget.setUniformItemSizes(True)
+        self.iconListWidget.setObjectName("iconListWidget")
+        self.iconListWidget.SelectionMode()
+        self.iconListWidget.setSelectionMode(QAbstractItemView.ExtendedSelection)
+        self.iconListWidget.itemDoubleClicked.connect(self.openWide_image)
+
 
         self.tableWidget_rapporti.setColumnWidth(0, 220)
         self.tableWidget_rapporti.setColumnWidth(1, 220)
@@ -2177,6 +3294,10 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
             else:
                 self.comboBox_fas_fin.setEditText(str(self.DATA_LIST[self.rec_num].fase_finale))
 
+            if self.toolButtonPreview.isChecked():
+                self.loadMapPreview()
+            if self.toolButtonPreviewMedia.isChecked():
+                self.loadMediaPreview()
         except :#Exception as e:
             pass#QMessageBox.warning(self, "Errore fill", str(e), QMessageBox.Ok)
 
@@ -2373,11 +3494,4 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
         f.close()
 
 
-## Class end
-
-if __name__ == "__main__":
-    app = QApplication(sys.argv)
-    ui = pyarchinit_US()
-    ui.show()
-    sys.exit(app.exec_())
 
