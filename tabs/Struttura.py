@@ -3487,11 +3487,3 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
                 QMessageBox.warning(self, "Message",
                                     "Kodierungsproblem: Es wurden Akzente oder Zeichen eingegeben, die von der Datenbank nicht akzeptiert werden. Es wird eine Kopie des Fehlers mit den Daten erstellt, die Sie im pyarchinit_Report _Ordner abrufen können", QMessageBox.Ok)
             return 0
-
-    def testing(self, name_file, message):
-        f = open(str(name_file), 'w')
-        f.write(str(message))
-        f.close()
-
-
-
