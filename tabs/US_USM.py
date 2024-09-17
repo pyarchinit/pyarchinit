@@ -9271,8 +9271,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.label_rec_tot.setText(str(self.rec_tot))
         self.label_rec_corrente.setText(str(self.rec_corr))
     def set_LIST_REC_TEMP(self):
-        # QMessageBox.warning(self, "Errore", str(self.comboBox_per_fin.currentText()),  QMessageBox.Ok)
-        # TableWidget
+
         ##Rapporti
         rapporti = self.table2dict("self.tableWidget_rapporti")
         rapporti2 = self.table2dict("self.tableWidget_rapporti2")
