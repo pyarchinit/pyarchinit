@@ -3,7 +3,7 @@ name=pyArchInit
 qgisMinimumVersion=3.22
 description=pyarchinit a tool for archaeological works
 
-version=4.7.8
+version=4.7.9
 
 author=Luca Mandolesi&Enzo Cocca
 email=pyarchinit@gmail.com
@@ -15,7 +15,8 @@ tracker=https://github.com/pyarchinit/pyarchinit/issues
 repository=https://github.com/pyarchinit/pyarchinit
 
 
-changelog=4.7.8 add image viewer 3D, add video player , fix bug
+changelog=4.7.9 fix bug
+  4.7.8 add image viewer 3D, add video player , fix bug
   4.7.7 Update `US_USM.py` and `US_USM.ui` to fix various UI elements, import statements, and control properties for better user interface and functionality. for mac
   4.7.6 fix expotr biblio in finds report
   4.7.5 fix bug error
