@@ -347,8 +347,21 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 fi= pr.fields().names()[1:-1]
                 
                 self.mFeature_field_rd.clear()
-                self.mFeature_field_rd.addItems(fi) 
-            elif self.comboBox_mapper_read.currentIndex()==5:
+                self.mFeature_field_rd.addItems(fi)
+
+            elif self.comboBox_mapper_read.currentIndex() == 5:
+
+                table = 'pottery_table'
+                geom_column = ''
+                uri.setDataSource(schema, table, geom_column)
+                vlayer = QgsVectorLayer(uri.uri(), table, 'spatialite')
+                pr = vlayer.dataProvider()
+                fi = pr.fields().names()[1:-1]
+
+                self.mFeature_field_rd.clear()
+                self.mFeature_field_rd.addItems(fi)
+
+            elif self.comboBox_mapper_read.currentIndex()==6:
                 
                 table = 'struttura_table'
                 geom_column = ''
@@ -359,7 +372,8 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 
                 self.mFeature_field_rd.clear()
                 self.mFeature_field_rd.addItems(fi)
-            elif self.comboBox_mapper_read.currentIndex()==6:
+
+            elif self.comboBox_mapper_read.currentIndex()==7:
                 
                 table = 'tomba_table'
                 geom_column = ''
@@ -370,7 +384,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 
                 self.mFeature_field_rd.clear()
                 self.mFeature_field_rd.addItems(fi)
-            elif self.comboBox_mapper_read.currentIndex()==7:
+            elif self.comboBox_mapper_read.currentIndex()==8:
                 
                 table = 'pyarchinit_thesaurus_sigle'
                 geom_column = ''
@@ -381,7 +395,8 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 
                 self.mFeature_field_rd.clear()
                 self.mFeature_field_rd.addItems(fi)
-            elif self.comboBox_mapper_read.currentIndex()==8:
+
+            elif self.comboBox_mapper_read.currentIndex()==9:
                 
                 table = 'individui_table'
                 geom_column = ''
@@ -392,7 +407,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 
                 self.mFeature_field_rd.clear()
                 self.mFeature_field_rd.addItems(fi)
-            elif self.comboBox_mapper_read.currentIndex()==9:
+            elif self.comboBox_mapper_read.currentIndex()==10:
                 
                 table = 'detsesso_table'
                 geom_column = ''
@@ -403,7 +418,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 
                 self.mFeature_field_rd.clear()
                 self.mFeature_field_rd.addItems(fi)
-            elif self.comboBox_mapper_read.currentIndex()==10:
+            elif self.comboBox_mapper_read.currentIndex()==11:
                 
                 table = 'deteta_table'
                 geom_column = ''
@@ -414,7 +429,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 
                 self.mFeature_field_rd.clear()
                 self.mFeature_field_rd.addItems(fi)
-            elif self.comboBox_mapper_read.currentIndex()==11:
+            elif self.comboBox_mapper_read.currentIndex()==12:
                 
                 table = 'archeozoology_table'
                 geom_column = ''
@@ -425,7 +440,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 
                 self.mFeature_field_rd.clear()
                 self.mFeature_field_rd.addItems(fi)
-            elif self.comboBox_mapper_read.currentIndex()==12:
+            elif self.comboBox_mapper_read.currentIndex()==13:
                 
                 table = 'campioni_table'
                 geom_column = ''
@@ -436,7 +451,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 
                 self.mFeature_field_rd.clear()
                 self.mFeature_field_rd.addItems(fi)
-            elif self.comboBox_mapper_read.currentIndex()==13:
+            elif self.comboBox_mapper_read.currentIndex()==14:
                 
                 table = 'documentazione_table'
                 geom_column = ''
@@ -447,7 +462,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 
                 self.mFeature_field_rd.clear()
                 self.mFeature_field_rd.addItems(fi)
-            elif self.comboBox_mapper_read.currentIndex()==14:
+            elif self.comboBox_mapper_read.currentIndex()==15:
                 
                 table = 'media_table'
                 geom_column = ''
@@ -458,7 +473,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 
                 self.mFeature_field_rd.clear()
                 self.mFeature_field_rd.addItems(fi)
-            elif self.comboBox_mapper_read.currentIndex()==15:
+            elif self.comboBox_mapper_read.currentIndex()==16:
                 
                 table = 'media_thumb_table'
                 geom_column = ''
@@ -469,7 +484,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 
                 self.mFeature_field_rd.clear()
                 self.mFeature_field_rd.addItems(fi)
-            elif self.comboBox_mapper_read.currentIndex()==16:
+            elif self.comboBox_mapper_read.currentIndex()==17:
                 
                 table = 'media_to_entity_table'
                 geom_column = ''
@@ -481,7 +496,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 self.mFeature_field_rd.clear()
                 self.mFeature_field_rd.addItems(fi)
                 
-            elif self.comboBox_mapper_read.currentIndex()==17:
+            elif self.comboBox_mapper_read.currentIndex()==18:
                 
                 table = 'ut_table'
                 geom_column = ''
@@ -549,8 +564,23 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 fi= pr.fields().names()[1:-1]
                 
                 self.mFeature_field_rd.clear()
-                self.mFeature_field_rd.addItems(fi) 
-            elif self.comboBox_mapper_read.currentIndex()==5:
+                self.mFeature_field_rd.addItems(fi)
+
+
+            elif self.comboBox_mapper_read.currentIndex() == 5:
+
+                table = 'pottery_table'
+                geom_column = ''
+                uri.setDataSource(schema, table, geom_column)
+                vlayer = QgsVectorLayer(uri.uri(), table, 'postgres')
+                pr = vlayer.dataProvider()
+                fi = pr.fields().names()[1:-1]
+
+                self.mFeature_field_rd.clear()
+                self.mFeature_field_rd.addItems(fi)
+
+
+            elif self.comboBox_mapper_read.currentIndex()==6:
                 
                 table = 'struttura_table'
                 geom_column = ''
@@ -561,7 +591,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 
                 self.mFeature_field_rd.clear()
                 self.mFeature_field_rd.addItems(fi)
-            elif self.comboBox_mapper_read.currentIndex()==6:
+            elif self.comboBox_mapper_read.currentIndex()==7:
                 
                 table = 'tomba_table'
                 geom_column = ''
@@ -572,7 +602,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 
                 self.mFeature_field_rd.clear()
                 self.mFeature_field_rd.addItems(fi)
-            elif self.comboBox_mapper_read.currentIndex()==7:
+            elif self.comboBox_mapper_read.currentIndex()==8:
                 
                 table = 'pyarchinit_thesaurus_sigle'
                 geom_column = ''
@@ -583,7 +613,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 
                 self.mFeature_field_rd.clear()
                 self.mFeature_field_rd.addItems(fi)
-            elif self.comboBox_mapper_read.currentIndex()==8:
+            elif self.comboBox_mapper_read.currentIndex()==9:
                 
                 table = 'individui_table'
                 geom_column = ''
@@ -594,7 +624,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 
                 self.mFeature_field_rd.clear()
                 self.mFeature_field_rd.addItems(fi)
-            elif self.comboBox_mapper_read.currentIndex()==9:
+            elif self.comboBox_mapper_read.currentIndex()==10:
                 
                 table = 'detsesso_table'
                 geom_column = ''
@@ -605,7 +635,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 
                 self.mFeature_field_rd.clear()
                 self.mFeature_field_rd.addItems(fi)
-            elif self.comboBox_mapper_read.currentIndex()==10:
+            elif self.comboBox_mapper_read.currentIndex()==11:
                 
                 table = 'deteta_table'
                 geom_column = ''
@@ -616,7 +646,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 
                 self.mFeature_field_rd.clear()
                 self.mFeature_field_rd.addItems(fi)
-            elif self.comboBox_mapper_read.currentIndex()==11:
+            elif self.comboBox_mapper_read.currentIndex()==12:
                 
                 table = 'archeozoology_table'
                 geom_column = ''
@@ -627,7 +657,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 
                 self.mFeature_field_rd.clear()
                 self.mFeature_field_rd.addItems(fi)
-            elif self.comboBox_mapper_read.currentIndex()==12:
+            elif self.comboBox_mapper_read.currentIndex()==13:
                 
                 table = 'campioni_table'
                 geom_column = ''
@@ -638,7 +668,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 
                 self.mFeature_field_rd.clear()
                 self.mFeature_field_rd.addItems(fi)
-            elif self.comboBox_mapper_read.currentIndex()==13:
+            elif self.comboBox_mapper_read.currentIndex()==14:
                 
                 table = 'documentazione_table'
                 geom_column = ''
@@ -649,7 +679,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 
                 self.mFeature_field_rd.clear()
                 self.mFeature_field_rd.addItems(fi)
-            elif self.comboBox_mapper_read.currentIndex()==14:
+            elif self.comboBox_mapper_read.currentIndex()==15:
                 
                 table = 'media_table'
                 geom_column = ''
@@ -660,7 +690,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 
                 self.mFeature_field_rd.clear()
                 self.mFeature_field_rd.addItems(fi)
-            elif self.comboBox_mapper_read.currentIndex()==15:
+            elif self.comboBox_mapper_read.currentIndex()==16:
                 
                 table = 'media_thumb_table'
                 geom_column = ''
@@ -671,7 +701,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 
                 self.mFeature_field_rd.clear()
                 self.mFeature_field_rd.addItems(fi)
-            elif self.comboBox_mapper_read.currentIndex()==16:
+            elif self.comboBox_mapper_read.currentIndex()==17:
                 
                 table = 'media_to_entity_table'
                 geom_column = ''
@@ -683,7 +713,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 self.mFeature_field_rd.clear()
                 self.mFeature_field_rd.addItems(fi)
                 
-            elif self.comboBox_mapper_read.currentIndex()==17:
+            elif self.comboBox_mapper_read.currentIndex()==18:
                 
                 table = 'ut_table'
                 geom_column = ''
@@ -817,6 +847,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             elif self.comboBox_geometry_read.currentIndex()==7:
                 
                 table = 'pyarchinit_us_negative_doc'
+                geom_column = 'the_geom'
                 uri.setDataSource(schema, table,geom_column)
                 vlayer = QgsVectorLayer(uri.uri(), table, 'spatialite')
                 pr = vlayer.dataProvider()
@@ -1009,6 +1040,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             elif self.comboBox_geometry_read.currentIndex()==7:
                 
                 table = 'pyarchinit_us_negative_doc'
+                geom_column = 'the_geom'
                 uri.setDataSource(schema, table,geom_column)
                 vlayer = QgsVectorLayer(uri.uri(), table, 'postgres')
                 pr = vlayer.dataProvider()
@@ -4647,7 +4679,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             if conn_str_dict_write["server"] == 'postgres':
                 try:
                     conn_str_write = "%s://%s:%s@%s:%s/%s%s?charset=utf8" % (
-                        "postgresql", conn_str_dict_writed["user"], conn_str_dict_write["password"],
+                        "postgresql", conn_str_dict_write["user"], conn_str_dict_write["password"],
                         conn_str_dict_write["host"], conn_str_dict_write["port"], conn_str_dict_write["db_name"],
                         "?sslmode=allow")
                 except:
@@ -4719,10 +4751,10 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
 
                     try:
                         data = self.DB_MANAGER_write.insert_pottery_values(
-                            #self.DB_MANAGER_write.max_num_id(mapper_class_write,
-                            #                                 id_table_class_mapper_conv_dict[
-                            #                                     mapper_class_write]) + 1,
-                            data_list_toimp[sing_rec].id_rep,
+                            self.DB_MANAGER_write.max_num_id(mapper_class_write,
+                                                             id_table_class_mapper_conv_dict[
+                                                                 mapper_class_write]) + 1,
+                            #data_list_toimp[sing_rec].id_rep,
                             data_list_toimp[sing_rec].id_number,
                             data_list_toimp[sing_rec].sito,
                             data_list_toimp[sing_rec].area,
@@ -4774,14 +4806,14 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
 
 
 
-            if  mapper_class_write == 'US':
+            if mapper_class_write == 'US':
 
                 for sing_rec in range(len(data_list_toimp)):
                     try:
                         data = self.DB_MANAGER_write.insert_values(
-                            #self.DB_MANAGER_write.max_num_id(mapper_class_write,
-                            #                                 id_table_class_mapper_conv_dict[mapper_class_write]) + 1,
-                            data_list_toimp[sing_rec].id_us,
+                            self.DB_MANAGER_write.max_num_id(mapper_class_write,
+                                                             id_table_class_mapper_conv_dict[mapper_class_write]) + 1,
+                            #data_list_toimp[sing_rec].id_us,
                             data_list_toimp[sing_rec].sito,
                             data_list_toimp[sing_rec].area,
                             data_list_toimp[sing_rec].us,
@@ -4952,10 +4984,10 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 for sing_rec in range(len(data_list_toimp)):
                     try:
                         data = self.DB_MANAGER_write.insert_values_reperti(
-                            #self.DB_MANAGER_write.max_num_id(mapper_class_write,
-                            #                                 id_table_class_mapper_conv_dict[mapper_class_write]) + 1,
+                            self.DB_MANAGER_write.max_num_id(mapper_class_write,
+                                                             id_table_class_mapper_conv_dict[mapper_class_write]) + 1,
 
-                            data_list_toimp[sing_rec].id_invmat,
+                            #data_list_toimp[sing_rec].id_invmat,
                             data_list_toimp[sing_rec].sito,
                             data_list_toimp[sing_rec].numero_inventario,
                             data_list_toimp[sing_rec].tipo_reperto,
@@ -5010,10 +5042,10 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 for sing_rec in range(len(data_list_toimp)):
                     try:
                         data = self.DB_MANAGER_write.insert_struttura_values(
-                            #self.DB_MANAGER_write.max_num_id(mapper_class_write,
-                            #                                 id_table_class_mapper_conv_dict[mapper_class_write]) + 1,
+                            self.DB_MANAGER_write.max_num_id(mapper_class_write,
+                                                             id_table_class_mapper_conv_dict[mapper_class_write]) + 1,
 
-                            data_list_toimp[sing_rec].id_struttura,
+                            #data_list_toimp[sing_rec].id_struttura,
                             data_list_toimp[sing_rec].sito,
                             data_list_toimp[sing_rec].sigla_struttura,
                             data_list_toimp[sing_rec].numero_struttura,
@@ -5088,9 +5120,9 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                     try:
                         data = self.DB_MANAGER_write.insert_values_tomba(
 
-                            #self.DB_MANAGER_write.max_num_id(mapper_class_write,
-                            #                                 id_table_class_mapper_conv_dict[mapper_class_write]) + 1,
-                            data_list_toimp[sing_rec].id_tomba,
+                            self.DB_MANAGER_write.max_num_id(mapper_class_write,
+                                                             id_table_class_mapper_conv_dict[mapper_class_write]) + 1,
+                            #data_list_toimp[sing_rec].id_tomba,
                             str(data_list_toimp[sing_rec].sito),
                             str(data_list_toimp[sing_rec].area),
                             str(data_list_toimp[sing_rec].nr_scheda_taf),
