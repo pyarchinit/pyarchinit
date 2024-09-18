@@ -5,6 +5,8 @@ import os
 import sys
 import time
 import csv
+from qgis.PyQt.QtCore import Qt
+
 import docx
 import fitz
 import openai
@@ -86,12 +88,13 @@ class Worker(QThread):
 class GPTWindow(QMainWindow):
     HOME = os.environ.get('PYARCHINIT_HOME', '')
 
-    def __init__(self):
+    def __init__(self, iconListWidget=None, db_manager=None):
         super().__init__()
         self.setWindowTitle("PyArchInit - GPT Sketch")
         self.setGeometry(100, 100, 600, 800)
         self.set_icon(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../resources/icons/gpt.png")))
-
+        self.iconListWidget = iconListWidget
+        self.DB_MANAGER = db_manager
         # Layout principale
         layout = QGridLayout()
 
@@ -113,12 +116,17 @@ class GPTWindow(QMainWindow):
         self.btn_import.clicked.connect(self.scketchgpt)
         self.btn_import2 = QPushButton("Importa Documento")
         self.btn_import2.clicked.connect(self.docchgpt)
+        # Aggiungi il pulsante per analizzare le immagini selezionate
+        self.btn_analyze_selected = QPushButton("Analizza Immagini Selezionate")
+        self.btn_analyze_selected.clicked.connect(self.analyze_selected_images)
+
         self.progress = QProgressBar()
         self.token_counter = QLabel("Tokens used: 0 - Total cost: $0.0000")
         layout.addWidget(self.btn_import, 2, 0)
         layout.addWidget(self.btn_import2, 2, 1)
         layout.addWidget(self.progress, 3, 0, 1, 0)
         layout.addWidget(self.token_counter, 3, 0, 1, 1)
+        layout.addWidget(self.btn_analyze_selected, 7, 0, 1, 2)
 
         # Lista per visualizzare le risposte di GPT
         self.listWidget_ai = QTextEdit()
@@ -196,6 +204,33 @@ class GPTWindow(QMainWindow):
                     api_key = f.read().strip()
 
         return api_key
+
+    def analyze_selected_images(self):
+        if not self.iconListWidget or not self.DB_MANAGER:
+            QMessageBox.warning(self, "Attenzione", "Dati necessari non disponibili.", QMessageBox.Ok)
+            return
+
+        selected_items = self.iconListWidget.selectedItems()
+        if not selected_items:
+            QMessageBox.warning(self, "Attenzione", "Nessuna immagine selezionata.", QMessageBox.Ok)
+            return
+
+        self.listWidget_ai.clear()
+        prompt = self.prompt_label.toPlainText()
+
+        for item in selected_items:
+            media_id = item.data(Qt.ItemDataRole.UserRole)
+            filepath = self.DB_MANAGER.select_mediapath_from_id(media_id)
+            if filepath and os.path.exists(filepath):
+                gpt_response = self.ask_sketch(prompt, self.apikey_gpt(), filepath)
+                self.listWidget_ai.append(f"Analisi per l'immagine {item.text()}:\n{gpt_response}\n")
+            else:
+                self.listWidget_ai.append(f"Errore: Impossibile trovare o accedere all'immagine {item.text()}\n")
+
+            QApplication.processEvents()
+
+        # Scorri automaticamente verso il basso per mostrare l'ultimo contenuto aggiunto
+        self.listWidget_ai.verticalScrollBar().setValue(self.listWidget_ai.verticalScrollBar().maximum())
 
     def scketchgpt(self):
         self.listWidget_ai.clear()
