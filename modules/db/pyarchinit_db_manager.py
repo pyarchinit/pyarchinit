@@ -1236,6 +1236,15 @@ class Pyarchinit_db_management(object):
     #     session.close()
     #
     #     return res
+
+    def select_mediapath_from_id(self, media_id):
+        sql_query = "SELECT filepath FROM media_table WHERE id_media = ?"
+        params = (media_id,)
+        res = self.engine.execute(sql_query, params)
+        row = res.fetchone()
+        return row[0] if row else None
+
+
     def query_all_us(self, table_class_str, column_name='us'):
         """
         Retrieve all records from a specified table and return values of a specific column.
