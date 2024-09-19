@@ -3373,8 +3373,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                            }
             j = self.DB_MANAGER.query_bool(search_dict, 'US')
             record_us_list.append(j)
-            # QMessageBox.information(self, 'search db', str(record_us_list))
-            us_list = []
+
+            a=None
             for r in record_us_list:
                 a=r[0].id_us
             #QMessageBox.information(self,'ok',str(a))# QMessageBox.information(self, "Scheda US", str(us_list), QMessageBox.Ok)
@@ -10399,8 +10399,8 @@ class IntegerDelegate(QtWidgets.QStyledItemDelegate):
         editor.setValidator(validator)
         return editor
 
-if __name__ == "__main__":
-    app = QApplication(sys.argv)
-    mainWin = GPTWindow()
-    mainWin.show()
-    sys.exit(app.exec_())
+# if __name__ == "__main__":
+#     app = QApplication(sys.argv)
+#     mainWin = GPTWindow()
+#     mainWin.show()
+#     sys.exit(app.exec_())

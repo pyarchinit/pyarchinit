@@ -3,8 +3,10 @@ import difflib
 import json
 import os
 import sys
-import time
+import mimetypes
 import csv
+
+import cv2
 import docx
 import fitz
 import openai
@@ -15,6 +17,8 @@ from qgis.PyQt.QtWidgets import QProgressBar, QScrollArea, QInputDialog, QMessag
 from qgis.PyQt.QtCore import QThread, pyqtSignal
 
 from qgis.PyQt.QtGui import QIcon
+
+
 
 
 class Worker(QThread):
@@ -227,26 +231,82 @@ class GPTWindow(QMainWindow):
         else:
             self.listWidget_ai.addItem("Image selection was canceled.")
 
-    def ask_sketch(self, prompt, apikey, url):
-        def encode_image(image_path):
+    def ask_sketch(self, prompt, apikey, file_path):
+        def encode_file(file_path):
             try:
-                with open(image_path, "rb") as image_file:
-                    return base64.b64encode(image_file.read()).decode('utf-8')
+                with open(file_path, "rb") as file:
+                    return base64.b64encode(file.read()).decode('utf-8')
             except FileNotFoundError:
-                print(f"No file found at {image_path}. Please check the file path.")
+                print(f"No file found at {file_path}. Please check the file path.")
                 return None
 
+        def get_file_type(file_path):
+            mime_type, _ = mimetypes.guess_type(file_path)
+            if mime_type:
+                return mime_type.split('/')[0]
+            return None
+
+        def extract_video_frames(file_path, num_frames=5):
+            cap = cv2.VideoCapture(file_path)
+            if not cap.isOpened():
+                return "Errore nell'apertura del video", []
+
+            fps = cap.get(cv2.CAP_PROP_FPS)
+            frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+            duration = frame_count / fps if fps > 0 else 0
+
+            frames = []
+            for i in range(num_frames):
+                cap.set(cv2.CAP_PROP_POS_FRAMES, i * frame_count // num_frames)
+                ret, frame = cap.read()
+                if ret:
+                    _, buffer = cv2.imencode('.jpg', frame)
+                    base64_frame = base64.b64encode(buffer).decode('utf-8')
+                    frames.append(base64_frame)
+
+            cap.release()
+            return f"Video duration: {duration:.2f} seconds, FPS: {fps:.2f}, Frames: {frame_count}", frames
+
         openai.api_key = apikey
-        base64_image = encode_image(url)
-        # Set headers for the API request
+        file_type = get_file_type(file_path)
+
         headers = {
             "Content-Type": "application/json",
             "Authorization": f"Bearer {openai.api_key}"
         }
 
-        # Payload for the API request
+        content = [{"type": "text", "text": prompt}]
+
+        if file_type == 'image':
+            encoded_file = encode_file(file_path)
+            if not encoded_file:
+                return "Errore: File non trovato o non accessibile."
+            content.append({
+                "type": "image_url",
+                "image_url": {
+                    "url": f"data:image/jpeg;base64,{encoded_file}"
+                }
+            })
+        elif file_type == 'video':
+            video_info, frames = extract_video_frames(file_path)
+            content.append({"type": "text", "text": video_info})
+            for frame in frames:
+                content.append({
+                    "type": "image_url",
+                    "image_url": {
+                        "url": f"data:image/jpeg;base64,{frame}"
+                    }
+                })
+            content.append({"type": "text",
+                            "text": "Analizza queste immagini estratte dal video e fornisci un riassunto del contenuto visivo. Se riesci a identificare del testo o dei dialoghi nelle immagini, includili nel riassunto."})
+        else:
+            content.append({
+                "type": "text",
+                "text": f"Il file è di tipo {file_type if file_type else 'sconosciuto'}. Nome del file: {os.path.basename(file_path)}"
+            })
+
         params = {
-            "model": "gpt-4o",
+            "model": "gpt-4-vision-preview",
             "temperature": 0.5,
             "user": "my_customer",
             "max_tokens": 4096,
@@ -255,24 +315,16 @@ class GPTWindow(QMainWindow):
             "messages": [
                 {
                     "role": "system",
-                    "content": "Sono un assistente che fornisce descrizioni dettagliate e collegamenti utili."
+                    "content": "Sei un assistente esperto nell'analisi di immagini e video. Per i video, analizzi una serie di fotogrammi chiave per fornire un riassunto del contenuto visivo, identificando anche eventuali testi o dialoghi visibili."
                 },
                 {
                     "role": "user",
-                    "content": [
-                        {"type": "text", "text": prompt},
-                        {
-                            "type": "image_url",
-                            "image_url": {
-                                "url": f"data:image/jpeg;base64,{base64_image}"
-                            }
-                        }
-                    ]
+                    "content": content
                 }
             ],
         }
 
-        self.start_worker(headers, params, is_image=True)
+        self.start_worker(headers, params, is_image=(file_type == 'image'))
 
     def extract_text_from_file(self, file_path):
         file_type = os.path.splitext(file_path)[1].lower()

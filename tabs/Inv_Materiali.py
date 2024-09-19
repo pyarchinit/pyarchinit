@@ -441,7 +441,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         self.set_sito()
         self.msg_sito()
         #self.comboBox_repertato.currentTextChanged.connect(self.numero_reperto)
-        #self.numero_invetario()
+        self.pushButton_sketchgpt.clicked.connect(self.sketchgpt)
         self.toolButton_pdfpath.clicked.connect(self.setPathpdf)
         self.customize_gui()
         #self.loadMapPreview()
