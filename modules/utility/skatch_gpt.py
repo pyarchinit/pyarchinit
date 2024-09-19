@@ -86,12 +86,12 @@ class Worker(QThread):
 class GPTWindow(QMainWindow):
     HOME = os.environ.get('PYARCHINIT_HOME', '')
 
-    def __init__(self):
+    def __init__(self, selected_images=None):
         super().__init__()
         self.setWindowTitle("PyArchInit - GPT Sketch")
         self.setGeometry(100, 100, 600, 800)
         self.set_icon(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../resources/icons/gpt.png")))
-
+        self.selected_images = selected_images or []
         # Layout principale
         layout = QGridLayout()
 
@@ -106,17 +106,20 @@ class GPTWindow(QMainWindow):
             "Fai una correzione del testo.\n"
             "e schiacci Importa Documento"
         )
-        layout.addWidget(self.prompt_label, 1, 0, 1, 2)
+        layout.addWidget(self.prompt_label, 1, 0, 1, 3)
 
         # Bottoni per l'interazione
+        self.btn_import3 = QPushButton("Analizza Immagini Selezionate")
+        self.btn_import3.clicked.connect(self.analyze_selected_images)
         self.btn_import = QPushButton("Importa Immagine")
         self.btn_import.clicked.connect(self.scketchgpt)
         self.btn_import2 = QPushButton("Importa Documento")
         self.btn_import2.clicked.connect(self.docchgpt)
         self.progress = QProgressBar()
         self.token_counter = QLabel("Tokens used: 0 - Total cost: $0.0000")
-        layout.addWidget(self.btn_import, 2, 0)
-        layout.addWidget(self.btn_import2, 2, 1)
+        layout.addWidget(self.btn_import3, 2, 0)
+        layout.addWidget(self.btn_import, 2, 1)
+        layout.addWidget(self.btn_import2, 2, 2)
         layout.addWidget(self.progress, 3, 0, 1, 0)
         layout.addWidget(self.token_counter, 3, 0, 1, 1)
 
@@ -133,12 +136,23 @@ class GPTWindow(QMainWindow):
         splitter.addWidget(scroll_area)
         splitter.setStretchFactor(0, 1)  # Make listWidget_ai expandable
 
-        layout.addWidget(splitter, 4, 0, 1, 2)
+        layout.addWidget(splitter, 4, 0, 1, 3)
 
         # Widget container per i layout
         container = QWidget()
         container.setLayout(layout)
         self.setCentralWidget(container)
+
+    def analyze_selected_images(self):
+        self.listWidget_ai.clear()
+        if self.selected_images:
+            prompt = self.prompt_label.toPlainText()
+            for file_path in self.selected_images:
+                self.ask_sketch(prompt, self.apikey_gpt(), file_path)
+        else:
+            self.listWidget_ai.setPlainText("No images selected for analysis.")
+
+
 
     def set_icon(self, icon_path):
         self.setWindowIcon(QIcon(icon_path))
@@ -151,6 +165,7 @@ class GPTWindow(QMainWindow):
         self.worker.content_updated.connect(self.update_content)
         self.worker.tokens_used_updated.connect(self.update_tokens_used)
         self.worker.start()
+
     def apikey_gpt(self):
         # HOME = os.environ['PYARCHINIT_HOME']
         BIN = '{}{}{}'.format(self.HOME, os.sep, "bin")
@@ -420,6 +435,65 @@ class GPTWindow(QMainWindow):
         }
         self.start_worker(headers, params, is_image=False)
 
+
+        # start = time.perf_counter()
+        # total_received_content = 0
+        # self.progress.setMinimum(0)
+        # self.progress.setMaximum(int(start))
+        # try:
+        #     client = requests.Session()
+        #     response = client.post("https://api.openai.com/v1/chat/completions", headers=headers, json=params, stream=True)
+        #
+        #     # Check for HTTP errors
+        #     if response.status_code != 200:
+        #         print(f"Error: HTTP {response.status_code} - {response.text}")
+        #         return None
+        #
+        #     combined_message = "GPT Response:\n "
+        #     self.listWidget_ai.setPlainText(combined_message)
+        #
+        #
+        #     reply = ""
+        #     for line in response.iter_lines():
+        #         if line:
+        #             # Remove the 'data: ' prefix
+        #             line = line.decode('utf-8').strip()
+        #             if line.startswith("data: "):
+        #                 line = line[len("data: "):]
+        #             if line:
+        #                 decoded_line = json.loads(line)
+        #                 if 'choices' in decoded_line:
+        #                     for choice in decoded_line['choices']:
+        #
+        #                         if 'delta' in choice and 'content' in choice['delta']:
+        #                             content_chunk = choice['delta']['content']
+        #                             if content_chunk:
+        #
+        #                                 reply += content_chunk
+        #                                 combined_message += content_chunk
+        #                                 print(content_chunk, end='', flush=True)  # Print each chunk as it arrives
+        #                                 #total_received_content += len(content_chunk)
+        #                                 #progress_percentage = (total_received_content / int(start)) * 100
+        #                                 #self.progress.setValue(progress_percentage)
+        #                                 self.listWidget_ai.setPlainText(combined_message)
+        #
+        #
+        #                                 QApplication.processEvents()
+
+        # except Exception as e:
+        #     print(f"Error during API call: {e}")
+        #     #self.listWidget_ai.addItem(f"Error during API call: {e}")
+        #     return None
+        # finally:
+        #
+        #     #original_lines = file_text.split('\n')
+        #
+        #
+        #     if reply:
+        #         print("Reply is empty. Not calling save_corrected_file.")
+        #         #self.save_corrected_file(file_path, original_lines, reply)
+        #     else:
+        #         print("Reply is empty. Not calling save_corrected_file.")
 
     def update_progress(self, progress):
         self.progress.setValue(progress)

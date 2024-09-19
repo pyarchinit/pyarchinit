@@ -939,11 +939,50 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.report_rapporti=''
         self.list_rapporti=[]
 
-
-
     def sketchgpt(self):
-        self.gpt_window = GPTWindow()
-        self.gpt_window.show()
+        items = self.iconListWidget.selectedItems()
+        conn = Connection()
+        thumb_resize = conn.thumb_resize()
+        thumb_resize_str = thumb_resize['thumb_resize']
+
+        def process_file_path(file_path):
+            return urllib.parse.unquote(file_path)
+
+        def query_media(search_dict, table="MEDIA_THUMB"):
+            u = Utility()
+            search_dict = u.remove_empty_items_fr_dict(search_dict)
+            try:
+                return self.DB_MANAGER.query_bool(search_dict, table)
+            except Exception as e:
+                QMessageBox.warning(self, "Error", f"Database query failed: {str(e)}", QMessageBox.Ok)
+                return None
+
+        selected_images = []
+        for item in items:
+            id_orig_item = item.text()
+            search_dict = {'media_filename': f"'{id_orig_item}'"}
+            res = query_media(search_dict)
+
+            if res:
+                file_path = process_file_path(os.path.join(thumb_resize_str, str(res[0].path_resize)))
+                media_type = res[0].mediatype
+
+                if media_type == 'image':
+                    selected_images.append(file_path)
+                elif media_type == '3d_model':
+                    # Gestisci i modelli 3D se necessario
+                    selected_images.append(file_path)
+                elif media_type == 'video':
+                    # Gestisci i video se necessario
+                    selected_images.append(file_path)
+            else:
+                QMessageBox.warning(self, "Error", f"File not found: {id_orig_item}", QMessageBox.Ok)
+
+        if selected_images:
+            self.gpt_window = GPTWindow(selected_images)
+            self.gpt_window.show()
+        else:
+            QMessageBox.warning(self, "Warning", "No valid images selected for analysis.", QMessageBox.Ok)
 
     def on_pushButton_trick_pressed(self):
         # Crea un oggetto QDialog
