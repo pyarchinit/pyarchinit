@@ -5,11 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="13d9711e-af47-4516-9a74-091c329d410d" name="Changes" comment="Refactor progress bar update logic and clean up duplicated code&#10;&#10;Enhanced progress bar update by modifying the calculation and update logic. Now, it accurately calculates the progress as a percentage and stores it as an integer, improving performance. This update applies across multiple files. Redundant code lines were also eliminated for a cleaner, more readable code.">
-      <change afterPath="$PROJECT_DIR$/modules/utility/screen_adaptative.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gui/ui/US_USM.ui" beforeDir="false" afterPath="$PROJECT_DIR$/gui/ui/US_USM.ui" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pyarchinitPlugin.py" beforeDir="false" afterPath="$PROJECT_DIR$/pyarchinitPlugin.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tabs/Struttura.py" beforeDir="false" afterPath="$PROJECT_DIR$/tabs/Struttura.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tabs/US_USM.py" beforeDir="false" afterPath="$PROJECT_DIR$/tabs/US_USM.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -168,7 +165,7 @@
     "node.js.detected.package.eslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "preferences.pluginManager"
+    "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable"
   },
   "keyToStringList": {
     "DatabaseDriversLRU": [
@@ -447,7 +444,9 @@
       <workItem from="1725613114056" duration="7000" />
       <workItem from="1725686886690" duration="1680000" />
       <workItem from="1725713211158" duration="14249000" />
-      <workItem from="1725940244130" duration="11132000" />
+      <workItem from="1725940244130" duration="12506000" />
+      <workItem from="1725972051423" duration="2914000" />
+      <workItem from="1726587028033" duration="18970000" />
     </task>
     <task id="LOCAL-00022" summary="v3.9.14">
       <created>1649165457258</created>
@@ -792,7 +791,7 @@
       <option name="project" value="LOCAL" />
       <updated>1679662089681</updated>
     </task>
-    <option name="localTasksCounter" value="116" />
+    <option name="localTasksCounter" value="127" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -836,32 +835,32 @@
     <ignored-roots>
       <path value="$PROJECT_DIR$/ext-libs/totalopenstation-0.5.2-py3.9.egg/totalopenstation_" />
     </ignored-roots>
-    <MESSAGE value="Fix typo in documentation by replacing newline" />
-    <MESSAGE value="Fix typo in documentation by replacing newline characters" />
-    <MESSAGE value="Fix typo in documentation by replacing newline characters with" />
-    <MESSAGE value="Fix typo in documentation by replacing newline characters with correct" />
-    <MESSAGE value="Fix typo in documentation by replacing newline characters with correct spacing" />
-    <MESSAGE value="Fix typo in documentation by replacing newline characters with correct spacing." />
+    <MESSAGE value="Update workspace.xml to reflect recent changes in project structure and added new Python run configurations" />
+    <MESSAGE value="Update workspace.xml to reflect recent changes in project structure and added new Python run configurations." />
     <MESSAGE value="Update" />
-    <MESSAGE value="Update newline" />
-    <MESSAGE value="Update newline character" />
-    <MESSAGE value="Update newline character to" />
-    <MESSAGE value="Update newline character to adhere" />
-    <MESSAGE value="Update newline character to adhere to" />
-    <MESSAGE value="Update newline character to adhere to en" />
-    <MESSAGE value="Update newline character to adhere to en_gb" />
-    <MESSAGE value="Update newline character to adhere to en_gb standards" />
-    <MESSAGE value="Update newline character to adhere to en_gb standards." />
-    <MESSAGE value="Update README file&#10;&#10;The README file has been updated to include missing information. This was done to provide clear and comprehensive information about the project. The update includes new instructions needed for project setup." />
-    <MESSAGE value="Update view us and usm.&#10;&#10;chandge order by in ORDER BY &#10;    &quot;b&quot;.&quot;order_layer&quot;, &#10;    &quot;a&quot;.&quot;stratigraph_index_us&quot; DESC, &#10;    &quot;a&quot;.&quot;gid&quot;;" />
-    <MESSAGE value="Update version and changelog in metadata&#10;&#10;The metadata.txt file has been updated with a new version number, 4.7.1 from 4.7.0. The changelog has also been modified reflecting major bug fixes and changes made to the order by in us-usm view for this version." />
-    <MESSAGE value="Refactor progress bar update logic and clean up duplicated code&#10;&#10;Enhanced progress bar update by modifying the calculation and update logic. Now, it accurately calculates the progress as a percentage and stores it as an integer, improving performance. This update applies across multiple files. Redundant code lines were also eliminated for a cleaner, more readable code." />
-    <MESSAGE value="Update process termination and error handling&#10;&#10;Updated the process termination function to handle different operating systems. The new code will now terminate processes based on the platform. Also, some error messages in `pyarchinit_matrix_exp.py` were commented out to prevent them from disrupting the flow of the program." />
-    <MESSAGE value="Add platform-specific process termination in Gis_Time_controller&#10;&#10;The commit introduces platform check (Windows, MacOS and Linux) in `Gis_Time_controller.py` for process termination. It also comments out error messages in `pyarchinit_matrix_exp.py` to prevent error pop-ups, reducing user interruptions during execution. These adjustments aim to enhance cross-platform compatibility and user experience." />
-    <MESSAGE value="Remove pytesseract from requirements.txt&#10;&#10;pytesseract is no longer needed for the current project implementation. This change reduces unnecessary dependencies and minimizes the package footprint." />
-    <MESSAGE value="Disable pytesseract import and configuration&#10;&#10;Comment out the pytesseract import statements and configuration to temporarily disable Tesseract OCR functionality. This change is likely in preparation for either removing old functionality or integrating a new OCR mechanism." />
-    <MESSAGE value="Remove support for installing Caladea font on Ubuntu&#10;&#10;Commented out the `install_caladea_f` function and related code that checked for Ubuntu OS and attempted to install the Caladea font. This aims to simplify the installation process and avoid unsupported OS warnings." />
-    <option name="LAST_COMMIT_MESSAGE" value="Remove support for installing Caladea font on Ubuntu&#10;&#10;Commented out the `install_caladea_f` function and related code that checked for Ubuntu OS and attempted to install the Caladea font. This aims to simplify the installation process and avoid unsupported OS warnings." />
+    <MESSAGE value="Update workspace" />
+    <MESSAGE value="Update workspace.xml" />
+    <MESSAGE value="Update workspace.xml to" />
+    <MESSAGE value="Update workspace.xml to reflect" />
+    <MESSAGE value="Update workspace.xml to reflect changes" />
+    <MESSAGE value="Update workspace.xml to reflect changes in" />
+    <MESSAGE value="Update workspace.xml to reflect changes in file" />
+    <MESSAGE value="Update workspace.xml to reflect changes in file paths" />
+    <MESSAGE value="Update workspace.xml to reflect changes in file paths," />
+    <MESSAGE value="Update workspace.xml to reflect changes in file paths, test" />
+    <MESSAGE value="Update workspace.xml to reflect changes in file paths, test configurations" />
+    <MESSAGE value="Update workspace.xml to reflect changes in file paths, test configurations," />
+    <MESSAGE value="Update workspace.xml to reflect changes in file paths, test configurations, and" />
+    <MESSAGE value="Update workspace.xml to reflect changes in file paths, test configurations, and coverage" />
+    <MESSAGE value="Update workspace.xml to reflect changes in file paths, test configurations, and coverage results" />
+    <MESSAGE value="Update workspace.xml to reflect changes in file paths, test configurations, and coverage results." />
+    <MESSAGE value="v.4.7.8" />
+    <MESSAGE value="Remove unused code and comments&#10;&#10;Deleted an unused method in Struttura.py and removed commented-out code in US_USM.py to clean up the codebase. This improves readability and maintainability." />
+    <MESSAGE value="Add media path selection and GPT-4 integration.&#10;&#10;Introduce `select_mediapath_from_id` method for fetching media paths by ID in the database module. Added `skatch_gpt_mod.py` to integrate OpenAI GPT-4 capabilities, including image and document analysis, with a new user interface for interaction and progress tracking." />
+    <MESSAGE value="Update version to 4.7.9 and revise changelog&#10;&#10;This commit updates the version from 4.7.8 to 4.7.9 in the metadata file. Additionally, it revises the changelog to include a brief note about the bug fix in version 4.7.9." />
+    <MESSAGE value="Update table mappings and data insertion logic&#10;&#10;Refactor comboBox_mapper_read to correct table names and indexing. Re-enable insertion of max ID for various entities when inserting data. Ensure the_geom is specified in data source for 'pyarchinit_us_negative_doc'." />
+    <MESSAGE value="Implement image analysis in GPT sketch feature&#10;&#10;Added functionality to select and analyze images using the GPT sketch feature in both Inv_Materiali.py and US_USM.py. Enhanced GPTWindow to handle selected images and provided a new button for initiating image analysis." />
+    <option name="LAST_COMMIT_MESSAGE" value="Implement image analysis in GPT sketch feature&#10;&#10;Added functionality to select and analyze images using the GPT sketch feature in both Inv_Materiali.py and US_USM.py. Enhanced GPTWindow to handle selected images and provided a new button for initiating image analysis." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
