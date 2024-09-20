@@ -69,7 +69,7 @@ from ..modules.utility.pyarchinit_error_check import Error_check
 from ..modules.utility.pyarchinit_exp_USsheet_pdf import generate_US_pdf
 from ..modules.utility.pyarchinit_print_utility import Print_utility
 from ..modules.utility.settings import Settings
-from ..modules.utility.skatch_gpt import GPTWindow
+from ..modules.utility.skatch_gpt_US import GPTWindow
 from ..searchLayers import SearchLayers
 from ..gui.imageViewer import ImageViewer
 from ..gui.pyarchinitConfigDialog import pyArchInitDialog_Config
@@ -978,11 +978,11 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             else:
                 QMessageBox.warning(self, "Error", f"File not found: {id_orig_item}", QMessageBox.Ok)
 
-        if selected_images:
-            self.gpt_window = GPTWindow(selected_images)
-            self.gpt_window.show()
-        else:
-            QMessageBox.warning(self, "Warning", "No valid images selected for analysis.", QMessageBox.Ok)
+        #if selected_images:
+        self.gpt_window = GPTWindow(selected_images, dbmanager=self.DB_MANAGER, main_class=self)
+        self.gpt_window.show()
+        #else:
+            #QMessageBox.warning(self, "Warning", "No valid images selected for analysis.", QMessageBox.Ok)
 
     def on_pushButton_trick_pressed(self):
         # Crea un oggetto QDialog
