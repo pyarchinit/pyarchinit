@@ -38,7 +38,7 @@ from ..modules.utility.delegateComboBox import ComboBoxDelegate
 from ..modules.db.pyarchinit_db_manager import *
 from ..modules.db.pyarchinit_utility import *
 from ..modules.utility.pyarchinit_media_utility import *
-from ..modules.utility.skatch_gpt import GPTWindow
+from ..modules.utility.skatch_gpt_US import GPTWindow
 MAIN_DIALOG_CLASS, _ = loadUiType(
     os.path.join(os.path.dirname(__file__), os.pardir, 'gui', 'ui', 'pyarchinit_image_viewer_dialog.ui'))
 conn = Connection()

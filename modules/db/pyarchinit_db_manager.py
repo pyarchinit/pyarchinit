@@ -2117,7 +2117,7 @@ class Pyarchinit_db_management(object):
 
         return
     
-    def insert_number_of_reperti_records(self, sito, numero_invetario):
+    def insert_number_of_reperti_records(self, sito, numero_inventario):
         id_invmat = self.max_num_id('INVENTARIO_MATERIALI', 'id_invmat')
         
         l=QgsSettings().value("locale/userLocale")[0:2]
@@ -2125,7 +2125,7 @@ class Pyarchinit_db_management(object):
         
         id_invmat += 1
 
-        data_ins = self.insert_values_reperti(id_invmat, sito, numero_invetario, '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', None, None, '', None, '', '','0','','')
+        data_ins = self.insert_values_reperti(id_invmat, sito, numero_inventario, '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', None, None, '', None, '', '','0','','')
                                            
         self.insert_data_session(data_ins)
         

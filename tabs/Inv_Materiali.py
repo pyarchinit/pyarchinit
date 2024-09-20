@@ -44,7 +44,7 @@ from qgis.gui import QgsMapCanvas
 from collections import OrderedDict
 import subprocess
 
-from ..modules.utility.skatch_gpt import GPTWindow
+from ..modules.utility.skatch_gpt_INVMAT import GPTWindow
 from ..modules.utility.VideoPlayerArtefact import VideoPlayerWindow
 from ..modules.utility.pyarchinit_media_utility import *
 from ..modules.db.pyarchinit_conn_strings import Connection
@@ -1327,15 +1327,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         return rep_list
 
     def assignTags_reperti(self, item):
-        """
-        id_mediaToEntity,
-        id_entity,
-        entity_type,
-        table_name,
-        id_media,
-        filepath,
-        media_name
-        """
+
         rep_list = self.generate_reperti()
         # QMessageBox.information(self,'search db',str(us_list))
         if not rep_list:
@@ -1461,7 +1453,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                     item.setIcon(icon)
                     self.iconListWidget.addItem(item)
 
-                self.assignTags_US(item)
+                self.assignTags_reperti(item)
 
 
 
@@ -2056,11 +2048,11 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             else:
                 QMessageBox.warning(self, "Error", f"File not found: {id_orig_item}", QMessageBox.Ok)
 
-        if selected_images:
-            self.gpt_window = GPTWindow(selected_images)
-            self.gpt_window.show()
-        else:
-            QMessageBox.warning(self, "Warning", "No valid images selected for analysis.", QMessageBox.Ok)
+        #if selected_images:
+        self.gpt_window = GPTWindow(selected_images, dbmanager=self.DB_MANAGER, main_class=self)
+        self.gpt_window.show()
+        #else:
+            #QMessageBox.warning(self, "Warning", "No valid images selected for analysis.", QMessageBox.Ok)
 
     def loadMediaPreview(self, mode=0):
         self.iconListWidget.clear()
@@ -2117,7 +2109,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         item.setIcon(icon)
         self.iconListWidget.addItem(item)
 
-        self.assignTags_US(item)
+        self.assignTags_reperti(item)
 
     def show_3d_model(self, file_path):
         mesh = pv.read(file_path)
