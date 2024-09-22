@@ -896,6 +896,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.comboBox_sito.setEditText(sito)
         self.fill_fields()
         self.customize_GUI()
+
+
         self.msg_sito()
         self.set_sito()
         self.show()
@@ -932,10 +934,10 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.new_search_shortcut = QShortcut(QKeySequence('Ctrl+Shift+N'), self)
         self.new_search_shortcut.activated.connect(self.switch_search_mode)
         self.pushButton_sketchgpt.clicked.connect(self.sketchgpt)
-        try:
-            self.view_all()
-        except:
-            return
+        #try:
+            #self.view_all()
+        #except:
+            #return
         self.report_rapporti=''
         self.list_rapporti=[]
 
@@ -1843,25 +1845,27 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
 
     def value_check(self):
-        '''
-            This function is used to filter the 'Unità Stratigrafiche' table.
-        '''
+
+
         try:
 
             if self.field.currentTextChanged:
                 sito_vl2 = self.UTILITY.tup_2_list_III(self.DB_MANAGER.group_by('us_table', self.field.currentText(),'US'))
 
-            try:
-                sito_vl2.remove('')
-            except:
-                pass
-            self.search_1.clear()
-            sito_vl2.sort()
 
-            self.search_1.addItems(sito_vl2)
-            self.search_1.update()
-        except :
+                sito_vl2.remove('')
+
+
+                self.search_1.clear()
+
+                sito_vl2.sort()
+
+                self.search_1.addItems(sito_vl2)
+                self.search_1.update()
+
+        except:
             pass#QMessageBox.warning(self, "Attenzione", str(e), QMessageBox.Ok)
+
     def update_filter(self, s):
         '''
             This function is used to filter the 'Unità Stratigrafiche' table.
@@ -1916,6 +1920,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                     pass#QMessageBox.warning(self, "Warning", str(e), QMessageBox.Ok)
         else:
             self.checkBox_query.setChecked(False)
+
     def on_pushButton_globalsearch_pressed(self):
         '''
             This function is used to search for a specific record in the database.
@@ -1924,7 +1929,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
 
 
-    def format_struttura_item(self,struttura):
+    def format_struttura_item(self, struttura):
         return f"{struttura.sigla_struttura}-{struttura.numero_struttura}"
 
     def charge_struttura_list(self):
@@ -4407,17 +4412,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         try:
             sito_vl.remove('')
         except Exception as e:
-            if str(e) == "list.remove(x): x not in list":
-                pass
-            else:
-                if self.L=='it':
-                    QMessageBox.warning(self, "Messaggio", "Sistema di aggiornamento lista Sito: " + str(e), QMessageBox.Ok)
-                elif self.L=='en':
-                    QMessageBox.warning(self, "Message", "Site list update system: " + str(e), QMessageBox.Ok)
-                elif self.L=='de':
-                    QMessageBox.warning(self, "Nachricht", "Aktualisierungssystem für die Ausgrabungstätte: " + str(e), QMessageBox.Ok)
-                else:
-                    pass
+            pass
         self.comboBox_sito.clear()
         self.comboBox_sito_rappcheck.clear()
         sito_vl.sort()
@@ -5003,13 +4998,15 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 lavorazione_p_us_vl.append(lavorazione_p[i].sigla_estesa)
         lavorazione_p_us_vl.sort()
         self.comboBox_lavorazione_usm.addItems(lavorazione_p_us_vl)
+
     def msg_sito(self):
         #self.model_a.database().close()
         conn = Connection()
-        sito_set= conn.sito_set()
+        sito_set = conn.sito_set()
         sito_set_str = sito_set['sito_set']
+
         if bool(self.comboBox_sito.currentText()) and self.comboBox_sito.currentText()==sito_set_str:
-            self.comboBox_sito.setCurrentText(sito_set_str)
+
             if self.L=='it':
                 QMessageBox.information(self, "OK" ,"Sei connesso al sito: %s" % str(sito_set_str),QMessageBox.Ok)
 
@@ -5018,7 +5015,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
             else:
                 QMessageBox.information(self, "OK", "You are connected to the site: %s" % str(sito_set_str),QMessageBox.Ok)
-
+            #self.comboBox_sito.setCurrentText(sito_set_str)
         elif sito_set_str=='':
             if self.L=='it':
                 msg = QMessageBox.information(self, "Attenzione" ,"Non hai settato alcun sito. Vuoi settarne uno? click Ok altrimenti Annulla per  vedere tutti i record",QMessageBox.Ok | QMessageBox.Cancel)
@@ -6159,8 +6156,6 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 self.comboBox_fas_fin.currentIndexChanged.connect(self.charge_datazione_list)
 
                 self.BROWSE_STATUS = "n"
-                self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
-                self.empty_fields_nosite()
 
                 self.setComboBoxEditable(["self.comboBox_area"], 1)
                 self.setComboBoxEditable(["self.comboBox_unita_tipo"], 1)
@@ -6173,11 +6168,12 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
                 self.set_rec_counter('', '')
                 self.label_sort.setText(self.SORTED_ITEMS["n"])
+                self.empty_fields_nosite()
 
             else:
                 self.BROWSE_STATUS = "n"
                 self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
-                self.empty_fields()
+
                 self.setComboBoxEditable(["self.comboBox_sito"], 1)
                 self.setComboBoxEditable(["self.comboBox_area"], 1)
                 self.setComboBoxEditable(["self.comboBox_unita_tipo"], 1)
@@ -6190,7 +6186,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
                 self.set_rec_counter('', '')
                 self.label_sort.setText(self.SORTED_ITEMS["n"])
-
+                self.empty_fields()
 
             self.enable_button(0)
 
@@ -6207,50 +6203,6 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                     if self.update_if(QMessageBox.Ok):
                         QMessageBox.Ok
 
-
-                    # self.empty_fields()
-                    # self.SORT_STATUS = "n"
-                    # self.label_sort.setText(self.SORTED_ITEMS[self.SORT_STATUS])
-                    # self.enable_button(1)
-
-                    # self.fill_fields(self.REC_CORR)
-                # else:
-                    # if self.L=='it':
-                        # QMessageBox.warning(self, "ATTENZIONE", "Non è stata realizzata alcuna modifica.", QMessageBox.Ok)
-                    # elif self.L=='de':
-                        # QMessageBox.warning(self, "ACHTUNG", "Keine Änderung vorgenommen", QMessageBox.Ok)
-                    # else:
-                        # QMessageBox.warning(self, "Warning", "No changes have been made", QMessageBox.Ok)
-        # else:
-            # if self.data_error_check() == 0:
-                # test_insert = self.insert_new_rec()
-                # if test_insert == 1:
-                    # self.empty_fields()
-                    # self.SORT_STATUS = "n"
-                    # self.label_sort.setText(self.SORTED_ITEMS[self.SORT_STATUS])
-                    # self.charge_records()
-                    # self.charge_list()
-                    # self.set_sito()
-                    # self.BROWSE_STATUS = "b"
-                    # self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
-                    # self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), len(self.DATA_LIST) - 1
-                    # self.set_rec_counter(self.REC_TOT, self.REC_CORR + 1)
-                    # self.setComboBoxEditable(["self.comboBox_sito"], 1)
-                    # self.setComboBoxEditable(["self.comboBox_area"], 1)
-                    # self.setComboBoxEditable(["self.comboBox_unita_tipo"], 1)
-                    # self.setComboBoxEnable(["self.comboBox_sito"], "False")
-                    # self.setComboBoxEnable(["self.comboBox_area"], "False")
-                    # self.setComboBoxEnable(["self.lineEdit_us"], "False")
-                    # self.setComboBoxEnable(["self.comboBox_unita_tipo"], "True")
-                    # self.fill_fields(self.REC_CORR)
-                    # self.enable_button(1)
-            # else:
-                # if self.L=='it':
-                    # QMessageBox.warning(self, "ATTENZIONE", "Problema nell'inserimento dati", QMessageBox.Ok)
-                # elif self.L=='de':
-                    # QMessageBox.warning(self, "ACHTUNG", "Problem der Dateneingabe", QMessageBox.Ok)
-                # else:
-                    # QMessageBox.warning(self, "Warning", "Problem with data entry", QMessageBox.Ok)
 
     def on_pushButton_save_pressed(self):
 
@@ -6279,7 +6231,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         if self.BROWSE_STATUS == "b":
             if self.data_error_check() == 0:
                 if self.records_equal_check() == 1:
-                    self.update_if(QMessageBox.warning(self, 'Error',
+                    self.update_if(QMessageBox.warning(self, 'Attenzione',
                                                        messages[self.L]['change_warning'],
                                                        QMessageBox.Ok | QMessageBox.Cancel))
                     self.empty_fields()
@@ -6317,6 +6269,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             else:
                 QMessageBox.warning(self, "ATTENZIONE", messages[self.L]['data_entry_problem'], QMessageBox.Ok)
         self.update_dating()
+
+
     def apikey_gpt(self):
         #HOME = os.environ['PYARCHINIT_HOME']
         BIN = '{}{}{}'.format(self.HOME, os.sep, "bin")
@@ -6370,7 +6324,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         area_check = str(self.comboBox_area_rappcheck.currentText())
         try:
             self.rapporti_stratigrafici_check(sito_check)
-            self.def_strati_to_rapporti_stratigrafici_check(sito_check, area_check)  # SPERIMENTALE
+            self.def_strati_to_rapporti_stratigrafici_check(sito_check)  # SPERIMENTALE
         except AssertionError as e:
             QMessageBox.critical(self, "Error", f"An error occurred while performing the check: {str(e)}",
                                  QMessageBox.Ok)
@@ -9561,7 +9515,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
     def records_equal_check(self):
         try:
-            #self.set_sito()
+            self.set_sito()
             self.set_LIST_REC_TEMP()
             self.set_LIST_REC_CORR()
 
