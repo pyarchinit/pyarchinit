@@ -2125,7 +2125,7 @@ class Pyarchinit_db_management(object):
         
         id_invmat += 1
 
-        data_ins = self.insert_values_reperti(id_invmat, sito, numero_inventario, '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', None, None, '', None, '', '','0','','')
+        data_ins = self.insert_values_reperti(id_invmat, sito, numero_inventario, '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', None, None, '', None, '', '','0','','','')
                                            
         self.insert_data_session(data_ins)
         

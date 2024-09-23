@@ -937,7 +937,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
         self.report_rapporti=''
         self.list_rapporti=[]
-        #self.view_all()
+        self.view_all()
 
     def sketchgpt(self):
         items = self.iconListWidget.selectedItems()
@@ -7711,6 +7711,18 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             self.model_a.database().close()
         self.empty_fields()
         self.charge_records()
+        # Controlla se il database è vuoto
+        if not self.DATA_LIST:
+            # Mostra un messaggio che indica che il database è vuoto
+
+            self.charge_list()
+            self.BROWSE_STATUS = 'x'
+            self.setComboBoxEnable(["self.comboBox_area"], "True")
+            self.setComboBoxEnable(["self.lineEdit_us"], "True")
+            self.on_pushButton_new_rec_pressed()
+            return#QMessageBox.warning(self, "Attenzione", "Il database è vuoto.")
+            #return  # Esci dalla funzione se il database è vuoto
+
         self.fill_fields()
         self.BROWSE_STATUS = "b"
         self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
