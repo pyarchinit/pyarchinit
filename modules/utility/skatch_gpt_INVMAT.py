@@ -109,7 +109,9 @@ class GPTWindow(QMainWindow):
         self.prompt_label.setPlaceholderText(
             "Esempio di prompt:\n"
             "Se vuoi estrarre informazioni da un'immagine, scrivi:\n"
-            "Estrai le informazioni dall'etichetta.\n e schiacci Importa immagine\n\n"
+            "Estrai le info dalle etichette e tieni presente che il nome del sito si chiama Rocca Brancaleone e "
+            "il numero reperto lo trovi dopo REP oppure in un triangolo.  "
+            "il numero reperto scrivilo come intero\n e schiacci Importa immagine\n\n"
             "Se vuoi correggere un testo, scrivi:\n"
             "Fai una correzione del testo.\n"
             "e schiacci Importa Documento"
@@ -442,8 +444,8 @@ class GPTWindow(QMainWindow):
                     response = self.ask_claude(prompt, self.apikey_claude(), file_path)
 
                 # Show the AI response
-                self.listWidget_ai.append(f"AI Response for {os.path.basename(file_path)}:")
-                self.listWidget_ai.append(response)
+                #self.listWidget_ai.append(f"AI Response for {os.path.basename(file_path)}:")
+                #self.listWidget_ai.append(response)
 
                 # Extract information from the response
                 try:
@@ -466,7 +468,7 @@ class GPTWindow(QMainWindow):
                     new_record_id = self.create_new_record(extracted_info)
 
                     if new_record_id is not None:
-                        # Navigate to the corresponding site, area, and US
+                        # Navigate to the corresponding site, numero d'inventario
                         sito = extracted_info.get('sito')
                         numero_inventario = extracted_info.get('numero_inventario')
 
@@ -498,8 +500,7 @@ class GPTWindow(QMainWindow):
         # Implement the logic to navigate to the US record based on the provided parameters
         search_dict = {
             'sito': "'" + sito + "'",
-            'numero_inventario': numero_inventario,
-
+            'numero_inventario':  numero_inventario
         }
 
         # Remove empty items from the search dictionary
@@ -547,9 +548,10 @@ class GPTWindow(QMainWindow):
         if not all(info.values()):
             response_ = response.lower()
             if not info['sito']:
-                info['sito'] = self.extract_info_generic(response_, ['sito', 'site'])
+                info['sito'] = self.extract_info_generic(response, ['sito', 'site'])
             if not info['numero_inventario']:
-                info['numero_inventario'] = self.extract_info_generic(response_, ['numero reperto', 'reperto', 'rep','inventario'])
+                info['numero_inventario'] = self.extract_info_generic(response_, ['numero reperto', 'reperto',
+                                                                                  'rep', 'inventario'])
 
         # Verifica che tutti i campi necessari siano stati estratti
         missing_fields = [k for k, v in info.items() if v is None or v == '']
@@ -812,7 +814,7 @@ class GPTWindow(QMainWindow):
 
         #for sing_tags in tags_list:
         search_dict = {'sito': "'"+str(sito)+"'" ,
-                       'numero_inventario': numero_inventario,
+                       'numero_inventario': "'"+str(numero_inventario)+"'",
 
                        }
         j = self.DB_MANAGER.query_bool(search_dict, 'INVENTARIO_MATERIALI')
