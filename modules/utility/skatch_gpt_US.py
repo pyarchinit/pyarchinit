@@ -429,9 +429,22 @@ class GPTWindow(QMainWindow):
             return
 
         prompt = self.prompt_label.toPlainText()
+
+        prompt += (
+            'L\'unità tipo può essere solo US o USM e il numero che segue è il numero US. '
+            'Quindi se leggi ad esempio US 1, USM10, USM 1 o US23, essi saranno '
+            'unità tipo e numero US che è sempre un integer come l\'area. Essi devo essere restituiti come chiave valore pr riga esempio US: '
+            '1 Unità Tipo: US.'
+        )
+
         if not prompt:
             prompt = "Analizza questa immagine e estrai le seguenti informazioni: Sito, Area, US (Unità Stratigrafica), e Unità Tipo. Fornisci queste informazioni nel formato 'Chiave: Valore', una per riga."
-
+            prompt += (
+                'L\'unità tipo può essere solo US o USM e il numero che segue è il numero US. '
+            'Quindi se leggi ad esempio US 1, USM10, USM 1 o US23, essi saranno '
+            'unità tipo e numero US che è sempre un integer come l\'area. Essi devo essere restituiti come chiave valore pr riga esempio US: '
+            '1 Unità Tipo: US.'
+            )
         selected_model = self.model_selector.currentText()
 
         for file_path in file_paths:
@@ -442,8 +455,8 @@ class GPTWindow(QMainWindow):
                     response = self.ask_claude(prompt, self.apikey_claude(), file_path)
 
                 # Show the AI response
-                self.listWidget_ai.append(f"AI Response for {os.path.basename(file_path)}:")
-                self.listWidget_ai.append(response)
+                #self.listWidget_ai.append(f"AI Response for {os.path.basename(file_path)}:")
+                #self.listWidget_ai.append(response)
 
                 # Extract information from the response
                 try:
@@ -472,6 +485,8 @@ class GPTWindow(QMainWindow):
                         us = extracted_info.get('us')
 
                         # Assuming you have a method to navigate to the US based on these values
+                        
+                        #self.mainclass.save_rapp()
                         self.go_to_us_record(sito, area, us)
 
                         # Associate the image with the new record
@@ -546,7 +561,8 @@ class GPTWindow(QMainWindow):
 
         # Se mancano informazioni, proviamo a estrarle dal testo completo
         if not all(info.values()):
-            response_ = response.lower()
+            response_ = response
+            response_upper = response.upper()
             if not info['sito']:
                 info['sito'] = self.extract_info_generic(response_, ['sito', 'site'])
             if not info['area']:
@@ -554,7 +570,7 @@ class GPTWindow(QMainWindow):
             if not info['us']:
                 info['us'] = self.extract_info_generic(response_, ['us', 'unità stratigrafica', 'stratigraphic unit'])
             if not info['unita_tipo']:
-                info['unita_tipo'] = self.extract_info_generic(response_, ['unità tipo', 'unita tipo', 'unit type'])
+                info['unita_tipo'] = self.extract_info_generic(response_upper, ['unità tipo', 'unita tipo', 'unit type'])
 
         # Verifica che tutti i campi necessari siano stati estratti
         missing_fields = [k for k, v in info.items() if v is None or v == '']
