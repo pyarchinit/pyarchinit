@@ -897,9 +897,9 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.fill_fields()
         self.customize_GUI()
 
-
-        self.msg_sito()
         self.set_sito()
+        self.msg_sito()
+
         self.show()
         self.checkBox_query.update()
         self.checkBox_query.stateChanged.connect(self.listview_us)###anche questo
@@ -934,12 +934,10 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.new_search_shortcut = QShortcut(QKeySequence('Ctrl+Shift+N'), self)
         self.new_search_shortcut.activated.connect(self.switch_search_mode)
         self.pushButton_sketchgpt.clicked.connect(self.sketchgpt)
-        #try:
-            #self.view_all()
-        #except:
-            #return
+
         self.report_rapporti=''
         self.list_rapporti=[]
+        #self.view_all()
 
     def sketchgpt(self):
         items = self.iconListWidget.selectedItems()
@@ -7795,8 +7793,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 self.empty_fields()
                 self.fill_fields(self.REC_CORR)
                 self.set_rec_counter(self.REC_TOT, self.REC_CORR + 1)
-            except :#Exception as e:
-                pass#QMessageBox.warning(self, "Error", str(e), QMessageBox.Ok)
+            except Exception as e:
+                QMessageBox.warning(self, "Error", str(e), QMessageBox.Ok)
 
 
         if self.checkBox_validate.isChecked():
@@ -9515,7 +9513,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
     def records_equal_check(self):
         try:
-            self.set_sito()
+            #self.set_sito()
             self.set_LIST_REC_TEMP()
             self.set_LIST_REC_CORR()
 
