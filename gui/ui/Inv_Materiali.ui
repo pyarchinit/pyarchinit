@@ -2129,7 +2129,7 @@
           </size>
          </property>
          <property name="text">
-          <string>GPT</string>
+          <string/>
          </property>
         </widget>
        </item>
