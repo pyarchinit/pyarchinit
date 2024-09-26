@@ -2009,6 +2009,73 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             # aggiungi l'elemento al QListWidget
             self.iconListWidget.addItem(list_item)
 
+
+    def connect_p(self):
+
+        conn = Connection()
+        conn_str = conn.conn_str()
+        test_conn = conn_str.find('sqlite')
+        if test_conn == 0:
+            self.DB_SERVER = "sqlite"
+
+        try:
+            self.DB_MANAGER = Pyarchinit_db_management(conn_str)
+            self.DB_MANAGER.connection()
+            self.charge_records()  # charge records from DB
+            # check if DB is empty
+            if self.DATA_LIST:
+                self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
+                self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
+                self.BROWSE_STATUS = 'b'
+                self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
+                self.label_sort.setText(self.SORTED_ITEMS["n"])
+                self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR + 1)
+                self.charge_list()
+                self.fill_fields()
+                self.setComboBoxEnable(["self.comboBox_area"], "False")
+                self.setComboBoxEnable(["self.lineEdit_us"], "False")
+                self.iconListWidget.update()
+            else:
+                if self.L=='it':
+                    QMessageBox.warning(self,"BENVENUTO", "Benvenuto in pyArchInit " + self.NOME_SCHEDA + ". Il database e' vuoto. Premi 'Ok' e buon lavoro!",
+                                        QMessageBox.Ok)
+                elif self.L=='de':
+                    QMessageBox.warning(self,"WILLKOMMEN","WILLKOMMEN in pyArchInit" + "SE-MSE formular"+ ". Die Datenbank ist leer. Tippe 'Ok' und aufgehts!",
+                                        QMessageBox.Ok)
+                else:
+                    QMessageBox.warning(self,"WELCOME", "Welcome in pyArchInit" + "Samples SU-WSU" + ". The DB is empty. Push 'Ok' and Good Work!",
+                                        QMessageBox.Ok)
+                self.charge_list()
+                self.BROWSE_STATUS = 'x'
+                self.setComboBoxEnable(["self.comboBox_area"], "True")
+                self.setComboBoxEnable(["self.lineEdit_us"], "True")
+                self.on_pushButton_new_rec_pressed()
+                self.iconListWidget.update()
+        except Exception as e:
+            e = str(e)
+            if e.find("no such table"):
+                if self.L=='it':
+                    msg = "La connessione e' fallita {}. " \
+                          "E' NECESSARIO RIAVVIARE QGIS oppure rilevato bug! Segnalarlo allo sviluppatore".format(str(e))
+                    self.iface.messageBar().pushMessage(self.tr(msg), Qgis.Warning, 0)
+
+                elif self.L=='de':
+                    msg = "Verbindungsfehler {}. " \
+                          " QGIS neustarten oder es wurde ein bug gefunden! Fehler einsenden".format(str(e))
+                    self.iface.messageBar().pushMessage(self.tr(msg), Qgis.Warning, 0)
+                else:
+                    msg = "The connection failed {}. " \
+                          "You MUST RESTART QGIS or bug detected! Report it to the developer".format(str(e))
+            else:
+                if self.L=='it':
+                    msg = "Attenzione rilevato bug! Segnalarlo allo sviluppatore. Errore: ".format(str(e))
+                    self.iface.messageBar().pushMessage(self.tr(msg), Qgis.Warning, 0)
+                elif self.L=='de':
+                    msg = "ACHTUNG. Es wurde ein bug gefunden! Fehler einsenden: ".format(str(e))
+                    self.iface.messageBar().pushMessage(self.tr(msg), Qgis.Warning, 0)
+                else:
+                    msg = "Warning bug detected! Report it to the developer. Error: ".format(str(e))
+                    self.iface.messageBar().pushMessage(self.tr(msg), Qgis.Warning, 0)
     def sketchgpt(self):
         items = self.iconListWidget.selectedItems()
         conn = Connection()

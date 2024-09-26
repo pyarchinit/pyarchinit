@@ -156,6 +156,7 @@ class GPTWindow(QMainWindow):
         container = QWidget()
         container.setLayout(layout)
         self.setCentralWidget(container)
+        self.setWindowFlags(self.windowFlags() | Qt.WindowStaysOnTopHint)
 
     def analyze_selected_images(self):
         def get_image_metadata(file_path):
@@ -414,10 +415,30 @@ class GPTWindow(QMainWindow):
         for field in missing_fields:
             value, ok = QInputDialog.getText(self, "Input richiesto", f"Inserisci {field}:")
             if ok and value:
-                info[field] = value
+                info[field] = value.strip()
             else:
                 return None
         return info
+
+    def check_existing_record(self, info):
+        search_dict = {
+            'sito': "'" + info['sito'] + "'",
+            'area': "'" + info['area'] + "'",
+            'us': "'" + info['us'] + "'",
+            'unita_tipo': "'" + info['unita_tipo'] + "'"
+        }
+        res = self.DB_MANAGER.query_bool(search_dict, self.mainclass.MAPPER_TABLE_CLASS)
+        return res[0].id_us if res else None
+
+    def is_image_associated(self, file_path, record_id):
+        filename = os.path.basename(file_path)
+        search_dict = {
+            'id_entity': record_id,
+            'entity_type': "'US'",
+            'media_name': "'" + filename + "'"
+        }
+        res = self.DB_MANAGER.query_bool(search_dict, 'MEDIATOENTITY')
+        return bool(res)
 
     def scketchgpt(self):
         self.listWidget_ai.clear()
@@ -429,22 +450,23 @@ class GPTWindow(QMainWindow):
             return
 
         prompt = self.prompt_label.toPlainText()
-
         prompt += (
-            'L\'unità tipo può essere solo US o USM e il numero che segue è il numero US. '
+            'L\'unità tipo può essere solo US o USM e il numero che segue è il numero US.'
             'Quindi se leggi ad esempio US 1, USM10, USM 1 o US23, essi saranno '
-            'unità tipo e numero US che è sempre un integer come l\'area. Essi devo essere restituiti come chiave valore pr riga esempio US: '
-            '1 Unità Tipo: US.'
-        )
+            'unità tipo e numero US che è sempre un integer come l\'area.Essi devo essere restituiti come chiave valore '
+            'per riga esempio US: 1 Unità Tipo: US.')
+
 
         if not prompt:
-            prompt = "Analizza questa immagine e estrai le seguenti informazioni: Sito, Area, US (Unità Stratigrafica), e Unità Tipo. Fornisci queste informazioni nel formato 'Chiave: Valore', una per riga."
+
+            prompt = ("Analizza questa immagine e estrai le seguenti informazioni: Sito, Area, US (Unità Stratigrafica)"
+                      ", e Unità Tipo. Fornisci queste informazioni nel formato 'Chiave: Valore', una per riga.")
             prompt += (
-                'L\'unità tipo può essere solo US o USM e il numero che segue è il numero US. '
-            'Quindi se leggi ad esempio US 1, USM10, USM 1 o US23, essi saranno '
-            'unità tipo e numero US che è sempre un integer come l\'area. Essi devo essere restituiti come chiave valore pr riga esempio US: '
-            '1 Unità Tipo: US.'
-            )
+                "L'unità tipo può essere solo US o USM e il numero che segue è il numero US."
+                "Quindi se leggi ad esempio US 1, USM10, USM 1 o US23, essi saranno "
+                "unità tipo e numero US che è sempre un integer come l'area.Essi devo essere restituiti come chiave valore "
+                "per riga esempio US: 1 Unità Tipo: US.")
+
         selected_model = self.model_selector.currentText()
 
         for file_path in file_paths:
@@ -454,54 +476,54 @@ class GPTWindow(QMainWindow):
                 else:  # This implies Claude Sonnet is selected
                     response = self.ask_claude(prompt, self.apikey_claude(), file_path)
 
-                # Show the AI response
-                #self.listWidget_ai.append(f"AI Response for {os.path.basename(file_path)}:")
-                #self.listWidget_ai.append(response)
+                extracted_info = self.extract_info_from_response(response)
 
-                # Extract information from the response
-                try:
-                    extracted_info = self.extract_info_from_response(response)
-                except ValueError as e:
-                    QMessageBox.warning(self, "Informazioni mancanti", str(e))
-                    missing_fields = str(e).split(': ')[1].split(', ')
-                    manual_info = self.manual_input(missing_fields)
-                    if manual_info:
-                        extracted_info = self.extract_info_from_response(response)
-                        extracted_info.update(manual_info)
+                # Check if the record already exists
+                existing_record = self.check_existing_record(extracted_info)
+
+                if existing_record:
+                    # Check if the image is already associated
+                    if self.is_image_associated(file_path, existing_record):
+                        QMessageBox.information(self, "Info",
+                                                f"The record and image for {os.path.basename(file_path)} already exist.")
                     else:
-                        QMessageBox.warning(self, "Operazione annullata",
-                                            "L'inserimento è stato annullato dall'utente.")
-                        continue
-
-                # Show the extracted information to the user and ask for confirmation
-                if self.confirm_information(extracted_info, file_path):
-                    # Create new record in the database
-                    new_record_id = self.create_new_record(extracted_info)
-
-                    if new_record_id is not None:
-                        # Navigate to the corresponding site, area, and US
-                        sito = extracted_info.get('sito')
-                        area = extracted_info.get('area')
-                        us = extracted_info.get('us')
-
-                        # Assuming you have a method to navigate to the US based on these values
-                        
-                        #self.mainclass.save_rapp()
-                        self.go_to_us_record(sito, area, us)
-
-                        # Associate the image with the new record
-                        self.associate_image_with_record(file_path, new_record_id)
-
+                        # Associate the image with the existing record
+                        self.associate_image_with_record(file_path, existing_record)
                         QMessageBox.information(self, "Success",
-                                                f"Information for {os.path.basename(file_path)} inserted successfully.")
-                    else:
-                        QMessageBox.warning(self, "Warning",
-                                            f"Failed to create new record for {os.path.basename(file_path)}.")
+                                                f"Image {os.path.basename(file_path)} associated with existing record.")
                 else:
-                    QMessageBox.information(self, "Aborted",
-                                            f"Information insertion aborted for {os.path.basename(file_path)}.")
+                    # Show the extracted information to the user and ask for confirmation
+                    if self.confirm_information(extracted_info, file_path):
+                        # Create new record in the database
+                        new_record_id = self.create_new_record(extracted_info)
 
-            except Exception as e:
+                        if new_record_id is not None:
+                            sito = extracted_info.get('sito')
+                            area = extracted_info.get('area')
+                            us = extracted_info.get('us')
+                            unita_tipo = extracted_info.get('unita_tipo')
+
+                            self.go_to_us_record(sito, area, us, unita_tipo)
+
+                            self.mainclass.iconListWidget.clear()
+                            # Associate the image with the new record
+                            self.associate_image_with_record(file_path, new_record_id)
+                            self.mainclass.iconListWidget.update()
+
+                            self.mainclass.on_pushButton_save_pressed()
+                            self.mainclass.on_pushButton_view_all_pressed()
+                            self.mainclass.connect_p()
+
+                            QMessageBox.information(self, "Success",
+                                                    f"New record created and image {os.path.basename(file_path)} associated successfully.")
+                        else:
+                            QMessageBox.warning(self, "Warning",
+                                                f"Failed to create new record for {os.path.basename(file_path)}.")
+                    else:
+                        QMessageBox.information(self, "Aborted",
+                                                f"Information insertion aborted for {os.path.basename(file_path)}.")
+
+            except ValueError as e:
                 QMessageBox.warning(self, "Error",
                                     f"An error occurred while processing {os.path.basename(file_path)}: {str(e)}")
 
@@ -509,12 +531,13 @@ class GPTWindow(QMainWindow):
 
         self.listWidget_ai.append("Processing completed.")
 
-    def go_to_us_record(self, sito, area, us):
+    def go_to_us_record(self, sito, area, us, unita_tipo):
         # Implement the logic to navigate to the US record based on the provided parameters
         search_dict = {
             'sito': "'" + sito + "'",
             'area': "'" + area + "'",
-            'us': us
+            'us': us,
+            'unita_tipo': "'" + unita_tipo + "'",
         }
 
         # Remove empty items from the search dictionary
@@ -541,6 +564,12 @@ class GPTWindow(QMainWindow):
         self.mainclass.label_status.setText(self.mainclass.STATUS_ITEMS[self.mainclass.BROWSE_STATUS])
         self.mainclass.set_rec_counter(len(self.mainclass.DATA_LIST), 1)  # Assuming you want to show the first record as current
 
+
+    def image_already_associated(self, file_path, record_id):
+        # Verifica se l'immagine è già associata al record
+        result = self.db_search_check('MediaTable', 'filepath', file_path)
+        return result is not None
+
     def extract_info_from_response(self, response):
         if not response:
             raise ValueError("Empty response received")
@@ -559,25 +588,34 @@ class GPTWindow(QMainWindow):
                 if f"{key}:" in line.lower():
                     info[key] = line.split(':', 1)[1].strip()
 
-        # Se mancano informazioni, proviamo a estrarle dal testo completo
         if not all(info.values()):
-            response_ = response
-            response_upper = response.upper()
-            if not info['sito']:
-                info['sito'] = self.extract_info_generic(response_, ['sito', 'site'])
-            if not info['area']:
-                info['area'] = self.extract_info_generic(response_, ['area'])
-            if not info['us']:
-                info['us'] = self.extract_info_generic(response_, ['us', 'unità stratigrafica', 'stratigraphic unit'])
-            if not info['unita_tipo']:
-                info['unita_tipo'] = self.extract_info_generic(response_upper, ['unità tipo', 'unita tipo', 'unit type'])
+            self.extract_missing_info(response, info)
 
-        # Verifica che tutti i campi necessari siano stati estratti
-        missing_fields = [k for k, v in info.items() if v is None or v == '']
-        if missing_fields:
-            raise ValueError(f"Missing information in AI response: {', '.join(missing_fields)}")
+        self.check_manual_input(info)
 
         return info
+
+    def extract_missing_info(self, response, info):
+        response_upper = response.upper()
+        if not info['sito']:
+            info['sito'] = self.extract_info_generic(response, ['sito', 'site'])
+        if not info['area']:
+            info['area'] = self.extract_info_generic(response, ['area'])
+        if not info['us']:
+            info['us'] = self.extract_info_generic(response, ['US', 'us', 'unità stratigrafica', 'stratigraphic unit'])
+        if not info['unita_tipo']:
+            info['unita_tipo'] = self.extract_info_generic(response_upper, ['unità tipo', 'unita tipo', 'unit type'])
+
+    def check_manual_input(self, info):
+        missing_fields = [k for k, v in info.items() if v is None or v == '']
+        if missing_fields:
+            QMessageBox.information(
+                self,
+                "Informazioni Mancanti",
+                f"Le seguenti informazioni sono mancanti: {', '.join(missing_fields)}. Procederemo con l'inserimento manuale."
+            )
+            manual_info = self.manual_input(missing_fields)
+            info.update(manual_info)
 
     def extract_info_generic(self, text, keywords):
         for keyword in keywords:
@@ -587,19 +625,9 @@ class GPTWindow(QMainWindow):
                 return match.group(1).strip()
         return None
 
-    # def extract_info_generic(self,text, keywords):
-    #     for keyword in keywords:
-    #         if keyword in text:
-    #             start = text.index(keyword) + len(keyword)
-    #             end = text.find('\n', start)
-    #             if end == -1:
-    #                 end = len(text)
-    #             value = text[start:end].strip().strip(':').strip()
-    #             return value
-    #     return None
 
 
-    def confirm_information(self,info, file_path):
+    def confirm_information(self, info, file_path):
         msg = QMessageBox()
         msg.setIcon(QMessageBox.Question)
         msg.setText("Are the following information correct?")
@@ -609,15 +637,16 @@ class GPTWindow(QMainWindow):
         details += f"Area: {info['area']}\n"
         details += f"US: {info['us']}\n"
         details += f"Unità tipo: {info['unita_tipo']}\n"
-        # Add other fields as needed
         details += f"\nImage: {file_path}"
 
-        msg.setDetailedText(details)
+        msg.setInformativeText(details)
+        msg.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
+        reply = msg.exec_()
 
-        msg.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
-        msg.setDefaultButton(QMessageBox.Cancel)
-
-        return msg.exec_() == QMessageBox.Ok
+        if reply == QMessageBox.Yes:
+            return True
+        else:
+            return False
 
     def create_new_record(self, info):
         try:
@@ -865,6 +894,7 @@ class GPTWindow(QMainWindow):
             self.mainclass.iconListWidget.addItem(item)
         except Exception as e:
             QMessageBox.warning(self, "Warning", f"Failed to update icon list: {str(e)}")
+
     def ask_sketch(self, prompt, apikey, file_path):
         def encode_file(file_path):
             try:
