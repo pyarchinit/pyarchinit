@@ -1087,7 +1087,7 @@ class GPTWindow(QMainWindow):
             QMessageBox.critical(self, "Error", f"Error saving DOCX file: {e}")
 
     def ask_doc(self, prompt, apikey, file_path):
-        global reply, corrected_lines
+
         OpenAI.api_key = apikey
         file_text = self.extract_text_from_file(file_path)
         if file_text is None:

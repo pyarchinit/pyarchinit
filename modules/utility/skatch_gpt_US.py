@@ -15,7 +15,7 @@ import requests
 
 from qgis.PyQt.QtWidgets import QTextBrowser, QListWidgetItem, QComboBox, QProgressBar, QScrollArea, QInputDialog, QMessageBox, QFileDialog, QLabel, QMainWindow, \
     QApplication, QGridLayout, QWidget, QTextEdit, QPushButton, QListWidget, QSplitter
-from qgis.PyQt.QtCore import QThread, pyqtSignal, Qt
+from qgis.PyQt.QtCore import QThread, pyqtSignal, pyqtSlot, Qt
 
 from qgis.PyQt.QtGui import QIcon
 from PIL import Image
@@ -29,18 +29,21 @@ class Worker(QThread):
     content_updated = pyqtSignal(str)  # signal for content updates
     tokens_used_updated = pyqtSignal(int, float)  # signal for tokens used updates with cost
 
-    def __init__(self, headers, params, is_image=False, image_width=512, image_height=512):
+    def __init__(self, headers, params, url, is_image=False, image_width=512, image_height=512):
         super().__init__()
         self.headers = headers
         self.params = params
         self.is_image = is_image
         self.image_width = image_width
         self.image_height = image_height
+        self.url = url
 
     def run(self):
         try:
             client = requests.Session()
-            response = client.post("https://api.openai.com/v1/chat/completions", headers=self.headers, json=self.params, stream=True)
+
+            response = client.post( headers=self.headers, json=self.params,
+                                   url=self.url,stream=True)
 
             if response.status_code != 200:
                 print(f"Error: HTTP {response.status_code} - {response.text}")
@@ -81,7 +84,7 @@ class Worker(QThread):
                                     self.progress_updated.emit(progress_percentage)
 
                                     total_cost = tokens_used * (
-                                    input_cost_per_token + output_cost_per_token) + image_cost_per_tile
+                                            input_cost_per_token + output_cost_per_token) + image_cost_per_tile
                                     self.tokens_used_updated.emit(tokens_used, total_cost)
                                     self.content_updated.emit(content_chunk)
 
@@ -158,6 +161,8 @@ class GPTWindow(QMainWindow):
         self.setCentralWidget(container)
         self.setWindowFlags(self.windowFlags() | Qt.WindowStaysOnTopHint)
 
+
+
     def analyze_selected_images(self):
         def get_image_metadata(file_path):
             with Image.open(file_path) as img:
@@ -222,8 +227,8 @@ class GPTWindow(QMainWindow):
 
 
 
-    def start_worker(self, headers, params, is_image=False):
-        self.worker = Worker(headers, params)
+    def start_worker(self, headers, params, url, is_image=False):
+        self.worker = Worker(headers, params, url)
         self.worker.progress_updated.connect(self.update_progress)
         self.worker.content_updated.connect(self.update_content)
         self.worker.tokens_used_updated.connect(self.update_tokens_used)
@@ -596,6 +601,7 @@ class GPTWindow(QMainWindow):
         return info
 
     def extract_missing_info(self, response, info):
+        
         response_upper = response.upper()
         if not info['sito']:
             info['sito'] = self.extract_info_generic(response, ['sito', 'site'])
@@ -1057,41 +1063,46 @@ class GPTWindow(QMainWindow):
 
         return best_match if best_ratio > 0.6 else None
 
-    def save_corrected_pdf(self, original_file_path, save_path, corrected_lines, original_lines):
+    def find_closest_match_pdf(self, corrected_line, original_lines):
+        # Implementa la tua logica di connessione più vicina, se necessario
+        # Per esempio, confrontare la similarità del testo o un semplice match
+        for original_line in original_lines:
+            if corrected_line.lower() in original_line.lower():
+                return original_line
+        return None
+
+    def save_new_pdf_with_corrections(self, original_file_path, save_path, corrected_lines):
         try:
-            fontsize = 12
-            vertical_padding = 5  # space between lines
-            insert_y = 10  # initial y position
-            max_iterations = 100  # Ad esempio per massimo 100 correzioni per pagina
-            iterations = 0
             doc = fitz.open(original_file_path)
             for page_num in range(len(doc)):
                 page = doc.load_page(page_num)
+                page_text = page.get_text("text")
+                original_lines = page_text.splitlines()
+
                 for line_num, corrected_line in enumerate(corrected_lines):
                     original_line = self.find_closest_match(corrected_line, original_lines)
                     if original_line is None:
                         print(f"No match found for corrected line '{corrected_line}'")
                         continue
+
                     text_instances = page.search_for(original_line)
                     if not text_instances:
                         print(f"No instances of original text '{original_line}' found on page {page_num}")
                         continue
+
                     for inst in text_instances:
-                        if iterations >= max_iterations:
-                            print(f"Reached maximum iterations ({max_iterations}), stopping.")
-                            break
+                        insert_point = fitz.Point(inst.x0, inst.y0)  # Usa le coordinate della vecchia istanza
+                        print(f"Inserting: '{corrected_line}' at {insert_point}")
+                        page.insert_text(insert_point, corrected_line, fontsize=12, color=(0, 0, 0), overlay=True)
+                        break  # Assicurati di non sovrascrivere più volte
 
-                        insert_point = fitz.Point(10, insert_y)
-                        page.insert_text(insert_point, corrected_line, fontsize=fontsize, color=(1, 0, 0))
-                        #page.update()
-
-                        insert_y += fontsize + vertical_padding
-                        iterations += 1
             doc.save(save_path)
             QMessageBox.information(self, "Success", "Corrected PDF saved successfully.")
         except Exception as e:
             print(f"Error saving PDF file: {e}")
             QMessageBox.critical(self, "Error", f"Error saving PDF file: {e}")
+
+
 
     def save_corrected_csv(self, save_path, corrected_text):
         try:
@@ -1118,19 +1129,16 @@ class GPTWindow(QMainWindow):
             QMessageBox.critical(self, "Error", f"Error saving DOCX file: {e}")
 
     def ask_doc(self, prompt, apikey, file_path):
-        global reply, corrected_lines
         OpenAI.api_key = apikey
         file_text = self.extract_text_from_file(file_path)
         if file_text is None:
             return None
 
-        # Set headers for the API request
         headers = {
             "Content-Type": "application/json",
             "Authorization": f"Bearer {OpenAI.api_key}"
         }
 
-        # Payload for the API request
         params = {
             "model": "gpt-4o",
             "temperature": 0.5,
@@ -1149,7 +1157,44 @@ class GPTWindow(QMainWindow):
                 }
             ],
         }
-        self.start_worker(headers, params, is_image=False)
+
+
+        self.start_worker(headers, params, url="https://api.openai.com/v1/chat/completions", is_image=False)
+
+
+    def ask_doc_with_claude(self, prompt, apikey, file_path):
+        Anthropic.api_key=apikey
+
+        file_text = self.extract_text_from_file(file_path)
+        if file_text is None:
+            return None
+        messages = [
+            {
+                "role": "user",
+                "content": prompt + "\n\n" + file_text
+            }
+        ]
+
+        # Prepara i parametri per il worker
+        params = {
+            "model": "claude-3-5-sonnet-20240620",
+            "messages": messages,
+            "max_tokens": 4096,
+            "temperature": 0.5,
+            "stream": True
+        }
+
+        headers = {
+            "x-api-key": apikey,
+            "anthropic-version":"2023-06-01",  # Include the version header
+            "content-type" : "application/json"
+
+        }
+
+
+        # Avvia il worker
+        self.start_worker(headers, params, url = "https://api.anthropic.com/v1/message",is_image=False)
+
 
 
 
@@ -1157,8 +1202,9 @@ class GPTWindow(QMainWindow):
         self.progress.setValue(progress)
 
     def update_content(self, content):
-        combined_message = self.listWidget_ai.toPlainText() + content
-        self.listWidget_ai.setPlainText(combined_message)
+        # Append new content to the existing text in the list widget
+        current_text = self.listWidget_ai.toPlainText()
+        self.listWidget_ai.setPlainText(current_text + content)
 
     def update_tokens_used(self, tokens_used, total_cost):
         self.token_counter.setText(f"Tokens used: {tokens_used} - Total cost: ${total_cost:.4f}")
@@ -1171,7 +1217,7 @@ class GPTWindow(QMainWindow):
             prompt = self.prompt_label.toPlainText()
             selected_model = self.model_selector.currentText()
             if selected_model == "GPT-4o":
-                self.ask_gpt4(prompt, self.apikey_gpt(), file_path, is_image=False)
+                self.ask_doc(prompt, self.apikey_gpt(), file_path)
             else:
                 self.ask_claude(prompt, self.apikey_claude(), file_path, is_image=False)
         else:
