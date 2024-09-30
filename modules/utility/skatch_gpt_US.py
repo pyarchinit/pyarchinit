@@ -12,7 +12,7 @@ import fitz
 from openai import OpenAI
 from anthropic import Anthropic
 import requests
-
+from collections import defaultdict
 from qgis.PyQt.QtWidgets import QTextBrowser, QListWidgetItem, QComboBox, QProgressBar, QScrollArea, QInputDialog, QMessageBox, QFileDialog, QLabel, QMainWindow, \
     QApplication, QGridLayout, QWidget, QTextEdit, QPushButton, QListWidget, QSplitter
 from qgis.PyQt.QtCore import QThread, pyqtSignal, pyqtSlot, Qt
@@ -429,7 +429,7 @@ class GPTWindow(QMainWindow):
         search_dict = {
             'sito': "'" + info['sito'] + "'",
             'area': "'" + info['area'] + "'",
-            'us': "'" + info['us'] + "'",
+            'us': "'" + str(info['us']) + "'",
             'unita_tipo': "'" + info['unita_tipo'] + "'"
         }
         res = self.DB_MANAGER.query_bool(search_dict, self.mainclass.MAPPER_TABLE_CLASS)
@@ -447,6 +447,7 @@ class GPTWindow(QMainWindow):
 
     def scketchgpt(self):
         self.listWidget_ai.clear()
+
         file_dialog = QFileDialog()
         file_paths, _ = file_dialog.getOpenFileNames(self, "Select Images", "", "Images (*.png *.jpg *.jpeg)")
 
@@ -454,87 +455,222 @@ class GPTWindow(QMainWindow):
             self.listWidget_ai.setPlainText("Image selection was canceled.")
             return
 
+        # Ottieni il prompt attuale
         prompt = self.prompt_label.toPlainText()
         prompt += (
             'L\'unità tipo può essere solo US o USM e il numero che segue è il numero US.'
             'Quindi se leggi ad esempio US 1, USM10, USM 1 o US23, essi saranno '
-            'unità tipo e numero US che è sempre un integer come l\'area.Essi devo essere restituiti come chiave valore '
+            'unità tipo e numero US che è sempre un integer come l\'area. Essi devono essere restituiti come chiave valore '
             'per riga esempio US: 1 Unità Tipo: US.')
 
-
         if not prompt:
-
             prompt = ("Analizza questa immagine e estrai le seguenti informazioni: Sito, Area, US (Unità Stratigrafica)"
                       ", e Unità Tipo. Fornisci queste informazioni nel formato 'Chiave: Valore', una per riga.")
             prompt += (
                 "L'unità tipo può essere solo US o USM e il numero che segue è il numero US."
                 "Quindi se leggi ad esempio US 1, USM10, USM 1 o US23, essi saranno "
-                "unità tipo e numero US che è sempre un integer come l'area.Essi devo essere restituiti come chiave valore "
+                "unità tipo e numero US che è sempre un integer come l'area. Essi devono essere restituiti come chiave valore "
                 "per riga esempio US: 1 Unità Tipo: US.")
 
         selected_model = self.model_selector.currentText()
 
         for file_path in file_paths:
             try:
-                if selected_model == "GPT-4o":
-                    response = self.ask_gpt4(prompt, self.apikey_gpt(), file_path)
-                else:  # This implies Claude Sonnet is selected
-                    response = self.ask_claude(prompt, self.apikey_claude(), file_path)
+                # Controlla se il prompt indica una Harris matrix
+                if self.is_harris_matrix(prompt):
+                    # Chiedi conferma all'utente
+                    confirm = QMessageBox.question(self, "Confirm Harris Matrix",
+                                                   "The loaded image appears to be a Harris matrix. Do you want to proceed with detailed analysis?",
+                                                   QMessageBox.Yes | QMessageBox.No)
 
-                extracted_info = self.extract_info_from_response(response)
+                    if confirm == QMessageBox.Yes:
+                        # Usa il prompt dettagliato per l'analisi della Harris matrix
+                        detailed_prompt = (
+                            "# Prompt: Analisi Dettagliata del Diagramma di Harris Matrix\n\n"
+                            "Analizza attentamente l'immagine fornita di un diagramma di Harris Matrix e identifica le seguenti relazioni stratigrafiche, distinguendo tra Unità Stratigrafiche (US) e Unità Stratigrafiche Murarie (USM):\n\n"
+                            "1. Identificazione delle unità:\n"
+                            "   - US: Generalmente indicate da numeri all'interno di cerchi o rettangoli.\n"
+                            "   - USM: Spesso indicate da numeri preceduti da 'M' o in un formato distintivo.\n\n"
+                            "2. Relazioni stratigrafiche (identifica sia la relazione diretta che l'inversa):\n"
+                            "   a) Copre / Coperto da:\n"
+                            "      - Linee continue verticali tra le unità.\n"
+                            "      - Es: Se A copre B, allora B è coperto da A.\n\n"
+                            "   b) Taglia / Tagliato da:\n"
+                            "      - Linee tratteggiate o punteggiate tra le unità.\n"
+                            "      - Es: Se A taglia B, allora B è tagliato da A.\n\n"
+                            "   c) Riempie / Riempito da:\n"
+                            "      - Linee continue con frecce rivolte verso il basso.\n"
+                            "      - Es: Se A riempie B, allora B è riempito da A.\n\n"
+                            "   d) Si appoggia / Gli si appoggia:\n"
+                            "      - Linee continue verticali, spesso con annotazioni.\n"
+                            "      - Es: Se A si appoggia a B, allora B è appoggiato da A.\n\n"
 
-                # Check if the record already exists
-                existing_record = self.check_existing_record(extracted_info)
+                            "   e) Uguale a:\n"
+                            "      - Linee orizzontali doppie tra unità.\n"
+                            "      - Relazione simmetrica: Se A è uguale a B, allora B è uguale a A.\n\n"
+                            "   f) Si lega a:\n"
+                            "      - Usato specificamente per USM.\n"
+                            "      - Rappresentato come 'Uguale a' con linee orizzontali doppie.\n"
+                            "      - Relazione simmetrica: Se USM A si lega a USM B, allora USM B si lega a USM A.\n\n"
 
-                if existing_record:
-                    # Check if the image is already associated
-                    if self.is_image_associated(file_path, existing_record):
-                        QMessageBox.information(self, "Info",
-                                                f"The record and image for {os.path.basename(file_path)} already exist.")
+                            "3. Sequenza temporale:\n"
+                            "   - Determina la sequenza cronologica relativa basandoti sulle relazioni identificate.\n"
+                            "   - Le unità più in alto nel diagramma sono generalmente più recenti.\n\n"
+                            "4. Gruppi o fasi:\n"
+                            "   - Identifica eventuali raggruppamenti di US/USM, spesso indicati da riquadri o colori.\n\n"
+                            "5. Annotazioni o legenda:\n"
+                            "   - Interpreta eventuali note, etichette o legende presenti nel diagramma.\n\n"
+                            "6. Distinzione US/USM:\n"
+                            "   - Evidenzia le differenze nelle relazioni applicate a US e USM.\n"
+                            "   - Nota in particolare l'uso di 'Si lega a' esclusivamente per USM.\n\n"
+                            "Fornisci un'analisi dettagliata che includa:\n"
+                            "1. Elenco di tutte le US e USM identificate.\n"
+                            "2. Descrizione di tutte le relazioni stratigrafiche, includendo sempre sia la relazione diretta che l'inversa.\n"
+                            "3. Interpretazione della sequenza temporale.\n"
+                            "4. Osservazioni su eventuali gruppi o fasi identificate.\n"
+                            "5. Commenti su qualsiasi caratteristica distintiva o insolita nel diagramma.\n\n"
+                            "Assicurati di evidenziare chiaramente la distinzione tra US e USM nelle tue osservazioni e di utilizzare correttamente la terminologia per ciascun tipo di unità."
+                        )
+
+                        # Chiama il modello appropriato con il nuovo prompt
+                        if selected_model == "GPT-4o":
+                            response = self.ask_gpt4(detailed_prompt, self.apikey_gpt(), file_path)
+                        else:  # Questo implica che sia selezionato Claude Sonnet
+                            response = self.ask_claude(detailed_prompt, self.apikey_claude(), file_path)
+
+                        #extracted_info = self.extract_info_from_response(response)
+                        extracted_info = self.process_ai_response(response)
+                        QMessageBox.information(self, "Info", f"{extracted_info}")
+                        # Assicurati che extracted_info_rapporti sia una lista di liste
+                        #if not isinstance(extracted_info, dict) or not all(
+                                #isinstance(r, list) for rels in extracted_info.values() for r in rels):
+                            #raise TypeError("extracted_info_rapporti must be a dict with lists of lists as values")
+
+
+
+                        # Crea un record per ogni US estratta
+                        for us, info in extracted_info.items():
+                            # Verifica se il record esiste già
+                            existing_record = self.check_existing_record(info)
+                            if existing_record:
+                                continue  # Passa oltre se esiste
+
+                            # Aggiungi le informazioni dei rapporti (lista di liste)
+                            rapporti = info.get("rapporti", [])
+                            if not isinstance(rapporti, list) or not all(isinstance(r, list) for r in rapporti):
+                                raise TypeError("Each 'rapporti' must be a list of lists")
+
+                            # Crea il nuovo record nel database
+                            new_record_id = self.create_new_record_matrix(info)
+
+                            if new_record_id is not None:
+                                # Vai al record appena creato
+                                self.go_to_us_record(info["sito"], info["area"], info["us"], info["unita_tipo"])
+                                self.mainclass.iconListWidget.clear()
+                                self.mainclass.on_pushButton_save_pressed()
+                                self.mainclass.on_pushButton_view_all_pressed()
+
+                            else:
+                                QMessageBox.warning(self, "Warning",
+                                                    f"Failed to create new record for US {info['us']}")
+
+
+
+
                     else:
-                        # Associate the image with the existing record
-                        self.associate_image_with_record(file_path, existing_record)
-                        QMessageBox.information(self, "Success",
-                                                f"Image {os.path.basename(file_path)} associated with existing record.")
+                        # Se l'utente sceglie di non procedere, continua con il flusso normale
+                        return
                 else:
-                    # Show the extracted information to the user and ask for confirmation
-                    if self.confirm_information(extracted_info, file_path):
-                        # Create new record in the database
-                        new_record_id = self.create_new_record(extracted_info)
+                    # Logica esistente per immagini non-Harris matrix
+                    if selected_model == "GPT-4o":
+                        response = self.ask_gpt4(prompt, self.apikey_gpt(), file_path)
+                    else:  # Questo implica che sia selezionato Claude Sonnet
+                        response = self.ask_claude(prompt, self.apikey_claude(), file_path)
 
-                        if new_record_id is not None:
-                            sito = extracted_info.get('sito')
-                            area = extracted_info.get('area')
-                            us = extracted_info.get('us')
-                            unita_tipo = extracted_info.get('unita_tipo')
+                    extracted_info = self.extract_info_from_response(response)
 
-                            self.go_to_us_record(sito, area, us, unita_tipo)
+                    # Controlla se il record esiste già
+                    existing_record = self.check_existing_record(extracted_info)
 
-                            self.mainclass.iconListWidget.clear()
-                            # Associate the image with the new record
-                            self.associate_image_with_record(file_path, new_record_id)
-                            self.mainclass.iconListWidget.update()
-
-                            self.mainclass.on_pushButton_save_pressed()
-                            self.mainclass.on_pushButton_view_all_pressed()
-                            self.mainclass.connect_p()
-
-                            QMessageBox.information(self, "Success",
-                                                    f"New record created and image {os.path.basename(file_path)} associated successfully.")
+                    if existing_record:
+                        # Controlla se l'immagine è già associata
+                        if self.is_image_associated(file_path, existing_record):
+                            QMessageBox.information(self, "Info",
+                                                    f"The record and image for {os.path.basename(file_path)} already exist.")
                         else:
-                            QMessageBox.warning(self, "Warning",
-                                                f"Failed to create new record for {os.path.basename(file_path)}.")
+                            # Associa l'immagine con il record esistente
+                            self.associate_image_with_record(file_path, existing_record)
+                            QMessageBox.information(self, "Success",
+                                                    f"Image {os.path.basename(file_path)} associated with existing record.")
                     else:
-                        QMessageBox.information(self, "Aborted",
-                                                f"Information insertion aborted for {os.path.basename(file_path)}.")
+                        # Mostra le informazioni estratte all'utente e chiedi conferma
+                        if self.confirm_information(extracted_info, file_path):
+                            # Crea un nuovo record nel database
+                            new_record_id = self.create_new_record(extracted_info)
+
+                            if new_record_id is not None:
+                                sito = extracted_info.get('sito')
+                                area = extracted_info.get('area')
+                                us = extracted_info.get('us')
+                                unita_tipo = extracted_info.get('unita_tipo')
+
+                                self.go_to_us_record(sito, area, us, unita_tipo)
+
+                                self.mainclass.iconListWidget.clear()
+                                # Associa l'immagine con il nuovo record
+                                self.associate_image_with_record(file_path, new_record_id)
+                                self.mainclass.iconListWidget.update()
+
+                                self.mainclass.on_pushButton_save_pressed()
+                                self.mainclass.on_pushButton_view_all_pressed()
+                                self.mainclass.connect_p()
+
+                                QMessageBox.information(self, "Success",
+                                                        f"New record created and image {os.path.basename(file_path)} associated successfully.")
+                            else:
+                                QMessageBox.warning(self, "Warning",
+                                                    f"Failed to create new record for {os.path.basename(file_path)}.")
+                        else:
+                            QMessageBox.information(self, "Aborted",
+                                                    f"Information insertion aborted for {os.path.basename(file_path)}.")
+
 
             except ValueError as e:
                 QMessageBox.warning(self, "Error",
-                                    f"An error occurred while processing {os.path.basename(file_path)}: {str(e)}")
+                                f"An error occurred while processing {os.path.basename(file_path)}: {str(e)}")
 
             QApplication.processEvents()
 
         self.listWidget_ai.append("Processing completed.")
+
+    def check_existing_record_matrix(self, info):
+        query = (
+            "SELECT * FROM us_table WHERE "
+            "sito = {sito} AND "
+            "area = {area} AND "
+            "us = {us}"
+        )
+
+        query_parameters = {
+            'sito': "'" + info['sito'] + "'",
+            'area': "'" + info['area'] + "'",
+            'us': info['us']
+        }
+
+        try:
+            cursor = self.db_connection.cursor()
+            cursor.execute(query.format(**query_parameters))
+            record = cursor.fetchone()
+            return record
+        except Exception as e:
+            print(f"Errore nell'esecuzione della query: {e}")
+            return None
+
+    def is_harris_matrix(self, prompt):
+        # Controlla se il prompt contiene "Harris matrix" o "matrix"
+        if "harris matrix" in prompt.lower() or "matrix" in prompt.lower():
+            return True
+        return False
 
     def go_to_us_record(self, sito, area, us, unita_tipo):
         # Implement the logic to navigate to the US record based on the provided parameters
@@ -575,6 +711,137 @@ class GPTWindow(QMainWindow):
         result = self.db_search_check('MediaTable', 'filepath', file_path)
         return result is not None
 
+    def process_ai_response(self, response_text):
+        # Estrapola informazioni per ogni sezione della risposta
+        us_list = self.extract_us_list(response_text)
+        # Loop per creare ogni record US con il suo tipo e rapporti
+        sito = us_list.get("sito")
+        area = us_list.get("area")
+        QMessageBox.information(self, "Information",str(us_list))
+        relations = self.extract_relations_from_text(response_text,sito,area)
+        QMessageBox.information(self, "Information", str(relations))
+        extracted_info = {}
+
+
+
+        for us_type, us_numbers in us_list.items():
+            if us_type not in ["US", "USM"]:
+                continue
+
+            for us_number in us_numbers:
+                key = f"US {us_number}"
+                # Inizializza il record con le informazioni base
+                extracted_info[key] = {
+                    "sito": sito,
+                    "area": area,
+                    "us": us_number,
+                    "unita_tipo": us_type,
+                    "rapporti": relations.get(str(us_number), [])
+                }
+
+        return extracted_info
+
+    def extract_us_list(self, text):
+        us_list = {
+            "US": [],
+            "USM": [],
+            "sito": None,
+            "area": None
+        }
+
+        # Pattern flessibile per individuare tutte le occorrenze di US e USM
+        us_pattern = re.compile(r"\bUS\s*(\d+)", re.IGNORECASE)
+        usm_pattern = re.compile(r"\bUSM\s*(\d+)", re.IGNORECASE)
+
+        # Trova tutte le US
+        us_matches = us_pattern.findall(text)
+        if us_matches:
+            us_list["US"] = [int(us.strip()) for us in us_matches]
+
+        # Trova tutte le USM
+        usm_matches = usm_pattern.findall(text)
+        if usm_matches:
+            us_list["USM"] = [int(usm.strip()) for usm in usm_matches]
+
+        # Controlla se "sito" e "area" sono presenti nel testo
+        site_pattern = re.compile(r"sito:\s*([\w\s]+)", re.IGNORECASE)
+        area_pattern = re.compile(r"area:\s*([\w\s]+)", re.IGNORECASE)
+
+        site_match = site_pattern.search(text)
+        area_match = area_pattern.search(text)
+
+        if site_match:
+            us_list["sito"] = site_match.group(1).strip()
+        if area_match:
+            us_list["area"] = area_match.group(1).strip()
+
+        # Se "sito" e "area" non sono nel testo, chiedi input manuale
+        if not us_list["sito"] or not us_list["area"]:
+            missing_fields = []
+            if not us_list["sito"]:
+                missing_fields.append("sito")
+            if not us_list["area"]:
+                missing_fields.append("area")
+
+            # Usa la funzione manual_input per richiedere le informazioni
+            manual_info = self.manual_input(missing_fields)
+            if manual_info:
+                us_list["sito"] = manual_info.get("sito", us_list["sito"])
+                us_list["area"] = manual_info.get("area", us_list["area"])
+
+        return us_list
+
+    def extract_relations_from_text(self,text, sito, area):
+        relations = defaultdict(list)
+
+        # Definisci i pattern per catturare i diversi tipi di relazioni stratigrafiche
+        patterns = {
+            "Copre / Coperto da": re.compile(r"- US (\d+) copre US (\d+(?:, US \d+)*)"),
+            "Taglia / Tagliato da": re.compile(r"- US (\d+) taglia US (\d+(?:, US \d+)*)"),
+            "Riempie / Riempito da": re.compile(r"- US (\d+) riempie US (\d+)"),
+        }
+
+        site_name = sito  # Nome del sito
+        area_number = area  # Numero dell'area
+
+        for rel_type, pattern in patterns.items():
+            matches = pattern.findall(text)
+            for match in matches:
+                us_number_1 = match[0]
+                us_numbers_2 = match[1].split(", ")
+                for us_number_2 in us_numbers_2:
+                    # Aggiungi alla US principale
+                    relations[us_number_1].append([rel_type.split(' / ')[0], us_number_2, area_number, site_name])
+                    # Aggiungi alla US secondaria
+                    relations[us_number_2].append([rel_type.split(' / ')[1], us_number_1, area_number, site_name])
+
+        return relations
+
+    def extract_info_from_response_matrix(self, response):
+        if not response:
+            raise ValueError("Empty response received")
+
+        info = {
+            'sito': None,
+            'area': None
+
+        }
+
+        lines = response.split('\n')
+        for line in lines:
+            line = line.strip()
+            for key in info.keys():
+                if f"{key}:" in line.lower():
+                    info[key] = line.split(':', 1)[1].strip()
+
+        if not all(info.values()):
+            self.extract_missing_info_matrix(response, info)
+
+        self.check_manual_input(info)
+
+        return info
+
+
     def extract_info_from_response(self, response):
         if not response:
             raise ValueError("Empty response received")
@@ -611,6 +878,14 @@ class GPTWindow(QMainWindow):
             info['us'] = self.extract_info_generic(response, ['US', 'us', 'unità stratigrafica', 'stratigraphic unit'])
         if not info['unita_tipo']:
             info['unita_tipo'] = self.extract_info_generic(response_upper, ['unità tipo', 'unita tipo', 'unit type'])
+
+    def extract_missing_info_matrix(self, response, info):
+
+        response_upper = response.upper()
+        if not info['sito']:
+            info['sito'] = self.extract_info_generic(response, ['sito', 'site'])
+        if not info['area']:
+            info['area'] = self.extract_info_generic(response, ['area'])
 
     def check_manual_input(self, info):
         missing_fields = [k for k, v in info.items() if v is None or v == '']
@@ -653,6 +928,47 @@ class GPTWindow(QMainWindow):
             return True
         else:
             return False
+
+
+    def confirm_information_matrix(self, info, file_path):
+        msg = QMessageBox()
+        msg.setIcon(QMessageBox.Question)
+        msg.setText("Are the following information correct?")
+        msg.setWindowTitle("Confirm Information")
+
+        details = f"Sito: {info['sito']}\n"
+        details += f"Area: {info['area']}\n"
+        details += f"US: {info['us']}\n"
+        details += f"Rapporti: {info['rapporti']}\n"
+        details += f"Unità tipo: {info['unita_tipo']}\n"
+        details += f"\nImage: {file_path}"
+
+        msg.setInformativeText(details)
+        msg.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
+        reply = msg.exec_()
+
+        if reply == QMessageBox.Yes:
+            return True
+        else:
+            return False
+    def create_new_record_matrix(self, info):
+        try:
+            sito = info['sito']
+            area = info['area']
+            us = info['us']
+            relation = info['rapporti']
+            unita_tipo = info['unita_tipo']
+
+            # Chiamata alla funzione per inserire il nuovo record
+            self.DB_MANAGER.insert_number_of_rapporti_records(sito, area, us, relation, unita_tipo)
+
+            # Recupera l'ID del record appena inserito
+            id_us = self.DB_MANAGER.max_num_id('US', 'id_us')
+
+            return id_us
+        except Exception as e:
+            QMessageBox.critical(self, "Error", f"Failed to create new record: {str(e)}")
+            return None
 
     def create_new_record(self, info):
         try:
