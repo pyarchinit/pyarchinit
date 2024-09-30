@@ -2074,24 +2074,37 @@ class Pyarchinit_db_management(object):
             n_us += 1
         return
 
-    
-    # def insert_number_of_rapp_records(self, sito, area, us, rapp_n, unita_tipo):
-        # id_us = self.max_num_id('US', 'id_us')
-        
-        # l=QgsSettings().value("locale/userLocale")[0:2]
+    def insert_number_of_rapporti_records(self, sito, area, n_us, n_rapporti, unita_tipo):
+        id_us = self.max_num_id('US', 'id_us')
+        l = QgsSettings().value("locale/userLocale")[0:2]
 
-        
-        # id_us += 1
+        if l == 'it':
+            text = "SCHEDA CREATA IN AUTOMATICO"
+        else:
+            text = "FORM MADE AUTOMATIC"
 
-        # data_ins = self.insert_values(id_us, sito, area, us, '', '', '', '', '', '', '', '', '', '', '', '', '[]',
-                                      # '[]', 
-                                      # '[['+rapp_n+']]', '', '', '', '', '', '', '', '', '0', '[]', unita_tipo, '', '', '', '',
-                                      # '', '', '', '', '', '', '', '', '', None, None, '', '[]','[]', '[]', '[]', '[]','','','','',None,None,'','','','','','','[]','[]',None,None,None,None,None,None,None,None,None,None,'','','','','','','','','','',None,None,None,'','','','','','','','','','','','','','','','','','','','','','','','','','','','','')
-                                           
-        # self.insert_data_session(data_ins)
-        
-        # return
-    
+        id_us += 1
+
+        # Inseriamo `n_rapporti` nella posizione corretta come lista di liste
+        rapporti_list = [[rapporto_tipo, rapporto_n_us, rapporto_area, rapporto_sito] for
+                         rapporto_tipo, rapporto_n_us, rapporto_area, rapporto_sito in n_rapporti]
+
+        data_ins = self.insert_values(id_us, sito, area, n_us, text, '', '', '', '', '', '', '', '', '', '', '',
+                                      '[]', '[]', str(rapporti_list), '', '', '', '', '', '', '', '', '0', '[]',
+                                      unita_tipo,
+                                      '', '', '', '',
+                                      '', '', '', '', '', '', '', '', '', None, None, '', '[]', '[]', '[]', '[]', '[]',
+                                      '', '', '', '', None, None, '', '', '', '', '', '', '[]', '[]', None, None, None,
+                                      None, None, None, None, None, None, None, '', '', '', '', '', '', '', '', '', '',
+                                      None, None, None, '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
+                                      '', '', '', '', '', '', '', '', '', '', '', '', '')
+
+        self.insert_data_session(data_ins)
+
+        return
+
+
+
     def insert_number_of_us_records(self, sito, area, n_us,unita_tipo):
         id_us = self.max_num_id('US', 'id_us')
         #text = "SCHEDA CREATA IN AUTOMATICO"
