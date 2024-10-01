@@ -49,7 +49,7 @@ matplotlib.use('QT5Agg')  # Assicurati di chiamare use() prima di importare Figu
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from qgis.PyQt import QtCore, QtGui, QtWidgets
 
-from qgis.PyQt.QtGui import QKeySequence
+from qgis.PyQt.QtGui import QKeySequence,QStandardItemModel,QStandardItem
 from qgis.core import *
 from qgis.gui import QgsMapCanvas, QgsMapToolPan
 from qgis.PyQt.QtSql import QSqlDatabase, QSqlTableModel
@@ -81,6 +81,54 @@ MAIN_DIALOG_CLASS, _ = loadUiType(
     os.path.join(os.path.dirname(__file__), os.pardir, 'gui', 'ui', 'US_USM.ui'))
 
 #from ..modules.utility.screen_adaptative import ScreenAdaptive
+
+class ReportGeneratorDialog(QDialog):
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setWindowTitle('Generatore di Report')
+
+        layout = QVBoxLayout(self)
+
+        self.combo_box = CheckableComboBox()
+        self.TABLES_NAMES = ['us_table', 'inventario_materiali_table', 'tomba_table',
+                    'pottery_table','struttura_table','periodizzazione_table',
+                    'documentazione_table', 'mediaentity_view']
+        for table_name in self.TABLES_NAMES:
+            self.combo_box.add_item(table_name)
+
+        layout.addWidget(self.combo_box)
+
+        self.prompt_button = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel, self)
+        self.prompt_button.accepted.connect(self.accept)
+        self.prompt_button.rejected.connect(self.reject)
+
+        layout.addWidget(self.prompt_button)
+
+    def get_selected_tables(self):
+        return self.combo_box.items_checked()
+
+class CheckableComboBox(QComboBox):
+
+    def __init__(self):
+        super().__init__()
+        self.setModel(QStandardItemModel(self))
+
+    def add_item(self, text):
+        item = QStandardItem(text)
+        item.setFlags(item.flags() | Qt.ItemIsUserCheckable)
+        item.setData(Qt.Unchecked, Qt.CheckStateRole)
+        self.model().appendRow(item)
+
+    def items_checked(self):
+        checked_items = []
+        for index in range(self.count()):
+            item = self.model().item(index)
+            if item.data(Qt.CheckStateRole) == Qt.Checked:
+                checked_items.append(item.text())
+        return checked_items
+
+
 class GenerateReportThread(QThread):
     report_generated = pyqtSignal(str)
 
@@ -96,7 +144,7 @@ class GenerateReportThread(QThread):
         full_prompt = f"{self.custom_prompt}\n\n{self.descriptions_text}"
 
         # Generate the report using OpenAI API
-        report_text = ReportGenerator.generate_report_with_openai(full_prompt, self.api_key, self.selected_model)
+        report_text = ReportGenerator.generate_report_with_openai(self, full_prompt,  self.selected_model, self.api_key)
 
         self.report_generated.emit(report_text)
 
@@ -165,6 +213,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         MSG_BOX_TITLE = "PyArchInit - SU form"
     elif L=='de':
         MSG_BOX_TITLE = "PyArchInit - SE formular"
+
     DATA_LIST = []
     DATA_LIST_REC_CORR = []
     DATA_LIST_REC_TEMP = []
@@ -989,50 +1038,56 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.report_rapporti=''
         self.list_rapporti=[]
         self.pushButton_report_generator.clicked.connect(self.generate_and_display_report)
-        #self.view_all()
+
 
     def generate_and_display_report(self):
-        conn = Connection()
-        db_url = conn.conn_str()
-        table_name = self.TABLE_NAME
+        dialog = ReportGeneratorDialog(self)
+        if dialog.exec_() == QDialog.Accepted:
+            conn = Connection()
+            db_url = conn.conn_str()
+            selected_tables = dialog.get_selected_tables()
 
-        # Read data from the database
-        records, columns = ReportGenerator.read_data_from_db(db_url, table_name)
+            descriptions_text = ""
 
-        # Extract the data as a string to be used in the prompt
-        descriptions_text = "\n".join(f"{col}: {getattr(record, col, '')}" for record in records for col in columns)
+            for table_name in selected_tables:
+                # Legge i dati dal database
+                records, columns = ReportGenerator.read_data_from_db(db_url, table_name)
 
-        # Ask the user for a custom prompt
-        custom_prompt, ok = QInputDialog.getMultiLineText(self, "Enter Custom Prompt", "Custom Prompt:", "")
+                # Crea la stringa delle descrizioni
+                for record in records:
+                    record_text = "\n".join(f"{col}: {getattr(record, col, '')}" for col in columns)
+                    descriptions_text += record_text + "\n\n"
 
-        if ok and custom_prompt:
-            api_key = self.apikey_gpt()  # Retrieve the OpenAI API key
-            if ReportGenerator.is_connected():
-                models = ["gpt-4o", "gpt-4-0125-preview"]  # Replace with actual model names
-                selected_model, ok = QInputDialog.getItem(self, "Select Model", "Choose a model for GPT:", models, 0,
-                                                          False)
+            # Chiedi all'utente un prompt personalizzato
+            custom_prompt, ok = QInputDialog.getMultiLineText(self, "Enter Custom Prompt", "Custom Prompt:", "")
+            if ok and custom_prompt:
+                api_key = self.apikey_gpt()  # Retrieve the OpenAI API key
+                if ReportGenerator.is_connected():
+                    models = ["gpt-4o", "gpt-4-0125-preview"]  # Replace with actual model names
+                    selected_model, ok = QInputDialog.getItem(self, "Select Model", "Choose a model for GPT:", models, 0,
+                                                              False)
 
-                if ok and selected_model:
-                    # Initialize the progress dialog before starting the thread
-                    self.progress_dialog = QProgressDialog("Generating report...", None, 0, 0, self)
-                    self.progress_dialog.setWindowModality(Qt.WindowModal)
-                    self.progress_dialog.setCancelButton(None)  # Disable the Cancel button
-                    self.progress_dialog.setRange(0, 0)  # Indeterminate progress bar
-                    self.progress_dialog.show()
+                    if ok and selected_model:
+                        # Initialize the progress dialog before starting the thread
+                        self.progress_dialog = QProgressDialog("Generating report...", None, 0, 0, self)
+                        self.progress_dialog.setWindowModality(Qt.WindowModal)
+                        self.progress_dialog.setCancelButton(None)  # Disable the Cancel button
+                        self.progress_dialog.setRange(0, 0)  # Indeterminate progress bar
+                        self.progress_dialog.show()
 
-                    # Start a thread to generate the report
-                    self.report_thread = GenerateReportThread(custom_prompt, descriptions_text, api_key, selected_model)
+                        # Start a thread to generate the report
+                        self.report_thread = GenerateReportThread(custom_prompt, descriptions_text, api_key, selected_model)
 
-                    # Connect signals to handle the completion and error of the report generation
-                    self.report_thread.report_generated.connect(self.on_report_generated)
-                    self.report_thread.start()
+                        # Connect signals to handle the completion and error of the report generation
+                        self.report_thread.report_generated.connect(self.on_report_generated)
+                        self.report_thread.start()
 
 
 
-                else:
-                    QMessageBox.warning(self, "Warning", "No model selected", QMessageBox.Ok)
-        else:
-            QMessageBox.warning(self, "Warning", "No custom prompt provided", QMessageBox.Ok)
+                    else:
+                        QMessageBox.warning(self, "Warning", "No model selected", QMessageBox.Ok)
+            else:
+                QMessageBox.warning(self, "Warning", "No custom prompt provided", QMessageBox.Ok)
 
     def on_report_generated(self, report_text):
         # Close the progress dialog
