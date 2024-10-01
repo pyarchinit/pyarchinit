@@ -143,24 +143,26 @@ class HarrisMatrix:
 
                                     for us in us_list:
                                         if us in us_rilevanti:
-                                            label_name = 'Area' + us.replace("_", " ")
+                                            # Rimuovi "Area_" e il numero
+                                            label_name = us.split('_')[1] if '_' in us else us.replace("_", " ")
+
 
 
                                             if us in negative_sources:
                                                 # cambia colore per noi negativo
-                                                f.node('Area' + us.replace("_", " "), label=label_name, shape=str(self.dialog.combo_box_6.currentText()),
+                                                f.node(us.split('_')[1], label=label_name, shape=str(self.dialog.combo_box_6.currentText()),
                                                        style='filled', rank='same', color=str(self.dialog.combo_box_2.currentText()))
                                             elif us in conteporene_sources:
                                                #cambia colore per conteporene noi
-                                                temp.node('Area' + us.replace("_", " "), label=label_name, shape=str(self.dialog.combo_box_18.currentText()),
+                                                temp.node(us.split('_')[1], label=label_name, shape=str(self.dialog.combo_box_18.currentText()),
                                                         color=str(self.dialog.combo_box_17.currentText()), style='filled')
                                             else:
                                                 # colore predefinito
-                                                f.node('Area' + us.replace("_", " "), label=label_name, shape=str(self.dialog.combo_box_3.currentText()),
+                                                f.node(us.split('_')[1], label=label_name, shape=str(self.dialog.combo_box_3.currentText()),
                                                        style='filled', color=str(self.dialog.combo_box.currentText()))
         for bb in self.sequence:
             if bb[0] in us_rilevanti and bb[1] in us_rilevanti:
-                a = (f"{'Area'+bb[0].replace('_', ' ')}", f"{'Area'+bb[1].replace('_', ' ')}")
+                a = (f"{bb[0].split('_')[-1]}", f"{bb[1].split('_')[-1]}")
                 elist1.append(a)
 
         with G.subgraph(name='main') as e:
@@ -181,7 +183,7 @@ class HarrisMatrix:
 
             for cc in self.conteporene:
                 if cc[0] in us_rilevanti and cc[1] in us_rilevanti:
-                    a = (f"{'Area'+cc[0].replace('_', ' ')}", f"{'Area'+cc[1].replace('_', ' ')}")
+                    a = (f"{cc[0].split('_')[-1]}", f"{cc[1].split('_')[-1]}")
                     elist3.append(a)
                     with G.subgraph(name='main1') as b:
 
@@ -201,7 +203,7 @@ class HarrisMatrix:
 
             for dd in self.negative:
                 if dd[0] in us_rilevanti and dd[1] in us_rilevanti:
-                    a = (f"{'Area'+dd[0].replace('_', ' ')}", f"{'Area'+dd[1].replace('_', ' ')}")
+                    a = (f"{dd[0].split('_')[-1]}", f"{dd[1].split('_')[-1]}")
                     elist2.append(a)
 
                     with G.subgraph(name='main2') as a:
@@ -818,28 +820,30 @@ class ViewHarrisMatrix:
 
                                 for us in us_list:
                                     if us in us_rilevanti:
-                                        label_name = 'Area' + us.replace("_", " ")
+                                        # Rimuovi "Area_" e il numero
+                                        label_name = us.split('_')[1] if '_' in us else us.replace("_", " ")
+
 
                                         if us in negative_sources:
                                             # cambia colore per noi negativo
-                                            f.node('Area' + us.replace("_", " "), label=label_name,
+                                            f.node(us.split('_')[-1], label=label_name,
                                                    shape='box',
                                                    style='filled', rank='same',
                                                    color='gray')
                                         elif us in conteporene_sources:
                                             # cambia colore per conteporene noi
-                                            temp.node('Area' + us.replace("_", " "), label=label_name,
+                                            temp.node(us.split('_')[-1], label=label_name,
                                                       shape='box',
                                                       color='white',
                                                       style='filled')
                                         else:
                                             # colore predefinito
-                                            f.node('Area' + us.replace("_", " "), label=label_name,
+                                            f.node(us.split('_')[-1], label=label_name,
                                                    shape='box',
                                                    style='filled', color='white')
         for bb in self.sequence:
             if bb[0] in us_rilevanti and bb[1] in us_rilevanti:
-                a = (f"{'Area' + bb[0].replace('_', ' ')}", f"{'Area' + bb[1].replace('_', ' ')}")
+                a = (f"{bb[0].split('_')[-1]}", f"{bb[1].split('_')[-1]}")
                 elist1.append(a)
 
         with G.subgraph(name='main') as e:
@@ -858,7 +862,7 @@ class ViewHarrisMatrix:
 
             for cc in self.conteporene:
                 if cc[0] in us_rilevanti and cc[1] in us_rilevanti:
-                    a = (f"{'Area' + cc[0].replace('_', ' ')}", f"{'Area' + cc[1].replace('_', ' ')}")
+                    a = (f"{cc[0].split('_')[-1]}", f"{cc[1].split('_')[-1]}")
                     elist3.append(a)
                     with G.subgraph(name='main1') as b:
                         b.edges(elist3)
@@ -874,7 +878,7 @@ class ViewHarrisMatrix:
 
             for dd in self.negative:
                 if dd[0] in us_rilevanti and dd[1] in us_rilevanti:
-                    a = (f"{'Area' + dd[0].replace('_', ' ')}", f"{'Area' + dd[1].replace('_', ' ')}")
+                    a = (f"{dd[0].split('_')[-1]}", f"{dd[1].split('_')[-1]}")
                     elist2.append(a)
 
                     with G.subgraph(name='main2') as a:
