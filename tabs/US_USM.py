@@ -56,6 +56,7 @@ from qgis.PyQt.QtSql import QSqlDatabase, QSqlTableModel
 
 
 from .Interactive_matrix import *
+from ..modules.utility.report_generator import ReportGenerator
 from ..modules.utility.VideoPlayer import VideoPlayerWindow
 from ..modules.utility.pyarchinit_media_utility import *
 from ..modules.utility.response_sql import ResponseSQL
@@ -80,7 +81,56 @@ MAIN_DIALOG_CLASS, _ = loadUiType(
     os.path.join(os.path.dirname(__file__), os.pardir, 'gui', 'ui', 'US_USM.ui'))
 
 #from ..modules.utility.screen_adaptative import ScreenAdaptive
+class GenerateReportThread(QThread):
+    report_generated = pyqtSignal(str)
 
+    def __init__(self, custom_prompt, descriptions_text, api_key, selected_model):
+        super().__init__()
+        self.custom_prompt = custom_prompt
+        self.descriptions_text = descriptions_text
+        self.api_key = api_key
+        self.selected_model = selected_model
+
+    def run(self):
+        # Combine the custom prompt with the descriptions
+        full_prompt = f"{self.custom_prompt}\n\n{self.descriptions_text}"
+
+        # Generate the report using OpenAI API
+        report_text = ReportGenerator.generate_report_with_openai(full_prompt, self.api_key, self.selected_model)
+
+        self.report_generated.emit(report_text)
+
+class ReportDialog(QDialog):
+    def __init__(self, report_text, parent=None):
+        super().__init__(parent)
+        self.report_text = report_text  # Store the report text as an instance variable
+        self.initUI(report_text)
+
+    def initUI(self, report_text):
+        self.setWindowTitle("Report")
+        layout = QVBoxLayout(self)
+
+        # Create a QTextEdit widget to display the report
+        self.report_widget = QTextEdit(self)
+        self.report_widget.setText(report_text)
+        self.report_widget.setReadOnly(True)
+        layout.addWidget(self.report_widget)
+
+        # Create a button to save the report
+        self.save_button = QPushButton('Save Report', self)
+        self.save_button.clicked.connect(self.save_report)
+        layout.addWidget(self.save_button)
+
+    def save_report(self):
+        # Ask the user where to save the .docx file
+        file_path, _ = QFileDialog.getSaveFileName(self, "Save Report", "", "Word Documents (*.docx);;All Files (*)")
+        if file_path:
+            # Ensure the file has a .docx extension
+            if not file_path.lower().endswith('.docx'):
+                file_path += '.docx'
+            # Save the report as a .docx file
+            ReportGenerator.save_report_to_file(self.report_text, file_path)
+            QMessageBox.information(self, "Report Saved", f"Report has been saved to {file_path}")
 class ProgressDialog:
     def __init__(self):
         self.progressDialog = QProgressDialog()
@@ -829,12 +879,13 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
     def __init__(self, iface):
         super().__init__()
 
+
         self.iface = iface
         self.pyQGIS = Pyarchinit_pyqgis(iface)
 
         self.setupUi(self)
         self.setAcceptDrops(True)
-
+        self.report_thread = None
         self.report_rapporti2 = None
         self.fig = None
         self.canvas = None
@@ -937,7 +988,59 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
         self.report_rapporti=''
         self.list_rapporti=[]
+        self.pushButton_report_generator.clicked.connect(self.generate_and_display_report)
         #self.view_all()
+
+    def generate_and_display_report(self):
+        conn = Connection()
+        db_url = conn.conn_str()
+        table_name = self.TABLE_NAME
+
+        # Read data from the database
+        records, columns = ReportGenerator.read_data_from_db(db_url, table_name)
+
+        # Extract the data as a string to be used in the prompt
+        descriptions_text = "\n".join(f"{col}: {getattr(record, col, '')}" for record in records for col in columns)
+
+        # Ask the user for a custom prompt
+        custom_prompt, ok = QInputDialog.getMultiLineText(self, "Enter Custom Prompt", "Custom Prompt:", "")
+
+        if ok and custom_prompt:
+            api_key = self.apikey_gpt()  # Retrieve the OpenAI API key
+            if ReportGenerator.is_connected():
+                models = ["gpt-4o", "gpt-4-0125-preview"]  # Replace with actual model names
+                selected_model, ok = QInputDialog.getItem(self, "Select Model", "Choose a model for GPT:", models, 0,
+                                                          False)
+
+                if ok and selected_model:
+                    # Initialize the progress dialog before starting the thread
+                    self.progress_dialog = QProgressDialog("Generating report...", None, 0, 0, self)
+                    self.progress_dialog.setWindowModality(Qt.WindowModal)
+                    self.progress_dialog.setCancelButton(None)  # Disable the Cancel button
+                    self.progress_dialog.setRange(0, 0)  # Indeterminate progress bar
+                    self.progress_dialog.show()
+
+                    # Start a thread to generate the report
+                    self.report_thread = GenerateReportThread(custom_prompt, descriptions_text, api_key, selected_model)
+
+                    # Connect signals to handle the completion and error of the report generation
+                    self.report_thread.report_generated.connect(self.on_report_generated)
+                    self.report_thread.start()
+
+
+
+                else:
+                    QMessageBox.warning(self, "Warning", "No model selected", QMessageBox.Ok)
+        else:
+            QMessageBox.warning(self, "Warning", "No custom prompt provided", QMessageBox.Ok)
+
+    def on_report_generated(self, report_text):
+        # Close the progress dialog
+        self.progress_dialog.close()
+
+        # Display the report in a dialog
+        self.report_dialog = ReportDialog(report_text, self)
+        self.report_dialog.exec_()
 
     def sketchgpt(self):
         items = self.iconListWidget.selectedItems()
