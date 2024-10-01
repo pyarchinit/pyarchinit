@@ -3,7 +3,7 @@ name=pyArchInit
 qgisMinimumVersion=3.22
 description=pyarchinit a tool for archaeological works
 
-version=4.8.1
+version=4.8.2
 
 author=Luca Mandolesi&Enzo Cocca
 email=pyarchinit@gmail.com
@@ -15,7 +15,8 @@ tracker=https://github.com/pyarchinit/pyarchinit/issues
 repository=https://github.com/pyarchinit/pyarchinit
 
 
-changelog=4.8.1 Add report generation feature with OpenAI API integration. This update introduces a threaded report generation using the OpenAI API and a new dialog for displaying and saving the report. Additionally, label name extraction and graph node plotting logic have been improved by removing unnecessary prefixes in `pyarchinit_matrix_exp.py`.
+changelog=4.8.2 Add Report Generation Dialog. Introduced a new dialog class for report generation, allowing users to select multiple tables. Refactored and streamlined report generation logic using the selected tables, enhancing modularity and usability.
+  4.8.1 Add report generation feature with OpenAI API integration. This update introduces a threaded report generation using the OpenAI API and a new dialog for displaying and saving the report. Additionally, label name extraction and graph node plotting logic have been improved by removing unnecessary prefixes in `pyarchinit_matrix_exp.py`.
   4.8.0 update gpt sketch
   4.7.9 fix bug
   4.7.8 add image viewer 3D, add video player , fix bug
