@@ -4,7 +4,9 @@ from sqlalchemy.orm import sessionmaker
 from qgis.PyQt.QtWidgets import *
 import socket
 from openai import OpenAI
-
+from docx import Document
+from docx.shared import Pt
+from docx.enum.style import WD_STYLE_TYPE
 
 class ReportGenerator(QWidget):
 
@@ -37,6 +39,7 @@ class ReportGenerator(QWidget):
         Usa l'API di OpenAI per generare un report basato sul prompt combinato e le descrizioni.
         '''
         client= OpenAI(api_key=apikey)
+
         response = client.chat.completions.create(
             model=modello_selezionato,
             messages=[
@@ -46,7 +49,7 @@ class ReportGenerator(QWidget):
             max_tokens=ReportGenerator.MAX_TOKENS
         )
 
-        messaggio_combinato = "GPT Response:\n "
+        messaggio_combinato = "\n "
 
         try:
             for chunk in response:
@@ -70,12 +73,11 @@ class ReportGenerator(QWidget):
         return False
 
     @staticmethod
-    def save_report_to_file(report, file_path):
+    def save_report_to_file_old(report, file_path):
         # Create a new Document
         doc = Document()
         # Add the report text to the document
         doc.add_paragraph(report)
         # Save the document to the specified file path
         doc.save(file_path)
-
 

@@ -42,7 +42,9 @@ import matplotlib
 import pandas as pd
 import requests
 from openai import OpenAI
-
+from docx import Document
+from docx.shared import Pt
+from docx.enum.style import WD_STYLE_TYPE
 
 
 matplotlib.use('QT5Agg')  # Assicurati di chiamare use() prima di importare FigureCanvas
@@ -91,7 +93,7 @@ class ReportGeneratorDialog(QDialog):
         layout = QVBoxLayout(self)
 
         self.combo_box = CheckableComboBox()
-        self.TABLES_NAMES = ['us_table', 'inventario_materiali_table', 'tomba_table',
+        self.TABLES_NAMES = ['site_table','us_table', 'inventario_materiali_table', 'tomba_table',
                     'pottery_table','struttura_table','periodizzazione_table',
                     'documentazione_table', 'mediaentity_view']
         for table_name in self.TABLES_NAMES:
@@ -142,43 +144,32 @@ class GenerateReportThread(QThread):
     def run(self):
         # Combine the custom prompt with the descriptions
         full_prompt = f"{self.custom_prompt}\n\n{self.descriptions_text}"
+        full_prompt += ("Genera una relazione in forma discorsiva, evitando elenchi puntati. Organizza il contenuto "
+                   "in paragrafi coerenti per ciascuna sezione (Introduzione, "
+                   "Descrizione Metodologica ed Esito dell'Indagine, Conclusioni).")
 
         # Generate the report using OpenAI API
         report_text = ReportGenerator.generate_report_with_openai(self, full_prompt,  self.selected_model, self.api_key)
 
         self.report_generated.emit(report_text)
 
+
 class ReportDialog(QDialog):
     def __init__(self, report_text, parent=None):
         super().__init__(parent)
-        self.report_text = report_text  # Store the report text as an instance variable
-        self.initUI(report_text)
+        self.report_text = report_text
+        self.initUI()
 
-    def initUI(self, report_text):
+    def initUI(self):
         self.setWindowTitle("Report")
         layout = QVBoxLayout(self)
-
-        # Create a QTextEdit widget to display the report
         self.report_widget = QTextEdit(self)
-        self.report_widget.setText(report_text)
+        self.report_widget.setText(self.report_text)
         self.report_widget.setReadOnly(True)
         layout.addWidget(self.report_widget)
 
-        # Create a button to save the report
-        self.save_button = QPushButton('Save Report', self)
-        self.save_button.clicked.connect(self.save_report)
-        layout.addWidget(self.save_button)
 
-    def save_report(self):
-        # Ask the user where to save the .docx file
-        file_path, _ = QFileDialog.getSaveFileName(self, "Save Report", "", "Word Documents (*.docx);;All Files (*)")
-        if file_path:
-            # Ensure the file has a .docx extension
-            if not file_path.lower().endswith('.docx'):
-                file_path += '.docx'
-            # Save the report as a .docx file
-            ReportGenerator.save_report_to_file(self.report_text, file_path)
-            QMessageBox.information(self, "Report Saved", f"Report has been saved to {file_path}")
+
 class ProgressDialog:
     def __init__(self):
         self.progressDialog = QProgressDialog()
@@ -1064,72 +1055,241 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             chunks.append(current_chunk)
 
         return chunks
-    def generate_and_display_report(self):
 
+    def generate_and_display_report(self):
         dialog = ReportGeneratorDialog(self)
         if dialog.exec_() == QDialog.Accepted:
             conn = Connection()
             db_url = conn.conn_str()
             selected_tables = dialog.get_selected_tables()
 
+            report_data = {
+                'Regione': '', 'Provincia': '', 'Comune': '', 'Ente di riferimento': '',
+                'Committenza': '', 'Direzione scientifica': '', 'Elaborato a cura di': '',
+                'Direttore cantiere': '', 'Cantiere': '', 'Tipo di indagine': '', 'Titolo elaborato': '',
+                'Collocazione cantiere': '', 'Periodo cantiere': '', 'Intervento': '',
+                'Progettazione lavori': '', 'Direzione lavori': '',
+                'Direzione scientifica indagini archeologiche': '',
+                'Esecuzione indagini archeologiche': '', 'Direzione cantiere archeologico': '',
+                'Archeologi': ''
+            }
+
             descriptions_text = ""
 
             for table_name in selected_tables:
-                # Legge i dati dal database
                 records, columns = ReportGenerator.read_data_from_db(db_url, table_name)
+                if table_name == 'site_table':
+                    if records:
+                        record = records[0]
+                        report_data['Regione'] = getattr(record, 'regione', '')
+                        report_data['Provincia'] = getattr(record, 'provincia', '')
+                        report_data['Comune'] = getattr(record, 'comune', '')
+                        report_data['Cantiere'] = getattr(record, 'sito', '')
+                        report_data['Collocazione cantiere'] = getattr(record, 'sito', '')
 
-                # Definisci il massimo numero di token per chunk
-                max_tokens_per_chunk = 4096  # Adatta questo valore secondo i tuoi limiti specifici e necessità
+                elif table_name == 'us_table':
+                    if records:
+                        record = records[0]
+                        report_data['Ente di riferimento'] = getattr(record, 'ente_responsabile', '')
+                        report_data['Committenza'] = getattr(record, 'ditta_esecutrice', '')
+                        report_data['Direzione scientifica'] = getattr(record, 'direttore_scientifico', '')
+                        report_data['Elaborato a cura di'] = getattr(record, 'responsabile_scientifico', '')
+                        report_data['Direttore cantiere'] = getattr(record, 'responsabile_us', '')
+                        report_data['Direzione scientifica indagini archeologiche'] = getattr(record,
+                                                                                              'direttore_scientifico',
+                                                                                              '')
+                        report_data['Direzione cantiere archeologico'] = getattr(record, 'responsabile_us', '')
 
-                # Suddivide i dati in base ai token
-                chunks = self.split_data_to_fit_tokens(records, columns, max_tokens_per_chunk)
+                # Generate description text for each table
+                for record in records:
+                    descriptions_text += f"Table: {table_name}\n"
+                    for col in columns:
+                        descriptions_text += f"{col}: {getattr(record, col, '')}\n"
+                    descriptions_text += "\n"
 
-                for chunk in chunks:
-                    chunk_text = "\n\n".join(
-                        "\n".join(f"{col}: {getattr(record, col, '')}" for col in columns)
-                        for record in chunk
-                    )
-                    descriptions_text += chunk_text + "\n\n"
+            # Generate derived fields
+            report_data['Tipo di indagine'] = f"Indagine archeologica presso {report_data['Cantiere']}"
+            report_data['Titolo elaborato'] = f"Relazione di scavo - {report_data['Cantiere']}"
 
+            # Create a more detailed prompt for the AI
+            custom_prompt = f"""
+            Genera una relazione archeologica dettagliata basata sui seguenti dati:
+            {descriptions_text}
 
-            # Chiedi all'utente un prompt personalizzato
-            custom_prompt, ok = QInputDialog.getMultiLineText(self, "Enter Custom Prompt", "Custom Prompt:", "")
-            if ok and custom_prompt:
-                api_key = self.apikey_gpt()  # Retrieve the OpenAI API key
-                if ReportGenerator.is_connected():
-                    models = ["gpt-4o", "gpt-4-0125-preview"]  # Replace with actual model names
-                    selected_model, ok = QInputDialog.getItem(self, "Select Model", "Choose a model for GPT:", models, 0,
-                                                              False)
+            La relazione deve includere le seguenti sezioni:
 
-                    if ok and selected_model:
-                        # Initialize the progress dialog before starting the thread
-                        self.progress_dialog = QProgressDialog("Generating report...", None, 0, 0, self)
-                        self.progress_dialog.setWindowModality(Qt.WindowModal)
-                        self.progress_dialog.setCancelButton(None)  # Disable the Cancel button
-                        self.progress_dialog.setRange(0, 0)  # Indeterminate progress bar
-                        self.progress_dialog.show()
+            1. INTRODUZIONE:
+               - Breve panoramica del sito e del contesto storico
+               - Obiettivi dell'indagine
 
-                        # Start a thread to generate the report
-                        self.report_thread = GenerateReportThread(custom_prompt, descriptions_text, api_key, selected_model)
+            2. DESCRIZIONE METODOLOGICA ED ESITO DELL'INDAGINE:
+               - Metodologia di scavo utilizzata
+               - Descrizione dettagliata delle unità stratigrafiche (US) rinvenute
+               - Analisi delle strutture murarie e degli edifici
+               - Descrizione dei reperti più significativi
+               - Interpretazione delle fasi di occupazione del sito
 
-                        # Connect signals to handle the completion and error of the report generation
-                        self.report_thread.report_generated.connect(self.on_report_generated)
-                        self.report_thread.start()
+            3. CONCLUSIONI:
+               - Sintesi dei principali risultati
+               - Importanza del sito nel contesto archeologico regionale
+               - Suggerimenti per future ricerche o valorizzazione del sito
 
+            Assicurati che ogni sezione sia ben sviluppata e contenga informazioni dettagliate basate sui dati forniti.
+            Non includere una sezione separata per i DATI DI RIFERIMENTO, ma incorpora queste informazioni nelle altre sezioni dove appropriato.
+            """
 
+            if ReportGenerator.is_connected():
+                models = ["gpt-4o", "gpt-4-0125-preview"]
+                selected_model, ok = QInputDialog.getItem(self, "Select Model", "Choose a model for GPT:", models, 0,
+                                                          False)
 
-                    else:
-                        QMessageBox.warning(self, "Warning", "No model selected", QMessageBox.Ok)
+                if ok and selected_model:
+                    self.progress_dialog = QProgressDialog("Generating report...", None, 0, 0, self)
+                    self.progress_dialog.setWindowModality(Qt.WindowModal)
+                    self.progress_dialog.setCancelButton(None)
+                    self.progress_dialog.setRange(0, 0)
+                    self.progress_dialog.show()
+
+                    api_key = self.apikey_gpt()
+                    self.report_thread = GenerateReportThread(custom_prompt, descriptions_text, api_key, selected_model)
+                    self.report_thread.report_generated.connect(
+                        lambda text: self.on_report_generated(text, report_data))
+                    self.report_thread.start()
+                else:
+                    QMessageBox.warning(self, "Warning", "No model selected", QMessageBox.Ok)
             else:
-                QMessageBox.warning(self, "Warning", "No custom prompt provided", QMessageBox.Ok)
+                QMessageBox.warning(self, "Warning", "No internet connection", QMessageBox.Ok)
 
-    def on_report_generated(self, report_text):
-        # Close the progress dialog
+    def on_report_generated(self, report_text, report_data):
         self.progress_dialog.close()
 
-        # Display the report in a dialog
-        self.report_dialog = ReportDialog(report_text, self)
+        sections = [
+            "INTRODUZIONE",
+            "DATI DI RIFERIMENTO",
+            "DESCRIZIONE METODOLOGICA ED ESITO DELL'INDAGINE",
+            "CONCLUSIONI"
+        ]
+        section_texts = {section.lower().replace(' ', '_'): '' for section in sections}
+        current_section = None
+
+        for line in report_text.split('\n'):
+            upper_line = line.strip().upper()
+            if any(section.upper() in upper_line for section in sections):
+                current_section = next(
+                    section.lower().replace(' ', '_') for section in sections if section.upper() in upper_line)
+                continue
+            if current_section:
+                section_texts[current_section] += line + "\n"
+
+        # Rimuovi eventuali righe vuote all'inizio e alla fine di ogni sezione
+        for key in section_texts:
+            section_texts[key] = section_texts[key].strip()
+
+        # Aggiorna report_data con i testi delle sezioni
+        report_data.update(section_texts)
+
+        QMessageBox.information(self, 'Debug: Final Report Data', str(report_data))
+
+        # Salva il report
+        template_path, _ = QFileDialog.getOpenFileName(self, "Seleziona Template", "", "Word Documents (*.docx)")
+        if template_path:
+            output_path, _ = QFileDialog.getSaveFileName(self, "Salva Report", "",
+                                                         "Word Documents (*.docx);;All Files (*)")
+            if output_path:
+                if not output_path.lower().endswith('.docx'):
+                    output_path += '.docx'
+                try:
+                    self.save_report_to_file(report_data, template_path, output_path)
+                    QMessageBox.information(self, "Report Salvato", f"Il report è stato salvato in {output_path}")
+                except Exception as e:
+                    QMessageBox.critical(self, "Errore",
+                                         f"Si è verificato un errore durante il salvataggio del report: {str(e)}")
+
+        # Visualizza il report
+        self.display_report_dialog(report_data)
+
+    def save_report_to_file(self, report_data, template_path, output_path):
+        doc = Document(template_path)
+
+        # Funzione per sostituire i placeholder nella tabella iniziale
+        def replace_in_table(table, placeholder, value):
+            for row in table.rows:
+                for cell in row.cells:
+                    if placeholder in cell.text:
+                        cell.text = cell.text.replace(placeholder, str(value))
+
+        # Aggiorna la tabella all'inizio
+        if doc.tables:
+            table = doc.tables[0]
+            replace_in_table(table, "Regione:", f"Regione: {report_data.get('Regione', '')}")
+            replace_in_table(table, "Provincia:", f"Provincia: {report_data.get('Provincia', '')}")
+            replace_in_table(table, "Comune:", f"Comune: {report_data.get('Comune', '')}")
+            replace_in_table(table, "Ente di riferimento:",
+                             f"Ente di riferimento: {report_data.get('Ente di riferimento', '')}")
+            replace_in_table(table, "Committenza:", f"Committenza: {report_data.get('Committenza', '')}")
+            replace_in_table(table, "Direzione scientifica:",
+                             f"Direzione scientifica: {report_data.get('Direzione scientifica', '')}")
+            replace_in_table(table, "Elaborato a cura di:",
+                             f"Elaborato a cura di: {report_data.get('Elaborato a cura di', '')}")
+            replace_in_table(table, "Direttore cantiere:",
+                             f"Direttore cantiere: {report_data.get('Direttore cantiere', '')}")
+
+        # Aggiorna altri campi specifici
+        for paragraph in doc.paragraphs:
+            if "Cantiere:" in paragraph.text:
+                paragraph.text = f"Cantiere: {report_data.get('Cantiere', '')}"
+            elif "Tipo di indagine:" in paragraph.text:
+                paragraph.text = f"Tipo di indagine: {report_data.get('Tipo di indagine', '')}"
+            elif "Titolo elaborato:" in paragraph.text:
+                paragraph.text = f"Titolo elaborato: {report_data.get('Titolo elaborato', '')}"
+
+        # Funzione per trovare un paragrafo che inizia con un testo specifico
+        def find_paragraph(start_text):
+            for paragraph in doc.paragraphs:
+                if paragraph.text.strip().startswith(start_text):
+                    return paragraph
+            return None
+
+        # Inserisci il contenuto per sezioni specifiche
+        sections = [
+            ("DATI DI RIFERIMENTO", "dati_di_riferimento"),
+            ("INTRODUZIONE", "introduzione"),
+            ("DESCRIZIONE METODOLOGICA ED ESITO DELL'INDAGINE", "descrizione_metodologica"),
+            ("CONCLUSIONI", "conclusioni")
+        ]
+
+        for section_title, content_key in sections:
+            paragraph = find_paragraph(section_title)
+            if paragraph and content_key in report_data:
+                if section_title == "DATI DI RIFERIMENTO":
+                    # Aggiungi i campi specifici per DATI DI RIFERIMENTO
+                    dati_fields = [
+                        "Collocazione cantiere", "Periodo cantiere", "Intervento", "Committenza",
+                        "Progettazione lavori", "Direzione lavori", "Direzione scientifica indagini archeologiche",
+                        "Esecuzione indagini archeologiche", "Direzione cantiere archeologico", "Archeologi"
+                    ]
+                    for field in dati_fields:
+                        new_paragraph = doc.add_paragraph(f"{field}: {report_data.get(field, '')}")
+                        paragraph._p.addnext(new_paragraph._p)
+                else:
+                    # Per le altre sezioni, aggiungi il contenuto come prima
+                    new_paragraph = doc.add_paragraph()
+                    paragraph._p.addnext(new_paragraph._p)
+                    new_paragraph.text = report_data[content_key]
+                    new_paragraph.style = doc.styles['Normal']
+
+        doc.save(output_path)
+
+    def display_report_dialog(self, report_data):
+        report_content = "\n\n".join([
+            f"{key.upper()}:\n{value}"
+            for key, value in report_data.items()
+            if key in ['introduzione', 'dati_di_riferimento', 'descrizione_metodologica_ed_esito_dell_indagine',
+                       'conclusioni']
+        ])
+        self.report_dialog = ReportDialog(report_content, self)
         self.report_dialog.exec_()
+
 
     def sketchgpt(self):
         items = self.iconListWidget.selectedItems()
