@@ -2397,25 +2397,7 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
         corredo_tipo = self.table2dict("self.tableWidget_corredo_tipo")
         
         
-        if self.comboBox_per_iniz.currentText() == "":
-            per_iniz = None
-        else:
-            per_iniz = int(self.comboBox_per_iniz.currentText())
 
-        if self.comboBox_fas_iniz.currentText() == "":
-            fas_iniz = None
-        else:
-            fas_iniz = int(self.comboBox_fas_iniz.currentText())
-
-        if self.comboBox_per_fin.currentText() == "":
-            per_fin = None
-        else:
-            per_fin = int(self.comboBox_per_fin.currentText())
-
-        if self.comboBox_fas_fin.currentText() == "":
-            fas_fin = None
-        else:
-            fas_fin = int(self.comboBox_fas_fin.currentText())
 
         try:
             # data
@@ -2441,10 +2423,10 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
                 str(self.comboBox_corredo_presenza.currentText()),  # 17 - corredo presenza
                 str(corredo_tipo),  # 18 - corredo tipo
                 str(self.textEdit_descrizione_corredo.toPlainText()),  # 19 - descrizione corredo
-                per_iniz,  # 29 - periodo iniziale
-                fas_iniz,  # 30 - fase iniziale
-                per_fin,  # 31 - periodo finale iniziale
-                fas_fin,  # 32 - fase finale
+                str(self.comboBox_per_iniz.currentText()),  # 8 - periodo iniziale
+                str(self.comboBox_fas_iniz.currentText()),  # 9 - fase iniziale
+                str(self.comboBox_per_fin.currentText()),  # 10 - periodo finale iniziale
+                str(self.comboBox_fas_fin.currentText()),  # 11 - fase finale
                 str(self.lineEdit_datazione.text()))
             try:
                 self.DB_MANAGER.insert_data_session(data)
@@ -3371,25 +3353,6 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
         # Convert the list of selected items to a string format suitable for the DATA_LIST_REC_TEMP
         selected_nr_individuo_str = ', '.join(selected_nr_individuo)
 
-        if self.comboBox_per_iniz.currentText() == "":
-            periodo_iniziale = None
-        else:
-            periodo_iniziale = self.comboBox_per_iniz.currentText()
-
-        if self.comboBox_fas_iniz.currentText() == "":
-            fase_iniziale = None
-        else:
-            fase_iniziale = self.comboBox_fas_iniz.currentText()
-
-        if self.comboBox_per_fin.currentText() == "":
-            periodo_finale = None
-        else:
-            periodo_finale = self.comboBox_per_fin.currentText()
-
-        if self.comboBox_fas_fin.currentText() == "":
-            fase_finale = None
-        else:
-            fase_finale = self.comboBox_fas_fin.currentText()
 
             # TableWidget
 
@@ -3418,10 +3381,10 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
             str(self.comboBox_corredo_presenza.currentText()),  # 17 - corredo
             str(corredo_tipo),  # 18 - corredo tipo
             str(self.textEdit_descrizione_corredo.toPlainText()),  # 19 - descrizione corredo
-            int(periodo_iniziale),  # 6 - descrizioene
-            int(fase_iniziale),  # 6 - descrizioene
-            int(periodo_finale),  # 6 - descrizioene
-            int(fase_finale),  # 6 - descrizioene
+            str(self.comboBox_per_iniz.currentText()),  # 8 - periodo iniziale
+            str(self.comboBox_fas_iniz.currentText()),  # 9 - fase iniziale
+            str(self.comboBox_per_fin.currentText()),  # 10 - periodo finale iniziale
+            str(self.comboBox_fas_fin.currentText()),  # 11 - fase finale
             str(self.lineEdit_datazione.text())
         ]
 
