@@ -27,6 +27,10 @@ class ReportGenerator(QWidget):
         session.close()
         return records, columns
 
+    @staticmethod
+    def chunk_data(data, chunk_size):
+        for i in range(0, len(data), chunk_size):
+            yield data[i:i + chunk_size]
 
     def generate_report_with_openai(self, prompt_completo, modello_selezionato, apikey):
         '''
