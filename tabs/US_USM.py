@@ -2316,40 +2316,35 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             This function charges the 'Posizione' combobox with the values from the 'Unità Stratigrafiche' table.
         '''
         try:
+            # Usa i valori correnti dei widget invece di accedere a DATA_LIST
             sito = str(self.comboBox_sito.currentText())
             area = str(self.comboBox_area.currentText())
             us = str(self.lineEdit_us.text())
 
             search_dict = {
-                'scavo_s': "'" + sito + "'",
-                'area_s': "'" + area + "'",
-                'us_s': "'" + us +"'"
-
+                'scavo_s': f"'{sito}'",
+                'area_s': f"'{area}'",
+                'us_s': f"'{us}'"
             }
 
-            geometry_vl = self.DB_MANAGER.query_bool(search_dict,'PYUS')
-            geometry_list = []
-
-            for i in range(len(geometry_vl)):
-                geometry_list.append(str(geometry_vl[i].coord))
-            try:
-                geometry_vl.remove('')
-            except:
-                pass
+            geometry_vl = self.DB_MANAGER.query_bool(search_dict, 'PYUS')
+            geometry_list = [str(item.coord) for item in geometry_vl if item.coord]
 
             self.comboBox_posizione.clear()
             self.comboBox_posizione.addItems(self.UTILITY.remove_dup_from_list(geometry_list))
-            if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Finden" or "Find":
+
+            if self.STATUS_ITEMS[self.BROWSE_STATUS] in ["Trova", "Finden", "Find"]:
                 self.comboBox_posizione.setEditText("")
-            elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Aktuell " or "Current":
-                if len(self.DATA_LIST) > 0:
+            elif self.STATUS_ITEMS[self.BROWSE_STATUS] in ["Usa", "Aktuell", "Current"]:
+                if hasattr(self, 'DATA_LIST') and self.DATA_LIST:
                     try:
                         self.comboBox_posizione.setEditText(self.DATA_LIST[self.rec_num].posizione)
                         self.comboBox_posizione.show()
-                    except:
-                        pass  # non vi sono periodi per questo scavo
-        except:
-            pass
+                    except (IndexError, AttributeError) as e:
+                        print(f"Errore in geometry_unitastratigrafiche: {str(e)}")
+        except Exception as e:
+            print(f"Errore in geometry_unitastratigrafiche: {str(e)}")
+
     def charge_periodo_iniz_list(self):
         '''
             This function charges the 'Periodo' combobox with the values from the 'Periodizzazione' table.
