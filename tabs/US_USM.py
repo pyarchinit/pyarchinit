@@ -1039,8 +1039,33 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.list_rapporti=[]
         self.pushButton_report_generator.clicked.connect(self.generate_and_display_report)
 
+    def count_tokens(self,text):
+        # Funzione ipotetica per stimare il numero di token nel testo
+        return len(text.split())
 
+    def split_data_to_fit_tokens(self,data, columns, max_tokens_per_chunk):
+        chunks = []
+        current_chunk = []
+        current_tokens = 0
+
+        for record in data:
+            record_text = "\n".join(f"{col}: {getattr(record, col, '')}" for col in columns)
+            tokens = self.count_tokens(record_text)
+
+            if current_tokens + tokens <= max_tokens_per_chunk:
+                current_chunk.append(record)
+                current_tokens += tokens
+            else:
+                chunks.append(current_chunk)
+                current_chunk = [record]
+                current_tokens = tokens
+
+        if current_chunk:
+            chunks.append(current_chunk)
+
+        return chunks
     def generate_and_display_report(self):
+
         dialog = ReportGeneratorDialog(self)
         if dialog.exec_() == QDialog.Accepted:
             conn = Connection()
@@ -1053,10 +1078,19 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 # Legge i dati dal database
                 records, columns = ReportGenerator.read_data_from_db(db_url, table_name)
 
-                # Crea la stringa delle descrizioni
-                for record in records:
-                    record_text = "\n".join(f"{col}: {getattr(record, col, '')}" for col in columns)
-                    descriptions_text += record_text + "\n\n"
+                # Definisci il massimo numero di token per chunk
+                max_tokens_per_chunk = 4096  # Adatta questo valore secondo i tuoi limiti specifici e necessità
+
+                # Suddivide i dati in base ai token
+                chunks = self.split_data_to_fit_tokens(records, columns, max_tokens_per_chunk)
+
+                for chunk in chunks:
+                    chunk_text = "\n\n".join(
+                        "\n".join(f"{col}: {getattr(record, col, '')}" for col in columns)
+                        for record in chunk
+                    )
+                    descriptions_text += chunk_text + "\n\n"
+
 
             # Chiedi all'utente un prompt personalizzato
             custom_prompt, ok = QInputDialog.getMultiLineText(self, "Enter Custom Prompt", "Custom Prompt:", "")
