@@ -2321,9 +2321,9 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             us = str(self.lineEdit_us.text())
 
             search_dict = {
-                'scavo_s': "'" +str(self.comboBox_sito.currentText()) + "'",
-                'area_s': "'" + str(eval("self.DATA_LIST[int(self.REC_CORR)].area")) + "'",
-                'us_s': "'" + str(eval("self.DATA_LIST[int(self.REC_CORR)].us"))+"'"
+                'scavo_s': "'" + sito + "'",
+                'area_s': "'" + area + "'",
+                'us_s': "'" + us +"'"
 
             }
 
