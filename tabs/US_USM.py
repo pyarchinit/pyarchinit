@@ -1122,19 +1122,22 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                - Breve panoramica del sito e del contesto storico
                - Obiettivi dell'indagine
 
-            2. DESCRIZIONE METODOLOGICA ED ESITO DELL'INDAGINE:
-               - Metodologia di scavo utilizzata
+            2. DATI DI RIFERIMENTO
+            
+            
+            3. DESCRIZIONE METODOLOGICA ED ESITO DELL'INDAGINE:
+              
                - Descrizione dettagliata delle unità stratigrafiche (US) rinvenute
                - Analisi delle strutture murarie e degli edifici
                - Descrizione dei reperti più significativi
                - Interpretazione delle fasi di occupazione del sito
 
-            3. CONCLUSIONI:
+            4. CONCLUSIONI:
                - Sintesi dei principali risultati
                - Importanza del sito nel contesto archeologico regionale
                - Suggerimenti per future ricerche o valorizzazione del sito
 
-            Assicurati che ogni sezione sia ben sviluppata e contenga informazioni dettagliate basate sui dati forniti.
+            Assicurati che ogni sezione sia ben sviluppata e contenga informazioni dettagliate basate solo sui dati forniti. Ogni sezione deve essere sviluppata almeno da 800 parole.
             Non includere una sezione separata per i DATI DI RIFERIMENTO, ma incorpora queste informazioni nelle altre sezioni dove appropriato.
             """
 
@@ -1163,9 +1166,9 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
     def on_report_generated(self, report_text, report_data):
         self.progress_dialog.close()
 
+        # Elabora il testo del report
         sections = [
             "INTRODUZIONE",
-            "DATI DI RIFERIMENTO",
             "DESCRIZIONE METODOLOGICA ED ESITO DELL'INDAGINE",
             "CONCLUSIONI"
         ]
@@ -1188,25 +1191,53 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         # Aggiorna report_data con i testi delle sezioni
         report_data.update(section_texts)
 
-        QMessageBox.information(self, 'Debug: Final Report Data', str(report_data))
+        # Chiedi all'utente se vuole utilizzare il template predefinito
+        use_template, ok = QInputDialog.getItem(self, "Scelta output", "Vuoi utilizzare il template predefinito?",
+                                                ["Sì", "No"], 0, False)
 
-        # Salva il report
-        template_path, _ = QFileDialog.getOpenFileName(self, "Seleziona Template", "", "Word Documents (*.docx)")
-        if template_path:
+        if ok:
+            # Seleziona dove salvare il file
             output_path, _ = QFileDialog.getSaveFileName(self, "Salva Report", "",
                                                          "Word Documents (*.docx);;All Files (*)")
-            if output_path:
-                if not output_path.lower().endswith('.docx'):
-                    output_path += '.docx'
+            if not output_path:
+                QMessageBox.warning(self, "Avviso",
+                                    "Nessun percorso di salvataggio selezionato. Il report non verrà salvato.")
+                return
+
+            if not output_path.lower().endswith('.docx'):
+                output_path += '.docx'
+
+            if use_template == "Sì":
+                # Usa il template predefinito
+                template_path = os.path.join(self.HOME, "bin",
+                                             "template_report_adarte.docx")  # Assumo che il file si chiami "template_report.docx"
+                if not os.path.exists(template_path):
+                    QMessageBox.warning(self, "Avviso",
+                                        "Template predefinito non trovato. Verrà creato un documento semplice.")
+                    self.save_report_as_plain_doc(report_text, output_path)
+                else:
+                    try:
+                        self.save_report_to_file(report_data, template_path, output_path)
+                        QMessageBox.information(self, "Report Salvato", f"Il report è stato salvato in {output_path}")
+                    except Exception as e:
+                        QMessageBox.critical(self, "Errore",
+                                             f"Si è verificato un errore durante il salvataggio del report: {str(e)}")
+            else:
+                # Salva il report come documento normale
                 try:
-                    self.save_report_to_file(report_data, template_path, output_path)
+                    self.save_report_as_plain_doc(report_text, output_path)
                     QMessageBox.information(self, "Report Salvato", f"Il report è stato salvato in {output_path}")
                 except Exception as e:
                     QMessageBox.critical(self, "Errore",
                                          f"Si è verificato un errore durante il salvataggio del report: {str(e)}")
 
-        # Visualizza il report
+        # Visualizza il report in una finestra di dialogo
         self.display_report_dialog(report_data)
+
+    def save_report_as_plain_doc(self, report_text, output_path):
+        doc = Document()
+        doc.add_paragraph(report_text)
+        doc.save(output_path)
 
     def save_report_to_file(self, report_data, template_path, output_path):
         doc = Document(template_path)
