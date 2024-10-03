@@ -5,8 +5,7 @@ from qgis.PyQt.QtWidgets import *
 import socket
 from openai import OpenAI
 from docx import Document
-from docx.shared import Pt
-from docx.enum.style import WD_STYLE_TYPE
+
 
 class ReportGenerator(QWidget):
 
