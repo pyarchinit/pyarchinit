@@ -1075,37 +1075,64 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             }
 
             descriptions_text = ""
+            current_site = str(self.comboBox_sito.currentText()) # Assumo che self.SITO contenga il nome del sito corrente
+
+
+
+            def rimuovi_duplicati(text):
+                # Separa il prefisso (se presente) dal resto del testo
+                parts = text.split(': ', 1)
+                if len(parts) == 2:
+                    prefix, content = parts
+                    # Rimuovi i duplicati solo dal contenuto
+                    unique_content = ' '.join(dict.fromkeys(content.strip().split()))
+                    return f"{prefix}: {unique_content}"
+                else:
+                    # Se non c'è un prefisso, rimuovi i duplicati dall'intero testo
+                    return ' '.join(dict.fromkeys(text.split()))
 
             for table_name in selected_tables:
                 records, columns = ReportGenerator.read_data_from_db(db_url, table_name)
+
                 if table_name == 'site_table':
-                    if records:
-                        record = records[0]
-                        report_data['Regione'] = getattr(record, 'regione', '')
-                        report_data['Provincia'] = getattr(record, 'provincia', '')
-                        report_data['Comune'] = getattr(record, 'comune', '')
-                        report_data['Cantiere'] = getattr(record, 'sito', '')
-                        report_data['Collocazione cantiere'] = getattr(record, 'sito', '')
+                    site_record = next((r for r in records if getattr(r, 'sito', '') == current_site), None)
+                    if site_record:
+                        report_data['Regione'] = getattr(site_record, 'regione', '')
+                        report_data['Provincia'] = rimuovi_duplicati(
+                            f"Provincia: {getattr(site_record, 'provincia', '')}")
+                        report_data['Comune'] = rimuovi_duplicati(f"Comune: {getattr(site_record, 'comune', '')}")
+                        report_data['Cantiere'] = current_site
+                        report_data['Collocazione cantiere'] = current_site
 
                 elif table_name == 'us_table':
-                    if records:
-                        record = records[0]
-                        report_data['Ente di riferimento'] = getattr(record, 'ente_responsabile', '')
-                        report_data['Committenza'] = getattr(record, 'ditta_esecutrice', '')
-                        report_data['Direzione scientifica'] = getattr(record, 'direttore_scientifico', '')
-                        report_data['Elaborato a cura di'] = getattr(record, 'responsabile_scientifico', '')
-                        report_data['Direttore cantiere'] = getattr(record, 'responsabile_us', '')
-                        report_data['Direzione scientifica indagini archeologiche'] = getattr(record,
-                                                                                              'direttore_scientifico',
-                                                                                              '')
-                        report_data['Direzione cantiere archeologico'] = getattr(record, 'responsabile_us', '')
+                    us_records = [r for r in records if getattr(r, 'sito', '') == current_site]
+                    if us_records:
+                        first_record = us_records[0]
+                        report_data['Ente di riferimento'] = rimuovi_duplicati(
+                            getattr(first_record, 'soprintendenza', ''))
+                        report_data['Committenza'] = rimuovi_duplicati(
+                            getattr(first_record, 'ditta_esecutrice', ''))
+                        report_data['Direzione scientifica'] = rimuovi_duplicati(
+                            getattr(first_record, 'direttore_us', ''))
+                        report_data['Elaborato a cura di'] = rimuovi_duplicati(
+                            getattr(first_record, 'schedatore', ''))
+                        report_data['Direttore cantiere'] = rimuovi_duplicati(
+                            getattr(first_record, 'responsabile_us', ''))
+                        report_data['Direzione scientifica indagini archeologiche'] = report_data[
+                            'Direzione scientifica']
+                        report_data['Direzione cantiere archeologico'] = report_data['Direttore cantiere']
 
-                # Generate description text for each table
-                for record in records:
+                    descriptions_text += "Unità Stratigrafiche:\n"
+                    for record in us_records:
+                        descriptions_text += f"US {getattr(record, 'us', '')}: {getattr(record, 'd_stratigrafica', '')}\n"
+                else:
+                    # Per le altre tabelle, filtriamo i record per il sito corrente se possibile
+                    site_specific_records = [r for r in records if getattr(r, 'sito', current_site) == current_site]
                     descriptions_text += f"Table: {table_name}\n"
-                    for col in columns:
-                        descriptions_text += f"{col}: {getattr(record, col, '')}\n"
-                    descriptions_text += "\n"
+                    for record in site_specific_records:
+                        for col in columns:
+                            descriptions_text += f"{col}: {getattr(record, col, '')}\n"
+                        descriptions_text += "\n"
 
             # Generate derived fields
             report_data['Tipo di indagine'] = f"Indagine archeologica presso {report_data['Cantiere']}"
@@ -1122,23 +1149,44 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                - Breve panoramica del sito e del contesto storico
                - Obiettivi dell'indagine
 
-            2. DATI DI RIFERIMENTO
-            
-            
-            3. DESCRIZIONE METODOLOGICA ED ESITO DELL'INDAGINE:
+        
+            2. DESCRIZIONE METODOLOGICA ED ESITO DELL'INDAGINE:
               
-               - Descrizione dettagliata delle unità stratigrafiche (US) rinvenute
-               - Analisi delle strutture murarie e degli edifici
-               - Descrizione dei reperti più significativi
-               - Interpretazione delle fasi di occupazione del sito
+               - Descrizione dettagliata delle unità stratigrafiche (US) rinvenute.
+               - Analisi delle strutture murarie e degli edifici dalla tabella struttura_table
+               - Descrizione dei reperti prendendo in cosiderazione numero inventario, tipo_reprto, 
+               - Interpretazione delle fasi di occupazione del sito mettemndo in evidenza i rapporti stratigrafici che trovi nella colonna rapporti
+                Inoltre se viene usata la view mediatoentity_view, inserisci nel testo le immagini associate. tieni presente che 
+                Questa tabella rappresenta una struttura di dati multimediali collegati a diverse entità archeologiche. Ecco come interpretare e utilizzare questi dati:
 
-            4. CONCLUSIONI:
+                1. La colonna 'id_entity' è la chiave per collegare questi dati multimediali alle rispettive entità in altre tabelle.
+                
+                2. La colonna 'entity_type' indica il tipo di entità a cui il file multimediale è associato. Ecco come interpretare i valori in questa colonna:
+                
+                   a. Quando 'entity_type' è 'US', 'id_entity' si riferisce all'ID nella tabella 'us_table'.
+                   b. Quando 'entity_type' è 'REPERTO', 'id_entity' si riferisce all'ID nella tabella 'inventario_materiali_table'.
+                   c. Quando 'entity_type' è 'STRUTTURA', 'id_entity' si riferisce all'ID nella tabella 'struttura_table'.
+                   d. Quando 'entity_type' è 'CERAMICA', 'id_entity' si riferisce all'ID nella tabella 'pottery'.
+                   e. Quando 'entity_type' è 'TOMBA', 'id_entity' si riferisce all'ID nella tabella 'tomba_table'.
+                
+                3. Le colonne 'filepath' e 'path_resize' contengono i percorsi dei file multimediali associati a ciascuna entità.
+                
+                4. 'id_media_thumb' e 'id_media' sono identificatori univoci per le miniature e i file multimediali completi rispettivamente.
+                
+                Quando elabori questi dati, assicurati di:
+                1. Collegare correttamente i file multimediali alle entità appropriate nelle rispettive tabelle usando 'id_entity' e 'entity_type'.
+                2. Utilizzare i percorsi corretti per accedere ai file multimediali e alle loro miniature.
+                3. Considerare che un'entità può avere più file multimediali associati.
+                
+                Usa queste informazioni per creare relazioni significative tra i dati multimediali e le entità archeologiche, facilitando una comprensione completa del contesto e dei dettagli di ogni reperto o struttura documentata.
+            
+            3. CONCLUSIONI:
                - Sintesi dei principali risultati
                - Importanza del sito nel contesto archeologico regionale
                - Suggerimenti per future ricerche o valorizzazione del sito
 
             Assicurati che ogni sezione sia ben sviluppata e contenga informazioni dettagliate basate solo sui dati forniti. Ogni sezione deve essere sviluppata almeno da 800 parole.
-            Non includere una sezione separata per i DATI DI RIFERIMENTO, ma incorpora queste informazioni nelle altre sezioni dove appropriato.
+            
             """
 
             if ReportGenerator.is_connected():
@@ -1242,19 +1290,17 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
     def save_report_to_file(self, report_data, template_path, output_path):
         doc = Document(template_path)
 
-        # Funzione per sostituire i placeholder nella tabella iniziale
         def replace_in_table(table, placeholder, value):
             for row in table.rows:
                 for cell in row.cells:
                     if placeholder in cell.text:
                         cell.text = cell.text.replace(placeholder, str(value))
 
-        # Aggiorna la tabella all'inizio
         if doc.tables:
             table = doc.tables[0]
             replace_in_table(table, "Regione:", f"Regione: {report_data.get('Regione', '')}")
-            replace_in_table(table, "Provincia:", f"Provincia: {report_data.get('Provincia', '')}")
-            replace_in_table(table, "Comune:", f"Comune: {report_data.get('Comune', '')}")
+            replace_in_table(table, "Provincia:", report_data.get('Provincia', ''))
+            replace_in_table(table, "Comune:", report_data.get('Comune', ''))
             replace_in_table(table, "Ente di riferimento:",
                              f"Ente di riferimento: {report_data.get('Ente di riferimento', '')}")
             replace_in_table(table, "Committenza:", f"Committenza: {report_data.get('Committenza', '')}")
@@ -1264,8 +1310,6 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                              f"Elaborato a cura di: {report_data.get('Elaborato a cura di', '')}")
             replace_in_table(table, "Direttore cantiere:",
                              f"Direttore cantiere: {report_data.get('Direttore cantiere', '')}")
-
-        # Aggiorna altri campi specifici
         for paragraph in doc.paragraphs:
             if "Cantiere:" in paragraph.text:
                 paragraph.text = f"Cantiere: {report_data.get('Cantiere', '')}"
@@ -1274,40 +1318,22 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             elif "Titolo elaborato:" in paragraph.text:
                 paragraph.text = f"Titolo elaborato: {report_data.get('Titolo elaborato', '')}"
 
-        # Funzione per trovare un paragrafo che inizia con un testo specifico
         def find_paragraph(start_text):
-            for paragraph in doc.paragraphs:
-                if paragraph.text.strip().startswith(start_text):
-                    return paragraph
-            return None
+            return next((p for p in doc.paragraphs if p.text.strip().startswith(start_text)), None)
 
-        # Inserisci il contenuto per sezioni specifiche
         sections = [
-            ("DATI DI RIFERIMENTO", "dati_di_riferimento"),
             ("INTRODUZIONE", "introduzione"),
-            ("DESCRIZIONE METODOLOGICA ED ESITO DELL'INDAGINE", "descrizione_metodologica"),
+            ("DESCRIZIONE METODOLOGICA ED ESITO DELL'INDAGINE", "descrizione_metodologica_ed_esito_dell_indagine"),
             ("CONCLUSIONI", "conclusioni")
         ]
 
         for section_title, content_key in sections:
             paragraph = find_paragraph(section_title)
             if paragraph and content_key in report_data:
-                if section_title == "DATI DI RIFERIMENTO":
-                    # Aggiungi i campi specifici per DATI DI RIFERIMENTO
-                    dati_fields = [
-                        "Collocazione cantiere", "Periodo cantiere", "Intervento", "Committenza",
-                        "Progettazione lavori", "Direzione lavori", "Direzione scientifica indagini archeologiche",
-                        "Esecuzione indagini archeologiche", "Direzione cantiere archeologico", "Archeologi"
-                    ]
-                    for field in dati_fields:
-                        new_paragraph = doc.add_paragraph(f"{field}: {report_data.get(field, '')}")
-                        paragraph._p.addnext(new_paragraph._p)
-                else:
-                    # Per le altre sezioni, aggiungi il contenuto come prima
-                    new_paragraph = doc.add_paragraph()
-                    paragraph._p.addnext(new_paragraph._p)
-                    new_paragraph.text = report_data[content_key]
-                    new_paragraph.style = doc.styles['Normal']
+                new_paragraph = doc.add_paragraph()
+                paragraph._p.addnext(new_paragraph._p)
+                new_paragraph.text = report_data[content_key]
+                new_paragraph.style = doc.styles['Normal']
 
         doc.save(output_path)
 
