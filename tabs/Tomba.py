@@ -366,12 +366,17 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
             self.on_pushButton_connect_pressed()
         except Exception as e:
             QMessageBox.warning(self, "Connection system", str(e), QMessageBox.Ok)
+        sito = self.comboBox_sito.currentText()
+        self.comboBox_sito.setEditText(sito)
+
         self.lineEdit_nr_scheda.setText('')
         self.lineEdit_nr_scheda.textChanged.connect(self.update)
         self.lineEdit_nr_scheda.textChanged.connect(self.charge_struttura_list)
         #self.comboBox_sito.currentTextChanged.connect(self.charge_struttura_list)
-        self.lineEdit_nr_scheda.textChanged.connect(self.charge_struttura_nr)
-        self.comboBox_sigla_struttura.currentIndexChanged.connect(self.charge_individuo_list)
+        #self.charge_struttura_list
+        self.comboBox_sigla_struttura.currentIndexChanged.connect(self.charge_struttura_nr)
+        self.comboBox_nr_struttura.currentTextChanged.connect(self.charge_individuo_list)
+        #self.charge_individuo_list()
         self.lineEdit_nr_scheda.textChanged.connect(self.charge_oggetti_esterno_list)
         
         # SIGNALS & SLOTS Functions
@@ -384,9 +389,8 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
         
         self.comboBox_per_fin.currentIndexChanged.connect(self.charge_fase_fin_list)
         #self.comboBox_per_iniz.currentIndexChanged.connect(self.charge_datazione_list)
-        #self.comboBox_fas_iniz.currentIndexChanged.connect(self.charge_datazione_list)
-        sito = self.comboBox_sito.currentText()
-        self.comboBox_sito.setEditText(sito)
+        self.comboBox_fas_iniz.currentIndexChanged.connect(self.charge_datazione_list)
+
         self.toolButton_pdfpath.clicked.connect(self.setPathpdf)
         self.pbnOpenpdfDirectory.clicked.connect(self.openpdfDir)
         self.fill_fields()
@@ -1992,7 +1996,9 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
     def charge_struttura_nr(self):
         
         search_dict = {
-            'sito': "'" + str(self.comboBox_sito.currentText()) + "'"
+            'sito': "'" + str(self.comboBox_sito.currentText()) + "'",
+            'sigla_struttura': "'" + str(self.comboBox_sigla_struttura.currentText()) + "'",
+
         }
 
         struttura_vl = self.DB_MANAGER.query_bool(search_dict, 'STRUTTURA')
@@ -2061,12 +2067,18 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
             inv_vl = self.DB_MANAGER.query_bool(search_dict, 'SCHEDAIND')
             inv_list = [str(item.nr_individuo) for item in inv_vl if item.nr_individuo != '']
 
+
+            try:
+                inv_list.remove('')
+            except:
+                pass
+
             self.comboBox_nr_individuo.clear()
             self.comboBox_nr_individuo.addItems(self.UTILITY.remove_dup_from_list(inv_list))
 
-            if self.STATUS_ITEMS[self.BROWSE_STATUS] in ["Trova", "Finden", "Find"]:
+            if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Finden" or "Find":
                 self.comboBox_nr_individuo.setEditText("")
-            elif self.STATUS_ITEMS[self.BROWSE_STATUS] in ["Usa", "Aktuell ", "Current"]:
+            elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Aktuell " or "Current":
                 if len(self.DATA_LIST) > 0:
                     self.comboBox_nr_individuo.setEditText(self.DATA_LIST[self.rec_num].nr_individuo)
 
