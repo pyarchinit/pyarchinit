@@ -1125,34 +1125,36 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                     descriptions_text += "Unità Stratigrafiche:\n"
                     for record in us_records:
                         descriptions_text += f"US {getattr(record, 'us', '')}: {getattr(record, 'd_stratigrafica', '')}\n"
-                else:
-                    # Per le altre tabelle, filtriamo i record per il sito corrente se possibile
-                    site_specific_records = [r for r in records if getattr(r, 'sito', current_site) == current_site]
-                    descriptions_text += f"Table: {table_name}\n"
-                    for record in site_specific_records:
-                        for col in columns:
-                            descriptions_text += f"{col}: {getattr(record, col, '')}\n"
-                        descriptions_text += "\n"
+
+                # Per le altre tabelle, filtriamo i record per il sito corrente se possibile
+                site_specific_records = [r for r in records if getattr(r, 'sito', current_site) == current_site]
+                descriptions_text += f"Table: {table_name}\n"
+                for record in site_specific_records:
+                    for col in columns:
+                        descriptions_text += f"{col}: {getattr(record, col, '')}\n"
+                    descriptions_text += "\n"
 
             # Generate derived fields
             report_data['Tipo di indagine'] = f"Indagine archeologica presso {report_data['Cantiere']}"
             report_data['Titolo elaborato'] = f"Relazione di scavo - {report_data['Cantiere']}"
 
+            custom_prompt = descriptions_text
             # Create a more detailed prompt for the AI
-            custom_prompt = f"""
+            custom_prompt += f"""
             Genera una relazione archeologica dettagliata basata sui seguenti dati:
             {descriptions_text}
 
             La relazione deve includere le seguenti sezioni:
 
             1. INTRODUZIONE:
-               - Breve panoramica del sito e del contesto storico
+               - Breve panoramica del {current_site} e del contesto storico
                - Obiettivi dell'indagine
 
         
             2. DESCRIZIONE METODOLOGICA ED ESITO DELL'INDAGINE:
               
-               - Descrizione dettagliata delle unità stratigrafiche (US) rinvenute.
+               - Descrizione dettagliata di tutte le unità stratigrafiche (US) rinvenute. Inizia enunciando il totale 
+               delle US/USM divise per area, poi passa alla descrizione divisa per periodi e rpparti stratigrafci.
                - Analisi delle strutture murarie e degli edifici dalla tabella struttura_table
                - Descrizione dei reperti prendendo in cosiderazione numero inventario, tipo_reprto, 
                - Interpretazione delle fasi di occupazione del sito mettemndo in evidenza i rapporti stratigrafici che trovi nella colonna rapporti
@@ -1341,7 +1343,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         report_content = "\n\n".join([
             f"{key.upper()}:\n{value}"
             for key, value in report_data.items()
-            if key in ['introduzione', 'dati_di_riferimento', 'descrizione_metodologica_ed_esito_dell_indagine',
+            if key in ['dati_di_riferimento', 'introduzione',  'descrizione_metodologica_ed_esito_dell_indagine',
                        'conclusioni']
         ])
         self.report_dialog = ReportDialog(report_content, self)
