@@ -45,7 +45,7 @@ class ReportGenerator(QWidget):
                 {"role": "user", "content": prompt_completo}
             ],
             stream=True,
-            max_tokens=ReportGenerator.MAX_TOKENS
+            #max_tokens=ReportGenerator.MAX_TOKENS
         )
 
         messaggio_combinato = "\n "
