@@ -144,9 +144,6 @@ class GenerateReportThread(QThread):
     def run(self):
         # Combine the custom prompt with the descriptions
         full_prompt = f"{self.custom_prompt}\n\n{self.descriptions_text}"
-        full_prompt += ("Genera una relazione in forma discorsiva, evitando elenchi puntati. Organizza il contenuto "
-                   "in paragrafi coerenti per ciascuna sezione (Introduzione, "
-                   "Descrizione Metodologica ed Esito dell'Indagine, Conclusioni).")
 
         # Generate the report using OpenAI API
         report_text = ReportGenerator.generate_report_with_openai(self, full_prompt,  self.selected_model, self.api_key)
@@ -1075,9 +1072,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             }
 
             descriptions_text = ""
-            current_site = str(self.comboBox_sito.currentText()) # Assumo che self.SITO contenga il nome del sito corrente
-
-
+            current_site = str(
+                self.comboBox_sito.currentText())  # Assumo che self.SITO contenga il nome del sito corrente
 
             def rimuovi_duplicati(text):
                 # Separa il prefisso (se presente) dal resto del testo
@@ -1098,26 +1094,20 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                     site_record = next((r for r in records if getattr(r, 'sito', '') == current_site), None)
                     if site_record:
                         report_data['Regione'] = getattr(site_record, 'regione', '')
-                        report_data['Provincia'] = rimuovi_duplicati(
-                            f"Provincia: {getattr(site_record, 'provincia', '')}")
+                        report_data['Provincia'] = f"Provincia:{getattr(site_record, 'provincia', '')}"
                         report_data['Comune'] = rimuovi_duplicati(f"Comune: {getattr(site_record, 'comune', '')}")
                         report_data['Cantiere'] = current_site
                         report_data['Collocazione cantiere'] = current_site
-
+                    descriptions_text += f"{getattr(site_record, 'descrizione', '')}\n"
                 elif table_name == 'us_table':
                     us_records = [r for r in records if getattr(r, 'sito', '') == current_site]
                     if us_records:
                         first_record = us_records[0]
-                        report_data['Ente di riferimento'] = rimuovi_duplicati(
-                            getattr(first_record, 'soprintendenza', ''))
-                        report_data['Committenza'] = rimuovi_duplicati(
-                            getattr(first_record, 'ditta_esecutrice', ''))
-                        report_data['Direzione scientifica'] = rimuovi_duplicati(
-                            getattr(first_record, 'direttore_us', ''))
-                        report_data['Elaborato a cura di'] = rimuovi_duplicati(
-                            getattr(first_record, 'schedatore', ''))
-                        report_data['Direttore cantiere'] = rimuovi_duplicati(
-                            getattr(first_record, 'responsabile_us', ''))
+                        report_data['Ente di riferimento'] = getattr(first_record, 'soprintendenza', '')
+                        report_data['Committenza'] = getattr(first_record, 'ditta_esecutrice', '')
+                        report_data['Direzione scientifica'] = getattr(first_record, 'direttore_us', '')
+                        report_data['Elaborato a cura di'] = getattr(first_record, 'schedatore', '')
+                        report_data['Direttore cantiere'] = getattr(first_record, 'responsabile_us', '')
                         report_data['Direzione scientifica indagini archeologiche'] = report_data[
                             'Direzione scientifica']
                         report_data['Direzione cantiere archeologico'] = report_data['Direttore cantiere']
@@ -1125,70 +1115,46 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                     descriptions_text += "Unità Stratigrafiche:\n"
                     for record in us_records:
                         descriptions_text += f"US {getattr(record, 'us', '')}: {getattr(record, 'd_stratigrafica', '')}\n"
+                        descriptions_text += f"{getattr(record, 'descrizione', '')}\n"
+                        descriptions_text += f"{getattr(record, 'interpretazione', '')}\n"
+                        descriptions_text += f"{getattr(record, 'rapporti', '')}\n"
 
-                # Per le altre tabelle, filtriamo i record per il sito corrente se possibile
-                site_specific_records = [r for r in records if getattr(r, 'sito', current_site) == current_site]
-                descriptions_text += f"Table: {table_name}\n"
-                for record in site_specific_records:
-                    for col in columns:
-                        descriptions_text += f"{col}: {getattr(record, col, '')}\n"
-                    descriptions_text += "\n"
+                else:
+                    # Per le altre tabelle, filtriamo i record per il sito corrente se possibile
+                    site_specific_records = [r for r in records if getattr(r, 'sito', current_site) == current_site]
+                    descriptions_text += f"Table: {table_name}\n"
+                    for record in site_specific_records:
 
+                        descriptions_text += f"{getattr(record, 'descrizione', '')}\n"
+                        descriptions_text += "\n"
+
+            desktop_path = os.path.join(os.path.expanduser("~"), "Desktop")
+            output_file_path = os.path.join(desktop_path, 'descriptions_text.txt')
+            with open(output_file_path, 'w', encoding='utf-8') as file:
+                file.write(descriptions_text)
+
+            print(f"Le descrizioni sono state salvate in {output_file_path}")
             # Generate derived fields
             report_data['Tipo di indagine'] = f"Indagine archeologica presso {report_data['Cantiere']}"
             report_data['Titolo elaborato'] = f"Relazione di scavo - {report_data['Cantiere']}"
-
-            custom_prompt = descriptions_text
-            # Create a more detailed prompt for the AI
-            custom_prompt += f"""
+            custom_prompt = f"""
             Genera una relazione archeologica dettagliata basata sui seguenti dati:
-            {descriptions_text}
-
-            La relazione deve includere le seguenti sezioni:
-
+            
+            La relazione deve essere strutturata come nelle seguenti sezioni:
             1. INTRODUZIONE:
-               - Breve panoramica del {current_site} e del contesto storico
-               - Obiettivi dell'indagine
-
-        
-            2. DESCRIZIONE METODOLOGICA ED ESITO DELL'INDAGINE:
+               - Breve panoramica del {current_site} e del contesto storico che viene desunta dal campo descrizione
+               
+            2. DESCRIZIONE METODOLOGICA ED ESITO DELL'INDAGINE (5000 parole):
+               1 Descrizione dettagliata di tutte le unità stratigrafiche us rinvenute. Inizia scrivendo il totale delle US/USM.
+               2 Analisi delle strutture e degli edifici dalla tabella struttura_table se è stata selezionata
+               3 Analisi delle tombe dalla tabella tomba_table se è stata selezionata
+               4 Descrizione dei reperti prendendo in cosiderazione numero inventario, tipo_reprto se la tabella invetario_materiali_table è stato selezionato
+               5 Interpretazione delle fasi di occupazione del sito mettemndo in evidenza i rapporti stratigrafici che trovi nella colonna rapporti
+                
+            3. CONCLUSIONI (500 parole):
+               - Sintesi dei risultati
               
-               - Descrizione dettagliata di tutte le unità stratigrafiche (US) rinvenute. Inizia enunciando il totale 
-               delle US/USM divise per area, poi passa alla descrizione divisa per periodi e rpparti stratigrafci.
-               - Analisi delle strutture murarie e degli edifici dalla tabella struttura_table
-               - Descrizione dei reperti prendendo in cosiderazione numero inventario, tipo_reprto, 
-               - Interpretazione delle fasi di occupazione del sito mettemndo in evidenza i rapporti stratigrafici che trovi nella colonna rapporti
-                Inoltre se viene usata la view mediatoentity_view, inserisci nel testo le immagini associate. tieni presente che 
-                Questa tabella rappresenta una struttura di dati multimediali collegati a diverse entità archeologiche. Ecco come interpretare e utilizzare questi dati:
-
-                1. La colonna 'id_entity' è la chiave per collegare questi dati multimediali alle rispettive entità in altre tabelle.
-                
-                2. La colonna 'entity_type' indica il tipo di entità a cui il file multimediale è associato. Ecco come interpretare i valori in questa colonna:
-                
-                   a. Quando 'entity_type' è 'US', 'id_entity' si riferisce all'ID nella tabella 'us_table'.
-                   b. Quando 'entity_type' è 'REPERTO', 'id_entity' si riferisce all'ID nella tabella 'inventario_materiali_table'.
-                   c. Quando 'entity_type' è 'STRUTTURA', 'id_entity' si riferisce all'ID nella tabella 'struttura_table'.
-                   d. Quando 'entity_type' è 'CERAMICA', 'id_entity' si riferisce all'ID nella tabella 'pottery'.
-                   e. Quando 'entity_type' è 'TOMBA', 'id_entity' si riferisce all'ID nella tabella 'tomba_table'.
-                
-                3. Le colonne 'filepath' e 'path_resize' contengono i percorsi dei file multimediali associati a ciascuna entità.
-                
-                4. 'id_media_thumb' e 'id_media' sono identificatori univoci per le miniature e i file multimediali completi rispettivamente.
-                
-                Quando elabori questi dati, assicurati di:
-                1. Collegare correttamente i file multimediali alle entità appropriate nelle rispettive tabelle usando 'id_entity' e 'entity_type'.
-                2. Utilizzare i percorsi corretti per accedere ai file multimediali e alle loro miniature.
-                3. Considerare che un'entità può avere più file multimediali associati.
-                
-                Usa queste informazioni per creare relazioni significative tra i dati multimediali e le entità archeologiche, facilitando una comprensione completa del contesto e dei dettagli di ogni reperto o struttura documentata.
-            
-            3. CONCLUSIONI:
-               - Sintesi dei principali risultati
-               - Importanza del sito nel contesto archeologico regionale
-               - Suggerimenti per future ricerche o valorizzazione del sito
-
-            Assicurati che ogni sezione sia ben sviluppata e contenga informazioni dettagliate basate solo sui dati forniti. Ogni sezione deve essere sviluppata almeno da 800 parole.
-            
+           
             """
 
             if ReportGenerator.is_connected():
@@ -1325,7 +1291,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
         sections = [
             ("INTRODUZIONE", "introduzione"),
-            ("DESCRIZIONE METODOLOGICA ED ESITO DELL'INDAGINE", "descrizione_metodologica_ed_esito_dell_indagine"),
+            ("DESCRIZIONE METODOLOGICA ED ESITO DELL'INDAGINE", "descrizione_metodologica_ed_esito_dell'indagine"),
             ("CONCLUSIONI", "conclusioni")
         ]
 
@@ -1343,7 +1309,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         report_content = "\n\n".join([
             f"{key.upper()}:\n{value}"
             for key, value in report_data.items()
-            if key in ['dati_di_riferimento', 'introduzione',  'descrizione_metodologica_ed_esito_dell_indagine',
+            if key in ['dati_di_riferimento', 'introduzione',  "descrizione_metodologica_ed_esito_dell'indagine",
                        'conclusioni']
         ])
         self.report_dialog = ReportDialog(report_content, self)
@@ -6799,7 +6765,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         area_check = str(self.comboBox_area_rappcheck.currentText())
         try:
             self.rapporti_stratigrafici_check(sito_check)
-            self.def_strati_to_rapporti_stratigrafici_check(sito_check)  # SPERIMENTALE
+            self.def_strati_to_rapporti_stratigrafici_check(sito_check,area_check)  # SPERIMENTALE
         except AssertionError as e:
             QMessageBox.critical(self, "Error", f"An error occurred while performing the check: {str(e)}",
                                  QMessageBox.Ok)
@@ -6820,10 +6786,22 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         try:
             self.rapporti_stratigrafici_check(sito_check)
             if self.checkBox_validate.isChecked():
-                self.def_strati_to_rapporti_stratigrafici_check(sito_check)  # SPERIMENTALE
-
+                self.def_strati_to_rapporti_stratigrafici_check(sito_check)
                 self.periodi_to_rapporti_stratigrafici_check(sito_check)
             self.automaticform_check(sito_check)
+
+            # Nuovo controllo per "Area non trovata"
+            us_area_non_trovata = []
+            for row in range(self.tableWidget_rapporti.rowCount()):
+                area_value = self.tableWidget_rapporti.item(row, 2).text()
+                if area_value == "Area non trovata":
+                    us_value = self.tableWidget_rapporti.item(row, 1).text()
+                    us_area_non_trovata.append(us_value)
+
+            if us_area_non_trovata:
+                message = "Le seguenti US hanno 'Area non trovata' e potrebbero richiedere la creazione di una nuova scheda:\n"
+                message += ", ".join(us_area_non_trovata)
+                self.listWidget_rapp.addItem(message)
         except Exception as e:
             full_exception = traceback.format_exc()
 
@@ -7326,6 +7304,9 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
     def rapporti_stratigrafici_check(self, sito_check):
         global rapporti_check
+        us_inesistenti = []
+        rapporti_mancanti = []
+        aree_vuote=[]
         self.listWidget_rapp.clear()
         conversion_dict = {'Covers': 'Covered by',
                            'Covered by': 'Covers',
@@ -7376,8 +7357,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         count_1 = 0
 
         for rec in range(len(records)):
-            sito = "'" + str(records[rec].sito).strip("'") + "'"
-            area = "'" + str(records[rec].area).strip("'") + "'"
+            sito = "'" + str(records[rec].sito) + "'"
+            area = "'" + str(records[rec].area) + "'"
             us = int(records[rec].us)
             rapporti = records[rec].rapporti  # caricati i rapporti nella variabile
             rapporti = eval(rapporti)
@@ -7388,7 +7369,14 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 #sing_rapp = sing_rapp[:3]
                 # Verifica che la stringa 'us' contenga '0' o '1'
                 if str(us).find('0') >= 0 or str(us).find('1') >= 0:
-                    # Gestisci caso in cui sing_rapp ha una lunghezza di 4
+                    if sing_rapp[2] == "Area non trovata":
+
+                        sing_rapp[2]=0
+
+
+                    if sing_rapp[2] == '':
+                        aree_vuote.append(f"US: {us}, Rapporto: {sing_rapp[0]} US: {sing_rapp[1]}")
+
                     if len(sing_rapp) == 4:
                         rapp_converted = conversion_dict[sing_rapp[0]]
                         serch_dict_rapp = {'sito': sito, 'area': sing_rapp[2], 'us': int(sing_rapp[1])}
@@ -7400,54 +7388,60 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                             raise TypeError(f"Expected an integer for sing_rapp[1], got {sing_rapp[1]} instead")
 
                         if not bool(us_rapp):
-                            report_template = {
-                                'it': 'Sito: %s, Area: %s, US: %d %s US: %d Area: %s: Scheda US non esistente',
-                                'de': 'Ausgrabungsstätte: %s, Areal: %s, SE: %d %s SE: %d Area: %s: SE formular nicht existent',
-                                'en': 'Site: %s, Area: %s, SU: %d %s SU: %d Area: %s: SU form not-existent'
-                            }
+                            if aree_vuote:
+                                message = {
+                                    'it': f"Ci sono {len(aree_vuote)} rapporti con area vuota . Eseguire Ctrl+U per aggiornare prima di procedere con il controllo.\n\nDettagli:\n" + "\n".join(
+                                        aree_vuote),
+                                    'de': f"Es gibt {len(aree_vuote)} Beziehungen mit leerem oder nicht gefundenem Bereich. Führen Sie Strg+U aus, um zu aktualisieren, bevor Sie mit der Überprüfung fortfahren.\n\nDetails:\n" + "\n".join(
+                                        aree_vuote),
+                                    'en': f"There are {len(aree_vuote)} relationships with empty area. Execute Ctrl+U to update before proceeding with the check.\n\nDetails:\n" + "\n".join(
+                                        aree_vuote)
+                                }
+                                self.listWidget_rapp.addItem(message.get(self.L, message['en']))
+                                return
 
-                            language = self.L if self.L in report_template else 'en'
-                            report = report_template[language] % (
-                            sito, area, int(us), sing_rapp[0], us_sing_rapp, sing_rapp[2])
-                        else:
-
-                            rapporti_check = eval(us_rapp[0].rapporti)
-                            #QMessageBox.information(self, 'ok', str(rapporti_check))
-                            us_rapp_check = '%d' % int(us)
-                            area_rapp_check = '%s' % area.strip("'")
-                            sito_rapp_check = '%s' % sito.strip("'")
-
-                            s = [rapp_converted, us_rapp_check, area_rapp_check, sito_rapp_check]
-
-                            #QMessageBox.information(self, 'ok', f"Rapporto verificato: {s}")
-                            if rapporti_check.count(s) == 1:
-
-
-                                report = ""
+                            if sing_rapp[2] == 0:
+                                us_inesistenti.append(f"US: {sing_rapp[1]}: US inesistente")
                             else:
-                                if self.L == 'it':
-                                    report = 'Sito: %s, Area: %s, US: %d %s US: %d Area: %s: Rapporto non verificato' % (
-                                        sito, area, int(us), sing_rapp[0], int(sing_rapp[1]), sing_rapp[2])
-                                elif self.L == 'de':
-                                    report = 'Ausgrabungsstätte: %s, Areal: %s, SE: %d %s SE: %d Area: %s: nicht geprüfter Bericht' % (
-                                        sito, area, int(us), sing_rapp[0], int(sing_rapp[1]), sing_rapp[2])
-                                else:
-                                    report = 'Site: %s, Area: %s, SU: %d %s SU: %d Area: %s: relationships not verified' % (
-                                        sito, area, int(us), sing_rapp[0], int(sing_rapp[1]), sing_rapp[2])
+                                report_template = {
 
-                                if rapporti_check.count([rapp_converted, us_rapp_check, area_rapp_check]) == 0:
-                                    count_0 += 1
+                                    'it': 'Sito: {}, Area: {}, US: {} {} US: {} Area: {}: Scheda US non esistente',
 
-                                elif rapporti_check.count([rapp_converted, us_rapp_check, area_rapp_check]) != 1:
-                                    count_1 += 1
+                                    'de': 'Ausgrabungsstätte: {}, Areal: {}, SE: {} {} SE: {} Area: {}: SE formular nicht existent',
 
-                    # Gestisci caso in cui sing_rapp ha una lunghezza diversa da 4
-                    else:
-                        # Aggiungi qui la logica per gestire il caso con diversa lunghezza di sing_rapp
-                        pass
+                                    'en': 'Site: {}, Area: {}, SU: {} {} SU: {} Area: {}: SU form not-existent'
 
-                if report != "":
-                    self.report_rapporti += report + '\n'
+                                }
+
+                                us_inesistenti.append(report_template.get(self.L, report_template['en']).format(
+
+                                    sito, area, us, sing_rapp[0], sing_rapp[1], sing_rapp[2]))
+                        else:
+                            try:
+                                rapporti_check = eval(us_rapp[0].rapporti)
+                                us_rapp_check = str(us)
+                                area_rapp_check = area.strip("'")
+                                sito_rapp_check = sito.strip("'")
+
+                                s = [rapp_converted, us_rapp_check, area_rapp_check, sito_rapp_check]
+
+                                if rapporti_check.count(s) != 1:
+                                    report_template = {
+                                        'it': 'Sito: {}, Area: {}, US: {} {} US: {} Area: {}: Rapporto non verificato',
+                                        'de': 'Ausgrabungsstätte: {}, Areal: {}, SE: {} {} SE: {} Area: {}: nicht geprüfter Bericht',
+                                        'en': 'Site: {}, Area: {}, SU: {} {} SU: {} Area: {}: relationships not verified'
+                                    }
+                                    rapporti_mancanti.append(report_template.get(self.L, report_template['en']).format(
+                                        sito, area, us, sing_rapp[0], sing_rapp[1], sing_rapp[2]))
+                            except Exception as e:
+                                rapporti_mancanti.append(f"Errore nella verifica dei rapporti per US {us}: {str(e)}")
+
+                            # Aggiungi i risultati raggruppati al report
+        if us_inesistenti:
+            self.report_rapporti += "\nUS Inesistenti:\n" + "\n".join(us_inesistenti) + "\n"
+        if rapporti_mancanti:
+            self.report_rapporti += "\nRapporti Mancanti o Non Verificati:\n" + "\n".join(
+                rapporti_mancanti) + "\n"
 
         self.listWidget_rapp.addItem(self.report_rapporti)
         # Costruisci il messaggio finale includendo rapporti_check
@@ -7511,7 +7505,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             report_rapporti1 = 'Report controllo Definizione Stratigrafica a Rapporti Stratigrafici - Sito: %s \n' % (
                 sito_check)
         elif self.L=='de':
-            report_rapporti1 = 'Kontrollbericht Definition Stratigraphische zu Stratigraphische Berichte - Ausgrabungsstätte: %s \n' % (
+            report_rapporti1 = 'Kontrollbericht Definition Stratigraphische zu Stratigraphische Berichte - Ausgrabungsstätte: %s  \n' % (
                 sito_check)
         else:
             report_rapporti1 = 'Control report Definition Stratigraphic to Stratigraphic Reports - Site: %s \n' % (
@@ -7527,6 +7521,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
             for sing_rapp in rapporti:  # itera sulla serie di rapporti
                 report = ""
+
+
                 if def_stratigrafica.find('Strato') >= 0:  # Paradosso strati che tagliano o si legano
                     if sing_rapp[0] == 'Si lega a':
                         report = 'Sito: %s, Area: %s, US: %d - %s: lo strato %s US: %d: ' % (
