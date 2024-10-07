@@ -3338,7 +3338,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             """ if has geometry column load to map canvas """
             gidstr = self.ID_TABLE + " = " + str(
                 eval("self.DATA_LIST[int(self.REC_CORR)]." + self.ID_TABLE))
-            layerToSet = self.pyQGIS.loadMapPreview(gidstr)
+            layerToSet = self.pyQGIS.loadMapPreview_new(gidstr)
             #QMessageBox.warning(self, "layer to set", '\n'.join([l.name() for l in layerToSet]), QMessageBox.Ok)
             self.mapPreview.setLayers(layerToSet)
             self.mapPreview.zoomToFullExtent()
