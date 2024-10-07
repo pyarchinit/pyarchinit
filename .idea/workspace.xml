@@ -165,7 +165,7 @@
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;ToolWindowCodeGPT.ShowToolbar&quot;: &quot;false&quot;,
     &quot;git-widget-placeholder&quot;: &quot;master&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/Users/enzo/Library/Application Support/QGIS/QGIS3/profiles/default/python/plugins/pyarchinit/modules/utility&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/Users/enzo/Library/Application Support/QGIS/QGIS3/profiles/default/python/plugins/pyarchinit/resources/dbfiles&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
     &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
@@ -197,11 +197,11 @@
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/resources/dbfiles" />
+      <recent name="$PROJECT_DIR$/resources" />
       <recent name="$PROJECT_DIR$/modules/utility" />
       <recent name="$PROJECT_DIR$" />
       <recent name="C:\Users\enzoc\AppData\Roaming\QGIS\QGIS3\profiles\default\python\plugins\pyarchinit\resources\dbfiles" />
-      <recent name="C:\Users\enzoc\AppData\Roaming\QGIS\QGIS3\profiles\default\python\plugins\pyarchinit\modules\utility" />
-      <recent name="C:\Users\enzoc\AppData\Roaming\QGIS\QGIS3\profiles\default\python\plugins\pyarchinit\tabs" />
     </key>
   </component>
   <component name="RunManager" selected="Python.skatch_gpt_US">
@@ -474,7 +474,13 @@
       <workItem from="1727702687281" duration="10817000" />
       <workItem from="1727788433874" duration="10740000" />
       <workItem from="1727851943004" duration="67000" />
-      <workItem from="1727852039771" duration="11845000" />
+      <workItem from="1727852039771" duration="15776000" />
+      <workItem from="1727929000380" duration="22212000" />
+      <workItem from="1728114519157" duration="9989000" />
+      <workItem from="1728124646692" duration="109000" />
+      <workItem from="1728136507005" duration="14789000" />
+      <workItem from="1728200857952" duration="9112000" />
+      <workItem from="1728287269500" duration="1532000" />
     </task>
     <task id="LOCAL-00022" summary="v3.9.14">
       <created>1649165457258</created>
@@ -819,7 +825,7 @@
       <option name="project" value="LOCAL" />
       <updated>1679662089681</updated>
     </task>
-    <option name="localTasksCounter" value="142" />
+    <option name="localTasksCounter" value="153" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -863,32 +869,32 @@
     <ignored-roots>
       <path value="$PROJECT_DIR$/ext-libs/totalopenstation-0.5.2-py3.9.egg/totalopenstation_" />
     </ignored-roots>
-    <MESSAGE value="Ensure visibility of dataset status checks" />
-    <MESSAGE value="Ensure visibility of dataset status checks," />
-    <MESSAGE value="Ensure visibility of dataset status checks, correct" />
-    <MESSAGE value="Ensure visibility of dataset status checks, correct typo" />
-    <MESSAGE value="Ensure visibility of dataset status checks, correct typo," />
-    <MESSAGE value="Ensure visibility of dataset status checks, correct typo, and" />
-    <MESSAGE value="Ensure visibility of dataset status checks, correct typo, and update" />
-    <MESSAGE value="Ensure visibility of dataset status checks, correct typo, and update guidance" />
-    <MESSAGE value="Ensure visibility of dataset status checks, correct typo, and update guidance text" />
-    <MESSAGE value="Ensure visibility of dataset status checks, correct typo, and update guidance text for" />
-    <MESSAGE value="Ensure visibility of dataset status checks, correct typo, and update guidance text for better" />
-    <MESSAGE value="Ensure visibility of dataset status checks, correct typo, and update guidance text for better clarity" />
-    <MESSAGE value="Ensure visibility of dataset status checks, correct typo, and update guidance text for better clarity while" />
-    <MESSAGE value="Ensure visibility of dataset status checks, correct typo, and update guidance text for better clarity while handling" />
-    <MESSAGE value="Ensure visibility of dataset status checks, correct typo, and update guidance text for better clarity while handling inventory" />
-    <MESSAGE value="Ensure visibility of dataset status checks, correct typo, and update guidance text for better clarity while handling inventory numbers" />
-    <MESSAGE value="Ensure visibility of dataset status checks, correct typo, and update guidance text for better clarity while handling inventory numbers." />
-    <MESSAGE value="Add connect_p method for database connection handling.&#10;&#10;Implemented a new `connect_p` method for database connection and handling. Updated UI elements to remove unused text and added calls to update the `iconListWidget` in various methods to ensure it reflects the current state." />
-    <MESSAGE value="Refactor and improve API request handling&#10;&#10;Added URL parameter to worker initialization for more flexible API requests and implemented a new method for interacting with Claude API. Updated PDF text insertion logic for more precise text replacement. Removed unnecessary global variables to enhance code readability and maintainability." />
-    <MESSAGE value="Enhance analysis options and improve handling of US records&#10;&#10;- Add UI options for analyzing injected code and setting scope type.&#10;- Implement method to insert number of rapporti records, enhancing record management.&#10;- Refactor AI interaction to handle Harris matrix analysis with user confirmation.&#10;- Update existing methods for processing AI responses and extracting relevant information.&#10;- Add checks for existing records to avoid duplicates.&#10;- Improve error handling and user prompts for better clarity and usability." />
-    <MESSAGE value="Add report generation feature with OpenAI API integration&#10;&#10;This update introduces a threaded report generation using the OpenAI API and a new dialog for displaying and saving the report. Additionally, label name extraction and graph node plotting logic have been improved by removing unnecessary prefixes in `pyarchinit_matrix_exp.py`." />
-    <MESSAGE value="Update to version 4.8.1&#10;&#10;Introduce report generation with OpenAI API integration and improve label name extraction and graph node plotting. This update also includes a new dialog for displaying and saving the report." />
-    <MESSAGE value="Add Report Generation Dialog&#10;&#10;Introduced a new dialog class for report generation, allowing users to select multiple tables. Refactored and streamlined report generation logic using the selected tables, enhancing modularity and usability." />
-    <MESSAGE value="Update version to 4.8.2&#10;&#10;Added a new dialog class for report generation, allowing users to select multiple tables. Refactored report generation logic for enhanced modularity and usability." />
-    <MESSAGE value="Add token-based chunking to report generation&#10;&#10;This commit introduces a method to split records into chunks based on token count, ensuring compatibility with token limits. The new `chunk_data` method and `split_data_to_fit_tokens` function are used in the report generation process, enhancing the handling of large datasets. The change ensures smoother and more efficient processing of reports within token restrictions." />
-    <option name="LAST_COMMIT_MESSAGE" value="Add token-based chunking to report generation&#10;&#10;This commit introduces a method to split records into chunks based on token count, ensuring compatibility with token limits. The new `chunk_data` method and `split_data_to_fit_tokens` function are used in the report generation process, enhancing the handling of large datasets. The change ensures smoother and more efficient processing of reports within token restrictions." />
+    <MESSAGE value="Refactor code to enhance readability and maintainability by removing duplicate removal logic" />
+    <MESSAGE value="Refactor code to enhance readability and maintainability by removing duplicate removal logic and" />
+    <MESSAGE value="Refactor code to enhance readability and maintainability by removing duplicate removal logic and consolid" />
+    <MESSAGE value="Refactor code to enhance readability and maintainability by removing duplicate removal logic and consolidating" />
+    <MESSAGE value="Refactor code to enhance readability and maintainability by removing duplicate removal logic and consolidating prompt" />
+    <MESSAGE value="Refactor code to enhance readability and maintainability by removing duplicate removal logic and consolidating prompt structure" />
+    <MESSAGE value="Refactor code to enhance readability and maintainability by removing duplicate removal logic and consolidating prompt structure while" />
+    <MESSAGE value="Refactor code to enhance readability and maintainability by removing duplicate removal logic and consolidating prompt structure while ensuring" />
+    <MESSAGE value="Refactor code to enhance readability and maintainability by removing duplicate removal logic and consolidating prompt structure while ensuring descriptive" />
+    <MESSAGE value="Refactor code to enhance readability and maintainability by removing duplicate removal logic and consolidating prompt structure while ensuring descriptive text" />
+    <MESSAGE value="Refactor code to enhance readability and maintainability by removing duplicate removal logic and consolidating prompt structure while ensuring descriptive text is" />
+    <MESSAGE value="Refactor code to enhance readability and maintainability by removing duplicate removal logic and consolidating prompt structure while ensuring descriptive text is saved" />
+    <MESSAGE value="Refactor code to enhance readability and maintainability by removing duplicate removal logic and consolidating prompt structure while ensuring descriptive text is saved and" />
+    <MESSAGE value="Refactor code to enhance readability and maintainability by removing duplicate removal logic and consolidating prompt structure while ensuring descriptive text is saved and reported" />
+    <MESSAGE value="Refactor code to enhance readability and maintainability by removing duplicate removal logic and consolidating prompt structure while ensuring descriptive text is saved and reported inconsist" />
+    <MESSAGE value="Refactor code to enhance readability and maintainability by removing duplicate removal logic and consolidating prompt structure while ensuring descriptive text is saved and reported inconsistencies" />
+    <MESSAGE value="Refactor code to enhance readability and maintainability by removing duplicate removal logic and consolidating prompt structure while ensuring descriptive text is saved and reported inconsistencies are" />
+    <MESSAGE value="Refactor code to enhance readability and maintainability by removing duplicate removal logic and consolidating prompt structure while ensuring descriptive text is saved and reported inconsistencies are handled" />
+    <MESSAGE value="Refactor code to enhance readability and maintainability by removing duplicate removal logic and consolidating prompt structure while ensuring descriptive text is saved and reported inconsistencies are handled with" />
+    <MESSAGE value="Refactor code to enhance readability and maintainability by removing duplicate removal logic and consolidating prompt structure while ensuring descriptive text is saved and reported inconsistencies are handled with detailed" />
+    <MESSAGE value="Refactor code to enhance readability and maintainability by removing duplicate removal logic and consolidating prompt structure while ensuring descriptive text is saved and reported inconsistencies are handled with detailed messages" />
+    <MESSAGE value="Refactor code to enhance readability and maintainability by removing duplicate removal logic and consolidating prompt structure while ensuring descriptive text is saved and reported inconsistencies are handled with detailed messages." />
+    <MESSAGE value="Refactor to enhance readability and maintainability&#10;&#10;Consolidated prompt structure and removed duplicate logic. Descriptive text is now saved to a file and detailed messages are provided for reported inconsistencies." />
+    <MESSAGE value="Remove redundant code and optimize report generation&#10;    &#10;Removed redundant prompt instructions and unused variables in `US_USM.py`. Added functionality to save descriptions text to a file on the desktop and provided checks to manage &quot;Area non trovata&quot; in stratigraphic relationships. This improves code readability and functionality." />
+    <MESSAGE value="Update metadata version to 4.8.4&#10;&#10;Updated to version 4.8.4 to include improvements in code readability and functionality. Changes include removing redundant instructions and unused variables, adding functionality for saving descriptions to a file, and managing errors in stratigraphic relationships." />
+    <option name="LAST_COMMIT_MESSAGE" value="Update metadata version to 4.8.4&#10;&#10;Updated to version 4.8.4 to include improvements in code readability and functionality. Changes include removing redundant instructions and unused variables, adding functionality for saving descriptions to a file, and managing errors in stratigraphic relationships." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -932,6 +938,11 @@
           <url>file://$PROJECT_DIR$/tabs/US_USM.py</url>
           <line>133</line>
           <option name="timeStamp" value="9" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/tabs/US_USM.py</url>
+          <line>3340</line>
+          <option name="timeStamp" value="10" />
         </line-breakpoint>
       </breakpoints>
       <default-breakpoints>
