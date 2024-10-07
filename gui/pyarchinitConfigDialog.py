@@ -4082,6 +4082,8 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                         conn_str_dict_write["host"], conn_str_dict_write["port"], conn_str_dict_write["db_name"],
                         "?sslmode=allow")
                 except:
+                    print('error')
+                else:
                     conn_str_write = "%s://%s:%s@%s:%d/%s" % (
                         "postgresql", conn_str_dict_write["user"], conn_str_dict_write["password"],
                         conn_str_dict_write["host"],
@@ -4683,6 +4685,8 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                         conn_str_dict_write["host"], conn_str_dict_write["port"], conn_str_dict_write["db_name"],
                         "?sslmode=allow")
                 except:
+                    print('error')
+                else:
                     conn_str_write = "%s://%s:%s@%s:%d/%s" % (
                         "postgresql", conn_str_dict_write["user"], conn_str_dict_write["password"],
                         conn_str_dict_write["host"],
