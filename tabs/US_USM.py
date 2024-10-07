@@ -6765,7 +6765,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         area_check = str(self.comboBox_area_rappcheck.currentText())
         try:
             self.rapporti_stratigrafici_check(sito_check)
-            self.def_strati_to_rapporti_stratigrafici_check(sito_check,area_check)  # SPERIMENTALE
+            self.def_strati_to_rapporti_stratigrafici_check(sito_check)  # SPERIMENTALE
         except AssertionError as e:
             QMessageBox.critical(self, "Error", f"An error occurred while performing the check: {str(e)}",
                                  QMessageBox.Ok)
