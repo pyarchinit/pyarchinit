@@ -20,22 +20,25 @@
 """
 
 import os
+import random
 import sqlite3
 import time
 from builtins import object
 from builtins import range
 from builtins import str
-from PyQt5.QtCore import *
-from PyQt5.QtGui import *
-from PyQt5.QtWidgets import *
+
+from qgis.PyQt.QtGui import *
+from qgis.PyQt.QtWidgets import *
 from qgis.core import *
 from qgis.gui import *
-import qgis.utils
-import requests
-import urllib
-from socket import timeout
+
+import urllib.request
+import urllib.error
+
+from ..utility.create_style import ThesaurusStyler
 from ..utility.settings import Settings
 
+from ..db.pyarchinit_conn_strings import Connection
 
 class Pyarchinit_pyqgis(QDialog):
 
@@ -100,7 +103,7 @@ class Pyarchinit_pyqgis(QDialog):
                               "pyarchinit_site_view": "Localizzazione siti Vista",
                               "pyarchinit_siti_polygonal": "Perimetrazione siti poligonali",
                               "pyarchinit_siti_polygonal_view": "Perimetrazione siti poligonali Vista",
-                              "pyarchinit_site_view": "Localizzazione siti puntuale Vista",
+                              #"pyarchinit_site_view": "Localizzazione siti puntuale Vista",
                               "pyarchinit_strutture_view": "Ipotesi strutture da scavo Vista",
                               "pyarchinit_tomba_view": "Tomba View",
                               "pyarchinit_tafonomia": "Tomba",
@@ -131,7 +134,7 @@ class Pyarchinit_pyqgis(QDialog):
                               "pyarchinit_doc_view": "Dokumentation Ansicht",
                               "pyarchinit_us_negative_doc": "SE-Negativ für profile/groß",
                               "pyarchinit_us_negative_doc_view": "SE Ansicht Negative für profile/groß",
-                              "pyarchinit_site_view": "Genauer Ausgrabungsstättenbereich Ansicht",
+                              #"pyarchinit_site_view": "Genauer Ausgrabungsstättenbereich Ansicht",
                               "pyarchinit_siti_polygonal": "Perimeterstand Ausgrabungsstätte poligonal",
                               "pyarchinit_siti_polygonal_view": "Perimeterstand Ausgrabungsstätte poligonal Ansicht",
                               "pyarchinit_site_view": "Genauer Ausgrabungsstättenbereich Ansicht",
@@ -165,7 +168,7 @@ class Pyarchinit_pyqgis(QDialog):
                               "pyarchinit_doc_view": "Documentation view",
                               "pyarchinit_us_negative_doc": "Negative SU for section/elevation",
                               "pyarchinit_us_negative_doc_view": "Negative SU for section/elevation view",
-                              "pyarchinit_site_view": "Site view",
+                              #"pyarchinit_site_view": "Site view",
                               "pyarchinit_siti_polygonal": "Areal site",
                               "pyarchinit_siti_polygonal_view": "Areal site view",
                               "pyarchinit_site_view": "Site point view",
@@ -706,6 +709,18 @@ class Pyarchinit_pyqgis(QDialog):
 
             us_name_pos = "US Disegno grezzo - "+str(data[0].tipo_documentazione)
 
+            docstr_grezzo = ""
+            if len(data) == 1:
+                docstr = "sito = '" + str(data[0].sito) + "' AND tipo_doc = '" + str(data[0].tipo_documentazione) + "'"
+            elif len(data) > 1:
+                docstr = "(sito = '" + str(data[0].sito) + "' AND tipo_doc = '" + str(
+                    data[0].tipo_documentazione) + "')"
+                for i in range(len(data)):
+                    docstr += " OR (sito = '" + str(data[0].sito) + "' AND tipo_doc = '" + str(
+                        data[0].tipo_documentazione) + "')"
+            else:
+                pass
+
             uri.setDataSource("", 'pyunitastratigrafiche', 'the_geom', docstr_grezzo, "gid")
 
             usPos = QgsVectorLayer(uri.uri(), us_name_pos, 'postgres')
@@ -795,6 +810,20 @@ class Pyarchinit_pyqgis(QDialog):
 
             layer_name_pos = "Sezione - " + str(data[0].sito) + ": " + str(data[0].tipo_documentazione) + ": " + str(
                 data[0].nome_doc)
+
+            sezstr = ""
+            if len(data) == 1:
+                sezstr = "sito = '" + str(data[0].sito) + "' AND nome_doc = '" + str(
+                    data[0].nome_doc) + "' AND tipo_doc = '" + str(data[0].tipo_documentazione) + "'"
+            elif len(data) > 1:
+                sezstr = "(sito = '" + str(data[0].sito) + "' AND nome_doc = '" + str(
+                    data[0].nome_doc) + "' AND tipo_doc = '" + str(data[0].tipo_documentazione) + "')"
+                for i in range(len(data)):
+                    sezstr += " OR (sito = '" + str(data[i].sito) + "' AND tipo_doc = '" + str(
+                        data[i].tipo_documentazione) + " AND nome_doc = '" + str(data[i].nome_doc) + "')"
+            else:
+                pass
+
             uri.setDataSource('', 'pyarchinit_sezioni_view', 'the_geom', sezstr, "gid")
             ##          uri.setDataSource('','pyarchinit_doc_view_b', 'the_geom', docstr, "ROWID")
             layerPos = QgsVectorLayer(uri.uri(), layer_name_pos, 'postgres')
@@ -2036,6 +2065,229 @@ class Pyarchinit_pyqgis(QDialog):
                 # QMessageBox.warning(self, "Pyarchinit", "NOT! Layer US not valid",#QMessageBox.Ok)
 
             return layerToSet
+
+    def loadMapPreview_new(self, gidstr):
+        """ if has geometry column load to map canvas """
+        layerToSet = []
+        sqlite_DB_path = '{}{}{}'.format(self.HOME, os.sep, "pyarchinit_DB_folder")
+        path_cfg = '{}{}{}'.format(sqlite_DB_path, os.sep, 'config.cfg')
+        conf = open(path_cfg, "r")
+        con_sett = conf.read()
+        conf.close()
+        settings = Settings(con_sett)
+        settings.set_configuration()
+
+        # Inizializza ThesaurusStyler
+        conn = Connection()
+        styler = ThesaurusStyler(conn)
+
+        if settings.SERVER == 'postgres':
+            uri_u = QgsDataSourceUri()
+            uri_u.setConnection(settings.HOST, settings.PORT, settings.DATABASE, settings.USER, settings.PASSWORD)
+
+            uri_u.setDataSource("public", "pyarchinit_us_view", "the_geom", gidstr, "gid")
+            layerUS = QgsVectorLayer(uri_u.uri(), "Unita Stratigrafiche in uso", "postgres")
+
+            uri_u.setDataSource("public", "pyarchinit_us_view", "the_geom", "", "gid")
+            layerUS_us = QgsVectorLayer(uri_u.uri(), "mappa completa", "postgres")
+
+            if layerUS.isValid():
+                # Applica lo stile automatico
+                d_stratigrafica_field = 'd_stratigrafica'  # Campo nel layer pyarchinit_us_view
+                unique_values = layerUS.uniqueValues(layerUS.fields().indexOf(d_stratigrafica_field))
+
+                # Ottieni il mapping tra d_stratigrafica e sigla dal thesaurus
+                thesaurus_mapping = self.get_thesaurus_mapping_postgres(uri_u)
+
+                categories = []
+
+                if thesaurus_mapping:
+                    for value in unique_values:
+                        # Trova la sigla corrispondente nel thesaurus
+                        sigla = thesaurus_mapping.get(value)
+                        if sigla:
+                            symbol = styler.get_style(sigla)
+                            if symbol:
+                                # Assicuriamoci che il simbolo sia visibile
+                                symbol.setOpacity(1)
+                                # Impostiamo un colore di sfondo per essere sicuri che sia visibile
+                                symbol.setColor(
+                                    QColor(random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)))
+                                category = QgsRendererCategory(value, symbol, str(value))
+                                categories.append(category)
+                                print(f"Categoria creata per {value}: {sigla} con colore {symbol.color().name()}")
+                        else:
+                            print(f"Nessuna sigla trovata per il valore {value}")
+
+                    if categories:
+                        renderer = QgsCategorizedSymbolRenderer(d_stratigrafica_field, categories)
+                        layerUS.setRenderer(renderer)
+                        print(f"Renderer applicato con {len(categories)} categorie")
+                    else:
+                        print("Nessuna categoria creata, il renderer non è stato applicato")
+
+                    # Forza l'aggiornamento del layer
+                    layerUS.triggerRepaint()
+
+                else:
+                    style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view_preview.qml')
+                    layerUS.loadNamedStyle(style_path)
+
+                style_path_us = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view_dot.qml')
+                layerUS_us.loadNamedStyle(style_path_us)
+
+                QgsProject.instance().addMapLayers([layerUS], False)
+                QgsProject.instance().addMapLayers([layerUS_us], False)
+
+                layerToSet.append(layerUS_us)
+                layerToSet.append(layerUS)
+
+        elif settings.SERVER == 'sqlite':
+            sqliteDB_path = os.path.join(os.sep, 'pyarchinit_DB_folder', settings.DATABASE)
+            db_file_path = '{}{}'.format(self.HOME, sqliteDB_path)
+            conn = sqlite3.connect(db_file_path)
+            cursor = conn.cursor()
+            cursor.execute("SELECT srid FROM geometry_columns WHERE f_table_name = 'pyarchinit_siti'")
+            srid = cursor.fetchone()[0]
+            conn.close()
+
+            uri = QgsDataSourceUri()
+            uri.setDatabase(db_file_path)
+
+            uri_us = QgsDataSourceUri()
+            uri_us.setDatabase(db_file_path)
+
+            uri.setDataSource('', 'pyarchinit_us_view', 'the_geom', gidstr, "ROWID")
+            layerUS = QgsVectorLayer(uri.uri(), 'pyarchinit_us_view', 'spatialite')
+
+            uri_us.setDataSource('', 'pyarchinit_us_view', 'the_geom', 'id_us', "ROWID")
+            layerUS_us = QgsVectorLayer(uri_us.uri(), 'pyarchinit_us_view', 'spatialite')
+
+            if layerUS.isValid():
+                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                layerUS_us.setCrs(crs)
+                layerUS.setCrs(crs)
+
+                # Applica lo stile automatico
+                d_stratigrafica_field = 'd_stratigrafica'  # Campo nel layer pyarchinit_us_view
+                unique_values = layerUS.uniqueValues(layerUS.fields().indexOf(d_stratigrafica_field))
+
+                sqliteDB_path = os.path.join(os.sep, 'pyarchinit_DB_folder', settings.DATABASE)
+                db_file_path = '{}{}'.format(self.HOME, sqliteDB_path)
+                conn = sqlite3.connect(db_file_path)
+                cursor = conn.cursor()
+
+                # Ottieni il mapping tra d_stratigrafica e sigla dal thesaurus
+                thesaurus_mapping = self.get_thesaurus_mapping(cursor)
+                conn.close()
+
+                categories = []
+
+                if thesaurus_mapping:
+                    for value in unique_values:
+                        # Trova la sigla corrispondente nel thesaurus
+                        sigla = thesaurus_mapping.get(value)
+                        if sigla:
+                            symbol = styler.get_style(sigla)
+                            if symbol:
+                                # Assicuriamoci che il simbolo sia visibile
+                                symbol.setOpacity(1)
+                                # Impostiamo un colore di sfondo per essere sicuri che sia visibile
+                                symbol.setColor(
+                                    QColor(random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)))
+                                category = QgsRendererCategory(value, symbol, str(value))
+                                categories.append(category)
+                                print(f"Categoria creata per {value}: {sigla} con colore {symbol.color().name()}")
+                        else:
+                            print(f"Nessuna sigla trovata per il valore {value}")
+
+                    if categories:
+                        renderer = QgsCategorizedSymbolRenderer(d_stratigrafica_field, categories)
+                        layerUS.setRenderer(renderer)
+                        print(f"Renderer applicato con {len(categories)} categorie")
+                    else:
+                        print("Nessuna categoria creata, il renderer non è stato applicato")
+
+                    # Forza l'aggiornamento del layer
+                    layerUS.triggerRepaint()
+
+                else:
+                    style_path_us = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view_preview.qml')
+                    layerUS.loadNamedStyle(style_path_us)
+
+                style_path_us = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view_dot.qml')
+                layerUS_us.loadNamedStyle(style_path_us)
+
+                QgsProject.instance().addMapLayers([layerUS], False)
+                QgsProject.instance().addMapLayers([layerUS_us], False)
+
+                layerToSet.append(layerUS)
+                layerToSet.append(layerUS_us)
+            else:
+                pass
+
+        return layerToSet
+
+    def get_thesaurus_mapping(self, conn):
+        """
+        Ottiene il mapping tra sigla_estesa e d_stratigrafica.
+
+        :param conn: Connessione al database
+        :return: Dizionario con sigla_estesa come chiave e d_stratigrafica come valore
+        """
+        mapping = {}
+        query = """
+        SELECT ts.sigla_estesa, us.d_stratigrafica
+        FROM thesaurus_sigle ts
+        JOIN pyarchinit_us_view us ON ts.sigla = us.d_stratigrafica
+        WHERE ts.nome_tabella = 'us_table'
+        """
+
+        try:
+            result = conn.execute(query)
+            for row in result:
+                mapping[row['sigla_estesa']] = row['d_stratigrafica']
+        except Exception as e:
+            print(f"Errore nell'esecuzione della query: {e}")
+            # Qui potresti voler gestire l'errore in modo più appropriato
+
+        return mapping
+
+    def get_thesaurus_mapping_postgres(self, uri):
+        """
+        Ottiene il mapping tra d_stratigrafica e sigla dal thesaurus per PostgreSQL usando solo QGIS.
+
+        :param uri: QgsDataSourceUri configurato per la connessione PostgreSQL
+        :return: Dizionario con d_stratigrafica come chiave e sigla_estesa come valore
+        """
+        mapping = {}
+
+        # Crea una copia dell'uri per non modificare quello originale
+        query_uri = QgsDataSourceUri(uri.uri())
+
+        # Imposta la query SQL
+        sql = """
+        SELECT ts.sigla_estesa, us.d_stratigrafica
+        FROM thesaurus_sigle ts
+        JOIN pyarchinit_us_view us ON ts.sigla_estesa = us.d_stratigrafica
+        WHERE ts.nome_tabella = 'us_table'
+        """
+        query_uri.setDataSource("public", f"({sql})", None, "", "id")
+
+        # Crea un layer temporaneo con i risultati della query
+        layer = QgsVectorLayer(query_uri.uri(), "thesaurus_mapping", "postgres")
+
+        if layer.isValid():
+            features = layer.getFeatures()
+            for feature in features:
+                sigla_estesa = feature['sigla_estesa']
+                d_stratigrafica = feature['d_stratigrafica']
+                mapping[d_stratigrafica] = sigla_estesa
+        else:
+            print("Errore nel caricamento del layer per il mapping del thesaurus")
+
+        return mapping
+
     def loadMapPreviewReperti(self, gidstr):
         """ if has geometry column load to map canvas """
         layerToSet = []
@@ -2245,6 +2497,7 @@ class Pyarchinit_pyqgis(QDialog):
         ##non funziona piu dopo changelog
         self.field_name = fn
         fields_dict = self.dataProviderFields()
+        res=None
         for k in fields_dict:
             if fields_dict[k].name() == self.field_name:
                 res = k
@@ -4010,14 +4263,8 @@ class Pyarchinit_pyqgis(QDialog):
             uri = QgsDataSourceUri()
 
             uri.setConnection(settings.HOST, settings.PORT, settings.DATABASE, settings.USER, settings.PASSWORD)
-            try:
-                string = "sito = '" + self.sito_p + "' AND  sigla_struttura = '" + self.sigla_st + "' AND numero_struttura= '" + self.n_st + "'"
-            except Exception as e:
-                QMessageBox.warning(self, "Pyarchinit", str(e), QMessageBox.Ok)
-            #gidstr = "id_struttura = '" + str(self.data[0].id_struttura) + "'"
-            # if len(data) > 1:
-                # for i in range(len(data)):
-                    # gidstr += " OR id_struttura = '" + str(data[i].id_struttura) + "'"
+
+            string = "sito = '" + self.sito_p + "' AND  sigla_struttura = '" + self.sigla_st + "' AND numero_struttura= '" + self.n_st + "'"
 
             uri.setDataSource("public", 'pyarchinit_strutture_view', 'the_geom', string, "gid")
             layerSTRUTTURA = QgsVectorLayer(uri.uri(), 'pyarchinit_strutture_view', 'postgres')
@@ -4173,10 +4420,9 @@ class Pyarchinit_pyqgis(QDialog):
                 for i in range(len(data)):
                     gidstr += " OR id_scheda_ind = '" + str(data[i].id_scheda_ind) + "'"
 
-            uri = QgsDataSourceUri()
-            uri.setDatabase(db_file_path)
 
-            uri.setDataSource('', 'pyarchinit_individui_view', 'the_geom', gidstr, "gid")
+
+            uri.setDataSource('public', 'pyarchinit_individui_view', 'the_geom', gidstr, "gid")
             layerIndividui = QgsVectorLayer(uri.uri(), 'pyarchinit_individui_view', 'postgres')
 
             if layerIndividui.isValid():
@@ -4324,8 +4570,8 @@ class Order_layer_v2(object):
             #progress_dialog.closeEvent(Ignore)
 
         except Exception as e:
-            QMessageBox.warning(None, "Attenzione", "La lista delle us generate supera il limite depth max 1000."
-                                                    " usare Postgres per generare l'order layer", QMessageBox.Ok)
+            QMessageBox.warning(self, "Attenzione", "La lista delle us generate supera il limite depth max 1000."
+                                                    " usare Postgres per generare l'order layer"+str(e), QMessageBox.Ok)
 
 
     def find_base_matrix(self):
