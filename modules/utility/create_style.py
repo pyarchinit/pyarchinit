@@ -296,20 +296,20 @@ class USViewStyler:
                 # Prova a salvare lo stile e cattura eventuali eccezioni
                 try:
                     result = layer.saveStyleToDatabase(style_name, "", True, "")
-                    self.show_message(f"Risultato del salvataggio: {result}")
+                    #self.show_message(f"Risultato del salvataggio: {result}")
                 except Exception as e:
                     self.show_message(f"Eccezione durante il salvataggio: {str(e)}")
 
                     return
 
                 if result is None:
-                    self.show_message("Il salvataggio dello stile ha restituito None")
-                    self.show_message(f"Tipo di layer: {layer.type()}")
-                    self.show_message(
-                        f"Provider: {layer.dataProvider().name() if layer.dataProvider() else 'Nessun provider'}")
-                    self.show_message(f"Fonte dei dati: {layer.source()}")
+                    #self.show_message("Il salvataggio dello stile ha restituito None")
+                    #self.show_message(f"Tipo di layer: {layer.type()}")
+                    #self.show_message(
+                        #f"Provider: {layer.dataProvider().name() if layer.dataProvider() else 'Nessun provider'}")
+                    print(f"Fonte dei dati: {layer.source()}")
                 else:
-                    self.show_message(f"Stile '{style_name}' salvato nel database. Risultato: {result}")
+                    print(f"Stile '{style_name}' salvato nel database. Risultato: {result}")
             else:
                 self.show_message("Salvataggio dello stile annullato")
         except Exception as e:
