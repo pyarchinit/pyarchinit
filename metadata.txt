@@ -3,7 +3,7 @@ name=pyArchInit
 qgisMinimumVersion=3.22
 description=pyarchinit a tool for archaeological works
 
-version=4.8.4
+version=4.8.5
 
 author=Luca Mandolesi&Enzo Cocca
 email=pyarchinit@gmail.com
@@ -15,7 +15,8 @@ tracker=https://github.com/pyarchinit/pyarchinit/issues
 repository=https://github.com/pyarchinit/pyarchinit
 
 
-changelog=4.8.4 Removed redundant prompt instructions and unused variables in `US_USM.py`. Added functionality to save descriptions text to a file on the desktop and provided checks to manage "Area non trovata" in stratigraphic relationships. This improves code readability and functionality.
+changelog=4.8.5 Refactor style application logic to improve modularity and support dynamic user interactions with custom styles in PyQGIS.
+  4.8.4 Removed redundant prompt instructions and unused variables in `US_USM.py`. Added functionality to save descriptions text to a file on the desktop and provided checks to manage "Area non trovata" in stratigraphic relationships. This improves code readability and functionality.
   4.8.3 Implement file copy functionality for report template and refine report generation logic to include a default template option.
   4.8.2 Add Report Generation Dialog. Introduced a new dialog class for report generation, allowing users to select multiple tables. Refactored and streamlined report generation logic using the selected tables, enhancing modularity and usability.
   4.8.1 Add report generation feature with OpenAI API integration. This update introduces a threaded report generation using the OpenAI API and a new dialog for displaying and saving the report. Additionally, label name extraction and graph node plotting logic have been improved by removing unnecessary prefixes in `pyarchinit_matrix_exp.py`.
