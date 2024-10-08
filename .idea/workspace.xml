@@ -480,7 +480,7 @@
       <workItem from="1728124646692" duration="109000" />
       <workItem from="1728136507005" duration="14789000" />
       <workItem from="1728200857952" duration="9112000" />
-      <workItem from="1728287269500" duration="1532000" />
+      <workItem from="1728287269500" duration="11486000" />
     </task>
     <task id="LOCAL-00022" summary="v3.9.14">
       <created>1649165457258</created>
@@ -825,7 +825,7 @@
       <option name="project" value="LOCAL" />
       <updated>1679662089681</updated>
     </task>
-    <option name="localTasksCounter" value="153" />
+    <option name="localTasksCounter" value="158" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -869,9 +869,6 @@
     <ignored-roots>
       <path value="$PROJECT_DIR$/ext-libs/totalopenstation-0.5.2-py3.9.egg/totalopenstation_" />
     </ignored-roots>
-    <MESSAGE value="Refactor code to enhance readability and maintainability by removing duplicate removal logic" />
-    <MESSAGE value="Refactor code to enhance readability and maintainability by removing duplicate removal logic and" />
-    <MESSAGE value="Refactor code to enhance readability and maintainability by removing duplicate removal logic and consolid" />
     <MESSAGE value="Refactor code to enhance readability and maintainability by removing duplicate removal logic and consolidating" />
     <MESSAGE value="Refactor code to enhance readability and maintainability by removing duplicate removal logic and consolidating prompt" />
     <MESSAGE value="Refactor code to enhance readability and maintainability by removing duplicate removal logic and consolidating prompt structure" />
@@ -894,7 +891,10 @@
     <MESSAGE value="Refactor to enhance readability and maintainability&#10;&#10;Consolidated prompt structure and removed duplicate logic. Descriptive text is now saved to a file and detailed messages are provided for reported inconsistencies." />
     <MESSAGE value="Remove redundant code and optimize report generation&#10;    &#10;Removed redundant prompt instructions and unused variables in `US_USM.py`. Added functionality to save descriptions text to a file on the desktop and provided checks to manage &quot;Area non trovata&quot; in stratigraphic relationships. This improves code readability and functionality." />
     <MESSAGE value="Update metadata version to 4.8.4&#10;&#10;Updated to version 4.8.4 to include improvements in code readability and functionality. Changes include removing redundant instructions and unused variables, adding functionality for saving descriptions to a file, and managing errors in stratigraphic relationships." />
-    <option name="LAST_COMMIT_MESSAGE" value="Update metadata version to 4.8.4&#10;&#10;Updated to version 4.8.4 to include improvements in code readability and functionality. Changes include removing redundant instructions and unused variables, adding functionality for saving descriptions to a file, and managing errors in stratigraphic relationships." />
+    <MESSAGE value="Add user authentication module&#10;&#10;Implement the authentication module to manage user login and registration. This includes basic validation, session handling, and user data encryption. This feature is crucial for ensuring secure access to the application." />
+    <MESSAGE value="Refactor imports and add ThesaurusStyler for layer styling&#10;&#10;Refactored import statements for better clarity and modularity. Introduced the ThesaurusStyler class to apply consistent styles to layers based on thesaurus data, improving map visualization. Enhanced data handling and query mechanisms for both SQLite and PostgreSQL databases." />
+    <MESSAGE value="Update map preview method in US_USM.py&#10;&#10;Renamed the loadMapPreview method to loadMapPreview_new to improve consistency with the updated function definitions in pyQGIS. This change ensures the correct loading and visualization of data layers on the map canvas." />
+    <option name="LAST_COMMIT_MESSAGE" value="Update map preview method in US_USM.py&#10;&#10;Renamed the loadMapPreview method to loadMapPreview_new to improve consistency with the updated function definitions in pyQGIS. This change ensures the correct loading and visualization of data layers on the map canvas." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
