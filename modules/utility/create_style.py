@@ -122,6 +122,7 @@ class USViewStyler:
             symbol.symbolLayer(0).setStrokeStyle(Qt.DotLine)
         elif tipo_us_s.lower() == "non specificato":
             symbol.symbolLayer(0).setStrokeStyle(Qt.DashLine)
+
         else:
             symbol.symbolLayer(0).setStrokeStyle(Qt.SolidLine)
 
@@ -162,7 +163,7 @@ class USViewStyler:
         try:
             styles = layer.listStylesInDatabase()
 
-            self.show_message(f"Struttura degli stili: {str(styles)}")
+
 
             # Verifica se styles è una tupla e ha almeno quattro elementi
             if not isinstance(styles, tuple) or len(styles) < 4:
@@ -174,8 +175,6 @@ class USViewStyler:
                 self.show_message("Nessuno stile salvato trovato nel database.")
                 return None
 
-            self.show_message(f"Stili trovati: {str(styles[1])}")
-            self.show_message(f"Nomi degli stili: {str(styles[2])}")
 
             style_ids = styles[1]
             style_names = styles[2]
@@ -243,17 +242,40 @@ class USViewStyler:
         root_rule = QgsRuleBasedRenderer.Rule(None)
         all_rules = []
 
+        # Raggruppa gli stili per d_stratigrafica e stratigraph_index_us
+        grouped_styles = {}
         for (d_stratigrafica, tipo_us_s, stratigraph_index_us), symbol in self.us_styles.items():
-            expression = f"\"d_stratigrafica\" = '{d_stratigrafica}'  AND \"stratigraph_index_us\" = {stratigraph_index_us}"
+            key = (d_stratigrafica, stratigraph_index_us)
+            if key not in grouped_styles:
+                grouped_styles[key] = []
+            grouped_styles[key].append((tipo_us_s, symbol))
+
+        for (d_stratigrafica, stratigraph_index_us), style_group in grouped_styles.items():
+            expression = f"\"d_stratigrafica\" = '{d_stratigrafica}' AND \"stratigraph_index_us\" = {stratigraph_index_us}"
             request = QgsFeatureRequest(QgsExpression(expression))
             count = sum(1 for _ in layer.getFeatures(request))
 
             if count > 0:
-                label = f"{d_stratigrafica}  - Indice {stratigraph_index_us} (Count: {count})"
-                rule = QgsRuleBasedRenderer.Rule(symbol, 0, 0, expression, label)
+                # Crea un nuovo simbolo combinando gli stili per i diversi tipo_us_s
+                combined_symbol = QgsFillSymbol.createSimple({})
+                combined_symbol.setColor(style_group[0][1].color())  # Usa il colore del primo stile
+
+                # Imposta lo stile del contorno in base ai tipo_us_s presenti
+                if any(tipo == "negativa" for tipo, _ in style_group):
+                    combined_symbol.symbolLayer(0).setStrokeStyle(Qt.DotLine)
+                elif any(tipo == "non specificato" for tipo, _ in style_group):
+                    combined_symbol.symbolLayer(0).setStrokeStyle(Qt.DashLine)
+                else:
+                    combined_symbol.symbolLayer(0).setStrokeStyle(Qt.SolidLine)
+
+                combined_symbol.symbolLayer(0).setStrokeColor(QColor(0, 0, 0))
+                combined_symbol.symbolLayer(0).setStrokeWidth(0.5)
+
+                label = f"{d_stratigrafica} - Indice {stratigraph_index_us} (Count: {count})"
+                rule = QgsRuleBasedRenderer.Rule(combined_symbol, 0, 0, expression, label)
                 all_rules.append((stratigraph_index_us, rule))
             else:
-                print(f"Nessun elemento trovato per: {d_stratigrafica}  - Indice {stratigraph_index_us}")
+                print(f"Nessun elemento trovato per: {d_stratigrafica} - Indice {stratigraph_index_us}")
 
         all_rules.sort(key=lambda x: x[0], reverse=False)
         for _, rule in all_rules:
