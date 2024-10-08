@@ -6793,10 +6793,12 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             # Nuovo controllo per "Area non trovata"
             us_area_non_trovata = []
             for row in range(self.tableWidget_rapporti.rowCount()):
-                area_value = self.tableWidget_rapporti.item(row, 2).text()
-                if area_value == "Area non trovata":
-                    us_value = self.tableWidget_rapporti.item(row, 1).text()
-                    us_area_non_trovata.append(us_value)
+                area_value = self.tableWidget_rapporti.item(row, 2)
+                if area_value is not None:
+                    area_value=area_value.text()
+                    if area_value == "Area non trovata":
+                        us_value = self.tableWidget_rapporti.item(row, 1).text()
+                        us_area_non_trovata.append(us_value)
 
             if us_area_non_trovata:
                 message = "Le seguenti US hanno 'Area non trovata' e potrebbero richiedere la creazione di una nuova scheda:\n"
