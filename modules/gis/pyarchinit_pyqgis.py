@@ -29,13 +29,14 @@ from builtins import str
 
 from qgis.PyQt.QtGui import *
 from qgis.PyQt.QtWidgets import *
+from qgis.PyQt.QtCore import Qt
 from qgis.core import *
 from qgis.gui import *
 
 import urllib.request
 import urllib.error
 
-from ..utility.create_style import ThesaurusStyler
+from ..utility.create_style import ThesaurusStyler, USViewStyler
 from ..utility.settings import Settings
 
 from ..db.pyarchinit_conn_strings import Connection
@@ -1206,6 +1207,8 @@ class Pyarchinit_pyqgis(QDialog):
 
         settings = Settings(con_sett)
         settings.set_configuration()
+        a = Connection()
+        styler = USViewStyler(a)
         if self.L=='it':
             name_layer_s='US view'
         elif self.L=='de':
@@ -1272,15 +1275,30 @@ class Pyarchinit_pyqgis(QDialog):
                 # Create a CRS using a predefined SRID
                 crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
                 layerUS.setCrs(crs)
-                #QMessageBox.warning(self, "Pyarchinit", "OK Layer US valido", QMessageBox.Ok)
+                # Applica lo stile automatico
 
-                # self.USLayerId = layerUS.getLayerID()
-                style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
-                # style_path = QtGui.QFileDialog.getOpenFileName(self, 'Open file',self.LAYER_STYLE_PATH)
+                # Applica lo stile al layer
+                styler.apply_style_to_layer(layerUS)
+
+                # Forza l'aggiornamento del layer
+                layerUS.triggerRepaint()
+
+                print("Stile applicato al layer US")
+
+
+
+
+
+                #else:
+                    #style_path_us = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view_preview.qml')
+                    #layerUS.loadNamedStyle(style_path_us)
+
+
+                #style_path = QtGui.QFileDialog.getOpenFileName(self, 'Open file',self.LAYER_STYLE_PATH)
                 
 
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerUS))
-                layerUS.loadNamedStyle(style_path)
+                #layerUS.loadNamedStyle(style_path)
                 unique_name = self.unique_layer_name(name_layer_s)
                 layerUS.setName(unique_name)
                 QgsProject.instance().addMapLayers([layerUS], False)
@@ -2077,9 +2095,9 @@ class Pyarchinit_pyqgis(QDialog):
         settings = Settings(con_sett)
         settings.set_configuration()
 
-        # Inizializza ThesaurusStyler
-        conn = Connection()
-        styler = ThesaurusStyler(conn)
+        style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view_preview.qml')# Inizializza ThesaurusStyler
+
+        styler = ThesaurusStyler(style_path)
 
         if settings.SERVER == 'postgres':
             uri_u = QgsDataSourceUri()
@@ -2099,48 +2117,42 @@ class Pyarchinit_pyqgis(QDialog):
                 # Ottieni il mapping tra d_stratigrafica e sigla dal thesaurus
                 thesaurus_mapping = self.get_thesaurus_mapping_postgres(uri_u)
 
-                categories = []
+                styler.apply_style_to_layer(layerUS, d_stratigrafica_field, thesaurus_mapping)
 
-                if thesaurus_mapping:
-                    for value in unique_values:
-                        # Trova la sigla corrispondente nel thesaurus
-                        sigla = thesaurus_mapping.get(value)
-                        if sigla:
-                            symbol = styler.get_style(sigla)
-                            if symbol:
-                                # Assicuriamoci che il simbolo sia visibile
-                                symbol.setOpacity(1)
-                                # Impostiamo un colore di sfondo per essere sicuri che sia visibile
-                                symbol.setColor(
-                                    QColor(random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)))
-                                category = QgsRendererCategory(value, symbol, str(value))
-                                categories.append(category)
-                                print(f"Categoria creata per {value}: {sigla} con colore {symbol.color().name()}")
-                        else:
-                            print(f"Nessuna sigla trovata per il valore {value}")
+                # Crea un nuovo simbolo personalizzato per layerUS_us
+                symbol = QgsFillSymbol.createSimple({'color': 'transparent', 'outline_color': 'black'})
 
-                    if categories:
-                        renderer = QgsCategorizedSymbolRenderer(d_stratigrafica_field, categories)
-                        layerUS.setRenderer(renderer)
-                        print(f"Renderer applicato con {len(categories)} categorie")
-                    else:
-                        print("Nessuna categoria creata, il renderer non è stato applicato")
+                # Imposta il contorno punteggiato
+                line_layer = QgsSimpleLineSymbolLayer()
+                line_layer.setPenStyle(Qt.DotLine)
+                line_layer.setColor(QColor('black'))
+                line_layer.setWidth(0.5)  # Puoi regolare lo spessore del contorno qui
 
-                    # Forza l'aggiornamento del layer
-                    layerUS.triggerRepaint()
+                # Sostituisci il layer di contorno del simbolo con quello punteggiato
+                symbol.changeSymbolLayer(0, line_layer)
 
-                else:
-                    style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view_preview.qml')
-                    layerUS.loadNamedStyle(style_path)
+                # Crea un nuovo renderer a simbolo singolo con il simbolo personalizzato
+                new_renderer = QgsSingleSymbolRenderer(symbol)
+                layerUS_us.setRenderer(new_renderer)
 
-                style_path_us = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view_dot.qml')
-                layerUS_us.loadNamedStyle(style_path_us)
+                print("Renderer personalizzato applicato a layerUS_us")
 
-                QgsProject.instance().addMapLayers([layerUS], False)
-                QgsProject.instance().addMapLayers([layerUS_us], False)
+                # Imposta l'opacità per layerUS_us
+                self.set_layer_opacity(layerUS_us, 0.6)
+                self.set_layer_opacity(layerUS, 0.6)
 
-                layerToSet.append(layerUS_us)
+                # Forza l'aggiornamento del layer
+                layerUS_us.triggerRepaint()
+
+                QgsProject.instance().addMapLayers([layerUS, layerUS_us], False)
+
                 layerToSet.append(layerUS)
+                layerToSet.append(layerUS_us)
+
+            else:
+                print("Uno o entrambi i layer non sono validi")
+
+            return layerToSet
 
         elif settings.SERVER == 'sqlite':
             sqliteDB_path = os.path.join(os.sep, 'pyarchinit_DB_folder', settings.DATABASE)
@@ -2168,65 +2180,72 @@ class Pyarchinit_pyqgis(QDialog):
                 layerUS_us.setCrs(crs)
                 layerUS.setCrs(crs)
 
-                # Applica lo stile automatico
-                d_stratigrafica_field = 'd_stratigrafica'  # Campo nel layer pyarchinit_us_view
-                unique_values = layerUS.uniqueValues(layerUS.fields().indexOf(d_stratigrafica_field))
+                # Applica lo stile automatico a layerUS
+                d_stratigrafica_field = 'd_stratigrafica'
+                thesaurus_mapping = self.get_thesaurus_mapping(uri)
+                styler.apply_style_to_layer(layerUS, d_stratigrafica_field, thesaurus_mapping)
 
-                sqliteDB_path = os.path.join(os.sep, 'pyarchinit_DB_folder', settings.DATABASE)
-                db_file_path = '{}{}'.format(self.HOME, sqliteDB_path)
-                conn = sqlite3.connect(db_file_path)
-                cursor = conn.cursor()
+                # Crea un nuovo simbolo personalizzato per layerUS_us
+                symbol = QgsFillSymbol.createSimple({'color': 'transparent', 'outline_color': 'black'})
 
-                # Ottieni il mapping tra d_stratigrafica e sigla dal thesaurus
-                thesaurus_mapping = self.get_thesaurus_mapping(cursor)
-                conn.close()
+                # Imposta il contorno punteggiato
+                line_layer = QgsSimpleLineSymbolLayer()
+                line_layer.setPenStyle(Qt.DotLine)
+                line_layer.setColor(QColor('black'))
+                line_layer.setWidth(0.5)  # Puoi regolare lo spessore del contorno qui
 
-                categories = []
+                # Sostituisci il layer di contorno del simbolo con quello punteggiato
+                symbol.changeSymbolLayer(0, line_layer)
 
-                if thesaurus_mapping:
-                    for value in unique_values:
-                        # Trova la sigla corrispondente nel thesaurus
-                        sigla = thesaurus_mapping.get(value)
-                        if sigla:
-                            symbol = styler.get_style(sigla)
-                            if symbol:
-                                # Assicuriamoci che il simbolo sia visibile
-                                symbol.setOpacity(1)
-                                # Impostiamo un colore di sfondo per essere sicuri che sia visibile
-                                symbol.setColor(
-                                    QColor(random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)))
-                                category = QgsRendererCategory(value, symbol, str(value))
-                                categories.append(category)
-                                print(f"Categoria creata per {value}: {sigla} con colore {symbol.color().name()}")
-                        else:
-                            print(f"Nessuna sigla trovata per il valore {value}")
+                # Crea un nuovo renderer a simbolo singolo con il simbolo personalizzato
+                new_renderer = QgsSingleSymbolRenderer(symbol)
+                layerUS_us.setRenderer(new_renderer)
 
-                    if categories:
-                        renderer = QgsCategorizedSymbolRenderer(d_stratigrafica_field, categories)
-                        layerUS.setRenderer(renderer)
-                        print(f"Renderer applicato con {len(categories)} categorie")
-                    else:
-                        print("Nessuna categoria creata, il renderer non è stato applicato")
+                print("Renderer personalizzato applicato a layerUS_us")
 
-                    # Forza l'aggiornamento del layer
-                    layerUS.triggerRepaint()
+                # Imposta l'opacità per layerUS_us
+                self.set_layer_opacity(layerUS_us, 0.6)
+                self.set_layer_opacity(layerUS, 0.6)
 
-                else:
-                    style_path_us = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view_preview.qml')
-                    layerUS.loadNamedStyle(style_path_us)
+                # Forza l'aggiornamento del layer
+                layerUS_us.triggerRepaint()
 
-                style_path_us = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view_dot.qml')
-                layerUS_us.loadNamedStyle(style_path_us)
-
-                QgsProject.instance().addMapLayers([layerUS], False)
-                QgsProject.instance().addMapLayers([layerUS_us], False)
+                QgsProject.instance().addMapLayers([layerUS, layerUS_us], False)
 
                 layerToSet.append(layerUS)
                 layerToSet.append(layerUS_us)
-            else:
-                pass
 
-        return layerToSet
+            else:
+                print("Uno o entrambi i layer non sono validi")
+
+            return layerToSet
+
+
+    def show_message(self, message):
+        """Mostra un messaggio all'utente."""
+        QMessageBox.information(None, 'Informazione', message, QMessageBox.Ok)
+
+    def set_layer_opacity(self, layer, opacity):
+        """
+        Imposta l'opacità per tutti i simboli in un layer, indipendentemente dal tipo di renderer.
+        """
+        renderer = layer.renderer()
+        if isinstance(renderer, QgsRuleBasedRenderer):
+            root_rule = renderer.rootRule()
+            for rule in root_rule.children():
+                symbol = rule.symbol()
+                if symbol:
+                    symbol.setOpacity(opacity)
+        elif hasattr(renderer, 'symbol'):
+            symbol = renderer.symbol()
+            if symbol:
+                symbol.setOpacity(opacity)
+        elif isinstance(renderer, QgsCategorizedSymbolRenderer):
+            for category in renderer.categories():
+                symbol = category.symbol()
+                if symbol:
+                    symbol.setOpacity(opacity)
+        layer.triggerRepaint()
 
     def get_thesaurus_mapping(self, conn):
         """
