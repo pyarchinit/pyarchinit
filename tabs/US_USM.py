@@ -6793,20 +6793,16 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             # # Nuovo controllo per "Area non trovata"
             # us_area_non_trovata = []
             # for row in range(self.tableWidget_rapporti.rowCount()):
-            #     area_value = self.tableWidget_rapporti.item(row, 2)
-            #     if area_value is not None:
-            #         area_value=area_value.text()
-            #         if area_value == "Area non trovata":
-            #             us_value = self.tableWidget_rapporti.item(row, 1).text()
-            #             us_area_non_trovata.append(us_value)
+            #     area_value = self.tableWidget_rapporti.item(row, 2).text()
+            #     if area_value == "" or None:
+            #         us_value = self.tableWidget_rapporti.item(row, 1).text()
+            #         us_area_non_trovata.append(us_value)
             #
             # if us_area_non_trovata:
             #     message = "Le seguenti US hanno 'Area non trovata' e potrebbero richiedere la creazione di una nuova scheda:\n"
             #     message += ", ".join(us_area_non_trovata)
             #     self.listWidget_rapp.addItem(message)
         except Exception as e:
-            print(str(e))
-
             full_exception = traceback.format_exc()
 
             os.environ["OPENAI_API_KEY"] = self.apikey_gpt()
@@ -6821,7 +6817,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 response = client.chat.completions.create(
                     model=selected_model,
                     messages=[
-                        {"role": "user", "content": f"spiegami questo errore: {full_exception} e se necessario genera dei link utili per approfondire"}
+                        {"role": "user",
+                         "content": f"spiegami questo errore: {full_exception} e se necessario genera dei link utili per approfondire"}
                     ],
                     stream=True
                 )
@@ -6853,7 +6850,6 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 self.listWidget_rapp.addItem("Model selection was canceled.")
 
         else:
-
 
             success_message = {
                 'it': "Controllo dei Rapporti Stratigrafici, Definizione Stratigrafica a Rapporti Stratigrafici, Periodi a Rapporti Stratigrafici e Automaticform eseguito con successo",
@@ -7310,7 +7306,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         global rapporti_check
         us_inesistenti = []
         rapporti_mancanti = []
-        aree_vuote=[]
+        aree_vuote = []
+        sing_rapp1 =''
         self.listWidget_rapp.clear()
         conversion_dict = {'Covers': 'Covered by',
                            'Covered by': 'Covers',
@@ -7354,7 +7351,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         if self.L == 'it':
             self.report_rapporti = 'Report controllo Rapporti Stratigrafici - Sito: %s \n' % (sito_check)
         elif self.L == 'de':
-            self.report_rapporti = 'Kontrollbericht Stratigraphische Beziehungen - Ausgrabungsstätte: %s \n' % (sito_check)
+            self.report_rapporti = 'Kontrollbericht Stratigraphische Beziehungen - Ausgrabungsstätte: %s \n' % (
+                sito_check)
         else:
             self.report_rapporti = 'Control report Stratigraphic relationships - Site: %s \n' % (sito_check)
         count_0 = 0
@@ -7364,142 +7362,104 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             sito = "'" + str(records[rec].sito) + "'"
             area = "'" + str(records[rec].area) + "'"
             us = int(records[rec].us)
-            rapporti = records[rec].rapporti  # caricati i rapporti nella variabile
+            rapporti = records[rec].rapporti
             rapporti = eval(rapporti)
             report = ''
+            for area_vuota in rapporti:
 
-            # Itera sulla serie di rapporti
+
+                if area_vuota[2] == '':
+                    area_vuota[2] = 9999
+
+                    aree_vuote.append(f"Nella scheda US: {us}, il Rapporto: {area_vuota[0]} US: {area_vuota[1]}"
+                                      f", l'Area è vuota")
+
             for sing_rapp in rapporti:
-                #sing_rapp = sing_rapp[:3]
-                # Verifica che la stringa 'us' contenga '0' o '1'
                 if str(us).find('0') >= 0 or str(us).find('1') >= 0:
 
-                    if len(sing_rapp)>2 and sing_rapp[2] == "Area non trovata":
-
-                        sing_rapp[2]=0
-
-
-
-                    if len(sing_rapp)>2 and sing_rapp[2] == None:
-                        aree_vuote.append(f"US: {us}, Rapporto: {sing_rapp[0]} US: {sing_rapp[1]}")
-
-
+                    if len(sing_rapp) > 2:
+                     # Verifica se sing_rapp[2] è 'Area non trovata', in tal caso impostalo a 0
+                        if sing_rapp[2] == "Area non trovata":
+                            sing_rapp[2] = 0
 
                     if len(sing_rapp) == 4:
                         rapp_converted = conversion_dict[sing_rapp[0]]
                         serch_dict_rapp = {'sito': sito, 'area': sing_rapp[2], 'us': int(sing_rapp[1])}
-
-
-                        us_rapp = self.DB_MANAGER.query_bool_new(serch_dict_rapp, self.MAPPER_TABLE_CLASS)
-
+                        us_rapp = self.DB_MANAGER.query_bool(serch_dict_rapp, self.MAPPER_TABLE_CLASS)
 
                         try:
-                            us_sing_rapp = int(sing_rapp[1])
+                            int(sing_rapp[1])
                         except ValueError:
-                            raise TypeError(f"Expected an integer for sing_rapp[1], got {sing_rapp[1]} instead")
+                            raise TypeError(f"Expected an integer for sing_rapp[1], got {int(sing_rapp[1])} instead")
 
                         if not bool(us_rapp):
-                            if aree_vuote:
-                                message = {
-                                    'it': f"Ci sono {len(aree_vuote)} rapporti con area vuota . Eseguire Ctrl+U per aggiornare prima di procedere con il controllo.\n\nDettagli:\n" + "\n".join(
-                                        aree_vuote),
-                                    'de': f"Es gibt {len(aree_vuote)} Beziehungen mit leerem oder nicht gefundenem Bereich. Führen Sie Strg+U aus, um zu aktualisieren, bevor Sie mit der Überprüfung fortfahren.\n\nDetails:\n" + "\n".join(
-                                        aree_vuote),
-                                    'en': f"There are {len(aree_vuote)} relationships with empty area. Execute Ctrl+U to update before proceeding with the check.\n\nDetails:\n" + "\n".join(
-                                        aree_vuote)
-                                }
-                                self.listWidget_rapp.addItem(message.get(self.L, message['en']))
-                                return
+
+
+
 
                             if sing_rapp[2] == 0:
                                 us_inesistenti.append(f"US: {sing_rapp[1]}: US inesistente")
-                            # else:
-                            #     report_template = {
-                            #
-                            #         'it': 'Sito: {}, Area: {}, US: {} {} US: {} Area: {}: Scheda US non esistente',
-                            #
-                            #         'de': 'Ausgrabungsstätte: {}, Areal: {}, SE: {} {} SE: {} Area: {}: SE formular nicht existent',
-                            #
-                            #         'en': 'Site: {}, Area: {}, SU: {} {} SU: {} Area: {}: SU form not-existent'
-                            #
-                            #     }
-                            #
-                            #     us_inesistenti.append(report_template.get(self.L, report_template['en']).format(
-                            #
-                            #         sito, area, us, sing_rapp[0], sing_rapp[1], sing_rapp[2]))
-                        #else:
-                            try:
-                                if us_rapp:
-                                    rapporti_check = eval(us_rapp[0].rapporti)
-                                    us_rapp_check = str(us)
-                                    area_rapp_check = area.strip("'")
-                                    sito_rapp_check = sito.strip("'")
+                            else:
+                                report_template = {
 
-                                    s = [rapp_converted, us_rapp_check, area_rapp_check, sito_rapp_check]
-                                    QMessageBox.information(self,'ok', str(s))
-                                    if rapporti_check.count(s) != 1:
-                                        report_template = {
-                                            'it': 'Sito: {}, Area: {}, US: {} {} US: {} Area: {}: Rapporto non verificato',
-                                            'de': 'Ausgrabungsstätte: {}, Areal: {}, SE: {} {} SE: {} Area: {}: nicht geprüfter Bericht',
-                                            'en': 'Site: {}, Area: {}, SU: {} {} SU: {} Area: {}: relationships not verified'
-                                        }
-                                        rapporti_mancanti.append(report_template.get(self.L, report_template['en']).format(
-                                            sito, area, us, sing_rapp[0], sing_rapp[1], sing_rapp[2]))
+                                    'it': 'Sito: {}, Area: {}, US: {} {} US: {} Area: {}: Scheda US non esistente',
+
+                                    'de': 'Ausgrabungsstätte: {}, Areal: {}, SE: {} {} SE: {} Area: {}: SE formular nicht existent',
+
+                                    'en': 'Site: {}, Area: {}, SU: {} {} SU: {} Area: {}: SU form not-existent'
+
+                                }
+
+                                us_inesistenti.append(report_template.get(self.L, report_template['en']).format(
+
+                                    sito, area, us, sing_rapp[0], sing_rapp[1], sing_rapp[2]))
+                        else:
+                            try:
+                                rapporti_check = eval(us_rapp[0].rapporti)
+                                us_rapp_check = str(us)
+                                area_rapp_check = area.strip("'")
+                                sito_rapp_check = sito.strip("'")
+
+                                s = [rapp_converted, us_rapp_check, area_rapp_check, sito_rapp_check]
+
+                                if rapporti_check.count(s) != 1:
+                                    report_template = {
+                                        'it': 'Sito: {}, Area: {}, US: {} {} US: {} Area: {}: Rapporto non verificato',
+                                        'de': 'Ausgrabungsstätte: {}, Areal: {}, SE: {} {} SE: {} Area: {}: nicht geprüfter Bericht',
+                                        'en': 'Site: {}, Area: {}, SU: {} {} SU: {} Area: {}: relationships not verified'
+                                    }
+                                    rapporti_mancanti.append(report_template.get(self.L, report_template['en']).format(
+                                        sito, area, us, sing_rapp[0], sing_rapp[1], sing_rapp[2]))
                             except Exception as e:
                                 rapporti_mancanti.append(f"Errore nella verifica dei rapporti per US {us}: {str(e)}")
 
                             # Aggiungi i risultati raggruppati al report
-        # if us_inesistenti:
-        #     self.report_rapporti += "\nUS Inesistenti:\n" + "\n".join(us_inesistenti) + "\n"
-        # if rapporti_mancanti:
-        #     self.report_rapporti += "\nRapporti Mancanti o Non Verificati:\n" + "\n".join(
-        #         rapporti_mancanti) + "\n"
 
-        # Ordina e raggruppa le US inesistenti
-        us_inesistenti_grouped = defaultdict(list)
-        for item in us_inesistenti:
-            if item.startswith("US:"):
-                us_num = item.split(":")[1].strip()
-                us_inesistenti_grouped[us_num].append(item)
-            else:
-                us_inesistenti_grouped["Altri"].append(item)
+        if aree_vuote:
 
-        # Ordina i rapporti mancanti
-        rapporti_mancanti.sort()
 
-        # Genera il report ordinato
-        self.report_rapporti = f"Report controllo Rapporti Stratigrafici - Sito: {sito}\n\n"
-
-        if us_inesistenti_grouped:
-            self.report_rapporti += "US Inesistenti:\n"
-            for us_num in sorted(us_inesistenti_grouped.keys(), key=lambda x: str(x)):
-                for item in us_inesistenti_grouped[us_num]:
-                    self.report_rapporti += item + "\n"
-            self.report_rapporti += "\n"
-
-        #if rapporti_mancanti:
-        self.report_rapporti += "Rapporti Mancanti o Non Verificati:\n" + "\n".join(rapporti_mancanti) + "\n"
-
-        # Aggiungi il report completo al listWidget
-        if self.report_rapporti:
-            self.listWidget_rapp.addItem(self.report_rapporti)
+            self.report_rapporti += f"\nCi sono {len(aree_vuote)} rapporti con area vuota . Eseguire Ctrl+U per aggiornare prima di procedere con il controllo.\n\nDettagli:\n" + "\n".join(
+                    aree_vuote)
         else:
-            message = {
-                'it': "Nessun problema riscontrato nei rapporti.",
-                'de': "Keine Probleme in den Beziehungen gefunden.",
-                'en': "No issues found in the relationships."
-            }
-            self.listWidget_rapp.addItem(message.get(self.L, message['en']))
-        # Costruisci il messaggio finale includendo rapporti_check
-        #final_message = f"Count of 0: {count_0}, Count of 1: {count_1}\nRapporti Check: {rapporti_check}"
-        #QMessageBox.information(self, 'ok', final_message)
+            if us_inesistenti:
+                self.report_rapporti += "\nUS Inesistenti:\n" + "\n".join(us_inesistenti) + "\n"
+            if rapporti_mancanti:
+                self.report_rapporti += "\nRapporti Mancanti o Non Verificati:\n" + "\n".join(
+                    rapporti_mancanti) + "\n"
 
+
+
+
+        self.listWidget_rapp.addItem(self.report_rapporti)
+        # Costruisci il messaggio finale includendo rapporti_check
+        # final_message = f"Count of 0: {count_0}, Count of 1: {count_1}\nRapporti Check: {rapporti_check}"
+        # QMessageBox.information(self, 'ok', final_message)
 
         HOME = os.environ['PYARCHINIT_HOME']
         report_path = '{}{}{}'.format(HOME, os.sep, "pyarchinit_Report_folder")
-        if self.L=='it':
+        if self.L == 'it':
             filename = '{}{}{}'.format(report_path, os.sep, 'log_rapporti_US.txt')
-        elif self.L=='de':
+        elif self.L == 'de':
             filename = '{}{}{}'.format(report_path, os.sep, 'log_SE.txt')
         else:
             filename = '{}{}{}'.format(report_path, os.sep, 'log_SU_relations.txt')

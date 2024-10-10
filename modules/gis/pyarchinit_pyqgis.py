@@ -189,7 +189,8 @@ class Pyarchinit_pyqgis(QDialog):
     def __init__(self, iface):
         super().__init__()
         self.iface = iface
-    
+
+
     def remove_USlayer_from_registry(self):
         QgsProject.instance().removeMapLayer(self.USLayerId)
         return 0
@@ -1793,92 +1794,202 @@ class Pyarchinit_pyqgis(QDialog):
         else:
             layer_name_label_us = "Stratigraphic Units" 
             layer_name_label_quote = "Elevations SU"
-        
-        if settings.SERVER == 'sqlite':
-            sqliteDB_path = os.path.join(os.sep, 'pyarchinit_DB_folder', settings.DATABASE)
-            db_file_path = '{}{}'.format(self.HOME, sqliteDB_path)
-            # Open a connection to the SpatiaLite database
-            conn = sqlite3.connect(db_file_path)
-            cursor = conn.cursor()
 
-            # Extract the SRID from the 'pyarchinit_individui' table
-            cursor.execute("SELECT srid FROM geometry_columns WHERE f_table_name = 'pyarchinit_siti'")
-            srid = cursor.fetchone()[0]
+        a=Connection()
+        styler = USViewStyler(a)
 
-            # Close the database connection
-            conn.close()
-            uri = QgsDataSourceUri()
-            uri.setDatabase(db_file_path)
+        # Chiedi lo stile una sola volta
+        style_choice = styler.ask_user_style_preference()
+        saved_style = None
 
-            
-            cont_per_string = "sito = '" + self.sito_p + "' AND (" + " cont_per = '" + self.cont_per + "' OR cont_per LIKE '" + self.cont_per + "/%' OR cont_per LIKE '%/" + self.cont_per + "' OR cont_per LIKE '%/" + self.cont_per + "/%')"
-            
-            
-            uri.setDataSource('', 'pyarchinit_quote_view', 'the_geom', cont_per_string, "ROWID")
-            layerQUOTE = QgsVectorLayer(uri.uri(), layer_name_label_quote, 'spatialite')
+        for periodo in cont_per:  # Assumiamo che cont_per sia una lista di periodi
+            cont_per_string = f"sito = '{sito_p}' AND (cont_per = '{periodo}' OR cont_per LIKE '{periodo}/%' OR cont_per LIKE '%/{periodo}' OR cont_per LIKE '%/{periodo}/%')"
 
-            if layerQUOTE.isValid():
-                # Create a CRS using a predefined SRID
-                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
-                layerQUOTE.setCrs(crs)
-                # self.USLayerId = layerUS.getLayerID()
-                style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'quote_us_view.qml')
-                layerQUOTE.loadNamedStyle(style_path)
-                group.insertChildNode(-1, QgsLayerTreeLayer(layerQUOTE))
-                QgsProject.instance().addMapLayers([layerQUOTE], False)
-            uri.setDataSource('', 'pyarchinit_us_view', 'the_geom', cont_per_string, "ROWID")
-            layerUS = QgsVectorLayer(uri.uri(), layer_name_label_us, 'spatialite')
+            if settings.SERVER == 'sqlite':
+                sqliteDB_path = os.path.join(os.sep, 'pyarchinit_DB_folder', settings.DATABASE)
+                db_file_path = '{}{}'.format(self.HOME, sqliteDB_path)
+                # Open a connection to the SpatiaLite database
+                conn = sqlite3.connect(db_file_path)
+                cursor = conn.cursor()
 
-            
+                # Extract the SRID from the 'pyarchinit_individui' table
+                cursor.execute("SELECT srid FROM geometry_columns WHERE f_table_name = 'pyarchinit_siti'")
+                srid = cursor.fetchone()[0]
 
-            if layerUS.isValid():
-                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
-                layerUS.setCrs(crs)
-                style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
-                layerUS.loadNamedStyle(style_path)
-                group.insertChildNode(-1, QgsLayerTreeLayer(layerUS))
-                QgsProject.instance().addMapLayers([layerUS], False)
-            else:
-                QMessageBox.warning(self, "Pyarchinit", "OK Layer US non valido", QMessageBox.Ok)
+                # Close the database connection
+                conn.close()
+                uri = QgsDataSourceUri()
+                uri.setDatabase(db_file_path)
 
-            
-            
-            #srs = QgsCoordinateReferenceSystem(self.SRS, QgsCoordinateReferenceSystem.PostgisCrsId)
 
-        elif settings.SERVER == 'postgres':
-            uri = QgsDataSourceUri()
-            # set host name, port, database name, username and password
-            uri.setConnection(settings.HOST, settings.PORT, settings.DATABASE, settings.USER, settings.PASSWORD)
-            cont_per_string = "sito = '" + self.sito_p + "' AND (" + " cont_per = '" + self.cont_per + "' OR cont_per LIKE '" + self.cont_per + "/%' OR cont_per LIKE '%/" + self.cont_per + "' OR cont_per LIKE '%/" + self.cont_per + "/%')"
+                #cont_per_string = "sito = '" + self.sito_p + "' AND (" + " cont_per = '" + self.cont_per + "' OR cont_per LIKE '" + self.cont_per + "/%' OR cont_per LIKE '%/" + self.cont_per + "' OR cont_per LIKE '%/" + self.cont_per + "/%')"
 
-            #srs = QgsCoordinateReferenceSystem(self.SRS, QgsCoordinateReferenceSystem.PostgisCrsId)
-            
-            uri.setDataSource("public", "pyarchinit_quote_view", "the_geom", cont_per_string, "gid")
-            layerQUOTE = QgsVectorLayer(uri.uri(), layer_name_label_quote, "postgres")
-            if layerQUOTE.isValid():
-                #layerQUOTE.setCrs(srs)
-                style_path = '{}{}'.format(self.LAYER_STYLE_PATH, 'stile_quote.qml')
-                layerQUOTE.loadNamedStyle(style_path)
-                try:
+
+                uri.setDataSource('', 'pyarchinit_quote_view', 'the_geom', cont_per_string, "ROWID")
+                layerQUOTE = QgsVectorLayer(uri.uri(), layer_name_label_quote, 'spatialite')
+
+                if layerQUOTE.isValid():
+                    # Create a CRS using a predefined SRID
+                    crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                    layerQUOTE.setCrs(crs)
+                    # self.USLayerId = layerUS.getLayerID()
+                    style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'quote_us_view.qml')
+                    layerQUOTE.loadNamedStyle(style_path)
                     group.insertChildNode(-1, QgsLayerTreeLayer(layerQUOTE))
                     QgsProject.instance().addMapLayers([layerQUOTE], False)
-                except Exception as e:
-                    pass
-            
-            uri.setDataSource("public", "pyarchinit_us_view", "the_geom", cont_per_string, "gid")
-            layerUS = QgsVectorLayer(uri.uri(), layer_name_label_us, "postgres")
-            if layerUS.isValid():
-                #layerUS.setCrs(srs)
-                # self.USLayerId = layerUS.getLayerID()
-                style_path = '{}{}'.format(self.LAYER_STYLE_PATH, 'us_caratterizzazioni.qml')
-                # style_path = QFileDialog.getOpenFileName(self, 'Open file', self.LAYER_STYLE_PATH)
-                layerUS.loadNamedStyle(style_path)
-                group.insertChildNode(-1, QgsLayerTreeLayer(layerUS))
-                QgsProject.instance().addMapLayers([layerUS], False)
-            else:
-                QMessageBox.warning(self, "Pyarchinit", "OK Layer US non valido", QMessageBox.Ok)
+                uri.setDataSource('', 'pyarchinit_us_view', 'the_geom', cont_per_string, "ROWID")
+                layerUS = QgsVectorLayer(uri.uri(), layer_name_label_us, 'spatialite')
 
-            
+                if layerUS.isValid():
+                    print(f"Layer US per periodo {periodo} è valido")
+                    crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                    layerUS.setCrs(crs)
+
+                    # Applica lo stile
+                    if style_choice == "load":
+                        if saved_style is None:
+                            saved_style = styler.load_style_from_db(layerUS)
+                        if saved_style:
+                            success = layerUS.loadNamedStyle(saved_style)
+                            print(f"Caricamento stile dal database: {'Successo' if success else 'Fallito'}")
+                        else:
+                            print("Nessuno stile trovato nel database, applico stile di default")
+                            styler.apply_style_to_layer(layerUS)
+                    elif style_choice == "save" or style_choice == "temp":
+                        styler.apply_style_to_layer(layerUS)
+
+                    if style_choice == "save":
+                        styler.save_style_to_db(layerUS)
+                        style_choice = "load"  # Cambia a "load" per i periodi successivi
+                        saved_style = styler.load_style_from_db(layerUS)
+
+                    print("Stile applicato, ora modifico il renderer")
+
+                    # Modifica le regole del renderer
+                    renderer = layerUS.renderer()
+                    if isinstance(renderer, QgsRuleBasedRenderer):
+                        print("Renderer è QgsRuleBasedRenderer")
+                        root_rule = renderer.rootRule()
+
+                        new_root_rule = QgsRuleBasedRenderer.Rule(None)
+
+                        for rule in root_rule.children():
+                            new_expression = f"({rule.filterExpression()}) AND ({cont_per_string})"
+                            new_rule = QgsRuleBasedRenderer.Rule(rule.symbol().clone(), 0, 0, new_expression,
+                                                                 rule.label())
+
+                            # Verifica se la nuova regola ha elementi corrispondenti
+                            request = QgsFeatureRequest().setFilterExpression(new_expression)
+                            matching_features = layerUS.getFeatures(request)
+                            if any(True for _ in matching_features):
+                                new_root_rule.appendChild(new_rule)
+
+                        new_renderer = QgsRuleBasedRenderer(new_root_rule)
+                        layerUS.setRenderer(new_renderer)
+                        print("Nuovo renderer creato e applicato")
+                    else:
+                        print(f"Il renderer non è QgsRuleBasedRenderer, ma {type(renderer)}")
+
+                    # Applica il filtro globale al layer
+                    layerUS.setSubsetString(cont_per_string)
+                    print(f"Filtro applicato: {cont_per_string}")
+                    print(f"Numero di features dopo il filtro: {layerUS.featureCount()}")
+
+                    # Aggiorna il layer
+                    layerUS.triggerRepaint()
+                    print("Layer aggiornato")
+
+                    group.insertChildNode(-1, QgsLayerTreeLayer(layerUS))
+                    QgsProject.instance().addMapLayers([layerUS], False)
+                    print(f"Layer per periodo {periodo} aggiunto al progetto")
+                else:
+                    print(f"Layer US per periodo {periodo} non è valido")
+                    QMessageBox.warning(self, "Pyarchinit", f"Layer US per periodo {periodo} non valido",
+                                        QMessageBox.Ok)
+
+
+            elif settings.SERVER == 'postgres':
+                uri = QgsDataSourceUri()
+                # set host name, port, database name, username and password
+                uri.setConnection(settings.HOST, settings.PORT, settings.DATABASE, settings.USER, settings.PASSWORD)
+                cont_per_string = "sito = '" + self.sito_p + "' AND (" + " cont_per = '" + self.cont_per + "' OR cont_per LIKE '" + self.cont_per + "/%' OR cont_per LIKE '%/" + self.cont_per + "' OR cont_per LIKE '%/" + self.cont_per + "/%')"
+
+                #srs = QgsCoordinateReferenceSystem(self.SRS, QgsCoordinateReferenceSystem.PostgisCrsId)
+
+                uri.setDataSource("public", "pyarchinit_quote_view", "the_geom", cont_per_string, "gid")
+                layerQUOTE = QgsVectorLayer(uri.uri(), layer_name_label_quote, "postgres")
+                if layerQUOTE.isValid():
+                    #layerQUOTE.setCrs(srs)
+                    style_path = '{}{}'.format(self.LAYER_STYLE_PATH, 'stile_quote.qml')
+                    layerQUOTE.loadNamedStyle(style_path)
+                    try:
+                        group.insertChildNode(-1, QgsLayerTreeLayer(layerQUOTE))
+                        QgsProject.instance().addMapLayers([layerQUOTE], False)
+                    except Exception as e:
+                        pass
+
+                uri.setDataSource("public", "pyarchinit_us_view", "the_geom", cont_per_string, "gid")
+                layerUS = QgsVectorLayer(uri.uri(), layer_name_label_us, "postgres")
+                if layerUS.isValid():
+                    print(f"Layer US per periodo {periodo} è valido")
+
+
+                    # Applica lo stile
+                    if style_choice == "load" and saved_style:
+                        success = layerUS.loadNamedStyle(saved_style)
+                        print(f"Caricamento stile dal database: {'Successo' if success else 'Fallito'}")
+                    elif style_choice == "save" or style_choice == "temp":
+                        styler.apply_style_to_layer(layerUS)
+
+                    if style_choice == "save":
+                        styler.save_style_to_db(layerUS)
+                        style_choice = "load"  # Cambia a "load" per i periodi successivi
+                        saved_style = styler.load_style_from_db(layerUS)
+
+                    print("Stile applicato, ora modifico il renderer")
+
+                    # Modifica le regole del renderer
+                    renderer = layerUS.renderer()
+                    if isinstance(renderer, QgsRuleBasedRenderer):
+                        print("Renderer è QgsRuleBasedRenderer")
+                        root_rule = renderer.rootRule()
+
+                        new_root_rule = QgsRuleBasedRenderer.Rule(None)
+
+                        for rule in root_rule.children():
+                            new_expression = f"({rule.filterExpression()}) AND ({cont_per_string})"
+                            new_rule = QgsRuleBasedRenderer.Rule(rule.symbol().clone(), 0, 0, new_expression,
+                                                                 rule.label())
+
+                            # Verifica se la nuova regola ha elementi corrispondenti
+                            request = QgsFeatureRequest().setFilterExpression(new_expression)
+                            matching_features = layerUS.getFeatures(request)
+                            if any(True for _ in matching_features):
+                                new_root_rule.appendChild(new_rule)
+
+                        new_renderer = QgsRuleBasedRenderer(new_root_rule)
+                        layerUS.setRenderer(new_renderer)
+                        print("Nuovo renderer creato e applicato")
+                    else:
+                        print(f"Il renderer non è QgsRuleBasedRenderer, ma {type(renderer)}")
+
+                    # Applica il filtro globale al layer
+                    layerUS.setSubsetString(cont_per_string)
+                    print(f"Filtro applicato: {cont_per_string}")
+                    print(f"Numero di features dopo il filtro: {layerUS.featureCount()}")
+
+                    # Aggiorna il layer
+                    layerUS.triggerRepaint()
+                    print("Layer aggiornato")
+
+                    group.insertChildNode(-1, QgsLayerTreeLayer(layerUS))
+                    QgsProject.instance().addMapLayers([layerUS], False)
+                    print(f"Layer per periodo {periodo} aggiunto al progetto")
+                else:
+                    print(f"Layer US per periodo {periodo} non è valido")
+                    QMessageBox.warning(self, "Pyarchinit", f"Layer US per periodo {periodo} non valido",
+                                        QMessageBox.Ok)
+
     def charge_vector_layers_usm_all_period(self, sito_p, cont_per, per_label, fas_label,dat):
         self.sito_p = sito_p
         self.cont_per = str(cont_per)
