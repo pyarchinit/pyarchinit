@@ -33,7 +33,7 @@ import pyvista as pv
 import vtk
 from pyvistaqt import QtInteractor
 import functools
-from collections import OrderedDict, Counter
+from collections import OrderedDict, Counter, defaultdict
 from datetime import date
 from xml.etree.ElementTree import ElementTree as ET
 
@@ -6790,21 +6790,23 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 self.periodi_to_rapporti_stratigrafici_check(sito_check)
             self.automaticform_check(sito_check)
 
-            # Nuovo controllo per "Area non trovata"
-            us_area_non_trovata = []
-            for row in range(self.tableWidget_rapporti.rowCount()):
-                area_value = self.tableWidget_rapporti.item(row, 2)
-                if area_value is not None:
-                    area_value=area_value.text()
-                    if area_value == "Area non trovata":
-                        us_value = self.tableWidget_rapporti.item(row, 1).text()
-                        us_area_non_trovata.append(us_value)
-
-            if us_area_non_trovata:
-                message = "Le seguenti US hanno 'Area non trovata' e potrebbero richiedere la creazione di una nuova scheda:\n"
-                message += ", ".join(us_area_non_trovata)
-                self.listWidget_rapp.addItem(message)
+            # # Nuovo controllo per "Area non trovata"
+            # us_area_non_trovata = []
+            # for row in range(self.tableWidget_rapporti.rowCount()):
+            #     area_value = self.tableWidget_rapporti.item(row, 2)
+            #     if area_value is not None:
+            #         area_value=area_value.text()
+            #         if area_value == "Area non trovata":
+            #             us_value = self.tableWidget_rapporti.item(row, 1).text()
+            #             us_area_non_trovata.append(us_value)
+            #
+            # if us_area_non_trovata:
+            #     message = "Le seguenti US hanno 'Area non trovata' e potrebbero richiedere la creazione di una nuova scheda:\n"
+            #     message += ", ".join(us_area_non_trovata)
+            #     self.listWidget_rapp.addItem(message)
         except Exception as e:
+            print(str(e))
+
             full_exception = traceback.format_exc()
 
             os.environ["OPENAI_API_KEY"] = self.apikey_gpt()
@@ -7371,18 +7373,25 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 #sing_rapp = sing_rapp[:3]
                 # Verifica che la stringa 'us' contenga '0' o '1'
                 if str(us).find('0') >= 0 or str(us).find('1') >= 0:
-                    if sing_rapp[2] == "Area non trovata":
+
+                    if len(sing_rapp)>2 and sing_rapp[2] == "Area non trovata":
 
                         sing_rapp[2]=0
 
 
-                    if sing_rapp[2] == '':
+
+                    if len(sing_rapp)>2 and sing_rapp[2] == None:
                         aree_vuote.append(f"US: {us}, Rapporto: {sing_rapp[0]} US: {sing_rapp[1]}")
+
+
 
                     if len(sing_rapp) == 4:
                         rapp_converted = conversion_dict[sing_rapp[0]]
                         serch_dict_rapp = {'sito': sito, 'area': sing_rapp[2], 'us': int(sing_rapp[1])}
-                        us_rapp = self.DB_MANAGER.query_bool(serch_dict_rapp, self.MAPPER_TABLE_CLASS)
+
+
+                        us_rapp = self.DB_MANAGER.query_bool_new(serch_dict_rapp, self.MAPPER_TABLE_CLASS)
+
 
                         try:
                             us_sing_rapp = int(sing_rapp[1])
@@ -7404,48 +7413,83 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
                             if sing_rapp[2] == 0:
                                 us_inesistenti.append(f"US: {sing_rapp[1]}: US inesistente")
-                            else:
-                                report_template = {
-
-                                    'it': 'Sito: {}, Area: {}, US: {} {} US: {} Area: {}: Scheda US non esistente',
-
-                                    'de': 'Ausgrabungsstätte: {}, Areal: {}, SE: {} {} SE: {} Area: {}: SE formular nicht existent',
-
-                                    'en': 'Site: {}, Area: {}, SU: {} {} SU: {} Area: {}: SU form not-existent'
-
-                                }
-
-                                us_inesistenti.append(report_template.get(self.L, report_template['en']).format(
-
-                                    sito, area, us, sing_rapp[0], sing_rapp[1], sing_rapp[2]))
-                        else:
+                            # else:
+                            #     report_template = {
+                            #
+                            #         'it': 'Sito: {}, Area: {}, US: {} {} US: {} Area: {}: Scheda US non esistente',
+                            #
+                            #         'de': 'Ausgrabungsstätte: {}, Areal: {}, SE: {} {} SE: {} Area: {}: SE formular nicht existent',
+                            #
+                            #         'en': 'Site: {}, Area: {}, SU: {} {} SU: {} Area: {}: SU form not-existent'
+                            #
+                            #     }
+                            #
+                            #     us_inesistenti.append(report_template.get(self.L, report_template['en']).format(
+                            #
+                            #         sito, area, us, sing_rapp[0], sing_rapp[1], sing_rapp[2]))
+                        #else:
                             try:
-                                rapporti_check = eval(us_rapp[0].rapporti)
-                                us_rapp_check = str(us)
-                                area_rapp_check = area.strip("'")
-                                sito_rapp_check = sito.strip("'")
+                                if us_rapp:
+                                    rapporti_check = eval(us_rapp[0].rapporti)
+                                    us_rapp_check = str(us)
+                                    area_rapp_check = area.strip("'")
+                                    sito_rapp_check = sito.strip("'")
 
-                                s = [rapp_converted, us_rapp_check, area_rapp_check, sito_rapp_check]
-
-                                if rapporti_check.count(s) != 1:
-                                    report_template = {
-                                        'it': 'Sito: {}, Area: {}, US: {} {} US: {} Area: {}: Rapporto non verificato',
-                                        'de': 'Ausgrabungsstätte: {}, Areal: {}, SE: {} {} SE: {} Area: {}: nicht geprüfter Bericht',
-                                        'en': 'Site: {}, Area: {}, SU: {} {} SU: {} Area: {}: relationships not verified'
-                                    }
-                                    rapporti_mancanti.append(report_template.get(self.L, report_template['en']).format(
-                                        sito, area, us, sing_rapp[0], sing_rapp[1], sing_rapp[2]))
+                                    s = [rapp_converted, us_rapp_check, area_rapp_check, sito_rapp_check]
+                                    QMessageBox.information(self,'ok', str(s))
+                                    if rapporti_check.count(s) != 1:
+                                        report_template = {
+                                            'it': 'Sito: {}, Area: {}, US: {} {} US: {} Area: {}: Rapporto non verificato',
+                                            'de': 'Ausgrabungsstätte: {}, Areal: {}, SE: {} {} SE: {} Area: {}: nicht geprüfter Bericht',
+                                            'en': 'Site: {}, Area: {}, SU: {} {} SU: {} Area: {}: relationships not verified'
+                                        }
+                                        rapporti_mancanti.append(report_template.get(self.L, report_template['en']).format(
+                                            sito, area, us, sing_rapp[0], sing_rapp[1], sing_rapp[2]))
                             except Exception as e:
                                 rapporti_mancanti.append(f"Errore nella verifica dei rapporti per US {us}: {str(e)}")
 
                             # Aggiungi i risultati raggruppati al report
-        if us_inesistenti:
-            self.report_rapporti += "\nUS Inesistenti:\n" + "\n".join(us_inesistenti) + "\n"
-        if rapporti_mancanti:
-            self.report_rapporti += "\nRapporti Mancanti o Non Verificati:\n" + "\n".join(
-                rapporti_mancanti) + "\n"
+        # if us_inesistenti:
+        #     self.report_rapporti += "\nUS Inesistenti:\n" + "\n".join(us_inesistenti) + "\n"
+        # if rapporti_mancanti:
+        #     self.report_rapporti += "\nRapporti Mancanti o Non Verificati:\n" + "\n".join(
+        #         rapporti_mancanti) + "\n"
 
-        self.listWidget_rapp.addItem(self.report_rapporti)
+        # Ordina e raggruppa le US inesistenti
+        us_inesistenti_grouped = defaultdict(list)
+        for item in us_inesistenti:
+            if item.startswith("US:"):
+                us_num = item.split(":")[1].strip()
+                us_inesistenti_grouped[us_num].append(item)
+            else:
+                us_inesistenti_grouped["Altri"].append(item)
+
+        # Ordina i rapporti mancanti
+        rapporti_mancanti.sort()
+
+        # Genera il report ordinato
+        self.report_rapporti = f"Report controllo Rapporti Stratigrafici - Sito: {sito}\n\n"
+
+        if us_inesistenti_grouped:
+            self.report_rapporti += "US Inesistenti:\n"
+            for us_num in sorted(us_inesistenti_grouped.keys(), key=lambda x: str(x)):
+                for item in us_inesistenti_grouped[us_num]:
+                    self.report_rapporti += item + "\n"
+            self.report_rapporti += "\n"
+
+        #if rapporti_mancanti:
+        self.report_rapporti += "Rapporti Mancanti o Non Verificati:\n" + "\n".join(rapporti_mancanti) + "\n"
+
+        # Aggiungi il report completo al listWidget
+        if self.report_rapporti:
+            self.listWidget_rapp.addItem(self.report_rapporti)
+        else:
+            message = {
+                'it': "Nessun problema riscontrato nei rapporti.",
+                'de': "Keine Probleme in den Beziehungen gefunden.",
+                'en': "No issues found in the relationships."
+            }
+            self.listWidget_rapp.addItem(message.get(self.L, message['en']))
         # Costruisci il messaggio finale includendo rapporti_check
         #final_message = f"Count of 0: {count_0}, Count of 1: {count_1}\nRapporti Check: {rapporti_check}"
         #QMessageBox.information(self, 'ok', final_message)
@@ -7514,7 +7558,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 sito_check)
         for rec in range(len(records)):
             sito = "'" + str(records[rec].sito) + "'"
-            area = "'" + str(records[rec].area) + "'"
+            area = int(records[rec].area)
             us = int(records[rec].us)
             def_stratigrafica = "'" + str(records[rec].d_stratigrafica) + "'"
             rapporti = records[rec].rapporti  # caricati i rapporti nella variabile
