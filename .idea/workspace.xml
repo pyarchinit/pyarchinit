@@ -10,6 +10,11 @@
   <component name="ChangeListManager">
     <list default="true" id="13d9711e-af47-4516-9a74-091c329d410d" name="Changes" comment="Refactor progress bar update logic and clean up duplicated code&#10;&#10;Enhanced progress bar update by modifying the calculation and update logic. Now, it accurately calculates the progress as a percentage and stores it as an integer, improving performance. This update applies across multiple files. Redundant code lines were also eliminated for a cleaner, more readable code.">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/db/pyarchinit_db_manager.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/db/pyarchinit_db_manager.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/gis/pyarchinit_pyqgis.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/gis/pyarchinit_pyqgis.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/utility/create_style.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/utility/create_style.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tabs/Periodizzazione.py" beforeDir="false" afterPath="$PROJECT_DIR$/tabs/Periodizzazione.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tabs/US_USM.py" beforeDir="false" afterPath="$PROJECT_DIR$/tabs/US_USM.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -148,42 +153,42 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;Python tests.Python tests for unitest.TestYourModule.test_openai_not_installed.executor&quot;: &quot;Run&quot;,
-    &quot;Python tests.Python tests in test_matrix.py.executor&quot;: &quot;Run&quot;,
-    &quot;Python tests.Python tests in test_renem_file.py.executor&quot;: &quot;Run&quot;,
-    &quot;Python.__init__.executor&quot;: &quot;Run&quot;,
-    &quot;Python.archaeological_data_mapping.executor&quot;: &quot;Run&quot;,
-    &quot;Python.autoemotive.executor&quot;: &quot;Run&quot;,
-    &quot;Python.grok-1.executor&quot;: &quot;Run&quot;,
-    &quot;Python.reformat_dir.executor&quot;: &quot;Run&quot;,
-    &quot;Python.skatch_gpt_US.executor&quot;: &quot;Run&quot;,
-    &quot;Python.test_matrix.executor&quot;: &quot;Run&quot;,
-    &quot;Python.test_renem_file.executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;ToolWindowCodeGPT.ShowToolbar&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/Users/enzo/Library/Application Support/QGIS/QGIS3/profiles/default/python/plugins/pyarchinit/resources/dbfiles&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;run.code.analysis.last.selected.profile&quot;: &quot;aDefault&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;ml.llm.AIAssistantPromptsLibrary&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Python tests.Python tests for unitest.TestYourModule.test_openai_not_installed.executor": "Run",
+    "Python tests.Python tests in test_matrix.py.executor": "Run",
+    "Python tests.Python tests in test_renem_file.py.executor": "Run",
+    "Python.__init__.executor": "Run",
+    "Python.archaeological_data_mapping.executor": "Run",
+    "Python.autoemotive.executor": "Run",
+    "Python.grok-1.executor": "Run",
+    "Python.reformat_dir.executor": "Run",
+    "Python.skatch_gpt_US.executor": "Run",
+    "Python.test_matrix.executor": "Run",
+    "Python.test_renem_file.executor": "Run",
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "ToolWindowCodeGPT.ShowToolbar": "false",
+    "git-widget-placeholder": "master",
+    "last_opened_file_path": "/Users/enzo/Library/Application Support/QGIS/QGIS3/profiles/default/python/plugins/pyarchinit/tabs",
+    "node.js.detected.package.eslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "run.code.analysis.last.selected.profile": "aDefault",
+    "settings.editor.selected.configurable": "ml.llm.AIAssistantPromptsLibrary"
   },
-  &quot;keyToStringList&quot;: {
-    &quot;DatabaseDriversLRU&quot;: [
-      &quot;postgresql&quot;
+  "keyToStringList": {
+    "DatabaseDriversLRU": [
+      "postgresql"
     ],
-    &quot;GitStage.ChangesTree.GroupingKeys&quot;: [
-      &quot;directory&quot;,
-      &quot;module&quot;,
-      &quot;repository&quot;
+    "GitStage.ChangesTree.GroupingKeys": [
+      "directory",
+      "module",
+      "repository"
     ],
-    &quot;stardust.markdown.MarkdownSplitEditorSuppressor:keyList&quot;: []
+    "stardust.markdown.MarkdownSplitEditorSuppressor:keyList": []
   }
-}</component>
+}]]></component>
   <component name="PyConsoleOptionsProvider">
     <option name="myPythonConsoleState">
       <console-settings module-name="pyarchinit" is-module-sdk="true">
@@ -197,11 +202,11 @@
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/tabs" />
       <recent name="$PROJECT_DIR$/resources/dbfiles" />
       <recent name="$PROJECT_DIR$/resources" />
       <recent name="$PROJECT_DIR$/modules/utility" />
       <recent name="$PROJECT_DIR$" />
-      <recent name="C:\Users\enzoc\AppData\Roaming\QGIS\QGIS3\profiles\default\python\plugins\pyarchinit\resources\dbfiles" />
     </key>
   </component>
   <component name="RunManager" selected="Python.skatch_gpt_US">
@@ -481,6 +486,9 @@
       <workItem from="1728136507005" duration="14789000" />
       <workItem from="1728200857952" duration="9112000" />
       <workItem from="1728287269500" duration="11486000" />
+      <workItem from="1728417746871" duration="126000" />
+      <workItem from="1728457015618" duration="22673000" />
+      <workItem from="1728540156492" duration="15134000" />
     </task>
     <task id="LOCAL-00022" summary="v3.9.14">
       <created>1649165457258</created>
@@ -825,7 +833,7 @@
       <option name="project" value="LOCAL" />
       <updated>1679662089681</updated>
     </task>
-    <option name="localTasksCounter" value="158" />
+    <option name="localTasksCounter" value="167" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -869,32 +877,32 @@
     <ignored-roots>
       <path value="$PROJECT_DIR$/ext-libs/totalopenstation-0.5.2-py3.9.egg/totalopenstation_" />
     </ignored-roots>
-    <MESSAGE value="Refactor code to enhance readability and maintainability by removing duplicate removal logic and consolidating" />
-    <MESSAGE value="Refactor code to enhance readability and maintainability by removing duplicate removal logic and consolidating prompt" />
-    <MESSAGE value="Refactor code to enhance readability and maintainability by removing duplicate removal logic and consolidating prompt structure" />
-    <MESSAGE value="Refactor code to enhance readability and maintainability by removing duplicate removal logic and consolidating prompt structure while" />
-    <MESSAGE value="Refactor code to enhance readability and maintainability by removing duplicate removal logic and consolidating prompt structure while ensuring" />
-    <MESSAGE value="Refactor code to enhance readability and maintainability by removing duplicate removal logic and consolidating prompt structure while ensuring descriptive" />
-    <MESSAGE value="Refactor code to enhance readability and maintainability by removing duplicate removal logic and consolidating prompt structure while ensuring descriptive text" />
-    <MESSAGE value="Refactor code to enhance readability and maintainability by removing duplicate removal logic and consolidating prompt structure while ensuring descriptive text is" />
-    <MESSAGE value="Refactor code to enhance readability and maintainability by removing duplicate removal logic and consolidating prompt structure while ensuring descriptive text is saved" />
-    <MESSAGE value="Refactor code to enhance readability and maintainability by removing duplicate removal logic and consolidating prompt structure while ensuring descriptive text is saved and" />
-    <MESSAGE value="Refactor code to enhance readability and maintainability by removing duplicate removal logic and consolidating prompt structure while ensuring descriptive text is saved and reported" />
-    <MESSAGE value="Refactor code to enhance readability and maintainability by removing duplicate removal logic and consolidating prompt structure while ensuring descriptive text is saved and reported inconsist" />
-    <MESSAGE value="Refactor code to enhance readability and maintainability by removing duplicate removal logic and consolidating prompt structure while ensuring descriptive text is saved and reported inconsistencies" />
-    <MESSAGE value="Refactor code to enhance readability and maintainability by removing duplicate removal logic and consolidating prompt structure while ensuring descriptive text is saved and reported inconsistencies are" />
-    <MESSAGE value="Refactor code to enhance readability and maintainability by removing duplicate removal logic and consolidating prompt structure while ensuring descriptive text is saved and reported inconsistencies are handled" />
-    <MESSAGE value="Refactor code to enhance readability and maintainability by removing duplicate removal logic and consolidating prompt structure while ensuring descriptive text is saved and reported inconsistencies are handled with" />
-    <MESSAGE value="Refactor code to enhance readability and maintainability by removing duplicate removal logic and consolidating prompt structure while ensuring descriptive text is saved and reported inconsistencies are handled with detailed" />
-    <MESSAGE value="Refactor code to enhance readability and maintainability by removing duplicate removal logic and consolidating prompt structure while ensuring descriptive text is saved and reported inconsistencies are handled with detailed messages" />
-    <MESSAGE value="Refactor code to enhance readability and maintainability by removing duplicate removal logic and consolidating prompt structure while ensuring descriptive text is saved and reported inconsistencies are handled with detailed messages." />
-    <MESSAGE value="Refactor to enhance readability and maintainability&#10;&#10;Consolidated prompt structure and removed duplicate logic. Descriptive text is now saved to a file and detailed messages are provided for reported inconsistencies." />
-    <MESSAGE value="Remove redundant code and optimize report generation&#10;    &#10;Removed redundant prompt instructions and unused variables in `US_USM.py`. Added functionality to save descriptions text to a file on the desktop and provided checks to manage &quot;Area non trovata&quot; in stratigraphic relationships. This improves code readability and functionality." />
-    <MESSAGE value="Update metadata version to 4.8.4&#10;&#10;Updated to version 4.8.4 to include improvements in code readability and functionality. Changes include removing redundant instructions and unused variables, adding functionality for saving descriptions to a file, and managing errors in stratigraphic relationships." />
-    <MESSAGE value="Add user authentication module&#10;&#10;Implement the authentication module to manage user login and registration. This includes basic validation, session handling, and user data encryption. This feature is crucial for ensuring secure access to the application." />
-    <MESSAGE value="Refactor imports and add ThesaurusStyler for layer styling&#10;&#10;Refactored import statements for better clarity and modularity. Introduced the ThesaurusStyler class to apply consistent styles to layers based on thesaurus data, improving map visualization. Enhanced data handling and query mechanisms for both SQLite and PostgreSQL databases." />
-    <MESSAGE value="Update map preview method in US_USM.py&#10;&#10;Renamed the loadMapPreview method to loadMapPreview_new to improve consistency with the updated function definitions in pyQGIS. This change ensures the correct loading and visualization of data layers on the map canvas." />
-    <option name="LAST_COMMIT_MESSAGE" value="Update map preview method in US_USM.py&#10;&#10;Renamed the loadMapPreview method to loadMapPreview_new to improve consistency with the updated function definitions in pyQGIS. This change ensures the correct loading and visualization of data layers on the map canvas." />
+    <MESSAGE value="Comment out show_message calls and replace some with print statements for debugging purposes" />
+    <MESSAGE value="Comment out show_message calls and replace some with print statements for debugging purposes." />
+    <MESSAGE value="Refactor and improve US check and reporting logic&#10;&#10;Refactor the stratigraphic relationships checking logic for better clarity and error handling. Remove redundant code, handle missing area values properly, and sort and group missing US reports for better readability. This commit also includes corrections in type handling for 'area' values in records." />
+    <MESSAGE value="Add new query method and enhance GIS layer styling&#10;&#10;Introduced a new query method `query_bool_new` in `pyarchinit_db_manager.py` and improved styling logic for GIS layers in `pyarchinit_pyqgis.py`. Enhanced the `create_style.py` to support loading styles from the database and applying temporary styles more effectively. Additionally, improved error handling and interface elements in `Periodizzazione.py` and `US_USM.py`." />
+    <MESSAGE value="Update" />
+    <MESSAGE value="Update metadata" />
+    <MESSAGE value="Update metadata.txt" />
+    <MESSAGE value="Update metadata.txt to" />
+    <MESSAGE value="Update metadata.txt to version" />
+    <MESSAGE value="Update metadata.txt to version 4" />
+    <MESSAGE value="Update metadata.txt to version 4." />
+    <MESSAGE value="Update metadata.txt to version 4.8" />
+    <MESSAGE value="Update metadata.txt to version 4.8." />
+    <MESSAGE value="Update metadata.txt to version 4.8.6" />
+    <MESSAGE value="Update metadata.txt to version 4.8.6 with" />
+    <MESSAGE value="Update metadata.txt to version 4.8.6 with enhancements" />
+    <MESSAGE value="Update metadata.txt to version 4.8.6 with enhancements to" />
+    <MESSAGE value="Update metadata.txt to version 4.8.6 with enhancements to GIS" />
+    <MESSAGE value="Update metadata.txt to version 4.8.6 with enhancements to GIS layer" />
+    <MESSAGE value="Update metadata.txt to version 4.8.6 with enhancements to GIS layer styling" />
+    <MESSAGE value="Update metadata.txt to version 4.8.6 with enhancements to GIS layer styling and" />
+    <MESSAGE value="Update metadata.txt to version 4.8.6 with enhancements to GIS layer styling and new" />
+    <MESSAGE value="Update metadata.txt to version 4.8.6 with enhancements to GIS layer styling and new query" />
+    <MESSAGE value="Update metadata.txt to version 4.8.6 with enhancements to GIS layer styling and new query method" />
+    <MESSAGE value="Update metadata.txt to version 4.8.6 with enhancements to GIS layer styling and new query method." />
+    <option name="LAST_COMMIT_MESSAGE" value="Update metadata.txt to version 4.8.6 with enhancements to GIS layer styling and new query method." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
