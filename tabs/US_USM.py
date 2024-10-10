@@ -7304,6 +7304,11 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
     def rapporti_stratigrafici_check(self, sito_check):
         global rapporti_check
+        conn = Connection()
+        conn_str = conn.conn_str()
+        test_conn = conn_str.find('sqlite')
+
+
         us_inesistenti = []
         rapporti_mancanti = []
         aree_vuote = []
@@ -7385,8 +7390,10 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                     if len(sing_rapp) == 4:
                         rapp_converted = conversion_dict[sing_rapp[0]]
                         serch_dict_rapp = {'sito': sito, 'area': sing_rapp[2], 'us': int(sing_rapp[1])}
-                        us_rapp = self.DB_MANAGER.query_bool(serch_dict_rapp, self.MAPPER_TABLE_CLASS)
-
+                        if test_conn == 0:
+                            us_rapp = self.DB_MANAGER.query_bool(serch_dict_rapp, self.MAPPER_TABLE_CLASS)
+                        else:
+                            us_rapp = self.DB_MANAGER.query_bool_postgres(serch_dict_rapp, self.MAPPER_TABLE_CLASS)
                         try:
                             int(sing_rapp[1])
                         except ValueError:
