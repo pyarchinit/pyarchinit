@@ -37,6 +37,7 @@ from ..modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis
 from ..modules.utility.askgpt import MyApp
 from ..modules.utility.pyarchinit_error_check import Error_check
 from ..modules.utility.pyarchinit_exp_Periodizzazionesheet_pdf import generate_Periodizzazione_pdf
+from ..modules.utility.create_style import ThesaurusStyler, USViewStyler
 from ..gui.sortpanelmain import SortPanelMain
 from ..gui.pyarchinitConfigDialog import pyArchInitDialog_Config
 MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), os.pardir, 'gui', 'ui', 'Periodizzazione.ui'))
@@ -167,8 +168,10 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
     CSV=os.path.join(BIN,'epoche_storiche.csv')
     def __init__(self, iface):
         super().__init__()
+
         self.iface = iface
         self.pyQGIS = Pyarchinit_pyqgis(iface)
+
         self.setupUi(self)
         self.currentLayerId = None
         try:
@@ -1353,8 +1356,8 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
                     self.DATA_LIST = []
                 for i in res:
                     self.DATA_LIST.append(i)
-            
-            
+
+
                 for e in self.DATA_LIST:
                     sito_p = e.sito
                     cont_per = e.cont_per

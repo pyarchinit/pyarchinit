@@ -1141,6 +1141,36 @@ class Pyarchinit_db_management(object):
         session.close()
         return res
 
+    def query_bool_new(self, params, table):
+        u = Utility()
+        params = u.remove_empty_items_fr_dict(params)
+
+        conditions = []
+        for key, value in params.items():
+            if isinstance(value, str):
+                # Use text() for string values to ensure proper quoting
+                conditions.append(text(f"{table}.{key} = :{key}"))
+            elif value is None:
+                conditions.append(text(f"{table}.{key} IS NULL"))
+            else:
+                # For non-string values, use direct comparison
+                conditions.append(text(f"{table}.{key} = :{key}"))
+
+        Session = sessionmaker(bind=self.engine, autoflush=True, autocommit=True)
+        session = Session()
+
+        try:
+            query = text(f"SELECT * FROM {table} WHERE {' AND '.join(str(c) for c in conditions)}")
+            result = session.execute(query, params)
+            res = result.fetchall()
+        except Exception as e:
+            print(f"Query error: {str(e)}")
+            res = []
+        finally:
+            session.close()
+
+        return res
+
     def query_bool(self, params, table):
         u = Utility()
         params = u.remove_empty_items_fr_dict(params)

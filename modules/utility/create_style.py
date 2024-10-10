@@ -202,6 +202,57 @@ class USViewStyler:
             self.show_message(f"Errore nel caricamento degli stili: {str(e)}")
             return None
 
+    def load_style_from_db_new(self, layer):
+        try:
+            styles = layer.listStylesInDatabase()
+
+            # Verifica se ci sono stili nel database
+            if not styles or len(styles) < 2 or not styles[1]:
+                print("Nessuno stile trovato nel database.")
+                return None
+
+            style_ids = styles[1]
+            style_names = styles[2] if len(styles) > 2 else style_ids
+
+            if len(style_ids) == 1:
+                # Se c'è solo uno stile, caricalo direttamente
+                style_id = style_ids[0]
+                style_data = layer.getStyleFromDatabase(style_id)
+                if style_data:
+                    style_xml = style_data[0]
+                    print(f"Caricato stile unico: {style_names[0]}")
+                    return style_xml
+                else:
+                    print("Errore nel caricamento dello stile unico.")
+                    return None
+            else:
+                # Se ci sono più stili, chiedi all'utente quale caricare
+                style_name, ok = QInputDialog.getItem(None, "Seleziona Stile",
+                                                      "Scegli lo stile da caricare:",
+                                                      style_names, 0, False)
+                if ok and style_name:
+                    index = style_names.index(style_name)
+                    if 0 <= index < len(style_ids):
+                        style_id = style_ids[index]
+                        style_data = layer.getStyleFromDatabase(style_id)
+                        if style_data:
+                            style_xml = style_data[0]
+                            print(f"Caricato stile selezionato: {style_name}")
+                            return style_xml
+                        else:
+                            print(f"Errore nel caricamento dello stile: {style_name}")
+                            return None
+                    else:
+                        self.show_message("Indice dello stile non valido.")
+                        return None
+                else:
+                    print("Selezione dello stile annullata.")
+                    return None
+
+        except Exception as e:
+            print(f"Errore nel caricamento degli stili: {str(e)}")
+            return None
+
     def apply_style_to_layer(self, layer):
         if not layer.isValid():
             print("Layer non valido")
@@ -216,29 +267,41 @@ class USViewStyler:
         choice = self.ask_user_style_preference()
 
         if choice == "load":
-
-            saved_style = self.load_style_from_db(layer)
+            saved_style = self.load_style_from_db_new(layer)
             if saved_style:
-                layer.loadNamedStyle(saved_style)
-                print("Stile caricato dal database")
+                success = layer.loadNamedStyle(saved_style)
+                if success:
+                    #self.show_message(f"Stile caricato dal database e applicato con successo {success}")
+                    # Verifica che il renderer sia stato effettivamente aggiornato
+                    if isinstance(layer.renderer(), QgsRuleBasedRenderer):
+                        print(f"Renderer aggiornato con {len(layer.renderer().rootRule().children())} regole")
+                    else:
+                        print(f"Attenzione: Il renderer non è QgsRuleBasedRenderer, ma {type(layer.renderer())}")
+                    layer.triggerRepaint()
+                    layer.legendChanged.emit()
+                    return  # Usciamo dalla funzione qui per evitare ulteriori modifiche allo stile
+                else:
+                    print("Errore nell'applicazione dello stile caricato")
             else:
                 print("Nessuno stile salvato trovato o selezione annullata. Verrà creato uno stile temporaneo.")
-                self._apply_temp_style(layer)
-        elif choice == "save":
-            self._apply_temp_style(layer)
-            self.save_style_to_db(layer)
-        else:  # temp
-            self._apply_temp_style(layer)
+
+        # Se siamo arrivati qui, o l'utente ha scelto "save"/"temp", o il caricamento è fallito
+        print("Applicazione dello stile temporaneo")
+        self._apply_temp_style(layer)
+
+        if choice == "save":
+            success = self.save_style_to_db(layer)
+            if success:
+                print("Stile salvato nel database con successo")
+            else:
+                print("Errore nel salvataggio dello stile nel database")
 
         layer.triggerRepaint()
         layer.legendChanged.emit()
         print(f"Stile applicato con {len(layer.renderer().rootRule().children())} regole")
 
-    def show_message(self, message):
-        """Mostra un messaggio all'utente."""
-        QMessageBox.information(None, 'Informazione', message, QMessageBox.Ok)
-
     def _apply_temp_style(self, layer):
+        # Il tuo codice esistente per _apply_temp_style
         root_rule = QgsRuleBasedRenderer.Rule(None)
         all_rules = []
 
@@ -271,7 +334,60 @@ class USViewStyler:
                 combined_symbol.symbolLayer(0).setStrokeColor(QColor(0, 0, 0))
                 combined_symbol.symbolLayer(0).setStrokeWidth(0.5)
 
-                label = f"{d_stratigrafica} - Indice {stratigraph_index_us} (Count: {count})"
+                label = f"{d_stratigrafica}"
+                rule = QgsRuleBasedRenderer.Rule(combined_symbol, 0, 0, expression, label)
+                all_rules.append((stratigraph_index_us, rule))
+            else:
+                print(f"Nessun elemento trovato per: {d_stratigrafica} - Indice {stratigraph_index_us}")
+
+        all_rules.sort(key=lambda x: x[0], reverse=False)
+        for _, rule in all_rules:
+            root_rule.appendChild(rule)
+
+        renderer = QgsRuleBasedRenderer(root_rule)
+        layer.setRenderer(renderer)
+        print(f"Stile temporaneo applicato con {len(root_rule.children())} regole")
+
+
+
+    def show_message(self, message):
+        """Mostra un messaggio all'utente."""
+        QMessageBox.information(None, 'Informazione', message, QMessageBox.Ok)
+
+    def _apply_temp_style_old(self, layer):
+        root_rule = QgsRuleBasedRenderer.Rule(None)
+        all_rules = []
+
+        # Raggruppa gli stili per d_stratigrafica e stratigraph_index_us
+        grouped_styles = {}
+        for (d_stratigrafica, tipo_us_s, stratigraph_index_us), symbol in self.us_styles.items():
+            key = (d_stratigrafica, stratigraph_index_us)
+            if key not in grouped_styles:
+                grouped_styles[key] = []
+            grouped_styles[key].append((tipo_us_s, symbol))
+
+        for (d_stratigrafica, stratigraph_index_us), style_group in grouped_styles.items():
+            expression = f"\"d_stratigrafica\" = '{d_stratigrafica}' AND \"stratigraph_index_us\" = {stratigraph_index_us}"
+            request = QgsFeatureRequest(QgsExpression(expression))
+            count = sum(1 for _ in layer.getFeatures(request))
+
+            if count > 0:
+                # Crea un nuovo simbolo combinando gli stili per i diversi tipo_us_s
+                combined_symbol = QgsFillSymbol.createSimple({})
+                combined_symbol.setColor(style_group[0][1].color())  # Usa il colore del primo stile
+
+                # Imposta lo stile del contorno in base ai tipo_us_s presenti
+                if any(tipo == "negativa" for tipo, _ in style_group):
+                    combined_symbol.symbolLayer(0).setStrokeStyle(Qt.DotLine)
+                elif any(tipo == "non specificato" for tipo, _ in style_group):
+                    combined_symbol.symbolLayer(0).setStrokeStyle(Qt.DashLine)
+                else:
+                    combined_symbol.symbolLayer(0).setStrokeStyle(Qt.SolidLine)
+
+                combined_symbol.symbolLayer(0).setStrokeColor(QColor(0, 0, 0))
+                combined_symbol.symbolLayer(0).setStrokeWidth(0.5)
+
+                label = f"{d_stratigrafica}"
                 rule = QgsRuleBasedRenderer.Rule(combined_symbol, 0, 0, expression, label)
                 all_rules.append((stratigraph_index_us, rule))
             else:
