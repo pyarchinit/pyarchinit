@@ -22,6 +22,8 @@ import ast
 import os
 import sqlalchemy as db
 import math
+
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.sql.expression import *
 from sqlalchemy.event import listen
 import psycopg2
@@ -1141,35 +1143,32 @@ class Pyarchinit_db_management(object):
         session.close()
         return res
 
-    def query_bool_new(self, params, table):
+    def query_bool_postgres(self, params, table):
         u = Utility()
         params = u.remove_empty_items_fr_dict(params)
 
         conditions = []
+        query_params = {}
+
         for key, value in params.items():
             if isinstance(value, str):
-                # Use text() for string values to ensure proper quoting
                 conditions.append(text(f"{table}.{key} = :{key}"))
-            elif value is None:
-                conditions.append(text(f"{table}.{key} IS NULL"))
             else:
-                # For non-string values, use direct comparison
                 conditions.append(text(f"{table}.{key} = :{key}"))
-
-        Session = sessionmaker(bind=self.engine, autoflush=True, autocommit=True)
-        session = Session()
+            query_params[key] = value
 
         try:
-            query = text(f"SELECT * FROM {table} WHERE {' AND '.join(str(c) for c in conditions)}")
-            result = session.execute(query, params)
-            res = result.fetchall()
+            Session = sessionmaker(bind=self.engine, autoflush=True, autocommit=True)
+            with Session() as session:
+                query = session.query(table).filter(and_(*conditions))
+                res = query.params(**query_params).all()
+            return res
+        except SQLAlchemyError as e:
+            print(f"Database error: {str(e)}")
+            return []
         except Exception as e:
-            print(f"Query error: {str(e)}")
-            res = []
-        finally:
-            session.close()
-
-        return res
+            print(f"An error occurred: {str(e)}")
+            return []
 
     def query_bool(self, params, table):
         u = Utility()
