@@ -7389,11 +7389,17 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
                     if len(sing_rapp) == 4:
                         rapp_converted = conversion_dict[sing_rapp[0]]
-                        serch_dict_rapp = {'sito': sito, 'area': sing_rapp[2], 'us': int(sing_rapp[1])}
-                        if test_conn == 0:
+                        #serch_dict_rapp = {'sito': sito, 'area': "'"+str(sing_rapp[2])+"'", 'us': int(sing_rapp[1])}
+
+                        if test_conn==0:
+                            serch_dict_rapp = {'sito': sito, 'area': sing_rapp[2],
+                                               'us': int(sing_rapp[1])}
+
                             us_rapp = self.DB_MANAGER.query_bool(serch_dict_rapp, self.MAPPER_TABLE_CLASS)
                         else:
-                            us_rapp = self.DB_MANAGER.query_bool_postgres(serch_dict_rapp, self.MAPPER_TABLE_CLASS)
+                            serch_dict_rapp = {'sito': sito, 'area': "'" + str(sing_rapp[2]) + "'",
+                                               'us': int(sing_rapp[1])}
+                            us_rapp = self.DB_MANAGER.query_bool(serch_dict_rapp, self.MAPPER_TABLE_CLASS)
                         try:
                             int(sing_rapp[1])
                         except ValueError:
@@ -7406,20 +7412,20 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
                             if sing_rapp[2] == 0:
                                 us_inesistenti.append(f"US: {sing_rapp[1]}: US inesistente")
-                            else:
-                                report_template = {
-
-                                    'it': 'Sito: {}, Area: {}, US: {} {} US: {} Area: {}: Scheda US non esistente',
-
-                                    'de': 'Ausgrabungsstätte: {}, Areal: {}, SE: {} {} SE: {} Area: {}: SE formular nicht existent',
-
-                                    'en': 'Site: {}, Area: {}, SU: {} {} SU: {} Area: {}: SU form not-existent'
-
-                                }
-
-                                us_inesistenti.append(report_template.get(self.L, report_template['en']).format(
-
-                                    sito, area, us, sing_rapp[0], sing_rapp[1], sing_rapp[2]))
+                            # else:
+                            #     report_template = {
+                            #
+                            #         'it': 'Sito: {}, Area: {}, US: {} {} US: {} Area: {}: Scheda US non esistente',
+                            #
+                            #         'de': 'Ausgrabungsstätte: {}, Areal: {}, SE: {} {} SE: {} Area: {}: SE formular nicht existent',
+                            #
+                            #         'en': 'Site: {}, Area: {}, SU: {} {} SU: {} Area: {}: SU form not-existent'
+                            #
+                            #     }
+                            #
+                            #     us_inesistenti.append(report_template.get(self.L, report_template['en']).format(
+                            #
+                            #         sito, area, us, sing_rapp[0], sing_rapp[1], sing_rapp[2]))
                         else:
                             try:
                                 rapporti_check = eval(us_rapp[0].rapporti)
