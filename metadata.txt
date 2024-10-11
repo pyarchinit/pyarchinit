@@ -3,7 +3,7 @@ name=pyArchInit
 qgisMinimumVersion=3.22
 description=pyarchinit a tool for archaeological works
 
-version=4.8.6
+version=4.8.7
 
 author=Luca Mandolesi&Enzo Cocca
 email=pyarchinit@gmail.com
@@ -15,7 +15,8 @@ tracker=https://github.com/pyarchinit/pyarchinit/issues
 repository=https://github.com/pyarchinit/pyarchinit
 
 
-changelog=4.8.6 Add new query method and enhance GIS layer styling Introduced a new query method `query_bool_new` in `pyarchinit_db_manager.py` and improved styling logic for GIS layers in `pyarchinit_pyqgis.py`. Enhanced the `create_style.py` to support loading styles from the database and applying temporary styles more effectively. Additionally, improved error handling and interface elements in `Periodizzazione.py` and `US_USM.py`.
+changelog=4.8.7 Refactor handling of `serch_dict_rapp` and cleanup commented code. Updated `serch_dict_rapp` assignments to ensure consistency based on `test_conn` value. Removed commented-out code to improve readability and maintainability.
+  4.8.6 Add new query method and enhance GIS layer styling Introduced a new query method `query_bool_new` in `pyarchinit_db_manager.py` and improved styling logic for GIS layers in `pyarchinit_pyqgis.py`. Enhanced the `create_style.py` to support loading styles from the database and applying temporary styles more effectively. Additionally, improved error handling and interface elements in `Periodizzazione.py` and `US_USM.py`.
   4.8.5 Refactor style application logic to improve modularity and support dynamic user interactions with custom styles in PyQGIS.
   4.8.4 Removed redundant prompt instructions and unused variables in `US_USM.py`. Added functionality to save descriptions text to a file on the desktop and provided checks to manage "Area non trovata" in stratigraphic relationships. This improves code readability and functionality.
   4.8.3 Implement file copy functionality for report template and refine report generation logic to include a default template option.
