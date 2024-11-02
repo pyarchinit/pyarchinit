@@ -6284,15 +6284,18 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
             if platform.system()=='Windows':
                 cmd = 'python'
+                shell=True
 
             elif platform.system()=='Darwin':
                 cmd = '/Applications/QGIS.app/Contents/MacOS/bin/python3'
+                shell=False
 
             else:
 
                 cmd = 'python3'
+                shell=False
 
-            subprocess.call([cmd, dottoxml,'-f', 'Graphml',input_file, output_file], shell=False)
+            subprocess.call([cmd, dottoxml,'-f', 'Graphml',input_file, output_file], shell=shell)
 
 
 
