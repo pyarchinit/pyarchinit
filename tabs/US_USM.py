@@ -43,10 +43,15 @@ import pandas as pd
 import requests
 from openai import OpenAI
 from docx import Document
-from docx.shared import Pt
-from docx.enum.style import WD_STYLE_TYPE
+
+from langchain.chat_models import ChatOpenAI
+from langchain import OpenAI as OP
+from langchain.prompts import ChatPromptTemplate
+from langchain.schema.runnable import RunnableParallel, RunnablePassthrough, RunnableSequence
 
 
+from langchain.schema import SystemMessage, HumanMessage
+from io import StringIO
 matplotlib.use('QT5Agg')  # Assicurati di chiamare use() prima di importare FigureCanvas
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from qgis.PyQt import QtCore, QtGui, QtWidgets
@@ -83,6 +88,9 @@ MAIN_DIALOG_CLASS, _ = loadUiType(
     os.path.join(os.path.dirname(__file__), os.pardir, 'gui', 'ui', 'US_USM.ui'))
 
 #from ..modules.utility.screen_adaptative import ScreenAdaptive
+
+
+
 
 class ReportGeneratorDialog(QDialog):
 
@@ -922,6 +930,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
         self.setupUi(self)
         self.setAcceptDrops(True)
+        self.progress_dialog = None
         self.report_thread = None
         self.report_rapporti2 = None
         self.fig = None
@@ -1053,6 +1062,201 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
         return chunks
 
+    # def generate_and_display_report(self):
+    #     dialog = ReportGeneratorDialog(self)
+    #     if dialog.exec_() == QDialog.Accepted:
+    #         conn = Connection()
+    #         db_url = conn.conn_str()
+    #         selected_tables = dialog.get_selected_tables()
+    #
+    #         report_data = {
+    #             'Regione': '', 'Provincia': '', 'Comune': '', 'Ente di riferimento': '',
+    #             'Committenza': '', 'Direzione scientifica': '', 'Elaborato a cura di': '',
+    #             'Direttore cantiere': '', 'Cantiere': '', 'Tipo di indagine': '', 'Titolo elaborato': '',
+    #             'Collocazione cantiere': '', 'Periodo cantiere': '', 'Intervento': '',
+    #             'Progettazione lavori': '', 'Direzione lavori': '',
+    #             'Direzione scientifica indagini archeologiche': '',
+    #             'Esecuzione indagini archeologiche': '', 'Direzione cantiere archeologico': '',
+    #             'Archeologi': ''
+    #         }
+    #
+    #         descriptions_text = ""
+    #         current_site = str(
+    #             self.comboBox_sito.currentText())  # Assumo che self.SITO contenga il nome del sito corrente
+    #
+    #         def rimuovi_duplicati(text):
+    #             # Separa il prefisso (se presente) dal resto del testo
+    #             parts = text.split(': ', 1)
+    #             if len(parts) == 2:
+    #                 prefix, content = parts
+    #                 # Rimuovi i duplicati solo dal contenuto
+    #                 unique_content = ' '.join(dict.fromkeys(content.strip().split()))
+    #                 return f"{prefix}: {unique_content}"
+    #             else:
+    #                 # Se non c'è un prefisso, rimuovi i duplicati dall'intero testo
+    #                 return ' '.join(dict.fromkeys(text.split()))
+    #
+    #         for table_name in selected_tables:
+    #             records, columns = ReportGenerator.read_data_from_db(db_url, table_name)
+    #
+    #             if table_name == 'site_table':
+    #                 site_record = next((r for r in records if getattr(r, 'sito', '') == current_site), None)
+    #                 if site_record:
+    #                     report_data['Regione'] = getattr(site_record, 'regione', '')
+    #                     report_data['Provincia'] = f"Provincia:{getattr(site_record, 'provincia', '')}"
+    #                     report_data['Comune'] = rimuovi_duplicati(f"Comune: {getattr(site_record, 'comune', '')}")
+    #                     report_data['Cantiere'] = current_site
+    #                     report_data['Collocazione cantiere'] = current_site
+    #                 descriptions_text += f"{getattr(site_record, 'descrizione', '')}\n"
+    #             elif table_name == 'us_table':
+    #                 us_records = [r for r in records if getattr(r, 'sito', '') == current_site]
+    #                 if us_records:
+    #                     first_record = us_records[0]
+    #                     report_data['Ente di riferimento'] = getattr(first_record, 'soprintendenza', '')
+    #                     report_data['Committenza'] = getattr(first_record, 'ditta_esecutrice', '')
+    #                     report_data['Direzione scientifica'] = getattr(first_record, 'direttore_us', '')
+    #                     report_data['Elaborato a cura di'] = getattr(first_record, 'schedatore', '')
+    #                     report_data['Direttore cantiere'] = getattr(first_record, 'responsabile_us', '')
+    #                     report_data['Direzione scientifica indagini archeologiche'] = report_data[
+    #                         'Direzione scientifica']
+    #                     report_data['Direzione cantiere archeologico'] = report_data['Direttore cantiere']
+    #
+    #                 descriptions_text += "Unità Stratigrafiche:\n"
+    #                 for record in us_records:
+    #                     descriptions_text += f"US {getattr(record, 'us', '')}: {getattr(record, 'd_stratigrafica', '')}\n"
+    #                     descriptions_text += f"{getattr(record, 'descrizione', '')}\n"
+    #                     descriptions_text += f"{getattr(record, 'interpretazione', '')}\n"
+    #                     descriptions_text += f"{getattr(record, 'rapporti', '')}\n"
+    #
+    #             else:
+    #                 # Per le altre tabelle, filtriamo i record per il sito corrente se possibile
+    #                 site_specific_records = [r for r in records if getattr(r, 'sito', current_site) == current_site]
+    #                 descriptions_text += f"Table: {table_name}\n"
+    #                 for record in site_specific_records:
+    #
+    #                     descriptions_text += f"{getattr(record, 'descrizione', '')}\n"
+    #                     descriptions_text += "\n"
+    #
+    #         desktop_path = os.path.join(os.path.expanduser("~"), "Desktop")
+    #         output_file_path = os.path.join(desktop_path, 'descriptions_text.txt')
+    #         with open(output_file_path, 'w', encoding='utf-8') as file:
+    #             file.write(descriptions_text)
+    #
+    #         print(f"Le descrizioni sono state salvate in {output_file_path}")
+    #         # Generate derived fields
+    #         report_data['Tipo di indagine'] = f"Indagine archeologica presso {report_data['Cantiere']}"
+    #         report_data['Titolo elaborato'] = f"Relazione di scavo - {report_data['Cantiere']}"
+    #         custom_prompt = f"""
+    #         Genera una relazione archeologica dettagliata basata sui seguenti dati:
+    #
+    #         La relazione deve essere strutturata come nelle seguenti sezioni:
+    #         1. INTRODUZIONE:
+    #            - Breve panoramica del {current_site} e del contesto storico che viene desunta dal campo descrizione
+    #
+    #         2. DESCRIZIONE METODOLOGICA ED ESITO DELL'INDAGINE (5000 parole):
+    #            1 Descrizione dettagliata di tutte le unità stratigrafiche us rinvenute. Inizia scrivendo il totale delle US/USM.
+    #            2 Analisi delle strutture e degli edifici dalla tabella struttura_table se è stata selezionata
+    #            3 Analisi delle tombe dalla tabella tomba_table se è stata selezionata
+    #            4 Descrizione dei reperti prendendo in cosiderazione numero inventario, tipo_reprto se la tabella invetario_materiali_table è stato selezionato
+    #            5 Interpretazione delle fasi di occupazione del sito mettemndo in evidenza i rapporti stratigrafici che trovi nella colonna rapporti
+    #
+    #         3. CONCLUSIONI (500 parole):
+    #            - Sintesi dei risultati
+    #
+    #
+    #         """
+    #
+    #         if ReportGenerator.is_connected():
+    #             models = ["gpt-4o", "gpt-4-0125-preview"]
+    #             selected_model, ok = QInputDialog.getItem(self, "Select Model", "Choose a model for GPT:", models, 0,
+    #                                                       False)
+    #
+    #             if ok and selected_model:
+    #                 self.progress_dialog = QProgressDialog("Generating report...", None, 0, 0, self)
+    #                 self.progress_dialog.setWindowModality(Qt.WindowModal)
+    #                 self.progress_dialog.setCancelButton(None)
+    #                 self.progress_dialog.setRange(0, 0)
+    #                 self.progress_dialog.show()
+    #
+    #                 api_key = self.apikey_gpt()
+    #                 self.report_thread = GenerateReportThread(custom_prompt, descriptions_text, api_key, selected_model)
+    #                 self.report_thread.report_generated.connect(
+    #                     lambda text: self.on_report_generated(text, report_data))
+    #                 self.report_thread.start()
+    #             else:
+    #                 QMessageBox.warning(self, "Warning", "No model selected", QMessageBox.Ok)
+    #         else:
+    #             QMessageBox.warning(self, "Warning", "No internet connection", QMessageBox.Ok)
+    #
+    # def on_report_generated(self, report_text, report_data):
+    #     self.progress_dialog.close()
+    #
+    #     # Elabora il testo del report
+    #     sections = [
+    #         "INTRODUZIONE",
+    #         "DESCRIZIONE METODOLOGICA ED ESITO DELL'INDAGINE",
+    #         "CONCLUSIONI"
+    #     ]
+    #     section_texts = {section.lower().replace(' ', '_'): '' for section in sections}
+    #     current_section = None
+    #
+    #     for line in report_text.split('\n'):
+    #         upper_line = line.strip().upper()
+    #         if any(section.upper() in upper_line for section in sections):
+    #             current_section = next(
+    #                 section.lower().replace(' ', '_') for section in sections if section.upper() in upper_line)
+    #             continue
+    #         if current_section:
+    #             section_texts[current_section] += line + "\n"
+    #
+    #     # Rimuovi eventuali righe vuote all'inizio e alla fine di ogni sezione
+    #     for key in section_texts:
+    #         section_texts[key] = section_texts[key].strip()
+    #
+    #     # Aggiorna report_data con i testi delle sezioni
+    #     report_data.update(section_texts)
+    #
+    #     # Chiedi all'utente se vuole utilizzare il template predefinito
+    #     use_template, ok = QInputDialog.getItem(self, "Scelta output", "Vuoi utilizzare il template predefinito?",
+    #                                             ["Sì", "No"], 0, False)
+    #
+    #     if ok:
+    #         # Seleziona dove salvare il file
+    #         output_path, _ = QFileDialog.getSaveFileName(self, "Salva Report", "",
+    #                                                      "Word Documents (*.docx);;All Files (*)")
+    #         if not output_path:
+    #             QMessageBox.warning(self, "Avviso",
+    #                                 "Nessun percorso di salvataggio selezionato. Il report non verrà salvato.")
+    #             return
+    #
+    #         if not output_path.lower().endswith('.docx'):
+    #             output_path += '.docx'
+    #
+    #         if use_template == "Sì":
+    #             # Usa il template predefinito
+    #             template_path = os.path.join(self.HOME, "bin",
+    #                                          "template_report_adarte.docx")  # Assumo che il file si chiami "template_report.docx"
+    #             if not os.path.exists(template_path):
+    #                 QMessageBox.warning(self, "Avviso",
+    #                                     "Template predefinito non trovato. Verrà creato un documento semplice.")
+    #                 self.save_report_as_plain_doc(report_text, output_path)
+    #             else:
+    #                 try:
+    #                     self.save_report_to_file(report_data, template_path, output_path)
+    #                     QMessageBox.information(self, "Report Salvato", f"Il report è stato salvato in {output_path}")
+    #                 except Exception as e:
+    #                     QMessageBox.critical(self, "Errore",
+    #                                          f"Si è verificato un errore durante il salvataggio del report: {str(e)}")
+    #         else:
+    #             # Salva il report come documento normale
+    #             try:
+    #                 self.save_report_as_plain_doc(report_text, output_path)
+    #                 QMessageBox.information(self, "Report Salvato", f"Il report è stato salvato in {output_path}")
+    #             except Exception as e:
+    #                 QMessageBox.critical(self, "Errore",
+    #                                      f"Si è verificato un errore durante il salvataggio del report: {str(e)}")
+
+
     def generate_and_display_report(self):
         dialog = ReportGeneratorDialog(self)
         if dialog.exec_() == QDialog.Accepted:
@@ -1072,21 +1276,19 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             }
 
             descriptions_text = ""
-            current_site = str(
-                self.comboBox_sito.currentText())  # Assumo che self.SITO contenga il nome del sito corrente
+            current_site = str(self.comboBox_sito.currentText())
 
             def rimuovi_duplicati(text):
-                # Separa il prefisso (se presente) dal resto del testo
                 parts = text.split(': ', 1)
                 if len(parts) == 2:
                     prefix, content = parts
-                    # Rimuovi i duplicati solo dal contenuto
                     unique_content = ' '.join(dict.fromkeys(content.strip().split()))
                     return f"{prefix}: {unique_content}"
                 else:
-                    # Se non c'è un prefisso, rimuovi i duplicati dall'intero testo
                     return ' '.join(dict.fromkeys(text.split()))
 
+            us_data = []
+            other_data=[]
             for table_name in selected_tables:
                 records, columns = ReportGenerator.read_data_from_db(db_url, table_name)
 
@@ -1098,7 +1300,6 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                         report_data['Comune'] = rimuovi_duplicati(f"Comune: {getattr(site_record, 'comune', '')}")
                         report_data['Cantiere'] = current_site
                         report_data['Collocazione cantiere'] = current_site
-                    descriptions_text += f"{getattr(site_record, 'descrizione', '')}\n"
                 elif table_name == 'us_table':
                     us_records = [r for r in records if getattr(r, 'sito', '') == current_site]
                     if us_records:
@@ -1112,72 +1313,135 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                             'Direzione scientifica']
                         report_data['Direzione cantiere archeologico'] = report_data['Direttore cantiere']
 
-                    descriptions_text += "Unità Stratigrafiche:\n"
                     for record in us_records:
-                        descriptions_text += f"US {getattr(record, 'us', '')}: {getattr(record, 'd_stratigrafica', '')}\n"
-                        descriptions_text += f"{getattr(record, 'descrizione', '')}\n"
-                        descriptions_text += f"{getattr(record, 'interpretazione', '')}\n"
-                        descriptions_text += f"{getattr(record, 'rapporti', '')}\n"
+                        us_data.append({
+                            'us': getattr(record, 'us', ''),
+                            'area': getattr(record, 'area', ''),
+                            'd_stratigrafica': getattr(record, 'd_stratigrafica', ''),
+                            'descrizione': getattr(record, 'descrizione', ''),
+                            'interpretazione': getattr(record, 'interpretazione', ''),
+                            'rapporti': getattr(record, 'rapporti', '')
+                        })
 
                 else:
-                    # Per le altre tabelle, filtriamo i record per il sito corrente se possibile
                     site_specific_records = [r for r in records if getattr(r, 'sito', current_site) == current_site]
                     descriptions_text += f"Table: {table_name}\n"
                     for record in site_specific_records:
+                        descriptions_text += f"{record}\n\n"
 
-                        descriptions_text += f"{getattr(record, 'descrizione', '')}\n"
-                        descriptions_text += "\n"
-
-            desktop_path = os.path.join(os.path.expanduser("~"), "Desktop")
-            output_file_path = os.path.join(desktop_path, 'descriptions_text.txt')
-            with open(output_file_path, 'w', encoding='utf-8') as file:
-                file.write(descriptions_text)
-
-            print(f"Le descrizioni sono state salvate in {output_file_path}")
             # Generate derived fields
             report_data['Tipo di indagine'] = f"Indagine archeologica presso {report_data['Cantiere']}"
             report_data['Titolo elaborato'] = f"Relazione di scavo - {report_data['Cantiere']}"
+
             custom_prompt = f"""
-            Genera una relazione archeologica dettagliata basata sui seguenti dati:
-            
-            La relazione deve essere strutturata come nelle seguenti sezioni:
-            1. INTRODUZIONE:
-               - Breve panoramica del {current_site} e del contesto storico che viene desunta dal campo descrizione
-               
-            2. DESCRIZIONE METODOLOGICA ED ESITO DELL'INDAGINE (5000 parole):
-               1 Descrizione dettagliata di tutte le unità stratigrafiche us rinvenute. Inizia scrivendo il totale delle US/USM.
-               2 Analisi delle strutture e degli edifici dalla tabella struttura_table se è stata selezionata
-               3 Analisi delle tombe dalla tabella tomba_table se è stata selezionata
-               4 Descrizione dei reperti prendendo in cosiderazione numero inventario, tipo_reprto se la tabella invetario_materiali_table è stato selezionato
-               5 Interpretazione delle fasi di occupazione del sito mettemndo in evidenza i rapporti stratigrafici che trovi nella colonna rapporti
-                
-            3. CONCLUSIONI (500 parole):
-               - Sintesi dei risultati
-              
-           
-            """
+                Genera una relazione archeologica dettagliata e discorsiva in italiano basata sui seguenti dati. 
+                La relazione deve essere un testo fluido e narrativo, che analizza in profondità tutte le unità stratigrafiche (US) e le mette in relazione tra loro.
+                Includi TUTTI i dettagli rilevanti seguendo questa struttura:
+
+                1. INTRODUZIONE:
+                   - Fornisci una panoramica dettagliata del sito e del suo contesto storico.
+                   - Descrivi il periodo e la profondità dello scavo, collegandoli al contesto più ampio della regione.
+
+                2. DESCRIZIONE METODOLOGICA ED ESITO DELL'INDAGINE:
+                   - Inizia con una descrizione generale dell'area di scavo e della sua suddivisione.
+                   - Per OGNI unità stratigrafica (US):
+                     * Descrivi dettagliatamente la composizione, lo stato di conservazione e le caratteristiche peculiari.
+                     * Fornisci l'interpretazione archeologica di ciascuna US.
+                     * Analizza le relazioni stratigrafiche con le altre US.
+                   - Dopo aver descritto tutte le US, fornisci un'analisi complessiva che le metta in relazione, 
+                     evidenziando patterns, similarità e differenze.
+                   - Analizza in modo approfondito tutte le strutture e gli edifici rinvenuti, discutendo:
+                     * Materiali e tecniche costruttive
+                     * Possibili funzioni e periodi di utilizzo
+                     * Relazioni con altre strutture o US
+                   - Per le tombe:
+                     * Descrivi in dettaglio ogni sepoltura, sia inumazioni che cremazioni.
+                     * Analizza i riti funerari evidenziati dai ritrovamenti.
+                   - Per i reperti:
+                     * Descrivi dettagliatamente TUTTI i reperti, inclusi numero di inventario e tipologia.
+                     * Discuti il significato di questi reperti nel contesto del sito.
+                   - Fornisci un'interpretazione cronologica dettagliata delle fasi di occupazione del sito, 
+                     basandoti sui rapporti stratigrafici e sui reperti rinvenuti.
+                   - per la documentazione:
+                     * fornisci il nome delle tavole o sezioni o piante  
+
+                3. CONCLUSIONI:
+                   - Sintetizza i risultati principali dello scavo.
+                   - Discuti l'importanza del sito nel contesto storico locale e regionale.
+                   - Suggerisci possibili direzioni per future ricerche o scavi.
+
+                Assicurati che il report sia scritto in forma discorsiva, evitando elenchi puntati o numerati. 
+                Usa un linguaggio tecnico appropriato, ma mantieni un flusso narrativo che guidi il lettore attraverso 
+                l'interpretazione completa del sito archeologico.
+
+                Dati del sito: {report_data}
+
+                Unità Stratigrafiche:
+                {us_data}
+
+                Descrizioni aggiuntive:
+                {descriptions_text}
+                """
 
             if ReportGenerator.is_connected():
-                models = ["gpt-4o", "gpt-4-0125-preview"]
-                selected_model, ok = QInputDialog.getItem(self, "Select Model", "Choose a model for GPT:", models, 0,
-                                                          False)
+                self.progress_dialog = QProgressDialog("Generating report...", None, 0, 0, self)
+                self.progress_dialog.setWindowModality(Qt.WindowModal)
+                self.progress_dialog.setCancelButton(None)
+                self.progress_dialog.setRange(0, 0)
+                self.progress_dialog.show()
 
-                if ok and selected_model:
-                    self.progress_dialog = QProgressDialog("Generating report...", None, 0, 0, self)
-                    self.progress_dialog.setWindowModality(Qt.WindowModal)
-                    self.progress_dialog.setCancelButton(None)
-                    self.progress_dialog.setRange(0, 0)
-                    self.progress_dialog.show()
+                api_key = self.apikey_gpt()
 
-                    api_key = self.apikey_gpt()
-                    self.report_thread = GenerateReportThread(custom_prompt, descriptions_text, api_key, selected_model)
-                    self.report_thread.report_generated.connect(
-                        lambda text: self.on_report_generated(text, report_data))
-                    self.report_thread.start()
-                else:
-                    QMessageBox.warning(self, "Warning", "No model selected", QMessageBox.Ok)
-            else:
-                QMessageBox.warning(self, "Warning", "No internet connection", QMessageBox.Ok)
+                chat_model = ChatOpenAI(
+                    api_key=api_key,
+                    model_name="gpt-4o-mini",
+                    temperature=0.2,  # Aumentato leggermente per favorire una narrazione più fluida
+                    max_tokens=16000,  # Aumentato per permettere una risposta più lunga e dettagliata
+                    streaming=True
+                )
+
+                try:
+                    messages = [
+                        SystemMessage(content="""Sei un esperto archeologo con vasta esperienza nella redazione di relazioni di scavo. 
+                                Il tuo compito è creare un report dettagliato e discorsivo che analizzi in profondità tutte le unità stratigrafiche 
+                                e le metta in relazione tra loro. Usa un linguaggio tecnico ma mantieni un flusso narrativo coinvolgente. 
+                                Evita elenchi puntati o numerati nel corpo principale del testo. Evita inoltre di di dettagliare in sequesza le unità stratigrafiche
+                                ma incorpora in un grande discordo dettagliato"""),
+                        HumanMessage(content=custom_prompt)
+                    ]
+
+                    full_report = ""
+                    for chunk in chat_model.stream(messages):
+                        if chunk.content:
+                            full_report += chunk.content
+                            self.progress_dialog.show()
+
+                    if not self.is_italian(full_report):
+                        translation_prompt = f"Il seguente testo è in inglese. Per favore, traducilo accuratamente in italiano:\n\n{full_report}"
+                        translation_messages = [
+                            SystemMessage(content="Sei un traduttore esperto dall'inglese all'italiano."),
+                            HumanMessage(content=translation_prompt)
+                        ]
+
+                        full_report = ""
+                        for chunk in chat_model.stream(translation_messages):
+                            if chunk.content:
+                                full_report += chunk.content
+                                self.progress_dialog.show()
+
+
+                    self.on_report_generated(full_report, report_data)
+
+                except Exception as e:
+                    self.show_error(str(e), 'Qualcosa è andato storto')
+                    return
+
+    def is_italian(self, text):
+        # Implementa una semplice euristica per determinare se il testo è in italiano
+        italian_words = set(['il', 'lo', 'la', 'i', 'gli', 'le', 'un', 'uno', 'una', 'e', 'ed', 'ma', 'perché', 'quindi'])
+
+        words = text.lower().split()
+        return len(set(words) & italian_words) > 5  # Se ci sono più di 5 parole italiane comuni
 
     def on_report_generated(self, report_text, report_data):
         self.progress_dialog.close()
@@ -6019,12 +6283,18 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             python_version = sys.version[:3]
 
             if platform.system()=='Windows':
-                cmd = '{}\python'.format(python_path)
+                cmd = 'python'
+
             elif platform.system()=='Darwin':
-                cmd = '{}/bin/python{}'.format(python_path, python_version)
+                cmd = '/Applications/QGIS.app/Contents/MacOS/bin/python3'
+
             else:
-                cmd = '{}/bin/python{}'.format(python_path, python_version)
-            subprocess.call(['python', dottoxml,'-f', 'Graphml',input_file, output_file], shell=True)
+
+                cmd = 'python3'
+
+            subprocess.call([cmd, dottoxml,'-f', 'Graphml',input_file, output_file], shell=False)
+
+
 
             with open(output_file, 'r') as file :
                 filedata = file.read()
@@ -6056,156 +6326,156 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             db_names = settings.DATABASE
             server=settings.SERVER
 
-            if server=='postgres':
-                pass
-                # # Create an SQLAlchemy engine instance
-                # engine = create_engine(f"postgresql://{db_username}:{database_password}@{host}:{port}/{db_names}")
-                #
-                # # Create a session
-                # Session = sessionmaker(bind=engine)
-                # session = Session()
-                #
-                # try:
-                #     # Perform your query using SQLAlchemy ORM or Core
-                #     result2 = session.execute(text("""
-                #         WITH RECURSIVE cte AS (
-                #                 SELECT
-                #                     rowid,
-                #                     SPLIT_PART(rapporti, ';', 1) AS col,
-                #                     SUBSTRING(rapporti FROM POSITION(';' IN rapporti) + 1) AS rest
-                #                 FROM (
-                #                     SELECT
-                #                         rowid,
-                #                         REPLACE(REPLACE(REPLACE(rapporti, '[[', '['), ']]', ']'), '], [', '];[') AS rapporti
-                #                     FROM us_table
-                #                     WHERE sito = 'sito_location'
-                #                 ) AS initial
-                #
-                #                 UNION ALL
-                #
-                #                 SELECT
-                #                     rowid,
-                #                     SPLIT_PART(rest, ';', 1),
-                #                     SUBSTRING(rest FROM POSITION(';' IN rest) + 1)
-                #                 FROM cte
-                #                 WHERE LENGTH(rest) > 0
-                #             )
-                #             SELECT
-                #                 STRING_AGG(CASE WHEN col LIKE '[Copre,%' OR col LIKE '[Taglia,%' OR col LIKE '[Riempie,%' OR col LIKE '[Si appoggia a,%' THEN col END, ',') AS post,
-                #                 STRING_AGG(CASE WHEN col LIKE '[Coperto da,%' OR col LIKE '[Riempito da,%' OR col LIKE '[Tagliato da,%' OR col LIKE '[Gli si appoggia,%' THEN col END, ',') AS ante,
-                #                 STRING_AGG(CASE WHEN col LIKE '[Si lega a,%' OR col LIKE '[Uguale a,%' THEN col END, ',') AS contemp
-                #             FROM cte
-                #             GROUP BY rowid
-                #             ORDER BY rowid;
-                #
-                #     """), {'sito_location': sito_location})
-                #
-                #     rows2 = result2.fetchall()
-                #     col_names2 = ['Rapporto Posteriore', 'Rapporto Anteriore', 'Rapporto Contemporaneo']
-                #     t2 = pd.DataFrame(rows2, columns=col_names2).applymap(self.list2pipe)
-                #     t2.to_excel(writer, sheet_name='Rapporti', index=False)
-                #
-                #     # Configure the Excel sheets' column widths
-                #     worksheet1 = writer.sheets['US']
-                #     worksheet1.set_column('A:A', 30)
-                #     worksheet1.set_column('B:B', 30)
-                #     worksheet1.set_column('C:C', 30)
-                #     worksheet1.set_column('D:D', 30)
-                #
-                #     worksheet2 = writer.sheets['Rapporti']
-                #     worksheet2.set_column('A:A', 30)
-                #     worksheet2.set_column('B:B', 30)
-                #     worksheet2.set_column('C:C', 30)
-                #
-                #     # Close the Pandas Excel writer and output the Excel file
-                #     writer.close()
-                #     QMessageBox.information(self, "INFO", "Conversion completed", QMessageBox.Ok)
-                #
-                # except Exception as e:
-                #     # Handle any errors that occur during the database operations
-                #     QMessageBox.warning(self, "Error", str(e), QMessageBox.Ok)
-                # finally:
-                #     # Ensure the database session is closed when done
-                #     session.close()
-
-
-
-            elif server=='sqlite' and self.L=='it':
-
-
-                sqlite_DB_path = '{}{}{}'.format(self.HOME, os.sep,"pyarchinit_DB_folder")
-
-                file_path_sqlite = sqlite_DB_path+os.sep+db_names
-                conn = sq.connect(file_path_sqlite)
-                conn.enable_load_extension(True)
-
-
-                #now we can load the extension
-                # depending on your OS and sqlite/spatialite version you might need to add 
-                # '.so' (Linux) or '.dll' (Windows) to the extension name
-
-                #mod_spatialite (recommended)
-                conn.execute('SELECT load_extension("mod_spatialite")')
-                conn.execute('SELECT InitSpatialMetaData(1);')
-                cur = conn.cursor()
-                cur2 = conn.cursor()
-
-                name_= '%s' % (sito_location+'_' +  time.strftime('%Y%m%d_') + '.xlsx')
-                dump_dir=os.path.join(self.MATRIX_PATH, name_)
-                writer = pd.ExcelWriter(dump_dir, engine='xlsxwriter')
-                workbook  = writer.book
-
-
-                cur.execute("SELECT  area, us, attivita,datazione From us_table where sito='%s' order by rowid;" % sito_location)
-                rows1 = cur.fetchall()
-                col_names1 = ['Area','US','Attività','Epoca']
-                t1=pd.DataFrame(rows1,columns=col_names1).applymap(self.list2pipe)
-                t1.to_excel(writer, sheet_name='US',index=False)
-
-                cur2.execute("""WITH cte AS 
-                    ( SELECT rowid ,
-                   SUBSTR(rapporti,  1, INSTR(rapporti || ';', ';') -1) col,
-                   SUBSTR(rapporti, INSTR(rapporti || ';', ';') + 1) rest
-                   FROM (SELECT rowid, REPLACE(REPLACE(REPLACE(rapporti, '[[', '['), ']]', ']'), '], [', '];[') rapporti FROM us_table
-                   WHERE sito = """+"'"+sito_location+"'"+""")
-                   UNION all
-                   SELECT rowid us,
-                   SUBSTR(rest, 1, INSTR(rest || ';', ';')  -1),
-                   SUBSTR(rest, INSTR(rest || ';', ';') + 1)   FROM cte   WHERE LENGTH(rest) > 0 )
-                   SELECT 
-                   GROUP_CONCAT(CASE WHEN col LIKE '[''Copre'',%' OR col LIKE '[''Taglia'',%'
-                   OR col LIKE '[''Riempie'',%' OR col LIKE '[''Si appoggia a'',%'  THEN col END) post,
-                   
-                   GROUP_CONCAT(CASE WHEN col LIKE '[''Coperto da'',%' OR col LIKE '[''Riempito da'',%'
-                   OR col LIKE '[''Tagliato da'',%' OR col LIKE '[''Gli si appoggia'',%' THEN col END) ante,
-                   
-                   GROUP_CONCAT(CASE WHEN col LIKE '[''Si lega a'',%' or col LIKE '[''Uguale a'',%' THEN col END) contemp
-            
-                    FROM cte GROUP BY rowid order by rowid""")
-                rows2 = cur2.fetchall()
-                col_names2 = ['Rapporto Posteriore','Rapporto Anteriore', 'Rapporto Contemporaneo']
-                t2=pd.DataFrame(rows2,columns=col_names2).applymap(self.list2pipe)
-                t2.to_excel(writer, sheet_name='Rapporti',index=False)
-
-                worksheet1 = writer.sheets['US']
-                worksheet1.set_column('A:A', 30, None)
-                worksheet1.set_column('B:B', 30, None)
-                worksheet1.set_column('C:C', 30, None)
-                worksheet1.set_column('D:D', 30, None)
-                worksheet1.set_column('E:E', 30, None)
-
-
-                worksheet2 = writer.sheets['Rapporti']
-                worksheet2.set_column('A:A', 30, None)
-                worksheet2.set_column('B:B', 30, None)
-                worksheet2.set_column('C:C', 30, None)
-                writer.close()
-
-            else:
-                pass
-
-            QMessageBox.information(self, "INFO", "Conversion completed",
-                                    QMessageBox.Ok)
+            # if server=='postgres':
+            #     pass
+            #     # # Create an SQLAlchemy engine instance
+            #     # engine = create_engine(f"postgresql://{db_username}:{database_password}@{host}:{port}/{db_names}")
+            #     #
+            #     # # Create a session
+            #     # Session = sessionmaker(bind=engine)
+            #     # session = Session()
+            #     #
+            #     # try:
+            #     #     # Perform your query using SQLAlchemy ORM or Core
+            #     #     result2 = session.execute(text("""
+            #     #         WITH RECURSIVE cte AS (
+            #     #                 SELECT
+            #     #                     rowid,
+            #     #                     SPLIT_PART(rapporti, ';', 1) AS col,
+            #     #                     SUBSTRING(rapporti FROM POSITION(';' IN rapporti) + 1) AS rest
+            #     #                 FROM (
+            #     #                     SELECT
+            #     #                         rowid,
+            #     #                         REPLACE(REPLACE(REPLACE(rapporti, '[[', '['), ']]', ']'), '], [', '];[') AS rapporti
+            #     #                     FROM us_table
+            #     #                     WHERE sito = 'sito_location'
+            #     #                 ) AS initial
+            #     #
+            #     #                 UNION ALL
+            #     #
+            #     #                 SELECT
+            #     #                     rowid,
+            #     #                     SPLIT_PART(rest, ';', 1),
+            #     #                     SUBSTRING(rest FROM POSITION(';' IN rest) + 1)
+            #     #                 FROM cte
+            #     #                 WHERE LENGTH(rest) > 0
+            #     #             )
+            #     #             SELECT
+            #     #                 STRING_AGG(CASE WHEN col LIKE '[Copre,%' OR col LIKE '[Taglia,%' OR col LIKE '[Riempie,%' OR col LIKE '[Si appoggia a,%' THEN col END, ',') AS post,
+            #     #                 STRING_AGG(CASE WHEN col LIKE '[Coperto da,%' OR col LIKE '[Riempito da,%' OR col LIKE '[Tagliato da,%' OR col LIKE '[Gli si appoggia,%' THEN col END, ',') AS ante,
+            #     #                 STRING_AGG(CASE WHEN col LIKE '[Si lega a,%' OR col LIKE '[Uguale a,%' THEN col END, ',') AS contemp
+            #     #             FROM cte
+            #     #             GROUP BY rowid
+            #     #             ORDER BY rowid;
+            #     #
+            #     #     """), {'sito_location': sito_location})
+            #     #
+            #     #     rows2 = result2.fetchall()
+            #     #     col_names2 = ['Rapporto Posteriore', 'Rapporto Anteriore', 'Rapporto Contemporaneo']
+            #     #     t2 = pd.DataFrame(rows2, columns=col_names2).applymap(self.list2pipe)
+            #     #     t2.to_excel(writer, sheet_name='Rapporti', index=False)
+            #     #
+            #     #     # Configure the Excel sheets' column widths
+            #     #     worksheet1 = writer.sheets['US']
+            #     #     worksheet1.set_column('A:A', 30)
+            #     #     worksheet1.set_column('B:B', 30)
+            #     #     worksheet1.set_column('C:C', 30)
+            #     #     worksheet1.set_column('D:D', 30)
+            #     #
+            #     #     worksheet2 = writer.sheets['Rapporti']
+            #     #     worksheet2.set_column('A:A', 30)
+            #     #     worksheet2.set_column('B:B', 30)
+            #     #     worksheet2.set_column('C:C', 30)
+            #     #
+            #     #     # Close the Pandas Excel writer and output the Excel file
+            #     #     writer.close()
+            #     #     QMessageBox.information(self, "INFO", "Conversion completed", QMessageBox.Ok)
+            #     #
+            #     # except Exception as e:
+            #     #     # Handle any errors that occur during the database operations
+            #     #     QMessageBox.warning(self, "Error", str(e), QMessageBox.Ok)
+            #     # finally:
+            #     #     # Ensure the database session is closed when done
+            #     #     session.close()
+            #
+            #
+            #
+            # elif server=='sqlite' and self.L=='en':
+            #
+            #
+            #     sqlite_DB_path = '{}{}{}'.format(self.HOME, os.sep,"pyarchinit_DB_folder")
+            #
+            #     file_path_sqlite = sqlite_DB_path+os.sep+db_names
+            #     conn = sq.connect(file_path_sqlite)
+            #     conn.enable_load_extension(True)
+            #
+            #
+            #     #now we can load the extension
+            #     # depending on your OS and sqlite/spatialite version you might need to add
+            #     # '.so' (Linux) or '.dll' (Windows) to the extension name
+            #
+            #     #mod_spatialite (recommended)
+            #     conn.execute('SELECT load_extension("mod_spatialite")')
+            #     conn.execute('SELECT InitSpatialMetaData(1);')
+            #     cur = conn.cursor()
+            #     cur2 = conn.cursor()
+            #
+            #     name_= '%s' % (sito_location+'_' +  time.strftime('%Y%m%d_') + '.xlsx')
+            #     dump_dir=os.path.join(self.MATRIX_PATH, name_)
+            #     writer = pd.ExcelWriter(dump_dir, engine='xlsxwriter')
+            #     workbook  = writer.book
+            #
+            #
+            #     cur.execute("SELECT  area, us, attivita,datazione From us_table where sito='%s' order by rowid;" % sito_location)
+            #     rows1 = cur.fetchall()
+            #     col_names1 = ['Area','US','Attività','Epoca']
+            #     t1=pd.DataFrame(rows1,columns=col_names1).applymap(self.list2pipe)
+            #     t1.to_excel(writer, sheet_name='US',index=False)
+            #
+            #     cur2.execute("""WITH cte AS
+            #         ( SELECT rowid ,
+            #        SUBSTR(rapporti,  1, INSTR(rapporti || ';', ';') -1) col,
+            #        SUBSTR(rapporti, INSTR(rapporti || ';', ';') + 1) rest
+            #        FROM (SELECT rowid, REPLACE(REPLACE(REPLACE(rapporti, '[[', '['), ']]', ']'), '], [', '];[') rapporti FROM us_table
+            #        WHERE sito = """+"'"+sito_location+"'"+""")
+            #        UNION all
+            #        SELECT rowid us,
+            #        SUBSTR(rest, 1, INSTR(rest || ';', ';')  -1),
+            #        SUBSTR(rest, INSTR(rest || ';', ';') + 1)   FROM cte   WHERE LENGTH(rest) > 0 )
+            #        SELECT
+            #        GROUP_CONCAT(CASE WHEN col LIKE '[''Copre'',%' OR col LIKE '[''Taglia'',%'
+            #        OR col LIKE '[''Riempie'',%' OR col LIKE '[''Si appoggia a'',%'  THEN col END) post,
+            #
+            #        GROUP_CONCAT(CASE WHEN col LIKE '[''Coperto da'',%' OR col LIKE '[''Riempito da'',%'
+            #        OR col LIKE '[''Tagliato da'',%' OR col LIKE '[''Gli si appoggia'',%' THEN col END) ante,
+            #
+            #        GROUP_CONCAT(CASE WHEN col LIKE '[''Si lega a'',%' or col LIKE '[''Uguale a'',%' THEN col END) contemp
+            #
+            #         FROM cte GROUP BY rowid order by rowid""")
+            #     rows2 = cur2.fetchall()
+            #     col_names2 = ['Rapporto Posteriore','Rapporto Anteriore', 'Rapporto Contemporaneo']
+            #     t2=pd.DataFrame(rows2,columns=col_names2).applymap(self.list2pipe)
+            #     t2.to_excel(writer, sheet_name='Rapporti',index=False)
+            #
+            #     worksheet1 = writer.sheets['US']
+            #     worksheet1.set_column('A:A', 30, None)
+            #     worksheet1.set_column('B:B', 30, None)
+            #     worksheet1.set_column('C:C', 30, None)
+            #     worksheet1.set_column('D:D', 30, None)
+            #     worksheet1.set_column('E:E', 30, None)
+            #
+            #
+            #     worksheet2 = writer.sheets['Rapporti']
+            #     worksheet2.set_column('A:A', 30, None)
+            #     worksheet2.set_column('B:B', 30, None)
+            #     worksheet2.set_column('C:C', 30, None)
+            #     writer.close()
+            #
+            # else:
+            #     pass
+            #
+            # QMessageBox.information(self, "INFO", "Conversion completed",
+            #                         QMessageBox.Ok)
         except KeyError as e:
             QMessageBox.warning(self, "Error", str(e),
                                 QMessageBox.Ok)
@@ -7312,6 +7582,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         us_inesistenti = []
         rapporti_mancanti = []
         aree_vuote = []
+        aree_vuote_2 = []
         sing_rapp1 =''
         self.listWidget_rapp.clear()
         conversion_dict = {'Covers': 'Covered by',
@@ -7372,12 +7643,18 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             report = ''
             for area_vuota in rapporti:
 
+                if len(area_vuota) <= 2:
+                    aree_vuote_2.append('')
 
-                if area_vuota[2] == '':
-                    area_vuota[2] = 9999
 
-                    aree_vuote.append(f"Nella scheda US: {us}, il Rapporto: {area_vuota[0]} US: {area_vuota[1]}"
-                                      f", l'Area è vuota")
+                elif len(area_vuota)>2:
+                    if not area_vuota[2]:
+
+                        area_vuota[2] = 9999
+
+                        aree_vuote.append(f"Nella scheda US: {us}, il Rapporto: {area_vuota[0]} US: {area_vuota[1]}, l'Area è vuota")
+
+
 
             for sing_rapp in rapporti:
                 if str(us).find('0') >= 0 or str(us).find('1') >= 0:
@@ -7448,11 +7725,21 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
                             # Aggiungi i risultati raggruppati al report
 
-        if aree_vuote:
+
+
+        if aree_vuote_2:
+
+
+            self.report_rapporti += (f"\nEseguire Ctrl+U per aggiornare prima di procedere con il controllo.\n\n"
+                                     ) 
+
+        elif aree_vuote:
 
 
             self.report_rapporti += f"\nCi sono {len(aree_vuote)} rapporti con area vuota . Eseguire Ctrl+U per aggiornare prima di procedere con il controllo.\n\nDettagli:\n" + "\n".join(
                     aree_vuote)
+
+
         else:
             if us_inesistenti:
                 self.report_rapporti += "\nUS Inesistenti:\n" + "\n".join(us_inesistenti) + "\n"
