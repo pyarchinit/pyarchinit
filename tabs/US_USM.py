@@ -1394,7 +1394,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
                 chat_model = ChatOpenAI(
                     api_key=api_key,
-                    model_name="gpt-4o-mini",
+                    model_name="gpt-4o",
                     temperature=0.2,  # Aumentato leggermente per favorire una narrazione più fluida
                     max_tokens=16000,  # Aumentato per permettere una risposta più lunga e dettagliata
                     streaming=True
@@ -1407,7 +1407,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                                 e le metta in relazione tra loro. Usa un linguaggio tecnico ma mantieni un flusso narrativo coinvolgente. 
                                 Evita elenchi puntati o numerati nel corpo principale del testo. Evita inoltre di di dettagliare in sequesza le unità stratigrafiche
                                 ma incorpora in un grande discordo dettagliato"""),
-                        HumanMessage(content=custom_prompt)
+                        angchain(content=custom_prompt)
                     ]
 
                     full_report = ""
