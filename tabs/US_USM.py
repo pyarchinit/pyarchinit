@@ -6535,157 +6535,228 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             db_names = settings.DATABASE
             server=settings.SERVER
 
-            # if server=='postgres':
-            #     pass
-            #     # # Create an SQLAlchemy engine instance
-            #     # engine = create_engine(f"postgresql://{db_username}:{database_password}@{host}:{port}/{db_names}")
-            #     #
-            #     # # Create a session
-            #     # Session = sessionmaker(bind=engine)
-            #     # session = Session()
-            #     #
-            #     # try:
-            #     #     # Perform your query using SQLAlchemy ORM or Core
-            #     #     result2 = session.execute(text("""
-            #     #         WITH RECURSIVE cte AS (
-            #     #                 SELECT
-            #     #                     rowid,
-            #     #                     SPLIT_PART(rapporti, ';', 1) AS col,
-            #     #                     SUBSTRING(rapporti FROM POSITION(';' IN rapporti) + 1) AS rest
-            #     #                 FROM (
-            #     #                     SELECT
-            #     #                         rowid,
-            #     #                         REPLACE(REPLACE(REPLACE(rapporti, '[[', '['), ']]', ']'), '], [', '];[') AS rapporti
-            #     #                     FROM us_table
-            #     #                     WHERE sito = 'sito_location'
-            #     #                 ) AS initial
-            #     #
-            #     #                 UNION ALL
-            #     #
-            #     #                 SELECT
-            #     #                     rowid,
-            #     #                     SPLIT_PART(rest, ';', 1),
-            #     #                     SUBSTRING(rest FROM POSITION(';' IN rest) + 1)
-            #     #                 FROM cte
-            #     #                 WHERE LENGTH(rest) > 0
-            #     #             )
-            #     #             SELECT
-            #     #                 STRING_AGG(CASE WHEN col LIKE '[Copre,%' OR col LIKE '[Taglia,%' OR col LIKE '[Riempie,%' OR col LIKE '[Si appoggia a,%' THEN col END, ',') AS post,
-            #     #                 STRING_AGG(CASE WHEN col LIKE '[Coperto da,%' OR col LIKE '[Riempito da,%' OR col LIKE '[Tagliato da,%' OR col LIKE '[Gli si appoggia,%' THEN col END, ',') AS ante,
-            #     #                 STRING_AGG(CASE WHEN col LIKE '[Si lega a,%' OR col LIKE '[Uguale a,%' THEN col END, ',') AS contemp
-            #     #             FROM cte
-            #     #             GROUP BY rowid
-            #     #             ORDER BY rowid;
-            #     #
-            #     #     """), {'sito_location': sito_location})
-            #     #
-            #     #     rows2 = result2.fetchall()
-            #     #     col_names2 = ['Rapporto Posteriore', 'Rapporto Anteriore', 'Rapporto Contemporaneo']
-            #     #     t2 = pd.DataFrame(rows2, columns=col_names2).applymap(self.list2pipe)
-            #     #     t2.to_excel(writer, sheet_name='Rapporti', index=False)
-            #     #
-            #     #     # Configure the Excel sheets' column widths
-            #     #     worksheet1 = writer.sheets['US']
-            #     #     worksheet1.set_column('A:A', 30)
-            #     #     worksheet1.set_column('B:B', 30)
-            #     #     worksheet1.set_column('C:C', 30)
-            #     #     worksheet1.set_column('D:D', 30)
-            #     #
-            #     #     worksheet2 = writer.sheets['Rapporti']
-            #     #     worksheet2.set_column('A:A', 30)
-            #     #     worksheet2.set_column('B:B', 30)
-            #     #     worksheet2.set_column('C:C', 30)
-            #     #
-            #     #     # Close the Pandas Excel writer and output the Excel file
-            #     #     writer.close()
-            #     #     QMessageBox.information(self, "INFO", "Conversion completed", QMessageBox.Ok)
-            #     #
-            #     # except Exception as e:
-            #     #     # Handle any errors that occur during the database operations
-            #     #     QMessageBox.warning(self, "Error", str(e), QMessageBox.Ok)
-            #     # finally:
-            #     #     # Ensure the database session is closed when done
-            #     #     session.close()
-            #
-            #
-            #
-            # elif server=='sqlite' and self.L=='en':
-            #
-            #
-            #     sqlite_DB_path = '{}{}{}'.format(self.HOME, os.sep,"pyarchinit_DB_folder")
-            #
-            #     file_path_sqlite = sqlite_DB_path+os.sep+db_names
-            #     conn = sq.connect(file_path_sqlite)
-            #     conn.enable_load_extension(True)
-            #
-            #
-            #     #now we can load the extension
-            #     # depending on your OS and sqlite/spatialite version you might need to add
-            #     # '.so' (Linux) or '.dll' (Windows) to the extension name
-            #
-            #     #mod_spatialite (recommended)
-            #     conn.execute('SELECT load_extension("mod_spatialite")')
-            #     conn.execute('SELECT InitSpatialMetaData(1);')
-            #     cur = conn.cursor()
-            #     cur2 = conn.cursor()
-            #
-            #     name_= '%s' % (sito_location+'_' +  time.strftime('%Y%m%d_') + '.xlsx')
-            #     dump_dir=os.path.join(self.MATRIX_PATH, name_)
-            #     writer = pd.ExcelWriter(dump_dir, engine='xlsxwriter')
-            #     workbook  = writer.book
-            #
-            #
-            #     cur.execute("SELECT  area, us, attivita,datazione From us_table where sito='%s' order by rowid;" % sito_location)
-            #     rows1 = cur.fetchall()
-            #     col_names1 = ['Area','US','Attività','Epoca']
-            #     t1=pd.DataFrame(rows1,columns=col_names1).applymap(self.list2pipe)
-            #     t1.to_excel(writer, sheet_name='US',index=False)
-            #
-            #     cur2.execute("""WITH cte AS
-            #         ( SELECT rowid ,
-            #        SUBSTR(rapporti,  1, INSTR(rapporti || ';', ';') -1) col,
-            #        SUBSTR(rapporti, INSTR(rapporti || ';', ';') + 1) rest
-            #        FROM (SELECT rowid, REPLACE(REPLACE(REPLACE(rapporti, '[[', '['), ']]', ']'), '], [', '];[') rapporti FROM us_table
-            #        WHERE sito = """+"'"+sito_location+"'"+""")
-            #        UNION all
-            #        SELECT rowid us,
-            #        SUBSTR(rest, 1, INSTR(rest || ';', ';')  -1),
-            #        SUBSTR(rest, INSTR(rest || ';', ';') + 1)   FROM cte   WHERE LENGTH(rest) > 0 )
-            #        SELECT
-            #        GROUP_CONCAT(CASE WHEN col LIKE '[''Copre'',%' OR col LIKE '[''Taglia'',%'
-            #        OR col LIKE '[''Riempie'',%' OR col LIKE '[''Si appoggia a'',%'  THEN col END) post,
-            #
-            #        GROUP_CONCAT(CASE WHEN col LIKE '[''Coperto da'',%' OR col LIKE '[''Riempito da'',%'
-            #        OR col LIKE '[''Tagliato da'',%' OR col LIKE '[''Gli si appoggia'',%' THEN col END) ante,
-            #
-            #        GROUP_CONCAT(CASE WHEN col LIKE '[''Si lega a'',%' or col LIKE '[''Uguale a'',%' THEN col END) contemp
-            #
-            #         FROM cte GROUP BY rowid order by rowid""")
-            #     rows2 = cur2.fetchall()
-            #     col_names2 = ['Rapporto Posteriore','Rapporto Anteriore', 'Rapporto Contemporaneo']
-            #     t2=pd.DataFrame(rows2,columns=col_names2).applymap(self.list2pipe)
-            #     t2.to_excel(writer, sheet_name='Rapporti',index=False)
-            #
-            #     worksheet1 = writer.sheets['US']
-            #     worksheet1.set_column('A:A', 30, None)
-            #     worksheet1.set_column('B:B', 30, None)
-            #     worksheet1.set_column('C:C', 30, None)
-            #     worksheet1.set_column('D:D', 30, None)
-            #     worksheet1.set_column('E:E', 30, None)
-            #
-            #
-            #     worksheet2 = writer.sheets['Rapporti']
-            #     worksheet2.set_column('A:A', 30, None)
-            #     worksheet2.set_column('B:B', 30, None)
-            #     worksheet2.set_column('C:C', 30, None)
-            #     writer.close()
-            #
-            # else:
-            #     pass
-            #
-            # QMessageBox.information(self, "INFO", "Conversion completed",
-            #                         QMessageBox.Ok)
-        except KeyError as e:
+            if server=='postgres':
+                pass
+                # # Create an SQLAlchemy engine instance
+                # engine = create_engine(f"postgresql://{db_username}:{database_password}@{host}:{port}/{db_names}")
+                #
+                # # Create a session
+                # Session = sessionmaker(bind=engine)
+                # session = Session()
+                #
+                # try:
+                #     # Perform your query using SQLAlchemy ORM or Core
+                #     result2 = session.execute(text("""
+                #         WITH RECURSIVE cte AS (
+                #                 SELECT
+                #                     rowid,
+                #                     SPLIT_PART(rapporti, ';', 1) AS col,
+                #                     SUBSTRING(rapporti FROM POSITION(';' IN rapporti) + 1) AS rest
+                #                 FROM (
+                #                     SELECT
+                #                         rowid,
+                #                         REPLACE(REPLACE(REPLACE(rapporti, '[[', '['), ']]', ']'), '], [', '];[') AS rapporti
+                #                     FROM us_table
+                #                     WHERE sito = 'sito_location'
+                #                 ) AS initial
+                #
+                #                 UNION ALL
+                #
+                #                 SELECT
+                #                     rowid,
+                #                     SPLIT_PART(rest, ';', 1),
+                #                     SUBSTRING(rest FROM POSITION(';' IN rest) + 1)
+                #                 FROM cte
+                #                 WHERE LENGTH(rest) > 0
+                #             )
+                #             SELECT
+                #                 STRING_AGG(CASE WHEN col LIKE '[Copre,%' OR col LIKE '[Taglia,%' OR col LIKE '[Riempie,%' OR col LIKE '[Si appoggia a,%' THEN col END, ',') AS post,
+                #                 STRING_AGG(CASE WHEN col LIKE '[Coperto da,%' OR col LIKE '[Riempito da,%' OR col LIKE '[Tagliato da,%' OR col LIKE '[Gli si appoggia,%' THEN col END, ',') AS ante,
+                #                 STRING_AGG(CASE WHEN col LIKE '[Si lega a,%' OR col LIKE '[Uguale a,%' THEN col END, ',') AS contemp
+                #             FROM cte
+                #             GROUP BY rowid
+                #             ORDER BY rowid;
+                #
+                #     """), {'sito_location': sito_location})
+                #
+                #     rows2 = result2.fetchall()
+                #     col_names2 = ['Rapporto Posteriore', 'Rapporto Anteriore', 'Rapporto Contemporaneo']
+                #     t2 = pd.DataFrame(rows2, columns=col_names2).applymap(self.list2pipe)
+                #     t2.to_excel(writer, sheet_name='Rapporti', index=False)
+                #
+                #     # Configure the Excel sheets' column widths
+                #     worksheet1 = writer.sheets['US']
+                #     worksheet1.set_column('A:A', 30)
+                #     worksheet1.set_column('B:B', 30)
+                #     worksheet1.set_column('C:C', 30)
+                #     worksheet1.set_column('D:D', 30)
+                #
+                #     worksheet2 = writer.sheets['Rapporti']
+                #     worksheet2.set_column('A:A', 30)
+                #     worksheet2.set_column('B:B', 30)
+                #     worksheet2.set_column('C:C', 30)
+                #
+                #     # Close the Pandas Excel writer and output the Excel file
+                #     writer.close()
+                #     QMessageBox.information(self, "INFO", "Conversion completed", QMessageBox.Ok)
+                #
+                # except Exception as e:
+                #     # Handle any errors that occur during the database operations
+                #     QMessageBox.warning(self, "Error", str(e), QMessageBox.Ok)
+                # finally:
+                #     # Ensure the database session is closed when done
+                #     session.close()
+
+
+
+            elif server=='sqlite':
+
+
+                sqlite_DB_path = '{}{}{}'.format(self.HOME, os.sep,"pyarchinit_DB_folder")
+
+                file_path_sqlite = sqlite_DB_path+os.sep+db_names
+                conn = sq.connect(file_path_sqlite)
+                conn.enable_load_extension(True)
+
+
+                #now we can load the extension
+                # depending on your OS and sqlite/spatialite version you might need to add
+                # '.so' (Linux) or '.dll' (Windows) to the extension name
+
+                #mod_spatialite (recommended)
+                #conn.execute('SELECT load_extension("mod_spatialite")')
+                #conn.execute('SELECT InitSpatialMetaData(1);')
+                cur = conn.cursor()
+                cur2 = conn.cursor()
+
+                name_= '%s' % (sito_location+'_' +  time.strftime('%Y%m%d_') + '.xlsx')
+                dump_dir=os.path.join(self.MATRIX_PATH, name_)
+                writer = pd.ExcelWriter(dump_dir, engine='xlsxwriter')
+                workbook  = writer.book
+
+
+                cur.execute("SELECT  area, us, attivita, datazione From us_table where sito='%s' order by rowid;" % sito_location)
+                rows1 = cur.fetchall()
+
+                col_names1 = ['Area','SU','Activities','Epoch']
+                t1=pd.DataFrame(rows1,columns=col_names1).applymap(self.list2pipe)
+                t1.to_excel(writer, sheet_name='SU Context',index=False)
+
+                if self.L=='it':
+                    cur2.execute("""WITH cte AS
+                        ( SELECT rowid ,
+                       SUBSTR(rapporti,  1, INSTR(rapporti || ';', ';') -1) col,
+                       SUBSTR(rapporti, INSTR(rapporti || ';', ';') + 1) rest
+                       FROM (SELECT rowid, REPLACE(REPLACE(REPLACE(rapporti, '[[', '['), ']]', ']'), '], [', '];[') rapporti FROM us_table
+                       WHERE sito = """+"'"+sito_location+"'"+""")
+                       UNION all
+                       SELECT rowid us,
+                       SUBSTR(rest, 1, INSTR(rest || ';', ';')  -1),
+                       SUBSTR(rest, INSTR(rest || ';', ';') + 1)   FROM cte   WHERE LENGTH(rest) > 0 )
+                       SELECT
+                       GROUP_CONCAT(CASE WHEN col LIKE '[''Copre'',%' OR col LIKE '[''Taglia'',%'
+                       OR col LIKE '[''Riempie'',%' OR col LIKE '[''Si appoggia a'',%'  THEN col END) post,
+    
+                       GROUP_CONCAT(CASE WHEN col LIKE '[''Coperto da'',%' OR col LIKE '[''Riempito da'',%'
+                       OR col LIKE '[''Tagliato da'',%' OR col LIKE '[''Gli si appoggia'',%' THEN col END) ante,
+    
+                       GROUP_CONCAT(CASE WHEN col LIKE '[''Si lega a'',%' or col LIKE '[''Uguale a'',%' THEN col END) contemp
+    
+                        FROM cte GROUP BY rowid order by rowid""")
+
+                else:
+                    cur2.execute("""WITH cte AS
+                        ( SELECT rowid ,
+                       SUBSTR(rapporti,  1, INSTR(rapporti || ';', ';') -1) col,
+                       SUBSTR(rapporti, INSTR(rapporti || ';', ';') + 1) rest
+                       FROM (SELECT rowid, REPLACE(REPLACE(REPLACE(rapporti, '[[', '['), ']]', ']'), '], [', '];[') rapporti FROM us_table
+                       WHERE sito = '""" + sito_location + """')
+                       UNION all
+                       SELECT rowid us,
+                       SUBSTR(rest, 1, INSTR(rest || ';', ';')  -1),
+                       SUBSTR(rest, INSTR(rest || ';', ';') + 1)   FROM cte   WHERE LENGTH(rest) > 0 )
+                       SELECT
+                       GROUP_CONCAT(CASE 
+                           WHEN col LIKE '[''Covers'',%' OR col LIKE '[''Cuts'',%'
+                           OR col LIKE '[''Fill'',%' OR col LIKE '[''Abuts'',%'
+                           THEN SUBSTR(col, INSTR(col, ',') + 1)
+                       END) post,
+                       GROUP_CONCAT(CASE 
+                           WHEN col LIKE '[''Covered by'',%' OR col LIKE '[''Filled by'',%'
+                           OR col LIKE '[''Cut by'',%' OR col LIKE '[''Supports'',%'
+                           THEN SUBSTR(col, INSTR(col, ',') + 1)
+                       END) ante,
+                       GROUP_CONCAT(CASE 
+                           WHEN col LIKE '[''Connected to'',%' or col LIKE '[''Same as'',%'
+                           THEN SUBSTR(col, INSTR(col, ',') + 1)
+                       END) contemp
+                        FROM cte GROUP BY rowid order by rowid""")
+
+                rows2 = cur2.fetchall()
+                col_names2 = ['Posterior', 'Anterior', 'Contemporary']
+
+                def clean_relationship(value):
+                    if value is None or value == '':
+                        return ''
+
+                    # Split la stringa per virgola
+                    parts = value.split(',')
+                    numbers = []
+
+                    for part in parts:
+                        # Cerca un numero isolato (non parte di una parola)
+                        import re
+                        matches = re.findall(r'\b(\d+)\b', part)
+                        if matches:
+                            # Prendi solo il primo numero trovato
+                            num = matches[0]
+                            if num not in numbers and len(num.strip()) > 0:  # Evita duplicati e stringhe vuote
+                                numbers.append(num)
+
+                    # Rimuovi eventuali '1' che seguono altri numeri
+                    filtered_numbers = []
+                    prev_num = None
+                    for num in numbers:
+                        if num != '1' or prev_num is None:
+                            filtered_numbers.append(num)
+                        prev_num = num
+
+                    return ', '.join(filtered_numbers)
+
+                # Crea DataFrame e applica la pulizia
+                t2 = pd.DataFrame(rows2, columns=col_names2)
+                t2 = t2.applymap(clean_relationship)
+
+                # Gestisci il primo record
+                if not pd.isna(t2.iloc[0]['Posterior']):
+                    # Se il primo record ha dati nella seconda colonna ma non nella prima
+                    if pd.isna(t2.iloc[0]['Anterior']) and not pd.isna(t2.iloc[0]['Posterior']):
+                        # Sposta i dati nella colonna corretta
+                        t2.iloc[0]['Anterior'] = t2.iloc[0]['Posterior']
+                        t2.iloc[0]['Posterior'] = ''
+
+                t2.to_excel(writer, sheet_name='Relationships', index=False)
+
+                worksheet1 = writer.sheets['SU Context']
+                worksheet1.set_column('A:A', 30, None)
+                worksheet1.set_column('B:B', 30, None)
+                worksheet1.set_column('C:C', 30, None)
+                worksheet1.set_column('D:D', 30, None)
+                worksheet1.set_column('E:E', 30, None)
+
+
+                worksheet2 = writer.sheets['Relationships']
+                worksheet2.set_column('A:A', 30, None)
+                worksheet2.set_column('B:B', 30, None)
+                worksheet2.set_column('C:C', 30, None)
+                writer.close()
+
+            else:
+                pass
+
+            QMessageBox.information(self, "INFO", "Conversion completed",
+                                    QMessageBox.Ok)
+        except ValueError as e:
             QMessageBox.warning(self, "Error", str(e),
                                 QMessageBox.Ok)
 
