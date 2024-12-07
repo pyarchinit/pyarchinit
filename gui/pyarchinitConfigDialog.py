@@ -4031,12 +4031,12 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             ####CREA LA STRINGA DI CONNESSIONE IN LETTURA
             if conn_str_dict_read["server"] == 'postgres':
                 try:
-                    conn_str_read = "%s://%s:%s@%s:%s/%s" % (
+                    conn_str_read = "%s://%s:%s@%s:%s/%s?client_encoding=utf8" % (
                         "postgresql", conn_str_dict_read["user"], conn_str_dict_read["password"],
                         conn_str_dict_read["host"],
                         conn_str_dict_read["port"], conn_str_dict_read["db_name"])
                 except:
-                    conn_str_read = "%s://%s:%s@%s:%d/%s" % (
+                    conn_str_read = "%s://%s:%s@%s:%d/%s?client_encoding=utf8" % (
                         "postgresql", conn_str_dict_read["user"], conn_str_dict_read["password"],
                         conn_str_dict_read["host"],
                         conn_str_dict_read["port"], conn_str_dict_read["db_name"])
@@ -4077,14 +4077,14 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             ####CREA LA STRINGA DI CONNESSIONE IN LETTURA
             if conn_str_dict_write["server"] == 'postgres':
                 try:
-                    conn_str_write = "%s://%s:%s@%s:%s/%s%s?charset=utf8" % (
+                    conn_str_write = "%s://%s:%s@%s:%s/%s%s?client_encoding=utf8" % (
                         "postgresql", conn_str_dict_write["user"], conn_str_dict_write["password"],
                         conn_str_dict_write["host"], conn_str_dict_write["port"], conn_str_dict_write["db_name"],
                         "?sslmode=allow")
                 except:
                     print('error')
                 else:
-                    conn_str_write = "%s://%s:%s@%s:%d/%s" % (
+                    conn_str_write = "%s://%s:%s@%s:%d/%s?client_encoding=utf8" % (
                         "postgresql", conn_str_dict_write["user"], conn_str_dict_write["password"],
                         conn_str_dict_write["host"],
                         int(conn_str_dict_write["port"]), conn_str_dict_write["db_name"])
@@ -4616,7 +4616,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             ####CREA LA STRINGA DI CONNESSIONE IN LETTURA
             if conn_str_dict_read["server"] == 'postgres':
                 try:
-                    conn_str_read = "%s://%s:%s@%s:%s/%s" % (
+                    conn_str_read = "%s://%s:%s@%s:%s/%s?client_encoding=utf8" % (
                         "postgresql", conn_str_dict_read["user"], conn_str_dict_read["password"],
                         conn_str_dict_read["host"],
                         conn_str_dict_read["port"], conn_str_dict_read["db_name"])
@@ -4625,7 +4625,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                         "Error in connection parameter. <br> If they are correct restart QGIS. <br> Error: " + str(e))
 
                 else:
-                    conn_str_read = "%s://%s:%s@%s:%s/%s" % (
+                    conn_str_read = "%s://%s:%s@%s:%s/%s?client_encoding=utf8" % (
                         "postgresql", conn_str_dict_read["user"], conn_str_dict_read["password"],
                         conn_str_dict_read["host"],
                         conn_str_dict_read["port"], conn_str_dict_read["db_name"])
@@ -4680,14 +4680,14 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             ####CREA LA STRINGA DI CONNESSIONE IN LETTURA
             if conn_str_dict_write["server"] == 'postgres':
                 try:
-                    conn_str_write = "%s://%s:%s@%s:%s/%s%s?charset=utf8" % (
+                    conn_str_write = "%s://%s:%s@%s:%s/%s%s?client_encoding=utf8" % (
                         "postgresql", conn_str_dict_write["user"], conn_str_dict_write["password"],
                         conn_str_dict_write["host"], conn_str_dict_write["port"], conn_str_dict_write["db_name"],
                         "?sslmode=allow")
                 except:
                     print('error')
                 else:
-                    conn_str_write = "%s://%s:%s@%s:%d/%s" % (
+                    conn_str_write = "%s://%s:%s@%s:%d/%s?client_encoding=utf8" % (
                         "postgresql", conn_str_dict_write["user"], conn_str_dict_write["password"],
                         conn_str_dict_write["host"],
                         int(conn_str_dict_write["port"]), conn_str_dict_write["db_name"])
