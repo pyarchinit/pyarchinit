@@ -1032,11 +1032,13 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
         elif self.L=='de':  
             filepath = os.path.dirname(__file__)
             filepath = os.path.join(filepath, 'codici_de.html')
-            os.startfile(filepath)
+            self.webView_adarte.load(QUrl.fromLocalFile(filepath))
+            self.webView_adarte.show()
         else:
             filepath = os.path.dirname(__file__)
             filepath = os.path.join(filepath, 'codici_en.html')
-            os.startfile(filepath)
+            self.webView_adarte.load(QUrl.fromLocalFile(filepath))
+            self.webView_adarte.show()
     def on_pushButton_new_search_pressed(self):
         if self.check_record_state() == 1:
             pass
