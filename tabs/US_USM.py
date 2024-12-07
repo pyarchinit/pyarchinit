@@ -21,6 +21,7 @@ from __future__ import absolute_import
 
 import ast
 import csv
+from datetime import datetime
 
 import math
 import platform
@@ -1711,123 +1712,328 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             self.show_warning("Sito o area non specificato.")
             return  # Exit the function if site or area is not provided
 
+
+
+        def log_error(message, error_type="ERROR", filename="error_log.txt"):
+            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            with open(filename, 'a', encoding='utf-8') as f:
+                f.write(f"[{timestamp}] {error_type}: {message}\n")
+
         try:
             with engine.connect() as connection:
+                # Log dell'inizio dell'operazione
+                log_error("Inizio operazione di aggiornamento", "INFO")
+
                 stmt = select([us_table.c.id_us, us_table.c.rapporti]).where(
                     us_table.c.sito == sito, us_table.c.area == area
                 )
-                rows = connection.execute(stmt).fetchall()
+
+                try:
+                    rows = connection.execute(stmt).fetchall()
+                    log_error(f"Recuperate {len(rows)} righe da processare", "INFO")
+                except Exception as e:
+                    log_error(f"Errore nel recupero delle righe: {str(e)}")
+                    raise
+
                 for row in rows:
                     id, rapporti_str = row
+                    log_error(f"Processing ID: {id}", "DEBUG")
+
                     if rapporti_str and rapporti_str != "[[]]":
                         try:
+                            # Log della stringa originale
+                            log_error(f"ID {id} - Stringa originale: {rapporti_str}", "DEBUG")
+
+                            # Conversione della stringa in lista
                             rapporti_list = ast.literal_eval(rapporti_str)
+
+                            # Aggiornamento della lista
+                            updated_rapporti_list = [sublist + [area, sito] if sublist else sublist
+                                                     for sublist in rapporti_list]
+                            updated_rapporti_list2 = [sub[:4] for sub in updated_rapporti_list]
+
+                            # Conversione in stringa con controllo UTF-8
+                            updated_rapporti_str = self.ensure_utf8(str(updated_rapporti_list2))
+
+                            # Log della stringa aggiornata
+                            log_error(f"ID {id} - Stringa aggiornata: {updated_rapporti_str}", "DEBUG")
+
+                            # Preparazione e esecuzione dell'update
+                            update_stmt = (
+                                update(us_table)
+                                .where(us_table.c.id_us == id)
+                                .values(rapporti=updated_rapporti_str)
+                            )
+
+                            try:
+                                connection.execute(update_stmt)
+                            except Exception as e:
+                                error_msg = (
+                                    f"Errore nell'aggiornamento dell'ID {id}:\n"
+                                    f"Errore: {str(e)}\n"
+                                    f"Stringa problematica: {updated_rapporti_str}"
+                                )
+                                log_error(error_msg)
+                                continue
+
                         except ValueError as e:
-                            self.show_error(e, "la conversione della stringa in una lista di liste")
+                            error_msg = (
+                                f"Errore nella conversione per ID {id}:\n"
+                                f"Errore: {str(e)}\n"
+                                f"Stringa originale: {rapporti_str}"
+                            )
+                            log_error(error_msg)
                             continue
-                        updated_rapporti_list = [sublist + [area, sito] if sublist else sublist for sublist in
-                                                 rapporti_list]
-                        updated_rapporti_list2 = [sub[:4] for sub in
-                                                  updated_rapporti_list]  # mantine solo i primi 4 elementi di ogni lista nelle liste
-                        updated_rapporti_str = str(updated_rapporti_list2)
-                        update_stmt = (
-                            update(us_table).where(us_table.c.id_us == id).values(rapporti=updated_rapporti_str)
-                        )
-                        connection.execute(update_stmt)
+                        except Exception as e:
+                            error_msg = (
+                                f"Errore generico per ID {id}:\n"
+                                f"Errore: {str(e)}\n"
+                                f"Stringa originale: {rapporti_str}"
+                            )
+                            log_error(error_msg)
+                            continue
+
+                log_error("Operazione completata", "INFO")
+
+        except Exception as e:
+            error_msg = f"Errore critico durante l'operazione: {str(e)}"
+            log_error(error_msg)
+            raise
 
         except Exception as e:
             self.show_error(e, "l'aggiornamento")
 
-
-
     def update_rapporti_col_2(self):
-
+        # Inizializza la connessione
         conn = Connection()
         conn_str = conn.conn_str()
         metadata = MetaData()
         engine = create_engine(conn_str)
 
-        us_table = Table('us_table', metadata, autoload_with=engine)
+
+        def log_error(message, error_type="ERROR", filename="rapporti_update_log.txt"):
+            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            with open(filename, 'a', encoding='utf-8') as f:
+                f.write(f"[{timestamp}] {error_type}: {message}\n")
+        try:
+            us_table = Table('us_table', metadata, autoload_with=engine)
+        except Exception as e:
+            error_msg = f"Errore nel caricamento della tabella: {str(e)}"
+            log_error(error_msg)
+            self.show_error(e, "il caricamento della tabella")
+            return
+
         var1 = self.comboBox_sito.currentText()  # Sito
 
         if not var1:
+            log_error("Tentativo di aggiornamento senza specificare il sito", "WARNING")
             self.show_warning("sito non specificato")
-            return  # Exit if no site is provided
+            return
+
+        log_error(f"Inizio aggiornamento rapporti per il sito: {var1}", "INFO")
 
         try:
             with engine.connect() as connection:
+                # Recupera tutte le righe per il sito specificato
                 stmt = select([us_table]).where(us_table.c.sito == var1)
-                rows = connection.execute(stmt).fetchall()
+                try:
+                    rows = connection.execute(stmt).fetchall()
+                    log_error(f"Recuperate {len(rows)} righe da processare per il sito {var1}", "INFO")
+                except Exception as e:
+                    error_msg = f"Errore nel recupero delle righe per il sito {var1}: {str(e)}"
+                    log_error(error_msg)
+                    self.show_error(e, "il recupero dei dati")
+                    return
 
+                # Processa ogni riga
                 for row_j in rows:
                     id_us, rapporti_str = row_j.id_us, row_j.rapporti
+
+                    log_error(f"Processing US ID: {id_us}", "DEBUG")
+
                     if rapporti_str and rapporti_str != "[[]]":
                         try:
+                            # Log della stringa originale
+                            log_error(f"US {id_us} - Stringa originale: {rapporti_str}", "DEBUG")
+
                             rapporti_list = ast.literal_eval(rapporti_str)
                             updated_rapporti_list = []
 
                             for sublist in rapporti_list:
-                                # Assumi che la prima posizione di ogni sottolista contenga l'identificativo della us
-                                us_id = sublist[1]
-                                current_area = sublist[2]  # Assumendo che l'area sia nella terza posizione
+                                try:
+                                    # Verifica che la sottolista abbia abbastanza elementi
+                                    if len(sublist) < 3:
+                                        error_msg = f"Sottolista troppo corta per US {id_us}: {sublist}"
+                                        log_error(error_msg, "WARNING")
+                                        continue
 
-                                # Determina l'area corretta per la us nel sito dato
-                                correct_area = self.find_correct_area_for_us(us_id, var1, connection)
+                                    us_id = sublist[1]
+                                    current_area = sublist[2]
 
-                                # Se l'area nella sottolista è già corretta, lasciala inalterata
-                                if correct_area == current_area:
-                                    updated_rapporti_list.append(sublist)
-                                else:
-                                    # Altrimenti, aggiorna l'area con quella corretta
-                                    # Assumendo che vuoi mantenere gli altri elementi della sottolista invariati
-                                    updated_sublist = sublist.copy()
-                                    updated_sublist[2] = correct_area  # Aggiorna l'area
-                                    updated_rapporti_list.append(updated_sublist)
+                                    # Trova l'area corretta
+                                    try:
+                                        correct_area = self.find_correct_area_for_us(us_id, var1, connection)
 
-                            updated_rapporti_list2 = [sub[:4] for sub in updated_rapporti_list]#verificare
-                            updated_rapporti_str = str(updated_rapporti_list2)
-                            update_stmt = update(us_table).where(us_table.c.id_us == id_us).values(
-                                rapporti=updated_rapporti_str)
-                            connection.execute(update_stmt)
-                            # Update progress dialog
+                                        if correct_area is None:
+                                            log_error(f"Area non trovata per US {us_id} nel sito {var1}", "WARNING")
+                                            updated_rapporti_list.append(sublist)
+                                            continue
+
+                                        if correct_area == current_area:
+                                            updated_rapporti_list.append(sublist)
+                                        else:
+                                            updated_sublist = sublist.copy()
+                                            updated_sublist[2] = correct_area
+                                            updated_rapporti_list.append(updated_sublist)
+                                            log_error(
+                                                f"Aggiornata area per US {us_id}: da {current_area} a {correct_area}",
+                                                "INFO")
+
+                                    except Exception as e:
+                                        error_msg = f"Errore nel trovare l'area corretta per US {us_id}: {str(e)}"
+                                        log_error(error_msg)
+                                        updated_rapporti_list.append(sublist)
+                                        continue
+
+                                except Exception as e:
+                                    error_msg = f"Errore nel processare la sottolista per US {id_us}: {str(e)}"
+                                    log_error(error_msg)
+                                    continue
+
+                            # Aggiorna il database
+                            updated_rapporti_list2 = [sub[:4] for sub in updated_rapporti_list]
+                            updated_rapporti_str = self.ensure_utf8(str(updated_rapporti_list2))
+
+                            log_error(f"US {id_us} - Stringa aggiornata: {updated_rapporti_str}", "DEBUG")
+
+                            try:
+                                update_stmt = update(us_table).where(us_table.c.id_us == id_us).values(
+                                    rapporti=updated_rapporti_str)
+                                connection.execute(update_stmt)
+                            except Exception as e:
+                                error_msg = (
+                                    f"Errore nell'aggiornamento dell'US {id_us}:\n"
+                                    f"Errore: {str(e)}\n"
+                                    f"Stringa problematica: {updated_rapporti_str}"
+                                )
+                                log_error(error_msg)
+                                continue
 
                         except ValueError as e:
+                            error_msg = (
+                                f"Errore nella conversione per US {id_us}:\n"
+                                f"Errore: {str(e)}\n"
+                                f"Stringa originale: {rapporti_str}"
+                            )
+                            log_error(error_msg)
                             self.show_error(e, "la conversione della stringa in una lista di liste")
                             continue
-            self.view_all()
+
+                        except Exception as e:
+                            error_msg = f"Errore generico per US {id_us}: {str(e)}"
+                            log_error(error_msg)
+                            continue
+
+                log_error(f"Aggiornamento completato per il sito {var1}", "INFO")
+                self.view_all()
+
         except Exception as e:
+            error_msg = f"Errore critico durante l'aggiornamento: {str(e)}"
+            log_error(error_msg)
             self.show_error(e, "l'aggiornamento")
 
+    def ensure_utf8(self,s):
+        """
+        Assicura che una stringa sia codificata correttamente in UTF-8.
+
+        Args:
+            s (str): La stringa da codificare.
+
+        Returns:
+            str: La stringa codificata in UTF-8.
+        """
+        if isinstance(s, str):
+            try:
+                # Prova a codificare e decodificare per verificare la validità UTF-8
+                return s.encode('utf-8', errors='replace').decode('utf-8')
+            except UnicodeError:
+                # Se c'è un errore, sostituisci i caratteri non validi
+                return s.encode('ascii', errors='replace').decode('ascii')
+        return str(s) if s is not None else ""
 
     def find_correct_area_for_us(self, us, sito, connection):
         """
-        Questa funzione cerca nel database l'area corretta per una data unità stratigrafica (us)
-        e sito, basandosi sul vincolo di unicità tra sito, area e us.
+        Trova l'area corretta per una data unità stratigrafica (us) e sito.
 
-        Parametri:
-        us_id (str): L'identificativo dell'unità stratigrafica (us).
-        sito (str): Il nome del sito.
-        connection: Un oggetto connessione al database.
+        Args:
+            us (str): L'identificativo dell'unità stratigrafica.
+            sito (str): Il nome del sito.
+            connection: Connessione al database esistente.
 
-        Ritorna:
-        str: L'area corretta per la data us e sito.
+        Returns:
+            str: L'area corretta o None se non trovata.
         """
-        conn = Connection()
-        conn_str = conn.conn_str()
-        metadata = MetaData()
-        engine = create_engine(conn_str)
-        us_table = Table('us_table', metadata,
-                         autoload_with=engine)  # Assicurati di avere accesso a `metadata` e `engine`
 
-        # Esegue la query per trovare l'area corrispondente alla combinazione di us e sito
-        stmt = select([us_table.c.area]).where(and_(us_table.c.us == us, us_table.c.sito == sito))
-        result = connection.execute(stmt).fetchone()
 
-        if result:
-            return result[0]  # Restituisce l'area trovata
-        else:
-            # Gestisci il caso in cui non viene trovata nessuna corrispondenza, ad esempio restituendo un valore predefinito o sollevando un'eccezione
-            return "Area non trovata"  # O solleva un'eccezione
+        def log_error(message, error_type="ERROR", filename="error_log.txt"):
+            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            with open(filename, 'a', encoding='utf-8') as f:
+                f.write(f"[{timestamp}] {error_type}: {message}\n")
+        try:
+            # Sanitizza gli input
+            us = str(us).strip() if us is not None else ""
+            sito = self.ensure_utf8(str(sito).strip()) if sito is not None else ""
+
+            if not us or not sito:
+                log_error(f"Input non valido: US={us}, Sito={sito}", "WARNING")
+                return None
+
+            log_error(f"Cercando area per US={us}, Sito={sito}", "DEBUG")
+
+            # Usa la connessione esistente invece di crearne una nuova
+            metadata = MetaData()
+            us_table = Table('us_table', metadata, autoload_with=connection.engine)
+
+            # Prepara la query con parametri sanitizzati
+            stmt = select([us_table.c.area]).where(
+                and_(
+                    us_table.c.us == us,
+                    us_table.c.sito == sito
+                )
+            )
+
+            try:
+                result = connection.execute(stmt).fetchone()
+
+                if result and result[0]:
+                    area = self.ensure_utf8(str(result[0]))
+                    log_error(f"Area trovata: {area} per US={us}, Sito={sito}", "DEBUG")
+                    return area
+                else:
+                    log_error(f"Nessuna area trovata per US={us}, Sito={sito}", "WARNING")
+                    return None
+
+            except UnicodeDecodeError as ude:
+                error_msg = (
+                    f"Errore di codifica nel recupero dell'area:\n"
+                    f"US={us}, Sito={sito}\n"
+                    f"Posizione errore: {ude.start}\n"
+                    f"Oggetto: {repr(ude.object[max(0, ude.start - 10):min(len(ude.object), ude.end + 10)])}"
+                )
+                log_error(error_msg, "ERROR")
+                return None
+
+            except Exception as e:
+                error_msg = f"Errore nell'esecuzione della query per US={us}, Sito={sito}: {str(e)}"
+                log_error(error_msg, "ERROR")
+                return None
+
+        except Exception as e:
+            error_msg = f"Errore critico in find_correct_area_for_us: {str(e)}"
+            log_error(error_msg, "ERROR")
+            return None
+
+
 
     def clean_comments(self,text_to_clean):
         clean_text = text_to_clean.split("##")[0].replace("\n", "")
@@ -3433,7 +3639,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         valuesDoc = []
         if self.L=='it':
             valuesDoc.append("ICCD-Piante")
-            valuesDoc.append("ICCD-Piante&Sezioni")
+            valuesDoc.append("ICCD-Piante-Sezioni")
             valuesDoc.append("ICCD-Sezioni")
             valuesDoc.append("ICCD-Prospetti")
             valuesDoc.append("ICCD-Foto")
