@@ -10,10 +10,7 @@
   <component name="ChangeListManager">
     <list default="true" id="13d9711e-af47-4516-9a74-091c329d410d" name="Changes" comment="Refactor progress bar update logic and clean up duplicated code&#10;&#10;Enhanced progress bar update by modifying the calculation and update logic. Now, it accurately calculates the progress as a percentage and stores it as an integer, improving performance. This update applies across multiple files. Redundant code lines were also eliminated for a cleaner, more readable code.">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/db/pyarchinit_db_manager.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/db/pyarchinit_db_manager.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/gis/pyarchinit_pyqgis.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/gis/pyarchinit_pyqgis.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/utility/create_style.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/utility/create_style.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tabs/Periodizzazione.py" beforeDir="false" afterPath="$PROJECT_DIR$/tabs/Periodizzazione.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tabs/Thesaurus.py" beforeDir="false" afterPath="$PROJECT_DIR$/tabs/Thesaurus.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tabs/US_USM.py" beforeDir="false" afterPath="$PROJECT_DIR$/tabs/US_USM.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -145,6 +142,11 @@
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 3
 }</component>
+  <component name="ProjectCucumberState">
+    <option name="filterByTags" value="true" />
+    <option name="groupTag" value="true" />
+    <option name="sourcePathOnly" value="false" />
+  </component>
   <component name="ProjectId" id="20rwfAzsos20ovIIkbZMDo8dqP6" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true">
     <ConfirmationsSetting value="2" id="Add" />
@@ -168,14 +170,15 @@
     "Python.test_renem_file.executor": "Run",
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
     "ToolWindowCodeGPT.ShowToolbar": "false",
     "git-widget-placeholder": "master",
-    "last_opened_file_path": "/Users/enzo/Library/Application Support/QGIS/QGIS3/profiles/default/python/plugins/pyarchinit/tabs",
+    "last_opened_file_path": "/Users/enzo/Library/Application Support/QGIS/QGIS3/profiles/default/python/plugins/pyarchinit",
     "node.js.detected.package.eslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
     "run.code.analysis.last.selected.profile": "aDefault",
-    "settings.editor.selected.configurable": "ml.llm.AIAssistantPromptsLibrary"
+    "settings.editor.selected.configurable": "project.propVCSSupport.Mappings"
   },
   "keyToStringList": {
     "DatabaseDriversLRU": [
@@ -202,11 +205,14 @@
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$" />
       <recent name="$PROJECT_DIR$/tabs" />
       <recent name="$PROJECT_DIR$/resources/dbfiles" />
       <recent name="$PROJECT_DIR$/resources" />
       <recent name="$PROJECT_DIR$/modules/utility" />
-      <recent name="$PROJECT_DIR$" />
+    </key>
+    <key name="ImportExportFile.TargetDir.RECENT_KEYS">
+      <recent name="$USER_HOME$/Desktop" />
     </key>
   </component>
   <component name="RunManager" selected="Python.skatch_gpt_US">
@@ -329,28 +335,28 @@
       <method v="2" />
     </configuration>
     <list>
-      <item itemvalue="Python.test_matrix" />
       <item itemvalue="Python.skatch_gpt_US" />
       <item itemvalue="Python.test" />
+      <item itemvalue="Python.test_matrix" />
       <item itemvalue="Python tests.Python tests for unitest.TestYourModule" />
       <item itemvalue="Python tests.Python tests for unitest.TestYourModule.test_openai_installed" />
       <item itemvalue="Python tests.Python tests for unitest.TestYourModule.test_openai_not_installed" />
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.skatch_gpt_US" />
         <item itemvalue="Python tests.Python tests for unitest.TestYourModule.test_openai_not_installed" />
         <item itemvalue="Python tests.Python tests for unitest.TestYourModule.test_openai_installed" />
         <item itemvalue="Python tests.Python tests for unitest.TestYourModule" />
         <item itemvalue="Python.test" />
+        <item itemvalue="Python.skatch_gpt_US" />
       </list>
     </recent_temporary>
   </component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-js-predefined-d6986cc7102b-5c90d61e3bab-JavaScript-PY-242.23339.19" />
-        <option value="bundled-python-sdk-0029f7779945-399fe30bd8c1-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-242.23339.19" />
+        <option value="bundled-js-predefined-d6986cc7102b-e768b9ed790e-JavaScript-PY-243.21565.199" />
+        <option value="bundled-python-sdk-cab1f2013843-4ae2d6a61b08-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-243.21565.199" />
       </set>
     </attachedChunks>
   </component>
@@ -488,7 +494,23 @@
       <workItem from="1728287269500" duration="11486000" />
       <workItem from="1728417746871" duration="126000" />
       <workItem from="1728457015618" duration="22673000" />
-      <workItem from="1728540156492" duration="15134000" />
+      <workItem from="1728540156492" duration="17160000" />
+      <workItem from="1728642778045" duration="36000" />
+      <workItem from="1728642829407" duration="4089000" />
+      <workItem from="1728883124454" duration="24929000" />
+      <workItem from="1728933363094" duration="697000" />
+      <workItem from="1728973091638" duration="12841000" />
+      <workItem from="1729063474105" duration="702000" />
+      <workItem from="1729064247305" duration="646000" />
+      <workItem from="1729065155331" duration="14691000" />
+      <workItem from="1729180338683" duration="17000" />
+      <workItem from="1729318620916" duration="30000" />
+      <workItem from="1729318664167" duration="7691000" />
+      <workItem from="1730517705034" duration="17002000" />
+      <workItem from="1731149325259" duration="19000" />
+      <workItem from="1733121435021" duration="1360000" />
+      <workItem from="1733123617534" duration="81000" />
+      <workItem from="1733537540683" duration="54000" />
     </task>
     <task id="LOCAL-00022" summary="v3.9.14">
       <created>1649165457258</created>
@@ -833,7 +855,7 @@
       <option name="project" value="LOCAL" />
       <updated>1679662089681</updated>
     </task>
-    <option name="localTasksCounter" value="167" />
+    <option name="localTasksCounter" value="174" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -877,32 +899,32 @@
     <ignored-roots>
       <path value="$PROJECT_DIR$/ext-libs/totalopenstation-0.5.2-py3.9.egg/totalopenstation_" />
     </ignored-roots>
-    <MESSAGE value="Comment out show_message calls and replace some with print statements for debugging purposes" />
-    <MESSAGE value="Comment out show_message calls and replace some with print statements for debugging purposes." />
-    <MESSAGE value="Refactor and improve US check and reporting logic&#10;&#10;Refactor the stratigraphic relationships checking logic for better clarity and error handling. Remove redundant code, handle missing area values properly, and sort and group missing US reports for better readability. This commit also includes corrections in type handling for 'area' values in records." />
-    <MESSAGE value="Add new query method and enhance GIS layer styling&#10;&#10;Introduced a new query method `query_bool_new` in `pyarchinit_db_manager.py` and improved styling logic for GIS layers in `pyarchinit_pyqgis.py`. Enhanced the `create_style.py` to support loading styles from the database and applying temporary styles more effectively. Additionally, improved error handling and interface elements in `Periodizzazione.py` and `US_USM.py`." />
-    <MESSAGE value="Update" />
-    <MESSAGE value="Update metadata" />
-    <MESSAGE value="Update metadata.txt" />
-    <MESSAGE value="Update metadata.txt to" />
-    <MESSAGE value="Update metadata.txt to version" />
-    <MESSAGE value="Update metadata.txt to version 4" />
-    <MESSAGE value="Update metadata.txt to version 4." />
-    <MESSAGE value="Update metadata.txt to version 4.8" />
-    <MESSAGE value="Update metadata.txt to version 4.8." />
-    <MESSAGE value="Update metadata.txt to version 4.8.6" />
-    <MESSAGE value="Update metadata.txt to version 4.8.6 with" />
-    <MESSAGE value="Update metadata.txt to version 4.8.6 with enhancements" />
-    <MESSAGE value="Update metadata.txt to version 4.8.6 with enhancements to" />
-    <MESSAGE value="Update metadata.txt to version 4.8.6 with enhancements to GIS" />
-    <MESSAGE value="Update metadata.txt to version 4.8.6 with enhancements to GIS layer" />
-    <MESSAGE value="Update metadata.txt to version 4.8.6 with enhancements to GIS layer styling" />
-    <MESSAGE value="Update metadata.txt to version 4.8.6 with enhancements to GIS layer styling and" />
-    <MESSAGE value="Update metadata.txt to version 4.8.6 with enhancements to GIS layer styling and new" />
-    <MESSAGE value="Update metadata.txt to version 4.8.6 with enhancements to GIS layer styling and new query" />
-    <MESSAGE value="Update metadata.txt to version 4.8.6 with enhancements to GIS layer styling and new query method" />
-    <MESSAGE value="Update metadata.txt to version 4.8.6 with enhancements to GIS layer styling and new query method." />
-    <option name="LAST_COMMIT_MESSAGE" value="Update metadata.txt to version 4.8.6 with enhancements to GIS layer styling and new query method." />
+    <MESSAGE value="Update version to 4.8.7 and refine changelog&#10;&#10;Refactored `serch_dict_rapp` assignments for consistency and cleaned up commented code. Updated metadata version to 4.8.7 and appended detailed changelog entries for clarity." />
+    <MESSAGE value="Ref" />
+    <MESSAGE value="Refactor" />
+    <MESSAGE value="Refactor code" />
+    <MESSAGE value="Refactor code to" />
+    <MESSAGE value="Refactor code to enhance" />
+    <MESSAGE value="Refactor code to enhance report" />
+    <MESSAGE value="Refactor code to enhance report generation" />
+    <MESSAGE value="Refactor code to enhance report generation by" />
+    <MESSAGE value="Refactor code to enhance report generation by integrating" />
+    <MESSAGE value="Refactor code to enhance report generation by integrating new" />
+    <MESSAGE value="Refactor code to enhance report generation by integrating new AI" />
+    <MESSAGE value="Refactor code to enhance report generation by integrating new AI-driven" />
+    <MESSAGE value="Refactor code to enhance report generation by integrating new AI-driven content" />
+    <MESSAGE value="Refactor code to enhance report generation by integrating new AI-driven content generation" />
+    <MESSAGE value="Refactor code to enhance report generation by integrating new AI-driven content generation capabilities" />
+    <MESSAGE value="Refactor code to enhance report generation by integrating new AI-driven content generation capabilities and" />
+    <MESSAGE value="Refactor code to enhance report generation by integrating new AI-driven content generation capabilities and ref" />
+    <MESSAGE value="Refactor code to enhance report generation by integrating new AI-driven content generation capabilities and refactoring" />
+    <MESSAGE value="Refactor code to enhance report generation by integrating new AI-driven content generation capabilities and refactoring unused" />
+    <MESSAGE value="Refactor code to enhance report generation by integrating new AI-driven content generation capabilities and refactoring unused code" />
+    <MESSAGE value="Refactor code to enhance report generation by integrating new AI-driven content generation capabilities and refactoring unused code sections" />
+    <MESSAGE value="Refactor code to enhance report generation by integrating new AI-driven content generation capabilities and refactoring unused code sections." />
+    <MESSAGE value="Enhance report generation with new AI-driven content&#10;&#10;Integrated advanced AI models for generating detailed archaeological reports. Refactored code to streamline the report generation process and removed commented-out legacy code." />
+    <MESSAGE value="Adjust shell parameter in subprocess call&#10;&#10;Ensure the 'shell' parameter in subprocess.call is assigned correctly based on the operating system. This change solves potential issues with how shell commands are executed in different environments, improving cross-platform compatibility." />
+    <option name="LAST_COMMIT_MESSAGE" value="Adjust shell parameter in subprocess call&#10;&#10;Ensure the 'shell' parameter in subprocess.call is assigned correctly based on the operating system. This change solves potential issues with how shell commands are executed in different environments, improving cross-platform compatibility." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -944,13 +966,18 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/tabs/US_USM.py</url>
-          <line>133</line>
+          <line>141</line>
           <option name="timeStamp" value="9" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/tabs/US_USM.py</url>
-          <line>3340</line>
+          <line>3595</line>
           <option name="timeStamp" value="10" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/tabs/US_USM.py</url>
+          <line>6514</line>
+          <option name="timeStamp" value="11" />
         </line-breakpoint>
       </breakpoints>
       <default-breakpoints>
