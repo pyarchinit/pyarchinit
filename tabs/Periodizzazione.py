@@ -294,64 +294,90 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
                     self.iface.messageBar().pushMessage(self.tr(msg), Qgis.Warning, 0)
 
     def read_epoche(self):
-        # Memorizza il valore corrente del comboBox
-        current_value = self.comboBox_per_estesa.currentText()
-        #QMessageBox.information(self,'ok',str(current_value))
-        # Leggi il file CSV
-        df = pd.read_csv(self.CSV)
-        # Stampa le prime righe per verificare il contenuto
-        print(df.head())
-        # Estrai l'epoca e gli anni dal dataframe
-        epoche = df['Periodo'].tolist()
-        evento = df['Evento'].tolist()
-        anni = df['Anno/Secolo'].tolist()
+        try:
+            # Memorizza il valore corrente del comboBox
+            current_value = self.comboBox_per_estesa.currentText()
 
-        # Elabora gli anni
-        anni_inizio = []
-        anni_fine = []
-        anno_inizio = 0
-        anno_fine = 0
-        for anno in anni:
-            split_anni = anno.split('-')
-            if len(split_anni) == 2:
-                anno_inizio_str = split_anni[0].replace('a.C.', '').replace('d.C.', '').strip()
-                anno_fine_str = split_anni[1].replace('a.C.', '').replace('d.C.', '').strip()
+            # Leggi il file CSV con il formato corretto
+            df = pd.read_csv(self.CSV,
+                             quotechar='"',  # Usa le virgolette doppie per le stringhe
+                             encoding='utf-8',
+                             skipinitialspace=True)  # Salta gli spazi iniziali
+
+            # Debug: stampa le informazioni sul DataFrame
+            print("Colonne nel DataFrame:", df.columns.tolist())
+            print("\nPrime righe del DataFrame:")
+            print(df.head())
+
+            # Estrai l'epoca e gli anni dal dataframe
+            epoche = df['Periodo'].tolist()
+            evento = df['Evento'].tolist()
+            anni = df['Anno/Secolo'].tolist()
+
+            # Elabora gli anni
+            anni_inizio = []
+            anni_fine = []
+            for anno in anni:
                 try:
-                    if 'a.C.' in anno:
-                        anno_inizio = -int(anno_inizio_str)
-                        anno_fine = -int(anno_fine_str)
-                    elif 'milioni di anni fa' in anno:
-                        # assumiamo che il numero di milioni di anni sia sempre un numero intero
-                        milioni_di_anni = int(anno_inizio_str.split()[0])
-                        anno_inizio = -milioni_di_anni * 1000000
-                        milioni_di_anni = int(anno_fine_str.split()[0])
-                        anno_fine = -milioni_di_anni * 1000000
+                    split_anni = anno.split('-')
+                    if len(split_anni) == 2:
+                        anno_inizio_str = split_anni[0].replace('BCE', '').strip()
+                        anno_fine_str = split_anni[1].replace('BCE', '').strip()
+
+                        # Gestione dei diversi formati di date
+                        if 'BCE' in anno:
+                            anno_inizio = -int(anno_inizio_str)
+                            anno_fine = -int(anno_fine_str)
+                        else:
+                            anno_inizio = int(anno_inizio_str)
+                            anno_fine = int(anno_fine_str)
+
+                        anni_inizio.append(anno_inizio)
+                        anni_fine.append(anno_fine)
                     else:
-                        anno_inizio = int(anno_inizio_str)
-                        anno_fine = int(anno_fine_str)
+                        print(f'Formato anno non valido: {anno}')
+                        anni_inizio.append(0)
+                        anni_fine.append(0)
+                except ValueError as e:
+                    print(f'Errore nella conversione dell\'anno "{anno}": {str(e)}')
+                    anni_inizio.append(0)
+                    anni_fine.append(0)
+                except Exception as e:
+                    print(f'Errore generico per l\'anno "{anno}": {str(e)}')
+                    anni_inizio.append(0)
+                    anni_fine.append(0)
 
-                    anni_inizio.append(anno_inizio)
-                    anni_fine.append(anno_fine)
-                except ValueError:
-                    print(f'Impossibile convertire l\'anno: "{anno}" in un intero.')
-            else:
-                print(f'Impossibile processare l\'anno: "{anno}". Formato non riconosciuto.')
+            # Formatta le epoche per il comboBox
+            formatted_epoche = []
+            for epoca, evento, anno_inizio, anno_fine in zip(epoche, evento, anni_inizio, anni_fine):
+                f = f'{epoca} - {evento} ({anno_inizio} : {anno_fine})'
+                formatted_epoche.append(f)
+                if self.comboBox_per_estesa.findText(f) == -1:
+                    self.comboBox_per_estesa.addItem(f, (anno_inizio, anno_fine))
 
-        formatted_epoche = []  # questo conterrà le stringhe formattate 'epoca - evento'
+            # Connetti il segnale di cambiamento
+            try:
+                self.comboBox_per_estesa.currentIndexChanged.disconnect(self.update_anni)
+            except TypeError:
+                pass  # Ignora se non era connesso
+            self.comboBox_per_estesa.currentIndexChanged.connect(self.update_anni)
 
-        for epoca, evento, anno_inizio, anno_fine in zip(epoche, evento, anni_inizio, anni_fine):
-            f = f'{epoca} - {evento} ({anno_inizio} : {anno_fine})'
-            formatted_epoche.append(f)  # aggiungi la stringa formattata alla lista
-            if self.comboBox_per_estesa.findText(f) == -1:  # -1 significa che il testo non è stato trovato
-                self.comboBox_per_estesa.addItem(f, (anno_inizio, anno_fine))
+            # Ripristina il valore precedente se possibile
+            if current_value in formatted_epoche:
+                self.comboBox_per_estesa.setCurrentText(current_value)
 
-        # Connetti il segnale di cambiamento della selezione della combo box a un nuovo metodo
-        self.comboBox_per_estesa.currentIndexChanged.connect(self.update_anni)
+        except Exception as e:
+            print(f"Errore nella lettura del file CSV: {str(e)}")
+            import traceback
+            traceback.print_exc()
 
-        # Ripristina il valore corrente del comboBox, se esiste nella lista
-        if current_value not in formatted_epoche:
-            self.comboBox_per_estesa.setCurrentText(current_value)
-
+            # Prova a leggere e stampare il contenuto grezzo del file per debug
+            try:
+                with open(self.CSV, 'r', encoding='utf-8') as f:
+                    print("\nContenuto grezzo del file CSV:")
+                    print(f.read())
+            except Exception as read_error:
+                print(f"Errore nella lettura grezza del file: {str(read_error)}")
     def update_anni(self, index):
         # Quando l'indice della combo box cambia, imposta i valori delle line edit
         if index >= 0:  # -1 indica nessuna selezione
@@ -361,7 +387,7 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
 
 
     def contenuto(self, b):
-        models = ["gpt-3.5-turbo-16k", "gpt-4"]  # Replace with actual model names
+        models = ["gpt-4o", "gpt-4"]  # Replace with actual model names
         combo = QComboBox()
         combo.addItems(models)
         selected_model, ok = QInputDialog.getItem(self, "Select Model", "Choose a model for GPT:", models, 0,
