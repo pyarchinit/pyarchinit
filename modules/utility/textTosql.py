@@ -30,7 +30,7 @@ class MakeSQL:
         schema_text = MakeSQL.schema_to_text(database_schema.metadata)  # Converti lo schema in testo
         #QMessageBox.information(None, "Schema", schema_text)
         api_key = apikey  # Sostituisci con la tua chiave API
-        url = "https://www.text2sql.ai/api/sql/generate"
+        url = "https://app2.text2sql.ai/api/external/generate-sql"
         headers = {
             "Authorization": f"Bearer {api_key}",
             "Content-Type": "application/json"
@@ -69,7 +69,7 @@ class MakeSQL:
         #schema_text = MakeSQL.schema_to_text(database_schema.metadata)  # Converti lo schema in testo
         # QMessageBox.information(None, "Schema", schema_text)
         api_key = apikey  # Sostituisci con la tua chiave API
-        url = "https://www.text2sql.ai/api/sql/explain"
+        url = "https://app2.text2sql.ai/api/external/explain-sql"
         headers = {
             "Authorization": f"Bearer {api_key}",
             "Content-Type": "application/json"
