@@ -94,7 +94,6 @@ MAIN_DIALOG_CLASS, _ = loadUiType(
 
 
 class ReportGeneratorDialog(QDialog):
-
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setWindowTitle('Generatore di Report')
@@ -102,13 +101,34 @@ class ReportGeneratorDialog(QDialog):
         layout = QVBoxLayout(self)
 
         self.combo_box = CheckableComboBox()
-        self.TABLES_NAMES = ['site_table','us_table', 'inventario_materiali_table', 'tomba_table',
-                    'pottery_table','struttura_table','periodizzazione_table',
-                    'documentazione_table', 'mediaentity_view']
+        self.TABLES_NAMES = ['site_table', 'us_table', 'inventario_materiali_table', 'tomba_table',
+                             'pottery_table', 'struttura_table', 'periodizzazione_table',
+                             'documentazione_table', 'mediaentity_view']
         for table_name in self.TABLES_NAMES:
             self.combo_box.add_item(table_name)
 
+        layout.addWidget(QLabel("Seleziona le tabelle:"))
         layout.addWidget(self.combo_box)
+
+        # Aggiungi un campo per l'anno di scavo
+        self.year_input = QLineEdit()
+        self.year_input.setPlaceholderText("Inserisci l'anno di scavo (opzionale)")
+        layout.addWidget(QLabel("Anno di scavo:"))
+        layout.addWidget(self.year_input)
+
+        # Aggiungi campi per il range delle US
+        self.us_start_input = QLineEdit()
+        self.us_start_input.setPlaceholderText("US iniziale")
+        self.us_end_input = QLineEdit()
+        self.us_end_input.setPlaceholderText("US finale")
+
+        layout.addWidget(QLabel("Range di US (se non si inserisce l'anno di scavo):"))
+        range_layout = QHBoxLayout()
+        range_layout.addWidget(QLabel("Da:"))
+        range_layout.addWidget(self.us_start_input)
+        range_layout.addWidget(QLabel("A:"))
+        range_layout.addWidget(self.us_end_input)
+        layout.addLayout(range_layout)
 
         self.prompt_button = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel, self)
         self.prompt_button.accepted.connect(self.accept)
@@ -118,6 +138,16 @@ class ReportGeneratorDialog(QDialog):
 
     def get_selected_tables(self):
         return self.combo_box.items_checked()
+
+    def get_year_filter(self):
+        return self.year_input.text().strip()
+
+    def get_us_range(self):
+        us_start = self.us_start_input.text().strip()
+        us_end = self.us_end_input.text().strip()
+        return us_start, us_end
+
+
 
 class CheckableComboBox(QComboBox):
 
@@ -1257,13 +1287,14 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
     #                 QMessageBox.critical(self, "Errore",
     #                                      f"Si è verificato un errore durante il salvataggio del report: {str(e)}")
 
-
     def generate_and_display_report(self):
         dialog = ReportGeneratorDialog(self)
         if dialog.exec_() == QDialog.Accepted:
             conn = Connection()
             db_url = conn.conn_str()
             selected_tables = dialog.get_selected_tables()
+            year_filter = dialog.get_year_filter()
+            us_start, us_end = dialog.get_us_range()
 
             report_data = {
                 'Regione': '', 'Provincia': '', 'Comune': '', 'Ente di riferimento': '',
@@ -1279,17 +1310,21 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             descriptions_text = ""
             current_site = str(self.comboBox_sito.currentText())
 
-            def rimuovi_duplicati(text):
-                parts = text.split(': ', 1)
-                if len(parts) == 2:
-                    prefix, content = parts
-                    unique_content = ' '.join(dict.fromkeys(content.strip().split()))
-                    return f"{prefix}: {unique_content}"
-                else:
-                    return ' '.join(dict.fromkeys(text.split()))
+            # Funzione per formattare i dati delle US
+            def format_us_data(us_data):
+                formatted = ""
+                for us in us_data:
+                    formatted += (
+                        f"US: {us['us']}\n"
+                        f"Area: {us['area']}\n"
+                        f"Definizione stratigrafica: {us['d_stratigrafica']}\n"
+                        f"Descrizione: {us['descrizione']}\n"
+                        f"Interpretazione: {us['interpretazione']}\n"
+                        f"Rapporti stratigrafici: {us['rapporti']}\n\n"
+                    )
+                return formatted.strip()
 
             us_data = []
-            other_data=[]
             for table_name in selected_tables:
                 records, columns = ReportGenerator.read_data_from_db(db_url, table_name)
 
@@ -1297,24 +1332,22 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                     site_record = next((r for r in records if getattr(r, 'sito', '') == current_site), None)
                     if site_record:
                         report_data['Regione'] = getattr(site_record, 'regione', '')
-                        report_data['Provincia'] = f"Provincia:{getattr(site_record, 'provincia', '')}"
-                        report_data['Comune'] = rimuovi_duplicati(f"Comune: {getattr(site_record, 'comune', '')}")
+                        report_data['Provincia'] = f"Provincia: {getattr(site_record, 'provincia', '')}"
+                        report_data['Comune'] = f"Comune: {getattr(site_record, 'comune', '')}"
                         report_data['Cantiere'] = current_site
                         report_data['Collocazione cantiere'] = current_site
-                elif table_name == 'us_table':
-                    us_records = [r for r in records if getattr(r, 'sito', '') == current_site]
-                    if us_records:
-                        first_record = us_records[0]
-                        report_data['Ente di riferimento'] = getattr(first_record, 'soprintendenza', '')
-                        report_data['Committenza'] = getattr(first_record, 'ditta_esecutrice', '')
-                        report_data['Direzione scientifica'] = getattr(first_record, 'direttore_us', '')
-                        report_data['Elaborato a cura di'] = getattr(first_record, 'schedatore', '')
-                        report_data['Direttore cantiere'] = getattr(first_record, 'responsabile_us', '')
-                        report_data['Direzione scientifica indagini archeologiche'] = report_data[
-                            'Direzione scientifica']
-                        report_data['Direzione cantiere archeologico'] = report_data['Direttore cantiere']
 
-                    for record in us_records:
+                elif table_name == 'us_table':
+                    # Filtra per anno di scavo o per range di US
+                    if year_filter:
+                        records = [r for r in records if str(getattr(r, 'anno_scavo', '')) == year_filter]
+                    elif us_start and us_end:
+                        records = [
+                            r for r in records
+                            if us_start <= str(getattr(r, 'us', '')) <= us_end
+                        ]
+
+                    for record in records:
                         us_data.append({
                             'us': getattr(record, 'us', ''),
                             'area': getattr(record, 'area', ''),
@@ -1324,68 +1357,38 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                             'rapporti': getattr(record, 'rapporti', '')
                         })
 
-                else:
-                    site_specific_records = [r for r in records if getattr(r, 'sito', current_site) == current_site]
-                    descriptions_text += f"Table: {table_name}\n"
-                    for record in site_specific_records:
-                        descriptions_text += f"{record}\n\n"
+            # Formatta i dettagli delle US
+            formatted_us_data = format_us_data(us_data)
 
-            # Generate derived fields
-            report_data['Tipo di indagine'] = f"Indagine archeologica presso {report_data['Cantiere']}"
-            report_data['Titolo elaborato'] = f"Relazione di scavo - {report_data['Cantiere']}"
-
+            # Prompt personalizzato per generare il report
             custom_prompt = f"""
-                Genera una relazione archeologica dettagliata e discorsiva in italiano basata sui seguenti dati. 
-                La relazione deve essere un testo fluido e narrativo, che analizza in profondità tutte le unità stratigrafiche (US) e le mette in relazione tra loro.
-                Includi TUTTI i dettagli rilevanti seguendo questa struttura:
+    Genera una relazione archeologica dettagliata e discorsiva in italiano basata sui seguenti dati. 
+    La relazione deve essere un testo fluido e narrativo, che analizza in profondità tutte le unità stratigrafiche (US) e le mette in relazione tra loro.
+    Includi TUTTI i dettagli rilevanti seguendo questa struttura:
 
-                1. INTRODUZIONE:
-                   - Fornisci una panoramica dettagliata del sito e del suo contesto storico.
-                   - Descrivi il periodo e la profondità dello scavo, collegandoli al contesto più ampio della regione.
+    1. INTRODUZIONE:
+       - Fornisci una panoramica dettagliata del sito e del suo contesto storico.
+       - Descrivi il periodo e la profondità dello scavo, collegandoli al contesto più ampio della regione.
 
-                2. DESCRIZIONE METODOLOGICA ED ESITO DELL'INDAGINE:
-                   - Inizia con una descrizione generale dell'area di scavo e della sua suddivisione.
-                   - Per OGNI unità stratigrafica (US):
-                     * Descrivi dettagliatamente la composizione, lo stato di conservazione e le caratteristiche peculiari.
-                     * Fornisci l'interpretazione archeologica di ciascuna US.
-                     * Analizza le relazioni stratigrafiche con le altre US.
-                   - Dopo aver descritto tutte le US, fornisci un'analisi complessiva che le metta in relazione, 
-                     evidenziando patterns, similarità e differenze.
-                   - Analizza in modo approfondito tutte le strutture e gli edifici rinvenuti, discutendo:
-                     * Materiali e tecniche costruttive
-                     * Possibili funzioni e periodi di utilizzo
-                     * Relazioni con altre strutture o US
-                   - Per le tombe:
-                     * Descrivi in dettaglio ogni sepoltura, sia inumazioni che cremazioni.
-                     * Analizza i riti funerari evidenziati dai ritrovamenti.
-                   - Per i reperti:
-                     * Descrivi dettagliatamente TUTTI i reperti, inclusi numero di inventario e tipologia.
-                     * Discuti il significato di questi reperti nel contesto del sito.
-                   - Fornisci un'interpretazione cronologica dettagliata delle fasi di occupazione del sito, 
-                     basandoti sui rapporti stratigrafici e sui reperti rinvenuti.
-                   - per la documentazione:
-                     * fornisci il nome delle tavole o sezioni o piante  
+    2. DESCRIZIONE METODOLOGICA ED ESITO DELL'INDAGINE:
+       - Inizia con una descrizione generale dell'area di scavo e della sua suddivisione.
+       - Di seguito, descrivi in dettaglio le unità stratigrafiche come indicato:
+    {formatted_us_data}
 
-                3. CONCLUSIONI:
-                   - Sintetizza i risultati principali dello scavo.
-                   - Discuti l'importanza del sito nel contesto storico locale e regionale.
-                   - Suggerisci possibili direzioni per future ricerche o scavi.
+    3. CONCLUSIONI:
+       - Sintetizza i risultati principali dello scavo.
+       - Discuti l'importanza del sito nel contesto storico locale e regionale.
+       - Suggerisci possibili direzioni per future ricerche o scavi.
 
-                Assicurati che il report sia scritto in forma discorsiva, evitando elenchi puntati o numerati. 
-                Usa un linguaggio tecnico appropriato, ma mantieni un flusso narrativo che guidi il lettore attraverso 
-                l'interpretazione completa del sito archeologico.
+    Assicurati che il report sia scritto in forma discorsiva, evitando elenchi puntati o numerati. 
+    Usa un linguaggio tecnico appropriato, ma mantieni un flusso narrativo che guidi il lettore attraverso 
+    l'interpretazione completa del sito archeologico.
 
-                Dati del sito: {report_data}
-
-                Unità Stratigrafiche:
-                {us_data}
-
-                Descrizioni aggiuntive:
-                {descriptions_text}
-                """
+    Dati del sito: {report_data}
+    """
 
             if ReportGenerator.is_connected():
-                self.progress_dialog = QProgressDialog("Generating report...", None, 0, 0, self)
+                self.progress_dialog = QProgressDialog("Generazione del report in corso...", None, 0, 0, self)
                 self.progress_dialog.setWindowModality(Qt.WindowModal)
                 self.progress_dialog.setCancelButton(None)
                 self.progress_dialog.setRange(0, 0)
@@ -1396,46 +1399,41 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 chat_model = ChatOpenAI(
                     api_key=api_key,
                     model_name="gpt-4o",
-                    temperature=0.2,  # Aumentato leggermente per favorire una narrazione più fluida
-                    max_tokens=16000,  # Aumentato per permettere una risposta più lunga e dettagliata
+                    temperature=0.2,
+                    max_tokens=16000,
                     streaming=True
                 )
 
                 try:
                     messages = [
-                        SystemMessage(content="""Sei un esperto archeologo con vasta esperienza nella redazione di relazioni di scavo. 
-                                Il tuo compito è creare un report dettagliato e discorsivo che analizzi in profondità tutte le unità stratigrafiche 
-                                e le metta in relazione tra loro. Usa un linguaggio tecnico ma mantieni un flusso narrativo coinvolgente. 
-                                Evita elenchi puntati o numerati nel corpo principale del testo. Evita inoltre di di dettagliare in sequesza le unità stratigrafiche
-                                ma incorpora in un grande discordo dettagliato"""),
-                        angchain(content=custom_prompt)
+                        SystemMessage(content=(
+                            "Sei un esperto archeologo con vasta esperienza nella redazione di relazioni di scavo. "
+                            "Il tuo compito è creare un report dettagliato e discorsivo che analizzi in profondità tutte le unità stratigrafiche "
+                            "e le metta in relazione tra loro. Usa un linguaggio tecnico ma mantieni un flusso narrativo coinvolgente. "
+                            "Evita elenchi puntati o numerati nel corpo principale del testo. "
+                            "Evita inoltre di dettagliare in sequenza le unità stratigrafiche, "
+                            "ma incorpora le descrizioni in un discorso unico e dettagliato."
+                        )),
+                        HumanMessage(content=custom_prompt)
                     ]
 
                     full_report = ""
                     for chunk in chat_model.stream(messages):
                         if chunk.content:
                             full_report += chunk.content
-                            self.progress_dialog.show()
+                            self.progress_dialog.setLabelText("Generazione del report in corso...")
+                            QApplication.processEvents()
 
-                    if not self.is_italian(full_report):
-                        translation_prompt = f"Il seguente testo è in inglese. Per favore, traducilo accuratamente in italiano:\n\n{full_report}"
-                        translation_messages = [
-                            SystemMessage(content="Sei un traduttore esperto dall'inglese all'italiano."),
-                            HumanMessage(content=translation_prompt)
-                        ]
-
-                        full_report = ""
-                        for chunk in chat_model.stream(translation_messages):
-                            if chunk.content:
-                                full_report += chunk.content
-                                self.progress_dialog.show()
-
-
+                    self.progress_dialog.close()
                     self.on_report_generated(full_report, report_data)
 
                 except Exception as e:
+                    self.progress_dialog.close()
                     self.show_error(str(e), 'Qualcosa è andato storto')
                     return
+
+            else:
+                QMessageBox.warning(self, "Connessione Assente", "Nessuna connessione a Internet rilevata.")
 
     def is_italian(self, text):
         # Implementa una semplice euristica per determinare se il testo è in italiano
@@ -2189,13 +2187,314 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         search_dict = {'sito': f"'{sito}'", 'area': f"'{area}'"}
         records = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
         self.list_rapporti.append(self.report_rapporti)
+        #QMessageBox.information(self, 'Fix', str(self.list_rapporti), QMessageBox.Ok)
+
         for _ in records:
             self.checkBox_validation_rapp.setChecked(True)
 
             self.check_listoflist()
-            #self.check_inverse_relationships(self.list_rapporti)
-        #self.view_all()
+            self.check_inverse_relationships(self.list_rapporti)
+        self.view_all()
 
+    def check_listoflist(self):
+        if self.checkBox_validation_rapp.isChecked():
+            try:
+
+                table_name = "self.tableWidget_rapporti"
+                rowSelected_cmd = ("%s.selectedItems()") % (table_name)
+                rowSelected = eval(rowSelected_cmd)
+                rowIndex = (rowSelected[0].row())
+                sito = str(self.comboBox_sito.currentText())
+                area = str(self.comboBox_area.currentText())
+                us_current = str(self.lineEdit_us.text())
+                print(us_current)
+                unit = str(self.comboBox_unita_tipo.currentText())
+                us_item = self.tableWidget_rapporti.item(rowIndex, 1)
+                us = str(us_item.text())
+                # print(us)
+                rapp_item = self.tableWidget_rapporti.item(rowIndex, 0)
+                rapp = str(rapp_item.text())
+
+                area_item = self.tableWidget_rapporti.item(rowIndex, 2)
+                ar_ = str(area_item.text())
+                sito_item = self.tableWidget_rapporti.item(rowIndex, 3)
+                sito_ = str(sito_item.text())
+                self.save_rapp()
+
+                if rapp == 'Riempito da':
+                    rapp = 'Riempie'
+                elif rapp == 'Tagliato da':
+                    rapp = 'Taglia'
+                elif rapp == 'Coperto da':
+                    rapp = 'Copre'
+                elif rapp == 'Si appoggia a':
+                    rapp = 'Gli si appoggia'
+                elif rapp == 'Riempie':
+                    rapp = 'Riempito da'
+                elif rapp == 'Taglia':
+                    rapp = 'Tagliato da'
+                elif rapp == 'Copre':
+                    rapp = 'Coperto da'
+                elif rapp == 'Gli si appoggia':
+                    rapp = 'Si appoggia a'
+                elif rapp == 'Filled by':
+                    rapp = 'Fills'
+                elif rapp == 'Cut by':
+                    rapp = 'Cuts'
+                elif rapp == 'Covered by':
+                    rapp = 'Covers'
+                elif rapp == 'Abuts':
+                    rapp = 'Supports'
+                elif rapp == 'Fills':
+                    rapp = 'Filled by'
+                elif rapp == 'Cuts':
+                    rapp = 'Cut by'
+                elif rapp == 'Covers':
+                    rapp = 'Covered by'
+                elif rapp == 'Supports':
+                    rapp = 'Abuts'
+
+                elif rapp == '>>':
+                    rapp = '<<'
+                elif rapp == '<<':
+                    rapp = '>>'
+                elif rapp == '>':
+                    rapp = '<'
+                elif rapp == '<':
+                    rapp = '>'
+                search_dict = {'sito': "'" + str(sito_) + "'",
+                               'area': "'" + str(ar_) + "'",
+                               'us': us}
+                u = Utility()
+                search_dict = u.remove_empty_items_fr_dict(search_dict)
+                res = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
+
+                if bool(res):
+
+                    items = self.tableWidget_rapporti.findItems(us, Qt.MatchExactly)
+                    items_area = self.tableWidget_rapporti.findItems(ar_, Qt.MatchExactly)
+                    items_sito = self.tableWidget_rapporti.findItems(sito_, Qt.MatchExactly)
+                    self.on_pushButton_go_to_us_pressed()
+                    self.checkBox_validation_rapp.setChecked(False)
+                    items2 = self.tableWidget_rapporti.findItems(us_current, Qt.MatchExactly)
+                    items_area2 = self.tableWidget_rapporti.findItems(area, Qt.MatchExactly)
+                    items_sito2 = self.tableWidget_rapporti.findItems(sito, Qt.MatchExactly)
+                    # QMessageBox.information(self, 'caso1', f"{str(len(items))} - {str(len(items2))}  - {str(len(items_area))} - {str(len(items_sito))} -  {str(len(items_area2))} - {str(len(items_sito2))}")
+                    if str(len(items)) == '1' and str(
+                            len(items2)) == '1':  # and str(len(items_area))=='1' and str(len(items_sito))=='1' and str(len(items_area2))=='3' and str(len(items_sito2))=='5':
+                        try:
+                            item = items2[0]
+                            self.tableWidget_rapporti.setCurrentItem(item)
+                            item_area = items_area2[0]
+                            self.tableWidget_rapporti.setCurrentItem(item_area)
+                            item_sito = items_sito2[0]
+                            self.tableWidget_rapporti.setCurrentItem(item_sito)
+                        except:
+                            pass
+                        y = self.tableWidget_rapporti.currentRow()
+                        self.tableWidget_rapporti.setItem(y, 0, QtWidgets.QTableWidgetItem(rapp))
+                        self.tableWidget_rapporti.setItem(y, 1, QtWidgets.QTableWidgetItem(us_current))
+                        self.tableWidget_rapporti.setItem(y, 2, QtWidgets.QTableWidgetItem(area))
+                        self.tableWidget_rapporti.setItem(y, 3, QtWidgets.QTableWidgetItem(sito))
+                        self.save_rapp()
+
+                        self.tableWidget_rapporti.selectRow(y)
+                        self.on_pushButton_go_to_us_pressed()
+
+                    elif str(len(items)) == '1' and str(
+                            len(items2)) == '0':  # and str(len(items_area))=='1' and str(len(items_sito))=='1' and str(len(items_area2))=='0' and str(len(items_sito2))=='0':
+
+                        self.on_pushButton_insert_row_rapporti_pressed()
+                        self.tableWidget_rapporti.currentRow()
+                        self.tableWidget_rapporti.setItem(0, 0, QtWidgets.QTableWidgetItem(rapp))
+                        self.tableWidget_rapporti.setItem(0, 1, QtWidgets.QTableWidgetItem(us_current))
+                        self.tableWidget_rapporti.setItem(0, 2, QtWidgets.QTableWidgetItem(area))
+                        self.tableWidget_rapporti.setItem(0, 3, QtWidgets.QTableWidgetItem(sito))
+                        self.save_rapp()
+                        self.tableWidget_rapporti.selectRow(0)
+                        self.on_pushButton_go_to_us_pressed()
+                    else:
+                        QMessageBox.warning(self, '', 'Controlla se hai duplicato una US o USM')
+
+                elif not bool(res):
+
+                    tf = self.unit_type_select()
+
+                    self.DB_MANAGER.insert_number_of_us_records(sito_, ar_, us, tf)
+
+                    self.on_pushButton_go_to_us_pressed()
+                    self.on_pushButton_insert_row_rapporti_pressed()
+                    self.tableWidget_rapporti.currentRow()
+
+                    a = self.tableWidget_rapporti.setItem(0, 0, QtWidgets.QTableWidgetItem(rapp))
+                    b = self.tableWidget_rapporti.setItem(0, 1, QtWidgets.QTableWidgetItem(us_current))
+                    c = self.tableWidget_rapporti.setItem(0, 2, QtWidgets.QTableWidgetItem(area))
+                    d = self.tableWidget_rapporti.setItem(0, 3, QtWidgets.QTableWidgetItem(sito))
+
+                    self.save_rapp()
+                    self.tableWidget_rapporti.selectRow(0)
+                    self.on_pushButton_go_to_us_pressed()
+
+            except:
+                pass  # QMessageBox.warning(self, 'error', str(e), QMessageBox.Ok)
+
+
+        else:
+            pass  # QMessageBox.warning(self, 'error', 'Please select a rapport', QMessageBox.Ok)
+
+    def log_message(self, message):
+        """Aggiunge un messaggio alla listWidget"""
+        self.listWidget_rapp.addItem(str(message))
+
+    def check_inverse_relationships(self, unverified_list):
+        if hasattr(self, '_is_processing'):
+            return
+
+        try:
+            self._is_processing = True
+            self.listWidget_rapp.clear()
+
+            # Parse delle linee
+            valid_lines = []
+            if len(unverified_list) == 1 and isinstance(unverified_list[0], str):
+                lines = unverified_list[0].split('\n')
+                for line in lines:
+                    if line.strip() and "Site:" in line and "SU:" in line and "relationships not verified" in line:
+                        if not line.startswith("Control report"):
+                            valid_lines.append(line.strip())
+
+            if not valid_lines:
+                return
+
+            total_rapporti = len(valid_lines)
+            self.progressBar_3.setMaximum(total_rapporti)
+            self.progressBar_3.setValue(0)
+
+            inverse_rapp_dict = {
+                'Riempito da': 'Riempie',
+                'Tagliato da': 'Taglia',
+                'Coperto da': 'Copre',
+                'Si appoggia a': 'Gli si appoggia',
+                'Riempie': 'Riempito da',
+                'Taglia': 'Tagliato da',
+                'Copre': 'Coperto da',
+                'Gli si appoggia': 'Si appoggia a',
+                'Filled by': 'Fills',
+                'Cut by': 'Cuts',
+                'Covered by': 'Covers',
+                'Abuts': 'Supports',
+                'Fills': 'Filled by',
+                'Cuts': 'Cut by',
+                'Covers': 'Covered by',
+                'Supports': 'Abuts',
+                'Same as': 'Same as',
+                'Uguale a': 'Uguale a',
+                'Connected to': 'Connected to',
+                'Si lega a': 'Si lega a',
+                '>>': '<<',
+                '<<': '>>',
+                '>': '<',
+                '<': '>'
+            }
+
+            old_state = self.checkBox_validation_rapp.isChecked()
+            self.checkBox_validation_rapp.setChecked(False)
+            fixed_count = 0
+
+            try:
+                for i, line in enumerate(valid_lines):
+                    try:
+                        # Parse della linea
+                        self.log_message(f"\nProcesso linea {i + 1}/{total_rapporti}: {line}")
+
+                        parts = line.split(", ")
+                        sito = parts[0].split("'")[1]
+                        area = parts[1].split("'")[1]
+
+                        words = parts[2].split()
+                        us_indices = [i for i, word in enumerate(words) if word == "SU:"]
+                        us_origine = str(words[us_indices[0] + 1])  # Converti a stringa
+                        us_target = str(words[us_indices[1] + 1])  # Converti a stringa
+
+                        rapp_words = words[us_indices[0] + 2:us_indices[1]]
+                        rapp = " ".join(rapp_words)
+
+                        self.log_message(f"Analisi: {us_origine} {rapp} {us_target}")
+
+                        inverse_rapp = inverse_rapp_dict.get(rapp)
+                        if not inverse_rapp:
+                            self.log_message(f"Rapporto {rapp} non trovato nel dizionario")
+                            continue
+
+                        # Vai alla scheda target usando il tuo metodo
+                        search_dict = {
+                            'sito': "'" + str(sito) + "'",
+                            'area': "'" + str(area) + "'",
+                            'us': str(us_target)  # Converti a stringa
+                        }
+
+                        u = Utility()
+                        search_dict = u.remove_empty_items_fr_dict(search_dict)
+                        res = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
+
+                        if res:
+                            self.empty_fields()
+                            self.DATA_LIST = []
+                            for i in res:
+                                self.DATA_LIST.append(i)
+                            self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
+                            self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
+                            self.fill_fields()
+                            self.BROWSE_STATUS = "b"
+                            self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
+                            self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR + 1)
+
+                            # Controlla se il rapporto inverso esiste già
+                            rapporto_exists = False
+                            for row in range(self.tableWidget_rapporti.rowCount()):
+                                tipo_rapp = self.tableWidget_rapporti.item(row, 0)
+                                us_rapp = self.tableWidget_rapporti.item(row, 1)
+
+                                if (tipo_rapp and us_rapp and
+                                        tipo_rapp.text() == inverse_rapp and
+                                        us_rapp.text() == us_origine):
+                                    rapporto_exists = True
+                                    break
+
+                            # Se non esiste, aggiungilo
+                            if not rapporto_exists:
+                                self.on_pushButton_insert_row_rapporti_pressed()
+                                self.tableWidget_rapporti.setItem(0, 0, QtWidgets.QTableWidgetItem(inverse_rapp))
+                                self.tableWidget_rapporti.setItem(0, 1, QtWidgets.QTableWidgetItem(us_origine))
+                                self.tableWidget_rapporti.setItem(0, 2, QtWidgets.QTableWidgetItem(area))
+                                self.tableWidget_rapporti.setItem(0, 3, QtWidgets.QTableWidgetItem(sito))
+                                self.save_rapp()
+                                fixed_count += 1
+                                self.log_message(
+                                    f"Aggiunto rapporto {inverse_rapp} {us_origine} nella scheda {us_target}")
+
+                        # Aggiorna progress bar
+                        self.progressBar_3.setValue(i + 1)
+
+                    except Exception as e:
+                        self.log_message(f"Errore: {str(e)}")
+                        continue
+
+            finally:
+                self.checkBox_validation_rapp.setChecked(old_state)
+                self.progressBar_3.setValue(0)
+
+            # Risultati finali
+            if fixed_count > 0:
+                QMessageBox.information(self, "Completato", f"Corretti {fixed_count} rapporti su {total_rapporti}")
+            else:
+                QMessageBox.warning(self, "Info", "Nessun rapporto corretto")
+
+            # Aggiorna la lista dei rapporti da validare
+            self.on_pushButton_h_check_pressed()
+
+        finally:
+            delattr(self, '_is_processing')
 
     def unit_type_select(self):
         try:
@@ -2225,212 +2524,6 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             item = matching_items[0]  # Take the first.
             self.tableWidget_rapporti.setCurrentItem(item)
 
-    def check_listoflist(self):
-        if self.checkBox_validation_rapp.isChecked():
-            try:
-
-
-                table_name = "self.tableWidget_rapporti"
-                rowSelected_cmd = ("%s.selectedItems()") % (table_name)
-                rowSelected = eval(rowSelected_cmd)
-                rowIndex = (rowSelected[0].row())
-                sito = str(self.comboBox_sito.currentText())
-                area = str(self.comboBox_area.currentText())
-                us_current=str(self.lineEdit_us.text())
-                print(us_current)
-                unit = str(self.comboBox_unita_tipo.currentText())
-                us_item = self.tableWidget_rapporti.item(rowIndex, 1)
-                us = str(us_item.text())
-                #print(us)
-                rapp_item = self.tableWidget_rapporti.item(rowIndex,0)
-                rapp = str(rapp_item.text())
-
-                area_item = self.tableWidget_rapporti.item(rowIndex, 2)
-                ar_ = str(area_item.text())
-                sito_item = self.tableWidget_rapporti.item(rowIndex, 3)
-                sito_ = str(sito_item.text())
-                self.save_rapp()
-
-                if rapp =='Riempito da':
-                    rapp='Riempie'
-                elif rapp =='Tagliato da':
-                    rapp='Taglia'
-                elif rapp =='Coperto da':
-                    rapp='Copre'
-                elif rapp =='Si appoggia a':
-                    rapp='Gli si appoggia'
-                elif rapp =='Riempie':
-                    rapp='Riempito da'
-                elif rapp =='Taglia':
-                    rapp='Tagliato da'
-                elif rapp =='Copre':
-                    rapp='Coperto da'
-                elif rapp =='Gli si appoggia':
-                    rapp='Si appoggia a'
-                elif rapp =='Filled by':
-                    rapp='Fills'
-                elif rapp =='Cut by':
-                    rapp='Cuts'
-                elif rapp =='Covered by':
-                    rapp='Covers'
-                elif rapp =='Abuts':
-                    rapp='Supports'
-                elif rapp =='Fills':
-                    rapp='Filled by'
-                elif rapp =='Cuts':
-                    rapp='Cut by'
-                elif rapp =='Covers':
-                    rapp='Covered by'
-                elif rapp =='Supports':
-                    rapp='Abuts'
-
-                elif rapp =='>>':
-                    rapp='<<'
-                elif rapp =='<<':
-                    rapp='>>'
-                elif rapp =='>':
-                    rapp='<'
-                elif rapp =='<':
-                    rapp='>'
-                search_dict = {'sito': "'" + str(sito_) + "'",
-                               'area': "'" + str(ar_)+ "'",
-                               'us': us}
-                u = Utility()
-                search_dict = u.remove_empty_items_fr_dict(search_dict)
-                res = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
-
-
-                if bool(res):
-
-                    items = self.tableWidget_rapporti.findItems(us,Qt.MatchExactly)
-                    items_area = self.tableWidget_rapporti.findItems(ar_, Qt.MatchExactly)
-                    items_sito = self.tableWidget_rapporti.findItems(sito_, Qt.MatchExactly)
-                    self.on_pushButton_go_to_us_pressed()
-                    self.checkBox_validation_rapp.setChecked(False)
-                    items2 = self.tableWidget_rapporti.findItems(us_current,Qt.MatchExactly)
-                    items_area2 = self.tableWidget_rapporti.findItems(area, Qt.MatchExactly)
-                    items_sito2 = self.tableWidget_rapporti.findItems(sito, Qt.MatchExactly)
-                    #QMessageBox.information(self, 'caso1', f"{str(len(items))} - {str(len(items2))}  - {str(len(items_area))} - {str(len(items_sito))} -  {str(len(items_area2))} - {str(len(items_sito2))}")
-                    if str(len(items))=='1' and str(len(items2))=='1':# and str(len(items_area))=='1' and str(len(items_sito))=='1' and str(len(items_area2))=='3' and str(len(items_sito2))=='5':
-                        try:
-                            item=items2[0]
-                            self.tableWidget_rapporti.setCurrentItem(item)
-                            item_area = items_area2[0]
-                            self.tableWidget_rapporti.setCurrentItem(item_area)
-                            item_sito = items_sito2[0]
-                            self.tableWidget_rapporti.setCurrentItem(item_sito)
-                        except:
-                            pass
-                        y=self.tableWidget_rapporti.currentRow()
-                        self.tableWidget_rapporti.setItem(y,0,QtWidgets.QTableWidgetItem(rapp))
-                        self.tableWidget_rapporti.setItem(y,1,QtWidgets.QTableWidgetItem(us_current))
-                        self.tableWidget_rapporti.setItem(y, 2, QtWidgets.QTableWidgetItem(area))
-                        self.tableWidget_rapporti.setItem(y, 3, QtWidgets.QTableWidgetItem(sito))
-                        self.save_rapp()
-
-                        self.tableWidget_rapporti.selectRow(y)
-                        self.on_pushButton_go_to_us_pressed()
-
-                    elif str(len(items))=='1' and str(len(items2))=='0':# and str(len(items_area))=='1' and str(len(items_sito))=='1' and str(len(items_area2))=='0' and str(len(items_sito2))=='0':
-
-                        self.on_pushButton_insert_row_rapporti_pressed()
-                        self.tableWidget_rapporti.currentRow()
-                        self.tableWidget_rapporti.setItem(0,0,QtWidgets.QTableWidgetItem(rapp))
-                        self.tableWidget_rapporti.setItem(0,1,QtWidgets.QTableWidgetItem(us_current))
-                        self.tableWidget_rapporti.setItem(0, 2, QtWidgets.QTableWidgetItem(area))
-                        self.tableWidget_rapporti.setItem(0, 3, QtWidgets.QTableWidgetItem(sito))
-                        self.save_rapp()
-                        self.tableWidget_rapporti.selectRow(0)
-                        self.on_pushButton_go_to_us_pressed()
-                    else:
-                        QMessageBox.warning(self,'','Controlla se hai duplicato una US o USM')
-
-                elif not bool(res):
-
-                    tf=self.unit_type_select()
-
-                    self.DB_MANAGER.insert_number_of_us_records(sito_,ar_,us,tf)
-
-                    self.on_pushButton_go_to_us_pressed()
-                    self.on_pushButton_insert_row_rapporti_pressed()
-                    self.tableWidget_rapporti.currentRow()
-
-                    a=self.tableWidget_rapporti.setItem(0,0,QtWidgets.QTableWidgetItem(rapp))
-                    b=self.tableWidget_rapporti.setItem(0,1,QtWidgets.QTableWidgetItem(us_current))
-                    c=self.tableWidget_rapporti.setItem(0,2, QtWidgets.QTableWidgetItem(area))
-                    d=self.tableWidget_rapporti.setItem(0,3, QtWidgets.QTableWidgetItem(sito))
-
-                    self.save_rapp()
-                    self.tableWidget_rapporti.selectRow(0)
-                    self.on_pushButton_go_to_us_pressed()
-
-            except:
-                pass#QMessageBox.warning(self, 'error', str(e), QMessageBox.Ok)
-
-
-        else:
-            pass#QMessageBox.warning(self, 'error', 'Please select a rapport', QMessageBox.Ok)
-
-    def check_inverse_relationships(self, unverified_list_str):
-        #QMessageBox.warning(self, 'Error',f"unverified_list: {unverified_list}")
-        if self.checkBox_validation_rapp.isChecked():
-            try:
-                inverse_rapp_dict = {
-                    'Riempito da': 'Riempie', 'Tagliato da': 'Taglia', 'Coperto da': 'Copre',
-                    'Si appoggia a': 'Gli si appoggia',
-                    'Riempie': 'Riempito da', 'Taglia': 'Tagliato da', 'Copre': 'Coperto da',
-                    'Gli si appoggia': 'Si appoggia a',
-                    'Filled by': 'Fills', 'Cut by': 'Cuts', 'Covered by': 'Covers', 'Abuts': 'Supports',
-                    'Fills': 'Filled by', 'Cuts': 'Cut by', 'Covers': 'Covered by', 'Supports': 'Abuts',
-                    '>>': '<<', '<<': '>>', '>': '<', '<': '>'
-                }
-
-                # Convert the string to a list of lines
-                unverified_list = unverified_list_str
-
-                for line in unverified_list:
-                    if "Sito:" in line:
-                        # Example line: "Sito: 'Geta', Area: '1', US: 14 Coperto da US: 8 Area: 1: Rapporto non verificato"
-                        parts = line.split(", ")
-                        sito = parts[0].split(": ")[1].strip("'")
-                        area = parts[1].split(": ")[1].strip("'")
-                        us = parts[2].split(": ")[1].strip("'")
-                        relationship_part = parts[3].split(" ")
-                        relationship = " ".join(relationship_part[:-3])
-                        target_us = relationship_part[-3]
-                        target_area = relationship_part[-1].strip(": Rapporto non verificato")
-
-                        inverse_rapp = inverse_rapp_dict.get(relationship, relationship)
-
-                        # Check if the inverse relationship already exists
-                        search_dict = {'sito': "'" + str(sito) + "'", 'area': "'" + str(target_area) + "'",
-                                       'us': target_us}
-                        u = Utility()
-                        search_dict = u.remove_empty_items_fr_dict(search_dict)
-                        res = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
-
-                        if not bool(res):
-                            # Find the row corresponding to the target US
-                            items = self.tableWidget_rapporti.findItems(target_us, Qt.MatchExactly)
-                            if items:
-                                for item in items:
-                                    if item.column() == 2:  # Assuming US is in column 2
-                                        row = item.row()
-                                        self.tableWidget_rapporti.setItem(row, 0,
-                                                                          QtWidgets.QTableWidgetItem(inverse_rapp))
-                                        self.tableWidget_rapporti.setItem(row, 1, QtWidgets.QTableWidgetItem(us))
-                                        self.tableWidget_rapporti.setItem(row, 2, QtWidgets.QTableWidgetItem(area))
-                                        self.tableWidget_rapporti.setItem(row, 3, QtWidgets.QTableWidgetItem(sito))
-                                        self.save_rapp()
-                                        break
-                            else:
-                                QMessageBox.warning(self, 'Error',f"Target US {target_us} not found in the table.")
-                        else:
-                            QMessageBox.warning(self, 'Error',f"Inverse relationship for US {target_us} already exists.")
-
-
-            except Exception as e:
-                QMessageBox.warning(self, 'Error', str(e), QMessageBox.Ok)
 
 
     def check_v(self):
@@ -6273,7 +6366,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         # QMessageBox.warning(self, "Messaggio", str(conn_str), QMessageBox.Ok)
         PU = Print_utility(self.iface, self.DATA_LIST)
         PU.progressBarUpdated.connect(self.updateProgressBar)
-        if conn_str.find("postgresql") == 0:
+        if conn_str.find("postgresql") == 1:
             PU.first_batch_try("postgres")
         else:
             PU.first_batch_try("sqlite")
