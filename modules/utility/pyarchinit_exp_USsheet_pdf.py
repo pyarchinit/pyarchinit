@@ -4869,7 +4869,7 @@ class generate_US_pdf(object):
                 single_us_sheet = single_US_pdf_sheet(records[i])
                 elements_us_iccd.append(logo)
                 elements_us_iccd.append(Spacer(4, 6))
-                elements_us_iccd.append(single_us_sheet.create_sheet_archeo3_usm_fields_2())
+                elements_us_iccd.append(single_us_sheet.create_sheet_en())
                 elements_us_iccd.append(PageBreak())
             except TypeError:
                 QMessageBox.warnig(None, 'attenzione', f"Issue with record: {records[i]}")
@@ -4939,7 +4939,7 @@ class generate_US_pdf(object):
                 single_us_sheet = single_US_pdf_sheet(records[i])
                 elements_us_iccd.append(logo)
                 elements_us_iccd.append(Spacer(4, 6))
-                elements_us_iccd.append(single_us_sheet.create_sheet_archeo3_usm_fields_2())
+                elements_us_iccd.append(single_us_sheet.create_sheet_de())
                 elements_us_iccd.append(PageBreak())
             except TypeError:
                 QMessageBox.warnig(None, 'attenzione', f"Issue with record: {records[i]}")
