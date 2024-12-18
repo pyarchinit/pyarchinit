@@ -11026,6 +11026,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 class SQLPromptDialog(QDialog):
     def __init__(self, iface, parent=None):
         super().__init__(parent)
+        self.generated_sql = None
         self.data = None
         self.iface = iface
         self.setWindowTitle("SQL Query Prompt")
