@@ -5,20 +5,28 @@ Created on 17 11 2020
 """
 
 from geoalchemy2 import Geometry
-from sqlalchemy import Table, Column, Integer, Text, MetaData, create_engine, UniqueConstraint
+from sqlalchemy import Table, Column, Integer, Text,  UniqueConstraint
 
-from modules.db.pyarchinit_conn_strings import Connection
-
-
+# Vector layer Definition of the reference line table
 class pylineeriferimento:
     @classmethod
     def define_table(cls, metadata):
         return Table('pyarchinit_linee_rif', metadata,
-                               Column('gid', Integer, primary_key=True),  # 0
-                               Column('sito', Text),
-                               Column('definizion', Text),
-                               Column('descrizion', Text),
-                               Column('the_geom', Geometry(geometry_type='LINESTRING')),
-                               # explicit/composite unique constraint.  'name' is optional.
-                               UniqueConstraint('gid')
-                               )
+                     # Unique identifier for each reference line record
+                     Column('gid', Integer, primary_key=True),  # 0
+
+                     # Name of the archaeological site
+                     Column('sito', Text),  # 1
+
+                     # Definition of the reference line
+                     Column('definizion', Text),  # 2
+
+                     # Description of the reference line
+                     Column('descrizion', Text),  # 3
+
+                     # Geometry of the reference line (line string)
+                     Column('the_geom', Geometry(geometry_type='LINESTRING')),  # 4
+
+                     # Unique constraint ensuring the gid is unique
+                     UniqueConstraint('gid')  # 5
+                     )

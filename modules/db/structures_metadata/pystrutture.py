@@ -4,28 +4,51 @@ Created on 17 11 2020
 @author: Enzo Cocca
 '''
 
-from sqlalchemy import Table, Column, Integer, String, Text, Numeric, MetaData, create_engine, UniqueConstraint
+from sqlalchemy import Table, Column, Integer, Text, UniqueConstraint
 from geoalchemy2 import Geometry
-from modules.db.pyarchinit_conn_strings import Connection
-from modules.utility.pyarchinit_OS_utility import Pyarchinit_OS_Utility
 
+
+# Class representing structures or hypotheses related to archaeological contexts
 class pystrutture:
-
     @classmethod
     def define_table(cls, metadata):
         return Table('pyarchinit_strutture_ipotesi', metadata,
+                     # Unique identifier for each structure record
                      Column('gid', Integer, primary_key=True),  # 0
-                     Column('sito', Text),
-                     Column('id_strutt', Text),
-                     Column('per_iniz', Integer),
-                     Column('per_fin', Integer),
-                     Column('dataz_ext', Text),
-                     Column('fase_iniz', Integer),
-                     Column('fase_fin', Integer),
-                     Column('descrizione', Text),
-                     Column('the_geom', Geometry(geometry_type='POLYGON')),
-                     Column('sigla_strut', Text),
-                     Column('nr_strut', Integer),
-                     # explicit/composite unique constraint.  'name' is optional.
-                     UniqueConstraint('gid')
+
+                     # Name of the archaeological site associated with the structure
+                     Column('sito', Text),  # 1
+
+                     # Identifier for the structure
+                     Column('id_strutt', Text),  # 2
+
+                     # Initial period associated with the structure
+                     Column('per_iniz', Integer),  # 3
+
+                     # Final period associated with the structure
+                     Column('per_fin', Integer),  # 4
+
+                     # External dating information
+                     Column('dataz_ext', Text),  # 5
+
+                     # Initial phase associated with the structure
+                     Column('fase_iniz', Integer),  # 6
+
+                     # Final phase associated with the structure
+                     Column('fase_fin', Integer),  # 7
+
+                     # Description of the structure
+                     Column('descrizione', Text),  # 8
+
+                     # Geometry of the structure (polygon)
+                     Column('the_geom', Geometry(geometry_type='POLYGON')),  # 9
+
+                     # Abbreviation for the structure
+                     Column('sigla_strut', Text),  # 10
+
+                     # Number assigned to the structure
+                     Column('nr_strut', Integer),  # 11
+
+                     # Unique constraint ensuring the gid is unique
+                     UniqueConstraint('gid')  # 12
                      )

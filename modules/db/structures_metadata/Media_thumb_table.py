@@ -3,32 +3,39 @@ Created on 19 feb 2018
 
 @author: Serena Sensini; Enzo Cocca <enzo.ccc@gmail.com>
 '''
-from sqlalchemy import Table, Column, Integer, String, Text, MetaData, create_engine, UniqueConstraint
-
-from modules.db.pyarchinit_conn_strings import Connection
+from sqlalchemy import Table, Column, Integer, String, Text,  UniqueConstraint
 
 
+# Table representing thumbnails of media files
 class Media_thumb_table:
-    # connection string postgres"
-    internal_connection = Connection()
+    @classmethod
+    def define_table(cls, metadata):
+        return Table('media_thumb_table', metadata,
+                     # Unique identifier for each thumbnail record
+                     Column('id_media_thumb', Integer, primary_key=True),
 
-    # create engine and metadata
+                     # Reference to the original media file ID
+                     Column('id_media', Integer),
 
-    engine = create_engine(internal_connection.conn_str(), echo=False, convert_unicode=True)
-    metadata = MetaData(engine)
+                     # Type of media (e.g., image, video)
+                     Column('mediatype', Text),
 
-    # define tables
-    media_thumb_table = Table('media_thumb_table', metadata,
-                              Column('id_media_thumb', Integer, primary_key=True),
-                              Column('id_media', Integer),
-                              Column('mediatype', Text),
-                              Column('media_filename', Text),
-                              Column('media_thumb_filename', Text),
-                              Column('filetype', String(10)),
-                              Column('filepath', Text),
-                              Column('path_resize', Text),  
-                              # explicit/composite unique constraint.  'name' is optional.
-                              UniqueConstraint('media_thumb_filename', name='ID_media_thumb_unico')
-                              )
+                     # Original media filename
+                     Column('media_filename', Text),
 
-    metadata.create_all(engine)
+                     # Thumbnail filename
+                     Column('media_thumb_filename', Text),
+
+                     # File extension/type of the thumbnail
+                     Column('filetype', String(10)),
+
+                     # Path to the original media file
+                     Column('filepath', Text),
+
+                     # Path to the resized thumbnail file
+                     Column('path_resize', Text),
+
+                     # Unique constraint ensuring the thumbnail filename is unique
+                     UniqueConstraint('media_thumb_filename', name='ID_media_thumb_unico')
+                     )
+

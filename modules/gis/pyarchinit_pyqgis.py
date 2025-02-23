@@ -4649,7 +4649,7 @@ class Order_layer_v2(object):
                     break
 
                 # Check for cycle count
-                if cycle_count > 1000:
+                if cycle_count > 3000:
                     print("Maximum cycle count reached!")
                     break
 
@@ -4690,18 +4690,18 @@ class Order_layer_v2(object):
                     #QMessageBox.information(None, "res_t", f"{e}", QMessageBox.Ok)
                     matrix_us_level.append(str(e.us))
 
-                if not matrix_us_level or self.order_count >= 1000 or time.time() - start_time > 90:
+                if not matrix_us_level or self.order_count >= 3000 or time.time() - start_time > 90:
                     test = 1
 
-                    return self.order_dict if self.order_count < 1000 else "error"
+                    return self.order_dict if self.order_count < 3000 else "error"
 
                 else:
                     self.insert_into_dict(matrix_us_level, 1)
             #progress_dialog.closeEvent(Ignore)
 
         except Exception as e:
-            QMessageBox.warning(self, "Attenzione", "La lista delle us generate supera il limite depth max 1000."
-                                                    " usare Postgres per generare l'order layer"+str(e), QMessageBox.Ok)
+            QMessageBox.warning(None, "Attenzione", "La lista delle us generate supera il limite depth max 1000.\n Usare Postgres per generare l'order layer")
+
 
 
     def find_base_matrix(self):

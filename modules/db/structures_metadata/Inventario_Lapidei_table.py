@@ -4,44 +4,76 @@ Created on 19 feb 2018
 @author: Serena Sensini; Enzo Cocca <enzo.ccc@gmail.com>
 '''
 
-from sqlalchemy import Table, Column, Integer, Text, Numeric, MetaData, create_engine, UniqueConstraint
-
-from modules.db.pyarchinit_conn_strings import Connection
+from sqlalchemy import Table, Column, Integer, Text, Numeric,  UniqueConstraint
 
 
+# Table representing stone artifacts inventory
 class Inventario_Lapidei_table:
-    # connection string postgres"
-    internal_connection = Connection()
+    @classmethod
+    def define_table(cls, metadata):
+        return Table('inventario_lapidei_table', metadata,
+                     # Unique identifier for each stone artifact record
+                     Column('id_invlap', Integer, primary_key=True),
 
-    # create engine and metadata
+                     # Archaeological site name
+                     Column('sito', Text),
 
-    engine = create_engine(internal_connection.conn_str(), echo=False, convert_unicode=True)
-    metadata = MetaData(engine)
+                     # Record sheet number
+                     Column('scheda_numero', Integer),
 
-    # define tables
-    inventario_lapidei_table = Table('inventario_lapidei_table', metadata,
-                                     Column('id_invlap', Integer, primary_key=True),
-                                     Column('sito', Text),
-                                     Column('scheda_numero', Integer),
-                                     Column('collocazione', Text),
-                                     Column('oggetto', Text),
-                                     Column('tipologia', Text),
-                                     Column('materiale', Text),
-                                     Column('d_letto_posa', Numeric(4, 2)),
-                                     Column('d_letto_attesa', Numeric(4, 2)),
-                                     Column('toro', Numeric(4, 2)),
-                                     Column('spessore', Numeric(4, 2)),
-                                     Column('larghezza', Numeric(4, 2)),
-                                     Column('lunghezza', Numeric(4, 2)),
-                                     Column('h', Numeric(4, 2)),
-                                     Column('descrizione', Text),
-                                     Column('lavorazione_e_stato_di_conservazione', Text),
-                                     Column('confronti', Text),
-                                     Column('cronologia', Text),
-                                     Column('bibliografia', Text),
-                                     Column('compilatore', Text),
-                                     # explicit/composite unique constraint.  'name' is optional.
-                                     UniqueConstraint('sito', 'scheda_numero', name='ID_invlap_unico')
-                                     )
+                     # Location of the artifact
+                     Column('collocazione', Text),
 
-    metadata.create_all(engine)
+                     # Object description/name
+                     Column('oggetto', Text),
+
+                     # Typology of the stone artifact
+                     Column('tipologia', Text),
+
+                     # Material composition
+                     Column('materiale', Text),
+
+                     # Laying bed dimension
+                     Column('d_letto_posa', Numeric(4, 2)),
+
+                     # Waiting bed dimension
+                     Column('d_letto_attesa', Numeric(4, 2)),
+
+                     # Torus dimension
+                     Column('toro', Numeric(4, 2)),
+
+                     # Thickness of the artifact
+                     Column('spessore', Numeric(4, 2)),
+
+                     # Width of the artifact
+                     Column('larghezza', Numeric(4, 2)),
+
+                     # Length of the artifact
+                     Column('lunghezza', Numeric(4, 2)),
+
+                     # Height of the artifact
+                     Column('h', Numeric(4, 2)),
+
+                     # Detailed description of the artifact
+                     Column('descrizione', Text),
+
+                     # Workmanship and state of preservation
+                     Column('lavorazione_e_stato_di_conservazione', Text),
+
+                     # Comparative analysis references
+                     Column('confronti', Text),
+
+                     # Chronological dating
+                     Column('cronologia', Text),
+
+                     # Bibliographic references
+                     Column('bibliografia', Text),
+
+                     # Name of the person who compiled the record
+                     Column('compilatore', Text),
+
+                     # Unique constraint ensuring the combination of site and record number is unique
+                     UniqueConstraint('sito', 'scheda_numero', name='ID_invlap_unico')
+                     )
+
+
