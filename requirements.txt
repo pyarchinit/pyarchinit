@@ -6,7 +6,7 @@
  XlsxWriter==3.2.0
  opencv-python==4.10.0.84
  psutil==5.9.8
- openai==1.30.3
+ openai==1.64.0
  openpyxl==3.1.2
  matplotlib==3.9.0
  requests==2.32.2
@@ -19,9 +19,9 @@
  pyvistaqt==0.11.1
  vtk==9.3.1
  anthropic==0.34.2
- langchain==0.2.1
- langchain-community==0.2.1
- langchain-core==0.2.1
- langchain-openai==0.1.7
- langchain-text-splitters==0.2.0
- langsmith==0.1.63
+ langchain==0.3.19
+ langchain-community==0.3.18
+ langchain-core==0.3.37
+ langchain-openai==0.3.6
+ langchain-text-splitters==0.3.6
+ langsmith==0.3.10
