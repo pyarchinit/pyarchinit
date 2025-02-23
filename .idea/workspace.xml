@@ -9,9 +9,22 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="13d9711e-af47-4516-9a74-091c329d410d" name="Changes" comment="Refactor progress bar update logic and clean up duplicated code&#10;&#10;Enhanced progress bar update by modifying the calculation and update logic. Now, it accurately calculates the progress as a percentage and stores it as an integer, improving performance. This update applies across multiple files. Redundant code lines were also eliminated for a cleaner, more readable code.">
+      <change afterPath="$PROJECT_DIR$/modules/report/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/modules/report/analysis_tools.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/modules/report/archeo_analysis.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/modules/report/report_thread.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/modules/report/table_tools.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/modules/report/validation_tools.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_todel.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tabs/Thesaurus.py" beforeDir="false" afterPath="$PROJECT_DIR$/tabs/Thesaurus.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gui/ui/pyarchinit_Pottery_ui.ui" beforeDir="false" afterPath="$PROJECT_DIR$/gui/ui/pyarchinit_Pottery_ui.ui" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/db/pyarchinit_db_manager.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/db/pyarchinit_db_manager.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/gis/pyarchinit_pyqgis.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/gis/pyarchinit_pyqgis.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/utility/textTosql.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/utility/textTosql.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tabs/Images_directory_export.py" beforeDir="false" afterPath="$PROJECT_DIR$/tabs/Images_directory_export.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tabs/Inv_Materiali.py" beforeDir="false" afterPath="$PROJECT_DIR$/tabs/Inv_Materiali.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tabs/US_USM.py" beforeDir="false" afterPath="$PROJECT_DIR$/tabs/US_USM.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tabs/pyarchinit_Pottery_mainapp.py" beforeDir="false" afterPath="$PROJECT_DIR$/tabs/pyarchinit_Pottery_mainapp.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -155,43 +168,46 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Python tests.Python tests for unitest.TestYourModule.test_openai_not_installed.executor": "Run",
-    "Python tests.Python tests in test_matrix.py.executor": "Run",
-    "Python tests.Python tests in test_renem_file.py.executor": "Run",
-    "Python.__init__.executor": "Run",
-    "Python.archaeological_data_mapping.executor": "Run",
-    "Python.autoemotive.executor": "Run",
-    "Python.grok-1.executor": "Run",
-    "Python.reformat_dir.executor": "Run",
-    "Python.skatch_gpt_US.executor": "Run",
-    "Python.test_matrix.executor": "Run",
-    "Python.test_renem_file.executor": "Run",
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "ToolWindowCodeGPT.ShowToolbar": "false",
-    "git-widget-placeholder": "master",
-    "last_opened_file_path": "/Users/enzo/Library/Application Support/QGIS/QGIS3/profiles/default/python/plugins/pyarchinit",
-    "node.js.detected.package.eslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "run.code.analysis.last.selected.profile": "aDefault",
-    "settings.editor.selected.configurable": "project.propVCSSupport.Mappings"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Python tests.Python tests for test1.test_field.executor&quot;: &quot;Run&quot;,
+    &quot;Python tests.Python tests for unitest.TestYourModule.test_openai_not_installed.executor&quot;: &quot;Run&quot;,
+    &quot;Python tests.Python tests in test1.py.executor&quot;: &quot;Run&quot;,
+    &quot;Python tests.Python tests in test_matrix.py.executor&quot;: &quot;Run&quot;,
+    &quot;Python tests.Python tests in test_renem_file.py.executor&quot;: &quot;Run&quot;,
+    &quot;Python.__init__.executor&quot;: &quot;Run&quot;,
+    &quot;Python.archaeological_data_mapping.executor&quot;: &quot;Run&quot;,
+    &quot;Python.archeo_analysis.executor&quot;: &quot;Run&quot;,
+    &quot;Python.autoemotive.executor&quot;: &quot;Run&quot;,
+    &quot;Python.grok-1.executor&quot;: &quot;Run&quot;,
+    &quot;Python.reformat_dir.executor&quot;: &quot;Run&quot;,
+    &quot;Python.skatch_gpt_US.executor&quot;: &quot;Run&quot;,
+    &quot;Python.test_matrix.executor&quot;: &quot;Run&quot;,
+    &quot;Python.test_renem_file.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;ToolWindowCodeGPT.ShowToolbar&quot;: &quot;false&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/Users/enzo/Library/Application Support/QGIS/QGIS3/profiles/default/python/plugins/pyarchinit&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;run.code.analysis.last.selected.profile&quot;: &quot;aDefault&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;settings.codegpt&quot;
   },
-  "keyToStringList": {
-    "DatabaseDriversLRU": [
-      "postgresql"
+  &quot;keyToStringList&quot;: {
+    &quot;DatabaseDriversLRU&quot;: [
+      &quot;postgresql&quot;
     ],
-    "GitStage.ChangesTree.GroupingKeys": [
-      "directory",
-      "module",
-      "repository"
+    &quot;GitStage.ChangesTree.GroupingKeys&quot;: [
+      &quot;directory&quot;,
+      &quot;module&quot;,
+      &quot;repository&quot;
     ],
-    "stardust.markdown.MarkdownSplitEditorSuppressor:keyList": []
+    &quot;stardust.markdown.MarkdownSplitEditorSuppressor:keyList&quot;: []
   }
-}]]></component>
+}</component>
   <component name="PyConsoleOptionsProvider">
     <option name="myPythonConsoleState">
       <console-settings module-name="pyarchinit" is-module-sdk="true">
@@ -215,8 +231,8 @@
       <recent name="$USER_HOME$/Desktop" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.skatch_gpt_US">
-    <configuration name="skatch_gpt_US" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+  <component name="RunManager" selected="Python.archeo_analysis">
+    <configuration name="archeo_analysis" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="pyarchinit" />
       <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -225,35 +241,12 @@
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/modules/utility" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/modules/report" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/modules/utility/skatch_gpt_US.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
-    <configuration name="test" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="pyarchinit" />
-      <option name="ENV_FILES" value="" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$USER_HOME$/Desktop" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$USER_HOME$/Desktop/test.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/modules/report/archeo_analysis.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -286,19 +279,19 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="Python tests for unitest.TestYourModule" type="tests" factoryName="Autodetect" temporary="true" nameIsGenerated="true">
+    <configuration name="Python tests for test1.test_field" type="tests" factoryName="Autodetect" temporary="true" nameIsGenerated="true">
       <module name="pyarchinit" />
       <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/modules/utility" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
       <option name="_new_additionalArguments" value="&quot;&quot;" />
-      <option name="_new_target" value="&quot;unitest.TestYourModule&quot;" />
+      <option name="_new_target" value="&quot;test1.test_field&quot;" />
       <option name="_new_targetType" value="&quot;PYTHON&quot;" />
       <method v="2" />
     </configuration>
@@ -334,29 +327,45 @@
       <option name="_new_targetType" value="&quot;PYTHON&quot;" />
       <method v="2" />
     </configuration>
+    <configuration name="Python tests in test1.py" type="tests" factoryName="Autodetect" temporary="true" nameIsGenerated="true">
+      <module name="pyarchinit" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;$PROJECT_DIR$/test1.py&quot;" />
+      <option name="_new_targetType" value="&quot;PATH&quot;" />
+      <method v="2" />
+    </configuration>
     <list>
-      <item itemvalue="Python.skatch_gpt_US" />
-      <item itemvalue="Python.test" />
       <item itemvalue="Python.test_matrix" />
-      <item itemvalue="Python tests.Python tests for unitest.TestYourModule" />
+      <item itemvalue="Python.archeo_analysis" />
+      <item itemvalue="Python tests.Python tests for test1.test_field" />
       <item itemvalue="Python tests.Python tests for unitest.TestYourModule.test_openai_installed" />
       <item itemvalue="Python tests.Python tests for unitest.TestYourModule.test_openai_not_installed" />
+      <item itemvalue="Python tests.Python tests in test1.py" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.archeo_analysis" />
+        <item itemvalue="Python tests.Python tests for test1.test_field" />
+        <item itemvalue="Python tests.Python tests in test1.py" />
         <item itemvalue="Python tests.Python tests for unitest.TestYourModule.test_openai_not_installed" />
         <item itemvalue="Python tests.Python tests for unitest.TestYourModule.test_openai_installed" />
-        <item itemvalue="Python tests.Python tests for unitest.TestYourModule" />
-        <item itemvalue="Python.test" />
-        <item itemvalue="Python.skatch_gpt_US" />
       </list>
     </recent_temporary>
   </component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-js-predefined-d6986cc7102b-e768b9ed790e-JavaScript-PY-243.21565.199" />
-        <option value="bundled-python-sdk-cab1f2013843-4ae2d6a61b08-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-243.21565.199" />
+        <option value="bundled-js-predefined-d6986cc7102b-76f8388c3a79-JavaScript-PY-243.24978.54" />
+        <option value="bundled-python-sdk-91e3b7efe1d4-466328ff949b-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-243.24978.54" />
       </set>
     </attachedChunks>
   </component>
@@ -511,6 +520,29 @@
       <workItem from="1733121435021" duration="1360000" />
       <workItem from="1733123617534" duration="81000" />
       <workItem from="1733537540683" duration="54000" />
+      <workItem from="1733833435583" duration="15000" />
+      <workItem from="1733968489879" duration="5540000" />
+      <workItem from="1734056841516" duration="1337000" />
+      <workItem from="1734628520862" duration="46000" />
+      <workItem from="1734669172271" duration="2419000" />
+      <workItem from="1734767726463" duration="1308000" />
+      <workItem from="1734899890303" duration="595000" />
+      <workItem from="1735841139175" duration="1858000" />
+      <workItem from="1736350468620" duration="16000" />
+      <workItem from="1736350491923" duration="49550000" />
+      <workItem from="1736502388730" duration="9165000" />
+      <workItem from="1736526028260" duration="620000" />
+      <workItem from="1736580239925" duration="61837000" />
+      <workItem from="1736774617574" duration="19952000" />
+      <workItem from="1736800816621" duration="24412000" />
+      <workItem from="1737029642489" duration="3697000" />
+      <workItem from="1737104120178" duration="37000" />
+      <workItem from="1738347633120" duration="665000" />
+      <workItem from="1739694768233" duration="2119000" />
+      <workItem from="1739721741590" duration="1802000" />
+      <workItem from="1739875484976" duration="1192000" />
+      <workItem from="1739886202564" duration="594000" />
+      <workItem from="1739971344628" duration="56620000" />
     </task>
     <task id="LOCAL-00022" summary="v3.9.14">
       <created>1649165457258</created>
@@ -855,7 +887,7 @@
       <option name="project" value="LOCAL" />
       <updated>1679662089681</updated>
     </task>
-    <option name="localTasksCounter" value="174" />
+    <option name="localTasksCounter" value="178" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -899,32 +931,32 @@
     <ignored-roots>
       <path value="$PROJECT_DIR$/ext-libs/totalopenstation-0.5.2-py3.9.egg/totalopenstation_" />
     </ignored-roots>
-    <MESSAGE value="Update version to 4.8.7 and refine changelog&#10;&#10;Refactored `serch_dict_rapp` assignments for consistency and cleaned up commented code. Updated metadata version to 4.8.7 and appended detailed changelog entries for clarity." />
     <MESSAGE value="Ref" />
     <MESSAGE value="Refactor" />
-    <MESSAGE value="Refactor code" />
-    <MESSAGE value="Refactor code to" />
-    <MESSAGE value="Refactor code to enhance" />
-    <MESSAGE value="Refactor code to enhance report" />
-    <MESSAGE value="Refactor code to enhance report generation" />
-    <MESSAGE value="Refactor code to enhance report generation by" />
-    <MESSAGE value="Refactor code to enhance report generation by integrating" />
-    <MESSAGE value="Refactor code to enhance report generation by integrating new" />
-    <MESSAGE value="Refactor code to enhance report generation by integrating new AI" />
-    <MESSAGE value="Refactor code to enhance report generation by integrating new AI-driven" />
-    <MESSAGE value="Refactor code to enhance report generation by integrating new AI-driven content" />
-    <MESSAGE value="Refactor code to enhance report generation by integrating new AI-driven content generation" />
-    <MESSAGE value="Refactor code to enhance report generation by integrating new AI-driven content generation capabilities" />
-    <MESSAGE value="Refactor code to enhance report generation by integrating new AI-driven content generation capabilities and" />
-    <MESSAGE value="Refactor code to enhance report generation by integrating new AI-driven content generation capabilities and ref" />
-    <MESSAGE value="Refactor code to enhance report generation by integrating new AI-driven content generation capabilities and refactoring" />
-    <MESSAGE value="Refactor code to enhance report generation by integrating new AI-driven content generation capabilities and refactoring unused" />
-    <MESSAGE value="Refactor code to enhance report generation by integrating new AI-driven content generation capabilities and refactoring unused code" />
-    <MESSAGE value="Refactor code to enhance report generation by integrating new AI-driven content generation capabilities and refactoring unused code sections" />
-    <MESSAGE value="Refactor code to enhance report generation by integrating new AI-driven content generation capabilities and refactoring unused code sections." />
-    <MESSAGE value="Enhance report generation with new AI-driven content&#10;&#10;Integrated advanced AI models for generating detailed archaeological reports. Refactored code to streamline the report generation process and removed commented-out legacy code." />
-    <MESSAGE value="Adjust shell parameter in subprocess call&#10;&#10;Ensure the 'shell' parameter in subprocess.call is assigned correctly based on the operating system. This change solves potential issues with how shell commands are executed in different environments, improving cross-platform compatibility." />
-    <option name="LAST_COMMIT_MESSAGE" value="Adjust shell parameter in subprocess call&#10;&#10;Ensure the 'shell' parameter in subprocess.call is assigned correctly based on the operating system. This change solves potential issues with how shell commands are executed in different environments, improving cross-platform compatibility." />
+    <MESSAGE value="Refactor CSV" />
+    <MESSAGE value="Refactor CSV reading" />
+    <MESSAGE value="Refactor CSV reading and" />
+    <MESSAGE value="Refactor CSV reading and date" />
+    <MESSAGE value="Refactor CSV reading and date processing" />
+    <MESSAGE value="Refactor CSV reading and date processing logic" />
+    <MESSAGE value="Refactor CSV reading and date processing logic to" />
+    <MESSAGE value="Refactor CSV reading and date processing logic to handle" />
+    <MESSAGE value="Refactor CSV reading and date processing logic to handle exceptions" />
+    <MESSAGE value="Refactor CSV reading and date processing logic to handle exceptions and" />
+    <MESSAGE value="Refactor CSV reading and date processing logic to handle exceptions and ensure" />
+    <MESSAGE value="Refactor CSV reading and date processing logic to handle exceptions and ensure correct" />
+    <MESSAGE value="Refactor CSV reading and date processing logic to handle exceptions and ensure correct format" />
+    <MESSAGE value="Refactor CSV reading and date processing logic to handle exceptions and ensure correct format," />
+    <MESSAGE value="Refactor CSV reading and date processing logic to handle exceptions and ensure correct format, improving" />
+    <MESSAGE value="Refactor CSV reading and date processing logic to handle exceptions and ensure correct format, improving robustness" />
+    <MESSAGE value="Refactor CSV reading and date processing logic to handle exceptions and ensure correct format, improving robustness and" />
+    <MESSAGE value="Refactor CSV reading and date processing logic to handle exceptions and ensure correct format, improving robustness and maintain" />
+    <MESSAGE value="Refactor CSV reading and date processing logic to handle exceptions and ensure correct format, improving robustness and maintainability" />
+    <MESSAGE value="Refactor CSV reading and date processing logic to handle exceptions and ensure correct format, improving robustness and maintainability of" />
+    <MESSAGE value="Refactor CSV reading and date processing logic to handle exceptions and ensure correct format, improving robustness and maintainability of the" />
+    <MESSAGE value="Refactor CSV reading and date processing logic to handle exceptions and ensure correct format, improving robustness and maintainability of the code" />
+    <MESSAGE value="Refactor CSV reading and date processing logic to handle exceptions and ensure correct format, improving robustness and maintainability of the code." />
+    <option name="LAST_COMMIT_MESSAGE" value="Refactor CSV reading and date processing logic to handle exceptions and ensure correct format, improving robustness and maintainability of the code." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -966,18 +998,33 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/tabs/US_USM.py</url>
-          <line>141</line>
+          <line>320</line>
           <option name="timeStamp" value="9" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/tabs/US_USM.py</url>
-          <line>3595</line>
+          <line>3468</line>
           <option name="timeStamp" value="10" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/tabs/US_USM.py</url>
-          <line>6514</line>
+          <line>6457</line>
           <option name="timeStamp" value="11" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/tabs/US_USM.py</url>
+          <line>1356</line>
+          <option name="timeStamp" value="12" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/modules/gis/pyarchinit_pyqgis.py</url>
+          <line>3660</line>
+          <option name="timeStamp" value="13" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/modules/db/structures_metadata/Media_thumb_table.py</url>
+          <line>5</line>
+          <option name="timeStamp" value="14" />
         </line-breakpoint>
       </breakpoints>
       <default-breakpoints>
@@ -990,19 +1037,20 @@
     </breakpoint-manager>
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/pyarchinit$reformat_dir.coverage" NAME="reformat_dir Coverage Results" MODIFIED="1713969472412" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/pyarchinit$skatch_gpt_US.coverage" NAME="skatch_gpt_US Coverage Results" MODIFIED="1727361282220" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/modules/utility" />
-    <SUITE FILE_PATH="coverage/pyarchinit$autoemotive.coverage" NAME="autoemotive Coverage Results" MODIFIED="1714203834232" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/pyarchinit$grok_1.coverage" NAME="grok-1 Coverage Results" MODIFIED="1710845630887" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/pyarchinit$test_matrix.coverage" NAME="test_matrix Coverage Results" MODIFIED="1710867324893" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
-    <SUITE FILE_PATH="coverage/pyarchinit$US_USM.coverage" NAME="US_USM Coverage Results" MODIFIED="1709968936762" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tabs" />
     <SUITE FILE_PATH="coverage/pyarchinit$requestcommit_flask.coverage" NAME="requestcommit_flask Coverage Results" MODIFIED="1710320563571" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/pyarchinit$reformat_dir.coverage" NAME="reformat_dir Coverage Results" MODIFIED="1713969472412" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/pyarchinit$test.coverage" NAME="test Coverage Results" MODIFIED="1704214360433" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$USER_HOME$/Desktop" />
-    <SUITE FILE_PATH="coverage/pyarchinit$tokml.coverage" NAME="tokml Coverage Results" MODIFIED="1708847589878" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$USER_HOME$/Documents/pythonProject4" />
-    <SUITE FILE_PATH="coverage/pyarchinit$__init__.coverage" NAME="__init__ Coverage Results" MODIFIED="1716619077243" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/pyarchinit$test_matrix.coverage" NAME="test_matrix Coverage Results" MODIFIED="1710867324893" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
+    <SUITE FILE_PATH="coverage/pyarchinit$.coverage" NAME=" Coverage Results" MODIFIED="1736834207488" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/pyarchinit$archeo_analysis.coverage" NAME="archeo_analysis Coverage Results" MODIFIED="1736870947709" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/modules/report" />
     <SUITE FILE_PATH="coverage/pyarchinit$test_renem_file.coverage" NAME="test_renem_file Coverage Results" MODIFIED="1725894617454" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/pyarchinit$archaeological_data_mapping.coverage" NAME="archaeological_data_mapping Coverage Results" MODIFIED="1724741563634" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/modules/utility" />
+    <SUITE FILE_PATH="coverage/pyarchinit$tokml.coverage" NAME="tokml Coverage Results" MODIFIED="1708847589878" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$USER_HOME$/Documents/pythonProject4" />
+    <SUITE FILE_PATH="coverage/pyarchinit$US_USM.coverage" NAME="US_USM Coverage Results" MODIFIED="1709968936762" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tabs" />
+    <SUITE FILE_PATH="coverage/pyarchinit$skatch_gpt_US.coverage" NAME="skatch_gpt_US Coverage Results" MODIFIED="1727361282220" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/modules/utility" />
+    <SUITE FILE_PATH="coverage/pyarchinit$__init__.coverage" NAME="__init__ Coverage Results" MODIFIED="1716619077243" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/pyarchinit$autoemotive.coverage" NAME="autoemotive Coverage Results" MODIFIED="1714203834232" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/pyarchinit$request_commit.coverage" NAME="request_commit Coverage Results" MODIFIED="1710320666012" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/pyarchinit$.coverage" NAME=" Coverage Results" MODIFIED="1725894166024" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/pyarchinit$archaeological_data_mapping.coverage" NAME="archaeological_data_mapping Coverage Results" MODIFIED="1724741563634" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/modules/utility" />
+    <SUITE FILE_PATH="coverage/pyarchinit$grok_1.coverage" NAME="grok-1 Coverage Results" MODIFIED="1710845630887" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>
