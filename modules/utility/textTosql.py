@@ -43,18 +43,13 @@ class MakeSQL:
 
         try:
             response = requests.post(url, headers=headers, json=data)
-            print(f"Response Status Code: {response.status_code}")  # Debug print
             response.raise_for_status()
-
-            response_json = response.json()
-            print(f"Response JSON: {response_json}")  # Debug print
-            generated_sql = response_json.get('output', '')  # Extract the SQL statement
-            #QMessageBox.information(None, "SQL", generated_sql)  # Show the SQL statement in the message box
-            return generated_sql
+            return response.json().get('output')
         except requests.exceptions.HTTPError as he:
-            print(f"HTTP Error: {he}")
-            QMessageBox.critical(None, "HTTP Error", str(he))
+            QMessageBox.critical(None, "Error", str(he))
             return None
+
+
         except Exception as e:
             print(f"An error occurred: {e}")
             QMessageBox.critical(None, "Error", str(e))
@@ -80,18 +75,13 @@ class MakeSQL:
 
         try:
             response = requests.post(url, headers=headers, json=data)
-            print(f"Response Status Code: {response.status_code}")  # Debug print
             response.raise_for_status()
-
-            response_json = response.json()
-            print(f"Response JSON: {response_json}")  # Debug print
-            generated_sql = response_json.get('output', '')  # Extract the SQL statement
-            #QMessageBox.information(None, "SQL", generated_sql)  # Show the SQL statement in the message box
-            return generated_sql
+            return response.json().get('output')
         except requests.exceptions.HTTPError as he:
-            print(f"HTTP Error: {he}")
-            QMessageBox.critical(None, "HTTP Error", str(he))
+            QMessageBox.critical(None, "Error", str(he))
             return None
+
+
         except Exception as e:
             print(f"An error occurred: {e}")
             QMessageBox.critical(None, "Error", str(e))

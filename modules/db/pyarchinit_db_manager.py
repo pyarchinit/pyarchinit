@@ -2030,26 +2030,64 @@ class Pyarchinit_db_management(object):
         res = self.engine.execute(sql_query_string)
         return res
 
-    def query_in_contains(self, value_list, sitof, areaf):
+    # def query_in_contains(self, value_list, sitof, areaf):
+    #
+    #     self.value_list = value_list
+    #
+    #     Session = sessionmaker(bind=self.engine, autoflush=True, autocommit=True)
+    #     session = Session()
+    #
+    #     res_list = []
+    #     n = len(self.value_list) - 1
+    #
+    #     while self.value_list:
+    #
+    #         chunk = self.value_list[0:n]
+    #         self.value_list = self.value_list[n:]
+    #         res_list.extend(session.query(US).filter_by(sito=sitof).filter_by(area=areaf).filter(
+    #             or_(*[US.rapporti.contains(v) for v in chunk])))
+    #         # res_list.extend(us for us, in session.query(US.us).filter(or_(*[US.rapporti.contains(v) for v in chunk])))
+    #     session.close()
+    #     return res_list
 
+
+
+    def query_in_contains(self, value_list, sitof, areaf, chunk_size=100):
+        """
+        Esegue una query suddividendo la lista dei valori in chunk per evitare il limite di profondità di SQLite.
+
+        Args:
+            value_list (list): Lista di valori da cercare.
+            sitof (str): Valore per il filtro 'sito'.
+            areaf (str): Valore per il filtro 'area'.
+            chunk_size (int): Dimensione dei chunk. Default è 100.
+
+        Returns:
+            list: Lista dei risultati della query.
+        """
         self.value_list = value_list
 
+        # Configura la sessione
         Session = sessionmaker(bind=self.engine, autoflush=True, autocommit=True)
         session = Session()
 
         res_list = []
-        n = len(self.value_list) - 1
 
         while self.value_list:
+            # Suddividi la lista in chunk
+            chunk = self.value_list[:chunk_size]
+            self.value_list = self.value_list[chunk_size:]
 
-            chunk = self.value_list[0:n]
-            self.value_list = self.value_list[n:]
-            res_list.extend(session.query(US).filter_by(sito=sitof).filter_by(area=areaf).filter(
-                or_(*[US.rapporti.contains(v) for v in chunk])))
-            # res_list.extend(us for us, in session.query(US.us).filter(or_(*[US.rapporti.contains(v) for v in chunk])))
+            # Esegui la query per il chunk
+            results = session.query(US) \
+                .filter_by(sito=sitof, area=areaf) \
+                .filter(or_(*[US.rapporti.contains(v) for v in chunk])) \
+                .all()
+
+            res_list.extend(results)
+
         session.close()
         return res_list
-
     # def query_in_contains(self, value_list, sitof, areaf):
     #     self.value_list = value_list
     #     Session = sessionmaker(bind=self.engine, autoflush=True, autocommit=True)

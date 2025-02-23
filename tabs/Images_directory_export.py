@@ -107,9 +107,9 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
 
         sito = str(self.comboBox_sito.currentText())
         selected_year = self.comboBox_year.currentText() if self.comboBox_year.currentText() else None
-        us_res = self.db_search_DB('US', 'sito', sito, anno=selected_year)
-        reperti_res = self.db_search_DB('INVENTARIO_MATERIALI', 'sito', sito, anno=selected_year)
-        pottery_res = self.db_search_DB('POTTERY', 'sito', sito, anno=selected_year)
+        us_res = self.db_search_DB('US', 'sito', sito, anno=str(selected_year))
+        reperti_res = self.db_search_DB('INVENTARIO_MATERIALI', 'sito', sito, anno=str(selected_year))
+        pottery_res = self.db_search_DB('POTTERY', 'sito', sito, anno=str(selected_year))
         conn = Connection()
         conn_str = conn.conn_str()
         thumb_resize = conn.thumb_resize()
@@ -840,9 +840,76 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
                             QMessageBox.warning(self, "Alert", "No image", QMessageBox.Ok)
                         else:
                             QMessageBox.warning(self, "Alert", "No Image to export", QMessageBox.Ok)
-            
-            
-            
+
+
+            elif self.comboBox_export.currentIndex() == 12:
+
+                # us_res4 = self.db_search_DB('POTTERY', 'sito', sito)
+                sito_path4 = '{}{}{}'.format(self.HOME, os.sep, "pyarchinit_image_export")
+                self.OS_UTILITY.create_dir(sito_path4)
+                if bool(pottery_res):
+                    if self.L == 'it':
+                        sito_folder4 = '{}{}{}'.format(sito_path4, os.sep,
+                                                       self.comboBox_sito.currentText() + ' - ' + str('Ceramica-US'))
+                    elif self.L == 'de':
+                        sito_folder4 = '{}{}{}'.format(sito_path4, os.sep,
+                                                       self.comboBox_sito.currentText() + ' - ' + str('Pottery-SU'))
+                    else:
+                        sito_folder4 = '{}{}{}'.format(sito_path4, os.sep,
+                                                       self.comboBox_sito.currentText() + ' - ' + str('Pottery-SU'))
+                    for sing_us in pottery_res:
+                        sing_per_num = str(sing_us.us)
+
+                        # sing_per_dir = prefix + str(sing_per_num)
+                        sing_def_path = ('%s%sUS - %s') % (sito_folder4, os.sep, sing_per_num)
+                        # self.OS_UTILITY.create_dir(sing_def_path)
+
+                        sing_us_num = str(sing_us.id_number)
+                        prefix = '0'
+                        sing_us_num_len = len(sing_us_num)
+                        if sing_us_num_len == 1:
+                            prefix = prefix * 4
+                        elif sing_us_num_len == 2:
+                            prefix = prefix * 3
+                        elif sing_us_num_len == 3:
+                            prefix = prefix * 2
+                        else:
+                            pass
+
+                        sing_us_dir = prefix + str(sing_us_num)
+                        sing_US_path = ('%s%sID_Number - %s') % (sing_def_path, os.sep, sing_us_dir)
+                        # self.OS_UTILITY.create_dir(sing_US_path)
+
+                        search_dict = {'id_entity': sing_us.id_rep, 'entity_type': "'" + "CERAMICA" + "'"}
+
+                        u = Utility()
+                        search_dict = u.remove_empty_items_fr_dict(search_dict)
+                        search_images_res = self.DB_MANAGER.query_bool(search_dict, 'MEDIAVIEW')
+
+                        if len(search_images_res) > 0:
+                            self.OS_UTILITY.create_dir(sing_def_path)
+                            self.OS_UTILITY.create_dir(sing_US_path)
+                            for sing_media in search_images_res:
+                                self.OS_UTILITY.copy_file_img(thumb_resize_str + str(sing_media.path_resize),
+                                                              sing_US_path)
+
+                            images_found = True
+                    if images_found:
+                        if self.L == 'it':
+                            QMessageBox.warning(self, "Alert", "Creazione directories terminata", QMessageBox.Ok)
+                        elif self.L == 'de':
+                            QMessageBox.warning(self, "Alert", "Verzeichniserstellung abgeschlossen",
+                                                QMessageBox.Ok)
+                        else:
+                            QMessageBox.warning(self, "Alert", "Directory creation complete", QMessageBox.Ok)
+
+                    else:
+                        if self.L == 'it':
+                            QMessageBox.warning(self, "Alert", "Non ci sono immagini da esportare", QMessageBox.Ok)
+                        elif self.L == 'de':
+                            QMessageBox.warning(self, "Alert", "No image", QMessageBox.Ok)
+                        else:
+                            QMessageBox.warning(self, "Alert", "No Image to export", QMessageBox.Ok)
             ############################Immagini reperti#################################################
             
             
@@ -1428,11 +1495,11 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
         # Aggiungere l'anno alla ricerca se è stato fornito
         if anno:
             if table_class == 'US':
-                search_dict['anno_scavo'] = str(anno)
+                search_dict['anno_scavo'] = anno
             elif table_class == 'REPERTI':
-                search_dict['years'] = str(anno)
+                search_dict['years'] = anno
             elif table_class == 'POTTERY':
-                search_dict['anno'] = str(anno)
+                search_dict['anno'] = anno
 
         u = Utility()
         search_dict = u.remove_empty_items_fr_dict(search_dict)

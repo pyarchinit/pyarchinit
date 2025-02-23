@@ -21,6 +21,7 @@ from __future__ import absolute_import
 
 import ast
 import csv
+
 from datetime import datetime
 
 import math
@@ -28,10 +29,21 @@ import platform
 import sqlite3 as sq
 import sys
 import time
+
+
 import numpy as np
 import urllib.parse
 import pyvista as pv
 import vtk
+from qgis.PyQt.QtGui import QDesktopServices,QImage
+
+from PyQt5.QtSql import QSqlQuery
+from bs4 import BeautifulSoup
+
+from docx.enum.text import WD_ALIGN_PARAGRAPH
+
+from docx.oxml.ns import nsdecls
+
 from pyvistaqt import QtInteractor
 import functools
 from collections import OrderedDict, Counter, defaultdict
@@ -44,26 +56,29 @@ import pandas as pd
 import requests
 from openai import OpenAI
 from docx import Document
+from docx.shared import Pt, Inches
+from docx.oxml import parse_xml
 
 from langchain.chat_models import ChatOpenAI
-from langchain import OpenAI as OP
-from langchain.prompts import ChatPromptTemplate
-from langchain.schema.runnable import RunnableParallel, RunnablePassthrough, RunnableSequence
 
+from langchain.agents import AgentType, Tool, initialize_agent
+from langchain.memory import ConversationBufferMemory
 
-from langchain.schema import SystemMessage, HumanMessage
-from io import StringIO
+from langchain.schema import SystemMessage
+
 matplotlib.use('QT5Agg')  # Assicurati di chiamare use() prima di importare FigureCanvas
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from qgis.PyQt import QtCore, QtGui, QtWidgets
 
-from qgis.PyQt.QtGui import QKeySequence,QStandardItemModel,QStandardItem
+from qgis.PyQt.QtGui import QFont,QKeySequence,QStandardItemModel,QStandardItem
 from qgis.core import *
 from qgis.gui import QgsMapCanvas, QgsMapToolPan
 from qgis.PyQt.QtSql import QSqlDatabase, QSqlTableModel
 
 
 from .Interactive_matrix import *
+from ..modules.report.archeo_analysis import ArchaeologicalAnalysis
+from ..modules.report.validation_tools import ArchaeologicalValidators
 from ..modules.utility.report_generator import ReportGenerator
 from ..modules.utility.VideoPlayer import VideoPlayerWindow
 from ..modules.utility.pyarchinit_media_utility import *
@@ -90,78 +105,303 @@ MAIN_DIALOG_CLASS, _ = loadUiType(
 
 #from ..modules.utility.screen_adaptative import ScreenAdaptive
 
+class CollapsibleSection(QWidget):
+    def __init__(self, title, parent=None):
+        super().__init__(parent)
+        self.setLayout(QVBoxLayout())
 
+        # Header button
+        self.toggle_button = QPushButton(f"▼ {title}")
+        self.toggle_button.setStyleSheet("""
+            QPushButton {
+                text-align: left;
+                padding: 5px;
+                background-color: #f0f0f0;
+                border: 1px solid #ccc;
+                border-radius: 3px;
+            }
+            QPushButton:hover {
+                background-color: #e0e0e0;
+            }
+        """)
+        self.toggle_button.clicked.connect(self.toggle_content)
+
+        # Content widget
+        self.content = QWidget()
+        self.content_layout = QVBoxLayout(self.content)
+
+        # Add to main layout
+        self.layout().addWidget(self.toggle_button)
+        self.layout().addWidget(self.content)
+
+        # Initialize as expanded
+        self.is_expanded = True
+
+    def toggle_content(self):
+        self.is_expanded = not self.is_expanded
+        self.content.setVisible(self.is_expanded)
+        self.toggle_button.setText(f"{'▼' if self.is_expanded else '▶'} {self.toggle_button.text()[2:]}")
+
+    def add_widget(self, widget):
+        self.content_layout.addWidget(widget)
+
+    def add_layout(self, layout):
+        self.content_layout.addLayout(layout)
 
 
 class ReportGeneratorDialog(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
+        self.parent = parent
         self.setWindowTitle('Generatore di Report')
+        self.setModal(True)
+        self.resize(500, 400)
 
-        layout = QVBoxLayout(self)
+        # Main layout
+        main_layout = QVBoxLayout(self)
 
+        # Language Section
+        language_section = CollapsibleSection("Selezione Lingua")
+        language_layout = QHBoxLayout()
+        language_label = QLabel("Lingua output:")
+        self.language_combo = QComboBox()
+        self.language_combo.addItems([
+            'Italiano',
+            'English (UK)',
+            'English (US)',
+            'Español',
+            'Français',
+            'Deutsch',
+            'العربية',
+            'Ελληνικά',  # Greek
+            'Русский',  # Russian
+            'Português'  # Portuguese
+        ])
+        language_layout.addWidget(language_label)
+        language_layout.addWidget(self.language_combo)
+        language_section.add_layout(language_layout)
+        main_layout.addWidget(language_section)
+
+        # Tables Section
+        tables_section = CollapsibleSection("Selezione Tabelle")
         self.combo_box = CheckableComboBox()
-        self.TABLES_NAMES = ['site_table', 'us_table', 'inventario_materiali_table', 'tomba_table',
-                             'pottery_table', 'struttura_table', 'periodizzazione_table',
-                             'documentazione_table', 'mediaentity_view']
+        self.TABLES_NAMES = [
+            'site_table', 'us_table', 'inventario_materiali_table',
+            'pottery_table', 'periodizzazione_table','struttura_table','tomba_table',
+
+        ]
         for table_name in self.TABLES_NAMES:
             self.combo_box.add_item(table_name)
+        tables_section.add_widget(QLabel("Seleziona le tabelle:"))
+        tables_section.add_widget(self.combo_box)
+        main_layout.addWidget(tables_section)
 
-        layout.addWidget(QLabel("Seleziona le tabelle:"))
-        layout.addWidget(self.combo_box)
+        # Filters Section
+        filters_section = CollapsibleSection("Filtri")
 
-        # Aggiungi un campo per l'anno di scavo
+        # Year filter
         self.year_input = QLineEdit()
         self.year_input.setPlaceholderText("Inserisci l'anno di scavo (opzionale)")
-        layout.addWidget(QLabel("Anno di scavo:"))
-        layout.addWidget(self.year_input)
+        filters_section.add_widget(QLabel("Anno di scavo:"))
+        filters_section.add_widget(self.year_input)
 
-        # Aggiungi campi per il range delle US
-        self.us_start_input = QLineEdit()
-        self.us_start_input.setPlaceholderText("US iniziale")
-        self.us_end_input = QLineEdit()
-        self.us_end_input.setPlaceholderText("US finale")
-
-        layout.addWidget(QLabel("Range di US (se non si inserisce l'anno di scavo):"))
+        # US range filter
+        filters_section.add_widget(QLabel("Range di US (se non si inserisce l'anno di scavo):"))
         range_layout = QHBoxLayout()
+        self.us_start_input = QLineEdit()
+        self.us_end_input = QLineEdit()
+        self.us_start_input.setPlaceholderText("US iniziale")
+        self.us_end_input.setPlaceholderText("US finale")
         range_layout.addWidget(QLabel("Da:"))
         range_layout.addWidget(self.us_start_input)
         range_layout.addWidget(QLabel("A:"))
         range_layout.addWidget(self.us_end_input)
-        layout.addLayout(range_layout)
+        filters_section.add_layout(range_layout)
 
-        self.prompt_button = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel, self)
-        self.prompt_button.accepted.connect(self.accept)
-        self.prompt_button.rejected.connect(self.reject)
+        main_layout.addWidget(filters_section)
 
-        layout.addWidget(self.prompt_button)
+        # Buttons Section
+        button_layout = QHBoxLayout()
+        self.validate_button = QPushButton("Verifica Dati Mancanti")
+        self.validate_button.clicked.connect(self.validate_data)
+        button_layout.addWidget(self.validate_button)
+        button_layout.addStretch()
+        self.buttons = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        self.buttons.accepted.connect(self.accept)
+        self.buttons.rejected.connect(self.reject)
+        button_layout.addWidget(self.buttons)
+        main_layout.addLayout(button_layout)
+
+
+
+
+    def get_selected_language(self):
+        """Get the selected output language"""
+        return self.language_combo.currentText()
+
+    def validate_data(self):
+        """Esegue la validazione dei dati"""
+        try:
+            # Crea un'istanza temporanea di GenerateReportThread per la validazione
+            report_thread = GenerateReportThread(
+                custom_prompt="",
+                descriptions_text="",
+                api_key=self.parent.apikey_gpt(),
+                selected_model="",
+                selected_tables=self.get_selected_tables(),
+                analysis_steps=[],
+                agent=None,
+                us_data=self.get_us_data(),
+                materials_data=self.get_materials_data(),
+                pottery_data=self.get_pottery_data(),
+                site_data={},
+                py_dialog=self,
+                output_language=self.get_selected_language()
+            )
+
+            missing_data_report = []
+
+            # Esegui le validazioni per le tabelle selezionate
+            if 'us_table' in self.get_selected_tables():
+                us_validation = report_thread.validate_us()
+                if not us_validation['valid']:
+                    missing_data_report.append(us_validation['message'])
+
+            if 'inventario_materiali_table' in self.get_selected_tables():
+                materials_validation = report_thread.validate_materials()
+                if not materials_validation['valid']:
+                    missing_data_report.append(materials_validation['message'])
+
+            if 'pottery_table' in self.get_selected_tables():
+                pottery_validation = report_thread.validate_pottery()
+                if not pottery_validation['valid']:
+                    missing_data_report.append(pottery_validation['message'])
+
+            # Mostra i risultati
+            if missing_data_report:
+                msg = "REPORT DATI MANCANTI\n\n" + "\n\n".join(missing_data_report)
+                QMessageBox.warning(self, "Dati Mancanti", msg)
+            else:
+                QMessageBox.information(self, "Verifica Completata", "Tutti i dati sono completi!")
+
+        except Exception as e:
+            QMessageBox.critical(self, "Errore", f"Errore durante la validazione: {str(e)}")
+
+    def get_us_data(self):
+        """Recupera i dati delle US dal database"""
+        selected_tables = self.get_selected_tables()
+        if 'us_table' not in selected_tables:
+            return []
+
+        conn = Connection()
+        records, _ = ReportGenerator.read_data_from_db(conn.conn_str(), 'us_table')
+
+        # Applica i filtri
+        year_filter = self.get_year_filter()
+        us_start, us_end = self.get_us_range()
+
+        if year_filter:
+            records = [r for r in records if str(getattr(r, 'anno_scavo', '')) == year_filter]
+        elif us_start and us_end:
+            records = [r for r in records if us_start <= str(getattr(r, 'us', '')) <= us_end]
+
+        return [{
+            'id_us': getattr(r, 'id_us', ''),
+            'us': getattr(r, 'us', ''),
+            'area': getattr(r, 'area', ''),
+            'settore': getattr(r, 'settore', ''),
+            'd_stratigrafica': getattr(r, 'd_stratigrafica', ''),
+            'descrizione': getattr(r, 'descrizione', ''),
+            'interpretazione': getattr(r, 'interpretazione', ''),
+            'rapporti': getattr(r, 'rapporti', '')
+        } for r in records]
+
+    def get_materials_data(self):
+        """Recupera i dati dei materiali dal database"""
+        selected_tables = self.get_selected_tables()
+        if 'inventario_materiali_table' not in selected_tables:
+            return []
+
+        conn = Connection()
+        records, _ = ReportGenerator.read_data_from_db(conn.conn_str(), 'inventario_materiali_table')
+
+        # Applica i filtri
+        year_filter = self.get_year_filter()
+        us_start, us_end = self.get_us_range()
+
+        if year_filter:
+            records = [r for r in records if str(getattr(r, 'years', '')) == year_filter]
+        elif us_start and us_end:
+            records = [r for r in records if us_start <= str(getattr(r, 'us', '')) <= us_end]
+
+        return [{
+            'numero_inventario': getattr(r, 'numero_inventario', ''),
+            'tipo_reperto': getattr(r, 'tipo_reperto', ''),
+            'definizione': getattr(r, 'definizione', ''),
+            'descrizione': getattr(r, 'descrizione', ''),
+            'datazione': getattr(r, 'datazione', ''),
+            'stato_conservazione': getattr(r, 'stato_conservazione', ''),
+            'area': getattr(r, 'area', ''),
+            'us': getattr(r, 'us', '')
+        } for r in records]
+
+    def get_pottery_data(self):
+        """Recupera i dati della ceramica dal database"""
+        selected_tables = self.get_selected_tables()
+        if 'pottery_table' not in selected_tables:
+            return []
+
+        conn = Connection()
+        records, _ = ReportGenerator.read_data_from_db(conn.conn_str(), 'pottery_table')
+
+        # Applica i filtri
+        year_filter = self.get_year_filter()
+        us_start, us_end = self.get_us_range()
+
+        if year_filter:
+            records = [r for r in records if str(getattr(r, 'anno', '')) == year_filter]
+        elif us_start and us_end:
+            records = [r for r in records if us_start <= str(getattr(r, 'us', '')) <= us_end]
+
+        return [{
+            'id_number': getattr(r, 'id_number', ''),
+            'fabric': getattr(r, 'fabric', ''),
+            'form': getattr(r, 'form', ''),
+            'area': getattr(r, 'area', ''),
+            'us': getattr(r, 'us', '')
+        } for r in records]
 
     def get_selected_tables(self):
+        """Get list of checked tables"""
         return self.combo_box.items_checked()
 
     def get_year_filter(self):
+        """Get year filter value"""
         return self.year_input.text().strip()
 
     def get_us_range(self):
+        """Get US range values"""
         us_start = self.us_start_input.text().strip()
         us_end = self.us_end_input.text().strip()
         return us_start, us_end
 
 
-
 class CheckableComboBox(QComboBox):
-
     def __init__(self):
         super().__init__()
         self.setModel(QStandardItemModel(self))
+        self.view().pressed.connect(self.handle_item_pressed)
+        self.setStyleSheet("QComboBox { combobox-popup: 0; }")
 
     def add_item(self, text):
+        """Add a checkable item to the combo box"""
         item = QStandardItem(text)
         item.setFlags(item.flags() | Qt.ItemIsUserCheckable)
         item.setData(Qt.Unchecked, Qt.CheckStateRole)
         self.model().appendRow(item)
 
     def items_checked(self):
+        """Get list of checked items"""
         checked_items = []
         for index in range(self.count()):
             item = self.model().item(index)
@@ -169,40 +409,1080 @@ class CheckableComboBox(QComboBox):
                 checked_items.append(item.text())
         return checked_items
 
+    def handle_item_pressed(self, index):
+        """Handle item check/uncheck"""
+        item = self.model().itemFromIndex(index)
+        if item.data(Qt.CheckStateRole) == Qt.Checked:
+            item.setData(Qt.Unchecked, Qt.CheckStateRole)
+        else:
+            item.setData(Qt.Checked, Qt.CheckStateRole)
+
+
+class ReportDialog(QDialog):
+    def __init__(self, content="", parent=None):
+        super().__init__(parent)
+        self.setWindowTitle("Report Preview")
+        self.setModal(True)
+        self.resize(1000, 800)
+
+        # Create main vertical layout
+        self.main_layout = QVBoxLayout(self)
+
+        # Create splitter for resizable sections
+        self.splitter = QSplitter(Qt.Vertical)
+
+        # Report Preview Section
+        self.report_widget = QWidget()
+        report_layout = QVBoxLayout(self.report_widget)
+
+        report_header = QLabel("Report Preview")
+        report_header.setStyleSheet("font-weight: bold; font-size: 14px; padding: 5px;")
+        report_layout.addWidget(report_header)
+
+        self.text_edit = QTextEdit()
+        self.text_edit.setReadOnly(True)
+        self.text_edit.setFont(QFont("Arial", 15))
+        self.text_edit.setStyleSheet("""
+            QTextEdit {
+                background-color: white;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+            }
+        """)
+        # Abilita la selezione del testo e i link
+        self.text_edit.setTextInteractionFlags(
+            Qt.TextSelectableByMouse |
+            Qt.TextSelectableByKeyboard |
+            Qt.LinksAccessibleByMouse
+        )
+
+        # Connetti l'evento mousePressEvent
+        self.text_edit.mousePressEvent = self.handle_mouse_press
+
+        if content:
+            self.text_edit.setHtml(content)
+        report_layout.addWidget(self.text_edit)
+
+
+        # Terminal Section
+        self.terminal_widget = QWidget()
+        terminal_layout = QVBoxLayout(self.terminal_widget)
+
+        terminal_header = QLabel("Process Terminal")
+        terminal_header.setStyleSheet("font-weight: bold; font-size: 14px; padding: 5px;")
+        terminal_layout.addWidget(terminal_header)
+
+        self.terminal = QTextEdit()
+        self.terminal.setReadOnly(True)
+        self.terminal.setFont(QFont("Courier", 13))
+        self.terminal.setStyleSheet("""
+            QTextEdit {
+                background-color: #1a1a1a;
+                color: #ffffff;
+                border: 1px solid #333;
+                border-radius: 4px;
+            }
+        """)
+        terminal_layout.addWidget(self.terminal)
+
+        # Add widgets to splitter
+        self.splitter.addWidget(self.report_widget)
+        self.splitter.addWidget(self.terminal_widget)
+
+        # Set initial sizes (2/3 for report, 1/3 for terminal)
+        self.splitter.setSizes([500, 300])
+
+        # Add splitter to main layout
+        self.main_layout.addWidget(self.splitter)
+
+        # Add buttons
+        button_layout = QHBoxLayout()
+
+        self.save_button = QPushButton("Save Report")
+        self.save_button.clicked.connect(self.save_report)
+        button_layout.addWidget(self.save_button)
+
+        self.copy_button = QPushButton("Copy to Clipboard")
+        self.copy_button.clicked.connect(self.copy_to_clipboard)
+        button_layout.addWidget(self.copy_button)
+
+        self.close_button = QPushButton("Close")
+        self.close_button.clicked.connect(self.reject)
+        button_layout.addWidget(self.close_button)
+
+        self.main_layout.addLayout(button_layout)
+
+    def update_content(self, new_content):
+        """Update the report content"""
+        try:
+            if new_content:
+                self.text_edit.clear()
+                self.text_edit.setHtml(new_content)
+                scrollbar = self.text_edit.verticalScrollBar()
+                scrollbar.setValue(scrollbar.maximum())
+        except Exception as e:
+            print(f"Errore nell'aggiornamento del contenuto: {str(e)}")
+
+    def handle_mouse_press(self, event):
+        """Gestisce il click del mouse nel text edit"""
+        if event.button() == Qt.LeftButton:
+            cursor = self.text_edit.cursorForPosition(event.pos())
+            format = cursor.charFormat()
+            if format.isAnchor():
+                url = format.anchorHref()
+                if url:
+                    try:
+                        # Aggiungi log per debug
+                        print(f"URL clicked: {url}")
+
+                        # Se l'URL è già un file path completo
+                        if os.path.exists(url):
+                            qurl = QUrl.fromLocalFile(url)
+                            QDesktopServices.openUrl(qurl)
+                            return
+
+                        # Se l'URL inizia con file://
+                        if url.startswith('file://'):
+                            path = url[7:]
+                            if os.path.exists(path):
+                                qurl = QUrl.fromLocalFile(path)
+                                QDesktopServices.openUrl(qurl)
+                                return
+
+                        # Prova a creare un QUrl direttamente
+                        qurl = QUrl(url)
+                        if qurl.isLocalFile() and os.path.exists(qurl.toLocalFile()):
+                            QDesktopServices.openUrl(qurl)
+                            return
+
+                        # Se niente funziona, prova a costruire un QUrl dal path locale
+                        qurl = QUrl.fromLocalFile(os.path.abspath(url))
+                        QDesktopServices.openUrl(qurl)
+
+                    except Exception as e:
+                        print(f"Error opening URL: {str(e)}")
+                        # Mostra un messaggio di errore all'utente
+                        QMessageBox.warning(
+                            self,
+                            "Errore",
+                            f"Impossibile aprire l'immagine:\n{url}\n\nErrore: {str(e)}"
+                        )
+
+        # Chiamata al metodo originale per gestire altri eventi del mouse
+        QTextEdit.mousePressEvent(self.text_edit, event)
+
+    def log_to_terminal(self, message, msg_type="info"):
+        """Add a new log message to the terminal"""
+        colors = {
+            'info': '#FFFFFF',  # bianco per info
+            'warning': '#f1c40f',  # Giallo per warning
+            'error': '#e74c3c',  # Rosso per errori
+            'success': '#27ae60',  # Verde scuro per successi
+            'step': '#3498db',  # Blu per gli step
+            'validation': '#2ecc71'  # Verde per validazione
+        }
+        color = colors.get(msg_type, colors["info"])
+        timestamp = QDateTime.currentDateTime().toString("hh:mm:ss")
+
+        formatted_message = f'<span style="color: {color};">[{timestamp}][{msg_type.upper()}]</span> {message}'
+        self.terminal.append(formatted_message)
+
+        scrollbar = self.terminal.verticalScrollBar()
+        scrollbar.setValue(scrollbar.maximum())
+
+    def add_toc(self, doc):
+        """
+        Inserisce un 'campo TOC' nel documento, visibile come indice.
+        Quando apri il doc in Word, fai tasto destro > "Aggiorna campo"
+        o vai su "Riferimenti > Aggiorna sommario" per visualizzare l'indice.
+        """
+
+
+        # Aggiungi la pagina dell'indice
+        doc.add_paragraph()
+        indice_heading = doc.add_heading('INDICE', level=1)
+        indice_heading.alignment = WD_ALIGN_PARAGRAPH.CENTER
+
+        # Aggiungi il campo TOC
+        paragraph = doc.add_paragraph()
+        run = paragraph.add_run()
+
+        # Crea il campo TOC
+        fldChar = parse_xml(r'<w:fldChar {} w:fldCharType="begin"/>'.format(nsdecls('w')))
+        run._r.append(fldChar)
+
+        instrText = parse_xml(r'<w:instrText {} >TOC \o "1-3" \h \z</w:instrText>'.format(nsdecls('w')))
+        run._r.append(instrText)
+
+        fldChar = parse_xml(r'<w:fldChar {} w:fldCharType="end"/>'.format(nsdecls('w')))
+        run._r.append(fldChar)
+
+        # Aggiungi un'interruzione di pagina dopo l'indice
+        doc.add_page_break()
+        # Testo segnaposto (visibile finché non aggiorni il campo in Word)
+        run2 = paragraph.add_run("Indice (vai in riferimenti e clicca su aggiorna sommario).")
+        run2.italic = True
+
+
+
+    def save_report(self):
+        """Save the report content to a file"""
+
+
+
+        file_path, _ = QFileDialog.getSaveFileName(
+            self,
+            "Save Report",
+            "",
+            "Word Documents (*.docx);;Text Files (*.txt);;All Files (*)"
+        )
+
+        if not file_path:
+            return
+
+        try:
+            if file_path.endswith('.docx'):
+                directory = os.path.dirname(file_path)
+                if not os.access(directory, os.W_OK):
+                    self.log_to_terminal(f"Non hai i permessi di scrittura nella cartella: {directory}")
+                    return
+
+                # Se il file esiste già, verifica se è scrivibile
+                if os.path.exists(file_path):
+                    if not os.access(file_path, os.W_OK):
+                        self.log_to_terminal(f"Non hai i permessi di scrittura sul file: {file_path}")
+                        return
+                doc = Document()
+
+                # Imposta lo stile del documento
+                sections = doc.sections
+                for section in sections:
+                    section.page_margin_top = Inches(2)
+                    section.page_margin_bottom = Inches(2)
+                    section.page_margin_left = Inches(2.5)
+                    section.page_margin_right = Inches(2.5)
+
+                # Aggiungi intestazione
+                header = sections[0].header
+                header_para = header.paragraphs[0]
+                header_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
+                current_date = datetime.now().strftime("%d/%m/%Y")
+                header_run = header_para.add_run(f'Report di scavo: {current_date}')
+                header_run.font.size = Pt(11)
+
+                # Aggiungi il titolo principale
+                title = doc.add_heading('REPORT DI SCAVO ARCHEOLOGICO', level=0)
+                title.alignment = WD_ALIGN_PARAGRAPH.CENTER
+
+                # # Aggiungi informazioni sul sito
+                # site_info = doc.add_paragraph()
+                # site_info.alignment = WD_ALIGN_PARAGRAPH.CENTER
+                # site_info.add_run('Area 1 - Settore 7\n').bold = True
+                # site_info.add_run('Al-Khutm\n').bold = True
+
+                # Aggiungi il titolo dell'indice
+                para = doc.add_paragraph()
+                para.alignment = WD_ALIGN_PARAGRAPH.CENTER
+                run = para.add_run('')
+                font = run.font
+                font.size = Pt(16)
+                font.bold = True
+
+                doc.add_paragraph()  # Spazio vuoto
+
+                self.add_toc(doc)
+                doc.add_paragraph()  # Spazio vuoto
+                # Aggiungi l'interruzione di pagina
+                doc.add_page_break()
+
+                # Contatore per le figure
+                figure_counter = 1
+
+                # Ottieni il contenuto HTML dal QTextEdit
+                html_content = self.text_edit.toHtml()
+                text_content = self.text_edit.toPlainText()
+
+                # Pulisci il testo da caratteri speciali
+                text_content = text_content.replace('￼', '').replace('-\n', '')
+                lines = [line.strip() for line in text_content.split('\n') if line.strip()]
+
+                i = 0
+                while i < len(lines):
+                    line = lines[i]
+
+                    if i + 1 < len(lines) and (all(c == '=' for c in lines[i + 1])):
+                        heading = doc.add_heading(line.strip(), level=1)
+                        heading.alignment = WD_ALIGN_PARAGRAPH.LEFT
+                        heading.style = 'Heading 1'
+                        i += 1
+                        continue
+
+                    # Gestisci i titoli principali (Heading 1)
+                    if line.isupper() and len(line.split()) > 1:
+                        heading = doc.add_heading(line.strip(), level=1)
+                        heading.alignment = WD_ALIGN_PARAGRAPH.LEFT
+                        heading.style = 'Heading 1'
+                        i += 1
+                        continue
+                    # Gestisci i titoli di sottosezione (es. 1. ELENCO STRUTTURATO DELLE US:)
+                    if re.match(r'^\d+\.\s+.*', line):
+                        heading = doc.add_heading(line.strip(), level=2)
+                        heading.alignment = WD_ALIGN_PARAGRAPH.LEFT
+                        heading.style = 'Heading 2'
+                        i += 1
+                        continue
+
+                    # Gestisci gli elenchi puntati
+                    if line.startswith('- '):  # Elenco principale
+                        doc.add_paragraph(line[2:].strip(), style='List Bullet')
+                        i += 1
+                        continue
+                    # if line.startswith('* '):  # Elenco principale
+                    if line.startswith('* '):  # Elenco principale
+                        # Se dopo l'asterisco c'è un'immagine, rimuovi l'asterisco
+
+                        # Se dopo l'asterisco c'è solo spazio vuoto, salta la riga
+                        if not line[2:].strip():
+                            if "Immagine" in line[2:]:
+                                line[2:]  # Rimuovi l'asterisco e lo spazio
+                                i += 1
+                                continue
+                            else:
+                                i += 1
+                                continue
+                        # Altrimenti aggiungi il paragrafo con il bullet
+                        doc.add_paragraph(line[2:].strip(), style='List Bullet')
+                        i += 1
+                        continue
+
+                    def pixels_to_emu(pixels):
+                        return pixels * 9525
+
+                    # Gestisci le immagini
+                    if "Immagine" in line:
+                        img_name = line.replace('Immagine', '').strip()
+
+
+                        # Cerca l'immagine nell'HTML
+                        soup = BeautifulSoup(html_content, 'html.parser')
+                        for img in soup.find_all('img'):
+                            src = img.get('src')
+                            if src and img_name in src:
+                                if src.startswith('file:///'):
+                                    src = src[8:]
+                                # Modifica solo il percorso src
+                                # if '_thumb' in src:
+                                #     base_path = src.replace('_thumb.png', '.png')
+                                #     src_ = base_path
+                            try:
+                                if os.path.exists(src):
+                                    self.log_to_terminal(f"{src}")
+
+                                    # Aggiungi immagine al documento
+                                    picture = doc.add_picture(src)
+
+                                    # Ridimensiona con proporzioni
+                                    max_width_px = 400  # Larghezza massima in pixel
+                                    width = picture.width
+                                    height = picture.height
+                                    aspect_ratio = width / height
+
+                                    if width > pixels_to_emu(max_width_px):
+                                        picture.width = pixels_to_emu(max_width_px)
+                                        picture.height = pixels_to_emu(max_width_px) / aspect_ratio
+
+                                    # Centra l'immagine
+                                    last_paragraph = doc.paragraphs[-1]
+                                    last_paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
+
+                                    # Aggiungi la didascalia numerata
+                                    caption = doc.add_paragraph()
+                                    caption.alignment = WD_ALIGN_PARAGRAPH.CENTER
+                                    caption_run = caption.add_run(f"Figura {figure_counter}: {img_name}")
+                                    caption_run.italic = True
+                                    caption_run.font.size = Pt(8)
+
+                                    # Incrementa il contatore delle figure
+                                    figure_counter += 1
+
+                                    # Aggiungi spazio dopo l'immagine
+                                    doc.add_paragraph()
+                                    break
+                            except Exception as e:
+                                self.log_to_terminal(f"Errore con l'immagine {src}: {str(e)}", "error")
+                                print(f"Dettaglio errore: {str(e)}")  # per debug
+                        i += 1
+                        continue
+
+                    # Gestisci il testo normale
+                    if line:
+                        # Rimuovi i marker markdown
+                        line = re.sub(r'\*\*(.*?)\*\*', r'\1', line)
+
+                        # # Gestisci gli elenchi puntati
+                        # if line.strip().startswith('*'):
+                        #     p = doc.add_paragraph(line[1:].strip(), style='List Bullet')
+                        # elif line.strip().startswith('-'):
+                        #     p = doc.add_paragraph(line[1:].strip(), style='List Bullet')
+                        # else:
+                        p = doc.add_paragraph(line)
+
+                        # Imposta la spaziatura del paragrafo
+                        paragraph_format = p.paragraph_format
+                        paragraph_format.space_after = Pt(10)
+
+                    i += 1
+
+                try:
+                    doc.save(file_path)
+                    QMessageBox.information(self, "Success", "Report saved successfully!")
+                except PermissionError as pe:
+                    QMessageBox.critical(self, "Error", f"Errore di permessi durante il salvataggio: {str(pe)}")
+                except Exception as e:
+                    QMessageBox.critical(self, "Error", f"Errore durante il salvataggio: {str(e)}")
+
+            else:
+                with open(file_path, 'w', encoding='utf-8') as f:
+                    f.write(self.text_edit.toPlainText())
+
+        except Exception as e:
+            QMessageBox.critical(self, "Error", f"Error saving report: {str(e)}")
+            print(f"Detailed error: {str(e)}")  # Per debug
+
+
+
+    def copy_to_clipboard(self):
+        """Copy the report content to clipboard"""
+        clipboard = QApplication.clipboard()
+        clipboard.setText(self.text_edit.toPlainText())
+        QMessageBox.information(self, "Success", "Report copied to clipboard!")
+
 
 class GenerateReportThread(QThread):
     report_generated = pyqtSignal(str)
+    log_message = pyqtSignal(str, str)
+    report_completed = pyqtSignal(str, dict)
 
-    def __init__(self, custom_prompt, descriptions_text, api_key, selected_model):
+    def __init__(self, custom_prompt, descriptions_text, api_key, selected_model, selected_tables, analysis_steps,
+                 agent, us_data, materials_data, pottery_data, site_data,py_dialog, output_language='italiano'):
         super().__init__()
+
         self.custom_prompt = custom_prompt
         self.descriptions_text = descriptions_text
         self.api_key = api_key
         self.selected_model = selected_model
+        self.selected_tables = selected_tables
+        self.analysis_steps = analysis_steps
+        self.agent = agent
+        self.us_data = us_data
+        self.materials_data = materials_data
+        self.pottery_data = pottery_data
+        self.site_data=site_data,
+        self.py_dialog = py_dialog
+        self.output_language = output_language
+        self.full_report = ""
+        self.formatted_report = ""  # Inizializza qui la variabile
+
+    def format_prompt_from_json(self, prompt_template):
+        """Converte il template JSON in un prompt testuale strutturato in modo sicuro"""
+        try:
+            prompt = []
+
+            # Aggiungi l'obiettivo se presente
+            if 'objective' in prompt_template:
+                prompt.append(f"Objective: {prompt_template['objective']}\n")
+
+            # Aggiungi le analisi richieste se presenti
+            if 'required_analysis' in prompt_template:
+                prompt.append("Required Analysis:")
+                for analysis in prompt_template['required_analysis']:
+                    prompt.append(f"- {analysis}")
+                prompt.append("")  # linea vuota per separazione
+
+            # Aggiungi i requisiti di output se presenti
+            if 'output_requirements' in prompt_template and 'sections' in prompt_template['output_requirements']:
+                prompt.append("Output Requirements:")
+                for section in prompt_template['output_requirements']['sections']:
+                    title = section.get('title', '')
+                    if title:
+                        prompt.append(f"\n{title}:")
+
+                    # Gestisci i content requirements in modo ricorsivo e sicuro
+                    if 'content_requirements' in section:
+                        def format_requirements(requirements, indent=2):
+                            formatted = []
+                            for req in requirements:
+                                if isinstance(req, str):
+                                    formatted.append(f"{'  ' * indent}- {req}")
+                                elif isinstance(req, dict):
+                                    for key, value in req.items():
+                                        formatted.append(f"{'  ' * indent}- For each {key}:")
+                                        for sub_req in value:
+                                            formatted.append(f"{'  ' * (indent + 1)}- {sub_req}")
+                            return formatted
+
+                        prompt.extend(format_requirements(section['content_requirements']))
+
+            # Aggiungi le specifiche di stile se presenti
+            if 'style' in prompt_template:
+                prompt.append("\nStyle Requirements:")
+                style = prompt_template['style']
+                if 'tone' in style:
+                    prompt.append(f"- Tone: {style['tone']}")
+                if 'language' in style:
+                    prompt.append(f"- Language: {style['language']}")
+                if 'structure' in style:
+                    prompt.append(f"- Structure: {style['structure']}")
+
+            # Se il prompt_template è una stringa, usala direttamente
+            elif isinstance(prompt_template, str):
+                return prompt_template
+
+            # Se non c'è una struttura JSON, ma c'è un template semplice
+            elif isinstance(prompt_template, dict) and 'template' in prompt_template:
+                return prompt_template['template']
+
+            return "\n".join(prompt)
+
+        except Exception as e:
+            self.log_message.emit(f"Warning: Error formatting prompt template: {str(e)}. Using simple format.",
+                                  "warning")
+            # Fallback a un formato semplice se qualcosa va storto
+            if isinstance(prompt_template, str):
+                return prompt_template
+            elif isinstance(prompt_template, dict) and 'prompt_template' in prompt_template:
+                return prompt_template['prompt_template']
+            else:
+                return str(prompt_template)
+
+    def get_language_instructions(self):
+        """Get specific instructions for the selected language"""
+        instructions = {
+            'Italiano': {
+                'style': 'Scrivi in italiano formale e tecnico.',
+                'terms': 'Usa terminologia archeologica italiana standard.',
+                'format': 'Mantieni i nomi tecnici in italiano.'
+            },
+            'English': {
+                'style': 'Write in formal and technical English.',
+                'terms': 'Use standard archaeological terminology in English.',
+                'format': 'Keep technical terms in English.'
+            },
+            'Español': {
+                'style': 'Escribe en español formal y técnico.',
+                'terms': 'Utiliza terminología arqueológica estándar en español.',
+                'format': 'Mantén los términos técnicos en español.'
+            },
+            'Français': {
+                'style': 'Écrivez en français formel et technique.',
+                'terms': 'Utilisez la terminologie archéologique standard en français.',
+                'format': 'Gardez les termes techniques en français.'
+            },
+            'Deutsch': {
+                'style': 'Schreiben Sie in formellem und technischem Deutsch.',
+                'terms': 'Verwenden Sie standardisierte archäologische Terminologie auf Deutsch.',
+                'format': 'Behalten Sie technische Begriffe auf Deutsch bei.'
+            }
+        }
+        return instructions.get(self.output_language, instructions['Italiano'])
+
+
+
+    def format_for_widget(self, text):
+        """Converte il formato immagine per la visualizzazione nel widget."""
+        import re
+
+        def replace_image(match):
+            """
+            Gestisce la sostituzione delle immagini con il markup HTML appropriato.
+            """
+            full_match = match.group(0)  # Il match completo
+            # Debug print
+            print(f"Match trovato: {full_match}")
+
+            # Estrai le informazioni con una regex più generica
+            pattern_parts = re.match(r'\[IMMAGINE .*? (\d+): (.*?), (.*?)\]', full_match)
+            if pattern_parts:
+                number = pattern_parts.group(1)
+                path = pattern_parts.group(2)
+                caption = pattern_parts.group(3)
+
+                if path.startswith('file://'):
+                    path = path[7:]
+
+                # Debug print
+                print(f"Processando immagine: numero={number}, path={path}, caption={caption}")
+
+                # Carica l'immagine
+                image = QImage(path)
+                if not image.isNull():
+                    # Ridimensiona mantenendo l'aspect ratio
+                    scaled_image = image.scaled(500, 400, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+
+                    # Salva l'immagine ridimensionata con un nome temporaneo
+                    temp_path = path.replace('.png', '_thumb.png')
+                    scaled_image.save(temp_path)
+
+                    return f'''
+                        <div style="margin: 10px 0; text-align: center;">
+                            <img src="{temp_path}"/>
+                            <div style="font-style: italic; margin-top: 5px;">
+                                Immagine {caption}
+                            </div>
+                        </div>
+                        '''
+            return full_match
+
+        def convert_to_html(text):
+            lines = text.split('\n')
+            html_lines = []
+            i = 0
+
+            while i < len(lines):
+                line = lines[i].strip()
+
+                # Gestisci i titoli delle sezioni
+                if line in ["INTRODUZIONE", "METODOLOGIA DI SCAVO",
+                            "ANALISI STRATIGRAFICA E INTERPRETAZIONE",
+                            "DESCRIZIONE DEI MATERIALI", "CONCLUSIONI"] and \
+                        i + 1 < len(lines) and all(c == '=' for c in lines[i + 1].strip()):
+                    html_lines.append(
+                        f'<h2 style="font-size: 16pt; font-weight: bold; margin: 20px 0 10px 0;">{line}</h2>')
+                    i += 2
+                    continue
+
+                # Gestisci il grassetto
+                line = re.sub(r'\*\*(.*?)\*\*', r'<strong>\1</strong>', line)
+
+                # Gestisci le immagini con un'unica regex
+                line = re.sub(r'\[IMMAGINE (?:US|FASE|RAPPORTI) \d+:.*?\]', replace_image, line)
+
+                if line:
+                    html_lines.append(f'<div style="margin: 5px 0;">{line}</div>')
+                i += 1
+
+            return '\n'.join(html_lines)
+
+        # Converti il testo in HTML
+        html_content = convert_to_html(text)
+
+        return f'''
+        <div style='font-family: Arial; font-size: 11pt; line-height: 1.5; padding: 10px;'>
+            {html_content}
+        </div>
+        '''
 
     def run(self):
-        # Combine the custom prompt with the descriptions
-        full_prompt = f"{self.custom_prompt}\n\n{self.descriptions_text}"
+        self.formatted_report = ""
+        try:
+            self.log_message.emit("Starting report generation...", "info")
+            self.archaeological_analysis = ArchaeologicalAnalysis()
 
-        # Generate the report using OpenAI API
-        report_text = ReportGenerator.generate_report_with_openai(self, full_prompt,  self.selected_model, self.api_key)
+            # Funzione helper per convertire i dati in modo sicuro
+            def safe_convert_data(data):
+                if data is None:
+                    return {}
+                if isinstance(data, tuple):
+                    # Se è una tupla di dizionari
+                    if data and isinstance(data[0], dict):
+                        return data[0]
+                    # Se è una tupla di tuple
+                    elif data and isinstance(data[0], tuple):
+                        try:
+                            return dict(data)
+                        except:
+                            return {}
+                    else:
+                        return {}
+                elif isinstance(data, dict):
+                    return data
+                else:
+                    return {}
 
-        self.report_generated.emit(report_text)
+            def safe_convert_list(data):
+                if data is None:
+                    return []
+                if isinstance(data, tuple):
+                    return list(data)
+                elif isinstance(data, list):
+                    return data
+                else:
+                    return []
+
+            # Converti i dati in modo sicuro
+            try:
+                self.site_data = safe_convert_data(self.site_data)
+                self.us_data = safe_convert_list(self.us_data)
+                self.materials_data = safe_convert_list(self.materials_data)
+                self.pottery_data = safe_convert_list(self.pottery_data)
+
+                self.log_message.emit("Data conversion successful", "info")
+                self.log_message.emit(f"Site data type: {type(self.site_data)}", "info")
+                self.log_message.emit(f"US data length: {len(self.us_data)}", "info")
+                self.log_message.emit(f"Materials data length: {len(self.materials_data)}", "info")
+                self.log_message.emit(f"Pottery data length: {len(self.pottery_data)}", "info")
+
+            except Exception as conv_error:
+                self.log_message.emit(f"Warning: Error converting data: {str(conv_error)}", "warning")
+                # Inizializza con valori di default in caso di errore
+                self.site_data = {}
+                self.us_data = []
+                self.materials_data = []
+                self.pottery_data = []
+
+            while True:
+                step = self.archaeological_analysis.get_next_analysis_step()
+                if not step:
+                    break
+
+                self.log_message.emit(f"Processing {step['section']}...", "step")
+
+                # Gestione sicura dei required_tables
+                required_tables = step.get('required_table', [])
+                if required_tables is None:
+                    required_tables = []
+                elif isinstance(required_tables, str):
+                    required_tables = [required_tables]
+
+                # Verifica se tutte le tabelle richieste sono state selezionate
+                missing_tables = [table for table in required_tables if table not in self.selected_tables]
+                if missing_tables:
+                    self.log_message.emit(
+                        f"Warning: Missing required tables for {step['section']}: {', '.join(missing_tables)}",
+                        "warning"
+                    )
+
+                try:
+                    # Prepare context for this step
+                    context = {
+                        "site_data": self.site_data if "site_table" in required_tables else {},
+                        "us_data": self.us_data if "us_table" in required_tables else [],
+                        "materials_data": self.materials_data if "inventario_materiali_table" in required_tables else [],
+                        "pottery_data": self.pottery_data if "pottery_table" in required_tables else []
+                    }
+
+                    # Log validation requirements
+                    validation_tools = step.get('validation_tool', [])
+                    if validation_tools:
+                        if isinstance(validation_tools, str):
+                            validation_tools = [validation_tools]
+                        self.log_message.emit(f"Validation requirements for {step['section']}:", "warning")
+                        for tool in validation_tools:
+                            self.log_message.emit(f"- Requires validation: {tool}", "warning")
+
+                        # Esegui le validazioni
+                        self.log_message.emit(f"\nExecuting validations for {step['section']}...", "info")
+                        for tool in validation_tools:
+                            try:
+                                validator = getattr(ArchaeologicalValidators, tool, None)
+
+                                if validator:
+                                    validation_result = validator(context)
+
+                                    # Log del risultato della validazione
+                                    if validation_result.get('valid', validation_result.get('success', False)):
+                                        self.log_message.emit(f"✓ {tool}: All data validated successfully", "success")
+                                    else:
+                                        self.log_message.emit(f"⚠ {tool}: Validation issues found", "warning")
+
+                                        # Log dei campi mancanti
+                                        missing_fields = validation_result.get('missing_fields', [])
+                                        if missing_fields:
+                                            self.log_message.emit("Missing required fields:", "warning")
+                                            for field in missing_fields:
+                                                self.log_message.emit(f"  - {field}", "warning")
+
+                                        # Log dei dati incompleti
+                                        incomplete = validation_result.get('incomplete', [])
+                                        if incomplete:
+                                            self.log_message.emit("Incomplete data found:", "warning")
+                                            for item in incomplete:
+                                                self.log_message.emit(f"  - {item}", "warning")
+
+                                        # Log del messaggio dettagliato
+                                        message = validation_result.get('message', '')
+                                        if message:
+                                            self.log_message.emit("\nDetailed validation message:", "info")
+                                            self.log_message.emit(message, "warning")
+                                else:
+                                    self.log_message.emit(f"⚠ Validation tool '{tool}' not found", "warning")
+
+                            except Exception as validation_error:
+                                self.log_message.emit(f"Error during validation with {tool}: {str(validation_error)}",
+                                                      "error")
+                                continue
+
+                finally:
+                        self.log_message.emit("Validation complete. Proceeding with report generation...\n", "info")
+
+                # Gestione sicura dei required_tables
+                required_tables = step.get('required_table', [])
+                if required_tables is None:
+                    required_tables = []
+                elif isinstance(required_tables, str):
+                    required_tables = [required_tables]
+
+                # Verifica se tutte le tabelle richieste sono state selezionate
+                missing_tables = [table for table in required_tables if table not in self.selected_tables]
+                if missing_tables:
+                    self.log_message.emit(
+                        f"Warning: Missing required tables for {step['section']}: {', '.join(missing_tables)}",
+                        "warning"
+                    )
+
+                try:
+                    # # Prepare context for this step
+                    # context = {
+                    #     "site_data": self.site_data if "site_table" in required_tables else None,  # Aggiunto site_data
+                    #     "us_data": self.us_data if "us_table" in required_tables else None,
+                    #     "materials_data": self.materials_data if "inventario_materiali_table" in required_tables else None,
+                    #     "pottery_data": self.pottery_data if "pottery_table" in required_tables else None
+                    # }
+
+                    # Create data summary for the prompt
+                    data_summary = "Available data:\n"
+                    for table_name, data in context.items():
+                        if data:
+                            data_summary += f"- {table_name}: {len(data)} records\n"
+                            if len(data) > 0:
+                                data_summary += f"  Sample fields: {list(data[0].keys())[:5]}\n"
+
+                    # Process images only for appropriate sections
+                    should_process_images = step['section'] not in ['INTRODUZIONE', 'METODOLOGIA DI SCAVO']
+
+                    entity_ids = []
+                    if should_process_images and "us_table" in required_tables and context["us_data"]:
+                        self.log_message.emit(f"Processing images for US data...", "info")
+                        id_list = [str(us.get('id_us')) for us in context["us_data"] if us.get('id_us')]
+                        entity_ids.extend(id_list)
+
+                    # Recupero delle immagini
+                    dialog = self.py_dialog
+                    images = []
+                    image_context = {}
+
+                    if should_process_images and entity_ids:
+                        try:
+                            images = dialog.get_images_for_entities(entity_ids, self.log_message)
+                            self.log_message.emit(f"Retrieved {len(images)} images", "info")
+
+                            for img in images:
+                                us_id = img['id']
+                                if us_id not in image_context:
+                                    image_context[us_id] = []
+                                image_context[us_id].append({
+                                    'url': img['url'],
+                                    'caption': img['caption']
+                                })
+                        except Exception as e:
+                            self.log_message.emit(f"Error retrieving images: {str(e)}", "warning")
+
+                    # Create base prompt
+                    base_prompt = f"""Thought: {step.get('thought', 'Analyzing archaeological data')}
+                    Action: {step.get('action', 'Generate report section')}
+                    Section: {step['section']}
+
+                    Observation:
+                    Required validations: {', '.join(validation_tools) if validation_tools else 'None'}
+
+                    Data Summary:
+                    {data_summary}
+
+                    Instructions:
+                    {step['prompt']}
+
+                    Additional Context:
+                    {self.descriptions_text}
+
+                    Language: {self.create_prompt(self.output_language)}"""
+
+                    # Add section-specific data
+                    if step['section'] == 'INTRODUZIONE':
+                        intro_data = "\nDati disponibili per l'introduzione:\n"
+
+                        # Add US summary
+                        if context.get("us_data"):
+                            total_us = len(context["us_data"])
+                            intro_data += f"\nDati stratigrafici:\n- Totale US: {total_us}\n"
+                            period_data = [us.get('periodo') for us in context["us_data"] if us.get('periodo')]
+                            if period_data:
+                                intro_data += f"- Periodi presenti: {', '.join(set(period_data))}\n"
+
+                        # Add materials summary
+                        if context.get("materials_data"):
+                            total_materials = len(context["materials_data"])
+                            intro_data += f"\nMateriali:\n- Totale reperti: {total_materials}\n"
+                            material_types = [mat.get('tipo_materiale') for mat in context["materials_data"] if
+                                              mat.get('tipo_materiale')]
+                            if material_types:
+                                intro_data += f"- Tipologie: {', '.join(set(material_types))}\n"
+
+                        # Add pottery summary
+                        if context.get("pottery_data"):
+                            total_pottery = len(context["pottery_data"])
+                            intro_data += f"\nCeramica:\n- Totale ceramica: {total_pottery}\n"
+                            pottery_types = [pot.get('tipo') for pot in context["pottery_data"] if pot.get('tipo')]
+                            if pottery_types:
+                                intro_data += f"- Tipologie ceramiche: {', '.join(set(pottery_types))}\n"
+
+                        base_prompt += intro_data
+
+                    # Add image instructions if necessary
+                    if should_process_images and image_context:
+                        image_instructions = "\nImmagini disponibili per le seguenti US:\n"
+                        for us_id, images_list in image_context.items():
+                            image_instructions += f"\nUS {us_id}:\n"
+                            for img in images_list:
+                                image_instructions += f"[IMMAGINE US {us_id}: {img['url']}, {img['caption']}]\n"
+
+                        image_instructions += """
+                        Per favore, quando menzioni una US che ha immagini associate, inserisci l'immagine nel testo usando questa sintassi:
+                        [IMMAGINE US numero: percorso, caption]
+                        """
+                        base_prompt += image_instructions
+
+                    # Generate the content
+                    result = self.agent.run(base_prompt)
+                    if result:
+                        self.log_message.emit("Formattazione del risultato...", "info")
+                        section_text = f"{step['section']}\n{'=' * len(step['section'])}\n{result}"
+                        formatted_section = self.format_for_widget(section_text)
+
+                        if self.formatted_report:
+                            self.formatted_report += "<br><br>"
+                        self.formatted_report += formatted_section
+                        self.report_generated.emit(self.formatted_report)
+                        self.full_report += f"\n\n{section_text}"
+                        self.log_message.emit(f"Completed {step['section']}", "step")
+                    else:
+                        self.log_message.emit("Nessun risultato generato", "warning")
+
+                except Exception as section_error:
+                    self.log_message.emit(
+                        f"Warning: Error processing section {step['section']}: {str(section_error)}. Continuing with next section.",
+                        "warning"
+                    )
+                    continue
+
+            # Prepara i dati finali del report
+            report_data = {
+                'report_text': self.full_report,
+                'materials_table': self.format_materials_table() if hasattr(self, 'format_materials_table') else None,
+                'pottery_table': self.format_pottery_table() if hasattr(self, 'format_pottery_table') else None
+            }
+
+            self.report_completed.emit(self.full_report, report_data)
+            self.log_message.emit("Report generation completed!", "validation")
+
+        except Exception as e:
+            self.log_message.emit(f"Error during report generation: {str(e)}", "error")
+            raise
+    def create_prompt(self, selected_language):
 
 
-class ReportDialog(QDialog):
-    def __init__(self, report_text, parent=None):
-        super().__init__(parent)
-        self.report_text = report_text
-        self.initUI()
+        language_instructions = {
+            'Italiano': "Rispondi in italiano.",
+            'English (UK)': "Reply in British English.",
+            'English (US)': "Reply in American English.",
+            'Español': "Responde en español.",
+            'Français': "Réponds en français.",
+            'Deutsch': "Antworte auf Deutsch.",
+            'العربية': "أجب باللغة العربية. Reply in Arabic language.",
+            'Ελληνικά': "Απαντήστε στα ελληνικά.",
+            'Русский': "Ответьте на русском языке.",
+            'Português': "Responda em português."
+        }
 
-    def initUI(self):
-        self.setWindowTitle("Report")
-        layout = QVBoxLayout(self)
-        self.report_widget = QTextEdit(self)
-        self.report_widget.setText(self.report_text)
-        self.report_widget.setReadOnly(True)
-        layout.addWidget(self.report_widget)
+        # Aggiungi l'istruzione della lingua alla prompt base
+        full_prompt = f"{language_instructions[selected_language]}"
+        return full_prompt
+
+    def format_materials_table(self):
+        """Formatta i dati dei materiali per la tabella"""
+        table_data = []
+        if self.materials_data:
+            table_data.append(['Inv. Number', 'Type', 'Definition', 'Description', 'Dating', 'Conservation'])
+            for material in self.materials_data:
+                table_data.append([
+                    material.get('numero_inventario', ''),
+                    material.get('tipo_reperto', ''),
+                    material.get('definizione', ''),
+                    material.get('descrizione', ''),
+                    material.get('datazione', ''),
+                    material.get('stato_conservazione', '')
+                ])
+        return table_data
+
+    def format_pottery_table(self):
+        """Formatta i dati della ceramica per la tabella"""
+        table_data = []
+        if self.pottery_data:
+            table_data.append(['ID', 'Form', 'Fabric', 'Ware', 'Conservation %', 'Notes'])
+            for pottery in self.pottery_data:
+                table_data.append([
+                    pottery.get('id_number', ''),
+                    pottery.get('form', ''),
+                    pottery.get('fabric', ''),
+                    pottery.get('ware', ''),
+                    pottery.get('percent', ''),
+                    pottery.get('note', '')
+                ])
+            return table_data
+
+
+    def create_materials_table(self):
+        """Create a formatted table of materials"""
+        headers = ['Inv. Number', 'Type', 'Definition', 'Description', 'Dating', 'Conservation']
+        rows = []
+        for material in self.materials_data:
+            rows.append([
+                material.get('numero_inventario', ''),
+                material.get('tipo_reperto', ''),
+                material.get('definizione', ''),
+                material.get('descrizione', ''),
+                material.get('datazione', ''),
+                material.get('stato_conservazione', '')
+            ])
+        return {'headers': headers, 'rows': rows}
+
+    def create_pottery_table(self):
+        """Create a formatted table of pottery"""
+        headers = ['ID', 'Form', 'Fabric', 'Ware', 'Conservation %', 'Notes']
+        rows = []
+        for pottery in self.pottery_data:
+            rows.append([
+                pottery.get('id_number', ''),
+                pottery.get('form', ''),
+                pottery.get('fabric', ''),
+                pottery.get('ware', ''),
+                pottery.get('percent', ''),
+                pottery.get('note', '')
+            ])
+        return {'headers': headers, 'rows': rows}
+
+    def format_table(self, table_data):
+        """Format table data into a markdown table"""
+        if not table_data['headers'] or not table_data['rows']:
+            return ""
+
+        # Calculate column widths
+        col_widths = [len(str(h)) for h in table_data['headers']]
+        for row in table_data['rows']:
+            for i, cell in enumerate(row):
+                col_widths[i] = max(col_widths[i], len(str(cell)))
+
+        # Create header
+        header = " | ".join(str(h).ljust(w) for h, w in zip(table_data['headers'], col_widths))
+        separator = "|".join("-" * w for w in col_widths)
+
+        # Create rows
+        rows = []
+        for row in table_data['rows']:
+            formatted_row = " | ".join(str(cell).ljust(w) for cell, w in zip(row, col_widths))
+            rows.append(formatted_row)
+
+        # Combine all parts
+        return f"\n\n{header}\n{separator}\n" + "\n".join(rows)
 
 
 
@@ -228,6 +1508,8 @@ class ProgressDialog:
     def closeEvent(self, event):
         self.progressDialog.close()
         event.ignore()
+
+
 
 
 
@@ -951,7 +2233,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
     MATRIX_PATH = '{}{}{}'.format(HOME, os.sep, "pyarchinit_Matrix_folder")
     BIN = '{}{}{}'.format(HOME, os.sep, "bin")
     DB_SERVER = "not defined"  ####nuovo sistema sort
-
+    log_message = pyqtSignal(str, str)  # Aggiungi questo segnale
     def __init__(self, iface):
         super().__init__()
 
@@ -1067,6 +2349,73 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.list_rapporti=[]
         self.pushButton_report_generator.clicked.connect(self.generate_and_display_report)
 
+        # Definizione completa degli analysis steps
+        self.analysis_steps = []
+
+
+        self.materials_data = []
+        self.pottery_data = []
+        self.us_data = []
+        self.current_step = 0
+        self.token_count = 0
+        self.max_tokens = 4000
+        #self.log_message.connect(self.process_terminal.append_message)
+
+    def get_images_for_entities(self, entity_ids, log_signal=None):
+        def log(message, level="info"):
+            if log_signal:
+                log_signal.emit(message, level)
+        """Recupera le immagini dalla tabella mediaentity in base agli ID forniti."""
+        log(f"Called get_images_for_entities with entity_ids: {entity_ids}")
+
+        if not entity_ids:
+            return []
+
+        try:
+            images = []
+            conn = Connection()
+            thumb_resize = conn.thumb_resize()
+            thumb_resize_str = thumb_resize['thumb_resize']
+
+            for entity_id in entity_ids:
+                log(f"Called id table: {self.ID_TABLE}")
+                # Usa la stessa logica di loadMediaPreview
+                rec_list = self.ID_TABLE + " = " + str(entity_id)
+                log(f"Called rec list: {rec_list}")
+                # Usa la stessa logica di loadMediaPreview
+                search_dict = {
+                    'id_entity': "'" + str(entity_id) + "'",
+                    'entity_type': "'US'"
+                }
+
+                record_us_list = self.DB_MANAGER.query_bool(search_dict, 'MEDIATOENTITY')
+                log(f"Found {len(record_us_list)} records for entity_id {entity_id}")  # Debug log
+
+                for media_record in record_us_list:
+                    search_dict = {'id_media': "'" + str(media_record.id_media) + "'"}
+                    u = Utility()
+                    search_dict = u.remove_empty_items_fr_dict(search_dict)
+                    mediathumb_data = self.DB_MANAGER.query_bool(search_dict, "MEDIA_THUMB")
+                    log(f"Found {len(mediathumb_data)} thumbs for media_id {media_record.id_media}")  # Debug log
+
+                    if mediathumb_data:
+                        thumb_path = str(mediathumb_data[0].path_resize)
+                        images.append({
+                            'id': entity_id,
+                            'url': thumb_resize_str + thumb_path,
+                            'caption': media_record.media_name
+                        })
+                        log(f"Added image with path: {thumb_resize_str + thumb_path}")  # Debug log
+
+            log(f"Returning total of {len(images)} images")  # Debug log
+            return images
+
+        except Exception as e:
+            log(f"Error in get_images_for_entities: {str(e)}")
+            traceback.print_exc()  # Questo mostrerà lo stack trace completo
+            return []
+
+
     def count_tokens(self,text):
         # Funzione ipotetica per stimare il numero di token nel testo
         return len(text.split())
@@ -1093,491 +2442,942 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
         return chunks
 
-    # def generate_and_display_report(self):
-    #     dialog = ReportGeneratorDialog(self)
-    #     if dialog.exec_() == QDialog.Accepted:
-    #         conn = Connection()
-    #         db_url = conn.conn_str()
-    #         selected_tables = dialog.get_selected_tables()
-    #
-    #         report_data = {
-    #             'Regione': '', 'Provincia': '', 'Comune': '', 'Ente di riferimento': '',
-    #             'Committenza': '', 'Direzione scientifica': '', 'Elaborato a cura di': '',
-    #             'Direttore cantiere': '', 'Cantiere': '', 'Tipo di indagine': '', 'Titolo elaborato': '',
-    #             'Collocazione cantiere': '', 'Periodo cantiere': '', 'Intervento': '',
-    #             'Progettazione lavori': '', 'Direzione lavori': '',
-    #             'Direzione scientifica indagini archeologiche': '',
-    #             'Esecuzione indagini archeologiche': '', 'Direzione cantiere archeologico': '',
-    #             'Archeologi': ''
-    #         }
-    #
-    #         descriptions_text = ""
-    #         current_site = str(
-    #             self.comboBox_sito.currentText())  # Assumo che self.SITO contenga il nome del sito corrente
-    #
-    #         def rimuovi_duplicati(text):
-    #             # Separa il prefisso (se presente) dal resto del testo
-    #             parts = text.split(': ', 1)
-    #             if len(parts) == 2:
-    #                 prefix, content = parts
-    #                 # Rimuovi i duplicati solo dal contenuto
-    #                 unique_content = ' '.join(dict.fromkeys(content.strip().split()))
-    #                 return f"{prefix}: {unique_content}"
-    #             else:
-    #                 # Se non c'è un prefisso, rimuovi i duplicati dall'intero testo
-    #                 return ' '.join(dict.fromkeys(text.split()))
-    #
-    #         for table_name in selected_tables:
-    #             records, columns = ReportGenerator.read_data_from_db(db_url, table_name)
-    #
-    #             if table_name == 'site_table':
-    #                 site_record = next((r for r in records if getattr(r, 'sito', '') == current_site), None)
-    #                 if site_record:
-    #                     report_data['Regione'] = getattr(site_record, 'regione', '')
-    #                     report_data['Provincia'] = f"Provincia:{getattr(site_record, 'provincia', '')}"
-    #                     report_data['Comune'] = rimuovi_duplicati(f"Comune: {getattr(site_record, 'comune', '')}")
-    #                     report_data['Cantiere'] = current_site
-    #                     report_data['Collocazione cantiere'] = current_site
-    #                 descriptions_text += f"{getattr(site_record, 'descrizione', '')}\n"
-    #             elif table_name == 'us_table':
-    #                 us_records = [r for r in records if getattr(r, 'sito', '') == current_site]
-    #                 if us_records:
-    #                     first_record = us_records[0]
-    #                     report_data['Ente di riferimento'] = getattr(first_record, 'soprintendenza', '')
-    #                     report_data['Committenza'] = getattr(first_record, 'ditta_esecutrice', '')
-    #                     report_data['Direzione scientifica'] = getattr(first_record, 'direttore_us', '')
-    #                     report_data['Elaborato a cura di'] = getattr(first_record, 'schedatore', '')
-    #                     report_data['Direttore cantiere'] = getattr(first_record, 'responsabile_us', '')
-    #                     report_data['Direzione scientifica indagini archeologiche'] = report_data[
-    #                         'Direzione scientifica']
-    #                     report_data['Direzione cantiere archeologico'] = report_data['Direttore cantiere']
-    #
-    #                 descriptions_text += "Unità Stratigrafiche:\n"
-    #                 for record in us_records:
-    #                     descriptions_text += f"US {getattr(record, 'us', '')}: {getattr(record, 'd_stratigrafica', '')}\n"
-    #                     descriptions_text += f"{getattr(record, 'descrizione', '')}\n"
-    #                     descriptions_text += f"{getattr(record, 'interpretazione', '')}\n"
-    #                     descriptions_text += f"{getattr(record, 'rapporti', '')}\n"
-    #
-    #             else:
-    #                 # Per le altre tabelle, filtriamo i record per il sito corrente se possibile
-    #                 site_specific_records = [r for r in records if getattr(r, 'sito', current_site) == current_site]
-    #                 descriptions_text += f"Table: {table_name}\n"
-    #                 for record in site_specific_records:
-    #
-    #                     descriptions_text += f"{getattr(record, 'descrizione', '')}\n"
-    #                     descriptions_text += "\n"
-    #
-    #         desktop_path = os.path.join(os.path.expanduser("~"), "Desktop")
-    #         output_file_path = os.path.join(desktop_path, 'descriptions_text.txt')
-    #         with open(output_file_path, 'w', encoding='utf-8') as file:
-    #             file.write(descriptions_text)
-    #
-    #         print(f"Le descrizioni sono state salvate in {output_file_path}")
-    #         # Generate derived fields
-    #         report_data['Tipo di indagine'] = f"Indagine archeologica presso {report_data['Cantiere']}"
-    #         report_data['Titolo elaborato'] = f"Relazione di scavo - {report_data['Cantiere']}"
-    #         custom_prompt = f"""
-    #         Genera una relazione archeologica dettagliata basata sui seguenti dati:
-    #
-    #         La relazione deve essere strutturata come nelle seguenti sezioni:
-    #         1. INTRODUZIONE:
-    #            - Breve panoramica del {current_site} e del contesto storico che viene desunta dal campo descrizione
-    #
-    #         2. DESCRIZIONE METODOLOGICA ED ESITO DELL'INDAGINE (5000 parole):
-    #            1 Descrizione dettagliata di tutte le unità stratigrafiche us rinvenute. Inizia scrivendo il totale delle US/USM.
-    #            2 Analisi delle strutture e degli edifici dalla tabella struttura_table se è stata selezionata
-    #            3 Analisi delle tombe dalla tabella tomba_table se è stata selezionata
-    #            4 Descrizione dei reperti prendendo in cosiderazione numero inventario, tipo_reprto se la tabella invetario_materiali_table è stato selezionato
-    #            5 Interpretazione delle fasi di occupazione del sito mettemndo in evidenza i rapporti stratigrafici che trovi nella colonna rapporti
-    #
-    #         3. CONCLUSIONI (500 parole):
-    #            - Sintesi dei risultati
-    #
-    #
-    #         """
-    #
-    #         if ReportGenerator.is_connected():
-    #             models = ["gpt-4o", "gpt-4-0125-preview"]
-    #             selected_model, ok = QInputDialog.getItem(self, "Select Model", "Choose a model for GPT:", models, 0,
-    #                                                       False)
-    #
-    #             if ok and selected_model:
-    #                 self.progress_dialog = QProgressDialog("Generating report...", None, 0, 0, self)
-    #                 self.progress_dialog.setWindowModality(Qt.WindowModal)
-    #                 self.progress_dialog.setCancelButton(None)
-    #                 self.progress_dialog.setRange(0, 0)
-    #                 self.progress_dialog.show()
-    #
-    #                 api_key = self.apikey_gpt()
-    #                 self.report_thread = GenerateReportThread(custom_prompt, descriptions_text, api_key, selected_model)
-    #                 self.report_thread.report_generated.connect(
-    #                     lambda text: self.on_report_generated(text, report_data))
-    #                 self.report_thread.start()
-    #             else:
-    #                 QMessageBox.warning(self, "Warning", "No model selected", QMessageBox.Ok)
-    #         else:
-    #             QMessageBox.warning(self, "Warning", "No internet connection", QMessageBox.Ok)
-    #
-    # def on_report_generated(self, report_text, report_data):
-    #     self.progress_dialog.close()
-    #
-    #     # Elabora il testo del report
-    #     sections = [
-    #         "INTRODUZIONE",
-    #         "DESCRIZIONE METODOLOGICA ED ESITO DELL'INDAGINE",
-    #         "CONCLUSIONI"
-    #     ]
-    #     section_texts = {section.lower().replace(' ', '_'): '' for section in sections}
-    #     current_section = None
-    #
-    #     for line in report_text.split('\n'):
-    #         upper_line = line.strip().upper()
-    #         if any(section.upper() in upper_line for section in sections):
-    #             current_section = next(
-    #                 section.lower().replace(' ', '_') for section in sections if section.upper() in upper_line)
-    #             continue
-    #         if current_section:
-    #             section_texts[current_section] += line + "\n"
-    #
-    #     # Rimuovi eventuali righe vuote all'inizio e alla fine di ogni sezione
-    #     for key in section_texts:
-    #         section_texts[key] = section_texts[key].strip()
-    #
-    #     # Aggiorna report_data con i testi delle sezioni
-    #     report_data.update(section_texts)
-    #
-    #     # Chiedi all'utente se vuole utilizzare il template predefinito
-    #     use_template, ok = QInputDialog.getItem(self, "Scelta output", "Vuoi utilizzare il template predefinito?",
-    #                                             ["Sì", "No"], 0, False)
-    #
-    #     if ok:
-    #         # Seleziona dove salvare il file
-    #         output_path, _ = QFileDialog.getSaveFileName(self, "Salva Report", "",
-    #                                                      "Word Documents (*.docx);;All Files (*)")
-    #         if not output_path:
-    #             QMessageBox.warning(self, "Avviso",
-    #                                 "Nessun percorso di salvataggio selezionato. Il report non verrà salvato.")
-    #             return
-    #
-    #         if not output_path.lower().endswith('.docx'):
-    #             output_path += '.docx'
-    #
-    #         if use_template == "Sì":
-    #             # Usa il template predefinito
-    #             template_path = os.path.join(self.HOME, "bin",
-    #                                          "template_report_adarte.docx")  # Assumo che il file si chiami "template_report.docx"
-    #             if not os.path.exists(template_path):
-    #                 QMessageBox.warning(self, "Avviso",
-    #                                     "Template predefinito non trovato. Verrà creato un documento semplice.")
-    #                 self.save_report_as_plain_doc(report_text, output_path)
-    #             else:
-    #                 try:
-    #                     self.save_report_to_file(report_data, template_path, output_path)
-    #                     QMessageBox.information(self, "Report Salvato", f"Il report è stato salvato in {output_path}")
-    #                 except Exception as e:
-    #                     QMessageBox.critical(self, "Errore",
-    #                                          f"Si è verificato un errore durante il salvataggio del report: {str(e)}")
-    #         else:
-    #             # Salva il report come documento normale
-    #             try:
-    #                 self.save_report_as_plain_doc(report_text, output_path)
-    #                 QMessageBox.information(self, "Report Salvato", f"Il report è stato salvato in {output_path}")
-    #             except Exception as e:
-    #                 QMessageBox.critical(self, "Errore",
-    #                                      f"Si è verificato un errore durante il salvataggio del report: {str(e)}")
 
-    def generate_and_display_report(self):
+    def analyze_site_context(self, report_data):
+        """Analyze site context in detail"""
+        return f"""
+        Analisi del contesto geografico e amministrativo:
+        Regione: {report_data.get('Regione', '')}
+        Provincia: {report_data.get('Provincia', '')}
+        Comune: {report_data.get('Comune', '')}
+
+        Informazioni amministrative:
+        Ente di riferimento: {report_data.get('Ente di riferimento', '')}
+        Committenza: {report_data.get('Committenza', '')}
+        Direzione scientifica: {report_data.get('Direzione scientifica', '')}
+
+        Dettagli del cantiere:
+        Nome cantiere: {report_data.get('Cantiere', '')}
+        Collocazione: {report_data.get('Collocazione cantiere', '')}
+        Periodo: {report_data.get('Periodo cantiere', '')}
+        """
+
+    def analyze_stratigraphy_relationships(self, us_data):
+        """Analyze stratigraphic relationships"""
+        relationships = {}
+        for us in us_data:
+            area = us.get('area', '')
+            if area not in relationships:
+                relationships[area] = []
+            relationships[area].append({
+                'us': us.get('us', ''),
+                'rapporti': us.get('rapporti', ''),
+                'd_interpretazione': us.get('d_interpretazione', '')
+            })
+        return relationships
+
+    def analyze_stratigraphy_by_area(self, us_data):
+        """Analyze stratigraphy by area"""
+        areas = {}
+        for us in us_data:
+            area = us.get('area', '')
+            if area not in areas:
+                areas[area] = []
+            areas[area].append(us)
+        return areas
+
+    def analyze_materials_by_type(self, material_data):
+        """Analyze materials by type"""
+        types = {}
+        for material in material_data:
+            tipo = material.get('tipo_reperto', '')
+            if tipo not in types:
+                types[tipo] = []
+            types[tipo].append(material)
+        return types
+
+    def analyze_pottery_by_class(self, pottery_data):
+        """Analyze pottery by class"""
+        classes = {}
+        for pottery in pottery_data:
+            ware = pottery.get('ware', '')
+            fabric = pottery.get('fabric', '')
+            if ware not in classes:
+                classes[ware] = []
+            classes[ware].append(pottery)
+            if fabric not in classes:
+                classes[fabric] = []
+            classes[fabric].append(pottery)
+        return classes
+
+    def analyze_pottery_photo(self, pottery_data):
+        """Analyze pottery photos"""
+        classes = {}
+        for pottery in pottery_data:
+            photo = pottery.get('photo', '')
+            if photo not in classes:
+                classes[photo] = []
+            classes[photo].append(pottery)
+        return classes
+
+    def validate_us_description(self, us_data):
+        """Validate US descriptions"""
+        missing_us = []
+        for us in us_data:
+            if not us.get('descrizione') or not us.get('interpretazione'):
+                missing_us.append(us.get('us'))
+        return {
+            'valid': len(missing_us) == 0,
+            'missing': missing_us,
+            'message': f"Missing descriptions for US: {', '.join(map(str, missing_us))}" if missing_us else "All US described"
+        }
+
+    def validate_materials_description(self, materials_data):
+        """Validate materials descriptions"""
+        missing_materials = []
+        for material in materials_data:
+            if not material.get('descrizione'):
+                missing_materials.append(material.get('numero_inventario'))
+        return {
+            'valid': len(missing_materials) == 0,
+            'missing': missing_materials,
+            'message': f"Missing descriptions for materials: {', '.join(map(str, missing_materials))}" if missing_materials else "All materials described"
+        }
+
+    def validate_pottery_description(self, pottery_data):
+        """Validate pottery descriptions"""
+        missing_pottery = []
+        for pottery in pottery_data:
+            if not pottery.get('fabric') or not pottery.get('form'):
+                missing_pottery.append(pottery.get('id_number'))
+        return {
+            'valid': len(missing_pottery) == 0,
+            'missing': missing_pottery,
+            'message': f"Missing descriptions for pottery: {', '.join(map(str, missing_pottery))}" if missing_pottery else "All pottery described"
+        }
+
+    def create_materials_table(self, materials_data):
+        """Create formatted materials table"""
+        headers = ['Inv. Number', 'Type', 'Definition', 'Description', 'Dating', 'Conservation']
+        rows = []
+        for material in materials_data:
+            rows.append([
+                material.get('numero_inventario', ''),
+                material.get('tipo_reperto', ''),
+                material.get('definizione', ''),
+                material.get('descrizione', ''),
+                material.get('datazione', ''),
+                material.get('stato_conservazione', '')
+            ])
+        return {'headers': headers, 'rows': rows}
+
+    def create_pottery_table(self, pottery_data):
+        """Create formatted pottery table"""
+        headers = ['ID', 'Form', 'Fabric', 'Ware', 'Conservation %', 'Notes']
+        rows = []
+        for pottery in pottery_data:
+            rows.append([
+                pottery.get('id_number', ''),
+                pottery.get('form', ''),
+                pottery.get('fabric', ''),
+                pottery.get('ware', ''),
+                pottery.get('percent', ''),
+                pottery.get('note', '')
+            ])
+        return {'headers': headers, 'rows': rows}
+
+    def format_us_data(self, us_data):
+        """Format US data for the report"""
+        formatted = ""
+        for us in us_data:
+            formatted += (
+                f"IDUS: {us['id_us']}\n"
+                f"US: {us['us']}\n"
+                f"Area: {us['area']}\n"
+                f"Settore: {us['settore']}\n"
+                f"Definizione stratigrafica: {us['d_stratigrafica']}\n"
+                f"Descrizione: {us['descrizione']}\n"
+                f"Interpretazione: {us['interpretazione']}\n"
+                f"Rapporti stratigrafici: {us['rapporti']}\n\n"
+            )
+        return formatted.strip()
+
+    def format_material_data(self, material_data):
+        """Format material data for the report"""
+        formatted = ""
+        for item in material_data:
+            formatted += (
+                f"Numero inventario: {item['numero_inventario']}\n"
+                f"Tipo: {item['tipo_reperto']}\n"
+                f"Definizione: {item['definizione']}\n"
+                f"Descrizione: {item['descrizione']}\n"
+                f"Datazione: {item['datazione']}\n"
+                f"Stato di conservazione: {item['stato_conservazione']}\n"
+                f"Contesto: Area {item['area']}, US {item['us']}\n\n"
+            )
+        return formatted.strip()
+
+    def format_pottery_data(self, pottery_data):
+        """Format pottery data for the report"""
+        formatted = ""
+        for pottery in pottery_data:
+            formatted += (
+                f"ID Reperto: {pottery.get('id_number', '')}\n"  # Cambiato da id_rep a id_number
+                f"Numero identificativo: {pottery.get('id_number', '')}\n"
+                f"Contesto: Sito {pottery.get('sito', '')}, Area {pottery.get('area', '')}, "
+                f"US {pottery.get('us', '')}, Settore {pottery.get('sector', '')}\n"
+                f"Documentazione fotografica: {pottery.get('photo', '')}\n"
+                f"Anno: {pottery.get('anno', '')}\n\n"
+                f"CARATTERISTICHE TECNICHE:\n"
+                f"Impasto: {pottery.get('fabric', '')}\n"
+                f"Percentuale conservata: {pottery.get('percent', '')}\n"
+                f"Materiale: {pottery.get('material', '')}\n"
+                f"Forma: {pottery.get('form', '')}\n"
+                f"Forma specifica: {pottery.get('specific_form', '')}\n"
+                f"Tipo specifico: {pottery.get('specific_shape', '')}\n"
+                f"Classe ceramica: {pottery.get('ware', '')}\n"
+                f"Quantità: {pottery.get('qty', '')}\n\n"
+                f"Note: {pottery.get('note', '')}\n\n"
+                f"-------------------\n\n"
+            )
+        return formatted.strip()
+
+    def create_analysis_tools(self, report_data, site_data, us_data, materials_data, pottery_data):
+        """Create analysis tools for the LangChain agent"""
+        return [
+            Tool(
+                name="AnalisiContestoSito",
+                func=lambda x: self.analyze_site_context(report_data),
+                description="Analizza il contesto geografico, amministrativo e storico del sito"
+            ),
+            Tool(
+                name="AnalisiAreaScavo",
+                func=lambda x: self.analyze_stratigraphy_by_area(us_data),
+                description="Analizza la suddivisione dei settori di scavo e la loro organizzazione"
+            ),
+            Tool(
+                name="AnalisiRelazioniStratigrafiche",
+                func=lambda x: self.analyze_stratigraphy_relationships(us_data),
+                description="Analizza le relazioni stratigrafiche tra le US per ogni settore"
+            ),
+            Tool(
+                name="AnalisiInterpretativaUS",
+                func=lambda x: {us['us']: us['interpretazione'] for us in us_data},
+                description="Analizza le interpretazioni delle singole US"
+            ),
+            Tool(
+                name="AnalisiDescrittivaaUS",
+                func=lambda x: {us['us']: us['descrizione'] for us in us_data},
+                description="Analizza le descrizioni delle singole US"
+            ),
+            Tool(
+                name="AnalisiMaterialiPerTipo",
+                func=lambda x: self.analyze_materials_by_type(materials_data),
+                description="Analizza i materiali raggruppati per tipologia"
+            ),
+            Tool(
+                name="AnalisiCeramichePerClasse",
+                func=lambda x: self.analyze_pottery_by_class(pottery_data),
+                description="Analizza le ceramiche raggruppate per classe"
+            ),
+            Tool(
+                name="AnalisiConservazione",
+                func=lambda x: {
+                    'materiali': [m.get('stato_conservazione', '') for m in materials_data],
+                },
+                description="Analizza lo stato di conservazione dei reperti"
+            ),
+            Tool(
+                name="AnalisiPhotoPottery",
+                func=lambda x: self.analyze_pottery_photo(pottery_data),
+                description="Considera le foto della ceramica da associare nel testo"
+            )
+        ]
+
+    def create_validation_tools(self, site_data, us_data, materials_data, pottery_data):
+        """Create validation tools for the LangChain agent"""
+        return [
+            Tool(
+                name="ValidazioneUS",
+                func=lambda x: self.validate_us_description(us_data),
+                description="Valida la completezza delle descrizioni delle US"
+            ),
+            Tool(
+                name="ValidazioneMateriali",
+                func=lambda x: self.validate_materials_description(materials_data),
+                description="Valida la completezza delle descrizioni dei materiali"
+            ),
+            Tool(
+                name="ValidazioneCeramica",
+                func=lambda x: self.validate_pottery_description(pottery_data),
+                description="Valida la completezza delle descrizioni della ceramica"
+            ),
+            Tool(
+                name="CreaTabellaRinvenimenti",
+                func=lambda x: self.create_materials_table(materials_data),
+                description="Crea una tabella formattata dei rinvenimenti"
+            ),
+            Tool(
+                name="CreaTabellaRepCeramici",
+                func=lambda x: self.create_pottery_table(pottery_data),
+                description="Crea una tabella formattata dei reperti ceramici"
+            )
+        ]
+
+    def process_site_table(self, records, current_site, report_data):
+        """Process site table records and update report data"""
+        site_record = next((r for r in records if getattr(r, 'sito', '') == current_site), None)
+        if site_record:
+            report_data['Regione'] = getattr(site_record, 'regione', '')
+            report_data['Provincia'] = f"Provincia: {getattr(site_record, 'provincia', '')}"
+            report_data['Comune'] = f"Comune: {getattr(site_record, 'comune', '')}"
+            report_data['Cantiere'] = current_site
+            report_data['Collocazione cantiere'] = current_site
+
+    def process_us_table(self, records, year_filter, us_start, us_end, us_data):
+        """Process US table records and update US data"""
+        filtered_records = self.filter_records(records, year_filter, us_start, us_end, 'anno_scavo', 'us')
+        for record in filtered_records:
+            us_data.append({
+                'id_us': getattr(record, 'id_us', ''),
+                'us': getattr(record, 'us', ''),
+                'area': getattr(record, 'area', ''),
+                'settore': getattr(record, 'settore', ''),
+                'd_stratigrafica': getattr(record, 'd_stratigrafica', ''),
+                'descrizione': getattr(record, 'descrizione', ''),
+                'interpretazione': getattr(record, 'interpretazione', ''),
+                'rapporti': getattr(record, 'rapporti', '')
+            })
+
+    def process_materials_table(self, records, year_filter, us_start, us_end, materials_data):
+        """Process materials table records and update materials data"""
+        filtered_records = self.filter_records(records, year_filter, us_start, us_end, 'years', 'us')
+        for record in filtered_records:
+            materials_data.append({
+                'numero_inventario': getattr(record, 'numero_inventario', ''),
+                'tipo_reperto': getattr(record, 'tipo_reperto', ''),
+                'definizione': getattr(record, 'definizione', ''),
+                'descrizione': getattr(record, 'descrizione', ''),
+                'datazione': getattr(record, 'datazione', ''),
+                'stato_conservazione': getattr(record, 'stato_conservazione', ''),
+                'classe_materiale': getattr(record, 'classe_materiale', ''),
+                'area': getattr(record, 'area', ''),
+                'us': getattr(record, 'us', '')
+            })
+
+    def process_pottery_table(self, records, year_filter, us_start, us_end, pottery_data):
+        """Process pottery table records and update pottery data"""
+        filtered_records = self.filter_records(records, year_filter, us_start, us_end, 'anno', 'us')
+        for record in filtered_records:
+            pottery_data.append({
+                'id_rep': getattr(record, 'id_number', ''),
+                'id_number': getattr(record, 'id_number', ''),
+                'sito': getattr(record, 'sito', ''),
+                'area': getattr(record, 'area', ''),
+                'us': getattr(record, 'us', ''),
+                'sector': getattr(record, 'sector', ''),
+                'photo': getattr(record, 'photo', ''),
+                'anno': getattr(record, 'anno', ''),
+                'fabric': getattr(record, 'fabric', ''),
+                'percent': getattr(record, 'percent', ''),
+                'material': getattr(record, 'material', ''),
+                'form': getattr(record, 'form', ''),
+                'specific_form': getattr(record, 'specific_form', ''),
+                'specific_shape': getattr(record, 'specific_shape', ''),
+                'ware': getattr(record, 'ware', ''),
+                'qty': getattr(record, 'qty', ''),
+                'note': getattr(record, 'note', '')
+            })
+
+    def filter_records(self, records, year_filter, start, end, year_field, range_field):
+        """Filter records based on year or range criteria"""
+        if year_filter:
+            return [r for r in records if str(getattr(r, year_field, '')) == year_filter]
+        elif start and end:
+            return [r for r in records if start <= str(getattr(r, range_field, '')) <= end]
+        return records
+
+    def initialize_report_data(self):
+        """Initialize the report data dictionary with empty values"""
+        return {
+            'Regione': '', 'Provincia': '', 'Comune': '', 'Ente di riferimento': '',
+            'Committenza': '', 'Direzione scientifica': '', 'Elaborato a cura di': '',
+            'Direttore cantiere': '', 'Cantiere': '', 'Tipo di indagine': '',
+            'Titolo elaborato': '', 'Collocazione cantiere': '', 'Periodo cantiere': '',
+            'Intervento': '', 'Progettazione lavori': '', 'Direzione lavori': '',
+            'Direzione scientifica indagini archeologiche': '',
+            'Esecuzione indagini archeologiche': '', 'Direzione cantiere archeologico': '',
+            'Archeologi': ''
+        }
+
+    def process_table_data(self, table_name, records, current_site, year_filter,
+                          us_start, us_end, report_data, us_data,
+                          materials_data, pottery_data):
+        """Process table data and update corresponding data structures"""
+        if table_name == 'site_table':
+            self.process_site_table(records, current_site, report_data)
+        elif table_name == 'us_table':
+            filtered_records = self.filter_records(records, year_filter, us_start, us_end, 'anno_scavo', 'us')
+            for record in filtered_records:
+                us_data.append({
+                    'id_us': getattr(record, 'id_us', ''),
+                    'us': getattr(record, 'us', ''),
+                    'area': getattr(record, 'area', ''),
+                    'settore': getattr(record, 'settore', ''),
+                    'd_stratigrafica': getattr(record, 'd_stratigrafica', ''),
+                    'descrizione': getattr(record, 'descrizione', ''),
+                    'interpretazione': getattr(record, 'interpretazione', ''),
+                    'rapporti': getattr(record, 'rapporti', '')
+                })
+        elif table_name == 'inventario_materiali_table':
+            filtered_records = self.filter_records(records, year_filter, us_start, us_end, 'years', 'us')
+            for record in filtered_records:
+                materials_data.append({
+                    'numero_inventario': getattr(record, 'numero_inventario', ''),
+                    'tipo_reperto': getattr(record, 'tipo_reperto', ''),
+                    'definizione': getattr(record, 'definizione', ''),
+                    'descrizione': getattr(record, 'descrizione', ''),
+                    'datazione': getattr(record, 'datazione', ''),
+                    'stato_conservazione': getattr(record, 'stato_conservazione', ''),
+                    'area': getattr(record, 'area', ''),
+                    'us': getattr(record, 'us', '')
+                })
+        elif table_name == 'pottery_table':
+            filtered_records = self.filter_records(records, year_filter, us_start, us_end, 'anno', 'us')
+            for record in filtered_records:
+                pottery_data.append({
+                    'id_number': getattr(record, 'id_number', ''),
+                    'fabric': getattr(record, 'fabric', ''),
+                    'form': getattr(record, 'form', ''),
+                    'ware': getattr(record, 'ware', ''),
+                    'percent': getattr(record, 'percent', ''),
+                    'note': getattr(record, 'note', ''),
+                    'area': getattr(record, 'area', ''),
+                    'us': getattr(record, 'us', '')
+                })
+    def create_system_message(self):
+        """Create the system message for the LangChain agent"""
+        return SystemMessage(content="""Sei un esperto archeologo specializzato in relazioni di scavo stratigrafiche.
+        Il tuo compito è generare un report dettagliato e approfondito che deve:
+
+        1. Per la stratigrafia:
+        - Descrivere le relazioni tra US in modo discorsivo e fluido
+        - Interpretare la sequenza stratigrafica
+        - Analizzare ogni area di scavo separatamente
+        - Collegare le diverse aree in una narrazione coerente
+
+        2. Per i materiali:
+        - Creare elenchi dettagliati per tipo
+        - Fornire descrizioni approfondite
+        - Analizzare gli aspetti tecnici
+        - Discutere il significato cronologico e culturale
+
+        3. Per le ceramiche:
+        - Catalogare per classe e tipo
+        - Descrivere aspetti tecnici e morfologici
+        - Analizzare impasti e decorazioni
+        - Fornire confronti tipologici
+
+        Il report deve essere lungo almeno tre pagine e utilizzare un linguaggio tecnico appropriato.""")
+
+    def create_custom_prompt(self, formatted_us_data, formatted_material_data,
+                             formatted_pottery_data, report_data):
+        """Create the custom prompt for the report generation"""
+        return f"""
+        Genera una relazione archeologica dettagliata e discorsiva in italiano basata sui seguenti dati. 
+        La relazione deve essere un testo fluido e narrativo, che analizza in profondità tutte le unità 
+        stratigrafiche (US) e le mette in relazione tra loro.
+
+        1. INTRODUZIONE:
+           - Fornisci una panoramica dettagliata della campagna di scavo basandoti su:
+        {formatted_us_data}   
+        {formatted_material_data}
+        {formatted_pottery_data}
+        2. DESCRIZIONE METODOLOGICA ED ESITO DELL'INDAGINE:
+           - Inizia con una descrizione generale dell'area di scavo e della sua suddivisione in settori.
+           - Di seguito, descrivi in dettaglio le unità stratigrafiche come indicato:
+        {formatted_us_data}   
+
+        3. DESCRIZIONE DEI MATERIALI   
+           - Se presenti inserisci l'elenco dei materiali o delle ceramiche rinvenuti in ogni unità stratigrafica.
+           - Se presenti, descrivi i materiali e/o le ceramiche in dettaglio come indicato.
+        {formatted_material_data}
+        {formatted_pottery_data}
+
+        4. CONCLUSIONI:
+           - Sintetizza i risultati principali dello scavo.
+           - Discuti delle unità stratigrafiche e dei materiali rinvenuti.
+           - Concludi con una sintesi delle principali scoperte.
+
+        Dati del sito: {report_data}
+        """
+
+    def check_missing_data(self):
+        """Verifica e riporta i dati mancanti in tutte le tabelle selezionate"""
+        missing_data_report = []
+
+        # Get selected tables
         dialog = ReportGeneratorDialog(self)
+        #if dialog.exec_() == QDialog.Accepted:
+        selected_tables = dialog.get_selected_tables()
+        year_filter = dialog.get_year_filter()
+        us_start, us_end = dialog.get_us_range()
+
+        # Connect to database
+        conn = Connection()
+        db_url = conn.conn_str()
+        current_site = str(self.comboBox_sito.currentText())
+        site_data=[]
+        us_data = []
+        materials_data = []
+        pottery_data = []
+
+        # Fetch data
+        for table_name in selected_tables:
+            records, columns = ReportGenerator.read_data_from_db(db_url, table_name)
+
+            if table_name == 'us_table':
+                # Filter records
+                if year_filter:
+                    records = [r for r in records if str(getattr(r, 'anno_scavo', '')) == year_filter]
+                elif us_start and us_end:
+                    records = [r for r in records if us_start <= str(getattr(r, 'us', '')) <= us_end]
+
+                for record in records:
+                    us_data.append({
+                        'us': getattr(record, 'us', ''),
+                        'area': getattr(record, 'area', ''),
+                        'd_stratigrafica': getattr(record, 'd_stratigrafica', ''),
+                        'descrizione': getattr(record, 'descrizione', ''),
+                        'interpretazione': getattr(record, 'interpretazione', ''),
+                        'rapporti': getattr(record, 'rapporti', '')
+                    })
+
+            elif table_name == 'inventario_materiali_table':
+                # Filter records
+                if year_filter:
+                    records = [r for r in records if str(getattr(r, 'years', '')) == year_filter]
+                elif us_start and us_end:
+                    records = [r for r in records if us_start <= str(getattr(r, 'us', '')) <= us_end]
+
+                for record in records:
+                    materials_data.append({
+                        'numero_inventario': getattr(record, 'numero_inventario', ''),
+                        'tipo_reperto': getattr(record, 'tipo_reperto', ''),
+                        'definizione': getattr(record, 'definizione', ''),
+                        'descrizione': getattr(record, 'descrizione', ''),
+                        'datazione': getattr(record, 'datazione', ''),
+                        'stato_conservazione': getattr(record, 'stato_conservazione', ''),
+                        'area': getattr(record, 'area', ''),
+                        'us': getattr(record, 'us', '')
+                    })
+
+            elif table_name == 'pottery_table':
+                # Filter records
+                if year_filter:
+                    records = [r for r in records if str(getattr(r, 'anno', '')) == year_filter]
+                elif us_start and us_end:
+                    records = [r for r in records if us_start <= str(getattr(r, 'us', '')) <= us_end]
+
+                for record in records:
+                    pottery_data.append({
+                        'id_number': getattr(record, 'id_number', ''),
+                        'fabric': getattr(record, 'fabric', ''),
+                        'form': getattr(record, 'form', ''),
+                        'area': getattr(record, 'area', ''),
+                        'us': getattr(record, 'us', '')
+                    })
+
+            # Create report thread instance for validation methods
+            report_thread = GenerateReportThread(
+                custom_prompt="",
+                descriptions_text="",
+                api_key="",
+                selected_model="",
+                selected_tables=selected_tables,
+                analysis_steps=[],
+                agent=None,
+
+                us_data=us_data,
+                materials_data=materials_data,
+                pottery_data=pottery_data,
+                site_data=site_data
+            )
+
+            # Check each type of data
+            if 'us_table' in selected_tables:
+                us_validation = report_thread.validate_us()
+                if not us_validation['valid']:
+                    missing_data_report.append(us_validation['message'])
+
+            if 'inventario_materiali_table' in selected_tables:
+                materials_validation = report_thread.validate_materials()
+                if not materials_validation['valid']:
+                    missing_data_report.append(materials_validation['message'])
+
+            if 'pottery_table' in selected_tables:
+                pottery_validation = report_thread.validate_pottery()
+                if not pottery_validation['valid']:
+                    missing_data_report.append(pottery_validation['message'])
+
+            # Show results
+            if missing_data_report:
+                msg = "REPORT DATI MANCANTI\n\n" + "\n\n".join(missing_data_report)
+                QMessageBox.warning(self, "Dati Mancanti", msg)
+                return False
+            else:
+                QMessageBox.information(self, "Verifica Completata", "Tutti i dati sono completi!")
+                return True
+
+        return None
+    def generate_and_display_report(self):
+        # Prima verifica la presenza di dati mancanti
+        if not self.check_missing_data():
+            reply = QMessageBox.question(
+                self,
+                "Dati Mancanti",
+                "Sono stati rilevati dati mancanti. Vuoi procedere comunque con la generazione del report?",
+                QMessageBox.Yes | QMessageBox.No,
+                QMessageBox.No
+            )
+            if reply == QMessageBox.No:
+                return
+
+        # Procedi con la generazione del report
+        dialog = ReportGeneratorDialog(self)
+
+
         if dialog.exec_() == QDialog.Accepted:
+
+
+
+
+            # Step 2: Initialize database connection and get selected data
             conn = Connection()
             db_url = conn.conn_str()
             selected_tables = dialog.get_selected_tables()
             year_filter = dialog.get_year_filter()
             us_start, us_end = dialog.get_us_range()
 
-            report_data = {
-                'Regione': '', 'Provincia': '', 'Comune': '', 'Ente di riferimento': '',
-                'Committenza': '', 'Direzione scientifica': '', 'Elaborato a cura di': '',
-                'Direttore cantiere': '', 'Cantiere': '', 'Tipo di indagine': '', 'Titolo elaborato': '',
-                'Collocazione cantiere': '', 'Periodo cantiere': '', 'Intervento': '',
-                'Progettazione lavori': '', 'Direzione lavori': '',
-                'Direzione scientifica indagini archeologiche': '',
-                'Esecuzione indagini archeologiche': '', 'Direzione cantiere archeologico': '',
-                'Archeologi': ''
-            }
-
-            descriptions_text = ""
+            # Step 3: Prepare data structures
+            report_data = self.initialize_report_data()
             current_site = str(self.comboBox_sito.currentText())
-
-            # Funzione per formattare i dati delle US
-            def format_us_data(us_data):
-                formatted = ""
-                for us in us_data:
-                    formatted += (
-                        f"US: {us['us']}\n"
-                        f"Area: {us['area']}\n"
-                        f"Definizione stratigrafica: {us['d_stratigrafica']}\n"
-                        f"Descrizione: {us['descrizione']}\n"
-                        f"Interpretazione: {us['interpretazione']}\n"
-                        f"Rapporti stratigrafici: {us['rapporti']}\n\n"
-                    )
-                return formatted.strip()
-
+            site_data =[]
             us_data = []
+            materials_data = []
+            pottery_data = []
+
+            # Step 4: Fetch and process data from selected tables
             for table_name in selected_tables:
                 records, columns = ReportGenerator.read_data_from_db(db_url, table_name)
+                self.process_table_data(
+                    table_name, records, current_site, year_filter,
+                    us_start, us_end, report_data, us_data,
+                    materials_data, pottery_data
+                )
 
-                if table_name == 'site_table':
-                    site_record = next((r for r in records if getattr(r, 'sito', '') == current_site), None)
-                    if site_record:
-                        report_data['Regione'] = getattr(site_record, 'regione', '')
-                        report_data['Provincia'] = f"Provincia: {getattr(site_record, 'provincia', '')}"
-                        report_data['Comune'] = f"Comune: {getattr(site_record, 'comune', '')}"
-                        report_data['Cantiere'] = current_site
-                        report_data['Collocazione cantiere'] = current_site
+            # Step 5: Format data for report
+            formatted_us_data = self.format_us_data(us_data)
+            formatted_material_data = self.format_material_data(materials_data)
+            formatted_pottery_data = self.format_pottery_data(pottery_data)
+            # Crea il testo delle descrizioni combinando tutti i dati formattati
+            descriptions_text = f"""
+            UNITÀ STRATIGRAFICHE:
+            {formatted_us_data}
+    
+            MATERIALI:
+            {formatted_material_data}
+    
+            CERAMICHE:
+            {formatted_pottery_data}
+            """
+            # Step 6: Create custom prompt
+            custom_prompt = self.create_custom_prompt(
+                formatted_us_data, formatted_material_data,
+                formatted_pottery_data, report_data
+            )
 
-                elif table_name == 'us_table':
-                    # Filtra per anno di scavo o per range di US
-                    if year_filter:
-                        records = [r for r in records if str(getattr(r, 'anno_scavo', '')) == year_filter]
-                    elif us_start and us_end:
-                        records = [
-                            r for r in records
-                            if us_start <= str(getattr(r, 'us', '')) <= us_end
-                        ]
+            # Step 7: Check internet connection and start report generation
+            if not ReportGenerator.is_connected():
+                QMessageBox.warning(self, "Connessione Assente", "Nessuna connessione a Internet rilevata.")
+                return
 
-                    for record in records:
-                        us_data.append({
-                            'us': getattr(record, 'us', ''),
-                            'area': getattr(record, 'area', ''),
-                            'd_stratigrafica': getattr(record, 'd_stratigrafica', ''),
-                            'descrizione': getattr(record, 'descrizione', ''),
-                            'interpretazione': getattr(record, 'interpretazione', ''),
-                            'rapporti': getattr(record, 'rapporti', '')
-                        })
+            # Step 8: Show progress dialog
+            # self.progress_dialog = QProgressDialog("Generazione del report in corso...", None, 0, 0, self)
+            # self.progress_dialog.setWindowModality(Qt.WindowModal)
+            # self.progress_dialog.setCancelButton(None)
+            # self.progress_dialog.setRange(0, 0)
+            # self.progress_dialog.show()
 
-            # Formatta i dettagli delle US
-            formatted_us_data = format_us_data(us_data)
-
-            # Prompt personalizzato per generare il report
-            custom_prompt = f"""
-    Genera una relazione archeologica dettagliata e discorsiva in italiano basata sui seguenti dati. 
-    La relazione deve essere un testo fluido e narrativo, che analizza in profondità tutte le unità stratigrafiche (US) e le mette in relazione tra loro.
-    Includi TUTTI i dettagli rilevanti seguendo questa struttura:
-
-    1. INTRODUZIONE:
-       - Fornisci una panoramica dettagliata del sito e del suo contesto storico.
-       - Descrivi il periodo e la profondità dello scavo, collegandoli al contesto più ampio della regione.
-
-    2. DESCRIZIONE METODOLOGICA ED ESITO DELL'INDAGINE:
-       - Inizia con una descrizione generale dell'area di scavo e della sua suddivisione.
-       - Di seguito, descrivi in dettaglio le unità stratigrafiche come indicato:
-    {formatted_us_data}
-
-    3. CONCLUSIONI:
-       - Sintetizza i risultati principali dello scavo.
-       - Discuti l'importanza del sito nel contesto storico locale e regionale.
-       - Suggerisci possibili direzioni per future ricerche o scavi.
-
-    Assicurati che il report sia scritto in forma discorsiva, evitando elenchi puntati o numerati. 
-    Usa un linguaggio tecnico appropriato, ma mantieni un flusso narrativo che guidi il lettore attraverso 
-    l'interpretazione completa del sito archeologico.
-
-    Dati del sito: {report_data}
-    """
-
-            if ReportGenerator.is_connected():
-                self.progress_dialog = QProgressDialog("Generazione del report in corso...", None, 0, 0, self)
-                self.progress_dialog.setWindowModality(Qt.WindowModal)
-                self.progress_dialog.setCancelButton(None)
-                self.progress_dialog.setRange(0, 0)
-                self.progress_dialog.show()
-
+            try:
+                # Step 9: Initialize OpenAI components
                 api_key = self.apikey_gpt()
+                tools = self.create_analysis_tools(report_data, site_data, us_data, materials_data, pottery_data)
+                enhanced_tools = self.create_validation_tools(site_data, us_data, materials_data, pottery_data)
 
-                chat_model = ChatOpenAI(
-                    api_key=api_key,
+                # Step 10: Set up LangChain components
+                llm = ChatOpenAI(
+                    temperature=0.0,
                     model_name="gpt-4o",
-                    temperature=0.2,
+                    api_key=api_key,
                     max_tokens=16000,
                     streaming=True
                 )
 
-                try:
-                    messages = [
-                        SystemMessage(content=(
-                            "Sei un esperto archeologo con vasta esperienza nella redazione di relazioni di scavo. "
-                            "Il tuo compito è creare un report dettagliato e discorsivo che analizzi in profondità tutte le unità stratigrafiche "
-                            "e le metta in relazione tra loro. Usa un linguaggio tecnico ma mantieni un flusso narrativo coinvolgente. "
-                            "Evita elenchi puntati o numerati nel corpo principale del testo. "
-                            "Evita inoltre di dettagliare in sequenza le unità stratigrafiche, "
-                            "ma incorpora le descrizioni in un discorso unico e dettagliato."
-                        )),
-                        HumanMessage(content=custom_prompt)
-                    ]
+                system_message = self.create_system_message()
+                memory = ConversationBufferMemory(
+                    memory_key="chat_history",
+                    return_messages=True,
+                    system_message=system_message
+                )
 
-                    full_report = ""
-                    for chunk in chat_model.stream(messages):
-                        if chunk.content:
-                            full_report += chunk.content
-                            self.progress_dialog.setLabelText("Generazione del report in corso...")
-                            QApplication.processEvents()
+                agent = initialize_agent(
+                    tools + enhanced_tools,  # Combine both tool sets
+                    llm,
+                    agent=AgentType.CHAT_CONVERSATIONAL_REACT_DESCRIPTION,
+                    memory=memory,
+                    system_message=system_message,
+                    verbose=True
+                )
 
-                    self.progress_dialog.close()
-                    self.on_report_generated(full_report, report_data)
+                # Step 11: Create and show report dialog
+                self.report_dialog = ReportDialog(parent=self)
+                self.report_dialog.show()
 
-                except Exception as e:
-                    self.progress_dialog.close()
-                    self.show_error(str(e), 'Qualcosa è andato storto')
-                    return
+                # Create and start the report generation thread
+                self.report_thread = GenerateReportThread(
 
-            else:
-                QMessageBox.warning(self, "Connessione Assente", "Nessuna connessione a Internet rilevata.")
+                    custom_prompt=custom_prompt,
+                    descriptions_text=descriptions_text,
+                    api_key=api_key,
+                    selected_model="gpt-4o",
+                    selected_tables=selected_tables,
+                    analysis_steps=self.analysis_steps,
+                    agent=agent,
+                    us_data=us_data,
+                    materials_data=materials_data,
+                    pottery_data=pottery_data,
+                    site_data=site_data,
+                    py_dialog=self,
+                    output_language=dialog.get_selected_language()
+                )
 
-    def is_italian(self, text):
-        # Implementa una semplice euristica per determinare se il testo è in italiano
-        italian_words = set(['il', 'lo', 'la', 'i', 'gli', 'le', 'un', 'uno', 'una', 'e', 'ed', 'ma', 'perché', 'quindi'])
+                # Step 13: Connect signals and start thread
+                self.report_thread.report_generated.connect(self.report_dialog.update_content)
+                self.report_thread.log_message.connect(self.report_dialog.log_to_terminal)
+                self.report_thread.report_completed.connect(self.on_report_generated)  # Aggiungi questa linea
+                self.report_thread.start()
 
-        words = text.lower().split()
-        return len(set(words) & italian_words) > 5  # Se ci sono più di 5 parole italiane comuni
 
-    def on_report_generated(self, report_text, report_data):
-        self.progress_dialog.close()
-
-        # Elabora il testo del report
-        sections = [
-            "INTRODUZIONE",
-            "DESCRIZIONE METODOLOGICA ED ESITO DELL'INDAGINE",
-            "CONCLUSIONI"
-        ]
-        section_texts = {section.lower().replace(' ', '_'): '' for section in sections}
-        current_section = None
-
-        for line in report_text.split('\n'):
-            upper_line = line.strip().upper()
-            if any(section.upper() in upper_line for section in sections):
-                current_section = next(
-                    section.lower().replace(' ', '_') for section in sections if section.upper() in upper_line)
-                continue
-            if current_section:
-                section_texts[current_section] += line + "\n"
-
-        # Rimuovi eventuali righe vuote all'inizio e alla fine di ogni sezione
-        for key in section_texts:
-            section_texts[key] = section_texts[key].strip()
-
-        # Aggiorna report_data con i testi delle sezioni
-        report_data.update(section_texts)
-
-        # Chiedi all'utente se vuole utilizzare il template predefinito
-        use_template, ok = QInputDialog.getItem(self, "Scelta output", "Vuoi utilizzare il template predefinito?",
-                                                ["Sì", "No"], 0, False)
-
-        if ok:
-            # Seleziona dove salvare il file
-            output_path, _ = QFileDialog.getSaveFileName(self, "Salva Report", "",
-                                                         "Word Documents (*.docx);;All Files (*)")
-            if not output_path:
-                QMessageBox.warning(self, "Avviso",
-                                    "Nessun percorso di salvataggio selezionato. Il report non verrà salvato.")
+            except Exception as e:
+                #self.progress_dialog.close()
+                if hasattr(self, 'report_dialog'):
+                    self.report_dialog.close()
+                error_msg = f"Errore durante la generazione del report: {str(e)}"
+                self.show_error(error_msg, 'Errore Generazione Report')
                 return
 
-            if not output_path.lower().endswith('.docx'):
-                output_path += '.docx'
+    def on_report_generated(self, report_text, report_data):
+        # First show template choice dialog
+        response = QMessageBox.question(
+            self,
+            "Scelta Template",
+            "Vuoi salvare il contenuto usando il template predefinito?",
+            QMessageBox.Yes | QMessageBox.No
+        )
 
-            if use_template == "Sì":
-                # Usa il template predefinito
-                template_path = os.path.join(self.HOME, "bin",
-                                             "template_report_adarte.docx")  # Assumo che il file si chiami "template_report.docx"
-                if not os.path.exists(template_path):
-                    QMessageBox.warning(self, "Avviso",
-                                        "Template predefinito non trovato. Verrà creato un documento semplice.")
-                    self.save_report_as_plain_doc(report_text, output_path)
-                else:
-                    try:
-                        self.save_report_to_file(report_data, template_path, output_path)
-                        QMessageBox.information(self, "Report Salvato", f"Il report è stato salvato in {output_path}")
-                    except Exception as e:
-                        QMessageBox.critical(self, "Errore",
-                                             f"Si è verificato un errore durante il salvataggio del report: {str(e)}")
-            else:
-                # Salva il report come documento normale
-                try:
-                    self.save_report_as_plain_doc(report_text, output_path)
-                    QMessageBox.information(self, "Report Salvato", f"Il report è stato salvato in {output_path}")
-                except Exception as e:
-                    QMessageBox.critical(self, "Errore",
-                                         f"Si è verificato un errore durante il salvataggio del report: {str(e)}")
+        # If user selects No or closes dialog, just return
+        if response != QMessageBox.Yes:
+            return
 
-        # Visualizza il report in una finestra di dialogo
-        self.display_report_dialog(report_data)
+        # Get save location
+        output_path, _ = QFileDialog.getSaveFileName(
+            self,
+            "Salva Report",
+            "",
+            "Word Documents (*.docx);;All Files (*)"
+        )
+
+        if not output_path:
+            return
+
+        if not output_path.lower().endswith('.docx'):
+            output_path += '.docx'
+
+        # Update report data with section content
+        section_content = {
+            "introduzione": ArchaeologicalAnalysis().get_introduction(),
+            "descrizione_metodologica": ArchaeologicalAnalysis().get_methodology_and_results(),
+            "descrizione_materiali": ArchaeologicalAnalysis().get_materials_info(),
+            "conclusioni": ArchaeologicalAnalysis().get_conclusions()
+        }
+        report_data.update(section_content)
+
+        # Add tables data
+        report_data['materials_table'] = self._format_materials_table()
+        report_data['pottery_table'] = self._format_pottery_table()
+
+        try:
+            template_path = os.path.join(self.HOME, "bin", "template_report_adarte.docx")
+            if not os.path.exists(template_path):
+                QMessageBox.warning(self, "Errore", "Template non trovato!")
+                return
+
+            # Prepare tables data
+            report_data['materials_table'] = self._format_materials_table()
+            report_data['pottery_table'] = self._format_pottery_table()
+
+            self.save_report_to_template(report_data, template_path, output_path)
+            QMessageBox.information(self, "Successo", f"Report salvato in {output_path}")
+
+        except Exception as e:
+            QMessageBox.critical(self, "Errore", f"Errore nel salvataggio: {str(e)}")
 
     def save_report_as_plain_doc(self, report_text, output_path):
         doc = Document()
         doc.add_paragraph(report_text)
         doc.save(output_path)
 
-    def save_report_to_file(self, report_data, template_path, output_path):
+    def save_report_to_template(self, report_data, template_path, output_path):
         doc = Document(template_path)
 
-        def replace_in_table(table, placeholder, value):
-            for row in table.rows:
-                for cell in row.cells:
-                    if placeholder in cell.text:
-                        cell.text = cell.text.replace(placeholder, str(value))
+        # Mapping delle sezioni del report con le chiavi in report_data
+        section_mapping = {
+            "{{INTRODUZIONE}}": {
+                "key": "introduzione",
+                "heading": "INTRODUZIONE"
+            },
+            "{{METODOLOGIA_DI_SCAVO}}": {
+                "key": "descrizione_metodologica",
+                "heading": "METODOLOGIA DI SCAVO"
+            },
+            "{{ANALISI_STRATIGRAFICA}}": {
+                "key": "analisi_stratigrafica",
+                "heading": "ANALISI STRATIGRAFICA E INTERPRETAZIONE"
+            },
+            "{{CATALOGO_MATERIALI}}": {
+                "key": "descrizione_materiali",
+                "heading": "CATALOGO DEI MATERIALI"
+            },
+            "{{CONCLUSIONI}}": {
+                "key": "conclusioni",
+                "heading": "CONCLUSIONI"
+            }
+        }
 
-        if doc.tables:
-            table = doc.tables[0]
-            replace_in_table(table, "Regione:", f"Regione: {report_data.get('Regione', '')}")
-            replace_in_table(table, "Provincia:", report_data.get('Provincia', ''))
-            replace_in_table(table, "Comune:", report_data.get('Comune', ''))
-            replace_in_table(table, "Ente di riferimento:",
-                             f"Ente di riferimento: {report_data.get('Ente di riferimento', '')}")
-            replace_in_table(table, "Committenza:", f"Committenza: {report_data.get('Committenza', '')}")
-            replace_in_table(table, "Direzione scientifica:",
-                             f"Direzione scientifica: {report_data.get('Direzione scientifica', '')}")
-            replace_in_table(table, "Elaborato a cura di:",
-                             f"Elaborato a cura di: {report_data.get('Elaborato a cura di', '')}")
-            replace_in_table(table, "Direttore cantiere:",
-                             f"Direttore cantiere: {report_data.get('Direttore cantiere', '')}")
-        for paragraph in doc.paragraphs:
-            if "Cantiere:" in paragraph.text:
-                paragraph.text = f"Cantiere: {report_data.get('Cantiere', '')}"
-            elif "Tipo di indagine:" in paragraph.text:
-                paragraph.text = f"Tipo di indagine: {report_data.get('Tipo di indagine', '')}"
-            elif "Titolo elaborato:" in paragraph.text:
-                paragraph.text = f"Titolo elaborato: {report_data.get('Titolo elaborato', '')}"
+        # Sostituisci i placeholder nel template
+        for para in doc.paragraphs:
+            for placeholder, section_info in section_mapping.items():
+                if placeholder in para.text:
+                    content = report_data.get(section_info["key"], "")
 
-        def find_paragraph(start_text):
-            return next((p for p in doc.paragraphs if p.text.strip().startswith(start_text)), None)
+                    # Aggiungi intestazione sezione
+                    doc.add_heading(section_info["heading"], level=1)
 
-        sections = [
-            ("INTRODUZIONE", "introduzione"),
-            ("DESCRIZIONE METODOLOGICA ED ESITO DELL'INDAGINE", "descrizione_metodologica_ed_esito_dell'indagine"),
-            ("CONCLUSIONI", "conclusioni")
-        ]
+                    # Processa il contenuto per le immagini
+                    for line in content.split('\n'):
+                        img_match = re.search(r'\[IMMAGINE\s+(?:US|RAPPORTI|FASE):\s+(.*?),\s*(.*?)\]', line)
+                        if img_match:
+                            img_path = img_match.group(1).strip()
+                            caption = img_match.group(2).strip()
+                            if os.path.exists(img_path):
+                                doc.add_picture(img_path, width=Inches(6))
+                                caption_para = doc.add_paragraph(caption)
+                                caption_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
+                                caption_para.style = 'Caption'
+                        else:
+                            doc.add_paragraph(line)
 
-        for section_title, content_key in sections:
-            paragraph = find_paragraph(section_title)
-            if paragraph and content_key in report_data:
-                new_paragraph = doc.add_paragraph()
-                paragraph._p.addnext(new_paragraph._p)
-                new_paragraph.text = report_data[content_key]
-                new_paragraph.style = doc.styles['Normal']
+        # Aggiungi tabelle dei materiali dal report_data
+        if report_data.get('materials_table'):
+            doc.add_heading("CATALOGO DEI MATERIALI", level=2)
+            table = doc.add_table(rows=1, cols=len(report_data['materials_table'][0]))
+            table.style = 'Table Grid'
+
+            # Headers
+            for i, header in enumerate(report_data['materials_table'][0]):
+                table.rows[0].cells[i].text = header
+                table.rows[0].cells[i].paragraphs[0].runs[0].bold = True
+
+            # Dati
+            for row_data in report_data['materials_table'][1:]:
+                row = table.add_row().cells
+                for i, val in enumerate(row_data):
+                    row.cells[i].text = str(val)
+
+        # Aggiungi tabella della ceramica dal report_data
+        if report_data.get('pottery_table'):
+            doc.add_heading("CATALOGO DELLA CERAMICA", level=2)
+            table = doc.add_table(rows=1, cols=len(report_data['pottery_table'][0]))
+            table.style = 'Table Grid'
+
+            # Headers
+            for i, header in enumerate(report_data['pottery_table'][0]):
+                table.rows[0].cells[i].text = header
+                table.rows[0].cells[i].paragraphs[0].runs[0].bold = True
+
+            # Dati
+            for row_data in report_data['pottery_table'][1:]:
+                row = table.add_row().cells
+                for i, val in enumerate(row_data):
+                    row.cells[i].text = str(val)
 
         doc.save(output_path)
 
-    def display_report_dialog(self, report_data):
-        report_content = "\n\n".join([
-            f"{key.upper()}:\n{value}"
-            for key, value in report_data.items()
-            if key in ['dati_di_riferimento', 'introduzione',  "descrizione_metodologica_ed_esito_dell'indagine",
-                       'conclusioni']
-        ])
-        self.report_dialog = ReportDialog(report_content, self)
-        self.report_dialog.exec_()
+    def _format_pottery_table(self):
+        """Formatta i dati della ceramica in una struttura tabellare"""
+        if not self.pottery_data:
+            return []
 
+        headers = ['ID', 'Forma', 'Impasto', 'Tipo', 'Conservazione %', 'Note']
+        rows = [[
+            pottery.get('id_number', ''),
+            pottery.get('form', ''),
+            pottery.get('fabric', ''),
+            pottery.get('ware', ''),
+            pottery.get('percent', ''),
+            pottery.get('note', '')
+        ] for pottery in self.pottery_data]
+
+        return [headers] + rows
+
+    def _format_materials_table(self):
+        """Formatta i dati dei materiali in una struttura tabellare"""
+        if not self.materials_data:
+            return []
+
+        headers = ['Inv. Number', 'Tipo', 'Definizione', 'Descrizione', 'Datazione', 'Conservazione']
+        rows = [[
+            material.get('numero_inventario', ''),
+            material.get('tipo_reperto', ''),
+            material.get('definizione', ''),
+            material.get('descrizione', ''),
+            material.get('datazione', ''),
+            material.get('stato_conservazione', '')
+        ] for material in self.materials_data]
+
+        return [headers] + rows
+
+    def _add_table_to_doc(self, doc, title, table_data):
+        """Aggiunge una tabella formattata al documento"""
+        if not table_data:
+            return
+
+        doc.add_heading(title, level=2)
+        table = doc.add_table(rows=1, cols=len(table_data[0]))
+        table.style = 'Table Grid'
+
+        # Headers
+        for i, header in enumerate(table_data[0]):
+            cell = table.rows[0].cells[i]
+            cell.text = header
+            cell.paragraphs[0].runs[0].bold = True
+
+        # Data rows
+        for row_data in table_data[1:]:
+            row = table.add_row()
+            for i, val in enumerate(row_data):
+                row.cells[i].text = str(val)
 
     def sketchgpt(self):
         items = self.iconListWidget.selectedItems()
@@ -1712,7 +3512,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
 
 
-        def log_error(message, error_type="ERROR", filename="error_log.txt"):
+        def log_error(message, error_type="ERROR", filename = "/tmp/error_log.txt"):
             timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             with open(filename, 'a', encoding='utf-8') as f:
                 f.write(f"[{timestamp}] {error_type}: {message}\n")
@@ -1809,7 +3609,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         engine = create_engine(conn_str)
 
 
-        def log_error(message, error_type="ERROR", filename="rapporti_update_log.txt"):
+        def log_error(message, error_type="ERROR", filename="/tmp/rapporti_update_log.txt"):
             timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             with open(filename, 'a', encoding='utf-8') as f:
                 f.write(f"[{timestamp}] {error_type}: {message}\n")
@@ -2412,9 +4212,19 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                         area = parts[1].split("'")[1]
 
                         words = parts[2].split()
-                        us_indices = [i for i, word in enumerate(words) if word == "SU:"]
-                        us_origine = str(words[us_indices[0] + 1])  # Converti a stringa
-                        us_target = str(words[us_indices[1] + 1])  # Converti a stringa
+                        us_indices = [i for i, word in enumerate(words) if word == "SU:" or word== "US:"]
+
+                        # Single clean handling of US values
+                        try:
+                            us_origine = str(words[us_indices[0] + 1]).strip()
+                            us_target = str(words[us_indices[1] + 1]).strip()
+
+                            if not us_origine or not us_target:
+                                raise ValueError("US values cannot be empty")
+
+                        except (IndexError, ValueError) as e:
+                            self.log_message(f"Error processing US values: {str(e)}")
+                            continue
 
                         rapp_words = words[us_indices[0] + 2:us_indices[1]]
                         rapp = " ".join(rapp_words)
@@ -2484,11 +4294,12 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 self.checkBox_validation_rapp.setChecked(old_state)
                 self.progressBar_3.setValue(0)
 
-            # Risultati finali
-            if fixed_count > 0:
-                QMessageBox.information(self, "Completato", f"Corretti {fixed_count} rapporti su {total_rapporti}")
-            else:
-                QMessageBox.warning(self, "Info", "Nessun rapporto corretto")
+            try:# Risultati finali
+                if fixed_count > 0:
+                    QMessageBox.information(self, "Completato", f"Corretti {fixed_count} rapporti su {total_rapporti}")
+            except Exception as e:
+                self.log_message(f"Errore: {str(e)}")
+                raise
 
             # Aggiorna la lista dei rapporti da validare
             self.on_pushButton_h_check_pressed()
@@ -7425,7 +9236,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.listWidget_rapp.clear()
         sito_check = str(self.comboBox_sito.currentText())
         area_check = str(self.comboBox_area.currentText())
-        models = ["gpt-4o", "gpt-4-turbo"]
+        models = ["gpt-4o", "gpt-4o-mini"]
         try:
             self.rapporti_stratigrafici_check(sito_check)
             if self.checkBox_validate.isChecked():
@@ -8104,9 +9915,9 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
 
             self.report_rapporti += (f"\nEseguire Ctrl+U per aggiornare prima di procedere con il controllo.\n\n"
-                                     ) 
+                                     )
 
-        elif aree_vuote:
+        if aree_vuote:
 
 
             self.report_rapporti += f"\nCi sono {len(aree_vuote)} rapporti con area vuota . Eseguire Ctrl+U per aggiornare prima di procedere con il controllo.\n\nDettagli:\n" + "\n".join(
@@ -11029,6 +12840,7 @@ class SQLPromptDialog(QDialog):
         self.generated_sql = None
         self.data = None
         self.iface = iface
+
         self.setWindowTitle("SQL Query Prompt")
         # Create UI elements
         self.select_prompt_button = QPushButton("Select Prompt", self)
@@ -11046,6 +12858,11 @@ class SQLPromptDialog(QDialog):
         self.clear_button = QPushButton("Clear", self)
         self.sql_output = QTextEdit(self)
         self.prompt_input.textChanged.connect(self.handle_text_changed)
+        # Add in __init__ after creating other buttons:
+        self.add_to_canvas_button = QPushButton("Add to Canvas", self)
+        self.add_to_canvas_button.setEnabled(False)
+
+
 
 
         self.results_output = QTextEdit(self)
@@ -11065,6 +12882,7 @@ class SQLPromptDialog(QDialog):
         layout.addWidget(self.results_output)
         layout.addWidget(self.export_to_excel_button)
         layout.addWidget(self.create_graph_button)
+        layout.addWidget(self.add_to_canvas_button)
 
         # Connect button click to method
         self.select_prompt_button.clicked.connect(self.on_select_prompt_clicked)
@@ -11079,6 +12897,8 @@ class SQLPromptDialog(QDialog):
 
         self.export_to_excel_button.clicked.connect(self.on_export_to_excel_button_clicked)
         self.create_graph_button.clicked.connect(self.on_create_graph_button_clicked)
+        # Add in button connections section:
+        self.add_to_canvas_button.clicked.connect(self.add_spatial_layer_to_canvas)
         # Connect signals to slots
         self.prompt_combobox.currentIndexChanged.connect(self.on_prompt_selected)
 
@@ -11186,7 +13006,6 @@ class SQLPromptDialog(QDialog):
 
         return api_key
 
-
     def on_start_button_clicked(self):
         prompt = self.prompt_input.toPlainText()
         conn = Connection()
@@ -11199,59 +13018,337 @@ class SQLPromptDialog(QDialog):
             db_type = "postgres"
 
         self.generated_sql = MakeSQL.make_api_request(prompt, db_type, self.apikey_text2sql())
+
+        # Check if this is a spatial view creation
+        if self.generated_sql and 'CREATE VIEW' in self.generated_sql.upper():
+            spatial_keywords = ['geometry', 'the_geom', 'ST_']
+            is_spatial = any(keyword.lower() in self.generated_sql.lower() for keyword in spatial_keywords)
+
+            if is_spatial:
+                # Enhance the spatial view creation SQL
+                self.generated_sql = self.enhance_spatial_view_creation(self.generated_sql)
+
         self.sql_output.setText(self.generated_sql or "No SQL statement was generated.")
-        # Retrieve the text from QPlainTextEdit
 
-
-        # Check if the prompt is not empty
+        # Record the prompt if not empty
         if prompt.strip():
-            # Record the prompt
             self.record_prompt(prompt)
-            # Optionally clear the input field or provide feedback to the user
             self.prompt_input.clear()
-            # Update the UI if necessary, e.g., refresh the list of last prompts
             self.update_prompt_ui()
-        else:
-            # Handle the case where the prompt is empty
-            print("Prompt is empty, not saving.")
-    def on_start_sql_query_clicked(self):
-        conn = Connection()
-        con_string = conn.conn_str()
 
+    def _find_all_geometry_columns(self, sql):
+        """
+        Find all geometry columns in the query
+        """
+        patterns = [
+            # ST functions with AS alias
+            r'ST_\w+\([^)]+\)\s+AS\s+(\w+)',
+            # table.the_geom AS alias
+            r'(?:\w+\.)?the_geom\s+AS\s+(\w+)',
+            # geometry AS alias
+            r'(?:\w+\.)?geometry\s+AS\s+(\w+)',
+            # direct geometry columns
+            r'(?:\w+\.)?(\w+_geom(?:etry)?)\b',
+            # the_geom without alias
+            r'(?:\w+\.)?the_geom\b',
+            # geometry without alias
+            r'(?:\w+\.)?geometry\b'
+        ]
+
+        found_geometries = []
+        for pattern in patterns:
+            matches = re.finditer(pattern, sql, re.IGNORECASE | re.MULTILINE)
+            for match in matches:
+                geom_name = match.group(1) if match.group(1) else match.group(0)
+                if geom_name and geom_name not in found_geometries:
+                    found_geometries.append(geom_name)
+
+        if found_geometries:
+            self.results_output.setText(f"Found geometry columns: {', '.join(found_geometries)}")
+
+            return found_geometries
+        return None
+
+    def _is_valid_spatial_query(self, sql, results):
+        """
+        Determine if the query results can be added to canvas
+        """
         try:
-            if self.generated_sql:
-                # Execute the SQL query and get the results
-                results = ResponseSQL.execute_sql_and_display_results(con_string, self.generated_sql)
+            # Check if we have results
+            if not results or not isinstance(results, list):
+                return False, "No results to display"
 
-                # Check if results were returned for a SELECT query
-                if isinstance(results, list):
-                    # Populate the UI with the results
-                    self.populate_results_list(results)
-                    self.export_to_excel_button.setEnabled(True)
+            # Get column names from first result
+            columns = list(results[0].keys())
 
-                    # Enable graph creation if the results have exactly 2 columns
-                    if len(results[0]) == 2:
-                        self.create_graph_button.setEnabled(True)
-                    else:
-                        self.results_output.setText("The result is not suitable for creating a graph.\n"
-                                                    "There must be only two columns,\n"
-                                                    "of which the first is the category and the second the quantities.")
-                        self.create_graph_button.setEnabled(False)
-                elif isinstance(results, str):
-                    # For non-SELECT queries, display a message and do not enable table/graph related buttons
-                    self.results_output.setText(results)
-                    self.export_to_excel_button.setEnabled(False)
-                    self.create_graph_button.setEnabled(False)
-                else:
-                    self.results_output.setText("No results found.")
-                    self.export_to_excel_button.setEnabled(False)
-                    self.create_graph_button.setEnabled(False)
-            else:
-                self.results_output.setText("No SQL query to execute.")
-                self.export_to_excel_button.setEnabled(False)
-                self.create_graph_button.setEnabled(False)
+            # Find any column that contains 'geom'
+            geom_columns = [col for col in columns if 'geom' in col.lower()]
+
+            if geom_columns:
+                # Store the geometry columns for later use
+                self.available_geom_columns = geom_columns
+                return True, f"Found geometry columns: {', '.join(geom_columns)}"
+
+            return False, "No geometry columns found in results"
+
         except Exception as e:
-            self.results_output.setText(f"An error occurred: {e}")
+            return False, f"Error checking spatial query: {str(e)}"
+
+    def on_start_sql_query_clicked(self):
+        """
+        Execute SQL query and show results
+        """
+        try:
+            current_sql = self.sql_output.toPlainText().strip()
+            if not current_sql:
+                self.results_output.setText("No SQL query to execute.")
+                return
+
+            conn = Connection()
+            con_string = conn.conn_str()
+            is_sqlite = 'sqlite' in con_string.lower()
+            self.generated_sql = current_sql
+
+            # Controlla se è una CREATE VIEW
+            is_create_view = 'CREATE' in current_sql.upper() and 'VIEW' in current_sql.upper()
+
+            if is_create_view and not is_sqlite:
+                # Estrai il nome della vista dalla query
+                view_name = re.search(r'CREATE\s+(?:OR\s+REPLACE\s+)?VIEW\s+(\w+)', current_sql, re.IGNORECASE).group(1)
+
+                # Esegui la CREATE VIEW
+                ResponseSQL.execute_sql_and_display_results(con_string, current_sql)
+
+                # Registra la geometria
+                populate_sql = f"SELECT Populate_Geometry_Columns('{view_name}'::regclass);"
+                ResponseSQL.execute_sql_and_display_results(con_string, populate_sql)
+
+                # Seleziona dati dalla vista appena creata
+                select_sql = f"SELECT * FROM {view_name};"
+                results = ResponseSQL.execute_sql_and_display_results(con_string, select_sql)
+                status_msg = f"View {view_name} created successfully."
+            else:
+                # Per SpatiaLite o query non-CREATE VIEW
+                results = ResponseSQL.execute_sql_and_display_results(con_string, current_sql)
+                status_msg = "Query executed."
+
+            # Display results in table if we have any
+            if isinstance(results, list) and results:
+                if hasattr(self, 'results_table'):
+                    self.results_table.clear()
+                    self.results_table.setRowCount(0)
+                    self.results_table.setColumnCount(0)
+
+                column_names = list(results[0].keys())
+                rows = len(results)
+                cols = len(column_names)
+
+                if not hasattr(self, 'results_table'):
+                    self.results_table = QTableWidget(rows, cols)
+                    self.layout().addWidget(self.results_table)
+                else:
+                    self.results_table.setRowCount(rows)
+                    self.results_table.setColumnCount(cols)
+
+                self.results_table.setHorizontalHeaderLabels(column_names)
+                for i, row_data in enumerate(results):
+                    for j, key in enumerate(column_names):
+                        value = row_data.get(key, '')
+                        item = QTableWidgetItem(str(value))
+                        self.results_table.setItem(i, j, item)
+
+                self.results_table.show()
+                self.export_to_excel_button.setEnabled(True)
+
+                can_add_to_canvas, spatial_msg = self._is_valid_spatial_query(current_sql, results)
+                self.add_to_canvas_button.setEnabled(can_add_to_canvas)
+
+                self.results_output.setText(
+                    f"{status_msg}\n"
+                    f"Query returned {rows} results.\n"
+                    f"Spatial status: {spatial_msg}"
+                )
+            else:
+                self.results_output.setText(
+                    f"{status_msg}\n"
+                    "No results to display."
+                )
+                if hasattr(self, 'results_table'):
+                    self.results_table.clear()
+                    self.results_table.hide()
+                self.export_to_excel_button.setEnabled(False)
+                self.add_to_canvas_button.setEnabled(False)
+
+        except Exception as e:
+            self.results_output.setText(f"An error occurred: {str(e)}")
+            self.export_to_excel_button.setEnabled(False)
+            self.add_to_canvas_button.setEnabled(False)
+            if hasattr(self, 'results_table'):
+                self.results_table.clear()
+                self.results_table.hide()
+
+    def _display_table_results(self, results):
+        """
+        Display results in table
+        """
+        try:
+            # Clear previous results if any
+            if hasattr(self, 'results_table'):
+                self.results_table.clear()
+                self.results_table.setRowCount(0)
+                self.results_table.setColumnCount(0)
+
+            # Get column names and data
+            column_names = list(results[0].keys())
+            rows = len(results)
+            cols = len(column_names)
+
+            # Create table if it doesn't exist
+            if not hasattr(self, 'results_table'):
+                self.results_table = QTableWidget(rows, cols)
+                self.layout().addWidget(self.results_table)
+            else:
+                self.results_table.setRowCount(rows)
+                self.results_table.setColumnCount(cols)
+
+            # Set column headers
+            self.results_table.setHorizontalHeaderLabels(column_names)
+
+            # Populate table with data
+            for i, row_data in enumerate(results):
+                for j, key in enumerate(column_names):
+                    value = row_data.get(key, '')
+                    item = QTableWidgetItem(str(value))
+                    self.results_table.setItem(i, j, item)
+
+            # Show the table and enable export
+            self.results_table.show()
+            self.export_to_excel_button.setEnabled(True)
+
+        except Exception as e:
+            raise Exception(f"Error displaying table: {str(e)}")
+
+    def _show_geometry_info(self, geometry_columns):
+        """
+        Show information about geometry columns and their validity
+        """
+        try:
+            status_msg = []
+            if geometry_columns:
+                status_msg.append("Geometry columns found:")
+                for geom in geometry_columns:
+                    status_msg.append(f"- {geom}")
+
+                # Test each geometry column
+                valid_geoms = []
+                for geom in geometry_columns:
+                    layer = self._test_geometry_layer(geom)
+                    if layer and layer.isValid():
+                        valid_geoms.append(geom)
+
+                if valid_geoms:
+                    status_msg.append("\nValid geometry columns that can be added to canvas:")
+                    for geom in valid_geoms:
+                        status_msg.append(f"- {geom}")
+                    self.add_to_canvas_button.setEnabled(True)
+                else:
+                    status_msg.append("\nNo valid geometry layers can be created from this query.")
+                    self.add_to_canvas_button.setEnabled(False)
+            else:
+                status_msg.append("No geometry columns found in query.")
+                self.add_to_canvas_button.setEnabled(False)
+
+            self.results_output.setText("\n".join(status_msg))
+
+        except Exception as e:
+            raise Exception(f"Error showing geometry info: {str(e)}")
+
+    def _test_geometry_layer(self, geom_column):
+        """Test if a valid layer can be created with the given geometry column"""
+        try:
+            conn = Connection()
+            uri = conn.conn_str()
+            is_sqlite = 'sqlite' in uri.lower()
+
+            if is_sqlite:
+                if uri.startswith('sqlite:'):
+                    db_path = uri.replace('sqlite:///', '')
+                    uri = f"dbname='{db_path}'"
+                elif not uri.startswith("dbname='"):
+                    uri = f"dbname='{uri}'"
+
+                layer_uri = f"{uri} table=\"({self.generated_sql})\" ({geom_column})"
+                return QgsVectorLayer(layer_uri, "test_layer", "spatialite")
+
+            return None
+        except:
+            return None
+
+    def _prepare_spatialite_view_statements(self, sql):
+        """
+        Split and enhance view creation statements for SpatiaLite
+        with proper geometry registration
+        """
+        view_match = re.search(r'CREATE VIEW\s+(?:IF NOT EXISTS\s+)?(["\w]+)', sql, re.IGNORECASE)
+        if not view_match:
+            return [sql]
+
+        view_name = view_match.group(1).replace('"', '')
+        statements = []
+
+        # Check spatialite version and init
+        statements.extend([
+            "SELECT load_extension('mod_spatialite');",
+            "SELECT InitSpatialMetadata(1);"
+        ])
+
+        # Drop existing view and create new
+        statements.extend([
+            f"DROP VIEW IF EXISTS {view_name};",
+            sql.rstrip(';')
+        ])
+
+        # Register geometry column properly
+        statements.append(
+            f"SELECT RecoverGeometryColumn('{view_name}', 'the_geom', (SELECT srid FROM geometry_columns WHERE f_table_name = 'pyunitastratigrafiche'), 'MULTIPOLYGON', 'XY');"
+        )
+
+        # Update spatial metadata
+        statements.append(f"""
+        INSERT INTO views_geometry_columns 
+        (view_name, view_geometry, view_rowid, f_table_name, f_geometry_column)
+        SELECT '{view_name}', 'the_geom', 'rowid', f_table_name, f_geometry_column
+        FROM geometry_columns WHERE f_table_name = 'pyunitastratigrafiche';
+        """)
+
+        return statements
+
+    def execute_sql_statements(self, statements, con_string):
+        """
+        Execute SQL statements with spatialite specific handling
+        """
+        conn = None
+        try:
+            conn = sq.connect(con_string.split('=')[1])
+            conn.enable_load_extension(True)
+            conn.execute('SELECT load_extension("mod_spatialite")')
+
+            results = None
+            for stmt in statements:
+                try:
+                    cursor = conn.execute(stmt)
+                    if cursor.description:
+                        results = [dict(zip([col[0] for col in cursor.description], row))
+                                   for row in cursor.fetchall()]
+                    conn.commit()
+                except sq.OperationalError as e:
+                    if "already initialized" in str(e) or "geometry column exists" in str(e):
+                        continue
+                    raise
+            return results
+        finally:
+            if conn:
+                conn.close()
 
     def on_explainsql_button_clicked(self):
         global tr, generated_explain
@@ -11353,6 +13450,797 @@ class SQLPromptDialog(QDialog):
 
     def on_explain_button_clicked(self):
         prompt = self.prompt_input.toPlainText()
+
+    def _find_geometry_alias(self, sql):
+        """
+        Find the geometry column alias in the query
+        """
+        # Pattern per trovare alias di geometrie
+        patterns = [
+            # ST functions with AS alias
+            r'ST_\w+\([^)]+\)\s+AS\s+(\w+)',
+            # table.the_geom AS alias
+            r'(?:\w+\.)?the_geom\s+AS\s+(\w+)',
+            # geometry AS alias
+            r'(?:\w+\.)?geometry\s+AS\s+(\w+)',
+            # alias for subqueries containing geometry
+            r'\(SELECT[^)]+the_geom[^)]+\)\s+AS\s+(\w+)',
+            # direct geometry column
+            r'(?:\w+\.)?(\w+_geom(?:etry)?)\b'
+        ]
+
+        for pattern in patterns:
+            matches = re.finditer(pattern, sql, re.IGNORECASE | re.MULTILINE)
+            for match in matches:
+                alias = match.group(1)
+                if alias:
+                    return alias
+
+        # Se troviamo the_geom direttamente nella query
+        if 'the_geom' in sql:
+            return 'the_geom'
+
+        return None
+
+    # def add_spatial_layer_to_canvas(self):
+    #     """
+    #     Creates a temporary layer from SQL query and adds it to QGIS canvas
+    #     """
+    #     try:
+    #         if not self.generated_sql:
+    #             return
+    #
+    #         # Get the list of available geometry columns
+    #         if hasattr(self, 'available_geom_columns') and self.available_geom_columns:
+    #             geom_column, ok = QInputDialog.getItem(
+    #                 self,
+    #                 'Select Geometry Column',
+    #                 'Choose the geometry column to use:',
+    #                 self.available_geom_columns,
+    #                 0,  # current index
+    #                 False  # non-editable
+    #             )
+    #         else:
+    #             # Fallback to text input if no columns detected
+    #             geom_column, ok = QInputDialog.getText(
+    #                 self,
+    #                 'Geometry Column',
+    #                 'Enter the name of the geometry column:',
+    #                 QLineEdit.Normal,
+    #                 'the_geom'
+    #             )
+    #
+    #         if not ok or not geom_column:
+    #             return
+    #
+    #         conn = Connection()
+    #         uri = conn.conn_str()
+    #         is_sqlite = 'sqlite' in uri.lower()
+    #
+    #         if not is_sqlite:
+    #             # PostGIS handling
+    #             if uri.startswith('PG:'):
+    #                 uri = uri[3:]
+    #             layer = QgsVectorLayer(
+    #                 f"{uri} table=({self.generated_sql}) AS temp_view ({geom_column})",
+    #                 "query_result",
+    #                 "postgres"
+    #             )
+    #         else:
+    #             # SpatiaLite handling
+    #             sql_clean = self.generated_sql.strip().rstrip(';')
+    #
+    #             if uri.startswith('sqlite:'):
+    #                 db_path = uri.replace('sqlite:///', '')
+    #                 uri = f"dbname='{db_path}'"
+    #             elif not uri.startswith("dbname='"):
+    #                 uri = f"dbname='{uri}'"
+    #
+    #             # Build the URI with the selected geometry column
+    #             layer_uri = f"{uri} table=\"({sql_clean})\" ({geom_column})"
+    #
+    #             # Debug info
+    #             self.results_output.setText(
+    #                 f"Creating layer with URI:\n{layer_uri}\n"
+    #                 f"Using geometry column: {geom_column}"
+    #             )
+    #
+    #             # Create layer
+    #             layer = QgsVectorLayer(layer_uri, "query_result", "spatialite")
+    #
+    #         if layer.isValid():
+    #             # Add layer to map
+    #             QgsProject.instance().addMapLayer(layer)
+    #             current_text = self.results_output.toPlainText()
+    #             self.results_output.setText(
+    #                 f"{current_text}\n\nSpatial layer added to canvas using '{geom_column}' column."
+    #             )
+    #
+    #             # Zoom to layer
+    #             self.iface.setActiveLayer(layer)
+    #             self.iface.zoomToActiveLayer()
+    #         else:
+    #             error_message = layer.dataProvider().error().message() if layer.dataProvider() else 'No provider error available'
+    #             self.results_output.setText(
+    #                 f"Error: Could not create layer from query.\n"
+    #                 f"Layer URI: {layer_uri if is_sqlite else layer.source()}\n"
+    #                 f"Geometry column used: {geom_column}\n"
+    #                 f"Is layer valid: {layer.isValid()}\n"
+    #                 f"Provider error message: {error_message}"
+    #             )
+    #
+    #     except Exception as e:
+    #         self.results_output.setText(f"Error creating temporary layer: {str(e)}")
+
+    def _connect_table_selection(self):
+        """
+        Connect table selection signal to selection handler
+        """
+        if hasattr(self, 'results_table'):
+            self.results_table.itemSelectionChanged.connect(self._handle_table_selection)
+
+    def _zoom_to_selected_if_possible(self, layer):
+        """
+        Try to zoom to selected features only if they have valid geometries
+        """
+        try:
+            # Check if we have selected features
+            if layer.selectedFeatureCount() == 0:
+                return False
+
+            # Get selected features
+            selected_features = layer.selectedFeatures()
+            has_valid_geometry = False
+
+            for feature in selected_features:
+                if feature.hasGeometry() and not feature.geometry().isEmpty():
+                    has_valid_geometry = True
+                    break
+
+            if has_valid_geometry:
+                self.iface.mapCanvas().zoomToSelected(layer)
+                return True
+            else:
+                return False
+
+        except Exception as e:
+            self.results_output.setText(f"Error checking geometry: {str(e)}")
+            return False
+
+    def _handle_table_selection(self):
+        """
+        Handle selection change in results table
+        """
+        try:
+            # Get selected rows
+            selected_rows = self.results_table.selectedIndexes()
+            if not selected_rows:
+                return
+
+            # Get active layer
+            layer = self.iface.activeLayer()
+            if not layer:
+                self.results_output.setText("No active layer found.")
+                return
+
+            # Clear current selection
+            layer.removeSelection()
+
+            # Get selected row data
+            row = selected_rows[0].row()
+            row_data = {}
+            for col in range(self.results_table.columnCount()):
+                header = self.results_table.horizontalHeaderItem(col).text()
+                item = self.results_table.item(row, col)
+                if item and item.text():  # Solo valori non vuoti
+                    row_data[header] = item.text()
+
+            # Get available fields in layer
+            layer_fields = [field.name() for field in layer.fields()]
+
+            # Get matching fields in the current row
+            matching_fields = []
+            for field_name in row_data.keys():
+                if field_name in layer_fields:
+                    value = row_data[field_name]
+                    try:
+                        float(value)
+                        matching_fields.append((field_name, value, 'numeric'))
+                    except ValueError:
+                        matching_fields.append((field_name, value, 'text'))
+
+            if matching_fields:
+                # Build expression using all matching fields
+                expr_parts = []
+                for field_name, value, field_type in matching_fields:
+                    if field_type == 'numeric':
+                        expr_parts.append(f"\"{field_name}\" = {value}")
+                    else:
+                        expr_parts.append(f"\"{field_name}\" = '{value}'")
+
+                # Create and apply the selection expression
+                expr = " AND ".join(expr_parts)
+                layer.selectByExpression(expr)
+
+                # Report selection status
+                if layer.selectedFeatureCount() > 0:
+                    selected_features = layer.selectedFeatureCount()
+
+                    # Try to zoom only if we have valid geometries
+                    zoomed = self._zoom_to_selected_if_possible(layer)
+
+                    status_msg = [f"Selected {selected_features} feature(s)"]
+                    status_msg.append(f"Expression used: {expr}")
+
+                    if not zoomed:
+                        status_msg.append("(No zoomable geometry available)")
+
+                    self.results_output.setText("\n".join(status_msg))
+                else:
+                    # Try with individual fields
+                    for field_name, value, field_type in matching_fields:
+                        if field_type == 'numeric':
+                            expr = f"\"{field_name}\" = {value}"
+                        else:
+                            expr = f"\"{field_name}\" = '{value}'"
+
+                        layer.selectByExpression(expr)
+                        if layer.selectedFeatureCount() > 0:
+                            zoomed = self._zoom_to_selected_if_possible(layer)
+                            status_msg = [f"Selected using field: {field_name} = {value}"]
+                            if not zoomed:
+                                status_msg.append("(No zoomable geometry available)")
+                            self.results_output.setText("\n".join(status_msg))
+                            break
+                    else:
+                        self.results_output.setText(
+                            f"Could not find matching features.\n"
+                            f"Available fields: {layer_fields}\n"
+                            f"Row values: {row_data}"
+                        )
+            else:
+                self.results_output.setText(
+                    f"No matching fields between table and layer.\n"
+                    f"Layer fields: {layer_fields}\n"
+                    f"Table fields: {list(row_data.keys())}"
+                )
+
+        except Exception as e:
+            self.results_output.setText(
+                f"Error during selection: {str(e)}\n"
+                f"Layer fields: {layer_fields if 'layer_fields' in locals() else 'unknown'}\n"
+                f"Row data: {row_data if 'row_data' in locals() else 'unknown'}"
+            )
+
+    # def add_spatial_layer_to_canvas(self):
+    #     """
+    #     Creates a temporary layer from SQL query and adds it to QGIS canvas
+    #     """
+    #     try:
+    #         if not self.generated_sql:
+    #             return
+    #
+    #         # Get the list of available geometry columns
+    #         if hasattr(self, 'available_geom_columns') and self.available_geom_columns:
+    #             geom_column, ok = QInputDialog.getItem(
+    #                 self,
+    #                 'Select Geometry Column',
+    #                 'Choose the geometry column to use:',
+    #                 self.available_geom_columns,
+    #                 0,  # current index
+    #                 False  # non-editable
+    #             )
+    #         else:
+    #             # Fallback to text input if no columns detected
+    #             geom_column, ok = QInputDialog.getText(
+    #                 self,
+    #                 'Geometry Column',
+    #                 'Enter the name of the geometry column:',
+    #                 QLineEdit.Normal,
+    #                 'the_geom'
+    #             )
+    #
+    #         if not ok or not geom_column:
+    #             return
+    #
+    #         conn = Connection()
+    #         uri = conn.conn_str()
+    #         is_sqlite = 'sqlite' in uri.lower()
+    #
+    #         if not is_sqlite:
+    #             # PostGIS handling
+    #             if uri.startswith('PG:'):
+    #                 uri = uri[3:]
+    #             layer = QgsVectorLayer(
+    #                 f"{uri} table=({self.generated_sql}) AS temp_view ({geom_column})",
+    #                 "query_result",
+    #                 "postgres"
+    #             )
+    #         else:
+    #             # SpatiaLite handling
+    #             sql_clean = self.generated_sql.strip().rstrip(';')
+    #
+    #             if uri.startswith('sqlite:'):
+    #                 db_path = uri.replace('sqlite:///', '')
+    #                 uri = f"dbname='{db_path}'"
+    #             elif not uri.startswith("dbname='"):
+    #                 uri = f"dbname='{uri}'"
+    #
+    #             layer_uri = f"{uri} table=\"({sql_clean})\" ({geom_column})"
+    #             layer = QgsVectorLayer(layer_uri, "query_result", "spatialite")
+    #
+    #         if layer.isValid():
+    #             # Add layer to map
+    #             QgsProject.instance().addMapLayer(layer)
+    #
+    #             # Make it the active layer
+    #             self.iface.setActiveLayer(layer)
+    #
+    #             # Connect table selection handler
+    #             self._connect_table_selection()
+    #
+    #             # Update UI
+    #             current_text = self.results_output.toPlainText()
+    #             self.results_output.setText(
+    #                 f"{current_text}\n\nSpatial layer added to canvas using '{geom_column}' column.\n"
+    #                 "Table selection is now linked to canvas."
+    #             )
+    #
+    #             # Zoom to layer
+    #             self.iface.zoomToActiveLayer()
+    #         else:
+    #             error_message = layer.dataProvider().error().message() if layer.dataProvider() else 'No provider error available'
+    #             self.results_output.setText(
+    #                 f"Error: Could not create layer from query.\n"
+    #                 f"Layer URI: {layer_uri if is_sqlite else layer.source()}\n"
+    #                 f"Geometry column used: {geom_column}\n"
+    #                 f"Is layer valid: {layer.isValid()}\n"
+    #                 f"Provider error message: {error_message}"
+    #             )
+    #
+    #     except Exception as e:
+    #         self.results_output.setText(f"Error creating temporary layer: {str(e)}")
+
+    def _determine_geometry_type(self, sql):
+        """
+        Determine geometry type from SQL query
+        """
+        sql_upper = sql.upper()
+
+        # Polygon functions
+        if any(x in sql_upper for x in [
+            'ST_BUFFER',
+            'ST_ENVELOPE',
+            'ST_CONVEXHULL',
+            'ST_BUILDAREA',
+            'ST_POLYGONIZE',
+            'ST_MAKEPOLYGON'
+        ]):
+            return 'MULTIPOLYGON'
+
+        # MultiPolygon functions
+        if any(x in sql_upper for x in [
+            'ST_UNION',
+            'ST_COLLECT',
+            'ST_MULTI',
+            'ST_DUMP',
+            'ST_POLYGONIZE'
+        ]):
+            return 'MULTIPOLYGON'
+
+        # Point functions
+        if any(x in sql_upper for x in [
+            'ST_POINT',
+            'ST_POINTONSURFACE',
+            'ST_CENTROID',
+            'ST_POINTN',
+            'ST_STARTPOINT',
+            'ST_ENDPOINT'
+        ]):
+            return 'POINT'
+
+        # MultiPoint functions
+        if any(x in sql_upper for x in [
+            'ST_MULTIPOINT',
+            'ST_GENERATEPOINTS'
+        ]):
+            return 'MULTIPOINT'
+
+        # LineString functions
+        if any(x in sql_upper for x in [
+            'ST_LINE',
+            'ST_LINESTRING',
+            'ST_BOUNDARY',
+            'ST_EXTERIORRING',
+            'ST_INTERIORRINGN',
+            'ST_OFFSETCURVE',
+            'ST_MAKELINE'
+        ]):
+            return 'LINESTRING'
+
+        # MultiLineString functions
+        if any(x in sql_upper for x in [
+            'ST_MULTILINESTRING',
+            'ST_LINEMERGE'
+        ]):
+            return 'MULTILINESTRING'
+
+        # Check for direct geometry column selection
+        if 'SELECT' in sql_upper:
+            # Try to find the source table and get its geometry type
+            source_table_match = re.search(r'FROM\s+(\w+)', sql)
+            if source_table_match:
+                source_table = source_table_match.group(1)
+                return f"(SELECT GeometryType(the_geom) FROM {source_table} LIMIT 1)"
+
+        return 'GEOMETRY'  # default fallback
+
+    def _create_postgis_view(self, uri, view_name, sql, geom_column):
+        """
+        Create a spatial view in PostGIS with proper geometry registration
+        """
+        try:
+            # Creiamo una lista di statement SQL da eseguire in sequenza
+            sql_statements = [
+                f"DROP VIEW IF EXISTS {view_name};",
+                f"CREATE VIEW {view_name} AS {sql};",
+                f"SELECT Populate_Geometry_Columns('{view_name}'::regclass);"
+            ]
+
+            # Esegui ogni statement separatamente e raccogli i risultati
+            results = []
+            for stmt in sql_statements:
+                result = ResponseSQL.execute_sql_and_display_results(uri, stmt)
+                if isinstance(result, list):
+                    results.extend(result)
+
+            # Verifica se la vista è stata creata
+            check_sql = f"""
+            SELECT f_geometry_column, type, srid 
+            FROM geometry_columns 
+            WHERE f_table_name = '{view_name}';
+            """
+            geom_info = ResponseSQL.execute_sql_and_display_results(uri, check_sql)
+
+            debug_msg = f"""
+            View creation completed:
+            - Statements executed: {len(sql_statements)}
+            - Results: {results}
+            - Geometry info: {geom_info}
+            """
+
+            return True, debug_msg
+
+        except Exception as e:
+            return False, f"Error creating view: {str(e)}"
+
+    def _create_vector_layer_from_postgres(self, uri, view_name, geom_column):
+        """
+        Create vector layer from PostgreSQL view
+        """
+        try:
+            # Rimuovi i parametri non necessari e spazi extra dal nome della vista
+            view_name = view_name.strip()
+
+            # Verifica il tipo di geometria e SRID
+            check_sql = f"""
+            SELECT type, srid 
+            FROM geometry_columns 
+            WHERE f_table_name = '{view_name}' 
+            AND f_geometry_column = '{geom_column}';
+            """
+
+            conn = Connection()
+            result = ResponseSQL.execute_sql_and_display_results(conn.conn_str(), check_sql)
+
+            if result and len(result) > 0:
+                geom_type = result[0]['type']
+                srid = result[0]['srid']
+
+                # Costruisci l'URI del layer
+                if uri.startswith('PG:'):
+                    uri = uri[3:]
+
+                # Estrai i parametri di connessione
+                conn_params = dict(param.split('=') for param in uri.split() if '=' in param)
+
+                # Costruisci l'URI nel formato corretto per PostGIS
+                layer_uri = (
+                    f"dbname='{conn_params.get('dbname', '')}' "
+                    f"host='{conn_params.get('host', 'localhost')}' "
+                    f"port='{conn_params.get('port', '5432')}' "
+                    f"user='{conn_params.get('user', '')}' "
+                    f"password='{conn_params.get('password', '')}' "
+                    f"sslmode='{conn_params.get('sslmode', 'prefer')}' "
+                    f"key='{geom_column}' "
+                    f"srid='{srid}' "
+                    f"type='{geom_type}' "
+                    f"table=\"{view_name}\" ({geom_column})"
+                )
+
+                # Crea il layer
+                layer = QgsVectorLayer(layer_uri, view_name, "postgres")
+
+                if layer.isValid():
+                    return layer, None
+                else:
+                    return None, f"Layer non valido.\nURI: {layer_uri}\nErrore: {layer.dataProvider().error().message()}"
+            else:
+                return None, f"Impossibile trovare informazioni sulla geometria per la vista {view_name}"
+
+        except Exception as e:
+            return None, f"Errore nella creazione del layer: {str(e)}"
+
+    def add_spatial_layer_to_canvas(self):
+        try:
+            if not self.generated_sql:
+                return
+
+            conn = Connection()
+            uri = conn.conn_str()
+            is_sqlite = 'sqlite' in uri.lower()
+
+            # Cerca la colonna geometrica nella query
+            geom_match = re.search(r'ST_\w+\([^)]+\)\s+AS\s+(\w+)', self.generated_sql, re.IGNORECASE)
+            default_geom = geom_match.group(1) if geom_match else 'the_geom'
+
+            # Get geometry column
+            if hasattr(self, 'available_geom_columns') and self.available_geom_columns:
+                geom_column, ok = QInputDialog.getItem(
+                    self,
+                    'Select Geometry Column',
+                    'Choose the geometry column to use:',
+                    self.available_geom_columns,
+                    0,
+                    False
+                )
+            else:
+                geom_column, ok = QInputDialog.getText(
+                    self,
+                    'Geometry Column',
+                    'Enter the name of the geometry column:',
+                    QLineEdit.Normal,
+                    default_geom
+                )
+
+            if not ok or not geom_column:
+                return
+
+            if is_sqlite:
+                # SpatiaLite handling
+                sql_clean = self.generated_sql.strip().rstrip(';')
+
+                if uri.startswith('sqlite:'):
+                    db_path = uri.replace('sqlite:///', '')
+                    uri = f"dbname='{db_path}'"
+                elif not uri.startswith("dbname='"):
+                    uri = f"dbname='{uri}'"
+
+                layer_uri = f"{uri} table=\"({sql_clean})\" ({geom_column})"
+                layer = QgsVectorLayer(layer_uri, "query_result", "spatialite")
+                error_message = None
+            else:
+                # PostgreSQL handling
+                try:
+                    # Get connection parameters
+                    conn_params_sql = "SELECT current_database(), inet_server_addr(), inet_server_port(), current_user;"
+                    result = ResponseSQL.execute_sql_and_display_results(uri, conn_params_sql)
+
+                    if result and len(result) > 0:
+                        db_name = result[0]['current_database']
+                        host = result[0]['inet_server_addr']
+                        port = result[0]['inet_server_port']
+                        user = result[0]['current_user']
+
+                        # Clean SQL
+                        sql_clean = self.generated_sql.strip().rstrip(';')
+
+                        # Build URI
+                        layer_uri = (
+                            f"dbname='{db_name}' "
+                            f"host='{host}' "
+                            f"port='{port}' "
+                            f"user='{user}' "
+                            f"password='postgres' "
+                            f"sslmode='prefer' "
+                            f"key='gid' "
+                            f"checkPrimaryKeyUnicity='1' "
+                            f"table=\"({sql_clean})\" ({geom_column})"
+                        )
+
+                        debug_msg = (
+                            f"PostgreSQL connection details:\n"
+                            f"Database: {db_name}\n"
+                            f"Host: {host}\n"
+                            f"Port: {port}\n"
+                            f"Username: {user}\n"
+                            f"SQL: {sql_clean}\n"
+                            f"Complete URI: {layer_uri}\n"
+                            f"Geometry column: {geom_column}"
+                        )
+                    else:
+                        self.results_output.setText("Could not get connection parameters")
+                        return
+
+                except Exception as e:
+                    self.results_output.setText(f"Error getting connection parameters: {str(e)}")
+                    return
+
+                # Create layer
+                layer = QgsVectorLayer(layer_uri, "query_result", "postgres")
+
+            if layer and layer.isValid():
+                # Add layer to map
+                QgsProject.instance().addMapLayer(layer)
+                self.iface.setActiveLayer(layer)
+                self._connect_table_selection()
+
+                self.results_output.setText(
+                    f"Spatial layer added to canvas.\n"
+                    f"Using geometry column: {geom_column}\n"
+                    f"Layer is valid and loaded successfully.\n"
+                    f"Connection details:\n{debug_msg}"
+                )
+
+                self.iface.zoomToActiveLayer()
+            else:
+                error_msg = layer.dataProvider().error().message() if layer and layer.dataProvider() else 'Unknown error'
+                self.results_output.setText(
+                    f"Error: Could not create layer.\n"
+                    f"Connection details:\n{debug_msg}\n"
+                    f"Is layer valid: {layer.isValid() if layer else False}\n"
+                    f"Provider error message: {error_msg}"
+                )
+
+        except Exception as e:
+            self.results_output.setText(f"Error creating layer: {str(e)}")
+
+    def _has_explicit_geom_alias(self, sql):
+        """
+        Check if the query already has the geometry column
+        """
+        # Controlla se c'è table.* nella query
+        if re.search(r'\w+\.\*', sql):
+            return True
+
+        # Controlla alias espliciti
+        if re.search(r'(?i)(AS\s+)?the_geom\b', sql):
+            return True
+
+        return False
+
+    def _find_geometry_column(self, sql):
+        """
+        Find the geometry column in the query
+        """
+        patterns = [
+            r'(\w+\.the_geom)',  # table.the_geom
+            r'(the_geom)',  # the_geom
+            r'(\w+\.geometry)',  # table.geometry
+            r'(geometry)',  # geometry
+            r'(ST_\w+\([^)]+\))'  # ST_* functions
+        ]
+
+        for pattern in patterns:
+            match = re.search(pattern, sql, re.IGNORECASE)
+            if match:
+                return match.group(1)
+
+        return None
+
+    def _get_geometry_column_from_query(self, sql):
+        """
+        Determines the geometry column name from the SQL query
+        """
+        # Look for AS clauses that might rename geometry columns
+        as_matches = re.finditer(r'(\w+\.the_geom)\s+AS\s+(\w+)', sql, re.IGNORECASE)
+        for match in as_matches:
+            if match.group(2):  # If we found a renamed geometry column
+                return match.group(2)
+
+        # Look for direct geometry column references
+        geom_matches = re.finditer(r'(\w+\.the_geom)', sql, re.IGNORECASE)
+        for match in geom_matches:
+            if match.group(1):  # If we found a geometry column
+                return 'the_geom'
+
+        return 'geometry'  # Default fallback
+
+    # def on_start_sql_query_clicked(self):
+    #     """
+    #     Execute SQL query and show results
+    #     """
+    #     try:
+    #         if not self.generated_sql:
+    #             self.results_output.setText("No SQL query to execute.")
+    #             return
+    #
+    #         conn = Connection()
+    #         con_string = conn.conn_str()
+    #
+    #         # Esegui la query e mostra i risultati
+    #         results = ResponseSQL.execute_sql_and_display_results(con_string, self.generated_sql)
+    #
+    #         # Gestisci i risultati
+    #         if isinstance(results, list):
+    #             self.populate_results_list(results)
+    #             self.export_to_excel_button.setEnabled(True)
+    #             self.create_graph_button.setEnabled(len(results[0]) == 2)
+    #         else:
+    #             self.results_output.setText("Query executed successfully.")
+    #             self.export_to_excel_button.setEnabled(False)
+    #             self.create_graph_button.setEnabled(False)
+    #
+    #         # Abilita il pulsante spatial se la query contiene geometria
+    #         spatial_keywords = ['the_geom', 'ST_', 'geometry']
+    #         self.add_to_canvas_button.setEnabled(
+    #             any(keyword.lower() in self.generated_sql.lower() for keyword in spatial_keywords)
+    #         )
+    #
+    #     except Exception as e:
+    #         self.results_output.setText(f"An error occurred: {str(e)}")
+    #         self.export_to_excel_button.setEnabled(False)
+    #         self.create_graph_button.setEnabled(False)
+
+    def _extract_view_name(self):
+        """Extract view name from SQL query"""
+        if 'CREATE VIEW' in self.generated_sql.upper():
+            match = re.search(r'CREATE VIEW\s+(?:IF NOT EXISTS\s+)?(["\w]+)', self.generated_sql, re.IGNORECASE)
+            if match:
+                return match.group(1).replace('"', '')
+        return None
+
+
+
+    def enhance_spatial_view_creation(self, sql_query):
+        """
+        Enhances a spatial query by converting SELECT to VIEW when needed
+        """
+        conn = Connection()
+        con_string = conn.conn_str()
+        is_sqlite = 'sqlite' in con_string.lower()
+
+        # Check if it's a SELECT query without CREATE VIEW
+        if sql_query.upper().strip().startswith('SELECT') and 'CREATE VIEW' not in sql_query.upper():
+            # Convert to CREATE VIEW
+            view_name = 'spatial_selection_view'
+            sql_query = f"CREATE VIEW {view_name} AS {sql_query}"
+
+        # Extract view name from the query
+        match = re.search(r'CREATE\s+VIEW\s+(?:IF NOT EXISTS\s+)?(["\w]+)', sql_query, re.IGNORECASE)
+        if not match:
+            return sql_query
+
+        view_name = match.group(1).replace('"', '')
+
+        # Create the enhanced SQL statements
+        enhanced_sql = []
+
+        if is_sqlite:
+            # For SpatiaLite
+            enhanced_sql.extend([
+                f"DROP VIEW IF EXISTS {view_name};",
+                sql_query.strip().rstrip(';') + ';',
+                f"""INSERT INTO views_geometry_columns 
+                (view_name, view_geometry, view_rowid, f_table_name, f_geometry_column)
+                VALUES 
+                ('{view_name}', 'the_geom', 'rowid', 'pyunitastratigrafiche', 'the_geom')"""
+            ])
+        else:
+            # For PostGIS
+            enhanced_sql.extend([
+                f"DROP VIEW IF EXISTS {view_name};",
+                sql_query,
+                f"SELECT Populate_Geometry_Columns('{view_name}'::regclass);"
+            ])
+
+        return '\n'.join(enhanced_sql) if is_sqlite else '\n'.join(enhanced_sql) + ';'
+
+
+
+
+
+
 class MplCanvas(FigureCanvas):
     def __init__(self, parent=None):
         fig = Figure()

@@ -446,6 +446,62 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         self.customize_gui()
         #self.loadMapPreview()
         self.setWindowFlags(self.windowFlags() | Qt.WindowStaysOnTopHint)
+
+    def get_images_for_entities(self, entity_ids, log_signal=None):
+        def log(message, level="info"):
+            if log_signal:
+                log_signal.emit(message, level)
+        """Recupera le immagini dalla tabella mediaentity in base agli ID forniti."""
+        log(f"Called get_images_for_entities with entity_ids: {entity_ids}")
+
+        if not entity_ids:
+            return []
+
+        try:
+            images = []
+            conn = Connection()
+            thumb_resize = conn.thumb_resize()
+            thumb_resize_str = thumb_resize['thumb_resize']
+
+            for entity_id in entity_ids:
+                log(f"Called id table: {self.ID_TABLE}")
+                # Usa la stessa logica di loadMediaPreview
+                rec_list = self.ID_TABLE + " = " + str(entity_id)
+                log(f"Called rec list: {rec_list}")
+                # Usa la stessa logica di loadMediaPreview
+                search_dict = {
+                    'id_entity': "'" + str(entity_id) + "'",
+                    'entity_type': "'REPERTO'"
+                }
+
+                record_us_list = self.DB_MANAGER.query_bool(search_dict, 'MEDIATOENTITY')
+                log(f"Found {len(record_us_list)} records for entity_id {entity_id}")  # Debug log
+
+                for media_record in record_us_list:
+                    search_dict = {'id_media': "'" + str(media_record.id_media) + "'"}
+                    u = Utility()
+                    search_dict = u.remove_empty_items_fr_dict(search_dict)
+                    mediathumb_data = self.DB_MANAGER.query_bool(search_dict, "MEDIA_THUMB")
+                    log(f"Found {len(mediathumb_data)} thumbs for media_id {media_record.id_media}")  # Debug log
+
+                    if mediathumb_data:
+                        thumb_path = str(mediathumb_data[0].path_resize)
+                        images.append({
+                            'id': entity_id,
+                            'url': thumb_resize_str + thumb_path,
+                            'caption': media_record.media_name
+                        })
+                        log(f"Added image with path: {thumb_resize_str + thumb_path}")  # Debug log
+
+            log(f"Returning total of {len(images)} images")  # Debug log
+            return images
+
+        except Exception as e:
+            log(f"Error in get_images_for_entities: {str(e)}")
+            traceback.print_exc()  # Questo mostrerà lo stack trace completo
+            return []
+
+
     def setnone(self):
         if self.lineEdit_tipo_contenitore.text=='None' or None:
             self.lineEdit_tipo_contenitore.clear()
