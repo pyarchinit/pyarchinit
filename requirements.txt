@@ -1,6 +1,6 @@
  SQLAlchemy==1.4.27
  SQLAlchemy-Utils==0.38.0
- GeoAlchemy2==0.9.4
+ GeoAlchemy2==0.17.1
  reportlab==4.1.0
  graphviz==0.20.3
  XlsxWriter==3.2.0
