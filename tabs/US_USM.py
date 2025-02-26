@@ -37,7 +37,7 @@ import pyvista as pv
 import vtk
 from qgis.PyQt.QtGui import QDesktopServices,QImage
 
-from PyQt5.QtSql import QSqlQuery
+
 from bs4 import BeautifulSoup
 
 from docx.enum.text import WD_ALIGN_PARAGRAPH
