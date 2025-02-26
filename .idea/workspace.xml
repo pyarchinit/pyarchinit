@@ -9,22 +9,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="13d9711e-af47-4516-9a74-091c329d410d" name="Changes" comment="Refactor progress bar update logic and clean up duplicated code&#10;&#10;Enhanced progress bar update by modifying the calculation and update logic. Now, it accurately calculates the progress as a percentage and stores it as an integer, improving performance. This update applies across multiple files. Redundant code lines were also eliminated for a cleaner, more readable code.">
-      <change afterPath="$PROJECT_DIR$/modules/report/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/modules/report/analysis_tools.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/modules/report/archeo_analysis.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/modules/report/report_thread.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/modules/report/table_tools.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/modules/report/validation_tools.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/test_todel.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gui/ui/pyarchinit_Pottery_ui.ui" beforeDir="false" afterPath="$PROJECT_DIR$/gui/ui/pyarchinit_Pottery_ui.ui" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/db/pyarchinit_db_manager.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/db/pyarchinit_db_manager.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/gis/pyarchinit_pyqgis.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/gis/pyarchinit_pyqgis.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/utility/textTosql.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/utility/textTosql.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tabs/Images_directory_export.py" beforeDir="false" afterPath="$PROJECT_DIR$/tabs/Images_directory_export.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tabs/Inv_Materiali.py" beforeDir="false" afterPath="$PROJECT_DIR$/tabs/Inv_Materiali.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tabs/US_USM.py" beforeDir="false" afterPath="$PROJECT_DIR$/tabs/US_USM.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tabs/pyarchinit_Pottery_mainapp.py" beforeDir="false" afterPath="$PROJECT_DIR$/tabs/pyarchinit_Pottery_mainapp.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -194,7 +179,7 @@
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
     &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
     &quot;run.code.analysis.last.selected.profile&quot;: &quot;aDefault&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;settings.codegpt&quot;
+    &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable&quot;
   },
   &quot;keyToStringList&quot;: {
     &quot;DatabaseDriversLRU&quot;: [
@@ -353,11 +338,11 @@
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.archeo_analysis" />
-        <item itemvalue="Python tests.Python tests for test1.test_field" />
         <item itemvalue="Python tests.Python tests in test1.py" />
         <item itemvalue="Python tests.Python tests for unitest.TestYourModule.test_openai_not_installed" />
         <item itemvalue="Python tests.Python tests for unitest.TestYourModule.test_openai_installed" />
+        <item itemvalue="Python tests.Python tests for test1.test_field" />
+        <item itemvalue="Python.archeo_analysis" />
       </list>
     </recent_temporary>
   </component>
@@ -542,7 +527,9 @@
       <workItem from="1739721741590" duration="1802000" />
       <workItem from="1739875484976" duration="1192000" />
       <workItem from="1739886202564" duration="594000" />
-      <workItem from="1739971344628" duration="56620000" />
+      <workItem from="1739971344628" duration="58801000" />
+      <workItem from="1740410661242" duration="7515000" />
+      <workItem from="1740567708692" duration="710000" />
     </task>
     <task id="LOCAL-00022" summary="v3.9.14">
       <created>1649165457258</created>
@@ -887,7 +874,7 @@
       <option name="project" value="LOCAL" />
       <updated>1679662089681</updated>
     </task>
-    <option name="localTasksCounter" value="178" />
+    <option name="localTasksCounter" value="187" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -931,32 +918,32 @@
     <ignored-roots>
       <path value="$PROJECT_DIR$/ext-libs/totalopenstation-0.5.2-py3.9.egg/totalopenstation_" />
     </ignored-roots>
-    <MESSAGE value="Ref" />
-    <MESSAGE value="Refactor" />
-    <MESSAGE value="Refactor CSV" />
-    <MESSAGE value="Refactor CSV reading" />
-    <MESSAGE value="Refactor CSV reading and" />
-    <MESSAGE value="Refactor CSV reading and date" />
-    <MESSAGE value="Refactor CSV reading and date processing" />
-    <MESSAGE value="Refactor CSV reading and date processing logic" />
-    <MESSAGE value="Refactor CSV reading and date processing logic to" />
-    <MESSAGE value="Refactor CSV reading and date processing logic to handle" />
-    <MESSAGE value="Refactor CSV reading and date processing logic to handle exceptions" />
-    <MESSAGE value="Refactor CSV reading and date processing logic to handle exceptions and" />
-    <MESSAGE value="Refactor CSV reading and date processing logic to handle exceptions and ensure" />
-    <MESSAGE value="Refactor CSV reading and date processing logic to handle exceptions and ensure correct" />
-    <MESSAGE value="Refactor CSV reading and date processing logic to handle exceptions and ensure correct format" />
-    <MESSAGE value="Refactor CSV reading and date processing logic to handle exceptions and ensure correct format," />
-    <MESSAGE value="Refactor CSV reading and date processing logic to handle exceptions and ensure correct format, improving" />
-    <MESSAGE value="Refactor CSV reading and date processing logic to handle exceptions and ensure correct format, improving robustness" />
-    <MESSAGE value="Refactor CSV reading and date processing logic to handle exceptions and ensure correct format, improving robustness and" />
-    <MESSAGE value="Refactor CSV reading and date processing logic to handle exceptions and ensure correct format, improving robustness and maintain" />
-    <MESSAGE value="Refactor CSV reading and date processing logic to handle exceptions and ensure correct format, improving robustness and maintainability" />
-    <MESSAGE value="Refactor CSV reading and date processing logic to handle exceptions and ensure correct format, improving robustness and maintainability of" />
-    <MESSAGE value="Refactor CSV reading and date processing logic to handle exceptions and ensure correct format, improving robustness and maintainability of the" />
-    <MESSAGE value="Refactor CSV reading and date processing logic to handle exceptions and ensure correct format, improving robustness and maintainability of the code" />
-    <MESSAGE value="Refactor CSV reading and date processing logic to handle exceptions and ensure correct format, improving robustness and maintainability of the code." />
-    <option name="LAST_COMMIT_MESSAGE" value="Refactor CSV reading and date processing logic to handle exceptions and ensure correct format, improving robustness and maintainability of the code." />
+    <MESSAGE value="Update nltk version to 3.9.1 in requirements.txt&#10;&#10;Upgraded nltk from version 3.6.6 to 3.9.1 to include the latest features, improvements, and bug fixes. This ensures compatibility with dependent code and enhances overall stability." />
+    <MESSAGE value="Update GeoAlchemy2 to version 0.17.1&#10;&#10;Upgraded GeoAlchemy2 from 0.9.4 to 0.17.1 in requirements.txt. This ensures compatibility with newer features and fixes in the library. No other dependency changes were made." />
+    <MESSAGE value="Refactor package management and initialization logic&#10;&#10;Reorganized and modularized package management with new classes (PipManager, PackageManager, FontManager) to improve clarity and platform-specific handling. Enhanced dependency installation checks, added macOS-specific fixes, and ensured environment initialization for pyArchInit. Updated UI components for better user interaction." />
+    <MESSAGE value="Bump version to 4.9.0 and update changelog.&#10;&#10;Updated the version in metadata.txt to 4.9.0 and revised the changelog to include recent improvements. Reflects enhancements to table definitions, query handling, and overall code maintainability." />
+    <MESSAGE value="Add" />
+    <MESSAGE value="Add beautiful" />
+    <MESSAGE value="Add beautifuls" />
+    <MESSAGE value="Add beautifulsoup" />
+    <MESSAGE value="Add beautifulsoup4" />
+    <MESSAGE value="Add beautifulsoup4 to" />
+    <MESSAGE value="Add beautifulsoup4 to requirements" />
+    <MESSAGE value="Add beautifulsoup4 to requirements.txt" />
+    <MESSAGE value="Add beautifulsoup4 to requirements.txt and" />
+    <MESSAGE value="Add beautifulsoup4 to requirements.txt and remove" />
+    <MESSAGE value="Add beautifulsoup4 to requirements.txt and remove unused" />
+    <MESSAGE value="Add beautifulsoup4 to requirements.txt and remove unused Q" />
+    <MESSAGE value="Add beautifulsoup4 to requirements.txt and remove unused QSql" />
+    <MESSAGE value="Add beautifulsoup4 to requirements.txt and remove unused QSqlQuery" />
+    <MESSAGE value="Add beautifulsoup4 to requirements.txt and remove unused QSqlQuery import" />
+    <MESSAGE value="Add beautifulsoup4 to requirements.txt and remove unused QSqlQuery import from" />
+    <MESSAGE value="Add beautifulsoup4 to requirements.txt and remove unused QSqlQuery import from US" />
+    <MESSAGE value="Add beautifulsoup4 to requirements.txt and remove unused QSqlQuery import from US_US" />
+    <MESSAGE value="Add beautifulsoup4 to requirements.txt and remove unused QSqlQuery import from US_USM" />
+    <MESSAGE value="Add beautifulsoup4 to requirements.txt and remove unused QSqlQuery import from US_USM.py" />
+    <MESSAGE value="Add beautifulsoup4 to requirements.txt and remove unused QSqlQuery import from US_USM.py." />
+    <option name="LAST_COMMIT_MESSAGE" value="Add beautifulsoup4 to requirements.txt and remove unused QSqlQuery import from US_USM.py." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
