@@ -81,8 +81,10 @@ class Pyarchinit_db_management(object):
             dbapi_conn.load_extension('mod_spatialite.so')
         else:
             dbapi_conn.load_extension('mod_spatialite.so')  
+
+
     def connection(self):
-        global conn
+        conn = None
         test = True
 
         try:
@@ -98,7 +100,7 @@ class Pyarchinit_db_management(object):
             conn = self.engine.connect()
             
         except Exception as e:
-            QMessageBox.warning(None, "Message", "Error: "+str(e), QMessageBox.Ok)
+            QMessageBox.warning(None, "Message", f"Error. Problema nella connessione con il db: {e}", QMessageBox.Ok)
             test = False
         finally:
             conn.close()
@@ -107,7 +109,8 @@ class Pyarchinit_db_management(object):
             db_upd = DB_update(self.conn_str)
             db_upd.update_table()
         except Exception as e:
-            QMessageBox.warning(None, "Message", "Error: "+str(e), QMessageBox.Ok)
+            QMessageBox.warning(None, "Message", f"Error. problema nell' aggiornamento del db: {e}", QMessageBox.Ok)
+
             test = False
         return test
 
