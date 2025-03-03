@@ -20,6 +20,8 @@
 """
 import ast
 import os
+import traceback
+
 import sqlalchemy as db
 import math
 
@@ -98,19 +100,21 @@ class Pyarchinit_db_management(object):
                 
             self.metadata = MetaData(self.engine)
             conn = self.engine.connect()
-            
+
         except Exception as e:
-            QMessageBox.warning(None, "Message", f"Error. Problema nella connessione con il db: {e}", QMessageBox.Ok)
+            error_message = f"Error. Problema nella connessione con il db: {e}\nTraceback: {traceback.format_exc()}"
+            QMessageBox.warning(None, "Message", error_message, QMessageBox.Ok)
             test = False
         finally:
-            conn.close()
+            if conn:
+                conn.close()
 
         try:
             db_upd = DB_update(self.conn_str)
             db_upd.update_table()
         except Exception as e:
-            QMessageBox.warning(None, "Message", f"Error. problema nell' aggiornamento del db: {e}", QMessageBox.Ok)
-
+            error_message = f"Error. problema nell' aggiornamento del db: {e}\nTraceback: {traceback.format_exc()}"
+            QMessageBox.warning(None, "Message", error_message, QMessageBox.Ok)
             test = False
         return test
 
