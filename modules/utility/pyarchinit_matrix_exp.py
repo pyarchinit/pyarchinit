@@ -934,7 +934,7 @@ class ViewHarrisMatrix:
         if os.path.getsize(error_file_path) > 0:
             with open(error_file_path, "r") as err_file:
                 errors = err_file.read()
-                showMessage(f"Errori durante l'esecuzione di `tred`:\n{errors}", title='Errore',
+                showMessage(f"Errori durante l'esecuzione di `tred`:\n{errors}\n prova a ridurre i dpi", title='Errore',
                 icon=QMessageBox.Warning)
         else:
             pass#showMessage("Nessun errore riportato da `tred`.")
