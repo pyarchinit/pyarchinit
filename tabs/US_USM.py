@@ -3512,7 +3512,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
 
 
-        def log_error(message, error_type="ERROR", filename = "/tmp/error_log.txt"):
+        def log_error(message, error_type="ERROR", filename = "error_log.txt"):
             timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             with open(filename, 'a', encoding='utf-8') as f:
                 f.write(f"[{timestamp}] {error_type}: {message}\n")
@@ -3609,7 +3609,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         engine = create_engine(conn_str)
 
 
-        def log_error(message, error_type="ERROR", filename="/tmp/rapporti_update_log.txt"):
+        def log_error(message, error_type="ERROR", filename="rapporti_update_log.txt"):
             timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             with open(filename, 'a', encoding='utf-8') as f:
                 f.write(f"[{timestamp}] {error_type}: {message}\n")
