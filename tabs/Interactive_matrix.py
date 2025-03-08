@@ -269,7 +269,6 @@ class pyarchinit_Interactive_Matrix(QDialog, MAIN_DIALOG_CLASS):
             us = str(sing_rec.us)
             un_t = str(sing_rec.unita_tipo)
             sito = str(sing_rec.sito)
-
             area = str(sing_rec.area)
 
             rapporti_stratigrafici = eval(sing_rec.rapporti)
@@ -295,27 +294,21 @@ class pyarchinit_Interactive_Matrix(QDialog, MAIN_DIALOG_CLASS):
             except Exception as e:
                 print(f"Errore durante la generazione della matrice: {e}")
 
-
-            except Exception as e:
-
                 if self.L == 'it':
                     QMessageBox.warning(self, "Warning", "Problema nel sistema di esportazione del Matrix:" + str(e),
                                         QMessageBox.Ok)
                 elif self.L == 'de':
                     QMessageBox.warning(self, "Warnung", "Problem im Matrix-Exportsystem:" + str(e),
                                         QMessageBox.Ok)
-
                 else:
                     QMessageBox.warning(self, "Warning", "Problem in the Matrix export system:" + str(e),
                                         QMessageBox.Ok)
+
         sito = self.DATA_LIST[0].sito
-        #area = self.DATA_LIST[0].area
+        # area = self.DATA_LIST[0].area
 
         search_dict = {
             'sito': "'" + str(sito) + "'",
-
-
-
         }
 
         periodizz_data_list = self.DB_MANAGER.query_bool(search_dict, 'PERIODIZZAZIONE')
@@ -323,7 +316,7 @@ class pyarchinit_Interactive_Matrix(QDialog, MAIN_DIALOG_CLASS):
         periodi_data_values = []
 
         for a in periodizz_data_list:
-            periodi_data_values.append([a.cont_per, a.datazione_estesa, a.periodo,a.fase, a.descrizione])
+            periodi_data_values.append([a.cont_per, a.datazione_estesa, a.periodo, a.fase, a.descrizione])
 
         # Clear the previous contents of the list
         periodi_us_list = []
@@ -331,49 +324,78 @@ class pyarchinit_Interactive_Matrix(QDialog, MAIN_DIALOG_CLASS):
         clust_number = 0
 
         # Get all the areas
-        areas = set([rec.area for rec in self.DATA_LIST if rec.sito == sito])  # update here
-        #per = set([rec.fase_iniziale for rec in self.DATA_LIST if rec.sito == sito])  # update here
+        areas = set([rec.area for rec in self.DATA_LIST if rec.sito == sito])
         cluster_label = "cluster%s" % clust_number
 
         # Iterate over the unique areas
         for area in areas:
-
-
-
             for i in periodi_data_values:
                 search_dict2 = {
                     'sito': "'" + str(sito) + "'",
-                    'area': "'" + str(area) + "'",  # add 'area' to the search_dict2
+                    #'area': "'" + str(area) + "'",
                     'periodo_iniziale': "'" + str(i[2]) + "'",
                     'fase_iniziale': "'" + str(i[3]) + "'"
-
                 }
                 us_group = self.DB_MANAGER.query_bool(search_dict2, 'US')
 
                 periodo_label = "%s" % (str(i[1]))
 
-                sing_us = [rec.area + '_' + 'US' + str(rec.us)  for rec in
-                           us_group]  # create list of 'us' under the same 'area', 'periodo_iniziale' and 'fase_iniziale'
+                sing_us = [rec.area + '_' + 'US' + str(rec.us) for rec in us_group]
 
-                fase = "Fase%s: %s" % (str(i[3]),str(i[4]))
-                sing_fase = [fase, sing_us]  # create a nested list for each 'periodo_fase' with its corresponding list of 'us'
+                # Modifica: Usiamo le cronologie iniziali e finali
+                fase_id = i[3]  # Il numero/id della fase
+                periodo_id = i[2]  # Il numero/id del periodo
+
+                # Cerchiamo le cronologie dalla tabella PERIODIZZAZIONE
+                try:
+                    # Query per trovare le date di inizio e fine
+                    search_dates = {
+                        'sito': "'" + str(sito) + "'",
+                        #'area': "'" + str(area) + "'",
+                        'periodo': "'" + str(periodo_id) + "'",
+                        'fase': "'" + str(fase_id) + "'"
+                    }
+
+                    # Query per ottenere i campi cron_iniziale e cron_finale
+                    date_records = self.DB_MANAGER.query_bool(search_dates, 'PERIODIZZAZIONE')
+
+                    if date_records and len(date_records) > 0:
+                        if hasattr(date_records[0], 'cron_iniziale') and hasattr(date_records[0], 'cron_finale'):
+                            # Gestione dei valori negativi (per date a.C.)
+                            cron_iniziale = date_records[0].cron_iniziale
+                            cron_finale = date_records[0].cron_finale
+
+                            # Formattazione con gestione di valori negativi (a.C.)
+                            iniziale_str = str(abs(cron_iniziale)) + " a.C." if cron_iniziale < 0 else str(
+                                cron_iniziale) + " d.C."
+                            finale_str = str(abs(cron_finale)) + " a.C." if cron_finale < 0 else str(
+                                cron_finale) + " d.C."
+
+                            fase = "Fase%s: da %s a %s" % (str(fase_id), iniziale_str, finale_str)
+                        else:
+                            # Fallback al datazione_estesa se i campi non sono disponibili
+                            fase = "Fase%s: %s" % (str(fase_id), str(i[1]))
+                    else:
+                        # Se non troviamo i dati specifici, usiamo solo il numero della fase
+                        fase = "Fase%s" % str(fase_id)
+                except Exception as e:
+                    QMessageBox.warning(self,'Error',f"Errore nel recupero delle cronologie: {e}")
+                    # Fallback in caso di errore
+                    fase = "Fase%s" % str(fase_id)
+                sing_fase = [fase, sing_us]
 
                 periodo = "%s" % (str(i[2]))
-                sing_per = [periodo,
-                             sing_fase]  # create a nested list for each 'periodo_fase' with its corresponding list of 'us'
+                sing_per = [periodo, sing_fase]
 
-                sing_per = [periodo_label,
-                            sing_per]  # create a nested list for each 'periodo_fase' with its corresponding list of 'us'
+                sing_per = [periodo_label, sing_per]
 
-                area_label = "%s" % str(area)  # create area label
-                sing_area = [cluster_label, area_label,
-                             sing_per]  # create list that includes area label and the nested 'sing_per' list
+                area_label = "%s" % str(area)
+                sing_area = [cluster_label, area_label, sing_per]
 
-                sito_label = "%s" % str(sito)  # create sito label
-                sing_sito = [cluster_label, sito_label,
-                             sing_area]  # create list that includes sito label and the nested 'sing_area' list
+                sito_label = "%s" % str(sito)
+                sing_sito = [cluster_label, sito_label, sing_area]
 
-                periodi_us_list.append(sing_sito)  # append the nested 'sing_sito' list to the 'periodi_us_list'
+                periodi_us_list.append(sing_sito)
 
                 clust_number += 1
 
@@ -389,6 +411,7 @@ class pyarchinit_Interactive_Matrix(QDialog, MAIN_DIALOG_CLASS):
             QMessageBox.information(self, "Info", "Exportation complited", QMessageBox.Ok)
 
         return data_plotting
+
 
 class pyarchinit_view_Matrix(QDialog, MAIN_DIALOG_CLASS):
     L = QgsSettings().value("locale/userLocale")[0:2]
