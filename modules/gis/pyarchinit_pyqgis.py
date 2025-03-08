@@ -29,10 +29,12 @@ from builtins import str
 
 from qgis.PyQt.QtGui import *
 from qgis.PyQt.QtWidgets import *
-from qgis.PyQt.QtCore import Qt
+
 from qgis.core import *
 from qgis.gui import *
-
+from qgis.PyQt.QtWidgets import QProgressBar, QApplication, QMessageBox
+from qgis.PyQt.QtCore import Qt
+import time
 import urllib.request
 import urllib.error
 
@@ -4613,95 +4615,334 @@ class Order_layer_v2(object):
         frame_gm.moveCenter(center_point)
         widget.move(frame_gm.topLeft())
 
+    # def main_order_layer(self):
+    #     """
+    #
+    #     This method is used to perform the main order layering process. It takes no parameters and returns a dictionary or a string.
+    #
+    #     Returns:
+    #     - order_dict (dict): The dictionary containing the ordered matrix of user stories if the order_count is less than 1000.
+    #     - "error" (str): If the order_count is greater than or equal to 1000 or if the execution time exceeds 60 seconds.
+    #
+    #     """
+    #     # ricava la base delle us del matrix a cui non succedono altre US
+    #
+    #     #progress_dialog = ProgressDialog()
+    #     matrix_us_level = self.find_base_matrix()
+    #     #result = None
+    #
+    #     self.insert_into_dict(matrix_us_level)
+    #     #QMessageBox.warning(None, "Messaggio", "DATA LIST" + str(matrix_us_level), QMessageBox.Ok)
+    #     test = 0
+    #     start_time = time.time()
+    #     error_occurred = False
+    #     cycle_count = 0
+    #
+    #     # Set the maximum value of the progress bar
+    #     #progress_bar.setMaximum(1000)
+    #     try:
+    #         while test == 0:
+    #             # your code here
+    #             cycle_count += 1
+    #
+    #             # Check for error
+    #             if error_occurred:
+    #                 print("An error occurred!")
+    #                 break
+    #
+    #             # Check for cycle count
+    #             if cycle_count > 3000:
+    #                 print("Maximum cycle count reached!")
+    #                 break
+    #
+    #             rec_list_str = []
+    #             for i in matrix_us_level:
+    #                 rec_list_str.append(str(i))
+    #                 # cerca prima di tutto se ci sono us uguali o che si legano alle US sottostanti
+    #             #QMessageBox.warning(None, "Messaggio", "DATA LIST" + str(rec_list_str), QMessageBox.Ok)
+    #             if self.L=='it':
+    #                 value_list_equal = self.create_list_values(['Uguale a', 'Si lega a', 'Same as','Connected to'], rec_list_str, self.AREA, self.SITO)
+    #             elif self.L=='de':
+    #                 value_list_equal = self.create_list_values(["Entspricht", "Bindet an"], rec_list_str, self.AREA, self.SITO)
+    #             else:
+    #                 value_list_equal = self.create_list_values(['Same as','Connected to'], rec_list_str, self.AREA, self.SITO)
+    #
+    #             res = self.db.query_in_contains(value_list_equal, self.SITO, self.AREA)
+    #
+    #             matrix_us_equal_level = []
+    #             for r in res:
+    #                 matrix_us_equal_level.append(str(r.us))
+    #             #QMessageBox.information(None, 'matrix_us_equal_level', f"{value_list_equal}")
+    #             if matrix_us_equal_level:
+    #                 self.insert_into_dict(matrix_us_equal_level, 1)
+    #
+    #             rec = rec_list_str+matrix_us_equal_level#rec_list_str+
+    #             if self.L=='it':
+    #                 value_list_post = self.create_list_values(['>>','Copre', 'Riempie', 'Taglia', 'Si appoggia a','Covers','Fills','Cuts','Abuts'], rec,self.AREA, self.SITO)
+    #             elif self.L=='de':
+    #                 value_list_post = self.create_list_values(['>>','Liegt über','Verfüllt','Schneidet','Stützt sich auf'], rec,self.AREA, self.SITO)
+    #             else:
+    #                 value_list_post = self.create_list_values(['>>','Covers','Fills','Cuts','Abuts'], rec,self.AREA, self.SITO)
+    #
+    #             #QMessageBox.information(None, 'value_list_post', f"{value_list_post}", QMessageBox.Ok)
+    #             #try:
+    #             res_t = self.db.query_in_contains(value_list_post, self.SITO, self.AREA)
+    #             matrix_us_level = []
+    #             for e in res_t:
+    #                 #QMessageBox.information(None, "res_t", f"{e}", QMessageBox.Ok)
+    #                 matrix_us_level.append(str(e.us))
+    #
+    #             if not matrix_us_level or self.order_count >= 3000 or time.time() - start_time > 90:
+    #                 test = 1
+    #
+    #                 return self.order_dict if self.order_count < 3000 else "error"
+    #
+    #             else:
+    #                 self.insert_into_dict(matrix_us_level, 1)
+    #         #progress_dialog.closeEvent(Ignore)
+    #
+    #     except Exception as e:
+    #         QMessageBox.warning(None, "Attenzione", "La lista delle us generate supera il limite depth max 1000.\n Usare Postgres per generare l'order layer")
+
     def main_order_layer(self):
         """
-
         This method is used to perform the main order layering process. It takes no parameters and returns a dictionary or a string.
 
         Returns:
-        - order_dict (dict): The dictionary containing the ordered matrix of user stories if the order_count is less than 1000.
-        - "error" (str): If the order_count is greater than or equal to 1000 or if the execution time exceeds 60 seconds.
-
+        - order_dict (dict): The dictionary containing the ordered matrix of user stories if the order_count is less than 3000.
+        - "error" (str): If the order_count is greater than or equal to 3000 or if the execution time exceeds 90 seconds.
         """
-        # ricava la base delle us del matrix a cui non succedono altre US
+        # Importazioni necessarie
+        from qgis.PyQt.QtWidgets import QProgressBar, QApplication, QMessageBox
+        from qgis.PyQt.QtCore import Qt
+        import time
 
-        #progress_dialog = ProgressDialog()
-        matrix_us_level = self.find_base_matrix()
-        #result = None
+        # Variabili per il controllo dell'esecuzione
+        max_cycles = 3000
+        max_time = 90  # secondi
 
-        self.insert_into_dict(matrix_us_level)
-        #QMessageBox.warning(None, "Messaggio", "DATA LIST" + str(matrix_us_level), QMessageBox.Ok)
-        test = 0
-        start_time = time.time()
-        error_occurred = False
-        cycle_count = 0
+        # Azzera order_count se esiste per evitare valori residui da chiamate precedenti
+        if hasattr(self, 'order_count'):
+            self.order_count = 0
+        else:
+            self.order_count = 0
 
-        # Set the maximum value of the progress bar
-        #progress_bar.setMaximum(1000)
+        # Resetta order_dict se esiste
+        if hasattr(self, 'order_dict'):
+            self.order_dict = {}
+        else:
+            self.order_dict = {}
+
+        # Crea una progress bar più semplice che si aggiorna meno frequentemente
+        progress = QProgressBar()
+        progress.setWindowTitle("Generazione ordine stratigrafico")
+        progress.setGeometry(300, 300, 400, 40)
+        progress.setMinimum(0)
+        progress.setMaximum(100)
+        progress.setValue(0)
+        progress.setTextVisible(True)
+        progress.setFormat("Inizializzazione...")
+
         try:
+            # Utilizziamo la classe Qt di QGIS
+            progress.setWindowModality(Qt.WindowModal)
+            progress.setAlignment(Qt.AlignCenter)
+        except AttributeError:
+            pass
+
+        progress.show()
+        QApplication.processEvents()
+        time.sleep(0.2)  # Pausa per assicurarsi che la UI si aggiorni
+
+        # Controlla se siamo connessi a SQLite
+        is_sqlite = False
+        try:
+            if 'sqlite' in str(self.db.engine.url).lower():
+                is_sqlite = True
+                print("Rilevata connessione SQLite")
+        except:
+            print("Impossibile determinare il tipo di database")
+
+        try:
+            # Fase 1: Trova la base del matrix
+            progress.setValue(10)
+            progress.setFormat("Ricerca base matrix...")
+            QApplication.processEvents()
+
+            matrix_us_level = self.find_base_matrix()
+            if not matrix_us_level:
+                progress.setValue(100)
+                progress.setFormat("Nessuna base matrix trovata!")
+                QApplication.processEvents()
+                time.sleep(1)
+                progress.close()
+                QMessageBox.warning(None, "Attenzione", "Nessuna US di base trovata per iniziare il matrix!")
+                return "error"
+
+            progress.setValue(15)
+            progress.setFormat("Inserimento dati iniziali...")
+            QApplication.processEvents()
+
+            # Inseriamo i dati iniziali nel dizionario
+            self.insert_into_dict(matrix_us_level)
+            print(f"Inseriti {len(matrix_us_level)} record iniziali nel dizionario")
+
+            # Variabili per il ciclo principale
+            test = 0
+            start_time = time.time()
+            cycle_count = 0
+
+            progress.setValue(20)
+            progress.setFormat("Avvio elaborazione...")
+            QApplication.processEvents()
+            time.sleep(0.2)
+
+            # Array per monitorare quando aggiornare la UI
+            update_cycles = [1, 5, 10, 25, 50, 100, 200, 500, 1000, 1500, 2000, 2500, 3000]
+
+            # Ciclo principale
             while test == 0:
-                # your code here
                 cycle_count += 1
 
-                # Check for error
-                if error_occurred:
-                    print("An error occurred!")
-                    break
+                # Aggiorna progress bar solo in cicli specifici o ogni 100 cicli dopo i primi 500
+                should_update = (cycle_count in update_cycles) or (cycle_count > 500 and cycle_count % 100 == 0)
 
-                # Check for cycle count
-                if cycle_count > 3000:
-                    print("Maximum cycle count reached!")
-                    break
+                if should_update:
+                    # Calcola percentuale basata sul numero di cicli
+                    progress_percentage = 20 + min(75, (cycle_count / max_cycles) * 75)
+                    progress.setValue(int(progress_percentage))
+                    progress.setFormat(f"Ciclo {cycle_count}/{max_cycles} ({int(progress_percentage)}%)")
+                    QApplication.processEvents()
+                    print( f"Ciclo {cycle_count}: order_count = {self.order_count}")
 
+                # Ottieni tutti gli elementi US nel dizionario corrente
                 rec_list_str = []
                 for i in matrix_us_level:
                     rec_list_str.append(str(i))
-                    # cerca prima di tutto se ci sono us uguali o che si legano alle US sottostanti
-                #QMessageBox.warning(None, "Messaggio", "DATA LIST" + str(rec_list_str), QMessageBox.Ok)
-                if self.L=='it':
-                    value_list_equal = self.create_list_values(['Uguale a', 'Si lega a', 'Same as','Connected to'], rec_list_str, self.AREA, self.SITO)
-                elif self.L=='de':
-                    value_list_equal = self.create_list_values(["Entspricht", "Bindet an"], rec_list_str, self.AREA, self.SITO)
+
+                # Cerca US che sono uguali o si legano alle US esistenti
+                if self.L == 'it':
+                    value_list_equal = self.create_list_values(['Uguale a', 'Si lega a', 'Same as', 'Connected to'],
+                                                               rec_list_str, self.AREA, self.SITO)
+                elif self.L == 'de':
+                    value_list_equal = self.create_list_values(["Entspricht", "Bindet an"], rec_list_str, self.AREA,
+                                                               self.SITO)
                 else:
-                    value_list_equal = self.create_list_values(['Same as','Connected to'], rec_list_str, self.AREA, self.SITO)
+                    value_list_equal = self.create_list_values(['Same as', 'Connected to'], rec_list_str, self.AREA,
+                                                               self.SITO)
 
+                # Ottieni i risultati usando la funzione appropriate
+                #try:
                 res = self.db.query_in_contains(value_list_equal, self.SITO, self.AREA)
+                # except Exception as e:
+                #     print( f"query_in_contains fallita: {str(e)}")
+                #     if is_sqlite:
+                #         try:
+                #             res = self.db.query_in_contains_onlysqlite(value_list_equal, self.SITO, self.AREA)
+                #         except Exception as e2:
+                #             print( f"Anche query_in_contains_onlysqlite fallita: {str(e2)}")
+                #             res = []
+                #     else:
+                #         res = []
 
+                # Elabora i risultati per i legami uguali
                 matrix_us_equal_level = []
                 for r in res:
                     matrix_us_equal_level.append(str(r.us))
-                #QMessageBox.information(None, 'matrix_us_equal_level', f"{value_list_equal}")
+
+                # Aggiungi i risultati al dizionario se ce ne sono
                 if matrix_us_equal_level:
                     self.insert_into_dict(matrix_us_equal_level, 1)
+                    #if should_update:
+                        #print( f"Ciclo {cycle_count}: Aggiunti {len(matrix_us_equal_level)} elementi 'equal'")
 
-                rec = rec_list_str+matrix_us_equal_level#rec_list_str+
-                if self.L=='it':
-                    value_list_post = self.create_list_values(['>>','Copre', 'Riempie', 'Taglia', 'Si appoggia a','Covers','Fills','Cuts','Abuts'], rec,self.AREA, self.SITO)
-                elif self.L=='de':
-                    value_list_post = self.create_list_values(['>>','Liegt über','Verfüllt','Schneidet','Stützt sich auf'], rec,self.AREA, self.SITO)
+                # Combina le liste per la prossima ricerca
+                rec = rec_list_str + matrix_us_equal_level
+
+                # Cerca US che sono coperti, riempiti, ecc.
+                if self.L == 'it':
+                    value_list_post = self.create_list_values(
+                        ['>>', 'Copre', 'Riempie', 'Taglia', 'Si appoggia a', 'Covers', 'Fills', 'Cuts', 'Abuts'], rec,
+                        self.AREA, self.SITO)
+                elif self.L == 'de':
+                    value_list_post = self.create_list_values(
+                        ['>>', 'Liegt über', 'Verfüllt', 'Schneidet', 'Stützt sich auf'], rec, self.AREA, self.SITO)
                 else:
-                    value_list_post = self.create_list_values(['>>','Covers','Fills','Cuts','Abuts'], rec,self.AREA, self.SITO)
+                    value_list_post = self.create_list_values(['>>', 'Covers', 'Fills', 'Cuts', 'Abuts'], rec,
+                                                              self.AREA, self.SITO)
 
-                #QMessageBox.information(None, 'value_list_post', f"{value_list_post}", QMessageBox.Ok)
+                # Ottieni i risultati usando la funzione appropriate
                 #try:
                 res_t = self.db.query_in_contains(value_list_post, self.SITO, self.AREA)
+                # except Exception as e:
+                #     print( f"query_in_contains fallita: {str(e)}")
+                #     if is_sqlite:
+                #         try:
+                #             res_t = self.db.query_in_contains_onlysqlite(value_list_post, self.SITO, self.AREA)
+                #         except Exception as e2:
+                #             print( f"Anche query_in_contains_onlysqlite fallita: {str(e2)}")
+                #             res_t = []
+                #     else:
+                #         res_t = []
+
+                # Elabora i risultati
                 matrix_us_level = []
                 for e in res_t:
-                    #QMessageBox.information(None, "res_t", f"{e}", QMessageBox.Ok)
                     matrix_us_level.append(str(e.us))
 
-                if not matrix_us_level or self.order_count >= 3000 or time.time() - start_time > 90:
+                # Controlla se è il momento di terminare
+                elapsed_time = time.time() - start_time
+                if not matrix_us_level or self.order_count >= max_cycles or elapsed_time > max_time:
                     test = 1
 
-                    return self.order_dict if self.order_count < 3000 else "error"
+                    # Aggiorna la progress bar al 100%
+                    progress.setValue(100)
 
+                    if not matrix_us_level:
+                        progress.setFormat(f"Completato! Cicli: {cycle_count}, Record: {self.order_count}")
+                    elif self.order_count >= max_cycles:
+                        progress.setFormat(f"Limite di record raggiunto: {self.order_count}")
+                    elif elapsed_time > max_time:
+                        progress.setFormat(f"Tempo massimo superato: {int(elapsed_time)}s")
+
+                    QApplication.processEvents()
+                    time.sleep(1)
+                    progress.close()
+
+                    print( f"Completato! order_count = {self.order_count}, order_dict size = {len(self.order_dict)}")
+
+                    if self.order_count < max_cycles:
+                        return self.order_dict
+                    else:
+                        return "error"
                 else:
+                    # Aggiungi i nuovi elementi al dizionario
+                    previous_count = self.order_count
                     self.insert_into_dict(matrix_us_level, 1)
-            #progress_dialog.closeEvent(Ignore)
+                    if should_update and (self.order_count > previous_count):
+                        print( f"Ciclo {cycle_count}: Aggiunti {self.order_count - previous_count} nuovi elementi")
+
+            # Questa parte non dovrebbe mai essere raggiunta, ma per sicurezza:
+            progress.close()
+            return self.order_dict if self.order_count < max_cycles else "error"
 
         except Exception as e:
-            QMessageBox.warning(None, "Attenzione", "La lista delle us generate supera il limite depth max 1000.\n Usare Postgres per generare l'order layer")
+            # Gestione degli errori
+            error_msg = str(e)
+            QMessageBox.information(None, "Avviso", f"Errore nell'elaborazione: {error_msg}")
 
+            progress.setValue(100)
+            short_error = error_msg[:30] + "..." if len(error_msg) > 30 else error_msg
+            progress.setFormat(f"Errore: {short_error}")
+            QApplication.processEvents()
+            time.sleep(1)
+            progress.close()
+
+            QMessageBox.warning(None, "Attenzione",
+                                f"Errore durante la generazione dell'order layer: {error_msg}\n" +
+                                "La lista delle us generate supera il limite o si è verificato un errore.\n" +
+                                "Usare Postgres per generare l'order layer")
+            return "error"
 
 
     def find_base_matrix(self):
