@@ -18,44 +18,43 @@
  *                                                                         *
  ***************************************************************************/
 """
-import ast
+
 import os
 import traceback
+import time
+from qgis.PyQt.QtCore import Qt
 
-import sqlalchemy as db
+
 import math
 
+from qgis.PyQt.QtWidgets import QProgressBar, QApplication
 from sqlalchemy.exc import SQLAlchemyError
-from sqlalchemy.sql.expression import *
+
 from sqlalchemy.event import listen
 import psycopg2
 from builtins import object
 from builtins import range
 from builtins import str
 from builtins import zip
-from sqlalchemy import and_, or_, Table, select, func, asc,UniqueConstraint
+from sqlalchemy import and_, or_, asc, desc
 from geoalchemy2 import *
 from sqlalchemy.engine import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql.schema import MetaData
 from qgis.core import *
-from qgis.utils import iface
+
 from qgis.PyQt.QtWidgets import QMessageBox
 from modules.utility.pyarchinit_OS_utility import Pyarchinit_OS_Utility
-from sqlalchemy.dialects import postgresql
-from sqlalchemy.dialects.postgresql import insert
+
 
 from modules.db.pyarchinit_db_mapper import US, UT, SITE, PERIODIZZAZIONE, POTTERY, \
     STRUTTURA, SCHEDAIND, INVENTARIO_MATERIALI, DETSESSO, DOCUMENTAZIONE, DETETA, MEDIA, \
     MEDIA_THUMB, MEDIATOENTITY, MEDIAVIEW, TOMBA, CAMPIONI, PYARCHINIT_THESAURUS_SIGLE, \
-    INVENTARIO_LAPIDEI, PDF_ADMINISTRATOR,PYUS ,PYUSM,PYSITO_POINT,PYSITO_POLYGON,PYQUOTE,PYQUOTEUSM, \
+    INVENTARIO_LAPIDEI, PDF_ADMINISTRATOR, PYUS, PYUSM, PYSITO_POINT, PYSITO_POLYGON, PYQUOTE, PYQUOTEUSM, \
     PYUS_NEGATIVE, PYSTRUTTURE, PYREPERTI, PYINDIVIDUI, PYCAMPIONI, PYTOMBA, PYDOCUMENTAZIONE, PYLINEERIFERIMENTO, \
     PYRIPARTIZIONI_SPAZIALI, PYSEZIONI
 from modules.db.pyarchinit_db_update import DB_update
 from modules.db.pyarchinit_utility import Utility
-from sqlalchemy.ext.compiler import compiles
-
-from modules.db.pyarchinit_conn_strings import Connection
 
         
 
@@ -68,6 +67,7 @@ class Pyarchinit_db_management(object):
         boolean = 'True'
     elif os.name == 'nt':
         boolean = 'True'
+    L = QgsSettings().value("locale/userLocale")[0:2]
 
     def __init__(self, c):
         self.conn_str = c
@@ -1805,70 +1805,370 @@ class Pyarchinit_db_management(object):
     def update_cont_per(self, s):
         self.sito = s
 
+
+
+        # Lista per raccogliere tutti gli errori
+        errori = []
+        avvisi = []
+
         Session = sessionmaker(bind=self.engine, autoflush=True, autocommit=True)
         session = Session()
 
-        string = ('%s%s%s%s%s') % ('session.query(US).filter_by(', 'sito', "='", str(self.sito), "')")
-        # print string
-        session.close()
-        lista_us = eval(string)
+        try:
+            # Otteniamo la query
+            string = ('%s%s%s%s%s') % ('session.query(US).filter_by(', 'sito', "='", str(self.sito), "')")
+            query_us = eval(string)
 
-        for i in lista_us:
-            if not i.periodo_finale and i.periodo_iniziale:
-                    periodiz = self.query_bool(
-                        {'sito': "'" + str(self.sito) + "'", 'periodo': i.periodo_iniziale, 'fase': "'" +str(i.fase_iniziale)+ "'"},
-                        'PERIODIZZAZIONE')
-                    self.update('US', 'id_us', [int(i.id_us)], ['cont_per'], [periodiz[0].cont_per])
-            
-            elif not i.periodo_iniziale:
-                periodiz = self.query_bool(
-                        {'sito': "'" + str(self.sito) + "'", 'periodo': i.periodo_iniziale, 'fase': "'" +str(i.fase_iniziale)+ "'"},
-                        'PERIODIZZAZIONE')
-                self.update('US', 'id_us', [int(i.id_us)], ['cont_per'], [periodiz[0].cont_per])
-                continue
-            elif i.periodo_finale and i.periodo_iniziale:
-                # try:
-                cod_cont_iniz_temp = self.query_bool(
-                    {'sito': "'" + str(self.sito) + "'", 'periodo': int(i.periodo_iniziale),
-                     'fase': int(i.fase_iniziale)}, 'PERIODIZZAZIONE')
+            # Convertiamo la query in lista per poter usare len()
+            lista_us = list(query_us)
+            total_records = len(lista_us)
 
-                cod_cont_fin_temp = self.query_bool(
-                    {'sito': "'" + str(self.sito) + "'", 'periodo': int(i.periodo_finale), 'fase': int(i.fase_finale)},
-                    'PERIODIZZAZIONE')
+            if total_records == 0:
+                # Se non ci sono record, mostra un messaggio e termina
+                if hasattr(self, 'L') and self.L == 'it':
+                    QMessageBox.information(None, "Informazione", "Nessun record da elaborare", QMessageBox.Ok)
+                else:
+                    QMessageBox.information(None, "Information", "No records to process", QMessageBox.Ok)
+                return
 
-                cod_cont_iniz = cod_cont_iniz_temp[0].cont_per
-                cod_cont_fin = cod_cont_fin_temp[0].cont_per
+            # Creiamo una progress bar
+            progress = QProgressBar()
+            progress.setWindowTitle("Aggiornamento Continuità Periodi")
+            progress.setGeometry(300, 300, 400, 40)
 
-                cod_cont_var_n = cod_cont_iniz
-                cod_cont_var_txt = str(cod_cont_iniz)
-                while cod_cont_var_n != cod_cont_fin:
-                    cod_cont_var_n += 1
+            # Utilizziamo la classe Qt di QGIS
+            try:
+                progress.setWindowModality(Qt.WindowModal)
+                progress.setAlignment(Qt.AlignCenter)
+            except AttributeError:
+                pass
 
-                    cod_cont_var_txt = cod_cont_var_txt + "/" + str(cod_cont_var_n)
+            progress.setMinimum(0)
+            progress.setMaximum(total_records)
+            progress.setValue(0)
+            progress.show()
+            QApplication.processEvents()
 
-                self.update('US', 'id_us', [int(i.id_us)], ['cont_per'], [cod_cont_var_txt])
-                #except:
-                    #pass
-                # else:
-                #     cod_cont_iniz_temp = self.query_bool(
-                #         {'sito': "'" + str(self.sito) + "'", 'periodo': int(i.periodo_iniziale),
-                #          'fase': int(i.fase_iniziale)}, 'PERIODIZZAZIONE')
-                #
-                #     cod_cont_fin_temp = self.query_bool(
-                #         {'sito': "'" + str(self.sito) + "'", 'periodo': int(i.periodo_finale), 'fase': int(i.fase_finale)},
-                #         'PERIODIZZAZIONE')
-                #
-                #     cod_cont_iniz = cod_cont_iniz_temp[0].cont_per
-                #     cod_cont_fin = cod_cont_fin_temp[0].cont_per
-                #
-                #     cod_cont_var_n = cod_cont_iniz
-                #     cod_cont_var_txt = str(cod_cont_iniz)
-                #     while cod_cont_var_n != cod_cont_fin:
-                #         cod_cont_var_n += 1
-                #
-                #         cod_cont_var_txt = cod_cont_var_txt + "/" + str(cod_cont_var_n)
-                #
-                #     self.update('US', 'id_us', [int(i.id_us)], ['cont_per'], [cod_cont_var_txt])
+            # Contatore per tenere traccia dell'avanzamento
+            count = 0
+            last_update_time = time.time()
+
+            # Procediamo con l'elaborazione
+            for i in lista_us:
+                # Incrementiamo il contatore
+                count += 1
+
+                # Aggiorniamo la progress bar ogni 10 record o ogni secondo
+                current_time = time.time()
+                if count % 10 == 0 or (current_time - last_update_time) >= 1.0:
+                    progress.setValue(count)
+                    percentage = int((count / total_records) * 100)
+                    progress.setFormat(f"Elaborazione record {count} di {total_records} ({percentage}%)")
+                    QApplication.processEvents()
+                    last_update_time = current_time
+
+                try:
+                    # Logica originale di elaborazione record
+                    if not i.periodo_finale and i.periodo_iniziale:
+                        periodiz = self.query_bool(
+                            {'sito': "'" + str(self.sito) + "'", 'periodo': i.periodo_iniziale,
+                             'fase': "'" + str(i.fase_iniziale) + "'"},
+                            'PERIODIZZAZIONE')
+                        if periodiz and len(periodiz) > 0:
+                            self.update('US', 'id_us', [int(i.id_us)], ['cont_per'], [periodiz[0].cont_per])
+                        else:
+                            errori.append(f"US {i.us}: Nessun dato di periodizzazione trovato")
+
+                    elif not i.periodo_iniziale:
+                        continue
+
+                    elif i.periodo_finale and i.periodo_iniziale:
+                        cod_cont_iniz_temp = self.query_bool(
+                            {'sito': "'" + str(self.sito) + "'", 'periodo': int(i.periodo_iniziale),
+                             'fase': int(i.fase_iniziale)}, 'PERIODIZZAZIONE')
+
+                        cod_cont_fin_temp = self.query_bool(
+                            {'sito': "'" + str(self.sito) + "'", 'periodo': int(i.periodo_finale),
+                             'fase': int(i.fase_finale)},
+                            'PERIODIZZAZIONE')
+
+                        if not cod_cont_iniz_temp or not cod_cont_fin_temp:
+                            errori.append(f"US {i.us}: Dati di periodizzazione mancanti")
+                            continue
+
+                        cod_cont_iniz = cod_cont_iniz_temp[0].cont_per
+                        cod_cont_fin = cod_cont_fin_temp[0].cont_per
+
+                        # Controllo che i valori siano numeri
+                        try:
+                            start_val = int(cod_cont_iniz)
+                            end_val = int(cod_cont_fin)
+                        except (ValueError, TypeError):
+                            errori.append(
+                                f"US {i.us}: Errore di conversione - cod_cont_iniz: {cod_cont_iniz}, cod_cont_fin: {cod_cont_fin}")
+
+                            # Se non sono numeri, usiamo i valori originali senza calcolare range
+                            if cod_cont_iniz != cod_cont_fin:
+                                cod_cont_var_txt = f"{cod_cont_iniz}/{cod_cont_fin}"
+                            else:
+                                cod_cont_var_txt = str(cod_cont_iniz)
+                            self.update('US', 'id_us', [int(i.id_us)], ['cont_per'], [cod_cont_var_txt])
+                            continue
+
+                        # Se start_val > end_val, invertiamo i valori per evitare loop infiniti
+                        if start_val > end_val:
+                            #avvisi.append(
+                               # f"US {i.us}: Valore iniziale ({start_val}) maggiore del finale ({end_val}). Inversione effettuata.")
+                            start_val, end_val = end_val, start_val
+
+                        # Generiamo la sequenza completa di valori
+                        if start_val == end_val:
+                            cod_cont_var_txt = str(start_val)
+                        else:
+                            values = list(range(start_val, end_val + 1))
+                            cod_cont_var_txt = "/".join(str(v) for v in values)
+
+                        self.update('US', 'id_us', [int(i.id_us)], ['cont_per'], [cod_cont_var_txt])
+
+                except Exception as e:
+                    errori.append(f"US {i.us}: {str(e)}")
+                    continue
+
+            # Al termine dell'elaborazione, aggiorniamo la progress bar
+            progress.setValue(total_records)
+            progress.setFormat("Elaborazione completata (100%)")
+            QApplication.processEvents()
+
+            # Chiudiamo la progress bar
+            progress.close()
+
+            # Mostriamo un riepilogo degli errori/avvisi
+            if errori:
+                error_text = ""
+                if errori:
+                    error_text += f"ERRORI ({len(errori)}):\n" + "\n".join(errori) + "\n\n"
+                #if avvisi:
+                    #error_text += f"AVVISI ({len(avvisi)}):\n" + "\n".join(avvisi)
+
+                # Creiamo una finestra di dialogo per mostrare tutti gli errori
+                if hasattr(self, 'L') and self.L == 'it':
+                    QMessageBox.warning(None, "Completato con errori",
+                                        f"Elaborazione completata con {len(errori)} errori.\n\n{error_text}",
+                                        QMessageBox.Ok)
+                else:
+                    QMessageBox.warning(None, "Completed with errors/warnings",
+                                        f"Processing completed with {len(errori)} errors.\n\n{error_text}",
+                                        QMessageBox.Ok)
+            else:
+                # Nessun errore
+                if hasattr(self, 'L') and self.L == 'it':
+                    QMessageBox.information(None, "Completato",
+                                            f"Elaborazione completata con successo. {count} record aggiornati.",
+                                            QMessageBox.Ok)
+                else:
+                    QMessageBox.information(None, "Completed",
+                                            f"Processing completed successfully. {count} records updated.",
+                                            QMessageBox.Ok)
+
+        except Exception as e:
+            # Gestiamo eccezioni generali
+            error_msg = f"Errore durante l'aggiornamento: {str(e)}"
+            print(error_msg)
+            if 'progress' in locals() and progress:
+                progress.close()
+            QMessageBox.critical(None, "Errore", error_msg, QMessageBox.Ok)
+
+        finally:
+            # Assicuriamoci che la sessione venga chiusa
+            if 'session' in locals():
+                session.close()
+
+    # def update_cont_per(self, s):
+    #     '''
+    #     Esegue l'operazione per aggiornare la continuità dei periodi per un sito specificato. Esegue operazioni sul
+    #     database e gestisce l'elaborazione dei record con un feedback visivo sul progresso.
+    #
+    #     Attributi:
+    #         sito (str): L'identificatore del sito per i record da elaborare.
+    #
+    #     Parametri:
+    #         s (str): L'identificatore del sito da aggiornare.
+    #
+    #     Eccezioni sollevate:
+    #         Exception: Eccezione generale sollevata per errori imprevisti che si verificano durante l'operazione.
+    #
+    #     Dettagli:
+    #         Questa operazione recupera i record corrispondenti all'identificatore del sito fornito, li elabora e
+    #         aggiorna la continuità dei periodi secondo una logica specificata. Fornisce aggiornamenti sul progresso in
+    #         tempo reale utilizzando una barra di avanzamento e gestisce potenziali eccezioni per garantire
+    #         un'elaborazione senza interruzioni.
+    #
+    #     Effetti collaterali:
+    #         Aggiorna il campo 'cont_per' nel database per ciascun record elaborato. Mostra il progresso visivo e
+    #         messaggi di notifica sia per le informazioni che per gli errori.
+    #
+    #     Note:
+    #         - Il metodo gestisce sia set di record vuoti che eccezioni di record individuali senza interrompere
+    #         l'elaborazione dei record successivi.
+    #         - Elabora le interazioni con il database tramite una sessione e garantisce la corretta chiusura della
+    #         sessione dopo l'operazione.
+    #         - Implementa messaggi localizzati per notifiche interattive dove applicabile.
+    #
+    #     '''
+    #
+    #     self.sito = s
+    #
+    #     Session = sessionmaker(bind=self.engine, autoflush=True, autocommit=True)
+    #     session = Session()
+    #
+    #     try:
+    #         # Otteniamo la query
+    #         string = ('%s%s%s%s%s') % ('session.query(US).filter_by(', 'sito', "='", str(self.sito), "')")
+    #         query_us = eval(string)
+    #
+    #         # Convertiamo la query in lista per poter usare len()
+    #         lista_us = list(query_us)
+    #         total_records = len(lista_us)
+    #
+    #         # Debug - verifichiamo che ci siano effettivamente dei record
+    #         print(f"Totale record da elaborare: {total_records}")
+    #
+    #         if total_records == 0:
+    #             # Se non ci sono record, mostra un messaggio e termina
+    #             if hasattr(self, 'L') and self.L == 'it':
+    #                 QMessageBox.information(None, "Informazione", "Nessun record da elaborare", QMessageBox.Ok)
+    #             else:
+    #                 QMessageBox.information(None, "Information", "No records to process", QMessageBox.Ok)
+    #             return
+    #
+    #         # Creiamo una progress bar
+    #         progress = QProgressBar()
+    #         progress.setWindowTitle("Aggiornamento Continuità Periodi")
+    #         progress.setGeometry(300, 300, 300, 40)
+    #         progress.setWindowModality(Qt.WindowModal)
+    #         progress.setMinimum(0)
+    #         progress.setMaximum(total_records)
+    #         progress.setValue(0)
+    #         #progress.setAlignment(Qt.AlignCenter)
+    #         progress.show()
+    #         QApplication.processEvents()
+    #
+    #         # Contatore per tenere traccia dell'avanzamento
+    #         count = 0
+    #         last_update_time = time.time()
+    #
+    #         # Procediamo con l'elaborazione
+    #         for i in lista_us:
+    #             # Incrementiamo il contatore
+    #             count += 1
+    #
+    #             # Aggiorniamo la progress bar ogni 10 record o ogni secondo
+    #             current_time = time.time()
+    #             if count % 10 == 0 or (current_time - last_update_time) >= 1.0:
+    #                 progress.setValue(count)
+    #                 percentage = int((count / total_records) * 100)
+    #                 progress.setFormat(f"Elaborazione record {count} di {total_records} ({percentage}%)")
+    #                 QApplication.processEvents()
+    #                 last_update_time = current_time
+    #
+    #             try:
+    #                 # Logica originale di elaborazione record
+    #                 if not i.periodo_finale and i.periodo_iniziale:
+    #                     periodiz = self.query_bool(
+    #                         {'sito': "'" + str(self.sito) + "'", 'periodo': i.periodo_iniziale,
+    #                          'fase': "'" + str(i.fase_iniziale) + "'"},
+    #                         'PERIODIZZAZIONE')
+    #                     if periodiz and len(periodiz) > 0:
+    #                         self.update('US', 'id_us', [int(i.id_us)], ['cont_per'], [periodiz[0].cont_per])
+    #                     else:
+    #                         print(f"Nessun dato di periodizzazione trovato per US {i.us}")
+    #
+    #                 elif not i.periodo_iniziale:
+    #                     print(f"US {i.us} senza periodo iniziale, continuo...")
+    #                     continue
+    #
+    #                 elif i.periodo_finale and i.periodo_iniziale:
+    #                     cod_cont_iniz_temp = self.query_bool(
+    #                         {'sito': "'" + str(self.sito) + "'", 'periodo': int(i.periodo_iniziale),
+    #                          'fase': int(i.fase_iniziale)}, 'PERIODIZZAZIONE')
+    #
+    #                     cod_cont_fin_temp = self.query_bool(
+    #                         {'sito': "'" + str(self.sito) + "'", 'periodo': int(i.periodo_finale),
+    #                          'fase': int(i.fase_finale)},
+    #                         'PERIODIZZAZIONE')
+    #
+    #                     if not cod_cont_iniz_temp or not cod_cont_fin_temp:
+    #                         print(f"Dati di periodizzazione mancanti per US {i.us}")
+    #                         continue
+    #
+    #                     cod_cont_iniz = cod_cont_iniz_temp[0].cont_per
+    #                     cod_cont_fin = cod_cont_fin_temp[0].cont_per
+    #
+    #                     # Debug - vediamo i valori reali
+    #                     print(f"US {i.us} - Continuità iniziale: {cod_cont_iniz}, Continuità finale: {cod_cont_fin}")
+    #
+    #                     # Controllo che i valori siano numeri
+    #                     try:
+    #                         start_val = int(cod_cont_iniz)
+    #                         end_val = int(cod_cont_fin)
+    #                     except (ValueError, TypeError):
+    #                         print(
+    #                             f"Errore di conversione - cod_cont_iniz: {cod_cont_iniz}, cod_cont_fin: {cod_cont_fin}")
+    #                         # Se non sono numeri, usiamo i valori originali senza calcolare range
+    #                         if cod_cont_iniz != cod_cont_fin:
+    #                             cod_cont_var_txt = f"{cod_cont_iniz}/{cod_cont_fin}"
+    #                         else:
+    #                             cod_cont_var_txt = str(cod_cont_iniz)
+    #                         self.update('US', 'id_us', [int(i.id_us)], ['cont_per'], [cod_cont_var_txt])
+    #                         continue
+    #
+    #                     # Se start_val > end_val, invertiamo i valori per evitare loop infiniti
+    #                     if start_val > end_val:
+    #                         print(
+    #                             f"Attenzione: valore iniziale ({start_val}) maggiore del valore finale ({end_val}). Inversione.")
+    #                         start_val, end_val = end_val, start_val
+    #
+    #                     # Generiamo la sequenza completa di valori
+    #                     if start_val == end_val:
+    #                         cod_cont_var_txt = str(start_val)
+    #                     else:
+    #                         values = list(range(start_val, end_val + 1))
+    #                         cod_cont_var_txt = "/".join(str(v) for v in values)
+    #
+    #                     print(f"US {i.us} - Risultato: {cod_cont_var_txt}")
+    #                     self.update('US', 'id_us', [int(i.id_us)], ['cont_per'], [cod_cont_var_txt])
+    #
+    #             except Exception as e:
+    #                 print(f"Errore nell'elaborazione del record {count} (US {i.us}): {str(e)}")
+    #                 # Continuiamo con il prossimo record invece di interrompere tutto
+    #                 continue
+    #
+    #         # Al termine dell'elaborazione, aggiorniamo e chiudiamo la progress bar
+    #         progress.setValue(total_records)
+    #         progress.setFormat("Elaborazione completata (100%)")
+    #         QApplication.processEvents()
+    #
+    #         # Mostriamo un messaggio di completamento
+    #         if hasattr(self, 'L') and self.L == 'it':
+    #             QMessageBox.information(None, "Completato", f"Elaborazione completata. {count} record aggiornati.",
+    #                                     QMessageBox.Ok)
+    #         else:
+    #             QMessageBox.information(None, "Completed", f"Processing completed. {count} records updated.",
+    #                                     QMessageBox.Ok)
+    #
+    #         # Chiudiamo la progress bar
+    #         progress.close()
+    #
+    #     except Exception as e:
+    #         # Gestiamo eccezioni generali
+    #         error_msg = f"Errore durante l'aggiornamento: {str(e)}"
+    #         print(error_msg)
+    #         QMessageBox.critical(None, "Errore", error_msg, QMessageBox.Ok)
+    #
+    #     finally:
+    #         # Assicuriamoci che la sessione venga chiusa
+    #         if 'session' in locals():
+    #             session.close()
                 
 
     def remove_alltags_from_db_sql(self,s):
@@ -2037,29 +2337,11 @@ class Pyarchinit_db_management(object):
         res = self.engine.execute(sql_query_string)
         return res
 
-    # def query_in_contains(self, value_list, sitof, areaf):
-    #
-    #     self.value_list = value_list
-    #
-    #     Session = sessionmaker(bind=self.engine, autoflush=True, autocommit=True)
-    #     session = Session()
-    #
-    #     res_list = []
-    #     n = len(self.value_list) - 1
-    #
-    #     while self.value_list:
-    #
-    #         chunk = self.value_list[0:n]
-    #         self.value_list = self.value_list[n:]
-    #         res_list.extend(session.query(US).filter_by(sito=sitof).filter_by(area=areaf).filter(
-    #             or_(*[US.rapporti.contains(v) for v in chunk])))
-    #         # res_list.extend(us for us, in session.query(US.us).filter(or_(*[US.rapporti.contains(v) for v in chunk])))
-    #     session.close()
-    #     return res_list
 
 
 
-    def query_in_contains(self, value_list, sitof, areaf, chunk_size=100):
+
+    def query_in_contains_onlysqlite(self, value_list, sitof, areaf, chunk_size=100):
         """
         Esegue una query suddividendo la lista dei valori in chunk per evitare il limite di profondità di SQLite.
 
@@ -2095,22 +2377,22 @@ class Pyarchinit_db_management(object):
 
         session.close()
         return res_list
-    # def query_in_contains(self, value_list, sitof, areaf):
-    #     self.value_list = value_list
-    #     Session = sessionmaker(bind=self.engine, autoflush=True, autocommit=True)
-    #     session = Session()
-    #     res_list = []
-    #     n = 500  # smaller chunk size
-    #
-    #     while self.value_list:
-    #         chunk = self.value_list[:n]
-    #         self.value_list = self.value_list[n:]
-    #         chunk_query = session.query(US).filter_by(sito=sitof).filter_by(area=areaf).filter(
-    #             or_(*[US.rapporti.contains(v) for v in chunk])).all()
-    #         res_list.extend(chunk_query)
-    #
-    #     session.close()
-    #     return res_list
+    def query_in_contains(self, value_list, sitof, areaf):
+        self.value_list = value_list
+        Session = sessionmaker(bind=self.engine, autoflush=True, autocommit=True)
+        session = Session()
+        res_list = []
+        n = 500  # smaller chunk size
+
+        while self.value_list:
+            chunk = self.value_list[:n]
+            self.value_list = self.value_list[n:]
+            chunk_query = session.query(US).filter_by(sito=sitof).filter_by(area=areaf).filter(
+                or_(*[US.rapporti.contains(v) for v in chunk])).all()
+            res_list.extend(chunk_query)
+
+        session.close()
+        return res_list
 
 
     # def query_in_contains(self, value_list, sitof, areaf):
@@ -2129,6 +2411,26 @@ class Pyarchinit_db_management(object):
     #         except Exception as e:
     #             print(f"Error while executing query: {e}")
     #             continue
+    #     session.close()
+    #     return res_list
+
+    # def query_in_contains(self, value_list, sitof, areaf):
+    #
+    #     self.value_list = value_list
+    #
+    #     Session = sessionmaker(bind=self.engine, autoflush=True, autocommit=True)
+    #     session = Session()
+    #
+    #     res_list = []
+    #     n = len(self.value_list) - 1
+    #
+    #     while self.value_list:
+    #
+    #         chunk = self.value_list[0:n]
+    #         self.value_list = self.value_list[n:]
+    #         res_list.extend(session.query(US).filter_by(sito=sitof).filter_by(area=areaf).filter(
+    #             or_(*[US.rapporti.contains(v) for v in chunk])))
+    #         # res_list.extend(us for us, in session.query(US.us).filter(or_(*[US.rapporti.contains(v) for v in chunk])))
     #     session.close()
     #     return res_list
 
