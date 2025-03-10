@@ -83,7 +83,7 @@ from ..modules.utility.report_generator import ReportGenerator
 from ..modules.utility.VideoPlayer import VideoPlayerWindow
 from ..modules.utility.pyarchinit_media_utility import *
 from ..modules.utility.response_sql import ResponseSQL
-from ..modules.utility.textTosql import MakeSQL
+from ..modules.utility.textTosql import *
 from ..modules.db.pyarchinit_conn_strings import Connection
 from ..modules.db.pyarchinit_db_manager import Pyarchinit_db_management
 from ..modules.db.pyarchinit_utility import Utility
@@ -4920,7 +4920,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         '''
         self.charge_datazione_list()
         try:
-            updates_made = self.DB_MANAGER.update_us_dating_from_periodizzazione()
+            updates_made = self.DB_MANAGER.update_us_dating_from_periodizzazione(self.comboBox_sito.currentText())
             if updates_made > 0:
                 # Inform the user that updates have been made
                 print(f"All 'Dating' fields have been updated successfully. "
@@ -12833,7 +12833,6 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         dialog.exec_()
 
 
-
 class SQLPromptDialog(QDialog):
     def __init__(self, iface, parent=None):
         super().__init__(parent)
@@ -12851,6 +12850,30 @@ class SQLPromptDialog(QDialog):
         self.path_prompt = os.path.join(BIN, 'last_five_prompts.txt')
         self.last_five_prompts = self.load_prompts_from_file()
         self.prompt_input = QTextEdit(self)
+
+        # Mode selection group
+        self.mode_group = QGroupBox("Modalità Text2SQL", self)
+        self.mode_layout = QVBoxLayout()
+
+        # Radio buttons for API/local choice
+        self.api_radio = QRadioButton("Usa API (richiede chiave)", self)
+        self.local_radio = QRadioButton("Usa modello locale (senza costi)", self)
+        self.api_radio.setChecked(True)
+
+        self.mode_layout.addWidget(self.api_radio)
+        self.mode_layout.addWidget(self.local_radio)
+
+        # Download model button
+        model_path = os.path.join(BIN, "phi3_text2sql.gguf")
+        self.download_button = QPushButton("Scarica Modello Locale", self)
+        if os.path.exists(model_path):
+            self.download_button.setText("Modello già scaricato")
+            self.download_button.setEnabled(False)
+        self.mode_layout.addWidget(self.download_button)
+
+        self.mode_group.setLayout(self.mode_layout)
+
+        # Buttons
         self.start_button = QPushButton("Create Query", self)
         self.start_sql_button = QPushButton("Execute Query", self)
         self.explain_button = QPushButton("Explain Query", self)
@@ -12858,22 +12881,23 @@ class SQLPromptDialog(QDialog):
         self.clear_button = QPushButton("Clear", self)
         self.sql_output = QTextEdit(self)
         self.prompt_input.textChanged.connect(self.handle_text_changed)
+
         # Add in __init__ after creating other buttons:
         self.add_to_canvas_button = QPushButton("Add to Canvas", self)
         self.add_to_canvas_button.setEnabled(False)
-
-
-
 
         self.results_output = QTextEdit(self)
         self.export_to_excel_button = QPushButton("Export to Excel", self)
         self.export_to_excel_button.setEnabled(False)
         self.create_graph_button = QPushButton("Create Graph", self)
         self.create_graph_button.setEnabled(False)
+
+        # Layout
         layout = QVBoxLayout(self)
         layout.addWidget(self.select_prompt_button)
         layout.addWidget(self.prompt_combobox)
         layout.addWidget(self.prompt_input)
+        layout.addWidget(self.mode_group)  # Add the mode selection group
         layout.addWidget(self.start_button)
         layout.addWidget(self.start_sql_button)
         layout.addWidget(self.explain_button)
@@ -12886,21 +12910,28 @@ class SQLPromptDialog(QDialog):
 
         # Connect button click to method
         self.select_prompt_button.clicked.connect(self.on_select_prompt_clicked)
-
+        self.download_button.clicked.connect(self.on_download_model_clicked)
         self.start_button.clicked.connect(self.on_start_button_clicked)
         self.start_sql_button.clicked.connect(self.on_start_sql_query_clicked)
         self.explain_button.clicked.connect(self.on_explainsql_button_clicked)
-        self.clear_button.clicked.connect(self.prompt_input.clear)
-        self.clear_button.clicked.connect(self.sql_output.clear)
-        self.clear_button.clicked.connect(self.results_output.clear)
-        self.clear_button.clicked.connect(self.clear_results_table)
-
+        self.clear_button.clicked.connect(self.clear_fields)
         self.export_to_excel_button.clicked.connect(self.on_export_to_excel_button_clicked)
         self.create_graph_button.clicked.connect(self.on_create_graph_button_clicked)
-        # Add in button connections section:
         self.add_to_canvas_button.clicked.connect(self.add_spatial_layer_to_canvas)
+
         # Connect signals to slots
         self.prompt_combobox.currentIndexChanged.connect(self.on_prompt_selected)
+
+    def clear_fields(self):
+        """Clear all text fields and disable buttons"""
+        self.prompt_input.clear()
+        self.sql_output.clear()
+        self.results_output.clear()
+        self.clear_results_table()
+        self.explain_button.setEnabled(False)
+        self.export_to_excel_button.setEnabled(False)
+        self.create_graph_button.setEnabled(False)
+        self.add_to_canvas_button.setEnabled(False)
 
     def clear_results_table(self):
         if hasattr(self, 'results_table'):
@@ -12919,6 +12950,7 @@ class SQLPromptDialog(QDialog):
         # For example, refresh the QComboBox with the latest prompts
         self.prompt_combobox.clear()
         self.prompt_combobox.addItems(self.last_five_prompts)
+
     def on_select_prompt_clicked(self):
         # Populate the dropdown with the last five prompts
         self.prompt_combobox.clear()
@@ -12945,40 +12977,35 @@ class SQLPromptDialog(QDialog):
             for prompt in self.last_five_prompts:
                 file.write(f"{prompt}\n")
 
-
     def handle_text_changed(self):
         if self.is_sql_query(self.prompt_input.toPlainText()):
             self.explain_button.setEnabled(True)
         else:
             self.explain_button.setEnabled(False)
+
     @staticmethod
     def is_sql_query(query):
         keywords = ['select', 'update', 'insert', 'delete', 'create', 'drop', 'alter',
                     'truncate', 'grant', 'revoke', 'commit', 'rollback', 'savepoint', 'set', 'show']
         return any(re.search(f'^{keyword}', query, re.IGNORECASE) for keyword in keywords)
+
     def apikey_text2sql(self):
-
-
         BIN = '{}{}{}'.format(pyarchinit_US.HOME, os.sep, "bin")
         api_key = ""
         # Verifica se il file gpt_api_key.txt esiste
         path_key = os.path.join(BIN, 'text2sql_api_key.txt')
         if os.path.exists(path_key):
-
             # Leggi l'API Key dal file
             with open(path_key, 'r') as f:
                 api_key = f.read().strip()
                 try:
-
                     return api_key
-
                 except:
                     reply = QMessageBox.question(None, 'Warning', 'Apikey non valida' + '\n'
-                                                 +'\n'+'vai al sito https://www.text2sql.ai/ per ottenere una chiave valida'
-                                                 +'\n'+'Clicca ok per inserire la chiave',
+                                                 + '\n' + 'vai al sito https://www.text2sql.ai/ per ottenere una chiave valida'
+                                                 + '\n' + 'Clicca ok per inserire la chiave',
                                                  QMessageBox.Ok | QMessageBox.Cancel)
                     if reply == QMessageBox.Ok:
-
                         api_key, ok = QInputDialog.getText(None, 'Apikey gpt', 'Inserisci apikey valida:')
                         if ok:
                             # Salva la nuova API Key nel file
@@ -12989,13 +13016,11 @@ class SQLPromptDialog(QDialog):
                                 api_key = f.read().strip()
                     else:
                         return api_key
-
-
         else:
             # Chiedi all'utente di inserire una nuova API Key
             api_key, ok = QInputDialog.getText(None, 'Apikey text2sql',
-                                                 'vai al sito https://www.text2sql.ai/ per ottenere una chiave valida'
-                                                 +'\n'+'Inserisci apikey:')
+                                               'vai al sito https://www.text2sql.ai/ per ottenere una chiave valida'
+                                               + '\n' + 'Inserisci apikey:')
             if ok:
                 # Salva la nuova API Key nel file
                 with open(path_key, 'w') as f:
@@ -13005,6 +13030,37 @@ class SQLPromptDialog(QDialog):
                     api_key = f.read().strip()
 
         return api_key
+
+    def on_download_model_clicked(self):
+        """Download the Phi-3 model for local use"""
+        BIN = '{}{}{}'.format(pyarchinit_US.HOME, os.sep, "bin")
+        model_path = os.path.join(BIN, "phi3_text2sql.gguf")
+
+        # Check if model already exists
+        if os.path.exists(model_path):
+            QMessageBox.information(self, "Modello già scaricato",
+                                    f"Il modello è già presente in:\n{model_path}")
+            return
+
+        # Create download dialog
+
+        dialog = DownloadModelDialog(self)
+        dialog.save_dir = BIN
+        dialog.save_path = model_path
+        dialog.info_label.setText(f"Il modello verrà scaricato in:\n{model_path}\n\nDimensione: circa 2 GB. "
+                                  "Questo potrebbe richiedere tempo in base alla tua connessione internet.")
+
+        # Execute dialog
+        if dialog.exec_() == QDialog.Accepted:
+            # Check if download was successful
+            if os.path.exists(model_path):
+                self.download_button.setText("Modello già scaricato")
+                self.download_button.setEnabled(False)
+                QMessageBox.information(self, "Download completato",
+                                        f"Il modello è stato scaricato con successo in:\n{model_path}")
+            else:
+                QMessageBox.warning(self, "Download fallito",
+                                    "Non è stato possibile scaricare il modello. Riprova più tardi.")
 
     def on_start_button_clicked(self):
         prompt = self.prompt_input.toPlainText()
@@ -13017,7 +13073,34 @@ class SQLPromptDialog(QDialog):
         else:
             db_type = "postgres"
 
-        self.generated_sql = MakeSQL.make_api_request(prompt, db_type, self.apikey_text2sql())
+        # Determina quale modalità usare (API o locale)
+        if self.api_radio.isChecked():
+            # Usa l'API
+            self.generated_sql = MakeSQL.make_api_request(prompt, db_type, self.apikey_text2sql())
+        else:
+            # Usa modello locale
+            BIN = '{}{}{}'.format(pyarchinit_US.HOME, os.sep, "bin")
+            model_path = os.path.join(BIN, "phi3_text2sql.gguf")
+
+            # Controlla se il modello esiste
+            if not os.path.exists(model_path):
+                reply = QMessageBox.question(
+                    self, 'Modello mancante',
+                    f"Il modello non è stato trovato in {model_path}.\nVuoi scaricarlo ora?",
+                    QMessageBox.Yes | QMessageBox.No
+                )
+
+                if reply == QMessageBox.Yes:
+                    self.on_download_model_clicked()
+                    # Verifica se il download è riuscito
+                    if not os.path.exists(model_path):
+                        return
+                else:
+                    return
+
+            # Usa il modello locale
+
+            self.generated_sql = MakeSQL.make_local_request(prompt, db_type, self)
 
         # Check if this is a spatial view creation
         if self.generated_sql and 'CREATE VIEW' in self.generated_sql.upper():
@@ -13035,6 +13118,45 @@ class SQLPromptDialog(QDialog):
             self.record_prompt(prompt)
             self.prompt_input.clear()
             self.update_prompt_ui()
+
+    def on_explainsql_button_clicked(self):
+        global tr, generated_explain
+        L = QgsSettings().value("locale/userLocale")[0:2]
+        prompt = self.prompt_input.toPlainText()
+
+        # Determina quale modalità usare (API o locale)
+        if self.api_radio.isChecked():
+            # Usa l'API
+            if L == "it":
+                tr = ". Traduci in italiano"
+                generated_explain = MakeSQL.explain_request(prompt + f"{tr}", self.apikey_text2sql())
+            else:
+                generated_explain = MakeSQL.explain_request(prompt, self.apikey_text2sql())
+        else:
+            # Usa modello locale
+            BIN = '{}{}{}'.format(pyarchinit_US.HOME, os.sep, "bin")
+            model_path = os.path.join(BIN, "phi3_text2sql.gguf")
+
+            # Controlla se il modello esiste
+            if not os.path.exists(model_path):
+                QMessageBox.critical(self, "Modello mancante",
+                                     f"Il modello non è stato trovato in {model_path}.\n"
+                                     "Scarica il modello prima di utilizzare questa funzione.")
+                return
+
+            # Usa il modello locale
+
+            generated_explain = MakeSQL.explain_local_request(prompt, self)
+
+            # Traduci se necessario
+            if L == "it" and generated_explain:
+                # Il modello dovrebbe già gestire l'italiano, ma possiamo aggiungere
+                # un prompt di traduzione se necessario
+                pass
+
+        self.sql_output.setText(generated_explain)
+
+    # [Il resto del codice rimane invariato]
 
     def _find_all_geometry_columns(self, sql):
         """
