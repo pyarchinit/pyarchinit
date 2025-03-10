@@ -192,6 +192,8 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         if self.comboBox_server_rd.currentText()=='sqlite' and self.comboBox_server_wt.currentText()=='sqlite' or self.comboBox_server_rd.currentText()=='':
             self.pushButton_convert_db_sl.setHidden(True)
             self.pushButton_convert_db_pg.setHidden(True)
+
+
     def on_pushButton_convert_db_sl_pressed(self):
         ok=QMessageBox.warning(self, "Attenzione", 'Vuoi sovrascrivere il db.\n clicca ok oppure Annulla per aggiornare', QMessageBox.Ok | QMessageBox.Cancel)
         
@@ -2645,6 +2647,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             pass
     def summary(self):
         self.comboBox_Database.update()
+
         conn = Connection()
         conn_str = conn.conn_str()
         conn_sqlite = conn.databasename()
