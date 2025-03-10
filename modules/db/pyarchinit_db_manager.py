@@ -1520,8 +1520,7 @@ class Pyarchinit_db_management(object):
         eval(session_exec_str)
         session.close()
 
-
-    def update_tomba_dating_from_periodizzazione(self):
+    def update_tomba_dating_from_periodizzazione(self, site_name):
         # Reflect the tables from the database
         tomba_table = Table('tomba_table', self.metadata, autoload_with=self.engine)
         periodizzazione_table = Table('periodizzazione_table', self.metadata, autoload_with=self.engine)
@@ -1533,21 +1532,25 @@ class Pyarchinit_db_management(object):
         try:
             # Start a transaction
             with session.begin():
-                # Select all records from tomba_table
-                tomba_records = session.query(tomba_table).all()
+                # Select records from tomba_table for the specified site
+                tomba_records = session.query(tomba_table).filter_by(sito=site_name).all()
 
                 updates_made = 0
                 for tomba_record in tomba_records:
                     # Skip records with empty 'periodo' or 'fase'
                     if not tomba_record.periodo_iniziale or not tomba_record.fase_iniziale:
                         continue
-                    # Find the corresponding periodizzazione records
-                    periodizzazione_iniziale = session.query(periodizzazione_table). \
-                        filter_by(periodo=tomba_record.periodo_iniziale, fase=tomba_record.fase_iniziale).first()
 
+                    # Find the corresponding periodizzazione records for the specific site
+                    periodizzazione_iniziale = session.query(periodizzazione_table). \
+                        filter_by(sito=site_name, periodo=tomba_record.periodo_iniziale,
+                                  fase=tomba_record.fase_iniziale).first()
+
+                    periodizzazione_finale = None
                     if bool(tomba_record.periodo_finale):
                         periodizzazione_finale = session.query(periodizzazione_table). \
-                            filter_by(periodo=tomba_record.periodo_finale, fase=tomba_record.fase_finale).first()
+                            filter_by(sito=site_name, periodo=tomba_record.periodo_finale,
+                                      fase=tomba_record.fase_finale).first()
 
                     # Concatenate the 'datazione_estesa' values if both are present
                     datazione_string = ""
@@ -1567,7 +1570,8 @@ class Pyarchinit_db_management(object):
                             updates_made += 1
 
                 # Print the number of updates made
-                print(f"All 'Dating' fields have been updated successfully. Total updates made: {updates_made}")
+                print(
+                    f"'Dating' fields for tombs in site '{site_name}' have been updated successfully. Total updates made: {updates_made}")
 
             # Commit the changes
             session.commit()
@@ -1575,13 +1579,77 @@ class Pyarchinit_db_management(object):
         except Exception as e:
             # Rollback the transaction on error
             session.rollback()
-            QMessageBox.warning(None, 'ok',f"An error occurred while updating 'Dating': {e}")
+            QMessageBox.warning(None, 'Error',
+                                f"An error occurred while updating 'Dating' for tombs in site '{site_name}': {e}")
             raise e  # Re-raise the exception to be handled by the calling function
         finally:
             # Close the session
             session.close()
 
-    def update_us_dating_from_periodizzazione(self):
+    # def update_us_dating_from_periodizzazione(self):
+    #     # Reflect the tables from the database
+    #     us_table = Table('us_table', self.metadata, autoload_with=self.engine)
+    #     periodizzazione_table = Table('periodizzazione_table', self.metadata, autoload_with=self.engine)
+    #
+    #     # Create a session
+    #     Session = sessionmaker(bind=self.engine)
+    #     session = Session()
+    #
+    #     try:
+    #         # Start a transaction
+    #         with session.begin():
+    #             # Select all records from us_table
+    #             us_records = session.query(us_table).all()
+    #
+    #             updates_made = 0
+    #             for us_record in us_records:
+    #                 periodizzazione_iniziale, periodizzazione_finale = None, None
+    #
+    #                 if us_record.periodo_iniziale and us_record.fase_iniziale:
+    #                     periodizzazione_iniziale = session.query(periodizzazione_table). \
+    #                         filter_by(periodo=us_record.periodo_iniziale, fase=us_record.fase_iniziale).first()
+    #
+    #                 if not periodizzazione_iniziale:
+    #                     # Update the 'Dating' field in us_table to None if periodizzazione_iniziale does not exist
+    #                     session.query(us_table). \
+    #                         filter_by(id_us=us_record.id_us). \
+    #                         update({'datazione': None}, synchronize_session=False)
+    #                     updates_made += 1
+    #                     continue
+    #
+    #                 if us_record.periodo_finale and us_record.fase_finale:
+    #                     periodizzazione_finale = session.query(periodizzazione_table). \
+    #                         filter_by(periodo=us_record.periodo_finale, fase=us_record.fase_finale).first()
+    #
+    #                 datazione_string = ""
+    #                 if periodizzazione_iniziale and periodizzazione_finale:
+    #                     datazione_string = f"{periodizzazione_iniziale.datazione_estesa}/{periodizzazione_finale.datazione_estesa}"
+    #                 elif periodizzazione_iniziale:
+    #                     datazione_string = periodizzazione_iniziale.datazione_estesa
+    #
+    #                 current_dating = getattr(us_record, 'datazione', None)
+    #                 if datazione_string != current_dating:
+    #                     # Update the 'Dating' field in us_table
+    #                     session.query(us_table). \
+    #                         filter_by(id_us=us_record.id_us). \
+    #                         update({'datazione': datazione_string}, synchronize_session=False)
+    #                     updates_made += 1
+    #
+    #             # Print the number of updates made
+    #             print(f"All 'Dating' fields have been updated successfully. Total updates made: {updates_made}")
+    #
+    #         session.commit()
+    #         return updates_made  # Return the count of updates made
+    #     except Exception as e:
+    #         # Rollback the transaction in case of error
+    #         session.rollback()
+    #         QMessageBox.warning(None, 'ok', f"An error occurred while updating 'Dating': {e}")
+    #         raise e  # Re-raise the exception
+    #     finally:
+    #         # Close the session
+    #         session.close()
+
+    def update_us_dating_from_periodizzazione(self, site_name):
         # Reflect the tables from the database
         us_table = Table('us_table', self.metadata, autoload_with=self.engine)
         periodizzazione_table = Table('periodizzazione_table', self.metadata, autoload_with=self.engine)
@@ -1593,8 +1661,8 @@ class Pyarchinit_db_management(object):
         try:
             # Start a transaction
             with session.begin():
-                # Select all records from us_table
-                us_records = session.query(us_table).all()
+                # Select only records from the specified site
+                us_records = session.query(us_table).filter_by(sito=site_name).all()
 
                 updates_made = 0
                 for us_record in us_records:
@@ -1602,7 +1670,8 @@ class Pyarchinit_db_management(object):
 
                     if us_record.periodo_iniziale and us_record.fase_iniziale:
                         periodizzazione_iniziale = session.query(periodizzazione_table). \
-                            filter_by(periodo=us_record.periodo_iniziale, fase=us_record.fase_iniziale).first()
+                            filter_by(sito=site_name, periodo=us_record.periodo_iniziale,
+                                      fase=us_record.fase_iniziale).first()
 
                     if not periodizzazione_iniziale:
                         # Update the 'Dating' field in us_table to None if periodizzazione_iniziale does not exist
@@ -1614,7 +1683,8 @@ class Pyarchinit_db_management(object):
 
                     if us_record.periodo_finale and us_record.fase_finale:
                         periodizzazione_finale = session.query(periodizzazione_table). \
-                            filter_by(periodo=us_record.periodo_finale, fase=us_record.fase_finale).first()
+                            filter_by(sito=site_name, periodo=us_record.periodo_finale,
+                                      fase=us_record.fase_finale).first()
 
                     datazione_string = ""
                     if periodizzazione_iniziale and periodizzazione_finale:
@@ -1631,14 +1701,15 @@ class Pyarchinit_db_management(object):
                         updates_made += 1
 
                 # Print the number of updates made
-                print(f"All 'Dating' fields have been updated successfully. Total updates made: {updates_made}")
+                print(
+                    f"'Dating' fields for site '{site_name}' have been updated successfully. Total updates made: {updates_made}")
 
             session.commit()
             return updates_made  # Return the count of updates made
         except Exception as e:
             # Rollback the transaction in case of error
             session.rollback()
-            QMessageBox.warning(None, 'ok', f"An error occurred while updating 'Dating': {e}")
+            QMessageBox.warning(None, 'Error', f"An error occurred while updating 'Dating' for site '{site_name}': {e}")
             raise e  # Re-raise the exception
         finally:
             # Close the session
