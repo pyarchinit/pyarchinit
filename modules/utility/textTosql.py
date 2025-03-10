@@ -89,20 +89,20 @@
 #
 #         return None
 import re
-from qgis.PyQt.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel,
-                                 QPushButton, QRadioButton, QGroupBox,
-                                 QTextEdit, QLineEdit, QComboBox, QMessageBox,
+from qgis.PyQt.QtWidgets import (QWidget,  QHBoxLayout,
+                                 QRadioButton, QGroupBox,
+                                 QTextEdit, QLineEdit, QComboBox,
                                  QSizePolicy, QSpacerItem)
-from qgis.PyQt.QtCore import Qt
+
 from qgis.PyQt.QtGui import QFont
 import os
 import requests
-import shutil
+
 import threading
 from qgis.PyQt.QtWidgets import QMessageBox, QProgressDialog, QLabel, QVBoxLayout, QDialog, QPushButton
-from qgis.PyQt.QtCore import Qt, QThread, pyqtSignal, QObject
+from qgis.PyQt.QtCore import Qt,  pyqtSignal, QObject
 
-from llama_cpp import Llama
+
 from . import database_schema
 
 
@@ -691,13 +691,13 @@ class MakeSQL:
 
         try:
             # Importa llama_cpp solo quando necessario
-            # try:
-            #     from llama_cpp import Llama
-            # except ImportError:
-            #     QMessageBox.critical(parent, "Libreria mancante",
-            #                          "La libreria 'llama_cpp' non è installata.\n"
-            #                          "Installala con: pip install llama-cpp-python")
-            #     return None
+            try:
+                from llama_cpp import Llama
+            except ImportError:
+                QMessageBox.critical(None, "Libreria mancante",
+                                     "La libreria 'llama_cpp' non è installata.\n"
+                                     "Installala con: pip install llama-cpp-python")
+                return None
 
             # Carica il modello (questo può richiedere tempo)
             progress = QProgressDialog("Caricamento del modello in corso...", "Annulla", 0, 0, parent)
