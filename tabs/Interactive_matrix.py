@@ -379,9 +379,16 @@ class pyarchinit_Interactive_Matrix(QDialog, MAIN_DIALOG_CLASS):
                         # Se non troviamo i dati specifici, usiamo solo il numero della fase
                         fase = "Fase%s" % str(fase_id)
                 except Exception as e:
-                    QMessageBox.warning(self,'Error',f"Errore nel recupero delle cronologie: {e}")
+                    # Messaggio dettagliato con informazioni sulla US incriminata
+                    us_info = f"Sito: {sito}, Area: {area}, Periodo: {periodo_id}, Fase: {fase_id}"
+                    affected_us = ", ".join([str(rec.us) for rec in us_group[:10]]) + (
+                        "..." if len(us_group) > 10 else "")
+                    error_message = f"Errore nel recupero delle cronologie per:\n{us_info}\nUS coinvolte: {affected_us}\nErrore: {e}"
+
+                    QMessageBox.warning(self, 'Error', error_message)
                     # Fallback in caso di errore
                     fase = "Fase%s" % str(fase_id)
+
                 sing_fase = [fase, sing_us]
 
                 periodo = "%s" % (str(i[2]))
