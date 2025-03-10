@@ -179,7 +179,8 @@
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
     &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
     &quot;run.code.analysis.last.selected.profile&quot;: &quot;aDefault&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable&quot;
+    &quot;settings.editor.selected.configurable&quot;: &quot;tasks.servers&quot;,
+    &quot;tasks.open.task.update.state.enabled&quot;: &quot;true&quot;
   },
   &quot;keyToStringList&quot;: {
     &quot;DatabaseDriversLRU&quot;: [
@@ -349,19 +350,20 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-js-predefined-d6986cc7102b-76f8388c3a79-JavaScript-PY-243.24978.54" />
-        <option value="bundled-python-sdk-91e3b7efe1d4-466328ff949b-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-243.24978.54" />
+        <option value="bundled-js-predefined-d6986cc7102b-1632447f56bf-JavaScript-PY-243.25659.43" />
+        <option value="bundled-python-sdk-181015f7ab06-4df51de95216-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-243.25659.43" />
       </set>
     </attachedChunks>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
+      <branch name="master" repository="$PROJECT_DIR$" />
       <changelist id="13d9711e-af47-4516-9a74-091c329d410d" name="Changes" comment="" />
       <created>1636816115136</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
-      <updated>1636816115136</updated>
+      <updated>1740675338965</updated>
       <workItem from="1710665556962" duration="32821000" />
       <workItem from="1710877623360" duration="3000" />
       <workItem from="1710917677280" duration="28429000" />
@@ -529,7 +531,20 @@
       <workItem from="1739886202564" duration="594000" />
       <workItem from="1739971344628" duration="58801000" />
       <workItem from="1740410661242" duration="7515000" />
-      <workItem from="1740567708692" duration="710000" />
+      <workItem from="1740567708692" duration="1610000" />
+      <workItem from="1740672396963" duration="1599000" />
+      <workItem from="1740675339019" duration="27000" />
+      <workItem from="1740993676982" duration="1211000" />
+      <workItem from="1741021838801" duration="1499000" />
+      <workItem from="1741024604402" duration="7412000" />
+      <workItem from="1741097004978" duration="552000" />
+      <workItem from="1741102878402" duration="6102000" />
+      <workItem from="1741158363149" duration="1715000" />
+      <workItem from="1741160535705" duration="22000" />
+      <workItem from="1741422330102" duration="1123000" />
+      <workItem from="1741423623483" duration="12719000" />
+      <workItem from="1741595623443" duration="7681000" />
+      <workItem from="1741617181347" duration="6969000" />
     </task>
     <task id="LOCAL-00022" summary="v3.9.14">
       <created>1649165457258</created>
@@ -874,8 +889,18 @@
       <option name="project" value="LOCAL" />
       <updated>1679662089681</updated>
     </task>
-    <option name="localTasksCounter" value="187" />
-    <servers />
+    <option name="localTasksCounter" value="207" />
+    <option name="createChangelist" value="false" />
+    <servers>
+      <GitHub url="https://github.com">
+        <option name="repoAuthor" value="enzococca" />
+        <option name="repoName" value="HFF" />
+      </GitHub>
+      <GitHub url="https://github.com">
+        <option name="repoAuthor" value="pyarchinit" />
+        <option name="repoName" value="pyarchinit" />
+      </GitHub>
+    </servers>
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
@@ -901,7 +926,7 @@
                   <entry key="branch">
                     <value>
                       <list>
-                        <option value="master" />
+                        <option value="origin/master" />
                       </list>
                     </value>
                   </entry>
@@ -918,100 +943,50 @@
     <ignored-roots>
       <path value="$PROJECT_DIR$/ext-libs/totalopenstation-0.5.2-py3.9.egg/totalopenstation_" />
     </ignored-roots>
-    <MESSAGE value="Update nltk version to 3.9.1 in requirements.txt&#10;&#10;Upgraded nltk from version 3.6.6 to 3.9.1 to include the latest features, improvements, and bug fixes. This ensures compatibility with dependent code and enhances overall stability." />
-    <MESSAGE value="Update GeoAlchemy2 to version 0.17.1&#10;&#10;Upgraded GeoAlchemy2 from 0.9.4 to 0.17.1 in requirements.txt. This ensures compatibility with newer features and fixes in the library. No other dependency changes were made." />
-    <MESSAGE value="Refactor package management and initialization logic&#10;&#10;Reorganized and modularized package management with new classes (PipManager, PackageManager, FontManager) to improve clarity and platform-specific handling. Enhanced dependency installation checks, added macOS-specific fixes, and ensured environment initialization for pyArchInit. Updated UI components for better user interaction." />
-    <MESSAGE value="Bump version to 4.9.0 and update changelog.&#10;&#10;Updated the version in metadata.txt to 4.9.0 and revised the changelog to include recent improvements. Reflects enhancements to table definitions, query handling, and overall code maintainability." />
-    <MESSAGE value="Add" />
-    <MESSAGE value="Add beautiful" />
-    <MESSAGE value="Add beautifuls" />
-    <MESSAGE value="Add beautifulsoup" />
-    <MESSAGE value="Add beautifulsoup4" />
-    <MESSAGE value="Add beautifulsoup4 to" />
-    <MESSAGE value="Add beautifulsoup4 to requirements" />
-    <MESSAGE value="Add beautifulsoup4 to requirements.txt" />
-    <MESSAGE value="Add beautifulsoup4 to requirements.txt and" />
-    <MESSAGE value="Add beautifulsoup4 to requirements.txt and remove" />
-    <MESSAGE value="Add beautifulsoup4 to requirements.txt and remove unused" />
-    <MESSAGE value="Add beautifulsoup4 to requirements.txt and remove unused Q" />
-    <MESSAGE value="Add beautifulsoup4 to requirements.txt and remove unused QSql" />
-    <MESSAGE value="Add beautifulsoup4 to requirements.txt and remove unused QSqlQuery" />
-    <MESSAGE value="Add beautifulsoup4 to requirements.txt and remove unused QSqlQuery import" />
     <MESSAGE value="Add beautifulsoup4 to requirements.txt and remove unused QSqlQuery import from" />
     <MESSAGE value="Add beautifulsoup4 to requirements.txt and remove unused QSqlQuery import from US" />
     <MESSAGE value="Add beautifulsoup4 to requirements.txt and remove unused QSqlQuery import from US_US" />
     <MESSAGE value="Add beautifulsoup4 to requirements.txt and remove unused QSqlQuery import from US_USM" />
     <MESSAGE value="Add beautifulsoup4 to requirements.txt and remove unused QSqlQuery import from US_USM.py" />
     <MESSAGE value="Add beautifulsoup4 to requirements.txt and remove unused QSqlQuery import from US_USM.py." />
-    <option name="LAST_COMMIT_MESSAGE" value="Add beautifulsoup4 to requirements.txt and remove unused QSqlQuery import from US_USM.py." />
+    <MESSAGE value="Add missing newline at the top of the file&#10;&#10;A blank line was added after the docstring to adhere to PEP 8 style guidelines. This improves code readability and maintains consistency within the file." />
+    <MESSAGE value="Refactor DB connection error handling messages&#10;&#10;Updated error messages to provide clearer descriptions for database connection and update issues. Removed global usage of `conn` and initialized it locally to improve code clarity and safety." />
+    <MESSAGE value="Enhance error handling with traceback details in DB manager&#10;&#10;Improve error messages by including traceback details for better debugging. Fix possible issue with closing connections by ensuring `conn` is safely checked before calling `close()`." />
+    <MESSAGE value="Upgrade GeoAlchemy2 to version 0.9.1 in requirements.txt&#10;&#10;Updated the GeoAlchemy2 package to the latest version for improved compatibility and bug fixes. This change should address potential issues with older dependencies and streamline future maintenance." />
+    <MESSAGE value="Update GeoAlchemy2 to version 0.17.1&#10;&#10;Upgraded GeoAlchemy2 from 0.9.1 to 0.17.1 in requirements.txt. This ensures compatibility with newer dependencies and introduces performance improvements and bug fixes." />
+    <MESSAGE value="Update GeoAlchemy2 to version 0.9.1 in requirements&#10;&#10;Upgraded GeoAlchemy2 from 0.17.1 to 0.9.1 to ensure compatibility with the latest dependencies and features. This change helps maintain the stability and security of the application." />
+    <MESSAGE value="Update default log file paths in US_USM.py&#10;&#10;Replaced default log file paths to use filenames in the current directory instead of the '/tmp' directory. This ensures compatibility and simplifies file access across environments." />
+    <MESSAGE value="Update error message in pyarchinit_matrix_exp execution&#10;&#10;Clarify the error message by suggesting a DPI reduction when `tred` fails. This improves user guidance and troubleshooting during execution." />
+    <MESSAGE value="Refactor and improve periodization data handling.&#10;&#10;Simplified and optimized code for querying and organizing periodization data, including handling chronology fields (initial and final dates) with fallback mechanisms. Removed redundant empty lines and unnecessary comments to enhance readability and maintainability." />
+    <MESSAGE value="Refactor main_order_layer to improve performance and clarity.&#10;&#10;Enhanced the main_order_layer method by optimizing logic, introducing better progress tracking, and extending time/cycle limits. Refactored variable initialization, added progress bar updates, and improved error handling for better user experience and maintainability." />
+    <MESSAGE value="Refactor and enhance period processing with progress monitoring&#10;&#10;Refactored `update_cont_per` method to include progress bar for user feedback and handle errors/warnings more robustly. Enhanced logic for processing and validating record data, including localized notifications for errors. Introduced improvements to query chunking for better performance in `query_in_contains`." />
+    <MESSAGE value="Update method call to pass current site context&#10;&#10;Modified the `update_tomba_dating_from_periodizzazione` method to include the current site context as a parameter. This ensures the update process is site-specific and improves precision in database updates." />
+    <MESSAGE value="Add local model support and UI improvements for Text2SQL&#10;&#10;Introduced support for using a local model as an alternative to the Text2SQL API, along with a new UI mode selection feature. Added functionality to download and manage the local model, enhanced error handling, and streamlined button actions. This update improves usability and reduces dependency on external services." />
+    <MESSAGE value="Refactor update methods to handle site-specific filtering&#10;&#10;Modified `update_tomba_dating_from_periodizzazione` and `update_us_dating_from_periodizzazione` to include site-specific filtering by adding a `site_name` parameter. This ensures updates are scoped to a specific site, improving data accuracy and consistency. Updated error messages and logging to reflect these changes." />
+    <MESSAGE value="Add Text2SQL widget with dual API/local query generation&#10;&#10;Introduced a comprehensive GUI for generating SQL queries using natural language input. The widget supports both API-based and local model-based generation, with added features for model downloading, query explanation, and query copying. Implements local Phi-3 mini model integration for offline usage." />
+    <MESSAGE value="Bump version to 4.9.1 and update changelog.&#10;&#10;Updated the metadata to reflect version 4.9.1. Added changelog details mentioning fixes for update dating and the addition of the text2sql local feature. This ensures accurate version tracking and better documentation of changes." />
+    <MESSAGE value="Add llama-cpp-python to requirements.txt&#10;&#10;This update includes the llama-cpp-python library (v0.3.7) in the project dependencies. It ensures compatibility and provides necessary functionality for the project." />
+    <MESSAGE value="Remove unused imports and improve error handling in textTosql.py&#10;&#10;Unused imports from llama_cpp and redundant imports were removed for cleaner code. The error handling for missing 'llama_cpp' was reintroduced with proper QMessageBox usage. The changes improve code readability and maintainability." />
+    <MESSAGE value="Update error message for clearer debugging details&#10;&#10;Enhanced the error message to include specific site, area, and phase details, along with a partial list of affected US records. This provides more context for debugging issues in chronology retrieval." />
+    <option name="LAST_COMMIT_MESSAGE" value="Update error message for clearer debugging details&#10;&#10;Enhanced the error message to include specific site, area, and phase details, along with a partial list of affected US records. This provides more context for debugging issues in chronology retrieval." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/modules/utility/pyarchinit_exp_USsheet_pdf.py</url>
-          <line>1163</line>
-          <option name="timeStamp" value="1" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/gui/dbmanagment.py</url>
-          <line>21</line>
-          <option name="timeStamp" value="3" />
-        </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/../../../../../../../../../../../OSGeo4W/apps/Python39/Lib/ssl.py</url>
           <line>97</line>
           <option name="timeStamp" value="4" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/tabs/Campioni.py</url>
-          <line>21</line>
+          <url>file://$PROJECT_DIR$/modules/db/structures/pyunitastratigrafiche.py</url>
+          <line>6</line>
           <option name="timeStamp" value="5" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/tabs/Gis_Time_controller.py</url>
-          <line>25</line>
+          <url>file://$PROJECT_DIR$/pyarchinitDockWidget.py</url>
+          <line>19</line>
           <option name="timeStamp" value="6" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/modules/utility/archaeological_data_mapping.py</url>
-          <line>149</line>
-          <option name="timeStamp" value="7" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/modules/utility/skatch_gpt_US.py</url>
-          <line>958</line>
-          <option name="timeStamp" value="8" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/tabs/US_USM.py</url>
-          <line>320</line>
-          <option name="timeStamp" value="9" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/tabs/US_USM.py</url>
-          <line>3468</line>
-          <option name="timeStamp" value="10" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/tabs/US_USM.py</url>
-          <line>6457</line>
-          <option name="timeStamp" value="11" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/tabs/US_USM.py</url>
-          <line>1356</line>
-          <option name="timeStamp" value="12" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/modules/gis/pyarchinit_pyqgis.py</url>
-          <line>3660</line>
-          <option name="timeStamp" value="13" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/modules/db/structures_metadata/Media_thumb_table.py</url>
-          <line>5</line>
-          <option name="timeStamp" value="14" />
         </line-breakpoint>
       </breakpoints>
       <default-breakpoints>
