@@ -383,9 +383,13 @@ class pyarchinit_Interactive_Matrix(QDialog, MAIN_DIALOG_CLASS):
                     us_info = f"Sito: {sito}, Area: {area}, Periodo: {periodo_id}, Fase: {fase_id}"
                     affected_us = ", ".join([str(rec.us) for rec in us_group[:10]]) + (
                         "..." if len(us_group) > 10 else "")
-                    error_message = f"Errore nel recupero delle cronologie per:\n{us_info}\nUS coinvolte: {affected_us}\nErrore: {e}"
+                    error_message = (f"Errore nel recupero delle cronologie per:\n{us_info}\n Non hai inserito nella "
+                                     f"scheda periodizzazione la datazione estesa per questa US.\n\nUS interessate: "
+                                     f"{affected_us}\n\nErrore: {e}\n Verrà usato il numero della fase come nome della fase."
+                                     f"Per favore, inserisci la datazione estesa per questa US nella scheda periodizzazione." )
 
-                    QMessageBox.warning(self, 'Error', error_message)
+                    QMessageBox.warning(self, "Errore", error_message, QMessageBox.Ok)
+
                     # Fallback in caso di errore
                     fase = "Fase%s" % str(fase_id)
 
