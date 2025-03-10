@@ -1980,7 +1980,7 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
         '''
 
         try:
-            updates_made = self.DB_MANAGER.update_tomba_dating_from_periodizzazione()
+            updates_made = self.DB_MANAGER.update_tomba_dating_from_periodizzazione(self.comboBox_sito.currentText())
             if updates_made > 0:
                 # Inform the user that updates have been made
                 QMessageBox.information(self, "Success",
