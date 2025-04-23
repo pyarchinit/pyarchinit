@@ -9757,200 +9757,374 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         f.close()
 
     def rapporti_stratigrafici_check(self, sito_check):
-        global rapporti_check
         conn = Connection()
         conn_str = conn.conn_str()
         test_conn = conn_str.find('sqlite')
 
-
         us_inesistenti = []
         rapporti_mancanti = []
         aree_vuote = []
-        aree_vuote_2 = []
-        sing_rapp1 =''
         self.listWidget_rapp.clear()
-        conversion_dict = {'Covers': 'Covered by',
-                           'Covered by': 'Covers',
-                           'Fills': 'Filled by',
-                           'Filled by': 'Fills',
-                           'Cuts': 'Cut by',
-                           'Cut by': 'Cuts',
-                           'Abuts': 'Supports',
-                           'Supports': 'Abuts',
-                           'Connected to': 'Connected to',
-                           'Same as': 'Same as',
-                           'Copre': 'Coperto da',
-                           'Coperto da': 'Copre',
-                           'Riempie': 'Riempito da',
-                           'Riempito da': 'Riempie',
-                           'Taglia': 'Tagliato da',
-                           'Tagliato da': 'Taglia',
-                           'Si appoggia a': 'Gli si appoggia',
-                           'Gli si appoggia': 'Si appoggia a',
-                           'Si lega a': 'Si lega a',
-                           'Uguale a': 'Uguale a',
-                           'Liegt über': 'Liegt unter',
-                           'Liegt unter': 'Liegt über',
-                           'Schneidet': 'Wird geschnitten',
-                           'Wird geschnitten': 'Schneidet',
-                           'Verfüllt': 'Wird verfüllt durch',
-                           'Wird verfüllt durch': 'Verfüllt',
-                           'Stützt sich auf': 'Wird gestüzt von',
-                           'Wird gestüzt von': 'Stützt sich auf',
-                           'Bindet an': 'Bindet an',
-                           'Entspricht': 'Entspricht',
-                           '>>': '<<',
-                           '<<': '>>',
-                           '<': '>',
-                           '>': '<',
-                           '<->': '<->'
-                           }
+
+        # Dictionary for reciprocal relationship types
+        conversion_dict = {
+            'Covers': 'Covered by', 'Covered by': 'Covers',
+            'Fills': 'Filled by', 'Filled by': 'Fills',
+            'Cuts': 'Cut by', 'Cut by': 'Cuts',
+            'Abuts': 'Supports', 'Supports': 'Abuts',
+            'Connected to': 'Connected to', 'Same as': 'Same as',
+            'Copre': 'Coperto da', 'Coperto da': 'Copre',
+            'Riempie': 'Riempito da', 'Riempito da': 'Riempie',
+            'Taglia': 'Tagliato da', 'Tagliato da': 'Taglia',
+            'Si appoggia a': 'Gli si appoggia', 'Gli si appoggia': 'Si appoggia a',
+            'Si lega a': 'Si lega a', 'Uguale a': 'Uguale a',
+            'Liegt über': 'Liegt unter', 'Liegt unter': 'Liegt über',
+            'Schneidet': 'Wird geschnitten', 'Wird geschnitten': 'Schneidet',
+            'Verfüllt': 'Wird verfüllt durch', 'Wird verfüllt durch': 'Verfüllt',
+            'Stützt sich auf': 'Wird gestüzt von', 'Wird gestüzt von': 'Stützt sich auf',
+            'Bindet an': 'Bindet an', 'Entspricht': 'Entspricht',
+            '>>': '<<', '<<': '>>', '<': '>', '>': '<', '<->': '<->'
+        }
+
+        # Get all records for the site
         search_dict = {'sito': "'" + str(sito_check) + "'"}
-        records = self.DB_MANAGER.query_bool(search_dict,
-                                             self.MAPPER_TABLE_CLASS)  # carica tutti i dati di uno scavo ordinati per numero di US
+        records = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
+
+        # Initialize report header based on language
         if self.L == 'it':
-            self.report_rapporti = 'Report controllo Rapporti Stratigrafici - Sito: %s \n' % (sito_check)
+            self.report_rapporti = f'Report controllo Rapporti Stratigrafici - Sito: {sito_check}\n'
         elif self.L == 'de':
-            self.report_rapporti = 'Kontrollbericht Stratigraphische Beziehungen - Ausgrabungsstätte: %s \n' % (
-                sito_check)
+            self.report_rapporti = f'Kontrollbericht Stratigraphische Beziehungen - Ausgrabungsstätte: {sito_check}\n'
         else:
-            self.report_rapporti = 'Control report Stratigraphic relationships - Site: %s \n' % (sito_check)
-        count_0 = 0
-        count_1 = 0
+            self.report_rapporti = f'Control report Stratigraphic relationships - Site: {sito_check}\n'
 
-        for rec in range(len(records)):
-            sito = "'" + str(records[rec].sito) + "'"
-            area = "'" + str(records[rec].area) + "'"
-            us = int(records[rec].us)
-            rapporti = records[rec].rapporti
-            rapporti = eval(rapporti)
-            report = ''
+        # Process each record
+        for rec in records:
+            sito = "'" + str(rec.sito) + "'"
+            area = "'" + str(rec.area) + "'"
+            us = int(rec.us)
+
+            try:
+                rapporti = eval(rec.rapporti)
+            except Exception as e:
+                self.report_rapporti += f"\nErrore nel formato dei rapporti per US {us}: {str(e)}\n"
+                continue
+
+            # Check for empty areas in relationships
             for area_vuota in rapporti:
-
                 if len(area_vuota) <= 2:
-                    aree_vuote_2.append('')
-
-
-                elif len(area_vuota)>2:
+                    continue
+                elif len(area_vuota) > 2:
                     if not area_vuota[2]:
-
                         area_vuota[2] = 9999
+                        aree_vuote.append(
+                            f"Nella scheda US: {us}, il Rapporto: {area_vuota[0]} US: {area_vuota[1]}, l'Area è vuota")
 
-                        aree_vuote.append(f"Nella scheda US: {us}, il Rapporto: {area_vuota[0]} US: {area_vuota[1]}, l'Area è vuota")
-
-
-
+            # Check each relationship
             for sing_rapp in rapporti:
-                if str(us).find('0') >= 0 or str(us).find('1') >= 0:
+                if len(sing_rapp) < 4:
+                    continue
 
-                    if len(sing_rapp) > 2:
-                     # Verifica se sing_rapp[2] è 'Area non trovata', in tal caso impostalo a 0
-                        if sing_rapp[2] == "Area non trovata":
-                            sing_rapp[2] = 0
+                # Get the reciprocal relationship type
+                rapp_converted = conversion_dict.get(sing_rapp[0], "")
+                if not rapp_converted:
+                    continue
 
-                    if len(sing_rapp) == 4:
-                        rapp_converted = conversion_dict[sing_rapp[0]]
-                        #serch_dict_rapp = {'sito': sito, 'area': "'"+str(sing_rapp[2])+"'", 'us': int(sing_rapp[1])}
+                # Prepare search parameters for the related US
+                try:
+                    related_us = int(sing_rapp[1])
+                    related_area = sing_rapp[2]
 
-                        if test_conn==0:
-                            serch_dict_rapp = {'sito': sito, 'area': sing_rapp[2],
-                                               'us': int(sing_rapp[1])}
+                    # Handle "Area non trovata" case
+                    if related_area == "Area non trovata":
+                        related_area = 0
 
-                            us_rapp = self.DB_MANAGER.query_bool(serch_dict_rapp, self.MAPPER_TABLE_CLASS)
+                    # Build search dictionary based on connection type
+                    if test_conn == 0:
+                        serch_dict_rapp = {
+                            'sito': sito,
+                            'area': related_area,
+                            'us': related_us
+                        }
+                    else:
+                        serch_dict_rapp = {
+                            'sito': sito,
+                            'area': "'" + str(related_area) + "'",
+                            'us': related_us
+                        }
+
+                    # Query for the related US
+                    us_rapp = self.DB_MANAGER.query_bool(serch_dict_rapp, self.MAPPER_TABLE_CLASS)
+
+                    # If related US doesn't exist
+                    if not bool(us_rapp):
+                        if related_area == 0:
+                            us_inesistenti.append(f"US: {related_us}: US inesistente")
                         else:
-                            serch_dict_rapp = {'sito': sito, 'area': "'" + str(sing_rapp[2]) + "'",
-                                               'us': int(sing_rapp[1])}
-                            us_rapp = self.DB_MANAGER.query_bool(serch_dict_rapp, self.MAPPER_TABLE_CLASS)
+                            us_inesistenti.append(
+                                f"Sito: {sito.strip(' ')}, Area: {related_area}, US: {related_us}: Scheda US non esistente")
+                    else:
+                        # Check if reciprocal relationship exists
                         try:
-                            int(sing_rapp[1])
-                        except ValueError:
-                            raise TypeError(f"Expected an integer for sing_rapp[1], got {int(sing_rapp[1])} instead")
+                            rapporti_check = eval(us_rapp[0].rapporti)
 
-                        if not bool(us_rapp):
+                            # Create the expected reciprocal relationship
+                            expected_reciprocal = [
+                                rapp_converted,  # Reciprocal relationship type
+                                str(us),  # Current US number
+                                str(rec.area),  # Current US area
+                                str(rec.sito)  # Current US site
+                            ]
 
+                            # Check if the reciprocal relationship exists
+                            reciprocal_found = False
+                            for check_rapp in rapporti_check:
+                                if (len(check_rapp) >= 4 and
+                                        check_rapp[0] == rapp_converted and
+                                        str(check_rapp[1]) == str(us) and
+                                        str(check_rapp[2]) == str(rec.area)):
+                                    reciprocal_found = True
+                                    break
 
+                            if not reciprocal_found:
+                                report_template = {
+                                    'it': 'Sito: {}, Area: {}, US: {} {} US: {} Area: {}: Rapporto reciproco non trovato',
+                                    'de': 'Ausgrabungsstätte: {}, Areal: {}, SE: {} {} SE: {} Area: {}: Gegenseitiger Bericht nicht gefunden',
+                                    'en': 'Site: {}, Area: {}, SU: {} {} SU: {} Area: {}: Reciprocal relationship not found'
+                                }
+                                rapporti_mancanti.append(report_template.get(self.L, report_template['en']).format(
+                                    sito.strip("'"), area.strip("'"), us, sing_rapp[0], related_us, related_area))
+                        except Exception as e:
+                            rapporti_mancanti.append(
+                                f"Errore nella verifica dei rapporti per US {us} con US {related_us}: {str(e)}")
+                except Exception as e:
+                    self.report_rapporti += f"\nErrore nell'elaborazione del rapporto {sing_rapp} per US {us}: {str(e)}\n"
 
-
-                            if sing_rapp[2] == 0:
-                                us_inesistenti.append(f"US: {sing_rapp[1]}: US inesistente")
-                            # else:
-                            #     report_template = {
-                            #
-                            #         'it': 'Sito: {}, Area: {}, US: {} {} US: {} Area: {}: Scheda US non esistente',
-                            #
-                            #         'de': 'Ausgrabungsstätte: {}, Areal: {}, SE: {} {} SE: {} Area: {}: SE formular nicht existent',
-                            #
-                            #         'en': 'Site: {}, Area: {}, SU: {} {} SU: {} Area: {}: SU form not-existent'
-                            #
-                            #     }
-                            #
-                            #     us_inesistenti.append(report_template.get(self.L, report_template['en']).format(
-                            #
-                            #         sito, area, us, sing_rapp[0], sing_rapp[1], sing_rapp[2]))
-                        else:
-                            try:
-                                rapporti_check = eval(us_rapp[0].rapporti)
-                                us_rapp_check = str(us)
-                                area_rapp_check = area.strip("'")
-                                sito_rapp_check = sito.strip("'")
-
-                                s = [rapp_converted, us_rapp_check, area_rapp_check, sito_rapp_check]
-
-                                if rapporti_check.count(s) != 1:
-                                    report_template = {
-                                        'it': 'Sito: {}, Area: {}, US: {} {} US: {} Area: {}: Rapporto non verificato',
-                                        'de': 'Ausgrabungsstätte: {}, Areal: {}, SE: {} {} SE: {} Area: {}: nicht geprüfter Bericht',
-                                        'en': 'Site: {}, Area: {}, SU: {} {} SU: {} Area: {}: relationships not verified'
-                                    }
-                                    rapporti_mancanti.append(report_template.get(self.L, report_template['en']).format(
-                                        sito, area, us, sing_rapp[0], sing_rapp[1], sing_rapp[2]))
-                            except Exception as e:
-                                rapporti_mancanti.append(f"Errore nella verifica dei rapporti per US {us}: {str(e)}")
-
-                            # Aggiungi i risultati raggruppati al report
-
-
-
-        if aree_vuote_2:
-
-
-            self.report_rapporti += (f"\nEseguire Ctrl+U per aggiornare prima di procedere con il controllo.\n\n"
-                                     )
-
+        # Build the final report
         if aree_vuote:
+            self.report_rapporti += f"\nCi sono {len(aree_vuote)} rapporti con area vuota. Eseguire Ctrl+U per aggiornare prima di procedere con il controllo.\n\nDettagli:\n" + "\n".join(
+                aree_vuote) + "\n"
 
+        if us_inesistenti:
+            self.report_rapporti += "\nUS Inesistenti:\n" + "\n".join(us_inesistenti) + "\n"
 
-            self.report_rapporti += f"\nCi sono {len(aree_vuote)} rapporti con area vuota . Eseguire Ctrl+U per aggiornare prima di procedere con il controllo.\n\nDettagli:\n" + "\n".join(
-                    aree_vuote)
+        if rapporti_mancanti:
+            self.report_rapporti += "\nRapporti Mancanti o Non Verificati:\n" + "\n".join(rapporti_mancanti) + "\n"
 
-
-        else:
-            if us_inesistenti:
-                self.report_rapporti += "\nUS Inesistenti:\n" + "\n".join(us_inesistenti) + "\n"
-            if rapporti_mancanti:
-                self.report_rapporti += "\nRapporti Mancanti o Non Verificati:\n" + "\n".join(
-                    rapporti_mancanti) + "\n"
-
-
-
-
+        # Display and save the report
         self.listWidget_rapp.addItem(self.report_rapporti)
-        # Costruisci il messaggio finale includendo rapporti_check
-        # final_message = f"Count of 0: {count_0}, Count of 1: {count_1}\nRapporti Check: {rapporti_check}"
-        # QMessageBox.information(self, 'ok', final_message)
 
         HOME = os.environ['PYARCHINIT_HOME']
-        report_path = '{}{}{}'.format(HOME, os.sep, "pyarchinit_Report_folder")
+        report_path = f"{HOME}{os.sep}pyarchinit_Report_folder"
+
         if self.L == 'it':
-            filename = '{}{}{}'.format(report_path, os.sep, 'log_rapporti_US.txt')
+            filename = f"{report_path}{os.sep}log_rapporti_US.txt"
         elif self.L == 'de':
-            filename = '{}{}{}'.format(report_path, os.sep, 'log_SE.txt')
+            filename = f"{report_path}{os.sep}log_SE.txt"
         else:
-            filename = '{}{}{}'.format(report_path, os.sep, 'log_SU_relations.txt')
-        f = open(filename, "w")
-        f.write(self.report_rapporti)
-        f.close()
+            filename = f"{report_path}{os.sep}log_SU_relations.txt"
+
+        with open(filename, "w") as f:
+            f.write(self.report_rapporti)
+
         return self.report_rapporti
+
+    # def rapporti_stratigrafici_check(self, sito_check):
+    #     #rapporti_check = None
+    #     conn = Connection()
+    #     conn_str = conn.conn_str()
+    #     test_conn = conn_str.find('sqlite')
+    #
+    #
+    #     us_inesistenti = []
+    #     rapporti_mancanti = []
+    #     aree_vuote = []
+    #     aree_vuote_2 = []
+    #     sing_rapp1 =''
+    #     self.listWidget_rapp.clear()
+    #     conversion_dict = {'Covers': 'Covered by',
+    #                        'Covered by': 'Covers',
+    #                        'Fills': 'Filled by',
+    #                        'Filled by': 'Fills',
+    #                        'Cuts': 'Cut by',
+    #                        'Cut by': 'Cuts',
+    #                        'Abuts': 'Supports',
+    #                        'Supports': 'Abuts',
+    #                        'Connected to': 'Connected to',
+    #                        'Same as': 'Same as',
+    #                        'Copre': 'Coperto da',
+    #                        'Coperto da': 'Copre',
+    #                        'Riempie': 'Riempito da',
+    #                        'Riempito da': 'Riempie',
+    #                        'Taglia': 'Tagliato da',
+    #                        'Tagliato da': 'Taglia',
+    #                        'Si appoggia a': 'Gli si appoggia',
+    #                        'Gli si appoggia': 'Si appoggia a',
+    #                        'Si lega a': 'Si lega a',
+    #                        'Uguale a': 'Uguale a',
+    #                        'Liegt über': 'Liegt unter',
+    #                        'Liegt unter': 'Liegt über',
+    #                        'Schneidet': 'Wird geschnitten',
+    #                        'Wird geschnitten': 'Schneidet',
+    #                        'Verfüllt': 'Wird verfüllt durch',
+    #                        'Wird verfüllt durch': 'Verfüllt',
+    #                        'Stützt sich auf': 'Wird gestüzt von',
+    #                        'Wird gestüzt von': 'Stützt sich auf',
+    #                        'Bindet an': 'Bindet an',
+    #                        'Entspricht': 'Entspricht',
+    #                        '>>': '<<',
+    #                        '<<': '>>',
+    #                        '<': '>',
+    #                        '>': '<',
+    #                        '<->': '<->'
+    #                        }
+    #     search_dict = {'sito': "'" + str(sito_check) + "'"}
+    #     records = self.DB_MANAGER.query_bool(search_dict,
+    #                                          self.MAPPER_TABLE_CLASS)  # carica tutti i dati di uno scavo ordinati per numero di US
+    #     if self.L == 'it':
+    #         self.report_rapporti = 'Report controllo Rapporti Stratigrafici - Sito: %s \n' % (sito_check)
+    #     elif self.L == 'de':
+    #         self.report_rapporti = 'Kontrollbericht Stratigraphische Beziehungen - Ausgrabungsstätte: %s \n' % (
+    #             sito_check)
+    #     else:
+    #         self.report_rapporti = 'Control report Stratigraphic relationships - Site: %s \n' % (sito_check)
+    #     count_0 = 0
+    #     count_1 = 0
+    #
+    #     for rec in range(len(records)):
+    #         sito = "'" + str(records[rec].sito) + "'"
+    #         area = "'" + str(records[rec].area) + "'"
+    #         us = int(records[rec].us)
+    #         rapporti = records[rec].rapporti
+    #         rapporti = eval(rapporti)
+    #         report = ''
+    #         for area_vuota in rapporti:
+    #
+    #             if len(area_vuota) <= 2:
+    #                 aree_vuote_2.append('')
+    #
+    #
+    #             elif len(area_vuota)>2:
+    #                 if not area_vuota[2]:
+    #
+    #                     area_vuota[2] = 9999
+    #
+    #                     aree_vuote.append(f"Nella scheda US: {us}, il Rapporto: {area_vuota[0]} US: {area_vuota[1]}, l'Area è vuota")
+    #
+    #
+    #
+    #         for sing_rapp in rapporti:
+    #             if str(us).find('0') >= 0 or str(us).find('1') >= 0:
+    #
+    #                 if len(sing_rapp) > 2:
+    #                  # Verifica se sing_rapp[2] è 'Area non trovata', in tal caso impostalo a 0
+    #                     if sing_rapp[2] == "Area non trovata":
+    #                         sing_rapp[2] = 0
+    #
+    #                 if len(sing_rapp) == 4:
+    #                     rapp_converted = conversion_dict[sing_rapp[0]]
+    #                     #serch_dict_rapp = {'sito': sito, 'area': "'"+str(sing_rapp[2])+"'", 'us': int(sing_rapp[1])}
+    #
+    #                     if test_conn==0:
+    #                         serch_dict_rapp = {'sito': sito, 'area': sing_rapp[2],
+    #                                            'us': int(sing_rapp[1])}
+    #
+    #                         us_rapp = self.DB_MANAGER.query_bool(serch_dict_rapp, self.MAPPER_TABLE_CLASS)
+    #                     else:
+    #                         serch_dict_rapp = {'sito': sito, 'area': "'" + str(sing_rapp[2]) + "'",
+    #                                            'us': int(sing_rapp[1])}
+    #                         us_rapp = self.DB_MANAGER.query_bool(serch_dict_rapp, self.MAPPER_TABLE_CLASS)
+    #                     try:
+    #                         int(sing_rapp[1])
+    #                     except ValueError:
+    #                         raise TypeError(f"Expected an integer for sing_rapp[1], got {int(sing_rapp[1])} instead")
+    #
+    #                     if not bool(us_rapp):
+    #
+    #
+    #
+    #
+    #                         if sing_rapp[2] == 0:
+    #                             us_inesistenti.append(f"US: {sing_rapp[1]}: US inesistente")
+    #                         # else:
+    #                         #     report_template = {
+    #                         #
+    #                         #         'it': 'Sito: {}, Area: {}, US: {} {} US: {} Area: {}: Scheda US non esistente',
+    #                         #
+    #                         #         'de': 'Ausgrabungsstätte: {}, Areal: {}, SE: {} {} SE: {} Area: {}: SE formular nicht existent',
+    #                         #
+    #                         #         'en': 'Site: {}, Area: {}, SU: {} {} SU: {} Area: {}: SU form not-existent'
+    #                         #
+    #                         #     }
+    #                         #
+    #                         #     us_inesistenti.append(report_template.get(self.L, report_template['en']).format(
+    #                         #
+    #                         #         sito, area, us, sing_rapp[0], sing_rapp[1], sing_rapp[2]))
+    #                     else:
+    #                         try:
+    #                             rapporti_check = eval(us_rapp[0].rapporti)
+    #                             us_rapp_check = str(us)
+    #                             area_rapp_check = area.strip("'")
+    #                             sito_rapp_check = sito.strip("'")
+    #
+    #                             s = [rapp_converted, us_rapp_check, area_rapp_check, sito_rapp_check]
+    #
+    #                             if rapporti_check.count(s) != 1:
+    #                                 report_template = {
+    #                                     'it': 'Sito: {}, Area: {}, US: {} {} US: {} Area: {}: Rapporto non verificato',
+    #                                     'de': 'Ausgrabungsstätte: {}, Areal: {}, SE: {} {} SE: {} Area: {}: nicht geprüfter Bericht',
+    #                                     'en': 'Site: {}, Area: {}, SU: {} {} SU: {} Area: {}: relationships not verified'
+    #                                 }
+    #                                 rapporti_mancanti.append(report_template.get(self.L, report_template['en']).format(
+    #                                     sito, area, us, sing_rapp[0], sing_rapp[1], sing_rapp[2]))
+    #                         except Exception as e:
+    #                             rapporti_mancanti.append(f"Errore nella verifica dei rapporti per US {us}: {str(e)}")
+    #
+    #                         # Aggiungi i risultati raggruppati al report
+    #
+    #
+    #
+    #     if aree_vuote_2:
+    #
+    #
+    #         self.report_rapporti += (f"\nEseguire Ctrl+U per aggiornare prima di procedere con il controllo.\n\n"
+    #                                  )
+    #
+    #     if aree_vuote:
+    #
+    #
+    #         self.report_rapporti += f"\nCi sono {len(aree_vuote)} rapporti con area vuota . Eseguire Ctrl+U per aggiornare prima di procedere con il controllo.\n\nDettagli:\n" + "\n".join(
+    #                 aree_vuote)
+    #
+    #
+    #     else:
+    #         if us_inesistenti:
+    #             self.report_rapporti += "\nUS Inesistenti:\n" + "\n".join(us_inesistenti) + "\n"
+    #         if rapporti_mancanti:
+    #             self.report_rapporti += "\nRapporti Mancanti o Non Verificati:\n" + "\n".join(
+    #                 rapporti_mancanti) + "\n"
+    #
+    #
+    #
+    #
+    #     self.listWidget_rapp.addItem(self.report_rapporti)
+    #     # Costruisci il messaggio finale includendo rapporti_check
+    #     # final_message = f"Count of 0: {count_0}, Count of 1: {count_1}\nRapporti Check: {rapporti_check}"
+    #     # QMessageBox.information(self, 'ok', final_message)
+    #
+    #     HOME = os.environ['PYARCHINIT_HOME']
+    #     report_path = '{}{}{}'.format(HOME, os.sep, "pyarchinit_Report_folder")
+    #     if self.L == 'it':
+    #         filename = '{}{}{}'.format(report_path, os.sep, 'log_rapporti_US.txt')
+    #     elif self.L == 'de':
+    #         filename = '{}{}{}'.format(report_path, os.sep, 'log_SE.txt')
+    #     else:
+    #         filename = '{}{}{}'.format(report_path, os.sep, 'log_SU_relations.txt')
+    #     f = open(filename, "w")
+    #     f.write(self.report_rapporti)
+    #     f.close()
+    #     return self.report_rapporti
+
     def def_strati_to_rapporti_stratigrafici_check(self, sito_check):
         conversion_dict = {'Covers':'Covered by',
                            'Covered by': 'Covers',
