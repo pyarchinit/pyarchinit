@@ -224,8 +224,14 @@ class single_Finds_pdf_sheet(object):
                 th.drawHeight = 2.5 * inch * th.drawHeight / th.drawWidth
                 th.drawWidth = 2.5 * inch
                 th.hAlign = "CENTER"
+            else:
+                th = Paragraph("<b>IMG</b><br/>" + str('Not in database'), styNormal)
         except:
-            pass
+            th = Paragraph("<b>IMG</b><br/>" + str('Immagine taggata\n ma manca la thubmnail'), styNormal)
+
+
+
+
         if not self.thumbnail.endswith('.png') :
 
             # else:

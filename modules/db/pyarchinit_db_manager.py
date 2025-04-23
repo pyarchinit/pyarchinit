@@ -2378,18 +2378,35 @@ class Pyarchinit_db_management(object):
         res = self.engine.execute(sql_query_string)
         return res
 
+    # def select_us_doc_from_db_sql(self, sito, tipo_doc, nome_doc):
+    #     sql_query_string = (
+    #                        "SELECT * FROM pyunitastratigrafiche WHERE scavo_s = '%s' AND tipo_doc = '%s' AND nome_doc = '%s'") % (
+    #                        sito, tipo_doc, nome_doc)
+    #     res = self.engine.execute(sql_query_string)
+    #     return res
+    #
+    # def select_usneg_doc_from_db_sql(self, sito, tipo_doc, nome_doc):
+    #     sql_query_string = (
+    #                        "SELECT * FROM pyarchinit_us_negative_doc WHERE sito_n = '%s' AND  tipo_doc_n = '%s' AND nome_doc_n = '%s'") % (
+    #                        sito, tipo_doc, nome_doc)
+    #     res = self.engine.execute(sql_query_string)
+    #     return res
     def select_us_doc_from_db_sql(self, sito, tipo_doc, nome_doc):
-        sql_query_string = (
-                           "SELECT * FROM pyunitastratigrafiche WHERE scavo_s = '%s' AND tipo_doc = '%s' AND nome_doc = '%s'") % (
-                           sito, tipo_doc, nome_doc)
-        res = self.engine.execute(sql_query_string)
+
+
+        sql_query = text(
+            "SELECT * FROM pyunitastratigrafiche WHERE scavo_s = :sito AND tipo_doc = :tipo_doc AND nome_doc = :nome_doc")
+
+        res = self.engine.execute(sql_query, sito=sito, tipo_doc=tipo_doc, nome_doc=nome_doc)
         return res
 
     def select_usneg_doc_from_db_sql(self, sito, tipo_doc, nome_doc):
-        sql_query_string = (
-                           "SELECT * FROM pyarchinit_us_negative_doc WHERE sito_n = '%s' AND  tipo_doc_n = '%s' AND nome_doc_n = '%s'") % (
-                           sito, tipo_doc, nome_doc)
-        res = self.engine.execute(sql_query_string)
+
+
+        sql_query = text(
+            "SELECT * FROM pyarchinit_us_negative_doc WHERE sito_n = :sito AND tipo_doc_n = :tipo_doc AND nome_doc_n = :nome_doc")
+
+        res = self.engine.execute(sql_query, sito=sito, tipo_doc=tipo_doc, nome_doc=nome_doc)
         return res
 
     def select_db_sql(self, table):
