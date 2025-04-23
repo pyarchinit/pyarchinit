@@ -3,7 +3,7 @@ name=pyArchInit
 qgisMinimumVersion=3.22
 description=pyarchinit a tool for archaeological works
 
-version=4.9.1
+version=4.9.2
 
 author=Luca Mandolesi&Enzo Cocca
 email=pyarchinit@gmail.com
@@ -15,7 +15,8 @@ tracker=https://github.com/pyarchinit/pyarchinit/issues
 repository=https://github.com/pyarchinit/pyarchinit
 
 
-changelog=4.9.1 Fix update dating, add text2sql local
+changelog=4.9.2 Refactor stratigraphic report generation by cleaning unused globals, restructuring the relationship dictionary, improving error handling, and clarifying logic for empty area detection.
+  4.9.1 Fix update dating, add text2sql local
   4.9.0 and revise changelog. Bumped the version to 4.9.0 in metadata. Updated the changelog to reflect significant improvements, including table definition refactor, enhanced query handling for SQLite, and overall code maintainability enhancements.
   4.8.9 Refactor table definitions and query handling. Reorganized and clarified table structure definitions with detailed comments for better readability and maintainability. Improved the `query_in_contains` method to support chunking, ensuring compatibility with SQLite depth limitations. These changes enhance the code's clarity, functionality, and maintainability across modules.
   4.8.8 Refactor PDF export and dialog UI, add excavation year and US range filters, and enhance archeological report generation with detailed US formatting.
