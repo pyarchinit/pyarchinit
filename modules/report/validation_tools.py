@@ -268,3 +268,241 @@ class ArchaeologicalValidators:
             'incomplete': [pottery['id'] for pottery in incomplete_pottery],
             'message': message if (missing_pottery or incomplete_pottery) else "All pottery properly documented"
         }
+
+    @staticmethod
+    def validate_tomba(context):
+        """Validate tomb descriptions with enhanced feedback"""
+        if not context:
+            return {
+                'valid': False,
+                'missing_fields': ['entire context'],
+                'incomplete': [],
+                'message': 'No context data provided'
+            }
+
+        tomba_data = context.get("tomba_data", [])
+        if not tomba_data:
+            return {
+                'valid': False,
+                'missing_fields': ['tomba_data'],
+                'incomplete': [],
+                'message': 'No tomb data available'
+            }
+
+        missing_tombs = []
+        incomplete_tombs = []
+
+        for tomba in tomba_data:
+            if not tomba:  # Skip if tomba is None
+                continue
+
+            tomba_num = tomba.get('nr_scheda_taf', 'Unknown')
+            area = tomba.get('area', 'Unknown')
+            missing_fields = []
+            incomplete_fields = []
+
+            # Check required fields
+            if not tomba.get('descrizione_taf'):
+                missing_fields.append('descrizione_taf')
+            elif len(str(tomba.get('descrizione_taf', '')).strip()) < 10:
+                incomplete_fields.append('descrizione_taf')
+
+            if not tomba.get('interpretazione_taf'):
+                missing_fields.append('interpretazione_taf')
+            elif len(str(tomba.get('interpretazione_taf', '')).strip()) < 10:
+                incomplete_fields.append('interpretazione_taf')
+
+            if not tomba.get('rito'):
+                missing_fields.append('rito')
+
+            if missing_fields:
+                missing_tombs.append({
+                    'id': tomba_num,
+                    'area': area,
+                    'missing': missing_fields
+                })
+
+            if incomplete_fields:
+                incomplete_tombs.append({
+                    'id': tomba_num,
+                    'area': area,
+                    'incomplete': incomplete_fields
+                })
+
+        message = ""
+        if missing_tombs:
+            message += "Tombe con campi mancanti:\n"
+            for tomba in missing_tombs:
+                message += f"Tomba {tomba['id']} (Area {tomba['area']}): mancano {', '.join(tomba['missing'])}.\n"
+
+        if incomplete_tombs:
+            if message:
+                message += "\n"
+            message += "Tombe con descrizioni potenzialmente incomplete:\n"
+            for tomba in incomplete_tombs:
+                message += f"Tomba {tomba['id']} (Area {tomba['area']}): campi incompleti: {', '.join(tomba['incomplete'])}.\n"
+
+        return {
+            'valid': not (missing_tombs or incomplete_tombs),
+            'missing_fields': [tomba['missing'] for tomba in missing_tombs],
+            'incomplete': [f"Tomba {tomba['id']}" for tomba in incomplete_tombs],
+            'message': message if (missing_tombs or incomplete_tombs) else "All tombs properly documented"
+        }
+
+    @staticmethod
+    def validate_periodizzazione(context):
+        """Validate periodization data with enhanced feedback"""
+        if not context:
+            return {
+                'valid': False,
+                'missing_fields': ['entire context'],
+                'incomplete': [],
+                'message': 'No context data provided'
+            }
+
+        periodizzazione_data = context.get("periodizzazione_data", [])
+        if not periodizzazione_data:
+            return {
+                'valid': False,
+                'missing_fields': ['periodizzazione_data'],
+                'incomplete': [],
+                'message': 'No periodization data available'
+            }
+
+        missing_periods = []
+        incomplete_periods = []
+
+        for periodo in periodizzazione_data:
+            if not periodo:  # Skip if periodo is None
+                continue
+
+            periodo_num = periodo.get('periodo', 'Unknown')
+            fase = periodo.get('fase', 'Unknown')
+            missing_fields = []
+            incomplete_fields = []
+
+            # Check required fields
+            if not periodo.get('descrizione'):
+                missing_fields.append('descrizione')
+            elif len(str(periodo.get('descrizione', '')).strip()) < 10:
+                incomplete_fields.append('descrizione')
+
+            if not periodo.get('cron_iniziale'):
+                missing_fields.append('cron_iniziale')
+
+            if not periodo.get('cron_finale'):
+                missing_fields.append('cron_finale')
+
+            if missing_fields:
+                missing_periods.append({
+                    'periodo': periodo_num,
+                    'fase': fase,
+                    'missing': missing_fields
+                })
+
+            if incomplete_fields:
+                incomplete_periods.append({
+                    'periodo': periodo_num,
+                    'fase': fase,
+                    'incomplete': incomplete_fields
+                })
+
+        message = ""
+        if missing_periods:
+            message += "Periodi con campi mancanti:\n"
+            for periodo in missing_periods:
+                message += f"Periodo {periodo['periodo']} (Fase {periodo['fase']}): mancano {', '.join(periodo['missing'])}.\n"
+
+        if incomplete_periods:
+            if message:
+                message += "\n"
+            message += "Periodi con descrizioni potenzialmente incomplete:\n"
+            for periodo in incomplete_periods:
+                message += f"Periodo {periodo['periodo']} (Fase {periodo['fase']}): campi incompleti: {', '.join(periodo['incomplete'])}.\n"
+
+        return {
+            'valid': not (missing_periods or incomplete_periods),
+            'missing_fields': [periodo['missing'] for periodo in missing_periods],
+            'incomplete': [f"Periodo {periodo['periodo']} Fase {periodo['fase']}" for periodo in incomplete_periods],
+            'message': message if (missing_periods or incomplete_periods) else "All periods properly documented"
+        }
+
+    @staticmethod
+    def validate_struttura(context):
+        """Validate structure data with enhanced feedback"""
+        if not context:
+            return {
+                'valid': False,
+                'missing_fields': ['entire context'],
+                'incomplete': [],
+                'message': 'No context data provided'
+            }
+
+        struttura_data = context.get("struttura_data", [])
+        if not struttura_data:
+            return {
+                'valid': False,
+                'missing_fields': ['struttura_data'],
+                'incomplete': [],
+                'message': 'No structure data available'
+            }
+
+        missing_structures = []
+        incomplete_structures = []
+
+        for struttura in struttura_data:
+            if not struttura:  # Skip if struttura is None
+                continue
+
+            sigla = struttura.get('sigla_struttura', 'Unknown')
+            numero = struttura.get('numero_struttura', 'Unknown')
+            missing_fields = []
+            incomplete_fields = []
+
+            # Check required fields
+            if not struttura.get('descrizione'):
+                missing_fields.append('descrizione')
+            elif len(str(struttura.get('descrizione', '')).strip()) < 10:
+                incomplete_fields.append('descrizione')
+
+            if not struttura.get('interpretazione'):
+                missing_fields.append('interpretazione')
+            elif len(str(struttura.get('interpretazione', '')).strip()) < 10:
+                incomplete_fields.append('interpretazione')
+
+            if not struttura.get('definizione_struttura'):
+                missing_fields.append('definizione_struttura')
+
+            if missing_fields:
+                missing_structures.append({
+                    'sigla': sigla,
+                    'numero': numero,
+                    'missing': missing_fields
+                })
+
+            if incomplete_fields:
+                incomplete_structures.append({
+                    'sigla': sigla,
+                    'numero': numero,
+                    'incomplete': incomplete_fields
+                })
+
+        message = ""
+        if missing_structures:
+            message += "Strutture con campi mancanti:\n"
+            for struttura in missing_structures:
+                message += f"Struttura {struttura['sigla']} {struttura['numero']}: mancano {', '.join(struttura['missing'])}.\n"
+
+        if incomplete_structures:
+            if message:
+                message += "\n"
+            message += "Strutture con descrizioni potenzialmente incomplete:\n"
+            for struttura in incomplete_structures:
+                message += f"Struttura {struttura['sigla']} {struttura['numero']}: campi incompleti: {', '.join(struttura['incomplete'])}.\n"
+
+        return {
+            'valid': not (missing_structures or incomplete_structures),
+            'missing_fields': [struttura['missing'] for struttura in missing_structures],
+            'incomplete': [f"Struttura {struttura['sigla']} {struttura['numero']}" for struttura in incomplete_structures],
+            'message': message if (missing_structures or incomplete_structures) else "All structures properly documented"
+        }
