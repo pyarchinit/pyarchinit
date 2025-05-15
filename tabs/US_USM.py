@@ -60,6 +60,11 @@ from docx.shared import Pt, Inches
 from docx.oxml import parse_xml
 
 from langchain.chat_models import ChatOpenAI
+from langchain.vectorstores import FAISS
+from langchain.embeddings import OpenAIEmbeddings
+from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain.chains import RetrievalQA
+from langchain.prompts import PromptTemplate
 
 from langchain.agents import AgentType, Tool, initialize_agent
 from langchain.memory import ConversationBufferMemory
@@ -764,6 +769,9 @@ class ReportDialog(QDialog):
                     if "Immagine" in line:
                         img_name = line.replace('Immagine', '').strip()
 
+                        # Dictionary to track which images have been used
+                        if not hasattr(self, 'used_images_in_report'):
+                            self.used_images_in_report = {}
 
                         # Cerca l'immagine nell'HTML
                         soup = BeautifulSoup(html_content, 'html.parser')
@@ -772,12 +780,26 @@ class ReportDialog(QDialog):
                             if src and img_name in src:
                                 if src.startswith('file:///'):
                                     src = src[8:]
-                                # Modifica solo il percorso src
-                                # if '_thumb' in src:
-                                #     base_path = src.replace('_thumb.png', '.png')
-                                #     src_ = base_path
+                                # Modifica il percorso src per usare l'immagine originale invece della thumbnail
+                                if '_thumb' in src:
+                                    # Extract the original image path from the thumbnail path
+                                    original_path = src.replace('_thumb.png', '.png')
+                                    # Extract the directory path without the "thumbnails" folder
+                                    if '/thumbnails/' in original_path:
+                                        original_path = original_path.replace('/thumbnails/', '/')
+                                    # Use the original image if it exists
+                                    if os.path.exists(original_path):
+                                        src = original_path
                             try:
                                 if os.path.exists(src):
+                                    # Check if this image has already been used
+                                    if src in self.used_images_in_report:
+                                        self.log_to_terminal(f"Skipping duplicate image: {src}")
+                                        break
+
+                                    # Mark this image as used
+                                    self.used_images_in_report[src] = True
+
                                     self.log_to_terminal(f"{src}")
 
                                     # Aggiungi immagine al documento
@@ -888,6 +910,144 @@ class GenerateReportThread(QThread):
         self.output_language = output_language
         self.full_report = ""
         self.formatted_report = ""  # Inizializza qui la variabile
+
+    def create_vector_db(self, data, table_name):
+        """
+        Create a vector database from the data for RAG approach.
+
+        Args:
+            data: List of data records
+            table_name: Name of the table for context
+
+        Returns:
+            FAISS vector store for retrieval
+        """
+        if not data:
+            return None
+
+        # Convert data records to text documents
+        documents = []
+        for i, record in enumerate(data):
+            if isinstance(record, dict):
+                # Format dictionary as text
+                content = f"Record {i+1} from {table_name}:\n"
+                content += "\n".join(f"{k}: {v}" for k, v in record.items())
+            else:
+                # Format object as text
+                content = f"Record {i+1} from {table_name}:\n"
+                content += "\n".join(f"{k}: {getattr(record, k, '')}" for k in dir(record) 
+                                    if not k.startswith('_') and not callable(getattr(record, k, None)))
+
+            documents.append(content)
+
+        # Split text into chunks
+        text_splitter = RecursiveCharacterTextSplitter(
+            chunk_size=1000,
+            chunk_overlap=100,
+            length_function=len,
+        )
+        texts = text_splitter.create_documents(documents)
+
+        # Create vector store
+        try:
+            embeddings = OpenAIEmbeddings(api_key=self.api_key)
+            vector_store = FAISS.from_documents(texts, embeddings)
+            return vector_store
+        except Exception as e:
+            self.log_message.emit(f"Error creating vector database: {str(e)}", "error")
+            return None
+
+    def retrieve_relevant_data(self, vector_store, query, k=5):
+        """
+        Retrieve the most relevant data from the vector store based on the query.
+
+        Args:
+            vector_store: FAISS vector store
+            query: Query string
+            k: Number of documents to retrieve
+
+        Returns:
+            String containing the retrieved documents
+        """
+        if not vector_store:
+            return ""
+
+        try:
+            # Retrieve relevant documents
+            docs = vector_store.similarity_search(query, k=k)
+
+            # Format the retrieved documents
+            retrieved_data = "\n\n".join([doc.page_content for doc in docs])
+
+            return retrieved_data
+        except Exception as e:
+            self.log_message.emit(f"Error retrieving data: {str(e)}", "error")
+            return ""
+
+    def create_rag_chain(self, vector_store, llm):
+        """
+        Create a RetrievalQA chain for the RAG approach.
+
+        Args:
+            vector_store: FAISS vector store
+            llm: Language model
+
+        Returns:
+            RetrievalQA chain
+        """
+        if not vector_store:
+            return None
+
+        try:
+            # Create a prompt template
+            template = """
+            You are an archaeological expert analyzing data from an excavation.
+
+            Use the following pieces of context to answer the question at the end.
+            If you don't know the answer, just say that you don't know, don't try to make up an answer.
+
+            Context:
+            {context}
+
+            Question: {question}
+
+            Answer:
+            """
+
+            prompt = PromptTemplate(
+                template=template,
+                input_variables=["context", "question"]
+            )
+
+            # Create the chain
+            chain = RetrievalQA.from_chain_type(
+                llm=llm,
+                chain_type="stuff",
+                retriever=vector_store.as_retriever(),
+                chain_type_kwargs={"prompt": prompt}
+            )
+
+            return chain
+        except Exception as e:
+            self.log_message.emit(f"Error creating RAG chain: {str(e)}", "error")
+            return None
+
+    def count_tokens(self, text):
+        """
+        Estimate the number of tokens in a text.
+        This is a simple estimation based on character count.
+
+        Args:
+            text: The text to count tokens for
+
+        Returns:
+            Estimated token count
+        """
+        if not text:
+            return 0
+
+        # Roughly 4 characters per token for English text
+        return len(text) // 4
 
     def validate_us(self):
         """Validate US data using ArchaeologicalValidators"""
@@ -1040,6 +1200,9 @@ class GenerateReportThread(QThread):
         """Converte il formato immagine per la visualizzazione nel widget."""
         import re
 
+        # Dictionary to track which images have been used
+        used_images = {}
+
         def replace_image(match):
             """
             Gestisce la sostituzione delle immagini con il markup HTML appropriato.
@@ -1058,6 +1221,15 @@ class GenerateReportThread(QThread):
                 if path.startswith('file://'):
                     path = path[7:]
 
+                # Check if this image has already been used
+                image_key = f"{number}_{path}"
+                if image_key in used_images:
+                    print(f"Skipping duplicate image: {image_key}")
+                    return ""  # Skip duplicate images
+
+                # Mark this image as used
+                used_images[image_key] = True
+
                 # Debug print
                 print(f"Processando immagine: numero={number}, path={path}, caption={caption}")
 
@@ -1067,8 +1239,15 @@ class GenerateReportThread(QThread):
                     # Ridimensiona mantenendo l'aspect ratio
                     scaled_image = image.scaled(500, 400, Qt.KeepAspectRatio, Qt.SmoothTransformation)
 
-                    # Salva l'immagine ridimensionata con un nome temporaneo
-                    temp_path = path.replace('.png', '_thumb.png')
+                    # Create a temporary directory for thumbnails if it doesn't exist
+                    import os
+                    thumb_dir = os.path.join(os.path.dirname(path), "thumbnails")
+                    if not os.path.exists(thumb_dir):
+                        os.makedirs(thumb_dir)
+
+                    # Save the thumbnail in the thumbnails directory
+                    filename = os.path.basename(path)
+                    temp_path = os.path.join(thumb_dir, filename.replace('.png', '_thumb.png'))
                     scaled_image.save(temp_path)
 
                     return f'''
@@ -1155,8 +1334,8 @@ class GenerateReportThread(QThread):
                         i += 1
                     continue
 
-                # Gestisci il grassetto
-                line = re.sub(r'\*\*(.*?)\*\*', r'<strong>\1</strong>', line)
+                # Remove bold formatting from regular text (we only want titles to be bold)
+                line = re.sub(r'\*\*(.*?)\*\*', r'\1', line)
 
                 # Gestisci le immagini con un'unica regex
                 line = re.sub(r'\[IMMAGINE (?:US|FASE|RAPPORTI|MATERIALE|CERAMICA) \d+:.*?\]', replace_image, line)
@@ -1602,72 +1781,199 @@ class GenerateReportThread(QThread):
                                 large_data_tables.append(table_name)
 
                     if use_chunking and large_data_tables:
-                        self.log_message.emit(f"Using chunking for large datasets: {', '.join(large_data_tables)}", "info")
+                        self.log_message.emit(f"Using RAG approach for large datasets: {', '.join(large_data_tables)}", "info")
 
-                        # Process each large table separately
+                        # Initialize LLM for RAG
+                        llm = ChatOpenAI(
+                            temperature=0.0,
+                            model_name=self.selected_model,
+                            api_key=self.api_key,
+                            max_tokens=4000
+                        )
+
+                        # Create vector databases for large tables
+                        vector_stores = {}
+                        for table_name in large_data_tables:
+                            self.log_message.emit(f"Creating vector database for {table_name}...", "info")
+                            data = context[table_name]
+                            vector_store = self.create_vector_db(data, table_name)
+                            if vector_store:
+                                vector_stores[table_name] = vector_store
+                                self.log_message.emit(f"Vector database created for {table_name}", "info")
+                            else:
+                                self.log_message.emit(f"Failed to create vector database for {table_name}", "warning")
+
+                        # Process with RAG approach
                         section_results = []
 
                         # First, process with a summary of all data to get an overview
+                        self.log_message.emit("Generating overview...", "info")
                         summary_prompt = base_prompt + "\n\nPer questa prima fase, fornisci una panoramica generale basata sui dati disponibili."
-                        overview_result = self.agent.run(summary_prompt)
+
+                        # Add a note about where the vector database is stored
+                        self.log_message.emit("Vector databases are stored in memory during the report generation process", "info")
+
+                        # For the overview, we'll use a simplified context with just a few examples from each large table
+                        simplified_context = context.copy()
+                        for table_name in large_data_tables:
+                            if table_name in context and isinstance(context[table_name], list) and len(context[table_name]) > 5:
+                                simplified_context[table_name] = context[table_name][:5]  # Just take the first 5 items
+
+                        # Create a simplified prompt with the reduced context
+                        simplified_data_summary = "Processing with simplified dataset for overview.\n"
+                        for table_name, data in simplified_context.items():
+                            if isinstance(data, list):
+                                simplified_data_summary += f"- {table_name}: {len(data)} records (sample)\n"
+
+                        simplified_prompt = base_prompt.replace(data_summary, simplified_data_summary)
+                        overview_result = self.agent.run(simplified_prompt)
                         if overview_result:
                             section_results.append(overview_result)
 
-                        # Then process each large table in chunks
+                        # Then process each large table using RAG
                         for table_name in large_data_tables:
-                            data = context[table_name]
+                            if table_name not in vector_stores:
+                                self.log_message.emit(f"Skipping {table_name} as vector database creation failed", "warning")
+                                continue
 
-                            # Use a smaller chunk size for very large datasets
-                            if table_name in very_large_data_tables:
-                                chunk_size = 15  # Process 15 items at a time for very large datasets
-                                self.log_message.emit(f"Using smaller chunk size (15) for very large dataset: {table_name}", "info")
-                            else:
-                                chunk_size = 30  # Process 30 items at a time for large datasets
+                            vector_store = vector_stores[table_name]
+                            self.log_message.emit(f"Processing {table_name} with RAG approach...", "info")
 
-                            # Estimate total tokens for this dataset
-                            sample_item = data[0] if data else {}
-                            sample_text = "\n".join(f"{k}: {v}" for k, v in sample_item.items() if isinstance(sample_item, dict))
-                            try:
-                                tokens_per_item = self.count_tokens(sample_text)
-                                estimated_total_tokens = tokens_per_item * len(data)
-                            except AttributeError:
-                                # Fallback if count_tokens method is not accessible
-                                self.log_message.emit("Warning: count_tokens method not accessible, using default token estimation", "warning")
-                                # Roughly 4 characters per token for English text (same as in count_tokens method)
-                                tokens_per_item = len(sample_text) // 4
-                                estimated_total_tokens = tokens_per_item * len(data)
+                            # Create analysis questions based on the section
+                            analysis_questions = [
+                                f"What are the key patterns or trends in the {table_name} data?",
+                                f"What are the most significant findings in the {table_name} data?",
+                                f"How does the {table_name} data relate to the archaeological context?",
+                                f"What chronological information can be derived from the {table_name} data?",
+                                f"What spatial distribution patterns are evident in the {table_name} data?"
+                            ]
 
-                            # If estimated tokens are very high, use even smaller chunks
-                            if estimated_total_tokens > 500000:  # Arbitrary threshold for extremely large datasets
-                                chunk_size = max(5, chunk_size // 3)  # Reduce chunk size further, but not below 5
-                                self.log_message.emit(f"Dataset {table_name} has estimated {estimated_total_tokens} tokens. Using very small chunk size: {chunk_size}", "warning")
+                            # Add image-related questions if images are available
+                            if should_process_images and image_context:
+                                # Find relevant entity IDs for this table
+                                relevant_ids = []
+                                if table_name == "us_data":
+                                    relevant_ids = [str(us.get('id_us')) for us in context["us_data"] if us.get('id_us')]
+                                elif table_name == "materials_data":
+                                    relevant_ids = [str(mat.get('id_invmat')) for mat in context["materials_data"] if mat.get('id_invmat')]
+                                elif table_name == "pottery_data":
+                                    relevant_ids = [str(pot.get('id_rep')) for pot in context["pottery_data"] if pot.get('id_rep')]
 
-                            for i in range(0, len(data), chunk_size):
-                                chunk = data[i:i+chunk_size]
-                                chunk_context = context.copy()
-                                chunk_context[table_name] = chunk
+                                # Filter image_context to only include relevant entities
+                                relevant_images = {entity_id: imgs for entity_id, imgs in image_context.items() if entity_id in relevant_ids}
 
-                                # Create a chunk-specific prompt
-                                chunk_data_summary = f"Processing {table_name} chunk {i//chunk_size + 1}/{(len(data) + chunk_size - 1)//chunk_size}\n"
-                                chunk_data_summary += f"Items {i+1}-{min(i+chunk_size, len(data))} of {len(data)}\n"
+                                if relevant_images:
+                                    # Add image-specific questions
+                                    analysis_questions.append(f"Describe the visual characteristics of the {table_name} based on the available images.")
+                                    analysis_questions.append(f"What additional information can be derived from the images of the {table_name}?")
 
-                                chunk_prompt = base_prompt.replace(data_summary, chunk_data_summary)
-                                chunk_prompt += f"\n\nAnalizza in dettaglio questo gruppo di dati {table_name} (elementi {i+1}-{min(i+chunk_size, len(data))}). "
-                                chunk_prompt += "Integra questa analisi con quanto già sai del contesto generale."
+                            # Create RAG chain for this table
+                            # Pass image_context to include images in the RAG approach
+                            rag_chain = self.create_rag_chain(vector_store, llm)
+                            if not rag_chain:
+                                self.log_message.emit(f"Failed to create RAG chain for {table_name}", "warning")
+                                continue
 
-                                # Process this chunk
-                                self.log_message.emit(f"Processing chunk {i//chunk_size + 1}/{(len(data) + chunk_size - 1)//chunk_size} of {table_name}...", "info")
-                                chunk_result = self.agent.run(chunk_prompt)
-                                if chunk_result:
-                                    section_results.append(chunk_result)
+                            # Add image instructions to the RAG chain's prompt if images are available
+                            if should_process_images and image_context:
+                                self.log_message.emit(f"Including images in RAG approach for {table_name}...", "info")
 
-                        # Final integration prompt to combine all the results
+                            # Process each analysis question
+                            table_results = []
+                            for i, question in enumerate(analysis_questions):
+                                self.log_message.emit(f"Processing question {i+1}/{len(analysis_questions)} for {table_name}...", "info")
+                                try:
+                                    # Prepare the question with image instructions if available
+                                    enhanced_question = question
+                                    if should_process_images and image_context and i >= len(analysis_questions) - 2:  # For image-specific questions
+                                        # Find relevant entity IDs for this table
+                                        relevant_ids = []
+                                        if table_name == "us_data":
+                                            relevant_ids = [str(us.get('id_us')) for us in context["us_data"] if us.get('id_us')]
+                                        elif table_name == "materials_data":
+                                            relevant_ids = [str(mat.get('id_invmat')) for mat in context["materials_data"] if mat.get('id_invmat')]
+                                        elif table_name == "pottery_data":
+                                            relevant_ids = [str(pot.get('id_rep')) for pot in context["pottery_data"] if pot.get('id_rep')]
+
+                                        # Filter image_context to only include relevant entities
+                                        relevant_images = {entity_id: imgs for entity_id, imgs in image_context.items() if entity_id in relevant_ids}
+
+                                        if relevant_images:
+                                            # Add image instructions to the question
+                                            image_instructions = "\n\nImmagini disponibili:\n"
+
+                                            for entity_id, images_list in relevant_images.items():
+                                                for img in images_list:
+                                                    entity_type = img.get('entity_type', 'US')
+                                                    if entity_type == 'US':
+                                                        image_instructions += f"[IMMAGINE US {entity_id}: {img['url']}, {img['caption']}]\n"
+                                                    elif entity_type == 'REPERTO':
+                                                        image_instructions += f"[IMMAGINE REPERTO {entity_id}: {img['url']}, {img['caption']}]\n"
+                                                    elif entity_type == 'CERAMICA':
+                                                        image_instructions += f"[IMMAGINE CERAMICA {entity_id}: {img['url']}, {img['caption']}]\n"
+
+                                            image_instructions += """
+                                            Per favore, quando menzioni un'entità che ha immagini associate, inserisci l'immagine nel testo usando questa sintassi:
+                                            - Per le US: [IMMAGINE US numero: percorso, caption]
+                                            - Per i Materiali: [IMMAGINE REPERTO numero: percorso, caption]
+                                            - Per la Ceramica: [IMMAGINE CERAMICA numero: percorso, caption]
+
+                                            Inserisci le immagini nei punti appropriati del testo, quando menzioni l'entità corrispondente.
+                                            """
+
+                                            enhanced_question = f"{question}\n\n{image_instructions}"
+
+                                    # Run the RAG chain with the enhanced question
+                                    response = rag_chain.run(enhanced_question)
+                                    if response:
+                                        table_results.append(f"Analysis {i+1}: {question}\n{response}")
+                                except Exception as e:
+                                    self.log_message.emit(f"Error processing question {i+1} for {table_name}: {str(e)}", "warning")
+
+                            # Combine results for this table
+                            if table_results:
+                                table_analysis = f"\n\n### Analysis of {table_name} data:\n\n" + "\n\n".join(table_results)
+                                section_results.append(table_analysis)
+
+                        # Final integration using RAG
                         if len(section_results) > 1:
-                            integration_prompt = base_prompt + "\n\nIntegra tutte le analisi precedenti in un testo coerente e completo, eliminando ripetizioni e organizzando le informazioni in modo logico."
-                            final_result = self.agent.run(integration_prompt)
-                            if final_result:
-                                result = final_result
-                            else:
+                            self.log_message.emit("Integrating all analyses...", "info")
+
+                            # Create a prompt for integration
+                            integration_text = "\n\n".join(section_results)
+                            integration_prompt = f"""
+                            You are an archaeological expert tasked with integrating multiple analyses into a coherent report.
+
+                            Below are separate analyses of different aspects of the archaeological data:
+
+                            {integration_text}
+
+                            Please integrate these analyses into a coherent, well-structured report section.
+                            Eliminate repetitions, organize the information logically, and ensure a smooth flow between topics.
+                            Focus on the most significant findings and patterns across all the data.
+
+                            IMPORTANT: Preserve all image references in the format [IMMAGINE US/REPERTO/CERAMICA numero: percorso, caption].
+                            These are essential for the report and must be included exactly as they appear in the analyses.
+                            """
+
+                            # Use a direct call to the model with a reduced token count to avoid exceeding limits
+                            try:
+                                client = OpenAI(api_key=self.api_key)
+                                response = client.chat.completions.create(
+                                    model=self.selected_model,
+                                    messages=[{"role": "system", "content": "You are an archaeological expert."},
+                                              {"role": "user", "content": integration_prompt}],
+                                    max_tokens=4000,
+                                    temperature=0.0
+                                )
+                                final_result = response.choices[0].message.content
+                                if final_result:
+                                    result = final_result
+                                else:
+                                    # If integration fails, concatenate all results
+                                    result = "\n\n".join(section_results)
+                            except Exception as e:
+                                self.log_message.emit(f"Error during integration: {str(e)}", "warning")
                                 # If integration fails, concatenate all results
                                 result = "\n\n".join(section_results)
                         else:
@@ -1702,34 +2008,186 @@ class GenerateReportThread(QThread):
 
                     # Check if it's a token limit error
                     if "context_length_exceeded" in error_message or "max_tokens" in error_message:
-                        # Try to process with a simplified prompt and reduced data
+                        # Try to process with RAG approach
                         try:
-                            self.log_message.emit("Retrying with reduced data...", "info")
+                            self.log_message.emit("Retrying with RAG approach due to token limit...", "info")
+                            self.log_message.emit("Vector databases are stored in memory during the report generation process", "info")
 
-                            # Create a simplified context with reduced data
-                            simplified_context = {}
+                            # Initialize LLM for RAG with reduced tokens
+                            llm = ChatOpenAI(
+                                temperature=0.0,
+                                model_name=self.selected_model,
+                                api_key=self.api_key,
+                                max_tokens=2000  # Reduced token count for safety
+                            )
+
+                            # Identify large tables that need RAG
+                            rag_tables = []
                             for table_name, data in context.items():
-                                if isinstance(data, list) and len(data) > 10:
-                                    # Take a representative sample of the data
-                                    simplified_context[table_name] = data[:10]  # Just take the first 10 items
-                                else:
-                                    simplified_context[table_name] = data
+                                if isinstance(data, list) and len(data) > 20:  # Lower threshold for retry
+                                    rag_tables.append(table_name)
 
-                            # Create a simplified prompt
-                            simplified_prompt = base_prompt.replace(data_summary, "Processing with reduced dataset due to token limits.\n")
-                            simplified_prompt += "\n\nAnalizza i dati disponibili e fornisci un'analisi generale. Indica chiaramente che l'analisi è basata su un campione ridotto dei dati."
+                            if not rag_tables:
+                                # If no large tables, just take a small sample of all data
+                                self.log_message.emit("No large tables identified, using simplified approach", "info")
 
-                            # Process with simplified data
-                            result = self.agent.run(simplified_prompt)
+                                # Create a simplified context with reduced data
+                                simplified_context = {}
+                                for table_name, data in context.items():
+                                    if isinstance(data, list) and len(data) > 5:
+                                        # Take a very small representative sample
+                                        simplified_context[table_name] = data[:5]  # Just take the first 5 items
+                                    else:
+                                        simplified_context[table_name] = data
+
+                                # Create a simplified prompt
+                                simplified_prompt = base_prompt.replace(data_summary, "Processing with reduced dataset due to token limits.\n")
+                                simplified_prompt += "\n\nAnalizza i dati disponibili e fornisci un'analisi generale. Indica chiaramente che l'analisi è basata su un campione ridotto dei dati."
+
+                                # Process with simplified data
+                                result = self.agent.run(simplified_prompt)
+                            else:
+                                # Use RAG approach for large tables
+                                self.log_message.emit(f"Using RAG approach for tables: {', '.join(rag_tables)}", "info")
+
+                                # Create vector databases for large tables
+                                vector_stores = {}
+                                for table_name in rag_tables:
+                                    self.log_message.emit(f"Creating vector database for {table_name}...", "info")
+                                    data = context[table_name]
+                                    vector_store = self.create_vector_db(data, table_name)
+                                    if vector_store:
+                                        vector_stores[table_name] = vector_store
+                                        self.log_message.emit(f"Vector database created for {table_name}", "info")
+                                    else:
+                                        self.log_message.emit(f"Failed to create vector database for {table_name}", "warning")
+
+                                # Process with RAG approach
+                                section_results = []
+
+                                # Create a simplified context for non-RAG tables
+                                simplified_context = context.copy()
+                                for table_name in rag_tables:
+                                    if table_name in simplified_context:
+                                        # Replace with a minimal sample
+                                        if isinstance(simplified_context[table_name], list) and len(simplified_context[table_name]) > 3:
+                                            simplified_context[table_name] = simplified_context[table_name][:3]
+
+                                # Generate a brief overview with simplified context
+                                self.log_message.emit("Generating brief overview...", "info")
+                                overview_prompt = f"""
+                                You are an archaeological expert analyzing data from an excavation.
+
+                                Please provide a very brief overview of the archaeological context based on the following information:
+
+                                {step['prompt']}
+
+                                Keep your response concise and focused on the main points only.
+                                """
+
+                                # Use direct API call with reduced tokens
+                                client = OpenAI(api_key=self.api_key)
+                                response = client.chat.completions.create(
+                                    model=self.selected_model,
+                                    messages=[{"role": "system", "content": "You are an archaeological expert."},
+                                              {"role": "user", "content": overview_prompt}],
+                                    max_tokens=1000,
+                                    temperature=0.0
+                                )
+                                overview_result = response.choices[0].message.content
+                                if overview_result:
+                                    section_results.append(overview_result)
+
+                                # Process each RAG table
+                                for table_name in rag_tables:
+                                    if table_name not in vector_stores:
+                                        continue
+
+                                    vector_store = vector_stores[table_name]
+                                    self.log_message.emit(f"Processing {table_name} with RAG approach...", "info")
+
+                                    # Create focused analysis questions
+                                    analysis_questions = [
+                                        f"What are the key patterns in the {table_name} data?",
+                                        f"What are the most significant findings in the {table_name} data?"
+                                    ]
+
+                                    # Create RAG chain
+                                    rag_chain = self.create_rag_chain(vector_store, llm)
+                                    if not rag_chain:
+                                        continue
+
+                                    # Process questions
+                                    table_results = []
+                                    for i, question in enumerate(analysis_questions):
+                                        try:
+                                            # Prepare the question with image instructions if available
+                                            enhanced_question = question
+                                            if should_process_images and image_context:
+                                                # Find relevant entity IDs for this table
+                                                relevant_ids = []
+                                                if table_name == "us_data":
+                                                    relevant_ids = [str(us.get('id_us')) for us in context["us_data"] if us.get('id_us')]
+                                                elif table_name == "materials_data":
+                                                    relevant_ids = [str(mat.get('id_invmat')) for mat in context["materials_data"] if mat.get('id_invmat')]
+                                                elif table_name == "pottery_data":
+                                                    relevant_ids = [str(pot.get('id_rep')) for pot in context["pottery_data"] if pot.get('id_rep')]
+
+                                                # Filter image_context to only include relevant entities
+                                                relevant_images = {entity_id: imgs for entity_id, imgs in image_context.items() if entity_id in relevant_ids}
+
+                                                if relevant_images:
+                                                    # Add image instructions to the question
+                                                    image_instructions = "\n\nImmagini disponibili:\n"
+
+                                                    for entity_id, images_list in relevant_images.items():
+                                                        for img in images_list:
+                                                            entity_type = img.get('entity_type', 'US')
+                                                            if entity_type == 'US':
+                                                                image_instructions += f"[IMMAGINE US {entity_id}: {img['url']}, {img['caption']}]\n"
+                                                            elif entity_type == 'REPERTO':
+                                                                image_instructions += f"[IMMAGINE REPERTO {entity_id}: {img['url']}, {img['caption']}]\n"
+                                                            elif entity_type == 'CERAMICA':
+                                                                image_instructions += f"[IMMAGINE CERAMICA {entity_id}: {img['url']}, {img['caption']}]\n"
+
+                                                    image_instructions += """
+                                                    Per favore, quando menzioni un'entità che ha immagini associate, inserisci l'immagine nel testo usando questa sintassi:
+                                                    - Per le US: [IMMAGINE US numero: percorso, caption]
+                                                    - Per i Materiali: [IMMAGINE REPERTO numero: percorso, caption]
+                                                    - Per la Ceramica: [IMMAGINE CERAMICA numero: percorso, caption]
+
+                                                    Inserisci le immagini nei punti appropriati del testo, quando menzioni l'entità corrispondente.
+                                                    """
+
+                                                    enhanced_question = f"{question}\n\n{image_instructions}"
+                                                    self.log_message.emit(f"Including images in error recovery RAG approach for {table_name}...", "info")
+
+                                            response = rag_chain.run(enhanced_question)
+                                            if response:
+                                                table_results.append(response)
+                                        except Exception as e:
+                                            self.log_message.emit(f"Error in RAG processing: {str(e)}", "warning")
+
+                                    # Combine results
+                                    if table_results:
+                                        table_analysis = f"\n\n### Analysis of {table_name} data:\n\n" + "\n\n".join(table_results)
+                                        section_results.append(table_analysis)
+
+                                # Combine all results
+                                result = "\n\n".join(section_results)
 
                             if result:
                                 # Post-process to remove AI's notes and thoughts
                                 result = self.clean_ai_notes(result)
 
-                                # Add a note about the reduced dataset
-                                result = "NOTA: Questa sezione è stata generata utilizzando un campione ridotto dei dati a causa di limiti tecnici.\n\n" + result
+                                # Add a note about the RAG approach
+                                result = "NOTA: Questa sezione è stata generata utilizzando un approccio di Retrieval Augmented Generation (RAG) a causa di limiti tecnici nella dimensione dei dati.\n\n" + result
 
-                                self.log_message.emit("Formattazione del risultato con dati ridotti...", "info")
+                                self.log_message.emit("Formattazione del risultato con approccio RAG...", "info")
+
+                                # Ensure image references are preserved in the final result
+                                if should_process_images and image_context:
+                                    self.log_message.emit("Ensuring image references are preserved in the final result...", "info")
                                 section_text = f"{step['section']}\n{'=' * len(step['section'])}\n{result}"
                                 formatted_section = self.format_for_widget(section_text)
 
@@ -1738,9 +2196,9 @@ class GenerateReportThread(QThread):
                                 self.formatted_report += formatted_section
                                 self.report_generated.emit(self.formatted_report)
                                 self.full_report += f"\n\n{section_text}"
-                                self.log_message.emit(f"Completed {step['section']} with reduced data", "step")
+                                self.log_message.emit(f"Completed {step['section']} with RAG approach", "step")
                             else:
-                                self.log_message.emit("Failed to generate result even with reduced data", "warning")
+                                self.log_message.emit("Failed to generate result with RAG approach", "warning")
                         except Exception as retry_error:
                             self.log_message.emit(f"Failed retry attempt: {str(retry_error)}. Continuing with next section.", "warning")
                             continue
@@ -1779,6 +2237,16 @@ class GenerateReportThread(QThread):
 
         # Remove any other AI thoughts or notes
         text = re.sub(r'--\*?Nota:.*?\*?', '', text)
+
+        # Remove common AI response phrases
+        text = re.sub(r'^Certainly!.*?integrated,?\s+', '', text)
+        text = re.sub(r'^Here is an integrated,?\s+', '', text)
+        text = re.sub(r'^I\'ll provide an integrated,?\s+', '', text)
+        text = re.sub(r'\*\(All image references are preserved.*?layout\.\)\*', '', text)
+        text = re.sub(r'\(All image references are preserved.*?layout\.\)', '', text)
+        text = re.sub(r'\*\(Please insert the relevant image references.*?data\.\)\*', '', text)
+        text = re.sub(r'\(Please insert the relevant image references.*?data\.\)', '', text)
+        text = re.sub(r'\[IMMAGINE US/REPERTO/CERAMICA numero: percorso, caption\]', '', text)
 
         # Clean up any double spaces or newlines created by the removals
         text = re.sub(r'\n\s*\n\s*\n', '\n\n', text)
@@ -2921,6 +3389,127 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         """
         # Roughly 4 characters per token for English text
         return len(text) // 4
+
+    def create_vector_db(self, data, table_name):
+        """
+        Create a vector database from the data for RAG approach.
+
+        Args:
+            data: List of data records
+            table_name: Name of the table for context
+
+        Returns:
+            FAISS vector store for retrieval
+        """
+        if not data:
+            return None
+
+        # Convert data records to text documents
+        documents = []
+        for i, record in enumerate(data):
+            if isinstance(record, dict):
+                # Format dictionary as text
+                content = f"Record {i+1} from {table_name}:\n"
+                content += "\n".join(f"{k}: {v}" for k, v in record.items())
+            else:
+                # Format object as text
+                content = f"Record {i+1} from {table_name}:\n"
+                content += "\n".join(f"{k}: {getattr(record, k, '')}" for k in dir(record) 
+                                    if not k.startswith('_') and not callable(getattr(record, k, None)))
+
+            documents.append(content)
+
+        # Split text into chunks
+        text_splitter = RecursiveCharacterTextSplitter(
+            chunk_size=1000,
+            chunk_overlap=100,
+            length_function=len,
+        )
+        texts = text_splitter.create_documents(documents)
+
+        # Create vector store
+        try:
+            embeddings = OpenAIEmbeddings(api_key=self.api_key)
+            vector_store = FAISS.from_documents(texts, embeddings)
+            return vector_store
+        except Exception as e:
+            self.log_message.emit(f"Error creating vector database: {str(e)}", "error")
+            return None
+
+    def retrieve_relevant_data(self, vector_store, query, k=5):
+        """
+        Retrieve the most relevant data from the vector store based on the query.
+
+        Args:
+            vector_store: FAISS vector store
+            query: Query string
+            k: Number of documents to retrieve
+
+        Returns:
+            String containing the retrieved documents
+        """
+        if not vector_store:
+            return ""
+
+        try:
+            # Retrieve relevant documents
+            docs = vector_store.similarity_search(query, k=k)
+
+            # Format the retrieved documents
+            retrieved_data = "\n\n".join([doc.page_content for doc in docs])
+
+            return retrieved_data
+        except Exception as e:
+            self.log_message.emit(f"Error retrieving data: {str(e)}", "error")
+            return ""
+
+    def create_rag_chain(self, vector_store, llm):
+        """
+        Create a RetrievalQA chain for the RAG approach.
+
+        Args:
+            vector_store: FAISS vector store
+            llm: Language model
+
+        Returns:
+            RetrievalQA chain
+        """
+        if not vector_store:
+            return None
+
+        try:
+            # Create a prompt template
+            template = """
+            You are an archaeological expert analyzing data from an excavation.
+
+            Use the following pieces of context to answer the question at the end.
+            If you don't know the answer, just say that you don't know, don't try to make up an answer.
+
+            Context:
+            {context}
+
+            Question: {question}
+
+            Answer:
+            """
+
+            prompt = PromptTemplate(
+                template=template,
+                input_variables=["context", "question"]
+            )
+
+            # Create the chain
+            chain = RetrievalQA.from_chain_type(
+                llm=llm,
+                chain_type="stuff",
+                retriever=vector_store.as_retriever(),
+                chain_type_kwargs={"prompt": prompt}
+            )
+
+            return chain
+        except Exception as e:
+            self.log_message.emit(f"Error creating RAG chain: {str(e)}", "error")
+            return None
 
     def split_data_to_fit_tokens(self, data, columns, max_tokens_per_chunk=8000):
         """
@@ -4294,14 +4883,29 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
                 # Determine heading level based on # count or underline character
                 if line.startswith('#'):
-                    heading_level = min(6, line.count('#') + 1)  # +1 because # is level 1
+                    # Count the number of # characters at the start of the line
+                    hash_count = 0
+                    for char in line:
+                        if char == '#':
+                            hash_count += 1
+                        else:
+                            break
+
+                    # Map the heading level: # -> 1, ## -> 2, etc.
+                    heading_level = min(4, hash_count)  # Limit to level 4 to avoid issues with level 5
                 elif i+1 < len(lines):
                     if all(c == '=' for c in lines[i+1].strip()):
                         heading_level = 2  # = underline is level 2
                     elif all(c == '-' for c in lines[i+1].strip()):
                         heading_level = 3  # - underline is level 3
 
-                doc.add_heading(heading_text, level=heading_level)
+                # Use try-except to handle potential heading level issues
+                try:
+                    doc.add_heading(heading_text, level=heading_level)
+                except Exception as e:
+                    print(f"Error adding heading '{heading_text}' with level {heading_level}: {str(e)}")
+                    # Fallback to a safe heading level (3)
+                    doc.add_heading(heading_text, level=3)
 
                 # Skip the underline if present
                 if (i+1 < len(lines) and (all(c == '=' for c in lines[i+1].strip()) or 
@@ -4473,12 +5077,39 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             }
         }
 
+        # Set document properties for formatting
+        from docx.shared import Pt, Cm
+        from docx.enum.section import WD_SECTION
+        from docx.enum.text import WD_ALIGN_PARAGRAPH
+        from docx.enum.text import WD_BREAK
+
+        # Set page margins
+        for section in doc.sections:
+            section.top_margin = Cm(3)
+            section.bottom_margin = Cm(1)
+            section.left_margin = Cm(2.5)
+            section.right_margin = Cm(2.5)
+
         # First, replace metadata fields on the first page
         for para in doc.paragraphs:
             for placeholder, field_key in metadata_mapping.items():
                 if placeholder in para.text:
                     # Get the value from report_data, or use an empty string if not found
                     value = str(report_data.get(field_key, ""))
+
+                    # Special formatting for CANTIERE (site name)
+                    if placeholder == "{{CANTIERE}}":
+                        value = value.upper()  # Convert to uppercase
+
+                        # Replace the placeholder with empty text first
+                        para.text = para.text.replace(placeholder, "")
+
+                        # Then add the formatted text as a new run
+                        run = para.add_run(value)
+                        run.bold = True
+                        run.font.name = "Cambria"
+                        run.font.size = Pt(18)
+                        continue
 
                     # Replace the placeholder with the actual value
                     para.text = para.text.replace(placeholder, value)
@@ -4487,6 +5118,18 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                     for run in para.runs:
                         if placeholder in run.text:
                             run.text = run.text.replace(placeholder, value)
+                            # Set font for all text
+                            run.font.name = "Cambria"
+                            run.font.size = Pt(12)
+
+        # Ensure the introduction starts from page 5 by adding page breaks
+        # First, add a section break to start a new section for the content
+        doc.add_paragraph().add_run().add_break(WD_BREAK.PAGE)
+
+        # Add blank pages to ensure introduction starts on page 5
+        # We already have 1 page (title page), so add 3 more blank pages
+        for _ in range(3):
+            doc.add_paragraph().add_run().add_break(WD_BREAK.PAGE)
 
         # Now process section content
         for para_idx, para in enumerate(doc.paragraphs):
