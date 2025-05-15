@@ -335,6 +335,7 @@ class ReportGeneratorDialog(QDialog):
             records = [r for r in records if us_start <= str(getattr(r, 'us', '')) <= us_end]
 
         return [{
+            'id_invmat': getattr(r, 'id_invmat', ''),
             'numero_inventario': getattr(r, 'numero_inventario', ''),
             'tipo_reperto': getattr(r, 'tipo_reperto', ''),
             'definizione': getattr(r, 'definizione', ''),
@@ -364,6 +365,7 @@ class ReportGeneratorDialog(QDialog):
             records = [r for r in records if us_start <= str(getattr(r, 'us', '')) <= us_end]
 
         return [{
+            'id_rep': getattr(r, 'id_rep', ''),
             'id_number': getattr(r, 'id_number', ''),
             'fabric': getattr(r, 'fabric', ''),
             'form': getattr(r, 'form', ''),
@@ -864,7 +866,8 @@ class GenerateReportThread(QThread):
     report_completed = pyqtSignal(str, dict)
 
     def __init__(self, custom_prompt, descriptions_text, api_key, selected_model, selected_tables, analysis_steps,
-                 agent, us_data, materials_data, pottery_data, site_data,py_dialog, output_language='italiano'):
+                 agent, us_data, materials_data, pottery_data, site_data, py_dialog, output_language='italiano',
+                 tomba_data=None, periodizzazione_data=None, struttura_data=None):
         super().__init__()
 
         self.custom_prompt = custom_prompt
@@ -877,11 +880,56 @@ class GenerateReportThread(QThread):
         self.us_data = us_data
         self.materials_data = materials_data
         self.pottery_data = pottery_data
-        self.site_data=site_data,
+        self.site_data = site_data
+        self.tomba_data = tomba_data if tomba_data is not None else []
+        self.periodizzazione_data = periodizzazione_data if periodizzazione_data is not None else []
+        self.struttura_data = struttura_data if struttura_data is not None else []
         self.py_dialog = py_dialog
         self.output_language = output_language
         self.full_report = ""
         self.formatted_report = ""  # Inizializza qui la variabile
+
+    def validate_us(self):
+        """Validate US data using ArchaeologicalValidators"""
+        context = {
+            "us_data": self.us_data
+        }
+        return ArchaeologicalValidators.validate_us(context)
+
+    def validate_materials(self):
+        """Validate materials data using ArchaeologicalValidators"""
+        context = {
+            "materials_data": self.materials_data
+        }
+        return ArchaeologicalValidators.validate_materials(context)
+
+    def validate_pottery(self):
+        """Validate pottery data using ArchaeologicalValidators"""
+        context = {
+            "pottery_data": self.pottery_data
+        }
+        return ArchaeologicalValidators.validate_pottery(context)
+
+    def validate_tomba(self):
+        """Validate tomb data using ArchaeologicalValidators"""
+        context = {
+            "tomba_data": self.tomba_data
+        }
+        return ArchaeologicalValidators.validate_tomba(context)
+
+    def validate_periodizzazione(self):
+        """Validate periodization data using ArchaeologicalValidators"""
+        context = {
+            "periodizzazione_data": self.periodizzazione_data
+        }
+        return ArchaeologicalValidators.validate_periodizzazione(context)
+
+    def validate_struttura(self):
+        """Validate structure data using ArchaeologicalValidators"""
+        context = {
+            "struttura_data": self.struttura_data
+        }
+        return ArchaeologicalValidators.validate_struttura(context)
 
     def format_prompt_from_json(self, prompt_template):
         """Converte il template JSON in un prompt testuale strutturato in modo sicuro"""
@@ -1001,7 +1049,7 @@ class GenerateReportThread(QThread):
             print(f"Match trovato: {full_match}")
 
             # Estrai le informazioni con una regex più generica
-            pattern_parts = re.match(r'\[IMMAGINE .*? (\d+): (.*?), (.*?)\]', full_match)
+            pattern_parts = re.match(r'\[IMMAGINE\s+(?:US|FASE|RAPPORTI|MATERIALE|CERAMICA)\s+([^:]+):\s+(.*?),\s+(.*?)\]', full_match)
             if pattern_parts:
                 number = pattern_parts.group(1)
                 path = pattern_parts.group(2)
@@ -1038,6 +1086,47 @@ class GenerateReportThread(QThread):
             html_lines = []
             i = 0
 
+            # Function to convert markdown table to HTML table
+            def process_markdown_table(table_lines):
+                html_table = ['<table style="width:100%; border-collapse: collapse; margin: 15px 0;">']
+
+                # Process header row
+                header_row = None
+                separator_row = None
+
+                for idx, line in enumerate(table_lines):
+                    if idx == 0:  # First row is header
+                        header_row = line
+                    elif idx == 1 and re.match(r'^\|\s*[-:]+\s*\|', line):  # Second row is separator
+                        separator_row = line
+                        continue
+
+                # Process header if found
+                if header_row:
+                    cells = [cell.strip() for cell in header_row.strip('|').split('|')]
+                    html_table.append('<tr>')
+                    for cell in cells:
+                        html_table.append(f'<th style="border: 1px solid #ddd; padding: 8px; text-align: left; background-color: #f2f2f2;">{cell}</th>')
+                    html_table.append('</tr>')
+
+                # Process data rows
+                start_idx = 1 if separator_row else 0
+                if header_row and not separator_row:
+                    start_idx = 1
+
+                for line in table_lines[start_idx:]:
+                    if re.match(r'^\|\s*[-:]+\s*\|', line):  # Skip separator lines
+                        continue
+
+                    cells = [cell.strip() for cell in line.strip('|').split('|')]
+                    html_table.append('<tr>')
+                    for cell in cells:
+                        html_table.append(f'<td style="border: 1px solid #ddd; padding: 8px;">{cell}</td>')
+                    html_table.append('</tr>')
+
+                html_table.append('</table>')
+                return '\n'.join(html_table)
+
             while i < len(lines):
                 line = lines[i].strip()
 
@@ -1051,11 +1140,43 @@ class GenerateReportThread(QThread):
                     i += 2
                     continue
 
+                # Gestisci i sottotitoli (## o ---)
+                if line.startswith('##') or (i + 1 < len(lines) and all(c == '-' for c in lines[i + 1].strip())):
+                    heading_text = line
+                    if line.startswith('##'):
+                        heading_text = line.lstrip('#').strip()
+
+                    html_lines.append(
+                        f'<h3 style="font-size: 14pt; font-weight: bold; margin: 15px 0 10px 0;">{heading_text}</h3>')
+
+                    if i + 1 < len(lines) and all(c == '-' for c in lines[i + 1].strip()):
+                        i += 2  # Skip the underline
+                    else:
+                        i += 1
+                    continue
+
                 # Gestisci il grassetto
                 line = re.sub(r'\*\*(.*?)\*\*', r'<strong>\1</strong>', line)
 
                 # Gestisci le immagini con un'unica regex
-                line = re.sub(r'\[IMMAGINE (?:US|FASE|RAPPORTI) \d+:.*?\]', replace_image, line)
+                line = re.sub(r'\[IMMAGINE (?:US|FASE|RAPPORTI|MATERIALE|CERAMICA) \d+:.*?\]', replace_image, line)
+
+                # Gestisci le tabelle markdown
+                if line.startswith('|') and line.endswith('|'):
+                    # Collect table lines
+                    table_lines = [line]
+                    j = i + 1
+                    while j < len(lines) and lines[j].strip().startswith('|') and lines[j].strip().endswith('|'):
+                        table_lines.append(lines[j].strip())
+                        j += 1
+
+                    # Process table if we have at least one row
+                    if len(table_lines) >= 1:
+                        html_table = process_markdown_table(table_lines)
+                        html_lines.append(html_table)
+
+                    i = j  # Skip processed table lines
+                    continue
 
                 if line:
                     html_lines.append(f'<div style="margin: 5px 0;">{line}</div>')
@@ -1146,11 +1267,14 @@ class GenerateReportThread(QThread):
 
                 # Verifica se tutte le tabelle richieste sono state selezionate
                 missing_tables = [table for table in required_tables if table not in self.selected_tables]
-                if missing_tables:
+                if missing_tables and step['section'] != "CONCLUSIONI":
                     self.log_message.emit(
                         f"Warning: Missing required tables for {step['section']}: {', '.join(missing_tables)}",
                         "warning"
                     )
+                    # Skip this section if required tables are missing, except for CONCLUSIONI
+                    self.log_message.emit(f"Skipping section {step['section']} due to missing required tables", "warning")
+                    continue
 
                 try:
                     # Prepare context for this step
@@ -1158,7 +1282,10 @@ class GenerateReportThread(QThread):
                         "site_data": self.site_data if "site_table" in required_tables else {},
                         "us_data": self.us_data if "us_table" in required_tables else [],
                         "materials_data": self.materials_data if "inventario_materiali_table" in required_tables else [],
-                        "pottery_data": self.pottery_data if "pottery_table" in required_tables else []
+                        "pottery_data": self.pottery_data if "pottery_table" in required_tables else [],
+                        "tomba_data": self.tomba_data if "tomba_table" in required_tables else [],
+                        "periodizzazione_data": self.periodizzazione_data if "periodizzazione_table" in required_tables else [],
+                        "struttura_data": self.struttura_data if "struttura_table" in required_tables else []
                     }
 
                     # Log validation requirements
@@ -1166,13 +1293,38 @@ class GenerateReportThread(QThread):
                     if validation_tools:
                         if isinstance(validation_tools, str):
                             validation_tools = [validation_tools]
-                        self.log_message.emit(f"Validation requirements for {step['section']}:", "warning")
+
+                        # Filter validation tools based on selected tables
+                        filtered_validation_tools = []
                         for tool in validation_tools:
+                            # Map validation tools to their required tables
+                            tool_table_map = {
+                                "validate_site_info": "site_table",
+                                "validate_us": "us_table",
+                                "validate_materials": "inventario_materiali_table",
+                                "validate_pottery": "pottery_table",
+                                "validate_tomba": "tomba_table",
+                                "validate_periodizzazione": "periodizzazione_table",
+                                "validate_struttura": "struttura_table"
+                            }
+
+                            required_table = tool_table_map.get(tool)
+                            if required_table is None or required_table in self.selected_tables:
+                                filtered_validation_tools.append(tool)
+                            else:
+                                self.log_message.emit(f"Skipping validation {tool} as table {required_table} is not selected", "info")
+
+                        if not filtered_validation_tools:
+                            self.log_message.emit(f"No validations to perform for {step['section']} with selected tables", "info")
+                            continue
+
+                        self.log_message.emit(f"Validation requirements for {step['section']}:", "warning")
+                        for tool in filtered_validation_tools:
                             self.log_message.emit(f"- Requires validation: {tool}", "warning")
 
                         # Esegui le validazioni
                         self.log_message.emit(f"\nExecuting validations for {step['section']}...", "info")
-                        for tool in validation_tools:
+                        for tool in filtered_validation_tools:
                             try:
                                 validator = getattr(ArchaeologicalValidators, tool, None)
 
@@ -1215,23 +1367,10 @@ class GenerateReportThread(QThread):
                 finally:
                         self.log_message.emit("Validation complete. Proceeding with report generation...\n", "info")
 
-                # Gestione sicura dei required_tables
-                required_tables = step.get('required_table', [])
-                if required_tables is None:
-                    required_tables = []
-                elif isinstance(required_tables, str):
-                    required_tables = [required_tables]
-
-                # Verifica se tutte le tabelle richieste sono state selezionate
-                missing_tables = [table for table in required_tables if table not in self.selected_tables]
-                if missing_tables:
-                    self.log_message.emit(
-                        f"Warning: Missing required tables for {step['section']}: {', '.join(missing_tables)}",
-                        "warning"
-                    )
+                # This second check is redundant and can be removed since we already checked above
+                # and skipped the section if required tables are missing
 
                 try:
-                    # # Prepare context for this step
                     # context = {
                     #     "site_data": self.site_data if "site_table" in required_tables else None,  # Aggiunto site_data
                     #     "us_data": self.us_data if "us_table" in required_tables else None,
@@ -1261,21 +1400,79 @@ class GenerateReportThread(QThread):
                     images = []
                     image_context = {}
 
+                    # Collect entity IDs for materials and pottery if needed
+                    material_ids = []
+                    pottery_ids = []
+
+                    if should_process_images:
+                        # Get material IDs if materials data is available
+                        if "materials_data" in context and context["materials_data"]:
+                            self.log_message.emit(f"Processing images for materials data...", "info")
+                            material_ids = [str(mat.get('id_invmat')) for mat in context["materials_data"] if mat.get('id_invmat')]
+                            self.log_message.emit(f"Collected {len(material_ids)} material IDs", "info")
+
+                        # Get pottery IDs if pottery data is available
+                        if "pottery_data" in context and context["pottery_data"]:
+                            self.log_message.emit(f"Processing images for pottery data...", "info")
+                            pottery_ids = [str(pot.get('id_rep')) for pot in context["pottery_data"] if pot.get('id_rep')]
+                            self.log_message.emit(f"Collected {len(pottery_ids)} pottery IDs", "info")
+
+                    # Get US images
                     if should_process_images and entity_ids:
                         try:
-                            images = dialog.get_images_for_entities(entity_ids, self.log_message)
-                            self.log_message.emit(f"Retrieved {len(images)} images", "info")
+                            us_images = dialog.get_images_for_entities(entity_ids, self.log_message, 'US')
+                            self.log_message.emit(f"Retrieved {len(us_images)} US images", "info")
+                            images.extend(us_images)
 
-                            for img in images:
+                            for img in us_images:
                                 us_id = img['id']
                                 if us_id not in image_context:
                                     image_context[us_id] = []
                                 image_context[us_id].append({
                                     'url': img['url'],
-                                    'caption': img['caption']
+                                    'caption': img['caption'],
+                                    'entity_type': 'US'
                                 })
                         except Exception as e:
-                            self.log_message.emit(f"Error retrieving images: {str(e)}", "warning")
+                            self.log_message.emit(f"Error retrieving US images: {str(e)}", "warning")
+
+                    # Get material images
+                    if should_process_images and material_ids:
+                        try:
+                            material_images = dialog.get_images_for_entities(material_ids, self.log_message, 'REPERTO')
+                            self.log_message.emit(f"Retrieved {len(material_images)} material images", "info")
+                            images.extend(material_images)
+
+                            for img in material_images:
+                                material_id = img['id']
+                                if material_id not in image_context:
+                                    image_context[material_id] = []
+                                image_context[material_id].append({
+                                    'url': img['url'],
+                                    'caption': img['caption'],
+                                    'entity_type': 'REPERTO'
+                                })
+                        except Exception as e:
+                            self.log_message.emit(f"Error retrieving material images: {str(e)}", "warning")
+
+                    # Get pottery images
+                    if should_process_images and pottery_ids:
+                        try:
+                            pottery_images = dialog.get_images_for_entities(pottery_ids, self.log_message, 'CERAMICA')
+                            self.log_message.emit(f"Retrieved {len(pottery_images)} pottery images", "info")
+                            images.extend(pottery_images)
+
+                            for img in pottery_images:
+                                pottery_id = img['id']
+                                if pottery_id not in image_context:
+                                    image_context[pottery_id] = []
+                                image_context[pottery_id].append({
+                                    'url': img['url'],
+                                    'caption': img['caption'],
+                                    'entity_type': 'CERAMICA'
+                                })
+                        except Exception as e:
+                            self.log_message.emit(f"Error retrieving pottery images: {str(e)}", "warning")
 
                     # Create base prompt
                     base_prompt = f"""Thought: {step.get('thought', 'Analyzing archaeological data')}
@@ -1329,21 +1526,160 @@ class GenerateReportThread(QThread):
 
                     # Add image instructions if necessary
                     if should_process_images and image_context:
-                        image_instructions = "\nImmagini disponibili per le seguenti US:\n"
-                        for us_id, images_list in image_context.items():
-                            image_instructions += f"\nUS {us_id}:\n"
+                        image_instructions = "\nImmagini disponibili:\n"
+
+                        # Group images by entity type
+                        us_images = {}
+                        material_images = {}
+                        pottery_images = {}
+
+                        for entity_id, images_list in image_context.items():
                             for img in images_list:
-                                image_instructions += f"[IMMAGINE US {us_id}: {img['url']}, {img['caption']}]\n"
+                                entity_type = img.get('entity_type', 'US')  # Default to US if not specified
+
+                                if entity_type == 'US':
+                                    if entity_id not in us_images:
+                                        us_images[entity_id] = []
+                                    us_images[entity_id].append(img)
+                                elif entity_type == 'REPERTO':
+                                    if entity_id not in material_images:
+                                        material_images[entity_id] = []
+                                    material_images[entity_id].append(img)
+                                elif entity_type == 'CERAMICA':
+                                    if entity_id not in pottery_images:
+                                        pottery_images[entity_id] = []
+                                    pottery_images[entity_id].append(img)
+
+                        # Add US images
+                        if us_images:
+                            image_instructions += "\nImmagini delle Unità Stratigrafiche:\n"
+                            for us_id, images_list in us_images.items():
+                                image_instructions += f"\nUS {us_id}:\n"
+                                for img in images_list:
+                                    image_instructions += f"[IMMAGINE US {us_id}: {img['url']}, {img['caption']}]\n"
+
+                        # Add material images
+                        if material_images:
+                            image_instructions += "\nImmagini dei Materiali:\n"
+                            for material_id, images_list in material_images.items():
+                                image_instructions += f"\nMateriale {material_id}:\n"
+                                for img in images_list:
+                                    image_instructions += f"[IMMAGINE REPERTO {material_id}: {img['url']}, {img['caption']}]\n"
+
+                        # Add pottery images
+                        if pottery_images:
+                            image_instructions += "\nImmagini della Ceramica:\n"
+                            for pottery_id, images_list in pottery_images.items():
+                                image_instructions += f"\nCeramica {pottery_id}:\n"
+                                for img in images_list:
+                                    image_instructions += f"[IMMAGINE CERAMICA {pottery_id}: {img['url']}, {img['caption']}]\n"
 
                         image_instructions += """
-                        Per favore, quando menzioni una US che ha immagini associate, inserisci l'immagine nel testo usando questa sintassi:
-                        [IMMAGINE US numero: percorso, caption]
+                        Per favore, quando menzioni un'entità che ha immagini associate, inserisci l'immagine nel testo usando questa sintassi:
+                        - Per le US: [IMMAGINE US numero: percorso, caption]
+                        - Per i Materiali: [IMMAGINE REPERTO numero: percorso, caption]
+                        - Per la Ceramica: [IMMAGINE CERAMICA numero: percorso, caption]
+
+                        Inserisci le immagini nei punti appropriati del testo, quando menzioni l'entità corrispondente.
                         """
                         base_prompt += image_instructions
 
-                    # Generate the content
-                    result = self.agent.run(base_prompt)
+                    # Generate the content using chunking for large datasets
+                    # Check if we need to use chunking based on data size
+                    use_chunking = False
+                    large_data_tables = []
+                    very_large_data_tables = []
+
+                    # Check which tables have a lot of data
+                    for table_name, data in context.items():
+                        if isinstance(data, list):
+                            if len(data) > 100:  # Threshold for "very large" data
+                                use_chunking = True
+                                large_data_tables.append(table_name)
+                                very_large_data_tables.append(table_name)
+                            elif len(data) > 50:  # Threshold for "large" data
+                                use_chunking = True
+                                large_data_tables.append(table_name)
+
+                    if use_chunking and large_data_tables:
+                        self.log_message.emit(f"Using chunking for large datasets: {', '.join(large_data_tables)}", "info")
+
+                        # Process each large table separately
+                        section_results = []
+
+                        # First, process with a summary of all data to get an overview
+                        summary_prompt = base_prompt + "\n\nPer questa prima fase, fornisci una panoramica generale basata sui dati disponibili."
+                        overview_result = self.agent.run(summary_prompt)
+                        if overview_result:
+                            section_results.append(overview_result)
+
+                        # Then process each large table in chunks
+                        for table_name in large_data_tables:
+                            data = context[table_name]
+
+                            # Use a smaller chunk size for very large datasets
+                            if table_name in very_large_data_tables:
+                                chunk_size = 15  # Process 15 items at a time for very large datasets
+                                self.log_message.emit(f"Using smaller chunk size (15) for very large dataset: {table_name}", "info")
+                            else:
+                                chunk_size = 30  # Process 30 items at a time for large datasets
+
+                            # Estimate total tokens for this dataset
+                            sample_item = data[0] if data else {}
+                            sample_text = "\n".join(f"{k}: {v}" for k, v in sample_item.items() if isinstance(sample_item, dict))
+                            try:
+                                tokens_per_item = self.count_tokens(sample_text)
+                                estimated_total_tokens = tokens_per_item * len(data)
+                            except AttributeError:
+                                # Fallback if count_tokens method is not accessible
+                                self.log_message.emit("Warning: count_tokens method not accessible, using default token estimation", "warning")
+                                # Roughly 4 characters per token for English text (same as in count_tokens method)
+                                tokens_per_item = len(sample_text) // 4
+                                estimated_total_tokens = tokens_per_item * len(data)
+
+                            # If estimated tokens are very high, use even smaller chunks
+                            if estimated_total_tokens > 500000:  # Arbitrary threshold for extremely large datasets
+                                chunk_size = max(5, chunk_size // 3)  # Reduce chunk size further, but not below 5
+                                self.log_message.emit(f"Dataset {table_name} has estimated {estimated_total_tokens} tokens. Using very small chunk size: {chunk_size}", "warning")
+
+                            for i in range(0, len(data), chunk_size):
+                                chunk = data[i:i+chunk_size]
+                                chunk_context = context.copy()
+                                chunk_context[table_name] = chunk
+
+                                # Create a chunk-specific prompt
+                                chunk_data_summary = f"Processing {table_name} chunk {i//chunk_size + 1}/{(len(data) + chunk_size - 1)//chunk_size}\n"
+                                chunk_data_summary += f"Items {i+1}-{min(i+chunk_size, len(data))} of {len(data)}\n"
+
+                                chunk_prompt = base_prompt.replace(data_summary, chunk_data_summary)
+                                chunk_prompt += f"\n\nAnalizza in dettaglio questo gruppo di dati {table_name} (elementi {i+1}-{min(i+chunk_size, len(data))}). "
+                                chunk_prompt += "Integra questa analisi con quanto già sai del contesto generale."
+
+                                # Process this chunk
+                                self.log_message.emit(f"Processing chunk {i//chunk_size + 1}/{(len(data) + chunk_size - 1)//chunk_size} of {table_name}...", "info")
+                                chunk_result = self.agent.run(chunk_prompt)
+                                if chunk_result:
+                                    section_results.append(chunk_result)
+
+                        # Final integration prompt to combine all the results
+                        if len(section_results) > 1:
+                            integration_prompt = base_prompt + "\n\nIntegra tutte le analisi precedenti in un testo coerente e completo, eliminando ripetizioni e organizzando le informazioni in modo logico."
+                            final_result = self.agent.run(integration_prompt)
+                            if final_result:
+                                result = final_result
+                            else:
+                                # If integration fails, concatenate all results
+                                result = "\n\n".join(section_results)
+                        else:
+                            result = section_results[0] if section_results else ""
+                    else:
+                        # For smaller datasets, process normally
+                        result = self.agent.run(base_prompt)
+
                     if result:
+                        # Post-process to remove AI's notes and thoughts
+                        result = self.clean_ai_notes(result)
+
                         self.log_message.emit("Formattazione del risultato...", "info")
                         section_text = f"{step['section']}\n{'=' * len(step['section'])}\n{result}"
                         formatted_section = self.format_for_widget(section_text)
@@ -1358,17 +1694,68 @@ class GenerateReportThread(QThread):
                         self.log_message.emit("Nessun risultato generato", "warning")
 
                 except Exception as section_error:
+                    error_message = str(section_error)
                     self.log_message.emit(
-                        f"Warning: Error processing section {step['section']}: {str(section_error)}. Continuing with next section.",
+                        f"Warning: Error processing section {step['section']}: {error_message}. Attempting to continue with available data.",
                         "warning"
                     )
-                    continue
+
+                    # Check if it's a token limit error
+                    if "context_length_exceeded" in error_message or "max_tokens" in error_message:
+                        # Try to process with a simplified prompt and reduced data
+                        try:
+                            self.log_message.emit("Retrying with reduced data...", "info")
+
+                            # Create a simplified context with reduced data
+                            simplified_context = {}
+                            for table_name, data in context.items():
+                                if isinstance(data, list) and len(data) > 10:
+                                    # Take a representative sample of the data
+                                    simplified_context[table_name] = data[:10]  # Just take the first 10 items
+                                else:
+                                    simplified_context[table_name] = data
+
+                            # Create a simplified prompt
+                            simplified_prompt = base_prompt.replace(data_summary, "Processing with reduced dataset due to token limits.\n")
+                            simplified_prompt += "\n\nAnalizza i dati disponibili e fornisci un'analisi generale. Indica chiaramente che l'analisi è basata su un campione ridotto dei dati."
+
+                            # Process with simplified data
+                            result = self.agent.run(simplified_prompt)
+
+                            if result:
+                                # Post-process to remove AI's notes and thoughts
+                                result = self.clean_ai_notes(result)
+
+                                # Add a note about the reduced dataset
+                                result = "NOTA: Questa sezione è stata generata utilizzando un campione ridotto dei dati a causa di limiti tecnici.\n\n" + result
+
+                                self.log_message.emit("Formattazione del risultato con dati ridotti...", "info")
+                                section_text = f"{step['section']}\n{'=' * len(step['section'])}\n{result}"
+                                formatted_section = self.format_for_widget(section_text)
+
+                                if self.formatted_report:
+                                    self.formatted_report += "<br><br>"
+                                self.formatted_report += formatted_section
+                                self.report_generated.emit(self.formatted_report)
+                                self.full_report += f"\n\n{section_text}"
+                                self.log_message.emit(f"Completed {step['section']} with reduced data", "step")
+                            else:
+                                self.log_message.emit("Failed to generate result even with reduced data", "warning")
+                        except Exception as retry_error:
+                            self.log_message.emit(f"Failed retry attempt: {str(retry_error)}. Continuing with next section.", "warning")
+                            continue
+                    else:
+                        # For other types of errors, continue with the next section
+                        continue
 
             # Prepara i dati finali del report
             report_data = {
                 'report_text': self.full_report,
                 'materials_table': self.format_materials_table() if hasattr(self, 'format_materials_table') else None,
-                'pottery_table': self.format_pottery_table() if hasattr(self, 'format_pottery_table') else None
+                'pottery_table': self.format_pottery_table() if hasattr(self, 'format_pottery_table') else None,
+                'tomba_table': self.format_tomba_table() if hasattr(self, 'format_tomba_table') else None,
+                'periodizzazione_table': self.format_periodizzazione_table() if hasattr(self, 'format_periodizzazione_table') else None,
+                'struttura_table': self.format_struttura_table() if hasattr(self, 'format_struttura_table') else None
             }
 
             self.report_completed.emit(self.full_report, report_data)
@@ -1377,6 +1764,28 @@ class GenerateReportThread(QThread):
         except Exception as e:
             self.log_message.emit(f"Error during report generation: {str(e)}", "error")
             raise
+    def clean_ai_notes(self, text):
+        """Remove AI's notes and thoughts from the text"""
+        if not text:
+            return text
+
+        # Remove notes about complete lists being available
+        text = re.sub(r'--\*?Nota: L\'elenco completo .*? disponibile.*?\*?', '', text)
+        text = re.sub(r'--Nota: L\'elenco completo .*? può essere fornito.*?\.', '', text)
+
+        # Remove continuation notes
+        text = re.sub(r'\.\.\. \(continua per tutte le fasi.*?\)', '', text)
+        text = re.sub(r'\.\.\. \(continua per tutte le US.*?\)', '', text)
+
+        # Remove any other AI thoughts or notes
+        text = re.sub(r'--\*?Nota:.*?\*?', '', text)
+
+        # Clean up any double spaces or newlines created by the removals
+        text = re.sub(r'\n\s*\n\s*\n', '\n\n', text)
+        text = re.sub(r'  +', ' ', text)
+
+        return text
+
     def create_prompt(self, selected_language):
 
 
@@ -1401,9 +1810,10 @@ class GenerateReportThread(QThread):
         """Formatta i dati dei materiali per la tabella"""
         table_data = []
         if self.materials_data:
-            table_data.append(['Inv. Number', 'Type', 'Definition', 'Description', 'Dating', 'Conservation'])
+            table_data.append(['ID','Inv. Number', 'Type', 'Definition', 'Description', 'Dating', 'Conservation'])
             for material in self.materials_data:
                 table_data.append([
+                    material.get('id_invmat', ''),
                     material.get('numero_inventario', ''),
                     material.get('tipo_reperto', ''),
                     material.get('definizione', ''),
@@ -1417,9 +1827,10 @@ class GenerateReportThread(QThread):
         """Formatta i dati della ceramica per la tabella"""
         table_data = []
         if self.pottery_data:
-            table_data.append(['ID', 'Form', 'Fabric', 'Ware', 'Conservation %', 'Notes'])
+            table_data.append(['ID','ID Number', 'Form', 'Fabric', 'Ware', 'Conservation %', 'Notes'])
             for pottery in self.pottery_data:
                 table_data.append([
+                    pottery.get('id_rep', ''),
                     pottery.get('id_number', ''),
                     pottery.get('form', ''),
                     pottery.get('fabric', ''),
@@ -1427,15 +1838,64 @@ class GenerateReportThread(QThread):
                     pottery.get('percent', ''),
                     pottery.get('note', '')
                 ])
-            return table_data
+        return table_data
+
+    def format_tomba_table(self):
+        """Formatta i dati delle tombe per la tabella"""
+        table_data = []
+        if self.tomba_data:
+            table_data.append(['Scheda TAF', 'Struttura', 'Individuo', 'Area', 'Rito', 'Descrizione', 'Interpretazione'])
+            for tomba in self.tomba_data:
+                table_data.append([
+                    tomba.get('nr_scheda_taf', ''),
+                    f"{tomba.get('sigla_struttura', '')} {tomba.get('nr_struttura', '')}",
+                    tomba.get('nr_individuo', ''),
+                    tomba.get('area', ''),
+                    tomba.get('rito', ''),
+                    tomba.get('descrizione_taf', ''),
+                    tomba.get('interpretazione_taf', '')
+                ])
+        return table_data
+
+    def format_periodizzazione_table(self):
+        """Formatta i dati della periodizzazione per la tabella"""
+        table_data = []
+        if self.periodizzazione_data:
+            table_data.append(['Periodo', 'Fase', 'Cronologia iniziale', 'Cronologia finale', 'Descrizione'])
+            for periodo in self.periodizzazione_data:
+                table_data.append([
+                    periodo.get('periodo', ''),
+                    periodo.get('fase', ''),
+                    periodo.get('cron_iniziale', ''),
+                    periodo.get('cron_finale', ''),
+                    periodo.get('descrizione', '')
+                ])
+        return table_data
+
+    def format_struttura_table(self):
+        """Formatta i dati delle strutture per la tabella"""
+        table_data = []
+        if self.struttura_data:
+            table_data.append(['Struttura', 'Categoria', 'Tipologia', 'Definizione', 'Descrizione', 'Interpretazione'])
+            for struttura in self.struttura_data:
+                table_data.append([
+                    f"{struttura.get('sigla_struttura', '')} {struttura.get('numero_struttura', '')}",
+                    struttura.get('categoria_struttura', ''),
+                    struttura.get('tipologia_struttura', ''),
+                    struttura.get('definizione_struttura', ''),
+                    struttura.get('descrizione', ''),
+                    struttura.get('interpretazione', '')
+                ])
+        return table_data
 
 
     def create_materials_table(self):
         """Create a formatted table of materials"""
-        headers = ['Inv. Number', 'Type', 'Definition', 'Description', 'Dating', 'Conservation']
+        headers = ['ID','Inv. Number', 'Type', 'Definition', 'Description', 'Dating', 'Conservation']
         rows = []
         for material in self.materials_data:
             rows.append([
+                material.get('id_invmat', ''),
                 material.get('numero_inventario', ''),
                 material.get('tipo_reperto', ''),
                 material.get('definizione', ''),
@@ -1447,10 +1907,11 @@ class GenerateReportThread(QThread):
 
     def create_pottery_table(self):
         """Create a formatted table of pottery"""
-        headers = ['ID', 'Form', 'Fabric', 'Ware', 'Conservation %', 'Notes']
+        headers = ['ID','ID NUmber', 'Form', 'Fabric', 'Ware', 'Conservation %', 'Notes']
         rows = []
         for pottery in self.pottery_data:
             rows.append([
+                pottery.get('id_rep', ''),
                 pottery.get('id_number', ''),
                 pottery.get('form', ''),
                 pottery.get('fabric', ''),
@@ -2361,12 +2822,12 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.max_tokens = 4000
         #self.log_message.connect(self.process_terminal.append_message)
 
-    def get_images_for_entities(self, entity_ids, log_signal=None):
+    def get_images_for_entities(self, entity_ids, log_signal=None, entity_type='US'):
         def log(message, level="info"):
             if log_signal:
                 log_signal.emit(message, level)
         """Recupera le immagini dalla tabella mediaentity in base agli ID forniti."""
-        log(f"Called get_images_for_entities with entity_ids: {entity_ids}")
+        log(f"Called get_images_for_entities with entity_ids: {entity_ids}, entity_type: {entity_type}")
 
         if not entity_ids:
             return []
@@ -2377,19 +2838,55 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             thumb_resize = conn.thumb_resize()
             thumb_resize_str = thumb_resize['thumb_resize']
 
-            for entity_id in entity_ids:
-                log(f"Called id table: {self.ID_TABLE}")
-                # Usa la stessa logica di loadMediaPreview
-                rec_list = self.ID_TABLE + " = " + str(entity_id)
-                log(f"Called rec list: {rec_list}")
-                # Usa la stessa logica di loadMediaPreview
-                search_dict = {
-                    'id_entity': "'" + str(entity_id) + "'",
-                    'entity_type': "'US'"
-                }
+            # Map entity_type to the corresponding ID table
+            id_table_mapping = {
+                'US': 'id_us',
+                'REPERTO': 'id_invmat',
+                'INVENTARIO_MATERIALI': 'id_invmat',
+                'CERAMICA': 'id_rep',
+                'POTTERY': 'id_rep',
+                'TOMBA': 'id_tomba',
+                'STRUTTURA': 'id_struttura'
+            }
 
-                record_us_list = self.DB_MANAGER.query_bool(search_dict, 'MEDIATOENTITY')
-                log(f"Found {len(record_us_list)} records for entity_id {entity_id}")  # Debug log
+            # Get the appropriate ID table for the entity type
+            id_table = id_table_mapping.get(entity_type, self.ID_TABLE)
+
+            for entity_id in entity_ids:
+                log(f"Using id table: {id_table} for entity_type: {entity_type}")
+                # Usa la stessa logica di loadMediaPreview
+                rec_list = id_table + " = " + str(entity_id)
+                log(f"Called rec list: {rec_list}")
+
+                # Try different entity types for materials and pottery
+                entity_types_to_try = [entity_type]
+                if entity_type == 'REPERTO':
+                    entity_types_to_try.append('INVENTARIO_MATERIALI')
+                elif entity_type == 'CERAMICA':
+                    entity_types_to_try.append('POTTERY')
+                elif entity_type == 'INVENTARIO_MATERIALI':
+                    entity_types_to_try.append('REPERTO')
+                elif entity_type == 'POTTERY':
+                    entity_types_to_try.append('CERAMICA')
+
+                record_us_list = []
+                found_entity_type = None
+                for et in entity_types_to_try:
+                    # Usa la stessa logica di loadMediaPreview
+                    search_dict = {
+                        'id_entity': "'" + str(entity_id) + "'",
+                        'entity_type': f"'{et}'"
+                    }
+
+                    result = self.DB_MANAGER.query_bool(search_dict, 'MEDIATOENTITY')
+                    if result:
+                        record_us_list = result
+                        found_entity_type = et
+                        log(f"Found {len(record_us_list)} records for entity_id {entity_id} of type {et}")
+                        break
+
+                if not record_us_list:
+                    log(f"No records found for entity_id {entity_id} with any of the tried entity types: {entity_types_to_try}")  # Debug log
 
                 for media_record in record_us_list:
                     search_dict = {'id_media': "'" + str(media_record.id_media) + "'"}
@@ -2403,11 +2900,12 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                         images.append({
                             'id': entity_id,
                             'url': thumb_resize_str + thumb_path,
-                            'caption': media_record.media_name
+                            'caption': media_record.media_name,
+                            'entity_type': found_entity_type if found_entity_type else entity_type
                         })
                         log(f"Added image with path: {thumb_resize_str + thumb_path}")  # Debug log
 
-            log(f"Returning total of {len(images)} images")  # Debug log
+            log(f"Returning total of {len(images)} images for entity_type {entity_type}")  # Debug log
             return images
 
         except Exception as e:
@@ -2416,29 +2914,128 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             return []
 
 
-    def count_tokens(self,text):
-        # Funzione ipotetica per stimare il numero di token nel testo
-        return len(text.split())
+    def count_tokens(self, text):
+        """
+        Estimate the number of tokens in the text.
+        This is a more accurate approximation than just splitting on whitespace.
+        """
+        # Roughly 4 characters per token for English text
+        return len(text) // 4
 
-    def split_data_to_fit_tokens(self,data, columns, max_tokens_per_chunk):
+    def split_data_to_fit_tokens(self, data, columns, max_tokens_per_chunk=8000):
+        """
+        Split data into chunks that fit within token limits.
+        Uses a more efficient algorithm that prioritizes keeping related data together.
+
+        Args:
+            data: List of data records
+            columns: List of columns to include
+            max_tokens_per_chunk: Maximum tokens per chunk (default: 8000)
+
+        Returns:
+            List of chunks, where each chunk is a list of records
+        """
+        if not data:
+            return []
+
         chunks = []
         current_chunk = []
         current_tokens = 0
 
-        for record in data:
-            record_text = "\n".join(f"{col}: {getattr(record, col, '')}" for col in columns)
-            tokens = self.count_tokens(record_text)
+        # Group records by area or other relevant field if possible
+        grouped_data = {}
+        group_field = None
 
-            if current_tokens + tokens <= max_tokens_per_chunk:
-                current_chunk.append(record)
-                current_tokens += tokens
-            else:
+        # Try to find a suitable grouping field
+        for field in ['area', 'saggio', 'quadrato', 'ambiente']:
+            if hasattr(data[0], field) or (isinstance(data[0], dict) and field in data[0]):
+                group_field = field
+                break
+
+        # Group data if possible
+        if group_field:
+            for record in data:
+                group_value = getattr(record, group_field, '') if hasattr(record, group_field) else record.get(group_field, '')
+                if group_value not in grouped_data:
+                    grouped_data[group_value] = []
+                grouped_data[group_value].append(record)
+
+            # Process each group
+            for group_value, group_records in grouped_data.items():
+                group_chunk = []
+                group_tokens = 0
+
+                for record in group_records:
+                    if isinstance(record, dict):
+                        record_text = "\n".join(f"{col}: {record.get(col, '')}" for col in columns if col in record)
+                    else:
+                        record_text = "\n".join(f"{col}: {getattr(record, col, '')}" for col in columns)
+
+                    try:
+                        tokens = self.count_tokens(record_text)
+                    except AttributeError:
+                        # Fallback if count_tokens method is not accessible
+                        tokens = len(record_text) // 4  # Roughly 4 characters per token for English text
+
+                    # If this single record is too large, we need to truncate it
+                    if tokens > max_tokens_per_chunk:
+                        # Truncate the record text to fit
+                        truncated_text = record_text[:max_tokens_per_chunk*4]  # Approximate chars
+                        try:
+                            tokens = self.count_tokens(truncated_text)
+                        except AttributeError:
+                            # Fallback if count_tokens method is not accessible
+                            tokens = len(truncated_text) // 4  # Roughly 4 characters per token for English text
+                        self.log_message.emit(f"Warning: Record truncated to fit token limit", "warning")
+
+                    if group_tokens + tokens <= max_tokens_per_chunk:
+                        group_chunk.append(record)
+                        group_tokens += tokens
+                    else:
+                        # This group is full, add it to chunks and start a new one
+                        if group_chunk:
+                            chunks.append(group_chunk)
+                        group_chunk = [record]
+                        group_tokens = tokens
+
+                # Add the last group chunk
+                if group_chunk:
+                    chunks.append(group_chunk)
+        else:
+            # No grouping field, process records sequentially
+            for record in data:
+                if isinstance(record, dict):
+                    record_text = "\n".join(f"{col}: {record.get(col, '')}" for col in columns if col in record)
+                else:
+                    record_text = "\n".join(f"{col}: {getattr(record, col, '')}" for col in columns)
+
+                try:
+                    tokens = self.count_tokens(record_text)
+                except AttributeError:
+                    # Fallback if count_tokens method is not accessible
+                    tokens = len(record_text) // 4  # Roughly 4 characters per token for English text
+
+                # If this single record is too large, we need to truncate it
+                if tokens > max_tokens_per_chunk:
+                    # Truncate the record text to fit
+                    truncated_text = record_text[:max_tokens_per_chunk*4]  # Approximate chars
+                    try:
+                        tokens = self.count_tokens(truncated_text)
+                    except AttributeError:
+                        # Fallback if count_tokens method is not accessible
+                        tokens = len(truncated_text) // 4  # Roughly 4 characters per token for English text
+                    self.log_message.emit(f"Warning: Record truncated to fit token limit", "warning")
+
+                if current_tokens + tokens <= max_tokens_per_chunk:
+                    current_chunk.append(record)
+                    current_tokens += tokens
+                else:
+                    chunks.append(current_chunk)
+                    current_chunk = [record]
+                    current_tokens = tokens
+
+            if current_chunk:
                 chunks.append(current_chunk)
-                current_chunk = [record]
-                current_tokens = tokens
-
-        if current_chunk:
-            chunks.append(current_chunk)
 
         return chunks
 
@@ -2573,7 +3170,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
     def create_pottery_table(self, pottery_data):
         """Create formatted pottery table"""
-        headers = ['ID', 'Form', 'Fabric', 'Ware', 'Conservation %', 'Notes']
+        headers = ['ID Number', 'Form', 'Fabric', 'Ware', 'Conservation %', 'Notes']
         rows = []
         for pottery in pottery_data:
             rows.append([
@@ -2638,6 +3235,51 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 f"Classe ceramica: {pottery.get('ware', '')}\n"
                 f"Quantità: {pottery.get('qty', '')}\n\n"
                 f"Note: {pottery.get('note', '')}\n\n"
+                f"-------------------\n\n"
+            )
+        return formatted.strip()
+
+    def format_tomba_data(self, tomba_data):
+        """Format tomb data for the report"""
+        formatted = ""
+        for tomba in tomba_data:
+            formatted += (
+                f"Scheda TAF: {tomba.get('nr_scheda_taf', '')}\n"
+                f"Struttura: {tomba.get('sigla_struttura', '')} {tomba.get('nr_struttura', '')}\n"
+                f"Individuo: {tomba.get('nr_individuo', '')}\n"
+                f"Area: {tomba.get('area', '')}\n"
+                f"Rito: {tomba.get('rito', '')}\n"
+                f"Descrizione: {tomba.get('descrizione_taf', '')}\n"
+                f"Interpretazione: {tomba.get('interpretazione_taf', '')}\n\n"
+                f"-------------------\n\n"
+            )
+        return formatted.strip()
+
+    def format_periodizzazione_data(self, periodizzazione_data):
+        """Format periodization data for the report"""
+        formatted = ""
+        for periodo in periodizzazione_data:
+            formatted += (
+                f"Periodo: {periodo.get('periodo', '')}\n"
+                f"Fase: {periodo.get('fase', '')}\n"
+                f"Cronologia iniziale: {periodo.get('cron_iniziale', '')}\n"
+                f"Cronologia finale: {periodo.get('cron_finale', '')}\n"
+                f"Descrizione: {periodo.get('descrizione', '')}\n\n"
+                f"-------------------\n\n"
+            )
+        return formatted.strip()
+
+    def format_struttura_data(self, struttura_data):
+        """Format structure data for the report"""
+        formatted = ""
+        for struttura in struttura_data:
+            formatted += (
+                f"Struttura: {struttura.get('sigla_struttura', '')} {struttura.get('numero_struttura', '')}\n"
+                f"Categoria: {struttura.get('categoria_struttura', '')}\n"
+                f"Tipologia: {struttura.get('tipologia_struttura', '')}\n"
+                f"Definizione: {struttura.get('definizione_struttura', '')}\n"
+                f"Descrizione: {struttura.get('descrizione', '')}\n"
+                f"Interpretazione: {struttura.get('interpretazione', '')}\n\n"
                 f"-------------------\n\n"
             )
         return formatted.strip()
@@ -2754,6 +3396,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         filtered_records = self.filter_records(records, year_filter, us_start, us_end, 'years', 'us')
         for record in filtered_records:
             materials_data.append({
+                'id_invmat': getattr(record, 'id_invmat', ''),
                 'numero_inventario': getattr(record, 'numero_inventario', ''),
                 'tipo_reperto': getattr(record, 'tipo_reperto', ''),
                 'definizione': getattr(record, 'definizione', ''),
@@ -2790,9 +3433,16 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             })
 
     def filter_records(self, records, year_filter, start, end, year_field, range_field):
-        """Filter records based on year or range criteria"""
+        """Filter records based on year or range criteria
+
+        year_filter can be a single year or multiple years separated by commas
+        e.g. "2024" or "2024, 2025, 2026" or "2024,2025,2026"
+        """
         if year_filter:
-            return [r for r in records if str(getattr(r, year_field, '')) == year_filter]
+            # Split the year filter by comma and strip whitespace
+            years = [y.strip() for y in year_filter.split(',')]
+            # Filter records where the year field matches any of the specified years
+            return [r for r in records if str(getattr(r, year_field, '')) in years]
         elif start and end:
             return [r for r in records if start <= str(getattr(r, range_field, '')) <= end]
         return records
@@ -2812,8 +3462,16 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
     def process_table_data(self, table_name, records, current_site, year_filter,
                           us_start, us_end, report_data, us_data,
-                          materials_data, pottery_data):
+                          materials_data, pottery_data, tomba_data=None, 
+                          periodizzazione_data=None, struttura_data=None):
         """Process table data and update corresponding data structures"""
+        if tomba_data is None:
+            tomba_data = []
+        if periodizzazione_data is None:
+            periodizzazione_data = []
+        if struttura_data is None:
+            struttura_data = []
+
         if table_name == 'site_table':
             self.process_site_table(records, current_site, report_data)
         elif table_name == 'us_table':
@@ -2833,6 +3491,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             filtered_records = self.filter_records(records, year_filter, us_start, us_end, 'years', 'us')
             for record in filtered_records:
                 materials_data.append({
+                    'id_invmat': getattr(record, 'id_invmat', ''),
                     'numero_inventario': getattr(record, 'numero_inventario', ''),
                     'tipo_reperto': getattr(record, 'tipo_reperto', ''),
                     'definizione': getattr(record, 'definizione', ''),
@@ -2846,6 +3505,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             filtered_records = self.filter_records(records, year_filter, us_start, us_end, 'anno', 'us')
             for record in filtered_records:
                 pottery_data.append({
+                    'id_rep': getattr(record, 'id_rep', ''),
                     'id_number': getattr(record, 'id_number', ''),
                     'fabric': getattr(record, 'fabric', ''),
                     'form': getattr(record, 'form', ''),
@@ -2854,6 +3514,49 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                     'note': getattr(record, 'note', ''),
                     'area': getattr(record, 'area', ''),
                     'us': getattr(record, 'us', '')
+                })
+        elif table_name == 'tomba_table':
+            # Filter records by site
+            records = [r for r in records if str(getattr(r, 'sito', '')) == current_site]
+
+            for record in records:
+                tomba_data.append({
+                    'nr_scheda_taf': getattr(record, 'nr_scheda_taf', ''),
+                    'sigla_struttura': getattr(record, 'sigla_struttura', ''),
+                    'nr_struttura': getattr(record, 'nr_struttura', ''),
+                    'nr_individuo': getattr(record, 'nr_individuo', ''),
+                    'rito': getattr(record, 'rito', ''),
+                    'descrizione_taf': getattr(record, 'descrizione_taf', ''),
+                    'interpretazione_taf': getattr(record, 'interpretazione_taf', ''),
+                    'area': getattr(record, 'area', '')
+                })
+
+        elif table_name == 'periodizzazione_table':
+            # Filter records by site
+            records = [r for r in records if str(getattr(r, 'sito', '')) == current_site]
+
+            for record in records:
+                periodizzazione_data.append({
+                    'periodo': getattr(record, 'periodo', ''),
+                    'fase': getattr(record, 'fase', ''),
+                    'cron_iniziale': getattr(record, 'cron_iniziale', ''),
+                    'cron_finale': getattr(record, 'cron_finale', ''),
+                    'descrizione': getattr(record, 'descrizione', '')
+                })
+
+        elif table_name == 'struttura_table':
+            # Filter records by site
+            records = [r for r in records if str(getattr(r, 'sito', '')) == current_site]
+
+            for record in records:
+                struttura_data.append({
+                    'sigla_struttura': getattr(record, 'sigla_struttura', ''),
+                    'numero_struttura': getattr(record, 'numero_struttura', ''),
+                    'categoria_struttura': getattr(record, 'categoria_struttura', ''),
+                    'tipologia_struttura': getattr(record, 'tipologia_struttura', ''),
+                    'definizione_struttura': getattr(record, 'definizione_struttura', ''),
+                    'descrizione': getattr(record, 'descrizione', ''),
+                    'interpretazione': getattr(record, 'interpretazione', '')
                 })
     def create_system_message(self):
         """Create the system message for the LangChain agent"""
@@ -2881,33 +3584,57 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         Il report deve essere lungo almeno tre pagine e utilizzare un linguaggio tecnico appropriato.""")
 
     def create_custom_prompt(self, formatted_us_data, formatted_material_data,
-                             formatted_pottery_data, report_data):
+                             formatted_pottery_data, report_data,
+                             formatted_tomba_data="", formatted_periodizzazione_data="",
+                             formatted_struttura_data=""):
         """Create the custom prompt for the report generation"""
         return f"""
         Genera una relazione archeologica dettagliata e discorsiva in italiano basata sui seguenti dati. 
         La relazione deve essere un testo fluido e narrativo, che analizza in profondità tutte le unità 
         stratigrafiche (US) e le mette in relazione tra loro.
 
+        ISTRUZIONI IMPORTANTI:
+        - Analizza TUTTI i dati forniti senza tralasciare nulla
+        - NON inserire note personali o pensieri come "Nota: L'elenco completo delle US è disponibile..."
+        - NON scrivere frasi come "... (continua per tutte le fasi/US)"
+        - NON menzionare limiti di token o di spazio
+        - Crea un testo discorsivo che integri tutti i dati in modo fluido
+        - Evita di elencare singolarmente tutte le US, ma creane una narrazione coerente
+        - Evidenzia le US più significative e le loro relazioni
+        - Quando descrivi le fasi, integra tutte le informazioni disponibili senza rimandare ad altri documenti
+
         1. INTRODUZIONE:
            - Fornisci una panoramica dettagliata della campagna di scavo basandoti su:
         {formatted_us_data}   
         {formatted_material_data}
         {formatted_pottery_data}
+        {formatted_periodizzazione_data}
+
         2. DESCRIZIONE METODOLOGICA ED ESITO DELL'INDAGINE:
            - Inizia con una descrizione generale dell'area di scavo e della sua suddivisione in settori.
            - Di seguito, descrivi in dettaglio le unità stratigrafiche come indicato:
         {formatted_us_data}   
 
-        3. DESCRIZIONE DEI MATERIALI   
+        3. DESCRIZIONE DELLE STRUTTURE E TOMBE:
+           - Se presenti, descrivi le strutture archeologiche rinvenute:
+        {formatted_struttura_data}
+           - Se presenti, descrivi le tombe e i contesti funerari:
+        {formatted_tomba_data}
+
+        4. PERIODIZZAZIONE:
+           - Se presenti, descrivi le fasi cronologiche identificate:
+        {formatted_periodizzazione_data}
+
+        5. DESCRIZIONE DEI MATERIALI:   
            - Se presenti inserisci l'elenco dei materiali o delle ceramiche rinvenuti in ogni unità stratigrafica.
            - Se presenti, descrivi i materiali e/o le ceramiche in dettaglio come indicato.
         {formatted_material_data}
         {formatted_pottery_data}
 
-        4. CONCLUSIONI:
+        6. CONCLUSIONI:
            - Sintetizza i risultati principali dello scavo.
-           - Discuti delle unità stratigrafiche e dei materiali rinvenuti.
-           - Concludi con una sintesi delle principali scoperte.
+           - Discuti delle unità stratigrafiche, strutture, tombe e materiali rinvenuti.
+           - Concludi con una sintesi delle principali scoperte e la loro interpretazione cronologica.
 
         Dati del sito: {report_data}
         """
@@ -2931,6 +3658,11 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         us_data = []
         materials_data = []
         pottery_data = []
+
+        # Initialize data structures for new tables
+        tomba_data = []
+        periodizzazione_data = []
+        struttura_data = []
 
         # Fetch data
         for table_name in selected_tables:
@@ -2962,6 +3694,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
                 for record in records:
                     materials_data.append({
+                        'id_invmat': getattr(record, 'id_invmat', ''),
                         'numero_inventario': getattr(record, 'numero_inventario', ''),
                         'tipo_reperto': getattr(record, 'tipo_reperto', ''),
                         'definizione': getattr(record, 'definizione', ''),
@@ -2981,11 +3714,56 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
                 for record in records:
                     pottery_data.append({
+                        'id_rep': getattr(record, 'id_rep', ''),
                         'id_number': getattr(record, 'id_number', ''),
                         'fabric': getattr(record, 'fabric', ''),
                         'form': getattr(record, 'form', ''),
                         'area': getattr(record, 'area', ''),
                         'us': getattr(record, 'us', '')
+                    })
+
+            elif table_name == 'tomba_table':
+                # Filter records by site
+                records = [r for r in records if str(getattr(r, 'sito', '')) == current_site]
+
+                for record in records:
+                    tomba_data.append({
+                        'nr_scheda_taf': getattr(record, 'nr_scheda_taf', ''),
+                        'sigla_struttura': getattr(record, 'sigla_struttura', ''),
+                        'nr_struttura': getattr(record, 'nr_struttura', ''),
+                        'nr_individuo': getattr(record, 'nr_individuo', ''),
+                        'rito': getattr(record, 'rito', ''),
+                        'descrizione_taf': getattr(record, 'descrizione_taf', ''),
+                        'interpretazione_taf': getattr(record, 'interpretazione_taf', ''),
+                        'area': getattr(record, 'area', '')
+                    })
+
+            elif table_name == 'periodizzazione_table':
+                # Filter records by site
+                records = [r for r in records if str(getattr(r, 'sito', '')) == current_site]
+
+                for record in records:
+                    periodizzazione_data.append({
+                        'periodo': getattr(record, 'periodo', ''),
+                        'fase': getattr(record, 'fase', ''),
+                        'cron_iniziale': getattr(record, 'cron_iniziale', ''),
+                        'cron_finale': getattr(record, 'cron_finale', ''),
+                        'descrizione': getattr(record, 'descrizione', '')
+                    })
+
+            elif table_name == 'struttura_table':
+                # Filter records by site
+                records = [r for r in records if str(getattr(r, 'sito', '')) == current_site]
+
+                for record in records:
+                    struttura_data.append({
+                        'sigla_struttura': getattr(record, 'sigla_struttura', ''),
+                        'numero_struttura': getattr(record, 'numero_struttura', ''),
+                        'categoria_struttura': getattr(record, 'categoria_struttura', ''),
+                        'tipologia_struttura': getattr(record, 'tipologia_struttura', ''),
+                        'definizione_struttura': getattr(record, 'definizione_struttura', ''),
+                        'descrizione': getattr(record, 'descrizione', ''),
+                        'interpretazione': getattr(record, 'interpretazione', '')
                     })
 
             # Create report thread instance for validation methods
@@ -2997,11 +3775,14 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 selected_tables=selected_tables,
                 analysis_steps=[],
                 agent=None,
-
                 us_data=us_data,
                 materials_data=materials_data,
                 pottery_data=pottery_data,
-                site_data=site_data
+                site_data=site_data,
+                py_dialog=self,
+                tomba_data=tomba_data,
+                periodizzazione_data=periodizzazione_data,
+                struttura_data=struttura_data
             )
 
             # Check each type of data
@@ -3019,6 +3800,21 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 pottery_validation = report_thread.validate_pottery()
                 if not pottery_validation['valid']:
                     missing_data_report.append(pottery_validation['message'])
+
+            if 'tomba_table' in selected_tables:
+                tomba_validation = report_thread.validate_tomba()
+                if not tomba_validation['valid']:
+                    missing_data_report.append(tomba_validation['message'])
+
+            if 'periodizzazione_table' in selected_tables:
+                periodizzazione_validation = report_thread.validate_periodizzazione()
+                if not periodizzazione_validation['valid']:
+                    missing_data_report.append(periodizzazione_validation['message'])
+
+            if 'struttura_table' in selected_tables:
+                struttura_validation = report_thread.validate_struttura()
+                if not struttura_validation['valid']:
+                    missing_data_report.append(struttura_validation['message'])
 
             # Show results
             if missing_data_report:
@@ -3066,6 +3862,9 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             us_data = []
             materials_data = []
             pottery_data = []
+            tomba_data = []
+            periodizzazione_data = []
+            struttura_data = []
 
             # Step 4: Fetch and process data from selected tables
             for table_name in selected_tables:
@@ -3073,28 +3872,44 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 self.process_table_data(
                     table_name, records, current_site, year_filter,
                     us_start, us_end, report_data, us_data,
-                    materials_data, pottery_data
+                    materials_data, pottery_data, tomba_data,
+                    periodizzazione_data, struttura_data
                 )
 
             # Step 5: Format data for report
             formatted_us_data = self.format_us_data(us_data)
             formatted_material_data = self.format_material_data(materials_data)
             formatted_pottery_data = self.format_pottery_data(pottery_data)
+            formatted_tomba_data = self.format_tomba_data(tomba_data)
+            formatted_periodizzazione_data = self.format_periodizzazione_data(periodizzazione_data)
+            formatted_struttura_data = self.format_struttura_data(struttura_data)
+
             # Crea il testo delle descrizioni combinando tutti i dati formattati
             descriptions_text = f"""
             UNITÀ STRATIGRAFICHE:
             {formatted_us_data}
-    
+
             MATERIALI:
             {formatted_material_data}
-    
+
             CERAMICHE:
             {formatted_pottery_data}
+
+            TOMBE:
+            {formatted_tomba_data}
+
+            PERIODIZZAZIONE:
+            {formatted_periodizzazione_data}
+
+            STRUTTURE:
+            {formatted_struttura_data}
             """
             # Step 6: Create custom prompt
             custom_prompt = self.create_custom_prompt(
                 formatted_us_data, formatted_material_data,
-                formatted_pottery_data, report_data
+                formatted_pottery_data, report_data,
+                formatted_tomba_data, formatted_periodizzazione_data,
+                formatted_struttura_data
             )
 
             # Step 7: Check internet connection and start report generation
@@ -3118,7 +3933,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 # Step 10: Set up LangChain components
                 llm = ChatOpenAI(
                     temperature=0.0,
-                    model_name="gpt-4o",
+                    model_name="gpt-4.1",
                     api_key=api_key,
                     max_tokens=16000,
                     streaming=True
@@ -3146,11 +3961,10 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
                 # Create and start the report generation thread
                 self.report_thread = GenerateReportThread(
-
                     custom_prompt=custom_prompt,
                     descriptions_text=descriptions_text,
                     api_key=api_key,
-                    selected_model="gpt-4o",
+                    selected_model="gpt-4.1",
                     selected_tables=selected_tables,
                     analysis_steps=self.analysis_steps,
                     agent=agent,
@@ -3159,7 +3973,10 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                     pottery_data=pottery_data,
                     site_data=site_data,
                     py_dialog=self,
-                    output_language=dialog.get_selected_language()
+                    output_language=dialog.get_selected_language(),
+                    tomba_data=tomba_data,
+                    periodizzazione_data=periodizzazione_data,
+                    struttura_data=struttura_data
                 )
 
                 # Step 13: Connect signals and start thread
@@ -3178,6 +3995,20 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 return
 
     def on_report_generated(self, report_text, report_data):
+        print("\n==== REPORT GENERATION PROCESS STARTED ====")
+        print(f"Report text length: {len(report_text) if report_text else 0} characters")
+        print(f"Report data keys: {', '.join(report_data.keys())}")
+
+        # Check if report is empty
+        if not report_text or report_text.strip() == "":
+            print("WARNING: Empty report text received")
+            QMessageBox.warning(
+                self,
+                "Report Vuoto",
+                "Il report generato è vuoto. Questo potrebbe essere dovuto alla mancanza di tabelle selezionate necessarie per la generazione del report."
+            )
+            return
+
         # First show template choice dialog
         response = QMessageBox.question(
             self,
@@ -3188,6 +4019,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
         # If user selects No or closes dialog, just return
         if response != QMessageBox.Yes:
+            print("User chose not to use template, exiting")
             return
 
         # Get save location
@@ -3199,47 +4031,417 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         )
 
         if not output_path:
+            print("No output path selected, exiting")
             return
 
         if not output_path.lower().endswith('.docx'):
             output_path += '.docx'
 
-        # Update report data with section content
-        section_content = {
-            "introduzione": ArchaeologicalAnalysis().get_introduction(),
-            "descrizione_metodologica": ArchaeologicalAnalysis().get_methodology_and_results(),
-            "descrizione_materiali": ArchaeologicalAnalysis().get_materials_info(),
-            "conclusioni": ArchaeologicalAnalysis().get_conclusions()
-        }
-        report_data.update(section_content)
+        print(f"Output path: {output_path}")
+
+        # Parse the report text into sections
+        print("Parsing report text into sections...")
+        sections = self.parse_report_into_sections(report_text)
+
+        # Update report data with section content from the generated report
+        if sections:
+            print(f"Successfully parsed {len(sections)} sections")
+            report_data.update(sections)
+        else:
+            print("WARNING: No sections parsed from report text, using fallback content")
+            # Fallback to using analysis steps if parsing fails
+            section_content = {
+                "introduzione": ArchaeologicalAnalysis().get_introduction_step()['prompt'],
+                "descrizione_metodologica_ed_esito": "Questa sezione contiene la metodologia di scavo, l'analisi stratigrafica e la descrizione dei materiali.",
+                "descrizione_metodologica": ArchaeologicalAnalysis().get_methodology_step()['prompt'],
+                "analisi_stratigrafica": ArchaeologicalAnalysis().get_stratigraphy_step()['prompt'],
+                "descrizione_materiali": ArchaeologicalAnalysis().get_materials_step()['prompt'],
+                "conclusioni": ArchaeologicalAnalysis().get_conclusions_step()['prompt']
+            }
+            report_data.update(section_content)
+            print("Added fallback content for sections")
+
+        # Ensure all required sections have at least some default content
+        required_sections = [
+            "introduzione", 
+            "descrizione_metodologica_ed_esito", 
+            "descrizione_metodologica", 
+            "analisi_stratigrafica", 
+            "descrizione_materiali", 
+            "conclusioni"
+        ]
+
+        for section in required_sections:
+            if section not in report_data or not report_data[section] or report_data[section].strip() == "":
+                print(f"Adding default content for missing section: {section}")
+                if section == "introduzione":
+                    report_data[section] = "Introduzione al sito archeologico e alla campagna di scavo."
+                elif section == "descrizione_metodologica_ed_esito":
+                    report_data[section] = "Descrizione metodologica ed esito dell'indagine archeologica."
+                elif section == "descrizione_metodologica":
+                    report_data[section] = "Metodologia di scavo utilizzata durante la campagna archeologica."
+                elif section == "analisi_stratigrafica":
+                    report_data[section] = "Analisi stratigrafica e interpretazione delle unità stratigrafiche."
+                elif section == "descrizione_materiali":
+                    report_data[section] = "Catalogo e descrizione dei materiali rinvenuti durante lo scavo."
+                elif section == "conclusioni":
+                    report_data[section] = "Conclusioni e interpretazione complessiva del sito archeologico."
 
         # Add tables data
-        report_data['materials_table'] = self._format_materials_table()
-        report_data['pottery_table'] = self._format_pottery_table()
+        print("Adding tables data...")
+        materials_table = self._format_materials_table()
+        if materials_table:
+            report_data['materials_table'] = materials_table
+            print(f"Added materials table with {len(materials_table)} rows")
+        else:
+            print("No materials table data available")
+
+        pottery_table = self._format_pottery_table()
+        if pottery_table:
+            report_data['pottery_table'] = pottery_table
+            print(f"Added pottery table with {len(pottery_table)} rows")
+        else:
+            print("No pottery table data available")
 
         try:
             template_path = os.path.join(self.HOME, "bin", "template_report_adarte.docx")
+            print(f"Template path: {template_path}")
+
             if not os.path.exists(template_path):
-                QMessageBox.warning(self, "Errore", "Template non trovato!")
+                print(f"ERROR: Template not found at {template_path}")
+                QMessageBox.warning(self, "Errore", f"Template non trovato in {template_path}!")
                 return
 
-            # Prepare tables data
-            report_data['materials_table'] = self._format_materials_table()
-            report_data['pottery_table'] = self._format_pottery_table()
+            # Try to open the template to verify it's a valid Word document
+            try:
+                test_doc = Document(template_path)
+                print(f"Template opened successfully, contains {len(test_doc.paragraphs)} paragraphs")
+            except Exception as doc_error:
+                print(f"ERROR: Failed to open template: {str(doc_error)}")
+                QMessageBox.warning(self, "Errore", f"Il template non è un documento Word valido: {str(doc_error)}")
+                return
 
+            print("Saving report to template...")
             self.save_report_to_template(report_data, template_path, output_path)
+            print("Report saved successfully")
             QMessageBox.information(self, "Successo", f"Report salvato in {output_path}")
 
         except Exception as e:
+            print(f"ERROR: Exception during save process: {str(e)}")
+            import traceback
+            print(traceback.format_exc())
             QMessageBox.critical(self, "Errore", f"Errore nel salvataggio: {str(e)}")
+
+        print("==== REPORT GENERATION PROCESS COMPLETED ====\n")
+
+    def parse_report_into_sections(self, report_text):
+        """Parse the report text into sections based on headings"""
+        if not report_text:
+            print("Warning: Empty report text passed to parse_report_into_sections")
+            return {}
+
+        sections = {}
+        current_section = None
+        current_content = []
+
+        # Define the main section headings to look for
+        section_headings = {
+            "INTRODUZIONE": "introduzione",
+            "DESCRIZIONE METODOLOGICA ED ESITO DELL'INDAGINE": "descrizione_metodologica_ed_esito",
+            "METODOLOGIA DI SCAVO": "descrizione_metodologica",
+            "ANALISI STRATIGRAFICA E INTERPRETAZIONE": "analisi_stratigrafica",
+            "CATALOGO DEI MATERIALI": "descrizione_materiali",
+            "CONCLUSIONI": "conclusioni"
+        }
+
+        # Process the report line by line
+        lines = report_text.split('\n')
+        print(f"Parsing report with {len(lines)} lines")
+
+        # Print the first few lines to help debug
+        print("First 10 lines of report:")
+        for i in range(min(10, len(lines))):
+            print(f"Line {i+1}: {lines[i]}")
+
+        for i, line in enumerate(lines):
+            # Check if this line is a main section heading
+            is_heading = False
+            for heading, key in section_headings.items():
+                # Check for heading with or without markdown formatting
+                if heading in line:
+                    print(f"Found section heading: '{heading}' at line {i+1}")
+                    # If we were already processing a section, save it
+                    if current_section:
+                        sections[current_section] = '\n'.join(current_content)
+                        print(f"Saved section '{current_section}' with {len(current_content)} lines")
+
+                    # Start a new section
+                    current_section = key
+                    current_content = []
+                    is_heading = True
+                    break
+
+            # If not a heading and we're in a section, add the line to current content
+            if not is_heading and current_section:
+                current_content.append(line)
+
+        # Save the last section if there is one
+        if current_section and current_content:
+            sections[current_section] = '\n'.join(current_content)
+            print(f"Saved final section '{current_section}' with {len(current_content)} lines")
+
+        print(f"Parsed {len(sections)} sections: {', '.join(sections.keys())}")
+        return sections
 
     def save_report_as_plain_doc(self, report_text, output_path):
         doc = Document()
         doc.add_paragraph(report_text)
         doc.save(output_path)
 
+    def process_section_content(self, doc, section_info, content, report_data):
+        """
+        Process the content of a section and add it to the document.
+
+        Args:
+            doc: Word document
+            section_info: Dictionary with section information
+            content: Text content of the section
+            report_data: Dictionary with all report data
+        """
+        if not content or content.strip() == "":
+            print(f"WARNING: Empty content for section '{section_info['key']}', adding placeholder text")
+            # Add a note that this section has no data
+            doc.add_heading(section_info["heading"], level=1)
+            doc.add_paragraph("Questa sezione contiene informazioni limitate a causa della mancanza di dati completi. Si consiglia di verificare i dati di input e ripetere la generazione del report con dati più completi.")
+
+            # Add a basic description based on the section type
+            if section_info["key"] == "introduzione":
+                doc.add_paragraph("Introduzione al sito archeologico e alla campagna di scavo.")
+            elif section_info["key"] == "descrizione_metodologica_ed_esito":
+                doc.add_paragraph("Descrizione metodologica ed esito dell'indagine archeologica.")
+            elif section_info["key"] == "conclusioni":
+                doc.add_paragraph("Conclusioni e interpretazione complessiva del sito archeologico.")
+
+            # If this section has subsections, process them
+            if "subsections" in section_info:
+                for subsection in section_info["subsections"]:
+                    subsection_key = subsection["key"]
+                    subsection_heading = subsection["heading"]
+                    subsection_content = report_data.get(subsection_key, "")
+
+                    # Add subsection heading
+                    doc.add_heading(subsection_heading, level=2)
+
+                    # Add default content if subsection is empty
+                    if not subsection_content or subsection_content.strip() == "":
+                        if subsection_key == "descrizione_metodologica":
+                            doc.add_paragraph("Metodologia di scavo utilizzata durante la campagna archeologica.")
+                        elif subsection_key == "analisi_stratigrafica":
+                            doc.add_paragraph("Analisi stratigrafica e interpretazione delle unità stratigrafiche.")
+                        elif subsection_key == "descrizione_materiali":
+                            doc.add_paragraph("Catalogo e descrizione dei materiali rinvenuti durante lo scavo.")
+                    else:
+                        # Process subsection content
+                        self._process_content_lines(doc, subsection_content.split('\n'))
+            return
+
+        # Add section heading
+        doc.add_heading(section_info["heading"], level=1)
+
+        # Check if this section has subsections
+        if "subsections" in section_info:
+            # Process each subsection
+            for subsection in section_info["subsections"]:
+                subsection_key = subsection["key"]
+                subsection_heading = subsection["heading"]
+                subsection_content = report_data.get(subsection_key, "")
+
+                # Skip empty subsections
+                if not subsection_content or subsection_content.strip() == "":
+                    print(f"WARNING: Empty content for subsection '{subsection_key}', adding placeholder text")
+                    doc.add_heading(subsection_heading, level=2)
+                    doc.add_paragraph("Questa sottosezione è stata omessa a causa della mancanza di dati necessari.")
+                    continue
+
+                # Add subsection heading
+                doc.add_heading(subsection_heading, level=2)
+
+                # Process subsection content
+                self._process_content_lines(doc, subsection_content.split('\n'))
+        else:
+            # Process content line by line for sections without subsections
+            self._process_content_lines(doc, content.split('\n'))
+
+    def _process_content_lines(self, doc, lines):
+        """
+        Process content lines and add them to the document.
+
+        Args:
+            doc: Word document
+            lines: List of text lines
+        """
+        i = 0
+        while i < len(lines):
+            line = lines[i].strip()
+
+            # Check for markdown headings (##, --, ==)
+            if (line.startswith('#') or 
+                (i+1 < len(lines) and (all(c == '=' for c in lines[i+1].strip()) or 
+                                      all(c == '-' for c in lines[i+1].strip())))):
+
+                heading_text = self.clean_heading(line)
+                heading_level = 2  # Default to level 2 for subheadings
+
+                # Determine heading level based on # count or underline character
+                if line.startswith('#'):
+                    heading_level = min(6, line.count('#') + 1)  # +1 because # is level 1
+                elif i+1 < len(lines):
+                    if all(c == '=' for c in lines[i+1].strip()):
+                        heading_level = 2  # = underline is level 2
+                    elif all(c == '-' for c in lines[i+1].strip()):
+                        heading_level = 3  # - underline is level 3
+
+                doc.add_heading(heading_text, level=heading_level)
+
+                # Skip the underline if present
+                if (i+1 < len(lines) and (all(c == '=' for c in lines[i+1].strip()) or 
+                                         all(c == '-' for c in lines[i+1].strip()))):
+                    i += 2
+                else:
+                    i += 1
+                continue
+
+            # Check for images (US, RAPPORTI, FASE, MATERIALE, CERAMICA)
+            img_match = re.search(r'\[IMMAGINE\s+(?:US|RAPPORTI|FASE|REPERTO|CERAMICA)\s+[^:]*:\s+(.*?),\s*(.*?)\]', line)
+            if img_match:
+                img_path = img_match.group(1).strip()
+                caption = img_match.group(2).strip()
+
+                # Remove file:// prefix if present
+                if img_path.startswith('file://'):
+                    img_path = img_path[7:]
+
+                # Ensure the path is absolute
+                if not os.path.isabs(img_path):
+                    # Try to find the image in common locations
+                    possible_paths = [
+                        img_path,  # Original path
+                        os.path.join(self.HOME, img_path),  # Relative to HOME
+                        os.path.join(self.HOME, "bin", img_path),  # Relative to bin directory
+                        os.path.join(os.path.dirname(os.path.abspath(__file__)), img_path),  # Relative to current file
+                    ]
+
+                    for path in possible_paths:
+                        if os.path.exists(path):
+                            img_path = path
+                            break
+
+                print(f"Processing image: path={img_path}, caption={caption}")
+
+                if os.path.exists(img_path):
+                    try:
+                        # Load the image to verify it's valid
+                        from PIL import Image
+                        try:
+                            img = Image.open(img_path)
+                            img.verify()  # Verify it's a valid image
+
+                            # Add the image to the document
+                            doc.add_picture(img_path, width=Inches(6))
+                            caption_para = doc.add_paragraph(caption)
+                            caption_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
+                            caption_para.style = 'Caption'
+                        except Exception as img_error:
+                            print(f"Invalid image file {img_path}: {str(img_error)}")
+                            doc.add_paragraph(f"[Immagine non valida: {caption}]")
+                    except Exception as e:
+                        print(f"Error adding image {img_path}: {str(e)}")
+                        doc.add_paragraph(f"[Immagine non disponibile: {caption}]")
+                else:
+                    print(f"Image file not found: {img_path}")
+                    doc.add_paragraph(f"[Immagine non disponibile: {caption}]")
+                i += 1
+                continue
+
+            # Check for markdown tables
+            if line.startswith('|') and line.endswith('|'):
+                # Collect table lines
+                table_lines = [line]
+                j = i + 1
+                while j < len(lines) and lines[j].strip().startswith('|') and lines[j].strip().endswith('|'):
+                    table_lines.append(lines[j].strip())
+                    j += 1
+
+                # Process table if we have at least one row
+                if len(table_lines) >= 1:
+                    # Use the convert_markdown_table function to create the table
+                    self.convert_markdown_table(table_lines, doc)
+
+                    # Add a paragraph after the table for spacing
+                    doc.add_paragraph()
+
+                i = j  # Skip processed table lines
+                continue
+
+            # Regular paragraph
+            if line:
+                doc.add_paragraph(line)
+            i += 1
+
     def save_report_to_template(self, report_data, template_path, output_path):
+        print(f"Starting save_report_to_template with template: {template_path}, output: {output_path}")
+        print(f"Report data keys: {', '.join(report_data.keys())}")
+
+        # Check for section keys
+        section_keys = ['introduzione', 'descrizione_metodologica', 'analisi_stratigrafica', 'descrizione_materiali', 'conclusioni']
+        for key in section_keys:
+            if key in report_data:
+                content = report_data[key]
+                content_preview = content[:100] + "..." if len(content) > 100 else content
+                print(f"Section '{key}' found with {len(content)} characters. Preview: {content_preview}")
+            else:
+                print(f"WARNING: Section '{key}' NOT found in report_data")
+
         doc = Document(template_path)
+
+        # Define alternative placeholder patterns to check
+        alternative_placeholders = {
+            "{{INTRODUZIONE}}": ["INTRODUZIONE", "Introduzione", "introduzione"],
+            "{{DESCRIZIONE_METODOLOGICA_ED_ESITO_DELL_INDAGINE}}": ["DESCRIZIONE METODOLOGICA", "Descrizione Metodologica", "METODOLOGIA", "Metodologia"],
+            "{{CONCLUSIONI}}": ["CONCLUSIONI", "Conclusioni", "conclusioni"]
+        }
+
+        # Check if 'Table Grid' style exists, if not create it
+        table_styles = [s for s in doc.styles if 'table' in s.name.lower()]
+        has_table_grid = any('table grid' in s.name.lower() for s in table_styles)
+
+        # If 'Table Grid' style doesn't exist, use a default table style or create a basic one
+        table_style_name = 'Table Grid' if has_table_grid else 'Normal Table'
+        if not has_table_grid and not any('normal table' in s.name.lower() for s in table_styles):
+            table_style_name = 'Table'  # Fallback to most basic table style
+
+        print(f"Using table style: {table_style_name}")
+        print(f"Document has {len(doc.paragraphs)} paragraphs")
+
+        # Mapping for first page metadata fields
+        metadata_mapping = {
+            "{{SITO}}": "sito",
+            "{{AREA}}": "area",
+            "{{REGIONE}}": "Regione",
+            "{{PROVINCIA}}": "Provincia",
+            "{{COMUNE}}": "Comune",
+            "{{INDIRIZZO}}": "Indirizzo",
+            "{{RESPONSABILE}}": "Responsabile",
+            "{{DIRETTORE}}": "Direzione scientifica",
+            "{{ENTE}}": "Ente di riferimento",
+            "{{COMMITTENZA}}": "Committenza",
+            "{{DATA}}": "Data",
+            "{{ANNO}}": "Anno",
+            "{{CANTIERE}}": "Cantiere",
+            "{{COLLOCAZIONE}}": "Collocazione cantiere",
+            "{{PERIODO}}": "Periodo cantiere",
+            "{{AUTORE}}": "Autore"
+        }
 
         # Mapping delle sezioni del report con le chiavi in report_data
         section_mapping = {
@@ -3247,17 +4449,23 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 "key": "introduzione",
                 "heading": "INTRODUZIONE"
             },
-            "{{METODOLOGIA_DI_SCAVO}}": {
-                "key": "descrizione_metodologica",
-                "heading": "METODOLOGIA DI SCAVO"
-            },
-            "{{ANALISI_STRATIGRAFICA}}": {
-                "key": "analisi_stratigrafica",
-                "heading": "ANALISI STRATIGRAFICA E INTERPRETAZIONE"
-            },
-            "{{CATALOGO_MATERIALI}}": {
-                "key": "descrizione_materiali",
-                "heading": "CATALOGO DEI MATERIALI"
+            "{{DESCRIZIONE_METODOLOGICA_ED_ESITO_DELL_INDAGINE}}": {
+                "key": "descrizione_metodologica_ed_esito",
+                "heading": "DESCRIZIONE METODOLOGICA ED ESITO DELL'INDAGINE",
+                "subsections": [
+                    {
+                        "key": "descrizione_metodologica",
+                        "heading": "METODOLOGIA DI SCAVO"
+                    },
+                    {
+                        "key": "analisi_stratigrafica",
+                        "heading": "ANALISI STRATIGRAFICA E INTERPRETAZIONE"
+                    },
+                    {
+                        "key": "descrizione_materiali",
+                        "heading": "CATALOGO DEI MATERIALI"
+                    }
+                ]
             },
             "{{CONCLUSIONI}}": {
                 "key": "conclusioni",
@@ -3265,62 +4473,764 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             }
         }
 
-        # Sostituisci i placeholder nel template
+        # First, replace metadata fields on the first page
         for para in doc.paragraphs:
+            for placeholder, field_key in metadata_mapping.items():
+                if placeholder in para.text:
+                    # Get the value from report_data, or use an empty string if not found
+                    value = str(report_data.get(field_key, ""))
+
+                    # Replace the placeholder with the actual value
+                    para.text = para.text.replace(placeholder, value)
+
+                    # Apply formatting if needed
+                    for run in para.runs:
+                        if placeholder in run.text:
+                            run.text = run.text.replace(placeholder, value)
+
+        # Now process section content
+        for para_idx, para in enumerate(doc.paragraphs):
+            found_in_this_para = False
+
+            # First check for exact matches
             for placeholder, section_info in section_mapping.items():
                 if placeholder in para.text:
+                    found_in_this_para = True
+                    print(f"Found placeholder {placeholder} in paragraph {para_idx}")
+
+                    # Get the section content
+                    section_key = section_info["key"]
+                    section_content = report_data.get(section_key, "")
+
+                    # Process the section content
+                    self.process_section_content(doc, section_info, section_content, report_data)
+
+                    # Remove the placeholder paragraph
+                    p = doc.paragraphs[para_idx]._element
+                    p.getparent().remove(p)
+
+                    break
+
+            # If no exact match, check for alternative patterns
+            if not found_in_this_para:
+                for placeholder, alternatives in alternative_placeholders.items():
+                    section_info = section_mapping.get(placeholder)
+                    if section_info:
+                        for alt in alternatives:
+                            if alt in para.text:
+                                found_in_this_para = True
+                                print(f"Found alternative placeholder {alt} in paragraph {para_idx}")
+
+                                # Get the section content
+                                section_key = section_info["key"]
+                                section_content = report_data.get(section_key, "")
+
+                                # Process the section content
+                                self.process_section_content(doc, section_info, section_content, report_data)
+
+                                # Remove the placeholder paragraph
+                                p = doc.paragraphs[para_idx]._element
+                                p.getparent().remove(p)
+
+                                break
+
+                    if found_in_this_para:
+                        break
+
+        # Add tables if they exist in report_data
+        if 'materials_table' in report_data and report_data['materials_table']:
+            self._add_table_to_doc(doc, "TABELLA DEI MATERIALI", report_data['materials_table'])
+
+        if 'pottery_table' in report_data and report_data['pottery_table']:
+            self._add_table_to_doc(doc, "TABELLA DELLA CERAMICA", report_data['pottery_table'])
+
+        # Save the document
+        try:
+            doc.save(output_path)
+            print(f"Document saved successfully to {output_path}")
+            return True
+        except Exception as e:
+            print(f"Error saving document: {str(e)}")
+            return False
+
+    def convert_markdown_table(self, table_lines, doc):
+        """
+        Convert a list of markdown table lines to a Word table.
+
+        Args:
+            table_lines: List of strings representing markdown table lines
+            doc: Word document to add the table to
+
+        Returns:
+            Word table object
+        """
+        print(f"Converting markdown table with {len(table_lines)} lines")
+
+        # Parse table data
+        rows = []
+        header_row = None
+        separator_found = False
+
+        for idx, table_line in enumerate(table_lines):
+            # Check if this is a separator line
+            if re.match(r'^\|\s*[-:]+\s*\|', table_line):
+                separator_found = True
+                # If we found a separator, the previous line is the header
+                if idx > 0 and header_row is None:
+                    header_row = [cell.strip() for cell in table_lines[idx-1].strip('|').split('|')]
+                continue
+
+            # Process normal data rows
+            cells = [cell.strip() for cell in table_line.strip('|').split('|')]
+            # Skip empty cells
+            if all(not cell for cell in cells):
+                continue
+            rows.append(cells)
+
+        # If we have rows to process
+        if rows:
+            print(f"Table has {len(rows)} rows and max {max(len(row) for row in rows)} columns")
+
+            # Determine the number of columns (max width of any row)
+            max_cols = max(len(row) for row in rows)
+
+            # Create Word table
+            table = doc.add_table(rows=len(rows), cols=max_cols)
+
+            # Check if 'Table Grid' style exists, if not use a default style
+            table_styles = [s.name for s in doc.styles if hasattr(s, 'name') and 'table' in s.name.lower()]
+            print(f"Available table styles: {', '.join(table_styles)}")
+
+            # Try to find the best table style
+            if 'Table Grid' in table_styles:
+                table_style_name = 'Table Grid'
+            elif 'Grid Table' in table_styles:
+                table_style_name = 'Grid Table'
+            elif any('grid' in s.lower() for s in table_styles):
+                # Find the first style with 'grid' in the name
+                table_style_name = next(s for s in table_styles if 'grid' in s.lower())
+            elif 'Normal Table' in table_styles:
+                table_style_name = 'Normal Table'
+            elif len(table_styles) > 0:
+                # Use the first available table style
+                table_style_name = table_styles[0]
+            else:
+                table_style_name = 'Table'  # Fallback to most basic table style
+
+            print(f"Using table style: {table_style_name}")
+
+            try:
+                table.style = table_style_name
+            except Exception as e:
+                print(f"Error setting table style: {str(e)}")
+                # Try a different approach if setting style fails
+                try:
+                    # Apply a basic grid to the table
+                    for cell in table._tbl.findall(".//w:tc", {"w": "http://schemas.openxmlformats.org/wordprocessingml/2006/main"}):
+                        tcPr = cell.find(".//w:tcPr", {"w": "http://schemas.openxmlformats.org/wordprocessingml/2006/main"})
+                        if tcPr is None:
+                            tcPr = parse_xml(r'<w:tcPr {0}/>'.format(nsdecls('w')))
+                            cell.append(tcPr)
+
+                        # Add borders to the cell
+                        tcBorders = tcPr.find(".//w:tcBorders", {"w": "http://schemas.openxmlformats.org/wordprocessingml/2006/main"})
+                        if tcBorders is None:
+                            tcBorders = parse_xml(r'<w:tcBorders {0}/>'.format(nsdecls('w')))
+                            tcPr.append(tcBorders)
+
+                        # Define borders for all sides
+                        for side in ['top', 'left', 'bottom', 'right']:
+                            border = tcBorders.find(".//{0}:{1}".format('w', side))
+                            if border is None:
+                                border = parse_xml(r'<w:{0} {1} w:val="single" w:sz="4" w:space="0" w:color="auto"/>'.format(side, nsdecls('w')))
+                                tcBorders.append(border)
+                except Exception as border_error:
+                    print(f"Error applying borders: {str(border_error)}")
+
+            # Apply table properties for better formatting
+            try:
+                table.autofit = True
+
+                # Add XML properties for table grid
+                tbl_pr = table._element.xpath('w:tblPr')[0]
+                table_width = parse_xml(r'<w:tblW {} w:type="auto"/>'.format(nsdecls('w')))
+                tbl_pr.append(table_width)
+
+                # Add table grid
+                tbl_grid = table._element.xpath('w:tblGrid')[0]
+                for _ in range(max_cols):
+                    grid_col = parse_xml(r'<w:gridCol {} w:w="0"/>'.format(nsdecls('w')))
+                    tbl_grid.append(grid_col)
+            except Exception as prop_error:
+                print(f"Error setting table properties: {str(prop_error)}")
+
+            # Fill table data
+            for row_idx, row_data in enumerate(rows):
+                for col_idx, cell_text in enumerate(row_data):
+                    if col_idx < max_cols:  # Ensure we don't exceed column count
+                        # Pad row_data if needed
+                        if col_idx >= len(row_data):
+                            cell_text = ""
+                        else:
+                            cell_text = row_data[col_idx]
+
+                        # Set cell text
+                        try:
+                            cell = table.rows[row_idx].cells[col_idx]
+                            if cell.paragraphs:
+                                cell.paragraphs[0].text = cell_text
+                            else:
+                                p = cell.add_paragraph(cell_text)
+
+                            # Make header row bold
+                            if (row_idx == 0 and separator_found) or (header_row is not None and row_idx == 0):
+                                for paragraph in cell.paragraphs:
+                                    for run in paragraph.runs:
+                                        run.bold = True
+                                    # Center align header cells
+                                    paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
+                        except Exception as cell_error:
+                            print(f"Error setting cell text at row {row_idx}, col {col_idx}: {str(cell_error)}")
+
+            # Add a paragraph after the table for spacing
+            doc.add_paragraph()
+
+            return table
+
+        return None
+
+    def clean_heading(self, text):
+        """
+        Remove markdown heading markers (##, --, etc.) from text.
+
+        Args:
+            text: Text to clean
+
+        Returns:
+            Cleaned text
+        """
+        # First remove any leading # characters
+        text = re.sub(r'^[\s#]*', '', text)
+        # Then remove any trailing -- or == characters
+        text = re.sub(r'[\s\-=]*$', '', text)
+        # Remove any remaining markdown formatting
+        text = text.replace('--##', '').replace('--#', '').replace('--', '')
+        return text.strip()
+
+        # Define alternative placeholder patterns to check
+        alternative_placeholders = {
+            "{{INTRODUZIONE}}": ["INTRODUZIONE", "Introduzione", "introduzione"],
+            "{{DESCRIZIONE_METODOLOGICA_ED_ESITO_DELL_INDAGINE}}": ["DESCRIZIONE METODOLOGICA", "Descrizione Metodologica", "METODOLOGIA", "Metodologia"],
+            "{{CONCLUSIONI}}": ["CONCLUSIONI", "Conclusioni", "conclusioni"]
+        }
+
+        for para_idx, para in enumerate(doc.paragraphs):
+            found_in_this_para = False
+
+            # First check for exact matches
+            for placeholder, section_info in section_mapping.items():
+                if placeholder in para.text:
+                    placeholder_found = True
+                    found_in_this_para = True
+                    print(f"Found exact placeholder '{placeholder}' in paragraph {para_idx+1}: '{para.text}'")
                     content = report_data.get(section_info["key"], "")
 
-                    # Aggiungi intestazione sezione
+                    print(f"Content for '{section_info['key']}' has {len(content)} characters")
+
+                    # Process this section
+                    self.process_section_content(doc, section_info, content, report_data)
+                    break
+
+            # If no exact match found in this paragraph, check for alternative patterns
+            if not found_in_this_para:
+                for placeholder, section_info in section_mapping.items():
+                    alternatives = alternative_placeholders.get(placeholder, [])
+                    for alt in alternatives:
+                        if alt in para.text:
+                            placeholder_found = True
+                            found_in_this_para = True
+                            print(f"Found alternative placeholder '{alt}' for '{placeholder}' in paragraph {para_idx+1}: '{para.text}'")
+                            content = report_data.get(section_info["key"], "")
+
+                            print(f"Content for '{section_info['key']}' has {len(content)} characters")
+
+                            # Process this section
+                            self.process_section_content(doc, section_info, content, report_data)
+                            break
+                    if found_in_this_para:
+                        break
+
+                    # Handle empty sections with a default message
+                    if not content or content.strip() == "":
+                        print(f"WARNING: Empty content for section '{section_info['key']}', adding placeholder text")
+                        # Add a note that this section has no data
+                        doc.add_heading(section_info["heading"], level=1)
+                        doc.add_paragraph("Questa sezione contiene informazioni limitate a causa della mancanza di dati completi. Si consiglia di verificare i dati di input e ripetere la generazione del report con dati più completi.")
+
+                        # Add a basic description based on the section type
+                        if section_info["key"] == "introduzione":
+                            doc.add_paragraph("Introduzione al sito archeologico e alla campagna di scavo.")
+                        elif section_info["key"] == "descrizione_metodologica_ed_esito":
+                            doc.add_paragraph("Descrizione metodologica ed esito dell'indagine archeologica.")
+                        elif section_info["key"] == "conclusioni":
+                            doc.add_paragraph("Conclusioni e interpretazione complessiva del sito archeologico.")
+
+                        # If this section has subsections, process them
+                        if "subsections" in section_info:
+                            for subsection in section_info["subsections"]:
+                                subsection_key = subsection["key"]
+                                subsection_heading = subsection["heading"]
+                                subsection_content = report_data.get(subsection_key, "")
+
+                                # Add subsection heading
+                                doc.add_heading(subsection_heading, level=2)
+
+                                # Add default content if subsection is empty
+                                if not subsection_content or subsection_content.strip() == "":
+                                    if subsection_key == "descrizione_metodologica":
+                                        doc.add_paragraph("Metodologia di scavo utilizzata durante la campagna archeologica.")
+                                    elif subsection_key == "analisi_stratigrafica":
+                                        doc.add_paragraph("Analisi stratigrafica e interpretazione delle unità stratigrafiche.")
+                                    elif subsection_key == "descrizione_materiali":
+                                        doc.add_paragraph("Catalogo e descrizione dei materiali rinvenuti durante lo scavo.")
+                                else:
+                                    # Process subsection content line by line
+                                    subsection_lines = subsection_content.split('\n')
+                                    j = 0
+                                    while j < len(subsection_lines):
+                                        line = subsection_lines[j].strip()
+
+                                        # Check for markdown headings (##, --, ==)
+                                        if (line.startswith('#') or 
+                                            (j+1 < len(subsection_lines) and (all(c == '=' for c in subsection_lines[j+1].strip()) or 
+                                                                  all(c == '-' for c in subsection_lines[j+1].strip())))):
+
+                                            heading_text = clean_heading(line)
+                                            heading_level = 3  # Default to level 3 for subheadings in subsections
+
+                                            # Determine heading level based on # count or underline character
+                                            if line.startswith('#'):
+                                                heading_level = min(6, line.count('#') + 2)  # +2 because we're in a subsection
+                                            elif j+1 < len(subsection_lines):
+                                                if all(c == '=' for c in subsection_lines[j+1].strip()):
+                                                    heading_level = 3  # = underline is level 3 in subsection
+                                                elif all(c == '-' for c in subsection_lines[j+1].strip()):
+                                                    heading_level = 4  # - underline is level 4 in subsection
+
+                                            doc.add_heading(heading_text, level=heading_level)
+
+                                            # Skip the underline if present
+                                            if (j+1 < len(subsection_lines) and (all(c == '=' for c in subsection_lines[j+1].strip()) or 
+                                                                       all(c == '-' for c in subsection_lines[j+1].strip()))):
+                                                j += 2
+                                            else:
+                                                j += 1
+                                            continue
+
+                                        # Check for images
+                                        img_match = re.search(r'\[IMMAGINE\s+(?:US|RAPPORTI|FASE|REPERTO|CERAMICA)\s+[^:]*:\s+(.*?),\s*(.*?)\]', line)
+                                        if img_match:
+                                            img_path = img_match.group(1).strip()
+                                            caption = img_match.group(2).strip()
+
+                                            # Remove file:// prefix if present
+                                            if img_path.startswith('file://'):
+                                                img_path = img_path[7:]
+
+                                            print(f"Processing image: path={img_path}, caption={caption}")
+
+                                            if os.path.exists(img_path):
+                                                try:
+                                                    doc.add_picture(img_path, width=Inches(6))
+                                                    caption_para = doc.add_paragraph(caption)
+                                                    caption_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
+                                                    caption_para.style = 'Caption'
+                                                except Exception as e:
+                                                    print(f"Error adding image {img_path}: {str(e)}")
+                                                    doc.add_paragraph(f"[Immagine non disponibile: {caption}]")
+                                            else:
+                                                print(f"Image file not found: {img_path}")
+                                                doc.add_paragraph(f"[Immagine non disponibile: {caption}]")
+                                            j += 1
+                                            continue
+
+                                        # Check for markdown tables
+                                        if line.startswith('|') and line.endswith('|'):
+                                            # Collect table lines
+                                            table_lines = [line]
+                                            k = j + 1
+                                            while k < len(subsection_lines) and subsection_lines[k].strip().startswith('|') and subsection_lines[k].strip().endswith('|'):
+                                                table_lines.append(subsection_lines[k].strip())
+                                                k += 1
+
+                                            # Process table if we have at least one row
+                                            if len(table_lines) >= 1:
+                                                # Use the convert_markdown_table function to create the table
+                                                convert_markdown_table(table_lines, doc)
+
+                                            j = k  # Skip processed table lines
+                                            continue
+
+                                        # Regular paragraph
+                                        doc.add_paragraph(line)
+                                        j += 1
+
+                        continue
+
+                    # Add section heading
                     doc.add_heading(section_info["heading"], level=1)
 
-                    # Processa il contenuto per le immagini
-                    for line in content.split('\n'):
-                        img_match = re.search(r'\[IMMAGINE\s+(?:US|RAPPORTI|FASE):\s+(.*?),\s*(.*?)\]', line)
+                    # Check if this section has subsections
+                    if "subsections" in section_info:
+                        # Process each subsection
+                        for subsection in section_info["subsections"]:
+                            subsection_key = subsection["key"]
+                            subsection_heading = subsection["heading"]
+                            subsection_content = report_data.get(subsection_key, "")
+
+                            # Skip empty subsections
+                            if not subsection_content or subsection_content.strip() == "":
+                                print(f"WARNING: Empty content for subsection '{subsection_key}', adding placeholder text")
+                                doc.add_heading(subsection_heading, level=2)
+                                doc.add_paragraph("Questa sottosezione è stata omessa a causa della mancanza di dati necessari.")
+                                continue
+
+                            # Add subsection heading
+                            doc.add_heading(subsection_heading, level=2)
+
+                            # Process subsection content line by line
+                            subsection_lines = subsection_content.split('\n')
+                            j = 0
+                            while j < len(subsection_lines):
+                                line = subsection_lines[j].strip()
+
+                                # Check for markdown headings (##, --, ==)
+                                if (line.startswith('#') or 
+                                    (j+1 < len(subsection_lines) and (all(c == '=' for c in subsection_lines[j+1].strip()) or 
+                                                          all(c == '-' for c in subsection_lines[j+1].strip())))):
+
+                                    heading_text = clean_heading(line)
+                                    heading_level = 3  # Default to level 3 for subheadings in subsections
+
+                                    # Determine heading level based on # count or underline character
+                                    if line.startswith('#'):
+                                        heading_level = min(6, line.count('#') + 2)  # +2 because we're in a subsection
+                                    elif j+1 < len(subsection_lines):
+                                        if all(c == '=' for c in subsection_lines[j+1].strip()):
+                                            heading_level = 3  # = underline is level 3 in subsection
+                                        elif all(c == '-' for c in subsection_lines[j+1].strip()):
+                                            heading_level = 4  # - underline is level 4 in subsection
+
+                                    doc.add_heading(heading_text, level=heading_level)
+
+                                    # Skip the underline if present
+                                    if (j+1 < len(subsection_lines) and (all(c == '=' for c in subsection_lines[j+1].strip()) or 
+                                                                 all(c == '-' for c in subsection_lines[j+1].strip()))):
+                                        j += 2
+                                    else:
+                                        j += 1
+                                    continue
+
+                                # Check for images (US, RAPPORTI, FASE, MATERIALE, CERAMICA)
+                                img_match = re.search(r'\[IMMAGINE\s+(?:US|RAPPORTI|FASE|REPERTO|CERAMICA)\s+[^:]*:\s+(.*?),\s*(.*?)\]', line)
+                                if img_match:
+                                    img_path = img_match.group(1).strip()
+                                    caption = img_match.group(2).strip()
+
+                                    # Remove file:// prefix if present
+                                    if img_path.startswith('file://'):
+                                        img_path = img_path[7:]
+
+                                    print(f"Processing image: path={img_path}, caption={caption}")
+
+                                    if os.path.exists(img_path):
+                                        try:
+                                            doc.add_picture(img_path, width=Inches(6))
+                                            caption_para = doc.add_paragraph(caption)
+                                            caption_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
+                                            caption_para.style = 'Caption'
+                                        except Exception as e:
+                                            print(f"Error adding image {img_path}: {str(e)}")
+                                            doc.add_paragraph(f"[Immagine non disponibile: {caption}]")
+                                    else:
+                                        print(f"Image file not found: {img_path}")
+                                        doc.add_paragraph(f"[Immagine non disponibile: {caption}]")
+                                    j += 1
+                                    continue
+
+                                # Check for markdown tables
+                                if line.startswith('|') and line.endswith('|'):
+                                    # Collect table lines
+                                    table_lines = [line]
+                                    k = j + 1
+                                    while k < len(subsection_lines) and subsection_lines[k].strip().startswith('|') and subsection_lines[k].strip().endswith('|'):
+                                        table_lines.append(subsection_lines[k].strip())
+                                        k += 1
+
+                                    # Process table if we have at least one row
+                                    if len(table_lines) >= 1:
+                                        # Use the convert_markdown_table function to create the table
+                                        convert_markdown_table(table_lines, doc)
+
+                                        # Add a paragraph after the table for spacing
+                                        doc.add_paragraph()
+
+                                    j = k  # Skip processed table lines
+                                    continue
+
+                                # Add regular paragraph
+                                if line:
+                                    doc.add_paragraph(line)
+                                j += 1
+
+                        # Skip processing the main section content since we've processed the subsections
+                        continue
+
+                    # Process content line by line for sections without subsections
+                    lines = content.split('\n')
+                    i = 0
+                    while i < len(lines):
+                        line = lines[i].strip()
+
+                        # Check for markdown headings (##, --, ==)
+                        if (line.startswith('#') or 
+                            (i+1 < len(lines) and (all(c == '=' for c in lines[i+1].strip()) or 
+                                                  all(c == '-' for c in lines[i+1].strip())))):
+
+                            heading_text = clean_heading(line)
+                            heading_level = 2  # Default to level 2 for subheadings
+
+                            # Determine heading level based on # count or underline character
+                            if line.startswith('#'):
+                                heading_level = min(6, line.count('#') + 1)  # +1 because # is level 1
+                            elif i+1 < len(lines):
+                                if all(c == '=' for c in lines[i+1].strip()):
+                                    heading_level = 2  # = underline is level 2
+                                elif all(c == '-' for c in lines[i+1].strip()):
+                                    heading_level = 3  # - underline is level 3
+
+                            doc.add_heading(heading_text, level=heading_level)
+
+                            # Skip the underline if present
+                            if (i+1 < len(lines) and (all(c == '=' for c in lines[i+1].strip()) or 
+                                                     all(c == '-' for c in lines[i+1].strip()))):
+                                i += 2
+                            else:
+                                i += 1
+                            continue
+
+                        # Check for images (US, RAPPORTI, FASE, MATERIALE, CERAMICA)
+                        img_match = re.search(r'\[IMMAGINE\s+(?:US|RAPPORTI|FASE|REPERTO|CERAMICA)\s+[^:]*:\s+(.*?),\s*(.*?)\]', line)
                         if img_match:
                             img_path = img_match.group(1).strip()
                             caption = img_match.group(2).strip()
-                            if os.path.exists(img_path):
-                                doc.add_picture(img_path, width=Inches(6))
-                                caption_para = doc.add_paragraph(caption)
-                                caption_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
-                                caption_para.style = 'Caption'
-                        else:
-                            doc.add_paragraph(line)
 
-        # Aggiungi tabelle dei materiali dal report_data
+                            # Remove file:// prefix if present
+                            if img_path.startswith('file://'):
+                                img_path = img_path[7:]
+
+                            print(f"Processing image: path={img_path}, caption={caption}")
+
+                            if os.path.exists(img_path):
+                                try:
+                                    doc.add_picture(img_path, width=Inches(6))
+                                    caption_para = doc.add_paragraph(caption)
+                                    caption_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
+                                    caption_para.style = 'Caption'
+                                except Exception as e:
+                                    print(f"Error adding image {img_path}: {str(e)}")
+                                    doc.add_paragraph(f"[Immagine non disponibile: {caption}]")
+                            else:
+                                print(f"Image file not found: {img_path}")
+                                doc.add_paragraph(f"[Immagine non disponibile: {caption}]")
+                            i += 1
+                            continue
+
+                        # Check for markdown tables
+                        if line.startswith('|') and line.endswith('|'):
+                            # Collect table lines
+                            table_lines = [line]
+                            j = i + 1
+                            while j < len(lines) and lines[j].strip().startswith('|') and lines[j].strip().endswith('|'):
+                                table_lines.append(lines[j].strip())
+                                j += 1
+
+                            # Process table if we have at least one row
+                            if len(table_lines) >= 1:
+                                # Use the convert_markdown_table function to create the table
+                                convert_markdown_table(table_lines, doc)
+
+                                # Add a paragraph after the table for spacing
+                                doc.add_paragraph()
+
+                            i = j  # Skip processed table lines
+                            continue
+
+                        # Regular paragraph
+                        doc.add_paragraph(line)
+                        i += 1
+
+        # Check if any placeholders were found
+        if not placeholder_found:
+            print("WARNING: No section placeholders found in the template. Adding sections manually.")
+            print("Expected placeholders: " + ", ".join(section_mapping.keys()))
+
+            # Add all sections manually if no placeholders were found
+            for placeholder, section_info in section_mapping.items():
+                content = report_data.get(section_info["key"], "")
+                print(f"Adding section '{section_info['key']}' manually")
+
+                # Add section heading
+                doc.add_heading(section_info["heading"], level=1)
+
+                # If section has content, add it
+                if content and content.strip() != "":
+                    # Add content as a paragraph
+                    doc.add_paragraph(content)
+                else:
+                    # Add default content
+                    if section_info["key"] == "introduzione":
+                        doc.add_paragraph("Introduzione al sito archeologico e alla campagna di scavo.")
+                    elif section_info["key"] == "descrizione_metodologica_ed_esito":
+                        doc.add_paragraph("Descrizione metodologica ed esito dell'indagine archeologica.")
+                    elif section_info["key"] == "conclusioni":
+                        doc.add_paragraph("Conclusioni e interpretazione complessiva del sito archeologico.")
+
+                # If this section has subsections, add them
+                if "subsections" in section_info:
+                    for subsection in section_info["subsections"]:
+                        subsection_key = subsection["key"]
+                        subsection_heading = subsection["heading"]
+                        subsection_content = report_data.get(subsection_key, "")
+
+                        # Add subsection heading
+                        doc.add_heading(subsection_heading, level=2)
+
+                        # If subsection has content, add it
+                        if subsection_content and subsection_content.strip() != "":
+                            # Add content as a paragraph
+                            doc.add_paragraph(subsection_content)
+                        else:
+                            # Add default content
+                            if subsection_key == "descrizione_metodologica":
+                                doc.add_paragraph("Metodologia di scavo utilizzata durante la campagna archeologica.")
+                            elif subsection_key == "analisi_stratigrafica":
+                                doc.add_paragraph("Analisi stratigrafica e interpretazione delle unità stratigrafiche.")
+                            elif subsection_key == "descrizione_materiali":
+                                doc.add_paragraph("Catalogo e descrizione dei materiali rinvenuti durante lo scavo.")
+
+        # Add tables for materials, pottery, tombs, periodization, and structures
+        # Materials table
         if report_data.get('materials_table'):
+            print(f"Adding materials table with {len(report_data['materials_table'])} rows")
             doc.add_heading("CATALOGO DEI MATERIALI", level=2)
             table = doc.add_table(rows=1, cols=len(report_data['materials_table'][0]))
-            table.style = 'Table Grid'
+            table.style = table_style_name
 
             # Headers
             for i, header in enumerate(report_data['materials_table'][0]):
                 table.rows[0].cells[i].text = header
                 table.rows[0].cells[i].paragraphs[0].runs[0].bold = True
 
-            # Dati
+            # Data
             for row_data in report_data['materials_table'][1:]:
                 row = table.add_row().cells
                 for i, val in enumerate(row_data):
-                    row.cells[i].text = str(val)
+                    row[i].text = str(val)
 
-        # Aggiungi tabella della ceramica dal report_data
+        # Pottery table
         if report_data.get('pottery_table'):
             doc.add_heading("CATALOGO DELLA CERAMICA", level=2)
             table = doc.add_table(rows=1, cols=len(report_data['pottery_table'][0]))
-            table.style = 'Table Grid'
+            table.style = table_style_name
 
             # Headers
             for i, header in enumerate(report_data['pottery_table'][0]):
                 table.rows[0].cells[i].text = header
                 table.rows[0].cells[i].paragraphs[0].runs[0].bold = True
 
-            # Dati
+            # Data
             for row_data in report_data['pottery_table'][1:]:
                 row = table.add_row().cells
                 for i, val in enumerate(row_data):
-                    row.cells[i].text = str(val)
+                    row[i].text = str(val)
+
+        # Tombs table
+        if report_data.get('tomba_table'):
+            doc.add_heading("CATALOGO DELLE TOMBE", level=2)
+            table = doc.add_table(rows=1, cols=len(report_data['tomba_table'][0]))
+            table.style = table_style_name
+
+            # Headers
+            for i, header in enumerate(report_data['tomba_table'][0]):
+                table.rows[0].cells[i].text = header
+                table.rows[0].cells[i].paragraphs[0].runs[0].bold = True
+
+            # Data
+            for row_data in report_data['tomba_table'][1:]:
+                row = table.add_row().cells
+                for i, val in enumerate(row_data):
+                    row[i].text = str(val)
+
+        # Periodization table
+        if report_data.get('periodizzazione_table'):
+            doc.add_heading("PERIODIZZAZIONE", level=2)
+            table = doc.add_table(rows=1, cols=len(report_data['periodizzazione_table'][0]))
+            table.style = table_style_name
+
+            # Headers
+            for i, header in enumerate(report_data['periodizzazione_table'][0]):
+                table.rows[0].cells[i].text = header
+                table.rows[0].cells[i].paragraphs[0].runs[0].bold = True
+
+            # Data
+            for row_data in report_data['periodizzazione_table'][1:]:
+                row = table.add_row().cells
+                for i, val in enumerate(row_data):
+                    row[i].text = str(val)
+
+        # Structures table
+        if report_data.get('struttura_table'):
+            doc.add_heading("CATALOGO DELLE STRUTTURE", level=2)
+            table = doc.add_table(rows=1, cols=len(report_data['struttura_table'][0]))
+            table.style = table_style_name
+
+            # Headers
+            for i, header in enumerate(report_data['struttura_table'][0]):
+                table.rows[0].cells[i].text = header
+                table.rows[0].cells[i].paragraphs[0].runs[0].bold = True
+
+            # Data
+            for row_data in report_data['struttura_table'][1:]:
+                row = table.add_row().cells
+                for i, val in enumerate(row_data):
+                    row[i].text = str(val)
+
+        # Final check to ensure document has content
+        para_count = len(doc.paragraphs)
+        table_count = len(doc.tables)
+        print(f"Final document has {para_count} paragraphs and {table_count} tables")
+
+        if para_count <= 1 and table_count == 0:
+            print("WARNING: Document appears to be empty or nearly empty!")
+            # Add a warning paragraph to the document
+            doc.add_paragraph("ATTENZIONE: Il documento sembra essere vuoto. Verifica che il report contenga dati e che il template sia corretto.")
+
+        # Save the document
+        try:
+            print(f"Saving document to {output_path}")
+            doc.save(output_path)
+            print("Document saved successfully")
+        except Exception as e:
+            print(f"ERROR saving document: {str(e)}")
+            raise
+
+        # Add current date if not already set
+        if "{{DATA}}" in str(doc.paragraphs):
+            for para in doc.paragraphs:
+                if "{{DATA}}" in para.text:
+                    current_date = datetime.now().strftime("%d/%m/%Y")
+                    para.text = para.text.replace("{{DATA}}", current_date)
 
         doc.save(output_path)
 
@@ -3329,8 +5239,9 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         if not self.pottery_data:
             return []
 
-        headers = ['ID', 'Forma', 'Impasto', 'Tipo', 'Conservazione %', 'Note']
+        headers = ['ID','ID Number', 'Forma', 'Impasto', 'Tipo', 'Conservazione %', 'Note']
         rows = [[
+            pottery.get('id_rep', ''),
             pottery.get('id_number', ''),
             pottery.get('form', ''),
             pottery.get('fabric', ''),
@@ -3346,8 +5257,9 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         if not self.materials_data:
             return []
 
-        headers = ['Inv. Number', 'Tipo', 'Definizione', 'Descrizione', 'Datazione', 'Conservazione']
+        headers = ['ID','Inv. Number', 'Tipo', 'Definizione', 'Descrizione', 'Datazione', 'Conservazione']
         rows = [[
+            material.get('inv_mat', ''),
             material.get('numero_inventario', ''),
             material.get('tipo_reperto', ''),
             material.get('definizione', ''),
@@ -3363,21 +5275,81 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         if not table_data:
             return
 
+        print(f"Adding table to document: {title} with {len(table_data)} rows")
         doc.add_heading(title, level=2)
+
+        # Create table
         table = doc.add_table(rows=1, cols=len(table_data[0]))
-        table.style = 'Table Grid'
+
+        # Find the best table style
+        table_styles = [s.name for s in doc.styles if hasattr(s, 'name') and 'table' in s.name.lower()]
+        print(f"Available table styles: {', '.join(table_styles)}")
+
+        # Try to find the best table style
+        if 'Table Grid' in table_styles:
+            table_style_name = 'Table Grid'
+        elif 'Grid Table' in table_styles:
+            table_style_name = 'Grid Table'
+        elif any('grid' in s.lower() for s in table_styles):
+            # Find the first style with 'grid' in the name
+            table_style_name = next(s for s in table_styles if 'grid' in s.lower())
+        elif 'Normal Table' in table_styles:
+            table_style_name = 'Normal Table'
+        elif len(table_styles) > 0:
+            # Use the first available table style
+            table_style_name = table_styles[0]
+        else:
+            table_style_name = 'Table'  # Fallback to most basic table style
+
+        print(f"Using table style: {table_style_name}")
+
+        try:
+            table.style = table_style_name
+        except Exception as e:
+            print(f"Error setting table style: {str(e)}")
+            # Try a different approach if setting style fails
+            try:
+                # Apply a basic grid to the table
+                for cell in table._tbl.findall(".//w:tc", {"w": "http://schemas.openxmlformats.org/wordprocessingml/2006/main"}):
+                    tcPr = cell.find(".//w:tcPr", {"w": "http://schemas.openxmlformats.org/wordprocessingml/2006/main"})
+                    if tcPr is None:
+                        tcPr = parse_xml(r'<w:tcPr {0}/>'.format(nsdecls('w')))
+                        cell.append(tcPr)
+
+                    # Add borders to the cell
+                    tcBorders = tcPr.find(".//w:tcBorders", {"w": "http://schemas.openxmlformats.org/wordprocessingml/2006/main"})
+                    if tcBorders is None:
+                        tcBorders = parse_xml(r'<w:tcBorders {0}/>'.format(nsdecls('w')))
+                        tcPr.append(tcBorders)
+
+                    # Define borders for all sides
+                    for side in ['top', 'left', 'bottom', 'right']:
+                        border = tcBorders.find(".//{0}:{1}".format('w', side))
+                        if border is None:
+                            border = parse_xml(r'<w:{0} {1} w:val="single" w:sz="4" w:space="0" w:color="auto"/>'.format(side, nsdecls('w')))
+                            tcBorders.append(border)
+            except Exception as border_error:
+                print(f"Error applying borders: {str(border_error)}")
 
         # Headers
         for i, header in enumerate(table_data[0]):
             cell = table.rows[0].cells[i]
             cell.text = header
-            cell.paragraphs[0].runs[0].bold = True
+            # Make header bold and centered
+            for paragraph in cell.paragraphs:
+                for run in paragraph.runs:
+                    run.bold = True
+                paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
 
         # Data rows
         for row_data in table_data[1:]:
             row = table.add_row()
             for i, val in enumerate(row_data):
-                row.cells[i].text = str(val)
+                if i < len(row.cells):  # Ensure we don't exceed column count
+                    row.cells[i].text = str(val)
+
+        # Add a paragraph after the table for spacing
+        doc.add_paragraph()
 
     def sketchgpt(self):
         items = self.iconListWidget.selectedItems()
@@ -8560,12 +10532,12 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                        SELECT
                        GROUP_CONCAT(CASE WHEN col LIKE '[''Copre'',%' OR col LIKE '[''Taglia'',%'
                        OR col LIKE '[''Riempie'',%' OR col LIKE '[''Si appoggia a'',%'  THEN col END) post,
-    
+
                        GROUP_CONCAT(CASE WHEN col LIKE '[''Coperto da'',%' OR col LIKE '[''Riempito da'',%'
                        OR col LIKE '[''Tagliato da'',%' OR col LIKE '[''Gli si appoggia'',%' THEN col END) ante,
-    
+
                        GROUP_CONCAT(CASE WHEN col LIKE '[''Si lega a'',%' or col LIKE '[''Uguale a'',%' THEN col END) contemp
-    
+
                         FROM cte GROUP BY rowid order by rowid""")
 
                 else:
@@ -9236,7 +11208,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.listWidget_rapp.clear()
         sito_check = str(self.comboBox_sito.currentText())
         area_check = str(self.comboBox_area.currentText())
-        models = ["gpt-4o", "gpt-4o-mini"]
+        models = ["gpt-4.1", "gpt-4o-mini"]
         try:
             self.rapporti_stratigrafici_check(sito_check)
             if self.checkBox_validate.isChecked():
@@ -14688,7 +16660,7 @@ class IntegerDelegate(QtWidgets.QStyledItemDelegate):
         Code Analysis
         Main functionalities
         The main functionality of the IntegerDelegate class is to provide a custom editor for integer values in a Qt model/view framework. It creates a QLineEdit widget as the editor and sets a QIntValidator to ensure that only valid integer values can be entered.
-    
+
         Methods
         createEditor(parent, option, index): This method is called when a cell in the view needs to be edited. It creates and returns a QLineEdit widget as the editor for the cell. It also sets a QIntValidator to ensure that only valid integer values can be entered.
 
