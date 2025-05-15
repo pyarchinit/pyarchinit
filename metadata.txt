@@ -3,7 +3,7 @@ name=pyArchInit
 qgisMinimumVersion=3.22
 description=pyarchinit a tool for archaeological works
 
-version=4.9.2
+version=4.9.3
 
 author=Luca Mandolesi&Enzo Cocca
 email=pyarchinit@gmail.com
@@ -15,7 +15,9 @@ tracker=https://github.com/pyarchinit/pyarchinit/issues
 repository=https://github.com/pyarchinit/pyarchinit
 
 
-changelog=4.9.2 Refactor stratigraphic report generation by cleaning unused globals, restructuring the relationship dictionary, improving error handling, and clarifying logic for empty area detection.
+changelog=4.9.3 Add support for additional archaeological data and validations. Enhanced report generation to include tomb, periodization, and structure data with corresponding validations. Improved handling of images, markdown tables, and large datasets using chunking for efficient processing. Various updates include clean AI output, refined logging, and expanded formatted table outputs.
+  4.9.3 Refactor `pyarchinit_db_manager.py` and `pyarchinit_pyqgis.py` to improve code readability and maintainability. Updated the `query_in_contains` method to support chunking, ensuring compatibility with SQLite depth limitations. These changes enhance the code's clarity,
+  4.9.2 Refactor stratigraphic report generation by cleaning unused globals, restructuring the relationship dictionary, improving error handling, and clarifying logic for empty area detection.
   4.9.1 Fix update dating, add text2sql local
   4.9.0 and revise changelog. Bumped the version to 4.9.0 in metadata. Updated the changelog to reflect significant improvements, including table definition refactor, enhanced query handling for SQLite, and overall code maintainability enhancements.
   4.8.9 Refactor table definitions and query handling. Reorganized and clarified table structure definitions with detailed comments for better readability and maintainability. Improved the `query_in_contains` method to support chunking, ensuring compatibility with SQLite depth limitations. These changes enhance the code's clarity, functionality, and maintainability across modules.
