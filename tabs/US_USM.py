@@ -635,8 +635,6 @@ class ReportDialog(QDialog):
     def save_report(self):
         """Save the report content to a file"""
 
-
-
         file_path, _ = QFileDialog.getSaveFileName(
             self,
             "Save Report",
@@ -707,155 +705,12 @@ class ReportDialog(QDialog):
 
                 # Ottieni il contenuto HTML dal QTextEdit
                 html_content = self.text_edit.toHtml()
-                text_content = self.text_edit.toPlainText()
 
-                # Pulisci il testo da caratteri speciali
-                text_content = text_content.replace('￼', '').replace('-\n', '')
-                lines = [line.strip() for line in text_content.split('\n') if line.strip()]
+                # Parse HTML content
+                soup = BeautifulSoup(html_content, 'html.parser')
 
-                i = 0
-                while i < len(lines):
-                    line = lines[i]
-
-                    if i + 1 < len(lines) and (all(c == '=' for c in lines[i + 1])):
-                        heading = doc.add_heading(line.strip(), level=1)
-                        heading.alignment = WD_ALIGN_PARAGRAPH.LEFT
-                        heading.style = 'Heading 1'
-                        i += 1
-                        continue
-
-                    # Gestisci i titoli principali (Heading 1)
-                    if line.isupper() and len(line.split()) > 1:
-                        heading = doc.add_heading(line.strip(), level=1)
-                        heading.alignment = WD_ALIGN_PARAGRAPH.LEFT
-                        heading.style = 'Heading 1'
-                        i += 1
-                        continue
-                    # Gestisci i titoli di sottosezione (es. 1. ELENCO STRUTTURATO DELLE US:)
-                    if re.match(r'^\d+\.\s+.*', line):
-                        heading = doc.add_heading(line.strip(), level=2)
-                        heading.alignment = WD_ALIGN_PARAGRAPH.LEFT
-                        heading.style = 'Heading 2'
-                        i += 1
-                        continue
-
-                    # Gestisci gli elenchi puntati
-                    if line.startswith('- '):  # Elenco principale
-                        doc.add_paragraph(line[2:].strip(), style='List Bullet')
-                        i += 1
-                        continue
-                    # if line.startswith('* '):  # Elenco principale
-                    if line.startswith('* '):  # Elenco principale
-                        # Se dopo l'asterisco c'è un'immagine, rimuovi l'asterisco
-
-                        # Se dopo l'asterisco c'è solo spazio vuoto, salta la riga
-                        if not line[2:].strip():
-                            if "Immagine" in line[2:]:
-                                line[2:]  # Rimuovi l'asterisco e lo spazio
-                                i += 1
-                                continue
-                            else:
-                                i += 1
-                                continue
-                        # Altrimenti aggiungi il paragrafo con il bullet
-                        doc.add_paragraph(line[2:].strip(), style='List Bullet')
-                        i += 1
-                        continue
-
-                    def pixels_to_emu(pixels):
-                        return pixels * 9525
-
-                    # Gestisci le immagini
-                    if "Immagine" in line:
-                        img_name = line.replace('Immagine', '').strip()
-
-                        # Dictionary to track which images have been used
-                        if not hasattr(self, 'used_images_in_report'):
-                            self.used_images_in_report = {}
-
-                        # Cerca l'immagine nell'HTML
-                        soup = BeautifulSoup(html_content, 'html.parser')
-                        for img in soup.find_all('img'):
-                            src = img.get('src')
-                            if src and img_name in src:
-                                if src.startswith('file:///'):
-                                    src = src[8:]
-                                # Modifica il percorso src per usare l'immagine originale invece della thumbnail
-                                if '_thumb' in src:
-                                    # Extract the original image path from the thumbnail path
-                                    original_path = src.replace('_thumb.png', '.png')
-                                    # Extract the directory path without the "thumbnails" folder
-                                    if '/thumbnails/' in original_path:
-                                        original_path = original_path.replace('/thumbnails/', '/')
-                                    # Use the original image if it exists
-                                    if os.path.exists(original_path):
-                                        src = original_path
-                            try:
-                                if os.path.exists(src):
-                                    # Check if this image has already been used
-                                    if src in self.used_images_in_report:
-                                        self.log_to_terminal(f"Skipping duplicate image: {src}")
-                                        break
-
-                                    # Mark this image as used
-                                    self.used_images_in_report[src] = True
-
-                                    self.log_to_terminal(f"{src}")
-
-                                    # Aggiungi immagine al documento
-                                    picture = doc.add_picture(src)
-
-                                    # Ridimensiona con proporzioni
-                                    max_width_px = 400  # Larghezza massima in pixel
-                                    width = picture.width
-                                    height = picture.height
-                                    aspect_ratio = width / height
-
-                                    if width > pixels_to_emu(max_width_px):
-                                        picture.width = pixels_to_emu(max_width_px)
-                                        picture.height = pixels_to_emu(max_width_px) / aspect_ratio
-
-                                    # Centra l'immagine
-                                    last_paragraph = doc.paragraphs[-1]
-                                    last_paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
-
-                                    # Aggiungi la didascalia numerata
-                                    caption = doc.add_paragraph()
-                                    caption.alignment = WD_ALIGN_PARAGRAPH.CENTER
-                                    caption_run = caption.add_run(f"Figura {figure_counter}: {img_name}")
-                                    caption_run.italic = True
-                                    caption_run.font.size = Pt(8)
-
-                                    # Incrementa il contatore delle figure
-                                    figure_counter += 1
-
-                                    # Aggiungi spazio dopo l'immagine
-                                    doc.add_paragraph()
-                                    break
-                            except Exception as e:
-                                self.log_to_terminal(f"Errore con l'immagine {src}: {str(e)}", "error")
-                                print(f"Dettaglio errore: {str(e)}")  # per debug
-                        i += 1
-                        continue
-
-                    # Gestisci il testo normale
-                    if line:
-                        # Rimuovi i marker markdown
-                        line = re.sub(r'\*\*(.*?)\*\*', r'\1', line)
-
-                        # # Gestisci gli elenchi puntati
-                        # if line.strip().startswith('*'):
-                        #     p = doc.add_paragraph(line[1:].strip(), style='List Bullet')
-                        # elif line.strip().startswith('-'):
-                        #     p = doc.add_paragraph(line[1:].strip(), style='List Bullet')
-                        # else:
-                        p = doc.add_paragraph(line)
-
-                        # Imposta la spaziatura del paragrafo
-                        paragraph_format = p.paragraph_format
-                        paragraph_format.space_after = Pt(10)
-
-                    i += 1
+                # Process the HTML content
+                self.process_html_content(soup, doc, figure_counter)
 
                 try:
                     doc.save(file_path)
@@ -872,6 +727,198 @@ class ReportDialog(QDialog):
         except Exception as e:
             QMessageBox.critical(self, "Error", f"Error saving report: {str(e)}")
             print(f"Detailed error: {str(e)}")  # Per debug
+
+    def process_html_content(self, soup, doc, figure_counter):
+        """Process HTML content and convert it to Word document format"""
+
+        # Dictionary to track which images have been used
+        if not hasattr(self, 'used_images_in_report'):
+            self.used_images_in_report = {}
+
+        # Find all content divs
+        content_divs = soup.find_all('div', style=lambda s: s and 'font-family: Arial' in s)
+
+        if not content_divs:
+            # Fallback to processing the entire body
+            content_divs = [soup.body]
+
+        for content_div in content_divs:
+            self.process_html_element(content_div, doc, figure_counter)
+
+    def process_html_element(self, element, doc, figure_counter):
+        """Process an HTML element and its children recursively"""
+
+        # Skip script and style elements
+        if element.name in ['script', 'style']:
+            return
+
+        # Process element based on its type
+        if element.name == 'h2':
+            # Main section heading
+            heading_text = element.get_text().strip()
+            heading = doc.add_heading(heading_text, level=1)
+            heading.alignment = WD_ALIGN_PARAGRAPH.LEFT
+            heading.style = 'Heading 1'
+
+        elif element.name == 'h3':
+            # Subsection heading
+            heading_text = element.get_text().strip()
+            heading = doc.add_heading(heading_text, level=2)
+            heading.alignment = WD_ALIGN_PARAGRAPH.LEFT
+            heading.style = 'Heading 2'
+
+        elif element.name == 'table':
+            # Process table
+            self.convert_html_table_to_docx(element, doc)
+
+        elif element.name == 'img':
+            # Process image
+            self.process_image(element, doc, figure_counter)
+            figure_counter += 1
+
+        elif element.name == 'div' and element.find('img'):
+            # Process image container div
+            img = element.find('img')
+            self.process_image(img, doc, figure_counter)
+
+            # Process caption if present
+            caption_div = element.find('div', style=lambda s: s and 'font-style: italic' in s)
+            if caption_div:
+                caption_text = caption_div.get_text().strip()
+                caption = doc.add_paragraph()
+                caption.alignment = WD_ALIGN_PARAGRAPH.CENTER
+                caption_run = caption.add_run(f"Figura {figure_counter}: {caption_text.replace('Immagine ', '')}")
+                caption_run.italic = True
+                caption_run.font.size = Pt(9)
+                caption_run.font.name = 'Calibri'
+
+                # Add space after image
+                doc.add_paragraph()
+
+            figure_counter += 1
+
+        elif element.name in ['p', 'div'] and element.get_text().strip():
+            # Process paragraph text
+            text = element.get_text().strip()
+
+            # Skip if this is just a separator line (======)
+            if all(c == '=' for c in text):
+                return
+
+            # Check if this is a bullet point
+            if text.startswith('- ') or text.startswith('* '):
+                doc.add_paragraph(text[2:].strip(), style='List Bullet')
+            else:
+                # Regular paragraph
+                p = doc.add_paragraph(text)
+                paragraph_format = p.paragraph_format
+                paragraph_format.space_after = Pt(10)
+
+        # Process children recursively
+        for child in element.children:
+            if hasattr(child, 'name'):  # Only process tag elements
+                self.process_html_element(child, doc, figure_counter)
+
+    def convert_html_table_to_docx(self, table_element, doc):
+        """Convert an HTML table to a Word table"""
+
+        # Get all rows
+        rows = table_element.find_all('tr')
+        if not rows:
+            return
+
+        # Count columns (use the row with the most cells)
+        max_cols = max(len(row.find_all(['th', 'td'])) for row in rows)
+
+        # Create Word table
+        word_table = doc.add_table(rows=len(rows), cols=max_cols)
+
+        # Try to set table style
+        try:
+            word_table.style = 'Table Grid'
+        except Exception:
+            # Apply borders manually if style fails
+            try:
+                for cell in word_table._tbl.findall(".//w:tc", {"w": "http://schemas.openxmlformats.org/wordprocessingml/2006/main"}):
+                    tcPr = cell.find(".//w:tcPr", {"w": "http://schemas.openxmlformats.org/wordprocessingml/2006/main"})
+                    if tcPr is None:
+                        tcPr = parse_xml(r'<w:tcPr {0}/>'.format(nsdecls('w')))
+                        cell.append(tcPr)
+
+                    # Add borders to the cell
+                    tcBorders = tcPr.find(".//w:tcBorders", {"w": "http://schemas.openxmlformats.org/wordprocessingml/2006/main"})
+                    if tcBorders is None:
+                        tcBorders = parse_xml(r'<w:tcBorders {0}/>'.format(nsdecls('w')))
+                        tcPr.append(tcBorders)
+
+                    # Define borders for all sides
+                    for side in ['top', 'left', 'bottom', 'right']:
+                        border = tcBorders.find(".//{0}:{1}".format('w', side))
+                        if border is None:
+                            border = parse_xml(r'<w:{0} {1} w:val="single" w:sz="4" w:space="0" w:color="auto"/>'.format(side, nsdecls('w')))
+                            tcBorders.append(border)
+            except Exception as border_error:
+                print(f"Error applying borders: {str(border_error)}")
+
+        # Fill table with data
+        for i, row in enumerate(rows):
+            cells = row.find_all(['th', 'td'])
+            for j, cell in enumerate(cells):
+                if j < max_cols:  # Ensure we don't exceed column count
+                    cell_text = cell.get_text().strip()
+                    word_table.cell(i, j).text = cell_text
+
+                    # Make header cells bold
+                    if cell.name == 'th' or i == 0:
+                        for paragraph in word_table.cell(i, j).paragraphs:
+                            for run in paragraph.runs:
+                                run.bold = True
+                            paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
+
+        # Add a paragraph after the table for spacing
+        doc.add_paragraph()
+
+    def process_image(self, img_element, doc, figure_counter):
+        """Process an image element and add it to the document"""
+
+        src = img_element.get('src', '')
+        if not src:
+            return
+
+        if src.startswith('file:///'):
+            src = src[8:]
+
+        # Modify the path to use the original image instead of the thumbnail
+        if '_thumb' in src:
+            original_path = src.replace('_thumb.png', '.png')
+            if '/thumbnails/' in original_path:
+                original_path = original_path.replace('/thumbnails/', '/')
+            if os.path.exists(original_path):
+                self.log_to_terminal(f"Replacing thumbnail with original: {original_path}", "info")
+                src = original_path
+
+        try:
+            if os.path.exists(src):
+                # Add image to document
+                picture = doc.add_picture(src)
+
+                # Resize proportionally
+                max_width_px = 450
+                width = picture.width
+                height = picture.height
+                aspect_ratio = width / height
+
+                if width > max_width_px * 9525:  # Convert to EMU
+                    picture.width = max_width_px * 9525
+                    picture.height = int((max_width_px * 9525) / aspect_ratio)
+
+                # Center the image
+                last_paragraph = doc.paragraphs[-1]
+                last_paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
+
+        except Exception as e:
+            self.log_to_terminal(f"Errore con l'immagine {src}: {str(e)}", "error")
+            print(f"Dettaglio errore: {str(e)}")  # per debug
 
 
 
@@ -1285,7 +1332,7 @@ class GenerateReportThread(QThread):
                     cells = [cell.strip() for cell in header_row.strip('|').split('|')]
                     html_table.append('<tr>')
                     for cell in cells:
-                        html_table.append(f'<th style="border: 1px solid #ddd; padding: 8px; text-align: left; background-color: #f2f2f2;">{cell}</th>')
+                        html_table.append(f'<th style="border: 1px solid #000; padding: 8px; text-align: left; background-color: #f2f2f2; font-weight: bold;">{cell}</th>')
                     html_table.append('</tr>')
 
                 # Process data rows
@@ -1300,7 +1347,7 @@ class GenerateReportThread(QThread):
                     cells = [cell.strip() for cell in line.strip('|').split('|')]
                     html_table.append('<tr>')
                     for cell in cells:
-                        html_table.append(f'<td style="border: 1px solid #ddd; padding: 8px;">{cell}</td>')
+                        html_table.append(f'<td style="border: 1px solid #000; padding: 8px; vertical-align: top;">{cell}</td>')
                     html_table.append('</tr>')
 
                 html_table.append('</table>')
