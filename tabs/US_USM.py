@@ -26,6 +26,7 @@ from datetime import datetime
 
 import math
 import platform
+import re
 import sqlite3 as sq
 import sys
 import time
@@ -805,19 +806,101 @@ class ReportDialog(QDialog):
             if all(c == '=' for c in text):
                 return
 
-            # Check if this is a bullet point
-            if text.startswith('- ') or text.startswith('* '):
+            # Process markdown bold formatting
+            # Check if text contains markdown bold formatting
+            if '**' in text:
+                # Split the text by ** markers
+                parts = re.split(r'(\*\*.*?\*\*)', text)
+
+                # Create a new paragraph
+                p = doc.add_paragraph()
+
+                # Process each part
+                for part in parts:
+                    if part.startswith('**') and part.endswith('**'):
+                        # This is a bold part, add it with bold formatting
+                        bold_text = part[2:-2]  # Remove ** markers
+                        run = p.add_run(bold_text)
+                        run.bold = True
+                    else:
+                        # This is a regular part, add it without bold formatting
+                        run = p.add_run(part)
+                        run.bold = False
+
+                # Set paragraph formatting
+                paragraph_format = p.paragraph_format
+                paragraph_format.space_after = Pt(10)
+
+                # Return early since we've already added the paragraph
+                return
+
+            # Check if this is a bullet point with an image reference
+            if (text.startswith('- ') or text.startswith('* ')) and '[IMMAGINE' in text:
+                # Extract the image reference
+                img_match = re.search(r'\[IMMAGINE[^:]*:\s+(.*?),\s*(.*?)\]', text)
+                if img_match:
+                    # Process the image
+                    img_path = img_match.group(1).strip()
+                    caption = img_match.group(2).strip()
+
+                    try:
+                        if os.path.exists(img_path):
+                            # Add image to document
+                            picture = doc.add_picture(img_path)
+
+                            # Resize proportionally
+                            max_width_px = 450
+                            width = picture.width
+                            height = picture.height
+                            aspect_ratio = width / height
+
+                            if width > max_width_px * 9525:  # Convert to EMU
+                                picture.width = max_width_px * 9525
+                                picture.height = int((max_width_px * 9525) / aspect_ratio)
+
+                            # Center the image
+                            last_paragraph = doc.paragraphs[-1]
+                            last_paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
+
+                            # Add caption
+                            caption_para = doc.add_paragraph()
+                            caption_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
+                            caption_run = caption_para.add_run(f"Figura {figure_counter}: {caption}")
+                            caption_run.italic = True
+                            caption_run.font.size = Pt(9)
+                            caption_run.font.name = 'Calibri'
+
+                            # Add space after image
+                            doc.add_paragraph()
+
+                            figure_counter += 1
+                        else:
+                            # If image doesn't exist, add a placeholder
+                            doc.add_paragraph(f"[Immagine non disponibile: {caption}]")
+                    except Exception as e:
+                        # If there's an error, add a placeholder
+                        doc.add_paragraph(f"[Errore con l'immagine: {str(e)}]")
+                else:
+                    # If no image reference is found, process as a normal bullet point
+                    doc.add_paragraph(text[2:].strip(), style='List Bullet')
+            # Check if this is a regular bullet point
+            elif text.startswith('- ') or text.startswith('* '):
                 doc.add_paragraph(text[2:].strip(), style='List Bullet')
             else:
                 # Regular paragraph
-                p = doc.add_paragraph(text)
+                p = doc.add_paragraph()
+                # Ensure text is not bold by default
+                run = p.add_run(text)
+                run.bold = False  # Explicitly set bold to False
                 paragraph_format = p.paragraph_format
                 paragraph_format.space_after = Pt(10)
 
         # Process children recursively
-        for child in element.children:
-            if hasattr(child, 'name'):  # Only process tag elements
-                self.process_html_element(child, doc, figure_counter)
+        # Check if element has children attribute before iterating
+        if hasattr(element, 'children'):
+            for child in element.children:
+                if hasattr(child, 'name'):  # Only process tag elements
+                    self.process_html_element(child, doc, figure_counter)
 
     def convert_html_table_to_docx(self, table_element, doc):
         """Convert an HTML table to a Word table"""
@@ -866,14 +949,18 @@ class ReportDialog(QDialog):
             for j, cell in enumerate(cells):
                 if j < max_cols:  # Ensure we don't exceed column count
                     cell_text = cell.get_text().strip()
-                    word_table.cell(i, j).text = cell_text
+                    # Clear existing text in the cell to avoid duplication
+                    for paragraph in word_table.cell(i, j).paragraphs:
+                        paragraph.clear()
+
+                    # Add text to the cell
+                    paragraph = word_table.cell(i, j).paragraphs[0]
+                    run = paragraph.add_run(cell_text)
 
                     # Make header cells bold
                     if cell.name == 'th' or i == 0:
-                        for paragraph in word_table.cell(i, j).paragraphs:
-                            for run in paragraph.runs:
-                                run.bold = True
-                            paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
+                        run.bold = True
+                        paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
 
         # Add a paragraph after the table for spacing
         doc.add_paragraph()
@@ -1245,8 +1332,6 @@ class GenerateReportThread(QThread):
 
     def format_for_widget(self, text):
         """Converte il formato immagine per la visualizzazione nel widget."""
-        import re
-
         # Dictionary to track which images have been used
         used_images = {}
 
@@ -1259,7 +1344,7 @@ class GenerateReportThread(QThread):
             print(f"Match trovato: {full_match}")
 
             # Estrai le informazioni con una regex più generica
-            pattern_parts = re.match(r'\[IMMAGINE\s+(?:US|FASE|RAPPORTI|MATERIALE|CERAMICA)\s+([^:]+):\s+(.*?),\s+(.*?)\]', full_match)
+            pattern_parts = re.match(r'\[IMMAGINE\s+([^:]+):\s+(.*?),\s+(.*?)\]', full_match)
             if pattern_parts:
                 number = pattern_parts.group(1)
                 path = pattern_parts.group(2)
@@ -1364,6 +1449,10 @@ class GenerateReportThread(QThread):
                     html_lines.append(
                         f'<h2 style="font-size: 16pt; font-weight: bold; margin: 20px 0 10px 0;">{line}</h2>')
                     i += 2
+                    # Ensure the next line is processed as a paragraph, not a heading
+                    if i < len(lines) and lines[i].strip():
+                        html_lines.append(f'<div style="margin: 5px 0; font-weight: normal;">{lines[i].strip()}</div>')
+                        i += 1
                     continue
 
                 # Gestisci i sottotitoli (## o ---)
@@ -1379,13 +1468,18 @@ class GenerateReportThread(QThread):
                         i += 2  # Skip the underline
                     else:
                         i += 1
+
+                    # Ensure the next line is processed as a paragraph, not a heading
+                    if i < len(lines) and lines[i].strip():
+                        html_lines.append(f'<div style="margin: 5px 0; font-weight: normal;">{lines[i].strip()}</div>')
+                        i += 1
                     continue
 
-                # Remove bold formatting from regular text (we only want titles to be bold)
-                line = re.sub(r'\*\*(.*?)\*\*', r'\1', line)
+                # Convert markdown bold formatting to HTML bold
+                line = re.sub(r'\*\*(.*?)\*\*', r'<span style="font-weight: bold;">\1</span>', line)
 
-                # Gestisci le immagini con un'unica regex
-                line = re.sub(r'\[IMMAGINE (?:US|FASE|RAPPORTI|MATERIALE|CERAMICA) \d+:.*?\]', replace_image, line)
+                # Gestisci le immagini con un'unica regex più inclusiva
+                line = re.sub(r'\[IMMAGINE[^:]*:.*?\]', replace_image, line)
 
                 # Gestisci le tabelle markdown
                 if line.startswith('|') and line.endswith('|'):
@@ -1405,7 +1499,8 @@ class GenerateReportThread(QThread):
                     continue
 
                 if line:
-                    html_lines.append(f'<div style="margin: 5px 0;">{line}</div>')
+                    # Explicitly set regular text to non-bold
+                    html_lines.append(f'<div style="margin: 5px 0; font-weight: normal;">{line}</div>')
                 i += 1
 
             return '\n'.join(html_lines)
@@ -1493,6 +1588,13 @@ class GenerateReportThread(QThread):
 
                 # Verifica se tutte le tabelle richieste sono state selezionate
                 missing_tables = [table for table in required_tables if table not in self.selected_tables]
+
+                # Special case for CATALOGO DEI MATERIALI: check if at least one of pottery_table or inventario_materiali_table is selected
+                if step['section'] == "CATALOGO DEI MATERIALI":
+                    if "pottery_table" in self.selected_tables or "inventario_materiali_table" in self.selected_tables:
+                        # At least one of the required tables is selected, so we can proceed
+                        missing_tables = [table for table in missing_tables if table != "pottery_table" and table != "inventario_materiali_table"]
+
                 if missing_tables and step['section'] != "CONCLUSIONI":
                     self.log_message.emit(
                         f"Warning: Missing required tables for {step['section']}: {', '.join(missing_tables)}",
@@ -5401,10 +5503,11 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         """
         # First remove any leading # characters
         text = re.sub(r'^[\s#]*', '', text)
+        text = re.sub(r'^[\s*]*', '', text)
         # Then remove any trailing -- or == characters
         text = re.sub(r'[\s\-=]*$', '', text)
         # Remove any remaining markdown formatting
-        text = text.replace('--##', '').replace('--#', '').replace('--', '')
+        text = text.replace('--##', '').replace('--#', '').replace('--', '').replace('-**', '')
         return text.strip()
 
         # Define alternative placeholder patterns to check
@@ -11271,7 +11374,6 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
                     for part in parts:
                         # Cerca un numero isolato (non parte di una parola)
-                        import re
                         matches = re.findall(r'\b(\d+)\b', part)
                         if matches:
                             # Prendi solo il primo numero trovato
