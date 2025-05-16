@@ -41,7 +41,7 @@ class ArchaeologicalAnalysis:
             "thought": "Sintetizzare i risultati della campagna di scavo",
             "action": "SintesiIntroduttiva",
             "section": "INTRODUZIONE",
-            "required_table": ["site_table", "us_table", "pottery_table", "inventario_materiali_table"],
+            "required_table": ["site_table", "us_table"],
             "validation_tool": ["validate_site_info"],  # Aggiunto il validatore appropriato
 
             "prompt": (
