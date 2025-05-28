@@ -27,8 +27,8 @@ class Inventario_materiali_table:
                                        Column('criterio_schedatura', Text),
                                        Column('definizione', Text),
                                        Column('descrizione', Text),
-                                       Column('area', Integer),
-                                       Column('us', Integer),
+                                       Column('area', Text),
+                                       Column('us', Text),
                                        Column('lavato', String(3)),
                                        Column('nr_cassa', Integer),
                                        Column('luogo_conservazione', Text),
@@ -53,6 +53,12 @@ class Inventario_materiali_table:
                                        Column('tipo_contenitore', String(200)),
                                        Column('struttura', String(200)),
                                        Column('years', Integer),
+                                       Column('schedatore', Text),# nuovo campo
+                                       Column('date_scheda', Text),# nuovo campo
+                                       Column('punto_rinv', Text),# nuovo campo
+                                       Column('negativo_photo', Text),# nuovo campo
+                                       Column('diapositiva', Text),# nuovo campo
+
                                        # explicit/composite unique constraint.  'name' is optional.
                                        
                                        #Index('idx_n_reperto', 'sito', 'n_reperto', unique=True),
@@ -64,43 +70,43 @@ class Inventario_materiali_table:
     metadata.create_all(engine)
 
 
-class Inventario_materiali_table_toimp:
-    # connection string postgres"
-    internal_connection = Connection()
-
-    # create engine and metadata
-
-    engine = create_engine(internal_connection.conn_str(), echo=False, convert_unicode=True)
-    metadata = MetaData(engine)
-
-    # define tables
-    inventario_materiali_table_toimp = Table('inventario_materiali_table_toimp', metadata,
-                                             Column('id_invmat', Integer, primary_key=True),
-                                             Column('sito', Text),
-                                             Column('numero_inventario', Integer),
-                                             Column('tipo_reperto', Text),
-                                             Column('criterio_schedatura', Text),
-                                             Column('definizione', Text),
-                                             Column('descrizione', Text),
-                                             Column('area', Integer),
-                                             Column('us', Integer),
-                                             Column('lavato', String(2)),
-                                             Column('nr_cassa', Integer),
-                                             Column('luogo_conservazione', Text),
-                                             Column('stato_conservazione', String(20)),
-                                             Column('datazione_reperto', String(30)),
-                                             Column('elementi_reperto', Text),
-                                             Column('misurazioni', Text),
-                                             Column('rif_biblio', Text),
-                                             Column('tecnologie', Text),
-                                             Column('forme_minime', Integer),
-                                             Column('forme_massime', Integer),
-                                             Column('totale_frammenti', Integer),
-                                             Column('corpo_ceramico', String(20)),
-                                             Column('rivestimento', String(20)),
-
-                                             # explicit/composite unique constraint.  'name' is optional.
-                                             UniqueConstraint('sito', 'numero_inventario', name='ID_invmat_unico_toimp')
-                                             )
-
-    metadata.create_all(engine)
+# class Inventario_materiali_table_toimp:
+#     # connection string postgres"
+#     internal_connection = Connection()
+#
+#     # create engine and metadata
+#
+#     engine = create_engine(internal_connection.conn_str(), echo=False, convert_unicode=True)
+#     metadata = MetaData(engine)
+#
+#     # define tables
+#     inventario_materiali_table_toimp = Table('inventario_materiali_table_toimp', metadata,
+#                                              Column('id_invmat', Integer, primary_key=True),
+#                                              Column('sito', Text),
+#                                              Column('numero_inventario', Integer),
+#                                              Column('tipo_reperto', Text),
+#                                              Column('criterio_schedatura', Text),
+#                                              Column('definizione', Text),
+#                                              Column('descrizione', Text),
+#                                              Column('area', Integer),
+#                                              Column('us', Integer),
+#                                              Column('lavato', String(2)),
+#                                              Column('nr_cassa', Integer),
+#                                              Column('luogo_conservazione', Text),
+#                                              Column('stato_conservazione', String(20)),
+#                                              Column('datazione_reperto', String(30)),
+#                                              Column('elementi_reperto', Text),
+#                                              Column('misurazioni', Text),
+#                                              Column('rif_biblio', Text),
+#                                              Column('tecnologie', Text),
+#                                              Column('forme_minime', Integer),
+#                                              Column('forme_massime', Integer),
+#                                              Column('totale_frammenti', Integer),
+#                                              Column('corpo_ceramico', String(20)),
+#                                              Column('rivestimento', String(20)),
+#
+#                                              # explicit/composite unique constraint.  'name' is optional.
+#                                              UniqueConstraint('sito', 'numero_inventario', name='ID_invmat_unico_toimp')
+#                                              )
+#
+#     metadata.create_all(engine)
