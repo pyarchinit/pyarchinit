@@ -403,8 +403,8 @@ CREATE TABLE public.inventario_materiali_table (
     criterio_schedatura text,
     definizione text,
     descrizione text,
-    area BIGINT,
-    us BIGINT,
+    area text,
+    us text,
     lavato character varying(3),
     nr_cassa BIGINT,
     luogo_conservazione text,
@@ -428,7 +428,12 @@ CREATE TABLE public.inventario_materiali_table (
 	n_reperto BIGINT,
 	tipo_contenitore character varying(200),
 	struttura character varying(200),
-	years BIGINT
+	years BIGINT,
+	schedatore text,
+	date_scheda text,
+	punto_rinv text,
+	negativo_photo text,
+	diapositiva text
 );
 
 
@@ -471,8 +476,8 @@ CREATE TABLE public.inventario_materiali_table_toimp (
     criterio_schedatura text,
     definizione text,
     descrizione text,
-    area BIGINT,
-    us BIGINT,
+    area text,
+    us text,
     lavato character varying(2),
     nr_cassa BIGINT,
     luogo_conservazione text,
@@ -481,7 +486,27 @@ CREATE TABLE public.inventario_materiali_table_toimp (
     elementi_reperto text,
     misurazioni text,
     rif_biblio text,
-    tecnologie text
+    tecnologie text,
+    forme_minime BIGINT DEFAULT 0,
+    forme_massime BIGINT DEFAULT 0,
+    totale_frammenti BIGINT DEFAULT 0,
+    corpo_ceramico character varying(200),
+    rivestimento character varying(200),
+    diametro_orlo numeric(7,3) DEFAULT 0,
+    peso numeric(9,3) DEFAULT 0,
+    tipo character varying(200),
+    eve_orlo numeric(7,3) DEFAULT 0,
+    repertato character varying(3),
+    diagnostico character varying(3),
+    n_reperto BIGINT,
+    tipo_contenitore character varying(200),
+    struttura character varying(200),
+    years BIGINT,
+    schedatore text,
+    date_scheda text,
+    punto_rinv text,
+    negativo_photo text,
+    diapositiva text
 );
 
 

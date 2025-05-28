@@ -597,7 +597,7 @@ CREATE OR REPLACE VIEW pyarchinit_site_view AS
 
 ALTER TABLE pyarchinit_site_view
   OWNER TO postgres;  
-  
+
 CREATE OR REPLACE VIEW pyarchinit_site_polygonal_view AS 
  SELECT 
     sito,
@@ -606,7 +606,7 @@ CREATE OR REPLACE VIEW pyarchinit_site_polygonal_view AS
     provincia,
     descrizione,
     definizione_sito,
-	
+
     the_geom,
     sito_id
    FROM site_table
@@ -614,8 +614,8 @@ CREATE OR REPLACE VIEW pyarchinit_site_polygonal_view AS
 
 ALTER TABLE pyarchinit_site_polygonal_view
   OWNER TO postgres;    
-  
-	
+
+
 CREATE OR REPLACE VIEW public.pyarchinit_doc_view_b AS SELECT 
 	gid , 
 	area_s ,
@@ -629,7 +629,7 @@ CREATE OR REPLACE VIEW public.pyarchinit_doc_view_b AS SELECT
 	data ,
 	tipo_doc , 
 	nome_doc ,
-	
+
 	gid AS gid_1,
 	id_us AS id_us, 
 	sito AS sito, 
@@ -730,15 +730,15 @@ CREATE OR REPLACE VIEW public.mediaentity_view AS
 ALTER TABLE public.mediaentity_view
   OWNER TO postgres;
 ALTER TABLE public.mediaentity_view ALTER COLUMN id_media_thumb SET DEFAULT nextval('mediaentity_view_id_media_thumb_seq'::regclass);
-	
+
 
 	CREATE OR REPLACE VIEW pyarchinit_reperti_view AS 
 	SELECT
-	gid
+	gid,
 	the_geom,
 	id_rep,
 	siti,
-	id_invmat ,
+	id_invmat,
     sito,
     numero_inventario,
     tipo_reperto,
@@ -747,7 +747,7 @@ ALTER TABLE public.mediaentity_view ALTER COLUMN id_media_thumb SET DEFAULT next
     descrizione,
     area,
     us,
-    lavato ,
+    lavato,
     nr_cassa,
     luogo_conservazione,
     stato_conservazione,
@@ -764,9 +764,18 @@ ALTER TABLE public.mediaentity_view ALTER COLUMN id_media_thumb SET DEFAULT next
     diametro_orlo,
     peso,
     tipo,
-    eve_orlo ,
-    repertato ,
-    diagnostico
+    eve_orlo,
+    repertato,
+    diagnostico,
+    n_reperto,
+    tipo_contenitore,
+    struttura,
+    years,
+    schedatore,
+    date_scheda,
+    punto_rinv,
+    negativo_photo,
+    diapositiva
 	FROM pyarchinit_reperti
      JOIN inventario_materiali_table ON siti::text = sito AND id_rep = numero_inventario;
 
@@ -775,7 +784,7 @@ ALTER TABLE pyarchinit_reperti_view
 
 
 CREATE OR REPLACE VIEW pyarchinit_sezioni_view AS 
-	
+
 SELECT 
 pyarchinit_sezioni.gid,
 pyarchinit_sezioni.sito as site,
