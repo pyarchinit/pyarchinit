@@ -766,7 +766,28 @@ class ReportDialog(QDialog):
             heading_text = element.get_text().strip()
             heading = doc.add_heading(heading_text, level=2)
             heading.alignment = WD_ALIGN_PARAGRAPH.LEFT
-            heading.style = 'Heading 2'
+            #heading.style = 'Heading 2'
+
+        elif element.name == 'h4':
+            # Sub-subsection heading
+            heading_text = element.get_text().strip()
+            heading = doc.add_heading(heading_text, level=3)
+            heading.alignment = WD_ALIGN_PARAGRAPH.LEFT
+            heading.style = 'Heading 3'
+
+        elif element.name == 'h5':
+            # Sub-sub-subsection heading
+            heading_text = element.get_text().strip()
+            heading = doc.add_heading(heading_text, level=4)
+            heading.alignment = WD_ALIGN_PARAGRAPH.LEFT
+            heading.style = 'Heading 4'
+
+        elif element.name == 'h6':
+            # Lowest level heading
+            heading_text = element.get_text().strip()
+            heading = doc.add_heading(heading_text, level=5)
+            heading.alignment = WD_ALIGN_PARAGRAPH.LEFT
+            heading.style = 'Heading 5'
 
         elif element.name == 'table':
             # Process table
@@ -806,26 +827,62 @@ class ReportDialog(QDialog):
             if all(c == '=' for c in text):
                 return
 
-            # Process markdown bold formatting
-            # Check if text contains markdown bold formatting
-            if '**' in text:
-                # Split the text by ** markers
-                parts = re.split(r'(\*\*.*?\*\*)', text)
+            # Process markdown formatting (bold and italic)
+            # Check if text contains markdown formatting
+            if '**' in text or '*' in text:
+                # First handle bold formatting
+                if '**' in text:
+                    # Split the text by ** markers
+                    parts = re.split(r'(\*\*.*?\*\*)', text)
+                else:
+                    parts = [text]  # No bold formatting, treat as a single part
 
                 # Create a new paragraph
                 p = doc.add_paragraph()
 
-                # Process each part
+                # Process each part for bold formatting
                 for part in parts:
                     if part.startswith('**') and part.endswith('**'):
                         # This is a bold part, add it with bold formatting
                         bold_text = part[2:-2]  # Remove ** markers
-                        run = p.add_run(bold_text)
-                        run.bold = True
+
+                        # Check for italic formatting within bold text
+                        if '*' in bold_text and not bold_text.startswith('*') and not bold_text.endswith('*'):
+                            # Split by italic markers
+                            italic_parts = re.split(r'(\*.*?\*)', bold_text)
+                            for italic_part in italic_parts:
+                                if italic_part.startswith('*') and italic_part.endswith('*'):
+                                    # This is an italic part within bold text
+                                    italic_text = italic_part[1:-1]  # Remove * markers
+                                    run = p.add_run(italic_text)
+                                    run.bold = True
+                                    run.italic = True
+                                else:
+                                    # Regular bold text
+                                    run = p.add_run(italic_part)
+                                    run.bold = True
+                        else:
+                            # Regular bold text without italic
+                            run = p.add_run(bold_text)
+                            run.bold = True
                     else:
-                        # This is a regular part, add it without bold formatting
-                        run = p.add_run(part)
-                        run.bold = False
+                        # This is a regular part, check for italic formatting
+                        if '*' in part:
+                            # Split by italic markers
+                            italic_parts = re.split(r'(\*.*?\*)', part)
+                            for italic_part in italic_parts:
+                                if italic_part.startswith('*') and italic_part.endswith('*'):
+                                    # This is an italic part
+                                    italic_text = italic_part[1:-1]  # Remove * markers
+                                    run = p.add_run(italic_text)
+                                    run.italic = True
+                                else:
+                                    # Regular text
+                                    run = p.add_run(italic_part)
+                        else:
+                            # Regular text without formatting
+                            run = p.add_run(part)
+                            run.bold = False
 
                 # Set paragraph formatting
                 paragraph_format = p.paragraph_format
@@ -1339,9 +1396,20 @@ class GenerateReportThread(QThread):
             """
             Gestisce la sostituzione delle immagini con il markup HTML appropriato.
             """
-            full_match = match.group(0)  # Il match completo
+            # Check if match is a string or a match object
+            if isinstance(match, str):
+                full_match = match
+            else:
+                full_match = match.group(0)  # Il match completo
+
             # Debug print
             print(f"Match trovato: {full_match}")
+
+            # Check if this is a list item with an image reference
+            is_list_item = full_match.startswith('- [IMMAGINE')
+            if is_list_item:
+                # Remove the list marker
+                full_match = full_match[2:].strip()
 
             # Estrai le informazioni con una regex più generica
             pattern_parts = re.match(r'\[IMMAGINE\s+([^:]+):\s+(.*?),\s+(.*?)\]', full_match)
@@ -1396,6 +1464,8 @@ class GenerateReportThread(QThread):
             lines = text.split('\n')
             html_lines = []
             i = 0
+            in_list = False
+            list_items = []
 
             # Function to convert markdown table to HTML table
             def process_markdown_table(table_lines):
@@ -1438,48 +1508,113 @@ class GenerateReportThread(QThread):
                 html_table.append('</table>')
                 return '\n'.join(html_table)
 
+            # Function to process list items and create HTML list
+            def process_list_items(items):
+                html_list = ['<ul style="margin: 10px 0; padding-left: 20px;">']
+                for item in items:
+                    # Remove the list marker and trim
+                    item_text = item.lstrip('- ').strip()
+                    # Apply formatting to the item text
+                    item_text = format_text(item_text)
+                    html_list.append(f'<li style="margin: 5px 0; font-weight: normal;">{item_text}</li>')
+                html_list.append('</ul>')
+                return '\n'.join(html_list)
+
+            # Function to apply text formatting (bold, italic)
+            def format_text(text):
+                # Convert markdown bold formatting to HTML bold
+                text = re.sub(r'\*\*(.*?)\*\*', r'<span style="font-weight: bold;">\1</span>', text)
+                # Convert markdown italic formatting to HTML italic
+                text = re.sub(r'\*(.*?)\*', r'<span style="font-style: italic;">\1</span>', text)
+                # Process image references
+                text = re.sub(r'\[IMMAGINE[^:]*:.*?\]', replace_image, text)
+                return text
+
+            # Check if a line is a section title
+            def is_section_title(line):
+                section_titles = ["INTRODUZIONE", "METODOLOGIA DI SCAVO",
+                                 "ANALISI STRATIGRAFICA E INTERPRETAZIONE",
+                                 "CATALOGO DEI MATERIALI", "DESCRIZIONE DEI MATERIALI", "CONCLUSIONI"]
+                return line in section_titles
+
+            # Check if a line is a standalone section title (not part of a paragraph)
+            def is_standalone_section_title(line, next_line):
+                return is_section_title(line) and next_line and all(c == '=' for c in next_line.strip())
+
+            # Track processed section titles to avoid duplicates
+            processed_section_titles = set()
+
             while i < len(lines):
                 line = lines[i].strip()
 
-                # Gestisci i titoli delle sezioni
-                if line in ["INTRODUZIONE", "METODOLOGIA DI SCAVO",
-                            "ANALISI STRATIGRAFICA E INTERPRETAZIONE",
-                            "DESCRIZIONE DEI MATERIALI", "CONCLUSIONI"] and \
-                        i + 1 < len(lines) and all(c == '=' for c in lines[i + 1].strip()):
-                    html_lines.append(
-                        f'<h2 style="font-size: 16pt; font-weight: bold; margin: 20px 0 10px 0;">{line}</h2>')
-                    i += 2
-                    # Ensure the next line is processed as a paragraph, not a heading
-                    if i < len(lines) and lines[i].strip():
-                        html_lines.append(f'<div style="margin: 5px 0; font-weight: normal;">{lines[i].strip()}</div>')
-                        i += 1
+                # Process any accumulated list items before handling other elements
+                if in_list and (not line.startswith('- ') or not line):
+                    html_lines.append(process_list_items(list_items))
+                    list_items = []
+                    in_list = False
+
+                # Skip empty lines
+                if not line:
+                    i += 1
                     continue
 
-                # Gestisci i sottotitoli (## o ---)
-                if line.startswith('##') or (i + 1 < len(lines) and all(c == '-' for c in lines[i + 1].strip())):
-                    heading_text = line
-                    if line.startswith('##'):
-                        heading_text = line.lstrip('#').strip()
+                # Gestisci i titoli delle sezioni (solo se sono seguiti da una linea di '=')
+                if i + 1 < len(lines) and is_standalone_section_title(line, lines[i + 1].strip()):
+                    # Check if this section title has already been processed
+                    if line not in processed_section_titles:
+                        html_lines.append(
+                            f'<h2 style="font-size: 16pt; font-weight: bold; margin: 20px 0 10px 0;">{line}</h2>')
+                        # Add to processed section titles
+                        processed_section_titles.add(line)
+                    i += 2  # Skip the title and the '===' line
+                    continue
 
-                    html_lines.append(
-                        f'<h3 style="font-size: 14pt; font-weight: bold; margin: 15px 0 10px 0;">{heading_text}</h3>')
+                # Gestisci i sottotitoli con diversi livelli (####, ###, ##)
+                if line.startswith('#'):
+                    heading_level = len(re.match(r'^#+', line).group(0))
+                    heading_text = line.lstrip('#').strip()
 
-                    if i + 1 < len(lines) and all(c == '-' for c in lines[i + 1].strip()):
-                        i += 2  # Skip the underline
+                    if heading_level == 2:  # ##
+                        html_lines.append(
+                            f'<h3 style="font-size: 14pt; font-weight: bold; margin: 15px 0 10px 0;">{heading_text}</h3>')
+                    elif heading_level == 3:  # ###
+                        html_lines.append(
+                            f'<h4 style="font-size: 13pt; font-weight: bold; margin: 12px 0 8px 0;">{heading_text}</h4>')
+                    elif heading_level == 4:  # ####
+                        html_lines.append(
+                            f'<h5 style="font-size: 12pt; font-weight: bold; margin: 10px 0 6px 0;">{heading_text}</h5>')
                     else:
-                        i += 1
+                        html_lines.append(
+                            f'<h6 style="font-size: 11pt; font-weight: bold; margin: 8px 0 4px 0;">{heading_text}</h6>')
 
-                    # Ensure the next line is processed as a paragraph, not a heading
-                    if i < len(lines) and lines[i].strip():
-                        html_lines.append(f'<div style="margin: 5px 0; font-weight: normal;">{lines[i].strip()}</div>')
-                        i += 1
+                    i += 1
                     continue
 
-                # Convert markdown bold formatting to HTML bold
-                line = re.sub(r'\*\*(.*?)\*\*', r'<span style="font-weight: bold;">\1</span>', line)
+                # Gestisci i sottotitoli con underline (---)
+                if i + 1 < len(lines) and all(c == '-' for c in lines[i + 1].strip()):
+                    html_lines.append(
+                        f'<h3 style="font-size: 14pt; font-weight: bold; margin: 15px 0 10px 0;">{line}</h3>')
+                    i += 2  # Skip the title and the '---' line
+                    continue
 
-                # Gestisci le immagini con un'unica regex più inclusiva
-                line = re.sub(r'\[IMMAGINE[^:]*:.*?\]', replace_image, line)
+                # Gestisci le liste
+                if line.startswith('- '):
+                    # Check if this is a list item with an image reference
+                    if '[IMMAGINE' in line and ']' in line:
+                        # Process the image reference directly
+                        processed_line = replace_image(line)
+                        if processed_line:  # If the image was processed successfully
+                            html_lines.append(processed_line)
+                        i += 1
+                        continue
+
+                    if not in_list:
+                        in_list = True
+                        list_items = []
+
+                    list_items.append(line)
+                    i += 1
+                    continue
 
                 # Gestisci le tabelle markdown
                 if line.startswith('|') and line.endswith('|'):
@@ -1498,10 +1633,26 @@ class GenerateReportThread(QThread):
                     i = j  # Skip processed table lines
                     continue
 
+                # Gestisci le immagini in formato [IMMAGINE ...]
+                if line.startswith('[IMMAGINE') and ']' in line:
+                    # Process the entire image reference
+                    processed_line = replace_image(line)
+                    if processed_line:  # If the image was processed successfully
+                        html_lines.append(processed_line)
+                    i += 1
+                    continue
+
+                # Gestisci le righe normali di testo
                 if line:
-                    # Explicitly set regular text to non-bold
-                    html_lines.append(f'<div style="margin: 5px 0; font-weight: normal;">{line}</div>')
+                    # Apply text formatting and ensure it's not bold by default
+                    formatted_line = format_text(line)
+                    html_lines.append(f'<div style="margin: 5px 0; font-weight: normal;">{formatted_line}</div>')
+
                 i += 1
+
+            # Process any remaining list items
+            if list_items:
+                html_lines.append(process_list_items(list_items))
 
             return '\n'.join(html_lines)
 
