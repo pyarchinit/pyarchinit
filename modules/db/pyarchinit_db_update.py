@@ -92,9 +92,21 @@ class DB_update(object):
         ####invetario_materiali_table
         table = Table("inventario_materiali_table", self.metadata, autoload=True)
         table_column_names_list = []
-        
+
         for i in table.columns:
             table_column_names_list.append(str(i.name))
+
+        # Change area and us columns from INTEGER to TEXT
+        try:
+            if table_column_names_list.__contains__('area'):
+                self.engine.execute(
+                    "ALTER TABLE inventario_materiali_table ALTER COLUMN area TYPE TEXT")
+
+            if table_column_names_list.__contains__('us'):
+                self.engine.execute(
+                    "ALTER TABLE inventario_materiali_table ALTER COLUMN us TYPE TEXT")
+        except:
+            pass
 
         if not table_column_names_list.__contains__('years'):
             self.engine.execute(
@@ -164,12 +176,81 @@ class DB_update(object):
             self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN tipo_contenitore varchar DEFAULT ''")
         if not table_column_names_list.__contains__('struttura'):
             self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN struttura text")
-         
-        
-        
-        
-        
-        
+
+        # Add new columns for inventario_materiali_table
+        if not table_column_names_list.__contains__('schedatore'):
+            self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN schedatore TEXT")
+
+        if not table_column_names_list.__contains__('date_scheda'):
+            self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN date_scheda TEXT")
+
+        if not table_column_names_list.__contains__('punto_rinv'):
+            self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN punto_rinv TEXT")
+
+        if not table_column_names_list.__contains__('negativo_photo'):
+            self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN negativo_photo TEXT")
+
+        if not table_column_names_list.__contains__('diapositiva'):
+            self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN diapositiva TEXT")
+
+        # Update the pyarchinit_reperti_view to include the new fields
+        try:
+            self.engine.execute("""
+            CREATE OR REPLACE VIEW pyarchinit_reperti_view AS 
+            SELECT
+            gid,
+            the_geom,
+            id_rep,
+            siti,
+            id_invmat,
+            sito,
+            numero_inventario,
+            tipo_reperto,
+            criterio_schedatura,
+            definizione,
+            descrizione,
+            area,
+            us,
+            lavato,
+            nr_cassa,
+            luogo_conservazione,
+            stato_conservazione,
+            datazione_reperto,
+            elementi_reperto,
+            misurazioni,
+            rif_biblio,
+            tecnologie,
+            forme_minime,
+            forme_massime,
+            totale_frammenti,
+            corpo_ceramico,
+            rivestimento,
+            diametro_orlo,
+            peso,
+            tipo,
+            eve_orlo,
+            repertato,
+            diagnostico,
+            n_reperto,
+            tipo_contenitore,
+            struttura,
+            years,
+            schedatore,
+            date_scheda,
+            punto_rinv,
+            negativo_photo,
+            diapositiva
+            FROM pyarchinit_reperti
+            JOIN inventario_materiali_table ON siti::text = sito AND id_rep = numero_inventario;
+            """)
+        except:
+            pass
+
+
+
+
+
+
         ####site_table
         table = Table("site_table", self.metadata, autoload=True)
         table_column_names_list = []
@@ -195,8 +276,8 @@ class DB_update(object):
 
         for i in table.columns:
             table_column_names_list.append(str(i.name))
-        
-        
+
+
         if not table_column_names_list.__contains__('cont_per'):
             self.engine.execute("ALTER TABLE us_table ADD COLUMN cont_per varchar DEFAULT")
 
@@ -404,14 +485,14 @@ class DB_update(object):
 
         if not table_column_names_list.__contains__('uso_primario_usm'):
             self.engine.execute("ALTER TABLE us_table ADD COLUMN uso_primario_usm text DEFAULT '' ")
-        
+
         if not table_column_names_list.__contains__('doc_usv'):
             self.engine.execute("ALTER TABLE us_table ADD COLUMN doc_usv text DEFAULT '' ")
-        
+
         #############nuovi##############################################################
         if not table_column_names_list.__contains__('tipologia_opera'):
             self.engine.execute("ALTER TABLE us_table ADD COLUMN tipologia_opera text DEFAULT '' ")
-        
+
         if not table_column_names_list.__contains__('sezione_muraria'):
             self.engine.execute("ALTER TABLE us_table ADD COLUMN sezione_muraria text DEFAULT '' ")
         if not table_column_names_list.__contains__('superficie_analizzata'):
@@ -430,8 +511,8 @@ class DB_update(object):
                 self.engine.execute("ALTER TABLE us_table ADD COLUMN colore_lat text DEFAULT '' ")
         if not table_column_names_list.__contains__('impasto_lat'):
                 self.engine.execute("ALTER TABLE us_table ADD COLUMN impasto_lat text DEFAULT '' ")
-        
-        
+
+
         if not table_column_names_list.__contains__('forma_p'):
                 self.engine.execute("ALTER TABLE us_table ADD COLUMN forma_p text DEFAULT '' ")
         if not table_column_names_list.__contains__('colore_p'):
@@ -452,7 +533,7 @@ class DB_update(object):
                 self.engine.execute("ALTER TABLE us_table ADD COLUMN consistenza_p text DEFAULT '' ")                    
         if not table_column_names_list.__contains__('rapporti2'):
             self.engine.execute("ALTER TABLE us_table ADD COLUMN rapporti2 text DEFAULT '' ")
-        
+
         # try:
             # self.engine.execute("ALTER TABLE us_table ADD CONSTRAINT ID_us_unico UNIQUE (unita_tipo);")
         # except:
@@ -478,7 +559,7 @@ class DB_update(object):
             self.engine.execute("ALTER TABLE periodizzazione_table ADD COLUMN cont_per BIGINT DEFAULT '' ")
         # if not table_column_names_list.__contains__('area'):
             # self.engine.execute("ALTER TABLE periodizzazione_table ADD COLUMN area BIGINT")
-        
+
         ####tomba_table
         table = Table("tomba_table", self.metadata, autoload=True)
         table_column_names_list = []
@@ -535,7 +616,7 @@ class DB_update(object):
 
         if not table_column_names_list.__contains__('posizione_arti_inferiori'):
             self.engine.execute("ALTER TABLE individui_table ADD COLUMN posizione_arti_inferiori varchar")
-        
+
         if not table_column_names_list.__contains__('orientamento_asse'):
             self.engine.execute("ALTER TABLE individui_table ADD COLUMN orientamento_asse text")
 
@@ -554,9 +635,9 @@ class DB_update(object):
                 self.engine.execute("ALTER TABLE individui_table ALTER COLUMN eta_max TYPE text")
         except:
             pass
-        
-        
-        
+
+
+
         ####periodizzazione_table
         table = Table("periodizzazione_table", self.metadata, autoload=True)
         table_column_names_list = []
@@ -575,7 +656,7 @@ class DB_update(object):
             table_column_names_list.append(str(i.name))
         # if table_column_names_list.__contains__('rilievo_orginale'):
             # self.engine.execute("ALTER TABLE pyunitastratigrafiche RENAME COLUMN rilievo_orginale TO rilievo_originale")   
-        
+
         if not table_column_names_list.__contains__('coord'):
             self.engine.execute("ALTER TABLE pyunitastratigrafiche ADD COLUMN coord text")
         if not table_column_names_list.__contains__('unita_tipo_s'):
@@ -587,50 +668,48 @@ class DB_update(object):
         table_column_names_list = []
         for i in table.columns:
             table_column_names_list.append(str(i.name))
-        
+
         if not table_column_names_list.__contains__('unita_tipo_s'):
             self.engine.execute("ALTER TABLE pyunitastratigrafiche_usm ADD COLUMN unita_tipo_s text")
-       
-        
+
+
         table = Table("pyarchinit_quote_usm", self.metadata, autoload=True)
         table_column_names_list = []
         for i in table.columns:
             table_column_names_list.append(str(i.name))
-        
+
         if not table_column_names_list.__contains__('unita_tipo_q'):
             self.engine.execute("ALTER TABLE pyarchinit_quote_usm ADD COLUMN unita_tipo_q text")
-       
-        
+
+
         table = Table("pyarchinit_quote", self.metadata, autoload=True)
         table_column_names_list = []
         for i in table.columns:
             table_column_names_list.append(str(i.name))
-        
+
         if not table_column_names_list.__contains__('unita_tipo_q'):
             self.engine.execute("ALTER TABLE pyarchinit_quote ADD COLUMN unita_tipo_q text")
-        
+
         table = Table("pyarchinit_strutture_ipotesi", self.metadata, autoload=True)
         table_column_names_list = []
         for i in table.columns:
             table_column_names_list.append(str(i.name))
-        
+
         if not table_column_names_list.__contains__('sigla_strut'):
-        
+
             self.engine.execute( "ALTER TABLE pyarchinit_strutture_ipotesi ADD COLUMN sigla_strut varchar(3) DEFAULT 'NoD'")
-        
+
         if not table_column_names_list.__contains__('nr_strut'):
             self.engine.execute("ALTER TABLE pyarchinit_strutture_ipotesi ADD COLUMN nr_strut BIGINT DEFAULT 0 ")
-        
-       
+
+
         table = Table("pyarchinit_sezioni", self.metadata, autoload=True)
         table_column_names_list = []
         for i in table.columns:
             table_column_names_list.append(str(i.name))
-                
+
         if not table_column_names_list.__contains__('tipo_doc'):
             self.engine.execute("ALTER TABLE pyarchinit_sezioni  ADD COLUMN tipo_doc text")   
-        
+
         if not table_column_names_list.__contains__('nome_doc'):
             self.engine.execute("ALTER TABLE pyarchinit_sezioni  ADD COLUMN nome_doc text")
-        
-      

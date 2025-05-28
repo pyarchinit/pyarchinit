@@ -28,7 +28,7 @@ from modules.db.entities.DETSESSO import DETSESSO
 from modules.db.entities.DOCUMENTAZIONE import DOCUMENTAZIONE
 from modules.db.entities.INVENTARIO_LAPIDEI import INVENTARIO_LAPIDEI
 from modules.db.entities.INVENTARIO_MATERIALI import INVENTARIO_MATERIALI
-from modules.db.entities.INVENTARIO_MATERIALI_TOIMP import INVENTARIO_MATERIALI_TOIMP
+#from modules.db.entities.INVENTARIO_MATERIALI_TOIMP import INVENTARIO_MATERIALI_TOIMP
 from modules.db.entities.MEDIA import MEDIA
 from modules.db.entities.MEDIATOENTITY import MEDIATOENTITY
 from modules.db.entities.MEDIA_THUMB import MEDIA_THUMB
@@ -67,7 +67,7 @@ from modules.db.structures.DETETA_table import DETETA_table
 from modules.db.structures.DETSESSO_table import DETSESSO_table
 from modules.db.structures.Documentazione_table import Documentazione_table
 from modules.db.structures.Inventario_Lapidei_table import Inventario_Lapidei_table
-from modules.db.structures.Inventario_materiali_table import Inventario_materiali_table, Inventario_materiali_table_toimp
+from modules.db.structures.Inventario_materiali_table import Inventario_materiali_table
 from modules.db.structures.Media_table import Media_table
 from modules.db.structures.Media_thumb_table import Media_thumb_table
 from modules.db.structures.Media_to_Entity_table import Media_to_Entity_table
@@ -123,7 +123,7 @@ try:
     mapper(INVENTARIO_MATERIALI, Inventario_materiali_table.inventario_materiali_table)
 
     # mapper
-    mapper(INVENTARIO_MATERIALI_TOIMP, Inventario_materiali_table_toimp.inventario_materiali_table_toimp)
+    #mapper(INVENTARIO_MATERIALI_TOIMP, Inventario_materiali_table_toimp.inventario_materiali_table_toimp)
 
     # mapper
     mapper(US, US_table.us_table)
