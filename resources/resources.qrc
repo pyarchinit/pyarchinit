@@ -90,5 +90,9 @@
 	<file>icons/tops.png</file>
 	<file>icons/H_check.png</file>
     <file>icons/gpt.png</file>
+    <file>icons/tma.png</file>
+    <file>icons/gpt.jpg</file>
+
+
   </qresource>
 </RCC>
