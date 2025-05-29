@@ -110,6 +110,7 @@ FORMS =   	gui/ui/Archeozoology.ui\
 			gui/ui/Print_map.ui\
 			gui/ui/Tops2pyarchinit.ui\
 			gui/ui/pyarchinit_Pottery_ui.ui\
+			gui/ui/Tma.ui\
 
 TRANSLATIONS = i18n/pyarchinit_plugin_it_IT.ts \
                i18n/pyarchinit_plugin_de_DE.ts \
