@@ -39,6 +39,7 @@ from .tabs.Image_viewer import Main
 from .tabs.Images_comparison import Comparision
 from .tabs.Images_directory_export import pyarchinit_Images_directory_export
 from .tabs.Inv_Materiali import pyarchinit_Inventario_reperti
+from .tabs.Tma import pyarchinit_Tma
 from .tabs.Pdf_export import pyarchinit_pdf_export
 from .tabs.Excel_export import pyarchinit_excel_export
 from .tabs.Periodizzazione import pyarchinit_Periodizzazione
@@ -92,7 +93,7 @@ class PyArchInitPlugin(object):
             self.translator = QTranslator()
             self.translator.load(self.localePath)
             QCoreApplication.installTranslator(self.translator)
-        
+
     def initGui(self):
         l=QgsSettings().value("locale/userLocale")[0:2] 
         if l == 'it':
@@ -101,7 +102,7 @@ class PyArchInitPlugin(object):
             self.action = QAction(QIcon(icon_paius), "pyArchInit Main Panel",
                                   self.iface.mainWindow())
             self.action.triggered.connect(self.showHideDockWidget)
-            
+
             # dock widget
             self.dockWidget = PyarchinitPluginDialog(self.iface)
             self.iface.addDockWidget(Qt.LeftDockWidgetArea, self.dockWidget)
@@ -132,18 +133,21 @@ class PyArchInitPlugin(object):
             self.actionCampioni = QAction(QIcon(icon_camp_exp), "Campioni", self.iface.mainWindow())
             self.actionCampioni.setWhatsThis("Campioni")
             self.actionCampioni.triggered.connect(self.runCampioni)
+            icon_tma = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'tma.png'))
+            self.actionTma = QAction(QIcon(icon_tma), "TMA", self.iface.mainWindow())
+            self.actionTma.setWhatsThis("TMA")
+            self.actionTma.triggered.connect(self.runTma)
             icon_Pottery = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'pottery.png'))
             self.actionPottery = QAction(QIcon(icon_Pottery), "Pottery", self.iface.mainWindow())
             self.actionPottery.setWhatsThis("Pottery")
             self.actionPottery.triggered.connect(self.runPottery)
-
 
         #icon_Lapidei = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'iconAlma.png'))
             # self.actionLapidei = QAction(QIcon(icon_Lapidei), "Lapidei", self.iface.mainWindow())
             # self.actionLapidei.setWhatsThis("Lapidei")
             # self.actionLapidei.triggered.connect(self.runLapidei)
             self.dataToolButton.addActions(
-                [self.actionSite, self.actionUS, self.actionInr, self.actionCampioni, self.actionPottery ])
+                [self.actionSite, self.actionUS, self.actionInr, self.actionCampioni, self.actionPottery, self.actionTma ])
             self.dataToolButton.setDefaultAction(self.actionSite)
             self.toolBar.addWidget(self.dataToolButton)
             self.toolBar.addSeparator()
@@ -317,6 +321,7 @@ class PyArchInitPlugin(object):
             self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionInr)
             self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionCampioni)
             self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionPottery)
+            self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionTma)
             #self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionLapidei)
             self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionStruttura)
             self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionPer)
@@ -345,7 +350,7 @@ class PyArchInitPlugin(object):
             # MENU
             self.menu = QMenu("pyArchInit")
             # self.pyarchinitSite = pyarchinit_Site(self.iface)
-            self.menu.addActions([self.actionSite, self.actionUS, self.actionInr, self.actionCampioni, self.actionPottery])
+            self.menu.addActions([self.actionSite, self.actionUS, self.actionInr, self.actionCampioni, self.actionPottery, self.actionTma])
             self.menu.addSeparator()
             self.menu.addActions([self.actionPer, self.actionStruttura])
             self.menu.addSeparator()
@@ -407,12 +412,17 @@ class PyArchInitPlugin(object):
             self.actionPottery.setWhatsThis("Pottery")
             self.actionPottery.triggered.connect(self.runPottery)
 
+            icon_Tma = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'tma.png'))
+            self.actionTma = QAction(QIcon(icon_Tma), "Tma", self.iface.mainWindow())
+            self.actionTma.setWhatsThis("Tma")
+            self.actionTma.triggered.connect(self.runTma)
+
             # icon_Lapidei = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'iconAlma.png'))
             # self.actionLapidei = QAction(QIcon(icon_Lapidei), "Stone", self.iface.mainWindow())
             # self.actionLapidei.setWhatsThis("Stone")
             # self.actionLapidei.triggered.connect(self.runLapidei)
             self.dataToolButton.addActions(
-                [self.actionSite, self.actionUS, self.actionInr, self.actionCampioni, self.actionPottery])
+                [self.actionSite, self.actionUS, self.actionInr, self.actionCampioni, self.actionPottery, self.actionTma])
             self.dataToolButton.setDefaultAction(self.actionSite)
             self.toolBar.addWidget(self.dataToolButton)
             self.toolBar.addSeparator()
@@ -535,8 +545,8 @@ class PyArchInitPlugin(object):
             self.manageToolButton.setDefaultAction(self.actionTops)
             self.toolBar.addWidget(self.manageToolButton)
             self.toolBar.addSeparator()
-            
-            
+
+
             self.manageToolButton = QToolButton(self.toolBar)
             #self.manageToolButton.setPopupMode(QToolButton.MenuButtonPopup)
             icon_print = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'print_map.png'))
@@ -588,6 +598,7 @@ class PyArchInitPlugin(object):
             self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionInr)
             self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionCampioni)
             self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionPottery)
+            self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionTma)
             #self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionLapidei)
             self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionStruttura)
             self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionPer)
@@ -606,7 +617,7 @@ class PyArchInitPlugin(object):
             if self.PARAMS_DICT['EXPERIMENTAL'] == 'Yes':
                 #self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionArcheozoology)
                 self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionComparision)
-                
+
             self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionTops)
             self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionPrint)
             self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionGpkg)
@@ -617,7 +628,7 @@ class PyArchInitPlugin(object):
             # MENU
             self.menu = QMenu("pyArchInit")
             # self.pyarchinitSite = pyarchinit_Site(self.iface)
-            self.menu.addActions([self.actionSite, self.actionUS, self.actionInr, self.actionCampioni, self.actionPottery])
+            self.menu.addActions([self.actionSite, self.actionUS, self.actionInr, self.actionCampioni, self.actionPottery, self.actionTma])
             self.menu.addSeparator()
             self.menu.addActions([self.actionPer, self.actionStruttura])
             self.menu.addSeparator()
@@ -633,7 +644,7 @@ class PyArchInitPlugin(object):
                 self.menu.addActions([self.actionComparision, self.actionGisTimeController])
             self.menu.addSeparator() 
             self.menu.addActions([self.actionTops])
-               
+
             self.menu.addSeparator()
             self.menu.addActions([self.actionPrint])
             self.menu.addSeparator()
@@ -679,12 +690,17 @@ class PyArchInitPlugin(object):
             self.actionPottery = QAction(QIcon(icon_Pottery), "Pottery", self.iface.mainWindow())
             self.actionPottery.setWhatsThis("Pottery")
             self.actionPottery.triggered.connect(self.runPottery)
+
+            icon_Tma = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'tma.png'))
+            self.actionTma = QAction(QIcon(icon_Tma), "Tma", self.iface.mainWindow())
+            self.actionTma.setWhatsThis("Tma")
+            self.actionTma.triggered.connect(self.runTma)
             # icon_Lapidei = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'iconAlma.png'))
             # self.actionLapidei = QAction(QIcon(icon_Lapidei), "Steinartefakt", self.iface.mainWindow())
             # self.actionLapidei.setWhatsThis("Steinartefakt")
             # self.actionLapidei.triggered.connect(self.runLapidei)
             self.dataToolButton.addActions(
-                [self.actionSite, self.actionUS, self.actionInr, self.actionCampioni, self.actionPottery])
+                [self.actionSite, self.actionUS, self.actionInr, self.actionCampioni, self.actionPottery, self.actionTma])
             self.dataToolButton.setDefaultAction(self.actionSite)
             self.toolBar.addWidget(self.dataToolButton)
             self.toolBar.addSeparator()
@@ -795,7 +811,7 @@ class PyArchInitPlugin(object):
                 self.elabToolButton.setDefaultAction(self.actionComparision)
                 self.toolBar.addWidget(self.elabToolButton)
                 self.toolBar.addSeparator()
-            
+
             self.manageToolButton = QToolButton(self.toolBar)
             self.manageToolButton.setPopupMode(QToolButton.MenuButtonPopup)
             icon_tops = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'tops.png'))
@@ -859,6 +875,7 @@ class PyArchInitPlugin(object):
             self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionInr)
             self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionCampioni)
             self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionPottery)
+            self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionTma)
             #self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionLapidei)
             self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionStruttura)
             self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionPer)
@@ -887,7 +904,7 @@ class PyArchInitPlugin(object):
             # MENU
             self.menu = QMenu("pyArchInit")
             # self.pyarchinitSite = pyarchinit_Site(self.iface)
-            self.menu.addActions([self.actionSite, self.actionUS, self.actionInr, self.actionCampioni])
+            self.menu.addActions([self.actionSite, self.actionUS, self.actionInr, self.actionCampioni, self.actionPottery, self.actionTma])
             self.menu.addSeparator()
             self.menu.addActions([self.actionPer, self.actionStruttura])
             self.menu.addSeparator()
@@ -932,6 +949,11 @@ class PyArchInitPlugin(object):
         self.pluginGui = pluginGui  # save
     def runInr(self):
         pluginGui = pyarchinit_Inventario_reperti(self.iface)
+        pluginGui.show()
+        self.pluginGui = pluginGui  # save
+    def runTma(self):
+        from .tabs.Tma import pyarchinit_Tma
+        pluginGui = pyarchinit_Tma(self.iface)
         pluginGui.show()
         self.pluginGui = pluginGui  # save
     def runCampioni(self):
@@ -1027,6 +1049,11 @@ class PyArchInitPlugin(object):
         pluginExcel = pyarchinit_excel_export(self.iface)
         pluginExcel.show()
         self.pluginGui = pluginExcel  # save
+
+    def runTma(self):
+        pluginTma = pyarchinit_Tma(self.iface)
+        pluginTma.show()
+        self.pluginGui = pluginTma  # save
     def unload(self):
         # Remove the plugin
         l=QgsSettings().value("locale/userLocale")[0:2] 
@@ -1036,6 +1063,7 @@ class PyArchInitPlugin(object):
             self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionStruttura)
             self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionUS)
             self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionInr)
+            self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionTma)
             self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionCampioni)
             self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionPottery)
             #self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionLapidei)
@@ -1048,7 +1076,7 @@ class PyArchInitPlugin(object):
                 self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionDeteta)
                 self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionTomba)
                 #self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionArcheozoology)
-                
+
                 self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionimageViewer)
                 self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionImages_Directory_export)
                 self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionpdfExp)
@@ -1078,7 +1106,7 @@ class PyArchInitPlugin(object):
                 self.iface.removeToolBarIcon(self.actionDetsesso)
                 self.iface.removeToolBarIcon(self.actionDeteta)
                 #self.iface.removeToolBarIcon(self.actionArcheozoology)
-                
+
                 # self.iface.removeToolBarIcon(self.actionUpd)
                 self.iface.removeToolBarIcon(self.actionimageViewer)
                 self.iface.removeToolBarIcon(self.actionImages_Directory_export)
@@ -1109,6 +1137,7 @@ class PyArchInitPlugin(object):
             self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionStruttura)
             self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionUS)
             self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionInr)
+            self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionTma)
             self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionCampioni)
             self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionPottery)
             #self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionLapidei)
@@ -1174,6 +1203,7 @@ class PyArchInitPlugin(object):
             self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionStruttura)
             self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionUS)
             self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionInr)
+            self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionTma)
             self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionCampioni)
             self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionPottery)
             #self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionLapidei)
