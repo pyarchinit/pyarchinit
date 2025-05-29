@@ -60,5 +60,7 @@
 	<file>icons/snorkel.png</file>
 	<file>icons/radar.png</file>
 	<file>icons/iconANC.png</file>
+    <file>icons/tma.png</file>
+
   </qresource>
 </RCC>
