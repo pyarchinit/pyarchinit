@@ -438,6 +438,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         #self.lineEdit_num_inv.setText('')
         #self.lineEdit_num_inv.textChanged.connect(self.update)
         self.lineEdit_num_inv.textChanged.connect(self.charge_struttura)
+        self.lineEdit_num_inv.textChanged.connect(self.charge_datazione)
         self.set_sito()
         self.msg_sito()
         #self.comboBox_repertato.currentTextChanged.connect(self.numero_reperto)
@@ -445,7 +446,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         self.toolButton_pdfpath.clicked.connect(self.setPathpdf)
         self.customize_gui()
         #self.loadMapPreview()
-        self.setWindowFlags(self.windowFlags() | Qt.WindowStaysOnTopHint)
+        #self.setWindowFlags(self.windowFlags() | Qt.WindowStaysOnTopHint)
 
     def get_images_for_entities(self, entity_ids, log_signal=None):
         def log(message, level="info"):
@@ -3847,17 +3848,17 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                                         "Campo Numero inventario\nIl valore deve essere di tipo numerico", QMessageBox.Ok)
                     test = 1
 
-            if area != "":
-                if EC.data_is_int(area) == 0:
-                    QMessageBox.warning(self, "ATTENZIONE", "Campo Area.\nIl valore deve essere di tipo numerico",
-                                        QMessageBox.Ok)
-                    test = 1
-
-            if us != "":
-                if EC.data_is_int(us) == 0:
-                    QMessageBox.warning(self, "ATTENZIONE", "Campo US.\nIl valore deve essere di tipo numerico",
-                                        QMessageBox.Ok)
-                    test = 1
+            # if area != "":
+            #     if EC.data_is_int(area) == 0:
+            #         QMessageBox.warning(self, "ATTENZIONE", "Campo Area.\nIl valore deve essere di tipo numerico",
+            #                             QMessageBox.Ok)
+            #         test = 1
+            #
+            # if us != "":
+            #     if EC.data_is_int(us) == 0:
+            #         QMessageBox.warning(self, "ATTENZIONE", "Campo US.\nIl valore deve essere di tipo numerico",
+            #                             QMessageBox.Ok)
+            #         test = 1
 
             if nr_cassa != "":
                 if EC.data_is_int(nr_cassa) == 0:
@@ -3879,17 +3880,17 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                                         QMessageBox.Ok)
                     test = 1
 
-            if area != "":
-                if EC.data_is_int(area) == 0:
-                    QMessageBox.warning(self, "ACHTUNG", "Feld Areal \n Der Wert muss numerisch eingegeben werden",
-                                        QMessageBox.Ok)
-                    test = 1
-
-            if us != "":
-                if EC.data_is_int(us) == 0:
-                    QMessageBox.warning(self, "ACHTUNG", "Feld SE. \n Der Wert muss numerisch eingegeben werden",
-                                        QMessageBox.Ok)
-                    test = 1
+            # if area != "":
+            #     if EC.data_is_int(area) == 0:
+            #         QMessageBox.warning(self, "ACHTUNG", "Feld Areal \n Der Wert muss numerisch eingegeben werden",
+            #                             QMessageBox.Ok)
+            #         test = 1
+            #
+            # if us != "":
+            #     if EC.data_is_int(us) == 0:
+            #         QMessageBox.warning(self, "ACHTUNG", "Feld SE. \n Der Wert muss numerisch eingegeben werden",
+            #                             QMessageBox.Ok)
+            #         test = 1
 
             if nr_cassa != "":
                 if EC.data_is_int(nr_cassa) == 0:
@@ -3911,17 +3912,17 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                                         QMessageBox.Ok)
                     test = 1
 
-            if area != "":
-                if EC.data_is_int(area) == 0:
-                    QMessageBox.warning(self, "WARNING", "Nr. Inv. Field \n The value must be numerical",
-                                        QMessageBox.Ok)
-                    test = 1
-
-            if us != "":
-                if EC.data_is_int(us) == 0:
-                    QMessageBox.warning(self, "WARNING", "SU Field \n The value must be numerical",
-                                        QMessageBox.Ok)
-                    test = 1
+            # if area != "":
+            #     if EC.data_is_int(area) == 0:
+            #         QMessageBox.warning(self, "WARNING", "Nr. Inv. Field \n The value must be numerical",
+            #                             QMessageBox.Ok)
+            #         test = 1
+            #
+            # if us != "":
+            #     if EC.data_is_int(us) == 0:
+            #         QMessageBox.warning(self, "WARNING", "SU Field \n The value must be numerical",
+            #                             QMessageBox.Ok)
+            #         test = 1
 
             if nr_cassa != "":
                 if EC.data_is_int(nr_cassa) == 0:
@@ -3953,14 +3954,14 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                 inv = int(self.lineEdit_num_inv.text())
 
             if self.comboBox_area.currentText() == "":
-                area =None
+                area =''
             else:
                 area = self.comboBox_area.currentText()
 
             if self.lineEdit_us.text() == "":
-                us =None
+                us =''
             else:
-                us = int(self.lineEdit_us.text())
+                us = str(self.lineEdit_us.text())
 
             if self.lineEdit_nr_cassa.text() == "":
                 nr_cassa =None
@@ -4796,6 +4797,55 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
 
         except Exception as e:
             QMessageBox.warning(self, "Error", str(e), QMessageBox.Ok)
+    def charge_datazione(self):
+        try:
+            sito = str(self.comboBox_sito.currentText())
+            area = str(self.comboBox_area.currentText())
+            us = str(self.lineEdit_us.text())
+
+            # Check if DATA_LIST exists and REC_CORR is valid
+            if not self.DATA_LIST or self.REC_CORR >= len(self.DATA_LIST):
+                return
+
+            # Get area and us directly without using eval
+            if hasattr(self.DATA_LIST[int(self.REC_CORR)], 'area'):
+                area_val = str(self.DATA_LIST[int(self.REC_CORR)].area)
+            else:
+                area_val = ""
+
+            if hasattr(self.DATA_LIST[int(self.REC_CORR)], 'us'):
+                us_val = str(self.DATA_LIST[int(self.REC_CORR)].us)
+            else:
+                us_val = ""
+
+            search_dict = {
+                'sito': "'" + sito + "'",
+                'area': "'" + area_val + "'",
+                'us': "'" + us_val + "'"
+            }
+
+            struttura_vl = self.DB_MANAGER.query_bool(search_dict, 'US')
+            struttura_list = []
+            for i in range(len(struttura_vl)):
+                struttura_list.append(str(struttura_vl[i].datazione))
+            try:
+                struttura_vl.remove('')
+            except:
+                pass
+            self.comboBox_datazione.clear()
+            self.comboBox_datazione.addItems(self.UTILITY.remove_dup_from_list(struttura_list))
+            if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Finden" or "Find":
+                self.comboBox_datazione.setEditText("")
+            elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Aktuell " or "Current":
+                if len(self.DATA_LIST) > 0:
+                    try:
+                        self.comboBox_datazione.setEditText(self.DATA_LIST[self.rec_num].datazione_reperto)
+                    except:
+                        pass  # non vi sono periodi per questo scavo
+
+        except Exception as e:
+            QMessageBox.warning(self, "Error", str(e), QMessageBox.Ok)
+
     def rec_toupdate(self):
         rec_to_update = self.UTILITY.pos_none_in_list(self.DATA_LIST_REC_TEMP)
         # rec_to_update = rec_to_update[:2]
