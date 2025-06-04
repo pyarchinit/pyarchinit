@@ -4871,35 +4871,77 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
 
         return lista
 
-    def tableInsertData(self, t, d):
-        """Set the value into alls Grid"""
-        self.table_name = t
-        self.data_list = eval(d)
-        self.data_list.sort()
+    # def tableInsertData(self, t, d):
+    #     """Set the value into alls Grid"""
+    #     self.table_name = t
+    #     self.data_list = eval(d)
+    #     self.data_list.sort()
+    #
+    #     # column table count
+    #     table_col_count_cmd = ("%s.columnCount()") % (self.table_name)
+    #     table_col_count = eval(table_col_count_cmd)
+    #
+    #     # clear table
+    #     table_clear_cmd = ("%s.clearContents()") % (self.table_name)
+    #     eval(table_clear_cmd)
+    #
+    #     for i in range(table_col_count):
+    #         table_rem_row_cmd = ("%s.removeRow(%d)") % (self.table_name, i)
+    #         eval(table_rem_row_cmd)
+    #
+    #         # for i in range(len(self.data_list)):
+    #         # self.insert_new_row(self.table_name)
+    #
+    #     for row in range(len(self.data_list)):
+    #         cmd = ('%s.insertRow(%s)') % (self.table_name, row)
+    #         eval(cmd)
+    #         for col in range(len(self.data_list[row])):
+    #             # item = self.comboBox_sito.setEditText(self.data_list[0][col]
+    #             item = QTableWidgetItem(str(self.data_list[row][col]))
+    #             exec_str = ('%s.setItem(%d,%d,item)') % (self.table_name, row, col)
+    #             eval(exec_str)
 
-        # column table count
-        table_col_count_cmd = ("%s.columnCount()") % (self.table_name)
-        table_col_count = eval(table_col_count_cmd)
+    def tableInsertData(self, table_name, data):
+        """
+        Insert data into a table widget
+        :param table_name: name of the table widget
+        :param data: data to insert (list of lists or list of dictionaries)
+        """
+        table_widget = eval(table_name)
+        table_widget.setRowCount(0)
 
-        # clear table
-        table_clear_cmd = ("%s.clearContents()") % (self.table_name)
-        eval(table_clear_cmd)
+        # Check if data is a dictionary
+        if isinstance(data, dict):
+            # Convert dictionary to list of lists for insertion
+            data_list = []
+            for key, value in data.items():
+                data_list.append([key, value])
+            data = data_list
 
-        for i in range(table_col_count):
-            table_rem_row_cmd = ("%s.removeRow(%d)") % (self.table_name, i)
-            eval(table_rem_row_cmd)
+        # Check if data is a list
+        if isinstance(data, list):
+            # For lists of dictionaries, convert to list of lists
+            if data and isinstance(data[0], dict):
+                new_data = []
+                for item in data:
+                    row_data = []
+                    for key, value in item.items():
+                        row_data.append(value)
+                    new_data.append(row_data)
+                data = new_data
 
-            # for i in range(len(self.data_list)):
-            # self.insert_new_row(self.table_name)
+            # Insert data into table
+            for row_data in data:
+                row_position = table_widget.rowCount()
+                table_widget.insertRow(row_position)
 
-        for row in range(len(self.data_list)):
-            cmd = ('%s.insertRow(%s)') % (self.table_name, row)
-            eval(cmd)
-            for col in range(len(self.data_list[row])):
-                # item = self.comboBox_sito.setEditText(self.data_list[0][col]
-                item = QTableWidgetItem(str(self.data_list[row][col]))
-                exec_str = ('%s.setItem(%d,%d,item)') % (self.table_name, row, col)
-                eval(exec_str)
+                for col, cell_data in enumerate(row_data):
+                    if cell_data is not None:
+                        cell_item = QTableWidgetItem(str(cell_data))
+                        table_widget.setItem(row_position, col, cell_item)
+
+        # Add an empty row at the end for new entries
+        self.insert_new_row(table_name)
 
     def insert_new_row(self, table_name):
         """insert new row into a table based on table_name"""
@@ -5065,108 +5107,124 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         self.comboBox_tipo_contenitore.setEditText("")
         self.comboBox_struttura.setEditText("")  # 9 - diagnostico
         self.comboBox_year.setEditText("")  # 9 - diagnostico
+
+
+
+
     def fill_fields(self, n=0):
         self.rec_num = n
-        # QMessageBox.warning(self, "check fill fields", str(self.rec_num),  QMessageBox.Ok)
         try:
-
-
-            if str(self.DATA_LIST[self.rec_num].numero_inventario) =='None':
-                num_inv=''
+            # Handle numero_inventario
+            if self.DATA_LIST[self.rec_num].numero_inventario is None:
+                num_inv = ''
             else:
-                num_inv=str(self.DATA_LIST[self.rec_num].numero_inventario)
+                num_inv = str(self.DATA_LIST[self.rec_num].numero_inventario)
 
-            if str(self.DATA_LIST[self.rec_num].area) =='None':
-                area=''
+            # Handle area - convert to string
+            if self.DATA_LIST[self.rec_num].area is None:
+                area = ''
             else:
-                area=str(self.DATA_LIST[self.rec_num].area)
+                area = str(self.DATA_LIST[self.rec_num].area)
 
-            if str(self.DATA_LIST[self.rec_num].us) == 'None':
+            # Handle us - convert to string
+            if self.DATA_LIST[self.rec_num].us is None:
                 us = ''
             else:
                 us = str(self.DATA_LIST[self.rec_num].us)
 
-
-            if str(self.DATA_LIST[self.rec_num].nr_cassa) == 'None':
+            # Handle nr_cassa
+            if self.DATA_LIST[self.rec_num].nr_cassa is None:
                 nr_cassa = ''
             else:
                 nr_cassa = str(self.DATA_LIST[self.rec_num].nr_cassa)
 
-
-            if str(self.DATA_LIST[self.rec_num].forme_minime) == 'None':
+            # Handle forme_minime
+            if self.DATA_LIST[self.rec_num].forme_minime is None:
                 forme_minime = ''
             else:
                 forme_minime = str(self.DATA_LIST[self.rec_num].forme_minime)
 
-            if str(self.DATA_LIST[self.rec_num].forme_massime) == 'None':
+            # Handle forme_massime
+            if self.DATA_LIST[self.rec_num].forme_massime is None:
                 forme_massime = ''
             else:
                 forme_massime = str(self.DATA_LIST[self.rec_num].forme_massime)
 
-            if str(self.DATA_LIST[self.rec_num].totale_frammenti) == 'None':
+            # Handle totale_frammenti
+            if self.DATA_LIST[self.rec_num].totale_frammenti is None:
                 totale_frammenti = ''
             else:
                 totale_frammenti = str(self.DATA_LIST[self.rec_num].totale_frammenti)
 
-
-            if str(self.DATA_LIST[self.rec_num].totale_frammenti) == 'None':
-                totale_frammenti = ''
-            else:
-                totale_frammenti = str(self.DATA_LIST[self.rec_num].totale_frammenti)
-
-            if str(self.DATA_LIST[self.rec_num].n_reperto) == 'None':
+            # Handle n_reperto
+            if self.DATA_LIST[self.rec_num].n_reperto is None:
                 n_reperto = ''
             else:
                 n_reperto = str(self.DATA_LIST[self.rec_num].n_reperto)
 
-
-
-
-
-
-            str(self.comboBox_sito.setEditText(self.DATA_LIST[self.rec_num].sito))  # 1 - Sito
-            str(self.lineEdit_num_inv.setText(num_inv))  # 2 - num_inv
-
-
-            str(self.comboBox_tipo_reperto.setEditText(self.DATA_LIST[self.rec_num].tipo_reperto))  # 3 - Tipo reperto
-            str(self.comboBox_criterio_schedatura.setEditText(
-                self.DATA_LIST[self.rec_num].criterio_schedatura))  # 4 - Criterio schedatura
-            str(self.comboBox_definizione.setEditText(self.DATA_LIST[self.rec_num].definizione))  # 5 - definizione
-            str(self.textEdit_descrizione_reperto.setText(self.DATA_LIST[self.rec_num].descrizione))  # 6 - descrizione
-
-            str(self.comboBox_area.setEditText(area))
-
-            str(self.lineEdit_us.setText(us))
-
-
-
+            # Set values without using str() on the widget methods
+            self.comboBox_sito.setEditText(str(self.DATA_LIST[self.rec_num].sito))
+            self.lineEdit_num_inv.setText(num_inv)
+            self.comboBox_tipo_reperto.setEditText(str(self.DATA_LIST[self.rec_num].tipo_reperto))
+            self.comboBox_criterio_schedatura.setEditText(str(self.DATA_LIST[self.rec_num].criterio_schedatura))
+            self.comboBox_definizione.setEditText(str(self.DATA_LIST[self.rec_num].definizione))
+            self.textEdit_descrizione_reperto.setText(str(self.DATA_LIST[self.rec_num].descrizione))
+            self.comboBox_area.setEditText(area)
+            self.lineEdit_us.setText(us)
             self.comboBox_lavato.setEditText(str(self.DATA_LIST[self.rec_num].lavato))
+            self.lineEdit_nr_cassa.setText(nr_cassa)
+            self.comboBox_magazzino.setEditText(str(self.DATA_LIST[self.rec_num].luogo_conservazione))
+            self.comboBox_conservazione.setEditText(str(self.DATA_LIST[self.rec_num].stato_conservazione))
+            self.comboBox_datazione.setEditText(str(self.DATA_LIST[self.rec_num].datazione_reperto))
 
-            str(self.lineEdit_nr_cassa.setText(nr_cassa))
+            # Handle table data
+            if self.DATA_LIST[self.rec_num].elementi_reperto:
+                self.tableInsertData("self.tableWidget_elementi_reperto", self.DATA_LIST[self.rec_num].elementi_reperto)
 
+            if self.DATA_LIST[self.rec_num].misurazioni:
+                self.tableInsertData("self.tableWidget_misurazioni", self.DATA_LIST[self.rec_num].misurazioni)
 
-            str(self.comboBox_magazzino.setEditText(
-                self.DATA_LIST[self.rec_num].luogo_conservazione))  # 11 - luogo_conservazione
+            if self.DATA_LIST[self.rec_num].rif_biblio:
+                self.tableInsertData("self.tableWidget_rif_biblio", self.DATA_LIST[self.rec_num].rif_biblio)
 
-            self.comboBox_conservazione.setEditText(
-                str(self.DATA_LIST[self.rec_num].stato_conservazione))  # 12 - stato conservazione
+            if self.DATA_LIST[self.rec_num].tecnologie:
+                self.tableInsertData("self.tableWidget_tecnologie", self.DATA_LIST[self.rec_num].tecnologie)
 
-            str(self.comboBox_datazione.setEditText(
-                self.DATA_LIST[self.rec_num].datazione_reperto))  # 13 - datazione reperto
+            # Continue with the rest of the fields...
+            self.lineEditFormeMin.setText(forme_minime)
+            self.lineEditFormeMax.setText(forme_massime)
+            self.lineEditTotFram.setText(totale_frammenti)
+            self.lineEditRivestimento.setText(str(self.DATA_LIST[self.rec_num].rivestimento))
+            self.lineEditCorpoCeramico.setText(str(self.DATA_LIST[self.rec_num].corpo_ceramico))
 
-            self.tableInsertData("self.tableWidget_elementi_reperto",
-                                 self.DATA_LIST[self.rec_num].elementi_reperto)  # 14 - elementi_reperto
+            # Handle diametro_orlo
+            if self.DATA_LIST[self.rec_num].diametro_orlo is None:
+                self.lineEdit_diametro_orlo.setText("")
+            else:
+                self.lineEdit_diametro_orlo.setText(str(self.DATA_LIST[self.rec_num].diametro_orlo))
 
-            self.tableInsertData("self.tableWidget_misurazioni",
-                                 self.DATA_LIST[self.rec_num].misurazioni)  # 15 - campioni
+            # Handle peso
+            if self.DATA_LIST[self.rec_num].peso is None:
+                self.lineEdit_peso.setText("")
+            else:
+                self.lineEdit_peso.setText(str(self.DATA_LIST[self.rec_num].peso))
 
-            self.tableInsertData("self.tableWidget_rif_biblio",
-                                 self.DATA_LIST[self.rec_num].rif_biblio)  # 16 - rif biblio
+            self.comboBox_tipo_reperto.setEditText(str(self.DATA_LIST[self.rec_num].tipo))
 
-            self.tableInsertData("self.tableWidget_tecnologie",
-                                 self.DATA_LIST[self.rec_num].tecnologie)  # 17 - rapporti
+            # Handle eve_orlo
+            if self.DATA_LIST[self.rec_num].eve_orlo is None:
+                self.lineEdit_eve_orlo.setText("")
+            else:
+                self.lineEdit_eve_orlo.setText(str(self.DATA_LIST[self.rec_num].eve_orlo))
 
-            # New fields
+            self.comboBox_repertato.setEditText(str(self.DATA_LIST[self.rec_num].repertato))
+            self.comboBox_diagnostico.setEditText(str(self.DATA_LIST[self.rec_num].diagnostico))
+            self.lineEdit_n_reperto.setText(n_reperto)
+            self.comboBox_tipo_contenitore.setEditText(str(self.DATA_LIST[self.rec_num].tipo_contenitore))
+            self.comboBox_struttura.setEditText(str(self.DATA_LIST[self.rec_num].struttura))
+            self.comboBox_year.setEditText(str(self.DATA_LIST[self.rec_num].years))
+
+            # Handle new fields
             if hasattr(self.DATA_LIST[self.rec_num], 'schedatore') and self.DATA_LIST[self.rec_num].schedatore is not None:
                 self.comboBox_compilatore.setEditText(str(self.DATA_LIST[self.rec_num].schedatore))
 
@@ -5189,54 +5247,13 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                 self.tableWidget_diapositive.setRowCount(0)
                 self.insert_new_row("self.tableWidget_diapositive")
 
-            str(self.lineEditFormeMin.setText(forme_minime))
-
-
-            str(self.lineEditFormeMax.setText(forme_massime))
-
-
-            str(self.lineEditTotFram.setText(totale_frammenti))
-
-
-            self.lineEditRivestimento.setText(str(self.DATA_LIST[self.rec_num].rivestimento))
-
-            self.lineEditCorpoCeramico.setText(str(self.DATA_LIST[self.rec_num].corpo_ceramico))
-
-            if self.DATA_LIST[self.rec_num].diametro_orlo == None:  # 10 - nr_cassa
-                self.lineEdit_diametro_orlo.setText("")
-            else:
-                self.lineEdit_diametro_orlo.setText(str(self.DATA_LIST[self.rec_num].diametro_orlo))
-
-            if self.DATA_LIST[self.rec_num].peso == None:  # 10 - nr_cassa
-                self.lineEdit_peso.setText("")
-            else:
-                self.lineEdit_peso.setText(str(self.DATA_LIST[self.rec_num].peso))
-
-            self.comboBox_tipo_reperto.setEditText(str(self.DATA_LIST[self.rec_num].tipo))
-
-            if self.DATA_LIST[self.rec_num].eve_orlo == None:  # 10 - nr_cassa
-                self.lineEdit_eve_orlo.setText("")
-            else:
-                self.lineEdit_eve_orlo.setText(str(self.DATA_LIST[self.rec_num].eve_orlo))
-
-
-            self.comboBox_repertato.setEditText(str(self.DATA_LIST[self.rec_num].repertato))
-
-
-            self.comboBox_diagnostico.setEditText(str(self.DATA_LIST[self.rec_num].diagnostico))
-
-            str(self.lineEdit_n_reperto.setText(n_reperto))
-
-            self.comboBox_tipo_contenitore.setEditText(str(self.DATA_LIST[self.rec_num].tipo_contenitore))
-            self.comboBox_struttura.setEditText(
-                str(self.DATA_LIST[self.rec_num].struttura))
-            self.comboBox_year.setEditText(
-                str(self.DATA_LIST[self.rec_num].years))
             if self.toolButtonPreviewMedia.isChecked():
                 self.loadMediaPreview()
-            #self.loadMapPreview()
+
         except Exception as e:
             QMessageBox.warning(self, "Error Fill Fields", str(e), QMessageBox.Ok)
+
+
 
     def set_rec_counter(self, t, c):
         self.rec_tot = t
@@ -5266,15 +5283,15 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         else:
             inv = int(self.lineEdit_num_inv.text())
 
-        if self.comboBox_area.currentText() == "":
-            area =None
-        else:
-            area = self.comboBox_area.currentText()
-
-        if self.lineEdit_us.text() == "":
-            us =None
-        else:
-            us = int(self.lineEdit_us.text())
+        # if self.comboBox_area.currentText() == "":
+        #     area =None
+        # else:
+        #     area = self.comboBox_area.currentText()
+        #
+        # if self.lineEdit_us.text() == "":
+        #     us =None
+        # else:
+        #     us = int(self.lineEdit_us.text())
 
         if self.lineEdit_nr_cassa.text() == "":
             nr_cassa =None
@@ -5317,10 +5334,6 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         else:
             n_reperto = int(self.lineEdit_n_reperto.text())
 
-        # Get values for new fields
-        schedatore = str(self.comboBox_compilatore.currentText())
-        date_scheda = self.mDateTimeEdit_date.dateTime().toString('yyyy-MM-dd')
-        punto_rinv = str(self.lineEdit_punto_rinv.text())
 
         # data
         self.DATA_LIST_REC_TEMP = [
@@ -5330,8 +5343,8 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             str(self.comboBox_criterio_schedatura.currentText()),  # 4 - criterio schedatura
             str(self.comboBox_definizione.currentText()),  # 5 - definizione
             str(self.textEdit_descrizione_reperto.toPlainText()),  # 6 - descrizione
-            str(area),
-            str(us),
+            str(self.comboBox_area.currentText()),
+            str(self.lineEdit_us.text()),
 
             str(self.comboBox_lavato.currentText()),  # 9 - lavato
             str(nr_cassa),
@@ -5357,9 +5370,11 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             str(self.comboBox_tipo_contenitore.currentText()),  # 30 - tipo_contenitore
             str(self.comboBox_struttura.currentText()),  # 31 - struttura
             str(self.comboBox_year.currentText()),  # 32 - years
-            schedatore,  # 33 - schedatore
-            date_scheda,  # 34 - date_scheda
-            punto_rinv,  # 35 - punto_rinv
+            # Get values for new fields
+            str(self.comboBox_compilatore.currentText()),
+            self.mDateTimeEdit_date.dateTime().toString('yyyy-MM-dd'),
+            str(self.lineEdit_punto_rinv.text()),
+
             str(negative),  # 36 - negativo_photo
             str(diapositive),  # 37 - diapositiva
         ]
