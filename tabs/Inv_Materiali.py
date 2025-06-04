@@ -78,13 +78,13 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
     REC_CORR = 0
     REC_TOT = 0
     SITO = pyArchInitDialog_Config
-    
+
     if L=='it':
         STATUS_ITEMS = {"b": "Usa", "f": "Trova", "n": "Nuovo Record"}
-    
+
     if L=='de':
         STATUS_ITEMS = {"b": "Aktuell ", "f": "Finden", "n": "Neuer Rekord"}
-    
+
     else :
         STATUS_ITEMS = {"b": "Current", "f": "Find", "n": "New Record"}
     BROWSE_STATUS = "b"
@@ -942,9 +942,9 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                 if self.L=='it':
                     QMessageBox.warning(self,"BENVENUTO", "Benvenuto in pyArchInit " + self.NOME_SCHEDA + ". Il database e' vuoto. Premi 'Ok' e buon lavoro!",
                                         QMessageBox.Ok)
-                
+
                 elif self.L=='de':
-                    
+
                     QMessageBox.warning(self,"WILLKOMMEN","WILLKOMMEN in pyArchInit" + "Munsterformular"+ ". Die Datenbank ist leer. Tippe 'Ok' und aufgehts!",
                                         QMessageBox.Ok) 
                 else:
@@ -956,12 +956,12 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         except Exception as e:
             e = str(e)
             if e.find("no such table"):
-            
+
                 if self.L=='it':
                     msg = "La connessione e' fallita {}. " \
                           "E' NECESSARIO RIAVVIARE QGIS oppure rilevato bug! Segnalarlo allo sviluppatore".format(str(e))
                     self.iface.messageBar().pushMessage(self.tr(msg), Qgis.Warning, 0)
-                
+
                     self.iface.messageBar().pushMessage(self.tr(msg), Qgis.Warning, 0)
                 elif self.L=='de':
                     msg = "Verbindungsfehler {}. " \
@@ -974,7 +974,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                 if self.L=='it':
                     msg = "Attenzione rilevato bug! Segnalarlo allo sviluppatore. Errore: ".format(str(e))
                     self.iface.messageBar().pushMessage(self.tr(msg), Qgis.Warning, 0)
-                
+
                 elif self.L=='de':
                     msg = "ACHTUNG. Es wurde ein bug gefunden! Fehler einsenden: ".format(str(e))
                     self.iface.messageBar().pushMessage(self.tr(msg), Qgis.Warning, 0)  
@@ -984,14 +984,25 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
 
 
     def loadMapPreview(self, mode = 0):
+        if not hasattr(self, 'mapPreview'):
+            return
+
         if mode == 0:
             """ if has geometry column load to map canvas """
-            gidstr = self.ID_TABLE + " = " + str(
-                eval("self.DATA_LIST[int(self.REC_CORR)]." + self.ID_TABLE))
-            layerToSet = self.pyQGIS.loadMapPreviewReperti(gidstr)
-            #QMessageBox.warning(self, "layer to set", '\n'.join([l.name() for l in layerToSet]), QMessageBox.Ok)
-            self.mapPreview.setLayers(layerToSet)
-            self.mapPreview.zoomToFullExtent()
+            try:
+                if not self.DATA_LIST or self.REC_CORR >= len(self.DATA_LIST):
+                    return
+
+                # Get id directly without using eval
+                if hasattr(self.DATA_LIST[int(self.REC_CORR)], self.ID_TABLE):
+                    id_val = getattr(self.DATA_LIST[int(self.REC_CORR)], self.ID_TABLE)
+                    gidstr = self.ID_TABLE + " = " + str(id_val)
+                    layerToSet = self.pyQGIS.loadMapPreviewReperti(gidstr)
+                    #QMessageBox.warning(self, "layer to set", '\n'.join([l.name() for l in layerToSet]), QMessageBox.Ok)
+                    self.mapPreview.setLayers(layerToSet)
+                    self.mapPreview.zoomToFullExtent()
+            except Exception as e:
+                QMessageBox.warning(self, "Error", str(e), QMessageBox.Ok)
         elif mode == 1:
             self.mapPreview.setLayers([])
             self.mapPreview.zoomToFullExtent()
@@ -1003,6 +1014,22 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             if values.__contains__(l):
                 lang = str(key)
         lang = "'" + lang + "'"
+
+        # Set up area combobox
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'" + 'inventario_materiali_table' + "'",
+            'tipologia_sigla': "'" + '3.1' + "'"
+        }
+
+        area_vl = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        valuesArea = []
+
+        for i in range(len(area_vl)):
+            valuesArea.append(area_vl[i].sigla_estesa)
+
+        valuesArea.sort()
+        self.comboBox_area.addItems(valuesArea)
 
         # media prevew system
 
@@ -1056,8 +1083,8 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             self.delegateTE.def_values(valuesTE)
             self.delegateTE.def_editable('False')
             self.tableWidget_elementi_reperto.setItemDelegateForColumn(1, self.delegateTE)
-        
-        
+
+
         # lista elementi reperto - elemento rinvenuto
 
         search_dict = {
@@ -2180,32 +2207,39 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
     def loadMediaPreview(self, mode=0):
         self.iconListWidget.clear()
         conn = Connection()
-        
+
         thumb_path = conn.thumb_path()
         thumb_path_str = thumb_path['thumb_path']
         if mode == 0:
             """ if has geometry column load to map canvas """
+            try:
+                if not self.DATA_LIST or self.REC_CORR >= len(self.DATA_LIST):
+                    return
 
-            rec_list = self.ID_TABLE + " = " + str(
-                eval("self.DATA_LIST[int(self.REC_CORR)]." + self.ID_TABLE))
-            search_dict = {
-                'id_entity': "'" + str(eval("self.DATA_LIST[int(self.REC_CORR)]." + self.ID_TABLE)) + "'",
-                'entity_type': "'REPERTO'"}
-            record_us_list = self.DB_MANAGER.query_bool(search_dict, 'MEDIATOENTITY')
-            for i in record_us_list:
-                search_dict = {'id_media': "'" + str(i.id_media) + "'"}
+                # Get id directly without using eval
+                if hasattr(self.DATA_LIST[int(self.REC_CORR)], self.ID_TABLE):
+                    id_val = getattr(self.DATA_LIST[int(self.REC_CORR)], self.ID_TABLE)
+                    rec_list = self.ID_TABLE + " = " + str(id_val)
+                    search_dict = {
+                        'id_entity': "'" + str(id_val) + "'",
+                        'entity_type': "'REPERTO'"}
+                    record_us_list = self.DB_MANAGER.query_bool(search_dict, 'MEDIATOENTITY')
+                    for i in record_us_list:
+                        search_dict = {'id_media': "'" + str(i.id_media) + "'"}
 
-                u = Utility()
-                search_dict = u.remove_empty_items_fr_dict(search_dict)
-                mediathumb_data = self.DB_MANAGER.query_bool(search_dict, "MEDIA_THUMB")
-                thumb_path = str(mediathumb_data[0].filepath)
+                        u = Utility()
+                        search_dict = u.remove_empty_items_fr_dict(search_dict)
+                        mediathumb_data = self.DB_MANAGER.query_bool(search_dict, "MEDIA_THUMB")
+                        thumb_path = str(mediathumb_data[0].filepath)
 
-                item = QListWidgetItem(str(i.media_name))
+                        item = QListWidgetItem(str(i.media_name))
 
-                item.setData(Qt.UserRole, str(i.media_name))
-                icon = QIcon(thumb_path_str+thumb_path)
-                item.setIcon(icon)
-                self.iconListWidget.addItem(item)
+                        item.setData(Qt.UserRole, str(i.media_name))
+                        icon = QIcon(thumb_path_str+thumb_path)
+                        item.setIcon(icon)
+                        self.iconListWidget.addItem(item)
+            except Exception as e:
+                QMessageBox.warning(self, "Error", str(e), QMessageBox.Ok)
         elif mode == 1:
             self.iconListWidget.clear()
 
@@ -2688,8 +2722,8 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                     show_media(file_path, media_type)
             else:
                 QMessageBox.warning(self, "Error", f"File not found: {id_orig_item}", QMessageBox.Ok)
-        
-        
+
+
     def numero_invetario(self):
         if self.checkBox_auto_inv.isChecked():
             QMessageBox.information(self, "Attenzione", "Hai attivato l'opzione autoincrementante Numero Inventario", QMessageBox.Ok)
@@ -2699,24 +2733,24 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             contatore = 0
             list=[]
             if self.lineEdit_num_inv.text()=='':
-                
+
                 for i in range(len(self.DATA_LIST)):
                     #self.lineEdit_n_reperto.clear()
                     contatore = int(self.DATA_LIST[i].numero_inventario)
                     #contatore.sort(reverse=False)
                     list.append(contatore)
-                    
-                   
+
+
                     list[-1]+=1
-                    
+
                     list.sort()
                 for e in list:    
-                    
+
                     self.lineEdit_num_inv.setText(str(e))
         else:
             pass
     def charge_list(self):
-        
+
         l = QgsSettings().value("locale/userLocale", QVariant)
         lang = ""
         for key, values in self.LANG.items():
@@ -2879,16 +2913,16 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         sito_set= conn.sito_set()
         sito_set_str = sito_set['sito_set']
         if bool(self.comboBox_sito.currentText()) and self.comboBox_sito.currentText()==sito_set_str:
-            
+
             if self.L=='it':
                 QMessageBox.information(self, "OK" ,"Sei connesso al sito: %s" % str(sito_set_str),QMessageBox.Ok) 
-        
+
             elif self.L=='de':
                 QMessageBox.information(self, "OK", "Sie sind mit der archäologischen Stätte verbunden: %s" % str(sito_set_str),QMessageBox.Ok) 
-                
+
             else:
                 QMessageBox.information(self, "OK", "You are connected to the site: %s" % str(sito_set_str),QMessageBox.Ok)     
-        
+
         elif sito_set_str=='':    
             if self.L=='it':
                 msg = QMessageBox.information(self, "Attenzione" ,"Non hai settato alcun sito. Vuoi settarne uno? click Ok altrimenti Annulla per  vedere tutti i record",QMessageBox.Ok | QMessageBox.Cancel) 
@@ -2929,13 +2963,13 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                 pass#
         except:
             if self.L=='it':
-            
+
                 QMessageBox.information(self, "Attenzione" ,"Non esiste questo sito: "'"'+ str(sito_set_str) +'"'" in questa scheda, Per favore distattiva la 'scelta sito' dalla scheda di configurazione plugin per vedere tutti i record oppure crea la scheda",QMessageBox.Ok) 
             elif self.L=='de':
-            
+
                 QMessageBox.information(self, "Warnung" , "Es gibt keine solche archäologische Stätte: "'""'+ str(sito_set_str) +'"'" in dieser Registerkarte, Bitte deaktivieren Sie die 'Site-Wahl' in der Plugin-Konfigurationsregisterkarte, um alle Datensätze zu sehen oder die Registerkarte zu erstellen",QMessageBox.Ok) 
             else:
-            
+
                 QMessageBox.information(self, "Warning" , "There is no such site: "'"'+ str(sito_set_str) +'"'" in this tab, Please disable the 'site choice' from the plugin configuration tab to see all records or create the tab",QMessageBox.Ok)  
 
     def on_pushButton_sort_pressed(self):
@@ -3007,10 +3041,10 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
 
     def on_pushButton_new_rec_pressed(self):
         conn = Connection()
-        
+
         sito_set= conn.sito_set()
         sito_set_str = sito_set['sito_set']
-        
+
         if bool(self.DATA_LIST):
             if self.data_error_check() == 1:
                 pass
@@ -3025,7 +3059,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                                 # self.update_if(QMessageBox.warning(self, 'Error',
                                                                    # "Der Record wurde geändert. Möchtest du die Änderungen speichern?",
                                                                    # QMessageBox.Ok | QMessageBox.Cancel))
-                                                                   
+
                             # else:
                                 # self.update_if(QMessageBox.warning(self, 'Error',
                                                                    # "The record has been changed. Do you want to save the changes?",
@@ -3066,7 +3100,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                 self.label_sort.setText(self.SORTED_ITEMS["n"])
                 #self.numero_invetario()
                 #self.numero_reperto()
-            
+
             self.enable_button(0)
 
     def on_pushButton_save_pressed(self):
@@ -3076,8 +3110,8 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         # if Error_check.checkIfDuplicates_3(duplicates):
             # QMessageBox.warning(self, "INFO", "error",
                                 # QMessageBox.Ok)
-        
-        
+
+
         if self.BROWSE_STATUS == "b":
             if self.data_error_check() == 0:
                 if self.records_equal_check() == 1:
@@ -3088,7 +3122,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                         self.update_if(QMessageBox.warning(self, 'Error',
                                                            "Der Record wurde geändert. Möchtest du die Änderungen speichern?",
                                                            QMessageBox.Ok | QMessageBox.Cancel))
-                                                    
+
                     else:
                         self.update_if(QMessageBox.warning(self, 'Error',
                                                            "The record has been changed. Do you want to save the changes?",
@@ -3161,60 +3195,59 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                 QMessageBox.warning(self, "Message",
                                     "GIS mode disabled. From now on, your searches will no longer be displayed on the GIS.",
                                     QMessageBox.Ok)
-    
-    
+
+
     def generate_list_foto(self):
         data_list_foto = []
         for i in range(len(self.DATA_LIST)):
-        
-            conn = Connection()
-            
-            
-            thumb_path = conn.thumb_path()
-            thumb_path_str = thumb_path['thumb_path']
-            
-            search_dict = {'id_entity': "'"+ str(eval("self.DATA_LIST[i].id_invmat"))+"'", 'entity_type' : "'REPERTO'"}
+            try:
+                conn = Connection()
 
-            record_doc_list = self.DB_MANAGER.query_bool(search_dict, 'MEDIAVIEW')
+                thumb_path = conn.thumb_path()
+                thumb_path_str = thumb_path['thumb_path']
 
-            img_list = []
+                # Check if id_invmat attribute exists
+                if hasattr(self.DATA_LIST[i], 'id_invmat'):
+                    id_invmat = str(self.DATA_LIST[i].id_invmat)
+                    search_dict = {'id_entity': "'"+ id_invmat +"'", 'entity_type' : "'REPERTO'"}
 
-            for media in record_doc_list:
-                try:
-                    thumb = (thumb_path_str + str(media.filepath))
+                    record_doc_list = self.DB_MANAGER.query_bool(search_dict, 'MEDIAVIEW')
 
-                    img_list.append(thumb)
-                except AssertionError as e:
-                    QMessageBox.warning(self, 'message', str(e))
+                    img_list = []
 
-            if img_list:
-                a = img_list[0]
-            else:
-                a = ''
+                    for media in record_doc_list:
+                        try:
+                            thumb = (thumb_path_str + str(media.filepath))
 
+                            img_list.append(thumb)
+                        except AssertionError as e:
+                            QMessageBox.warning(self, 'message', str(e))
 
+                    if img_list:
+                        a = img_list[0]
+                    else:
+                        a = ''
 
+                    data_list_foto.append([
+                        str(self.DATA_LIST[i].sito.replace('_',' ')), #1
+                        str(self.DATA_LIST[i].n_reperto),  #6 
+                        str(a),
+                        str(self.DATA_LIST[i].us),    #3
+                        str(self.DATA_LIST[i].definizione),#4
+                        str(self.DATA_LIST[i].datazione_reperto), #5
+                        str(self.DATA_LIST[i].stato_conservazione), #5
+                        str(self.DATA_LIST[i].tipo_contenitore), #7
+                        str(self.DATA_LIST[i].nr_cassa)])
+            except Exception as e:
+                QMessageBox.warning(self, "Error", str(e), QMessageBox.Ok)
 
-                
-            data_list_foto.append([
-                
-                str(self.DATA_LIST[i].sito.replace('_',' ')), #1
-                str(self.DATA_LIST[i].n_reperto),  #6 
-                str(a),
-                str(self.DATA_LIST[i].us),    #3
-                str(self.DATA_LIST[i].definizione),#4
-                str(self.DATA_LIST[i].datazione_reperto), #5
-                str(self.DATA_LIST[i].stato_conservazione), #5
-                str(self.DATA_LIST[i].tipo_contenitore), #7
-                str(self.DATA_LIST[i].nr_cassa)])
-            
         return data_list_foto
-            
+
     def generate_list(self):
         data_list = []
         for i in range(len(self.DATA_LIST)):
 
-            
+
             data_list.append([
                 str(self.DATA_LIST[i].sito.replace('_',' ')), #0
                 str(self.DATA_LIST[i].numero_inventario), #1
@@ -3227,8 +3260,8 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                 str(self.DATA_LIST[i].nr_cassa), #8
                 str(self.DATA_LIST[i].luogo_conservazione),
                 str(self.DATA_LIST[i].years)])#9
-                    
-            
+
+
         return data_list
 
 
@@ -3245,56 +3278,63 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
 
 
         for i in range(len(self.DATA_LIST)):
-            search_dict = {'id_entity': "'" + str(eval("self.DATA_LIST[i].id_invmat")) + "'",
-                           'entity_type': "'REPERTO'"}
+            try:
+                # Check if id_invmat attribute exists
+                if hasattr(self.DATA_LIST[i], 'id_invmat'):
+                    id_invmat = str(self.DATA_LIST[i].id_invmat)
+                    search_dict = {'id_entity': "'" + id_invmat + "'",
+                                'entity_type': "'REPERTO'"}
 
-            record_doc_list = self.DB_MANAGER.query_bool(search_dict, 'MEDIAVIEW')
-            img_list=[]
+                    record_doc_list = self.DB_MANAGER.query_bool(search_dict, 'MEDIAVIEW')
+                    img_list=[]
 
-            for media in record_doc_list:
-                try:
-                    thumb= (thumb_path_str + str(media.path_resize))
+                    for media in record_doc_list:
+                        try:
+                            thumb= (thumb_path_str + str(media.path_resize))
 
-                    img_list.append(thumb)
-                except AssertionError as e:
-                    QMessageBox.warning(self,'message',str(e))
+                            img_list.append(thumb)
+                        except AssertionError as e:
+                            QMessageBox.warning(self,'message',str(e))
 
 
-            if img_list:
-                a = img_list[0]
-            else:
-                a=''
-            data_list.append([
-                    str(self.DATA_LIST[i].id_invmat),  # 1 - id_invmat
-                    str(self.DATA_LIST[i].sito.replace('_',' ')),  # 2 - sito
-                    int(self.DATA_LIST[i].numero_inventario),  # 3 - numero_inventario
-                    str(self.DATA_LIST[i].tipo_reperto),  # 4 - tipo_reperto
-                    str(self.DATA_LIST[i].criterio_schedatura),  # 5 - criterio_schedatura
-                    str(self.DATA_LIST[i].definizione),  # 6 - definizione
-                    str(self.DATA_LIST[i].descrizione),  # 7 - descrizione
-                    str(self.DATA_LIST[i].area),  # 8 - area
-                    str(self.DATA_LIST[i].us),  # 9 - us
-                    str(self.DATA_LIST[i].lavato),  # 10 - lavato
-                    str(self.DATA_LIST[i].nr_cassa),  # 11 - nr_cassa
-                    str(self.DATA_LIST[i].luogo_conservazione),  # 12 - luogo_conservazione
-                    str(self.DATA_LIST[i].stato_conservazione),  # 13 - stato_conservazione
-                    str(self.DATA_LIST[i].datazione_reperto),  # 14 - datazione_reperto
-                    str(self.DATA_LIST[i].elementi_reperto),  # 15 - elementi_reperto
-                    str(self.DATA_LIST[i].misurazioni),  # 16 - misurazioni
-                    str(self.DATA_LIST[i].rif_biblio),  # 17 - rif_biblio
-                    str(self.DATA_LIST[i].tecnologie),  # 18 - misurazioni
-                    str(self.DATA_LIST[i].tipo),  # 19 - tipo
-                    str(self.DATA_LIST[i].corpo_ceramico),  # 20 - corpo_ceramico
-                    str(self.DATA_LIST[i].rivestimento),  # 21 - rivestimento
-                    str(self.DATA_LIST[i].repertato),  # 22 - repertato
-                    str(self.DATA_LIST[i].diagnostico),
-                    str(self.DATA_LIST[i].n_reperto),
-                    str(self.DATA_LIST[i].tipo_contenitore),
-                    str(self.DATA_LIST[i].struttura),
-                    str(self.DATA_LIST[i].years),# 23 - diagnostico
-                    str(a)
-                    #str(image_path)
-                ])
+                    if img_list:
+                        a = img_list[0]
+                    else:
+                        a=''
+
+                    data_list.append([
+                        str(self.DATA_LIST[i].id_invmat),  # 1 - id_invmat
+                        str(self.DATA_LIST[i].sito.replace('_',' ')),  # 2 - sito
+                        int(self.DATA_LIST[i].numero_inventario),  # 3 - numero_inventario
+                        str(self.DATA_LIST[i].tipo_reperto),  # 4 - tipo_reperto
+                        str(self.DATA_LIST[i].criterio_schedatura),  # 5 - criterio_schedatura
+                        str(self.DATA_LIST[i].definizione),  # 6 - definizione
+                        str(self.DATA_LIST[i].descrizione),  # 7 - descrizione
+                        str(self.DATA_LIST[i].area),  # 8 - area
+                        str(self.DATA_LIST[i].us),  # 9 - us
+                        str(self.DATA_LIST[i].lavato),  # 10 - lavato
+                        str(self.DATA_LIST[i].nr_cassa),  # 11 - nr_cassa
+                        str(self.DATA_LIST[i].luogo_conservazione),  # 12 - luogo_conservazione
+                        str(self.DATA_LIST[i].stato_conservazione),  # 13 - stato_conservazione
+                        str(self.DATA_LIST[i].datazione_reperto),  # 14 - datazione_reperto
+                        str(self.DATA_LIST[i].elementi_reperto),  # 15 - elementi_reperto
+                        str(self.DATA_LIST[i].misurazioni),  # 16 - misurazioni
+                        str(self.DATA_LIST[i].rif_biblio),  # 17 - rif_biblio
+                        str(self.DATA_LIST[i].tecnologie),  # 18 - misurazioni
+                        str(self.DATA_LIST[i].tipo),  # 19 - tipo
+                        str(self.DATA_LIST[i].corpo_ceramico),  # 20 - corpo_ceramico
+                        str(self.DATA_LIST[i].rivestimento),  # 21 - rivestimento
+                        str(self.DATA_LIST[i].repertato),  # 22 - repertato
+                        str(self.DATA_LIST[i].diagnostico),
+                        str(self.DATA_LIST[i].n_reperto),
+                        str(self.DATA_LIST[i].tipo_contenitore),
+                        str(self.DATA_LIST[i].struttura),
+                        str(self.DATA_LIST[i].years),# 23 - diagnostico
+                        str(a)
+                        #str(image_path)
+                    ])
+            except Exception as e:
+                QMessageBox.warning(self, "Error", str(e), QMessageBox.Ok)
         #QMessageBox.warning(self, 'message', str(t))
         return data_list
     def on_pushButton_print_pressed(self):
@@ -3306,52 +3346,52 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                 QMessageBox.warning(self, 'Ok',"Esportazione terminata Schede Materiali",QMessageBox.Ok)
             else:   
                 pass
-        
+
             if self.checkBox_e_us.isChecked() :
                 # US_index_pdf = generate_reperti_pdf()
                 # data_list = self.generate_el_casse_pdf()
-                               
-                    
-                        
+
+
+
                 sito_ec = str(self.comboBox_sito.currentText())
                 Mat_casse_pdf = generate_reperti_pdf()
                 data_list = self.generate_el_casse_pdf(sito_ec)
 
                 Mat_casse_pdf.build_index_Casse(data_list, sito_ec)
                 QMessageBox.warning(self, 'Ok',"Esportazione terminata Elenco Casse",QMessageBox.Ok)
-        
-                
+
+
             else:
                 pass
-        
+
             if self.checkBox_e_foto_t.isChecked():
                 US_index_pdf = generate_reperti_pdf()
                 data_list_foto = self.generate_list_foto()
-        
+
                 try:
-                        
+
                     US_index_pdf.build_index_Foto(data_list_foto, data_list_foto[0][0])
                     QMessageBox.warning(self, 'Ok',"Esportazione terminata Elenco Reperti",QMessageBox.Ok)
-                                       
+
                         # else:
                             # QMessageBox.warning(self, 'ATTENZIONE',"L'elenco foto non può essere esportato perchè non hai immagini taggate.",QMessageBox.Ok)
                 except Exception as e :
                     QMessageBox.warning(self, 'ATTENZIONE',str(e),QMessageBox.Ok)
-            
+
             if self.checkBox_e_foto.isChecked():
                 US_index_pdf = generate_reperti_pdf()
                 data_list = self.generate_list()
-        
+
                 try:
-                        
+
                     US_index_pdf.build_index_Foto_2(data_list, data_list[0][0])
                     QMessageBox.warning(self, 'Ok',"Esportazione terminata Elenco Inventario",QMessageBox.Ok)
-                                       
+
                         # else:
                             # QMessageBox.warning(self, 'ATTENZIONE',"L'elenco foto non può essere esportato perchè non hai immagini taggate.",QMessageBox.Ok)
                 except Exception as e :
                     QMessageBox.warning(self, 'ATTENZIONE',str(e),QMessageBox.Ok)
-        
+
         elif self.L=='de':
             if self.checkBox_s_us.isChecked():
                 US_pdf_sheet = generate_reperti_pdf()
@@ -3360,53 +3400,53 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                 QMessageBox.warning(self, 'Ok',"Export beendet",QMessageBox.Ok)
             else:   
                 pass
-        
+
             if self.checkBox_e_us.isChecked() :
                 # US_index_pdf = generate_reperti_pdf()
                 # data_list = self.generate_el_casse_pdf()
-                               
-                    
-                        
+
+
+
                 sito_ec = str(self.comboBox_sito.currentText())
                 Mat_casse_pdf = generate_reperti_pdf()
                 data_list = self.generate_el_casse_pdf(sito_ec)
 
                 Mat_casse_pdf.build_index_Casse_de(data_list, sito_ec)
                 QMessageBox.warning(self, 'Ok',"Export beendet",QMessageBox.Ok)
-        
-                
+
+
             else:
                 pass
-        
+
             if self.checkBox_e_foto_t.isChecked():
                 US_index_pdf = generate_reperti_pdf()
                 data_list_foto = self.generate_list_foto()
-        
+
                 try:
-                        
+
                     US_index_pdf.build_index_Foto_de(data_list_foto, data_list_foto[0][0])
                     QMessageBox.warning(self, 'Ok',"Export beendet",QMessageBox.Ok)
-                                       
+
                         # else:
                             # QMessageBox.warning(self, 'ATTENZIONE',"L'elenco foto non può essere esportato perchè non hai immagini taggate.",QMessageBox.Ok)
                 except Exception as e :
                     QMessageBox.warning(self, 'Warnung',str(e),QMessageBox.Ok)
-            
+
             if self.checkBox_e_foto.isChecked():
                 US_index_pdf = generate_reperti_pdf()
                 data_list = self.generate_list()
-        
+
                 try:
-                        
+
                     US_index_pdf.build_index_Foto_2_de(data_list, data_list[0][0])
                     QMessageBox.warning(self, 'Ok',"Export beendet",QMessageBox.Ok)
-                                       
+
                         # else:
                             # QMessageBox.warning(self, 'ATTENZIONE',"L'elenco foto non può essere esportato perchè non hai immagini taggate.",QMessageBox.Ok)
                 except Exception as e :
                     QMessageBox.warning(self, 'Warnung',str(e),QMessageBox.Ok)
-        
-        
+
+
         else:
             if self.checkBox_s_us.isChecked():
                 US_pdf_sheet = generate_reperti_pdf()
@@ -3415,52 +3455,52 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                 QMessageBox.warning(self, 'Ok',"Exportation Forms complited",QMessageBox.Ok)
             else:   
                 pass
-        
+
             if self.checkBox_e_us.isChecked() :
                 # US_index_pdf = generate_reperti_pdf()
                 # data_list = self.generate_el_casse_pdf()
-                               
-                    
-                        
+
+
+
                 sito_ec = str(self.comboBox_sito.currentText())
                 Mat_casse_pdf = generate_reperti_pdf()
                 data_list = self.generate_el_casse_pdf(sito_ec)
 
                 Mat_casse_pdf.build_index_Casse_en(data_list, sito_ec)
                 QMessageBox.warning(self, 'Ok',"Exportation list box complited",QMessageBox.Ok)
-        
-                
+
+
             else:
                 pass
-        
+
             if self.checkBox_e_foto_t.isChecked():
                 US_index_pdf = generate_reperti_pdf()
                 data_list_foto = self.generate_list_foto()
-        
+
                 try:
-                        
+
                     US_index_pdf.build_index_Foto_en(data_list_foto, data_list_foto[0][0])
                     QMessageBox.warning(self, 'Ok',"Exportation Artefact complited",QMessageBox.Ok)
-                                       
+
                         # else:
                             # QMessageBox.warning(self, 'ATTENZIONE',"L'elenco foto non può essere esportato perchè non hai immagini taggate.",QMessageBox.Ok)
                 except Exception as e :
                     QMessageBox.warning(self, 'Warning',str(e),QMessageBox.Ok)
-            
+
             if self.checkBox_e_foto.isChecked():
                 US_index_pdf = generate_reperti_pdf()
                 data_list = self.generate_list()
-        
+
                 try:
-                        
+
                     US_index_pdf.build_index_Foto_2_en(data_list, data_list[0][0])
                     QMessageBox.warning(self, 'Ok',"Exportation list complited",QMessageBox.Ok)
-                                       
+
                         # else:
                             # QMessageBox.warning(self, 'ATTENZIONE',"L'elenco foto non può essere esportato perchè non hai immagini taggate.",QMessageBox.Ok)
                 except Exception as e :
                     QMessageBox.warning(self, 'Warning',str(e),QMessageBox.Ok)
-    
+
     def setPathpdf(self):
         s = QgsSettings()
         dbpath = QFileDialog.getOpenFileName(
@@ -3471,10 +3511,10 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         )[0]
 
         if dbpath:
-             
+
             self.lineEdit_pdf_path.setText(dbpath)
             s.setValue('',dbpath)
-   
+
     # def on_pushButton_convert_pressed(self):
     #     # if not bool(self.setPathpdf()):
     #         # QMessageBox.warning(self, "INFO", "devi scegliere un file pdf",
@@ -3503,13 +3543,13 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             subprocess.Popen(["open", path])
         else:
             subprocess.Popen(["xdg-open", path])
-    
-    
-    
-    
-    
+
+
+
+
+
     # def on_pushButton_elenco_casse_pressed(self):
-        
+
         # if self.L=='it': 
             # sito_ec = str(self.comboBox_sito.currentText())
             # Mat_casse_pdf = generate_reperti_pdf()
@@ -3542,7 +3582,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         try:
             for i in elenco_casse_res:
                 elenco_casse_list.append(i.nr_cassa)
-            
+
             data_for_pdf = []  # contiene i singoli dati per l'esportazione dell'elenco casse
 
             # QMessageBox.warning(self,'elenco casse',str(elenco_casse_list), QMessageBox.Ok)
@@ -3587,9 +3627,9 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                 for i in range(len(res_us_list)):
                     params_dict = {'sito': '"' + str(self.sito_ec) + '"', 'area': '"' + str(res_us_list[i].area) + '"',
                                    'us': '"' + str(res_us_list[i].us) + '"'}
-                    
+
                     res_struct = self.DB_MANAGER.query_bool(params_dict, 'US')
-                      
+
                     res_struct_list = []
                     for s_strutt in res_struct:
                         res_struct_list.append(s_strutt)
@@ -3622,7 +3662,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
 
                             # us_res_list.sort()
                             # inserisce l'elenco delle us       
-                            
+
                     else:
                         if i != len(res_us_list) - 1:
                             us_res_list += "Area:" + str(res_us_list[i].area) + ",SU:" + str(
@@ -3633,7 +3673,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
 
                             # us_res_list.sort()
                             # inserisce l'elenco delle us           
-                            
+
                 single_cassa.append(us_res_list)
 
                 ###cerca il luogo di conservazione della cassa
@@ -3772,9 +3812,9 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
 
         search_dict = self.UTILITY.remove_empty_items_fr_dict(search_dict)
 
-        
+
         res = self.DB_MANAGER.query_bool(search_dict, "US")
-       
+
         for rec in range(len(res)):
             if bool(res[rec].struttura):
                 elenco_strutture_per_us.append((res[rec].sito, res[rec].struttura))
@@ -3786,11 +3826,11 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         test = 0
         EC = Error_check()
 
-        area = self.lineEdit_area.text()
+        area = self.comboBox_area.currentText()
         us = self.lineEdit_us.text()
         nr_cassa = self.lineEdit_nr_cassa.text()
         nr_inv = self.lineEdit_num_inv.text()
-        
+
         if self.L=='it':
             if EC.data_is_empty(str(self.comboBox_sito.currentText())) == 0:
                 QMessageBox.warning(self, "ATTENZIONE", "Campo Sito. \n Il campo non deve essere vuoto", QMessageBox.Ok)
@@ -3888,8 +3928,8 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                     QMessageBox.warning(self, "WARNING", "Box Field \n The value must be numerical",
                                         QMessageBox.Ok)
                     test = 1
-        
-        
+
+
         return test
 
     def insert_new_rec(self):
@@ -3901,17 +3941,21 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         rif_biblio = self.table2dict("self.tableWidget_rif_biblio")
         ##tecnologie
         tecnologie = self.table2dict("self.tableWidget_tecnologie")
+        ##negative
+        negative = self.table2dict("self.tableWidget_negative")
+        ##diapositive
+        diapositive = self.table2dict("self.tableWidget_diapositive")
 
         try:
             if self.lineEdit_num_inv.text() == "":
                 inv =None
             else:
                 inv = int(self.lineEdit_num_inv.text())
-            
-            if self.lineEdit_area.text() == "":
+
+            if self.comboBox_area.currentText() == "":
                 area =None
             else:
-                area = int(self.lineEdit_area.text())
+                area = self.comboBox_area.currentText()
 
             if self.lineEdit_us.text() == "":
                 us =None
@@ -3953,11 +3997,16 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             else:
                 eve_orlo = float(self.lineEdit_eve_orlo.text())
 
-            
+
             if self.lineEdit_n_reperto.text() == "":
                 n_reperto =None
             else:
                 n_reperto = int(self.lineEdit_n_reperto.text())
+
+            # Get values for new fields
+            schedatore = str(self.comboBox_compilatore.currentText())
+            date_scheda = self.mDateTimeEdit_date.dateTime().toString('yyyy-MM-dd')
+            punto_rinv = str(self.lineEdit_punto_rinv.text())
 
             data = self.DB_MANAGER.insert_values_reperti(
                 self.DB_MANAGER.max_num_id(self.MAPPER_TABLE_CLASS, self.ID_TABLE) + 1,  # 0 - IDsito
@@ -3971,9 +4020,9 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                 us,
                 str(self.comboBox_lavato.currentText()),  # 9 - lavato
                 nr_cassa,
-                str(self.lineEdit_luogo_conservazione.text()),  # 11 - luogo conservazione
+                str(self.comboBox_magazzino.currentText()),  # 11 - luogo conservazione
                 str(self.comboBox_conservazione.currentText()),  # 12 - stato di conservazione
-                str(self.lineEdit_datazione_rep.text()),  # 13 - datazione reperto
+                str(self.comboBox_datazione.currentText()),  # 13 - datazione reperto
                 str(elementi_reperto),  # 14 - elementi reperto
                 str(misurazioni),  # 15 - misurazioni
                 str(rif_biblio),  # 16 - rif biblio
@@ -3985,45 +4034,50 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                 str(self.lineEditRivestimento.text()),  # 21   rivestimento
                 diametro_orlo,  # 22 - diametro orlo
                 peso,  # 23- peso
-                str(self.lineEdit_tipo.text()),  # 24 - tipo
+                str(self.comboBox_tipo_reperto.currentText()),  # 24 - tipo
                 eve_orlo,  # 25 - eve_orlo,
-                str(self.comboBox_repertato.currentText()),  # 9 - lavato
-                str(self.comboBox_diagnostico.currentText()),  # 9 - lavato
-                n_reperto,
-                str(self.lineEdit_tipo_contenitore.text()),
-                str(self.comboBox_struttura.currentText()),
-                str(self.comboBox_year.currentText()),
+                str(self.comboBox_repertato.currentText()),  # 26 - repertato
+                str(self.comboBox_diagnostico.currentText()),  # 27 - diagnostico
+                n_reperto,  # 28 - n_reperto
+                str(self.comboBox_tipo_contenitore.currentText()),  # 29 - tipo_contenitore
+                str(self.comboBox_struttura.currentText()),  # 30 - struttura
+                str(self.comboBox_year.currentText()),  # 31 - years
+                schedatore,  # 32 - schedatore
+                date_scheda,  # 33 - date_scheda
+                punto_rinv,  # 34 - punto_rinv
+                str(negative),  # 35 - negativo_photo
+                str(diapositive),  # 36 - diapositiva
             )
-            
-            
+
+
             try:
                 # duplicate=[]
                 # duplicate2=[]
                 # for value in range(len(self.DATA_LIST)):
                     # duplicate.append(value.n_reperto)
                     # duplicate2.append(value.numero_inventario)
-                
-                
+
+
                 # if len(duplicate)!=len(set(duplicate)):
-                
-                
-                
+
+
+
                     # QMessageBox.warning(self, "Error", str(len(set(duplicate))), QMessageBox.Ok)
                     # return 0
-                    
+
                 # else:
                 self.DB_MANAGER.insert_data_session(data)
-                
+
                 return 1
             except Exception as e:
                 e_str = str(e)
                 if e_str.__contains__("IntegrityError"):
-                    
+
                     if self.L=='it':
                         msg = "Numero reperto o inventario gia' presente nel database"
-                        
+
                         QMessageBox.warning(self, "Error", "Errore: valore duplicato\n" + str(msg), QMessageBox.Ok)
-                        
+
                     elif self.L=='de':
                         msg = self.ID_TABLE + " bereits in der Datenbank"
                         QMessageBox.warning(self, "Error", "Error " + str(msg), QMessageBox.Ok)  
@@ -4034,7 +4088,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                     msg = e
                     QMessageBox.warning(self, "Error", "Error 1 \n" + str(msg), QMessageBox.Ok)
                 return 0
-            
+
         except Exception as e:
             QMessageBox.warning(self, "Error", "Error 2 \n" + str(e), QMessageBox.Ok)
             return 0
@@ -4071,6 +4125,18 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
     def on_pushButton_remove_row_rif_biblio_pressed(self):
         self.remove_row('self.tableWidget_rif_biblio')
 
+    def on_pushButton_insert_row_negativi_pressed(self):
+        self.insert_new_row('self.tableWidget_negative')
+
+    def on_pushButton_remove_row_negativi_pressed(self):
+        self.remove_row('self.tableWidget_negative')
+
+    def on_pushButton_insert_row_diapo_pressed(self):
+        self.insert_new_row('self.tableWidget_diapositive')
+
+    def on_pushButton_remove_row_diapo_pressed(self):
+        self.remove_row('self.tableWidget_diapositive')
+
     def check_record_state(self):
         ec = self.data_error_check()
         if ec == 1:
@@ -4078,7 +4144,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         elif self.records_equal_check() == 1 and ec == 0:
             if self.L=='it':
                 self.update_if(
-                
+
                     QMessageBox.warning(self, 'Errore', "Il record e' stato modificato. Vuoi salvare le modifiche?",
                                         QMessageBox.Ok | QMessageBox.Cancel))
             elif self.L=='de':
@@ -4191,7 +4257,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                     pass#QMessageBox.warning(self, "Error", str(e), QMessageBox.Ok)
 
     def on_pushButton_delete_pressed(self):
-        
+
         if self.L=='it':
             msg = QMessageBox.warning(self, "Attenzione!!!",
                                       "Vuoi veramente eliminare il record? \n L'azione è irreversibile",
@@ -4291,24 +4357,24 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                     self.charge_list()
                     self.fill_fields()  
                     self.set_sito()
-            
-            
+
+
             self.SORT_STATUS = "n"
             self.label_sort.setText(self.SORTED_ITEMS[self.SORT_STATUS])
 
     def on_pushButton_new_search_pressed(self):
-        
-        
+
+
         if self.check_record_state() == 1:
             pass
         else:
             self.enable_button_search(0)
 
             conn = Connection()
-        
+
             sito_set= conn.sito_set()
             sito_set_str = sito_set['sito_set']
-            
+
             if self.BROWSE_STATUS != "f":
                 if bool(self.comboBox_sito.currentText()) and self.comboBox_sito.currentText()==sito_set_str:
                     self.BROWSE_STATUS = "f"
@@ -4346,7 +4412,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                     self.label_sort.setText(self.SORTED_ITEMS["n"])
                     self.charge_list()
                     self.empty_fields()
-                 
+
     def on_pushButton_search_go_pressed(self):
         #self.lineEdit_n_reperto.setText('')
         check_for_buttons = 0
@@ -4367,8 +4433,8 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             else:
                 numero_inventario = ""
 
-            if self.lineEdit_area.text() != "":
-                area = int(self.lineEdit_area.text())
+            if self.comboBox_area.currentText() != "":
+                area = self.comboBox_area.currentText()
             else:
                 area = ""
 
@@ -4416,7 +4482,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                 n_reperto = int(self.lineEdit_n_reperto.text())
             else:
                 n_reperto = ""
-            
+
             search_dict = {
                 self.TABLE_FIELDS[0]: "'" + str(self.comboBox_sito.currentText()) + "'",
                 self.TABLE_FIELDS[1]: numero_inventario,
@@ -4424,13 +4490,12 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                 self.TABLE_FIELDS[3]: "'" + str(self.comboBox_criterio_schedatura.currentText()) + "'",
                 self.TABLE_FIELDS[4]: "'" + str(self.comboBox_definizione.currentText()) + "'",
                 self.TABLE_FIELDS[5]: "'" + str(self.textEdit_descrizione_reperto.toPlainText()) + "'",
-                self.TABLE_FIELDS[6]: area,
-                self.TABLE_FIELDS[7]: us,
-                self.TABLE_FIELDS[8]: "'" + str(self.comboBox_lavato.currentText()) + "'",
+                self.TABLE_FIELDS[6]: "'" + str(self.comboBox_area.currentText()) + "'",
+                self.TABLE_FIELDS[7]: "'" + str(self.lineEdit_us.text()) + "'",
                 self.TABLE_FIELDS[9]: nr_cassa,
-                self.TABLE_FIELDS[10]: "'" + str(self.lineEdit_luogo_conservazione.text()) + "'",
+                self.TABLE_FIELDS[10]: "'" + str(self.comboBox_magazzino.currentText()) + "'",
                 self.TABLE_FIELDS[11]: "'" + str(self.comboBox_conservazione.currentText()) + "'",
-                self.TABLE_FIELDS[12]: "'" + str(self.lineEdit_datazione_rep.text()) + "'",
+                self.TABLE_FIELDS[12]: "'" + str(self.comboBox_datazione.currentText()) + "'",
                 self.TABLE_FIELDS[17]: forme_minime,
                 self.TABLE_FIELDS[18]: forme_massime,
                 self.TABLE_FIELDS[19]: totale_frammenti,
@@ -4438,12 +4503,12 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                 self.TABLE_FIELDS[21]: "'" + str(self.lineEditRivestimento.text()) + "'",
                 self.TABLE_FIELDS[22]: diametro_orlo,
                 self.TABLE_FIELDS[23]: peso,
-                self.TABLE_FIELDS[24]: "'" + str(self.lineEdit_tipo.text()) + "'",
+                self.TABLE_FIELDS[24]: "'" + str(self.comboBox_tipo_reperto.currentText()) + "'",
                 self.TABLE_FIELDS[25]: eve_orlo,
                 self.TABLE_FIELDS[26]: "'" + str(self.comboBox_repertato.currentText()) + "'",
                 self.TABLE_FIELDS[27]: "'" + str(self.comboBox_diagnostico.currentText()) + "'",
                 self.TABLE_FIELDS[28]: n_reperto,
-                self.TABLE_FIELDS[29]: "'" + str(self.lineEdit_tipo_contenitore.text()) + "'",
+                self.TABLE_FIELDS[29]: "'" + str(self.comboBox_tipo_contenitore.currentText()) + "'",
                 self.TABLE_FIELDS[30]: "'" + str(self.comboBox_struttura.currentText()) + "'",
                 self.TABLE_FIELDS[31]: "'" + str(self.comboBox_year.currentText()) + "'",
             }
@@ -4557,7 +4622,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             self.update_tot_frammenti(QMessageBox.warning(self, 'Achtung',
                                                           "Möchten Sie alle Fragmente (OK) oder nur den aktuellen Datensatz (Abbrechen) aktualisieren?",
                                                           QMessageBox.Ok | QMessageBox.Cancel))
-        
+
         else:
             self.update_tot_frammenti(QMessageBox.warning(self, 'Warning',
                                                           "Do you want to update all fragments (OK), or just the current record (Cancel)?",
@@ -4567,31 +4632,50 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
     def update_tot_frammenti(self, c):
         if c == QMessageBox.Ok:
             for i in range(len(self.DATA_LIST)):
-                temp_dataset = ()
-                id_invmat = self.DATA_LIST[i].id_invmat
-                elementi_reperto = eval(self.DATA_LIST[i].elementi_reperto)
-                if bool(elementi_reperto):
-                    tot_framm = 0
-                    for elrep in elementi_reperto:
-                        if elrep[1] == 'frammenti' or elrep[1] == 'frammento'or elrep[1] == 'fragment' or elrep[1] == 'fragments':
-                            try:
-                                tot_framm += int(elrep[2])
-                            except:
-                                pass
-                    self.DB_MANAGER.update(self.MAPPER_TABLE_CLASS, self.ID_TABLE, [int(id_invmat)],
-                                           ['totale_frammenti'], [tot_framm])
+                try:
+                    temp_dataset = ()
+                    id_invmat = self.DATA_LIST[i].id_invmat
 
-            search_dict = {
-                'id_invmat': "'" + str(eval("self.DATA_LIST[int(self.REC_CORR)]." + self.ID_TABLE)) + "'"}
-            records = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
-            self.lineEditTotFram.setText(str(records[0].totale_frammenti))
+                    # Safely handle elementi_reperto
+                    if hasattr(self.DATA_LIST[i], 'elementi_reperto') and self.DATA_LIST[i].elementi_reperto:
+                        try:
+                            elementi_reperto = eval(self.DATA_LIST[i].elementi_reperto)
+                            if bool(elementi_reperto):
+                                tot_framm = 0
+                                for elrep in elementi_reperto:
+                                    if elrep[1] == 'frammenti' or elrep[1] == 'frammento'or elrep[1] == 'fragment' or elrep[1] == 'fragments':
+                                        try:
+                                            tot_framm += int(elrep[2])
+                                        except:
+                                            pass
+                                self.DB_MANAGER.update(self.MAPPER_TABLE_CLASS, self.ID_TABLE, [int(id_invmat)],
+                                                   ['totale_frammenti'], [tot_framm])
+                        except Exception as e:
+                            QMessageBox.warning(self, "Error", f"Error processing elementi_reperto: {str(e)}", QMessageBox.Ok)
+                except Exception as e:
+                    QMessageBox.warning(self, "Error", f"Error processing record {i}: {str(e)}", QMessageBox.Ok)
+
+            # Get id directly without using eval
+            if not self.DATA_LIST or self.REC_CORR >= len(self.DATA_LIST):
+                return
+
+            if hasattr(self.DATA_LIST[int(self.REC_CORR)], self.ID_TABLE):
+                id_val = getattr(self.DATA_LIST[int(self.REC_CORR)], self.ID_TABLE)
+                search_dict = {
+                    'id_invmat': "'" + str(id_val) + "'"}
+                records = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
+                if records and len(records) > 0:
+                    self.lineEditTotFram.setText(str(records[0].totale_frammenti))
         else:
             lista_valori = self.table2dict('self.tableWidget_elementi_reperto')
 
             tot_framm = 0
             for sing_fr in lista_valori:
-                if sing_fr[1] == 'frammenti' or 'frammento'or 'fragment' or 'fragments':
-                    tot_framm += int(sing_fr[2])
+                if sing_fr[1] == 'frammenti' or sing_fr[1] == 'frammento' or sing_fr[1] == 'fragment' or sing_fr[1] == 'fragments':
+                    try:
+                        tot_framm += int(sing_fr[2])
+                    except:
+                        pass
 
             self.lineEditTotFram.setText(str(tot_framm))
 
@@ -4602,7 +4686,9 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             if test == 1:
                 id_list = []
                 for i in self.DATA_LIST:
-                    id_list.append(eval("i." + self.ID_TABLE))
+                    # Get id directly without using eval
+                    if hasattr(i, self.ID_TABLE):
+                        id_list.append(getattr(i, self.ID_TABLE))
                 self.DATA_LIST = []
                 if self.SORT_STATUS == "n":
                     temp_data_list = self.DB_MANAGER.query_sort(id_list, [self.ID_TABLE], 'asc',
@@ -4625,12 +4711,21 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
 
     def update_record(self):
         try:
-            self.DB_MANAGER.update(self.MAPPER_TABLE_CLASS,
-                                   self.ID_TABLE,
-                                   [eval("int(self.DATA_LIST[self.REC_CORR]." + self.ID_TABLE + ")")],
-                                   self.TABLE_FIELDS,
-                                   self.rec_toupdate())
-            return 1
+            # Check if DATA_LIST exists and REC_CORR is valid
+            if not self.DATA_LIST or self.REC_CORR >= len(self.DATA_LIST):
+                return 0
+
+            # Get id directly without using eval
+            if hasattr(self.DATA_LIST[self.REC_CORR], self.ID_TABLE):
+                id_val = int(getattr(self.DATA_LIST[self.REC_CORR], self.ID_TABLE))
+                self.DB_MANAGER.update(self.MAPPER_TABLE_CLASS,
+                                    self.ID_TABLE,
+                                    [id_val],
+                                    self.TABLE_FIELDS,
+                                    self.rec_toupdate())
+                return 1
+            else:
+                return 0
         except Exception as e:
             str(e)
             save_file='{}{}{}'.format(self.HOME, os.sep,"pyarchinit_Report_folder") 
@@ -4643,8 +4738,8 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             if self.L=='it':
                 QMessageBox.warning(self, "Messaggio",
                                     "Problema di encoding: sono stati inseriti accenti o caratteri non accettati dal database. Verrà fatta una copia dell'errore con i dati che puoi recuperare nella cartella pyarchinit_Report _Folder", QMessageBox.Ok)
-            
-            
+
+
             elif self.L=='de':
                 QMessageBox.warning(self, "Message",
                                     "Encoding problem: accents or characters not accepted by the database were entered. A copy of the error will be made with the data you can retrieve in the pyarchinit_Report _Folder", QMessageBox.Ok) 
@@ -4656,14 +4751,30 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
     def charge_struttura(self):
         try:
             sito = str(self.comboBox_sito.currentText())
-            area = str(self.lineEdit_area.text())
+            area = str(self.comboBox_area.currentText())
             us = str(self.lineEdit_us.text())
+
+            # Check if DATA_LIST exists and REC_CORR is valid
+            if not self.DATA_LIST or self.REC_CORR >= len(self.DATA_LIST):
+                return
+
+            # Get area and us directly without using eval
+            if hasattr(self.DATA_LIST[int(self.REC_CORR)], 'area'):
+                area_val = str(self.DATA_LIST[int(self.REC_CORR)].area)
+            else:
+                area_val = ""
+
+            if hasattr(self.DATA_LIST[int(self.REC_CORR)], 'us'):
+                us_val = str(self.DATA_LIST[int(self.REC_CORR)].us)
+            else:
+                us_val = ""
+
             search_dict = {
                 'sito': "'" + sito + "'",
-                'area': "'" + str(eval("self.DATA_LIST[int(self.REC_CORR)].area"))+ "'",
-                'us': "'" + str(eval("self.DATA_LIST[int(self.REC_CORR)].us"))+"'"
-                
+                'area': "'" + area_val + "'",
+                'us': "'" + us_val + "'"
             }
+
             struttura_vl = self.DB_MANAGER.query_bool(search_dict, 'US')
             struttura_list = []
             for i in range(len(struttura_vl)):
@@ -4682,9 +4793,9 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                         self.comboBox_struttura.setEditText(self.DATA_LIST[self.rec_num].struttura)
                     except:
                         pass  # non vi sono periodi per questo scavo
-            
-        except:
-            pass
+
+        except Exception as e:
+            QMessageBox.warning(self, "Error", str(e), QMessageBox.Ok)
     def rec_toupdate(self):
         rec_to_update = self.UTILITY.pos_none_in_list(self.DATA_LIST_REC_TEMP)
         # rec_to_update = rec_to_update[:2]
@@ -4713,7 +4824,9 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         else:
             id_list = []
             for i in self.DB_MANAGER.query(self.MAPPER_TABLE_CLASS):
-                id_list.append(eval("i." + self.ID_TABLE))
+                # Get id directly without using eval
+                if hasattr(i, self.ID_TABLE):
+                    id_list.append(getattr(i, self.ID_TABLE))
 
             temp_data_list = self.DB_MANAGER.query_sort(id_list, [self.ID_TABLE], 'asc', self.MAPPER_TABLE_CLASS,
                                                         self.ID_TABLE)
@@ -4817,6 +4930,8 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         misurazioni_row_count = self.tableWidget_misurazioni.rowCount()
         rif_biblio_row_count = self.tableWidget_rif_biblio.rowCount()
         tecnologie_row_count = self.tableWidget_tecnologie.rowCount()
+        negative_row_count = self.tableWidget_negative.rowCount()
+        diapositive_row_count = self.tableWidget_diapositive.rowCount()
 
         self.comboBox_sito.setEditText("")  # 1 - Sito
         self.lineEdit_num_inv.clear()  # 2 - num_inv
@@ -4824,13 +4939,18 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         self.comboBox_criterio_schedatura.setEditText("")  # 4 - criterio
         self.comboBox_definizione.setEditText("")  # 5 - definizione
         self.textEdit_descrizione_reperto.clear()  # 6 - descrizione
-        self.lineEdit_area.clear()  # 7 - area
+        self.comboBox_area.setEditText("")  # 7 - area
         self.lineEdit_us.clear()  # 8 - US
         self.comboBox_lavato.setEditText("")  # 9 - lavato
         self.lineEdit_nr_cassa.clear()  # 10 - nr_cassa
-        self.lineEdit_luogo_conservazione.clear()  # 11 - luogo_conservazione
+        self.comboBox_magazzino.setEditText("")  # 11 - luogo_conservazione
         self.comboBox_conservazione.setEditText("")  # 12 - stato conservazione
-        self.lineEdit_datazione_rep.clear()  # 13 - datazione reperto
+        self.comboBox_datazione.setEditText("")  # 13 - datazione reperto
+
+        # Clear new fields
+        self.comboBox_compilatore.setEditText("")  # schedatore
+        self.mDateTimeEdit_date.clear()  # date_scheda
+        self.lineEdit_punto_rinv.clear()  # punto_rinv
 
         self.lineEditFormeMin.clear()
         self.lineEditFormeMax.clear()
@@ -4840,12 +4960,12 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
 
         self.lineEdit_diametro_orlo.clear()
         self.lineEdit_peso.clear()
-        self.lineEdit_tipo.clear()
+        self.comboBox_tipo_reperto.setEditText("")
         self.lineEdit_eve_orlo.clear()
 
         self.comboBox_repertato.setEditText("")  # 9 - repertato
         self.comboBox_diagnostico.setEditText("")  # 9 - diagnostico
-        
+
         for i in range(elementi_reperto_row_count):
             self.tableWidget_elementi_reperto.removeRow(0)
         self.insert_new_row("self.tableWidget_elementi_reperto")  # 14 - elementi reperto
@@ -4861,8 +4981,18 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         for i in range(tecnologie_row_count):
             self.tableWidget_tecnologie.removeRow(0)
         self.insert_new_row("self.tableWidget_tecnologie")  # 17 - misurazioni
+
+        # Clear new tableWidgets
+        for i in range(negative_row_count):
+            self.tableWidget_negative.removeRow(0)
+        self.insert_new_row("self.tableWidget_negative")
+
+        for i in range(diapositive_row_count):
+            self.tableWidget_diapositive.removeRow(0)
+        self.insert_new_row("self.tableWidget_diapositive")
+
         self.lineEdit_n_reperto.clear()
-        self.lineEdit_tipo_contenitore.clear()
+        self.comboBox_tipo_contenitore.setEditText("")
         self.comboBox_struttura.setEditText("")  # 9 - diagnostico
         self.comboBox_year.setEditText("")  # 9 - diagnostico
     def empty_fields_nosite(self):
@@ -4870,20 +5000,27 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         misurazioni_row_count = self.tableWidget_misurazioni.rowCount()
         rif_biblio_row_count = self.tableWidget_rif_biblio.rowCount()
         tecnologie_row_count = self.tableWidget_tecnologie.rowCount()
+        negative_row_count = self.tableWidget_negative.rowCount()
+        diapositive_row_count = self.tableWidget_diapositive.rowCount()
 
-       
+
         self.lineEdit_num_inv.clear()  # 2 - num_inv
         self.comboBox_tipo_reperto.setEditText("")  # 3 - tipo_reperto
         self.comboBox_criterio_schedatura.setEditText("")  # 4 - criterio
         self.comboBox_definizione.setEditText("")  # 5 - definizione
         self.textEdit_descrizione_reperto.clear()  # 6 - descrizione
-        self.lineEdit_area.clear()  # 7 - area
+        self.comboBox_area.setEditText("")  # 7 - area
         self.lineEdit_us.clear()  # 8 - US
         self.comboBox_lavato.setEditText("")  # 9 - lavato
         self.lineEdit_nr_cassa.clear()  # 10 - nr_cassa
-        self.lineEdit_luogo_conservazione.clear()  # 11 - luogo_conservazione
+        self.comboBox_magazzino.setEditText("")  # 11 - luogo_conservazione
         self.comboBox_conservazione.setEditText("")  # 12 - stato conservazione
-        self.lineEdit_datazione_rep.clear()  # 13 - datazione reperto
+        self.comboBox_datazione.setEditText("")  # 13 - datazione reperto
+
+        # Clear new fields
+        self.comboBox_compilatore.setEditText("")  # schedatore
+        self.mDateTimeEdit_date.clear()  # date_scheda
+        self.lineEdit_punto_rinv.clear()  # punto_rinv
 
         self.lineEditFormeMin.clear()
         self.lineEditFormeMax.clear()
@@ -4893,12 +5030,12 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
 
         self.lineEdit_diametro_orlo.clear()
         self.lineEdit_peso.clear()
-        self.lineEdit_tipo.clear()
+        self.comboBox_tipo_reperto.setEditText("")
         self.lineEdit_eve_orlo.clear()
 
         self.comboBox_repertato.setEditText("")  # 9 - repertato
         self.comboBox_diagnostico.setEditText("")  # 9 - diagnostico
-        
+
         for i in range(elementi_reperto_row_count):
             self.tableWidget_elementi_reperto.removeRow(0)
         self.insert_new_row("self.tableWidget_elementi_reperto")  # 14 - elementi reperto
@@ -4914,97 +5051,107 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         for i in range(tecnologie_row_count):
             self.tableWidget_tecnologie.removeRow(0)
         self.insert_new_row("self.tableWidget_tecnologie")  # 17 - misurazioni
+
+        # Clear new tableWidgets
+        for i in range(negative_row_count):
+            self.tableWidget_negative.removeRow(0)
+        self.insert_new_row("self.tableWidget_negative")
+
+        for i in range(diapositive_row_count):
+            self.tableWidget_diapositive.removeRow(0)
+        self.insert_new_row("self.tableWidget_diapositive")
+
         self.lineEdit_n_reperto.clear()
-        self.lineEdit_tipo_contenitore.clear()
+        self.comboBox_tipo_contenitore.setEditText("")
         self.comboBox_struttura.setEditText("")  # 9 - diagnostico
         self.comboBox_year.setEditText("")  # 9 - diagnostico
     def fill_fields(self, n=0):
         self.rec_num = n
         # QMessageBox.warning(self, "check fill fields", str(self.rec_num),  QMessageBox.Ok)
         try:
-            
-            
+
+
             if str(self.DATA_LIST[self.rec_num].numero_inventario) =='None':
                 num_inv=''
             else:
                 num_inv=str(self.DATA_LIST[self.rec_num].numero_inventario)
-            
+
             if str(self.DATA_LIST[self.rec_num].area) =='None':
                 area=''
             else:
                 area=str(self.DATA_LIST[self.rec_num].area)
-            
+
             if str(self.DATA_LIST[self.rec_num].us) == 'None':
                 us = ''
             else:
                 us = str(self.DATA_LIST[self.rec_num].us)
 
-            
+
             if str(self.DATA_LIST[self.rec_num].nr_cassa) == 'None':
                 nr_cassa = ''
             else:
                 nr_cassa = str(self.DATA_LIST[self.rec_num].nr_cassa)
-            
-            
+
+
             if str(self.DATA_LIST[self.rec_num].forme_minime) == 'None':
                 forme_minime = ''
             else:
                 forme_minime = str(self.DATA_LIST[self.rec_num].forme_minime)
-            
+
             if str(self.DATA_LIST[self.rec_num].forme_massime) == 'None':
                 forme_massime = ''
             else:
                 forme_massime = str(self.DATA_LIST[self.rec_num].forme_massime)
-            
+
             if str(self.DATA_LIST[self.rec_num].totale_frammenti) == 'None':
                 totale_frammenti = ''
             else:
                 totale_frammenti = str(self.DATA_LIST[self.rec_num].totale_frammenti)
-            
-            
+
+
             if str(self.DATA_LIST[self.rec_num].totale_frammenti) == 'None':
                 totale_frammenti = ''
             else:
                 totale_frammenti = str(self.DATA_LIST[self.rec_num].totale_frammenti)
-            
+
             if str(self.DATA_LIST[self.rec_num].n_reperto) == 'None':
                 n_reperto = ''
             else:
                 n_reperto = str(self.DATA_LIST[self.rec_num].n_reperto)
-            
-            
-            
-            
-            
-            
+
+
+
+
+
+
             str(self.comboBox_sito.setEditText(self.DATA_LIST[self.rec_num].sito))  # 1 - Sito
             str(self.lineEdit_num_inv.setText(num_inv))  # 2 - num_inv
-            
-            
+
+
             str(self.comboBox_tipo_reperto.setEditText(self.DATA_LIST[self.rec_num].tipo_reperto))  # 3 - Tipo reperto
             str(self.comboBox_criterio_schedatura.setEditText(
                 self.DATA_LIST[self.rec_num].criterio_schedatura))  # 4 - Criterio schedatura
             str(self.comboBox_definizione.setEditText(self.DATA_LIST[self.rec_num].definizione))  # 5 - definizione
             str(self.textEdit_descrizione_reperto.setText(self.DATA_LIST[self.rec_num].descrizione))  # 6 - descrizione
-            
-            str(self.lineEdit_area.setText(area))
-            
+
+            str(self.comboBox_area.setEditText(area))
+
             str(self.lineEdit_us.setText(us))
-            
-            
+
+
 
             self.comboBox_lavato.setEditText(str(self.DATA_LIST[self.rec_num].lavato))
 
             str(self.lineEdit_nr_cassa.setText(nr_cassa))
-            
-            
-            str(self.lineEdit_luogo_conservazione.setText(
+
+
+            str(self.comboBox_magazzino.setEditText(
                 self.DATA_LIST[self.rec_num].luogo_conservazione))  # 11 - luogo_conservazione
 
             self.comboBox_conservazione.setEditText(
                 str(self.DATA_LIST[self.rec_num].stato_conservazione))  # 12 - stato conservazione
 
-            str(self.lineEdit_datazione_rep.setText(
+            str(self.comboBox_datazione.setEditText(
                 self.DATA_LIST[self.rec_num].datazione_reperto))  # 13 - datazione reperto
 
             self.tableInsertData("self.tableWidget_elementi_reperto",
@@ -5018,17 +5165,39 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
 
             self.tableInsertData("self.tableWidget_tecnologie",
                                  self.DATA_LIST[self.rec_num].tecnologie)  # 17 - rapporti
-            
-            
+
+            # New fields
+            if hasattr(self.DATA_LIST[self.rec_num], 'schedatore') and self.DATA_LIST[self.rec_num].schedatore is not None:
+                self.comboBox_compilatore.setEditText(str(self.DATA_LIST[self.rec_num].schedatore))
+
+            if hasattr(self.DATA_LIST[self.rec_num], 'date_scheda') and self.DATA_LIST[self.rec_num].date_scheda is not None:
+                self.mDateTimeEdit_date.setDateTime(QDateTime.fromString(self.DATA_LIST[self.rec_num].date_scheda, 'yyyy-MM-dd'))
+
+            if hasattr(self.DATA_LIST[self.rec_num], 'punto_rinv') and self.DATA_LIST[self.rec_num].punto_rinv is not None:
+                self.lineEdit_punto_rinv.setText(str(self.DATA_LIST[self.rec_num].punto_rinv))
+
+            # Handle negativo_photo and diapositiva as tableWidgets
+            if hasattr(self.DATA_LIST[self.rec_num], 'negativo_photo') and self.DATA_LIST[self.rec_num].negativo_photo is not None:
+                self.tableInsertData("self.tableWidget_negative", self.DATA_LIST[self.rec_num].negativo_photo)
+            else:
+                self.tableWidget_negative.setRowCount(0)
+                self.insert_new_row("self.tableWidget_negative")
+
+            if hasattr(self.DATA_LIST[self.rec_num], 'diapositiva') and self.DATA_LIST[self.rec_num].diapositiva is not None:
+                self.tableInsertData("self.tableWidget_diapositive", self.DATA_LIST[self.rec_num].diapositiva)
+            else:
+                self.tableWidget_diapositive.setRowCount(0)
+                self.insert_new_row("self.tableWidget_diapositive")
+
             str(self.lineEditFormeMin.setText(forme_minime))
-            
-            
+
+
             str(self.lineEditFormeMax.setText(forme_massime))
-            
+
 
             str(self.lineEditTotFram.setText(totale_frammenti))
 
-            
+
             self.lineEditRivestimento.setText(str(self.DATA_LIST[self.rec_num].rivestimento))
 
             self.lineEditCorpoCeramico.setText(str(self.DATA_LIST[self.rec_num].corpo_ceramico))
@@ -5043,31 +5212,31 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             else:
                 self.lineEdit_peso.setText(str(self.DATA_LIST[self.rec_num].peso))
 
-            self.lineEdit_tipo.setText(str(self.DATA_LIST[self.rec_num].tipo))
+            self.comboBox_tipo_reperto.setEditText(str(self.DATA_LIST[self.rec_num].tipo))
 
             if self.DATA_LIST[self.rec_num].eve_orlo == None:  # 10 - nr_cassa
                 self.lineEdit_eve_orlo.setText("")
             else:
                 self.lineEdit_eve_orlo.setText(str(self.DATA_LIST[self.rec_num].eve_orlo))
-            
-            
+
+
             self.comboBox_repertato.setEditText(str(self.DATA_LIST[self.rec_num].repertato))
-            
-            
+
+
             self.comboBox_diagnostico.setEditText(str(self.DATA_LIST[self.rec_num].diagnostico))
-            
+
             str(self.lineEdit_n_reperto.setText(n_reperto))
-            
-            self.lineEdit_tipo_contenitore.setText(str(self.DATA_LIST[self.rec_num].tipo_contenitore))
+
+            self.comboBox_tipo_contenitore.setEditText(str(self.DATA_LIST[self.rec_num].tipo_contenitore))
             self.comboBox_struttura.setEditText(
                 str(self.DATA_LIST[self.rec_num].struttura))
             self.comboBox_year.setEditText(
                 str(self.DATA_LIST[self.rec_num].years))
             if self.toolButtonPreviewMedia.isChecked():
                 self.loadMediaPreview()
-            self.loadMapPreview()
-        except :
-            pass#QMessageBox.warning(self, "Error Fill Fields", str(e), QMessageBox.Ok)
+            #self.loadMapPreview()
+        except Exception as e:
+            QMessageBox.warning(self, "Error Fill Fields", str(e), QMessageBox.Ok)
 
     def set_rec_counter(self, t, c):
         self.rec_tot = t
@@ -5086,17 +5255,21 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         rif_biblio = self.table2dict("self.tableWidget_rif_biblio")
         ##tecnologie
         tecnologie = self.table2dict("self.tableWidget_tecnologie")
+        ##negative
+        negative = self.table2dict("self.tableWidget_negative")
+        ##diapositive
+        diapositive = self.table2dict("self.tableWidget_diapositive")
 
         ##scavato
         if self.lineEdit_num_inv.text() == "":
             inv =None
         else:
             inv = int(self.lineEdit_num_inv.text())
-        
-        if self.lineEdit_area.text() == "":
+
+        if self.comboBox_area.currentText() == "":
             area =None
         else:
-            area = int(self.lineEdit_area.text())
+            area = self.comboBox_area.currentText()
 
         if self.lineEdit_us.text() == "":
             us =None
@@ -5138,11 +5311,17 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         else:
             eve_orlo = float(self.lineEdit_eve_orlo.text())
 
-        
+
         if self.lineEdit_n_reperto.text() == "":
             n_reperto =None
         else:
             n_reperto = int(self.lineEdit_n_reperto.text())
+
+        # Get values for new fields
+        schedatore = str(self.comboBox_compilatore.currentText())
+        date_scheda = self.mDateTimeEdit_date.dateTime().toString('yyyy-MM-dd')
+        punto_rinv = str(self.lineEdit_punto_rinv.text())
+
         # data
         self.DATA_LIST_REC_TEMP = [
             str(self.comboBox_sito.currentText()),  # 1 - Sito
@@ -5156,9 +5335,9 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
 
             str(self.comboBox_lavato.currentText()),  # 9 - lavato
             str(nr_cassa),
-            str(self.lineEdit_luogo_conservazione.text()),  # 11 - luogo conservazione
+            str(self.comboBox_magazzino.currentText()),  # 11 - luogo conservazione
             str(self.comboBox_conservazione.currentText()),  # 12 - stato conservazione
-            str(self.lineEdit_datazione_rep.text()),  # 13 - datazione reperto
+            str(self.comboBox_datazione.currentText()),  # 13 - datazione reperto
             str(elementi_reperto),  # 14 - elementi reperto
             str(misurazioni),  # 15 - misurazioni
             str(rif_biblio),  # 16 - rif_biblio
@@ -5170,14 +5349,19 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             str(self.lineEditRivestimento.text()),  # 22 - riverstimento
             str(diametro_orlo),  # 23 - diametro orlo
             str(peso),  # 24 - peso
-            str(self.lineEdit_tipo.text()),  # 25 - tipo
+            str(self.comboBox_tipo_reperto.currentText()),  # 25 - tipo
             str(eve_orlo),  # 26 - eve orlo
             str(self.comboBox_repertato.currentText()),  # 27 - repertato
-            str(self.comboBox_diagnostico.currentText()),
-            str(n_reperto),
-            str(self.lineEdit_tipo_contenitore.text()),# 28 - diagnostico
-            str(self.comboBox_struttura.currentText()),
-            str(self.comboBox_year.currentText()),
+            str(self.comboBox_diagnostico.currentText()),  # 28 - diagnostico
+            str(n_reperto),  # 29 - n_reperto
+            str(self.comboBox_tipo_contenitore.currentText()),  # 30 - tipo_contenitore
+            str(self.comboBox_struttura.currentText()),  # 31 - struttura
+            str(self.comboBox_year.currentText()),  # 32 - years
+            schedatore,  # 33 - schedatore
+            date_scheda,  # 34 - date_scheda
+            punto_rinv,  # 35 - punto_rinv
+            str(negative),  # 36 - negativo_photo
+            str(diapositive),  # 37 - diapositiva
         ]
 
     def enable_button(self, n):
@@ -5243,8 +5427,8 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
 
 
         check_str = str(self.DATA_LIST_REC_CORR) + " " + str(self.DATA_LIST_REC_TEMP)
-        
-            
+
+
         if self.DATA_LIST_REC_CORR == self.DATA_LIST_REC_TEMP:
             return 0
         else:
@@ -5275,10 +5459,10 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         )[0]
         #filename=dbpath.split("/")[-1]
         if dbpath:
-             
+
             self.lineEdit_pdf_path.setText(dbpath)
             s.setValue('',dbpath)
-   
+
     # def on_pushButton_convert_pressed(self):
     #     # if not bool(self.setPathpdf()):
     #         # QMessageBox.warning(self, "INFO", "devi scegliere un file pdf",
