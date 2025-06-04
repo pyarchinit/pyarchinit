@@ -1281,7 +1281,7 @@
          <property name="font">
           <font>
            <family>Times New Roman</family>
-           <pointsize>8</pointsize>
+           <pointsize>9</pointsize>
           </font>
          </property>
          <property name="text">
@@ -1294,7 +1294,7 @@
          <property name="font">
           <font>
            <family>Times New Roman</family>
-           <pointsize>8</pointsize>
+           <pointsize>9</pointsize>
           </font>
          </property>
         </widget>
@@ -1310,7 +1310,7 @@
          <property name="font">
           <font>
            <family>Times New Roman</family>
-           <pointsize>8</pointsize>
+           <pointsize>9</pointsize>
           </font>
          </property>
          <property name="text">
@@ -1323,7 +1323,7 @@
          <property name="font">
           <font>
            <family>Times New Roman</family>
-           <pointsize>8</pointsize>
+           <pointsize>9</pointsize>
           </font>
          </property>
          <property name="orientation">
@@ -1348,7 +1348,7 @@
          <property name="font">
           <font>
            <family>Times New Roman</family>
-           <pointsize>8</pointsize>
+           <pointsize>9</pointsize>
           </font>
          </property>
          <property name="text">
@@ -1361,7 +1361,7 @@
          <property name="font">
           <font>
            <family>Times New Roman</family>
-           <pointsize>8</pointsize>
+           <pointsize>9</pointsize>
           </font>
          </property>
         </widget>
@@ -1377,7 +1377,7 @@
          <property name="font">
           <font>
            <family>Times New Roman</family>
-           <pointsize>8</pointsize>
+           <pointsize>9</pointsize>
           </font>
          </property>
          <property name="frameShape">
@@ -1440,7 +1440,7 @@
          <property name="font">
           <font>
            <family>Times New Roman</family>
-           <pointsize>8</pointsize>
+           <pointsize>9</pointsize>
            <weight>75</weight>
            <bold>true</bold>
           </font>
@@ -1455,7 +1455,7 @@
          <property name="font">
           <font>
            <family>Times New Roman</family>
-           <pointsize>8</pointsize>
+           <pointsize>9</pointsize>
           </font>
          </property>
          <property name="text">
@@ -1468,7 +1468,7 @@
          <property name="font">
           <font>
            <family>Times New Roman</family>
-           <pointsize>8</pointsize>
+           <pointsize>9</pointsize>
           </font>
          </property>
          <property name="orientation">
@@ -6077,6 +6077,12 @@
      </item>
      <item row="7" column="1" colspan="12">
       <widget class="QComboBox" name="comboBox_compilatore">
+       <property name="font">
+        <font>
+         <family>Times New Roman</family>
+         <pointsize>9</pointsize>
+        </font>
+       </property>
        <property name="editable">
         <bool>true</bool>
        </property>
@@ -6116,6 +6122,12 @@
      </item>
      <item row="6" column="1" colspan="12">
       <widget class="QComboBox" name="comboBox_magazzino">
+       <property name="font">
+        <font>
+         <family>Times New Roman</family>
+         <pointsize>9</pointsize>
+        </font>
+       </property>
        <property name="editable">
         <bool>true</bool>
        </property>
@@ -6123,6 +6135,12 @@
      </item>
      <item row="1" column="1" colspan="17">
       <widget class="QComboBox" name="comboBox_area">
+       <property name="font">
+        <font>
+         <family>Times New Roman</family>
+         <pointsize>9</pointsize>
+        </font>
+       </property>
        <property name="editable">
         <bool>true</bool>
        </property>
@@ -6285,6 +6303,12 @@
          <height>24</height>
         </size>
        </property>
+       <property name="font">
+        <font>
+         <family>Times New Roman</family>
+         <pointsize>9</pointsize>
+        </font>
+       </property>
        <property name="editable">
         <bool>true</bool>
        </property>
@@ -6292,6 +6316,12 @@
      </item>
      <item row="4" column="8" colspan="3">
       <widget class="QComboBox" name="comboBox_tipo_contenitore">
+       <property name="font">
+        <font>
+         <family>Times New Roman</family>
+         <pointsize>9</pointsize>
+        </font>
+       </property>
        <property name="editable">
         <bool>true</bool>
        </property>
@@ -6677,6 +6707,12 @@
      </item>
      <item row="7" column="15" colspan="4">
       <widget class="QgsDateTimeEdit" name="mDateTimeEdit_date">
+       <property name="font">
+        <font>
+         <family>Times New Roman</family>
+         <pointsize>9</pointsize>
+        </font>
+       </property>
        <property name="wrapping">
         <bool>true</bool>
        </property>
@@ -6859,6 +6895,12 @@
      </item>
      <item row="5" column="13" colspan="6">
       <widget class="QComboBox" name="comboBox_tipologia">
+       <property name="font">
+        <font>
+         <family>Times New Roman</family>
+         <pointsize>9</pointsize>
+        </font>
+       </property>
        <property name="editable">
         <bool>true</bool>
        </property>
