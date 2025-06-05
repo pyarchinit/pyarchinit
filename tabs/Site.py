@@ -242,7 +242,7 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
     def on_pushButton_movealloc_p_pressed(self):#####modifiche apportate per il calcolo statistico con R
         processing.execAlgorithmDialog('r:moveallocbypolygon')
     
-    def defaultScriptsFolder():
+    def defaultScriptsFolder(self):
         folder = str(os.path.join(userFolder(), "rscripts"))
         mkdir(folder)
         return os.path.abspath(folder)
