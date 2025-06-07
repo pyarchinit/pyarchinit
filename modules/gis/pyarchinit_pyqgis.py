@@ -32,8 +32,13 @@ from qgis.PyQt.QtWidgets import *
 
 from qgis.core import *
 from qgis.gui import *
-from qgis.PyQt.QtWidgets import QProgressBar, QApplication, QMessageBox
-from qgis.PyQt.QtCore import Qt
+# Importazioni necessarie
+from qgis.PyQt.QtWidgets import (QProgressBar, QApplication, QMessageBox,
+                                 QWidget, QVBoxLayout, QTextEdit, QPushButton,
+                                 QHBoxLayout, QLabel)
+from qgis.PyQt.QtCore import Qt, QTimer
+from qgis.PyQt.QtGui import QFont
+
 import time
 import urllib.request
 import urllib.error
@@ -4593,7 +4598,7 @@ class Pyarchinit_pyqgis(QDialog):
             
             return False
 
-class Order_layer_v2(object):
+class Order_layer_v2_old(object):
     MAX_LOOP_COUNT = 10
     order_dict = {}
     order_count = 0
@@ -4615,94 +4620,6 @@ class Order_layer_v2(object):
         frame_gm.moveCenter(center_point)
         widget.move(frame_gm.topLeft())
 
-    # def main_order_layer(self):
-    #     """
-    #
-    #     This method is used to perform the main order layering process. It takes no parameters and returns a dictionary or a string.
-    #
-    #     Returns:
-    #     - order_dict (dict): The dictionary containing the ordered matrix of user stories if the order_count is less than 1000.
-    #     - "error" (str): If the order_count is greater than or equal to 1000 or if the execution time exceeds 60 seconds.
-    #
-    #     """
-    #     # ricava la base delle us del matrix a cui non succedono altre US
-    #
-    #     #progress_dialog = ProgressDialog()
-    #     matrix_us_level = self.find_base_matrix()
-    #     #result = None
-    #
-    #     self.insert_into_dict(matrix_us_level)
-    #     #QMessageBox.warning(None, "Messaggio", "DATA LIST" + str(matrix_us_level), QMessageBox.Ok)
-    #     test = 0
-    #     start_time = time.time()
-    #     error_occurred = False
-    #     cycle_count = 0
-    #
-    #     # Set the maximum value of the progress bar
-    #     #progress_bar.setMaximum(1000)
-    #     try:
-    #         while test == 0:
-    #             # your code here
-    #             cycle_count += 1
-    #
-    #             # Check for error
-    #             if error_occurred:
-    #                 print("An error occurred!")
-    #                 break
-    #
-    #             # Check for cycle count
-    #             if cycle_count > 3000:
-    #                 print("Maximum cycle count reached!")
-    #                 break
-    #
-    #             rec_list_str = []
-    #             for i in matrix_us_level:
-    #                 rec_list_str.append(str(i))
-    #                 # cerca prima di tutto se ci sono us uguali o che si legano alle US sottostanti
-    #             #QMessageBox.warning(None, "Messaggio", "DATA LIST" + str(rec_list_str), QMessageBox.Ok)
-    #             if self.L=='it':
-    #                 value_list_equal = self.create_list_values(['Uguale a', 'Si lega a', 'Same as','Connected to'], rec_list_str, self.AREA, self.SITO)
-    #             elif self.L=='de':
-    #                 value_list_equal = self.create_list_values(["Entspricht", "Bindet an"], rec_list_str, self.AREA, self.SITO)
-    #             else:
-    #                 value_list_equal = self.create_list_values(['Same as','Connected to'], rec_list_str, self.AREA, self.SITO)
-    #
-    #             res = self.db.query_in_contains(value_list_equal, self.SITO, self.AREA)
-    #
-    #             matrix_us_equal_level = []
-    #             for r in res:
-    #                 matrix_us_equal_level.append(str(r.us))
-    #             #QMessageBox.information(None, 'matrix_us_equal_level', f"{value_list_equal}")
-    #             if matrix_us_equal_level:
-    #                 self.insert_into_dict(matrix_us_equal_level, 1)
-    #
-    #             rec = rec_list_str+matrix_us_equal_level#rec_list_str+
-    #             if self.L=='it':
-    #                 value_list_post = self.create_list_values(['>>','Copre', 'Riempie', 'Taglia', 'Si appoggia a','Covers','Fills','Cuts','Abuts'], rec,self.AREA, self.SITO)
-    #             elif self.L=='de':
-    #                 value_list_post = self.create_list_values(['>>','Liegt über','Verfüllt','Schneidet','Stützt sich auf'], rec,self.AREA, self.SITO)
-    #             else:
-    #                 value_list_post = self.create_list_values(['>>','Covers','Fills','Cuts','Abuts'], rec,self.AREA, self.SITO)
-    #
-    #             #QMessageBox.information(None, 'value_list_post', f"{value_list_post}", QMessageBox.Ok)
-    #             #try:
-    #             res_t = self.db.query_in_contains(value_list_post, self.SITO, self.AREA)
-    #             matrix_us_level = []
-    #             for e in res_t:
-    #                 #QMessageBox.information(None, "res_t", f"{e}", QMessageBox.Ok)
-    #                 matrix_us_level.append(str(e.us))
-    #
-    #             if not matrix_us_level or self.order_count >= 3000 or time.time() - start_time > 90:
-    #                 test = 1
-    #
-    #                 return self.order_dict if self.order_count < 3000 else "error"
-    #
-    #             else:
-    #                 self.insert_into_dict(matrix_us_level, 1)
-    #         #progress_dialog.closeEvent(Ignore)
-    #
-    #     except Exception as e:
-    #         QMessageBox.warning(None, "Attenzione", "La lista delle us generate supera il limite depth max 1000.\n Usare Postgres per generare l'order layer")
 
     def main_order_layer(self):
         """
@@ -5007,6 +4924,1134 @@ class Order_layer_v2(object):
             self.order_dict[k] = l
         return
 
+
+class Order_layer_v2(object):
+    """
+    Classe per l'ordinamento degli strati stratigrafici (US) in un contesto GIS, che supporta la normalizzazione
+    personalizzata e l'ordinamento dei valori US, costruendo matrix ordinate e gestendo le query del database per le
+    relazioni tra gli strati. Si integra con i componenti dell'interfaccia utente di QGIS per il feedback sul progresso
+    e supporta sia i backend SQLite che Postgres. I metodi includono la normalizzazione, la creazione di chiavi di
+    ordinamento personalizzate, la costruzione di matrix e la gestione degli errori.
+    ## Principali miglioramenti apportati:
+    1. Metodo `create_custom_sort_key()`: Crea chiavi di ordinamento personalizzate che gestiscono diversi pattern
+    di US (solo numeri, numero+lettere, lettere+numero, solo lettere)
+    2. Metodo `sort_us_list()`: Utilizza la chiave personalizzata per ordinare correttamente le liste di US
+    3. Ordinamento automatico: Tutte le liste vengono ordinate automaticamente prima di essere inserite nel dizionario
+    4. Metodo `get_ordered_matrix_result()`: Assicura che il risultato finale sia completamente ordinato
+    5. Modifiche ai metodi esistenti:
+        - `find_base_matrix()` ora restituisce una lista ordinata
+        - `insert_into_dict()` e `insert_into_dict_equal()` ordinano prima di inserire
+        - `remove_from_list_in_dict()` riordina dopo aver rimosso elementi
+        - `us_extractor()` ordina la lista estratta
+
+    6. **Gestione robusta**: Il sistema gestisce correttamente US numeriche pure, alfanumeriche e testuali, mantenendo sempre un ordinamento logico e consistente.
+
+
+    """
+    HOME = os.environ['PYARCHINIT_HOME']
+    order_dict = {}
+    order_count = 0
+    db = ''
+    L = QgsSettings().value("locale/userLocale")[0:2]
+    SITO = ""
+    AREA = ""
+
+    def __init__(self, dbconn, SITOol, AREAol, max_cycles=3000, max_time=90):
+        self.db = dbconn
+        self.SITO = SITOol
+        self.AREA = AREAol
+        self.MAX_LOOP_COUNT = max_cycles
+        self.MAX_TIME = max_time
+
+    def center_on_screen(self, widget):
+        frame_gm = widget.frameGeometry()
+        screen = QApplication.desktop().screenNumber(QApplication.desktop().cursor().pos())
+        center_point = QApplication.desktop().screenGeometry(screen).center()
+        frame_gm.moveCenter(center_point)
+        widget.move(frame_gm.topLeft())
+
+    def normalize_us_value(self, us_value):
+        """
+        Normalizza il valore US per garantire un ordinamento consistente
+        """
+        if us_value is None:
+            return "0000"
+
+        us_str = str(us_value).strip()
+
+        # Se è un numero, lo pad con zeri a sinistra
+        if us_str.isdigit():
+            return us_str.zfill(6)  # Padding a 6 cifre
+
+        # Se contiene numeri e testo, estrae la parte numerica e la pad
+        import re
+        numbers = re.findall(r'\d+', us_str)
+        if numbers:
+            # Prende il primo numero trovato
+            num_part = numbers[0].zfill(6)
+            # Mantiene la parte testuale
+            text_part = re.sub(r'\d+', '', us_str)
+            return f"{num_part}_{text_part}"
+
+        # Se è solo testo, lo restituisce così com'è ma con un prefisso per l'ordinamento
+        return f"ZZZZ_{us_str}"
+
+    def create_custom_sort_key(self, us_value):
+        """
+        Crea una chiave di ordinamento personalizzata per casi complessi
+        """
+        import re
+
+        us_str = str(us_value).strip().upper()
+
+        # Pattern per diversi tipi di US
+        patterns = [
+            (r'^(\d+)$', lambda m: (0, int(m.group(1)), "")),  # Solo numeri
+            (r'^(\d+)([A-Z]+)$', lambda m: (1, int(m.group(1)), m.group(2))),  # Numero + lettere
+            (r'^([A-Z]+)(\d+)$', lambda m: (2, int(m.group(2)), m.group(1))),  # Lettere + numero
+            (r'^([A-Z]+)$', lambda m: (3, 999999, m.group(1))),  # Solo lettere
+        ]
+
+        for pattern, key_func in patterns:
+            match = re.match(pattern, us_str)
+            if match:
+                return key_func(match)
+
+        # Fallback per casi non previsti
+        return (4, 999999, us_str)
+
+    def sort_us_list(self, us_list):
+        """
+        Ordina una lista di US utilizzando la chiave di ordinamento personalizzata
+        """
+        if not us_list:
+            return []
+
+        # Crea una lista di tuple (chiave_ordinamento, valore_originale)
+        keyed_list = [(self.create_custom_sort_key(us), str(us)) for us in us_list]
+
+        # Ordina in base alla chiave personalizzata
+        keyed_list.sort(key=lambda x: x[0])
+
+        # Restituisce solo i valori originali ordinati
+        return [pair[1] for pair in keyed_list]
+
+
+    def main_order_layer(self, max_us_limit=None):
+        """
+        This method performs the main order layering process with database-specific optimizations.
+        Auto-detects database type and applies appropriate limits.
+
+        Args:
+            max_us_limit (int): Override automatic limit detection
+        """
+        # Importazioni necessarie
+
+
+        # === AUTO-DETECTION DATABASE TYPE CORRETTO ===
+        def detect_database_type():
+            """Rileva il tipo di database in uso tramite settings.SERVER"""
+            cfg_rel_path = os.path.join(os.sep, 'pyarchinit_DB_folder', 'config.cfg')
+            file_path = '{}{}'.format(self.HOME, cfg_rel_path)
+            conf = open(file_path, "r")
+            con_sett = conf.read()
+            conf.close()
+
+            self.settings = Settings(con_sett)
+            self.settings.set_configuration()
+
+            if self.settings.SERVER == 'sqlite':
+                return 'sqlite'
+            elif self.settings.SERVER == 'postgres':
+                return 'postgresql'
+
+        db_type = detect_database_type()
+
+        # === CONFIGURAZIONE PARAMETRI PER TIPO DATABASE ===
+        if db_type == 'postgresql':
+            # Configurazione PostgreSQL - Limiti elevati
+            default_max_us = 10000
+            max_cycles = 3000
+            max_time = 600  # 10 minuti
+            max_combinations_per_query = 100000  # PostgreSQL gestisce grandi query
+            max_us_per_cycle = 20000
+            max_growth_per_cycle = 5000
+            max_consecutive_large = 3
+            db_color = "green"
+            db_icon = "🐘"
+            optimization_note = "High performance mode"
+
+        elif db_type == 'sqlite':
+            # Configurazione SQLite - Limiti conservativi
+            default_max_us = 2000
+            max_cycles = 500
+            max_time = 180  # 3 minuti
+            max_combinations_per_query = 10000
+            max_us_per_cycle = 5000
+            max_growth_per_cycle = 1000
+            max_consecutive_large = 2
+            db_color = "orange"
+            db_icon = "💾"
+            optimization_note = "Conservative mode for file-based DB"
+
+        else:
+            # Configurazione Unknown - Limiti medi
+            default_max_us = 5000
+            max_cycles = 1000
+            max_time = 300  # 5 minuti
+            max_combinations_per_query = 25000
+            max_us_per_cycle = 10000
+            max_growth_per_cycle = 2000
+            max_consecutive_large = 2
+            db_color = "gray"
+            db_icon = "❓"
+            optimization_note = "Auto-detected limits"
+
+        # Usa limite fornito o default del database
+        if max_us_limit is None:
+            max_us_limit = default_max_us
+
+        # Azzera variabili per evitare valori residui
+        self.order_count = 0
+        self.order_dict = {}
+        self.should_stop = False
+
+        # Protezioni anti-loop (adattate al database)
+        previous_us_counts = []
+        stagnation_threshold = 3
+        consecutive_large_cycles = 0
+
+        # === INTERFACCIA UTENTE ===
+        main_widget = QWidget()
+        main_widget.setWindowTitle(f"Generazione ordine stratigrafico - {db_type.upper()}")
+        main_widget.setGeometry(300, 300, 800, 700)
+        main_widget.setWindowModality(Qt.WindowModal)
+
+        layout = QVBoxLayout()
+        main_widget.setLayout(layout)
+
+        # Header con info database DETTAGLIATE
+        db_info = f"Unknown"
+        if hasattr(self, 'SERVER'):
+            db_info = f"SERVER: {self.settings.SERVER}"
+        elif hasattr(self, 'DB_SERVER'):
+            db_info = f"DB_SERVER: {self.settings.SERVER}"
+
+        db_header = QLabel(f"{db_icon} Database: {db_type.upper()} ({db_info}) - {optimization_note}")
+        db_header.setStyleSheet(f"font-weight: bold; color: {db_color}; background-color: #f8f9fa; padding: 10px; border: 2px solid #dee2e6; border-radius: 6px; margin-bottom: 5px;")
+        layout.addWidget(db_header)
+
+        # Progress bar
+        progress = QProgressBar()
+        progress.setMinimum(0)
+        progress.setMaximum(100)
+        progress.setValue(0)
+        progress.setTextVisible(True)
+        progress.setFormat("Inizializzazione...")
+        progress.setStyleSheet("QProgressBar { border: 1px solid #dee2e6; border-radius: 4px; text-align: center; } QProgressBar::chunk { background-color: #007bff; border-radius: 3px; }")
+        layout.addWidget(progress)
+
+        # Label informativa
+        info_label = QLabel("Preparazione...")
+        info_label.setStyleSheet("font-weight: bold; color: #007bff; padding: 8px; background-color: #e7f3ff; border-radius: 4px;")
+        layout.addWidget(info_label)
+
+        # Area di log
+        log_widget = QTextEdit()
+        log_widget.setMaximumHeight(380)
+        log_widget.setFont(QFont("Courier", 9))
+        log_widget.setStyleSheet("background-color: #f8f9fa; color: #333; border: 1px solid #dee2e6; border-radius: 4px; padding: 5px;")
+        layout.addWidget(log_widget)
+
+        # Pulsanti di controllo
+        button_layout = QHBoxLayout()
+
+        def stop_execution():
+            self.should_stop = True
+            log_widget.append("<span style='color: red; font-weight: bold;'>🛑 INTERRUZIONE RICHIESTA DALL'UTENTE</span>")
+            QApplication.processEvents()
+
+        stop_button = QPushButton("🛑 Interrompi")
+        stop_button.clicked.connect(stop_execution)
+        stop_button.setStyleSheet("background-color: #dc3545; color: white; font-weight: bold; padding: 10px 15px; border: none; border-radius: 5px;")
+        button_layout.addWidget(stop_button)
+
+        def clear_log():
+            log_widget.clear()
+
+        clear_button = QPushButton("🧹 Pulisci Log")
+        clear_button.clicked.connect(clear_log)
+        clear_button.setStyleSheet("background-color: #17a2b8; color: white; font-weight: bold; padding: 10px 15px; border: none; border-radius: 5px;")
+        button_layout.addWidget(clear_button)
+
+        # PULSANTE CHIUDI (per evitare loop alla fine)
+        def close_widget():
+            main_widget.close()
+
+        close_button = QPushButton("❌ Chiudi")
+        close_button.clicked.connect(close_widget)
+        close_button.setStyleSheet("background-color: #6c757d; color: white; font-weight: bold; padding: 10px 15px; border: none; border-radius: 5px;")
+        close_button.setVisible(False)  # Nascosto inizialmente
+        button_layout.addWidget(close_button)
+
+        # Info limiti correnti
+        limits_info = QLabel(f"Max US: {max_us_limit} | Max Cicli: {max_cycles} | Timeout: {max_time}s | Max Comb/Query: {max_combinations_per_query}")
+        limits_info.setStyleSheet("color: #6c757d; font-size: 11px; padding: 5px;")
+        button_layout.addWidget(limits_info)
+
+        button_layout.addStretch()
+        layout.addLayout(button_layout)
+
+        # Funzione helper per aggiungere messaggi al log
+        def add_log(message, color="black", bold=False):
+            timestamp = time.strftime("%H:%M:%S")
+            weight = "font-weight: bold;" if bold else ""
+            styled_message = f"<span style='color: gray;'>[{timestamp}]</span> <span style='color: {color}; {weight}'>{message}</span>"
+            log_widget.append(styled_message)
+            log_widget.moveCursor(log_widget.textCursor().End)
+            QApplication.processEvents()
+
+        # Protezioni anti-loop adattate al tipo di database
+        def check_growth_protection(current_count, cycle_num):
+            nonlocal consecutive_large_cycles, previous_us_counts
+
+            previous_us_counts.append(current_count)
+
+            # Mantieni solo gli ultimi N conteggi
+            if len(previous_us_counts) > stagnation_threshold + 1:
+                previous_us_counts.pop(0)
+
+            # Controllo 1: Ciclo troppo grande (soglie adattate al database)
+            if current_count > max_us_per_cycle:
+                consecutive_large_cycles += 1
+                add_log(f"⚠️ Ciclo {cycle_num}: {current_count} US (soglia {db_type.upper()}: {max_us_per_cycle}) - Consecutivi: {consecutive_large_cycles}/{max_consecutive_large}", "orange", True)
+
+                if consecutive_large_cycles >= max_consecutive_large:
+                    add_log(f"🛑 STOP: Troppi cicli consecutivi con dataset eccessivo per {db_type.upper()}", "red", True)
+                    return False
+            else:
+                consecutive_large_cycles = 0
+
+            # Controllo 2: Crescita troppo rapida (soglie adattate al database)
+            if len(previous_us_counts) >= stagnation_threshold:
+                growth_rates = []
+                for i in range(1, len(previous_us_counts)):
+                    growth = previous_us_counts[i] - previous_us_counts[i-1]
+                    growth_rates.append(growth)
+
+                avg_growth = sum(growth_rates) / len(growth_rates)
+                max_single_growth = max(growth_rates)
+
+                add_log(f"📈 Trend crescita: {previous_us_counts} | Media: +{avg_growth:.0f} | Picco: +{max_single_growth}", "gray")
+
+                if avg_growth > max_growth_per_cycle:
+                    add_log(f"🛑 STOP: Crescita media eccessiva per {db_type.upper()} (+{avg_growth:.0f} > {max_growth_per_cycle})", "red", True)
+                    return False
+
+                # Limite picco di crescita (più permissivo per PostgreSQL)
+                growth_peak_limit = max_growth_per_cycle * (3 if db_type == 'postgresql' else 2)
+                if max_single_growth > growth_peak_limit:
+                    add_log(f"🛑 STOP: Picco di crescita eccessivo per {db_type.upper()} (+{max_single_growth} > {growth_peak_limit})", "red", True)
+                    return False
+
+            return True
+
+        # Mostra il widget
+        main_widget.show()
+        QApplication.processEvents()
+
+        try:
+            add_log(f"🚀 Avvio generazione ordine stratigrafico ({db_type.upper()} Mode)", "blue", True)
+            add_log(f"🔍 Database detection: {db_info}", "gray")
+            add_log(f"📊 Parametri: SITO={self.SITO}, AREA={self.AREA}, Limite US={max_us_limit}", "gray")
+            add_log(f"🔧 Limiti {db_type.upper()}: Cicli={max_cycles}, Tempo={max_time}s, Combinazioni/Query={max_combinations_per_query}", "gray")
+            add_log(f"🛡️ Protezioni: Max US/ciclo={max_us_per_cycle}, Max crescita={max_growth_per_cycle}, Max cicli grandi={max_consecutive_large}", "gray")
+
+            # Fase 1: Trova la base del matrix
+            progress.setValue(10)
+            progress.setFormat("Ricerca base matrix...")
+            info_label.setText("🔍 Ricerca base matrix...")
+            add_log("🔍 Ricerca US di base per iniziare il matrix...", "blue")
+            QApplication.processEvents()
+
+            matrix_us_level = self.find_base_matrix()
+            if not matrix_us_level:
+                progress.setValue(100)
+                progress.setFormat("Nessuna base matrix trovata!")
+                add_log("❌ ERRORE: Nessuna US di base trovata!", "red", True)
+                add_log("💡 Controllare i dati nel database e i criteri di ricerca", "orange")
+                QApplication.processEvents()
+
+                # Mostra pulsante chiudi e aspetta
+                close_button.setVisible(True)
+                stop_button.setVisible(False)
+                QApplication.processEvents()
+
+                QMessageBox.warning(None, "Attenzione", "Nessuna US di base trovata per iniziare il matrix!")
+                return "error"
+
+            # PROTEZIONE: Limita dataset iniziale in base al database
+            original_count = len(matrix_us_level)
+            if len(matrix_us_level) > max_us_limit:
+                matrix_us_level = matrix_us_level[:max_us_limit]
+                add_log(f"✂️ Dataset limitato da {original_count} a {len(matrix_us_level)} US per ottimizzazioni {db_type.upper()}", "orange", True)
+
+            add_log(f"✅ Trovate {len(matrix_us_level)} US di base: {matrix_us_level[:10]}{'...' if len(matrix_us_level) > 10 else ''}", "green")
+
+            progress.setValue(15)
+            progress.setFormat("Inserimento dati iniziali...")
+            info_label.setText("💾 Inserimento dati iniziali...")
+            QApplication.processEvents()
+
+            # Inseriamo i dati iniziali nel dizionario
+            self.insert_into_dict(matrix_us_level)
+            add_log(f"💾 Inseriti {len(matrix_us_level)} record iniziali nel dizionario", "green")
+
+            # Variabili per il ciclo principale
+            test = 0
+            start_time = time.time()
+            cycle_count = 0
+            total_query_time = 0
+            total_equal_results = 0
+            total_post_results = 0
+
+            progress.setValue(20)
+            progress.setFormat("Avvio elaborazione...")
+            info_label.setText("⚙️ Elaborazione in corso...")
+            add_log(f"⚙️ Inizio elaborazione ciclica con protezioni anti-loop specifiche per {db_type.upper()}...", "blue", True)
+            QApplication.processEvents()
+
+            # === CICLO PRINCIPALE CON PROTEZIONI ===
+            while test == 0 and not self.should_stop:
+                cycle_count += 1
+                cycle_start_time = time.time()
+
+                add_log(f"🔄 === CICLO {cycle_count} ({db_type.upper()}) ===", "blue", True)
+
+                # PROTEZIONE 1: Limite cicli assoluto
+                if cycle_count > max_cycles:
+                    add_log(f"🛑 STOP: Raggiunto limite massimo di cicli per {db_type.upper()} ({max_cycles})", "red", True)
+                    test = 1
+                    break
+
+                # PROTEZIONE 2: Limite tempo assoluto
+                elapsed_time = time.time() - start_time
+                if elapsed_time > max_time:
+                    add_log(f"🛑 STOP: Raggiunto limite tempo massimo per {db_type.upper()} ({max_time}s)", "red", True)
+                    test = 1
+                    break
+
+                # PROTEZIONE 3: Controllo crescita dataset (specifico per database)
+                if not check_growth_protection(len(matrix_us_level), cycle_count):
+                    test = 1
+                    break
+
+                # Aggiorna progress bar con info specifiche database
+                progress_percentage = 20 + min(75, (cycle_count / max_cycles) * 75)
+                progress.setValue(int(progress_percentage))
+                progress.setFormat(f"{db_type.upper()}: Ciclo {cycle_count}/{max_cycles} ({int(progress_percentage)}%)")
+                info_label.setText(f"⚙️ {db_icon} Ciclo {cycle_count} - US: {len(matrix_us_level)} - Order: {self.order_count}")
+                QApplication.processEvents()
+
+                # Prepara lista US correnti
+                rec_list_str = []
+                for i in matrix_us_level:
+                    rec_list_str.append(str(i))
+
+                add_log(f"📋 Input ciclo: {len(rec_list_str)} US: {rec_list_str[:8]}{'...' if len(rec_list_str) > 8 else ''}", "gray")
+
+                # === FASE 1: QUERY EQUAL ===
+                add_log("🔍 Fase 1: Ricerca relazioni EQUAL...", "blue")
+
+                # Crea lista valori per query EQUAL
+                if self.L == 'it':
+                    value_list_equal = self.create_list_values(['Uguale a', 'Si lega a', 'Same as', 'Connected to'],
+                                                               rec_list_str, self.AREA, self.SITO)
+                elif self.L == 'de':
+                    value_list_equal = self.create_list_values(["Entspricht", "Bindet an"], rec_list_str, self.AREA, self.SITO)
+                else:
+                    value_list_equal = self.create_list_values(['Same as', 'Connected to'], rec_list_str, self.AREA, self.SITO)
+
+                # PROTEZIONE 4: Limita combinazioni in base al database
+                original_equal_count = len(value_list_equal)
+                if len(value_list_equal) > max_combinations_per_query:
+                    value_list_equal = value_list_equal[:max_combinations_per_query]
+                    add_log(f"✂️ Query EQUAL ridotta da {original_equal_count} a {len(value_list_equal)} combinazioni (limite {db_type.upper()})", "orange")
+
+                add_log(f"🔍 Query EQUAL: {len(value_list_equal)} combinazioni per {db_type.upper()}", "gray")
+
+                # Esegui query EQUAL
+                query_start_time = time.time()
+                try:
+                    res = self.db.query_in_contains(value_list_equal, self.SITO, self.AREA)
+                    equal_query_time = time.time() - query_start_time
+                    total_query_time += equal_query_time
+                    result_count = len(res) if res else 0
+                    total_equal_results += result_count
+
+                    # Soglie di allarme specifiche per database
+                    slow_threshold = 15 if db_type == 'postgresql' else 8
+                    add_log(f"✅ Query EQUAL: {result_count} risultati in {equal_query_time:.2f}s", "green")
+
+                    if equal_query_time > slow_threshold:
+                        add_log(f"⚠️ Query EQUAL lenta per {db_type.upper()}: {equal_query_time:.2f}s > {slow_threshold}s", "orange")
+
+                except Exception as e:
+                    add_log(f"❌ ERRORE Query EQUAL su {db_type.upper()}: {str(e)}", "red", True)
+                    test = 1
+                    break
+
+                # Elabora risultati EQUAL
+                matrix_us_equal_level = []
+                for r in res:
+                    matrix_us_equal_level.append(str(r.us))
+
+                if matrix_us_equal_level:
+                    add_log(f"📥 EQUAL: {len(matrix_us_equal_level)} US trovate: {matrix_us_equal_level[:8]}{'...' if len(matrix_us_equal_level) > 8 else ''}", "green")
+                    self.insert_into_dict_equal(matrix_us_equal_level, 1)
+                else:
+                    add_log("📭 EQUAL: Nessuna US trovata", "gray")
+
+                # Combina le liste per la fase POST
+                rec = rec_list_str + matrix_us_equal_level
+                add_log(f"🔗 Lista combinata per POST: {len(rec)} US totali", "gray")
+
+                # === FASE 2: QUERY POST ===
+                add_log("🔍 Fase 2: Ricerca relazioni POST (stratigrafiche)...", "blue")
+
+                # Crea lista valori per query POST
+                if self.L == 'it':
+                    value_list_post = self.create_list_values(
+                        ['>>', 'Copre', 'Riempie', 'Taglia', 'Si appoggia a', 'Covers', 'Fills', 'Cuts', 'Abuts'], rec,
+                        self.AREA, self.SITO)
+                elif self.L == 'de':
+                    value_list_post = self.create_list_values(
+                        ['>>', 'Liegt über', 'Verfüllt', 'Schneidet', 'Stützt sich auf'], rec, self.AREA, self.SITO)
+                else:
+                    value_list_post = self.create_list_values(['>>', 'Covers', 'Fills', 'Cuts', 'Abuts'], rec,
+                                                              self.AREA, self.SITO)
+
+                # PROTEZIONE 5: Limita combinazioni POST in base al database
+                original_post_count = len(value_list_post)
+                if len(value_list_post) > max_combinations_per_query:
+                    value_list_post = value_list_post[:max_combinations_per_query]
+                    add_log(f"✂️ Query POST ridotta da {original_post_count} a {len(value_list_post)} combinazioni (limite {db_type.upper()})", "orange")
+
+                add_log(f"🔍 Query POST: {len(value_list_post)} combinazioni per {db_type.upper()}", "gray")
+
+                # Esegui query POST
+                query_start_time = time.time()
+                try:
+                    res_t = self.db.query_in_contains(value_list_post, self.SITO, self.AREA)
+                    post_query_time = time.time() - query_start_time
+                    total_query_time += post_query_time
+                    result_count = len(res_t) if res_t else 0
+                    total_post_results += result_count
+
+                    # Soglie di allarme specifiche per database
+                    slow_threshold = 20 if db_type == 'postgresql' else 10
+                    add_log(f"✅ Query POST: {result_count} risultati in {post_query_time:.2f}s", "green")
+
+                    if post_query_time > slow_threshold:
+                        add_log(f"⚠️ Query POST lenta per {db_type.upper()}: {post_query_time:.2f}s > {slow_threshold}s", "orange")
+
+                except Exception as e:
+                    add_log(f"❌ ERRORE Query POST su {db_type.upper()}: {str(e)}", "red", True)
+                    test = 1
+                    break
+
+                # Elabora risultati POST
+                matrix_us_level = []
+                for e in res_t:
+                    matrix_us_level.append(str(e.us))
+
+                # PROTEZIONE 6: Limita output per ciclo successivo in base al database
+                if len(matrix_us_level) > max_us_per_cycle:
+                    add_log(f"✂️ Output POST ridotto da {len(matrix_us_level)} a {max_us_per_cycle} US per prossimo ciclo {db_type.upper()}", "orange")
+                    matrix_us_level = matrix_us_level[:max_us_per_cycle]
+
+                if matrix_us_level:
+                    add_log(f"📥 POST: {len(matrix_us_level)} US per prossimo ciclo: {matrix_us_level[:8]}{'...' if len(matrix_us_level) > 8 else ''}", "green")
+                else:
+                    add_log("📭 POST: Nessuna US trovata - Elaborazione completata!", "blue", True)
+
+                # Statistiche ciclo con info database
+                cycle_time = time.time() - cycle_start_time
+                avg_query_time = total_query_time / (cycle_count * 2) if cycle_count > 0 else 0
+
+                add_log(f"⏱️ Ciclo {cycle_count} ({db_type.upper()}): {cycle_time:.2f}s | Query media: {avg_query_time:.2f}s | Order: {self.order_count}", "blue")
+
+                # Controllo terminazione
+                if not matrix_us_level:
+                    test = 1
+                    add_log(f"🎯 Algoritmo convergente su {db_type.upper()}: nessuna nuova US trovata", "blue", True)
+                    break  # EXIT DAL LOOP!
+                else:
+                    # Aggiungi elementi al dizionario per il prossimo ciclo
+                    previous_count = self.order_count
+                    self.insert_into_dict(matrix_us_level, 1)
+                    new_additions = self.order_count - previous_count
+                    if new_additions > 0:
+                        add_log(f"💾 Aggiunti {new_additions} elementi al dizionario (totale: {self.order_count})", "green")
+
+                add_log(f"{'='*60}", "gray")
+
+            # === FINE CICLO PRINCIPALE ===
+
+            # Aggiorna progress bar finale
+            progress.setValue(100)
+            elapsed_time = time.time() - start_time
+            avg_cycle_time = elapsed_time / cycle_count if cycle_count > 0 else 0
+            avg_query_time = total_query_time / (cycle_count * 2) if cycle_count > 0 else 0
+
+            # Determina il motivo della terminazione
+            if self.should_stop:
+                final_msg = f"🛑 Elaborazione interrotta dall'utente su {db_type.upper()}"
+                progress.setFormat(f"{db_type.upper()}: Interrotto dall'utente")
+                info_label.setText(f"🛑 {db_icon} Interrotto")
+                add_log(final_msg, "red", True)
+                result = "error"
+            elif not matrix_us_level and test == 1:
+                final_msg = f"✅ COMPLETATO su {db_type.upper()}! Cicli: {cycle_count}, Record: {self.order_count}, Tempo: {elapsed_time:.1f}s"
+                progress.setFormat(f"{db_type.upper()}: Completato! Record: {self.order_count}")
+                info_label.setText(f"✅ {db_icon} Completato!")
+                add_log(final_msg, "green", True)
+                result = self.get_ordered_matrix_result()
+            elif cycle_count >= max_cycles:
+                final_msg = f"⚠️ Limite cicli {db_type.upper()} raggiunto: {cycle_count}/{max_cycles}"
+                progress.setFormat(f"{db_type.upper()}: Limite cicli: {cycle_count}")
+                info_label.setText(f"⚠️ {db_icon} Limite cicli")
+                add_log(final_msg, "orange", True)
+                result = self.get_ordered_matrix_result()  # Restituisce risultato parziale
+            elif elapsed_time >= max_time:
+                final_msg = f"⚠️ Timeout {db_type.upper()}: {elapsed_time:.1f}s/{max_time}s"
+                progress.setFormat(f"{db_type.upper()}: Timeout: {elapsed_time:.1f}s")
+                info_label.setText(f"⚠️ {db_icon} Timeout")
+                add_log(final_msg, "orange", True)
+                result = self.get_ordered_matrix_result()  # Restituisce risultato parziale
+            else:
+                final_msg = f"⚠️ Terminazione per protezioni anti-loop {db_type.upper()}"
+                progress.setFormat(f"{db_type.upper()}: Terminato per sicurezza")
+                info_label.setText(f"⚠️ {db_icon} Protezioni attive")
+                add_log(final_msg, "orange", True)
+                result = self.get_ordered_matrix_result()  # Restituisce risultato parziale
+
+            # === STATISTICHE FINALI DETTAGLIATE ===
+            add_log("📊 === STATISTICHE FINALI ===", "blue", True)
+            add_log(f"🏛️ Database: {db_type.upper()} - {optimization_note}", db_color, True)
+            add_log(f"🔢 Cicli eseguiti: {cycle_count}/{max_cycles}", "gray")
+            add_log(f"⏱️ Tempo totale: {elapsed_time:.2f}s (media/ciclo: {avg_cycle_time:.2f}s)", "gray")
+            add_log(f"🗄️ Tempo query totale: {total_query_time:.2f}s (media: {avg_query_time:.2f}s)", "gray")
+            add_log(f"📋 Record nel dizionario: {len(self.order_dict)} livelli", "gray")
+            add_log(f"📊 Order count finale: {self.order_count}", "gray")
+            add_log(f"🔍 Query EQUAL totali: {total_equal_results} risultati", "gray")
+            add_log(f"📥 Query POST totali: {total_post_results} risultati", "gray")
+
+            # Efficienza database
+            efficiency = (self.order_count / elapsed_time) if elapsed_time > 0 else 0
+            add_log(f"⚡ Efficienza {db_type.upper()}: {efficiency:.1f} record/secondo", db_color)
+
+            # === GESTIONE FINE ELABORAZIONE - NO LOOP! ===
+            add_log("🏁 Elaborazione terminata. Premi 'Chiudi' per uscire.", "blue", True)
+
+            # Mostra pulsante chiudi e nascondi stop
+            close_button.setVisible(True)
+            stop_button.setVisible(False)
+
+            QApplication.processEvents()
+
+            # NON ASPETTARE - restituisci subito il risultato
+            # Il widget rimane aperto per consentire di leggere i risultati
+            # ma il metodo termina qui per evitare il loop
+
+            return result
+
+        except Exception as e:
+            # Gestione errori critici con info database
+            error_msg = str(e)
+            add_log(f"💥 ERRORE CRITICO su {db_type.upper()}: {error_msg}", "red", True)
+
+            progress.setValue(100)
+            short_error = error_msg[:30] + "..." if len(error_msg) > 30 else error_msg
+            progress.setFormat(f"{db_type.upper()}: Errore: {short_error}")
+            info_label.setText(f"💥 {db_icon} Errore critico!")
+
+            # Mostra pulsante chiudi anche in caso di errore
+            close_button.setVisible(True)
+            stop_button.setVisible(False)
+            QApplication.processEvents()
+
+            # Suggerimenti specifici per database
+            suggestion = ""
+            if db_type == 'sqlite':
+                if 'memory' in error_msg.lower() or 'disk' in error_msg.lower():
+                    suggestion = "\n\n💡 Suggerimento SQLite: Ridurre max_us_limit o usare PostgreSQL per dataset grandi"
+                elif 'locked' in error_msg.lower():
+                    suggestion = "\n\n💡 Suggerimento SQLite: Database potrebbe essere bloccato da altro processo"
+            elif db_type == 'postgresql':
+                if 'timeout' in error_msg.lower():
+                    suggestion = "\n\n💡 Suggerimento PostgreSQL: Aumentare timeout configurazione server"
+                elif 'connection' in error_msg.lower():
+                    suggestion = "\n\n💡 Suggerimento PostgreSQL: Verificare connessione di rete al server"
+
+            QMessageBox.critical(None, f"Errore {db_type.upper()}",
+                                f"Errore durante la generazione dell'order layer su {db_type.upper()}:\n\n{error_msg}{suggestion}")
+            return "error"
+
+    def main_order_layer_old(self):
+        """
+        This method is used to perform the main order layering process. It takes no parameters and returns a dictionary or a string.
+
+        Returns:
+        - order_dict (dict): The dictionary containing the ordered matrix of user stories if the order_count is less than 3000.
+        - "error" (str): If the order_count is greater than or equal to 3000 or if the execution time exceeds 90 seconds.
+        """
+        # Importazioni necessarie
+
+
+
+        # Usa le costanti di classe invece di valori hardcodati
+        final_msg=''
+        max_cycles = self.MAX_LOOP_COUNT  # Ora usa la costante di classe
+        max_time = self.MAX_TIME  # Usa la costante di classe
+
+        # Azzera order_count se esiste per evitare valori residui da chiamate precedenti
+        if hasattr(self, 'order_count'):
+            self.order_count = 0
+        else:
+            self.order_count = 0
+
+        # Resetta order_dict se esiste
+        if hasattr(self, 'order_dict'):
+            self.order_dict = {}
+        else:
+            self.order_dict = {}
+
+        # Crea il widget principale con progress bar e log
+        main_widget = QWidget()
+        main_widget.setWindowTitle("Generazione ordine stratigrafico - Debug")
+        main_widget.setGeometry(300, 300, 600, 500)
+        main_widget.setWindowModality(Qt.WindowModal)
+
+        # Layout principale
+        layout = QVBoxLayout()
+        main_widget.setLayout(layout)
+
+        # Progress bar
+        progress = QProgressBar()
+        progress.setMinimum(0)
+        progress.setMaximum(100)
+        progress.setValue(0)
+        progress.setTextVisible(True)
+        progress.setFormat("Inizializzazione...")
+        layout.addWidget(progress)
+
+        # Label per informazioni rapide
+        info_label = QLabel("Preparazione...")
+        info_label.setStyleSheet("font-weight: bold; color: blue;")
+        layout.addWidget(info_label)
+
+        # Area di log
+        log_widget = QTextEdit()
+        log_widget.setMaximumHeight(300)
+        log_widget.setFont(QFont("Courier", 9))
+        log_widget.setStyleSheet("background-color: #f0f0f0; color: #333;")
+        layout.addWidget(log_widget)
+
+        # Pulsanti di controllo
+        button_layout = QHBoxLayout()
+
+        # Variabile per controllare l'interruzione
+        self.should_stop = False
+
+        def stop_execution():
+            self.should_stop = True
+            log_widget.append(
+                "<span style='color: red; font-weight: bold;'>🛑 INTERRUZIONE RICHIESTA DALL'UTENTE</span>")
+
+        stop_button = QPushButton("Interrompi")
+        stop_button.clicked.connect(stop_execution)
+        stop_button.setStyleSheet("background-color: #ff6b6b; color: white; font-weight: bold;")
+        button_layout.addWidget(stop_button)
+
+        def clear_log():
+            log_widget.clear()
+
+        clear_button = QPushButton("Pulisci Log")
+        clear_button.clicked.connect(clear_log)
+        button_layout.addWidget(clear_button)
+
+        button_layout.addStretch()
+        layout.addLayout(button_layout)
+
+        # Funzione helper per aggiungere messaggi al log
+        def add_log(message, color="black"):
+            timestamp = time.strftime("%H:%M:%S")
+            styled_message = f"<span style='color: gray;'>[{timestamp}]</span> <span style='color: {color};'>{message}</span>"
+            log_widget.append(styled_message)
+            # Scorri automaticamente verso il basso
+            log_widget.moveCursor(log_widget.textCursor().End)
+            QApplication.processEvents()
+
+        # Mostra il widget
+        main_widget.show()
+        QApplication.processEvents()
+
+        try:
+            add_log("🚀 Avvio generazione ordine stratigrafico", "blue")
+            add_log(f"📊 Parametri: SITO={self.SITO}, AREA={self.AREA}", "gray")
+
+            # Fase 1: Trova la base del matrix
+            progress.setValue(10)
+            progress.setFormat("Ricerca base matrix...")
+            info_label.setText("🔍 Ricerca base matrix...")
+            add_log("🔍 Ricerca US di base per iniziare il matrix...", "blue")
+            QApplication.processEvents()
+
+            matrix_us_level = self.find_base_matrix()
+            if not matrix_us_level:
+                progress.setValue(100)
+                progress.setFormat("Nessuna base matrix trovata!")
+                add_log("❌ ERRORE: Nessuna US di base trovata!", "red")
+                QApplication.processEvents()
+                time.sleep(2)
+                main_widget.close()
+                QMessageBox.warning(None, "Attenzione", "Nessuna US di base trovata per iniziare il matrix!")
+                return "error"
+
+            add_log(
+                f"✅ Trovate {len(matrix_us_level)} US di base: {matrix_us_level[:10]}{'...' if len(matrix_us_level) > 10 else ''}",
+                "green")
+
+            progress.setValue(15)
+            progress.setFormat("Inserimento dati iniziali...")
+            info_label.setText("💾 Inserimento dati iniziali...")
+            QApplication.processEvents()
+
+            # Inseriamo i dati iniziali nel dizionario (ordinati)
+            self.insert_into_dict(matrix_us_level)
+            add_log(f"💾 Inseriti {len(matrix_us_level)} record iniziali nel dizionario", "green")
+
+            # Variabili per il ciclo principale
+            test = 0
+            start_time = time.time()
+            cycle_count = 0
+
+            progress.setValue(20)
+            progress.setFormat("Avvio elaborazione...")
+            info_label.setText("⚙️ Elaborazione in corso...")
+            add_log("⚙️ Inizio elaborazione ciclica...", "blue")
+            QApplication.processEvents()
+
+            # Array per monitorare quando aggiornare la UI
+            update_cycles = [1, 2, 3, 4, 5, 10, 15, 20, 25, 50, 100, 200, 500, 1000, 1500, 2000, 2500, 3000]
+
+            # AGGIUNGI queste variabili prima del ciclo while:
+            previous_us_counts = []  # Storico delle dimensioni
+            stagnation_threshold = 3  # Numero di cicli senza progresso
+            max_us_per_cycle = 50000  # Limite massimo US per ciclo
+
+            while test == 0 and not self.should_stop:
+                cycle_count += 1
+                cycle_start_time = time.time()
+
+                add_log(f"🔄 Inizio ciclo {cycle_count}", "blue")
+
+                # PROTEZIONE 1: Limite assoluto di US per ciclo
+                if len(matrix_us_level) > max_us_per_cycle:
+                    add_log(f"🛑 STOP: Troppe US in questo ciclo ({len(matrix_us_level)} > {max_us_per_cycle})", "red")
+                    add_log("💡 Possibile loop infinito detectato - interruzione automatica", "red")
+                    test = 1
+                    break
+
+                # PROTEZIONE 2: Detect crescita incontrollata
+                current_us_count = len(matrix_us_level)
+                previous_us_counts.append(current_us_count)
+
+                if len(previous_us_counts) > stagnation_threshold:
+                    # Rimuovi il più vecchio
+                    previous_us_counts.pop(0)
+
+                    # Controlla se stiamo crescendo troppo
+                    if len(previous_us_counts) >= stagnation_threshold:
+                        growth_trend = [previous_us_counts[i] - previous_us_counts[i - 1]
+                                        for i in range(1, len(previous_us_counts))]
+                        avg_growth = sum(growth_trend) / len(growth_trend)
+
+                        if avg_growth > 1000:  # Crescita media > 1000 US per ciclo
+                            add_log(f"🛑 STOP: Crescita incontrollata detectata (media: +{avg_growth:.0f} US/ciclo)",
+                                    "red")
+                            add_log(f"📊 Ultimi cicli: {previous_us_counts}", "red")
+                            test = 1
+                            break
+
+                # PROTEZIONE 3: Limite basato sul numero di combinazioni
+                rec_list_str = []
+                for i in matrix_us_level:
+                    rec_list_str.append(str(i))
+
+                if len(rec_list_str) > 10000:  # Se abbiamo più di 10k US
+                    add_log(f"⚠️ ATTENZIONE: Processando {len(rec_list_str)} US - molto elevato!", "orange")
+                    add_log("💡 Considerare l'utilizzo di PostgreSQL per dataset così grandi", "orange")
+
+                add_log(
+                    f"📋 Processando {len(rec_list_str)} US: {rec_list_str[:5]}{'...' if len(rec_list_str) > 5 else ''}",
+                    "gray")
+
+                # Cerca US che sono uguali o si legano alle US esistenti
+                if self.L == 'it':
+                    value_list_equal = self.create_list_values(['Uguale a', 'Si lega a', 'Same as', 'Connected to'],
+                                                               rec_list_str, self.AREA, self.SITO)
+                elif self.L == 'de':
+                    value_list_equal = self.create_list_values(["Entspricht", "Bindet an"], rec_list_str, self.AREA,
+                                                               self.SITO)
+                else:
+                    value_list_equal = self.create_list_values(['Same as', 'Connected to'], rec_list_str, self.AREA,
+                                                               self.SITO)
+
+                add_log(f"🔍 Creata lista con {len(value_list_equal)} combinazioni per query EQUAL", "gray")
+
+                # PUNTO CRITICO - Query per relazioni uguali
+                add_log("🔄 Eseguendo query_in_contains per relazioni EQUAL...", "orange")
+                query_start_time = time.time()
+
+                try:
+                    res = self.db.query_in_contains(value_list_equal, self.SITO, self.AREA)
+                    query_time = time.time() - query_start_time
+                    result_count = len(res) if res else 0
+                    add_log(f"✅ Query EQUAL completata in {query_time:.2f}s - Risultati: {result_count}", "green")
+
+                    if query_time > 5:
+                        add_log(f"⚠️ Query lenta detected: {query_time:.2f}s", "orange")
+
+                except Exception as e:
+                    add_log(f"❌ ERRORE nella query EQUAL: {str(e)}", "red")
+                    main_widget.close()
+                    return "error"
+
+                # Elabora i risultati per i legami uguali
+                matrix_us_equal_level = []
+                for r in res:
+                    matrix_us_equal_level.append(str(r.us))
+
+                if matrix_us_equal_level:
+                    add_log(
+                        f"📥 Trovate {len(matrix_us_equal_level)} US EQUAL: {matrix_us_equal_level[:5]}{'...' if len(matrix_us_equal_level) > 5 else ''}",
+                        "green")
+                    self.insert_into_dict_equal(matrix_us_equal_level, 1)
+                else:
+                    add_log("📭 Nessuna US EQUAL trovata", "gray")
+
+                # Combina le liste per la prossima ricerca (mantieni l'ordine)
+                rec = rec_list_str + matrix_us_equal_level
+                add_log(f"🔗 Lista combinata: {len(rec)} US totali", "gray")
+
+                # Cerca US che sono coperti, riempiti, ecc.
+                if self.L == 'it':
+                    value_list_post = self.create_list_values(
+                        ['>>', 'Copre', 'Riempie', 'Taglia', 'Si appoggia a', 'Covers', 'Fills', 'Cuts', 'Abuts'], rec,
+                        self.AREA, self.SITO)
+                elif self.L == 'de':
+                    value_list_post = self.create_list_values(
+                        ['>>', 'Liegt über', 'Verfüllt', 'Schneidet', 'Stützt sich auf'], rec, self.AREA, self.SITO)
+                else:
+                    value_list_post = self.create_list_values(['>>', 'Covers', 'Fills', 'Cuts', 'Abuts'], rec,
+                                                              self.AREA, self.SITO)
+
+                add_log(f"🔍 Creata lista con {len(value_list_post)} combinazioni per query POST", "gray")
+
+                # PUNTO CRITICO - Query per relazioni stratigrafiche
+                add_log("🔄 Eseguendo query_in_contains per relazioni POST...", "orange")
+                query_start_time = time.time()
+
+                try:
+                    res_t = self.db.query_in_contains(value_list_post, self.SITO, self.AREA)
+                    query_time = time.time() - query_start_time
+                    result_count = len(res_t) if res_t else 0
+                    add_log(f"✅ Query POST completata in {query_time:.2f}s - Risultati: {result_count}", "green")
+
+                    if query_time > 5:
+                        add_log(f"⚠️ Query lenta detected: {query_time:.2f}s", "orange")
+
+                except Exception as e:
+                    add_log(f"❌ ERRORE nella query POST: {str(e)}", "red")
+                    main_widget.close()
+                    return "error"
+
+                # Elabora i risultati
+                matrix_us_level = []
+                for e in res_t:
+                    matrix_us_level.append(str(e.us))
+
+                if matrix_us_level:
+                    add_log(f"📥 Trovate {len(matrix_us_level)} US POST per prossimo ciclo", "green")
+                else:
+                    add_log("📭 Nessuna US POST trovata - Fine elaborazione", "blue")
+
+                # Calcola tempi del ciclo
+                cycle_time = time.time() - cycle_start_time
+                elapsed_time = time.time() - start_time
+
+                add_log(
+                    f"⏱️ Ciclo {cycle_count} completato in {cycle_time:.2f}s (totale: {elapsed_time:.1f}s) - Order count: {self.order_count}",
+                    "blue")
+
+                # Controlla se è il momento di terminare
+                if not matrix_us_level or self.order_count >= max_cycles or elapsed_time > max_time:
+                    test = 1
+
+                    # Aggiorna la progress bar al 100%
+                    progress.setValue(100)
+
+                    if not matrix_us_level:
+                        final_msg = f"✅ Completato! Cicli: {cycle_count}, Record: {self.order_count}"
+                        progress.setFormat(f"Completato! Cicli: {cycle_count}, Record: {self.order_count}")
+                        info_label.setText("✅ Elaborazione completata!")
+                    elif self.order_count >= max_cycles:
+                        final_msg = f"⚠️ Limite di record raggiunto: {self.order_count}"
+                        progress.setFormat(f"Limite di record raggiunto: {self.order_count}")
+                        info_label.setText("⚠️ Limite raggiunto!")
+                    elif elapsed_time > max_time:
+                        final_msg = f"⚠️ Tempo massimo superato: {int(elapsed_time)}s"
+                        progress.setFormat(f"Tempo massimo superato: {int(elapsed_time)}s")
+                        info_label.setText("⚠️ Timeout!")
+
+                    add_log(final_msg, "blue")
+                    add_log(f"📊 Statistiche finali: {len(self.order_dict)} livelli nel dizionario", "blue")
+                    QApplication.processEvents()
+                    time.sleep(2)
+                    main_widget.close()
+
+                    if self.order_count < max_cycles and not self.should_stop:
+                        return self.get_ordered_matrix_result()
+                    else:
+                        return "error"
+                else:
+                    # Aggiungi i nuovi elementi al dizionario (ordinati)
+                    previous_count = self.order_count
+                    self.insert_into_dict(matrix_us_level, 1)
+                    if self.order_count > previous_count:
+                        add_log(f"💾 Aggiunti {self.order_count - previous_count} nuovi elementi al dizionario", "green")
+
+            # Se interrotto dall'utente
+            if self.should_stop:
+                add_log("🛑 Elaborazione interrotta dall'utente", "red")
+                progress.setFormat("Interrotto dall'utente")
+                QApplication.processEvents()
+                time.sleep(1)
+                main_widget.close()
+                return "error"
+
+            # Questa parte non dovrebbe mai essere raggiunta, ma per sicurezza:
+            main_widget.close()
+            return self.get_ordered_matrix_result() if self.order_count < max_cycles else "error"
+
+        except Exception as e:
+            # Gestione degli errori
+            error_msg = str(e)
+            add_log(f"💥 ERRORE GRAVE: {error_msg}", "red")
+
+            progress.setValue(100)
+            short_error = error_msg[:30] + "..." if len(error_msg) > 30 else error_msg
+            progress.setFormat(f"Errore: {short_error}")
+            info_label.setText("💥 Errore!")
+            QApplication.processEvents()
+            time.sleep(2)
+            main_widget.close()
+
+            QMessageBox.warning(None, "Attenzione",
+                                f"Errore durante la generazione dell'order layer: {error_msg}\n" +
+                                "La lista delle us generate supera il limite o si è verificato un errore.\n" +
+                                "Usare Postgres per generare l'order layer")
+            return "error"
+
+
+    def find_base_matrix(self):
+        res = self.db.select_not_like_from_db_sql(self.SITO, self.AREA)
+
+        rec_list = []
+        for rec in res:
+            rec_list.append(str(rec.us))
+
+        # Ordina la lista base prima di restituirla
+        return self.sort_us_list(rec_list)
+
+    def create_list_values(self, rapp_type_list, value_list, ar, si):
+        self.rapp_type_list = rapp_type_list
+        self.value_list = value_list
+        self.ar = ar
+        self.si = si
+
+        value_list_to_find = []
+
+        for sing_value in self.value_list:
+            for sing_rapp in self.rapp_type_list:
+                sql_query_string = "['%s', '%s', '%s', '%s']" % (sing_rapp, sing_value, self.ar, self.si)
+                value_list_to_find.append(sql_query_string)
+
+        return value_list_to_find
+
+    def us_extractor(self, res):
+        self.res = res
+        rec_list = []
+        for rec in self.res:
+            rec_list.append(rec.us)
+
+        # Ordina la lista estratta
+        return self.sort_us_list(rec_list)
+
+    def insert_into_dict(self, base_matrix, v=0):
+        """
+        Versione modificata che mantiene l'ordine delle US
+        """
+        self.base_matrix = base_matrix
+        if v == 1:
+            self.remove_from_list_in_dict(self.base_matrix)
+
+        # Ordina la lista prima di inserirla nel dizionario
+        sorted_matrix = self.sort_us_list(self.base_matrix)
+        self.order_dict[self.order_count] = sorted_matrix
+        self.order_count += 1
+
+    def insert_into_dict_equal(self, base_matrix, v=0):
+        """
+        Versione modificata che mantiene l'ordine delle US per elementi uguali
+        """
+        self.base_matrix = base_matrix
+        if v == 1:
+            self.remove_from_list_in_dict(self.base_matrix)
+
+        # Ordina la lista prima di inserirla nel dizionario
+        sorted_matrix = self.sort_us_list(self.base_matrix)
+        self.order_dict[self.order_count] = sorted_matrix
+        self.order_count += 1
+
+    def remove_from_list_in_dict(self, curr_base_matrix):
+        self.curr_base_matrix = curr_base_matrix
+
+        for k, v in list(self.order_dict.items()):
+            l = v
+            for i in self.curr_base_matrix:
+                try:
+                    l.remove(str(i))
+                except:
+                    pass
+            # Riordina la lista dopo aver rimosso elementi
+            self.order_dict[k] = self.sort_us_list(l)
+
+    def get_ordered_matrix_result(self):
+        """
+        Restituisce il risultato finale ordinato correttamente
+        """
+        if not self.order_dict:
+            return {}
+
+        # Ordina ogni livello del dizionario (dovrebbero già essere ordinati, ma per sicurezza)
+        ordered_result = {}
+        for level, us_list in self.order_dict.items():
+            ordered_result[level] = self.sort_us_list(us_list)
+
+        return ordered_result
 
 class MyError(Exception):
 
