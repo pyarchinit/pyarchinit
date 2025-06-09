@@ -21,6 +21,7 @@ from __future__ import absolute_import
 
 import ast
 import csv
+import json
 
 from datetime import datetime
 
@@ -93,7 +94,8 @@ from ..modules.utility.textTosql import *
 from ..modules.db.pyarchinit_conn_strings import Connection
 from ..modules.db.pyarchinit_db_manager import Pyarchinit_db_management
 from ..modules.db.pyarchinit_utility import Utility
-from ..modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis, Order_layer_v2
+from ..modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis, Order_layer_v2, \
+    LogMonitorWidget  # , Order_layer_v2_optimized
 from ..modules.utility.delegateComboBox import ComboBoxDelegate
 from ..modules.utility.pyarchinit_error_check import Error_check
 from ..modules.utility.pyarchinit_exp_USsheet_pdf import generate_US_pdf
@@ -11738,35 +11740,101 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
             sito = self.DATA_LIST[0].sito  # self.comboBox_sito_rappcheck.currentText()
             area = self.DATA_LIST[0].area  # self.comboBox_area.currentText()
+
+            # Crea il widget monitor
+            monitor_widget = LogMonitorWidget()
+            monitor_widget.show()  # Mostra la finestra
+
+            # Crea Order_layer_v2 con il widget
+            OL = Order_layer_v2(self.DB_MANAGER, sito, area,
+                                         enable_monitoring=True,
+                                         monitor_widget=monitor_widget)
+
             # script order layer from pyqgis
-            OL = Order_layer_v2(self.DB_MANAGER, sito, area)
+            #OL = Order_layer_v2(self.DB_MANAGER, sito, area)
             # QMessageBox.warning(None, "Messaggio", "DATA LIST" + str(OL), QMessageBox.Ok)
             order_layer_dict = OL.main_order_layer()
-            #QMessageBox.warning(None, "Messaggio", "DATA LIST" + str(order_layer_dict), QMessageBox.Ok)
-
-            #order_layer_dict = json.loads(order_layer_dict)
+            # QMessageBox.warning(None, "Messaggio", "DATA LIST" + str(order_layer_dict), QMessageBox.Ok)
+            # order_number = ""
+            # us = ""
+            for k, v in order_layer_dict.items():  # era iteritems prima
+                order_number = str(k)
+                us = v
+                # QMessageBox.warning(None, "Messaggio", "DATA LIST" + str(k)+str(v), QMessageBox.Ok)
+                for sing_us in v:
+                    search_dict = {'sito': "'" + str(sito) + "'", 'area': "'" + str(area) + "'",
+                                   'us': int(sing_us)}
+                    # QMessageBox.warning(None, "Messaggio", "DATA LIST" + str(search_dict), QMessageBox.Ok)
+                    try:
+                        records = self.DB_MANAGER.query_bool(search_dict,
+                                                             self.MAPPER_TABLE_CLASS)  # carica tutti i dati di uno scavo ordinati per numero di US
+                        # QMessageBox.warning(None, "Messaggio", "records" + str(records), QMessageBox.Ok)
+                        a = self.DB_MANAGER.update(self.MAPPER_TABLE_CLASS, self.ID_TABLE, [int(records[0].id_us)],
+                                                   ['order_layer'], [order_number])
+                        # QMessageBox.warning(None, "Messaggio", "records" + str(a), QMessageBox.Ok)
+                        self.on_pushButton_view_all_pressed()
+                    except Exception as e:
+                        QMessageBox.warning(self, u'ACHTUNG', str(e), QMessageBox.Ok)
+            # Versione ottimizzata
+            # OL = Order_layer_v2(self.DB_MANAGER, sito, area, use_graphviz=True)
+            #
+            # order_layer_dict = OL.main_order_layer()
+            #
+            # # Opzionale: esporta visualizzazione Graphviz
+            # #graph_file = OL.export_graphviz_visualization()
+            # #if graph_file:
+            #      #QMessageBox.information(self, "Matrix Esportato", f"Matrix salvato come: {graph_file}")
+            #
+            # try:
+            #     # Batch update ottimizzato
+            #     updates_batch = []
+            #
+            #     for k, v in order_layer_dict.items():
+            #         order_number = k
+            #         us_v = v
+            #
+            #         for sing_us in us_v:
+            #             search_dict = {
+            #                 'sito': "'" + str(sito) + "'",
+            #                 'area': "'" + str(area) + "'",
+            #                 'us': int(sing_us)
+            #             }
+            #
+            #             try:
+            #                 records = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
+            #                 if records:
+            #                     updates_batch.append({
+            #                         'id': int(records[0].id_us),
+            #                         'order_layer': order_number
+            #                     })
+            #             except Exception as e:
+            #                 QMessageBox.warning(self, 'Attenzione', str(e), QMessageBox.Ok)
+            #
+            #     # Esegue tutti gli aggiornamenti in una transazione
+            #     if updates_batch:
+            #         self.DB_MANAGER.begin_transaction()
+            #         try:
+            #             for update in updates_batch:
+            #                 self.DB_MANAGER.update(
+            #                     self.MAPPER_TABLE_CLASS,
+            #                     self.ID_TABLE,
+            #                     [update['id']],
+            #                     ['order_layer'],
+            #                     [update['order_layer']]
+            #                 )
+            #             self.DB_MANAGER.commit_transaction()
+            #
+            #             # Aggiorna la UI una sola volta
+            #             self.on_pushButton_view_all_pressed()
+            #
+            #         except Exception as e:
+            #             self.DB_MANAGER.rollback_transaction()
+            #             QMessageBox.warning(self, 'Errore', f"Errore durante l'aggiornamento batch: {e}",
+            #                                 QMessageBox.Ok)
+            #
+            # except Exception as e:
+            #     QMessageBox.warning(self, 'Errore', str(e), QMessageBox.Ok)
             try:
-                # Ottimizzazione: aggiorna il database senza refreshare la UI ad ogni ciclo
-                updates_count = 0
-                for k, v in order_layer_dict.items():
-                    order_number = k
-                    us_v = v
-                    #QMessageBox.warning(self, "Messaggio", f"order{order_number} - us{us_v}", QMessageBox.Ok)
-                    for sing_us in us_v:
-                        search_dict = {'sito': "'"+str(sito)+"'", 'area': "'"+str(area)+"'",
-                                       'us': int(sing_us)}
-                        #QMessageBox.warning(None, "Messaggio", "DATA LIST" + str(search_dict), QMessageBox.Ok)
-                        try:
-                            records = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)  # carica tutti i dati di uno scavo ordinati per numero di US
-                            #QMessageBox.warning(None, "Messaggio", "records" + str(records), QMessageBox.Ok)
-                            self.DB_MANAGER.update(self.MAPPER_TABLE_CLASS, self.ID_TABLE, [int(records[0].id_us)], ['order_layer'], [order_number])
-                            updates_count += 1
-                        except Exception as e:
-                            QMessageBox.warning(self, 'Attenzione', str(e), QMessageBox.Ok)
-
-                # Aggiorna la UI una sola volta dopo aver completato tutti gli aggiornamenti
-                if updates_count > 0:
-                    self.on_pushButton_view_all_pressed()
                 #QMessageBox.warning(self, "Messaggio", f"order{order_number} - us{us_v}", QMessageBox.Ok)
                 if self.L=='it':
                     filename_tipo_rapporti_mancanti = '{}{}{}'.format(self.REPORT_PATH, os.sep, 'tipo_rapporti_mancanti.txt')
