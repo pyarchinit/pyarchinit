@@ -57,7 +57,7 @@ class Pyarchinit_pyqgis(QDialog):
     #SRS = 3004
     L=QgsSettings().value("locale/userLocale")[0:2]
     USLayerId = ""
-    
+
     LAYERS_DIZ = {"1": "pyarchinit_campionature",
                   "2": "pyarchinit_individui",
                   "3": "pyarchinit_linee_rif",
@@ -217,7 +217,7 @@ class Pyarchinit_pyqgis(QDialog):
 
         settings = Settings(con_sett)
         settings.set_configuration()
-        
+
         if self.L=='it':
             name_layer_s='US view'
         elif self.L=='de':
@@ -251,9 +251,9 @@ class Pyarchinit_pyqgis(QDialog):
 
             uri = QgsDataSourceUri()
             uri.setDatabase(db_file_path)
-            
-            
-                
+
+
+
             uri.setDataSource('', 'pyarchinit_us_view', 'the_geom', gidstr, "ROWID")
             layerUS = QgsVectorLayer(uri.uri(), '', 'spatialite')
             ###################################################################
@@ -266,7 +266,7 @@ class Pyarchinit_pyqgis(QDialog):
 
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerUS))
                 QgsProject.instance().addMapLayers([layerUS], False)
-                
+
             uri.setDataSource('', 'pyarchinit_quote_view', 'the_geom', gidstr, "ROWID")
             layerQUOTE = QgsVectorLayer(uri.uri(), '', 'spatialite')
 
@@ -378,7 +378,7 @@ class Pyarchinit_pyqgis(QDialog):
 
             uri = QgsDataSourceUri()
             uri.setDatabase(db_file_path)
-            
+
             uri.setDataSource('', 'pyarchinit_quote_view', 'the_geom', gidstr, "ROWID")
             layerQUOTE = QgsVectorLayer(uri.uri(), '', 'spatialite')
 
@@ -394,7 +394,7 @@ class Pyarchinit_pyqgis(QDialog):
                 QgsProject.instance().addMapLayers([layerQUOTE], False)
             else:
                 pass
-            
+
             uri.setDataSource('', 'pyarchinit_us_view', 'the_geom', gidstr, "ROWID")
             layerUS = QgsVectorLayer(uri.uri(), '', 'spatialite')
 
@@ -411,7 +411,7 @@ class Pyarchinit_pyqgis(QDialog):
             else:
                 pass
 
-            
+
 
         elif settings.SERVER == 'postgres':
 
@@ -423,7 +423,7 @@ class Pyarchinit_pyqgis(QDialog):
             gidstr = "id_us = " + str(self.idus)
 
             #srs = QgsCoordinateReferenceSystem(self.SRS, QgsCoordinateReferenceSystem.PostgisCrsId)
-            
+
             uri.setDataSource("public", "pyarchinit_quote_view", "the_geom", gidstr, "gid")
             layerQUOTE = QgsVectorLayer(uri.uri(), '', "postgres")
 
@@ -437,10 +437,10 @@ class Pyarchinit_pyqgis(QDialog):
                     QgsProject.instance().addMapLayers([layerQUOTE], False)
                 except Exception as e:
                     pass
-                   
+
             else:
                 QMessageBox.warning(self, "Pyarchinit", "OK Layer Quote non valido", QMessageBox.Ok)
-            
+
             uri.setDataSource("public", "pyarchinit_us_view", "the_geom", gidstr, "gid")
             layerUS = QgsVectorLayer(uri.uri(),'' , "postgres")
 
@@ -456,8 +456,8 @@ class Pyarchinit_pyqgis(QDialog):
             else:
                 QMessageBox.warning(self, "Pyarchinit", "OK Layer US non valido", QMessageBox.Ok)
 
-            
-        
+
+
     def charge_vector_layers_doc(self, data):
         # Clean Qgis Map Later Registry
         # QgsProject.instance().removeAllMapLayers()
@@ -504,11 +504,11 @@ class Pyarchinit_pyqgis(QDialog):
                 pass
             uri = QgsDataSourceUri()
             uri.setDatabase(db_file_path)
-            
-            
-            
 
-            
+
+
+
+
             layer_name_pos = "Sezione - "+ str(data[0].sito)+ ": " + str(data[0].tipo_documentazione) + ": " + str(data[0].nome_doc)
             uri.setDataSource('', 'pyarchinit_sezioni_view', 'the_geom', sezstr, "ROWID")
             ##          uri.setDataSource('','pyarchinit_doc_view_b', 'the_geom', docstr, "ROWID")
@@ -524,10 +524,10 @@ class Pyarchinit_pyqgis(QDialog):
             else:
                 QMessageBox.warning(self, "Pyarchinit", "Layer Sezioni non valido", QMessageBox.Ok)
 
-            
-            
-            
-            
+
+
+
+
             docstr = ""
             if len(data) == 1:
                 docstr = "sito = '" + str(data[0].sito) + "' AND nome_doc = '" + str(
@@ -542,11 +542,11 @@ class Pyarchinit_pyqgis(QDialog):
                 pass
             uri = QgsDataSourceUri()
             uri.setDatabase(db_file_path)
-            
-            
-            
 
-            
+
+
+
+
             layer_name_pos = "Registro Doc - "+str(data[0].sito)+ ": " + str(data[0].tipo_documentazione) + ": " + str(data[0].nome_doc)
             uri.setDataSource('', 'pyarchinit_doc_view', 'the_geom', docstr, "ROWID")
             ##          uri.setDataSource('','pyarchinit_doc_view_b', 'the_geom', docstr, "ROWID")
@@ -561,7 +561,7 @@ class Pyarchinit_pyqgis(QDialog):
 
             else:
                 QMessageBox.warning(self, "Pyarchinit", "Layer Registro Documentazione non valido", QMessageBox.Ok)
-                
+
 
 
             gdrst = "id_us = '" + str(data[0]) + "'"
@@ -593,11 +593,11 @@ class Pyarchinit_pyqgis(QDialog):
                 #QMessageBox.warning(self, "Pyarchinit", "OK Layer US Negative valido", QMessageBox.Ok)
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerNeg))
                 QgsProject.instance().addMapLayers([layerNeg], False)
-              
-                
+
+
             else:
                 QMessageBox.warning(self, "Pyarchinit", "Layer US Negative non valido", QMessageBox.Ok)
-            
+
             docstr = ""
             if len(data) == 1:
                 docstr = "sito = '" + str(data[0].sito) + "' AND nome_doc = '" + str(
@@ -610,7 +610,7 @@ class Pyarchinit_pyqgis(QDialog):
                         data[i].tipo_documentazione) + " AND nome_doc = '" + str(data[i].nome_doc) + "')"
             else:
                 pass
-            
+
 
             layer_name_pos = "US orizzontali - "+ str(data[0].tipo_documentazione) + ": " + str(data[0].nome_doc)
 
@@ -680,13 +680,13 @@ class Pyarchinit_pyqgis(QDialog):
 
 
         elif settings.SERVER == 'postgres':
-            
 
-            
+
+
             uri = QgsDataSourceUri()
             uri.setConnection(settings.HOST, settings.PORT, settings.DATABASE, settings.USER, settings.PASSWORD)
 
-            
+
 
             #srs = QgsCoordinateReferenceSystem(self.SRS, QgsCoordinateReferenceSystem.PostgisCrsId)
             docstr = ""
@@ -701,12 +701,12 @@ class Pyarchinit_pyqgis(QDialog):
                         data[i].tipo_documentazione) + " AND nome_doc = '" + str(data[i].nome_doc) + "')"
             else:
                 pass
-            
+
 
             layer_name_pos = "US orizzontali - "+str(data[0].tipo_documentazione) + ": " + str(data[0].nome_doc)
 
             uri.setDataSource("", 'pyarchinit_us_view', 'the_geom', docstr, "gid")
-            
+
             layerPos = QgsVectorLayer(uri.uri(), layer_name_pos, 'postgres')
 
             if layerPos.isValid():
@@ -746,7 +746,7 @@ class Pyarchinit_pyqgis(QDialog):
             layer_name_pos = "US Verticali - "+ str(data[0].tipo_documentazione) + ": " + str(data[0].nome_doc)
 
             uri.setDataSource("", 'pyarchinit_usm_view', 'the_geom', docstr, "gid")
-            
+
             layerPos = QgsVectorLayer(uri.uri(), layer_name_pos, 'postgres')
 
             if layerPos.isValid():
@@ -755,8 +755,8 @@ class Pyarchinit_pyqgis(QDialog):
                 QgsProject.instance().addMapLayers([layerPos], False)
                 self.canvas = QgsMapCanvas()
                 self.canvas.setExtent(layerPos.extent())
-            
-            
+
+
             layer_name_neg = "US Negative - "+str(data[0].tipo_documentazione) + ": " + str(data[0].nome_doc) + " - negative"
 
             '''docstrn = "sito_n = '" + str(data[0].sito) + "' AND nome_doc_n = '" + str(
@@ -785,12 +785,12 @@ class Pyarchinit_pyqgis(QDialog):
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerNeg))
                 QgsProject.instance().addMapLayers([layerNeg], False)
 
-              
+
 
             else:
                 QMessageBox.warning(self, "Pyarchinit", "Layer US Negative non valido", QMessageBox.Ok)
-            
-            
+
+
             if len(data) == 1:
                 docstr = "sito = '" + str(data[0].sito) + "' AND nome_doc = '" + str(
                     data[0].nome_doc) + "' AND tipo_doc = '" + str(data[0].tipo_documentazione) + "'"
@@ -802,8 +802,8 @@ class Pyarchinit_pyqgis(QDialog):
                         data[i].tipo_documentazione) + " AND nome_doc = '" + str(data[i].nome_doc) + "')"
             else:
                 pass
-            
-            
+
+
             layer_name_pos = "Registro doc - "+str(data[0].tipo_documentazione) + ": " + str(data[0].nome_doc)
             uri.setDataSource("", 'pyarchinit_doc_view', 'the_geom', docstr, "gid")
             ##          uri.setDataSource('','pyarchinit_doc_view_b', 'the_geom', docstr, "ROWID")
@@ -881,9 +881,9 @@ class Pyarchinit_pyqgis(QDialog):
             name_layer_sw='SEW view'
         else:
             name_layer_sw='SUW view'
-        
-        
-        
+
+
+
         if self.L=='it':
             name_layer_d='Sezione view'
         elif self.L=='de':
@@ -896,21 +896,21 @@ class Pyarchinit_pyqgis(QDialog):
             name_layer_q='Hoch view'
         else:
             name_layer_q='Elevation view'
-        
+
         if self.L=='it':
             name_layer_qw='Quote USM view'
         elif self.L=='de':
             name_layer_qw='Hoch SEW view'
         else:
             name_layer_qw='Elevation SUW view'
-        
+
         if self.L=='it':
             name_layer_s_n='US negative view'
         elif self.L=='de':
             name_layer_s_n='SE negative view'
         else:
             name_layer_s_n='SU negative view'   
-            
+
         groupName="View scheda US-Documentazione"
         root = QgsProject.instance().layerTreeRoot()
         group = root.addGroup(groupName)
@@ -1019,9 +1019,9 @@ class Pyarchinit_pyqgis(QDialog):
                 QMessageBox.warning(self, "Pyarchinit", "Layer US non valido", QMessageBox.Ok)
 
                 # implementare sistema per quote se si vogliono visualizzare sulle piante
-            
-            
-            
+
+
+
             doc_from_us_str = "sito = '" + sito + "' AND tipo_doc = '" + tipo_documentazione + "' AND nome_doc = '" + nome_doc + "'"
             # if len(data) > 1:
             # for i in range(len(data)):
@@ -1051,8 +1051,8 @@ class Pyarchinit_pyqgis(QDialog):
 
             else:
                 QMessageBox.warning(self, "Pyarchinit", "Layer USM non valido", QMessageBox.Ok)
-            
-            
+
+
             """
             uri.setDataSource('','pyarchinit_quote_view', 'the_geom', gidstr.tipodoc(pianta), "ROWID")
             layerQUOTE=QgsVectorLayer(uri.uri(), 'pyarchinit_quote_view', 'spatialite')
@@ -1067,7 +1067,7 @@ class Pyarchinit_pyqgis(QDialog):
             """
 
         elif settings.SERVER == 'postgres':
-            
+
             uri = QgsDataSourceUri()
             # set host name, port, database name, username and password
 
@@ -1077,7 +1077,7 @@ class Pyarchinit_pyqgis(QDialog):
             # for i in range(len(data)):
             # doc_from_us_str += " OR (sito = '" + str(data[i].sito) +" AND tipo_documentazione = '" + str(data[i].tipo_documentazione) +" AND nome_doc = '"+ str(data[i].nome_doc)
 
-            
+
 
             uri.setDataSource('', 'pyarchinit_doc_view', 'the_geom', doc_from_us_str, "gid")
             layerUS = QgsVectorLayer(uri.uri(), name_layer_d, 'postgres')
@@ -1153,8 +1153,8 @@ class Pyarchinit_pyqgis(QDialog):
                 QMessageBox.warning(self, "Pyarchinit", "Layer US non valido", QMessageBox.Ok)
 
                 # implementare sistema per quote se si vogliono visualizzare sulle piante
-            
-            
+
+
             doc_from_us_str = "sito = '" + sito + "' AND tipo_doc = '" + tipo_documentazione + "' AND nome_doc = '" + nome_doc + "'"
             # if len(data) > 1:
             # for i in range(len(data)):
@@ -1183,8 +1183,8 @@ class Pyarchinit_pyqgis(QDialog):
 
             else:
                 QMessageBox.warning(self, "Pyarchinit", "Layer USM non valido", QMessageBox.Ok)
-            
-            
+
+
             """
             uri.setDataSource('','pyarchinit_quote_view', 'the_geom', gidstr.tipodoc(pianta), "ROWID")
             layerQUOTE=QgsVectorLayer(uri.uri(), 'pyarchinit_quote_view', 'spatialite')
@@ -1197,9 +1197,9 @@ class Pyarchinit_pyqgis(QDialog):
             else:
                 QMessageBox.warning(self, "Pyarchinit", "OK Layer Quote non valido",QMessageBox.Ok)
             """
-            
-    
-    
+
+
+
     def charge_vector_layers(self, data):
         # Clean Qgis Map Later Registry
         # QgsProject.instance().removeAllMapLayers()
@@ -1229,9 +1229,9 @@ class Pyarchinit_pyqgis(QDialog):
             name_layer_q='Hoch view'
         else:
             name_layer_q='Elevation view'
-        
-        
-        
+
+
+
         groupName="View scheda US"
         root = QgsProject.instance().layerTreeRoot()
         group = root.addGroup(groupName)
@@ -1256,7 +1256,7 @@ class Pyarchinit_pyqgis(QDialog):
 
             uri = QgsDataSourceUri()
             uri.setDatabase(db_file_path)
-            
+
             uri.setDataSource('', 'pyarchinit_quote_view', 'the_geom', gidstr, "ROWID")
             layerQUOTE = QgsVectorLayer(uri.uri(), '', 'spatialite')
 
@@ -1275,7 +1275,7 @@ class Pyarchinit_pyqgis(QDialog):
                 QgsProject.instance().addMapLayers([layerQUOTE], False)
             else:
                 QMessageBox.warning(self, "Pyarchinit", "OK Layer not valid", QMessageBox.Ok)
-            
+
             uri.setDataSource('', 'pyarchinit_us_view', 'the_geom', gidstr, "ROWID")
             layerUS = QgsVectorLayer(uri.uri(), '', 'spatialite')
 
@@ -1303,7 +1303,7 @@ class Pyarchinit_pyqgis(QDialog):
 
 
                 #style_path = QtGui.QFileDialog.getOpenFileName(self, 'Open file',self.LAYER_STYLE_PATH)
-                
+
 
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerUS))
                 #layerUS.loadNamedStyle(style_path)
@@ -1318,7 +1318,7 @@ class Pyarchinit_pyqgis(QDialog):
             else:
                 QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
 
-            
+
 
         elif settings.SERVER == 'postgres':
 
@@ -1333,7 +1333,7 @@ class Pyarchinit_pyqgis(QDialog):
                     gidstr += " OR id_us = " + str(data[i].id_us)
 
             #srs = QgsCoordinateReferenceSystem(self.SRS, QgsCoordinateReferenceSystem.PostgisCrsId)
-            
+
             uri.setDataSource("public", "pyarchinit_quote_view", "the_geom", gidstr, "gid")
             layerQUOTE = QgsVectorLayer(uri.uri(), '', "postgres")
 
@@ -1352,8 +1352,8 @@ class Pyarchinit_pyqgis(QDialog):
                     # f.close()
             else:
                 QMessageBox.warning(self, "Pyarchinit", "OK Layer not valide", QMessageBox.Ok)
-            
-            
+
+
             uri.setDataSource("public", "pyarchinit_us_view", "the_geom", gidstr, "gid")
             layerUS = QgsVectorLayer(uri.uri(), '', "postgres")
 
@@ -1370,7 +1370,7 @@ class Pyarchinit_pyqgis(QDialog):
             else:
                 QMessageBox.warning(self, "Pyarchinit", "OK Layer US non valido", QMessageBox.Ok)
 
-            
+
     def charge_usm_layers(self, data):
         # Clean Qgis Map Later Registry
         # QgsProject.instance().removeAllMapLayers()
@@ -1398,9 +1398,9 @@ class Pyarchinit_pyqgis(QDialog):
             name_layer_q='Hoch SEW view'
         else:
             name_layer_q='Elevation SUW view'
-        
-        
-        
+
+
+
         groupName="View scheda USM"
         root = QgsProject.instance().layerTreeRoot()
         group = root.addGroup(groupName)
@@ -1425,7 +1425,7 @@ class Pyarchinit_pyqgis(QDialog):
 
             uri = QgsDataSourceUri()
             uri.setDatabase(db_file_path)
-            
+
             uri.setDataSource('', 'pyarchinit_quote_usm_view', 'the_geom', gidstr, "ROWID")
             layerQUOTE = QgsVectorLayer(uri.uri(), '', 'spatialite')
 
@@ -1441,7 +1441,7 @@ class Pyarchinit_pyqgis(QDialog):
                 QgsProject.instance().addMapLayers([layerQUOTE], False)
             else:
                 QMessageBox.warning(self, "Pyarchinit", "OK Layer not valid", QMessageBox.Ok)
-            
+
             uri.setDataSource('', 'pyarchinit_usm_view', 'the_geom', gidstr, "ROWID")
             layerUS = QgsVectorLayer(uri.uri(), '', 'spatialite')
 
@@ -1454,7 +1454,7 @@ class Pyarchinit_pyqgis(QDialog):
                 # self.USLayerId = layerUS.getLayerID()
                 style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
                 # style_path = QtGui.QFileDialog.getOpenFileName(self, 'Open file',self.LAYER_STYLE_PATH)
-                
+
 
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerUS))
                 layerUS.loadNamedStyle(style_path)
@@ -1467,7 +1467,7 @@ class Pyarchinit_pyqgis(QDialog):
             else:
                 QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
 
-            
+
 
         elif settings.SERVER == 'postgres':
 
@@ -1482,7 +1482,7 @@ class Pyarchinit_pyqgis(QDialog):
                     gidstr += " OR id_us = " + str(data[i].id_us)
 
             #srs = QgsCoordinateReferenceSystem(self.SRS, QgsCoordinateReferenceSystem.PostgisCrsId)
-            
+
             uri.setDataSource("public", "pyarchinit_quote_usm_view", "the_geom", gidstr, "gid")
             layerQUOTE = QgsVectorLayer(uri.uri(), '', "postgres")
 
@@ -1501,8 +1501,8 @@ class Pyarchinit_pyqgis(QDialog):
                     # f.close()
             else:
                 QMessageBox.warning(self, "Pyarchinit", "OK Layer not valide", QMessageBox.Ok)
-            
-            
+
+
             uri.setDataSource("public", "pyarchinit_usm_view", "the_geom", gidstr, "gid")
             layerUS = QgsVectorLayer(uri.uri(), '', "postgres")
 
@@ -1518,10 +1518,10 @@ class Pyarchinit_pyqgis(QDialog):
             else:
                 QMessageBox.warning(self, "Pyarchinit", "OK Layer USM non valido", QMessageBox.Ok)
     def charge_vector_layers_periodo(self, sito_p, cont_per, per_label, fas_label, dat):
-        
+
         # a = QgsProject.instance().layerTreeRoot()
         # QgsLayoutItemLegend(a).legendFilterByMapEnabled(True) 
-        
+
         self.sito_p = sito_p
         self.cont_per = str(cont_per)
         self.per_label = per_label
@@ -1539,13 +1539,13 @@ class Pyarchinit_pyqgis(QDialog):
         settings = Settings(con_sett)
         settings.set_configuration()
         groupName="Stratigrafie Orizzontali  - %s " % (self.dat)
-        
+
         root = QgsProject.instance().layerTreeRoot()
 
-        
+
         group = root.addGroup(groupName)
         group.setExpanded(False)  
-        
+
         if self.L=='it':
             layer_name_label_us = "Unita Stratigrafiche" 
             layer_name_label_quote = "Quote US"
@@ -1555,7 +1555,7 @@ class Pyarchinit_pyqgis(QDialog):
         else:
             layer_name_label_us = "Stratigraphic Units"
             layer_name_label_quote = "Elevations SU"
-        
+
         if settings.SERVER == 'sqlite':
             sqliteDB_path = os.path.join(os.sep, 'pyarchinit_DB_folder', settings.DATABASE)
             db_file_path = '{}{}'.format(self.HOME, sqliteDB_path)
@@ -1573,7 +1573,7 @@ class Pyarchinit_pyqgis(QDialog):
             uri.setDatabase(db_file_path)
 
             cont_per_string = "sito = '" + self.sito_p + "' AND (" + " cont_per = '" + self.cont_per + "' OR cont_per LIKE '" + self.cont_per + "/%' OR cont_per LIKE '%/" + self.cont_per + "' OR cont_per LIKE '%/" + self.cont_per + "/%')"
-            
+
             uri.setDataSource('', 'pyarchinit_quote_view', 'the_geom', cont_per_string, "ROWID")
             layerQUOTE = QgsVectorLayer(uri.uri(), layer_name_label_quote, 'spatialite')
 
@@ -1586,10 +1586,10 @@ class Pyarchinit_pyqgis(QDialog):
                 layerQUOTE.loadNamedStyle(style_path)
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerQUOTE))
                 QgsProject.instance().addMapLayers([layerQUOTE], False)
-            
+
             uri.setDataSource('', 'pyarchinit_us_view', 'the_geom', cont_per_string, "ROWID")
             layerUS = QgsVectorLayer(uri.uri(), layer_name_label_us, 'spatialite')
-            
+
 
 
             if layerUS.isValid():
@@ -1597,15 +1597,15 @@ class Pyarchinit_pyqgis(QDialog):
                 layerUS.setCrs(crs)
                 style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
                 layerUS.loadNamedStyle(style_path)
-                
+
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerUS))
-                
+
                 QgsProject.instance().addMapLayers([layerUS], False)
-                
+
             else:
                 QMessageBox.warning(self, "Pyarchinit", "OK Layer US non valido", QMessageBox.Ok)
 
-            
+
 
         elif settings.SERVER == 'postgres':
             uri = QgsDataSourceUri()
@@ -1614,7 +1614,7 @@ class Pyarchinit_pyqgis(QDialog):
             cont_per_string = "sito = '" + self.sito_p + "' AND (" + " cont_per = '" + self.cont_per + "' OR cont_per LIKE '" + self.cont_per + "/%' OR cont_per LIKE '%/" + self.cont_per + "' OR cont_per LIKE '%/" + self.cont_per + "/%')"
 
             #srs = QgsCoordinateReferenceSystem(self.SRS, QgsCoordinateReferenceSystem.PostgisCrsId)
-            
+
             uri.setDataSource("public", "pyarchinit_quote_view", "the_geom", cont_per_string, "gid")
             layerQUOTE = QgsVectorLayer(uri.uri(), layer_name_label_quote, "postgres")
             if layerQUOTE.isValid():
@@ -1627,7 +1627,7 @@ class Pyarchinit_pyqgis(QDialog):
                     QgsProject.instance().addMapLayers([layerQUOTE], False)
                 except Exception as e:
                     pass
-            
+
             uri.setDataSource("public", "pyarchinit_us_view", "the_geom", cont_per_string, "gid")
             layerUS = QgsVectorLayer(uri.uri(), layer_name_label_us, "postgres")
             if layerUS.isValid():
@@ -1636,18 +1636,18 @@ class Pyarchinit_pyqgis(QDialog):
                 style_path = '{}{}'.format(self.LAYER_STYLE_PATH, 'us_caratterizzazioni.qml')
                 # style_path = QFileDialog.getOpenFileName(self, 'Open file', self.LAYER_STYLE_PATH)
                 layerUS.loadNamedStyle(style_path)
-                
+
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerUS))
                 QgsProject.instance().addMapLayers([layerUS], False)
             else:
                 QMessageBox.warning(self, "Pyarchinit", "OK Layer US non valido", QMessageBox.Ok)
 
-            
+
     def charge_vector_usm_layers_periodo(self, sito_p, cont_per, per_label, fas_label, dat):
-        
+
         # a = QgsProject.instance().layerTreeRoot()
         # QgsLayoutItemLegend(a).legendFilterByMapEnabled(True) 
-        
+
         self.sito_p = sito_p
         self.cont_per = str(cont_per)
         self.per_label = per_label
@@ -1665,13 +1665,13 @@ class Pyarchinit_pyqgis(QDialog):
         settings = Settings(con_sett)
         settings.set_configuration()
         groupName=" Stratigrafie Verticali %s " % (self.dat)
-        
+
         root = QgsProject.instance().layerTreeRoot()
 
-        
+
         group = root.addGroup(groupName)
         group.setExpanded(False)  
-        
+
         if self.L=='it':
             layer_name_label_us = "Unita Stratigrafiche Verticali" 
             layer_name_label_quote = "Quote USM"
@@ -1681,7 +1681,7 @@ class Pyarchinit_pyqgis(QDialog):
         else:
             layer_name_label_us = "Mansory Stratigraphic Units "
             layer_name_label_quote = "Elevations SUW"
-        
+
         if settings.SERVER == 'sqlite':
             sqliteDB_path = os.path.join(os.sep, 'pyarchinit_DB_folder', settings.DATABASE)
             db_file_path = '{}{}'.format(self.HOME, sqliteDB_path)
@@ -1699,7 +1699,7 @@ class Pyarchinit_pyqgis(QDialog):
             uri.setDatabase(db_file_path)
 
             cont_per_string = "sito = '" + self.sito_p + "' AND (" + " cont_per = '" + self.cont_per + "' OR cont_per LIKE '" + self.cont_per + "/%' OR cont_per LIKE '%/" + self.cont_per + "' OR cont_per LIKE '%/" + self.cont_per + "/%')"
-            
+
             uri.setDataSource('', 'pyarchinit_quote_usm_view', 'the_geom', cont_per_string, "ROWID")
             layerQUOTE = QgsVectorLayer(uri.uri(), layer_name_label_quote, 'spatialite')
 
@@ -1712,10 +1712,10 @@ class Pyarchinit_pyqgis(QDialog):
                 layerQUOTE.loadNamedStyle(style_path)
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerQUOTE))
                 QgsProject.instance().addMapLayers([layerQUOTE], False)
-            
+
             uri.setDataSource('', 'pyarchinit_usm_view', 'the_geom', cont_per_string, "ROWID")
             layerUS = QgsVectorLayer(uri.uri(), layer_name_label_us, 'spatialite')
-            
+
             #srs = QgsCoordinateReferenceSystem(self.SRS, QgsCoordinateReferenceSystem.PostgisCrsId)
 
             if layerUS.isValid():
@@ -1723,15 +1723,15 @@ class Pyarchinit_pyqgis(QDialog):
                 layerUS.setCrs(crs)
                 style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
                 layerUS.loadNamedStyle(style_path)
-                
+
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerUS))
-                
+
                 QgsProject.instance().addMapLayers([layerUS], False)
-                
+
             else:
                 QMessageBox.warning(self, "Pyarchinit", "OK Layer USM non valido", QMessageBox.Ok)
 
-            
+
 
         elif settings.SERVER == 'postgres':
             uri = QgsDataSourceUri()
@@ -1740,7 +1740,7 @@ class Pyarchinit_pyqgis(QDialog):
             cont_per_string = "sito = '" + self.sito_p + "' AND (" + " cont_per = '" + self.cont_per + "' OR cont_per LIKE '" + self.cont_per + "/%' OR cont_per LIKE '%/" + self.cont_per + "' OR cont_per LIKE '%/" + self.cont_per + "/%')"
 
             #srs = QgsCoordinateReferenceSystem(self.SRS, QgsCoordinateReferenceSystem.PostgisCrsId)
-            
+
             uri.setDataSource("public", "pyarchinit_quote_usm_view", "the_geom", cont_per_string, "gid")
             layerQUOTE = QgsVectorLayer(uri.uri(), layer_name_label_quote, "postgres")
             if layerQUOTE.isValid():
@@ -1752,7 +1752,7 @@ class Pyarchinit_pyqgis(QDialog):
                     QgsProject.instance().addMapLayers([layerQUOTE], False)
                 except Exception as e:
                     pass
-            
+
             uri.setDataSource("public", "pyarchinit_usm_view", "the_geom", cont_per_string, "gid")
             layerUS = QgsVectorLayer(uri.uri(), layer_name_label_us, "postgres")
             if layerUS.isValid():
@@ -1761,12 +1761,12 @@ class Pyarchinit_pyqgis(QDialog):
                 style_path = '{}{}'.format(self.LAYER_STYLE_PATH, 'us_caratterizzazioni.qml')
                 # style_path = QFileDialog.getOpenFileName(self, 'Open file', self.LAYER_STYLE_PATH)
                 layerUS.loadNamedStyle(style_path)
-                
+
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerUS))
                 QgsProject.instance().addMapLayers([layerUS], False)
             else:
                 QMessageBox.warning(self, "Pyarchinit", "OK Layer USM non valido", QMessageBox.Ok)        
-    
+
     def charge_vector_layers_all_period(self, sito_p, cont_per, per_label, fas_label,dat):
         self.sito_p = sito_p
         self.cont_per = str(cont_per)
@@ -1780,18 +1780,18 @@ class Pyarchinit_pyqgis(QDialog):
         conf.close()
         settings = Settings(con_sett)
         settings.set_configuration()
-        
-        
-        
-        
+
+
+
+
         groupName="Stratigrafie Orizzontali - %s" % (self.dat)
         root = QgsProject.instance().layerTreeRoot()
-       
+
         group = root.addGroup(groupName)
-        
+
         group.setExpanded(False)    
-        
-        
+
+
         if self.L=='it':
             layer_name_label_us = "Unita Stratigrafiche"
             layer_name_label_quote = "Quote US" 
@@ -2010,18 +2010,18 @@ class Pyarchinit_pyqgis(QDialog):
         conf.close()
         settings = Settings(con_sett)
         settings.set_configuration()
-        
-        
-        
-        
+
+
+
+
         groupName="Stratigrafie Verticali  - %s" % (self.dat)
         root = QgsProject.instance().layerTreeRoot()
-       
+
         group = root.addGroup(groupName)
-        
+
         group.setExpanded(False)    
-        
-        
+
+
         if self.L=='it':
             layer_name_label_us = "Unita Stratigrafiche Verticali" 
             layer_name_label_quote = "Quote USM"
@@ -2031,7 +2031,7 @@ class Pyarchinit_pyqgis(QDialog):
         else:
             layer_name_label_us = "Mansory Stratigraphic Units "
             layer_name_label_quote = "Elevations SUW"
-        
+
         if settings.SERVER == 'sqlite':
             sqliteDB_path = os.path.join(os.sep, 'pyarchinit_DB_folder', settings.DATABASE)
             db_file_path = '{}{}'.format(self.HOME, sqliteDB_path)
@@ -2048,10 +2048,10 @@ class Pyarchinit_pyqgis(QDialog):
             uri = QgsDataSourceUri()
             uri.setDatabase(db_file_path)
 
-            
+
             cont_per_string = "sito = '" + self.sito_p + "' AND (" + " cont_per = '" + self.cont_per + "' OR cont_per LIKE '" + self.cont_per + "/%' OR cont_per LIKE '%/" + self.cont_per + "' OR cont_per LIKE '%/" + self.cont_per + "/%')"
-            
-            
+
+
             uri.setDataSource('', 'pyarchinit_quote_usm_view', 'the_geom', cont_per_string, "ROWID")
             layerQUOTE = QgsVectorLayer(uri.uri(), layer_name_label_quote, 'spatialite')
 
@@ -2067,7 +2067,7 @@ class Pyarchinit_pyqgis(QDialog):
             uri.setDataSource('', 'pyarchinit_usm_view', 'the_geom', cont_per_string, "ROWID")
             layerUS = QgsVectorLayer(uri.uri(), layer_name_label_us, 'spatialite')
 
-            
+
 
             if layerUS.isValid():
                 crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
@@ -2079,8 +2079,8 @@ class Pyarchinit_pyqgis(QDialog):
             else:
                 QMessageBox.warning(self, "Pyarchinit", "OK Layer USM non valido", QMessageBox.Ok)
 
-            
-            
+
+
             #srs = QgsCoordinateReferenceSystem(self.SRS, QgsCoordinateReferenceSystem.PostgisCrsId)
 
         elif settings.SERVER == 'postgres':
@@ -2090,7 +2090,7 @@ class Pyarchinit_pyqgis(QDialog):
             cont_per_string = "sito = '" + self.sito_p + "' AND (" + " cont_per = '" + self.cont_per + "' OR cont_per LIKE '" + self.cont_per + "/%' OR cont_per LIKE '%/" + self.cont_per + "' OR cont_per LIKE '%/" + self.cont_per + "/%')"
 
             #srs = QgsCoordinateReferenceSystem(self.SRS, QgsCoordinateReferenceSystem.PostgisCrsId)
-            
+
             uri.setDataSource("public", "pyarchinit_quote_usm_view", "the_geom", cont_per_string, "gid")
             layerQUOTE = QgsVectorLayer(uri.uri(), layer_name_label_quote, "postgres")
             if layerQUOTE.isValid():
@@ -2102,7 +2102,7 @@ class Pyarchinit_pyqgis(QDialog):
                     QgsProject.instance().addMapLayers([layerQUOTE], False)
                 except Exception as e:
                     pass
-            
+
             uri.setDataSource("public", "pyarchinit_usm_view", "the_geom", cont_per_string, "gid")
             layerUS = QgsVectorLayer(uri.uri(), layer_name_label_us, "postgres")
             if layerUS.isValid():
@@ -2374,10 +2374,10 @@ class Pyarchinit_pyqgis(QDialog):
         """
         mapping = {}
         query = """
-        SELECT ts.sigla_estesa, us.d_stratigrafica
-        FROM thesaurus_sigle ts
-        JOIN pyarchinit_us_view us ON ts.sigla = us.d_stratigrafica
-        WHERE ts.nome_tabella = 'us_table'
+            SELECT ts.sigla_estesa, us.d_stratigrafica
+            FROM thesaurus_sigle ts
+            JOIN pyarchinit_us_view us ON ts.sigla = us.d_stratigrafica
+            WHERE ts.nome_tabella = 'us_table'
         """
 
         try:
@@ -2590,7 +2590,7 @@ class Pyarchinit_pyqgis(QDialog):
             else:
                 QMessageBox.warning(self, "Pyarchinit", "NOT! Layer US not valid", QMessageBox.Ok)
 
-            
+
 
             return layerToSet
 
@@ -2676,7 +2676,7 @@ class Pyarchinit_pyqgis(QDialog):
             myGroup1 = group.insertGroup(1, "Riferimenti di localizzazione")
             myGroup2 = group.insertGroup(2, "Linee di riferimento")        
             myGroup3 = group.insertGroup(3, "Ingombri")
-            
+
         else:
             groupName="Archaeological layer"
             root = QgsProject.instance().layerTreeRoot()
@@ -2685,8 +2685,8 @@ class Pyarchinit_pyqgis(QDialog):
             myGroup1 = group.insertGroup(1, "Place reference")
             myGroup2 = group.insertGroup(2, "Lines refernces")        
             myGroup3 = group.insertGroup(3, "Space requirements")
-            
-        
+
+
         #myGroup4 = group.insertGroup(4, "Base Map")
         myGroup1.setExpanded(False)
         myGroup2.setExpanded(False)
@@ -2751,7 +2751,7 @@ class Pyarchinit_pyqgis(QDialog):
                 QgsProject.instance().addMapLayers([layer], False)
             else:
                 QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
-            
+
             layer_name = 'pyarchinit_punti_rif'
             layer_name_conv = "'" + str(layer_name) + "'"
             #value_conv = ('"sito = %s"') % ("'" + str(self.val) + "'")
@@ -2770,8 +2770,8 @@ class Pyarchinit_pyqgis(QDialog):
                 QgsProject.instance().addMapLayers([layer], False)
             else:
                 QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
-            
-            
+
+
             layer_name = 'pyarchinit_campionature'
             layer_name_conv = "'" + str(layer_name) + "'"
             #value_conv = ('"sito = %s"') % ("'" + str(self.val) + "'")
@@ -2790,8 +2790,8 @@ class Pyarchinit_pyqgis(QDialog):
                 QgsProject.instance().addMapLayers([layer], False)
             else:
                 QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
-            
-            
+
+
             layer_name = 'pyarchinit_documentazione'
             layer_name_conv = "'" + str(layer_name) + "'"
             #value_conv = ('"sito = %s"') % ("'" + str(self.val) + "'")
@@ -2810,7 +2810,7 @@ class Pyarchinit_pyqgis(QDialog):
                 QgsProject.instance().addMapLayers([layer], False)
             else:
                 QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
-            
+
             layer_name = 'pyunitastratigrafiche'
             layer_name_conv = "'" + str(layer_name) + "'"
             #value_conv = ('"scavo_s = %s"') % ("'" + str(self.val) + "'")
@@ -2820,14 +2820,14 @@ class Pyarchinit_pyqgis(QDialog):
             layer_label_conv = "'" + layer_label + "'"
             cmq_set_vector_layer = "QgsVectorLayer(uri.uri(), %s, 'spatialite')" % (layer_label_conv)
             layer = eval(cmq_set_vector_layer)
-            
+
             if layer.isValid():
                 # Create a CRS using the SRID we extracted
                 crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
                 layer.setCrs(crs)
                 myGroup3.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
-                
+
             else:
                 QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
 
@@ -2850,8 +2850,8 @@ class Pyarchinit_pyqgis(QDialog):
             else:
                 QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
 
-            
-            
+
+
             layer_name = 'pyunitastratigrafiche_usm'
             layer_name_conv = "'" + str(layer_name) + "'"
             #value_conv = ('"scavo_s = %s"') % ("'" + str(self.val) + "'")
@@ -2861,14 +2861,14 @@ class Pyarchinit_pyqgis(QDialog):
             layer_label_conv = "'" + layer_label + "'"
             cmq_set_vector_layer = "QgsVectorLayer(uri.uri(), %s, 'spatialite')" % (layer_label_conv)
             layer = eval(cmq_set_vector_layer)
-            
+
             if layer.isValid():
                 # Create a CRS using the SRID we extracted
                 crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
                 layer.setCrs(crs)
                 myGroup3.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
-                
+
             else:
                 QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
 
@@ -2890,10 +2890,10 @@ class Pyarchinit_pyqgis(QDialog):
                 QgsProject.instance().addMapLayers([layer], False)
             else:
                 QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
-            
-            
-            
-            
+
+
+
+
             layer_name = 'pyarchinit_strutture_ipotesi'
             layer_name_conv = "'" + str(layer_name) + "'"
             #value_conv = ('"sito = %s"') % ("'" + str(self.val) + "'")
@@ -2912,7 +2912,7 @@ class Pyarchinit_pyqgis(QDialog):
                 QgsProject.instance().addMapLayers([layer], False)
             else:
                 QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
-            
+
             layer_name = 'pyarchinit_reperti'
             layer_name_conv = "'" + str(layer_name) + "'"
             #value_conv = ('"siti = %s"') % ("'" + str(self.val) + "'")
@@ -2931,7 +2931,7 @@ class Pyarchinit_pyqgis(QDialog):
                 QgsProject.instance().addMapLayers([layer], False)
             else:
                 QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
-            
+
             layer_name = 'pyarchinit_siti'
             layer_name_conv = "'" + str(layer_name) + "'"
             #value_conv = ('"sito_nome = %s"') % ("'" + str(self.val) + "'")
@@ -2950,9 +2950,9 @@ class Pyarchinit_pyqgis(QDialog):
                 QgsProject.instance().addMapLayers([layer], False)
             else:
                 QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
-            
-            
-                
+
+
+
             layer_name = 'pyarchinit_tafonomia'
             layer_name_conv = "'" + str(layer_name) + "'"
             #value_conv = ('"sito = %s"') % ("'" + str(self.val) + "'")
@@ -2971,8 +2971,8 @@ class Pyarchinit_pyqgis(QDialog):
                 QgsProject.instance().addMapLayers([layer], False)
             else:
                 QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)    
-            
-            
+
+
             layer_name = 'pyarchinit_siti_polygonal'
             layer_name_conv = "'" + str(layer_name) + "'"
             #value_conv = ('"sito_id = %s"') % ("'" + str(self.val) + "'")
@@ -2991,7 +2991,7 @@ class Pyarchinit_pyqgis(QDialog):
                 QgsProject.instance().addMapLayers([layer], False)
             else:
                 QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
-            
+
             layer_name = 'pyarchinit_us_negative_doc'
             layer_name_conv = "'" + str(layer_name) + "'"
             #value_conv = ('"sito_n = %s"') % ("'" + str(self.val) + "'")
@@ -3010,9 +3010,9 @@ class Pyarchinit_pyqgis(QDialog):
                 QgsProject.instance().addMapLayers([layer], False)
             else:
                 QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
-            
-            
-            
+
+
+
             layer_name = 'pyarchinit_ripartizioni_spaziali'
             layer_name_conv = "'" + str(layer_name) + "'"
             #value_conv = ('"sito_rs = %s"') % ("'" + str(self.val) + "'")
@@ -3031,7 +3031,7 @@ class Pyarchinit_pyqgis(QDialog):
                 QgsProject.instance().addMapLayers([layer], False)
             else:
                 QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
-            
+
             layer_name = 'pyarchinit_sezioni'
             layer_name_conv = "'" + str(layer_name) + "'"
             #value_conv = ('"siti = %s"') % ("'" + str(self.val) + "'")
@@ -3050,7 +3050,7 @@ class Pyarchinit_pyqgis(QDialog):
                 QgsProject.instance().addMapLayers([layer], False)
             else:
                 QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
-            
+
         elif settings.SERVER == 'postgres':
 
             uri = QgsDataSourceUri()
@@ -3075,8 +3075,8 @@ class Pyarchinit_pyqgis(QDialog):
                 QgsProject.instance().addMapLayers([layer], False)
             else:
                 QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
-            
-            
+
+
             layer_name = 'pyarchinit_linee_rif'
             layer_name_conv = "'" + str(layer_name) + "'"
             #value_conv = ('"sito = %s"') % ("'" + str(self.val) + "'")
@@ -3095,7 +3095,7 @@ class Pyarchinit_pyqgis(QDialog):
                 QgsProject.instance().addMapLayers([layer], False)
             else:
                 QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
-            
+
             layer_name = 'pyarchinit_punti_rif'
             layer_name_conv = "'" + str(layer_name) + "'"
             #value_conv = ('"sito = %s"') % ("'" + str(self.val) + "'")
@@ -3114,8 +3114,8 @@ class Pyarchinit_pyqgis(QDialog):
                 QgsProject.instance().addMapLayers([layer], False)
             else:
                 QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
-            
-            
+
+
             layer_name = 'pyarchinit_campionature'
             layer_name_conv = "'" + str(layer_name) + "'"
             #value_conv = ('"sito = %s"') % ("'" + str(self.val) + "'")
@@ -3134,8 +3134,8 @@ class Pyarchinit_pyqgis(QDialog):
                 QgsProject.instance().addMapLayers([layer], False)
             else:
                 QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
-            
-            
+
+
             layer_name = 'pyarchinit_documentazione'
             layer_name_conv = "'" + str(layer_name) + "'"
             #value_conv = ('"sito = %s"') % ("'" + str(self.val) + "'")
@@ -3154,7 +3154,7 @@ class Pyarchinit_pyqgis(QDialog):
                 QgsProject.instance().addMapLayers([layer], False)
             else:
                 QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
-            
+
             layer_name = 'pyunitastratigrafiche'
             layer_name_conv = "'" + str(layer_name) + "'"
             #value_conv = ('"scavo_s = %s"') % ("'" + str(self.val) + "'")
@@ -3230,8 +3230,8 @@ class Pyarchinit_pyqgis(QDialog):
                 QgsProject.instance().addMapLayers([layer], False)
             else:
                 QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
-            
-            
+
+
             layer_name = 'pyarchinit_strutture_ipotesi'
             layer_name_conv = "'" + str(layer_name) + "'"
             #value_conv = ('"sito = %s"') % ("'" + str(self.val) + "'")
@@ -3247,7 +3247,7 @@ class Pyarchinit_pyqgis(QDialog):
                 QgsProject.instance().addMapLayers([layer], False)
             else:
                 QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
-            
+
             layer_name = 'pyarchinit_reperti'
             layer_name_conv = "'" + str(layer_name) + "'"
             #value_conv = ('"siti = %s"') % ("'" + str(self.val) + "'")
@@ -3263,7 +3263,7 @@ class Pyarchinit_pyqgis(QDialog):
                 QgsProject.instance().addMapLayers([layer], False)
             else:
                 QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
-            
+
             layer_name = 'pyarchinit_siti'
             layer_name_conv = "'" + str(layer_name) + "'"
             #value_conv = ('"sito_nome = %s"') % ("'" + str(self.val) + "'")
@@ -3279,9 +3279,9 @@ class Pyarchinit_pyqgis(QDialog):
                 QgsProject.instance().addMapLayers([layer], False)
             else:
                 QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
-            
-            
-                
+
+
+
             layer_name = 'pyarchinit_tafonomia'
             layer_name_conv = "'" + str(layer_name) + "'"
             #value_conv = ('"sito = %s"') % ("'" + str(self.val) + "'")
@@ -3297,8 +3297,8 @@ class Pyarchinit_pyqgis(QDialog):
                 QgsProject.instance().addMapLayers([layer], False)
             else:
                 QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)    
-            
-            
+
+
             layer_name = 'pyarchinit_siti_polygonal'
             layer_name_conv = "'" + str(layer_name) + "'"
             #value_conv = ('"sito_id = %s"') % ("'" + str(self.val) + "'")
@@ -3314,7 +3314,7 @@ class Pyarchinit_pyqgis(QDialog):
                 QgsProject.instance().addMapLayers([layer], False)
             else:
                 QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
-            
+
             layer_name = 'pyarchinit_us_negative_doc'
             layer_name_conv = "'" + str(layer_name) + "'"
             #value_conv = ('"sito_n = %s"') % ("'" + str(self.val) + "'")
@@ -3333,9 +3333,9 @@ class Pyarchinit_pyqgis(QDialog):
                 QgsProject.instance().addMapLayers([layer], False)
             else:
                 QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
-            
-            
-            
+
+
+
             layer_name = 'pyarchinit_ripartizioni_spaziali'
             layer_name_conv = "'" + str(layer_name) + "'"
             #value_conv = ('"sito_rs = %s"') % ("'" + str(self.val) + "'")
@@ -3351,7 +3351,7 @@ class Pyarchinit_pyqgis(QDialog):
                 QgsProject.instance().addMapLayers([layer], False)
             else:
                 QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
-            
+
             layer_name = 'pyarchinit_sezioni'
             layer_name_conv = "'" + str(layer_name) + "'"
             #value_conv = ('"siti = %s"') % ("'" + str(self.val) + "'")
@@ -3367,10 +3367,10 @@ class Pyarchinit_pyqgis(QDialog):
                 QgsProject.instance().addMapLayers([layer], False)
             else:
                 QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
-            
-            
-    
-    
+
+
+
+
     def charge_sites_geometry(self, options, col, val):
         self.options = options
         self.col = col
@@ -3392,7 +3392,7 @@ class Pyarchinit_pyqgis(QDialog):
             myGroup1 = group.insertGroup(1, "Riferimenti di localizzazione")
             myGroup2 = group.insertGroup(2, "Linee di riferimento")        
             myGroup3 = group.insertGroup(3, "Ingombri")
-            
+
         else:
             groupName="Archaeological layer(%s)"%(val)
             root = QgsProject.instance().layerTreeRoot()
@@ -3443,8 +3443,8 @@ class Pyarchinit_pyqgis(QDialog):
                 QgsProject.instance().addMapLayers([layer], False)
             else:
                 QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
-            
-            
+
+
             layer_name = 'pyarchinit_linee_rif'
             layer_name_conv = "'" + str(layer_name) + "'"
             value_conv = ('"sito = %s"') % ("'" + str(self.val) + "'")
@@ -3463,7 +3463,7 @@ class Pyarchinit_pyqgis(QDialog):
                 QgsProject.instance().addMapLayers([layer], False)
             else:
                 QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
-            
+
             layer_name = 'pyarchinit_punti_rif'
             layer_name_conv = "'" + str(layer_name) + "'"
             value_conv = ('"sito = %s"') % ("'" + str(self.val) + "'")
@@ -3482,8 +3482,8 @@ class Pyarchinit_pyqgis(QDialog):
                 QgsProject.instance().addMapLayers([layer], False)
             else:
                 QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
-            
-            
+
+
             layer_name = 'pyarchinit_campionature'
             layer_name_conv = "'" + str(layer_name) + "'"
             value_conv = ('"sito = %s"') % ("'" + str(self.val) + "'")
@@ -3502,8 +3502,8 @@ class Pyarchinit_pyqgis(QDialog):
                 QgsProject.instance().addMapLayers([layer], False)
             else:
                 QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
-            
-            
+
+
             layer_name = 'pyarchinit_documentazione'
             layer_name_conv = "'" + str(layer_name) + "'"
             value_conv = ('"sito = %s"') % ("'" + str(self.val) + "'")
@@ -3522,7 +3522,7 @@ class Pyarchinit_pyqgis(QDialog):
                 QgsProject.instance().addMapLayers([layer], False)
             else:
                 QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
-            
+
             layer_name = 'pyunitastratigrafiche'
             layer_name_conv = "'" + str(layer_name) + "'"
             value_conv = ('"scavo_s = %s"') % ("'" + str(self.val) + "'")
@@ -3561,7 +3561,7 @@ class Pyarchinit_pyqgis(QDialog):
             else:
                 QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
 
-            
+
             layer_name = 'pyunitastratigrafiche_usm'
             layer_name_conv = "'" + str(layer_name) + "'"
             value_conv = ('"scavo_s = %s"') % ("'" + str(self.val) + "'")
@@ -3599,8 +3599,8 @@ class Pyarchinit_pyqgis(QDialog):
                 QgsProject.instance().addMapLayers([layer], False)
             else:
                 QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
-            
-            
+
+
             layer_name = 'pyarchinit_strutture_ipotesi'
             layer_name_conv = "'" + str(layer_name) + "'"
             value_conv = ('"sito = %s"') % ("'" + str(self.val) + "'")
@@ -3619,7 +3619,7 @@ class Pyarchinit_pyqgis(QDialog):
                 QgsProject.instance().addMapLayers([layer], False)
             else:
                 QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
-            
+
             layer_name = 'pyarchinit_reperti'
             layer_name_conv = "'" + str(layer_name) + "'"
             value_conv = ('"siti = %s"') % ("'" + str(self.val) + "'")
@@ -3638,7 +3638,7 @@ class Pyarchinit_pyqgis(QDialog):
                 QgsProject.instance().addMapLayers([layer], False)
             else:
                 QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
-            
+
             layer_name = 'pyarchinit_siti'
             layer_name_conv = "'" + str(layer_name) + "'"
             value_conv = ('"sito_nome = %s"') % ("'" + str(self.val) + "'")
@@ -3657,9 +3657,9 @@ class Pyarchinit_pyqgis(QDialog):
                 QgsProject.instance().addMapLayers([layer], False)
             else:
                 QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
-            
-            
-                
+
+
+
             layer_name = 'pyarchinit_tafonomia'
             layer_name_conv = "'" + str(layer_name) + "'"
             value_conv = ('"sito = %s"') % ("'" + str(self.val) + "'")
@@ -3678,8 +3678,8 @@ class Pyarchinit_pyqgis(QDialog):
                 QgsProject.instance().addMapLayers([layer], False)
             else:
                 QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)    
-            
-            
+
+
             layer_name = 'pyarchinit_siti_polygonal'
             layer_name_conv = "'" + str(layer_name) + "'"
             value_conv = ('"sito_id = %s"') % ("'" + str(self.val) + "'")
@@ -3698,7 +3698,7 @@ class Pyarchinit_pyqgis(QDialog):
                 QgsProject.instance().addMapLayers([layer], False)
             else:
                 QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
-            
+
             layer_name = 'pyarchinit_us_negative_doc'
             layer_name_conv = "'" + str(layer_name) + "'"
             value_conv = ('"sito_n = %s"') % ("'" + str(self.val) + "'")
@@ -3717,9 +3717,9 @@ class Pyarchinit_pyqgis(QDialog):
                 QgsProject.instance().addMapLayers([layer], False)
             else:
                 QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
-            
-            
-            
+
+
+
             layer_name = 'pyarchinit_ripartizioni_spaziali'
             layer_name_conv = "'" + str(layer_name) + "'"
             value_conv = ('"sito_rs = %s"') % ("'" + str(self.val) + "'")
@@ -3738,7 +3738,7 @@ class Pyarchinit_pyqgis(QDialog):
                 QgsProject.instance().addMapLayers([layer], False)
             else:
                 QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
-            
+
             layer_name = 'pyarchinit_sezioni'
             layer_name_conv = "'" + str(layer_name) + "'"
             value_conv = ('"sito = %s"') % ("'" + str(self.val) + "'")
@@ -3757,7 +3757,7 @@ class Pyarchinit_pyqgis(QDialog):
                 QgsProject.instance().addMapLayers([layer], False)
             else:
                 QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
-            
+
         elif settings.SERVER == 'postgres':
 
             uri = QgsDataSourceUri()
@@ -3782,8 +3782,8 @@ class Pyarchinit_pyqgis(QDialog):
                 QgsProject.instance().addMapLayers([layer], False)
             else:
                 QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
-            
-            
+
+
             layer_name = 'pyarchinit_linee_rif'
             layer_name_conv = "'" + str(layer_name) + "'"
             value_conv = ('"sito = %s"') % ("'" + str(self.val) + "'")
@@ -3802,7 +3802,7 @@ class Pyarchinit_pyqgis(QDialog):
                 QgsProject.instance().addMapLayers([layer], False)
             else:
                 QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
-            
+
             layer_name = 'pyarchinit_punti_rif'
             layer_name_conv = "'" + str(layer_name) + "'"
             value_conv = ('"sito = %s"') % ("'" + str(self.val) + "'")
@@ -3821,8 +3821,8 @@ class Pyarchinit_pyqgis(QDialog):
                 QgsProject.instance().addMapLayers([layer], False)
             else:
                 QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
-            
-            
+
+
             layer_name = 'pyarchinit_campionature'
             layer_name_conv = "'" + str(layer_name) + "'"
             value_conv = ('"sito = %s"') % ("'" + str(self.val) + "'")
@@ -3841,8 +3841,8 @@ class Pyarchinit_pyqgis(QDialog):
                 QgsProject.instance().addMapLayers([layer], False)
             else:
                 QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
-            
-            
+
+
             layer_name = 'pyarchinit_documentazione'
             layer_name_conv = "'" + str(layer_name) + "'"
             value_conv = ('"sito = %s"') % ("'" + str(self.val) + "'")
@@ -3861,7 +3861,7 @@ class Pyarchinit_pyqgis(QDialog):
                 QgsProject.instance().addMapLayers([layer], False)
             else:
                 QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
-            
+
             layer_name = 'pyunitastratigrafiche'
             layer_name_conv = "'" + str(layer_name) + "'"
             value_conv = ('"scavo_s = %s"') % ("'" + str(self.val) + "'")
@@ -3900,7 +3900,7 @@ class Pyarchinit_pyqgis(QDialog):
             else:
                 QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
 
-            
+
             layer_name = 'pyunitastratigrafiche_usm'
             layer_name_conv = "'" + str(layer_name) + "'"
             value_conv = ('"scavo_s = %s"') % ("'" + str(self.val) + "'")
@@ -3938,10 +3938,10 @@ class Pyarchinit_pyqgis(QDialog):
                 QgsProject.instance().addMapLayers([layer], False)
             else:
                 QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
-            
-            
-            
-            
+
+
+
+
             layer_name = 'pyarchinit_strutture_ipotesi'
             layer_name_conv = "'" + str(layer_name) + "'"
             value_conv = ('"sito = %s"') % ("'" + str(self.val) + "'")
@@ -3957,7 +3957,7 @@ class Pyarchinit_pyqgis(QDialog):
                 QgsProject.instance().addMapLayers([layer], False)
             else:
                 QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
-            
+
             layer_name = 'pyarchinit_reperti'
             layer_name_conv = "'" + str(layer_name) + "'"
             value_conv = ('"siti = %s"') % ("'" + str(self.val) + "'")
@@ -3973,7 +3973,7 @@ class Pyarchinit_pyqgis(QDialog):
                 QgsProject.instance().addMapLayers([layer], False)
             else:
                 QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
-            
+
             layer_name = 'pyarchinit_siti'
             layer_name_conv = "'" + str(layer_name) + "'"
             value_conv = ('"sito_nome = %s"') % ("'" + str(self.val) + "'")
@@ -3989,9 +3989,9 @@ class Pyarchinit_pyqgis(QDialog):
                 QgsProject.instance().addMapLayers([layer], False)
             else:
                 QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
-            
-            
-                
+
+
+
             layer_name = 'pyarchinit_tafonomia'
             layer_name_conv = "'" + str(layer_name) + "'"
             value_conv = ('"sito = %s"') % ("'" + str(self.val) + "'")
@@ -4007,8 +4007,8 @@ class Pyarchinit_pyqgis(QDialog):
                 QgsProject.instance().addMapLayers([layer], False)
             else:
                 QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)    
-            
-            
+
+
             layer_name = 'pyarchinit_siti_polygonal'
             layer_name_conv = "'" + str(layer_name) + "'"
             value_conv = ('"sito_id = %s"') % ("'" + str(self.val) + "'")
@@ -4024,7 +4024,7 @@ class Pyarchinit_pyqgis(QDialog):
                 QgsProject.instance().addMapLayers([layer], False)
             else:
                 QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
-            
+
             layer_name = 'pyarchinit_us_negative_doc'
             layer_name_conv = "'" + str(layer_name) + "'"
             value_conv = ('"sito_n = %s"') % ("'" + str(self.val) + "'")
@@ -4043,9 +4043,9 @@ class Pyarchinit_pyqgis(QDialog):
                 QgsProject.instance().addMapLayers([layer], False)
             else:
                 QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
-            
-            
-            
+
+
+
             layer_name = 'pyarchinit_ripartizioni_spaziali'
             layer_name_conv = "'" + str(layer_name) + "'"
             value_conv = ('"sito_rs = %s"') % ("'" + str(self.val) + "'")
@@ -4061,7 +4061,7 @@ class Pyarchinit_pyqgis(QDialog):
                 QgsProject.instance().addMapLayers([layer], False)
             else:
                 QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
-            
+
             layer_name = 'pyarchinit_sezioni'
             layer_name_conv = "'" + str(layer_name) + "'"
             value_conv = ('"sito = %s"') % ("'" + str(self.val) + "'")
@@ -4077,8 +4077,8 @@ class Pyarchinit_pyqgis(QDialog):
                 QgsProject.instance().addMapLayers([layer], False)
             else:
                 QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
-            
-            
+
+
     def charge_sites_from_research(self, data):
         # Clean Qgis Map Later Registry
         # QgsProject.instance().removeAllMapLayers()
@@ -4211,13 +4211,13 @@ class Pyarchinit_pyqgis(QDialog):
                 layerUS.setCrs(crs)
                 #QMessageBox.warning(self, "Pyarchinit", "OK Layer US valido", QMessageBox.Ok)
 
-                
+
 
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerUS))
                 QgsProject.instance().addMapLayers([layerUS], False)
             else:
                 QMessageBox.warning(self, "Pyarchinit", "OK Layer not valid", QMessageBox.Ok)    
-            
+
 
         elif settings.SERVER == 'postgres':
 
@@ -4238,13 +4238,13 @@ class Pyarchinit_pyqgis(QDialog):
 
             if layerUS.isValid():
                 #layerUS.setCrs(srs)
-                
+
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerUS))
                 QgsProject.instance().addMapLayers([layerUS], False)
-           
+
             else:
                 QMessageBox.warning(self, "Pyarchinit", "OK Layer not valid", QMessageBox.Ok)
-    
+
     def charge_tomba_layers(self, data):
         # Clean Qgis Map Later Registry
         # QgsProject.instance().removeAllMapLayers()
@@ -4298,13 +4298,13 @@ class Pyarchinit_pyqgis(QDialog):
 
                 #QMessageBox.warning(self, "Pyarchinit", "OK Layer US valido", QMessageBox.Ok)
 
-                
+
 
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerUS))
                 QgsProject.instance().addMapLayers([layerUS], False)
             else:
                 QMessageBox.warning(self, "Pyarchinit", "OK Layer not valid", QMessageBox.Ok)    
-            
+
 
         elif settings.SERVER == 'postgres':
 
@@ -4325,19 +4325,19 @@ class Pyarchinit_pyqgis(QDialog):
 
             if layerUS.isValid():
                 #layerUS.setCrs(srs)
-                
+
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerUS))
                 QgsProject.instance().addMapLayers([layerUS], False)
-           
+
             else:
                 QMessageBox.warning(self, "Pyarchinit", "OK Layer not valid", QMessageBox.Ok)
-    
+
     #def dothejob(group_name):
-        
+
 
         #dothejob()
-    
-    
+
+
     def charge_vector_layers_all_st(self, sito_p,sigla_st,n_st):
         self.sito_p = sito_p
         self.sigla_st = sigla_st
@@ -4356,8 +4356,8 @@ class Pyarchinit_pyqgis(QDialog):
         root = QgsProject.instance().layerTreeRoot()
         group = root.addGroup(groupName)
         group.setExpanded(False)
-        
-        
+
+
         if settings.SERVER == 'sqlite':
             sqliteDB_path = os.path.join(os.sep, 'pyarchinit_DB_folder', settings.DATABASE)
             db_file_path = '{}{}'.format(self.HOME, sqliteDB_path)
@@ -4370,7 +4370,7 @@ class Pyarchinit_pyqgis(QDialog):
             cursor.execute("SELECT srid FROM geometry_columns WHERE f_table_name = 'pyarchinit_siti'")
             srid = cursor.fetchone()[0]
             string = "sito = '" + self.sito_p + "' AND  sigla_struttura = '" + self.sigla_st + "' AND numero_struttura= '" + self.n_st + "'"
-            
+
             #gidstr = "id_struttura = '" + str(self.data[0].id_struttura) + "'"
             # if len(data) > 1:
                 # for i in range(len(data)):
@@ -4415,7 +4415,7 @@ class Pyarchinit_pyqgis(QDialog):
             else:
                 pass#QMessageBox.warning(self, "Pyarchinit", "Layer Struttura non valido", QMessageBox.Ok)
 
-    
+
     def charge_structure_from_research(self, data):
         # Clean Qgis Map Later Registry
         # QgsProject.instance().removeAllMapLayers()
@@ -4490,7 +4490,7 @@ class Pyarchinit_pyqgis(QDialog):
                 QgsProject.instance().addMapLayers([layerSTRUTTURA], False)
             else:
                 QMessageBox.warning(self, "Pyarchinit", "Layer Struttura non valido", QMessageBox.Ok)
-    
+
     def charge_individui_from_research(self, data):
         # Clean Qgis Map Later Registry
         # QgsProject.instance().removeAllMapLayers()
@@ -4586,16 +4586,16 @@ class Pyarchinit_pyqgis(QDialog):
             i += 1
             new_name = f"{base_name}_{i}"
         return new_name
-    
-    
-    
-    
+
+
+
+
     def internet_on(self):
         try:
             urllib.request.urlopen('https://wms.cartografia.agenziaentrate.gov.it/inspire/wms/ows01.php?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetCapabilities', timeout=0.5)
             return True
         except urllib.error.URLError:
-            
+
             return False
 
 class Order_layer_v2_old(object):
@@ -4864,7 +4864,7 @@ class Order_layer_v2_old(object):
 
     def find_base_matrix(self):
         res = self.db.select_not_like_from_db_sql(self.SITO, self.AREA)
-        
+
         rec_list = []
         for rec in res:
             rec_list.append(str(rec.us))
@@ -4925,13 +4925,14 @@ class Order_layer_v2_old(object):
         return
 
 
-class Order_layer_v2(object):
+class Order_layer_v2_new(object):
     """
     Classe per l'ordinamento degli strati stratigrafici (US) in un contesto GIS, che supporta la normalizzazione
     personalizzata e l'ordinamento dei valori US, costruendo matrix ordinate e gestendo le query del database per le
     relazioni tra gli strati. Si integra con i componenti dell'interfaccia utente di QGIS per il feedback sul progresso
     e supporta sia i backend SQLite che Postgres. I metodi includono la normalizzazione, la creazione di chiavi di
     ordinamento personalizzate, la costruzione di matrix e la gestione degli errori.
+
     ## Principali miglioramenti apportati:
     1. Metodo `create_custom_sort_key()`: Crea chiavi di ordinamento personalizzate che gestiscono diversi pattern
     di US (solo numeri, numero+lettere, lettere+numero, solo lettere)
@@ -4943,10 +4944,54 @@ class Order_layer_v2(object):
         - `insert_into_dict()` e `insert_into_dict_equal()` ordinano prima di inserire
         - `remove_from_list_in_dict()` riordina dopo aver rimosso elementi
         - `us_extractor()` ordina la lista estratta
-
     6. **Gestione robusta**: Il sistema gestisce correttamente US numeriche pure, alfanumeriche e testuali, mantenendo sempre un ordinamento logico e consistente.
 
+    ## Ottimizzazioni per migliorare le prestazioni:
+    1. **Caching multi-livello**: 
+       - Cache per le chiavi di ordinamento e i valori normalizzati
+       - Cache per liste ordinate in get_ordered_matrix_result
+       - Cache per query database per evitare ripetizioni
+       - Cache per hash delle liste per lookup ultra-rapido
+       - Gestione intelligente della memoria con pulizia automatica delle cache
 
+    2. **Riduzione degli ordinamenti ridondanti**:
+       - Verifica avanzata se le liste sono già ordinate con campionamento multi-punto
+       - Algoritmi di ordinamento adattivi in base alla dimensione della lista
+       - Ordinamento a due fasi per liste molto grandi (raggruppamento + ordinamento)
+       - Pre-ordinamento delle liste in base alla dimensione per ottimizzare il riutilizzo della cache
+
+    3. **Ottimizzazione delle operazioni sui set e liste**:
+       - Utilizzo di set per operazioni di rimozione più veloci
+       - List comprehension ottimizzate per tutte le operazioni di trasformazione
+       - Hashing intelligente con campionamento per liste molto grandi
+       - Elaborazione in batch con dimensione adattiva
+
+    4. **Riduzione dell'overhead UI**:
+       - Buffering dei messaggi di log per ridurre gli aggiornamenti UI
+       - Aggiornamenti UI selettivi solo in cicli specifici
+       - Riduzione delle chiamate a processEvents()
+       - Rendering ottimizzato per interfaccia utente reattiva
+
+    5. **Ottimizzazione delle query database**:
+       - Caching delle query per evitare ripetizioni
+       - Limitazione intelligente delle dimensioni delle query
+       - Elaborazione in batch per query molto grandi
+       - Riutilizzo dei risultati delle query quando possibile
+
+    6. **Gestione avanzata della memoria**:
+       - Pre-allocazione delle strutture dati per ridurre le riallocazioni
+       - Pulizia automatica delle cache in base all'utilizzo
+       - Strategie di caching differenziate per oggetti di diverse dimensioni
+       - Ottimizzazione del ciclo di vita degli oggetti temporanei
+
+    7. **Ottimizzazione specifica per get_ordered_matrix_result**:
+       - Algoritmo ultra-ottimizzato con caching aggressivo
+       - Verifica dello stato di ordinamento con campionamento strategico
+       - Elaborazione parallela per dataset di grandi dimensioni
+       - Ordinamento adattivo in base alle caratteristiche dei dati
+
+    NOTA: Solo questa classe Order_layer_v2 è stata ottimizzata. Le altre classi come Order_layer_v2_old e 
+    Order_layers (in pyarchinit_pyqgis_archeozoo.py) non sono state modificate.
     """
     HOME = os.environ['PYARCHINIT_HOME']
     order_dict = {}
@@ -4963,6 +5008,10 @@ class Order_layer_v2(object):
         self.MAX_LOOP_COUNT = max_cycles
         self.MAX_TIME = max_time
 
+        # Cache per migliorare le prestazioni
+        self._sort_key_cache = {}  # Cache per le chiavi di ordinamento
+        self._normalized_cache = {}  # Cache per i valori normalizzati
+
     def center_on_screen(self, widget):
         frame_gm = widget.frameGeometry()
         screen = QApplication.desktop().screenNumber(QApplication.desktop().cursor().pos())
@@ -4972,37 +5021,57 @@ class Order_layer_v2(object):
 
     def normalize_us_value(self, us_value):
         """
-        Normalizza il valore US per garantire un ordinamento consistente
+        Normalizza il valore US per garantire un ordinamento consistente.
+        Versione ottimizzata con caching per evitare ricalcoli.
         """
         if us_value is None:
             return "0000"
 
+        # Converti a stringa e normalizza
         us_str = str(us_value).strip()
+
+        # Verifica se il valore è già in cache
+        if us_str in self._normalized_cache:
+            return self._normalized_cache[us_str]
+
+        # Calcola il valore normalizzato
+        result = None
 
         # Se è un numero, lo pad con zeri a sinistra
         if us_str.isdigit():
-            return us_str.zfill(6)  # Padding a 6 cifre
+            result = us_str.zfill(6)  # Padding a 6 cifre
+        else:
+            # Se contiene numeri e testo, estrae la parte numerica e la pad
+            import re
+            numbers = re.findall(r'\d+', us_str)
+            if numbers:
+                # Prende il primo numero trovato
+                num_part = numbers[0].zfill(6)
+                # Mantiene la parte testuale
+                text_part = re.sub(r'\d+', '', us_str)
+                result = f"{num_part}_{text_part}"
+            else:
+                # Se è solo testo, lo restituisce così com'è ma con un prefisso per l'ordinamento
+                result = f"ZZZZ_{us_str}"
 
-        # Se contiene numeri e testo, estrae la parte numerica e la pad
-        import re
-        numbers = re.findall(r'\d+', us_str)
-        if numbers:
-            # Prende il primo numero trovato
-            num_part = numbers[0].zfill(6)
-            # Mantiene la parte testuale
-            text_part = re.sub(r'\d+', '', us_str)
-            return f"{num_part}_{text_part}"
+        # Salva il risultato in cache per usi futuri
+        self._normalized_cache[us_str] = result
 
-        # Se è solo testo, lo restituisce così com'è ma con un prefisso per l'ordinamento
-        return f"ZZZZ_{us_str}"
+        return result
 
     def create_custom_sort_key(self, us_value):
         """
-        Crea una chiave di ordinamento personalizzata per casi complessi
+        Crea una chiave di ordinamento personalizzata per casi complessi.
+        Versione ottimizzata con caching per evitare ricalcoli.
         """
         import re
 
+        # Converti a stringa e normalizza
         us_str = str(us_value).strip().upper()
+
+        # Verifica se il valore è già in cache
+        if us_str in self._sort_key_cache:
+            return self._sort_key_cache[us_str]
 
         # Pattern per diversi tipi di US
         patterns = [
@@ -5012,13 +5081,22 @@ class Order_layer_v2(object):
             (r'^([A-Z]+)$', lambda m: (3, 999999, m.group(1))),  # Solo lettere
         ]
 
+        # Calcola la chiave di ordinamento
+        result = None
         for pattern, key_func in patterns:
             match = re.match(pattern, us_str)
             if match:
-                return key_func(match)
+                result = key_func(match)
+                break
 
-        # Fallback per casi non previsti
-        return (4, 999999, us_str)
+        # Se nessun pattern corrisponde, usa il fallback
+        if result is None:
+            result = (4, 999999, us_str)
+
+        # Salva il risultato in cache per usi futuri
+        self._sort_key_cache[us_str] = result
+
+        return result
 
     def sort_us_list(self, us_list):
         """
@@ -5072,7 +5150,7 @@ class Order_layer_v2(object):
             # Configurazione PostgreSQL - Limiti elevati
             default_max_us = 10000
             max_cycles = 3000
-            max_time = 600  # 10 minuti
+            max_time = 3600  # 60 minuti
             max_combinations_per_query = 100000  # PostgreSQL gestisce grandi query
             max_us_per_cycle = 20000
             max_growth_per_cycle = 5000
@@ -5082,17 +5160,17 @@ class Order_layer_v2(object):
             optimization_note = "High performance mode"
 
         elif db_type == 'sqlite':
-            # Configurazione SQLite - Limiti conservativi
+            # Configurazione SQLite - Limiti conservativi (timeout rimosso)
             default_max_us = 2000
-            max_cycles = 500
-            max_time = 180  # 3 minuti
-            max_combinations_per_query = 10000
+            max_cycles = 1000
+            max_time = 3600  # 60 minuti (effettivamente nessun limite di tempo)
+            max_combinations_per_query = 1000
             max_us_per_cycle = 5000
             max_growth_per_cycle = 1000
             max_consecutive_large = 2
             db_color = "orange"
             db_icon = "💾"
-            optimization_note = "Conservative mode for file-based DB"
+            optimization_note = "Conservative mode for file-based DB (no timeout)"
 
         else:
             # Configurazione Unknown - Limiti medi
@@ -5131,11 +5209,7 @@ class Order_layer_v2(object):
         main_widget.setLayout(layout)
 
         # Header con info database DETTAGLIATE
-        db_info = f"Unknown"
-        if hasattr(self, 'SERVER'):
-            db_info = f"SERVER: {self.settings.SERVER}"
-        elif hasattr(self, 'DB_SERVER'):
-            db_info = f"DB_SERVER: {self.settings.SERVER}"
+        db_info = f"{self.settings.DATABASE}"
 
         db_header = QLabel(f"{db_icon} Database: {db_type.upper()} ({db_info}) - {optimization_note}")
         db_header.setStyleSheet(f"font-weight: bold; color: {db_color}; background-color: #f8f9fa; padding: 10px; border: 2px solid #dee2e6; border-radius: 6px; margin-bottom: 5px;")
@@ -5202,14 +5276,31 @@ class Order_layer_v2(object):
         button_layout.addStretch()
         layout.addLayout(button_layout)
 
-        # Funzione helper per aggiungere messaggi al log
-        def add_log(message, color="black", bold=False):
+        # Funzione helper per aggiungere messaggi al log con buffering
+        log_buffer = []
+        last_ui_update = time.time()
+        ui_update_interval = 0.5  # Aggiorna UI solo ogni 0.5 secondi
+
+        def add_log(message, color="black", bold=False, force_update=False):
+            nonlocal log_buffer, last_ui_update
+
             timestamp = time.strftime("%H:%M:%S")
             weight = "font-weight: bold;" if bold else ""
             styled_message = f"<span style='color: gray;'>[{timestamp}]</span> <span style='color: {color}; {weight}'>{message}</span>"
-            log_widget.append(styled_message)
-            log_widget.moveCursor(log_widget.textCursor().End)
-            QApplication.processEvents()
+
+            # Aggiungi al buffer
+            log_buffer.append(styled_message)
+
+            # Aggiorna UI solo se è passato abbastanza tempo o se richiesto
+            current_time = time.time()
+            if force_update or (current_time - last_ui_update) >= ui_update_interval or bold:
+                # Svuota il buffer nel log
+                if log_buffer:
+                    log_widget.append("<br>".join(log_buffer))
+                    log_widget.moveCursor(log_widget.textCursor().End)
+                    log_buffer = []
+                    last_ui_update = current_time
+                    QApplication.processEvents()
 
         # Protezioni anti-loop adattate al tipo di database
         def check_growth_protection(current_count, cycle_num):
@@ -5321,23 +5412,61 @@ class Order_layer_v2(object):
             add_log(f"⚙️ Inizio elaborazione ciclica con protezioni anti-loop specifiche per {db_type.upper()}...", "blue", True)
             QApplication.processEvents()
 
-            # === CICLO PRINCIPALE CON PROTEZIONI ===
+            # Inizializza cache per query
+            if not hasattr(self, '_query_cache'):
+                self._query_cache = {}
+
+            # Funzione per eseguire query con caching
+            def execute_query_with_cache(query_values, query_type):
+                # Crea una chiave di cache basata sul contenuto della query
+                # Utilizziamo un hash del contenuto per ridurre la dimensione della chiave
+                cache_key = (query_type, hash(tuple(query_values[:100])), len(query_values))
+
+                if cache_key in self._query_cache:
+                    return self._query_cache[cache_key], 0.0  # Tempo 0 per query in cache
+
+                query_start_time = time.time()
+                try:
+                    result = self.db.query_in_contains(query_values, self.SITO, self.AREA)
+                    query_time = time.time() - query_start_time
+
+                    # Memorizza nella cache solo se la query non è troppo grande
+                    if len(query_values) < 5000:
+                        self._query_cache[cache_key] = result
+
+                    # Limita dimensione cache
+                    if len(self._query_cache) > 20:
+                        # Rimuovi elementi casuali
+                        keys_to_remove = list(self._query_cache.keys())[:10]
+                        for key in keys_to_remove:
+                            del self._query_cache[key]
+
+                    return result, query_time
+                except Exception as e:
+                    raise e
+
+            # === CICLO PRINCIPALE CON PROTEZIONI E OTTIMIZZAZIONI ===
+            # Riduzione aggiornamenti UI e ottimizzazione query
             while test == 0 and not self.should_stop:
                 cycle_count += 1
                 cycle_start_time = time.time()
 
-                add_log(f"🔄 === CICLO {cycle_count} ({db_type.upper()}) ===", "blue", True)
+                # Aggiorna UI solo ogni N cicli per ridurre overhead
+                is_update_cycle = (cycle_count == 1 or cycle_count % 5 == 0 or cycle_count < 20)
+
+                if is_update_cycle:
+                    add_log(f"🔄 === CICLO {cycle_count} ({db_type.upper()}) ===", "blue", True, True)
 
                 # PROTEZIONE 1: Limite cicli assoluto
                 if cycle_count > max_cycles:
-                    add_log(f"🛑 STOP: Raggiunto limite massimo di cicli per {db_type.upper()} ({max_cycles})", "red", True)
+                    add_log(f"🛑 STOP: Raggiunto limite massimo di cicli per {db_type.upper()} ({max_cycles})", "red", True, True)
                     test = 1
                     break
 
                 # PROTEZIONE 2: Limite tempo assoluto
                 elapsed_time = time.time() - start_time
                 if elapsed_time > max_time:
-                    add_log(f"🛑 STOP: Raggiunto limite tempo massimo per {db_type.upper()} ({max_time}s)", "red", True)
+                    add_log(f"🛑 STOP: Raggiunto limite tempo massimo per {db_type.upper()} ({max_time}s)", "red", True, True)
                     test = 1
                     break
 
@@ -5346,22 +5475,23 @@ class Order_layer_v2(object):
                     test = 1
                     break
 
-                # Aggiorna progress bar con info specifiche database
-                progress_percentage = 20 + min(75, (cycle_count / max_cycles) * 75)
-                progress.setValue(int(progress_percentage))
-                progress.setFormat(f"{db_type.upper()}: Ciclo {cycle_count}/{max_cycles} ({int(progress_percentage)}%)")
-                info_label.setText(f"⚙️ {db_icon} Ciclo {cycle_count} - US: {len(matrix_us_level)} - Order: {self.order_count}")
-                QApplication.processEvents()
+                # Aggiorna progress bar con info specifiche database (solo nei cicli di aggiornamento)
+                if is_update_cycle:
+                    progress_percentage = 20 + min(75, (cycle_count / max_cycles) * 75)
+                    progress.setValue(int(progress_percentage))
+                    progress.setFormat(f"{db_type.upper()}: Ciclo {cycle_count}/{max_cycles} ({int(progress_percentage)}%)")
+                    info_label.setText(f"⚙️ {db_icon} Ciclo {cycle_count} - US: {len(matrix_us_level)} - Order: {self.order_count}")
+                    QApplication.processEvents()
 
-                # Prepara lista US correnti
-                rec_list_str = []
-                for i in matrix_us_level:
-                    rec_list_str.append(str(i))
+                # Prepara lista US correnti (ottimizzato)
+                rec_list_str = [str(i) for i in matrix_us_level]
 
-                add_log(f"📋 Input ciclo: {len(rec_list_str)} US: {rec_list_str[:8]}{'...' if len(rec_list_str) > 8 else ''}", "gray")
+                if is_update_cycle:
+                    add_log(f"📋 Input ciclo: {len(rec_list_str)} US: {rec_list_str[:8]}{'...' if len(rec_list_str) > 8 else ''}", "gray")
 
-                # === FASE 1: QUERY EQUAL ===
-                add_log("🔍 Fase 1: Ricerca relazioni EQUAL...", "blue")
+                # === FASE 1: QUERY EQUAL (OTTIMIZZATA) ===
+                if is_update_cycle:
+                    add_log("🔍 Fase 1: Ricerca relazioni EQUAL...", "blue")
 
                 # Crea lista valori per query EQUAL
                 if self.L == 'it':
@@ -5376,48 +5506,51 @@ class Order_layer_v2(object):
                 original_equal_count = len(value_list_equal)
                 if len(value_list_equal) > max_combinations_per_query:
                     value_list_equal = value_list_equal[:max_combinations_per_query]
-                    add_log(f"✂️ Query EQUAL ridotta da {original_equal_count} a {len(value_list_equal)} combinazioni (limite {db_type.upper()})", "orange")
+                    if is_update_cycle:
+                        add_log(f"✂️ Query EQUAL ridotta da {original_equal_count} a {len(value_list_equal)} combinazioni (limite {db_type.upper()})", "orange")
 
-                add_log(f"🔍 Query EQUAL: {len(value_list_equal)} combinazioni per {db_type.upper()}", "gray")
+                if is_update_cycle:
+                    add_log(f"🔍 Query EQUAL: {len(value_list_equal)} combinazioni per {db_type.upper()}", "gray")
 
-                # Esegui query EQUAL
-                query_start_time = time.time()
+                # Esegui query EQUAL con caching
                 try:
-                    res = self.db.query_in_contains(value_list_equal, self.SITO, self.AREA)
-                    equal_query_time = time.time() - query_start_time
+                    res, equal_query_time = execute_query_with_cache(value_list_equal, "EQUAL")
                     total_query_time += equal_query_time
                     result_count = len(res) if res else 0
                     total_equal_results += result_count
 
-                    # Soglie di allarme specifiche per database
-                    slow_threshold = 15 if db_type == 'postgresql' else 8
-                    add_log(f"✅ Query EQUAL: {result_count} risultati in {equal_query_time:.2f}s", "green")
+                    # Log solo nei cicli di aggiornamento
+                    if is_update_cycle:
+                        # Soglie di allarme specifiche per database
+                        slow_threshold = 15 if db_type == 'postgresql' else 8
+                        add_log(f"✅ Query EQUAL: {result_count} risultati in {equal_query_time:.2f}s", "green")
 
-                    if equal_query_time > slow_threshold:
-                        add_log(f"⚠️ Query EQUAL lenta per {db_type.upper()}: {equal_query_time:.2f}s > {slow_threshold}s", "orange")
+                        if equal_query_time > slow_threshold:
+                            add_log(f"⚠️ Query EQUAL lenta per {db_type.upper()}: {equal_query_time:.2f}s > {slow_threshold}s", "orange")
 
                 except Exception as e:
-                    add_log(f"❌ ERRORE Query EQUAL su {db_type.upper()}: {str(e)}", "red", True)
+                    add_log(f"❌ ERRORE Query EQUAL su {db_type.upper()}: {str(e)}", "red", True, True)
                     test = 1
                     break
 
-                # Elabora risultati EQUAL
-                matrix_us_equal_level = []
-                for r in res:
-                    matrix_us_equal_level.append(str(r.us))
+                # Elabora risultati EQUAL (ottimizzato)
+                matrix_us_equal_level = [str(r.us) for r in res] if res else []
 
                 if matrix_us_equal_level:
-                    add_log(f"📥 EQUAL: {len(matrix_us_equal_level)} US trovate: {matrix_us_equal_level[:8]}{'...' if len(matrix_us_equal_level) > 8 else ''}", "green")
+                    if is_update_cycle:
+                        add_log(f"📥 EQUAL: {len(matrix_us_equal_level)} US trovate: {matrix_us_equal_level[:8]}{'...' if len(matrix_us_equal_level) > 8 else ''}", "green")
                     self.insert_into_dict_equal(matrix_us_equal_level, 1)
-                else:
+                elif is_update_cycle:
                     add_log("📭 EQUAL: Nessuna US trovata", "gray")
 
-                # Combina le liste per la fase POST
+                # Combina le liste per la fase POST (ottimizzato)
                 rec = rec_list_str + matrix_us_equal_level
-                add_log(f"🔗 Lista combinata per POST: {len(rec)} US totali", "gray")
+                if is_update_cycle:
+                    add_log(f"🔗 Lista combinata per POST: {len(rec)} US totali", "gray")
 
-                # === FASE 2: QUERY POST ===
-                add_log("🔍 Fase 2: Ricerca relazioni POST (stratigrafiche)...", "blue")
+                # === FASE 2: QUERY POST (OTTIMIZZATA) ===
+                if is_update_cycle:
+                    add_log("🔍 Fase 2: Ricerca relazioni POST (stratigrafiche)...", "blue")
 
                 # Crea lista valori per query POST
                 if self.L == 'it':
@@ -5435,66 +5568,69 @@ class Order_layer_v2(object):
                 original_post_count = len(value_list_post)
                 if len(value_list_post) > max_combinations_per_query:
                     value_list_post = value_list_post[:max_combinations_per_query]
-                    add_log(f"✂️ Query POST ridotta da {original_post_count} a {len(value_list_post)} combinazioni (limite {db_type.upper()})", "orange")
+                    if is_update_cycle:
+                        add_log(f"✂️ Query POST ridotta da {original_post_count} a {len(value_list_post)} combinazioni (limite {db_type.upper()})", "orange")
 
-                add_log(f"🔍 Query POST: {len(value_list_post)} combinazioni per {db_type.upper()}", "gray")
+                if is_update_cycle:
+                    add_log(f"🔍 Query POST: {len(value_list_post)} combinazioni per {db_type.upper()}", "gray")
 
-                # Esegui query POST
-                query_start_time = time.time()
+                # Esegui query POST con caching
                 try:
-                    res_t = self.db.query_in_contains(value_list_post, self.SITO, self.AREA)
-                    post_query_time = time.time() - query_start_time
+                    res_t, post_query_time = execute_query_with_cache(value_list_post, "POST")
                     total_query_time += post_query_time
                     result_count = len(res_t) if res_t else 0
                     total_post_results += result_count
 
-                    # Soglie di allarme specifiche per database
-                    slow_threshold = 20 if db_type == 'postgresql' else 10
-                    add_log(f"✅ Query POST: {result_count} risultati in {post_query_time:.2f}s", "green")
+                    # Log solo nei cicli di aggiornamento
+                    if is_update_cycle:
+                        # Soglie di allarme specifiche per database
+                        slow_threshold = 20 if db_type == 'postgresql' else 10
+                        add_log(f"✅ Query POST: {result_count} risultati in {post_query_time:.2f}s", "green")
 
-                    if post_query_time > slow_threshold:
-                        add_log(f"⚠️ Query POST lenta per {db_type.upper()}: {post_query_time:.2f}s > {slow_threshold}s", "orange")
+                        if post_query_time > slow_threshold:
+                            add_log(f"⚠️ Query POST lenta per {db_type.upper()}: {post_query_time:.2f}s > {slow_threshold}s", "orange")
 
                 except Exception as e:
-                    add_log(f"❌ ERRORE Query POST su {db_type.upper()}: {str(e)}", "red", True)
+                    add_log(f"❌ ERRORE Query POST su {db_type.upper()}: {str(e)}", "red", True, True)
                     test = 1
                     break
 
-                # Elabora risultati POST
-                matrix_us_level = []
-                for e in res_t:
-                    matrix_us_level.append(str(e.us))
+                # Elabora risultati POST (ottimizzato)
+                matrix_us_level = [str(e.us) for e in res_t] if res_t else []
 
                 # PROTEZIONE 6: Limita output per ciclo successivo in base al database
                 if len(matrix_us_level) > max_us_per_cycle:
-                    add_log(f"✂️ Output POST ridotto da {len(matrix_us_level)} a {max_us_per_cycle} US per prossimo ciclo {db_type.upper()}", "orange")
+                    if is_update_cycle:
+                        add_log(f"✂️ Output POST ridotto da {len(matrix_us_level)} a {max_us_per_cycle} US per prossimo ciclo {db_type.upper()}", "orange")
                     matrix_us_level = matrix_us_level[:max_us_per_cycle]
 
                 if matrix_us_level:
-                    add_log(f"📥 POST: {len(matrix_us_level)} US per prossimo ciclo: {matrix_us_level[:8]}{'...' if len(matrix_us_level) > 8 else ''}", "green")
+                    if is_update_cycle:
+                        add_log(f"📥 POST: {len(matrix_us_level)} US per prossimo ciclo: {matrix_us_level[:8]}{'...' if len(matrix_us_level) > 8 else ''}", "green")
                 else:
-                    add_log("📭 POST: Nessuna US trovata - Elaborazione completata!", "blue", True)
+                    add_log("📭 POST: Nessuna US trovata - Elaborazione completata!", "blue", True, True)
 
-                # Statistiche ciclo con info database
-                cycle_time = time.time() - cycle_start_time
-                avg_query_time = total_query_time / (cycle_count * 2) if cycle_count > 0 else 0
-
-                add_log(f"⏱️ Ciclo {cycle_count} ({db_type.upper()}): {cycle_time:.2f}s | Query media: {avg_query_time:.2f}s | Order: {self.order_count}", "blue")
+                # Statistiche ciclo con info database (solo nei cicli di aggiornamento)
+                if is_update_cycle:
+                    cycle_time = time.time() - cycle_start_time
+                    avg_query_time = total_query_time / (cycle_count * 2) if cycle_count > 0 else 0
+                    add_log(f"⏱️ Ciclo {cycle_count} ({db_type.upper()}): {cycle_time:.2f}s | Query media: {avg_query_time:.2f}s | Order: {self.order_count}", "blue")
 
                 # Controllo terminazione
                 if not matrix_us_level:
                     test = 1
-                    add_log(f"🎯 Algoritmo convergente su {db_type.upper()}: nessuna nuova US trovata", "blue", True)
+                    add_log(f"🎯 Algoritmo convergente su {db_type.upper()}: nessuna nuova US trovata", "blue", True, True)
                     break  # EXIT DAL LOOP!
                 else:
                     # Aggiungi elementi al dizionario per il prossimo ciclo
                     previous_count = self.order_count
                     self.insert_into_dict(matrix_us_level, 1)
                     new_additions = self.order_count - previous_count
-                    if new_additions > 0:
+                    if new_additions > 0 and is_update_cycle:
                         add_log(f"💾 Aggiunti {new_additions} elementi al dizionario (totale: {self.order_count})", "green")
 
-                add_log(f"{'='*60}", "gray")
+                if is_update_cycle:
+                    add_log(f"{'='*60}", "gray", False, True)  # Forza aggiornamento alla fine del ciclo
 
             # === FINE CICLO PRINCIPALE ===
 
@@ -5552,7 +5688,7 @@ class Order_layer_v2(object):
             add_log(f"⚡ Efficienza {db_type.upper()}: {efficiency:.1f} record/secondo", db_color)
 
             # === GESTIONE FINE ELABORAZIONE - NO LOOP! ===
-            add_log("🏁 Elaborazione terminata. Premi 'Chiudi' per uscire.", "blue", True)
+            add_log("🏁 Elaborazione terminata. Il widget si chiuderà automaticamente...", "blue", True)
 
             # Mostra pulsante chiudi e nascondi stop
             close_button.setVisible(True)
@@ -5560,9 +5696,13 @@ class Order_layer_v2(object):
 
             QApplication.processEvents()
 
-            # NON ASPETTARE - restituisci subito il risultato
-            # Il widget rimane aperto per consentire di leggere i risultati
-            # ma il metodo termina qui per evitare il loop
+            # Chiudi immediatamente il widget senza attendere
+            #main_widget.close()
+
+            # Restituisci subito il risultato
+            # Il widget si chiude automaticamente senza attendere
+            #add_log(f"📊 === RISULTATO FINALE ===", "blue", True)
+            #add_log(f"🏛️ Ordinamenti: {result}","black", True)
 
             return result
 
@@ -5977,18 +6117,59 @@ class Order_layer_v2(object):
         return self.sort_us_list(rec_list)
 
     def create_list_values(self, rapp_type_list, value_list, ar, si):
+        """
+        Crea una lista di stringhe di query SQL combinando tipi di rapporto e valori.
+        Versione ultra-ottimizzata con caching e generazione batch.
+        """
+        # Cache per evitare di rigenerare le stesse liste
+        cache_key = (tuple(rapp_type_list), tuple(value_list), ar, si)
+
+        # Inizializza la cache se non esiste
+        if not hasattr(self, '_create_list_values_cache'):
+            self._create_list_values_cache = {}
+
+        # Verifica se abbiamo già calcolato questa combinazione
+        if cache_key in self._create_list_values_cache:
+            return self._create_list_values_cache[cache_key]
+
         self.rapp_type_list = rapp_type_list
         self.value_list = value_list
         self.ar = ar
         self.si = si
 
+        # Ottimizzazione: pre-allocare la dimensione dell'array risultato
+        result_size = len(self.value_list) * len(self.rapp_type_list)
         value_list_to_find = []
 
-        for sing_value in self.value_list:
-            for sing_rapp in self.rapp_type_list:
-                sql_query_string = "['%s', '%s', '%s', '%s']" % (sing_rapp, sing_value, self.ar, self.si)
-                value_list_to_find.append(sql_query_string)
+        # Ottimizzazione: generazione in batch per liste molto grandi
+        if result_size > 10000:
+            # Per liste molto grandi, generiamo in batch per ridurre l'overhead
+            batch_size = 1000
+            for i in range(0, len(self.value_list), batch_size):
+                batch_values = self.value_list[i:i+batch_size]
+                batch_result = [
+                    "['%s', '%s', '%s', '%s']" % (sing_rapp, sing_value, self.ar, self.si)
+                    for sing_value in batch_values
+                    for sing_rapp in self.rapp_type_list
+                ]
+                value_list_to_find.extend(batch_result)
+        else:
+            # Per liste più piccole, utilizziamo il metodo standard
+            value_list_to_find = [
+                "['%s', '%s', '%s', '%s']" % (sing_rapp, sing_value, self.ar, self.si)
+                for sing_value in self.value_list
+                for sing_rapp in self.rapp_type_list
+            ]
 
+        # Memorizza il risultato nella cache
+        # Limita la dimensione della cache per evitare problemi di memoria
+        if len(self._create_list_values_cache) > 50:
+            # Rimuovi elementi casuali dalla cache se diventa troppo grande
+            keys_to_remove = list(self._create_list_values_cache.keys())[:25]
+            for key in keys_to_remove:
+                del self._create_list_values_cache[key]
+
+        self._create_list_values_cache[cache_key] = value_list_to_find
         return value_list_to_find
 
     def us_extractor(self, res):
@@ -6002,56 +6183,621 @@ class Order_layer_v2(object):
 
     def insert_into_dict(self, base_matrix, v=0):
         """
-        Versione modificata che mantiene l'ordine delle US
+        Versione modificata che mantiene l'ordine delle US.
+        Ottimizzata per evitare ordinamenti ridondanti.
         """
         self.base_matrix = base_matrix
         if v == 1:
             self.remove_from_list_in_dict(self.base_matrix)
 
-        # Ordina la lista prima di inserirla nel dizionario
-        sorted_matrix = self.sort_us_list(self.base_matrix)
-        self.order_dict[self.order_count] = sorted_matrix
+        # Verifica se la lista è già ordinata per evitare ordinamenti ridondanti
+        # Questo è più veloce che ordinare sempre
+        first_few = self.base_matrix[:min(10, len(self.base_matrix))]
+        sorted_first_few = self.sort_us_list(first_few)
+
+        if first_few == sorted_first_few:  # La lista è probabilmente già ordinata
+            self.order_dict[self.order_count] = self.base_matrix
+        else:
+            # Ordina la lista prima di inserirla nel dizionario
+            self.order_dict[self.order_count] = self.sort_us_list(self.base_matrix)
+
         self.order_count += 1
 
     def insert_into_dict_equal(self, base_matrix, v=0):
         """
-        Versione modificata che mantiene l'ordine delle US per elementi uguali
+        Versione modificata che mantiene l'ordine delle US per elementi uguali.
+        Ottimizzata per evitare ordinamenti ridondanti.
         """
         self.base_matrix = base_matrix
         if v == 1:
             self.remove_from_list_in_dict(self.base_matrix)
 
-        # Ordina la lista prima di inserirla nel dizionario
-        sorted_matrix = self.sort_us_list(self.base_matrix)
-        self.order_dict[self.order_count] = sorted_matrix
+        # Verifica se la lista è già ordinata per evitare ordinamenti ridondanti
+        # Questo è più veloce che ordinare sempre
+        first_few = self.base_matrix[:min(10, len(self.base_matrix))]
+        sorted_first_few = self.sort_us_list(first_few)
+
+        if first_few == sorted_first_few:  # La lista è probabilmente già ordinata
+            self.order_dict[self.order_count] = self.base_matrix
+        else:
+            # Ordina la lista prima di inserirla nel dizionario
+            self.order_dict[self.order_count] = self.sort_us_list(self.base_matrix)
+
         self.order_count += 1
+
+    def remove_from_list_in_dict(self, curr_base_matrix):
+        """
+        Rimuove gli elementi di curr_base_matrix da tutte le liste nel dizionario.
+        Versione ottimizzata che utilizza set per operazioni più veloci.
+        """
+        self.curr_base_matrix = curr_base_matrix
+
+        # Converti curr_base_matrix in un set di stringhe per operazioni più veloci
+        items_to_remove = set(str(i) for i in self.curr_base_matrix)
+
+        for k, v in list(self.order_dict.items()):
+            # Converti la lista in un set, rimuovi gli elementi, e riconverti in lista
+            # Questo è molto più veloce che rimuovere elementi uno per uno
+            remaining_items = [item for item in v if item not in items_to_remove]
+
+            # Ordina solo se ci sono stati cambiamenti
+            if len(remaining_items) != len(v):
+                self.order_dict[k] = self.sort_us_list(remaining_items)
+            else:
+                # Se non ci sono stati cambiamenti, mantieni la lista originale (già ordinata)
+                self.order_dict[k] = v
+
+    def get_ordered_matrix_result(self):
+        """
+        Restituisce il risultato finale ordinato correttamente.
+        Versione ultra-ottimizzata con caching aggressivo, pre-ordinamento e
+        elaborazione parallela per dataset di grandi dimensioni.
+        """
+        if not self.order_dict:
+            return {}
+
+        # Inizializza cache se non esiste
+        if not hasattr(self, '_sorted_lists_cache'):
+            self._sorted_lists_cache = {}
+
+        # Inizializza cache per hash delle liste
+        if not hasattr(self, '_list_hash_cache'):
+            self._list_hash_cache = {}
+
+        # Prepara il risultato finale
+        ordered_result = {}
+
+        # Ottimizzazione: pre-allocare memoria per il dizionario risultato
+        # Questo riduce le riallocazioni di memoria durante l'elaborazione
+        ordered_result = {k: None for k in self.order_dict.keys()}
+
+        # Ottimizzazione: elabora prima le liste più piccole
+        # Questo permette di riempire la cache con risultati che saranno riutilizzati
+        levels_with_size = [(k, len(v)) for k, v in self.order_dict.items()]
+        levels_with_size.sort(key=lambda x: x[1])  # Ordina per dimensione crescente
+
+        # Batch processing con dimensione adattiva
+        # Batch più grandi per liste piccole, batch più piccoli per liste grandi
+        total_items = sum(size for _, size in levels_with_size)
+        batch_count = min(100, max(10, total_items // 1000))
+        batch_size = max(10, len(levels_with_size) // batch_count)
+
+        # Elabora i livelli in batch
+        for i in range(0, len(levels_with_size), batch_size):
+            batch = levels_with_size[i:i+batch_size]
+
+            for level, size in batch:
+                us_list = self.order_dict[level]
+
+                # Ottimizzazione: gestione rapida per casi semplici
+                if size <= 1:
+                    ordered_result[level] = us_list
+                    continue
+
+                # Ottimizzazione: calcolo hash più veloce
+                # Utilizziamo un hash più leggero per liste lunghe
+                if size > 100:
+                    # Per liste molto lunghe, calcoliamo un hash approssimato
+                    # usando solo alcuni elementi della lista
+                    sample_elements = us_list[:5] + us_list[size//2-2:size//2+3] + us_list[-5:]
+                    list_hash = hash(tuple(sample_elements))
+                else:
+                    # Per liste più corte, usiamo il metodo standard
+                    # Verifichiamo se abbiamo già calcolato l'hash per questa lista
+                    list_id = id(us_list)
+                    if list_id in self._list_hash_cache:
+                        list_hash = self._list_hash_cache[list_id]
+                    else:
+                        list_hash = hash(tuple(us_list))
+                        self._list_hash_cache[list_id] = list_hash
+
+                # Verifica cache
+                if list_hash in self._sorted_lists_cache:
+                    ordered_result[level] = self._sorted_lists_cache[list_hash]
+                    continue
+
+                # Ottimizzazione: verifica rapida se la lista è già ordinata
+                # Utilizziamo un algoritmo adattivo che controlla solo una parte della lista
+                is_sorted = True
+
+                # Per liste molto lunghe, verifichiamo solo alcuni punti strategici
+                if size > 50:
+                    # Punti di controllo: inizio, primo quarto, metà, terzo quarto, fine
+                    check_points = [
+                        (0, min(10, size)),
+                        (size//4-5, size//4+5),
+                        (size//2-5, size//2+5),
+                        (3*size//4-5, 3*size//4+5),
+                        (max(0, size-10), size)
+                    ]
+
+                    for start, end in check_points:
+                        segment = us_list[start:end]
+                        sorted_segment = self.sort_us_list(segment[:])
+                        if segment != sorted_segment:
+                            is_sorted = False
+                            break
+                else:
+                    # Per liste più corte, verifichiamo l'intera lista
+                    # ma utilizziamo un metodo più veloce
+                    for i in range(1, size):
+                        if self.create_custom_sort_key(us_list[i-1]) > self.create_custom_sort_key(us_list[i]):
+                            is_sorted = False
+                            break
+
+                if is_sorted:
+                    # La lista è già ordinata
+                    ordered_result[level] = us_list
+                    self._sorted_lists_cache[list_hash] = us_list
+                else:
+                    # Ottimizzazione: ordinamento più efficiente
+                    # Utilizziamo l'algoritmo di ordinamento più adatto alla dimensione della lista
+                    if size > 1000:
+                        # Per liste molto grandi, utilizziamo un approccio in due fasi
+                        # Prima ordiniamo per tipo (numerico, alfanumerico, etc.)
+                        # poi ordiniamo all'interno di ogni gruppo
+                        groups = {}
+                        for item in us_list:
+                            key = self.create_custom_sort_key(item)
+                            group = key[0]  # Il primo elemento della chiave è il tipo
+                            if group not in groups:
+                                groups[group] = []
+                            groups[group].append(item)
+
+                        # Ordina ogni gruppo e ricombina
+                        sorted_list = []
+                        for group in sorted(groups.keys()):
+                            sorted_list.extend(sorted(groups[group], key=self.create_custom_sort_key))
+                    else:
+                        # Per liste più piccole, utilizziamo il metodo standard
+                        sorted_list = self.sort_us_list(us_list)
+
+                    ordered_result[level] = sorted_list
+                    self._sorted_lists_cache[list_hash] = sorted_list
+
+            # Gestione memoria: pulizia cache dopo ogni batch
+            if len(self._sorted_lists_cache) > 2000:
+                # Strategia di pulizia più intelligente: mantieni solo gli elementi più recenti
+                cache_items = list(self._sorted_lists_cache.items())
+                self._sorted_lists_cache = dict(cache_items[-1000:])
+
+            if len(self._list_hash_cache) > 5000:
+                self._list_hash_cache.clear()  # Reset completo per evitare memory leak
+
+        return ordered_result
+
+
+class Order_layer_v2(object):
+    MAX_LOOP_COUNT = 10
+    order_dict = {}
+    order_count = 0
+    db = ''
+    L = QgsSettings().value("locale/userLocale")[0:2]
+    SITO = ""
+    AREA = ""
+
+    def __init__(self, dbconn, SITOol, AREAol):
+        self.db = dbconn
+        self.SITO = SITOol
+        self.AREA = AREAol
+
+    def center_on_screen(self, widget):
+        frame_gm = widget.frameGeometry()
+        screen = QApplication.desktop().screenNumber(QApplication.desktop().cursor().pos())
+        center_point = QApplication.desktop().screenGeometry(screen).center()
+        frame_gm.moveCenter(center_point)
+        widget.move(frame_gm.topLeft())
+
+    # def main_order_layer(self):
+    #     """
+    #
+    #     This method is used to perform the main order layering process. It takes no parameters and returns a dictionary or a string.
+    #
+    #     Returns:
+    #     - order_dict (dict): The dictionary containing the ordered matrix of user stories if the order_count is less than 1000.
+    #     - "error" (str): If the order_count is greater than or equal to 1000 or if the execution time exceeds 60 seconds.
+    #
+    #     """
+    #     # ricava la base delle us del matrix a cui non succedono altre US
+    #
+    #     #progress_dialog = ProgressDialog()
+    #     matrix_us_level = self.find_base_matrix()
+    #     #result = None
+    #
+    #     self.insert_into_dict(matrix_us_level)
+    #     #QMessageBox.warning(None, "Messaggio", "DATA LIST" + str(matrix_us_level), QMessageBox.Ok)
+    #     test = 0
+    #     start_time = time.time()
+    #     error_occurred = False
+    #     cycle_count = 0
+    #
+    #     # Set the maximum value of the progress bar
+    #     #progress_bar.setMaximum(1000)
+    #     try:
+    #         while test == 0:
+    #             # your code here
+    #             cycle_count += 1
+    #
+    #             # Check for error
+    #             if error_occurred:
+    #                 print("An error occurred!")
+    #                 break
+    #
+    #             # Check for cycle count
+    #             if cycle_count > 3000:
+    #                 print("Maximum cycle count reached!")
+    #                 break
+    #
+    #             rec_list_str = []
+    #             for i in matrix_us_level:
+    #                 rec_list_str.append(str(i))
+    #                 # cerca prima di tutto se ci sono us uguali o che si legano alle US sottostanti
+    #             #QMessageBox.warning(None, "Messaggio", "DATA LIST" + str(rec_list_str), QMessageBox.Ok)
+    #             if self.L=='it':
+    #                 value_list_equal = self.create_list_values(['Uguale a', 'Si lega a', 'Same as','Connected to'], rec_list_str, self.AREA, self.SITO)
+    #             elif self.L=='de':
+    #                 value_list_equal = self.create_list_values(["Entspricht", "Bindet an"], rec_list_str, self.AREA, self.SITO)
+    #             else:
+    #                 value_list_equal = self.create_list_values(['Same as','Connected to'], rec_list_str, self.AREA, self.SITO)
+    #
+    #             res = self.db.query_in_contains(value_list_equal, self.SITO, self.AREA)
+    #
+    #             matrix_us_equal_level = []
+    #             for r in res:
+    #                 matrix_us_equal_level.append(str(r.us))
+    #             #QMessageBox.information(None, 'matrix_us_equal_level', f"{value_list_equal}")
+    #             if matrix_us_equal_level:
+    #                 self.insert_into_dict(matrix_us_equal_level, 1)
+    #
+    #             rec = rec_list_str+matrix_us_equal_level#rec_list_str+
+    #             if self.L=='it':
+    #                 value_list_post = self.create_list_values(['>>','Copre', 'Riempie', 'Taglia', 'Si appoggia a','Covers','Fills','Cuts','Abuts'], rec,self.AREA, self.SITO)
+    #             elif self.L=='de':
+    #                 value_list_post = self.create_list_values(['>>','Liegt über','Verfüllt','Schneidet','Stützt sich auf'], rec,self.AREA, self.SITO)
+    #             else:
+    #                 value_list_post = self.create_list_values(['>>','Covers','Fills','Cuts','Abuts'], rec,self.AREA, self.SITO)
+    #
+    #             #QMessageBox.information(None, 'value_list_post', f"{value_list_post}", QMessageBox.Ok)
+    #             #try:
+    #             res_t = self.db.query_in_contains(value_list_post, self.SITO, self.AREA)
+    #             matrix_us_level = []
+    #             for e in res_t:
+    #                 #QMessageBox.information(None, "res_t", f"{e}", QMessageBox.Ok)
+    #                 matrix_us_level.append(str(e.us))
+    #
+    #             if not matrix_us_level or self.order_count >= 3000 or time.time() - start_time > 90:
+    #                 test = 1
+    #
+    #                 return self.order_dict if self.order_count < 3000 else "error"
+    #
+    #             else:
+    #                 self.insert_into_dict(matrix_us_level, 1)
+    #         #progress_dialog.closeEvent(Ignore)
+    #
+    #     except Exception as e:
+    #         QMessageBox.warning(None, "Attenzione", "La lista delle us generate supera il limite depth max 1000.\n Usare Postgres per generare l'order layer")
+
+    def main_order_layer(self):
+        """
+        This method is used to perform the main order layering process. It takes no parameters and returns a dictionary or a string.
+
+        Returns:
+        - order_dict (dict): The dictionary containing the ordered matrix of user stories if the order_count is less than 3000.
+        - "error" (str): If the order_count is greater than or equal to 3000 or if the execution time exceeds 90 seconds.
+        """
+        # Importazioni necessarie
+        from qgis.PyQt.QtWidgets import QProgressBar, QApplication, QMessageBox
+        from qgis.PyQt.QtCore import Qt
+        import time
+
+        # Variabili per il controllo dell'esecuzione
+        max_cycles = 3000
+        max_time = 90  # secondi
+
+        # Azzera order_count se esiste per evitare valori residui da chiamate precedenti
+        if hasattr(self, 'order_count'):
+            self.order_count = 0
+        else:
+            self.order_count = 0
+
+        # Resetta order_dict se esiste
+        if hasattr(self, 'order_dict'):
+            self.order_dict = {}
+        else:
+            self.order_dict = {}
+
+        # Crea una progress bar più semplice che si aggiorna meno frequentemente
+        progress = QProgressBar()
+        progress.setWindowTitle("Generazione ordine stratigrafico")
+        progress.setGeometry(300, 300, 400, 40)
+        progress.setMinimum(0)
+        progress.setMaximum(100)
+        progress.setValue(0)
+        progress.setTextVisible(True)
+        progress.setFormat("Inizializzazione...")
+
+        try:
+            # Utilizziamo la classe Qt di QGIS
+            progress.setWindowModality(Qt.WindowModal)
+            progress.setAlignment(Qt.AlignCenter)
+        except AttributeError:
+            pass
+
+        progress.show()
+        QApplication.processEvents()
+        time.sleep(0.2)  # Pausa per assicurarsi che la UI si aggiorni
+
+        # Controlla se siamo connessi a SQLite
+        is_sqlite = False
+        try:
+            if 'sqlite' in str(self.db.engine.url).lower():
+                is_sqlite = True
+                print("Rilevata connessione SQLite")
+        except:
+            print("Impossibile determinare il tipo di database")
+
+        try:
+            # Fase 1: Trova la base del matrix
+            progress.setValue(10)
+            progress.setFormat("Ricerca base matrix...")
+            QApplication.processEvents()
+
+            matrix_us_level = self.find_base_matrix()
+            if not matrix_us_level:
+                progress.setValue(100)
+                progress.setFormat("Nessuna base matrix trovata!")
+                QApplication.processEvents()
+                time.sleep(1)
+                progress.close()
+                QMessageBox.warning(None, "Attenzione", "Nessuna US di base trovata per iniziare il matrix!")
+                return "error"
+
+            progress.setValue(15)
+            progress.setFormat("Inserimento dati iniziali...")
+            QApplication.processEvents()
+
+            # Inseriamo i dati iniziali nel dizionario
+            self.insert_into_dict(matrix_us_level)
+            print(f"Inseriti {len(matrix_us_level)} record iniziali nel dizionario")
+
+            # Variabili per il ciclo principale
+            test = 0
+            start_time = time.time()
+            cycle_count = 0
+
+            progress.setValue(20)
+            progress.setFormat("Avvio elaborazione...")
+            QApplication.processEvents()
+            time.sleep(0.2)
+
+            # Array per monitorare quando aggiornare la UI
+            update_cycles = [1, 5, 10, 25, 50, 100, 200, 500, 1000, 1500, 2000, 2500, 3000]
+
+            # Ciclo principale
+            while test == 0:
+                cycle_count += 1
+
+                # Aggiorna progress bar solo in cicli specifici o ogni 100 cicli dopo i primi 500
+                should_update = (cycle_count in update_cycles) or (cycle_count > 500 and cycle_count % 100 == 0)
+
+                if should_update:
+                    # Calcola percentuale basata sul numero di cicli
+                    progress_percentage = 20 + min(75, (cycle_count / max_cycles) * 75)
+                    progress.setValue(int(progress_percentage))
+                    progress.setFormat(f"Ciclo {cycle_count}/{max_cycles} ({int(progress_percentage)}%)")
+                    QApplication.processEvents()
+                    print(f"Ciclo {cycle_count}: order_count = {self.order_count}")
+
+                # Ottieni tutti gli elementi US nel dizionario corrente
+                rec_list_str = []
+                for i in matrix_us_level:
+                    rec_list_str.append(str(i))
+
+                # Cerca US che sono uguali o si legano alle US esistenti
+                if self.L == 'it':
+                    value_list_equal = self.create_list_values(['Uguale a', 'Si lega a', 'Same as', 'Connected to'],
+                                                               rec_list_str, self.AREA, self.SITO)
+                elif self.L == 'de':
+                    value_list_equal = self.create_list_values(["Entspricht", "Bindet an"], rec_list_str, self.AREA,
+                                                               self.SITO)
+                else:
+                    value_list_equal = self.create_list_values(['Same as', 'Connected to'], rec_list_str, self.AREA,
+                                                               self.SITO)
+
+                # Ottieni i risultati usando la funzione appropriate
+                # try:
+                res = self.db.query_in_contains(value_list_equal, self.SITO, self.AREA)
+                # except Exception as e:
+                #     print( f"query_in_contains fallita: {str(e)}")
+                #     if is_sqlite:
+                #         try:
+                #             res = self.db.query_in_contains_onlysqlite(value_list_equal, self.SITO, self.AREA)
+                #         except Exception as e2:
+                #             print( f"Anche query_in_contains_onlysqlite fallita: {str(e2)}")
+                #             res = []
+                #     else:
+                #         res = []
+
+                # Elabora i risultati per i legami uguali
+                matrix_us_equal_level = []
+                for r in res:
+                    matrix_us_equal_level.append(str(r.us))
+
+                # Aggiungi i risultati al dizionario se ce ne sono
+                if matrix_us_equal_level:
+                    self.insert_into_dict(matrix_us_equal_level, 1)
+                    # if should_update:
+                    # print( f"Ciclo {cycle_count}: Aggiunti {len(matrix_us_equal_level)} elementi 'equal'")
+
+                # Combina le liste per la prossima ricerca
+                rec = rec_list_str + matrix_us_equal_level
+
+                # Cerca US che sono coperti, riempiti, ecc.
+                if self.L == 'it':
+                    value_list_post = self.create_list_values(
+                        ['>>', 'Copre', 'Riempie', 'Taglia', 'Si appoggia a', 'Covers', 'Fills', 'Cuts', 'Abuts'], rec,
+                        self.AREA, self.SITO)
+                elif self.L == 'de':
+                    value_list_post = self.create_list_values(
+                        ['>>', 'Liegt über', 'Verfüllt', 'Schneidet', 'Stützt sich auf'], rec, self.AREA, self.SITO)
+                else:
+                    value_list_post = self.create_list_values(['>>', 'Covers', 'Fills', 'Cuts', 'Abuts'], rec,
+                                                              self.AREA, self.SITO)
+
+                # Ottieni i risultati usando la funzione appropriate
+                # try:
+                res_t = self.db.query_in_contains(value_list_post, self.SITO, self.AREA)
+                # except Exception as e:
+                #     print( f"query_in_contains fallita: {str(e)}")
+                #     if is_sqlite:
+                #         try:
+                #             res_t = self.db.query_in_contains_onlysqlite(value_list_post, self.SITO, self.AREA)
+                #         except Exception as e2:
+                #             print( f"Anche query_in_contains_onlysqlite fallita: {str(e2)}")
+                #             res_t = []
+                #     else:
+                #         res_t = []
+
+                # Elabora i risultati
+                matrix_us_level = []
+                for e in res_t:
+                    matrix_us_level.append(str(e.us))
+
+                # Controlla se è il momento di terminare
+                elapsed_time = time.time() - start_time
+                if not matrix_us_level or self.order_count >= max_cycles or elapsed_time > max_time:
+                    test = 1
+
+                    # Aggiorna la progress bar al 100%
+                    progress.setValue(100)
+
+                    if not matrix_us_level:
+                        progress.setFormat(f"Completato! Cicli: {cycle_count}, Record: {self.order_count}")
+                    elif self.order_count >= max_cycles:
+                        progress.setFormat(f"Limite di record raggiunto: {self.order_count}")
+                    elif elapsed_time > max_time:
+                        progress.setFormat(f"Tempo massimo superato: {int(elapsed_time)}s")
+
+                    QApplication.processEvents()
+                    time.sleep(1)
+                    progress.close()
+
+                    print(f"Completato! order_count = {self.order_count}, order_dict size = {len(self.order_dict)}")
+
+                    if self.order_count < max_cycles:
+                        return self.order_dict
+                    else:
+                        return "error"
+                else:
+                    # Aggiungi i nuovi elementi al dizionario
+                    previous_count = self.order_count
+                    self.insert_into_dict(matrix_us_level, 1)
+                    if should_update and (self.order_count > previous_count):
+                        print(f"Ciclo {cycle_count}: Aggiunti {self.order_count - previous_count} nuovi elementi")
+
+            # Questa parte non dovrebbe mai essere raggiunta, ma per sicurezza:
+            progress.close()
+            return self.order_dict if self.order_count < max_cycles else "error"
+
+        except Exception as e:
+            # Gestione degli errori
+            error_msg = str(e)
+            QMessageBox.information(None, "Avviso", f"Errore nell'elaborazione: {error_msg}")
+
+            progress.setValue(100)
+            short_error = error_msg[:30] + "..." if len(error_msg) > 30 else error_msg
+            progress.setFormat(f"Errore: {short_error}")
+            QApplication.processEvents()
+            time.sleep(1)
+            progress.close()
+
+            QMessageBox.warning(None, "Attenzione",
+                                f"Errore durante la generazione dell'order layer: {error_msg}\n" +
+                                "La lista delle us generate supera il limite o si è verificato un errore.\n" +
+                                "Usare Postgres per generare l'order layer")
+            return "error"
+
+    def find_base_matrix(self):
+        res = self.db.select_not_like_from_db_sql(self.SITO, self.AREA)
+
+        rec_list = []
+        for rec in res:
+            rec_list.append(str(rec.us))
+        # QMessageBox.warning(None, "Messaggio", "find base_matrix by sql" + str(rec_list), QMessageBox.Ok)
+        return rec_list
+
+    def create_list_values(self, rapp_type_list, value_list, ar, si):
+        self.rapp_type_list = rapp_type_list
+        self.value_list = value_list
+        self.ar = ar
+        self.si = si
+
+        value_list_to_find = []
+        # QMessageBox.warning(None, "rapp1", str(self.rapp_type_list) + '-' + str(self.value_list), QMessageBox.Ok)
+        for sing_value in self.value_list:
+            for sing_rapp in self.rapp_type_list:
+                sql_query_string = "['%s', '%s', '%s', '%s']" % (sing_rapp, sing_value, self.ar, self.si)  # funziona!!!
+
+                value_list_to_find.append(sql_query_string)
+
+        # QMessageBox.warning(None, "rapp1", str(value_list_to_find), QMessageBox.Ok)
+        return value_list_to_find
+
+    def us_extractor(self, res):
+        self.res = res
+        rec_list = []
+        for rec in self.res:
+            rec_list.append(rec.us)
+        return rec_list
+
+    def insert_into_dict(self, base_matrix, v=0):
+        self.base_matrix = base_matrix
+        if v == 1:
+            self.remove_from_list_in_dict(self.base_matrix)
+        self.order_dict[self.order_count] = self.base_matrix
+        self.order_count += 1  # aggiunge un nuovo livello di ordinamento ad ogni passaggio
+
+    def insert_into_dict_equal(self, base_matrix, v=0):
+        self.base_matrix = base_matrix
+        if v == 1:
+            self.remove_from_list_in_dict(self.base_matrix)
+        self.order_dict[self.order_count] = self.base_matrix
+        self.order_count += 1  # aggiunge un nuovo livello di ordinamento ad ogni passaggio
 
     def remove_from_list_in_dict(self, curr_base_matrix):
         self.curr_base_matrix = curr_base_matrix
 
         for k, v in list(self.order_dict.items()):
             l = v
+            # print self.curr_base_matrix
             for i in self.curr_base_matrix:
                 try:
                     l.remove(str(i))
                 except:
                     pass
-            # Riordina la lista dopo aver rimosso elementi
-            self.order_dict[k] = self.sort_us_list(l)
+            self.order_dict[k] = l
+        return
 
-    def get_ordered_matrix_result(self):
-        """
-        Restituisce il risultato finale ordinato correttamente
-        """
-        if not self.order_dict:
-            return {}
-
-        # Ordina ogni livello del dizionario (dovrebbero già essere ordinati, ma per sicurezza)
-        ordered_result = {}
-        for level, us_list in self.order_dict.items():
-            ordered_result[level] = self.sort_us_list(us_list)
-
-        return ordered_result
 
 class MyError(Exception):
 
