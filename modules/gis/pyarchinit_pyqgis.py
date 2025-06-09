@@ -19,11 +19,6 @@
  ***************************************************************************/
 """
 import logging
-import time
-from datetime import datetime
-from typing import Dict, List, Any, Optional
-from contextlib import contextmanager
-
 import os
 import random
 import sqlite3
@@ -34,6 +29,7 @@ from builtins import str
 
 from qgis.PyQt.QtGui import *
 from qgis.PyQt.QtWidgets import *
+
 
 from qgis.core import *
 from qgis.gui import *
@@ -7942,434 +7938,10 @@ class Pyarchinit_pyqgis(QDialog):
 #         return
 
 
-class LogMonitorWidget(QWidget):
-    """Widget grafico Qt per monitoraggio e visualizzazione log"""
-
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self.logs = []
-        self.max_lines = 1000
-        self.auto_scroll = True
-        self.show_timestamps = True
-        self.filter_level = "ALL"
-        self.timings = {}
-        self.call_counts = {}
-        self.iteration_stats = {}
-
-        self.setup_ui()
-        self.setup_logging()
-
-        # Timer per aggiornamento automatico
-        self.update_timer = QTimer()
-        self.update_timer.timeout.connect(self.update_display)
-        self.update_timer.start(1000)  # Aggiorna ogni secondo
-
-    def setup_ui(self):
-        """Configura l'interfaccia utente del widget"""
-        layout = QVBoxLayout(self)
-
-        # Header con titolo
-        header_layout = QHBoxLayout()
-        title = QLabel("🔍 Monitor Order Layer v2")
-        title_font = QFont()
-        title_font.setBold(True)
-        title_font.setPointSize(12)
-        title.setFont(title_font)
-        header_layout.addWidget(title)
-
-        # Status indicator
-        self.status_label = QLabel("⏹️ Stopped")
-        self.status_label.setStyleSheet("color: red; font-weight: bold;")
-        header_layout.addWidget(self.status_label)
-
-        header_layout.addStretch()
-        layout.addLayout(header_layout)
-
-        # Tabs principali
-        self.tab_widget = QTabWidget()
-
-        # Tab 1: Live Log
-        self.setup_log_tab()
-
-        # Tab 2: Performance
-        self.setup_performance_tab()
-
-        # Tab 3: Statistiche
-        self.setup_stats_tab()
-
-        layout.addWidget(self.tab_widget)
-
-        # Controlli in basso
-        self.setup_controls(layout)
-
-    def setup_log_tab(self):
-        """Configura il tab per i log live"""
-        log_widget = QWidget()
-        layout = QVBoxLayout(log_widget)
-
-        # Filtri
-        filter_layout = QHBoxLayout()
-
-        filter_layout.addWidget(QLabel("Livello:"))
-        self.level_combo = QComboBox()
-        self.level_combo.addItems(["ALL", "DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"])
-        self.level_combo.currentTextChanged.connect(self.on_filter_changed)
-        filter_layout.addWidget(self.level_combo)
-
-        filter_layout.addWidget(QLabel("Max righe:"))
-        self.max_lines_spin = QSpinBox()
-        self.max_lines_spin.setRange(100, 10000)
-        self.max_lines_spin.setValue(1000)
-        self.max_lines_spin.valueChanged.connect(self.on_max_lines_changed)
-        filter_layout.addWidget(self.max_lines_spin)
-
-        self.auto_scroll_check = QCheckBox("Auto-scroll")
-        self.auto_scroll_check.setChecked(True)
-        self.auto_scroll_check.toggled.connect(self.on_auto_scroll_toggled)
-        filter_layout.addWidget(self.auto_scroll_check)
-
-        self.timestamp_check = QCheckBox("Mostra timestamp")
-        self.timestamp_check.setChecked(True)
-        self.timestamp_check.toggled.connect(self.on_timestamp_toggled)
-        filter_layout.addWidget(self.timestamp_check)
-
-        filter_layout.addStretch()
-        layout.addLayout(filter_layout)
-
-        # Area log
-        self.log_text = QTextEdit()
-        self.log_text.setReadOnly(True)
-        self.log_text.setFont(QFont("Consolas", 9))
-        layout.addWidget(self.log_text)
-
-        self.tab_widget.addTab(log_widget, "📋 Live Log")
-
-    def setup_performance_tab(self):
-        """Configura il tab per le performance"""
-        perf_widget = QWidget()
-        layout = QVBoxLayout(perf_widget)
-
-        # Metriche principali
-        metrics_group = QGroupBox("Metriche Principali")
-        metrics_layout = QVBoxLayout(metrics_group)
-
-        self.metrics_text = QTextEdit()
-        self.metrics_text.setReadOnly(True)
-        self.metrics_text.setMaximumHeight(150)
-        metrics_layout.addWidget(self.metrics_text)
-
-        layout.addWidget(metrics_group)
-
-        # Dettagli performance
-        details_group = QGroupBox("Dettagli Performance")
-        details_layout = QVBoxLayout(details_group)
-
-        self.performance_text = QTextEdit()
-        self.performance_text.setReadOnly(True)
-        self.performance_text.setFont(QFont("Consolas", 9))
-        details_layout.addWidget(self.performance_text)
-
-        layout.addWidget(details_group)
-
-        self.tab_widget.addTab(perf_widget, "📊 Performance")
-
-    def setup_stats_tab(self):
-        """Configura il tab per le statistiche"""
-        stats_widget = QWidget()
-        layout = QVBoxLayout(stats_widget)
-
-        # Progress dell'algoritmo
-        progress_group = QGroupBox("Progresso Algoritmo")
-        progress_layout = QVBoxLayout(progress_group)
-
-        self.iteration_label = QLabel("Iterazioni: 0")
-        progress_layout.addWidget(self.iteration_label)
-
-        self.query_label = QLabel("Query: 0")
-        progress_layout.addWidget(self.query_label)
-
-        self.us_processed_label = QLabel("US elaborate: 0")
-        progress_layout.addWidget(self.us_processed_label)
-
-        self.progress_bar = QProgressBar()
-        self.progress_bar.setVisible(False)
-        progress_layout.addWidget(self.progress_bar)
-
-        layout.addWidget(progress_group)
-
-        # Dizionario ordinamento
-        dict_group = QGroupBox("Analisi Dizionario")
-        dict_layout = QVBoxLayout(dict_group)
-
-        self.dict_text = QTextEdit()
-        self.dict_text.setReadOnly(True)
-        self.dict_text.setFont(QFont("Consolas", 9))
-        dict_layout.addWidget(self.dict_text)
-
-        layout.addWidget(dict_group)
-
-        self.tab_widget.addTab(stats_widget, "📈 Statistiche")
-
-    def setup_controls(self, layout):
-        """Configura i controlli in basso"""
-        controls_layout = QHBoxLayout()
-
-        self.clear_btn = QPushButton("🗑️ Pulisci Log")
-        self.clear_btn.clicked.connect(self.clear_logs)
-        controls_layout.addWidget(self.clear_btn)
-
-        self.save_btn = QPushButton("💾 Salva Log")
-        self.save_btn.clicked.connect(self.save_logs)
-        controls_layout.addWidget(self.save_btn)
-
-        self.export_btn = QPushButton("📤 Esporta Report")
-        self.export_btn.clicked.connect(self.export_report)
-        controls_layout.addWidget(self.export_btn)
-
-        controls_layout.addStretch()
-
-        self.pause_btn = QPushButton("⏸️ Pausa")
-        self.pause_btn.clicked.connect(self.toggle_pause)
-        controls_layout.addWidget(self.pause_btn)
-
-        layout.addLayout(controls_layout)
-
-    def setup_logging(self):
-        """Configura il sistema di logging"""
-        self.logger = logging.getLogger('OrderLayerMonitor')
-        self.logger.setLevel(logging.DEBUG)
-
-        # Rimuovi handler esistenti
-        for handler in self.logger.handlers[:]:
-            self.logger.removeHandler(handler)
-
-        # Handler personalizzato
-        handler = WidgetLogHandler(self)
-        formatter = logging.Formatter('%(asctime)s | %(levelname)-8s | %(message)s')
-        handler.setFormatter(formatter)
-        self.logger.addHandler(handler)
-
-    def add_log(self, formatted_log: str, level: str = "INFO"):
-        """Aggiunge un log alla lista"""
-        timestamp = datetime.now().strftime("%H:%M:%S")
-
-        if self.show_timestamps:
-            log_entry = f"[{timestamp}] {formatted_log}"
-        else:
-            log_entry = formatted_log
-
-        self.logs.append({
-            'text': log_entry,
-            'level': level,
-            'timestamp': timestamp
-        })
-
-        # Mantieni solo le ultime N righe
-        if len(self.logs) > self.max_lines:
-            self.logs = self.logs[-self.max_lines:]
-
-    def update_display(self):
-        """Aggiorna la visualizzazione"""
-        if hasattr(self, '_paused') and self._paused:
-            return
-
-        self.update_log_display()
-        self.update_performance_display()
-        self.update_stats_display()
-
-    def update_log_display(self):
-        """Aggiorna la visualizzazione dei log"""
-        # Filtra i log
-        filtered_logs = []
-        for log in self.logs:
-            if self.filter_level == "ALL" or log['level'] == self.filter_level:
-                filtered_logs.append(log['text'])
-
-        # Aggiorna il testo
-        current_text = self.log_text.toPlainText()
-        new_text = '\n'.join(filtered_logs)
-
-        if current_text != new_text:
-            self.log_text.setPlainText(new_text)
-
-            # Auto-scroll se abilitato
-            if self.auto_scroll:
-                cursor = self.log_text.textCursor()
-                cursor.movePosition(QTextCursor.End)
-                self.log_text.setTextCursor(cursor)
-
-    def update_performance_display(self):
-        """Aggiorna la visualizzazione delle performance"""
-        if not self.timings:
-            return
-
-        # Metriche principali
-        total_operations = sum(self.call_counts.values())
-        total_time = sum(sum(times) for times in self.timings.values())
-
-        metrics = []
-        metrics.append(f"🔧 Operazioni totali: {total_operations}")
-        metrics.append(f"⏱️ Tempo totale: {total_time:.4f}s")
-        if total_operations > 0:
-            metrics.append(f"📊 Tempo medio: {total_time / total_operations:.4f}s")
-
-        self.metrics_text.setPlainText('\n'.join(metrics))
-
-        # Dettagli performance
-        details = []
-        for operation, times in self.timings.items():
-            if times:
-                count = self.call_counts.get(operation, 0)
-                avg_time = sum(times) / len(times)
-                min_time = min(times)
-                max_time = max(times)
-                op_total = sum(times)
-
-                details.append(f"\n🔧 {operation}:")
-                details.append(f"   📞 Chiamate: {count}")
-                details.append(f"   ⏱️ Tempo totale: {op_total:.4f}s")
-                details.append(f"   📊 Tempo medio: {avg_time:.4f}s")
-                details.append(f"   ⚡ Min: {min_time:.4f}s | 🐌 Max: {max_time:.4f}s")
-                if total_time > 0:
-                    details.append(f"   📈 % del totale: {(op_total / total_time * 100):.1f}%")
-
-        self.performance_text.setPlainText('\n'.join(details))
-
-    def update_stats_display(self):
-        """Aggiorna la visualizzazione delle statistiche"""
-        # Aggiorna le label solo se abbiamo dati
-        if hasattr(self, 'order_layer_ref') and self.order_layer_ref:
-            self.iteration_label.setText(f"Iterazioni: {getattr(self.order_layer_ref, 'iteration_count', 0)}")
-            self.query_label.setText(f"Query: {getattr(self.order_layer_ref, 'query_count', 0)}")
-            self.us_processed_label.setText(f"US elaborate: {getattr(self.order_layer_ref, 'total_us_processed', 0)}")
-
-    def set_status(self, status: str, color: str = "black"):
-        """Imposta lo status del monitor"""
-        status_map = {
-            "running": ("🟢 In esecuzione", "green"),
-            "stopped": ("⏹️ Fermato", "red"),
-            "paused": ("⏸️ In pausa", "orange"),
-            "completed": ("✅ Completato", "blue")
-        }
-
-        if status in status_map:
-            text, color = status_map[status]
-            self.status_label.setText(text)
-            self.status_label.setStyleSheet(f"color: {color}; font-weight: bold;")
-
-    def log_operation(self, operation: str, duration: float):
-        """Registra un'operazione per le statistiche"""
-        if operation not in self.timings:
-            self.timings[operation] = []
-            self.call_counts[operation] = 0
-
-        self.timings[operation].append(duration)
-        self.call_counts[operation] += 1
-
-    def connect_to_order_layer(self, order_layer):
-        """Connette il widget a un'istanza di Order_layer_v2"""
-        self.order_layer_ref = order_layer
-        if hasattr(order_layer, 'log_widget'):
-            order_layer.log_widget = self
-
-    # Event handlers
-    def on_filter_changed(self, level):
-        self.filter_level = level
-
-    def on_max_lines_changed(self, value):
-        self.max_lines = value
-
-    def on_auto_scroll_toggled(self, checked):
-        self.auto_scroll = checked
-
-    def on_timestamp_toggled(self, checked):
-        self.show_timestamps = checked
-
-    def clear_logs(self):
-        self.logs.clear()
-        self.log_text.clear()
-        self.timings.clear()
-        self.call_counts.clear()
-
-    def toggle_pause(self):
-        if not hasattr(self, '_paused'):
-            self._paused = False
-
-        self._paused = not self._paused
-        if self._paused:
-            self.pause_btn.setText("▶️ Riprendi")
-            self.set_status("paused")
-        else:
-            self.pause_btn.setText("⏸️ Pausa")
-            self.set_status("running")
-
-    def save_logs(self):
-        """Salva i log in un file"""
-        filename = f"order_layer_monitor_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt"
-        try:
-            with open(filename, 'w', encoding='utf-8') as f:
-                for log in self.logs:
-                    f.write(log['text'] + '\n')
-            self.add_log(f"📁 Log salvati in: {filename}", "INFO")
-        except Exception as e:
-            self.add_log(f"❌ Errore nel salvataggio: {str(e)}", "ERROR")
-
-    def export_report(self):
-        """Esporta un report completo"""
-        filename = f"order_layer_report_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt"
-        try:
-            with open(filename, 'w', encoding='utf-8') as f:
-                f.write("=" * 100 + "\n")
-                f.write("REPORT MONITOR ORDER LAYER V2\n")
-                f.write("=" * 100 + "\n\n")
-
-                # Log
-                f.write("LOGS:\n")
-                f.write("-" * 50 + "\n")
-                for log in self.logs:
-                    f.write(log['text'] + '\n')
-
-                # Performance
-                f.write("\n\nPERFORMANCE:\n")
-                f.write("-" * 50 + "\n")
-                f.write(self.performance_text.toPlainText())
-
-            self.add_log(f"📤 Report esportato in: {filename}", "INFO")
-        except Exception as e:
-            self.add_log(f"❌ Errore nell'esportazione: {str(e)}", "ERROR")
-
-
-class WidgetLogHandler(logging.Handler):
-    """Handler personalizzato che invia i log al widget"""
-
-    def __init__(self, widget):
-        super().__init__()
-        self.widget = widget
-
-    def emit(self, record):
-        try:
-            formatted = self.format(record)
-            self.widget.add_log(formatted, record.levelname)
-        except Exception:
-            pass
-
-
-class MemoryLogHandler(logging.Handler):
-    """Handler personalizzato per salvare log in memoria"""
-
-    def __init__(self, log_widget):
-        super().__init__()
-        self.log_widget = log_widget
-
-    def emit(self, record):
-        try:
-            formatted_log = self.format(record)
-            self.log_widget.add_log(formatted_log)
-        except Exception:
-            pass  # Ignora errori nel logging per non interrompere l'esecuzione
 
 
 class Order_layer_v2(object):
+    MAX_LOOP_COUNT = 10
     order_dict = {}
     order_count = 0
     db = ''
@@ -8377,263 +7949,371 @@ class Order_layer_v2(object):
     SITO = ""
     AREA = ""
 
-    def __init__(self, dbconn, SITOol, AREAol, enable_monitoring=True, monitor_widget=None):
+    def __init__(self, dbconn, SITOol, AREAol):
         self.db = dbconn
         self.SITO = SITOol
         self.AREA = AREAol
 
-        # Inizializza il sistema di monitoraggio
-        self.enable_monitoring = enable_monitoring
-        self.monitor_widget = monitor_widget
-        self.iteration_count = 0
-        self.query_count = 0
-        self.total_us_processed = 0
+    def center_on_screen(self, widget):
+        frame_gm = widget.frameGeometry()
+        screen = QApplication.desktop().screenNumber(QApplication.desktop().cursor().pos())
+        center_point = QApplication.desktop().screenGeometry(screen).center()
+        frame_gm.moveCenter(center_point)
+        widget.move(frame_gm.topLeft())
 
-        if self.enable_monitoring:
-            if self.monitor_widget:
-                self.log_widget = self.monitor_widget
-                self.monitor_widget.connect_to_order_layer(self)
-                self.monitor_widget.set_status("running")
-                self.log("🎯 Order_layer_v2 inizializzato con widget monitor", "INFO")
-            else:
-                # Fallback per il caso senza widget
-                self.log_widget = SimpleLogger()
-                self.log("🎯 Order_layer_v2 inizializzato con logging semplice", "INFO")
-
-            self.log(f"🏢 SITO: {self.SITO} | AREA: {self.AREA}", "INFO")
-
-    def log(self, message: str, level: str = "INFO"):
-        """Metodo di log unificato"""
-        if self.enable_monitoring:
-            if hasattr(self.log_widget, 'add_log'):
-                self.log_widget.add_log(message, level)
-            elif hasattr(self.log_widget, 'log'):
-                self.log_widget.log(message, level)
-
-    @contextmanager
-    def _track_operation(self, operation_name: str, **context):
-        """Context manager per tracciare le operazioni"""
-        if not self.enable_monitoring:
-            yield
-            return
-
-        start_time = time.time()
-
-        # Log inizio operazione
-        context_str = ""
-        if context:
-            context_str = f" | {', '.join(f'{k}={v}' for k, v in context.items())}"
-
-        self.log(f"🚀 START: {operation_name}{context_str}", "DEBUG")
-
-        try:
-            yield
-            success = True
-        except Exception as e:
-            success = False
-            self.log(f"❌ ERROR in {operation_name}: {str(e)}", "ERROR")
-            raise
-        finally:
-            end_time = time.time()
-            duration = end_time - start_time
-
-            # Registra nel widget se disponibile
-            if self.monitor_widget:
-                self.monitor_widget.log_operation(operation_name, duration)
-
-            # Log fine operazione
-            status = "✅ DONE" if success else "❌ FAILED"
-            self.log(f"{status}: {operation_name} | Time: {duration:.4f}s", "DEBUG")
+    # def main_order_layer_old(self):
+    #     """
+    #
+    #     This method is used to perform the main order layering process. It takes no parameters and returns a dictionary or a string.
+    #
+    #     Returns:
+    #     - order_dict (dict): The dictionary containing the ordered matrix of user stories if the order_count is less than 1000.
+    #     - "error" (str): If the order_count is greater than or equal to 1000 or if the execution time exceeds 60 seconds.
+    #
+    #     """
+    #     # ricava la base delle us del matrix a cui non succedono altre US
+    #
+    #     #progress_dialog = ProgressDialog()
+    #     matrix_us_level = self.find_base_matrix()
+    #     #result = None
+    #
+    #     self.insert_into_dict(matrix_us_level)
+    #     #QMessageBox.warning(None, "Messaggio", "DATA LIST" + str(matrix_us_level), QMessageBox.Ok)
+    #     test = 0
+    #     start_time = time.time()
+    #     error_occurred = False
+    #     cycle_count = 0
+    #
+    #     # Set the maximum value of the progress bar
+    #     #progress_bar.setMaximum(1000)
+    #     try:
+    #         while test == 0:
+    #             # your code here
+    #             cycle_count += 1
+    #
+    #             # Check for error
+    #             if error_occurred:
+    #                 print("An error occurred!")
+    #                 break
+    #
+    #             # Check for cycle count
+    #             if cycle_count > 3000:
+    #                 print("Maximum cycle count reached!")
+    #                 break
+    #
+    #             rec_list_str = []
+    #             for i in matrix_us_level:
+    #                 rec_list_str.append(str(i))
+    #                 # cerca prima di tutto se ci sono us uguali o che si legano alle US sottostanti
+    #             #QMessageBox.warning(None, "Messaggio", "DATA LIST" + str(rec_list_str), QMessageBox.Ok)
+    #             if self.L=='it':
+    #                 value_list_equal = self.create_list_values(['Uguale a', 'Si lega a', 'Same as','Connected to'], rec_list_str, self.AREA, self.SITO)
+    #             elif self.L=='de':
+    #                 value_list_equal = self.create_list_values(["Entspricht", "Bindet an"], rec_list_str, self.AREA, self.SITO)
+    #             else:
+    #                 value_list_equal = self.create_list_values(['Same as','Connected to'], rec_list_str, self.AREA, self.SITO)
+    #
+    #             res = self.db.query_in_contains(value_list_equal, self.SITO, self.AREA)
+    #
+    #             matrix_us_equal_level = []
+    #             for r in res:
+    #                 matrix_us_equal_level.append(str(r.us))
+    #             #QMessageBox.information(None, 'matrix_us_equal_level', f"{value_list_equal}")
+    #             if matrix_us_equal_level:
+    #                 self.insert_into_dict(matrix_us_equal_level, 1)
+    #
+    #             rec = rec_list_str+matrix_us_equal_level#rec_list_str+
+    #             if self.L=='it':
+    #                 value_list_post = self.create_list_values(['>>','Copre', 'Riempie', 'Taglia', 'Si appoggia a','Covers','Fills','Cuts','Abuts'], rec,self.AREA, self.SITO)
+    #             elif self.L=='de':
+    #                 value_list_post = self.create_list_values(['>>','Liegt über','Verfüllt','Schneidet','Stützt sich auf'], rec,self.AREA, self.SITO)
+    #             else:
+    #                 value_list_post = self.create_list_values(['>>','Covers','Fills','Cuts','Abuts'], rec,self.AREA, self.SITO)
+    #
+    #             #QMessageBox.information(None, 'value_list_post', f"{value_list_post}", QMessageBox.Ok)
+    #             #try:
+    #             res_t = self.db.query_in_contains(value_list_post, self.SITO, self.AREA)
+    #             matrix_us_level = []
+    #             for e in res_t:
+    #                 #QMessageBox.information(None, "res_t", f"{e}", QMessageBox.Ok)
+    #                 matrix_us_level.append(str(e.us))
+    #
+    #             if not matrix_us_level or self.order_count >= 3000 or time.time() - start_time > 90:
+    #                 test = 1
+    #
+    #                 return self.order_dict if self.order_count < 3000 else "error"
+    #
+    #             else:
+    #                 self.insert_into_dict(matrix_us_level, 1)
+    #         #progress_dialog.closeEvent(Ignore)
+    #
+    #     except Exception as e:
+    #         QMessageBox.warning(None, "Attenzione", "La lista delle us generate supera il limite depth max 1000.\n Usare Postgres per generare l'order layer")
 
     def main_order_layer(self):
-        """Versione monitorata del metodo principale"""
-        if self.enable_monitoring:
-            return self._main_order_layer_monitored()
+        """
+        This method is used to perform the main order layering process. It takes no parameters and returns a dictionary or a string.
+
+        Returns:
+        - order_dict (dict): The dictionary containing the ordered matrix of user stories if the order_count is less than 3000.
+        - "error" (str): If the order_count is greater than or equal to 3000 or if the execution time exceeds 90 seconds.
+        """
+        # Importazioni necessarie
+        from qgis.PyQt.QtWidgets import QProgressBar, QApplication, QMessageBox
+        from qgis.PyQt.QtCore import Qt
+        import time
+
+        # Variabili per il controllo dell'esecuzione
+        max_cycles = 3000
+        max_time = 90  # secondi
+
+        # Azzera order_count se esiste per evitare valori residui da chiamate precedenti
+        if hasattr(self, 'order_count'):
+            self.order_count = 0
         else:
-            return self._main_order_layer_original()
+            self.order_count = 0
 
-    def _main_order_layer_monitored(self):
-        """Versione monitorata del metodo principale"""
-        with self._track_operation("main_order_layer_complete"):
-            self.log("🎯 Avvio algoritmo Order Layer v2", "INFO")
+        # Resetta order_dict se esiste
+        if hasattr(self, 'order_dict'):
+            self.order_dict = {}
+        else:
+            self.order_dict = {}
 
-            # Step 1: Find base matrix
-            with self._track_operation("find_base_matrix"):
-                matrix_us_level = self.find_base_matrix()
-                self.log(f"🔍 Base matrix trovata: {len(matrix_us_level)} US", "INFO")
-                self.log(f"📋 US base: {matrix_us_level}", "DEBUG")
-
-            self.insert_into_dict(matrix_us_level)
-            self.log(f"💾 Inserite {len(matrix_us_level)} US nel livello 0", "DEBUG")
-
-            test = 0
-            self.iteration_count = 0
-
-            while test == 0:
-                self.iteration_count += 1
-
-                with self._track_operation("iteration", iteration=self.iteration_count):
-                    self.log(f"🔄 === ITERAZIONE {self.iteration_count} ===", "INFO")
-
-                    # Safety check
-                    if self.iteration_count > 1000:
-                        self.log("⚠️ ATTENZIONE: Troppe iterazioni! Possibile loop infinito", "WARNING")
-                        if self.iteration_count > 10000:
-                            self.log("🛑 STOP: Limite iterazioni raggiunto", "ERROR")
-                            break
-
-                    # Prepara lista string
-                    rec_list_str = []
-                    for i in matrix_us_level:
-                        rec_list_str.append(str(i))
-
-                    self.log(f"📝 Processing {len(rec_list_str)} US correnti", "DEBUG")
-
-                    # Step 2: Cerca US uguali/collegate
-                    with self._track_operation("find_equal_relations", us_count=len(rec_list_str)):
-                        if self.L == 'it':
-                            value_list_equal = self.create_list_values(['Uguale a', 'Si lega a'], rec_list_str)
-                        elif self.L == 'de':
-                            value_list_equal = self.create_list_values(["Entspricht", "Bindet an"], rec_list_str)
-                        else:
-                            value_list_equal = self.create_list_values(['Same as', 'Connected to'], rec_list_str)
-
-                        res = self._query_database(value_list_equal, "equal_relations")
-
-                        matrix_us_equal_level = []
-                        for r in res:
-                            matrix_us_equal_level.append(str(r.us))
-
-                        if matrix_us_equal_level:
-                            self.log(f"🔗 Trovate {len(matrix_us_equal_level)} US uguali/collegate", "INFO")
-                            self.log(f"📋 US uguali: {matrix_us_equal_level}", "DEBUG")
-                            self.insert_into_dict(matrix_us_equal_level, 1)
-
-                    # Step 3: Cerca relazioni posteriori
-                    rec = rec_list_str + matrix_us_equal_level
-                    with self._track_operation("find_post_relations", us_count=len(rec)):
-                        if self.L == 'it':
-                            value_list_post = self.create_list_values(['Copre', 'Riempie', 'Taglia', 'Si appoggia a'],
-                                                                      rec)
-                        elif self.L == 'de':
-                            value_list_post = self.create_list_values(
-                                ["Liegt über", "Verfüllt", "Schneidet", "Stützt sich auf"], rec)
-                        else:
-                            value_list_post = self.create_list_values(["Covers", "Fills", "Cuts", "Abuts"], rec)
-
-                        res_t = self._query_database(value_list_post, "post_relations")
-
-                        matrix_us_level = []
-                        for e in res_t:
-                            matrix_us_level.append(str(e.us))
-
-                        if not matrix_us_level:
-                            test = 1
-                            self.log("🏁 ALGORITMO COMPLETATO: Nessuna US successiva trovata", "INFO")
-                            if self.monitor_widget:
-                                self.monitor_widget.set_status("completed")
-                            self._print_final_summary()
-                            return self.order_dict
-                        elif self.order_count >= 10000000:
-                            test = 1
-                            self.log("🛑 ERRORE: Limite order_count raggiunto", "ERROR")
-                            return "error"
-                        else:
-                            self.log(f"➡️ Trovate {len(matrix_us_level)} US per il prossimo livello", "INFO")
-                            self.log(f"📋 Prossime US: {matrix_us_level}", "DEBUG")
-                            self.insert_into_dict(matrix_us_level, 1)
-                            self.total_us_processed += len(matrix_us_level)
-
-    def _main_order_layer_original(self):
-        """Versione originale senza monitoraggio"""
-        # Implementazione originale invariata
-        matrix_us_level = self.find_base_matrix()
-        self.insert_into_dict(matrix_us_level)
-        test = 0
-        while test == 0:
-            rec_list_str = []
-            for i in matrix_us_level:
-                rec_list_str.append(str(i))
-
-            if self.L == 'it':
-                value_list_equal = self.create_list_values(['Uguale a', 'Si lega a'], rec_list_str)
-            elif self.L == 'de':
-                value_list_equal = self.create_list_values(["Entspricht", "Bindet an"], rec_list_str)
-            else:
-                value_list_equal = self.create_list_values(['Same as', 'Connected to'], rec_list_str)
-
-            res = self.db.query_in_contains(value_list_equal, self.SITO, self.AREA)
-
-            matrix_us_equal_level = []
-            for r in res:
-                matrix_us_equal_level.append(str(r.us))
-
-            if matrix_us_equal_level:
-                self.insert_into_dict(matrix_us_equal_level, 1)
-
-            rec = rec_list_str + matrix_us_equal_level
-            if self.L == 'it':
-                value_list_post = self.create_list_values(['Copre', 'Riempie', 'Taglia', 'Si appoggia a'], rec)
-            elif self.L == 'de':
-                value_list_post = self.create_list_values(["Liegt über", "Verfüllt", "Schneidet", "Stützt sich auf"],
-                                                          rec)
-            else:
-                value_list_post = self.create_list_values(["Covers", "Fills", "Cuts", "Abuts"], rec)
-
-            res_t = self.db.query_in_contains(value_list_post, self.SITO, self.AREA)
-
-            matrix_us_level = []
-            for e in res_t:
-                matrix_us_level.append(str(e.us))
-
-            if not matrix_us_level:
-                test = 1
-                return self.order_dict
-            elif self.order_count >= 10000000:
-                test = 1
-                return "error"
-            else:
-                self.insert_into_dict(matrix_us_level, 1)
-
-    def _query_database(self, value_list, query_type):
-        """Esegue query al database con logging"""
-        self.query_count += 1
-        self.log(f"🗄️ Query #{self.query_count} ({query_type}): {len(value_list)} condizioni", "DEBUG")
+        # Crea una progress bar più semplice che si aggiorna meno frequentemente
+        progress = QProgressBar()
+        progress.setWindowTitle("Generazione ordine stratigrafico")
+        progress.setGeometry(300, 300, 400, 40)
+        progress.setMinimum(0)
+        progress.setMaximum(100)
+        progress.setValue(0)
+        progress.setTextVisible(True)
+        progress.setFormat("Inizializzazione...")
 
         try:
-            res = self.db.query_in_contains(value_list, self.SITO, self.AREA)
-            result_count = len(res) if res else 0
-            self.log(f"✅ Query completata: {result_count} risultati", "DEBUG")
-            return res
+            # Utilizziamo la classe Qt di QGIS
+            progress.setWindowModality(Qt.WindowModal)
+            progress.setAlignment(Qt.AlignCenter)
+        except AttributeError:
+            pass
+
+        progress.show()
+        QApplication.processEvents()
+        time.sleep(0.2)  # Pausa per assicurarsi che la UI si aggiorni
+
+        # Controlla se siamo connessi a SQLite
+        is_sqlite = False
+        try:
+            if 'sqlite' in str(self.db.engine.url).lower():
+                is_sqlite = True
+                print("Rilevata connessione SQLite")
+        except:
+            print("Impossibile determinare il tipo di database")
+
+        try:
+            # Fase 1: Trova la base del matrix
+            progress.setValue(10)
+            progress.setFormat("Ricerca base matrix...")
+            QApplication.processEvents()
+
+            matrix_us_level = self.find_base_matrix()
+            if not matrix_us_level:
+                progress.setValue(100)
+                progress.setFormat("Nessuna base matrix trovata!")
+                QApplication.processEvents()
+                time.sleep(1)
+                progress.close()
+                QMessageBox.warning(None, "Attenzione", "Nessuna US di base trovata per iniziare il matrix!")
+                return "error"
+
+            progress.setValue(15)
+            progress.setFormat("Inserimento dati iniziali...")
+            QApplication.processEvents()
+
+            # Inseriamo i dati iniziali nel dizionario
+            self.insert_into_dict(matrix_us_level)
+            print(f"Inseriti {len(matrix_us_level)} record iniziali nel dizionario")
+
+            # Variabili per il ciclo principale
+            test = 0
+            start_time = time.time()
+            cycle_count = 0
+
+            progress.setValue(20)
+            progress.setFormat("Avvio elaborazione...")
+            QApplication.processEvents()
+            time.sleep(0.2)
+
+            # Array per monitorare quando aggiornare la UI
+            update_cycles = [1, 5, 10, 25, 50, 100, 200, 500, 1000, 1500, 2000, 2500, 3000]
+
+            # Ciclo principale
+            while test == 0:
+                cycle_count += 1
+
+                # Aggiorna progress bar solo in cicli specifici o ogni 100 cicli dopo i primi 500
+                should_update = (cycle_count in update_cycles) or (cycle_count > 500 and cycle_count % 100 == 0)
+
+                if should_update:
+                    # Calcola percentuale basata sul numero di cicli
+                    progress_percentage = 20 + min(75, (cycle_count / max_cycles) * 75)
+                    progress.setValue(int(progress_percentage))
+                    progress.setFormat(f"Ciclo {cycle_count}/{max_cycles} ({int(progress_percentage)}%)")
+                    QApplication.processEvents()
+                    print(f"Ciclo {cycle_count}: order_count = {self.order_count}")
+
+                # Ottieni tutti gli elementi US nel dizionario corrente
+                rec_list_str = []
+                for i in matrix_us_level:
+                    rec_list_str.append(str(i))
+
+                # Cerca US che sono uguali o si legano alle US esistenti
+                if self.L == 'it':
+                    value_list_equal = self.create_list_values(['Uguale a', 'Si lega a', 'Same as', 'Connected to'],
+                                                               rec_list_str, self.AREA, self.SITO)
+                elif self.L == 'de':
+                    value_list_equal = self.create_list_values(["Entspricht", "Bindet an"], rec_list_str, self.AREA,
+                                                               self.SITO)
+                else:
+                    value_list_equal = self.create_list_values(['Same as', 'Connected to'], rec_list_str, self.AREA,
+                                                               self.SITO)
+
+                # Ottieni i risultati usando la funzione appropriate
+                # try:
+                res = self.db.query_in_contains(value_list_equal, self.SITO, self.AREA)
+                # except Exception as e:
+                #     print( f"query_in_contains fallita: {str(e)}")
+                #     if is_sqlite:
+                #         try:
+                #             res = self.db.query_in_contains_onlysqlite(value_list_equal, self.SITO, self.AREA)
+                #         except Exception as e2:
+                #             print( f"Anche query_in_contains_onlysqlite fallita: {str(e2)}")
+                #             res = []
+                #     else:
+                #         res = []
+
+                # Elabora i risultati per i legami uguali
+                matrix_us_equal_level = []
+                for r in res:
+                    matrix_us_equal_level.append(str(r.us))
+
+                # Aggiungi i risultati al dizionario se ce ne sono
+                if matrix_us_equal_level:
+                    self.insert_into_dict(matrix_us_equal_level, 1)
+                    # if should_update:
+                    # print( f"Ciclo {cycle_count}: Aggiunti {len(matrix_us_equal_level)} elementi 'equal'")
+
+                # Combina le liste per la prossima ricerca
+                rec = rec_list_str + matrix_us_equal_level
+
+                # Cerca US che sono coperti, riempiti, ecc.
+                if self.L == 'it':
+                    value_list_post = self.create_list_values(
+                        ['>>', 'Copre', 'Riempie', 'Taglia', 'Si appoggia a', 'Covers', 'Fills', 'Cuts', 'Abuts'], rec,
+                        self.AREA, self.SITO)
+                elif self.L == 'de':
+                    value_list_post = self.create_list_values(
+                        ['>>', 'Liegt über', 'Verfüllt', 'Schneidet', 'Stützt sich auf'], rec, self.AREA, self.SITO)
+                else:
+                    value_list_post = self.create_list_values(['>>', 'Covers', 'Fills', 'Cuts', 'Abuts'], rec,
+                                                              self.AREA, self.SITO)
+
+                # Ottieni i risultati usando la funzione appropriate
+                # try:
+                res_t = self.db.query_in_contains(value_list_post, self.SITO, self.AREA)
+                # except Exception as e:
+                #     print( f"query_in_contains fallita: {str(e)}")
+                #     if is_sqlite:
+                #         try:
+                #             res_t = self.db.query_in_contains_onlysqlite(value_list_post, self.SITO, self.AREA)
+                #         except Exception as e2:
+                #             print( f"Anche query_in_contains_onlysqlite fallita: {str(e2)}")
+                #             res_t = []
+                #     else:
+                #         res_t = []
+
+                # Elabora i risultati
+                matrix_us_level = []
+                for e in res_t:
+                    matrix_us_level.append(str(e.us))
+
+                # Controlla se è il momento di terminare
+                elapsed_time = time.time() - start_time
+                if not matrix_us_level or self.order_count >= max_cycles or elapsed_time > max_time:
+                    test = 1
+
+                    # Aggiorna la progress bar al 100%
+                    progress.setValue(100)
+
+                    if not matrix_us_level:
+                        progress.setFormat(f"Completato! Cicli: {cycle_count}, Record: {self.order_count}")
+                    elif self.order_count >= max_cycles:
+                        progress.setFormat(f"Limite di record raggiunto: {self.order_count}")
+                    elif elapsed_time > max_time:
+                        progress.setFormat(f"Tempo massimo superato: {int(elapsed_time)}s")
+
+                    QApplication.processEvents()
+                    time.sleep(1)
+                    progress.close()
+
+                    print(f"Completato! order_count = {self.order_count}, order_dict size = {len(self.order_dict)}")
+
+                    if self.order_count < max_cycles:
+                        return self.order_dict
+                    else:
+                        return "error"
+                else:
+                    # Aggiungi i nuovi elementi al dizionario
+                    previous_count = self.order_count
+                    self.insert_into_dict(matrix_us_level, 1)
+                    if should_update and (self.order_count > previous_count):
+                        print(f"Ciclo {cycle_count}: Aggiunti {self.order_count - previous_count} nuovi elementi")
+
+            # Questa parte non dovrebbe mai essere raggiunta, ma per sicurezza:
+            progress.close()
+            return self.order_dict if self.order_count < max_cycles else "error"
+
         except Exception as e:
-            self.log(f"❌ Errore nella query: {str(e)}", "ERROR")
-            return []
+            # Gestione degli errori
+            error_msg = str(e)
+            QMessageBox.information(None, "Avviso", f"Errore nell'elaborazione: {error_msg}")
 
-    def _print_final_summary(self):
-        """Stampa riassunto finale"""
-        self.log("🎊 PROCESSO COMPLETATO", "INFO")
-        self.log(f"📊 Statistiche finali:", "INFO")
-        self.log(f"   🔄 Iterazioni totali: {self.iteration_count}", "INFO")
-        self.log(f"   🗄️ Query eseguite: {self.query_count}", "INFO")
-        self.log(f"   📦 Livelli creati: {len(self.order_dict)}", "INFO")
-        self.log(f"   🏷️ US totali elaborate: {self.total_us_processed}", "INFO")
+            progress.setValue(100)
+            short_error = error_msg[:30] + "..." if len(error_msg) > 30 else error_msg
+            progress.setFormat(f"Errore: {short_error}")
+            QApplication.processEvents()
+            time.sleep(1)
+            progress.close()
 
-    # Metodi originali invariati
+            QMessageBox.warning(None, "Attenzione",
+                                f"Errore durante la generazione dell'order layer: {error_msg}\n" +
+                                "La lista delle us generate supera il limite o si è verificato un errore.\n" +
+                                "Usare Postgres per generare l'order layer")
+            return "error"
+
     def find_base_matrix(self):
         res = self.db.select_not_like_from_db_sql(self.SITO, self.AREA)
+
         rec_list = []
         for rec in res:
             rec_list.append(str(rec.us))
+        # QMessageBox.warning(None, "Messaggio", "find base_matrix by sql" + str(rec_list), QMessageBox.Ok)
         return rec_list
 
-    def create_list_values(self, rapp_type_list, value_list):
+    def create_list_values(self, rapp_type_list, value_list, ar, si):
         self.rapp_type_list = rapp_type_list
         self.value_list = value_list
+        self.ar = ar
+        self.si = si
+
         value_list_to_find = []
+        # QMessageBox.warning(None, "rapp1", str(self.rapp_type_list) + '-' + str(self.value_list), QMessageBox.Ok)
         for sing_value in self.value_list:
             for sing_rapp in self.rapp_type_list:
-                sql_query_string = "['%s', '%s']" % (sing_rapp, sing_value)
+                sql_query_string = "['%s', '%s', '%s', '%s']" % (sing_rapp, sing_value, self.ar, self.si)  # funziona!!!
+
                 value_list_to_find.append(sql_query_string)
+
+        # QMessageBox.warning(None, "rapp1", str(value_list_to_find), QMessageBox.Ok)
         return value_list_to_find
 
     def us_extractor(self, res):
@@ -8648,19 +8328,21 @@ class Order_layer_v2(object):
         if v == 1:
             self.remove_from_list_in_dict(self.base_matrix)
         self.order_dict[self.order_count] = self.base_matrix
-        self.order_count += 1
+        self.order_count += 1  # aggiunge un nuovo livello di ordinamento ad ogni passaggio
 
     def insert_into_dict_equal(self, base_matrix, v=0):
         self.base_matrix = base_matrix
         if v == 1:
             self.remove_from_list_in_dict(self.base_matrix)
         self.order_dict[self.order_count] = self.base_matrix
-        self.order_count += 1
+        self.order_count += 1  # aggiunge un nuovo livello di ordinamento ad ogni passaggio
 
     def remove_from_list_in_dict(self, curr_base_matrix):
         self.curr_base_matrix = curr_base_matrix
+
         for k, v in list(self.order_dict.items()):
             l = v
+            # print self.curr_base_matrix
             for i in self.curr_base_matrix:
                 try:
                     l.remove(str(i))
@@ -8670,35 +8352,960 @@ class Order_layer_v2(object):
         return
 
 
-class SimpleLogger:
-    """Logger semplice per fallback"""
+class LogHandler(logging.Handler):
+    """Handler personalizzato per mostrare i log in un QTextEdit"""
 
-    def log(self, message, level="INFO"):
-        print(f"[{level}] {message}")
+    def __init__(self, text_widget):
+        super().__init__()
+        self.text_widget = text_widget
 
-    def add_log(self, message, level="INFO"):
-        self.log(message, level)
+    def emit(self, record):
+        msg = self.format(record)
+        # Colora i messaggi in base al livello
+        if record.levelno >= logging.ERROR:
+            html_msg = f'<span style="color: red;">{msg}</span>'
+        elif record.levelno >= logging.WARNING:
+            html_msg = f'<span style="color: orange;">{msg}</span>'
+        elif record.levelno >= logging.INFO:
+            html_msg = f'<span style="color: black;">{msg}</span>'
+        else:
+            html_msg = f'<span style="color: gray;">{msg}</span>'
+
+        self.text_widget.append(html_msg)
+        # Scrolla automaticamente alla fine
+        scrollbar = self.text_widget.verticalScrollBar()
+        scrollbar.setValue(scrollbar.maximum())
+        QApplication.processEvents()
 
 
-# Funzione di utilità per creare e usare il widget
-def create_monitor_widget_demo():
-    """Funzione demo per creare e testare il widget"""
-    from qgis.PyQt.QtWidgets import QApplication
-    import sys
+class Order_layer_graph(object):  # Rinominata per compatibilità con il codice esistente
+    """
+    Versione ottimizzata con grafi in memoria per il calcolo del matrix stratigrafico.
+    Carica tutti i dati in memoria una volta sola, evitando query ripetute.
+    """
+    MAX_LOOP_COUNT = 10
+    order_dict = {}
+    order_count = 0
+    db = ''
+    L = QgsSettings().value("locale/userLocale")[0:2]
+    SITO = ""
+    AREA = ""
 
-    app = QApplication.instance()
-    if app is None:
-        app = QApplication(sys.argv)
+    def __init__(self, dbconn, SITOol, AREAol):
+        self.db = dbconn
+        self.SITO = SITOol
+        self.AREA = AREAol
+        self.order_dict = {}
+        self.order_count = 0
 
-    # Crea il widget monitor
-    monitor = LogMonitorWidget()
-    monitor.setWindowTitle("Order Layer Monitor")
-    monitor.resize(800, 600)
-    monitor.show()
+        # Strutture dati per il grafo
+        self.graph_edges = defaultdict(set)  # nodo -> set di successori
+        self.graph_reverse = defaultdict(set)  # nodo -> set di predecessori
+        self.us_equals = defaultdict(set)  # nodo -> set di nodi uguali
+        self.all_us = set()  # tutti i nodi del grafo
 
-    # Simula alcuni log
-    monitor.add_log("Sistema inizializzato", "INFO")
-    monitor.add_log("Connesso al database", "INFO")
-    monitor.add_log("Avvio elaborazione...", "DEBUG")
+        # Widget per progress e log
+        self.progress_widget = None
+        self.log_widget = None
 
-    return monitor
+        # Variabile di backup per i livelli
+        self.generated_levels = []
+
+        # Setup logging
+        self._setup_logging()
+
+    def _setup_logging(self):
+        """Configura il sistema di logging"""
+        # Crea directory logs se non esiste
+        log_dir = os.path.join(os.path.dirname(__file__), 'logs')
+        if not os.path.exists(log_dir):
+            os.makedirs(log_dir)
+
+        # Configura il logger
+        log_file = os.path.join(log_dir, f'order_layer_{self.SITO}_{self.AREA}_{time.strftime("%Y%m%d_%H%M%S")}.log')
+
+        self.logger = logging.getLogger(f'OrderLayer_{self.SITO}_{self.AREA}')
+        self.logger.setLevel(logging.DEBUG)
+
+        # Rimuovi handler esistenti
+        self.logger.handlers = []
+
+        # File handler
+        fh = logging.FileHandler(log_file)
+        fh.setLevel(logging.DEBUG)
+
+        # Formatter
+        formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+        fh.setFormatter(formatter)
+        self.logger.addHandler(fh)
+
+        self.logger.info(f"Inizializzazione Order_layer_graph per {self.SITO} - {self.AREA}")
+
+    def center_on_screen(self, widget):
+        frame_gm = widget.frameGeometry()
+        screen = QApplication.desktop().screenNumber(QApplication.desktop().cursor().pos())
+        center_point = QApplication.desktop().screenGeometry(screen).center()
+        frame_gm.moveCenter(center_point)
+        widget.move(frame_gm.topLeft())
+
+    def _create_progress_widget(self):
+        """Crea un widget che contiene progress bar e area log"""
+        # Widget contenitore
+        self.progress_widget = QWidget()
+        self.progress_widget.setWindowTitle("Generazione ordine stratigrafico")
+        self.progress_widget.setMinimumWidth(600)
+        self.progress_widget.setMinimumHeight(400)
+
+        # Layout verticale
+        layout = QVBoxLayout()
+
+        # Progress bar
+        self.progress_bar = QProgressBar()
+        self.progress_bar.setMinimum(0)
+        self.progress_bar.setMaximum(100)
+        self.progress_bar.setValue(0)
+        self.progress_bar.setTextVisible(True)
+        self.progress_bar.setFormat("Inizializzazione...")
+        layout.addWidget(self.progress_bar)
+
+        # Text edit per i log
+        self.log_text = QTextEdit()
+        self.log_text.setReadOnly(True)
+        self.log_text.setMaximumHeight(300)
+        self.log_text.setStyleSheet("""
+            QTextEdit {
+                background-color: #f5f5f5;
+                border: 1px solid #ccc;
+                font-family: monospace;
+                font-size: 10pt;
+            }
+        """)
+        layout.addWidget(self.log_text)
+
+        self.progress_widget.setLayout(layout)
+
+        # Aggiungi handler per il log widget
+        widget_handler = LogHandler(self.log_text)
+        widget_handler.setFormatter(logging.Formatter('%(levelname)s - %(message)s'))
+        self.logger.addHandler(widget_handler)
+
+        # Centra e mostra
+        self.center_on_screen(self.progress_widget)
+        self.progress_widget.show()
+
+        try:
+            self.progress_widget.setWindowModality(Qt.WindowModal)
+        except AttributeError:
+            pass
+
+        QApplication.processEvents()
+
+    def main_order_layer(self):
+        """
+        Metodo principale che calcola l'ordine stratigrafico usando grafi in memoria.
+
+        Returns:
+        - order_dict (dict): Il dizionario con l'ordinamento delle US per livelli
+        - "error" (str): In caso di errore
+        """
+        # Crea widget progress con log
+        self._create_progress_widget()
+        time.sleep(0.2)
+
+        try:
+            # Fase 1: Carica tutti i dati in memoria
+            self.progress_bar.setValue(10)
+            self.progress_bar.setFormat("Caricamento dati dal database...")
+            self.logger.info("Avvio caricamento dati dal database...")
+            QApplication.processEvents()
+
+            if not self._load_all_data():
+                self.progress_widget.close()
+                self.logger.error("Errore nel caricamento dei dati dal database")
+                QMessageBox.warning(None, "Attenzione", "Errore nel caricamento dei dati")
+                return "error"
+
+            # Verifica che ci siano dati
+            if not self.all_us:
+                self.logger.error("=" * 50)
+                self.logger.error(f"NESSUNA US TROVATA per:")
+                self.logger.error(f"  Sito: '{self.SITO}'")
+                self.logger.error(f"  Area: '{self.AREA}'")
+                self.logger.error("=" * 50)
+                self.logger.error("POSSIBILI CAUSE:")
+                self.logger.error("1. Il sito/area non esiste nel database")
+                self.logger.error("2. Errore di digitazione nel nome sito/area")
+                self.logger.error("3. Nessuna US inserita per questo sito/area")
+                self.logger.error("=" * 50)
+
+                self.progress_bar.setFormat("ERRORE: Nessuna US trovata")
+                self.progress_bar.setStyleSheet("QProgressBar { color: red; }")
+                return "error"
+
+            # Fase 2: Costruisci il grafo
+            self.progress_bar.setValue(30)
+            self.progress_bar.setFormat("Costruzione grafo stratigrafico...")
+            self.logger.info("Costruzione del grafo stratigrafico...")
+            QApplication.processEvents()
+
+            if not self._build_graph():
+                self.progress_widget.close()
+                return "error"
+
+            # Fase 3: Calcola l'ordinamento topologico
+            self.progress_bar.setValue(60)
+            self.progress_bar.setFormat("Calcolo sequenza stratigrafica...")
+            self.logger.info("Inizio calcolo sequenza stratigrafica...")
+            QApplication.processEvents()
+
+            # Fase 3: Calcola l'ordinamento topologico
+            self.progress_bar.setValue(60)
+            self.progress_bar.setFormat("Calcolo sequenza stratigrafica...")
+            self.logger.info("Inizio calcolo sequenza stratigrafica...")
+            QApplication.processEvents()
+
+            # DEBUG: Verifica stato prima della chiamata
+            self.logger.info(f"DEBUG MAIN: Prima di chiamare topological_sort. all_us={len(self.all_us)}")
+
+            # Genera i livelli
+            levels = self._topological_sort_with_levels()
+
+            # DEBUG: Verifica risultato
+            self.logger.info(f"DEBUG MAIN: Dopo topological_sort. levels type={type(levels)}, is None={levels is None}")
+            if levels is not None:
+                self.logger.info(f"DEBUG MAIN: levels length={len(levels)}")
+
+            # Controlla anche variabili di backup
+            if hasattr(self, 'generated_levels'):
+                self.logger.info(f"DEBUG MAIN: generated_levels exists, length={len(self.generated_levels)}")
+
+            if hasattr(self.__class__, '_debug_levels'):
+                self.logger.info(f"DEBUG MAIN: _debug_levels exists, length={len(self.__class__._debug_levels)}")
+                if not levels and self.__class__._debug_levels:
+                    self.logger.warning("DEBUG MAIN: Uso _debug_levels di emergenza")
+                    levels = self.__class__._debug_levels
+
+            # Usa i livelli di backup se necessario
+            if not levels and hasattr(self, 'generated_levels') and self.generated_levels:
+                self.logger.warning("Uso livelli di backup")
+                levels = self.generated_levels
+
+            # Verifica risultato
+            if not levels:
+                self.logger.error("ERRORE: Nessun livello generato!")
+                self.progress_bar.setFormat("ERRORE: Impossibile generare matrix")
+                self.progress_bar.setStyleSheet("QProgressBar { color: red; }")
+                return "error"
+
+            self.logger.info(f"Matrix generato con successo: {len(levels)} livelli")
+
+            # Fase 4: Costruisci il risultato con indici sequenziali corretti
+            self.progress_bar.setValue(90)
+            self.progress_bar.setFormat("Preparazione risultati...")
+            self.logger.info("Preparazione risultati finali...")
+            QApplication.processEvents()
+
+            # IMPORTANTE: Usa indici sequenziali corretti
+            self.order_dict = {}
+            self.order_count = 0
+
+            # Verifica che levels non sia None o vuoto
+            if not levels or len(levels) == 0:
+                self.logger.error("ERRORE CRITICO: Nessun livello generato!")
+                self.progress_bar.setFormat("ERRORE: Nessun livello generato")
+                self.progress_bar.setStyleSheet("QProgressBar { color: red; }")
+                return "error"
+
+            # Se arriviamo qui, abbiamo dei livelli validi
+            for level_idx, units in enumerate(levels):
+                if units:
+                    # Usa level_idx direttamente per avere sequenza 0, 1, 2, 3...
+                    self.order_dict[level_idx] = list(units)
+                    self.order_count = level_idx + 1
+
+            # Log del risultato
+            self.logger.info(f"Matrix completato: {len(self.order_dict)} livelli, {len(self.all_us)} US")
+            self.logger.info("=== RISULTATI FINALI ===")
+            for level in sorted(self.order_dict.keys()):
+                units_str = ', '.join(sorted(self.order_dict[level]))
+                if len(units_str) > 100:  # Tronca se troppo lungo
+                    units_str = units_str[:100] + '...'
+                self.logger.info(f"Livello {level}: {units_str}")
+
+            # Completato calcolo matrix
+            self.progress_bar.setValue(100)
+            self.progress_bar.setFormat(f"Matrix calcolato! {len(self.order_dict)} livelli, {len(self.all_us)} US")
+            self.logger.info("Matrix calcolato con successo. Pronto per aggiornamento database.")
+            QApplication.processEvents()
+
+            # NON chiudere la finestra - sarà chiusa dopo l'aggiornamento del database
+            return self.order_dict
+
+        except Exception as e:
+            error_type = type(e).__name__
+            self.logger.error(f"Errore durante la generazione dell'order layer: {error_type} - {str(e)}", exc_info=True)
+
+            # Analizza il tipo di errore e fornisci suggerimenti
+            error_msg, solution = self._analyze_error(e)
+
+            # Mostra l'errore nel widget
+            self.progress_bar.setFormat("ERRORE! Vedi dettagli sotto")
+            self.progress_bar.setStyleSheet("QProgressBar { color: red; }")
+
+            self.logger.error("=" * 50)
+            self.logger.error(f"TIPO ERRORE: {error_type}")
+            self.logger.error(f"DETTAGLIO: {error_msg}")
+            self.logger.error(f"SOLUZIONE: {solution}")
+            self.logger.error("=" * 50)
+
+            # Aggiungi pulsante per chiudere manualmente
+            if hasattr(self, 'progress_widget'):
+                self.progress_widget.setWindowTitle("ERRORE - Generazione Matrix")
+                self.logger.info("\nPremere X per chiudere questa finestra")
+
+            QApplication.processEvents()
+            return "error"
+
+    def _analyze_error(self, error):
+        """
+        Analizza l'errore e fornisce suggerimenti specifici per risolverlo
+        """
+        error_type = type(error).__name__
+        error_str = str(error)
+
+        # Database connection errors
+        if "connection" in error_str.lower() or "connect" in error_str.lower():
+            return (
+                "Errore di connessione al database",
+                "Verificare che il database sia accessibile e le credenziali siano corrette"
+            )
+
+        # Table not found
+        elif "us_table" in error_str.lower() and ("exist" in error_str.lower() or "found" in error_str.lower()):
+            return (
+                "Tabella 'us_table' non trovata nel database",
+                "Verificare che il database sia inizializzato correttamente con tutte le tabelle richieste"
+            )
+
+        # Column errors
+        elif "column" in error_str.lower() or "attribute" in error_str.lower():
+            return (
+                "Colonna mancante o nome campo errato",
+                "Verificare che la struttura del database sia aggiornata. Potrebbe essere necessario aggiornare lo schema."
+            )
+
+        # NoneType errors
+        elif "'NoneType' object is not iterable" in error_str:
+            return (
+                "Nessun dato da processare o risultato vuoto",
+                "Verificare che esistano US per il sito/area selezionato e che abbiano relazioni valide"
+            )
+
+        # Empty dataset
+        elif error_type == "IndexError" or "list index out of range" in error_str:
+            return (
+                "Dati mancanti o formato non valido nei rapporti stratigrafici",
+                "Verificare che i rapporti siano inseriti correttamente nel formato [['tipo_rapporto', 'us_target', ...]]"
+            )
+
+        # SQL syntax errors
+        elif "syntax" in error_str.lower() or "sql" in error_str.lower():
+            return (
+                "Errore di sintassi SQL",
+                "Verificare che non ci siano caratteri speciali nei nomi di sito/area. Usare solo lettere, numeri e underscore."
+            )
+
+        # Permission errors
+        elif "permission" in error_str.lower() or "denied" in error_str.lower():
+            return (
+                "Permessi insufficienti sul database",
+                "Verificare di avere i permessi di lettura sul database e le tabelle"
+            )
+
+        # Memory errors
+        elif error_type == "MemoryError":
+            return (
+                "Memoria insufficiente per processare i dati",
+                "Il dataset è troppo grande. Provare a processare aree più piccole o aumentare la memoria disponibile."
+            )
+
+        # Generic errors
+        else:
+            return (
+                f"{error_type}: {error_str[:200]}...",
+                "Controllare il log completo per maggiori dettagli. Verificare che tutti i dati siano corretti."
+            )
+
+    def _detect_database_type(self):
+        """Rileva il tipo di database (SQLite o PostgreSQL)"""
+        try:
+            db_url = str(self.db.engine.url)
+            if 'sqlite' in db_url.lower():
+                return 'SQLite'
+            elif 'postgres' in db_url.lower():
+                return 'PostgreSQL'
+            else:
+                return 'Unknown'
+        except:
+            return 'Unknown'
+
+    def _load_all_data(self):
+        """Carica tutti i dati delle US dal database in memoria"""
+        try:
+            # Rileva tipo database
+            db_type = self._detect_database_type()
+            self.logger.info(f"Tipo database rilevato: {db_type}")
+
+            # Query per ottenere tutte le US e i loro rapporti
+            query = f"""
+            SELECT us, rapporti 
+            FROM us_table 
+            WHERE sito = '{self.SITO}' AND area = '{self.AREA}'
+            """
+
+            self.logger.debug(f"Esecuzione query: {query}")
+
+            # Esegui query con gestione errori specifica
+            try:
+                result = self.db.engine.execute(query)
+            except Exception as db_error:
+                self.logger.error(f"Errore esecuzione query: {str(db_error)}")
+                # Fornisci suggerimenti specifici per il tipo di database
+                if db_type == 'SQLite':
+                    self.logger.error("Per SQLite: verificare che il file .sqlite esista e sia accessibile")
+                elif db_type == 'PostgreSQL':
+                    self.logger.error("Per PostgreSQL: verificare connessione, username, password e nome database")
+                raise
+
+            self.us_data = {}
+            count = 0
+            for row in result:
+                us = str(row.us)
+                rapporti = row.rapporti if row.rapporti else ""
+                self.us_data[us] = rapporti
+                self.all_us.add(us)
+                count += 1
+
+                # Aggiorna log ogni 50 US
+                if count % 50 == 0:
+                    self.logger.debug(f"Caricate {count} US...")
+                    QApplication.processEvents()
+
+            if count == 0:
+                self.logger.warning(f"ATTENZIONE: Nessuna US trovata per sito '{self.SITO}' e area '{self.AREA}'")
+                self.logger.warning("Verificare che esistano dati per questo sito/area nel database")
+            else:
+                self.logger.info(f"Completato: caricate {len(self.us_data)} US dal database")
+
+            return True
+
+        except Exception as e:
+            error_msg, solution = self._analyze_error(e)
+            self.logger.error(f"Errore nel caricamento dati: {error_msg}")
+            self.logger.error(f"Suggerimento: {solution}")
+            return False
+
+    def _build_graph(self):
+        """Costruisce il grafo delle relazioni stratigrafiche"""
+        try:
+            # Definisci le relazioni per lingua
+            if self.L == 'it':
+                rel_covers = ['Copre', 'Riempie', 'Taglia', 'Si appoggia a', 'Covers', 'Fills', 'Cuts', 'Abuts', '>>']
+                rel_equals = ['Uguale a', 'Si lega a', 'Same as', 'Connected to']
+            elif self.L == 'de':
+                rel_covers = ['Liegt über', 'Verfüllt', 'Schneidet', 'Stützt sich auf', '>>']
+                rel_equals = ['Entspricht', 'Bindet an']
+            else:
+                rel_covers = ['Covers', 'Fills', 'Cuts', 'Abuts', '>>']
+                rel_equals = ['Same as', 'Connected to']
+
+            # Contatori per log
+            rel_count = 0
+            error_count = 0
+
+            # Analizza ogni US
+            for us, rapporti_str in self.us_data.items():
+                if not rapporti_str:
+                    continue
+
+                try:
+                    # Parse dei rapporti
+                    if rapporti_str.startswith('['):
+                        rapporti_list = eval(rapporti_str)
+                    else:
+                        continue
+
+                    for rapporto in rapporti_list:
+                        if isinstance(rapporto, list) and len(rapporto) >= 2:
+                            rel_type = rapporto[0]
+                            target_us = str(rapporto[1])
+
+                            # Aggiungi target_us al set di tutti i nodi
+                            self.all_us.add(target_us)
+
+                            # Relazioni di copertura (us copre target_us = us viene dopo)
+                            if rel_type in rel_covers:
+                                self.graph_edges[target_us].add(us)
+                                self.graph_reverse[us].add(target_us)
+                                rel_count += 1
+                                self.logger.debug(f"Aggiunta relazione: {target_us} -> {us} ({rel_type})")
+
+                            # Relazioni di uguaglianza
+                            elif rel_type in rel_equals:
+                                self.us_equals[us].add(target_us)
+                                self.us_equals[target_us].add(us)
+                                rel_count += 1
+                                self.logger.debug(f"Aggiunta uguaglianza: {us} = {target_us}")
+
+                except IndexError as e:
+                    # Log dell'errore senza interrompere il processo
+                    error_count += 1
+                    if error_count == 1:  # Solo al primo errore mostra esempio
+                        self.logger.warning("=" * 50)
+                        self.logger.warning("ERRORE DI FORMATO NEI RAPPORTI")
+                        self.logger.warning(f"US {us}: IndexError - {str(e)}")
+                        self.logger.warning(f"Rapporto errato: {rapporti_str[:100]}...")
+                        self.logger.warning("FORMATO CORRETTO:")
+                        self.logger.warning("[['Copre', '101'], ['Si lega a', '102'], ['Riempie', '103']]")
+                        self.logger.warning("Ogni rapporto deve avere: ['tipo_rapporto', 'us_target']")
+                        self.logger.warning("=" * 50)
+                    else:
+                        self.logger.debug(f"IndexError per US {us}")
+                    continue
+                except Exception as e:
+                    error_count += 1
+                    self.logger.warning(f"Errore parsing rapporti per US {us}: {str(e)}")
+                    continue
+
+            # Log statistiche grafo
+            total_edges = sum(len(v) for v in self.graph_edges.values())
+            self.logger.info(
+                f"Grafo costruito: {len(self.all_us)} nodi, {total_edges} archi, {rel_count} relazioni totali")
+            if error_count > 0:
+                self.logger.warning(f"Trovati {error_count} errori durante il parsing (ignorati)")
+
+            # Verifica se il grafo è vuoto
+            if len(self.all_us) > 0 and total_edges == 0:
+                self.logger.warning("=" * 50)
+                self.logger.warning("ATTENZIONE: Grafo senza relazioni!")
+                self.logger.warning("Le US esistono ma non hanno relazioni stratigrafiche valide")
+                self.logger.warning("Possibili cause:")
+                self.logger.warning("1. Campo 'rapporti' vuoto per tutte le US")
+                self.logger.warning("2. Formato rapporti non riconosciuto")
+                self.logger.warning("3. Tipi di rapporto non corrispondenti alla lingua")
+                self.logger.warning(f"Lingua rilevata: {self.L}")
+                self.logger.warning("=" * 50)
+
+            # Rimuovi eventuali cicli
+            self._remove_cycles()
+
+            return True
+
+        except Exception as e:
+            self.logger.error(f"Errore nella costruzione del grafo: {str(e)}", exc_info=True)
+            return False
+
+    def _remove_cycles(self):
+        """Identifica e rimuove i cicli nel grafo"""
+        self.logger.info("Ricerca cicli nel grafo...")
+
+        # Algoritmo DFS per trovare cicli
+        WHITE, GRAY, BLACK = 0, 1, 2
+        color = {node: WHITE for node in self.all_us}
+        cycles_found = []
+
+        def dfs(node, path):
+            color[node] = GRAY
+            path.append(node)
+
+            for neighbor in self.graph_edges.get(node, set()):
+                if color[neighbor] == GRAY:
+                    # Trovato un ciclo
+                    cycle_start = path.index(neighbor)
+                    cycle = path[cycle_start:]
+                    cycles_found.append(cycle)
+                elif color[neighbor] == WHITE:
+                    dfs(neighbor, path[:])
+
+            color[node] = BLACK
+
+        # Cerca cicli partendo da ogni nodo bianco
+        for node in self.all_us:
+            if color[node] == WHITE:
+                dfs(node, [])
+
+        # Rimuovi cicli trovati
+        if cycles_found:
+            self.logger.warning(f"Trovati {len(cycles_found)} cicli nel grafo")
+            for i, cycle in enumerate(cycles_found):
+                # Rimuovi l'ultimo arco del ciclo
+                if len(cycle) >= 2:
+                    from_node = cycle[-1]
+                    to_node = cycle[0]
+                    if to_node in self.graph_edges.get(from_node, set()):
+                        self.graph_edges[from_node].remove(to_node)
+                        self.graph_reverse[to_node].discard(from_node)
+                        self.logger.info(
+                            f"Ciclo {i + 1}: rimosso arco {from_node} -> {to_node} ({' -> '.join(cycle[:3])}...)")
+        else:
+            self.logger.info("Nessun ciclo trovato nel grafo")
+
+    def _topological_sort_with_levels(self):
+        """
+        Esegue l'ordinamento topologico restituendo i livelli.
+        Usa l'algoritmo di Kahn modificato per raggruppare per livelli.
+        """
+        # Calcola i gradi entranti
+        in_degree = {}
+        for node in self.all_us:
+            in_degree[node] = len(self.graph_reverse.get(node, set()))
+
+        # Trova i nodi senza predecessori (base del matrix)
+        queue = deque([n for n in self.all_us if in_degree[n] == 0])
+        levels = []
+        processed = set()
+
+        self.logger.info(f"US di base (senza predecessori): {sorted(list(queue))}")
+
+        level_num = 0
+        while queue:
+            # Processa tutti i nodi del livello corrente
+            current_level = set()
+            next_queue = deque()
+
+            for node in queue:
+                if node not in processed:
+                    current_level.add(node)
+                    processed.add(node)
+
+                    # Aggiungi anche i nodi "uguali"
+                    for equal_node in self.us_equals.get(node, set()):
+                        if equal_node not in processed:
+                            current_level.add(equal_node)
+                            processed.add(equal_node)
+
+                    # Riduci il grado dei successori
+                    for successor in self.graph_edges.get(node, set()):
+                        in_degree[successor] -= 1
+                        if in_degree[successor] == 0:
+                            next_queue.append(successor)
+
+            if current_level:
+                sorted_level = sorted(list(current_level))
+                levels.append(sorted_level)
+                self.logger.debug(f"Livello {level_num}: {', '.join(sorted_level)}")
+                level_num += 1
+
+            queue = next_queue
+
+            # Aggiorna progress bar
+            progress_percent = min(60 + (len(processed) / len(self.all_us)) * 30, 90)
+            self.progress_bar.setValue(int(progress_percent))
+            QApplication.processEvents()
+
+        # Verifica che tutti i nodi siano stati processati
+        unprocessed = self.all_us - processed
+        if unprocessed:
+            self.logger.warning(f"US non processate (possibili componenti disconnesse): {sorted(list(unprocessed))}")
+            # Aggiungi le US non processate come livello finale
+            if unprocessed:
+                levels.append(sorted(list(unprocessed)))
+
+        return levels
+
+    def update_database_with_order(self, db_manager, mapper_table_class, id_table, sito, area):
+        """
+        Aggiorna il database con l'order layer calcolato.
+        Mantiene aperta la finestra di progress durante l'aggiornamento.
+
+        Args:
+            db_manager: Il DB manager per le query
+            mapper_table_class: La classe mapper della tabella
+            id_table: Il nome del campo ID
+            sito: Il sito
+            area: L'area
+
+        Returns:
+            int: Numero di record aggiornati
+        """
+        if not self.order_dict:
+            self.logger.error("Nessun order_dict disponibile per l'aggiornamento")
+            if self.progress_widget:
+                self.progress_widget.close()
+            return 0
+
+        try:
+            # Reset progress per aggiornamento database
+            self.progress_bar.setValue(0)
+            self.progress_bar.setFormat("Aggiornamento database in corso...")
+            self.logger.info("=== INIZIO AGGIORNAMENTO DATABASE ===")
+            QApplication.processEvents()
+
+            # Calcola totale updates
+            total_updates = sum(len(v) for v in self.order_dict.values())
+            updates_count = 0
+            errors_count = 0
+
+            # Aggiorna il database
+            for k, v in self.order_dict.items():
+                order_number = k
+                us_v = v
+
+                self.logger.debug(f"Aggiornamento livello {order_number}: {len(us_v)} US")
+
+                for sing_us in us_v:
+                    search_dict = {
+                        'sito': "'" + str(sito) + "'",
+                        'area': "'" + str(area) + "'",
+                        'us': int(sing_us)
+                    }
+
+                    try:
+                        records = db_manager.query_bool(search_dict, mapper_table_class)
+
+                        if records:
+                            db_manager.update(
+                                mapper_table_class,
+                                id_table,
+                                [int(records[0].id_us)],
+                                ['order_layer'],
+                                [order_number]
+                            )
+                            updates_count += 1
+
+                            # Aggiorna progress
+                            progress = int((updates_count / total_updates) * 100)
+                            self.progress_bar.setValue(progress)
+                            self.progress_bar.setFormat(f"Aggiornamento database: {updates_count}/{total_updates} US")
+
+                            # Log ogni 10 updates
+                            if updates_count % 10 == 0:
+                                self.logger.debug(f"Aggiornate {updates_count} US...")
+                                QApplication.processEvents()
+                        else:
+                            self.logger.warning(f"Nessun record trovato per US {sing_us}")
+                            errors_count += 1
+
+                    except Exception as e:
+                        errors_count += 1
+                        self.logger.error(f"Errore aggiornamento US {sing_us}: {str(e)}")
+
+            # Completato
+            self.progress_bar.setValue(100)
+            self.progress_bar.setFormat(f"Aggiornamento completato: {updates_count} US aggiornate")
+
+            self.logger.info(f"=== AGGIORNAMENTO COMPLETATO ===")
+            self.logger.info(f"US aggiornate: {updates_count}")
+            if errors_count > 0:
+                self.logger.warning(f"Errori riscontrati: {errors_count}")
+
+            # Attendi prima di chiudere
+            QApplication.processEvents()
+            time.sleep(2)
+
+            # Chiudi la finestra
+            if self.progress_widget:
+                self.progress_widget.close()
+
+            return updates_count
+
+        except Exception as e:
+            self.logger.error(f"Errore critico durante l'aggiornamento: {str(e)}", exc_info=True)
+            if self.progress_widget:
+                self.progress_bar.setFormat("Errore durante l'aggiornamento!")
+                QApplication.processEvents()
+                time.sleep(2)
+                self.progress_widget.close()
+            return 0
+
+    def close_progress_widget(self):
+        """Chiude manualmente la finestra di progress se ancora aperta"""
+        if self.progress_widget and self.progress_widget.isVisible():
+            self.progress_widget.close()
+
+    def find_base_matrix(self):
+        """Trova le US di base (senza predecessori) - compatibilità con vecchio codice"""
+        if not self.all_us:
+            self._load_all_data()
+            self._build_graph()
+
+        base_units = []
+        for node in self.all_us:
+            if len(self.graph_reverse.get(node, set())) == 0:
+                base_units.append(node)
+
+        return base_units
+
+    def create_list_values(self, rapp_type_list, value_list, ar, si):
+        """Metodo mantenuto per compatibilità"""
+        value_list_to_find = []
+        for sing_value in value_list:
+            for sing_rapp in rapp_type_list:
+                sql_query_string = "['%s', '%s', '%s', '%s']" % (sing_rapp, sing_value, ar, si)
+                value_list_to_find.append(sql_query_string)
+        return value_list_to_find
+
+    def us_extractor(self, res):
+        """Metodo mantenuto per compatibilità"""
+        rec_list = []
+        for rec in res:
+            rec_list.append(rec.us)
+        return rec_list
+
+    def insert_into_dict(self, base_matrix, v=0):
+        """Metodo mantenuto per compatibilità"""
+        self.order_dict[self.order_count] = base_matrix
+        self.order_count += 1
+
+    def remove_from_list_in_dict(self, curr_base_matrix):
+        """Metodo mantenuto per compatibilità"""
+        for k, v in list(self.order_dict.items()):
+            l = v
+            for i in curr_base_matrix:
+                try:
+                    l.remove(str(i))
+                except:
+                    pass
+            self.order_dict[k] = l
+        return
+
+    def update_database_with_order(self, db_manager, mapper_table_class, id_table, sito, area):
+        """
+        Aggiorna il database con l'order layer calcolato.
+        Mantiene aperta la finestra di progress durante l'aggiornamento.
+
+        Args:
+            db_manager: Il DB manager per le query
+            mapper_table_class: La classe mapper della tabella
+            id_table: Il nome del campo ID
+            sito: Il sito
+            area: L'area
+
+        Returns:
+            int: Numero di record aggiornati
+        """
+        if not self.order_dict:
+            self.logger.error("Nessun order_dict disponibile per l'aggiornamento")
+            if self.progress_widget:
+                self.progress_widget.close()
+            return 0
+
+        try:
+            # Reset progress per aggiornamento database
+            self.progress_bar.setValue(0)
+            self.progress_bar.setFormat("Aggiornamento database in corso...")
+            self.logger.info("=== INIZIO AGGIORNAMENTO DATABASE ===")
+            QApplication.processEvents()
+
+            # Calcola totale updates
+            total_updates = sum(len(v) for v in self.order_dict.values())
+            updates_count = 0
+            errors_count = 0
+
+            # Aggiorna il database
+            for k, v in self.order_dict.items():
+                order_number = k
+                us_v = v
+
+                self.logger.debug(f"Aggiornamento livello {order_number}: {len(us_v)} US")
+
+                for sing_us in us_v:
+                    search_dict = {
+                        'sito': "'" + str(sito) + "'",
+                        'area': "'" + str(area) + "'",
+                        'us': int(sing_us)
+                    }
+
+                    try:
+                        records = db_manager.query_bool(search_dict, mapper_table_class)
+
+                        if records:
+                            db_manager.update(
+                                mapper_table_class,
+                                id_table,
+                                [int(records[0].id_us)],
+                                ['order_layer'],
+                                [order_number]
+                            )
+                            updates_count += 1
+
+                            # Aggiorna progress
+                            progress = int((updates_count / total_updates) * 100)
+                            self.progress_bar.setValue(progress)
+                            self.progress_bar.setFormat(f"Aggiornamento database: {updates_count}/{total_updates} US")
+
+                            # Log ogni 10 updates
+                            if updates_count % 10 == 0:
+                                self.logger.debug(f"Aggiornate {updates_count} US...")
+                                QApplication.processEvents()
+                        else:
+                            self.logger.warning(f"Nessun record trovato per US {sing_us}")
+                            errors_count += 1
+
+                    except Exception as e:
+                        errors_count += 1
+                        self.logger.error(f"Errore aggiornamento US {sing_us}: {str(e)}")
+
+            # Completato
+            self.progress_bar.setValue(100)
+            self.progress_bar.setFormat(f"Aggiornamento completato: {updates_count} US aggiornate")
+
+            self.logger.info(f"=== AGGIORNAMENTO COMPLETATO ===")
+            self.logger.info(f"US aggiornate: {updates_count}")
+            if errors_count > 0:
+                self.logger.warning(f"Errori riscontrati: {errors_count}")
+
+            # Attendi prima di chiudere
+            QApplication.processEvents()
+            time.sleep(2)
+
+            # Chiudi la finestra
+            if self.progress_widget:
+                self.progress_widget.close()
+
+            return updates_count
+
+        except Exception as e:
+            self.logger.error(f"Errore critico durante l'aggiornamento: {str(e)}", exc_info=True)
+            if self.progress_widget:
+                self.progress_bar.setFormat("Errore durante l'aggiornamento!")
+                QApplication.processEvents()
+                time.sleep(2)
+                self.progress_widget.close()
+            return 0
+
+    def close_progress_widget(self):
+        """Chiude manualmente la finestra di progress se ancora aperta"""
+        if self.progress_widget and self.progress_widget.isVisible():
+            self.progress_widget.close()
+
+class MyError(Exception):
+
+    def __init__(self, value):
+        self.value = value
+
+    def __str__(self):
+        return repr(self.value)
+
+
+class ProgressDialog:
+    def __init__(self):
+        self.progressDialog = QProgressDialog()
+        self.progressDialog.setWindowTitle("Aggiornamento rapporti area e sito")
+        self.progressDialog.setLabelText("Inizializzazione...")
+        # self.progressDialog.setCancelButtonText("")  # Disallow cancelling
+        self.progressDialog.setRange(0, 0)
+        self.progressDialog.setModal(True)
+        self.progressDialog.show()
+
+    def setValue(self, value):
+        self.progressDialog.setValue(value)
+        if value < value + 1:  # Assuming that 100 is the maximum value
+            self.progressDialog.setLabelText(f"Aggiornamento in corso... {value}")
+        else:
+            self.progressDialog.setLabelText("Finito")
+            # self.progressDialog.close()
+
+    def closeEvent(self, event):
+        self.progressDialog.close()
+        event.ignore()
