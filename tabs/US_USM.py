@@ -11746,6 +11746,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
             #order_layer_dict = json.loads(order_layer_dict)
             try:
+                # Ottimizzazione: aggiorna il database senza refreshare la UI ad ogni ciclo
+                updates_count = 0
                 for k, v in order_layer_dict.items():
                     order_number = k
                     us_v = v
@@ -11758,10 +11760,13 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                             records = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)  # carica tutti i dati di uno scavo ordinati per numero di US
                             #QMessageBox.warning(None, "Messaggio", "records" + str(records), QMessageBox.Ok)
                             self.DB_MANAGER.update(self.MAPPER_TABLE_CLASS, self.ID_TABLE, [int(records[0].id_us)], ['order_layer'], [order_number])
-
-                            self.on_pushButton_view_all_pressed()
+                            updates_count += 1
                         except Exception as e:
                             QMessageBox.warning(self, 'Attenzione', str(e), QMessageBox.Ok)
+
+                # Aggiorna la UI una sola volta dopo aver completato tutti gli aggiornamenti
+                if updates_count > 0:
+                    self.on_pushButton_view_all_pressed()
                 #QMessageBox.warning(self, "Messaggio", f"order{order_number} - us{us_v}", QMessageBox.Ok)
                 if self.L=='it':
                     filename_tipo_rapporti_mancanti = '{}{}{}'.format(self.REPORT_PATH, os.sep, 'tipo_rapporti_mancanti.txt')
