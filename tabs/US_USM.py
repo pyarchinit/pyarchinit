@@ -94,8 +94,7 @@ from ..modules.utility.textTosql import *
 from ..modules.db.pyarchinit_conn_strings import Connection
 from ..modules.db.pyarchinit_db_manager import Pyarchinit_db_management
 from ..modules.db.pyarchinit_utility import Utility
-from ..modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis, Order_layer_v2, \
-    LogMonitorWidget  # , Order_layer_v2_optimized
+from ..modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis,  Order_layer_graph
 from ..modules.utility.delegateComboBox import ComboBoxDelegate
 from ..modules.utility.pyarchinit_error_check import Error_check
 from ..modules.utility.pyarchinit_exp_USsheet_pdf import generate_US_pdf
@@ -11741,40 +11740,51 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             sito = self.DATA_LIST[0].sito  # self.comboBox_sito_rappcheck.currentText()
             area = self.DATA_LIST[0].area  # self.comboBox_area.currentText()
 
-            # Crea il widget monitor
-            monitor_widget = LogMonitorWidget()
-            monitor_widget.show()  # Mostra la finestra
+
 
             # Crea Order_layer_v2 con il widget
-            OL = Order_layer_v2(self.DB_MANAGER, sito, area,
-                                         enable_monitoring=True,
-                                         monitor_widget=monitor_widget)
 
-            # script order layer from pyqgis
-            #OL = Order_layer_v2(self.DB_MANAGER, sito, area)
-            # QMessageBox.warning(None, "Messaggio", "DATA LIST" + str(OL), QMessageBox.Ok)
-            order_layer_dict = OL.main_order_layer()
-            # QMessageBox.warning(None, "Messaggio", "DATA LIST" + str(order_layer_dict), QMessageBox.Ok)
+            #QMessageBox.warning(None, "Messaggio", "DATA LIST" + str(order_layer_dict), QMessageBox.Ok)
             # order_number = ""
             # us = ""
-            for k, v in order_layer_dict.items():  # era iteritems prima
-                order_number = str(k)
-                us = v
-                # QMessageBox.warning(None, "Messaggio", "DATA LIST" + str(k)+str(v), QMessageBox.Ok)
-                for sing_us in v:
-                    search_dict = {'sito': "'" + str(sito) + "'", 'area': "'" + str(area) + "'",
-                                   'us': int(sing_us)}
-                    # QMessageBox.warning(None, "Messaggio", "DATA LIST" + str(search_dict), QMessageBox.Ok)
-                    try:
-                        records = self.DB_MANAGER.query_bool(search_dict,
-                                                             self.MAPPER_TABLE_CLASS)  # carica tutti i dati di uno scavo ordinati per numero di US
-                        # QMessageBox.warning(None, "Messaggio", "records" + str(records), QMessageBox.Ok)
-                        a = self.DB_MANAGER.update(self.MAPPER_TABLE_CLASS, self.ID_TABLE, [int(records[0].id_us)],
-                                                   ['order_layer'], [order_number])
-                        # QMessageBox.warning(None, "Messaggio", "records" + str(a), QMessageBox.Ok)
-                        self.on_pushButton_view_all_pressed()
-                    except Exception as e:
-                        QMessageBox.warning(self, u'ACHTUNG', str(e), QMessageBox.Ok)
+            # Il tuo codice modificato:
+            # Crea l'istanza
+            OL = Order_layer_graph(self.DB_MANAGER, sito, area)
+            order_layer_dict = OL.main_order_layer()
+
+            if order_layer_dict == "error":
+                # La finestra rimane aperta con i dettagli dell'errore
+                # L'utente può leggere il log e chiudere manualmente
+
+                # Opzionale: mostra un messaggio aggiuntivo
+                QMessageBox.critical(self, "Errore Matrix",
+                                     "Errore durante la generazione del matrix.\n"
+                                     "Controlla i dettagli nella finestra di log.\n\n"
+                                     "La finestra rimarrà aperta per permetterti di leggere i dettagli.")
+                return
+
+            # Se arriviamo qui, order_layer_dict è un dizionario valido
+            # Usa il nuovo metodo per aggiornare il database
+            try:
+                updates_count = OL.update_database_with_order(
+                    self.DB_MANAGER,
+                    self.MAPPER_TABLE_CLASS,
+                    self.ID_TABLE,
+                    sito,
+                    area
+                )
+
+                # Mostra il risultato
+                QMessageBox.information(self, "Completato",
+                                        f"Matrix generato con successo!\n"
+                                        f"Aggiornate {updates_count} US nel database.")
+
+                # Opzionale: aggiorna la vista
+                self.fill_fields()
+
+            except Exception as e:
+                QMessageBox.critical(self, "Errore",
+                                     f"Errore durante l'aggiornamento del database: {str(e)}")
             # Versione ottimizzata
             # OL = Order_layer_v2(self.DB_MANAGER, sito, area, use_graphviz=True)
             #
