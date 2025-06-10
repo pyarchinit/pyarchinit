@@ -21,6 +21,7 @@ from __future__ import absolute_import
 
 import ast
 import csv
+import tempfile
 
 from datetime import datetime
 
@@ -6254,12 +6255,15 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         area_table = Table('us_table', metadata, autoload_with=engine)
 
         with engine.connect() as connection:
-            # Assuming the name of the area is saved in a column named 'area_name'
-            stmt = select([area_table.c.area])
+            # Filter by the current site
+            stmt = select([area_table.c.area]).where(area_table.c.sito == sito).distinct()
             result = connection.execute(stmt)
 
-            # Fetch all rows from the result and return only the area names
+            # Fetch all unique areas for the current site
             all_areas = [row['area'] for row in result]
+
+            # Remove duplicates and sort
+            all_areas = sorted(list(set(all_areas)))
 
         return all_areas
 
@@ -6277,10 +6281,25 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
 
 
-        def log_error(message, error_type="ERROR", filename = "error_log.txt"):
-            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            with open(filename, 'a', encoding='utf-8') as f:
-                f.write(f"[{timestamp}] {error_type}: {message}\n")
+        def log_error(msg, level="ERROR"):
+
+            try:
+                # Prova prima la directory del plugin
+                plugin_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+                log_dir = os.path.join(plugin_dir, 'logs')
+                if not os.path.exists(log_dir):
+                    os.makedirs(log_dir)
+                filename = os.path.join(log_dir, 'error_log.txt')
+            except:
+                # Se fallisce, usa la directory temporanea del sistema
+                temp_dir = tempfile.gettempdir()
+                filename = os.path.join(temp_dir, 'pyarchinit_error_log.txt')
+
+            try:
+                with open(filename, 'a', encoding='utf-8') as f:
+                    f.write(f"{datetime.now()} - {level} - {msg}\n")
+            except Exception as e:
+                print(f"Impossibile scrivere nel file di log: {e}")
 
         try:
             with engine.connect() as connection:
