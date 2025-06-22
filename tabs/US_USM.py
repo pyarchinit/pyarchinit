@@ -6238,9 +6238,11 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
         dialog = ProgressDialog()
 
-
+        conn = Connection()
+        sito_set = conn.sito_set()
+        sito_set_str = sito_set['sito_set']
         for i, area in enumerate(all_areas):
-            self.update_rapporti_col(self.comboBox_sito.currentText(), area)
+            self.update_rapporti_col(sito_set_str, area)
             dialog.setValue(i + 1)
 
         self.update_rapporti_col_2()
@@ -6250,17 +6252,21 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         conn_str = conn.conn_str()
         metadata = MetaData()
         engine = create_engine(conn_str)
+        sito_set = conn.sito_set()
+        sito_set_str = sito_set['sito_set']
 
         # Assuming areas are represented in a table named 'area_table'
         area_table = Table('us_table', metadata, autoload_with=engine)
 
         with engine.connect() as connection:
             # Filter by the current site
-            stmt = select([area_table.c.area]).where(area_table.c.sito == sito).distinct()
+            stmt = select([area_table.c.area]).where(area_table.c.sito == sito_set_str).distinct()
             result = connection.execute(stmt)
+            areas = result.fetchall()
+
 
             # Fetch all unique areas for the current site
-            all_areas = [row['area'] for row in result]
+            all_areas = [row['area'] for row in areas]
 
             # Remove duplicates and sort
             all_areas = sorted(list(set(all_areas)))
@@ -6275,36 +6281,36 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
         us_table = Table('us_table', metadata, autoload_with=engine)
 
-        if not sito or not area:
-            self.show_warning("Sito o area non specificato.")
-            return  # Exit the function if site or area is not provided
+        #if not sito or not area:
+            #self.show_warning("Sito o area non specificato.")
+            #return  # Exit the function if site or area is not provided
 
 
 
-        def log_error(msg, level="ERROR"):
-
-            try:
-                # Prova prima la directory del plugin
-                plugin_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-                log_dir = os.path.join(plugin_dir, 'logs')
-                if not os.path.exists(log_dir):
-                    os.makedirs(log_dir)
-                filename = os.path.join(log_dir, 'error_log.txt')
-            except:
-                # Se fallisce, usa la directory temporanea del sistema
-                temp_dir = tempfile.gettempdir()
-                filename = os.path.join(temp_dir, 'pyarchinit_error_log.txt')
-
-            try:
-                with open(filename, 'a', encoding='utf-8') as f:
-                    f.write(f"{datetime.now()} - {level} - {msg}\n")
-            except Exception as e:
-                print(f"Impossibile scrivere nel file di log: {e}")
+        # def log_error(msg, level="ERROR"):
+        #
+        #     try:
+        #         # Prova prima la directory del plugin
+        #         plugin_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        #         log_dir = os.path.join(plugin_dir, 'logs')
+        #         if not os.path.exists(log_dir):
+        #             os.makedirs(log_dir)
+        #         filename = os.path.join(log_dir, 'error_log.txt')
+        #     except:
+        #         # Se fallisce, usa la directory temporanea del sistema
+        #         temp_dir = tempfile.gettempdir()
+        #         filename = os.path.join(temp_dir, 'pyarchinit_error_log.txt')
+        #
+        #     try:
+        #         with open(filename, 'a', encoding='utf-8') as f:
+        #             f.write(f"{datetime.now()} - {level} - {msg}\n")
+        #     except Exception as e:
+        #         print(f"Impossibile scrivere nel file di log: {e}")
 
         try:
             with engine.connect() as connection:
                 # Log dell'inizio dell'operazione
-                log_error("Inizio operazione di aggiornamento", "INFO")
+                #log_error("Inizio operazione di aggiornamento", "INFO")
 
                 stmt = select([us_table.c.id_us, us_table.c.rapporti]).where(
                     us_table.c.sito == sito, us_table.c.area == area
@@ -6312,19 +6318,19 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
                 try:
                     rows = connection.execute(stmt).fetchall()
-                    log_error(f"Recuperate {len(rows)} righe da processare", "INFO")
+                    #log_error(f"Recuperate {len(rows)} righe da processare", "INFO")
                 except Exception as e:
-                    log_error(f"Errore nel recupero delle righe: {str(e)}")
+                    #log_error(f"Errore nel recupero delle righe: {str(e)}")
                     raise
 
                 for row in rows:
                     id, rapporti_str = row
-                    log_error(f"Processing ID: {id}", "DEBUG")
+                    #log_error(f"Processing ID: {id}", "DEBUG")
 
                     if rapporti_str and rapporti_str != "[[]]":
                         try:
                             # Log della stringa originale
-                            log_error(f"ID {id} - Stringa originale: {rapporti_str}", "DEBUG")
+                            #log_error(f"ID {id} - Stringa originale: {rapporti_str}", "DEBUG")
 
                             # Conversione della stringa in lista
                             rapporti_list = ast.literal_eval(rapporti_str)
@@ -6338,7 +6344,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                             updated_rapporti_str = self.ensure_utf8(str(updated_rapporti_list2))
 
                             # Log della stringa aggiornata
-                            log_error(f"ID {id} - Stringa aggiornata: {updated_rapporti_str}", "DEBUG")
+                            #log_error(f"ID {id} - Stringa aggiornata: {updated_rapporti_str}", "DEBUG")
 
                             # Preparazione e esecuzione dell'update
                             update_stmt = (
@@ -6355,7 +6361,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                                     f"Errore: {str(e)}\n"
                                     f"Stringa problematica: {updated_rapporti_str}"
                                 )
-                                log_error(error_msg)
+                                #log_error(error_msg)
                                 continue
 
                         except ValueError as e:
@@ -6364,7 +6370,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                                 f"Errore: {str(e)}\n"
                                 f"Stringa originale: {rapporti_str}"
                             )
-                            log_error(error_msg)
+                            #log_error(error_msg)
                             continue
                         except Exception as e:
                             error_msg = (
@@ -6372,14 +6378,14 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                                 f"Errore: {str(e)}\n"
                                 f"Stringa originale: {rapporti_str}"
                             )
-                            log_error(error_msg)
+                            #log_error(error_msg)
                             continue
 
-                log_error("Operazione completata", "INFO")
+                #log_error("Operazione completata", "INFO")
 
         except Exception as e:
             error_msg = f"Errore critico durante l'operazione: {str(e)}"
-            log_error(error_msg)
+            #log_error(error_msg)
             raise
 
         except Exception as e:
@@ -6391,28 +6397,29 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         conn_str = conn.conn_str()
         metadata = MetaData()
         engine = create_engine(conn_str)
+        sito_set = conn.sito_set()
+        sito_set_str = sito_set['sito_set']
 
-
-        def log_error(message, error_type="ERROR", filename="rapporti_update_log.txt"):
-            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            with open(filename, 'a', encoding='utf-8') as f:
-                f.write(f"[{timestamp}] {error_type}: {message}\n")
+        # def log_error(message, error_type="ERROR", filename="rapporti_update_log.txt"):
+        #     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        #     with open(filename, 'a', encoding='utf-8') as f:
+        #         f.write(f"[{timestamp}] {error_type}: {message}\n")
         try:
             us_table = Table('us_table', metadata, autoload_with=engine)
         except Exception as e:
             error_msg = f"Errore nel caricamento della tabella: {str(e)}"
-            log_error(error_msg)
+            #log_error(error_msg)
             self.show_error(e, "il caricamento della tabella")
             return
 
-        var1 = self.comboBox_sito.currentText()  # Sito
+        var1 = sito_set_str  # Sito
 
         if not var1:
-            log_error("Tentativo di aggiornamento senza specificare il sito", "WARNING")
+            #log_error("Tentativo di aggiornamento senza specificare il sito", "WARNING")
             self.show_warning("sito non specificato")
             return
 
-        log_error(f"Inizio aggiornamento rapporti per il sito: {var1}", "INFO")
+        #log_error(f"Inizio aggiornamento rapporti per il sito: {var1}", "INFO")
 
         try:
             with engine.connect() as connection:
@@ -6420,10 +6427,10 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 stmt = select([us_table]).where(us_table.c.sito == var1)
                 try:
                     rows = connection.execute(stmt).fetchall()
-                    log_error(f"Recuperate {len(rows)} righe da processare per il sito {var1}", "INFO")
+                    #log_error(f"Recuperate {len(rows)} righe da processare per il sito {var1}", "INFO")
                 except Exception as e:
                     error_msg = f"Errore nel recupero delle righe per il sito {var1}: {str(e)}"
-                    log_error(error_msg)
+                    #log_error(error_msg)
                     self.show_error(e, "il recupero dei dati")
                     return
 
@@ -6431,12 +6438,12 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 for row_j in rows:
                     id_us, rapporti_str = row_j.id_us, row_j.rapporti
 
-                    log_error(f"Processing US ID: {id_us}", "DEBUG")
+                    #log_error(f"Processing US ID: {id_us}", "DEBUG")
 
                     if rapporti_str and rapporti_str != "[[]]":
                         try:
                             # Log della stringa originale
-                            log_error(f"US {id_us} - Stringa originale: {rapporti_str}", "DEBUG")
+                            #log_error(f"US {id_us} - Stringa originale: {rapporti_str}", "DEBUG")
 
                             rapporti_list = ast.literal_eval(rapporti_str)
                             updated_rapporti_list = []
@@ -6446,7 +6453,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                                     # Verifica che la sottolista abbia abbastanza elementi
                                     if len(sublist) < 3:
                                         error_msg = f"Sottolista troppo corta per US {id_us}: {sublist}"
-                                        log_error(error_msg, "WARNING")
+                                        #log_error(error_msg, "WARNING")
                                         continue
 
                                     us_id = sublist[1]
@@ -6457,7 +6464,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                                         correct_area = self.find_correct_area_for_us(us_id, var1, connection)
 
                                         if correct_area is None:
-                                            log_error(f"Area non trovata per US {us_id} nel sito {var1}", "WARNING")
+                                            #log_error(f"Area non trovata per US {us_id} nel sito {var1}", "WARNING")
                                             updated_rapporti_list.append(sublist)
                                             continue
 
@@ -6467,26 +6474,26 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                                             updated_sublist = sublist.copy()
                                             updated_sublist[2] = correct_area
                                             updated_rapporti_list.append(updated_sublist)
-                                            log_error(
-                                                f"Aggiornata area per US {us_id}: da {current_area} a {correct_area}",
-                                                "INFO")
+                                            # log_error(
+                                            #     f"Aggiornata area per US {us_id}: da {current_area} a {correct_area}",
+                                            #     "INFO")
 
                                     except Exception as e:
                                         error_msg = f"Errore nel trovare l'area corretta per US {us_id}: {str(e)}"
-                                        log_error(error_msg)
+                                        #log_error(error_msg)
                                         updated_rapporti_list.append(sublist)
                                         continue
 
                                 except Exception as e:
                                     error_msg = f"Errore nel processare la sottolista per US {id_us}: {str(e)}"
-                                    log_error(error_msg)
+                                    #log_error(error_msg)
                                     continue
 
                             # Aggiorna il database
                             updated_rapporti_list2 = [sub[:4] for sub in updated_rapporti_list]
                             updated_rapporti_str = self.ensure_utf8(str(updated_rapporti_list2))
 
-                            log_error(f"US {id_us} - Stringa aggiornata: {updated_rapporti_str}", "DEBUG")
+                            #log_error(f"US {id_us} - Stringa aggiornata: {updated_rapporti_str}", "DEBUG")
 
                             try:
                                 update_stmt = update(us_table).where(us_table.c.id_us == id_us).values(
@@ -6498,7 +6505,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                                     f"Errore: {str(e)}\n"
                                     f"Stringa problematica: {updated_rapporti_str}"
                                 )
-                                log_error(error_msg)
+                                #log_error(error_msg)
                                 continue
 
                         except ValueError as e:
@@ -6507,21 +6514,21 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                                 f"Errore: {str(e)}\n"
                                 f"Stringa originale: {rapporti_str}"
                             )
-                            log_error(error_msg)
+                            #log_error(error_msg)
                             self.show_error(e, "la conversione della stringa in una lista di liste")
                             continue
 
                         except Exception as e:
                             error_msg = f"Errore generico per US {id_us}: {str(e)}"
-                            log_error(error_msg)
+                            #log_error(error_msg)
                             continue
 
-                log_error(f"Aggiornamento completato per il sito {var1}", "INFO")
+                #log_error(f"Aggiornamento completato per il sito {var1}", "INFO")
                 self.view_all()
 
         except Exception as e:
             error_msg = f"Errore critico durante l'aggiornamento: {str(e)}"
-            log_error(error_msg)
+            #log_error(error_msg)
             self.show_error(e, "l'aggiornamento")
 
     def ensure_utf8(self,s):
@@ -8310,8 +8317,10 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             self.delegateRS.def_values(valuesRS)
             self.delegateRS.def_editable('False')
             self.tableWidget_rapporti.setItemDelegateForColumn(0,self.delegateRS)
-
-        value_site = [self.comboBox_sito.currentText()]
+        conn = Connection()
+        sito_set = conn.sito_set()
+        sito_set_str = sito_set['sito_set']
+        value_site = [sito_set_str]
         self.delegatesito = ComboBoxDelegate()
         self.delegatesito.def_values(value_site)
         self.delegatesito.def_editable('False')
@@ -13625,23 +13634,24 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
 
     def view_all(self):
-
         self.checkBox_query.setChecked(False)
         if self.checkBox_query.isChecked():
             self.model_a.database().close()
+
         self.empty_fields()
-        self.charge_records()
+
+        # Filtra i record per il sito selezionato
+        self.charge_records_filtered_by_site()
+
         # Controlla se il database è vuoto
         if not self.DATA_LIST:
             # Mostra un messaggio che indica che il database è vuoto
-
             self.charge_list()
             self.BROWSE_STATUS = 'x'
             self.setComboBoxEnable(["self.comboBox_area"], "True")
             self.setComboBoxEnable(["self.lineEdit_us"], "True")
             self.on_pushButton_new_rec_pressed()
-            return#QMessageBox.warning(self, "Attenzione", "Il database è vuoto.")
-            #return  # Esci dalla funzione se il database è vuoto
+            return
 
         self.fill_fields()
         self.BROWSE_STATUS = "b"
@@ -13656,6 +13666,41 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
         self.SORT_STATUS = "n"
         self.label_sort.setText(self.SORTED_ITEMS[self.SORT_STATUS])
+
+    def charge_records_filtered_by_site(self):
+        """Carica i record filtrati per il sito selezionato"""
+        conn = Connection()
+        sito_set = conn.sito_set()
+        sito_set_str = sito_set['sito_set']
+        try:
+            current_site = sito_set_str
+
+            if not current_site:
+                # Se nessun sito è selezionato, carica tutti i record
+                self.charge_records()
+                return
+
+            # Filtra i record per il sito corrente
+            search_dict = {'sito': f"'{current_site}'"}
+            search_dict = {str(k): str(v) for k, v in search_dict.items()}
+
+            res = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
+
+            if bool(res):
+                self.DATA_LIST = []
+                for i in res:
+                    self.DATA_LIST.append(i)
+                self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
+                return True
+            else:
+                self.DATA_LIST = []
+                return False
+
+        except Exception as e:
+            QMessageBox.warning(self, "Errore", f"Errore nel caricamento dei dati filtrati: {str(e)}")
+            # In caso di errore, carica tutti i record
+            self.charge_records()
+            return False
 
     def on_pushButton_first_rec_pressed(self):
 
