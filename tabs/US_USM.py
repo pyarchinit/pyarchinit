@@ -22,7 +22,7 @@ from __future__ import absolute_import
 import ast
 import csv
 import json
-
+import tempfile
 from datetime import datetime
 
 import math
@@ -94,7 +94,7 @@ from ..modules.utility.textTosql import *
 from ..modules.db.pyarchinit_conn_strings import Connection
 from ..modules.db.pyarchinit_db_manager import Pyarchinit_db_management
 from ..modules.db.pyarchinit_utility import Utility
-from ..modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis,  Order_layer_graph
+from ..modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis, Order_layer_v2
 from ..modules.utility.delegateComboBox import ComboBoxDelegate
 from ..modules.utility.pyarchinit_error_check import Error_check
 from ..modules.utility.pyarchinit_exp_USsheet_pdf import generate_US_pdf
@@ -6385,18 +6385,41 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         QMessageBox.warning(self, "Error", f"An error occurred during {original_message}: {error}", QMessageBox.Ok)
 
     def update_all_areas(self):
-        all_areas = self.get_all_areas()
+        conn = Connection()
+        sito_set = conn.sito_set()
+        sito_set_str = sito_set['sito_set']
+
+
+        all_areas = self.get_all_areas(sito_set_str)
 
         dialog = ProgressDialog()
 
 
         for i, area in enumerate(all_areas):
-            self.update_rapporti_col(self.comboBox_sito.currentText(), area)
+            self.update_rapporti_col(sito_set_str, area)
             dialog.setValue(i + 1)
 
         self.update_rapporti_col_2()
         dialog.setValue(len(all_areas) + 1)
-    def get_all_areas(self):
+    # def get_all_areas(self):
+    #     conn = Connection()
+    #     conn_str = conn.conn_str()
+    #     metadata = MetaData()
+    #     engine = create_engine(conn_str)
+    #
+    #     # Assuming areas are represented in a table named 'area_table'
+    #     area_table = Table('us_table', metadata, autoload_with=engine)
+    #
+    #     with engine.connect() as connection:
+    #         # Assuming the name of the area is saved in a column named 'area_name'
+    #         stmt = select([area_table.c.area])
+    #         result = connection.execute(stmt)
+    #
+    #         # Fetch all rows from the result and return only the area names
+    #         all_areas = [row['area'] for row in result]
+    #
+    #     return all_areas
+    def get_all_areas(self, sito=None):
         conn = Connection()
         conn_str = conn.conn_str()
         metadata = MetaData()
@@ -6406,15 +6429,19 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         area_table = Table('us_table', metadata, autoload_with=engine)
 
         with engine.connect() as connection:
-            # Filter by the current site
-            stmt = select([area_table.c.area]).where(area_table.c.sito == sito).distinct()
+            # Base query per selezionare le aree
+            stmt = select([area_table.c.area]).distinct()
+
+            # Se è specificato un sito, filtra per quel sito
+            if sito:
+                stmt = stmt.where(area_table.c.sito == sito)
+
             result = connection.execute(stmt)
+            areas = result.fetchall()
 
-            # Fetch all unique areas for the current site
+
+            # Fetch all rows from the result and return only the area names
             all_areas = [row['area'] for row in result]
-
-            # Remove duplicates and sort
-            all_areas = sorted(list(set(all_areas)))
 
         return all_areas
 
@@ -6432,25 +6459,10 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
 
 
-        def log_error(msg, level="ERROR"):
-
-            try:
-                # Prova prima la directory del plugin
-                plugin_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-                log_dir = os.path.join(plugin_dir, 'logs')
-                if not os.path.exists(log_dir):
-                    os.makedirs(log_dir)
-                filename = os.path.join(log_dir, 'error_log.txt')
-            except:
-                # Se fallisce, usa la directory temporanea del sistema
-                temp_dir = tempfile.gettempdir()
-                filename = os.path.join(temp_dir, 'pyarchinit_error_log.txt')
-
-            try:
-                with open(filename, 'a', encoding='utf-8') as f:
-                    f.write(f"{datetime.now()} - {level} - {msg}\n")
-            except Exception as e:
-                print(f"Impossibile scrivere nel file di log: {e}")
+        def log_error(message, error_type="ERROR", filename = self.HOME+"/error_log.txt"):
+            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            with open(filename, 'a', encoding='utf-8') as f:
+                f.write(f"[{timestamp}] {error_type}: {message}\n")
 
         try:
             with engine.connect() as connection:
@@ -6542,9 +6554,10 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         conn_str = conn.conn_str()
         metadata = MetaData()
         engine = create_engine(conn_str)
+        sito_set = conn.sito_set()
+        sito_set_str = sito_set['sito_set']
 
-
-        def log_error(message, error_type="ERROR", filename="rapporti_update_log.txt"):
+        def log_error(message, error_type="ERROR", filename=self.HOME+"/rapporti_update_log.txt"):
             timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             with open(filename, 'a', encoding='utf-8') as f:
                 f.write(f"[{timestamp}] {error_type}: {message}\n")
@@ -6556,7 +6569,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             self.show_error(e, "il caricamento della tabella")
             return
 
-        var1 = self.comboBox_sito.currentText()  # Sito
+        var1 = sito_set_str  # Sito
 
         if not var1:
             log_error("Tentativo di aggiornamento senza specificare il sito", "WARNING")
@@ -6708,7 +6721,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         """
 
 
-        def log_error(message, error_type="ERROR", filename="error_log.txt"):
+        def log_error(message, error_type="ERROR", filename=self.HOME+"/error_log_fetch.txt"):
             timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             with open(filename, 'a', encoding='utf-8') as f:
                 f.write(f"[{timestamp}] {error_type}: {message}\n")
@@ -8461,8 +8474,10 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             self.delegateRS.def_values(valuesRS)
             self.delegateRS.def_editable('False')
             self.tableWidget_rapporti.setItemDelegateForColumn(0,self.delegateRS)
-
-        value_site = [self.comboBox_sito.currentText()]
+        conn = Connection()
+        sito_set = conn.sito_set()
+        sito_set_str = sito_set['sito_set']
+        value_site = [sito_set_str]
         self.delegatesito = ComboBoxDelegate()
         self.delegatesito.def_values(value_site)
         self.delegatesito.def_editable('False')
@@ -13857,24 +13872,57 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.label_sort.setText(self.SORTED_ITEMS[self.SORT_STATUS])
 
 
+    # def view_all(self):
+    #
+    #     self.checkBox_query.setChecked(False)
+    #     if self.checkBox_query.isChecked():
+    #         self.model_a.database().close()
+    #     self.empty_fields()
+    #     self.charge_records()
+    #     # Controlla se il database è vuoto
+    #     if not self.DATA_LIST:
+    #         # Mostra un messaggio che indica che il database è vuoto
+    #
+    #         self.charge_list()
+    #         self.BROWSE_STATUS = 'x'
+    #         self.setComboBoxEnable(["self.comboBox_area"], "True")
+    #         self.setComboBoxEnable(["self.lineEdit_us"], "True")
+    #         self.on_pushButton_new_rec_pressed()
+    #         return#QMessageBox.warning(self, "Attenzione", "Il database è vuoto.")
+    #         #return  # Esci dalla funzione se il database è vuoto
+    #
+    #     self.fill_fields()
+    #     self.BROWSE_STATUS = "b"
+    #     self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
+    #     if isinstance(self.REC_CORR, str):
+    #         corr = 0
+    #     else:
+    #         corr = self.REC_CORR
+    #
+    #     self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR + 1)
+    #     self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
+    #     self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
+    #     self.SORT_STATUS = "n"
+    #     self.label_sort.setText(self.SORTED_ITEMS[self.SORT_STATUS])
     def view_all(self):
-
         self.checkBox_query.setChecked(False)
         if self.checkBox_query.isChecked():
             self.model_a.database().close()
+
         self.empty_fields()
-        self.charge_records()
+
+        # Filtra i record per il sito selezionato
+        self.charge_records_filtered_by_site()
+
         # Controlla se il database è vuoto
         if not self.DATA_LIST:
             # Mostra un messaggio che indica che il database è vuoto
-
             self.charge_list()
             self.BROWSE_STATUS = 'x'
             self.setComboBoxEnable(["self.comboBox_area"], "True")
             self.setComboBoxEnable(["self.lineEdit_us"], "True")
             self.on_pushButton_new_rec_pressed()
-            return#QMessageBox.warning(self, "Attenzione", "Il database è vuoto.")
-            #return  # Esci dalla funzione se il database è vuoto
+            return
 
         self.fill_fields()
         self.BROWSE_STATUS = "b"
@@ -13889,6 +13937,42 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
         self.SORT_STATUS = "n"
         self.label_sort.setText(self.SORTED_ITEMS[self.SORT_STATUS])
+
+    def charge_records_filtered_by_site(self):
+        """Carica i record filtrati per il sito selezionato"""
+        try:
+            conn = Connection()
+            sito_set = conn.sito_set()
+            sito_set_str = sito_set['sito_set']
+
+            current_site = sito_set_str
+
+            if not current_site:
+                # Se nessun sito è selezionato, carica tutti i record
+                self.charge_records()
+                return
+
+            # Filtra i record per il sito corrente
+            search_dict = {'sito': f"'{current_site}'"}
+            search_dict = {str(k): str(v) for k, v in search_dict.items()}
+
+            res = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
+
+            if bool(res):
+                self.DATA_LIST = []
+                for i in res:
+                    self.DATA_LIST.append(i)
+                self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
+                return True
+            else:
+                self.DATA_LIST = []
+                return False
+
+        except Exception as e:
+            QMessageBox.warning(self, "Errore", f"Errore nel caricamento dei dati filtrati: {str(e)}")
+            # In caso di errore, carica tutti i record
+            self.charge_records()
+            return False
 
     def on_pushButton_first_rec_pressed(self):
 
