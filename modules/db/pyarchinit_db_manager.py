@@ -34,7 +34,7 @@ from qgis.core import *
 
 import psycopg2
 from geoalchemy2 import *
-from sqlalchemy import and_, or_
+from sqlalchemy import and_, or_, asc, desc
 from sqlalchemy.engine import create_engine
 from sqlalchemy.event import listen
 from sqlalchemy.exc import SQLAlchemyError
@@ -1801,22 +1801,65 @@ class Pyarchinit_db_management(object):
         self.table_class = tc
         self.id_name = idn
 
-        filter_params = self.type_order + "(" + self.table_class + "." + self.order_params[0] + ")"
 
-        for i in self.order_params[1:]:
-            filter_temp = self.type_order + "(" + self.table_class + "." + i + ")"
 
-            filter_params = filter_params + ", " + filter_temp
+        # Mappa delle classi
+        class_map = {
+            'US': US,
+
+            'SITE': SITE,
+            'PERIODIZZAZIONE': PERIODIZZAZIONE,
+            'INVENTARIO_MATERIALI': INVENTARIO_MATERIALI,
+            'STRUTTURA': STRUTTURA,
+            'TOMBA': TOMBA,
+            'SCHEDAIND': SCHEDAIND,
+            'DETSESSO': DETSESSO,
+            'DETETA': DETETA,
+
+            'CAMPIONI': CAMPIONI,
+            'DOCUMENTAZIONE': DOCUMENTAZIONE
+        }
+
+        # Ottieni la classe corretta
+        table_class_obj = class_map.get(self.table_class)
+        if not table_class_obj:
+            raise ValueError(f"Classe {self.table_class} non supportata")
+
+        # Costruisci la lista dei parametri di ordinamento
+        order_by_list = []
+
+        for param in self.order_params:
+            # Ottieni l'attributo della colonna
+            column_attr = getattr(table_class_obj, param)
+
+            # Applica la funzione di ordinamento appropriata
+            if self.type_order.lower() == 'asc':
+                order_by_list.append(asc(column_attr))
+            elif self.type_order.lower() == 'desc':
+                order_by_list.append(desc(column_attr))
+            else:
+                order_by_list.append(asc(column_attr))
 
         Session = sessionmaker(bind=self.engine, autoflush=True, autocommit=True)
         session = Session()
 
-        cmd_str = "session.query({0}).filter({0}.{1}.in_(id_list)).order_by({2}).all()".format(self.table_class,
-                                                                                               self.id_name,
-                                                                                               filter_params)
-        s = eval(cmd_str)
-        session.close()
-        return s
+        try:
+            # Costruisci ed esegui la query
+            id_column = getattr(table_class_obj, self.id_name)
+
+            query = session.query(table_class_obj).filter(
+                id_column.in_(id_list)
+            ).order_by(*order_by_list)
+
+            result = query.all()
+
+            return result
+
+        except Exception as e:
+            print(f"Errore in query_sort: {str(e)}")
+            raise
+        finally:
+            session.close()
 
     def run(self, stmt):
         rs = stmt.execute()
