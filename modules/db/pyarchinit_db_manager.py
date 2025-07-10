@@ -19,33 +19,27 @@
  ***************************************************************************/
 """
 
-import os
-import traceback
-import time
-from qgis.PyQt.QtCore import Qt
-
-
 import math
-
-from qgis.PyQt.QtWidgets import QProgressBar, QApplication
-from sqlalchemy.exc import SQLAlchemyError
-
-from sqlalchemy.event import listen
-import psycopg2
+import os
+import time
+import traceback
 from builtins import object
 from builtins import range
 from builtins import str
 from builtins import zip
-from sqlalchemy import and_, or_, asc, desc
-from geoalchemy2 import *
-from sqlalchemy.engine import create_engine
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.sql.schema import MetaData
+from qgis.PyQt.QtCore import Qt
+from qgis.PyQt.QtWidgets import QMessageBox
+from qgis.PyQt.QtWidgets import QProgressBar, QApplication
 from qgis.core import *
 
-from qgis.PyQt.QtWidgets import QMessageBox
-from modules.utility.pyarchinit_OS_utility import Pyarchinit_OS_Utility
-
+import psycopg2
+from geoalchemy2 import *
+from sqlalchemy import and_, or_
+from sqlalchemy.engine import create_engine
+from sqlalchemy.event import listen
+from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.sql.schema import MetaData
 
 from modules.db.pyarchinit_db_mapper import US, UT, SITE, PERIODIZZAZIONE, POTTERY, \
     STRUTTURA, SCHEDAIND, INVENTARIO_MATERIALI, DETSESSO, DOCUMENTAZIONE, DETETA, MEDIA, \
@@ -55,8 +49,8 @@ from modules.db.pyarchinit_db_mapper import US, UT, SITE, PERIODIZZAZIONE, POTTE
     PYRIPARTIZIONI_SPAZIALI, PYSEZIONI
 from modules.db.pyarchinit_db_update import DB_update
 from modules.db.pyarchinit_utility import Utility
+from modules.utility.pyarchinit_OS_utility import Pyarchinit_OS_Utility
 
-        
 
 class Pyarchinit_db_management(object):
     metadata = ''
