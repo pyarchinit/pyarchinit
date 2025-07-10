@@ -22,14 +22,18 @@
 from __future__ import absolute_import
 
 import os
-from datetime import date
-import pandas as pd
 import sys
 from builtins import range
 from builtins import str
+from datetime import date
 from qgis.PyQt.QtWidgets import QDialog, QMessageBox, QInputDialog, QComboBox
 from qgis.PyQt.uic import loadUiType
 from qgis.core import QgsSettings
+
+import pandas as pd
+
+from ..gui.pyarchinitConfigDialog import pyArchInitDialog_Config
+from ..gui.sortpanelmain import SortPanelMain
 from ..modules.db.pyarchinit_conn_strings import Connection
 from ..modules.db.pyarchinit_db_manager import Pyarchinit_db_management
 from ..modules.db.pyarchinit_utility import Utility
@@ -37,9 +41,7 @@ from ..modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis
 from ..modules.utility.askgpt import MyApp
 from ..modules.utility.pyarchinit_error_check import Error_check
 from ..modules.utility.pyarchinit_exp_Periodizzazionesheet_pdf import generate_Periodizzazione_pdf
-from ..modules.utility.create_style import ThesaurusStyler, USViewStyler
-from ..gui.sortpanelmain import SortPanelMain
-from ..gui.pyarchinitConfigDialog import pyArchInitDialog_Config
+
 MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), os.pardir, 'gui', 'ui', 'Periodizzazione.ui'))
 
 
@@ -808,8 +810,35 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
         test = 0
         EC = Error_check()
 
-        data_estesa = self.comboBox_per_estesa.currentText()
+        # Controlli solo per i campi obbligatori
+        sito = self.comboBox_sito.currentText()
+        periodo = self.comboBox_periodo.currentText()
+        fase = self.comboBox_fase.currentText()
+
         if self.L=='it':
+            # Controlli campi obbligatori
+            if sito == "":
+                QMessageBox.warning(self, "ATTENZIONE", "Campo Sito obbligatorio!", QMessageBox.Ok)
+                test = 1
+
+            if periodo == "":
+                QMessageBox.warning(self, "ATTENZIONE", "Campo Periodo obbligatorio!", QMessageBox.Ok)
+                test = 1
+            elif EC.data_is_int(periodo) == 0:
+                QMessageBox.warning(self, "ATTENZIONE", "Campo Periodo. \n Il valore deve essere di tipo numerico",
+                                    QMessageBox.Ok)
+                test = 1
+
+            if fase == "":
+                QMessageBox.warning(self, "ATTENZIONE", "Campo Fase obbligatorio!", QMessageBox.Ok)
+                test = 1
+            elif EC.data_is_int(fase) == 0:
+                QMessageBox.warning(self, "ATTENZIONE", "Campo Fase. \n Il valore deve essere di tipo numerico",
+                                    QMessageBox.Ok)
+                test = 1
+
+            # Controlli campi opzionali (solo se compilati)
+            data_estesa = self.comboBox_per_estesa.currentText()
             if data_estesa != "":
                 if EC.data_lenght(data_estesa, 299) == 0:
                     QMessageBox.warning(self, "ATTENZIONE",
@@ -817,17 +846,7 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
                                         QMessageBox.Ok)
                     test = 1
 
-            periodo = self.comboBox_periodo.currentText()
             cron_iniz = self.lineEdit_cron_iniz.text()
-            cron_fin = self.lineEdit_cron_fin.text()
-            cod_per = self.lineEdit_codice_periodo.text()
-
-            if periodo != "":
-                if EC.data_is_int(periodo) == 0:
-                    QMessageBox.warning(self, "ATTENZIONE", "Campo Periodo. \n Il valore deve essere di tipo numerico",
-                                        QMessageBox.Ok)
-                    test = 1
-
             if cron_iniz != "":
                 if EC.data_is_int(cron_iniz) == 0:
                     QMessageBox.warning(self, "ATTENZIONE",
@@ -835,6 +854,7 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
                                         QMessageBox.Ok)
                     test = 1
 
+            cron_fin = self.lineEdit_cron_fin.text()
             if cron_fin != "":
                 if EC.data_is_int(cron_fin) == 0:
                     QMessageBox.warning(self, "ATTENZIONE",
@@ -842,6 +862,7 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
                                         QMessageBox.Ok)
                     test = 1
 
+            cod_per = self.lineEdit_codice_periodo.text()
             if cod_per != "":
                 if EC.data_is_int(cod_per) == 0:
                     QMessageBox.warning(self, "ATTENZIONE",
@@ -849,111 +870,145 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
                     test = 1
 
             return test
+
         elif self.L=='de':
+            # Controlli campi obbligatori
+            if sito == "":
+                QMessageBox.warning(self, "ACHTUNG", "Feld Ausgrabungsstätte erforderlich!", QMessageBox.Ok)
+                test = 1
+
+            if periodo == "":
+                QMessageBox.warning(self, "ACHTUNG", "Feld Period erforderlich!", QMessageBox.Ok)
+                test = 1
+            elif EC.data_is_int(periodo) == 0:
+                QMessageBox.warning(self, "ACHTUNG", "Feld period \n Der Wert muss numerisch eingegeben werden",
+                                    QMessageBox.Ok)
+                test = 1
+
+            if fase == "":
+                QMessageBox.warning(self, "ACHTUNG", "Feld Phase erforderlich!", QMessageBox.Ok)
+                test = 1
+            elif EC.data_is_int(fase) == 0:
+                QMessageBox.warning(self, "ACHTUNG", "Feld Phase \n Der Wert muss numerisch eingegeben werden",
+                                    QMessageBox.Ok)
+                test = 1
+
+            # Controlli campi opzionali (solo se compilati)
+            data_estesa = self.comboBox_per_estesa.currentText()
             if data_estesa != "":
                 if EC.data_lenght(data_estesa, 299) == 0:
-                    QMessageBox.warning(self, "ATTENZIONE",
+                    QMessageBox.warning(self, "ACHTUNG",
                                         "Erweitertes Dating-Feld. \n darf 300 alphanumerische Zeichen nicht überschreiten",
                                         QMessageBox.Ok)
                     test = 1
 
-            periodo = self.comboBox_periodo.currentText()
             cron_iniz = self.lineEdit_cron_iniz.text()
-            cron_fin = self.lineEdit_cron_fin.text()
-            cod_per = self.lineEdit_codice_periodo.text()
-
-            if periodo != "":
-                if EC.data_is_int(periodo) == 0:
-                    QMessageBox.warning(self, "ACHTUNG", "Feld period \n Der Wert muss numerisch eingegeben werden",
-                                        QMessageBox.Ok)
-                    test = 1
-
             if cron_iniz != "":
                 if EC.data_is_int(cron_iniz) == 0:
                     QMessageBox.warning(self, "ACHTUNG", "Feld Anfangschronologie \n Der Wert muss numerisch eingegeben werden",
                                         QMessageBox.Ok)
                     test = 1
 
+            cron_fin = self.lineEdit_cron_fin.text()
             if cron_fin != "":
                 if EC.data_is_int(cron_fin) == 0:
                     QMessageBox.warning(self, "ACHTUNG", "Feld Letzte Chronologie \n Der Wert muss numerisch eingegeben werden",
                                         QMessageBox.Ok)
                     test = 1
 
+            cod_per = self.lineEdit_codice_periodo.text()
             if cod_per != "":
                 if EC.data_is_int(cod_per) == 0:
                     QMessageBox.warning(self, "ACHTUNG", "Feld periodencode \n Der Wert muss numerisch eingegeben werden", QMessageBox.Ok)
                     test = 1
 
             return test
+
         else:
+            # Controlli campi obbligatori
+            if sito == "":
+                QMessageBox.warning(self, "WARNING", "Site field required!", QMessageBox.Ok)
+                test = 1
+
+            if periodo == "":
+                QMessageBox.warning(self, "WARNING", "Period field required!", QMessageBox.Ok)
+                test = 1
+            elif EC.data_is_int(periodo) == 0:
+                QMessageBox.warning(self, "WARNING", "Period Field. \n The value must be numerical",
+                                    QMessageBox.Ok)
+                test = 1
+
+            if fase == "":
+                QMessageBox.warning(self, "WARNING", "Phase field required!", QMessageBox.Ok)
+                test = 1
+            elif EC.data_is_int(fase) == 0:
+                QMessageBox.warning(self, "WARNING", "Phase Field. \n The value must be numerical",
+                                    QMessageBox.Ok)
+                test = 1
+
+            # Controlli campi opzionali (solo se compilati)
+            data_estesa = self.comboBox_per_estesa.currentText()
             if data_estesa != "":
                 if EC.data_lenght(data_estesa, 299) == 0:
-                    QMessageBox.warning(self, "Extended Dating Field. \n must not exceed 300 alphanumeric characters",
+                    QMessageBox.warning(self, "WARNING", "Extended Dating Field. \n must not exceed 300 alphanumeric characters",
                                         QMessageBox.Ok)
                     test = 1
 
-            periodo = self.comboBox_periodo.currentText()
             cron_iniz = self.lineEdit_cron_iniz.text()
-            cron_fin = self.lineEdit_cron_fin.text()
-            cod_per = self.lineEdit_codice_periodo.text()
-
-            if periodo != "":
-                if EC.data_is_int(periodo) == 0:
-                    QMessageBox.warning(self, "WARNING", "Period Field. \n The value must be numerical",
-                                        QMessageBox.Ok)
-                    test = 1
-
             if cron_iniz != "":
                 if EC.data_is_int(cron_iniz) == 0:
                     QMessageBox.warning(self, "WARNING", "Start chron. Field. \n The value must be numerical",
                                         QMessageBox.Ok)
                     test = 1
 
+            cron_fin = self.lineEdit_cron_fin.text()
             if cron_fin != "":
                 if EC.data_is_int(cron_fin) == 0:
                     QMessageBox.warning(self, "WARNING", "Final chron. Field. \n The value must be numerical",
                                         QMessageBox.Ok)
                     test = 1
 
+            cod_per = self.lineEdit_codice_periodo.text()
             if cod_per != "":
                 if EC.data_is_int(cod_per) == 0:
                     QMessageBox.warning(self, "WARNING", "period code Field. \n The value must be numerical", QMessageBox.Ok)
                     test = 1
 
-            return test 
+            return test
     def insert_new_rec(self):
-        cont_per = 0
         try:
+            # Campi opzionali - gestione valori vuoti
             if not self.lineEdit_cron_iniz.text():
-                cron_iniz = ''
+                cron_iniz = None  # Usa None invece di stringa vuota per NULL nel database
             else:
                 cron_iniz = int(self.lineEdit_cron_iniz.text())
 
             if not self.lineEdit_cron_fin.text():
-                cron_fin = ''
+                cron_fin = None  # Usa None invece di stringa vuota per NULL nel database
             else:
                 cron_fin = int(self.lineEdit_cron_fin.text())
 
             if not self.lineEdit_codice_periodo.text():
-                cont_per = ''
+                cont_per = None  # Usa None invece di stringa vuota per NULL nel database
             else:
                 cont_per = int(self.lineEdit_codice_periodo.text())
-            # if not self.comboBox_area.currentText():
-                # area = ''
-            # else:
-                # area = int(self.comboBox_area.currentText())
+
+            # Gestione datazione estesa opzionale
+            if not self.comboBox_per_estesa.currentText():
+                datazione_estesa = ""  # Stringa vuota per campo testo
+            else:
+                datazione_estesa = str(self.comboBox_per_estesa.currentText())
+
             data = self.DB_MANAGER.insert_periodizzazione_values(
                 self.DB_MANAGER.max_num_id(self.MAPPER_TABLE_CLASS, self.ID_TABLE) + 1,  # 0 - max num id
-                str(self.comboBox_sito.currentText()),  # 1 - Sito
-                int(self.comboBox_periodo.currentText()),  # 2 - Periodo
-                int(self.comboBox_fase.currentText()),  # 3 - Fase
-                int(cron_iniz),  # 4 - Cron iniziale
-                int(cron_fin),  # 5 - Cron finale
-                str(self.textEdit_descrizione_per.toPlainText()),  # 6 - Descrizione
-                str(self.comboBox_per_estesa.currentText()),  # 7 - Periodizzazione estesa
-                int(cont_per))
-                #int(area))    # 8 - Cont_per
+                str(self.comboBox_sito.currentText()),  # 1 - Sito (obbligatorio)
+                int(self.comboBox_periodo.currentText()),  # 2 - Periodo (obbligatorio)
+                int(self.comboBox_fase.currentText()),  # 3 - Fase (obbligatorio)
+                cron_iniz,  # 4 - Cron iniziale (opzionale)
+                cron_fin,  # 5 - Cron finale (opzionale)
+                str(self.textEdit_descrizione_per.toPlainText()),  # 6 - Descrizione (obbligatorio)
+                datazione_estesa,  # 7 - Periodizzazione estesa (opzionale)
+                cont_per)  # 8 - Cont_per (opzionale)
 
             try:
                 self.DB_MANAGER.insert_data_session(data)
@@ -961,16 +1016,15 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
             except Exception as e:
                 e_str = str(e)
                 if e_str.__contains__("IntegrityError"):
-                    
                     if self.L=='it':
                         msg = self.ID_TABLE + " gia' presente nel database"
                         QMessageBox.warning(self, "Error", "Error" + str(msg), QMessageBox.Ok)
                     elif self.L=='de':
                         msg = self.ID_TABLE + " bereits in der Datenbank"
-                        QMessageBox.warning(self, "Error", "Error" + str(msg), QMessageBox.Ok)  
+                        QMessageBox.warning(self, "Error", "Error" + str(msg), QMessageBox.Ok)
                     else:
                         msg = self.ID_TABLE + " exist in db"
-                        QMessageBox.warning(self, "Error", "Error" + str(msg), QMessageBox.Ok)  
+                        QMessageBox.warning(self, "Error", "Error" + str(msg), QMessageBox.Ok)
                 else:
                     msg = e
                     QMessageBox.warning(self, "Error", "Error 1 \n" + str(msg), QMessageBox.Ok)
