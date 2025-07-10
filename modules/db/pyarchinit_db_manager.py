@@ -1815,7 +1815,7 @@ class Pyarchinit_db_management(object):
             'SCHEDAIND': SCHEDAIND,
             'DETSESSO': DETSESSO,
             'DETETA': DETETA,
-
+            'POTTERY': POTTERY,
             'CAMPIONI': CAMPIONI,
             'DOCUMENTAZIONE': DOCUMENTAZIONE
         }
