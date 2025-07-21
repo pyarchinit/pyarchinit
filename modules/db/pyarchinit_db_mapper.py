@@ -20,48 +20,47 @@
 """
 from sqlalchemy.orm import mapper
 
-
-#from modules.db.entities.ARCHEOZOOLOGY import ARCHEOZOOLOGY
+# from modules.db.entities.ARCHEOZOOLOGY import ARCHEOZOOLOGY
 from modules.db.entities.CAMPIONI import CAMPIONI
 from modules.db.entities.DETETA import DETETA
 from modules.db.entities.DETSESSO import DETSESSO
 from modules.db.entities.DOCUMENTAZIONE import DOCUMENTAZIONE
 from modules.db.entities.INVENTARIO_LAPIDEI import INVENTARIO_LAPIDEI
 from modules.db.entities.INVENTARIO_MATERIALI import INVENTARIO_MATERIALI
-#from modules.db.entities.INVENTARIO_MATERIALI_TOIMP import INVENTARIO_MATERIALI_TOIMP
+# from modules.db.entities.INVENTARIO_MATERIALI_TOIMP import INVENTARIO_MATERIALI_TOIMP
 from modules.db.entities.MEDIA import MEDIA
 from modules.db.entities.MEDIATOENTITY import MEDIATOENTITY
-from modules.db.entities.MEDIA_THUMB import MEDIA_THUMB
 from modules.db.entities.MEDIAVIEW import MEDIAVIEW
+from modules.db.entities.MEDIA_THUMB import MEDIA_THUMB
 from modules.db.entities.PDF_ADMINISTRATOR import PDF_ADMINISTRATOR
 from modules.db.entities.PERIODIZZAZIONE import PERIODIZZAZIONE
+from modules.db.entities.POTTERY import POTTERY
 from modules.db.entities.PYARCHINIT_THESAURUS_SIGLE import PYARCHINIT_THESAURUS_SIGLE
+from modules.db.entities.PYCAMPIONI import PYCAMPIONI
+from modules.db.entities.PYDOCUMENTAZIONE import PYDOCUMENTAZIONE
+from modules.db.entities.PYINDIVIDUI import PYINDIVIDUI
+from modules.db.entities.PYLINEERIFERIMENTO import PYLINEERIFERIMENTO
+from modules.db.entities.PYQUOTE import PYQUOTE
+from modules.db.entities.PYQUOTEUSM import PYQUOTEUSM
+from modules.db.entities.PYREPERTI import PYREPERTI
+from modules.db.entities.PYRIPARTIZIONI_SPAZIALI import PYRIPARTIZIONI_SPAZIALI
+from modules.db.entities.PYSEZIONI import PYSEZIONI
+from modules.db.entities.PYSITO_POINT import PYSITO_POINT
+from modules.db.entities.PYSITO_POLYGON import PYSITO_POLYGON
+from modules.db.entities.PYSTRUTTURE import PYSTRUTTURE
+from modules.db.entities.PYTOMBA import PYTOMBA
+from modules.db.entities.PYUS import PYUS
+from modules.db.entities.PYUSM import PYUSM
+from modules.db.entities.PYUS_NEGATIVE import PYUS_NEGATIVE
 from modules.db.entities.SCHEDAIND import SCHEDAIND
 from modules.db.entities.SITE import SITE
 from modules.db.entities.STRUTTURA import STRUTTURA
+from modules.db.entities.TMA import TMA
 from modules.db.entities.TOMBA import TOMBA
 from modules.db.entities.US import US
 from modules.db.entities.US_TOIMP import US_TOIMP
 from modules.db.entities.UT import UT
-from modules.db.entities.PYUS import PYUS
-from modules.db.entities.PYUSM import PYUSM
-from modules.db.entities.PYSITO_POINT import PYSITO_POINT
-from modules.db.entities.PYSITO_POLYGON import PYSITO_POLYGON
-from modules.db.entities.PYQUOTE import PYQUOTE
-from modules.db.entities.PYQUOTEUSM import PYQUOTEUSM
-from modules.db.entities.PYUS_NEGATIVE import PYUS_NEGATIVE
-from modules.db.entities.PYSTRUTTURE import PYSTRUTTURE
-from modules.db.entities.PYREPERTI import PYREPERTI
-from modules.db.entities.PYINDIVIDUI import PYINDIVIDUI
-from modules.db.entities.PYCAMPIONI import PYCAMPIONI
-from modules.db.entities.PYTOMBA import PYTOMBA
-from modules.db.entities.PYDOCUMENTAZIONE import PYDOCUMENTAZIONE
-from modules.db.entities.PYLINEERIFERIMENTO import PYLINEERIFERIMENTO
-from modules.db.entities.PYRIPARTIZIONI_SPAZIALI import PYRIPARTIZIONI_SPAZIALI
-from modules.db.entities.PYSEZIONI import PYSEZIONI
-from modules.db.entities.POTTERY import POTTERY
-
-#from modules.db.structures.Archeozoology_table import Fauna
+# from modules.db.structures.Archeozoology_table import Fauna
 from modules.db.structures.Campioni_table import Campioni_table
 from modules.db.structures.DETETA_table import DETETA_table
 from modules.db.structures.DETSESSO_table import DETSESSO_table
@@ -74,31 +73,32 @@ from modules.db.structures.Media_to_Entity_table import Media_to_Entity_table
 from modules.db.structures.Media_to_Entity_table_view import Media_to_Entity_table_view
 from modules.db.structures.PDF_administrator_table import PDF_administrator_table
 from modules.db.structures.Periodizzazione_table import Periodizzazione_table
+from modules.db.structures.Pottery_table import Pottery_table
 from modules.db.structures.Pyarchinit_thesaurus_sigle import Pyarchinit_thesaurus_sigle
 from modules.db.structures.SCHEDAIND_table import SCHEDAIND_table
 from modules.db.structures.Site_table import Site_table
 from modules.db.structures.Struttura_table import Struttura_table
+from modules.db.structures.Tma_table import Tma_table
 from modules.db.structures.Tomba_table import Tomba_table
 from modules.db.structures.US_table import US_table
 from modules.db.structures.US_table_toimp import US_table_toimp
 from modules.db.structures.UT_table import UT_table
-from modules.db.structures.pyunitastratigrafiche import pyunitastratigrafiche
-from modules.db.structures.pyunitastratigrafiche_usm import pyunitastratigrafiche_usm
-from modules.db.structures.pysito_point import pysito_point
-from modules.db.structures.pysito_polygon import pysito_polygon
-from modules.db.structures.pyquote import pyquote
-from modules.db.structures.pyquote_usm import pyquote_usm  
-from modules.db.structures.pyus_negative import pyus_negative
-from modules.db.structures.pystrutture import pystrutture
-from modules.db.structures.pyreperti import pyreperti
-from modules.db.structures.pyindividui import pyindividui
 from modules.db.structures.pycampioni import pycampioni
-from modules.db.structures.pytomba import pytomba
 from modules.db.structures.pydocumentazione import pydocumentazione
+from modules.db.structures.pyindividui import pyindividui
 from modules.db.structures.pylineeriferimento import pylineeriferimento
+from modules.db.structures.pyquote import pyquote
+from modules.db.structures.pyquote_usm import pyquote_usm
+from modules.db.structures.pyreperti import pyreperti
 from modules.db.structures.pyripartizioni_spaziali import pyripartizioni_spaziali
 from modules.db.structures.pysezioni import pysezioni
-from modules.db.structures.Pottery_table import Pottery_table
+from modules.db.structures.pysito_point import pysito_point
+from modules.db.structures.pysito_polygon import pysito_polygon
+from modules.db.structures.pystrutture import pystrutture
+from modules.db.structures.pytomba import pytomba
+from modules.db.structures.pyunitastratigrafiche import pyunitastratigrafiche
+from modules.db.structures.pyunitastratigrafiche_usm import pyunitastratigrafiche_usm
+from modules.db.structures.pyus_negative import pyus_negative
 
 try:
     # mapper
@@ -217,6 +217,9 @@ try:
 
     # mapper
     mapper(POTTERY, Pottery_table.pottery_table)
+    
+    # mapper
+    mapper(TMA, Tma_table.tma_table)
     
 
 except Exception as e:

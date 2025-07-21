@@ -64,7 +64,7 @@ class TOMBA(object):
         
     def __repr__(self):
         return "<TOMBA('%d', '%s', '%d', '%d', '%s','%d', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%d','%d','%d','%d','%s')>" % (
-            id_tomba,
+            self.id_tomba,
             self.sito,
             self.area,
             self.nr_scheda_taf,

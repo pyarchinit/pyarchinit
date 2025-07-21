@@ -41,7 +41,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql.schema import MetaData
 
-from modules.db.pyarchinit_db_mapper import US, UT, SITE, PERIODIZZAZIONE, POTTERY, \
+from modules.db.pyarchinit_db_mapper import US, UT, SITE, PERIODIZZAZIONE, POTTERY, TMA, \
     STRUTTURA, SCHEDAIND, INVENTARIO_MATERIALI, DETSESSO, DOCUMENTAZIONE, DETETA, MEDIA, \
     MEDIA_THUMB, MEDIATOENTITY, MEDIAVIEW, TOMBA, CAMPIONI, PYARCHINIT_THESAURUS_SIGLE, \
     INVENTARIO_LAPIDEI, PDF_ADMINISTRATOR, PYUS, PYUSM, PYSITO_POINT, PYSITO_POLYGON, PYQUOTE, PYQUOTEUSM, \
@@ -949,6 +949,47 @@ class Pyarchinit_db_management(object):
                             arg[9])
 
         return campioni
+        
+    def insert_tma_values(self, *arg):
+        """Istanzia la classe TMA da pyarchinit_db_mapper"""
+        tma = TMA(arg[0],  # id
+                  arg[1],  # sito
+                  arg[2],  # area
+                  arg[3],  # ogtm
+                  arg[4],  # ldct
+                  arg[5],  # ldcn
+                  arg[6],  # vecchia_collocazione
+                  arg[7],  # cassetta
+                  arg[8],  # localita
+                  arg[9],  # scan
+                  arg[10], # saggio
+                  arg[11], # vano_locus
+                  arg[12], # dscd
+                  arg[13], # dscu
+                  arg[14], # rcgd
+                  arg[15], # rcgz
+                  arg[16], # aint
+                  arg[17], # aind
+                  arg[18], # dtzg
+                  arg[19], # dtzs
+                  arg[20], # cronologie
+                  arg[21], # n_reperti
+                  arg[22], # peso
+                  arg[23], # deso
+                  arg[24], # madi
+                  arg[25], # macc
+                  arg[26], # macl
+                  arg[27], # macp
+                  arg[28], # macd
+                  arg[29], # cronologia_mac
+                  arg[30], # macq
+                  arg[31], # ftap
+                  arg[32], # ftan
+                  arg[33], # drat
+                  arg[34], # dran
+                  arg[35]) # draa
+
+        return tma
 
     ##  def insert_relationship_check_values(self, *arg):
     ##      """Istanzia la classe RELATIONSHIP_CHECK da pyarchinit_db_mapper"""
@@ -1817,6 +1858,7 @@ class Pyarchinit_db_management(object):
             'DETETA': DETETA,
             'POTTERY': POTTERY,
             'CAMPIONI': CAMPIONI,
+            'TMA': TMA,
             'DOCUMENTAZIONE': DOCUMENTAZIONE
         }
 
