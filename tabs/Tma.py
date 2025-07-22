@@ -37,8 +37,9 @@ from ..modules.db.pyarchinit_utility import Utility
 from ..modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis
 from ..modules.utility.pyarchinit_error_check import Error_check
 from ..modules.utility.pyarchinit_media_utility import *
+from ..modules.db.entities.TMA import TMA
 
-MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), os.pardir, 'gui', 'ui', 'TMA.ui'))
+MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), os.pardir, 'gui', 'ui', 'Tma.ui'))
 
 
 class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
@@ -77,6 +78,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
 
     CONVERSION_DICT = {
         ID_TABLE: ID_TABLE,
+
         "Sito": "sito",
         "Area": "area",
         "US": "dscu",
@@ -215,6 +217,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         self.pushButton_view_all_2.clicked.connect(self.on_pushButton_view_all_pressed)
         self.pushButton_open_dir.clicked.connect(self.on_pushButton_open_dir_pressed)
         self.toolButtonGis.clicked.connect(self.on_toolButtonGis_toggled)
+        self.pushButton_import.clicked.connect(self.on_pushButton_import_pressed)
 
     def enable_button(self, n):
         self.pushButton_new_rec.setEnabled(n)
@@ -324,18 +327,18 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         self.comboBox_area.addItems(area_vl)
 
     def charge_records(self):
-        """Load all records from database."""
         self.DATA_LIST = []
-
-        id_list = []
-        for i in self.DB_MANAGER.query(self.MAPPER_TABLE_CLASS):
-            id_list.append(eval("i." + self.ID_TABLE))
-
-        temp_data_list = self.DB_MANAGER.query_sort(id_list, [self.ID_TABLE], 'asc', self.MAPPER_TABLE_CLASS,
-                                                    self.ID_TABLE)
-
-        for i in temp_data_list:
-            self.DATA_LIST.append(i)
+        if self.DB_SERVER == 'sqlite':
+            for i in self.DB_MANAGER.query(self.MAPPER_TABLE_CLASS):
+                self.DATA_LIST.append(i)
+        else:
+            id_list = []
+            for i in self.DB_MANAGER.query(self.MAPPER_TABLE_CLASS):
+                id_list.append(eval("i." + self.ID_TABLE))
+            temp_data_list = self.DB_MANAGER.query_sort(id_list, [self.ID_TABLE], 'asc', self.MAPPER_TABLE_CLASS,
+                                                        self.ID_TABLE)
+            for i in temp_data_list:
+                self.DATA_LIST.append(i)
 
     def datestrfdate(self):
         """Convert date fields to string format."""
@@ -383,7 +386,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                 search_dict = {'sito': "'" + str(sito_set_str) + "'"}
                 u = Utility()
                 search_dict = u.remove_empty_items_fr_dict(search_dict)
-                res = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
+                res = self.DB_MANAGER.query_bool(search_dict, 'TMA')
                 self.DATA_LIST = []
                 for i in res:
                     self.DATA_LIST.append(i)
@@ -883,6 +886,26 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         if msg == 0:
             pass
 
+    def on_pushButton_import_pressed(self):
+        """Open import dialog."""
+        from ..gui.tma_import_dialog import TMAImportDialog
+        
+        dlg = TMAImportDialog(self.DB_MANAGER, self)
+        dlg.exec_()
+        
+        # Refresh data after import
+        self.charge_records()
+        self.charge_list()
+        
+        if self.DATA_LIST:
+            self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), len(self.DATA_LIST) - 1
+            self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[self.REC_CORR]
+            self.fill_fields(self.REC_CORR)
+            self.set_rec_counter(self.REC_TOT, self.REC_CORR + 1)
+            self.BROWSE_STATUS = 'b'
+            self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
+            self.label_sort.setText(self.SORTED_ITEMS["n"])
+        
     def update_record(self):
         """Update the current record if modified."""
         if self.check_record_state() == 1:
@@ -1079,7 +1102,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             if not bool(search_dict):
                 QMessageBox.warning(self, "ATTENZIONE", "Non è stata impostata alcuna ricerca!", QMessageBox.Ok)
             else:
-                res = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
+                res = self.DB_MANAGER.query_bool(search_dict, 'TMA')
 
                 if not bool(res):
                     QMessageBox.warning(self, "ATTENZIONE", "Non è stato trovato alcun record!", QMessageBox.Ok)
@@ -1297,6 +1320,26 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             QMessageBox.warning(self, "Error", "Problema nell'inserimento: " + str(e), QMessageBox.Ok)
             return 0
 
+    def on_pushButton_import_pressed(self):
+        """Open import dialog."""
+        from ..gui.tma_import_dialog import TMAImportDialog
+        
+        dlg = TMAImportDialog(self.DB_MANAGER, self)
+        dlg.exec_()
+        
+        # Refresh data after import
+        self.charge_records()
+        self.charge_list()
+        
+        if self.DATA_LIST:
+            self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), len(self.DATA_LIST) - 1
+            self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[self.REC_CORR]
+            self.fill_fields(self.REC_CORR)
+            self.set_rec_counter(self.REC_TOT, self.REC_CORR + 1)
+            self.BROWSE_STATUS = 'b'
+            self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
+            self.label_sort.setText(self.SORTED_ITEMS["n"])
+        
     def update_record(self):
         """Update current record in database."""
         try:
