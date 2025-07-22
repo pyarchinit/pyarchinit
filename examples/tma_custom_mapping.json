@@ -1,0 +1,97 @@
+{
+  "comment": "Esempio di mapping personalizzato per importazione TMA",
+  "description": "Questo file mappa i nomi dei campi del vostro formato ai campi del database TMA",
+  
+  "field_mappings": {
+    "numero_inventario": "madi",
+    "numero_inventario_museo": "madi",
+    "inv_nr": "madi",
+    "inventory_number": "madi",
+    
+    "tipo_materiale": "ogtm",
+    "material_type": "ogtm",
+    "classe_materiale": "ogtm",
+    
+    "unita_stratigrafica": "dscu",
+    "stratigraphic_unit": "dscu",
+    "SU": "dscu",
+    
+    "numero_cassetta": "cassetta",
+    "box_number": "cassetta",
+    "contenitore": "cassetta",
+    
+    "peso_grammi": "peso",
+    "peso_gr": "peso",
+    "weight_g": "peso",
+    
+    "numero_frammenti": "n_reperti",
+    "n_frammenti": "n_reperti",
+    "quantita": "n_reperti",
+    "fragments": "n_reperti",
+    
+    "periodo": "dtzg",
+    "datazione": "dtzg",
+    "period": "dtzg",
+    "dating": "dtzg",
+    
+    "classe_ceramica": "macc",
+    "ceramic_class": "macc",
+    "tipologia": "macc",
+    
+    "forma": "macd",
+    "shape": "macd",
+    "tipo": "macd",
+    
+    "descrizione": "deso",
+    "description": "deso",
+    "note": "deso",
+    "osservazioni": "deso",
+    
+    "localizzazione": "ldcn",
+    "storage_location": "ldcn",
+    "posizione": "ldcn",
+    
+    "comune": "localita",
+    "municipality": "localita",
+    "location": "localita"
+  },
+  
+  "value_mappings": {
+    "ogtm": {
+      "pottery": "CERAMICA",
+      "ceramic": "CERAMICA",
+      "ceramics": "CERAMICA",
+      "lithic": "LITICA",
+      "stone": "LITICA",
+      "lithic_industry": "INDUSTRIA LITICA",
+      "metal": "METALLO",
+      "bronze": "METALLO",
+      "iron": "METALLO"
+    },
+    
+    "ldct": {
+      "storage": "Magazzino",
+      "warehouse": "Magazzino",
+      "deposit": "Magazzino",
+      "outdoor": "Materiali all'aperto",
+      "open_air": "Materiali all'aperto",
+      "museum": "Museo",
+      "exhibition": "Museo"
+    }
+  },
+  
+  "default_values": {
+    "comment": "Valori di default da usare se il campo è vuoto nel file sorgente",
+    "ldct": "Magazzino",
+    "dtzg": "Non determinata",
+    "macc": "Non classificata"
+  },
+  
+  "skip_fields": [
+    "comment": "Lista di campi da ignorare durante l'importazione",
+    "id",
+    "created_date",
+    "modified_date",
+    "internal_notes"
+  ]
+}

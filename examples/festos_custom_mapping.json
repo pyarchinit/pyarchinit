@@ -1,0 +1,59 @@
+{
+  "_comment": "Mapping personalizzato per inventari Festos",
+  
+  "mapping_cassette_format": {
+    "Cassette": "num_cassetta",
+    "Descrizione": "dsogt",
+    "Anno": "anni_scavo",
+    "Cassetta": "num_cassetta",
+    "Descrizione contenuto": "dsogt",
+    "Campagna": "anni_scavo",
+    "Annata": "anni_scavo",
+    "Note": "riferimenti"
+  },
+  
+  "mapping_us_format": {
+    "Magazzino": "magazzino",
+    "Mag.": "magazzino",
+    "Cassetta": "num_cassetta", 
+    "Scomparto": "riferimenti",
+    "DATA": "data_schedatura",
+    "Date": "data_schedatura",
+    "US": "dscu",
+    "Unità Stratigrafica": "dscu",
+    "U.S.": "dscu",
+    "Note": "riferimenti",
+    "Osservazioni": "riferimenti"
+  },
+  
+  "valori_default": {
+    "ldct": "Magazzino",
+    "ldcn": "Festos - Depositi",
+    "ogtm": "REPERTO ARCHEOLOGICO",
+    "localita": "Festos",
+    "dslgt": "Festos",
+    "macc": "Non determinata"
+  },
+  
+  "settori_riconosciuti": [
+    "HTR",
+    "F",
+    "SAGGIO"
+  ],
+  
+  "parsing_rules": {
+    "range_cassette": {
+      "pattern": "(\\d+)-(\\d+)",
+      "description": "Espande range numerici (es. 1-10)"
+    },
+    "anno_multiplo": {
+      "pattern": "(\\d{4})\\s+e\\s+(\\d{4})",
+      "replacement": "$1-$2",
+      "description": "Converte 'anno e anno' in 'anno-anno'"
+    },
+    "anno_abbreviato": {
+      "pattern": "(\\d{4})-(\\d{2})$",
+      "description": "Espande anni abbreviati (es. 1965-66 → 1965-1966)"
+    }
+  }
+}
