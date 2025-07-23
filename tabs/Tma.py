@@ -26,6 +26,7 @@ import platform
 import subprocess
 from builtins import range
 from qgis.PyQt.QtWidgets import *
+from qgis.PyQt.QtCore import Qt
 from qgis.PyQt.uic import loadUiType
 from qgis.core import QgsSettings, Qgis
 
@@ -325,6 +326,121 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         self.comboBox_area.clear()
         area_vl.sort()
         self.comboBox_area.addItems(area_vl)
+        
+        # Load thesaurus values for TMA fields
+        # 10.1 - Denominazione collocazione
+        search_dict_ldcn = {
+            'nome_tabella': "'tma_materiali_archeologici'",
+            'tipologia_sigla': "'10.1'"
+        }
+        ldcn_res = self.DB_MANAGER.query_bool(search_dict_ldcn, 'PYARCHINIT_THESAURUS_SIGLE')
+        self.comboBox_ldcn.clear()
+        ldcn_dict = {}
+        for i in range(len(ldcn_res)):
+            sigla_estesa = str(ldcn_res[i].sigla_estesa)
+            sigla = str(ldcn_res[i].sigla)
+            ldcn_dict[sigla_estesa] = sigla
+        
+        # Sort and add items with tooltips
+        for sigla_estesa in sorted(ldcn_dict.keys()):
+            self.comboBox_ldcn.addItem(sigla_estesa)
+            index = self.comboBox_ldcn.count() - 1
+            self.comboBox_ldcn.setItemData(index, f"Codice: {ldcn_dict[sigla_estesa]}", Qt.ToolTipRole)
+        
+        # 10.2 - Saggio
+        search_dict_saggio = {
+            'nome_tabella': "'tma_materiali_archeologici'",
+            'tipologia_sigla': "'10.2'"
+        }
+        saggio_res = self.DB_MANAGER.query_bool(search_dict_saggio, 'PYARCHINIT_THESAURUS_SIGLE')
+        self.comboBox_saggio.clear()
+        saggio_dict = {}
+        for i in range(len(saggio_res)):
+            sigla_estesa = str(saggio_res[i].sigla_estesa)
+            sigla = str(saggio_res[i].sigla)
+            saggio_dict[sigla_estesa] = sigla
+        
+        # Sort and add items with tooltips
+        for sigla_estesa in sorted(saggio_dict.keys()):
+            self.comboBox_saggio.addItem(sigla_estesa)
+            index = self.comboBox_saggio.count() - 1
+            self.comboBox_saggio.setItemData(index, f"Codice: {saggio_dict[sigla_estesa]}", Qt.ToolTipRole)
+        
+        # 10.3 - Vano/Locus
+        search_dict_vano = {
+            'nome_tabella': "'tma_materiali_archeologici'",
+            'tipologia_sigla': "'10.3'"
+        }
+        vano_res = self.DB_MANAGER.query_bool(search_dict_vano, 'PYARCHINIT_THESAURUS_SIGLE')
+        self.comboBox_vano_locus.clear()
+        vano_dict = {}
+        for i in range(len(vano_res)):
+            sigla_estesa = str(vano_res[i].sigla_estesa)
+            sigla = str(vano_res[i].sigla)
+            vano_dict[sigla_estesa] = sigla
+        
+        # Sort and add items with tooltips
+        for sigla_estesa in sorted(vano_dict.keys()):
+            self.comboBox_vano_locus.addItem(sigla_estesa)
+            index = self.comboBox_vano_locus.count() - 1
+            self.comboBox_vano_locus.setItemData(index, f"Codice: {vano_dict[sigla_estesa]}", Qt.ToolTipRole)
+        
+        # 10.4 - Categoria
+        search_dict_macc = {
+            'nome_tabella': "'tma_materiali_archeologici'",
+            'tipologia_sigla': "'10.4'"
+        }
+        macc_res = self.DB_MANAGER.query_bool(search_dict_macc, 'PYARCHINIT_THESAURUS_SIGLE')
+        self.comboBox_macc.clear()
+        macc_dict = {}
+        for i in range(len(macc_res)):
+            sigla_estesa = str(macc_res[i].sigla_estesa)
+            sigla = str(macc_res[i].sigla)
+            macc_dict[sigla_estesa] = sigla
+        
+        # Sort and add items with tooltips
+        for sigla_estesa in sorted(macc_dict.keys()):
+            self.comboBox_macc.addItem(sigla_estesa)
+            index = self.comboBox_macc.count() - 1
+            self.comboBox_macc.setItemData(index, f"Codice: {macc_dict[sigla_estesa]}", Qt.ToolTipRole)
+        
+        # 10.5 - Classe
+        search_dict_macl = {
+            'nome_tabella': "'tma_materiali_archeologici'",
+            'tipologia_sigla': "'10.5'"
+        }
+        macl_res = self.DB_MANAGER.query_bool(search_dict_macl, 'PYARCHINIT_THESAURUS_SIGLE')
+        self.comboBox_macl.clear()
+        macl_dict = {}
+        for i in range(len(macl_res)):
+            sigla_estesa = str(macl_res[i].sigla_estesa)
+            sigla = str(macl_res[i].sigla)
+            macl_dict[sigla_estesa] = sigla
+        
+        # Sort and add items with tooltips
+        for sigla_estesa in sorted(macl_dict.keys()):
+            self.comboBox_macl.addItem(sigla_estesa)
+            index = self.comboBox_macl.count() - 1
+            self.comboBox_macl.setItemData(index, f"Codice: {macl_dict[sigla_estesa]}", Qt.ToolTipRole)
+        
+        # 10.6 - Definizione
+        search_dict_macd = {
+            'nome_tabella': "'tma_materiali_archeologici'",
+            'tipologia_sigla': "'10.6'"
+        }
+        macd_res = self.DB_MANAGER.query_bool(search_dict_macd, 'PYARCHINIT_THESAURUS_SIGLE')
+        self.comboBox_macd.clear()
+        macd_dict = {}
+        for i in range(len(macd_res)):
+            sigla_estesa = str(macd_res[i].sigla_estesa)
+            sigla = str(macd_res[i].sigla)
+            macd_dict[sigla_estesa] = sigla
+        
+        # Sort and add items with tooltips
+        for sigla_estesa in sorted(macd_dict.keys()):
+            self.comboBox_macd.addItem(sigla_estesa)
+            index = self.comboBox_macd.count() - 1
+            self.comboBox_macd.setItemData(index, f"Codice: {macd_dict[sigla_estesa]}", Qt.ToolTipRole)
 
     def charge_records(self):
         self.DATA_LIST = []
@@ -429,7 +545,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                 if self.DATA_LIST[self.rec_num].ldct:
                     self.comboBox_ldct.setEditText(str(self.DATA_LIST[self.rec_num].ldct))
                 if self.DATA_LIST[self.rec_num].ldcn:
-                    self.lineEdit_ldcn.setText(str(self.DATA_LIST[self.rec_num].ldcn))
+                    self.comboBox_ldcn.setEditText(str(self.DATA_LIST[self.rec_num].ldcn))
                 if self.DATA_LIST[self.rec_num].vecchia_collocazione:
                     self.lineEdit_vecchia_collocazione.setText(str(self.DATA_LIST[self.rec_num].vecchia_collocazione))
                 if self.DATA_LIST[self.rec_num].cassetta:
@@ -441,9 +557,9 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                 if self.DATA_LIST[self.rec_num].scan:
                     self.lineEdit_scan.setText(str(self.DATA_LIST[self.rec_num].scan))
                 if self.DATA_LIST[self.rec_num].saggio:
-                    self.lineEdit_saggio.setText(str(self.DATA_LIST[self.rec_num].saggio))
+                    self.comboBox_saggio.setEditText(str(self.DATA_LIST[self.rec_num].saggio))
                 if self.DATA_LIST[self.rec_num].vano_locus:
-                    self.lineEdit_vano_locus.setText(str(self.DATA_LIST[self.rec_num].vano_locus))
+                    self.comboBox_vano_locus.setEditText(str(self.DATA_LIST[self.rec_num].vano_locus))
                 if self.DATA_LIST[self.rec_num].dscd:
                     self.lineEdit_dscd.setText(str(self.DATA_LIST[self.rec_num].dscd))
 
@@ -475,13 +591,13 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                 if self.DATA_LIST[self.rec_num].madi:
                     self.lineEdit_madi.setText(str(self.DATA_LIST[self.rec_num].madi))
                 if self.DATA_LIST[self.rec_num].macc:
-                    self.lineEdit_macc.setText(str(self.DATA_LIST[self.rec_num].macc))
+                    self.comboBox_macc.setEditText(str(self.DATA_LIST[self.rec_num].macc))
                 if self.DATA_LIST[self.rec_num].macl:
-                    self.lineEdit_macl.setText(str(self.DATA_LIST[self.rec_num].macl))
+                    self.comboBox_macl.setEditText(str(self.DATA_LIST[self.rec_num].macl))
                 if self.DATA_LIST[self.rec_num].macp:
                     self.lineEdit_macp.setText(str(self.DATA_LIST[self.rec_num].macp))
                 if self.DATA_LIST[self.rec_num].macd:
-                    self.lineEdit_macd.setText(str(self.DATA_LIST[self.rec_num].macd))
+                    self.comboBox_macd.setEditText(str(self.DATA_LIST[self.rec_num].macd))
                 if self.DATA_LIST[self.rec_num].cronologia_mac:
                     self.lineEdit_cronologia_mac.setText(str(self.DATA_LIST[self.rec_num].cronologia_mac))
                 if self.DATA_LIST[self.rec_num].macq:
@@ -556,8 +672,8 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         else:
             ldct = ""
 
-        if self.lineEdit_ldcn.text():
-            ldcn = self.lineEdit_ldcn.text()
+        if self.comboBox_ldcn.currentText():
+            ldcn = self.comboBox_ldcn.currentText()
         else:
             ldcn = ""
 
@@ -582,13 +698,13 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         else:
             scan = ""
 
-        if self.lineEdit_saggio.text():
-            saggio = self.lineEdit_saggio.text()
+        if self.comboBox_saggio.currentText():
+            saggio = self.comboBox_saggio.currentText()
         else:
             saggio = ""
 
-        if self.lineEdit_vano_locus.text():
-            vano_locus = self.lineEdit_vano_locus.text()
+        if self.comboBox_vano_locus.currentText():
+            vano_locus = self.comboBox_vano_locus.currentText()
         else:
             vano_locus = ""
 
@@ -655,13 +771,13 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         else:
             madi = ""
 
-        if self.lineEdit_macc.text():
-            macc = self.lineEdit_macc.text()
+        if self.comboBox_macc.currentText():
+            macc = self.comboBox_macc.currentText()
         else:
             macc = ""
 
-        if self.lineEdit_macl.text():
-            macl = self.lineEdit_macl.text()
+        if self.comboBox_macl.currentText():
+            macl = self.comboBox_macl.currentText()
         else:
             macl = ""
 
@@ -670,8 +786,8 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         else:
             macp = ""
 
-        if self.lineEdit_macd.text():
-            macd = self.lineEdit_macd.text()
+        if self.comboBox_macd.currentText():
+            macd = self.comboBox_macd.currentText()
         else:
             macd = ""
 
@@ -780,13 +896,13 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         # All other fields
         self.comboBox_ogtm.setEditText("")
         self.comboBox_ldct.setEditText("")
-        self.lineEdit_ldcn.clear()
+        self.comboBox_ldcn.setEditText("")
         self.lineEdit_vecchia_collocazione.clear()
         self.lineEdit_cassetta.clear()
         self.lineEdit_localita.clear()
         self.lineEdit_scan.clear()
-        self.lineEdit_saggio.clear()
-        self.lineEdit_vano_locus.clear()
+        self.comboBox_saggio.setEditText("")
+        self.comboBox_vano_locus.setEditText("")
         self.lineEdit_dscd.clear()
         self.lineEdit_rcgd.clear()
         self.textEdit_rcgz.clear()
@@ -799,10 +915,10 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         self.lineEdit_peso.clear()
         self.textEdit_deso.clear()
         self.lineEdit_madi.clear()
-        self.lineEdit_macc.clear()
-        self.lineEdit_macl.clear()
+        self.comboBox_macc.setEditText("")
+        self.comboBox_macl.setEditText("")
         self.lineEdit_macp.clear()
-        self.lineEdit_macd.clear()
+        self.comboBox_macd.setEditText("")
         self.lineEdit_cronologia_mac.clear()
         self.lineEdit_macq.clear()
 
@@ -838,7 +954,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             test = 1
             return test
 
-        if self.lineEdit_ldcn.text() == "":
+        if self.comboBox_ldcn.currentText() == "":
             QMessageBox.warning(self, "ATTENZIONE", "Campo Denominazione collocazione obbligatorio!", QMessageBox.Ok)
             test = 1
             return test
@@ -863,7 +979,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             test = 1
             return test
 
-        if self.lineEdit_macc.text() == "":
+        if self.comboBox_macc.currentText() == "":
             QMessageBox.warning(self, "ATTENZIONE", "Campo Categoria obbligatorio!", QMessageBox.Ok)
             test = 1
             return test
@@ -1249,8 +1365,8 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         if self.comboBox_ogtm.currentText() != "":
             search_dict['ogtm'] = "'" + str(self.comboBox_ogtm.currentText()) + "'"
 
-        if self.lineEdit_ldcn.text() != "":
-            search_dict['ldcn'] = "'" + str(self.lineEdit_ldcn.text()) + "'"
+        if self.comboBox_ldcn.currentText() != "":
+            search_dict['ldcn'] = "'" + str(self.comboBox_ldcn.currentText()) + "'"
 
         if self.lineEdit_cassetta.text() != "":
             search_dict['cassetta'] = "'" + str(self.lineEdit_cassetta.text()) + "'"
@@ -1261,8 +1377,8 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         if self.lineEdit_dtzg.text() != "":
             search_dict['dtzg'] = "'" + str(self.lineEdit_dtzg.text()) + "'"
 
-        if self.lineEdit_macc.text() != "":
-            search_dict['macc'] = "'" + str(self.lineEdit_macc.text()) + "'"
+        if self.comboBox_macc.currentText() != "":
+            search_dict['macc'] = "'" + str(self.comboBox_macc.currentText()) + "'"
 
         return search_dict
 
@@ -1280,13 +1396,13 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                 str(self.comboBox_area.currentText()),
                 str(self.comboBox_ogtm.currentText()),
                 str(self.comboBox_ldct.currentText()),
-                str(self.lineEdit_ldcn.text()),
+                str(self.comboBox_ldcn.currentText()),
                 str(self.lineEdit_vecchia_collocazione.text()),
                 str(self.lineEdit_cassetta.text()),
                 str(self.lineEdit_localita.text()),
                 str(self.lineEdit_scan.text()),
-                str(self.lineEdit_saggio.text()),
-                str(self.lineEdit_vano_locus.text()),
+                str(self.comboBox_saggio.currentText()),
+                str(self.comboBox_vano_locus.currentText()),
                 str(self.lineEdit_dscd.text()),
                 str(self.lineEdit_us.text()),  # dscu
                 str(self.lineEdit_rcgd.text()),
@@ -1300,10 +1416,10 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                 str(self.lineEdit_peso.text()),
                 str(self.textEdit_deso.toPlainText()),
                 str(self.lineEdit_madi.text()),
-                str(self.lineEdit_macc.text()),
-                str(self.lineEdit_macl.text()),
+                str(self.comboBox_macc.currentText()),
+                str(self.comboBox_macl.currentText()),
                 str(self.lineEdit_macp.text()),
-                str(self.lineEdit_macd.text()),
+                str(self.comboBox_macd.currentText()),
                 str(self.lineEdit_cronologia_mac.text()),
                 str(self.lineEdit_macq.text()),
                 str(ftap),
