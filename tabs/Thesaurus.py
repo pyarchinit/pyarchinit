@@ -31,7 +31,7 @@ from builtins import str
 
 from openai import OpenAI
 import requests
-from qgis.PyQt.QtCore import QUrl
+from qgis.PyQt.QtCore import QUrl, Qt
 from qgis.PyQt.QtWidgets import QApplication, QFileDialog,QDialog, QMessageBox,QCompleter,QComboBox,QInputDialog
 from qgis.PyQt.uic import loadUiType
 from qgis.core import Qgis
@@ -171,7 +171,7 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
         self.pyQGIS = Pyarchinit_pyqgis(iface)
         self.setupUi(self)
         self.currentLayerId = None
-        #self.comboBox_nome_tabella.currentTextChanged.connect(self.charge_n_sigla)
+        self.comboBox_nome_tabella.currentTextChanged.connect(self.charge_n_sigla)
         try:
             self.on_pushButton_connect_pressed()
         except Exception as e:
@@ -489,46 +489,178 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
         for key, values in self.LANG.items():
             lingua.append(key)
         self.comboBox_lingua.addItems(lingua)
+        
+        # Populate nome_tabella combobox with user-friendly names
+        self.comboBox_nome_tabella.clear()
+        
+        # Define table mapping: display name -> actual table name
+        self.TABLE_DISPLAY_MAPPING = {
+            'Sito': 'site_table',
+            'US': 'us_table',
+            'Inventario Materiali': 'inventario_materiali_table',
+            'Campioni': 'campioni_table',
+            'Inventario Lapidei': 'inventario_lapidei_table',
+            'Struttura': 'struttura_table',
+            'Tomba': 'tomba_table',
+            'Individui': 'individui_table',
+            'Documentazione': 'documentazione_table',
+            'TMA - Materiali Archeologici': 'tma_materiali_archeologici'
+        }
+        
+        # Add display names to combobox
+        display_names = list(self.TABLE_DISPLAY_MAPPING.keys())
+        self.comboBox_nome_tabella.addItems(display_names)
+    def get_table_name_from_display(self, display_name):
+        """Convert display name to actual table name"""
+        if hasattr(self, 'TABLE_DISPLAY_MAPPING'):
+            return self.TABLE_DISPLAY_MAPPING.get(display_name, display_name)
+        return display_name
+    
+    def get_display_name_from_table(self, table_name):
+        """Convert table name to display name"""
+        if hasattr(self, 'TABLE_DISPLAY_MAPPING'):
+            for display, table in self.TABLE_DISPLAY_MAPPING.items():
+                if table == table_name:
+                    return display
+        return table_name
+    
     def charge_n_sigla(self):    
         self.comboBox_tipologia_sigla.clear()
         self.comboBox_tipologia_sigla.update()
-        list1=['1.1']
-        list2=['2.1','2.2','2.3','2.4','2.5','2.6','2.7','2.8','2.9','2.10','2.11','2.12','2.13','2.14','2.15','2.16','2.17','2.18','2.19','2.20','2.21','2.22','2.23','2.24','2.25','2.26','2.27','2.28','2.29','2.30','2.31','2.32','2.33','2.34','2.35','2.36','2.37','2.38','2.39','2.40','2.41','2.42','201.201','202.202','203.203']
-        list3=['3.1','3.2','3.3','3.4','3.5','3.6','3.7','3.8','3.9','3.10','301.301']
-        list4=['4.1']
-        list5=['5.1','5.2','5.3']
-        list6=['6.1','6.2','6.3','6.4','6.5','6.6','6.7','6.8']
-        list7=['7.1','7.2','7.3','7.4','7.5','7.6','7.7','701.701','702.702']
-        list8=['8.1','8.2','8.3','8.4','8.5','801.801']
-        list9 = ['9.1', '9.2']
-        if self.comboBox_nome_tabella.currentText()=='site_table':
+        
+        # Define code descriptions for each table
+        code_descriptions = {
+            'site_table': {
+                '1.1': 'Definizione sito'
+            },
+            'us_table': {
+                '2.1': 'Settore',
+                '2.2': 'Soprintendenza',
+                '2.3': 'Definizione stratigrafica',
+                '2.4': 'Definizione interpretata',
+                '2.5': 'Funzione statica',
+                '2.6': 'Consistenza legante usm',
+                '2.7': 'Consistenza/texture',
+                '2.8': 'Metodo di scavo',
+                '2.9': 'Formazione',
+                '2.10': 'Modo formazione',
+                '2.11': 'Consistenza',
+                '2.12': 'Stato di conservazione',
+                '2.13': 'Campioni',
+                '2.14': 'Componenti organici',
+                '2.15': 'Componenti inorganici',
+                '2.16': 'Schedatore',
+                '2.17': 'Direttore us',
+                '2.18': 'Responsabile us',
+                '2.19': 'Tipo documentazione',
+                '2.20': 'Tipologia dell\'opera',
+                '2.21': 'Sezione muraria',
+                '2.22': 'Superficie analizzata',
+                '2.23': 'Orientamento',
+                '2.24': 'Materiali laterizi',
+                '2.25': 'Lavorazione laterizi',
+                '2.26': 'Consistenza laterizi',
+                '2.27': 'Forma laterizi',
+                '2.28': 'Colore laterizi',
+                '2.29': 'Impasto laterizi',
+                '2.30': 'Materiali litici',
+                '2.31': 'Consistenza materiali litici',
+                '2.32': 'Forma materiali litici',
+                '2.33': 'Colore materiali litici',
+                '2.34': 'Taglio',
+                '2.35': 'Posa opera materiali litici',
+                '2.36': 'Posa in opera laterizi',
+                '2.37': 'Tecniche costruttive',
+                '2.38': 'Modulo',
+                '2.39': 'Inerti',
+                '2.40': 'Tipologia legante',
+                '2.41': 'Rifinitura',
+                '2.42': 'Lavorazione litica',
+                '201.201': 'Colore legante',
+                '202.202': 'Inclusi', 
+                '203.203': 'Valori sì/no'
+            },
+            'inventario_materiali_table': {
+                '3.1': 'Tipo reperto',
+                '3.2': 'Classe materiale',
+                '3.3': 'Definizione reperto',
+                '3.4': 'Elemento rinvenuto',
+                '3.5': 'Tipo di misura',
+                '3.6': 'Misurazioni - Unita di misura',
+                '3.7': 'Tipo tecnologia',
+                '3.8': 'Posizione',
+                '3.9': 'Tipo quantita',
+                '3.10': 'Tecnologie - Unita di misura',
+                '301.301': 'Valori sì/no'
+            },
+            'campioni_table': {
+                '4.1': 'Tipo campione'
+            },
+            'inventario_lapidei_table': {
+                '5.1': 'Tipologia',
+                '5.2': 'Materiale',
+                '5.3': 'Oggetto'
+            },
+            'struttura_table': {
+                '6.1': 'Sigla struttura',
+                '6.2': 'Categoria',
+                '6.3': 'Tipologia',
+                '6.4': 'Definizione',
+                '6.5': 'Materiali',
+                '6.6': 'Tipologia elemento',
+                '6.7': 'Tipo misura',
+                '6.8': 'Unita di misura'
+            },
+            'tomba_table': {
+                '7.1': 'Tipo rituale',
+                '7.2': 'Stato di conservazione',
+                '7.3': 'Tipo copertura',
+                '7.4': 'Tipo tomba',
+                '7.5': 'Corredo',
+                '7.6': 'Tipo deposizione',
+                '7.7': 'Tipo sepoltura',
+                '701.701': 'Segnacoli / Canale libatorio',
+                '702.702': 'Presenza Corredo'
+            },
+            'individui_table': {
+                '8.1': 'Tipo rituale',
+                '8.2': 'Stato di conservazione',
+                '8.3': 'Tipo copertura',
+                '8.4': 'Tipo tomba',
+                '8.5': 'Corredo',
+                '801.801': 'Segnacoli / Canale libatorio'
+            },
+            'documentazione_table': {
+                '9.1': 'Tipo Documentazione',
+                '9.2': 'Sorgente'
+            },
+            'tma_materiali_archeologici': {
+                '10.1': 'Denominazione collocazione',
+                '10.2': 'Saggio',
+                '10.3': 'Vano/Locus',
+                '10.4': 'Categoria',
+                '10.5': 'Classe',
+                '10.6': 'Definizione',
+                '10.7': 'Area',
+                '10.8': 'Settore',
+                '10.9': 'Quadrato'
+            }
+        }
+        
+        # Convert display name to actual table name
+        display_name = self.comboBox_nome_tabella.currentText()
+        current_table = self.get_table_name_from_display(display_name)
+        
+        if current_table in code_descriptions:
+            self.comboBox_tipologia_sigla.clear()
+            codes = list(code_descriptions[current_table].keys())
             
-            self.comboBox_tipologia_sigla.clear()
-            self.comboBox_tipologia_sigla.addItems(list1)
-        if self.comboBox_nome_tabella.currentText()=='us_table':
-            self.comboBox_tipologia_sigla.clear()
-            self.comboBox_tipologia_sigla.addItems(list2)
-        if self.comboBox_nome_tabella.currentText()=='inventario_materiali_table':
-            self.comboBox_tipologia_sigla.clear()
-            self.comboBox_tipologia_sigla.addItems(list3)
-        if self.comboBox_nome_tabella.currentText()=='campioni_table':
-            self.comboBox_tipologia_sigla.clear()
-            self.comboBox_tipologia_sigla.addItems(list4)
-        if self.comboBox_nome_tabella.currentText()=='inventario_lapidei_table':
-            self.comboBox_tipologia_sigla.clear()
-            self.comboBox_tipologia_sigla.addItems(list5)
-        if self.comboBox_nome_tabella.currentText()=='struttura_table':
-            self.comboBox_tipologia_sigla.clear()
-            self.comboBox_tipologia_sigla.addItems(list6)
-        if self.comboBox_nome_tabella.currentText()=='tomba_table':
-            self.comboBox_tipologia_sigla.clear()
-            self.comboBox_tipologia_sigla.addItems(list7)
-        if self.comboBox_nome_tabella.currentText()=='individui_table':
-            self.comboBox_tipologia_sigla.clear()
-            self.comboBox_tipologia_sigla.addItems(list8)
-        if self.comboBox_nome_tabella.currentText()=='documentazione_table':
-            self.comboBox_tipologia_sigla.clear()
-            self.comboBox_tipologia_sigla.addItems(list9)
+            # Add codes with tooltips
+            for code in codes:
+                self.comboBox_tipologia_sigla.addItem(code)
+                index = self.comboBox_tipologia_sigla.count() - 1
+                description = code_descriptions[current_table][code]
+                self.comboBox_tipologia_sigla.setItemData(index, description, Qt.ToolTipRole)
     
     def on_pushButton_sort_pressed(self):
         if self.check_record_state() == 1:
@@ -778,9 +910,12 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
 
     def insert_new_rec(self):
         try:
+            # Convert display name to actual table name
+            table_name = self.get_table_name_from_display(str(self.comboBox_nome_tabella.currentText()))
+            
             data = self.DB_MANAGER.insert_values_thesaurus(
                 self.DB_MANAGER.max_num_id(self.MAPPER_TABLE_CLASS, self.ID_TABLE) + 1,
-                str(self.comboBox_nome_tabella.currentText()),  # 1 - nome tabella
+                table_name,  # 1 - nome tabella
                 str(self.comboBox_sigla.currentText()),  # 2 - sigla
                 str(self.comboBox_sigla_estesa.currentText()),  # 3 - sigla estesa
                 str(self.textEdit_descrizione_sigla.toPlainText()),  # 4 - descrizione
@@ -1082,8 +1217,10 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
                 QMessageBox.warning(self, "WARNING", "To perform a new search click on the 'new search' button ",
                                     QMessageBox.Ok) 
         else:
+            # Convert display name to actual table name for search
+            table_name = self.get_table_name_from_display(str(self.comboBox_nome_tabella.currentText()))
             search_dict = {
-                self.TABLE_FIELDS[0]: "'" + str(self.comboBox_nome_tabella.currentText()) + "'",  # 1 - Nome tabella
+                self.TABLE_FIELDS[0]: "'" + table_name + "'",  # 1 - Nome tabella
                 self.TABLE_FIELDS[1]: "'" + str(self.comboBox_sigla.currentText()) + "'",  # 2 - sigla
                 self.TABLE_FIELDS[2]: "'" + str(self.comboBox_sigla_estesa.currentText()) + "'",  # 3 - sigla estesa
                 self.TABLE_FIELDS[4]: "'" + str(self.comboBox_tipologia_sigla.currentText()) + "'",
@@ -1289,7 +1426,9 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
         str(self.comboBox_sigla_estesa.setEditText(self.DATA_LIST[self.rec_num].sigla_estesa))  # 2 - Sigla estesa
         str(self.comboBox_tipologia_sigla.setEditText(
             self.DATA_LIST[self.rec_num].tipologia_sigla))  # 3 - tipologia sigla
-        str(self.comboBox_nome_tabella.setEditText(self.DATA_LIST[self.rec_num].nome_tabella))  # 4 - nome tabella
+        # Convert table name to display name when loading
+        display_name = self.get_display_name_from_table(self.DATA_LIST[self.rec_num].nome_tabella)
+        str(self.comboBox_nome_tabella.setEditText(display_name))  # 4 - nome tabella
         str(str(
             self.textEdit_descrizione_sigla.setText(self.DATA_LIST[self.rec_num].descrizione)))  # 5 - descrizione sigla
         str(self.comboBox_lingua.setEditText(self.DATA_LIST[self.rec_num].lingua))  # 6 - lingua
@@ -1306,9 +1445,10 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
         for key,values in self.LANG.items():
             if values.__contains__(l):
                 lingua = key
-        # data
+        # data - Convert display name to actual table name
+        table_name = self.get_table_name_from_display(str(self.comboBox_nome_tabella.currentText()))
         self.DATA_LIST_REC_TEMP = [
-            str(self.comboBox_nome_tabella.currentText()),  # 1 - Nome tabella
+            table_name,  # 1 - Nome tabella
             str(self.comboBox_sigla.currentText()),  # 2 - sigla
             str(self.comboBox_sigla_estesa.currentText()),  # 3 - sigla estesa
             str(self.textEdit_descrizione_sigla.toPlainText()),  # 4 - descrizione
