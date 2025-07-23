@@ -419,6 +419,20 @@ class pyarchinit_Schedaind(QDialog, MAIN_DIALOG_CLASS):
 
         sito_vl.sort()
         self.comboBox_sito.addItems(sito_vl)
+        
+        # lista area from thesaurus
+        self.comboBox_area.clear()
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'" + 'individui_table' + "'",
+            'tipologia_sigla': "'" + '8.6' + "'"
+        }
+        area_vl_thesaurus = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        area_vl = []
+        for s in area_vl_thesaurus:
+            area_vl.append(str(s.sigla_estesa))
+        area_vl.sort()
+        self.comboBox_area.addItems(area_vl)
 
         # lista rito
 

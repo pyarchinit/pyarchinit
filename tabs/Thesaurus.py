@@ -507,6 +507,31 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
             'TMA - Materiali Archeologici': 'tma_materiali_archeologici'
         }
         
+        # Mappatura dei campi sincronizzati tra tabelle
+        # Ogni campo comune ha una lista di tuple (nome_tabella, codice_tipologia)
+        self.SYNCHRONIZED_FIELDS = {
+            'area': [
+                ('us_table', '2.43'),
+                ('inventario_materiali_table', '3.11'),
+                ('tomba_table', '7.8'),
+                ('individui_table', '8.6'),
+                ('tma_materiali_archeologici', '10.7')
+            ],
+            'settore': [
+                ('us_table', '2.1'),
+                ('tma_materiali_archeologici', '10.8')
+            ],
+            'saggio': [
+                ('tma_materiali_archeologici', '10.2')
+            ],
+            'quadrato': [
+                ('tma_materiali_archeologici', '10.9')
+            ],
+            'vano_locus': [
+                ('tma_materiali_archeologici', '10.3')
+            ]
+        }
+        
         # Add display names to combobox
         display_names = list(self.TABLE_DISPLAY_MAPPING.keys())
         self.comboBox_nome_tabella.addItems(display_names)
@@ -536,6 +561,7 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
             'us_table': {
                 '2.1': 'Settore',
                 '2.2': 'Soprintendenza',
+                '2.43': 'Area',
                 '2.3': 'Definizione stratigrafica',
                 '2.4': 'Definizione interpretata',
                 '2.5': 'Funzione statica',
@@ -591,6 +617,7 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
                 '3.8': 'Posizione',
                 '3.9': 'Tipo quantita',
                 '3.10': 'Tecnologie - Unita di misura',
+                '3.11': 'Area',
                 '301.301': 'Valori sì/no'
             },
             'campioni_table': {
@@ -619,6 +646,7 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
                 '7.5': 'Corredo',
                 '7.6': 'Tipo deposizione',
                 '7.7': 'Tipo sepoltura',
+                '7.8': 'Area',
                 '701.701': 'Segnacoli / Canale libatorio',
                 '702.702': 'Presenza Corredo'
             },
@@ -628,6 +656,7 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
                 '8.3': 'Tipo copertura',
                 '8.4': 'Tipo tomba',
                 '8.5': 'Corredo',
+                '8.6': 'Area',
                 '801.801': 'Segnacoli / Canale libatorio'
             },
             'documentazione_table': {
@@ -924,6 +953,17 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
 
             try:
                 self.DB_MANAGER.insert_data_session(data)
+                
+                # Check if this field should be synchronized
+                sigla = str(self.comboBox_sigla.currentText())
+                sigla_estesa = str(self.comboBox_sigla_estesa.currentText())
+                descrizione = str(self.textEdit_descrizione_sigla.toPlainText())
+                tipologia_sigla = str(self.comboBox_tipologia_sigla.currentText())
+                lingua = str(self.comboBox_lingua.currentText())
+                
+                # Synchronize if needed
+                self.synchronize_field_values(sigla, sigla_estesa, descrizione, tipologia_sigla, lingua, table_name)
+                
                 return 1
             except Exception as e:
                 e_str = str(e)
@@ -945,6 +985,75 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
         except Exception as e:
             QMessageBox.warning(self, "Error", "Error 2 \n" + str(e), QMessageBox.Ok)
             return 0
+    
+    def check_synchronized_field(self, sigla_estesa, tipologia_sigla, table_name):
+        """Check if this field should be synchronized across tables"""
+        for field_name, table_list in self.SYNCHRONIZED_FIELDS.items():
+            for table, code in table_list:
+                if table == table_name and code == tipologia_sigla:
+                    # This is a synchronized field
+                    return field_name, table_list
+        return None, None
+    
+    def synchronize_field_values(self, sigla, sigla_estesa, descrizione, tipologia_sigla, lingua, table_name):
+        """Synchronize field values across all related tables"""
+        field_name, table_list = self.check_synchronized_field(sigla_estesa, tipologia_sigla, table_name)
+        
+        if field_name and table_list:
+            # This is a synchronized field - propagate to all related tables
+            sync_count = 0
+            errors = []
+            
+            for target_table, target_code in table_list:
+                if target_table != table_name:  # Don't sync to the same table
+                    try:
+                        # Check if record already exists
+                        search_dict = {
+                            'nome_tabella': "'" + target_table + "'",
+                            'sigla': "'" + sigla + "'",
+                            'tipologia_sigla': "'" + target_code + "'",
+                            'lingua': "'" + lingua + "'"
+                        }
+                        existing = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
+                        
+                        if not existing:
+                            # Insert new synchronized record
+                            data = self.DB_MANAGER.insert_values_thesaurus(
+                                self.DB_MANAGER.max_num_id(self.MAPPER_TABLE_CLASS, self.ID_TABLE) + 1,
+                                target_table,
+                                sigla,
+                                sigla_estesa,
+                                descrizione + " [Sincronizzato da " + self.get_display_name_from_table(table_name) + "]",
+                                target_code,
+                                lingua
+                            )
+                            self.DB_MANAGER.insert_data_session(data)
+                            sync_count += 1
+                        else:
+                            # Update existing record
+                            self.DB_MANAGER.update(self.MAPPER_TABLE_CLASS,
+                                                 self.ID_TABLE,
+                                                 [existing[0].id_thesaurus_sigle],
+                                                 ['sigla_estesa', 'descrizione'],
+                                                 [sigla_estesa, descrizione + " [Sincronizzato da " + self.get_display_name_from_table(table_name) + "]"])
+                            sync_count += 1
+                    except Exception as e:
+                        errors.append("Errore sincronizzazione con " + self.get_display_name_from_table(target_table) + ": " + str(e))
+            
+            # Report results
+            if sync_count > 0:
+                if self.L == 'it':
+                    msg = f"Campo '{field_name}' sincronizzato su {sync_count} tabelle"
+                elif self.L == 'de':
+                    msg = f"Feld '{field_name}' auf {sync_count} Tabellen synchronisiert"
+                else:
+                    msg = f"Field '{field_name}' synchronized to {sync_count} tables"
+                
+                if errors:
+                    msg += "\n\nErrori:\n" + "\n".join(errors)
+                
+                QMessageBox.information(self, "Sincronizzazione", msg, QMessageBox.Ok)
+    
     def check_record_state(self):
         ec = self.data_error_check()
         if ec == 1:
@@ -1492,11 +1601,33 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
 
     def update_record(self):
         try:
+            # Get current record data before update
+            current_record = self.DATA_LIST[self.REC_CORR]
+            old_sigla = current_record.sigla
+            old_tipologia = current_record.tipologia_sigla
+            old_lingua = current_record.lingua
+            old_table = current_record.nome_tabella
+            
+            # Perform the update
             self.DB_MANAGER.update(self.MAPPER_TABLE_CLASS,
                                    self.ID_TABLE,
                                    [eval("int(self.DATA_LIST[self.REC_CORR]." + self.ID_TABLE + ")")],
                                    self.TABLE_FIELDS,
                                    self.rec_toupdate())
+            
+            # Check if this was a synchronized field that was updated
+            new_sigla = str(self.comboBox_sigla.currentText())
+            new_sigla_estesa = str(self.comboBox_sigla_estesa.currentText())
+            new_descrizione = str(self.textEdit_descrizione_sigla.toPlainText())
+            new_tipologia = str(self.comboBox_tipologia_sigla.currentText())
+            new_lingua = str(self.comboBox_lingua.currentText())
+            table_name = self.get_table_name_from_display(str(self.comboBox_nome_tabella.currentText()))
+            
+            # If the sigla_estesa changed, check if we need to synchronize
+            if old_sigla == new_sigla and old_tipologia == new_tipologia and old_lingua == new_lingua and old_table == table_name:
+                # Same field, just value update - synchronize
+                self.synchronize_field_values(new_sigla, new_sigla_estesa, new_descrizione, new_tipologia, new_lingua, table_name)
+            
             return 1
         except Exception as e:
             str(e)
