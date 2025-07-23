@@ -10184,6 +10184,22 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.comboBox_sito.addItems(sito_vl)
         self.comboBox_sito_rappcheck.addItems(sito_vl)
 
+        # lista area
+        self.comboBox_area.clear()
+        self.comboBox_area_rappcheck.clear()
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'" + 'us_table' + "'",
+            'tipologia_sigla': "'" + '2.43' + "'"
+        }
+        area_vl_thesaurus = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        area_vl = []
+        for i in range(len(area_vl_thesaurus)):
+            area_vl.append(area_vl_thesaurus[i].sigla_estesa)
+        area_vl.sort()
+        self.comboBox_area.addItems(area_vl)
+        self.comboBox_area_rappcheck.addItems(area_vl)
+
         # responsabile_vl = self.UTILITY.tup_2_list_III(self.DB_MANAGER.group_by('us_table', 'schedatore', 'US'))
         # try:
         #     responsabile_vl.remove('')

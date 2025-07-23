@@ -1020,7 +1020,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         search_dict = {
             'lingua': lang,
             'nome_tabella': "'" + 'inventario_materiali_table' + "'",
-            'tipologia_sigla': "'" + '3.1' + "'"
+            'tipologia_sigla': "'" + '3.11' + "'"
         }
 
         area_vl = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')

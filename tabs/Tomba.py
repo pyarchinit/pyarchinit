@@ -1566,7 +1566,16 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
         self.comboBox_sito.addItems(sito_vl)
 
         
-        area_vl = self.UTILITY.tup_2_list_III(self.DB_MANAGER.group_by('us_table', 'area', 'US'))
+        # Load area values from thesaurus
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'" + 'tomba_table' + "'",
+            'tipologia_sigla': "'" + '7.8' + "'"
+        }
+        area_vl_thesaurus = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        area_vl = []
+        for s in area_vl_thesaurus:
+            area_vl.append(str(s.sigla_estesa))
         try:
             area_vl.remove('')
         except Exception as e:

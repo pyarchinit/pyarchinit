@@ -299,6 +299,14 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
 
     def charge_list(self):
         """Load combobox lists."""
+        # Get language setting
+        l = QgsSettings().value("locale/userLocale", "en")
+        lang = ""
+        for key, values in self.LANG.items():
+            if values.__contains__(l):
+                lang = str(key)
+        lang = "'" + lang + "'"
+        
         # lista sito
         sito_vl = self.UTILITY.tup_2_list_III(self.DB_MANAGER.group_by('site_table', 'sito', 'SITE'))
         try:
@@ -317,13 +325,17 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         sito_vl.sort()
         self.comboBox_sito.addItems(sito_vl)
 
-        # lista area
-        area_vl = self.UTILITY.tup_2_list_III(self.DB_MANAGER.group_by('us_table', 'area', 'US'))
-        try:
-            area_vl.remove('')
-        except:
-            pass
+        # lista area from thesaurus
         self.comboBox_area.clear()
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'" + 'tma_materiali_archeologici' + "'",
+            'tipologia_sigla': "'" + '10.7' + "'"
+        }
+        area_vl_thesaurus = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        area_vl = []
+        for s in area_vl_thesaurus:
+            area_vl.append(str(s.sigla_estesa))
         area_vl.sort()
         self.comboBox_area.addItems(area_vl)
         
