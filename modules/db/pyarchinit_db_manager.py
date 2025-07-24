@@ -1214,101 +1214,57 @@ class Pyarchinit_db_management(object):
             print(f"An error occurred: {str(e)}")
             return []
 
-    def query_bool(self, params, table):
+    def query_bool(self, params, table_class_name):
         u = Utility()
         params = u.remove_empty_items_fr_dict(params)
-
-        list_keys_values = list(params.items())
-
-        field_value_string = ""
-
-        for sing_couple_n in range(len(list_keys_values)):
-            if sing_couple_n == 0:
-                if not isinstance(list_keys_values[sing_couple_n][1], str):
-                    field_value_string = table + ".%s == %s" % (
-                    list_keys_values[sing_couple_n][0], list_keys_values[sing_couple_n][1])
-                else:
-                    field_value_string = table + ".%s == %s" % (
-                    list_keys_values[sing_couple_n][0], list_keys_values[sing_couple_n][1])
-            else:
-                if type(list_keys_values[sing_couple_n][1]) == "<type 'str'>":
-                    field_value_string = field_value_string + "," + table + ".%s == %s" % (
-                    list_keys_values[sing_couple_n][0], list_keys_values[sing_couple_n][1])
-                else:
-                    field_value_string = field_value_string + "," + table + ".%s == %s" % (
-                    list_keys_values[sing_couple_n][0], list_keys_values[sing_couple_n][1])
-
-                    #field_value_string = ", ".join([table + ".%s == u%s" % (k, v) for k, v in params.items()])
-
-        """
-        Per poter utilizzare l'operatore LIKE è necessario fare una iterazione attraverso il dizionario per discriminare tra
-        stringhe e numeri
-        #field_value_string = ", ".join([table + ".%s.like(%s)" % (k, v) for k, v in params.items()])
-        """
-        # self.connection()
-        Session = sessionmaker(bind=self.engine, autoflush=True, autocommit=True)
+        
+        # Create a session
+        Session = sessionmaker(bind=self.engine)
         session = Session()
-        query_str = "session.query(" + table + ").filter(and_(" + field_value_string + ")).all()"
-        res = eval(query_str)
-
-        #'''
-        #t = open(r"C:\Users\enzoc\pyarchinit\pyarchinit_DB_folder\test_import.txt", "w")
-        #t.write(str(query_str))
-        #t.close()
-        #'''
+        
+        # Mapping of table class names to class references
+        table_classes = {
+            'US':US, 'UT': UT, 'SITE': SITE, 'PERIODIZZAZIONE': PERIODIZZAZIONE, 'POTTERY': POTTERY,
+            'STRUTTURA': STRUTTURA, 'SCHEDAIND': SCHEDAIND, 'INVENTARIO_MATERIALI': INVENTARIO_MATERIALI,
+            'DETSESSO': DETSESSO, 'DOCUMENTAZIONE': DOCUMENTAZIONE, 'DETETA': DETETA, 'MEDIA': MEDIA,
+            'MEDIA_THUMB': MEDIA_THUMB, 'MEDIATOENTITY': MEDIATOENTITY, 'MEDIAVIEW': MEDIAVIEW,
+            'TOMBA': TOMBA, 'CAMPIONI': CAMPIONI, 'PYARCHINIT_THESAURUS_SIGLE': PYARCHINIT_THESAURUS_SIGLE,
+            'INVENTARIO_LAPIDEI': INVENTARIO_LAPIDEI, 'PDF_ADMINISTRATOR': PDF_ADMINISTRATOR,
+            'PYUS': PYUS, 'PYUSM': PYUSM, 'PYSITO_POINT': PYSITO_POINT, 'PYSITO_POLYGON': PYSITO_POLYGON,
+            'PYQUOTE': PYQUOTE, 'PYQUOTEUSM': PYQUOTEUSM, 'PYUS_NEGATIVE': PYUS_NEGATIVE,
+            'PYSTRUTTURE': PYSTRUTTURE, 'PYREPERTI': PYREPERTI, 'PYINDIVIDUI': PYINDIVIDUI,
+            'PYCAMPIONI': PYCAMPIONI, 'PYTOMBA': PYTOMBA, 'PYDOCUMENTAZIONE': PYDOCUMENTAZIONE,
+            'PYLINEERIFERIMENTO': PYLINEERIFERIMENTO, 'PYRIPARTIZIONI_SPAZIALI': PYRIPARTIZIONI_SPAZIALI,
+            'PYSEZIONI': PYSEZIONI, 'TMA': TMA
+            # Add other table class mappings here
+        }
+        
+        # Get the table class from the mapping
+        table_class = table_classes.get(table_class_name)
+        if not table_class:
+            raise ValueError(f"No table class found for {table_class_name}")
+        
+        # Start with an empty list of conditions
+        conditions = []
+        
+        # Iterate over the parameters to create conditions
+        for key, value in params.items():
+            column = getattr(table_class, key)
+            # Clean the value if it's a string with quotes
+            if isinstance(value, str) and value.startswith("'") and value.endswith("'"):
+                value = value.strip("'")
+            conditions.append(column == value)
+        
+        # Construct the query with the conditions
+        query = session.query(table_class).filter(and_(*conditions))
+        
+        # Execute the query and fetch all results
+        res = query.all()
+        
+        # Close the session
         session.close()
+        
         return res
-    # def query_bool(self, params, table_class_name):
-    #     u = Utility()
-    #     params = u.remove_empty_items_fr_dict(params)
-    #
-    #     # Create a session
-    #     Session = sessionmaker(bind=self.engine)
-    #     session = Session()
-    #
-    #     # Mapping of table class names to class references
-    #     table_classes = {
-    #         'US':US, 'UT': UT, 'SITE': SITE, 'PERIODIZZAZIONE': PERIODIZZAZIONE, 'POTTERY': POTTERY,
-    #         'STRUTTURA': STRUTTURA, 'SCHEDAIND': SCHEDAIND, 'INVENTARIO_MATERIALI': INVENTARIO_MATERIALI,
-    #         'DETSESSO': DETSESSO, 'DOCUMENTAZIONE': DOCUMENTAZIONE, 'DETETA': DETETA, 'MEDIA': MEDIA,
-    #         'MEDIA_THUMB': MEDIA_THUMB, 'MEDIATOENTITY': MEDIATOENTITY, 'MEDIAVIEW': MEDIAVIEW,
-    #         'TOMBA': TOMBA, 'CAMPIONI': CAMPIONI, 'PYARCHINIT_THESAURUS_SIGLE': PYARCHINIT_THESAURUS_SIGLE,
-    #         'INVENTARIO_LAPIDEI': INVENTARIO_LAPIDEI, 'PDF_ADMINISTRATOR': PDF_ADMINISTRATOR,
-    #         'PYUS': PYUS, 'PYUSM': PYUSM, 'PYSITO_POINT': PYSITO_POINT, 'PYSITO_POLYGON': PYSITO_POLYGON,
-    #         'PYQUOTE': PYQUOTE, 'PYQUOTEUSM': PYQUOTEUSM, 'PYUS_NEGATIVE': PYUS_NEGATIVE,
-    #         'PYSTRUTTURE': PYSTRUTTURE, 'PYREPERTI': PYREPERTI, 'PYINDIVIDUI': PYINDIVIDUI,
-    #         'PYCAMPIONI': PYCAMPIONI, 'PYTOMBA': PYTOMBA, 'PYDOCUMENTAZIONE': PYDOCUMENTAZIONE,
-    #         'PYLINEERIFERIMENTO': PYLINEERIFERIMENTO, 'PYRIPARTIZIONI_SPAZIALI': PYRIPARTIZIONI_SPAZIALI,
-    #         'PYSEZIONI': PYSEZIONI
-    #         # Add other table class mappings here
-    #     }
-    #
-    #     # Get the table class from the mapping
-    #     table_class = table_classes.get(table_class_name)
-    #     if not table_class:
-    #         raise ValueError(f"No table class found for {table_class_name}")
-    #
-    #     # Start with an empty list of conditions
-    #     conditions = []
-    #
-    #     # Iterate over the parameters to create conditions
-    #     for key, value in params.items():
-    #         column = getattr(table_class, key)
-    #         if isinstance(value, str):
-    #             conditions.append(column.like(value))
-    #         else:
-    #             conditions.append(column == value)
-    #
-    #     # Construct the query with the conditions
-    #     query = session.query(table_class).filter(and_(*conditions))
-    #
-    #     # Execute the query and fetch all results
-    #     res = query.all()
-    #
-    #     # Close the session
-    #     session.close()
-    #
-    #     return res
 
     def select_mediapath_from_id(self, media_id):
         sql_query = "SELECT filepath FROM media_table WHERE id_media = ?"

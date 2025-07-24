@@ -15,7 +15,7 @@ CREATE TABLE public.archeozoology_table (
     id_archzoo BIGINT NOT NULL,
     sito text,
     area text,
-    us BIGINT,
+    us TEXT,
     quadrato text,
     coord_x BIGINT,
     coord_y BIGINT,
@@ -73,7 +73,7 @@ CREATE TABLE public.campioni_table (
     tipo_campione text,
     descrizione text,
     area character varying(20),
-    us BIGINT,
+    us TEXT,
     numero_inventario_materiale BIGINT,
     nr_cassa BIGINT,
     luogo_conservazione text
@@ -674,7 +674,7 @@ CREATE TABLE public.media_to_us_table (
     id_us BIGINT,
     sito text,
     area character varying(20),
-    us BIGINT,
+    us TEXT,
     id_media BIGINT,
     filepath text
 );
@@ -795,7 +795,7 @@ CREATE TABLE public.pottery_table (
     id_number BIGINT,
     sito text,
     area text,
-    us BIGINT,
+    us TEXT,
     box BIGINT,
     photo text,
     drawing text,
@@ -957,7 +957,7 @@ CREATE TABLE public.pyarchinit_inventario_materiali (
     idim_pk BIGINT NOT NULL,
     sito character varying(150),
     area BIGINT,
-    us BIGINT,
+    us TEXT,
     nr_cassa BIGINT,
     tipo_materiale character varying(120) DEFAULT 'Ceramica'::character varying,
     nr_reperto BIGINT,
@@ -1049,7 +1049,7 @@ CREATE TABLE public.pyuscarlinee (
     gid BIGINT NOT NULL,
     sito_l character varying(150),
     area_l BIGINT,
-    us_l BIGINT,
+    us_l TEXT,
     tipo_us_l character varying(150),
     the_geom public.geometry(LineString,-1)
 );
@@ -1066,7 +1066,7 @@ CREATE TABLE public.us_table (
     id_us BIGINT NOT NULL,
     sito text,
     area character varying(20),
-    us BIGINT,
+    us TEXT,
     d_stratigrafica character varying(255),
     d_interpretativa character varying(255),
     descrizione text,
@@ -1204,7 +1204,7 @@ CREATE TABLE public.pyarchinit_quote (
     gid BIGINT DEFAULT nextval('public.pyarchinit_quote_gid_seq'::regclass) NOT NULL,
     sito_q character varying(80),
     area_q BIGINT,
-    us_q BIGINT,
+    us_q TEXT,
     unita_misu_q character varying(80),
     quota_q double precision,
     the_geom public.geometry(Point,-1),
@@ -1225,7 +1225,7 @@ CREATE TABLE public.pyarchinit_quote_usm (
     gid BIGINT DEFAULT nextval('public.pyarchinit_quote_usm_gid_seq'::regclass) NOT NULL,
     sito_q character varying(80),
     area_q BIGINT,
-    us_q BIGINT,
+    us_q TEXT,
     unita_misu_q character varying(80),
     quota_q double precision,
     the_geom public.geometry(Point,-1),
@@ -1717,7 +1717,7 @@ CREATE TABLE public.pyarchinit_us_negative_doc (
     the_geom public.geometry(LineString,-1),
     sito_n character varying,
     area_n character varying,
-    us_n BIGINT,
+    us_n TEXT,
     tipo_doc_n character varying,
     nome_doc_n character varying,
     "LblSize" BIGINT,
@@ -1802,7 +1802,7 @@ CREATE TABLE public.pyunitastratigrafiche (
     gid BIGINT DEFAULT nextval('public.pyunitastratigrafiche_gid_seq'::regclass) NOT NULL,
     area_s BIGINT,
     scavo_s character varying(80),
-    us_s BIGINT,
+    us_s TEXT,
     stratigraph_index_us BIGINT,
     tipo_us_s character varying(250),
     rilievo_originale character varying(250),
@@ -1827,7 +1827,7 @@ CREATE TABLE public.pyunitastratigrafiche_usm (
     gid BIGINT DEFAULT nextval('public.pyunitastratigrafiche_usm_gid_seq'::regclass) NOT NULL,
     area_s BIGINT,
     scavo_s character varying(80),
-    us_s BIGINT,
+    us_s TEXT,
     stratigraph_index_us BIGINT,
     tipo_us_s character varying(250),
     rilievo_originale character varying(250),
@@ -1852,7 +1852,7 @@ CREATE TABLE public.pyuscaratterizzazioni (
     gid BIGINT NOT NULL,
     area_c BIGINT,
     scavo_c character varying(80),
-    us_c BIGINT,
+    us_c TEXT,
     the_geom public.geometry(MultiPolygon,-1),
     stratigraph_index_car BIGINT DEFAULT 1,
     tipo_us_c character varying
@@ -1894,7 +1894,7 @@ CREATE TABLE public.relashionship_check_table (
     id_rel_check BIGINT NOT NULL,
     sito text,
     area text,
-    us BIGINT,
+    us TEXT,
     rel_type text,
     sito_rel text,
     area_rel text,
@@ -2099,6 +2099,72 @@ ALTER SEQUENCE public.tomba_table_id_tomba_seq OWNED BY public.tomba_table.id_to
 
 
 --
+-- Name: tma_materiali_archeologici; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.tma_materiali_archeologici (
+    id BIGINT NOT NULL,
+    sito character varying(100),
+    area character varying(100),
+    ogtm character varying(100) NOT NULL,
+    ldct character varying(50),
+    ldcn character varying(50) NOT NULL,
+    vecchia_collocazione character varying(100),
+    cassetta character varying(15) NOT NULL,
+    localita character varying(50) NOT NULL,
+    scan character varying(50),
+    saggio character varying(50),
+    vano_locus character varying(100),
+    dscd character varying(20),
+    dscu character varying(100) NOT NULL,
+    rcgd character varying(20),
+    rcgz character varying(100),
+    aint character varying(100),
+    aind character varying(50),
+    dtzg character varying(50) NOT NULL,
+    dtzs character varying(20),
+    cronologie character varying(50),
+    n_reperti character varying(30),
+    peso character varying(20),
+    deso character varying(500),
+    madi character varying(50),
+    macc character varying(30) NOT NULL,
+    macl character varying(30),
+    macp character varying(30),
+    macd character varying(30),
+    cronologia_mac character varying(50),
+    macq character varying(20),
+    ftap character varying(50),
+    ftan character varying(100),
+    drat character varying(50),
+    dran character varying(100),
+    draa character varying(50),
+    created_at character varying(50),
+    updated_at character varying(50),
+    created_by character varying(100),
+    updated_by character varying(100)
+);
+
+ALTER TABLE public.tma_materiali_archeologici OWNER TO postgres;
+
+--
+-- Name: tma_materiali_archeologici_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.tma_materiali_archeologici_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+ALTER TABLE public.tma_materiali_archeologici_id_seq OWNER TO postgres;
+
+ALTER SEQUENCE public.tma_materiali_archeologici_id_seq OWNED BY public.tma_materiali_archeologici.id;
+
+
+
+--
 -- TOC entry 411 (class 1259 OID 33117)
 -- Name: us_table_id_us_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
@@ -2158,7 +2224,7 @@ CREATE TABLE public.us_table_toimp (
     id_us BIGINT NOT NULL,
     sito text,
     area character varying(20),
-    us BIGINT,
+    us TEXT,
     d_stratigrafica character varying(255),
     d_interpretativa character varying(255),
     descrizione text,
@@ -2551,6 +2617,12 @@ ALTER TABLE ONLY public.struttura_table ALTER COLUMN id_struttura SET DEFAULT ne
 
 ALTER TABLE ONLY public.tomba_table ALTER COLUMN id_tomba SET DEFAULT nextval('public.tomba_table_id_tomba_seq'::regclass);
 
+
+--
+-- Name: tma_materiali_archeologici id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.tma_materiali_archeologici ALTER COLUMN id SET DEFAULT nextval('public.tma_materiali_archeologici_id_seq'::regclass);
 
 
 --
@@ -3181,6 +3253,14 @@ ALTER TABLE ONLY public.struttura_table
 
 ALTER TABLE ONLY public.tomba_table
     ADD CONSTRAINT tomba_table_pkey PRIMARY KEY (id_tomba);
+
+
+--
+-- Name: tma_materiali_archeologici tma_materiali_archeologici_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.tma_materiali_archeologici
+    ADD CONSTRAINT tma_materiali_archeologici_pkey PRIMARY KEY (id);
 
 
 --
