@@ -656,7 +656,7 @@ class pyarchinit_Campioni(QDialog, MAIN_DIALOG_CLASS):
             if self.lineEdit_us.text() == "":
                 us = None
             else:
-                us = int(self.lineEdit_us.text())
+                us = str(self.lineEdit_us.text())
 
             if self.lineEdit_cassa.text() == "":
                 nr_cassa = None
@@ -979,7 +979,7 @@ class pyarchinit_Campioni(QDialog, MAIN_DIALOG_CLASS):
             if self.lineEdit_us.text() == "":
                 us = None
             else:
-                us = int(self.lineEdit_us.text())
+                us = str(self.lineEdit_us.text())
 
             if self.lineEdit_cassa.text() == "":
                 nr_cassa = None
@@ -1362,7 +1362,7 @@ class pyarchinit_Campioni(QDialog, MAIN_DIALOG_CLASS):
             if str(self.DATA_LIST[self.rec_num].us) == 'None':
                 us = ''
             else:
-                us = str(self.DATA_LIST[self.rec_num].us)
+                us = self.DATA_LIST[self.rec_num].us
 
             if str(self.DATA_LIST[self.rec_num].numero_inventario_materiale) == 'None':
                 numero_inventario_materiale = ''
