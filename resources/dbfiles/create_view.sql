@@ -1,5 +1,9 @@
--- View: public.pyarchinit_individui_view
+-- PyArchInit Create Views Script - Updated for US field as TEXT
+-- Author: PyArchInit Team
+-- Date: 2025-07-24
+-- Description: Creates all views with US field properly handled as TEXT type
 
+-- View: public.pyarchinit_individui_view
 -- DROP VIEW public.pyarchinit_individui_view;
 
 CREATE OR REPLACE VIEW public.pyarchinit_individui_view AS
@@ -27,7 +31,6 @@ ALTER TABLE public.pyarchinit_individui_view
     OWNER TO postgres;
 
 -- View: public.pyarchinit_pyuscarlinee_view
-
 -- DROP VIEW public.pyarchinit_pyuscarlinee_view;
 
 CREATE OR REPLACE VIEW public.pyarchinit_pyuscarlinee_view AS
@@ -54,13 +57,12 @@ CREATE OR REPLACE VIEW public.pyarchinit_pyuscarlinee_view AS
     us_table.anno_scavo,
     us_table.cont_per
    FROM pyuscarlinee
-     JOIN us_table ON pyuscarlinee.sito_l::text = us_table.sito AND pyuscarlinee.area_l::text = us_table.area::text AND pyuscarlinee.us_l = us_table.us;
+     JOIN us_table ON pyuscarlinee.sito_l::text = us_table.sito AND pyuscarlinee.area_l::text = us_table.area::text AND pyuscarlinee.us_l::text = us_table.us;
 
 ALTER TABLE public.pyarchinit_pyuscarlinee_view
     OWNER TO postgres;
 
 -- View: public.pyarchinit_quote_view
-
 -- DROP VIEW public.pyarchinit_quote_view;
 
 CREATE OR REPLACE VIEW public.pyarchinit_quote_view AS
@@ -89,13 +91,13 @@ CREATE OR REPLACE VIEW public.pyarchinit_quote_view AS
     us_table.anno_scavo,
     us_table.cont_per
    FROM pyarchinit_quote
-     JOIN us_table ON pyarchinit_quote.sito_q::text = us_table.sito AND pyarchinit_quote.area_q::text = us_table.area::text AND pyarchinit_quote.us_q::text = us_table.us::text  AND pyarchinit_quote.unita_tipo_q::text = us_table.unita_tipo::text;
+     JOIN us_table ON pyarchinit_quote.sito_q::text = us_table.sito AND pyarchinit_quote.area_q::text = us_table.area::text AND pyarchinit_quote.us_q = us_table.us AND pyarchinit_quote.unita_tipo_q::text = us_table.unita_tipo::text;
 
 ALTER TABLE public.pyarchinit_quote_view
     OWNER TO postgres;
 
-
--- DROP VIEW public.pyarchinit_quote_view;
+-- View: public.pyarchinit_quote_usm_view
+-- DROP VIEW public.pyarchinit_quote_usm_view;
 
 CREATE OR REPLACE VIEW public.pyarchinit_quote_usm_view AS
  SELECT pyarchinit_quote_usm.gid,
@@ -123,15 +125,12 @@ CREATE OR REPLACE VIEW public.pyarchinit_quote_usm_view AS
     us_table.anno_scavo,
     us_table.cont_per
    FROM pyarchinit_quote_usm
-     JOIN us_table ON pyarchinit_quote_usm.sito_q::text = us_table.sito AND pyarchinit_quote_usm.area_q::text = us_table.area::text AND pyarchinit_quote_usm.us_q::text = us_table.us::text AND pyarchinit_quote_usm.unita_tipo_q::text = us_table.unita_tipo::text;;
+     JOIN us_table ON pyarchinit_quote_usm.sito_q::text = us_table.sito AND pyarchinit_quote_usm.area_q::text = us_table.area::text AND pyarchinit_quote_usm.us_q = us_table.us AND pyarchinit_quote_usm.unita_tipo_q::text = us_table.unita_tipo::text;
 
 ALTER TABLE public.pyarchinit_quote_usm_view
     OWNER TO postgres;
 
-
-
 -- View: public.pyarchinit_strutture_view
-
 -- DROP VIEW public.pyarchinit_strutture_view;
 
 CREATE OR REPLACE VIEW public.pyarchinit_strutture_view AS
@@ -172,7 +171,6 @@ ALTER TABLE public.pyarchinit_strutture_view
     OWNER TO postgres;
 
 -- View: public.pyarchinit_tomba_view
-
 -- DROP VIEW public.pyarchinit_tomba_view;
 
 CREATE OR REPLACE VIEW public.pyarchinit_tomba_view AS
@@ -209,7 +207,6 @@ ALTER TABLE public.pyarchinit_tomba_view
     OWNER TO postgres;
 
 -- View: public.pyarchinit_tipologie_sepolture_view
-
 -- DROP VIEW public.pyarchinit_tipologie_sepolture_view;
 
 CREATE OR REPLACE VIEW public.pyarchinit_tipologie_sepolture_view AS
@@ -250,7 +247,6 @@ ALTER TABLE public.pyarchinit_tipologie_sepolture_view
     OWNER TO postgres;
 
 -- View: public.pyarchinit_tipologie_view
-
 -- DROP VIEW public.pyarchinit_tipologie_view;
 
 CREATE OR REPLACE VIEW public.pyarchinit_tipologie_view AS
@@ -278,9 +274,7 @@ CREATE OR REPLACE VIEW public.pyarchinit_tipologie_view AS
 ALTER TABLE public.pyarchinit_tipologie_view
     OWNER TO postgres;
 
-
 -- View: public.pyarchinit_us_view
-
 -- DROP VIEW public.pyarchinit_us_view;
 
 CREATE OR REPLACE VIEW public.pyarchinit_us_view AS
@@ -400,10 +394,8 @@ CREATE OR REPLACE VIEW public.pyarchinit_us_view AS
 ALTER TABLE public.pyarchinit_us_view
     OWNER TO postgres;
 
-
--- View: public.pyarchinit_us_view
-
--- DROP VIEW public.pyarchinit_us_view;
+-- View: public.pyarchinit_usm_view
+-- DROP VIEW public.pyarchinit_usm_view;
 
 CREATE OR REPLACE VIEW public.pyarchinit_usm_view AS
  SELECT pyunitastratigrafiche_usm.gid,
@@ -522,11 +514,7 @@ CREATE OR REPLACE VIEW public.pyarchinit_usm_view AS
 ALTER TABLE public.pyarchinit_usm_view
     OWNER TO postgres;
 
-
-
-
 -- View: public.pyarchinit_uscaratterizzazioni_view
-
 -- DROP VIEW public.pyarchinit_uscaratterizzazioni_view;
 
 CREATE OR REPLACE VIEW public.pyarchinit_uscaratterizzazioni_view AS
@@ -558,7 +546,7 @@ CREATE OR REPLACE VIEW public.pyarchinit_uscaratterizzazioni_view AS
 ALTER TABLE public.pyarchinit_uscaratterizzazioni_view
     OWNER TO postgres;
 
-
+-- View: public.pyarchinit_doc_view
 CREATE OR REPLACE VIEW pyarchinit_doc_view AS 
  SELECT a.id_documentazione,
     a.sito,
@@ -581,6 +569,7 @@ CREATE OR REPLACE VIEW pyarchinit_doc_view AS
 ALTER TABLE pyarchinit_doc_view
   OWNER TO postgres;
 
+-- View: public.pyarchinit_site_view
 CREATE OR REPLACE VIEW pyarchinit_site_view AS 
  SELECT 
     sito,
@@ -598,6 +587,7 @@ CREATE OR REPLACE VIEW pyarchinit_site_view AS
 ALTER TABLE pyarchinit_site_view
   OWNER TO postgres;  
 
+-- View: public.pyarchinit_site_polygonal_view
 CREATE OR REPLACE VIEW pyarchinit_site_polygonal_view AS 
  SELECT 
     sito,
@@ -606,7 +596,6 @@ CREATE OR REPLACE VIEW pyarchinit_site_polygonal_view AS
     provincia,
     descrizione,
     definizione_sito,
-
     the_geom,
     sito_id
    FROM site_table
@@ -615,7 +604,7 @@ CREATE OR REPLACE VIEW pyarchinit_site_polygonal_view AS
 ALTER TABLE pyarchinit_site_polygonal_view
   OWNER TO postgres;    
 
-
+-- View: public.pyarchinit_doc_view_b
 CREATE OR REPLACE VIEW public.pyarchinit_doc_view_b AS SELECT 
 	gid , 
 	area_s ,
@@ -629,7 +618,6 @@ CREATE OR REPLACE VIEW public.pyarchinit_doc_view_b AS SELECT
 	data ,
 	tipo_doc , 
 	nome_doc ,
-
 	gid AS gid_1,
 	id_us AS id_us, 
 	sito AS sito, 
@@ -661,10 +649,11 @@ CREATE OR REPLACE VIEW public.pyarchinit_doc_view_b AS SELECT
 	order_layer AS order_layer, 
 	documentazione AS documentazione
 	FROM pyunitastratigrafiche AS a
-	JOIN us_table ON scavo_s ::text = sito AND area_s ::text = area AND us_s  = us;
+	JOIN us_table ON scavo_s ::text = sito AND area_s ::text = area AND us_s ::text = us;
 	ALTER TABLE public.pyarchinit_doc_view_b OWNER TO postgres;
 
-	CREATE OR REPLACE VIEW public.pyarchinit_us_negative_doc_view AS SELECT 
+-- View: public.pyarchinit_us_negative_doc_view
+CREATE OR REPLACE VIEW public.pyarchinit_us_negative_doc_view AS SELECT 
 	gid,
 	sito_n ,
 	area_n ,
@@ -703,10 +692,10 @@ CREATE OR REPLACE VIEW public.pyarchinit_doc_view_b AS SELECT
 	FROM pyarchinit_us_negative_doc 
 	JOIN us_table ON  sito_n ::text = sito AND area_n ::text = area AND us_n = us;
 
-
 ALTER TABLE public.pyarchinit_us_negative_doc_view
     OWNER TO postgres;
 
+-- Sequence for media view
 CREATE SEQUENCE IF NOT EXISTS mediaentity_view_id_media_thumb_seq
   INCREMENT 1
   MINVALUE 1
@@ -715,6 +704,8 @@ CREATE SEQUENCE IF NOT EXISTS mediaentity_view_id_media_thumb_seq
   CACHE 1;
 ALTER TABLE mediaentity_view_id_media_thumb_seq
   OWNER TO postgres;
+
+-- View: public.mediaentity_view
 CREATE OR REPLACE VIEW public.mediaentity_view AS 
  SELECT media_thumb_table.id_media_thumb,
     media_thumb_table.id_media,
@@ -731,8 +722,8 @@ ALTER TABLE public.mediaentity_view
   OWNER TO postgres;
 ALTER TABLE public.mediaentity_view ALTER COLUMN id_media_thumb SET DEFAULT nextval('mediaentity_view_id_media_thumb_seq'::regclass);
 
-
-	CREATE OR REPLACE VIEW pyarchinit_reperti_view AS 
+-- View: public.pyarchinit_reperti_view
+CREATE OR REPLACE VIEW pyarchinit_reperti_view AS 
 	SELECT
 	gid,
 	the_geom,
@@ -782,9 +773,8 @@ ALTER TABLE public.mediaentity_view ALTER COLUMN id_media_thumb SET DEFAULT next
 ALTER TABLE pyarchinit_reperti_view
     OWNER TO postgres;
 
-
+-- View: public.pyarchinit_sezioni_view
 CREATE OR REPLACE VIEW pyarchinit_sezioni_view AS 
-
 SELECT 
 pyarchinit_sezioni.gid,
 pyarchinit_sezioni.sito as site,
@@ -803,5 +793,6 @@ documentazione_table.disegnatore,
 documentazione_table.note
 FROM pyarchinit_sezioni 
 JOIN documentazione_table  ON pyarchinit_sezioni.sito::text=documentazione_table.sito and pyarchinit_sezioni.tipo_doc::text=documentazione_table.tipo_documentazione and pyarchinit_sezioni.nome_doc::text=documentazione_table.nome_doc;
+
 ALTER TABLE pyarchinit_sezioni_view
     OWNER TO postgres;
