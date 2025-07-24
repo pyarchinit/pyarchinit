@@ -2504,7 +2504,7 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
             if self.lineEdit_us.text() == "":
                 us = None
             else:
-                us = int(self.lineEdit_us.text())
+                us = str(self.lineEdit_us.text())
 
             if self.lineEdit_box.text() == "":
                 box = None
@@ -2905,7 +2905,7 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
             else:
                 id_number = ""
             if self.lineEdit_us.text() != "":
-                us = int(self.lineEdit_us.text())
+                us = str(self.lineEdit_us.text())
             else:
                 us = ""
             if self.lineEdit_box.text() != "":
