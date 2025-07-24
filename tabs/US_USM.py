@@ -94,7 +94,7 @@ from ..modules.utility.textTosql import *
 from ..modules.db.pyarchinit_conn_strings import Connection
 from ..modules.db.pyarchinit_db_manager import Pyarchinit_db_management
 from ..modules.db.pyarchinit_utility import Utility
-from ..modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis, Order_layer_v2
+from ..modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis, Order_layer_v2, Order_layer_graph
 from ..modules.utility.delegateComboBox import ComboBoxDelegate
 from ..modules.utility.pyarchinit_error_check import Error_check
 from ..modules.utility.pyarchinit_exp_USsheet_pdf import generate_US_pdf
@@ -3464,6 +3464,13 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
     BIN = '{}{}{}'.format(HOME, os.sep, "bin")
     DB_SERVER = "not defined"  ####nuovo sistema sort
     log_message = pyqtSignal(str, str)  # Aggiungi questo segnale
+    
+    @staticmethod
+    def natural_sort_key(text):
+        """Convert a string into a list of mixed strings and integers for natural sorting.
+        This allows proper sorting of alphanumeric US values like US1, US2, US10, US-A, etc."""
+        return [int(c) if c.isdigit() else c.lower() for c in re.split(r'(\d+)', str(text))]
+    
     def __init__(self, iface):
         super().__init__()
 
@@ -3524,6 +3531,10 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.comboBox_sito.currentIndexChanged.connect(self.geometry_unitastratigrafiche)### rallenta molto
         self.comboBox_unita_tipo.currentTextChanged.connect(self.charge_insert_ra)
         self.comboBox_sito.currentTextChanged.connect(self.charge_insert_ra)
+        # Add TM synchronization connections
+        self.comboBox_sito.currentTextChanged.connect(self.sync_tm_from_tma)
+        self.comboBox_area.currentTextChanged.connect(self.sync_tm_from_tma)
+        self.lineEdit_us.textChanged.connect(self.sync_tm_from_tma)
         self.search_1.currentTextChanged.connect(self.update_filter)
         self.comboBox_per_fin.currentIndexChanged.connect(self.charge_fase_fin_list)
         self.toolButton_pdfpath.clicked.connect(self.setPathpdf)
@@ -6493,9 +6504,21 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                             rapporti_list = ast.literal_eval(rapporti_str)
 
                             # Aggiornamento della lista
-                            updated_rapporti_list = [sublist + [area, sito] if sublist else sublist
-                                                     for sublist in rapporti_list]
-                            updated_rapporti_list2 = [sub[:4] for sub in updated_rapporti_list]
+                            updated_rapporti_list = []
+                            for sublist in rapporti_list:
+                                if sublist:
+                                    if len(sublist) == 2:
+                                        # Rapporto base [tipo, us] - aggiungi area e sito
+                                        updated_rapporti_list.append(sublist + [area, sito])
+                                    elif len(sublist) == 3:
+                                        # Rapporto con area [tipo, us, area] - aggiungi sito
+                                        updated_rapporti_list.append(sublist[:3] + [sito])
+                                    else:
+                                        # Rapporto completo o altro formato - preserva come è
+                                        updated_rapporti_list.append(sublist[:4])
+                                else:
+                                    updated_rapporti_list.append(sublist)
+                            updated_rapporti_list2 = updated_rapporti_list
 
                             # Conversione in stringa con controllo UTF-8
                             updated_rapporti_str = self.ensure_utf8(str(updated_rapporti_list2))
@@ -6607,12 +6630,37 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
                             for sublist in rapporti_list:
                                 try:
-                                    # Verifica che la sottolista abbia abbastanza elementi
-                                    if len(sublist) < 3:
+                                    # Gestisci diversi formati di rapporti
+                                    if not sublist:
+                                        continue
+                                    
+                                    if len(sublist) < 2:
                                         error_msg = f"Sottolista troppo corta per US {id_us}: {sublist}"
                                         log_error(error_msg, "WARNING")
                                         continue
-
+                                    
+                                    # Se il rapporto ha solo 2 elementi [tipo, us], aggiungi area e sito
+                                    if len(sublist) == 2:
+                                        us_id = sublist[1]
+                                        try:
+                                            # Trova l'area corretta per questa US
+                                            correct_area = self.find_correct_area_for_us(us_id, var1, connection)
+                                            if correct_area:
+                                                # Aggiungi area e sito
+                                                updated_sublist = sublist + [correct_area, var1]
+                                                updated_rapporti_list.append(updated_sublist)
+                                                log_error(f"Aggiunto area e sito per US {id_us}: {sublist} -> {updated_sublist}", "INFO")
+                                            else:
+                                                # Se non trovo l'area, preserva il rapporto base
+                                                updated_rapporti_list.append(sublist)
+                                                log_error(f"Area non trovata per US {us_id}, preservato rapporto base: {sublist}", "WARNING")
+                                        except Exception as e:
+                                            # In caso di errore, preserva il rapporto base
+                                            updated_rapporti_list.append(sublist)
+                                            log_error(f"Errore nel trovare area per US {us_id}: {str(e)}", "ERROR")
+                                        continue
+                                    
+                                    # Se ha almeno 3 elementi, processa normalmente
                                     us_id = sublist[1]
                                     current_area = sublist[2]
 
@@ -6647,8 +6695,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                                     continue
 
                             # Aggiorna il database
-                            updated_rapporti_list2 = [sub[:4] for sub in updated_rapporti_list]
-                            updated_rapporti_str = self.ensure_utf8(str(updated_rapporti_list2))
+                            # Non troncare i rapporti - preserva il formato esistente
+                            updated_rapporti_str = self.ensure_utf8(str(updated_rapporti_list))
 
                             log_error(f"US {id_us} - Stringa aggiornata: {updated_rapporti_str}", "DEBUG")
 
@@ -6928,21 +6976,349 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         else:
             QMessageBox.information(self, 'ok', 'done', QMessageBox.Ok)
         self.pushButton_view_all.click()
+    
+    def parse_error_report(self):
+        """Parse the stratigraphic check report to extract different error types"""
+        errors = {
+            'empty_areas': [],
+            'missing_forms': [],
+            'missing_relationships': [],
+            'incomplete_relationships': []
+        }
+        
+        if not hasattr(self, 'report_rapporti') or not self.report_rapporti:
+            return errors
+        
+        lines = self.report_rapporti.split('\n')
+        current_section = None
+        
+        for line in lines:
+            line = line.strip()
+            if not line or line.startswith('=') or line.startswith('-'):
+                continue
+                
+            # Detect sections
+            if 'AREE VUOTE' in line or 'LEERE BEREICHE' in line or 'EMPTY AREAS' in line:
+                current_section = 'empty_areas'
+            elif 'SCHEDE US MANCANTI' in line or 'FEHLENDE SE-FORMULARE' in line or 'MISSING SU FORMS' in line:
+                current_section = 'missing_forms'
+            elif 'RAPPORTI RECIPROCI MANCANTI' in line or 'FEHLENDE GEGENSEITIGE BEZIEHUNGEN' in line or 'MISSING RECIPROCAL RELATIONSHIPS' in line:
+                current_section = 'missing_relationships'
+            elif 'RAPPORTI SENZA AREA/SITO' in line or 'BEZIEHUNGEN OHNE AREAL' in line or 'RELATIONSHIPS WITHOUT AREA/SITE' in line:
+                current_section = 'incomplete_relationships'
+            elif line.startswith('•'):
+                # Extract error items
+                error_item = line[1:].strip()
+                if current_section and error_item:
+                    errors[current_section].append(error_item)
+        
+        return errors
+    
+    def fix_empty_areas(self, empty_area_errors):
+        """Update all relationships with empty areas"""
+        try:
+            # Call the update_all_areas method which is connected to Ctrl+U
+            self.update_all_areas()
+            QMessageBox.information(self, 'Info', 'Aree vuote aggiornate.', QMessageBox.Ok)
+        except Exception as e:
+            QMessageBox.warning(self, 'Errore', f'Errore durante aggiornamento aree: {str(e)}', QMessageBox.Ok)
+    
+    def fix_missing_forms(self, missing_form_errors):
+        """Create missing US forms"""
+        created_count = 0
+        
+        for error in missing_form_errors:
+            try:
+                # Parse the error to extract site, area, and US
+                # Format: "Sito: SITE, Area: AREA, US: US_NUMBER non ha una scheda US"
+                parts = error.split(',')
+                sito = parts[0].split(':')[1].strip()
+                area = parts[1].split(':')[1].strip()
+                us = parts[2].split(':')[1].strip().split()[0]  # Get US number only
+                
+                # Create new US record
+                new_rec = self.MAPPER_TABLE_CLASS(
+                    self.ID,
+                    sito,
+                    area,
+                    us
+                )
+                
+                # Save to database
+                try:
+                    self.DB_MANAGER.insert_values(
+                        self.DB_MANAGER.max_num_id(self.MAPPER_TABLE_CLASS, self.ID_TABLE) + 1,
+                        new_rec
+                    )
+                    created_count += 1
+                except Exception as e:
+                    print(f"Error creating US form for {us}: {e}")
+                    
+            except Exception as e:
+                print(f"Error parsing missing form error: {error} - {e}")
+        
+        if created_count > 0:
+            QMessageBox.information(self, 'Info', f'Create {created_count} schede US.', QMessageBox.Ok)
+        else:
+            QMessageBox.warning(self, 'Attenzione', 'Nessuna scheda US creata.', QMessageBox.Ok)
+    
+    def fix_missing_relationships(self, relationship_errors):
+        """Add missing reciprocal relationships"""
+        fixed_count = 0
+        current_us_updated = False
+        
+        # Log initial call
+        print(f"fix_missing_relationships called with {len(relationship_errors)} errors")
+        
+        for error in relationship_errors:
+            try:
+                # Parse the error to extract the relationship info
+                # Format: "Sito: SITE, Area: AREA, US: X tipo_rapporto US: Y Area: AREA: Rapporto reciproco non trovato"
+                print(f"Parsing error: {error}")
+                
+                # Use regex to extract the pattern more reliably
+                import re
+                
+                # Pattern to match: US: (number) (relationship type) US: (number)
+                pattern = r'US:\s*(\d+)\s+(.+?)\s+US:\s*(\d+)'
+                match = re.search(pattern, error)
+                
+                if match:
+                    us_from = match.group(1)
+                    rel_type = match.group(2).strip()
+                    us_to = match.group(3)
+                else:
+                    # Fallback to manual parsing
+                    # Split and find the US numbers and relationship
+                    if 'US:' in error:
+                        parts = error.split('US:')
+                        if len(parts) >= 3:
+                            # First US number
+                            us_from = parts[1].strip().split()[0]
+                            
+                            # Find relationship and second US
+                            middle_part = parts[1].strip()
+                            # Everything after the first number until the end
+                            after_first_us = ' '.join(middle_part.split()[1:])
+                            
+                            # Second US number
+                            us_to = parts[2].strip().split()[0]
+                            
+                            # Relationship is what's between them
+                            rel_type = after_first_us.strip()
+                        else:
+                            raise ValueError(f"Cannot parse error format: {error}")
+                    else:
+                        raise ValueError(f"No US: found in error: {error}")
+                
+                print(f"Extracted - From: US {us_from}, Type: '{rel_type}', To: US {us_to}")
+                
+                # Find the target US record
+                search_dict = {
+                    'sito': "'" + str(self.comboBox_sito.currentText()) + "'",
+                    'us': us_to
+                }
+                
+                target_records = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
+                
+                print(f"Found {len(target_records) if target_records else 0} target records for US {us_to}")
+                
+                if target_records:
+                    target_rec = target_records[0]
+                    print(f"Target record found - current rapporti: {target_rec.rapporti}")
+                    
+                    # Get current relationships - handle various formats
+                    current_rapporti = []
+                    if target_rec.rapporti:
+                        try:
+                            # Try to parse as Python list
+                            if target_rec.rapporti.strip().startswith('['):
+                                current_rapporti = ast.literal_eval(target_rec.rapporti)
+                            else:
+                                # Handle other formats or empty strings
+                                current_rapporti = []
+                        except:
+                            # If parsing fails, start with empty list
+                            current_rapporti = []
+                    
+                    # Ensure current_rapporti is a list
+                    if not isinstance(current_rapporti, list):
+                        current_rapporti = []
+                    
+                    # Determine reciprocal relationship type
+                    reciprocal_type = self.get_reciprocal_relationship_type(rel_type)
+                    
+                    # Add reciprocal relationship if not already present
+                    new_rel = [reciprocal_type, us_from]
+                    if new_rel not in current_rapporti:
+                        current_rapporti.append(new_rel)
+                        
+                        # Update the record with properly formatted string
+                        target_rec.rapporti = str(current_rapporti)
+                        
+                        # Update in database
+                        try:
+                            # Get the ID value from the record
+                            id_value = getattr(target_rec, self.ID_TABLE)
+                            
+                            print(f"Updating record ID {id_value} with rapporti: {str(current_rapporti)}")
+                            
+                            # Update method signature: (table_class, id_column, [id_value], [columns], [values])
+                            self.DB_MANAGER.update(self.MAPPER_TABLE_CLASS, 
+                                                 self.ID_TABLE, 
+                                                 [id_value], 
+                                                 ['rapporti'], 
+                                                 [str(current_rapporti)])
+                            
+                            fixed_count += 1
+                            print(f"Successfully added reciprocal relationship: US {us_to} {reciprocal_type} US {us_from}")
+                            
+                            # Check if this is the currently displayed US
+                            current_us = str(self.lineEdit_us.text())
+                            current_area = str(self.comboBox_area.currentText()) 
+                            if (us_to == current_us and 
+                                target_rec.area == current_area and 
+                                target_rec.sito == str(self.comboBox_sito.currentText())):
+                                current_us_updated = True
+                                
+                        except Exception as update_error:
+                            print(f"Error updating database for US {us_to}: {update_error}")
+                            import traceback
+                            traceback.print_exc()
+                    else:
+                        print(f"Relationship {new_rel} already exists in US {us_to}")
+                else:
+                    print(f"No target record found for US {us_to}")
+                        
+            except Exception as e:
+                print(f"Error fixing relationship: {error} - {e}")
+                import traceback
+                traceback.print_exc()
+        
+        if fixed_count > 0:
+            # If the current US was updated, reload the form to show the new relationships
+            if current_us_updated:
+                # Save current position
+                temp_rec = self.REC_CORR
+                # Reload the record from database
+                self.charge_records()
+                # Find and display the same record
+                for i, rec in enumerate(self.DATA_LIST):
+                    if (str(rec.us) == str(self.lineEdit_us.text()) and 
+                        rec.area == str(self.comboBox_area.currentText()) and
+                        rec.sito == str(self.comboBox_sito.currentText())):
+                        self.REC_CORR = i
+                        self.fill_fields(self.REC_CORR)
+                        break
+                
+            QMessageBox.information(self, 'Info', f'Aggiunti {fixed_count} rapporti reciproci.', QMessageBox.Ok)
+        else:
+            QMessageBox.warning(self, 'Attenzione', 'Nessun rapporto reciproco aggiunto.', QMessageBox.Ok)
+    
+    def get_reciprocal_relationship_type(self, rel_type):
+        """Get the reciprocal relationship type"""
+        reciprocal_map = {
+            'Si lega a': 'Si lega a',
+            'Copre': 'Coperto da',
+            'Coperto da': 'Copre',
+            'Riempie': 'Riempito da',
+            'Riempito da': 'Riempie',
+            'Taglia': 'Tagliato da',
+            'Tagliato da': 'Taglia',
+            'Si appoggia a': 'Gli si appoggia',
+            'Gli si appoggia': 'Si appoggia a',
+            'Uguale a': 'Uguale a'
+        }
+        return reciprocal_map.get(rel_type, rel_type)
 
     def on_pushButton_fix_pressed(self):
-        sito = self.comboBox_sito.currentText()
-        area = self.comboBox_area.currentText()
-        search_dict = {'sito': f"'{sito}'", 'area': f"'{area}'"}
-        records = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
-        self.list_rapporti.append(self.report_rapporti)
-        #QMessageBox.information(self, 'Fix', str(self.list_rapporti), QMessageBox.Ok)
-
-        for _ in records:
-            self.checkBox_validation_rapp.setChecked(True)
-
-            self.check_listoflist()
-            self.check_inverse_relationships(self.list_rapporti)
-        self.view_all()
+        """Enhanced fix button that offers options to resolve different types of errors"""
+        from PyQt5.QtWidgets import QDialog, QVBoxLayout, QCheckBox, QDialogButtonBox, QLabel, QGroupBox
+        
+        # Parse the error report to extract different error types
+        errors = self.parse_error_report()
+        
+        if not any([errors['empty_areas'], errors['missing_forms'], errors['missing_relationships']]):
+            QMessageBox.information(self, 'Info', 'Nessun errore da correggere.', QMessageBox.Ok)
+            return
+        
+        # Create dialog for selecting fixes
+        dialog = QDialog(self)
+        dialog.setWindowTitle("Selezione correzioni automatiche")
+        dialog.resize(500, 400)
+        layout = QVBoxLayout(dialog)
+        
+        # Information label
+        info_label = QLabel("Seleziona quali correzioni vuoi applicare automaticamente:")
+        info_label.setWordWrap(True)
+        layout.addWidget(info_label)
+        
+        # Checkboxes for different fix types
+        fix_options = {}
+        
+        # Empty areas section
+        if errors['empty_areas']:
+            group_empty = QGroupBox(f"Aree vuote ({len(errors['empty_areas'])} trovate)")
+            group_layout = QVBoxLayout()
+            fix_options['empty_areas'] = QCheckBox("Aggiorna aree vuote (Ctrl+U)")
+            fix_options['empty_areas'].setChecked(True)
+            group_layout.addWidget(fix_options['empty_areas'])
+            group_layout.addWidget(QLabel("Nota: Questo aggiornerà tutti i rapporti con area vuota"))
+            group_empty.setLayout(group_layout)
+            layout.addWidget(group_empty)
+        
+        # Missing forms section
+        if errors['missing_forms']:
+            group_forms = QGroupBox(f"Schede US mancanti ({len(errors['missing_forms'])} trovate)")
+            group_layout = QVBoxLayout()
+            fix_options['missing_forms'] = QCheckBox("Crea schede US mancanti")
+            fix_options['missing_forms'].setChecked(True)
+            group_layout.addWidget(fix_options['missing_forms'])
+            group_layout.addWidget(QLabel("Nota: Creerà schede US base per tutte le US mancanti"))
+            group_forms.setLayout(group_layout)
+            layout.addWidget(group_forms)
+        
+        # Missing relationships section
+        if errors['missing_relationships']:
+            group_rel = QGroupBox(f"Rapporti reciproci mancanti ({len(errors['missing_relationships'])} trovati)")
+            group_layout = QVBoxLayout()
+            fix_options['missing_relationships'] = QCheckBox("Aggiungi rapporti reciproci mancanti")
+            fix_options['missing_relationships'].setChecked(True)
+            group_layout.addWidget(fix_options['missing_relationships'])
+            group_layout.addWidget(QLabel("Nota: Aggiungerà automaticamente i rapporti inversi"))
+            group_rel.setLayout(group_layout)
+            layout.addWidget(group_rel)
+        
+        # Dialog buttons
+        buttons = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        buttons.accepted.connect(dialog.accept)
+        buttons.rejected.connect(dialog.reject)
+        layout.addWidget(buttons)
+        
+        # Show dialog
+        if dialog.exec_() == QDialog.Accepted:
+            # Apply selected fixes
+            fixes_applied = []
+            
+            if fix_options.get('empty_areas') and fix_options['empty_areas'].isChecked():
+                self.fix_empty_areas(errors['empty_areas'])
+                fixes_applied.append("aree vuote aggiornate")
+            
+            if fix_options.get('missing_forms') and fix_options['missing_forms'].isChecked():
+                self.fix_missing_forms(errors['missing_forms'])
+                fixes_applied.append("schede US create")
+            
+            if fix_options.get('missing_relationships') and fix_options['missing_relationships'].isChecked():
+                self.fix_missing_relationships(errors['missing_relationships'])
+                fixes_applied.append("rapporti reciproci aggiunti")
+            
+            if fixes_applied:
+                QMessageBox.information(self, 'Correzioni completate', 
+                                      f"Correzioni applicate:\n- " + "\n- ".join(fixes_applied) + 
+                                      "\n\nEsegui nuovamente il controllo per verificare.", 
+                                      QMessageBox.Ok)
+                # Refresh the view
+                self.view_all()
 
     def check_listoflist(self):
         if self.checkBox_validation_rapp.isChecked():
@@ -7378,8 +7754,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             search_dict_inv = {
 
                 'sito': "'" + str(self.comboBox_sito.currentText()) + "'",
-                'area': "'" + str(eval("self.DATA_LIST[int(self.REC_CORR)].area")) + "'",
-                'us': "'" + str(eval("self.DATA_LIST[int(self.REC_CORR)].us")) + "'"
+                'area': "'" + str(self.DATA_LIST[int(self.REC_CORR)].area) + "'",
+                'us': "'" + str(self.DATA_LIST[int(self.REC_CORR)].us) + "'"
             }
 
             inv_vl = self.DB_MANAGER.query_bool(search_dict_inv, 'POTTERY')
@@ -8419,7 +8795,9 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         # self.tableWidget_rapporti.sortItems(0,QtCore.Qt.AscendingOrder)
         self.tableWidget_documentazione.setColumnWidth(0, 150)
         self.tableWidget_documentazione.setColumnWidth(1, 300)
-        self.tableWidget_rapporti.setItemDelegateForColumn(1, IntegerDelegate(self.tableWidget_rapporti))
+        # Se NON vuoi alcun delegate sulla colonna 1
+        #self.tableWidget_rapporti.setItemDelegateForColumn(1, None)
+        #self.tableWidget_rapporti.setItemDelegateForColumn(1, IntegerDelegate(self.tableWidget_rapporti))
         self.mapPreview = QgsMapCanvas(self)
         self.mapPreview.setCanvasColor(QColor(225, 225, 225))
         self.tabWidget.addTab(self.mapPreview, "Map preview")
@@ -9043,7 +9421,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
         # Query all US records from the database and sort them
         all_us = self.DB_MANAGER.query('US')
-        sorted_us = sorted(all_us, key=lambda x: (x.sito, x.area, x.us))
+        sorted_us = sorted(all_us, key=lambda x: (x.sito, x.area, self.natural_sort_key(x.us)))
 
         # Create a QListWidget and populate it with sorted US records
         self.us_listwidget = QListWidget()
@@ -10867,7 +11245,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 else:
                     QMessageBox.information(self, "Message", "you must first set the path to save the thumbnails and videos. Go to system/path setting")
             else:
-                search_dict = {'id_entity': "'"+ str(eval("self.DATA_LIST[i].id_us"))+"'", 'entity_type' : "'US'"}
+                search_dict = {'id_entity': "'"+ str(self.DATA_LIST[i].id_us)+"'", 'entity_type' : "'US'"}
                 record_doc_list = self.DB_MANAGER.query_bool(search_dict, 'MEDIAVIEW')
                 for media in record_doc_list:
                     thumbnail = (thumb_path_str+media.filepath)
@@ -11018,7 +11396,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             data_list.append([
                 str(self.DATA_LIST[i].sito.replace('_',' ')),  # 0 - Sito
                 str(self.DATA_LIST[i].area),  # 1 - Area
-                int(self.DATA_LIST[i].us),  # 2 - US
+                str(self.DATA_LIST[i].us),  # 2 - US
                 str(self.DATA_LIST[i].d_stratigrafica),  # 3 - definizione stratigrafica
                 str(self.DATA_LIST[i].d_interpretativa),  # 4 - definizione intepretata
                 str(self.DATA_LIST[i].descrizione),  # 5 - descrizione
@@ -11759,7 +12137,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 us = sing_rec.us
                 area = sing_rec.area
                 sito = sing_rec.sito
-                rapporti_stratigrafici = eval(sing_rec.rapporti)
+                rapporti_stratigrafici = ast.literal_eval(sing_rec.rapporti)
                 for sing_rapp in rapporti_stratigrafici:
                     if len(sing_rapp) != 4:  # cambiato da 2 a 5
                         msg_nr_rapp += self.format_message(sing_rapp, us)
@@ -12379,18 +12757,18 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                                     QMessageBox.Ok)
                 test = 1
             """controllo campi numerici"""
-            area = self.comboBox_area.currentText()
-            us = self.lineEdit_us.text()
-            if area != "":
-                if EC.data_is_int(area) == 0:
-                    QMessageBox.warning(self, "ATTENZIONE", "Campo Area. \n Il valore deve essere di tipo numerico",
-                                        QMessageBox.Ok)
-                    test = 1
-            if us != "" :
-                if EC.data_is_int(us) == 0:
-                    QMessageBox.warning(self, "ATTENZIONE", "Campo US. \n Il valore deve essere di tipo numerico",
-                                        QMessageBox.Ok)
-                    test = 1
+            # area = self.comboBox_area.currentText()
+            # us = self.lineEdit_us.text()
+            # if area != "":
+            #     if EC.data_is_int(area) == 0:
+            #         QMessageBox.warning(self, "ATTENZIONE", "Campo Area. \n Il valore deve essere di tipo numerico",
+            #                             QMessageBox.Ok)
+            #         test = 1
+            # if us != "":
+            #     if EC.data_is_empty(us) == 0:
+            #         QMessageBox.warning(self, "ATTENZIONE", "Campo US. \n Il campo non deve essere vuoto",
+            #                             QMessageBox.Ok)
+            #         test = 1
             """controllo campi numerici float"""
             #TAB USM
             spessore_usm = self.lineEdit_spessore_usm.text()
@@ -12593,11 +12971,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                     QMessageBox.warning(self, "ACHTUNG", "Feld Areal. \n Der Wert muss numerisch eingegeben werden",
                                         QMessageBox.Ok)
                     test = 1
-            if us != "":
-                if EC.data_is_int(us) == 0:
-                    QMessageBox.warning(self, "ACHTUNG", "Feld SE. \n Der Wert muss numerisch eingegeben werden",
-                                        QMessageBox.Ok)
-                    test = 1
+            # US field validation removed - now accepts alphanumeric values
             if attivita != "":
                 if EC.data_lenght(attivita, 3) == 0:
                     QMessageBox.warning(self, "ACHTUNG",
@@ -12663,16 +13037,12 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             consistenza = self.comboBox_consistenza.currentText()
             struttura = self.comboBox_struttura.currentText()
             cont_per = self.lineEdit_codice_periodo.text()
-            if area != "":
-                if EC.data_is_int(area) == 0:
-                    QMessageBox.warning(self, "WARNING", "Area Field. \n The value must be numerical",
-                                        QMessageBox.Ok)
-                    test = 1
-            if us != "":
-                if EC.data_is_int(us) == 0:
-                    QMessageBox.warning(self, "WARNING", "SU Field. \n The value must be numerical",
-                                        QMessageBox.Ok)
-                    test = 1
+            # if area != "":
+            #     if EC.data_is_int(area) == 0:
+            #         QMessageBox.warning(self, "WARNING", "Area Field. \n The value must be numerical",
+            #                             QMessageBox.Ok)
+            #         test = 1
+            # US field validation removed - now accepts alphanumeric values
             if attivita != "":
                 if EC.data_lenght(attivita, 3) == 0:
                     QMessageBox.warning(self, "WARNING",
@@ -12766,7 +13136,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         for rec in range(len(records)):
             sito = "'" + str(records[rec].sito) + "'"
             area = "'" + str(records[rec].area) + "'"
-            us = int(records[rec].us)
+            us = "'" + str(records[rec].us) + "'"
             def_stratigrafica = '"' + str(records[rec].d_stratigrafica) + '"'
             #rapporti = records[rec].rapporti  # caricati i rapporti nella variabile
             #rapporti = eval(def_stratigrafica)
@@ -12778,13 +13148,13 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
 
                     report3 = 'Sito: %s, Area: %s, US: %d - %s. Da rivedere ' % (
-                        sito, area, int(us), def_stratigrafica)
+                        sito, area, us, def_stratigrafica)
             else:
                 if def_stratigrafica.find('FORM MADE AUTOMATIC') >= 0:
 
 
                     report3 = 'Sito: %s, Area: %s, US: %d - %s. Review it ' % (
-                        sito, area, int(us), def_stratigrafica)
+                        sito, area, us, def_stratigrafica)
             if report3 != "":
                 report_rapporti3 = report_rapporti3 + report3 + '\n'
                 # self.listWidget_rapp.item(0).setForeground(QtCore.Qt.blue)
@@ -12811,6 +13181,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         us_inesistenti = []
         rapporti_mancanti = []
         aree_vuote = []
+        rapporti_incompleti = []  # Nuova categoria per rapporti senza area/sito
         self.listWidget_rapp.clear()
 
         # Dictionary for reciprocal relationship types
@@ -12849,17 +13220,23 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         for rec in records:
             sito = "'" + str(rec.sito) + "'"
             area = "'" + str(rec.area) + "'"
-            us = int(rec.us)
+            us = str(rec.us)  # Keep as string without quotes for internal use
 
             try:
-                rapporti = eval(rec.rapporti)
+                rapporti = ast.literal_eval(rec.rapporti)
             except Exception as e:
                 self.report_rapporti += f"\nErrore nel formato dei rapporti per US {us}: {str(e)}\n"
                 continue
 
-            # Check for empty areas in relationships
-            for area_vuota in rapporti:
-                if len(area_vuota) <= 2:
+            # Check for empty areas in relationships and incomplete relationships
+            for idx, area_vuota in enumerate(rapporti):
+                if len(area_vuota) == 2:
+                    # Rapporto senza area e sito
+                    # Rimuovi le virgolette prima di usarle nell'f-string
+                    sito_clean = sito.strip("'")
+                    area_clean = area.strip("'")
+                    rapporti_incompleti.append(
+                        f"Sito: {sito_clean}, Area: {area_clean}, US: {us} - Rapporto: {area_vuota[0]} US: {area_vuota[1]} manca di area e sito")
                     continue
                 elif len(area_vuota) > 2:
                     if not area_vuota[2]:
@@ -12879,7 +13256,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
                 # Prepare search parameters for the related US
                 try:
-                    related_us = int(sing_rapp[1])
+                    related_us = sing_rapp[1]
                     related_area = sing_rapp[2]
 
                     # Handle "Area non trovata" case
@@ -12891,13 +13268,13 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                         serch_dict_rapp = {
                             'sito': sito,
                             'area': related_area,
-                            'us': related_us
+                            'us': str(related_us)
                         }
                     else:
                         serch_dict_rapp = {
                             'sito': sito,
                             'area': "'" + str(related_area) + "'",
-                            'us': related_us
+                            'us': str(related_us)
                         }
 
                     # Query for the related US
@@ -12913,7 +13290,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                     else:
                         # Check if reciprocal relationship exists
                         try:
-                            rapporti_check = eval(us_rapp[0].rapporti)
+                            rapporti_check = ast.literal_eval(us_rapp[0].rapporti)
 
                             # Create the expected reciprocal relationship
                             expected_reciprocal = [
@@ -12947,33 +13324,125 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 except Exception as e:
                     self.report_rapporti += f"\nErrore nell'elaborazione del rapporto {sing_rapp} per US {us}: {str(e)}\n"
 
-        # Build the final report
-        if aree_vuote:
-            self.report_rapporti += f"\nCi sono {len(aree_vuote)} rapporti con area vuota. Eseguire Ctrl+U per aggiornare prima di procedere con il controllo.\n\nDettagli:\n" + "\n".join(
-                aree_vuote) + "\n"
-
-        if us_inesistenti:
-            self.report_rapporti += "\nUS Inesistenti:\n" + "\n".join(us_inesistenti) + "\n"
-
-        if rapporti_mancanti:
-            self.report_rapporti += "\nRapporti Mancanti o Non Verificati:\n" + "\n".join(rapporti_mancanti) + "\n"
-
-        # Display and save the report
-        self.listWidget_rapp.addItem(self.report_rapporti)
-
+        # Build the final report with improved formatting
+        error_count = len(aree_vuote) + len(us_inesistenti) + len(rapporti_mancanti) + len(rapporti_incompleti)
+        
+        if error_count == 0:
+            # No errors found
+            if self.L == 'it':
+                self.report_rapporti += "\n✓ Nessun errore trovato nel controllo dei rapporti stratigrafici."
+            elif self.L == 'de':
+                self.report_rapporti += "\n✓ Keine Fehler bei der Kontrolle der stratigraphischen Beziehungen gefunden."
+            else:
+                self.report_rapporti += "\n✓ No errors found in stratigraphic relationships check."
+        else:
+            # Errors found - format them clearly
+            if self.L == 'it':
+                self.report_rapporti += f"\n⚠️ RIEPILOGO ERRORI: Trovati {error_count} errori totali\n"
+                self.report_rapporti += "=" * 60 + "\n"
+            elif self.L == 'de':
+                self.report_rapporti += f"\n⚠️ FEHLERZUSAMMENFASSUNG: {error_count} Fehler insgesamt gefunden\n"
+                self.report_rapporti += "=" * 60 + "\n"
+            else:
+                self.report_rapporti += f"\n⚠️ ERROR SUMMARY: Found {error_count} total errors\n"
+                self.report_rapporti += "=" * 60 + "\n"
+            
+            # Empty areas section
+            if aree_vuote:
+                if self.L == 'it':
+                    self.report_rapporti += f"\n1. AREE VUOTE ({len(aree_vuote)} trovate):\n"
+                    self.report_rapporti += "   ⚠️ Eseguire Ctrl+U per aggiornare prima di procedere.\n"
+                elif self.L == 'de':
+                    self.report_rapporti += f"\n1. LEERE BEREICHE ({len(aree_vuote)} gefunden):\n"
+                    self.report_rapporti += "   ⚠️ Führen Sie Ctrl+U aus, um vor dem Fortfahren zu aktualisieren.\n"
+                else:
+                    self.report_rapporti += f"\n1. EMPTY AREAS ({len(aree_vuote)} found):\n"
+                    self.report_rapporti += "   ⚠️ Execute Ctrl+U to update before proceeding.\n"
+                self.report_rapporti += "-" * 60 + "\n"
+                for area_vuota in aree_vuote:
+                    self.report_rapporti += f"   • {area_vuota}\n"
+            
+            # Non-existent US section
+            if us_inesistenti:
+                if self.L == 'it':
+                    self.report_rapporti += f"\n2. SCHEDE US MANCANTI ({len(us_inesistenti)} trovate):\n"
+                    self.report_rapporti += "   ⚠️ Creare le schede US mancanti.\n"
+                elif self.L == 'de':
+                    self.report_rapporti += f"\n2. FEHLENDE SE-FORMULARE ({len(us_inesistenti)} gefunden):\n"
+                    self.report_rapporti += "   ⚠️ Erstellen Sie die fehlenden SE-Formulare.\n"
+                else:
+                    self.report_rapporti += f"\n2. MISSING SU FORMS ({len(us_inesistenti)} found):\n"
+                    self.report_rapporti += "   ⚠️ Create the missing SU forms.\n"
+                self.report_rapporti += "-" * 60 + "\n"
+                for us_ines in us_inesistenti:
+                    self.report_rapporti += f"   • {us_ines}\n"
+            
+            # Missing reciprocal relationships section
+            if rapporti_mancanti:
+                if self.L == 'it':
+                    self.report_rapporti += f"\n3. RAPPORTI RECIPROCI MANCANTI ({len(rapporti_mancanti)} trovati):\n"
+                    self.report_rapporti += "   ⚠️ Aggiungere i rapporti reciproci nelle schede indicate.\n"
+                elif self.L == 'de':
+                    self.report_rapporti += f"\n3. FEHLENDE GEGENSEITIGE BEZIEHUNGEN ({len(rapporti_mancanti)} gefunden):\n"
+                    self.report_rapporti += "   ⚠️ Fügen Sie die gegenseitigen Beziehungen in den angegebenen Formularen hinzu.\n"
+                else:
+                    self.report_rapporti += f"\n3. MISSING RECIPROCAL RELATIONSHIPS ({len(rapporti_mancanti)} found):\n"
+                    self.report_rapporti += "   ⚠️ Add the reciprocal relationships in the indicated forms.\n"
+                self.report_rapporti += "-" * 60 + "\n"
+                for rapp_manc in rapporti_mancanti:
+                    self.report_rapporti += f"   • {rapp_manc}\n"
+            
+            # Incomplete relationships section (missing area/site)
+            if rapporti_incompleti:
+                if self.L == 'it':
+                    self.report_rapporti += f"\n4. RAPPORTI SENZA AREA/SITO ({len(rapporti_incompleti)} trovati):\n"
+                    self.report_rapporti += "   ⚠️ Eseguire Ctrl+U per aggiungere area e sito ai rapporti.\n"
+                elif self.L == 'de':
+                    self.report_rapporti += f"\n4. BEZIEHUNGEN OHNE AREAL/AUSGRABUNGSSTÄTTE ({len(rapporti_incompleti)} gefunden):\n"
+                    self.report_rapporti += "   ⚠️ Führen Sie Ctrl+U aus, um Areal und Ausgrabungsstätte zu den Beziehungen hinzuzufügen.\n"
+                else:
+                    self.report_rapporti += f"\n4. RELATIONSHIPS WITHOUT AREA/SITE ({len(rapporti_incompleti)} found):\n"
+                    self.report_rapporti += "   ⚠️ Execute Ctrl+U to add area and site to relationships.\n"
+                self.report_rapporti += "-" * 60 + "\n"
+                for rapp_inc in rapporti_incompleti:
+                    self.report_rapporti += f"   • {rapp_inc}\n"
+            
+            self.report_rapporti += "\n" + "=" * 60
+        
+        # Display report in listWidget with better formatting
+        self.listWidget_rapp.clear()
+        # Split report into lines for better display
+        for line in self.report_rapporti.split('\n'):
+            if line.strip():  # Only add non-empty lines
+                self.listWidget_rapp.addItem(line)
+        
+        # Save report to file
         HOME = os.environ['PYARCHINIT_HOME']
         report_path = f"{HOME}{os.sep}pyarchinit_Report_folder"
-
+        
+        # Create directory if it doesn't exist
+        os.makedirs(report_path, exist_ok=True)
+        
         if self.L == 'it':
-            filename = f"{report_path}{os.sep}log_rapporti_US.txt"
+            filename = f"{report_path}{os.sep}log_rapporti_US_{sito_check}.txt"
         elif self.L == 'de':
-            filename = f"{report_path}{os.sep}log_SE.txt"
+            filename = f"{report_path}{os.sep}log_SE_{sito_check}.txt"
         else:
-            filename = f"{report_path}{os.sep}log_SU_relations.txt"
-
-        with open(filename, "w") as f:
+            filename = f"{report_path}{os.sep}log_SU_relations_{sito_check}.txt"
+        
+        with open(filename, "w", encoding='utf-8') as f:
             f.write(self.report_rapporti)
-
+        
+        # Show summary message if errors found
+        if error_count > 0:
+            if self.L == 'it':
+                summary_msg = f"Controllo completato: trovati {error_count} errori.\n\nReport salvato in:\n{filename}"
+            elif self.L == 'de':
+                summary_msg = f"Kontrolle abgeschlossen: {error_count} Fehler gefunden.\n\nBericht gespeichert in:\n{filename}"
+            else:
+                summary_msg = f"Check completed: found {error_count} errors.\n\nReport saved to:\n{filename}"
+            QMessageBox.warning(self, "Controllo Rapporti", summary_msg, QMessageBox.Ok)
+        
         return self.report_rapporti
 
     # def rapporti_stratigrafici_check(self, sito_check):
@@ -13109,7 +13578,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
     #                         #         sito, area, us, sing_rapp[0], sing_rapp[1], sing_rapp[2]))
     #                     else:
     #                         try:
-    #                             rapporti_check = eval(us_rapp[0].rapporti)
+    #                             rapporti_check = ast.literal_eval(us_rapp[0].rapporti)
     #                             us_rapp_check = str(us)
     #                             area_rapp_check = area.strip("'")
     #                             sito_rapp_check = sito.strip("'")
@@ -13223,11 +13692,11 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 sito_check)
         for rec in range(len(records)):
             sito = "'" + str(records[rec].sito) + "'"
-            area = int(records[rec].area)
-            us = int(records[rec].us)
+            area = "'" + str(records[rec].area) + "'"
+            us = "'" + str(records[rec].us) + "'"
             def_stratigrafica = "'" + str(records[rec].d_stratigrafica) + "'"
             rapporti = records[rec].rapporti  # caricati i rapporti nella variabile
-            rapporti = eval(rapporti)
+            rapporti = ast.literal_eval(rapporti)
 
 
             for sing_rapp in rapporti:  # itera sulla serie di rapporti
@@ -13236,27 +13705,27 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
                 if def_stratigrafica.find('Strato') >= 0:  # Paradosso strati che tagliano o si legano
                     if sing_rapp[0] == 'Si lega a':
-                        report = 'Sito: %s, Area: %s, US: %d - %s: lo strato %s US: %d: ' % (
-                            sito, area, int(us), def_stratigrafica, sing_rapp[0], int(sing_rapp[1]))
+                        report = 'Sito: %s, Area: %s, US: %s - %s: lo strato %s US: %s: ' % (
+                            sito, area, us.strip("'"), def_stratigrafica, sing_rapp[0], sing_rapp[1])
                 if def_stratigrafica.find('Riempimento') >= 0:  # Paradosso riempimentiche tagliano o si legano
                     if sing_rapp[0] == 'Taglia' or sing_rapp[0] == 'Si lega a'or sing_rapp[0] == 'Si appoggia a' or sing_rapp[0] == 'Gli si appoggia' or sing_rapp[0] == 'Taglia':
-                        report = 'Sito: %s, Area: %s, US: %d - %s: lo strato %s US: %d: ' % (
-                            sito, area, int(us), def_stratigrafica, sing_rapp[0], int(sing_rapp[1]))
+                        report = 'Sito: %s, Area: %s, US: %s - %s: lo strato %s US: %s: ' % (
+                            sito, area, us.strip("'"), def_stratigrafica, sing_rapp[0], sing_rapp[1])
                 if def_stratigrafica.find('Taglio') >= 0:  # Paradosso riempimentiche tagliano o si legano
                     if sing_rapp[0] == 'Riempie' or sing_rapp[0] == 'Si lega a' or sing_rapp[0] == 'Si appoggia a'  or sing_rapp[0] == 'Gli si appoggia':
-                        report = 'Sito: %s, Area: %s, US: %d - %s: lo strato %s US: %d: ' % (
-                            sito, area, int(us), def_stratigrafica, sing_rapp[0], int(sing_rapp[1]))
+                        report = 'Sito: %s, Area: %s, US: %s - %s: lo strato %s US: %s: ' % (
+                            sito, area, us.strip("'"), def_stratigrafica, sing_rapp[0], sing_rapp[1])
                 if report != "":
                     report_rapporti1 = report_rapporti1 + report + '\n'
                 #versione inglese
                 elif def_stratigrafica.find('Stra') >= 0:  # Paradosso strati che tagliano o si legano
                     if sing_rapp[0] == 'Connected to':
-                        report = 'Site: %s, Area: %s, SU: %d - %s: the stratum %s SU: %d: ' % (
-                            sito, area, int(us), def_stratigrafica, sing_rapp[0], int(sing_rapp[1]))
+                        report = 'Site: %s, Area: %s, SU: %s - %s: the stratum %s SU: %s: ' % (
+                            sito, area, us.strip("'"), def_stratigrafica, sing_rapp[0], sing_rapp[1])
                 if def_stratigrafica.find('Fills') >= 0:  # Paradosso riempimentiche tagliano o si legano
                     if sing_rapp[0] == 'Cuts' or sing_rapp[0] == 'Connected to':
-                        report = 'Site: %s, Area: %s, SU: %d - %s: the startum %s SU: %d: ' % (
-                            sito, area, int(us), def_stratigrafica, sing_rapp[0], int(sing_rapp[1]))
+                        report = 'Site: %s, Area: %s, SU: %s - %s: the startum %s SU: %s: ' % (
+                            sito, area, us.strip("'"), def_stratigrafica, sing_rapp[0], sing_rapp[1])
                 # if def_stratigrafica.find('Filling') >= 0:  # Paradosso riempimentiche tagliano o si legano
                     # if sing_rapp[0] == 'Cuts' or sing_rapp[0] == 'Connected to':
                         # report = 'Site: %s, Area: %s, SU: %d - %s: the stratum %s SU: %d: ' % (
@@ -13266,12 +13735,12 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 #versione tedesca
                 elif def_stratigrafica.find('Stratum') >= 0:  # Paradosso strati che tagliano o si legano
                     if sing_rapp[0] == 'Bindet an':
-                        report = 'Sito: %s, Area: %s, SE: %d - %s: die startum %s US: %d: ' % (
-                            sito, area, int(us), def_stratigrafica, sing_rapp[0], int(sing_rapp[1]))
+                        report = 'Sito: %s, Area: %s, SE: %s - %s: die startum %s US: %s: ' % (
+                            sito, area, us, def_stratigrafica, sing_rapp[0], sing_rapp[1])
                 if def_stratigrafica.find('Verfullüng') >= 0:  # Paradosso riempimentiche tagliano o si legano
                     if sing_rapp[0] == 'Schneidet' or sing_rapp[0] == 'Bindet an':
-                        report = 'Sito: %s, Area: %s, SE: %d - %s: die stratum %s US: %d: ' % (
-                            sito, area, int(us), def_stratigrafica, sing_rapp[0], int(sing_rapp[1]))
+                        report = 'Sito: %s, Area: %s, SE: %s - %s: die stratum %s US: %s: ' % (
+                            sito, area, us.strip("'"), def_stratigrafica, sing_rapp[0], sing_rapp[1])
                 # if def_stratigrafica.find('Verfullüng') >= 0:  # Paradosso riempimentiche tagliano o si legano
                     # if sing_rapp[0] == 'Schneidet' or sing_rapp[0] == 'Bindet an':
                         # report = 'Sito: %s, Area: %s, SE: %d - %s: die startum %s US: %d: ' % (
@@ -13305,8 +13774,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             replaced_str = 0 # or any default integer value
 
         if sing_rapp[0] in ['Si lega a', 'Uguale a', 'Same as', 'Connected to'] and replaced_str != periodo_in:
-            return 'Sito: %s, Area: %s, %s: %d -  Il periodo e fase iniziale %s: deve essere: %s corrispondente con la %s : %d: ' % (
-                sito, area, ut, us, str(periodo_in) + '-' + str(fase_in), sing_rapp[0], sing_rapp[2], int(sing_rapp[1]))
+            return 'Sito: %s, Area: %s, %s: %s -  Il periodo e fase iniziale %s: deve essere: %s corrispondente con la %s : %s: ' % (
+                sito, area, ut, us, str(periodo_in) + '-' + str(fase_in), sing_rapp[0], sing_rapp[2], str(sing_rapp[1]))
 
         return ""
 
@@ -13362,16 +13831,16 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         for rec in range(len(records)):
             sito = "'" + str(records[rec].sito) + "'"
             area = "'" + str(records[rec].area) + "'"
-            us = int(records[rec].us)
+            us = str(records[rec].us)
             periodo_in = str(records[rec].periodo_iniziale)
             fase_in = str(records[rec].fase_iniziale)
             periodo_fin =  str(records[rec].periodo_finale)
             fase_fin =  str(records[rec].fase_iniziale)
             ut=str(records[rec].unita_tipo)
             rapporti = records[rec].rapporti  # caricati i rapporti nella variabile
-            rapporti = eval(rapporti)
+            rapporti = ast.literal_eval(rapporti)
             rapporti2 = records[rec].rapporti2  # caricati i rapporti nella variabile
-            rapporti2 = eval(rapporti2)
+            rapporti2 = ast.literal_eval(rapporti2)
 
             for sing_rapp in rapporti2:  # itera sulla serie di rapporti
                 report = ""
@@ -13384,125 +13853,125 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                         # report2:'la table widget deve essere riempita'
                     if sing_rapp[0] == 'Si lega a' and sing_rapp[2]=='US':
 
-                        report2 = '%s : %d - %s : %d: devono essere USM' % (
-                            ut, int(us), sing_rapp[2], int(sing_rapp[1]))
+                        report2 = '%s : %s - %s : %s: devono essere USM' % (
+                            ut, str(us), sing_rapp[2], str(sing_rapp[1]))
 
                     if sing_rapp[0] == 'Connected to' and sing_rapp[2]=='SU':
 
-                        report2 = '%s : %d - %s : %d: should be WSU' % (
-                            ut, int(us), sing_rapp[2], int(sing_rapp[1]))
+                        report2 = '%s : %s - %s : %s: should be WSU' % (
+                            ut, str(us), sing_rapp[2], str(sing_rapp[1]))
 
                     if sing_rapp[0] == 'Uguale a' and sing_rapp[2]=='USM':
 
-                        report2 = '%s : %d - %s : %d: devono essere US' % (
-                            ut, int(us), sing_rapp[2], int(sing_rapp[1]))
+                        report2 = '%s : %s - %s : %s: devono essere US' % (
+                            ut, str(us), sing_rapp[2], str(sing_rapp[1]))
 
                     if sing_rapp[0] == 'Same as' and sing_rapp[2]=='WSU':
 
-                        report2 = '%s : %d - %s : %d: should be SU' % (
-                            ut, int(us), sing_rapp[2], int(sing_rapp[1]))
+                        report2 = '%s : %s - %s : %s: should be SU' % (
+                            ut, str(us), sing_rapp[2], str(sing_rapp[1]))
 
                     if sing_rapp[0] == 'Si appoggia a' and sing_rapp[2]=='US':
 
-                        report2 = '%s : %d - %s : %d: devono essere USM' % (
-                            ut, int(us), sing_rapp[2], int(sing_rapp[1]))
+                        report2 = '%s : %s - %s : %s: devono essere USM' % (
+                            ut, str(us), sing_rapp[2], str(sing_rapp[1]))
 
                     if sing_rapp[0] == 'Gli si appoggia' and sing_rapp[2]=='US':
 
-                        report2 = '%s : %d - %s : %d: devono essere USM' % (
-                            ut, int(us), sing_rapp[2], int(sing_rapp[1]))
+                        report2 = '%s : %s - %s : %s: devono essere USM' % (
+                            ut, str(us), sing_rapp[2], str(sing_rapp[1]))
 
                     if sing_rapp[0] == 'Abuts' and sing_rapp[2]=='SU':
 
-                        report2 = '%s : %d - %s : %d: should be WSU' % (
-                            ut, int(us), sing_rapp[2], int(sing_rapp[1]))
+                        report2 = '%s : %s - %s : %s: should be WSU' % (
+                            ut, str(us), sing_rapp[2], str(sing_rapp[1]))
 
                     if sing_rapp[0] == 'Supports' and sing_rapp[2]=='SU':
 
-                        report2 = '%s : %d - %s : %d: should be WSU' % (
-                            ut, int(us), sing_rapp[2], int(sing_rapp[1]))
+                        report2 = '%s : %s - %s : %s: should be WSU' % (
+                            ut, str(us), sing_rapp[2], str(sing_rapp[1]))
 
                     if sing_rapp[4]!='-':
 
                         if sing_rapp[0] == 'Covers' and int(sing_rapp[4].replace('-',''))<self.concat(int(periodo_in),int(fase_in)):
 
-                            report2 = '%s : %d : %s- should be Covered by %s : %s-%s' % (
-                                ut, int(us),str(sing_rapp[4]), sing_rapp[1],  str(periodo_in),str(fase_in))
+                            report2 = '%s : %s : %s- should be Covered by %s : %s-%s' % (
+                                ut, str(us),str(sing_rapp[4]), sing_rapp[1],  str(periodo_in),str(fase_in))
 
                         if sing_rapp[0] == 'Covered by' and int(sing_rapp[4].replace('-',''))>self.concat(int(periodo_in),int(fase_in)):
 
-                            report2 = '%s : %d : %s- should be Covers %s : %s-%s' % (
-                                ut, int(us),str(sing_rapp[4]), sing_rapp[1], str(periodo_in),str(fase_in))
+                            report2 = '%s : %s : %s- should be Covers %s : %s-%s' % (
+                                ut, str(us),str(sing_rapp[4]), sing_rapp[1], str(periodo_in),str(fase_in))
 
                         if sing_rapp[0] == 'Fills' and int(sing_rapp[4].replace('-',''))<self.concat(int(periodo_in),int(fase_in)):
 
-                            report2 = '%s : %d : %s- Should be Filled by %s : %s-%s' % (
-                                ut, int(us),str(sing_rapp[4]), sing_rapp[1],  str(periodo_in),str(fase_in))
+                            report2 = '%s : %s : %s- Should be Filled by %s : %s-%s' % (
+                                ut, str(us),str(sing_rapp[4]), sing_rapp[1],  str(periodo_in),str(fase_in))
 
                         if sing_rapp[0] == 'Filled by' and int(sing_rapp[4].replace('-',''))>self.concat(int(periodo_in),int(fase_in)):
 
-                            report2 = '%s : %d : %s- Shuld be Fills %s : %s-%s' % (
-                                ut, int(us),str(sing_rapp[4]), sing_rapp[1], str(periodo_in),str(fase_in))
+                            report2 = '%s : %s : %s- Shuld be Fills %s : %s-%s' % (
+                                ut, str(us),str(sing_rapp[4]), sing_rapp[1], str(periodo_in),str(fase_in))
 
                         if sing_rapp[0] == 'Cuts' and int(sing_rapp[4].replace('-',''))<self.concat(int(periodo_in),int(fase_in)):
 
-                            report2 = '%s : %d : %s- Shuld be Cut by %s : %s-%s' % (
-                                ut, int(us),str(sing_rapp[4]), sing_rapp[1],  str(periodo_in),str(fase_in))
+                            report2 = '%s : %s : %s- Shuld be Cut by %s : %s-%s' % (
+                                ut, str(us),str(sing_rapp[4]), sing_rapp[1],  str(periodo_in),str(fase_in))
 
                         if sing_rapp[0] == 'Cut by' and int(sing_rapp[4].replace('-',''))>self.concat(int(periodo_in),int(fase_in)):
 
-                            report2 = '%s : %d : %s- Shuld be Cuts %s : %s-%s' % (
-                                ut, int(us),str(sing_rapp[4]), sing_rapp[1], str(periodo_in),str(fase_in))
+                            report2 = '%s : %s : %s- Shuld be Cuts %s : %s-%s' % (
+                                ut, str(us),str(sing_rapp[4]), sing_rapp[1], str(periodo_in),str(fase_in))
 
                         if sing_rapp[0] == 'Abuts' and int(sing_rapp[4].replace('-',''))<self.concat(int(periodo_in),int(fase_in)):
 
-                            report2 = '%s : %d : %s- Shuld be Supports %s : %s-%s' % (
-                                ut, int(us),str(sing_rapp[4]), sing_rapp[1],  str(periodo_in),str(fase_in))
+                            report2 = '%s : %s : %s- Shuld be Supports %s : %s-%s' % (
+                                ut, str(us),str(sing_rapp[4]), sing_rapp[1],  str(periodo_in),str(fase_in))
 
                         if sing_rapp[0] == 'Supports' and int(sing_rapp[4].replace('-',''))>self.concat(int(periodo_in),int(fase_in)):
 
-                            report2 = '%s : %d : %s- Shuld be Abuts %s : %s-%s' % (
-                                ut, int(us),str(sing_rapp[4]), sing_rapp[1], str(periodo_in),str(fase_in))
+                            report2 = '%s : %s : %s- Shuld be Abuts %s : %s-%s' % (
+                                ut, str(us),str(sing_rapp[4]), sing_rapp[1], str(periodo_in),str(fase_in))
 
                         if sing_rapp[0] == 'Copre' and int(sing_rapp[4].replace('-',''))<self.concat(int(periodo_in),int(fase_in)):
 
-                            report2 = '%s : %d : %s- Dovrebbe essere Coperto da %s : %s-%s' % (
-                                ut, int(us),str(sing_rapp[4]), sing_rapp[1],  str(periodo_in),str(fase_in))
+                            report2 = '%s : %s : %s- Dovrebbe essere Coperto da %s : %s-%s' % (
+                                ut, str(us),str(sing_rapp[4]), sing_rapp[1],  str(periodo_in),str(fase_in))
 
                         if sing_rapp[0] == 'Coperto da' and int(sing_rapp[4].replace('-',''))>self.concat(int(periodo_in),int(fase_in)):
 
-                            report2 = '%s : %d : %s- Dovrebbe Coprire %s : %s-%s' % (
-                                ut, int(us),str(sing_rapp[4]), sing_rapp[1], str(periodo_in),str(fase_in))
+                            report2 = '%s : %s : %s- Dovrebbe Coprire %s : %s-%s' % (
+                                ut, str(us),str(sing_rapp[4]), sing_rapp[1], str(periodo_in),str(fase_in))
 
                         if sing_rapp[0] == 'Riempie' and int(sing_rapp[4].replace('-',''))<self.concat(int(periodo_in),int(fase_in)):
 
-                            report2 = '%s : %d : %s- Dovrebbe essere Riempito da %s : %s-%s' % (
-                                ut, int(us),str(sing_rapp[4]), sing_rapp[1],  str(periodo_in),str(fase_in))
+                            report2 = '%s : %s : %s- Dovrebbe essere Riempito da %s : %s-%s' % (
+                                ut, str(us),str(sing_rapp[4]), sing_rapp[1],  str(periodo_in),str(fase_in))
 
                         if sing_rapp[0] == 'Riempito da' and int(sing_rapp[4].replace('-',''))>self.concat(int(periodo_in),int(fase_in)):
 
-                            report2 = '%s : %d : %s- Dovrebbe Riempire %s : %s-%s' % (
-                                ut, int(us),str(sing_rapp[4]), sing_rapp[1], str(periodo_in),str(fase_in))
+                            report2 = '%s : %s : %s- Dovrebbe Riempire %s : %s-%s' % (
+                                ut, str(us),str(sing_rapp[4]), sing_rapp[1], str(periodo_in),str(fase_in))
 
                         if sing_rapp[0] == 'Taglia' and int(sing_rapp[4].replace('-',''))<self.concat(int(periodo_in),int(fase_in)):
 
-                            report2 = '%s : %d : %s- Dovrebbe essere Tagliato da %s : %s-%s' % (
-                                ut, int(us),str(sing_rapp[4]), sing_rapp[1],  str(periodo_in),str(fase_in))
+                            report2 = '%s : %s : %s- Dovrebbe essere Tagliato da %s : %s-%s' % (
+                                ut, str(us),str(sing_rapp[4]), sing_rapp[1],  str(periodo_in),str(fase_in))
 
                         if sing_rapp[0] == 'Tagliato da' and int(sing_rapp[4].replace('-',''))>self.concat(int(periodo_in),int(fase_in)):
 
-                            report2 = '%s : %d : %s- Dovrebbe Tagliare %s : %s-%s' % (
-                                ut, int(us),str(sing_rapp[4]), sing_rapp[1], str(periodo_in),str(fase_in))
+                            report2 = '%s : %s : %s- Dovrebbe Tagliare %s : %s-%s' % (
+                                ut, str(us),str(sing_rapp[4]), sing_rapp[1], str(periodo_in),str(fase_in))
 
                         if sing_rapp[0] == 'Si appoggia a' and int(sing_rapp[4].replace('-',''))<self.concat(int(periodo_in),int(fase_in)):
 
-                            report2 = '%s : %d : %s- Dovrebbe essere Gli si appoggia %s : %s-%s' % (
-                                ut, int(us),str(sing_rapp[4]), sing_rapp[1],  str(periodo_in),str(fase_in))
+                            report2 = '%s : %s : %s- Dovrebbe essere Gli si appoggia %s : %s-%s' % (
+                                ut, str(us),str(sing_rapp[4]), sing_rapp[1],  str(periodo_in),str(fase_in))
 
                         if sing_rapp[0] == 'Gli si appoggia' and int(sing_rapp[4].replace('-',''))>self.concat(int(periodo_in),int(fase_in)):
 
-                            report2 = '%s : %d : %s- Dovrebbe Si appoggia a %s : %s-%s' % (
-                                ut, int(us),str(sing_rapp[4]), sing_rapp[1], str(periodo_in),str(fase_in))
+                            report2 = '%s : %s : %s- Dovrebbe Si appoggia a %s : %s-%s' % (
+                                ut, str(us),str(sing_rapp[4]), sing_rapp[1], str(periodo_in),str(fase_in))
                     if sing_rapp[4]=='-':
                         if self.L=='it':
                             report2 = 'Manca la peridizzazione in %s %s'% (sing_rapp[2], sing_rapp[1])
@@ -13650,7 +14119,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 self.DB_MANAGER.max_num_id(self.MAPPER_TABLE_CLASS, self.ID_TABLE) + 1,
                 str(self.comboBox_sito.currentText()),  # 1 - Sito
                 str(self.comboBox_area.currentText()),  # 2 - Area
-                int(self.lineEdit_us.text()),  # 3 - US
+                str(self.lineEdit_us.text()),  # 3 - US
                 str(self.comboBox_def_strat.currentText()),  # 4 - Definizione stratigrafica
                 str(self.comboBox_def_intepret.currentText()),  # 5 - Definizione intepretata
                 str(self.textEdit_descrizione.toPlainText()),  # 6 - descrizione
@@ -13774,6 +14243,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             # todelete
             try:
                 self.DB_MANAGER.insert_data_session(data)
+                # Sync TM field from TMA table after successful insert
+                self.sync_tm_from_tma()
                 return 1
             except Exception as e:
                 e_str = str(e)
@@ -14506,7 +14977,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         else:
             # TableWidget
             if self.lineEdit_us.text() != "":
-                us = int(self.lineEdit_us.text())
+                us = str(self.lineEdit_us.text())
             else:
                 us = ""
             ##qmin_usm
@@ -14976,8 +15447,21 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
     def tableInsertData(self, t, d):
         """Set the value into alls Grid"""
         self.table_name = t
-        self.data_list = eval(d)
-        self.data_list.sort()
+        # Handle empty or None data safely
+        if not d or d == 'None' or d == '':
+            self.data_list = []
+        else:
+            try:
+                # Use ast.literal_eval for safer parsing
+                self.data_list = ast.literal_eval(d)
+            except (ValueError, SyntaxError):
+                # If parsing fails, try to handle as empty list
+                self.data_list = []
+        
+        if isinstance(self.data_list, list):
+            self.data_list.sort()
+        else:
+            self.data_list = []
         # column table count
         table_col_count_cmd = "{}.columnCount()".format(self.table_name)
         table_col_count = eval(table_col_count_cmd)
@@ -15345,7 +15829,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         try:
             str(self.comboBox_sito.setEditText(self.DATA_LIST[self.rec_num].sito))  # 1 - Sito
             str(self.comboBox_area.setEditText(self.DATA_LIST[self.rec_num].area))  # 2 - Area
-            self.lineEdit_us.setText(str(self.DATA_LIST[self.rec_num].us))  # 3 - US
+            self.lineEdit_us.setText(self.DATA_LIST[self.rec_num].us)  # 3 - US
             str(self.comboBox_def_strat.setEditText(self.DATA_LIST[self.rec_num].d_stratigrafica))  # 4 - Definizione stratigrafica
             str(self.comboBox_def_intepret.setEditText(self.DATA_LIST[self.rec_num].d_interpretativa))  # 5 - Definizione intepretata
             str(self.textEdit_descrizione.setText(self.DATA_LIST[self.rec_num].descrizione))  # 6 - descrizione
@@ -15525,8 +16009,48 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 self.loadMapPreview()
             if self.toolButtonPreviewMedia.isChecked():
                 self.loadMediaPreview()
+            
+            # Sync TM and RA fields automatically
+            self.sync_tm_from_tma()
+            self.charge_insert_ra()
         except:
             pass
+    
+    def sync_tm_from_tma(self):
+        """Synchronize TM (ref_tm) field with cassetta from TMA table"""
+        try:
+            # Get current values
+            sito = str(self.comboBox_sito.currentText())
+            area = str(self.comboBox_area.currentText())
+            us = str(self.lineEdit_us.text())
+            
+            if sito and area and us:
+                # Query TMA table for matching record
+                search_dict = {
+                    'sito': "'" + sito + "'",
+                    'area': "'" + area + "'",
+                    'dscu': "'" + us + "'"
+                }
+                
+                # Use the existing DB_MANAGER instance
+                if hasattr(self, 'DB_MANAGER') and self.DB_MANAGER:
+                    res = self.DB_MANAGER.query_bool(search_dict, 'TMA')
+                    
+                    if res:
+                        # Get the cassetta value from TMA
+                        cassetta = res[0].cassetta
+                        if cassetta:
+                            # Set the ref_tm field
+                            self.lineEdit_ref_tm.setText(str(cassetta))
+                        else:
+                            # Clear the field if no cassetta value
+                            self.lineEdit_ref_tm.clear()
+                    else:
+                        # Clear the field if no matching TMA record
+                        self.lineEdit_ref_tm.clear()
+        except Exception as e:
+            QgsMessageLog.logMessage(f"Error syncing TM from TMA: {str(e)}", "PyArchInit", Qgis.Warning)
+    
     def set_rec_counter(self, t, c):
         self.rec_tot = t
         self.rec_corr = c
@@ -17745,9 +18269,14 @@ class USFilterDialog(QDialog):
         # Set dialog layout
         self.setLayout(layout)
 
+    def natural_sort_key(self, text):
+        """Convert a string into a list of mixed strings and integers for natural sorting.
+        This allows proper sorting of alphanumeric US values like US1, US2, US10, US-A, etc."""
+        return [int(c) if c.isdigit() else c.lower() for c in re.split(r'(\d+)', str(text))]
+
     def populate_list_with_us(self):
         # Fetch US records from the database and sort them
-        self.us_records = sorted(self.db_manager.query_all('us_table'), key=lambda x: x.us)
+        self.us_records = sorted(self.db_manager.query_all('us_table'), key=lambda x: self.natural_sort_key(x.us))
         self.update_list_widget(self.us_records)
 
     def update_list_widget(self, records):
@@ -17779,7 +18308,7 @@ class USFilterDialog(QDialog):
             item = self.list_widget.item(i)
             checkbox = self.list_widget.itemWidget(item)
             if checkbox.isChecked():
-                us_id = int(checkbox.text().split(' ')[1])  # Extract the US ID from the checkbox text
+                us_id = str(checkbox.text().split(' ')[1])  # Extract the US ID from the checkbox text
                 self.selected_us.append(us_id)
 
         print(f"Selected US IDs: {self.selected_us}")  # Debug print statement
