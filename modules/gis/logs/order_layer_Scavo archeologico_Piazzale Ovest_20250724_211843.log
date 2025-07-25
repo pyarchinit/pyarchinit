@@ -1,0 +1,40 @@
+2025-07-24 21:18:43,129 - INFO - Inizializzazione Order_layer_graph per Scavo archeologico - Piazzale Ovest
+2025-07-24 21:18:43,456 - INFO - Avvio caricamento dati dal database...
+2025-07-24 21:18:43,502 - INFO - Tipo database rilevato: SQLite
+2025-07-24 21:18:43,515 - DEBUG - Esecuzione query: 
+            SELECT us, rapporti 
+            FROM us_table 
+            WHERE sito = 'Scavo archeologico' AND area = 'Piazzale Ovest'
+            
+2025-07-24 21:18:43,631 - INFO - Completato: caricate 5 US dal database
+2025-07-24 21:18:43,636 - INFO - Costruzione del grafo stratigrafico...
+2025-07-24 21:18:43,639 - DEBUG - Aggiunta relazione: 1B -> 1A (Copre)
+2025-07-24 21:18:43,642 - DEBUG - Aggiunta relazione: 2 -> 1A (Copre)
+2025-07-24 21:18:43,643 - DEBUG - Aggiunta relazione: 3A -> 1A (Copre)
+2025-07-24 21:18:43,644 - DEBUG - Aggiunta relazione: 4 -> 1A (Copre)
+2025-07-24 21:18:43,645 - INFO - Grafo costruito: 5 nodi, 4 archi, 4 relazioni totali
+2025-07-24 21:18:43,646 - INFO - Ricerca cicli nel grafo...
+2025-07-24 21:18:43,646 - INFO - Nessun ciclo trovato nel grafo
+2025-07-24 21:18:43,648 - INFO - Inizio calcolo sequenza stratigrafica...
+2025-07-24 21:18:43,649 - INFO - Inizio calcolo sequenza stratigrafica...
+2025-07-24 21:18:43,650 - INFO - DEBUG MAIN: Prima di chiamare topological_sort. all_us=5
+2025-07-24 21:18:43,651 - INFO - US di base (senza predecessori): ['1B', '2', '3A', '4']
+2025-07-24 21:18:43,651 - DEBUG - Livello 0: 1B, 2, 3A, 4
+2025-07-24 21:18:43,653 - DEBUG - Livello 1: 1A
+2025-07-24 21:18:43,653 - INFO - DEBUG MAIN: Dopo topological_sort. levels type=<class 'list'>, is None=False
+2025-07-24 21:18:43,654 - INFO - DEBUG MAIN: levels length=2
+2025-07-24 21:18:43,654 - INFO - DEBUG MAIN: generated_levels exists, length=0
+2025-07-24 21:18:43,655 - INFO - Matrix generato con successo: 2 livelli
+2025-07-24 21:18:43,655 - INFO - Preparazione risultati finali...
+2025-07-24 21:18:43,667 - INFO - Matrix completato: 2 livelli, 5 US
+2025-07-24 21:18:43,669 - INFO - === RISULTATI FINALI ===
+2025-07-24 21:18:43,674 - INFO - Livello 0: 1B, 2, 3A, 4
+2025-07-24 21:18:43,678 - INFO - Livello 1: 1A
+2025-07-24 21:18:43,681 - INFO - Matrix calcolato con successo. Pronto per aggiornamento database.
+2025-07-24 21:18:43,685 - INFO - === INIZIO AGGIORNAMENTO DATABASE ===
+2025-07-24 21:18:43,690 - DEBUG - Aggiornamento livello 0: 4 US
+2025-07-24 21:18:43,696 - ERROR - Errore critico durante l'aggiornamento: invalid literal for int() with base 10: '1B'
+Traceback (most recent call last):
+  File "/Users/enzo/Library/Application Support/QGIS/QGIS3/profiles/default/python/plugins/pyarchinit/modules/gis/pyarchinit_pyqgis.py", line 9216, in update_database_with_order
+    'us': int(sing_us)
+ValueError: invalid literal for int() with base 10: '1B'

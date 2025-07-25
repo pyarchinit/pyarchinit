@@ -86,7 +86,11 @@ PotteryTable.define_table(metadata)
 Tma_table.define_table(metadata)
 
 # Creare tutte le tabelle nel database
-metadata.create_all(engine)
+try:
+    metadata.create_all(engine)
+except:
+    pass  # Tables already exist or geometry not supported
+
 # Definisci le tue tabelle qui, passando `metadata` a ogni classe di tabella se necessario
 # Nota: Dovrai modificare le classi per accettare `metadata` come parametro, se non già fatto.
 

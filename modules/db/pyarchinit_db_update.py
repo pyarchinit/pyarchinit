@@ -24,6 +24,8 @@ from sqlalchemy import Table
 from sqlalchemy.engine import create_engine
 from sqlalchemy.sql.schema import MetaData
 
+from qgis.PyQt.QtWidgets import QMessageBox
+
 from modules.db.pyarchinit_conn_strings import Connection
 
 
@@ -35,6 +37,30 @@ class DB_update(object):
         self.metadata = MetaData(self.engine)
 
     def update_table(self):
+        def safe_load_table(table_name):
+            """Carica una tabella gestendo errori di encoding UTF-8"""
+            try:
+                return Table(table_name, self.metadata, autoload=True)
+            except UnicodeDecodeError as e:
+                QMessageBox.warning(None, "Errore Encoding", 
+                                  f"Errore di encoding UTF-8 nella tabella {table_name}.\n"
+                                  f"Verificare che il database PostgreSQL sia configurato con encoding UTF-8.\n"
+                                  f"Dettagli: {str(e)}", QMessageBox.Ok)
+                return None
+            except Exception as e:
+                # Gestisci altri errori di caricamento tabella
+                QMessageBox.warning(None, "Errore Tabella", 
+                                  f"Impossibile caricare la tabella {table_name}.\n"
+                                  f"Dettagli: {str(e)}", QMessageBox.Ok)
+                return None
+        
+        # Check if we're using SQLite
+        is_sqlite = 'sqlite' in str(self.engine.url).lower()
+        
+        # SQLite US field migration
+        if is_sqlite:
+            self._migrate_us_fields_sqlite()
+            return
         # ####invetario_materiali_table
         # table = Table("pyunitastratigrafiche", self.metadata, autoload=True)
         # table_column_names_list = []
@@ -54,12 +80,41 @@ class DB_update(object):
         #     self.engine.execute(
         #         "ALTER TABLE pyunitastratigrafiche ALTER COLUMN coord TYPE text")
 
-        ####invetario_materiali_table
-        table = Table("pottery_table", self.metadata, autoload=True)
+        ####pottery_table
+        try:
+            table = Table("pottery_table", self.metadata, autoload=True)
+        except UnicodeDecodeError as e:
+            # Gestisci errore di encoding
+            QMessageBox.warning(None, "Errore Encoding", 
+                              f"Errore di encoding UTF-8 nella tabella pottery_table.\n"
+                              f"Verificare che il database PostgreSQL sia configurato con encoding UTF-8.\n"
+                              f"Dettagli: {str(e)}", QMessageBox.Ok)
+            return
         table_column_names_list = []
 
         for i in table.columns:
             table_column_names_list.append(str(i.name))
+        
+        # Change US column from INTEGER to TEXT
+        try:
+            if table_column_names_list.__contains__('us'):
+                # Check if the column is still INTEGER type
+                us_column = None
+                for col in table.columns:
+                    if col.name == 'us':
+                        us_column = col
+                        break
+                
+                if us_column is not None:
+                    # Check if column type needs conversion
+                    col_type = str(us_column.type)
+                    if 'INTEGER' in col_type.upper() or 'BIGINT' in col_type.upper():
+                        # Convert the column type
+                        self.engine.execute("ALTER TABLE pottery_table ALTER COLUMN us TYPE TEXT USING us::TEXT")
+        except Exception as e:
+            # Log the error but continue with other updates
+            pass
+        
         if not table_column_names_list.__contains__('sector'):
             self.engine.execute(
                 "ALTER TABLE pottery_table ADD COLUMN sector text")
@@ -89,8 +144,10 @@ class DB_update(object):
             pass
 
 
-        ####invetario_materiali_table
-        table = Table("inventario_materiali_table", self.metadata, autoload=True)
+        ####inventario_materiali_table
+        table = safe_load_table("inventario_materiali_table")
+        if table is None:
+            return
         table_column_names_list = []
 
         for i in table.columns:
@@ -252,7 +309,9 @@ class DB_update(object):
 
 
         ####site_table
-        table = Table("site_table", self.metadata, autoload=True)
+        table = safe_load_table("site_table")
+        if table is None:
+            return
         table_column_names_list = []
         for i in table.columns:
             table_column_names_list.append(str(i.name))
@@ -271,12 +330,77 @@ class DB_update(object):
             self.engine.execute("ALTER TABLE site_table ADD COLUMN find_check BIGINT DEFAULT 0")
 
         ####US_table
-        table = Table("us_table", self.metadata, autoload=True)
+        table = safe_load_table("us_table")
+        if table is None:
+            return
         table_column_names_list = []
 
         for i in table.columns:
             table_column_names_list.append(str(i.name))
 
+        # Change US column from INTEGER to TEXT
+        try:
+            # Check if the column is still INTEGER type
+            # Get column type from database metadata
+            us_column = None
+            for col in table.columns:
+                if col.name == 'us':
+                    us_column = col
+                    break
+            
+            if us_column is not None:
+                # Check if column type needs conversion
+                col_type = str(us_column.type)
+                if 'INTEGER' in col_type.upper() or 'BIGINT' in col_type.upper():
+                    # Drop dependent views first
+                    try:
+                        self.engine.execute("DROP VIEW IF EXISTS pyarchinit_quote_view CASCADE")
+                        self.engine.execute("DROP VIEW IF EXISTS pyarchinit_us_view CASCADE")
+                        self.engine.execute("DROP VIEW IF EXISTS pyarchinit_uscaratterizzazioni_view CASCADE")
+                    except:
+                        pass
+                    
+                    # Convert the column type
+                    self.engine.execute("ALTER TABLE us_table ALTER COLUMN us TYPE TEXT USING us::TEXT")
+                    
+                    # Recreate views
+                    try:
+                        self.engine.execute("""
+                        CREATE VIEW pyarchinit_us_view AS
+                        SELECT 
+                            pyunitastratigrafiche.gid, 
+                            pyunitastratigrafiche.the_geom, 
+                            pyunitastratigrafiche.tipo_us_s, 
+                            pyunitastratigrafiche.scavo_s, 
+                            pyunitastratigrafiche.area_s, 
+                            pyunitastratigrafiche.us_s, 
+                            pyunitastratigrafiche.stratigraph_index_us,
+                            us_table.id_us, 
+                            us_table.sito, 
+                            us_table.area, 
+                            us_table.us, 
+                            us_table.struttura, 
+                            us_table.d_stratigrafica, 
+                            us_table.d_interpretativa, 
+                            us_table.descrizione, 
+                            us_table.interpretazione, 
+                            us_table.rapporti, 
+                            us_table.periodo_iniziale, 
+                            us_table.fase_iniziale, 
+                            us_table.periodo_finale, 
+                            us_table.fase_finale, 
+                            us_table.anno_scavo
+                        FROM pyunitastratigrafiche
+                        JOIN us_table ON 
+                            pyunitastratigrafiche.scavo_s = us_table.sito 
+                            AND pyunitastratigrafiche.area_s::TEXT = us_table.area::TEXT 
+                            AND pyunitastratigrafiche.us_s = us_table.us
+                        """)
+                    except:
+                        pass
+        except Exception as e:
+            # Log the error but continue with other updates
+            pass
 
         if not table_column_names_list.__contains__('cont_per'):
             self.engine.execute("ALTER TABLE us_table ADD COLUMN cont_per varchar DEFAULT")
@@ -539,7 +663,9 @@ class DB_update(object):
         # except:
             # pass
         ####pyarchinit_thesaurus_sigle
-        table = Table("pyarchinit_thesaurus_sigle", self.metadata, autoload=True)
+        table = safe_load_table("pyarchinit_thesaurus_sigle")
+        if table is None:
+            return
         table_column_names_list = []
         for i in table.columns:
             table_column_names_list.append(str(i.name))
@@ -550,7 +676,9 @@ class DB_update(object):
 
 
         ####periodizzazione_table
-        table = Table("periodizzazione_table", self.metadata, autoload=True)
+        table = safe_load_table("periodizzazione_table")
+        if table is None:
+            return
         table_column_names_list = []
         for i in table.columns:
             table_column_names_list.append(str(i.name))
@@ -561,7 +689,9 @@ class DB_update(object):
             # self.engine.execute("ALTER TABLE periodizzazione_table ADD COLUMN area BIGINT")
 
         ####tomba_table
-        table = Table("tomba_table", self.metadata, autoload=True)
+        table = safe_load_table("tomba_table")
+        if table is None:
+            return
         table_column_names_list = []
         for i in table.columns:
             table_column_names_list.append(str(i.name))
@@ -582,7 +712,9 @@ class DB_update(object):
             self.engine.execute("ALTER TABLE tomba_table ADD COLUMN datazione_estesa text")
 
         ####individui_table
-        table = Table("individui_table", self.metadata, autoload=True)
+        table = safe_load_table("individui_table")
+        if table is None:
+            return
         table_column_names_list = []
         for i in table.columns:
             table_column_names_list.append(str(i.name))
@@ -639,7 +771,9 @@ class DB_update(object):
 
 
         ####periodizzazione_table
-        table = Table("periodizzazione_table", self.metadata, autoload=True)
+        table = safe_load_table("periodizzazione_table")
+        if table is None:
+            return
         table_column_names_list = []
         for i in table.columns:
             table_column_names_list.append(str(i.name))
@@ -650,7 +784,9 @@ class DB_update(object):
             pass
         ####aggiornamento tabelle geografiche
         ####pyunitastratigrafiche
-        table = Table("pyunitastratigrafiche", self.metadata, autoload=True)
+        table = safe_load_table("pyunitastratigrafiche")
+        if table is None:
+            return
         table_column_names_list = []
         for i in table.columns:
             table_column_names_list.append(str(i.name))
@@ -664,7 +800,9 @@ class DB_update(object):
         # if table_column_names_list.__contains__('id'):
             # self.engine.execute("ALTER TABLE pyunitastratigrafiche RENAME COLUMN id TO gid")
 
-        table = Table("pyunitastratigrafiche_usm", self.metadata, autoload=True)
+        table = safe_load_table("pyunitastratigrafiche_usm")
+        if table is None:
+            return
         table_column_names_list = []
         for i in table.columns:
             table_column_names_list.append(str(i.name))
@@ -673,7 +811,9 @@ class DB_update(object):
             self.engine.execute("ALTER TABLE pyunitastratigrafiche_usm ADD COLUMN unita_tipo_s text")
 
 
-        table = Table("pyarchinit_quote_usm", self.metadata, autoload=True)
+        table = safe_load_table("pyarchinit_quote_usm")
+        if table is None:
+            return
         table_column_names_list = []
         for i in table.columns:
             table_column_names_list.append(str(i.name))
@@ -682,7 +822,9 @@ class DB_update(object):
             self.engine.execute("ALTER TABLE pyarchinit_quote_usm ADD COLUMN unita_tipo_q text")
 
 
-        table = Table("pyarchinit_quote", self.metadata, autoload=True)
+        table = safe_load_table("pyarchinit_quote")
+        if table is None:
+            return
         table_column_names_list = []
         for i in table.columns:
             table_column_names_list.append(str(i.name))
@@ -690,7 +832,9 @@ class DB_update(object):
         if not table_column_names_list.__contains__('unita_tipo_q'):
             self.engine.execute("ALTER TABLE pyarchinit_quote ADD COLUMN unita_tipo_q text")
 
-        table = Table("pyarchinit_strutture_ipotesi", self.metadata, autoload=True)
+        table = safe_load_table("pyarchinit_strutture_ipotesi")
+        if table is None:
+            return
         table_column_names_list = []
         for i in table.columns:
             table_column_names_list.append(str(i.name))
@@ -703,7 +847,9 @@ class DB_update(object):
             self.engine.execute("ALTER TABLE pyarchinit_strutture_ipotesi ADD COLUMN nr_strut BIGINT DEFAULT 0 ")
 
 
-        table = Table("pyarchinit_sezioni", self.metadata, autoload=True)
+        table = safe_load_table("pyarchinit_sezioni")
+        if table is None:
+            return
         table_column_names_list = []
         for i in table.columns:
             table_column_names_list.append(str(i.name))
@@ -713,3 +859,937 @@ class DB_update(object):
 
         if not table_column_names_list.__contains__('nome_doc'):
             self.engine.execute("ALTER TABLE pyarchinit_sezioni  ADD COLUMN nome_doc text")
+
+        ####campioni_table - Convert US column from INTEGER to TEXT
+        table = safe_load_table("campioni_table")
+        if table is not None:
+            table_column_names_list = []
+            for i in table.columns:
+                table_column_names_list.append(str(i.name))
+            
+            # Change US column from INTEGER to TEXT
+            try:
+                if table_column_names_list.__contains__('us'):
+                    # Check if the column is still INTEGER type
+                    us_column = None
+                    for col in table.columns:
+                        if col.name == 'us':
+                            us_column = col
+                            break
+                    
+                    if us_column is not None:
+                        # Check if column type needs conversion
+                        col_type = str(us_column.type)
+                        if 'INTEGER' in col_type.upper() or 'BIGINT' in col_type.upper():
+                            # Convert the column type
+                            self.engine.execute("ALTER TABLE campioni_table ALTER COLUMN us TYPE TEXT USING us::TEXT")
+            except Exception as e:
+                # Log the error but continue with other updates
+                pass
+
+        ####us_table_toimp - Convert US column from INTEGER to TEXT (if table exists)
+        try:
+            table = safe_load_table("us_table_toimp")
+            if table is not None:
+                table_column_names_list = []
+                for i in table.columns:
+                    table_column_names_list.append(str(i.name))
+                
+                # Change US column from INTEGER to TEXT
+                try:
+                    if table_column_names_list.__contains__('us'):
+                        # Check if the column is still INTEGER type
+                        us_column = None
+                        for col in table.columns:
+                            if col.name == 'us':
+                                us_column = col
+                                break
+                        
+                        if us_column is not None:
+                            # Check if column type needs conversion
+                            col_type = str(us_column.type)
+                            if 'INTEGER' in col_type.upper() or 'BIGINT' in col_type.upper():
+                                # Convert the column type
+                                self.engine.execute("ALTER TABLE us_table_toimp ALTER COLUMN us TYPE TEXT USING us::TEXT")
+                except Exception as e:
+                    # Log the error but continue with other updates
+                    pass
+        except:
+            # Table might not exist
+            pass
+
+        ####pyarchinit_quote - Convert us_q column from INTEGER to TEXT
+        table = safe_load_table("pyarchinit_quote")
+        if table is not None:
+            table_column_names_list = []
+            for i in table.columns:
+                table_column_names_list.append(str(i.name))
+            
+            # Change us_q column from INTEGER to TEXT
+            try:
+                if table_column_names_list.__contains__('us_q'):
+                    # Check if the column is still INTEGER type
+                    us_column = None
+                    for col in table.columns:
+                        if col.name == 'us_q':
+                            us_column = col
+                            break
+                    
+                    if us_column is not None:
+                        # Check if column type needs conversion
+                        col_type = str(us_column.type)
+                        if 'INTEGER' in col_type.upper() or 'BIGINT' in col_type.upper():
+                            # Drop dependent views first
+                            try:
+                                self.engine.execute("DROP VIEW IF EXISTS pyarchinit_quote_view CASCADE")
+                            except:
+                                pass
+                            
+                            # Convert the column type
+                            self.engine.execute("ALTER TABLE pyarchinit_quote ALTER COLUMN us_q TYPE TEXT USING us_q::TEXT")
+                            
+                            # Recreate view
+                            try:
+                                self.engine.execute("""
+                                CREATE VIEW pyarchinit_quote_view AS
+                                SELECT 
+                                    pyarchinit_quote.gid,
+                                    pyarchinit_quote.sito_q, 
+                                    pyarchinit_quote.area_q, 
+                                    pyarchinit_quote.us_q, 
+                                    pyarchinit_quote.unita_misu_q, 
+                                    pyarchinit_quote.quota_q, 
+                                    pyarchinit_quote.the_geom, 
+                                    us_table.id_us, 
+                                    us_table.sito, 
+                                    us_table.area, 
+                                    us_table.us, 
+                                    us_table.struttura, 
+                                    us_table.d_stratigrafica, 
+                                    us_table.d_interpretativa, 
+                                    us_table.descrizione, 
+                                    us_table.interpretazione, 
+                                    us_table.rapporti, 
+                                    us_table.periodo_iniziale, 
+                                    us_table.fase_iniziale, 
+                                    us_table.periodo_finale, 
+                                    us_table.fase_finale, 
+                                    us_table.anno_scavo
+                                FROM pyarchinit_quote
+                                JOIN us_table ON 
+                                    pyarchinit_quote.sito_q = us_table.sito 
+                                    AND pyarchinit_quote.area_q::TEXT = us_table.area::TEXT 
+                                    AND pyarchinit_quote.us_q = us_table.us
+                                """)
+                            except:
+                                pass
+            except Exception as e:
+                # Log the error but continue with other updates
+                pass
+
+        ####pyarchinit_quote_usm - Convert us_q column from INTEGER to TEXT
+        table = safe_load_table("pyarchinit_quote_usm")
+        if table is not None:
+            table_column_names_list = []
+            for i in table.columns:
+                table_column_names_list.append(str(i.name))
+            
+            # Change us_q column from INTEGER to TEXT
+            try:
+                if table_column_names_list.__contains__('us_q'):
+                    # Check if the column is still INTEGER type
+                    us_column = None
+                    for col in table.columns:
+                        if col.name == 'us_q':
+                            us_column = col
+                            break
+                    
+                    if us_column is not None:
+                        # Check if column type needs conversion
+                        col_type = str(us_column.type)
+                        if 'INTEGER' in col_type.upper() or 'BIGINT' in col_type.upper():
+                            # Convert the column type
+                            self.engine.execute("ALTER TABLE pyarchinit_quote_usm ALTER COLUMN us_q TYPE TEXT USING us_q::TEXT")
+            except Exception as e:
+                # Log the error but continue with other updates
+                pass
+
+        ####pyunitastratigrafiche - Convert us_s column from INTEGER to TEXT
+        table = safe_load_table("pyunitastratigrafiche")
+        if table is not None:
+            table_column_names_list = []
+            for i in table.columns:
+                table_column_names_list.append(str(i.name))
+            
+            # Change us_s column from INTEGER to TEXT
+            try:
+                if table_column_names_list.__contains__('us_s'):
+                    # Check if the column is still INTEGER type
+                    us_column = None
+                    for col in table.columns:
+                        if col.name == 'us_s':
+                            us_column = col
+                            break
+                    
+                    if us_column is not None:
+                        # Check if column type needs conversion
+                        col_type = str(us_column.type)
+                        if 'INTEGER' in col_type.upper() or 'BIGINT' in col_type.upper():
+                            # Drop dependent views first if they exist
+                            try:
+                                self.engine.execute("DROP VIEW IF EXISTS pyarchinit_us_view CASCADE")
+                            except:
+                                pass
+                            
+                            # Convert the column type
+                            self.engine.execute("ALTER TABLE pyunitastratigrafiche ALTER COLUMN us_s TYPE TEXT USING us_s::TEXT")
+                            
+                            # Recreate the view if us_table has already been converted
+                            try:
+                                self.engine.execute("""
+                                CREATE VIEW pyarchinit_us_view AS
+                                SELECT 
+                                    pyunitastratigrafiche.gid, 
+                                    pyunitastratigrafiche.the_geom, 
+                                    pyunitastratigrafiche.tipo_us_s, 
+                                    pyunitastratigrafiche.scavo_s, 
+                                    pyunitastratigrafiche.area_s, 
+                                    pyunitastratigrafiche.us_s, 
+                                    pyunitastratigrafiche.stratigraph_index_us,
+                                    us_table.id_us, 
+                                    us_table.sito, 
+                                    us_table.area, 
+                                    us_table.us, 
+                                    us_table.struttura, 
+                                    us_table.d_stratigrafica, 
+                                    us_table.d_interpretativa, 
+                                    us_table.descrizione, 
+                                    us_table.interpretazione, 
+                                    us_table.rapporti, 
+                                    us_table.periodo_iniziale, 
+                                    us_table.fase_iniziale, 
+                                    us_table.periodo_finale, 
+                                    us_table.fase_finale, 
+                                    us_table.anno_scavo
+                                FROM pyunitastratigrafiche
+                                JOIN us_table ON 
+                                    pyunitastratigrafiche.scavo_s = us_table.sito 
+                                    AND pyunitastratigrafiche.area_s::TEXT = us_table.area::TEXT 
+                                    AND pyunitastratigrafiche.us_s = us_table.us
+                                """)
+                            except:
+                                pass
+            except Exception as e:
+                # Log the error but continue with other updates
+                pass
+
+        ####pyunitastratigrafiche_usm - Convert us_s column from INTEGER to TEXT
+        table = safe_load_table("pyunitastratigrafiche_usm")
+        if table is not None:
+            table_column_names_list = []
+            for i in table.columns:
+                table_column_names_list.append(str(i.name))
+            
+            # Change us_s column from INTEGER to TEXT
+            try:
+                if table_column_names_list.__contains__('us_s'):
+                    # Check if the column is still INTEGER type
+                    us_column = None
+                    for col in table.columns:
+                        if col.name == 'us_s':
+                            us_column = col
+                            break
+                    
+                    if us_column is not None:
+                        # Check if column type needs conversion
+                        col_type = str(us_column.type)
+                        if 'INTEGER' in col_type.upper() or 'BIGINT' in col_type.upper():
+                            # Convert the column type
+                            self.engine.execute("ALTER TABLE pyunitastratigrafiche_usm ALTER COLUMN us_s TYPE TEXT USING us_s::TEXT")
+            except Exception as e:
+                # Log the error but continue with other updates
+                pass
+
+        ####pyarchinit_us_negative_doc - Convert us_n column from INTEGER to TEXT (if table exists)
+        try:
+            table = safe_load_table("pyarchinit_us_negative_doc")
+            if table is not None:
+                table_column_names_list = []
+                for i in table.columns:
+                    table_column_names_list.append(str(i.name))
+                
+                # Change us_n column from INTEGER to TEXT
+                try:
+                    if table_column_names_list.__contains__('us_n'):
+                        # Check if the column is still INTEGER type
+                        us_column = None
+                        for col in table.columns:
+                            if col.name == 'us_n':
+                                us_column = col
+                                break
+                        
+                        if us_column is not None:
+                            # Check if column type needs conversion
+                            col_type = str(us_column.type)
+                            if 'INTEGER' in col_type.upper() or 'BIGINT' in col_type.upper():
+                                # Convert the column type
+                                self.engine.execute("ALTER TABLE pyarchinit_us_negative_doc ALTER COLUMN us_n TYPE TEXT USING us_n::TEXT")
+                except Exception as e:
+                    # Log the error but continue with other updates
+                    pass
+        except:
+            # Table might not exist
+            pass
+
+        ####pyuscaratterizzazioni - Convert us_c column from INTEGER to TEXT (if table exists)
+        # try:
+        #     table = safe_load_table("pyuscaratterizzazioni")
+        #     if table is not None:
+        #         table_column_names_list = []
+        #         for i in table.columns:
+        #             table_column_names_list.append(str(i.name))
+        #
+        #         # Change us_c column from INTEGER to TEXT
+        #         try:
+        #             if table_column_names_list.__contains__('us_c'):
+        #                 # Check if the column is still INTEGER type
+        #                 us_column = None
+        #                 for col in table.columns:
+        #                     if col.name == 'us_c':
+        #                         us_column = col
+        #                         break
+        #
+        #                 if us_column is not None:
+        #                     # Check if column type needs conversion
+        #                     col_type = str(us_column.type)
+        #                     if 'INTEGER' in col_type.upper() or 'BIGINT' in col_type.upper():
+        #                         # Drop dependent views first if they exist
+        #                         try:
+        #                             self.engine.execute("DROP VIEW IF EXISTS pyarchinit_uscaratterizzazioni_view CASCADE")
+        #                         except:
+        #                             pass
+        #
+        #                         # Convert the column type
+        #                         self.engine.execute("ALTER TABLE pyuscaratterizzazioni ALTER COLUMN us_c TYPE TEXT USING us_c::TEXT")
+        #
+        #                         # Recreate view
+        #                         # try:
+        #                         #     self.engine.execute("""
+        #                         #     CREATE VIEW pyarchinit_uscaratterizzazioni_view AS
+        #                         #     SELECT
+        #                         #         pyuscaratterizzazioni.gid,
+        #                         #         pyuscaratterizzazioni.the_geom,
+        #                         #         pyuscaratterizzazioni.tipo_us_c,
+        #                         #         pyuscaratterizzazioni.scavo_c,
+        #                         #         pyuscaratterizzazioni.area_c,
+        #                         #         pyuscaratterizzazioni.us_c,
+        #                         #         us_table.sito,
+        #                         #         us_table.id_us,
+        #                         #         us_table.area,
+        #                         #         us_table.us,
+        #                         #         us_table.struttura,
+        #                         #         us_table.d_stratigrafica,
+        #                         #         us_table.d_interpretativa,
+        #                         #         us_table.descrizione,
+        #                         #         us_table.interpretazione,
+        #                         #         us_table.rapporti,
+        #                         #         us_table.periodo_iniziale,
+        #                         #         us_table.fase_iniziale,
+        #                         #         us_table.periodo_finale,
+        #                         #         us_table.fase_finale,
+        #                         #         us_table.anno_scavo
+        #                         #     FROM pyuscaratterizzazioni
+        #                         #     JOIN us_table ON
+        #                         #         pyuscaratterizzazioni.scavo_c = us_table.sito
+        #                         #         AND pyuscaratterizzazioni.area_c::TEXT = us_table.area::TEXT
+        #                         #         AND pyuscaratterizzazioni.us_c = us_table.us
+        #                         #     """)
+        #                         # except:
+        #                         #     pass
+        #         except Exception as e:
+        #             # Log the error but continue with other updates
+        #             pass
+        # except:
+        #     # Table might not exist
+        #     pass
+    
+    def _migrate_us_fields_sqlite(self):
+        """SQLite-specific migration for US fields from INTEGER to TEXT"""
+        try:
+            # First, clean up any leftover _new tables from previous failed migrations
+            result = self.engine.execute("SELECT name FROM sqlite_master WHERE type='table' AND name LIKE '%_new'")
+            for row in result:
+                try:
+                    self.engine.execute(f"DROP TABLE IF EXISTS {row[0]}")
+                except:
+                    pass
+            
+            # Drop all views that depend on tables we're migrating
+            views_to_drop = [
+                'pyarchinit_quote_usm_view',
+                'pyarchinit_quote_view', 
+                'pyarchinit_us_view',
+                'pyarchinit_usm_view',
+                'pyarchinit_uscaratterizzazioni_view',
+                'pyarchinit_us_negative_doc_view',
+                'pyarchinit_reperti_view',  # This view depends on inventario_materiali_table
+                'pyarchinit_tomba_view'  # This view depends on tomba_table
+            ]
+            
+            for view in views_to_drop:
+                try:
+                    self.engine.execute(f"DROP VIEW IF EXISTS {view}")
+                except:
+                    pass
+            
+            # Define tables and fields to migrate
+            # Migrate both US and area fields where needed
+            migrations = [
+                # US field migrations
+                ('us_table', ['us', 'area']),
+                ('campioni_table', ['us', 'area']),
+                ('pottery_table', ['us', 'area']),
+                ('inventario_materiali_table', ['us', 'area']),
+                ('tomba_table', ['area']),  # Only area field
+                # Other tables with US fields
+                ('us_table_toimp', ['us']),
+                ('pyarchinit_quote', ['us_q']),
+                ('pyarchinit_quote_usm', ['us_q']),
+                ('pyunitastratigrafiche', ['us_s']),
+                ('pyunitastratigrafiche_usm', ['us_s']),
+                ('pyarchinit_us_negative_doc', ['us_n']),
+                ('pyuscaratterizzazioni', ['us_c'])
+            ]
+            
+            # Process each table
+            for table_name, fields_to_migrate in migrations:
+                try:
+                    # Check if table exists
+                    check_exists = self.engine.execute(f"SELECT name FROM sqlite_master WHERE type='table' AND name='{table_name}'")
+                    if not check_exists.fetchone():
+                        continue
+                    
+                    # Check which fields need migration
+                    needs_migration = False
+                    result = self.engine.execute(f"PRAGMA table_info({table_name})")
+                    columns_info = result.fetchall()
+                    
+                    for col in columns_info:
+                        col_name = col[1]
+                        col_type = col[2].upper()
+                        if col_name in fields_to_migrate and ('INTEGER' in col_type or 'BIGINT' in col_type):
+                            needs_migration = True
+                            break
+                    
+                    if needs_migration:
+                        self._migrate_sqlite_table_fields(table_name, fields_to_migrate, columns_info)
+                        
+                except Exception as e:
+                    print(f"Error migrating table {table_name}: {str(e)}")
+                    continue
+            
+            # Recreate views
+            self._recreate_sqlite_views()
+            
+            # Final cleanup - remove any remaining _new tables
+            result = self.engine.execute("SELECT name FROM sqlite_master WHERE type='table' AND name LIKE '%_new'")
+            for row in result:
+                try:
+                    self.engine.execute(f"DROP TABLE IF EXISTS {row[0]}")
+                except:
+                    pass
+            
+            # Migration completed silently - no message box needed
+            
+        except Exception as e:
+            QMessageBox.warning(None, "Errore Migrazione SQLite", 
+                              f"Errore durante la migrazione SQLite del campo US.\n"
+                              f"Dettagli: {str(e)}", QMessageBox.Ok)
+    
+    def _migrate_sqlite_table(self, table_name, us_field):
+        """Migrate a single SQLite table by recreating it with TEXT type for US field"""
+        try:
+            # Get current table structure
+            result = self.engine.execute(f"PRAGMA table_info({table_name})")
+            columns = result.fetchall()
+            
+            # Build new table definition
+            new_table_sql = f"CREATE TABLE {table_name}_new ("
+            column_defs = []
+            
+            for col in columns:
+                col_name = col[1]
+                col_type = col[2]
+                col_notnull = col[3]
+                col_default = col[4]
+                col_pk = col[5]
+                
+                # Change US field type to TEXT
+                if col_name == us_field:
+                    col_type = 'TEXT'
+                
+                col_def = f"{col_name} {col_type}"
+                
+                if col_pk:
+                    col_def += " PRIMARY KEY"
+                    if table_name in ['us_table', 'campioni_table', 'pottery_table'] and col_name.startswith('id_'):
+                        col_def += " AUTOINCREMENT"
+                
+                if col_notnull and not col_pk:
+                    col_def += " NOT NULL"
+                    
+                if col_default is not None:
+                    col_def += f" DEFAULT {col_default}"
+                    
+                column_defs.append(col_def)
+            
+            new_table_sql += ", ".join(column_defs) + ")"
+            
+            # Create new table
+            self.engine.execute(new_table_sql)
+            
+            # Copy data, converting US field to TEXT
+            columns_list = [col[1] for col in columns]
+            columns_str = ", ".join(columns_list)
+            
+            # Build select list with CAST for US field
+            select_list = []
+            for col_name in columns_list:
+                if col_name == us_field:
+                    select_list.append(f"CAST({col_name} AS TEXT)")
+                else:
+                    select_list.append(col_name)
+            select_str = ", ".join(select_list)
+            
+            self.engine.execute(f"INSERT INTO {table_name}_new SELECT {select_str} FROM {table_name}")
+            
+            # Drop old table and rename new one
+            self.engine.execute(f"DROP TABLE {table_name}")
+            self.engine.execute(f"ALTER TABLE {table_name}_new RENAME TO {table_name}")
+            
+            # Create index on US field
+            self.engine.execute(f"CREATE INDEX idx_{table_name}_{us_field} ON {table_name}({us_field})")
+            
+        except Exception as e:
+            raise Exception(f"Errore durante la migrazione della tabella {table_name}: {str(e)}")
+    
+    def _migrate_sqlite_table_fields(self, table_name, fields_to_migrate, columns_info):
+        """Migrate multiple fields in a single SQLite table by recreating it with TEXT type"""
+        try:
+            # Build new table definition
+            new_table_sql = f"CREATE TABLE {table_name}_new ("
+            column_defs = []
+            
+            for col in columns_info:
+                col_id = col[0]
+                col_name = col[1]
+                col_type = col[2]
+                col_notnull = col[3]
+                col_default = col[4]
+                col_pk = col[5]
+                
+                # Change field type to TEXT if it's in the migration list
+                if col_name in fields_to_migrate:
+                    col_type = 'TEXT'
+                
+                col_def = f"{col_name} {col_type}"
+                
+                if col_pk:
+                    col_def += " PRIMARY KEY"
+                    if table_name in ['us_table', 'campioni_table', 'pottery_table', 'inventario_materiali_table', 'tomba_table'] and col_name.startswith('id_'):
+                        col_def += " AUTOINCREMENT"
+                
+                if col_notnull and not col_pk:
+                    col_def += " NOT NULL"
+                    
+                if col_default is not None:
+                    col_def += f" DEFAULT {col_default}"
+                    
+                column_defs.append(col_def)
+            
+            new_table_sql += ", ".join(column_defs) + ")"
+            
+            # Create new table
+            self.engine.execute(new_table_sql)
+            
+            # Copy data, converting fields to TEXT
+            columns_list = [col[1] for col in columns_info]
+            
+            # Build select list with CAST for fields to migrate
+            select_list = []
+            for col_name in columns_list:
+                if col_name in fields_to_migrate:
+                    # Handle NULL values properly
+                    select_list.append(f"CASE WHEN {col_name} IS NULL THEN NULL ELSE CAST({col_name} AS TEXT) END")
+                else:
+                    select_list.append(col_name)
+            select_str = ", ".join(select_list)
+            
+            # Use INSERT with explicit column list to handle potential column order differences
+            columns_str = ", ".join(columns_list)
+            self.engine.execute(f"INSERT INTO {table_name}_new ({columns_str}) SELECT {select_str} FROM {table_name}")
+            
+            # Drop old table and rename new one
+            self.engine.execute(f"DROP TABLE {table_name}")
+            self.engine.execute(f"ALTER TABLE {table_name}_new RENAME TO {table_name}")
+            
+            # Create indexes on migrated fields
+            for field in fields_to_migrate:
+                try:
+                    self.engine.execute(f"CREATE INDEX idx_{table_name}_{field} ON {table_name}({field})")
+                except:
+                    pass  # Index might already exist
+            
+        except Exception as e:
+            # If something goes wrong, clean up the _new table
+            try:
+                self.engine.execute(f"DROP TABLE IF EXISTS {table_name}_new")
+            except:
+                pass
+            raise Exception(f"Errore durante la migrazione della tabella {table_name}: {str(e)}")
+    
+    def _recreate_sqlite_views(self):
+        """Recreate SQLite views after migration"""
+        views_sql = {
+            'pyarchinit_quote_view': """
+                CREATE VIEW pyarchinit_quote_view AS
+                SELECT 
+                    pyarchinit_quote.gid,
+                    pyarchinit_quote.sito_q, 
+                    pyarchinit_quote.area_q, 
+                    pyarchinit_quote.us_q, 
+                    pyarchinit_quote.unita_misu_q, 
+                    pyarchinit_quote.quota_q, 
+                    pyarchinit_quote.the_geom, 
+                    us_table.id_us, 
+                    us_table.sito, 
+                    us_table.area, 
+                    us_table.us, 
+                    us_table.struttura, 
+                    us_table.d_stratigrafica, 
+                    us_table.d_interpretativa, 
+                    us_table.descrizione, 
+                    us_table.interpretazione, 
+                    us_table.rapporti, 
+                    us_table.periodo_iniziale, 
+                    us_table.fase_iniziale, 
+                    us_table.periodo_finale, 
+                    us_table.fase_finale, 
+                    us_table.anno_scavo
+                FROM pyarchinit_quote
+                JOIN us_table ON 
+                    pyarchinit_quote.sito_q = us_table.sito 
+                    AND pyarchinit_quote.area_q = us_table.area 
+                    AND pyarchinit_quote.us_q = us_table.us
+            """,
+            
+            'pyarchinit_us_view': """
+                CREATE VIEW pyarchinit_us_view AS 
+                SELECT 
+                    CAST(pyunitastratigrafiche.gid AS INTEGER) as gid, 
+                    pyunitastratigrafiche.the_geom as the_geom, 
+                    pyunitastratigrafiche.tipo_us_s as tipo_us_s, 
+                    pyunitastratigrafiche.scavo_s as scavo_s, 
+                    pyunitastratigrafiche.area_s as area_s, 
+                    pyunitastratigrafiche.us_s as us_s, 
+                    pyunitastratigrafiche.stratigraph_index_us as stratigraph_index_us,
+                    us_table.id_us as id_us, 
+                    us_table.sito as sito, 
+                    us_table.area as area, 
+                    us_table.us as us, 
+                    us_table.struttura as struttura, 
+                    us_table.d_stratigrafica as d_stratigrafica, 
+                    us_table.d_interpretativa as d_interpretativa, 
+                    us_table.descrizione as descrizione, 
+                    us_table.interpretazione as interpretazione, 
+                    us_table.rapporti as rapporti, 
+                    us_table.periodo_iniziale as periodo_iniziale, 
+                    us_table.fase_iniziale as fase_iniziale, 
+                    us_table.periodo_finale as periodo_finale, 
+                    us_table.fase_finale as fase_finale, 
+                    us_table.anno_scavo as anno_scavo,
+                    pyunitastratigrafiche.ROWID as ROWID
+                FROM pyunitastratigrafiche
+                JOIN us_table ON 
+                    pyunitastratigrafiche.scavo_s = us_table.sito 
+                    AND pyunitastratigrafiche.area_s = us_table.area 
+                    AND pyunitastratigrafiche.us_s = us_table.us
+            """,
+            
+            'pyarchinit_uscaratterizzazioni_view': """
+                CREATE VIEW pyarchinit_uscaratterizzazioni_view AS
+                SELECT 
+                    pyuscaratterizzazioni.gid,
+                    pyuscaratterizzazioni.the_geom, 
+                    pyuscaratterizzazioni.tipo_us_c, 
+                    pyuscaratterizzazioni.scavo_c, 
+                    pyuscaratterizzazioni.area_c, 
+                    pyuscaratterizzazioni.us_c, 
+                    us_table.sito, 
+                    us_table.id_us, 
+                    us_table.area, 
+                    us_table.us, 
+                    us_table.struttura, 
+                    us_table.d_stratigrafica, 
+                    us_table.d_interpretativa, 
+                    us_table.descrizione, 
+                    us_table.interpretazione, 
+                    us_table.rapporti, 
+                    us_table.periodo_iniziale, 
+                    us_table.fase_iniziale, 
+                    us_table.periodo_finale, 
+                    us_table.fase_finale, 
+                    us_table.anno_scavo
+                FROM pyuscaratterizzazioni
+                JOIN us_table ON 
+                    pyuscaratterizzazioni.scavo_c = us_table.sito 
+                    AND pyuscaratterizzazioni.area_c = us_table.area 
+                    AND pyuscaratterizzazioni.us_c = us_table.us
+            """,
+            
+            'pyarchinit_reperti_view': """
+                CREATE VIEW pyarchinit_reperti_view AS 
+                SELECT
+                    a.gid,
+                    a.the_geom,
+                    a.id_rep,
+                    a.siti,
+                    b.id_invmat,
+                    b.sito,
+                    b.numero_inventario,
+                    b.tipo_reperto,
+                    b.criterio_schedatura,
+                    b.definizione,
+                    b.descrizione,
+                    b.area,
+                    b.us,
+                    b.lavato,
+                    b.nr_cassa,
+                    b.luogo_conservazione,
+                    b.stato_conservazione,
+                    b.datazione_reperto,
+                    b.elementi_reperto,
+                    b.misurazioni,
+                    b.rif_biblio,
+                    b.tecnologie,
+                    b.forme_minime,
+                    b.forme_massime,
+                    b.totale_frammenti,
+                    b.corpo_ceramico,
+                    b.rivestimento,
+                    b.diametro_orlo,
+                    b.peso,
+                    b.tipo,
+                    b.eve_orlo,
+                    b.repertato,
+                    b.diagnostico,
+                    b.n_reperto,
+                    b.tipo_contenitore,
+                    b.struttura,
+                    b.years,
+                    b.schedatore,
+                    b.date_scheda,
+                    b.punto_rinv,
+                    b.negativo_photo,
+                    b.diapositiva
+                FROM pyarchinit_reperti a
+                JOIN inventario_materiali_table b ON 
+                    a.siti = b.sito AND 
+                    a.id_rep = b.numero_inventario
+            """,
+            
+            'pyarchinit_tomba_view': """
+                CREATE VIEW pyarchinit_tomba_view AS
+                SELECT 
+                    a.id_tomba,
+                    a.sito,
+                    a.nr_scheda_taf,
+                    a.sigla_struttura,
+                    a.nr_struttura,
+                    a.nr_individuo,
+                    a.rito,
+                    a.descrizione_taf,
+                    a.interpretazione_taf,
+                    a.segnacoli,
+                    a.canale_libatorio_si_no,
+                    a.oggetti_rinvenuti_esterno,
+                    a.stato_conservazione,
+                    a.copertura_tipo,
+                    a.tipo_contenitore_resti,
+                    a.orientamento_asse,
+                    a.orientamento_azimut,
+                    a.corredo_presenza,
+                    a.corredo_tipo,
+                    a.corredo_descrizione,
+                    a.periodo_iniziale,
+                    a.fase_iniziale,
+                    a.periodo_finale,
+                    a.fase_finale,
+                    a.datazione_estesa,
+                    a.misure_tomba,
+                    a.quote,
+                    a.area,
+                    b.gid,
+                    b.id_tafonomia_pk,
+                    b.sito AS sito_1,
+                    b.nr_scheda,
+                    b.the_geom
+                FROM tomba_table a
+                LEFT JOIN pyarchinit_tafonomia b ON 
+                    a.sito = b.sito::text AND 
+                    a.nr_scheda_taf = b.nr_scheda
+            """
+        }
+        
+        for view_name, view_sql in views_sql.items():
+            try:
+                self.engine.execute(view_sql)
+            except:
+                # View might not be needed or table might not exist
+                pass
+        
+        # Register views in SpatiaLite geometry metadata
+        self._register_spatialite_views()
+    
+    def _register_spatialite_views(self):
+        """Register views in SpatiaLite geometry metadata tables"""
+        try:
+            # Check if we have views_geometry_columns table (newer SpatiaLite)
+            result = self.engine.execute("""
+                SELECT name FROM sqlite_master 
+                WHERE type='table' AND name='views_geometry_columns'
+            """)
+            
+            if result.fetchone():
+                # Register pyarchinit_us_view
+                try:
+                    # Remove any existing registration
+                    self.engine.execute("""
+                        DELETE FROM views_geometry_columns 
+                        WHERE view_name = 'pyarchinit_us_view'
+                    """)
+                    
+                    # Register the view (view_rowid must be lowercase)
+                    self.engine.execute("""
+                        INSERT INTO views_geometry_columns 
+                        (view_name, view_geometry, view_rowid, f_table_name, f_geometry_column, read_only)
+                        VALUES 
+                        ('pyarchinit_us_view', 'the_geom', 'rowid', 'pyunitastratigrafiche', 'the_geom', 1)
+                    """)
+                except:
+                    pass
+            else:
+                # Fallback: Register directly in geometry_columns for older SpatiaLite
+                try:
+                    # Get geometry info from source table
+                    result = self.engine.execute("""
+                        SELECT coord_dimension, srid, geometry_type 
+                        FROM geometry_columns 
+                        WHERE f_table_name = 'pyunitastratigrafiche' 
+                        AND f_geometry_column = 'the_geom'
+                    """)
+                    
+                    geo_info = result.fetchone()
+                    if geo_info:
+                        # Remove any existing registration
+                        self.engine.execute("""
+                            DELETE FROM geometry_columns 
+                            WHERE f_table_name = 'pyarchinit_us_view'
+                        """)
+                        
+                        # Register the view
+                        self.engine.execute("""
+                            INSERT INTO geometry_columns 
+                            (f_table_name, f_geometry_column, coord_dimension, srid, geometry_type)
+                            VALUES 
+                            ('pyarchinit_us_view', 'the_geom', ?, ?, ?)
+                        """, geo_info)
+                except:
+                    pass
+                
+                # Register other geometry views
+                other_views = [
+                    ('pyarchinit_quote_view', 'pyarchinit_quote'),
+                    ('pyarchinit_uscaratterizzazioni_view', 'pyuscaratterizzazioni'),
+                    ('pyarchinit_reperti_view', 'pyarchinit_reperti'),
+                    ('pyarchinit_tomba_view', 'pyarchinit_tafonomia')
+                ]
+                
+                for view_name, source_table in other_views:
+                    try:
+                        self.engine.execute(f"""
+                            DELETE FROM views_geometry_columns 
+                            WHERE view_name = '{view_name}'
+                        """)
+                        
+                        self.engine.execute(f"""
+                            INSERT INTO views_geometry_columns 
+                            (view_name, view_geometry, view_rowid, f_table_name, f_geometry_column, read_only)
+                            VALUES 
+                            ('{view_name}', 'the_geom', 'gid', '{source_table}', 'the_geom', 1)
+                        """)
+                    except:
+                        pass
+            
+            # Also update geometry_columns_auth if it exists
+            result = self.engine.execute("""
+                SELECT name FROM sqlite_master 
+                WHERE type='table' AND name='geometry_columns_auth'
+            """)
+            
+            if result.fetchone():
+                # Register views in geometry_columns_auth
+                views_to_register = [
+                    'pyarchinit_us_view',
+                    'pyarchinit_quote_view',
+                    'pyarchinit_uscaratterizzazioni_view',
+                    'pyarchinit_reperti_view',
+                    'pyarchinit_tomba_view'
+                ]
+                
+                for view_name in views_to_register:
+                    try:
+                        # Get SRID from source table
+                        if view_name == 'pyarchinit_us_view':
+                            source_table = 'pyunitastratigrafiche'
+                        elif view_name == 'pyarchinit_quote_view':
+                            source_table = 'pyarchinit_quote'
+                        elif view_name == 'pyarchinit_uscaratterizzazioni_view':
+                            source_table = 'pyuscaratterizzazioni'
+                        elif view_name == 'pyarchinit_reperti_view':
+                            source_table = 'pyarchinit_reperti'
+                        elif view_name == 'pyarchinit_tomba_view':
+                            source_table = 'pyarchinit_tafonomia'
+                        else:
+                            continue
+                        
+                        # Get SRID from source
+                        result = self.engine.execute(f"""
+                            SELECT srid FROM geometry_columns_auth 
+                            WHERE f_table_name = '{source_table}' 
+                            AND f_geometry_column = 'the_geom'
+                        """)
+                        
+                        row = result.fetchone()
+                        if row:
+                            srid = row[0]
+                            
+                            # Remove existing entry
+                            self.engine.execute(f"""
+                                DELETE FROM geometry_columns_auth 
+                                WHERE f_table_name = '{view_name}'
+                            """)
+                            
+                            # Add new entry
+                            self.engine.execute(f"""
+                                INSERT INTO geometry_columns_auth 
+                                (f_table_name, f_geometry_column, read_only, hidden, srid, auth_name, auth_srid)
+                                VALUES 
+                                ('{view_name}', 'the_geom', 1, 0, {srid}, 'EPSG', {srid})
+                            """)
+                    except:
+                        pass
+        
+        except Exception as e:
+            # Log but don't fail - view registration is not critical
+            print(f"Warning: Could not register views in SpatiaLite metadata: {str(e)}")

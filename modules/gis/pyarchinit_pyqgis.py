@@ -265,7 +265,7 @@ class Pyarchinit_pyqgis(QDialog):
             ###################################################################
             if layerUS.isValid():
                 # Create a CRS using a predefined SRID
-                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                crs = QgsCoordinateReferenceSystem(f"EPSG:{srid}")
                 layerUS.setCrs(crs)
                 unique_name = self.unique_layer_name(name_layer_s)
                 layerUS.setName(unique_name)
@@ -278,7 +278,7 @@ class Pyarchinit_pyqgis(QDialog):
 
             if layerQUOTE.isValid():
                 # Create a CRS using a predefined SRID
-                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                crs = QgsCoordinateReferenceSystem(f"EPSG:{srid}")
                 layerQUOTE.setCrs(crs)
                 unique_name = self.unique_layer_name(name_layer_q)
                 layerQUOTE.setName(unique_name)
@@ -390,7 +390,7 @@ class Pyarchinit_pyqgis(QDialog):
 
             if layerQUOTE.isValid():
                 # Create a CRS using a predefined SRID
-                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                crs = QgsCoordinateReferenceSystem(f"EPSG:{srid}")
                 layerQUOTE.setCrs(crs)
                 unique_name = self.unique_layer_name(name_layer_q)
                 layerQUOTE.setName(unique_name)
@@ -406,7 +406,7 @@ class Pyarchinit_pyqgis(QDialog):
 
             if layerUS.isValid():
                 #QMessageBox.warning(self, "Pyarchinit", "OK Layer valid", QMessageBox.Ok)
-                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                crs = QgsCoordinateReferenceSystem(f"EPSG:{srid}")
                 layerUS.setCrs(crs)
                 unique_name = self.unique_layer_name(name_layer_s)
                 layerUS.setName(unique_name)
@@ -521,7 +521,7 @@ class Pyarchinit_pyqgis(QDialog):
             layerPos = QgsVectorLayer(uri.uri(), layer_name_pos, 'spatialite')
             if layerPos.isValid():
                 # Create a CRS using a predefined SRID
-                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                crs = QgsCoordinateReferenceSystem(f"EPSG:{srid}")
                 layerPos.setCrs(crs)
                 #QMessageBox.warning(self, "Pyarchinit", "Layer Sezioni valido", QMessageBox.Ok)
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerPos))
@@ -558,7 +558,7 @@ class Pyarchinit_pyqgis(QDialog):
             ##          uri.setDataSource('','pyarchinit_doc_view_b', 'the_geom', docstr, "ROWID")
             layerPos = QgsVectorLayer(uri.uri(), layer_name_pos, 'spatialite')
             if layerPos.isValid():
-                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                crs = QgsCoordinateReferenceSystem(f"EPSG:{srid}")
                 layerPos.setCrs(crs)
 
                 #QMessageBox.warning(self, "Pyarchinit", "Layer Registro Documentazione valido", QMessageBox.Ok)
@@ -594,7 +594,7 @@ class Pyarchinit_pyqgis(QDialog):
 
 
             if layerNeg.isValid():
-                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                crs = QgsCoordinateReferenceSystem(f"EPSG:{srid}")
                 layerNeg.setCrs(crs)
                 #QMessageBox.warning(self, "Pyarchinit", "OK Layer US Negative valido", QMessageBox.Ok)
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerNeg))
@@ -625,7 +625,7 @@ class Pyarchinit_pyqgis(QDialog):
             layerPos = QgsVectorLayer(uri.uri(), layer_name_pos, 'spatialite')
 
             if layerPos.isValid():
-                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                crs = QgsCoordinateReferenceSystem(f"EPSG:{srid}")
                 layerPos.setCrs(crs)
                 #QMessageBox.warning(self, "Pyarchinit", "OK Layer US valido", QMessageBox.Ok)
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerPos))
@@ -644,7 +644,7 @@ class Pyarchinit_pyqgis(QDialog):
             layerverticali = QgsVectorLayer(uri.uri(), layer_name_verticali, 'spatialite')
 
             if layerPos.isValid():
-                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                crs = QgsCoordinateReferenceSystem(f"EPSG:{srid}")
                 layerPos.setCrs(crs)
                 #QMessageBox.warning(self, "Pyarchinit", "OK Layer USM valido", QMessageBox.Ok)
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerverticali))
@@ -667,12 +667,12 @@ class Pyarchinit_pyqgis(QDialog):
 
             layer_name_pos = "US Disegno - " + str(data[0].tipo_documentazione)
 
-            uri.setDataSource("public", 'pyunitastratigrafiche', 'the_geom', docstr_grezzo, "gid")
+            uri.setDataSource("public", 'pyarchinit_us_view', 'the_geom', docstr_grezzo, "gid")
 
             layerPos = QgsVectorLayer(uri.uri(), layer_name_pos, 'spatialite')
 
             if layerPos.isValid():
-                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                crs = QgsCoordinateReferenceSystem(f"EPSG:{srid}")
                 layerPos.setCrs(crs)
                 style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_vuote.qml')
 
@@ -946,10 +946,10 @@ class Pyarchinit_pyqgis(QDialog):
             layerUS = QgsVectorLayer(uri.uri(), name_layer_d, 'spatialite')
 
             if layerUS.isValid():
-                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                crs = QgsCoordinateReferenceSystem(f"EPSG:{srid}")
                 layerUS.setCrs(crs)
                 # Create a CRS using a predefined SRID
-                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                crs = QgsCoordinateReferenceSystem(f"EPSG:{srid}")
                 layerUS.setCrs(crs)
                 #QMessageBox.warning(self, "Pyarchinit", "OK Layer US valido", QMessageBox.Ok)
 
@@ -978,7 +978,7 @@ class Pyarchinit_pyqgis(QDialog):
 
             if layerUSneg.isValid():
                 # Create a CRS using a predefined SRID
-                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                crs = QgsCoordinateReferenceSystem(f"EPSG:{srid}")
                 layerUSneg.setCrs(crs)
                 #QMessageBox.warning(self, "Pyarchinit", "OK Layer US negative valido", QMessageBox.Ok)
 
@@ -1007,7 +1007,7 @@ class Pyarchinit_pyqgis(QDialog):
 
             if layerUS.isValid():
                 #QMessageBox.warning(self, "Pyarchinit", "OK Layer valid", QMessageBox.Ok)
-                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                crs = QgsCoordinateReferenceSystem(f"EPSG:{srid}")
                 layerUS.setCrs(crs)
                 # self.USLayerId = layerUS.getLayerID()
                 # style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
@@ -1041,7 +1041,7 @@ class Pyarchinit_pyqgis(QDialog):
 
             if layerUS.isValid():
                 #QMessageBox.warning(self, "Pyarchinit", "OK Layer valid", QMessageBox.Ok)
-                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                crs = QgsCoordinateReferenceSystem(f"EPSG:{srid}")
                 layerUS.setCrs(crs)
                 # self.USLayerId = layerUS.getLayerID()
                 # style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
@@ -1269,7 +1269,7 @@ class Pyarchinit_pyqgis(QDialog):
             if layerQUOTE.isValid():
 
                 # Create a CRS using a predefined SRID
-                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                crs = QgsCoordinateReferenceSystem(f"EPSG:{srid}")
                 layerQUOTE.setCrs(crs)
                 # self.USLayerId = layerUS.getLayerID()
                 style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'quote_us_view.qml')
@@ -1287,7 +1287,7 @@ class Pyarchinit_pyqgis(QDialog):
 
             if layerUS.isValid():
                 # Create a CRS using a predefined SRID
-                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                crs = QgsCoordinateReferenceSystem(f"EPSG:{srid}")
                 layerUS.setCrs(crs)
                 # Applica lo stile automatico
 
@@ -1437,7 +1437,7 @@ class Pyarchinit_pyqgis(QDialog):
 
             if layerQUOTE.isValid():
                 # Create a CRS using a predefined SRID
-                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                crs = QgsCoordinateReferenceSystem(f"EPSG:{srid}")
                 layerQUOTE.setCrs(crs)
                 unique_name = self.unique_layer_name(name_layer_q)
                 layerQUOTE.setName(unique_name)
@@ -1452,7 +1452,7 @@ class Pyarchinit_pyqgis(QDialog):
             layerUS = QgsVectorLayer(uri.uri(), '', 'spatialite')
 
             if layerUS.isValid():
-                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                crs = QgsCoordinateReferenceSystem(f"EPSG:{srid}")
                 layerUS.setCrs(crs)
                 unique_name = self.unique_layer_name(name_layer_s)
                 layerUS.setName(unique_name)
@@ -1585,7 +1585,7 @@ class Pyarchinit_pyqgis(QDialog):
 
             if layerQUOTE.isValid():
                 # Create a CRS using a predefined SRID
-                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                crs = QgsCoordinateReferenceSystem(f"EPSG:{srid}")
                 layerQUOTE.setCrs(crs)
                 # self.USLayerId = layerUS.getLayerID()
                 style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'quote_us_view.qml')
@@ -1599,7 +1599,7 @@ class Pyarchinit_pyqgis(QDialog):
 
 
             if layerUS.isValid():
-                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                crs = QgsCoordinateReferenceSystem(f"EPSG:{srid}")
                 layerUS.setCrs(crs)
                 style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
                 layerUS.loadNamedStyle(style_path)
@@ -1711,7 +1711,7 @@ class Pyarchinit_pyqgis(QDialog):
 
             if layerQUOTE.isValid():
                 # Create a CRS using a predefined SRID
-                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                crs = QgsCoordinateReferenceSystem(f"EPSG:{srid}")
                 layerQUOTE.setCrs(crs)
                 # self.USLayerId = layerUS.getLayerID()
                 style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'quote_view.qml')
@@ -1725,7 +1725,7 @@ class Pyarchinit_pyqgis(QDialog):
             #srs = QgsCoordinateReferenceSystem(self.SRS, QgsCoordinateReferenceSystem.PostgisCrsId)
 
             if layerUS.isValid():
-                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                crs = QgsCoordinateReferenceSystem(f"EPSG:{srid}")
                 layerUS.setCrs(crs)
                 style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
                 layerUS.loadNamedStyle(style_path)
@@ -1843,7 +1843,7 @@ class Pyarchinit_pyqgis(QDialog):
 
                 if layerQUOTE.isValid():
                     # Create a CRS using a predefined SRID
-                    crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                    crs = QgsCoordinateReferenceSystem(f"EPSG:{srid}")
                     layerQUOTE.setCrs(crs)
                     # self.USLayerId = layerUS.getLayerID()
                     style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'quote_us_view.qml')
@@ -1855,7 +1855,7 @@ class Pyarchinit_pyqgis(QDialog):
 
                 if layerUS.isValid():
                     print(f"Layer US per periodo {periodo} è valido")
-                    crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                    crs = QgsCoordinateReferenceSystem(f"EPSG:{srid}")
                     layerUS.setCrs(crs)
 
                     # Applica lo stile
@@ -2063,7 +2063,7 @@ class Pyarchinit_pyqgis(QDialog):
 
             if layerQUOTE.isValid():
                 # Create a CRS using a predefined SRID
-                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                crs = QgsCoordinateReferenceSystem(f"EPSG:{srid}")
                 layerQUOTE.setCrs(crs)
                 # self.USLayerId = layerUS.getLayerID()
                 style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'quote_us_view.qml')
@@ -2076,7 +2076,7 @@ class Pyarchinit_pyqgis(QDialog):
 
 
             if layerUS.isValid():
-                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                crs = QgsCoordinateReferenceSystem(f"EPSG:{srid}")
                 layerUS.setCrs(crs)
                 style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
                 layerUS.loadNamedStyle(style_path)
@@ -2189,7 +2189,7 @@ class Pyarchinit_pyqgis(QDialog):
 
             if layerUS.isValid():
                 # Create a CRS using a predefined SRID
-                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                crs = QgsCoordinateReferenceSystem(f"EPSG:{srid}")
                 layerUS_us.setCrs(crs)
                 layerUS.setCrs(crs)
                 # QMessageBox.warning(self, "Pyarchinit", "OK ayer US valido",   #QMessageBox.Ok)
@@ -2300,7 +2300,7 @@ class Pyarchinit_pyqgis(QDialog):
             layerUS_us = QgsVectorLayer(uri_us.uri(), 'pyarchinit_us_view', 'spatialite')
 
             if layerUS.isValid():
-                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                crs = QgsCoordinateReferenceSystem(f"EPSG:{srid}")
                 layerUS_us.setCrs(crs)
                 layerUS.setCrs(crs)
 
@@ -2498,7 +2498,7 @@ class Pyarchinit_pyqgis(QDialog):
 
             if layerUS.isValid():
                 # Create a CRS using a predefined SRID
-                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                crs = QgsCoordinateReferenceSystem(f"EPSG:{srid}")
                 layerUS_us.setCrs(crs)
                 layerUS.setCrs(crs)
                 # QMessageBox.warning(self, "Pyarchinit", "OK ayer US valido",   #QMessageBox.Ok)
@@ -2586,7 +2586,7 @@ class Pyarchinit_pyqgis(QDialog):
 
             if layerUS.isValid():
                 # Create a CRS using a predefined SRID
-                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                crs = QgsCoordinateReferenceSystem(f"EPSG:{srid}")
                 layerUS.setCrs(crs)
                 #QMessageBox.warning(self, "Pyarchinit", "OK ayer US valido", QMessageBox.Ok)
                 ##              style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
@@ -2610,8 +2610,8 @@ class Pyarchinit_pyqgis(QDialog):
         if not rlayer.isValid():
             #QMessageBox.warning(self, "Pyarchinit", "PROBLEMA DI CARICAMENTO RASTER" + str(baseName),   #QMessageBox.Ok)
 
-        srs = QgsCoordinateReferenceSystem(3004, QgsCoordinateReferenceSystem.PostgisCrsId)
-        rlayer.setCrs(srs)
+        crs = QgsCoordinateReferenceSystem("EPSG:3004")
+        rlayer.setCrs(crs)
         # add layer to the registry
         QgsProject.instance().addMapLayers(rlayer);
 
@@ -2731,7 +2731,7 @@ class Pyarchinit_pyqgis(QDialog):
 
             if layer.isValid():
                 # Create a CRS using the SRID we extracted
-                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                crs = QgsCoordinateReferenceSystem(f"EPSG:{srid}")
                 layer.setCrs(crs)
 
                 myGroup1.insertChildNode(-1, QgsLayerTreeLayer(layer))
@@ -2751,7 +2751,7 @@ class Pyarchinit_pyqgis(QDialog):
 
             if layer.isValid():
                 # Create a CRS using the SRID we extracted
-                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                crs = QgsCoordinateReferenceSystem(f"EPSG:{srid}")
                 layer.setCrs(crs)
                 myGroup2.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
@@ -2770,7 +2770,7 @@ class Pyarchinit_pyqgis(QDialog):
 
             if layer.isValid():
                 # Create a CRS using the SRID we extracted
-                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                crs = QgsCoordinateReferenceSystem(f"EPSG:{srid}")
                 layer.setCrs(crs)
                 myGroup1.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
@@ -2790,7 +2790,7 @@ class Pyarchinit_pyqgis(QDialog):
 
             if layer.isValid():
                 # Create a CRS using the SRID we extracted
-                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                crs = QgsCoordinateReferenceSystem(f"EPSG:{srid}")
                 layer.setCrs(crs)
                 myGroup1.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
@@ -2810,7 +2810,7 @@ class Pyarchinit_pyqgis(QDialog):
 
             if layer.isValid():
                 # Create a CRS using the SRID we extracted
-                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                crs = QgsCoordinateReferenceSystem(f"EPSG:{srid}")
                 layer.setCrs(crs)
                 myGroup2.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
@@ -2829,7 +2829,7 @@ class Pyarchinit_pyqgis(QDialog):
 
             if layer.isValid():
                 # Create a CRS using the SRID we extracted
-                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                crs = QgsCoordinateReferenceSystem(f"EPSG:{srid}")
                 layer.setCrs(crs)
                 myGroup3.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
@@ -2849,7 +2849,7 @@ class Pyarchinit_pyqgis(QDialog):
 
             if layer.isValid():
                 # Create a CRS using the SRID we extracted
-                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                crs = QgsCoordinateReferenceSystem(f"EPSG:{srid}")
                 layer.setCrs(crs)
                 myGroup1.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
@@ -2870,7 +2870,7 @@ class Pyarchinit_pyqgis(QDialog):
 
             if layer.isValid():
                 # Create a CRS using the SRID we extracted
-                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                crs = QgsCoordinateReferenceSystem(f"EPSG:{srid}")
                 layer.setCrs(crs)
                 myGroup3.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
@@ -2890,7 +2890,7 @@ class Pyarchinit_pyqgis(QDialog):
 
             if layer.isValid():
                 # Create a CRS using the SRID we extracted
-                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                crs = QgsCoordinateReferenceSystem(f"EPSG:{srid}")
                 layer.setCrs(crs)
                 myGroup1.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
@@ -2912,7 +2912,7 @@ class Pyarchinit_pyqgis(QDialog):
 
             if layer.isValid():
                 # Create a CRS using the SRID we extracted
-                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                crs = QgsCoordinateReferenceSystem(f"EPSG:{srid}")
                 layer.setCrs(crs)
                 myGroup3.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
@@ -2931,7 +2931,7 @@ class Pyarchinit_pyqgis(QDialog):
 
             if layer.isValid():
                 # Create a CRS using the SRID we extracted
-                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                crs = QgsCoordinateReferenceSystem(f"EPSG:{srid}")
                 layer.setCrs(crs)
                 myGroup1.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
@@ -2950,7 +2950,7 @@ class Pyarchinit_pyqgis(QDialog):
 
             if layer.isValid():
                 # Create a CRS using the SRID we extracted
-                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                crs = QgsCoordinateReferenceSystem(f"EPSG:{srid}")
                 layer.setCrs(crs)
                 myGroup1.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
@@ -2971,7 +2971,7 @@ class Pyarchinit_pyqgis(QDialog):
 
             if layer.isValid():
                 # Create a CRS using the SRID we extracted
-                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                crs = QgsCoordinateReferenceSystem(f"EPSG:{srid}")
                 layer.setCrs(crs)
                 myGroup1.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
@@ -2991,7 +2991,7 @@ class Pyarchinit_pyqgis(QDialog):
 
             if layer.isValid():
                 # Create a CRS using the SRID we extracted
-                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                crs = QgsCoordinateReferenceSystem(f"EPSG:{srid}")
                 layer.setCrs(crs)
                 myGroup3.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
@@ -3010,7 +3010,7 @@ class Pyarchinit_pyqgis(QDialog):
 
             if layer.isValid():
                 # Create a CRS using the SRID we extracted
-                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                crs = QgsCoordinateReferenceSystem(f"EPSG:{srid}")
                 layer.setCrs(crs)
                 myGroup2.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
@@ -3031,7 +3031,7 @@ class Pyarchinit_pyqgis(QDialog):
 
             if layer.isValid():
                 # Create a CRS using the SRID we extracted
-                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                crs = QgsCoordinateReferenceSystem(f"EPSG:{srid}")
                 layer.setCrs(crs)
                 myGroup3.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
@@ -3050,7 +3050,7 @@ class Pyarchinit_pyqgis(QDialog):
 
             if layer.isValid():
                 # Create a CRS using the SRID we extracted
-                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                crs = QgsCoordinateReferenceSystem(f"EPSG:{srid}")
                 layer.setCrs(crs)
                 myGroup2.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
@@ -3442,7 +3442,7 @@ class Pyarchinit_pyqgis(QDialog):
 
             if layer.isValid():
                 # Create a CRS using the SRID we extracted
-                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                crs = QgsCoordinateReferenceSystem(f"EPSG:{srid}")
                 layer.setCrs(crs)
 
                 myGroup1.insertChildNode(-1, QgsLayerTreeLayer(layer))
@@ -3463,7 +3463,7 @@ class Pyarchinit_pyqgis(QDialog):
 
             if layer.isValid():
                 # Create a CRS using the SRID we extracted
-                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                crs = QgsCoordinateReferenceSystem(f"EPSG:{srid}")
                 layer.setCrs(crs)
                 myGroup2.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
@@ -3482,7 +3482,7 @@ class Pyarchinit_pyqgis(QDialog):
 
             if layer.isValid():
                 # Create a CRS using the SRID we extracted
-                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                crs = QgsCoordinateReferenceSystem(f"EPSG:{srid}")
                 layer.setCrs(crs)
                 myGroup1.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
@@ -3502,7 +3502,7 @@ class Pyarchinit_pyqgis(QDialog):
 
             if layer.isValid():
                 # Create a CRS using the SRID we extracted
-                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                crs = QgsCoordinateReferenceSystem(f"EPSG:{srid}")
                 layer.setCrs(crs)
                 myGroup1.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
@@ -3522,7 +3522,7 @@ class Pyarchinit_pyqgis(QDialog):
 
             if layer.isValid():
                 # Create a CRS using the SRID we extracted
-                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                crs = QgsCoordinateReferenceSystem(f"EPSG:{srid}")
                 layer.setCrs(crs)
                 myGroup2.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
@@ -3541,8 +3541,12 @@ class Pyarchinit_pyqgis(QDialog):
 
             if layer.isValid():
                 # Create a CRS using the SRID we extracted
-                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                crs = QgsCoordinateReferenceSystem(f"EPSG:{srid}")
                 layer.setCrs(crs)
+                # Apply single symbol renderer
+                symbol = QgsSymbol.defaultSymbol(layer.geometryType())
+                renderer = QgsSingleSymbolRenderer(symbol)
+                layer.setRenderer(renderer)
                 myGroup3.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
             else:
@@ -3560,7 +3564,7 @@ class Pyarchinit_pyqgis(QDialog):
 
             if layer.isValid():
                 # Create a CRS using the SRID we extracted
-                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                crs = QgsCoordinateReferenceSystem(f"EPSG:{srid}")
                 layer.setCrs(crs)
                 myGroup1.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
@@ -3580,7 +3584,7 @@ class Pyarchinit_pyqgis(QDialog):
 
             if layer.isValid():
                 # Create a CRS using the SRID we extracted
-                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                crs = QgsCoordinateReferenceSystem(f"EPSG:{srid}")
                 layer.setCrs(crs)
                 myGroup3.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
@@ -3599,7 +3603,7 @@ class Pyarchinit_pyqgis(QDialog):
 
             if layer.isValid():
                 # Create a CRS using the SRID we extracted
-                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                crs = QgsCoordinateReferenceSystem(f"EPSG:{srid}")
                 layer.setCrs(crs)
                 myGroup1.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
@@ -3619,7 +3623,7 @@ class Pyarchinit_pyqgis(QDialog):
 
             if layer.isValid():
                 # Create a CRS using the SRID we extracted
-                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                crs = QgsCoordinateReferenceSystem(f"EPSG:{srid}")
                 layer.setCrs(crs)
                 myGroup3.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
@@ -3638,7 +3642,7 @@ class Pyarchinit_pyqgis(QDialog):
 
             if layer.isValid():
                 # Create a CRS using the SRID we extracted
-                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                crs = QgsCoordinateReferenceSystem(f"EPSG:{srid}")
                 layer.setCrs(crs)
                 myGroup1.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
@@ -3657,7 +3661,7 @@ class Pyarchinit_pyqgis(QDialog):
 
             if layer.isValid():
                 # Create a CRS using the SRID we extracted
-                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                crs = QgsCoordinateReferenceSystem(f"EPSG:{srid}")
                 layer.setCrs(crs)
                 myGroup1.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
@@ -3678,7 +3682,7 @@ class Pyarchinit_pyqgis(QDialog):
 
             if layer.isValid():
                 # Create a CRS using the SRID we extracted
-                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                crs = QgsCoordinateReferenceSystem(f"EPSG:{srid}")
                 layer.setCrs(crs)
                 myGroup1.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
@@ -3698,7 +3702,7 @@ class Pyarchinit_pyqgis(QDialog):
 
             if layer.isValid():
                 # Create a CRS using the SRID we extracted
-                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                crs = QgsCoordinateReferenceSystem(f"EPSG:{srid}")
                 layer.setCrs(crs)
                 myGroup3.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
@@ -3717,7 +3721,7 @@ class Pyarchinit_pyqgis(QDialog):
 
             if layer.isValid():
                 # Create a CRS using the SRID we extracted
-                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                crs = QgsCoordinateReferenceSystem(f"EPSG:{srid}")
                 layer.setCrs(crs)
                 myGroup2.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
@@ -3738,7 +3742,7 @@ class Pyarchinit_pyqgis(QDialog):
 
             if layer.isValid():
                 # Create a CRS using the SRID we extracted
-                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                crs = QgsCoordinateReferenceSystem(f"EPSG:{srid}")
                 layer.setCrs(crs)
                 myGroup3.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
@@ -3757,7 +3761,7 @@ class Pyarchinit_pyqgis(QDialog):
 
             if layer.isValid():
                 # Create a CRS using the SRID we extracted
-                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                crs = QgsCoordinateReferenceSystem(f"EPSG:{srid}")
                 layer.setCrs(crs)
                 myGroup2.insertChildNode(-1, QgsLayerTreeLayer(layer))
                 QgsProject.instance().addMapLayers([layer], False)
@@ -4131,7 +4135,7 @@ class Pyarchinit_pyqgis(QDialog):
 
             if layerSITE.isValid():
                 # Create a CRS using a predefined SRID
-                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                crs = QgsCoordinateReferenceSystem(f"EPSG:{srid}")
                 layerSITE.setCrs(crs)
 
                 self.iface.mapCanvas().setExtent(layerSITE.extent())
@@ -4213,7 +4217,7 @@ class Pyarchinit_pyqgis(QDialog):
 
             if layerUS.isValid():
                 # Create a CRS using a predefined SRID
-                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                crs = QgsCoordinateReferenceSystem(f"EPSG:{srid}")
                 layerUS.setCrs(crs)
                 #QMessageBox.warning(self, "Pyarchinit", "OK Layer US valido", QMessageBox.Ok)
 
@@ -4299,7 +4303,7 @@ class Pyarchinit_pyqgis(QDialog):
 
             if layerUS.isValid():
                 # Create a CRS using a predefined SRID
-                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                crs = QgsCoordinateReferenceSystem(f"EPSG:{srid}")
                 layerUS.setCrs(crs)
 
                 #QMessageBox.warning(self, "Pyarchinit", "OK Layer US valido", QMessageBox.Ok)
@@ -4390,7 +4394,7 @@ class Pyarchinit_pyqgis(QDialog):
 
             if layerSTRUTTURA.isValid():
                 # Create a CRS using a predefined SRID
-                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                crs = QgsCoordinateReferenceSystem(f"EPSG:{srid}")
                 layerSTRUTTURA.setCrs(crs)
 
                 #QMessageBox.warning(self, "Pyarchinit", "OK Layer Struttura valido", QMessageBox.Ok)
@@ -4464,7 +4468,7 @@ class Pyarchinit_pyqgis(QDialog):
 
             if layerSTRUTTURA.isValid():
                 # Create a CRS using a predefined SRID
-                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                crs = QgsCoordinateReferenceSystem(f"EPSG:{srid}")
                 layerSTRUTTURA.setCrs(crs)
                 #QMessageBox.warning(self, "Pyarchinit", "OK Layer Struttura valido", QMessageBox.Ok)
 
@@ -4539,7 +4543,7 @@ class Pyarchinit_pyqgis(QDialog):
 
             if layerIndividui.isValid():
                 # Create a CRS using a predefined SRID
-                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                crs = QgsCoordinateReferenceSystem(f"EPSG:{srid}")
                 layerIndividui.setCrs(crs)
                 #QMessageBox.warning(self, "Pyarchinit", "OK Layer Individui valido", QMessageBox.Ok)
 
