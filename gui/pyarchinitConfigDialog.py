@@ -4680,12 +4680,17 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 self.mFeature_field_rd.currentText(): "'" + str(self.mFeature_value_rd.currentText()) + "'"
             }
             mapper_class_read = str(self.comboBox_mapper_read.currentText())
-            res_read = self.DB_MANAGER_read.query_bool(search_dict, mapper_class_read)
-
-            ####INSERISCE I DATI DA UPLOADARE DENTRO ALLA LISTA DATA_LIST_TOIMP
-            data_list_toimp = []
-            for i in res_read:
-                data_list_toimp.append(i)
+            
+            # Handle ALL case separately
+            if mapper_class_read == "ALL":
+                data_list_toimp = []  # Will be populated later for each table
+            else:
+                res_read = self.DB_MANAGER_read.query_bool(search_dict, mapper_class_read)
+                
+                ####INSERISCE I DATI DA UPLOADARE DENTRO ALLA LISTA DATA_LIST_TOIMP
+                data_list_toimp = []
+                for i in res_read:
+                    data_list_toimp.append(i)
 
             QMessageBox.warning(self, "Total record to import", str(len(data_list_toimp)), QMessageBox.Ok)
 
@@ -5571,59 +5576,549 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 QMessageBox.information(self, "Message", "Data Loaded")
                 
             elif mapper_class_write == 'ALL' :
-                # Import all tables sequentially
+                # Import all tables - we'll process each one individually
                 tables_to_import = ['SITE', 'US', 'UT', 'PERIODIZZAZIONE', 'INVENTARIO_MATERIALI', 
                                    'POTTERY', 'STRUTTURA', 'TOMBA', 'SCHEDAIND', 'CAMPIONI', 
                                    'DOCUMENTAZIONE', 'PYARCHINIT_THESAURUS_SIGLE', 'TMA',
                                    'MEDIA', 'MEDIA_THUMB', 'MEDIATOENTITY']
                 
                 total_tables = len(tables_to_import)
+                total_records_imported = 0
+                tables_imported = []
+                failed_tables = []
                 
-                for table_index, table in enumerate(tables_to_import):
+                for table_index, current_table in enumerate(tables_to_import):
                     try:
-                        # Get data for current table
-                        res_read = self.DB_MANAGER_read.query_bool({}, table)
-                        data_list_toimp = []
-                        for i in res_read:
-                            data_list_toimp.append(i)
+                        # Update progress for current table
+                        table_progress = (float(table_index) / float(total_tables)) * 100
+                        self.progress_bar.setValue(int(table_progress))
+                        QApplication.processEvents()
                         
-                        if len(data_list_toimp) > 0:
-                            # Import based on table type - call the appropriate section
-                            # We need to temporarily set mapper_class_write to the current table
-                            original_mapper = mapper_class_write
-                            mapper_class_write = table
+                        # Query data for current table
+                        try:
+                            if current_table in ['DETSESSO', 'DETETA', 'INVENTARIO_LAPIDEI']:
+                                # These tables don't exist in the combo box, skip them
+                                continue
+                                
+                            res_read = self.DB_MANAGER_read.query_bool({}, current_table)
+                            data_list_toimp_current = []
+                            for i in res_read:
+                                data_list_toimp_current.append(i)
                             
-                            # Progress for this table
-                            table_progress = (float(table_index) / float(total_tables)) * 100
-                            
+                            if len(data_list_toimp_current) == 0:
+                                continue  # Skip empty tables
+                                
+                            # Show info about current table
                             if self.L=='it':
-                                QMessageBox.information(self, "Info", f"Importazione tabella {table}: {len(data_list_toimp)} record", QMessageBox.Ok)
+                                QMessageBox.information(self, "Info", 
+                                    f"Importazione tabella {current_table}: {len(data_list_toimp_current)} record", 
+                                    QMessageBox.Ok)
                             elif self.L=='de':
-                                QMessageBox.information(self, "Info", f"Importiere Tabelle {table}: {len(data_list_toimp)} Datensätze", QMessageBox.Ok)
+                                QMessageBox.information(self, "Info", 
+                                    f"Importiere Tabelle {current_table}: {len(data_list_toimp_current)} Datensätze", 
+                                    QMessageBox.Ok)
                             else:
-                                QMessageBox.information(self, "Info", f"Importing table {table}: {len(data_list_toimp)} records", QMessageBox.Ok)
+                                QMessageBox.information(self, "Info", 
+                                    f"Importing table {current_table}: {len(data_list_toimp_current)} records", 
+                                    QMessageBox.Ok)
                             
-                            # Call the import logic recursively
-                            self.import_single_table(table, data_list_toimp, id_table_class_mapper_conv_dict)
+                            # Now import data for the current table
+                            import_success = False
                             
-                            mapper_class_write = original_mapper
+                            # Process each record for the current table
+                            for sing_rec in range(len(data_list_toimp_current)):
+                                try:
+                                    if current_table == 'SITE':
+                                        data = self.DB_MANAGER_write.insert_site_values(
+                                            self.DB_MANAGER_write.max_num_id(current_table, 'id_sito') + 1,
+                                            data_list_toimp_current[sing_rec].sito,
+                                            data_list_toimp_current[sing_rec].nazione,
+                                            data_list_toimp_current[sing_rec].regione,
+                                            data_list_toimp_current[sing_rec].comune,
+                                            data_list_toimp_current[sing_rec].descrizione,
+                                            data_list_toimp_current[sing_rec].provincia,
+                                            data_list_toimp_current[sing_rec].definizione_sito,
+                                            data_list_toimp_current[sing_rec].sito_path,
+                                            data_list_toimp_current[sing_rec].find_check
+                                        )
+                                    elif current_table == 'US':
+                                        data = self.DB_MANAGER_write.insert_values(
+                                            self.DB_MANAGER_write.max_num_id(current_table, 'id_us') + 1,
+                                            data_list_toimp_current[sing_rec].sito,
+                                            data_list_toimp_current[sing_rec].area,
+                                            data_list_toimp_current[sing_rec].us,
+                                            data_list_toimp_current[sing_rec].d_stratigrafica,
+                                            data_list_toimp_current[sing_rec].d_interpretativa,
+                                            data_list_toimp_current[sing_rec].descrizione,
+                                            data_list_toimp_current[sing_rec].interpretazione,
+                                            data_list_toimp_current[sing_rec].periodo_iniziale,
+                                            data_list_toimp_current[sing_rec].fase_iniziale,
+                                            data_list_toimp_current[sing_rec].periodo_finale,
+                                            data_list_toimp_current[sing_rec].fase_finale,
+                                            data_list_toimp_current[sing_rec].scavato,
+                                            data_list_toimp_current[sing_rec].attivita,
+                                            data_list_toimp_current[sing_rec].anno_scavo,
+                                            data_list_toimp_current[sing_rec].metodo_di_scavo,
+                                            data_list_toimp_current[sing_rec].inclusi,
+                                            data_list_toimp_current[sing_rec].campioni,
+                                            data_list_toimp_current[sing_rec].rapporti,
+                                            data_list_toimp_current[sing_rec].data_schedatura,
+                                            data_list_toimp_current[sing_rec].schedatore,
+                                            data_list_toimp_current[sing_rec].formazione,
+                                            data_list_toimp_current[sing_rec].stato_di_conservazione,
+                                            data_list_toimp_current[sing_rec].colore,
+                                            data_list_toimp_current[sing_rec].consistenza,
+                                            data_list_toimp_current[sing_rec].struttura,
+                                            data_list_toimp_current[sing_rec].cont_per,
+                                            data_list_toimp_current[sing_rec].order_layer,
+                                            data_list_toimp_current[sing_rec].documentazione,
+                                            data_list_toimp_current[sing_rec].unita_tipo,
+                                            data_list_toimp_current[sing_rec].settore,
+                                            data_list_toimp_current[sing_rec].quad_par,
+                                            data_list_toimp_current[sing_rec].ambient,
+                                            data_list_toimp_current[sing_rec].saggio,
+                                            data_list_toimp_current[sing_rec].elem_datanti,
+                                            data_list_toimp_current[sing_rec].funz_statica,
+                                            data_list_toimp_current[sing_rec].lavorazione,
+                                            data_list_toimp_current[sing_rec].spess_giunti,
+                                            data_list_toimp_current[sing_rec].letti_posa,
+                                            data_list_toimp_current[sing_rec].alt_mod,
+                                            data_list_toimp_current[sing_rec].un_ed_riass,
+                                            data_list_toimp_current[sing_rec].reimp,
+                                            data_list_toimp_current[sing_rec].posa_opera,
+                                            data_list_toimp_current[sing_rec].quota_min_usm,
+                                            data_list_toimp_current[sing_rec].quota_max_usm,
+                                            data_list_toimp_current[sing_rec].cons_legante,
+                                            data_list_toimp_current[sing_rec].col_legante,
+                                            data_list_toimp_current[sing_rec].aggreg_legante,
+                                            data_list_toimp_current[sing_rec].con_text_mat,
+                                            data_list_toimp_current[sing_rec].col_materiale,
+                                            data_list_toimp_current[sing_rec].inclusi_materiali_usm,
+                                            data_list_toimp_current[sing_rec].n_catalogo_generale,
+                                            data_list_toimp_current[sing_rec].n_catalogo_interno,
+                                            data_list_toimp_current[sing_rec].n_catalogo_internazionale,
+                                            data_list_toimp_current[sing_rec].soprintendenza,
+                                            data_list_toimp_current[sing_rec].quota_relativa,
+                                            data_list_toimp_current[sing_rec].quota_abs,
+                                            data_list_toimp_current[sing_rec].ref_tm,
+                                            data_list_toimp_current[sing_rec].ref_ra,
+                                            data_list_toimp_current[sing_rec].ref_n,
+                                            data_list_toimp_current[sing_rec].posizione,
+                                            data_list_toimp_current[sing_rec].criteri_distinzione,
+                                            data_list_toimp_current[sing_rec].modo_formazione,
+                                            data_list_toimp_current[sing_rec].componenti_organici,
+                                            data_list_toimp_current[sing_rec].componenti_inorganici,
+                                            data_list_toimp_current[sing_rec].lunghezza_max,
+                                            data_list_toimp_current[sing_rec].altezza_max,
+                                            data_list_toimp_current[sing_rec].altezza_min,
+                                            data_list_toimp_current[sing_rec].profondita_max,
+                                            data_list_toimp_current[sing_rec].profondita_min,
+                                            data_list_toimp_current[sing_rec].larghezza_media,
+                                            data_list_toimp_current[sing_rec].quota_max_abs,
+                                            data_list_toimp_current[sing_rec].quota_max_rel,
+                                            data_list_toimp_current[sing_rec].quota_min_abs,
+                                            data_list_toimp_current[sing_rec].quota_min_rel,
+                                            data_list_toimp_current[sing_rec].osservazioni,
+                                            data_list_toimp_current[sing_rec].datazione,
+                                            data_list_toimp_current[sing_rec].flottazione,
+                                            data_list_toimp_current[sing_rec].setacciatura,
+                                            data_list_toimp_current[sing_rec].affidabilita,
+                                            data_list_toimp_current[sing_rec].direttore_us,
+                                            data_list_toimp_current[sing_rec].responsabile_us,
+                                            data_list_toimp_current[sing_rec].cod_ente_schedatore,
+                                            data_list_toimp_current[sing_rec].data_rilevazione,
+                                            data_list_toimp_current[sing_rec].data_rielaborazione,
+                                            data_list_toimp_current[sing_rec].lunghezza_usm,
+                                            data_list_toimp_current[sing_rec].altezza_usm,
+                                            data_list_toimp_current[sing_rec].spessore_usm,
+                                            data_list_toimp_current[sing_rec].tecnica_muraria_usm,
+                                            data_list_toimp_current[sing_rec].modulo_usm,
+                                            data_list_toimp_current[sing_rec].campioni_malta_usm,
+                                            data_list_toimp_current[sing_rec].campioni_mattone_usm,
+                                            data_list_toimp_current[sing_rec].campioni_pietra_usm,
+                                            data_list_toimp_current[sing_rec].provenienza_materiali_usm,
+                                            data_list_toimp_current[sing_rec].criteri_distinzione_usm,
+                                            data_list_toimp_current[sing_rec].uso_primario_usm
+                                        )
+                                    elif current_table == 'PERIODIZZAZIONE':
+                                        data = self.DB_MANAGER_write.insert_periodizzazione_values(
+                                            self.DB_MANAGER_write.max_num_id(current_table, 'id_perfas') + 1,
+                                            data_list_toimp_current[sing_rec].sito,
+                                            data_list_toimp_current[sing_rec].periodo,
+                                            data_list_toimp_current[sing_rec].fase,
+                                            data_list_toimp_current[sing_rec].cron_iniziale,
+                                            data_list_toimp_current[sing_rec].cron_finale,
+                                            data_list_toimp_current[sing_rec].descrizione,
+                                            data_list_toimp_current[sing_rec].datazione_estesa,
+                                            data_list_toimp_current[sing_rec].cont_per
+                                        )
+                                    elif current_table == 'INVENTARIO_MATERIALI':
+                                        data = self.DB_MANAGER_write.insert_values_reperti(
+                                            self.DB_MANAGER_write.max_num_id(current_table, 'id_invmat') + 1,
+                                            data_list_toimp_current[sing_rec].sito,
+                                            data_list_toimp_current[sing_rec].numero_inventario,
+                                            data_list_toimp_current[sing_rec].tipo_reperto,
+                                            data_list_toimp_current[sing_rec].criterio_schedatura,
+                                            data_list_toimp_current[sing_rec].definizione,
+                                            data_list_toimp_current[sing_rec].descrizione,
+                                            data_list_toimp_current[sing_rec].area,
+                                            data_list_toimp_current[sing_rec].us,
+                                            data_list_toimp_current[sing_rec].lavato,
+                                            data_list_toimp_current[sing_rec].nr_cassa,
+                                            data_list_toimp_current[sing_rec].luogo_conservazione,
+                                            data_list_toimp_current[sing_rec].stato_conservazione,
+                                            data_list_toimp_current[sing_rec].datazione_reperto,
+                                            data_list_toimp_current[sing_rec].elementi_reperto,
+                                            data_list_toimp_current[sing_rec].misurazioni,
+                                            data_list_toimp_current[sing_rec].rif_biblio,
+                                            data_list_toimp_current[sing_rec].tecnologie,
+                                            data_list_toimp_current[sing_rec].forme_minime,
+                                            data_list_toimp_current[sing_rec].forme_massime,
+                                            data_list_toimp_current[sing_rec].totale_frammenti,
+                                            data_list_toimp_current[sing_rec].corpo_ceramico,
+                                            data_list_toimp_current[sing_rec].rivestimento,
+                                            data_list_toimp_current[sing_rec].diametro_orlo,
+                                            data_list_toimp_current[sing_rec].peso,
+                                            data_list_toimp_current[sing_rec].tipo,
+                                            data_list_toimp_current[sing_rec].eve_orlo,
+                                            data_list_toimp_current[sing_rec].repertato,
+                                            data_list_toimp_current[sing_rec].diagnostico
+                                        )
+                                    elif current_table == 'POTTERY':
+                                        data = self.DB_MANAGER_write.insert_pottery_values(
+                                            self.DB_MANAGER_write.max_num_id(current_table, 'id_rep') + 1,
+                                            data_list_toimp_current[sing_rec].id_number,
+                                            data_list_toimp_current[sing_rec].sito,
+                                            data_list_toimp_current[sing_rec].area,
+                                            data_list_toimp_current[sing_rec].us,
+                                            data_list_toimp_current[sing_rec].box,
+                                            data_list_toimp_current[sing_rec].photo,
+                                            data_list_toimp_current[sing_rec].drawing,
+                                            data_list_toimp_current[sing_rec].anno,
+                                            data_list_toimp_current[sing_rec].fabric,
+                                            data_list_toimp_current[sing_rec].percent,
+                                            data_list_toimp_current[sing_rec].material,
+                                            data_list_toimp_current[sing_rec].form,
+                                            data_list_toimp_current[sing_rec].specific_form,
+                                            data_list_toimp_current[sing_rec].ware,
+                                            data_list_toimp_current[sing_rec].munsell,
+                                            data_list_toimp_current[sing_rec].surf_trat,
+                                            data_list_toimp_current[sing_rec].exdeco,
+                                            data_list_toimp_current[sing_rec].intdeco,
+                                            data_list_toimp_current[sing_rec].wheel_made,
+                                            data_list_toimp_current[sing_rec].descrip_ex_deco,
+                                            data_list_toimp_current[sing_rec].descrip_in_deco,
+                                            data_list_toimp_current[sing_rec].note,
+                                            data_list_toimp_current[sing_rec].diametro_max,
+                                            data_list_toimp_current[sing_rec].qty,
+                                            data_list_toimp_current[sing_rec].diametro_rim,
+                                            data_list_toimp_current[sing_rec].diametro_bottom,
+                                            data_list_toimp_current[sing_rec].diametro_height,
+                                            data_list_toimp_current[sing_rec].diametro_preserved,
+                                            data_list_toimp_current[sing_rec].specific_shape,
+                                            data_list_toimp_current[sing_rec].bag
+                                        )
+                                    elif current_table == 'STRUTTURA':
+                                        per_iniz = data_list_toimp_current[sing_rec].periodo_iniziale if data_list_toimp_current[sing_rec].periodo_iniziale else ''
+                                        per_fin = data_list_toimp_current[sing_rec].periodo_finale if data_list_toimp_current[sing_rec].periodo_finale else ''
+                                        fas_iniz = data_list_toimp_current[sing_rec].fase_iniziale if data_list_toimp_current[sing_rec].fase_iniziale else ''
+                                        fas_fin = data_list_toimp_current[sing_rec].fase_finale if data_list_toimp_current[sing_rec].fase_finale else ''
+                                        
+                                        data = self.DB_MANAGER_write.insert_struttura_values(
+                                            self.DB_MANAGER_write.max_num_id(current_table, 'id_struttura') + 1,
+                                            data_list_toimp_current[sing_rec].sito,
+                                            data_list_toimp_current[sing_rec].sigla_struttura,
+                                            data_list_toimp_current[sing_rec].numero_struttura,
+                                            data_list_toimp_current[sing_rec].categoria_struttura,
+                                            data_list_toimp_current[sing_rec].tipologia_struttura,
+                                            data_list_toimp_current[sing_rec].definizione_struttura,
+                                            data_list_toimp_current[sing_rec].descrizione,
+                                            data_list_toimp_current[sing_rec].interpretazione,
+                                            per_iniz,
+                                            fas_iniz,
+                                            per_fin,
+                                            fas_fin,
+                                            data_list_toimp_current[sing_rec].datazione_estesa,
+                                            data_list_toimp_current[sing_rec].materiali_impiegati,
+                                            data_list_toimp_current[sing_rec].elementi_strutturali,
+                                            data_list_toimp_current[sing_rec].rapporti_struttura,
+                                            data_list_toimp_current[sing_rec].misure_struttura
+                                        )
+                                    elif current_table == 'TOMBA':
+                                        per_iniz = '' if not data_list_toimp_current[sing_rec].periodo_iniziale else int(data_list_toimp_current[sing_rec].periodo_iniziale)
+                                        fas_iniz = '' if not data_list_toimp_current[sing_rec].fase_iniziale else int(data_list_toimp_current[sing_rec].fase_iniziale)
+                                        per_fin = '' if not data_list_toimp_current[sing_rec].periodo_finale else int(data_list_toimp_current[sing_rec].periodo_finale)
+                                        fas_fin = '' if not data_list_toimp_current[sing_rec].fase_finale else int(data_list_toimp_current[sing_rec].fase_finale)
+                                        
+                                        data = self.DB_MANAGER_write.insert_values_tomba(
+                                            self.DB_MANAGER_write.max_num_id(current_table, 'id_tomba') + 1,
+                                            str(data_list_toimp_current[sing_rec].sito),
+                                            str(data_list_toimp_current[sing_rec].area),
+                                            str(data_list_toimp_current[sing_rec].nr_scheda_taf),
+                                            str(data_list_toimp_current[sing_rec].sigla_struttura),
+                                            str(data_list_toimp_current[sing_rec].nr_struttura),
+                                            str(data_list_toimp_current[sing_rec].nr_individuo),
+                                            str(data_list_toimp_current[sing_rec].rito),
+                                            str(data_list_toimp_current[sing_rec].descrizione_taf),
+                                            str(data_list_toimp_current[sing_rec].interpretazione_taf),
+                                            str(data_list_toimp_current[sing_rec].segnacoli),
+                                            str(data_list_toimp_current[sing_rec].canale_libatorio_si_no),
+                                            str(data_list_toimp_current[sing_rec].oggetti_rinvenuti_esterno),
+                                            str(data_list_toimp_current[sing_rec].stato_di_conservazione),
+                                            str(data_list_toimp_current[sing_rec].copertura_tipo),
+                                            str(data_list_toimp_current[sing_rec].tipo_contenitore_resti),
+                                            str(data_list_toimp_current[sing_rec].tipo_deposizione),
+                                            str(data_list_toimp_current[sing_rec].tipo_sepoltura),
+                                            str(data_list_toimp_current[sing_rec].corredo_presenza),
+                                            str(data_list_toimp_current[sing_rec].corredo_tipo),
+                                            str(data_list_toimp_current[sing_rec].corredo_descrizione),
+                                            per_iniz,
+                                            fas_iniz,
+                                            per_fin,
+                                            fas_fin,
+                                            str(data_list_toimp_current[sing_rec].datazione_estesa)
+                                        )
+                                    elif current_table == 'SCHEDAIND':
+                                        lunghezza_scheletro = None
+                                        if data_list_toimp_current[sing_rec].lunghezza_scheletro:
+                                            lunghezza_scheletro = float(data_list_toimp_current[sing_rec].lunghezza_scheletro)
+                                            
+                                        data = self.DB_MANAGER_write.insert_values_ind(
+                                            self.DB_MANAGER_write.max_num_id(current_table, 'id_scheda_ind') + 1,
+                                            data_list_toimp_current[sing_rec].sito,
+                                            data_list_toimp_current[sing_rec].area,
+                                            data_list_toimp_current[sing_rec].us,
+                                            data_list_toimp_current[sing_rec].nr_individuo,
+                                            data_list_toimp_current[sing_rec].data_schedatura,
+                                            data_list_toimp_current[sing_rec].schedatore,
+                                            data_list_toimp_current[sing_rec].sesso,
+                                            data_list_toimp_current[sing_rec].eta_min,
+                                            data_list_toimp_current[sing_rec].eta_max,
+                                            data_list_toimp_current[sing_rec].classi_eta,
+                                            data_list_toimp_current[sing_rec].osservazioni,
+                                            data_list_toimp_current[sing_rec].sigla_struttura,
+                                            data_list_toimp_current[sing_rec].nr_struttura,
+                                            data_list_toimp_current[sing_rec].completo_si_no,
+                                            data_list_toimp_current[sing_rec].disturbato_si_no,
+                                            data_list_toimp_current[sing_rec].in_connessione_si_no,
+                                            lunghezza_scheletro,
+                                            data_list_toimp_current[sing_rec].posizione_scheletro,
+                                            data_list_toimp_current[sing_rec].posizione_cranio,
+                                            data_list_toimp_current[sing_rec].posizione_arti_superiori,
+                                            data_list_toimp_current[sing_rec].posizione_arti_inferiori,
+                                            data_list_toimp_current[sing_rec].orientamento_asse,
+                                            data_list_toimp_current[sing_rec].orientamento_azimut
+                                        )
+                                    elif current_table == 'CAMPIONI':
+                                        data = self.DB_MANAGER_write.insert_values_campioni(
+                                            self.DB_MANAGER_write.max_num_id(current_table, 'id_campione') + 1,
+                                            data_list_toimp_current[sing_rec].sito,
+                                            data_list_toimp_current[sing_rec].nr_campione,
+                                            data_list_toimp_current[sing_rec].tipo_campione,
+                                            data_list_toimp_current[sing_rec].descrizione,
+                                            data_list_toimp_current[sing_rec].area,
+                                            data_list_toimp_current[sing_rec].us,
+                                            data_list_toimp_current[sing_rec].numero_inventario_materiale,
+                                            data_list_toimp_current[sing_rec].nr_cassa,
+                                            data_list_toimp_current[sing_rec].luogo_conservazione
+                                        )
+                                    elif current_table == 'DOCUMENTAZIONE':
+                                        data = self.DB_MANAGER_write.insert_values_documentazione(
+                                            self.DB_MANAGER_write.max_num_id(current_table, 'id_documentazione') + 1,
+                                            data_list_toimp_current[sing_rec].sito,
+                                            data_list_toimp_current[sing_rec].nome_doc,
+                                            data_list_toimp_current[sing_rec].data,
+                                            data_list_toimp_current[sing_rec].tipo_documentazione,
+                                            data_list_toimp_current[sing_rec].sorgente,
+                                            data_list_toimp_current[sing_rec].scala,
+                                            data_list_toimp_current[sing_rec].disegnatore,
+                                            data_list_toimp_current[sing_rec].note
+                                        )
+                                    elif current_table == 'UT':
+                                        data = self.DB_MANAGER_write.insert_ut_values(
+                                            self.DB_MANAGER_write.max_num_id(current_table, 'id_ut') + 1,
+                                            data_list_toimp_current[sing_rec].sito,
+                                            data_list_toimp_current[sing_rec].progetto,
+                                            data_list_toimp_current[sing_rec].nr_ut,
+                                            data_list_toimp_current[sing_rec].ut_letterale,
+                                            data_list_toimp_current[sing_rec].def_ut,
+                                            data_list_toimp_current[sing_rec].descrizione_ut,
+                                            data_list_toimp_current[sing_rec].interpretazione_ut,
+                                            data_list_toimp_current[sing_rec].nazione,
+                                            data_list_toimp_current[sing_rec].regione,
+                                            data_list_toimp_current[sing_rec].provincia,
+                                            data_list_toimp_current[sing_rec].comune,
+                                            data_list_toimp_current[sing_rec].frazione,
+                                            data_list_toimp_current[sing_rec].localita,
+                                            data_list_toimp_current[sing_rec].indirizzo,
+                                            data_list_toimp_current[sing_rec].nr_civico,
+                                            data_list_toimp_current[sing_rec].carta_topo_igm,
+                                            data_list_toimp_current[sing_rec].coord_geografiche,
+                                            data_list_toimp_current[sing_rec].coord_piane,
+                                            data_list_toimp_current[sing_rec].andamento_terreno_pendenza,
+                                            data_list_toimp_current[sing_rec].utilizzo_suolo_vegetazione,
+                                            data_list_toimp_current[sing_rec].descrizione_empirica_suolo,
+                                            data_list_toimp_current[sing_rec].descrizione_luogo,
+                                            data_list_toimp_current[sing_rec].metodo_rilievo_e_ricognizione,
+                                            data_list_toimp_current[sing_rec].geometria,
+                                            data_list_toimp_current[sing_rec].bibliografia,
+                                            data_list_toimp_current[sing_rec].data,
+                                            data_list_toimp_current[sing_rec].ora_meteo,
+                                            data_list_toimp_current[sing_rec].descrizione_luogo,
+                                            data_list_toimp_current[sing_rec].responsabile,
+                                            data_list_toimp_current[sing_rec].dimensioni_ut,
+                                            data_list_toimp_current[sing_rec].rep_per_mq,
+                                            data_list_toimp_current[sing_rec].rep_datanti,
+                                            data_list_toimp_current[sing_rec].periodo_I,
+                                            data_list_toimp_current[sing_rec].datazione_I,
+                                            data_list_toimp_current[sing_rec].responsabile,
+                                            data_list_toimp_current[sing_rec].interpretazione_I,
+                                            data_list_toimp_current[sing_rec].periodo_II,
+                                            data_list_toimp_current[sing_rec].datazione_II,
+                                            data_list_toimp_current[sing_rec].interpretazione_II,
+                                            data_list_toimp_current[sing_rec].documentazione,
+                                            data_list_toimp_current[sing_rec].enti_tutela_vincoli,
+                                            data_list_toimp_current[sing_rec].indagini_preliminari
+                                        )
+                                    elif current_table == 'PYARCHINIT_THESAURUS_SIGLE':
+                                        data = self.DB_MANAGER_write.insert_values_thesaurus(
+                                            self.DB_MANAGER_write.max_num_id(current_table, 'id_thesaurus') + 1,
+                                            data_list_toimp_current[sing_rec].nome_tabella,
+                                            data_list_toimp_current[sing_rec].sigla,
+                                            data_list_toimp_current[sing_rec].sigla_estesa,
+                                            data_list_toimp_current[sing_rec].descrizione,
+                                            data_list_toimp_current[sing_rec].tipologia_sigla,
+                                            data_list_toimp_current[sing_rec].lingua
+                                        )
+                                    elif current_table == 'TMA':
+                                        data = self.DB_MANAGER_write.insert_tma_values(
+                                            self.DB_MANAGER_write.max_num_id(current_table, 'id_tma') + 1,
+                                            data_list_toimp_current[sing_rec].sito,
+                                            data_list_toimp_current[sing_rec].area,
+                                            data_list_toimp_current[sing_rec].ogtm,
+                                            data_list_toimp_current[sing_rec].ldct,
+                                            data_list_toimp_current[sing_rec].ldcn,
+                                            data_list_toimp_current[sing_rec].vecchia_collocazione,
+                                            data_list_toimp_current[sing_rec].cassetta,
+                                            data_list_toimp_current[sing_rec].localita,
+                                            data_list_toimp_current[sing_rec].scan,
+                                            data_list_toimp_current[sing_rec].saggio,
+                                            data_list_toimp_current[sing_rec].vano_locus,
+                                            data_list_toimp_current[sing_rec].dscd,
+                                            data_list_toimp_current[sing_rec].dscu,
+                                            data_list_toimp_current[sing_rec].rcgd,
+                                            data_list_toimp_current[sing_rec].rcgz,
+                                            data_list_toimp_current[sing_rec].aint,
+                                            data_list_toimp_current[sing_rec].aind,
+                                            data_list_toimp_current[sing_rec].dtzg,
+                                            data_list_toimp_current[sing_rec].dtzs,
+                                            data_list_toimp_current[sing_rec].cronologie,
+                                            data_list_toimp_current[sing_rec].n_reperti,
+                                            data_list_toimp_current[sing_rec].peso,
+                                            data_list_toimp_current[sing_rec].deso,
+                                            data_list_toimp_current[sing_rec].madi,
+                                            data_list_toimp_current[sing_rec].macc,
+                                            data_list_toimp_current[sing_rec].macl,
+                                            data_list_toimp_current[sing_rec].macp,
+                                            data_list_toimp_current[sing_rec].macd,
+                                            data_list_toimp_current[sing_rec].cronologia_mac,
+                                            data_list_toimp_current[sing_rec].macq,
+                                            data_list_toimp_current[sing_rec].ftap,
+                                            data_list_toimp_current[sing_rec].ftan,
+                                            data_list_toimp_current[sing_rec].drat,
+                                            data_list_toimp_current[sing_rec].dran,
+                                            data_list_toimp_current[sing_rec].draa
+                                        )
+                                    elif current_table == 'MEDIA':
+                                        data = self.DB_MANAGER_write.insert_media_values(
+                                            self.DB_MANAGER_write.max_num_id(current_table, 'id_media') + 1,
+                                            data_list_toimp_current[sing_rec].mediatype,
+                                            data_list_toimp_current[sing_rec].filename,
+                                            data_list_toimp_current[sing_rec].filetype,
+                                            data_list_toimp_current[sing_rec].filepath,
+                                            data_list_toimp_current[sing_rec].descrizione,
+                                            data_list_toimp_current[sing_rec].tags
+                                        )
+                                    elif current_table == 'MEDIA_THUMB':
+                                        data = self.DB_MANAGER_write.insert_mediathumb_values(
+                                            self.DB_MANAGER_write.max_num_id(current_table, 'id_media_thumb') + 1,
+                                            data_list_toimp_current[sing_rec].id_media,
+                                            data_list_toimp_current[sing_rec].mediatype,
+                                            data_list_toimp_current[sing_rec].media_filename,
+                                            data_list_toimp_current[sing_rec].media_thumb_filename,
+                                            data_list_toimp_current[sing_rec].filetype,
+                                            data_list_toimp_current[sing_rec].filepath,
+                                            data_list_toimp_current[sing_rec].path_resize
+                                        )
+                                    elif current_table == 'MEDIATOENTITY':
+                                        data = self.DB_MANAGER_write.insert_media2entity_values(
+                                            self.DB_MANAGER_write.max_num_id(current_table, 'id_mediaToEntity') + 1,
+                                            data_list_toimp_current[sing_rec].id_entity,
+                                            data_list_toimp_current[sing_rec].entity_type,
+                                            data_list_toimp_current[sing_rec].table_name,
+                                            data_list_toimp_current[sing_rec].id_media,
+                                            data_list_toimp_current[sing_rec].filepath,
+                                            data_list_toimp_current[sing_rec].media_name
+                                        )
+                                    else:
+                                        # Skip unknown tables
+                                        continue
+                                        
+                                    # Insert the data
+                                    self.DB_MANAGER_write.insert_data_session(data)
+                                    
+                                except Exception as e:
+                                    # Log error but continue with other records
+                                    continue
+                            
+                            # If we get here, import was successful
+                            import_success = True
+                            tables_imported.append(current_table)
+                            total_records_imported += len(data_list_toimp_current)
+                            
+                        except Exception as e:
+                            failed_tables.append(current_table)
+                            if self.L=='it':
+                                QMessageBox.warning(self, "Errore", 
+                                    f"Errore nel leggere la tabella {current_table}: {str(e)}", 
+                                    QMessageBox.Ok)
+                            elif self.L=='de':
+                                QMessageBox.warning(self, "Fehler", 
+                                    f"Fehler beim Lesen der Tabelle {current_table}: {str(e)}", 
+                                    QMessageBox.Ok)
+                            else:
+                                QMessageBox.warning(self, "Error", 
+                                    f"Error reading table {current_table}: {str(e)}", 
+                                    QMessageBox.Ok)
+                            continue
                             
                     except Exception as e:
-                        if self.L=='it':
-                            QMessageBox.warning(self, "Errore", f"Errore nell'importazione della tabella {table}: {str(e)}", QMessageBox.Ok)
-                        elif self.L=='de':
-                            QMessageBox.warning(self, "Fehler", f"Fehler beim Import der Tabelle {table}: {str(e)}", QMessageBox.Ok)
-                        else:
-                            QMessageBox.warning(self, "Error", f"Error importing table {table}: {str(e)}", QMessageBox.Ok)
+                        failed_tables.append(current_table)
                         continue
                 
+                # After processing all tables, show summary
                 self.progress_bar.reset()
+                
+                success_count = len(tables_imported)
+                fail_count = len(failed_tables)
+                
                 if self.L=='it':
-                    QMessageBox.information(self, "Message", "Importazione di tutte le tabelle completata", QMessageBox.Ok)
+                    message = f"Importazione completata.\n\nTabelle importate: {success_count}\nTabelle fallite: {fail_count}\nRecord totali importati: {total_records_imported}"
+                    if failed_tables:
+                        message += f"\n\nTabelle fallite:\n{', '.join(failed_tables)}"
+                    QMessageBox.information(self, "Riepilogo importazione", message, QMessageBox.Ok)
                 elif self.L=='de':
-                    QMessageBox.information(self, "Message", "Import aller Tabellen abgeschlossen", QMessageBox.Ok)
+                    message = f"Import abgeschlossen.\n\nTabellen importiert: {success_count}\nFehlgeschlagene Tabellen: {fail_count}\nGesamtzahl importierter Datensätze: {total_records_imported}"
+                    if failed_tables:
+                        message += f"\n\nFehlgeschlagene Tabellen:\n{', '.join(failed_tables)}"
+                    QMessageBox.information(self, "Import-Zusammenfassung", message, QMessageBox.Ok)
                 else:
-                    QMessageBox.information(self, "Message", "All tables import completed", QMessageBox.Ok)
+                    message = f"Import completed.\n\nTables imported: {success_count}\nTables failed: {fail_count}\nTotal records imported: {total_records_imported}"
+                    if failed_tables:
+                        message += f"\n\nFailed tables:\n{', '.join(failed_tables)}"
+                    QMessageBox.information(self, "Import Summary", message, QMessageBox.Ok)
+                
+                return  # Exit after ALL import
 
 
             
