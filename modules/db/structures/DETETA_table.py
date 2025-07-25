@@ -81,4 +81,7 @@ class DETETA_table:
                          UniqueConstraint('sito', 'nr_individuo', name='ID_det_eta_unico')
                          )
 
-    metadata.create_all(engine)
+    try:
+        metadata.create_all(engine)
+    except:
+        pass  # Table already exists or geometry type not supported

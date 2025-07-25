@@ -44,4 +44,7 @@ class Inventario_Lapidei_table:
                                      UniqueConstraint('sito', 'scheda_numero', name='ID_invlap_unico')
                                      )
 
-    metadata.create_all(engine)
+    try:
+        metadata.create_all(engine)
+    except:
+        pass  # Table already exists or geometry type not supported

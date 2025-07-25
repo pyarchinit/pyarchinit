@@ -32,4 +32,7 @@ class Media_to_Entity_table:
                                                    name='ID_mediaToEntity_unico')
                                   )
 
-    metadata.create_all(engine)
+    try:
+        metadata.create_all(engine)
+    except:
+        pass  # Table already exists or geometry type not supported

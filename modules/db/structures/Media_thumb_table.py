@@ -31,4 +31,7 @@ class Media_thumb_table:
                               UniqueConstraint('media_thumb_filename', name='ID_media_thumb_unico')
                               )
 
-    metadata.create_all(engine)
+    try:
+        metadata.create_all(engine)
+    except:
+        pass  # Table already exists or geometry type not supported

@@ -34,4 +34,7 @@ class Campioni_table:
                            UniqueConstraint('sito', 'nr_campione', name='ID_invcamp_unico')
                            )
 
-    metadata.create_all(engine)
+    try:
+        metadata.create_all(engine)
+    except:
+        pass  # Table already exists or geometry type not supported

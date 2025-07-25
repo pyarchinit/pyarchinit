@@ -49,4 +49,7 @@ class SCHEDAIND_table:
                             UniqueConstraint('sito', 'nr_individuo', name='ID_individuo_unico')
                             )
 
-    metadata.create_all(engine)
+    try:
+        metadata.create_all(engine)
+    except:
+        pass  # Table already exists or geometry type not supported

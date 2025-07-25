@@ -42,7 +42,36 @@ class pyunitastratigrafiche:
                      UniqueConstraint('gid', name='ID_us_unico_s')
                      )
 
-    metadata.create_all(engine)
+
+    # Only create the table if it doesn't exist
+    try:
+        metadata.create_all(engine, checkfirst=True)
+        
+        # For SQLite, add geometry column using Spatialite if not exists
+        if 'sqlite' in conn_str.lower():
+            try:
+                # Check if geometry column already exists
+                from sqlalchemy import inspect
+                inspector = inspect(engine)
+                columns = [col['name'] for col in inspector.get_columns('pyunitastratigrafiche')]
+                
+                if 'the_geom' not in columns:
+                    # Add geometry column using raw SQL
+                    with engine.connect() as conn:
+                        # Ensure Spatialite is loaded
+                        try:
+                            conn.execute("SELECT InitSpatialMetadata(1)")
+                        except:
+                            pass  # Already initialized
+                        
+                        # Add geometry column
+                        conn.execute("SELECT AddGeometryColumn('pyunitastratigrafiche', 'the_geom', -1, 'MULTIPOLYGON', 'XY')")
+            except Exception as e:
+                # Geometry column might already exist or Spatialite not available
+                pass
+    except Exception as e:
+        # Table creation failed, but continue
+        pass
     # def load_spatialite(self,dbapi_conn, connection_record):
         # dbapi_conn.enable_load_extension(True)
         

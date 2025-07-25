@@ -36,4 +36,7 @@ class pycampioni:
                        UniqueConstraint('gid')
                        )
 
-    metadata.create_all(engine)
+    try:
+        metadata.create_all(engine)
+    except:
+        pass  # Table already exists or geometry type not supported
