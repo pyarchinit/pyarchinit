@@ -117,14 +117,14 @@ INSERT INTO geometry_columns (f_table_catalog, f_table_schema, f_table_name, f_g
 
 
 CREATE VIEW pyarchinit_quote_view AS
- SELECT pyarchinit_quote.gid, pyarchinit_quote.sito_q, pyarchinit_quote.area_q, pyarchinit_quote.us_q, pyarchinit_quote.unita_misu_q, pyarchinit_quote.quota_q, pyarchinit_quote.the_geom, us_table.id_us, us_table.sito, us_table.area, us_table.us, us_table.struttura, us_table.definizione_stratigrafica, us_table.definizione_interpretativa, us_table.descrizione, us_table.interpretazione, us_table.rapporti, us_table.periodo_iniziale, us_table.fase_iniziale, us_table.periodo_finale, us_table.fase_finale, us_table.anno_scavo
+ SELECT pyarchinit_quote.gid, pyarchinit_quote.sito_q, pyarchinit_quote.area_q, pyarchinit_quote.us_q, pyarchinit_quote.unita_misu_q, pyarchinit_quote.quota_q, pyarchinit_quote.the_geom, us_table.id_us, us_table.sito, us_table.area, us_table.us, us_table.struttura, us_table.d_stratigrafica, us_table.d_interpretativa, us_table.descrizione, us_table.interpretazione, us_table.rapporti, us_table.periodo_iniziale, us_table.fase_iniziale, us_table.periodo_finale, us_table.fase_finale, us_table.anno_scavo
    FROM pyarchinit_quote
    JOIN us_table ON pyarchinit_quote.sito_q::text = us_table.sito AND pyarchinit_quote.area_q::text = us_table.area::text AND pyarchinit_quote.us_q::text = us_table.us::text;
 
 ALTER TABLE pyarchinit_quote_view OWNER TO postgres;
 
 CREATE VIEW pyarchinit_us_view AS
- SELECT pyunitastratigrafiche.gid, pyunitastratigrafiche.the_geom, pyunitastratigrafiche.tipo_us_s, pyunitastratigrafiche.scavo_s, pyunitastratigrafiche.area_s, pyunitastratigrafiche.us_s, us_table.id_us, us_table.sito, us_table.area, us_table.us, us_table.struttura, us_table.definizione_stratigrafica, us_table.definizione_interpretativa, us_table.descrizione, us_table.interpretazione, us_table.rapporti, us_table.periodo_iniziale, us_table.fase_iniziale, us_table.periodo_finale, us_table.fase_finale, us_table.anno_scavo
+ SELECT pyunitastratigrafiche.gid, pyunitastratigrafiche.the_geom, pyunitastratigrafiche.tipo_us_s, pyunitastratigrafiche.scavo_s, pyunitastratigrafiche.area_s, pyunitastratigrafiche.us_s, pyunitastratigrafiche.stratigraph_index_us, us_table.id_us, us_table.sito, us_table.area, us_table.us, us_table.struttura, us_table.d_stratigrafica, us_table.d_interpretativa, us_table.descrizione, us_table.interpretazione, us_table.rapporti, us_table.periodo_iniziale, us_table.fase_iniziale, us_table.periodo_finale, us_table.fase_finale, us_table.anno_scavo
    FROM pyunitastratigrafiche
    JOIN us_table ON pyunitastratigrafiche.scavo_s::text = us_table.sito AND pyunitastratigrafiche.area_s::text = us_table.area::text AND pyunitastratigrafiche.us_s = us_table.us;
 
@@ -132,7 +132,7 @@ ALTER TABLE pyarchinit_us_view OWNER TO postgres;
 
 
 CREATE VIEW pyarchinit_uscaratterizzazioni_view AS
- SELECT pyuscaratterizzazioni.gid, pyuscaratterizzazioni.the_geom, pyuscaratterizzazioni.tipo_us_c, pyuscaratterizzazioni.scavo_c, pyuscaratterizzazioni.area_c, pyuscaratterizzazioni.us_c, us_table.sito, us_table.id_us, us_table.area, us_table.us, us_table.struttura, us_table.definizione_stratigrafica, us_table.definizione_interpretativa, us_table.descrizione, us_table.interpretazione, us_table.rapporti, us_table.periodo_iniziale, us_table.fase_iniziale, us_table.periodo_finale, us_table.fase_finale, us_table.anno_scavo
+ SELECT pyuscaratterizzazioni.gid, pyuscaratterizzazioni.the_geom, pyuscaratterizzazioni.tipo_us_c, pyuscaratterizzazioni.scavo_c, pyuscaratterizzazioni.area_c, pyuscaratterizzazioni.us_c, us_table.sito, us_table.id_us, us_table.area, us_table.us, us_table.struttura, us_table.d_stratigrafica, us_table.d_interpretativa, us_table.descrizione, us_table.interpretazione, us_table.rapporti, us_table.periodo_iniziale, us_table.fase_iniziale, us_table.periodo_finale, us_table.fase_finale, us_table.anno_scavo
    FROM pyuscaratterizzazioni
    JOIN us_table ON pyuscaratterizzazioni.scavo_c::text = us_table.sito AND pyuscaratterizzazioni.area_c::text = us_table.area::text AND pyuscaratterizzazioni.us_c = us_table.us;
 
