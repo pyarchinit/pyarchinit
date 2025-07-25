@@ -1,0 +1,192 @@
+2025-07-25 10:18:12,086 - INFO - Inizializzazione Order_layer_graph per Scavo archeologico - 1
+2025-07-25 10:18:12,443 - INFO - Avvio caricamento dati dal database...
+2025-07-25 10:18:12,480 - INFO - Tipo database rilevato: SQLite
+2025-07-25 10:18:12,492 - DEBUG - Esecuzione query: 
+            SELECT us, rapporti 
+            FROM us_table 
+            WHERE sito = 'Scavo archeologico' AND area = '1'
+            
+2025-07-25 10:18:12,554 - DEBUG - Caricate 50 US...
+2025-07-25 10:18:12,610 - INFO - Completato: caricate 51 US dal database
+2025-07-25 10:18:12,614 - INFO - Costruzione del grafo stratigrafico...
+2025-07-25 10:18:12,631 - DEBUG - Aggiunta relazione: 2 -> 1 (Copre)
+2025-07-25 10:18:12,635 - DEBUG - Aggiunta relazione: 8 -> 1 (Copre)
+2025-07-25 10:18:12,637 - DEBUG - Aggiunta relazione: 3 -> 2 (Copre)
+2025-07-25 10:18:12,639 - DEBUG - Aggiunta relazione: 10 -> 3 (Copre)
+2025-07-25 10:18:12,640 - DEBUG - Aggiunta relazione: 11 -> 3 (Copre)
+2025-07-25 10:18:12,641 - DEBUG - Aggiunta relazione: 12 -> 3 (Copre)
+2025-07-25 10:18:12,642 - DEBUG - Aggiunta relazione: 14 -> 3 (Copre)
+2025-07-25 10:18:12,643 - DEBUG - Aggiunta relazione: 16 -> 3 (Copre)
+2025-07-25 10:18:12,643 - DEBUG - Aggiunta relazione: 4 -> 3 (Copre)
+2025-07-25 10:18:12,644 - DEBUG - Aggiunta relazione: 5 -> 3 (Copre)
+2025-07-25 10:18:12,645 - DEBUG - Aggiunta relazione: 6 -> 3 (Copre)
+2025-07-25 10:18:12,645 - DEBUG - Aggiunta relazione: 9 -> 3 (Copre)
+2025-07-25 10:18:12,655 - DEBUG - Aggiunta relazione: 17 -> 4 (Copre)
+2025-07-25 10:18:12,658 - DEBUG - Aggiunta relazione: 18 -> 4 (Copre)
+2025-07-25 10:18:12,658 - DEBUG - Aggiunta relazione: 19 -> 4 (Copre)
+2025-07-25 10:18:12,659 - DEBUG - Aggiunta relazione: 20 -> 4 (Copre)
+2025-07-25 10:18:12,659 - DEBUG - Aggiunta relazione: 23 -> 4 (Copre)
+2025-07-25 10:18:12,660 - DEBUG - Aggiunta relazione: 25 -> 4 (Copre)
+2025-07-25 10:18:12,660 - DEBUG - Aggiunta relazione: 27 -> 4 (Copre)
+2025-07-25 10:18:12,666 - DEBUG - Aggiunta relazione: 5 -> 4 (Copre)
+2025-07-25 10:18:12,668 - DEBUG - Aggiunta relazione: 21 -> 4 (Riempie)
+2025-07-25 10:18:12,670 - DEBUG - Aggiunta relazione: 6 -> 4 (Si appoggia a)
+2025-07-25 10:18:12,674 - DEBUG - Aggiunta relazione: 29 -> 5 (Copre)
+2025-07-25 10:18:12,676 - DEBUG - Aggiunta relazione: 32 -> 5 (Copre)
+2025-07-25 10:18:12,679 - DEBUG - Aggiunta relazione: 6 -> 5 (Si appoggia a)
+2025-07-25 10:18:12,690 - DEBUG - Aggiunta relazione: 2 -> 7 (Taglia)
+2025-07-25 10:18:12,695 - DEBUG - Aggiunta relazione: 7 -> 8 (Riempie)
+2025-07-25 10:18:12,698 - DEBUG - Aggiunta relazione: 4 -> 9 (Copre)
+2025-07-25 10:18:12,701 - DEBUG - Aggiunta relazione: 11 -> 10 (Copre)
+2025-07-25 10:18:12,703 - DEBUG - Aggiunta relazione: 4 -> 11 (Copre)
+2025-07-25 10:18:12,706 - DEBUG - Aggiunta relazione: 6 -> 12 (Si appoggia a)
+2025-07-25 10:18:12,709 - DEBUG - Aggiunta relazione: 18 -> 13 (Taglia)
+2025-07-25 10:18:12,712 - DEBUG - Aggiunta relazione: 4 -> 13 (Taglia)
+2025-07-25 10:18:12,714 - DEBUG - Aggiunta relazione: 13 -> 14 (Riempie)
+2025-07-25 10:18:12,717 - DEBUG - Aggiunta relazione: 4 -> 15 (Taglia)
+2025-07-25 10:18:12,719 - DEBUG - Aggiunta relazione: 15 -> 16 (Riempie)
+2025-07-25 10:18:12,722 - DEBUG - Aggiunta relazione: 30 -> 17 (Copre)
+2025-07-25 10:18:12,725 - DEBUG - Aggiunta relazione: 5 -> 17 (Copre)
+2025-07-25 10:18:12,727 - DEBUG - Aggiunta relazione: 28 -> 17 (Riempie)
+2025-07-25 10:18:12,732 - DEBUG - Aggiunta relazione: 29 -> 18 (Copre)
+2025-07-25 10:18:12,735 - DEBUG - Aggiunta relazione: 31 -> 18 (Copre)
+2025-07-25 10:18:12,737 - DEBUG - Aggiunta relazione: 19 -> 18 (Si appoggia a)
+2025-07-25 10:18:12,740 - DEBUG - Aggiunta relazione: 5 -> 18 (Si appoggia a)
+2025-07-25 10:18:12,743 - DEBUG - Aggiunta relazione: 6 -> 18 (Si appoggia a)
+2025-07-25 10:18:12,745 - DEBUG - Aggiunta relazione: 19 -> 20 (Si appoggia a)
+2025-07-25 10:18:12,748 - DEBUG - Aggiunta relazione: 18 -> 21 (Taglia)
+2025-07-25 10:18:12,751 - DEBUG - Aggiunta relazione: 18 -> 22 (Taglia)
+2025-07-25 10:18:12,753 - DEBUG - Aggiunta relazione: 22 -> 23 (Riempie)
+2025-07-25 10:18:12,756 - DEBUG - Aggiunta relazione: 18 -> 24 (Taglia)
+2025-07-25 10:18:12,759 - DEBUG - Aggiunta relazione: 24 -> 25 (Riempie)
+2025-07-25 10:18:12,761 - DEBUG - Aggiunta relazione: 18 -> 26 (Taglia)
+2025-07-25 10:18:12,764 - DEBUG - Aggiunta relazione: 26 -> 27 (Riempie)
+2025-07-25 10:18:12,766 - DEBUG - Aggiunta relazione: 30 -> 28 (Taglia)
+2025-07-25 10:18:12,769 - DEBUG - Aggiunta relazione: 32 -> 28 (Taglia)
+2025-07-25 10:18:12,771 - DEBUG - Aggiunta relazione: 5 -> 28 (Taglia)
+2025-07-25 10:18:12,775 - DEBUG - Aggiunta relazione: 31 -> 29 (Copre)
+2025-07-25 10:18:12,777 - DEBUG - Aggiunta relazione: 33 -> 29 (Copre)
+2025-07-25 10:18:12,780 - DEBUG - Aggiunta relazione: 34 -> 29 (Copre)
+2025-07-25 10:18:12,783 - DEBUG - Aggiunta relazione: 18 -> 30 (Copre)
+2025-07-25 10:18:12,785 - DEBUG - Aggiunta relazione: 33 -> 31 (Copre)
+2025-07-25 10:18:12,787 - DEBUG - Aggiunta relazione: 34 -> 31 (Copre)
+2025-07-25 10:18:12,790 - DEBUG - Aggiunta relazione: 35 -> 31 (Copre)
+2025-07-25 10:18:12,793 - DEBUG - Aggiunta relazione: 36 -> 31 (Copre)
+2025-07-25 10:18:12,795 - DEBUG - Aggiunta relazione: 29 -> 32 (Copre)
+2025-07-25 10:18:12,798 - DEBUG - Aggiunta relazione: 6 -> 32 (Si appoggia a)
+2025-07-25 10:18:12,801 - DEBUG - Aggiunta relazione: 35 -> 33 (Copre)
+2025-07-25 10:18:12,803 - DEBUG - Aggiunta relazione: 36 -> 33 (Copre)
+2025-07-25 10:18:12,805 - DEBUG - Aggiunta relazione: 38 -> 33 (Copre)
+2025-07-25 10:18:12,808 - DEBUG - Aggiunta relazione: 37 -> 33 (Riempie)
+2025-07-25 10:18:12,811 - DEBUG - Aggiunta relazione: 33 -> 34 (Copre)
+2025-07-25 10:18:12,813 - DEBUG - Aggiunta relazione: 35 -> 34 (Copre)
+2025-07-25 10:18:12,816 - DEBUG - Aggiunta relazione: 36 -> 34 (Copre)
+2025-07-25 10:18:12,818 - DEBUG - Aggiunta relazione: 38 -> 35 (Copre)
+2025-07-25 10:18:12,821 - DEBUG - Aggiunta relazione: 36 -> 35 (Si appoggia a)
+2025-07-25 10:18:12,824 - DEBUG - Aggiunta relazione: 38 -> 36 (Taglia)
+2025-07-25 10:18:12,827 - DEBUG - Aggiunta relazione: 39 -> 36 (Taglia)
+2025-07-25 10:18:12,829 - DEBUG - Aggiunta relazione: 35 -> 37 (Taglia)
+2025-07-25 10:18:12,832 - DEBUG - Aggiunta relazione: 36 -> 37 (Taglia)
+2025-07-25 10:18:12,834 - DEBUG - Aggiunta relazione: 38 -> 37 (Taglia)
+2025-07-25 10:18:12,836 - DEBUG - Aggiunta relazione: 39 -> 37 (Taglia)
+2025-07-25 10:18:12,839 - DEBUG - Aggiunta relazione: 38 -> 39 (Copre)
+2025-07-25 10:18:12,842 - DEBUG - Aggiunta relazione: 900 -> 104 (>>)
+2025-07-25 10:18:12,844 - DEBUG - Aggiunta relazione: 400 -> 106 (>>)
+2025-07-25 10:18:12,847 - DEBUG - Aggiunta relazione: 800 -> 106 (>>)
+2025-07-25 10:18:12,850 - DEBUG - Aggiunta relazione: 4001 -> 400 (>>)
+2025-07-25 10:18:12,852 - DEBUG - Aggiunta relazione: 4002 -> 400 (>>)
+2025-07-25 10:18:12,855 - DEBUG - Aggiunta relazione: 400 -> 800 (>>)
+2025-07-25 10:18:12,858 - DEBUG - Aggiunta relazione: 402 -> 900 (>>)
+2025-07-25 10:18:12,860 - DEBUG - Aggiunta relazione: 29 -> 402 (>>)
+2025-07-25 10:18:12,863 - INFO - Grafo costruito: 51 nodi, 89 archi, 89 relazioni totali
+2025-07-25 10:18:12,866 - INFO - Ricerca cicli nel grafo...
+2025-07-25 10:18:12,868 - INFO - Nessun ciclo trovato nel grafo
+2025-07-25 10:18:12,871 - INFO - Inizio calcolo sequenza stratigrafica...
+2025-07-25 10:18:12,875 - INFO - Inizio calcolo sequenza stratigrafica...
+2025-07-25 10:18:12,877 - INFO - DEBUG MAIN: Prima di chiamare topological_sort. all_us=51
+2025-07-25 10:18:12,880 - INFO - US di base (senza predecessori): ['102', '103', '19', '300', '38', '4001', '4002', '500', '6']
+2025-07-25 10:18:12,883 - DEBUG - Livello 0: 102, 103, 19, 300, 38, 4001, 4002, 500, 6
+2025-07-25 10:18:12,886 - DEBUG - Livello 1: 12, 20, 39, 400
+2025-07-25 10:18:12,889 - DEBUG - Livello 2: 36, 800
+2025-07-25 10:18:12,893 - DEBUG - Livello 3: 106, 35
+2025-07-25 10:18:12,896 - DEBUG - Livello 4: 37
+2025-07-25 10:18:12,909 - DEBUG - Livello 5: 33
+2025-07-25 10:18:12,915 - DEBUG - Livello 6: 34
+2025-07-25 10:18:12,918 - DEBUG - Livello 7: 31
+2025-07-25 10:18:12,920 - DEBUG - Livello 8: 29
+2025-07-25 10:18:12,934 - DEBUG - Livello 9: 32, 402
+2025-07-25 10:18:12,939 - DEBUG - Livello 10: 5, 900
+2025-07-25 10:18:12,943 - DEBUG - Livello 11: 104, 18
+2025-07-25 10:18:12,945 - DEBUG - Livello 12: 21, 22, 24, 26, 30
+2025-07-25 10:18:12,948 - DEBUG - Livello 13: 23, 25, 27, 28
+2025-07-25 10:18:12,951 - DEBUG - Livello 14: 17
+2025-07-25 10:18:12,953 - DEBUG - Livello 15: 4
+2025-07-25 10:18:12,964 - DEBUG - Livello 16: 11, 13, 15, 9
+2025-07-25 10:18:12,969 - DEBUG - Livello 17: 10, 14, 16
+2025-07-25 10:18:12,972 - DEBUG - Livello 18: 3
+2025-07-25 10:18:12,974 - DEBUG - Livello 19: 2
+2025-07-25 10:18:12,977 - DEBUG - Livello 20: 7
+2025-07-25 10:18:12,979 - DEBUG - Livello 21: 8
+2025-07-25 10:18:12,994 - DEBUG - Livello 22: 1
+2025-07-25 10:18:12,997 - INFO - DEBUG MAIN: Dopo topological_sort. levels type=<class 'list'>, is None=False
+2025-07-25 10:18:13,000 - INFO - DEBUG MAIN: levels length=23
+2025-07-25 10:18:13,002 - INFO - DEBUG MAIN: generated_levels exists, length=0
+2025-07-25 10:18:13,004 - INFO - Matrix generato con successo: 23 livelli
+2025-07-25 10:18:13,017 - INFO - Preparazione risultati finali...
+2025-07-25 10:18:13,021 - INFO - Matrix completato: 23 livelli, 51 US
+2025-07-25 10:18:13,024 - INFO - === RISULTATI FINALI ===
+2025-07-25 10:18:13,026 - INFO - Livello 0: 102, 103, 19, 300, 38, 4001, 4002, 500, 6
+2025-07-25 10:18:13,028 - INFO - Livello 1: 12, 20, 39, 400
+2025-07-25 10:18:13,039 - INFO - Livello 2: 36, 800
+2025-07-25 10:18:13,044 - INFO - Livello 3: 106, 35
+2025-07-25 10:18:13,046 - INFO - Livello 4: 37
+2025-07-25 10:18:13,058 - INFO - Livello 5: 33
+2025-07-25 10:18:13,063 - INFO - Livello 6: 34
+2025-07-25 10:18:13,075 - INFO - Livello 7: 31
+2025-07-25 10:18:13,080 - INFO - Livello 8: 29
+2025-07-25 10:18:13,092 - INFO - Livello 9: 32, 402
+2025-07-25 10:18:13,097 - INFO - Livello 10: 5, 900
+2025-07-25 10:18:13,109 - INFO - Livello 11: 104, 18
+2025-07-25 10:18:13,114 - INFO - Livello 12: 21, 22, 24, 26, 30
+2025-07-25 10:18:13,126 - INFO - Livello 13: 23, 25, 27, 28
+2025-07-25 10:18:13,131 - INFO - Livello 14: 17
+2025-07-25 10:18:13,143 - INFO - Livello 15: 4
+2025-07-25 10:18:13,148 - INFO - Livello 16: 11, 13, 15, 9
+2025-07-25 10:18:13,160 - INFO - Livello 17: 10, 14, 16
+2025-07-25 10:18:13,165 - INFO - Livello 18: 3
+2025-07-25 10:18:13,177 - INFO - Livello 19: 2
+2025-07-25 10:18:13,182 - INFO - Livello 20: 7
+2025-07-25 10:18:13,194 - INFO - Livello 21: 8
+2025-07-25 10:18:13,199 - INFO - Livello 22: 1
+2025-07-25 10:18:13,213 - INFO - Matrix calcolato con successo. Pronto per aggiornamento database.
+2025-07-25 10:18:13,217 - INFO - === INIZIO AGGIORNAMENTO DATABASE ===
+2025-07-25 10:18:13,220 - DEBUG - Aggiornamento livello 0: 9 US
+2025-07-25 10:18:14,798 - DEBUG - Aggiornamento livello 1: 4 US
+2025-07-25 10:18:14,977 - DEBUG - Aggiornate 10 US...
+2025-07-25 10:18:15,508 - DEBUG - Aggiornamento livello 2: 2 US
+2025-07-25 10:18:15,862 - DEBUG - Aggiornamento livello 3: 2 US
+2025-07-25 10:18:16,222 - DEBUG - Aggiornamento livello 4: 1 US
+2025-07-25 10:18:16,406 - DEBUG - Aggiornamento livello 5: 1 US
+2025-07-25 10:18:16,585 - DEBUG - Aggiornamento livello 6: 1 US
+2025-07-25 10:18:16,765 - DEBUG - Aggiornate 20 US...
+2025-07-25 10:18:16,770 - DEBUG - Aggiornamento livello 7: 1 US
+2025-07-25 10:18:16,965 - DEBUG - Aggiornamento livello 8: 1 US
+2025-07-25 10:18:17,151 - DEBUG - Aggiornamento livello 9: 2 US
+2025-07-25 10:18:17,507 - DEBUG - Aggiornamento livello 10: 2 US
+2025-07-25 10:18:17,861 - DEBUG - Aggiornamento livello 11: 2 US
+2025-07-25 10:18:18,211 - DEBUG - Aggiornamento livello 12: 5 US
+2025-07-25 10:18:18,569 - DEBUG - Aggiornate 30 US...
+2025-07-25 10:18:19,099 - DEBUG - Aggiornamento livello 13: 4 US
+2025-07-25 10:18:19,802 - DEBUG - Aggiornamento livello 14: 1 US
+2025-07-25 10:18:19,982 - DEBUG - Aggiornamento livello 15: 1 US
+2025-07-25 10:18:20,161 - DEBUG - Aggiornamento livello 16: 4 US
+2025-07-25 10:18:20,341 - DEBUG - Aggiornate 40 US...
+2025-07-25 10:18:20,870 - DEBUG - Aggiornamento livello 17: 3 US
+2025-07-25 10:18:21,406 - DEBUG - Aggiornamento livello 18: 1 US
+2025-07-25 10:18:21,582 - DEBUG - Aggiornamento livello 19: 1 US
+2025-07-25 10:18:21,761 - DEBUG - Aggiornamento livello 20: 1 US
+2025-07-25 10:18:21,943 - DEBUG - Aggiornamento livello 21: 1 US
+2025-07-25 10:18:22,127 - DEBUG - Aggiornate 50 US...
+2025-07-25 10:18:22,132 - DEBUG - Aggiornamento livello 22: 1 US
+2025-07-25 10:18:22,310 - INFO - === AGGIORNAMENTO COMPLETATO ===
+2025-07-25 10:18:22,315 - INFO - US aggiornate: 51
