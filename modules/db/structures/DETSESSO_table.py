@@ -79,4 +79,7 @@ class DETSESSO_table:
                            UniqueConstraint('sito', 'num_individuo', name='ID_det_sesso_unico')
                            )
 
-    metadata.create_all(engine)
+    try:
+        metadata.create_all(engine)
+    except:
+        pass  # Table already exists or geometry type not supported

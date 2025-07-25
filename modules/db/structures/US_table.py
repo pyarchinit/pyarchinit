@@ -141,4 +141,7 @@ class US_table:
                      UniqueConstraint('sito', 'area', 'us','unita_tipo', name='ID_us_unico')
                      )
 
-    metadata.create_all(engine)
+    try:
+        metadata.create_all(engine)
+    except:
+        pass  # Table already exists or geometry type not supported

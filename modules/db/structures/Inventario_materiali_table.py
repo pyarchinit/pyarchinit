@@ -67,7 +67,10 @@ class Inventario_materiali_table:
                                        
                                        
 
-    metadata.create_all(engine)
+    try:
+        metadata.create_all(engine)
+    except:
+        pass  # Table already exists or geometry type not supported
 
 
 # class Inventario_materiali_table_toimp:
@@ -109,4 +112,3 @@ class Inventario_materiali_table:
 #                                              UniqueConstraint('sito', 'numero_inventario', name='ID_invmat_unico_toimp')
 #                                              )
 #
-#     metadata.create_all(engine)

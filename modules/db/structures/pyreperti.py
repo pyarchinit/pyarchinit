@@ -4,6 +4,12 @@ Created on 17 11 2020
 @author: Enzo Cocca
 '''
 
+'''
+Created on 17 11 2020
+
+@author: Enzo Cocca
+'''
+
 from sqlalchemy import Table, Column, Integer, String, Text, Numeric, MetaData, create_engine, UniqueConstraint
 from geoalchemy2 import Geometry
 from modules.db.pyarchinit_conn_strings import Connection
@@ -33,5 +39,8 @@ class pyreperti:
                      UniqueConstraint('gid')
                      )
 
-    metadata.create_all(engine)
+    try:
+        metadata.create_all(engine)
+    except:
+        pass  # Table already exists or geometry type not supported
     

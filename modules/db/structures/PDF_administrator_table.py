@@ -30,4 +30,7 @@ class PDF_administrator_table:
                                     UniqueConstraint('table_name', 'modello', name='ID_pdf_administrator_unico')
                                     )
 
-    metadata.create_all(engine)
+    try:
+        metadata.create_all(engine)
+    except:
+        pass  # Table already exists or geometry type not supported
