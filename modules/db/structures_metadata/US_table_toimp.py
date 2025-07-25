@@ -54,4 +54,7 @@ class US_table_toimp:
                            UniqueConstraint('sito', 'area', 'us', name='ID_us_unico_toimp')
                            )
 
-    metadata.create_all(engine)
+    try:
+        metadata.create_all(engine)
+    except:
+        pass  # Table already exists or geometry type not supported
