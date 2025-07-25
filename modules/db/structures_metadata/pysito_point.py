@@ -5,24 +5,24 @@ Created on 19 feb 2018
 '''
 
 from sqlalchemy import Table, Column, Integer,  Text,  UniqueConstraint
-from geoalchemy2 import Geometry
 
 
 # Vector layer representing points of archaeological sites
 class pysito_point:
     @classmethod
     def define_table(cls, metadata):
-        return Table('pyarchinit_siti', metadata,
+        # Check if SQLite to handle geometry differently
+        from modules.db.pyarchinit_conn_strings import Connection
+        internal_connection = Connection()
+        conn_str = internal_connection.conn_str()
+        
+        if 'sqlite' in conn_str.lower():
+            # For SQLite/Spatialite, create table without geometry column
+            return Table('pyarchinit_siti', metadata,
                      # Unique identifier for each site record
-                     Column('gid', Integer, primary_key=True),  # 0
-
-                     # Name of the archaeological site
-                     Column('sito_nome', Text),  # 1
-
-                     # Geometry of the site location (point)
-                     Column('the_geom', Geometry(geometry_type='POINT')),  # 2
-
-                     # Unique constraint ensuring the gid is unique
-                     UniqueConstraint('gid')  # 3
-                     )
-
+                     Column('gid', Integer, primary_key=True))
+        else:
+            # For PostgreSQL/PostGIS
+                        return Table('pyarchinit_siti', metadata,
+                     # Unique identifier for each site record
+                     Column('gid', Integer, primary_key=True))

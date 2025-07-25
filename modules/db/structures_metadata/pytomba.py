@@ -5,27 +5,24 @@ Created on 17 11 2020
 '''
 
 from sqlalchemy import Table, Column, Integer,  Text, UniqueConstraint
-from geoalchemy2 import Geometry
 
 
 # Vector layer representing taxonomy records related to archaeological contexts
 class pytomba:
     @classmethod
     def define_table(cls, metadata):
-        return Table('pyarchinit_tafonomia', metadata,
+        # Check if SQLite to handle geometry differently
+        from modules.db.pyarchinit_conn_strings import Connection
+        internal_connection = Connection()
+        conn_str = internal_connection.conn_str()
+        
+        if 'sqlite' in conn_str.lower():
+            # For SQLite/Spatialite, create table without geometry column
+            return Table('pyarchinit_tafonomia', metadata,
                      # Unique identifier for each taxonomy record
-                     Column('gid', Integer, primary_key=True),  # 0
-
-                     # Name of the archaeological site associated with the taxonomy
-                     Column('sito', Text),  # 1
-
-                     # Number assigned to the record
-                     Column('nr_scheda', Integer),  # 2
-
-                     # Geometry of the taxonomy location (point)
-                     Column('the_geom', Geometry(geometry_type='POINT')),  # 3
-
-                     # Unique constraint ensuring the gid is unique
-                     UniqueConstraint('gid')  # 4
-                     )
-
+                     Column('gid', Integer, primary_key=True))
+        else:
+            # For PostgreSQL/PostGIS
+                        return Table('pyarchinit_tafonomia', metadata,
+                     # Unique identifier for each taxonomy record
+                     Column('gid', Integer, primary_key=True))
