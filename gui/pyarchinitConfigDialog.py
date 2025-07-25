@@ -2904,6 +2904,59 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 QMessageBox.warning(self, "INFO", "Db connection problem. Check the parameters inserted",
                                     QMessageBox.Ok)
 
+    def on_pushButton_update_db_pressed(self):
+        """
+        Handler for the new update button that updates existing databases
+        without deleting data using the DB_update class
+        """
+        try:
+            # Import the DB_update class
+            from modules.db.pyarchinit_db_update import DB_update
+            
+            # Get the current connection
+            conn = Connection()
+            conn_str = conn.conn_str()
+            
+            # Determine the database type
+            db_type = self.comboBox_Database.currentText()
+            
+            # Create DB_update instance
+            db_updater = DB_update(conn_str)
+            
+            # Show progress message
+            if self.L == 'it':
+                QMessageBox.information(self, "INFO", "Aggiornamento database in corso...", QMessageBox.Ok)
+            elif self.L == 'de':
+                QMessageBox.information(self, "INFO", "Datenbank-Update läuft...", QMessageBox.Ok)
+            else:
+                QMessageBox.information(self, "INFO", "Database update in progress...", QMessageBox.Ok)
+            
+            # Perform the update
+            db_updater.update_table()
+            
+            # Show success message
+            if self.L == 'it':
+                QMessageBox.information(self, "INFO", "Database aggiornato con successo!", QMessageBox.Ok)
+            elif self.L == 'de':
+                QMessageBox.information(self, "INFO", "Datenbank erfolgreich aktualisiert!", QMessageBox.Ok)
+            else:
+                QMessageBox.information(self, "INFO", "Database updated successfully!", QMessageBox.Ok)
+                
+        except Exception as e:
+            # Show error message
+            if self.L == 'it':
+                QMessageBox.critical(self, "ERRORE", 
+                    f"Errore durante l'aggiornamento del database:\n{str(e)}", 
+                    QMessageBox.Ok)
+            elif self.L == 'de':
+                QMessageBox.critical(self, "FEHLER", 
+                    f"Fehler beim Aktualisieren der Datenbank:\n{str(e)}", 
+                    QMessageBox.Ok)
+            else:
+                QMessageBox.critical(self, "ERROR", 
+                    f"Error updating database:\n{str(e)}", 
+                    QMessageBox.Ok)
+
     def tool_ok(self):
 
         self.toolButton_active.isChecked()
@@ -3608,69 +3661,33 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 pass
             py8='''DROP VIEW if exists pyarchinit_us_view;'''
             c.execute(py8)
-            sql_view_us=("""CREATE VIEW  IF NOT EXISTS "pyarchinit_us_view" AS            
-            SELECT "a"."rowid" AS "rowid", "a"."gid" AS "gid", "a"."area_s" AS "area_s",
-            "a"."scavo_s" AS "scavo_s", "a"."us_s" AS "us_s",
-            "a"."stratigraph_index_us" AS "stratigraph_index_us",
-            "a"."tipo_us_s" AS "tipo_us_s", "a"."rilievo_originale" AS "rilievo_originale",
-            "a"."disegnatore" AS "disegnatore", "a"."data" AS "data",
-            "a"."the_geom" AS "the_geom", "a"."tipo_doc" AS "tipo_doc",
-            "a"."nome_doc" AS "nome_doc", "b"."id_us" AS "id_us", "b"."sito" AS "sito", "b"."area" AS "area",
-            "b"."us" AS "us", "b"."d_stratigrafica" AS "d_stratigrafica",
-            "b"."d_interpretativa" AS "d_interpretativa", "b"."descrizione" AS "descrizione",
-            "b"."interpretazione" AS "interpretazione", "b"."periodo_iniziale" AS "periodo_iniziale",
-            "b"."fase_iniziale" AS "fase_iniziale", "b"."periodo_finale" AS "periodo_finale",
-            "b"."fase_finale" AS "fase_finale", "b"."scavato" AS "scavato",
-            "b"."attivita" AS "attivita", "b"."anno_scavo" AS "anno_scavo",
-            "b"."metodo_di_scavo" AS "metodo_di_scavo", "b"."inclusi" AS "inclusi",
-            "b"."campioni" AS "campioni", "b"."rapporti" AS "rapporti",
-            "b"."data_schedatura" AS "data_schedatura", "b"."schedatore" AS "schedatore",
-            "b"."formazione" AS "formazione", "b"."stato_di_conservazione" AS "stato_di_conservazione",
-            "b"."colore" AS "colore", "b"."consistenza" AS "consistenza",
-            "b"."struttura" AS "struttura", "b"."cont_per" AS "cont_per",
-            "b"."order_layer" AS "order_layer", "b"."documentazione" AS "documentazione",
-            "b"."unita_tipo" AS "unita_tipo", "b"."settore" AS "settore",
-            "b"."quad_par" AS "quad_par", "b"."ambient" AS "ambient",
-            "b"."saggio" AS "saggio", "b"."elem_datanti" AS "elem_datanti",
-            "b"."funz_statica" AS "funz_statica", "b"."lavorazione" AS "lavorazione",
-            "b"."spess_giunti" AS "spess_giunti", "b"."letti_posa" AS "letti_posa",
-            "b"."alt_mod" AS "alt_mod", "b"."un_ed_riass" AS "un_ed_riass",
-            "b"."reimp" AS "reimp", "b"."posa_opera" AS "posa_opera",
-            "b"."quota_min_usm" AS "quota_min_usm", "b"."quota_max_usm" AS "quota_max_usm",
-            "b"."cons_legante" AS "cons_legante", "b"."col_legante" AS "col_legante",
-            "b"."aggreg_legante" AS "aggreg_legante", "b"."con_text_mat" AS "con_text_mat",
-            "b"."col_materiale" AS "col_materiale", "b"."inclusi_materiali_usm" AS "inclusi_materiali_usm",
-            "b"."n_catalogo_generale" AS "n_catalogo_generale",
-            "b"."n_catalogo_interno" AS "n_catalogo_interno",
-            "b"."n_catalogo_internazionale" AS "n_catalogo_internazionale",
-            "b"."soprintendenza" AS "soprintendenza", "b"."quota_relativa" AS "quota_relativa",
-            "b"."quota_abs" AS "quota_abs", "b"."ref_tm" AS "ref_tm",
-            "b"."ref_ra" AS "ref_ra", "b"."ref_n" AS "ref_n",
-            "b"."posizione" AS "posizione", "b"."criteri_distinzione" AS "criteri_distinzione",
-            "b"."modo_formazione" AS "modo_formazione", "b"."componenti_organici" AS "componenti_organici",
-            "b"."componenti_inorganici" AS "componenti_inorganici",
-            "b"."lunghezza_max" AS "lunghezza_max", "b"."altezza_max" AS "altezza_max",
-            "b"."altezza_min" AS "altezza_min", "b"."profondita_max" AS "profondita_max",
-            "b"."profondita_min" AS "profondita_min", "b"."larghezza_media" AS "larghezza_media",
-            "b"."quota_max_abs" AS "quota_max_abs", "b"."quota_max_rel" AS "quota_max_rel",
-            "b"."quota_min_abs" AS "quota_min_abs", "b"."quota_min_rel" AS "quota_min_rel",
-            "b"."osservazioni" AS "osservazioni", "b"."datazione" AS "datazione",
-            "b"."flottazione" AS "flottazione", "b"."setacciatura" AS "setacciatura",
-            "b"."affidabilita" AS "affidabilita", "b"."direttore_us" AS "direttore_us",
-            "b"."responsabile_us" AS "responsabile_us", "b"."cod_ente_schedatore" AS "cod_ente_schedatore",
-            "b"."data_rilevazione" AS "data_rilevazione", "b"."data_rielaborazione" AS "data_rielaborazione",
-            "b"."lunghezza_usm" AS "lunghezza_usm", "b"."altezza_usm" AS "altezza_usm",
-            "b"."spessore_usm" AS "spessore_usm", "b"."tecnica_muraria_usm" AS "tecnica_muraria_usm",
-            "b"."modulo_usm" AS "modulo_usm", "b"."campioni_malta_usm" AS "campioni_malta_usm",
-            "b"."campioni_mattone_usm" AS "campioni_mattone_usm",
-            "b"."campioni_pietra_usm" AS "campioni_pietra_usm",
-            "b"."provenienza_materiali_usm" AS "provenienza_materiali_usm",
-            "b"."criteri_distinzione_usm" AS "criteri_distinzione_usm",
-            "b"."uso_primario_usm" AS "uso_primario_usm"
-            FROM "pyunitastratigrafiche" AS "a"
-            JOIN "us_table" AS "b" ON ("a"."area_s" = "b"."area" AND "a"."scavo_s" = "b"."sito"
-            AND "a"."us_s" = "b"."us")
-            ORDER BY "b"."order_layer" asc ;""")
+            sql_view_us=("""CREATE VIEW  IF NOT EXISTS "pyarchinit_us_view" AS
+            SELECT 
+                a.gid,
+                a.the_geom,
+                a.tipo_us_s,
+                a.scavo_s,
+                a.area_s,
+                a.us_s,
+                a.stratigraph_index_us,
+                b.id_us,
+                b.sito,
+                b.area,
+                b.us,
+                b.struttura,
+                b.d_stratigrafica,
+                b.d_interpretativa,
+                b.descrizione,
+                b.interpretazione,
+                b.rapporti,
+                b.periodo_iniziale,
+                b.fase_iniziale,
+                b.periodo_finale,
+                b.fase_finale,
+                b.anno_scavo
+            FROM pyunitastratigrafiche AS a
+            JOIN us_table AS b ON (a.area_s = b.area AND a.scavo_s = b.sito AND a.us_s = b.us)
+            ORDER BY b.order_layer ASC;""")
 
 
             c.execute(sql_view_us)
@@ -4561,7 +4578,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                     'MEDIA': 'id_media',
                     'MEDIA_THUMB': 'id_media_thumb',
                     'MEDIATOENTITY':'id_mediaToEntity',
-                    #'ALL':''
+                    'TMA': 'id'
 
                 }
             elif self.L=='de':
@@ -4581,6 +4598,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                     'MEDIA': 'id_media',
                     'MEDIA_THUMB': 'id_media_thumb',
                     'MEDIATOENTITY':'id_mediaToEntity',
+                    'TMA': 'id'
                 }
             else:
                 id_table_class_mapper_conv_dict = {
@@ -4599,6 +4617,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                     'MEDIA': 'id_media',
                     'MEDIA_THUMB': 'id_media_thumb',
                     'MEDIATOENTITY':'id_mediaToEntity',
+                    'TMA': 'id'
                 }
             # creazione del cursore di lettura
             """if os.name == 'posix':
@@ -5493,6 +5512,118 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                         return 0
                 self.progress_bar.reset()
                 QMessageBox.information(self, "Message", "Data Loaded")
+                
+            elif mapper_class_write == 'TMA' :
+                for sing_rec in range(len(data_list_toimp)):
+                    try:
+                        data = self.DB_MANAGER_write.insert_tma_values(
+                            self.DB_MANAGER_write.max_num_id(mapper_class_write,
+                                                             id_table_class_mapper_conv_dict[mapper_class_write]) + 1,
+                            data_list_toimp[sing_rec].sito,
+                            data_list_toimp[sing_rec].area,
+                            data_list_toimp[sing_rec].ogtm,
+                            data_list_toimp[sing_rec].ldct,
+                            data_list_toimp[sing_rec].ldcn,
+                            data_list_toimp[sing_rec].vecchia_collocazione,
+                            data_list_toimp[sing_rec].cassetta,
+                            data_list_toimp[sing_rec].localita,
+                            data_list_toimp[sing_rec].scan,
+                            data_list_toimp[sing_rec].saggio,
+                            data_list_toimp[sing_rec].vano_locus,
+                            data_list_toimp[sing_rec].dscd,
+                            data_list_toimp[sing_rec].dscu,
+                            data_list_toimp[sing_rec].rcgd,
+                            data_list_toimp[sing_rec].rcgz,
+                            data_list_toimp[sing_rec].aint,
+                            data_list_toimp[sing_rec].aind,
+                            data_list_toimp[sing_rec].dtzg,
+                            data_list_toimp[sing_rec].dtzs,
+                            data_list_toimp[sing_rec].cronologie,
+                            data_list_toimp[sing_rec].n_reperti,
+                            data_list_toimp[sing_rec].peso,
+                            data_list_toimp[sing_rec].deso,
+                            data_list_toimp[sing_rec].madi,
+                            data_list_toimp[sing_rec].macc,
+                            data_list_toimp[sing_rec].macl,
+                            data_list_toimp[sing_rec].macp,
+                            data_list_toimp[sing_rec].macd,
+                            data_list_toimp[sing_rec].cronologia_mac,
+                            data_list_toimp[sing_rec].macq,
+                            data_list_toimp[sing_rec].ftap,
+                            data_list_toimp[sing_rec].ftan,
+                            data_list_toimp[sing_rec].drat,
+                            data_list_toimp[sing_rec].dran,
+                            data_list_toimp[sing_rec].draa)
+
+                        self.DB_MANAGER_write.insert_data_session(data)
+
+                        # Calculate the progress as a percentage
+                        value = (float(sing_rec) / float(len(data_list_toimp))) * 100
+                        # Convert the progress value to an integer
+                        int_value = int(value)
+                        # Update the progress bar with the integer value
+                        self.progress_bar.setValue(int_value)
+                        QApplication.processEvents()
+                    except Exception as e:
+                        QMessageBox.warning(self, "Errore", "Error ! \n" + str(e), QMessageBox.Ok)
+                        return 0
+                self.progress_bar.reset()
+                QMessageBox.information(self, "Message", "Data Loaded")
+                
+            elif mapper_class_write == 'ALL' :
+                # Import all tables sequentially
+                tables_to_import = ['SITE', 'US', 'UT', 'PERIODIZZAZIONE', 'INVENTARIO_MATERIALI', 
+                                   'POTTERY', 'STRUTTURA', 'TOMBA', 'SCHEDAIND', 'CAMPIONI', 
+                                   'DOCUMENTAZIONE', 'PYARCHINIT_THESAURUS_SIGLE', 'TMA',
+                                   'MEDIA', 'MEDIA_THUMB', 'MEDIATOENTITY']
+                
+                total_tables = len(tables_to_import)
+                
+                for table_index, table in enumerate(tables_to_import):
+                    try:
+                        # Get data for current table
+                        res_read = self.DB_MANAGER_read.query_bool({}, table)
+                        data_list_toimp = []
+                        for i in res_read:
+                            data_list_toimp.append(i)
+                        
+                        if len(data_list_toimp) > 0:
+                            # Import based on table type - call the appropriate section
+                            # We need to temporarily set mapper_class_write to the current table
+                            original_mapper = mapper_class_write
+                            mapper_class_write = table
+                            
+                            # Progress for this table
+                            table_progress = (float(table_index) / float(total_tables)) * 100
+                            
+                            if self.L=='it':
+                                QMessageBox.information(self, "Info", f"Importazione tabella {table}: {len(data_list_toimp)} record", QMessageBox.Ok)
+                            elif self.L=='de':
+                                QMessageBox.information(self, "Info", f"Importiere Tabelle {table}: {len(data_list_toimp)} Datensätze", QMessageBox.Ok)
+                            else:
+                                QMessageBox.information(self, "Info", f"Importing table {table}: {len(data_list_toimp)} records", QMessageBox.Ok)
+                            
+                            # Call the import logic recursively
+                            self.import_single_table(table, data_list_toimp, id_table_class_mapper_conv_dict)
+                            
+                            mapper_class_write = original_mapper
+                            
+                    except Exception as e:
+                        if self.L=='it':
+                            QMessageBox.warning(self, "Errore", f"Errore nell'importazione della tabella {table}: {str(e)}", QMessageBox.Ok)
+                        elif self.L=='de':
+                            QMessageBox.warning(self, "Fehler", f"Fehler beim Import der Tabelle {table}: {str(e)}", QMessageBox.Ok)
+                        else:
+                            QMessageBox.warning(self, "Error", f"Error importing table {table}: {str(e)}", QMessageBox.Ok)
+                        continue
+                
+                self.progress_bar.reset()
+                if self.L=='it':
+                    QMessageBox.information(self, "Message", "Importazione di tutte le tabelle completata", QMessageBox.Ok)
+                elif self.L=='de':
+                    QMessageBox.information(self, "Message", "Import aller Tabellen abgeschlossen", QMessageBox.Ok)
+                else:
+                    QMessageBox.information(self, "Message", "All tables import completed", QMessageBox.Ok)
 
 
             
