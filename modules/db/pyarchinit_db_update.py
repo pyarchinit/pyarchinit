@@ -57,6 +57,32 @@ class DB_update(object):
         # Check if we're using SQLite
         is_sqlite = 'sqlite' in str(self.engine.url).lower()
         
+        # TMA table migration and ensure new tables exist
+        try:
+            # Ensure TMA tables exist in correct order
+            self._ensure_tma_tables_exist()
+            
+            # Now check if old tma_table exists and needs migration
+            if is_sqlite:
+                result = self.engine.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='tma_table'")
+                old_tma_exists = result.fetchone() is not None
+            else:
+                result = self.engine.execute("""
+                    SELECT EXISTS (
+                        SELECT FROM information_schema.tables 
+                        WHERE table_name = 'tma_table'
+                    )
+                """)
+                old_tma_exists = result.fetchone()[0]
+            
+            if old_tma_exists:
+                self._migrate_tma_table()
+                
+            # Check if localita field exists in tma_materiali_archeologici and remove it
+            self._remove_localita_field()
+        except Exception as e:
+            print(f"Error in TMA table setup: {str(e)}")
+        
         # SQLite US field migration
         if is_sqlite:
             self._migrate_us_fields_sqlite()
@@ -1793,3 +1819,235 @@ class DB_update(object):
         except Exception as e:
             # Log but don't fail - view registration is not critical
             print(f"Warning: Could not register views in SpatiaLite metadata: {str(e)}")
+    
+    def _migrate_tma_table(self):
+        """Migrate old TMA table structure to new structure with separate materials table"""
+        try:
+            print("Starting TMA table migration...")
+            
+            # Backup existing data
+            old_data = self.engine.execute("SELECT * FROM tma_table").fetchall()
+            print(f"Found {len(old_data)} records to migrate")
+            
+            # Drop the old table
+            self.engine.execute("DROP TABLE IF EXISTS tma_table")
+            
+            # The new tables will be created automatically by the mapper
+            # Force import to trigger table creation
+            from modules.db.structures.Tma_table import Tma_table
+            from modules.db.structures.Tma_materiali_table import Tma_materiali_table
+            
+            # Migrate data
+            from sqlalchemy.orm import sessionmaker
+            Session = sessionmaker(bind=self.engine)
+            session = Session()
+            
+            migrated_count = 0
+            for row in old_data:
+                try:
+                    # Map old fields to new structure
+                    # Insert main TMA record
+                    new_values = {
+                        'id': row[0] if len(row) > 0 else None,
+                        'sito': row[1] if len(row) > 1 else '',
+                        'area': row[2] if len(row) > 2 else '',
+                        'ogtm': row[4] if len(row) > 4 else '',  # oggetto field
+                        'ldct': '',
+                        'ldcn': row[3] if len(row) > 3 else '',  # us field
+                        'vecchia_collocazione': row[34] if len(row) > 34 else '',
+                        'cassetta': row[33] if len(row) > 33 else '',  # nr_cassa
+                        'localita': row[5] if len(row) > 5 else '',
+                        'scan': row[7] if len(row) > 7 else '',  # nome_scavo
+                        'saggio': row[6] if len(row) > 6 else '',
+                        'vano_locus': row[8] if len(row) > 8 else '',  # vano
+                        'dscd': row[9] if len(row) > 9 else '',  # data_scavo
+                        'dscu': row[3] if len(row) > 3 else '',  # us
+                        'rcgd': '',
+                        'rcgz': '',
+                        'aint': '',
+                        'aind': '',
+                        'dtzg': row[32] if len(row) > 32 else '',  # cronologia
+                        'deso': row[20] if len(row) > 20 else '',  # definizione
+                        'nsc': '',
+                        'ftap': '',
+                        'ftan': '',
+                        'drat': '',
+                        'dran': '',
+                        'draa': '',
+                        'created_at': '',
+                        'updated_at': '',
+                        'created_by': 'migration',
+                        'updated_by': 'migration'
+                    }
+                    
+                    # Remove localita from new_values if present
+                    if 'localita' in new_values:
+                        del new_values['localita']
+                    
+                    # Insert the main record
+                    self.engine.execute("""
+                        INSERT INTO tma_materiali_archeologici 
+                        (id, sito, area, ogtm, ldct, ldcn, vecchia_collocazione, cassetta,
+                         scan, saggio, vano_locus, dscd, dscu, rcgd, rcgz,
+                         aint, aind, dtzg, deso, nsc, ftap, ftan, drat, dran, draa,
+                         created_at, updated_at, created_by, updated_by)
+                        VALUES 
+                        (:id, :sito, :area, :ogtm, :ldct, :ldcn, :vecchia_collocazione, :cassetta,
+                         :scan, :saggio, :vano_locus, :dscd, :dscu, :rcgd, :rcgz,
+                         :aint, :aind, :dtzg, :deso, :nsc, :ftap, :ftan, :drat, :dran, :draa,
+                         :created_at, :updated_at, :created_by, :updated_by)
+                    """, new_values)
+                    
+                    # Create material record if there's material data
+                    if len(row) > 10 and row[10]:  # elemento field
+                        material_values = {
+                            'id_tma': new_values['id'],
+                            'madi': row[18] if len(row) > 18 else '',  # numero_inventario_serie
+                            'macc': row[10] if len(row) > 10 else '',  # elemento
+                            'macl': row[11] if len(row) > 11 else '',  # tipo
+                            'macp': '',
+                            'macd': row[20] if len(row) > 20 else '',  # definizione
+                            'cronologia_mac': row[32] if len(row) > 32 else '',  # cronologia
+                            'macq': str(row[16]) if len(row) > 16 else '0',  # quantita
+                            'peso': float(row[25]) if len(row) > 25 and row[25] else 0.0,
+                            'created_at': '',
+                            'updated_at': '',
+                            'created_by': 'migration',
+                            'updated_by': 'migration'
+                        }
+                        
+                        self.engine.execute("""
+                            INSERT INTO tma_materiali_ripetibili
+                            (id_tma, madi, macc, macl, macp, macd, cronologia_mac, macq, peso,
+                             created_at, updated_at, created_by, updated_by)
+                            VALUES
+                            (:id_tma, :madi, :macc, :macl, :macp, :macd, :cronologia_mac, :macq, :peso,
+                             :created_at, :updated_at, :created_by, :updated_by)
+                        """, material_values)
+                    
+                    migrated_count += 1
+                    
+                except Exception as e:
+                    print(f"Error migrating record {row[0] if row else 'unknown'}: {str(e)}")
+                    continue
+            
+            session.close()
+            print(f"TMA migration completed. Migrated {migrated_count} out of {len(old_data)} records")
+            
+        except Exception as e:
+            print(f"TMA migration failed: {str(e)}")
+            # Don't raise - let the process continue
+    
+    def _remove_localita_field(self):
+        """Remove localita field from tma_materiali_archeologici table if it exists"""
+        try:
+            # Check if we're using SQLite
+            is_sqlite = 'sqlite' in str(self.engine.url).lower()
+            
+            if is_sqlite:
+                # For SQLite, we need to recreate the table without the localita field
+                result = self.engine.execute("PRAGMA table_info(tma_materiali_archeologici)")
+                columns_info = result.fetchall()
+                
+                # Check if localita field exists
+                has_localita = any(col[1] == 'localita' for col in columns_info)
+                
+                if has_localita:
+                    print("Removing localita field from tma_materiali_archeologici table...")
+                    
+                    # Create new table without localita
+                    new_table_sql = "CREATE TABLE tma_materiali_archeologici_new ("
+                    column_defs = []
+                    columns_to_copy = []
+                    
+                    for col in columns_info:
+                        col_name = col[1]
+                        if col_name == 'localita':
+                            continue  # Skip localita field
+                            
+                        col_type = col[2]
+                        col_notnull = col[3]
+                        col_default = col[4]
+                        col_pk = col[5]
+                        
+                        columns_to_copy.append(col_name)
+                        
+                        col_def = f"{col_name} {col_type}"
+                        
+                        if col_pk:
+                            col_def += " PRIMARY KEY"
+                            if col_name == 'id':
+                                col_def += " AUTOINCREMENT"
+                        
+                        if col_notnull and not col_pk:
+                            col_def += " NOT NULL"
+                            
+                        if col_default is not None:
+                            col_def += f" DEFAULT {col_default}"
+                            
+                        column_defs.append(col_def)
+                    
+                    new_table_sql += ", ".join(column_defs) + ")"
+                    
+                    # Create new table
+                    self.engine.execute(new_table_sql)
+                    
+                    # Copy data without localita field
+                    columns_str = ", ".join(columns_to_copy)
+                    self.engine.execute(f"INSERT INTO tma_materiali_archeologici_new ({columns_str}) SELECT {columns_str} FROM tma_materiali_archeologici")
+                    
+                    # Drop old table and rename new one
+                    self.engine.execute("DROP TABLE tma_materiali_archeologici")
+                    self.engine.execute("ALTER TABLE tma_materiali_archeologici_new RENAME TO tma_materiali_archeologici")
+                    
+                    print("Successfully removed localita field from tma_materiali_archeologici table")
+            else:
+                # For PostgreSQL, we can use ALTER TABLE DROP COLUMN
+                try:
+                    # Check if column exists
+                    result = self.engine.execute("""
+                        SELECT column_name 
+                        FROM information_schema.columns 
+                        WHERE table_name = 'tma_materiali_archeologici' 
+                        AND column_name = 'localita'
+                    """)
+                    
+                    if result.fetchone():
+                        self.engine.execute("ALTER TABLE tma_materiali_archeologici DROP COLUMN localita")
+                        print("Successfully removed localita field from tma_materiali_archeologici table")
+                except:
+                    pass
+                    
+        except Exception as e:
+            print(f"Error removing localita field: {str(e)}")
+            # Don't fail the entire update process
+    
+    def _ensure_tma_tables_exist(self):
+        """Ensure TMA tables exist with correct structure and in correct order"""
+        try:
+            from sqlalchemy import MetaData, inspect
+            
+            # Get the inspector to check existing tables
+            inspector = inspect(self.engine)
+            existing_tables = inspector.get_table_names()
+            
+            # Check if parent table exists
+            if 'tma_materiali_archeologici' not in existing_tables:
+                # Import and create parent table first
+                from modules.db.structures_metadata.Tma_table import Tma_table
+                metadata = MetaData()
+                tma_table = Tma_table.define_table(metadata)
+                metadata.create_all(self.engine)
+                print("Created tma_materiali_archeologici table")
+            
+            # Check if child table exists
+            if 'tma_materiali_ripetibili' not in existing_tables:
+                # Import and create child table
+                from modules.db.structures_metadata.Tma_materiali_table import Tma_materiali_table
+                metadata = MetaData()
+                tma_materiali_table = Tma_materiali_table.define_table(metadata)
+                metadata.create_all(self.engine)
+                print("Created tma_materiali_ripetibili table")
+            
+        except Exception as e:
+            print(f"Error ensuring TMA tables exist: {str(e)}")

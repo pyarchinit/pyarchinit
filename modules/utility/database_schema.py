@@ -18,6 +18,7 @@ from modules.db.structures_metadata.Pottery_table import PotteryTable
 from modules.db.structures_metadata.SCHEDAIND_table import SCHEDAIND_table
 from modules.db.structures_metadata.Site_table import Site_table
 from modules.db.structures_metadata.Struttura_table import Struttura_table
+from modules.db.structures_metadata.Tma_materiali_table import Tma_materiali_table
 from modules.db.structures_metadata.Tma_table import Tma_table
 from modules.db.structures_metadata.Tomba_table import Tomba_table
 from modules.db.structures_metadata.US_table import US_table
@@ -62,6 +63,8 @@ Periodizzazione_table.define_table(metadata)
 SCHEDAIND_table.define_table(metadata)
 Site_table.define_table(metadata)
 Struttura_table.define_table(metadata)
+Tma_table.define_table(metadata)
+Tma_materiali_table.define_table(metadata)
 Tomba_table.define_table(metadata)
 US_table.define_table(metadata)
 # US_table_toimp(metadata)
@@ -83,7 +86,7 @@ pylineeriferimento.define_table(metadata)
 pyripartizioni_spaziali.define_table(metadata)
 pysezioni.define_table(metadata)
 PotteryTable.define_table(metadata)
-Tma_table.define_table(metadata)
+
 
 # Creare tutte le tabelle nel database
 try:

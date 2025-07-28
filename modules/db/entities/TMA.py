@@ -36,7 +36,6 @@ class TMA(object):
                  ldcn,
                  vecchia_collocazione,
                  cassetta,
-                 localita,
                  scan,
                  saggio,
                  vano_locus,
@@ -47,25 +46,19 @@ class TMA(object):
                  aint,
                  aind,
                  dtzg,
-                 dtzs,
-                 cronologie,
-                 n_reperti,
-                 peso,
                  deso,
-                 madi,
-                 macc,
-                 macl,
-                 macp,
-                 macd,
-                 cronologia_mac,
-                 macq,
+                 nsc,
                  ftap,
                  ftan,
                  drat,
                  dran,
-                 draa
+                 draa,
+                 created_at,
+                 updated_at,
+                 created_by,
+                 updated_by
                  ):
-        self.id_tma = id  # 0
+        self.id = id  # 0
         self.sito = sito  # 1
         self.area = area  # 2
         self.ogtm = ogtm  # 3
@@ -73,39 +66,31 @@ class TMA(object):
         self.ldcn = ldcn  # 5
         self.vecchia_collocazione = vecchia_collocazione  # 6
         self.cassetta = cassetta  # 7
-        self.localita = localita  # 8
-        self.scan = scan  # 9
-        self.saggio = saggio  # 10
-        self.vano_locus = vano_locus  # 11
-        self.dscd = dscd  # 12
-        self.dscu = dscu  # 13
-        self.rcgd = rcgd  # 14
-        self.rcgz = rcgz  # 15
-        self.aint = aint  # 16
-        self.aind = aind  # 17
-        self.dtzg = dtzg  # 18
-        self.dtzs = dtzs  # 19
-        self.cronologie = cronologie  # 20
-        self.n_reperti = n_reperti  # 21
-        self.peso = peso  # 22
-        self.deso = deso  # 23
-        self.madi = madi  # 24
-        self.macc = macc  # 25
-        self.macl = macl  # 26
-        self.macp = macp  # 27
-        self.macd = macd  # 28
-        self.cronologia_mac = cronologia_mac  # 29
-        self.macq = macq  # 30
-        self.ftap = ftap  # 31
-        self.ftan = ftan  # 32
-        self.drat = drat  # 33
-        self.dran = dran  # 34
-        self.draa = draa  # 35
-
+        self.scan = scan  # 8
+        self.saggio = saggio  # 9
+        self.vano_locus = vano_locus  # 10
+        self.dscd = dscd  # 11
+        self.dscu = dscu  # 12
+        self.rcgd = rcgd  # 13
+        self.rcgz = rcgz  # 14
+        self.aint = aint  # 15
+        self.aind = aind  # 16
+        self.dtzg = dtzg  # 17
+        self.deso = deso  # 18
+        self.nsc = nsc  # 19
+        self.ftap = ftap  # 20
+        self.ftan = ftan  # 21
+        self.drat = drat  # 22
+        self.dran = dran  # 23
+        self.draa = draa  # 24
+        self.created_at = created_at  # 25
+        self.updated_at = updated_at  # 26
+        self.created_by = created_by  # 27
+        self.updated_by = updated_by  # 28
 
     def __repr__(self):
-        return "<TMA('%d', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')>" % (
-            self.id_tma,
+        return "<TMA('%d', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')>" % (
+            self.id,
             self.sito,
             self.area,
             self.ogtm,
@@ -113,7 +98,6 @@ class TMA(object):
             self.ldcn,
             self.vecchia_collocazione,
             self.cassetta,
-            self.localita,
             self.scan,
             self.saggio,
             self.vano_locus,
@@ -124,21 +108,15 @@ class TMA(object):
             self.aint,
             self.aind,
             self.dtzg,
-            self.dtzs,
-            self.cronologie,
-            self.n_reperti,
-            self.peso,
             self.deso,
-            self.madi,
-            self.macc,
-            self.macl,
-            self.macp,
-            self.macd,
-            self.cronologia_mac,
-            self.macq,
+            self.nsc,
             self.ftap,
             self.ftan,
             self.drat,
             self.dran,
-            self.draa
+            self.draa,
+            self.created_at,
+            self.updated_at,
+            self.created_by,
+            self.updated_by
         )

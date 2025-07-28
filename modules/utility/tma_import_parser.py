@@ -565,9 +565,11 @@ class TMAImportManager:
 
         for idx, record in enumerate(records):
             try:
-                # Prepara i dati per l'inserimento
+                # Prepara i dati per l'inserimento - nuova struttura con 26 campi
+                tma_id = self.db_manager.max_num_id('TMA', 'id') + 1
+                
                 data = self.db_manager.insert_tma_values(
-                    self.db_manager.max_num_id('TMA', 'id') + 1,
+                    tma_id,
                     record.get('sito', ''),
                     record.get('area', ''),
                     record.get('ogtm', ''),
@@ -585,19 +587,9 @@ class TMAImportManager:
                     record.get('rcgz', ''),
                     record.get('aint', ''),
                     record.get('aind', ''),
-                    record.get('dtzg', ''),
-                    record.get('dtzs', ''),
-                    record.get('cronologie', ''),
-                    record.get('n_reperti', ''),
-                    record.get('peso', ''),
+                    record.get('dtzg', ''),  # Usa solo dtzg, non dtzs
                     record.get('deso', ''),
-                    record.get('madi', ''),
-                    record.get('macc', ''),
-                    record.get('macl', ''),
-                    record.get('macp', ''),
-                    record.get('macd', ''),
-                    record.get('cronologia_mac', ''),
-                    record.get('macq', ''),
+                    '',  # nsc - campo note storico-critiche 
                     record.get('ftap', ''),
                     record.get('ftan', ''),
                     record.get('drat', ''),
@@ -606,6 +598,34 @@ class TMAImportManager:
                 )
 
                 self.db_manager.insert_data_session(data)
+                
+                # Ora salva i materiali separatamente se presenti
+                if any([record.get('madi'), record.get('macc'), record.get('macl'), 
+                       record.get('macp'), record.get('macd'), record.get('cronologia_mac'), 
+                       record.get('macq'), record.get('peso')]):
+                    
+                    # Converti peso a float se presente
+                    peso = None
+                    if record.get('peso'):
+                        try:
+                            peso = float(record.get('peso'))
+                        except (ValueError, TypeError):
+                            peso = None
+                    
+                    material_data = self.db_manager.insert_tma_materiali_values(
+                        self.db_manager.max_num_id('TMA_MATERIALI', 'id') + 1,
+                        tma_id,
+                        record.get('madi', ''),
+                        record.get('macc', ''),
+                        record.get('macl', ''),
+                        record.get('macp', ''),
+                        record.get('macd', ''),
+                        record.get('cronologia_mac', ''),
+                        record.get('macq', ''),
+                        peso
+                    )
+                    self.db_manager.insert_data_session(material_data)
+                
                 imported_count += 1
 
             except Exception as e:

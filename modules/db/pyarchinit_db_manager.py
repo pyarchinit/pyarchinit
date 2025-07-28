@@ -41,7 +41,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql.schema import MetaData
 
-from modules.db.pyarchinit_db_mapper import US, UT, SITE, PERIODIZZAZIONE, POTTERY, TMA, \
+from modules.db.pyarchinit_db_mapper import US, UT, SITE, PERIODIZZAZIONE, POTTERY, TMA, TMA_MATERIALI, \
     STRUTTURA, SCHEDAIND, INVENTARIO_MATERIALI, DETSESSO, DOCUMENTAZIONE, DETETA, MEDIA, \
     MEDIA_THUMB, MEDIATOENTITY, MEDIAVIEW, TOMBA, CAMPIONI, PYARCHINIT_THESAURUS_SIGLE, \
     INVENTARIO_LAPIDEI, PDF_ADMINISTRATOR, PYUS, PYUSM, PYSITO_POINT, PYSITO_POLYGON, PYQUOTE, PYQUOTEUSM, \
@@ -77,6 +77,9 @@ class Pyarchinit_db_management(object):
             dbapi_conn.load_extension('mod_spatialite.so')
         else:
             dbapi_conn.load_extension('mod_spatialite.so')
+        
+        # Enable foreign keys for SQLite
+        dbapi_conn.execute("PRAGMA foreign_keys=ON")
 
 
 
@@ -112,7 +115,28 @@ class Pyarchinit_db_management(object):
             error_message = f"Error. problema nell' aggiornamento del db: {e}\nTraceback: {traceback.format_exc()}"
             QMessageBox.warning(None, "Message", error_message, QMessageBox.Ok)
             test = False
+            
+        # Force creation of TMA tables
+        try:
+            self.ensure_tma_tables_exist()
+        except Exception as e:
+            print(f"Error ensuring TMA tables exist: {e}")
+            
         return test
+    
+    def ensure_tma_tables_exist(self):
+        """Ensure TMA tables are created if they don't exist"""
+        try:
+            # Import the table structures to trigger their creation
+            from modules.db.structures.Tma_table import Tma_table
+            from modules.db.structures.Tma_materiali_table import Tma_materiali_table
+            
+            # Force metadata creation
+            Tma_table.metadata.create_all(self.engine)
+            Tma_materiali_table.metadata.create_all(self.engine)
+            
+        except Exception as e:
+            print(f"Error in ensure_tma_tables_exist: {str(e)}")
 
         # insert statement
 
@@ -960,36 +984,49 @@ class Pyarchinit_db_management(object):
                   arg[5],  # ldcn
                   arg[6],  # vecchia_collocazione
                   arg[7],  # cassetta
-                  arg[8],  # localita
-                  arg[9],  # scan
-                  arg[10], # saggio
-                  arg[11], # vano_locus
-                  arg[12], # dscd
-                  arg[13], # dscu
-                  arg[14], # rcgd
-                  arg[15], # rcgz
-                  arg[16], # aint
-                  arg[17], # aind
-                  arg[18], # dtzg
-                  arg[19], # dtzs
-                  arg[20], # cronologie
-                  arg[21], # n_reperti
-                  arg[22], # peso
-                  arg[23], # deso
-                  arg[24], # madi
-                  arg[25], # macc
-                  arg[26], # macl
-                  arg[27], # macp
-                  arg[28], # macd
-                  arg[29], # cronologia_mac
-                  arg[30], # macq
-                  arg[31], # ftap
-                  arg[32], # ftan
-                  arg[33], # drat
-                  arg[34], # dran
-                  arg[35]) # draa
+                  arg[8],  # scan
+                  arg[9],  # saggio
+                  arg[10], # vano_locus
+                  arg[11], # dscd
+                  arg[12], # dscu
+                  arg[13], # rcgd
+                  arg[14], # rcgz
+                  arg[15], # aint
+                  arg[16], # aind
+                  arg[17], # dtzg
+                  arg[18], # deso
+                  arg[19], # nsc
+                  arg[20], # ftap
+                  arg[21], # ftan
+                  arg[22], # drat
+                  arg[23], # dran
+                  arg[24], # draa
+                  arg[25], # created_at
+                  arg[26], # updated_at
+                  arg[27], # created_by
+                  arg[28]) # updated_by
 
         return tma
+
+    def insert_tma_materiali_values(self, *arg):
+        """Istanzia la classe TMA_MATERIALI da pyarchinit_db_mapper"""
+        from modules.db.entities.TMA_MATERIALI import TMA_MATERIALI
+        tma_materiali = TMA_MATERIALI(arg[0],  # id
+                                     arg[1],  # id_tma
+                                     arg[2],  # madi
+                                     arg[3],  # macc
+                                     arg[4],  # macl
+                                     arg[5],  # macp
+                                     arg[6],  # macd
+                                     arg[7],  # cronologia_mac
+                                     arg[8],  # macq
+                                     arg[9],  # peso
+                                     arg[10], # created_at
+                                     arg[11], # updated_at
+                                     arg[12], # created_by
+                                     arg[13]) # updated_by
+
+        return tma_materiali
 
     ##  def insert_relationship_check_values(self, *arg):
     ##      """Istanzia la classe RELATIONSHIP_CHECK da pyarchinit_db_mapper"""
@@ -1235,7 +1272,7 @@ class Pyarchinit_db_management(object):
             'PYSTRUTTURE': PYSTRUTTURE, 'PYREPERTI': PYREPERTI, 'PYINDIVIDUI': PYINDIVIDUI,
             'PYCAMPIONI': PYCAMPIONI, 'PYTOMBA': PYTOMBA, 'PYDOCUMENTAZIONE': PYDOCUMENTAZIONE,
             'PYLINEERIFERIMENTO': PYLINEERIFERIMENTO, 'PYRIPARTIZIONI_SPAZIALI': PYRIPARTIZIONI_SPAZIALI,
-            'PYSEZIONI': PYSEZIONI, 'TMA': TMA
+            'PYSEZIONI': PYSEZIONI, 'TMA': TMA, 'TMA_MATERIALI': TMA_MATERIALI
             # Add other table class mappings here
         }
         
@@ -1743,6 +1780,42 @@ class Pyarchinit_db_management(object):
         exec_str = ('%s%s%s%d%s') % ('table.delete(table.c.', self.id_column, ' == ', self.id_rec, ').execute()')
 
         eval(exec_str)
+    
+    def delete_record_by_field(self, table_name, field_name, field_value):
+        """Delete records from a table where field matches value"""
+        try:
+            Session = sessionmaker(bind=self.engine, autoflush=True, autocommit=True)
+            session = Session()
+            
+            # Map table names to entity classes
+            table_classes = {
+                'TMA_MATERIALI': TMA_MATERIALI
+            }
+            
+            if table_name in table_classes:
+                entity_class = table_classes[table_name]
+                # Build the query dynamically
+                query = session.query(entity_class).filter(getattr(entity_class, field_name) == field_value)
+                records_deleted = query.count()
+                query.delete()
+                session.close()
+                return records_deleted
+            else:
+                # For tables without entity class, use raw SQL
+                # Get the correct table name
+                actual_table_name = 'tma_materiali_ripetibili' if table_name == 'TMA_MATERIALI' else table_name.lower()
+                
+                # Always use raw SQL for tma_materiali_ripetibili to avoid foreign key issues
+                from sqlalchemy import text
+                sql = text(f"DELETE FROM {actual_table_name} WHERE {field_name} = :field_value")
+                with self.engine.begin() as conn:
+                    result = conn.execute(sql, {"field_value": field_value})
+                return result.rowcount
+                
+        except Exception as e:
+            if 'session' in locals():
+                session.close()
+            raise Exception(f"Error deleting records: {str(e)}")
         
     def max_num_id(self, tc, f):
         self.table_class = tc
