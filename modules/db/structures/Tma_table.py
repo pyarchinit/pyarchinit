@@ -18,7 +18,7 @@
  ***************************************************************************/
 """
 
-from sqlalchemy import Table, Column, Integer, String, MetaData, create_engine
+from sqlalchemy import Table, Column, Integer, String, MetaData, create_engine, Text
 
 from modules.db.pyarchinit_conn_strings import Connection
 
@@ -35,68 +35,57 @@ class Tma_table:
     metadata = MetaData(engine)
         
     tma_table = Table('tma_materiali_archeologici', metadata,
-                     Column('id', Integer, primary_key=True),
+                      Column('id', Integer, primary_key=True),
 
-                     # Basic identification
-                     Column('sito', String(100)),
-                     Column('area', String(100)),
+                      # Basic identification
+                      Column('sito', Text),
+                      Column('area', Text),
 
-                     # Object data (OG)
-                     Column('ogtm', String(100), nullable=False),  # Material type (required)
+                      # Object data (OG)
+                      Column('ogtm', Text, nullable=False),  # Material type (required)
 
-                     # Location data (LC)
-                     Column('ldct', String(50)),                    # Location type
-                     Column('ldcn', String(50), nullable=False),    # Location denomination (required)
-                     Column('vecchia_collocazione', String(100)),   # Old location
-                     Column('cassetta', String(15), nullable=False), # Box (required)
+                      # Location data (LC)
+                      Column('ldct', Text),                    # Location type
+                      Column('ldcn', Text, nullable=False),    # Location denomination (required)
+                      Column('vecchia_collocazione', Text),   # Old location
+                      Column('cassetta', String(15), nullable=False), # Box (required)
 
-                     # Excavation data (RE - DSC)
-                     Column('localita', String(50), nullable=False), # Locality (required)
-                     Column('scan', String(50)),                     # Excavation name
-                     Column('saggio', String(50)),                   # Test pit
-                     Column('vano_locus', String(100)),              # Room/Locus
-                     Column('dscd', String(20)),                     # Excavation date
-                     Column('dscu', String(100), nullable=False),    # Stratigraphic Unit (required)
+                      # Excavation data (RE - DSC)
+                      Column('scan', Text),                     # Excavation name
+                      Column('saggio', Text),                   # Test pit
+                      Column('vano_locus', Text),              # Room/Locus
+                      Column('dscd', String(20)),                     # Excavation date
+                      Column('dscu', Text, nullable=False),    # Stratigraphic Unit (required)
 
-                     # Survey data (RE - RCG)
-                     Column('rcgd', String(20)),                     # Survey date
-                     Column('rcgz', String(100)),                    # Survey specifications
+                      # Survey data (RE - RCG)
+                      Column('rcgd', String(20)),                     # Survey date
+                      Column('rcgz', Text),                    # Survey specifications
 
-                     # Other acquisition (RE - AIN)
-                     Column('aint', String(100)),                    # Acquisition type
-                     Column('aind', String(50)),                     # Acquisition date
+                      # Other acquisition (RE - AIN)
+                      Column('aint', Text),                    # Acquisition type
+                      Column('aind', Text),                     # Acquisition date
 
-                     # Dating (DT)
-                     Column('dtzg', String(50), nullable=False),     # Chronological range (required)
-                     Column('dtzs', String(20)),                     # Chronological fraction
-                     Column('cronologie', String(50)),               # Chronologies
-                     Column('n_reperti', String(30)),                # Number of finds
-                     Column('peso', String(20)),                     # Weight
+                      # Dating (DT) - Simplified to single chronological field
+                      Column('dtzg', Text, nullable=False),     # Chronological range (required)
 
-                     # Analytical data (DA)
-                     Column('deso', String(500)),                    # Object indications
+                      # Analytical data (DA)
+                      Column('deso', Text),                    # Object indications
 
-                     # Technical data (MA)
-                     Column('madi', String(50)),                     # Inventory
-                     Column('macc', String(30), nullable=False),     # Category (required)
-                     Column('macl', String(30)),                     # Class
-                     Column('macp', String(30)),                     # Typological specification
-                     Column('macd', String(30)),                     # Definition
-                     Column('cronologia_mac', String(50)),           # MAC chronology
-                     Column('macq', String(20)),                     # Quantity
+                      # Historical-critical notes (NSC)
+                      Column('nsc', Text),                     # Historical-critical notes
 
-                     # Documentation (DO)
-                     Column('ftap', String(50)),                     # Photo type
-                     Column('ftan', String(100)),                    # Photo identification code
-                     Column('drat', String(50)),                     # Drawing type
-                     Column('dran', String(100)),                    # Drawing identification code
-                     Column('draa', String(50)),                     # Drawing author
+                      # Documentation (DO)
+                      Column('ftap', Text),                     # Photo type
+                      Column('ftan', Text),                    # Photo identification code
+                      Column('drat', Text),                     # Drawing type
+                      Column('dran', Text),                    # Drawing identification code
+                      Column('draa', Text),                     # Drawing author
 
-                     # System fields
-                     Column('created_at', String(50)),
-                     Column('updated_at', String(50)),
-                     Column('created_by', String(100)),
-                     Column('updated_by', String(100)),
+                      # System fields
+                      Column('created_at', Text),
+                      Column('updated_at', Text),
+                      Column('created_by', Text),
+                      Column('updated_by', Text),
 
 
                      )

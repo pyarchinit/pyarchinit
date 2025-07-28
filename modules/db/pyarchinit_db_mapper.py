@@ -56,6 +56,7 @@ from modules.db.entities.SCHEDAIND import SCHEDAIND
 from modules.db.entities.SITE import SITE
 from modules.db.entities.STRUTTURA import STRUTTURA
 from modules.db.entities.TMA import TMA
+from modules.db.entities.TMA_MATERIALI import TMA_MATERIALI
 from modules.db.entities.TOMBA import TOMBA
 from modules.db.entities.US import US
 from modules.db.entities.US_TOIMP import US_TOIMP
@@ -79,6 +80,7 @@ from modules.db.structures.SCHEDAIND_table import SCHEDAIND_table
 from modules.db.structures.Site_table import Site_table
 from modules.db.structures.Struttura_table import Struttura_table
 from modules.db.structures.Tma_table import Tma_table
+from modules.db.structures.Tma_materiali_table import Tma_materiali_table
 from modules.db.structures.Tomba_table import Tomba_table
 from modules.db.structures.US_table import US_table
 from modules.db.structures.US_table_toimp import US_table_toimp
@@ -221,6 +223,8 @@ try:
     # mapper
     mapper(TMA, Tma_table.tma_table)
     
+    # mapper
+    mapper(TMA_MATERIALI, Tma_materiali_table.tma_materiali_table)
 
 except Exception as e:
     print(e)
