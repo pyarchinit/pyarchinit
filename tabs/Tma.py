@@ -656,49 +656,49 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                 pass  # Signal might not be connected
 
             # Basic fields from UI
-            self.comboBox_sito.setEditText(str(self.DATA_LIST[self.rec_num].sito))
-            self.comboBox_area.setEditText(str(self.DATA_LIST[self.rec_num].area))
-            self.lineEdit_us.setText(str(self.DATA_LIST[self.rec_num].dscu))
+            self.comboBox_sito.setEditText(str(self.DATA_LIST[n].sito))
+            self.comboBox_area.setEditText(str(self.DATA_LIST[n].area))
+            self.lineEdit_us.setText(str(self.DATA_LIST[n].dscu))
 
             # Note: ogtm (materiale) field has been moved to materials table
 
             # Location data
-            if self.DATA_LIST[self.rec_num].ldct:
-                self.comboBox_ldct.setEditText(str(self.DATA_LIST[self.rec_num].ldct))
-            if self.DATA_LIST[self.rec_num].ldcn:
-                self.comboBox_ldcn.setEditText(str(self.DATA_LIST[self.rec_num].ldcn))
-            if self.DATA_LIST[self.rec_num].vecchia_collocazione:
-                self.lineEdit_vecchia_collocazione.setText(str(self.DATA_LIST[self.rec_num].vecchia_collocazione))
-            if self.DATA_LIST[self.rec_num].cassetta:
-                self.lineEdit_cassetta.setText(str(self.DATA_LIST[self.rec_num].cassetta))
+            if self.DATA_LIST[n].ldct:
+                self.comboBox_ldct.setEditText(str(self.DATA_LIST[n].ldct))
+            if self.DATA_LIST[n].ldcn:
+                self.comboBox_ldcn.setEditText(str(self.DATA_LIST[n].ldcn))
+            if self.DATA_LIST[n].vecchia_collocazione:
+                self.lineEdit_vecchia_collocazione.setText(str(self.DATA_LIST[n].vecchia_collocazione))
+            if self.DATA_LIST[n].cassetta:
+                self.lineEdit_cassetta.setText(str(self.DATA_LIST[n].cassetta))
 
             # Excavation data
-            if self.DATA_LIST[self.rec_num].scan:
-                self.lineEdit_scan.setText(str(self.DATA_LIST[self.rec_num].scan))
-            if self.DATA_LIST[self.rec_num].saggio:
-                self.comboBox_saggio.setEditText(str(self.DATA_LIST[self.rec_num].saggio))
-            if self.DATA_LIST[self.rec_num].vano_locus:
-                self.comboBox_vano_locus.setEditText(str(self.DATA_LIST[self.rec_num].vano_locus))
-            if self.DATA_LIST[self.rec_num].dscd:
-                self.lineEdit_dscd.setText(str(self.DATA_LIST[self.rec_num].dscd))
+            if self.DATA_LIST[n].scan:
+                self.lineEdit_scan.setText(str(self.DATA_LIST[n].scan))
+            if self.DATA_LIST[n].saggio:
+                self.comboBox_saggio.setEditText(str(self.DATA_LIST[n].saggio))
+            if self.DATA_LIST[n].vano_locus:
+                self.comboBox_vano_locus.setEditText(str(self.DATA_LIST[n].vano_locus))
+            if self.DATA_LIST[n].dscd:
+                self.lineEdit_dscd.setText(str(self.DATA_LIST[n].dscd))
 
             # Survey data
-            if self.DATA_LIST[self.rec_num].rcgd:
-                self.lineEdit_rcgd.setText(str(self.DATA_LIST[self.rec_num].rcgd))
-            if self.DATA_LIST[self.rec_num].rcgz:
-                self.textEdit_rcgz.setText(str(self.DATA_LIST[self.rec_num].rcgz))
-            if self.DATA_LIST[self.rec_num].aint:
-                self.comboBox_aint.setCurrentText(str(self.DATA_LIST[self.rec_num].aint))
-            if self.DATA_LIST[self.rec_num].aind:
-                self.lineEdit_aind.setText(str(self.DATA_LIST[self.rec_num].aind))
+            if self.DATA_LIST[n].rcgd:
+                self.lineEdit_rcgd.setText(str(self.DATA_LIST[n].rcgd))
+            if self.DATA_LIST[n].rcgz:
+                self.textEdit_rcgz.setText(str(self.DATA_LIST[n].rcgz))
+            if self.DATA_LIST[n].aint:
+                self.comboBox_aint.setCurrentText(str(self.DATA_LIST[n].aint))
+            if self.DATA_LIST[n].aind:
+                self.lineEdit_aind.setText(str(self.DATA_LIST[n].aind))
 
             # Dating data - only fascia cronologica is left
-            if self.DATA_LIST[self.rec_num].dtzg:
-                self.lineEdit_dtzg.setText(str(self.DATA_LIST[self.rec_num].dtzg))
+            if self.DATA_LIST[n].dtzg:
+                self.lineEdit_dtzg.setText(str(self.DATA_LIST[n].dtzg))
 
             # Technical data - only deso remains in main form
-            if self.DATA_LIST[self.rec_num].deso:
-                self.textEdit_deso.setText(str(self.DATA_LIST[self.rec_num].deso))
+            if self.DATA_LIST[n].deso:
+                self.textEdit_deso.setText(str(self.DATA_LIST[n].deso))
 
             # Load materials table from separate table
             self.load_materials_table()
@@ -808,13 +808,12 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                             self.iconListWidget.addItem(item)
 
     def set_rec_counter(self, t, c):
-        QgsMessageLog.logMessage(f"DEBUG set_rec_counter - prima: rec_tot={self.rec_tot if hasattr(self, 'rec_tot') else 'None'}, rec_corr={self.rec_corr if hasattr(self, 'rec_corr') else 'None'}", "PyArchInit", Qgis.Info)
+        QgsMessageLog.logMessage(f"DEBUG set_rec_counter - prima: REC_TOT={self.REC_TOT if hasattr(self, 'REC_TOT') else 'None'}, REC_CORR={self.REC_CORR if hasattr(self, 'REC_CORR') else 'None'}", "PyArchInit", Qgis.Info)
         QgsMessageLog.logMessage(f"DEBUG set_rec_counter - impostando: t={t}, c={c}", "PyArchInit", Qgis.Info)
-        self.rec_tot = t
-        self.rec_corr = c
-        self.label_rec_tot.setText(str(self.rec_tot))
-        self.label_rec_corrente.setText(str(self.rec_corr))
-        QgsMessageLog.logMessage(f"DEBUG set_rec_counter - dopo: rec_tot={self.rec_tot}, rec_corr={self.rec_corr}", "PyArchInit", Qgis.Info)
+        # Non sovrascrivere REC_TOT e REC_CORR, solo aggiornare le label
+        self.label_rec_tot.setText(str(t))
+        self.label_rec_corrente.setText(str(c))
+        QgsMessageLog.logMessage(f"DEBUG set_rec_counter - dopo: REC_TOT={self.REC_TOT if hasattr(self, 'REC_TOT') else 'None'}, REC_CORR={self.REC_CORR if hasattr(self, 'REC_CORR') else 'None'}", "PyArchInit", Qgis.Info)
 
 
     def records_equal_check(self):
@@ -1380,7 +1379,6 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         # This method updates the navigation UI based on current position
         # For now, we'll keep navigation buttons always enabled
         pass
-    
 
     def set_LIST_REC_CORR(self):
         """Set the current record list."""
@@ -1792,8 +1790,8 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         """Execute previous record navigation."""
         QgsMessageLog.logMessage(f"PREV - REC_CORR prima: {self.REC_CORR}", "PyArchInit", Qgis.Info)
         
-        if self.check_record_state() == 1:
-            return
+        # check_record_state will handle asking the user to save if needed
+        self.check_record_state()
             
         self.REC_CORR = self.REC_CORR - 1
         if self.REC_CORR <= -1:
@@ -1818,10 +1816,15 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
     
     def _do_next_navigation(self):
         """Execute next record navigation."""
-        QgsMessageLog.logMessage(f"NEXT - REC_CORR prima: {self.REC_CORR}", "PyArchInit", Qgis.Info)
+        QgsMessageLog.logMessage(f"NEXT - REC_CORR prima: {self.REC_CORR}, REC_TOT: {self.REC_TOT}", "PyArchInit", Qgis.Info)
         
-        if self.check_record_state() == 1:
-            return
+        # Log current record data before navigation
+        if self.DATA_LIST and self.REC_CORR < len(self.DATA_LIST):
+            current_record = self.DATA_LIST[self.REC_CORR]
+            QgsMessageLog.logMessage(f"NEXT - Record corrente (prima): ID={current_record.id}, Sito={current_record.sito}, US={current_record.dscu}", "PyArchInit", Qgis.Info)
+        
+        # check_record_state will handle asking the user to save if needed
+        self.check_record_state()
             
         self.REC_CORR = self.REC_CORR + 1
         if self.REC_CORR >= self.REC_TOT:
@@ -1834,6 +1837,11 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                 QMessageBox.warning(self, "Error", "You are to the last record!", QMessageBox.Ok)  
         else:
             try:
+                # Log the record we're about to display
+                if self.DATA_LIST and self.REC_CORR < len(self.DATA_LIST):
+                    next_record = self.DATA_LIST[self.REC_CORR]
+                    QgsMessageLog.logMessage(f"NEXT - Record da visualizzare: ID={next_record.id}, Sito={next_record.sito}, US={next_record.dscu}", "PyArchInit", Qgis.Info)
+                
                 self.empty_fields()
                 self.fill_fields(self.REC_CORR)
                 self.set_rec_counter(self.REC_TOT, self.REC_CORR + 1)
@@ -1890,6 +1898,8 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                         traceback.print_exc()
                         QMessageBox.warning(self, "Error", f"Errore nel salvataggio materiali: {str(e)}", QMessageBox.Ok)
                     self.enable_button(1)
+                    # Reload data from database to get updated values
+                    self.charge_records()
                     self.fill_fields(self.REC_CORR)
                 else:
                     QMessageBox.warning(self, "ATTENZIONE", "Non è stata realizzata alcuna modifica!", QMessageBox.Ok)
