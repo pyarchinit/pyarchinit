@@ -22,9 +22,11 @@
 
 from __future__ import absolute_import
 
+import os
 import platform
 import subprocess
 import shutil
+import datetime
 from builtins import range
 from qgis.PyQt.QtWidgets import *
 from qgis.PyQt.QtCore import Qt, QTimer
@@ -2231,7 +2233,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
     
     def on_pushButton_export_tma_pdf_pressed(self):
         """Export current TMA record to PDF using the specific TMA template."""
-        self.on_pushButton_export_pdf_pressed()  # Use the same functionality
+        self.on_pushButton_print_pressed()  # Use the new print dialog
     
     def on_pushButton_auto_fill_materials_pressed(self):
         """Auto-fill materials from inventory based on site/area/us."""
@@ -2470,7 +2472,8 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                 'categoria': '10.5',   # Categoria
                 'classe': '10.6',      # Classe
                 'tipologia': '10.8',   # Prec. tipologica
-                'definizione': '10.9'  # Definizione
+                'definizione': '10.9', # Definizione
+                'cronologia': '10.16'  # Cronologia
             }
             
             if field_type not in thesaurus_map:
@@ -2580,6 +2583,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         classe_values = self.load_thesaurus_values('classe')
         tipologia_values = self.load_thesaurus_values('tipologia')
         definizione_values = self.load_thesaurus_values('definizione')
+        cronologia_values = self.load_thesaurus_values('cronologia')
         
         # Don't use default values - only use thesaurus values
         
@@ -2606,6 +2610,9 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         if definizione_values:
             self.tableWidget_materiali.setItemDelegateForColumn(4, ComboBoxDelegate(definizione_values, self.tableWidget_materiali))
             QgsMessageLog.logMessage(f"DEBUG TMA: Set delegate for Definizione column with {len(definizione_values)} values", "PyArchInit", Qgis.Info)
+        if cronologia_values:
+            self.tableWidget_materiali.setItemDelegateForColumn(5, ComboBoxDelegate(cronologia_values, self.tableWidget_materiali))
+            QgsMessageLog.logMessage(f"DEBUG TMA: Set delegate for Cronologia column with {len(cronologia_values)} values", "PyArchInit", Qgis.Info)
     
     def addMediaTab(self):
         """Add media and map tabs to the existing tab widget."""
@@ -3065,3 +3072,232 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                 return 0
         except Exception as e:
             QMessageBox.critical(self, "Error", f"Database error: {str(e)}", QMessageBox.Ok)
+    
+    def on_pushButton_print_pressed(self):
+        """Handle print button click - show dialog to choose print type."""
+        # Reset filter values
+        if hasattr(self, 'filter_materiale_value'):
+            delattr(self, 'filter_materiale_value')
+        if hasattr(self, 'filter_categoria_value'):
+            delattr(self, 'filter_categoria_value')
+            
+        # Create dialog for print options
+        dialog = QDialog(self)
+        dialog.setWindowTitle("Opzioni di stampa TMA")
+        dialog.resize(400, 300)
+        
+        layout = QVBoxLayout(dialog)
+        
+        # Title
+        title = QLabel("<h3>Seleziona il tipo di stampa</h3>")
+        layout.addWidget(title)
+        
+        # Radio buttons for print type
+        self.radio_single = QRadioButton("Stampa scheda singola (record corrente)")
+        self.radio_single.setChecked(True)
+        layout.addWidget(self.radio_single)
+        
+        self.radio_list = QRadioButton("Stampa lista filtrata")
+        layout.addWidget(self.radio_list)
+        
+        # Filters group (enabled only when list is selected)
+        filters_group = QGroupBox("Filtri per lista")
+        filters_layout = QVBoxLayout()
+        
+        self.check_filter_cassetta = QCheckBox("Filtra per cassetta corrente")
+        self.check_filter_us = QCheckBox("Filtra per US corrente")
+        self.check_filter_area = QCheckBox("Filtra per area corrente")
+        self.check_filter_sito = QCheckBox("Filtra per sito corrente")
+        self.check_filter_materiale = QCheckBox("Filtra per materiale")
+        self.check_filter_categoria = QCheckBox("Filtra per categoria")
+        
+        filters_layout.addWidget(self.check_filter_cassetta)
+        filters_layout.addWidget(self.check_filter_us)
+        filters_layout.addWidget(self.check_filter_area)
+        filters_layout.addWidget(self.check_filter_sito)
+        filters_layout.addWidget(self.check_filter_materiale)
+        filters_layout.addWidget(self.check_filter_categoria)
+        
+        filters_group.setLayout(filters_layout)
+        layout.addWidget(filters_group)
+        
+        # Enable/disable filters based on radio selection
+        def toggle_filters():
+            enabled = self.radio_list.isChecked()
+            filters_group.setEnabled(enabled)
+            
+        self.radio_single.toggled.connect(toggle_filters)
+        toggle_filters()
+        
+        # Buttons
+        button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        button_box.accepted.connect(dialog.accept)
+        button_box.rejected.connect(dialog.reject)
+        layout.addWidget(button_box)
+        
+        # Execute dialog
+        if dialog.exec_() == QDialog.Accepted:
+            if self.radio_single.isChecked():
+                self.print_single_tma()
+            else:
+                self.print_tma_list()
+    
+    def print_single_tma(self):
+        """Print single TMA record."""
+        # Simply call the existing export method
+        self.on_pushButton_export_pdf_pressed()
+    
+    def print_tma_list(self):
+        """Print filtered TMA list."""
+        # Import PDF generator
+        from ..modules.utility.pyarchinit_exp_Tmasheet_pdf import generate_tma_pdf
+        from reportlab.lib.pagesizes import A4, landscape
+        from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, PageBreak
+        from reportlab.lib import colors
+        from reportlab.lib.styles import getSampleStyleSheet
+        
+        try:
+            # Build search filters
+            search_dict = {}
+            
+            if self.check_filter_sito.isChecked() and self.comboBox_sito.currentText():
+                search_dict['sito'] = self.comboBox_sito.currentText()
+                
+            if self.check_filter_area.isChecked() and self.comboBox_area.currentText():
+                search_dict['area'] = self.comboBox_area.currentText()
+                
+            if self.check_filter_us.isChecked() and self.lineEdit_us.text():
+                search_dict['dscu'] = self.lineEdit_us.text()
+                
+            if self.check_filter_cassetta.isChecked() and self.lineEdit_cassetta.text():
+                search_dict['cassetta'] = self.lineEdit_cassetta.text()
+            
+            # Query TMA records
+            if search_dict:
+                tma_list = self.DB_MANAGER.query_bool(search_dict, 'TMA')
+            else:
+                tma_list = self.DB_MANAGER.query('TMA')
+            
+            if not tma_list:
+                QMessageBox.warning(self, "Attenzione", "Nessun record trovato con i filtri specificati", QMessageBox.Ok)
+                return
+            
+            # Prepare data for list
+            data_list = []
+            
+            for tma in tma_list:
+                # Get materials for this TMA
+                materials = self.DB_MANAGER.query_bool({'id_tma': int(tma.id)}, 'TMA_MATERIALI')
+                
+                # Process each material or create single row if no materials
+                if materials:
+                    for mat in materials:
+                        row_data = [
+                            str(tma.sito),
+                            str(tma.area),
+                            str(tma.dscu) if tma.dscu else '',
+                            str(tma.cassetta),
+                            str(mat.macc) if mat.macc else '',  # Categoria
+                            str(mat.macl) if mat.macl else '',  # Classe
+                            str(mat.macd) if mat.macd else '',  # Definizione
+                            str(mat.macq) if mat.macq else '',  # Quantità
+                            str(mat.peso) if mat.peso else ''   # Peso
+                        ]
+                        
+                        # Apply material/category filters if selected
+                        include_row = True
+                        
+                        if self.check_filter_materiale.isChecked():
+                            # Ask for material filter value if not set
+                            if not hasattr(self, 'filter_materiale_value'):
+                                text, ok = QInputDialog.getText(self, "Filtro Materiale", "Inserisci il materiale da filtrare:")
+                                if ok and text:
+                                    self.filter_materiale_value = text.lower()
+                                else:
+                                    self.filter_materiale_value = None
+                            
+                            if self.filter_materiale_value:
+                                # Check if material matches (partial match)
+                                mat_val = str(mat.macc).lower() if mat.macc else ''
+                                if self.filter_materiale_value not in mat_val:
+                                    include_row = False
+                        
+                        if self.check_filter_categoria.isChecked() and include_row:
+                            # Ask for category filter value if not set
+                            if not hasattr(self, 'filter_categoria_value'):
+                                text, ok = QInputDialog.getText(self, "Filtro Categoria", "Inserisci la categoria da filtrare:")
+                                if ok and text:
+                                    self.filter_categoria_value = text.lower()
+                                else:
+                                    self.filter_categoria_value = None
+                            
+                            if self.filter_categoria_value:
+                                # Check if category matches (partial match)
+                                cat_val = str(mat.macc).lower() if mat.macc else ''
+                                if self.filter_categoria_value not in cat_val:
+                                    include_row = False
+                        
+                        if include_row:
+                            data_list.append(row_data)
+                else:
+                    # Add TMA without materials
+                    row_data = [
+                        str(tma.sito),
+                        str(tma.area),
+                        str(tma.dscu) if tma.dscu else '',
+                        str(tma.cassetta),
+                        '', '', '', '', ''  # Empty material fields
+                    ]
+                    data_list.append(row_data)
+            
+            # Sort by cassetta, area, US
+            data_list.sort(key=lambda x: (x[0], x[1], x[2], x[3]))
+            
+            # Create PDF
+            HOME = os.environ['PYARCHINIT_HOME']
+            PDF_path = os.path.join(HOME, "pyarchinit_PDF_folder")
+            filename = f"Lista_TMA_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
+            filepath = os.path.join(PDF_path, filename)
+            
+            doc = SimpleDocTemplate(filepath, pagesize=landscape(A4))
+            elements = []
+            styles = getSampleStyleSheet()
+            
+            # Title
+            title = Paragraph("<b>LISTA TABELLA MATERIALI ARCHEOLOGICI (TMA)</b>", styles['Title'])
+            elements.append(title)
+            elements.append(Paragraph(f"Data: {datetime.datetime.now().strftime('%d/%m/%Y')}", styles['Normal']))
+            elements.append(Paragraph("<br/><br/>", styles['Normal']))
+            
+            # Create table with headers
+            headers = ['Sito', 'Area', 'US', 'Cassetta', 'Categoria', 'Classe', 'Definizione', 'Quantità', 'Peso']
+            table_data = [headers] + data_list
+            
+            # Create table
+            table = Table(table_data)
+            table.setStyle(TableStyle([
+                ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+                ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+                ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+                ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                ('FONTSIZE', (0, 0), (-1, 0), 12),
+                ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+                ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+                ('GRID', (0, 0), (-1, -1), 1, colors.black),
+                ('FONTSIZE', (0, 1), (-1, -1), 10),
+                # Alternate row colors
+                *[('BACKGROUND', (0, i), (-1, i), colors.white if i % 2 == 0 else colors.lightgrey) 
+                  for i in range(1, len(table_data))],
+            ]))
+            
+            elements.append(table)
+            
+            # Build PDF
+            doc.build(elements)
+            
+            QMessageBox.information(self, "Esportazione completata", 
+                                    f"Lista TMA esportata in:\n{filepath}\n\nTotale record: {len(data_list)}", 
+                                    QMessageBox.Ok)
+            
+        except Exception as e:
+            QMessageBox.critical(self, "Errore", f"Errore nella generazione del PDF: {str(e)}", QMessageBox.Ok)
