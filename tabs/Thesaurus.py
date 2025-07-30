@@ -504,7 +504,8 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
             'Tomba': 'tomba_table',
             'Individui': 'individui_table',
             'Documentazione': 'documentazione_table',
-            'TMA - Materiali Archeologici': 'tma_materiali_archeologici'
+            'TMA - Materiali Archeologici': 'tma_materiali_archeologici',
+            'TMA - Materiali Ripetibili': 'tma_materiali_ripetibili'
         }
         
         # Mappatura dei campi sincronizzati tra tabelle
@@ -519,16 +520,37 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
             ],
             'settore': [
                 ('us_table', '2.1'),
-                ('tma_materiali_archeologici', '10.8')
+                ('tma_materiali_archeologici', '10.15')
             ],
             'saggio': [
                 ('tma_materiali_archeologici', '10.2')
             ],
-            'quadrato': [
-                ('tma_materiali_archeologici', '10.9')
-            ],
             'vano_locus': [
                 ('tma_materiali_archeologici', '10.3')
+            ],
+            'materiale': [
+                ('tma_materiali_archeologici', '10.4'),
+                ('tma_materiali_ripetibili', '10.4')
+            ],
+            'categoria': [
+                ('tma_materiali_archeologici', '10.5'),
+                ('tma_materiali_ripetibili', '10.5')
+            ],
+            'classe': [
+                ('tma_materiali_archeologici', '10.6'),
+                ('tma_materiali_ripetibili', '10.6')
+            ],
+            'precisazione_tipologica': [
+                ('tma_materiali_archeologici', '10.8'),
+                ('tma_materiali_ripetibili', '10.8')
+            ],
+            'definizione': [
+                ('tma_materiali_archeologici', '10.9'),
+                ('tma_materiali_ripetibili', '10.9')
+            ],
+            'cronologia': [
+                ('tma_materiali_archeologici', '10.16'),
+                ('tma_materiali_ripetibili', '10.16')
             ]
         }
         
@@ -667,12 +689,27 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
                 '10.1': 'Denominazione collocazione',
                 '10.2': 'Saggio',
                 '10.3': 'Vano/Locus',
-                '10.4': 'Categoria',
-                '10.5': 'Classe',
-                '10.6': 'Definizione',
+                '10.4': 'Materiale',
+                '10.5': 'Categoria',
+                '10.6': 'Classe', 
                 '10.7': 'Area',
-                '10.8': 'Settore',
-                '10.9': 'Quadrato'
+                '10.8': 'Precisazione tipologica',
+                '10.9': 'Definizione',
+                '10.10': 'Tipo collocazione',
+                '10.11': 'Tipo foto',
+                '10.12': 'Tipo disegno',
+                '10.13': 'Tipo disegno autore',
+                '10.14': 'Tipologia acquisizione',
+                '10.15': 'Settore',
+                '10.16': 'Cronologia'
+            },
+            'tma_materiali_ripetibili': {
+                '10.4': 'Materiale',
+                '10.5': 'Categoria',
+                '10.6': 'Classe',
+                '10.8': 'Precisazione tipologica',
+                '10.9': 'Definizione',
+                '10.16': 'Cronologia'
             }
         }
         

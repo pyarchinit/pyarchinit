@@ -328,12 +328,13 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         self.comboBox_area.currentIndexChanged.connect(self.on_area_changed)
         self.comboBox_sito.currentIndexChanged.connect(self.on_sito_changed)
         
-        # Ensure add material button is properly connected (prevent double connections)
-        try:
-            self.pushButton_add_materiale.clicked.disconnect()
-        except:
-            pass
-        self.pushButton_add_materiale.clicked.connect(self.on_pushButton_add_materiale_pressed)
+        # Connect add material button only once
+        if hasattr(self, 'pushButton_add_materiale'):
+            try:
+                self.pushButton_add_materiale.clicked.disconnect()
+            except:
+                pass
+            self.pushButton_add_materiale.clicked.connect(self.on_pushButton_add_materiale_pressed)
         
         # Setup inventory field as read-only
         self.lineEdit_inventario.setReadOnly(True)
@@ -822,10 +823,16 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             self.set_LIST_REC_TEMP()
             self.set_LIST_REC_CORR()
 
-            if self.DATA_LIST_REC_CORR == self.DATA_LIST_REC_TEMP:
-                return 0
+            # Check main record fields
+            main_record_equal = self.DATA_LIST_REC_CORR == self.DATA_LIST_REC_TEMP
+            
+            # Check materials state
+            materials_changed = self.check_materials_state()
+            
+            if main_record_equal and not materials_changed:
+                return 0  # No changes
             else:
-                return 1
+                return 1  # Changes detected
         except IndexError as e:
             print(f"IndexError: {e}")
             return 0
@@ -1162,15 +1169,51 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             for row in range(self.tableWidget_materiali.rowCount()):
                 QgsMessageLog.logMessage(f"DEBUG TMA: Processing row {row}", "PyArchInit", Qgis.Info)
                 
+                # Debug: check if items exist and create missing ones
+                for col in range(8):
+                    item = self.tableWidget_materiali.item(row, col)
+                    if item:
+                        QgsMessageLog.logMessage(f"DEBUG TMA save: Row {row}, Col {col} - item exists, text='{item.text()}', type={type(item)}", "PyArchInit", Qgis.Info)
+                    else:
+                        QgsMessageLog.logMessage(f"DEBUG TMA save: Row {row}, Col {col} - NO ITEM! Creating one now...", "PyArchInit", Qgis.Warning)
+                        # Create missing item
+                        self.tableWidget_materiali.setItem(row, col, QTableWidgetItem(""))
+                
                 # Column 0 is Materiale (stored in madi field in database)
-                materiale = self.tableWidget_materiali.item(row, 0).text() if self.tableWidget_materiali.item(row, 0) else ""
-                macc = self.tableWidget_materiali.item(row, 1).text() if self.tableWidget_materiali.item(row, 1) else ""
-                macl = self.tableWidget_materiali.item(row, 2).text() if self.tableWidget_materiali.item(row, 2) else ""
-                macp = self.tableWidget_materiali.item(row, 3).text() if self.tableWidget_materiali.item(row, 3) else ""
-                macd = self.tableWidget_materiali.item(row, 4).text() if self.tableWidget_materiali.item(row, 4) else ""
-                cronologia_mac = self.tableWidget_materiali.item(row, 5).text() if self.tableWidget_materiali.item(row, 5) else ""
-                macq = self.tableWidget_materiali.item(row, 6).text() if self.tableWidget_materiali.item(row, 6) else ""
-                peso_text = self.tableWidget_materiali.item(row, 7).text() if self.tableWidget_materiali.item(row, 7) else ""
+                # Get data from table items - they should have the text stored by the delegate
+                # Force table to commit any pending edits before reading
+                self.tableWidget_materiali.setCurrentCell(-1, -1)  # Deselect to force commit
+                
+                item0 = self.tableWidget_materiali.item(row, 0)
+                item1 = self.tableWidget_materiali.item(row, 1)
+                item2 = self.tableWidget_materiali.item(row, 2)
+                item3 = self.tableWidget_materiali.item(row, 3)
+                item4 = self.tableWidget_materiali.item(row, 4)
+                item5 = self.tableWidget_materiali.item(row, 5)
+                item6 = self.tableWidget_materiali.item(row, 6)
+                item7 = self.tableWidget_materiali.item(row, 7)
+                
+                # Use data() method to get the actual stored value
+                materiale = item0.data(Qt.DisplayRole) if item0 else ""
+                macc = item1.data(Qt.DisplayRole) if item1 else ""
+                macl = item2.data(Qt.DisplayRole) if item2 else ""
+                macp = item3.data(Qt.DisplayRole) if item3 else ""
+                macd = item4.data(Qt.DisplayRole) if item4 else ""
+                cronologia_mac = item5.data(Qt.DisplayRole) if item5 else ""
+                macq = item6.data(Qt.DisplayRole) if item6 else ""
+                peso_text = item7.data(Qt.DisplayRole) if item7 else ""
+                
+                # Convert to string to ensure consistency
+                materiale = str(materiale) if materiale else ""
+                macc = str(macc) if macc else ""
+                macl = str(macl) if macl else ""
+                macp = str(macp) if macp else ""
+                macd = str(macd) if macd else ""
+                cronologia_mac = str(cronologia_mac) if cronologia_mac else ""
+                macq = str(macq) if macq else ""
+                peso_text = str(peso_text) if peso_text else ""
+                
+                QgsMessageLog.logMessage(f"DEBUG TMA save_materials: Row {row} - item5={item5}, cronologia_mac='{cronologia_mac}'", "PyArchInit", Qgis.Info)
                 
                 QgsMessageLog.logMessage(f"DEBUG TMA: Row {row} data - materiale: '{materiale}', macc: '{macc}'", "PyArchInit", Qgis.Info)
                 
@@ -1318,8 +1361,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             if delegate:
                 QgsMessageLog.logMessage(f"  Column {col} has delegate: {type(delegate).__name__}", "PyArchInit", Qgis.Info)
         
-        # Don't set items - let the delegate handle it
-        # Just ensure the table has the right number of columns
+        # Create empty items for each column - REQUIRED for delegates to work properly
         for col in range(self.tableWidget_materiali.columnCount()):
             if not self.tableWidget_materiali.item(row, col):
                 self.tableWidget_materiali.setItem(row, col, QTableWidgetItem(""))
@@ -1533,7 +1575,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                 # Check all rows in the table
                 for row in range(self.tableWidget_materiali.rowCount()):
                     # Get category to check if row is valid
-                    macc = self.tableWidget_materiali.item(row, 1).text() if self.tableWidget_materiali.item(row, 1) else ""
+                    macc = str(self.tableWidget_materiali.item(row, 1).data(Qt.DisplayRole)) if self.tableWidget_materiali.item(row, 1) and self.tableWidget_materiali.item(row, 1).data(Qt.DisplayRole) else ""
                     if not macc.strip():
                         continue  # Skip empty rows
                         
@@ -1555,15 +1597,15 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                     # Compare values with database
                     db_material = db_materials_by_id[material_id]
                     
-                    # Get values from table
-                    table_madi = self.tableWidget_materiali.item(row, 0).text() if self.tableWidget_materiali.item(row, 0) else ""
-                    table_macc = self.tableWidget_materiali.item(row, 1).text() if self.tableWidget_materiali.item(row, 1) else ""
-                    table_macl = self.tableWidget_materiali.item(row, 2).text() if self.tableWidget_materiali.item(row, 2) else ""
-                    table_macp = self.tableWidget_materiali.item(row, 3).text() if self.tableWidget_materiali.item(row, 3) else ""
-                    table_macd = self.tableWidget_materiali.item(row, 4).text() if self.tableWidget_materiali.item(row, 4) else ""
-                    table_cronologia = self.tableWidget_materiali.item(row, 5).text() if self.tableWidget_materiali.item(row, 5) else ""
-                    table_macq = self.tableWidget_materiali.item(row, 6).text() if self.tableWidget_materiali.item(row, 6) else ""
-                    table_peso = self.tableWidget_materiali.item(row, 7).text() if self.tableWidget_materiali.item(row, 7) else ""
+                    # Get values from table using data() to get delegate values
+                    table_madi = str(self.tableWidget_materiali.item(row, 0).data(Qt.DisplayRole)) if self.tableWidget_materiali.item(row, 0) and self.tableWidget_materiali.item(row, 0).data(Qt.DisplayRole) else ""
+                    table_macc = str(self.tableWidget_materiali.item(row, 1).data(Qt.DisplayRole)) if self.tableWidget_materiali.item(row, 1) and self.tableWidget_materiali.item(row, 1).data(Qt.DisplayRole) else ""
+                    table_macl = str(self.tableWidget_materiali.item(row, 2).data(Qt.DisplayRole)) if self.tableWidget_materiali.item(row, 2) and self.tableWidget_materiali.item(row, 2).data(Qt.DisplayRole) else ""
+                    table_macp = str(self.tableWidget_materiali.item(row, 3).data(Qt.DisplayRole)) if self.tableWidget_materiali.item(row, 3) and self.tableWidget_materiali.item(row, 3).data(Qt.DisplayRole) else ""
+                    table_macd = str(self.tableWidget_materiali.item(row, 4).data(Qt.DisplayRole)) if self.tableWidget_materiali.item(row, 4) and self.tableWidget_materiali.item(row, 4).data(Qt.DisplayRole) else ""
+                    table_cronologia = str(self.tableWidget_materiali.item(row, 5).data(Qt.DisplayRole)) if self.tableWidget_materiali.item(row, 5) and self.tableWidget_materiali.item(row, 5).data(Qt.DisplayRole) else ""
+                    table_macq = str(self.tableWidget_materiali.item(row, 6).data(Qt.DisplayRole)) if self.tableWidget_materiali.item(row, 6) and self.tableWidget_materiali.item(row, 6).data(Qt.DisplayRole) else ""
+                    table_peso = str(self.tableWidget_materiali.item(row, 7).data(Qt.DisplayRole)) if self.tableWidget_materiali.item(row, 7) and self.tableWidget_materiali.item(row, 7).data(Qt.DisplayRole) else ""
                     
                     # Get values from database
                     db_madi = str(db_material['madi']) if db_material['madi'] else ""
@@ -2473,21 +2515,26 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                 'classe': '10.6',      # Classe
                 'tipologia': '10.8',   # Prec. tipologica
                 'definizione': '10.9', # Definizione
-                'cronologia': '10.16'  # Cronologia
+                'cronologia_mac': '10.16'  # Cronologia
             }
             
             if field_type not in thesaurus_map:
                 return []
             
-            # Use alias table name for materials data
+            # Use correct table name for thesaurus lookup
+            # For materials table fields, use 'tma_materiali_ripetibili'
+            table_name = 'tma_materiali_ripetibili' if field_type in ['materiale', 'categoria', 'classe', 'tipologia', 'definizione', 'cronologia_mac'] else 'tma_materiali_archeologici'
+            
             search_dict = {
                 'lingua': "'" + lang.upper() + "'",  # Use uppercase for language with quotes
-                'nome_tabella': "'tma_materiali_table'",  # Using alias
+                'nome_tabella': "'" + table_name + "'",
                 'tipologia_sigla': "'" + thesaurus_map[field_type] + "'"
             }
             
             thesaurus_records = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
             values = []
+            
+            QgsMessageLog.logMessage(f"DEBUG load_thesaurus_values: field={field_type}, table={table_name}, code={thesaurus_map[field_type]}, records found={len(thesaurus_records)}", "PyArchInit", Qgis.Info)
             
             for record in thesaurus_records:
                 if hasattr(record, 'sigla_estesa') and record.sigla_estesa:
@@ -2562,6 +2609,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                 editor = QComboBox(parent)
                 editor.addItems(self.items)
                 editor.setEditable(True)  # Allow custom values
+                editor.setInsertPolicy(QComboBox.NoInsert)  # Don't add new items to the combo
                 return editor
             
             def setEditorData(self, editor, index):
@@ -2572,7 +2620,13 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                     editor.setEditText(str(value) if value else "")
             
             def setModelData(self, editor, model, index):
-                model.setData(index, editor.currentText(), Qt.EditRole)
+                value = editor.currentText()
+                model.setData(index, value, Qt.EditRole)
+                model.setData(index, value, Qt.DisplayRole)
+                # Force the table widget to update
+                model.dataChanged.emit(index, index)
+                # Debug log
+                QgsMessageLog.logMessage(f"DEBUG ComboBoxDelegate setModelData: row={index.row()}, col={index.column()}, value='{value}'", "PyArchInit", Qgis.Info)
         
         # Setup base table
         self.setup_materials_table()
@@ -2583,7 +2637,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         classe_values = self.load_thesaurus_values('classe')
         tipologia_values = self.load_thesaurus_values('tipologia')
         definizione_values = self.load_thesaurus_values('definizione')
-        cronologia_values = self.load_thesaurus_values('cronologia')
+        cronologia_values = self.load_thesaurus_values('cronologia_mac')
         
         # Don't use default values - only use thesaurus values
         
@@ -2593,6 +2647,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         QgsMessageLog.logMessage(f"DEBUG TMA THESAURUS: Classe values: {len(classe_values)} items", "PyArchInit", Qgis.Info)
         QgsMessageLog.logMessage(f"DEBUG TMA THESAURUS: Tipologia values: {len(tipologia_values)} items", "PyArchInit", Qgis.Info)
         QgsMessageLog.logMessage(f"DEBUG TMA THESAURUS: Definizione values: {len(definizione_values)} items", "PyArchInit", Qgis.Info)
+        QgsMessageLog.logMessage(f"DEBUG TMA THESAURUS: Cronologia values: {len(cronologia_values)} items", "PyArchInit", Qgis.Info)
         
         # Set delegates for columns with thesaurus support
         if materiale_values:
@@ -2613,6 +2668,17 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         if cronologia_values:
             self.tableWidget_materiali.setItemDelegateForColumn(5, ComboBoxDelegate(cronologia_values, self.tableWidget_materiali))
             QgsMessageLog.logMessage(f"DEBUG TMA: Set delegate for Cronologia column with {len(cronologia_values)} values", "PyArchInit", Qgis.Info)
+        
+        # Connect signal to track table changes
+        self.tableWidget_materiali.itemChanged.connect(self.on_materials_table_changed)
+        
+        # Flag to track materials changes
+        self.materials_modified = False
+    
+    def on_materials_table_changed(self, item):
+        """Called when an item in the materials table is changed."""
+        QgsMessageLog.logMessage(f"DEBUG TMA: Materials table changed - row={item.row()}, col={item.column()}, text='{item.text()}'", "PyArchInit", Qgis.Info)
+        self.materials_modified = True
     
     def addMediaTab(self):
         """Add media and map tabs to the existing tab widget."""
