@@ -1205,6 +1205,13 @@
          </property>
         </widget>
        </item>
+       <item row="0" column="6">
+        <widget class="QPushButton" name="pushButton_print">
+         <property name="text">
+          <string>List</string>
+         </property>
+        </widget>
+       </item>
       </layout>
      </item>
      <item row="3" column="2">
@@ -1399,7 +1406,7 @@
    <item row="16" column="2" colspan="4">
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>2</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="tab_identificazione">
       <attribute name="title">
