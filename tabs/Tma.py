@@ -24,12 +24,13 @@ from __future__ import absolute_import
 
 import platform
 import subprocess
+import shutil
 from builtins import range
 from qgis.PyQt.QtWidgets import *
-from qgis.PyQt.QtCore import Qt
+from qgis.PyQt.QtCore import Qt, QTimer
 from qgis.PyQt.QtGui import QBrush, QColor
 from qgis.PyQt.uic import loadUiType
-from qgis.core import QgsSettings, Qgis
+from qgis.core import QgsSettings, Qgis, QgsMessageLog
 
 from ..gui.pyarchinitConfigDialog import pyArchInitDialog_Config
 from ..gui.sortpanelmain import SortPanelMain
@@ -42,6 +43,15 @@ from ..modules.utility.pyarchinit_media_utility import *
 from ..modules.db.entities.TMA import TMA
 from ..modules.db.entities.TMA_MATERIALI import TMA_MATERIALI
 from ..modules.utility.pyarchinit_exp_Tmasheet_pdf import single_TMA_pdf
+
+# Additional imports for media support
+from qgis.PyQt.QtGui import QIcon, QPixmap
+from qgis.PyQt.QtWidgets import QListWidget, QListWidgetItem, QAbstractItemView
+from qgis.PyQt.QtCore import QSize, QVariant
+from qgis.gui import QgsMapCanvas
+from ..gui.imageViewer import ImageViewer
+from ..modules.utility.delegateComboBox import ComboBoxDelegate
+import urllib.parse
 
 MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), os.pardir, 'gui', 'ui', 'Tma.ui'))
 
@@ -110,7 +120,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         "Classe": "macl",
         "Precisazione tipologica": "macp",
         "Definizione": "macd",
-        "Cronologia MAC": "cronologia_mac",
+        "Cronologia": "cronologia_mac",
         "Quantità": "macq",
         "Tipo fotografia": "ftap",
         "Codice foto": "ftan",
@@ -178,20 +188,59 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         self.pyQGIS = Pyarchinit_pyqgis(iface)
         self.setupUi(self)
         self.currentLayerId = None
-
-        # Initialize GUI before connecting
-        self.customize_GUI()
+        
+        # Initialize media widget
+        self.iconListWidget = QListWidget(self)
+        self.iconListWidget.setViewMode(QListWidget.IconMode)
+        self.iconListWidget.setIconSize(QSize(150, 150))
+        self.iconListWidget.setMovement(QListWidget.Static)
+        self.iconListWidget.setSpacing(12)
+        self.iconListWidget.setResizeMode(QListWidget.Adjust)
+        self.iconListWidget.setLayoutMode(QListWidget.Batched)
+        self.iconListWidget.setSelectionMode(QAbstractItemView.ExtendedSelection)
+        self.iconListWidget.setLineWidth(2)
+        self.iconListWidget.setMidLineWidth(2)
+        self.iconListWidget.itemDoubleClicked.connect(self.openWide_image)
+        
+        # Enable drag and drop
+        self.setAcceptDrops(True)
+        self.iconListWidget.setAcceptDrops(True)
+        
+        # Add map preview
+        self.mapPreview = QgsMapCanvas(self)
+        self.mapPreview.setCanvasColor(QColor(225, 225, 225))
+        
+        # Add tabs for media and map
+        self.addMediaTab()
+        
+        # Initialize navigation timer to prevent multiple clicks
+        self._nav_timer = QTimer()
+        self._nav_timer.setSingleShot(True)
+        self._nav_timer.timeout.connect(self._process_navigation)
+        self._nav_direction = None
+        self._nav_in_progress = False
 
         try:
             self.on_pushButton_connect_pressed()
         except Exception as e:
             QMessageBox.warning(self, "Connection system", str(e), QMessageBox.Ok)
 
+        # Initialize GUI after connecting to database
+        self.customize_GUI()
+        
         self.msg_sito()
         self.set_sito()
 
     def customize_GUI(self):
         """Customize the GUI elements - connect signals to slots."""
+        # Get language settings like Inv_Materiali does
+        l = QgsSettings().value("locale/userLocale", QVariant)
+        lang = ""
+        for key, values in self.LANG.items():
+            if values.__contains__(l):
+                lang = str(key)
+        lang = "'" + lang + "'"
+        
         # Connect table buttons (ora definiti nel file UI)
         self.pushButton_add_foto.clicked.connect(self.on_pushButton_add_foto_pressed)
         self.pushButton_remove_foto.clicked.connect(self.on_pushButton_remove_foto_pressed)
@@ -207,8 +256,73 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         self.current_material_index = -1
         self.materials_data = []
         
+        # Setup thesaurus for main TMA fields following Inv_Materiali pattern
+        # Only proceed if DB_MANAGER is properly initialized
+        if self.DB_MANAGER and self.DB_MANAGER != "":
+            # Location type (ldct) - ComboBox
+            if hasattr(self, 'comboBox_ldct'):
+                search_dict = {
+                    'lingua': lang,
+                    'nome_tabella': "'" + 'tma_table' + "'",  # Using alias table name
+                    'tipologia_sigla': "'" + '10.10' + "'"
+                }
+                ldct_vl = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+                values_ldct = []
+                for i in range(len(ldct_vl)):
+                    values_ldct.append(ldct_vl[i].sigla_estesa)
+                values_ldct.sort()
+                self.comboBox_ldct.clear()
+                self.comboBox_ldct.addItems(values_ldct)
+        
+            # Acquisition type (aint) - Already a ComboBox in UI
+            if hasattr(self, 'comboBox_aint'):
+                search_dict = {
+                    'lingua': lang,
+                    'nome_tabella': "'" + 'tma_table' + "'",
+                    'tipologia_sigla': "'" + '10.11' + "'"
+                }
+                aint_vl = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+                values_aint = []
+                for i in range(len(aint_vl)):
+                    values_aint.append(aint_vl[i].sigla_estesa)
+                values_aint.sort()
+                self.comboBox_aint.clear()
+                self.comboBox_aint.addItems(values_aint)
+            
+            # Photo type (ftap) - ComboBox if exists
+            if hasattr(self, 'comboBox_ftap'):
+                search_dict = {
+                    'lingua': lang,
+                    'nome_tabella': "'" + 'tma_table' + "'",
+                    'tipologia_sigla': "'" + '10.12' + "'"
+                }
+                ftap_vl = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+                values_ftap = []
+                for i in range(len(ftap_vl)):
+                    values_ftap.append(ftap_vl[i].sigla_estesa)
+                values_ftap.sort()
+                self.comboBox_ftap.clear()
+                self.comboBox_ftap.addItems(values_ftap)
+            
+            # Drawing type (drat) - ComboBox if exists
+            if hasattr(self, 'comboBox_drat'):
+                search_dict = {
+                    'lingua': lang,
+                    'nome_tabella': "'" + 'tma_table' + "'",
+                    'tipologia_sigla': "'" + '10.13' + "'"
+                }
+                drat_vl = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+                values_drat = []
+                for i in range(len(drat_vl)):
+                    values_drat.append(drat_vl[i].sigla_estesa)
+                values_drat.sort()
+                self.comboBox_drat.clear()
+                self.comboBox_drat.addItems(values_drat)
+        # else: DB_MANAGER not ready yet
+        
         # Connect fields to auto-update chronology and inventory
-        self.lineEdit_us.textChanged.connect(self.on_us_changed)
+        # Moved to fill_fields to avoid multiple connections
+        # self.lineEdit_us.textChanged.connect(self.on_us_changed)
         self.comboBox_area.currentIndexChanged.connect(self.on_area_changed)
         self.comboBox_sito.currentIndexChanged.connect(self.on_sito_changed)
         
@@ -524,80 +638,82 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
 
     def fill_fields(self, n=0):
         """Fill form fields with data from current record."""
+        QgsMessageLog.logMessage(f"DEBUG fill_fields - chiamato con n={n}, REC_CORR={self.REC_CORR}", "PyArchInit", Qgis.Info)
         self.rec_num = n
-        if self.DATA_LIST:
+        
+        if not self.DATA_LIST:
+            QgsMessageLog.logMessage(f"DEBUG fill_fields - DATA_LIST è vuota, esco", "PyArchInit", Qgis.Info)
+            return
+            
+        try:
+            # Temporarily disconnect the US change signal to prevent cascading updates
             try:
-                # Temporarily disconnect the US change signal to prevent cascading updates
-                try:
-                    self.lineEdit_us.textChanged.disconnect()
-                except:
-                    pass  # Signal might not be connected
-                
-                # Basic fields from UI
-                self.comboBox_sito.setEditText(str(self.DATA_LIST[self.rec_num].sito))
-                self.comboBox_area.setEditText(str(self.DATA_LIST[self.rec_num].area))
-                self.lineEdit_us.setText(str(self.DATA_LIST[self.rec_num].dscu))
+                self.lineEdit_us.textChanged.disconnect()
+            except:
+                pass  # Signal might not be connected
 
-                # Note: ogtm (materiale) field has been moved to materials table
+            # Basic fields from UI
+            self.comboBox_sito.setEditText(str(self.DATA_LIST[self.rec_num].sito))
+            self.comboBox_area.setEditText(str(self.DATA_LIST[self.rec_num].area))
+            self.lineEdit_us.setText(str(self.DATA_LIST[self.rec_num].dscu))
 
-                # Location data
-                if self.DATA_LIST[self.rec_num].ldct:
-                    self.comboBox_ldct.setEditText(str(self.DATA_LIST[self.rec_num].ldct))
-                if self.DATA_LIST[self.rec_num].ldcn:
-                    self.comboBox_ldcn.setEditText(str(self.DATA_LIST[self.rec_num].ldcn))
-                if self.DATA_LIST[self.rec_num].vecchia_collocazione:
-                    self.lineEdit_vecchia_collocazione.setText(str(self.DATA_LIST[self.rec_num].vecchia_collocazione))
-                if self.DATA_LIST[self.rec_num].cassetta:
-                    self.lineEdit_cassetta.setText(str(self.DATA_LIST[self.rec_num].cassetta))
+            # Note: ogtm (materiale) field has been moved to materials table
 
-                # Excavation data
-                if self.DATA_LIST[self.rec_num].scan:
-                    self.lineEdit_scan.setText(str(self.DATA_LIST[self.rec_num].scan))
-                if self.DATA_LIST[self.rec_num].saggio:
-                    self.comboBox_saggio.setEditText(str(self.DATA_LIST[self.rec_num].saggio))
-                if self.DATA_LIST[self.rec_num].vano_locus:
-                    self.comboBox_vano_locus.setEditText(str(self.DATA_LIST[self.rec_num].vano_locus))
-                if self.DATA_LIST[self.rec_num].dscd:
-                    self.lineEdit_dscd.setText(str(self.DATA_LIST[self.rec_num].dscd))
+            # Location data
+            if self.DATA_LIST[self.rec_num].ldct:
+                self.comboBox_ldct.setEditText(str(self.DATA_LIST[self.rec_num].ldct))
+            if self.DATA_LIST[self.rec_num].ldcn:
+                self.comboBox_ldcn.setEditText(str(self.DATA_LIST[self.rec_num].ldcn))
+            if self.DATA_LIST[self.rec_num].vecchia_collocazione:
+                self.lineEdit_vecchia_collocazione.setText(str(self.DATA_LIST[self.rec_num].vecchia_collocazione))
+            if self.DATA_LIST[self.rec_num].cassetta:
+                self.lineEdit_cassetta.setText(str(self.DATA_LIST[self.rec_num].cassetta))
 
-                # Survey data
-                if self.DATA_LIST[self.rec_num].rcgd:
-                    self.lineEdit_rcgd.setText(str(self.DATA_LIST[self.rec_num].rcgd))
-                if self.DATA_LIST[self.rec_num].rcgz:
-                    self.textEdit_rcgz.setText(str(self.DATA_LIST[self.rec_num].rcgz))
-                if self.DATA_LIST[self.rec_num].aint:
-                    self.lineEdit_aint.setText(str(self.DATA_LIST[self.rec_num].aint))
-                if self.DATA_LIST[self.rec_num].aind:
-                    self.lineEdit_aind.setText(str(self.DATA_LIST[self.rec_num].aind))
+            # Excavation data
+            if self.DATA_LIST[self.rec_num].scan:
+                self.lineEdit_scan.setText(str(self.DATA_LIST[self.rec_num].scan))
+            if self.DATA_LIST[self.rec_num].saggio:
+                self.comboBox_saggio.setEditText(str(self.DATA_LIST[self.rec_num].saggio))
+            if self.DATA_LIST[self.rec_num].vano_locus:
+                self.comboBox_vano_locus.setEditText(str(self.DATA_LIST[self.rec_num].vano_locus))
+            if self.DATA_LIST[self.rec_num].dscd:
+                self.lineEdit_dscd.setText(str(self.DATA_LIST[self.rec_num].dscd))
 
-                # Dating data - only fascia cronologica is left
-                if self.DATA_LIST[self.rec_num].dtzg:
-                    self.lineEdit_dtzg.setText(str(self.DATA_LIST[self.rec_num].dtzg))
+            # Survey data
+            if self.DATA_LIST[self.rec_num].rcgd:
+                self.lineEdit_rcgd.setText(str(self.DATA_LIST[self.rec_num].rcgd))
+            if self.DATA_LIST[self.rec_num].rcgz:
+                self.textEdit_rcgz.setText(str(self.DATA_LIST[self.rec_num].rcgz))
+            if self.DATA_LIST[self.rec_num].aint:
+                self.comboBox_aint.setCurrentText(str(self.DATA_LIST[self.rec_num].aint))
+            if self.DATA_LIST[self.rec_num].aind:
+                self.lineEdit_aind.setText(str(self.DATA_LIST[self.rec_num].aind))
 
-                # Technical data - only deso remains in main form
-                if self.DATA_LIST[self.rec_num].deso:
-                    self.textEdit_deso.setText(str(self.DATA_LIST[self.rec_num].deso))
+            # Dating data - only fascia cronologica is left
+            if self.DATA_LIST[self.rec_num].dtzg:
+                self.lineEdit_dtzg.setText(str(self.DATA_LIST[self.rec_num].dtzg))
 
-                # Load materials table from separate table
-                self.load_materials_table()
+            # Technical data - only deso remains in main form
+            if self.DATA_LIST[self.rec_num].deso:
+                self.textEdit_deso.setText(str(self.DATA_LIST[self.rec_num].deso))
 
-                # Documentation tables - Fill from database
-                self.fill_documentation_tables()
-                
-                # Update inventory field with RA numbers
-                self.update_inventory_field()
-                
-                # Reconnect the US change signal after filling fields
-                self.lineEdit_us.textChanged.connect(self.on_us_changed)
+            # Load materials table from separate table
+            self.load_materials_table()
 
-            except Exception as e:
-                QMessageBox.warning(self, "Error", str(e), QMessageBox.Ok)
-            finally:
-                # Ensure signal is reconnected even if there's an error
-                try:
-                    self.lineEdit_us.textChanged.connect(self.on_us_changed)
-                except:
-                    pass  # Already connected
+            # Documentation tables - Fill from database
+            self.fill_documentation_tables()
+
+            # Update inventory field with RA numbers
+            self.update_inventory_field()
+
+            # Reconnect the US change signal after filling fields
+            self.lineEdit_us.textChanged.connect(self.on_us_changed)
+
+        except Exception as e:
+            QMessageBox.warning(self, "Error", str(e), QMessageBox.Ok)
+        finally:
+            # Ensure signal is reconnected even if there's an error (removed duplicate connection)
+            pass
 
     def fill_documentation_tables(self):
         """Fill documentation tables with data."""
@@ -637,11 +753,100 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                         self.tableWidget_disegni.setItem(row_position, 1, QTableWidgetItem(codici_disegno[i].strip()))
                     if i < len(autori_disegno):
                         self.tableWidget_disegni.setItem(row_position, 2, QTableWidgetItem(autori_disegno[i].strip()))
+        
+        # Load media for this TMA record
+        self.load_tma_media()
+
+    def load_tma_media(self):
+        """Load media associated with current TMA record."""
+        # Clear existing items
+        self.iconListWidget.clear()
+        
+        if self.DATA_LIST and self.REC_CORR < len(self.DATA_LIST):
+            current_tma = self.DATA_LIST[self.REC_CORR]
+            
+            # Search for media associated with this TMA
+            search_dict = {
+                'id_entity': int(current_tma.id),
+                'entity_type': 'TMA'
+            }
+            
+            media_to_entity_list = self.DB_MANAGER.query_bool(search_dict, 'MEDIATOENTITY')
+            
+            if media_to_entity_list:
+                # Get connection for paths
+                conn = Connection()
+                thumb_path = conn.thumb_path()
+                thumb_path_str = thumb_path['thumb_path']
+                
+                for media_to_entity in media_to_entity_list:
+                    # Get media details
+                    media_search = {'id_media': int(media_to_entity.id_media)}
+                    media_data = self.DB_MANAGER.query_bool(media_search, 'MEDIA')
+                    
+                    if media_data:
+                        media = media_data[0]
+                        
+                        # Get thumbnail data
+                        thumb_search = {'id_media': str(media.id_media)}
+                        thumb_data = self.DB_MANAGER.query_bool(thumb_search, 'MEDIA_THUMB')
+                        
+                        if thumb_data:
+                            # Create list item
+                            item = QListWidgetItem(str(media.filename))
+                            item.setData(Qt.UserRole, str(media.id_media))
+                            
+                            # Set icon
+                            icon_path = os.path.join(thumb_path_str, thumb_data[0].filepath)
+                            if os.path.exists(icon_path):
+                                icon = QIcon(icon_path)
+                                item.setIcon(icon)
+                            
+                            self.iconListWidget.addItem(item)
 
     def set_rec_counter(self, t, c):
-        """Set the record counter display."""
-        self.label_rec_tot.setText(str(t))
-        self.label_rec_corrente.setText(str(c))
+        QgsMessageLog.logMessage(f"DEBUG set_rec_counter - prima: rec_tot={self.rec_tot if hasattr(self, 'rec_tot') else 'None'}, rec_corr={self.rec_corr if hasattr(self, 'rec_corr') else 'None'}", "PyArchInit", Qgis.Info)
+        QgsMessageLog.logMessage(f"DEBUG set_rec_counter - impostando: t={t}, c={c}", "PyArchInit", Qgis.Info)
+        self.rec_tot = t
+        self.rec_corr = c
+        self.label_rec_tot.setText(str(self.rec_tot))
+        self.label_rec_corrente.setText(str(self.rec_corr))
+        QgsMessageLog.logMessage(f"DEBUG set_rec_counter - dopo: rec_tot={self.rec_tot}, rec_corr={self.rec_corr}", "PyArchInit", Qgis.Info)
+
+
+    def records_equal_check(self):
+        try:
+            #self.set_sito()
+            self.set_LIST_REC_TEMP()
+            self.set_LIST_REC_CORR()
+
+            if self.DATA_LIST_REC_CORR == self.DATA_LIST_REC_TEMP:
+                return 0
+            else:
+                return 1
+        except IndexError as e:
+            print(f"IndexError: {e}")
+            return 0
+        except Exception as e:
+            print(f"Unexpected error: {e}")
+        return 0
+
+    def set_LIST_REC_CORR(self):
+        print(f"self.REC_CORR: {self.REC_CORR}, len(self.DATA_LIST): {len(self.DATA_LIST)}")
+
+        if self.REC_CORR < 0 or self.REC_CORR >= len(self.DATA_LIST):
+            raise IndexError("self.REC_CORR is out of range")
+
+        self.DATA_LIST_REC_CORR = []
+        for i in self.TABLE_FIELDS:
+            try:
+                self.DATA_LIST_REC_CORR.append(eval("unicode(self.DATA_LIST[self.REC_CORR]." + i + ")"))
+            except IndexError as e:
+                print(f"IndexError: {e} - self.REC_CORR: {self.REC_CORR}, len(self.DATA_LIST): {len(self.DATA_LIST)}")
+                raise
+            except Exception as e:
+                print(f"Unexpected error: {e}")
+                raise
 
     def set_LIST_REC_TEMP(self):
         """Build the temporary record list from form data."""
@@ -708,8 +913,8 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         else:
             rcgz = ""
 
-        if self.lineEdit_aint.text():
-            aint = self.lineEdit_aint.text()
+        if self.comboBox_aint.currentText():
+            aint = self.comboBox_aint.currentText()
         else:
             aint = ""
 
@@ -811,7 +1016,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         self.tableWidget_materiali.horizontalHeader().setVisible(True)
         
         # Set column headers - Materiale moved from main form, Inventario removed
-        headers = ["Materiale *", "Categoria *", "Classe", "Prec. tipologica", "Definizione", "Cronologia MAC", "Quantità", "Peso"]
+        headers = ["Materiale *", "Categoria *", "Classe", "Prec. tipologica", "Definizione", "Cronologia", "Quantità", "Peso"]
         self.tableWidget_materiali.setColumnCount(len(headers))
         self.tableWidget_materiali.setHorizontalHeaderLabels(headers)
         
@@ -844,46 +1049,118 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         try:
             # Get current TMA id
             current_tma_id = self.DATA_LIST[self.rec_num].id
+            QgsMessageLog.logMessage(f"DEBUG TMA load_materials_table: current_tma_id = {current_tma_id}, type = {type(current_tma_id)}", "PyArchInit", Qgis.Info)
             
-            # Query materials for this TMA record
-            search_dict = {'id_tma': current_tma_id}
-            materials = self.DB_MANAGER.query_bool(search_dict, 'TMA_MATERIALI')
+            # Convert to int to ensure consistent type
+            current_tma_id = int(current_tma_id)
             
-            for material in materials:
-                row = self.tableWidget_materiali.rowCount()
-                self.tableWidget_materiali.insertRow(row)
+            # Use direct SQL query to avoid type comparison issues in query_bool
+            from sqlalchemy import text
+            from sqlalchemy.orm import sessionmaker
+            
+            # Create a session
+            Session = sessionmaker(bind=self.DB_MANAGER.engine)
+            session = Session()
+            
+            try:
+                # Get materials using direct SQL
+                sql = text("SELECT * FROM tma_materiali_ripetibili WHERE id_tma = :id_tma")
+                result = session.execute(sql, {'id_tma': current_tma_id})
                 
-                # Fill row data - First column is materiale (stored in madi field of TMA_MATERIALI)
-                item0 = QTableWidgetItem(str(material.madi) if material.madi else "")
-                # Store the material ID in the first item's user data
-                item0.setData(Qt.UserRole, material.id)
-                self.tableWidget_materiali.setItem(row, 0, item0)
-                
-                self.tableWidget_materiali.setItem(row, 1, QTableWidgetItem(str(material.macc) if material.macc else ""))
-                self.tableWidget_materiali.setItem(row, 2, QTableWidgetItem(str(material.macl) if material.macl else ""))
-                self.tableWidget_materiali.setItem(row, 3, QTableWidgetItem(str(material.macp) if material.macp else ""))
-                self.tableWidget_materiali.setItem(row, 4, QTableWidgetItem(str(material.macd) if material.macd else ""))
-                self.tableWidget_materiali.setItem(row, 5, QTableWidgetItem(str(material.cronologia_mac) if material.cronologia_mac else ""))
-                self.tableWidget_materiali.setItem(row, 6, QTableWidgetItem(str(material.macq) if material.macq else ""))
-                self.tableWidget_materiali.setItem(row, 7, QTableWidgetItem(str(material.peso) if material.peso else ""))
+                # Process results
+                for row in result:
+                    table_row = self.tableWidget_materiali.rowCount()
+                    self.tableWidget_materiali.insertRow(table_row)
+                    
+                    # Fill row data - map column indices from query result
+                    # Assuming column order: id, id_tma, madi, macc, macl, macp, macd, cronologia_mac, macq, peso
+                    item0 = QTableWidgetItem(str(row[2]) if row[2] else "")  # madi
+                    # Store the material ID in the first item's user data
+                    item0.setData(Qt.UserRole, int(row[0]))  # id
+                    self.tableWidget_materiali.setItem(table_row, 0, item0)
+                    
+                    self.tableWidget_materiali.setItem(table_row, 1, QTableWidgetItem(str(row[3]) if row[3] else ""))  # macc
+                    self.tableWidget_materiali.setItem(table_row, 2, QTableWidgetItem(str(row[4]) if row[4] else ""))  # macl
+                    self.tableWidget_materiali.setItem(table_row, 3, QTableWidgetItem(str(row[5]) if row[5] else ""))  # macp
+                    self.tableWidget_materiali.setItem(table_row, 4, QTableWidgetItem(str(row[6]) if row[6] else ""))  # macd
+                    self.tableWidget_materiali.setItem(table_row, 5, QTableWidgetItem(str(row[7]) if row[7] else ""))  # cronologia_mac
+                    self.tableWidget_materiali.setItem(table_row, 6, QTableWidgetItem(str(row[8]) if row[8] else ""))  # macq
+                    self.tableWidget_materiali.setItem(table_row, 7, QTableWidgetItem(str(row[9]) if row[9] else ""))  # peso
+                    
+                QgsMessageLog.logMessage(f"DEBUG TMA load_materials_table: Loaded {self.tableWidget_materiali.rowCount()} materials", "PyArchInit", Qgis.Info)
+                    
+            finally:
+                session.close()
                 
         except Exception as e:
+            QgsMessageLog.logMessage(f"DEBUG TMA load_materials_table: Error occurred: {str(e)}", "PyArchInit", Qgis.Warning)
+            import traceback
+            traceback.print_exc()
             QMessageBox.warning(self, "Error", f"Errore nel caricamento materiali: {str(e)}", QMessageBox.Ok)
 
     def save_materials_data(self, tma_id):
         """Save materials table data to database."""
+        QgsMessageLog.logMessage(f"DEBUG TMA save_materials_data: CALLED with tma_id={tma_id}, type={type(tma_id)}", "PyArchInit", Qgis.Info)
         try:
-            # Get existing materials for this TMA
-            search_dict = {'id_tma': tma_id}
-            existing_materials = self.DB_MANAGER.query_bool(search_dict, 'TMA_MATERIALI')
-            existing_ids = {mat.id: mat for mat in existing_materials}
+            QgsMessageLog.logMessage(f"DEBUG TMA save_materials_data: Starting with tma_id={tma_id}, type={type(tma_id)}", "PyArchInit", Qgis.Info)
+            
+            # Use direct SQL to avoid type comparison issues in query_bool
+            from sqlalchemy import text
+            from sqlalchemy.orm import sessionmaker
+            
+            # Convert tma_id to int for consistency
+            tma_id_int = int(tma_id)
+            
+            # Create a session
+            Session = sessionmaker(bind=self.DB_MANAGER.engine)
+            session = Session()
+            
+            try:
+                # Get existing materials using direct SQL
+                sql = text("SELECT * FROM tma_materiali_ripetibili WHERE id_tma = :id_tma")
+                result = session.execute(sql, {'id_tma': tma_id_int})
+                
+                existing_materials = []
+                for row in result:
+                    # Create a simple object to hold the data
+                    class MaterialData:
+                        def __init__(self, row_data):
+                            self.id = row_data[0]
+                            self.id_tma = row_data[1]
+                            self.madi = row_data[2]
+                            self.macc = row_data[3]
+                            self.macl = row_data[4]
+                            self.macp = row_data[5]
+                            self.macd = row_data[6]
+                            self.cronologia_mac = row_data[7]
+                            self.macq = row_data[8]
+                            self.peso = row_data[9]
+                    existing_materials.append(MaterialData(row))
+                    
+                QgsMessageLog.logMessage(f"DEBUG TMA: Found {len(existing_materials)} existing materials", "PyArchInit", Qgis.Info)
+                
+            except Exception as query_error:
+                QgsMessageLog.logMessage(f"DEBUG TMA: Error getting existing materials: {query_error}", "PyArchInit", Qgis.Warning)
+                import traceback
+                traceback.print_exc()
+                existing_materials = []
+            finally:
+                session.close()
+            
+            # Ensure IDs are integers for consistent comparison
+            existing_ids = {}
+            for mat in existing_materials:
+                QgsMessageLog.logMessage(f"DEBUG TMA: Material ID={mat.id}, type={type(mat.id)}", "PyArchInit", Qgis.Info)
+                existing_ids[int(mat.id)] = mat
             
             # Track which IDs we've seen in the table widget
             seen_ids = set()
             
             # Process each row in the table widget
             for row in range(self.tableWidget_materiali.rowCount()):
-                # Note: Column 0 is now Materiale, not Inventario (madi)
+                QgsMessageLog.logMessage(f"DEBUG TMA: Processing row {row}", "PyArchInit", Qgis.Info)
+                
+                # Column 0 is Materiale (stored in madi field in database)
                 materiale = self.tableWidget_materiali.item(row, 0).text() if self.tableWidget_materiali.item(row, 0) else ""
                 macc = self.tableWidget_materiali.item(row, 1).text() if self.tableWidget_materiali.item(row, 1) else ""
                 macl = self.tableWidget_materiali.item(row, 2).text() if self.tableWidget_materiali.item(row, 2) else ""
@@ -893,18 +1170,36 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                 macq = self.tableWidget_materiali.item(row, 6).text() if self.tableWidget_materiali.item(row, 6) else ""
                 peso_text = self.tableWidget_materiali.item(row, 7).text() if self.tableWidget_materiali.item(row, 7) else ""
                 
+                QgsMessageLog.logMessage(f"DEBUG TMA: Row {row} data - materiale: '{materiale}', macc: '{macc}'", "PyArchInit", Qgis.Info)
+                
                 # Convert peso to float
                 try:
                     peso = float(peso_text) if peso_text else 0.0
                 except ValueError:
                     peso = 0.0
                 
-                # Skip empty rows (at least category must be filled)
-                if not macc.strip():
+                # Skip completely empty rows
+                if not materiale.strip() and not macc.strip():
+                    QgsMessageLog.logMessage(f"DEBUG TMA: Skipping row {row} - both materiale and category are empty", "PyArchInit", Qgis.Info)
                     continue
+                
+                # Category is required if material is specified
+                if materiale.strip() and not macc.strip():
+                    QgsMessageLog.logMessage(f"DEBUG TMA: ERROR - row {row} has materiale but no category (required)", "PyArchInit", Qgis.Warning)
+                    raise ValueError(f"Riga {row + 1}: Il campo Categoria è obbligatorio quando si inserisce un materiale")
                 
                 # Check if this row has an existing ID (stored as row data)
                 material_id = self.tableWidget_materiali.item(row, 0).data(Qt.UserRole) if self.tableWidget_materiali.item(row, 0) else None
+                QgsMessageLog.logMessage(f"DEBUG TMA: Row {row} material_id={material_id}, type={type(material_id)}", "PyArchInit", Qgis.Info)
+                
+                # Convert to int if not None
+                if material_id is not None:
+                    try:
+                        material_id = int(material_id)
+                        QgsMessageLog.logMessage(f"DEBUG TMA: Converted material_id to int: {material_id}", "PyArchInit", Qgis.Info)
+                    except Exception as e:
+                        QgsMessageLog.logMessage(f"DEBUG TMA: Error converting material_id to int: {e}", "PyArchInit", Qgis.Warning)
+                        material_id = None
                 
                 if material_id is not None and material_id in existing_ids:
                     # Update existing material
@@ -945,23 +1240,49 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                     except:
                         new_material_id = 1
                     
-                    material_data = self.DB_MANAGER.insert_tma_materiali_values(
-                        new_material_id,
-                        tma_id,
-                        materiale,  # Column 0 is materiale, stored in madi field
-                        macc,
-                        macl,
-                        macp,
-                        macd,
-                        cronologia_mac,
-                        macq,
-                        peso,
-                        '',  # created_at
-                        '',  # updated_at
-                        '',  # created_by
-                        ''   # updated_by
-                    )
-                    self.DB_MANAGER.insert_data_session(material_data)
+                    # Use direct SQL insert to avoid foreign key issues with SQLAlchemy ORM
+                    try:
+                        # Create a new session for the insert operation
+                        from sqlalchemy import text
+                        from sqlalchemy.orm import sessionmaker
+                        
+                        InsertSession = sessionmaker(bind=self.DB_MANAGER.engine)
+                        insert_session = InsertSession()
+                        
+                        try:
+                            # Use direct SQL - this works better with SQLite foreign keys
+                            sql = """INSERT INTO tma_materiali_ripetibili 
+                                    (id, id_tma, madi, macc, macl, macp, macd, cronologia_mac, macq, peso, 
+                                     created_at, updated_at, created_by, updated_by)
+                                    VALUES (:id, :id_tma, :madi, :macc, :macl, :macp, :macd, :cronologia_mac, :macq, :peso, 
+                                            :created_at, :updated_at, :created_by, :updated_by)"""
+                            
+                            params = {
+                                'id': new_material_id,
+                                'id_tma': tma_id_int,  # Use the integer version
+                                'madi': materiale,
+                                'macc': macc,
+                                'macl': macl,
+                                'macp': macp,
+                                'macd': macd,
+                                'cronologia_mac': cronologia_mac,
+                                'macq': macq,
+                                'peso': peso,
+                                'created_at': '',
+                                'updated_at': '',
+                                'created_by': '',
+                                'updated_by': ''
+                            }
+                            
+                            insert_session.execute(text(sql), params)
+                            insert_session.commit()
+                            
+                        finally:
+                            insert_session.close()
+                            
+                    except Exception as insert_error:
+                        QgsMessageLog.logMessage(f"SQL insert failed: {insert_error}", "PyArchInit", Qgis.Warning)
+                        raise
                     seen_ids.add(new_material_id)
             
             # Delete materials that were removed from the table
@@ -970,7 +1291,12 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                     self.DB_MANAGER.delete_record_by_field('TMA_MATERIALI', 'id', existing_id)
                     
         except Exception as e:
-            QMessageBox.warning(self, "Error", f"Errore nel salvataggio materiali: {str(e)}", QMessageBox.Ok)
+            import traceback
+            traceback.print_exc()
+            error_msg = f"Errore nel salvataggio materiali: {str(e)}\n\n"
+            error_msg += f"TMA ID: {tma_id}\n"
+            error_msg += f"Tabelle verificate nel database."
+            QMessageBox.warning(self, "Error", error_msg, QMessageBox.Ok)
 
     def on_pushButton_add_materiale_pressed(self):
         """Add a new row to materials table."""
@@ -983,15 +1309,18 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         row = self.tableWidget_materiali.rowCount()
         self.tableWidget_materiali.insertRow(row)
         
-        # Set default values for new row
-        self.tableWidget_materiali.setItem(row, 0, QTableWidgetItem(""))  # Materiale
-        self.tableWidget_materiali.setItem(row, 1, QTableWidgetItem(""))  # Categoria (required)
-        self.tableWidget_materiali.setItem(row, 2, QTableWidgetItem(""))  # Classe
-        self.tableWidget_materiali.setItem(row, 3, QTableWidgetItem(""))  # Prec. tipologica
-        self.tableWidget_materiali.setItem(row, 4, QTableWidgetItem(""))  # Definizione
-        self.tableWidget_materiali.setItem(row, 5, QTableWidgetItem(""))  # Cronologia MAC
-        self.tableWidget_materiali.setItem(row, 6, QTableWidgetItem(""))  # Quantità
-        self.tableWidget_materiali.setItem(row, 7, QTableWidgetItem(""))  # Peso
+        # Debug: check if delegates are working
+        QgsMessageLog.logMessage(f"DEBUG TMA: Adding new row {row}", "PyArchInit", Qgis.Info)
+        for col in range(5):  # Check first 5 columns which should have thesaurus
+            delegate = self.tableWidget_materiali.itemDelegateForColumn(col)
+            if delegate:
+                QgsMessageLog.logMessage(f"  Column {col} has delegate: {type(delegate).__name__}", "PyArchInit", Qgis.Info)
+        
+        # Don't set items - let the delegate handle it
+        # Just ensure the table has the right number of columns
+        for col in range(self.tableWidget_materiali.columnCount()):
+            if not self.tableWidget_materiali.item(row, col):
+                self.tableWidget_materiali.setItem(row, col, QTableWidgetItem(""))
         
         # Reconnect signal
         self.pushButton_add_materiale.clicked.connect(self.on_pushButton_add_materiale_pressed)
@@ -1033,7 +1362,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         self.lineEdit_dscd.clear()
         self.lineEdit_rcgd.clear()
         self.textEdit_rcgz.clear()
-        self.lineEdit_aint.clear()
+        self.comboBox_aint.setCurrentIndex(0)
         self.lineEdit_aind.clear()
         self.lineEdit_dtzg.clear()
         self.textEdit_deso.clear()
@@ -1055,33 +1384,97 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         self.tableWidget_foto.setRowCount(0)
         self.tableWidget_disegni.setRowCount(0)
 
+    def empty_fields_nosite(self):
+        """Clear all form fields."""
+        # Basic fields
+        self.comboBox_sito.setEditText("")
+        self.comboBox_area.setEditText("")
+        self.lineEdit_us.clear()
+
+        # All other fields
+        self.comboBox_ldct.setEditText("")
+        self.comboBox_ldcn.setEditText("")
+        self.lineEdit_vecchia_collocazione.clear()
+        self.lineEdit_cassetta.clear()
+        self.lineEdit_scan.clear()
+        self.comboBox_saggio.setEditText("")
+        self.comboBox_vano_locus.setEditText("")
+        self.lineEdit_dscd.clear()
+        self.lineEdit_rcgd.clear()
+        self.textEdit_rcgz.clear()
+        self.comboBox_aint.setCurrentIndex(0)
+        self.lineEdit_aind.clear()
+        self.lineEdit_dtzg.clear()
+        self.textEdit_deso.clear()
+
+        # Clear materials table
+        self.tableWidget_materiali.setRowCount(0)
+        # Ensure headers are visible
+        self.setup_materials_table()
+
+        # Clear inventory field
+        self.lineEdit_inventario.clear()
+
+        # Reset materials navigation
+        self.current_material_index = -1
+        self.materials_data = []
+        self.update_material_navigation()
+
+        # Clear tables
+        self.tableWidget_foto.setRowCount(0)
+        self.tableWidget_disegni.setRowCount(0)
+    # def check_record_state(self):
+    #     """Check if the current record has been modified."""
+    #     ec = self.data_error_check()
+    #     if ec == 1:
+    #         return 1
+    #
+    #     if self.DATA_LIST:
+    #         self.set_LIST_REC_TEMP()
+    #         self.set_LIST_REC_CORR()
+    #
+    #         # Check main record changes
+    #         main_record_changed = self.DATA_LIST_REC_CORR != self.DATA_LIST_REC_TEMP
+    #
+    #         # Check if materials have changed
+    #         materials_changed = self.check_materials_state()
+    #
+    #         if main_record_changed or materials_changed:
+    #             return 1
+    #         else:
+    #             return 0
+    #     else:
+    #         return 0
     def check_record_state(self):
-        """Check if the current record has been modified."""
+        QgsMessageLog.logMessage(f"DEBUG check_record_state - iniziato", "PyArchInit", Qgis.Info)
         ec = self.data_error_check()
+        QgsMessageLog.logMessage(f"DEBUG check_record_state - data_error_check returned: {ec}", "PyArchInit", Qgis.Info)
         if ec == 1:
-            return 1
-
-        if self.DATA_LIST:
-            self.set_LIST_REC_TEMP()
-            self.set_LIST_REC_CORR()
-
-            # Check main record changes
-            main_record_changed = self.DATA_LIST_REC_CORR != self.DATA_LIST_REC_TEMP
-            
-            # Check if materials have changed
-            materials_changed = self.check_materials_state()
-            
-            if main_record_changed or materials_changed:
-                return 1
+            return 1  # ci sono errori di immissione
+        
+        rec_equal_result = self.records_equal_check()
+        QgsMessageLog.logMessage(f"DEBUG check_record_state - records_equal_check returned: {rec_equal_result}", "PyArchInit", Qgis.Info)
+        
+        if rec_equal_result == 1 and ec == 0:
+            if self.L=='it':
+                self.update_if(
+                    QMessageBox.warning(self, 'Errore', "Il record e' stato modificato. Vuoi salvare le modifiche?",
+                                        QMessageBox.Ok | QMessageBox.Cancel))
+            elif self.L=='de':
+                self.update_if(
+                    QMessageBox.warning(self, 'Errore', "Der Record wurde geändert. Möchtest du die Änderungen speichern?",
+                                        QMessageBox.Ok | QMessageBox.Cancel))
             else:
-                return 0
-        else:
-            return 0
-
+                self.update_if(
+                    QMessageBox.warning(self, "Error", "The record has been changed. You want to save the changes?",
+                                        QMessageBox.Ok | QMessageBox.Cancel))
+        return 0  # Importante: deve sempre ritornare 0 se non ci sono errori
     def check_materials_state(self):
         """Check if materials in the table have changed compared to database."""
+        QgsMessageLog.logMessage("DEBUG TMA: check_materials_state called", "PyArchInit", Qgis.Info)
         try:
             if not self.DATA_LIST or self.REC_CORR >= len(self.DATA_LIST):
+                QgsMessageLog.logMessage("DEBUG TMA: New record or no data list", "PyArchInit", Qgis.Info)
                 # New record, check if table has content with valid data
                 for row in range(self.tableWidget_materiali.rowCount()):
                     macc = self.tableWidget_materiali.item(row, 1).text() if self.tableWidget_materiali.item(row, 1) else ""
@@ -1089,76 +1482,114 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                         return True
                 return False
             
-            # Get current materials from database
+            # Get current materials from database using direct SQL to avoid type issues
             current_tma_id = self.DATA_LIST[self.REC_CORR].id
-            search_dict = {'id_tma': current_tma_id}
-            db_materials = self.DB_MANAGER.query_bool(search_dict, 'TMA_MATERIALI')
+            QgsMessageLog.logMessage(f"DEBUG TMA: Getting materials for TMA ID {current_tma_id}, type={type(current_tma_id)}", "PyArchInit", Qgis.Info)
             
-            # Create a map of existing materials by ID
-            db_materials_by_id = {mat.id: mat for mat in db_materials}
+            # Use direct SQL query to avoid type comparison issues in query_bool
+            from sqlalchemy import text
+            from sqlalchemy.orm import sessionmaker
             
-            # Track which IDs we've seen and count valid rows
-            seen_ids = set()
-            valid_rows = 0
+            # Convert tma_id to int for consistency
+            tma_id_int = int(current_tma_id)
             
-            # Check all rows in the table
-            for row in range(self.tableWidget_materiali.rowCount()):
-                # Get category to check if row is valid
-                macc = self.tableWidget_materiali.item(row, 1).text() if self.tableWidget_materiali.item(row, 1) else ""
-                if not macc.strip():
-                    continue  # Skip empty rows
+            # Create a session
+            Session = sessionmaker(bind=self.DB_MANAGER.engine)
+            session = Session()
+            
+            try:
+                # Get existing materials using direct SQL
+                sql = text("SELECT * FROM tma_materiali_ripetibili WHERE id_tma = :id_tma")
+                result = session.execute(sql, {'id_tma': tma_id_int})
+                
+                # Convert results to list of dictionaries
+                db_materials = []
+                for row in result:
+                    # Create a dictionary with material data
+                    # Access by index since we're using direct SQL
+                    mat_dict = {
+                        'id': row[0],
+                        'id_tma': row[1],
+                        'madi': row[2],
+                        'macc': row[3],
+                        'macl': row[4],
+                        'macp': row[5],
+                        'macd': row[6],
+                        'cronologia_mac': row[7],
+                        'macq': row[8],
+                        'peso': row[9]
+                    }
+                    db_materials.append(mat_dict)
+                
+                # Create a map of existing materials by ID
+                db_materials_by_id = {mat['id']: mat for mat in db_materials}
+                
+                # Track which IDs we've seen and count valid rows
+                seen_ids = set()
+                valid_rows = 0
+                
+                # Check all rows in the table
+                for row in range(self.tableWidget_materiali.rowCount()):
+                    # Get category to check if row is valid
+                    macc = self.tableWidget_materiali.item(row, 1).text() if self.tableWidget_materiali.item(row, 1) else ""
+                    if not macc.strip():
+                        continue  # Skip empty rows
+                        
+                    valid_rows += 1
                     
-                valid_rows += 1
+                    # Get the material ID stored in the first column's user data
+                    material_id = self.tableWidget_materiali.item(row, 0).data(Qt.UserRole) if self.tableWidget_materiali.item(row, 0) else None
+                    
+                    if material_id is None:
+                        # This is a new material
+                        return True
+                    
+                    if material_id not in db_materials_by_id:
+                        # Material ID exists in table but not in database (shouldn't happen)
+                        return True
+                    
+                    seen_ids.add(material_id)
+                    
+                    # Compare values with database
+                    db_material = db_materials_by_id[material_id]
+                    
+                    # Get values from table
+                    table_madi = self.tableWidget_materiali.item(row, 0).text() if self.tableWidget_materiali.item(row, 0) else ""
+                    table_macc = self.tableWidget_materiali.item(row, 1).text() if self.tableWidget_materiali.item(row, 1) else ""
+                    table_macl = self.tableWidget_materiali.item(row, 2).text() if self.tableWidget_materiali.item(row, 2) else ""
+                    table_macp = self.tableWidget_materiali.item(row, 3).text() if self.tableWidget_materiali.item(row, 3) else ""
+                    table_macd = self.tableWidget_materiali.item(row, 4).text() if self.tableWidget_materiali.item(row, 4) else ""
+                    table_cronologia = self.tableWidget_materiali.item(row, 5).text() if self.tableWidget_materiali.item(row, 5) else ""
+                    table_macq = self.tableWidget_materiali.item(row, 6).text() if self.tableWidget_materiali.item(row, 6) else ""
+                    table_peso = self.tableWidget_materiali.item(row, 7).text() if self.tableWidget_materiali.item(row, 7) else ""
+                    
+                    # Get values from database
+                    db_madi = str(db_material['madi']) if db_material['madi'] else ""
+                    db_macc = str(db_material['macc']) if db_material['macc'] else ""
+                    db_macl = str(db_material['macl']) if db_material['macl'] else ""
+                    db_macp = str(db_material['macp']) if db_material['macp'] else ""
+                    db_macd = str(db_material['macd']) if db_material['macd'] else ""
+                    db_cronologia = str(db_material['cronologia_mac']) if db_material['cronologia_mac'] else ""
+                    db_macq = str(db_material['macq']) if db_material['macq'] else ""
+                    db_peso = str(db_material['peso']) if db_material['peso'] else ""
+                    
+                    # Compare values
+                    if (table_madi != db_madi or table_macc != db_macc or table_macl != db_macl or 
+                        table_macp != db_macp or table_macd != db_macd or table_cronologia != db_cronologia or
+                        table_macq != db_macq or table_peso != db_peso):
+                        return True
                 
-                # Get the material ID stored in the first column's user data
-                material_id = self.tableWidget_materiali.item(row, 0).data(Qt.UserRole) if self.tableWidget_materiali.item(row, 0) else None
-                
-                if material_id is None:
-                    # This is a new material
+                # Check if any materials were deleted (exist in DB but not seen in table)
+                if len(seen_ids) != len(db_materials):
                     return True
                 
-                if material_id not in db_materials_by_id:
-                    # Material ID exists in table but not in database (shouldn't happen)
-                    return True
+                return False
                 
-                seen_ids.add(material_id)
-                
-                # Compare values with database
-                db_material = db_materials_by_id[material_id]
-                
-                # Get values from table
-                table_madi = self.tableWidget_materiali.item(row, 0).text() if self.tableWidget_materiali.item(row, 0) else ""
-                table_macc = self.tableWidget_materiali.item(row, 1).text() if self.tableWidget_materiali.item(row, 1) else ""
-                table_macl = self.tableWidget_materiali.item(row, 2).text() if self.tableWidget_materiali.item(row, 2) else ""
-                table_macp = self.tableWidget_materiali.item(row, 3).text() if self.tableWidget_materiali.item(row, 3) else ""
-                table_macd = self.tableWidget_materiali.item(row, 4).text() if self.tableWidget_materiali.item(row, 4) else ""
-                table_cronologia = self.tableWidget_materiali.item(row, 5).text() if self.tableWidget_materiali.item(row, 5) else ""
-                table_macq = self.tableWidget_materiali.item(row, 6).text() if self.tableWidget_materiali.item(row, 6) else ""
-                table_peso = self.tableWidget_materiali.item(row, 7).text() if self.tableWidget_materiali.item(row, 7) else ""
-                
-                # Get values from database
-                db_madi = str(db_material.madi) if db_material.madi else ""
-                db_macc = str(db_material.macc) if db_material.macc else ""
-                db_macl = str(db_material.macl) if db_material.macl else ""
-                db_macp = str(db_material.macp) if db_material.macp else ""
-                db_macd = str(db_material.macd) if db_material.macd else ""
-                db_cronologia = str(db_material.cronologia_mac) if db_material.cronologia_mac else ""
-                db_macq = str(db_material.macq) if db_material.macq else ""
-                db_peso = str(db_material.peso) if db_material.peso else ""
-                
-                # Compare values
-                if (table_madi != db_madi or table_macc != db_macc or table_macl != db_macl or 
-                    table_macp != db_macp or table_macd != db_macd or table_cronologia != db_cronologia or
-                    table_macq != db_macq or table_peso != db_peso):
-                    return True
-            
-            # Check if any materials were deleted (exist in DB but not seen in table)
-            if len(seen_ids) != len(db_materials):
-                return True
-            
-            return False
+            finally:
+                session.close()
             
         except Exception as e:
+            QgsMessageLog.logMessage(f"DEBUG TMA: Error in check_materials_state: {e}", "PyArchInit", Qgis.Warning)
             # If error occurs, assume changed to be safe
             return True
 
@@ -1193,10 +1624,12 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
 
     def update_if(self, msg):
         """Update interface message."""
-        if msg == 1:
+        print(f"DEBUG update_if - chiamato con msg={msg}")
+        if msg == QMessageBox.Ok:
+            print(f"DEBUG update_if - utente ha scelto OK, aggiornando il record")
             self.update_record_to_db()
-        if msg == 0:
-            pass
+        else:
+            print(f"DEBUG update_if - utente ha scelto Cancel o altro")
 
     def on_pushButton_import_pressed(self):
         """Open import dialog."""
@@ -1250,7 +1683,8 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         """Navigate to first record."""
         if self.check_record_state() == 1:
             self.update_if(QgsSettings().value("pyArchInit/ifupdaterecord"))
-
+            return
+            
         try:
             self.empty_fields()
             self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
@@ -1263,7 +1697,8 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         """Navigate to last record."""
         if self.check_record_state() == 1:
             self.update_if(QgsSettings().value("pyArchInit/ifupdaterecord"))
-
+            return
+            
         try:
             self.empty_fields()
             self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), len(self.DATA_LIST) - 1
@@ -1273,42 +1708,104 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             QMessageBox.warning(self, "Error", str(e), QMessageBox.Ok)
 
     def on_pushButton_prev_rec_pressed(self):
-        """Navigate to previous record."""
-        if self.check_record_state() == 1:
-            self.update_if(QgsSettings().value("pyArchInit/ifupdaterecord"))
+        if self._nav_in_progress:
+            QgsMessageLog.logMessage(f"PREV - Navigation already in progress, ignoring", "PyArchInit", Qgis.Warning)
+            return
             
-        if self.REC_CORR > 0:
-            self.REC_CORR = self.REC_CORR - 1
-            try:
-                self.empty_fields()
-                self.fill_fields(self.REC_CORR)
-                self.set_rec_counter(self.REC_TOT, self.REC_CORR + 1)
-            except Exception as e:
-                QMessageBox.warning(self, "Error", str(e), QMessageBox.Ok)
-        else:
-            QMessageBox.warning(self, "Attenzione", "Sei al primo record!", QMessageBox.Ok)
+        QgsMessageLog.logMessage(f"PREV - Button clicked, queueing navigation", "PyArchInit", Qgis.Info)
+        self._nav_direction = 'prev'
+        self._nav_timer.stop()  # Stop any pending timer
+        self._nav_timer.start(100)  # Start with 100ms delay
 
     def on_pushButton_next_rec_pressed(self):
-        """Navigate to next record."""
-        if self.check_record_state() == 1:
-            self.update_if(QgsSettings().value("pyArchInit/ifupdaterecord"))
+        if self._nav_in_progress:
+            QgsMessageLog.logMessage(f"NEXT - Navigation already in progress, ignoring", "PyArchInit", Qgis.Warning)
+            return
             
-        if self.REC_CORR < self.REC_TOT - 1:
-            self.REC_CORR = self.REC_CORR + 1
+        QgsMessageLog.logMessage(f"NEXT - Button clicked, queueing navigation", "PyArchInit", Qgis.Info)
+        self._nav_direction = 'next'
+        self._nav_timer.stop()  # Stop any pending timer
+        self._nav_timer.start(100)  # Start with 100ms delay
+    
+    def _process_navigation(self):
+        """Process the queued navigation after timer delay."""
+        if self._nav_in_progress:
+            return
+            
+        self._nav_in_progress = True
+        QgsMessageLog.logMessage(f"Processing navigation: {self._nav_direction}", "PyArchInit", Qgis.Info)
+        
+        try:
+            if self._nav_direction == 'prev':
+                self._do_prev_navigation()
+            elif self._nav_direction == 'next':
+                self._do_next_navigation()
+        finally:
+            self._nav_in_progress = False
+            self._nav_direction = None
+    
+    def _do_prev_navigation(self):
+        """Execute previous record navigation."""
+        QgsMessageLog.logMessage(f"PREV - REC_CORR prima: {self.REC_CORR}", "PyArchInit", Qgis.Info)
+        
+        if self.check_record_state() == 1:
+            return
+            
+        self.REC_CORR = self.REC_CORR - 1
+        if self.REC_CORR <= -1:
+            self.REC_CORR = 0
+            if self.L=='it':
+                QMessageBox.warning(self, "Attenzione", "Sei al primo record!", QMessageBox.Ok)
+            elif self.L=='de':
+                QMessageBox.warning(self, "Achtung", "du befindest dich im ersten Datensatz!", QMessageBox.Ok)
+            else:
+                QMessageBox.warning(self, "Warning", "You are to the first record!", QMessageBox.Ok)        
+        else:
             try:
                 self.empty_fields()
                 self.fill_fields(self.REC_CORR)
                 self.set_rec_counter(self.REC_TOT, self.REC_CORR + 1)
             except Exception as e:
-                QMessageBox.warning(self, "Error", str(e), QMessageBox.Ok)
+                QgsMessageLog.logMessage(f"PREV - Exception: {e}", "PyArchInit", Qgis.Critical)
+                import traceback
+                traceback.print_exc()
+        
+        QgsMessageLog.logMessage(f"PREV - REC_CORR dopo: {self.REC_CORR}", "PyArchInit", Qgis.Info)
+    
+    def _do_next_navigation(self):
+        """Execute next record navigation."""
+        QgsMessageLog.logMessage(f"NEXT - REC_CORR prima: {self.REC_CORR}", "PyArchInit", Qgis.Info)
+        
+        if self.check_record_state() == 1:
+            return
+            
+        self.REC_CORR = self.REC_CORR + 1
+        if self.REC_CORR >= self.REC_TOT:
+            self.REC_CORR = self.REC_CORR - 1
+            if self.L=='it':
+                QMessageBox.warning(self, "Attenzione", "Sei all'ultimo record!", QMessageBox.Ok)
+            elif self.L=='de':
+                QMessageBox.warning(self, "Achtung", "du befindest dich im letzten Datensatz!", QMessageBox.Ok)
+            else:
+                QMessageBox.warning(self, "Error", "You are to the last record!", QMessageBox.Ok)  
         else:
-            QMessageBox.warning(self, "Attenzione", "Sei all'ultimo record!", QMessageBox.Ok)
+            try:
+                self.empty_fields()
+                self.fill_fields(self.REC_CORR)
+                self.set_rec_counter(self.REC_TOT, self.REC_CORR + 1)
+            except Exception as e:
+                QgsMessageLog.logMessage(f"NEXT - Exception: {e}", "PyArchInit", Qgis.Critical)
+                import traceback
+                traceback.print_exc()
+        
+        QgsMessageLog.logMessage(f"NEXT - REC_CORR dopo: {self.REC_CORR}", "PyArchInit", Qgis.Info)
 
     def on_pushButton_new_rec_pressed(self):
         """Create a new record."""
         if self.check_record_state() == 1:
             self.update_if(QgsSettings().value("pyArchInit/ifupdaterecord"))
-
+            return
+            
         if self.BROWSE_STATUS != "n":
             conn = Connection()
             sito_set = conn.sito_set()
@@ -1334,34 +1831,46 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
 
     def on_pushButton_save_pressed(self):
         """Save the current record."""
-        if self.BROWSE_STATUS == "b":
-            if self.data_error_check() == 0:
-                if self.check_record_state() == 1:
-                    self.update_record_to_db()
-                    self.SORT_STATUS = "n"
-                    self.label_sort.setText(self.SORTED_ITEMS[self.SORT_STATUS])
+        
+        try:
+            if self.BROWSE_STATUS == "b":
+                if self.data_error_check() == 0:
+                    try:
+                        record_state = self.check_record_state()
+                        if record_state == 1:
+                            self.update_record_to_db()
+                            self.SORT_STATUS = "n"
+                            self.label_sort.setText(self.SORTED_ITEMS[self.SORT_STATUS])
+                    except Exception as e:
+                        import traceback
+                        traceback.print_exc()
+                        QMessageBox.warning(self, "Error", f"Errore nel salvataggio materiali: {str(e)}", QMessageBox.Ok)
                     self.enable_button(1)
                     self.fill_fields(self.REC_CORR)
                 else:
                     QMessageBox.warning(self, "ATTENZIONE", "Non è stata realizzata alcuna modifica!", QMessageBox.Ok)
-        else:
-            if self.data_error_check() == 0:
-                test_insert = self.insert_new_rec()
-                if test_insert == 1:
-                    self.empty_fields()
-                    self.label_sort.setText(self.SORTED_ITEMS["n"])
-                    self.charge_list()
-                    self.charge_records()
-                    self.BROWSE_STATUS = "b"
-                    self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
-                    self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), len(self.DATA_LIST) - 1
-                    self.set_rec_counter(self.REC_TOT, self.REC_CORR + 1)
+            else:
+                if self.data_error_check() == 0:
+                    test_insert = self.insert_new_rec()
+                    if test_insert == 1:
+                        self.empty_fields()
+                        self.label_sort.setText(self.SORTED_ITEMS["n"])
+                        self.charge_list()
+                        self.charge_records()
+                        self.BROWSE_STATUS = "b"
+                        self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
+                        self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), len(self.DATA_LIST) - 1
+                        self.set_rec_counter(self.REC_TOT, self.REC_CORR + 1)
 
-                    self.setComboBoxEnable(["self.comboBox_sito"], "False")
-                    self.fill_fields(self.REC_CORR)
-                    self.enable_button(1)
-                else:
-                    pass
+                        self.setComboBoxEnable(["self.comboBox_sito"], "False")
+                        self.fill_fields(self.REC_CORR)
+                        self.enable_button(1)
+                    else:
+                        pass
+        except Exception as e:
+            import traceback
+            traceback.print_exc()
+            QMessageBox.warning(self, "Error", f"Errore nel salvataggio: {str(e)}", QMessageBox.Ok)
 
     def on_pushButton_delete_pressed(self):
         """Delete the current record."""
@@ -1399,7 +1908,8 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         """Enable search mode."""
         if self.check_record_state() == 1:
             self.update_if(QgsSettings().value("pyArchInit/ifupdaterecord"))
-
+            return
+            
         self.enable_button_search(0)
         self.BROWSE_STATUS = "f"
         self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
@@ -1491,7 +2001,8 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         """View all records."""
         if self.check_record_state() == 1:
             self.update_if(QgsSettings().value("pyArchInit/ifupdaterecord"))
-
+            return
+            
         self.empty_fields()
         self.charge_records()
         self.fill_fields()
@@ -1605,7 +2116,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                 str(self.lineEdit_us.text()),  # dscu
                 str(self.lineEdit_rcgd.text()),
                 str(self.textEdit_rcgz.toPlainText()),
-                str(self.lineEdit_aint.text()),
+                str(self.comboBox_aint.currentText()),
                 str(self.lineEdit_aind.text()),
                 str(self.lineEdit_dtzg.text()),  # Single chronology field
                 str(self.textEdit_deso.toPlainText()),
@@ -1668,11 +2179,31 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             current_tma = self.DATA_LIST[self.REC_CORR]
             
             # Get materials for this TMA
-            search_dict = {'id_tma': current_tma.id}
+            search_dict = {'id_tma': int(current_tma.id)}
             materials = self.DB_MANAGER.query_bool(search_dict, 'TMA_MATERIALI')
             
-            # Prepare data for PDF - pass as tuple not list
-            data = (current_tma, materials)
+            # Get thumbnail path following Inv_Materiali logic
+            conn = Connection()
+            thumb_resize = conn.thumb_resize()
+            thumb_path_str = thumb_resize['thumb_resize']
+            
+            # Search for media using MEDIAVIEW
+            id_entity = str(current_tma.id)
+            search_media = {'id_entity': "'" + id_entity + "'",
+                           'entity_type': "'TMA'"}
+            
+            record_media_list = self.DB_MANAGER.query_bool(search_media, 'MEDIAVIEW')
+            
+            thumbnail_path = ''
+            if record_media_list:
+                # Get first image path
+                try:
+                    thumbnail_path = thumb_path_str + str(record_media_list[0].path_resize)
+                except:
+                    thumbnail_path = ''
+            
+            # Prepare data for PDF - pass as list [record, materials, thumbnail]
+            data = [current_tma, materials, thumbnail_path]
             
             # Generate PDF
             tma_pdf = single_TMA_pdf(data)
@@ -1794,10 +2325,10 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             area = self.comboBox_area.currentText()
             us = self.lineEdit_us.text()
             
-            print(f"DEBUG TMA: on_us_changed called - sito: {sito}, area: {area}, us: {us}")
+            QgsMessageLog.logMessage(f"DEBUG TMA: on_us_changed called - sito: {sito}, area: {area}, us: {us}", "PyArchInit", Qgis.Info)
             
             if not sito or not area or not us:
-                print("DEBUG TMA: Missing sito, area, or us - returning")
+                QgsMessageLog.logMessage("DEBUG TMA: Missing sito, area, or us - returning", "PyArchInit", Qgis.Info)
                 return
             
             # Query US record
@@ -1807,9 +2338,9 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                 'us': int(us) if us.isdigit() else 0
             }
             
-            print(f"DEBUG TMA: Querying US with search_dict: {search_dict}")
+            QgsMessageLog.logMessage(f"DEBUG TMA: Querying US with search_dict: {search_dict}", "PyArchInit", Qgis.Info)
             us_records = self.DB_MANAGER.query_bool(search_dict, 'US')
-            print(f"DEBUG TMA: Found {len(us_records) if us_records else 0} US records")
+            QgsMessageLog.logMessage(f"DEBUG TMA: Found {len(us_records) if us_records else 0} US records", "PyArchInit", Qgis.Info)
             
             if us_records and len(us_records) > 0:
                 us_record = us_records[0]
@@ -1823,7 +2354,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                 
                 if datazione_value:
                     self.lineEdit_dtzg.setText(datazione_value)
-                    print(f"DEBUG TMA: Set fascia cronologica to: {datazione_value}")
+                    QgsMessageLog.logMessage(f"DEBUG TMA: Set fascia cronologica to: {datazione_value}", "PyArchInit", Qgis.Info)
                 else:
                     # If no datazione field, try to build from period/phase
                     datazione = ""
@@ -1832,7 +2363,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                     periodo_finale = getattr(us_record, 'periodo_finale', None)
                     fase_finale = getattr(us_record, 'fase_finale', None)
                     
-                    print(f"DEBUG TMA: Building from periodo/fase: {periodo_iniziale}/{fase_iniziale} - {periodo_finale}/{fase_finale}")
+                    QgsMessageLog.logMessage(f"DEBUG TMA: Building from periodo/fase: {periodo_iniziale}/{fase_iniziale} - {periodo_finale}/{fase_finale}", "PyArchInit", Qgis.Info)
                     
                     # Check if initial and final are the same
                     if periodo_iniziale and periodo_finale and str(periodo_iniziale) == str(periodo_finale):
@@ -1863,17 +2394,17 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                     
                     if datazione:
                         self.lineEdit_dtzg.setText(datazione)
-                        print(f"DEBUG TMA: Set fascia cronologica from periodo/fase to: {datazione}")
+                        QgsMessageLog.logMessage(f"DEBUG TMA: Set fascia cronologica from periodo/fase to: {datazione}", "PyArchInit", Qgis.Info)
                     else:
                         self.lineEdit_dtzg.clear()
-                        print("DEBUG TMA: No datazione data available")
+                        QgsMessageLog.logMessage("DEBUG TMA: No datazione data available", "PyArchInit", Qgis.Info)
             else:
-                print(f"DEBUG TMA: No US records found for: sito={sito}, area={area}, us={us}")
+                QgsMessageLog.logMessage(f"DEBUG TMA: No US records found for: sito={sito}, area={area}, us={us}", "PyArchInit", Qgis.Info)
                 self.lineEdit_dtzg.clear()
                         
         except Exception as e:
             # Print the error for debugging
-            print(f"DEBUG TMA ERROR in on_us_changed: {str(e)}")
+            QgsMessageLog.logMessage(f"DEBUG TMA ERROR in on_us_changed: {str(e)}", "PyArchInit", Qgis.Warning)
             import traceback
             traceback.print_exc()
     
@@ -1945,10 +2476,11 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             if field_type not in thesaurus_map:
                 return []
             
+            # Use alias table name for materials data
             search_dict = {
-                'lingua': lang,
-                'nome_tabella': "'tma_materiali_archeologici'",
-                'tipologia_sigla': f"'{thesaurus_map[field_type]}'"
+                'lingua': "'" + lang.upper() + "'",  # Use uppercase for language with quotes
+                'nome_tabella': "'tma_materiali_table'",  # Using alias
+                'tipologia_sigla': "'" + thesaurus_map[field_type] + "'"
             }
             
             thesaurus_records = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
@@ -1964,6 +2496,55 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         except Exception as e:
             # Return empty list if thesaurus not available
             return []
+    
+    def convert_aint_to_combobox_with_thesaurus(self, lang):
+        """Convert aint field from LineEdit to ComboBox with thesaurus values."""
+        try:
+            # Get the parent layout of the lineEdit_aint
+            parent = self.lineEdit_aint.parent()
+            layout = parent.layout()
+            
+            # Find the position of lineEdit_aint in the layout
+            for i in range(layout.count()):
+                item = layout.itemAt(i)
+                if item and item.widget() == self.lineEdit_aint:
+                    row, col, rowspan, colspan = layout.getItemPosition(i)
+                    
+                    # Create ComboBox
+                    self.comboBox_aint = QComboBox()
+                    self.comboBox_aint.setEditable(True)
+                    
+                    # Load thesaurus values for aint using alias table name
+                    if self.DB_MANAGER and self.DB_MANAGER != "":
+                        search_dict = {
+                            'lingua': lang,
+                            'nome_tabella': "'" + 'tma_table' + "'",  # Using alias
+                            'tipologia_sigla': "'" + '10.11' + "'"
+                        }
+                        
+                        thesaurus_records = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+                    else:
+                        thesaurus_records = []
+                    
+                    # Add empty option
+                    self.comboBox_aint.addItem("")
+                    
+                    # Add thesaurus values
+                    for record in thesaurus_records:
+                        if hasattr(record, 'sigla_estesa') and record.sigla_estesa:
+                            self.comboBox_aint.addItem(record.sigla_estesa)
+                    
+                    # Hide the LineEdit and add ComboBox
+                    self.lineEdit_aint.hide()
+                    layout.addWidget(self.comboBox_aint, row, col, rowspan, colspan)
+                    
+                    QgsMessageLog.logMessage(f"DEBUG TMA: Converted aint to ComboBox with {self.comboBox_aint.count()} items", "PyArchInit", Qgis.Info)
+                    break
+                    
+        except Exception as e:
+            QgsMessageLog.logMessage(f"DEBUG TMA: Error converting aint field: {str(e)}", "PyArchInit", Qgis.Warning)
+            # If conversion fails, keep the LineEdit
+            self.comboBox_aint = None
     
     def setup_materials_table_with_thesaurus(self):
         """Setup materials table with thesaurus support using delegates."""
@@ -2000,32 +2581,487 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         tipologia_values = self.load_thesaurus_values('tipologia')
         definizione_values = self.load_thesaurus_values('definizione')
         
-        # If no values from thesaurus, provide some defaults to test
-        if not materiale_values:
-            materiale_values = ['Ceramica', 'Metallo', 'Vetro', 'Osso', 'Pietra']
-        if not categoria_values:
-            categoria_values = ['Anfora', 'Sigillata', 'Comune', 'Pareti sottili']
+        # Don't use default values - only use thesaurus values
         
         # Debug print
-        print(f"DEBUG TMA THESAURUS: Materiale values: {len(materiale_values)} items")
-        print(f"DEBUG TMA THESAURUS: Categoria values: {len(categoria_values)} items")
-        print(f"DEBUG TMA THESAURUS: Classe values: {len(classe_values)} items")
-        print(f"DEBUG TMA THESAURUS: Tipologia values: {len(tipologia_values)} items")
-        print(f"DEBUG TMA THESAURUS: Definizione values: {len(definizione_values)} items")
+        QgsMessageLog.logMessage(f"DEBUG TMA THESAURUS: Materiale values: {len(materiale_values)} items", "PyArchInit", Qgis.Info)
+        QgsMessageLog.logMessage(f"DEBUG TMA THESAURUS: Categoria values: {len(categoria_values)} items", "PyArchInit", Qgis.Info)
+        QgsMessageLog.logMessage(f"DEBUG TMA THESAURUS: Classe values: {len(classe_values)} items", "PyArchInit", Qgis.Info)
+        QgsMessageLog.logMessage(f"DEBUG TMA THESAURUS: Tipologia values: {len(tipologia_values)} items", "PyArchInit", Qgis.Info)
+        QgsMessageLog.logMessage(f"DEBUG TMA THESAURUS: Definizione values: {len(definizione_values)} items", "PyArchInit", Qgis.Info)
         
         # Set delegates for columns with thesaurus support
         if materiale_values:
             self.tableWidget_materiali.setItemDelegateForColumn(0, ComboBoxDelegate(materiale_values, self.tableWidget_materiali))
-            print(f"DEBUG TMA: Set delegate for Materiale column with {len(materiale_values)} values")
+            QgsMessageLog.logMessage(f"DEBUG TMA: Set delegate for Materiale column with {len(materiale_values)} values", "PyArchInit", Qgis.Info)
         if categoria_values:
             self.tableWidget_materiali.setItemDelegateForColumn(1, ComboBoxDelegate(categoria_values, self.tableWidget_materiali))
-            print(f"DEBUG TMA: Set delegate for Categoria column with {len(categoria_values)} values")
+            QgsMessageLog.logMessage(f"DEBUG TMA: Set delegate for Categoria column with {len(categoria_values)} values", "PyArchInit", Qgis.Info)
         if classe_values:
             self.tableWidget_materiali.setItemDelegateForColumn(2, ComboBoxDelegate(classe_values, self.tableWidget_materiali))
-            print(f"DEBUG TMA: Set delegate for Classe column with {len(classe_values)} values")
+            QgsMessageLog.logMessage(f"DEBUG TMA: Set delegate for Classe column with {len(classe_values)} values", "PyArchInit", Qgis.Info)
         if tipologia_values:
             self.tableWidget_materiali.setItemDelegateForColumn(3, ComboBoxDelegate(tipologia_values, self.tableWidget_materiali))
-            print(f"DEBUG TMA: Set delegate for Tipologia column with {len(tipologia_values)} values")
+            QgsMessageLog.logMessage(f"DEBUG TMA: Set delegate for Tipologia column with {len(tipologia_values)} values", "PyArchInit", Qgis.Info)
         if definizione_values:
             self.tableWidget_materiali.setItemDelegateForColumn(4, ComboBoxDelegate(definizione_values, self.tableWidget_materiali))
-            print(f"DEBUG TMA: Set delegate for Definizione column with {len(definizione_values)} values")
+            QgsMessageLog.logMessage(f"DEBUG TMA: Set delegate for Definizione column with {len(definizione_values)} values", "PyArchInit", Qgis.Info)
+    
+    def addMediaTab(self):
+        """Add media and map tabs to the existing tab widget."""
+        # Add Media tab
+        media_tab = QWidget()
+        media_layout = QVBoxLayout(media_tab)
+        
+        # Add button layout for media management
+        button_layout = QHBoxLayout()
+        
+        # Add tag buttons
+        self.pushButton_tags_TMA = QPushButton("Aggiungi tags")
+        self.pushButton_tags_TMA.clicked.connect(self.assignTags_TMA)
+        button_layout.addWidget(self.pushButton_tags_TMA)
+        
+        self.pushButton_remove_tags = QPushButton("Rimuovi tags")
+        self.pushButton_remove_tags.clicked.connect(self.removeTags_TMA)
+        button_layout.addWidget(self.pushButton_remove_tags)
+        
+        self.pushButton_all_images = QPushButton("Vedi tutte immagini")
+        self.pushButton_all_images.clicked.connect(self.viewAllImages)
+        button_layout.addWidget(self.pushButton_all_images)
+        
+        button_layout.addStretch()
+        
+        media_layout.addLayout(button_layout)
+        media_layout.addWidget(self.iconListWidget)
+        self.tabWidget.addTab(media_tab, "Media")
+        
+        # Add Map tab  
+        self.tabWidget.addTab(self.mapPreview, "Map preview")
+    
+    def loadMediaPreview(self, mode=0):
+        """Load media preview for the current TMA record."""
+        self.iconListWidget.clear()
+        conn = Connection()
+        
+        thumb_path = conn.thumb_path()
+        thumb_path_str = thumb_path['thumb_path']
+        
+        if mode == 0:
+            try:
+                if not self.DATA_LIST or self.REC_CORR >= len(self.DATA_LIST):
+                    return
+                    
+                # Get current record ID
+                current_id = self.DATA_LIST[self.REC_CORR].id
+                
+                # Query media for this TMA record
+                search_dict = {
+                    'id_entity': current_id,
+                    'entity_type': "'TMA'"
+                }
+                
+                media_data = self.DB_MANAGER.query_bool(search_dict, 'MEDIATOENTITY')
+                
+                for media in media_data:
+                    # Get thumbnail data
+                    thumb_search = {'media_filename': f"'{media.media_name}'"}
+                    thumb_data = self.DB_MANAGER.query_bool(thumb_search, 'MEDIA_THUMB')
+                    
+                    if thumb_data:
+                        thumb_path = thumb_data[0].filepath
+                        item = QListWidgetItem(str(media.media_name))
+                        item.setData(Qt.UserRole, str(media.media_name))
+                        icon = QIcon(thumb_path_str + thumb_path)
+                        item.setIcon(icon)
+                        self.iconListWidget.addItem(item)
+                        
+            except Exception as e:
+                QMessageBox.warning(self, "Error", str(e), QMessageBox.Ok)
+                
+        elif mode == 1:
+            self.iconListWidget.clear()
+    
+    def openWide_image(self):
+        """Open selected image in full view."""
+        items = self.iconListWidget.selectedItems()
+        conn = Connection()
+        
+        thumb_resize = conn.thumb_resize()
+        thumb_resize_str = thumb_resize['thumb_resize']
+        
+        for item in items:
+            # Get the media id or filename from item data
+            item_data = item.data(Qt.UserRole)
+            
+            # Try to get media by id first, then by filename
+            if str(item_data).isdigit():
+                search_dict = {'id_media': int(item_data)}
+            else:
+                search_dict = {'filename': f"'{item_data}'"}
+                
+            media_data = self.DB_MANAGER.query_bool(search_dict, 'MEDIA')
+            
+            if media_data:
+                # Get media thumb data to find the resized image path
+                media_thumb_search = {'id_media': str(media_data[0].id_media)}
+                media_thumb_data = self.DB_MANAGER.query_bool(media_thumb_search, 'MEDIA_THUMB')
+                
+                if media_thumb_data:
+                    # Use the resized image path
+                    file_path = media_thumb_data[0].path_resize
+                    full_path = thumb_resize_str + file_path
+                    
+                    # Check if it's an image
+                    if file_path.lower().endswith(('.jpg', '.jpeg', '.png', '.gif', '.bmp', '.tiff')):
+                        dlg = ImageViewer(self)
+                        dlg.show_image(full_path)
+                        dlg.exec_()
+    
+    def loadMapPreview(self, mode=0):
+        """Load map preview for current TMA record."""
+        if not hasattr(self, 'mapPreview'):
+            return
+            
+        if mode == 0:
+            try:
+                if not self.DATA_LIST or self.REC_CORR >= len(self.DATA_LIST):
+                    return
+                    
+                # Get current record data
+                current_tma = self.DATA_LIST[self.REC_CORR]
+                
+                # Build query for map layers based on site/area
+                gidstr = f"sito = '{current_tma.sito}' AND area = '{current_tma.area}'"
+                
+                # Load relevant layers
+                layerToSet = self.pyQGIS.loadMapPreview_new(gidstr)
+                self.mapPreview.setLayers(layerToSet)
+                self.mapPreview.zoomToFullExtent()
+                
+            except Exception as e:
+                QMessageBox.warning(self, "Error", str(e), QMessageBox.Ok)
+                
+        elif mode == 1:
+            self.mapPreview.setLayers([])
+            self.mapPreview.zoomToFullExtent()
+    
+    def assignTags_TMA_from_item(self, item):
+        """Assign tags from a single media item to current TMA record."""
+        if self.DATA_LIST and self.REC_CORR < len(self.DATA_LIST):
+            current_tma = self.DATA_LIST[self.REC_CORR]
+            
+            # Get media ID from item data
+            media_id = item.data(Qt.UserRole)
+            
+            if str(media_id).isdigit():
+                # Search by media ID
+                search_dict = {'id_media': int(media_id)}
+                media_data = self.DB_MANAGER.query_bool(search_dict, 'MEDIA')
+                
+                if media_data:
+                    self.insert_mediaToEntity_rec(
+                        current_tma.id,
+                        'TMA',
+                        'tma_materiali_archeologici',
+                        media_data[0].id_media,
+                        media_data[0].filepath,
+                        media_data[0].filename
+                    )
+
+    def assignTags_TMA(self):
+        """Assign current TMA record as tag to selected media."""
+        if not self.DATA_LIST:
+            QMessageBox.warning(self, "Warning", "No TMA record loaded", QMessageBox.Ok)
+            return
+            
+        items_selected = self.iconListWidget.selectedItems()
+        if not items_selected:
+            QMessageBox.warning(self, "Warning", "Select media items first", QMessageBox.Ok)
+            return
+            
+        # Get current record data
+        current_tma = self.DATA_LIST[self.REC_CORR]
+        
+        for item in items_selected:
+            # Get media ID from item data (we store media_id in UserRole)
+            media_id = item.data(Qt.UserRole)
+            media_name = item.text()
+            
+            # Check if already tagged
+            search_dict = {
+                'id_entity': int(current_tma.id),
+                'entity_type': 'TMA',
+                'id_media': int(media_id)
+            }
+            
+            existing = self.DB_MANAGER.query_bool(search_dict, 'MEDIATOENTITY')
+            
+            if not existing:
+                # Create new media-entity relation
+                try:
+                    mediatoentity_data = self.DB_MANAGER.insert_media_to_entity_values(
+                        None,  # id will be auto-generated
+                        int(current_tma.id),  # id_entity
+                        'TMA',  # entity_type  
+                        'TMA',  # table_name
+                        int(media_id),  # id_media
+                        '',  # filepath (not used)
+                        media_name  # media_name
+                    )
+                    
+                    self.DB_MANAGER.insert_data_session(mediatoentity_data)
+                    
+                    # Update item appearance
+                    item.setBackground(QColor("green"))
+                    
+                except Exception as e:
+                    QMessageBox.warning(self, "Error", f"Error tagging media: {str(e)}", QMessageBox.Ok)
+            else:
+                QMessageBox.information(self, "Info", f"Media {media_name} already tagged", QMessageBox.Ok)
+    
+    def dropEvent(self, event):
+        """Handle file drop events for media upload."""
+        mimeData = event.mimeData()
+        accepted_formats = ["jpg", "jpeg", "png", "tiff", "tif", "bmp", "mp4", "avi", "mov", "mkv", "flv", "obj", "stl",
+                            "ply", "fbx", "3ds"]
+
+        if mimeData.hasUrls():
+            for url in mimeData.urls():
+                try:
+                    path = url.toLocalFile()
+                    filetype = path.split(".")[-1].lower()
+                    
+                    if filetype in accepted_formats:
+                        # Check if this is an image
+                        if filetype in ["jpg", "jpeg", "png", "tiff", "tif", "bmp"]:
+                            self.load_and_process_image(path)
+                        else:
+                            QMessageBox.warning(self, "Error", f"Unsupported file type: {filetype}", QMessageBox.Ok)
+                except Exception as e:
+                    QMessageBox.warning(self, "Error", f"Failed to process the file: {str(e)}", QMessageBox.Ok)
+        super().dropEvent(event)
+
+    def dragEnterEvent(self, event):
+        """Accept drag events for supported file types."""
+        if event.mimeData().hasUrls():
+            event.acceptProposedAction()
+        else:
+            event.ignore()
+    
+    def load_and_process_image(self, filepath):
+        """Process dropped image file and add to media."""
+        try:
+            # Get connection settings
+            conn = Connection()
+            thumb_path = conn.thumb_path()
+            thumb_resize = conn.thumb_resize()
+            
+            # Get filename without extension
+            filename_orig = os.path.basename(filepath)
+            filename, filetype = os.path.splitext(filename_orig)
+            filename = filename  # filename without extension
+            filetype = filetype[1:]  # remove the dot
+            
+            # Generate unique media ID
+            media_max_num_id = self.DB_MANAGER.max_num_id('MEDIA', 'id_media')
+            
+            # Create unique filenames with media ID prefix
+            media_filename = str(media_max_num_id) + "_" + filename + "." + filetype
+            filename_thumb = str(media_max_num_id) + "_" + filename + "_thumb.png"
+            filename_resize = str(media_max_num_id) + "_" + filename + ".png"
+            
+            # Copy original file to media directory with unique name
+            dest_path = os.path.join(thumb_resize['thumb_resize'], media_filename)
+            shutil.copy(filepath, dest_path)
+            
+            # Get media utility instances
+            MU = Media_utility()
+            MUR = Media_utility_resize()
+            
+            # Create thumbnail
+            MU.resample_images(media_max_num_id, filepath, filename, 
+                               thumb_path['thumb_path'], '_thumb.png')
+            
+            # Create resized image
+            MUR.resample_images(media_max_num_id, filepath, filename,
+                               thumb_resize['thumb_resize'], '.png')
+            
+            # Save to database
+            try:
+                # Build tags from current TMA record
+                tags = 'TMA'
+                if self.DATA_LIST and self.REC_CORR < len(self.DATA_LIST):
+                    current_tma = self.DATA_LIST[self.REC_CORR]
+                    tags = f"TMA - Sito: {current_tma.sito} - Area: {current_tma.area} - US: {current_tma.dscu} - Cassetta: {current_tma.cassetta}"
+                
+                # Insert media record
+                media_data = self.DB_MANAGER.insert_media_values(
+                    self.DB_MANAGER.max_num_id('MEDIA', 'id_media') + 1,
+                    'image',  # mediatype
+                    str(media_filename),  # filename (unique with media ID)
+                    str(filetype),  # filetype
+                    str(media_filename),  # filepath (same as filename for uniqueness)
+                    '',  # descrizione
+                    tags  # tags with TMA info
+                )
+                self.DB_MANAGER.insert_data_session(media_data)
+                
+                # Insert media thumb record
+                thumb_data = self.DB_MANAGER.insert_mediathumb_values(
+                    self.DB_MANAGER.max_num_id('MEDIA_THUMB', 'id_media_thumb') + 1,
+                    str(media_max_num_id),
+                    'image',
+                    str(filename),
+                    str(filename_thumb),
+                    str(filetype),
+                    str(filename_thumb),
+                    str(filename_resize)
+                )
+                self.DB_MANAGER.insert_data_session(thumb_data)
+                
+                # Add to iconListWidget  
+                item = QListWidgetItem(str(filename_orig))
+                item.setData(Qt.UserRole, str(media_max_num_id))
+                # Set icon using the thumbnail
+                icon_path = os.path.join(str(thumb_path['thumb_path']), filename_thumb)
+                icon = QIcon(icon_path)
+                item.setIcon(icon)
+                self.iconListWidget.addItem(item)
+                
+                # If we have a current TMA record, automatically tag it
+                if self.DATA_LIST and self.REC_CORR < len(self.DATA_LIST):
+                    self.assignTags_TMA_from_item(item)
+                
+                QMessageBox.information(self, "Success", f"Image {filename} added successfully!", QMessageBox.Ok)
+                
+            except Exception as e:
+                QMessageBox.warning(self, "Error", f"Error saving to database: {str(e)}", QMessageBox.Ok)
+                
+        except Exception as e:
+            QMessageBox.warning(self, "Error", f"Error processing image: {str(e)}", QMessageBox.Ok)
+    
+    def removeTags_TMA(self):
+        """Remove tags from selected media."""
+        if not self.DATA_LIST:
+            QMessageBox.warning(self, "Warning", "No TMA record loaded", QMessageBox.Ok)
+            return
+            
+        items_selected = self.iconListWidget.selectedItems()
+        if not items_selected:
+            QMessageBox.warning(self, "Warning", "Select media items first", QMessageBox.Ok)
+            return
+            
+        # Get current record data
+        current_tma = self.DATA_LIST[self.REC_CORR]
+        
+        msg = QMessageBox.question(self, "Confirm", 
+                                   f"Remove tags from {len(items_selected)} selected media?", 
+                                   QMessageBox.Yes | QMessageBox.No)
+        
+        if msg == QMessageBox.No:
+            return
+            
+        for item in items_selected:
+            # Get media ID from item data
+            media_id = item.data(Qt.UserRole)
+            
+            # Find and delete the relation
+            search_dict = {
+                'id_entity': int(current_tma.id),
+                'entity_type': 'TMA',
+                'id_media': int(media_id)
+            }
+            
+            existing = self.DB_MANAGER.query_bool(search_dict, 'MEDIATOENTITY')
+            
+            if existing:
+                try:
+                    for record in existing:
+                        self.DB_MANAGER.delete_record_by_field('MEDIATOENTITY', 'id_mediaToEntity', record.id_mediaToEntity)
+                    
+                    # Update item appearance
+                    item.setBackground(QColor())  # Reset background
+                    
+                except Exception as e:
+                    QMessageBox.warning(self, "Error", f"Error removing tag: {str(e)}", QMessageBox.Ok)
+                    
+    def viewAllImages(self):
+        """View all images in the database."""
+        try:
+            # Save current state
+            current_state = None
+            if self.DATA_LIST and self.REC_CORR < len(self.DATA_LIST):
+                current_state = (self.DATA_LIST, self.REC_CORR)
+            
+            # Query all media
+            media_list = self.DB_MANAGER.query('MEDIA')
+            
+            # Clear current list
+            self.iconListWidget.clear()
+            
+            # Connection settings
+            conn = Connection()
+            thumb_path = conn.thumb_path()
+            thumb_path_str = thumb_path['thumb_path']
+            
+            # Load all media
+            for media in media_list:
+                if media.mediatype == 'image':
+                    # Build thumbnail path directly
+                    thumb_filename = f"{media.id_media}_{os.path.splitext(media.filename)[0]}_thumb.png"
+                    thumb_filepath = os.path.join(thumb_path_str, thumb_filename)
+                    
+                    if os.path.exists(thumb_filepath):
+                        item = QListWidgetItem(str(media.filename))
+                        item.setData(Qt.UserRole, str(media.id_media))
+                        icon = QIcon(thumb_filepath)
+                        item.setIcon(icon)
+                        
+                        # Check if tagged to current TMA
+                        if self.DATA_LIST and self.REC_CORR < len(self.DATA_LIST):
+                            current_tma = self.DATA_LIST[self.REC_CORR]
+                            search_dict = {
+                                'id_entity': int(current_tma.id),
+                                'entity_type': 'TMA',
+                                'id_media': int(media.id_media)
+                            }
+                            if self.DB_MANAGER.query_bool(search_dict, 'MEDIATOENTITY'):
+                                item.setBackground(QColor("green"))
+                                
+                        self.iconListWidget.addItem(item)
+                        
+            QMessageBox.information(self, "Info", f"Loaded {self.iconListWidget.count()} images", QMessageBox.Ok)
+            
+            # Restore current state if saved
+            if current_state:
+                self.DATA_LIST, self.REC_CORR = current_state
+                # Reload only TMA-specific media
+                self.load_tma_media()
+            
+        except Exception as e:
+            QMessageBox.warning(self, "Error", f"Error loading images: {str(e)}", QMessageBox.Ok)
+    
+    def insert_mediaToEntity_rec(self, id_entity, entity_type, table_name, id_media, filepath, media_name):
+        """Insert record into MEDIATOENTITY table."""
+        try:
+            data = self.DB_MANAGER.insert_media2entity_values(
+                self.DB_MANAGER.max_num_id('MEDIATOENTITY', 'id_mediaToEntity') + 1,
+                int(id_entity),        # 1 - id_entity
+                str(entity_type),      # 2 - entity_type
+                str(table_name),       # 3 - table_name
+                int(id_media),         # 4 - id_media
+                str(filepath),         # 5 - filepath
+                str(media_name))       # 6 - media_name
+            try:
+                self.DB_MANAGER.insert_data_session(data)
+                return 1
+            except Exception as e:
+                e_str = str(e)
+                if e_str.__contains__("Integrity"):
+                    msg = "Media to entity association already present in database"
+                    QMessageBox.warning(self, "Warning", msg, QMessageBox.Ok)
+                else:
+                    QMessageBox.critical(self, "Error", str(e), QMessageBox.Ok)
+                return 0
+        except Exception as e:
+            QMessageBox.critical(self, "Error", f"Database error: {str(e)}", QMessageBox.Ok)
