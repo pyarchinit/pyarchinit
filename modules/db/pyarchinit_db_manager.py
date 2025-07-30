@@ -1028,6 +1028,18 @@ class Pyarchinit_db_management(object):
 
         return tma_materiali
 
+    def insert_media_to_entity_values(self, *arg):
+        """Istanzia la classe MEDIATOENTITY da pyarchinit_db_mapper"""
+        mediatoentity = MEDIATOENTITY(arg[0],  # id_mediaToEntity
+                                      arg[1],  # id_entity
+                                      arg[2],  # entity_type
+                                      arg[3],  # table_name
+                                      arg[4],  # id_media
+                                      arg[5],  # filepath
+                                      arg[6]   # media_name
+                                      )
+        return mediatoentity
+
     ##  def insert_relationship_check_values(self, *arg):
     ##      """Istanzia la classe RELATIONSHIP_CHECK da pyarchinit_db_mapper"""
     ##      relationship_check = RELATIONSHIP_CHECK(arg[0],
@@ -1543,8 +1555,17 @@ class Pyarchinit_db_management(object):
         session = Session()
         # session.query(SITE).filter(and_(SITE.id_sito == '1')).update(values = {SITE.sito:"updatetest"})
 
+        # Ensure the ID value is properly typed
+        id_value = self.value_id_list[0]
+        # If it's a numeric ID field and the value is a string, convert to int
+        if self.id_table_str.lower() in ['id', 'id_tma', 'id_us', 'id_site', 'id_invmat', 'id_media']:
+            try:
+                id_value = int(id_value)
+            except (ValueError, TypeError):
+                pass  # Keep original value if conversion fails
+        
         session_exec_str = 'session.query(%s).filter(and_(%s.%s == %s)).update(values = %s)' % (
-        self.table_class_str, self.table_class_str, self.id_table_str, self.value_id_list[0], changes_dict)
+        self.table_class_str, self.table_class_str, self.id_table_str, id_value, changes_dict)
 
         
         eval(session_exec_str)

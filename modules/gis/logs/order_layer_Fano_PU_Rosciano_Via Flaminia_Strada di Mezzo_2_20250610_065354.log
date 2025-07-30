@@ -1,0 +1,477 @@
+2025-06-10 06:53:54,136 - INFO - Inizializzazione Order_layer_graph per Fano_PU_Rosciano_Via Flaminia_Strada di Mezzo - 2
+2025-06-10 06:53:54,360 - INFO - Avvio caricamento dati dal database...
+2025-06-10 06:53:54,371 - INFO - Tipo database rilevato: SQLite
+2025-06-10 06:53:54,372 - DEBUG - Esecuzione query: 
+            SELECT us, rapporti 
+            FROM us_table 
+            WHERE sito = 'Fano_PU_Rosciano_Via Flaminia_Strada di Mezzo' AND area = '2'
+            
+2025-06-10 06:53:54,416 - DEBUG - Caricate 50 US...
+2025-06-10 06:53:54,418 - DEBUG - Caricate 100 US...
+2025-06-10 06:53:54,420 - DEBUG - Caricate 150 US...
+2025-06-10 06:53:54,420 - DEBUG - Caricate 200 US...
+2025-06-10 06:53:54,450 - INFO - Completato: caricate 247 US dal database
+2025-06-10 06:53:54,451 - INFO - Costruzione del grafo stratigrafico...
+2025-06-10 06:53:54,452 - DEBUG - Aggiunta relazione: 33 -> 32 (Riempie)
+2025-06-10 06:53:54,452 - DEBUG - Aggiunta relazione: 1003 -> 33 (Taglia)
+2025-06-10 06:53:54,453 - DEBUG - Aggiunta relazione: 35 -> 34 (Riempie)
+2025-06-10 06:53:54,453 - DEBUG - Aggiunta relazione: 1003 -> 35 (Taglia)
+2025-06-10 06:53:54,453 - DEBUG - Aggiunta relazione: 37 -> 36 (Riempie)
+2025-06-10 06:53:54,454 - DEBUG - Aggiunta relazione: 1003 -> 37 (Taglia)
+2025-06-10 06:53:54,454 - DEBUG - Aggiunta relazione: 39 -> 38 (Riempie)
+2025-06-10 06:53:54,454 - DEBUG - Aggiunta relazione: 1003 -> 39 (Taglia)
+2025-06-10 06:53:54,454 - DEBUG - Aggiunta relazione: 41 -> 40 (Riempie)
+2025-06-10 06:53:54,454 - DEBUG - Aggiunta relazione: 1003 -> 41 (Taglia)
+2025-06-10 06:53:54,455 - DEBUG - Aggiunta relazione: 43 -> 42 (Riempie)
+2025-06-10 06:53:54,455 - DEBUG - Aggiunta relazione: 1003 -> 43 (Taglia)
+2025-06-10 06:53:54,455 - DEBUG - Aggiunta relazione: 45 -> 44 (Riempie)
+2025-06-10 06:53:54,455 - DEBUG - Aggiunta relazione: 1003 -> 45 (Taglia)
+2025-06-10 06:53:54,456 - DEBUG - Aggiunta relazione: 47 -> 46 (Riempie)
+2025-06-10 06:53:54,458 - DEBUG - Aggiunta relazione: 1003 -> 47 (Taglia)
+2025-06-10 06:53:54,459 - DEBUG - Aggiunta relazione: 49 -> 48 (Riempie)
+2025-06-10 06:53:54,460 - DEBUG - Aggiunta relazione: 1003 -> 49 (Taglia)
+2025-06-10 06:53:54,460 - DEBUG - Aggiunta relazione: 51 -> 50 (Riempie)
+2025-06-10 06:53:54,461 - DEBUG - Aggiunta relazione: 1003 -> 51 (Taglia)
+2025-06-10 06:53:54,462 - DEBUG - Aggiunta relazione: 53 -> 52 (Riempie)
+2025-06-10 06:53:54,463 - DEBUG - Aggiunta relazione: 1003 -> 53 (Taglia)
+2025-06-10 06:53:54,464 - DEBUG - Aggiunta relazione: 55 -> 54 (Riempie)
+2025-06-10 06:53:54,465 - DEBUG - Aggiunta relazione: 1003 -> 55 (Taglia)
+2025-06-10 06:53:54,466 - DEBUG - Aggiunta relazione: 57 -> 56 (Riempie)
+2025-06-10 06:53:54,467 - DEBUG - Aggiunta relazione: 1003 -> 57 (Taglia)
+2025-06-10 06:53:54,467 - DEBUG - Aggiunta relazione: 59 -> 58 (Riempie)
+2025-06-10 06:53:54,468 - DEBUG - Aggiunta relazione: 1003 -> 59 (Taglia)
+2025-06-10 06:53:54,469 - DEBUG - Aggiunta relazione: 1004 -> 59 (Taglia)
+2025-06-10 06:53:54,470 - DEBUG - Aggiunta relazione: 61 -> 60 (Riempie)
+2025-06-10 06:53:54,471 - DEBUG - Aggiunta relazione: 1003 -> 61 (Taglia)
+2025-06-10 06:53:54,472 - DEBUG - Aggiunta relazione: 1004 -> 61 (Taglia)
+2025-06-10 06:53:54,473 - DEBUG - Aggiunta relazione: 63 -> 62 (Riempie)
+2025-06-10 06:53:54,474 - DEBUG - Aggiunta relazione: 1003 -> 63 (Taglia)
+2025-06-10 06:53:54,475 - DEBUG - Aggiunta relazione: 1004 -> 63 (Taglia)
+2025-06-10 06:53:54,476 - DEBUG - Aggiunta relazione: 65 -> 64 (Riempie)
+2025-06-10 06:53:54,477 - DEBUG - Aggiunta relazione: 1003 -> 65 (Taglia)
+2025-06-10 06:53:54,478 - DEBUG - Aggiunta relazione: 1004 -> 65 (Taglia)
+2025-06-10 06:53:54,479 - DEBUG - Aggiunta relazione: 67 -> 66 (Riempie)
+2025-06-10 06:53:54,479 - DEBUG - Aggiunta relazione: 1003 -> 67 (Taglia)
+2025-06-10 06:53:54,480 - DEBUG - Aggiunta relazione: 1004 -> 67 (Taglia)
+2025-06-10 06:53:54,481 - DEBUG - Aggiunta relazione: 69 -> 68 (Riempie)
+2025-06-10 06:53:54,482 - DEBUG - Aggiunta relazione: 1003 -> 69 (Taglia)
+2025-06-10 06:53:54,483 - DEBUG - Aggiunta relazione: 71 -> 70 (Riempie)
+2025-06-10 06:53:54,484 - DEBUG - Aggiunta relazione: 1003 -> 71 (Taglia)
+2025-06-10 06:53:54,485 - DEBUG - Aggiunta relazione: 73 -> 72 (Riempie)
+2025-06-10 06:53:54,486 - DEBUG - Aggiunta relazione: 1003 -> 73 (Taglia)
+2025-06-10 06:53:54,487 - DEBUG - Aggiunta relazione: 75 -> 74 (Riempie)
+2025-06-10 06:53:54,488 - DEBUG - Aggiunta relazione: 1003 -> 75 (Taglia)
+2025-06-10 06:53:54,488 - DEBUG - Aggiunta relazione: 77 -> 76 (Riempie)
+2025-06-10 06:53:54,489 - DEBUG - Aggiunta relazione: 1003 -> 77 (Taglia)
+2025-06-10 06:53:54,490 - DEBUG - Aggiunta relazione: 79 -> 78 (Riempie)
+2025-06-10 06:53:54,491 - DEBUG - Aggiunta relazione: 1003 -> 79 (Taglia)
+2025-06-10 06:53:54,492 - DEBUG - Aggiunta relazione: 81 -> 80 (Riempie)
+2025-06-10 06:53:54,493 - DEBUG - Aggiunta relazione: 1003 -> 81 (Taglia)
+2025-06-10 06:53:54,494 - DEBUG - Aggiunta relazione: 83 -> 82 (Riempie)
+2025-06-10 06:53:54,495 - DEBUG - Aggiunta relazione: 1003 -> 83 (Taglia)
+2025-06-10 06:53:54,496 - DEBUG - Aggiunta relazione: 1004 -> 83 (Taglia)
+2025-06-10 06:53:54,497 - DEBUG - Aggiunta relazione: 85 -> 84 (Riempie)
+2025-06-10 06:53:54,498 - DEBUG - Aggiunta relazione: 1003 -> 85 (Taglia)
+2025-06-10 06:53:54,498 - DEBUG - Aggiunta relazione: 87 -> 86 (Riempie)
+2025-06-10 06:53:54,499 - DEBUG - Aggiunta relazione: 1003 -> 87 (Taglia)
+2025-06-10 06:53:54,500 - DEBUG - Aggiunta relazione: 89 -> 88 (Riempie)
+2025-06-10 06:53:54,501 - DEBUG - Aggiunta relazione: 1003 -> 89 (Taglia)
+2025-06-10 06:53:54,502 - DEBUG - Aggiunta relazione: 91 -> 90 (Riempie)
+2025-06-10 06:53:54,503 - DEBUG - Aggiunta relazione: 1003 -> 91 (Taglia)
+2025-06-10 06:53:54,504 - DEBUG - Aggiunta relazione: 93 -> 92 (Riempie)
+2025-06-10 06:53:54,505 - DEBUG - Aggiunta relazione: 1003 -> 93 (Taglia)
+2025-06-10 06:53:54,506 - DEBUG - Aggiunta relazione: 1004 -> 93 (Taglia)
+2025-06-10 06:53:54,507 - DEBUG - Aggiunta relazione: 95 -> 94 (Riempie)
+2025-06-10 06:53:54,508 - DEBUG - Aggiunta relazione: 1003 -> 95 (Taglia)
+2025-06-10 06:53:54,509 - DEBUG - Aggiunta relazione: 1004 -> 95 (Taglia)
+2025-06-10 06:53:54,509 - DEBUG - Aggiunta relazione: 97 -> 96 (Riempie)
+2025-06-10 06:53:54,510 - DEBUG - Aggiunta relazione: 1003 -> 97 (Taglia)
+2025-06-10 06:53:54,511 - DEBUG - Aggiunta relazione: 99 -> 98 (Riempie)
+2025-06-10 06:53:54,512 - DEBUG - Aggiunta relazione: 1003 -> 99 (Taglia)
+2025-06-10 06:53:54,513 - DEBUG - Aggiunta relazione: 1004 -> 99 (Taglia)
+2025-06-10 06:53:54,514 - DEBUG - Aggiunta relazione: 101 -> 100 (Riempie)
+2025-06-10 06:53:54,515 - DEBUG - Aggiunta relazione: 1003 -> 101 (Taglia)
+2025-06-10 06:53:54,516 - DEBUG - Aggiunta relazione: 103 -> 102 (Riempie)
+2025-06-10 06:53:54,517 - DEBUG - Aggiunta relazione: 1003 -> 103 (Taglia)
+2025-06-10 06:53:54,518 - DEBUG - Aggiunta relazione: 105 -> 104 (Riempie)
+2025-06-10 06:53:54,519 - DEBUG - Aggiunta relazione: 1003 -> 105 (Taglia)
+2025-06-10 06:53:54,520 - DEBUG - Aggiunta relazione: 107 -> 106 (Riempie)
+2025-06-10 06:53:54,520 - DEBUG - Aggiunta relazione: 1003 -> 107 (Taglia)
+2025-06-10 06:53:54,521 - DEBUG - Aggiunta relazione: 109 -> 108 (Riempie)
+2025-06-10 06:53:54,522 - DEBUG - Aggiunta relazione: 1003 -> 109 (Taglia)
+2025-06-10 06:53:54,523 - DEBUG - Aggiunta relazione: 1005 -> 109 (Taglia)
+2025-06-10 06:53:54,524 - DEBUG - Aggiunta relazione: 111 -> 110 (Riempie)
+2025-06-10 06:53:54,525 - DEBUG - Aggiunta relazione: 1003 -> 111 (Taglia)
+2025-06-10 06:53:54,526 - DEBUG - Aggiunta relazione: 1005 -> 111 (Taglia)
+2025-06-10 06:53:54,527 - DEBUG - Aggiunta relazione: 113 -> 112 (Riempie)
+2025-06-10 06:53:54,528 - DEBUG - Aggiunta relazione: 1003 -> 113 (Taglia)
+2025-06-10 06:53:54,529 - DEBUG - Aggiunta relazione: 1005 -> 113 (Taglia)
+2025-06-10 06:53:54,530 - DEBUG - Aggiunta relazione: 115 -> 114 (Riempie)
+2025-06-10 06:53:54,531 - DEBUG - Aggiunta relazione: 1003 -> 115 (Taglia)
+2025-06-10 06:53:54,532 - DEBUG - Aggiunta relazione: 117 -> 116 (Riempie)
+2025-06-10 06:53:54,533 - DEBUG - Aggiunta relazione: 1003 -> 117 (Taglia)
+2025-06-10 06:53:54,534 - DEBUG - Aggiunta relazione: 121 -> 120 (Riempie)
+2025-06-10 06:53:54,535 - DEBUG - Aggiunta relazione: 1003 -> 121 (Taglia)
+2025-06-10 06:53:54,536 - DEBUG - Aggiunta relazione: 123 -> 122 (Riempie)
+2025-06-10 06:53:54,537 - DEBUG - Aggiunta relazione: 1003 -> 123 (Taglia)
+2025-06-10 06:53:54,538 - DEBUG - Aggiunta relazione: 125 -> 124 (Riempie)
+2025-06-10 06:53:54,539 - DEBUG - Aggiunta relazione: 1003 -> 125 (Taglia)
+2025-06-10 06:53:54,540 - DEBUG - Aggiunta relazione: 127 -> 126 (Riempie)
+2025-06-10 06:53:54,541 - DEBUG - Aggiunta relazione: 129 -> 128 (Riempie)
+2025-06-10 06:53:54,542 - DEBUG - Aggiunta relazione: 1003 -> 129 (Taglia)
+2025-06-10 06:53:54,542 - DEBUG - Aggiunta relazione: 131 -> 130 (Riempie)
+2025-06-10 06:53:54,543 - DEBUG - Aggiunta relazione: 1003 -> 131 (Taglia)
+2025-06-10 06:53:54,544 - DEBUG - Aggiunta relazione: 133 -> 132 (Riempie)
+2025-06-10 06:53:54,545 - DEBUG - Aggiunta relazione: 1003 -> 133 (Taglia)
+2025-06-10 06:53:54,546 - DEBUG - Aggiunta relazione: 135 -> 134 (Riempie)
+2025-06-10 06:53:54,547 - DEBUG - Aggiunta relazione: 1003 -> 135 (Taglia)
+2025-06-10 06:53:54,548 - DEBUG - Aggiunta relazione: 137 -> 136 (Riempie)
+2025-06-10 06:53:54,549 - DEBUG - Aggiunta relazione: 1003 -> 137 (Taglia)
+2025-06-10 06:53:54,550 - DEBUG - Aggiunta relazione: 141 -> 140 (Riempie)
+2025-06-10 06:53:54,551 - DEBUG - Aggiunta relazione: 1003 -> 141 (Taglia)
+2025-06-10 06:53:54,552 - DEBUG - Aggiunta relazione: 143 -> 142 (Riempie)
+2025-06-10 06:53:54,553 - DEBUG - Aggiunta relazione: 1003 -> 143 (Taglia)
+2025-06-10 06:53:54,554 - DEBUG - Aggiunta relazione: 1005 -> 143 (Taglia)
+2025-06-10 06:53:54,555 - DEBUG - Aggiunta relazione: 145 -> 144 (Riempie)
+2025-06-10 06:53:54,556 - DEBUG - Aggiunta relazione: 1003 -> 145 (Taglia)
+2025-06-10 06:53:54,557 - DEBUG - Aggiunta relazione: 147 -> 146 (Riempie)
+2025-06-10 06:53:54,558 - DEBUG - Aggiunta relazione: 1003 -> 147 (Taglia)
+2025-06-10 06:53:54,559 - DEBUG - Aggiunta relazione: 149 -> 148 (Riempie)
+2025-06-10 06:53:54,560 - DEBUG - Aggiunta relazione: 1003 -> 149 (Taglia)
+2025-06-10 06:53:54,561 - DEBUG - Aggiunta relazione: 151 -> 150 (Riempie)
+2025-06-10 06:53:54,562 - DEBUG - Aggiunta relazione: 1003 -> 151 (Taglia)
+2025-06-10 06:53:54,563 - DEBUG - Aggiunta relazione: 153 -> 152 (Riempie)
+2025-06-10 06:53:54,564 - DEBUG - Aggiunta relazione: 1005 -> 153 (Taglia)
+2025-06-10 06:53:54,565 - DEBUG - Aggiunta relazione: 155 -> 154 (Riempie)
+2025-06-10 06:53:54,566 - DEBUG - Aggiunta relazione: 1005 -> 155 (Taglia)
+2025-06-10 06:53:54,566 - DEBUG - Aggiunta relazione: 157 -> 156 (Riempie)
+2025-06-10 06:53:54,567 - DEBUG - Aggiunta relazione: 1005 -> 157 (Taglia)
+2025-06-10 06:53:54,568 - DEBUG - Aggiunta relazione: 159 -> 158 (Riempie)
+2025-06-10 06:53:54,569 - DEBUG - Aggiunta relazione: 1005 -> 159 (Taglia)
+2025-06-10 06:53:54,570 - DEBUG - Aggiunta relazione: 161 -> 160 (Riempie)
+2025-06-10 06:53:54,571 - DEBUG - Aggiunta relazione: 1005 -> 161 (Taglia)
+2025-06-10 06:53:54,572 - DEBUG - Aggiunta relazione: 163 -> 162 (Riempie)
+2025-06-10 06:53:54,573 - DEBUG - Aggiunta relazione: 1006 -> 163 (Taglia)
+2025-06-10 06:53:54,574 - DEBUG - Aggiunta relazione: 165 -> 164 (Riempie)
+2025-06-10 06:53:54,575 - DEBUG - Aggiunta relazione: 1006 -> 165 (Taglia)
+2025-06-10 06:53:54,576 - DEBUG - Aggiunta relazione: 167 -> 166 (Riempie)
+2025-06-10 06:53:54,577 - DEBUG - Aggiunta relazione: 1006 -> 167 (Taglia)
+2025-06-10 06:53:54,578 - DEBUG - Aggiunta relazione: 171 -> 170 (Riempie)
+2025-06-10 06:53:54,579 - DEBUG - Aggiunta relazione: 1006 -> 171 (Taglia)
+2025-06-10 06:53:54,580 - DEBUG - Aggiunta relazione: 173 -> 172 (Riempie)
+2025-06-10 06:53:54,581 - DEBUG - Aggiunta relazione: 1006 -> 173 (Taglia)
+2025-06-10 06:53:54,582 - DEBUG - Aggiunta relazione: 175 -> 174 (Riempie)
+2025-06-10 06:53:54,583 - DEBUG - Aggiunta relazione: 1006 -> 175 (Taglia)
+2025-06-10 06:53:54,584 - DEBUG - Aggiunta relazione: 177 -> 176 (Riempie)
+2025-06-10 06:53:54,585 - DEBUG - Aggiunta relazione: 1006 -> 177 (Taglia)
+2025-06-10 06:53:54,586 - DEBUG - Aggiunta relazione: 179 -> 178 (Riempie)
+2025-06-10 06:53:54,587 - DEBUG - Aggiunta relazione: 1006 -> 179 (Taglia)
+2025-06-10 06:53:54,588 - DEBUG - Aggiunta relazione: 181 -> 180 (Riempie)
+2025-06-10 06:53:54,589 - DEBUG - Aggiunta relazione: 1006 -> 181 (Taglia)
+2025-06-10 06:53:54,590 - DEBUG - Aggiunta relazione: 183 -> 182 (Riempie)
+2025-06-10 06:53:54,591 - DEBUG - Aggiunta relazione: 1006 -> 183 (Taglia)
+2025-06-10 06:53:54,592 - DEBUG - Aggiunta relazione: 187 -> 186 (Riempie)
+2025-06-10 06:53:54,593 - DEBUG - Aggiunta relazione: 1006 -> 187 (Taglia)
+2025-06-10 06:53:54,594 - DEBUG - Aggiunta relazione: 189 -> 188 (Riempie)
+2025-06-10 06:53:54,595 - DEBUG - Aggiunta relazione: 1006 -> 189 (Taglia)
+2025-06-10 06:53:54,596 - DEBUG - Aggiunta relazione: 191 -> 190 (Riempie)
+2025-06-10 06:53:54,597 - DEBUG - Aggiunta relazione: 1006 -> 191 (Taglia)
+2025-06-10 06:53:54,597 - DEBUG - Aggiunta relazione: 193 -> 192 (Riempie)
+2025-06-10 06:53:54,598 - DEBUG - Aggiunta relazione: 1006 -> 193 (Taglia)
+2025-06-10 06:53:54,599 - DEBUG - Aggiunta relazione: 195 -> 194 (Riempie)
+2025-06-10 06:53:54,600 - DEBUG - Aggiunta relazione: 1006 -> 195 (Taglia)
+2025-06-10 06:53:54,601 - DEBUG - Aggiunta relazione: 197 -> 196 (Riempie)
+2025-06-10 06:53:54,602 - DEBUG - Aggiunta relazione: 1006 -> 197 (Taglia)
+2025-06-10 06:53:54,603 - DEBUG - Aggiunta relazione: 199 -> 198 (Riempie)
+2025-06-10 06:53:54,604 - DEBUG - Aggiunta relazione: 1006 -> 199 (Taglia)
+2025-06-10 06:53:54,605 - DEBUG - Aggiunta relazione: 201 -> 200 (Riempie)
+2025-06-10 06:53:54,606 - DEBUG - Aggiunta relazione: 1006 -> 201 (Taglia)
+2025-06-10 06:53:54,607 - DEBUG - Aggiunta relazione: 203 -> 202 (Riempie)
+2025-06-10 06:53:54,608 - DEBUG - Aggiunta relazione: 1006 -> 203 (Taglia)
+2025-06-10 06:53:54,609 - DEBUG - Aggiunta relazione: 205 -> 204 (Riempie)
+2025-06-10 06:53:54,610 - DEBUG - Aggiunta relazione: 1006 -> 205 (Taglia)
+2025-06-10 06:53:54,611 - DEBUG - Aggiunta relazione: 207 -> 206 (Riempie)
+2025-06-10 06:53:54,611 - DEBUG - Aggiunta relazione: 1006 -> 207 (Taglia)
+2025-06-10 06:53:54,612 - DEBUG - Aggiunta relazione: 209 -> 208 (Riempie)
+2025-06-10 06:53:54,613 - DEBUG - Aggiunta relazione: 1006 -> 209 (Taglia)
+2025-06-10 06:53:54,614 - DEBUG - Aggiunta relazione: 211 -> 210 (Riempie)
+2025-06-10 06:53:54,615 - DEBUG - Aggiunta relazione: 1006 -> 211 (Taglia)
+2025-06-10 06:53:54,616 - DEBUG - Aggiunta relazione: 213 -> 212 (Riempie)
+2025-06-10 06:53:54,617 - DEBUG - Aggiunta relazione: 1006 -> 213 (Taglia)
+2025-06-10 06:53:54,618 - DEBUG - Aggiunta relazione: 215 -> 214 (Riempie)
+2025-06-10 06:53:54,619 - DEBUG - Aggiunta relazione: 1006 -> 215 (Taglia)
+2025-06-10 06:53:54,620 - DEBUG - Aggiunta relazione: 217 -> 216 (Riempie)
+2025-06-10 06:53:54,621 - DEBUG - Aggiunta relazione: 1006 -> 217 (Taglia)
+2025-06-10 06:53:54,622 - DEBUG - Aggiunta relazione: 219 -> 218 (Riempie)
+2025-06-10 06:53:54,623 - DEBUG - Aggiunta relazione: 1006 -> 219 (Taglia)
+2025-06-10 06:53:54,624 - DEBUG - Aggiunta relazione: 221 -> 220 (Riempie)
+2025-06-10 06:53:54,625 - DEBUG - Aggiunta relazione: 1006 -> 221 (Taglia)
+2025-06-10 06:53:54,626 - DEBUG - Aggiunta relazione: 223 -> 222 (Riempie)
+2025-06-10 06:53:54,626 - DEBUG - Aggiunta relazione: 1006 -> 223 (Taglia)
+2025-06-10 06:53:54,627 - DEBUG - Aggiunta relazione: 225 -> 224 (Riempie)
+2025-06-10 06:53:54,628 - DEBUG - Aggiunta relazione: 1006 -> 225 (Taglia)
+2025-06-10 06:53:54,629 - DEBUG - Aggiunta relazione: 227 -> 226 (Riempie)
+2025-06-10 06:53:54,630 - DEBUG - Aggiunta relazione: 1006 -> 227 (Taglia)
+2025-06-10 06:53:54,631 - DEBUG - Aggiunta relazione: 229 -> 228 (Riempie)
+2025-06-10 06:53:54,632 - DEBUG - Aggiunta relazione: 1006 -> 229 (Taglia)
+2025-06-10 06:53:54,633 - DEBUG - Aggiunta relazione: 231 -> 230 (Riempie)
+2025-06-10 06:53:54,634 - DEBUG - Aggiunta relazione: 1006 -> 231 (Taglia)
+2025-06-10 06:53:54,635 - DEBUG - Aggiunta relazione: 233 -> 232 (Riempie)
+2025-06-10 06:53:54,636 - DEBUG - Aggiunta relazione: 1006 -> 233 (Taglia)
+2025-06-10 06:53:54,637 - DEBUG - Aggiunta relazione: 235 -> 234 (Riempie)
+2025-06-10 06:53:54,638 - DEBUG - Aggiunta relazione: 1006 -> 235 (Taglia)
+2025-06-10 06:53:54,639 - DEBUG - Aggiunta relazione: 237 -> 236 (Riempie)
+2025-06-10 06:53:54,640 - DEBUG - Aggiunta relazione: 1006 -> 237 (Taglia)
+2025-06-10 06:53:54,641 - DEBUG - Aggiunta relazione: 239 -> 238 (Riempie)
+2025-06-10 06:53:54,641 - DEBUG - Aggiunta relazione: 1006 -> 239 (Taglia)
+2025-06-10 06:53:54,642 - DEBUG - Aggiunta relazione: 241 -> 240 (Riempie)
+2025-06-10 06:53:54,643 - DEBUG - Aggiunta relazione: 1006 -> 241 (Taglia)
+2025-06-10 06:53:54,644 - DEBUG - Aggiunta relazione: 243 -> 242 (Riempie)
+2025-06-10 06:53:54,645 - DEBUG - Aggiunta relazione: 1006 -> 243 (Taglia)
+2025-06-10 06:53:54,646 - DEBUG - Aggiunta relazione: 245 -> 244 (Riempie)
+2025-06-10 06:53:54,647 - DEBUG - Aggiunta relazione: 1006 -> 245 (Taglia)
+2025-06-10 06:53:54,648 - DEBUG - Aggiunta relazione: 247 -> 246 (Riempie)
+2025-06-10 06:53:54,649 - DEBUG - Aggiunta relazione: 1006 -> 247 (Taglia)
+2025-06-10 06:53:54,650 - DEBUG - Aggiunta relazione: 249 -> 248 (Riempie)
+2025-06-10 06:53:54,651 - DEBUG - Aggiunta relazione: 1006 -> 249 (Taglia)
+2025-06-10 06:53:54,652 - DEBUG - Aggiunta relazione: 251 -> 250 (Riempie)
+2025-06-10 06:53:54,653 - DEBUG - Aggiunta relazione: 1006 -> 251 (Taglia)
+2025-06-10 06:53:54,654 - DEBUG - Aggiunta relazione: 253 -> 252 (Riempie)
+2025-06-10 06:53:54,655 - DEBUG - Aggiunta relazione: 1006 -> 253 (Taglia)
+2025-06-10 06:53:54,655 - DEBUG - Aggiunta relazione: 255 -> 254 (Riempie)
+2025-06-10 06:53:54,657 - DEBUG - Aggiunta relazione: 1006 -> 255 (Taglia)
+2025-06-10 06:53:54,657 - DEBUG - Aggiunta relazione: 257 -> 256 (Riempie)
+2025-06-10 06:53:54,658 - DEBUG - Aggiunta relazione: 1006 -> 257 (Taglia)
+2025-06-10 06:53:54,659 - DEBUG - Aggiunta relazione: 259 -> 258 (Riempie)
+2025-06-10 06:53:54,660 - DEBUG - Aggiunta relazione: 1006 -> 259 (Taglia)
+2025-06-10 06:53:54,661 - DEBUG - Aggiunta relazione: 261 -> 260 (Riempie)
+2025-06-10 06:53:54,662 - DEBUG - Aggiunta relazione: 1006 -> 261 (Taglia)
+2025-06-10 06:53:54,663 - DEBUG - Aggiunta relazione: 263 -> 262 (Riempie)
+2025-06-10 06:53:54,664 - DEBUG - Aggiunta relazione: 1006 -> 263 (Taglia)
+2025-06-10 06:53:54,665 - DEBUG - Aggiunta relazione: 265 -> 264 (Riempie)
+2025-06-10 06:53:54,666 - DEBUG - Aggiunta relazione: 1006 -> 265 (Taglia)
+2025-06-10 06:53:54,667 - DEBUG - Aggiunta relazione: 267 -> 266 (Riempie)
+2025-06-10 06:53:54,668 - DEBUG - Aggiunta relazione: 1006 -> 267 (Taglia)
+2025-06-10 06:53:54,668 - DEBUG - Aggiunta relazione: 269 -> 268 (Riempie)
+2025-06-10 06:53:54,669 - DEBUG - Aggiunta relazione: 1006 -> 269 (Taglia)
+2025-06-10 06:53:54,670 - DEBUG - Aggiunta relazione: 271 -> 270 (Riempie)
+2025-06-10 06:53:54,671 - DEBUG - Aggiunta relazione: 1004 -> 271 (Taglia)
+2025-06-10 06:53:54,672 - DEBUG - Aggiunta relazione: 1005 -> 271 (Taglia)
+2025-06-10 06:53:54,673 - DEBUG - Aggiunta relazione: 275 -> 274 (Riempie)
+2025-06-10 06:53:54,674 - DEBUG - Aggiunta relazione: 1004 -> 275 (Taglia)
+2025-06-10 06:53:54,675 - DEBUG - Aggiunta relazione: 1005 -> 275 (Taglia)
+2025-06-10 06:53:54,676 - DEBUG - Aggiunta relazione: 279 -> 278 (Riempie)
+2025-06-10 06:53:54,677 - DEBUG - Aggiunta relazione: 1004 -> 279 (Taglia)
+2025-06-10 06:53:54,678 - DEBUG - Aggiunta relazione: 1005 -> 279 (Taglia)
+2025-06-10 06:53:54,679 - DEBUG - Aggiunta relazione: 281 -> 280 (Riempie)
+2025-06-10 06:53:54,680 - DEBUG - Aggiunta relazione: 1004 -> 281 (Taglia)
+2025-06-10 06:53:54,681 - DEBUG - Aggiunta relazione: 1005 -> 281 (Taglia)
+2025-06-10 06:53:54,682 - DEBUG - Aggiunta relazione: 283 -> 282 (Riempie)
+2025-06-10 06:53:54,683 - DEBUG - Aggiunta relazione: 1004 -> 283 (Taglia)
+2025-06-10 06:53:54,684 - DEBUG - Aggiunta relazione: 287 -> 286 (Riempie)
+2025-06-10 06:53:54,685 - DEBUG - Aggiunta relazione: 1002 -> 1001 (Copre)
+2025-06-10 06:53:54,686 - DEBUG - Aggiunta relazione: 100 -> 1002 (Copre)
+2025-06-10 06:53:54,687 - DEBUG - Aggiunta relazione: 1003 -> 1002 (Copre)
+2025-06-10 06:53:54,688 - DEBUG - Aggiunta relazione: 102 -> 1002 (Copre)
+2025-06-10 06:53:54,689 - DEBUG - Aggiunta relazione: 104 -> 1002 (Copre)
+2025-06-10 06:53:54,690 - DEBUG - Aggiunta relazione: 106 -> 1002 (Copre)
+2025-06-10 06:53:54,690 - DEBUG - Aggiunta relazione: 108 -> 1002 (Copre)
+2025-06-10 06:53:54,691 - DEBUG - Aggiunta relazione: 110 -> 1002 (Copre)
+2025-06-10 06:53:54,692 - DEBUG - Aggiunta relazione: 112 -> 1002 (Copre)
+2025-06-10 06:53:54,693 - DEBUG - Aggiunta relazione: 114 -> 1002 (Copre)
+2025-06-10 06:53:54,694 - DEBUG - Aggiunta relazione: 116 -> 1002 (Copre)
+2025-06-10 06:53:54,695 - DEBUG - Aggiunta relazione: 120 -> 1002 (Copre)
+2025-06-10 06:53:54,696 - DEBUG - Aggiunta relazione: 122 -> 1002 (Copre)
+2025-06-10 06:53:54,697 - DEBUG - Aggiunta relazione: 124 -> 1002 (Copre)
+2025-06-10 06:53:54,698 - DEBUG - Aggiunta relazione: 126 -> 1002 (Copre)
+2025-06-10 06:53:54,699 - DEBUG - Aggiunta relazione: 128 -> 1002 (Copre)
+2025-06-10 06:53:54,700 - DEBUG - Aggiunta relazione: 130 -> 1002 (Copre)
+2025-06-10 06:53:54,701 - DEBUG - Aggiunta relazione: 132 -> 1002 (Copre)
+2025-06-10 06:53:54,702 - DEBUG - Aggiunta relazione: 134 -> 1002 (Copre)
+2025-06-10 06:53:54,703 - DEBUG - Aggiunta relazione: 136 -> 1002 (Copre)
+2025-06-10 06:53:54,704 - DEBUG - Aggiunta relazione: 140 -> 1002 (Copre)
+2025-06-10 06:53:54,705 - DEBUG - Aggiunta relazione: 142 -> 1002 (Copre)
+2025-06-10 06:53:54,706 - DEBUG - Aggiunta relazione: 144 -> 1002 (Copre)
+2025-06-10 06:53:54,707 - DEBUG - Aggiunta relazione: 146 -> 1002 (Copre)
+2025-06-10 06:53:54,707 - DEBUG - Aggiunta relazione: 148 -> 1002 (Copre)
+2025-06-10 06:53:54,708 - DEBUG - Aggiunta relazione: 150 -> 1002 (Copre)
+2025-06-10 06:53:54,709 - DEBUG - Aggiunta relazione: 32 -> 1002 (Copre)
+2025-06-10 06:53:54,710 - DEBUG - Aggiunta relazione: 34 -> 1002 (Copre)
+2025-06-10 06:53:54,711 - DEBUG - Aggiunta relazione: 36 -> 1002 (Copre)
+2025-06-10 06:53:54,712 - DEBUG - Aggiunta relazione: 38 -> 1002 (Copre)
+2025-06-10 06:53:54,713 - DEBUG - Aggiunta relazione: 40 -> 1002 (Copre)
+2025-06-10 06:53:54,714 - DEBUG - Aggiunta relazione: 42 -> 1002 (Copre)
+2025-06-10 06:53:54,715 - DEBUG - Aggiunta relazione: 44 -> 1002 (Copre)
+2025-06-10 06:53:54,716 - DEBUG - Aggiunta relazione: 46 -> 1002 (Copre)
+2025-06-10 06:53:54,717 - DEBUG - Aggiunta relazione: 48 -> 1002 (Copre)
+2025-06-10 06:53:54,718 - DEBUG - Aggiunta relazione: 50 -> 1002 (Copre)
+2025-06-10 06:53:54,719 - DEBUG - Aggiunta relazione: 52 -> 1002 (Copre)
+2025-06-10 06:53:54,720 - DEBUG - Aggiunta relazione: 54 -> 1002 (Copre)
+2025-06-10 06:53:54,721 - DEBUG - Aggiunta relazione: 56 -> 1002 (Copre)
+2025-06-10 06:53:54,722 - DEBUG - Aggiunta relazione: 58 -> 1002 (Copre)
+2025-06-10 06:53:54,722 - DEBUG - Aggiunta relazione: 60 -> 1002 (Copre)
+2025-06-10 06:53:54,723 - DEBUG - Aggiunta relazione: 62 -> 1002 (Copre)
+2025-06-10 06:53:54,724 - DEBUG - Aggiunta relazione: 64 -> 1002 (Copre)
+2025-06-10 06:53:54,725 - DEBUG - Aggiunta relazione: 66 -> 1002 (Copre)
+2025-06-10 06:53:54,726 - DEBUG - Aggiunta relazione: 68 -> 1002 (Copre)
+2025-06-10 06:53:54,727 - DEBUG - Aggiunta relazione: 70 -> 1002 (Copre)
+2025-06-10 06:53:54,728 - DEBUG - Aggiunta relazione: 72 -> 1002 (Copre)
+2025-06-10 06:53:54,729 - DEBUG - Aggiunta relazione: 74 -> 1002 (Copre)
+2025-06-10 06:53:54,730 - DEBUG - Aggiunta relazione: 76 -> 1002 (Copre)
+2025-06-10 06:53:54,731 - DEBUG - Aggiunta relazione: 78 -> 1002 (Copre)
+2025-06-10 06:53:54,732 - DEBUG - Aggiunta relazione: 80 -> 1002 (Copre)
+2025-06-10 06:53:54,733 - DEBUG - Aggiunta relazione: 82 -> 1002 (Copre)
+2025-06-10 06:53:54,734 - DEBUG - Aggiunta relazione: 84 -> 1002 (Copre)
+2025-06-10 06:53:54,735 - DEBUG - Aggiunta relazione: 86 -> 1002 (Copre)
+2025-06-10 06:53:54,736 - DEBUG - Aggiunta relazione: 88 -> 1002 (Copre)
+2025-06-10 06:53:54,736 - DEBUG - Aggiunta relazione: 90 -> 1002 (Copre)
+2025-06-10 06:53:54,737 - DEBUG - Aggiunta relazione: 92 -> 1002 (Copre)
+2025-06-10 06:53:54,738 - DEBUG - Aggiunta relazione: 94 -> 1002 (Copre)
+2025-06-10 06:53:54,739 - DEBUG - Aggiunta relazione: 96 -> 1002 (Copre)
+2025-06-10 06:53:54,740 - DEBUG - Aggiunta relazione: 98 -> 1002 (Copre)
+2025-06-10 06:53:54,741 - DEBUG - Aggiunta relazione: 1004 -> 1003 (Copre)
+2025-06-10 06:53:54,742 - DEBUG - Aggiunta relazione: 152 -> 1003 (Copre)
+2025-06-10 06:53:54,743 - DEBUG - Aggiunta relazione: 154 -> 1003 (Copre)
+2025-06-10 06:53:54,744 - DEBUG - Aggiunta relazione: 156 -> 1003 (Copre)
+2025-06-10 06:53:54,745 - DEBUG - Aggiunta relazione: 158 -> 1003 (Copre)
+2025-06-10 06:53:54,746 - DEBUG - Aggiunta relazione: 160 -> 1003 (Copre)
+2025-06-10 06:53:54,747 - DEBUG - Aggiunta relazione: 270 -> 1003 (Copre)
+2025-06-10 06:53:54,748 - DEBUG - Aggiunta relazione: 274 -> 1003 (Copre)
+2025-06-10 06:53:54,749 - DEBUG - Aggiunta relazione: 278 -> 1003 (Copre)
+2025-06-10 06:53:54,750 - DEBUG - Aggiunta relazione: 280 -> 1003 (Copre)
+2025-06-10 06:53:54,751 - DEBUG - Aggiunta relazione: 282 -> 1003 (Copre)
+2025-06-10 06:53:54,752 - DEBUG - Aggiunta relazione: 286 -> 1003 (Copre)
+2025-06-10 06:53:54,753 - DEBUG - Aggiunta relazione: 1005 -> 1004 (Copre)
+2025-06-10 06:53:54,754 - DEBUG - Aggiunta relazione: 1006 -> 1005 (Copre)
+2025-06-10 06:53:54,755 - DEBUG - Aggiunta relazione: 162 -> 1005 (Copre)
+2025-06-10 06:53:54,756 - DEBUG - Aggiunta relazione: 164 -> 1005 (Copre)
+2025-06-10 06:53:54,757 - DEBUG - Aggiunta relazione: 166 -> 1005 (Copre)
+2025-06-10 06:53:54,758 - DEBUG - Aggiunta relazione: 170 -> 1005 (Copre)
+2025-06-10 06:53:54,759 - DEBUG - Aggiunta relazione: 172 -> 1005 (Copre)
+2025-06-10 06:53:54,759 - DEBUG - Aggiunta relazione: 174 -> 1005 (Copre)
+2025-06-10 06:53:54,760 - DEBUG - Aggiunta relazione: 176 -> 1005 (Copre)
+2025-06-10 06:53:54,761 - DEBUG - Aggiunta relazione: 178 -> 1005 (Copre)
+2025-06-10 06:53:54,762 - DEBUG - Aggiunta relazione: 180 -> 1005 (Copre)
+2025-06-10 06:53:54,763 - DEBUG - Aggiunta relazione: 182 -> 1005 (Copre)
+2025-06-10 06:53:54,764 - DEBUG - Aggiunta relazione: 186 -> 1005 (Copre)
+2025-06-10 06:53:54,765 - DEBUG - Aggiunta relazione: 188 -> 1005 (Copre)
+2025-06-10 06:53:54,766 - DEBUG - Aggiunta relazione: 190 -> 1005 (Copre)
+2025-06-10 06:53:54,767 - DEBUG - Aggiunta relazione: 192 -> 1005 (Copre)
+2025-06-10 06:53:54,768 - DEBUG - Aggiunta relazione: 194 -> 1005 (Copre)
+2025-06-10 06:53:54,768 - DEBUG - Aggiunta relazione: 196 -> 1005 (Copre)
+2025-06-10 06:53:54,769 - DEBUG - Aggiunta relazione: 198 -> 1005 (Copre)
+2025-06-10 06:53:54,770 - DEBUG - Aggiunta relazione: 200 -> 1005 (Copre)
+2025-06-10 06:53:54,771 - DEBUG - Aggiunta relazione: 202 -> 1005 (Copre)
+2025-06-10 06:53:54,772 - DEBUG - Aggiunta relazione: 204 -> 1005 (Copre)
+2025-06-10 06:53:54,773 - DEBUG - Aggiunta relazione: 206 -> 1005 (Copre)
+2025-06-10 06:53:54,774 - DEBUG - Aggiunta relazione: 208 -> 1005 (Copre)
+2025-06-10 06:53:54,774 - DEBUG - Aggiunta relazione: 210 -> 1005 (Copre)
+2025-06-10 06:53:54,775 - DEBUG - Aggiunta relazione: 212 -> 1005 (Copre)
+2025-06-10 06:53:54,776 - DEBUG - Aggiunta relazione: 214 -> 1005 (Copre)
+2025-06-10 06:53:54,777 - DEBUG - Aggiunta relazione: 216 -> 1005 (Copre)
+2025-06-10 06:53:54,778 - DEBUG - Aggiunta relazione: 218 -> 1005 (Copre)
+2025-06-10 06:53:54,779 - DEBUG - Aggiunta relazione: 220 -> 1005 (Copre)
+2025-06-10 06:53:54,780 - DEBUG - Aggiunta relazione: 222 -> 1005 (Copre)
+2025-06-10 06:53:54,781 - DEBUG - Aggiunta relazione: 224 -> 1005 (Copre)
+2025-06-10 06:53:54,782 - DEBUG - Aggiunta relazione: 226 -> 1005 (Copre)
+2025-06-10 06:53:54,782 - DEBUG - Aggiunta relazione: 228 -> 1005 (Copre)
+2025-06-10 06:53:54,783 - DEBUG - Aggiunta relazione: 230 -> 1005 (Copre)
+2025-06-10 06:53:54,784 - DEBUG - Aggiunta relazione: 232 -> 1005 (Copre)
+2025-06-10 06:53:54,785 - DEBUG - Aggiunta relazione: 234 -> 1005 (Copre)
+2025-06-10 06:53:54,786 - DEBUG - Aggiunta relazione: 236 -> 1005 (Copre)
+2025-06-10 06:53:54,787 - DEBUG - Aggiunta relazione: 238 -> 1005 (Copre)
+2025-06-10 06:53:54,788 - DEBUG - Aggiunta relazione: 240 -> 1005 (Copre)
+2025-06-10 06:53:54,789 - DEBUG - Aggiunta relazione: 242 -> 1005 (Copre)
+2025-06-10 06:53:54,789 - DEBUG - Aggiunta relazione: 244 -> 1005 (Copre)
+2025-06-10 06:53:54,790 - DEBUG - Aggiunta relazione: 246 -> 1005 (Copre)
+2025-06-10 06:53:54,791 - DEBUG - Aggiunta relazione: 248 -> 1005 (Copre)
+2025-06-10 06:53:54,792 - DEBUG - Aggiunta relazione: 250 -> 1005 (Copre)
+2025-06-10 06:53:54,793 - DEBUG - Aggiunta relazione: 252 -> 1005 (Copre)
+2025-06-10 06:53:54,794 - DEBUG - Aggiunta relazione: 254 -> 1005 (Copre)
+2025-06-10 06:53:54,795 - DEBUG - Aggiunta relazione: 256 -> 1005 (Copre)
+2025-06-10 06:53:54,796 - DEBUG - Aggiunta relazione: 258 -> 1005 (Copre)
+2025-06-10 06:53:54,797 - DEBUG - Aggiunta relazione: 260 -> 1005 (Copre)
+2025-06-10 06:53:54,798 - DEBUG - Aggiunta relazione: 262 -> 1005 (Copre)
+2025-06-10 06:53:54,798 - DEBUG - Aggiunta relazione: 264 -> 1005 (Copre)
+2025-06-10 06:53:54,799 - DEBUG - Aggiunta relazione: 266 -> 1005 (Copre)
+2025-06-10 06:53:54,800 - DEBUG - Aggiunta relazione: 268 -> 1005 (Copre)
+2025-06-10 06:53:54,801 - INFO - Grafo costruito: 248 nodi, 383 archi, 383 relazioni totali
+2025-06-10 06:53:54,802 - INFO - Ricerca cicli nel grafo...
+2025-06-10 06:53:54,804 - INFO - Nessun ciclo trovato nel grafo
+2025-06-10 06:53:54,805 - INFO - Inizio calcolo sequenza stratigrafica...
+2025-06-10 06:53:54,806 - INFO - Inizio calcolo sequenza stratigrafica...
+2025-06-10 06:53:54,807 - INFO - DEBUG MAIN: Prima di chiamare topological_sort. all_us=248
+2025-06-10 06:53:54,808 - INFO - US di base (senza predecessori): ['1006', '127', '287']
+2025-06-10 06:53:54,809 - DEBUG - Livello 0: 1006, 127, 287
+2025-06-10 06:53:54,810 - DEBUG - Livello 1: 126, 163, 165, 167, 171, 173, 175, 177, 179, 181, 183, 187, 189, 191, 193, 195, 197, 199, 201, 203, 205, 207, 209, 211, 213, 215, 217, 219, 221, 223, 225, 227, 229, 231, 233, 235, 237, 239, 241, 243, 245, 247, 249, 251, 253, 255, 257, 259, 261, 263, 265, 267, 269, 286
+2025-06-10 06:53:54,811 - DEBUG - Livello 2: 162, 164, 166, 170, 172, 174, 176, 178, 180, 182, 186, 188, 190, 192, 194, 196, 198, 200, 202, 204, 206, 208, 210, 212, 214, 216, 218, 220, 222, 224, 226, 228, 230, 232, 234, 236, 238, 240, 242, 244, 246, 248, 250, 252, 254, 256, 258, 260, 262, 264, 266, 268
+2025-06-10 06:53:54,813 - DEBUG - Livello 3: 1005
+2025-06-10 06:53:54,814 - DEBUG - Livello 4: 1004, 153, 155, 157, 159, 161
+2025-06-10 06:53:54,815 - DEBUG - Livello 5: 152, 154, 156, 158, 160, 271, 275, 279, 281, 283
+2025-06-10 06:53:54,816 - DEBUG - Livello 6: 270, 274, 278, 280, 282
+2025-06-10 06:53:54,817 - DEBUG - Livello 7: 1003
+2025-06-10 06:53:54,818 - DEBUG - Livello 8: 101, 103, 105, 107, 109, 111, 113, 115, 117, 121, 123, 125, 129, 131, 133, 135, 137, 141, 143, 145, 147, 149, 151, 33, 35, 37, 39, 41, 43, 45, 47, 49, 51, 53, 55, 57, 59, 61, 63, 65, 67, 69, 71, 73, 75, 77, 79, 81, 83, 85, 87, 89, 91, 93, 95, 97, 99
+2025-06-10 06:53:54,820 - DEBUG - Livello 9: 100, 102, 104, 106, 108, 110, 112, 114, 116, 120, 122, 124, 128, 130, 132, 134, 136, 140, 142, 144, 146, 148, 150, 32, 34, 36, 38, 40, 42, 44, 46, 48, 50, 52, 54, 56, 58, 60, 62, 64, 66, 68, 70, 72, 74, 76, 78, 80, 82, 84, 86, 88, 90, 92, 94, 96, 98
+2025-06-10 06:53:54,821 - DEBUG - Livello 10: 1002
+2025-06-10 06:53:54,823 - DEBUG - Livello 11: 1001
+2025-06-10 06:53:54,824 - INFO - DEBUG MAIN: Dopo topological_sort. levels type=<class 'list'>, is None=False
+2025-06-10 06:53:54,825 - INFO - DEBUG MAIN: levels length=12
+2025-06-10 06:53:54,826 - INFO - DEBUG MAIN: generated_levels exists, length=0
+2025-06-10 06:53:54,827 - INFO - Matrix generato con successo: 12 livelli
+2025-06-10 06:53:54,829 - INFO - Preparazione risultati finali...
+2025-06-10 06:53:54,830 - INFO - Matrix completato: 12 livelli, 248 US
+2025-06-10 06:53:54,831 - INFO - === RISULTATI FINALI ===
+2025-06-10 06:53:54,832 - INFO - Livello 0: 1006, 127, 287
+2025-06-10 06:53:54,833 - INFO - Livello 1: 126, 163, 165, 167, 171, 173, 175, 177, 179, 181, 183, 187, 189, 191, 193, 195, 197, 199, 201, 203, ...
+2025-06-10 06:53:54,835 - INFO - Livello 2: 162, 164, 166, 170, 172, 174, 176, 178, 180, 182, 186, 188, 190, 192, 194, 196, 198, 200, 202, 204, ...
+2025-06-10 06:53:54,836 - INFO - Livello 3: 1005
+2025-06-10 06:53:54,837 - INFO - Livello 4: 1004, 153, 155, 157, 159, 161
+2025-06-10 06:53:54,838 - INFO - Livello 5: 152, 154, 156, 158, 160, 271, 275, 279, 281, 283
+2025-06-10 06:53:54,839 - INFO - Livello 6: 270, 274, 278, 280, 282
+2025-06-10 06:53:54,840 - INFO - Livello 7: 1003
+2025-06-10 06:53:54,841 - INFO - Livello 8: 101, 103, 105, 107, 109, 111, 113, 115, 117, 121, 123, 125, 129, 131, 133, 135, 137, 141, 143, 145, ...
+2025-06-10 06:53:54,842 - INFO - Livello 9: 100, 102, 104, 106, 108, 110, 112, 114, 116, 120, 122, 124, 128, 130, 132, 134, 136, 140, 142, 144, ...
+2025-06-10 06:53:54,844 - INFO - Livello 10: 1002
+2025-06-10 06:53:54,845 - INFO - Livello 11: 1001
+2025-06-10 06:53:54,846 - INFO - Matrix calcolato con successo. Pronto per aggiornamento database.
+2025-06-10 06:53:54,848 - INFO - === INIZIO AGGIORNAMENTO DATABASE ===
+2025-06-10 06:53:54,849 - DEBUG - Aggiornamento livello 0: 3 US
+2025-06-10 06:53:55,108 - WARNING - Nessun record trovato per US 287
+2025-06-10 06:53:55,110 - DEBUG - Aggiornamento livello 1: 54 US
+2025-06-10 06:53:55,926 - DEBUG - Aggiornate 10 US...
+2025-06-10 06:53:57,002 - DEBUG - Aggiornate 20 US...
+2025-06-10 06:53:58,317 - DEBUG - Aggiornate 30 US...
+2025-06-10 06:53:59,614 - DEBUG - Aggiornate 40 US...
+2025-06-10 06:54:00,896 - DEBUG - Aggiornate 50 US...
+2025-06-10 06:54:01,680 - DEBUG - Aggiornamento livello 2: 52 US
+2025-06-10 06:54:02,201 - DEBUG - Aggiornate 60 US...
+2025-06-10 06:54:03,505 - DEBUG - Aggiornate 70 US...
+2025-06-10 06:54:04,809 - DEBUG - Aggiornate 80 US...
+2025-06-10 06:54:06,112 - DEBUG - Aggiornate 90 US...
+2025-06-10 06:54:07,423 - DEBUG - Aggiornate 100 US...
+2025-06-10 06:54:08,460 - DEBUG - Aggiornamento livello 3: 1 US
+2025-06-10 06:54:08,594 - DEBUG - Aggiornamento livello 4: 6 US
+2025-06-10 06:54:08,727 - DEBUG - Aggiornate 110 US...
+2025-06-10 06:54:09,381 - DEBUG - Aggiornamento livello 5: 10 US
+2025-06-10 06:54:10,045 - DEBUG - Aggiornate 120 US...
+2025-06-10 06:54:10,719 - DEBUG - Aggiornamento livello 6: 5 US
+2025-06-10 06:54:11,366 - DEBUG - Aggiornate 130 US...
+2025-06-10 06:54:11,369 - DEBUG - Aggiornamento livello 7: 1 US
+2025-06-10 06:54:11,498 - DEBUG - Aggiornamento livello 8: 57 US
+2025-06-10 06:54:12,651 - DEBUG - Aggiornate 140 US...
+2025-06-10 06:54:13,970 - DEBUG - Aggiornate 150 US...
+2025-06-10 06:54:15,260 - DEBUG - Aggiornate 160 US...
+2025-06-10 06:54:16,573 - DEBUG - Aggiornate 170 US...
+2025-06-10 06:54:17,905 - DEBUG - Aggiornate 180 US...
+2025-06-10 06:54:18,965 - DEBUG - Aggiornamento livello 9: 57 US
+2025-06-10 06:54:19,240 - DEBUG - Aggiornate 190 US...
+2025-06-10 06:54:20,569 - DEBUG - Aggiornate 200 US...
+2025-06-10 06:54:21,906 - DEBUG - Aggiornate 210 US...
+2025-06-10 06:54:23,230 - DEBUG - Aggiornate 220 US...
+2025-06-10 06:54:24,588 - DEBUG - Aggiornate 230 US...
+2025-06-10 06:54:25,914 - DEBUG - Aggiornate 240 US...
+2025-06-10 06:54:26,544 - DEBUG - Aggiornamento livello 10: 1 US
+2025-06-10 06:54:26,672 - DEBUG - Aggiornamento livello 11: 1 US
+2025-06-10 06:54:26,792 - INFO - === AGGIORNAMENTO COMPLETATO ===
+2025-06-10 06:54:26,794 - INFO - US aggiornate: 247
+2025-06-10 06:54:26,795 - WARNING - Errori riscontrati: 1
