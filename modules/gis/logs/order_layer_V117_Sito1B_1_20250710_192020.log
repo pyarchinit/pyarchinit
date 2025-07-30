@@ -1,0 +1,447 @@
+2025-07-10 19:20:20,799 - INFO - Inizializzazione Order_layer_graph per V117_Sito1B - 1
+2025-07-10 19:20:21,029 - INFO - Avvio caricamento dati dal database...
+2025-07-10 19:20:21,050 - INFO - Tipo database rilevato: SQLite
+2025-07-10 19:20:21,052 - DEBUG - Esecuzione query: 
+            SELECT us, rapporti 
+            FROM us_table 
+            WHERE sito = 'V117_Sito1B' AND area = '1'
+            
+2025-07-10 19:20:21,093 - DEBUG - Caricate 50 US...
+2025-07-10 19:20:21,097 - DEBUG - Caricate 100 US...
+2025-07-10 19:20:21,127 - INFO - Completato: caricate 142 US dal database
+2025-07-10 19:20:21,128 - INFO - Costruzione del grafo stratigrafico...
+2025-07-10 19:20:21,129 - DEBUG - Aggiunta relazione: 705 -> 0 (Copre)
+2025-07-10 19:20:21,130 - DEBUG - Aggiunta relazione: 748 -> 0 (Copre)
+2025-07-10 19:20:21,130 - DEBUG - Aggiunta relazione: 785 -> 0 (Copre)
+2025-07-10 19:20:21,130 - DEBUG - Aggiunta relazione: 802 -> 0 (Copre)
+2025-07-10 19:20:21,130 - DEBUG - Aggiunta relazione: 846 -> 0 (Copre)
+2025-07-10 19:20:21,131 - DEBUG - Aggiunta relazione: 566 -> 565 (Riempie)
+2025-07-10 19:20:21,131 - DEBUG - Aggiunta relazione: 703 -> 566 (Taglia)
+2025-07-10 19:20:21,131 - DEBUG - Aggiunta relazione: 703 -> 700 (Copre)
+2025-07-10 19:20:21,132 - DEBUG - Aggiunta relazione: 702 -> 701 (Riempie)
+2025-07-10 19:20:21,132 - DEBUG - Aggiunta relazione: 700 -> 702 (Taglia)
+2025-07-10 19:20:21,132 - DEBUG - Aggiunta relazione: 703 -> 702 (Taglia)
+2025-07-10 19:20:21,133 - DEBUG - Aggiunta relazione: 700 -> 704 (Copre)
+2025-07-10 19:20:21,133 - DEBUG - Aggiunta relazione: 701 -> 704 (Copre)
+2025-07-10 19:20:21,133 - DEBUG - Aggiunta relazione: 565 -> 705 (Copre)
+2025-07-10 19:20:21,133 - DEBUG - Aggiunta relazione: 703 -> 705 (Copre)
+2025-07-10 19:20:21,134 - DEBUG - Aggiunta relazione: 704 -> 705 (Copre)
+2025-07-10 19:20:21,134 - DEBUG - Aggiunta relazione: 708 -> 705 (Copre)
+2025-07-10 19:20:21,134 - DEBUG - Aggiunta relazione: 712 -> 705 (Copre)
+2025-07-10 19:20:21,136 - DEBUG - Aggiunta relazione: 722 -> 705 (Copre)
+2025-07-10 19:20:21,137 - DEBUG - Aggiunta relazione: 726 -> 705 (Copre)
+2025-07-10 19:20:21,138 - DEBUG - Aggiunta relazione: 727 -> 705 (Copre)
+2025-07-10 19:20:21,139 - DEBUG - Aggiunta relazione: 730 -> 705 (Copre)
+2025-07-10 19:20:21,140 - DEBUG - Aggiunta relazione: 732 -> 705 (Copre)
+2025-07-10 19:20:21,141 - DEBUG - Aggiunta relazione: 737 -> 705 (Copre)
+2025-07-10 19:20:21,142 - DEBUG - Aggiunta relazione: 749 -> 705 (Copre)
+2025-07-10 19:20:21,143 - DEBUG - Aggiunta relazione: 753 -> 705 (Copre)
+2025-07-10 19:20:21,143 - DEBUG - Aggiunta relazione: 755 -> 705 (Copre)
+2025-07-10 19:20:21,144 - DEBUG - Aggiunta relazione: 757 -> 705 (Copre)
+2025-07-10 19:20:21,145 - DEBUG - Aggiunta relazione: 759 -> 705 (Copre)
+2025-07-10 19:20:21,146 - DEBUG - Aggiunta relazione: 764 -> 705 (Copre)
+2025-07-10 19:20:21,147 - DEBUG - Aggiunta relazione: 767 -> 705 (Copre)
+2025-07-10 19:20:21,148 - DEBUG - Aggiunta relazione: 769 -> 705 (Copre)
+2025-07-10 19:20:21,149 - DEBUG - Aggiunta relazione: 784 -> 705 (Copre)
+2025-07-10 19:20:21,150 - DEBUG - Aggiunta relazione: 786 -> 705 (Copre)
+2025-07-10 19:20:21,151 - DEBUG - Aggiunta relazione: 792 -> 705 (Copre)
+2025-07-10 19:20:21,152 - DEBUG - Aggiunta relazione: 799 -> 705 (Copre)
+2025-07-10 19:20:21,153 - DEBUG - Aggiunta relazione: 808 -> 705 (Copre)
+2025-07-10 19:20:21,154 - DEBUG - Aggiunta relazione: 809 -> 705 (Copre)
+2025-07-10 19:20:21,154 - DEBUG - Aggiunta relazione: 810 -> 705 (Copre)
+2025-07-10 19:20:21,155 - DEBUG - Aggiunta relazione: 811 -> 705 (Copre)
+2025-07-10 19:20:21,156 - DEBUG - Aggiunta relazione: 827 -> 705 (Copre)
+2025-07-10 19:20:21,157 - DEBUG - Aggiunta relazione: 837 -> 705 (Copre)
+2025-07-10 19:20:21,158 - DEBUG - Aggiunta relazione: 705 -> 706 (Copre)
+2025-07-10 19:20:21,159 - DEBUG - Aggiunta relazione: 705 -> 707 (Copre)
+2025-07-10 19:20:21,160 - DEBUG - Aggiunta relazione: 726 -> 707 (Copre)
+2025-07-10 19:20:21,161 - DEBUG - Aggiunta relazione: 808 -> 707 (Copre)
+2025-07-10 19:20:21,162 - DEBUG - Aggiunta relazione: 809 -> 707 (Copre)
+2025-07-10 19:20:21,163 - DEBUG - Aggiunta relazione: 810 -> 707 (Copre)
+2025-07-10 19:20:21,164 - DEBUG - Aggiunta relazione: 811 -> 707 (Copre)
+2025-07-10 19:20:21,165 - DEBUG - Aggiunta relazione: 827 -> 707 (Copre)
+2025-07-10 19:20:21,166 - DEBUG - Aggiunta relazione: 837 -> 707 (Copre)
+2025-07-10 19:20:21,166 - DEBUG - Aggiunta relazione: 710 -> 708 (Copre)
+2025-07-10 19:20:21,167 - DEBUG - Aggiunta relazione: 709 -> 708 (Riempie)
+2025-07-10 19:20:21,168 - DEBUG - Aggiunta relazione: 703 -> 709 (Taglia)
+2025-07-10 19:20:21,169 - DEBUG - Aggiunta relazione: 711 -> 710 (Copre)
+2025-07-10 19:20:21,170 - DEBUG - Aggiunta relazione: 718 -> 710 (Copre)
+2025-07-10 19:20:21,171 - DEBUG - Aggiunta relazione: 709 -> 710 (Riempie)
+2025-07-10 19:20:21,172 - DEBUG - Aggiunta relazione: 718 -> 711 (Copre)
+2025-07-10 19:20:21,173 - DEBUG - Aggiunta relazione: 709 -> 711 (Riempie)
+2025-07-10 19:20:21,174 - DEBUG - Aggiunta relazione: 715 -> 712 (Copre)
+2025-07-10 19:20:21,175 - DEBUG - Aggiunta relazione: 717 -> 712 (Riempie)
+2025-07-10 19:20:21,176 - DEBUG - Aggiunta relazione: 0 -> 713 (Taglia)
+2025-07-10 19:20:21,177 - DEBUG - Aggiunta relazione: 703 -> 713 (Taglia)
+2025-07-10 19:20:21,178 - DEBUG - Aggiunta relazione: 705 -> 713 (Taglia)
+2025-07-10 19:20:21,179 - DEBUG - Aggiunta relazione: 748 -> 713 (Taglia)
+2025-07-10 19:20:21,180 - DEBUG - Aggiunta relazione: 784 -> 713 (Taglia)
+2025-07-10 19:20:21,181 - DEBUG - Aggiunta relazione: 716 -> 714 (Copre)
+2025-07-10 19:20:21,181 - DEBUG - Aggiunta relazione: 717 -> 714 (Riempie)
+2025-07-10 19:20:21,182 - DEBUG - Aggiunta relazione: 714 -> 715 (Copre)
+2025-07-10 19:20:21,183 - DEBUG - Aggiunta relazione: 716 -> 715 (Copre)
+2025-07-10 19:20:21,184 - DEBUG - Aggiunta relazione: 717 -> 715 (Riempie)
+2025-07-10 19:20:21,185 - DEBUG - Aggiunta relazione: 717 -> 716 (Riempie)
+2025-07-10 19:20:21,186 - DEBUG - Aggiunta relazione: 703 -> 717 (Taglia)
+2025-07-10 19:20:21,187 - DEBUG - Aggiunta relazione: 709 -> 718 (Riempie)
+2025-07-10 19:20:21,188 - DEBUG - Aggiunta relazione: 720 -> 719 (Copre)
+2025-07-10 19:20:21,189 - DEBUG - Aggiunta relazione: 721 -> 719 (Riempie)
+2025-07-10 19:20:21,190 - DEBUG - Aggiunta relazione: 721 -> 720 (Riempie)
+2025-07-10 19:20:21,191 - DEBUG - Aggiunta relazione: 703 -> 721 (Taglia)
+2025-07-10 19:20:21,192 - DEBUG - Aggiunta relazione: 723 -> 722 (Copre)
+2025-07-10 19:20:21,193 - DEBUG - Aggiunta relazione: 724 -> 722 (Copre)
+2025-07-10 19:20:21,194 - DEBUG - Aggiunta relazione: 763 -> 722 (Riempie)
+2025-07-10 19:20:21,195 - DEBUG - Aggiunta relazione: 761 -> 723 (Copre)
+2025-07-10 19:20:21,196 - DEBUG - Aggiunta relazione: 763 -> 723 (Riempie)
+2025-07-10 19:20:21,197 - DEBUG - Aggiunta relazione: 723 -> 724 (Copre)
+2025-07-10 19:20:21,198 - DEBUG - Aggiunta relazione: 725 -> 724 (Copre)
+2025-07-10 19:20:21,199 - DEBUG - Aggiunta relazione: 761 -> 724 (Copre)
+2025-07-10 19:20:21,200 - DEBUG - Aggiunta relazione: 763 -> 724 (Riempie)
+2025-07-10 19:20:21,200 - DEBUG - Aggiunta relazione: 723 -> 725 (Copre)
+2025-07-10 19:20:21,201 - DEBUG - Aggiunta relazione: 761 -> 725 (Copre)
+2025-07-10 19:20:21,202 - DEBUG - Aggiunta relazione: 763 -> 725 (Riempie)
+2025-07-10 19:20:21,203 - DEBUG - Aggiunta relazione: 727 -> 726 (Copre)
+2025-07-10 19:20:21,204 - DEBUG - Aggiunta relazione: 729 -> 726 (Riempie)
+2025-07-10 19:20:21,205 - DEBUG - Aggiunta relazione: 728 -> 727 (Copre)
+2025-07-10 19:20:21,206 - DEBUG - Aggiunta relazione: 731 -> 727 (Copre)
+2025-07-10 19:20:21,207 - DEBUG - Aggiunta relazione: 729 -> 727 (Riempie)
+2025-07-10 19:20:21,208 - DEBUG - Aggiunta relazione: 731 -> 728 (Copre)
+2025-07-10 19:20:21,209 - DEBUG - Aggiunta relazione: 741 -> 728 (Copre)
+2025-07-10 19:20:21,210 - DEBUG - Aggiunta relazione: 729 -> 728 (Riempie)
+2025-07-10 19:20:21,211 - DEBUG - Aggiunta relazione: 703 -> 729 (Taglia)
+2025-07-10 19:20:21,212 - DEBUG - Aggiunta relazione: 731 -> 730 (Copre)
+2025-07-10 19:20:21,213 - DEBUG - Aggiunta relazione: 729 -> 730 (Riempie)
+2025-07-10 19:20:21,214 - DEBUG - Aggiunta relazione: 741 -> 731 (Copre)
+2025-07-10 19:20:21,215 - DEBUG - Aggiunta relazione: 742 -> 731 (Copre)
+2025-07-10 19:20:21,216 - DEBUG - Aggiunta relazione: 729 -> 731 (Riempie)
+2025-07-10 19:20:21,217 - DEBUG - Aggiunta relazione: 733 -> 732 (Copre)
+2025-07-10 19:20:21,218 - DEBUG - Aggiunta relazione: 734 -> 732 (Copre)
+2025-07-10 19:20:21,218 - DEBUG - Aggiunta relazione: 735 -> 732 (Copre)
+2025-07-10 19:20:21,219 - DEBUG - Aggiunta relazione: 736 -> 732 (Riempie)
+2025-07-10 19:20:21,220 - DEBUG - Aggiunta relazione: 736 -> 733 (Riempie)
+2025-07-10 19:20:21,221 - DEBUG - Aggiunta relazione: 733 -> 734 (Copre)
+2025-07-10 19:20:21,222 - DEBUG - Aggiunta relazione: 735 -> 734 (Copre)
+2025-07-10 19:20:21,223 - DEBUG - Aggiunta relazione: 736 -> 734 (Riempie)
+2025-07-10 19:20:21,224 - DEBUG - Aggiunta relazione: 733 -> 735 (Copre)
+2025-07-10 19:20:21,225 - DEBUG - Aggiunta relazione: 736 -> 735 (Riempie)
+2025-07-10 19:20:21,226 - DEBUG - Aggiunta relazione: 703 -> 736 (Taglia)
+2025-07-10 19:20:21,227 - DEBUG - Aggiunta relazione: 738 -> 737 (Copre)
+2025-07-10 19:20:21,228 - DEBUG - Aggiunta relazione: 739 -> 737 (Copre)
+2025-07-10 19:20:21,229 - DEBUG - Aggiunta relazione: 740 -> 737 (Riempie)
+2025-07-10 19:20:21,230 - DEBUG - Aggiunta relazione: 739 -> 738 (Copre)
+2025-07-10 19:20:21,231 - DEBUG - Aggiunta relazione: 740 -> 738 (Riempie)
+2025-07-10 19:20:21,232 - DEBUG - Aggiunta relazione: 740 -> 739 (Riempie)
+2025-07-10 19:20:21,233 - DEBUG - Aggiunta relazione: 703 -> 740 (Taglia)
+2025-07-10 19:20:21,234 - DEBUG - Aggiunta relazione: 742 -> 741 (Copre)
+2025-07-10 19:20:21,235 - DEBUG - Aggiunta relazione: 729 -> 741 (Riempie)
+2025-07-10 19:20:21,236 - DEBUG - Aggiunta relazione: 744 -> 742 (Copre)
+2025-07-10 19:20:21,237 - DEBUG - Aggiunta relazione: 745 -> 742 (Copre)
+2025-07-10 19:20:21,240 - DEBUG - Aggiunta relazione: 743 -> 742 (Riempie)
+2025-07-10 19:20:21,247 - DEBUG - Aggiunta relazione: 729 -> 743 (Taglia)
+2025-07-10 19:20:21,248 - DEBUG - Aggiunta relazione: 745 -> 744 (Copre)
+2025-07-10 19:20:21,249 - DEBUG - Aggiunta relazione: 746 -> 744 (Copre)
+2025-07-10 19:20:21,250 - DEBUG - Aggiunta relazione: 747 -> 744 (Copre)
+2025-07-10 19:20:21,251 - DEBUG - Aggiunta relazione: 743 -> 744 (Riempie)
+2025-07-10 19:20:21,252 - DEBUG - Aggiunta relazione: 746 -> 745 (Copre)
+2025-07-10 19:20:21,252 - DEBUG - Aggiunta relazione: 747 -> 745 (Copre)
+2025-07-10 19:20:21,253 - DEBUG - Aggiunta relazione: 743 -> 745 (Riempie)
+2025-07-10 19:20:21,254 - DEBUG - Aggiunta relazione: 743 -> 746 (Riempie)
+2025-07-10 19:20:21,255 - DEBUG - Aggiunta relazione: 746 -> 747 (Copre)
+2025-07-10 19:20:21,256 - DEBUG - Aggiunta relazione: 743 -> 747 (Riempie)
+2025-07-10 19:20:21,257 - DEBUG - Aggiunta relazione: 705 -> 748 (Copre)
+2025-07-10 19:20:21,258 - DEBUG - Aggiunta relazione: 706 -> 748 (Copre)
+2025-07-10 19:20:21,259 - DEBUG - Aggiunta relazione: 707 -> 748 (Copre)
+2025-07-10 19:20:21,260 - DEBUG - Aggiunta relazione: 841 -> 748 (Copre)
+2025-07-10 19:20:21,261 - DEBUG - Aggiunta relazione: 750 -> 749 (Copre)
+2025-07-10 19:20:21,262 - DEBUG - Aggiunta relazione: 751 -> 749 (Copre)
+2025-07-10 19:20:21,263 - DEBUG - Aggiunta relazione: 752 -> 749 (Copre)
+2025-07-10 19:20:21,264 - DEBUG - Aggiunta relazione: 762 -> 749 (Riempie)
+2025-07-10 19:20:21,265 - DEBUG - Aggiunta relazione: 762 -> 750 (Riempie)
+2025-07-10 19:20:21,266 - DEBUG - Aggiunta relazione: 750 -> 751 (Copre)
+2025-07-10 19:20:21,267 - DEBUG - Aggiunta relazione: 752 -> 751 (Copre)
+2025-07-10 19:20:21,268 - DEBUG - Aggiunta relazione: 762 -> 751 (Riempie)
+2025-07-10 19:20:21,269 - DEBUG - Aggiunta relazione: 750 -> 752 (Copre)
+2025-07-10 19:20:21,270 - DEBUG - Aggiunta relazione: 762 -> 752 (Riempie)
+2025-07-10 19:20:21,271 - DEBUG - Aggiunta relazione: 754 -> 753 (Riempie)
+2025-07-10 19:20:21,272 - DEBUG - Aggiunta relazione: 703 -> 754 (Taglia)
+2025-07-10 19:20:21,273 - DEBUG - Aggiunta relazione: 756 -> 755 (Riempie)
+2025-07-10 19:20:21,274 - DEBUG - Aggiunta relazione: 703 -> 756 (Taglia)
+2025-07-10 19:20:21,275 - DEBUG - Aggiunta relazione: 758 -> 757 (Riempie)
+2025-07-10 19:20:21,276 - DEBUG - Aggiunta relazione: 703 -> 758 (Taglia)
+2025-07-10 19:20:21,277 - DEBUG - Aggiunta relazione: 778 -> 759 (Copre)
+2025-07-10 19:20:21,278 - DEBUG - Aggiunta relazione: 760 -> 759 (Riempie)
+2025-07-10 19:20:21,279 - DEBUG - Aggiunta relazione: 703 -> 760 (Taglia)
+2025-07-10 19:20:21,280 - DEBUG - Aggiunta relazione: 763 -> 761 (Riempie)
+2025-07-10 19:20:21,281 - DEBUG - Aggiunta relazione: 703 -> 762 (Taglia)
+2025-07-10 19:20:21,282 - DEBUG - Aggiunta relazione: 703 -> 763 (Taglia)
+2025-07-10 19:20:21,283 - DEBUG - Aggiunta relazione: 726 -> 763 (Taglia)
+2025-07-10 19:20:21,286 - DEBUG - Aggiunta relazione: 728 -> 763 (Taglia)
+2025-07-10 19:20:21,287 - DEBUG - Aggiunta relazione: 741 -> 763 (Taglia)
+2025-07-10 19:20:21,288 - DEBUG - Aggiunta relazione: 765 -> 764 (Copre)
+2025-07-10 19:20:21,289 - DEBUG - Aggiunta relazione: 766 -> 764 (Copre)
+2025-07-10 19:20:21,290 - DEBUG - Aggiunta relazione: 774 -> 764 (Copre)
+2025-07-10 19:20:21,291 - DEBUG - Aggiunta relazione: 775 -> 764 (Copre)
+2025-07-10 19:20:21,292 - DEBUG - Aggiunta relazione: 777 -> 764 (Copre)
+2025-07-10 19:20:21,293 - DEBUG - Aggiunta relazione: 776 -> 764 (Riempie)
+2025-07-10 19:20:21,294 - DEBUG - Aggiunta relazione: 806 -> 764 (Riempie)
+2025-07-10 19:20:21,295 - DEBUG - Aggiunta relazione: 766 -> 765 (Copre)
+2025-07-10 19:20:21,296 - DEBUG - Aggiunta relazione: 774 -> 765 (Copre)
+2025-07-10 19:20:21,297 - DEBUG - Aggiunta relazione: 777 -> 765 (Copre)
+2025-07-10 19:20:21,297 - DEBUG - Aggiunta relazione: 807 -> 765 (Copre)
+2025-07-10 19:20:21,298 - DEBUG - Aggiunta relazione: 776 -> 765 (Riempie)
+2025-07-10 19:20:21,299 - DEBUG - Aggiunta relazione: 774 -> 766 (Copre)
+2025-07-10 19:20:21,300 - DEBUG - Aggiunta relazione: 807 -> 766 (Copre)
+2025-07-10 19:20:21,301 - DEBUG - Aggiunta relazione: 776 -> 766 (Riempie)
+2025-07-10 19:20:21,302 - DEBUG - Aggiunta relazione: 768 -> 767 (Riempie)
+2025-07-10 19:20:21,303 - DEBUG - Aggiunta relazione: 703 -> 768 (Taglia)
+2025-07-10 19:20:21,304 - DEBUG - Aggiunta relazione: 770 -> 769 (Copre)
+2025-07-10 19:20:21,305 - DEBUG - Aggiunta relazione: 771 -> 769 (Copre)
+2025-07-10 19:20:21,306 - DEBUG - Aggiunta relazione: 842 -> 769 (Riempie)
+2025-07-10 19:20:21,307 - DEBUG - Aggiunta relazione: 842 -> 770 (Riempie)
+2025-07-10 19:20:21,308 - DEBUG - Aggiunta relazione: 770 -> 771 (Copre)
+2025-07-10 19:20:21,309 - DEBUG - Aggiunta relazione: 772 -> 771 (Copre)
+2025-07-10 19:20:21,310 - DEBUG - Aggiunta relazione: 773 -> 771 (Copre)
+2025-07-10 19:20:21,311 - DEBUG - Aggiunta relazione: 842 -> 771 (Riempie)
+2025-07-10 19:20:21,312 - DEBUG - Aggiunta relazione: 770 -> 772 (Copre)
+2025-07-10 19:20:21,313 - DEBUG - Aggiunta relazione: 842 -> 772 (Riempie)
+2025-07-10 19:20:21,314 - DEBUG - Aggiunta relazione: 770 -> 773 (Copre)
+2025-07-10 19:20:21,315 - DEBUG - Aggiunta relazione: 772 -> 773 (Copre)
+2025-07-10 19:20:21,315 - DEBUG - Aggiunta relazione: 842 -> 773 (Riempie)
+2025-07-10 19:20:21,316 - DEBUG - Aggiunta relazione: 807 -> 774 (Copre)
+2025-07-10 19:20:21,317 - DEBUG - Aggiunta relazione: 776 -> 774 (Riempie)
+2025-07-10 19:20:21,318 - DEBUG - Aggiunta relazione: 765 -> 775 (Copre)
+2025-07-10 19:20:21,319 - DEBUG - Aggiunta relazione: 776 -> 775 (Riempie)
+2025-07-10 19:20:21,320 - DEBUG - Aggiunta relazione: 806 -> 775 (Riempie)
+2025-07-10 19:20:21,321 - DEBUG - Aggiunta relazione: 703 -> 776 (Taglia)
+2025-07-10 19:20:21,322 - DEBUG - Aggiunta relazione: 774 -> 777 (Copre)
+2025-07-10 19:20:21,323 - DEBUG - Aggiunta relazione: 776 -> 777 (Riempie)
+2025-07-10 19:20:21,324 - DEBUG - Aggiunta relazione: 760 -> 778 (Riempie)
+2025-07-10 19:20:21,325 - DEBUG - Aggiunta relazione: 780 -> 779 (Copre)
+2025-07-10 19:20:21,326 - DEBUG - Aggiunta relazione: 781 -> 779 (Copre)
+2025-07-10 19:20:21,327 - DEBUG - Aggiunta relazione: 782 -> 779 (Copre)
+2025-07-10 19:20:21,328 - DEBUG - Aggiunta relazione: 776 -> 779 (Riempie)
+2025-07-10 19:20:21,329 - DEBUG - Aggiunta relazione: 783 -> 780 (Copre)
+2025-07-10 19:20:21,330 - DEBUG - Aggiunta relazione: 776 -> 780 (Riempie)
+2025-07-10 19:20:21,331 - DEBUG - Aggiunta relazione: 780 -> 781 (Copre)
+2025-07-10 19:20:21,332 - DEBUG - Aggiunta relazione: 776 -> 781 (Riempie)
+2025-07-10 19:20:21,332 - DEBUG - Aggiunta relazione: 780 -> 782 (Copre)
+2025-07-10 19:20:21,333 - DEBUG - Aggiunta relazione: 781 -> 782 (Copre)
+2025-07-10 19:20:21,334 - DEBUG - Aggiunta relazione: 776 -> 782 (Riempie)
+2025-07-10 19:20:21,335 - DEBUG - Aggiunta relazione: 776 -> 783 (Riempie)
+2025-07-10 19:20:21,336 - DEBUG - Aggiunta relazione: 843 -> 785 (Riempie)
+2025-07-10 19:20:21,337 - DEBUG - Aggiunta relazione: 787 -> 786 (Copre)
+2025-07-10 19:20:21,338 - DEBUG - Aggiunta relazione: 790 -> 786 (Riempie)
+2025-07-10 19:20:21,339 - DEBUG - Aggiunta relazione: 788 -> 787 (Copre)
+2025-07-10 19:20:21,340 - DEBUG - Aggiunta relazione: 789 -> 787 (Copre)
+2025-07-10 19:20:21,341 - DEBUG - Aggiunta relazione: 790 -> 787 (Riempie)
+2025-07-10 19:20:21,342 - DEBUG - Aggiunta relazione: 789 -> 788 (Copre)
+2025-07-10 19:20:21,343 - DEBUG - Aggiunta relazione: 790 -> 788 (Riempie)
+2025-07-10 19:20:21,344 - DEBUG - Aggiunta relazione: 790 -> 789 (Riempie)
+2025-07-10 19:20:21,345 - DEBUG - Aggiunta relazione: 703 -> 790 (Taglia)
+2025-07-10 19:20:21,346 - DEBUG - Aggiunta relazione: 793 -> 792 (Copre)
+2025-07-10 19:20:21,347 - DEBUG - Aggiunta relazione: 796 -> 792 (Riempie)
+2025-07-10 19:20:21,348 - DEBUG - Aggiunta relazione: 794 -> 793 (Copre)
+2025-07-10 19:20:21,349 - DEBUG - Aggiunta relazione: 795 -> 793 (Copre)
+2025-07-10 19:20:21,350 - DEBUG - Aggiunta relazione: 796 -> 793 (Riempie)
+2025-07-10 19:20:21,351 - DEBUG - Aggiunta relazione: 795 -> 794 (Copre)
+2025-07-10 19:20:21,351 - DEBUG - Aggiunta relazione: 796 -> 794 (Riempie)
+2025-07-10 19:20:21,353 - DEBUG - Aggiunta relazione: 796 -> 795 (Riempie)
+2025-07-10 19:20:21,354 - DEBUG - Aggiunta relazione: 703 -> 796 (Taglia)
+2025-07-10 19:20:21,354 - DEBUG - Aggiunta relazione: 798 -> 797 (Copre)
+2025-07-10 19:20:21,355 - DEBUG - Aggiunta relazione: 800 -> 797 (Copre)
+2025-07-10 19:20:21,356 - DEBUG - Aggiunta relazione: 801 -> 797 (Copre)
+2025-07-10 19:20:21,357 - DEBUG - Aggiunta relazione: 804 -> 797 (Riempie)
+2025-07-10 19:20:21,358 - DEBUG - Aggiunta relazione: 804 -> 798 (Riempie)
+2025-07-10 19:20:21,359 - DEBUG - Aggiunta relazione: 797 -> 799 (Copre)
+2025-07-10 19:20:21,360 - DEBUG - Aggiunta relazione: 798 -> 799 (Copre)
+2025-07-10 19:20:21,361 - DEBUG - Aggiunta relazione: 800 -> 799 (Copre)
+2025-07-10 19:20:21,362 - DEBUG - Aggiunta relazione: 801 -> 799 (Copre)
+2025-07-10 19:20:21,363 - DEBUG - Aggiunta relazione: 804 -> 799 (Riempie)
+2025-07-10 19:20:21,364 - DEBUG - Aggiunta relazione: 798 -> 800 (Copre)
+2025-07-10 19:20:21,365 - DEBUG - Aggiunta relazione: 801 -> 800 (Copre)
+2025-07-10 19:20:21,366 - DEBUG - Aggiunta relazione: 804 -> 800 (Riempie)
+2025-07-10 19:20:21,367 - DEBUG - Aggiunta relazione: 798 -> 801 (Copre)
+2025-07-10 19:20:21,368 - DEBUG - Aggiunta relazione: 804 -> 801 (Riempie)
+2025-07-10 19:20:21,369 - DEBUG - Aggiunta relazione: 707 -> 802 (Copre)
+2025-07-10 19:20:21,370 - DEBUG - Aggiunta relazione: 748 -> 802 (Copre)
+2025-07-10 19:20:21,371 - DEBUG - Aggiunta relazione: 803 -> 802 (Copre)
+2025-07-10 19:20:21,372 - DEBUG - Aggiunta relazione: 805 -> 802 (Copre)
+2025-07-10 19:20:21,373 - DEBUG - Aggiunta relazione: 805 -> 803 (Copre)
+2025-07-10 19:20:21,374 - DEBUG - Aggiunta relazione: 703 -> 804 (Taglia)
+2025-07-10 19:20:21,374 - DEBUG - Aggiunta relazione: 707 -> 805 (Copre)
+2025-07-10 19:20:21,375 - DEBUG - Aggiunta relazione: 748 -> 805 (Copre)
+2025-07-10 19:20:21,376 - DEBUG - Aggiunta relazione: 703 -> 806 (Taglia)
+2025-07-10 19:20:21,377 - DEBUG - Aggiunta relazione: 776 -> 806 (Taglia)
+2025-07-10 19:20:21,378 - DEBUG - Aggiunta relazione: 779 -> 807 (Copre)
+2025-07-10 19:20:21,379 - DEBUG - Aggiunta relazione: 782 -> 807 (Copre)
+2025-07-10 19:20:21,380 - DEBUG - Aggiunta relazione: 776 -> 807 (Riempie)
+2025-07-10 19:20:21,381 - DEBUG - Aggiunta relazione: 703 -> 808 (Copre)
+2025-07-10 19:20:21,382 - DEBUG - Aggiunta relazione: 815 -> 809 (Copre)
+2025-07-10 19:20:21,383 - DEBUG - Aggiunta relazione: 818 -> 809 (Riempie)
+2025-07-10 19:20:21,384 - DEBUG - Aggiunta relazione: 814 -> 810 (Copre)
+2025-07-10 19:20:21,385 - DEBUG - Aggiunta relazione: 819 -> 810 (Copre)
+2025-07-10 19:20:21,386 - DEBUG - Aggiunta relazione: 822 -> 810 (Riempie)
+2025-07-10 19:20:21,387 - DEBUG - Aggiunta relazione: 823 -> 811 (Copre)
+2025-07-10 19:20:21,388 - DEBUG - Aggiunta relazione: 826 -> 811 (Riempie)
+2025-07-10 19:20:21,389 - DEBUG - Aggiunta relazione: 822 -> 814 (Riempie)
+2025-07-10 19:20:21,390 - DEBUG - Aggiunta relazione: 816 -> 815 (Copre)
+2025-07-10 19:20:21,391 - DEBUG - Aggiunta relazione: 817 -> 815 (Copre)
+2025-07-10 19:20:21,392 - DEBUG - Aggiunta relazione: 818 -> 815 (Riempie)
+2025-07-10 19:20:21,393 - DEBUG - Aggiunta relazione: 817 -> 816 (Copre)
+2025-07-10 19:20:21,394 - DEBUG - Aggiunta relazione: 818 -> 816 (Riempie)
+2025-07-10 19:20:21,395 - DEBUG - Aggiunta relazione: 818 -> 817 (Riempie)
+2025-07-10 19:20:21,396 - DEBUG - Aggiunta relazione: 703 -> 818 (Taglia)
+2025-07-10 19:20:21,397 - DEBUG - Aggiunta relazione: 814 -> 819 (Copre)
+2025-07-10 19:20:21,398 - DEBUG - Aggiunta relazione: 820 -> 819 (Copre)
+2025-07-10 19:20:21,399 - DEBUG - Aggiunta relazione: 821 -> 819 (Copre)
+2025-07-10 19:20:21,400 - DEBUG - Aggiunta relazione: 822 -> 819 (Riempie)
+2025-07-10 19:20:21,401 - DEBUG - Aggiunta relazione: 821 -> 820 (Copre)
+2025-07-10 19:20:21,401 - DEBUG - Aggiunta relazione: 822 -> 820 (Riempie)
+2025-07-10 19:20:21,402 - DEBUG - Aggiunta relazione: 822 -> 821 (Riempie)
+2025-07-10 19:20:21,403 - DEBUG - Aggiunta relazione: 703 -> 822 (Taglia)
+2025-07-10 19:20:21,404 - DEBUG - Aggiunta relazione: 824 -> 823 (Copre)
+2025-07-10 19:20:21,405 - DEBUG - Aggiunta relazione: 825 -> 823 (Copre)
+2025-07-10 19:20:21,406 - DEBUG - Aggiunta relazione: 826 -> 823 (Riempie)
+2025-07-10 19:20:21,407 - DEBUG - Aggiunta relazione: 825 -> 824 (Copre)
+2025-07-10 19:20:21,408 - DEBUG - Aggiunta relazione: 826 -> 824 (Riempie)
+2025-07-10 19:20:21,409 - DEBUG - Aggiunta relazione: 826 -> 825 (Riempie)
+2025-07-10 19:20:21,410 - DEBUG - Aggiunta relazione: 703 -> 826 (Taglia)
+2025-07-10 19:20:21,411 - DEBUG - Aggiunta relazione: 828 -> 827 (Copre)
+2025-07-10 19:20:21,412 - DEBUG - Aggiunta relazione: 831 -> 827 (Riempie)
+2025-07-10 19:20:21,413 - DEBUG - Aggiunta relazione: 829 -> 828 (Copre)
+2025-07-10 19:20:21,414 - DEBUG - Aggiunta relazione: 830 -> 828 (Copre)
+2025-07-10 19:20:21,415 - DEBUG - Aggiunta relazione: 831 -> 828 (Riempie)
+2025-07-10 19:20:21,416 - DEBUG - Aggiunta relazione: 830 -> 829 (Copre)
+2025-07-10 19:20:21,417 - DEBUG - Aggiunta relazione: 831 -> 829 (Riempie)
+2025-07-10 19:20:21,418 - DEBUG - Aggiunta relazione: 831 -> 830 (Riempie)
+2025-07-10 19:20:21,419 - DEBUG - Aggiunta relazione: 703 -> 831 (Taglia)
+2025-07-10 19:20:21,420 - DEBUG - Aggiunta relazione: 838 -> 837 (Copre)
+2025-07-10 19:20:21,421 - DEBUG - Aggiunta relazione: 844 -> 837 (Riempie)
+2025-07-10 19:20:21,422 - DEBUG - Aggiunta relazione: 839 -> 838 (Copre)
+2025-07-10 19:20:21,423 - DEBUG - Aggiunta relazione: 840 -> 838 (Copre)
+2025-07-10 19:20:21,424 - DEBUG - Aggiunta relazione: 844 -> 838 (Riempie)
+2025-07-10 19:20:21,425 - DEBUG - Aggiunta relazione: 840 -> 839 (Copre)
+2025-07-10 19:20:21,430 - DEBUG - Aggiunta relazione: 844 -> 839 (Riempie)
+2025-07-10 19:20:21,433 - DEBUG - Aggiunta relazione: 844 -> 840 (Riempie)
+2025-07-10 19:20:21,434 - DEBUG - Aggiunta relazione: 719 -> 841 (Copre)
+2025-07-10 19:20:21,435 - DEBUG - Aggiunta relazione: 720 -> 841 (Copre)
+2025-07-10 19:20:21,436 - DEBUG - Aggiunta relazione: 721 -> 841 (Riempie)
+2025-07-10 19:20:21,437 - DEBUG - Aggiunta relazione: 703 -> 842 (Taglia)
+2025-07-10 19:20:21,438 - DEBUG - Aggiunta relazione: 726 -> 842 (Taglia)
+2025-07-10 19:20:21,439 - DEBUG - Aggiunta relazione: 703 -> 843 (Taglia)
+2025-07-10 19:20:21,440 - DEBUG - Aggiunta relazione: 703 -> 844 (Taglia)
+2025-07-10 19:20:21,441 - DEBUG - Aggiunta relazione: 703 -> 845 (Taglia)
+2025-07-10 19:20:21,442 - DEBUG - Aggiunta relazione: 845 -> 846 (Riempie)
+2025-07-10 19:20:21,443 - INFO - Grafo costruito: 142 nodi, 322 archi, 322 relazioni totali
+2025-07-10 19:20:21,444 - INFO - Ricerca cicli nel grafo...
+2025-07-10 19:20:21,445 - INFO - Nessun ciclo trovato nel grafo
+2025-07-10 19:20:21,447 - INFO - Inizio calcolo sequenza stratigrafica...
+2025-07-10 19:20:21,448 - INFO - Inizio calcolo sequenza stratigrafica...
+2025-07-10 19:20:21,449 - INFO - DEBUG MAIN: Prima di chiamare topological_sort. all_us=142
+2025-07-10 19:20:21,450 - INFO - US di base (senza predecessori): ['703', '784']
+2025-07-10 19:20:21,451 - DEBUG - Livello 0: 703, 784
+2025-07-10 19:20:21,452 - DEBUG - Livello 1: 566, 700, 709, 717, 721, 729, 736, 740, 754, 756, 758, 760, 762, 768, 776, 790, 796, 804, 808, 818, 822, 826, 831, 843, 844, 845
+2025-07-10 19:20:21,453 - DEBUG - Livello 2: 565, 702, 716, 718, 720, 733, 739, 743, 750, 753, 755, 757, 767, 778, 783, 785, 789, 795, 798, 806, 814, 817, 821, 825, 830, 840, 846
+2025-07-10 19:20:21,454 - DEBUG - Livello 3: 701, 711, 714, 719, 735, 738, 746, 752, 759, 780, 788, 794, 801, 816, 820, 824, 829, 839
+2025-07-10 19:20:21,456 - DEBUG - Livello 4: 704, 710, 715, 734, 737, 747, 751, 781, 787, 793, 800, 815, 819, 823, 828, 838, 841
+2025-07-10 19:20:21,457 - DEBUG - Livello 5: 708, 712, 732, 745, 749, 782, 786, 792, 797, 809, 810, 811, 827, 837
+2025-07-10 19:20:21,458 - DEBUG - Livello 6: 744, 779, 799
+2025-07-10 19:20:21,460 - DEBUG - Livello 7: 742, 807
+2025-07-10 19:20:21,461 - DEBUG - Livello 8: 741, 774
+2025-07-10 19:20:21,462 - DEBUG - Livello 9: 731, 766, 777
+2025-07-10 19:20:21,463 - DEBUG - Livello 10: 728, 730, 765
+2025-07-10 19:20:21,464 - DEBUG - Livello 11: 727, 775
+2025-07-10 19:20:21,465 - DEBUG - Livello 12: 726, 764
+2025-07-10 19:20:21,466 - DEBUG - Livello 13: 763, 842
+2025-07-10 19:20:21,467 - DEBUG - Livello 14: 761, 770
+2025-07-10 19:20:21,468 - DEBUG - Livello 15: 723, 772
+2025-07-10 19:20:21,469 - DEBUG - Livello 16: 725, 773
+2025-07-10 19:20:21,470 - DEBUG - Livello 17: 724, 771
+2025-07-10 19:20:21,471 - DEBUG - Livello 18: 722, 769
+2025-07-10 19:20:21,472 - DEBUG - Livello 19: 705
+2025-07-10 19:20:21,473 - DEBUG - Livello 20: 706, 707
+2025-07-10 19:20:21,474 - DEBUG - Livello 21: 748
+2025-07-10 19:20:21,475 - DEBUG - Livello 22: 805
+2025-07-10 19:20:21,476 - DEBUG - Livello 23: 803
+2025-07-10 19:20:21,477 - DEBUG - Livello 24: 802
+2025-07-10 19:20:21,478 - DEBUG - Livello 25: 0
+2025-07-10 19:20:21,479 - DEBUG - Livello 26: 713
+2025-07-10 19:20:21,480 - INFO - DEBUG MAIN: Dopo topological_sort. levels type=<class 'list'>, is None=False
+2025-07-10 19:20:21,481 - INFO - DEBUG MAIN: levels length=27
+2025-07-10 19:20:21,481 - INFO - DEBUG MAIN: generated_levels exists, length=0
+2025-07-10 19:20:21,482 - INFO - Matrix generato con successo: 27 livelli
+2025-07-10 19:20:21,483 - INFO - Preparazione risultati finali...
+2025-07-10 19:20:21,484 - INFO - Matrix completato: 27 livelli, 142 US
+2025-07-10 19:20:21,485 - INFO - === RISULTATI FINALI ===
+2025-07-10 19:20:21,486 - INFO - Livello 0: 703, 784
+2025-07-10 19:20:21,486 - INFO - Livello 1: 566, 700, 709, 717, 721, 729, 736, 740, 754, 756, 758, 760, 762, 768, 776, 790, 796, 804, 808, 818, ...
+2025-07-10 19:20:21,487 - INFO - Livello 2: 565, 702, 716, 718, 720, 733, 739, 743, 750, 753, 755, 757, 767, 778, 783, 785, 789, 795, 798, 806, ...
+2025-07-10 19:20:21,488 - INFO - Livello 3: 701, 711, 714, 719, 735, 738, 746, 752, 759, 780, 788, 794, 801, 816, 820, 824, 829, 839
+2025-07-10 19:20:21,489 - INFO - Livello 4: 704, 710, 715, 734, 737, 747, 751, 781, 787, 793, 800, 815, 819, 823, 828, 838, 841
+2025-07-10 19:20:21,490 - INFO - Livello 5: 708, 712, 732, 745, 749, 782, 786, 792, 797, 809, 810, 811, 827, 837
+2025-07-10 19:20:21,491 - INFO - Livello 6: 744, 779, 799
+2025-07-10 19:20:21,492 - INFO - Livello 7: 742, 807
+2025-07-10 19:20:21,493 - INFO - Livello 8: 741, 774
+2025-07-10 19:20:21,494 - INFO - Livello 9: 731, 766, 777
+2025-07-10 19:20:21,495 - INFO - Livello 10: 728, 730, 765
+2025-07-10 19:20:21,496 - INFO - Livello 11: 727, 775
+2025-07-10 19:20:21,497 - INFO - Livello 12: 726, 764
+2025-07-10 19:20:21,498 - INFO - Livello 13: 763, 842
+2025-07-10 19:20:21,499 - INFO - Livello 14: 761, 770
+2025-07-10 19:20:21,500 - INFO - Livello 15: 723, 772
+2025-07-10 19:20:21,501 - INFO - Livello 16: 725, 773
+2025-07-10 19:20:21,502 - INFO - Livello 17: 724, 771
+2025-07-10 19:20:21,503 - INFO - Livello 18: 722, 769
+2025-07-10 19:20:21,504 - INFO - Livello 19: 705
+2025-07-10 19:20:21,505 - INFO - Livello 20: 706, 707
+2025-07-10 19:20:21,506 - INFO - Livello 21: 748
+2025-07-10 19:20:21,507 - INFO - Livello 22: 805
+2025-07-10 19:20:21,507 - INFO - Livello 23: 803
+2025-07-10 19:20:21,509 - INFO - Livello 24: 802
+2025-07-10 19:20:21,510 - INFO - Livello 25: 0
+2025-07-10 19:20:21,510 - INFO - Livello 26: 713
+2025-07-10 19:20:21,511 - INFO - Matrix calcolato con successo. Pronto per aggiornamento database.
+2025-07-10 19:20:21,513 - INFO - === INIZIO AGGIORNAMENTO DATABASE ===
+2025-07-10 19:20:21,514 - DEBUG - Aggiornamento livello 0: 2 US
+2025-07-10 19:20:21,734 - DEBUG - Aggiornamento livello 1: 26 US
+2025-07-10 19:20:22,576 - DEBUG - Aggiornate 10 US...
+2025-07-10 19:20:23,647 - DEBUG - Aggiornate 20 US...
+2025-07-10 19:20:24,491 - DEBUG - Aggiornamento livello 2: 27 US
+2025-07-10 19:20:24,715 - DEBUG - Aggiornate 30 US...
+2025-07-10 19:20:25,778 - DEBUG - Aggiornate 40 US...
+2025-07-10 19:20:26,850 - DEBUG - Aggiornate 50 US...
+2025-07-10 19:20:27,379 - DEBUG - Aggiornamento livello 3: 18 US
+2025-07-10 19:20:27,913 - DEBUG - Aggiornate 60 US...
+2025-07-10 19:20:28,981 - DEBUG - Aggiornate 70 US...
+2025-07-10 19:20:29,302 - DEBUG - Aggiornamento livello 4: 17 US
+2025-07-10 19:20:30,046 - DEBUG - Aggiornate 80 US...
+2025-07-10 19:20:31,114 - DEBUG - Aggiornate 90 US...
+2025-07-10 19:20:31,116 - DEBUG - Aggiornamento livello 5: 14 US
+2025-07-10 19:20:32,179 - DEBUG - Aggiornate 100 US...
+2025-07-10 19:20:32,617 - DEBUG - Aggiornamento livello 6: 3 US
+2025-07-10 19:20:32,941 - DEBUG - Aggiornamento livello 7: 2 US
+2025-07-10 19:20:33,155 - DEBUG - Aggiornamento livello 8: 2 US
+2025-07-10 19:20:33,264 - DEBUG - Aggiornate 110 US...
+2025-07-10 19:20:33,372 - DEBUG - Aggiornamento livello 9: 3 US
+2025-07-10 19:20:33,702 - DEBUG - Aggiornamento livello 10: 3 US
+2025-07-10 19:20:34,031 - DEBUG - Aggiornamento livello 11: 2 US
+2025-07-10 19:20:34,246 - DEBUG - Aggiornamento livello 12: 2 US
+2025-07-10 19:20:34,356 - DEBUG - Aggiornate 120 US...
+2025-07-10 19:20:34,466 - DEBUG - Aggiornamento livello 13: 2 US
+2025-07-10 19:20:34,684 - DEBUG - Aggiornamento livello 14: 2 US
+2025-07-10 19:20:34,899 - DEBUG - Aggiornamento livello 15: 2 US
+2025-07-10 19:20:35,115 - DEBUG - Aggiornamento livello 16: 2 US
+2025-07-10 19:20:35,333 - DEBUG - Aggiornamento livello 17: 2 US
+2025-07-10 19:20:35,443 - DEBUG - Aggiornate 130 US...
+2025-07-10 19:20:35,555 - DEBUG - Aggiornamento livello 18: 2 US
+2025-07-10 19:20:35,772 - DEBUG - Aggiornamento livello 19: 1 US
+2025-07-10 19:20:35,880 - DEBUG - Aggiornamento livello 20: 2 US
+2025-07-10 19:20:36,099 - DEBUG - Aggiornamento livello 21: 1 US
+2025-07-10 19:20:36,211 - DEBUG - Aggiornamento livello 22: 1 US
+2025-07-10 19:20:36,323 - DEBUG - Aggiornamento livello 23: 1 US
+2025-07-10 19:20:36,432 - DEBUG - Aggiornamento livello 24: 1 US
+2025-07-10 19:20:36,549 - DEBUG - Aggiornate 140 US...
+2025-07-10 19:20:36,551 - DEBUG - Aggiornamento livello 25: 1 US
+2025-07-10 19:20:36,664 - DEBUG - Aggiornamento livello 26: 1 US
+2025-07-10 19:20:36,774 - INFO - === AGGIORNAMENTO COMPLETATO ===
+2025-07-10 19:20:36,776 - INFO - US aggiornate: 142
