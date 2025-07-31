@@ -209,8 +209,8 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         self.iconListWidget.setAcceptDrops(True)
         
         # Add map preview
-        self.mapPreview = QgsMapCanvas(self)
-        self.mapPreview.setCanvasColor(QColor(225, 225, 225))
+        #self.mapPreview = QgsMapCanvas(self)
+        #self.mapPreview.setCanvasColor(QColor(225, 225, 225))
         
         # Add tabs for media and map
         self.addMediaTab()
@@ -352,9 +352,9 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         self.pushButton_sort.clicked.connect(self.on_pushButton_sort_pressed)
         self.pushButton_view_all_2.clicked.connect(self.on_pushButton_view_all_pressed)
         self.pushButton_open_dir.clicked.connect(self.on_pushButton_open_dir_pressed)
-        self.toolButtonGis.clicked.connect(self.on_toolButtonGis_toggled)
+        #self.toolButtonGis.clicked.connect(self.on_toolButtonGis_toggled)
         self.pushButton_import.clicked.connect(self.on_pushButton_import_pressed)
-        self.pushButton_export_ica.clicked.connect(self.on_pushButton_export_pdf_pressed)
+        #self.pushButton_export_ica.clicked.connect(self.on_pushButton_export_pdf_pressed)
         self.pushButton_export_pdf.clicked.connect(self.on_pushButton_export_tma_pdf_pressed)
 
     def enable_button(self, n):
@@ -864,8 +864,13 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         else:
             dscu = ""
 
-        # Note: materiale field has been moved to materials table
-        ogtm = ""
+        # Collect materials from materials table
+        materials_list = []
+        for row in range(self.tableWidget_materiali.rowCount()):
+            madi = self.tableWidget_materiali.item(row, 0)
+            if madi and madi.text():
+                materials_list.append(madi.text())
+        ogtm = ", ".join(materials_list) if materials_list else ""
 
         # Location
         if self.comboBox_ldct.currentText():
@@ -1968,13 +1973,18 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         self.BROWSE_STATUS = "f"
         self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
 
-        self.setComboBoxEnable(["self.comboBox_sito"], "True")
-        self.setComboBoxEditable(["self.comboBox_sito"], 1)
+        # Keep site disabled during search
+        self.setComboBoxEnable(["self.comboBox_sito"], "False")
+        self.setComboBoxEditable(["self.comboBox_sito"], 0)
 
         self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
         self.set_rec_counter('', '')
         self.label_sort.setText(self.SORTED_ITEMS["n"])
         self.empty_fields()
+        
+        # Add empty row to materials table for search
+        if self.tableWidget_materiali.rowCount() == 0:
+            self.tableWidget_materiali.insertRow(0)
 
     def on_pushButton_search_go_pressed(self):
         """Execute search."""
@@ -1983,11 +1993,34 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                                 QMessageBox.Ok)
         else:
             search_dict = self.build_search_dict()
-
-            if not bool(search_dict):
+            materials_search = self.build_materials_search_dict()
+            
+            if not bool(search_dict) and not bool(materials_search):
                 QMessageBox.warning(self, "ATTENZIONE", "Non è stata impostata alcuna ricerca!", QMessageBox.Ok)
             else:
-                res = self.DB_MANAGER.query_bool(search_dict, 'TMA')
+                # First search TMA records
+                if search_dict:
+                    res = self.DB_MANAGER.query_bool(search_dict, 'TMA')
+                else:
+                    res = self.DB_MANAGER.query('TMA')
+                
+                # Filter by materials if needed
+                if materials_search and res:
+                    filtered_res = []
+                    for tma in res:
+                        # Check if this TMA has materials matching our search
+                        materials = self.DB_MANAGER.query_bool({'id_tma': int(tma.id)}, 'TMA_MATERIALI')
+                        for mat in materials:
+                            match = True
+                            for field, value in materials_search.items():
+                                mat_value = getattr(mat, field, None)
+                                if mat_value and value.lower() not in str(mat_value).lower():
+                                    match = False
+                                    break
+                            if match:
+                                filtered_res.append(tma)
+                                break
+                    res = filtered_res
 
                 if not bool(res):
                     QMessageBox.warning(self, "ATTENZIONE", "Non è stato trovato alcun record!", QMessageBox.Ok)
@@ -2111,7 +2144,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
     def on_pushButton_open_dir_pressed(self):
         """Open media directory."""
         HOME = os.environ['PYARCHINIT_HOME']
-        path = '{}{}{}'.format(HOME, os.sep, "pyarchinit_Media_folder")
+        path = '{}{}{}'.format(HOME, os.sep, "pyarchinit_PDF_folder")
         if platform.system() == "Windows":
             os.startfile(path)
         elif platform.system() == "Darwin":
@@ -2145,6 +2178,44 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             search_dict['dtzg'] = "'" + str(self.lineEdit_dtzg.text()) + "'"
 
         return search_dict
+    
+    def build_materials_search_dict(self):
+        """Build search dictionary for materials table."""
+        materials_search = {}
+        
+        # Check each cell in materials table for non-empty values
+        for row in range(self.tableWidget_materiali.rowCount()):
+            # madi (materiale)
+            item = self.tableWidget_materiali.item(row, 0)
+            if item and item.text():
+                if 'madi' not in materials_search:
+                    materials_search['madi'] = item.text()
+            
+            # macc (categoria)
+            item = self.tableWidget_materiali.item(row, 1)
+            if item and item.text():
+                if 'macc' not in materials_search:
+                    materials_search['macc'] = item.text()
+            
+            # macl (classe)
+            item = self.tableWidget_materiali.item(row, 2)
+            if item and item.text():
+                if 'macl' not in materials_search:
+                    materials_search['macl'] = item.text()
+            
+            # macp (precisazione)
+            item = self.tableWidget_materiali.item(row, 3)
+            if item and item.text():
+                if 'macp' not in materials_search:
+                    materials_search['macp'] = item.text()
+            
+            # macd (definizione)
+            item = self.tableWidget_materiali.item(row, 4)
+            if item and item.text():
+                if 'macd' not in materials_search:
+                    materials_search['macd'] = item.text()
+        
+        return materials_search
 
     def insert_new_rec(self):
         """Insert a new record into the database."""
@@ -2719,7 +2790,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         self.tabWidget.addTab(media_tab, "Media")
         
         # Add Map tab  
-        self.tabWidget.addTab(self.mapPreview, "Map preview")
+        #self.tabWidget.addTab(self.mapPreview, "Map preview")
     
     def loadMediaPreview(self, mode=0):
         """Load media preview for the current TMA record."""
@@ -3151,16 +3222,22 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
     
     def on_pushButton_print_pressed(self):
         """Handle print button click - show dialog to choose print type."""
-        # Reset filter values
-        if hasattr(self, 'filter_materiale_value'):
-            delattr(self, 'filter_materiale_value')
-        if hasattr(self, 'filter_categoria_value'):
-            delattr(self, 'filter_categoria_value')
+        # Initialize filter states
+        self.filter_settings = {
+            'sito': False,
+            'area': False,
+            'us': False,
+            'cassetta': False,
+            'materiale': False,
+            'categoria': False,
+            'materiale_value': '',
+            'categoria_value': ''
+        }
             
         # Create dialog for print options
         dialog = QDialog(self)
         dialog.setWindowTitle("Opzioni di stampa TMA")
-        dialog.resize(400, 300)
+        dialog.resize(400, 350)
         
         layout = QVBoxLayout(dialog)
         
@@ -3176,6 +3253,9 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         self.radio_list = QRadioButton("Stampa lista filtrata")
         layout.addWidget(self.radio_list)
         
+        self.radio_all = QRadioButton("Stampa tutte le schede TMA")
+        layout.addWidget(self.radio_all)
+        
         # Filters group (enabled only when list is selected)
         filters_group = QGroupBox("Filtri per lista")
         filters_layout = QVBoxLayout()
@@ -3184,15 +3264,27 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         self.check_filter_us = QCheckBox("Filtra per US corrente")
         self.check_filter_area = QCheckBox("Filtra per area corrente")
         self.check_filter_sito = QCheckBox("Filtra per sito corrente")
-        self.check_filter_materiale = QCheckBox("Filtra per materiale")
+        self.check_filter_materiale = QCheckBox("Filtra per materiale specifico")
         self.check_filter_categoria = QCheckBox("Filtra per categoria")
+        
+        # ComboBox for material filter
+        self.combo_filter_materiale = QComboBox()
+        self.combo_filter_materiale.setEnabled(False)
+        self.check_filter_materiale.toggled.connect(self.combo_filter_materiale.setEnabled)
+        
+        # ComboBox for category filter
+        self.combo_filter_categoria = QComboBox()
+        self.combo_filter_categoria.setEnabled(False)
+        self.check_filter_categoria.toggled.connect(self.combo_filter_categoria.setEnabled)
         
         filters_layout.addWidget(self.check_filter_cassetta)
         filters_layout.addWidget(self.check_filter_us)
         filters_layout.addWidget(self.check_filter_area)
         filters_layout.addWidget(self.check_filter_sito)
         filters_layout.addWidget(self.check_filter_materiale)
+        filters_layout.addWidget(self.combo_filter_materiale)
         filters_layout.addWidget(self.check_filter_categoria)
+        filters_layout.addWidget(self.combo_filter_categoria)
         
         filters_group.setLayout(filters_layout)
         layout.addWidget(filters_group)
@@ -3211,48 +3303,123 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         button_box.rejected.connect(dialog.reject)
         layout.addWidget(button_box)
         
+        # Populate filter combos before showing dialog
+        self.populate_filter_combos()
+        
         # Execute dialog
         if dialog.exec_() == QDialog.Accepted:
+            # Save filter settings
+            self.filter_settings['sito'] = self.check_filter_sito.isChecked()
+            self.filter_settings['area'] = self.check_filter_area.isChecked()
+            self.filter_settings['us'] = self.check_filter_us.isChecked()
+            self.filter_settings['cassetta'] = self.check_filter_cassetta.isChecked()
+            self.filter_settings['materiale'] = self.check_filter_materiale.isChecked()
+            self.filter_settings['categoria'] = self.check_filter_categoria.isChecked()
+            self.filter_settings['materiale_value'] = self.combo_filter_materiale.currentText()
+            self.filter_settings['categoria_value'] = self.combo_filter_categoria.currentText()
+            
             if self.radio_single.isChecked():
                 self.print_single_tma()
+            elif self.radio_all.isChecked():
+                # Print all records without filters
+                self.print_all_tma()
             else:
                 self.print_tma_list()
+    
+    def populate_filter_combos(self):
+        """Populate filter combo boxes with unique values from database."""
+        try:
+            # Get all materials from database
+            all_materials = self.DB_MANAGER.query('TMA_MATERIALI')
+            
+            # Extract unique values
+            materiali_set = set()
+            categorie_set = set()
+            
+            for mat in all_materials:
+                if mat.madi:
+                    materiali_set.add(str(mat.madi))
+                if mat.macc:
+                    categorie_set.add(str(mat.macc))
+            
+            # Populate combos
+            self.combo_filter_materiale.clear()
+            self.combo_filter_materiale.addItem("")  # Empty option
+            self.combo_filter_materiale.addItems(sorted(materiali_set))
+            
+            self.combo_filter_categoria.clear()
+            self.combo_filter_categoria.addItem("")  # Empty option
+            self.combo_filter_categoria.addItems(sorted(categorie_set))
+            
+        except Exception as e:
+            QgsMessageLog.logMessage(f"Error populating filter combos: {str(e)}", "PyArchInit", Qgis.Warning)
     
     def print_single_tma(self):
         """Print single TMA record."""
         # Simply call the existing export method
         self.on_pushButton_export_pdf_pressed()
     
+    def print_all_tma(self):
+        """Print all TMA records to PDF."""
+        try:
+            # Get all TMA records
+            tma_list = self.DB_MANAGER.query('TMA')
+            
+            if not tma_list:
+                QMessageBox.warning(self, "Attenzione", "Nessun record TMA trovato nel database", QMessageBox.Ok)
+                return
+            
+            # Generate PDF for all records
+            from ..modules.utility.pyarchinit_exp_Tmasheet_pdf import generate_tma_pdf
+            
+            # Generate PDF for each TMA record
+            for tma in tma_list:
+                pdf_generator = generate_tma_pdf([tma])
+                pdf_generator.create_sheet()
+            
+            HOME = os.environ['PYARCHINIT_HOME']
+            PDF_path = os.path.join(HOME, "pyarchinit_PDF_folder")
+            msg = f"Tutte le schede TMA esportate in:\n{PDF_path}\n\nTotale schede: {len(tma_list)}"
+            QMessageBox.information(self, "Esportazione completata", msg, QMessageBox.Ok)
+            
+        except Exception as e:
+            QMessageBox.critical(self, "Errore", f"Errore nella generazione del PDF: {str(e)}", QMessageBox.Ok)
+
     def print_tma_list(self):
         """Print filtered TMA list."""
         # Import PDF generator
-        from ..modules.utility.pyarchinit_exp_Tmasheet_pdf import generate_tma_pdf
         from reportlab.lib.pagesizes import A4, landscape
-        from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, PageBreak
+        from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph
         from reportlab.lib import colors
         from reportlab.lib.styles import getSampleStyleSheet
         
         try:
-            # Build search filters
-            search_dict = {}
-            
-            if self.check_filter_sito.isChecked() and self.comboBox_sito.currentText():
-                search_dict['sito'] = self.comboBox_sito.currentText()
+            # Check if we should print all records or current only
+            print_all = False
+            if hasattr(self, 'radio_list') and self.radio_list.isChecked():
+                # Build search filters
+                search_dict = {}
                 
-            if self.check_filter_area.isChecked() and self.comboBox_area.currentText():
-                search_dict['area'] = self.comboBox_area.currentText()
+                if self.filter_settings['sito'] and self.comboBox_sito.currentText():
+                    search_dict['sito'] = self.comboBox_sito.currentText()
+                    
+                if self.filter_settings['area'] and self.comboBox_area.currentText():
+                    search_dict['area'] = self.comboBox_area.currentText()
+                    
+                if self.filter_settings['us'] and self.lineEdit_us.text():
+                    search_dict['dscu'] = self.lineEdit_us.text()
+                    
+                if self.filter_settings['cassetta'] and self.lineEdit_cassetta.text():
+                    search_dict['cassetta'] = self.lineEdit_cassetta.text()
                 
-            if self.check_filter_us.isChecked() and self.lineEdit_us.text():
-                search_dict['dscu'] = self.lineEdit_us.text()
-                
-            if self.check_filter_cassetta.isChecked() and self.lineEdit_cassetta.text():
-                search_dict['cassetta'] = self.lineEdit_cassetta.text()
-            
-            # Query TMA records
-            if search_dict:
-                tma_list = self.DB_MANAGER.query_bool(search_dict, 'TMA')
+                # Query TMA records
+                if search_dict:
+                    tma_list = self.DB_MANAGER.query_bool(search_dict, 'TMA')
+                else:
+                    tma_list = self.DB_MANAGER.query('TMA')
             else:
-                tma_list = self.DB_MANAGER.query('TMA')
+                # Use currently loaded data
+                tma_list = self.DATA_LIST
             
             if not tma_list:
                 QMessageBox.warning(self, "Attenzione", "Nessun record trovato con i filtri specificati", QMessageBox.Ok)
@@ -3261,6 +3428,10 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             # Prepare data for list
             data_list = []
             
+            # Check if we have material/category filters active
+            has_material_filter = self.filter_settings.get('materiale', False) and self.filter_settings.get('materiale_value', '')
+            has_category_filter = self.filter_settings.get('categoria', False) and self.filter_settings.get('categoria_value', '')
+            
             for tma in tma_list:
                 # Get materials for this TMA
                 materials = self.DB_MANAGER.query_bool({'id_tma': int(tma.id)}, 'TMA_MATERIALI')
@@ -3268,63 +3439,48 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                 # Process each material or create single row if no materials
                 if materials:
                     for mat in materials:
+                        # Apply material/category filters if selected
+                        include_row = True
+                        
+                        if has_material_filter:
+                            mat_val = str(mat.madi) if mat.madi else ''
+                            if self.filter_settings['materiale_value'] != mat_val:
+                                include_row = False
+                        
+                        if has_category_filter and include_row:
+                            cat_val = str(mat.macc) if mat.macc else ''
+                            if self.filter_settings['categoria_value'] != cat_val:
+                                include_row = False
+                        
+                        if include_row:
+                            row_data = [
+                                str(tma.sito),
+                                str(tma.area),
+                                str(tma.dscu) if tma.dscu else '',
+                                str(tma.cassetta),
+                                str(mat.madi) if mat.madi else '',  # Materiale
+                                str(mat.macc) if mat.macc else '',  # Categoria
+                                str(mat.macl) if mat.macl else '',  # Classe
+                                str(mat.macd) if mat.macd else '',  # Definizione
+                                str(mat.macq) if mat.macq else '',  # Quantità
+                                str(mat.peso) if mat.peso else ''   # Peso
+                            ]
+                            data_list.append(row_data)
+                else:
+                    # Only add TMA without materials if no material/category filters are active
+                    if not has_material_filter and not has_category_filter:
                         row_data = [
                             str(tma.sito),
                             str(tma.area),
                             str(tma.dscu) if tma.dscu else '',
                             str(tma.cassetta),
-                            str(mat.macc) if mat.macc else '',  # Categoria
-                            str(mat.macl) if mat.macl else '',  # Classe
-                            str(mat.macd) if mat.macd else '',  # Definizione
-                            str(mat.macq) if mat.macq else '',  # Quantità
-                            str(mat.peso) if mat.peso else ''   # Peso
+                            '', '', '', '', '', ''  # Empty material fields
                         ]
-                        
-                        # Apply material/category filters if selected
-                        include_row = True
-                        
-                        if self.check_filter_materiale.isChecked():
-                            # Ask for material filter value if not set
-                            if not hasattr(self, 'filter_materiale_value'):
-                                text, ok = QInputDialog.getText(self, "Filtro Materiale", "Inserisci il materiale da filtrare:")
-                                if ok and text:
-                                    self.filter_materiale_value = text.lower()
-                                else:
-                                    self.filter_materiale_value = None
-                            
-                            if self.filter_materiale_value:
-                                # Check if material matches (partial match)
-                                mat_val = str(mat.macc).lower() if mat.macc else ''
-                                if self.filter_materiale_value not in mat_val:
-                                    include_row = False
-                        
-                        if self.check_filter_categoria.isChecked() and include_row:
-                            # Ask for category filter value if not set
-                            if not hasattr(self, 'filter_categoria_value'):
-                                text, ok = QInputDialog.getText(self, "Filtro Categoria", "Inserisci la categoria da filtrare:")
-                                if ok and text:
-                                    self.filter_categoria_value = text.lower()
-                                else:
-                                    self.filter_categoria_value = None
-                            
-                            if self.filter_categoria_value:
-                                # Check if category matches (partial match)
-                                cat_val = str(mat.macc).lower() if mat.macc else ''
-                                if self.filter_categoria_value not in cat_val:
-                                    include_row = False
-                        
-                        if include_row:
-                            data_list.append(row_data)
-                else:
-                    # Add TMA without materials
-                    row_data = [
-                        str(tma.sito),
-                        str(tma.area),
-                        str(tma.dscu) if tma.dscu else '',
-                        str(tma.cassetta),
-                        '', '', '', '', ''  # Empty material fields
-                    ]
-                    data_list.append(row_data)
+                        data_list.append(row_data)
+            
+            if not data_list:
+                QMessageBox.warning(self, "Attenzione", "Nessun record trovato con i filtri specificati", QMessageBox.Ok)
+                return
             
             # Sort by cassetta, area, US
             data_list.sort(key=lambda x: (x[0], x[1], x[2], x[3]))
@@ -3343,16 +3499,26 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             title = Paragraph("<b>LISTA TABELLA MATERIALI ARCHEOLOGICI (TMA)</b>", styles['Title'])
             elements.append(title)
             elements.append(Paragraph(f"Data: {datetime.datetime.now().strftime('%d/%m/%Y')}", styles['Normal']))
+            
+            # Add filter info
+            filter_info = []
+            if has_material_filter:
+                filter_info.append(f"Materiale: {self.filter_settings['materiale_value']}")
+            if has_category_filter:
+                filter_info.append(f"Categoria: {self.filter_settings['categoria_value']}")
+            if filter_info:
+                elements.append(Paragraph(f"Filtri applicati: {', '.join(filter_info)}", styles['Normal']))
+            
             elements.append(Paragraph("<br/><br/>", styles['Normal']))
             
             # Create table with headers
-            headers = ['Sito', 'Area', 'US', 'Cassetta', 'Categoria', 'Classe', 'Definizione', 'Quantità', 'Peso']
+            headers = ['Località', 'Area', 'US', 'Cassetta', 'Materiale', 'Categoria', 'Classe', 'Definizione', 'Quantità', 'Peso']
             table_data = [headers] + data_list
             
             # Create table
             table = Table(table_data)
             table.setStyle(TableStyle([
-                ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+                ('BACKGROUND', (0, 0), (-1, 0), colors.blue),
                 ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
                 ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
                 ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
@@ -3371,9 +3537,8 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             # Build PDF
             doc.build(elements)
             
-            QMessageBox.information(self, "Esportazione completata", 
-                                    f"Lista TMA esportata in:\n{filepath}\n\nTotale record: {len(data_list)}", 
-                                    QMessageBox.Ok)
+            msg = f"Lista TMA esportata in:\n{filepath}\n\nTotale record: {len(data_list)}"
+            QMessageBox.information(self, "Esportazione completata", msg, QMessageBox.Ok)
             
         except Exception as e:
             QMessageBox.critical(self, "Errore", f"Errore nella generazione del PDF: {str(e)}", QMessageBox.Ok)
