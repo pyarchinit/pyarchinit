@@ -279,7 +279,7 @@ class generate_tma_pdf:
             ["NCT - Codice univoco", f"TMA_{self.record.sito}_{self.record.cassetta}_{self.record.id}"],
             ["ESC - Ente schedatore", ""],
             ["ECP - Ente competente", ""],
-            ["Sito", str(self.record.sito)],
+            ["Località", str(self.record.sito)],
             ["Area", str(self.record.area)],
             ["US", str(self.record.dscu) if self.record.dscu else ""],
             ["Numero Cassetta", str(self.record.cassetta)],
