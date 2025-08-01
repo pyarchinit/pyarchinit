@@ -1002,32 +1002,34 @@ class Pyarchinit_db_management(object):
         tma = TMA(arg[0],  # id
                   arg[1],  # sito
                   arg[2],  # area
-                  arg[3],  # ogtm
-                  arg[4],  # ldct
-                  arg[5],  # ldcn
-                  arg[6],  # vecchia_collocazione
-                  arg[7],  # cassetta
-                  arg[8],  # scan
-                  arg[9],  # saggio
-                  arg[10], # vano_locus
-                  arg[11], # dscd
-                  arg[12], # dscu
-                  arg[13], # rcgd
-                  arg[14], # rcgz
-                  arg[15], # aint
-                  arg[16], # aind
-                  arg[17], # dtzg
-                  arg[18], # deso
-                  arg[19], # nsc
-                  arg[20], # ftap
-                  arg[21], # ftan
-                  arg[22], # drat
-                  arg[23], # dran
-                  arg[24], # draa
-                  arg[25], # created_at
-                  arg[26], # updated_at
-                  arg[27], # created_by
-                  arg[28]) # updated_by
+                  arg[3],  # localita
+                  arg[4],  # settore
+                  arg[5],  # ogtm
+                  arg[6],  # ldct
+                  arg[7],  # ldcn
+                  arg[8],  # vecchia_collocazione
+                  arg[9],  # cassetta
+                  arg[10], # scan
+                  arg[11], # saggio
+                  arg[12], # vano_locus
+                  arg[13], # dscd
+                  arg[14], # dscu
+                  arg[15], # rcgd
+                  arg[16], # rcgz
+                  arg[17], # aint
+                  arg[18], # aind
+                  arg[19], # dtzg
+                  arg[20], # deso
+                  arg[21], # nsc
+                  arg[22], # ftap
+                  arg[23], # ftan
+                  arg[24], # drat
+                  arg[25], # dran
+                  arg[26], # draa
+                  arg[27], # created_at
+                  arg[28], # updated_at
+                  arg[29], # created_by
+                  arg[30]) # updated_by
 
         return tma
 
@@ -1514,13 +1516,20 @@ class Pyarchinit_db_management(object):
 
     # session statement
     def insert_data_session(self, data):
-        Session = sessionmaker(bind=self.engine, autoflush=False)
+        Session = sessionmaker(bind=self.engine, autoflush=False, autocommit=False)
         session = Session()
         session.add(data)
-        session.commit()
+        # Log per debug
+        try:
+            session.commit()
+            print(f"DEBUG: Record committed successfully - Type: {type(data).__name__}")
+        except Exception as e:
+            session.rollback()
+            print(f"DEBUG: Commit failed - Error: {str(e)}")
+            raise
         session.close()
     def insert_data_conflict(self, data):
-        Session = sessionmaker(bind=self.engine, autoflush=False)
+        Session = sessionmaker(bind=self.engine, autoflush=False, autocommit=False)
         session = Session()
         session.begin_nested()
         session.merge(data)

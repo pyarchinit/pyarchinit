@@ -1091,7 +1091,7 @@
          </property>
         </widget>
        </item>
-       <item row="0" column="7">
+       <item row="1" column="5">
         <widget class="QPushButton" name="pushButton_export_labels">
          <property name="minimumSize">
           <size>
@@ -1404,7 +1404,7 @@
    <item row="21" column="2" colspan="4">
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>1</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="tab_identificazione">
       <attribute name="title">

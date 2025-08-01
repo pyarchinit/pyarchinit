@@ -268,8 +268,8 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             if hasattr(self, 'comboBox_ldct'):
                 search_dict = {
                     'lingua': lang,
-                    'nome_tabella': "'" + 'tma_materiali_archeologici' + "'",
-                    'tipologia_sigla': "'" + '10.10' + "'"
+                    'nome_tabella': 'tma_materiali_archeologici',
+                    'tipologia_sigla': '10.2'
                 }
                 ldct_vl = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
                 values_ldct = []
@@ -283,8 +283,8 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             if hasattr(self, 'comboBox_aint'):
                 search_dict = {
                     'lingua': lang,
-                    'nome_tabella': "'" + 'tma_materiali_archeologici' + "'",
-                    'tipologia_sigla': "'" + '10.5' + "'"
+                    'nome_tabella': 'tma_materiali_archeologici',
+                    'tipologia_sigla': '10.5'
                 }
                 aint_vl = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
                 values_aint = []
@@ -298,8 +298,8 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             if hasattr(self, 'comboBox_ftap'):
                 search_dict = {
                     'lingua': lang,
-                    'nome_tabella': "'" + 'tma_materiali_archeologici' + "'",
-                    'tipologia_sigla': "'" + '10.12' + "'"
+                    'nome_tabella': 'tma_materiali_archeologici',
+                    'tipologia_sigla': '10.12'
                 }
                 ftap_vl = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
                 values_ftap = []
@@ -313,8 +313,8 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             if hasattr(self, 'comboBox_drat'):
                 search_dict = {
                     'lingua': lang,
-                    'nome_tabella': "'" + 'tma_materiali_archeologici' + "'",
-                    'tipologia_sigla': "'" + '10.13' + "'"
+                    'nome_tabella': 'tma_materiali_archeologici',
+                    'tipologia_sigla': '10.13'
                 }
                 drat_vl = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
                 values_drat = []
@@ -536,8 +536,8 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         # lista area from thesaurus
         self.comboBox_area.clear()
         search_dict = {
-            'nome_tabella': "'" + 'tma_materiali_archeologici' + "'",
-            'tipologia_sigla': "'" + '10.7' + "'"
+            'nome_tabella': 'tma_materiali_archeologici',
+            'tipologia_sigla': '10.14'
         }
         area_vl_thesaurus = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
         area_vl = []
@@ -549,8 +549,8 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         # Load thesaurus values for TMA fields
         # 10.1 - Denominazione collocazione
         search_dict_ldcn = {
-            'nome_tabella': "'tma_materiali_archeologici'",
-            'tipologia_sigla': "'10.1'"
+            'nome_tabella': 'tma_materiali_archeologici',
+            'tipologia_sigla': "'10.3'"
         }
         ldcn_res = self.DB_MANAGER.query_bool(search_dict_ldcn, 'PYARCHINIT_THESAURUS_SIGLE')
         self.comboBox_ldcn.clear()
@@ -570,7 +570,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         
         # 10.18 - Località
         search_dict_localita = {
-            'nome_tabella': "'tma_materiali_archeologici'",
+            'nome_tabella': 'tma_materiali_archeologici',
             'tipologia_sigla': "'10.13'"
         }
         localita_res = self.DB_MANAGER.query_bool(search_dict_localita, 'PYARCHINIT_THESAURUS_SIGLE')
@@ -589,7 +589,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             
         # 10.19 - Settore
         search_dict_settore = {
-            'nome_tabella': "'tma_materiali_archeologici'",
+            'nome_tabella': 'tma_materiali_archeologici',
             'tipologia_sigla': "'10.15'"
         }
         settore_res = self.DB_MANAGER.query_bool(search_dict_settore, 'PYARCHINIT_THESAURUS_SIGLE')
@@ -608,7 +608,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         
         # 10.4 - Nome scavo
         search_dict_scan = {
-            'nome_tabella': "'tma_materiali_archeologici'",
+            'nome_tabella': 'tma_materiali_archeologici',
             'tipologia_sigla': "'10.4'"
         }
         scan_res = self.DB_MANAGER.query_bool(search_dict_scan, 'PYARCHINIT_THESAURUS_SIGLE')
@@ -627,8 +627,8 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         
         # 10.15 - Fascia cronologica (dtzg)
         search_dict_dtzg = {
-            'nome_tabella': "'tma_materiali_archeologici'",
-            'tipologia_sigla': "'10.15'"
+            'nome_tabella': 'tma_materiali_archeologici',
+            'tipologia_sigla': "'10.6'"
         }
         dtzg_res = self.DB_MANAGER.query_bool(search_dict_dtzg, 'PYARCHINIT_THESAURUS_SIGLE')
         self.comboBox_dtzg.clear()
@@ -647,6 +647,8 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         # Note: Materials are handled through separate TMA_MATERIALI table in database
 
     def charge_records(self):
+        QgsMessageLog.logMessage(f"DEBUG TMA charge_records: Called\", \"PyArchInit\", Qgis.Info")
+        QgsMessageLog.logMessage(f"DEBUG TMA: Clearing DATA_LIST in charge_records\", \"PyArchInit\", Qgis.Info")
         self.DATA_LIST = []
         if self.DB_SERVER == 'sqlite':
             for i in self.DB_MANAGER.query(self.MAPPER_TABLE_CLASS):
@@ -707,6 +709,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                 u = Utility()
                 search_dict = u.remove_empty_items_fr_dict(search_dict)
                 res = self.DB_MANAGER.query_bool(search_dict, 'TMA')
+                QgsMessageLog.logMessage(f"DEBUG TMA: Clearing DATA_LIST in charge_records\", \"PyArchInit\", Qgis.Info")
                 self.DATA_LIST = []
                 for i in res:
                     self.DATA_LIST.append(i)
@@ -723,6 +726,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                 else:
                     # No records for this site yet
                     self.BROWSE_STATUS = "x"
+                    QgsMessageLog.logMessage(f"DEBUG TMA: Clearing DATA_LIST in charge_records\", \"PyArchInit\", Qgis.Info")
                     self.DATA_LIST = []
                     self.DATA_LIST_REC_CORR = []
                     self.DATA_LIST_REC_TEMP = []
@@ -2117,6 +2121,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                 QMessageBox.warning(self, "Messaggio", "Problema di connessione", QMessageBox.Ok)
 
             if not bool(self.DATA_LIST):
+                QgsMessageLog.logMessage(f"DEBUG TMA: Clearing DATA_LIST in charge_records\", \"PyArchInit\", Qgis.Info")
                 self.DATA_LIST = []
                 self.DATA_LIST_REC_CORR = []
                 self.DATA_LIST_REC_TEMP = []
@@ -2204,6 +2209,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                     self.setComboBoxEnable(["self.comboBox_sito"], "False")
 
                 else:
+                    QgsMessageLog.logMessage(f"DEBUG TMA: Clearing DATA_LIST in charge_records\", \"PyArchInit\", Qgis.Info")
                     self.DATA_LIST = []
                     for i in res:
                         self.DATA_LIST.append(i)
@@ -2435,10 +2441,13 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                 ''   # updated_by
             )
 
+            QgsMessageLog.logMessage(f"DEBUG TMA: About to insert data - Type: {type(data).__name__}", "PyArchInit", Qgis.Info)
             self.DB_MANAGER.insert_data_session(data)
+            QgsMessageLog.logMessage(f"DEBUG TMA: Data inserted successfully", "PyArchInit", Qgis.Info)
             
             # Get the ID of the inserted record and save materials
             inserted_id = self.DB_MANAGER.max_num_id(self.MAPPER_TABLE_CLASS, self.ID_TABLE)
+            QgsMessageLog.logMessage(f"DEBUG TMA: Inserted record ID: {inserted_id}", "PyArchInit", Qgis.Info)
             self.save_materials_data(inserted_id)
             
             return 1
@@ -2661,7 +2670,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         try:
             # Get località sigla from extended name
             search_dict = {
-                'nome_tabella': "'tma_materiali_archeologici'",
+                'nome_tabella': 'tma_materiali_archeologici',
                 'tipologia_sigla': "'10.13'",
                 'sigla_estesa': f"'{current_localita}'"
             }
@@ -2672,7 +2681,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                 
                 # Get areas that belong to this località
                 search_dict_area = {
-                    'nome_tabella': "'tma_materiali_archeologici'",
+                    'nome_tabella': 'tma_materiali_archeologici',
                     'tipologia_sigla': "'10.14'",
                     'parent_sigla': f"'{localita_sigla}'"
                 }
@@ -2707,7 +2716,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         try:
             # Get area sigla from extended name
             search_dict = {
-                'nome_tabella': "'tma_materiali_archeologici'",
+                'nome_tabella': 'tma_materiali_archeologici',
                 'tipologia_sigla': "'10.14'",
                 'sigla_estesa': f"'{current_area}'"
             }
@@ -2718,7 +2727,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                 
                 # Get settori that belong to this area
                 search_dict_settore = {
-                    'nome_tabella': "'tma_materiali_archeologici'",
+                    'nome_tabella': 'tma_materiali_archeologici',
                     'tipologia_sigla': "'10.15'",
                     'parent_sigla': f"'{area_sigla}'"
                 }
@@ -2749,7 +2758,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         
         search_dict = {
             'lingua': lang,
-            'nome_tabella': "'tma_materiali_archeologici'",
+            'nome_tabella': 'tma_materiali_archeologici',
             'tipologia_sigla': "'10.14'"
         }
         area_vl_thesaurus = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
@@ -2763,7 +2772,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
     def load_settore_values(self):
         """Load all settore values from thesaurus."""
         search_dict = {
-            'nome_tabella': "'tma_materiali_archeologici'",
+            'nome_tabella': 'tma_materiali_archeologici',
             'tipologia_sigla': "'10.15'"
         }
         settore_res = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
@@ -2840,12 +2849,21 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             table_name = 'tma_materiali_archeologici'
             
             search_dict = {
-                'lingua': "'" + lang + "'",  # Use lowercase language code
-                'nome_tabella': "'" + table_name + "'",
-                'tipologia_sigla': "'" + thesaurus_map[field_type] + "'"
+                'lingua': lang,  # Use lowercase language code
+                'nome_tabella': table_name,
+                'tipologia_sigla': thesaurus_map[field_type]
             }
             
+            # DEBUG: Log the exact query
+            QgsMessageLog.logMessage(f"DEBUG TMA thesaurus query: search_dict = {search_dict}", "PyArchInit", Qgis.Info)
+            QgsMessageLog.logMessage(f"DEBUG TMA thesaurus: lang = '{lang}', type = {type(lang)}", "PyArchInit", Qgis.Info)
+            QgsMessageLog.logMessage(f"DEBUG TMA thesaurus: table_name = '{table_name}', type = {type(table_name)}", "PyArchInit", Qgis.Info)
+            QgsMessageLog.logMessage(f"DEBUG TMA thesaurus: tipologia_sigla = '{thesaurus_map[field_type]}', type = {type(thesaurus_map[field_type])}", "PyArchInit", Qgis.Info)
+            
             thesaurus_records = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+            
+            # DEBUG: Check what was returned
+            QgsMessageLog.logMessage(f"DEBUG TMA thesaurus result: type = {type(thesaurus_records)}, len = {len(thesaurus_records) if thesaurus_records else 0}", "PyArchInit", Qgis.Info)
             values = []
             
             QgsMessageLog.logMessage(f"DEBUG load_thesaurus_values: field={field_type}, table={table_name}, code={thesaurus_map[field_type]}, records found={len(thesaurus_records)}", "PyArchInit", Qgis.Info)
@@ -2882,11 +2900,20 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                     if self.DB_MANAGER and self.DB_MANAGER != "":
                         search_dict = {
                             'lingua': lang,
-                            'nome_tabella': "'" + 'tma_table' + "'",  # Using alias
-                            'tipologia_sigla': "'" + '10.5' + "'"
+                            'nome_tabella': 'tma_materiali_archeologici',  # Using alias
+                            'tipologia_sigla': '10.5'
                         }
                         
+                        # DEBUG: Log the exact query
+                        QgsMessageLog.logMessage(f"DEBUG TMA thesaurus query: search_dict = {search_dict}", "PyArchInit", Qgis.Info)
+                        QgsMessageLog.logMessage(f"DEBUG TMA thesaurus: lang = '{lang}', type = {type(lang)}", "PyArchInit", Qgis.Info)
+                        QgsMessageLog.logMessage(f"DEBUG TMA thesaurus: table_name = '{table_name}', type = {type(table_name)}", "PyArchInit", Qgis.Info)
+                        QgsMessageLog.logMessage(f"DEBUG TMA thesaurus: tipologia_sigla = '{thesaurus_map[field_type]}', type = {type(thesaurus_map[field_type])}", "PyArchInit", Qgis.Info)
+
                         thesaurus_records = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+
+                        # DEBUG: Check what was returned
+                        QgsMessageLog.logMessage(f"DEBUG TMA thesaurus result: type = {type(thesaurus_records)}, len = {len(thesaurus_records) if thesaurus_records else 0}", "PyArchInit", Qgis.Info)
                     else:
                         thesaurus_records = []
                     
@@ -2980,7 +3007,76 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             self.tableWidget_materiali.setItemDelegateForColumn(4, ComboBoxDelegate(cronologia_values, self.tableWidget_materiali))
             QgsMessageLog.logMessage(f"DEBUG TMA: Set delegate for Cronologia column with {len(cronologia_values)} values", "PyArchInit", Qgis.Info)
         
-        # Connect signal to track table changes
+
+        
+        # Setup delegates for documentation tables
+        self.setup_documentation_delegates()
+    
+    def setup_documentation_delegates(self):
+        """Setup delegates for photo and drawing documentation tables."""
+        from qgis.PyQt.QtWidgets import QStyledItemDelegate, QComboBox
+        
+        # Define ComboBoxDelegate locally for documentation
+        class ComboBoxDelegate(QStyledItemDelegate):
+            def __init__(self, items, parent=None):
+                super().__init__(parent)
+                self.items = items
+            
+            def createEditor(self, parent, option, index):
+                editor = QComboBox(parent)
+                editor.addItems(self.items)
+                editor.setEditable(True)
+                editor.setInsertPolicy(QComboBox.NoInsert)
+                return editor
+            
+            def setEditorData(self, editor, index):
+                value = index.model().data(index, Qt.EditRole)
+                if value in self.items:
+                    editor.setCurrentText(value)
+                else:
+                    editor.setEditText(str(value) if value else "")
+            
+            def setModelData(self, editor, model, index):
+                value = editor.currentText()
+                model.setData(index, value, Qt.EditRole)
+                model.setData(index, value, Qt.DisplayRole)
+                model.dataChanged.emit(index, index)
+        
+        # Load photo types from thesaurus
+        ftap_values = []
+        if self.DB_MANAGER and self.DB_MANAGER != "":
+            search_dict = {
+                'lingua': 'IT',
+                'nome_tabella': 'tma_materiali_archeologici',
+                'tipologia_sigla': '10.12'
+            }
+            ftap_res = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+            for rec in ftap_res:
+                if hasattr(rec, 'sigla_estesa') and rec.sigla_estesa:
+                    ftap_values.append(str(rec.sigla_estesa))
+            ftap_values.sort()
+        
+        # If we have photo types, set delegate for first column of photo table
+        if ftap_values and hasattr(self, 'tableWidget_foto'):
+            self.tableWidget_foto.setItemDelegateForColumn(0, ComboBoxDelegate(ftap_values, self.tableWidget_foto))
+            QgsMessageLog.logMessage(f"DEBUG TMA: Set delegate for Photo Type column with {len(ftap_values)} values", "PyArchInit", Qgis.Info)
+        
+        # For drawings, we might need drawing types from thesaurus too
+        # Currently using free text, but could be enhanced
+        
+        # Load drawing types from thesaurus if available
+        drat_values = []
+        if self.DB_MANAGER and self.DB_MANAGER != "":
+            # Assumiamo che ci sia un tipo per i disegni (es. 10.16)
+            # Per ora usiamo valori predefiniti
+            drat_values = ["pianta", "sezione", "prospetto", "assonometria", "dettaglio", "schizzo"]
+        
+        # Set delegate for drawing type column if we have values
+        if drat_values and hasattr(self, 'tableWidget_disegni'):
+            self.tableWidget_disegni.setItemDelegateForColumn(0, ComboBoxDelegate(drat_values, self.tableWidget_disegni))
+            QgsMessageLog.logMessage(f"DEBUG TMA: Set delegate for Drawing Type column with {len(drat_values)} values", "PyArchInit", Qgis.Info)
+
+            # Connect signal to track table changes
         self.tableWidget_materiali.itemChanged.connect(self.on_materials_table_changed)
         
         # Flag to track materials changes
@@ -3452,7 +3548,9 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                 str(filepath),         # 5 - filepath
                 str(media_name))       # 6 - media_name
             try:
+                QgsMessageLog.logMessage(f"DEBUG TMA: About to insert data - Type: {type(data).__name__}", "PyArchInit", Qgis.Info)
                 self.DB_MANAGER.insert_data_session(data)
+                QgsMessageLog.logMessage(f"DEBUG TMA: Data inserted successfully", "PyArchInit", Qgis.Info)
                 return 1
             except Exception as e:
                 e_str = str(e)
@@ -3907,7 +4005,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             # Create label
             HOME = os.environ['PYARCHINIT_HOME']
             PDF_path = os.path.join(HOME, "pyarchinit_PDF_folder")
-            filename = f"Etichetta_TMA_{current_tma.inventario}_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
+            filename = f"Etichetta_TMA_{current_tma.id}_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
             filepath = os.path.join(PDF_path, filename)
             
             label_gen = TMALabelPDF(label_format=label_format)
