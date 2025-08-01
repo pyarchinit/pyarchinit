@@ -45,6 +45,7 @@ from ..modules.utility.pyarchinit_media_utility import *
 from ..modules.db.entities.TMA import TMA
 from ..modules.db.entities.TMA_MATERIALI import TMA_MATERIALI
 from ..modules.utility.pyarchinit_exp_Tmasheet_pdf import single_TMA_pdf
+from ..modules.utility.pyarchinit_tma_label_pdf import TMALabelPDF
 
 # Additional imports for media support
 from qgis.PyQt.QtGui import QIcon, QPixmap
@@ -145,6 +146,8 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
     TABLE_FIELDS = [
         'sito',
         'area',
+        'localita',
+        'settore',
         'ogtm',
         'ldct',
         'ldcn',
@@ -265,7 +268,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             if hasattr(self, 'comboBox_ldct'):
                 search_dict = {
                     'lingua': lang,
-                    'nome_tabella': "'" + 'tma_table' + "'",  # Using alias table name
+                    'nome_tabella': "'" + 'tma_materiali_archeologici' + "'",
                     'tipologia_sigla': "'" + '10.10' + "'"
                 }
                 ldct_vl = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
@@ -280,8 +283,8 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             if hasattr(self, 'comboBox_aint'):
                 search_dict = {
                     'lingua': lang,
-                    'nome_tabella': "'" + 'tma_table' + "'",
-                    'tipologia_sigla': "'" + '10.11' + "'"
+                    'nome_tabella': "'" + 'tma_materiali_archeologici' + "'",
+                    'tipologia_sigla': "'" + '10.5' + "'"
                 }
                 aint_vl = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
                 values_aint = []
@@ -295,7 +298,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             if hasattr(self, 'comboBox_ftap'):
                 search_dict = {
                     'lingua': lang,
-                    'nome_tabella': "'" + 'tma_table' + "'",
+                    'nome_tabella': "'" + 'tma_materiali_archeologici' + "'",
                     'tipologia_sigla': "'" + '10.12' + "'"
                 }
                 ftap_vl = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
@@ -310,7 +313,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             if hasattr(self, 'comboBox_drat'):
                 search_dict = {
                     'lingua': lang,
-                    'nome_tabella': "'" + 'tma_table' + "'",
+                    'nome_tabella': "'" + 'tma_materiali_archeologici' + "'",
                     'tipologia_sigla': "'" + '10.13' + "'"
                 }
                 drat_vl = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
@@ -327,6 +330,9 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         # self.lineEdit_us.textChanged.connect(self.on_us_changed)
         self.comboBox_area.currentIndexChanged.connect(self.on_area_changed)
         self.comboBox_sito.currentIndexChanged.connect(self.on_sito_changed)
+        
+        # Connect hierarchical filters for località->area->settore
+        self.comboBox_localita.currentIndexChanged.connect(self.on_localita_changed)
         
         # Connect add material button only once
         if hasattr(self, 'pushButton_add_materiale'):
@@ -356,6 +362,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         self.pushButton_import.clicked.connect(self.on_pushButton_import_pressed)
         #self.pushButton_export_ica.clicked.connect(self.on_pushButton_export_pdf_pressed)
         self.pushButton_export_pdf.clicked.connect(self.on_pushButton_export_tma_pdf_pressed)
+        self.pushButton_export_labels.clicked.connect(self.on_pushButton_export_labels_pressed)
 
     def enable_button(self, n):
         self.pushButton_new_rec.setEnabled(n)
@@ -391,6 +398,10 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         try:
             self.DB_MANAGER = Pyarchinit_db_management(conn_str)
             self.DB_MANAGER.connection()
+            
+            # Check and update database schema if needed
+            self.check_and_update_schema()
+            
             self.charge_records()  # charge records from DB
             # check if DB is empty
             if bool(self.DATA_LIST):
@@ -434,6 +445,66 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                     msg = "Warning bug detected! Report it to the developer. Error: ".format(str(e))
                     self.iface.messageBar().pushMessage(self.tr(msg), Qgis.Warning, 0)
 
+    def check_and_update_schema(self):
+        """Check and update database schema if needed for both SQLite and PostgreSQL."""
+        try:
+            conn = self.DB_MANAGER.engine.raw_connection()
+            cursor = conn.cursor()
+            
+            needs_update = False
+            
+            if self.DB_SERVER == "sqlite":
+                # SQLite: Check columns using PRAGMA
+                cursor.execute("PRAGMA table_info(tma_materiali_archeologici)")
+                columns = cursor.fetchall()
+                column_names = [col[1] for col in columns]
+                
+                if 'localita' not in column_names:
+                    cursor.execute("ALTER TABLE tma_materiali_archeologici ADD COLUMN localita TEXT")
+                    needs_update = True
+                    QgsMessageLog.logMessage("Added 'localita' column to TMA table", "PyArchInit", Qgis.Info)
+                
+                if 'settore' not in column_names:
+                    cursor.execute("ALTER TABLE tma_materiali_archeologici ADD COLUMN settore TEXT")
+                    needs_update = True
+                    QgsMessageLog.logMessage("Added 'settore' column to TMA table", "PyArchInit", Qgis.Info)
+                    
+            else:  # PostgreSQL
+                # PostgreSQL: Check columns using information_schema
+                cursor.execute("""
+                    SELECT column_name 
+                    FROM information_schema.columns 
+                    WHERE table_name = 'tma_materiali_archeologici'
+                    AND column_name IN ('localita', 'settore')
+                """)
+                existing_columns = [row[0] for row in cursor.fetchall()]
+                
+                if 'localita' not in existing_columns:
+                    cursor.execute("ALTER TABLE tma_materiali_archeologici ADD COLUMN localita TEXT")
+                    needs_update = True
+                    QgsMessageLog.logMessage("Added 'localita' column to TMA table", "PyArchInit", Qgis.Info)
+                
+                if 'settore' not in existing_columns:
+                    cursor.execute("ALTER TABLE tma_materiali_archeologici ADD COLUMN settore TEXT")
+                    needs_update = True
+                    QgsMessageLog.logMessage("Added 'settore' column to TMA table", "PyArchInit", Qgis.Info)
+            
+            if needs_update:
+                conn.commit()
+                if self.L == 'it':
+                    QMessageBox.information(self, "Database aggiornato", 
+                                          "La tabella TMA è stata aggiornata con i nuovi campi località e settore.",
+                                          QMessageBox.Ok)
+                else:
+                    QMessageBox.information(self, "Database updated", 
+                                          "The TMA table has been updated with new locality and sector fields.",
+                                          QMessageBox.Ok)
+            
+            cursor.close()
+            
+        except Exception as e:
+            QgsMessageLog.logMessage(f"Error checking/updating schema: {str(e)}", "PyArchInit", Qgis.Warning)
+
     def charge_list(self):
         """Load combobox lists."""
         # Get language setting
@@ -465,7 +536,6 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         # lista area from thesaurus
         self.comboBox_area.clear()
         search_dict = {
-            'lingua': lang,
             'nome_tabella': "'" + 'tma_materiali_archeologici' + "'",
             'tipologia_sigla': "'" + '10.7' + "'"
         }
@@ -496,43 +566,83 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             index = self.comboBox_ldcn.count() - 1
             self.comboBox_ldcn.setItemData(index, f"Codice: {ldcn_dict[sigla_estesa]}", Qt.ToolTipRole)
         
-        # 10.2 - Saggio
-        search_dict_saggio = {
+        # Saggio and Vano/Locus are now LineEdit fields - no thesaurus loading needed
+        
+        # 10.18 - Località
+        search_dict_localita = {
             'nome_tabella': "'tma_materiali_archeologici'",
-            'tipologia_sigla': "'10.2'"
+            'tipologia_sigla': "'10.13'"
         }
-        saggio_res = self.DB_MANAGER.query_bool(search_dict_saggio, 'PYARCHINIT_THESAURUS_SIGLE')
-        self.comboBox_saggio.clear()
-        saggio_dict = {}
-        for i in range(len(saggio_res)):
-            sigla_estesa = str(saggio_res[i].sigla_estesa)
-            sigla = str(saggio_res[i].sigla)
-            saggio_dict[sigla_estesa] = sigla
+        localita_res = self.DB_MANAGER.query_bool(search_dict_localita, 'PYARCHINIT_THESAURUS_SIGLE')
+        self.comboBox_localita.clear()
+        localita_dict = {}
+        for i in range(len(localita_res)):
+            sigla_estesa = str(localita_res[i].sigla_estesa)
+            sigla = str(localita_res[i].sigla)
+            localita_dict[sigla_estesa] = sigla
         
         # Sort and add items with tooltips
-        for sigla_estesa in sorted(saggio_dict.keys()):
-            self.comboBox_saggio.addItem(sigla_estesa)
-            index = self.comboBox_saggio.count() - 1
-            self.comboBox_saggio.setItemData(index, f"Codice: {saggio_dict[sigla_estesa]}", Qt.ToolTipRole)
-        
-        # 10.3 - Vano/Locus
-        search_dict_vano = {
+        for sigla_estesa in sorted(localita_dict.keys()):
+            self.comboBox_localita.addItem(sigla_estesa)
+            index = self.comboBox_localita.count() - 1
+            self.comboBox_localita.setItemData(index, f"Codice: {localita_dict[sigla_estesa]}", Qt.ToolTipRole)
+            
+        # 10.19 - Settore
+        search_dict_settore = {
             'nome_tabella': "'tma_materiali_archeologici'",
-            'tipologia_sigla': "'10.3'"
+            'tipologia_sigla': "'10.15'"
         }
-        vano_res = self.DB_MANAGER.query_bool(search_dict_vano, 'PYARCHINIT_THESAURUS_SIGLE')
-        self.comboBox_vano_locus.clear()
-        vano_dict = {}
-        for i in range(len(vano_res)):
-            sigla_estesa = str(vano_res[i].sigla_estesa)
-            sigla = str(vano_res[i].sigla)
-            vano_dict[sigla_estesa] = sigla
+        settore_res = self.DB_MANAGER.query_bool(search_dict_settore, 'PYARCHINIT_THESAURUS_SIGLE')
+        self.comboBox_settore.clear()
+        settore_dict = {}
+        for i in range(len(settore_res)):
+            sigla_estesa = str(settore_res[i].sigla_estesa)
+            sigla = str(settore_res[i].sigla)
+            settore_dict[sigla_estesa] = sigla
         
         # Sort and add items with tooltips
-        for sigla_estesa in sorted(vano_dict.keys()):
-            self.comboBox_vano_locus.addItem(sigla_estesa)
-            index = self.comboBox_vano_locus.count() - 1
-            self.comboBox_vano_locus.setItemData(index, f"Codice: {vano_dict[sigla_estesa]}", Qt.ToolTipRole)
+        for sigla_estesa in sorted(settore_dict.keys()):
+            self.comboBox_settore.addItem(sigla_estesa)
+            index = self.comboBox_settore.count() - 1
+            self.comboBox_settore.setItemData(index, f"Codice: {settore_dict[sigla_estesa]}", Qt.ToolTipRole)
+        
+        # 10.4 - Nome scavo
+        search_dict_scan = {
+            'nome_tabella': "'tma_materiali_archeologici'",
+            'tipologia_sigla': "'10.4'"
+        }
+        scan_res = self.DB_MANAGER.query_bool(search_dict_scan, 'PYARCHINIT_THESAURUS_SIGLE')
+        self.comboBox_scan.clear()
+        scan_dict = {}
+        for i in range(len(scan_res)):
+            sigla_estesa = str(scan_res[i].sigla_estesa)
+            sigla = str(scan_res[i].sigla)
+            scan_dict[sigla_estesa] = sigla
+        
+        # Sort and add items with tooltips
+        for sigla_estesa in sorted(scan_dict.keys()):
+            self.comboBox_scan.addItem(sigla_estesa)
+            index = self.comboBox_scan.count() - 1
+            self.comboBox_scan.setItemData(index, f"Codice: {scan_dict[sigla_estesa]}", Qt.ToolTipRole)
+        
+        # 10.15 - Fascia cronologica (dtzg)
+        search_dict_dtzg = {
+            'nome_tabella': "'tma_materiali_archeologici'",
+            'tipologia_sigla': "'10.15'"
+        }
+        dtzg_res = self.DB_MANAGER.query_bool(search_dict_dtzg, 'PYARCHINIT_THESAURUS_SIGLE')
+        self.comboBox_dtzg.clear()
+        dtzg_dict = {}
+        for i in range(len(dtzg_res)):
+            sigla_estesa = str(dtzg_res[i].sigla_estesa)
+            sigla = str(dtzg_res[i].sigla)
+            dtzg_dict[sigla_estesa] = sigla
+        
+        # Sort and add items with tooltips
+        for sigla_estesa in sorted(dtzg_dict.keys()):
+            self.comboBox_dtzg.addItem(sigla_estesa)
+            index = self.comboBox_dtzg.count() - 1
+            self.comboBox_dtzg.setItemData(index, f"Codice: {dtzg_dict[sigla_estesa]}", Qt.ToolTipRole)
         
         # Note: Materials are handled through separate TMA_MATERIALI table in database
 
@@ -674,11 +784,11 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
 
             # Excavation data
             if self.DATA_LIST[n].scan:
-                self.lineEdit_scan.setText(str(self.DATA_LIST[n].scan))
+                self.comboBox_scan.setEditText(str(self.DATA_LIST[n].scan))
             if self.DATA_LIST[n].saggio:
-                self.comboBox_saggio.setEditText(str(self.DATA_LIST[n].saggio))
+                self.lineEdit_saggio.setText(str(self.DATA_LIST[n].saggio))
             if self.DATA_LIST[n].vano_locus:
-                self.comboBox_vano_locus.setEditText(str(self.DATA_LIST[n].vano_locus))
+                self.lineEdit_vano_locus.setText(str(self.DATA_LIST[n].vano_locus))
             if self.DATA_LIST[n].dscd:
                 self.lineEdit_dscd.setText(str(self.DATA_LIST[n].dscd))
 
@@ -694,11 +804,49 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
 
             # Dating data - only fascia cronologica is left
             if self.DATA_LIST[n].dtzg:
-                self.lineEdit_dtzg.setText(str(self.DATA_LIST[n].dtzg))
+                self.comboBox_dtzg.setEditText(str(self.DATA_LIST[n].dtzg))
 
             # Technical data - only deso remains in main form
             if self.DATA_LIST[n].deso:
                 self.textEdit_deso.setText(str(self.DATA_LIST[n].deso))
+                
+            # New fields - località and settore (handle hierarchy)
+            if hasattr(self.DATA_LIST[n], 'localita') and self.DATA_LIST[n].localita:
+                # Temporarily disconnect signal to avoid triggering filter
+                try:
+                    self.comboBox_localita.currentIndexChanged.disconnect()
+                except:
+                    pass
+                self.comboBox_localita.setEditText(str(self.DATA_LIST[n].localita))
+                # Reconnect signal
+                self.comboBox_localita.currentIndexChanged.connect(self.on_localita_changed)
+                
+                # Filter area based on località
+                self.filter_area_by_localita()
+            else:
+                # If no località, load all areas
+                self.load_area_values()
+                
+            # Set area after località has filtered the options
+            if self.DATA_LIST[n].area:
+                # Temporarily disconnect signal
+                try:
+                    self.comboBox_area.currentIndexChanged.disconnect()
+                except:
+                    pass
+                self.comboBox_area.setEditText(str(self.DATA_LIST[n].area))
+                # Reconnect signal
+                self.comboBox_area.currentIndexChanged.connect(self.on_area_changed)
+                
+                # Filter settore based on area
+                self.filter_settore_by_area()
+            else:
+                # If no area selected, ensure settore is cleared
+                self.comboBox_settore.clear()
+                
+            # Set settore after area has filtered the options
+            if hasattr(self.DATA_LIST[n], 'settore') and self.DATA_LIST[n].settore:
+                self.comboBox_settore.setEditText(str(self.DATA_LIST[n].settore))
 
             # Load materials table from separate table
             self.load_materials_table()
@@ -895,18 +1043,18 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
 
         # Excavation data
 
-        if self.lineEdit_scan.text():
-            scan = self.lineEdit_scan.text()
+        if self.comboBox_scan.currentText():
+            scan = self.comboBox_scan.currentText()
         else:
             scan = ""
 
-        if self.comboBox_saggio.currentText():
-            saggio = self.comboBox_saggio.currentText()
+        if self.lineEdit_saggio.text():
+            saggio = self.lineEdit_saggio.text()
         else:
             saggio = ""
 
-        if self.comboBox_vano_locus.currentText():
-            vano_locus = self.comboBox_vano_locus.currentText()
+        if self.lineEdit_vano_locus.text():
+            vano_locus = self.lineEdit_vano_locus.text()
         else:
             vano_locus = ""
 
@@ -937,8 +1085,8 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             aind = ""
 
         # Dating
-        if self.lineEdit_dtzg.text():
-            dtzg = self.lineEdit_dtzg.text()
+        if self.comboBox_dtzg.currentText():
+            dtzg = self.comboBox_dtzg.currentText()
         else:
             dtzg = ""
 
@@ -951,14 +1099,27 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         # Note storico-critiche field doesn't exist in the UI
         nsc = ""
 
+        # Get località and settore
+        if self.comboBox_localita.currentText():
+            localita = self.comboBox_localita.currentText()
+        else:
+            localita = ""
+            
+        if self.comboBox_settore.currentText():
+            settore = self.comboBox_settore.currentText()
+        else:
+            settore = ""
+
         # Get documentation data from tables
         ftap, ftan = self.get_foto_data()
         drat, dran, draa = self.get_disegni_data()
 
-        # Build the temp list (28 fields with system fields)
+        # Build the temp list (30 fields with system fields)
         self.DATA_LIST_REC_TEMP = [
             str(self.comboBox_sito.currentText()),  # sito
             str(self.comboBox_area.currentText()),  # area
+            str(localita),  # località
+            str(settore),  # settore
             str(ogtm),  # materiale
             str(ldct),  # tipo collocazione
             str(ldcn),  # denominazione
@@ -1028,8 +1189,8 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         # Enable horizontal header visibility (UI file has it disabled)
         self.tableWidget_materiali.horizontalHeader().setVisible(True)
         
-        # Set column headers - Materiale moved from main form, Inventario removed
-        headers = ["Materiale *", "Categoria *", "Classe", "Prec. tipologica", "Definizione", "Cronologia", "Quantità", "Peso"]
+        # Set column headers - Categoria will sync to ogtm field
+        headers = ["Categoria *", "Classe", "Prec. tipologica", "Definizione", "Cronologia", "Quantità", "Peso"]
         self.tableWidget_materiali.setColumnCount(len(headers))
         self.tableWidget_materiali.setHorizontalHeaderLabels(headers)
         
@@ -1087,20 +1248,23 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                     
                     # Fill row data - map column indices from query result
                     # Assuming column order: id, id_tma, madi, macc, macl, macp, macd, cronologia_mac, macq, peso
-                    item0 = QTableWidgetItem(str(row[2]) if row[2] else "")  # madi
+                    # macc (categoria) now goes in first column and syncs to ogtm
+                    item0 = QTableWidgetItem(str(row[3]) if row[3] else "")  # macc
                     # Store the material ID in the first item's user data
                     item0.setData(Qt.UserRole, int(row[0]))  # id
                     self.tableWidget_materiali.setItem(table_row, 0, item0)
                     
-                    self.tableWidget_materiali.setItem(table_row, 1, QTableWidgetItem(str(row[3]) if row[3] else ""))  # macc
-                    self.tableWidget_materiali.setItem(table_row, 2, QTableWidgetItem(str(row[4]) if row[4] else ""))  # macl
-                    self.tableWidget_materiali.setItem(table_row, 3, QTableWidgetItem(str(row[5]) if row[5] else ""))  # macp
-                    self.tableWidget_materiali.setItem(table_row, 4, QTableWidgetItem(str(row[6]) if row[6] else ""))  # macd
-                    self.tableWidget_materiali.setItem(table_row, 5, QTableWidgetItem(str(row[7]) if row[7] else ""))  # cronologia_mac
-                    self.tableWidget_materiali.setItem(table_row, 6, QTableWidgetItem(str(row[8]) if row[8] else ""))  # macq
-                    self.tableWidget_materiali.setItem(table_row, 7, QTableWidgetItem(str(row[9]) if row[9] else ""))  # peso
+                    self.tableWidget_materiali.setItem(table_row, 1, QTableWidgetItem(str(row[4]) if row[4] else ""))  # macl
+                    self.tableWidget_materiali.setItem(table_row, 2, QTableWidgetItem(str(row[5]) if row[5] else ""))  # macp
+                    self.tableWidget_materiali.setItem(table_row, 3, QTableWidgetItem(str(row[6]) if row[6] else ""))  # macd
+                    self.tableWidget_materiali.setItem(table_row, 4, QTableWidgetItem(str(row[7]) if row[7] else ""))  # cronologia_mac
+                    self.tableWidget_materiali.setItem(table_row, 5, QTableWidgetItem(str(row[8]) if row[8] else ""))  # macq
+                    self.tableWidget_materiali.setItem(table_row, 6, QTableWidgetItem(str(row[9]) if row[9] else ""))  # peso
                     
                 QgsMessageLog.logMessage(f"DEBUG TMA load_materials_table: Loaded {self.tableWidget_materiali.rowCount()} materials", "PyArchInit", Qgis.Info)
+                
+                # Update the materiale field with loaded materials
+                self.update_materiale_field()
                     
             finally:
                 session.close()
@@ -1378,6 +1542,8 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         current_row = self.tableWidget_materiali.currentRow()
         if current_row >= 0:
             self.tableWidget_materiali.removeRow(current_row)
+            # Update materiale field after removing row
+            self.update_materiale_field()
     
     def update_material_navigation(self):
         """Update navigation buttons for materials table."""
@@ -1395,7 +1561,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         """Clear all form fields."""
         # Basic fields
         self.comboBox_sito.setEditText("")
-        self.comboBox_area.setEditText("")
+        # Don't clear area here - let it be managed by località change
         self.lineEdit_us.clear()
 
         # All other fields
@@ -1403,16 +1569,23 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         self.comboBox_ldcn.setEditText("")
         self.lineEdit_vecchia_collocazione.clear()
         self.lineEdit_cassetta.clear()
-        self.lineEdit_scan.clear()
-        self.comboBox_saggio.setEditText("")
-        self.comboBox_vano_locus.setEditText("")
+        self.comboBox_scan.clear()
+        self.lineEdit_saggio.clear()
+        self.lineEdit_vano_locus.clear()
         self.lineEdit_dscd.clear()
         self.lineEdit_rcgd.clear()
         self.textEdit_rcgz.clear()
         self.comboBox_aint.setCurrentIndex(0)
         self.lineEdit_aind.clear()
-        self.lineEdit_dtzg.clear()
+        self.comboBox_dtzg.clear()
         self.textEdit_deso.clear()
+        
+        # Clear new fields
+        self.comboBox_localita.setEditText("")
+        # Clear area and settore when località is cleared
+        self.comboBox_area.clear()
+        self.comboBox_settore.clear()
+        self.lineEdit_materiale.clear()
         
         # Clear materials table
         self.tableWidget_materiali.setRowCount(0)
@@ -1443,16 +1616,21 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         self.comboBox_ldcn.setEditText("")
         self.lineEdit_vecchia_collocazione.clear()
         self.lineEdit_cassetta.clear()
-        self.lineEdit_scan.clear()
-        self.comboBox_saggio.setEditText("")
-        self.comboBox_vano_locus.setEditText("")
+        self.comboBox_scan.clear()
+        self.lineEdit_saggio.clear()
+        self.lineEdit_vano_locus.clear()
         self.lineEdit_dscd.clear()
         self.lineEdit_rcgd.clear()
         self.textEdit_rcgz.clear()
         self.comboBox_aint.setCurrentIndex(0)
         self.lineEdit_aind.clear()
-        self.lineEdit_dtzg.clear()
+        self.comboBox_dtzg.clear()
         self.textEdit_deso.clear()
+
+        # Clear new fields
+        self.comboBox_localita.setEditText("")
+        self.comboBox_settore.setEditText("")
+        self.lineEdit_materiale.clear()
 
         # Clear materials table
         self.tableWidget_materiali.setRowCount(0)
@@ -1648,21 +1826,11 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         # Check required fields
         # Note: materiale field has been moved to materials table
 
-        if self.comboBox_ldcn.currentText() == "":
-            QMessageBox.warning(self, "ATTENZIONE", "Campo Denominazione collocazione obbligatorio!", QMessageBox.Ok)
-            test = 1
-            return test
-
-        if self.lineEdit_cassetta.text() == "":
-            QMessageBox.warning(self, "ATTENZIONE", "Campo Cassetta obbligatorio!", QMessageBox.Ok)
-            test = 1
-            return test
+        # ldcn and cassetta are now optional fields
 
 
-        if self.lineEdit_us.text() == "":
-            QMessageBox.warning(self, "ATTENZIONE", "Campo US obbligatorio!", QMessageBox.Ok)
-            test = 1
-            return test
+        # US field is optional
+        # All required field checks have been removed as per new requirements
 
 
         # Materials are now in the materials table and are optional
@@ -1872,6 +2040,8 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
             self.empty_fields()
             self.label_sort.setText(self.SORTED_ITEMS["n"])
+            # Load all areas for new record since no località is selected
+            self.load_area_values()
 
             if bool(sito_set_str):
                 # When sito_set is active, set the site field and make it read-only
@@ -2161,6 +2331,12 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
 
         if self.comboBox_area.currentText() != "":
             search_dict['area'] = "'" + str(self.comboBox_area.currentText()) + "'"
+            
+        if self.comboBox_localita.currentText() != "":
+            search_dict['localita'] = "'" + str(self.comboBox_localita.currentText()) + "'"
+            
+        if self.comboBox_settore.currentText() != "":
+            search_dict['settore'] = "'" + str(self.comboBox_settore.currentText()) + "'"
 
         if self.lineEdit_us.text() != "":
             search_dict['dscu'] = "'" + str(self.lineEdit_us.text()) + "'"
@@ -2174,8 +2350,8 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             search_dict['cassetta'] = "'" + str(self.lineEdit_cassetta.text()) + "'"
 
 
-        if self.lineEdit_dtzg.text() != "":
-            search_dict['dtzg'] = "'" + str(self.lineEdit_dtzg.text()) + "'"
+        if self.comboBox_dtzg.currentText() != "":
+            search_dict['dtzg'] = "'" + str(self.comboBox_dtzg.currentText()) + "'"
 
         return search_dict
     
@@ -2229,21 +2405,23 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                 self.DB_MANAGER.max_num_id(self.MAPPER_TABLE_CLASS, self.ID_TABLE) + 1,
                 str(self.comboBox_sito.currentText()),
                 str(self.comboBox_area.currentText()),
+                str(self.comboBox_localita.currentText()),
+                str(self.comboBox_settore.currentText()),
                 '',  # ogtm - materiale field has been moved to materials table
                 str(self.comboBox_ldct.currentText()),
                 str(self.comboBox_ldcn.currentText()),
                 str(self.lineEdit_vecchia_collocazione.text()),
                 str(self.lineEdit_cassetta.text()),
-                str(self.lineEdit_scan.text()),
-                str(self.comboBox_saggio.currentText()),
-                str(self.comboBox_vano_locus.currentText()),
+                str(self.comboBox_scan.currentText()),
+                str(self.lineEdit_saggio.text()),
+                str(self.lineEdit_vano_locus.text()),
                 str(self.lineEdit_dscd.text()),
                 str(self.lineEdit_us.text()),  # dscu
                 str(self.lineEdit_rcgd.text()),
                 str(self.textEdit_rcgz.toPlainText()),
                 str(self.comboBox_aint.currentText()),
                 str(self.lineEdit_aind.text()),
-                str(self.lineEdit_dtzg.text()),  # Single chronology field
+                str(self.comboBox_dtzg.currentText()),  # Single chronology field
                 str(self.textEdit_deso.toPlainText()),
                 '',  # nsc field doesn't exist in UI
                 ftap,
@@ -2443,103 +2621,158 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             QMessageBox.warning(self, "Errore", f"Errore nel recupero materiali: {str(e)}", QMessageBox.Ok)
     
     def on_us_changed(self):
-        """Handle US field change to sync chronology."""
-        try:
-            # Only proceed if we have site, area, and us
-            sito = self.comboBox_sito.currentText()
-            area = self.comboBox_area.currentText()
-            us = self.lineEdit_us.text()
-            
-            QgsMessageLog.logMessage(f"DEBUG TMA: on_us_changed called - sito: {sito}, area: {area}, us: {us}", "PyArchInit", Qgis.Info)
-            
-            if not sito or not area or not us:
-                QgsMessageLog.logMessage("DEBUG TMA: Missing sito, area, or us - returning", "PyArchInit", Qgis.Info)
-                return
-            
-            # Query US record
-            search_dict = {
-                'sito': f"'{sito}'",
-                'area': f"'{area}'",
-                'us': int(us) if us.isdigit() else 0
-            }
-            
-            QgsMessageLog.logMessage(f"DEBUG TMA: Querying US with search_dict: {search_dict}", "PyArchInit", Qgis.Info)
-            us_records = self.DB_MANAGER.query_bool(search_dict, 'US')
-            QgsMessageLog.logMessage(f"DEBUG TMA: Found {len(us_records) if us_records else 0} US records", "PyArchInit", Qgis.Info)
-            
-            if us_records and len(us_records) > 0:
-                us_record = us_records[0]
-                
-                # Try different field names for datazione
-                datazione_value = None
-                if hasattr(us_record, 'datazione_estesa') and us_record.datazione_estesa:
-                    datazione_value = str(us_record.datazione_estesa)
-                elif hasattr(us_record, 'datazione') and us_record.datazione:
-                    datazione_value = str(us_record.datazione)
-                
-                if datazione_value:
-                    self.lineEdit_dtzg.setText(datazione_value)
-                    QgsMessageLog.logMessage(f"DEBUG TMA: Set fascia cronologica to: {datazione_value}", "PyArchInit", Qgis.Info)
-                else:
-                    # If no datazione field, try to build from period/phase
-                    datazione = ""
-                    periodo_iniziale = getattr(us_record, 'periodo_iniziale', None)
-                    fase_iniziale = getattr(us_record, 'fase_iniziale', None)
-                    periodo_finale = getattr(us_record, 'periodo_finale', None)
-                    fase_finale = getattr(us_record, 'fase_finale', None)
-                    
-                    QgsMessageLog.logMessage(f"DEBUG TMA: Building from periodo/fase: {periodo_iniziale}/{fase_iniziale} - {periodo_finale}/{fase_finale}", "PyArchInit", Qgis.Info)
-                    
-                    # Check if initial and final are the same
-                    if periodo_iniziale and periodo_finale and str(periodo_iniziale) == str(periodo_finale):
-                        # Same period
-                        datazione = f"Periodo {periodo_iniziale}"
-                        if fase_iniziale and fase_finale and str(fase_iniziale) == str(fase_finale):
-                            # Same phase
-                            datazione += f", Fase {fase_iniziale}"
-                        elif fase_iniziale and fase_finale and str(fase_iniziale) != str(fase_finale):
-                            # Different phases in same period
-                            datazione += f", Fase {fase_iniziale} - {fase_finale}"
-                        elif fase_iniziale:
-                            datazione += f", Fase {fase_iniziale}"
-                        elif fase_finale:
-                            datazione += f", Fase {fase_finale}"
-                    else:
-                        # Different periods or only one period
-                        if periodo_iniziale:
-                            datazione = f"Periodo {periodo_iniziale}"
-                            if fase_iniziale:
-                                datazione += f", Fase {fase_iniziale}"
-                        if periodo_finale and str(periodo_finale) != str(periodo_iniziale):
-                            if datazione:
-                                datazione += " - "
-                            datazione += f"Periodo {periodo_finale}"
-                            if fase_finale:
-                                datazione += f", Fase {fase_finale}"
-                    
-                    if datazione:
-                        self.lineEdit_dtzg.setText(datazione)
-                        QgsMessageLog.logMessage(f"DEBUG TMA: Set fascia cronologica from periodo/fase to: {datazione}", "PyArchInit", Qgis.Info)
-                    else:
-                        self.lineEdit_dtzg.clear()
-                        QgsMessageLog.logMessage("DEBUG TMA: No datazione data available", "PyArchInit", Qgis.Info)
-            else:
-                QgsMessageLog.logMessage(f"DEBUG TMA: No US records found for: sito={sito}, area={area}, us={us}", "PyArchInit", Qgis.Info)
-                self.lineEdit_dtzg.clear()
-                        
-        except Exception as e:
-            # Print the error for debugging
-            QgsMessageLog.logMessage(f"DEBUG TMA ERROR in on_us_changed: {str(e)}", "PyArchInit", Qgis.Warning)
-            import traceback
-            traceback.print_exc()
+        """Handle US field change - only updates inventory."""
+        # Update inventory field when US changes
+        self.update_inventory_field()
     
     def on_area_changed(self):
-        """Handle area field change to update inventory."""
+        """Handle area field change to update inventory and filter settore."""
         self.update_inventory_field()
+        # Filter settore based on selected area
+        self.filter_settore_by_area()
     
     def on_sito_changed(self):
-        """Handle site field change to update inventory."""
+        """Handle site field change to update inventory and reset location fields."""
         self.update_inventory_field()
+        # When site changes, reset località, area, and settore
+        self.comboBox_localita.setCurrentIndex(0)  # Select first item (empty)
+        self.comboBox_area.clear()
+        self.comboBox_settore.clear()
+        # Reload all areas for the new site context
+        self.load_area_values()
+    
+    def on_localita_changed(self):
+        """Handle località change to filter area and settore."""
+        self.filter_area_by_localita()
+        # Clear settore when località changes
+        self.comboBox_settore.clear()
+    
+    def filter_area_by_localita(self):
+        """Filter area options based on selected località."""
+        if not self.DB_MANAGER or self.DB_MANAGER == "":
+            return
+            
+        current_localita = self.comboBox_localita.currentText()
+        if not current_localita:
+            # If no località selected, show all areas
+            self.load_area_values()
+            return
+            
+        try:
+            # Get località sigla from extended name
+            search_dict = {
+                'nome_tabella': "'tma_materiali_archeologici'",
+                'tipologia_sigla': "'10.13'",
+                'sigla_estesa': f"'{current_localita}'"
+            }
+            localita_res = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+            
+            if localita_res:
+                localita_sigla = localita_res[0].sigla
+                
+                # Get areas that belong to this località
+                search_dict_area = {
+                    'nome_tabella': "'tma_materiali_archeologici'",
+                    'tipologia_sigla': "'10.14'",
+                    'parent_sigla': f"'{localita_sigla}'"
+                }
+                area_res = self.DB_MANAGER.query_bool(search_dict_area, 'PYARCHINIT_THESAURUS_SIGLE')
+                
+                # Update area combobox
+                self.comboBox_area.clear()
+                area_values = []
+                for area in area_res:
+                    area_values.append(str(area.sigla_estesa))
+                area_values.sort()
+                self.comboBox_area.addItems(area_values)
+            else:
+                # If località not found in thesaurus, load all areas
+                self.load_area_values()
+                
+        except Exception as e:
+            QgsMessageLog.logMessage(f"Error filtering areas: {str(e)}", "PyArchInit", Qgis.Warning)
+            self.load_area_values()
+    
+    def filter_settore_by_area(self):
+        """Filter settore options based on selected area."""
+        if not self.DB_MANAGER or self.DB_MANAGER == "":
+            return
+            
+        current_area = self.comboBox_area.currentText()
+        if not current_area:
+            # If no area selected, clear settore
+            self.comboBox_settore.clear()
+            return
+            
+        try:
+            # Get area sigla from extended name
+            search_dict = {
+                'nome_tabella': "'tma_materiali_archeologici'",
+                'tipologia_sigla': "'10.14'",
+                'sigla_estesa': f"'{current_area}'"
+            }
+            area_res = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+            
+            if area_res:
+                area_sigla = area_res[0].sigla
+                
+                # Get settori that belong to this area
+                search_dict_settore = {
+                    'nome_tabella': "'tma_materiali_archeologici'",
+                    'tipologia_sigla': "'10.15'",
+                    'parent_sigla': f"'{area_sigla}'"
+                }
+                settore_res = self.DB_MANAGER.query_bool(search_dict_settore, 'PYARCHINIT_THESAURUS_SIGLE')
+                
+                # Update settore combobox
+                self.comboBox_settore.clear()
+                settore_values = []
+                for settore in settore_res:
+                    settore_values.append(str(settore.sigla_estesa))
+                settore_values.sort()
+                self.comboBox_settore.addItems(settore_values)
+            else:
+                # If area not found in thesaurus, load all settori
+                self.load_settore_values()
+                
+        except Exception as e:
+            QgsMessageLog.logMessage(f"Error filtering settore: {str(e)}", "PyArchInit", Qgis.Warning)
+            self.load_settore_values()
+    
+    def load_area_values(self):
+        """Load all area values from thesaurus."""
+        l = QgsSettings().value("locale/userLocale", "en")
+        lang = ""
+        for key, values in self.LANG.items():
+            if values.__contains__(l):
+                lang = str(key)
+        
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'tma_materiali_archeologici'",
+            'tipologia_sigla': "'10.14'"
+        }
+        area_vl_thesaurus = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        area_vl = []
+        for s in area_vl_thesaurus:
+            area_vl.append(str(s.sigla_estesa))
+        area_vl.sort()
+        self.comboBox_area.clear()
+        self.comboBox_area.addItems(area_vl)
+    
+    def load_settore_values(self):
+        """Load all settore values from thesaurus."""
+        search_dict = {
+            'nome_tabella': "'tma_materiali_archeologici'",
+            'tipologia_sigla': "'10.15'"
+        }
+        settore_res = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        settore_values = []
+        for s in settore_res:
+            settore_values.append(str(s.sigla_estesa))
+        settore_values.sort()
+        self.comboBox_settore.clear()
+        self.comboBox_settore.addItems(settore_values)
     
     def update_inventory_field(self):
         """Update the inventory field with RA numbers from inventory materials."""
@@ -2591,23 +2824,23 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             # Map field types to thesaurus categories
             # Using correct tipologia_sigla codes for tma_materiali_archeologici
             thesaurus_map = {
-                'materiale': '10.4',   # Materiale
-                'categoria': '10.5',   # Categoria
-                'classe': '10.6',      # Classe
-                'tipologia': '10.8',   # Prec. tipologica
-                'definizione': '10.9', # Definizione
-                'cronologia_mac': '10.16'  # Cronologia
+                'materiale': '10.1',   # Materiale (ogtm)
+                'categoria': '10.7',   # Categoria (macc)
+                'classe': '10.8',      # Classe (macl)
+                'tipologia': '10.9',   # Prec. tipologica (macp)
+                'definizione': '10.10', # Definizione (macd)
+                'cronologia_mac': '10.11'  # Cronologia
             }
             
             if field_type not in thesaurus_map:
                 return []
             
             # Use correct table name for thesaurus lookup
-            # For materials table fields, use 'tma_materiali_ripetibili'
-            table_name = 'tma_materiali_ripetibili' if field_type in ['materiale', 'categoria', 'classe', 'tipologia', 'definizione', 'cronologia_mac'] else 'tma_materiali_archeologici'
+            # All material fields use tma_materiali_archeologici table
+            table_name = 'tma_materiali_archeologici'
             
             search_dict = {
-                'lingua': "'" + lang.upper() + "'",  # Use uppercase for language with quotes
+                'lingua': "'" + lang + "'",  # Use lowercase language code
                 'nome_tabella': "'" + table_name + "'",
                 'tipologia_sigla': "'" + thesaurus_map[field_type] + "'"
             }
@@ -2650,7 +2883,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                         search_dict = {
                             'lingua': lang,
                             'nome_tabella': "'" + 'tma_table' + "'",  # Using alias
-                            'tipologia_sigla': "'" + '10.11' + "'"
+                            'tipologia_sigla': "'" + '10.5' + "'"
                         }
                         
                         thesaurus_records = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
@@ -2731,23 +2964,20 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         QgsMessageLog.logMessage(f"DEBUG TMA THESAURUS: Cronologia values: {len(cronologia_values)} items", "PyArchInit", Qgis.Info)
         
         # Set delegates for columns with thesaurus support
-        if materiale_values:
-            self.tableWidget_materiali.setItemDelegateForColumn(0, ComboBoxDelegate(materiale_values, self.tableWidget_materiali))
-            QgsMessageLog.logMessage(f"DEBUG TMA: Set delegate for Materiale column with {len(materiale_values)} values", "PyArchInit", Qgis.Info)
         if categoria_values:
-            self.tableWidget_materiali.setItemDelegateForColumn(1, ComboBoxDelegate(categoria_values, self.tableWidget_materiali))
+            self.tableWidget_materiali.setItemDelegateForColumn(0, ComboBoxDelegate(categoria_values, self.tableWidget_materiali))
             QgsMessageLog.logMessage(f"DEBUG TMA: Set delegate for Categoria column with {len(categoria_values)} values", "PyArchInit", Qgis.Info)
         if classe_values:
-            self.tableWidget_materiali.setItemDelegateForColumn(2, ComboBoxDelegate(classe_values, self.tableWidget_materiali))
+            self.tableWidget_materiali.setItemDelegateForColumn(1, ComboBoxDelegate(classe_values, self.tableWidget_materiali))
             QgsMessageLog.logMessage(f"DEBUG TMA: Set delegate for Classe column with {len(classe_values)} values", "PyArchInit", Qgis.Info)
         if tipologia_values:
-            self.tableWidget_materiali.setItemDelegateForColumn(3, ComboBoxDelegate(tipologia_values, self.tableWidget_materiali))
+            self.tableWidget_materiali.setItemDelegateForColumn(2, ComboBoxDelegate(tipologia_values, self.tableWidget_materiali))
             QgsMessageLog.logMessage(f"DEBUG TMA: Set delegate for Tipologia column with {len(tipologia_values)} values", "PyArchInit", Qgis.Info)
         if definizione_values:
-            self.tableWidget_materiali.setItemDelegateForColumn(4, ComboBoxDelegate(definizione_values, self.tableWidget_materiali))
+            self.tableWidget_materiali.setItemDelegateForColumn(3, ComboBoxDelegate(definizione_values, self.tableWidget_materiali))
             QgsMessageLog.logMessage(f"DEBUG TMA: Set delegate for Definizione column with {len(definizione_values)} values", "PyArchInit", Qgis.Info)
         if cronologia_values:
-            self.tableWidget_materiali.setItemDelegateForColumn(5, ComboBoxDelegate(cronologia_values, self.tableWidget_materiali))
+            self.tableWidget_materiali.setItemDelegateForColumn(4, ComboBoxDelegate(cronologia_values, self.tableWidget_materiali))
             QgsMessageLog.logMessage(f"DEBUG TMA: Set delegate for Cronologia column with {len(cronologia_values)} values", "PyArchInit", Qgis.Info)
         
         # Connect signal to track table changes
@@ -2760,6 +2990,21 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         """Called when an item in the materials table is changed."""
         QgsMessageLog.logMessage(f"DEBUG TMA: Materials table changed - row={item.row()}, col={item.column()}, text='{item.text()}'", "PyArchInit", Qgis.Info)
         self.materials_modified = True
+        
+        # Update materiale field when first column (Categoria) changes
+        if item.column() == 0:  # Categoria column (now syncs to ogtm)
+            self.update_materiale_field()
+    
+    def update_materiale_field(self):
+        """Update the lineEdit_materiale field with all categories from the table."""
+        materials_list = []
+        for row in range(self.tableWidget_materiali.rowCount()):
+            material_item = self.tableWidget_materiali.item(row, 0)  # Categoria column (now first column)
+            if material_item and material_item.text().strip():
+                materials_list.append(material_item.text().strip())
+        
+        # Update the lineEdit_materiale with comma-separated categories (syncs to ogtm)
+        self.lineEdit_materiale.setText(", ".join(materials_list))
     
     def addMediaTab(self):
         """Add media and map tabs to the existing tab widget."""
@@ -3542,3 +3787,204 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             
         except Exception as e:
             QMessageBox.critical(self, "Errore", f"Errore nella generazione del PDF: {str(e)}", QMessageBox.Ok)
+    
+    def on_pushButton_export_labels_pressed(self):
+        """Handle label export button click."""
+        # Create dialog for label export options
+        dialog = QDialog(self)
+        dialog.setWindowTitle("Esportazione Etichette TMA")
+        dialog.resize(450, 400)
+        
+        layout = QVBoxLayout(dialog)
+        
+        # Title
+        title = QLabel("<h3>Esportazione Etichette</h3>")
+        layout.addWidget(title)
+        
+        # Export type
+        export_group = QGroupBox("Tipo di esportazione")
+        export_layout = QVBoxLayout()
+        
+        self.radio_label_single = QRadioButton("Etichetta singola (record corrente)")
+        self.radio_label_single.setChecked(True)
+        self.radio_label_list = QRadioButton("Etichette lista filtrata")
+        self.radio_label_all = QRadioButton("Tutte le etichette TMA")
+        
+        export_layout.addWidget(self.radio_label_single)
+        export_layout.addWidget(self.radio_label_list)
+        export_layout.addWidget(self.radio_label_all)
+        export_group.setLayout(export_layout)
+        layout.addWidget(export_group)
+        
+        # Label format
+        format_group = QGroupBox("Formato etichetta")
+        format_layout = QVBoxLayout()
+        
+        self.combo_label_format = QComboBox()
+        self.combo_label_format.addItems([
+            "70x37mm (3x8 per foglio)",
+            "105x57mm (2x5 per foglio)",
+            "210x297mm (Foglio singolo)",
+            "99.1x38.1mm - Avery L7163",
+            "63.5x38.1mm - Avery L7160"
+        ])
+        format_layout.addWidget(QLabel("Formato:"))
+        format_layout.addWidget(self.combo_label_format)
+        
+        # Label style
+        self.combo_label_style = QComboBox()
+        self.combo_label_style.addItems(["Standard", "Minimale", "Dettagliata"])
+        format_layout.addWidget(QLabel("Stile:"))
+        format_layout.addWidget(self.combo_label_style)
+        
+        format_group.setLayout(format_layout)
+        layout.addWidget(format_group)
+        
+        # Filters (for list export)
+        filters_group = QGroupBox("Filtri per lista")
+        filters_layout = QVBoxLayout()
+        
+        self.check_label_cassetta = QCheckBox("Filtra per cassetta corrente")
+        self.check_label_us = QCheckBox("Filtra per US corrente")
+        self.check_label_area = QCheckBox("Filtra per area corrente")
+        self.check_label_sito = QCheckBox("Filtra per sito corrente")
+        
+        filters_layout.addWidget(self.check_label_cassetta)
+        filters_layout.addWidget(self.check_label_us)
+        filters_layout.addWidget(self.check_label_area)
+        filters_layout.addWidget(self.check_label_sito)
+        
+        filters_group.setLayout(filters_layout)
+        layout.addWidget(filters_group)
+        
+        # Enable/disable filters based on selection
+        def toggle_label_filters():
+            enabled = self.radio_label_list.isChecked()
+            filters_group.setEnabled(enabled)
+            
+        self.radio_label_single.toggled.connect(toggle_label_filters)
+        toggle_label_filters()
+        
+        # Buttons
+        button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        button_box.accepted.connect(dialog.accept)
+        button_box.rejected.connect(dialog.reject)
+        layout.addWidget(button_box)
+        
+        # Execute dialog
+        if dialog.exec_() == QDialog.Accepted:
+            # Get selected format
+            format_map = {
+                0: 'single_70x37',
+                1: 'single_105x57',
+                2: 'single_210x297',
+                3: 'avery_l7163',
+                4: 'avery_l7160'
+            }
+            label_format = format_map[self.combo_label_format.currentIndex()]
+            
+            # Get style
+            style_map = {0: 'standard', 1: 'minimal', 2: 'detailed'}
+            label_style = style_map[self.combo_label_style.currentIndex()]
+            
+            if self.radio_label_single.isChecked():
+                self.export_single_label(label_format, label_style)
+            elif self.radio_label_all.isChecked():
+                self.export_all_labels(label_format, label_style)
+            else:
+                self.export_filtered_labels(label_format, label_style)
+    
+    def export_single_label(self, label_format, label_style):
+        """Export single label for current record."""
+        try:
+            if not self.DATA_LIST or self.REC_CORR < 0:
+                QMessageBox.warning(self, "Attenzione", "Nessun record corrente da esportare", QMessageBox.Ok)
+                return
+                
+            # Get current record
+            current_tma = self.DATA_LIST[self.REC_CORR]
+            
+            # Create label
+            HOME = os.environ['PYARCHINIT_HOME']
+            PDF_path = os.path.join(HOME, "pyarchinit_PDF_folder")
+            filename = f"Etichetta_TMA_{current_tma.inventario}_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
+            filepath = os.path.join(PDF_path, filename)
+            
+            label_gen = TMALabelPDF(label_format=label_format)
+            label_gen.generate_single_label(current_tma, filepath, label_style)
+            
+            QMessageBox.information(self, "Esportazione completata", 
+                                    f"Etichetta esportata in:\n{filepath}", QMessageBox.Ok)
+                                    
+        except Exception as e:
+            QMessageBox.critical(self, "Errore", f"Errore nell'esportazione: {str(e)}", QMessageBox.Ok)
+    
+    def export_all_labels(self, label_format, label_style):
+        """Export labels for all TMA records."""
+        try:
+            # Get all TMA records
+            tma_list = self.DB_MANAGER.query('TMA')
+            
+            if not tma_list:
+                QMessageBox.warning(self, "Attenzione", "Nessun record TMA nel database", QMessageBox.Ok)
+                return
+                
+            # Create labels
+            HOME = os.environ['PYARCHINIT_HOME']
+            PDF_path = os.path.join(HOME, "pyarchinit_PDF_folder")
+            filename = f"Etichette_TMA_tutte_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
+            filepath = os.path.join(PDF_path, filename)
+            
+            label_gen = TMALabelPDF(label_format=label_format)
+            label_gen.generate_labels(tma_list, filepath, label_style)
+            
+            QMessageBox.information(self, "Esportazione completata", 
+                                    f"Etichette esportate in:\n{filepath}\n\nTotale etichette: {len(tma_list)}", 
+                                    QMessageBox.Ok)
+                                    
+        except Exception as e:
+            QMessageBox.critical(self, "Errore", f"Errore nell'esportazione: {str(e)}", QMessageBox.Ok)
+    
+    def export_filtered_labels(self, label_format, label_style):
+        """Export labels for filtered TMA records."""
+        try:
+            # Build search filters
+            search_dict = {}
+            
+            if self.check_label_sito.isChecked() and self.comboBox_sito.currentText():
+                search_dict['sito'] = self.comboBox_sito.currentText()
+                
+            if self.check_label_area.isChecked() and self.comboBox_area.currentText():
+                search_dict['area'] = self.comboBox_area.currentText()
+                
+            if self.check_label_us.isChecked() and self.lineEdit_us.text():
+                search_dict['dscu'] = self.lineEdit_us.text()
+                
+            if self.check_label_cassetta.isChecked() and self.lineEdit_cassetta.text():
+                search_dict['cassetta'] = self.lineEdit_cassetta.text()
+            
+            # Query TMA records
+            if search_dict:
+                tma_list = self.DB_MANAGER.query_bool(search_dict, 'TMA')
+            else:
+                tma_list = self.DB_MANAGER.query('TMA')
+                
+            if not tma_list:
+                QMessageBox.warning(self, "Attenzione", "Nessun record trovato con i filtri specificati", QMessageBox.Ok)
+                return
+                
+            # Create labels
+            HOME = os.environ['PYARCHINIT_HOME']
+            PDF_path = os.path.join(HOME, "pyarchinit_PDF_folder")
+            filename = f"Etichette_TMA_filtrate_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
+            filepath = os.path.join(PDF_path, filename)
+            
+            label_gen = TMALabelPDF(label_format=label_format)
+            label_gen.generate_labels(tma_list, filepath, label_style)
+            
+            QMessageBox.information(self, "Esportazione completata", 
+                                    f"Etichette esportate in:\n{filepath}\n\nTotale etichette: {len(tma_list)}", 
+                                    QMessageBox.Ok)
+                                    
+        except Exception as e:
+            QMessageBox.critical(self, "Errore", f"Errore nell'esportazione: {str(e)}", QMessageBox.Ok)

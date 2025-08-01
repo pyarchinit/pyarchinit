@@ -31,6 +31,8 @@ class TMA(object):
                  id,
                  sito,
                  area,
+                 localita,
+                 settore,
                  ogtm,
                  ldct,
                  ldcn,
@@ -61,38 +63,42 @@ class TMA(object):
         self.id = id  # 0
         self.sito = sito  # 1
         self.area = area  # 2
-        self.ogtm = ogtm  # 3
-        self.ldct = ldct  # 4
-        self.ldcn = ldcn  # 5
-        self.vecchia_collocazione = vecchia_collocazione  # 6
-        self.cassetta = cassetta  # 7
-        self.scan = scan  # 8
-        self.saggio = saggio  # 9
-        self.vano_locus = vano_locus  # 10
-        self.dscd = dscd  # 11
-        self.dscu = dscu  # 12
-        self.rcgd = rcgd  # 13
-        self.rcgz = rcgz  # 14
-        self.aint = aint  # 15
-        self.aind = aind  # 16
-        self.dtzg = dtzg  # 17
-        self.deso = deso  # 18
-        self.nsc = nsc  # 19
-        self.ftap = ftap  # 20
-        self.ftan = ftan  # 21
-        self.drat = drat  # 22
-        self.dran = dran  # 23
-        self.draa = draa  # 24
-        self.created_at = created_at  # 25
-        self.updated_at = updated_at  # 26
-        self.created_by = created_by  # 27
-        self.updated_by = updated_by  # 28
+        self.localita = localita  # 3
+        self.settore = settore  # 4
+        self.ogtm = ogtm  # 5
+        self.ldct = ldct  # 6
+        self.ldcn = ldcn  # 7
+        self.vecchia_collocazione = vecchia_collocazione  # 8
+        self.cassetta = cassetta  # 9
+        self.scan = scan  # 10
+        self.saggio = saggio  # 11
+        self.vano_locus = vano_locus  # 12
+        self.dscd = dscd  # 13
+        self.dscu = dscu  # 14
+        self.rcgd = rcgd  # 15
+        self.rcgz = rcgz  # 16
+        self.aint = aint  # 17
+        self.aind = aind  # 18
+        self.dtzg = dtzg  # 19
+        self.deso = deso  # 20
+        self.nsc = nsc  # 21
+        self.ftap = ftap  # 22
+        self.ftan = ftan  # 23
+        self.drat = drat  # 24
+        self.dran = dran  # 25
+        self.draa = draa  # 26
+        self.created_at = created_at  # 27
+        self.updated_at = updated_at  # 28
+        self.created_by = created_by  # 29
+        self.updated_by = updated_by  # 30
 
     def __repr__(self):
-        return "<TMA('%d', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')>" % (
+        return "<TMA('%d', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')>" % (
             self.id,
             self.sito,
             self.area,
+            self.localita,
+            self.settore,
             self.ogtm,
             self.ldct,
             self.ldcn,

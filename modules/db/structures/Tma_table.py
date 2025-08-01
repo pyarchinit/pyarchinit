@@ -40,6 +40,8 @@ class Tma_table:
                       # Basic identification
                       Column('sito', Text),
                       Column('area', Text),
+                      Column('localita', Text),
+                      Column('settore', Text),
 
                       # Object data (OG)
                       Column('ogtm', Text, nullable=False),  # Material type (required)
