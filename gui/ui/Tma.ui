@@ -472,7 +472,7 @@
     <normaloff>:/icons/finds.png</normaloff>:/icons/finds.png</iconset>
   </property>
   <layout class="QGridLayout" name="gridLayout_2">
-   <item row="6" column="2">
+   <item row="9" column="2">
     <widget class="QLineEdit" name="lineEdit_us">
      <property name="font">
       <font>
@@ -485,81 +485,11 @@
      </property>
     </widget>
    </item>
-   <item row="8" column="2">
-    <widget class="QComboBox" name="comboBox_area">
+   <item row="4" column="2">
+    <widget class="QComboBox" name="comboBox_localita">
      <property name="editable">
       <bool>true</bool>
      </property>
-    </widget>
-   </item>
-   <item row="11" column="2">
-    <widget class="QLabel" name="label_inventario">
-     <property name="font">
-      <font>
-       <family>Times New Roman</family>
-       <pointsize>9</pointsize>
-      </font>
-     </property>
-     <property name="text">
-      <string>Inventario (RA)</string>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="2">
-    <widget class="QComboBox" name="comboBox_sito">
-     <property name="enabled">
-      <bool>false</bool>
-     </property>
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="minimumSize">
-      <size>
-       <width>200</width>
-       <height>0</height>
-      </size>
-     </property>
-     <property name="maximumSize">
-      <size>
-       <width>16777215</width>
-       <height>24</height>
-      </size>
-     </property>
-     <property name="font">
-      <font>
-       <family>Times New Roman</family>
-       <pointsize>9</pointsize>
-      </font>
-     </property>
-     <property name="mouseTracking">
-      <bool>true</bool>
-     </property>
-     <property name="contextMenuPolicy">
-      <enum>Qt::NoContextMenu</enum>
-     </property>
-     <property name="editable">
-      <bool>true</bool>
-     </property>
-     <property name="currentText">
-      <string>Inserisci un valore</string>
-     </property>
-     <property name="maxVisibleItems">
-      <number>99999</number>
-     </property>
-     <property name="maxCount">
-      <number>2147483647</number>
-     </property>
-     <property name="frame">
-      <bool>true</bool>
-     </property>
-     <item>
-      <property name="text">
-       <string>Inserisci un valore</string>
-      </property>
-     </item>
     </widget>
    </item>
    <item row="0" column="2" colspan="4">
@@ -1161,6 +1091,32 @@
          </property>
         </widget>
        </item>
+       <item row="0" column="7">
+        <widget class="QPushButton" name="pushButton_export_labels">
+         <property name="minimumSize">
+          <size>
+           <width>30</width>
+           <height>20</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>30</width>
+           <height>20</height>
+          </size>
+         </property>
+         <property name="toolTip">
+          <string>Esporta etichette</string>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="icon">
+          <iconset resource="../../resources/resources.qrc">
+           <normaloff>:/icons/add_tag.png</normaloff>:/icons/add_tag.png</iconset>
+         </property>
+        </widget>
+       </item>
       </layout>
      </item>
      <item row="3" column="2">
@@ -1257,15 +1213,8 @@
      </item>
     </layout>
    </item>
-   <item row="10" column="2">
-    <widget class="QLineEdit" name="lineEdit_cassetta">
-     <property name="maxLength">
-      <number>15</number>
-     </property>
-    </widget>
-   </item>
-   <item row="4" column="2">
-    <widget class="QLabel" name="label_3">
+   <item row="5" column="2">
+    <widget class="QLabel" name="label_2">
      <property name="font">
       <font>
        <family>Times New Roman</family>
@@ -1273,7 +1222,113 @@
       </font>
      </property>
      <property name="text">
-      <string>US</string>
+      <string>Area</string>
+     </property>
+    </widget>
+   </item>
+   <item row="20" column="1">
+    <widget class="QLabel" name="label_materiale">
+     <property name="font">
+      <font>
+       <family>Times New Roman</family>
+       <pointsize>9</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>Materiale:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="20" column="2">
+    <widget class="QLineEdit" name="lineEdit_materiale">
+     <property name="toolTip">
+      <string>Campo sincronizzato con la tabella materiali</string>
+     </property>
+     <property name="readOnly">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="18" column="2">
+    <widget class="QLabel" name="label_18">
+     <property name="font">
+      <font>
+       <family>Times New Roman</family>
+       <pointsize>9</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>Fascia cronologica:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="2">
+    <widget class="QComboBox" name="comboBox_sito">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>200</width>
+       <height>0</height>
+      </size>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>16777215</width>
+       <height>24</height>
+      </size>
+     </property>
+     <property name="font">
+      <font>
+       <family>Times New Roman</family>
+       <pointsize>9</pointsize>
+      </font>
+     </property>
+     <property name="mouseTracking">
+      <bool>true</bool>
+     </property>
+     <property name="contextMenuPolicy">
+      <enum>Qt::NoContextMenu</enum>
+     </property>
+     <property name="editable">
+      <bool>true</bool>
+     </property>
+     <property name="currentText">
+      <string>Inserisci un valore</string>
+     </property>
+     <property name="maxVisibleItems">
+      <number>99999</number>
+     </property>
+     <property name="maxCount">
+      <number>2147483647</number>
+     </property>
+     <property name="frame">
+      <bool>true</bool>
+     </property>
+     <item>
+      <property name="text">
+       <string>Inserisci un valore</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="16" column="2">
+    <widget class="QLabel" name="label_inventario">
+     <property name="font">
+      <font>
+       <family>Times New Roman</family>
+       <pointsize>9</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>Inventario (RA)</string>
      </property>
     </widget>
    </item>
@@ -1290,20 +1345,14 @@
      </property>
     </widget>
    </item>
-   <item row="7" column="2">
-    <widget class="QLabel" name="label_2">
-     <property name="font">
-      <font>
-       <family>Times New Roman</family>
-       <pointsize>9</pointsize>
-      </font>
-     </property>
-     <property name="text">
-      <string>Area</string>
+   <item row="19" column="2">
+    <widget class="QComboBox" name="comboBox_dtzg">
+     <property name="editable">
+      <bool>true</bool>
      </property>
     </widget>
    </item>
-   <item row="9" column="2">
+   <item row="14" column="2">
     <widget class="QLabel" name="label_8">
      <property name="font">
       <font>
@@ -1312,12 +1361,19 @@
       </font>
      </property>
      <property name="text">
-      <string>Cassetta *:</string>
+      <string>Cassetta:</string>
      </property>
     </widget>
    </item>
-   <item row="13" column="2">
-    <widget class="QLabel" name="label_18">
+   <item row="15" column="2">
+    <widget class="QLineEdit" name="lineEdit_cassetta">
+     <property name="maxLength">
+      <number>15</number>
+     </property>
+    </widget>
+   </item>
+   <item row="7" column="2">
+    <widget class="QLabel" name="label_3">
      <property name="font">
       <font>
        <family>Times New Roman</family>
@@ -1325,11 +1381,11 @@
       </font>
      </property>
      <property name="text">
-      <string>Fascia cronologica:</string>
+      <string>US</string>
      </property>
     </widget>
    </item>
-   <item row="12" column="2">
+   <item row="17" column="2">
     <widget class="QLineEdit" name="lineEdit_inventario">
      <property name="font">
       <font>
@@ -1345,17 +1401,10 @@
      </property>
     </widget>
    </item>
-   <item row="14" column="2">
-    <widget class="QLineEdit" name="lineEdit_dtzg">
-     <property name="maxLength">
-      <number>50</number>
-     </property>
-    </widget>
-   </item>
-   <item row="16" column="2" colspan="4">
+   <item row="21" column="2" colspan="4">
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="tab_identificazione">
       <attribute name="title">
@@ -1454,64 +1503,10 @@
          <x>10</x>
          <y>16</y>
          <width>801</width>
-         <height>157</height>
+         <height>204</height>
         </rect>
        </property>
        <layout class="QGridLayout" name="gridLayout_8">
-        <item row="1" column="1">
-         <widget class="QComboBox" name="comboBox_saggio">
-          <property name="editable">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="0">
-         <widget class="QLabel" name="label_11">
-          <property name="font">
-           <font>
-            <family>Times New Roman</family>
-            <pointsize>9</pointsize>
-           </font>
-          </property>
-          <property name="text">
-           <string>Saggio:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="1">
-         <widget class="QComboBox" name="comboBox_vano_locus">
-          <property name="editable">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="1">
-         <widget class="QLineEdit" name="lineEdit_scan">
-          <property name="maxLength">
-           <number>50</number>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="1">
-         <widget class="QLineEdit" name="lineEdit_dscd">
-          <property name="maxLength">
-           <number>20</number>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="0">
-         <widget class="QLabel" name="label_12">
-          <property name="font">
-           <font>
-            <family>Times New Roman</family>
-            <pointsize>9</pointsize>
-           </font>
-          </property>
-          <property name="text">
-           <string>Vano/Locus:</string>
-          </property>
-         </widget>
-        </item>
         <item row="0" column="0">
          <widget class="QLabel" name="label_10">
           <property name="font">
@@ -1525,7 +1520,73 @@
           </property>
          </widget>
         </item>
+        <item row="0" column="1">
+         <widget class="QComboBox" name="comboBox_scan">
+          <property name="editable">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0">
+         <widget class="QLabel" name="label_settore">
+          <property name="font">
+           <font>
+            <family>Times New Roman</family>
+            <pointsize>9</pointsize>
+           </font>
+          </property>
+          <property name="text">
+           <string>Settore:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1">
+         <widget class="QComboBox" name="comboBox_settore">
+          <property name="editable">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="1">
+         <widget class="QLineEdit" name="lineEdit_saggio"/>
+        </item>
         <item row="3" column="0">
+         <widget class="QLabel" name="label_11">
+          <property name="font">
+           <font>
+            <family>Times New Roman</family>
+            <pointsize>9</pointsize>
+           </font>
+          </property>
+          <property name="text">
+           <string>Saggio:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="1">
+         <widget class="QLineEdit" name="lineEdit_vano_locus"/>
+        </item>
+        <item row="4" column="0">
+         <widget class="QLabel" name="label_12">
+          <property name="font">
+           <font>
+            <family>Times New Roman</family>
+            <pointsize>9</pointsize>
+           </font>
+          </property>
+          <property name="text">
+           <string>Vano/Locus:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="1">
+         <widget class="QLineEdit" name="lineEdit_dscd">
+          <property name="maxLength">
+           <number>20</number>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="0">
          <widget class="QLabel" name="label_13">
           <property name="font">
            <font>
@@ -1883,6 +1944,26 @@
        </item>
       </layout>
      </widget>
+    </widget>
+   </item>
+   <item row="3" column="2">
+    <widget class="QLabel" name="label_localita">
+     <property name="font">
+      <font>
+       <family>Times New Roman</family>
+       <pointsize>9</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>Località:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="2">
+    <widget class="QComboBox" name="comboBox_area">
+     <property name="editable">
+      <bool>true</bool>
+     </property>
     </widget>
    </item>
   </layout>

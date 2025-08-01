@@ -1,0 +1,203 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+"""
+Script per inserire i valori area dall'Excel con relazioni alle località
+"""
+
+import sqlite3
+import os
+import sys
+
+def insert_area_values(cursor):
+    """Inserisce i valori area dal file Excel con relazioni alle località."""
+    
+    # Prima rimuovi i valori area esistenti
+    cursor.execute("""
+        DELETE FROM pyarchinit_thesaurus_sigle 
+        WHERE nome_tabella = 'tma_materiali_archeologici' 
+        AND tipologia_sigla = '10.7'
+    """)
+    print("✓ Rimossi valori area (10.7) esistenti")
+    
+    # Valori esatti dall'Excel
+    area_values = [
+        (1, 1, 'Palazzo'),
+        (2, 1, 'Antemurale Ovest'),
+        (3, 1, 'Area a Nord del Bastione II'),
+        (4, 1, 'Area ad Ovest del Piazzale I'),
+        (5, 1, 'Area ad Ovest della rampa'),
+        (6, 1, 'Area centrale del Palazzo'),
+        (7, 1, 'Acropoli mediana'),
+        (8, 1, 'Area parking EOT'),
+        (9, 1, 'Casa a Sud della Rampa'),
+        (10, 1, 'Cortile centrale XXXIII-40'),
+        (11, 1, 'Cortile occidentale inferiore/Piazzale LXX'),
+        (12, 1, 'Cortile occidentale/Piazzale I'),
+        (13, 1, 'Edificio Ovest'),
+        (14, 1, 'Ingresso neopalaziale Nord-Occidentale'),
+        (15, 1, 'Magazzini occidentali neopalaziali'),
+        (16, 1, 'Piazzale Superiore'),
+        (17, 1, 'Quartiere a Sud del Palazzo'),
+        (18, 1, 'Quartiere a Sud del Piazzale I'),
+        (19, 1, 'Quartiere a Sud del Piazzale LXX'),
+        (20, 1, 'Quartiere ad Ovest del Piazzale I'),
+        (21, 1, 'Quartiere Geometrico ad Ovest del Piazzale LXX'),
+        (22, 1, 'Quartiere meridionale neopalaziale'),
+        (23, 1, 'Quartiere Nord-Est'),
+        (24, 1, 'Quartiere orientale neopalaziale'),
+        (25, 1, 'Quartiere protopalaziale di Nord-Ovest'),
+        (26, 1, 'Quartiere protopalaziale di Sud-Ovest - cd. Levi'),
+        (27, 1, 'Quartiere settentronale neopalaziale (appartamenti reali)'),
+        (28, 1, 'Rampa a Sud-Ovest delle Kouloure'),
+        (29, 1, 'Rampa ellenistica'),
+        (30, 1, 'Saggi Fiandra'),
+        (31, 1, 'Settore tra Edificio Ovest e Camere decapitate'),
+        (32, 1, 'Strada Geometrica'),
+        (33, 1, 'Strada dal Piazzale I al villaggio geometrico'),
+        (34, 1, 'Struttura Ellennistica'),
+        (35, 1, 'Tempio Ellenico'),
+        (36, 1, 'Tomba protogeometrica presso la strada nel tratto tra H. Photinì e Festòs'),
+        (37, 1, 'Tomba di Grigori Koryphì'),
+        (38, 1, 'Provenienza incerta'),
+        (39, 1, 'Sporadico'),
+        (40, 1, 'Haghia Photinì'),
+        (41, 1, 'Chalara'),
+        (42, 1, 'San Giorgio in Falandra'),
+        (43, 1, 'Christòs Effendi'),
+        (44, 2, 'Villa'),
+        (45, 2, 'Abitato'),
+        (46, 2, 'Agorà'),
+        (47, 2, 'Area ad Est dell\'insediamento'),
+        (48, 2, 'Bastione'),
+        (49, 2, 'Casa a Nord della Casa Est'),
+        (50, 2, 'Casa dei Fichi'),
+        (51, 2, 'Casa del Lebete'),
+        (52, 2, 'Casa del Pistrinum'),
+        (53, 2, 'Casa delle Sfere Fittili'),
+        (54, 2, 'Casa Est'),
+        (55, 2, 'Case a Nord-Ovest del Bastione'),
+        (56, 2, 'Casa VAP'),
+        (57, 2, 'Case prepalaziali'),
+        (58, 2, 'Cortile 90'),
+        (59, 2, 'Edificio Ciclopico'),
+        (60, 2, 'Edificio Veneziano'),
+        (61, 2, 'Edificio Nord Ovest'),
+        (62, 2, 'Esavani'),
+        (63, 2, 'Fornace ad Est del Phylakeion'),
+        (64, 2, 'Magazzini ad est del quartiere signorile di nord-ovest'),
+        (65, 2, 'Magazzini Nord'),
+        (66, 2, 'Megaron ABCD'),
+        (67, 2, 'Piazzale Inferiore'),
+        (68, 2, 'Piazzale dei Sacelli'),
+        (69, 2, 'Piazzale Parking'),
+        (70, 2, 'Predio Marakis'),
+        (71, 2, 'Phylakion'),
+        (72, 2, 'Quartiere signorile di nord-ovest'),
+        (73, 2, 'Quartiere signorile orientale'),
+        (74, 2, 'Quartiere Sud-Ovest'),
+        (75, 2, 'Muraglione a denti'),
+        (76, 2, 'Sacello'),
+        (77, 2, 'Stoà dell\'Agorà'),
+        (78, 2, 'Strada nord'),
+        (79, 2, 'Settore Nord-Est'),
+        (80, 2, 'Tholos A'),
+        (81, 2, 'Tholos B'),
+        (82, 2, 'Uliveto Ovest'),
+        (83, 2, 'Vano con Pilastro'),
+        (84, 2, 'Provenienza incerta'),
+        (85, 2, 'Sporadico'),
+        (86, 3, 'Predio Papadospiridakis'),
+        (87, 3, 'Predio Sifakis'),
+        (88, 3, 'Predio Volakis'),
+        (89, 5, 'Haghios Ioannis'),
+        (90, 5, 'Ambeli'),
+        (91, 6, 'Patrikiès'),
+        (92, 6, 'Petrokephali'),
+    ]
+    
+    print("\nInserimento valori area (10.7) con relazioni:")
+    inserted = 0
+    
+    # Mappa delle località
+    localita_map = {
+        1: 'LOC01',  # Festòs
+        2: 'LOC02',  # Haghia Triada
+        3: 'LOC03',  # Kamilari
+        4: 'LOC04',  # Kannia
+        5: 'LOC05',  # Territorio
+        6: 'LOC06',  # Sporadico
+    }
+    
+    for id_area, id_localita, area_nome in area_values:
+        # Usa AREA + numero come sigla
+        sigla = f"AREA{id_area:03d}"
+        # ID per la gerarchia (2000 + id)
+        id_thesaurus = 2000 + id_area
+        # ID parent località (1000 + id_localita)
+        id_parent = 1000 + id_localita
+        parent_sigla = localita_map.get(id_localita, f"LOC{id_localita:02d}")
+        
+        cursor.execute("""
+            INSERT INTO pyarchinit_thesaurus_sigle 
+            (id_thesaurus_sigle, nome_tabella, sigla, sigla_estesa, tipologia_sigla, lingua, 
+             id_parent, parent_sigla, hierarchy_level)
+            VALUES (?, 'tma_materiali_archeologici', ?, ?, '10.7', 'it', ?, ?, 2)
+        """, (id_thesaurus, sigla, area_nome, id_parent, parent_sigla))
+        
+        if inserted < 20 or inserted % 10 == 0:  # Mostra solo alcune per non inondare l'output
+            print(f"  ✓ {id_area}. {area_nome} (Località: {parent_sigla})")
+        inserted += 1
+    
+    print(f"  ... (totale {inserted} aree inserite)")
+    
+    return inserted
+
+def main():
+    # Database path
+    db_path = "/Users/enzo/pyarchinit/pyarchinit_DB_folder/pyarchinitdddd.sqlite"
+    
+    if not os.path.exists(db_path):
+        print(f"Database non trovato in: {db_path}")
+        return 1
+        
+    print(f"Uso database: {db_path}")
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+    
+    try:
+        print("Inserimento valori area dall'Excel...")
+        print("=" * 60)
+        
+        inserted = insert_area_values(cursor)
+        
+        conn.commit()
+        
+        print("\n" + "=" * 60)
+        print(f"✅ Operazione completata!")
+        print(f"   Totale valori inseriti: {inserted}")
+        
+        # Verifica per località
+        print("\nRiepilogo aree per località:")
+        cursor.execute("""
+            SELECT parent_sigla, COUNT(*) 
+            FROM pyarchinit_thesaurus_sigle 
+            WHERE tipologia_sigla = '10.7'
+            GROUP BY parent_sigla
+            ORDER BY parent_sigla
+        """)
+        
+        for parent, count in cursor.fetchall():
+            print(f"   {parent}: {count} aree")
+            
+    except sqlite3.Error as e:
+        print(f"\n❌ Errore: {e}")
+        conn.rollback()
+        return 1
+        
+    finally:
+        conn.close()
+    
+    return 0
+
+if __name__ == "__main__":
+    sys.exit(main())

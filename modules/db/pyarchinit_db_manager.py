@@ -860,14 +860,37 @@ class Pyarchinit_db_management(object):
 
     def insert_values_thesaurus(self, *arg):
         """Istanzia la classe PYARCHINIT_THESAURUS_SIGLE da pyarchinit_db_mapper"""
-
-        thesaurus = PYARCHINIT_THESAURUS_SIGLE(arg[0],
-                                               arg[1],
-                                               arg[2],
-                                               arg[3],
-                                               arg[4],
-                                               arg[5],
-                                               arg[6])
+        
+        # Standard format with all required fields
+        if len(arg) == 7:
+            # Basic format with descrizione
+            thesaurus = PYARCHINIT_THESAURUS_SIGLE(
+                arg[0],  # id_thesaurus_sigle
+                arg[1],  # nome_tabella
+                arg[2],  # sigla
+                arg[3],  # sigla_estesa
+                arg[4],  # descrizione
+                arg[5],  # tipologia_sigla
+                arg[6]   # lingua
+            )
+        elif len(arg) >= 8:
+            # Extended format with hierarchy fields
+            thesaurus = PYARCHINIT_THESAURUS_SIGLE(
+                arg[0],  # id_thesaurus_sigle
+                arg[1],  # nome_tabella
+                arg[2],  # sigla
+                arg[3],  # sigla_estesa
+                arg[4],  # descrizione
+                arg[5],  # tipologia_sigla
+                arg[6],  # lingua
+                arg[7] if len(arg) > 7 else 0,  # order_layer
+                arg[8] if len(arg) > 8 else None,  # id_parent
+                arg[9] if len(arg) > 9 else None,  # parent_sigla
+                arg[10] if len(arg) > 10 else 0  # hierarchy_level
+            )
+        else:
+            # Handle legacy format or missing descrizione
+            raise ValueError(f"Invalid number of arguments for thesaurus: {len(arg)}. Expected at least 7.")
 
         return thesaurus
 
