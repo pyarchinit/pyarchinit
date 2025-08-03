@@ -11,91 +11,8 @@ import sys
 
 # Definizione dei valori del thesaurus TMA
 THESAURUS_DATA = {
-    '10.1': {  # Denominazione collocazione (ldcn)
-        'description': 'Denominazione collocazione',
-        'values': [
-            ('MAG01', 'Magazzino 1'),
-            ('MAG02', 'Magazzino 2'),
-            ('DEP01', 'Deposito 1'),
-            ('LAB01', 'Laboratorio 1'),
-        ]
-    },
-    '10.2': {  # Saggio
-        'description': 'Saggio',
-        'values': [
-            ('SAG1', 'Saggio 1'),
-            ('SAG2', 'Saggio 2'),
-            ('SAG3', 'Saggio 3'),
-            ('SAGA', 'Saggio A'),
-            ('SAGB', 'Saggio B'),
-        ]
-    },
-    '10.3': {  # Vano/Locus
-        'description': 'Vano/Locus',
-        'values': [
-            ('V1', 'Vano 1'),
-            ('V2', 'Vano 2'),
-            ('V3', 'Vano 3'),
-            ('L1', 'Locus 1'),
-            ('L2', 'Locus 2'),
-            ('AMB1', 'Ambiente 1'),
-            ('AMB2', 'Ambiente 2'),
-        ]
-    },
-    '10.4': {  # Nome scavo
-        'description': 'Nome scavo',
-        'values': [
-            ('SCA01', 'Scavo archeologico 2024'),
-            ('SCA02', 'Scavo di emergenza'),
-            ('RIC01', 'Ricognizione superficiale'),
-            ('PREV01', 'Scavo preventivo'),
-        ]
-    },
-    '10.7': {  # Area
-        'description': 'Area',
-        'values': [
-            ('A', 'Area A'),
-            ('B', 'Area B'),
-            ('C', 'Area C'),
-            ('D', 'Area D'),
-            ('1000', 'Area 1000'),
-            ('2000', 'Area 2000'),
-            ('3000', 'Area 3000'),
-        ]
-    },
-    '10.10': {  # Tipologia collocazione (ldct)
-        'description': 'Tipologia collocazione',
-        'values': [
-            ('MAG', 'Magazzino'),
-            ('DEP', 'Deposito'),
-            ('LAB', 'Laboratorio'),
-            ('MUS', 'Museo'),
-            ('ARCH', 'Archivio'),
-        ]
-    },
-    '10.11': {  # Tipo acquisizione (aint)
-        'description': 'Tipo acquisizione',
-        'values': [
-            ('SCA', 'Scavo'),
-            ('RIC', 'Ricognizione'),
-            ('REC', 'Recupero'),
-            ('RIN', 'Rinvenimento fortuito'),
-            ('DON', 'Donazione'),
-            ('ACQ', 'Acquisto'),
-        ]
-    },
-    '10.12': {  # Tipo fotografia (ftap)
-        'description': 'Tipo fotografia',
-        'values': [
-            ('GEN', 'Generale'),
-            ('DET', 'Dettaglio'),
-            ('MAC', 'Macro'),
-            ('MIC', 'Microscopica'),
-            ('RAD', 'Radiografia'),
-            ('UV', 'Ultravioletto'),
-        ]
-    },
-    '10.13': {  # Tipo disegno (drat)
+
+    '10.9': {  # Tipo disegno (drat)
         'description': 'Tipo disegno',
         'values': [
             ('RIL', 'Rilievo'),
@@ -106,52 +23,10 @@ THESAURUS_DATA = {
             ('SCH', 'Schema'),
         ]
     },
-    '10.15': {  # Fascia cronologica (dtzg)
-        'description': 'Fascia cronologica',
-        'values': [
-            ('PREI', 'Preistoria'),
-            ('PROT', 'Protostoria'),
-            ('ARC', 'Età arcaica'),
-            ('CLA', 'Età classica'),
-            ('ELL', 'Età ellenistica'),
-            ('ROM', 'Età romana'),
-            ('TARD', 'Tardoantico'),
-            ('MED', 'Medioevo'),
-            ('RIN', 'Rinascimento'),
-            ('MOD', 'Età moderna'),
-            ('CONT', 'Età contemporanea'),
-        ]
-    },
-    '10.18': {  # Località
-        'description': 'Località',
-        'values': [
-            ('LOC01', 'Località 1'),
-            ('LOC02', 'Località 2'),
-            ('LOC03', 'Località 3'),
-            ('CENTR', 'Centro storico'),
-            ('PERIF', 'Periferia'),
-        ]
-    },
-    '10.19': {  # Settore
-        'description': 'Settore',
-        'values': [
-            ('S1', 'Settore 1'),
-            ('S2', 'Settore 2'),
-            ('S3', 'Settore 3'),
-            ('S4', 'Settore 4'),
-            ('SA', 'Settore A'),
-            ('SB', 'Settore B'),
-            ('SC', 'Settore C'),
-            ('SD', 'Settore D'),
-            ('NE', 'Nord-Est'),
-            ('NO', 'Nord-Ovest'),
-            ('SE', 'Sud-Est'),
-            ('SO', 'Sud-Ovest'),
-        ]
-    },
+
 }
 
-def insert_thesaurus_values(cursor, nome_tabella='tma_materiali_archeologici', lingua='it'):
+def insert_thesaurus_values(cursor, nome_tabella='TMA materiali archeologici', lingua='it'):
     """Insert thesaurus values into database."""
     inserted_count = 0
     skipped_count = 0
@@ -184,7 +59,7 @@ def insert_thesaurus_values(cursor, nome_tabella='tma_materiali_archeologici', l
 
 def main():
     # Database path
-    db_path = os.path.expanduser("~/Library/Application Support/QGIS/QGIS3/profiles/default/python/plugins/pyarchinit/pyarchinit_db.sqlite")
+    db_path = os.path.expanduser("/Users/enzo/pyarchinit/pyarchinit_DB_folder/pyarchinitdddd.sqlite")
     
     # Alternative path if running from plugin directory
     if not os.path.exists(db_path):

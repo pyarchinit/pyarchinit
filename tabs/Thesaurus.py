@@ -27,12 +27,12 @@ from datetime import date
 import sys
 from builtins import range
 from builtins import str
-
+from qgis._core import QgsMessageLog
 
 from openai import OpenAI
 import requests
-from qgis.PyQt.QtCore import QUrl, Qt
-from qgis.PyQt.QtWidgets import QApplication, QFileDialog,QDialog, QMessageBox,QCompleter,QComboBox,QInputDialog
+from qgis.PyQt.QtCore import QUrl, Qt, QTimer
+from qgis.PyQt.QtWidgets import QApplication, QFileDialog,QDialog, QMessageBox,QCompleter,QComboBox,QInputDialog,QLabel,QFormLayout,QPushButton,QVBoxLayout,QHBoxLayout
 from qgis.PyQt.uic import loadUiType
 from qgis.core import Qgis
 from qgis.core import QgsSettings
@@ -161,7 +161,11 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
         "sigla_estesa",
         "descrizione",
         "tipologia_sigla",
-        "lingua"
+        "lingua",
+        "order_layer",
+        "id_parent", 
+        "parent_sigla",
+        "hierarchy_level"
     ]
     DB_SERVER = "not defined"  ####nuovo sistema sort
 
@@ -171,6 +175,10 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
         self.pyQGIS = Pyarchinit_pyqgis(iface)
         self.setupUi(self)
         self.currentLayerId = None
+        
+        # Create hierarchy widgets after UI setup
+        self.create_hierarchy_widgets()
+        
         self.comboBox_nome_tabella.currentTextChanged.connect(self.charge_n_sigla)
         try:
             self.on_pushButton_connect_pressed()
@@ -504,8 +512,8 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
             'Tomba': 'tomba_table',
             'Individui': 'individui_table',
             'Documentazione': 'documentazione_table',
-            'TMA - Materiali Archeologici': 'tma_materiali_archeologici',
-            'TMA - Materiali Ripetibili': 'tma_materiali_ripetibili'
+            'TMA materiali archeologici': 'tma_materiali_archeologici',
+            'TMA Materiali Ripetibili': 'tma_materiali_ripetibili'
         }
         
         # Mappatura dei campi sincronizzati tra tabelle
@@ -516,42 +524,35 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
                 ('inventario_materiali_table', '3.11'),
                 ('tomba_table', '7.8'),
                 ('individui_table', '8.6'),
-                ('tma_materiali_archeologici', '10.7')
+                ('TMA materiali archeologici', '10.7')
             ],
-            'settore': [
-                ('us_table', '2.1'),
-                ('tma_materiali_archeologici', '10.15')
-            ],
-            'saggio': [
-                ('tma_materiali_archeologici', '10.2')
-            ],
-            'vano_locus': [
-                ('tma_materiali_archeologici', '10.3')
-            ],
+            
+
             'materiale': [
-                ('tma_materiali_archeologici', '10.4'),
-                ('tma_materiali_ripetibili', '10.4')
+                ('TMA materiali archeologici', '10.4'),
+                ('TMA Materiali Ripetibili', '10.4')
             ],
             'categoria': [
-                ('tma_materiali_archeologici', '10.5'),
-                ('tma_materiali_ripetibili', '10.5')
+                ('TMA materiali archeologici', '10.10'),
+                ('TMA Materiali Ripetibili', '10.10')
             ],
             'classe': [
-                ('tma_materiali_archeologici', '10.6'),
-                ('tma_materiali_ripetibili', '10.6')
+                ('TMA materiali archeologici', '10.11'),
+                ('TMA Materiali Ripetibili', '10.11')
             ],
             'precisazione_tipologica': [
-                ('tma_materiali_archeologici', '10.8'),
-                ('tma_materiali_ripetibili', '10.8')
+                ('TMA materiali archeologici', '10.12'),
+                ('TMA Materiali Ripetibili', '10.12')
             ],
             'definizione': [
-                ('tma_materiali_archeologici', '10.9'),
-                ('tma_materiali_ripetibili', '10.9')
+                ('TMA materiali archeologici', '10.13'),
+                ('TMA Materiali Ripetibili', '10.13')
             ],
             'cronologia': [
-                ('tma_materiali_archeologici', '10.16'),
-                ('tma_materiali_ripetibili', '10.16')
-            ]
+                ('TMA materiali archeologici', '10.4'),
+                ('TMA Materiali Ripetibili', '10.4')
+            ],
+            
         }
         
         # Add display names to combobox
@@ -687,29 +688,24 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
             },
             'tma_materiali_archeologici': {
                 '10.1': 'Denominazione collocazione',
-                '10.2': 'Saggio',
-                '10.3': 'Vano/Locus',
-                '10.4': 'Materiale',
-                '10.5': 'Categoria',
-                '10.6': 'Classe', 
+                '10.2': 'Tipologia Collocazione',
+                '10.3': 'Località',  # Changed from Vano/Locus
+                '10.4': 'Fascia Cronologica',
+                '10.5': 'Denominazione Scavo',
+                '10.6': 'Tipologia Acquisizione',
                 '10.7': 'Area',
-                '10.8': 'Precisazione tipologica',
-                '10.9': 'Definizione',
-                '10.10': 'Tipo collocazione',
-                '10.11': 'Tipo foto',
-                '10.12': 'Tipo disegno',
-                '10.13': 'Tipo disegno autore',
-                '10.14': 'Tipologia acquisizione',
+                '10.8': 'Tipo foto',
+                '10.9': 'Tipo disegno',
                 '10.15': 'Settore',
-                '10.16': 'Cronologia'
+
             },
             'tma_materiali_ripetibili': {
-                '10.4': 'Materiale',
-                '10.5': 'Categoria',
-                '10.6': 'Classe',
-                '10.8': 'Precisazione tipologica',
-                '10.9': 'Definizione',
-                '10.16': 'Cronologia'
+
+                '10.10': 'Categoria',
+                '10.11': 'Classe',
+                '10.12': 'Precisazione tipologica',
+                '10.13': 'Definizione',
+                '10.4': 'Cronologia'
             }
         }
         
@@ -727,6 +723,388 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
                 index = self.comboBox_tipologia_sigla.count() - 1
                 description = code_descriptions[current_table][code]
                 self.comboBox_tipologia_sigla.setItemData(index, description, Qt.ToolTipRole)
+                
+        # Show hierarchy management widgets for TMA materials
+        if current_table == 'TMA materiali archeologici':
+            self.setup_tma_hierarchy_widgets()
+    
+    def setup_tma_hierarchy_widgets(self):
+        """Setup hierarchy management widgets for TMA materials."""
+        # Connect tipologia_sigla change to show/hide hierarchy widgets
+        try:
+            self.comboBox_tipologia_sigla.currentTextChanged.disconnect()
+        except:
+            pass
+        self.comboBox_tipologia_sigla.currentTextChanged.connect(self.on_tma_tipologia_changed)
+        
+        # Check current tipologia
+        self.on_tma_tipologia_changed()
+    
+    def on_tma_tipologia_changed(self):
+        """Handle TMA tipologia change to show hierarchy options."""
+        current_tipologia = self.comboBox_tipologia_sigla.currentText()
+        
+        QgsMessageLog.logMessage(f"TMA tipologia changed to: '{current_tipologia}'", "PyArchInit", Qgis.Info)
+        
+        # Hide hierarchy widgets by default
+        self.hide_hierarchy_widgets()
+        
+        # Show hierarchy options based on tipologia
+        # Correct codes:
+        # - 10.3 = Località (no parent needed)
+        # - 10.7 = Area (needs Località parent)
+        # - 10.15 = Settore (needs Località and Area parent)
+        
+        if current_tipologia == '10.7':  # Area - needs Località parent
+            QgsMessageLog.logMessage("Showing area parent widgets", "PyArchInit", Qgis.Info)
+            self.show_area_parent_widgets()
+        elif current_tipologia == '10.15':  # Settore - needs Località and Area parent
+            QgsMessageLog.logMessage("Showing settore parent widgets", "PyArchInit", Qgis.Info)
+            self.show_settore_parent_widgets()
+    
+    def hide_hierarchy_widgets(self):
+        """Hide all hierarchy selection widgets."""
+        if hasattr(self, 'label_parent_localita'):
+            self.label_parent_localita.hide()
+            self.comboBox_parent_localita.hide()
+        if hasattr(self, 'label_parent_area'):
+            self.label_parent_area.hide()
+            self.comboBox_parent_area.hide()
+    
+    def show_area_parent_widgets(self):
+        """Show widgets for selecting località parent for area."""
+        # Show località selection
+        if hasattr(self, 'label_parent_localita'):
+            self.label_parent_localita.show()
+            self.comboBox_parent_localita.show()
+        
+        # Hide area selection (not needed for area)
+        if hasattr(self, 'label_parent_area'):
+            self.label_parent_area.hide()
+            self.comboBox_parent_area.hide()
+        
+        # Load località options
+        QgsMessageLog.logMessage("About to load parent località", "PyArchInit", Qgis.Info)
+        self.load_parent_localita()
+        
+        QgsMessageLog.logMessage("Area parent widgets shown", "PyArchInit", Qgis.Info)
+    
+    def show_settore_parent_widgets(self):
+        """Show widgets for selecting località and area parents for settore."""
+        # Show both località and area selection
+        if hasattr(self, 'label_parent_localita'):
+            self.label_parent_localita.show()
+            self.comboBox_parent_localita.show()
+        
+        if hasattr(self, 'label_parent_area'):
+            self.label_parent_area.show()
+            self.comboBox_parent_area.show()
+        
+        # Load località options
+        QgsMessageLog.logMessage("About to load parent località for settore", "PyArchInit", Qgis.Info)
+        self.load_parent_localita()
+        
+        QgsMessageLog.logMessage("Settore parent widgets shown", "PyArchInit", Qgis.Info)
+    
+    def show_area_parent_dialog(self):
+        """Show dialog for selecting località parent for area."""
+        dialog = QDialog(self)
+        dialog.setWindowTitle("Seleziona Località per Area")
+        dialog.setModal(True)
+        dialog.resize(400, 150)
+        
+        layout = QVBoxLayout(dialog)
+        
+        # Create form layout
+        form_layout = QFormLayout()
+        
+        # Località selection
+        combo_localita = QComboBox()
+        combo_localita.addItem("--- Seleziona località ---")
+        
+        # Load località options
+        lingua = ""
+        l = self.comboBox_lingua.currentText()
+        for key, values in self.LANG.items():
+            if values.__contains__(l):
+                lingua = key
+        
+        search_dict = {
+            'nome_tabella': "'TMA materiali archeologici'",
+            'tipologia_sigla': "'10.3'",  # Corrected: Località code
+            'lingua': "'" + lingua + "'"
+        }
+        
+        res = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
+        for i in res:
+            combo_localita.addItem(f"{i.sigla} - {i.sigla_estesa}")
+        
+        form_layout.addRow("Località:", combo_localita)
+        layout.addLayout(form_layout)
+        
+        # Buttons
+        button_layout = QHBoxLayout()
+        btn_ok = QPushButton("OK")
+        btn_cancel = QPushButton("Annulla")
+        button_layout.addWidget(btn_ok)
+        button_layout.addWidget(btn_cancel)
+        layout.addLayout(button_layout)
+        
+        # Store selection
+        self.selected_localita_parent = None
+        
+        def on_ok():
+            if combo_localita.currentIndex() > 0:
+                self.selected_localita_parent = combo_localita.currentText().split(' - ')[0]
+            dialog.accept()
+        
+        def on_cancel():
+            self.selected_localita_parent = None
+            dialog.reject()
+        
+        btn_ok.clicked.connect(on_ok)
+        btn_cancel.clicked.connect(on_cancel)
+        
+        dialog.exec_()
+    
+    def show_settore_parent_dialog(self):
+        """Show dialog for selecting località and area parents for settore."""
+        dialog = QDialog(self)
+        dialog.setWindowTitle("Seleziona Località e Area per Settore")
+        dialog.setModal(True)
+        dialog.resize(400, 200)
+        
+        layout = QVBoxLayout(dialog)
+        
+        # Create form layout
+        form_layout = QFormLayout()
+        
+        # Località selection
+        combo_localita = QComboBox()
+        combo_localita.addItem("--- Seleziona località ---")
+        
+        # Area selection
+        combo_area = QComboBox()
+        combo_area.addItem("--- Prima seleziona località ---")
+        combo_area.setEnabled(False)
+        
+        # Load località options
+        lingua = ""
+        l = self.comboBox_lingua.currentText()
+        for key, values in self.LANG.items():
+            if values.__contains__(l):
+                lingua = key
+        
+        search_dict = {
+            'nome_tabella': "'TMA materiali archeologici'",
+            'tipologia_sigla': "'10.3'",  # Corrected: Località code
+            'lingua': "'" + lingua + "'"
+        }
+        
+        res = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
+        for i in res:
+            combo_localita.addItem(f"{i.sigla} - {i.sigla_estesa}")
+        
+        # Update areas when località changes
+        def on_localita_changed():
+            combo_area.clear()
+            if combo_localita.currentIndex() > 0:
+                combo_area.setEnabled(True)
+                combo_area.addItem("--- Seleziona area ---")
+                
+                localita_sigla = combo_localita.currentText().split(' - ')[0]
+                
+                search_dict = {
+                    'nome_tabella': "'TMA materiali archeologici'",
+                    'tipologia_sigla': "'10.7'",  # Area code,
+                    'parent_sigla': "'" + localita_sigla + "'",
+                    'lingua': "'" + lingua + "'"
+                }
+                
+                res = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
+                for i in res:
+                    combo_area.addItem(f"{i.sigla} - {i.sigla_estesa}")
+            else:
+                combo_area.setEnabled(False)
+                combo_area.addItem("--- Prima seleziona località ---")
+        
+        combo_localita.currentIndexChanged.connect(on_localita_changed)
+        
+        form_layout.addRow("Località:", combo_localita)
+        form_layout.addRow("Area:", combo_area)
+        layout.addLayout(form_layout)
+        
+        # Buttons
+        button_layout = QHBoxLayout()
+        btn_ok = QPushButton("OK")
+        btn_cancel = QPushButton("Annulla")
+        button_layout.addWidget(btn_ok)
+        button_layout.addWidget(btn_cancel)
+        layout.addLayout(button_layout)
+        
+        # Store selections
+        self.selected_area_parent = None
+        
+        def on_ok():
+            if combo_area.currentIndex() > 0:
+                self.selected_area_parent = combo_area.currentText().split(' - ')[0]
+            dialog.accept()
+        
+        def on_cancel():
+            self.selected_area_parent = None
+            dialog.reject()
+        
+        btn_ok.clicked.connect(on_ok)
+        btn_cancel.clicked.connect(on_cancel)
+        
+        dialog.exec_()
+    
+    def create_hierarchy_widgets(self):
+        """Create hierarchy selection widgets dynamically."""
+        # Create widgets for hierarchy selection
+        self.label_parent_localita = QLabel("Località parent:")
+        self.comboBox_parent_localita = QComboBox()
+        self.comboBox_parent_localita.setEditable(True)
+        
+        self.label_parent_area = QLabel("Area parent:")
+        self.comboBox_parent_area = QComboBox()
+        self.comboBox_parent_area.setEditable(True)
+        
+        # Connect localita change to update areas
+        self.comboBox_parent_localita.currentTextChanged.connect(self.on_parent_localita_changed)
+        
+        # Find the gridLayout_8 which contains the form fields
+        try:
+            # The UI file shows gridLayout_8 contains the form fields
+            if hasattr(self, 'gridLayout_8'):
+                layout = self.gridLayout_8
+                
+                # Find the row where tipologia_sigla is located (row 4 according to UI)
+                # Add our widgets after tipologia_sigla (which is at row 4)
+                
+                # Add località parent at row 5
+                layout.addWidget(self.label_parent_localita, 5, 0)
+                layout.addWidget(self.comboBox_parent_localita, 5, 1)
+                
+                # Add area parent at row 6 
+                layout.addWidget(self.label_parent_area, 6, 0)
+                layout.addWidget(self.comboBox_parent_area, 6, 1)
+                
+                QgsMessageLog.logMessage("Hierarchy widgets added to gridLayout_8", "PyArchInit", Qgis.Info)
+            else:
+                QgsMessageLog.logMessage("gridLayout_8 not found in UI", "PyArchInit", Qgis.Warning)
+                    
+        except Exception as e:
+            QgsMessageLog.logMessage(f"Could not add hierarchy widgets: {str(e)}", "PyArchInit", Qgis.Warning)
+        
+        # Initially hide all hierarchy widgets
+        self.hide_hierarchy_widgets()
+    
+    def load_parent_areas(self):
+        """Load available parent areas from thesaurus."""
+        self.comboBox_parent_area.clear()
+        self.comboBox_parent_area.addItem("")  # Empty option
+        
+        # Query areas from thesaurus
+        search_dict = {
+            'nome_tabella': 'TMA materiali archeologici',
+            'tipologia_sigla': '10.7',  # Area code
+            'lingua': self.comboBox_lingua.currentText()
+        }
+        
+        res = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
+        
+        areas = []
+        for i in res:
+            areas.append(f"{i.sigla} - {i.sigla_estesa}")
+        
+        areas.sort()
+        self.comboBox_parent_area.addItems(areas)
+    
+    def load_parent_localita(self):
+        """Load available località from thesaurus."""
+        self.comboBox_parent_localita.clear()
+        self.comboBox_parent_localita.addItem("")  # Empty option
+        
+        if not self.DB_MANAGER:
+            QgsMessageLog.logMessage("DB_MANAGER not available for loading località", "PyArchInit", Qgis.Warning)
+            return
+            
+        try:
+            # Get current language
+            lingua = ""
+            l = self.comboBox_lingua.currentText()
+            for key, values in self.LANG.items():
+                if values.__contains__(l):
+                    lingua = key
+            
+            # Query località (code 10.3)
+            search_dict = {
+                'nome_tabella': "'TMA materiali archeologici'",
+                'tipologia_sigla': "'10.3'",  # Località
+                'lingua': "'" + lingua + "'"
+            }
+            
+            res = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
+            
+            localita_items = []
+            for i in res:
+                localita_items.append(f"{i.sigla} - {i.sigla_estesa}")
+            
+            localita_items.sort()
+            self.comboBox_parent_localita.addItems(localita_items)
+            
+            QgsMessageLog.logMessage(f"Loaded {len(localita_items)} località items", "PyArchInit", Qgis.Info)
+            
+        except Exception as e:
+            QgsMessageLog.logMessage(f"Error loading località: {str(e)}", "PyArchInit", Qgis.Warning)
+            self.comboBox_parent_localita.addItem("--- Errore caricamento località ---")
+    
+    def on_parent_localita_changed(self):
+        """When località selection changes, update available areas."""
+        if hasattr(self, 'comboBox_parent_area') and self.comboBox_parent_area.isVisible():
+            # Clear and reload areas based on selected località
+            self.comboBox_parent_area.clear()
+            self.comboBox_parent_area.addItem("")  # Empty option
+            
+            selected_localita = self.comboBox_parent_localita.currentText()
+            if selected_localita and selected_localita != "":
+                
+                # Extract sigla from selection
+                localita_sigla = selected_localita.split(' - ')[0] if ' - ' in selected_localita else ''
+                
+                if not localita_sigla or not self.DB_MANAGER:
+                    return
+                    
+                try:
+                    # Get current language
+                    lingua = ""
+                    l = self.comboBox_lingua.currentText()
+                    for key, values in self.LANG.items():
+                        if values.__contains__(l):
+                            lingua = key
+                    
+                    # Query areas that belong to this località
+                    search_dict = {
+                        'nome_tabella': "'TMA materiali archeologici'",
+                        'tipologia_sigla': "'10.7'",  # Area code
+                        'parent_sigla': "'" + localita_sigla + "'",
+                        'lingua': "'" + lingua + "'"
+                    }
+                    
+                    res = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
+                    
+                    areas = []
+                    for i in res:
+                        areas.append(f"{i.sigla} - {i.sigla_estesa}")
+                    
+                    areas.sort()
+                    self.comboBox_parent_area.addItems(areas)
+                    
+                    QgsMessageLog.logMessage(f"Loaded {len(areas)} areas for località {localita_sigla}", "PyArchInit", Qgis.Info)
+                    
+                except Exception as e:
+                    QgsMessageLog.logMessage(f"Error loading areas: {str(e)}", "PyArchInit", Qgis.Warning)
     
     def on_pushButton_sort_pressed(self):
         if self.check_record_state() == 1:
@@ -905,15 +1283,7 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
                 test = 1
         
         
-            """controllo lunghezza campo alfanumerico"""
-            sigla = self.comboBox_sigla.currentText()
-            if sigla!='':
-                if EC.data_lenght(sigla, 3) == 0:
-                    QMessageBox.warning(self, "ATTENZIONE",
-                                        "Campo Sigla. \n Il valore non deve superare i 3 caratteri alfabetici",
-                                        QMessageBox.Ok)
-                                        
-                    test = 1                    
+
         elif self.L=='de':
             if EC.data_is_empty(str(self.comboBox_sigla.currentText())) == 0:
                 QMessageBox.warning(self, "ACHTUNG", "Feld Abkürzung \n Das Feld darf nicht leer sein", QMessageBox.Ok)
@@ -976,17 +1346,137 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
 
     def insert_new_rec(self):
         try:
-            # Convert display name to actual table name
-            table_name = self.get_table_name_from_display(str(self.comboBox_nome_tabella.currentText()))
+            # Get display name and convert to actual table name
+            display_name = str(self.comboBox_nome_tabella.currentText())
+            table_name = self.get_table_name_from_display(display_name)
             
+            # Get hierarchy data if this is TMA material
+            id_parent = None
+            parent_sigla = None
+            hierarchy_level = 0
+            
+            if table_name == 'tma_materiali_archeologici':
+                tipologia = str(self.comboBox_tipologia_sigla.currentText())
+                
+                if tipologia == '10.7':  # Area
+                    # Show dialog to select parent località
+                    self.show_area_parent_dialog()
+                    if hasattr(self, 'selected_localita_parent') and self.selected_localita_parent:
+                        parent_sigla = self.selected_localita_parent
+                    
+                    if parent_sigla:
+                        # Find parent ID - try multiple table name formats
+                        lingua = str(self.comboBox_lingua.currentText())
+                        
+                        # Try with display name first
+                        search_dict = {
+                            'nome_tabella': display_name,
+                            'sigla': parent_sigla,
+                            'tipologia_sigla': "10.3",  # Località
+                            'lingua': lingua
+                        }
+                        QgsMessageLog.logMessage(f"Searching for parent with: {search_dict}", "PyArchInit", Qgis.Info)
+                        parent_records = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
+                        QgsMessageLog.logMessage(f"Found {len(parent_records) if parent_records else 0} parent records", "PyArchInit", Qgis.Info)
+                        
+                        # If not found, try with lowercase table name (actual database format)
+                        if not parent_records:
+                            search_dict_lowercase = {
+                                'nome_tabella': 'TMA materiali archeologici',
+                                'sigla': parent_sigla,
+                                'tipologia_sigla': "10.3",  # Località
+                                'lingua': lingua
+                            }
+                            QgsMessageLog.logMessage(f"Trying with lowercase table name: {search_dict_lowercase}", "PyArchInit", Qgis.Info)
+                            parent_records = self.DB_MANAGER.query_bool(search_dict_lowercase, self.MAPPER_TABLE_CLASS)
+                            QgsMessageLog.logMessage(f"Found {len(parent_records) if parent_records else 0} parent records with lowercase", "PyArchInit", Qgis.Info)
+                        
+                        if parent_records:
+                            id_parent = parent_records[0].id_thesaurus_sigle
+                            QgsMessageLog.logMessage(f"Setting id_parent to: {id_parent}", "PyArchInit", Qgis.Info)
+                        else:
+                            QgsMessageLog.logMessage(f"No parent record found for sigla: {parent_sigla}", "PyArchInit", Qgis.Warning)
+                            # Try without language constraint
+                            search_dict_no_lang = {
+                                'nome_tabella': 'TMA materiali archeologici',
+                                'sigla': parent_sigla,
+                                'tipologia_sigla': "10.3"  # Località
+                            }
+                            QgsMessageLog.logMessage(f"Trying search without language: {search_dict_no_lang}", "PyArchInit", Qgis.Info)
+                            parent_records = self.DB_MANAGER.query_bool(search_dict_no_lang, self.MAPPER_TABLE_CLASS)
+                            if parent_records:
+                                id_parent = parent_records[0].id_thesaurus_sigle
+                                QgsMessageLog.logMessage(f"Found parent without language constraint, setting id_parent to: {id_parent}", "PyArchInit", Qgis.Info)
+                            else:
+                                QgsMessageLog.logMessage(f"Still no parent record found for sigla: {parent_sigla}", "PyArchInit", Qgis.Warning)
+                        hierarchy_level = 2
+                        
+                elif tipologia == '10.15':  # Settore
+                    # Show dialog to select parent area
+                    self.show_settore_parent_dialog()
+                    if hasattr(self, 'selected_area_parent') and self.selected_area_parent:
+                        parent_sigla = self.selected_area_parent
+                        
+                        if parent_sigla:
+                            # Find parent ID - try multiple table name formats
+                            lingua = str(self.comboBox_lingua.currentText())
+                            
+                            # Try with display name first
+                            search_dict = {
+                                'nome_tabella': display_name,
+                                'sigla': parent_sigla,
+                                'tipologia_sigla': "10.7",  # Area
+                                'lingua': lingua
+                            }
+                            QgsMessageLog.logMessage(f"Searching for area parent with: {search_dict}", "PyArchInit", Qgis.Info)
+                            parent_records = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
+                            QgsMessageLog.logMessage(f"Found {len(parent_records) if parent_records else 0} area parent records", "PyArchInit", Qgis.Info)
+                            
+                            # If not found, try with lowercase table name (actual database format)
+                            if not parent_records:
+                                search_dict_lowercase = {
+                                    'nome_tabella': 'TMA materiali archeologici',
+                                    'sigla': parent_sigla,
+                                    'tipologia_sigla': "10.7",  # Area
+                                    'lingua': lingua
+                                }
+                                QgsMessageLog.logMessage(f"Trying area search with lowercase table name: {search_dict_lowercase}", "PyArchInit", Qgis.Info)
+                                parent_records = self.DB_MANAGER.query_bool(search_dict_lowercase, self.MAPPER_TABLE_CLASS)
+                                QgsMessageLog.logMessage(f"Found {len(parent_records) if parent_records else 0} area parent records with lowercase", "PyArchInit", Qgis.Info)
+                            
+                            if parent_records:
+                                id_parent = parent_records[0].id_thesaurus_sigle
+                                QgsMessageLog.logMessage(f"Setting id_parent to: {id_parent}", "PyArchInit", Qgis.Info)
+                            else:
+                                QgsMessageLog.logMessage(f"No area parent record found for sigla: {parent_sigla}", "PyArchInit", Qgis.Warning)
+                                # Try without language constraint
+                                search_dict_no_lang = {
+                                    'nome_tabella': 'TMA materiali archeologici',
+                                    'sigla': parent_sigla,
+                                    'tipologia_sigla': "10.7"  # Area
+                                }
+                                QgsMessageLog.logMessage(f"Trying area search without language: {search_dict_no_lang}", "PyArchInit", Qgis.Info)
+                                parent_records = self.DB_MANAGER.query_bool(search_dict_no_lang, self.MAPPER_TABLE_CLASS)
+                                if parent_records:
+                                    id_parent = parent_records[0].id_thesaurus_sigle
+                                    QgsMessageLog.logMessage(f"Found area parent without language constraint, setting id_parent to: {id_parent}", "PyArchInit", Qgis.Info)
+                                else:
+                                    QgsMessageLog.logMessage(f"Still no area parent record found for sigla: {parent_sigla}", "PyArchInit", Qgis.Warning)
+                            hierarchy_level = 3
+            
+            # Create data with hierarchy fields - use display name for nome_tabella
             data = self.DB_MANAGER.insert_values_thesaurus(
                 self.DB_MANAGER.max_num_id(self.MAPPER_TABLE_CLASS, self.ID_TABLE) + 1,
-                table_name,  # 1 - nome tabella
+                display_name,  # 1 - nome tabella (use display name/alias)
                 str(self.comboBox_sigla.currentText()),  # 2 - sigla
                 str(self.comboBox_sigla_estesa.currentText()),  # 3 - sigla estesa
                 str(self.textEdit_descrizione_sigla.toPlainText()),  # 4 - descrizione
                 str(self.comboBox_tipologia_sigla.currentText()),  # 5 - tipologia sigla
-                str(self.comboBox_lingua.currentText()))  # 6 - lingua
+                str(self.comboBox_lingua.currentText()),  # 6 - lingua
+                0,  # 7 - order_layer (default)
+                id_parent,  # 8 - id_parent
+                parent_sigla,  # 9 - parent_sigla
+                hierarchy_level)  # 10 - hierarchy_level
 
             try:
                 self.DB_MANAGER.insert_data_session(data)
@@ -999,7 +1489,7 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
                 lingua = str(self.comboBox_lingua.currentText())
                 
                 # Synchronize if needed
-                self.synchronize_field_values(sigla, sigla_estesa, descrizione, tipologia_sigla, lingua, table_name)
+                self.synchronize_field_values(sigla, sigla_estesa, descrizione, tipologia_sigla, lingua, display_name)
                 
                 return 1
             except Exception as e:
@@ -1025,9 +1515,11 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
     
     def check_synchronized_field(self, sigla_estesa, tipologia_sigla, table_name):
         """Check if this field should be synchronized across tables"""
+        # Convert display name to actual table name for comparison
+        actual_table_name = self.get_table_name_from_display(table_name)
         for field_name, table_list in self.SYNCHRONIZED_FIELDS.items():
             for table, code in table_list:
-                if table == table_name and code == tipologia_sigla:
+                if table == actual_table_name and code == tipologia_sigla:
                     # This is a synchronized field
                     return field_name, table_list
         return None, None
@@ -1040,13 +1532,17 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
             # This is a synchronized field - propagate to all related tables
             sync_count = 0
             errors = []
+            actual_table_name = self.get_table_name_from_display(table_name)
             
             for target_table, target_code in table_list:
-                if target_table != table_name:  # Don't sync to the same table
+                if target_table != actual_table_name:  # Don't sync to the same table
                     try:
+                        # Convert target table to display name
+                        target_display_name = self.get_display_name_from_table(target_table)
+                        
                         # Check if record already exists
                         search_dict = {
-                            'nome_tabella': "'" + target_table + "'",
+                            'nome_tabella': "'" + target_display_name + "'",
                             'sigla': "'" + sigla + "'",
                             'tipologia_sigla': "'" + target_code + "'",
                             'lingua': "'" + lingua + "'"
@@ -1054,13 +1550,13 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
                         existing = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
                         
                         if not existing:
-                            # Insert new synchronized record
+                            # Insert new synchronized record using display name
                             data = self.DB_MANAGER.insert_values_thesaurus(
                                 self.DB_MANAGER.max_num_id(self.MAPPER_TABLE_CLASS, self.ID_TABLE) + 1,
-                                target_table,
+                                target_display_name,  # Use display name
                                 sigla,
                                 sigla_estesa,
-                                descrizione + " [Sincronizzato da " + self.get_display_name_from_table(table_name) + "]",
+                                descrizione + " [Sincronizzato da " + table_name + "]",
                                 target_code,
                                 lingua
                             )
@@ -1072,7 +1568,7 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
                                                  self.ID_TABLE,
                                                  [existing[0].id_thesaurus_sigle],
                                                  ['sigla_estesa', 'descrizione'],
-                                                 [sigla_estesa, descrizione + " [Sincronizzato da " + self.get_display_name_from_table(table_name) + "]"])
+                                                 [sigla_estesa, descrizione + " [Sincronizzato da " + table_name + "]"])
                             sync_count += 1
                     except Exception as e:
                         errors.append("Errore sincronizzazione con " + self.get_display_name_from_table(target_table) + ": " + str(e))
@@ -1566,8 +2062,6 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
     def fill_fields(self, n=0):
         self.rec_num = n
 
-
-
         str(self.comboBox_sigla.setEditText(self.DATA_LIST[self.rec_num].sigla))  # 1 - Sigla
         str(self.comboBox_sigla_estesa.setEditText(self.DATA_LIST[self.rec_num].sigla_estesa))  # 2 - Sigla estesa
         str(self.comboBox_tipologia_sigla.setEditText(
@@ -1578,6 +2072,50 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
         str(str(
             self.textEdit_descrizione_sigla.setText(self.DATA_LIST[self.rec_num].descrizione)))  # 5 - descrizione sigla
         str(self.comboBox_lingua.setEditText(self.DATA_LIST[self.rec_num].lingua))  # 6 - lingua
+        
+        # Handle hierarchy fields for TMA materials
+        if hasattr(self.DATA_LIST[self.rec_num], 'parent_sigla') and self.DATA_LIST[self.rec_num].parent_sigla:
+            # Let the tipologia change handler create the widgets and populate them
+            # This will trigger on_comboBox_tipologia_sigla_currentIndexChanged which creates the widgets
+            # Then we need to set the parent values
+            QTimer.singleShot(100, lambda: self._restore_parent_selections(n))
+    
+    def _restore_parent_selections(self, n):
+        """Restore parent selections after widgets are created."""
+        try:
+            record = self.DATA_LIST[n]
+            table_name = record.nome_tabella
+            tipologia = record.tipologia_sigla
+            
+            if table_name == 'TMA materiali archeologici' and hasattr(record, 'parent_sigla') and record.parent_sigla:
+                if tipologia == '10.7' and hasattr(self, 'comboBox_parent_localita'):  # Area
+                    # Find and select the parent località
+                    for i in range(self.comboBox_parent_localita.count()):
+                        if self.comboBox_parent_localita.itemText(i).startswith(record.parent_sigla + ' - '):
+                            self.comboBox_parent_localita.setCurrentIndex(i)
+                            break
+                elif tipologia == '10.15' and hasattr(self, 'comboBox_parent_area'):  # Settore
+                    # Find and select the parent area
+                    for i in range(self.comboBox_parent_area.count()):
+                        if self.comboBox_parent_area.itemText(i).startswith(record.parent_sigla + ' - '):
+                            self.comboBox_parent_area.setCurrentIndex(i)
+                            break
+                    # Also need to populate the parent località combobox
+                    if hasattr(self, 'comboBox_parent_localita') and record.hierarchy_level >= 2:
+                        # Get the parent area's parent (località)
+                        search_dict = {
+                            'nome_tabella': "'" + table_name + "'",
+                            'sigla': "'" + record.parent_sigla + "'",
+                            'tipologia_sigla': "'10.7'"
+                        }
+                        parent_area = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
+                        if parent_area and hasattr(parent_area[0], 'parent_sigla') and parent_area[0].parent_sigla:
+                            for i in range(self.comboBox_parent_localita.count()):
+                                if self.comboBox_parent_localita.itemText(i).startswith(parent_area[0].parent_sigla + ' - '):
+                                    self.comboBox_parent_localita.setCurrentIndex(i)
+                                    break
+        except Exception as e:
+            QgsMessageLog.logMessage(f"Error restoring parent selections: {e}", "PyArchInit", Qgis.Warning)
 
     def set_rec_counter(self, t, c):
         self.rec_tot = t
@@ -1593,13 +2131,69 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
                 lingua = key
         # data - Convert display name to actual table name
         table_name = self.get_table_name_from_display(str(self.comboBox_nome_tabella.currentText()))
+        
+        # Get hierarchy data if this is TMA material
+        id_parent = None
+        parent_sigla = None
+        hierarchy_level = 0
+        order_layer = 0
+        
+        if self.DATA_LIST and self.REC_CORR < len(self.DATA_LIST):
+            # Get existing values from record
+            current_record = self.DATA_LIST[self.REC_CORR]
+            order_layer = current_record.order_layer if hasattr(current_record, 'order_layer') else 0
+            id_parent = current_record.id_parent if hasattr(current_record, 'id_parent') else None
+            parent_sigla = current_record.parent_sigla if hasattr(current_record, 'parent_sigla') else None
+            hierarchy_level = current_record.hierarchy_level if hasattr(current_record, 'hierarchy_level') else 0
+            
+            # Update if hierarchy widgets are visible and this is TMA
+            if table_name == 'TMA materiali archeologici' and hasattr(self, 'comboBox_parent_localita'):
+                tipologia = str(self.comboBox_tipologia_sigla.currentText())
+                
+                if tipologia == '10.7':  # Area
+                    # Get parent località from combobox
+                    if hasattr(self, 'comboBox_parent_localita') and self.comboBox_parent_localita.currentText():
+                        parent_text = self.comboBox_parent_localita.currentText()
+                        if ' - ' in parent_text:
+                            parent_sigla = parent_text.split(' - ')[0]
+                        # Find parent ID
+                        search_dict = {
+                            'nome_tabella': "'" + table_name + "'",
+                            'sigla': "'" + parent_sigla + "'",
+                            'tipologia_sigla': "'10.3'"  # Località
+                        }
+                        parent_records = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
+                        if parent_records:
+                            id_parent = parent_records[0].id_thesaurus_sigle
+                        hierarchy_level = 1
+                elif tipologia == '10.15':  # Settore
+                    # Get parent area from combobox
+                    if hasattr(self, 'comboBox_parent_area') and self.comboBox_parent_area.currentText():
+                        parent_text = self.comboBox_parent_area.currentText()
+                        if ' - ' in parent_text:
+                            parent_sigla = parent_text.split(' - ')[0]
+                        # Find parent ID
+                        search_dict = {
+                            'nome_tabella': "'" + table_name + "'",
+                            'sigla': "'" + parent_sigla + "'",
+                            'tipologia_sigla': "'10.7'"  # Area
+                        }
+                        parent_records = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
+                        if parent_records:
+                            id_parent = parent_records[0].id_thesaurus_sigle
+                        hierarchy_level = 2
+        
         self.DATA_LIST_REC_TEMP = [
             table_name,  # 1 - Nome tabella
             str(self.comboBox_sigla.currentText()),  # 2 - sigla
             str(self.comboBox_sigla_estesa.currentText()),  # 3 - sigla estesa
             str(self.textEdit_descrizione_sigla.toPlainText()),  # 4 - descrizione
-            str(self.comboBox_tipologia_sigla.currentText()),  # 3 - tipologia sigla
-            str(lingua)  # 6 - lingua
+            str(self.comboBox_tipologia_sigla.currentText()),  # 5 - tipologia sigla
+            str(lingua),  # 6 - lingua
+            str(order_layer),  # 7 - order_layer
+            str(id_parent) if id_parent is not None else '',  # 8 - id_parent
+            str(parent_sigla) if parent_sigla else '',  # 9 - parent_sigla
+            str(hierarchy_level)  # 10 - hierarchy_level
         ]
 
     def set_LIST_REC_CORR(self):
@@ -1628,6 +2222,14 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
         return rec_to_update
 
     def records_equal_check(self):
+        # If we're in new record mode, there's nothing to compare
+        if self.BROWSE_STATUS == "n":
+            return 0
+            
+        # If no data list, nothing to compare
+        if not self.DATA_LIST:
+            return 0
+            
         self.set_LIST_REC_TEMP()
         self.set_LIST_REC_CORR()
 

@@ -14,8 +14,8 @@ def insert_settore_values(cursor):
     # Prima rimuovi i valori settore esistenti
     cursor.execute("""
         DELETE FROM pyarchinit_thesaurus_sigle 
-        WHERE nome_tabella = 'tma_materiali_archeologici' 
-        AND tipologia_sigla = '10.19'
+        WHERE nome_tabella = 'TMA materiali archeologici' 
+        AND tipologia_sigla = '10.15'
     """)
     print("✓ Rimossi valori settore (10.19) esistenti")
     
@@ -91,7 +91,7 @@ def insert_settore_values(cursor):
             INSERT INTO pyarchinit_thesaurus_sigle 
             (id_thesaurus_sigle, nome_tabella, sigla, sigla_estesa, tipologia_sigla, lingua, 
              id_parent, parent_sigla, hierarchy_level)
-            VALUES (?, 'tma_materiali_archeologici', ?, ?, '10.19', 'it', ?, ?, 3)
+            VALUES (?, 'TMA materiali archeologici', ?, ?, '10.15', 'it', ?, ?, 3)
         """, (id_thesaurus, sigla, settore_nome, id_parent, parent_sigla))
         
         if inserted < 15 or inserted % 10 == 0:  # Mostra solo alcuni per non inondare l'output
@@ -104,7 +104,7 @@ def insert_settore_values(cursor):
 
 def main():
     # Database path
-    db_path = "/Users/enzo/pyarchinit/pyarchinit_DB_folder/pyarchinitdddd.sqlite"
+    db_path = os.path.expanduser("/Users/enzo/pyarchinit/pyarchinit_DB_folder/pyarchinitdddd.sqlite")
     
     if not os.path.exists(db_path):
         print(f"Database non trovato in: {db_path}")
@@ -131,7 +131,7 @@ def main():
         cursor.execute("""
             SELECT parent_sigla, COUNT(*) as cnt
             FROM pyarchinit_thesaurus_sigle 
-            WHERE tipologia_sigla = '10.19'
+            WHERE tipologia_sigla = '10.15'
             GROUP BY parent_sigla
             ORDER BY cnt DESC
             LIMIT 10

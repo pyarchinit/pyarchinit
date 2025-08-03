@@ -5399,6 +5399,12 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 for sing_rec in range(len(data_list_toimp)):
 
                     try:
+                        # Get optional fields with defaults
+                        #order_layer = getattr(data_list_toimp[sing_rec], 'order_layer', 0)
+                        #id_parent = getattr(data_list_toimp[sing_rec], 'id_parent', None)
+                        #parent_sigla = getattr(data_list_toimp[sing_rec], 'parent_sigla', None)
+                        #hierarchy_level = getattr(data_list_toimp[sing_rec], 'hierarchy_level', 0)
+                        
                         data = self.DB_MANAGER_write.insert_values_thesaurus(
                             self.DB_MANAGER_write.max_num_id(mapper_class_write,
                                                              id_table_class_mapper_conv_dict[mapper_class_write]) + 1,
@@ -5407,7 +5413,11 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                             data_list_toimp[sing_rec].sigla_estesa,
                             data_list_toimp[sing_rec].descrizione,
                             data_list_toimp[sing_rec].tipologia_sigla,
-                            data_list_toimp[sing_rec].lingua
+                            data_list_toimp[sing_rec].lingua,
+                            data_list_toimp[sing_rec].order_layer,
+                            data_list_toimp[sing_rec].id_parent,
+                            data_list_toimp[sing_rec].parent_sigla,
+                            data_list_toimp[sing_rec].hierarchy_level
                             )
 
 

@@ -14,8 +14,8 @@ def insert_cronologia_values(cursor):
     # Prima rimuovi i valori cronologia esistenti
     cursor.execute("""
         DELETE FROM pyarchinit_thesaurus_sigle 
-        WHERE nome_tabella = 'tma_materiali_archeologici' 
-        AND tipologia_sigla = '10.16'
+        WHERE nome_tabella = 'TMA materiali archeologici' 
+        AND tipologia_sigla = '10.4'
     """)
     print("✓ Rimossi valori cronologia (10.16) esistenti")
     
@@ -75,7 +75,7 @@ def insert_cronologia_values(cursor):
         (52, 'Incerti', ''),
     ]
     
-    print("\nInserimento valori cronologia (10.16):")
+    print("\nInserimento valori cronologia (10.4):")
     inserted = 0
     
     for id_val, periodo, cronologia_assoluta in cronologia_values:
@@ -91,7 +91,7 @@ def insert_cronologia_values(cursor):
         cursor.execute("""
             INSERT INTO pyarchinit_thesaurus_sigle 
             (nome_tabella, sigla, sigla_estesa, tipologia_sigla, lingua)
-            VALUES ('tma_materiali_archeologici', ?, ?, '10.16', 'it')
+            VALUES ('TMA materiali archeologici', ?, ?, '10.4', 'it')
         """, (sigla, sigla_estesa))
         
         if inserted < 15 or inserted % 10 == 0:  # Mostra solo alcuni per non inondare l'output
@@ -130,14 +130,14 @@ def main():
         cursor.execute("""
             SELECT COUNT(*) 
             FROM pyarchinit_thesaurus_sigle 
-            WHERE tipologia_sigla = '10.16' AND sigla_estesa LIKE '%Neolitico%'
+            WHERE tipologia_sigla = '10.4' AND sigla_estesa LIKE '%Neolitico%'
         """)
         neolitico_count = cursor.fetchone()[0]
         
         cursor.execute("""
             SELECT COUNT(*) 
             FROM pyarchinit_thesaurus_sigle 
-            WHERE tipologia_sigla = '10.16' AND sigla_estesa LIKE '%Minoico%'
+            WHERE tipologia_sigla = '10.4' AND sigla_estesa LIKE '%Minoico%'
         """)
         minoico_count = cursor.fetchone()[0]
         

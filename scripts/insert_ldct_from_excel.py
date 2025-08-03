@@ -14,8 +14,8 @@ def insert_ldct_values(cursor):
     # Prima rimuovi i valori ldct esistenti
     cursor.execute("""
         DELETE FROM pyarchinit_thesaurus_sigle 
-        WHERE nome_tabella = 'tma_materiali_archeologici' 
-        AND tipologia_sigla = '10.10'
+        WHERE nome_tabella = 'TMA materiali archeologici' 
+        AND tipologia_sigla = '10.2'
     """)
     print("✓ Rimossi valori ldct (10.10) esistenti")
     
@@ -36,7 +36,7 @@ def insert_ldct_values(cursor):
         cursor.execute("""
             INSERT INTO pyarchinit_thesaurus_sigle 
             (nome_tabella, sigla, sigla_estesa, tipologia_sigla, lingua)
-            VALUES ('tma_materiali_archeologici', ?, ?, '10.10', 'it')
+            VALUES ('TMA materiali archeologici', ?, ?, '10.2', 'it')
         """, (sigla, tipologia))
         
         print(f"  ✓ {id_val}. {tipologia}")
@@ -72,7 +72,7 @@ def main():
         cursor.execute("""
             SELECT sigla, sigla_estesa
             FROM pyarchinit_thesaurus_sigle 
-            WHERE tipologia_sigla = '10.10'
+            WHERE tipologia_sigla = '10.2'
             ORDER BY sigla
         """)
         

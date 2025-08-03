@@ -59,7 +59,7 @@ def insert_ldct_records(db_path):
         cursor.execute("""
             SELECT sigla, sigla_estesa, tipologia_sigla 
             FROM pyarchinit_thesaurus_sigle 
-            WHERE nome_tabella = 'tma_materiali_archeologici'
+            WHERE nome_tabella = 'TMA materiali archeologici'
             AND tipologia_sigla = '10.2'
         """)
         

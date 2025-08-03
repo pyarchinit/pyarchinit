@@ -114,7 +114,7 @@ class TMALabelPDF:
             'saggio': tma_record.saggio or '',
             'vano_locus': tma_record.vano_locus or '',
             'ogtm': tma_record.ogtm or '',
-            'cronologia': tma_record.cronologia or '',
+            'dtzg': tma_record.dtzg or '',
         }
         
         # Create QR code data
@@ -206,8 +206,8 @@ class TMALabelPDF:
                 c.drawString(content_x, current_y - line_height, f"Mat: {tma_data['ogtm']}")
                 current_y -= line_height * 0.9
                 
-            if tma_data['cronologia']:
-                c.drawString(content_x, current_y - line_height, f"Cron: {tma_data['cronologia']}")
+            if tma_data['dtzg']:
+                c.drawString(content_x, current_y - line_height, f"Cron: {tma_data['dtzg']}")
     
     def generate_labels(self, tma_records, output_path, label_style='standard'):
         """

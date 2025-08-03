@@ -33,6 +33,7 @@ class TMA(object):
                  area,
                  localita,
                  settore,
+                 inventario,
                  ogtm,
                  ldct,
                  ldcn,
@@ -65,6 +66,7 @@ class TMA(object):
         self.area = area  # 2
         self.localita = localita  # 3
         self.settore = settore  # 4
+        self.inventario = inventario  # 5 = settore  # 4
         self.ogtm = ogtm  # 5
         self.ldct = ldct  # 6
         self.ldcn = ldcn  # 7
@@ -93,12 +95,13 @@ class TMA(object):
         self.updated_by = updated_by  # 30
 
     def __repr__(self):
-        return "<TMA('%d', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')>" % (
+        return "<TMA('%d', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')>" % (
             self.id,
             self.sito,
             self.area,
             self.localita,
             self.settore,
+            self.inventario,
             self.ogtm,
             self.ldct,
             self.ldcn,

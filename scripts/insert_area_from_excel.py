@@ -14,7 +14,7 @@ def insert_area_values(cursor):
     # Prima rimuovi i valori area esistenti
     cursor.execute("""
         DELETE FROM pyarchinit_thesaurus_sigle 
-        WHERE nome_tabella = 'tma_materiali_archeologici' 
+        WHERE nome_tabella = 'TMA materiali archeologici' 
         AND tipologia_sigla = '10.7'
     """)
     print("✓ Rimossi valori area (10.7) esistenti")
@@ -141,7 +141,7 @@ def insert_area_values(cursor):
             INSERT INTO pyarchinit_thesaurus_sigle 
             (id_thesaurus_sigle, nome_tabella, sigla, sigla_estesa, tipologia_sigla, lingua, 
              id_parent, parent_sigla, hierarchy_level)
-            VALUES (?, 'tma_materiali_archeologici', ?, ?, '10.7', 'it', ?, ?, 2)
+            VALUES (?, 'TMA materiali archeologici', ?, ?, '10.7', 'it', ?, ?, 2)
         """, (id_thesaurus, sigla, area_nome, id_parent, parent_sigla))
         
         if inserted < 20 or inserted % 10 == 0:  # Mostra solo alcune per non inondare l'output
@@ -154,7 +154,7 @@ def insert_area_values(cursor):
 
 def main():
     # Database path
-    db_path = "/Users/enzo/pyarchinit/pyarchinit_DB_folder/pyarchinitdddd.sqlite"
+    db_path = os.path.expanduser("/Users/enzo/pyarchinit/pyarchinit_DB_folder/pyarchinitdddd.sqlite")
     
     if not os.path.exists(db_path):
         print(f"Database non trovato in: {db_path}")

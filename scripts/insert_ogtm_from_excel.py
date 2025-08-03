@@ -14,7 +14,7 @@ def insert_ogtm_values(cursor):
     # Prima rimuovi i valori ogtm esistenti
     cursor.execute("""
         DELETE FROM pyarchinit_thesaurus_sigle 
-        WHERE nome_tabella = 'tma_materiali_archeologici' 
+        WHERE nome_tabella = 'TMA materiali archeologici' 
         AND tipologia_sigla = 'ogtm'
     """)
     print("✓ Rimossi valori ogtm esistenti")
@@ -46,7 +46,7 @@ def insert_ogtm_values(cursor):
         cursor.execute("""
             INSERT INTO pyarchinit_thesaurus_sigle 
             (nome_tabella, sigla, sigla_estesa, descrizione, tipologia_sigla, lingua)
-            VALUES ('tma_materiali_archeologici', ?, ?, ?, 'ogtm', 'it')
+            VALUES ('TMA materiali archeologici', ?, ?, ?, 'ogtm', 'it')
         """, (sigla, definizione, note))
         
         print(f"  ✓ {id_val}. {definizione}" + (f" ({note})" if note else ""))
@@ -56,7 +56,7 @@ def insert_ogtm_values(cursor):
     # che deve sincronizzarsi con ogtm
     cursor.execute("""
         DELETE FROM pyarchinit_thesaurus_sigle 
-        WHERE nome_tabella = 'tma_materiali_ripetibili' 
+        WHERE nome_tabella = 'TMA materiali ripetibili' 
         AND tipologia_sigla = 'macc'
     """)
     
@@ -68,7 +68,7 @@ def insert_ogtm_values(cursor):
         cursor.execute("""
             INSERT INTO pyarchinit_thesaurus_sigle 
             (nome_tabella, sigla, sigla_estesa, descrizione, tipologia_sigla, lingua)
-            VALUES ('tma_materiali_ripetibili', ?, ?, ?, 'macc', 'it')
+            VALUES ('TMA materiali ripetibili', ?, ?, ?, 'macc', 'it')
         """, (sigla, definizione, note))
         
         print(f"  ✓ {id_val}. {definizione}")

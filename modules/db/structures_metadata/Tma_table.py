@@ -31,30 +31,35 @@ class Tma_table:
     def define_table(cls, metadata):
 
         return Table('tma_materiali_archeologici', metadata,
+
+
                      Column('id', Integer, primary_key=True),
 
                      # Basic identification
                      Column('sito', Text),
                      Column('area', Text),
+                     Column('localita', Text),
+                     Column('settore', Text),
+                     Column('inventario', Text),
 
                      # Object data (OG)
-                     Column('ogtm', Text, nullable=False),  # Material type (required)
+                     Column('ogtm', Text),  # Material type (required)
 
                      # Location data (LC)
                      Column('ldct', Text),                    # Location type
-                     Column('ldcn', Text, nullable=False),    # Location denomination (required)
+                     Column('ldcn', Text),    # Location denomination (required)
                      Column('vecchia_collocazione', Text),   # Old location
-                     Column('cassetta', String(15), nullable=False), # Box (required)
+                     Column('cassetta', Text), # Box (required)
 
                      # Excavation data (RE - DSC)
                      Column('scan', Text),                     # Excavation name
                      Column('saggio', Text),                   # Test pit
                      Column('vano_locus', Text),              # Room/Locus
-                     Column('dscd', String(20)),                     # Excavation date
-                     Column('dscu', Text, nullable=False),    # Stratigraphic Unit (required)
+                     Column('dscd', Text),                     # Excavation date
+                     Column('dscu', Text),    # Stratigraphic Unit (required)
 
                      # Survey data (RE - RCG)
-                     Column('rcgd', String(20)),                     # Survey date
+                     Column('rcgd', Text),                     # Survey date
                      Column('rcgz', Text),                    # Survey specifications
 
                      # Other acquisition (RE - AIN)
@@ -62,7 +67,7 @@ class Tma_table:
                      Column('aind', Text),                     # Acquisition date
 
                      # Dating (DT) - Simplified to single chronological field
-                     Column('dtzg', Text, nullable=False),     # Chronological range (required)
+                     Column('dtzg', Text),     # Chronological range (required)
 
                      # Analytical data (DA)
                      Column('deso', Text),                    # Object indications
