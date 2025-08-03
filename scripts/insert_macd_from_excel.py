@@ -14,10 +14,10 @@ def insert_macd_values(cursor):
     # Prima rimuovi i valori macd esistenti
     cursor.execute("""
         DELETE FROM pyarchinit_thesaurus_sigle 
-        WHERE nome_tabella = 'tma_materiali_archeologici' 
-        AND tipologia_sigla = '10.15'
+        WHERE nome_tabella = 'TMA materiali archeologici' 
+        AND tipologia_sigla = '10.13'
     """)
-    print("✓ Rimossi valori macd (10.15) esistenti")
+    print("✓ Rimossi valori macd (10.13) esistenti")
     
     # Valori esatti dall'Excel
     macd_values = [
@@ -99,7 +99,7 @@ def insert_macd_values(cursor):
         (76, 'fuseruola'),
     ]
     
-    print("\nInserimento valori macd (Definizione - 10.15):")
+    print("\nInserimento valori macd (Definizione - 10.13):")
     inserted = 0
     
     for id_val, definizione in macd_values:
@@ -109,7 +109,7 @@ def insert_macd_values(cursor):
         cursor.execute("""
             INSERT INTO pyarchinit_thesaurus_sigle 
             (nome_tabella, sigla, sigla_estesa, tipologia_sigla, lingua)
-            VALUES ('tma_materiali_archeologici', ?, ?, '10.15', 'it')
+            VALUES ('TMA materiali archeologici', ?, ?, '10.13', 'it')
         """, (sigla, definizione))
         
         if inserted < 20 or inserted % 20 == 0:  # Mostra solo alcuni per non inondare l'output
@@ -148,14 +148,14 @@ def main():
         cursor.execute("""
             SELECT COUNT(*) 
             FROM pyarchinit_thesaurus_sigle 
-            WHERE tipologia_sigla = '10.15' AND (sigla_estesa LIKE '%coppa%' OR sigla_estesa LIKE '%tazza%')
+            WHERE tipologia_sigla = '10.13' AND (sigla_estesa LIKE '%coppa%' OR sigla_estesa LIKE '%tazza%')
         """)
         coppe_count = cursor.fetchone()[0]
         
         cursor.execute("""
             SELECT COUNT(*) 
             FROM pyarchinit_thesaurus_sigle 
-            WHERE tipologia_sigla = '10.15' AND sigla_estesa LIKE '%vaso%'
+            WHERE tipologia_sigla = '10.13' AND sigla_estesa LIKE '%vaso%'
         """)
         vasi_count = cursor.fetchone()[0]
         

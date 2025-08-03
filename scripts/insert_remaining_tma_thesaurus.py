@@ -112,7 +112,7 @@ THESAURUS_DATA = {
     },
 }
 
-def insert_thesaurus_values(cursor, nome_tabella='tma_materiali_archeologici', lingua='it'):
+def insert_thesaurus_values(cursor, nome_tabella = 'TMA materiali archeologici', lingua='it'):
     """Insert thesaurus values into database."""
     inserted_count = 0
     skipped_count = 0

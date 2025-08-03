@@ -14,7 +14,7 @@ def insert_saggio_values(cursor):
     # Prima rimuovi i valori saggio esistenti
     cursor.execute("""
         DELETE FROM pyarchinit_thesaurus_sigle 
-        WHERE nome_tabella = 'tma_materiali_archeologici' 
+        WHERE nome_tabella = 'TMA materiali archeologici' 
         AND tipologia_sigla = '10.2'
     """)
     print("✓ Rimossi valori saggio (10.2) esistenti")
@@ -34,7 +34,7 @@ def insert_saggio_values(cursor):
         cursor.execute("""
             INSERT INTO pyarchinit_thesaurus_sigle 
             (nome_tabella, sigla, sigla_estesa, tipologia_sigla, lingua)
-            VALUES ('tma_materiali_archeologici', ?, ?, '10.2', 'it')
+            VALUES ('TMA materiali archeologici', ?, ?, '10.2', 'it')
         """, (sigla, saggio))
         
         if inserted < 10:
@@ -50,8 +50,8 @@ def insert_vano_values(cursor):
     # Prima rimuovi i valori vano esistenti
     cursor.execute("""
         DELETE FROM pyarchinit_thesaurus_sigle 
-        WHERE nome_tabella = 'tma_materiali_archeologici' 
-        AND tipologia_sigla = '10.3' 
+        WHERE nome_tabella = 'TMA materiali archeologici' 
+        AND tipologia_sigla = '10.2' 
         AND sigla LIKE 'VANO%'
     """)
     print("✓ Rimossi valori vano/locus (10.3) esistenti")
@@ -81,7 +81,7 @@ def insert_vano_values(cursor):
         cursor.execute("""
             INSERT INTO pyarchinit_thesaurus_sigle 
             (nome_tabella, sigla, sigla_estesa, tipologia_sigla, lingua)
-            VALUES ('tma_materiali_archeologici', ?, ?, '10.3', 'it')
+            VALUES ('TMA materiali archeologici', ?, ?, '10.2', 'it')
         """, (sigla, vano_locus))
         
         if inserted < 15:
@@ -128,14 +128,14 @@ def main():
         cursor.execute("""
             SELECT COUNT(*) 
             FROM pyarchinit_thesaurus_sigle 
-            WHERE tipologia_sigla = '10.3' AND sigla LIKE 'VANO%'
+            WHERE tipologia_sigla = '10.2' AND sigla LIKE 'VANO%'
         """)
         vano_total = cursor.fetchone()[0]
         
         cursor.execute("""
             SELECT COUNT(*) 
             FROM pyarchinit_thesaurus_sigle 
-            WHERE tipologia_sigla = '10.3' AND sigla LIKE 'LOC%'
+            WHERE tipologia_sigla = '10.2' AND sigla LIKE 'LOC%'
         """)
         locus_total = cursor.fetchone()[0]
         

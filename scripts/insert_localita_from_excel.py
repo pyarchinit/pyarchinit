@@ -14,8 +14,8 @@ def insert_localita_values(cursor):
     # Prima rimuovi i valori località esistenti
     cursor.execute("""
         DELETE FROM pyarchinit_thesaurus_sigle 
-        WHERE nome_tabella = 'tma_materiali_archeologici' 
-        AND tipologia_sigla = '10.18'
+        WHERE nome_tabella = 'TMA materiali archeologici' 
+        AND tipologia_sigla = '10.3'
     """)
     print("✓ Rimossi valori località (10.18) esistenti")
     
@@ -41,7 +41,7 @@ def insert_localita_values(cursor):
         cursor.execute("""
             INSERT INTO pyarchinit_thesaurus_sigle 
             (id_thesaurus_sigle, nome_tabella, sigla, sigla_estesa, tipologia_sigla, lingua, hierarchy_level)
-            VALUES (?, 'tma_materiali_archeologici', ?, ?, '10.18', 'it', 1)
+            VALUES (?, 'TMA materiali archeologici', ?, ?, '10.3', 'it', 1)
         """, (id_thesaurus, sigla, localita))
         
         print(f"  ✓ {id_val}. {localita}")
@@ -77,7 +77,7 @@ def main():
         cursor.execute("""
             SELECT id_thesaurus_sigle, sigla, sigla_estesa
             FROM pyarchinit_thesaurus_sigle 
-            WHERE tipologia_sigla = '10.18'
+            WHERE tipologia_sigla = '10.3'
             ORDER BY sigla
         """)
         

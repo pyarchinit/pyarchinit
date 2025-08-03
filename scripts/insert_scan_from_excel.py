@@ -14,10 +14,10 @@ def insert_scan_values(cursor):
     # Prima rimuovi i valori scan esistenti
     cursor.execute("""
         DELETE FROM pyarchinit_thesaurus_sigle 
-        WHERE nome_tabella = 'tma_materiali_archeologici' 
-        AND tipologia_sigla = '10.4'
+        WHERE nome_tabella = 'TMA materiali archeologici' 
+        AND tipologia_sigla = '10.5'
     """)
-    print("✓ Rimossi valori scan (10.4) esistenti")
+    print("✓ Rimossi valori scan (10.5) esistenti")
     
     # Valori esatti dall'Excel
     scan_values = [
@@ -166,7 +166,7 @@ def insert_scan_values(cursor):
         (143, 'Lavori strada per Festòs'),
     ]
     
-    print("\nInserimento valori scan (Denominazione scavo - 10.4):")
+    print("\nInserimento valori scan (Denominazione scavo - 10.5):")
     inserted = 0
     
     for id_val, denominazione in scan_values:
@@ -176,7 +176,7 @@ def insert_scan_values(cursor):
         cursor.execute("""
             INSERT INTO pyarchinit_thesaurus_sigle 
             (nome_tabella, sigla, sigla_estesa, tipologia_sigla, lingua)
-            VALUES ('tma_materiali_archeologici', ?, ?, '10.4', 'it')
+            VALUES ('TMA materiali archeologici', ?, ?, '10.5', 'it')
         """, (sigla, denominazione))
         
         if inserted < 20 or inserted % 20 == 0:  # Mostra solo alcuni per non inondare l'output
@@ -189,7 +189,7 @@ def insert_scan_values(cursor):
 
 def main():
     # Database path
-    db_path = "/Users/enzo/pyarchinit/pyarchinit_DB_folder/pyarchinitdddd.sqlite"
+    db_path = os.path.expanduser("/Users/enzo/pyarchinit/pyarchinit_DB_folder/pyarchinitdddd.sqlite")
     
     if not os.path.exists(db_path):
         print(f"Database non trovato in: {db_path}")
@@ -215,21 +215,21 @@ def main():
         cursor.execute("""
             SELECT COUNT(*) 
             FROM pyarchinit_thesaurus_sigle 
-            WHERE tipologia_sigla = '10.4' AND sigla_estesa LIKE '%Festòs%'
+            WHERE tipologia_sigla = '10.5' AND sigla_estesa LIKE '%Festòs%'
         """)
         festos_count = cursor.fetchone()[0]
         
         cursor.execute("""
             SELECT COUNT(*) 
             FROM pyarchinit_thesaurus_sigle 
-            WHERE tipologia_sigla = '10.4' AND sigla_estesa LIKE '%HTR%'
+            WHERE tipologia_sigla = '10.5' AND sigla_estesa LIKE '%HTR%'
         """)
         htr_count = cursor.fetchone()[0]
         
         cursor.execute("""
             SELECT COUNT(*) 
             FROM pyarchinit_thesaurus_sigle 
-            WHERE tipologia_sigla = '10.4' AND sigla_estesa LIKE '%Kamilari%'
+            WHERE tipologia_sigla = '10.5' AND sigla_estesa LIKE '%Kamilari%'
         """)
         kamilari_count = cursor.fetchone()[0]
         

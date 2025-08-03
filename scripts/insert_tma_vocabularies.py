@@ -54,7 +54,7 @@ def insert_tma_vocabularies():
     for material, note in zip(materials, notes):
         try:
             data = {
-                'nome_tabella': 'tma_materiali_archeologici',
+                'nome_tabella': 'TMA materiali archeologici',
                 'sigla': '',
                 'sigla_estesa': material,
                 'descrizione': note,
@@ -86,7 +86,7 @@ def insert_tma_vocabularies():
     for material, note in zip(materials, notes):
         try:
             data = {
-                'nome_tabella': 'tma_materiali_ripetibili',
+                'nome_tabella': 'TMA materiali ripetibili',
                 'sigla': '',
                 'sigla_estesa': material,
                 'descrizione': note,
@@ -96,7 +96,7 @@ def insert_tma_vocabularies():
             
             # Check if already exists
             search_dict = {
-                'nome_tabella': "'tma_materiali_ripetibili'",
+                'nome_tabella': "'TMA materiali ripetibili'",
                 'sigla_estesa': f"'{material}'",
                 'tipologia_sigla': "'macc'"
             }
@@ -141,7 +141,7 @@ def insert_tma_vocabularies():
     for value, desc in macl_values:
         try:
             data = {
-                'nome_tabella': 'tma_materiali_ripetibili',
+                'nome_tabella': 'TMA materiali ripetibili',
                 'sigla': '',
                 'sigla_estesa': value,
                 'descrizione': desc,
@@ -151,7 +151,7 @@ def insert_tma_vocabularies():
             
             # Check if already exists
             search_dict = {
-                'nome_tabella': "'tma_materiali_ripetibili'",
+                'nome_tabella': "'TMA materiali ripetibili'",
                 'sigla_estesa': f"'{value}'",
                 'tipologia_sigla': "'macl'"
             }
@@ -183,7 +183,7 @@ def insert_tma_vocabularies():
     for value in macd_values:
         try:
             data = {
-                'nome_tabella': 'tma_materiali_ripetibili',
+                'nome_tabella': 'TMA materiali ripetibili',
                 'sigla': '',
                 'sigla_estesa': value,
                 'descrizione': '',
@@ -193,7 +193,7 @@ def insert_tma_vocabularies():
             
             # Check if already exists
             search_dict = {
-                'nome_tabella': "'tma_materiali_ripetibili'",
+                'nome_tabella': "'TMA materiali ripetibili'",
                 'sigla_estesa': f"'{value}'",
                 'tipologia_sigla': "'macd'"
             }
@@ -223,7 +223,7 @@ def insert_tma_vocabularies():
     for value in macp_values:
         try:
             data = {
-                'nome_tabella': 'tma_materiali_ripetibili',
+                'nome_tabella': 'TMA materiali ripetibili',
                 'sigla': '',
                 'sigla_estesa': value,
                 'descrizione': '',
@@ -233,7 +233,7 @@ def insert_tma_vocabularies():
             
             # Check if already exists
             search_dict = {
-                'nome_tabella': "'tma_materiali_ripetibili'",
+                'nome_tabella': "'TMA materiali ripetibili'",
                 'sigla_estesa': f"'{value}'",
                 'tipologia_sigla': "'macp'"
             }
@@ -258,7 +258,7 @@ def insert_tma_vocabularies():
         tma_main_records = db_manager.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
         
         search_dict = {
-            'nome_tabella': "'tma_materiali_ripetibili'"
+            'nome_tabella': "'TMA materiali ripetibili'"
         }
         tma_materials_records = db_manager.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
         

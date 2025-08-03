@@ -14,8 +14,8 @@ def insert_macc_values(cursor):
     # Prima rimuovi i valori macc esistenti
     cursor.execute("""
         DELETE FROM pyarchinit_thesaurus_sigle 
-        WHERE nome_tabella = 'tma_materiali_archeologici' 
-        AND tipologia_sigla = '10.12'
+        WHERE nome_tabella = 'TMA materiali archeologici' 
+        AND tipologia_sigla = '10.10'
     """)
     print("✓ Rimossi valori macc (10.12) esistenti")
     
@@ -36,7 +36,7 @@ def insert_macc_values(cursor):
         (13, 'altri materiali', 'pasta vitrea, cristallo di rocca, ocra'),
     ]
     
-    print("\nInserimento valori macc (Categoria - 10.12):")
+    print("\nInserimento valori macc (Categoria - 10.10):")
     inserted = 0
     
     for id_val, categoria, note in macc_values:
@@ -52,7 +52,7 @@ def insert_macc_values(cursor):
         cursor.execute("""
             INSERT INTO pyarchinit_thesaurus_sigle 
             (nome_tabella, sigla, sigla_estesa, tipologia_sigla, lingua)
-            VALUES ('tma_materiali_archeologici', ?, ?, '10.12', 'it')
+            VALUES ('TMA materiali archeologici', ?, ?, '10.10', 'it')
         """, (sigla, sigla_estesa))
         
         print(f"  ✓ {id_val}. {categoria}" + (f" - {note}" if note else ""))
@@ -88,7 +88,7 @@ def main():
         cursor.execute("""
             SELECT sigla, sigla_estesa
             FROM pyarchinit_thesaurus_sigle 
-            WHERE tipologia_sigla = '10.12'
+            WHERE tipologia_sigla = '10.10'
             ORDER BY sigla
         """)
         

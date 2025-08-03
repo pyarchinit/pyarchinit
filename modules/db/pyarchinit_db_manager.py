@@ -1004,32 +1004,33 @@ class Pyarchinit_db_management(object):
                   arg[2],  # area
                   arg[3],  # localita
                   arg[4],  # settore
-                  arg[5],  # ogtm
-                  arg[6],  # ldct
-                  arg[7],  # ldcn
-                  arg[8],  # vecchia_collocazione
-                  arg[9],  # cassetta
-                  arg[10], # scan
-                  arg[11], # saggio
-                  arg[12], # vano_locus
-                  arg[13], # dscd
-                  arg[14], # dscu
-                  arg[15], # rcgd
-                  arg[16], # rcgz
-                  arg[17], # aint
-                  arg[18], # aind
-                  arg[19], # dtzg
-                  arg[20], # deso
-                  arg[21], # nsc
-                  arg[22], # ftap
-                  arg[23], # ftan
-                  arg[24], # drat
-                  arg[25], # dran
-                  arg[26], # draa
-                  arg[27], # created_at
-                  arg[28], # updated_at
-                  arg[29], # created_by
-                  arg[30]) # updated_by
+                  arg[5],  # inventario
+                  arg[6],  # ogtm
+                  arg[7],  # ldct
+                  arg[8],  # ldcn
+                  arg[9],  # vecchia_collocazione
+                  arg[10], # cassetta
+                  arg[11], # scan
+                  arg[12], # saggio
+                  arg[13], # vano_locus
+                  arg[14], # dscd
+                  arg[15], # dscu
+                  arg[16], # rcgd
+                  arg[17], # rcgz
+                  arg[18], # aint
+                  arg[19], # aind
+                  arg[20], # dtzg
+                  arg[21], # deso
+                  arg[22], # nsc
+                  arg[23], # ftap
+                  arg[24], # ftan
+                  arg[25], # drat
+                  arg[26], # dran
+                  arg[27], # draa
+                  arg[28], # created_at
+                  arg[29], # updated_at
+                  arg[30], # created_by
+                  arg[31]) # updated_by
 
         return tma
 
@@ -1941,7 +1942,8 @@ class Pyarchinit_db_management(object):
             'POTTERY': POTTERY,
             'CAMPIONI': CAMPIONI,
             'TMA': TMA,
-            'DOCUMENTAZIONE': DOCUMENTAZIONE
+            'DOCUMENTAZIONE': DOCUMENTAZIONE,
+            'PYARCHINIT_THESAURUS_SIGLE': PYARCHINIT_THESAURUS_SIGLE
         }
 
         # Ottieni la classe corretta

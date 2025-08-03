@@ -14,10 +14,10 @@ def insert_ftap_values(cursor):
     # Prima rimuovi i valori ftap esistenti
     cursor.execute("""
         DELETE FROM pyarchinit_thesaurus_sigle 
-        WHERE nome_tabella = 'tma_materiali_archeologici' 
-        AND tipologia_sigla = '10.3'
+        WHERE nome_tabella = 'TMA materiali archeologici' 
+        AND tipologia_sigla = '10.8'
     """)
-    print("✓ Rimossi valori ftap (10.3) esistenti")
+    print("✓ Rimossi valori ftap (10.8) esistenti")
     
     # Valori esatti dall'Excel
     ftap_values = [
@@ -29,7 +29,7 @@ def insert_ftap_values(cursor):
         (6, 'fotografia digitale'),
     ]
     
-    print("\nInserimento valori ftap (Tipo fotografia - 10.3):")
+    print("\nInserimento valori ftap (Tipo fotografia - 10.8):")
     inserted = 0
     
     for id_val, tipo in ftap_values:
@@ -39,7 +39,7 @@ def insert_ftap_values(cursor):
         cursor.execute("""
             INSERT INTO pyarchinit_thesaurus_sigle 
             (nome_tabella, sigla, sigla_estesa, tipologia_sigla, lingua)
-            VALUES ('tma_materiali_archeologici', ?, ?, '10.3', 'it')
+            VALUES ('TMA materiali archeologici', ?, ?, '10.8', 'it')
         """, (sigla, tipo))
         
         print(f"  ✓ {id_val}. {tipo}")
@@ -75,7 +75,7 @@ def main():
         cursor.execute("""
             SELECT sigla, sigla_estesa
             FROM pyarchinit_thesaurus_sigle 
-            WHERE tipologia_sigla = '10.3'
+            WHERE tipologia_sigla = '10.12'
             ORDER BY sigla
         """)
         

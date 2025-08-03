@@ -27,6 +27,7 @@ from sqlalchemy.sql.schema import MetaData
 from qgis.PyQt.QtWidgets import QMessageBox
 
 from modules.db.pyarchinit_conn_strings import Connection
+from modules.db.pyarchinit_db_update_thesaurus import update_thesaurus_table
 
 
 class DB_update(object):
@@ -79,9 +80,15 @@ class DB_update(object):
                 self._migrate_tma_table()
                 
             # Check if localita field exists in tma_materiali_archeologici and remove it
-            self._remove_localita_field()
+            #self._remove_localita_field()
         except Exception as e:
             print(f"Error in TMA table setup: {str(e)}")
+        
+        # Update thesaurus table structure
+        try:
+            update_thesaurus_table(self.engine, self.metadata)
+        except Exception as e:
+            print(f"Error updating thesaurus table: {str(e)}")
         
         # SQLite US field migration
         if is_sqlite:
@@ -1238,6 +1245,12 @@ class DB_update(object):
         # except:
         #     # Table might not exist
         #     pass
+        
+        # Update thesaurus table structure for PostgreSQL
+        try:
+            update_thesaurus_table(self.engine, self.metadata)
+        except Exception as e:
+            print(f"Error updating thesaurus table: {str(e)}")
     
     def _migrate_us_fields_sqlite(self):
         """SQLite-specific migration for US fields from INTEGER to TEXT"""
@@ -1938,89 +1951,7 @@ class DB_update(object):
             print(f"TMA migration failed: {str(e)}")
             # Don't raise - let the process continue
     
-    def _remove_localita_field(self):
-        """Remove localita field from tma_materiali_archeologici table if it exists"""
-        try:
-            # Check if we're using SQLite
-            is_sqlite = 'sqlite' in str(self.engine.url).lower()
-            
-            if is_sqlite:
-                # For SQLite, we need to recreate the table without the localita field
-                result = self.engine.execute("PRAGMA table_info(tma_materiali_archeologici)")
-                columns_info = result.fetchall()
-                
-                # Check if localita field exists
-                has_localita = any(col[1] == 'localita' for col in columns_info)
-                
-                if has_localita:
-                    print("Removing localita field from tma_materiali_archeologici table...")
-                    
-                    # Create new table without localita
-                    new_table_sql = "CREATE TABLE tma_materiali_archeologici_new ("
-                    column_defs = []
-                    columns_to_copy = []
-                    
-                    for col in columns_info:
-                        col_name = col[1]
-                        if col_name == 'localita':
-                            continue  # Skip localita field
-                            
-                        col_type = col[2]
-                        col_notnull = col[3]
-                        col_default = col[4]
-                        col_pk = col[5]
-                        
-                        columns_to_copy.append(col_name)
-                        
-                        col_def = f"{col_name} {col_type}"
-                        
-                        if col_pk:
-                            col_def += " PRIMARY KEY"
-                            if col_name == 'id':
-                                col_def += " AUTOINCREMENT"
-                        
-                        if col_notnull and not col_pk:
-                            col_def += " NOT NULL"
-                            
-                        if col_default is not None:
-                            col_def += f" DEFAULT {col_default}"
-                            
-                        column_defs.append(col_def)
-                    
-                    new_table_sql += ", ".join(column_defs) + ")"
-                    
-                    # Create new table
-                    self.engine.execute(new_table_sql)
-                    
-                    # Copy data without localita field
-                    columns_str = ", ".join(columns_to_copy)
-                    self.engine.execute(f"INSERT INTO tma_materiali_archeologici_new ({columns_str}) SELECT {columns_str} FROM tma_materiali_archeologici")
-                    
-                    # Drop old table and rename new one
-                    self.engine.execute("DROP TABLE tma_materiali_archeologici")
-                    self.engine.execute("ALTER TABLE tma_materiali_archeologici_new RENAME TO tma_materiali_archeologici")
-                    
-                    print("Successfully removed localita field from tma_materiali_archeologici table")
-            else:
-                # For PostgreSQL, we can use ALTER TABLE DROP COLUMN
-                try:
-                    # Check if column exists
-                    result = self.engine.execute("""
-                        SELECT column_name 
-                        FROM information_schema.columns 
-                        WHERE table_name = 'tma_materiali_archeologici' 
-                        AND column_name = 'localita'
-                    """)
-                    
-                    if result.fetchone():
-                        self.engine.execute("ALTER TABLE tma_materiali_archeologici DROP COLUMN localita")
-                        print("Successfully removed localita field from tma_materiali_archeologici table")
-                except:
-                    pass
-                    
-        except Exception as e:
-            print(f"Error removing localita field: {str(e)}")
-            # Don't fail the entire update process
+
     
     def _ensure_tma_tables_exist(self):
         """Ensure TMA tables exist with correct structure and in correct order"""

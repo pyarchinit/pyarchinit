@@ -14,8 +14,8 @@ def insert_aint_values(cursor):
     # Prima rimuovi i valori aint esistenti
     cursor.execute("""
         DELETE FROM pyarchinit_thesaurus_sigle 
-        WHERE nome_tabella = 'tma_materiali_archeologici' 
-        AND tipologia_sigla = '10.11'
+        WHERE nome_tabella = 'TMA materiali archeologici' 
+        AND tipologia_sigla = '10.6'
     """)
     print("✓ Rimossi valori aint (10.11) esistenti")
     
@@ -42,7 +42,7 @@ def insert_aint_values(cursor):
         cursor.execute("""
             INSERT INTO pyarchinit_thesaurus_sigle 
             (nome_tabella, sigla, sigla_estesa, tipologia_sigla, lingua)
-            VALUES ('tma_materiali_archeologici', ?, ?, '10.11', 'it')
+            VALUES ('TMA materiali archeologici', ?, ?, '10.6', 'it')
         """, (sigla, tipo))
         
         print(f"  ✓ {id_val}. {tipo}")
@@ -78,7 +78,7 @@ def main():
         cursor.execute("""
             SELECT sigla, sigla_estesa
             FROM pyarchinit_thesaurus_sigle 
-            WHERE tipologia_sigla = '10.11'
+            WHERE tipologia_sigla = '10.6'
             ORDER BY sigla
         """)
         

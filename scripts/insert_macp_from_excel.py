@@ -14,10 +14,10 @@ def insert_macp_values(cursor):
     # Prima rimuovi i valori macp esistenti
     cursor.execute("""
         DELETE FROM pyarchinit_thesaurus_sigle 
-        WHERE nome_tabella = 'tma_materiali_archeologici' 
-        AND tipologia_sigla = '10.14'
+        WHERE nome_tabella = 'TMA materiali archeologici' 
+        AND tipologia_sigla = '10.12'
     """)
-    print("✓ Rimossi valori macp (10.14) esistenti")
+    print("✓ Rimossi valori macp (10.12) esistenti")
     
     # Valori esatti dall'Excel
     macp_values = [
@@ -44,7 +44,7 @@ def insert_macp_values(cursor):
         (21, 'Neo Haghios Onouphrios'),
     ]
     
-    print("\nInserimento valori macp (Precisazione tipologica - 10.14):")
+    print("\nInserimento valori macp (Precisazione tipologica - 10.12):")
     inserted = 0
     
     for id_val, precisazione in macp_values:
@@ -54,7 +54,7 @@ def insert_macp_values(cursor):
         cursor.execute("""
             INSERT INTO pyarchinit_thesaurus_sigle 
             (nome_tabella, sigla, sigla_estesa, tipologia_sigla, lingua)
-            VALUES ('tma_materiali_archeologici', ?, ?, '10.14', 'it')
+            VALUES ('TMA materiali archeologici', ?, ?, '10.12', 'it')
         """, (sigla, precisazione))
         
         print(f"  ✓ {id_val}. {precisazione}")
@@ -90,14 +90,14 @@ def main():
         cursor.execute("""
             SELECT COUNT(*) 
             FROM pyarchinit_thesaurus_sigle 
-            WHERE tipologia_sigla = '10.14' AND sigla_estesa LIKE '%Kamares%'
+            WHERE tipologia_sigla = '10.12' AND sigla_estesa LIKE '%Kamares%'
         """)
         kamares_count = cursor.fetchone()[0]
         
         cursor.execute("""
             SELECT COUNT(*) 
             FROM pyarchinit_thesaurus_sigle 
-            WHERE tipologia_sigla = '10.14' AND sigla_estesa LIKE '%Haghios Onouphrios%'
+            WHERE tipologia_sigla = '10.9' AND sigla_estesa LIKE '%Haghios Onouphrios%'
         """)
         ho_count = cursor.fetchone()[0]
         
