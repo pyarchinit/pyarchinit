@@ -1293,6 +1293,53 @@ class Pyarchinit_db_management(object):
         u = Utility()
         params = u.remove_empty_items_fr_dict(params)
         
+        # Handle thesaurus table name compatibility
+        if table_class_name == 'PYARCHINIT_THESAURUS_SIGLE' and 'nome_tabella' in params:
+            # Import compatibility helper
+            try:
+                from modules.utility.pyarchinit_thesaurus_compatibility import get_compatible_names
+                
+                nome_tabella = params['nome_tabella'].strip("'")
+                compatible_names = get_compatible_names(nome_tabella)
+                
+                # If we have multiple compatible names, we need to query for all of them
+                if len(compatible_names) > 1:
+                    # Create a session
+                    Session = sessionmaker(bind=self.engine)
+                    session = Session()
+                    
+                    # Build query with OR condition for all compatible names
+                    all_results = []
+                    for compat_name in compatible_names:
+                        temp_params = params.copy()
+                        temp_params['nome_tabella'] = f"'{compat_name}'"
+                        
+                        conditions = []
+                        for key, value in temp_params.items():
+                            column = getattr(PYARCHINIT_THESAURUS_SIGLE, key)
+                            if isinstance(value, str) and value.startswith("'") and value.endswith("'"):
+                                value = value.strip("'")
+                            conditions.append(column == value)
+                        
+                        query = session.query(PYARCHINIT_THESAURUS_SIGLE).filter(and_(*conditions))
+                        results = query.all()
+                        all_results.extend(results)
+                    
+                    session.close()
+                    # Remove duplicates based on sigla
+                    seen = set()
+                    unique_results = []
+                    for result in all_results:
+                        if result.sigla not in seen:
+                            seen.add(result.sigla)
+                            unique_results.append(result)
+                    
+                    return unique_results
+                    
+            except ImportError:
+                # If compatibility module not available, continue with normal flow
+                pass
+        
         # Create a session
         Session = sessionmaker(bind=self.engine)
         session = Session()

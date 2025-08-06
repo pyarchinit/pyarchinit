@@ -472,27 +472,7 @@
     <normaloff>:/icons/finds.png</normaloff>:/icons/finds.png</iconset>
   </property>
   <layout class="QGridLayout" name="gridLayout_2">
-   <item row="9" column="2">
-    <widget class="QLineEdit" name="lineEdit_us">
-     <property name="font">
-      <font>
-       <family>Times New Roman</family>
-       <pointsize>9</pointsize>
-      </font>
-     </property>
-     <property name="text">
-      <string/>
-     </property>
-    </widget>
-   </item>
-   <item row="4" column="2">
-    <widget class="QComboBox" name="comboBox_localita">
-     <property name="editable">
-      <bool>true</bool>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="2" colspan="4">
+   <item row="0" column="1" colspan="4">
     <layout class="QGridLayout" name="gridLayout_4">
      <item row="0" column="0">
       <widget class="QLabel" name="label_32">
@@ -1213,195 +1193,7 @@
      </item>
     </layout>
    </item>
-   <item row="5" column="2">
-    <widget class="QLabel" name="label_2">
-     <property name="font">
-      <font>
-       <family>Times New Roman</family>
-       <pointsize>9</pointsize>
-      </font>
-     </property>
-     <property name="text">
-      <string>Area</string>
-     </property>
-    </widget>
-   </item>
-   <item row="20" column="1">
-    <widget class="QLabel" name="label_materiale">
-     <property name="font">
-      <font>
-       <family>Times New Roman</family>
-       <pointsize>9</pointsize>
-      </font>
-     </property>
-     <property name="text">
-      <string>Materiale:</string>
-     </property>
-    </widget>
-   </item>
-   <item row="20" column="2">
-    <widget class="QLineEdit" name="lineEdit_materiale">
-     <property name="toolTip">
-      <string>Campo sincronizzato con la tabella materiali</string>
-     </property>
-     <property name="readOnly">
-      <bool>true</bool>
-     </property>
-    </widget>
-   </item>
-   <item row="18" column="2">
-    <widget class="QLabel" name="label_18">
-     <property name="font">
-      <font>
-       <family>Times New Roman</family>
-       <pointsize>9</pointsize>
-      </font>
-     </property>
-     <property name="text">
-      <string>Fascia cronologica:</string>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="2">
-    <widget class="QComboBox" name="comboBox_sito">
-     <property name="enabled">
-      <bool>false</bool>
-     </property>
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="minimumSize">
-      <size>
-       <width>200</width>
-       <height>0</height>
-      </size>
-     </property>
-     <property name="maximumSize">
-      <size>
-       <width>16777215</width>
-       <height>24</height>
-      </size>
-     </property>
-     <property name="font">
-      <font>
-       <family>Times New Roman</family>
-       <pointsize>9</pointsize>
-      </font>
-     </property>
-     <property name="mouseTracking">
-      <bool>true</bool>
-     </property>
-     <property name="contextMenuPolicy">
-      <enum>Qt::NoContextMenu</enum>
-     </property>
-     <property name="editable">
-      <bool>true</bool>
-     </property>
-     <property name="currentText">
-      <string>Inserisci un valore</string>
-     </property>
-     <property name="maxVisibleItems">
-      <number>99999</number>
-     </property>
-     <property name="maxCount">
-      <number>2147483647</number>
-     </property>
-     <property name="frame">
-      <bool>true</bool>
-     </property>
-     <item>
-      <property name="text">
-       <string>Inserisci un valore</string>
-      </property>
-     </item>
-    </widget>
-   </item>
-   <item row="16" column="2">
-    <widget class="QLabel" name="label_inventario">
-     <property name="font">
-      <font>
-       <family>Times New Roman</family>
-       <pointsize>9</pointsize>
-      </font>
-     </property>
-     <property name="text">
-      <string>Inventario (RA)</string>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="2">
-    <widget class="QLabel" name="label">
-     <property name="font">
-      <font>
-       <family>Times New Roman</family>
-       <pointsize>9</pointsize>
-      </font>
-     </property>
-     <property name="text">
-      <string>Sito</string>
-     </property>
-    </widget>
-   </item>
-   <item row="19" column="2">
-    <widget class="QComboBox" name="comboBox_dtzg">
-     <property name="editable">
-      <bool>true</bool>
-     </property>
-    </widget>
-   </item>
-   <item row="14" column="2">
-    <widget class="QLabel" name="label_8">
-     <property name="font">
-      <font>
-       <family>Times New Roman</family>
-       <pointsize>9</pointsize>
-      </font>
-     </property>
-     <property name="text">
-      <string>Cassetta:</string>
-     </property>
-    </widget>
-   </item>
-   <item row="15" column="2">
-    <widget class="QLineEdit" name="lineEdit_cassetta">
-     <property name="maxLength">
-      <number>15</number>
-     </property>
-    </widget>
-   </item>
-   <item row="7" column="2">
-    <widget class="QLabel" name="label_3">
-     <property name="font">
-      <font>
-       <family>Times New Roman</family>
-       <pointsize>9</pointsize>
-      </font>
-     </property>
-     <property name="text">
-      <string>US</string>
-     </property>
-    </widget>
-   </item>
-   <item row="17" column="2">
-    <widget class="QLineEdit" name="lineEdit_inventario">
-     <property name="font">
-      <font>
-       <family>Times New Roman</family>
-       <pointsize>9</pointsize>
-      </font>
-     </property>
-     <property name="toolTip">
-      <string>Reperti RA associati dall'inventario materiali</string>
-     </property>
-     <property name="readOnly">
-      <bool>true</bool>
-     </property>
-    </widget>
-   </item>
-   <item row="21" column="2" colspan="4">
+   <item row="7" column="1" colspan="4">
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
       <number>0</number>
@@ -1946,28 +1738,265 @@
      </widget>
     </widget>
    </item>
-   <item row="3" column="2">
-    <widget class="QLabel" name="label_localita">
-     <property name="font">
-      <font>
-       <family>Times New Roman</family>
-       <pointsize>9</pointsize>
-      </font>
+   <item row="1" column="2">
+    <widget class="QgsCollapsibleGroupBox" name="mGroupBox">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
      </property>
-     <property name="text">
-      <string>Località:</string>
+     <property name="title">
+      <string>Info Base</string>
      </property>
-    </widget>
-   </item>
-   <item row="6" column="2">
-    <widget class="QComboBox" name="comboBox_area">
-     <property name="editable">
+     <property name="flat">
+      <bool>false</bool>
+     </property>
+     <property name="saveCheckedState">
       <bool>true</bool>
      </property>
+     <layout class="QGridLayout" name="gridLayout_5">
+      <item row="9" column="1">
+       <widget class="QLineEdit" name="lineEdit_cassetta">
+        <property name="maxLength">
+         <number>15</number>
+        </property>
+       </widget>
+      </item>
+      <item row="13" column="1">
+       <widget class="QComboBox" name="comboBox_dtzg">
+        <property name="editable">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QLabel" name="label">
+        <property name="font">
+         <font>
+          <family>Times New Roman</family>
+          <pointsize>9</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>Sito</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="1">
+       <widget class="QLabel" name="label_2">
+        <property name="font">
+         <font>
+          <family>Times New Roman</family>
+          <pointsize>9</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>Area</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QComboBox" name="comboBox_sito">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>200</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>24</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <family>Times New Roman</family>
+          <pointsize>9</pointsize>
+         </font>
+        </property>
+        <property name="mouseTracking">
+         <bool>true</bool>
+        </property>
+        <property name="contextMenuPolicy">
+         <enum>Qt::NoContextMenu</enum>
+        </property>
+        <property name="editable">
+         <bool>true</bool>
+        </property>
+        <property name="currentText">
+         <string>Inserisci un valore</string>
+        </property>
+        <property name="maxVisibleItems">
+         <number>99999</number>
+        </property>
+        <property name="maxCount">
+         <number>2147483647</number>
+        </property>
+        <property name="frame">
+         <bool>true</bool>
+        </property>
+        <item>
+         <property name="text">
+          <string>Inserisci un valore</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="QLabel" name="label_localita">
+        <property name="font">
+         <font>
+          <family>Times New Roman</family>
+          <pointsize>9</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>Località:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="1">
+       <widget class="QComboBox" name="comboBox_area">
+        <property name="editable">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="12" column="1">
+       <widget class="QLabel" name="label_18">
+        <property name="font">
+         <font>
+          <family>Times New Roman</family>
+          <pointsize>9</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>Fascia cronologica:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="11" column="1">
+       <widget class="QLineEdit" name="lineEdit_inventario">
+        <property name="font">
+         <font>
+          <family>Times New Roman</family>
+          <pointsize>9</pointsize>
+         </font>
+        </property>
+        <property name="toolTip">
+         <string>Reperti RA associati dall'inventario materiali</string>
+        </property>
+        <property name="readOnly">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="8" column="1">
+       <widget class="QLabel" name="label_8">
+        <property name="font">
+         <font>
+          <family>Times New Roman</family>
+          <pointsize>9</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>Cassetta:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="15" column="1">
+       <widget class="QLineEdit" name="lineEdit_materiale">
+        <property name="toolTip">
+         <string>Campo sincronizzato con la tabella materiali</string>
+        </property>
+        <property name="readOnly">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="1">
+       <widget class="QComboBox" name="comboBox_localita">
+        <property name="editable">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="7" column="1">
+       <widget class="QLineEdit" name="lineEdit_us">
+        <property name="font">
+         <font>
+          <family>Times New Roman</family>
+          <pointsize>9</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
+      <item row="10" column="1">
+       <widget class="QLabel" name="label_inventario">
+        <property name="font">
+         <font>
+          <family>Times New Roman</family>
+          <pointsize>9</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>Inventario (RA)</string>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="1">
+       <widget class="QLabel" name="label_3">
+        <property name="font">
+         <font>
+          <family>Times New Roman</family>
+          <pointsize>9</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>US</string>
+        </property>
+       </widget>
+      </item>
+      <item row="14" column="1">
+       <widget class="QLabel" name="label_materiale">
+        <property name="font">
+         <font>
+          <family>Times New Roman</family>
+          <pointsize>9</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>Materiale:</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
     </widget>
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QgsCollapsibleGroupBox</class>
+   <extends>QGroupBox</extends>
+   <header>qgscollapsiblegroupbox.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources>
   <include location="../../resources/resources.qrc"/>
   <include location="../../../../../../../../../../../Documents/pyarchinit-master/resources/resources.qrc"/>

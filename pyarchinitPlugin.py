@@ -1050,10 +1050,6 @@ class PyArchInitPlugin(object):
         pluginExcel.show()
         self.pluginGui = pluginExcel  # save
 
-    def runTma(self):
-        pluginTma = pyarchinit_Tma(self.iface)
-        pluginTma.show()
-        self.pluginGui = pluginTma  # save
     def unload(self):
         # Remove the plugin
         l=QgsSettings().value("locale/userLocale")[0:2] 
