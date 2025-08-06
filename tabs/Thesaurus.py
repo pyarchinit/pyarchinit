@@ -641,6 +641,8 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
                 '3.9': 'Tipo quantita',
                 '3.10': 'Tecnologie - Unita di misura',
                 '3.11': 'Area',
+                '3.41' : 'Tipologia',
+                '3.13' : 'Anno',
                 '301.301': 'Valori sì/no'
             },
             'campioni_table': {
@@ -1977,6 +1979,153 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
     ##      sito = unicode(self.comboBox_sito.currentText())
     ##      self.pyQGIS.charge_sites_geometry(["1", "2", "3", "4", "8"], "sito", sito)
 
+    def on_pushButton_sync_tma_thesaurus_pressed(self):
+        """Sincronizza il thesaurus TMA con inventario materiali e aree"""
+        try:
+            # Import the sync module
+            from ..modules.utility.pyarchinit_tma_thesaurus_sync import TMAThesaurusSync
+            
+            # Ask user which sync direction they want
+            from qgis.PyQt.QtWidgets import QMessageBox
+            msg = QMessageBox()
+            msg.setWindowTitle("Direzione Sincronizzazione")
+            msg.setText("Scegli la direzione della sincronizzazione:")
+            msg.setInformativeText("Da Tabelle verso Thesaurus: sincronizza i dati esistenti nelle tabelle verso il thesaurus\n\n"
+                                   "Da TMA verso altre tabelle: copia le voci predefinite del thesaurus TMA verso US e Inventario")
+            
+            btn_to_thesaurus = msg.addButton("Da Tabelle → Thesaurus", QMessageBox.AcceptRole)
+            btn_from_tma = msg.addButton("Da TMA → Altre tabelle", QMessageBox.AcceptRole)
+            msg.addButton(QMessageBox.Cancel)
+            
+            msg.exec_()
+            
+            if msg.clickedButton() == btn_to_thesaurus:
+                # Original sync: from tables to thesaurus
+                self._sync_tables_to_thesaurus()
+            elif msg.clickedButton() == btn_from_tma:
+                # New sync: from TMA thesaurus to other tables
+                self._sync_tma_to_other_tables()
+                
+        except Exception as e:
+            QgsMessageLog.logMessage(f"Errore sincronizzazione: {str(e)}", "PyArchInit", Qgis.Critical)
+            QMessageBox.critical(self, "Errore", f"Errore durante la sincronizzazione:\n{str(e)}")
+    
+    def _sync_tables_to_thesaurus(self):
+        """Sincronizza dai dati delle tabelle verso il thesaurus"""
+        try:
+            from ..modules.utility.pyarchinit_tma_thesaurus_sync import TMAThesaurusSync
+            from qgis.PyQt.QtWidgets import QProgressDialog
+            
+            progress = QProgressDialog("Sincronizzazione in corso...", "Annulla", 0, 100, self)
+            progress.setWindowTitle("Sincronizzazione Tabelle → Thesaurus")
+            progress.setWindowModality(Qt.WindowModal)
+            progress.show()
+            
+            sync = TMAThesaurusSync(self.DB_MANAGER)
+            
+            # Step 1: Sync all areas from all tables
+            progress.setLabelText("Sincronizzazione aree da tutte le tabelle...")
+            progress.setValue(20)
+            QApplication.processEvents()
+            
+            if not progress.wasCanceled():
+                sync.sync_all_areas_to_thesaurus()
+            
+            # Step 2: Sync all settori from us_table and tma
+            progress.setLabelText("Sincronizzazione settori...")
+            progress.setValue(50)
+            QApplication.processEvents()
+            
+            if not progress.wasCanceled():
+                sync.sync_all_settori_to_thesaurus()
+            
+            # Step 3: Sync inventory materials
+            progress.setLabelText("Sincronizzazione materiali da inventario...")
+            progress.setValue(70)
+            QApplication.processEvents()
+            
+            if not progress.wasCanceled():
+                sync.sync_all_inventory_to_thesaurus()
+            
+            progress.setValue(90)
+            
+            # Reload thesaurus data
+            self.charge_records()
+            self.fill_fields()
+            
+            progress.close()
+            
+            if self.L == 'it':
+                QMessageBox.information(self, "Completato", "Sincronizzazione completata!")
+            else:
+                QMessageBox.information(self, "Complete", "Synchronization complete!")
+                
+        except Exception as e:
+            progress.close()
+            QgsMessageLog.logMessage(f"Errore sync tables to thesaurus: {str(e)}", "PyArchInit", Qgis.Critical)
+            QMessageBox.critical(self, "Errore", f"Errore durante la sincronizzazione:\n{str(e)}")
+    
+    def _sync_tma_to_other_tables(self):
+        """Sincronizza dal thesaurus TMA verso le altre tabelle"""
+        try:
+            from ..modules.utility.pyarchinit_tma_thesaurus_sync import TMAThesaurusSync
+            from qgis.PyQt.QtWidgets import QProgressDialog
+            
+            progress = QProgressDialog("Sincronizzazione in corso...", "Annulla", 0, 100, self)
+            progress.setWindowTitle("Sincronizzazione TMA → Altre Tabelle")
+            progress.setWindowModality(Qt.WindowModal)
+            progress.show()
+            
+            sync = TMAThesaurusSync(self.DB_MANAGER)
+            
+            # Step 1: Sync TMA areas to US and other tables
+            progress.setLabelText("Sincronizzazione aree TMA verso US...")
+            progress.setValue(30)
+            QApplication.processEvents()
+            
+            areas_synced = 0
+            if not progress.wasCanceled():
+                areas_synced = sync.sync_tma_thesaurus_to_other_tables()
+            
+            # Step 2: Sync TMA materials to inventory
+            progress.setLabelText("Sincronizzazione materiali TMA verso Inventario...")
+            progress.setValue(60)
+            QApplication.processEvents()
+            
+            materials_synced = 0
+            if not progress.wasCanceled():
+                materials_synced = sync.sync_tma_materials_to_inventory()
+            
+            progress.setValue(90)
+            
+            # Reload thesaurus data
+            if not progress.wasCanceled():
+                progress.setLabelText("Ricaricamento dati...")
+                self.charge_records()
+                self.charge_list()
+                self.fill_fields()
+            
+            progress.close()
+            
+            # Show results
+            msg_text = f"Sincronizzazione completata!\n\n"
+            msg_text += f"Aree sincronizzate da TMA verso US: {areas_synced}\n"
+            msg_text += f"Valori materiali sincronizzati: {materials_synced}"
+            
+            if self.L == 'it':
+                QMessageBox.information(self, "Completato", msg_text)
+            else:
+                msg_text = f"Synchronization complete!\n\n"
+                msg_text += f"Areas synced from TMA to US: {areas_synced}\n"
+                msg_text += f"Material values synced: {materials_synced}"
+                QMessageBox.information(self, "Complete", msg_text)
+                
+        except Exception as e:
+            if 'progress' in locals():
+                progress.close()
+            QgsMessageLog.logMessage(f"Errore sync TMA to other tables: {str(e)}", "PyArchInit", Qgis.Critical)
+            QMessageBox.critical(self, "Errore", f"Errore durante la sincronizzazione:\n{str(e)}")
+            
     def on_pushButton_rel_pdf_pressed(self):
         pass
 

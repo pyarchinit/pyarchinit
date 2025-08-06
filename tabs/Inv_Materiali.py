@@ -2799,6 +2799,29 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         tipo_reperto_vl.sort()
         self.comboBox_tipo_reperto.addItems(tipo_reperto_vl)
 
+
+        #lista tipologia
+
+
+
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'" + 'inventario_materiali_table' + "'",
+            'tipologia_sigla': "'" + '3.12' + "'"
+        }
+
+        tipologia_reperto = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        tipologia_reperto_vl = []
+
+        for i in range(len(tipologia_reperto)):
+            tipologia_reperto_vl.append(tipologia_reperto[i].sigla_estesa)
+
+        tipologia_reperto_vl.sort()
+        self.comboBox_tipologia.addItems(tipologia_reperto_vl)
+
+
+
+
         # lista classe materiale
 
         self.comboBox_criterio_schedatura.clear()
@@ -2895,7 +2918,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         search_dict = {
             'lingua': lang,
             'nome_tabella': "'" + 'inventario_materiali_table' + "'",
-            'tipologia_sigla': "'" + '3.11' + "'"
+            'tipologia_sigla': "'" + '3.13' + "'"
         }
 
         year_ = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
