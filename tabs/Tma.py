@@ -33,6 +33,7 @@ from qgis.PyQt.QtCore import Qt, QTimer
 from qgis.PyQt.QtGui import QBrush, QColor
 from qgis.PyQt.uic import loadUiType
 from qgis.core import QgsSettings, Qgis, QgsMessageLog
+from sqlalchemy import text
 
 from ..gui.pyarchinitConfigDialog import pyArchInitDialog_Config
 from ..gui.sortpanelmain import SortPanelMain
@@ -1311,14 +1312,38 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                     item0 = QTableWidgetItem(str(row[3]) if row[3] else "")  # macc
                     # Store the material ID in the first item's user data
                     item0.setData(Qt.UserRole, int(row[0]))  # id
+                    item0.setToolTip(str(row[3]) if row[3] else "")  # Add tooltip
                     self.tableWidget_materiali.setItem(table_row, 0, item0)
                     
-                    self.tableWidget_materiali.setItem(table_row, 1, QTableWidgetItem(str(row[4]) if row[4] else ""))  # macl
-                    self.tableWidget_materiali.setItem(table_row, 2, QTableWidgetItem(str(row[5]) if row[5] else ""))  # macp
-                    self.tableWidget_materiali.setItem(table_row, 3, QTableWidgetItem(str(row[6]) if row[6] else ""))  # macd
-                    self.tableWidget_materiali.setItem(table_row, 4, QTableWidgetItem(str(row[7]) if row[7] else ""))  # cronologia_mac
-                    self.tableWidget_materiali.setItem(table_row, 5, QTableWidgetItem(str(row[8]) if row[8] else ""))  # macq
-                    self.tableWidget_materiali.setItem(table_row, 6, QTableWidgetItem(str(row[9]) if row[9] else ""))  # peso
+                    # macl - Classe
+                    item1 = QTableWidgetItem(str(row[4]) if row[4] else "")
+                    item1.setToolTip(str(row[4]) if row[4] else "")
+                    self.tableWidget_materiali.setItem(table_row, 1, item1)
+                    
+                    # macp - Prec. tipologica
+                    item2 = QTableWidgetItem(str(row[5]) if row[5] else "")
+                    item2.setToolTip(str(row[5]) if row[5] else "")
+                    self.tableWidget_materiali.setItem(table_row, 2, item2)
+                    
+                    # macd - Definizione
+                    item3 = QTableWidgetItem(str(row[6]) if row[6] else "")
+                    item3.setToolTip(str(row[6]) if row[6] else "")
+                    self.tableWidget_materiali.setItem(table_row, 3, item3)
+                    
+                    # cronologia_mac
+                    item4 = QTableWidgetItem(str(row[7]) if row[7] else "")
+                    item4.setToolTip(str(row[7]) if row[7] else "")
+                    self.tableWidget_materiali.setItem(table_row, 4, item4)
+                    
+                    # macq - Quantità
+                    item5 = QTableWidgetItem(str(row[8]) if row[8] else "")
+                    item5.setToolTip(str(row[8]) if row[8] else "")
+                    self.tableWidget_materiali.setItem(table_row, 5, item5)
+                    
+                    # peso
+                    item6 = QTableWidgetItem(str(row[9]) if row[9] else "")
+                    item6.setToolTip(str(row[9]) if row[9] else "")
+                    self.tableWidget_materiali.setItem(table_row, 6, item6)
                     
                 QgsMessageLog.logMessage(f"DEBUG TMA load_materials_table: Loaded {self.tableWidget_materiali.rowCount()} materials", "PyArchInit", Qgis.Info)
                 # Log each material loaded
@@ -1470,7 +1495,9 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                     else:
                         QgsMessageLog.logMessage(f"DEBUG TMA save: Row {row}, Col {col} - NO ITEM! Creating one now...", "PyArchInit", Qgis.Warning)
                         # Create missing item
-                        self.tableWidget_materiali.setItem(row, col, QTableWidgetItem(""))
+                        empty_item = QTableWidgetItem("")
+                        empty_item.setToolTip("")
+                        self.tableWidget_materiali.setItem(row, col, empty_item)
                 
                 # Column mapping according to setup_materials_table:
                 # Column 0: Categoria * (macc)
@@ -1835,7 +1862,9 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             # Create empty items for each column - REQUIRED for delegates to work properly
             for col in range(self.tableWidget_materiali.columnCount()):
                 if not self.tableWidget_materiali.item(row, col):
-                    self.tableWidget_materiali.setItem(row, col, QTableWidgetItem(""))
+                    empty_item = QTableWidgetItem("")
+                    empty_item.setToolTip("")
+                    self.tableWidget_materiali.setItem(row, col, empty_item)
                     
         finally:
             # Re-enable signals
@@ -2424,6 +2453,18 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         if msg == QMessageBox.Ok:
             try:
                 id_to_delete = eval("self.DATA_LIST[self.REC_CORR]." + self.ID_TABLE)
+                
+                # First delete all related materials from tma_materiali_ripetibili
+                try:
+                    session = self.DB_MANAGER.engine.connect()
+                    sql = text("DELETE FROM tma_materiali_ripetibili WHERE id_tma = :id_tma")
+                    session.execute(sql, {"id_tma": id_to_delete})
+                    session.close()
+                    QgsMessageLog.logMessage(f"Deleted related materials for TMA id: {id_to_delete}", "PyArchInit", Qgis.Info)
+                except Exception as e:
+                    QgsMessageLog.logMessage(f"Error deleting related materials: {str(e)}", "PyArchInit", Qgis.Warning)
+                
+                # Then delete the main TMA record
                 self.DB_MANAGER.delete_one_record(self.TABLE_NAME, self.ID_TABLE, id_to_delete)
                 self.charge_list()
                 self.charge_records()
@@ -2447,10 +2488,20 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                 self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
                 self.fill_fields()
                 self.set_rec_counter(self.REC_TOT, self.REC_CORR + 1)
+                self.load_materials_table()  # Refresh materials table
             elif self.REC_CORR == self.REC_TOT:
                 self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), len(self.DATA_LIST) - 1
                 self.fill_fields(self.REC_CORR)
                 self.set_rec_counter(self.REC_TOT, self.REC_CORR + 1)
+                self.load_materials_table()  # Refresh materials table
+            else:
+                # We're in the middle of the list
+                self.REC_TOT = len(self.DATA_LIST)
+                if self.REC_CORR >= self.REC_TOT:
+                    self.REC_CORR = self.REC_TOT - 1
+                self.fill_fields(self.REC_CORR)
+                self.set_rec_counter(self.REC_TOT, self.REC_CORR + 1)
+                self.load_materials_table()  # Refresh materials table
 
     def on_pushButton_new_search_pressed(self):
         """Enable search mode."""
@@ -3388,6 +3439,9 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         if item.text().strip():
             QgsMessageLog.logMessage(f"DEBUG TMA: Materials table changed - row={item.row()}, col={item.column()}, text='{item.text()}'", "PyArchInit", Qgis.Info)
         self.materials_modified = True
+        
+        # Update tooltip to match the new content
+        item.setToolTip(item.text())
         
         # Update materiale field when first column (Categoria) changes
         if item.column() == 0:  # Categoria column (now syncs to ogtm)

@@ -734,6 +734,20 @@
          </property>
         </widget>
        </item>
+       <item row="1" column="3">
+        <widget class="QPushButton" name="pushButton_sync_tma_thesaurus">
+         <property name="toolTip">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Sincronizza thesaurus TMA con inventario materiali e aree&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+         <property name="text">
+          <string>Sync TMA</string>
+         </property>
+         <property name="icon">
+          <iconset resource="../../resources/resources.qrc">
+           <normaloff>:/icons/sync-icon.png</normaloff>:/icons/sync-icon.png</iconset>
+         </property>
+        </widget>
+       </item>
       </layout>
      </item>
     </layout>
