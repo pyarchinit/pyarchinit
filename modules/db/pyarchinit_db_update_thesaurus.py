@@ -83,7 +83,10 @@ def update_thesaurus_aliases(engine, is_sqlite):
             ('site_table', 'SITE'),
             ('pyarchinit_reperti', 'REPERTI'),
             ('tma_materiali_archeologici', 'TMA materiali archeologici'),
-            ('tma_materiali_ripetibili', 'TMA materiali ripetibili'),
+            ('tma_materiali_ripetibili', 'TMA Materiali Ripetibili'),
+            ('tma_table', 'TMA materiali archeologici'),
+            ('tma_materiali_table', 'TMA Materiali Ripetibili'),
+            ('TMA materiali ripetibili', 'TMA Materiali Ripetibili'),
             ('individui_table', 'INDIVIDUI'),
             ('pottery_table', 'POTTERY')
         ]

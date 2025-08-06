@@ -201,6 +201,9 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         # Flag to track if materials have been loaded for current record
         self.materials_loaded = False
         
+        # Track deleted material IDs
+        self.deleted_material_ids = set()
+        
         # Initialize media widget
         self.iconListWidget = QListWidget(self)
         self.iconListWidget.setViewMode(QListWidget.IconMode)
@@ -256,7 +259,16 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         self.pushButton_add_disegno.clicked.connect(self.on_pushButton_add_disegno_pressed)
         self.pushButton_remove_disegno.clicked.connect(self.on_pushButton_remove_disegno_pressed)
         
-        # Connect materials table buttons
+        # Connect materials table buttons - disconnect first to avoid duplicates
+        try:
+            self.pushButton_add_materiale.clicked.disconnect()
+        except:
+            pass  # No connections to disconnect
+        try:
+            self.pushButton_remove_materiale.clicked.disconnect()
+        except:
+            pass  # No connections to disconnect
+            
         self.pushButton_add_materiale.clicked.connect(self.on_pushButton_add_materiale_pressed)
         self.pushButton_remove_materiale.clicked.connect(self.on_pushButton_remove_materiale_pressed)
         
@@ -282,13 +294,6 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         # Connect hierarchical filters for localita->area->settore
         self.comboBox_localita.currentIndexChanged.connect(self.on_localita_changed)
         
-        # Connect add material button only once
-
-        try:
-            self.pushButton_add_materiale.clicked.disconnect()
-        except:
-            pass
-        self.pushButton_add_materiale.clicked.connect(self.on_pushButton_add_materiale_pressed)
         
         # Setup inventory field as read-only
         self.lineEdit_inventario.setReadOnly(True)
@@ -790,6 +795,32 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
     def fill_fields(self, n=0):
         self.rec_num = n
         try:
+            # Check if we're on the same record and have unsaved materials changes
+            preserve_materials = False
+            if hasattr(self, '_current_tma_id') and self._current_tma_id == self.DATA_LIST[self.rec_num].id:
+                # We're reloading the same record - check if materials table has unsaved changes
+                if self.check_materials_state():
+                    preserve_materials = True
+                    QgsMessageLog.logMessage("DEBUG TMA: Preserving unsaved materials during field refresh", "PyArchInit", Qgis.Info)
+            
+            # Store materials data temporarily if needed
+            preserved_data = []
+            if preserve_materials:
+                for row in range(self.tableWidget_materiali.rowCount()):
+                    row_data = []
+                    for col in range(self.tableWidget_materiali.columnCount()):
+                        item = self.tableWidget_materiali.item(row, col)
+                        if item:
+                            row_data.append({
+                                'text': item.text(),
+                                'edit_role': item.data(Qt.EditRole),
+                                'display_role': item.data(Qt.DisplayRole),
+                                'user_role': item.data(Qt.UserRole)
+                            })
+                        else:
+                            row_data.append(None)
+                    preserved_data.append(row_data)
+            
             # Basic fields - mirror Tomba.py pattern
             self.comboBox_sito.setEditText(str(self.DATA_LIST[self.rec_num].sito))
             self.comboBox_area.setEditText(str(self.DATA_LIST[self.rec_num].area))
@@ -813,8 +844,27 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             self.comboBox_dtzg.setEditText(str(self.DATA_LIST[self.rec_num].dtzg))
             self.textEdit_deso.setText(str(self.DATA_LIST[self.rec_num].deso))
             
+            # Update current TMA ID
+            self._current_tma_id = self.DATA_LIST[self.rec_num].id
+            
             # Load materials data for this record
-            self.load_materials_table()
+            if not preserve_materials:
+                self.load_materials_table()
+            else:
+                # Restore preserved data
+                self.tableWidget_materiali.setRowCount(len(preserved_data))
+                for row, row_data in enumerate(preserved_data):
+                    for col, cell_data in enumerate(row_data):
+                        if cell_data is not None:
+                            item = QTableWidgetItem(cell_data['text'])
+                            if cell_data['edit_role'] is not None:
+                                item.setData(Qt.EditRole, cell_data['edit_role'])
+                            if cell_data['display_role'] is not None:
+                                item.setData(Qt.DisplayRole, cell_data['display_role'])
+                            if cell_data['user_role'] is not None:
+                                item.setData(Qt.UserRole, cell_data['user_role'])
+                            self.tableWidget_materiali.setItem(row, col, item)
+                QgsMessageLog.logMessage(f"DEBUG TMA: Restored {len(preserved_data)} rows of unsaved materials", "PyArchInit", Qgis.Info)
             
             # Documentation tables
             if self.DATA_LIST[self.rec_num].ftap:
@@ -1271,6 +1321,11 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                     self.tableWidget_materiali.setItem(table_row, 6, QTableWidgetItem(str(row[9]) if row[9] else ""))  # peso
                     
                 QgsMessageLog.logMessage(f"DEBUG TMA load_materials_table: Loaded {self.tableWidget_materiali.rowCount()} materials", "PyArchInit", Qgis.Info)
+                # Log each material loaded
+                for i in range(self.tableWidget_materiali.rowCount()):
+                    item0 = self.tableWidget_materiali.item(i, 0)
+                    if item0:
+                        QgsMessageLog.logMessage(f"  Row {i}: Category='{item0.text()}', ID={item0.data(Qt.UserRole)}", "PyArchInit", Qgis.Info)
                 
                 # Mark materials as loaded
                 self.materials_loaded = True
@@ -1355,12 +1410,60 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             # Track which IDs we've seen in the table widget
             seen_ids = set()
             
+            # Track empty rows for user notification
+            empty_rows = []
+            
+            # Force table to commit any pending edits before reading
+            QgsMessageLog.logMessage("DEBUG TMA save_materials_data: Forcing commit of pending edits", "PyArchInit", Qgis.Info)
+            
+            # Method 1: Close any persistent editors
+            for r in range(self.tableWidget_materiali.rowCount()):
+                for c in range(self.tableWidget_materiali.columnCount()):
+                    item = self.tableWidget_materiali.item(r, c)
+                    if item:
+                        self.tableWidget_materiali.closePersistentEditor(item)
+            
+            # Method 2: End edit mode
+            if self.tableWidget_materiali.state() == QAbstractItemView.EditingState:
+                current = self.tableWidget_materiali.currentItem()
+                if current:
+                    # Get the delegate and force it to commit
+                    delegate = self.tableWidget_materiali.itemDelegateForColumn(current.column())
+                    if delegate:
+                        # Try to get the editor widget
+                        editor = self.tableWidget_materiali.indexWidget(self.tableWidget_materiali.currentIndex())
+                        if editor:
+                            # Force the delegate to save data
+                            delegate.setModelData(editor, self.tableWidget_materiali.model(), self.tableWidget_materiali.currentIndex())
+                    
+                    self.tableWidget_materiali.closePersistentEditor(current)
+                    # Force end editing mode
+                    self.tableWidget_materiali.setCurrentItem(None)
+            
+            # Method 3: Force focus away to commit any delegate changes
+            try:
+                self.setFocus()
+                from qgis.PyQt.QtWidgets import QApplication
+                QApplication.processEvents()  # Process any pending events
+            except:
+                pass  # In case QApplication is not available
+            
+            # Method 4: Deselect to ensure all data is committed
+            self.tableWidget_materiali.setCurrentCell(-1, -1)
+            
+            # Give a moment for everything to settle
+            try:
+                from qgis.PyQt.QtWidgets import QApplication
+                QApplication.processEvents()
+            except:
+                pass
+            
             # Process each row in the table widget
             for row in range(self.tableWidget_materiali.rowCount()):
-                QgsMessageLog.logMessage(f"DEBUG TMA: Processing row {row}", "PyArchInit", Qgis.Info)
+                QgsMessageLog.logMessage(f"DEBUG TMA: Processing row {row} of {self.tableWidget_materiali.rowCount()} total rows", "PyArchInit", Qgis.Info)
                 
                 # Debug: check if items exist and create missing ones
-                for col in range(8):
+                for col in range(7):  # Table has 7 columns, not 8
                     item = self.tableWidget_materiali.item(row, col)
                     if item:
                         QgsMessageLog.logMessage(f"DEBUG TMA save: Row {row}, Col {col} - item exists, text='{item.text()}', type={type(item)}", "PyArchInit", Qgis.Info)
@@ -1379,9 +1482,6 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                 # Column 6: Peso
                 # Note: madi (materiale) is now stored in lineEdit_materiale, not in table
                 
-                # Force table to commit any pending edits before reading
-                self.tableWidget_materiali.setCurrentCell(-1, -1)  # Deselect to force commit
-                
                 item0 = self.tableWidget_materiali.item(row, 0)
                 item1 = self.tableWidget_materiali.item(row, 1)
                 item2 = self.tableWidget_materiali.item(row, 2)
@@ -1390,14 +1490,46 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                 item5 = self.tableWidget_materiali.item(row, 5)
                 item6 = self.tableWidget_materiali.item(row, 6)
                 
-                # Use data() method to get the actual stored value
-                macc = item0.data(Qt.DisplayRole) if item0 else ""  # Categoria
-                macl = item1.data(Qt.DisplayRole) if item1 else ""  # Classe
-                macp = item2.data(Qt.DisplayRole) if item2 else ""  # Prec. tipologica
-                macd = item3.data(Qt.DisplayRole) if item3 else ""  # Definizione
-                cronologia_mac = item4.data(Qt.DisplayRole) if item4 else ""  # Cronologia
-                macq = item5.data(Qt.DisplayRole) if item5 else ""  # Quantità
-                peso_text = item6.data(Qt.DisplayRole) if item6 else ""  # Peso
+                # Get text values from table items - try multiple methods
+                # Try text() first, then data() roles as fallback
+                def get_cell_value(item, col_index):
+                    if not item:
+                        return ""
+                    
+                    # Try text() first - this should have the committed value
+                    val = item.text()
+                    if val:
+                        QgsMessageLog.logMessage(f"DEBUG TMA get_cell_value: Row {row}, Col {col_index} - text()='{val}'", "PyArchInit", Qgis.Info)
+                        return val
+                    
+                    # Try EditRole
+                    val = item.data(Qt.EditRole)
+                    if val:
+                        QgsMessageLog.logMessage(f"DEBUG TMA get_cell_value: Row {row}, Col {col_index} - EditRole='{val}'", "PyArchInit", Qgis.Info)
+                        return str(val)
+                    
+                    # Try DisplayRole
+                    val = item.data(Qt.DisplayRole)
+                    if val:
+                        QgsMessageLog.logMessage(f"DEBUG TMA get_cell_value: Row {row}, Col {col_index} - DisplayRole='{val}'", "PyArchInit", Qgis.Info)
+                        return str(val)
+                    
+                    # Try backup UserRole+1
+                    val = item.data(Qt.UserRole + 1)
+                    if val:
+                        QgsMessageLog.logMessage(f"DEBUG TMA get_cell_value: Row {row}, Col {col_index} - UserRole+1='{val}'", "PyArchInit", Qgis.Info)
+                        return str(val)
+                    
+                    QgsMessageLog.logMessage(f"DEBUG TMA get_cell_value: Row {row}, Col {col_index} - NO DATA FOUND!", "PyArchInit", Qgis.Warning)
+                    return ""
+                
+                macc = get_cell_value(item0, 0)  # Categoria
+                macl = get_cell_value(item1, 1)  # Classe
+                macp = get_cell_value(item2, 2)  # Prec. tipologica
+                macd = get_cell_value(item3, 3)  # Definizione
+                cronologia_mac = get_cell_value(item4, 4)  # Cronologia
+                macq = get_cell_value(item5, 5)  # Quantità
+                peso_text = get_cell_value(item6, 6)  # Peso
                 
                 # Materiale (madi) comes from the category field (synced to ogtm)
                 materiale = macc  # Use category as material identifier
@@ -1424,7 +1556,21 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                 
                 # Skip completely empty rows (Category is required)
                 if not macc.strip():
-                    QgsMessageLog.logMessage(f"DEBUG TMA: Skipping row {row} - category is empty", "PyArchInit", Qgis.Info)
+                    QgsMessageLog.logMessage(f"DEBUG TMA: Row {row} - category is empty, macc='{macc}'", "PyArchInit", Qgis.Info)
+                    QgsMessageLog.logMessage(f"DEBUG TMA: Row {row} - item0={item0}, item0.text()='{item0.text() if item0 else 'None'}'", "PyArchInit", Qgis.Info)
+                    
+                    # Check if this is truly an empty row or if we have data loss
+                    has_any_data = False
+                    for c in range(7):
+                        test_item = self.tableWidget_materiali.item(row, c)
+                        if test_item and test_item.text().strip():
+                            has_any_data = True
+                            QgsMessageLog.logMessage(f"DEBUG TMA: Row {row} has data in column {c}: '{test_item.text()}'", "PyArchInit", Qgis.Warning)
+                    
+                    if has_any_data:
+                        QgsMessageLog.logMessage(f"ERROR TMA: Row {row} has data but category reading failed!", "PyArchInit", Qgis.Critical)
+                    
+                    empty_rows.append(row + 1)  # Use 1-based indexing for user message
                     continue
                 
                 # Check if this row has an existing ID (stored as row data)
@@ -1473,11 +1619,30 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                                                list(update_values_dict.values()))
                 else:
                     # Insert new material
+                    # Get the max ID considering both existing materials and newly inserted ones this session
                     try:
                         max_id = self.DB_MANAGER.max_num_id('TMA_MATERIALI', 'id')
+                        QgsMessageLog.logMessage(f"DEBUG TMA: max_id from DB = {max_id}", "PyArchInit", Qgis.Info)
+                        
+                        # Also consider IDs we've already used in this save session
+                        if seen_ids:
+                            max_seen_id = max(seen_ids)
+                            QgsMessageLog.logMessage(f"DEBUG TMA: max seen_id = {max_seen_id}, seen_ids = {seen_ids}", "PyArchInit", Qgis.Info)
+                            max_id = max(max_id if max_id is not None else 0, max_seen_id)
+                        
                         new_material_id = (max_id + 1) if max_id is not None else 1
-                    except:
-                        new_material_id = 1
+                    except Exception as id_error:
+                        QgsMessageLog.logMessage(f"DEBUG TMA: Error getting max ID: {id_error}", "PyArchInit", Qgis.Warning)
+                        # If all else fails, use a safe starting point
+                        if seen_ids:
+                            new_material_id = max(seen_ids) + 1
+                        else:
+                            new_material_id = 1
+                    
+                    QgsMessageLog.logMessage(f"DEBUG TMA: Assigning new material ID {new_material_id} for row {row}", "PyArchInit", Qgis.Info)
+                    
+                    # Track this new ID
+                    seen_ids.add(new_material_id)
                     
                     # Use direct SQL insert to avoid foreign key issues with SQLAlchemy ORM
                     try:
@@ -1516,6 +1681,11 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                             insert_session.execute(text(sql), params)
                             insert_session.commit()
                             
+                            # Store the new material ID in the table widget for future updates
+                            if self.tableWidget_materiali.item(row, 0):
+                                self.tableWidget_materiali.item(row, 0).setData(Qt.UserRole, new_material_id)
+                                QgsMessageLog.logMessage(f"DEBUG TMA: Stored new material ID {new_material_id} in row {row}", "PyArchInit", Qgis.Info)
+                            
                         finally:
                             insert_session.close()
                             
@@ -1523,6 +1693,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                         QgsMessageLog.logMessage(f"SQL insert failed: {insert_error}", "PyArchInit", Qgis.Warning)
                         raise
                     seen_ids.add(new_material_id)
+                    QgsMessageLog.logMessage(f"DEBUG TMA: Successfully inserted material ID {new_material_id}, seen_ids now: {seen_ids}", "PyArchInit", Qgis.Info)
             
             # Delete materials that were removed from the table
             # ONLY delete if we have explicitly loaded materials AND the user has made changes
@@ -1532,21 +1703,15 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             should_process_deletions = False
             
             # Only process deletions if:
-            # 1. Materials were loaded successfully
-            # 2. We have either processed some materials OR the user explicitly has an empty table after loading
-            if self.materials_loaded:
-                if len(seen_ids) > 0:
-                    # We processed some materials, safe to delete those not in the list
-                    should_process_deletions = True
-                    QgsMessageLog.logMessage(f"DEBUG TMA: Will process deletions - processed {len(seen_ids)} materials", "PyArchInit", Qgis.Info)
-                elif self.tableWidget_materiali.rowCount() == 0 and hasattr(self, 'user_cleared_materials') and self.user_cleared_materials:
-                    # User explicitly cleared the table (this flag would need to be set when user deletes rows)
-                    should_process_deletions = True
-                    QgsMessageLog.logMessage(f"DEBUG TMA: User explicitly cleared materials", "PyArchInit", Qgis.Info)
-                else:
-                    QgsMessageLog.logMessage(f"WARNING TMA: Table empty but no materials processed - NOT deleting", "PyArchInit", Qgis.Warning)
+            # 1. Materials were loaded successfully from an existing record
+            # 2. AND we have existing materials to potentially delete
+            # 3. AND it's not a new record (check if we're in update mode)
+            if self.materials_loaded and len(existing_materials) > 0 and self.BROWSE_STATUS == "b":
+                # We're updating an existing record with existing materials
+                should_process_deletions = True
+                QgsMessageLog.logMessage(f"DEBUG TMA: Will process deletions - existing record with {len(existing_materials)} existing materials", "PyArchInit", Qgis.Info)
             else:
-                QgsMessageLog.logMessage(f"WARNING TMA: Materials not loaded - NOT processing deletions", "PyArchInit", Qgis.Warning)
+                QgsMessageLog.logMessage(f"DEBUG TMA: NOT processing deletions - materials_loaded={self.materials_loaded}, existing_materials={len(existing_materials)}, BROWSE_STATUS={self.BROWSE_STATUS}", "PyArchInit", Qgis.Info)
             
             # Also process explicitly deleted materials
             if hasattr(self, 'deleted_material_ids') and self.deleted_material_ids:
@@ -1577,6 +1742,51 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                             delete_session.close()
                         except Exception as del_error:
                             QgsMessageLog.logMessage(f"Error deleting material: {del_error}", "PyArchInit", Qgis.Warning)
+            
+            # Clean up empty rows from the table widget (visual cleanup)
+            rows_to_remove = []
+            for row in range(self.tableWidget_materiali.rowCount() - 1, -1, -1):  # Iterate backwards
+                is_empty = True
+                for col in range(self.tableWidget_materiali.columnCount()):
+                    item = self.tableWidget_materiali.item(row, col)
+                    if item and item.text().strip():
+                        is_empty = False
+                        break
+                if is_empty:
+                    rows_to_remove.append(row)
+            
+            # Remove empty rows
+            for row in rows_to_remove:
+                QgsMessageLog.logMessage(f"DEBUG TMA: Removing empty row {row} from table", "PyArchInit", Qgis.Info)
+                self.tableWidget_materiali.removeRow(row)
+            
+            # Notify user about empty rows if any
+            if empty_rows:
+                # Double-check if these rows were truly empty or if there was a data reading issue
+                truly_empty_rows = []
+                for row_num in empty_rows:
+                    row_idx = row_num - 1  # Convert back to 0-based index
+                    if row_idx < self.tableWidget_materiali.rowCount():
+                        # Check if the row has any visible data
+                        row_has_data = False
+                        for c in range(self.tableWidget_materiali.columnCount()):
+                            item = self.tableWidget_materiali.item(row_idx, c)
+                            if item and item.text().strip():
+                                row_has_data = True
+                                break
+                        
+                        if not row_has_data:
+                            truly_empty_rows.append(row_num)
+                        else:
+                            QgsMessageLog.logMessage(f"DEBUG TMA: Row {row_num} reported as empty but has data - skipping error message", "PyArchInit", Qgis.Info)
+                
+                # Only show message for truly empty rows
+                if truly_empty_rows:
+                    if self.L == 'it':
+                        msg = f"Attenzione: Le righe {', '.join(map(str, truly_empty_rows))} non sono state salvate perché manca la categoria (campo obbligatorio)."
+                    else:
+                        msg = f"Warning: Rows {', '.join(map(str, truly_empty_rows))} were not saved because category is missing (required field)."
+                    QMessageBox.information(self, "Materiali vuoti", msg, QMessageBox.Ok)
                     
         except Exception as e:
             import traceback
@@ -1588,47 +1798,96 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
 
     def on_pushButton_add_materiale_pressed(self):
         """Add a new row to materials table."""
-        # Disconnect signal temporarily to prevent double add
+        # Prevent multiple rapid calls - check and set flag atomically
+        if hasattr(self, '_button_operation_timer') and self._button_operation_timer.isActive():
+            QgsMessageLog.logMessage("DEBUG TMA add_materiale: Button operation in progress, skipping", "PyArchInit", Qgis.Warning)
+            return
+        
+        # Create timer if it doesn't exist
+        if not hasattr(self, '_button_operation_timer'):
+            self._button_operation_timer = QTimer()
+            self._button_operation_timer.setSingleShot(True)
+        
+        # Start timer to prevent rapid successive calls (250ms cooldown)
+        self._button_operation_timer.start(250)
+        
+        # Temporarily block signals on the table to prevent cascading events
+        self.tableWidget_materiali.blockSignals(True)
+        
         try:
-            self.pushButton_add_materiale.clicked.disconnect()
-        except:
-            pass
+            # Debug: log entry and current state
+            rows_before = self.tableWidget_materiali.rowCount()
+            QgsMessageLog.logMessage(f"DEBUG TMA add_materiale: CALLED - rows before = {rows_before}", "PyArchInit", Qgis.Info)
             
-        row = self.tableWidget_materiali.rowCount()
-        self.tableWidget_materiali.insertRow(row)
-        
-        # Debug: check if delegates are working
-        QgsMessageLog.logMessage(f"DEBUG TMA: Adding new row {row}", "PyArchInit", Qgis.Info)
-        for col in range(5):  # Check first 5 columns which should have thesaurus
-            delegate = self.tableWidget_materiali.itemDelegateForColumn(col)
-            if delegate:
-                QgsMessageLog.logMessage(f"  Column {col} has delegate: {type(delegate).__name__}", "PyArchInit", Qgis.Info)
-        
-        # Create empty items for each column - REQUIRED for delegates to work properly
-        for col in range(self.tableWidget_materiali.columnCount()):
-            if not self.tableWidget_materiali.item(row, col):
-                self.tableWidget_materiali.setItem(row, col, QTableWidgetItem(""))
-        
-        # Reconnect signal
-        self.pushButton_add_materiale.clicked.connect(self.on_pushButton_add_materiale_pressed)
+            # Add single row
+            row = self.tableWidget_materiali.rowCount()
+            self.tableWidget_materiali.insertRow(row)
+            
+            rows_after = self.tableWidget_materiali.rowCount()
+            QgsMessageLog.logMessage(f"DEBUG TMA add_materiale: Added row {row} - rows after = {rows_after}", "PyArchInit", Qgis.Info)
+            
+            # Debug: check if delegates are working
+            for col in range(5):  # Check first 5 columns which should have thesaurus
+                delegate = self.tableWidget_materiali.itemDelegateForColumn(col)
+                if delegate:
+                    QgsMessageLog.logMessage(f"  Column {col} has delegate: {type(delegate).__name__}", "PyArchInit", Qgis.Info)
+            
+            # Create empty items for each column - REQUIRED for delegates to work properly
+            for col in range(self.tableWidget_materiali.columnCount()):
+                if not self.tableWidget_materiali.item(row, col):
+                    self.tableWidget_materiali.setItem(row, col, QTableWidgetItem(""))
+                    
+        finally:
+            # Re-enable signals
+            self.tableWidget_materiali.blockSignals(False)
 
     def on_pushButton_remove_materiale_pressed(self):
         """Remove selected row from materials table."""
-        current_row = self.tableWidget_materiali.currentRow()
-        if current_row >= 0:
-            # Get the material ID if it exists (for existing records)
-            item = self.tableWidget_materiali.item(current_row, 0)
-            if item and item.data(Qt.UserRole) is not None:
-                material_id = item.data(Qt.UserRole)
-                QgsMessageLog.logMessage(f"DEBUG TMA: Removing material row {current_row} with ID {material_id}", "PyArchInit", Qgis.Info)
-                # Mark as deleted (will be handled during save)
-                if not hasattr(self, 'deleted_material_ids'):
-                    self.deleted_material_ids = set()
-                self.deleted_material_ids.add(int(material_id))
+        # Prevent multiple rapid calls - use same timer as add method
+        if hasattr(self, '_button_operation_timer') and self._button_operation_timer.isActive():
+            QgsMessageLog.logMessage("DEBUG TMA remove_materiale: Button operation in progress, skipping", "PyArchInit", Qgis.Warning)
+            return
+        
+        # Create timer if it doesn't exist
+        if not hasattr(self, '_button_operation_timer'):
+            self._button_operation_timer = QTimer()
+            self._button_operation_timer.setSingleShot(True)
+        
+        # Start timer to prevent rapid successive calls (250ms cooldown)
+        self._button_operation_timer.start(250)
+        
+        # Temporarily block signals on the table to prevent cascading events
+        self.tableWidget_materiali.blockSignals(True)
+        
+        try:
+            rows_before = self.tableWidget_materiali.rowCount()
+            current_row = self.tableWidget_materiali.currentRow()
+            QgsMessageLog.logMessage(f"DEBUG TMA remove_materiale: CALLED - rows before = {rows_before}, current_row = {current_row}", "PyArchInit", Qgis.Info)
             
-            self.tableWidget_materiali.removeRow(current_row)
-            # Update materiale field after removing row
-            self.update_materiale_field()
+            if current_row >= 0:
+                # Get the material ID if it exists (for existing records)
+                item = self.tableWidget_materiali.item(current_row, 0)
+                if item and item.data(Qt.UserRole) is not None:
+                    material_id = item.data(Qt.UserRole)
+                    QgsMessageLog.logMessage(f"DEBUG TMA: Removing material row {current_row} with ID {material_id}", "PyArchInit", Qgis.Info)
+                    # Mark as deleted (will be handled during save)
+                    if not hasattr(self, 'deleted_material_ids'):
+                        self.deleted_material_ids = set()
+                    self.deleted_material_ids.add(int(material_id))
+                
+                self.tableWidget_materiali.removeRow(current_row)
+                
+                rows_after = self.tableWidget_materiali.rowCount()
+                QgsMessageLog.logMessage(f"DEBUG TMA remove_materiale: Removed row {current_row} - rows after = {rows_after}", "PyArchInit", Qgis.Info)
+                
+                # Update materiale field after removing row
+                self.update_materiale_field()
+            else:
+                QgsMessageLog.logMessage(f"DEBUG TMA remove_materiale: No row selected", "PyArchInit", Qgis.Info)
+                
+        finally:
+            # Re-enable signals
+            self.tableWidget_materiali.blockSignals(False)
     
     def update_material_navigation(self):
         """Update navigation buttons for materials table."""
@@ -1745,6 +2004,11 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         # Restore site value
         if current_site:
             self.comboBox_sito.setEditText(current_site)
+            
+        # Clear località but don't trigger event yet
+        self.comboBox_localita.blockSignals(True)
+        self.comboBox_localita.setEditText("")
+        self.comboBox_localita.blockSignals(False)
             
     # def check_record_state(self):
     #     """Check if the current record has been modified."""
@@ -2081,8 +2345,18 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             # Reset materials loaded flag when creating new record
             self.materials_loaded = False
             self.label_sort.setText(self.SORTED_ITEMS["n"])
-            # Load all areas for new record since no località is selected
-            self.load_area_values()
+            
+            # Set first available località value and trigger area loading
+            if self.comboBox_localita.count() > 0:
+                # Set first item in località dropdown
+                self.comboBox_localita.setCurrentIndex(0)
+                # This will trigger on_localita_changed which will load filtered areas
+            else:
+                # If no località available, load all areas
+                self.load_area_values()
+                
+            # Mark materials as loaded for new records so they can be saved
+            self.materials_loaded = True
 
             if bool(sito_set_str):
                 # When sito_set is active, set the site field and make it read-only
@@ -2916,7 +3190,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             
             # Use correct table name for thesaurus lookup
             # Material fields use TMA materiali ripetibili table
-            table_name = 'TMA materiali ripetibili'
+            table_name = 'TMA Materiali Ripetibili'
             
             search_dict = {
                 'lingua': lang,  # Use lowercase language code
@@ -2976,8 +3250,13 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             
             def setModelData(self, editor, model, index):
                 value = editor.currentText()
+                # Ensure value is not None
+                if value is None:
+                    value = ""
                 model.setData(index, value, Qt.EditRole)
                 model.setData(index, value, Qt.DisplayRole)
+                # Also set as UserRole+1 as backup
+                model.setData(index, value, Qt.UserRole + 1)
                 # Force the table widget to update
                 model.dataChanged.emit(index, index)
                 # Debug log
@@ -3105,7 +3384,9 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
     
     def on_materials_table_changed(self, item):
         """Called when an item in the materials table is changed."""
-        QgsMessageLog.logMessage(f"DEBUG TMA: Materials table changed - row={item.row()}, col={item.column()}, text='{item.text()}'", "PyArchInit", Qgis.Info)
+        # Only log meaningful changes (non-empty text)
+        if item.text().strip():
+            QgsMessageLog.logMessage(f"DEBUG TMA: Materials table changed - row={item.row()}, col={item.column()}, text='{item.text()}'", "PyArchInit", Qgis.Info)
         self.materials_modified = True
         
         # Update materiale field when first column (Categoria) changes
