@@ -102,6 +102,17 @@ class TMALabelPDF:
     
     def format_tma_data(self, tma_record):
         """Format TMA record data for label."""
+        # Extract year from dscd field if present
+        anno_scavo = ''
+        if tma_record.dscd:
+            # Try to extract year from date string
+            date_str = str(tma_record.dscd)
+            # Common date formats: YYYY, YYYY-MM-DD, DD/MM/YYYY, etc.
+            import re
+            year_match = re.search(r'(\d{4})', date_str)
+            if year_match:
+                anno_scavo = year_match.group(1)
+        
         data = {
             'id': str(tma_record.id_tma) if hasattr(tma_record, 'id_tma') else '',
             'sito': tma_record.sito or '',
@@ -115,6 +126,7 @@ class TMALabelPDF:
             'vano_locus': tma_record.vano_locus or '',
             'ogtm': tma_record.ogtm or '',
             'dtzg': tma_record.dtzg or '',
+            'anno_scavo': anno_scavo,
         }
         
         # Create QR code data
@@ -185,31 +197,68 @@ class TMALabelPDF:
             
         elif label_style == 'detailed':
             # Detailed style with more information
-            c.setFont("Helvetica-Bold", 9)
-            c.drawString(content_x, current_y - line_height, f"Inv: {tma_data['inventario']}")
-            current_y -= line_height * 1.2
+            c.setFont("Helvetica-Bold", 8)
+            c.drawString(content_x, current_y - line_height, f"Sito: {tma_data['sito']}")
+            current_y -= line_height * 0.9
             
             c.setFont("Helvetica", 7)
-            c.drawString(content_x, current_y - line_height, f"Sito: {tma_data['sito']} | Località: {tma_data['localita']}")
-            current_y -= line_height * 0.9
+            c.drawString(content_x, current_y - line_height, f"Località: {tma_data['localita']}")
+            current_y -= line_height * 0.8
             
-            c.drawString(content_x, current_y - line_height, f"Area: {tma_data['area']} | Settore: {tma_data['settore']}")
-            current_y -= line_height * 0.9
+            if tma_data['anno_scavo']:
+                c.drawString(content_x, current_y - line_height, f"Anno di scavo: {tma_data['anno_scavo']}")
+                current_y -= line_height * 0.8
             
-            c.drawString(content_x, current_y - line_height, f"US: {tma_data['us']} | Saggio: {tma_data['saggio']}")
-            current_y -= line_height * 0.9
+            # Show US (US contained in the box)
+            c.drawString(content_x, current_y - line_height, f"US: {tma_data['us']}")
+            current_y -= line_height * 0.8
             
+            c.drawString(content_x, current_y - line_height, f"Area: {tma_data['area']}")
+            current_y -= line_height * 0.8
+            
+            c.drawString(content_x, current_y - line_height, f"Settore: {tma_data['settore']}")
+            current_y -= line_height * 0.8
+            
+            c.drawString(content_x, current_y - line_height, f"Saggio: {tma_data['saggio']}")
+            current_y -= line_height * 0.8
+            
+            if tma_data['vano_locus']:
+                c.drawString(content_x, current_y - line_height, f"Vano/Locus: {tma_data['vano_locus']}")
+                current_y -= line_height * 0.8
+            
+            c.setFont("Helvetica-Bold", 8)
             c.drawString(content_x, current_y - line_height, f"Cassetta: {tma_data['cassetta']}")
-            current_y -= line_height * 0.9
+            current_y -= line_height * 0.8
             
+            c.setFont("Helvetica", 7)
             if tma_data['ogtm']:
-                c.drawString(content_x, current_y - line_height, f"Mat: {tma_data['ogtm']}")
-                current_y -= line_height * 0.9
-                
-            if tma_data['dtzg']:
-                c.drawString(content_x, current_y - line_height, f"Cron: {tma_data['dtzg']}")
+                c.drawString(content_x, current_y - line_height, f"Materiale: {tma_data['ogtm']}")
     
-    def generate_labels(self, tma_records, output_path, label_style='standard'):
+    def extract_box_number(self, cassetta):
+        """Extract numeric portion from cassetta field."""
+        import re
+        if not cassetta:
+            return None
+        # Extract the numeric part (e.g., "1" from "1a", "55" from "55b")
+        match = re.match(r'^(\d+)', str(cassetta).strip())
+        return match.group(1) if match else None
+    
+    def group_records_by_box(self, tma_records):
+        """Group TMA records by box numeric portion."""
+        from collections import defaultdict
+        grouped = defaultdict(list)
+        
+        for record in tma_records:
+            box_num = self.extract_box_number(record.cassetta)
+            if box_num:
+                grouped[box_num].append(record)
+            else:
+                # Records without numeric portion go as individual labels
+                grouped[f"_individual_{record.cassetta}"].append(record)
+        
+        return grouped
+    
+    def generate_labels(self, tma_records, output_path, label_style='standard', group_by_box=True):
         """
         Generate PDF with labels for TMA records.
         
@@ -217,21 +266,58 @@ class TMALabelPDF:
             tma_records: List of TMA record objects
             output_path: Path for output PDF file
             label_style: Style of labels ('standard', 'minimal', 'detailed')
+            group_by_box: Whether to group records by box number
         """
         c = canvas.Canvas(output_path, pagesize=self.page_size)
         
         positions = self.calculate_label_positions()
         labels_per_page = len(positions)
         
-        for i, record in enumerate(tma_records):
-            if i > 0 and i % labels_per_page == 0:
-                c.showPage()
-                
-            position_index = i % labels_per_page
-            x, y = positions[position_index]
+        if group_by_box and label_style == 'detailed':
+            # Group records by box number for detailed labels
+            grouped_records = self.group_records_by_box(tma_records)
             
-            tma_data, qr_data = self.format_tma_data(record)
-            self.draw_label(c, x, y, tma_data, qr_data, label_style)
+            label_index = 0
+            for box_num, records in sorted(grouped_records.items()):
+                if label_index > 0 and label_index % labels_per_page == 0:
+                    c.showPage()
+                
+                position_index = label_index % labels_per_page
+                x, y = positions[position_index]
+                
+                # For grouped records, combine US information
+                if len(records) > 1 and not box_num.startswith('_individual_'):
+                    # Combine data from all records in the group
+                    combined_record = records[0]  # Use first record as base
+                    us_list = []
+                    for rec in records:
+                        if rec.dscu:
+                            us_list.append(str(rec.dscu))
+                    combined_us = ', '.join(sorted(set(us_list)))  # Remove duplicates and sort
+                    
+                    # Create modified data with combined US
+                    tma_data, qr_data = self.format_tma_data(combined_record)
+                    tma_data['us'] = combined_us
+                    tma_data['cassetta'] = box_num  # Show just the numeric portion
+                    
+                    self.draw_label(c, x, y, tma_data, qr_data, label_style)
+                else:
+                    # Single record, process normally
+                    tma_data, qr_data = self.format_tma_data(records[0])
+                    self.draw_label(c, x, y, tma_data, qr_data, label_style)
+                
+                label_index += 1
+        else:
+            # Original behavior for non-grouped labels
+            for i, record in enumerate(tma_records):
+                if i > 0 and i % labels_per_page == 0:
+                    c.showPage()
+                    
+                position_index = i % labels_per_page
+                x, y = positions[position_index]
+                
+                tma_data, qr_data = self.format_tma_data(record)
+                self.draw_label(c, x, y, tma_data, qr_data, label_style)
         
         c.save()
         return output_path

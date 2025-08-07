@@ -4160,6 +4160,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                                 str(tma.area),
                                 str(tma.dscu) if tma.dscu else '',
                                 str(tma.cassetta),
+                                str(tma.dtzg) if tma.dtzg else '',  # Fascia cronologica
                                 str(mat.madi) if mat.madi else '',  # Materiale
                                 str(mat.macc) if mat.macc else '',  # Categoria
                                 str(mat.macl) if mat.macl else '',  # Classe
@@ -4176,6 +4177,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                             str(tma.area),
                             str(tma.dscu) if tma.dscu else '',
                             str(tma.cassetta),
+                            str(tma.dtzg) if tma.dtzg else '',  # Fascia cronologica
                             '', '', '', '', '', ''  # Empty material fields
                         ]
                         data_list.append(row_data)
@@ -4214,7 +4216,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             elements.append(Paragraph("<br/><br/>", styles['Normal']))
             
             # Create table with headers
-            headers = ['Località', 'Area', 'US', 'Cassetta', 'Materiale', 'Categoria', 'Classe', 'Definizione', 'Quantità', 'Peso']
+            headers = ['Località', 'Area', 'US', 'Cassetta', 'Fascia cronologica', 'Materiale', 'Categoria', 'Classe', 'Definizione', 'Quantità', 'Peso']
             table_data = [headers] + data_list
             
             # Create table

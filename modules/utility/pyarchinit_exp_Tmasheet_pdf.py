@@ -141,10 +141,6 @@ class generate_tma_pdf:
         elements.append(self._create_section_la())
         elements.append(Spacer(1, 12))
         
-        # Section UB - DATI PATRIMONIALI
-        elements.append(self._create_section_ub())
-        elements.append(Spacer(1, 12))
-        
         # Section RE - MODALITA' DI REPERIMENTO
         elements.append(self._create_section_re())
         elements.append(Spacer(1, 12))
@@ -159,14 +155,6 @@ class generate_tma_pdf:
             elements.extend(do_section)
         else:
             elements.append(do_section)
-        elements.append(Spacer(1, 12))
-        
-        # Section CO - CONSERVAZIONE
-        elements.append(self._create_section_co())
-        elements.append(Spacer(1, 12))
-        
-        # Section TU - CONDIZIONE GIURIDICA
-        elements.append(self._create_section_tu())
         elements.append(Spacer(1, 12))
         
         # Section AD - ACCESSO AI DATI
@@ -510,18 +498,22 @@ class generate_tma_pdf:
                 ]
                 material_data.append(row)
             
-            # Create materials table
-            materials_table = Table(material_data, colWidths=[28*mm, 28*mm, 28*mm, 28*mm, 28*mm, 30*mm])
+            # Create materials table with responsive widths
+            # Total width is 170mm, distribute proportionally
+            materials_table = Table(material_data, colWidths=[25*mm, 30*mm, 30*mm, 30*mm, 25*mm, 30*mm])
             materials_table.setStyle(TableStyle([
                 ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#CCCCCC")),
                 ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),
-                ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+                ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
                 ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
                 ('FONTSIZE', (0, 0), (-1, 0), 8),
                 ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
                 ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
                 ('FONTSIZE', (0, 1), (-1, -1), 7),
                 ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+                ('LEFTPADDING', (0, 0), (-1, -1), 3),
+                ('RIGHTPADDING', (0, 0), (-1, -1), 3),
+                ('WORDWRAP', (0, 0), (-1, -1), True),
             ]))
             
             elements.append(materials_table)
