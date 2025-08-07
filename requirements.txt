@@ -29,3 +29,4 @@
  beautifulsoup4==4.13.3
  faiss-cpu==1.11.0
  PyPDF2==3.0.1
+ qrcode==8.2

@@ -646,7 +646,7 @@
       <workItem from="1754500466247" duration="29000" />
       <workItem from="1754536008824" duration="3284000" />
       <workItem from="1754539729614" duration="89000" />
-      <workItem from="1754541566065" duration="2010000" />
+      <workItem from="1754541566065" duration="4882000" />
     </task>
     <task id="LOCAL-00022" summary="v3.9.14">
       <created>1649165457258</created>
@@ -991,7 +991,7 @@
       <option name="project" value="LOCAL" />
       <updated>1679662089681</updated>
     </task>
-    <option name="localTasksCounter" value="255" />
+    <option name="localTasksCounter" value="256" />
     <option name="createChangelist" value="false" />
     <servers>
       <GitHub url="https://github.com">
@@ -1045,7 +1045,6 @@
     <ignored-roots>
       <path value="$PROJECT_DIR$/ext-libs/totalopenstation-0.5.2-py3.9.egg/totalopenstation_" />
     </ignored-roots>
-    <MESSAGE value="Add scripts and documentation for SQLite migration, including spatial fixes and metadata handling" />
     <MESSAGE value="Add &quot;Update DB&quot; button to UI and implement database update logic with multilingual support, existing data preservation, and progress handling. Update SQL view for streamlined fields." />
     <MESSAGE value="Update SQL views to align with renamed fields and additional attributes for improved data mapping and consistency." />
     <MESSAGE value="Wrap `metadata.create_all()` calls in try-except blocks to handle potential table existence or unsupported geometry type errors. Add SQLite-specific logic to handle geometry columns for spatial tables." />
@@ -1070,7 +1069,8 @@
     <MESSAGE value="Update `.idea` files: adjust run configurations, update temporary tasks, and improve script selection for Python test scripts" />
     <MESSAGE value="Update `.idea` files: adjust run configurations, modify Python script references, and update properties content formatting" />
     <MESSAGE value="Change `nr_cassa` field type from `INTEGER` to `TEXT` across multiple tables and update related migrations, representations, and metadata." />
-    <option name="LAST_COMMIT_MESSAGE" value="Change `nr_cassa` field type from `INTEGER` to `TEXT` across multiple tables and update related migrations, representations, and metadata." />
+    <MESSAGE value="Refactor label generation and PDF components: remove unused sections, enhance table styling with responsive widths, add excavation year extraction, group records by box number for detailed labels, and update TMA data handling with additional attributes." />
+    <option name="LAST_COMMIT_MESSAGE" value="Refactor label generation and PDF components: remove unused sections, enhance table styling with responsive widths, add excavation year extraction, group records by box number for detailed labels, and update TMA data handling with additional attributes." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
