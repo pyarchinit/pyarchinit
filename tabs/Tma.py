@@ -273,18 +273,12 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         self.pushButton_add_materiale.clicked.connect(self.on_pushButton_add_materiale_pressed)
         self.pushButton_remove_materiale.clicked.connect(self.on_pushButton_remove_materiale_pressed)
         
-        # Initialize materials table with thesaurus support
-        self.setup_materials_table_with_thesaurus()
+        # Initialize materials table basic structure
+        self.setup_materials_table()
         self.current_material_index = -1
         self.materials_data = []
         
-        # Thesaurus loading moved to charge_list method following Tomba.py pattern
-        # Only setup delegates here if DB_MANAGER is available
-        if hasattr(self, 'DB_MANAGER') and self.DB_MANAGER and self.DB_MANAGER != "":
-            # Setup delegates for documentation tables - these need to be done here
-            # since they depend on thesaurus values loaded in charge_list
-            self.setup_documentation_delegates()
-        # else: DB_MANAGER not ready yet
+        # Thesaurus loading will be done in charge_list method when DB is ready
         
         # Connect fields to auto-update chronology and inventory
         # Moved to fill_fields to avoid multiple connections
@@ -467,6 +461,11 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             if values.__contains__(l):
                 lang = str(key)
         lang = "'" + lang + "'"
+        
+        # Setup materials table with thesaurus support now that DB is ready
+        if hasattr(self, 'DB_MANAGER') and self.DB_MANAGER and self.DB_MANAGER != "":
+            self.setup_materials_table_with_thesaurus()
+            self.setup_documentation_delegates()
         
         # lista sito
         sito_vl = self.UTILITY.tup_2_list_III(self.DB_MANAGER.group_by('site_table', 'sito', 'SITE'))
@@ -3227,27 +3226,27 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
     def load_thesaurus_values(self, field_type):
         """Load thesaurus values for material fields."""
         try:
-            lang = QgsSettings().value("locale/userLocale", "it")[:2].lower()  # Use lowercase as in database
+            lang = QgsSettings().value("locale/userLocale", "it")[:2].upper()  # Use uppercase as in database
             
             # Map field types to thesaurus categories
             # Using correct tipologia_sigla codes according to thesaurus structure
             thesaurus_map = {
-                'categoria': '10.10',   # Categoria - from TMA Materiali Ripetibili
-                'classe': '10.11',      # Classe - from TMA Materiali Ripetibili
-                'tipologia': '10.12',   # Precisazione tipologica - from TMA Materiali Ripetibili
-                'definizione': '10.13', # Definizione - from TMA Materiali Ripetibili
-                'cronologia_mac': '10.4'  # Cronologia - from TMA Materiali Ripetibili (note: same code as Fascia Cronologica in archeologici)
+                'categoria': '10.10',   # Categoria materiale (ceramica, vetro, metallo, etc.)
+                'classe': '10.11',      # Classe (ceramica fine, grezza, etc.)
+                'tipologia': '10.12',   # Precisazione tipologica
+                'definizione': '10.13', # Definizione
+                'cronologia_mac': '10.4'  # Cronologia (Neolitico, Minoico, etc.)
             }
             
             if field_type not in thesaurus_map:
                 return []
             
             # Use correct table name for thesaurus lookup
-            # Material fields use TMA materiali ripetibili table
+            # Material fields use TMA Materiali Ripetibili table (with capitals)
             table_name = 'TMA Materiali Ripetibili'
             
             search_dict = {
-                'lingua': lang,  # Use lowercase language code
+                'lingua': "'" + str(lang) + "'",  # Add quotes around language code
                 'nome_tabella': "'" + str(table_name) + "'",
                 'tipologia_sigla': "'" + str(thesaurus_map[field_type]) + "'"
             }
@@ -3281,40 +3280,6 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
     
     def setup_materials_table_with_thesaurus(self):
         """Setup materials table with thesaurus support using delegates."""
-        from qgis.PyQt.QtWidgets import QStyledItemDelegate, QComboBox
-        
-        class ComboBoxDelegate(QStyledItemDelegate):
-            def __init__(self, items, parent=None):
-                super().__init__(parent)
-                self.items = items
-            
-            def createEditor(self, parent, option, index):
-                editor = QComboBox(parent)
-                editor.addItems(self.items)
-                editor.setEditable(True)  # Allow custom values
-                editor.setInsertPolicy(QComboBox.NoInsert)  # Don't add new items to the combo
-                return editor
-            
-            def setEditorData(self, editor, index):
-                value = index.model().data(index, Qt.EditRole)
-                if value in self.items:
-                    editor.setCurrentText(value)
-                else:
-                    editor.setEditText(str(value) if value else "")
-            
-            def setModelData(self, editor, model, index):
-                value = editor.currentText()
-                # Ensure value is not None
-                if value is None:
-                    value = ""
-                model.setData(index, value, Qt.EditRole)
-                model.setData(index, value, Qt.DisplayRole)
-                # Also set as UserRole+1 as backup
-                model.setData(index, value, Qt.UserRole + 1)
-                # Force the table widget to update
-                model.dataChanged.emit(index, index)
-                # Debug log
-                QgsMessageLog.logMessage(f"DEBUG ComboBoxDelegate setModelData: row={index.row()}, col={index.column()}, value='{value}'", "PyArchInit", Qgis.Info)
         
         # Setup base table
         self.setup_materials_table()
@@ -3346,19 +3311,34 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         
         # Set delegates for columns with thesaurus support
         if categoria_values:
-            self.tableWidget_materiali.setItemDelegateForColumn(0, ComboBoxDelegate(categoria_values, self.tableWidget_materiali))
+            self.delegateCategoria = ComboBoxDelegate()
+            self.delegateCategoria.def_values(categoria_values)
+            self.delegateCategoria.def_editable('True')
+            self.tableWidget_materiali.setItemDelegateForColumn(0, self.delegateCategoria)
             QgsMessageLog.logMessage(f"DEBUG TMA: Set delegate for Categoria column with {len(categoria_values)} values", "PyArchInit", Qgis.Info)
         if classe_values:
-            self.tableWidget_materiali.setItemDelegateForColumn(1, ComboBoxDelegate(classe_values, self.tableWidget_materiali))
+            self.delegateClasse = ComboBoxDelegate()
+            self.delegateClasse.def_values(classe_values)
+            self.delegateClasse.def_editable('True')
+            self.tableWidget_materiali.setItemDelegateForColumn(1, self.delegateClasse)
             QgsMessageLog.logMessage(f"DEBUG TMA: Set delegate for Classe column with {len(classe_values)} values", "PyArchInit", Qgis.Info)
         if tipologia_values:
-            self.tableWidget_materiali.setItemDelegateForColumn(2, ComboBoxDelegate(tipologia_values, self.tableWidget_materiali))
+            self.delegateTipologia = ComboBoxDelegate()
+            self.delegateTipologia.def_values(tipologia_values)
+            self.delegateTipologia.def_editable('True')
+            self.tableWidget_materiali.setItemDelegateForColumn(2, self.delegateTipologia)
             QgsMessageLog.logMessage(f"DEBUG TMA: Set delegate for Tipologia column with {len(tipologia_values)} values", "PyArchInit", Qgis.Info)
         if definizione_values:
-            self.tableWidget_materiali.setItemDelegateForColumn(3, ComboBoxDelegate(definizione_values, self.tableWidget_materiali))
+            self.delegateDefinizione = ComboBoxDelegate()
+            self.delegateDefinizione.def_values(definizione_values)
+            self.delegateDefinizione.def_editable('True')
+            self.tableWidget_materiali.setItemDelegateForColumn(3, self.delegateDefinizione)
             QgsMessageLog.logMessage(f"DEBUG TMA: Set delegate for Definizione column with {len(definizione_values)} values", "PyArchInit", Qgis.Info)
         if cronologia_values:
-            self.tableWidget_materiali.setItemDelegateForColumn(4, ComboBoxDelegate(cronologia_values, self.tableWidget_materiali))
+            self.delegateCronologia = ComboBoxDelegate()
+            self.delegateCronologia.def_values(cronologia_values)
+            self.delegateCronologia.def_editable('True')
+            self.tableWidget_materiali.setItemDelegateForColumn(4, self.delegateCronologia)
             QgsMessageLog.logMessage(f"DEBUG TMA: Set delegate for Cronologia column with {len(cronologia_values)} values", "PyArchInit", Qgis.Info)
         
 
@@ -3368,33 +3348,6 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
     
     def setup_documentation_delegates(self):
         """Setup delegates for photo and drawing documentation tables."""
-        from qgis.PyQt.QtWidgets import QStyledItemDelegate, QComboBox
-        
-        # Define ComboBoxDelegate locally for documentation
-        class ComboBoxDelegate(QStyledItemDelegate):
-            def __init__(self, items, parent=None):
-                super().__init__(parent)
-                self.items = items
-            
-            def createEditor(self, parent, option, index):
-                editor = QComboBox(parent)
-                editor.addItems(self.items)
-                editor.setEditable(True)
-                editor.setInsertPolicy(QComboBox.NoInsert)
-                return editor
-            
-            def setEditorData(self, editor, index):
-                value = index.model().data(index, Qt.EditRole)
-                if value in self.items:
-                    editor.setCurrentText(value)
-                else:
-                    editor.setEditText(str(value) if value else "")
-            
-            def setModelData(self, editor, model, index):
-                value = editor.currentText()
-                model.setData(index, value, Qt.EditRole)
-                model.setData(index, value, Qt.DisplayRole)
-                model.dataChanged.emit(index, index)
         
         # Load photo types from thesaurus
         ftap_values = []
@@ -3412,7 +3365,10 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         
         # If we have photo types, set delegate for first column of photo table
         if ftap_values and hasattr(self, 'tableWidget_foto'):
-            self.tableWidget_foto.setItemDelegateForColumn(0, ComboBoxDelegate(ftap_values, self.tableWidget_foto))
+            self.delegateFotoTipo = ComboBoxDelegate()
+            self.delegateFotoTipo.def_values(ftap_values)
+            self.delegateFotoTipo.def_editable('True')
+            self.tableWidget_foto.setItemDelegateForColumn(0, self.delegateFotoTipo)
             QgsMessageLog.logMessage(f"DEBUG TMA: Set delegate for Photo Type column with {len(ftap_values)} values", "PyArchInit", Qgis.Info)
         
         # For drawings, we might need drawing types from thesaurus too
@@ -3427,7 +3383,10 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         
         # Set delegate for drawing type column if we have values
         if drat_values and hasattr(self, 'tableWidget_disegni'):
-            self.tableWidget_disegni.setItemDelegateForColumn(0, ComboBoxDelegate(drat_values, self.tableWidget_disegni))
+            self.delegateDisegniTipo = ComboBoxDelegate()
+            self.delegateDisegniTipo.def_values(drat_values)
+            self.delegateDisegniTipo.def_editable('True')
+            self.tableWidget_disegni.setItemDelegateForColumn(0, self.delegateDisegniTipo)
             QgsMessageLog.logMessage(f"DEBUG TMA: Set delegate for Drawing Type column with {len(drat_values)} values", "PyArchInit", Qgis.Info)
 
             # Connect signal to track table changes
