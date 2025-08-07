@@ -646,7 +646,8 @@
       <workItem from="1754500466247" duration="29000" />
       <workItem from="1754536008824" duration="3284000" />
       <workItem from="1754539729614" duration="89000" />
-      <workItem from="1754541566065" duration="4882000" />
+      <workItem from="1754541566065" duration="13407000" />
+      <workItem from="1754588061552" duration="2226000" />
     </task>
     <task id="LOCAL-00022" summary="v3.9.14">
       <created>1649165457258</created>
@@ -991,7 +992,7 @@
       <option name="project" value="LOCAL" />
       <updated>1679662089681</updated>
     </task>
-    <option name="localTasksCounter" value="256" />
+    <option name="localTasksCounter" value="260" />
     <option name="createChangelist" value="false" />
     <servers>
       <GitHub url="https://github.com">
@@ -1045,10 +1046,6 @@
     <ignored-roots>
       <path value="$PROJECT_DIR$/ext-libs/totalopenstation-0.5.2-py3.9.egg/totalopenstation_" />
     </ignored-roots>
-    <MESSAGE value="Add &quot;Update DB&quot; button to UI and implement database update logic with multilingual support, existing data preservation, and progress handling. Update SQL view for streamlined fields." />
-    <MESSAGE value="Update SQL views to align with renamed fields and additional attributes for improved data mapping and consistency." />
-    <MESSAGE value="Wrap `metadata.create_all()` calls in try-except blocks to handle potential table existence or unsupported geometry type errors. Add SQLite-specific logic to handle geometry columns for spatial tables." />
-    <MESSAGE value="Wrap `metadata.create_all()` with try-except blocks, add SQLite-specific logic for handling geometry columns, and update spatial table definitions to improve database compatibility and error resilience." />
     <MESSAGE value="Update database migration logic to safely convert 'us' fields and related columns from INTEGER to TEXT, handle encoding errors, and improve SQLite-specific compatibility and error resilience." />
     <MESSAGE value="Improve data import logic for &quot;ALL&quot; tables by adding specific handling and individual table progress updates. Enhance multilingual support and error messaging." />
     <MESSAGE value="Add scripts for TMA table validation, structure fixes, migrations, and testing. Include SQL and Python utilities for improved data processing and compatibility." />
@@ -1070,7 +1067,11 @@
     <MESSAGE value="Update `.idea` files: adjust run configurations, modify Python script references, and update properties content formatting" />
     <MESSAGE value="Change `nr_cassa` field type from `INTEGER` to `TEXT` across multiple tables and update related migrations, representations, and metadata." />
     <MESSAGE value="Refactor label generation and PDF components: remove unused sections, enhance table styling with responsive widths, add excavation year extraction, group records by box number for detailed labels, and update TMA data handling with additional attributes." />
-    <option name="LAST_COMMIT_MESSAGE" value="Refactor label generation and PDF components: remove unused sections, enhance table styling with responsive widths, add excavation year extraction, group records by box number for detailed labels, and update TMA data handling with additional attributes." />
+    <MESSAGE value="Add QR code generation with color customization and minimal QR label style. Include new UI option for &quot;QR Minimal&quot; label style, extend PDF generation, update TMA data handling, and enhance label design logic for improved clarity. Adjust dependencies and modules for QR code support." />
+    <MESSAGE value="Refactor `pyarchinit_tma_label_pdf.py`: enhance QR code generation logic, introduce predefined and hash-based color customization for site names, improve area symbol drawing with detailed mappings, and streamline label layout for better readability and fallback handling." />
+    <MESSAGE value="Refactor TMA components and database operations: improve metadata refresh after updates, enhance table migrations with backup and validation, simplify PDF section structures, and streamline module dependency loading with `requirements.txt` fallback." />
+    <MESSAGE value="Refactor TMA materials table initialization: streamline thesaurus setup, optimize delegate configuration, simplify table and field updates, and enhance language handling for thesaurus values." />
+    <option name="LAST_COMMIT_MESSAGE" value="Refactor TMA materials table initialization: streamline thesaurus setup, optimize delegate configuration, simplify table and field updates, and enhance language handling for thesaurus values." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

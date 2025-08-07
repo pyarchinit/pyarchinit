@@ -2893,6 +2893,23 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
 
         diagnostico_vl.sort()
         self.comboBox_diagnostico.addItems(diagnostico_vl)
+        
+        # lista area
+        self.comboBox_area.clear()
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'" + 'inventario_materiali_table' + "'",
+            'tipologia_sigla': "'" + '3.11' + "'"
+        }
+
+        area_vl = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        area_vl_values = []
+
+        for i in range(len(area_vl)):
+            area_vl_values.append(area_vl[i].sigla_estesa)
+
+        area_vl_values.sort()
+        self.comboBox_area.addItems(area_vl_values)
 
         # lista lavato
 
