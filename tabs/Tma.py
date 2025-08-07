@@ -3950,12 +3950,37 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         filters_group.setLayout(filters_layout)
         layout.addWidget(filters_group)
         
+        # Font size option for list printing
+        font_group = QGroupBox("Opzioni di visualizzazione")
+        font_layout = QHBoxLayout()
+        
+        font_label = QLabel("Dimensione font:")
+        self.spin_font_size = QSpinBox()
+        self.spin_font_size.setMinimum(6)
+        self.spin_font_size.setMaximum(14)
+        self.spin_font_size.setValue(8)  # Default value
+        self.spin_font_size.setSuffix(" pt")
+        
+        font_layout.addWidget(font_label)
+        font_layout.addWidget(self.spin_font_size)
+        font_layout.addStretch()
+        
+        font_group.setLayout(font_layout)
+        layout.addWidget(font_group)
+        
         # Enable/disable filters based on radio selection
         def toggle_filters():
             enabled = self.radio_list.isChecked()
             filters_group.setEnabled(enabled)
+            font_group.setEnabled(enabled)  # Enable font options only for list
+            
+            # Re-apply the individual combobox states when filters are enabled
+            if enabled:
+                self.combo_filter_materiale.setEnabled(self.check_filter_materiale.isChecked())
+                self.combo_filter_categoria.setEnabled(self.check_filter_categoria.isChecked())
             
         self.radio_single.toggled.connect(toggle_filters)
+        self.radio_list.toggled.connect(toggle_filters)
         toggle_filters()
         
         # Buttons
@@ -3969,6 +3994,9 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         
         # Execute dialog
         if dialog.exec_() == QDialog.Accepted:
+            # Save font size
+            self.selected_font_size = self.spin_font_size.value()
+            
             # Save filter settings
             self.filter_settings['sito'] = self.check_filter_sito.isChecked()
             self.filter_settings['area'] = self.check_filter_area.isChecked()
@@ -4053,6 +4081,9 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph
         from reportlab.lib import colors
         from reportlab.lib.styles import getSampleStyleSheet
+        
+        # Get font size from dialog (default to 8 if not set)
+        font_size = getattr(self, 'selected_font_size', 8)
         
         try:
             # Check if we should print all records or current only
@@ -4174,22 +4205,60 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             
             elements.append(Paragraph("<br/><br/>", styles['Normal']))
             
+            # Create style for table cells
+            from reportlab.lib.styles import ParagraphStyle
+            cell_style = ParagraphStyle(
+                'CellStyle',
+                parent=styles['Normal'],
+                fontSize=font_size,
+                leading=font_size * 1.2,  # Line spacing
+                alignment=0  # Left align
+            )
+            
             # Create table with headers
             headers = ['Località', 'Area', 'US', 'Cassetta', 'Fascia cronologica', 'Materiale', 'Categoria', 'Classe', 'Definizione', 'Quantità', 'Peso']
-            table_data = [headers] + data_list
             
-            # Create table
-            table = Table(table_data)
+            # Convert data to Paragraph objects for proper text wrapping
+            table_data = [headers]  # Headers remain as strings
+            for row in data_list:
+                para_row = []
+                for cell in row:
+                    # Convert each cell to Paragraph for wrapping
+                    if cell and str(cell).strip():
+                        para_row.append(Paragraph(str(cell), cell_style))
+                    else:
+                        para_row.append('')
+                table_data.append(para_row)
+            
+            # Create table with column widths optimized for landscape A4
+            # Calculate column widths based on content and font size
+            # Base widths for font size 8, adjusted proportionally
+            base_widths = [50, 40, 30, 50, 70, 60, 60, 50, 80, 40, 40]
+            width_factor = font_size / 8.0  # Adjust widths based on font size
+            col_widths = [int(w * width_factor) for w in base_widths]
+            
+            # Ensure total width doesn't exceed page width (landscape A4 = ~800 points)
+            total_width = sum(col_widths)
+            if total_width > 750:  # Leave some margin
+                scale_factor = 750.0 / total_width
+                col_widths = [int(w * scale_factor) for w in col_widths]
+            
+            table = Table(table_data, colWidths=col_widths)
             table.setStyle(TableStyle([
                 ('BACKGROUND', (0, 0), (-1, 0), colors.blue),
                 ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
-                ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+                ('ALIGN', (0, 0), (-1, 0), 'CENTER'),  # Center headers
+                ('ALIGN', (0, 1), (-1, -1), 'LEFT'),   # Left align data
                 ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-                ('FONTSIZE', (0, 0), (-1, 0), 12),
-                ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+                ('FONTSIZE', (0, 0), (-1, 0), font_size + 1),  # Header font size
+                ('BOTTOMPADDING', (0, 0), (-1, 0), 8),
+                ('TOPPADDING', (0, 1), (-1, -1), 4),   # Top padding for data cells
+                ('BOTTOMPADDING', (0, 1), (-1, -1), 4), # Bottom padding for data cells
                 ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
                 ('GRID', (0, 0), (-1, -1), 1, colors.black),
-                ('FONTSIZE', (0, 1), (-1, -1), 10),
+                ('VALIGN', (0, 0), (-1, -1), 'TOP'),   # Top align for wrapping text
+                ('LEFTPADDING', (0, 0), (-1, -1), 3),  # Reduced padding
+                ('RIGHTPADDING', (0, 0), (-1, -1), 3),  # Reduced padding
                 # Alternate row colors
                 *[('BACKGROUND', (0, i), (-1, i), colors.white if i % 2 == 0 else colors.lightgrey) 
                   for i in range(1, len(table_data))],
