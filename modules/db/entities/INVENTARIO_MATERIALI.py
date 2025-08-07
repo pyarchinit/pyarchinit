@@ -78,7 +78,7 @@ class INVENTARIO_MATERIALI(object):
 
     # def __repr__"
     def __repr__(self):
-        return "<INVENTARIO_MATERIALI('%d', '%s', '%d', '%s', '%s', '%s', '%s', '%d', '%d', '%s', '%d', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%d', '%d', '%d', '%s', '%s', '%r', '%r','%s', '%r', '%s', '%s','%d','%s', '%s', '%d')>" % (
+        return "<INVENTARIO_MATERIALI('%d', '%s', '%d', '%s', '%s', '%s', '%s', '%d', '%d', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%d', '%d', '%d', '%s', '%s', '%r', '%r','%s', '%r', '%s', '%s','%d','%s', '%s', '%d')>" % (
             self.id_invmat,
             self.sito,
             self.numero_inventario,

@@ -37,7 +37,7 @@ class Campioni_table:
                      Column('numero_inventario_materiale', Integer),
 
                      # Storage box number
-                     Column('nr_cassa', Integer),
+                     Column('nr_cassa', Text),
 
                      # Storage location of the sample
                      Column('luogo_conservazione', Text),

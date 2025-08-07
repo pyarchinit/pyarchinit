@@ -27,7 +27,7 @@ class Campioni_table:
                            Column('area', String(20)),
                            Column('us', Integer),
                            Column('numero_inventario_materiale', Integer),
-                           Column('nr_cassa', Integer),
+                           Column('nr_cassa', Text),
                            Column('luogo_conservazione', Text),
 
                            # explicit/composite unique constraint.  'name' is optional.

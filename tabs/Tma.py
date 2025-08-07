@@ -959,6 +959,9 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         
         # Load media for this TMA record
         self.load_tma_media()
+        
+        # Update inventory field with current data from inventory materials
+        self.update_inventory_field()
 
     def load_tma_media(self):
         """Load media associated with current TMA record."""
