@@ -20,6 +20,7 @@
 """
 from builtins import object
 from builtins import str
+import time
 from sqlalchemy import Table
 from sqlalchemy.engine import create_engine
 from sqlalchemy.sql.schema import MetaData
@@ -188,19 +189,55 @@ class DB_update(object):
 
         # Change area and us columns from INTEGER to TEXT
         try:
-            if table_column_names_list.__contains__('area'):
-                self.engine.execute(
-                    "ALTER TABLE inventario_materiali_table ALTER COLUMN area TYPE TEXT")
-
-            if table_column_names_list.__contains__('us'):
-                self.engine.execute(
-                    "ALTER TABLE inventario_materiali_table ALTER COLUMN us TYPE TEXT")
+            # Check current column types before attempting conversion
+            needs_conversion = False
+            columns_to_convert = []
+            
+            for col in table.columns:
+                col_name = str(col.name)
+                col_type = str(col.type)
+                
+                if col_name in ['area', 'us', 'nr_cassa'] and col_name in table_column_names_list:
+                    # Check if column is not already TEXT
+                    if 'TEXT' not in col_type.upper() and 'VARCHAR' not in col_type.upper() and 'CHARACTER' not in col_type.upper():
+                        columns_to_convert.append(col_name)
+                        needs_conversion = True
+            
+            if needs_conversion:
+                # Create backup before altering columns
+                backup_table = f"inventario_materiali_backup_{int(time.time())}"
+                try:
+                    self.engine.execute(f"CREATE TABLE {backup_table} AS SELECT * FROM inventario_materiali_table")
                     
-            if table_column_names_list.__contains__('nr_cassa'):
-                self.engine.execute(
-                    "ALTER TABLE inventario_materiali_table ALTER COLUMN nr_cassa TYPE TEXT")
-        except:
-            pass
+                    # Verify backup
+                    result = self.engine.execute(f"SELECT COUNT(*) FROM {backup_table}")
+                    backup_count = result.fetchone()[0]
+                    result = self.engine.execute("SELECT COUNT(*) FROM inventario_materiali_table")
+                    original_count = result.fetchone()[0]
+                    
+                    if backup_count != original_count:
+                        raise Exception("Backup verification failed")
+                    
+                    # Convert columns
+                    for col_name in columns_to_convert:
+                        self.engine.execute(
+                            f"ALTER TABLE inventario_materiali_table ALTER COLUMN {col_name} TYPE TEXT USING {col_name}::TEXT")
+                    
+                    # Drop backup after successful conversion
+                    self.engine.execute(f"DROP TABLE {backup_table}")
+                    
+                    # Log successful migration
+                    print(f"Successfully migrated inventario_materiali_table columns to TEXT: {', '.join(columns_to_convert)}")
+                    
+                except Exception as e:
+                    # Try to restore if something went wrong
+                    try:
+                        self.engine.execute(f"DROP TABLE IF EXISTS {backup_table}")
+                    except:
+                        pass
+                    print(f"Error converting inventario_materiali_table columns: {str(e)}")
+        except Exception as e:
+            print(f"Error checking inventario_materiali_table column types: {str(e)}")
 
         if not table_column_names_list.__contains__('years'):
             self.engine.execute(
@@ -1438,7 +1475,24 @@ class DB_update(object):
     
     def _migrate_sqlite_table_fields(self, table_name, fields_to_migrate, columns_info):
         """Migrate multiple fields in a single SQLite table by recreating it with TEXT type"""
+        backup_table_name = f"{table_name}_backup_{int(time.time())}"
+        
         try:
+            # First, create a backup of the original table
+            self.engine.execute(f"CREATE TABLE {backup_table_name} AS SELECT * FROM {table_name}")
+            
+            # Count rows in backup to ensure data was copied
+            result = self.engine.execute(f"SELECT COUNT(*) FROM {backup_table_name}")
+            backup_count = result.fetchone()[0]
+            
+            # Count rows in original table
+            result = self.engine.execute(f"SELECT COUNT(*) FROM {table_name}")
+            original_count = result.fetchone()[0]
+            
+            # Verify backup has same number of rows
+            if backup_count != original_count:
+                raise Exception(f"Backup verification failed: {backup_count} rows in backup vs {original_count} in original")
+            
             # Build new table definition
             new_table_sql = f"CREATE TABLE {table_name}_new ("
             column_defs = []
@@ -1492,9 +1546,22 @@ class DB_update(object):
             columns_str = ", ".join(columns_list)
             self.engine.execute(f"INSERT INTO {table_name}_new ({columns_str}) SELECT {select_str} FROM {table_name}")
             
-            # Drop old table and rename new one
+            # Verify data was copied to new table
+            result = self.engine.execute(f"SELECT COUNT(*) FROM {table_name}_new")
+            new_count = result.fetchone()[0]
+            
+            if new_count != original_count:
+                raise Exception(f"Migration verification failed: {new_count} rows in new table vs {original_count} in original")
+            
+            # Only drop old table and rename if everything is OK
             self.engine.execute(f"DROP TABLE {table_name}")
             self.engine.execute(f"ALTER TABLE {table_name}_new RENAME TO {table_name}")
+            
+            # Drop backup table only after successful migration
+            self.engine.execute(f"DROP TABLE {backup_table_name}")
+            
+            # Log successful migration
+            print(f"Successfully migrated {table_name} fields to TEXT: {', '.join(fields_to_migrate)}")
             
             # Create indexes on migrated fields
             for field in fields_to_migrate:
@@ -1502,7 +1569,28 @@ class DB_update(object):
                     self.engine.execute(f"CREATE INDEX idx_{table_name}_{field} ON {table_name}({field})")
                 except:
                     pass  # Index might already exist
+                    
+        except Exception as e:
+            # If anything goes wrong, try to restore from backup
+            try:
+                # Drop the failed new table if it exists
+                self.engine.execute(f"DROP TABLE IF EXISTS {table_name}_new")
+                
+                # Check if original table still exists
+                result = self.engine.execute(f"SELECT name FROM sqlite_master WHERE type='table' AND name='{table_name}'")
+                if not result.fetchone():
+                    # Original table was dropped, restore from backup
+                    self.engine.execute(f"ALTER TABLE {backup_table_name} RENAME TO {table_name}")
+                    print(f"Restored {table_name} from backup after migration failure")
+                else:
+                    # Original table still exists, just drop the backup
+                    self.engine.execute(f"DROP TABLE IF EXISTS {backup_table_name}")
+            except Exception as restore_error:
+                print(f"Error during restore: {restore_error}")
+                # Leave backup table for manual recovery
+                raise Exception(f"Migration failed for {table_name}. Backup table {backup_table_name} preserved for manual recovery.\nOriginal error: {str(e)}")
             
+            raise Exception(f"Error migrating table {table_name}: {str(e)}")
         except Exception as e:
             # If something goes wrong, clean up the _new table
             try:

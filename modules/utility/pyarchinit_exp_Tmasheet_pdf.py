@@ -125,49 +125,33 @@ class generate_tma_pdf:
         elements.append(self._create_header())
         elements.append(Spacer(1, 12))
         
-        # Section CD - CODICI
+        # Section 1 - INFORMAZIONI DI BASE
         elements.append(self._create_section_cd())
         elements.append(Spacer(1, 12))
         
-        # Section OG - OGGETTO
+        # Section 2 - LOCALIZZAZIONE
         elements.append(self._create_section_og())
         elements.append(Spacer(1, 12))
         
-        # Section LC - LOCALIZZAZIONE
+        # Section 3 - MODALITA' DI REPERIMENTO
         elements.append(self._create_section_lc())
         elements.append(Spacer(1, 12))
         
-        # Section LA - ALTRE LOCALIZZAZIONI
+        # Section 4 - DATI ANALITICI
         elements.append(self._create_section_la())
         elements.append(Spacer(1, 12))
         
-        # Section RE - MODALITA' DI REPERIMENTO
+        # Section 5 - FONTI E DOCUMENTI
         elements.append(self._create_section_re())
         elements.append(Spacer(1, 12))
         
-        # Section DT - CRONOLOGIA
+        # Section 6 - COMPILAZIONE
         elements.append(self._create_section_dt())
-        elements.append(Spacer(1, 12))
-        
-        # Section DO - FONTI E DOCUMENTI
-        do_section = self._create_section_do()
-        if isinstance(do_section, list):
-            elements.extend(do_section)
-        else:
-            elements.append(do_section)
-        elements.append(Spacer(1, 12))
-        
-        # Section AD - ACCESSO AI DATI
-        elements.append(self._create_section_ad())
-        elements.append(Spacer(1, 12))
-        
-        # Section CM - COMPILAZIONE
-        elements.append(self._create_section_cm())
         
         # Add page break before materials
         elements.append(PageBreak())
         
-        # Section MA - MATERIALI
+        # Section 7 - MATERIALE
         ma_elements = self._create_section_ma()
         if isinstance(ma_elements, list):
             elements.extend(ma_elements)
@@ -254,7 +238,7 @@ class generate_tma_pdf:
     def _create_section_cd(self):
         """Create CD section with blue header"""
         data = [
-            [Paragraph("<font color='white'><b>CD - CODICI</b></font>", self.styles['Normal'])],
+            [Paragraph("<font color='white'><b>1. INFORMAZIONI DI BASE</b></font>", self.styles['Normal'])],
         ]
         
         # Create the section header
@@ -263,14 +247,13 @@ class generate_tma_pdf:
         
         # Detail data without codes
         detail_data = [
-            ["TSK - Tipo scheda", "TMA"],
-            ["NCT - Codice univoco", f"TMA_{self.record.sito}_{self.record.cassetta}_{self.record.id}"],
-            ["ESC - Ente schedatore", ""],
-            ["ECP - Ente competente", ""],
-            ["Località", str(self.record.sito)],
-            ["Area", str(self.record.area)],
+            ["Località", str(self.record.localita) if self.record.localita else ""],
+            ["Area", str(self.record.area) if self.record.area else ""],
             ["US", str(self.record.dscu) if self.record.dscu else ""],
-            ["Numero Cassetta", str(self.record.cassetta)],
+            ["Numero Cassetta", str(self.record.cassetta) if self.record.cassetta else ""],
+            ["Inventariati", str(self.record.nsc) if self.record.nsc else ""],
+            ["Materiale componente", str(self.record.ogtm) if self.record.ogtm else ""],
+            ["Fascia cronologica", str(self.record.dtzg) if self.record.dtzg else ""],
         ]
         
         detail_table = Table(detail_data, colWidths=[85*mm, 85*mm])
@@ -280,14 +263,15 @@ class generate_tma_pdf:
     
         
     def _create_section_og(self):
-        """Create OG - OGGETTO section"""
+        """Create section 2 - LOCALIZZAZIONE"""
         data = [
-            [Paragraph("<font color='white'><b>OG - OGGETTO</b></font>", self.styles['Normal'])],
+            [Paragraph("<font color='white'><b>2. LOCALIZZAZIONE</b></font>", self.styles['Normal'])],
         ]
         
         detail_data = [
-            ["Definizione", "materiale proveniente da Unità Stratigrafica/cassetta"],
-            ["Materiale componente", str(self.record.ogtm) if self.record.ogtm else ""],
+            ["Tipologia", str(self.record.ldct) if self.record.ldct else "Magazzino"],
+            ["Denominazione", str(self.record.ldcn) if self.record.ldcn else "Magazzino 1"],
+            ["Vecchia collocazione", str(self.record.vecchia_collocazione) if self.record.vecchia_collocazione else ""],
         ]
         
         header_table = Table(data, colWidths=[170*mm])
@@ -299,42 +283,38 @@ class generate_tma_pdf:
         return Table([[header_table], [detail_table]], colWidths=[170*mm])
         
     def _create_section_lc(self):
-        """Create LC - LOCALIZZAZIONE section"""
+        """Create section 3 - MODALITA' DI REPERIMENTO"""
         data = [
-            [Paragraph("<font color='white'><b>LC - LOCALIZZAZIONE</b></font>", 
-                      self.styles['Normal'])],
-        ]
-        
-        detail_data = []
-        
-        # Add location type and denomination if present
-        if self.record.ldct:
-            detail_data.append(["Tipologia", str(self.record.ldct)])
-        if self.record.ldcn:
-            detail_data.append(["Denominazione attuale", str(self.record.ldcn)])
-        if self.record.vecchia_collocazione:
-            detail_data.append(["Vecchia collocazione", str(self.record.vecchia_collocazione)])
-        
-        header_table = Table(data, colWidths=[170*mm])
-        header_table.setStyle(self.table_style_blue_header)
-        
-        if detail_data:
-            detail_table = Table(detail_data, colWidths=[85*mm, 85*mm])
-            detail_table.setStyle(self.table_style)
-            return Table([[header_table], [detail_table]], colWidths=[170*mm])
-        else:
-            return header_table
-        
-    def _create_section_la(self):
-        """Create LA - ALTRE LOCALIZZAZIONI section"""
-        data = [
-            [Paragraph("<font color='white'><b>LA - ALTRE LOCALIZZAZIONI GEOGRAFICO-AMMINISTRATIVE</b></font>", 
+            [Paragraph("<font color='white'><b>3. MODALITA' DI REPERIMENTO</b></font>", 
                       self.styles['Normal'])],
         ]
         
         detail_data = [
-            ["Tipo di localizzazione", "luogo di reperimento"],
-            ["Stato", "ITALIA"],
+            ["Tipo di reperimento", "scavo archeologico"],
+            ["Denominazione dello scavo", str(self.record.scan) if self.record.scan else ""],
+            ["Settore", str(self.record.settore) if self.record.settore else ""],
+            ["Saggio", str(self.record.saggio) if self.record.saggio else ""],
+            ["Vano/Locus", str(self.record.vano_locus) if self.record.vano_locus else ""],
+            ["Data", str(self.record.dscd) if self.record.dscd else ""],
+        ]
+        
+        header_table = Table(data, colWidths=[170*mm])
+        header_table.setStyle(self.table_style_blue_header)
+        
+        detail_table = Table(detail_data, colWidths=[85*mm, 85*mm])
+        detail_table.setStyle(self.table_style)
+        
+        return Table([[header_table], [detail_table]], colWidths=[170*mm])
+        
+    def _create_section_la(self):
+        """Create section 4 - DATI ANALITICI"""
+        data = [
+            [Paragraph("<font color='white'><b>4. DATI ANALITICI</b></font>", 
+                      self.styles['Normal'])],
+        ]
+        
+        detail_data = [
+            ["Indicazioni sugli oggetti", str(self.record.deso) if self.record.deso else ""],
         ]
         
         header_table = Table(data, colWidths=[170*mm])
@@ -365,57 +345,37 @@ class generate_tma_pdf:
         return Table([[header_table], [detail_table]], colWidths=[170*mm])
         
     def _create_section_re(self):
-        """Create RE - MODALITA' DI REPERIMENTO section"""
+        """Create section 5 - FONTI E DOCUMENTI"""
         data = [
-            [Paragraph("<font color='white'><b>RE - MODALITA' DI REPERIMENTO</b></font>", self.styles['Normal'])],
+            [Paragraph("<font color='white'><b>5. FONTI E DOCUMENTI</b></font>", self.styles['Normal'])],
         ]
         
-        detail_data = []
-        
-        # Add all reperimento fields
-        detail_data.append(["Tipo di reperimento", "scavo archeologico"])
-        
-        if self.record.scan:
-            detail_data.append(["Nome scavo", str(self.record.scan)])
-        if self.record.saggio:
-            detail_data.append(["Saggio", str(self.record.saggio)])
-        if self.record.vano_locus:
-            detail_data.append(["Vano/Locus", str(self.record.vano_locus)])
-        if self.record.dscd:
-            detail_data.append(["Data scavo", str(self.record.dscd)])
-        
-        # Add NSC (numero scheda correlata) if present
-        if self.record.nsc:
-            detail_data.append(["Numero scheda correlata", str(self.record.nsc)])
-            
-        # Add acquisition data 
-        detail_data.append(["Tipo acquisizione", str(self.record.aint) if self.record.aint else "scavo"])
-        if self.record.aind:
-            detail_data.append(["Data acquisizione", str(self.record.aind)])
+        detail_data = [
+            ["Doc. fotografica_tipo", str(self.record.ftap) if self.record.ftap else ""],
+            ["Doc. fotografica_codice", str(self.record.ftan) if self.record.ftan else ""],
+            ["Doc. grafica_tipo", str(self.record.drat) if self.record.drat else ""],
+            ["Doc. grafica_codice", str(self.record.dran) if self.record.dran else ""],
+            ["Doc. grafica_autore", str(self.record.draa) if self.record.draa else ""],
+        ]
         
         header_table = Table(data, colWidths=[170*mm])
         header_table.setStyle(self.table_style_blue_header)
         
-        if detail_data:
-            detail_table = Table(detail_data, colWidths=[85*mm, 85*mm])
-            detail_table.setStyle(self.table_style)
-            return Table([[header_table], [detail_table]], colWidths=[170*mm])
-        else:
-            return header_table
+        detail_table = Table(detail_data, colWidths=[85*mm, 85*mm])
+        detail_table.setStyle(self.table_style)
+        
+        return Table([[header_table], [detail_table]], colWidths=[170*mm])
         
     def _create_section_dt(self):
-        """Create DT - CRONOLOGIA section"""
+        """Create section 6 - COMPILAZIONE"""
         data = [
-            [Paragraph("<font color='white'><b>DT - CRONOLOGIA</b></font>", self.styles['Normal'])],
+            [Paragraph("<font color='white'><b>6. COMPILAZIONE</b></font>", self.styles['Normal'])],
         ]
         
-        detail_data = []
-        
-        detail_data.append(["DTR - Riferimento cronologico", ""])
-        if self.record.dtzg:
-            detail_data.append(["Fascia cronologica", str(self.record.dtzg)])
-        detail_data.append(["Motivazione cronologia", "analisi tipologica"])
-        detail_data.append(["DTS - Specifiche cronologiche", ""])
+        detail_data = [
+            ["Data compilazione", self.datestrfdate()],
+            ["Nome compilatore", ""],  # This field is not in the database
+        ]
         
         header_table = Table(data, colWidths=[170*mm])
         header_table.setStyle(self.table_style_blue_header)
@@ -426,12 +386,12 @@ class generate_tma_pdf:
         return Table([[header_table], [detail_table]], colWidths=[170*mm])
         
     def _create_section_ma(self):
-        """Create MA - MATERIALE section with all materials grouped by definition"""
+        """Create section 7 - MATERIALE with all materials grouped by definition"""
         elements = []
         
         # Section header
         data = [
-            [Paragraph("<font color='white'><b>MA - MATERIALE</b></font>", self.styles['Normal'])],
+            [Paragraph("<font color='white'><b>7. MATERIALE</b></font>", self.styles['Normal'])],
         ]
         header_table = Table(data, colWidths=[170*mm])
         header_table.setStyle(self.table_style_blue_header)
@@ -488,13 +448,14 @@ class generate_tma_pdf:
             
             # Add aggregated materials to table
             for (macc, macl, macd, macp), totals in materials_aggregated.items():
+                # Use Paragraphs for text wrapping
                 row = [
-                    str(macc) if macc else '',
-                    str(macl) if macl else '',
-                    str(macd) if macd else '',
-                    str(macp) if macp else '',
-                    str(totals['qty']),
-                    f"{totals['weight']:.2f} g" if totals['weight'] > 0 else ''
+                    Paragraph(str(macc) if macc else '', self.styles['Normal_small']),
+                    Paragraph(str(macl) if macl else '', self.styles['Normal_small']),
+                    Paragraph(str(macd) if macd else '', self.styles['Normal_small']),
+                    Paragraph(str(macp) if macp else '', self.styles['Normal_small']),
+                    Paragraph(str(totals['qty']), self.styles['Normal_small']),
+                    Paragraph(f"{totals['weight']:.2f} g" if totals['weight'] > 0 else '', self.styles['Normal_small'])
                 ]
                 material_data.append(row)
             
@@ -532,67 +493,12 @@ class generate_tma_pdf:
         return elements
         
     def _create_section_do(self):
-        """Create DO - FONTI E DOCUMENTI section"""
-        elements = []
-        
-        data = [
-            [Paragraph("<font color='white'><b>DO - FONTI E DOCUMENTI DI RIFERIMENTO</b></font>", 
-                      self.styles['Normal'])],
-        ]
-        header_table = Table(data, colWidths=[170*mm])
-        header_table.setStyle(self.table_style_blue_header)
-        elements.append(header_table)
-        
-        detail_data = []
-        
-        # Add photo documentation if present
-        if self.record.ftap or self.record.ftan:
-            detail_data.append(["FTA - DOCUMENTAZIONE FOTOGRAFICA", ""])
-            detail_data.append(["    FTAX - Genere", "documentazione allegata"])
-            detail_data.append(["    FTAP - Tipo", str(self.record.ftap) if self.record.ftap else ""])
-            detail_data.append(["    FTAN - Codice identificativo", str(self.record.ftan) if self.record.ftan else ""])
-            
-        # Add drawing documentation if present
-        if self.record.drat or self.record.dran:
-            detail_data.append(["DRA - DOCUMENTAZIONE GRAFICA", ""])
-            detail_data.append(["    DRAT - Tipo", str(self.record.drat) if self.record.drat else ""])
-            detail_data.append(["    DRAN - Codice identificativo", str(self.record.dran) if self.record.dran else ""])
-            if self.record.draa:
-                detail_data.append(["    DRAA - Autore", str(self.record.draa)])
-        
-        if detail_data:
-            detail_table = Table(detail_data, colWidths=[85*mm, 85*mm])
-            detail_table.setStyle(self.table_style)
-            elements.append(detail_table)
-        
-        return elements
+        """Section removed - handled in other sections"""
+        return []
         
     def _create_section_cm(self):
-        """Create CM - COMPILAZIONE section"""
-        data = [
-            [Paragraph("<font color='white'><b>CM - COMPILAZIONE</b></font>", self.styles['Normal'])],
-        ]
-        
-        detail_data = [
-            ["CMP - COMPILAZIONE", ""],
-            ["Data compilazione", self.datestrfdate()],
-            ["Nome compilatore", str(self.record.created_by) if self.record.created_by else ""],
-            ["FUR - Funzionario responsabile", ""],
-            ["RVM - TRASCRIZIONE PER INFORMATIZZAZIONE", ""],
-            ["Data trascrizione", str(self.record.created_at) if self.record.created_at else ""],
-            ["Nome trascrittore", str(self.record.created_by) if self.record.created_by else ""],
-            ["AGG - AGGIORNAMENTO", ""],
-            ["Data aggiornamento", str(self.record.updated_at) if self.record.updated_at else ""],
-            ["Nome aggiornamento", str(self.record.updated_by) if self.record.updated_by else ""],
-        ]
-        
-        header_table = Table(data, colWidths=[170*mm])
-        header_table.setStyle(self.table_style_blue_header)
-        
-        detail_table = Table(detail_data, colWidths=[85*mm, 85*mm])
-        detail_table.setStyle(self.table_style)
-        
-        return Table([[header_table], [detail_table]], colWidths=[170*mm])
+        """Section removed - handled in other sections"""
+        return []
         
     def _create_section_co(self):
         """Create CO - CONSERVAZIONE section"""
@@ -631,23 +537,8 @@ class generate_tma_pdf:
         return Table([[header_table], [detail_table]], colWidths=[170*mm])
         
     def _create_section_ad(self):
-        """Create AD - ACCESSO AI DATI section"""
-        data = [
-            [Paragraph("<font color='white'><b>AD - ACCESSO AI DATI</b></font>", self.styles['Normal'])],
-        ]
-        
-        detail_data = [
-            ["Profilo di accesso", "1"],
-            ["Motivazione", "scheda contenente dati liberamente accessibili"],
-        ]
-        
-        header_table = Table(data, colWidths=[170*mm])
-        header_table.setStyle(self.table_style_blue_header)
-        
-        detail_table = Table(detail_data, colWidths=[85*mm, 85*mm])
-        detail_table.setStyle(self.table_style)
-        
-        return Table([[header_table], [detail_table]], colWidths=[170*mm])
+        """Section removed - not needed"""
+        return []
 
 
 def single_TMA_pdf(data):

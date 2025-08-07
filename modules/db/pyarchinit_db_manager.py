@@ -111,6 +111,19 @@ class Pyarchinit_db_management(object):
         try:
             db_upd = DB_update(self.conn_str)
             db_upd.update_table()
+            
+            # After database update, we need to refresh metadata to reflect the changes
+            # Clear existing metadata
+            self.metadata.clear()
+            
+            # Recreate metadata with updated table structures
+            self.metadata = MetaData(self.engine)
+            
+            # Force metadata to reflect all tables
+            self.metadata.reflect(bind=self.engine)
+            
+            print("Database metadata refreshed after update")
+            
         except Exception as e:
             error_message = f"Error. problema nell' aggiornamento del db: {e}\nTraceback: {traceback.format_exc()}"
             QMessageBox.warning(None, "Message", error_message, QMessageBox.Ok)

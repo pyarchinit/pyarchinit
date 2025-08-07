@@ -21,6 +21,7 @@
 import subprocess
 import sys
 import platform
+import os
 #from .. modules.utility.pyarchinit_OS_utility import Pyarchinit_OS_Utility
 
 packages = sys.argv[1].split(',') if len(sys.argv) >= 2 else []
@@ -30,21 +31,24 @@ l = sys.argv[1].split(',') if len(sys.argv) >= 2 else []
 
 
 if not packages:
-    packages = [
-        'SQLAlchemy==1.4.27',
-        'SQLAlchemy-Utils',
-        'geoalchemy2==0.9.4',
-        'reportlab',
-        'pdf2docx==0.4.6',
-        'matplotlib',
-        'pyper',
-        'graphviz',
-        'pysftp',
-        'xlsxwriter',
-        'pandas',
-        'opencv-python',
-        'pytesseract',
-        'qrcode[pil]']
+    # Read dependencies from requirements.txt
+    requirements_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'requirements.txt')
+    if os.path.exists(requirements_path):
+        with open(requirements_path, 'r') as f:
+            packages = [line.strip() for line in f if line.strip() and not line.startswith('#')]
+    else:
+        # Fallback to minimal set if requirements.txt not found
+        packages = [
+            'SQLAlchemy==1.4.27',
+            'SQLAlchemy-Utils',
+            'geoalchemy2==0.9.4',
+            'reportlab',
+            'matplotlib',
+            'graphviz',
+            'xlsxwriter',
+            'pandas',
+            'opencv-python',
+            'qrcode==8.2']
 if not l:    
     l=[
         'totalopenstation'
