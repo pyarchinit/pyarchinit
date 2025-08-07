@@ -195,6 +195,10 @@ class DB_update(object):
             if table_column_names_list.__contains__('us'):
                 self.engine.execute(
                     "ALTER TABLE inventario_materiali_table ALTER COLUMN us TYPE TEXT")
+                    
+            if table_column_names_list.__contains__('nr_cassa'):
+                self.engine.execute(
+                    "ALTER TABLE inventario_materiali_table ALTER COLUMN nr_cassa TYPE TEXT")
         except:
             pass
 
@@ -919,6 +923,26 @@ class DB_update(object):
             except Exception as e:
                 # Log the error but continue with other updates
                 pass
+                
+            # Change nr_cassa column from INTEGER to TEXT
+            try:
+                if table_column_names_list.__contains__('nr_cassa'):
+                    # Check if the column is still INTEGER type
+                    nr_cassa_column = None
+                    for col in table.columns:
+                        if col.name == 'nr_cassa':
+                            nr_cassa_column = col
+                            break
+                    
+                    if nr_cassa_column is not None:
+                        # Check if column type needs conversion
+                        col_type = str(nr_cassa_column.type)
+                        if 'INTEGER' in col_type.upper() or 'BIGINT' in col_type.upper():
+                            # Convert the column type
+                            self.engine.execute("ALTER TABLE campioni_table ALTER COLUMN nr_cassa TYPE TEXT USING nr_cassa::TEXT")
+            except Exception as e:
+                # Log the error but continue with other updates
+                pass
 
         ####us_table_toimp - Convert US column from INTEGER to TEXT (if table exists)
         try:
@@ -1286,9 +1310,9 @@ class DB_update(object):
             migrations = [
                 # US field migrations
                 ('us_table', ['us', 'area']),
-                ('campioni_table', ['us', 'area']),
+                ('campioni_table', ['us', 'area', 'nr_cassa']),
                 ('pottery_table', ['us', 'area']),
-                ('inventario_materiali_table', ['us', 'area']),
+                ('inventario_materiali_table', ['us', 'area', 'nr_cassa']),
                 ('tomba_table', ['area']),  # Only area field
                 # Other tables with US fields
                 ('us_table_toimp', ['us']),

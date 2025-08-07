@@ -43,7 +43,7 @@ class Inventario_materiali_table:
                      Column('lavato', String(3)),
 
                      # Storage box number
-                     Column('nr_cassa', Integer),
+                     Column('nr_cassa', Text),
 
                      # Storage location
                      Column('luogo_conservazione', Text),

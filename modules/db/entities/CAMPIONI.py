@@ -32,7 +32,7 @@ class CAMPIONI(object):
 
     # def __repr__"
     def __repr__(self):
-        return "<CAMPIONI('%d', '%s', '%d', '%s', '%s', '%s', '%d', '%d', '%d', '%s')>" % (
+        return "<CAMPIONI('%d', '%s', '%d', '%s', '%s', '%s', '%d', '%d', '%s', '%s')>" % (
             self.id_campione,  # 0
             self.sito,  # 1
             self.nr_campione,  # 2

@@ -3883,11 +3883,12 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             #                             QMessageBox.Ok)
             #         test = 1
 
-            if nr_cassa != "":
-                if EC.data_is_int(nr_cassa) == 0:
-                    QMessageBox.warning(self, "ATTENZIONE", "Campo Numero Cassa.\nIl valore deve essere di tipo numerico",
-                                        QMessageBox.Ok)
-                    test = 1
+            # nr_cassa ora è un campo text, non serve più il controllo numerico
+            # if nr_cassa != "":
+            #     if EC.data_is_int(nr_cassa) == 0:
+            #         QMessageBox.warning(self, "ATTENZIONE", "Campo Numero Cassa.\nIl valore deve essere di tipo numerico",
+            #                             QMessageBox.Ok)
+            #         test = 1
         elif self.L=='de':
             if EC.data_is_empty(str(self.comboBox_sito.currentText())) == 0:
                 QMessageBox.warning(self, "ACHTUNG", " Feld Ausgrabungstätte \n Das Feld darf nicht leer sein", QMessageBox.Ok)
@@ -3915,11 +3916,12 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             #                             QMessageBox.Ok)
             #         test = 1
 
-            if nr_cassa != "":
-                if EC.data_is_int(nr_cassa) == 0:
-                    QMessageBox.warning(self, "ACHTUNG", "Feld Box \n Der Wert muss numerisch eingegeben werden",
-                                        QMessageBox.Ok)
-                    test = 1
+            # nr_cassa ora è un campo text, non serve più il controllo numerico
+            # if nr_cassa != "":
+            #     if EC.data_is_int(nr_cassa) == 0:
+            #         QMessageBox.warning(self, "ACHTUNG", "Feld Box \n Der Wert muss numerisch eingegeben werden",
+            #                             QMessageBox.Ok)
+            #         test = 1
         else:
             if EC.data_is_empty(str(self.comboBox_sito.currentText())) == 0:
                 QMessageBox.warning(self, "WARNING", "Site Field \n The field must not be empty", QMessageBox.Ok)
@@ -3947,11 +3949,12 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             #                             QMessageBox.Ok)
             #         test = 1
 
-            if nr_cassa != "":
-                if EC.data_is_int(nr_cassa) == 0:
-                    QMessageBox.warning(self, "WARNING", "Box Field \n The value must be numerical",
-                                        QMessageBox.Ok)
-                    test = 1
+            # nr_cassa ora è un campo text, non serve più il controllo numerico
+            # if nr_cassa != "":
+            #     if EC.data_is_int(nr_cassa) == 0:
+            #         QMessageBox.warning(self, "WARNING", "Box Field \n The value must be numerical",
+            #                             QMessageBox.Ok)
+            #         test = 1
 
 
         return test
@@ -3989,7 +3992,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             if self.lineEdit_nr_cassa.text() == "":
                 nr_cassa =None
             else:
-                nr_cassa = int(self.lineEdit_nr_cassa.text())
+                nr_cassa = str(self.lineEdit_nr_cassa.text())
 
             if self.lineEditFormeMin.text() == "":
                 forme_minime =None
@@ -4468,7 +4471,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                 us = ""
 
             if self.lineEdit_nr_cassa.text() != "":
-                nr_cassa = int(self.lineEdit_nr_cassa.text())
+                nr_cassa = str(self.lineEdit_nr_cassa.text())
             else:
                 nr_cassa = ""
 
@@ -5369,7 +5372,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         if self.lineEdit_nr_cassa.text() == "":
             nr_cassa =None
         else:
-            nr_cassa = int(self.lineEdit_nr_cassa.text())
+            nr_cassa = str(self.lineEdit_nr_cassa.text())
 
         if self.lineEditFormeMin.text() == "":
             forme_minime =None
