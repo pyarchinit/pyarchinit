@@ -43,7 +43,8 @@ if not packages:
         'xlsxwriter',
         'pandas',
         'opencv-python',
-        'pytesseract']
+        'pytesseract',
+        'qrcode[pil]']
 if not l:    
     l=[
         'totalopenstation'

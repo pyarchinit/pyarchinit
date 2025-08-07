@@ -11,8 +11,10 @@ Author: Enzo Cocca <enzo.ccc@gmail.com>
 """
 
 import os
+import sys
 import tempfile
 from datetime import datetime
+import traceback
 
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import A4, letter
@@ -21,9 +23,11 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, PageBreak
 from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_RIGHT
 from reportlab.pdfgen import canvas
+from reportlab.platypus import Image as PlatypusImage
 
 try:
     import qrcode
+    from PIL import Image as PILImage
     HAS_QRCODE = True
 except ImportError:
     HAS_QRCODE = False
@@ -77,28 +81,126 @@ class TMALabelPDF:
                 
         return positions
     
-    def generate_qr_code(self, data, size=20):
+    def get_color_for_site(self, site_name):
+        """Get a consistent color for a site name."""
+        # Generate color based on site name hash
+        if not site_name:
+            return "#000000"
+        
+        # Simple hash-based color generation
+        hash_val = abs(hash(site_name))
+        # Generate a color that's dark enough to be scannable
+        r = (hash_val & 0xFF0000) >> 16
+        g = (hash_val & 0x00FF00) >> 8
+        b = hash_val & 0x0000FF
+        
+        # Ensure the color is dark enough
+        max_val = max(r, g, b)
+        if max_val > 150:
+            factor = 150 / max_val
+            r = int(r * factor)
+            g = int(g * factor)
+            b = int(b * factor)
+        
+        return f"#{r:02x}{g:02x}{b:02x}"
+    
+    def draw_area_symbol(self, c, center_x, center_y, area, size=10):
+        """Draw a symbol based on area code."""
+        if not area:
+            return
+            
+        # Convert area to string and get first character or number
+        area_str = str(area).strip().upper()
+        if not area_str:
+            return
+            
+        # Set white color for the symbol
+        c.setFillColor(colors.white)
+        c.setStrokeColor(colors.white)
+        c.setLineWidth(2)
+        
+        # Different symbols based on area code
+        try:
+            area_num = int(area_str[0]) if area_str[0].isdigit() else ord(area_str[0]) % 10
+        except:
+            area_num = 0
+            
+        symbol_size = size / 2
+        
+        if area_num == 0 or area_num == 1:
+            # Circle
+            c.circle(center_x, center_y, symbol_size, fill=1)
+        elif area_num == 2 or area_num == 3:
+            # Square
+            c.rect(center_x - symbol_size, center_y - symbol_size, 
+                   symbol_size * 2, symbol_size * 2, fill=1)
+        elif area_num == 4 or area_num == 5:
+            # Triangle
+            c.beginPath()
+            c.moveTo(center_x, center_y + symbol_size)
+            c.lineTo(center_x - symbol_size, center_y - symbol_size)
+            c.lineTo(center_x + symbol_size, center_y - symbol_size)
+            c.closePath()
+            c.fill()
+        elif area_num == 6 or area_num == 7:
+            # Diamond
+            c.beginPath()
+            c.moveTo(center_x, center_y + symbol_size)
+            c.lineTo(center_x - symbol_size, center_y)
+            c.lineTo(center_x, center_y - symbol_size)
+            c.lineTo(center_x + symbol_size, center_y)
+            c.closePath()
+            c.fill()
+        else:
+            # Cross/Plus sign
+            cross_size = symbol_size * 0.8
+            c.rect(center_x - cross_size/6, center_y - cross_size, 
+                   cross_size/3, cross_size * 2, fill=1)
+            c.rect(center_x - cross_size, center_y - cross_size/6, 
+                   cross_size * 2, cross_size/3, fill=1)
+        
+        # Add area text in the center
+        c.setFillColor(colors.black)
+        c.setFont("Helvetica-Bold", int(size/3))
+        # Center the text
+        text_width = c.stringWidth(area_str[:3], "Helvetica-Bold", int(size/3))
+        c.drawString(center_x - text_width/2, center_y - size/6, area_str[:3])
+    
+    def generate_qr_code(self, data, size=20, color=None):
         """Generate QR code image."""
         if not HAS_QRCODE:
             return None
+        
+        try:
+            qr = qrcode.QRCode(
+                version=None,  # Allow automatic version selection
+                error_correction=qrcode.constants.ERROR_CORRECT_M,  # Medium error correction for better reliability
+                box_size=5,  # Larger boxes for better readability
+                border=2,
+            )
+            qr.add_data(data)
+            qr.make(fit=True)
             
-        qr = qrcode.QRCode(
-            version=1,
-            error_correction=qrcode.constants.ERROR_CORRECT_L,
-            box_size=2,
-            border=1,
-        )
-        qr.add_data(data)
-        qr.make(fit=True)
-        
-        img = qr.make_image(fill_color="black", back_color="white")
-        
-        # Save to temporary file
-        temp_file = tempfile.NamedTemporaryFile(delete=False, suffix='.png')
-        img.save(temp_file.name)
-        temp_file.close()
-        
-        return temp_file.name
+            # Use custom color if provided, otherwise black
+            fill_color = color if color else "black"
+            img = qr.make_image(fill_color=fill_color, back_color="white")
+            
+            # Save to temporary file
+            temp_file = tempfile.NamedTemporaryFile(delete=False, suffix='.png', mode='wb')
+            temp_file.close()  # Close the file handle first
+            
+            # Save the image
+            img.save(temp_file.name, format='PNG')
+            
+            # Verify file was created
+            if os.path.exists(temp_file.name) and os.path.getsize(temp_file.name) > 0:
+                return temp_file.name
+            else:
+                return None
+                
+        except Exception as e:
+            # Silently fail and return None
+            return None
     
     def format_tma_data(self, tma_record):
         """Format TMA record data for label."""
@@ -129,8 +231,35 @@ class TMALabelPDF:
             'anno_scavo': anno_scavo,
         }
         
-        # Create QR code data
-        qr_data = f"TMA:{data['id']}|{data['sito']}|{data['cassetta']}|{data['inventario']}"
+        # Create QR code data as formatted text (readable by iPhone camera)
+        qr_text_parts = []
+        qr_text_parts.append("SCHEDA TMA")
+        qr_text_parts.append(f"Cassetta: {data['cassetta']}")
+        if data['sito']:
+            qr_text_parts.append(f"Sito: {data['sito']}")
+        if data['localita']:
+            qr_text_parts.append(f"Località: {data['localita']}")
+        if data['area']:
+            qr_text_parts.append(f"Area: {data['area']}")
+        if data['settore']:
+            qr_text_parts.append(f"Settore: {data['settore']}")
+        if data['us']:
+            qr_text_parts.append(f"US: {data['us']}")
+        if data['inventario']:
+            qr_text_parts.append(f"Inventario: {data['inventario']}")
+        if data['saggio']:
+            qr_text_parts.append(f"Saggio: {data['saggio']}")
+        if data['vano_locus']:
+            qr_text_parts.append(f"Vano/Locus: {data['vano_locus']}")
+        if data['anno_scavo']:
+            qr_text_parts.append(f"Anno scavo: {data['anno_scavo']}")
+        if data['ogtm']:
+            qr_text_parts.append(f"Materiale: {data['ogtm']}")
+        if data['dtzg']:
+            qr_text_parts.append(f"Cronologia: {data['dtzg']}")
+        
+        # Format as plain text with line breaks (iPhone readable)
+        qr_data = "\n".join(qr_text_parts)
         
         return data, qr_data
     
@@ -233,6 +362,74 @@ class TMALabelPDF:
             c.setFont("Helvetica", 7)
             if tma_data['ogtm']:
                 c.drawString(content_x, current_y - line_height, f"Materiale: {tma_data['ogtm']}")
+        
+        elif label_style == 'qr_minimal':
+            # QR code with minimal info style
+            if HAS_QRCODE:
+                # Get color based on locality
+                qr_color = self.get_color_for_site(tma_data['localita'])
+                
+                # Generate larger QR code for this style
+                qr_file = self.generate_qr_code(qr_data, color=qr_color)
+                if qr_file and os.path.exists(qr_file):
+                    try:
+                        # Calculate QR code size based on label dimensions
+                        qr_size = min(label_height - (2 * margin), label_width * 0.4)
+                        
+                        # Draw QR code on the left
+                        qr_x = content_x
+                        qr_y = y + (label_height - qr_size) / 2
+                        
+                        # Draw QR code
+                        c.drawImage(qr_file, qr_x, qr_y, qr_size, qr_size, preserveAspectRatio=True)
+                        
+                        # Draw area symbol in the center of QR code
+                        qr_center_x = qr_x + qr_size / 2
+                        qr_center_y = qr_y + qr_size / 2
+                        self.draw_area_symbol(c, qr_center_x, qr_center_y, tma_data['area'], qr_size / 5)
+                        
+                        # Draw text on the right of QR code
+                        text_x = qr_x + qr_size + margin
+                        text_y = y + label_height / 2
+                        
+                        # Draw cassetta number (large)
+                        c.setFont("Helvetica-Bold", 12)
+                        c.drawString(text_x, text_y + 6, f"Cassetta: {tma_data['cassetta']}")
+                        
+                        # Draw località (smaller)
+                        c.setFont("Helvetica", 10)
+                        c.drawString(text_x, text_y - 6, f"Località: {tma_data['localita']}")
+                        
+                        # Clean up temp file
+                        try:
+                            os.unlink(qr_file)
+                        except:
+                            pass
+                    except Exception as e:
+                        # Fallback
+                        c.setFont("Helvetica-Bold", 12)
+                        c.drawString(content_x, current_y - line_height, f"Cassetta: {tma_data['cassetta']}")
+                        c.setFont("Helvetica", 10)
+                        c.drawString(content_x, current_y - line_height * 2, f"Località: {tma_data['localita']}")
+                else:
+                    # Fallback if QR generation fails
+                    c.setFont("Helvetica-Bold", 12)
+                    c.drawString(content_x, current_y - line_height, f"Cassetta: {tma_data['cassetta']}")
+                    c.setFont("Helvetica", 10)
+                    c.drawString(content_x, current_y - line_height * 2, f"Località: {tma_data['localita']}")
+            else:
+                # No QR code library available - show all info in text format
+                c.setFont("Helvetica-Bold", 12)
+                c.drawString(content_x, current_y - line_height, f"Cassetta: {tma_data['cassetta']}")
+                current_y -= line_height * 1.5
+                
+                c.setFont("Helvetica", 10)
+                c.drawString(content_x, current_y - line_height, f"Località: {tma_data['localita']}")
+                current_y -= line_height * 1.2
+                
+                # Add notice about missing QR code
+                c.setFont("Helvetica", 7)
+                c.drawString(content_x, y + margin, "[QR code richiede modulo 'qrcode']")
     
     def extract_box_number(self, cassetta):
         """Extract numeric portion from cassetta field."""

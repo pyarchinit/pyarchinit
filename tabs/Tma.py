@@ -4292,7 +4292,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         
         # Label style
         self.combo_label_style = QComboBox()
-        self.combo_label_style.addItems(["Standard", "Minimale", "Dettagliata"])
+        self.combo_label_style.addItems(["Standard", "Minimale", "Dettagliata", "QR Minimale"])
         format_layout.addWidget(QLabel("Stile:"))
         format_layout.addWidget(self.combo_label_style)
         
@@ -4343,7 +4343,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             label_format = format_map[self.combo_label_format.currentIndex()]
             
             # Get style
-            style_map = {0: 'standard', 1: 'minimal', 2: 'detailed'}
+            style_map = {0: 'standard', 1: 'minimal', 2: 'detailed', 3: 'qr_minimal'}
             label_style = style_map[self.combo_label_style.currentIndex()]
             
             if self.radio_label_single.isChecked():
