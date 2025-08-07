@@ -83,88 +83,236 @@ class TMALabelPDF:
     
     def get_color_for_site(self, site_name):
         """Get a consistent color for a site name."""
-        # Generate color based on site name hash
         if not site_name:
             return "#000000"
         
-        # Simple hash-based color generation
-        hash_val = abs(hash(site_name))
-        # Generate a color that's dark enough to be scannable
-        r = (hash_val & 0xFF0000) >> 16
-        g = (hash_val & 0x00FF00) >> 8
-        b = hash_val & 0x0000FF
+        site_lower = site_name.lower().strip()
         
-        # Ensure the color is dark enough
-        max_val = max(r, g, b)
-        if max_val > 150:
-            factor = 150 / max_val
-            r = int(r * factor)
-            g = int(g * factor)
-            b = int(b * factor)
+        # Predefined colors for common localities (dark colors for QR readability)
+        predefined_colors = {
+            'roma': '#8B0000',  # Dark red
+            'milano': '#00008B',  # Dark blue
+            'napoli': '#006400',  # Dark green
+            'torino': '#483D8B',  # Dark slate blue
+            'firenze': '#8B4513',  # Saddle brown
+            'venezia': '#2F4F4F',  # Dark slate gray
+            'bologna': '#B8860B',  # Dark goldenrod
+            'palermo': '#8B008B',  # Dark magenta
+            'genova': '#008B8B',  # Dark cyan
+            'bari': '#696969',  # Dim gray
+            'catania': '#4B0082',  # Indigo
+            'verona': '#800080',  # Purple
+            'padova': '#708090',  # Slate gray
+            'trieste': '#191970',  # Midnight blue
+            'brescia': '#8B4500',  # Dark orange
+        }
         
-        return f"#{r:02x}{g:02x}{b:02x}"
+        # Check if we have a predefined color
+        for key, color in predefined_colors.items():
+            if key in site_lower:
+                return color
+        
+        # Otherwise generate a consistent color based on hash
+        hash_val = abs(hash(site_name.upper()))
+        # Use modulo to select from a set of predefined dark colors
+        backup_colors = [
+            '#000080',  # Navy
+            '#800000',  # Maroon
+            '#008000',  # Green
+            '#808000',  # Olive
+            '#800080',  # Purple
+            '#008080',  # Teal
+            '#4B0000',  # Dark red
+            '#00004B',  # Dark blue
+            '#004B00',  # Dark green
+            '#4B4B00',  # Dark yellow
+        ]
+        
+        return backup_colors[hash_val % len(backup_colors)]
     
     def draw_area_symbol(self, c, center_x, center_y, area, size=10):
-        """Draw a symbol based on area code."""
+        """Draw a distinctive symbol based on area code."""
         if not area:
             return
             
-        # Convert area to string and get first character or number
+        # Convert area to string
         area_str = str(area).strip().upper()
         if not area_str:
             return
-            
-        # Set white color for the symbol
+        
+        # Create white background circle
         c.setFillColor(colors.white)
-        c.setStrokeColor(colors.white)
-        c.setLineWidth(2)
+        c.circle(center_x, center_y, size * 0.7, fill=1)
         
-        # Different symbols based on area code
-        try:
-            area_num = int(area_str[0]) if area_str[0].isdigit() else ord(area_str[0]) % 10
-        except:
-            area_num = 0
-            
-        symbol_size = size / 2
+        # Set colors for symbol
+        c.setFillColor(colors.black)
+        c.setStrokeColor(colors.black)
+        c.setLineWidth(1.5)
         
-        if area_num == 0 or area_num == 1:
-            # Circle
-            c.circle(center_x, center_y, symbol_size, fill=1)
-        elif area_num == 2 or area_num == 3:
-            # Square
-            c.rect(center_x - symbol_size, center_y - symbol_size, 
-                   symbol_size * 2, symbol_size * 2, fill=1)
-        elif area_num == 4 or area_num == 5:
-            # Triangle
+        # Map areas to specific symbols (consistent mapping)
+        symbol_map = {
+            'A': 'house',      # Casa
+            'B': 'tower',      # Torre
+            'C': 'temple',     # Tempio
+            'D': 'wall',       # Muro
+            'E': 'arch',       # Arco
+            'F': 'column',     # Colonna
+            'G': 'amphora',    # Anfora
+            'H': 'coin',       # Moneta
+            'I': 'key',        # Chiave
+            'L': 'lamp',       # Lucerna
+            'M': 'mill',       # Macina
+            'N': 'necropolis', # Necropoli
+            'O': 'oven',       # Forno
+            'P': 'plaza',      # Piazza
+            'Q': 'quarry',     # Cava
+            'R': 'road',       # Strada
+            'S': 'storage',    # Magazzino
+            'T': 'tomb',       # Tomba
+            'U': 'urban',      # Urbano
+            'V': 'villa',      # Villa
+            'W': 'water',      # Acqua/Pozzo
+            'X': 'cross',      # Croce
+            'Y': 'yard',       # Cortile
+            'Z': 'zone',       # Zona
+        }
+        
+        # For numeric areas, use geometric shapes
+        if area_str[0].isdigit():
+            try:
+                num = int(area_str[0])
+                if num == 1:
+                    symbol_type = 'circle'
+                elif num == 2:
+                    symbol_type = 'square'
+                elif num == 3:
+                    symbol_type = 'triangle'
+                elif num == 4:
+                    symbol_type = 'diamond'
+                elif num == 5:
+                    symbol_type = 'pentagon'
+                elif num == 6:
+                    symbol_type = 'hexagon'
+                elif num == 7:
+                    symbol_type = 'star'
+                elif num == 8:
+                    symbol_type = 'octagon'
+                elif num == 9:
+                    symbol_type = 'cross'
+                else:
+                    symbol_type = 'circle'
+            except:
+                symbol_type = 'circle'
+        else:
+            # For letter areas, use mapped symbols
+            symbol_type = symbol_map.get(area_str[0], 'circle')
+        
+        # Draw the symbol
+        symbol_size = size * 0.4
+        
+        if symbol_type == 'circle':
+            c.circle(center_x, center_y, symbol_size * 0.8, fill=0, stroke=1)
+        
+        elif symbol_type == 'square':
+            c.rect(center_x - symbol_size * 0.7, center_y - symbol_size * 0.7,
+                   symbol_size * 1.4, symbol_size * 1.4, fill=0, stroke=1)
+        
+        elif symbol_type == 'triangle':
             c.beginPath()
-            c.moveTo(center_x, center_y + symbol_size)
-            c.lineTo(center_x - symbol_size, center_y - symbol_size)
-            c.lineTo(center_x + symbol_size, center_y - symbol_size)
+            c.moveTo(center_x, center_y - symbol_size)
+            c.lineTo(center_x - symbol_size * 0.9, center_y + symbol_size * 0.5)
+            c.lineTo(center_x + symbol_size * 0.9, center_y + symbol_size * 0.5)
             c.closePath()
-            c.fill()
-        elif area_num == 6 or area_num == 7:
-            # Diamond
+            c.stroke()
+        
+        elif symbol_type == 'diamond':
             c.beginPath()
-            c.moveTo(center_x, center_y + symbol_size)
-            c.lineTo(center_x - symbol_size, center_y)
+            c.moveTo(center_x, center_y - symbol_size)
+            c.lineTo(center_x + symbol_size * 0.7, center_y)
+            c.lineTo(center_x, center_y + symbol_size)
+            c.lineTo(center_x - symbol_size * 0.7, center_y)
+            c.closePath()
+            c.stroke()
+        
+        elif symbol_type == 'house':
+            # Draw a simple house shape
+            # Roof
+            c.beginPath()
+            c.moveTo(center_x - symbol_size, center_y)
             c.lineTo(center_x, center_y - symbol_size)
             c.lineTo(center_x + symbol_size, center_y)
             c.closePath()
-            c.fill()
-        else:
-            # Cross/Plus sign
-            cross_size = symbol_size * 0.8
-            c.rect(center_x - cross_size/6, center_y - cross_size, 
-                   cross_size/3, cross_size * 2, fill=1)
-            c.rect(center_x - cross_size, center_y - cross_size/6, 
-                   cross_size * 2, cross_size/3, fill=1)
+            c.stroke()
+            # Walls
+            c.rect(center_x - symbol_size * 0.8, center_y,
+                   symbol_size * 1.6, symbol_size * 0.8, fill=0, stroke=1)
         
-        # Add area text in the center
-        c.setFillColor(colors.black)
-        c.setFont("Helvetica-Bold", int(size/3))
-        # Center the text
-        text_width = c.stringWidth(area_str[:3], "Helvetica-Bold", int(size/3))
-        c.drawString(center_x - text_width/2, center_y - size/6, area_str[:3])
+        elif symbol_type == 'tower':
+            # Draw a tower
+            c.rect(center_x - symbol_size * 0.5, center_y - symbol_size,
+                   symbol_size, symbol_size * 1.8, fill=0, stroke=1)
+            # Battlements
+            for i in range(3):
+                x = center_x - symbol_size * 0.5 + i * symbol_size * 0.33
+                c.rect(x, center_y - symbol_size * 1.2, 
+                       symbol_size * 0.2, symbol_size * 0.2, fill=0, stroke=1)
+        
+        elif symbol_type == 'temple':
+            # Draw temple with columns
+            # Roof
+            c.beginPath()
+            c.moveTo(center_x - symbol_size * 1.1, center_y - symbol_size * 0.5)
+            c.lineTo(center_x, center_y - symbol_size)
+            c.lineTo(center_x + symbol_size * 1.1, center_y - symbol_size * 0.5)
+            c.closePath()
+            c.stroke()
+            # Columns
+            for i in range(3):
+                x = center_x - symbol_size * 0.8 + i * symbol_size * 0.8
+                c.line(x, center_y - symbol_size * 0.5, x, center_y + symbol_size * 0.8)
+        
+        elif symbol_type == 'amphora':
+            # Draw simplified amphora
+            c.beginPath()
+            c.arc(center_x - symbol_size * 0.3, center_y - symbol_size * 0.3,
+                  symbol_size * 0.3, 90, 180)
+            c.arc(center_x + symbol_size * 0.3, center_y - symbol_size * 0.3,
+                  symbol_size * 0.3, 0, 90)
+            c.lineTo(center_x + symbol_size * 0.5, center_y + symbol_size * 0.5)
+            c.lineTo(center_x - symbol_size * 0.5, center_y + symbol_size * 0.5)
+            c.closePath()
+            c.stroke()
+        
+        elif symbol_type == 'star':
+            # Draw 5-pointed star
+            import math
+            c.beginPath()
+            for i in range(10):
+                angle = (i * 36 - 90) * math.pi / 180
+                radius = symbol_size if i % 2 == 0 else symbol_size * 0.5
+                x = center_x + radius * math.cos(angle)
+                y = center_y + radius * math.sin(angle)
+                if i == 0:
+                    c.moveTo(x, y)
+                else:
+                    c.lineTo(x, y)
+            c.closePath()
+            c.stroke()
+        
+        elif symbol_type == 'cross':
+            # Draw cross
+            cross_size = symbol_size * 0.8
+            c.line(center_x, center_y - cross_size, center_x, center_y + cross_size)
+            c.line(center_x - cross_size, center_y, center_x + cross_size, center_y)
+        
+        else:
+            # Default: circle with area letter
+            c.circle(center_x, center_y, symbol_size * 0.8, fill=0, stroke=1)
+        
+        # Add area text below the symbol
+        c.setFont("Helvetica-Bold", int(size/4))
+        text_width = c.stringWidth(area_str, "Helvetica-Bold", int(size/4))
+        c.drawString(center_x - text_width/2, center_y + size * 0.5, area_str)
     
     def generate_qr_code(self, data, size=20, color=None):
         """Generate QR code image."""
@@ -365,6 +513,13 @@ class TMALabelPDF:
         
         elif label_style == 'qr_minimal':
             # QR code with minimal info style
+            # Always calculate positions first
+            qr_size = min(label_height - (2 * margin), label_width * 0.4)
+            qr_x = content_x
+            qr_y = y + (label_height - qr_size) / 2
+            text_x = qr_x + qr_size + margin
+            text_y = y + label_height / 2
+            
             if HAS_QRCODE:
                 # Get color based on locality
                 qr_color = self.get_color_for_site(tma_data['localita'])
@@ -373,13 +528,6 @@ class TMALabelPDF:
                 qr_file = self.generate_qr_code(qr_data, color=qr_color)
                 if qr_file and os.path.exists(qr_file):
                     try:
-                        # Calculate QR code size based on label dimensions
-                        qr_size = min(label_height - (2 * margin), label_width * 0.4)
-                        
-                        # Draw QR code on the left
-                        qr_x = content_x
-                        qr_y = y + (label_height - qr_size) / 2
-                        
                         # Draw QR code
                         c.drawImage(qr_file, qr_x, qr_y, qr_size, qr_size, preserveAspectRatio=True)
                         
@@ -387,10 +535,6 @@ class TMALabelPDF:
                         qr_center_x = qr_x + qr_size / 2
                         qr_center_y = qr_y + qr_size / 2
                         self.draw_area_symbol(c, qr_center_x, qr_center_y, tma_data['area'], qr_size / 5)
-                        
-                        # Draw text on the right of QR code
-                        text_x = qr_x + qr_size + margin
-                        text_y = y + label_height / 2
                         
                         # Draw cassetta number (large)
                         c.setFont("Helvetica-Bold", 12)
@@ -406,30 +550,53 @@ class TMALabelPDF:
                         except:
                             pass
                     except Exception as e:
-                        # Fallback
+                        # Fallback - still position text on the right
+                        # Draw placeholder for QR code
+                        c.setStrokeColor(colors.lightgrey)
+                        c.rect(qr_x, qr_y, qr_size, qr_size)
+                        c.setFont("Helvetica", 8)
+                        c.drawString(qr_x + 5, qr_y + qr_size/2, "[QR Error]")
+                        
+                        # Text on the right
                         c.setFont("Helvetica-Bold", 12)
-                        c.drawString(content_x, current_y - line_height, f"Cassetta: {tma_data['cassetta']}")
+                        c.drawString(text_x, text_y + 6, f"Cassetta: {tma_data['cassetta']}")
                         c.setFont("Helvetica", 10)
-                        c.drawString(content_x, current_y - line_height * 2, f"Località: {tma_data['localita']}")
+                        c.drawString(text_x, text_y - 6, f"Località: {tma_data['localita']}")
                 else:
                     # Fallback if QR generation fails
+                    # Draw placeholder rectangle
+                    c.setStrokeColor(colors.lightgrey)
+                    c.rect(qr_x, qr_y, qr_size, qr_size)
+                    c.setFont("Helvetica", 8)
+                    c.drawString(qr_x + 5, qr_y + qr_size/2, "[No QR]")
+                    
+                    # Text on the right
                     c.setFont("Helvetica-Bold", 12)
-                    c.drawString(content_x, current_y - line_height, f"Cassetta: {tma_data['cassetta']}")
+                    c.drawString(text_x, text_y + 6, f"Cassetta: {tma_data['cassetta']}")
                     c.setFont("Helvetica", 10)
-                    c.drawString(content_x, current_y - line_height * 2, f"Località: {tma_data['localita']}")
+                    c.drawString(text_x, text_y - 6, f"Località: {tma_data['localita']}")
             else:
-                # No QR code library available - show all info in text format
-                c.setFont("Helvetica-Bold", 12)
-                c.drawString(content_x, current_y - line_height, f"Cassetta: {tma_data['cassetta']}")
-                current_y -= line_height * 1.5
+                # No QR code library available
+                # Draw placeholder rectangle with message
+                c.setStrokeColor(colors.lightgrey)
+                c.setFillColor(colors.lightgrey)
+                c.rect(qr_x, qr_y, qr_size, qr_size, fill=0)
                 
-                c.setFont("Helvetica", 10)
-                c.drawString(content_x, current_y - line_height, f"Località: {tma_data['localita']}")
-                current_y -= line_height * 1.2
-                
-                # Add notice about missing QR code
+                # Add notice in the rectangle
+                c.setFillColor(colors.black)
                 c.setFont("Helvetica", 7)
-                c.drawString(content_x, y + margin, "[QR code richiede modulo 'qrcode']")
+                notice_lines = ["QR code", "richiede", "modulo", "'qrcode'"]
+                line_y = qr_y + qr_size - 10
+                for line in notice_lines:
+                    text_width = c.stringWidth(line, "Helvetica", 7)
+                    c.drawString(qr_x + (qr_size - text_width)/2, line_y, line)
+                    line_y -= 10
+                
+                # Text on the right - always same position
+                c.setFont("Helvetica-Bold", 12)
+                c.drawString(text_x, text_y + 6, f"Cassetta: {tma_data['cassetta']}")
+                c.setFont("Helvetica", 10)
+                c.drawString(text_x, text_y - 6, f"Località: {tma_data['localita']}")
     
     def extract_box_number(self, cassetta):
         """Extract numeric portion from cassetta field."""
