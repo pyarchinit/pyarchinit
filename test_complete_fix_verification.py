@@ -122,7 +122,7 @@ def test_complete_fix():
         # Simulate the FIXED Settore parent search logic
         settore_parent_found = False
         settore_id_parent = None
-        
+        3.11
         # Try display name first
         cursor.execute("""
         SELECT id_thesaurus_sigle, sigla, lingua FROM pyarchinit_thesaurus_sigle 

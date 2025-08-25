@@ -641,8 +641,8 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
                 '3.9': 'Tipo quantita',
                 '3.10': 'Tecnologie - Unita di misura',
                 '3.11': 'Area',
-                '3.41' : 'Tipologia',
-                '3.13' : 'Anno',
+                '3.41': 'Tipologia',
+                '3.13': 'Anno',
                 '301.301': 'Valori sì/no'
             },
             'campioni_table': {
