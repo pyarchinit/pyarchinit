@@ -61,7 +61,7 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
     SITO = pyArchInitDialog_Config
     if L=='it':
         STATUS_ITEMS = {"b": "Usa", "f": "Trova", "n": "Nuovo Record"}
-    
+
     if L=='de':
         STATUS_ITEMS = {"b": "Aktuell ", "f": "Finden", "n": "Neuer Rekord"}
     
@@ -319,42 +319,130 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
             # Elabora gli anni
             anni_inizio = []
             anni_fine = []
-            for anno in anni:
+
+            for anno_originale in anni:
                 try:
-                    split_anni = anno.split('-')
-                    if len(split_anni) == 2:
-                        anno_inizio_str = split_anni[0].replace('BCE', '').strip()
-                        anno_fine_str = split_anni[1].replace('BCE', '').strip()
+                    # Mantieni l'anno originale per il display
+                    anno = anno_originale.strip()
 
-                        # Gestione dei diversi formati di date
-                        if 'BCE' in anno:
-                            anno_inizio = -int(anno_inizio_str)
-                            anno_fine = -int(anno_fine_str)
+                    # Funzione helper per estrarre un numero da una stringa con marcatori
+                    def estrai_numero(anno_str):
+                        # Rimuovi spazi e converti in minuscolo per il controllo
+                        anno_lower = anno_str.lower()
+
+                        # Controlla se è a.C. (avanti Cristo)
+                        if 'a.c.' in anno_lower or 'ac' in anno_lower or 'bce' in anno_lower:
+                            # Rimuovi tutti i marcatori di a.C. per estrarre il numero
+                            numero = anno_str
+                            for marker in ['a.C.', 'a.c.', 'A.C.', 'aC', 'ac', 'AC', 'BCE', 'bce']:
+                                numero = numero.replace(marker, '')
+                            numero = numero.strip()
+                            return -int(numero)
+
+                        # Controlla se è d.C. (dopo Cristo)
+                        elif 'd.c.' in anno_lower or 'dc' in anno_lower or 'ce' in anno_lower:
+                            # Rimuovi tutti i marcatori di d.C. per estrarre il numero
+                            numero = anno_str
+                            for marker in ['d.C.', 'd.c.', 'D.C.', 'dC', 'dc', 'DC', 'CE', 'ce']:
+                                numero = numero.replace(marker, '')
+                            numero = numero.strip()
+                            return int(numero)
+
+                        # Se non ha marcatori, assumiamo sia d.C. (dopo Cristo)
                         else:
-                            anno_inizio = int(anno_inizio_str)
-                            anno_fine = int(anno_fine_str)
+                            # Estrai solo i numeri
+                            numero = ''.join(filter(str.isdigit, anno_str))
+                            if numero:
+                                return int(numero)
+                            else:
+                                raise ValueError(f"Nessun numero trovato in: {anno_str}")
 
-                        anni_inizio.append(anno_inizio)
-                        anni_fine.append(anno_fine)
+                    # Funzione per processare un intervallo con slash (es: 1930/1950)
+                    def processa_intervallo_slash(intervallo_str):
+                        if '/' in intervallo_str:
+                            parti = intervallo_str.split('/')
+                            # Estrai il primo e l'ultimo numero
+                            primo = estrai_numero(parti[0].strip())
+                            ultimo = estrai_numero(parti[-1].strip())
+                            return primo, ultimo
+                        else:
+                            # Se non c'è slash, il valore è sia inizio che fine
+                            valore = estrai_numero(intervallo_str)
+                            return valore, valore
+
+                    # Cerca il trattino come separatore principale
+                    if '-' in anno:
+                        # Gestisci con attenzione i numeri negativi (date a.C.)
+                        # Se c'è "a.C." o "BCE", potrebbero esserci numeri negativi
+                        if any(marker in anno.lower() for marker in ['a.c.', 'ac', 'bce']):
+                            # Usa regex per trovare il trattino separatore
+                            import re
+                            # Cerca un trattino che non sia all'inizio e che separi due parti
+                            match = re.search(r'(.+?)\s*-\s*(.+)', anno)
+                            if match:
+                                prima_parte = match.group(1).strip()
+                                seconda_parte = match.group(2).strip()
+                            else:
+                                parti = anno.split('-', 1)
+                                prima_parte = parti[0].strip() if len(parti) > 0 else ""
+                                seconda_parte = parti[1].strip() if len(parti) > 1 else ""
+                        else:
+                            # Se non ci sono date a.C., dividi normalmente
+                            parti = anno.split('-', 1)
+                            prima_parte = parti[0].strip() if len(parti) > 0 else ""
+                            seconda_parte = parti[1].strip() if len(parti) > 1 else ""
+
+                        # Processa la prima parte
+                        primo_inizio, primo_fine = processa_intervallo_slash(prima_parte)
+
+                        # Processa la seconda parte
+                        secondo_inizio, secondo_fine = processa_intervallo_slash(seconda_parte)
+
+                        # Per l'intervallo complessivo usa:
+                        # - Il primo valore della prima parte come inizio
+                        # - L'ultimo valore della seconda parte come fine
+                        anno_inizio = primo_inizio
+                        anno_fine = secondo_fine
+
                     else:
-                        print(f'Formato anno non valido: {anno}')
-                        anni_inizio.append(0)
-                        anni_fine.append(0)
+                        # Se non c'è trattino, potrebbe essere solo uno slash o un singolo anno
+                        primo, ultimo = processa_intervallo_slash(anno)
+                        anno_inizio = primo
+                        anno_fine = ultimo
+
+                    # Se l'intera stringa termina con a.C./BCE, applica a entrambi i valori
+                    if any(marker in anno.lower() for marker in ['a.c.', 'ac', 'bce']):
+                        if any(anno.lower().rstrip().endswith(marker) for marker in ['a.c.', 'ac', 'bce']):
+                            if anno_inizio > 0:
+                                anno_inizio = -abs(anno_inizio)
+                            if anno_fine > 0:
+                                anno_fine = -abs(anno_fine)
+
+                    anni_inizio.append(anno_inizio)
+                    anni_fine.append(anno_fine)
+
+                    print(f"Processato: '{anno}' -> valori interni: {anno_inizio} a {anno_fine}")
+
                 except ValueError as e:
-                    print(f'Errore nella conversione dell\'anno "{anno}": {str(e)}')
+                    print(f'Errore nella conversione dell\'anno "{anno_originale}": {str(e)}')
                     anni_inizio.append(0)
                     anni_fine.append(0)
                 except Exception as e:
-                    print(f'Errore generico per l\'anno "{anno}": {str(e)}')
+                    print(f'Errore generico per l\'anno "{anno_originale}": {str(e)}')
+                    import traceback
+                    traceback.print_exc()
                     anni_inizio.append(0)
                     anni_fine.append(0)
 
             # Formatta le epoche per il comboBox
+            # USA L'ANNO ORIGINALE NEL DISPLAY, NON I VALORI ESTRATTI
             formatted_epoche = []
-            for epoca, evento, anno_inizio, anno_fine in zip(epoche, evento, anni_inizio, anni_fine):
-                f = f'{epoca} - {evento} ({anno_inizio} : {anno_fine})'
+            for epoca, evento, anno_display, anno_inizio, anno_fine in zip(epoche, evento, anni, anni_inizio, anni_fine):
+                # Mantieni il formato originale dell'anno nel display
+                f = f'{epoca} - {evento} ({anno_display})'
                 formatted_epoche.append(f)
                 if self.comboBox_per_estesa.findText(f) == -1:
+                    # Salva i valori numerici come dati associati per uso interno
                     self.comboBox_per_estesa.addItem(f, (anno_inizio, anno_fine))
 
             # Connetti il segnale di cambiamento
@@ -380,6 +468,8 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
                     print(f.read())
             except Exception as read_error:
                 print(f"Errore nella lettura grezza del file: {str(read_error)}")
+
+
     def update_anni(self, index):
         # Quando l'indice della combo box cambia, imposta i valori delle line edit
         if index >= 0:  # -1 indica nessuna selezione
