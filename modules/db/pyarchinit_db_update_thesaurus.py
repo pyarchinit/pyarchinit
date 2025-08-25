@@ -75,20 +75,22 @@ def update_thesaurus_aliases(engine, is_sqlite):
     try:
         # List of table name mappings
         table_mappings = [
-            ('inventario_materiali_table', 'INVENTARIO MATERIALI'),
-            ('tomba_table', 'TOMBA'),
-            ('struttura_table', 'STRUTTURA'),
+            ('inventario_materiali_table', 'Inventario Materiali'),
+            ('tomba_table', 'Tomba'),
+            ('struttura_table', 'Struttura'),
             ('us_table', 'US'),
             ('us_table_usm', 'USM'),
-            ('site_table', 'SITE'),
+            ('site_table', 'Sito'),
             ('pyarchinit_reperti', 'REPERTI'),
             ('tma_materiali_archeologici', 'TMA materiali archeologici'),
             ('tma_materiali_ripetibili', 'TMA Materiali Ripetibili'),
             ('tma_table', 'TMA materiali archeologici'),
             ('tma_materiali_table', 'TMA Materiali Ripetibili'),
             ('TMA materiali ripetibili', 'TMA Materiali Ripetibili'),
-            ('individui_table', 'INDIVIDUI'),
-            ('pottery_table', 'POTTERY')
+            ('individui_table', 'Individui'),
+            ('pottery_table', 'Pottery'),
+            ('campioni_table', 'Campioni')
+            ('documentazione_table', 'Documentazione')
         ]
         
         for db_name, alias in table_mappings:

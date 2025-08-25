@@ -656,7 +656,7 @@
       <workItem from="1754711338819" duration="7256000" />
       <workItem from="1756119900704" duration="3431000" />
       <workItem from="1756139220005" duration="17000" />
-      <workItem from="1756139245146" duration="1461000" />
+      <workItem from="1756139245146" duration="3329000" />
     </task>
     <task id="LOCAL-00022" summary="v3.9.14">
       <created>1649165457258</created>
@@ -1001,7 +1001,7 @@
       <option name="project" value="LOCAL" />
       <updated>1679662089681</updated>
     </task>
-    <option name="localTasksCounter" value="261" />
+    <option name="localTasksCounter" value="262" />
     <option name="createChangelist" value="false" />
     <servers>
       <GitHub url="https://github.com">
@@ -1055,7 +1055,6 @@
     <ignored-roots>
       <path value="$PROJECT_DIR$/ext-libs/totalopenstation-0.5.2-py3.9.egg/totalopenstation_" />
     </ignored-roots>
-    <MESSAGE value="Improve data import logic for &quot;ALL&quot; tables by adding specific handling and individual table progress updates. Enhance multilingual support and error messaging." />
     <MESSAGE value="Add scripts for TMA table validation, structure fixes, migrations, and testing. Include SQL and Python utilities for improved data processing and compatibility." />
     <MESSAGE value="Add `insert_media_to_entity_values` method and improve ID type handling in `pyarchinit_db_manager.py`. Include updates for maintaining SQLite compatibility and add GIS log for data loading and graph building." />
     <MESSAGE value="Extend TMA functionality: add media handling, enhance UI with media and map previews, implement thesaurus-based dropdowns, refine signal management, and update material data processing with improved debugging and error handling." />
@@ -1080,7 +1079,8 @@
     <MESSAGE value="Refactor TMA components and database operations: improve metadata refresh after updates, enhance table migrations with backup and validation, simplify PDF section structures, and streamline module dependency loading with `requirements.txt` fallback." />
     <MESSAGE value="Refactor TMA materials table initialization: streamline thesaurus setup, optimize delegate configuration, simplify table and field updates, and enhance language handling for thesaurus values." />
     <MESSAGE value="Enhance TMA UI and PDF generation: add font size customization for list printing, improve table cell styling with dynamic font size handling, and optimize column widths for landscape A4. Update `Inv_Materiali` to load area values dynamically based on thesaurus." />
-    <option name="LAST_COMMIT_MESSAGE" value="Enhance TMA UI and PDF generation: add font size customization for list printing, improve table cell styling with dynamic font size handling, and optimize column widths for landscape A4. Update `Inv_Materiali` to load area values dynamically based on thesaurus." />
+    <MESSAGE value="Update `.idea` files: refine run configurations, adjust script references, and improve year extraction logic in `Periodizzazione.py`." />
+    <option name="LAST_COMMIT_MESSAGE" value="Update `.idea` files: refine run configurations, adjust script references, and improve year extraction logic in `Periodizzazione.py`." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
