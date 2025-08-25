@@ -414,6 +414,8 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
 
     def __init__(self, iface):
         super().__init__()
+
+
         self.iface = iface
         self.setupUi(self)
         self.mapper = None
@@ -424,6 +426,12 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         self.currentLayerId = None
         self.setAcceptDrops(True)
         self.iconListWidget.setDragDropMode(QAbstractItemView.DragDrop)
+        self.delegateElRinv = None
+        self.delegateTipoMis = None
+        self.delegateUnitaMis = None
+        self.delegateTipoTec = None
+        self.delegateTipoQu = None
+        self.delegateUnMis = None
         # Dizionario per memorizzare le immagini in cache
         self.image_cache = OrderedDict()
 
@@ -1088,17 +1096,17 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
 
         # lista elementi reperto - elemento rinvenuto
 
-        search_dict = {
+        search_dict_a = {
             'lingua': lang,
             'nome_tabella': "'" + 'inventario_materiali_table' + "'",
             'tipologia_sigla': "'" + '3.4' + "'"
         }
 
-        elRinv = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        elRinv = self.DB_MANAGER.query_bool(search_dict_a, 'PYARCHINIT_THESAURUS_SIGLE')
         valuesElRinv = []
 
-        for i in range(len(elRinv)):
-            valuesElRinv.append(elRinv[i].sigla_estesa)
+        for i_a in range(len(elRinv)):
+            valuesElRinv.append(elRinv[i_a].sigla_estesa)
 
         valuesElRinv.sort()
 
@@ -1109,127 +1117,127 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
 
         # lista misurazioni - tipo di misura
 
-        search_dict = {
+        search_dict_b = {
             'lingua': lang,
             'nome_tabella': "'" + 'inventario_materiali_table' + "'",
             'tipologia_sigla': "'" + '3.5' + "'"
         }
 
-        elTipoMis = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
-        valuesTipoMis = []
+        elTipoMis = self.DB_MANAGER.query_bool(search_dict_b, 'PYARCHINIT_THESAURUS_SIGLE')
+        valuestipomis = []
 
-        for i in range(len(elTipoMis)):
-            valuesTipoMis.append(elTipoMis[i].sigla_estesa)
+        for i_b in range(len(elTipoMis)):
+            valuestipomis.append(elTipoMis[i_b].sigla_estesa)
 
-        valuesTipoMis.sort()
+        valuestipomis.sort()
 
         self.delegateTipoMis = ComboBoxDelegate()
-        self.delegateTipoMis.def_values(valuesTipoMis)
+        self.delegateTipoMis.def_values(valuestipomis)
         self.delegateTipoMis.def_editable('False')
         self.tableWidget_misurazioni.setItemDelegateForColumn(0, self.delegateTipoMis)
 
         # lista misurazioni - unita di misura
 
-        search_dict = {
+        search_dict_c = {
             'lingua': lang,
             'nome_tabella': "'" + 'inventario_materiali_table' + "'",
             'tipologia_sigla': "'" + '3.6' + "'"
         }
 
-        elUnitaMis = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
-        valuesUnitaMis = []
+        elUnitaMis = self.DB_MANAGER.query_bool(search_dict_c, 'PYARCHINIT_THESAURUS_SIGLE')
+        valuesunitamis = []
 
-        for i in range(len(elUnitaMis)):
-            valuesUnitaMis.append(elUnitaMis[i].sigla_estesa)
+        for i_c in range(len(elUnitaMis)):
+            valuesunitamis.append(elUnitaMis[i_c].sigla_estesa)
 
-        valuesUnitaMis.sort()
+        valuesunitamis.sort()
 
         self.delegateUnitaMis = ComboBoxDelegate()
-        self.delegateUnitaMis.def_values(valuesUnitaMis)
+        self.delegateUnitaMis.def_values(valuesunitamis)
         self.delegateUnitaMis.def_editable('False')
         self.tableWidget_misurazioni.setItemDelegateForColumn(1, self.delegateUnitaMis)
 
         # lista tecnologie - tipo tecnologia
 
-        search_dict = {
+        search_dict_d = {
             'lingua': lang,
             'nome_tabella': "'" + 'inventario_materiali_table' + "'",
             'tipologia_sigla': "'" + '3.7' + "'"
         }
 
-        elTipoTec = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
-        valuesTipoTec = []
+        elTipoTec = self.DB_MANAGER.query_bool(search_dict_d, 'PYARCHINIT_THESAURUS_SIGLE')
+        valuestipotec = []
 
-        for i in range(len(elTipoTec)):
-            valuesTipoTec.append(elTipoTec[i].sigla_estesa)
+        for i_d in range(len(elTipoTec)):
+            valuestipotec.append(elTipoTec[i_d].sigla_estesa)
 
-        valuesTipoTec.sort()
+        valuestipotec.sort()
 
         self.delegateTipoTec = ComboBoxDelegate()
-        self.delegateTipoTec.def_values(valuesTipoTec)
+        self.delegateTipoTec.def_values(valuestipotec)
         self.delegateTipoTec.def_editable('False')
         self.tableWidget_tecnologie.setItemDelegateForColumn(0, self.delegateTipoTec)
 
         # lista tecnologie - posizione
 
-        search_dict = {
+        search_dict_e = {
             'lingua': lang,
             'nome_tabella': "'" + 'inventario_materiali_table' + "'",
             'tipologia_sigla': "'" + '3.8' + "'"
         }
 
-        elPosTec = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
-        valuesPosTec = []
+        elPosTec = self.DB_MANAGER.query_bool(search_dict_e, 'PYARCHINIT_THESAURUS_SIGLE')
+        valuespostec = []
 
-        for i in range(len(elPosTec)):
-            valuesPosTec.append(elPosTec[i].sigla_estesa)
+        for i_e in range(len(elPosTec)):
+            valuespostec.append(elPosTec[i_e].sigla_estesa)
 
-        valuesPosTec.sort()
+        valuespostec.sort()
 
         self.delegatePosTec = ComboBoxDelegate()
-        self.delegatePosTec.def_values(valuesPosTec)
+        self.delegatePosTec.def_values(valuespostec)
         self.delegatePosTec.def_editable('False')
         self.tableWidget_tecnologie.setItemDelegateForColumn(1, self.delegatePosTec)
 
         # lista tecnologie - tipo quantita
 
-        search_dict = {
+        search_dict_f = {
             'lingua': lang,
             'nome_tabella': "'" + 'inventario_materiali_table' + "'",
             'tipologia_sigla': "'" + '3.9' + "'"
         }
 
-        elTipoQu = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
-        valuesTipoQu = []
+        elTipoQu = self.DB_MANAGER.query_bool(search_dict_f, 'PYARCHINIT_THESAURUS_SIGLE')
+        valuestipoqu = []
 
-        for i in range(len(elTipoQu)):
-            valuesTipoQu.append(elTipoQu[i].sigla_estesa)
+        for i_f in range(len(elTipoQu)):
+            valuestipoqu.append(elTipoQu[i_f].sigla_estesa)
 
-        valuesTipoQu.sort()
+        valuestipoqu.sort()
 
         self.delegateTipoQu = ComboBoxDelegate()
-        self.delegateTipoQu.def_values(valuesTipoQu)
+        self.delegateTipoQu.def_values(valuestipoqu)
         self.delegateTipoQu.def_editable('False')
         self.tableWidget_tecnologie.setItemDelegateForColumn(2, self.delegateTipoQu)
 
         # lista tecnologie - unita di misura
 
-        search_dict = {
+        search_dict_g = {
             'lingua': lang,
             'nome_tabella': "'" + 'inventario_materiali_table' + "'",
             'tipologia_sigla': "'" + '3.10' + "'"
         }
 
-        elUnMis = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
-        valuesUnMis = []
+        elUnMis = self.DB_MANAGER.query_bool(search_dict_g, 'PYARCHINIT_THESAURUS_SIGLE')
+        valueunmis = []
 
-        for i in range(len(elUnMis)):
-            valuesUnMis.append(elUnMis[i].sigla)
+        for i_g in range(len(elUnMis)):
+            valueunmis.append(elUnMis[i_g].sigla)
 
-        valuesUnMis.sort()
+        valueunmis.sort()
 
         self.delegateUnMis = ComboBoxDelegate()
-        self.delegateUnMis.def_values(valuesUnMis)
+        self.delegateUnMis.def_values(valueunmis)
         self.delegateUnMis.def_editable('False')
         self.tableWidget_tecnologie.setItemDelegateForColumn(3, self.delegateUnMis)
 
