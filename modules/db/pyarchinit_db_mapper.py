@@ -28,7 +28,7 @@ from modules.db.entities.DETSESSO import DETSESSO
 from modules.db.entities.DOCUMENTAZIONE import DOCUMENTAZIONE
 from modules.db.entities.INVENTARIO_LAPIDEI import INVENTARIO_LAPIDEI
 from modules.db.entities.INVENTARIO_MATERIALI import INVENTARIO_MATERIALI
-from modules.db.entities.INVENTARIO_MATERIALI_TOIMP import INVENTARIO_MATERIALI_TOIMP
+#from modules.db.entities.INVENTARIO_MATERIALI_TOIMP import INVENTARIO_MATERIALI_TOIMP
 from modules.db.entities.MEDIA import MEDIA
 from modules.db.entities.MEDIATOENTITY import MEDIATOENTITY
 from modules.db.entities.MEDIA_THUMB import MEDIA_THUMB
@@ -41,7 +41,7 @@ from modules.db.entities.SITE import SITE
 from modules.db.entities.STRUTTURA import STRUTTURA
 from modules.db.entities.TOMBA import TOMBA
 from modules.db.entities.US import US
-from modules.db.entities.US_TOIMP import US_TOIMP
+#from modules.db.entities.US_TOIMP import US_TOIMP
 from modules.db.entities.UT import UT
 from modules.db.entities.PYUS import PYUS
 from modules.db.entities.PYUSM import PYUSM
@@ -80,7 +80,7 @@ from modules.db.structures.Site_table import Site_table
 from modules.db.structures.Struttura_table import Struttura_table
 from modules.db.structures.Tomba_table import Tomba_table
 from modules.db.structures.US_table import US_table
-from modules.db.structures.US_table_toimp import US_table_toimp
+#from modules.db.structures.US_table_toimp import US_table_toimp
 from modules.db.structures.UT_table import UT_table
 from modules.db.structures.pyunitastratigrafiche import pyunitastratigrafiche
 from modules.db.structures.pyunitastratigrafiche_usm import pyunitastratigrafiche_usm
@@ -123,7 +123,7 @@ try:
     mapper(INVENTARIO_MATERIALI, Inventario_materiali_table.inventario_materiali_table)
 
     # mapper
-    mapper(INVENTARIO_MATERIALI_TOIMP, Inventario_materiali_table_toimp.inventario_materiali_table_toimp)
+    #mapper(INVENTARIO_MATERIALI_TOIMP, Inventario_materiali_table_toimp.inventario_materiali_table_toimp)
 
     # mapper
     mapper(US, US_table.us_table)
@@ -132,7 +132,7 @@ try:
     mapper(UT, UT_table.ut_table)
 
     # mapper
-    mapper(US_TOIMP, US_table_toimp.us_table_toimp)
+    #mapper(US_TOIMP, US_table_toimp.us_table_toimp)
 
     # mapper
     mapper(STRUTTURA, Struttura_table.struttura_table)
