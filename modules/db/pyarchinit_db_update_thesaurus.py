@@ -5,6 +5,7 @@ Adds missing columns to pyarchinit_thesaurus_sigle table
 """
 
 from sqlalchemy import text
+from sqlalchemy.orm import Session
 from qgis.PyQt.QtWidgets import QMessageBox
 from qgis.core import QgsMessageLog, Qgis
 
@@ -17,17 +18,18 @@ def update_thesaurus_table(engine, metadata):
     
     try:
         # Get existing columns
-        if is_sqlite:
-            result = engine.execute(text("PRAGMA table_info(pyarchinit_thesaurus_sigle)"))
-            existing_columns = [row[1] for row in result]
-        else:
-            # PostgreSQL
-            result = engine.execute(text("""
-                SELECT column_name 
-                FROM information_schema.columns 
-                WHERE table_name = 'pyarchinit_thesaurus_sigle'
-            """))
-            existing_columns = [row[0] for row in result]
+        with Session(engine) as session:
+            if is_sqlite:
+                result = session.execute(text("PRAGMA table_info(pyarchinit_thesaurus_sigle)"))
+                existing_columns = [row[1] for row in result]
+            else:
+                # PostgreSQL
+                result = session.execute(text("""
+                    SELECT column_name 
+                    FROM information_schema.columns 
+                    WHERE table_name = 'pyarchinit_thesaurus_sigle'
+                """))
+                existing_columns = [row[0] for row in result]
         
         QgsMessageLog.logMessage(f"Existing columns in thesaurus: {existing_columns}", "PyArchInit", Qgis.Info)
         
@@ -46,19 +48,18 @@ def update_thesaurus_table(engine, metadata):
         if 'hierarchy_level' not in existing_columns:
             columns_to_add.append(('hierarchy_level', 'INTEGER'))
         
-        # Add missing columns
-        for column_name, column_type in columns_to_add:
-            try:
-                if is_sqlite:
-                    engine.execute(text(f"ALTER TABLE pyarchinit_thesaurus_sigle ADD COLUMN {column_name} {column_type}"))
-                else:
-                    engine.execute(text(f"ALTER TABLE pyarchinit_thesaurus_sigle ADD COLUMN {column_name} {column_type}"))
+            # Add missing columns
+            for column_name, column_type in columns_to_add:
+                try:
+                    session.execute(text(f"ALTER TABLE pyarchinit_thesaurus_sigle ADD COLUMN {column_name} {column_type}"))
+                    session.commit()
+                        
+                    QgsMessageLog.logMessage(f"Added column {column_name} to pyarchinit_thesaurus_sigle", "PyArchInit", Qgis.Info)
                     
-                QgsMessageLog.logMessage(f"Added column {column_name} to pyarchinit_thesaurus_sigle", "PyArchInit", Qgis.Info)
-                
-            except Exception as e:
-                if "duplicate column" not in str(e).lower() and "already exists" not in str(e).lower():
-                    QgsMessageLog.logMessage(f"Error adding column {column_name}: {str(e)}", "PyArchInit", Qgis.Warning)
+                except Exception as e:
+                    session.rollback()
+                    if "duplicate column" not in str(e).lower() and "already exists" not in str(e).lower():
+                        QgsMessageLog.logMessage(f"Error adding column {column_name}: {str(e)}", "PyArchInit", Qgis.Warning)
         
         # Update table aliases if needed
         update_thesaurus_aliases(engine, is_sqlite)
@@ -89,29 +90,29 @@ def update_thesaurus_aliases(engine, is_sqlite):
             ('TMA materiali ripetibili', 'TMA Materiali Ripetibili'),
             ('individui_table', 'Individui'),
             ('pottery_table', 'Pottery'),
-            ('campioni_table', 'Campioni')
+            ('campioni_table', 'Campioni'),
             ('documentazione_table', 'Documentazione')
         ]
         
-        for db_name, alias in table_mappings:
-            # Check if old name exists
-            result = engine.execute(text(
-                "SELECT COUNT(*) FROM pyarchinit_thesaurus_sigle WHERE nome_tabella = :old_name"
-            ).bindparams(old_name=db_name))
-            
-            count = result.scalar()
-            
-            if count > 0:
-                # Update to new alias
-                engine.execute(text(
-                    "UPDATE pyarchinit_thesaurus_sigle SET nome_tabella = :new_name WHERE nome_tabella = :old_name"
-                ).bindparams(new_name=alias, old_name=db_name))
+        with Session(engine) as session:
+            for db_name, alias in table_mappings:
+                # Check if old name exists
+                result = session.execute(text(
+                    "SELECT COUNT(*) FROM pyarchinit_thesaurus_sigle WHERE nome_tabella = :old_name"
+                ).bindparams(old_name=db_name))
                 
-                QgsMessageLog.logMessage(f"Updated table alias from {db_name} to {alias}", "PyArchInit", Qgis.Info)
-        
-        # Commit changes
-        if hasattr(engine, 'commit'):
-            engine.commit()
+                count = result.scalar()
+                
+                if count > 0:
+                    # Update to new alias
+                    session.execute(text(
+                        "UPDATE pyarchinit_thesaurus_sigle SET nome_tabella = :new_name WHERE nome_tabella = :old_name"
+                    ).bindparams(new_name=alias, old_name=db_name))
+                    
+                    QgsMessageLog.logMessage(f"Updated table alias from {db_name} to {alias}", "PyArchInit", Qgis.Info)
+            
+            # Commit all changes
+            session.commit()
             
     except Exception as e:
         QgsMessageLog.logMessage(f"Error updating table aliases: {str(e)}", "PyArchInit", Qgis.Warning)
