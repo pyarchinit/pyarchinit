@@ -62,7 +62,7 @@
     </favorite-branches>
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="dev28052025" />
+        <entry key="$PROJECT_DIR$" value="dev120925" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -660,6 +660,7 @@
       <workItem from="1756873910650" duration="1265000" />
       <workItem from="1757499479611" duration="753000" />
       <workItem from="1757645638329" duration="7385000" />
+      <workItem from="1757680069642" duration="797000" />
     </task>
     <task id="LOCAL-00022" summary="v3.9.14">
       <created>1649165457258</created>
@@ -1004,7 +1005,7 @@
       <option name="project" value="LOCAL" />
       <updated>1679662089681</updated>
     </task>
-    <option name="localTasksCounter" value="262" />
+    <option name="localTasksCounter" value="263" />
     <option name="createChangelist" value="false" />
     <servers>
       <GitHub url="https://github.com">
@@ -1058,8 +1059,6 @@
     <ignored-roots>
       <path value="$PROJECT_DIR$/ext-libs/totalopenstation-0.5.2-py3.9.egg/totalopenstation_" />
     </ignored-roots>
-    <MESSAGE value="Add scripts for TMA table validation, structure fixes, migrations, and testing. Include SQL and Python utilities for improved data processing and compatibility." />
-    <MESSAGE value="Add `insert_media_to_entity_values` method and improve ID type handling in `pyarchinit_db_manager.py`. Include updates for maintaining SQLite compatibility and add GIS log for data loading and graph building." />
     <MESSAGE value="Extend TMA functionality: add media handling, enhance UI with media and map previews, implement thesaurus-based dropdowns, refine signal management, and update material data processing with improved debugging and error handling." />
     <MESSAGE value="Add scripts for TMA table management: creation, validation, fixing foreign keys, and restructuring. Include utilities for thesaurus cleanup, record migration, and SQLite compatibility verification." />
     <MESSAGE value="Enhance TMA functionality: implement new print dialog with filtering options, support for &quot;Cronologia&quot; field in dropdowns, and PDF generation for filtered TMA lists." />
@@ -1083,7 +1082,9 @@
     <MESSAGE value="Refactor TMA materials table initialization: streamline thesaurus setup, optimize delegate configuration, simplify table and field updates, and enhance language handling for thesaurus values." />
     <MESSAGE value="Enhance TMA UI and PDF generation: add font size customization for list printing, improve table cell styling with dynamic font size handling, and optimize column widths for landscape A4. Update `Inv_Materiali` to load area values dynamically based on thesaurus." />
     <MESSAGE value="Update `.idea` files: refine run configurations, adjust script references, and improve year extraction logic in `Periodizzazione.py`." />
-    <option name="LAST_COMMIT_MESSAGE" value="Update `.idea` files: refine run configurations, adjust script references, and improve year extraction logic in `Periodizzazione.py`." />
+    <MESSAGE value="Update `.idea/workspace.xml`: adjust recent branch, task counter, and work item duration. Fix `faiss-cpu` version in `requirements.txt`." />
+    <MESSAGE value="Update `.idea` and metadata files: adjust branch name, task counter, and dependencies. Fix version in `requirements.txt` and update project version in `metadata.txt`." />
+    <option name="LAST_COMMIT_MESSAGE" value="Update `.idea` and metadata files: adjust branch name, task counter, and dependencies. Fix version in `requirements.txt` and update project version in `metadata.txt`." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
