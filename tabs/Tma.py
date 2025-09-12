@@ -1052,13 +1052,12 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         else:
             inv = ""
 
-        # Collect materials from materials table
-        materials_list = []
-        for row in range(self.tableWidget_materiali.rowCount()):
-            madi = self.tableWidget_materiali.item(row, 0)
-            if madi and madi.text():
-                materials_list.append(madi.text())
-        ogtm = ", ".join(materials_list) if materials_list else ""
+        # Get ogtm from lineEdit_materiale (this is synced with the materials table)
+        # This ensures consistency with what's displayed in the UI
+        if self.lineEdit_materiale.text():
+            ogtm = self.lineEdit_materiale.text()
+        else:
+            ogtm = ""
 
         # Location
         if self.comboBox_ldct.currentText():
@@ -1307,50 +1306,45 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                     self.tableWidget_materiali.insertRow(table_row)
                     
                     # Fill row data - map column indices from query result
-                    # Column order: id, id_tma, madi, macc, macl, macp, macd, cronologia_mac, macq, peso
-                    # Widget columns: Categoria, Classe, Prec.tipologica, Definizione, ?, Cronologia, Quantità, Peso
+                    # DB columns: id(0), id_tma(1), madi(2), macc(3), macl(4), macp(5), macd(6), cronologia_mac(7), macq(8), peso(9)
+                    # Table headers: "Categoria *", "Classe", "Prec. tipologica", "Definizione", "Cronologia", "Quantità", "Peso"
+                    # Correct mapping:
+                    # Table col 0 (Categoria) <- madi (row[2])
+                    # Table col 1 (Classe) <- macc (row[3])
+                    # Table col 2 (Prec. tipologica) <- macl (row[4])
+                    # Table col 3 (Definizione) <- macp (row[5])
+                    # Table col 4 (Cronologia) <- cronologia_mac (row[7]) - skip macd
+                    # Table col 5 (Quantità) <- macq (row[8])
+                    # Table col 6 (Peso) <- peso (row[9])
                     
-                    # madi - Categoria (column 0)
-                    item0 = QTableWidgetItem(str(row[2]) if row[2] else "")  # madi
-                    # Store the material ID in the first item's user data
-                    item0.setData(Qt.UserRole, int(row[0]))  # id
-                    item0.setToolTip(str(row[2]) if row[2] else "")  # Add tooltip
+                    # Column 0: Categoria <- madi
+                    item0 = QTableWidgetItem(str(row[2]).strip() if row[2] else "")  # madi
+                    item0.setData(Qt.UserRole, int(row[0]))  # Store material ID
                     self.tableWidget_materiali.setItem(table_row, 0, item0)
                     
-                    # macc - Classe (column 1)
-                    item1 = QTableWidgetItem(str(row[3]) if row[3] else "")  # macc
-                    item1.setToolTip(str(row[3]) if row[3] else "")
+                    # Column 1: Classe <- macc
+                    item1 = QTableWidgetItem(str(row[3]).strip() if row[3] else "")  # macc
                     self.tableWidget_materiali.setItem(table_row, 1, item1)
                     
-                    # macl - Prec. tipologica (column 2)
-                    item2 = QTableWidgetItem(str(row[4]) if row[4] else "")  # macl
-                    item2.setToolTip(str(row[4]) if row[4] else "")
+                    # Column 2: Prec. tipologica <- macl
+                    item2 = QTableWidgetItem(str(row[4]).strip() if row[4] else "")  # macl
                     self.tableWidget_materiali.setItem(table_row, 2, item2)
                     
-                    # macp - Definizione (column 3)
-                    item3 = QTableWidgetItem(str(row[5]) if row[5] else "")  # macp
-                    item3.setToolTip(str(row[5]) if row[5] else "")
+                    # Column 3: Definizione <- macp
+                    item3 = QTableWidgetItem(str(row[5]).strip() if row[5] else "")  # macp
                     self.tableWidget_materiali.setItem(table_row, 3, item3)
                     
-                    # macd - ? (column 4)
-                    item4 = QTableWidgetItem(str(row[6]) if row[6] else "")  # macd
-                    item4.setToolTip(str(row[6]) if row[6] else "")
+                    # Column 4: Cronologia <- cronologia_mac (skip macd)
+                    item4 = QTableWidgetItem(str(row[7]).strip() if row[7] else "")  # cronologia_mac
                     self.tableWidget_materiali.setItem(table_row, 4, item4)
                     
-                    # cronologia_mac - Cronologia (column 5)
-                    item5 = QTableWidgetItem(str(row[7]) if row[7] else "")  # cronologia_mac
-                    item5.setToolTip(str(row[7]) if row[7] else "")
+                    # Column 5: Quantità <- macq
+                    item5 = QTableWidgetItem(str(row[8]).strip() if row[8] else "")  # macq
                     self.tableWidget_materiali.setItem(table_row, 5, item5)
                     
-                    # macq - Quantità (column 6)
-                    item6 = QTableWidgetItem(str(row[8]) if row[8] else "")  # macq
-                    item6.setToolTip(str(row[8]) if row[8] else "")
+                    # Column 6: Peso <- peso
+                    item6 = QTableWidgetItem(str(row[9]).strip() if row[9] else "")  # peso
                     self.tableWidget_materiali.setItem(table_row, 6, item6)
-                    
-                    # peso - Peso (column 7)
-                    item7 = QTableWidgetItem(str(row[9]) if row[9] else "")  # peso
-                    item7.setToolTip(str(row[9]) if row[9] else "")
-                    self.tableWidget_materiali.setItem(table_row, 7, item7)
                     
                 # Log each material loaded
                 for i in range(self.tableWidget_materiali.rowCount()):
@@ -1568,26 +1562,42 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                     QgsMessageLog.logMessage(f"DEBUG TMA get_cell_value: Row {row}, Col {col_index} - NO DATA FOUND!", "PyArchInit", Qgis.Warning)
                     return ""
                 
-                macc = get_cell_value(item0, 0)  # Categoria
-                macl = get_cell_value(item1, 1)  # Classe
-                macp = get_cell_value(item2, 2)  # Prec. tipologica
-                macd = get_cell_value(item3, 3)  # Definizione
-                cronologia_mac = get_cell_value(item4, 4)  # Cronologia
-                macq = get_cell_value(item5, 5)  # Quantità
-                peso_text = get_cell_value(item6, 6)  # Peso
+                # Get values from table with correct mapping (7 columns total)
+                # Table headers: "Categoria *", "Classe", "Prec. tipologica", "Definizione", "Cronologia", "Quantità", "Peso"
+                # Mapping to database fields:
+                # Column 0: Categoria -> madi
+                # Column 1: Classe -> macc
+                # Column 2: Prec. tipologica -> macl
+                # Column 3: Definizione -> macp
+                # Column 4: Cronologia -> cronologia_mac
+                # Column 5: Quantità -> macq
+                # Column 6: Peso -> peso
+                # Note: macd is not used in the UI, set to empty string
                 
-                # Materiale (madi) comes from the category field (synced to ogtm)
-                materiale = macc  # Use category as material identifier
+                madi = get_cell_value(item0, 0)  # Categoria -> madi
+                macc = get_cell_value(item1, 1)  # Classe -> macc
+                macl = get_cell_value(item2, 2)  # Prec. tipologica -> macl
+                macp = get_cell_value(item3, 3)  # Definizione -> macp
+                cronologia_mac = get_cell_value(item4, 4)  # Cronologia -> cronologia_mac
+                macq = get_cell_value(item5, 5)  # Quantità -> macq
+                peso_text = get_cell_value(item6, 6)  # Peso -> peso
                 
-                # Convert to string to ensure consistency
-                materiale = str(materiale) if materiale else ""
-                macc = str(macc) if macc else ""
-                macl = str(macl) if macl else ""
-                macp = str(macp) if macp else ""
-                macd = str(macd) if macd else ""
-                cronologia_mac = str(cronologia_mac) if cronologia_mac else ""
-                macq = str(macq) if macq else ""
-                peso_text = str(peso_text) if peso_text else ""
+                # macd is not in the UI, set to empty string
+                macd = ""
+                
+                # Use madi as the material identifier
+                materiale = madi
+                
+                # Convert to string to ensure consistency and trim whitespace
+                materiale = str(materiale).strip() if materiale else ""
+                madi = str(madi).strip() if madi else ""
+                macc = str(macc).strip() if macc else ""
+                macl = str(macl).strip() if macl else ""
+                macp = str(macp).strip() if macp else ""
+                macd = str(macd).strip() if macd else ""
+                cronologia_mac = str(cronologia_mac).strip() if cronologia_mac else ""
+                macq = str(macq).strip() if macq else ""
+                peso_text = str(peso_text).strip() if peso_text else ""
                 
                 QgsMessageLog.logMessage(f"DEBUG TMA save_materials: Row {row} - item5={item5}, cronologia_mac='{cronologia_mac}'", "PyArchInit", Qgis.Info)
                 
@@ -1635,15 +1645,15 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                     # Update existing material
                     seen_ids.add(material_id)
                     
-                    # Check if data has changed
+                    # Check if data has changed (trim existing values for comparison)
                     existing = existing_ids[material_id]
-                    if (str(existing.madi or '') != materiale or 
-                        str(existing.macc or '') != macc or 
-                        str(existing.macl or '') != macl or 
-                        str(existing.macp or '') != macp or 
-                        str(existing.macd or '') != macd or 
-                        str(existing.cronologia_mac or '') != cronologia_mac or 
-                        str(existing.macq or '') != macq or 
+                    if (str(existing.madi or '').strip() != materiale or 
+                        str(existing.macc or '').strip() != macc or 
+                        str(existing.macl or '').strip() != macl or 
+                        str(existing.macp or '').strip() != macp or 
+                        str(existing.macd or '').strip() != macd or 
+                        str(existing.cronologia_mac or '').strip() != cronologia_mac or 
+                        str(existing.macq or '').strip() != macq or 
                         float(existing.peso or 0) != peso):
                         
                         # Data has changed, update record
@@ -2176,16 +2186,17 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                     if madi_item and madi_item.text().strip():
                         table_valid_rows += 1
                         
-                        # Get all values from this row
+                        # Get all values from this row (7 columns total)
+                        # Mapping: Col 0->madi, Col 1->macc, Col 2->macl, Col 3->macp, Col 4->cronologia_mac, Col 5->macq, Col 6->peso
                         mat_data = {
                             'madi': madi_item.text().strip(),
                             'macc': self.tableWidget_materiali.item(row, 1).text().strip() if self.tableWidget_materiali.item(row, 1) else "",
                             'macl': self.tableWidget_materiali.item(row, 2).text().strip() if self.tableWidget_materiali.item(row, 2) else "",
                             'macp': self.tableWidget_materiali.item(row, 3).text().strip() if self.tableWidget_materiali.item(row, 3) else "",
-                            'macd': self.tableWidget_materiali.item(row, 4).text().strip() if self.tableWidget_materiali.item(row, 4) else "",
-                            'cronologia_mac': self.tableWidget_materiali.item(row, 5).text().strip() if self.tableWidget_materiali.item(row, 5) else "",
-                            'macq': self.tableWidget_materiali.item(row, 6).text().strip() if self.tableWidget_materiali.item(row, 6) else "",
-                            'peso': self.tableWidget_materiali.item(row, 7).text().strip() if self.tableWidget_materiali.item(row, 7) else ""
+                            'macd': "",  # Not in UI, always empty
+                            'cronologia_mac': self.tableWidget_materiali.item(row, 4).text().strip() if self.tableWidget_materiali.item(row, 4) else "",
+                            'macq': self.tableWidget_materiali.item(row, 5).text().strip() if self.tableWidget_materiali.item(row, 5) else "",
+                            'peso': self.tableWidget_materiali.item(row, 6).text().strip() if self.tableWidget_materiali.item(row, 6) else ""
                         }
                         table_materials.append(mat_data)
                 
@@ -2203,16 +2214,16 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                         
                         table_mat = table_materials[i]
                         
-                        # Compare each field (converting None to empty string)
+                        # Compare each field (converting None to empty string and trimming)
                         db_values = {
-                            'madi': str(db_mat['madi'] or ''),
-                            'macc': str(db_mat['macc'] or ''),
-                            'macl': str(db_mat['macl'] or ''),
-                            'macp': str(db_mat['macp'] or ''),
-                            'macd': str(db_mat['macd'] or ''),
-                            'cronologia_mac': str(db_mat['cronologia_mac'] or ''),
-                            'macq': str(db_mat['macq'] or ''),
-                            'peso': str(db_mat['peso'] or '')
+                            'madi': str(db_mat['madi'] or '').strip(),
+                            'macc': str(db_mat['macc'] or '').strip(),
+                            'macl': str(db_mat['macl'] or '').strip(),
+                            'macp': str(db_mat['macp'] or '').strip(),
+                            'macd': str(db_mat['macd'] or '').strip(),
+                            'cronologia_mac': str(db_mat['cronologia_mac'] or '').strip(),
+                            'macq': str(db_mat['macq'] or '').strip(),
+                            'peso': str(db_mat['peso'] or '').strip()
                         }
                         
                         differences = []
