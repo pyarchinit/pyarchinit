@@ -2569,8 +2569,9 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                             self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), len(self.DATA_LIST) - 1
                             self.set_rec_counter(self.REC_TOT, self.REC_CORR + 1)
                             self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[self.REC_CORR]
-                            self.setComboBoxEnable(["self.comboBox_sito"], "False")
+                            # Refill fields with the saved record to ensure form state matches DB
                             self.fill_fields(self.REC_CORR)
+                            self.setComboBoxEnable(["self.comboBox_sito"], "False")
                             self.enable_button(1)
                     else:
                         pass
