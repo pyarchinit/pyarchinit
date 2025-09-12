@@ -2478,46 +2478,76 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
 
     def on_pushButton_new_rec_pressed(self):
         """Create a new record."""
-        if self.check_record_state() == 1:
+        QgsMessageLog.logMessage("DEBUG TMA NEW_REC: Button clicked", "PyArchInit", Qgis.Info)
+        
+        # Check current state
+        QgsMessageLog.logMessage(f"DEBUG TMA NEW_REC: BROWSE_STATUS={self.BROWSE_STATUS}, REC_CORR={self.REC_CORR}, REC_TOT={self.REC_TOT}", "PyArchInit", Qgis.Info)
+        
+        # Check if record has been modified
+        record_state = self.check_record_state()
+        QgsMessageLog.logMessage(f"DEBUG TMA NEW_REC: check_record_state() returned {record_state}", "PyArchInit", Qgis.Info)
+        
+        if record_state == 1:
+            QgsMessageLog.logMessage("DEBUG TMA NEW_REC: Record has unsaved changes, showing update dialog", "PyArchInit", Qgis.Warning)
             self.update_if(QgsSettings().value("pyArchInit/ifupdaterecord"))
+            QgsMessageLog.logMessage("DEBUG TMA NEW_REC: Returning early due to unsaved changes", "PyArchInit", Qgis.Warning)
             return
             
         if self.BROWSE_STATUS != "n":
+            QgsMessageLog.logMessage(f"DEBUG TMA NEW_REC: Switching from BROWSE_STATUS={self.BROWSE_STATUS} to 'n' (new)", "PyArchInit", Qgis.Info)
+            
             conn = Connection()
             sito_set = conn.sito_set()
             sito_set_str = sito_set['sito_set']
+            QgsMessageLog.logMessage(f"DEBUG TMA NEW_REC: sito_set_str='{sito_set_str}'", "PyArchInit", Qgis.Info)
             
             self.BROWSE_STATUS = "n"
             self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
+            
+            QgsMessageLog.logMessage("DEBUG TMA NEW_REC: Calling empty_fields_nosite()", "PyArchInit", Qgis.Info)
             self.empty_fields_nosite()
+            
             # Reset materials loaded flag when creating new record
             self.materials_loaded = False
+            QgsMessageLog.logMessage(f"DEBUG TMA NEW_REC: materials_loaded set to False", "PyArchInit", Qgis.Info)
+            
             self.label_sort.setText(self.SORTED_ITEMS["n"])
             
             # Set first available località value and trigger area loading
-            if self.comboBox_localita.count() > 0:
+            localita_count = self.comboBox_localita.count()
+            QgsMessageLog.logMessage(f"DEBUG TMA NEW_REC: località count = {localita_count}", "PyArchInit", Qgis.Info)
+            
+            if localita_count > 0:
                 # Set first item in località dropdown
                 self.comboBox_localita.setCurrentIndex(0)
+                QgsMessageLog.logMessage(f"DEBUG TMA NEW_REC: Set località to index 0", "PyArchInit", Qgis.Info)
                 # This will trigger on_localita_changed which will load filtered areas
             else:
                 # If no località available, load all areas
+                QgsMessageLog.logMessage("DEBUG TMA NEW_REC: No località available, loading all areas", "PyArchInit", Qgis.Info)
                 self.load_area_values()
                 
             # Mark materials as loaded for new records so they can be saved
             self.materials_loaded = True
+            QgsMessageLog.logMessage(f"DEBUG TMA NEW_REC: materials_loaded set to True for new record", "PyArchInit", Qgis.Info)
 
             if bool(sito_set_str):
                 # When sito_set is active, set the site field and make it read-only
+                QgsMessageLog.logMessage(f"DEBUG TMA NEW_REC: Setting site to '{sito_set_str}' and making it read-only", "PyArchInit", Qgis.Info)
                 self.comboBox_sito.setEditText(sito_set_str)
                 self.setComboBoxEnable(["self.comboBox_sito"], "False")
                 self.setComboBoxEditable(["self.comboBox_sito"], 0)
             else:
                 # When sito_set is not active, allow site selection
+                QgsMessageLog.logMessage("DEBUG TMA NEW_REC: No sito_set, enabling site selection", "PyArchInit", Qgis.Info)
                 self.setComboBoxEnable(["self.comboBox_sito"], "True")
                 self.setComboBoxEditable(["self.comboBox_sito"], 1)
 
             self.set_rec_counter('', '')
             self.label_sort.setText(self.SORTED_ITEMS["n"])
+            QgsMessageLog.logMessage("DEBUG TMA NEW_REC: New record mode activated successfully", "PyArchInit", Qgis.Info)
+        else:
+            QgsMessageLog.logMessage(f"DEBUG TMA NEW_REC: Already in new record mode (BROWSE_STATUS={self.BROWSE_STATUS})", "PyArchInit", Qgis.Info)
 
     def on_pushButton_save_pressed(self):
         """Save the current record."""
