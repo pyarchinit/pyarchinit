@@ -236,9 +236,6 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             QMessageBox.warning(self, "Connection System", str(e), QMessageBox.Ok)
             # SIGNALS & SLOTS Functions
 
-
-
-        self.fill_fields()
         self.customize_GUI()
 
         self.set_sito()
@@ -454,6 +451,9 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
 
     def charge_list(self):
         """Load combobox lists."""
+        # Store current dtzg value before clearing
+        current_dtzg = self.comboBox_dtzg.currentText() if hasattr(self, 'comboBox_dtzg') else ""
+        
         # Get language setting following Tomba.py pattern
         l = QgsSettings().value("locale/userLocale", QVariant)
         lang = ""
@@ -633,6 +633,10 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             index = self.comboBox_dtzg.count() - 1
             self.comboBox_dtzg.setItemData(index, f"Codice: {dtzg_dict[sigla_estesa]}", Qt.ToolTipRole)
         
+        # Restore the previous value if it exists
+        if current_dtzg:
+            self.comboBox_dtzg.setEditText(current_dtzg)
+        
         # 10.6 - Tipologia Acquisizione (aint)
         search_dict_aint = {
 
@@ -795,31 +799,6 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
     def fill_fields(self, n=0):
         self.rec_num = n
         try:
-            # Check if we're on the same record and have unsaved materials changes
-            preserve_materials = False
-            if hasattr(self, '_current_tma_id') and self._current_tma_id == self.DATA_LIST[self.rec_num].id:
-                # We're reloading the same record - check if materials table has unsaved changes
-                if self.check_materials_state():
-                    preserve_materials = True
-                    QgsMessageLog.logMessage("DEBUG TMA: Preserving unsaved materials during field refresh", "PyArchInit", Qgis.Info)
-            
-            # Store materials data temporarily if needed
-            preserved_data = []
-            if preserve_materials:
-                for row in range(self.tableWidget_materiali.rowCount()):
-                    row_data = []
-                    for col in range(self.tableWidget_materiali.columnCount()):
-                        item = self.tableWidget_materiali.item(row, col)
-                        if item:
-                            row_data.append({
-                                'text': item.text(),
-                                'edit_role': item.data(Qt.EditRole),
-                                'display_role': item.data(Qt.DisplayRole),
-                                'user_role': item.data(Qt.UserRole)
-                            })
-                        else:
-                            row_data.append(None)
-                    preserved_data.append(row_data)
             
             # Basic fields - mirror Tomba.py pattern
             self.comboBox_sito.setEditText(str(self.DATA_LIST[self.rec_num].sito))
@@ -844,27 +823,8 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             self.comboBox_dtzg.setEditText(str(self.DATA_LIST[self.rec_num].dtzg))
             self.textEdit_deso.setText(str(self.DATA_LIST[self.rec_num].deso))
             
-            # Update current TMA ID
-            self._current_tma_id = self.DATA_LIST[self.rec_num].id
-            
             # Load materials data for this record
-            if not preserve_materials:
-                self.load_materials_table()
-            else:
-                # Restore preserved data
-                self.tableWidget_materiali.setRowCount(len(preserved_data))
-                for row, row_data in enumerate(preserved_data):
-                    for col, cell_data in enumerate(row_data):
-                        if cell_data is not None:
-                            item = QTableWidgetItem(cell_data['text'])
-                            if cell_data['edit_role'] is not None:
-                                item.setData(Qt.EditRole, cell_data['edit_role'])
-                            if cell_data['display_role'] is not None:
-                                item.setData(Qt.DisplayRole, cell_data['display_role'])
-                            if cell_data['user_role'] is not None:
-                                item.setData(Qt.UserRole, cell_data['user_role'])
-                            self.tableWidget_materiali.setItem(row, col, item)
-                QgsMessageLog.logMessage(f"DEBUG TMA: Restored {len(preserved_data)} rows of unsaved materials", "PyArchInit", Qgis.Info)
+            self.load_materials_table()
             
             # Documentation tables
             if self.DATA_LIST[self.rec_num].ftap:
@@ -1010,12 +970,9 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                             self.iconListWidget.addItem(item)
 
     def set_rec_counter(self, t, c):
-        QgsMessageLog.logMessage(f"DEBUG set_rec_counter - prima: REC_TOT={self.REC_TOT if hasattr(self, 'REC_TOT') else 'None'}, REC_CORR={self.REC_CORR if hasattr(self, 'REC_CORR') else 'None'}", "PyArchInit", Qgis.Info)
-        QgsMessageLog.logMessage(f"DEBUG set_rec_counter - impostando: t={t}, c={c}", "PyArchInit", Qgis.Info)
-        # Non sovrascrivere REC_TOT e REC_CORR, solo aggiornare le label
+        # Solo aggiornare le label, non le variabili interne
         self.label_rec_tot.setText(str(t))
         self.label_rec_corrente.setText(str(c))
-        QgsMessageLog.logMessage(f"DEBUG set_rec_counter - dopo: REC_TOT={self.REC_TOT if hasattr(self, 'REC_TOT') else 'None'}, REC_CORR={self.REC_CORR if hasattr(self, 'REC_CORR') else 'None'}", "PyArchInit", Qgis.Info)
 
 
     def records_equal_check(self):
@@ -1024,8 +981,23 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             self.set_LIST_REC_TEMP()
             self.set_LIST_REC_CORR()
 
-            # Check main record fields
-            main_record_equal = self.DATA_LIST_REC_CORR == self.DATA_LIST_REC_TEMP
+            # Debug: Compare field by field to find differences
+            from qgis.core import QgsMessageLog, Qgis
+            differences = []
+            for i, field_name in enumerate(self.TABLE_FIELDS):
+                if i < len(self.DATA_LIST_REC_CORR) and i < len(self.DATA_LIST_REC_TEMP):
+                    if self.DATA_LIST_REC_CORR[i] != self.DATA_LIST_REC_TEMP[i]:
+                        # Skip system fields for comparison
+                        if field_name not in ['created_at', 'updated_at', 'created_by', 'updated_by']:
+                            differences.append(f"{field_name}: DB='{self.DATA_LIST_REC_CORR[i]}' != Form='{self.DATA_LIST_REC_TEMP[i]}'")
+            
+            if differences:
+                QgsMessageLog.logMessage(f"DEBUG records_equal_check - Differences found in fields: {differences[:3]}", "PyArchInit", Qgis.Info)
+            else:
+                QgsMessageLog.logMessage(f"DEBUG records_equal_check - No differences in main fields", "PyArchInit", Qgis.Info)
+            
+            # Use the same logic for main record comparison as debug
+            main_record_equal = len(differences) == 0
             
             # Check materials state
             materials_changed = self.check_materials_state()
@@ -1050,7 +1022,14 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         self.DATA_LIST_REC_CORR = []
         for i in self.TABLE_FIELDS:
             try:
-                self.DATA_LIST_REC_CORR.append(eval("unicode(self.DATA_LIST[self.REC_CORR]." + i + ")"))
+                # Get the value from the database record
+                value = getattr(self.DATA_LIST[self.REC_CORR], i, None)
+                # Convert None to empty string for consistent comparison
+                if value is None:
+                    value = ''
+                else:
+                    value = str(value)
+                self.DATA_LIST_REC_CORR.append(value)
             except IndexError as e:
                 print(f"IndexError: {e} - self.REC_CORR: {self.REC_CORR}, len(self.DATA_LIST): {len(self.DATA_LIST)}")
                 raise
@@ -1169,6 +1148,20 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         # Get documentation data from tables
         ftap, ftan = self.get_foto_data()
         drat, dran, draa = self.get_disegni_data()
+        
+        # Get system fields from current record if it exists
+        created_at = ''
+        updated_at = ''
+        created_by = ''
+        updated_by = ''
+        
+        if hasattr(self, 'DATA_LIST') and self.DATA_LIST and 0 <= self.REC_CORR < len(self.DATA_LIST):
+            current_record = self.DATA_LIST[self.REC_CORR]
+            # Get system fields from the current record
+            created_at = str(current_record.created_at) if hasattr(current_record, 'created_at') and current_record.created_at else ''
+            updated_at = str(current_record.updated_at) if hasattr(current_record, 'updated_at') and current_record.updated_at else ''
+            created_by = str(current_record.created_by) if hasattr(current_record, 'created_by') and current_record.created_by else ''
+            updated_by = str(current_record.updated_by) if hasattr(current_record, 'updated_by') and current_record.updated_by else ''
 
         # Build the temp list (29 fields with system fields - localita removed)
         self.DATA_LIST_REC_TEMP = [
@@ -1199,10 +1192,10 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             str(drat),
             str(dran),
             str(draa),
-            '',  # created_at
-            '',  # updated_at
-            '',  # created_by
-            ''   # updated_by
+            created_at,  # created_at
+            updated_at,  # updated_at
+            created_by,  # created_by
+            updated_by   # updated_by
         ]
 
     def get_foto_data(self):
@@ -1268,13 +1261,19 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
 
     def load_materials_table(self):
         """Load materials data for current TMA record from database."""
-        QgsMessageLog.logMessage(f"DEBUG TMA load_materials_table: CALLED - rec_num={self.rec_num}, REC_CORR={self.REC_CORR}", "PyArchInit", Qgis.Info)
-        # Reset materials loaded flag before loading
-        self.materials_loaded = False
+        # Set flag to indicate we're loading materials
+        self._loading_materials = True
         
+        # Remove debug logging to reduce noise
         if not self.DATA_LIST or self.rec_num >= len(self.DATA_LIST):
-            QgsMessageLog.logMessage(f"DEBUG TMA load_materials_table: Exiting early - DATA_LIST empty or rec_num out of range", "PyArchInit", Qgis.Info)
+            self._loading_materials = False
             return
+        
+        # Disconnect signals during loading to prevent false change notifications
+        try:
+            self.tableWidget_materiali.itemChanged.disconnect(self.on_materials_table_changed)
+        except:
+            pass  # Signal might not be connected
             
         # Clear table
         self.tableWidget_materiali.setRowCount(0)
@@ -1285,7 +1284,6 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         try:
             # Get current TMA id
             current_tma_id = self.DATA_LIST[self.rec_num].id
-            QgsMessageLog.logMessage(f"DEBUG TMA load_materials_table: current_tma_id = {current_tma_id}, type = {type(current_tma_id)}", "PyArchInit", Qgis.Info)
             
             # Convert to int to ensure consistent type
             current_tma_id = int(current_tma_id)
@@ -1309,45 +1307,51 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                     self.tableWidget_materiali.insertRow(table_row)
                     
                     # Fill row data - map column indices from query result
-                    # Assuming column order: id, id_tma, madi, macc, macl, macp, macd, cronologia_mac, macq, peso
-                    # macc (categoria) now goes in first column and syncs to ogtm
-                    item0 = QTableWidgetItem(str(row[3]) if row[3] else "")  # macc
+                    # Column order: id, id_tma, madi, macc, macl, macp, macd, cronologia_mac, macq, peso
+                    # Widget columns: Categoria, Classe, Prec.tipologica, Definizione, ?, Cronologia, Quantità, Peso
+                    
+                    # madi - Categoria (column 0)
+                    item0 = QTableWidgetItem(str(row[2]) if row[2] else "")  # madi
                     # Store the material ID in the first item's user data
                     item0.setData(Qt.UserRole, int(row[0]))  # id
-                    item0.setToolTip(str(row[3]) if row[3] else "")  # Add tooltip
+                    item0.setToolTip(str(row[2]) if row[2] else "")  # Add tooltip
                     self.tableWidget_materiali.setItem(table_row, 0, item0)
                     
-                    # macl - Classe
-                    item1 = QTableWidgetItem(str(row[4]) if row[4] else "")
-                    item1.setToolTip(str(row[4]) if row[4] else "")
+                    # macc - Classe (column 1)
+                    item1 = QTableWidgetItem(str(row[3]) if row[3] else "")  # macc
+                    item1.setToolTip(str(row[3]) if row[3] else "")
                     self.tableWidget_materiali.setItem(table_row, 1, item1)
                     
-                    # macp - Prec. tipologica
-                    item2 = QTableWidgetItem(str(row[5]) if row[5] else "")
-                    item2.setToolTip(str(row[5]) if row[5] else "")
+                    # macl - Prec. tipologica (column 2)
+                    item2 = QTableWidgetItem(str(row[4]) if row[4] else "")  # macl
+                    item2.setToolTip(str(row[4]) if row[4] else "")
                     self.tableWidget_materiali.setItem(table_row, 2, item2)
                     
-                    # macd - Definizione
-                    item3 = QTableWidgetItem(str(row[6]) if row[6] else "")
-                    item3.setToolTip(str(row[6]) if row[6] else "")
+                    # macp - Definizione (column 3)
+                    item3 = QTableWidgetItem(str(row[5]) if row[5] else "")  # macp
+                    item3.setToolTip(str(row[5]) if row[5] else "")
                     self.tableWidget_materiali.setItem(table_row, 3, item3)
                     
-                    # cronologia_mac
-                    item4 = QTableWidgetItem(str(row[7]) if row[7] else "")
-                    item4.setToolTip(str(row[7]) if row[7] else "")
+                    # macd - ? (column 4)
+                    item4 = QTableWidgetItem(str(row[6]) if row[6] else "")  # macd
+                    item4.setToolTip(str(row[6]) if row[6] else "")
                     self.tableWidget_materiali.setItem(table_row, 4, item4)
                     
-                    # macq - Quantità
-                    item5 = QTableWidgetItem(str(row[8]) if row[8] else "")
-                    item5.setToolTip(str(row[8]) if row[8] else "")
+                    # cronologia_mac - Cronologia (column 5)
+                    item5 = QTableWidgetItem(str(row[7]) if row[7] else "")  # cronologia_mac
+                    item5.setToolTip(str(row[7]) if row[7] else "")
                     self.tableWidget_materiali.setItem(table_row, 5, item5)
                     
-                    # peso
-                    item6 = QTableWidgetItem(str(row[9]) if row[9] else "")
-                    item6.setToolTip(str(row[9]) if row[9] else "")
+                    # macq - Quantità (column 6)
+                    item6 = QTableWidgetItem(str(row[8]) if row[8] else "")  # macq
+                    item6.setToolTip(str(row[8]) if row[8] else "")
                     self.tableWidget_materiali.setItem(table_row, 6, item6)
                     
-                QgsMessageLog.logMessage(f"DEBUG TMA load_materials_table: Loaded {self.tableWidget_materiali.rowCount()} materials", "PyArchInit", Qgis.Info)
+                    # peso - Peso (column 7)
+                    item7 = QTableWidgetItem(str(row[9]) if row[9] else "")  # peso
+                    item7.setToolTip(str(row[9]) if row[9] else "")
+                    self.tableWidget_materiali.setItem(table_row, 7, item7)
+                    
                 # Log each material loaded
                 for i in range(self.tableWidget_materiali.rowCount()):
                     item0 = self.tableWidget_materiali.item(i, 0)
@@ -1363,13 +1367,25 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             finally:
                 session.close()
                 
-            QgsMessageLog.logMessage(f"DEBUG TMA load_materials_table: COMPLETED - Final table row count: {self.tableWidget_materiali.rowCount()}", "PyArchInit", Qgis.Info)
-                
         except Exception as e:
             QgsMessageLog.logMessage(f"DEBUG TMA load_materials_table: Error occurred: {str(e)}", "PyArchInit", Qgis.Warning)
             import traceback
             traceback.print_exc()
-            QMessageBox.warning(self, "Error", f"Errore nel caricamento materiali: {str(e)}", QMessageBox.Ok)
+        
+        # Reconnect signal after loading is complete (only if not already connected)
+        try:
+            # Try to disconnect first to avoid duplicate connections
+            self.tableWidget_materiali.itemChanged.disconnect(self.on_materials_table_changed)
+        except:
+            pass  # Was not connected
+        
+        # Now connect once
+        self.tableWidget_materiali.itemChanged.connect(self.on_materials_table_changed)
+        
+        # Clear the materials_modified flag after loading
+        self.materials_modified = False
+        self._loading_materials = False
+        QgsMessageLog.logMessage(f"DEBUG load_materials_table: Reset flags - materials_modified=False, _loading_materials=False", "PyArchInit", Qgis.Info)
 
     def save_materials_data(self, tma_id):
         """Save materials table data to database."""
@@ -1954,7 +1970,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         self.textEdit_rcgz.clear()
         self.comboBox_aint.setEditText("")
         self.lineEdit_aind.clear()
-        self.comboBox_dtzg.clear()
+        self.comboBox_dtzg.setEditText("")  # Don't clear items, just reset selection
         self.textEdit_deso.clear()
         
         # Clear new fields
@@ -2008,7 +2024,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         self.textEdit_rcgz.clear()
         self.comboBox_aint.setEditText("")
         self.lineEdit_aind.clear()
-        self.comboBox_dtzg.setEditText("")
+        self.comboBox_dtzg.setEditText("")  # Keep the list items
         self.textEdit_deso.clear()
 
         # Clear new fields
@@ -2069,43 +2085,51 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         return self.REC_TOT
     
     def check_record_state(self):
+        """Check if record has been modified but don't show dialog or trigger actions."""
         ec = self.data_error_check()
+        QgsMessageLog.logMessage(f"DEBUG check_record_state: data_error_check returned {ec}", "PyArchInit", Qgis.Info)
+        
         if ec == 1:
             return 1  # ci sono errori di immissione
-        elif self.records_equal_check() == 1 and ec == 0:
-            if self.L=='it':
-                self.update_if(
-
-                    QMessageBox.warning(self, 'Errore', "Il record e' stato modificato. Vuoi salvare le modifiche?",
-                                        QMessageBox.Ok | QMessageBox.Cancel))
-            elif self.L=='de':
-                self.update_if(
-                    QMessageBox.warning(self, 'Errore', "Der Record wurde geändert. Möchtest du die Änderungen speichern?",
-                                        QMessageBox.Ok | QMessageBox.Cancel))
-            else:
-                self.update_if(
-                    QMessageBox.warning(self, "Error", "The record has been changed. You want to save the changes?",
-                                        QMessageBox.Ok | QMessageBox.Cancel))
-            # self.charge_records()
-            return 0  # non ci sono errori di immissione
+        
+        records_equal_result = self.records_equal_check()
+        QgsMessageLog.logMessage(f"DEBUG check_record_state: records_equal_check returned {records_equal_result}", "PyArchInit", Qgis.Info)
+        
+        if records_equal_result == 0 and ec == 0:
+            # Records are equal, check materials
+            materials_changed = self.check_materials_state()
+            QgsMessageLog.logMessage(f"DEBUG check_record_state: records_equal=True, materials_changed={materials_changed}", "PyArchInit", Qgis.Info)
+            if materials_changed:
+                return 1  # Materials have been modified
+            return 0  # nessuna modifica
+        else:
+            # Records are NOT equal
+            QgsMessageLog.logMessage(f"DEBUG check_record_state: records NOT equal (result={records_equal_result}), returning 1", "PyArchInit", Qgis.Info)
+            return 1  # record modificato
 
             # records surf functions
     def check_materials_state(self):
         """Check if materials in the table have changed compared to database."""
-        QgsMessageLog.logMessage("DEBUG TMA: check_materials_state called", "PyArchInit", Qgis.Info)
+        # Don't check if we're currently loading materials
+        if hasattr(self, '_loading_materials') and self._loading_materials:
+            QgsMessageLog.logMessage("DEBUG check_materials_state: Skipping - currently loading materials", "PyArchInit", Qgis.Info)
+            return False
+            
         try:
+            # Don't use materials_modified flag for checking - it causes false positives
+            # The flag should only be set when user actually modifies materials
+            
             if not self.DATA_LIST or self.REC_CORR >= len(self.DATA_LIST):
-                QgsMessageLog.logMessage("DEBUG TMA: New record or no data list", "PyArchInit", Qgis.Info)
                 # New record, check if table has content with valid data
                 for row in range(self.tableWidget_materiali.rowCount()):
-                    macc = self.tableWidget_materiali.item(row, 1).text() if self.tableWidget_materiali.item(row, 1) else ""
-                    if macc.strip():  # At least one row has category filled
+                    # Check first column (categoria) since that's the main field
+                    item = self.tableWidget_materiali.item(row, 0)
+                    if item and item.text().strip():
                         return True
                 return False
             
             # Get current materials from database using direct SQL to avoid type issues
             current_tma_id = self.DATA_LIST[self.REC_CORR].id
-            QgsMessageLog.logMessage(f"DEBUG TMA: Getting materials for TMA ID {current_tma_id}, type={type(current_tma_id)}", "PyArchInit", Qgis.Info)
             
             # Use direct SQL query to avoid type comparison issues in query_bool
             from sqlalchemy import text
@@ -2119,8 +2143,8 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             session = Session()
             
             try:
-                # Get existing materials using direct SQL
-                sql = text("SELECT * FROM tma_materiali_ripetibili WHERE id_tma = :id_tma")
+                # Get existing materials using direct SQL - select specific columns to ensure correct mapping
+                sql = text("SELECT id, id_tma, madi, macc, macl, macp, macd, cronologia_mac, macq, peso FROM tma_materiali_ripetibili WHERE id_tma = :id_tma ORDER BY id")
                 result = session.execute(sql, {'id_tma': tma_id_int})
                 
                 # Convert results to list of dictionaries
@@ -2131,78 +2155,74 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                     mat_dict = {
                         'id': row[0],
                         'id_tma': row[1],
-                        'madi': row[2],
-                        'macc': row[3],
-                        'macl': row[4],
-                        'macp': row[5],
-                        'macd': row[6],
-                        'cronologia_mac': row[7],
-                        'macq': row[8],
-                        'peso': row[9]
+                        'madi': row[2],        # categoria
+                        'macc': row[3],        # classe
+                        'macl': row[4],        # tipologia  
+                        'macp': row[5],        # definizione
+                        'macd': row[6],        # ?
+                        'cronologia_mac': row[7],  # cronologia
+                        'macq': row[8],        # quantità
+                        'peso': row[9]         # peso
                     }
                     db_materials.append(mat_dict)
                 
-                # Create a map of existing materials by ID
-                db_materials_by_id = {mat['id']: mat for mat in db_materials}
+                # Count valid rows in table (rows with at least categoria filled)
+                table_valid_rows = 0
+                table_materials = []
                 
-                # Track which IDs we've seen and count valid rows
-                seen_ids = set()
-                valid_rows = 0
-                
-                # Check all rows in the table
                 for row in range(self.tableWidget_materiali.rowCount()):
-                    # Get category to check if row is valid
-                    macc = str(self.tableWidget_materiali.item(row, 1).data(Qt.DisplayRole)) if self.tableWidget_materiali.item(row, 1) and self.tableWidget_materiali.item(row, 1).data(Qt.DisplayRole) else ""
-                    if not macc.strip():
-                        continue  # Skip empty rows
+                    # Check if row has categoria (column 0)
+                    madi_item = self.tableWidget_materiali.item(row, 0)
+                    if madi_item and madi_item.text().strip():
+                        table_valid_rows += 1
                         
-                    valid_rows += 1
-                    
-                    # Get the material ID stored in the first column's user data
-                    material_id = self.tableWidget_materiali.item(row, 0).data(Qt.UserRole) if self.tableWidget_materiali.item(row, 0) else None
-                    
-                    if material_id is None:
-                        # This is a new material
-                        return True
-                    
-                    if material_id not in db_materials_by_id:
-                        # Material ID exists in table but not in database (shouldn't happen)
-                        return True
-                    
-                    seen_ids.add(material_id)
-                    
-                    # Compare values with database
-                    db_material = db_materials_by_id[material_id]
-                    
-                    # Get values from table using data() to get delegate values
-                    table_madi = str(self.tableWidget_materiali.item(row, 0).data(Qt.DisplayRole)) if self.tableWidget_materiali.item(row, 0) and self.tableWidget_materiali.item(row, 0).data(Qt.DisplayRole) else ""
-                    table_macc = str(self.tableWidget_materiali.item(row, 1).data(Qt.DisplayRole)) if self.tableWidget_materiali.item(row, 1) and self.tableWidget_materiali.item(row, 1).data(Qt.DisplayRole) else ""
-                    table_macl = str(self.tableWidget_materiali.item(row, 2).data(Qt.DisplayRole)) if self.tableWidget_materiali.item(row, 2) and self.tableWidget_materiali.item(row, 2).data(Qt.DisplayRole) else ""
-                    table_macp = str(self.tableWidget_materiali.item(row, 3).data(Qt.DisplayRole)) if self.tableWidget_materiali.item(row, 3) and self.tableWidget_materiali.item(row, 3).data(Qt.DisplayRole) else ""
-                    table_macd = str(self.tableWidget_materiali.item(row, 4).data(Qt.DisplayRole)) if self.tableWidget_materiali.item(row, 4) and self.tableWidget_materiali.item(row, 4).data(Qt.DisplayRole) else ""
-                    table_cronologia = str(self.tableWidget_materiali.item(row, 5).data(Qt.DisplayRole)) if self.tableWidget_materiali.item(row, 5) and self.tableWidget_materiali.item(row, 5).data(Qt.DisplayRole) else ""
-                    table_macq = str(self.tableWidget_materiali.item(row, 6).data(Qt.DisplayRole)) if self.tableWidget_materiali.item(row, 6) and self.tableWidget_materiali.item(row, 6).data(Qt.DisplayRole) else ""
-                    table_peso = str(self.tableWidget_materiali.item(row, 7).data(Qt.DisplayRole)) if self.tableWidget_materiali.item(row, 7) and self.tableWidget_materiali.item(row, 7).data(Qt.DisplayRole) else ""
-                    
-                    # Get values from database
-                    db_madi = str(db_material['madi']) if db_material['madi'] else ""
-                    db_macc = str(db_material['macc']) if db_material['macc'] else ""
-                    db_macl = str(db_material['macl']) if db_material['macl'] else ""
-                    db_macp = str(db_material['macp']) if db_material['macp'] else ""
-                    db_macd = str(db_material['macd']) if db_material['macd'] else ""
-                    db_cronologia = str(db_material['cronologia_mac']) if db_material['cronologia_mac'] else ""
-                    db_macq = str(db_material['macq']) if db_material['macq'] else ""
-                    db_peso = str(db_material['peso']) if db_material['peso'] else ""
-                    
-                    # Compare values
-                    if (table_madi != db_madi or table_macc != db_macc or table_macl != db_macl or 
-                        table_macp != db_macp or table_macd != db_macd or table_cronologia != db_cronologia or
-                        table_macq != db_macq or table_peso != db_peso):
-                        return True
+                        # Get all values from this row
+                        mat_data = {
+                            'madi': madi_item.text().strip(),
+                            'macc': self.tableWidget_materiali.item(row, 1).text().strip() if self.tableWidget_materiali.item(row, 1) else "",
+                            'macl': self.tableWidget_materiali.item(row, 2).text().strip() if self.tableWidget_materiali.item(row, 2) else "",
+                            'macp': self.tableWidget_materiali.item(row, 3).text().strip() if self.tableWidget_materiali.item(row, 3) else "",
+                            'macd': self.tableWidget_materiali.item(row, 4).text().strip() if self.tableWidget_materiali.item(row, 4) else "",
+                            'cronologia_mac': self.tableWidget_materiali.item(row, 5).text().strip() if self.tableWidget_materiali.item(row, 5) else "",
+                            'macq': self.tableWidget_materiali.item(row, 6).text().strip() if self.tableWidget_materiali.item(row, 6) else "",
+                            'peso': self.tableWidget_materiali.item(row, 7).text().strip() if self.tableWidget_materiali.item(row, 7) else ""
+                        }
+                        table_materials.append(mat_data)
                 
-                # Check if any materials were deleted (exist in DB but not seen in table)
-                if len(seen_ids) != len(db_materials):
+                # Quick check: different number of materials
+                if len(db_materials) != table_valid_rows:
+                    QgsMessageLog.logMessage(f"DEBUG check_materials_state: Count mismatch - DB={len(db_materials)}, Table={table_valid_rows}", "PyArchInit", Qgis.Info)
                     return True
+                
+                # Compare materials content if counts match
+                if len(db_materials) > 0:
+                    # Compare each material
+                    for i, db_mat in enumerate(db_materials):
+                        if i >= len(table_materials):
+                            return True  # Missing material in table
+                        
+                        table_mat = table_materials[i]
+                        
+                        # Compare each field (converting None to empty string)
+                        db_values = {
+                            'madi': str(db_mat['madi'] or ''),
+                            'macc': str(db_mat['macc'] or ''),
+                            'macl': str(db_mat['macl'] or ''),
+                            'macp': str(db_mat['macp'] or ''),
+                            'macd': str(db_mat['macd'] or ''),
+                            'cronologia_mac': str(db_mat['cronologia_mac'] or ''),
+                            'macq': str(db_mat['macq'] or ''),
+                            'peso': str(db_mat['peso'] or '')
+                        }
+                        
+                        differences = []
+                        for field in ['madi', 'macc', 'macl', 'macp', 'macd', 'cronologia_mac', 'macq', 'peso']:
+                            if db_values[field] != table_mat[field]:
+                                differences.append(f"{field}: DB='{db_values[field]}' != Table='{table_mat[field]}'")
+                        
+                        if differences:
+                            QgsMessageLog.logMessage(f"DEBUG check_materials_state: Material {i} differs - {differences}", "PyArchInit", Qgis.Info)
+                            return True
                 
                 return False
                 
@@ -2211,8 +2231,8 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             
         except Exception as e:
             QgsMessageLog.logMessage(f"DEBUG TMA: Error in check_materials_state: {e}", "PyArchInit", Qgis.Warning)
-            # If error occurs, assume changed to be safe
-            return True
+            # If error occurs, assume no change to avoid false positives
+            return False
 
     def data_error_check(self):
         """Check for data errors in form fields."""
@@ -2235,12 +2255,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
 
     def update_if(self, msg):
         """Update interface message."""
-        print(f"DEBUG update_if - chiamato con msg={msg}")
-        if msg == QMessageBox.Ok:
-            print(f"DEBUG update_if - utente ha scelto OK, aggiornando il record")
-            self.update_record_to_db()
-        else:
-            print(f"DEBUG update_if - utente ha scelto Cancel o altro")
+        return msg
 
     def on_pushButton_import_pressed(self):
         """Open import dialog."""
@@ -2291,70 +2306,172 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
 
     # Button event handlers
     def on_pushButton_first_rec_pressed(self):
+        # Prevent multiple rapid navigation calls
+        if hasattr(self, '_navigation_in_progress') and self._navigation_in_progress:
+            return
+            
+        # Also check with a timestamp to prevent rapid double clicks
+        import time
+        current_time = time.time()
+        if hasattr(self, '_last_navigation_time'):
+            if current_time - self._last_navigation_time < 0.5:  # 500ms debounce
+                return
+        self._last_navigation_time = current_time
+            
         if self.check_record_state() == 1:
-            pass
-        else:
-            try:
-                self.empty_fields()
-                self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
-                self.fill_fields(0)
-                self.set_rec_counter(self.REC_TOT, self.REC_CORR + 1)
-            except Exception as e:
-                QMessageBox.warning(self, "Error", str(e), QMessageBox.Ok)
+            msg = QMessageBox.warning(self, 'Attenzione', 
+                                     "Il record è stato modificato. Vuoi salvare le modifiche?",
+                                     QMessageBox.Yes | QMessageBox.No | QMessageBox.Cancel)
+            if msg == QMessageBox.Cancel:
+                return
+            elif msg == QMessageBox.Yes:
+                self.on_pushButton_save_pressed()
+                if self.REC_CORR == 0:
+                    return  # Already at first record
+        
+        self._navigation_in_progress = True
+        try:
+            self.empty_fields()
+            self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
+            self.fill_fields(0)
+            self.set_rec_counter(self.REC_TOT, self.REC_CORR + 1)
+        except Exception as e:
+            QMessageBox.warning(self, "Error", str(e), QMessageBox.Ok)
+        finally:
+            self._navigation_in_progress = False
 
     def on_pushButton_last_rec_pressed(self):
+        # Prevent multiple rapid navigation calls
+        if hasattr(self, '_navigation_in_progress') and self._navigation_in_progress:
+            return
+            
+        # Also check with a timestamp to prevent rapid double clicks
+        import time
+        current_time = time.time()
+        if hasattr(self, '_last_navigation_time'):
+            if current_time - self._last_navigation_time < 0.5:  # 500ms debounce
+                return
+        self._last_navigation_time = current_time
+            
         if self.check_record_state() == 1:
-            pass
-        else:
-            try:
-                self.empty_fields()
-                self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), len(self.DATA_LIST) - 1
-                self.fill_fields(self.REC_CORR)
-                self.set_rec_counter(self.REC_TOT, self.REC_CORR + 1)
-            except Exception as e:
-                QMessageBox.warning(self, "Error", str(e), QMessageBox.Ok)
+            msg = QMessageBox.warning(self, 'Attenzione', 
+                                     "Il record è stato modificato. Vuoi salvare le modifiche?",
+                                     QMessageBox.Yes | QMessageBox.No | QMessageBox.Cancel)
+            if msg == QMessageBox.Cancel:
+                return
+            elif msg == QMessageBox.Yes:
+                self.on_pushButton_save_pressed()
+                if self.REC_CORR == len(self.DATA_LIST) - 1:
+                    return  # Already at last record
+        
+        self._navigation_in_progress = True
+        try:
+            self.empty_fields()
+            self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), len(self.DATA_LIST) - 1
+            self.fill_fields(self.REC_CORR)
+            self.set_rec_counter(self.REC_TOT, self.REC_CORR + 1)
+        except Exception as e:
+            QMessageBox.warning(self, "Error", str(e), QMessageBox.Ok)
+        finally:
+            self._navigation_in_progress = False
 
     def on_pushButton_prev_rec_pressed(self):
-        if self.check_record_state() == 1:
-            pass
-        else:
-            self.REC_CORR = self.REC_CORR - 1
-            if self.REC_CORR == -1:
-                self.REC_CORR = 0
-                if self.L=='it':
-                    QMessageBox.warning(self, "Attenzione", "Sei al primo record!", QMessageBox.Ok)
-                elif self.L=='de':
-                    QMessageBox.warning(self, "Warnung", "du befindest dich im ersten Datensatz!", QMessageBox.Ok)
-                else:
-                    QMessageBox.warning(self, "Warning", "You are to the first record!", QMessageBox.Ok)        
+        QgsMessageLog.logMessage(f"DEBUG TMA PREV: Called. REC_CORR={self.REC_CORR}, REC_TOT={self.REC_TOT}", "PyArchInit", Qgis.Info)
+        
+        # Prevent multiple rapid navigation calls
+        if hasattr(self, '_navigation_in_progress') and self._navigation_in_progress:
+            QgsMessageLog.logMessage("DEBUG TMA PREV: Navigation already in progress, skipping", "PyArchInit", Qgis.Warning)
+            return
+            
+        # Also check with a timestamp to prevent rapid double clicks
+        import time
+        current_time = time.time()
+        if hasattr(self, '_last_navigation_time'):
+            if current_time - self._last_navigation_time < 0.5:  # 500ms debounce
+                QgsMessageLog.logMessage(f"DEBUG TMA PREV: Too rapid (delta={current_time - self._last_navigation_time:.3f}s), skipping", "PyArchInit", Qgis.Warning)
+                return
+        self._last_navigation_time = current_time
+            
+        if self.REC_CORR <= 0:
+            if self.L=='it':
+                QMessageBox.warning(self, "Attenzione", "Sei al primo record!", QMessageBox.Ok)
+            elif self.L=='de':
+                QMessageBox.warning(self, "Warnung", "du befindest dich im ersten Datensatz!", QMessageBox.Ok)
             else:
-                try:
-                    self.empty_fields()
-                    self.fill_fields(self.REC_CORR)
-                    self.set_rec_counter(self.REC_TOT, self.REC_CORR + 1)
-                except Exception as e:
-                    QMessageBox.warning(self, "Error", str(e), QMessageBox.Ok)
+                QMessageBox.warning(self, "Warning", "You are at the first record!", QMessageBox.Ok)
+            return
+            
+        if self.check_record_state() == 1:
+            msg = QMessageBox.warning(self, 'Attenzione', 
+                                     "Il record è stato modificato. Vuoi salvare le modifiche?",
+                                     QMessageBox.Yes | QMessageBox.No | QMessageBox.Cancel)
+            if msg == QMessageBox.Cancel:
+                return
+            elif msg == QMessageBox.Yes:
+                self.on_pushButton_save_pressed()
+        
+        self._navigation_in_progress = True
+        try:
+            self.REC_CORR = self.REC_CORR - 1
+            QgsMessageLog.logMessage(f"DEBUG TMA PREV: New REC_CORR={self.REC_CORR}", "PyArchInit", Qgis.Info)
+            self.empty_fields()
+            self.fill_fields(self.REC_CORR)
+            self.set_rec_counter(self.REC_TOT, self.REC_CORR + 1)
+            QgsMessageLog.logMessage(f"DEBUG TMA PREV: Navigation completed to record {self.REC_CORR + 1}/{self.REC_TOT}", "PyArchInit", Qgis.Info)
+        except Exception as e:
+            QgsMessageLog.logMessage(f"DEBUG TMA PREV: Error during navigation: {e}", "PyArchInit", Qgis.Critical)
+            QMessageBox.warning(self, "Error", str(e), QMessageBox.Ok)
+        finally:
+            self._navigation_in_progress = False
 
     def on_pushButton_next_rec_pressed(self):
-        if self.check_record_state() == 1:
-            pass
-        else:
-            self.REC_CORR = self.REC_CORR + 1
-            if self.REC_CORR >= self.REC_TOT:
-                self.REC_CORR = self.REC_CORR - 1
-                if self.L=='it':
-                    QMessageBox.warning(self, "Attenzione", "Sei all'ultimo record!", QMessageBox.Ok)
-                elif self.L=='de':
-                    QMessageBox.warning(self, "Warnung", "du befindest dich im letzten Datensatz!", QMessageBox.Ok)
-                else:
-                    QMessageBox.warning(self, "Error", "You are to the first record!", QMessageBox.Ok)  
+        QgsMessageLog.logMessage(f"DEBUG TMA NEXT: Called. REC_CORR={self.REC_CORR}, REC_TOT={self.REC_TOT}", "PyArchInit", Qgis.Info)
+        
+        # Prevent multiple rapid navigation calls
+        if hasattr(self, '_navigation_in_progress') and self._navigation_in_progress:
+            QgsMessageLog.logMessage("DEBUG TMA NEXT: Navigation already in progress, skipping", "PyArchInit", Qgis.Warning)
+            return
+            
+        # Also check with a timestamp to prevent rapid double clicks
+        import time
+        current_time = time.time()
+        if hasattr(self, '_last_navigation_time'):
+            if current_time - self._last_navigation_time < 0.5:  # 500ms debounce
+                QgsMessageLog.logMessage(f"DEBUG TMA NEXT: Too rapid (delta={current_time - self._last_navigation_time:.3f}s), skipping", "PyArchInit", Qgis.Warning)
+                return
+        self._last_navigation_time = current_time
+            
+        if self.REC_CORR >= self.REC_TOT - 1:
+            if self.L=='it':
+                QMessageBox.warning(self, "Attenzione", "Sei all'ultimo record!", QMessageBox.Ok)
+            elif self.L=='de':
+                QMessageBox.warning(self, "Warnung", "du befindest dich im letzten Datensatz!", QMessageBox.Ok)
             else:
-                try:
-                    self.empty_fields()
-                    self.fill_fields(self.REC_CORR)
-                    self.set_rec_counter(self.REC_TOT, self.REC_CORR + 1)
-                except Exception as e:
-                    QMessageBox.warning(self, "Error", str(e), QMessageBox.Ok)
+                QMessageBox.warning(self, "Warning", "You are at the last record!", QMessageBox.Ok)
+            return
+            
+        if self.check_record_state() == 1:
+            msg = QMessageBox.warning(self, 'Attenzione', 
+                                     "Il record è stato modificato. Vuoi salvare le modifiche?",
+                                     QMessageBox.Yes | QMessageBox.No | QMessageBox.Cancel)
+            if msg == QMessageBox.Cancel:
+                return
+            elif msg == QMessageBox.Yes:
+                self.on_pushButton_save_pressed()
+        
+        self._navigation_in_progress = True
+        try:
+            self.REC_CORR = self.REC_CORR + 1
+            QgsMessageLog.logMessage(f"DEBUG TMA NEXT: New REC_CORR={self.REC_CORR}", "PyArchInit", Qgis.Info)
+            self.empty_fields()
+            self.fill_fields(self.REC_CORR)
+            self.set_rec_counter(self.REC_TOT, self.REC_CORR + 1)
+            QgsMessageLog.logMessage(f"DEBUG TMA NEXT: Navigation completed to record {self.REC_CORR + 1}/{self.REC_TOT}", "PyArchInit", Qgis.Info)
+        except Exception as e:
+            QgsMessageLog.logMessage(f"DEBUG TMA NEXT: Error during navigation: {e}", "PyArchInit", Qgis.Critical)
+            QMessageBox.warning(self, "Error", str(e), QMessageBox.Ok)
+        finally:
+            self._navigation_in_progress = False
 
 
 
@@ -2414,14 +2531,22 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                             self.update_record_to_db()
                             self.SORT_STATUS = "n"
                             self.label_sort.setText(self.SORTED_ITEMS[self.SORT_STATUS])
+                            # Update the local record to reflect changes
+                            # Reload the single updated record from DB
+                            search_dict = {'id': self.DATA_LIST[self.REC_CORR].id}
+                            updated_record = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
+                            if updated_record:
+                                self.DATA_LIST[self.REC_CORR] = updated_record[0]
+                                self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[self.REC_CORR]
+                                # Just update the temp record without reloading UI
+                                self.set_LIST_REC_TEMP()
+                                self.set_LIST_REC_CORR()
+                            QMessageBox.information(self, "Info", "Record aggiornato con successo", QMessageBox.Ok)
                     except Exception as e:
                         import traceback
                         traceback.print_exc()
                         QMessageBox.warning(self, "Error", f"Errore nel salvataggio materiali: {str(e)}", QMessageBox.Ok)
                     self.enable_button(1)
-                    # Reload data from database to get updated values
-                    self.charge_records()
-                    self.fill_fields(self.REC_CORR)
                 else:
                     QMessageBox.warning(self, "ATTENZIONE", "Non è stata realizzata alcuna modifica!", QMessageBox.Ok)
             else:
@@ -2430,16 +2555,23 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                     if test_insert == 1:
                         self.empty_fields()
                         self.label_sort.setText(self.SORTED_ITEMS["n"])
-                        self.charge_list()
-                        self.charge_records()
-                        self.BROWSE_STATUS = "b"
-                        self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
-                        self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), len(self.DATA_LIST) - 1
-                        self.set_rec_counter(self.REC_TOT, self.REC_CORR + 1)
-
-                        self.setComboBoxEnable(["self.comboBox_sito"], "False")
-                        self.fill_fields(self.REC_CORR)
-                        self.enable_button(1)
+                        # Reload only the current record data without resetting UI
+                        # Get the inserted record ID
+                        inserted_id = self.DB_MANAGER.max_num_id(self.MAPPER_TABLE_CLASS, self.ID_TABLE)
+                        # Query just the new record
+                        search_dict = {'id': inserted_id}
+                        new_record = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
+                        if new_record:
+                            # Add to DATA_LIST
+                            self.DATA_LIST.append(new_record[0])
+                            self.BROWSE_STATUS = "b"
+                            self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
+                            self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), len(self.DATA_LIST) - 1
+                            self.set_rec_counter(self.REC_TOT, self.REC_CORR + 1)
+                            self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[self.REC_CORR]
+                            self.setComboBoxEnable(["self.comboBox_sito"], "False")
+                            self.fill_fields(self.REC_CORR)
+                            self.enable_button(1)
                     else:
                         pass
         except Exception as e:
@@ -2490,12 +2622,10 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                 self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
                 self.fill_fields()
                 self.set_rec_counter(self.REC_TOT, self.REC_CORR + 1)
-                self.load_materials_table()  # Refresh materials table
             elif self.REC_CORR == self.REC_TOT:
                 self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), len(self.DATA_LIST) - 1
                 self.fill_fields(self.REC_CORR)
                 self.set_rec_counter(self.REC_TOT, self.REC_CORR + 1)
-                self.load_materials_table()  # Refresh materials table
             else:
                 # We're in the middle of the list
                 self.REC_TOT = len(self.DATA_LIST)
@@ -2503,7 +2633,6 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                     self.REC_CORR = self.REC_TOT - 1
                 self.fill_fields(self.REC_CORR)
                 self.set_rec_counter(self.REC_TOT, self.REC_CORR + 1)
-                self.load_materials_table()  # Refresh materials table
 
     def on_pushButton_new_search_pressed(self):
         """Enable search mode."""
@@ -3397,10 +3526,16 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
     
     def on_materials_table_changed(self, item):
         """Called when an item in the materials table is changed."""
+        # Don't mark as modified if we're loading materials
+        if hasattr(self, '_loading_materials') and self._loading_materials:
+            QgsMessageLog.logMessage(f"DEBUG on_materials_table_changed: Ignoring change during loading - row={item.row()}, col={item.column()}", "PyArchInit", Qgis.Info)
+            return
+            
         # Only log meaningful changes (non-empty text)
         if item.text().strip():
             QgsMessageLog.logMessage(f"DEBUG TMA: Materials table changed - row={item.row()}, col={item.column()}, text='{item.text()}'", "PyArchInit", Qgis.Info)
         self.materials_modified = True
+        QgsMessageLog.logMessage(f"DEBUG on_materials_table_changed: Set materials_modified=True", "PyArchInit", Qgis.Info)
         
         # Update tooltip to match the new content
         item.setToolTip(item.text())
