@@ -400,11 +400,11 @@
       <method v="2" />
     </configuration>
     <list>
-      <item itemvalue="Python.test_matrix" />
       <item itemvalue="Python.insert_macl_from_excel" />
       <item itemvalue="Python.insert_macp_from_excel" />
       <item itemvalue="Python.insert_scan_from_excel" />
       <item itemvalue="Python.sync_tma_thesaurus" />
+      <item itemvalue="Python.test_matrix" />
       <item itemvalue="Python.verify_mapping" />
     </list>
     <recent_temporary>
@@ -660,7 +660,7 @@
       <workItem from="1756873910650" duration="1265000" />
       <workItem from="1757499479611" duration="753000" />
       <workItem from="1757645638329" duration="7385000" />
-      <workItem from="1757680069642" duration="5679000" />
+      <workItem from="1757680069642" duration="9396000" />
     </task>
     <task id="LOCAL-00022" summary="v3.9.14">
       <created>1649165457258</created>
@@ -1005,7 +1005,7 @@
       <option name="project" value="LOCAL" />
       <updated>1679662089681</updated>
     </task>
-    <option name="localTasksCounter" value="266" />
+    <option name="localTasksCounter" value="268" />
     <option name="createChangelist" value="false" />
     <servers>
       <GitHub url="https://github.com">
@@ -1059,8 +1059,6 @@
     <ignored-roots>
       <path value="$PROJECT_DIR$/ext-libs/totalopenstation-0.5.2-py3.9.egg/totalopenstation_" />
     </ignored-roots>
-    <MESSAGE value="Add `test_tma_save.py`: initial test script for TMA save functionality" />
-    <MESSAGE value="Expand TMA functionality to handle new &quot;TMA - Materiali Ripetibili&quot; table, implement enhanced material data processing with thesaurus-based dropdowns, update data retrieval methods for delegate items, and improve debugging/logging for materials table changes." />
     <MESSAGE value="Refactor TMA record handling: replace `rec_num` with `n` for better readability, enhance logging for navigation methods, prevent overwriting counters in `set_rec_counter`, improve UI updates, and reload data after material save." />
     <MESSAGE value="Simplify TMA UI by removing unused buttons and toolbars, disable map preview, and clean up deprecated GUI elements. Refactor material association logic to handle materials as distinct entries with enhanced filtering and export capabilities. Integrate new PDF generation logic and revise workflow for printing single and filtered TMA records." />
     <MESSAGE value="Add scripts for TMA data processing: thesaurus cleanup, Excel import, PostgreSQL updates, and hierarchy maintenance" />
@@ -1084,7 +1082,9 @@
     <MESSAGE value="Update `metadata.txt`: increment version to `dev002`." />
     <MESSAGE value="Update `.idea/workspace.xml` and `Tma.py`: adjust task counter, work item duration, and add detailed debug logging for new record workflow." />
     <MESSAGE value=".." />
-    <option name="LAST_COMMIT_MESSAGE" value=".." />
+    <MESSAGE value="Refactor TMA material handling: streamline table-to-database mapping, improve data consistency with trimmed values, and enhance logging for material updates. Adjust `.idea/workspace.xml` to reflect task counter and work item duration changes." />
+    <MESSAGE value="Update `metadata.txt`: increment version to `dev003`." />
+    <option name="LAST_COMMIT_MESSAGE" value="Update `metadata.txt`: increment version to `dev003`." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

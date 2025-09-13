@@ -1609,9 +1609,9 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                 except ValueError:
                     peso = 0.0
                 
-                # Skip completely empty rows (Category is required)
-                if not macc.strip():
-                    QgsMessageLog.logMessage(f"DEBUG TMA: Row {row} - category is empty, macc='{macc}'", "PyArchInit", Qgis.Info)
+                # Skip completely empty rows (Category/madi is required as it's the main identifier)
+                if not madi.strip():
+                    QgsMessageLog.logMessage(f"DEBUG TMA: Row {row} - categoria (madi) is empty, madi='{madi}'", "PyArchInit", Qgis.Info)
                     QgsMessageLog.logMessage(f"DEBUG TMA: Row {row} - item0={item0}, item0.text()='{item0.text() if item0 else 'None'}'", "PyArchInit", Qgis.Info)
                     
                     # Check if this is truly an empty row or if we have data loss
@@ -1964,6 +1964,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         
         # Basic fields
         self.comboBox_sito.setEditText("")
+        self.comboBox_localita.setEditText("")
         # Don't clear area here - let it be managed by località change
         self.lineEdit_us.clear()
         self.lineEdit_inventario.clear()
