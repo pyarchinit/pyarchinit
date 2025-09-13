@@ -23,6 +23,7 @@ from __future__ import absolute_import
 import os
 import sqlite3
 
+
 import sqlalchemy as sa
 
 
@@ -42,7 +43,7 @@ from qgis.PyQt.QtCore import  pyqtSlot, pyqtSignal,QThread,QUrl
 from qgis.PyQt.QtWidgets import QApplication, QDialog, QMessageBox, QFileDialog,QLineEdit,QWidget,QCheckBox
 from qgis.PyQt.QtSql import *
 from qgis.PyQt.uic import loadUiType
-from qgis.core import  *
+from qgis.core import QgsMessageLog, Qgis, QgsSettings, QgsProject, QgsDataSourceUri, QgsVectorLayer
 from modules.db.pyarchinit_conn_strings import Connection
 from modules.db.pyarchinit_db_manager import Pyarchinit_db_management
 from modules.db.pyarchinit_utility import Utility
@@ -6132,6 +6133,127 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
 
 
             
+    def check_sqlite_db_on_init(self):
+        """Check and fix macc field when config dialog opens"""
+        try:
+            conn = Connection()
+            conn_str = conn.conn_str()
+
+            # Only check if it's a SQLite connection
+            if conn_str.startswith('sqlite'):
+                self.fix_macc_field_for_current_db(conn_str)
+        except:
+            pass  # Silently fail if no connection is configured yet
+
+    def fix_macc_field_for_current_db(self, conn_str):
+        """Fix macc field in the current SQLite database"""
+        try:
+            # Extract database path from connection string
+            # Format: sqlite:///path/to/database.sqlite
+            db_path = conn_str.replace("sqlite:///", "")
+            db_name = os.path.basename(db_path)
+
+            QgsMessageLog.logMessage(f"PyArchInit Config - Checking database: {db_name}", "PyArchInit", Qgis.Info)
+
+            # Connect to the database
+            conn = sqlite3.connect(db_path)
+            cursor = conn.cursor()
+
+            # Check if table exists
+            cursor.execute(
+                "SELECT name FROM sqlite_master WHERE type='table' AND name='tma_materiali_ripetibili'"
+            )
+            if not cursor.fetchone():
+                QgsMessageLog.logMessage(f"PyArchInit Config - Table tma_materiali_ripetibili does not exist in {db_name}", "PyArchInit", Qgis.Info)
+                conn.close()
+                return
+
+            # Check macc field properties
+            cursor.execute("PRAGMA table_info(tma_materiali_ripetibili)")
+            columns = cursor.fetchall()
+
+            macc_info = None
+            for col in columns:
+                if col[1] == 'macc':  # col[1] is the column name
+                    macc_info = col
+                    break
+
+            if not macc_info:
+                QgsMessageLog.logMessage(f"PyArchInit Config - Column 'macc' not found in {db_name}", "PyArchInit", Qgis.Info)
+                conn.close()
+                return
+
+            # Check if macc is NOT NULL (col[3] is the notnull flag)
+            if macc_info[3] == 0:
+                QgsMessageLog.logMessage(f"PyArchInit Config - Column 'macc' is already nullable in {db_name}", "PyArchInit", Qgis.Info)
+                conn.close()
+                return
+
+            QgsMessageLog.logMessage(f"PyArchInit Config - Column 'macc' is NOT NULL in {db_name}. Starting fix...", "PyArchInit", Qgis.Warning)
+
+            # Begin transaction
+            cursor.execute("BEGIN TRANSACTION")
+
+            try:
+                # Check and drop the view if it exists
+                cursor.execute(
+                    "SELECT name FROM sqlite_master WHERE type='view' AND name='pyarchinit_uscaratterizzazioni_view'"
+                )
+                if cursor.fetchone():
+                    cursor.execute("DROP VIEW IF EXISTS pyarchinit_uscaratterizzazioni_view")
+                    QgsMessageLog.logMessage(f"PyArchInit Config - Dropped view pyarchinit_uscaratterizzazioni_view in {db_name}", "PyArchInit", Qgis.Info)
+
+                # Create temporary table with correct schema
+                cursor.execute("""
+                    CREATE TABLE tma_materiali_ripetibili_temp (
+                        id             INTEGER PRIMARY KEY,
+                        id_tma         INTEGER NOT NULL
+                                       REFERENCES tma_materiali_archeologici(id)
+                                       ON UPDATE NO ACTION
+                                       ON DELETE NO ACTION,
+                        madi           TEXT,
+                        macc           TEXT,  -- Now nullable
+                        macl           TEXT,
+                        macp           TEXT,
+                        macd           TEXT,
+                        cronologia_mac TEXT,
+                        macq           TEXT,
+                        peso           FLOAT,
+                        created_at     TEXT,
+                        updated_at     TEXT,
+                        created_by     TEXT,
+                        updated_by     TEXT
+                    )
+                """)
+
+                # Copy data from original table
+                cursor.execute("""
+                    INSERT INTO tma_materiali_ripetibili_temp
+                    SELECT * FROM tma_materiali_ripetibili
+                """)
+
+                # Drop original table
+                cursor.execute("DROP TABLE tma_materiali_ripetibili")
+
+                # Rename temp table to original name
+                cursor.execute(
+                    "ALTER TABLE tma_materiali_ripetibili_temp RENAME TO tma_materiali_ripetibili"
+                )
+
+                # Commit transaction
+                cursor.execute("COMMIT")
+                QgsMessageLog.logMessage(f"PyArchInit Config - Successfully fixed 'macc' field in {db_name}", "PyArchInit", Qgis.Success)
+
+            except Exception as e:
+                cursor.execute("ROLLBACK")
+                QgsMessageLog.logMessage(f"PyArchInit Config - Error during migration in {db_name}, rolled back: {str(e)}", "PyArchInit", Qgis.Critical)
+
+            finally:
+                conn.close()
+
+        except Exception as e:
+            QgsMessageLog.logMessage(f"PyArchInit Config - Error in fix_macc_field_for_current_db: {str(e)}", "PyArchInit", Qgis.Critical)
+
     def openthumbDir(self):
         s = QgsSettings()
         dir = self.lineEdit_Thumb_path.text()
