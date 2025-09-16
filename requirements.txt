@@ -29,3 +29,6 @@
  beautifulsoup4==4.13.3
  faiss-cpu==1.11.0
  qrcode==8.2
+ # ultralytics==8.2.0  # Installed in external Python for Pottery Tools
+ # torch==2.2.2  # Installed in external Python for Pottery Tools
+ # torchvision==0.17.2  # Installed in external Python for Pottery Tools

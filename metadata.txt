@@ -3,7 +3,7 @@ name=pyArchInit
 qgisMinimumVersion=3.22
 description=pyarchinit a tool for archaeological works
 
-version=dev005
+version=dev001-pottery
 
 author=Luca Mandolesi&Enzo Cocca
 email=pyarchinit@gmail.com
