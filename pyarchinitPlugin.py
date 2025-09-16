@@ -19,12 +19,14 @@
 """
 from __future__ import absolute_import
 import os
+import sqlite3
+from datetime import datetime
 from builtins import object
 
 from qgis.PyQt.QtCore import Qt, QFileInfo, QTranslator, QVariant, QCoreApplication
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QAction, QToolButton, QMenu
-from qgis.core import QgsApplication, QgsSettings
+from qgis.core import QgsApplication, QgsSettings, QgsMessageLog, Qgis
 
 from PyQt5.QtCore import QLocale
 
@@ -93,6 +95,135 @@ class PyArchInitPlugin(object):
             self.translator = QTranslator()
             self.translator.load(self.localePath)
             QCoreApplication.installTranslator(self.translator)
+
+        # Check and fix SQLite databases on startup
+        self.check_and_fix_sqlite_databases()
+
+    def check_and_fix_sqlite_databases(self):
+        """Check and fix macc field in all SQLite databases in the pyarchinit folder"""
+        try:
+            QgsMessageLog.logMessage("PyArchInit - Starting SQLite database check on plugin startup", "PyArchInit", Qgis.Info)
+
+            # Get the pyarchinit database folder
+            db_folder = os.path.join(self.HOME, "pyarchinit_DB_folder")
+
+            if not os.path.exists(db_folder):
+                QgsMessageLog.logMessage(f"PyArchInit - Database folder does not exist: {db_folder}", "PyArchInit", Qgis.Info)
+                return
+
+            # Check all .sqlite files in the folder
+            for filename in os.listdir(db_folder):
+                if filename.endswith('.sqlite'):
+                    db_path = os.path.join(db_folder, filename)
+                    self.fix_single_sqlite_database(db_path)
+
+        except Exception as e:
+            QgsMessageLog.logMessage(f"PyArchInit - Error in check_and_fix_sqlite_databases: {str(e)}", "PyArchInit", Qgis.Critical)
+
+    def fix_single_sqlite_database(self, db_path):
+        """Fix macc field in a single SQLite database"""
+        try:
+            db_name = os.path.basename(db_path)
+            QgsMessageLog.logMessage(f"PyArchInit - Checking database: {db_name}", "PyArchInit", Qgis.Info)
+
+            # Connect to the database
+            conn = sqlite3.connect(db_path)
+            cursor = conn.cursor()
+
+            # Check if table exists
+            cursor.execute(
+                "SELECT name FROM sqlite_master WHERE type='table' AND name='tma_materiali_ripetibili'"
+            )
+            if not cursor.fetchone():
+                QgsMessageLog.logMessage(f"PyArchInit - Table tma_materiali_ripetibili does not exist in {db_name}", "PyArchInit", Qgis.Info)
+                conn.close()
+                return
+
+            # Check macc field properties
+            cursor.execute("PRAGMA table_info(tma_materiali_ripetibili)")
+            columns = cursor.fetchall()
+
+            macc_info = None
+            for col in columns:
+                if col[1] == 'macc':  # col[1] is the column name
+                    macc_info = col
+                    break
+
+            if not macc_info:
+                QgsMessageLog.logMessage(f"PyArchInit - Column 'macc' not found in {db_name}", "PyArchInit", Qgis.Info)
+                conn.close()
+                return
+
+            # Check if macc is NOT NULL (col[3] is the notnull flag)
+            if macc_info[3] == 0:
+                QgsMessageLog.logMessage(f"PyArchInit - Column 'macc' is already nullable in {db_name}", "PyArchInit", Qgis.Info)
+                conn.close()
+                return
+
+            QgsMessageLog.logMessage(f"PyArchInit - Column 'macc' is NOT NULL in {db_name}. Starting fix...", "PyArchInit", Qgis.Warning)
+
+            # Begin transaction
+            cursor.execute("BEGIN TRANSACTION")
+
+            try:
+                # Check and drop the view if it exists
+                cursor.execute(
+                    "SELECT name FROM sqlite_master WHERE type='view' AND name='pyarchinit_uscaratterizzazioni_view'"
+                )
+                if cursor.fetchone():
+                    cursor.execute("DROP VIEW IF EXISTS pyarchinit_uscaratterizzazioni_view")
+                    QgsMessageLog.logMessage(f"PyArchInit - Dropped view pyarchinit_uscaratterizzazioni_view in {db_name}", "PyArchInit", Qgis.Info)
+
+                # Create temporary table with correct schema
+                cursor.execute("""
+                    CREATE TABLE tma_materiali_ripetibili_temp (
+                        id             INTEGER PRIMARY KEY,
+                        id_tma         INTEGER NOT NULL
+                                       REFERENCES tma_materiali_archeologici(id)
+                                       ON UPDATE NO ACTION
+                                       ON DELETE NO ACTION,
+                        madi           TEXT,
+                        macc           TEXT,  -- Now nullable
+                        macl           TEXT,
+                        macp           TEXT,
+                        macd           TEXT,
+                        cronologia_mac TEXT,
+                        macq           TEXT,
+                        peso           FLOAT,
+                        created_at     TEXT,
+                        updated_at     TEXT,
+                        created_by     TEXT,
+                        updated_by     TEXT
+                    )
+                """)
+
+                # Copy data from original table
+                cursor.execute("""
+                    INSERT INTO tma_materiali_ripetibili_temp
+                    SELECT * FROM tma_materiali_ripetibili
+                """)
+
+                # Drop original table
+                cursor.execute("DROP TABLE tma_materiali_ripetibili")
+
+                # Rename temp table to original name
+                cursor.execute(
+                    "ALTER TABLE tma_materiali_ripetibili_temp RENAME TO tma_materiali_ripetibili"
+                )
+
+                # Commit transaction
+                cursor.execute("COMMIT")
+                QgsMessageLog.logMessage(f"PyArchInit - Successfully fixed 'macc' field in {db_name}", "PyArchInit", Qgis.Success)
+
+            except Exception as e:
+                cursor.execute("ROLLBACK")
+                QgsMessageLog.logMessage(f"PyArchInit - Error during migration in {db_name}, rolled back: {str(e)}", "PyArchInit", Qgis.Critical)
+
+            finally:
+                conn.close()
+
+        except Exception as e:
+            QgsMessageLog.logMessage(f"PyArchInit - Error in fix_single_sqlite_database for {db_name}: {str(e)}", "PyArchInit", Qgis.Critical)
 
     def initGui(self):
         l=QgsSettings().value("locale/userLocale")[0:2] 
