@@ -451,9 +451,28 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
 
     def charge_list(self):
         """Load combobox lists."""
-        # Store current dtzg value before clearing
-        current_dtzg = self.comboBox_dtzg.currentText() if hasattr(self, 'comboBox_dtzg') else ""
-        
+        # Store current values before clearing comboboxes
+        # This fixes the bug where first record shows wrong values
+        current_values = {}
+        # Use REC_CORR as the index, or rec_num if it's defined
+        rec_index = self.REC_CORR if hasattr(self, 'REC_CORR') else 0
+        if hasattr(self, 'rec_num'):
+            rec_index = self.rec_num
+
+        if self.DATA_LIST and rec_index < len(self.DATA_LIST):
+            current_record = self.DATA_LIST[rec_index]
+            current_values = {
+                'sito': str(current_record.sito) if hasattr(current_record, 'sito') else "",
+                'area': str(current_record.area) if hasattr(current_record, 'area') else "",
+                'localita': str(current_record.localita) if hasattr(current_record, 'localita') else "",
+                'settore': str(current_record.settore) if hasattr(current_record, 'settore') else "",
+                'ldct': str(current_record.ldct) if hasattr(current_record, 'ldct') else "",
+                'ldcn': str(current_record.ldcn) if hasattr(current_record, 'ldcn') else "",
+                'scan': str(current_record.scan) if hasattr(current_record, 'scan') else "",
+                'aint': str(current_record.aint) if hasattr(current_record, 'aint') else "",
+                'dtzg': str(current_record.dtzg) if hasattr(current_record, 'dtzg') else "",
+            }
+
         # Get language setting following Tomba.py pattern
         l = QgsSettings().value("locale/userLocale", QVariant)
         lang = ""
@@ -461,12 +480,12 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             if values.__contains__(l):
                 lang = str(key)
         lang = "'" + lang + "'"
-        
+
         # Setup materials table with thesaurus support now that DB is ready
         if hasattr(self, 'DB_MANAGER') and self.DB_MANAGER and self.DB_MANAGER != "":
             self.setup_materials_table_with_thesaurus()
             self.setup_documentation_delegates()
-        
+
         # lista sito
         sito_vl = self.UTILITY.tup_2_list_III(self.DB_MANAGER.group_by('site_table', 'sito', 'SITE'))
         try:
@@ -484,6 +503,9 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         self.comboBox_sito.clear()
         sito_vl.sort()
         self.comboBox_sito.addItems(sito_vl)
+        # Restore saved value
+        if 'sito' in current_values and current_values['sito']:
+            self.comboBox_sito.setEditText(current_values['sito'])
 
         # lista area from thesaurus
         search_dict = {
@@ -513,6 +535,9 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         self.comboBox_area.clear()
         area_vl.sort()
         self.comboBox_area.addItems(area_vl)
+        # Restore saved value
+        if 'area' in current_values and current_values['area']:
+            self.comboBox_area.setEditText(current_values['area'])
         
         # Load thesaurus values for TMA fields
         # 10.1 - Denominazione collocazione
@@ -533,6 +558,9 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             self.comboBox_ldcn.addItem(sigla_estesa)
             index = self.comboBox_ldcn.count() - 1
             self.comboBox_ldcn.setItemData(index, f"Codice: {ldcn_dict[sigla_estesa]}", Qt.ToolTipRole)
+        # Restore saved value
+        if 'ldcn' in current_values and current_values['ldcn']:
+            self.comboBox_ldcn.setEditText(current_values['ldcn'])
         
         # 10.2 - Tipologia Collocazione (ldct)
         search_dict_ldct = {
@@ -553,6 +581,9 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             self.comboBox_ldct.addItem(sigla_estesa)
             index = self.comboBox_ldct.count() - 1
             self.comboBox_ldct.setItemData(index, f"Codice: {ldct_dict[sigla_estesa]}", Qt.ToolTipRole)
+        # Restore saved value
+        if 'ldct' in current_values and current_values['ldct']:
+            self.comboBox_ldct.setEditText(current_values['ldct'])
         
         # Saggio and Vano/Locus are now LineEdit fields - no thesaurus loading needed
         
@@ -574,6 +605,9 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             self.comboBox_localita.addItem(sigla_estesa)
             index = self.comboBox_localita.count() - 1
             self.comboBox_localita.setItemData(index, f"Codice: {localita_dict[sigla_estesa]}", Qt.ToolTipRole)
+        # Restore saved value
+        if 'localita' in current_values and current_values['localita']:
+            self.comboBox_localita.setEditText(current_values['localita'])
             
         # 10.15 - Settore
         search_dict_settore = {
@@ -593,6 +627,9 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             self.comboBox_settore.addItem(sigla_estesa)
             index = self.comboBox_settore.count() - 1
             self.comboBox_settore.setItemData(index, f"Codice: {settore_dict[sigla_estesa]}", Qt.ToolTipRole)
+        # Restore saved value
+        if 'settore' in current_values and current_values['settore']:
+            self.comboBox_settore.setEditText(current_values['settore'])
         
         # 10.5 - Denominazione Scavo
         search_dict_scan = {
@@ -612,6 +649,9 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             self.comboBox_scan.addItem(sigla_estesa)
             index = self.comboBox_scan.count() - 1
             self.comboBox_scan.setItemData(index, f"Codice: {scan_dict[sigla_estesa]}", Qt.ToolTipRole)
+        # Restore saved value
+        if 'scan' in current_values and current_values['scan']:
+            self.comboBox_scan.setEditText(current_values['scan'])
         
         # 10.4 - Fascia cronologica (dtzg)
         search_dict_dtzg = {
@@ -633,9 +673,9 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             index = self.comboBox_dtzg.count() - 1
             self.comboBox_dtzg.setItemData(index, f"Codice: {dtzg_dict[sigla_estesa]}", Qt.ToolTipRole)
         
-        # Restore the previous value if it exists
-        if current_dtzg:
-            self.comboBox_dtzg.setEditText(current_dtzg)
+        # Restore saved value
+        if 'dtzg' in current_values and current_values['dtzg']:
+            self.comboBox_dtzg.setEditText(current_values['dtzg'])
         
         # 10.6 - Tipologia Acquisizione (aint)
         search_dict_aint = {
@@ -656,6 +696,9 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             self.comboBox_aint.addItem(sigla_estesa)
             index = self.comboBox_aint.count() - 1
             self.comboBox_aint.setItemData(index, f"Codice: {aint_dict[sigla_estesa]}", Qt.ToolTipRole)
+        # Restore saved value
+        if 'aint' in current_values and current_values['aint']:
+            self.comboBox_aint.setEditText(current_values['aint'])
         
         # Setup documentation delegates with thesaurus values
         self.setup_documentation_delegates()
