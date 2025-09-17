@@ -1428,7 +1428,7 @@ class Pyarchinit_db_management(object):
     def query_bool(self, params, table_class_name):
         u = Utility()
         params = u.remove_empty_items_fr_dict(params)
-        
+
         # Handle thesaurus table name compatibility
         if table_class_name == 'PYARCHINIT_THESAURUS_SIGLE' and 'nome_tabella' in params:
             # Import compatibility helper
@@ -1518,10 +1518,10 @@ class Pyarchinit_db_management(object):
         
         # Execute the query and fetch all results
         res = query.all()
-        
+
         # Close the session
         session.close()
-        
+
         return res
 
     def select_mediapath_from_id(self, media_id):
