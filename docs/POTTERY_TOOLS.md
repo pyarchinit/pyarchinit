@@ -85,6 +85,11 @@ python -m pip install ultralytics
 - Classification (rim, base, fragment)
 - Background removal
 - Color adjustments
+- **PotteryInk AI Enhancement** (NEW):
+  - Transform pencil drawings to publication-ready illustrations
+  - AI-powered inking using diffusion models
+  - Support for different archaeological periods
+  - Batch processing with progress tracking
 
 ### 6. Layout Creation
 - Professional catalog layouts
@@ -150,10 +155,21 @@ Located at `~/pyarchinit/bin/yolo_runner.py`
 - 4GB RAM minimum (8GB recommended for large PDFs)
 
 ### Python Packages (External Python)
+**For YOLO Detection:**
 - ultralytics >= 8.2.0
 - opencv-python
 - numpy
 - pillow
+
+**For PotteryInk AI Enhancement:**
+- torch >= 2.0.0
+- torchvision
+- diffusers >= 0.24.0
+- transformers >= 4.25.0
+- peft
+- scikit-image
+- seaborn
+- scipy
 
 ### Python Packages (QGIS Python)
 - PyMuPDF (for PDF extraction)
