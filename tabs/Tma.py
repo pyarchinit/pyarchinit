@@ -2708,16 +2708,40 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         else:
             search_dict = self.build_search_dict()
             materials_search = self.build_materials_search_dict()
-            
+
+            # DEBUG: Log the search dictionary
+            QgsMessageLog.logMessage(f"DEBUG TMA Search: search_dict = {search_dict}", "PyArchInit", Qgis.Info)
+            QgsMessageLog.logMessage(f"DEBUG TMA Search: materials_search = {materials_search}", "PyArchInit", Qgis.Info)
+
             if not bool(search_dict) and not bool(materials_search):
                 QMessageBox.warning(self, "ATTENZIONE", "Non è stata impostata alcuna ricerca!", QMessageBox.Ok)
             else:
-                # First search TMA records
+                # Check if we have a cassetta search - handle it specially
+                cassetta_search = None
+                if self.lineEdit_cassetta.text():
+                    cassetta_search = str(self.lineEdit_cassetta.text()).strip()
+                    # Remove cassetta from search_dict as we'll handle it separately
+                    search_dict = {k: v for k, v in search_dict.items() if k != 'cassetta'}
+                    QgsMessageLog.logMessage(f"DEBUG TMA: Special cassetta search for: '{cassetta_search}'", "PyArchInit", Qgis.Info)
+
+                # First search TMA records (without cassetta)
                 if search_dict:
+                    # DEBUG: Log before query
+                    QgsMessageLog.logMessage(f"DEBUG TMA: Executing query_bool with dict: {search_dict}", "PyArchInit", Qgis.Info)
                     res = self.DB_MANAGER.query_bool(search_dict, 'TMA')
+                    QgsMessageLog.logMessage(f"DEBUG TMA: Query returned {len(res) if res else 0} results", "PyArchInit", Qgis.Info)
                 else:
                     res = self.DB_MANAGER.query('TMA')
-                
+
+                # Now filter by cassetta if needed (respecting comma-space delimiters)
+                if cassetta_search and res:
+                    filtered_res = []
+                    for tma in res:
+                        if self._cassetta_contains_token(tma.cassetta, cassetta_search):
+                            filtered_res.append(tma)
+                    QgsMessageLog.logMessage(f"DEBUG TMA: Cassetta filter reduced {len(res)} to {len(filtered_res)} results", "PyArchInit", Qgis.Info)
+                    res = filtered_res
+
                 # Filter by materials if needed
                 if materials_search and res:
                     filtered_res = []
@@ -2868,6 +2892,36 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         else:
             subprocess.Popen(["xdg-open", path])
 
+    def _cassetta_contains_token(self, cassetta_value, search_token):
+        """
+        Check if a cassetta field contains the search token as a complete item.
+        Respects comma-space delimiters.
+
+        Examples:
+        - "1, 2, C1" contains "1" but not "11"
+        - "C1, C2, 11" contains "11" and "C1" but not "1"
+        """
+        if not cassetta_value:
+            return False
+
+        # Convert both to strings and clean up
+        cassetta_str = str(cassetta_value).strip()
+        search_str = str(search_token).strip()
+
+        if not cassetta_str or not search_str:
+            return False
+
+        # Split by comma-space delimiter
+        tokens = [token.strip() for token in cassetta_str.split(',')]
+
+        # Check for exact token match (case-insensitive)
+        for token in tokens:
+            if token.lower() == search_str.lower():
+                QgsMessageLog.logMessage(f"DEBUG TMA: Found token match '{search_str}' in '{cassetta_str}'", "PyArchInit", Qgis.Info)
+                return True
+
+        return False
+
     def build_search_dict(self):
         """Build search dictionary from form fields."""
         search_dict = {}
@@ -2877,8 +2931,8 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
 
         if self.comboBox_area.currentText() != "":
             search_dict['area'] = "'" + str(self.comboBox_area.currentText()) + "'"
-            
-            
+
+
         if self.comboBox_settore.currentText() != "":
             search_dict['settore'] = "'" + str(self.comboBox_settore.currentText()) + "'"
 
@@ -2891,7 +2945,10 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             search_dict['ldcn'] = "'" + str(self.comboBox_ldcn.currentText()) + "'"
 
         if self.lineEdit_cassetta.text() != "":
-            search_dict['cassetta'] = "'" + str(self.lineEdit_cassetta.text()) + "'"
+            # Note: cassetta is handled specially in on_pushButton_search_go_pressed
+            # to respect comma-space delimiters (e.g., "1, 2, C1")
+            # We include it here so the search method knows to handle it
+            search_dict['cassetta'] = "'" + str(self.lineEdit_cassetta.text()).strip() + "'"
 
 
         if self.comboBox_dtzg.currentText() != "":
@@ -4280,7 +4337,9 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                     search_dict['dscu'] = "'" + str(self.lineEdit_us.text()) + "'"
                     
                 if self.filter_settings['cassetta'] and self.lineEdit_cassetta.text():
-                    search_dict['cassetta'] = "'" + str(self.lineEdit_cassetta.text()) + "'"
+                    # Use LIKE for partial matching in cassetta field
+                    search_text = str(self.lineEdit_cassetta.text()).strip()
+                    search_dict['cassetta'] = "LIKE '%%" + search_text + "%%'"
                 
                 # Query TMA records
                 if search_dict:
@@ -4626,7 +4685,9 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                 search_dict['dscu'] = "'" + str(self.lineEdit_us.text()) + "'"
                 
             if self.check_label_cassetta.isChecked() and self.lineEdit_cassetta.text():
-                search_dict['cassetta'] = "'" + str(self.lineEdit_cassetta.text()) + "'"
+                # Use LIKE for partial matching in cassetta field
+                search_text = str(self.lineEdit_cassetta.text()).strip()
+                search_dict['cassetta'] = "LIKE '%%" + search_text + "%%'"
             
             # Query TMA records
             if search_dict:
