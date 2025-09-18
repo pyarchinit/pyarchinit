@@ -862,13 +862,33 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                 self.charge_list()
                 self.lists_loaded = True
 
-            # Basic fields - mirror Tomba.py pattern
+            # Get area and settore values
+            area_value = str(self.DATA_LIST[self.rec_num].area)
+            settore_value = str(self.DATA_LIST[self.rec_num].settore)
+
+            # Block all signals to prevent event handlers from firing
+            self.comboBox_sito.blockSignals(True)
+            self.comboBox_localita.blockSignals(True)
+            self.comboBox_area.blockSignals(True)
+            self.comboBox_settore.blockSignals(True)
+
+            # Set all combobox values while signals are blocked
             self.comboBox_sito.setEditText(str(self.DATA_LIST[self.rec_num].sito))
             self.comboBox_localita.setEditText(str(self.DATA_LIST[self.rec_num].localita))
 
-            # Store area and settore values to set them at the end
-            area_value = str(self.DATA_LIST[self.rec_num].area)
-            settore_value = str(self.DATA_LIST[self.rec_num].settore)
+            # Set area and settore directly
+            if area_value:
+                self.comboBox_area.setEditText(area_value)
+            if settore_value:
+                self.comboBox_settore.setEditText(settore_value)
+
+            # Re-enable signals
+            self.comboBox_sito.blockSignals(False)
+            self.comboBox_localita.blockSignals(False)
+            self.comboBox_area.blockSignals(False)
+            self.comboBox_settore.blockSignals(False)
+
+            # Set other fields
             self.lineEdit_inventario.setText(str(self.DATA_LIST[self.rec_num].inventario))
             self.lineEdit_materiale.setText(str(self.DATA_LIST[self.rec_num].ogtm))
             self.comboBox_ldct.setEditText(str(self.DATA_LIST[self.rec_num].ldct))
@@ -886,53 +906,15 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             self.lineEdit_aind.setText(str(self.DATA_LIST[self.rec_num].aind))
             self.comboBox_dtzg.setEditText(str(self.DATA_LIST[self.rec_num].dtzg))
             self.textEdit_deso.setText(str(self.DATA_LIST[self.rec_num].deso))
-            
+
             # Load materials data for this record
             self.load_materials_table()
-            
+
             # Documentation tables
             if self.DATA_LIST[self.rec_num].ftap:
                 self.tableInsertData("self.tableWidget_foto", self.DATA_LIST[self.rec_num].ftap)
             if self.DATA_LIST[self.rec_num].drat:
                 self.tableInsertData("self.tableWidget_disegno", self.DATA_LIST[self.rec_num].drat)
-
-            # Use QTimer to set area and settore values after all events are processed
-            # This ensures the values are set after any automatic list reloading
-            def set_area_settore_delayed():
-                QgsMessageLog.logMessage(f"DEBUG TMA: Delayed setting area='{area_value}', settore='{settore_value}'", "PyArchInit", Qgis.Info)
-                QgsMessageLog.logMessage(f"DEBUG TMA: Area combo has {self.comboBox_area.count()} items", "PyArchInit", Qgis.Info)
-                QgsMessageLog.logMessage(f"DEBUG TMA: Settore combo has {self.comboBox_settore.count()} items", "PyArchInit", Qgis.Info)
-
-                if area_value:
-                    # Try to find the exact match in the combobox
-                    found = False
-                    for i in range(self.comboBox_area.count()):
-                        if self.comboBox_area.itemText(i) == area_value:
-                            QgsMessageLog.logMessage(f"DEBUG TMA: Found area at index {i}", "PyArchInit", Qgis.Info)
-                            self.comboBox_area.setCurrentIndex(i)
-                            found = True
-                            break
-
-                    if not found:
-                        QgsMessageLog.logMessage(f"DEBUG TMA: Area '{area_value}' not found in list, using setEditText", "PyArchInit", Qgis.Info)
-                        self.comboBox_area.setEditText(area_value)
-
-                if settore_value:
-                    # Try to find the exact match in the combobox
-                    found = False
-                    for i in range(self.comboBox_settore.count()):
-                        if self.comboBox_settore.itemText(i) == settore_value:
-                            QgsMessageLog.logMessage(f"DEBUG TMA: Found settore at index {i}", "PyArchInit", Qgis.Info)
-                            self.comboBox_settore.setCurrentIndex(i)
-                            found = True
-                            break
-
-                    if not found:
-                        QgsMessageLog.logMessage(f"DEBUG TMA: Settore '{settore_value}' not found in list, using setEditText", "PyArchInit", Qgis.Info)
-                        self.comboBox_settore.setEditText(settore_value)
-
-            # Schedule the area/settore setting with a 100ms delay
-            QTimer.singleShot(100, set_area_settore_delayed)
 
             # Clear loading flag after all fields are filled
             self.loading_data = False
