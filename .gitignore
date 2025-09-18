@@ -2,3 +2,15 @@
 /train_groq.py
 /copy_excelfile.py
 /t_4707.py
+
+# Python cache files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+*.egg
+*.egg-info/
+.DS_Store
+
