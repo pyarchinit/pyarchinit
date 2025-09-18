@@ -863,13 +863,41 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                 self.charge_list()
                 self.lists_loaded = True
 
-            # Basic fields - mirror Tomba.py pattern
+            # Get area and settore values
+            area_value = str(self.DATA_LIST[self.rec_num].area)
+            settore_value = str(self.DATA_LIST[self.rec_num].settore)
+
+            # Block all signals to prevent event handlers from firing
+            self.comboBox_sito.blockSignals(True)
+            self.comboBox_localita.blockSignals(True)
+            self.comboBox_area.blockSignals(True)
+            self.comboBox_settore.blockSignals(True)
+
+            # Set all combobox values while signals are blocked
             self.comboBox_sito.setEditText(str(self.DATA_LIST[self.rec_num].sito))
             self.comboBox_localita.setEditText(str(self.DATA_LIST[self.rec_num].localita))
 
-            # Store area and settore values to set them at the end
-            area_value = str(self.DATA_LIST[self.rec_num].area)
-            settore_value = str(self.DATA_LIST[self.rec_num].settore)
+            # Set area value
+            if area_value and area_value != 'None':
+                self.comboBox_area.setEditText(area_value)
+            else:
+                self.comboBox_area.setEditText("")
+
+            # Set settore value - explicitly handle empty/None values
+            if settore_value and settore_value != 'None' and settore_value.strip():
+                self.comboBox_settore.setEditText(settore_value)
+            else:
+                # Force the combobox to show empty text even if it has items
+                self.comboBox_settore.setEditText("")
+                self.comboBox_settore.setCurrentIndex(-1)  # Deselect any item
+
+            # Re-enable signals
+            self.comboBox_sito.blockSignals(False)
+            self.comboBox_localita.blockSignals(False)
+            self.comboBox_area.blockSignals(False)
+            self.comboBox_settore.blockSignals(False)
+
+            # Set other fields
             self.lineEdit_inventario.setText(str(self.DATA_LIST[self.rec_num].inventario))
             self.lineEdit_materiale.setText(str(self.DATA_LIST[self.rec_num].ogtm))
             self.comboBox_ldct.setEditText(str(self.DATA_LIST[self.rec_num].ldct))
@@ -896,44 +924,6 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                 self.tableInsertData("self.tableWidget_foto", self.DATA_LIST[self.rec_num].ftap)
             if self.DATA_LIST[self.rec_num].drat:
                 self.tableInsertData("self.tableWidget_disegno", self.DATA_LIST[self.rec_num].drat)
-
-            # Use QTimer to set area and settore values after all events are processed
-            # This ensures the values are set after any automatic list reloading
-            def set_area_settore_delayed():
-                QgsMessageLog.logMessage(f"DEBUG TMA: Delayed setting area='{area_value}', settore='{settore_value}'", "PyArchInit", Qgis.Info)
-                QgsMessageLog.logMessage(f"DEBUG TMA: Area combo has {self.comboBox_area.count()} items", "PyArchInit", Qgis.Info)
-                QgsMessageLog.logMessage(f"DEBUG TMA: Settore combo has {self.comboBox_settore.count()} items", "PyArchInit", Qgis.Info)
-
-                if area_value:
-                    # Try to find the exact match in the combobox
-                    found = False
-                    for i in range(self.comboBox_area.count()):
-                        if self.comboBox_area.itemText(i) == area_value:
-                            QgsMessageLog.logMessage(f"DEBUG TMA: Found area at index {i}", "PyArchInit", Qgis.Info)
-                            self.comboBox_area.setCurrentIndex(i)
-                            found = True
-                            break
-
-                    if not found:
-                        QgsMessageLog.logMessage(f"DEBUG TMA: Area '{area_value}' not found in list, using setEditText", "PyArchInit", Qgis.Info)
-                        self.comboBox_area.setEditText(area_value)
-
-                if settore_value:
-                    # Try to find the exact match in the combobox
-                    found = False
-                    for i in range(self.comboBox_settore.count()):
-                        if self.comboBox_settore.itemText(i) == settore_value:
-                            QgsMessageLog.logMessage(f"DEBUG TMA: Found settore at index {i}", "PyArchInit", Qgis.Info)
-                            self.comboBox_settore.setCurrentIndex(i)
-                            found = True
-                            break
-
-                    if not found:
-                        QgsMessageLog.logMessage(f"DEBUG TMA: Settore '{settore_value}' not found in list, using setEditText", "PyArchInit", Qgis.Info)
-                        self.comboBox_settore.setEditText(settore_value)
-
-            # Schedule the area/settore setting with a 100ms delay
-            QTimer.singleShot(100, set_area_settore_delayed)
 
             # Clear loading flag after all fields are filled
             self.loading_data = False
@@ -3448,13 +3438,16 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         """Filter settore options based on selected area."""
         if not self.DB_MANAGER or self.DB_MANAGER == "":
             return
-            
+
+        # Store current settore value before clearing
+        current_settore = self.comboBox_settore.currentText()
+
         current_area = self.comboBox_area.currentText()
         if not current_area:
             # If no area selected, clear settore
             self.comboBox_settore.clear()
             return
-            
+
         try:
             # Get area sigla from extended name
             search_dict = {
@@ -3463,10 +3456,10 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                 'sigla_estesa': "'" + str(current_area) + "'"
             }
             area_res = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
-            
+
             if area_res:
                 area_sigla = area_res[0].sigla
-                
+
                 # Get settori that belong to this area
                 search_dict_settore = {
                     'nome_tabella': 'TMA materiali archeologici',
@@ -3474,7 +3467,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                     'parent_sigla': f"'{area_sigla}'"
                 }
                 settore_res = self.DB_MANAGER.query_bool(search_dict_settore, 'PYARCHINIT_THESAURUS_SIGLE')
-                
+
                 # Update settore combobox
                 self.comboBox_settore.clear()
                 settore_values = []
@@ -3482,13 +3475,30 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                     settore_values.append(str(settore.sigla_estesa))
                 settore_values.sort()
                 self.comboBox_settore.addItems(settore_values)
+
+                # Restore the previous settore value if it exists in the new list
+                # Otherwise, keep it empty (don't auto-select first item)
+                if current_settore and current_settore in settore_values:
+                    self.comboBox_settore.setEditText(current_settore)
+                else:
+                    # Force empty selection
+                    self.comboBox_settore.setEditText("")
+                    self.comboBox_settore.setCurrentIndex(-1)
             else:
                 # If area not found in thesaurus, load all settori
                 self.load_settore_values()
-                
+                # Keep settore empty if it was empty
+                if not current_settore:
+                    self.comboBox_settore.setEditText("")
+                    self.comboBox_settore.setCurrentIndex(-1)
+
         except Exception as e:
             QgsMessageLog.logMessage(f"Error filtering settore: {str(e)}", "PyArchInit", Qgis.Warning)
             self.load_settore_values()
+            # Keep settore empty if it was empty
+            if not current_settore:
+                self.comboBox_settore.setEditText("")
+                self.comboBox_settore.setCurrentIndex(-1)
     
     def load_area_values(self):
         """Load all area values from thesaurus."""
@@ -3515,6 +3525,9 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
     
     def load_settore_values(self):
         """Load all settore values from thesaurus."""
+        # Store current settore value before clearing
+        current_settore = self.comboBox_settore.currentText()
+
         search_dict = {
             'nome_tabella': "'" + 'TMA materiali archeologici' + "'",
             'tipologia_sigla': "'" + '10.15' + "'"
@@ -3526,6 +3539,11 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         settore_values.sort()
         self.comboBox_settore.clear()
         self.comboBox_settore.addItems(settore_values)
+
+        # Restore settore value if it was empty, keep it empty
+        if not current_settore:
+            self.comboBox_settore.setEditText("")
+            self.comboBox_settore.setCurrentIndex(-1)
     
     def update_inventory_field(self):
         """Update the inventory field with RA numbers from inventory materials."""
