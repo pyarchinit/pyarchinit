@@ -236,16 +236,17 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         self.addMediaTab()
         
 
+
+        self.customize_GUI()
+
+        self.set_sito()
+        self.msg_sito()
         try:
             self.on_pushButton_connect_pressed()
         except Exception as e:
             QMessageBox.warning(self, "Connection System", str(e), QMessageBox.Ok)
             # SIGNALS & SLOTS Functions
 
-        self.customize_GUI()
-
-        self.set_sito()
-        self.msg_sito()
 
     def customize_GUI(self):
         """Customize the GUI elements - connect signals to slots."""
