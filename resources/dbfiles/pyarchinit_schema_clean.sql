@@ -1639,7 +1639,16 @@ CREATE TABLE public.pyarchinit_thesaurus_sigle (
     sigla character(255),
     sigla_estesa character varying,
     descrizione character varying,
-    tipologia_sigla character varying
+    tipologia_sigla character varying,
+    lingua character varying(10) DEFAULT 'it',
+    n_tipologia integer,
+    n_sigla integer,
+    order_layer integer DEFAULT 0,
+    id_parent integer,
+    parent_sigla character varying,
+    hierarchy_level integer DEFAULT 0,
+    CONSTRAINT thesaurus_unique_key UNIQUE (lingua, nome_tabella, tipologia_sigla, sigla_estesa),
+    CONSTRAINT thesaurus_unique_sigla UNIQUE (lingua, nome_tabella, tipologia_sigla, sigla)
 );
 
 
@@ -2932,6 +2941,22 @@ ALTER TABLE ONLY public.pyarchinit_ripartizioni_temporali
 
 ALTER TABLE ONLY public.pyarchinit_thesaurus_sigle
     ADD CONSTRAINT id_thesaurus_sigle_pk PRIMARY KEY (id_thesaurus_sigle);
+
+-- Create indexes for thesaurus performance
+CREATE INDEX IF NOT EXISTS idx_thesaurus_lingua
+ON public.pyarchinit_thesaurus_sigle(lingua);
+
+CREATE INDEX IF NOT EXISTS idx_thesaurus_nome_tabella
+ON public.pyarchinit_thesaurus_sigle(nome_tabella);
+
+CREATE INDEX IF NOT EXISTS idx_thesaurus_tipologia_sigla
+ON public.pyarchinit_thesaurus_sigle(tipologia_sigla);
+
+CREATE INDEX IF NOT EXISTS idx_thesaurus_composite
+ON public.pyarchinit_thesaurus_sigle(lingua, nome_tabella, tipologia_sigla);
+
+COMMENT ON TABLE public.pyarchinit_thesaurus_sigle IS
+'Thesaurus table with unique constraints on (lingua, nome_tabella, tipologia_sigla, sigla_estesa) to prevent duplicates during import';
 
 
 --
