@@ -4847,6 +4847,430 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
 
 
 
+    def on_pushButton_apply_constraints_pressed(self):
+        """Apply unique constraints to thesaurus table."""
+        if self.L == 'it':
+            msg = QMessageBox.question(self, "Applica Vincoli",
+                "Vuoi applicare i vincoli di unicità alla tabella thesaurus?\n"
+                "Questo previene duplicati durante l'importazione.\n\n"
+                "NOTA: I duplicati esistenti verranno rimossi automaticamente.",
+                QMessageBox.Yes | QMessageBox.No)
+        else:
+            msg = QMessageBox.question(self, "Apply Constraints",
+                "Do you want to apply unique constraints to thesaurus table?\n"
+                "This prevents duplicates during import.\n\n"
+                "NOTE: Existing duplicates will be automatically removed.",
+                QMessageBox.Yes | QMessageBox.No)
+
+        if msg == QMessageBox.Yes:
+            # Get current database connection settings
+            conn_str_dict = {
+                "server": str(self.comboBox_server_wt.currentText()),
+                "user": str(self.lineEdit_username_wt.text()),
+                "password": str(self.lineEdit_pass_wt.text()),
+                "host": str(self.lineEdit_host_wt.text()),
+                "port": str(self.lineEdit_port_wt.text()),
+                "db_name": str(self.lineEdit_database_wt.text())
+            }
+
+            try:
+                if conn_str_dict["server"] == 'postgres':
+                    # Apply PostgreSQL constraints
+                    import psycopg2
+                    conn = psycopg2.connect(
+                        host=conn_str_dict["host"],
+                        port=conn_str_dict["port"],
+                        dbname=conn_str_dict["db_name"],
+                        user=conn_str_dict["user"],
+                        password=conn_str_dict["password"]
+                    )
+                    cursor = conn.cursor()
+
+                    # First, clean trailing spaces from all fields
+                    cursor.execute("""
+                        UPDATE public.pyarchinit_thesaurus_sigle
+                        SET lingua = TRIM(lingua),
+                            nome_tabella = TRIM(nome_tabella),
+                            tipologia_sigla = TRIM(tipologia_sigla),
+                            sigla = TRIM(sigla),
+                            sigla_estesa = TRIM(sigla_estesa),
+                            descrizione = TRIM(descrizione),
+                            parent_sigla = TRIM(parent_sigla)
+                        WHERE lingua != TRIM(lingua)
+                           OR nome_tabella != TRIM(nome_tabella)
+                           OR tipologia_sigla != TRIM(tipologia_sigla)
+                           OR sigla != TRIM(sigla)
+                           OR sigla_estesa != TRIM(sigla_estesa)
+                           OR descrizione != TRIM(descrizione)
+                           OR parent_sigla != TRIM(parent_sigla)
+                    """)
+
+                    trimmed = cursor.rowcount
+                    if trimmed > 0:
+                        if self.L == 'it':
+                            QMessageBox.information(self, "Pulizia Spazi",
+                                f"Rimossi spazi in eccesso da {trimmed} record.")
+                        else:
+                            QMessageBox.information(self, "Trim Spaces",
+                                f"Trimmed spaces from {trimmed} records.")
+
+                    # Then find and remove duplicates
+                    cursor.execute("""
+                        -- Find duplicates based on unique key, handling NULLs and trimmed values
+                        WITH duplicates AS (
+                            SELECT id_thesaurus_sigle,
+                                   ROW_NUMBER() OVER (
+                                       PARTITION BY
+                                           COALESCE(TRIM(lingua), ''),
+                                           COALESCE(TRIM(nome_tabella), ''),
+                                           COALESCE(TRIM(tipologia_sigla), ''),
+                                           COALESCE(TRIM(sigla_estesa), '')
+                                       ORDER BY id_thesaurus_sigle
+                                   ) AS row_num
+                            FROM public.pyarchinit_thesaurus_sigle
+                        )
+                        SELECT COUNT(*) FROM duplicates WHERE row_num > 1
+                    """)
+
+                    dup_count = cursor.fetchone()[0]
+
+                    if dup_count > 0:
+                        if self.L == 'it':
+                            remove_msg = QMessageBox.question(self, "Duplicati Trovati",
+                                f"Trovati {dup_count} record duplicati.\n"
+                                f"Vuoi rimuoverli automaticamente?",
+                                QMessageBox.Yes | QMessageBox.No)
+                        else:
+                            remove_msg = QMessageBox.question(self, "Duplicates Found",
+                                f"Found {dup_count} duplicate records.\n"
+                                f"Do you want to remove them automatically?",
+                                QMessageBox.Yes | QMessageBox.No)
+
+                        if remove_msg == QMessageBox.Yes:
+                            # Remove duplicates, keeping only the first occurrence
+                            # First check for duplicates based on sigla field as well
+                            cursor.execute("""
+                                DELETE FROM public.pyarchinit_thesaurus_sigle
+                                WHERE id_thesaurus_sigle IN (
+                                    SELECT id_thesaurus_sigle
+                                    FROM (
+                                        SELECT id_thesaurus_sigle,
+                                               ROW_NUMBER() OVER (
+                                                   PARTITION BY
+                                                       COALESCE(TRIM(lingua), ''),
+                                                       COALESCE(TRIM(nome_tabella), ''),
+                                                       COALESCE(TRIM(tipologia_sigla), ''),
+                                                       COALESCE(TRIM(sigla_estesa), '')
+                                                   ORDER BY id_thesaurus_sigle
+                                               ) AS row_num
+                                        FROM public.pyarchinit_thesaurus_sigle
+                                    ) t
+                                    WHERE t.row_num > 1
+                                )
+                            """)
+
+                            deleted = cursor.rowcount
+
+                            # Also remove duplicates based on sigla (for the second unique constraint)
+                            cursor.execute("""
+                                DELETE FROM public.pyarchinit_thesaurus_sigle
+                                WHERE id_thesaurus_sigle IN (
+                                    SELECT id_thesaurus_sigle
+                                    FROM (
+                                        SELECT id_thesaurus_sigle,
+                                               ROW_NUMBER() OVER (
+                                                   PARTITION BY
+                                                       COALESCE(TRIM(lingua), ''),
+                                                       COALESCE(TRIM(nome_tabella), ''),
+                                                       COALESCE(TRIM(tipologia_sigla), ''),
+                                                       COALESCE(TRIM(sigla), '')
+                                                   ORDER BY id_thesaurus_sigle
+                                               ) AS row_num
+                                        FROM public.pyarchinit_thesaurus_sigle
+                                    ) t
+                                    WHERE t.row_num > 1
+                                )
+                            """)
+
+                            deleted = cursor.rowcount
+
+                            if self.L == 'it':
+                                QMessageBox.information(self, "Pulizia Completata",
+                                    f"Rimossi {deleted} record duplicati.")
+                            else:
+                                QMessageBox.information(self, "Cleanup Complete",
+                                    f"Removed {deleted} duplicate records.")
+                        else:
+                            if self.L == 'it':
+                                QMessageBox.warning(self, "Operazione Annullata",
+                                    "Rimuovi manualmente i duplicati prima di applicare i vincoli.")
+                            else:
+                                QMessageBox.warning(self, "Operation Cancelled",
+                                    "Please remove duplicates manually before applying constraints.")
+                            conn.close()
+                            return
+
+                    # Add columns if they don't exist
+                    cursor.execute("""
+                        DO $$
+                        BEGIN
+                            IF NOT EXISTS (SELECT 1 FROM information_schema.columns
+                                           WHERE table_schema = 'public'
+                                           AND table_name = 'pyarchinit_thesaurus_sigle'
+                                           AND column_name = 'lingua') THEN
+                                ALTER TABLE public.pyarchinit_thesaurus_sigle
+                                ADD COLUMN lingua character varying(10) DEFAULT 'it';
+                            END IF;
+                        END $$;
+                    """)
+
+                    # Drop and recreate constraints
+                    cursor.execute("""
+                        ALTER TABLE public.pyarchinit_thesaurus_sigle
+                        DROP CONSTRAINT IF EXISTS thesaurus_unique_key;
+                    """)
+
+                    cursor.execute("""
+                        ALTER TABLE public.pyarchinit_thesaurus_sigle
+                        DROP CONSTRAINT IF EXISTS thesaurus_unique_sigla;
+                    """)
+
+                    cursor.execute("""
+                        ALTER TABLE public.pyarchinit_thesaurus_sigle
+                        ADD CONSTRAINT thesaurus_unique_key
+                        UNIQUE (lingua, nome_tabella, tipologia_sigla, sigla_estesa);
+                    """)
+
+                    cursor.execute("""
+                        ALTER TABLE public.pyarchinit_thesaurus_sigle
+                        ADD CONSTRAINT thesaurus_unique_sigla
+                        UNIQUE (lingua, nome_tabella, tipologia_sigla, sigla);
+                    """)
+
+                    # Create indexes
+                    cursor.execute("""
+                        CREATE INDEX IF NOT EXISTS idx_thesaurus_lingua
+                        ON public.pyarchinit_thesaurus_sigle(lingua);
+                    """)
+
+                    cursor.execute("""
+                        CREATE INDEX IF NOT EXISTS idx_thesaurus_nome_tabella
+                        ON public.pyarchinit_thesaurus_sigle(nome_tabella);
+                    """)
+
+                    cursor.execute("""
+                        CREATE INDEX IF NOT EXISTS idx_thesaurus_composite
+                        ON public.pyarchinit_thesaurus_sigle(lingua, nome_tabella, tipologia_sigla);
+                    """)
+
+                    conn.commit()
+                    conn.close()
+
+                    if self.L == 'it':
+                        QMessageBox.information(self, "Successo", "Vincoli applicati con successo!")
+                    else:
+                        QMessageBox.information(self, "Success", "Constraints applied successfully!")
+
+                elif conn_str_dict["server"] == 'sqlite':
+                    # Apply SQLite constraints
+                    import sqlite3
+                    sqlite_DB_path = '{}{}{}'.format(self.HOME, os.sep, "pyarchinit_DB_folder")
+                    dbname_abs = sqlite_DB_path + os.sep + conn_str_dict["db_name"]
+
+                    conn = sqlite3.connect(dbname_abs)
+                    cursor = conn.cursor()
+
+                    # Check if table exists
+                    cursor.execute("""
+                        SELECT name FROM sqlite_master
+                        WHERE type='table' AND name='pyarchinit_thesaurus_sigle'
+                    """)
+
+                    if cursor.fetchone():
+                        # First, clean trailing spaces from all fields
+                        cursor.execute("""
+                            UPDATE pyarchinit_thesaurus_sigle
+                            SET lingua = TRIM(lingua),
+                                nome_tabella = TRIM(nome_tabella),
+                                tipologia_sigla = TRIM(tipologia_sigla),
+                                sigla = TRIM(sigla),
+                                sigla_estesa = TRIM(sigla_estesa),
+                                descrizione = TRIM(descrizione),
+                                parent_sigla = TRIM(parent_sigla)
+                            WHERE lingua != TRIM(lingua)
+                               OR nome_tabella != TRIM(nome_tabella)
+                               OR tipologia_sigla != TRIM(tipologia_sigla)
+                               OR sigla != TRIM(sigla)
+                               OR sigla_estesa != TRIM(sigla_estesa)
+                               OR descrizione != TRIM(descrizione)
+                               OR parent_sigla != TRIM(parent_sigla)
+                        """)
+
+                        trimmed = cursor.rowcount
+                        if trimmed > 0:
+                            if self.L == 'it':
+                                QMessageBox.information(self, "Pulizia Spazi",
+                                    f"Rimossi spazi in eccesso da {trimmed} record.")
+                            else:
+                                QMessageBox.information(self, "Trim Spaces",
+                                    f"Trimmed spaces from {trimmed} records.")
+
+                        # Then find and count duplicates
+                        cursor.execute("""
+                            SELECT COUNT(*) FROM (
+                                SELECT COALESCE(TRIM(lingua), '') as lingua,
+                                       COALESCE(TRIM(nome_tabella), '') as nome_tabella,
+                                       COALESCE(TRIM(tipologia_sigla), '') as tipologia_sigla,
+                                       COALESCE(TRIM(sigla_estesa), '') as sigla_estesa,
+                                       COUNT(*) as cnt
+                                FROM pyarchinit_thesaurus_sigle
+                                GROUP BY COALESCE(TRIM(lingua), ''),
+                                         COALESCE(TRIM(nome_tabella), ''),
+                                         COALESCE(TRIM(tipologia_sigla), ''),
+                                         COALESCE(TRIM(sigla_estesa), '')
+                                HAVING COUNT(*) > 1
+                            )
+                        """)
+
+                        dup_groups = cursor.fetchone()[0]
+
+                        if dup_groups > 0:
+                            # Count total duplicate records (excluding first occurrence)
+                            cursor.execute("""
+                                SELECT COUNT(*) FROM pyarchinit_thesaurus_sigle t1
+                                WHERE EXISTS (
+                                    SELECT 1 FROM pyarchinit_thesaurus_sigle t2
+                                    WHERE t1.lingua = t2.lingua
+                                    AND t1.nome_tabella = t2.nome_tabella
+                                    AND t1.tipologia_sigla = t2.tipologia_sigla
+                                    AND t1.sigla_estesa = t2.sigla_estesa
+                                    AND t1.id_thesaurus_sigle > t2.id_thesaurus_sigle
+                                )
+                            """)
+
+                            dup_count = cursor.fetchone()[0]
+
+                            if self.L == 'it':
+                                remove_msg = QMessageBox.question(self, "Duplicati Trovati",
+                                    f"Trovati {dup_count} record duplicati in {dup_groups} gruppi.\n"
+                                    f"Vuoi rimuoverli automaticamente?",
+                                    QMessageBox.Yes | QMessageBox.No)
+                            else:
+                                remove_msg = QMessageBox.question(self, "Duplicates Found",
+                                    f"Found {dup_count} duplicate records in {dup_groups} groups.\n"
+                                    f"Do you want to remove them automatically?",
+                                    QMessageBox.Yes | QMessageBox.No)
+
+                            if remove_msg == QMessageBox.Yes:
+                                # Remove duplicates, keeping only the first occurrence
+                                cursor.execute("""
+                                    DELETE FROM pyarchinit_thesaurus_sigle
+                                    WHERE id_thesaurus_sigle NOT IN (
+                                        SELECT MIN(id_thesaurus_sigle)
+                                        FROM pyarchinit_thesaurus_sigle
+                                        GROUP BY COALESCE(lingua, ''),
+                                                 COALESCE(nome_tabella, ''),
+                                                 COALESCE(tipologia_sigla, ''),
+                                                 COALESCE(sigla_estesa, '')
+                                    )
+                                """)
+
+                                deleted = cursor.rowcount
+
+                                if self.L == 'it':
+                                    QMessageBox.information(self, "Pulizia Completata",
+                                        f"Rimossi {deleted} record duplicati.")
+                                else:
+                                    QMessageBox.information(self, "Cleanup Complete",
+                                        f"Removed {deleted} duplicate records.")
+                            else:
+                                if self.L == 'it':
+                                    QMessageBox.warning(self, "Operazione Annullata",
+                                        "Rimuovi manualmente i duplicati prima di applicare i vincoli.")
+                                else:
+                                    QMessageBox.warning(self, "Operation Cancelled",
+                                        "Please remove duplicates manually before applying constraints.")
+                                conn.close()
+                                return
+
+                        # SQLite requires recreating the table to add constraints
+                        # First check current columns
+                        cursor.execute("PRAGMA table_info(pyarchinit_thesaurus_sigle)")
+                        columns = [row[1] for row in cursor.fetchall()]
+
+                        # Build column list for new table
+                        column_defs = []
+                        if 'id_thesaurus_sigle' in columns:
+                            column_defs.append("id_thesaurus_sigle INTEGER PRIMARY KEY AUTOINCREMENT")
+                        if 'nome_tabella' in columns:
+                            column_defs.append("nome_tabella TEXT")
+                        if 'sigla' in columns:
+                            column_defs.append("sigla TEXT")
+                        if 'sigla_estesa' in columns:
+                            column_defs.append("sigla_estesa TEXT")
+                        if 'descrizione' in columns:
+                            column_defs.append("descrizione TEXT")
+                        if 'tipologia_sigla' in columns:
+                            column_defs.append("tipologia_sigla TEXT")
+
+                        # Add lingua if missing
+                        if 'lingua' not in columns:
+                            column_defs.append("lingua TEXT DEFAULT 'it'")
+                        else:
+                            column_defs.append("lingua TEXT DEFAULT 'it'")
+
+                        # Add optional columns
+                        for col in ['n_tipologia', 'n_sigla', 'order_layer', 'id_parent', 'parent_sigla', 'hierarchy_level']:
+                            if col in columns:
+                                if col in ['n_tipologia', 'n_sigla', 'order_layer', 'id_parent', 'hierarchy_level']:
+                                    column_defs.append(f"{col} INTEGER")
+                                else:
+                                    column_defs.append(f"{col} TEXT")
+
+                        # Create new table with constraints
+                        cursor.execute(f"""
+                            CREATE TABLE IF NOT EXISTS pyarchinit_thesaurus_sigle_new (
+                                {', '.join(column_defs)},
+                                UNIQUE(lingua, nome_tabella, tipologia_sigla, sigla_estesa),
+                                UNIQUE(lingua, nome_tabella, tipologia_sigla, sigla)
+                            )
+                        """)
+
+                        # Copy data
+                        cursor.execute("""
+                            INSERT OR IGNORE INTO pyarchinit_thesaurus_sigle_new
+                            SELECT * FROM pyarchinit_thesaurus_sigle
+                        """)
+
+                        # Replace old table
+                        cursor.execute("DROP TABLE pyarchinit_thesaurus_sigle")
+                        cursor.execute("ALTER TABLE pyarchinit_thesaurus_sigle_new RENAME TO pyarchinit_thesaurus_sigle")
+
+                        # Create indexes
+                        cursor.execute("""
+                            CREATE INDEX IF NOT EXISTS idx_thesaurus_composite
+                            ON pyarchinit_thesaurus_sigle(lingua, nome_tabella, tipologia_sigla)
+                        """)
+
+                        conn.commit()
+                        conn.close()
+
+                        if self.L == 'it':
+                            QMessageBox.information(self, "Successo", "Vincoli applicati con successo!")
+                        else:
+                            QMessageBox.information(self, "Success", "Constraints applied successfully!")
+                    else:
+                        if self.L == 'it':
+                            QMessageBox.warning(self, "Avviso", "Tabella thesaurus non trovata")
+                        else:
+                            QMessageBox.warning(self, "Warning", "Thesaurus table not found")
+
+            except Exception as e:
+                if self.L == 'it':
+                    QMessageBox.critical(self, "Errore", f"Errore nell'applicare i vincoli:\n{str(e)}")
+                else:
+                    QMessageBox.critical(self, "Error", f"Error applying constraints:\n{str(e)}")
+
     def on_pushButton_import_pressed(self):
         if self.L=='it':
 
@@ -5713,24 +6137,55 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                         #id_parent = getattr(data_list_toimp[sing_rec], 'id_parent', None)
                         #parent_sigla = getattr(data_list_toimp[sing_rec], 'parent_sigla', None)
                         #hierarchy_level = getattr(data_list_toimp[sing_rec], 'hierarchy_level', 0)
-                        
-                        data = self.DB_MANAGER_write.insert_values_thesaurus(
-                            self.DB_MANAGER_write.max_num_id(mapper_class_write,
-                                                             id_table_class_mapper_conv_dict[mapper_class_write]) + 1,
-                            data_list_toimp[sing_rec].nome_tabella,
-                            data_list_toimp[sing_rec].sigla,
-                            data_list_toimp[sing_rec].sigla_estesa,
-                            data_list_toimp[sing_rec].descrizione,
-                            data_list_toimp[sing_rec].tipologia_sigla,
-                            data_list_toimp[sing_rec].lingua,
-                            data_list_toimp[sing_rec].order_layer,
-                            data_list_toimp[sing_rec].id_parent,
-                            data_list_toimp[sing_rec].parent_sigla,
-                            data_list_toimp[sing_rec].hierarchy_level
+
+                        # For thesaurus, use merge to handle conflicts based on unique key
+                        # The unique key is: (lingua, nome_tabella, tipologia_sigla, sigla_estesa)
+                        # First check if the record already exists
+                        search_dict = {
+                            'lingua': "'" + str(data_list_toimp[sing_rec].lingua) + "'",
+                            'nome_tabella': "'" + str(data_list_toimp[sing_rec].nome_tabella) + "'",
+                            'tipologia_sigla': "'" + str(data_list_toimp[sing_rec].tipologia_sigla) + "'",
+                            'sigla_estesa': "'" + str(data_list_toimp[sing_rec].sigla_estesa) + "'"
+                        }
+
+                        # Check if record exists
+                        existing_records = self.DB_MANAGER_write.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+
+                        if existing_records:
+                            # Record exists - update it
+                            existing_id = existing_records[0].id_thesaurus_sigle
+                            data = self.DB_MANAGER_write.insert_values_thesaurus(
+                                existing_id,
+                                data_list_toimp[sing_rec].nome_tabella,
+                                data_list_toimp[sing_rec].sigla,
+                                data_list_toimp[sing_rec].sigla_estesa,
+                                data_list_toimp[sing_rec].descrizione,
+                                data_list_toimp[sing_rec].tipologia_sigla,
+                                data_list_toimp[sing_rec].lingua,
+                                data_list_toimp[sing_rec].order_layer,
+                                data_list_toimp[sing_rec].id_parent,
+                                data_list_toimp[sing_rec].parent_sigla,
+                                data_list_toimp[sing_rec].hierarchy_level
                             )
-
-
-                        self.DB_MANAGER_write.insert_data_session(data)
+                            # Use merge for update (handles conflicts)
+                            self.DB_MANAGER_write.insert_data_conflict(data)
+                        else:
+                            # New record - insert it
+                            data = self.DB_MANAGER_write.insert_values_thesaurus(
+                                self.DB_MANAGER_write.max_num_id(mapper_class_write,
+                                                                 id_table_class_mapper_conv_dict[mapper_class_write]) + 1,
+                                data_list_toimp[sing_rec].nome_tabella,
+                                data_list_toimp[sing_rec].sigla,
+                                data_list_toimp[sing_rec].sigla_estesa,
+                                data_list_toimp[sing_rec].descrizione,
+                                data_list_toimp[sing_rec].tipologia_sigla,
+                                data_list_toimp[sing_rec].lingua,
+                                data_list_toimp[sing_rec].order_layer,
+                                data_list_toimp[sing_rec].id_parent,
+                                data_list_toimp[sing_rec].parent_sigla,
+                                data_list_toimp[sing_rec].hierarchy_level
+                            )
+                            self.DB_MANAGER_write.insert_data_session(data)
 
                         # Calculate the progress as a percentage
                         value = (float(sing_rec) / float(len(data_list_toimp))) * 100
@@ -6401,15 +6856,47 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                                             data_list_toimp_current[sing_rec].indagini_preliminari
                                         )
                                     elif current_table == 'PYARCHINIT_THESAURUS_SIGLE':
-                                        data = self.DB_MANAGER_write.insert_values_thesaurus(
-                                            self.DB_MANAGER_write.max_num_id(current_table, 'id_thesaurus') + 1,
-                                            data_list_toimp_current[sing_rec].nome_tabella,
-                                            data_list_toimp_current[sing_rec].sigla,
-                                            data_list_toimp_current[sing_rec].sigla_estesa,
-                                            data_list_toimp_current[sing_rec].descrizione,
-                                            data_list_toimp_current[sing_rec].tipologia_sigla,
-                                            data_list_toimp_current[sing_rec].lingua
-                                        )
+                                        # For thesaurus, check if record exists based on unique key
+                                        search_dict_thes = {
+                                            'lingua': "'" + str(data_list_toimp_current[sing_rec].lingua) + "'",
+                                            'nome_tabella': "'" + str(data_list_toimp_current[sing_rec].nome_tabella) + "'",
+                                            'tipologia_sigla': "'" + str(data_list_toimp_current[sing_rec].tipologia_sigla) + "'",
+                                            'sigla_estesa': "'" + str(data_list_toimp_current[sing_rec].sigla_estesa) + "'"
+                                        }
+                                        existing_thes = self.DB_MANAGER_write.query_bool(search_dict_thes, 'PYARCHINIT_THESAURUS_SIGLE')
+
+                                        if existing_thes:
+                                            # Update existing record
+                                            data = self.DB_MANAGER_write.insert_values_thesaurus(
+                                                existing_thes[0].id_thesaurus_sigle,
+                                                data_list_toimp_current[sing_rec].nome_tabella,
+                                                data_list_toimp_current[sing_rec].sigla,
+                                                data_list_toimp_current[sing_rec].sigla_estesa,
+                                                data_list_toimp_current[sing_rec].descrizione,
+                                                data_list_toimp_current[sing_rec].tipologia_sigla,
+                                                data_list_toimp_current[sing_rec].lingua,
+                                                getattr(data_list_toimp_current[sing_rec], 'order_layer', 0),
+                                                getattr(data_list_toimp_current[sing_rec], 'id_parent', None),
+                                                getattr(data_list_toimp_current[sing_rec], 'parent_sigla', None),
+                                                getattr(data_list_toimp_current[sing_rec], 'hierarchy_level', 0)
+                                            )
+                                            # Skip this record - don't insert duplicate
+                                            continue
+                                        else:
+                                            # Insert new record
+                                            data = self.DB_MANAGER_write.insert_values_thesaurus(
+                                                self.DB_MANAGER_write.max_num_id(current_table, 'id_thesaurus_sigle') + 1,
+                                                data_list_toimp_current[sing_rec].nome_tabella,
+                                                data_list_toimp_current[sing_rec].sigla,
+                                                data_list_toimp_current[sing_rec].sigla_estesa,
+                                                data_list_toimp_current[sing_rec].descrizione,
+                                                data_list_toimp_current[sing_rec].tipologia_sigla,
+                                                data_list_toimp_current[sing_rec].lingua,
+                                                getattr(data_list_toimp_current[sing_rec], 'order_layer', 0),
+                                                getattr(data_list_toimp_current[sing_rec], 'id_parent', None),
+                                                getattr(data_list_toimp_current[sing_rec], 'parent_sigla', None),
+                                                getattr(data_list_toimp_current[sing_rec], 'hierarchy_level', 0)
+                                            )
                                     elif current_table == 'TMA':
                                         data = self.DB_MANAGER_write.insert_tma_values(
                                             self.DB_MANAGER_write.max_num_id(current_table, 'id_tma') + 1,
