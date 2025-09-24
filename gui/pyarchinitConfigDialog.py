@@ -5041,11 +5041,12 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                         UNIQUE (lingua, nome_tabella, tipologia_sigla, sigla_estesa);
                     """)
 
-                    cursor.execute("""
-                        ALTER TABLE public.pyarchinit_thesaurus_sigle
-                        ADD CONSTRAINT thesaurus_unique_sigla
-                        UNIQUE (lingua, nome_tabella, tipologia_sigla, sigla);
-                    """)
+                    # Secondo vincolo è opzionale - commentalo se hai sigle duplicate con sigla_estesa diversa
+                    # cursor.execute("""
+                    #     ALTER TABLE public.pyarchinit_thesaurus_sigle
+                    #     ADD CONSTRAINT thesaurus_unique_sigla
+                    #     UNIQUE (lingua, nome_tabella, tipologia_sigla, sigla);
+                    # """)
 
                     # Create indexes
                     cursor.execute("""
