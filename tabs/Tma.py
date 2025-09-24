@@ -731,7 +731,8 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             
             session.close()
         except Exception as e:
-        
+            pass  # Previously had debug log here
+
         self.DATA_LIST = []
         if self.DB_SERVER == 'sqlite':
             for i in self.DB_MANAGER.query(self.MAPPER_TABLE_CLASS):
@@ -759,7 +760,8 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             
             session.close()
         except Exception as e:
-        
+            pass  # Previously had debug log here
+
         # Refresh materials table delegates with thesaurus values when DB is connected
         self.setup_materials_table_with_thesaurus()
 
@@ -1082,8 +1084,10 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                             differences.append(f"{field_name}: DB='{self.DATA_LIST_REC_CORR[i]}' != Form='{self.DATA_LIST_REC_TEMP[i]}'")
             
             if differences:
+                pass  # Previously had debug log here
             else:
-            
+                pass  # Previously had debug log here
+
             # Use the same logic for main record comparison as debug
             main_record_equal = len(differences) == 0
             
@@ -1587,6 +1591,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                 for col in range(7):  # Table has 7 columns, not 8
                     item = self.tableWidget_materiali.item(row, col)
                     if item:
+                        pass  # Empty block fixed
                     else:
                         # Create missing item
                         empty_item = QTableWidgetItem("")
@@ -1828,6 +1833,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                 # We're updating an existing record with existing materials
                 should_process_deletions = True
             else:
+                pass  # Empty block fixed
             
             # Also process explicitly deleted materials
             if hasattr(self, 'deleted_material_ids') and self.deleted_material_ids:
@@ -1890,6 +1896,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                         if not row_has_data:
                             truly_empty_rows.append(row_num)
                         else:
+                            pass  # Empty block fixed
                 
                 # Only show message for truly empty rows
                 if truly_empty_rows:
@@ -1989,6 +1996,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                 # Update materiale field after removing row
                 self.update_materiale_field()
             else:
+                pass  # Empty block fixed
                 
         finally:
             # Re-enable signals
@@ -2581,6 +2589,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             self.set_rec_counter('', '')
             self.label_sort.setText(self.SORTED_ITEMS["n"])
         else:
+            pass  # Empty block fixed
 
     def on_pushButton_save_pressed(self):
         """Save the current record."""

@@ -1755,9 +1755,10 @@ class Pyarchinit_db_management(object):
             if hasattr(data, '__dict__'):
                 # Check id field specifically
                 if hasattr(data, 'id'):
-
+                    pass  # Previously had debug print here
             # Try to get the actual database error
             if hasattr(e, 'orig'):
+                pass  # Previously had debug print here
             raise
         session.close()
     def insert_data_conflict(self, data):
