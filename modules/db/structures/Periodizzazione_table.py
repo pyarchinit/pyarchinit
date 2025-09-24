@@ -33,7 +33,7 @@ class Periodizzazione_table:
                                   UniqueConstraint('sito', 'periodo', 'fase', name='ID_perfas_unico')
                                   )
 
-    try:
-        metadata.create_all(engine)
-    except:
-        pass  # Table already exists or geometry type not supported
+    # DO NOT create tables at module import time!
+
+
+    # metadata.create_all(engine)  # This line was causing connection errors

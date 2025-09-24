@@ -400,45 +400,70 @@ CREATE INDEX IF NOT EXISTS idx_pottery_us ON pottery_table(us);
 
 CREATE TABLE IF NOT EXISTS tma_materiali_archeologici (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
+    -- Basic identification
     sito TEXT,
     area TEXT,
-    ogtm TEXT NOT NULL,
+    localita TEXT,
+    settore TEXT,
+    inventario TEXT,
+    -- Object data (OG)
+    ogtm TEXT,
+    -- Location data (LC)
     ldct TEXT,
-    ldcn TEXT NOT NULL,
+    ldcn TEXT,
     vecchia_collocazione TEXT,
-    cassetta TEXT NOT NULL,
-    localita TEXT NOT NULL,
+    cassetta TEXT,
+    -- Excavation data (RE - DSC)
     scan TEXT,
     saggio TEXT,
     vano_locus TEXT,
     dscd TEXT,
-    dscu TEXT NOT NULL,
+    dscu TEXT,
+    -- Survey data (RE - RCG)
     rcgd TEXT,
     rcgz TEXT,
+    -- Other acquisition (RE - AIN)
     aint TEXT,
     aind TEXT,
-    dtzg TEXT NOT NULL,
-    dtzs TEXT,
-    cronologie TEXT,
-    n_reperti TEXT,
-    peso TEXT,
+    -- Dating (DT)
+    dtzg TEXT,
+    -- Analytical data (DA)
     deso TEXT,
-    madi TEXT,
-    macc TEXT NOT NULL,
-    macl TEXT,
-    macp TEXT,
-    macd TEXT,
-    cronologia_mac TEXT,
-    macq TEXT,
+    -- Historical-critical notes (NSC)
+    nsc TEXT,
+    -- Documentation (DO)
     ftap TEXT,
     ftan TEXT,
     drat TEXT,
     dran TEXT,
     draa TEXT,
+    -- System fields
     created_at TEXT,
     updated_at TEXT,
     created_by TEXT,
     updated_by TEXT
+);
+
+CREATE TABLE IF NOT EXISTS tma_materiali_ripetibili (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    -- Foreign key to main TMA record
+    id_tma INTEGER NOT NULL,
+    -- Material description data (MAD)
+    madi TEXT,
+    -- Material component data (MAC) - all repetitive
+    macc TEXT,
+    macl TEXT,
+    macp TEXT,
+    macd TEXT,
+    cronologia_mac TEXT,
+    macq TEXT,
+    peso REAL,
+    -- System fields
+    created_at TEXT,
+    updated_at TEXT,
+    created_by TEXT,
+    updated_by TEXT,
+    FOREIGN KEY (id_tma) REFERENCES tma_materiali_archeologici(id) ON DELETE CASCADE
 );
 
 -- =====================================================

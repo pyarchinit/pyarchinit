@@ -50,7 +50,7 @@ class Tma_materiali_table:
                      Column('madi', String(50)),                     # Inventory
                      
                      # Material component data (MAC) - all repetitive
-                     Column('macc', String(30), nullable=False),     # Category (required)
+                     Column('macc', String(30)),     # Category (required)
                      Column('macl', String(30)),                     # Class
                      Column('macp', String(30)),                     # Typological specification
                      Column('macd', String(30)),                     # Definition
@@ -67,7 +67,7 @@ class Tma_materiali_table:
                      extend_existing=True  # Allow redefinition
                      )
 
-    try:
-        metadata.create_all(engine)
-    except:
-        pass  # Table already exists or geometry type not supported
+    # DO NOT create tables at module import time!
+
+
+    # metadata.create_all(engine)  # This line was causing connection errors

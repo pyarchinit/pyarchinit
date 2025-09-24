@@ -243,7 +243,11 @@ class PackageManager:
         installed_packages = {pkg.metadata['Name'] + '==' + pkg.version for pkg in distributions()}
 
         with open(requirements_path, 'r') as f:
-            required_packages = set(line.strip() for line in f)
+            # Filter out comment lines (starting with #) and empty lines
+            required_packages = set(
+                line.strip() for line in f 
+                if line.strip() and not line.strip().startswith('#')
+            )
 
         missing_packages = required_packages - installed_packages
         return list(missing_packages)

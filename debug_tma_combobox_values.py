@@ -18,7 +18,6 @@ def debug_thesaurus_values():
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
     
-    print(f"=== DEBUG THESAURUS VALUES FOR TMA ===")
     print(f"Database: {db_path}")
     print()
     

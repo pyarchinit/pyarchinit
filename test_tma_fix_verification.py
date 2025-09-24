@@ -36,9 +36,6 @@ print("4. Check if materials are still there")
 print("5. Check QGIS logs for debug messages about material loading/deletion")
 
 print("\nKEY LOG MESSAGES TO LOOK FOR:")
-print("- 'DEBUG TMA load_materials_table: Loaded X materials'")
-print("- 'DEBUG TMA: Skipping deletion - materials not properly loaded yet'")
-print("- 'DEBUG TMA: Deleting material ID=X (not in current table)'")
 
 print("\nThe fix should prevent accidental deletion of materials when:")
 print("- Form is just opening")

@@ -27,7 +27,7 @@ CREATE OR REPLACE VIEW public.pyarchinit_individui_view AS
    FROM pyarchinit_individui
      JOIN individui_table ON pyarchinit_individui.sito::text = individui_table.sito AND pyarchinit_individui.id_individuo::text = individui_table.nr_individuo::text;
 
-ALTER TABLE public.pyarchinit_individui_view
+ALTER VIEW public.pyarchinit_individui_view
     OWNER TO postgres;
 
 -- View: public.pyarchinit_pyuscarlinee_view
@@ -57,9 +57,9 @@ CREATE OR REPLACE VIEW public.pyarchinit_pyuscarlinee_view AS
     us_table.anno_scavo,
     us_table.cont_per
    FROM pyuscarlinee
-     JOIN us_table ON pyuscarlinee.sito_l::text = us_table.sito AND pyuscarlinee.area_l::text = us_table.area::text AND pyuscarlinee.us_l::text = us_table.us;
+     JOIN us_table ON pyuscarlinee.sito_l::text = us_table.sito AND pyuscarlinee.area_l::text = us_table.area::text AND pyuscarlinee.us_l::text = us_table.us::text;
 
-ALTER TABLE public.pyarchinit_pyuscarlinee_view
+ALTER VIEW public.pyarchinit_pyuscarlinee_view
     OWNER TO postgres;
 
 -- View: public.pyarchinit_quote_view
@@ -91,9 +91,9 @@ CREATE OR REPLACE VIEW public.pyarchinit_quote_view AS
     us_table.anno_scavo,
     us_table.cont_per
    FROM pyarchinit_quote
-     JOIN us_table ON pyarchinit_quote.sito_q::text = us_table.sito AND pyarchinit_quote.area_q::text = us_table.area::text AND pyarchinit_quote.us_q = us_table.us AND pyarchinit_quote.unita_tipo_q::text = us_table.unita_tipo::text;
+     JOIN us_table ON pyarchinit_quote.sito_q::text = us_table.sito AND pyarchinit_quote.area_q::text = us_table.area::text AND pyarchinit_quote.us_q::text = us_table.us::text AND pyarchinit_quote.unita_tipo_q::text = us_table.unita_tipo::text;
 
-ALTER TABLE public.pyarchinit_quote_view
+ALTER VIEW public.pyarchinit_quote_view
     OWNER TO postgres;
 
 -- View: public.pyarchinit_quote_usm_view
@@ -125,9 +125,9 @@ CREATE OR REPLACE VIEW public.pyarchinit_quote_usm_view AS
     us_table.anno_scavo,
     us_table.cont_per
    FROM pyarchinit_quote_usm
-     JOIN us_table ON pyarchinit_quote_usm.sito_q::text = us_table.sito AND pyarchinit_quote_usm.area_q::text = us_table.area::text AND pyarchinit_quote_usm.us_q = us_table.us AND pyarchinit_quote_usm.unita_tipo_q::text = us_table.unita_tipo::text;
+     JOIN us_table ON pyarchinit_quote_usm.sito_q::text = us_table.sito AND pyarchinit_quote_usm.area_q::text = us_table.area::text AND pyarchinit_quote_usm.us_q::text = us_table.us::text AND pyarchinit_quote_usm.unita_tipo_q::text = us_table.unita_tipo::text;
 
-ALTER TABLE public.pyarchinit_quote_usm_view
+ALTER VIEW public.pyarchinit_quote_usm_view
     OWNER TO postgres;
 
 -- View: public.pyarchinit_strutture_view
@@ -167,7 +167,7 @@ CREATE OR REPLACE VIEW public.pyarchinit_strutture_view AS
    FROM pyarchinit_strutture_ipotesi a
      JOIN struttura_table b ON a.sito::text = b.sito AND a.sigla_strut::text = b.sigla_struttura AND a.nr_strut = b.numero_struttura;
 
-ALTER TABLE public.pyarchinit_strutture_view
+ALTER VIEW public.pyarchinit_strutture_view
     OWNER TO postgres;
 
 -- View: public.pyarchinit_tomba_view
@@ -203,7 +203,7 @@ CREATE OR REPLACE VIEW public.pyarchinit_tomba_view AS
    FROM tomba_table a
      JOIN pyarchinit_tafonomia b ON a.sito = b.sito::text AND a.nr_scheda_taf = b.nr_scheda;
 
-ALTER TABLE public.pyarchinit_tomba_view
+ALTER VIEW public.pyarchinit_tomba_view
     OWNER TO postgres;
 
 -- View: public.pyarchinit_tipologie_sepolture_view
@@ -243,7 +243,7 @@ CREATE OR REPLACE VIEW public.pyarchinit_tipologie_sepolture_view AS
    FROM pyarchinit_quote_view
      JOIN pyarchinit_tipologia_sepolture ON pyarchinit_quote_view.struttura::text = pyarchinit_tipologia_sepolture.id_sepoltura::text;
 
-ALTER TABLE public.pyarchinit_tipologie_sepolture_view
+ALTER VIEW public.pyarchinit_tipologie_sepolture_view
     OWNER TO postgres;
 
 -- View: public.pyarchinit_tipologie_view
@@ -271,7 +271,7 @@ CREATE OR REPLACE VIEW public.pyarchinit_tipologie_view AS
    FROM pyarchinit_tipologia_sepolture
      JOIN pyarchinit_codici_tipologia ON pyarchinit_tipologia_sepolture.t_progetto::text = pyarchinit_codici_tipologia.tipologia_progetto::text AND pyarchinit_tipologia_sepolture.t_gruppo::text = pyarchinit_codici_tipologia.tipologia_gruppo::text AND pyarchinit_tipologia_sepolture.t_codice::text = pyarchinit_codici_tipologia.tipologia_codice::text AND pyarchinit_tipologia_sepolture.t_sottocodice::text = pyarchinit_codici_tipologia.tipologia_sottocodice::text;
 
-ALTER TABLE public.pyarchinit_tipologie_view
+ALTER VIEW public.pyarchinit_tipologie_view
     OWNER TO postgres;
 
 -- View: public.pyarchinit_us_view
@@ -388,10 +388,10 @@ CREATE OR REPLACE VIEW public.pyarchinit_us_view AS
 	us_table.criteri_distinzione_usm,
 	us_table.uso_primario_usm
    FROM pyunitastratigrafiche
-     JOIN us_table ON pyunitastratigrafiche.scavo_s::text = us_table.sito AND pyunitastratigrafiche.area_s::text = us_table.area::text AND pyunitastratigrafiche.us_s = us_table.us AND pyunitastratigrafiche.unita_tipo_s::text = us_table.unita_tipo::text
+     JOIN us_table ON pyunitastratigrafiche.scavo_s::text = us_table.sito AND pyunitastratigrafiche.area_s::text = us_table.area::text AND pyunitastratigrafiche.us_s::text = us_table.us::text AND pyunitastratigrafiche.unita_tipo_s::text = us_table.unita_tipo::text
   ORDER BY us_table.order_layer, pyunitastratigrafiche.stratigraph_index_us DESC, pyunitastratigrafiche.gid;
 
-ALTER TABLE public.pyarchinit_us_view
+ALTER VIEW public.pyarchinit_us_view
     OWNER TO postgres;
 
 -- View: public.pyarchinit_usm_view
@@ -508,43 +508,14 @@ CREATE OR REPLACE VIEW public.pyarchinit_usm_view AS
 	us_table.criteri_distinzione_usm,
 	us_table.uso_primario_usm
    FROM pyunitastratigrafiche_usm
-     JOIN us_table ON pyunitastratigrafiche_usm.scavo_s::text = us_table.sito AND pyunitastratigrafiche_usm.area_s::text = us_table.area::text AND pyunitastratigrafiche_usm.us_s = us_table.us AND pyunitastratigrafiche_usm.unita_tipo_s::text = us_table.unita_tipo::text
+     JOIN us_table ON pyunitastratigrafiche_usm.scavo_s::text = us_table.sito AND pyunitastratigrafiche_usm.area_s::text = us_table.area::text AND pyunitastratigrafiche_usm.us_s::text = us_table.us::text AND pyunitastratigrafiche_usm.unita_tipo_s::text = us_table.unita_tipo::text
   ORDER BY us_table.order_layer, pyunitastratigrafiche_usm.stratigraph_index_us DESC, pyunitastratigrafiche_usm.gid;
 
-ALTER TABLE public.pyarchinit_usm_view
+ALTER VIEW public.pyarchinit_usm_view
     OWNER TO postgres;
 
 -- View: public.pyarchinit_uscaratterizzazioni_view
--- DROP VIEW public.pyarchinit_uscaratterizzazioni_view;
-
-CREATE OR REPLACE VIEW public.pyarchinit_uscaratterizzazioni_view AS
- SELECT pyuscaratterizzazioni.gid,
-    pyuscaratterizzazioni.the_geom,
-    pyuscaratterizzazioni.tipo_us_c,
-    pyuscaratterizzazioni.scavo_c,
-    pyuscaratterizzazioni.area_c,
-    pyuscaratterizzazioni.us_c,
-    us_table.sito,
-    us_table.id_us,
-    us_table.area,
-    us_table.us,
-    us_table.struttura,
-    us_table.d_stratigrafica AS definizione_stratigrafica,
-    us_table.d_interpretativa AS definizione_interpretativa,
-    us_table.descrizione,
-    us_table.interpretazione,
-    us_table.rapporti,
-    us_table.periodo_iniziale,
-    us_table.fase_iniziale,
-    us_table.periodo_finale,
-    us_table.fase_finale,
-    us_table.anno_scavo,
-    us_table.cont_per
-   FROM pyuscaratterizzazioni
-     JOIN us_table ON pyuscaratterizzazioni.scavo_c::text = us_table.sito AND pyuscaratterizzazioni.area_c::text = us_table.area::text AND pyuscaratterizzazioni.us_c = us_table.us;
-
-ALTER TABLE public.pyarchinit_uscaratterizzazioni_view
-    OWNER TO postgres;
+-- VIEW REMOVED - pyuscaratterizzazioni table no longer exists
 
 -- View: public.pyarchinit_doc_view
 CREATE OR REPLACE VIEW pyarchinit_doc_view AS 
@@ -566,7 +537,7 @@ CREATE OR REPLACE VIEW pyarchinit_doc_view AS
    FROM documentazione_table a
      JOIN pyarchinit_documentazione b ON a.sito ::text = b.sito AND a.nome_doc ::text = b.nome_doc AND a.tipo_documentazione ::text = b.tipo_doc;
 
-ALTER TABLE pyarchinit_doc_view
+ALTER VIEW pyarchinit_doc_view
   OWNER TO postgres;
 
 -- View: public.pyarchinit_site_view
@@ -584,7 +555,7 @@ CREATE OR REPLACE VIEW pyarchinit_site_view AS
    FROM site_table
      JOIN pyarchinit_siti ON sito ::text = sito_nome;
 
-ALTER TABLE pyarchinit_site_view
+ALTER VIEW pyarchinit_site_view
   OWNER TO postgres;  
 
 -- View: public.pyarchinit_site_polygonal_view
@@ -601,7 +572,7 @@ CREATE OR REPLACE VIEW pyarchinit_site_polygonal_view AS
    FROM site_table
      JOIN pyarchinit_siti_polygonal ON sito ::text = sito_id;
 
-ALTER TABLE pyarchinit_site_polygonal_view
+ALTER VIEW pyarchinit_site_polygonal_view
   OWNER TO postgres;    
 
 -- View: public.pyarchinit_doc_view_b
@@ -649,8 +620,8 @@ CREATE OR REPLACE VIEW public.pyarchinit_doc_view_b AS SELECT
 	order_layer AS order_layer, 
 	documentazione AS documentazione
 	FROM pyunitastratigrafiche AS a
-	JOIN us_table ON scavo_s ::text = sito AND area_s ::text = area AND us_s ::text = us;
-	ALTER TABLE public.pyarchinit_doc_view_b OWNER TO postgres;
+	JOIN us_table ON scavo_s ::text = sito AND area_s ::text = area::text AND us_s ::text = us::text;
+	ALTER VIEW public.pyarchinit_doc_view_b OWNER TO postgres;
 
 -- View: public.pyarchinit_us_negative_doc_view
 CREATE OR REPLACE VIEW public.pyarchinit_us_negative_doc_view AS SELECT 
@@ -690,9 +661,9 @@ CREATE OR REPLACE VIEW public.pyarchinit_us_negative_doc_view AS SELECT
 	order_layer ,
 	documentazione 
 	FROM pyarchinit_us_negative_doc 
-	JOIN us_table ON  sito_n ::text = sito AND area_n ::text = area AND us_n = us;
+	JOIN us_table ON  sito_n ::text = sito AND area_n ::text = area::text AND us_n::text = us::text;
 
-ALTER TABLE public.pyarchinit_us_negative_doc_view
+ALTER VIEW public.pyarchinit_us_negative_doc_view
     OWNER TO postgres;
 
 -- Sequence for media view
@@ -702,7 +673,7 @@ CREATE SEQUENCE IF NOT EXISTS mediaentity_view_id_media_thumb_seq
   MAXVALUE 9223372036854775807
   START 1
   CACHE 1;
-ALTER TABLE mediaentity_view_id_media_thumb_seq
+ALTER SEQUENCE mediaentity_view_id_media_thumb_seq
   OWNER TO postgres;
 
 -- View: public.mediaentity_view
@@ -718,9 +689,9 @@ CREATE OR REPLACE VIEW public.mediaentity_view AS
      JOIN media_to_entity_table ON media_thumb_table.id_media = media_to_entity_table.id_media
   ORDER BY media_to_entity_table.id_entity;
 
-ALTER TABLE public.mediaentity_view
+ALTER VIEW public.mediaentity_view
   OWNER TO postgres;
-ALTER TABLE public.mediaentity_view ALTER COLUMN id_media_thumb SET DEFAULT nextval('mediaentity_view_id_media_thumb_seq'::regclass);
+-- Note: Cannot ALTER COLUMN on a VIEW, defaults should be set in the SELECT statement
 
 -- View: public.pyarchinit_reperti_view
 CREATE OR REPLACE VIEW pyarchinit_reperti_view AS 
@@ -770,7 +741,7 @@ CREATE OR REPLACE VIEW pyarchinit_reperti_view AS
 	FROM pyarchinit_reperti
      JOIN inventario_materiali_table ON siti::text = sito AND id_rep = numero_inventario;
 
-ALTER TABLE pyarchinit_reperti_view
+ALTER VIEW pyarchinit_reperti_view
     OWNER TO postgres;
 
 -- View: public.pyarchinit_sezioni_view
@@ -794,5 +765,5 @@ documentazione_table.note
 FROM pyarchinit_sezioni 
 JOIN documentazione_table  ON pyarchinit_sezioni.sito::text=documentazione_table.sito and pyarchinit_sezioni.tipo_doc::text=documentazione_table.tipo_documentazione and pyarchinit_sezioni.nome_doc::text=documentazione_table.nome_doc;
 
-ALTER TABLE pyarchinit_sezioni_view
+ALTER VIEW pyarchinit_sezioni_view
     OWNER TO postgres;

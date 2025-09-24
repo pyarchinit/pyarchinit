@@ -55,7 +55,6 @@ def add_documentation_delegates(file_path):
         # If we have photo types, set delegate for first column of photo table
         if ftap_values and hasattr(self, 'tableWidget_foto'):
             self.tableWidget_foto.setItemDelegateForColumn(0, ComboBoxDelegate(ftap_values, self.tableWidget_foto))
-            QgsMessageLog.logMessage(f"DEBUG TMA: Set delegate for Photo Type column with {len(ftap_values)} values", "PyArchInit", Qgis.Info)
         
         # For drawings, we might need drawing types from thesaurus too
         # Currently using free text, but could be enhanced

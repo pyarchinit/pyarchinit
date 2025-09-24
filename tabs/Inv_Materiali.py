@@ -446,7 +446,6 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         #self.lineEdit_num_inv.setText('')
         #self.lineEdit_num_inv.textChanged.connect(self.update)
         self.lineEdit_num_inv.textChanged.connect(self.charge_struttura)
-        self.lineEdit_num_inv.textChanged.connect(self.charge_datazione)
         self.set_sito()
         self.msg_sito()
         #self.comboBox_repertato.currentTextChanged.connect(self.numero_reperto)
@@ -2808,14 +2807,12 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         self.comboBox_tipo_reperto.addItems(tipo_reperto_vl)
 
 
-        #lista tipologia
-
-
-
+        #lista tipologia - usa TMA materiali ripetibili codice 10.12
+        self.comboBox_tipologia.clear()
         search_dict = {
             'lingua': lang,
-            'nome_tabella': "'" + 'inventario_materiali_table' + "'",
-            'tipologia_sigla': "'" + '3.12' + "'"
+            'nome_tabella': "'" + 'tma_materiali_ripetibili' + "'",
+            'tipologia_sigla': "'" + '10.12' + "'"  # Precisazione tipologica da materiali ripetibili
         }
 
         tipologia_reperto = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
@@ -2954,6 +2951,40 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
 
         valuesyear.sort()
         self.comboBox_year.addItems(valuesyear)
+
+        # lista compilatore/schedatore - populate from thesaurus
+        self.comboBox_compilatore.clear()
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'" + 'inventario_materiali_table' + "'",
+            'tipologia_sigla': "'" + '3.14' + "'"  # Using 3.14 for compilatore
+        }
+
+        compilatore = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        compilatore_vl = []
+
+        for i in range(len(compilatore)):
+            compilatore_vl.append(compilatore[i].sigla_estesa)
+
+        compilatore_vl.sort()
+        self.comboBox_compilatore.addItems(compilatore_vl)
+
+        # lista datazione - usa fascia cronologica dalla TMA
+        self.comboBox_datazione.clear()
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'" + 'TMA materiali archeologici' + "'",
+            'tipologia_sigla': "'" + '10.4' + "'"  # Fascia cronologica (dtzg) dalla TMA
+        }
+
+        datazione = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        datazione_vl = []
+
+        for i in range(len(datazione)):
+            datazione_vl.append(datazione[i].sigla_estesa)
+
+        datazione_vl.sort()
+        self.comboBox_datazione.addItems(datazione_vl)
 
 
     def msg_sito(self):
@@ -4086,7 +4117,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                 str(self.lineEditRivestimento.text()),  # 21   rivestimento
                 diametro_orlo,  # 22 - diametro orlo
                 peso,  # 23- peso
-                str(self.comboBox_tipo_reperto.currentText()),  # 24 - tipo
+                str(self.comboBox_tipologia.currentText()),  # 24 - tipo
                 eve_orlo,  # 25 - eve_orlo,
                 str(self.comboBox_repertato.currentText()),  # 26 - repertato
                 str(self.comboBox_diagnostico.currentText()),  # 27 - diagnostico
@@ -4848,54 +4879,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
 
         except Exception as e:
             QMessageBox.warning(self, "Error", str(e), QMessageBox.Ok)
-    def charge_datazione(self):
-        try:
-            sito = str(self.comboBox_sito.currentText())
-            area = str(self.comboBox_area.currentText())
-            us = str(self.lineEdit_us.text())
-
-            # Check if DATA_LIST exists and REC_CORR is valid
-            if not self.DATA_LIST or self.REC_CORR >= len(self.DATA_LIST):
-                return
-
-            # Get area and us directly without using eval
-            if hasattr(self.DATA_LIST[int(self.REC_CORR)], 'area'):
-                area_val = str(self.DATA_LIST[int(self.REC_CORR)].area)
-            else:
-                area_val = ""
-
-            if hasattr(self.DATA_LIST[int(self.REC_CORR)], 'us'):
-                us_val = str(self.DATA_LIST[int(self.REC_CORR)].us)
-            else:
-                us_val = ""
-
-            search_dict = {
-                'sito': "'" + sito + "'",
-                'area': "'" + area_val + "'",
-                'us': "'" + us_val + "'"
-            }
-
-            struttura_vl = self.DB_MANAGER.query_bool(search_dict, 'US')
-            struttura_list = []
-            for i in range(len(struttura_vl)):
-                struttura_list.append(str(struttura_vl[i].datazione))
-            try:
-                struttura_vl.remove('')
-            except:
-                pass
-            self.comboBox_datazione.clear()
-            self.comboBox_datazione.addItems(self.UTILITY.remove_dup_from_list(struttura_list))
-            if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Finden" or "Find":
-                self.comboBox_datazione.setEditText("")
-            elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Aktuell " or "Current":
-                if len(self.DATA_LIST) > 0:
-                    try:
-                        self.comboBox_datazione.setEditText(self.DATA_LIST[self.rec_num].datazione_reperto)
-                    except:
-                        pass  # non vi sono periodi per questo scavo
-
-        except Exception as e:
-            QMessageBox.warning(self, "Error", str(e), QMessageBox.Ok)
+    # charge_datazione removed - now datazione is loaded from thesaurus in charge_list
 
     def rec_toupdate(self):
         rec_to_update = self.UTILITY.pos_none_in_list(self.DATA_LIST_REC_TEMP)
@@ -5041,8 +5025,10 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                         cell_item = QTableWidgetItem(str(cell_data))
                         table_widget.setItem(row_position, col, cell_item)
 
-        # Add an empty row at the end for new entries
-        self.insert_new_row(table_name)
+        # Don't add empty row when loading existing data - it creates duplicates
+        # Only add empty row when the table is completely empty
+        if table_widget.rowCount() == 0:
+            self.insert_new_row(table_name)
 
     def insert_new_row(self, table_name):
         """insert new row into a table based on table_name"""
@@ -5103,7 +5089,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
 
         self.lineEdit_diametro_orlo.clear()
         self.lineEdit_peso.clear()
-        self.comboBox_tipo_reperto.setEditText("")
+        self.comboBox_tipologia.setEditText("")
         self.lineEdit_eve_orlo.clear()
 
         self.comboBox_repertato.setEditText("")  # 9 - repertato
@@ -5173,7 +5159,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
 
         self.lineEdit_diametro_orlo.clear()
         self.lineEdit_peso.clear()
-        self.comboBox_tipo_reperto.setEditText("")
+        self.comboBox_tipologia.setEditText("")
         self.lineEdit_eve_orlo.clear()
 
         self.comboBox_repertato.setEditText("")  # 9 - repertato
@@ -5280,16 +5266,36 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
 
             # Handle table data
             if self.DATA_LIST[self.rec_num].elementi_reperto:
-                self.tableInsertData("self.tableWidget_elementi_reperto", self.DATA_LIST[self.rec_num].elementi_reperto)
+                import ast
+                try:
+                    elementi_data = ast.literal_eval(self.DATA_LIST[self.rec_num].elementi_reperto)
+                    self.tableInsertData("self.tableWidget_elementi_reperto", elementi_data)
+                except:
+                    pass
 
             if self.DATA_LIST[self.rec_num].misurazioni:
-                self.tableInsertData("self.tableWidget_misurazioni", self.DATA_LIST[self.rec_num].misurazioni)
+                import ast
+                try:
+                    misurazioni_data = ast.literal_eval(self.DATA_LIST[self.rec_num].misurazioni)
+                    self.tableInsertData("self.tableWidget_misurazioni", misurazioni_data)
+                except:
+                    pass
 
             if self.DATA_LIST[self.rec_num].rif_biblio:
-                self.tableInsertData("self.tableWidget_rif_biblio", self.DATA_LIST[self.rec_num].rif_biblio)
+                import ast
+                try:
+                    rif_biblio_data = ast.literal_eval(self.DATA_LIST[self.rec_num].rif_biblio)
+                    self.tableInsertData("self.tableWidget_rif_biblio", rif_biblio_data)
+                except:
+                    pass
 
             if self.DATA_LIST[self.rec_num].tecnologie:
-                self.tableInsertData("self.tableWidget_tecnologie", self.DATA_LIST[self.rec_num].tecnologie)
+                import ast
+                try:
+                    tecnologie_data = ast.literal_eval(self.DATA_LIST[self.rec_num].tecnologie)
+                    self.tableInsertData("self.tableWidget_tecnologie", tecnologie_data)
+                except:
+                    pass
 
             # Continue with the rest of the fields...
             self.lineEditFormeMin.setText(forme_minime)
@@ -5310,7 +5316,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             else:
                 self.lineEdit_peso.setText(str(self.DATA_LIST[self.rec_num].peso))
 
-            self.comboBox_tipo_reperto.setEditText(str(self.DATA_LIST[self.rec_num].tipo))
+            self.comboBox_tipologia.setEditText(str(self.DATA_LIST[self.rec_num].tipo))
 
             # Handle eve_orlo
             if self.DATA_LIST[self.rec_num].eve_orlo is None:
@@ -5337,13 +5343,25 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
 
             # Handle negativo_photo and diapositiva as tableWidgets
             if hasattr(self.DATA_LIST[self.rec_num], 'negativo_photo') and self.DATA_LIST[self.rec_num].negativo_photo is not None:
-                self.tableInsertData("self.tableWidget_negative", self.DATA_LIST[self.rec_num].negativo_photo)
+                import ast
+                try:
+                    negative_data = ast.literal_eval(self.DATA_LIST[self.rec_num].negativo_photo)
+                    self.tableInsertData("self.tableWidget_negative", negative_data)
+                except:
+                    self.tableWidget_negative.setRowCount(0)
+                    self.insert_new_row("self.tableWidget_negative")
             else:
                 self.tableWidget_negative.setRowCount(0)
                 self.insert_new_row("self.tableWidget_negative")
 
             if hasattr(self.DATA_LIST[self.rec_num], 'diapositiva') and self.DATA_LIST[self.rec_num].diapositiva is not None:
-                self.tableInsertData("self.tableWidget_diapositive", self.DATA_LIST[self.rec_num].diapositiva)
+                import ast
+                try:
+                    diapositive_data = ast.literal_eval(self.DATA_LIST[self.rec_num].diapositiva)
+                    self.tableInsertData("self.tableWidget_diapositive", diapositive_data)
+                except:
+                    self.tableWidget_diapositive.setRowCount(0)
+                    self.insert_new_row("self.tableWidget_diapositive")
             else:
                 self.tableWidget_diapositive.setRowCount(0)
                 self.insert_new_row("self.tableWidget_diapositive")
@@ -5463,7 +5481,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             str(self.lineEditRivestimento.text()),  # 22 - riverstimento
             str(diametro_orlo),  # 23 - diametro orlo
             str(peso),  # 24 - peso
-            str(self.comboBox_tipo_reperto.currentText()),  # 25 - tipo
+            str(self.comboBox_tipologia.currentText()),  # 25 - tipo
             str(eve_orlo),  # 26 - eve orlo
             str(self.comboBox_repertato.currentText()),  # 27 - repertato
             str(self.comboBox_diagnostico.currentText()),  # 28 - diagnostico
@@ -5534,16 +5552,20 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
 
     def set_LIST_REC_CORR(self):
         self.DATA_LIST_REC_CORR = []
-        for i in self.TABLE_FIELDS:
-            self.DATA_LIST_REC_CORR.append(eval("unicode(self.DATA_LIST[self.REC_CORR]." + i + ")"))
+        # Check if REC_CORR is within valid range
+        if self.DATA_LIST and 0 <= self.REC_CORR < len(self.DATA_LIST):
+            for i in self.TABLE_FIELDS:
+                self.DATA_LIST_REC_CORR.append(eval("unicode(self.DATA_LIST[self.REC_CORR]." + i + ")"))
 
     def records_equal_check(self):
         self.set_LIST_REC_TEMP()
         self.set_LIST_REC_CORR()
 
+        # If DATA_LIST_REC_CORR is empty, it means there's no current record to compare
+        if not self.DATA_LIST_REC_CORR:
+            return 0  # No changes detected since there's no record
 
         check_str = str(self.DATA_LIST_REC_CORR) + " " + str(self.DATA_LIST_REC_TEMP)
-
 
         if self.DATA_LIST_REC_CORR == self.DATA_LIST_REC_TEMP:
             return 0

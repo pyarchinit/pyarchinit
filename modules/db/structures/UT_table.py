@@ -66,7 +66,7 @@ class UT_table:
                      UniqueConstraint('progetto', 'nr_ut', 'ut_letterale', name='ID_ut_unico')
                      )
 
-    try:
-        metadata.create_all(engine)
-    except:
-        pass  # Table already exists or geometry type not supported
+    # DO NOT create tables at module import time!
+
+
+    # metadata.create_all(engine)  # This line was causing connection errors

@@ -87,32 +87,55 @@ class Pyarchinit_db_management(object):
 
 
     def connection(self):
+        # Add debug logging
+        import datetime
+        log_file = '/Users/enzo/pyarchinit_debug.log'
+        def log_debug(msg):
+            try:
+                timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
+                with open(log_file, 'a', encoding='utf-8') as f:
+                    f.write(f"[{timestamp}] [DB_MANAGER] {msg}\n")
+                    f.flush()
+            except:
+                pass
+
+        log_debug("connection() method started")
         conn = None
         test = True
 
         try:
+            log_debug(f"Connection string: {self.conn_str[:50]}...")
             test_conn = self.conn_str.find("sqlite")
             if test_conn == 0:
+                log_debug("Creating SQLite engine")
                 self.engine = create_engine(self.conn_str, echo=eval(self.boolean))
                 listen(self.engine, 'connect', self.load_spatialite)
             else:
+                log_debug("Creating PostgreSQL engine")
                 self.engine = create_engine(self.conn_str, max_overflow=-1, echo=eval(self.boolean))
-            
-                
+
+            log_debug("Creating metadata")
             self.metadata = MetaData(self.engine)
+            log_debug("Connecting to database")
             conn = self.engine.connect()
+            log_debug("Connection successful")
 
         except Exception as e:
+            log_debug(f"Connection failed: {e}")
             error_message = f"Error. Problema nella connessione con il db: {e}\nTraceback: {traceback.format_exc()}"
             QMessageBox.warning(None, "Message", error_message, QMessageBox.Ok)
             test = False
         finally:
             if conn:
+                log_debug("Closing initial connection")
                 conn.close()
 
         try:
+            log_debug("Starting DB_update")
             db_upd = DB_update(self.conn_str)
+            log_debug("Calling update_table()")
             db_upd.update_table()
+            log_debug("DB_update completed")
             
             # After database update, we need to refresh metadata to reflect the changes
             # Clear existing metadata
@@ -685,41 +708,60 @@ class Pyarchinit_db_management(object):
 
         return periodizzazione
 
+    def _convert_empty_to_none(self, value, field_type='text'):
+        """Convert empty strings to None for numeric fields"""
+        if field_type in ['integer', 'bigint', 'numeric', 'float']:
+            if value == '' or value == '""' or (isinstance(value, str) and value.strip() == ''):
+                return None
+            if value is None:
+                return None
+            try:
+                if field_type in ['integer', 'bigint']:
+                    return int(value) if value != '' else None
+                elif field_type in ['numeric', 'float']:
+                    return float(value) if value != '' else None
+            except (ValueError, TypeError):
+                return None
+        else:
+            return value if value is not None else ''
+
     def insert_values_reperti(self, *arg):
         """Istanzia la classe Reperti da pyarchinit_db_mapper"""
-        inventario_materiali = INVENTARIO_MATERIALI(arg[0],
-                                                    arg[1],
-                                                    arg[2],
-                                                    arg[3],
-                                                    arg[4],
-                                                    arg[5],
-                                                    arg[6],
-                                                    arg[7],
-                                                    arg[8],
-                                                    arg[9],
-                                                    arg[10],
-                                                    arg[11],
-                                                    arg[12],
-                                                    arg[13],
-                                                    arg[14],
-                                                    arg[15],
-                                                    arg[16],
-                                                    arg[17],
-                                                    arg[18],
-                                                    arg[19],
-                                                    arg[20],
-                                                    arg[21],
-                                                    arg[22],
-                                                    arg[23],
-                                                    arg[24],
-                                                    arg[25],
-                                                    arg[26],
-                                                    arg[27],
-                                                    arg[28],
-                                                    arg[29],
-                                                    arg[30],
-                                                    arg[31],
-                                                    arg[32])
+        inventario_materiali = INVENTARIO_MATERIALI(
+            arg[0],  # id_invmat
+            arg[1],  # sito
+            arg[2],  # numero_inventario
+            arg[3],  # tipo_reperto
+            arg[4],  # criterio_schedatura
+            arg[5],  # definizione
+            arg[6],  # descrizione
+            arg[7],  # area (now TEXT)
+            arg[8],  # us (now TEXT)
+            arg[9],  # lavato
+            arg[10],  # nr_cassa (now TEXT)
+            arg[11],  # luogo_conservazione
+            arg[12],  # stato_conservazione
+            arg[13],  # datazione_reperto
+            arg[14],  # elementi_reperto
+            arg[15],  # misurazioni
+            arg[16],  # rif_biblio
+            arg[17],  # tecnologie
+            self._convert_empty_to_none(arg[18], 'integer'),  # forme_minime
+            self._convert_empty_to_none(arg[19], 'integer'),  # forme_massime
+            self._convert_empty_to_none(arg[20], 'integer'),  # totale_frammenti
+            arg[21],  # corpo_ceramico
+            arg[22],  # rivestimento
+            self._convert_empty_to_none(arg[23], 'float'),  # diametro_orlo
+            self._convert_empty_to_none(arg[24], 'float'),  # peso
+            arg[25],  # tipo
+            self._convert_empty_to_none(arg[26], 'float'),  # eve_orlo
+            arg[27],  # repertato
+            arg[28],  # diagnostico
+            self._convert_empty_to_none(arg[29], 'bigint'),  # n_reperto
+            arg[30],  # tipo_contenitore
+            arg[31],  # struttura
+            self._convert_empty_to_none(arg[32], 'integer')  # years
+        )
 
         return inventario_materiali
 
@@ -996,7 +1038,7 @@ class Pyarchinit_db_management(object):
 
     def insert_values_thesaurus(self, *arg):
         """Istanzia la classe PYARCHINIT_THESAURUS_SIGLE da pyarchinit_db_mapper"""
-        
+
         # Standard format with all required fields
         if len(arg) == 7:
             # Basic format with descrizione
@@ -1019,10 +1061,10 @@ class Pyarchinit_db_management(object):
                 arg[4],  # descrizione
                 arg[5],  # tipologia_sigla
                 arg[6],  # lingua
-                arg[7] if len(arg) > 7 else 0,  # order_layer
-                arg[8] if len(arg) > 8 else None,  # id_parent
+                self._convert_empty_to_none(arg[7], 'integer') if len(arg) > 7 else 0,  # order_layer
+                self._convert_empty_to_none(arg[8], 'integer') if len(arg) > 8 else None,  # id_parent
                 arg[9] if len(arg) > 9 else None,  # parent_sigla
-                arg[10] if len(arg) > 10 else 0  # hierarchy_level
+                self._convert_empty_to_none(arg[10], 'integer') if len(arg) > 10 else 0  # hierarchy_level
             )
         else:
             # Handle legacy format or missing descrizione
@@ -1135,7 +1177,7 @@ class Pyarchinit_db_management(object):
         
     def insert_tma_values(self, *arg):
         """Istanzia la classe TMA da pyarchinit_db_mapper"""
-        tma = TMA(arg[0],  # id
+        tma = TMA(int(arg[0]) if arg[0] else None,  # id - convert to int
                   arg[1],  # sito
                   arg[2],  # area
                   arg[3],  # localita
@@ -1182,7 +1224,7 @@ class Pyarchinit_db_management(object):
                                      arg[6],  # macd
                                      arg[7],  # cronologia_mac
                                      arg[8],  # macq
-                                     arg[9],  # peso
+                                     self._convert_empty_to_none(arg[9], 'float'),  # peso
                                      arg[10], # created_at
                                      arg[11], # updated_at
                                      arg[12], # created_by
@@ -1428,7 +1470,7 @@ class Pyarchinit_db_management(object):
     def query_bool(self, params, table_class_name):
         u = Utility()
         params = u.remove_empty_items_fr_dict(params)
-        
+
         # Handle thesaurus table name compatibility
         if table_class_name == 'PYARCHINIT_THESAURUS_SIGLE' and 'nome_tabella' in params:
             # Import compatibility helper
@@ -1518,10 +1560,10 @@ class Pyarchinit_db_management(object):
         
         # Execute the query and fetch all results
         res = query.all()
-        
+
         # Close the session
         session.close()
-        
+
         return res
 
     def select_mediapath_from_id(self, media_id):
@@ -1705,11 +1747,18 @@ class Pyarchinit_db_management(object):
         session.add(data)
         # Log per debug
         try:
+            # Try to flush first to get better error messages
+            session.flush()
             session.commit()
-            print(f"DEBUG: Record committed successfully - Type: {type(data).__name__}")
         except Exception as e:
             session.rollback()
-            print(f"DEBUG: Commit failed - Error: {str(e)}")
+            if hasattr(data, '__dict__'):
+                # Check id field specifically
+                if hasattr(data, 'id'):
+                    pass  # Previously had debug print here
+            # Try to get the actual database error
+            if hasattr(e, 'orig'):
+                pass  # Previously had debug print here
             raise
         session.close()
     def insert_data_conflict(self, data):
