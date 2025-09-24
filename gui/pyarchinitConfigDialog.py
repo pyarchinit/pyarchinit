@@ -6153,40 +6153,32 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                         existing_records = self.DB_MANAGER_write.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
 
                         if existing_records:
-                            # Record exists - update it
-                            existing_id = existing_records[0].id_thesaurus_sigle
-                            data = self.DB_MANAGER_write.insert_values_thesaurus(
-                                existing_id,
-                                data_list_toimp[sing_rec].nome_tabella,
-                                data_list_toimp[sing_rec].sigla,
-                                data_list_toimp[sing_rec].sigla_estesa,
-                                data_list_toimp[sing_rec].descrizione,
-                                data_list_toimp[sing_rec].tipologia_sigla,
-                                data_list_toimp[sing_rec].lingua,
-                                data_list_toimp[sing_rec].order_layer,
-                                data_list_toimp[sing_rec].id_parent,
-                                data_list_toimp[sing_rec].parent_sigla,
-                                data_list_toimp[sing_rec].hierarchy_level
-                            )
-                            # Use merge for update (handles conflicts)
-                            self.DB_MANAGER_write.insert_data_conflict(data)
+                            # Record exists - skip it (don't update to avoid overwriting good data)
+                            continue  # Skip to next record
                         else:
-                            # New record - insert it
-                            data = self.DB_MANAGER_write.insert_values_thesaurus(
-                                self.DB_MANAGER_write.max_num_id(mapper_class_write,
-                                                                 id_table_class_mapper_conv_dict[mapper_class_write]) + 1,
-                                data_list_toimp[sing_rec].nome_tabella,
-                                data_list_toimp[sing_rec].sigla,
-                                data_list_toimp[sing_rec].sigla_estesa,
-                                data_list_toimp[sing_rec].descrizione,
-                                data_list_toimp[sing_rec].tipologia_sigla,
-                                data_list_toimp[sing_rec].lingua,
-                                data_list_toimp[sing_rec].order_layer,
-                                data_list_toimp[sing_rec].id_parent,
-                                data_list_toimp[sing_rec].parent_sigla,
-                                data_list_toimp[sing_rec].hierarchy_level
-                            )
-                            self.DB_MANAGER_write.insert_data_session(data)
+                            # New record - insert it with try/except to handle any constraint violations
+                            try:
+                                data = self.DB_MANAGER_write.insert_values_thesaurus(
+                                    self.DB_MANAGER_write.max_num_id(mapper_class_write,
+                                                                     id_table_class_mapper_conv_dict[mapper_class_write]) + 1,
+                                    data_list_toimp[sing_rec].nome_tabella,
+                                    data_list_toimp[sing_rec].sigla,
+                                    data_list_toimp[sing_rec].sigla_estesa,
+                                    data_list_toimp[sing_rec].descrizione,
+                                    data_list_toimp[sing_rec].tipologia_sigla,
+                                    data_list_toimp[sing_rec].lingua,
+                                    data_list_toimp[sing_rec].order_layer,
+                                    data_list_toimp[sing_rec].id_parent,
+                                    data_list_toimp[sing_rec].parent_sigla,
+                                    data_list_toimp[sing_rec].hierarchy_level
+                                )
+                                self.DB_MANAGER_write.insert_data_session(data)
+                            except Exception as e:
+                                # Skip duplicates or other constraint violations silently
+                                if "unique" in str(e).lower() or "duplicate" in str(e).lower():
+                                    continue  # Skip this record
+                                else:
+                                    raise  # Re-raise other errors
 
                         # Calculate the progress as a percentage
                         value = (float(sing_rec) / float(len(data_list_toimp))) * 100
@@ -6867,37 +6859,26 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                                         existing_thes = self.DB_MANAGER_write.query_bool(search_dict_thes, 'PYARCHINIT_THESAURUS_SIGLE')
 
                                         if existing_thes:
-                                            # Update existing record
-                                            data = self.DB_MANAGER_write.insert_values_thesaurus(
-                                                existing_thes[0].id_thesaurus_sigle,
-                                                data_list_toimp_current[sing_rec].nome_tabella,
-                                                data_list_toimp_current[sing_rec].sigla,
-                                                data_list_toimp_current[sing_rec].sigla_estesa,
-                                                data_list_toimp_current[sing_rec].descrizione,
-                                                data_list_toimp_current[sing_rec].tipologia_sigla,
-                                                data_list_toimp_current[sing_rec].lingua,
-                                                getattr(data_list_toimp_current[sing_rec], 'order_layer', 0),
-                                                getattr(data_list_toimp_current[sing_rec], 'id_parent', None),
-                                                getattr(data_list_toimp_current[sing_rec], 'parent_sigla', None),
-                                                getattr(data_list_toimp_current[sing_rec], 'hierarchy_level', 0)
-                                            )
-                                            # Skip this record - don't insert duplicate
+                                            # Record exists - skip it
                                             continue
                                         else:
-                                            # Insert new record
-                                            data = self.DB_MANAGER_write.insert_values_thesaurus(
-                                                self.DB_MANAGER_write.max_num_id(current_table, 'id_thesaurus_sigle') + 1,
-                                                data_list_toimp_current[sing_rec].nome_tabella,
-                                                data_list_toimp_current[sing_rec].sigla,
-                                                data_list_toimp_current[sing_rec].sigla_estesa,
-                                                data_list_toimp_current[sing_rec].descrizione,
-                                                data_list_toimp_current[sing_rec].tipologia_sigla,
-                                                data_list_toimp_current[sing_rec].lingua,
-                                                getattr(data_list_toimp_current[sing_rec], 'order_layer', 0),
-                                                getattr(data_list_toimp_current[sing_rec], 'id_parent', None),
-                                                getattr(data_list_toimp_current[sing_rec], 'parent_sigla', None),
-                                                getattr(data_list_toimp_current[sing_rec], 'hierarchy_level', 0)
-                                            )
+                                            # Insert new record with error handling
+                                            try:
+                                                data = self.DB_MANAGER_write.insert_values_thesaurus(
+                                                    self.DB_MANAGER_write.max_num_id(current_table, 'id_thesaurus_sigle') + 1,
+                                                    data_list_toimp_current[sing_rec].nome_tabella,
+                                                    data_list_toimp_current[sing_rec].sigla,
+                                                    data_list_toimp_current[sing_rec].sigla_estesa,
+                                                    data_list_toimp_current[sing_rec].descrizione,
+                                                    data_list_toimp_current[sing_rec].tipologia_sigla,
+                                                    data_list_toimp_current[sing_rec].lingua,
+                                                    getattr(data_list_toimp_current[sing_rec], 'order_layer', 0),
+                                                    getattr(data_list_toimp_current[sing_rec], 'id_parent', None),
+                                                    getattr(data_list_toimp_current[sing_rec], 'parent_sigla', None),
+                                                    getattr(data_list_toimp_current[sing_rec], 'hierarchy_level', 0)
+                                                )
+                                            except:
+                                                continue  # Skip on any error
                                     elif current_table == 'TMA':
                                         data = self.DB_MANAGER_write.insert_tma_values(
                                             self.DB_MANAGER_write.max_num_id(current_table, 'id_tma') + 1,
