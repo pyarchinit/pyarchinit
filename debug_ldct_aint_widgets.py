@@ -18,7 +18,6 @@ def debug_widgets():
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
     
-    print("=== DEBUG WIDGETS LDCT E AINT ===\n")
     
     # Verifica ldct (Tipologia Collocazione) - 10.2
     print("1. Tipologia Collocazione (ldct) - Codice 10.2:")

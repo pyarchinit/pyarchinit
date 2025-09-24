@@ -108,5 +108,4 @@ if __name__ == "__main__":
     
     print("\n💡 Tips:")
     print("- Run this script before and after TMA operations")
-    print("- If materials disappear, check the QGIS log for DEBUG messages")
     print("- Look for 'materials_loaded' flag status in the logs")

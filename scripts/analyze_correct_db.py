@@ -49,7 +49,6 @@ try:
         print(f"     {i+1}. '{area}'")
     
     # 3. Verifica perché il sync trova solo 3 aree
-    print("\n\n3. DEBUG: Verifica query usata dal sync")
     
     # Query esatta usata dal sync
     cursor.execute("""

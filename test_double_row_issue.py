@@ -32,7 +32,6 @@ print("\n4. DELEGATE ISSUES:")
 print("   - ComboBoxDelegate might be triggering additional row operations")
 print("   - Focus changes might cause unexpected behavior")
 
-print("\nDEBUGGING STEPS:")
 print("1. Add logging to track how many times methods are called")
 print("2. Check if signals are connected multiple times")
 print("3. Track table row count before and after operations")

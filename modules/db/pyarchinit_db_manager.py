@@ -1750,21 +1750,14 @@ class Pyarchinit_db_management(object):
             # Try to flush first to get better error messages
             session.flush()
             session.commit()
-            print(f"DEBUG: Record committed successfully - Type: {type(data).__name__}")
         except Exception as e:
             session.rollback()
-            print(f"DEBUG: Commit failed - Error: {str(e)}")
-            print(f"DEBUG: Full error details: {repr(e)}")
-            print(f"DEBUG: Data type: {type(data).__name__}")
             if hasattr(data, '__dict__'):
-                print(f"DEBUG: Data attributes: {data.__dict__}")
                 # Check id field specifically
                 if hasattr(data, 'id'):
-                    print(f"DEBUG: ID field value: {data.id}, type: {type(data.id)}")
 
             # Try to get the actual database error
             if hasattr(e, 'orig'):
-                print(f"DEBUG: Original database error: {e.orig}")
             raise
         session.close()
     def insert_data_conflict(self, data):

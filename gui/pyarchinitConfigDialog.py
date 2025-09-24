@@ -62,7 +62,10 @@ class PyArchInitLogger:
     """Simple file-based logger for debugging"""
 
     def __init__(self):
-        self.log_file = '/Users/enzo/pyarchinit_debug.log'
+        # Use system temp directory for log file
+        import tempfile
+        temp_dir = tempfile.gettempdir()
+        self.log_file = os.path.join(temp_dir, 'pyarchinit_debug.log')
 
     def log(self, message):
         """Write a message to the log file with timestamp"""
@@ -4416,7 +4419,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                         int(conn_str_dict_write["port"]), conn_str_dict_write["db_name"])
             elif conn_str_dict_write["server"] == 'sqlite':
                 sqlite_DB_path = '{}{}{}'.format(self.HOME, os.sep,
-                                                 "pyarchinit_DB_folder")  # "C:\\Users\\Windows\\Dropbox\\pyarchinit_san_marco\\" fare modifiche anche in pyarchinit_pyqgis
+                                                 "pyarchinit_DB_folder")
                 dbname_abs = sqlite_DB_path + os.sep + conn_str_dict_write["db_name"]
                 conn_str_write = "%s:///%s" % (conn_str_dict_write["server"], dbname_abs)
                 QMessageBox.warning(self, "Alert", str(conn_str_dict_write["db_name"]), QMessageBox.Ok)
@@ -4962,7 +4965,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             elif conn_str_dict_read["server"] == 'sqlite':
 
                 sqlite_DB_path = '{}{}{}'.format(self.HOME, os.sep,
-                                                 "pyarchinit_DB_folder")  # "C:\\Users\\Windows\\Dropbox\\pyarchinit_san_marco\\" fare modifiche anche in pyarchinit_pyqgis
+                                                 "pyarchinit_DB_folder")
                 dbname_abs = sqlite_DB_path + os.sep + conn_str_dict_read["db_name"]
                 conn_str_read = "%s:///%s" % (conn_str_dict_read["server"], dbname_abs)
                 QMessageBox.warning(self, "Alert", str(conn_str_dict_read["db_name"]), QMessageBox.Ok)
@@ -5026,7 +5029,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                         int(conn_str_dict_write["port"]), conn_str_dict_write["db_name"])
             elif conn_str_dict_write["server"] == 'sqlite':
                 sqlite_DB_path = '{}{}{}'.format(self.HOME, os.sep,
-                                                 "pyarchinit_DB_folder")  # "C:\\Users\\Windows\\Dropbox\\pyarchinit_san_marco\\" fare modifiche anche in pyarchinit_pyqgis
+                                                 "pyarchinit_DB_folder")
                 dbname_abs = sqlite_DB_path + os.sep + conn_str_dict_write["db_name"]
                 conn_str_write = "%s:///%s" % (conn_str_dict_write["server"], dbname_abs)
                 QMessageBox.warning(self, "Alert", str(conn_str_dict_write["db_name"]), QMessageBox.Ok)
@@ -6713,7 +6716,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
 
 
         # #Download the file from the remote server
-        # remote_file = '/home/data/ftp/demoliz/qgis/rep5/test.qgs'
+        # remote_file = 'remote_path/test.qgs'  # Example path
 
         # with srv.cd('../'):             # still in .
             # srv.chdir('home')    # now in ./static
