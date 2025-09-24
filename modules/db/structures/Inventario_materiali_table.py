@@ -67,10 +67,12 @@ class Inventario_materiali_table:
                                        
                                        
 
-    try:
-        metadata.create_all(engine)
-    except:
-        pass  # Table already exists or geometry type not supported
+    # DO NOT create tables at module import time!
+
+                                       
+                                       
+
+    # metadata.create_all(engine)  # This line was causing connection errors
 
 
 # class Inventario_materiali_table_toimp:

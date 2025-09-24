@@ -33,7 +33,3 @@ class Documentazione_table:
                                  UniqueConstraint('sito', 'tipo_documentazione', 'nome_doc', name='ID_invdoc_unico')
                                  )
 
-    try:
-        metadata.create_all(engine)
-    except:
-        pass  # Table already exists or geometry type not supported

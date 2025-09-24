@@ -286,7 +286,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         
         # Connect fields to auto-update chronology and inventory
         # Moved to fill_fields to avoid multiple connections
-        # self.lineEdit_us.textChanged.connect(self.on_us_changed)
+        self.lineEdit_us.textChanged.connect(self.on_us_changed)
         self.comboBox_area.currentIndexChanged.connect(self.on_area_changed)
         self.comboBox_sito.currentIndexChanged.connect(self.on_sito_changed)
         
@@ -525,7 +525,6 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
 
         # lista area from thesaurus
         search_dict = {
-            'lingua': lang,
             'nome_tabella': "'" + 'TMA materiali archeologici' + "'",
             'tipologia_sigla': "'" + '10.7' + "'"
         }
@@ -1360,10 +1359,14 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         """Load materials data for current TMA record from database."""
         # Set flag to indicate we're loading materials
         self._loading_materials = True
-        
+
+        # Reset the modified flag before loading
+        self.materials_modified = False
+
         # Remove debug logging to reduce noise
         if not self.DATA_LIST or self.rec_num >= len(self.DATA_LIST):
             self._loading_materials = False
+            self.materials_modified = False
             return
         
         # Disconnect signals during loading to prevent false change notifications
@@ -1406,40 +1409,40 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                     # Fill row data - map column indices from query result
                     # DB columns: id(0), id_tma(1), madi(2), macc(3), macl(4), macp(5), macd(6), cronologia_mac(7), macq(8), peso(9)
                     # Table headers: "Categoria *", "Classe", "Prec. tipologica", "Definizione", "Cronologia", "Quantità", "Peso"
-                    # Correct mapping:
-                    # Table col 0 (Categoria) <- madi (row[2])
-                    # Table col 1 (Classe) <- macc (row[3])
-                    # Table col 2 (Prec. tipologica) <- macl (row[4])
-                    # Table col 3 (Definizione) <- macp (row[5])
-                    # Table col 4 (Cronologia) <- cronologia_mac (row[7]) - skip macd
+                    # Mapping (nota: il DB di origine potrebbe avere dati nelle colonne sbagliate):
+                    # Table col 0 (Categoria) <- macc (row[3])
+                    # Table col 1 (Classe) <- macl (row[4])
+                    # Table col 2 (Prec. tipologica) <- macp (row[5])
+                    # Table col 3 (Definizione) <- macd (row[6])
+                    # Table col 4 (Cronologia) <- cronologia_mac (row[7])
                     # Table col 5 (Quantità) <- macq (row[8])
                     # Table col 6 (Peso) <- peso (row[9])
-                    
-                    # Column 0: Categoria <- madi
-                    item0 = QTableWidgetItem(str(row[2]).strip() if row[2] else "")  # madi
+
+                    # Column 0: Categoria <- macc
+                    item0 = QTableWidgetItem(str(row[3]).strip() if row[3] else "")  # macc
                     item0.setData(Qt.UserRole, int(row[0]))  # Store material ID
                     self.tableWidget_materiali.setItem(table_row, 0, item0)
-                    
-                    # Column 1: Classe <- macc
-                    item1 = QTableWidgetItem(str(row[3]).strip() if row[3] else "")  # macc
+
+                    # Column 1: Classe <- macl
+                    item1 = QTableWidgetItem(str(row[4]).strip() if row[4] else "")  # macl
                     self.tableWidget_materiali.setItem(table_row, 1, item1)
-                    
-                    # Column 2: Prec. tipologica <- macl
-                    item2 = QTableWidgetItem(str(row[4]).strip() if row[4] else "")  # macl
+
+                    # Column 2: Prec. tipologica <- macp
+                    item2 = QTableWidgetItem(str(row[5]).strip() if row[5] else "")  # macp
                     self.tableWidget_materiali.setItem(table_row, 2, item2)
-                    
-                    # Column 3: Definizione <- macp
-                    item3 = QTableWidgetItem(str(row[5]).strip() if row[5] else "")  # macp
+
+                    # Column 3: Definizione <- macd
+                    item3 = QTableWidgetItem(str(row[6]).strip() if row[6] else "")  # macd
                     self.tableWidget_materiali.setItem(table_row, 3, item3)
-                    
-                    # Column 4: Cronologia <- cronologia_mac (skip macd)
+
+                    # Column 4: Cronologia <- cronologia_mac
                     item4 = QTableWidgetItem(str(row[7]).strip() if row[7] else "")  # cronologia_mac
                     self.tableWidget_materiali.setItem(table_row, 4, item4)
-                    
+
                     # Column 5: Quantità <- macq
                     item5 = QTableWidgetItem(str(row[8]).strip() if row[8] else "")  # macq
                     self.tableWidget_materiali.setItem(table_row, 5, item5)
-                    
+
                     # Column 6: Peso <- peso
                     item6 = QTableWidgetItem(str(row[9]).strip() if row[9] else "")  # peso
                     self.tableWidget_materiali.setItem(table_row, 6, item6)
@@ -1463,6 +1466,9 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             QgsMessageLog.logMessage(f"DEBUG TMA load_materials_table: Error occurred: {str(e)}", "PyArchInit", Qgis.Warning)
             import traceback
             traceback.print_exc()
+            # Make sure to reset flags even on error
+            self.materials_modified = False
+            self._loading_materials = False
         
         # Reconnect signal after loading is complete (only if not already connected)
         try:
@@ -1477,6 +1483,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         # Clear the materials_modified flag after loading
         self.materials_modified = False
         self._loading_materials = False
+        QgsMessageLog.logMessage(f"DEBUG load_materials_table: Finished loading {self.tableWidget_materiali.rowCount()} materials", "PyArchInit", Qgis.Info)
         QgsMessageLog.logMessage(f"DEBUG load_materials_table: Reset flags - materials_modified=False, _loading_materials=False", "PyArchInit", Qgis.Info)
 
     def save_materials_data(self, tma_id):
@@ -1663,28 +1670,29 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                 # Get values from table with correct mapping (7 columns total)
                 # Table headers: "Categoria *", "Classe", "Prec. tipologica", "Definizione", "Cronologia", "Quantità", "Peso"
                 # Mapping to database fields:
-                # Column 0: Categoria -> madi
-                # Column 1: Classe -> macc
-                # Column 2: Prec. tipologica -> macl
-                # Column 3: Definizione -> macp
+                # NOTA: Il DB di origine ha i dati salvati nelle colonne sbagliate
+                # quindi mappiamo in modo da correggere durante l'importazione
+                # Column 0: Categoria -> macc
+                # Column 1: Classe -> macl
+                # Column 2: Prec. tipologica -> macp
+                # Column 3: Definizione -> macd
                 # Column 4: Cronologia -> cronologia_mac
                 # Column 5: Quantità -> macq
                 # Column 6: Peso -> peso
-                # Note: macd is not used in the UI, set to empty string
-                
-                madi = get_cell_value(item0, 0)  # Categoria -> madi
-                macc = get_cell_value(item1, 1)  # Classe -> macc
-                macl = get_cell_value(item2, 2)  # Prec. tipologica -> macl
-                macp = get_cell_value(item3, 3)  # Definizione -> macp
+
+                macc = get_cell_value(item0, 0)  # Categoria -> macc
+                macl = get_cell_value(item1, 1)  # Classe -> macl
+                macp = get_cell_value(item2, 2)  # Prec. tipologica -> macp
+                macd = get_cell_value(item3, 3)  # Definizione -> macd
                 cronologia_mac = get_cell_value(item4, 4)  # Cronologia -> cronologia_mac
                 macq = get_cell_value(item5, 5)  # Quantità -> macq
                 peso_text = get_cell_value(item6, 6)  # Peso -> peso
-                
-                # macd is not in the UI, set to empty string
-                macd = ""
-                
-                # Use madi as the material identifier
-                materiale = madi
+
+                # madi takes same value as macc for PDF grouping (used as "definizione" in PDF)
+                madi = macc
+
+                # Use macc (categoria) as the material identifier
+                materiale = macc
                 
                 # Convert to string to ensure consistency and trim whitespace
                 materiale = str(materiale).strip() if materiale else ""
@@ -1707,9 +1715,9 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                 except ValueError:
                     peso = 0.0
                 
-                # Skip completely empty rows (Category/madi is required as it's the main identifier)
-                if not madi.strip():
-                    QgsMessageLog.logMessage(f"DEBUG TMA: Row {row} - categoria (madi) is empty, madi='{madi}'", "PyArchInit", Qgis.Info)
+                # Skip completely empty rows (Category/macc is required as it's the main identifier)
+                if not macc.strip():
+                    QgsMessageLog.logMessage(f"DEBUG TMA: Row {row} - categoria (macc) is empty, macc='{macc}'", "PyArchInit", Qgis.Info)
                     QgsMessageLog.logMessage(f"DEBUG TMA: Row {row} - item0={item0}, item0.text()='{item0.text() if item0 else 'None'}'", "PyArchInit", Qgis.Info)
                     
                     # Check if this is truly an empty row or if we have data loss
@@ -1745,22 +1753,22 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                     
                     # Check if data has changed (trim existing values for comparison)
                     existing = existing_ids[material_id]
-                    if (str(existing.madi or '').strip() != materiale or 
-                        str(existing.macc or '').strip() != macc or 
-                        str(existing.macl or '').strip() != macl or 
-                        str(existing.macp or '').strip() != macp or 
-                        str(existing.macd or '').strip() != macd or 
+                    if (str(existing.madi or '').strip() != madi or
+                        str(existing.macc or '').strip() != macc or
+                        str(existing.macl or '').strip() != macl or
+                        str(existing.macp or '').strip() != macp or
+                        str(existing.macd or '').strip() != macd or
                         str(existing.cronologia_mac or '').strip() != cronologia_mac or 
                         str(existing.macq or '').strip() != macq or 
                         float(existing.peso or 0) != peso):
                         
                         # Data has changed, update record
                         update_values_dict = {
-                            'madi': materiale,  # Column 0 is materiale, stored in madi field
-                            'macc': macc,
-                            'macl': macl,
-                            'macp': macp,
-                            'macd': macd,
+                            'madi': macc,  # madi same as macc for PDF grouping
+                            'macc': macc,  # categoria from column 0
+                            'macl': macl,  # classe from column 1
+                            'macp': macp,  # prec. tipologica from column 2
+                            'macd': macd,  # definizione from column 3
                             'cronologia_mac': cronologia_mac,
                             'macq': macq,
                             'peso': peso
@@ -1817,11 +1825,11 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                             params = {
                                 'id': new_material_id,
                                 'id_tma': tma_id_int,  # Use the integer version
-                                'madi': materiale,
-                                'macc': macc,
-                                'macl': macl,
-                                'macp': macp,
-                                'macd': macd,
+                                'madi': macc,  # madi same as macc for PDF grouping
+                                'macc': macc,  # categoria
+                                'macl': macl,  # classe
+                                'macp': macp,  # prec. tipologica
+                                'macd': macd,  # definizione
                                 'cronologia_mac': cronologia_mac,
                                 'macq': macq,
                                 'peso': peso,
@@ -2195,12 +2203,19 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
     
     def check_record_state(self):
         """Check if record has been modified but don't show dialog or trigger actions."""
+        from qgis.core import QgsMessageLog, Qgis
+
+        # If in search mode, don't check for changes
+        if self.BROWSE_STATUS == "f":
+            QgsMessageLog.logMessage("DEBUG check_record_state: In search mode, returning 0", "PyArchInit", Qgis.Info)
+            return 0  # In search mode, no changes to check
+
         ec = self.data_error_check()
         QgsMessageLog.logMessage(f"DEBUG check_record_state: data_error_check returned {ec}", "PyArchInit", Qgis.Info)
-        
+
         if ec == 1:
             return 1  # ci sono errori di immissione
-        
+
         records_equal_result = self.records_equal_check()
         QgsMessageLog.logMessage(f"DEBUG check_record_state: records_equal_check returned {records_equal_result}", "PyArchInit", Qgis.Info)
         
@@ -2222,6 +2237,11 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         # Don't check if we're currently loading materials
         if hasattr(self, '_loading_materials') and self._loading_materials:
             QgsMessageLog.logMessage("DEBUG check_materials_state: Skipping - currently loading materials", "PyArchInit", Qgis.Info)
+            return False
+
+        # Also skip if materials were never modified by user
+        if not self.materials_modified:
+            QgsMessageLog.logMessage("DEBUG check_materials_state: materials_modified=False, no changes", "PyArchInit", Qgis.Info)
             return False
             
         try:
@@ -2871,7 +2891,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                         self.setComboBoxEnable(["self.comboBox_sito"], "False")
 
                 else:
-                    QgsMessageLog.logMessage(f"DEBUG TMA: Clearing DATA_LIST in charge_records\", \"PyArchInit\", Qgis.Info")
+                    QgsMessageLog.logMessage(f"DEBUG TMA: Clearing DATA_LIST in charge_records", "PyArchInit", Qgis.Info)
                     self.DATA_LIST = []
                     for i in res:
                         self.DATA_LIST.append(i)
@@ -2911,7 +2931,8 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             self.SORT_MODE = order_type
             self.empty_fields()
 
-            id_list = self.DATA_LIST[self.REC_CORR].id
+            # Create a list of all IDs from DATA_LIST
+            id_list = [item.id for item in self.DATA_LIST]
 
             self.DATA_LIST = self.DB_MANAGER.query_sort(id_list, self.SORT_ITEMS_CONVERTED, self.SORT_MODE,
                                                         self.MAPPER_TABLE_CLASS, self.ID_TABLE)
@@ -3057,39 +3078,40 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
     def build_materials_search_dict(self):
         """Build search dictionary for materials table."""
         materials_search = {}
-        
+
         # Check each cell in materials table for non-empty values
+        # Column order: ["Categoria *", "Classe", "Prec. tipologica", "Definizione", "Cronologia", "Quantità", "Peso"]
         for row in range(self.tableWidget_materiali.rowCount()):
-            # madi (materiale)
+            # macc (categoria) - column 0
             item = self.tableWidget_materiali.item(row, 0)
-            if item and item.text():
-                if 'madi' not in materials_search:
-                    materials_search['madi'] = item.text()
-            
-            # macc (categoria)
-            item = self.tableWidget_materiali.item(row, 1)
             if item and item.text():
                 if 'macc' not in materials_search:
                     materials_search['macc'] = item.text()
-            
-            # macl (classe)
-            item = self.tableWidget_materiali.item(row, 2)
+
+            # macl (classe) - column 1
+            item = self.tableWidget_materiali.item(row, 1)
             if item and item.text():
                 if 'macl' not in materials_search:
                     materials_search['macl'] = item.text()
-            
-            # macp (precisazione)
-            item = self.tableWidget_materiali.item(row, 3)
+
+            # macp (precisazione tipologica) - column 2
+            item = self.tableWidget_materiali.item(row, 2)
             if item and item.text():
                 if 'macp' not in materials_search:
                     materials_search['macp'] = item.text()
-            
-            # macd (definizione)
-            item = self.tableWidget_materiali.item(row, 4)
+
+            # macd (definizione) - column 3
+            item = self.tableWidget_materiali.item(row, 3)
             if item and item.text():
                 if 'macd' not in materials_search:
                     materials_search['macd'] = item.text()
-        
+
+            # cronologia_mac - column 4
+            item = self.tableWidget_materiali.item(row, 4)
+            if item and item.text():
+                if 'cronologia_mac' not in materials_search:
+                    materials_search['cronologia_mac'] = item.text()
+
         return materials_search
 
     def insert_new_rec(self):
@@ -3593,7 +3615,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             lang = QgsSettings().value("locale/userLocale", "it")[:2].upper()  # Use uppercase as in database
             
             # Map field types to thesaurus categories
-            # Using correct tipologia_sigla codes according to thesaurus structure
+            # Using tipologia_sigla codes from the thesaurus database
             thesaurus_map = {
                 'categoria': '10.10',   # Categoria materiale (ceramica, vetro, metallo, etc.)
                 'classe': '10.11',      # Classe (ceramica fine, grezza, etc.)
@@ -3606,8 +3628,8 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                 return []
             
             # Use correct table name for thesaurus lookup
-            # Material fields use TMA Materiali Ripetibili table (with capitals)
-            table_name = 'TMA Materiali Ripetibili'
+            # Use same table name as main TMA fields
+            table_name = 'TMA materiali archeologici'
             
             search_dict = {
                 'lingua': "'" + str(lang) + "'",  # Add quotes around language code
@@ -3626,7 +3648,14 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             # DEBUG: Check what was returned
             QgsMessageLog.logMessage(f"DEBUG TMA thesaurus result: type = {type(thesaurus_records)}, len = {len(thesaurus_records) if thesaurus_records else 0}", "PyArchInit", Qgis.Info)
             values = []
-            
+
+            # Log first few thesaurus values to understand what we're getting
+            if thesaurus_records:
+                sample_values = []
+                for i, rec in enumerate(thesaurus_records[:5]):  # Show first 5
+                    sample_values.append(f"{rec.sigla_estesa}")
+                QgsMessageLog.logMessage(f"DEBUG TMA thesaurus sample for {field_type}: {sample_values}", "PyArchInit", Qgis.Info)
+
             QgsMessageLog.logMessage(f"DEBUG load_thesaurus_values: field={field_type}, table={table_name}, code={thesaurus_map[field_type]}, records found={len(thesaurus_records)}", "PyArchInit", Qgis.Info)
             
             for record in thesaurus_records:
@@ -3765,10 +3794,12 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         if hasattr(self, '_loading_materials') and self._loading_materials:
             QgsMessageLog.logMessage(f"DEBUG on_materials_table_changed: Ignoring change during loading - row={item.row()}, col={item.column()}", "PyArchInit", Qgis.Info)
             return
-            
+
         # Only log meaningful changes (non-empty text)
         if item.text().strip():
-            QgsMessageLog.logMessage(f"DEBUG TMA: Materials table changed - row={item.row()}, col={item.column()}, text='{item.text()}'", "PyArchInit", Qgis.Info)
+            col_names = ["Categoria", "Classe", "Prec. tipologica", "Definizione", "Cronologia", "Quantità", "Peso"]
+            col_name = col_names[item.column()] if item.column() < len(col_names) else f"Col{item.column()}"
+            QgsMessageLog.logMessage(f"DEBUG TMA: Materials table changed - row={item.row()}, col={item.column()} ({col_name}), text='{item.text()}'", "PyArchInit", Qgis.Info)
         self.materials_modified = True
         QgsMessageLog.logMessage(f"DEBUG on_materials_table_changed: Set materials_modified=True", "PyArchInit", Qgis.Info)
         
@@ -3780,14 +3811,17 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             self.update_materiale_field()
     
     def update_materiale_field(self):
-        """Update the lineEdit_materiale field with all categories from the table."""
-        materials_list = []
+        """Update the lineEdit_materiale field with unique categories from the table."""
+        materials_set = set()  # Use a set to store unique values
         for row in range(self.tableWidget_materiali.rowCount()):
             material_item = self.tableWidget_materiali.item(row, 0)  # Categoria column (now first column)
             if material_item and material_item.text().strip():
-                materials_list.append(material_item.text().strip())
-        
-        # Update the lineEdit_materiale with comma-separated categories (syncs to ogtm)
+                materials_set.add(material_item.text().strip())
+
+        # Convert set to sorted list for consistent display
+        materials_list = sorted(list(materials_set))
+
+        # Update the lineEdit_materiale with comma-separated unique categories (syncs to ogtm)
         self.lineEdit_materiale.setText(", ".join(materials_list))
     
     def addMediaTab(self):

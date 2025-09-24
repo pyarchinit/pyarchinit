@@ -19,57 +19,118 @@
  ***************************************************************************/
 """
 import os
+import datetime
+import traceback as tb
 
 from builtins import object
-import traceback
 from ..utility.settings import Settings
 from ..utility.pyarchinit_OS_utility import Pyarchinit_OS_Utility
 from qgis.PyQt.QtWidgets import QDialog, QMessageBox
+
+
+class PyArchInitConnLogger:
+    """Simple file logger for connection operations"""
+    def __init__(self):
+        self.log_file = '/Users/enzo/pyarchinit_conn_debug.log'
+
+    def log(self, message):
+        """Write a log message with timestamp"""
+        timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
+        try:
+            with open(self.log_file, 'a', encoding='utf-8') as f:
+                f.write(f"[{timestamp}] {message}\n")
+                f.flush()
+        except Exception:
+            pass  # Silently fail if logging doesn't work
+
+    def log_exception(self, exc, context=""):
+        """Log an exception with traceback"""
+        self.log(f"EXCEPTION in {context}: {type(exc).__name__}: {str(exc)}")
+        traceback = tb.format_exc()
+        for line in traceback.split('\n'):
+            if line:
+                self.log(f"  {line}")
 
 class Connection(object):
     HOME = os.environ['PYARCHINIT_HOME']
     RESOURCES_PATH = os.path.join(os.path.dirname(__file__), os.pardir, os.pardir, 'resources')
 
     OS_UTILITY = Pyarchinit_OS_Utility()
+
+    def __init__(self):
+        self.logger = PyArchInitConnLogger()
     
     def conn_str(self):
-        
-        
+        self.logger.log("\n=== Connection.conn_str called ===")
+
+        # Log stack trace to see where this is being called from
+        stack = tb.format_stack()
+        self.logger.log("Call stack:")
+        for i, frame in enumerate(stack[-5:-1]):
+            self.logger.log(f"  Frame {i}: {frame.strip()}")
+
         cfg_rel_path = os.path.join(os.sep, 'pyarchinit_DB_folder', 'config.cfg')
         file_path = '{}{}'.format(self.HOME, cfg_rel_path)
-        conf = open(file_path, "r")
-        data = conf.read()
-        settings = Settings(data)
-        settings.set_configuration()
-        conf.close()  
-        conn_str_dict = {"server": settings.SERVER,
-                     "user": settings.USER,
-                     "host": settings.HOST,
-                     "port": settings.PORT,
-                     "db_name": settings.DATABASE,
-                     "password": settings.PASSWORD}
-        
-        if conn_str_dict["server"] == 'postgres':
-            try:
-                
-                conn_str = "%s://%s:%s@%s:%s/%s%s" % (
-                "postgresql", conn_str_dict["user"], conn_str_dict["password"], conn_str_dict["host"],
-                conn_str_dict["port"], conn_str_dict["db_name"], "?sslmode=allow")
-                test=True
-            except:
-                QMessageBox.warning(self, "Attenzione", 'Problema', QMessageBox.Ok)
-                conn_str = "%s://%s:%s@%s:%d/%s" % (
-                "postgresql", conn_str_dict["user"], conn_str_dict["password"], conn_str_dict["host"],
-                conn_str_dict["port"], conn_str_dict["db_name"])
-           
-        elif conn_str_dict["server"] == 'sqlite':
-            sqlite_DB_path = '{}{}{}'.format(self.HOME, os.sep,
-                                           "pyarchinit_DB_folder")
-            dbname_abs = sqlite_DB_path + os.sep + conn_str_dict["db_name"]
-            conn_str = "%s:///%s" % (conn_str_dict["server"], dbname_abs)
-        else:
-            conn_str = None
-    
+        self.logger.log(f"Config file path: {file_path}")
+
+        try:
+            conf = open(file_path, "r")
+            data = conf.read()
+            settings = Settings(data)
+            settings.set_configuration()
+            conf.close()
+
+            conn_str_dict = {"server": settings.SERVER,
+                         "user": settings.USER,
+                         "host": settings.HOST,
+                         "port": settings.PORT,
+                         "db_name": settings.DATABASE,
+                         "password": settings.PASSWORD}
+
+            # Log connection parameters (mask password)
+            self.logger.log(f"Server type: {conn_str_dict['server']}")
+            self.logger.log(f"User: {conn_str_dict['user']}")
+            self.logger.log(f"Host: {conn_str_dict['host']}")
+            self.logger.log(f"Port: {conn_str_dict['port']}")
+            self.logger.log(f"Database: {conn_str_dict['db_name']}")
+
+            if conn_str_dict["server"] == 'postgres':
+                try:
+                    conn_str = "%s://%s:%s@%s:%s/%s%s" % (
+                    "postgresql", conn_str_dict["user"], conn_str_dict["password"], conn_str_dict["host"],
+                    conn_str_dict["port"], conn_str_dict["db_name"], "?sslmode=allow")
+                    # Log masked connection string
+                    masked_str = "%s://%s:***@%s:%s/%s%s" % (
+                    "postgresql", conn_str_dict["user"], conn_str_dict["host"],
+                    conn_str_dict["port"], conn_str_dict["db_name"], "?sslmode=allow")
+                    self.logger.log(f"PostgreSQL connection string (masked): {masked_str}")
+                    test=True
+                except Exception as e:
+                    self.logger.log_exception(e, "creating PostgreSQL connection string (with SSL)")
+                    QMessageBox.warning(self, "Attenzione", 'Problema', QMessageBox.Ok)
+                    conn_str = "%s://%s:%s@%s:%d/%s" % (
+                    "postgresql", conn_str_dict["user"], conn_str_dict["password"], conn_str_dict["host"],
+                    conn_str_dict["port"], conn_str_dict["db_name"])
+                    masked_str = "%s://%s:***@%s:%d/%s" % (
+                    "postgresql", conn_str_dict["user"], conn_str_dict["host"],
+                    conn_str_dict["port"], conn_str_dict["db_name"])
+                    self.logger.log(f"PostgreSQL connection string fallback (masked): {masked_str}")
+
+            elif conn_str_dict["server"] == 'sqlite':
+                sqlite_DB_path = '{}{}{}'.format(self.HOME, os.sep,
+                                               "pyarchinit_DB_folder")
+                dbname_abs = sqlite_DB_path + os.sep + conn_str_dict["db_name"]
+                conn_str = "%s:///%s" % (conn_str_dict["server"], dbname_abs)
+                self.logger.log(f"SQLite connection string: {conn_str}")
+            else:
+                self.logger.log(f"Unknown server type: {conn_str_dict['server']}")
+                conn_str = None
+
+        except Exception as e:
+            self.logger.log_exception(e, "conn_str")
+            raise
+
+        self.logger.log(f"Returning connection string: {conn_str is not None}")
         return conn_str
         
     def databasename(self):

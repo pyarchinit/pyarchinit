@@ -96,66 +96,60 @@ class TMATableInstaller:
         """Crea la tabella per SQLite"""
         create_table_sql = """
                            CREATE TABLE tma_materiali_archeologici (
-                               -- Chiave primaria
-                                                                       id INTEGER PRIMARY KEY AUTOINCREMENT,
+                               id INTEGER PRIMARY KEY AUTOINCREMENT,
 
-                               -- OGGETTO (OG)
-                                                                       ogtm TEXT NOT NULL CHECK (ogtm IN ('CERAMICA', 'INDUSTRIA LITICA', 'LITICA', 'METALLO')),
+                               -- Basic identification
+                               sito TEXT,
+                               area TEXT,
+                               localita TEXT,
+                               settore TEXT,
+                               inventario TEXT,
 
-                               -- LOCALIZZAZIONE GEOGRAFICO-AMMINISTRATIVA (LC)
-                                                                       ldct TEXT,
-                                                                       ldcn TEXT NOT NULL,
-                                                                       vecchia_collocazione TEXT,
-                                                                       cassetta TEXT NOT NULL,
+                               -- Object data (OG)
+                               ogtm TEXT,
 
-                               -- REPERIMENTO (RE) - Dati di scavo (DSC)
-                                                                       localita TEXT NOT NULL,
-                                                                       scan TEXT,
-                                                                       area TEXT,
-                                                                       saggio TEXT,
-                                                                       vano_locus TEXT,
-                                                                       dscd TEXT,
-                                                                       dscu TEXT NOT NULL,
+                               -- Location data (LC)
+                               ldct TEXT,
+                               ldcn TEXT,
+                               vecchia_collocazione TEXT,
+                               cassetta TEXT,
 
-                               -- REPERIMENTO (RE) - Ricognizione (RCG)
-                                                                       rcgd TEXT,
-                                                                       rcgz TEXT,
+                               -- Excavation data (RE - DSC)
+                               scan TEXT,
+                               saggio TEXT,
+                               vano_locus TEXT,
+                               dscd TEXT,
+                               dscu TEXT,
 
-                               -- REPERIMENTO (RE) - Altra Acquisizione/Inventario Noto (AIN)
-                                                                       aint TEXT,
-                                                                       aind TEXT,
+                               -- Survey data (RE - RCG)
+                               rcgd TEXT,
+                               rcgz TEXT,
 
-                               -- DATAZIONE (DT)
-                                                                       dtzg TEXT NOT NULL,
-                                                                       dtzs TEXT,
-                                                                       cronologie TEXT,
-                                                                       n_reperti TEXT,
-                                                                       peso TEXT,
+                               -- Other acquisition (RE - AIN)
+                               aint TEXT,
+                               aind TEXT,
 
-                               -- DATI ANALITICI (DA)
-                                                                       deso TEXT,
+                               -- Dating (DT)
+                               dtzg TEXT,
 
-                               -- DATI TECNICI (MA)
-                                                                       madi TEXT,
-                                                                       macc TEXT NOT NULL,
-                                                                       macl TEXT,
-                                                                       macp TEXT,
-                                                                       macd TEXT,
-                                                                       cronologia_mac TEXT,
-                                                                       macq TEXT,
+                               -- Analytical data (DA)
+                               deso TEXT,
 
-                               -- DOCUMENTAZIONE (DO)
-                                                                       ftap TEXT,
-                                                                       ftan TEXT,
-                                                                       drat TEXT,
-                                                                       dran TEXT,
-                                                                       draa TEXT,
+                               -- Historical-critical notes (NSC)
+                               nsc TEXT,
 
-                               -- Campi di sistema
-                                                                       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                                                                       updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                                                                       created_by TEXT,
-                                                                       updated_by TEXT
+                               -- Documentation (DO)
+                               ftap TEXT,
+                               ftan TEXT,
+                               drat TEXT,
+                               dran TEXT,
+                               draa TEXT,
+
+                               -- System fields
+                               created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                               updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                               created_by TEXT,
+                               updated_by TEXT
                            ) \
                            """
 
@@ -166,78 +160,137 @@ class TMATableInstaller:
         """Crea la tabella per PostgreSQL"""
         create_table_sql = """
                            CREATE TABLE tma_materiali_archeologici (
-                               -- Chiave primaria
-                                                                       id SERIAL PRIMARY KEY,
+                               id SERIAL PRIMARY KEY,
 
-                               -- OGGETTO (OG)
-                                                                       ogtm TEXT NOT NULL,
+                               -- Basic identification
+                               sito TEXT,
+                               area TEXT,
+                               localita TEXT,
+                               settore TEXT,
+                               inventario TEXT,
 
-                               -- LOCALIZZAZIONE GEOGRAFICO-AMMINISTRATIVA (LC)
-                                                                       ldct TEXT,
-                                                                       ldcn TEXT NOT NULL,
-                                                                       vecchia_collocazione TEXT,
-                                                                       cassetta TEXT NOT NULL,
+                               -- Object data (OG)
+                               ogtm TEXT,
 
-                               -- REPERIMENTO (RE) - Dati di scavo (DSC)
-                                                                       localita TEXT NOT NULL,
-                                                                       scan TEXT,
-                                                                       area TEXT,
-                                                                       saggio TEXT,
-                                                                       vano_locus TEXT,
-                                                                       dscd TEXT,
-                                                                       dscu TEXT NOT NULL,
+                               -- Location data (LC)
+                               ldct TEXT,
+                               ldcn TEXT,
+                               vecchia_collocazione TEXT,
+                               cassetta TEXT,
 
-                               -- REPERIMENTO (RE) - Ricognizione (RCG)
-                                                                       rcgd TEXT,
-                                                                       rcgz TEXT,
+                               -- Excavation data (RE - DSC)
+                               scan TEXT,
+                               saggio TEXT,
+                               vano_locus TEXT,
+                               dscd TEXT,
+                               dscu TEXT,
 
-                               -- REPERIMENTO (RE) - Altra Acquisizione/Inventario Noto (AIN)
-                                                                       aint TEXT,
-                                                                       aind TEXT,
+                               -- Survey data (RE - RCG)
+                               rcgd TEXT,
+                               rcgz TEXT,
 
-                               -- DATAZIONE (DT)
-                                                                       dtzg TEXT NOT NULL,
-                                                                       dtzs TEXT,
-                                                                       cronologie TEXT,
-                                                                       n_reperti TEXT,
-                                                                       peso TEXT,
+                               -- Other acquisition (RE - AIN)
+                               aint TEXT,
+                               aind TEXT,
 
-                               -- DATI ANALITICI (DA)
-                                                                       deso TEXT,
+                               -- Dating (DT)
+                               dtzg TEXT,
 
-                               -- DATI TECNICI (MA)
-                                                                       madi TEXT,
-                                                                       macc TEXT NOT NULL,
-                                                                       macl TEXT,
-                                                                       macp TEXT,
-                                                                       macd TEXT,
-                                                                       cronologia_mac TEXT,
-                                                                       macq TEXT,
+                               -- Analytical data (DA)
+                               deso TEXT,
 
-                               -- DOCUMENTAZIONE (DO)
-                                                                       ftap TEXT,
-                                                                       ftan TEXT,
-                                                                       drat TEXT,
-                                                                       dran TEXT,
-                                                                       draa TEXT,
+                               -- Historical-critical notes (NSC)
+                               nsc TEXT,
 
-                               -- Campi di sistema
-                                                                       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                                                                       updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                                                                       created_by TEXT,
-                                                                       updated_by TEXT
+                               -- Documentation (DO)
+                               ftap TEXT,
+                               ftan TEXT,
+                               drat TEXT,
+                               dran TEXT,
+                               draa TEXT,
+
+                               -- System fields
+                               created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                               updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                               created_by TEXT,
+                               updated_by TEXT
                            ) \
                            """
 
         self.cursor.execute(create_table_sql)
 
-        # Aggiungi vincolo CHECK per PostgreSQL
-        self.cursor.execute("""
-                            ALTER TABLE tma_materiali_archeologici
-                                ADD CONSTRAINT chk_ogtm CHECK (ogtm IN ('CERAMICA', 'INDUSTRIA LITICA', 'LITICA', 'METALLO'))
-                            """)
+        print("✓ Tabella tma_materiali_archeologici creata con successo")
 
-        print("✓ Tabella creata con successo")
+    def create_table_ripetibili_sqlite(self):
+        """Crea la tabella tma_materiali_ripetibili per SQLite"""
+        create_table_sql = """
+                           CREATE TABLE tma_materiali_ripetibili (
+                               id INTEGER PRIMARY KEY AUTOINCREMENT,
+
+                               -- Foreign key to main TMA record
+                               id_tma INTEGER NOT NULL,
+
+                               -- Material description data (MAD)
+                               madi TEXT,
+
+                               -- Material component data (MAC) - all repetitive
+                               macc TEXT,
+                               macl TEXT,
+                               macp TEXT,
+                               macd TEXT,
+                               cronologia_mac TEXT,
+                               macq TEXT,
+                               peso REAL,
+
+                               -- System fields
+                               created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                               updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                               created_by TEXT,
+                               updated_by TEXT,
+
+                               FOREIGN KEY (id_tma) REFERENCES tma_materiali_archeologici(id) ON DELETE CASCADE
+                           ) \
+                           """
+
+        self.cursor.execute(create_table_sql)
+        print("✓ Tabella tma_materiali_ripetibili creata con successo")
+
+    def create_table_ripetibili_postgresql(self):
+        """Crea la tabella tma_materiali_ripetibili per PostgreSQL"""
+        create_table_sql = """
+                           CREATE TABLE tma_materiali_ripetibili (
+                               id SERIAL PRIMARY KEY,
+
+                               -- Foreign key to main TMA record
+                               id_tma INTEGER NOT NULL,
+
+                               -- Material description data (MAD)
+                               madi TEXT,
+
+                               -- Material component data (MAC) - all repetitive
+                               macc TEXT,
+                               macl TEXT,
+                               macp TEXT,
+                               macd TEXT,
+                               cronologia_mac TEXT,
+                               macq TEXT,
+                               peso FLOAT,
+
+                               -- System fields
+                               created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                               updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                               created_by TEXT,
+                               updated_by TEXT,
+
+                               CONSTRAINT fk_tma_materiali_ripetibili_tma
+                                   FOREIGN KEY (id_tma)
+                                   REFERENCES tma_materiali_archeologici(id)
+                                   ON DELETE CASCADE
+                           ) \
+                           """
+
+        self.cursor.execute(create_table_sql)
+        print("✓ Tabella tma_materiali_ripetibili creata con successo")
 
     def create_indices(self):
         """Crea gli indici sulla tabella"""
@@ -371,11 +424,13 @@ class TMATableInstaller:
             if not self.drop_table_if_exists():
                 return
 
-            # Crea tabella
+            # Crea tabelle
             if self.db_type == 'sqlite':
                 self.create_table_sqlite()
+                self.create_table_ripetibili_sqlite()
             else:
                 self.create_table_postgresql()
+                self.create_table_ripetibili_postgresql()
 
             # Crea indici
             self.create_indices()

@@ -32,18 +32,18 @@ class Tma_materiali_table:
     # create engine and metadata
     engine = create_engine(internal_connection.conn_str(), echo=False, convert_unicode=True)
     metadata = MetaData(engine)
-        
+
     tma_materiali_table = Table('tma_materiali_ripetibili', metadata,
                      Column('id', Integer, primary_key=True),
-                     
+
                      # Foreign key to main TMA record
-                     Column('id_tma', Integer, ForeignKey('tma_materiali_archeologici.id'), nullable=False),
+                     Column('id_tma', Integer, nullable=False),
                      
                      # Material description data (MAD)
                      Column('madi', String(50)),                     # Inventory
                      
                      # Material component data (MAC) - all repetitive
-                     Column('macc', String(30), nullable=False),     # Category (required)
+                     Column('macc', String(30)),     # Category (required)
                      Column('macl', String(30)),                     # Class
                      Column('macp', String(30)),                     # Typological specification
                      Column('macd', String(30)),                     # Definition
@@ -58,7 +58,7 @@ class Tma_materiali_table:
                      Column('updated_by', String(100)),
                      )
 
-    try:
-        metadata.create_all(engine)
-    except:
-        pass  # Table already exists or geometry type not supported
+    # DO NOT create tables at module import time!
+
+
+    # metadata.create_all(engine)  # This line was causing connection errors
