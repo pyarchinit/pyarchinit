@@ -39,31 +39,50 @@ class DB_update(object):
         self.metadata = MetaData(self.engine)
 
     def update_table(self):
+        # Add debug logging
+        import datetime
+        log_file = '/Users/enzo/pyarchinit_debug.log'
+        def log_debug(msg):
+            try:
+                timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
+                with open(log_file, 'a', encoding='utf-8') as f:
+                    f.write(f"[{timestamp}] [DB_UPDATE] {msg}\n")
+                    f.flush()
+            except:
+                pass
+
+        log_debug("update_table() started")
+
         def safe_load_table(table_name):
             """Carica una tabella gestendo errori di encoding UTF-8"""
             try:
                 return Table(table_name, self.metadata, autoload=True)
             except UnicodeDecodeError as e:
-                QMessageBox.warning(None, "Errore Encoding", 
+                QMessageBox.warning(None, "Errore Encoding",
                                   f"Errore di encoding UTF-8 nella tabella {table_name}.\n"
                                   f"Verificare che il database PostgreSQL sia configurato con encoding UTF-8.\n"
                                   f"Dettagli: {str(e)}", QMessageBox.Ok)
                 return None
             except Exception as e:
                 # Gestisci altri errori di caricamento tabella
-                QMessageBox.warning(None, "Errore Tabella", 
-                                  f"Impossibile caricare la tabella {table_name}.\n"
-                                  f"Dettagli: {str(e)}", QMessageBox.Ok)
+                log_debug(f"Error loading table {table_name}: {e}")
+                # Temporarily disable QMessageBox to prevent event loops
+                # QMessageBox.warning(None, "Errore Tabella",
+                #                   f"Impossibile caricare la tabella {table_name}.\n"
+                #                   f"Dettagli: {str(e)}", QMessageBox.Ok)
                 return None
-        
+
         # Check if we're using SQLite
         is_sqlite = 'sqlite' in str(self.engine.url).lower()
+        log_debug(f"Database type: {'SQLite' if is_sqlite else 'PostgreSQL'}")
         
         # TMA table migration and ensure new tables exist
         try:
-            # Ensure TMA tables exist in correct order
+            log_debug("Calling _ensure_tma_tables_exist()")
             self._ensure_tma_tables_exist()
-            
+            log_debug("_ensure_tma_tables_exist() completed")
+
+            log_debug("Checking if old tma_table exists")
             # Now check if old tma_table exists and needs migration
             if is_sqlite:
                 result = self.engine.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='tma_table'")
@@ -71,26 +90,61 @@ class DB_update(object):
             else:
                 result = self.engine.execute("""
                     SELECT EXISTS (
-                        SELECT FROM information_schema.tables 
+                        SELECT FROM information_schema.tables
                         WHERE table_name = 'tma_table'
                     )
                 """)
                 old_tma_exists = result.fetchone()[0]
-            
+
+            log_debug(f"Old tma_table exists: {old_tma_exists}")
             if old_tma_exists:
+                log_debug("Calling _migrate_tma_table()")
                 self._migrate_tma_table()
-                
+                log_debug("_migrate_tma_table() completed")
+
             # Check if localita field exists in tma_materiali_archeologici and remove it
             #self._remove_localita_field()
         except Exception as e:
+            log_debug(f"Error in TMA table setup: {str(e)}")
             print(f"Error in TMA table setup: {str(e)}")
         
         # Update thesaurus table structure
         try:
+            log_debug("Calling update_thesaurus_table()")
             update_thesaurus_table(self.engine, self.metadata)
+            log_debug("update_thesaurus_table() completed")
         except Exception as e:
+            log_debug(f"Error updating thesaurus table: {str(e)}")
             print(f"Error updating thesaurus table: {str(e)}")
-        
+
+        # Ensure tma_materiali_archeologici has all required fields
+        try:
+            log_debug("Checking if tma_materiali_archeologici has all required fields")
+            table = safe_load_table("tma_materiali_archeologici")
+            if table is not None:
+                column_names = [str(col.name) for col in table.columns]
+
+                # Check and add missing fields
+                missing_fields = {
+                    'sito': 'TEXT',
+                    'settore': 'TEXT',
+                    'inventario': 'TEXT',
+                    'nsc': 'TEXT'
+                }
+
+                for field, field_type in missing_fields.items():
+                    if field not in column_names:
+                        log_debug(f"Adding missing '{field}' field to tma_materiali_archeologici")
+                        self.engine.execute(f"ALTER TABLE tma_materiali_archeologici ADD COLUMN {field} {field_type}")
+                        log_debug(f"'{field}' field added successfully")
+                    else:
+                        log_debug(f"'{field}' field already exists")
+            else:
+                log_debug("tma_materiali_archeologici table not found")
+        except Exception as e:
+            log_debug(f"Error checking/adding fields to tma_materiali_archeologici: {str(e)}")
+            print(f"Error checking/adding fields to tma_materiali_archeologici: {str(e)}")
+
         # SQLite US field migration
         if is_sqlite:
             self._migrate_us_fields_sqlite()
@@ -115,283 +169,267 @@ class DB_update(object):
         #         "ALTER TABLE pyunitastratigrafiche ALTER COLUMN coord TYPE text")
 
         ####pottery_table
+        log_debug("Processing pottery_table")
         try:
             table = Table("pottery_table", self.metadata, autoload=True)
+            log_debug("pottery_table loaded successfully")
+
+            table_column_names_list = []
+            for i in table.columns:
+                table_column_names_list.append(str(i.name))
+
+            # Change US column from INTEGER to TEXT
+            try:
+                if table_column_names_list.__contains__('us'):
+                    # Check if the column is still INTEGER type
+                    us_column = None
+                    for col in table.columns:
+                        if col.name == 'us':
+                            us_column = col
+                            break
+
+                    if us_column is not None:
+                        # Check if column type needs conversion
+                        col_type = str(us_column.type)
+                        if 'INTEGER' in col_type.upper() or 'BIGINT' in col_type.upper():
+                            # Convert the column type
+                            self.engine.execute("ALTER TABLE pottery_table ALTER COLUMN us TYPE TEXT USING us::TEXT")
+            except Exception as e:
+                # Log the error but continue with other updates
+                log_debug(f"Error updating us column: {e}")
+                pass
+
+            if not table_column_names_list.__contains__('sector'):
+                self.engine.execute(
+                    "ALTER TABLE pottery_table ADD COLUMN sector text")
+            try:
+                if table_column_names_list.__contains__('diametro_max'):
+                    self.engine.execute(
+                        "ALTER TABLE pottery_table ALTER COLUMN diametro_max TYPE Numeric(7,3)")
+
+                if table_column_names_list.__contains__('diametro_rim'):
+                    self.engine.execute(
+                        "ALTER TABLE pottery_table ALTER COLUMN diametro_rim TYPE Numeric(7,3)")
+
+                if table_column_names_list.__contains__('diametro_bottom'):
+                    self.engine.execute(
+                        "ALTER TABLE pottery_table ALTER COLUMN diametro_bottom TYPE Numeric(7,3)")
+
+                if table_column_names_list.__contains__('diametro_height'):
+                    self.engine.execute(
+                        "ALTER TABLE pottery_table ALTER COLUMN diametro_height TYPE Numeric(7,3)")
+
+                if table_column_names_list.__contains__('diametro_preserved'):
+                    self.engine.execute(
+                        "ALTER TABLE pottery_table ALTER COLUMN diametro_preserved TYPE Numeric(7,3)")
+
+            except:
+                pass
+
         except UnicodeDecodeError as e:
             # Gestisci errore di encoding
-            QMessageBox.warning(None, "Errore Encoding", 
+            log_debug(f"UnicodeDecodeError loading pottery_table: {e}")
+            QMessageBox.warning(None, "Errore Encoding",
                               f"Errore di encoding UTF-8 nella tabella pottery_table.\n"
                               f"Verificare che il database PostgreSQL sia configurato con encoding UTF-8.\n"
                               f"Dettagli: {str(e)}", QMessageBox.Ok)
             return
-        table_column_names_list = []
-
-        for i in table.columns:
-            table_column_names_list.append(str(i.name))
-        
-        # Change US column from INTEGER to TEXT
-        try:
-            if table_column_names_list.__contains__('us'):
-                # Check if the column is still INTEGER type
-                us_column = None
-                for col in table.columns:
-                    if col.name == 'us':
-                        us_column = col
-                        break
-                
-                if us_column is not None:
-                    # Check if column type needs conversion
-                    col_type = str(us_column.type)
-                    if 'INTEGER' in col_type.upper() or 'BIGINT' in col_type.upper():
-                        # Convert the column type
-                        self.engine.execute("ALTER TABLE pottery_table ALTER COLUMN us TYPE TEXT USING us::TEXT")
         except Exception as e:
-            # Log the error but continue with other updates
-            pass
-        
-        if not table_column_names_list.__contains__('sector'):
-            self.engine.execute(
-                "ALTER TABLE pottery_table ADD COLUMN sector text")
-        try:
-            if table_column_names_list.__contains__('diametro_max'):
-                self.engine.execute(
-                    "ALTER TABLE pottery_table ALTER COLUMN diametro_max TYPE Numeric(7,3)")
-
-            if table_column_names_list.__contains__('diametro_rim'):
-                self.engine.execute(
-                    "ALTER TABLE pottery_table ALTER COLUMN diametro_rim TYPE Numeric(7,3)")
-
-            if table_column_names_list.__contains__('diametro_bottom'):
-                self.engine.execute(
-                    "ALTER TABLE pottery_table ALTER COLUMN diametro_bottom TYPE Numeric(7,3)")
-
-            if table_column_names_list.__contains__('diametro_height'):
-                self.engine.execute(
-                    "ALTER TABLE pottery_table ALTER COLUMN diametro_height TYPE Numeric(7,3)")
-
-            if table_column_names_list.__contains__('diametro_preserved'):
-                self.engine.execute(
-                    "ALTER TABLE pottery_table ALTER COLUMN diametro_preserved TYPE Numeric(7,3)")
-
-
-        except:
-            pass
+            # La tabella potrebbe non esistere, non è un errore critico
+            log_debug(f"pottery_table not found or other error: {e}")
+            # Continue with other updates
 
 
         ####inventario_materiali_table
+        log_debug("Processing inventario_materiali_table - TEMPORARILY SKIPPED TO TEST")
+        # TEMPORARILY SKIP TO TEST IF THIS CAUSES THE LOOP
+        # Re-enable inventario_materiali_table processing with simplified logic
+        log_debug("Processing inventario_materiali_table")
         table = safe_load_table("inventario_materiali_table")
-        if table is None:
-            return
+
+        # Initialize empty list in case table doesn't exist
         table_column_names_list = []
 
-        for i in table.columns:
-            table_column_names_list.append(str(i.name))
+        if table is not None:
+            log_debug("inventario_materiali_table found, processing columns")
+            for i in table.columns:
+                table_column_names_list.append(str(i.name))
 
-        # Change area and us columns from INTEGER to TEXT
-        try:
-            # Check current column types before attempting conversion
-            needs_conversion = False
-            columns_to_convert = []
-            
-            for col in table.columns:
-                col_name = str(col.name)
-                col_type = str(col.type)
-                
-                if col_name in ['area', 'us', 'nr_cassa'] and col_name in table_column_names_list:
-                    # Check if column is not already TEXT
-                    if 'TEXT' not in col_type.upper() and 'VARCHAR' not in col_type.upper() and 'CHARACTER' not in col_type.upper():
-                        columns_to_convert.append(col_name)
-                        needs_conversion = True
-            
-            if needs_conversion:
-                # Create backup before altering columns
-                backup_table = f"inventario_materiali_backup_{int(time.time())}"
-                try:
-                    self.engine.execute(f"CREATE TABLE {backup_table} AS SELECT * FROM inventario_materiali_table")
-                    
-                    # Verify backup
-                    result = self.engine.execute(f"SELECT COUNT(*) FROM {backup_table}")
-                    backup_count = result.fetchone()[0]
-                    result = self.engine.execute("SELECT COUNT(*) FROM inventario_materiali_table")
-                    original_count = result.fetchone()[0]
-                    
-                    if backup_count != original_count:
-                        raise Exception("Backup verification failed")
-                    
-                    # Convert columns
-                    for col_name in columns_to_convert:
-                        self.engine.execute(
-                            f"ALTER TABLE inventario_materiali_table ALTER COLUMN {col_name} TYPE TEXT USING {col_name}::TEXT")
-                    
-                    # Drop backup after successful conversion
-                    self.engine.execute(f"DROP TABLE {backup_table}")
-                    
-                    # Log successful migration
-                    print(f"Successfully migrated inventario_materiali_table columns to TEXT: {', '.join(columns_to_convert)}")
-                    
-                except Exception as e:
-                    # Try to restore if something went wrong
-                    try:
-                        self.engine.execute(f"DROP TABLE IF EXISTS {backup_table}")
-                    except:
-                        pass
-                    print(f"Error converting inventario_materiali_table columns: {str(e)}")
-        except Exception as e:
-            print(f"Error checking inventario_materiali_table column types: {str(e)}")
+            # Simple column type conversion for critical columns (without backup complexity)
+            log_debug("Checking for column type conversions")
+            try:
+                for col_name in ['area', 'us', 'nr_cassa']:
+                    if col_name in table_column_names_list:
+                        try:
+                            # Try to convert column to TEXT if it's not already
+                            self.engine.execute(
+                                f"ALTER TABLE inventario_materiali_table ALTER COLUMN {col_name} TYPE TEXT USING {col_name}::TEXT")
+                            log_debug(f"Converted {col_name} column to TEXT")
+                        except Exception as e:
+                            # Column might already be TEXT or conversion not needed
+                            log_debug(f"Column {col_name} conversion skipped: {e}")
+                            pass
+            except Exception as e:
+                log_debug(f"Error in column type conversion: {e}")
+                pass
 
-        if not table_column_names_list.__contains__('years'):
-            self.engine.execute(
-                "ALTER TABLE inventario_materiali_table ADD COLUMN years BIGINT")
+            if not table_column_names_list.__contains__('years'):
+                self.engine.execute(
+                    "ALTER TABLE inventario_materiali_table ADD COLUMN years BIGINT")
 
-        if not table_column_names_list.__contains__('stato_conservazione'):
-            self.engine.execute(
-                "ALTER TABLE inventario_materiali_table ADD COLUMN stato_conservazione varchar DEFAULT ''")
+            if not table_column_names_list.__contains__('stato_conservazione'):
+                self.engine.execute(
+                    "ALTER TABLE inventario_materiali_table ADD COLUMN stato_conservazione varchar DEFAULT ''")
 
-        if not table_column_names_list.__contains__('datazione_reperto'):
-            self.engine.execute(
-                "ALTER TABLE inventario_materiali_table ADD COLUMN datazione_reperto varchar(30) DEFAULT 'inserisci un valore'")
+            if not table_column_names_list.__contains__('datazione_reperto'):
+                self.engine.execute(
+                    "ALTER TABLE inventario_materiali_table ADD COLUMN datazione_reperto varchar(30) DEFAULT 'inserisci un valore'")
 
-        if not table_column_names_list.__contains__('elementi_reperto'):
-            self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN elementi_reperto text")
+            if not table_column_names_list.__contains__('elementi_reperto'):
+                self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN elementi_reperto text")
 
-        if not table_column_names_list.__contains__('misurazioni'):
-            self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN misurazioni text")
+            if not table_column_names_list.__contains__('misurazioni'):
+                self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN misurazioni text")
 
-        if not table_column_names_list.__contains__('rif_biblio'):
-            self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN rif_biblio text")
+            if not table_column_names_list.__contains__('rif_biblio'):
+                self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN rif_biblio text")
 
-        if not table_column_names_list.__contains__('tecnologie'):
-            self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN tecnologie text")
+            if not table_column_names_list.__contains__('tecnologie'):
+                self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN tecnologie text")
 
-        if not table_column_names_list.__contains__('forme_minime'):
-            self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN forme_minime BIGINT DEFAULT 0")
+            if not table_column_names_list.__contains__('forme_minime'):
+                self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN forme_minime BIGINT DEFAULT 0")
 
-        if not table_column_names_list.__contains__('forme_massime'):
-            self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN forme_massime BIGINT DEFAULT 0")
+            if not table_column_names_list.__contains__('forme_massime'):
+                self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN forme_massime BIGINT DEFAULT 0")
 
-        if not table_column_names_list.__contains__('totale_frammenti'):
-            self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN totale_frammenti BIGINT DEFAULT 0")
+            if not table_column_names_list.__contains__('totale_frammenti'):
+                self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN totale_frammenti BIGINT DEFAULT 0")
 
-        if not table_column_names_list.__contains__('corpo_ceramico'):
-            self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN corpo_ceramico varchar(20)")
-            self.engine.execute("update inventario_materiali_table set corpo_ceramico = ''")
+            if not table_column_names_list.__contains__('corpo_ceramico'):
+                self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN corpo_ceramico varchar(20)")
+                self.engine.execute("update inventario_materiali_table set corpo_ceramico = ''")
 
-        if not table_column_names_list.__contains__('rivestimento'):
-            self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN rivestimento varchar(20)")
-            self.engine.execute("update inventario_materiali_table set rivestimento = ''")
+            if not table_column_names_list.__contains__('rivestimento'):
+                self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN rivestimento varchar(20)")
+                self.engine.execute("update inventario_materiali_table set rivestimento = ''")
 
-        if not table_column_names_list.__contains__('diametro_orlo'):
-            self.engine.execute(
-                "ALTER TABLE inventario_materiali_table ADD COLUMN diametro_orlo Numeric(7,3) DEFAULT 0")
+            if not table_column_names_list.__contains__('diametro_orlo'):
+                self.engine.execute(
+                    "ALTER TABLE inventario_materiali_table ADD COLUMN diametro_orlo Numeric(7,3) DEFAULT 0")
 
-        if not table_column_names_list.__contains__('peso'):
-            self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN peso Numeric(9,3) DEFAULT 0")
+            if not table_column_names_list.__contains__('peso'):
+                self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN peso Numeric(9,3) DEFAULT 0")
 
-        if not table_column_names_list.__contains__('tipo'):
-            self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN tipo varchar(20)")
-            self.engine.execute("update inventario_materiali_table set tipo = ''")
+            if not table_column_names_list.__contains__('tipo'):
+                self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN tipo varchar(20)")
+                self.engine.execute("update inventario_materiali_table set tipo = ''")
 
-        if not table_column_names_list.__contains__('eve_orlo'):
-            self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN eve_orlo Numeric(7,3) DEFAULT 0")
+            if not table_column_names_list.__contains__('eve_orlo'):
+                self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN eve_orlo Numeric(7,3) DEFAULT 0")
 
-        if not table_column_names_list.__contains__('repertato'):
-            self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN repertato varchar(3)")
-            self.engine.execute("update inventario_materiali_table set repertato = ''No")
+            if not table_column_names_list.__contains__('repertato'):
+                self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN repertato varchar(3)")
+                self.engine.execute("update inventario_materiali_table set repertato = ''No")
 
-        if not table_column_names_list.__contains__('diagnostico'):
-            self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN diagnostico varchar(3)")
-            self.engine.execute("update inventario_materiali_table set diagnostico = ''No")
-        if not table_column_names_list.__contains__('n_reperto'):
-            self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN n_reperto BIGINT")
-        if not table_column_names_list.__contains__('tipo_contenitore'):
-            self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN tipo_contenitore varchar DEFAULT ''")
-        if not table_column_names_list.__contains__('struttura'):
-            self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN struttura text")
+            if not table_column_names_list.__contains__('diagnostico'):
+                self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN diagnostico varchar(3)")
+                self.engine.execute("update inventario_materiali_table set diagnostico = ''No")
+            if not table_column_names_list.__contains__('n_reperto'):
+                self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN n_reperto BIGINT")
+            if not table_column_names_list.__contains__('tipo_contenitore'):
+                self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN tipo_contenitore varchar DEFAULT ''")
+            if not table_column_names_list.__contains__('struttura'):
+                self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN struttura text")
 
-        # Add new columns for inventario_materiali_table
-        if not table_column_names_list.__contains__('schedatore'):
-            self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN schedatore TEXT")
+            # Add new columns for inventario_materiali_table
+            if not table_column_names_list.__contains__('schedatore'):
+                self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN schedatore TEXT")
 
-        if not table_column_names_list.__contains__('date_scheda'):
-            self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN date_scheda TEXT")
+            if not table_column_names_list.__contains__('date_scheda'):
+                self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN date_scheda TEXT")
 
-        if not table_column_names_list.__contains__('punto_rinv'):
-            self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN punto_rinv TEXT")
+            if not table_column_names_list.__contains__('punto_rinv'):
+                self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN punto_rinv TEXT")
 
-        if not table_column_names_list.__contains__('negativo_photo'):
-            self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN negativo_photo TEXT")
+            if not table_column_names_list.__contains__('negativo_photo'):
+                self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN negativo_photo TEXT")
 
-        if not table_column_names_list.__contains__('diapositiva'):
-            self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN diapositiva TEXT")
+            if not table_column_names_list.__contains__('diapositiva'):
+                self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN diapositiva TEXT")
 
-        # Update the pyarchinit_reperti_view to include the new fields
-        try:
-            self.engine.execute("""
-            CREATE OR REPLACE VIEW pyarchinit_reperti_view AS 
-            SELECT
-            gid,
-            the_geom,
-            id_rep,
-            siti,
-            id_invmat,
-            sito,
-            numero_inventario,
-            tipo_reperto,
-            criterio_schedatura,
-            definizione,
-            descrizione,
-            area,
-            us,
-            lavato,
-            nr_cassa,
-            luogo_conservazione,
-            stato_conservazione,
-            datazione_reperto,
-            elementi_reperto,
-            misurazioni,
-            rif_biblio,
-            tecnologie,
-            forme_minime,
-            forme_massime,
-            totale_frammenti,
-            corpo_ceramico,
-            rivestimento,
-            diametro_orlo,
-            peso,
-            tipo,
-            eve_orlo,
-            repertato,
-            diagnostico,
-            n_reperto,
-            tipo_contenitore,
-            struttura,
-            years,
-            schedatore,
-            date_scheda,
-            punto_rinv,
-            negativo_photo,
-            diapositiva
-            FROM pyarchinit_reperti
-            JOIN inventario_materiali_table ON siti::text = sito AND id_rep = numero_inventario;
-            """)
-        except:
-            pass
+            # Update the pyarchinit_reperti_view to include the new fields
+            try:
+                self.engine.execute("""
+                CREATE OR REPLACE VIEW pyarchinit_reperti_view AS
+                SELECT
+                gid,
+                the_geom,
+                id_rep,
+                siti,
+                id_invmat,
+                sito,
+                numero_inventario,
+                tipo_reperto,
+                criterio_schedatura,
+                definizione,
+                descrizione,
+                area,
+                us,
+                lavato,
+                nr_cassa,
+                luogo_conservazione,
+                stato_conservazione,
+                datazione_reperto,
+                elementi_reperto,
+                misurazioni,
+                rif_biblio,
+                tecnologie,
+                forme_minime,
+                forme_massime,
+                totale_frammenti,
+                corpo_ceramico,
+                rivestimento,
+                diametro_orlo,
+                peso,
+                tipo,
+                eve_orlo,
+                repertato,
+                diagnostico,
+                n_reperto,
+                tipo_contenitore,
+                struttura,
+                years,
+                schedatore,
+                date_scheda,
+                punto_rinv,
+                negativo_photo,
+                diapositiva
+                FROM pyarchinit_reperti
+                JOIN inventario_materiali_table ON siti::text = sito AND id_rep = numero_inventario;
+                """)
+            except:
+                pass
 
 
 
-
-
+        # END OF TEMPORARILY DISABLED inventario_materiali_table SECTION
 
         ####site_table
+        log_debug("Processing site_table")
         table = safe_load_table("site_table")
         if table is None:
-            return
-        table_column_names_list = []
-        for i in table.columns:
-            table_column_names_list.append(str(i.name))
+            log_debug("site_table not found, skipping")
+            # Continue with other updates instead of returning
 
-        if not table_column_names_list.__contains__('provincia'):
-            self.engine.execute("ALTER TABLE site_table ADD COLUMN provincia varchar DEFAULT 'inserici un valore' ")
+        table_column_names_list = []
+        if table is not None:
+            for i in table.columns:
+                table_column_names_list.append(str(i.name))
+
+            # Only try to alter table if it exists
+            if not table_column_names_list.__contains__('provincia'):
+                self.engine.execute("ALTER TABLE site_table ADD COLUMN provincia varchar DEFAULT 'inserici un valore' ")
 
         if not table_column_names_list.__contains__('definizione_sito'):
             self.engine.execute(
@@ -1312,7 +1350,9 @@ class DB_update(object):
             update_thesaurus_table(self.engine, self.metadata)
         except Exception as e:
             print(f"Error updating thesaurus table: {str(e)}")
-    
+
+        log_debug("update_table() completed successfully")
+
     def _migrate_us_fields_sqlite(self):
         """SQLite-specific migration for US fields from INTEGER to TEXT"""
         try:

@@ -26,20 +26,26 @@ class Pyarchinit_thesaurus_sigle:
                                        Column('sigla_estesa', Text),
                                        Column('descrizione', Text),
                                        Column('tipologia_sigla', String(100)),
-                                       Column('lingua', String(10)),
+                                       Column('lingua', String(10), default='it'),
                                        Column('order_layer', Integer, default=0),
                                        Column('id_parent', Integer),
                                        Column('parent_sigla', String(100)),
                                        Column('hierarchy_level', Integer, default=0),
+                                       Column('n_tipologia', Integer),
+                                       Column('n_sigla', Integer),
 
                                        # explicit/composite unique constraint.  'name' is optional.
-                                       UniqueConstraint('id_thesaurus_sigle', name='id_thesaurus_sigle_pk')
+                                       UniqueConstraint('id_thesaurus_sigle', name='id_thesaurus_sigle_pk'),
+                                       UniqueConstraint('lingua', 'nome_tabella', 'tipologia_sigla', 'sigla_estesa',
+                                                       name='thesaurus_unique_key'),
+                                       UniqueConstraint('lingua', 'nome_tabella', 'tipologia_sigla', 'sigla',
+                                                       name='thesaurus_unique_sigla')
                                        )
 
-    try:
-        metadata.create_all(engine)
-    except:
-        pass  # Table already exists or geometry type not supported
+    # DO NOT create tables at module import time!
+
+
+    # metadata.create_all(engine)  # This line was causing connection errors
     
     # Check and add missing columns for both SQLite and PostgreSQL
     try:
@@ -51,6 +57,8 @@ class Pyarchinit_thesaurus_sigle:
             existing_columns = [row[1] for row in result]
             
             # Add missing columns if needed
+            if 'lingua' not in existing_columns:
+                conn.execute("ALTER TABLE pyarchinit_thesaurus_sigle ADD COLUMN lingua VARCHAR(10) DEFAULT 'it'")
             if 'order_layer' not in existing_columns:
                 conn.execute("ALTER TABLE pyarchinit_thesaurus_sigle ADD COLUMN order_layer INTEGER DEFAULT 0")
             if 'id_parent' not in existing_columns:
@@ -59,6 +67,10 @@ class Pyarchinit_thesaurus_sigle:
                 conn.execute("ALTER TABLE pyarchinit_thesaurus_sigle ADD COLUMN parent_sigla VARCHAR(100)")
             if 'hierarchy_level' not in existing_columns:
                 conn.execute("ALTER TABLE pyarchinit_thesaurus_sigle ADD COLUMN hierarchy_level INTEGER DEFAULT 0")
+            if 'n_tipologia' not in existing_columns:
+                conn.execute("ALTER TABLE pyarchinit_thesaurus_sigle ADD COLUMN n_tipologia INTEGER")
+            if 'n_sigla' not in existing_columns:
+                conn.execute("ALTER TABLE pyarchinit_thesaurus_sigle ADD COLUMN n_sigla INTEGER")
         else:
             # PostgreSQL: Check existing columns
             result = conn.execute("""
@@ -69,6 +81,8 @@ class Pyarchinit_thesaurus_sigle:
             existing_columns = [row[0] for row in result]
             
             # Add missing columns if needed
+            if 'lingua' not in existing_columns:
+                conn.execute("ALTER TABLE pyarchinit_thesaurus_sigle ADD COLUMN lingua VARCHAR(10) DEFAULT 'it'")
             if 'order_layer' not in existing_columns:
                 conn.execute("ALTER TABLE pyarchinit_thesaurus_sigle ADD COLUMN order_layer INTEGER DEFAULT 0")
             if 'id_parent' not in existing_columns:
@@ -77,6 +91,10 @@ class Pyarchinit_thesaurus_sigle:
                 conn.execute("ALTER TABLE pyarchinit_thesaurus_sigle ADD COLUMN parent_sigla VARCHAR(100)")
             if 'hierarchy_level' not in existing_columns:
                 conn.execute("ALTER TABLE pyarchinit_thesaurus_sigle ADD COLUMN hierarchy_level INTEGER DEFAULT 0")
+            if 'n_tipologia' not in existing_columns:
+                conn.execute("ALTER TABLE pyarchinit_thesaurus_sigle ADD COLUMN n_tipologia INTEGER")
+            if 'n_sigla' not in existing_columns:
+                conn.execute("ALTER TABLE pyarchinit_thesaurus_sigle ADD COLUMN n_sigla INTEGER")
                 
         conn.close()
     except:

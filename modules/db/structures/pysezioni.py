@@ -21,51 +21,18 @@ class pysezioni:
     
     #engine.connect()
     metadata = MetaData(engine)
-    try:
-        # define tables check per verifica fill fields 20/10/2016 OK
-        pysezioni = Table('pyarchinit_sezioni', metadata,
-                         Column('gid', Integer, primary_key=True),  # 0
-                         Column('id_sezione', Text),
-                         Column('sito', Text),
-                         Column('area', Integer),
-                         Column('descr', Text),
-                         
-                         Column('the_geom', Geometry(geometry_type='LINESTRING')),
-                         Column('tipo_doc', Text),
-                         Column('nome_doc', Text),
-                         # explicit/composite unique constraint.  'name' is optional.
-                         UniqueConstraint('gid')
-                         )
-    except:
-        pass
 
-    # Only create the table if it doesn't exist
-    try:
-        metadata.create_all(engine, checkfirst=True)
-        
-        # For SQLite, add geometry column using Spatialite if not exists
-        if 'sqlite' in conn_str.lower():
-            try:
-                # Check if geometry column already exists
-                from sqlalchemy import inspect
-                inspector = inspect(engine)
-                columns = [col['name'] for col in inspector.get_columns('pyarchinit_sezioni')]
-                
-                if 'the_geom' not in columns:
-                    # Add geometry column using raw SQL
-                    with engine.connect() as conn:
-                        # Ensure Spatialite is loaded
-                        try:
-                            conn.execute("SELECT InitSpatialMetadata(1)")
-                        except:
-                            pass  # Already initialized
-                        
-                        # Add geometry column
-                        conn.execute("SELECT AddGeometryColumn('pyarchinit_sezioni', 'the_geom', -1, 'LINESTRING', 'XY')")
-            except Exception as e:
-                # Geometry column might already exist or Spatialite not available
-                pass
-    except Exception as e:
-        # Table creation failed, but continue
-        pass
-    
+    # define tables
+    pysezioni = Table('pyarchinit_sezioni', metadata,
+                     Column('gid', Integer, primary_key=True),  # 0
+                     Column('id_sezione', Text),
+                     Column('sito', Text),
+                     Column('area', Text),
+                     Column('descr', Text),
+                     Column('the_geom', Geometry(geometry_type='LINESTRING')),
+                     # explicit/composite unique constraint.  'name' is optional.
+                     UniqueConstraint('gid')
+                     )
+
+    # DO NOT create tables at module import time!
+    # metadata.create_all(engine)  # This line was causing connection errors

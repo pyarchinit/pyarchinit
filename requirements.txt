@@ -1,31 +1,40 @@
- SQLAlchemy==1.4.27
- SQLAlchemy-Utils==0.38.0
- GeoAlchemy2==0.9.1
- reportlab==4.1.0
- graphviz==0.20.3
- XlsxWriter==3.2.0
- opencv-python==4.10.0.84
- psutil==5.9.8
- openai==1.78.1
- openpyxl==3.1.2
- matplotlib==3.9.0
- requests==2.32.2
- pandas==2.2.2
- PyMuPDF==1.24.4
- nltk==3.9.1
- python-docx==1.1.2
- pygame==2.6.0
- pyvista==0.44.1
- pyvistaqt==0.11.1
- vtk==9.3.1
- anthropic==0.51.0
- langchain==0.3.25
- langchain-community==0.3.24
- langchain-core==0.3.59
- langchain-openai==0.3.16
- langchain-anthropic==0.3.13
- langchain-text-splitters==0.3.8
- langsmith==0.3.42
- beautifulsoup4==4.13.3
- faiss-cpu==1.11.0
- qrcode==8.2
+SQLAlchemy==1.4.27
+SQLAlchemy-Utils==0.38.0
+GeoAlchemy2==0.9.1
+reportlab==4.1.0
+graphviz==0.20.3
+XlsxWriter==3.2.0
+opencv-python==4.10.0.84
+psutil==5.9.8
+openai==1.78.1
+openpyxl==3.1.2
+matplotlib==3.9.0
+requests==2.32.2
+pandas==2.2.2
+PyMuPDF==1.24.4
+nltk==3.9.1
+python-docx==1.1.2
+pygame==2.6.0
+pyvista==0.44.1
+pyvistaqt==0.11.1
+vtk==9.3.1
+anthropic==0.51.0
+langchain==0.3.25
+langchain-community==0.3.24
+langchain-core==0.3.59
+langchain-openai==0.3.16
+langchain-anthropic==0.3.13
+langchain-text-splitters==0.3.8
+langsmith==0.3.42
+beautifulsoup4==4.13.3
+faiss-cpu==1.11.0
+qrcode==8.2
+# Note: The following packages are installed in a virtual environment for Pottery Tools
+# They are NOT installed in QGIS Python to avoid conflicts
+# ultralytics==8.2.0
+# torch==2.2.2
+# torchvision==0.17.2
+# diffusers
+# transformers
+# peft
+# scikit-image

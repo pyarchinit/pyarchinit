@@ -1051,7 +1051,7 @@
                <string>Aggiorna DB</string>
               </property>
               <property name="icon">
-               <iconset resource="../../resources/resources.qrc">
+               <iconset>
                 <normaloff>:/icons/database_maintenance.png</normaloff>:/icons/database_maintenance.png</iconset>
               </property>
               <property name="iconSize">
@@ -1604,6 +1604,7 @@
            </property>
            <property name="font">
             <font>
+             <family>Times New Roman</family>
              <pointsize>9</pointsize>
              <weight>75</weight>
              <bold>true</bold>
@@ -1678,6 +1679,15 @@
             <property name="icon">
              <iconset resource="../../resources/resources.qrc">
               <normaloff>:/icons/finds.png</normaloff>:/icons/finds.png</iconset>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>TMA_MATERIALI</string>
+            </property>
+            <property name="icon">
+             <iconset resource="../../resources/resources.qrc">
+              <normaloff>:/icons/pottery.png</normaloff>:/icons/pottery.png</iconset>
             </property>
            </item>
            <item>
@@ -2079,6 +2089,7 @@
           <widget class="QLabel" name="label_60">
            <property name="font">
             <font>
+             <family>Times New Roman</family>
              <pointsize>15</pointsize>
              <weight>75</weight>
              <italic>true</italic>
@@ -2190,6 +2201,7 @@
           <widget class="QPushButton" name="pushButton_import">
            <property name="font">
             <font>
+             <family>Times New Roman</family>
              <pointsize>9</pointsize>
              <weight>75</weight>
              <bold>true</bold>
@@ -2201,6 +2213,28 @@
            <property name="icon">
             <iconset resource="../../resources/resources.qrc">
              <normaloff>:/icons/insert_table.png</normaloff>:/icons/insert_table.png</iconset>
+           </property>
+          </widget>
+         </item>
+         <item row="23" column="8">
+          <widget class="QPushButton" name="pushButton_apply_constraints">
+           <property name="font">
+            <font>
+             <family>Times New Roman</family>
+             <pointsize>9</pointsize>
+             <weight>75</weight>
+             <bold>true</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string>Apply Constraints</string>
+           </property>
+           <property name="toolTip">
+            <string>Apply unique constraints to thesaurus table to prevent duplicates during import</string>
+           </property>
+           <property name="icon">
+            <iconset resource="../../resources/resources.qrc">
+             <normaloff>:/icons/key.png</normaloff>:/icons/key.png</iconset>
            </property>
           </widget>
          </item>
@@ -2251,6 +2285,7 @@
           <widget class="QLabel" name="label_59">
            <property name="font">
             <font>
+             <family>Times New Roman</family>
              <pointsize>14</pointsize>
              <weight>75</weight>
              <bold>true</bold>
@@ -2355,6 +2390,7 @@
           <widget class="QLabel" name="label_61">
            <property name="font">
             <font>
+             <family>Times New Roman</family>
              <pointsize>15</pointsize>
              <weight>75</weight>
              <italic>true</italic>
@@ -2516,6 +2552,7 @@
          <property name="font">
           <font>
            <family>MS Shell Dlg 2</family>
+           <pointsize>13</pointsize>
            <weight>50</weight>
            <italic>false</italic>
            <bold>false</bold>
@@ -2631,6 +2668,7 @@
                <property name="font">
                 <font>
                  <family>8514oem</family>
+                 <pointsize>13</pointsize>
                  <weight>50</weight>
                  <italic>false</italic>
                  <bold>false</bold>

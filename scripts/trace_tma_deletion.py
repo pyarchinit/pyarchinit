@@ -24,12 +24,10 @@ def add_deletion_traces(file_path):
     
     # Aggiungi log all'inizio di charge_records
     pattern = r"(def charge_records\(self\):)"
-    replacement = r"\1\n        QgsMessageLog.logMessage(f\"DEBUG TMA charge_records: Called\", \"PyArchInit\", Qgis.Info)"
     content = re.sub(pattern, replacement, content)
     
     # Aggiungi log quando DATA_LIST viene svuotata
     pattern = r"(self\.DATA_LIST = \[\])"
-    replacement = r"QgsMessageLog.logMessage(f\"DEBUG TMA: Clearing DATA_LIST in charge_records\", \"PyArchInit\", Qgis.Info)\n        \1"
     content = re.sub(pattern, replacement, content)
     
     # Aggiungi log quando viene chiamato empty_fields nella init
@@ -41,7 +39,6 @@ def add_deletion_traces(file_path):
     
     # Aggiungi log quando viene controllato REC_TOT == 0
     pattern = r"(if self\.REC_TOT == 0:)"
-    replacement = r"QgsMessageLog.logMessage(f\"DEBUG TMA: REC_TOT = {self.REC_TOT}, checking if == 0\", \"PyArchInit\", Qgis.Info)\n            \1"
     content = re.sub(pattern, replacement, content)
     
     # Aggiungi log nel metodo che potrebbe cancellare i dati

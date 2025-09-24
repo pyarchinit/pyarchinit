@@ -251,8 +251,8 @@ class generate_tma_pdf:
             ["Area", str(self.record.area) if self.record.area else ""],
             ["US", str(self.record.dscu) if self.record.dscu else ""],
             ["Numero Cassetta", str(self.record.cassetta) if self.record.cassetta else ""],
-            ["Inventariati", str(self.record.nsc) if self.record.nsc else ""],
-            ["Materiale componente", str(self.record.ogtm) if self.record.ogtm else ""],
+            ["Inventariati", Paragraph(str(self.record.nsc) if self.record.nsc else "", self.styles['Normal_small'])],
+            ["Materiale componente", Paragraph(str(self.record.ogtm) if self.record.ogtm else "", self.styles['Normal_small'])],
             ["Fascia cronologica", str(self.record.dtzg) if self.record.dtzg else ""],
         ]
         
@@ -271,7 +271,7 @@ class generate_tma_pdf:
         detail_data = [
             ["Tipologia", str(self.record.ldct) if self.record.ldct else "Magazzino"],
             ["Denominazione", str(self.record.ldcn) if self.record.ldcn else "Magazzino 1"],
-            ["Vecchia collocazione", str(self.record.vecchia_collocazione) if self.record.vecchia_collocazione else ""],
+            ["Vecchia collocazione", Paragraph(str(self.record.vecchia_collocazione) if self.record.vecchia_collocazione else "", self.styles['Normal_small'])],
         ]
         
         header_table = Table(data, colWidths=[170*mm])
@@ -314,7 +314,7 @@ class generate_tma_pdf:
         ]
         
         detail_data = [
-            ["Indicazioni sugli oggetti", str(self.record.deso) if self.record.deso else ""],
+            ["Indicazioni sugli oggetti", Paragraph(str(self.record.deso) if self.record.deso else "", self.styles['Normal_small'])],
         ]
         
         header_table = Table(data, colWidths=[170*mm])
@@ -426,42 +426,44 @@ class generate_tma_pdf:
             
             # Create table for materials in this definition group
             material_headers = [
-                'Materiale', 'Categoria', 'Classe', 'Prec. tipologica', 'Quantità', 'Peso'
+                'Classe', 'Prec. tipologica', 'Definizione', 'Cronologia', 'Quantità', 'Peso'
             ]
-            
+
             material_data = [material_headers]
-            
-            # Aggregate materials with same characteristics
-            materials_aggregated = {}
+
+            # Show all materials without filtering
             for material in materials_by_definition[definition]:
-                key = (material.macc, material.macl, material.macd, material.macp)
-                if key not in materials_aggregated:
-                    materials_aggregated[key] = {'qty': 0, 'weight': 0}
-                
-                # Add quantity
-                qty = int(material.macq) if material.macq and str(material.macq).isdigit() else 0
-                materials_aggregated[key]['qty'] += qty
-                
-                # Add weight
-                weight = float(material.peso) if material.peso and str(material.peso).replace('.','').isdigit() else 0
-                materials_aggregated[key]['weight'] += weight
-            
-            # Add aggregated materials to table
-            for (macc, macl, macd, macp), totals in materials_aggregated.items():
+                # Parse weight and quantity
+                qty = str(material.macq) if material.macq else ''
+                weight = ''
+                if material.peso:
+                    try:
+                        weight_val = float(material.peso)
+                        weight = f"{weight_val:.2f} g" if weight_val > 0 else ''
+                    except:
+                        weight = str(material.peso)
+
                 # Use Paragraphs for text wrapping
+                # Correct field order: macl=Classe, macp=Prec.tipologica, macd=Definizione
+                # Force string conversion and handle None values explicitly
+                classe_val = str(material.macl) if material.macl is not None and material.macl != 'None' else ''
+                prec_tipo_val = str(material.macp) if material.macp is not None and material.macp != 'None' else ''
+                definizione_val = str(material.macd) if material.macd is not None and material.macd != 'None' else ''
+                cronologia_val = str(material.cronologia_mac) if material.cronologia_mac is not None and material.cronologia_mac != 'None' else ''
+
                 row = [
-                    Paragraph(str(macc) if macc else '', self.styles['Normal_small']),
-                    Paragraph(str(macl) if macl else '', self.styles['Normal_small']),
-                    Paragraph(str(macd) if macd else '', self.styles['Normal_small']),
-                    Paragraph(str(macp) if macp else '', self.styles['Normal_small']),
-                    Paragraph(str(totals['qty']), self.styles['Normal_small']),
-                    Paragraph(f"{totals['weight']:.2f} g" if totals['weight'] > 0 else '', self.styles['Normal_small'])
+                    Paragraph(classe_val, self.styles['Normal_small']),  # Classe
+                    Paragraph(prec_tipo_val, self.styles['Normal_small']),  # Prec. tipologica
+                    Paragraph(definizione_val, self.styles['Normal_small']),  # Definizione
+                    Paragraph(cronologia_val, self.styles['Normal_small']),  # Cronologia
+                    Paragraph(qty, self.styles['Normal_small']),  # Quantità
+                    Paragraph(weight, self.styles['Normal_small'])  # Peso
                 ]
                 material_data.append(row)
-            
+
             # Create materials table with responsive widths
-            # Total width is 170mm, distribute proportionally
-            materials_table = Table(material_data, colWidths=[25*mm, 30*mm, 30*mm, 30*mm, 25*mm, 30*mm])
+            # Total width is 170mm, distribute proportionally for better text wrapping
+            materials_table = Table(material_data, colWidths=[30*mm, 35*mm, 35*mm, 30*mm, 20*mm, 20*mm])
             materials_table.setStyle(TableStyle([
                 ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#CCCCCC")),
                 ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),
@@ -484,7 +486,7 @@ class generate_tma_pdf:
         if self.record.deso:
             elements.append(Spacer(1, 12))
             desc_data = [
-                ["Indicazione oggetti", str(self.record.deso)],
+                ["Indicazione oggetti", Paragraph(str(self.record.deso), self.styles['Normal_small'])],
             ]
             desc_table = Table(desc_data, colWidths=[85*mm, 85*mm])
             desc_table.setStyle(self.table_style)

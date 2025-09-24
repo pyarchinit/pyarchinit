@@ -22,7 +22,7 @@ from __future__ import absolute_import
 import ast
 import csv
 import json
-import tempfile
+import traceback
 from datetime import datetime
 
 import math
@@ -3495,10 +3495,10 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.mQgsFileWidget.setHidden(True)
         self.toolButton_file_doc.setHidden(True)
         self.mDockWidget_5.setHidden(True)
-        self.tableWidget_rapporti2.setHidden(True)
+        #self.tableWidget_rapporti2.setHidden(True)
         self.pushButton_insert_row_rapporti2.setHidden(True)
         self.pushButton_remove_row_rapporti2.setHidden(True)
-        self.pushButton_update.setHidden(True)
+        #self.pushButton_update.setHidden(True)
         self.progressBar_2.setHidden(True)
         self.progressBar_3.setHidden(True)
         self.currentLayerId = None
@@ -6493,12 +6493,10 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
                 for row in rows:
                     id, rapporti_str = row
-                    log_error(f"Processing ID: {id}", "DEBUG")
 
                     if rapporti_str and rapporti_str != "[[]]":
                         try:
                             # Log della stringa originale
-                            log_error(f"ID {id} - Stringa originale: {rapporti_str}", "DEBUG")
 
                             # Conversione della stringa in lista
                             rapporti_list = ast.literal_eval(rapporti_str)
@@ -6524,7 +6522,6 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                             updated_rapporti_str = self.ensure_utf8(str(updated_rapporti_list2))
 
                             # Log della stringa aggiornata
-                            log_error(f"ID {id} - Stringa aggiornata: {updated_rapporti_str}", "DEBUG")
 
                             # Preparazione e esecuzione dell'update
                             update_stmt = (
@@ -6618,12 +6615,10 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 for row_j in rows:
                     id_us, rapporti_str = row_j.id_us, row_j.rapporti
 
-                    log_error(f"Processing US ID: {id_us}", "DEBUG")
 
                     if rapporti_str and rapporti_str != "[[]]":
                         try:
                             # Log della stringa originale
-                            log_error(f"US {id_us} - Stringa originale: {rapporti_str}", "DEBUG")
 
                             rapporti_list = ast.literal_eval(rapporti_str)
                             updated_rapporti_list = []
@@ -6698,7 +6693,6 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                             # Non troncare i rapporti - preserva il formato esistente
                             updated_rapporti_str = self.ensure_utf8(str(updated_rapporti_list))
 
-                            log_error(f"US {id_us} - Stringa aggiornata: {updated_rapporti_str}", "DEBUG")
 
                             try:
                                 update_stmt = update(us_table).where(us_table.c.id_us == id_us).values(
@@ -6782,7 +6776,6 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 log_error(f"Input non valido: US={us}, Sito={sito}", "WARNING")
                 return None
 
-            log_error(f"Cercando area per US={us}, Sito={sito}", "DEBUG")
 
             # Usa la connessione esistente invece di crearne una nuova
             metadata = MetaData()
@@ -6801,7 +6794,6 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
                 if result and result[0]:
                     area = self.ensure_utf8(str(result[0]))
-                    log_error(f"Area trovata: {area} per US={us}, Sito={sito}", "DEBUG")
                     return area
                 else:
                     log_error(f"Nessuna area trovata per US={us}, Sito={sito}", "WARNING")

@@ -1,0 +1,796 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>PotteryTools</class>
+ <widget class="QDialog" name="PotteryTools">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>900</width>
+    <height>700</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>PyArchInit - Pottery Tools</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout_main">
+   <property name="margin">
+    <number>10</number>
+   </property>
+   <item>
+    <widget class="QLabel" name="label_title">
+     <property name="font">
+      <font>
+       <pointsize>14</pointsize>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string>Pottery Tools - Image Processing &amp; Layout</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QTabWidget" name="tabWidget_main">
+     <property name="currentIndex">
+      <number>0</number>
+     </property>
+
+     <!-- Tab 1: PDF Extraction -->
+     <widget class="QWidget" name="tab_pdf_extraction">
+      <attribute name="title">
+       <string>PDF Extraction</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_pdf">
+       <item>
+        <widget class="QGroupBox" name="groupBox_pdf_input">
+         <property name="title">
+          <string>PDF Input</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_pdf">
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_pdf_file">
+            <property name="text">
+             <string>Select PDF:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QLineEdit" name="lineEdit_pdf_path">
+            <property name="placeholderText">
+             <string>Path to PDF file...</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="2">
+           <widget class="QPushButton" name="pushButton_browse_pdf">
+            <property name="text">
+             <string>Browse</string>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>100</width>
+              <height>16777215</height>
+             </size>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QCheckBox" name="checkBox_split_pages">
+            <property name="text">
+             <string>Split pages (left/right)</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QCheckBox" name="checkBox_auto_detect">
+            <property name="text">
+             <string>Auto-detect pottery (ML)</string>
+            </property>
+            <property name="checked">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QPushButton" name="pushButton_download_model">
+            <property name="text">
+             <string>Download YOLO Model</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="QLabel" name="label_model_status">
+            <property name="text">
+             <string>Model not installed</string>
+            </property>
+            <property name="styleSheet">
+             <string>color: red;</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="groupBox_extraction_options">
+         <property name="title">
+          <string>Extraction Options</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_extract_opts">
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_confidence">
+            <property name="text">
+             <string>Confidence:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QSlider" name="slider_confidence">
+            <property name="minimum">
+             <number>1</number>
+            </property>
+            <property name="maximum">
+             <number>100</number>
+            </property>
+            <property name="value">
+             <number>50</number>
+            </property>
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="2">
+           <widget class="QLabel" name="label_confidence_value">
+            <property name="text">
+             <string>50%</string>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>40</width>
+              <height>0</height>
+             </size>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0" colspan="3">
+           <widget class="QPushButton" name="pushButton_extract">
+            <property name="text">
+             <string>Extract Pottery Images</string>
+            </property>
+            <property name="styleSheet">
+             <string>QPushButton { background-color: #4CAF50; color: white; font-weight: bold; padding: 10px; }</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QListWidget" name="listWidget_extracted">
+         <property name="viewMode">
+          <enum>QListView::IconMode</enum>
+         </property>
+         <property name="iconSize">
+          <size>
+           <width>100</width>
+           <height>100</height>
+          </size>
+         </property>
+         <property name="gridSize">
+          <size>
+           <width>120</width>
+           <height>120</height>
+          </size>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+
+     <!-- Tab 2: Layout Creator -->
+     <widget class="QWidget" name="tab_apply_model">
+      <attribute name="title">
+       <string>2. Apply Model</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_apply">
+       <item>
+        <widget class="QGroupBox" name="groupBox_model_params">
+         <property name="title">
+          <string>Model Parameters</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_model">
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_kernel">
+            <property name="text">
+             <string>Kernel Size:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QSpinBox" name="spinBox_kernel">
+            <property name="minimum">
+             <number>1</number>
+            </property>
+            <property name="maximum">
+             <number>10</number>
+            </property>
+            <property name="value">
+             <number>2</number>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="label_iterations">
+            <property name="text">
+             <string>Iterations:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QSpinBox" name="spinBox_iterations">
+            <property name="minimum">
+             <number>1</number>
+            </property>
+            <property name="maximum">
+             <number>20</number>
+            </property>
+            <property name="value">
+             <number>10</number>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0" colspan="2">
+           <widget class="QPushButton" name="pushButton_apply_model">
+            <property name="text">
+             <string>Apply Model to Images</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QListWidget" name="listWidget_masks"/>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tab_extract_masks">
+      <attribute name="title">
+       <string>3. Extract Masks</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_extract">
+       <item>
+        <widget class="QPushButton" name="pushButton_extract_masks">
+         <property name="text">
+          <string>Extract Individual Pottery Instances</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QListWidget" name="listWidget_pottery_cards"/>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tab_tabular">
+      <attribute name="title">
+       <string>4. Tabular Data</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_tabular">
+       <item>
+        <widget class="QTableWidget" name="tableWidget_pottery_data">
+         <column>
+          <property name="text">
+           <string>ID</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Image</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Type</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Notes</string>
+          </property>
+         </column>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="pushButton_save_tabular">
+         <property name="text">
+          <string>Save Tabular Data</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tab_postprocess">
+      <attribute name="title">
+       <string>5. Post-Processing</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_post">
+       <item>
+        <widget class="QGroupBox" name="groupBox_postprocess">
+         <property name="title">
+          <string>Processing Options</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_post_opts">
+          <item>
+           <widget class="QCheckBox" name="checkBox_auto_flip_v">
+            <property name="text">
+             <string>Auto Vertical Flip</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="checkBox_auto_flip_h">
+            <property name="text">
+             <string>Auto Horizontal Flip</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="checkBox_classify">
+            <property name="text">
+             <string>Auto-classify ENT/FRAG</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="pushButton_process_all">
+            <property name="text">
+             <string>Process All Images</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QListWidget" name="listWidget_processed"/>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tab_layout">
+      <attribute name="title">
+       <string>6. Layout Creator</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_layout">
+       <item>
+        <widget class="QGroupBox" name="groupBox_image_source">
+         <property name="title">
+          <string>Image Source</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_source">
+          <item>
+           <widget class="QRadioButton" name="radioButton_from_extraction">
+            <property name="text">
+             <string>Use extracted images from PDF</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QRadioButton" name="radioButton_from_folder">
+            <property name="text">
+             <string>Load from folder</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QRadioButton" name="radioButton_from_db">
+            <property name="text">
+             <string>Load from database (Pottery/Inventory records)</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_folder">
+            <item>
+             <widget class="QLineEdit" name="lineEdit_folder_path">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="placeholderText">
+               <string>Select folder with images...</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="pushButton_browse_folder">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="text">
+               <string>Browse</string>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>100</width>
+                <height>16777215</height>
+               </size>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="groupBox_layout_settings">
+         <property name="title">
+          <string>Layout Settings</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_layout">
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_layout_mode">
+            <property name="text">
+             <string>Layout Mode:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QComboBox" name="comboBox_layout_mode">
+            <item>
+             <property name="text">
+              <string>Grid</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Puzzle (optimized)</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item row="0" column="2">
+           <widget class="QLabel" name="label_page_size">
+            <property name="text">
+             <string>Page Size:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="3">
+           <widget class="QComboBox" name="comboBox_page_size">
+            <item>
+             <property name="text">
+              <string>A4</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>A3</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Letter</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="label_grid_rows">
+            <property name="text">
+             <string>Rows:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QSpinBox" name="spinBox_rows">
+            <property name="minimum">
+             <number>1</number>
+            </property>
+            <property name="maximum">
+             <number>10</number>
+            </property>
+            <property name="value">
+             <number>4</number>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="2">
+           <widget class="QLabel" name="label_grid_cols">
+            <property name="text">
+             <string>Columns:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="3">
+           <widget class="QSpinBox" name="spinBox_cols">
+            <property name="minimum">
+             <number>1</number>
+            </property>
+            <property name="maximum">
+             <number>10</number>
+            </property>
+            <property name="value">
+             <number>3</number>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QCheckBox" name="checkBox_add_captions">
+            <property name="text">
+             <string>Add captions</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="QCheckBox" name="checkBox_add_scale">
+            <property name="text">
+             <string>Add scale bar</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="2">
+           <widget class="QLabel" name="label_scale_cm">
+            <property name="text">
+             <string>Scale (cm):</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="3">
+           <widget class="QSpinBox" name="spinBox_scale_cm">
+            <property name="minimum">
+             <number>1</number>
+            </property>
+            <property name="value">
+             <number>5</number>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_layout_buttons">
+         <item>
+          <widget class="QPushButton" name="pushButton_preview_layout">
+           <property name="text">
+            <string>Preview Layout</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="pushButton_generate_layout">
+           <property name="text">
+            <string>Generate Layout</string>
+           </property>
+           <property name="styleSheet">
+            <string>QPushButton { background-color: #2196F3; color: white; font-weight: bold; padding: 10px; }</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <widget class="QGraphicsView" name="graphicsView_preview">
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>200</height>
+          </size>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+
+     <!-- Tab 3: Database Integration -->
+     <widget class="QWidget" name="tab_database">
+      <attribute name="title">
+       <string>Database Integration</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_db">
+       <item>
+        <widget class="QGroupBox" name="groupBox_db_selection">
+         <property name="title">
+          <string>Select Records</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_db_sel">
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_db_type">
+            <item>
+             <widget class="QRadioButton" name="radioButton_pottery">
+              <property name="text">
+               <string>Pottery Records</string>
+              </property>
+              <property name="checked">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QRadioButton" name="radioButton_inventory">
+              <property name="text">
+               <string>Inventory Materials</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_filters">
+            <item>
+             <widget class="QLabel" name="label_site_filter">
+              <property name="text">
+               <string>Site:</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QComboBox" name="comboBox_site">
+              <property name="editable">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="label_area_filter">
+              <property name="text">
+               <string>Area:</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QComboBox" name="comboBox_area">
+              <property name="editable">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="pushButton_load_records">
+              <property name="text">
+               <string>Load Records</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QTableWidget" name="tableWidget_records">
+         <property name="alternatingRowColors">
+          <bool>true</bool>
+         </property>
+         <property name="selectionBehavior">
+          <enum>QAbstractItemView::SelectRows</enum>
+         </property>
+         <column>
+          <property name="text">
+           <string>ID</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Number</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Type</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Class</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Image</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Select</string>
+          </property>
+         </column>
+        </widget>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_db_buttons">
+         <item>
+          <widget class="QPushButton" name="pushButton_select_all">
+           <property name="text">
+            <string>Select All</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="pushButton_deselect_all">
+           <property name="text">
+            <string>Deselect All</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QPushButton" name="pushButton_add_to_layout">
+           <property name="text">
+            <string>Add Selected to Layout</string>
+           </property>
+           <property name="styleSheet">
+            <string>QPushButton { background-color: #FF9800; color: white; font-weight: bold; }</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+   </item>
+   <item>
+    <widget class="QProgressBar" name="progressBar">
+     <property name="value">
+      <number>0</number>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QTextEdit" name="textEdit_log">
+     <property name="maximumSize">
+      <size>
+       <width>16777215</width>
+       <height>100</height>
+      </size>
+     </property>
+     <property name="readOnly">
+      <bool>true</bool>
+     </property>
+     <property name="placeholderText">
+      <string>Process log...</string>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
