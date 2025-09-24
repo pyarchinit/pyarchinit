@@ -34,7 +34,7 @@ class Campioni_table:
                            UniqueConstraint('sito', 'nr_campione', name='ID_invcamp_unico')
                            )
 
-    try:
-        metadata.create_all(engine)
-    except:
-        pass  # Table already exists or geometry type not supported
+    # DO NOT create tables at module import time!
+
+
+    # metadata.create_all(engine)  # This line was causing connection errors

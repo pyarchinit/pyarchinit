@@ -22,6 +22,8 @@ from __future__ import absolute_import
 
 import os
 import sqlite3
+import datetime
+import traceback
 
 
 import sqlalchemy as sa
@@ -34,12 +36,13 @@ from builtins import str
 
 from ftplib import FTP
 
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
+from sqlalchemy.orm import sessionmaker
 
 from sqlalchemy.ext.compiler import compiles
 from sqlalchemy.sql.expression import *
 from qgis.PyQt.QtGui import QDesktopServices
-from qgis.PyQt.QtCore import  pyqtSlot, pyqtSignal,QThread,QUrl
+from qgis.PyQt.QtCore import  pyqtSlot, pyqtSignal,QThread,QUrl,QTimer
 from qgis.PyQt.QtWidgets import QApplication, QDialog, QMessageBox, QFileDialog,QLineEdit,QWidget,QCheckBox
 from qgis.PyQt.QtSql import *
 from qgis.PyQt.uic import loadUiType
@@ -53,6 +56,48 @@ from modules.utility.pyarchinit_OS_utility import Pyarchinit_OS_Utility
 
 
 MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), 'ui', 'pyarchinitConfigDialog.ui'))
+
+
+class PyArchInitLogger:
+    """Simple file-based logger for debugging"""
+
+    def __init__(self):
+        self.log_file = '/Users/enzo/pyarchinit_debug.log'
+
+    def log(self, message):
+        """Write a message to the log file with timestamp"""
+        try:
+            timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
+            with open(self.log_file, 'a', encoding='utf-8') as f:
+                f.write(f"[{timestamp}] {message}\n")
+                f.flush()
+        except Exception as e:
+            # If we can't log, at least try to print
+            print(f"Failed to log: {e}")
+
+    def log_exception(self, function_name, exception):
+        """Log an exception with traceback"""
+        try:
+            timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
+            with open(self.log_file, 'a', encoding='utf-8') as f:
+                f.write(f"[{timestamp}] EXCEPTION in {function_name}: {str(exception)}\n")
+                f.write(f"[{timestamp}] Traceback:\n")
+                tb = traceback.format_exc()
+                for line in tb.split('\n'):
+                    if line:
+                        f.write(f"[{timestamp}]   {line}\n")
+                f.flush()
+        except Exception as e:
+            print(f"Failed to log exception: {e}")
+
+    def clear_log(self):
+        """Clear the log file"""
+        try:
+            with open(self.log_file, 'w', encoding='utf-8') as f:
+                f.write(f"=== Log cleared at {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')} ===\n")
+                f.flush()
+        except Exception as e:
+            print(f"Failed to clear log: {e}")
 
 
 class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
@@ -74,12 +119,23 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                    'EXPERIMENTAL': '',
                    'SITE_SET': ''}
 
+    # Flag to prevent recursive database creation
+    _is_creating_database = False
+
     def __init__(self, parent=None, db=None):
 
         QDialog.__init__(self, parent)
         # Set up the user interface from Designer.
 
         self.setupUi(self)
+
+        # Initialize flag to prevent database creation loop
+        self.creating_database = False
+
+        # Initialize logger
+        self.logger = PyArchInitLogger()
+        self.logger.clear_log()
+        self.logger.log("=== PyArchInit Config Dialog Initialized ===")
 
         s = QgsSettings()
         self.mDockWidget.setHidden(True)
@@ -160,10 +216,10 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         
         self.check()
         #self.upd_individui_table()
-        if self.comboBox_Database.currentText()=='sqlite':
-            self.setComboBoxEnable(["self.lineEdit_DBname"], "False")
-        elif self.comboBox_Database.currentText()=='postgres':
-            self.setComboBoxEnable(["self.lineEdit_DBname"], "True")
+        # Always enable the DBname field for both SQLite and PostgreSQL
+        # SQLite needs it for the database file name
+        # PostgreSQL needs it for the database name
+        self.setComboBoxEnable(["self.lineEdit_DBname"], "True")
         self.comboBox_Database.currentIndexChanged.connect(self.customize)
         #self.test()
         self.test2()
@@ -2406,10 +2462,23 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             eval(cmd)
     
     def customize(self):
-        if self.comboBox_Database.currentText()=='sqlite':
-            self.setComboBoxEnable(["self.lineEdit_DBname"], "False")
-        elif self.comboBox_Database.currentText()=='postgres':
+        # Prevent recursive calls
+        if hasattr(self, '_customizing'):
+            return
+        self._customizing = True
+
+        try:
+            # Enable DBname field for both SQLite and PostgreSQL
+            # SQLite needs it for the database file name
+            # PostgreSQL needs it for the database name
             self.setComboBoxEnable(["self.lineEdit_DBname"], "True")
+
+            # Log the current state for debugging
+            if hasattr(self, 'logger'):
+                self.logger.log(f"customize() called - DB type: {self.comboBox_Database.currentText()}")
+                self.logger.log(f"DBname field enabled: True")
+        finally:
+            self._customizing = False
     def db_uncheck(self):
         self.toolButton_active.setChecked(False)
     def upd_individui_table(self):
@@ -2614,9 +2683,26 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                         
                         ck = insert_srt.table.constraints
                         insert = compiler.visit_insert(insert_srt, **kw)
-                        c = next(x for x in ck if isinstance(x, sa.UniqueConstraint))
-                        column_names = [col.name for col in c.columns]
-                        s= ", ".join(column_names)
+
+                        # Try to find UniqueConstraint, if not found use primary key
+                        unique_constraint = None
+                        for x in ck:
+                            if isinstance(x, sa.UniqueConstraint):
+                                unique_constraint = x
+                                break
+
+                        if unique_constraint:
+                            column_names = [col.name for col in unique_constraint.columns]
+                        else:
+                            # Use primary key columns if no unique constraint
+                            pk_cols = [col for col in insert_srt.table.columns if col.primary_key]
+                            if pk_cols:
+                                column_names = [col.name for col in pk_cols]
+                            else:
+                                # Fallback to just return the insert without ON CONFLICT
+                                return insert
+
+                        s = ", ".join(column_names)
                         
                         
                         ondup = f"ON CONFLICT ({s}) DO UPDATE SET"
@@ -2647,7 +2733,9 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         except:
             pass
     def summary(self):
-        self.comboBox_Database.update()
+        # Skip update if we're in the middle of database creation
+        if not hasattr(self, 'skip_combo_update'):
+            self.comboBox_Database.update()
 
         conn = Connection()
         conn_str = conn.conn_str()
@@ -2747,8 +2835,16 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
 
             self.tableView_summary.clearSpans()
     def db_active (self):
-        self.comboBox_Database.update()
-        self.comboBox_sito.clear()
+        # Prevent recursive calls
+        if hasattr(self, '_db_active_running'):
+            return
+        self._db_active_running = True
+
+        try:
+            self.comboBox_Database.update()
+            self.comboBox_sito.clear()
+        finally:
+            self._db_active_running = False
         if self.comboBox_Database.currentText() == 'sqlite':
             #self.comboBox_Database.editTextChanged.connect(self.set_db_parameter)
             self.toolButton_db.setEnabled(True)
@@ -3068,18 +3164,26 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         else:
             QMessageBox.warning(self, "Set Environmental Variable", "The path has been set successful", QMessageBox.Ok)
     def set_db_parameter(self):
-        if self.comboBox_Database.currentText() == 'postgres':
-            self.lineEdit_DBname.setText("pyarchinit")
-            self.lineEdit_Host.setText('127.0.0.1')
-            self.lineEdit_Port.setText('5432')
-            self.lineEdit_User.setText('postgres')
+        # Prevent recursive calls
+        if hasattr(self, '_setting_parameters'):
+            return
+        self._setting_parameters = True
 
-        if self.comboBox_Database.currentText() == 'sqlite':
-            self.lineEdit_DBname.setText("pyarchinit_db.sqlite")
-            self.lineEdit_Host.setText('')
-            self.lineEdit_Password.setText('')
-            self.lineEdit_Port.setText('')
-            self.lineEdit_User.setText('')
+        try:
+            if self.comboBox_Database.currentText() == 'postgres':
+                self.lineEdit_DBname.setText("pyarchinit")
+                self.lineEdit_Host.setText('127.0.0.1')
+                self.lineEdit_Port.setText('5432')
+                self.lineEdit_User.setText('postgres')
+
+            if self.comboBox_Database.currentText() == 'sqlite':
+                self.lineEdit_DBname.setText("pyarchinit_db.sqlite")
+                self.lineEdit_Host.setText('')
+                self.lineEdit_Password.setText('')
+                self.lineEdit_Port.setText('')
+                self.lineEdit_User.setText('')
+        finally:
+            self._setting_parameters = False
 
 
 
@@ -3151,8 +3255,25 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         f.close()
 
     def on_pushButton_save_pressed(self):
-        
-        self.comboBox_Database.update()
+        self.logger.log("\n=== on_pushButton_save_pressed called ===")
+
+        # Prevent re-entry
+        if hasattr(self, '_save_in_progress'):
+            self.logger.log("WARNING: Save already in progress, preventing re-entry")
+            return
+
+        self._save_in_progress = True
+        self.logger.log("Setting _save_in_progress flag")
+
+        # Skip the update if we're coming from database creation
+        if not hasattr(self, 'skip_combo_update'):
+            self.logger.log("Updating comboBox_Database")
+            self.comboBox_Database.update()
+        else:
+            # Clean up the flag after using it
+            self.logger.log("Skipping combo update (skip_combo_update flag set)")
+            delattr(self, 'skip_combo_update')
+
         try:
             if not bool(self.lineEdit_Password.text()) and str(self.comboBox_Database.currentText())=='postgres':
                 QMessageBox.warning(self, "INFO", 'non dimenticarti di inserire la password',QMessageBox.Ok)
@@ -3169,7 +3290,9 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 self.PARAMS_DICT['EXPERIMENTAL'] = str(self.comboBox_experimental.currentText())
                 self.PARAMS_DICT['SITE_SET'] = str(self.comboBox_sito.currentText())
                 self.PARAMS_DICT['LOGO'] = str(self.lineEdit_logo.text())
+                self.logger.log("Saving parameters to dict")
                 self.save_dict()
+                self.logger.log("Parameters saved")
 
                 if str(self.comboBox_Database.currentText())=='postgres':
 
@@ -3193,15 +3316,28 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                     pass
 
 
+                self.logger.log("Calling try_connection from on_pushButton_save_pressed")
                 self.try_connection()
+                self.logger.log("try_connection completed successfully")
 
         except Exception as e:
+            self.logger.log_exception("on_pushButton_save_pressed", e)
+            # Clear the save flag on exception
+            if hasattr(self, '_save_in_progress'):
+                del self._save_in_progress
+
             if self.L=='it':
                 QMessageBox.warning(self, "INFO", "Problema di connessione al db. Controlla i paramatri inseriti", QMessageBox.Ok)
             elif self.L=='de':
                 QMessageBox.warning(self, "INFO", "Db-Verbindungsproblem. Überprüfen Sie die eingegebenen Parameter", QMessageBox.Ok)
             else:
                 QMessageBox.warning(self, "INFO", "Db connection problem. Check the parameters inserted", QMessageBox.Ok)
+        finally:
+            # Always clear the save flag
+            if hasattr(self, '_save_in_progress'):
+                self.logger.log("Clearing _save_in_progress flag in finally block")
+                del self._save_in_progress
+            self.logger.log("on_pushButton_save_pressed completed")
     def compare(self):
         if self.comboBox_server_wt.currentText() == 'sqlite':
 
@@ -3231,35 +3367,63 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             pass
 
     def on_pushButton_crea_database_pressed(self,):
+        self.logger.log("\n=== on_pushButton_crea_database_pressed called ===")
+
+        # Prevent re-entry if we're already creating a database
+        if hasattr(self, 'creating_database') and self.creating_database:
+            self.logger.log("WARNING: Database creation already in progress, preventing re-entry")
+            if self.L == 'it':
+                QMessageBox.warning(self, "Attenzione", "Creazione database già in corso...", QMessageBox.Ok)
+            elif self.L == 'de':
+                QMessageBox.warning(self, "Achtung", "Datenbankerstellung bereits im Gange...", QMessageBox.Ok)
+            else:
+                QMessageBox.warning(self, "Warning", "Database creation already in progress...", QMessageBox.Ok)
+            return
+
+        self.creating_database = True
+        self.logger.log("Setting creating_database flag")
+
         schema_file = os.path.join(os.path.dirname(__file__), os.pardir, 'resources', 'dbfiles',
-                                   'pyarchinit_schema_clean.sql')
+                                   'pyarchinit_schema_updated.sql')
         view_file = os.path.join(os.path.dirname(__file__), os.pardir, 'resources', 'dbfiles',
-                                   'create_view.sql')
+                                   'create_view_updated.sql')
 
         if not bool(self.lineEdit_db_passwd.text()):
+            self.creating_database = False  # Clear flag if password missing
             QMessageBox.warning(self, "INFO", "Non dimenticarti di inserire la password", QMessageBox.Ok)
         else:
 
-            create_database = CreateDatabase(self.lineEdit_dbname.text(), self.lineEdit_db_host.text(),
-                                             self.lineEdit_port_db.text(), self.lineEdit_db_user.text(),
-                                             self.lineEdit_db_passwd.text())
+            # Temporarily suppress SQLAlchemy URL deprecation warnings
+            import warnings
+            with warnings.catch_warnings():
+                warnings.filterwarnings("ignore", message=".*Calling URL.*")
+                warnings.filterwarnings("ignore", category=DeprecationWarning)
 
-            ok, db_url = create_database.createdb()
+                create_database = CreateDatabase(self.lineEdit_dbname.text(), self.lineEdit_db_host.text(),
+                                                 self.lineEdit_port_db.text(), self.lineEdit_db_user.text(),
+                                                 self.lineEdit_db_passwd.text())
+
+                ok, db_url = create_database.createdb()
 
 
             if ok:
                 try:
                     RestoreSchema(db_url, schema_file).restore_schema()
                 except Exception as e:
+                    # Clear the creating flag on error
+                    self.creating_database = False
                     if self.L=='it':
-                        QMessageBox.warning(self, "INFO", "Devi essere superutente per creare un db. Vedi l'errore seguente", QMessageBox.Ok)
+                        QMessageBox.warning(self, "INFO", "Devi essere superutente per creare un db. Vedi l'errore seguente: " + str(e), QMessageBox.Ok)
                     elif self.L=='de':
-                        QMessageBox.warning(self, "INFO", "Sie müssen Superuser sein, um eine Db anzulegen. Siehe folgenden Fehler", QMessageBox.Ok)
+                        QMessageBox.warning(self, "INFO", "Sie müssen Superuser sein, um eine Db anzulegen. Siehe folgenden Fehler: " + str(e), QMessageBox.Ok)
                     else:
-                        QMessageBox.warning(self, "INFO", "You have to be super user to create a db. See the following error", QMessageBox.Ok)
-                    DropDatabase(db_url).dropdb()
+                        QMessageBox.warning(self, "INFO", "You have to be super user to create a db. See the following error: " + str(e), QMessageBox.Ok)
+                    try:
+                        DropDatabase(db_url).dropdb()
+                    except:
+                        pass  # Don't fail if drop doesn't work
                     ok = False
-                    raise e
+                    return  # Exit the function, don't re-raise
 
             if ok:
                 crsid = self.selectorCrsWidget.crs().authid()
@@ -3268,52 +3432,91 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 res = RestoreSchema(db_url).update_geom_srid('public', srid)
 
                 # create views
-                RestoreSchema(db_url, view_file).restore_schema()
+                try:
+                    RestoreSchema(db_url, view_file).restore_schema()
+                except Exception as e:
+                    # Log the view creation error but don't fail the entire process
+                    if self.L=='it':
+                        QMessageBox.warning(self, "ATTENZIONE", "Database creato ma le viste non sono state create. Errore: " + str(e)[:200], QMessageBox.Ok)
+                    elif self.L=='de':
+                        QMessageBox.warning(self, "ACHTUNG", "Datenbank erstellt, aber Ansichten wurden nicht erstellt. Fehler: " + str(e)[:200], QMessageBox.Ok)
+                    else:
+                        QMessageBox.warning(self, "WARNING", "Database created but views were not created. Error: " + str(e)[:200], QMessageBox.Ok)
+                    # Continue anyway, the database is created
+
                 #set owner
                 if self.lineEdit_db_user.text() != 'postgres':
-                    RestoreSchema(db_url).set_owner(self.lineEdit_db_user.text())
+                    try:
+                        RestoreSchema(db_url).set_owner(self.lineEdit_db_user.text())
+                    except:
+                        pass  # Non-critical error, continue
 
-            if self.L=='it':
-                if ok and res:
-
+            if ok and res:
+                if self.L=='it':
                     msg = QMessageBox.warning(self, 'INFO', 'Installazione avvenuta con successo, vuoi connetterti al nuovo DB?',
                                               QMessageBox.Ok | QMessageBox.Cancel)
-                    if msg == QMessageBox.Ok:
-                        self.comboBox_Database.setCurrentText('postgres')
-                        self.lineEdit_Host.setText(self.lineEdit_db_host.text())
-                        self.lineEdit_DBname.setText(self.lineEdit_dbname.text())
-                        self.lineEdit_Port.setText(self.lineEdit_port_db.text())
-                        self.lineEdit_User.setText(self.lineEdit_db_user.text())
-                        self.lineEdit_Password.setText(self.lineEdit_db_passwd.text())
-                        self.on_pushButton_save_pressed()
-                else:
-                    QMessageBox.warning(self, "INFO", "Database esistente", QMessageBox.Ok)
-            elif self.L=='de':
-                if ok and res:
+                elif self.L=='de':
                     msg = QMessageBox.warning(self, 'INFO', 'Erfolgreiche Installation, möchten Sie sich mit der neuen Datenbank verbinden?',
                                               QMessageBox.Ok | QMessageBox.Cancel)
-                    if msg == QMessageBox.Ok:
-                        self.comboBox_Database.setCurrentText('postgres')
-                        self.lineEdit_Host.setText(self.lineEdit_db_host.text())
-                        self.lineEdit_DBname.setText(self.lineEdit_dbname.text())
-                        self.lineEdit_Port.setText(self.lineEdit_port_db.text())
-                        self.lineEdit_User.setText(self.lineEdit_db_user.text())
-                        self.lineEdit_Password.setText(self.lineEdit_db_passwd.text())
-                        self.on_pushButton_save_pressed()
                 else:
-                    QMessageBox.warning(self, "INFO", "die Datenbank existiert", QMessageBox.Ok)
-            else:
-                if ok and res:
                     msg = QMessageBox.warning(self, 'INFO', 'Successful installation, do you want to connect to the new DB?',
                                               QMessageBox.Ok | QMessageBox.Cancel)
-                    if msg == QMessageBox.Ok:
-                        self.comboBox_Database.setCurrentText('postgres')
-                        self.lineEdit_Host.setText(self.lineEdit_db_host.text())
-                        self.lineEdit_DBname.setText(self.lineEdit_dbname.text())
-                        self.lineEdit_Port.setText(self.lineEdit_port_db.text())
-                        self.lineEdit_User.setText(self.lineEdit_db_user.text())
-                        self.lineEdit_Password.setText(self.lineEdit_db_passwd.text())
-                        self.on_pushButton_save_pressed()
+
+                if msg == QMessageBox.Ok:
+                    # Add a small delay to ensure database is ready
+                    from PyQt5.QtCore import QTimer
+                    # Temporarily disconnect ALL signals to avoid any interference
+                    try:
+                        self.comboBox_Database.currentIndexChanged.disconnect()
+                    except:
+                        pass
+
+                    # Store the new database name before changing combobox
+                    new_db_name = self.lineEdit_dbname.text()
+
+                    # Set database type to postgres without triggering signals
+                    self.comboBox_Database.setCurrentText('postgres')
+
+                    # Set the connection parameters from the creation dialog
+                    # IMPORTANT: Set these BEFORE reconnecting any signals
+                    self.lineEdit_Host.setText(self.lineEdit_db_host.text())
+                    self.lineEdit_DBname.setText(new_db_name)  # Use stored name to ensure it's not lost
+                    self.lineEdit_Port.setText(self.lineEdit_port_db.text())
+                    self.lineEdit_User.setText(self.lineEdit_db_user.text())
+                    self.lineEdit_Password.setText(self.lineEdit_db_passwd.text())
+
+                    # Reconnect ONLY the essential signals (not set_db_parameter yet)
+                    self.comboBox_Database.currentIndexChanged.connect(self.db_active)
+                    self.comboBox_Database.currentIndexChanged.connect(self.customize)
+
+                    # Define a function to reconnect set_db_parameter after successful connection
+                    def reconnect_set_db_parameter():
+                        try:
+                            self.comboBox_Database.currentIndexChanged.connect(self.set_db_parameter)
+                        except:
+                            pass
+
+                    # Store the function to call it after successful connection
+                    self.reconnect_set_db_param_func = reconnect_set_db_parameter
+
+                    # Set a flag to skip the comboBox update in on_pushButton_save_pressed
+                    self.skip_combo_update = True
+
+                    # Clear the creating flag before attempting connection
+                    self.creating_database = False
+
+                    # Use QTimer to delay the connection attempt by 1000ms (give more time for DB to be ready)
+                    QTimer.singleShot(1000, self.on_pushButton_save_pressed)
+                else:
+                    # User cancelled, clear the creating flag
+                    self.creating_database = False
+            else:
+                # Database already exists, clear the creating flag
+                self.creating_database = False
+                if self.L=='it':
+                    QMessageBox.warning(self, "INFO", "Database esistente", QMessageBox.Ok)
+                elif self.L=='de':
+                    QMessageBox.warning(self, "INFO", "die Datenbank existiert", QMessageBox.Ok)
                 else:
                     QMessageBox.warning(self, "INFO", "The DB exist already", QMessageBox.Ok)
     def select_version_sql(self):
@@ -3766,21 +3969,107 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
 
 
     def try_connection(self):
-        self.summary()
-        
-        conn = Connection()
-        conn_str = conn.conn_str()
+        # Add file-based logging
+        self.logger.log("\n=== try_connection called ===")
 
-        self.DB_MANAGER = Pyarchinit_db_management(conn_str)
-        test = self.DB_MANAGER.connection()
+        # Log stack trace to understand call hierarchy
+        stack = traceback.format_stack()
+        for i, frame in enumerate(stack[-5:-1]):
+            self.logger.log(f"Stack frame {i}: {frame.strip()}")
+
+        # Check if we're in a loop
+        if hasattr(self, '_connection_in_progress') and self._connection_in_progress:
+            self.logger.log("WARNING: Connection already in progress, preventing loop")
+            # Don't show message box here as it can cause event loops
+            return
+
+        self._connection_in_progress = True
+        self.logger.log("Setting _connection_in_progress flag to True")
+
+        # Temporarily disconnect all comboBox_Database signals to prevent loops
+        self.logger.log("Disconnecting comboBox_Database signals temporarily")
+        try:
+            self.comboBox_Database.currentIndexChanged.disconnect()
+        except:
+            self.logger.log("No signals to disconnect")
+            pass
+
+        test = False  # Default to failed connection
+        try:
+            self.logger.log("Calling self.summary()")
+            self.summary()
+
+            self.logger.log("Creating Connection object")
+            conn = Connection()
+            conn_str = conn.conn_str()
+            self.logger.log(f"Connection string: {conn_str}")
+
+            self.logger.log("Creating DB_MANAGER")
+            self.DB_MANAGER = Pyarchinit_db_management(conn_str)
+
+            self.logger.log("Calling DB_MANAGER.connection()")
+            test = self.DB_MANAGER.connection()
+            self.logger.log(f"Connection test result: {test}")
+        except Exception as e:
+            self.logger.log_exception("try_connection", e)
+            test = False
+        finally:
+            # Always reset the flag
+            self._connection_in_progress = False
+            self.logger.log("Setting _connection_in_progress flag to False in finally block")
+
+            # Reconnect the signals after connection attempt
+            self.logger.log("Reconnecting comboBox_Database signals")
+            try:
+                self.comboBox_Database.currentIndexChanged.connect(self.db_active)
+                self.comboBox_Database.currentIndexChanged.connect(self.set_db_parameter)
+                self.comboBox_Database.currentIndexChanged.connect(self.customize)
+                self.logger.log("Signals reconnected successfully")
+            except Exception as e:
+                self.logger.log(f"Error reconnecting signals: {e}")
+
+        # Apply database fixes for existing databases
+        if test and self.comboBox_Database.currentText() == 'postgres':
+            try:
+                # Fix thesaurus sigla field length if needed
+                self.logger.log("Checking and fixing thesaurus sigla field length")
+                engine = self.DB_MANAGER.engine
+                with engine.connect() as conn:
+                    # Check current column type
+                    result = conn.execute(text("""
+                        SELECT character_maximum_length
+                        FROM information_schema.columns
+                        WHERE table_name = 'pyarchinit_thesaurus_sigle'
+                        AND column_name = 'sigla'
+                    """))
+                    row = result.fetchone()
+                    if row and row[0] and row[0] < 100:
+                        self.logger.log(f"Fixing sigla field length from {row[0]} to 255")
+                        conn.execute(text("""
+                            ALTER TABLE pyarchinit_thesaurus_sigle
+                            ALTER COLUMN sigla TYPE character varying(255)
+                        """))
+                        conn.commit()
+                        self.logger.log("Sigla field length fixed successfully")
+            except Exception as e:
+                self.logger.log(f"Could not apply sigla field fix: {e}")
+                # Don't fail connection if fix doesn't apply
 
         if self.L=='it':
             if test:
                 QMessageBox.information(self, "Messaggio", "Connessione avvenuta con successo", QMessageBox.Ok)
                 self.pushButton_upd_postgres.setEnabled(False)
                 self.pushButton_upd_sqlite.setEnabled(True)
+                # Reconnect set_db_parameter after successful connection
+                if hasattr(self, 'reconnect_set_db_param_func'):
+                    self.reconnect_set_db_param_func()
+                    delattr(self, 'reconnect_set_db_param_func')
+
+                pass  # Flag already cleared in finally block
             else:
-                self.comboBox_Database.update()
+                # Only update combo if not in creation flow
+                if not hasattr(self, 'skip_combo_update'):
+                    self.comboBox_Database.update()
                 self.comboBox_sito.clear()
                 if self.comboBox_Database.currentText() == 'sqlite':
                     #self.comboBox_Database.editTextChanged.connect(self.set_db_parameter)
@@ -3802,8 +4091,16 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 QMessageBox.information(self, "Messaggio", "Connessione avvenuta con successo", QMessageBox.Ok)
                 self.pushButton_upd_postgres.setEnabled(False)
                 self.pushButton_upd_sqlite.setEnabled(True)
+                # Reconnect set_db_parameter after successful connection
+                if hasattr(self, 'reconnect_set_db_param_func'):
+                    self.reconnect_set_db_param_func()
+                    delattr(self, 'reconnect_set_db_param_func')
+
+                pass  # Flag already cleared in finally block
             else:
-                self.comboBox_Database.update()
+                # Only update combo if not in creation flow
+                if not hasattr(self, 'skip_combo_update'):
+                    self.comboBox_Database.update()
                 self.comboBox_sito.clear()
                 if self.comboBox_Database.currentText() == 'sqlite':
                     #self.comboBox_Database.editTextChanged.connect(self.set_db_parameter)
@@ -3826,8 +4123,16 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 QMessageBox.information(self, "Messaggio", "Connessione avvenuta con successo", QMessageBox.Ok)
                 self.pushButton_upd_postgres.setEnabled(False)
                 self.pushButton_upd_sqlite.setEnabled(True)
+                # Reconnect set_db_parameter after successful connection
+                if hasattr(self, 'reconnect_set_db_param_func'):
+                    self.reconnect_set_db_param_func()
+                    delattr(self, 'reconnect_set_db_param_func')
+
+                pass  # Flag already cleared in finally block
             else:
-                self.comboBox_Database.update()
+                # Only update combo if not in creation flow
+                if not hasattr(self, 'skip_combo_update'):
+                    self.comboBox_Database.update()
                 self.comboBox_sito.clear()
                 if self.comboBox_Database.currentText() == 'sqlite':
                     #self.comboBox_Database.editTextChanged.connect(self.set_db_parameter)
@@ -5532,17 +5837,24 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             elif mapper_class_write == 'TMA' :
                 for sing_rec in range(len(data_list_toimp)):
                     try:
+                        # Handle possible dtzs/dtzg field name differences
+                        dtzg_value = getattr(data_list_toimp[sing_rec], 'dtzg', None)
+                        if dtzg_value is None:
+                            dtzg_value = getattr(data_list_toimp[sing_rec], 'dtzs', None)
+
                         data = self.DB_MANAGER_write.insert_tma_values(
                             self.DB_MANAGER_write.max_num_id(mapper_class_write,
                                                              id_table_class_mapper_conv_dict[mapper_class_write]) + 1,
                             data_list_toimp[sing_rec].sito,
                             data_list_toimp[sing_rec].area,
+                            getattr(data_list_toimp[sing_rec], 'localita', ''),
+                            getattr(data_list_toimp[sing_rec], 'settore', ''),
+                            getattr(data_list_toimp[sing_rec], 'inventario', ''),
                             data_list_toimp[sing_rec].ogtm,
                             data_list_toimp[sing_rec].ldct,
                             data_list_toimp[sing_rec].ldcn,
                             data_list_toimp[sing_rec].vecchia_collocazione,
                             data_list_toimp[sing_rec].cassetta,
-                            data_list_toimp[sing_rec].localita,
                             data_list_toimp[sing_rec].scan,
                             data_list_toimp[sing_rec].saggio,
                             data_list_toimp[sing_rec].vano_locus,
@@ -5552,26 +5864,113 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                             data_list_toimp[sing_rec].rcgz,
                             data_list_toimp[sing_rec].aint,
                             data_list_toimp[sing_rec].aind,
-                            data_list_toimp[sing_rec].dtzg,
-                            data_list_toimp[sing_rec].dtzs,
-                            data_list_toimp[sing_rec].cronologie,
-                            data_list_toimp[sing_rec].n_reperti,
-                            data_list_toimp[sing_rec].peso,
+                            dtzg_value,
                             data_list_toimp[sing_rec].deso,
-                            data_list_toimp[sing_rec].madi,
-                            data_list_toimp[sing_rec].macc,
-                            data_list_toimp[sing_rec].macl,
-                            data_list_toimp[sing_rec].macp,
-                            data_list_toimp[sing_rec].macd,
-                            data_list_toimp[sing_rec].cronologia_mac,
-                            data_list_toimp[sing_rec].macq,
+                            getattr(data_list_toimp[sing_rec], 'nsc', ''),
                             data_list_toimp[sing_rec].ftap,
                             data_list_toimp[sing_rec].ftan,
                             data_list_toimp[sing_rec].drat,
                             data_list_toimp[sing_rec].dran,
-                            data_list_toimp[sing_rec].draa)
+                            data_list_toimp[sing_rec].draa,
+                            getattr(data_list_toimp[sing_rec], 'created_at', ''),
+                            getattr(data_list_toimp[sing_rec], 'updated_at', ''),
+                            getattr(data_list_toimp[sing_rec], 'created_by', ''),
+                            getattr(data_list_toimp[sing_rec], 'updated_by', '')
+                        )
 
+                        # First insert the main TMA record
                         self.DB_MANAGER_write.insert_data_session(data)
+
+                        # Now handle tma_materiali_ripetibili if they exist
+                        # After inserting main TMA record, check for associated materials
+
+                        try:
+                            # Get the ID of the TMA record we just inserted
+                            tma_id = self.DB_MANAGER_write.max_num_id('TMA', 'id')
+                            self.logger.log(f"TMA record inserted with ID: {tma_id}")
+
+                            # Query for materials associated with this TMA record from source DB
+                            if hasattr(data_list_toimp[sing_rec], 'id'):
+                                source_tma_id = data_list_toimp[sing_rec].id
+                                self.logger.log(f"Looking for materials for source TMA ID: {source_tma_id}")
+
+                                # Query materials from source database (SQLite)
+                                try:
+                                    self.logger.log(f"Querying TMA_MATERIALI from SOURCE database with id_tma={source_tma_id}")
+                                    # CRITICAL: Use DB_MANAGER_read for source database, not DB_MANAGER!
+                                    self.logger.log(f"Source DB engine URL: {self.DB_MANAGER_read.engine.url}")
+
+                                    # List all tables in source DB to verify table names
+                                    try:
+                                        from sqlalchemy import inspect
+                                        inspector = inspect(self.DB_MANAGER_read.engine)
+                                        tables = inspector.get_table_names()
+                                        self.logger.log(f"Tables in source DB: {tables}")
+
+                                        # Check if tma_materiali_ripetibili exists and has data
+                                        if 'tma_materiali_ripetibili' in tables:
+                                            Session = sessionmaker(bind=self.DB_MANAGER_read.engine)
+                                            session = Session()
+                                            # Count total materials records
+                                            total_result = session.execute(text("SELECT count(*) FROM tma_materiali_ripetibili"))
+                                            total_count = total_result.scalar()
+                                            self.logger.log(f"Total records in tma_materiali_ripetibili: {total_count}")
+
+                                            # Check specific id_tma
+                                            result = session.execute(text("SELECT count(*) FROM tma_materiali_ripetibili WHERE id_tma = :id_tma"), {"id_tma": source_tma_id})
+                                            count = result.scalar()
+                                            self.logger.log(f"Records for id_tma={source_tma_id}: {count}")
+
+                                            # If there are records, get some samples
+                                            if count > 0:
+                                                sample = session.execute(text("SELECT * FROM tma_materiali_ripetibili WHERE id_tma = :id_tma LIMIT 2"), {"id_tma": source_tma_id})
+                                                for row in sample:
+                                                    self.logger.log(f"Sample material: {dict(row)}")
+                                            session.close()
+                                    except Exception as inspect_err:
+                                        self.logger.log(f"Error inspecting source DB: {inspect_err}")
+
+                                    # IMPORTANT: Use source DB_MANAGER (not DB_MANAGER_write) to query SQLite
+                                    materials_to_import = self.DB_MANAGER_read.query_bool({'id_tma': int(source_tma_id)}, 'TMA_MATERIALI')
+                                    self.logger.log(f"query_bool returned {len(materials_to_import) if materials_to_import else 0} materials")
+                                except Exception as mat_query_err:
+                                    import traceback
+                                    self.logger.log(f"Could not query materials: {mat_query_err}")
+                                    self.logger.log(f"Traceback: {traceback.format_exc()}")
+                                    materials_to_import = []
+
+                                # Import each material record
+                                materials_imported = 0
+                                for material in materials_to_import:
+                                    try:
+                                        material_data = self.DB_MANAGER_write.insert_tma_materiali_values(
+                                            self.DB_MANAGER_write.max_num_id('TMA_MATERIALI', 'id') + 1,
+                                            tma_id,  # Link to the new TMA record
+                                            getattr(material, 'madi', ''),
+                                            getattr(material, 'macc', ''),
+                                            getattr(material, 'macl', ''),
+                                            getattr(material, 'macp', ''),
+                                            getattr(material, 'macd', ''),
+                                            getattr(material, 'cronologia_mac', ''),
+                                            getattr(material, 'macq', ''),
+                                            getattr(material, 'peso', None),
+                                            getattr(material, 'created_at', ''),
+                                            getattr(material, 'updated_at', ''),
+                                            getattr(material, 'created_by', ''),
+                                            getattr(material, 'updated_by', '')
+                                        )
+                                        self.DB_MANAGER_write.insert_data_session(material_data)
+                                        materials_imported += 1
+                                    except Exception as mat_insert_err:
+                                        self.logger.log(f"Failed to import material: {mat_insert_err}")
+
+                                if materials_imported > 0:
+                                    self.logger.log(f"Successfully imported {materials_imported} materials for TMA ID {tma_id}")
+                            else:
+                                self.logger.log("Source TMA record has no ID attribute")
+                        except Exception as e:
+                            import traceback
+                            self.logger.log(f"Error in materials import for TMA record {sing_rec + 1}: {e}\n{traceback.format_exc()}")
 
                         # Calculate the progress as a percentage
                         value = (float(sing_rec) / float(len(data_list_toimp))) * 100
@@ -5581,7 +5980,14 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                         self.progress_bar.setValue(int_value)
                         QApplication.processEvents()
                     except Exception as e:
-                        QMessageBox.warning(self, "Errore", "Error ! \n" + str(e), QMessageBox.Ok)
+                        import traceback
+                        # Log the data that was being inserted
+                        self.logger.log(f"TMA record data that failed: sito={data_list_toimp[sing_rec].sito}, area={data_list_toimp[sing_rec].area}")
+                        self.logger.log(f"TMA data object: {data}")
+
+                        error_msg = f"Error importing TMA record {sing_rec + 1}/{len(data_list_toimp)}:\n{str(e)}\n\nDetails:\n{traceback.format_exc()}"
+                        QMessageBox.warning(self, "TMA Import Error", error_msg, QMessageBox.Ok)
+                        self.logger.log(f"TMA Import Error: {error_msg}")
                         return 0
                 self.progress_bar.reset()
                 QMessageBox.information(self, "Message", "Data Loaded")

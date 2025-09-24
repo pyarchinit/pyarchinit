@@ -3495,10 +3495,10 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.mQgsFileWidget.setHidden(True)
         self.toolButton_file_doc.setHidden(True)
         self.mDockWidget_5.setHidden(True)
-        self.tableWidget_rapporti2.setHidden(True)
+        #self.tableWidget_rapporti2.setHidden(True)
         self.pushButton_insert_row_rapporti2.setHidden(True)
         self.pushButton_remove_row_rapporti2.setHidden(True)
-        self.pushButton_update.setHidden(True)
+        #self.pushButton_update.setHidden(True)
         self.progressBar_2.setHidden(True)
         self.progressBar_3.setHidden(True)
         self.currentLayerId = None

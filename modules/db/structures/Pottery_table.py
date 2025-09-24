@@ -53,4 +53,5 @@ class Pottery_table:
 					UniqueConstraint('sito','id_number', name='ID_rep_unico')
 					)
 
-	metadata.create_all(engine)
+	# DO NOT create tables at module import time!
+	# metadata.create_all(engine)  # This line was causing connection errors

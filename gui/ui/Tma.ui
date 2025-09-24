@@ -2,24 +2,33 @@
 <ui version="4.0">
  <class>DialogInventarioMateriali</class>
  <widget class="QDialog" name="DialogInventarioMateriali">
+  <property name="windowModality">
+   <enum>Qt::ApplicationModal</enum>
+  </property>
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1051</width>
-    <height>867</height>
+    <width>686</width>
+    <height>924</height>
    </rect>
   </property>
   <property name="sizePolicy">
-   <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+   <sizepolicy hsizetype="Expanding" vsizetype="MinimumExpanding">
     <horstretch>0</horstretch>
     <verstretch>0</verstretch>
    </sizepolicy>
   </property>
   <property name="minimumSize">
    <size>
-    <width>540</width>
+    <width>300</width>
     <height>400</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>16777215</width>
+    <height>964</height>
    </size>
   </property>
   <property name="palette">
@@ -471,6 +480,12 @@
    <iconset resource="../../resources/resources.qrc">
     <normaloff>:/icons/finds.png</normaloff>:/icons/finds.png</iconset>
   </property>
+  <property name="sizeGripEnabled">
+   <bool>true</bool>
+  </property>
+  <property name="modal">
+   <bool>true</bool>
+  </property>
   <layout class="QGridLayout" name="gridLayout_2">
    <item row="0" column="1" colspan="4">
     <layout class="QGridLayout" name="gridLayout_4">
@@ -478,8 +493,8 @@
       <widget class="QLabel" name="label_32">
        <property name="font">
         <font>
-         <family>Times New Roman</family>
-         <pointsize>9</pointsize>
+         <family>Damascus</family>
+         <pointsize>11</pointsize>
         </font>
        </property>
        <property name="text">
@@ -491,8 +506,8 @@
       <widget class="QLabel" name="label_44">
        <property name="font">
         <font>
-         <family>Times New Roman</family>
-         <pointsize>9</pointsize>
+         <family>Damascus</family>
+         <pointsize>11</pointsize>
         </font>
        </property>
        <property name="autoFillBackground">
@@ -507,8 +522,8 @@
       <widget class="QPushButton" name="pushButton_connect">
        <property name="font">
         <font>
-         <family>Times New Roman</family>
-         <pointsize>9</pointsize>
+         <family>Damascus</family>
+         <pointsize>11</pointsize>
         </font>
        </property>
        <property name="text">
@@ -528,8 +543,8 @@
          </property>
          <property name="font">
           <font>
-           <family>Times New Roman</family>
-           <pointsize>9</pointsize>
+           <family>Damascus</family>
+           <pointsize>11</pointsize>
           </font>
          </property>
          <property name="cursor">
@@ -562,8 +577,8 @@
         <widget class="QLabel" name="label_sort">
          <property name="font">
           <font>
-           <family>Times New Roman</family>
-           <pointsize>9</pointsize>
+           <family>Damascus</family>
+           <pointsize>11</pointsize>
           </font>
          </property>
          <property name="cursor">
@@ -596,8 +611,8 @@
         <widget class="QLabel" name="label_35">
          <property name="font">
           <font>
-           <family>Times New Roman</family>
-           <pointsize>9</pointsize>
+           <family>Damascus</family>
+           <pointsize>11</pointsize>
           </font>
          </property>
          <property name="text">
@@ -612,8 +627,8 @@
         <widget class="QLabel" name="label_45">
          <property name="font">
           <font>
-           <family>Times New Roman</family>
-           <pointsize>9</pointsize>
+           <family>Damascus</family>
+           <pointsize>11</pointsize>
           </font>
          </property>
          <property name="text">
@@ -638,8 +653,8 @@
          </property>
          <property name="font">
           <font>
-           <family>Times New Roman</family>
-           <pointsize>9</pointsize>
+           <family>Damascus</family>
+           <pointsize>11</pointsize>
           </font>
          </property>
          <property name="toolTip">
@@ -664,8 +679,8 @@
          </property>
          <property name="font">
           <font>
-           <family>Times New Roman</family>
-           <pointsize>9</pointsize>
+           <family>Damascus</family>
+           <pointsize>11</pointsize>
           </font>
          </property>
          <property name="toolTip">
@@ -690,8 +705,8 @@
          </property>
          <property name="font">
           <font>
-           <family>Times New Roman</family>
-           <pointsize>9</pointsize>
+           <family>Damascus</family>
+           <pointsize>11</pointsize>
           </font>
          </property>
          <property name="toolTip">
@@ -716,8 +731,8 @@
          </property>
          <property name="font">
           <font>
-           <family>Times New Roman</family>
-           <pointsize>9</pointsize>
+           <family>Damascus</family>
+           <pointsize>11</pointsize>
           </font>
          </property>
          <property name="toolTip">
@@ -742,8 +757,8 @@
          </property>
          <property name="font">
           <font>
-           <family>Times New Roman</family>
-           <pointsize>9</pointsize>
+           <family>Damascus</family>
+           <pointsize>11</pointsize>
           </font>
          </property>
          <property name="toolTip">
@@ -771,8 +786,8 @@
          </property>
          <property name="font">
           <font>
-           <family>Times New Roman</family>
-           <pointsize>9</pointsize>
+           <family>Damascus</family>
+           <pointsize>11</pointsize>
           </font>
          </property>
          <property name="toolTip">
@@ -803,8 +818,8 @@
          </property>
          <property name="font">
           <font>
-           <family>Times New Roman</family>
-           <pointsize>9</pointsize>
+           <family>Damascus</family>
+           <pointsize>11</pointsize>
           </font>
          </property>
          <property name="text">
@@ -826,8 +841,8 @@
          </property>
          <property name="font">
           <font>
-           <family>Times New Roman</family>
-           <pointsize>9</pointsize>
+           <family>Damascus</family>
+           <pointsize>11</pointsize>
           </font>
          </property>
          <property name="toolTip">
@@ -852,8 +867,8 @@
          </property>
          <property name="font">
           <font>
-           <family>Times New Roman</family>
-           <pointsize>9</pointsize>
+           <family>Damascus</family>
+           <pointsize>11</pointsize>
           </font>
          </property>
          <property name="toolTip">
@@ -878,8 +893,8 @@
          </property>
          <property name="font">
           <font>
-           <family>Times New Roman</family>
-           <pointsize>9</pointsize>
+           <family>Damascus</family>
+           <pointsize>11</pointsize>
           </font>
          </property>
          <property name="toolTip">
@@ -910,8 +925,8 @@
          </property>
          <property name="font">
           <font>
-           <family>Times New Roman</family>
-           <pointsize>9</pointsize>
+           <family>Damascus</family>
+           <pointsize>11</pointsize>
           </font>
          </property>
          <property name="toolTip">
@@ -936,6 +951,12 @@
            <width>30</width>
            <height>20</height>
           </size>
+         </property>
+         <property name="font">
+          <font>
+           <family>Damascus</family>
+           <pointsize>11</pointsize>
+          </font>
          </property>
          <property name="text">
           <string/>
@@ -962,8 +983,8 @@
          </property>
          <property name="font">
           <font>
-           <family>Times New Roman</family>
-           <pointsize>9</pointsize>
+           <family>Damascus</family>
+           <pointsize>11</pointsize>
           </font>
          </property>
          <property name="toolTip">
@@ -991,8 +1012,8 @@
          </property>
          <property name="font">
           <font>
-           <family>Times New Roman</family>
-           <pointsize>9</pointsize>
+           <family>Damascus</family>
+           <pointsize>11</pointsize>
           </font>
          </property>
          <property name="toolTip">
@@ -1021,6 +1042,12 @@
            <height>20</height>
           </size>
          </property>
+         <property name="font">
+          <font>
+           <family>Damascus</family>
+           <pointsize>11</pointsize>
+          </font>
+         </property>
          <property name="text">
           <string/>
          </property>
@@ -1046,8 +1073,8 @@
          </property>
          <property name="font">
           <font>
-           <family>Times New Roman</family>
-           <pointsize>9</pointsize>
+           <family>Damascus</family>
+           <pointsize>11</pointsize>
            <weight>50</weight>
            <italic>false</italic>
            <bold>false</bold>
@@ -1085,6 +1112,12 @@
            <height>20</height>
           </size>
          </property>
+         <property name="font">
+          <font>
+           <family>Damascus</family>
+           <pointsize>11</pointsize>
+          </font>
+         </property>
          <property name="toolTip">
           <string>Esporta etichette</string>
          </property>
@@ -1105,8 +1138,8 @@
         <widget class="QLabel" name="label_33">
          <property name="font">
           <font>
-           <family>Times New Roman</family>
-           <pointsize>9</pointsize>
+           <family>Damascus</family>
+           <pointsize>11</pointsize>
           </font>
          </property>
          <property name="text">
@@ -1121,8 +1154,8 @@
         <widget class="QLabel" name="label_rec_corrente">
          <property name="font">
           <font>
-           <family>Times New Roman</family>
-           <pointsize>9</pointsize>
+           <family>Damascus</family>
+           <pointsize>11</pointsize>
           </font>
          </property>
          <property name="cursor">
@@ -1149,8 +1182,8 @@
         <widget class="QLabel" name="label_36">
          <property name="font">
           <font>
-           <family>Times New Roman</family>
-           <pointsize>9</pointsize>
+           <family>Damascus</family>
+           <pointsize>11</pointsize>
           </font>
          </property>
          <property name="text">
@@ -1165,8 +1198,8 @@
         <widget class="QLabel" name="label_rec_tot">
          <property name="font">
           <font>
-           <family>Times New Roman</family>
-           <pointsize>9</pointsize>
+           <family>Damascus</family>
+           <pointsize>11</pointsize>
           </font>
          </property>
          <property name="cursor">
@@ -1195,6 +1228,12 @@
    </item>
    <item row="7" column="1" colspan="4">
     <widget class="QTabWidget" name="tabWidget">
+     <property name="font">
+      <font>
+       <family>Damascus</family>
+       <pointsize>11</pointsize>
+      </font>
+     </property>
      <property name="currentIndex">
       <number>0</number>
      </property>
@@ -1203,39 +1242,12 @@
        <string>Identificazione e Localizzazione</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout">
-       <item row="2" column="1">
-        <widget class="QLabel" name="label_7">
-         <property name="font">
-          <font>
-           <family>Times New Roman</family>
-           <pointsize>9</pointsize>
-          </font>
-         </property>
-         <property name="text">
-          <string>Vecchia collocazione:</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="2">
-        <widget class="QLineEdit" name="lineEdit_vecchia_collocazione">
-         <property name="maxLength">
-          <number>100</number>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="2">
-        <widget class="QComboBox" name="comboBox_ldcn">
-         <property name="editable">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
        <item row="0" column="1">
         <widget class="QLabel" name="label_5">
          <property name="font">
           <font>
-           <family>Times New Roman</family>
-           <pointsize>9</pointsize>
+           <family>Damascus</family>
+           <pointsize>11</pointsize>
           </font>
          </property>
          <property name="text">
@@ -1243,8 +1255,40 @@
          </property>
         </widget>
        </item>
+       <item row="1" column="2">
+        <widget class="QComboBox" name="comboBox_ldcn">
+         <property name="font">
+          <font>
+           <family>Damascus</family>
+           <pointsize>11</pointsize>
+          </font>
+         </property>
+         <property name="editable">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QLabel" name="label_6">
+         <property name="font">
+          <font>
+           <family>Damascus</family>
+           <pointsize>11</pointsize>
+          </font>
+         </property>
+         <property name="text">
+          <string>Denominazione collocazione:</string>
+         </property>
+        </widget>
+       </item>
        <item row="0" column="2">
         <widget class="QComboBox" name="comboBox_ldct">
+         <property name="font">
+          <font>
+           <family>Damascus</family>
+           <pointsize>11</pointsize>
+          </font>
+         </property>
          <property name="editable">
           <bool>true</bool>
          </property>
@@ -1270,16 +1314,29 @@
          </item>
         </widget>
        </item>
-       <item row="1" column="1">
-        <widget class="QLabel" name="label_6">
+       <item row="2" column="1">
+        <widget class="QLabel" name="label_7">
          <property name="font">
           <font>
-           <family>Times New Roman</family>
-           <pointsize>9</pointsize>
+           <family>Damascus</family>
+           <pointsize>11</pointsize>
           </font>
          </property>
          <property name="text">
-          <string>Denominazione collocazione:</string>
+          <string>Vecchia collocazione:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="2">
+        <widget class="QLineEdit" name="lineEdit_vecchia_collocazione">
+         <property name="font">
+          <font>
+           <family>Damascus</family>
+           <pointsize>11</pointsize>
+          </font>
+         </property>
+         <property name="maxLength">
+          <number>100</number>
          </property>
         </widget>
        </item>
@@ -1298,13 +1355,19 @@
          <height>204</height>
         </rect>
        </property>
+       <property name="font">
+        <font>
+         <family>Damascus</family>
+         <pointsize>11</pointsize>
+        </font>
+       </property>
        <layout class="QGridLayout" name="gridLayout_8">
         <item row="0" column="0">
          <widget class="QLabel" name="label_10">
           <property name="font">
            <font>
             <family>Times New Roman</family>
-            <pointsize>9</pointsize>
+            <pointsize>11</pointsize>
            </font>
           </property>
           <property name="text">
@@ -1314,6 +1377,12 @@
         </item>
         <item row="0" column="1">
          <widget class="QComboBox" name="comboBox_scan">
+          <property name="font">
+           <font>
+            <family>Damascus</family>
+            <pointsize>11</pointsize>
+           </font>
+          </property>
           <property name="editable">
            <bool>true</bool>
           </property>
@@ -1324,7 +1393,7 @@
           <property name="font">
            <font>
             <family>Times New Roman</family>
-            <pointsize>9</pointsize>
+            <pointsize>11</pointsize>
            </font>
           </property>
           <property name="text">
@@ -1334,20 +1403,33 @@
         </item>
         <item row="2" column="1">
          <widget class="QComboBox" name="comboBox_settore">
+          <property name="font">
+           <font>
+            <family>Damascus</family>
+            <pointsize>11</pointsize>
+           </font>
+          </property>
           <property name="editable">
            <bool>true</bool>
           </property>
          </widget>
         </item>
         <item row="3" column="1">
-         <widget class="QLineEdit" name="lineEdit_saggio"/>
+         <widget class="QLineEdit" name="lineEdit_saggio">
+          <property name="font">
+           <font>
+            <family>Damascus</family>
+            <pointsize>11</pointsize>
+           </font>
+          </property>
+         </widget>
         </item>
         <item row="3" column="0">
          <widget class="QLabel" name="label_11">
           <property name="font">
            <font>
             <family>Times New Roman</family>
-            <pointsize>9</pointsize>
+            <pointsize>11</pointsize>
            </font>
           </property>
           <property name="text">
@@ -1356,14 +1438,21 @@
          </widget>
         </item>
         <item row="4" column="1">
-         <widget class="QLineEdit" name="lineEdit_vano_locus"/>
+         <widget class="QLineEdit" name="lineEdit_vano_locus">
+          <property name="font">
+           <font>
+            <family>Damascus</family>
+            <pointsize>11</pointsize>
+           </font>
+          </property>
+         </widget>
         </item>
         <item row="4" column="0">
          <widget class="QLabel" name="label_12">
           <property name="font">
            <font>
             <family>Times New Roman</family>
-            <pointsize>9</pointsize>
+            <pointsize>11</pointsize>
            </font>
           </property>
           <property name="text">
@@ -1373,6 +1462,12 @@
         </item>
         <item row="5" column="1">
          <widget class="QLineEdit" name="lineEdit_dscd">
+          <property name="font">
+           <font>
+            <family>Damascus</family>
+            <pointsize>11</pointsize>
+           </font>
+          </property>
           <property name="maxLength">
            <number>20</number>
           </property>
@@ -1383,7 +1478,7 @@
           <property name="font">
            <font>
             <family>Times New Roman</family>
-            <pointsize>9</pointsize>
+            <pointsize>11</pointsize>
            </font>
           </property>
           <property name="text">
@@ -1407,13 +1502,19 @@
          <height>287</height>
         </rect>
        </property>
+       <property name="font">
+        <font>
+         <family>Damascus</family>
+         <pointsize>11</pointsize>
+        </font>
+       </property>
        <layout class="QGridLayout" name="gridLayout_7">
         <item row="0" column="0">
          <widget class="QLabel" name="label_14">
           <property name="font">
            <font>
             <family>Times New Roman</family>
-            <pointsize>9</pointsize>
+            <pointsize>11</pointsize>
            </font>
           </property>
           <property name="text">
@@ -1423,6 +1524,12 @@
         </item>
         <item row="0" column="1">
          <widget class="QLineEdit" name="lineEdit_rcgd">
+          <property name="font">
+           <font>
+            <family>Damascus</family>
+            <pointsize>11</pointsize>
+           </font>
+          </property>
           <property name="maxLength">
            <number>20</number>
           </property>
@@ -1433,7 +1540,7 @@
           <property name="font">
            <font>
             <family>Times New Roman</family>
-            <pointsize>9</pointsize>
+            <pointsize>11</pointsize>
            </font>
           </property>
           <property name="text">
@@ -1442,14 +1549,21 @@
          </widget>
         </item>
         <item row="1" column="1">
-         <widget class="QTextEdit" name="textEdit_rcgz"/>
+         <widget class="QTextEdit" name="textEdit_rcgz">
+          <property name="font">
+           <font>
+            <family>Damascus</family>
+            <pointsize>11</pointsize>
+           </font>
+          </property>
+         </widget>
         </item>
         <item row="2" column="0">
          <widget class="QLabel" name="label_16">
           <property name="font">
            <font>
             <family>Times New Roman</family>
-            <pointsize>9</pointsize>
+            <pointsize>11</pointsize>
            </font>
           </property>
           <property name="text">
@@ -1462,7 +1576,7 @@
           <property name="font">
            <font>
             <family>Times New Roman</family>
-            <pointsize>9</pointsize>
+            <pointsize>11</pointsize>
            </font>
           </property>
           <property name="text">
@@ -1472,6 +1586,12 @@
         </item>
         <item row="3" column="1">
          <widget class="QLineEdit" name="lineEdit_aind">
+          <property name="font">
+           <font>
+            <family>Damascus</family>
+            <pointsize>11</pointsize>
+           </font>
+          </property>
           <property name="maxLength">
            <number>50</number>
           </property>
@@ -1479,6 +1599,12 @@
         </item>
         <item row="2" column="1">
          <widget class="QComboBox" name="comboBox_aint">
+          <property name="font">
+           <font>
+            <family>Damascus</family>
+            <pointsize>11</pointsize>
+           </font>
+          </property>
           <item>
            <property name="text">
             <string/>
@@ -1504,7 +1630,7 @@
          <property name="font">
           <font>
            <family>Times New Roman</family>
-           <pointsize>9</pointsize>
+           <pointsize>11</pointsize>
           </font>
          </property>
          <property name="text">
@@ -1520,6 +1646,12 @@
            <height>80</height>
           </size>
          </property>
+         <property name="font">
+          <font>
+           <family>Damascus</family>
+           <pointsize>11</pointsize>
+          </font>
+         </property>
         </widget>
        </item>
        <item>
@@ -1527,7 +1659,7 @@
          <property name="font">
           <font>
            <family>Times New Roman</family>
-           <pointsize>9</pointsize>
+           <pointsize>11</pointsize>
            <weight>75</weight>
            <bold>true</bold>
           </font>
@@ -1539,6 +1671,12 @@
        </item>
        <item>
         <widget class="QTableWidget" name="tableWidget_materiali">
+         <property name="font">
+          <font>
+           <family>Damascus</family>
+           <pointsize>11</pointsize>
+          </font>
+         </property>
          <property name="selectionBehavior">
           <enum>QAbstractItemView::SelectRows</enum>
          </property>
@@ -1552,40 +1690,88 @@
           <property name="text">
            <string>Materiale *</string>
           </property>
+          <property name="font">
+           <font>
+            <family>Damascus</family>
+            <pointsize>11</pointsize>
+           </font>
+          </property>
          </column>
          <column>
           <property name="text">
            <string>Categoria *</string>
+          </property>
+          <property name="font">
+           <font>
+            <family>Damascus</family>
+            <pointsize>11</pointsize>
+           </font>
           </property>
          </column>
          <column>
           <property name="text">
            <string>Classe</string>
           </property>
+          <property name="font">
+           <font>
+            <family>Damascus</family>
+            <pointsize>11</pointsize>
+           </font>
+          </property>
          </column>
          <column>
           <property name="text">
            <string>Precisazione tipologica</string>
+          </property>
+          <property name="font">
+           <font>
+            <family>Damascus</family>
+            <pointsize>11</pointsize>
+           </font>
           </property>
          </column>
          <column>
           <property name="text">
            <string>Definizione</string>
           </property>
+          <property name="font">
+           <font>
+            <family>Damascus</family>
+            <pointsize>11</pointsize>
+           </font>
+          </property>
          </column>
          <column>
           <property name="text">
            <string>Cronologia</string>
+          </property>
+          <property name="font">
+           <font>
+            <family>Damascus</family>
+            <pointsize>11</pointsize>
+           </font>
           </property>
          </column>
          <column>
           <property name="text">
            <string>Quantità</string>
           </property>
+          <property name="font">
+           <font>
+            <family>Damascus</family>
+            <pointsize>11</pointsize>
+           </font>
+          </property>
          </column>
          <column>
           <property name="text">
            <string>Peso</string>
+          </property>
+          <property name="font">
+           <font>
+            <family>Damascus</family>
+            <pointsize>11</pointsize>
+           </font>
           </property>
          </column>
         </widget>
@@ -1594,6 +1780,12 @@
         <layout class="QHBoxLayout" name="horizontalLayout_materiali">
          <item>
           <widget class="QPushButton" name="pushButton_add_materiale">
+           <property name="font">
+            <font>
+             <family>Damascus</family>
+             <pointsize>11</pointsize>
+            </font>
+           </property>
            <property name="text">
             <string>Aggiungi materiale</string>
            </property>
@@ -1601,6 +1793,12 @@
          </item>
          <item>
           <widget class="QPushButton" name="pushButton_remove_materiale">
+           <property name="font">
+            <font>
+             <family>Damascus</family>
+             <pointsize>11</pointsize>
+            </font>
+           </property>
            <property name="text">
             <string>Rimuovi materiale</string>
            </property>
@@ -1608,6 +1806,12 @@
          </item>
          <item>
           <spacer name="horizontalSpacer_materiali">
+           <property name="font">
+            <font>
+             <family>Damascus</family>
+             <pointsize>11</pointsize>
+            </font>
+           </property>
            <property name="orientation">
             <enum>Qt::Horizontal</enum>
            </property>
@@ -1625,10 +1829,10 @@
      </widget>
      <widget class="QWidget" name="tab_documentazione">
       <attribute name="title">
-       <string>Documentazione</string>
+       <string>Documentazione Fotografica</string>
       </attribute>
-      <layout class="QGridLayout" name="gridLayout_3">
-       <item row="0" column="0" colspan="2">
+      <layout class="QVBoxLayout" name="verticalLayout">
+       <item>
         <widget class="QLabel" name="label_foto">
          <property name="font">
           <font>
@@ -1643,7 +1847,7 @@
          </property>
         </widget>
        </item>
-       <item row="1" column="0" colspan="2">
+       <item>
         <widget class="QTableWidget" name="tableWidget_foto">
          <property name="selectionBehavior">
           <enum>QAbstractItemView::SelectRows</enum>
@@ -1663,21 +1867,28 @@
          </column>
         </widget>
        </item>
-       <item row="2" column="0">
-        <widget class="QPushButton" name="pushButton_add_foto">
-         <property name="text">
-          <string>Aggiungi foto</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="1">
+       <item>
         <widget class="QPushButton" name="pushButton_remove_foto">
          <property name="text">
           <string>Rimuovi foto</string>
          </property>
         </widget>
        </item>
-       <item row="3" column="0" colspan="2">
+       <item>
+        <widget class="QPushButton" name="pushButton_add_foto">
+         <property name="text">
+          <string>Aggiungi foto</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tab">
+      <attribute name="title">
+       <string>Documentazione Grafica</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_2">
+       <item>
         <widget class="QLabel" name="label_disegni">
          <property name="font">
           <font>
@@ -1692,7 +1903,7 @@
          </property>
         </widget>
        </item>
-       <item row="4" column="0" colspan="2">
+       <item>
         <widget class="QTableWidget" name="tableWidget_disegni">
          <property name="selectionBehavior">
           <enum>QAbstractItemView::SelectRows</enum>
@@ -1710,30 +1921,48 @@
           <property name="text">
            <string>Tipo</string>
           </property>
+          <property name="font">
+           <font>
+            <family>Damascus</family>
+            <pointsize>11</pointsize>
+           </font>
+          </property>
          </column>
          <column>
           <property name="text">
            <string>Codice identificativo</string>
+          </property>
+          <property name="font">
+           <font>
+            <family>Damascus</family>
+            <pointsize>11</pointsize>
+           </font>
           </property>
          </column>
          <column>
           <property name="text">
            <string>Autore</string>
           </property>
+          <property name="font">
+           <font>
+            <family>Damascus</family>
+            <pointsize>11</pointsize>
+           </font>
+          </property>
          </column>
         </widget>
        </item>
-       <item row="5" column="0">
-        <widget class="QPushButton" name="pushButton_add_disegno">
-         <property name="text">
-          <string>Aggiungi disegno</string>
-         </property>
-        </widget>
-       </item>
-       <item row="5" column="1">
+       <item>
         <widget class="QPushButton" name="pushButton_remove_disegno">
          <property name="text">
           <string>Rimuovi disegno</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="pushButton_add_disegno">
+         <property name="text">
+          <string>Aggiungi disegno</string>
          </property>
         </widget>
        </item>
@@ -1741,13 +1970,31 @@
      </widget>
     </widget>
    </item>
-   <item row="1" column="2">
+   <item row="1" column="2" alignment="Qt::AlignVCenter">
     <widget class="QgsCollapsibleGroupBox" name="mGroupBox">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>0</height>
+      </size>
+     </property>
+     <property name="baseSize">
+      <size>
+       <width>0</width>
+       <height>0</height>
+      </size>
+     </property>
+     <property name="font">
+      <font>
+       <family>Damascus</family>
+       <pointsize>11</pointsize>
+      </font>
      </property>
      <property name="title">
       <string>Info Base</string>
@@ -1759,26 +2006,12 @@
       <bool>true</bool>
      </property>
      <layout class="QGridLayout" name="gridLayout_5">
-      <item row="9" column="1">
-       <widget class="QLineEdit" name="lineEdit_cassetta">
-        <property name="maxLength">
-         <number>15</number>
-        </property>
-       </widget>
-      </item>
-      <item row="13" column="1">
-       <widget class="QComboBox" name="comboBox_dtzg">
-        <property name="editable">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="1">
+      <item row="0" column="0" alignment="Qt::AlignVCenter">
        <widget class="QLabel" name="label">
         <property name="font">
          <font>
-          <family>Times New Roman</family>
-          <pointsize>9</pointsize>
+          <family>Damascus</family>
+          <pointsize>11</pointsize>
          </font>
         </property>
         <property name="text">
@@ -1786,20 +2019,106 @@
         </property>
        </widget>
       </item>
-      <item row="4" column="1">
-       <widget class="QLabel" name="label_2">
+      <item row="8" column="0">
+       <widget class="QLabel" name="label_8">
         <property name="font">
          <font>
-          <family>Times New Roman</family>
-          <pointsize>9</pointsize>
+          <family>Damascus</family>
+          <pointsize>11</pointsize>
          </font>
         </property>
         <property name="text">
-         <string>Area</string>
+         <string>Cassetta:</string>
         </property>
        </widget>
       </item>
-      <item row="1" column="1">
+      <item row="7" column="0">
+       <widget class="QLineEdit" name="lineEdit_us">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>24</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <family>Damascus</family>
+          <pointsize>11</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="0">
+       <widget class="QLabel" name="label_3">
+        <property name="font">
+         <font>
+          <family>Damascus</family>
+          <pointsize>11</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>US</string>
+        </property>
+       </widget>
+      </item>
+      <item row="11" column="0">
+       <widget class="QLineEdit" name="lineEdit_inventario">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>24</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <family>Damascus</family>
+          <pointsize>11</pointsize>
+         </font>
+        </property>
+        <property name="toolTip">
+         <string>Reperti RA associati dall'inventario materiali</string>
+        </property>
+        <property name="readOnly">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="9" column="0">
+       <widget class="QLineEdit" name="lineEdit_cassetta">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>24</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <family>Damascus</family>
+          <pointsize>11</pointsize>
+         </font>
+        </property>
+        <property name="maxLength">
+         <number>15</number>
+        </property>
+       </widget>
+      </item>
+      <item row="12" column="0">
+       <widget class="QLabel" name="label_18">
+        <property name="font">
+         <font>
+          <family>Damascus</family>
+          <pointsize>11</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>Fascia cronologica:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
        <widget class="QComboBox" name="comboBox_sito">
         <property name="enabled">
          <bool>false</bool>
@@ -1813,7 +2132,7 @@
         <property name="minimumSize">
          <size>
           <width>200</width>
-          <height>0</height>
+          <height>24</height>
          </size>
         </property>
         <property name="maximumSize">
@@ -1824,8 +2143,8 @@
         </property>
         <property name="font">
          <font>
-          <family>Times New Roman</family>
-          <pointsize>9</pointsize>
+          <family>Damascus</family>
+          <pointsize>11</pointsize>
          </font>
         </property>
         <property name="mouseTracking">
@@ -1856,104 +2175,31 @@
         </item>
        </widget>
       </item>
-      <item row="2" column="1">
-       <widget class="QLabel" name="label_localita">
-        <property name="font">
-         <font>
-          <family>Times New Roman</family>
-          <pointsize>9</pointsize>
-         </font>
-        </property>
-        <property name="text">
-         <string>Località:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="5" column="1">
+      <item row="5" column="0">
        <widget class="QComboBox" name="comboBox_area">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>24</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <family>Damascus</family>
+          <pointsize>11</pointsize>
+         </font>
+        </property>
         <property name="editable">
          <bool>true</bool>
         </property>
        </widget>
       </item>
-      <item row="12" column="1">
-       <widget class="QLabel" name="label_18">
-        <property name="font">
-         <font>
-          <family>Times New Roman</family>
-          <pointsize>9</pointsize>
-         </font>
-        </property>
-        <property name="text">
-         <string>Fascia cronologica:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="11" column="1">
-       <widget class="QLineEdit" name="lineEdit_inventario">
-        <property name="font">
-         <font>
-          <family>Times New Roman</family>
-          <pointsize>9</pointsize>
-         </font>
-        </property>
-        <property name="toolTip">
-         <string>Reperti RA associati dall'inventario materiali</string>
-        </property>
-        <property name="readOnly">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="8" column="1">
-       <widget class="QLabel" name="label_8">
-        <property name="font">
-         <font>
-          <family>Times New Roman</family>
-          <pointsize>9</pointsize>
-         </font>
-        </property>
-        <property name="text">
-         <string>Cassetta:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="15" column="1">
-       <widget class="QLineEdit" name="lineEdit_materiale">
-        <property name="toolTip">
-         <string>Campo sincronizzato con la tabella materiali</string>
-        </property>
-        <property name="readOnly">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="1">
-       <widget class="QComboBox" name="comboBox_localita">
-        <property name="editable">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="7" column="1">
-       <widget class="QLineEdit" name="lineEdit_us">
-        <property name="font">
-         <font>
-          <family>Times New Roman</family>
-          <pointsize>9</pointsize>
-         </font>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-       </widget>
-      </item>
-      <item row="10" column="1">
+      <item row="10" column="0">
        <widget class="QLabel" name="label_inventario">
         <property name="font">
          <font>
-          <family>Times New Roman</family>
-          <pointsize>9</pointsize>
+          <family>Damascus</family>
+          <pointsize>11</pointsize>
          </font>
         </property>
         <property name="text">
@@ -1961,29 +2207,102 @@
         </property>
        </widget>
       </item>
-      <item row="6" column="1">
-       <widget class="QLabel" name="label_3">
+      <item row="13" column="0">
+       <widget class="QComboBox" name="comboBox_dtzg">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>24</height>
+         </size>
+        </property>
         <property name="font">
          <font>
-          <family>Times New Roman</family>
-          <pointsize>9</pointsize>
+          <family>Damascus</family>
+          <pointsize>11</pointsize>
          </font>
         </property>
-        <property name="text">
-         <string>US</string>
+        <property name="editable">
+         <bool>true</bool>
         </property>
        </widget>
       </item>
-      <item row="14" column="1">
+      <item row="3" column="0">
+       <widget class="QComboBox" name="comboBox_localita">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>24</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <family>Damascus</family>
+          <pointsize>11</pointsize>
+         </font>
+        </property>
+        <property name="editable">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="0">
+       <widget class="QLabel" name="label_2">
+        <property name="font">
+         <font>
+          <family>Damascus</family>
+          <pointsize>11</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>Area</string>
+        </property>
+       </widget>
+      </item>
+      <item row="14" column="0">
        <widget class="QLabel" name="label_materiale">
         <property name="font">
          <font>
-          <family>Times New Roman</family>
-          <pointsize>9</pointsize>
+          <family>Damascus</family>
+          <pointsize>11</pointsize>
          </font>
         </property>
         <property name="text">
          <string>Materiale:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="label_localita">
+        <property name="font">
+         <font>
+          <family>Damascus</family>
+          <pointsize>11</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>Località:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="15" column="0">
+       <widget class="QLineEdit" name="lineEdit_materiale">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>24</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <family>Damascus</family>
+          <pointsize>11</pointsize>
+         </font>
+        </property>
+        <property name="toolTip">
+         <string>Campo sincronizzato con la tabella materiali</string>
+        </property>
+        <property name="readOnly">
+         <bool>true</bool>
         </property>
        </widget>
       </item>

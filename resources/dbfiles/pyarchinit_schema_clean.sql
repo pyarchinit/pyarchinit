@@ -72,7 +72,7 @@ CREATE TABLE public.campioni_table (
     nr_campione BIGINT,
     tipo_campione text,
     descrizione text,
-    area character varying(20),
+    area TEXT,
     us TEXT,
     numero_inventario_materiale BIGINT,
     nr_cassa BIGINT,
@@ -339,7 +339,7 @@ ALTER SEQUENCE public.documentazione_table_id_documentazione_seq OWNED BY public
 CREATE TABLE public.individui_table (
     id_scheda_ind BIGINT NOT NULL,
     sito text,
-    area character varying(20),
+    area TEXT,
     us text,
     nr_individuo BIGINT,
     data_schedatura character varying(100),
@@ -673,7 +673,7 @@ CREATE TABLE public.media_to_us_table (
     "id_mediaToUs" BIGINT NOT NULL,
     id_us BIGINT,
     sito text,
-    area character varying(20),
+    area TEXT,
     us TEXT,
     id_media BIGINT,
     filepath text
@@ -756,7 +756,7 @@ CREATE TABLE public.periodizzazione_table (
     descrizione text,
     datazione_estesa character varying(300),
     cont_per BIGINT,
-	area BIGINT
+	area TEXT
 );
 
 
@@ -956,7 +956,7 @@ ALTER SEQUENCE public.pyarchinit_individui_gid_seq OWNED BY public.pyarchinit_in
 CREATE TABLE public.pyarchinit_inventario_materiali (
     idim_pk BIGINT NOT NULL,
     sito character varying(150),
-    area BIGINT,
+    area TEXT,
     us TEXT,
     nr_cassa BIGINT,
     tipo_materiale character varying(120) DEFAULT 'Ceramica'::character varying,
@@ -1033,7 +1033,7 @@ CREATE TABLE public.pyarchinit_punti_rif (
     quota double precision,
     the_geom public.geometry(Point,-1),
     unita_misura_quota character varying,
-    area BIGINT,
+    area TEXT,
     orientamento numeric(5,2)
 );
 
@@ -1048,7 +1048,7 @@ ALTER TABLE public.pyarchinit_punti_rif OWNER TO postgres;
 CREATE TABLE public.pyuscarlinee (
     gid BIGINT NOT NULL,
     sito_l character varying(150),
-    area_l BIGINT,
+    area_l TEXT,
     us_l TEXT,
     tipo_us_l character varying(150),
     the_geom public.geometry(LineString,-1)
@@ -1065,7 +1065,7 @@ ALTER TABLE public.pyuscarlinee OWNER TO postgres;
 CREATE TABLE public.us_table (
     id_us BIGINT NOT NULL,
     sito text,
-    area character varying(20),
+    area TEXT,
     us TEXT,
     d_stratigrafica character varying(255),
     d_interpretativa character varying(255),
@@ -1203,7 +1203,7 @@ ALTER TABLE public.pyarchinit_quote_usm_gid_seq OWNER TO postgres;
 CREATE TABLE public.pyarchinit_quote (
     gid BIGINT DEFAULT nextval('public.pyarchinit_quote_gid_seq'::regclass) NOT NULL,
     sito_q character varying(80),
-    area_q BIGINT,
+    area_q TEXT,
     us_q TEXT,
     unita_misu_q character varying(80),
     quota_q double precision,
@@ -1224,7 +1224,7 @@ ALTER TABLE public.pyarchinit_quote OWNER TO postgres;
 CREATE TABLE public.pyarchinit_quote_usm (
     gid BIGINT DEFAULT nextval('public.pyarchinit_quote_usm_gid_seq'::regclass) NOT NULL,
     sito_q character varying(80),
-    area_q BIGINT,
+    area_q TEXT,
     us_q TEXT,
     unita_misu_q character varying(80),
     quota_q double precision,
@@ -1373,9 +1373,9 @@ ALTER TABLE public.pyarchinit_sezioni_gid_seq OWNER TO postgres;
 CREATE TABLE public.pyarchinit_sezioni (
     gid BIGINT DEFAULT nextval('public.pyarchinit_sezioni_gid_seq'::regclass) NOT NULL,
     id_sezione character varying(80),
-    sito character varying(80),
-    area BIGINT,
-    descr character varying(80),
+    sito TEXT,
+    area TEXT,
+    descr TEXT,
     the_geom public.geometry(LineString,-1),
 	tipo_doc text,
 	nome_doc text
@@ -1598,7 +1598,7 @@ ALTER SEQUENCE public.pyarchinit_tafonomia_gid_seq OWNED BY public.pyarchinit_ta
 CREATE TABLE public.tomba_table (
     id_tomba BIGINT NOT NULL,
     sito text,
-	area BIGINT,
+	area TEXT,
     nr_scheda_taf BIGINT,
     sigla_struttura text,
     nr_struttura BIGINT,
@@ -1636,7 +1636,7 @@ ALTER TABLE public.tomba_table OWNER TO postgres;
 CREATE TABLE public.pyarchinit_thesaurus_sigle (
     id_thesaurus_sigle BIGINT NOT NULL,
     nome_tabella character varying,
-    sigla character(3),
+    sigla character(255),
     sigla_estesa character varying,
     descrizione character varying,
     tipologia_sigla character varying
@@ -1715,8 +1715,8 @@ ALTER TABLE public.pyarchinit_tipologia_sepolture OWNER TO postgres;
 CREATE TABLE public.pyarchinit_us_negative_doc (
     gid BIGINT NOT NULL,
     the_geom public.geometry(LineString,-1),
-    sito_n character varying,
-    area_n character varying,
+    sito_n TEXT,
+    area_n TEXT,
     us_n TEXT,
     tipo_doc_n character varying,
     nome_doc_n character varying,
@@ -1800,8 +1800,8 @@ ALTER TABLE public.pyunitastratigrafiche_usm_gid_seq OWNER TO postgres;
 
 CREATE TABLE public.pyunitastratigrafiche (
     gid BIGINT DEFAULT nextval('public.pyunitastratigrafiche_gid_seq'::regclass) NOT NULL,
-    area_s BIGINT,
-    scavo_s character varying(80),
+    area_s TEXT,
+    scavo_s TEXT,
     us_s TEXT,
     stratigraph_index_us BIGINT,
     tipo_us_s character varying(250),
@@ -1825,8 +1825,8 @@ ALTER TABLE public.pyunitastratigrafiche OWNER TO postgres;
 
 CREATE TABLE public.pyunitastratigrafiche_usm (
     gid BIGINT DEFAULT nextval('public.pyunitastratigrafiche_usm_gid_seq'::regclass) NOT NULL,
-    area_s BIGINT,
-    scavo_s character varying(80),
+    area_s TEXT,
+    scavo_s TEXT,
     us_s TEXT,
     stratigraph_index_us BIGINT,
     tipo_us_s character varying(250),
@@ -1850,7 +1850,7 @@ ALTER TABLE public.pyunitastratigrafiche_usm OWNER TO postgres;
 
 CREATE TABLE public.pyuscaratterizzazioni (
     gid BIGINT NOT NULL,
-    area_c BIGINT,
+    area_c TEXT,
     scavo_c character varying(80),
     us_c TEXT,
     the_geom public.geometry(MultiPolygon,-1),
@@ -2104,14 +2104,16 @@ ALTER SEQUENCE public.tomba_table_id_tomba_seq OWNED BY public.tomba_table.id_to
 
 CREATE TABLE public.tma_materiali_archeologici (
     id BIGINT NOT NULL,
-    sito character varying(100),
-    area character varying(100),
+    sito TEXT,
+    area TEXT,
     ogtm character varying(100) NOT NULL,
     ldct character varying(50),
     ldcn character varying(50) NOT NULL,
     vecchia_collocazione character varying(100),
     cassetta character varying(15) NOT NULL,
     localita character varying(50) NOT NULL,
+    settore character varying(50),
+    inventario character varying(100),
     scan character varying(50),
     saggio character varying(50),
     vano_locus character varying(100),
@@ -2127,6 +2129,7 @@ CREATE TABLE public.tma_materiali_archeologici (
     n_reperti character varying(30),
     peso character varying(20),
     deso character varying(500),
+    nsc character varying(100),
     madi character varying(50),
     macc character varying(30) NOT NULL,
     macl character varying(30),
@@ -2223,7 +2226,7 @@ ALTER TABLE public.pyarchinit_reperti
 CREATE TABLE public.us_table_toimp (
     id_us BIGINT NOT NULL,
     sito text,
-    area character varying(20),
+    area text,
     us TEXT,
     d_stratigrafica character varying(255),
     d_interpretativa character varying(255),

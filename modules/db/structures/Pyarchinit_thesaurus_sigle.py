@@ -36,10 +36,10 @@ class Pyarchinit_thesaurus_sigle:
                                        UniqueConstraint('id_thesaurus_sigle', name='id_thesaurus_sigle_pk')
                                        )
 
-    try:
-        metadata.create_all(engine)
-    except:
-        pass  # Table already exists or geometry type not supported
+    # DO NOT create tables at module import time!
+
+
+    # metadata.create_all(engine)  # This line was causing connection errors
     
     # Check and add missing columns for both SQLite and PostgreSQL
     try:

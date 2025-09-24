@@ -37,7 +37,7 @@ class Tma_materiali_table:
                      Column('madi', Text),                     # Inventory
                      
                      # Material component data (MAC) - all repetitive
-                     Column('macc', Text, nullable=False),     # Category (required)
+                     Column('macc', Text),     # Category (required)
                      Column('macl', Text),                     # Class
                      Column('macp', Text),                     # Typological specification
                      Column('macd', Text),                     # Definition

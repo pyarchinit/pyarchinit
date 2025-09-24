@@ -20,9 +20,45 @@
 
 from builtins import object
 import io
+import datetime
+import traceback
+import warnings
+import os
+
+# Set environment variable to suppress SQLAlchemy warnings
+os.environ['SQLALCHEMY_SILENCE_UBER_WARNING'] = '1'
+
+# Suppress all deprecation warnings before any SQLAlchemy imports
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+warnings.filterwarnings("ignore", message=".*Calling URL.*")
+
 from sqlalchemy import create_engine, MetaData, text
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy_utils import database_exists, create_database, drop_database
+
+
+class PyArchInitDBLogger:
+    """Simple file logger for database operations"""
+    def __init__(self):
+        self.log_file = '/Users/enzo/pyarchinit_db_debug.log'
+
+    def log(self, message):
+        """Write a log message with timestamp"""
+        timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
+        try:
+            with open(self.log_file, 'a', encoding='utf-8') as f:
+                f.write(f"[{timestamp}] {message}\n")
+                f.flush()
+        except Exception:
+            pass  # Silently fail if logging doesn't work
+
+    def log_exception(self, exc, context=""):
+        """Log an exception with traceback"""
+        self.log(f"EXCEPTION in {context}: {type(exc).__name__}: {str(exc)}")
+        tb = traceback.format_exc()
+        for line in tb.split('\n'):
+            if line:
+                self.log(f"  {line}")
 
 
 class SchemaDump(object):
@@ -52,23 +88,42 @@ class RestoreSchema(object):
     def __init__(self, db_url, schema_file_path=None):
         self.db_url = db_url
         self.schema_file_path = schema_file_path
+        self.logger = PyArchInitDBLogger()
 
     def restore_schema(self):
+        self.logger.log(f"\n=== RestoreSchema.restore_schema called ===")
+        self.logger.log(f"DB URL: {self.db_url}")
+        self.logger.log(f"Schema file: {self.schema_file_path}")
+
         raw_schema = ''
-        with io.open(self.schema_file_path) as sql_schema:
-            raw_schema = sql_schema.read()
+        try:
+            with io.open(self.schema_file_path) as sql_schema:
+                raw_schema = sql_schema.read()
+            self.logger.log(f"Read {len(raw_schema)} characters from schema file")
+        except Exception as e:
+            self.logger.log_exception(e, "reading schema file")
+            raise
+
+        self.logger.log("Creating engine and session")
         engine = create_engine(self.db_url)
         Session = sessionmaker(bind=engine)
         session = Session()
         conn = engine.connect()
         transaction = conn.begin()
+
         try:
+            self.logger.log("Executing schema SQL...")
             conn.execute(text(raw_schema))
+            self.logger.log("Committing transaction...")
             transaction.commit()
+            self.logger.log("Schema restored successfully")
         except Exception as e:
+            self.logger.log("Error executing schema, rolling back")
+            self.logger.log_exception(e, "restore_schema")
             transaction.rollback()
             raise e
         finally:
+            self.logger.log("Closing session")
             session.close()
 
     def update_geom_srid(self, schema, crs):
@@ -151,14 +206,38 @@ class CreateDatabase(object):
         self.user = db_user
         self.passwd = db_passwd
         self.port = db_port
+        self.logger = PyArchInitDBLogger()
 
     def createdb(self):
-        engine = create_engine("postgresql://{}:{}@{}:{}/{}".format(self.user, self.passwd, self.db_host, self.port, self.db_name))
-        if not database_exists(engine.url):
-            create_database(engine.url)
-            return True, engine.url
+        self.logger.log(f"\n=== CreateDatabase.createdb called ===")
+        self.logger.log(f"Database: {self.db_name}")
+        self.logger.log(f"Host: {self.db_host}:{self.port}")
+        self.logger.log(f"User: {self.user}")
 
-        return False, None
+        # Build connection URL (mask password in logs)
+        url_string = "postgresql://{}:***@{}:{}/{}".format(self.user, self.db_host, self.port, self.db_name)
+        self.logger.log(f"Connection URL (masked): {url_string}")
+
+        try:
+            # Create the database URL string
+            db_url_string = "postgresql://{}:{}@{}:{}/{}".format(
+                self.user, self.passwd, self.db_host, self.port, self.db_name)
+
+            engine = create_engine(db_url_string)
+            self.logger.log("Engine created")
+
+            # Use the string URL directly to avoid deprecation warning
+            if not database_exists(db_url_string):
+                self.logger.log("Database does not exist, creating...")
+                create_database(db_url_string)
+                self.logger.log("Database created successfully")
+                return True, db_url_string
+            else:
+                self.logger.log("Database already exists")
+                return False, None
+        except Exception as e:
+            self.logger.log_exception(e, "createdb")
+            raise
 
 
 class DropDatabase(object):
