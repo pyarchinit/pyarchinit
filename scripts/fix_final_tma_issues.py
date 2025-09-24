@@ -61,7 +61,6 @@ def fix_final_issues(file_path):
         # Set delegate for drawing type column if we have values
         if drat_values and hasattr(self, 'tableWidget_disegni'):
             self.tableWidget_disegni.setItemDelegateForColumn(0, ComboBoxDelegate(drat_values, self.tableWidget_disegni))
-            QgsMessageLog.logMessage(f"DEBUG TMA: Set delegate for Drawing Type column with {len(drat_values)} values", "PyArchInit", Qgis.Info)'''
     
     content = re.sub(doc_delegate_pattern, doc_delegate_addition, content, flags=re.DOTALL)
     print("✓ Aggiunto delegate per documentazione grafica")

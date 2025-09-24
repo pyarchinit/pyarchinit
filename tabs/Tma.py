@@ -717,7 +717,6 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         # Note: Materials are handled through separate TMA_MATERIALI table in database
 
     def charge_records(self):
-        QgsMessageLog.logMessage("DEBUG TMA charge_records: Called", "PyArchInit", Qgis.Info)
         
         # First check how many records are in DB before loading
         try:
@@ -729,13 +728,10 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             # Count records before loading
             count_result = session.execute(text("SELECT COUNT(*) FROM tma_materiali_archeologici"))
             count_before = count_result.scalar()
-            QgsMessageLog.logMessage(f"DEBUG TMA charge_records: Records in DB before loading: {count_before}", "PyArchInit", Qgis.Info)
             
             session.close()
         except Exception as e:
-            QgsMessageLog.logMessage(f"DEBUG TMA charge_records: Error counting records: {e}", "PyArchInit", Qgis.Warning)
         
-        QgsMessageLog.logMessage("DEBUG TMA: Clearing DATA_LIST in charge_records", "PyArchInit", Qgis.Info)
         self.DATA_LIST = []
         if self.DB_SERVER == 'sqlite':
             for i in self.DB_MANAGER.query(self.MAPPER_TABLE_CLASS):
@@ -749,7 +745,6 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             for i in temp_data_list:
                 self.DATA_LIST.append(i)
         
-        QgsMessageLog.logMessage(f"DEBUG TMA charge_records: Loaded {len(self.DATA_LIST)} records into DATA_LIST", "PyArchInit", Qgis.Info)
         
         # Check records after loading
         try:
@@ -758,14 +753,12 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             
             count_result = session.execute(text("SELECT COUNT(*) FROM tma_materiali_archeologici"))
             count_after = count_result.scalar()
-            QgsMessageLog.logMessage(f"DEBUG TMA charge_records: Records in DB after loading: {count_after}", "PyArchInit", Qgis.Info)
             
             if count_after < count_before:
                 QgsMessageLog.logMessage(f"WARNING: Records were deleted during charge_records! Before: {count_before}, After: {count_after}", "PyArchInit", Qgis.Critical)
             
             session.close()
         except Exception as e:
-            QgsMessageLog.logMessage(f"DEBUG TMA charge_records: Error counting records after: {e}", "PyArchInit", Qgis.Warning)
         
         # Refresh materials table delegates with thesaurus values when DB is connected
         self.setup_materials_table_with_thesaurus()
@@ -1089,9 +1082,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                             differences.append(f"{field_name}: DB='{self.DATA_LIST_REC_CORR[i]}' != Form='{self.DATA_LIST_REC_TEMP[i]}'")
             
             if differences:
-                QgsMessageLog.logMessage(f"DEBUG records_equal_check - Differences found in fields: {differences[:3]}", "PyArchInit", Qgis.Info)
             else:
-                QgsMessageLog.logMessage(f"DEBUG records_equal_check - No differences in main fields", "PyArchInit", Qgis.Info)
             
             # Use the same logic for main record comparison as debug
             main_record_equal = len(differences) == 0
@@ -1463,7 +1454,6 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                 session.close()
                 
         except Exception as e:
-            QgsMessageLog.logMessage(f"DEBUG TMA load_materials_table: Error occurred: {str(e)}", "PyArchInit", Qgis.Warning)
             import traceback
             traceback.print_exc()
             # Make sure to reset flags even on error
@@ -1483,14 +1473,9 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         # Clear the materials_modified flag after loading
         self.materials_modified = False
         self._loading_materials = False
-        QgsMessageLog.logMessage(f"DEBUG load_materials_table: Finished loading {self.tableWidget_materiali.rowCount()} materials", "PyArchInit", Qgis.Info)
-        QgsMessageLog.logMessage(f"DEBUG load_materials_table: Reset flags - materials_modified=False, _loading_materials=False", "PyArchInit", Qgis.Info)
 
     def save_materials_data(self, tma_id):
         """Save materials table data to database."""
-        QgsMessageLog.logMessage(f"DEBUG TMA save_materials_data: CALLED with tma_id={tma_id}, type={type(tma_id)}", "PyArchInit", Qgis.Info)
-        QgsMessageLog.logMessage(f"DEBUG TMA save_materials_data: Table has {self.tableWidget_materiali.rowCount()} rows", "PyArchInit", Qgis.Info)
-        QgsMessageLog.logMessage(f"DEBUG TMA save_materials_data: materials_loaded flag = {self.materials_loaded}", "PyArchInit", Qgis.Info)
         
         # SAFETY CHECK: If materials were never loaded, don't process anything
         if not self.materials_loaded:
@@ -1498,7 +1483,6 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             return
             
         try:
-            QgsMessageLog.logMessage(f"DEBUG TMA save_materials_data: Starting with tma_id={tma_id}, type={type(tma_id)}", "PyArchInit", Qgis.Info)
             
             # Use direct SQL to avoid type comparison issues in query_bool
             from sqlalchemy import text
@@ -1533,10 +1517,8 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                             self.peso = row_data[9]
                     existing_materials.append(MaterialData(row))
                     
-                QgsMessageLog.logMessage(f"DEBUG TMA: Found {len(existing_materials)} existing materials", "PyArchInit", Qgis.Info)
                 
             except Exception as query_error:
-                QgsMessageLog.logMessage(f"DEBUG TMA: Error getting existing materials: {query_error}", "PyArchInit", Qgis.Warning)
                 import traceback
                 traceback.print_exc()
                 existing_materials = []
@@ -1546,7 +1528,6 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             # Ensure IDs are integers for consistent comparison
             existing_ids = {}
             for mat in existing_materials:
-                QgsMessageLog.logMessage(f"DEBUG TMA: Material ID={mat.id}, type={type(mat.id)}", "PyArchInit", Qgis.Info)
                 existing_ids[int(mat.id)] = mat
             
             # Track which IDs we've seen in the table widget
@@ -1556,7 +1537,6 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             empty_rows = []
             
             # Force table to commit any pending edits before reading
-            QgsMessageLog.logMessage("DEBUG TMA save_materials_data: Forcing commit of pending edits", "PyArchInit", Qgis.Info)
             
             # Method 1: Close any persistent editors
             for r in range(self.tableWidget_materiali.rowCount()):
@@ -1602,15 +1582,12 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             
             # Process each row in the table widget
             for row in range(self.tableWidget_materiali.rowCount()):
-                QgsMessageLog.logMessage(f"DEBUG TMA: Processing row {row} of {self.tableWidget_materiali.rowCount()} total rows", "PyArchInit", Qgis.Info)
                 
                 # Debug: check if items exist and create missing ones
                 for col in range(7):  # Table has 7 columns, not 8
                     item = self.tableWidget_materiali.item(row, col)
                     if item:
-                        QgsMessageLog.logMessage(f"DEBUG TMA save: Row {row}, Col {col} - item exists, text='{item.text()}', type={type(item)}", "PyArchInit", Qgis.Info)
                     else:
-                        QgsMessageLog.logMessage(f"DEBUG TMA save: Row {row}, Col {col} - NO ITEM! Creating one now...", "PyArchInit", Qgis.Warning)
                         # Create missing item
                         empty_item = QTableWidgetItem("")
                         empty_item.setToolTip("")
@@ -1643,28 +1620,23 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                     # Try text() first - this should have the committed value
                     val = item.text()
                     if val:
-                        QgsMessageLog.logMessage(f"DEBUG TMA get_cell_value: Row {row}, Col {col_index} - text()='{val}'", "PyArchInit", Qgis.Info)
                         return val
                     
                     # Try EditRole
                     val = item.data(Qt.EditRole)
                     if val:
-                        QgsMessageLog.logMessage(f"DEBUG TMA get_cell_value: Row {row}, Col {col_index} - EditRole='{val}'", "PyArchInit", Qgis.Info)
                         return str(val)
                     
                     # Try DisplayRole
                     val = item.data(Qt.DisplayRole)
                     if val:
-                        QgsMessageLog.logMessage(f"DEBUG TMA get_cell_value: Row {row}, Col {col_index} - DisplayRole='{val}'", "PyArchInit", Qgis.Info)
                         return str(val)
                     
                     # Try backup UserRole+1
                     val = item.data(Qt.UserRole + 1)
                     if val:
-                        QgsMessageLog.logMessage(f"DEBUG TMA get_cell_value: Row {row}, Col {col_index} - UserRole+1='{val}'", "PyArchInit", Qgis.Info)
                         return str(val)
                     
-                    QgsMessageLog.logMessage(f"DEBUG TMA get_cell_value: Row {row}, Col {col_index} - NO DATA FOUND!", "PyArchInit", Qgis.Warning)
                     return ""
                 
                 # Get values from table with correct mapping (7 columns total)
@@ -1705,9 +1677,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                 macq = str(macq).strip() if macq else ""
                 peso_text = str(peso_text).strip() if peso_text else ""
                 
-                QgsMessageLog.logMessage(f"DEBUG TMA save_materials: Row {row} - item5={item5}, cronologia_mac='{cronologia_mac}'", "PyArchInit", Qgis.Info)
                 
-                QgsMessageLog.logMessage(f"DEBUG TMA: Row {row} data - materiale: '{materiale}', macc: '{macc}'", "PyArchInit", Qgis.Info)
                 
                 # Convert peso to float
                 try:
@@ -1717,8 +1687,6 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                 
                 # Skip completely empty rows (Category/macc is required as it's the main identifier)
                 if not macc.strip():
-                    QgsMessageLog.logMessage(f"DEBUG TMA: Row {row} - categoria (macc) is empty, macc='{macc}'", "PyArchInit", Qgis.Info)
-                    QgsMessageLog.logMessage(f"DEBUG TMA: Row {row} - item0={item0}, item0.text()='{item0.text() if item0 else 'None'}'", "PyArchInit", Qgis.Info)
                     
                     # Check if this is truly an empty row or if we have data loss
                     has_any_data = False
@@ -1726,7 +1694,6 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                         test_item = self.tableWidget_materiali.item(row, c)
                         if test_item and test_item.text().strip():
                             has_any_data = True
-                            QgsMessageLog.logMessage(f"DEBUG TMA: Row {row} has data in column {c}: '{test_item.text()}'", "PyArchInit", Qgis.Warning)
                     
                     if has_any_data:
                         QgsMessageLog.logMessage(f"ERROR TMA: Row {row} has data but category reading failed!", "PyArchInit", Qgis.Critical)
@@ -1736,15 +1703,12 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                 
                 # Check if this row has an existing ID (stored as row data)
                 material_id = self.tableWidget_materiali.item(row, 0).data(Qt.UserRole) if self.tableWidget_materiali.item(row, 0) else None
-                QgsMessageLog.logMessage(f"DEBUG TMA: Row {row} material_id={material_id}, type={type(material_id)}", "PyArchInit", Qgis.Info)
                 
                 # Convert to int if not None
                 if material_id is not None:
                     try:
                         material_id = int(material_id)
-                        QgsMessageLog.logMessage(f"DEBUG TMA: Converted material_id to int: {material_id}", "PyArchInit", Qgis.Info)
                     except Exception as e:
-                        QgsMessageLog.logMessage(f"DEBUG TMA: Error converting material_id to int: {e}", "PyArchInit", Qgis.Warning)
                         material_id = None
                 
                 if material_id is not None and material_id in existing_ids:
@@ -1783,24 +1747,20 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                     # Get the max ID considering both existing materials and newly inserted ones this session
                     try:
                         max_id = self.DB_MANAGER.max_num_id('TMA_MATERIALI', 'id')
-                        QgsMessageLog.logMessage(f"DEBUG TMA: max_id from DB = {max_id}", "PyArchInit", Qgis.Info)
                         
                         # Also consider IDs we've already used in this save session
                         if seen_ids:
                             max_seen_id = max(seen_ids)
-                            QgsMessageLog.logMessage(f"DEBUG TMA: max seen_id = {max_seen_id}, seen_ids = {seen_ids}", "PyArchInit", Qgis.Info)
                             max_id = max(max_id if max_id is not None else 0, max_seen_id)
                         
                         new_material_id = (max_id + 1) if max_id is not None else 1
                     except Exception as id_error:
-                        QgsMessageLog.logMessage(f"DEBUG TMA: Error getting max ID: {id_error}", "PyArchInit", Qgis.Warning)
                         # If all else fails, use a safe starting point
                         if seen_ids:
                             new_material_id = max(seen_ids) + 1
                         else:
                             new_material_id = 1
                     
-                    QgsMessageLog.logMessage(f"DEBUG TMA: Assigning new material ID {new_material_id} for row {row}", "PyArchInit", Qgis.Info)
                     
                     # Track this new ID
                     seen_ids.add(new_material_id)
@@ -1845,7 +1805,6 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                             # Store the new material ID in the table widget for future updates
                             if self.tableWidget_materiali.item(row, 0):
                                 self.tableWidget_materiali.item(row, 0).setData(Qt.UserRole, new_material_id)
-                                QgsMessageLog.logMessage(f"DEBUG TMA: Stored new material ID {new_material_id} in row {row}", "PyArchInit", Qgis.Info)
                             
                         finally:
                             insert_session.close()
@@ -1854,11 +1813,9 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                         QgsMessageLog.logMessage(f"SQL insert failed: {insert_error}", "PyArchInit", Qgis.Warning)
                         raise
                     seen_ids.add(new_material_id)
-                    QgsMessageLog.logMessage(f"DEBUG TMA: Successfully inserted material ID {new_material_id}, seen_ids now: {seen_ids}", "PyArchInit", Qgis.Info)
             
             # Delete materials that were removed from the table
             # ONLY delete if we have explicitly loaded materials AND the user has made changes
-            QgsMessageLog.logMessage(f"DEBUG TMA: Deletion check - materials_loaded={self.materials_loaded}, table_rows={self.tableWidget_materiali.rowCount()}, existing_materials={len(existing_materials)}, seen_ids={seen_ids}", "PyArchInit", Qgis.Info)
             
             # Check if we should process deletions
             should_process_deletions = False
@@ -1870,13 +1827,10 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             if self.materials_loaded and len(existing_materials) > 0 and self.BROWSE_STATUS == "b":
                 # We're updating an existing record with existing materials
                 should_process_deletions = True
-                QgsMessageLog.logMessage(f"DEBUG TMA: Will process deletions - existing record with {len(existing_materials)} existing materials", "PyArchInit", Qgis.Info)
             else:
-                QgsMessageLog.logMessage(f"DEBUG TMA: NOT processing deletions - materials_loaded={self.materials_loaded}, existing_materials={len(existing_materials)}, BROWSE_STATUS={self.BROWSE_STATUS}", "PyArchInit", Qgis.Info)
             
             # Also process explicitly deleted materials
             if hasattr(self, 'deleted_material_ids') and self.deleted_material_ids:
-                QgsMessageLog.logMessage(f"DEBUG TMA: Processing {len(self.deleted_material_ids)} explicitly deleted materials", "PyArchInit", Qgis.Info)
                 for deleted_id in self.deleted_material_ids:
                     try:
                         delete_session = Session()
@@ -1884,7 +1838,6 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                         delete_session.execute(sql, {'id': deleted_id})
                         delete_session.commit()
                         delete_session.close()
-                        QgsMessageLog.logMessage(f"DEBUG TMA: Deleted material ID={deleted_id}", "PyArchInit", Qgis.Info)
                     except Exception as del_error:
                         QgsMessageLog.logMessage(f"Error deleting material {deleted_id}: {del_error}", "PyArchInit", Qgis.Warning)
                 # Clear the deleted IDs after processing
@@ -1894,7 +1847,6 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             if should_process_deletions:
                 for existing_id in existing_ids:
                     if existing_id not in seen_ids and (not hasattr(self, 'deleted_material_ids') or existing_id not in self.deleted_material_ids):
-                        QgsMessageLog.logMessage(f"DEBUG TMA: Deleting material ID={existing_id} (not in current table)", "PyArchInit", Qgis.Info)
                         try:
                             delete_session = Session()
                             sql = text("DELETE FROM tma_materiali_ripetibili WHERE id = :id")
@@ -1918,7 +1870,6 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             
             # Remove empty rows
             for row in rows_to_remove:
-                QgsMessageLog.logMessage(f"DEBUG TMA: Removing empty row {row} from table", "PyArchInit", Qgis.Info)
                 self.tableWidget_materiali.removeRow(row)
             
             # Notify user about empty rows if any
@@ -1939,7 +1890,6 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                         if not row_has_data:
                             truly_empty_rows.append(row_num)
                         else:
-                            QgsMessageLog.logMessage(f"DEBUG TMA: Row {row_num} reported as empty but has data - skipping error message", "PyArchInit", Qgis.Info)
                 
                 # Only show message for truly empty rows
                 if truly_empty_rows:
@@ -1961,7 +1911,6 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         """Add a new row to materials table."""
         # Prevent multiple rapid calls - check and set flag atomically
         if hasattr(self, '_button_operation_timer') and self._button_operation_timer.isActive():
-            QgsMessageLog.logMessage("DEBUG TMA add_materiale: Button operation in progress, skipping", "PyArchInit", Qgis.Warning)
             return
         
         # Create timer if it doesn't exist
@@ -1978,14 +1927,12 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         try:
             # Debug: log entry and current state
             rows_before = self.tableWidget_materiali.rowCount()
-            QgsMessageLog.logMessage(f"DEBUG TMA add_materiale: CALLED - rows before = {rows_before}", "PyArchInit", Qgis.Info)
             
             # Add single row
             row = self.tableWidget_materiali.rowCount()
             self.tableWidget_materiali.insertRow(row)
             
             rows_after = self.tableWidget_materiali.rowCount()
-            QgsMessageLog.logMessage(f"DEBUG TMA add_materiale: Added row {row} - rows after = {rows_after}", "PyArchInit", Qgis.Info)
             
             # Debug: check if delegates are working
             for col in range(5):  # Check first 5 columns which should have thesaurus
@@ -2008,7 +1955,6 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         """Remove selected row from materials table."""
         # Prevent multiple rapid calls - use same timer as add method
         if hasattr(self, '_button_operation_timer') and self._button_operation_timer.isActive():
-            QgsMessageLog.logMessage("DEBUG TMA remove_materiale: Button operation in progress, skipping", "PyArchInit", Qgis.Warning)
             return
         
         # Create timer if it doesn't exist
@@ -2025,14 +1971,12 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         try:
             rows_before = self.tableWidget_materiali.rowCount()
             current_row = self.tableWidget_materiali.currentRow()
-            QgsMessageLog.logMessage(f"DEBUG TMA remove_materiale: CALLED - rows before = {rows_before}, current_row = {current_row}", "PyArchInit", Qgis.Info)
             
             if current_row >= 0:
                 # Get the material ID if it exists (for existing records)
                 item = self.tableWidget_materiali.item(current_row, 0)
                 if item and item.data(Qt.UserRole) is not None:
                     material_id = item.data(Qt.UserRole)
-                    QgsMessageLog.logMessage(f"DEBUG TMA: Removing material row {current_row} with ID {material_id}", "PyArchInit", Qgis.Info)
                     # Mark as deleted (will be handled during save)
                     if not hasattr(self, 'deleted_material_ids'):
                         self.deleted_material_ids = set()
@@ -2041,12 +1985,10 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                 self.tableWidget_materiali.removeRow(current_row)
                 
                 rows_after = self.tableWidget_materiali.rowCount()
-                QgsMessageLog.logMessage(f"DEBUG TMA remove_materiale: Removed row {current_row} - rows after = {rows_after}", "PyArchInit", Qgis.Info)
                 
                 # Update materiale field after removing row
                 self.update_materiale_field()
             else:
-                QgsMessageLog.logMessage(f"DEBUG TMA remove_materiale: No row selected", "PyArchInit", Qgis.Info)
                 
         finally:
             # Re-enable signals
@@ -2207,28 +2149,23 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
 
         # If in search mode, don't check for changes
         if self.BROWSE_STATUS == "f":
-            QgsMessageLog.logMessage("DEBUG check_record_state: In search mode, returning 0", "PyArchInit", Qgis.Info)
             return 0  # In search mode, no changes to check
 
         ec = self.data_error_check()
-        QgsMessageLog.logMessage(f"DEBUG check_record_state: data_error_check returned {ec}", "PyArchInit", Qgis.Info)
 
         if ec == 1:
             return 1  # ci sono errori di immissione
 
         records_equal_result = self.records_equal_check()
-        QgsMessageLog.logMessage(f"DEBUG check_record_state: records_equal_check returned {records_equal_result}", "PyArchInit", Qgis.Info)
         
         if records_equal_result == 0 and ec == 0:
             # Records are equal, check materials
             materials_changed = self.check_materials_state()
-            QgsMessageLog.logMessage(f"DEBUG check_record_state: records_equal=True, materials_changed={materials_changed}", "PyArchInit", Qgis.Info)
             if materials_changed:
                 return 1  # Materials have been modified
             return 0  # nessuna modifica
         else:
             # Records are NOT equal
-            QgsMessageLog.logMessage(f"DEBUG check_record_state: records NOT equal (result={records_equal_result}), returning 1", "PyArchInit", Qgis.Info)
             return 1  # record modificato
 
             # records surf functions
@@ -2236,12 +2173,10 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         """Check if materials in the table have changed compared to database."""
         # Don't check if we're currently loading materials
         if hasattr(self, '_loading_materials') and self._loading_materials:
-            QgsMessageLog.logMessage("DEBUG check_materials_state: Skipping - currently loading materials", "PyArchInit", Qgis.Info)
             return False
 
         # Also skip if materials were never modified by user
         if not self.materials_modified:
-            QgsMessageLog.logMessage("DEBUG check_materials_state: materials_modified=False, no changes", "PyArchInit", Qgis.Info)
             return False
             
         try:
@@ -2321,7 +2256,6 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                 
                 # Quick check: different number of materials
                 if len(db_materials) != table_valid_rows:
-                    QgsMessageLog.logMessage(f"DEBUG check_materials_state: Count mismatch - DB={len(db_materials)}, Table={table_valid_rows}", "PyArchInit", Qgis.Info)
                     return True
                 
                 # Compare materials content if counts match
@@ -2351,7 +2285,6 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                                 differences.append(f"{field}: DB='{db_values[field]}' != Table='{table_mat[field]}'")
                         
                         if differences:
-                            QgsMessageLog.logMessage(f"DEBUG check_materials_state: Material {i} differs - {differences}", "PyArchInit", Qgis.Info)
                             return True
                 
                 return False
@@ -2360,7 +2293,6 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                 session.close()
             
         except Exception as e:
-            QgsMessageLog.logMessage(f"DEBUG TMA: Error in check_materials_state: {e}", "PyArchInit", Qgis.Warning)
             # If error occurs, assume no change to avoid false positives
             return False
 
@@ -2506,11 +2438,9 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             self._navigation_in_progress = False
 
     def on_pushButton_prev_rec_pressed(self):
-        QgsMessageLog.logMessage(f"DEBUG TMA PREV: Called. REC_CORR={self.REC_CORR}, REC_TOT={self.REC_TOT}", "PyArchInit", Qgis.Info)
         
         # Prevent multiple rapid navigation calls
         if hasattr(self, '_navigation_in_progress') and self._navigation_in_progress:
-            QgsMessageLog.logMessage("DEBUG TMA PREV: Navigation already in progress, skipping", "PyArchInit", Qgis.Warning)
             return
             
         # Also check with a timestamp to prevent rapid double clicks
@@ -2518,7 +2448,6 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         current_time = time.time()
         if hasattr(self, '_last_navigation_time'):
             if current_time - self._last_navigation_time < 0.5:  # 500ms debounce
-                QgsMessageLog.logMessage(f"DEBUG TMA PREV: Too rapid (delta={current_time - self._last_navigation_time:.3f}s), skipping", "PyArchInit", Qgis.Warning)
                 return
         self._last_navigation_time = current_time
             
@@ -2543,23 +2472,18 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         self._navigation_in_progress = True
         try:
             self.REC_CORR = self.REC_CORR - 1
-            QgsMessageLog.logMessage(f"DEBUG TMA PREV: New REC_CORR={self.REC_CORR}", "PyArchInit", Qgis.Info)
             self.empty_fields()
             self.fill_fields(self.REC_CORR)
             self.set_rec_counter(self.REC_TOT, self.REC_CORR + 1)
-            QgsMessageLog.logMessage(f"DEBUG TMA PREV: Navigation completed to record {self.REC_CORR + 1}/{self.REC_TOT}", "PyArchInit", Qgis.Info)
         except Exception as e:
-            QgsMessageLog.logMessage(f"DEBUG TMA PREV: Error during navigation: {e}", "PyArchInit", Qgis.Critical)
             QMessageBox.warning(self, "Error", str(e), QMessageBox.Ok)
         finally:
             self._navigation_in_progress = False
 
     def on_pushButton_next_rec_pressed(self):
-        QgsMessageLog.logMessage(f"DEBUG TMA NEXT: Called. REC_CORR={self.REC_CORR}, REC_TOT={self.REC_TOT}", "PyArchInit", Qgis.Info)
         
         # Prevent multiple rapid navigation calls
         if hasattr(self, '_navigation_in_progress') and self._navigation_in_progress:
-            QgsMessageLog.logMessage("DEBUG TMA NEXT: Navigation already in progress, skipping", "PyArchInit", Qgis.Warning)
             return
             
         # Also check with a timestamp to prevent rapid double clicks
@@ -2567,7 +2491,6 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         current_time = time.time()
         if hasattr(self, '_last_navigation_time'):
             if current_time - self._last_navigation_time < 0.5:  # 500ms debounce
-                QgsMessageLog.logMessage(f"DEBUG TMA NEXT: Too rapid (delta={current_time - self._last_navigation_time:.3f}s), skipping", "PyArchInit", Qgis.Warning)
                 return
         self._last_navigation_time = current_time
             
@@ -2592,13 +2515,10 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         self._navigation_in_progress = True
         try:
             self.REC_CORR = self.REC_CORR + 1
-            QgsMessageLog.logMessage(f"DEBUG TMA NEXT: New REC_CORR={self.REC_CORR}", "PyArchInit", Qgis.Info)
             self.empty_fields()
             self.fill_fields(self.REC_CORR)
             self.set_rec_counter(self.REC_TOT, self.REC_CORR + 1)
-            QgsMessageLog.logMessage(f"DEBUG TMA NEXT: Navigation completed to record {self.REC_CORR + 1}/{self.REC_TOT}", "PyArchInit", Qgis.Info)
         except Exception as e:
-            QgsMessageLog.logMessage(f"DEBUG TMA NEXT: Error during navigation: {e}", "PyArchInit", Qgis.Critical)
             QMessageBox.warning(self, "Error", str(e), QMessageBox.Ok)
         finally:
             self._navigation_in_progress = False
@@ -2608,76 +2528,59 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
 
     def on_pushButton_new_rec_pressed(self):
         """Create a new record."""
-        QgsMessageLog.logMessage("DEBUG TMA NEW_REC: Button clicked", "PyArchInit", Qgis.Info)
         
         # Check current state
-        QgsMessageLog.logMessage(f"DEBUG TMA NEW_REC: BROWSE_STATUS={self.BROWSE_STATUS}, REC_CORR={self.REC_CORR}, REC_TOT={self.REC_TOT}", "PyArchInit", Qgis.Info)
         
         # Check if record has been modified
         record_state = self.check_record_state()
-        QgsMessageLog.logMessage(f"DEBUG TMA NEW_REC: check_record_state() returned {record_state}", "PyArchInit", Qgis.Info)
         
         if record_state == 1:
-            QgsMessageLog.logMessage("DEBUG TMA NEW_REC: Record has unsaved changes, showing update dialog", "PyArchInit", Qgis.Warning)
             self.update_if(QgsSettings().value("pyArchInit/ifupdaterecord"))
-            QgsMessageLog.logMessage("DEBUG TMA NEW_REC: Returning early due to unsaved changes", "PyArchInit", Qgis.Warning)
             return
             
         if self.BROWSE_STATUS != "n":
-            QgsMessageLog.logMessage(f"DEBUG TMA NEW_REC: Switching from BROWSE_STATUS={self.BROWSE_STATUS} to 'n' (new)", "PyArchInit", Qgis.Info)
             
             conn = Connection()
             sito_set = conn.sito_set()
             sito_set_str = sito_set['sito_set']
-            QgsMessageLog.logMessage(f"DEBUG TMA NEW_REC: sito_set_str='{sito_set_str}'", "PyArchInit", Qgis.Info)
             
             self.BROWSE_STATUS = "n"
             self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
             
-            QgsMessageLog.logMessage("DEBUG TMA NEW_REC: Calling empty_fields_nosite()", "PyArchInit", Qgis.Info)
             self.empty_fields_nosite()
             
             # Reset materials loaded flag when creating new record
             self.materials_loaded = False
-            QgsMessageLog.logMessage(f"DEBUG TMA NEW_REC: materials_loaded set to False", "PyArchInit", Qgis.Info)
             
             self.label_sort.setText(self.SORTED_ITEMS["n"])
             
             # Set first available località value and trigger area loading
             localita_count = self.comboBox_localita.count()
-            QgsMessageLog.logMessage(f"DEBUG TMA NEW_REC: località count = {localita_count}", "PyArchInit", Qgis.Info)
             
             if localita_count > 0:
                 # Set first item in località dropdown
                 self.comboBox_localita.setCurrentIndex(0)
-                QgsMessageLog.logMessage(f"DEBUG TMA NEW_REC: Set località to index 0", "PyArchInit", Qgis.Info)
                 # This will trigger on_localita_changed which will load filtered areas
             else:
                 # If no località available, load all areas
-                QgsMessageLog.logMessage("DEBUG TMA NEW_REC: No località available, loading all areas", "PyArchInit", Qgis.Info)
                 self.load_area_values()
                 
             # Mark materials as loaded for new records so they can be saved
             self.materials_loaded = True
-            QgsMessageLog.logMessage(f"DEBUG TMA NEW_REC: materials_loaded set to True for new record", "PyArchInit", Qgis.Info)
 
             if bool(sito_set_str):
                 # When sito_set is active, set the site field and make it read-only
-                QgsMessageLog.logMessage(f"DEBUG TMA NEW_REC: Setting site to '{sito_set_str}' and making it read-only", "PyArchInit", Qgis.Info)
                 self.comboBox_sito.setEditText(sito_set_str)
                 self.setComboBoxEnable(["self.comboBox_sito"], "False")
                 self.setComboBoxEditable(["self.comboBox_sito"], 0)
             else:
                 # When sito_set is not active, allow site selection
-                QgsMessageLog.logMessage("DEBUG TMA NEW_REC: No sito_set, enabling site selection", "PyArchInit", Qgis.Info)
                 self.setComboBoxEnable(["self.comboBox_sito"], "True")
                 self.setComboBoxEditable(["self.comboBox_sito"], 1)
 
             self.set_rec_counter('', '')
             self.label_sort.setText(self.SORTED_ITEMS["n"])
-            QgsMessageLog.logMessage("DEBUG TMA NEW_REC: New record mode activated successfully", "PyArchInit", Qgis.Info)
         else:
-            QgsMessageLog.logMessage(f"DEBUG TMA NEW_REC: Already in new record mode (BROWSE_STATUS={self.BROWSE_STATUS})", "PyArchInit", Qgis.Info)
 
     def on_pushButton_save_pressed(self):
         """Save the current record."""
@@ -2771,7 +2674,6 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                 QMessageBox.warning(self, "Errore", f"Errore nella cancellazione: {str(e)}", QMessageBox.Ok)
 
             if not bool(self.DATA_LIST):
-                QgsMessageLog.logMessage(f"DEBUG TMA: Clearing DATA_LIST in charge_records\", \"PyArchInit\", Qgis.Info")
                 self.DATA_LIST = []
                 self.DATA_LIST_REC_CORR = []
                 self.DATA_LIST_REC_TEMP = []
@@ -2828,8 +2730,6 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             materials_search = self.build_materials_search_dict()
 
             # DEBUG: Log the search dictionary
-            QgsMessageLog.logMessage(f"DEBUG TMA Search: search_dict = {search_dict}", "PyArchInit", Qgis.Info)
-            QgsMessageLog.logMessage(f"DEBUG TMA Search: materials_search = {materials_search}", "PyArchInit", Qgis.Info)
 
             if not bool(search_dict) and not bool(materials_search):
                 QMessageBox.warning(self, "ATTENZIONE", "Non è stata impostata alcuna ricerca!", QMessageBox.Ok)
@@ -2840,14 +2740,11 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                     cassetta_search = str(self.lineEdit_cassetta.text()).strip()
                     # Remove cassetta from search_dict as we'll handle it separately
                     search_dict = {k: v for k, v in search_dict.items() if k != 'cassetta'}
-                    QgsMessageLog.logMessage(f"DEBUG TMA: Special cassetta search for: '{cassetta_search}'", "PyArchInit", Qgis.Info)
 
                 # First search TMA records (without cassetta)
                 if search_dict:
                     # DEBUG: Log before query
-                    QgsMessageLog.logMessage(f"DEBUG TMA: Executing query_bool with dict: {search_dict}", "PyArchInit", Qgis.Info)
                     res = self.DB_MANAGER.query_bool(search_dict, 'TMA')
-                    QgsMessageLog.logMessage(f"DEBUG TMA: Query returned {len(res) if res else 0} results", "PyArchInit", Qgis.Info)
                 else:
                     res = self.DB_MANAGER.query('TMA')
 
@@ -2857,7 +2754,6 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                     for tma in res:
                         if self._cassetta_contains_token(tma.cassetta, cassetta_search):
                             filtered_res.append(tma)
-                    QgsMessageLog.logMessage(f"DEBUG TMA: Cassetta filter reduced {len(res)} to {len(filtered_res)} results", "PyArchInit", Qgis.Info)
                     res = filtered_res
 
                 # Filter by materials if needed
@@ -2891,7 +2787,6 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                         self.setComboBoxEnable(["self.comboBox_sito"], "False")
 
                 else:
-                    QgsMessageLog.logMessage(f"DEBUG TMA: Clearing DATA_LIST in charge_records", "PyArchInit", Qgis.Info)
                     self.DATA_LIST = []
                     for i in res:
                         self.DATA_LIST.append(i)
@@ -3036,7 +2931,6 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         # Check for exact token match (case-insensitive)
         for token in tokens:
             if token.lower() == search_str.lower():
-                QgsMessageLog.logMessage(f"DEBUG TMA: Found token match '{search_str}' in '{cassetta_str}'", "PyArchInit", Qgis.Info)
                 return True
 
         return False
@@ -3157,13 +3051,10 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                 ''   # updated_by
             )
 
-            QgsMessageLog.logMessage(f"DEBUG TMA: About to insert data - Type: {type(data).__name__}", "PyArchInit", Qgis.Info)
             self.DB_MANAGER.insert_data_session(data)
-            QgsMessageLog.logMessage(f"DEBUG TMA: Data inserted successfully", "PyArchInit", Qgis.Info)
             
             # Get the ID of the inserted record and save materials
             inserted_id = self.DB_MANAGER.max_num_id(self.MAPPER_TABLE_CLASS, self.ID_TABLE)
-            QgsMessageLog.logMessage(f"DEBUG TMA: Inserted record ID: {inserted_id}", "PyArchInit", Qgis.Info)
             self.save_materials_data(inserted_id)
             
             return 1
@@ -3182,7 +3073,6 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             session = Session()
             
             count_before = session.execute(text("SELECT COUNT(*) FROM tma_materiali_archeologici")).scalar()
-            QgsMessageLog.logMessage(f"DEBUG update_record_to_db: Records before update: {count_before}", "PyArchInit", Qgis.Info)
             session.close()
             
             # Get documentation data from tables
@@ -3192,7 +3082,6 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             # Update main TMA record
             self.set_LIST_REC_TEMP()  # This sets self.DATA_LIST_REC_TEMP
             current_id = eval("int(self.DATA_LIST[self.REC_CORR]." + self.ID_TABLE + ")")
-            QgsMessageLog.logMessage(f"DEBUG update_record_to_db: Updating TMA ID {current_id}", "PyArchInit", Qgis.Info)
             
             self.DB_MANAGER.update(self.MAPPER_TABLE_CLASS,
                                    self.ID_TABLE,
@@ -3203,7 +3092,6 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             # Check records after update
             session = Session()
             count_after = session.execute(text("SELECT COUNT(*) FROM tma_materiali_archeologici")).scalar()
-            QgsMessageLog.logMessage(f"DEBUG update_record_to_db: Records after update: {count_after}", "PyArchInit", Qgis.Info)
             
             if count_after < count_before:
                 QgsMessageLog.logMessage(f"ERROR: Records deleted during update! Before: {count_before}, After: {count_after}", "PyArchInit", Qgis.Critical)
@@ -3638,15 +3526,10 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             }
             
             # DEBUG: Log the exact query
-            QgsMessageLog.logMessage(f"DEBUG TMA thesaurus query: search_dict = {search_dict}", "PyArchInit", Qgis.Info)
-            QgsMessageLog.logMessage(f"DEBUG TMA thesaurus: lang = '{lang}', type = {type(lang)}", "PyArchInit", Qgis.Info)
-            QgsMessageLog.logMessage(f"DEBUG TMA thesaurus: table_name = '{table_name}', type = {type(table_name)}", "PyArchInit", Qgis.Info)
-            QgsMessageLog.logMessage(f"DEBUG TMA thesaurus: tipologia_sigla = '{thesaurus_map[field_type]}', type = {type(thesaurus_map[field_type])}", "PyArchInit", Qgis.Info)
             
             thesaurus_records = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
             
             # DEBUG: Check what was returned
-            QgsMessageLog.logMessage(f"DEBUG TMA thesaurus result: type = {type(thesaurus_records)}, len = {len(thesaurus_records) if thesaurus_records else 0}", "PyArchInit", Qgis.Info)
             values = []
 
             # Log first few thesaurus values to understand what we're getting
@@ -3654,9 +3537,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                 sample_values = []
                 for i, rec in enumerate(thesaurus_records[:5]):  # Show first 5
                     sample_values.append(f"{rec.sigla_estesa}")
-                QgsMessageLog.logMessage(f"DEBUG TMA thesaurus sample for {field_type}: {sample_values}", "PyArchInit", Qgis.Info)
 
-            QgsMessageLog.logMessage(f"DEBUG load_thesaurus_values: field={field_type}, table={table_name}, code={thesaurus_map[field_type]}, records found={len(thesaurus_records)}", "PyArchInit", Qgis.Info)
             
             for record in thesaurus_records:
                 if hasattr(record, 'sigla_estesa') and record.sigla_estesa:
@@ -3696,11 +3577,6 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         # Don't use default values - only use thesaurus values
         
         # Debug print
-        QgsMessageLog.logMessage(f"DEBUG TMA THESAURUS: Categoria values: {len(categoria_values)} items", "PyArchInit", Qgis.Info)
-        QgsMessageLog.logMessage(f"DEBUG TMA THESAURUS: Classe values: {len(classe_values)} items", "PyArchInit", Qgis.Info)
-        QgsMessageLog.logMessage(f"DEBUG TMA THESAURUS: Tipologia values: {len(tipologia_values)} items", "PyArchInit", Qgis.Info)
-        QgsMessageLog.logMessage(f"DEBUG TMA THESAURUS: Definizione values: {len(definizione_values)} items", "PyArchInit", Qgis.Info)
-        QgsMessageLog.logMessage(f"DEBUG TMA THESAURUS: Cronologia values: {len(cronologia_values)} items", "PyArchInit", Qgis.Info)
         
         # Set delegates for columns with thesaurus support
         if categoria_values:
@@ -3708,31 +3584,26 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             self.delegateCategoria.def_values(categoria_values)
             self.delegateCategoria.def_editable('True')
             self.tableWidget_materiali.setItemDelegateForColumn(0, self.delegateCategoria)
-            QgsMessageLog.logMessage(f"DEBUG TMA: Set delegate for Categoria column with {len(categoria_values)} values", "PyArchInit", Qgis.Info)
         if classe_values:
             self.delegateClasse = ComboBoxDelegate()
             self.delegateClasse.def_values(classe_values)
             self.delegateClasse.def_editable('True')
             self.tableWidget_materiali.setItemDelegateForColumn(1, self.delegateClasse)
-            QgsMessageLog.logMessage(f"DEBUG TMA: Set delegate for Classe column with {len(classe_values)} values", "PyArchInit", Qgis.Info)
         if tipologia_values:
             self.delegateTipologia = ComboBoxDelegate()
             self.delegateTipologia.def_values(tipologia_values)
             self.delegateTipologia.def_editable('True')
             self.tableWidget_materiali.setItemDelegateForColumn(2, self.delegateTipologia)
-            QgsMessageLog.logMessage(f"DEBUG TMA: Set delegate for Tipologia column with {len(tipologia_values)} values", "PyArchInit", Qgis.Info)
         if definizione_values:
             self.delegateDefinizione = ComboBoxDelegate()
             self.delegateDefinizione.def_values(definizione_values)
             self.delegateDefinizione.def_editable('True')
             self.tableWidget_materiali.setItemDelegateForColumn(3, self.delegateDefinizione)
-            QgsMessageLog.logMessage(f"DEBUG TMA: Set delegate for Definizione column with {len(definizione_values)} values", "PyArchInit", Qgis.Info)
         if cronologia_values:
             self.delegateCronologia = ComboBoxDelegate()
             self.delegateCronologia.def_values(cronologia_values)
             self.delegateCronologia.def_editable('True')
             self.tableWidget_materiali.setItemDelegateForColumn(4, self.delegateCronologia)
-            QgsMessageLog.logMessage(f"DEBUG TMA: Set delegate for Cronologia column with {len(cronologia_values)} values", "PyArchInit", Qgis.Info)
         
 
         
@@ -3762,7 +3633,6 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             self.delegateFotoTipo.def_values(ftap_values)
             self.delegateFotoTipo.def_editable('True')
             self.tableWidget_foto.setItemDelegateForColumn(0, self.delegateFotoTipo)
-            QgsMessageLog.logMessage(f"DEBUG TMA: Set delegate for Photo Type column with {len(ftap_values)} values", "PyArchInit", Qgis.Info)
         
         # For drawings, we might need drawing types from thesaurus too
         # Currently using free text, but could be enhanced
@@ -3780,7 +3650,6 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             self.delegateDisegniTipo.def_values(drat_values)
             self.delegateDisegniTipo.def_editable('True')
             self.tableWidget_disegni.setItemDelegateForColumn(0, self.delegateDisegniTipo)
-            QgsMessageLog.logMessage(f"DEBUG TMA: Set delegate for Drawing Type column with {len(drat_values)} values", "PyArchInit", Qgis.Info)
 
             # Connect signal to track table changes
         self.tableWidget_materiali.itemChanged.connect(self.on_materials_table_changed)
@@ -3792,16 +3661,13 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         """Called when an item in the materials table is changed."""
         # Don't mark as modified if we're loading materials
         if hasattr(self, '_loading_materials') and self._loading_materials:
-            QgsMessageLog.logMessage(f"DEBUG on_materials_table_changed: Ignoring change during loading - row={item.row()}, col={item.column()}", "PyArchInit", Qgis.Info)
             return
 
         # Only log meaningful changes (non-empty text)
         if item.text().strip():
             col_names = ["Categoria", "Classe", "Prec. tipologica", "Definizione", "Cronologia", "Quantità", "Peso"]
             col_name = col_names[item.column()] if item.column() < len(col_names) else f"Col{item.column()}"
-            QgsMessageLog.logMessage(f"DEBUG TMA: Materials table changed - row={item.row()}, col={item.column()} ({col_name}), text='{item.text()}'", "PyArchInit", Qgis.Info)
         self.materials_modified = True
-        QgsMessageLog.logMessage(f"DEBUG on_materials_table_changed: Set materials_modified=True", "PyArchInit", Qgis.Info)
         
         # Update tooltip to match the new content
         item.setToolTip(item.text())
@@ -4270,9 +4136,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                 str(filepath),         # 5 - filepath
                 str(media_name))       # 6 - media_name
             try:
-                QgsMessageLog.logMessage(f"DEBUG TMA: About to insert data - Type: {type(data).__name__}", "PyArchInit", Qgis.Info)
                 self.DB_MANAGER.insert_data_session(data)
-                QgsMessageLog.logMessage(f"DEBUG TMA: Data inserted successfully", "PyArchInit", Qgis.Info)
                 return 1
             except Exception as e:
                 e_str = str(e)

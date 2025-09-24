@@ -41,10 +41,8 @@ def fix_session_commit(file_path):
             """# Log per debug
         try:
             session.commit()
-            print(f"DEBUG: Record committed successfully - Type: {type(data).__name__}")
         except Exception as e:
             session.rollback()
-            print(f"DEBUG: Commit failed - Error: {str(e)}")
             raise"""
         )
         return method
@@ -89,16 +87,13 @@ def check_insert_method(file_path):
     # Aggiungi log prima e dopo insert_data_session
     content = content.replace(
         "self.DB_MANAGER.insert_data_session(data)",
-        """QgsMessageLog.logMessage(f"DEBUG TMA: About to insert data - Type: {type(data).__name__}", "PyArchInit", Qgis.Info)
             self.DB_MANAGER.insert_data_session(data)
-            QgsMessageLog.logMessage(f"DEBUG TMA: Data inserted successfully", "PyArchInit", Qgis.Info)"""
     )
     
     # Aggiungi log dopo max_num_id
     content = content.replace(
         "inserted_id = self.DB_MANAGER.max_num_id(self.MAPPER_TABLE_CLASS, self.ID_TABLE)",
         """inserted_id = self.DB_MANAGER.max_num_id(self.MAPPER_TABLE_CLASS, self.ID_TABLE)
-            QgsMessageLog.logMessage(f"DEBUG TMA: Inserted record ID: {inserted_id}", "PyArchInit", Qgis.Info)"""
     )
     
     with open(file_path, 'w', encoding='utf-8') as f:
