@@ -1098,6 +1098,47 @@
          </property>
         </widget>
        </item>
+       <item row="1" column="4">
+        <widget class="QPushButton" name="pushButton_export_crate_list">
+         <property name="minimumSize">
+          <size>
+           <width>30</width>
+           <height>20</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>30</width>
+           <height>20</height>
+          </size>
+         </property>
+         <property name="font">
+          <font>
+           <family>Damascus</family>
+           <pointsize>11</pointsize>
+           <weight>50</weight>
+           <italic>false</italic>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="toolTip">
+          <string>Lista Casse</string>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="icon">
+          <iconset resource="../../resources/resources.qrc">
+           <normaloff>:/icons/pdf-icon.png</normaloff>:/icons/pdf-icon.png</iconset>
+         </property>
+         <property name="iconSize">
+          <size>
+           <width>15</width>
+           <height>15</height>
+          </size>
+         </property>
+        </widget>
+       </item>
        <item row="1" column="5">
         <widget class="QPushButton" name="pushButton_export_labels">
          <property name="minimumSize">

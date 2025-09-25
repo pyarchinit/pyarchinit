@@ -315,6 +315,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         # #self.pushButton_export_ica.clicked.connect(self.on_pushButton_export_pdf_pressed)
         # self.pushButton_export_pdf.clicked.connect(self.on_pushButton_export_tma_pdf_pressed)
         # self.pushButton_export_labels.clicked.connect(self.on_pushButton_export_labels_pressed)
+        self.pushButton_export_crate_list.clicked.connect(self.on_pushButton_export_crate_list_pressed)
 
         # Automatically connect to DB when the tab is opened
         # This ensures all fields are properly loaded including area and settore
@@ -3509,7 +3510,9 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
     def load_thesaurus_values(self, field_type):
         """Load thesaurus values for material fields."""
         try:
-            lang = QgsSettings().value("locale/userLocale", "it")[:2].upper()  # Use uppercase as in database
+            # Language in thesaurus is UPPERCASE
+            lang = QgsSettings().value("locale/userLocale", "it")[:2].upper()  # Must be UPPERCASE
+            print(f"DEBUG: Using language: {lang}")
             
             # Map field types to thesaurus categories
             # Using tipologia_sigla codes from the thesaurus database
@@ -3520,25 +3523,68 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                 'definizione': '10.13', # Definizione
                 'cronologia_mac': '10.4'  # Cronologia (Neolitico, Minoico, etc.)
             }
+
+            # Debug: print what we're looking for
+            print(f"DEBUG: Loading thesaurus for {field_type} with code {thesaurus_map.get(field_type, 'N/A')}")
             
             if field_type not in thesaurus_map:
                 return []
             
             # Use correct table name for thesaurus lookup
-            # Use same table name as main TMA fields
-            table_name = 'TMA materiali archeologici'
-            
+            # IMPORTANT: The table name in thesaurus has capital R in Ripetibili
+            table_name = 'TMA Materiali Ripetibili'  # Note: capital R in Ripetibili!
+
+            # First, let's check what's actually in the thesaurus
+            print(f"DEBUG: Searching thesaurus with:")
+            print(f"  - lingua: {lang}")
+            print(f"  - nome_tabella: {table_name}")
+            print(f"  - tipologia_sigla: {thesaurus_map[field_type]}")
+
             search_dict = {
                 'lingua': "'" + str(lang) + "'",  # Add quotes around language code
                 'nome_tabella': "'" + str(table_name) + "'",
                 'tipologia_sigla': "'" + str(thesaurus_map[field_type]) + "'"
             }
-            
-            # DEBUG: Log the exact query
-            
+
             thesaurus_records = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
-            
+
+            # If no records found, try without table name to see what's available
+            if not thesaurus_records:
+                print(f"DEBUG: No records found. Checking what table names exist for this tipologia_sigla...")
+
+                # First check what table names exist in thesaurus
+                search_dict_check = {
+                    'tipologia_sigla': "'" + str(thesaurus_map[field_type]) + "'"
+                }
+                all_records = self.DB_MANAGER.query_bool(search_dict_check, 'PYARCHINIT_THESAURUS_SIGLE')
+
+                if all_records:
+                    unique_tables = set()
+                    unique_langs = set()
+                    for rec in all_records:
+                        if hasattr(rec, 'nome_tabella'):
+                            unique_tables.add(rec.nome_tabella)
+                        if hasattr(rec, 'lingua'):
+                            unique_langs.add(rec.lingua)
+                    print(f"DEBUG: Found {len(all_records)} records with tipologia_sigla {thesaurus_map[field_type]}")
+                    print(f"DEBUG: Table names in thesaurus: {unique_tables}")
+                    print(f"DEBUG: Languages in thesaurus: {unique_langs}")
+
+                    # Now try with the first table name found
+                    if unique_tables:
+                        first_table = list(unique_tables)[0]
+                        print(f"DEBUG: Retrying with table name: '{first_table}'")
+                        search_dict_retry = {
+                            'lingua': "'" + str(lang) + "'",
+                            'nome_tabella': "'" + str(first_table) + "'",
+                            'tipologia_sigla': "'" + str(thesaurus_map[field_type]) + "'"
+                        }
+                        thesaurus_records = self.DB_MANAGER.query_bool(search_dict_retry, 'PYARCHINIT_THESAURUS_SIGLE')
+                else:
+                    print(f"DEBUG: No records at all for tipologia_sigla {thesaurus_map[field_type]}")
+
             # DEBUG: Check what was returned
+            print(f"DEBUG: Found {len(thesaurus_records)} records in thesaurus for {field_type}")
             values = []
 
             # Log first few thesaurus values to understand what we're getting
@@ -3546,8 +3592,9 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                 sample_values = []
                 for i, rec in enumerate(thesaurus_records[:5]):  # Show first 5
                     sample_values.append(f"{rec.sigla_estesa}")
+                print(f"DEBUG: Sample values for {field_type}: {sample_values}")
 
-            
+
             for record in thesaurus_records:
                 if hasattr(record, 'sigla_estesa') and record.sigla_estesa:
                     values.append(record.sigla_estesa)
@@ -4554,6 +4601,336 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         except Exception as e:
             QMessageBox.critical(self, "Errore", f"Errore nella generazione del PDF: {str(e)}", QMessageBox.Ok)
     
+    def on_pushButton_export_crate_list_pressed(self):
+        """Export crate list with materials summary from TMA to Excel."""
+        try:
+            from collections import defaultdict
+            import ast
+            import pandas as pd
+            import os
+            from datetime import datetime
+            from sqlalchemy import text
+
+            # Ask user what to export
+            msg = QMessageBox()
+            msg.setWindowTitle("Esportazione Lista Casse")
+            msg.setText("Quale lista vuoi esportare?")
+
+            all_btn = msg.addButton("Tutti i record TMA", QMessageBox.YesRole)
+            site_btn = msg.addButton("Solo sito corrente", QMessageBox.NoRole)
+            cancel_btn = msg.addButton("Annulla", QMessageBox.RejectRole)
+
+            msg.exec_()
+
+            if msg.clickedButton() == cancel_btn:
+                return
+
+            # Get TMA records
+            tma_records = []
+
+            if msg.clickedButton() == site_btn:
+                # Get current site
+                sito = self.comboBox_sito.currentText()
+                if not sito:
+                    QMessageBox.warning(self, "Attenzione", "Selezionare un sito", QMessageBox.Ok)
+                    return
+                search_dict = {'sito': "'" + str(sito) + "'"}
+                tma_records = self.DB_MANAGER.query_bool(search_dict, 'TMA')
+            else:
+                # Query ALL TMA records from database
+                try:
+                    tma_records = self.DB_MANAGER.query('TMA')
+                except Exception as e:
+                    # Try alternative method
+                    tma_records = self.DB_MANAGER.query_bool({}, 'TMA')
+
+            if not tma_records:
+                QMessageBox.information(self, "Info", "Nessun record TMA trovato nel database", QMessageBox.Ok)
+                return
+
+            # Show how many records were found
+            QMessageBox.information(self, "Record TMA trovati",
+                                  f"Trovati {len(tma_records)} record TMA da processare",
+                                  QMessageBox.Ok)
+
+            # Process TMA materials - group by crate
+            crate_groups = defaultdict(lambda: {
+                'sito': '',
+                'localita': '',
+                'area': '',
+                'us': '',
+                'magazzino': '',
+                'cassa': '',
+                'inventari': [],  # List of inventory numbers
+                'categorie': defaultdict(lambda: {'quantita': 0, 'classi': set()}),
+                'cronologie': set(),
+                'fascia_cronologica': set(),
+                'descrizioni': set(),
+                'totale_materiali': 0
+            })
+            processed_count = 0
+            total_materials = 0
+
+            # Create DB session using SQLAlchemy
+            from sqlalchemy.orm import sessionmaker
+            engine = self.DB_MANAGER.engine
+            Session = sessionmaker(bind=engine, autoflush=True, autocommit=True)
+            session = Session()
+
+            for tma_record in tma_records:
+                processed_count += 1
+                # Get crate (cassetta) from TMA record
+                cassetta = str(tma_record.cassetta) if tma_record.cassetta and str(tma_record.cassetta) != 'None' else ''
+
+                # Split cassetta if multiple - each becomes a separate record
+                if not cassetta:
+                    casse = ['Non specificata']
+                else:
+                    # Split by common separators: comma, semicolon, slash, dash
+                    # Keep dash in the split since it might separate crate numbers
+                    import re
+                    # Split by , ; / - but keep the numbers
+                    casse = re.split(r'[,;/\-]', cassetta)
+                    casse = [c.strip() for c in casse if c.strip()]
+                    if not casse:
+                        casse = ['Non specificata']
+                    print(f"DEBUG: Cassetta '{cassetta}' split into: {casse}")
+
+                # Get località from TMA record
+                localita = str(tma_record.localita) if tma_record.localita and str(tma_record.localita) != 'None' else ''
+
+                # If no localita, extract from site name
+                if not localita and tma_record.sito:
+                    sito_str = str(tma_record.sito)
+                    if '_' in sito_str:
+                        localita = sito_str.split('_')[0]
+                    else:
+                        localita = sito_str
+
+                # Get magazzino from ldcn (denominazione collocazione)
+                magazzino = str(tma_record.ldcn) if hasattr(tma_record, 'ldcn') and tma_record.ldcn and str(tma_record.ldcn) != 'None' else ''
+
+                # If ldcn is empty, try ldct (tipo collocazione) as fallback
+                if not magazzino and hasattr(tma_record, 'ldct') and tma_record.ldct and str(tma_record.ldct) != 'None':
+                    magazzino = str(tma_record.ldct)
+
+                if not magazzino:
+                    magazzino = 'Non specificato'
+
+                # Debug all relevant fields
+                print(f"DEBUG: TMA {tma_record.id}:")
+                print(f"  - ldcn (denom. collocazione): '{tma_record.ldcn if hasattr(tma_record, 'ldcn') else 'N/A'}'")
+                print(f"  - ldct (tipo collocazione): '{tma_record.ldct if hasattr(tma_record, 'ldct') else 'N/A'}'")
+                print(f"  - vecchia_collocazione: '{tma_record.vecchia_collocazione if hasattr(tma_record, 'vecchia_collocazione') else 'N/A'}'")
+                print(f"  - magazzino finale: '{magazzino}'")
+
+                # For each crate, create a group key
+                for cassa in casse:
+                    # Create unique key for this crate
+                    group_key = (str(tma_record.sito), str(tma_record.area), str(tma_record.dscu), magazzino, cassa)
+                    group = crate_groups[group_key]
+
+                    # Update group basic info
+                    group['sito'] = str(tma_record.sito) if tma_record.sito else ''
+                    group['localita'] = localita
+                    group['area'] = str(tma_record.area) if tma_record.area else ''
+                    group['us'] = str(tma_record.dscu) if tma_record.dscu else ''
+                    group['magazzino'] = magazzino
+                    group['cassa'] = cassa
+
+                    # Add inventory number from TMA (this is the actual inventory number)
+                    if tma_record.inventario and str(tma_record.inventario) != 'None':
+                        inv_str = str(tma_record.inventario)
+                        if inv_str not in group['inventari']:  # Avoid duplicates
+                            group['inventari'].append(inv_str)
+
+                    # Add description
+                    if tma_record.deso and str(tma_record.deso) != 'None':
+                        group['descrizioni'].add(str(tma_record.deso))
+
+                    # Query tma_materiali_ripetibili for this TMA record
+                    try:
+                        sql = text("SELECT * FROM tma_materiali_ripetibili WHERE id_tma = :id_tma")
+                        result = session.execute(sql, {"id_tma": tma_record.id})
+                        materials = result.fetchall()
+
+                        # Process each material and add to group
+                        if materials:
+                            for mat in materials:
+                                total_materials += 1
+
+                                # Get category and class
+                                categoria = str(mat.macc) if hasattr(mat, 'macc') and mat.macc else ''
+                                classe = str(mat.macl) if hasattr(mat, 'macl') and mat.macl else ''
+                                quantita = int(mat.macq) if hasattr(mat, 'macq') and mat.macq else 1
+
+                                # Add to category totals
+                                if categoria:
+                                    group['categorie'][categoria]['quantita'] += quantita
+                                    if classe:
+                                        group['categorie'][categoria]['classi'].add(classe)
+                                    group['totale_materiali'] += quantita
+
+                                # Add chronology
+                                datazione = str(mat.cronologia_mac) if hasattr(mat, 'cronologia_mac') and mat.cronologia_mac else ''
+                                if datazione and datazione != 'None':
+                                    group['cronologie'].add(datazione)
+                                    # Extract period for fascia
+                                    if 'sec.' in datazione:
+                                        parts = datazione.split('sec.')[0].strip().split()
+                                        if parts:
+                                            group['fascia_cronologica'].add(parts[-1])
+                                    elif 'Minoico' in datazione:
+                                        group['fascia_cronologica'].add(datazione.split('(')[0].strip())
+                                    else:
+                                        group['fascia_cronologica'].add(datazione.split()[0] if ' ' in datazione else datazione)
+
+                                # Note: madi is material type, not inventory number
+                                # We don't add madi to inventari as it's material, not inventory number
+
+                    except Exception as e:
+                        print(f"Error processing materials for TMA {tma_record.id}: {str(e)}")
+
+            # Close session
+            session.close()
+
+            # Convert grouped data to export format
+            export_data = []
+            for group_key, group in crate_groups.items():
+                # Format categories with quantities
+                categorie_list = []
+                for cat, info in sorted(group['categorie'].items()):
+                    if info['classi']:
+                        classi_str = ', '.join(sorted(info['classi']))
+                        categorie_list.append(f"{cat} ({classi_str}): {info['quantita']}")
+                    else:
+                        categorie_list.append(f"{cat}: {info['quantita']}")
+                categorie_str = '; '.join(categorie_list) if categorie_list else ''
+
+                # Format all chronologies
+                cronologie_str = '; '.join(sorted(group['cronologie'])) if group['cronologie'] else ''
+                fascia_str = ', '.join(sorted(group['fascia_cronologica'])) if group['fascia_cronologica'] else ''
+
+                # Format inventories
+                inventari_str = ', '.join(group['inventari']) if group['inventari'] else ''
+
+                # Format descriptions
+                desc_str = '; '.join(group['descrizioni']) if group['descrizioni'] else ''
+
+                record = {
+                    'Sito': group['sito'],
+                    'Località': group['localita'],
+                    'Area': group['area'],
+                    'US': group['us'],
+                    'Magazzino': group['magazzino'],
+                    'Cassa': group['cassa'],
+                    'N. Inventario': inventari_str,  # Only inventory numbers, not materials
+                    'Totale Materiali': group['totale_materiali'] if group['totale_materiali'] > 0 else '',
+                    'Fascia Cronologica': fascia_str,
+                    'Cronologie': cronologie_str,
+                    'Categorie (quantità)': categorie_str,
+                    'Descrizione': desc_str
+                }
+                export_data.append(record)
+
+            # Debug info
+            QMessageBox.information(self, "Debug Info",
+                                  f"Record TMA trovati: {len(tma_records)}\n"
+                                  f"Record TMA processati: {processed_count}\n"
+                                  f"Materiali totali: {total_materials}\n"
+                                  f"Casse uniche: {len(export_data)}",
+                                  QMessageBox.Ok)
+
+            # Export to Excel
+            self.export_crate_list_to_excel(export_data)
+
+        except Exception as e:
+            QMessageBox.critical(self, "Errore", f"Errore nell'esportazione lista casse: {str(e)}", QMessageBox.Ok)
+
+    def export_crate_list_to_excel(self, export_data):
+        """Export crate list to Excel file."""
+        try:
+            import pandas as pd
+            import os
+            from datetime import datetime
+
+            # Create Excel path
+            home = os.environ['PYARCHINIT_HOME']
+            excel_path = os.path.join(home, 'pyarchinit_EXCEL_folder')
+            os.makedirs(excel_path, exist_ok=True)
+
+            timestamp = datetime.now().strftime("%d_%m_%Y_%H_%M_%S")
+            filepath = os.path.join(excel_path, f'Lista_Casse_{timestamp}.xlsx')
+
+            # Create DataFrame
+            df = pd.DataFrame(export_data)
+
+            # Sort by Sito, Area, US, Magazzino, Cassa
+            if not df.empty:
+                sort_columns = ['Sito', 'Area', 'US', 'Magazzino', 'Cassa']
+                existing_cols = [col for col in sort_columns if col in df.columns]
+                df = df.sort_values(by=existing_cols)
+
+            # Write to Excel with formatting
+            with pd.ExcelWriter(filepath, engine='openpyxl') as writer:
+                df.to_excel(writer, sheet_name='Lista Casse', index=False)
+
+                # Get the workbook and worksheet
+                workbook = writer.book
+                worksheet = writer.sheets['Lista Casse']
+
+                # Set column widths
+                column_widths = {
+                    'A': 15,  # Sito
+                    'B': 20,  # Località
+                    'C': 12,  # Area
+                    'D': 10,  # US
+                    'E': 25,  # Magazzino
+                    'F': 15,  # Cassa
+                    'G': 20,  # N. Inventario
+                    'H': 15,  # Totale Materiali
+                    'I': 25,  # Fascia Cronologica
+                    'J': 40,  # Cronologie
+                    'K': 50,  # Categorie (quantità)
+                    'L': 60,  # Descrizione
+                }
+
+                for col, width in column_widths.items():
+                    worksheet.column_dimensions[col].width = width
+
+                # Add filters
+                worksheet.auto_filter.ref = worksheet.dimensions
+
+                # Format header row
+                from openpyxl.styles import Font, PatternFill, Alignment
+                header_font = Font(bold=True)
+                header_fill = PatternFill(start_color='366092', end_color='366092', fill_type='solid')
+                header_text = Font(color='FFFFFF', bold=True)
+
+                for cell in worksheet[1]:
+                    cell.font = header_text
+                    cell.fill = header_fill
+                    cell.alignment = Alignment(horizontal='center', vertical='center')
+
+                # Freeze top row
+                worksheet.freeze_panes = 'A2'
+
+            QMessageBox.information(self, "Esportazione completata",
+                                  f"Lista casse esportata in:\n{filepath}\n\nTotale record: {len(export_data)}",
+                                  QMessageBox.Ok)
+
+            # Try to open the file
+            try:
+                if os.name == 'nt':  # Windows
+                    os.startfile(filepath)
+                elif os.name == 'posix':  # macOS and Linux
+                    os.system(f'open "{filepath}"')
+            except:
+                pass
+
+        except Exception as e:
+            QMessageBox.critical(self, "Errore", f"Errore nella generazione dell'Excel: {str(e)}", QMessageBox.Ok)
+
     def on_pushButton_export_labels_pressed(self):
         """Handle label export button click."""
         # Create dialog for label export options
