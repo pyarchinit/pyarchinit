@@ -4886,6 +4886,28 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                     )
                     cursor = conn.cursor()
 
+                    # Ensure n_tipologia and n_sigla columns exist
+                    cursor.execute("""
+                        DO $$
+                        BEGIN
+                            IF NOT EXISTS (SELECT 1 FROM information_schema.columns
+                                           WHERE table_schema = 'public'
+                                           AND table_name = 'pyarchinit_thesaurus_sigle'
+                                           AND column_name = 'n_tipologia') THEN
+                                ALTER TABLE public.pyarchinit_thesaurus_sigle
+                                ADD COLUMN n_tipologia integer;
+                            END IF;
+
+                            IF NOT EXISTS (SELECT 1 FROM information_schema.columns
+                                           WHERE table_schema = 'public'
+                                           AND table_name = 'pyarchinit_thesaurus_sigle'
+                                           AND column_name = 'n_sigla') THEN
+                                ALTER TABLE public.pyarchinit_thesaurus_sigle
+                                ADD COLUMN n_sigla integer;
+                            END IF;
+                        END $$;
+                    """)
+
                     # First, clean trailing spaces from all fields
                     cursor.execute("""
                         UPDATE public.pyarchinit_thesaurus_sigle
@@ -5088,6 +5110,16 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                     """)
 
                     if cursor.fetchone():
+                        # Check and add missing columns if needed
+                        cursor.execute("PRAGMA table_info(pyarchinit_thesaurus_sigle)")
+                        columns = [row[1] for row in cursor.fetchall()]
+
+                        if 'n_tipologia' not in columns:
+                            cursor.execute("ALTER TABLE pyarchinit_thesaurus_sigle ADD COLUMN n_tipologia INTEGER")
+
+                        if 'n_sigla' not in columns:
+                            cursor.execute("ALTER TABLE pyarchinit_thesaurus_sigle ADD COLUMN n_sigla INTEGER")
+
                         # First, clean trailing spaces from all fields
                         cursor.execute("""
                             UPDATE pyarchinit_thesaurus_sigle

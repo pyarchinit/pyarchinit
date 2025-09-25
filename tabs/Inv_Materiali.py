@@ -34,6 +34,8 @@ import vtk
 from pyvistaqt import QtInteractor
 import functools
 from builtins import range
+import sys
+import subprocess
 
 from qgis.PyQt.QtCore import Qt, QSize, QVariant, QDateTime
 from qgis.PyQt.QtGui import QIcon, QColor
@@ -42,7 +44,6 @@ from qgis.PyQt.uic import loadUiType
 from qgis.core import QgsSettings, Qgis
 from qgis.gui import QgsMapCanvas
 from collections import OrderedDict
-import subprocess
 
 from ..modules.utility.skatch_gpt_INVMAT import GPTWindow
 from ..modules.utility.VideoPlayerArtefact import VideoPlayerWindow
@@ -55,6 +56,7 @@ from ..modules.utility.csv_writer import UnicodeWriter
 from ..modules.utility.delegateComboBox import ComboBoxDelegate
 from ..modules.utility.pyarchinit_error_check import Error_check
 from ..modules.utility.pyarchinit_exp_Findssheet_pdf import generate_reperti_pdf
+from ..modules.utility.pyarchinit_exp_Inventario_A5_pdf import generate_inventario_pdf_a5
 from ..modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis
 from ..modules.utility.archaeological_data_mapping import ArchaeologicalDataMapper
 from ..gui.imageViewer import ImageViewer
@@ -451,6 +453,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         #self.comboBox_repertato.currentTextChanged.connect(self.numero_reperto)
         self.pushButton_sketchgpt.clicked.connect(self.sketchgpt)
         self.toolButton_pdfpath.clicked.connect(self.setPathpdf)
+        self.pushButton_esporta_a5.clicked.connect(self.on_pushButton_esporta_a5_pressed)
         self.customize_gui()
         #self.loadMapPreview()
         #self.setWindowFlags(self.windowFlags() | Qt.WindowStaysOnTopHint)
@@ -3780,6 +3783,156 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         except Exception as e:
             QMessageBox.warning(self,'Warning','Il campo cassa non deve essere vuoto', QMessageBox.Ok)
     ####################################################
+    def on_pushButton_esporta_a5_pressed(self):
+        """Esporta la scheda inventario in formato A5 con immagine"""
+        try:
+            # Verifica che ci siano dati
+            if not self.DATA_LIST:
+                QMessageBox.warning(self, 'ATTENZIONE',
+                                   'Non ci sono schede da esportare',
+                                   QMessageBox.Ok)
+                return
+
+            # Dialog per i titoli dell'intestazione
+            dialog = QDialog(self)
+            dialog.setWindowTitle('Intestazione PDF')
+            dialog.setModal(True)
+
+            layout = QVBoxLayout()
+
+            # Primo titolo (sinistra)
+            label1 = QLabel('Titolo sinistro (es. SCUOLA ARCHEOLOGICA ITALIANA DI ATENE):')
+            layout.addWidget(label1)
+
+            title_left = QLineEdit()
+            title_left.setText('SCUOLA ARCHEOLOGICA ITALIANA DI ATENE')
+            layout.addWidget(title_left)
+
+            # Secondo titolo (destra)
+            label2 = QLabel('Titolo destro (lasciare vuoto per usare il nome del sito):')
+            layout.addWidget(label2)
+
+            title_right = QLineEdit()
+            title_right.setPlaceholderText('Es. SCAVI DI FESTOS (CRETA)')
+            layout.addWidget(title_right)
+
+            # Bottoni
+            button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+            button_box.accepted.connect(dialog.accept)
+            button_box.rejected.connect(dialog.reject)
+            layout.addWidget(button_box)
+
+            dialog.setLayout(layout)
+
+            if dialog.exec_() != QDialog.Accepted:
+                return
+
+            left_title = title_left.text()
+            right_title = title_right.text()
+
+            # Se il titolo destro è vuoto, usa il nome del sito
+            if not right_title and self.DATA_LIST:
+                right_title = f"SCAVI DI {str(self.DATA_LIST[0].sito).upper()}"
+
+            # Chiedi all'utente se esportare solo il record corrente o tutti
+            export_option = QMessageBox.question(self, 'Esportazione A5',
+                                                'Vuoi esportare solo la scheda corrente o tutte le schede?\n\n'
+                                                'Sì = Solo scheda corrente\n'
+                                                'No = Tutte le schede\n'
+                                                'Annulla = Annulla operazione',
+                                                QMessageBox.Yes | QMessageBox.No | QMessageBox.Cancel)
+
+            if export_option == QMessageBox.Cancel:
+                return
+
+            records_to_export = []
+
+            if export_option == QMessageBox.Yes:
+                # Esporta solo il record corrente
+                if self.REC_CORR < 0 or self.REC_CORR >= len(self.DATA_LIST):
+                    QMessageBox.warning(self, 'ATTENZIONE',
+                                       'Nessun record selezionato',
+                                       QMessageBox.Ok)
+                    return
+
+                current_record = self.DATA_LIST[self.REC_CORR]
+                record_list = self.record_to_list(current_record)
+                records_to_export.append(record_list)
+
+            else:
+                # Esporta tutti i record
+                for record in self.DATA_LIST:
+                    record_list = self.record_to_list(record)
+                    records_to_export.append(record_list)
+
+            if not records_to_export:
+                QMessageBox.warning(self, 'ATTENZIONE',
+                                   'Nessun record da esportare',
+                                   QMessageBox.Ok)
+                return
+
+            # Crea l'oggetto PDF generator
+            pdf_generator = generate_inventario_pdf_a5()
+
+            # Ottieni il sito dal primo record
+            sito = str(records_to_export[0][1]) if records_to_export else ''
+
+            # Genera il PDF con i titoli personalizzati
+            pdf_generator.build_Inventario_a5(records_to_export, sito, left_title, right_title)
+
+            # Mostra messaggio di conferma
+            num_records = len(records_to_export)
+            msg = f'Esportata {num_records} scheda A5' if num_records == 1 else f'Esportate {num_records} schede A5'
+            QMessageBox.information(self, 'ESPORTAZIONE COMPLETATA', msg, QMessageBox.Ok)
+
+            # Apri il PDF generato
+            filepath = os.path.join(pdf_generator.PDF_path, 'scheda_Inventario_A5.pdf')
+            if sys.platform == "darwin":
+                subprocess.Popen(["open", filepath])
+            elif sys.platform == "win32":
+                os.startfile(filepath)
+            else:  # linux
+                subprocess.Popen(["xdg-open", filepath])
+
+        except Exception as e:
+            QMessageBox.critical(self, 'ERRORE',
+                               f'Errore durante l\'esportazione: {str(e)}',
+                               QMessageBox.Ok)
+
+    def record_to_list(self, record):
+        """Converte un record inventario in lista per il PDF generator"""
+        return [
+            record.id_invmat,
+            record.sito,
+            record.numero_inventario,
+            record.tipo_reperto,
+            record.criterio_schedatura,
+            record.definizione,
+            record.descrizione,
+            record.area,
+            record.us,
+            record.lavato,
+            record.nr_cassa,
+            record.luogo_conservazione,
+            record.stato_conservazione,
+            record.datazione_reperto,
+            record.elementi_reperto,
+            record.misurazioni,
+            record.rif_biblio,
+            record.tecnologie,
+            record.forme_minime,
+            record.forme_massime,
+            record.totale_frammenti,
+            record.corpo_ceramico,
+            record.rivestimento,
+            record.diametro_orlo,
+            record.peso,
+            record.tipo,
+            record.eve_orlo,
+            record.repertato,
+            record.diagnostico
+        ]
+
     def exp_pdf_elenco_casse_main_experimental(self):
         ##campi per generare la lista da passare al pdf
         # experimental to finish
