@@ -4492,6 +4492,41 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                 except:# Exception as e:
                     pass#QMessageBox.warning(self, "Error", str(e), QMessageBox.Ok)
 
+    def update_tma_inventario_field(self, sito, n_reperto, action='remove'):
+        """Update TMA inventario field when n_reperto is added or removed"""
+        try:
+            from ..modules.db.structures.Tma_materiali_archeologici_table import Tma_materiali_archeologici
+
+            # Query all TMA records for this site
+            search_dict = {'sito': sito}
+            tma_records = self.DB_MANAGER.query_bool(search_dict, 'TMA_MATERIALI_ARCHEOLOGICI')
+
+            for tma in tma_records:
+                if tma.inventario:
+                    inventario_list = str(tma.inventario).split(',')
+                    inventario_list = [x.strip() for x in inventario_list]
+
+                    if action == 'remove':
+                        # Remove n_reperto from the list
+                        if n_reperto in inventario_list:
+                            inventario_list.remove(n_reperto)
+                    elif action == 'add':
+                        # Add n_reperto to the list
+                        if n_reperto not in inventario_list:
+                            inventario_list.append(n_reperto)
+
+                    # Update the inventario field
+                    new_inventario = ', '.join(inventario_list) if inventario_list else ''
+
+                    # Update the record in the database
+                    update_dict = {'inventario': new_inventario}
+                    self.DB_MANAGER.update(Tma_materiali_archeologici, tma.id, update_dict, 'id')
+
+            QgsMessageLog.logMessage(f"Updated TMA inventario field for site {sito}, n_reperto {n_reperto}", "PyArchInit", Qgis.Info)
+
+        except Exception as e:
+            QgsMessageLog.logMessage(f"Error updating TMA inventario field: {str(e)}", "PyArchInit", Qgis.Warning)
+
     def on_pushButton_delete_pressed(self):
 
         if self.L=='it':
@@ -4502,8 +4537,20 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                 QMessageBox.warning(self, "Messagio!!!", "Azione Annullata!")
             else:
                 try:
+                    # Get n_reperto before deleting to update TMA records
+                    n_reperto_to_remove = None
+                    sito = None
+                    if hasattr(self.DATA_LIST[self.REC_CORR], 'n_reperto') and self.DATA_LIST[self.REC_CORR].n_reperto:
+                        n_reperto_to_remove = str(self.DATA_LIST[self.REC_CORR].n_reperto)
+                        sito = str(self.DATA_LIST[self.REC_CORR].sito)
+
                     id_to_delete = eval("self.DATA_LIST[self.REC_CORR]." + self.ID_TABLE)
                     self.DB_MANAGER.delete_one_record(self.TABLE_NAME, self.ID_TABLE, id_to_delete)
+
+                    # Update TMA records that reference this n_reperto
+                    if n_reperto_to_remove and sito:
+                        self.update_tma_inventario_field(sito, n_reperto_to_remove, action='remove')
+
                     self.charge_records()  # charge records from DB
                     QMessageBox.warning(self, "Messaggio!!!", "Record eliminato!")
                 except Exception as e:
@@ -4535,8 +4582,20 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                 QMessageBox.warning(self, "Message!!!", "Aktion annulliert!")
             else:
                 try:
+                    # Get n_reperto before deleting to update TMA records
+                    n_reperto_to_remove = None
+                    sito = None
+                    if hasattr(self.DATA_LIST[self.REC_CORR], 'n_reperto') and self.DATA_LIST[self.REC_CORR].n_reperto:
+                        n_reperto_to_remove = str(self.DATA_LIST[self.REC_CORR].n_reperto)
+                        sito = str(self.DATA_LIST[self.REC_CORR].sito)
+
                     id_to_delete = eval("self.DATA_LIST[self.REC_CORR]." + self.ID_TABLE)
                     self.DB_MANAGER.delete_one_record(self.TABLE_NAME, self.ID_TABLE, id_to_delete)
+
+                    # Update TMA records that reference this n_reperto
+                    if n_reperto_to_remove and sito:
+                        self.update_tma_inventario_field(sito, n_reperto_to_remove, action='remove')
+
                     self.charge_records()  # charge records from DB
                     QMessageBox.warning(self, "Message!!!", "Record gelöscht!")
                 except Exception as e:
@@ -4568,8 +4627,20 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                 QMessageBox.warning(self, "Message!!!", "Action deleted!")
             else:
                 try:
+                    # Get n_reperto before deleting to update TMA records
+                    n_reperto_to_remove = None
+                    sito = None
+                    if hasattr(self.DATA_LIST[self.REC_CORR], 'n_reperto') and self.DATA_LIST[self.REC_CORR].n_reperto:
+                        n_reperto_to_remove = str(self.DATA_LIST[self.REC_CORR].n_reperto)
+                        sito = str(self.DATA_LIST[self.REC_CORR].sito)
+
                     id_to_delete = eval("self.DATA_LIST[self.REC_CORR]." + self.ID_TABLE)
                     self.DB_MANAGER.delete_one_record(self.TABLE_NAME, self.ID_TABLE, id_to_delete)
+
+                    # Update TMA records that reference this n_reperto
+                    if n_reperto_to_remove and sito:
+                        self.update_tma_inventario_field(sito, n_reperto_to_remove, action='remove')
+
                     self.charge_records()  # charge records from DB
                     QMessageBox.warning(self, "Message!!!", "Record deleted!")
                 except Exception as e:

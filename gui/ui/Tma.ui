@@ -1421,7 +1421,7 @@
         </font>
        </property>
        <property name="maxLength">
-        <number>15</number>
+        <number>1000</number>
        </property>
       </widget>
      </item>
@@ -1724,7 +1724,7 @@
       <attribute name="title">
        <string>Identificazione e Localizzazione</string>
       </attribute>
-      <widget class="QWidget" name="">
+      <widget class="QWidget" name="layoutWidget">
        <property name="geometry">
         <rect>
          <x>10</x>
@@ -2034,7 +2034,7 @@
       <attribute name="title">
        <string>Ricognizione e Acquisizione</string>
       </attribute>
-      <widget class="QWidget" name="">
+      <widget class="QWidget" name="layoutWidget">
        <property name="geometry">
         <rect>
          <x>0</x>

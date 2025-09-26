@@ -3528,7 +3528,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.comboBox_per_iniz.currentIndexChanged.connect(self.charge_periodo_fin_list)
         self.comboBox_per_iniz.currentIndexChanged.connect(self.charge_fase_iniz_list)
         self.comboBox_sito.currentTextChanged.connect(self.geometry_unitastratigrafiche)### rallenta molto
-        self.comboBox_sito.currentIndexChanged.connect(self.geometry_unitastratigrafiche)### rallenta molto
+        # Removed duplicate connection to avoid double centroid calculation
+        # self.comboBox_sito.currentIndexChanged.connect(self.geometry_unitastratigrafiche)
         self.comboBox_unita_tipo.currentTextChanged.connect(self.charge_insert_ra)
         self.comboBox_sito.currentTextChanged.connect(self.charge_insert_ra)
         # Add TM synchronization connections
@@ -8027,9 +8028,71 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 # debugging. Replace `print` with a logger as necessary.
                 pass#QMessageBox.warning(self, 'Warning', f"Error setting edit text: {e}")
 
+    def calculate_centroid_from_geometries(self, geometry_records):
+        '''
+        Calculate the centroid of multiple polygon geometries from pyunitastratigrafiche
+        '''
+        try:
+            if not geometry_records:
+                return None
+
+            from qgis.core import QgsGeometry, QgsPointXY
+
+            # List to store all valid geometries
+            geometries = []
+
+            # Process each record
+            for record in geometry_records:
+                if hasattr(record, 'the_geom') and record.the_geom:
+                    try:
+                        # Convert geometry to QgsGeometry
+                        if isinstance(record.the_geom, str):
+                            # If it's WKT string
+                            geom = QgsGeometry.fromWkt(record.the_geom)
+                        else:
+                            # If it's WKB (binary)
+                            geom = QgsGeometry()
+                            geom.fromWkb(record.the_geom)
+
+                        if geom and not geom.isEmpty():
+                            geometries.append(geom)
+                    except Exception as e:
+                        print(f"Errore processando geometria singola: {e}")
+                        continue
+
+            # If we have geometries, calculate centroid
+            if geometries:
+                if len(geometries) == 1:
+                    # Single geometry - get its centroid
+                    centroid = geometries[0].centroid()
+                else:
+                    # Multiple geometries - combine and get centroid
+                    combined = geometries[0]
+                    for geom in geometries[1:]:
+                        combined = combined.combine(geom)
+                    centroid = combined.centroid()
+
+                if centroid and not centroid.isEmpty():
+                    point = centroid.asPoint()
+                    # Format with 6 decimal places for precision
+                    return f"{round(point.x(), 6)}, {round(point.y(), 6)}"
+
+            # Fallback to coord field if no geometries processed
+            if geometry_records:
+                coords = [str(item.coord) for item in geometry_records if item.coord]
+                if coords:
+                    return coords[0]
+
+            return None
+
+        except Exception as e:
+            print(f"Errore nel calcolo del centroide: {e}")
+            return None
+
     def geometry_unitastratigrafiche(self):
         '''
             This function charges the 'Posizione' combobox with the values from the 'Unità Stratigrafiche' table.
+            Enhanced to calculate and display centroid when multiple polygons exist.
         '''
         try:
             # Usa i valori correnti dei widget invece di accedere a DATA_LIST
@@ -8044,17 +8107,42 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             }
 
             geometry_vl = self.DB_MANAGER.query_bool(search_dict, 'PYUS')
-            geometry_list = [str(item.coord) for item in geometry_vl if item.coord]
 
-            self.comboBox_posizione.clear()
-            self.comboBox_posizione.addItems(self.UTILITY.remove_dup_from_list(geometry_list))
+            # Take only the most recent geometry record (last one)
+            if geometry_vl and len(geometry_vl) > 0:
+                # Use only the last/most recent geometry
+                latest_geometry = geometry_vl[-1]
+
+                # Calculate centroid from the single latest geometry
+                centroid_str = None
+                if latest_geometry.coord:
+                    centroid_str = self.calculate_centroid_from_geometries([latest_geometry])
+
+                self.comboBox_posizione.clear()
+
+                # Add only the centroid if calculated
+                if centroid_str:
+                    # Add just the coordinates without the "CENTROIDE:" label
+                    self.comboBox_posizione.addItem(centroid_str)
+                elif latest_geometry.coord:
+                    # If no centroid, use the coordinate directly
+                    self.comboBox_posizione.addItem(str(latest_geometry.coord))
+            else:
+                self.comboBox_posizione.clear()
 
             if self.STATUS_ITEMS[self.BROWSE_STATUS] in ["Trova", "Finden", "Find"]:
                 self.comboBox_posizione.setEditText("")
             elif self.STATUS_ITEMS[self.BROWSE_STATUS] in ["Usa", "Aktuell", "Current"]:
                 if hasattr(self, 'DATA_LIST') and self.DATA_LIST:
                     try:
-                        self.comboBox_posizione.setEditText(self.DATA_LIST[self.rec_num].posizione)
+                        current_position = self.DATA_LIST[self.rec_num].posizione
+
+                        # If position is empty and we have a centroid, use it
+                        if centroid_str and (not current_position or current_position == ""):
+                            self.comboBox_posizione.setEditText(centroid_str)
+                        else:
+                            self.comboBox_posizione.setEditText(current_position)
+
                         self.comboBox_posizione.show()
                     except (IndexError, AttributeError) as e:
                         print(f"Errore in geometry_unitastratigrafiche: {str(e)}")
