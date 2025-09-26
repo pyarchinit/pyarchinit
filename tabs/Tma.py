@@ -2730,6 +2730,9 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                                 self.set_LIST_REC_TEMP()
                                 self.set_LIST_REC_CORR()
                             QMessageBox.information(self, "Info", "Record aggiornato con successo", QMessageBox.Ok)
+                            # If we're in filtered data (single record after search), allow new search
+                            if len(self.DATA_LIST) == 1:
+                                self.enable_button_search(1)  # Re-enable search buttons
                     except Exception as e:
                         import traceback
                         traceback.print_exc()
