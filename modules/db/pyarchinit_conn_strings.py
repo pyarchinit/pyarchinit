@@ -96,22 +96,22 @@ class Connection(object):
 
             if conn_str_dict["server"] == 'postgres':
                 try:
-                    conn_str = "%s://%s:%s@%s:%s/%s%s" % (
+                    conn_str = "%s://%s:%s@%s:%s/%s" % (
                     "postgresql", conn_str_dict["user"], conn_str_dict["password"], conn_str_dict["host"],
-                    conn_str_dict["port"], conn_str_dict["db_name"], "?sslmode=allow")
+                    conn_str_dict["port"], conn_str_dict["db_name"])
                     # Log masked connection string
-                    masked_str = "%s://%s:***@%s:%s/%s%s" % (
+                    masked_str = "%s://%s:***@%s:%s/%s" % (
                     "postgresql", conn_str_dict["user"], conn_str_dict["host"],
-                    conn_str_dict["port"], conn_str_dict["db_name"], "?sslmode=allow")
+                    conn_str_dict["port"], conn_str_dict["db_name"])
                     self.logger.log(f"PostgreSQL connection string (masked): {masked_str}")
                     test=True
                 except Exception as e:
                     self.logger.log_exception(e, "creating PostgreSQL connection string (with SSL)")
                     QMessageBox.warning(self, "Attenzione", 'Problema', QMessageBox.Ok)
-                    conn_str = "%s://%s:%s@%s:%d/%s" % (
+                    conn_str = "%s://%s:%s@%s:%s/%s" % (
                     "postgresql", conn_str_dict["user"], conn_str_dict["password"], conn_str_dict["host"],
                     conn_str_dict["port"], conn_str_dict["db_name"])
-                    masked_str = "%s://%s:***@%s:%d/%s" % (
+                    masked_str = "%s://%s:***@%s:%s/%s" % (
                     "postgresql", conn_str_dict["user"], conn_str_dict["host"],
                     conn_str_dict["port"], conn_str_dict["db_name"])
                     self.logger.log(f"PostgreSQL connection string fallback (masked): {masked_str}")
