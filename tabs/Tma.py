@@ -234,7 +234,8 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         
         # Add tabs for media and map
         self.addMediaTab()
-        
+        self.addTableViewTab()
+
 
 
         self.customize_GUI()
@@ -248,6 +249,104 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             # SIGNALS & SLOTS Functions
 
 
+    def add_custom_toolbar_buttons(self):
+        """Add custom buttons between toolbar and tabWidget."""
+        try:
+            # Create advanced search button
+            self.pushButton_advanced_search = QPushButton()
+            self.pushButton_advanced_search.setText("Ricerca Avanzata")
+            self.pushButton_advanced_search.setToolTip("Apri ricerca avanzata per US e cassette")
+            self.pushButton_advanced_search.setMinimumHeight(28)
+
+            # Create table view button
+            self.pushButton_table_view = QPushButton()
+            self.pushButton_table_view.setText("Vista Tabella")
+            self.pushButton_table_view.setToolTip("Passa alla vista tabella")
+            self.pushButton_table_view.setMinimumHeight(28)
+
+            # Create a horizontal layout for the buttons
+            button_widget = QWidget()
+            button_layout = QHBoxLayout()
+            button_layout.setContentsMargins(10, 5, 10, 5)
+            button_layout.addWidget(self.pushButton_advanced_search)
+            button_layout.addWidget(self.pushButton_table_view)
+            button_layout.addStretch()  # Push buttons to the left
+            button_widget.setLayout(button_layout)
+            button_widget.setMaximumHeight(40)
+
+            # The main dialog has gridLayout_9 with:
+            # - row 0: gridLayout_4 (contains toolbar with DB info, connection buttons)
+            # - row 1: gridLayout_2 (contains navigation toolbar)
+            # - row 2: tabWidget (contains all the tabs)
+
+            # We want to insert between row 1 and row 2
+            if hasattr(self, 'gridLayout_9'):
+                # Get all widgets currently in the grid
+                items_to_move = []
+
+                # Find tabWidget position
+                for row in range(self.gridLayout_9.rowCount()):
+                    for col in range(self.gridLayout_9.columnCount()):
+                        item = self.gridLayout_9.itemAtPosition(row, col)
+                        if item and item.widget() == self.tabWidget:
+                            # Found tabWidget, we need to move it and everything after
+                            for r in range(row, self.gridLayout_9.rowCount()):
+                                for c in range(self.gridLayout_9.columnCount()):
+                                    it = self.gridLayout_9.itemAtPosition(r, c)
+                                    if it and it.widget():
+                                        pos = self.gridLayout_9.getItemPosition(self.gridLayout_9.indexOf(it.widget()))
+                                        items_to_move.append((it.widget(), pos))
+                            break
+                    if items_to_move:
+                        break
+
+                # Remove widgets that need to be moved
+                for widget, _ in items_to_move:
+                    self.gridLayout_9.removeWidget(widget)
+
+                # Add our button widget at row 2
+                self.gridLayout_9.addWidget(button_widget, 2, 0, 1, -1)
+
+                # Re-add the moved widgets one row down
+                for widget, (row, col, rowspan, colspan) in items_to_move:
+                    self.gridLayout_9.addWidget(widget, row + 1, col, rowspan, colspan)
+
+            else:
+                # Fallback: try to find the parent of tabWidget
+                if hasattr(self, 'tabWidget') and self.tabWidget.parent():
+                    parent = self.tabWidget.parent()
+                    parent_layout = parent.layout()
+
+                    if parent_layout:
+                        # Find tabWidget in the layout
+                        index = parent_layout.indexOf(self.tabWidget)
+                        if index >= 0:
+                            # Create a new widget to hold both buttons and tabs
+                            container = QWidget()
+                            container_layout = QVBoxLayout()
+                            container_layout.setContentsMargins(0, 0, 0, 0)
+                            container_layout.setSpacing(0)
+
+                            # Add buttons first
+                            container_layout.addWidget(button_widget)
+
+                            # Remove tabWidget from parent and add to container
+                            parent_layout.removeWidget(self.tabWidget)
+                            container_layout.addWidget(self.tabWidget)
+
+                            container.setLayout(container_layout)
+
+                            # Add container back to parent layout
+                            if isinstance(parent_layout, QGridLayout):
+                                # If it's a grid, maintain the position
+                                parent_layout.addWidget(container, 2, 0, 1, -1)
+                            else:
+                                # Otherwise insert at the original position
+                                parent_layout.insertWidget(index, container)
+
+        except Exception as e:
+            QgsMessageLog.logMessage(f"Error adding custom toolbar buttons: {str(e)}", "PyArchInit", Qgis.Warning)
+
     def customize_GUI(self):
         """Customize the GUI elements - connect signals to slots."""
         # Get language settings like Inv_Materiali does
@@ -257,7 +356,10 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             if values.__contains__(l):
                 lang = str(key)
         lang = "'" + lang + "'"
-        
+
+        # Add custom buttons to the toolbar
+        self.add_custom_toolbar_buttons()
+
         # Connect table buttons (ora definiti nel file UI)
         self.pushButton_add_foto.clicked.connect(self.on_pushButton_add_foto_pressed)
         self.pushButton_remove_foto.clicked.connect(self.on_pushButton_remove_foto_pressed)
@@ -311,6 +413,19 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         self.pushButton_view_all_2.clicked.connect(self.on_pushButton_view_all_pressed)
         # self.pushButton_open_dir.clicked.connect(self.on_pushButton_open_dir_pressed)
         #self.toolButtonGis.clicked.connect(self.on_toolButtonGis_toggled)
+
+        # Connect advanced search button if it exists
+        try:
+            self.pushButton_advanced_search.clicked.connect(self.on_pushButton_advanced_search_pressed)
+        except:
+            pass  # Button might not exist in the UI
+
+        # Connect table view button if it exists
+        try:
+            self.pushButton_table_view.clicked.connect(self.on_pushButton_table_view_pressed)
+        except:
+            pass  # Button might not exist in the UI
+
         # self.pushButton_import.clicked.connect(self.on_pushButton_import_pressed)
         # #self.pushButton_export_ica.clicked.connect(self.on_pushButton_export_pdf_pressed)
         # self.pushButton_export_pdf.clicked.connect(self.on_pushButton_export_tma_pdf_pressed)
@@ -2730,6 +2845,180 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         if self.tableWidget_materiali.rowCount() == 0:
             self.tableWidget_materiali.insertRow(0)
 
+    def on_pushButton_table_view_pressed(self):
+        """Switch to table view tab when toolbar button is pressed."""
+        try:
+            if hasattr(self, 'table_view_tab_index'):
+                self.tabWidget.setCurrentIndex(self.table_view_tab_index)
+                self.populate_table_view()
+        except Exception as e:
+            QMessageBox.warning(self, "Errore", f"Errore nell'apertura vista tabella: {str(e)}", QMessageBox.Ok)
+
+    def on_pushButton_advanced_search_pressed(self):
+        """Open advanced search dialog for US and cassette ranges."""
+        from PyQt5.QtWidgets import QDialog, QVBoxLayout, QHBoxLayout, QGroupBox, QCheckBox
+        from PyQt5.QtWidgets import QListWidget, QAbstractItemView, QDialogButtonBox
+        from PyQt5.QtWidgets import QSpinBox, QLabel
+
+        dialog = QDialog(self)
+        dialog.setWindowTitle("Ricerca Avanzata TMA")
+        dialog.resize(600, 500)
+
+        layout = QVBoxLayout(dialog)
+
+        # US Range Search
+        us_group = QGroupBox("Ricerca per US")
+        us_layout = QVBoxLayout()
+
+        # Range selection
+        range_layout = QHBoxLayout()
+        use_range = QCheckBox("Usa intervallo US (es. da US 1 a US 23)")
+        use_range.setToolTip("Attiva per cercare tutte le US in un intervallo numerico")
+        range_layout.addWidget(use_range)
+
+        range_layout.addWidget(QLabel("Da US:"))
+        us_from = QSpinBox()
+        us_from.setMinimum(0)
+        us_from.setMaximum(99999)
+        us_from.setEnabled(False)  # Disabled by default
+        range_layout.addWidget(us_from)
+
+        range_layout.addWidget(QLabel("A US:"))
+        us_to = QSpinBox()
+        us_to.setMinimum(0)
+        us_to.setMaximum(99999)
+        us_to.setEnabled(False)  # Disabled by default
+        range_layout.addWidget(us_to)
+
+        # Enable/disable range inputs based on checkbox
+        def toggle_range():
+            enabled = use_range.isChecked()
+            us_from.setEnabled(enabled)
+            us_to.setEnabled(enabled)
+            us_list_widget.setEnabled(not enabled)
+            if enabled:
+                us_list_label.setText("Intervallo US attivo (lista disabilitata):")
+            else:
+                us_list_label.setText("Oppure seleziona US specifiche dalla lista:")
+
+        use_range.toggled.connect(toggle_range)
+
+        us_layout.addLayout(range_layout)
+
+        # US List selection
+        us_list_label = QLabel("Oppure seleziona US specifiche:")
+        us_layout.addWidget(us_list_label)
+
+        us_list_widget = QListWidget()
+        us_list_widget.setSelectionMode(QAbstractItemView.MultiSelection)
+
+        # Get unique US values from database
+        try:
+            all_tma = self.DB_MANAGER.query('TMA')
+            unique_us = sorted(set(str(tma.dscu) for tma in all_tma if tma.dscu))
+            us_list_widget.addItems(unique_us)
+        except:
+            pass
+
+        us_layout.addWidget(us_list_widget)
+        us_group.setLayout(us_layout)
+        layout.addWidget(us_group)
+
+        # Cassette Search
+        cassette_group = QGroupBox("Ricerca per Cassetta")
+        cassette_layout = QVBoxLayout()
+
+        cassette_list_label = QLabel("Seleziona cassette:")
+        cassette_layout.addWidget(cassette_list_label)
+
+        cassette_list_widget = QListWidget()
+        cassette_list_widget.setSelectionMode(QAbstractItemView.MultiSelection)
+
+        # Get unique cassette values
+        try:
+            unique_cassette = set()
+            for tma in all_tma:
+                if tma.cassetta:
+                    # Split cassette by common delimiters
+                    import re
+                    cassette_str = str(tma.cassetta)
+                    casse = re.split(r'[,;/\-]', cassette_str)
+                    for c in casse:
+                        c = c.strip()
+                        if c and c != 'None':
+                            unique_cassette.add(c)
+
+            cassette_list_widget.addItems(sorted(unique_cassette))
+        except:
+            pass
+
+        cassette_layout.addWidget(cassette_list_widget)
+        cassette_group.setLayout(cassette_layout)
+        layout.addWidget(cassette_group)
+
+        # Buttons
+        buttons = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        buttons.accepted.connect(dialog.accept)
+        buttons.rejected.connect(dialog.reject)
+        layout.addWidget(buttons)
+
+        if dialog.exec_() == QDialog.Accepted:
+            # Build search
+            search_results = []
+
+            # Get US criteria
+            selected_us = []
+            if use_range.isChecked() and us_from.value() <= us_to.value():
+                # Use range
+                us_range = list(range(us_from.value(), us_to.value() + 1))
+                selected_us = [str(u) for u in us_range]
+            else:
+                # Use selected items
+                selected_us = [item.text() for item in us_list_widget.selectedItems()]
+
+            # Get cassette criteria
+            selected_cassette = [item.text() for item in cassette_list_widget.selectedItems()]
+
+            # Search database
+            all_tma = self.DB_MANAGER.query('TMA')
+
+            for tma in all_tma:
+                match_us = not selected_us or str(tma.dscu) in selected_us
+
+                match_cassette = True
+                if selected_cassette:
+                    match_cassette = False
+                    if tma.cassetta:
+                        import re
+                        cassette_str = str(tma.cassetta)
+                        casse = re.split(r'[,;/\-]', cassette_str)
+                        for c in casse:
+                            c = c.strip()
+                            if c in selected_cassette:
+                                match_cassette = True
+                                break
+
+                if match_us and match_cassette:
+                    search_results.append(tma)
+
+            # Show results
+            if search_results:
+                self.DATA_LIST = search_results
+                self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
+                self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
+                self.fill_fields()
+                self.BROWSE_STATUS = "b"
+                self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
+                self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR + 1)
+
+                QMessageBox.information(self, "Risultati",
+                                      f"Trovati {len(search_results)} record TMA",
+                                      QMessageBox.Ok)
+            else:
+                QMessageBox.warning(self, "Attenzione",
+                                   "Nessun record trovato con i criteri specificati",
+                                   QMessageBox.Ok)
+
     def on_pushButton_search_go_pressed(self):
         """Execute search."""
         if self.BROWSE_STATUS != "f":
@@ -3443,6 +3732,125 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         self.comboBox_area.clear()
         self.comboBox_area.addItems(area_vl)
     
+    def addTableViewTab(self):
+        """Add table view tab after media tab."""
+        try:
+            # Create the table view tab
+            table_tab = QWidget()
+            table_layout = QVBoxLayout(table_tab)
+
+            # Create the table widget for TMA records
+            self.tableWidget_tma_view = QTableWidget()
+
+            # Define column headers based on main TMA fields
+            headers = ['ID', 'Sito', 'Area', 'US', 'Località', 'Settore', 'Inventario',
+                      'Cassetta', 'Magazzino', 'Fascia cronologica', 'Data scavo',
+                      'Data ricognizione', 'Indicazione oggetti']
+
+            self.tableWidget_tma_view.setColumnCount(len(headers))
+            self.tableWidget_tma_view.setHorizontalHeaderLabels(headers)
+
+            # Set table properties
+            self.tableWidget_tma_view.setAlternatingRowColors(True)
+            self.tableWidget_tma_view.setSelectionBehavior(QTableWidget.SelectRows)
+            self.tableWidget_tma_view.setSortingEnabled(True)
+            self.tableWidget_tma_view.horizontalHeader().setStretchLastSection(True)
+
+            # Connect double-click to load record in form view
+            self.tableWidget_tma_view.itemDoubleClicked.connect(self.on_table_item_double_clicked)
+
+            # Add refresh button
+            button_layout = QHBoxLayout()
+            self.pushButton_refresh_table = QPushButton("Aggiorna Tabella")
+            self.pushButton_refresh_table.clicked.connect(self.populate_table_view)
+            button_layout.addWidget(self.pushButton_refresh_table)
+            button_layout.addStretch()
+
+            table_layout.addLayout(button_layout)
+            table_layout.addWidget(self.tableWidget_tma_view)
+
+            # Add tab to the tab widget
+            self.tabWidget.addTab(table_tab, "Vista Tabella")
+
+            # Store the tab index for later use
+            self.table_view_tab_index = self.tabWidget.count() - 1
+
+            # Connect tab change to populate table when switched to
+            self.tabWidget.currentChanged.connect(self.on_tab_changed)
+
+        except Exception as e:
+            QgsMessageLog.logMessage(f"Error setting up table view tab: {str(e)}", "PyArchInit", Qgis.Warning)
+
+    def on_tab_changed(self, index):
+        """Handle tab changes to refresh table view when needed."""
+        try:
+            if hasattr(self, 'table_view_tab_index') and index == self.table_view_tab_index:
+                # Switched to table view tab, refresh the data
+                self.populate_table_view()
+        except Exception as e:
+            QgsMessageLog.logMessage(f"Error handling tab change: {str(e)}", "PyArchInit", Qgis.Warning)
+
+    def populate_table_view(self):
+        """Populate the table view with TMA records."""
+        try:
+            # Clear existing rows
+            self.tableWidget_tma_view.setRowCount(0)
+
+            if not self.DATA_LIST:
+                return
+
+            # Add rows for each TMA record
+            for i, tma in enumerate(self.DATA_LIST):
+                row = self.tableWidget_tma_view.rowCount()
+                self.tableWidget_tma_view.insertRow(row)
+
+                # Add data to columns
+                self.tableWidget_tma_view.setItem(row, 0, QTableWidgetItem(str(tma.id)))
+                self.tableWidget_tma_view.setItem(row, 1, QTableWidgetItem(str(tma.sito) if tma.sito else ""))
+                self.tableWidget_tma_view.setItem(row, 2, QTableWidgetItem(str(tma.area) if tma.area else ""))
+                self.tableWidget_tma_view.setItem(row, 3, QTableWidgetItem(str(tma.dscu) if tma.dscu else ""))
+                self.tableWidget_tma_view.setItem(row, 4, QTableWidgetItem(str(tma.localita) if tma.localita else ""))
+                self.tableWidget_tma_view.setItem(row, 5, QTableWidgetItem(str(tma.settore) if tma.settore else ""))
+                self.tableWidget_tma_view.setItem(row, 6, QTableWidgetItem(str(tma.inventario) if tma.inventario else ""))
+                self.tableWidget_tma_view.setItem(row, 7, QTableWidgetItem(str(tma.cassetta) if tma.cassetta else ""))
+                self.tableWidget_tma_view.setItem(row, 8, QTableWidgetItem(str(tma.ldcn) if tma.ldcn else ""))
+                self.tableWidget_tma_view.setItem(row, 9, QTableWidgetItem(str(tma.dtzg) if tma.dtzg else ""))
+                self.tableWidget_tma_view.setItem(row, 10, QTableWidgetItem(str(tma.dscd) if tma.dscd else ""))
+                self.tableWidget_tma_view.setItem(row, 11, QTableWidgetItem(str(tma.rcgd) if tma.rcgd else ""))
+                self.tableWidget_tma_view.setItem(row, 12, QTableWidgetItem(str(tma.deso) if tma.deso else ""))
+
+                # Highlight current record
+                if i == self.REC_CORR:
+                    for col in range(self.tableWidget_tma_view.columnCount()):
+                        item = self.tableWidget_tma_view.item(row, col)
+                        if item:
+                            item.setBackground(QBrush(QColor(200, 230, 255)))
+
+            # Resize columns to content
+            self.tableWidget_tma_view.resizeColumnsToContents()
+
+        except Exception as e:
+            QMessageBox.warning(self, "Errore", f"Errore nel popolamento tabella: {str(e)}", QMessageBox.Ok)
+
+    def on_table_item_double_clicked(self, item):
+        """Handle double-click on table row to load record in form view."""
+        try:
+            row = item.row()
+            if row >= 0 and row < len(self.DATA_LIST):
+                # Set current record
+                self.REC_CORR = row
+                self.DATA_LIST_REC_CORR = self.DATA_LIST[self.REC_CORR]
+
+                # Switch to main tab (form view)
+                self.tabWidget.setCurrentIndex(0)
+
+                # Fill form with selected record
+                self.fill_fields(self.REC_CORR)
+                self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR + 1)
+
+        except Exception as e:
+            QMessageBox.warning(self, "Errore", f"Errore nel caricamento record: {str(e)}", QMessageBox.Ok)
+
     def load_settore_values(self):
         """Load all settore values from thesaurus."""
         # Store current settore value before clearing
