@@ -6578,6 +6578,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         sito_set_str = sito_set['sito_set']
 
         def log_error(message, error_type="ERROR", filename=self.HOME+"/rapporti_update_log.txt"):
+            from datetime import datetime
             timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             with open(filename, 'a', encoding='utf-8') as f:
                 f.write(f"[{timestamp}] {error_type}: {message}\n")
