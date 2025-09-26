@@ -3881,42 +3881,108 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         try:
             # Clear the field first
             self.lineEdit_inventario.clear()
-            
+
             # Get current site, area, us
             sito = self.comboBox_sito.currentText()
             area = self.comboBox_area.currentText()
             us = self.lineEdit_us.text()
-            
+
+            # Debug logging
+            QgsMessageLog.logMessage(f"TMA update_inventory_field: Sito='{sito}', Area='{area}', US='{us}'",
+                                    "PyArchInit", Qgis.Info)
+
             if not sito or not area or not us:
+                QgsMessageLog.logMessage("TMA update_inventory_field: Missing required fields",
+                                        "PyArchInit", Qgis.Info)
                 return
-            
-            # Query inventory materials with repertato = 'Si' (RA numbers)
-            search_dict = {
-                'sito': "'" + str(sito) + "'",
-                'area': "'" + str(area) + "'",
-                'us': "'" + str(us) + "'",
-                'repertato': "'" + 'Si' + "'"
-            }
-            
-            inventory_materials = self.DB_MANAGER.query_bool(search_dict, 'INVENTARIO_MATERIALI')
-            
+
+            # Check if US contains a range (e.g., "3200-3201")
+            inventory_materials = []
+
+            if '-' in us:
+                # Handle US range (e.g., "3200-3201")
+                us_parts = us.split('-')
+                if len(us_parts) == 2:
+                    try:
+                        us_start = int(us_parts[0].strip())
+                        us_end = int(us_parts[1].strip())
+
+                        # Query for each US in the range
+                        for us_val in range(us_start, us_end + 1):
+                            search_dict = {
+                                'sito': "'" + str(sito) + "'",
+                                'area': "'" + str(area) + "'",
+                                'us': str(us_val),  # Numeric comparison
+                                'repertato': "'" + 'Si' + "'"
+                            }
+
+                            materials = self.DB_MANAGER.query_bool(search_dict, 'INVENTARIO_MATERIALI')
+
+                            # If no results with numeric, try with string
+                            if not materials:
+                                search_dict['us'] = "'" + str(us_val) + "'"
+                                materials = self.DB_MANAGER.query_bool(search_dict, 'INVENTARIO_MATERIALI')
+
+                            if materials:
+                                inventory_materials.extend(materials)
+
+                        QgsMessageLog.logMessage(
+                            f"TMA update_inventory_field: Found {len(inventory_materials)} materials "
+                            f"for US range {us_start}-{us_end}", "PyArchInit", Qgis.Info)
+
+                    except ValueError:
+                        # If conversion fails, treat as single US
+                        pass
+
+            # If not a range or range parsing failed, search as single US
+            if not inventory_materials:
+                # Query inventory materials with repertato = 'Si' (RA numbers)
+                search_dict = {
+                    'sito': "'" + str(sito) + "'",
+                    'area': "'" + str(area) + "'",
+                    'us': str(us),  # Try without quotes first for numeric comparison
+                    'repertato': "'" + 'Si' + "'"
+                }
+
+                # First try with numeric US
+                inventory_materials = self.DB_MANAGER.query_bool(search_dict, 'INVENTARIO_MATERIALI')
+
+                # If no results, try with quoted US (string comparison)
+                if not inventory_materials:
+                    search_dict['us'] = "'" + str(us) + "'"
+                    inventory_materials = self.DB_MANAGER.query_bool(search_dict, 'INVENTARIO_MATERIALI')
+                    QgsMessageLog.logMessage(
+                        f"TMA update_inventory_field: Retrying with quoted US, found "
+                        f"{len(inventory_materials) if inventory_materials else 0} materials",
+                        "PyArchInit", Qgis.Info)
+            else:
+                QgsMessageLog.logMessage(f"TMA update_inventory_field: Found {len(inventory_materials)} materials with numeric US", "PyArchInit", Qgis.Info)
+
             if inventory_materials:
                 # Extract RA numbers (n_reperto) and join with semicolon
                 ra_numbers = []
                 for mat in inventory_materials:
-                    if hasattr(mat, 'n_reperto') and mat.n_reperto:
+                    # Check for n_reperto and exclude None values
+                    if hasattr(mat, 'n_reperto') and mat.n_reperto is not None and str(mat.n_reperto) not in ['None', '', 'NULL']:
                         ra_numbers.append(str(mat.n_reperto))
-                
+                        QgsMessageLog.logMessage(f"TMA update_inventory_field: Added n_reperto: {mat.n_reperto}", "PyArchInit", Qgis.Info)
+
                 # Sort the RA numbers for better display
                 ra_numbers.sort()
-                
+
                 # Update the inventory field
                 if ra_numbers:
                     self.lineEdit_inventario.setText('; '.join(ra_numbers))
-                    
+                    QgsMessageLog.logMessage(f"TMA update_inventory_field: Set inventory field to: {'; '.join(ra_numbers)}", "PyArchInit", Qgis.Info)
+                else:
+                    QgsMessageLog.logMessage("TMA update_inventory_field: No valid n_reperto values found", "PyArchInit", Qgis.Info)
+            else:
+                QgsMessageLog.logMessage("TMA update_inventory_field: No inventory materials found matching criteria", "PyArchInit", Qgis.Info)
+
         except Exception as e:
-            # Silently fail - this is just a helper function
-            pass
+            QgsMessageLog.logMessage(f"TMA update_inventory_field error: {str(e)}", "PyArchInit", Qgis.Warning)
+            import traceback
+            QgsMessageLog.logMessage(f"TMA update_inventory_field traceback: {traceback.format_exc()}", "PyArchInit", Qgis.Warning)
     
     def load_thesaurus_values(self, field_type):
         """Load thesaurus values for material fields."""

@@ -25,6 +25,7 @@ import datetime
 from datetime import date
 from numpy import *
 import io
+from html import escape
 
 from builtins import object
 from builtins import range
@@ -131,6 +132,13 @@ class single_US_pdf_sheet(object):
     inclusi_print = ''
 
     inclusi__usm_print = ''
+
+    @staticmethod
+    def escape_html(text):
+        """Escape HTML characters in text for safe use in Paragraphs."""
+        if text is None:
+            return ""
+        return escape(str(text), quote=False)
 
     def __init__(self, data):
         self.sito = data[0]
@@ -1286,7 +1294,7 @@ class single_US_pdf_sheet(object):
 
             #12 row
 
-            descrizione = Paragraph("<b>DESCRIZIONE</b><br/>" + self.descrizione, styDescrizione)
+            descrizione = Paragraph("<b>DESCRIZIONE</b><br/>" + self.escape_html(self.descrizione), styDescrizione)
 
             #13-22 row
 
@@ -1695,7 +1703,7 @@ class single_US_pdf_sheet(object):
             posteriore_a = Paragraph("<b>POSTERIORE A</b><br/>" + self.copre +"<br/>" + self.riempie +"<br/>"+  self.taglia+ "<br/>" +   self.si_appoggia_a, styNormal)               # manca valore
             anteriore_a = Paragraph("<b>ANTERIORE A</b><br/>"+ self.coperto_da +"<br/>"+  self.riempito_da +"<br/>"+ self.tagliato_da +  "<br/>" + self.gli_si_appoggia, styNormal)                 # manca valore
 
-            descrizione = Paragraph("<b>DESCRIZIONE</b><br/>" + self.descrizione, styDescrizione)
+            descrizione = Paragraph("<b>DESCRIZIONE</b><br/>" + self.escape_html(self.descrizione), styDescrizione)
 
             osservazioni = Paragraph("<b>OSSERVAZIONI</b><br/>" + self.osservazioni, styDescrizione)
 
