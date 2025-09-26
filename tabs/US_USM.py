@@ -12410,7 +12410,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 QMessageBox.warning(self, "Messaggio",
                                     "Modalita' Preview US attivata. Le piante delle US saranno visualizzate nella sezione Piante",
                                     QMessageBox.Ok)
-                self.tabWidget.setCurrentIndex(10)  # Set the current tab to the map preview tab
+                self.tabWidget.setCurrentIndex(13)  # Set the current tab to the map preview tab
                 self.loadMapPreview()
             else:
                 self.loadMapPreview(1)
@@ -12419,7 +12419,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 QMessageBox.warning(self, "Message",
                                     "Modalität' Preview der aktivierten SE. Die Plana der SE werden in der Auswahl der Plana visualisiert",
                                     QMessageBox.Ok)
-                self.tabWidget.setCurrentIndex(10)  # Set the current tab to the map preview tab
+                self.tabWidget.setCurrentIndex(13)  # Set the current tab to the map preview tab
                 self.loadMapPreview()
             else:
                 self.tabWidget.setCurrentIndex(0)
@@ -12429,7 +12429,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 QMessageBox.warning(self, "Message",
                                     "Preview SU mode enabled. US plants will be displayed in the Plants section",
                                     QMessageBox.Ok)
-                self.tabWidget.setCurrentIndex(10)  # Set the current tab to the map preview tab
+                self.tabWidget.setCurrentIndex(13)  # Set the current tab to the map preview tab
                 self.loadMapPreview()
             else:
                 self.tabWidget.setCurrentIndex(0)
