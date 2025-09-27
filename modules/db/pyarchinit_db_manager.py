@@ -1502,16 +1502,15 @@ class Pyarchinit_db_management(object):
     def query_sql(self, query):
         """Execute raw SQL query and return results"""
         try:
-            session = self.Session()
             from sqlalchemy import text
-            result = session.execute(text(query))
+            result = self.session.execute(text(query))
             rows = result.fetchall()
-            session.close()
+            self.session.commit()
             return rows
         except Exception as e:
             print(f"Error executing SQL: {e}")
-            if 'session' in locals():
-                session.close()
+            if hasattr(self, 'session'):
+                self.session.rollback()
             return None
 
     def query_bool(self, params, table_class_name):

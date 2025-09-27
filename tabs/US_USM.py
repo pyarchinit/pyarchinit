@@ -8147,6 +8147,9 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             Enhanced to calculate and display centroid when multiple polygons exist.
         '''
         try:
+            # Inizializza centroid_str all'inizio per evitare errori
+            centroid_str = None
+
             # Usa i valori correnti dei widget invece di accedere a DATA_LIST
             sito = str(self.comboBox_sito.currentText())
             area = str(self.comboBox_area.currentText())
@@ -8166,7 +8169,6 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 latest_geometry = geometry_vl[-1]
 
                 # Calculate centroid from the single latest geometry
-                centroid_str = None
                 if latest_geometry.coord:
                     centroid_str = self.calculate_centroid_from_geometries([latest_geometry])
 
@@ -8382,6 +8384,13 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 # Inform the user that updates have been made
                 print(f"All 'Dating' fields have been updated successfully. "
                       f"Total updates made: {updates_made}")
+
+                # Reset the comparison data to avoid false "save changes" prompts
+                if self.BROWSE_STATUS == "b":
+                    # Ricarica i dati per riflettere gli aggiornamenti
+                    self.on_pushButton_view_all_pressed()
+                    # Reset comparison
+                    self.set_LIST_REC_TEMP()
 
             else:
                 # Inform the user that no updates were necessary
