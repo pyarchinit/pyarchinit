@@ -46,7 +46,6 @@ from ..modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis
 from ..modules.utility.print_relazione_pdf import exp_rel_pdf
 from ..modules.utility.pyarchinit_error_check import Error_check
 from ..modules.utility.Utils import *
-from ..test_area import Test_area
 from ..gui.sortpanelmain import SortPanelMain
 from ..gui.pyarchinitConfigDialog import pyArchInitDialog_Config
 from .PlaceSelectionDialog import PlaceSelectionDialog
@@ -1212,19 +1211,8 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
         self.enable_button_search(1)
 
     def on_pushButton_test_pressed(self):
-
-        data = "Sito: " + str(self.comboBox_sito.currentText())
-
-        ##      data = [
-        ##      unicode(self.comboBox_sito.currentText()),                              #1 - Sito
-        ##      unicode(self.comboBox_nazione.currentText()),                       #2 - Nazione
-        ##      unicode(self.comboBox_regione.currentText()),                       #3 - Regione
-        ##      unicode(self.comboBox_comune.currentText()),                        #4 - Comune
-        ##      unicode(self.textEdit_descrizione_site.toPlainText()),                  #5 - Descrizione
-        ##      unicode(self.comboBox_provincia.currentText())]                         #6 - Provincia
-
-        test = Test_area(data)
-        test.run_test()
+        # Funzione di test rimossa - Test_area non più necessario
+        pass
 
     def on_pushButton_draw_pressed(self):
         self.pyQGIS.charge_layers_for_draw(["19", "12", "10", "7","8","13","16", "3","1", "2", "4", "5", "9","24","26"])
