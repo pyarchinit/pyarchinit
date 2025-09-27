@@ -51,6 +51,7 @@ from ..modules.utility.csv_writer import UnicodeWriter
 
 from ..modules.db.pyarchinit_conn_strings import Connection
 from ..modules.db.pyarchinit_db_manager import Pyarchinit_db_management
+from ..modules.db.concurrency_manager import ConcurrencyManager, RecordLockIndicator
 
 from ..modules.utility.pyarchinit_error_check import Error_check
 from ..modules.db.pyarchinit_utility import Utility
@@ -2439,34 +2440,58 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
         # if self.checkBox_query.isChecked():
         #     self.model_a.database().close()
         if self.BROWSE_STATUS == "b":
-            if self.data_error_check() == 0:
-                if self.records_equal_check() == 1:
-                    if self.L == 'it':
-                        self.update_if(QMessageBox.warning(self, 'Errore',
-                                                           "Il record e' stato modificato. Vuoi salvare le modifiche?",
-                                                           QMessageBox.Ok | QMessageBox.Cancel))
-                    elif self.L == 'de':
-                        self.update_if(QMessageBox.warning(self, 'Error',
-                                                           "Der Record wurde geändert. Möchtest du die Änderungen speichern?",
-                                                           QMessageBox.Ok | QMessageBox.Cancel))
-                    else:
-                        self.update_if(QMessageBox.warning(self, 'Error',
-                                                           "The record has been changed. Do you want to save the changes?",
-                                                           QMessageBox.Ok | QMessageBox.Cancel))
-                    self.empty_fields()
-                    self.SORT_STATUS = "n"
-                    self.label_sort.setText(self.SORTED_ITEMS[self.SORT_STATUS])
-                    self.enable_button(1)
+            
+                    # Check for version conflicts before updating
+                    if hasattr(self, 'current_record_version') and self.current_record_version:
+                        conflict = self.concurrency_manager.check_version_conflict(
+                            'pottery_table',
+                            self.editing_record_id,
+                            self.current_record_version,
+                            self.DB_MANAGER
+                        )
 
-                    self.fill_fields(self.REC_CORR)
-                else:
-                    if self.L == 'it':
-                        QMessageBox.warning(self, "ATTENZIONE", "Non è stata realizzata alcuna modifica.",
-                                            QMessageBox.Ok)
-                    elif self.L == 'de':
-                        QMessageBox.warning(self, "ACHTUNG", "Keine Änderung vorgenommen", QMessageBox.Ok)
-                    else:
-                        QMessageBox.warning(self, "Warning", "No changes have been made", QMessageBox.Ok)
+                        if conflict and conflict['has_conflict']:
+                            # Handle the conflict
+                            record_data = self.fill_record()
+                            if self.concurrency_manager.handle_conflict(
+                                'pottery_table',
+                                record_data,
+                                conflict
+                            ):
+                                # User chose to reload - refresh the form
+                                self.charge_records()
+                                self.fill_fields(self.REC_CORR)
+                                return
+                            # Otherwise continue with save (user chose to overwrite)
+
+                    if self.data_error_check() == 0:
+                        if self.records_equal_check() == 1:
+                            if self.L == 'it':
+                                self.update_if(QMessageBox.warning(self, 'Errore',
+                                                                   "Il record e' stato modificato. Vuoi salvare le modifiche?",
+                                                                   QMessageBox.Ok | QMessageBox.Cancel))
+                            elif self.L == 'de':
+                                self.update_if(QMessageBox.warning(self, 'Error',
+                                                                   "Der Record wurde geändert. Möchtest du die Änderungen speichern?",
+                                                                   QMessageBox.Ok | QMessageBox.Cancel))
+                            else:
+                                self.update_if(QMessageBox.warning(self, 'Error',
+                                                                   "The record has been changed. Do you want to save the changes?",
+                                                                   QMessageBox.Ok | QMessageBox.Cancel))
+                            self.empty_fields()
+                            self.SORT_STATUS = "n"
+                            self.label_sort.setText(self.SORTED_ITEMS[self.SORT_STATUS])
+                            self.enable_button(1)
+
+                            self.fill_fields(self.REC_CORR)
+                        else:
+                            if self.L == 'it':
+                                QMessageBox.warning(self, "ATTENZIONE", "Non è stata realizzata alcuna modifica.",
+                                                    QMessageBox.Ok)
+                            elif self.L == 'de':
+                                QMessageBox.warning(self, "ACHTUNG", "Keine Änderung vorgenommen", QMessageBox.Ok)
+                            else:
+                                QMessageBox.warning(self, "Warning", "No changes have been made", QMessageBox.Ok)
         else:
             if self.data_error_check() == 0:
                 test_insert = self.insert_new_rec()
@@ -3358,6 +3383,36 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
                 self.loadMediaPreview()
         except Exception as e:
             QMessageBox.warning(self, "Error Fill Fields", str(e),  QMessageBox.Ok)
+
+        # Track version number and record ID for concurrency
+        if hasattr(self, 'concurrency_manager'):
+            try:
+                if n < len(self.DATA_LIST):
+                    current_record = self.DATA_LIST[n]
+                    if hasattr(current_record, 'version_number'):
+                        self.current_record_version = current_record.version_number
+                    if hasattr(current_record, 'id_rep'):
+                        self.editing_record_id = getattr(current_record, 'id_rep')
+
+                    # Update lock indicator
+                    if hasattr(current_record, 'editing_by'):
+                        self.lock_indicator.update_lock_status(
+                            current_record.editing_by,
+                            current_record.editing_since if hasattr(current_record, 'editing_since') else None
+                        )
+
+                    # Set soft lock for this record
+                    if self.editing_record_id:
+                        import getpass
+                        current_user = getpass.getuser()
+                        self.DB_MANAGER.set_editing_lock(
+                            'pottery_table',
+                            self.editing_record_id,
+                            current_user
+                        )
+            except Exception as e:
+                QgsMessageLog.logMessage(f"Error setting version tracking: {str(e)}", "PyArchInit", Qgis.Warning)
+
     
     def set_rec_counter(self, t, c):
         self.rec_tot = t

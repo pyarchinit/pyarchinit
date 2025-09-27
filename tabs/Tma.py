@@ -39,6 +39,7 @@ from ..gui.pyarchinitConfigDialog import pyArchInitDialog_Config
 from ..gui.sortpanelmain import SortPanelMain
 from ..modules.db.pyarchinit_conn_strings import Connection
 from ..modules.db.pyarchinit_db_manager import Pyarchinit_db_management
+from ..modules.db.concurrency_manager import ConcurrencyManager, RecordLockIndicator
 from ..modules.db.pyarchinit_utility import Utility
 from ..modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis
 from ..modules.utility.pyarchinit_error_check import Error_check
@@ -74,6 +75,8 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
     DATA_LIST_REC_TEMP = []
     REC_CORR = 0
     REC_TOT = 0
+    is_saving = False  # Flag to prevent multiple simultaneous saves
+    last_save_time = 0  # Track last save timestamp
     SITO = pyArchInitDialog_Config
     if L == 'it':
         STATUS_ITEMS = {"b": "Usa", "f": "Trova", "n": "Nuovo Record"}
@@ -1042,6 +1045,36 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             # Make sure to clear the flag even if there's an error
             self.loading_data = False
             QMessageBox.warning(self, "Error", str(e), QMessageBox.Ok)
+
+        # Track version number and record ID for concurrency
+        if hasattr(self, 'concurrency_manager'):
+            try:
+                if n < len(self.DATA_LIST):
+                    current_record = self.DATA_LIST[n]
+                    if hasattr(current_record, 'version_number'):
+                        self.current_record_version = current_record.version_number
+                    if hasattr(current_record, 'id'):
+                        self.editing_record_id = getattr(current_record, 'id')
+
+                    # Update lock indicator
+                    if hasattr(current_record, 'editing_by'):
+                        self.lock_indicator.update_lock_status(
+                            current_record.editing_by,
+                            current_record.editing_since if hasattr(current_record, 'editing_since') else None
+                        )
+
+                    # Set soft lock for this record
+                    if self.editing_record_id:
+                        import getpass
+                        current_user = getpass.getuser()
+                        self.DB_MANAGER.set_editing_lock(
+                            'tma_materiali_archeologici',
+                            self.editing_record_id,
+                            current_user
+                        )
+            except Exception as e:
+                QgsMessageLog.logMessage(f"Error setting version tracking: {str(e)}", "PyArchInit", Qgis.Warning)
+
 
     def tableInsertData(self, table_name, data):
         """
@@ -2709,39 +2742,86 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
 
     def on_pushButton_save_pressed(self):
         """Save the current record."""
-        
+        import time
+
+        # Prevent multiple simultaneous saves
+        if self.is_saving:
+            QMessageBox.warning(self, "ATTENZIONE", "Salvataggio già in corso. Attendere...", QMessageBox.Ok)
+            return
+
+        # Check for rapid consecutive saves (prevent double-clicks)
+        current_time = time.time()
+        if current_time - self.last_save_time < 1.0:  # Less than 1 second since last save
+            QMessageBox.warning(self, "ATTENZIONE", "Attendere prima di salvare di nuovo.", QMessageBox.Ok)
+            return
+
+        self.is_saving = True
+        self.last_save_time = current_time
+
         try:
             if self.BROWSE_STATUS == "b":
-                if self.data_error_check() == 0:
-                    try:
-                        record_state = self.check_record_state()
-                        if record_state == 1:
-                            self.update_record_to_db()
-                            self.SORT_STATUS = "n"
-                            self.label_sort.setText(self.SORTED_ITEMS[self.SORT_STATUS])
-                            # Update the local record to reflect changes
-                            # Reload the single updated record from DB
-                            search_dict = {'id': self.DATA_LIST[self.REC_CORR].id}
-                            updated_record = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
-                            if updated_record:
-                                self.DATA_LIST[self.REC_CORR] = updated_record[0]
-                                self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[self.REC_CORR]
-                                # Just update the temp record without reloading UI
-                                self.set_LIST_REC_TEMP()
-                                self.set_LIST_REC_CORR()
-                            QMessageBox.information(self, "Info", "Record aggiornato con successo", QMessageBox.Ok)
-                            # If we're in filtered data (single record after search), allow new search
-                            if len(self.DATA_LIST) == 1:
-                                self.enable_button_search(1)  # Re-enable search buttons
-                    except Exception as e:
-                        import traceback
-                        traceback.print_exc()
-                        QMessageBox.warning(self, "Error", f"Errore nel salvataggio materiali: {str(e)}", QMessageBox.Ok)
-                    self.enable_button(1)
-                else:
-                    QMessageBox.warning(self, "ATTENZIONE", "Non è stata realizzata alcuna modifica!", QMessageBox.Ok)
+                
+                    # Check for version conflicts before updating
+                    if hasattr(self, 'current_record_version') and self.current_record_version:
+                        conflict = self.concurrency_manager.check_version_conflict(
+                            'tma_materiali_archeologici',
+                            self.editing_record_id,
+                            self.current_record_version,
+                            self.DB_MANAGER
+                        )
+
+                        if conflict and conflict['has_conflict']:
+                            # Handle the conflict
+                            record_data = self.fill_record()
+                            if self.concurrency_manager.handle_conflict(
+                                'tma_materiali_archeologici',
+                                record_data,
+                                conflict
+                            ):
+                                # User chose to reload - refresh the form
+                                self.charge_records()
+                                self.fill_fields(self.REC_CORR)
+                                return
+                            # Otherwise continue with save (user chose to overwrite)
+
+                    if self.data_error_check() == 0:
+                        try:
+                            record_state = self.check_record_state()
+                            if record_state == 1:
+                                self.update_record_to_db()
+                                self.SORT_STATUS = "n"
+                                self.label_sort.setText(self.SORTED_ITEMS[self.SORT_STATUS])
+                                # Update the local record to reflect changes
+                                # Reload the single updated record from DB
+                                search_dict = {'id': self.DATA_LIST[self.REC_CORR].id}
+                                updated_record = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
+                                if updated_record:
+                                    self.DATA_LIST[self.REC_CORR] = updated_record[0]
+                                    self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[self.REC_CORR]
+                                    # Just update the temp record without reloading UI
+                                    self.set_LIST_REC_TEMP()
+                                    self.set_LIST_REC_CORR()
+                                QMessageBox.information(self, "Info", "Record aggiornato con successo", QMessageBox.Ok)
+                                # If we're in filtered data (single record after search), allow new search
+                                if len(self.DATA_LIST) == 1:
+                                    self.enable_button_search(1)  # Re-enable search buttons
+                            else:
+                                QMessageBox.warning(self, "ATTENZIONE", "Non è stata realizzata alcuna modifica!", QMessageBox.Ok)
+                        except Exception as e:
+                            import traceback
+                            traceback.print_exc()
+                            QMessageBox.warning(self, "Error", f"Errore nel salvataggio materiali: {str(e)}", QMessageBox.Ok)
+                        self.enable_button(1)
             else:
                 if self.data_error_check() == 0:
+                    # Check for duplicate record before inserting
+                    if self.check_for_duplicate():
+                        self.is_saving = False
+                        QMessageBox.warning(self, "ATTENZIONE",
+                            "Un record simile è stato inserito di recente. Verificare prima di continuare.",
+                            QMessageBox.Ok)
+                        return
+
                     test_insert = self.insert_new_rec()
                     if test_insert == 1:
                         self.empty_fields()
@@ -2770,6 +2850,9 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             import traceback
             traceback.print_exc()
             QMessageBox.warning(self, "Error", f"Errore nel salvataggio: {str(e)}", QMessageBox.Ok)
+        finally:
+            # Always reset the saving flag
+            self.is_saving = False
 
     def on_pushButton_delete_pressed(self):
         """Delete the current record."""
@@ -3310,9 +3393,69 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
 
         return materials_search
 
+    def check_for_duplicate(self):
+        """Check if a similar record was recently inserted to prevent duplicates."""
+        try:
+            # Get current form values
+            current_sito = str(self.comboBox_sito.currentText())
+            current_area = str(self.comboBox_area.currentText())
+            current_inventario = str(self.lineEdit_inventario.text())
+            current_us = str(self.lineEdit_us.text())
+
+            # If key fields are empty, don't check for duplicates
+            if not current_inventario and not current_us:
+                return False
+
+            # Build search criteria for recent similar records
+            from sqlalchemy import text
+            from sqlalchemy.orm import sessionmaker
+            import datetime
+
+            Session = sessionmaker(bind=self.DB_MANAGER.engine)
+            session = Session()
+
+            # Check for records inserted in the last 5 seconds with similar data
+            five_seconds_ago = datetime.datetime.now() - datetime.timedelta(seconds=5)
+
+            query = text("""
+                SELECT COUNT(*) FROM tma_materiali_archeologici
+                WHERE sito = :sito
+                AND area = :area
+                AND (inventario = :inventario OR dscu = :us)
+                AND created_at >= :time_threshold
+            """)
+
+            result = session.execute(query, {
+                'sito': current_sito,
+                'area': current_area,
+                'inventario': current_inventario,
+                'us': current_us,
+                'time_threshold': five_seconds_ago
+            })
+
+            count = result.scalar()
+            session.close()
+
+            return count > 0
+
+        except Exception as e:
+            # If we can't check for duplicates, allow the insert
+            # but log the error for debugging
+            print(f"Error checking for duplicates: {e}")
+            return False
+
     def insert_new_rec(self):
         """Insert a new record into the database."""
+        from sqlalchemy.orm import sessionmaker
+
+        # Create a new session for this transaction
+        Session = sessionmaker(bind=self.DB_MANAGER.engine)
+        session = Session()
+
         try:
+            # Begin transaction
+            session.begin()
+
             # Get documentation data from tables
             ftap, ftan = self.get_foto_data()
             drat, dran, draa = self.get_disegni_data()
@@ -3353,17 +3496,24 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                 ''   # updated_by
             )
 
+            # Insert within the transaction
             self.DB_MANAGER.insert_data_session(data)
-            
+
             # Get the ID of the inserted record and save materials
             inserted_id = self.DB_MANAGER.max_num_id(self.MAPPER_TABLE_CLASS, self.ID_TABLE)
             self.save_materials_data(inserted_id)
-            
+
+            # Commit the transaction
+            session.commit()
             return 1
 
         except Exception as e:
+            # Rollback on any error
+            session.rollback()
             QMessageBox.warning(self, "Error", "Problema nell'inserimento: " + str(e), QMessageBox.Ok)
             return 0
+        finally:
+            session.close()
 
     def update_record_to_db(self):
         """Update current record in database."""

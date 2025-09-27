@@ -664,7 +664,7 @@
       <workItem from="1757759099812" duration="3194000" />
       <workItem from="1758811435832" duration="14721000" />
       <workItem from="1758880970850" duration="4096000" />
-      <workItem from="1758887487435" duration="10054000" />
+      <workItem from="1758887487435" duration="39504000" />
     </task>
     <task id="LOCAL-00022" summary="v3.9.14">
       <created>1649165457258</created>
@@ -1009,7 +1009,7 @@
       <option name="project" value="LOCAL" />
       <updated>1679662089681</updated>
     </task>
-    <option name="localTasksCounter" value="280" />
+    <option name="localTasksCounter" value="282" />
     <option name="createChangelist" value="false" />
     <servers>
       <GitHub url="https://github.com">
@@ -1063,8 +1063,6 @@
     <ignored-roots>
       <path value="$PROJECT_DIR$/ext-libs/totalopenstation-0.5.2-py3.9.egg/totalopenstation_" />
     </ignored-roots>
-    <MESSAGE value="Update TMA row validation to check 'madi' instead of 'macc', log missing 'madi' values, clear '" />
-    <MESSAGE value="Update TMA row validation to check 'madi' instead of 'macc', log missing 'madi' values, clear 'local" />
     <MESSAGE value="Update TMA row validation to check 'madi' instead of 'macc', log missing 'madi' values, clear 'localita" />
     <MESSAGE value="Update TMA row validation to check 'madi' instead of 'macc', log missing 'madi' values, clear 'localita'" />
     <MESSAGE value="Update TMA row validation to check 'madi' instead of 'macc', log missing 'madi' values, clear 'localita' field" />
@@ -1088,14 +1086,16 @@
     <MESSAGE value="feat(thesaurus,tma): add inventory export tools and enhance thesaurus compatibility&#10;&#10;- Added A5 PDF export feature for Inventario schede with customizable headers and image support&#10;- Introduced Excel export for TMA crate list with materials summary grouped by magazzino and cassa&#10;- Extended `PYARCHINIT_THESAURUS_SIGLE` model to support `n_tipologia` and `n_sigla` fields&#10;- Ensured compatibility with optional thesaurus table naming variations and multilingual support&#10;- Improved debug logging for thesaurus field loading and fallback scenarios&#10;- Added SQL fallback for missing columns in thesaurus table&#10;- UI updates to support export buttons in Inventario and TMA interface&#10;- BREAKING CHANGE: New thesaurus fields (`n_tipologia`, `n_sigla`) required for full feature support; run migration script if updating existing installations" />
     <MESSAGE value="feat(tma): introduce table view and advanced search capabilities&#10;&#10;- Added a new tabbed &quot;Vista Tabella&quot; (Table View) interface to TMA module for browsing records in a sortable table&#10;- Implemented double-click loading of TMA records from table view into form view&#10;- Introduced &quot;Ricerca Avanzata&quot; (Advanced Search) dialog for querying TMA entries by US ranges and cassetta values&#10;- Enhanced UI with toolbar buttons for quick access to advanced search and table view&#10;- Improved usability by dynamically injecting UI elements and preserving existing layout&#10;- Refactored tab management to support live data reloading on tab switch&#10;- Minor internal logging and error handling improvements for UI actions" />
     <MESSAGE value="fix(connection): remove deprecated sslmode parameter from connection string&#10;&#10;- Removed &quot;?sslmode=allow&quot; from PostgreSQL connection strings to prevent compatibility issues with modern drivers&#10;- Ensured masked connection strings match updated format&#10;- Minor import cleanup in US_USM module to include missing datetime import for future use&#10;- Updated workspace metadata with latest commit message and task tracking changes" />
-    <option name="LAST_COMMIT_MESSAGE" value="fix(connection): remove deprecated sslmode parameter from connection string&#10;&#10;- Removed &quot;?sslmode=allow&quot; from PostgreSQL connection strings to prevent compatibility issues with modern drivers&#10;- Ensured masked connection strings match updated format&#10;- Minor import cleanup in US_USM module to include missing datetime import for future use&#10;- Updated workspace metadata with latest commit message and task tracking changes" />
+    <MESSAGE value="feat: add logic to update TMA records when reperto is removed from inventory&#10;&#10;- Implemented update_tma_inventario_field method to synchronize TMA 'inventario' field when a reperto is added or removed&#10;- Hooked into delete operations to remove references to deleted reperti from related TMA records&#10;- Improved centroid calculation for stratigraph" />
+    <MESSAGE value="feat: add HTML escaping for descriptions and improve inventory field handling with US ranges&#10;&#10;- Introduced `escape_html` static method to safely render user-provided descriptions in PDF output.&#10;- Updated `pyarchinit_exp_USsheet_pdf.py` to use HTML escaping for description fields.&#10;- Enhanced `Tma.py` to support US ranges (e.g., &quot;3200-3201&quot;) when querying inventory materials.&#10;- Improved logging for debugging including materials found, US parsing, and fallback scenarios.&#10;- Added error logging with traceback to aid in diagnosing issues during inventory field updates." />
+    <option name="LAST_COMMIT_MESSAGE" value="feat: add HTML escaping for descriptions and improve inventory field handling with US ranges&#10;&#10;- Introduced `escape_html` static method to safely render user-provided descriptions in PDF output.&#10;- Updated `pyarchinit_exp_USsheet_pdf.py` to use HTML escaping for description fields.&#10;- Enhanced `Tma.py` to support US ranges (e.g., &quot;3200-3201&quot;) when querying inventory materials.&#10;- Improved logging for debugging including materials found, US parsing, and fallback scenarios.&#10;- Added error logging with traceback to aid in diagnosing issues during inventory field updates." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/tabs/US_USM.py</url>
-          <line>13407</line>
+          <line>13507</line>
           <option name="timeStamp" value="1" />
         </line-breakpoint>
       </breakpoints>

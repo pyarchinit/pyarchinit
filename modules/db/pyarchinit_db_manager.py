@@ -1302,6 +1302,38 @@ class Pyarchinit_db_management(object):
 
         # query statement
 
+    def execute_sql(self, query_string, params=None):
+        """Execute a raw SQL query and return results"""
+        try:
+            from sqlalchemy import text
+            Session = sessionmaker(bind=self.engine)
+            session = Session()
+            if params:
+                result = session.execute(text(query_string), params)
+            else:
+                result = session.execute(text(query_string))
+
+            # If it's a SELECT query, fetch results
+            if query_string.strip().upper().startswith('SELECT'):
+                rows = result.fetchall()
+                session.close()
+                # Return empty list instead of None if no results
+                return rows if rows else []
+            else:
+                # For INSERT/UPDATE/DELETE, commit and return affected rows
+                session.commit()
+                affected = result.rowcount
+                session.close()
+                return affected if affected else 0
+        except Exception as e:
+            print(f"Error executing SQL: {e}")
+            if 'session' in locals():
+                session.close()
+            # Return empty list for SELECT, 0 for other operations
+            if query_string.strip().upper().startswith('SELECT'):
+                return []
+            return 0
+
     def query(self, n):
         class_name = eval(n)
         # engine = self.connection()
@@ -1466,6 +1498,21 @@ class Pyarchinit_db_management(object):
         except Exception as e:
             print(f"An error occurred: {str(e)}")
             return []
+
+    def query_sql(self, query):
+        """Execute raw SQL query and return results"""
+        try:
+            session = self.Session()
+            from sqlalchemy import text
+            result = session.execute(text(query))
+            rows = result.fetchall()
+            session.close()
+            return rows
+        except Exception as e:
+            print(f"Error executing SQL: {e}")
+            if 'session' in locals():
+                session.close()
+            return None
 
     def query_bool(self, params, table_class_name):
         u = Utility()
