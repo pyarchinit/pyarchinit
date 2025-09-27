@@ -8385,12 +8385,19 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 print(f"All 'Dating' fields have been updated successfully. "
                       f"Total updates made: {updates_made}")
 
-                # Reset the comparison data to avoid false "save changes" prompts
-                if self.BROWSE_STATUS == "b":
-                    # Ricarica i dati per riflettere gli aggiornamenti
-                    self.on_pushButton_view_all_pressed()
-                    # Reset comparison
-                    self.set_LIST_REC_TEMP()
+                # If we're in browse mode, we need to reload data and reset comparison
+                if self.BROWSE_STATUS == "b" and hasattr(self, 'DATA_LIST'):
+                    # Ricarica i dati dal database per riflettere gli aggiornamenti
+                    search_dict = {'sito': "'" + str(self.comboBox_sito.currentText()) + "'"}
+                    new_data_list = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
+                    if new_data_list:
+                        self.DATA_LIST = new_data_list
+                        # Ricarica il record corrente
+                        if self.rec_num < len(self.DATA_LIST):
+                            self.fill_fields(self.rec_num)
+                        # Reset comparison data per evitare falsi prompt
+                        self.LIST_REC_TEMP = []
+                        self.set_LIST_REC_TEMP()
 
             else:
                 # Inform the user that no updates were necessary
