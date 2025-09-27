@@ -3578,7 +3578,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.charge_insert_ra()
         self.charge_struttura_list()
         self.tableWidget_rapporti.itemChanged.connect(self.check_listoflist)
-        self.update_dating()
+        # Rimosso update_dating() dall'inizializzazione per evitare falsi prompt di salvataggio
+        # self.update_dating()
         # Imposta il collegamento nascosto per attivare text2sql
         self.text2sql_db_shortcut = QShortcut(QKeySequence("Ctrl+Shift+X"), self)
         self.text2sql_db_shortcut.activated.connect(self.text2sql)
