@@ -76,6 +76,7 @@ from langchain.schema import SystemMessage
 matplotlib.use('QT5Agg')  # Assicurati di chiamare use() prima di importare FigureCanvas
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from qgis.PyQt import QtCore, QtGui, QtWidgets
+from qgis.PyQt.QtCore import QTimer
 
 from qgis.PyQt.QtGui import QFont,QKeySequence,QStandardItemModel,QStandardItem
 from qgis.core import *
@@ -3578,8 +3579,9 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.charge_insert_ra()
         self.charge_struttura_list()
         self.tableWidget_rapporti.itemChanged.connect(self.check_listoflist)
-        # Rimosso update_dating() dall'inizializzazione per evitare falsi prompt di salvataggio
-        # self.update_dating()
+        # Pianifica l'aggiornamento dating per dopo che la GUI si è caricata
+        # per evitare falsi prompt di salvataggio
+        QTimer.singleShot(500, self.update_dating_deferred)
         # Imposta il collegamento nascosto per attivare text2sql
         self.text2sql_db_shortcut = QShortcut(QKeySequence("Ctrl+Shift+X"), self)
         self.text2sql_db_shortcut.activated.connect(self.text2sql)
@@ -8372,6 +8374,25 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         except Exception as e:
             QMessageBox.warning(self, "Warning", f"An error occurred while charging 'Datazione {e}'.", QMessageBox.Ok)
 
+
+    def update_dating_deferred(self):
+        '''
+        This function updates Dating fields after the interface has loaded.
+        Deferred execution to avoid false "save changes" prompts.
+        '''
+        try:
+            # Solo se siamo in modalità browse e abbiamo dati
+            if self.BROWSE_STATUS == "b" and hasattr(self, 'DATA_LIST') and self.DATA_LIST:
+                # Prima resetta il confronto
+                self.LIST_REC_TEMP = []
+                self.set_LIST_REC_TEMP()
+                # Poi aggiorna i dating
+                self.update_dating()
+                # E resetta di nuovo il confronto dopo l'aggiornamento
+                self.LIST_REC_TEMP = []
+                self.set_LIST_REC_TEMP()
+        except Exception as e:
+            print(f"Error in deferred dating update: {e}")
 
     # This function should be connected to the button click event
     def update_dating(self):
