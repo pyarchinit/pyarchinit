@@ -98,6 +98,7 @@ from ..modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis, Order_layer_v2, O
 from ..modules.utility.delegateComboBox import ComboBoxDelegate
 from ..modules.utility.pyarchinit_error_check import Error_check
 from ..modules.utility.pyarchinit_exp_USsheet_pdf import generate_US_pdf
+from ..modules.db.concurrency_manager import ConcurrencyManager, RecordLockIndicator
 from ..modules.utility.pyarchinit_print_utility import Print_utility
 from ..modules.utility.settings import Settings
 from ..modules.utility.skatch_gpt_US import GPTWindow
@@ -3502,6 +3503,17 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.progressBar_2.setHidden(True)
         self.progressBar_3.setHidden(True)
         self.currentLayerId = None
+
+        # Initialize Concurrency Management
+        self.concurrency_manager = ConcurrencyManager(self)
+        self.lock_indicator = RecordLockIndicator(self)
+        self.current_record_version = None
+        self.editing_record_id = None
+
+        # Setup auto-refresh timer for checking concurrent modifications
+        self.refresh_timer = QtCore.QTimer()
+        self.refresh_timer.timeout.connect(self.check_for_updates)
+        self.refresh_timer.start(30000)  # Check every 30 seconds
         self.search = SearchLayers(iface)
         # Dizionario per memorizzare le immagini in cache
         self.image_cache = OrderedDict()
@@ -7740,6 +7752,34 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         except Exception as e:
             print(f"An error occurred in charge_insert_ra: {e}")
 
+    def sync_tm_from_tma(self):
+        """Synchronize TM (ref_tm) field with cassetta from TMA table"""
+        try:
+            # Get current values
+            sito = str(self.comboBox_sito.currentText())
+            area = str(self.comboBox_area.currentText())
+            us = str(self.lineEdit_us.text())
+
+            if sito and area and us:
+                # Query TMA table for matching record
+                search_dict = {
+                    'sito': "'" + sito + "'",
+                    'area': "'" + area + "'",
+                    'dscu': "'" + us + "'"
+                }
+
+                res = self.DB_MANAGER.query_bool(search_dict, 'TMA')
+
+                if res:
+                    # Get the cassetta value from TMA
+                    cassetta = res[0].cassetta
+                    if cassetta:
+                        # Set the ref_tm field
+                        self.lineEdit_ref_tm.setText(str(cassetta))
+        except Exception as e:
+            # Silently fail if TMA table doesn't exist or other error
+            pass
+
     def charge_insert_ra_pottery(self):
         try:
 
@@ -8050,9 +8090,21 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                             # If it's WKT string
                             geom = QgsGeometry.fromWkt(record.the_geom)
                         else:
-                            # If it's WKB (binary)
-                            geom = QgsGeometry()
-                            geom.fromWkb(record.the_geom)
+                            # If it's WKBElement from GeoAlchemy
+                            try:
+                                # Try to get the binary data from WKBElement
+                                if hasattr(record.the_geom, 'desc'):
+                                    # It's a WKBElement, get binary data
+                                    wkb_data = bytes(record.the_geom.desc)
+                                else:
+                                    # Assume it's already binary
+                                    wkb_data = record.the_geom
+
+                                geom = QgsGeometry()
+                                geom.fromWkb(wkb_data)
+                            except:
+                                # If all else fails, try fromWkt
+                                geom = QgsGeometry.fromWkt(str(record.the_geom))
 
                         if geom and not geom.isEmpty():
                             geometries.append(geom)
@@ -12629,6 +12681,54 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.checkBox_query.setChecked(False)
         if self.checkBox_query.isChecked():
             self.model_a.database().close()
+
+        # Concurrency check before saving
+        if self.BROWSE_STATUS == "b" and self.editing_record_id and self.DB_MANAGER:
+            try:
+                # Determine table name
+                current_rec = self.DATA_LIST[self.REC_CORR] if self.REC_CORR < len(self.DATA_LIST) else None
+                if current_rec and hasattr(current_rec, 'unita_tipo'):
+                    table_name = 'us_table' if current_rec.unita_tipo == 'US' else 'us_table_usm'
+
+                    # Check for version conflict
+                    has_conflict, db_version, last_modified_by, last_modified_timestamp = \
+                        self.concurrency_manager.check_version_conflict(
+                            table_name,
+                            self.editing_record_id,
+                            self.current_record_version,
+                            self.DB_MANAGER
+                        )
+
+                    if has_conflict:
+                        # Handle the conflict
+                        choice = self.concurrency_manager.handle_conflict(
+                            table_name,
+                            self.get_current_form_data(),
+                            (db_version, last_modified_by, last_modified_timestamp)
+                        )
+
+                        if choice == 'reload':
+                            # Reload the record from database
+                            self.charge_records()
+                            self.fill_fields(self.REC_CORR)
+                            QMessageBox.information(
+                                self,
+                                "Record Ricaricato",
+                                "Il record è stato ricaricato dal database con le ultime modifiche."
+                            )
+                            return
+
+                        elif choice == 'cancel':
+                            # User cancelled, do nothing
+                            return
+
+                        elif choice == 'overwrite':
+                            # User wants to overwrite - update version for next save
+                            self.current_record_version = db_version + 1 if db_version else 1
+
+            except Exception as e:
+                QgsMessageLog.logMessage(f"Concurrency check error: {str(e)}", "PyArchInit", Qgis.Warning)
+
         if self.BROWSE_STATUS == "b":
             if self.data_error_check() == 0:
                 if self.records_equal_check() == 1:
@@ -16094,44 +16194,97 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             # Sync TM and RA fields automatically
             self.sync_tm_from_tma()
             self.charge_insert_ra()
+
+            # Reset the comparison after loading to avoid false positives
+            if self.BROWSE_STATUS == "b":
+                self.set_LIST_REC_TEMP()
         except:
             pass
-    
-    def sync_tm_from_tma(self):
-        """Synchronize TM (ref_tm) field with cassetta from TMA table"""
+
+        # Track version number and record ID for concurrency
+        if hasattr(self, 'concurrency_manager'):
+            try:
+                if n < len(self.DATA_LIST):
+                    current_record = self.DATA_LIST[n]
+                    if hasattr(current_record, 'version_number'):
+                        self.current_record_version = current_record.version_number
+                    if hasattr(current_record, 'id_us'):
+                        self.editing_record_id = getattr(current_record, 'id_us')
+
+                    # Update lock indicator
+                    if hasattr(current_record, 'editing_by'):
+                        self.lock_indicator.update_lock_status(
+                            current_record.editing_by,
+                            current_record.editing_since if hasattr(current_record, 'editing_since') else None
+                        )
+
+                    # Set soft lock for this record
+                    if self.editing_record_id:
+                        import getpass
+                        current_user = getpass.getuser()
+                        self.DB_MANAGER.set_editing_lock(
+                            'us_table',
+                            self.editing_record_id,
+                            current_user
+                        )
+            except Exception as e:
+                QgsMessageLog.logMessage(f"Error setting version tracking: {str(e)}", "PyArchInit", Qgis.Warning)
+
+
+    def get_current_form_data(self):
+        """Get current form data as a dictionary for conflict resolution"""
         try:
-            # Get current values
-            sito = str(self.comboBox_sito.currentText())
-            area = str(self.comboBox_area.currentText())
-            us = str(self.lineEdit_us.text())
-            
-            if sito and area and us:
-                # Query TMA table for matching record
-                search_dict = {
-                    'sito': "'" + sito + "'",
-                    'area': "'" + area + "'",
-                    'dscu': "'" + us + "'"
-                }
-                
-                # Use the existing DB_MANAGER instance
-                if hasattr(self, 'DB_MANAGER') and self.DB_MANAGER:
-                    res = self.DB_MANAGER.query_bool(search_dict, 'TMA')
-                    
-                    if res:
-                        # Get the cassetta value from TMA
-                        cassetta = res[0].cassetta
-                        if cassetta:
-                            # Set the ref_tm field
-                            self.lineEdit_ref_tm.setText(str(cassetta))
-                        else:
-                            # Clear the field if no cassetta value
-                            self.lineEdit_ref_tm.clear()
-                    else:
-                        # Clear the field if no matching TMA record
-                        self.lineEdit_ref_tm.clear()
+            return {
+                'sito': str(self.comboBox_sito.currentText()),
+                'area': str(self.comboBox_area.currentText()),
+                'us': str(self.lineEdit_us.text()),
+                'unita_tipo': str(self.comboBox_unita_tipo.currentText()),
+                'd_stratigrafica': str(self.comboBox_def_strat.currentText()),
+                'd_interpretativa': str(self.comboBox_def_intepret.currentText()),
+                'descrizione': str(self.textEdit_descrizione.toPlainText())[:200],  # First 200 chars
+                'interpretazione': str(self.textEdit_interpretazione.toPlainText())[:200]
+            }
+        except:
+            return {}
+
+    def check_for_updates(self):
+        """Check if current record has been modified by others"""
+        try:
+            if self.BROWSE_STATUS == "b" and self.editing_record_id and self.DB_MANAGER:
+                # Determine table name based on current unit type
+                if hasattr(self, 'DATA_LIST') and len(self.DATA_LIST) > 0:
+                    current_rec = self.DATA_LIST[self.REC_CORR] if self.REC_CORR < len(self.DATA_LIST) else None
+                    if current_rec and hasattr(current_rec, 'unita_tipo'):
+                        table_name = 'us_table' if current_rec.unita_tipo == 'US' else 'us_table_usm'
+
+                        has_conflict, db_version, last_modified_by, last_modified_timestamp = \
+                            self.concurrency_manager.check_version_conflict(
+                                table_name,
+                                self.editing_record_id,
+                                self.current_record_version,
+                                self.DB_MANAGER
+                            )
+
+                        if has_conflict:
+                            # Show notification
+                            msg = QMessageBox()
+                            msg.setIcon(QMessageBox.Warning)
+                            msg.setWindowTitle("Record Modificato / Record Modified")
+                            msg.setText(
+                                f"Questo record è stato modificato da {last_modified_by} "
+                                f"alle {last_modified_timestamp}.\n\n"
+                                f"This record was modified by {last_modified_by} "
+                                f"at {last_modified_timestamp}.\n\n"
+                                f"Vuoi ricaricare il record? / Do you want to reload?"
+                            )
+                            msg.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
+
+                            if msg.exec_() == QMessageBox.Yes:
+                                self.charge_records()
+                                self.fill_fields(self.REC_CORR)
         except Exception as e:
-            QgsMessageLog.logMessage(f"Error syncing TM from TMA: {str(e)}", "PyArchInit", Qgis.Warning)
-    
+            QgsMessageLog.logMessage(f"Update check error: {str(e)}", "PyArchInit", Qgis.Info)
+
     def set_rec_counter(self, t, c):
         self.rec_tot = t
         self.rec_corr = c

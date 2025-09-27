@@ -723,7 +723,7 @@ ALTER TABLE public.mediaentity_view
 ALTER TABLE public.mediaentity_view ALTER COLUMN id_media_thumb SET DEFAULT nextval('mediaentity_view_id_media_thumb_seq'::regclass);
 
 -- View: public.pyarchinit_reperti_view
-CREATE OR REPLACE VIEW pyarchinit_reperti_view AS 
+CREATE OR REPLACE VIEW pyarchinit_reperti_view AS
 	SELECT
 	gid,
 	the_geom,
@@ -766,7 +766,14 @@ CREATE OR REPLACE VIEW pyarchinit_reperti_view AS
     date_scheda,
     punto_rinv,
     negativo_photo,
-    diapositiva
+    diapositiva,
+    quota_usm,
+    unita_misura_quota,
+    last_modified_timestamp,
+    last_modified_by,
+    version_number,
+    editing_by,
+    editing_since
 	FROM pyarchinit_reperti
      JOIN inventario_materiali_table ON siti::text = sito AND id_rep = numero_inventario;
 

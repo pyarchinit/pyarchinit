@@ -51,6 +51,7 @@
 # # from ..modules.utility.pyarchinit_OS_utility import Pyarchinit_OS_Utility
 # # from ..modules.db.pyarchinit_conn_strings import Connection
 # # from ..modules.db.pyarchinit_db_manager import Pyarchinit_db_management
+from ..modules.db.concurrency_manager import ConcurrencyManager, RecordLockIndicator
 # # from ..modules.db.pyarchinit_utility import Utility
 # # from ..modules.gis.pyarchinit_pyqgis_archeozoo import Pyarchinit_pyqgis
 # # from ..modules.utility.pyarchinit_error_check import Error_check
@@ -559,7 +560,31 @@
             # # else:
                 # # QMessageBox.warning(self, "ATTENZIONE", "Non è stata realizzata alcuna modifica.",  QMessageBox.Ok)
         # # else:
-            # # if self.data_error_check() == 0:
+            # #
+        # # Check for version conflicts before updating
+        # # if hasattr(self, 'current_record_version') and self.current_record_version:
+            # # conflict = self.concurrency_manager.check_version_conflict(
+                # # 'archeozoology_table',
+                # # self.editing_record_id,
+                # # self.current_record_version,
+                # # self.DB_MANAGER
+            # # )
+
+            # # if conflict and conflict['has_conflict']:
+                # # Handle the conflict
+                # # record_data = self.fill_record()
+                # # if self.concurrency_manager.handle_conflict(
+                    # # 'archeozoology_table',
+                    # # record_data,
+                    # # conflict
+                # # ):
+                    # # User chose to reload - refresh the form
+                    # # self.charge_records()
+                    # # self.fill_fields(self.REC_CORR)
+                    # # return
+                # # Otherwise continue with save (user chose to overwrite)
+
+        # # if self.data_error_check() == 0:
                 # # test_insert = self.insert_new_rec()
                 # # if test_insert == 1:
                     # # self.empty_fields()
@@ -3000,6 +3025,36 @@
         # # self.lineEdit_mod_osso.clear()
 
     # # def fill_fields(self, n=0):
+
+        # # Track version number and record ID for concurrency
+        # # if hasattr(self, 'concurrency_manager'):
+            # # try:
+                # # if n < len(self.DATA_LIST):
+                    # # current_record = self.DATA_LIST[n]
+                    # # if hasattr(current_record, 'version_number'):
+                        # # self.current_record_version = current_record.version_number
+                    # # if hasattr(current_record, 'id_archzoo'):
+                        # # self.editing_record_id = getattr(current_record, 'id_archzoo')
+
+                    # # Update lock indicator
+                    # # if hasattr(current_record, 'editing_by'):
+                        # # self.lock_indicator.update_lock_status(
+                            # # current_record.editing_by,
+                            # # current_record.editing_since if hasattr(current_record, 'editing_since') else None
+                        # # )
+
+                    # # Set soft lock for this record
+                    # # if self.editing_record_id:
+                        # # import getpass
+                        # # current_user = getpass.getuser()
+                        # # self.DB_MANAGER.set_editing_lock(
+                            # # 'archeozoology_table',
+                            # # self.editing_record_id,
+                            # # current_user
+                        # # )
+            # # except Exception as e:
+                # # QgsMessageLog.logMessage(f"Error setting version tracking: {str(e)}", "PyArchInit", Qgis.Warning)
+
         # # self.rec_num = n
         # # try:
             # # self.comboBox_sito.setEditText(self.DATA_LIST[self.rec_num].sito)                                   #1 - Sito

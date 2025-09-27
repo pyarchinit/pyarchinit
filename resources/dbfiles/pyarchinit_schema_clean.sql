@@ -433,7 +433,16 @@ CREATE TABLE public.inventario_materiali_table (
 	date_scheda text,
 	punto_rinv text,
 	negativo_photo text,
-	diapositiva text
+	diapositiva text,
+	-- Campo quota
+	quota_usm FLOAT,
+	unita_misura_quota VARCHAR(20) DEFAULT 'm s.l.m.',
+	-- Campi concorrenza
+	last_modified_timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	last_modified_by VARCHAR(100),
+	version_number INTEGER DEFAULT 1,
+	editing_by VARCHAR(100),
+	editing_since TIMESTAMP
 );
 
 

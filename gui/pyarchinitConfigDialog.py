@@ -149,8 +149,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         self.db_active()
         self.lineEdit_DBname.textChanged.connect(self.db_uncheck)
         self.lineEdit_DBname.textChanged.connect(self.db_name_change)
-        self.pushButton_upd_postgres.setEnabled(True)
-        self.pushButton_upd_sqlite.setEnabled(False)
+        # Button enablement is now handled by db_active()
         self.comboBox_sito.setCurrentText(self.sito_active())
         self.comboBox_sito.currentIndexChanged.connect(self.summary)
         self.comboBox_Database.currentIndexChanged.connect(self.db_active)
@@ -237,7 +236,466 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         self.pushButton_convert_db_sl.setHidden(True)
         self.pushButton_convert_db_pg.setHidden(True)
 
-    
+        # Admin features will be setup after database connection
+        # self.setup_admin_features()
+
+    def setup_admin_features(self):
+        """Setup admin-only features like user management"""
+        try:
+            # First check if admin widget already exists and remove it
+            if hasattr(self, 'admin_widget') and self.admin_widget:
+                self.admin_widget.deleteLater()
+                self.admin_widget = None
+
+            # Create admin panel
+            from PyQt5.QtWidgets import QGroupBox, QPushButton, QVBoxLayout, QLabel, QGridLayout
+
+            # Check if we're connected and if user is admin
+            if hasattr(self, 'DB_MANAGER') and self.DB_MANAGER:
+                # Simple check: if username in UI is 'admin' or current system user is 'admin'
+                import getpass
+                username_ui = self.lineEdit_User.text().lower() if hasattr(self, 'lineEdit_User') else ''
+                system_user = getpass.getuser().lower()
+
+                # Consider user as admin if:
+                # 1. Username in UI is 'admin'
+                # 2. System username is 'admin'
+                # 3. Database is PostgreSQL and user is 'postgres'
+                is_admin = (username_ui == 'admin' or
+                           system_user == 'admin' or
+                           (self.comboBox_Database.currentText() == 'postgres' and username_ui == 'postgres'))
+
+                # Debug
+                print(f"Admin check - Username UI: {username_ui}, System user: {system_user}, Is admin: {is_admin}")
+
+                if is_admin:
+                    # Add admin section to the config dialog
+                    admin_group = QGroupBox("🛡️ Funzioni Amministratore")
+                    admin_layout = QVBoxLayout()
+
+                    # User management button
+                    self.user_mgmt_btn = QPushButton("👤 Gestione Utenti e Permessi")
+
+                    # Database update buttons
+                    self.update_db_btn = QPushButton("🔄 Aggiorna Schema Database")
+                    self.update_db_btn.setToolTip("Applica tutte le modifiche necessarie al database (concorrenza, quota, utenti)")
+
+                    self.apply_concurrency_btn = QPushButton("🔐 Applica Sistema Concorrenza")
+                    self.apply_concurrency_btn.setToolTip("Aggiunge il sistema di concorrenza a tutte le tabelle")
+
+                    # Style for database update buttons
+                    self.update_db_btn.setStyleSheet("""
+                        QPushButton {
+                            background-color: #4CAF50;
+                            color: white;
+                            font-weight: bold;
+                            padding: 10px;
+                            border-radius: 5px;
+                        }
+                        QPushButton:hover {
+                            background-color: #45a049;
+                        }
+                    """)
+
+                    self.apply_concurrency_btn.setStyleSheet("""
+                        QPushButton {
+                            background-color: #9C27B0;
+                            color: white;
+                            font-weight: bold;
+                            padding: 10px;
+                            border-radius: 5px;
+                        }
+                        QPushButton:hover {
+                            background-color: #7B1FA2;
+                        }
+                    """)
+
+                    self.user_mgmt_btn.setStyleSheet("""
+                        QPushButton {
+                            background-color: #FF5722;
+                            color: white;
+                            font-weight: bold;
+                            padding: 10px;
+                            border-radius: 5px;
+                        }
+                        QPushButton:hover {
+                            background-color: #E64A19;
+                        }
+                    """)
+                    self.user_mgmt_btn.clicked.connect(self.open_user_management)
+
+                    # Monitor button
+                    self.monitor_btn = QPushButton("📊 Monitor Attività Real-Time")
+                    self.monitor_btn.setStyleSheet("""
+                        QPushButton {
+                            background-color: #2196F3;
+                            color: white;
+                            font-weight: bold;
+                            padding: 10px;
+                            border-radius: 5px;
+                        }
+                        QPushButton:hover {
+                            background-color: #1976D2;
+                        }
+                    """)
+                    self.monitor_btn.clicked.connect(self.open_activity_monitor)
+
+                    # Connect new buttons
+                    self.update_db_btn.clicked.connect(self.update_database_schema)
+                    self.apply_concurrency_btn.clicked.connect(self.apply_concurrency_system)
+
+                    admin_layout.addWidget(self.user_mgmt_btn)
+                    admin_layout.addWidget(self.monitor_btn)
+                    admin_layout.addWidget(self.update_db_btn)
+                    admin_layout.addWidget(self.apply_concurrency_btn)
+
+                    # Info label
+                    info_label = QLabel("⚠️ Solo gli amministratori possono accedere a queste funzioni")
+                    info_label.setStyleSheet("color: #666; font-style: italic;")
+                    admin_layout.addWidget(info_label)
+
+                    admin_group.setLayout(admin_layout)
+
+                    # Store reference to admin widget
+                    self.admin_widget = admin_group
+
+                    # Add to main layout - insert at the TOP
+                    if hasattr(self, 'tabWidget'):
+                        # Get the first tab (Database tab)
+                        db_tab = self.tabWidget.widget(0)
+                        if db_tab:
+                            # Find or create a layout for the tab
+                            layout = db_tab.layout()
+                            if layout:
+                                # Check layout type and add widget appropriately
+                                if hasattr(layout, 'insertWidget'):
+                                    # QVBoxLayout or QHBoxLayout
+                                    layout.insertWidget(0, admin_group)
+                                    print("Admin widget added to TOP of Database tab")
+                                elif hasattr(layout, 'addWidget'):
+                                    if isinstance(layout, QGridLayout):
+                                        # For QGridLayout, add at row 0, spanning all columns
+                                        # First shift all existing widgets down
+                                        for i in range(layout.rowCount() - 1, -1, -1):
+                                            for j in range(layout.columnCount()):
+                                                item = layout.itemAtPosition(i, j)
+                                                if item:
+                                                    widget = item.widget()
+                                                    if widget and widget != admin_group:
+                                                        layout.removeWidget(widget)
+                                                        layout.addWidget(widget, i + 1, j)
+                                        # Now add admin widget at top
+                                        layout.addWidget(admin_group, 0, 0, 1, layout.columnCount())
+                                        print("Admin widget added to TOP of Database tab (Grid)")
+                                    else:
+                                        # Generic add for other layout types
+                                        layout.addWidget(admin_group)
+                                        print("Admin widget added to Database tab")
+                            else:
+                                # No layout, create one
+                                from PyQt5.QtWidgets import QVBoxLayout
+                                new_layout = QVBoxLayout()
+                                new_layout.addWidget(admin_group)
+                                # Move existing widgets to new layout
+                                for child in db_tab.children():
+                                    if hasattr(child, 'isWidgetType') and child.isWidgetType():
+                                        new_layout.addWidget(child)
+                                db_tab.setLayout(new_layout)
+                                print("Created new layout and added admin widget")
+                    elif hasattr(self, 'gridLayout'):
+                        # Fallback: Add at the top of the gridLayout
+                        self.gridLayout.addWidget(admin_group, 0, 0, 1, 2)
+                        print("Admin widget added to gridLayout")
+                    else:
+                        print("Could not find suitable layout for admin widget")
+
+        except Exception as e:
+            print(f"Error setting up admin features: {e}")
+
+    def check_if_updates_needed(self):
+        """Check if database updates are needed"""
+        try:
+            # Check for concurrency columns
+            query = """
+                SELECT COUNT(DISTINCT table_name) as tables_with_concurrency
+                FROM information_schema.columns
+                WHERE column_name IN ('version_number', 'editing_by', 'editing_since', 'audit_trail')
+                AND table_schema = 'public'
+                AND table_name IN ('us_table', 'tma_materiali_archeologici', 'inventario_materiali_table',
+                                   'site_table', 'periodizzazione_table', 'struttura_table', 'tomba_table',
+                                   'individui_table', 'campioni_table', 'documentazione_table',
+                                   'detsesso_table', 'deteta_table', 'archeozoology_table', 'pottery_table')
+            """
+            result = self.DB_MANAGER.execute_sql(query)
+            tables_with_concurrency = result[0][0] if result else 0
+
+            # Check for quota field
+            query2 = """
+                SELECT COUNT(*) FROM information_schema.columns
+                WHERE table_name = 'inventario_materiali_table'
+                AND column_name = 'quota_usm'
+            """
+            result2 = self.DB_MANAGER.execute_sql(query2)
+            has_quota = result2[0][0] if result2 else 0
+
+            # Check for user tables
+            query3 = """
+                SELECT COUNT(*) FROM information_schema.tables
+                WHERE table_name IN ('pyarchinit_users', 'pyarchinit_permissions', 'pyarchinit_activity_log')
+                AND table_schema = 'public'
+            """
+            result3 = self.DB_MANAGER.execute_sql(query3)
+            has_user_tables = result3[0][0] if result3 else 0
+
+            # If all updates are already applied
+            if tables_with_concurrency >= 14 and has_quota > 0 and has_user_tables >= 3:
+                return False  # No updates needed
+            return True  # Updates needed
+
+        except Exception as e:
+            print(f"Error checking update status: {e}")
+            return True  # Assume updates needed if check fails
+
+    def update_database_schema(self):
+        """Apply all database schema updates"""
+        try:
+            from PyQt5.QtWidgets import QMessageBox
+
+            # First check if updates are needed
+            if not self.check_if_updates_needed():
+                QMessageBox.information(self, 'Database Aggiornato',
+                    '✅ Il database è già completamente aggiornato!\n\n'
+                    'Tutti i componenti sono già installati:\n'
+                    '• Sistema di concorrenza ✓\n'
+                    '• Campo quota corretto ✓\n'
+                    '• Tabelle gestione utenti ✓\n'
+                    '• Protezione duplicati TMA ✓')
+                return
+
+            reply = QMessageBox.question(self, 'Conferma',
+                'Vuoi applicare tutti gli aggiornamenti al database?\n\n'
+                'Questo includerà:\n'
+                '• Correzione campo quota (da min/max a singolo)\n'
+                '• Sistema di concorrenza su tutte le tabelle\n'
+                '• Tabelle gestione utenti\n'
+                '• Protezione duplicati TMA\n'
+                '• Indici di performance\n\n'
+                'Continuare?',
+                QMessageBox.Yes | QMessageBox.No)
+
+            if reply == QMessageBox.Yes:
+                # Get the SQL file path
+                import os
+                sql_path = os.path.join(
+                    os.path.dirname(os.path.dirname(__file__)),
+                    'sql',
+                    'update_production_db_safe.sql'
+                )
+
+                if os.path.exists(sql_path):
+                    # Read SQL file
+                    with open(sql_path, 'r') as f:
+                        sql_content = f.read()
+
+                    # Execute SQL
+                    try:
+                        # For database update with functions, use raw psycopg2 connection
+                        import psycopg2
+                        from urllib.parse import urlparse
+
+                        # Parse connection URL
+                        db_url = str(self.DB_MANAGER.engine.url)
+                        parsed = urlparse(db_url.replace('postgresql://', 'http://'))
+
+                        # Create direct psycopg2 connection
+                        conn = psycopg2.connect(
+                            host=parsed.hostname or 'localhost',
+                            port=parsed.port or 5432,
+                            database=parsed.path.lstrip('/'),
+                            user=parsed.username,
+                            password=parsed.password
+                        )
+
+                        # Execute the entire SQL file as one transaction
+                        with conn.cursor() as cursor:
+                            cursor.execute(sql_content)
+                            conn.commit()
+
+                        conn.close()
+                        success_count = 1
+                        error_count = 0
+                        errors = []
+
+                        if error_count == 0:
+                            QMessageBox.information(self, 'Successo',
+                                f'Database aggiornato con successo!\n'
+                                f'{success_count} statement eseguiti.')
+                        else:
+                            QMessageBox.warning(self, 'Aggiornamento Parziale',
+                                f'Aggiornamento completato con alcuni errori.\n'
+                                f'Successi: {success_count}\n'
+                                f'Errori: {error_count}\n\n'
+                                f'Primi errori: {errors[:3]}')
+
+                    except Exception as e:
+                        QMessageBox.critical(self, 'Errore',
+                            f'Errore durante l\'aggiornamento del database:\n{str(e)}')
+                else:
+                    QMessageBox.warning(self, 'File non trovato',
+                        'Il file SQL di aggiornamento non è stato trovato.')
+
+        except Exception as e:
+            QMessageBox.critical(self, 'Errore', f'Errore: {str(e)}')
+
+    def check_if_concurrency_installed(self):
+        """Check if concurrency system is already installed"""
+        try:
+            query = """
+                SELECT COUNT(DISTINCT table_name) as tables_with_concurrency
+                FROM information_schema.columns
+                WHERE column_name IN ('version_number', 'editing_by', 'editing_since', 'audit_trail')
+                AND table_schema = 'public'
+                AND table_name IN ('us_table', 'tma_materiali_archeologici', 'inventario_materiali_table',
+                                   'site_table', 'periodizzazione_table', 'struttura_table', 'tomba_table',
+                                   'individui_table', 'campioni_table', 'documentazione_table',
+                                   'detsesso_table', 'deteta_table', 'archeozoology_table', 'pottery_table')
+            """
+            result = self.DB_MANAGER.execute_sql(query)
+            tables_with_concurrency = result[0][0] if result else 0
+            return tables_with_concurrency >= 14
+
+        except Exception as e:
+            print(f"Error checking concurrency status: {e}")
+            return False
+
+    def apply_concurrency_system(self):
+        """Apply concurrency system to all tables"""
+        try:
+            from PyQt5.QtWidgets import QMessageBox
+
+            # First check if concurrency is already installed
+            if self.check_if_concurrency_installed():
+                QMessageBox.information(self, 'Sistema Già Installato',
+                    '✅ Il sistema di concorrenza è già installato!\n\n'
+                    'Tutte le tabelle hanno già:\n'
+                    '• Campi version_number ✓\n'
+                    '• Campi editing_by e editing_since ✓\n'
+                    '• Sistema di audit trail ✓\n'
+                    '• Viste di monitoraggio attive ✓\n\n'
+                    'Non sono necessarie ulteriori modifiche.')
+                return
+
+            reply = QMessageBox.question(self, 'Conferma',
+                'Vuoi applicare il sistema di concorrenza a tutte le tabelle?\n\n'
+                'Questo aggiungerà:\n'
+                '• Campi version_number, editing_by, editing_since\n'
+                '• Sistema di audit trail\n'
+                '• Trigger per gestione conflitti\n\n'
+                'Continuare?',
+                QMessageBox.Yes | QMessageBox.No)
+
+            if reply == QMessageBox.Yes:
+                # Get the SQL file path
+                import os
+                sql_path = os.path.join(
+                    os.path.dirname(os.path.dirname(__file__)),
+                    'sql',
+                    'add_concurrency_fixed.sql'
+                )
+
+                if os.path.exists(sql_path):
+                    # Read SQL file
+                    with open(sql_path, 'r') as f:
+                        sql_content = f.read()
+
+                    # Execute SQL
+                    try:
+                        # Use raw psycopg2 connection for complex SQL with functions
+                        import psycopg2
+                        from urllib.parse import urlparse
+
+                        # Parse connection URL
+                        db_url = str(self.DB_MANAGER.engine.url)
+                        parsed = urlparse(db_url.replace('postgresql://', 'http://'))
+
+                        # Create direct psycopg2 connection
+                        conn = psycopg2.connect(
+                            host=parsed.hostname or 'localhost',
+                            port=parsed.port or 5432,
+                            database=parsed.path.lstrip('/'),
+                            user=parsed.username,
+                            password=parsed.password
+                        )
+
+                        # Execute the entire SQL file as one transaction
+                        with conn.cursor() as cursor:
+                            cursor.execute(sql_content)
+                            conn.commit()
+
+                        conn.close()
+
+                        QMessageBox.information(self, 'Successo',
+                            'Sistema di concorrenza applicato con successo!\n\n'
+                            'Funzionalità aggiunte:\n'
+                            '• Versioning su tutte le tabelle\n'
+                            '• Soft locks per editing\n'
+                            '• Audit trail completo\n'
+                            '• Tracking utente reale')
+
+                    except Exception as e:
+                        QMessageBox.critical(self, 'Errore',
+                            f'Errore durante l\'applicazione del sistema di concorrenza:\n{str(e)}')
+                else:
+                    QMessageBox.warning(self, 'File non trovato',
+                        'Il file SQL di concorrenza non è stato trovato.')
+
+        except Exception as e:
+            QMessageBox.critical(self, 'Errore', f'Errore: {str(e)}')
+            import traceback
+            traceback.print_exc()
+
+    def open_user_management(self):
+        """Open user management dialog"""
+        try:
+            from .user_management_dialog import UserManagementDialog
+
+            if not hasattr(self, 'DB_MANAGER') or not self.DB_MANAGER:
+                QMessageBox.warning(self, "Errore", "Connetti prima al database!")
+                return
+
+            dialog = UserManagementDialog(self.DB_MANAGER, self)
+            dialog.user_changed.connect(self.on_users_changed)
+            dialog.exec_()
+
+        except ImportError:
+            QMessageBox.warning(self, "Errore", "Modulo gestione utenti non trovato!")
+        except Exception as e:
+            QMessageBox.critical(self, "Errore", f"Errore apertura gestione utenti: {e}")
+
+    def open_activity_monitor(self):
+        """Open real-time activity monitor"""
+        try:
+            # Open user management dialog on monitor tab
+            from .user_management_dialog import UserManagementDialog
+
+            if not hasattr(self, 'DB_MANAGER') or not self.DB_MANAGER:
+                QMessageBox.warning(self, "Errore", "Connetti prima al database!")
+                return
+
+            dialog = UserManagementDialog(self.DB_MANAGER, self)
+            dialog.tabs.setCurrentIndex(2)  # Switch to Monitor tab
+            dialog.exec_()
+
+        except Exception as e:
+            QMessageBox.critical(self, "Errore", f"Errore apertura monitor: {e}")
+            import traceback
+            traceback.print_exc()
+
+    def on_users_changed(self):
+        """Called when users/permissions are changed"""
+        QMessageBox.information(self, "Info",
+            "Le modifiche agli utenti saranno attive dal prossimo login")
+
     def convert_db(self):
         if self.comboBox_server_rd.currentText()=='postgres':
             self.pushButton_convert_db_pg.setHidden(True)
@@ -2837,6 +3295,36 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 self.model_a.setQuery(query1)
 
             self.tableView_summary.clearSpans()
+
+    def check_if_admin(self):
+        """Check if current user is admin"""
+        try:
+            # Get current username from settings or connection
+            username = 'admin'  # Default
+
+            if hasattr(self, 'DB_MANAGER') and self.DB_MANAGER:
+                # Try to get username from settings
+                s = QgsSettings()
+                username = s.value('pyArchInit/current_user', 'admin', type=str)
+
+                # Check in database if user is admin
+                if self.comboBox_Database.currentText() == 'postgres':
+                    try:
+                        query = "SELECT role FROM pyarchinit_users WHERE username = :username AND is_active = TRUE"
+                        result = self.DB_MANAGER.execute_sql(query, {'username': username})
+                        if result and len(result) > 0:
+                            return result[0][0] == 'admin'
+                    except:
+                        # If table doesn't exist or query fails, assume admin
+                        return True
+
+            # Default to admin for backward compatibility
+            return True
+
+        except Exception as e:
+            QgsMessageLog.logMessage(f"Error checking admin status: {str(e)}", "PyArchInit", Qgis.Warning)
+            return True  # Default to admin if error
+
     def db_active (self):
         # Prevent recursive calls
         if hasattr(self, '_db_active_running'):
@@ -2848,16 +3336,41 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             self.comboBox_sito.clear()
         finally:
             self._db_active_running = False
+
+        # Check if user is admin
+        is_admin = self.check_if_admin()
+
+        # Set tooltip for non-admin users
+        admin_msg = "Solo gli amministratori possono eseguire backup/restore" if not is_admin else ""
+
         if self.comboBox_Database.currentText() == 'sqlite':
             #self.comboBox_Database.editTextChanged.connect(self.set_db_parameter)
             self.toolButton_db.setEnabled(True)
-            # self.pushButton_upd_postgres.setEnabled(False)
-            # self.pushButton_upd_sqlite.setEnabled(True)
-        if self.comboBox_Database.currentText() == 'postgres':
+            # Enable SQLite backup button only for admin
+            self.pushButton_upd_sqlite.setEnabled(is_admin)
+            self.pushButton_upd_sqlite.setToolTip(admin_msg)
+            # Disable PostgreSQL buttons
+            self.pushButton_upd_postgres.setEnabled(False)
+            if hasattr(self, 'pushButton_crea_database'):
+                self.pushButton_crea_database.setEnabled(False)
+            if hasattr(self, 'pushButton_restore_postgres'):
+                self.pushButton_restore_postgres.setEnabled(False)
+
+        elif self.comboBox_Database.currentText() == 'postgres':
             #self.comboBox_Database.currentIndexChanged.connect(self.set_db_parameter)
             self.toolButton_db.setEnabled(False)
-            # self.pushButton_upd_sqlite.setEnabled(False)
-            # self.pushButton_upd_postgres.setEnabled(True)
+            # Enable PostgreSQL buttons only for admin
+            self.pushButton_upd_postgres.setEnabled(is_admin)
+            self.pushButton_upd_postgres.setToolTip(admin_msg)
+            if hasattr(self, 'pushButton_crea_database'):
+                self.pushButton_crea_database.setEnabled(is_admin)
+                self.pushButton_crea_database.setToolTip(admin_msg)
+            if hasattr(self, 'pushButton_restore_postgres'):
+                self.pushButton_restore_postgres.setEnabled(is_admin)
+                self.pushButton_restore_postgres.setToolTip(admin_msg)
+            # Disable SQLite backup button
+            self.pushButton_upd_sqlite.setEnabled(False)
+
         self.comboBox_sito.clear()
     def setPathDBsqlite1(self):
         s = QgsSettings()
@@ -3370,6 +3883,12 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             pass
 
     def on_pushButton_crea_database_pressed(self,):
+        # Check if user is admin
+        if not self.check_if_admin():
+            QMessageBox.warning(self, "Permessi",
+                "Solo gli amministratori possono creare database.",
+                QMessageBox.Ok)
+            return
         self.logger.log("\n=== on_pushButton_crea_database_pressed called ===")
 
         # Prevent re-entry if we're already creating a database
@@ -3534,6 +4053,13 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         return vers
 
     def on_pushButton_upd_postgres_pressed(self):
+        # Check if user is admin
+        if not self.check_if_admin():
+            QMessageBox.warning(self, "Permessi",
+                "Solo gli amministratori possono eseguire backup del database.",
+                QMessageBox.Ok)
+            return
+
         conn = Connection()
         db_url = conn.conn_str()
         view_file = os.path.join(os.path.dirname(__file__), os.pardir, 'resources', 'dbfiles',
@@ -3581,6 +4107,12 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             dbapi_conn.load_extension('mod_spatialite.so')
 
     def on_pushButton_upd_sqlite_pressed(self):
+        # Check if user is admin
+        if not self.check_if_admin():
+            QMessageBox.warning(self, "Permessi",
+                "Solo gli amministratori possono eseguire backup del database.",
+                QMessageBox.Ok)
+            return
 
 
         home_DB_path = '{}{}{}'.format(self.HOME, os.sep, 'pyarchinit_DB_folder')
@@ -4068,6 +4600,9 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                     self.reconnect_set_db_param_func()
                     delattr(self, 'reconnect_set_db_param_func')
 
+                # Setup admin features after successful connection
+                self.setup_admin_features()
+
                 pass  # Flag already cleared in finally block
             else:
                 # Only update combo if not in creation flow
@@ -4098,6 +4633,9 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 if hasattr(self, 'reconnect_set_db_param_func'):
                     self.reconnect_set_db_param_func()
                     delattr(self, 'reconnect_set_db_param_func')
+
+                # Setup admin features after successful connection
+                self.setup_admin_features()
 
                 pass  # Flag already cleared in finally block
             else:
@@ -4130,6 +4668,9 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 if hasattr(self, 'reconnect_set_db_param_func'):
                     self.reconnect_set_db_param_func()
                     delattr(self, 'reconnect_set_db_param_func')
+
+                # Setup admin features after successful connection
+                self.setup_admin_features()
 
                 pass  # Flag already cleared in finally block
             else:

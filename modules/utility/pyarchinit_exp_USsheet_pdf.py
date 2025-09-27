@@ -1194,60 +1194,60 @@ class single_US_pdf_sheet(object):
         lst.append(logo)
         if str(self.unita_tipo)== 'US':
             unita_tipo = Paragraph(str(self.unita_tipo), styUnitaTipo)
-            label_ente_responsabile = Paragraph("<b>ENTE RESPONSABILE</b><br/>" +(self.cod_ente_schedatore), styNormal2)
+            label_ente_responsabile = Paragraph("<b>ENTE RESPONSABILE</b><br/>" + self.escape_html(self.cod_ente_schedatore), styNormal2)
             #label_catalogo_internazionale = Paragraph("<b>N° CATALOGO INTERNAZIONALE</b>", styNormal)
             ente_responsabile = Paragraph(str(self.n_catalogo_generale), styNormal)
             #catalogo_internazionale = Paragraph(str(self.n_catalogo_internazionale), styNormal)
-            sop =  Paragraph("<b>SOPRINTENDENZA MIBACT COMPETENTE PER TUTELA</b><br/>" +str(self.soprintendenza), styNormal2)
+            sop =  Paragraph("<b>SOPRINTENDENZA MIBACT COMPETENTE PER TUTELA</b><br/>" + self.escape_html(str(self.soprintendenza)), styNormal2)
             #2-3 row
 
-            sito = Paragraph("<b>LOCALITÀ</b><br/>" + str(self.sito), styNormal)
+            sito = Paragraph("<b>LOCALITÀ</b><br/>" + self.escape_html(str(self.sito)), styNormal)
             #anno_di_scavo = Paragraph("<b>ANNO</b><br/>" + self.anno_scavo, styNormal)
             if self.struttura!='':
             
-                area = Paragraph("<b>AREA/EDIFICIO/STRUTTURA</b><br/>" + str(self.area)+'/'+str(self.struttura),styNormal)
+                area = Paragraph("<b>AREA/EDIFICIO/STRUTTURA</b><br/>" + self.escape_html(str(self.area)) + '/' + self.escape_html(str(self.struttura)), styNormal)
             
             else:
-                area = Paragraph("<b>AREA/EDIFICIO/STRUTTURA</b><br/>" + str(self.area),styNormal)
+                area = Paragraph("<b>AREA/EDIFICIO/STRUTTURA</b><br/>" + self.escape_html(str(self.area)), styNormal)
             
-            saggio = Paragraph("<b>SAGGIO</b><br/>" + self.saggio, styNormal)
-            ambiente = Paragraph("<b>AMBIENTE</b><br/>" + self.ambient, styNormal)
-            posizione = Paragraph("<b>POS. NELL'AMBIENTE</b><br/>" + self.posizione, styNormal)
-            settore = Paragraph("<b>SETTORE/I</b><br/>" + self.settore, styNormal)
-            quadrato = Paragraph("<b>QUADRATO/I</b><br/>" + self.quad_par, styNormal)
-            quote = Paragraph("<b>QUOTE</b><br/>min: " + self.quota_min + "<br/>max: "+self.quota_max, styNormal)
+            saggio = Paragraph("<b>SAGGIO</b><br/>" + self.escape_html(self.saggio), styNormal)
+            ambiente = Paragraph("<b>AMBIENTE</b><br/>" + self.escape_html(self.ambient), styNormal)
+            posizione = Paragraph("<b>POS. NELL'AMBIENTE</b><br/>" + self.escape_html(self.posizione), styNormal)
+            settore = Paragraph("<b>SETTORE/I</b><br/>" + self.escape_html(self.settore), styNormal)
+            quadrato = Paragraph("<b>QUADRATO/I</b><br/>" + self.escape_html(self.quad_par), styNormal)
+            quote = Paragraph("<b>QUOTE</b><br/>min: " + self.escape_html(self.quota_min) + "<br/>max: " + self.escape_html(self.quota_max), styNormal)
             label_unita_stratigrafica = Paragraph("<b>NUMERO/CODICE IDENTIFICATIVO DELL’UNITÀ STRATIGRAFICA</b><br/>"+ str(self.us), styNormal2)
             label_sas = Paragraph("<b>NUMERO/CODICE IDENTIFICATIVO DEL SAGGIO STRATIGRAFICO/DELL’EDIFICIO/DELLA STRUTTURA/DELLA DEPOSIZIONE FUNERARIA DI RIFERIMENTO</b><br/>", styNormal2)
             
             if self.formazione == 'Naturale':
-                label_NAT = Paragraph("<i>NAT.</i><br/>" + self.formazione, styNormal)
+                label_NAT = Paragraph("<i>NAT.</i><br/>" + self.escape_html(self.formazione), styNormal)
                 label_ART = Paragraph("<i>ART.</i>",  styNormal) 
             elif self.formazione == 'Artificiale':
                 label_NAT = Paragraph("<i>NAT.</i>", styNormal)
-                label_ART = Paragraph("<i>ART.</i><br/>"+ self.formazione, styNormal)
+                label_ART = Paragraph("<i>ART.</i><br/>" + self.escape_html(self.formazione), styNormal)
             elif self.formazione !='Naturale' or 'Artificiale':    
                 label_NAT = Paragraph("<i>NAT.</i><br/>", styNormal)
                 label_ART = Paragraph("<i>ART.</i>",  styNormal) 
             
 
-            piante = Paragraph("<b>PIANTE</b><br/>" + self.piante_iccd, styNormal)
-            sezioni = Paragraph("<b>SEZIONI</b><br/>" + self.sezioni_iccd, styNormal)
-            prospetti = Paragraph("<b>PROSPETTI</b><br/>"+ self.prospetti_iccd, styNormal)                    #manca valore
-            foto = Paragraph("<b>FOTOGRAFIE</b><br/>"+ self.foto_iccd, styNormal)            #manca valore
+            piante = Paragraph("<b>PIANTE</b><br/>" + self.escape_html(self.piante_iccd), styNormal)
+            sezioni = Paragraph("<b>SEZIONI</b><br/>" + self.escape_html(self.sezioni_iccd), styNormal)
+            prospetti = Paragraph("<b>PROSPETTI</b><br/>" + self.escape_html(self.prospetti_iccd), styNormal)                    #manca valore
+            foto = Paragraph("<b>FOTOGRAFIE</b><br/>" + self.escape_html(self.foto_iccd), styNormal)            #manca valore
 
-            tabelle_materiali = Paragraph("<b>RIFERIMENTI TABELLE MATERIALI<br/><br/>RA</b>:"+ self.ref_ra, styNormal)  #manca valore
+            tabelle_materiali = Paragraph("<b>RIFERIMENTI TABELLE MATERIALI<br/><br/>RA</b>:" + self.escape_html(self.ref_ra), styNormal)  #manca valore
 
             #5 row
 
-            d_stratigrafica = Paragraph("<b>DEFINIZIONE E POSIZIONE</b><br/>Definizione stratigrafica: " + self.d_stratigrafica+"<br/>Definizione interpretativa: "+self.d_interpretativa, styNormal)
+            d_stratigrafica = Paragraph("<b>DEFINIZIONE E POSIZIONE</b><br/>Definizione stratigrafica: " + self.escape_html(self.d_stratigrafica) + "<br/>Definizione interpretativa: " + self.escape_html(self.d_interpretativa), styNormal)
 
             #6 row
 
-            criteri_distinzione = Paragraph("<b>CRITERI DI DISTINZIONE</b><br/>" + self.criteri_distinzione, styNormal)
+            criteri_distinzione = Paragraph("<b>CRITERI DI DISTINZIONE</b><br/>" + self.escape_html(self.criteri_distinzione), styNormal)
 
             #7 row
 
-            modo_formazione = Paragraph("<b>MODO FORMAZIONE</b><br/>" + self.modo_formazione, styNormal)
+            modo_formazione = Paragraph("<b>MODO FORMAZIONE</b><br/>" + self.escape_html(self.modo_formazione), styNormal)
 
             #8-9 row
 
@@ -1272,25 +1272,25 @@ class single_US_pdf_sheet(object):
             label_organici = Paragraph("<i>ORGANICI</i>", styTitoloComponenti) #organici
             #label_artificiali = Paragraph("<i>INORGANICI</i>", styTitoloComponenti) #inclusi
 
-            comp_organici = Paragraph(organici, styNormal) #organici
-            comp_inorganici = Paragraph(inorganici, styNormal)  #geologici
+            comp_organici = Paragraph(self.escape_html(organici), styNormal) #organici
+            comp_inorganici = Paragraph(self.escape_html(inorganici), styNormal)  #geologici
             #inclusi = Paragraph(inclusi, styNormal)  #artificiali
 
             #10 row
 
-            consistenza = Paragraph("<b>CONSISTENZA</b><br/>" + self.consistenza, styNormal)
-            colore = Paragraph("<b>COLORE</b><br/>" + self.colore, styNormal)
+            consistenza = Paragraph("<b>CONSISTENZA</b><br/>" + self.escape_html(self.consistenza), styNormal)
+            colore = Paragraph("<b>COLORE</b><br/>" + self.escape_html(self.colore), styNormal)
             #misure = ''                 # manca valore
             if bool(self.lunghezza_max) and bool(self.larghezza_media) and bool(self.altezza_max):
-                misure = Paragraph("<b>MISURE</b><br/>" + 'Lun. '+ self.lunghezza_max + ' x '+ 'Larg. ' + self.larghezza_media + ' x '+ 'Sp. ' + self.altezza_max + 'm', styNormal)
+                misure = Paragraph("<b>MISURE</b><br/>" + 'Lun. ' + self.escape_html(self.lunghezza_max) + ' x ' + 'Larg. ' + self.escape_html(self.larghezza_media) + ' x ' + 'Sp. ' + self.escape_html(self.altezza_max) + 'm', styNormal)
             elif bool(self.lunghezza_max) and bool(self.larghezza_media) and not bool(self.altezza_max):
-                misure = Paragraph("<b>MISURE</b><br/>" + 'Lun. ' + self.lunghezza_max + ' x '+ 'Larg. '+ self.larghezza_media + 'm', styNormal)
+                misure = Paragraph("<b>MISURE</b><br/>" + 'Lun. ' + self.escape_html(self.lunghezza_max) + ' x ' + 'Larg. ' + self.escape_html(self.larghezza_media) + 'm', styNormal)
             
             else:
                 misure = Paragraph("<b>MISURE</b><br/>", styNormal)
             #11 row
 
-            stato_conservazione = Paragraph("<b>STATO DI CONSERVAZIONE</b><br/>" + self.stato_di_conservazione, styNormal)
+            stato_conservazione = Paragraph("<b>STATO DI CONSERVAZIONE</b><br/>" + self.escape_html(self.stato_di_conservazione), styNormal)
 
             #12 row
 
@@ -1298,38 +1298,38 @@ class single_US_pdf_sheet(object):
 
             #13-22 row
 
-            si_lega_a = Paragraph("<b>SI LEGA A</b><br/>" + self.si_lega_a, styNormal)
-            uguale_a = Paragraph("<b>UGUALE A</b><br/>" + self.uguale_a, styNormal)
-            copre = Paragraph("<b>COPRE</b><br/>" + self.copre, styNormal)
-            coperto_da = Paragraph("<b>COPERTO DA</b><br/>" + self.coperto_da, styNormal)
-            riempie = Paragraph("<b>RIEMPIE</b><br/>" + self.riempie, styNormal)
-            riempito_da = Paragraph("<b>RIEMPITO DA</b><br/>" + self.riempito_da, styNormal)
-            taglia = Paragraph("<b>TAGLIA</b><br/>" + self.taglia, styNormal)
-            tagliato_da = Paragraph("<b>TAGLIATO DA</b><br/>" + self.tagliato_da, styNormal)
-            si_appoggia_a = Paragraph("<b>SI APPOGGIA A</b><br/>" + self.si_appoggia_a, styNormal)
-            gli_si_appoggia = Paragraph("<b>GLI SI APPOGGIA</b><br/>" + self.gli_si_appoggia, styNormal)
+            si_lega_a = Paragraph("<b>SI LEGA A</b><br/>" + self.escape_html(self.si_lega_a), styNormal)
+            uguale_a = Paragraph("<b>UGUALE A</b><br/>" + self.escape_html(self.uguale_a), styNormal)
+            copre = Paragraph("<b>COPRE</b><br/>" + self.escape_html(self.copre), styNormal)
+            coperto_da = Paragraph("<b>COPERTO DA</b><br/>" + self.escape_html(self.coperto_da), styNormal)
+            riempie = Paragraph("<b>RIEMPIE</b><br/>" + self.escape_html(self.riempie), styNormal)
+            riempito_da = Paragraph("<b>RIEMPITO DA</b><br/>" + self.escape_html(self.riempito_da), styNormal)
+            taglia = Paragraph("<b>TAGLIA</b><br/>" + self.escape_html(self.taglia), styNormal)
+            tagliato_da = Paragraph("<b>TAGLIATO DA</b><br/>" + self.escape_html(self.tagliato_da), styNormal)
+            si_appoggia_a = Paragraph("<b>SI APPOGGIA A</b><br/>" + self.escape_html(self.si_appoggia_a), styNormal)
+            gli_si_appoggia = Paragraph("<b>GLI SI APPOGGIA</b><br/>" + self.escape_html(self.gli_si_appoggia), styNormal)
 
             label_sequenza_stratigrafica = Paragraph("<b>S<br/>E<br/>Q<br/>U<br/>E<br/>N<br/>Z<br/>A<br/><br/>S<br/>T<br/>R<br/>A<br/>T<br/>I<br/>G<br/>R<br/>A<br/>F<br/>I<br/>C<br/>A</b>", styVerticale)
 
-            posteriore_a = Paragraph("<b>POSTERIORE A</b><br/>" + self.copre +"<br/>" + self.riempie +"<br/>"+  self.taglia+ "<br/>" +   self.si_appoggia_a, styNormal)               # manca valore
-            anteriore_a = Paragraph("<b>ANTERIORE A</b><br/>"+ self.coperto_da +"<br/>"+  self.riempito_da +"<br/>"+ self.tagliato_da +  "<br/>" + self.gli_si_appoggia, styNormal)                 # manca valore
+            posteriore_a = Paragraph("<b>POSTERIORE A</b><br/>" + self.escape_html(self.copre) + "<br/>" + self.escape_html(self.riempie) + "<br/>" + self.escape_html(self.taglia) + "<br/>" + self.escape_html(self.si_appoggia_a), styNormal)               # manca valore
+            anteriore_a = Paragraph("<b>ANTERIORE A</b><br/>" + self.escape_html(self.coperto_da) + "<br/>" + self.escape_html(self.riempito_da) + "<br/>" + self.escape_html(self.tagliato_da) + "<br/>" + self.escape_html(self.gli_si_appoggia), styNormal)                 # manca valore
 
             #23 row
 
-            osservazioni = Paragraph("<b>OSSERVAZIONI</b><br/>" + self.osservazioni, styDescrizione)
+            osservazioni = Paragraph("<b>OSSERVAZIONI</b><br/>" + self.escape_html(self.osservazioni), styDescrizione)
 
             #24 row
 
-            interpretazione = Paragraph("<b>INTERPRETAZIONE</b><br/>" + self.interpretazione, styDescrizione)
+            interpretazione = Paragraph("<b>INTERPRETAZIONE</b><br/>" + self.escape_html(self.interpretazione), styDescrizione)
 
             #25 row
 
-            elementi_datanti = Paragraph("<b>ELEMENTI DATANTI</b><br/>" + self.elem_datanti, styDescrizione)
+            elementi_datanti = Paragraph("<b>ELEMENTI DATANTI</b><br/>" + self.escape_html(self.elem_datanti), styDescrizione)
 
             #26 row
 
-            datazione_ipotesi = Paragraph("<b>DATAZIONE</b><br/>" + str(self.datazione), styNormal)
-            periodo_o_fase = Paragraph("<b>PERIODO O FASE</b><br/>Periodo iniziale: "+self.periodo_iniziale+"<br/>Fase iniziale: "+self.fase_iniziale+"<br/>Periodo finale: "+self.periodo_finale+"<br/>Fase finale: "+self.fase_finale, styNormal)
+            datazione_ipotesi = Paragraph("<b>DATAZIONE</b><br/>" + self.escape_html(str(self.datazione)), styNormal)
+            periodo_o_fase = Paragraph("<b>PERIODO O FASE</b><br/>Periodo iniziale: " + self.escape_html(self.periodo_iniziale) + "<br/>Fase iniziale: " + self.escape_html(self.fase_iniziale) + "<br/>Periodo finale: " + self.escape_html(self.periodo_finale) + "<br/>Fase finale: " + self.escape_html(self.fase_finale), styNormal)
 
             #27 row
 
@@ -1350,19 +1350,19 @@ class single_US_pdf_sheet(object):
                         campioni += ', ' + str(i[0])
                     except:
                         pass
-            campioni = Paragraph("<b>CAMPIONATURE</b><br/>" + campioni, styNormal)
-            flottazione = Paragraph("<b>FLOTTAZIONE</b><br/>" + self.flottazione, styNormal)
-            setacciatura = Paragraph("<b>SETACCIATURA</b><br/>" + self.setacciatura, styNormal)
+            campioni = Paragraph("<b>CAMPIONATURE</b><br/>" + self.escape_html(campioni), styNormal)
+            flottazione = Paragraph("<b>FLOTTAZIONE</b><br/>" + self.escape_html(self.flottazione), styNormal)
+            setacciatura = Paragraph("<b>SETACCIATURA</b><br/>" + self.escape_html(self.setacciatura), styNormal)
 
             #28 row
 
-            affidabilita = Paragraph("<b>AFFIDABILITÀ STRATIGRAFICA</b><br/>" + self.affidabilita, styNormal)
-            direttore = Paragraph("<b>RESPONSABILE SCIENTIFICO DELLE INDAGINI</b><br/>" + self.direttore_us, styNormal)
-            responsabile2 = Paragraph("<b>RESPONSABILE COMPILAZIONE SUL CAMPO</b><br/>" + self.schedatore, styNormal)
-            responsabile = Paragraph("<b>RESPONSABILE RIELABORAZIONE</b><br/>" + self.responsabile_us, styNormal)
-            data_rilievo = Paragraph("<b>DATA RILEVAMENTO SUL CAMPO</b><br/>" + self.data_rilevazione, styNormal)
-            data_rielaborazione = Paragraph("<b>DATA RIELABORAZIONE</b><br/>" + self.data_rielaborazione, styNormal)
-            attivita = Paragraph("<b>ATTIVITÀ</b><br/>" + self.attivita, styNormal)
+            affidabilita = Paragraph("<b>AFFIDABILITÀ STRATIGRAFICA</b><br/>" + self.escape_html(self.affidabilita), styNormal)
+            direttore = Paragraph("<b>RESPONSABILE SCIENTIFICO DELLE INDAGINI</b><br/>" + self.escape_html(self.direttore_us), styNormal)
+            responsabile2 = Paragraph("<b>RESPONSABILE COMPILAZIONE SUL CAMPO</b><br/>" + self.escape_html(self.schedatore), styNormal)
+            responsabile = Paragraph("<b>RESPONSABILE RIELABORAZIONE</b><br/>" + self.escape_html(self.responsabile_us), styNormal)
+            data_rilievo = Paragraph("<b>DATA RILEVAMENTO SUL CAMPO</b><br/>" + self.escape_html(self.data_rilevazione), styNormal)
+            data_rielaborazione = Paragraph("<b>DATA RIELABORAZIONE</b><br/>" + self.escape_html(self.data_rielaborazione), styNormal)
+            attivita = Paragraph("<b>ATTIVITÀ</b><br/>" + self.escape_html(self.attivita), styNormal)
             licenza =  Paragraph("<b>MIBACT- ICCD_licenza CC BY-SA 4.0_Creative Commons Attribution-ShareAlike 4.0 International</b>",styL)
             # schema
             cell_schema = [
@@ -1560,77 +1560,77 @@ class single_US_pdf_sheet(object):
             return t
         elif str(self.unita_tipo)=='USM':
             unita_tipo = Paragraph(str(self.unita_tipo), styUnitaTipo)
-            label_ente_responsabile = Paragraph("<b>ENTE RESPONSABILE</b><br/>"+str(self.cod_ente_schedatore), styNormal)
+            label_ente_responsabile = Paragraph("<b>ENTE RESPONSABILE</b><br/>" + self.escape_html(str(self.cod_ente_schedatore)), styNormal)
             #label_catalogo_internazionale = Paragraph("<b>N° CATALOGO INTERNAZIONALE</b>", styNormal)
             ente_responsabile = Paragraph(str(self.n_catalogo_generale), styNormal)
             #catalogo_internazionale = Paragraph(str(self.n_catalogo_internazionale), styNormal)
-            sop =  Paragraph("<b>SOPRINTENDENZA MIBACT COMPETENTE PER TUTELA</b><br/>" +str(self.soprintendenza), styNormal)
+            sop =  Paragraph("<b>SOPRINTENDENZA MIBACT COMPETENTE PER TUTELA</b><br/>" + self.escape_html(str(self.soprintendenza)), styNormal)
             #2-3 row
 
-            sito = Paragraph("<b>LOCALITÀ</b><br/>" + str(self.sito), styNormal)
+            sito = Paragraph("<b>LOCALITÀ</b><br/>" + self.escape_html(str(self.sito)), styNormal)
             #anno_di_scavo = Paragraph("<b>ANNO</b><br/>" + self.anno_scavo, styNormal)
             if self.struttura!='':
             
-                area = Paragraph("<b>AREA/EDIFICIO/STRUTTURA</b><br/>" + str(self.area)+'/'+str(self.struttura),styNormal)
+                area = Paragraph("<b>AREA/EDIFICIO/STRUTTURA</b><br/>" + self.escape_html(str(self.area)) + '/' + self.escape_html(str(self.struttura)), styNormal)
             
             else:
-                area = Paragraph("<b>AREA/EDIFICIO/STRUTTURA</b><br/>" + str(self.area),styNormal)
+                area = Paragraph("<b>AREA/EDIFICIO/STRUTTURA</b><br/>" + self.escape_html(str(self.area)), styNormal)
             
-            saggio = Paragraph("<b>SAGGIO</b><br/>" + self.saggio, styNormal)
-            ambiente = Paragraph("<b>AMBIENTE</b><br/>" + self.ambient, styNormal)
-            posizione = Paragraph("<b>POS. NELL'AMBIENTE</b><br/>" + self.posizione, styNormal)
-            settore = Paragraph("<b>SETTORE/I</b><br/>" + self.settore, styNormal)
-            quadrato = Paragraph("<b>QUADRATO/I</b><br/>" + self.quad_par, styNormal)
-            quote = Paragraph("<b>QUOTE</b><br/>min: " + self.quota_min + "<br/>max: "+self.quota_max, styNormal)
+            saggio = Paragraph("<b>SAGGIO</b><br/>" + self.escape_html(self.saggio), styNormal)
+            ambiente = Paragraph("<b>AMBIENTE</b><br/>" + self.escape_html(self.ambient), styNormal)
+            posizione = Paragraph("<b>POS. NELL'AMBIENTE</b><br/>" + self.escape_html(self.posizione), styNormal)
+            settore = Paragraph("<b>SETTORE/I</b><br/>" + self.escape_html(self.settore), styNormal)
+            quadrato = Paragraph("<b>QUADRATO/I</b><br/>" + self.escape_html(self.quad_par), styNormal)
+            quote = Paragraph("<b>QUOTE</b><br/>min: " + self.escape_html(self.quota_min) + "<br/>max: " + self.escape_html(self.quota_max), styNormal)
             label_unita_stratigrafica = Paragraph("<b>NUMERO/CODICE IDENTIFICATIVO DELL’UNITÀ STRATIGRAFICA</b><br/>"+ str(self.us), styNormal)
             label_sas = Paragraph("<b>NUMERO/CODICE IDENTIFICATIVO DEL SAGGIO STRATIGRAFICO/DELL’EDIFICIO/DELLA STRUTTURA/DELLA DEPOSIZIONE FUNERARIA DI RIFERIMENTO</b><br/>", styNormal)
             
            
 
-            piante = Paragraph("<b>PIANTE</b><br/>" + self.piante_iccd, styNormal)
-            sezioni = Paragraph("<b>SEZIONI</b><br/>" + self.sezioni_iccd, styNormal)
-            prospetti = Paragraph("<b>PROSPETTI</b><br/>"+ self.prospetti_iccd, styNormal)                    #manca valore
-            foto = Paragraph("<b>FOTOGRAFIE</b><br/>"+ self.foto_iccd, styNormal)            #manca valore
+            piante = Paragraph("<b>PIANTE</b><br/>" + self.escape_html(self.piante_iccd), styNormal)
+            sezioni = Paragraph("<b>SEZIONI</b><br/>" + self.escape_html(self.sezioni_iccd), styNormal)
+            prospetti = Paragraph("<b>PROSPETTI</b><br/>" + self.escape_html(self.prospetti_iccd), styNormal)                    #manca valore
+            foto = Paragraph("<b>FOTOGRAFIE</b><br/>" + self.escape_html(self.foto_iccd), styNormal)            #manca valore
 
            
 
-            t_muraria = Paragraph("<b>TIPOLOGIA DELL'OPERA</b><br/>"+ str(self.tipologia_opera), styNormal)
-            t_costruttiva = Paragraph("<b>TECNICA COSTRUTTIVA</b><br/>"+ str(self.tecnica_muraria_usm), styNormal)
-            sezione_muraria = Paragraph("<b>SEZIONE MURARIA</b><br/>"+ str(self.sezione_muraria), styNormal)
+            t_muraria = Paragraph("<b>TIPOLOGIA DELL'OPERA</b><br/>" + self.escape_html(str(self.tipologia_opera)), styNormal)
+            t_costruttiva = Paragraph("<b>TECNICA COSTRUTTIVA</b><br/>" + self.escape_html(str(self.tecnica_muraria_usm)), styNormal)
+            sezione_muraria = Paragraph("<b>SEZIONE MURARIA</b><br/>" + self.escape_html(str(self.sezione_muraria)), styNormal)
             
-            modulo = Paragraph("<b>MODULO</b><br/>"+ str(self.modulo_usm), styNormal)
+            modulo = Paragraph("<b>MODULO</b><br/>" + self.escape_html(str(self.modulo_usm)), styNormal)
             
             
             if bool(self.lunghezza_usm) and bool(self.altezza_usm):
-                misure = Paragraph("<b>MISURE</b><br/>" + 'Lun. '+ self.lunghezza_usm + ' x '+ 'Alt. ' + self.altezza_usm + 'm', styNormal)
+                misure = Paragraph("<b>MISURE</b><br/>" + 'Lun. ' + self.escape_html(self.lunghezza_usm) + ' x ' + 'Alt. ' + self.escape_html(self.altezza_usm) + 'm', styNormal)
             elif bool(self.lunghezza_usm) and  not bool(self.altezza_usm):
-                misure = Paragraph("<b>MISURE</b><br/>" + 'Lun. ' + self.lunghezza_usm + 'm', styNormal)
+                misure = Paragraph("<b>MISURE</b><br/>" + 'Lun. ' + self.escape_html(self.lunghezza_usm) + 'm', styNormal)
             elif bool(self.altezza_usm) and  not bool(self.lunghezza_usm):
-                misure = Paragraph("<b>MISURE</b><br/>" + 'Alt. ' + self.altezza_usm + 'm', styNormal)
+                misure = Paragraph("<b>MISURE</b><br/>" + 'Alt. ' + self.escape_html(self.altezza_usm) + 'm', styNormal)
             else:
                 misure = Paragraph("<b>MISURE</b><br/>", styNormal)
 
-            superficie_analizzata = Paragraph("<b>SUPERFICIE ANALIZZATA</b><br/>"+ str(self.superficie_analizzata), styNormal)
+            superficie_analizzata = Paragraph("<b>SUPERFICIE ANALIZZATA</b><br/>" + self.escape_html(str(self.superficie_analizzata)), styNormal)
             
-            d_stratigrafica = Paragraph("<b>DEFINIZIONE E POSIZIONE</b><br/>" + self.d_stratigrafica+"<br/>"+self.d_interpretativa, styNormal)
+            d_stratigrafica = Paragraph("<b>DEFINIZIONE E POSIZIONE</b><br/>" + self.escape_html(self.d_stratigrafica) + "<br/>" + self.escape_html(self.d_interpretativa), styNormal)
             
 
             #6 row
 
-            criteri_distinzione = Paragraph("<b>CRITERI DI DISTINZIONE</b><br/>" + self.criteri_distinzione, styNormal)
+            criteri_distinzione = Paragraph("<b>CRITERI DI DISTINZIONE</b><br/>" + self.escape_html(self.criteri_distinzione), styNormal)
 
             #7 row
 
-            provenienza_materiali = Paragraph("<b>PROVENIENZA MATERIALI</b><br/>"+self.provenienza_materiali_usm,styNormal2)
+            provenienza_materiali = Paragraph("<b>PROVENIENZA MATERIALI</b><br/>" + self.escape_html(self.provenienza_materiali_usm), styNormal2)
             
-            uso_primario = Paragraph("<b>USO PRIMARIO</b><br/>" + self.uso_primario_usm,styNormal2)
+            uso_primario = Paragraph("<b>USO PRIMARIO</b><br/>" + self.escape_html(self.uso_primario_usm), styNormal2)
             
-            reimpiego = Paragraph("<b>REIMPIEGO</b><br/>"+self.reimp, styNormal2)
+            reimpiego = Paragraph("<b>REIMPIEGO</b><br/>" + self.escape_html(self.reimp), styNormal2)
 
-            orientamento = Paragraph("<b>ORIENTAMENTO</b><br/>"+self.orientamento, styNormal)
+            orientamento = Paragraph("<b>ORIENTAMENTO</b><br/>" + self.escape_html(self.orientamento), styNormal)
             
             #8-9 row
-            stato_conservazione = Paragraph("<b>STATO DI CONSERVAZIONE</b><br/>" + self.stato_di_conservazione, styNormal)
+            stato_conservazione = Paragraph("<b>STATO DI CONSERVAZIONE</b><br/>" + self.escape_html(self.stato_di_conservazione), styNormal)
             
             
            
@@ -1644,22 +1644,22 @@ class single_US_pdf_sheet(object):
             posa_opera= Paragraph("<b>POSA IN OPERA</b><br/>", styNormal2)
             
             
-            materiali_1 =Paragraph(self.materiali_lat,styNormal)
-            lavorazione_1 =Paragraph(self.lavorazione_lat,styNormal)
-            consistenza_1 =Paragraph(self.consistenza_lat,styNormal)
-            forma_1 =Paragraph(self.forma_lat,styNormal)
-            colore_1 =Paragraph(self.colore_lat,styNormal)
-            impasto_1 =Paragraph(self.impasto_lat,styNormal)
-            posa_opera_1 =Paragraph(self.posa_opera,styNormal)
+            materiali_1 = Paragraph(self.escape_html(self.materiali_lat), styNormal)
+            lavorazione_1 = Paragraph(self.escape_html(self.lavorazione_lat), styNormal)
+            consistenza_1 = Paragraph(self.escape_html(self.consistenza_lat), styNormal)
+            forma_1 = Paragraph(self.escape_html(self.forma_lat), styNormal)
+            colore_1 = Paragraph(self.escape_html(self.colore_lat), styNormal)
+            impasto_1 = Paragraph(self.escape_html(self.impasto_lat), styNormal)
+            posa_opera_1 = Paragraph(self.escape_html(self.posa_opera), styNormal)
             #taglio_l = Paragraph(self.taglio_p,styNormal)
             label_pietra = Paragraph("<b>ELEMENTI<br/>LITICI</b>", styVerticale)
-            p_1 =Paragraph(self.materiale_p,styNormal)
-            p_2 =Paragraph(self.lavorazione,styNormal)
-            p_3 =Paragraph(self.consistenza_p,styNormal)
-            p_4 =Paragraph(self.forma_p,styNormal)
-            p_5 =Paragraph(self.colore_p,styNormal)
-            taglio= Paragraph("<b>TAGLIO</b><br/>"+ self.taglio_p, styNormal)
-            p_7 =Paragraph(self.posa_opera_p,styNormal)
+            p_1 = Paragraph(self.escape_html(self.materiale_p), styNormal)
+            p_2 = Paragraph(self.escape_html(self.lavorazione), styNormal)
+            p_3 = Paragraph(self.escape_html(self.consistenza_p), styNormal)
+            p_4 = Paragraph(self.escape_html(self.forma_p), styNormal)
+            p_5 = Paragraph(self.escape_html(self.colore_p), styNormal)
+            taglio = Paragraph("<b>TAGLIO</b><br/>" + self.escape_html(self.taglio_p), styNormal)
+            p_7 = Paragraph(self.escape_html(self.posa_opera_p), styNormal)
             
             #12 row
             n=Paragraph('',styNormal)
@@ -1672,14 +1672,14 @@ class single_US_pdf_sheet(object):
             rifinitura = Paragraph("<b>RIFINITURA</b><br/>", styNormal)
             
             label_legante= Paragraph("<b>LEGANTE<br/></b>", styVerticale)
-            tipo_1 =Paragraph(self.tipo_legante_usm,styNormal)
-            consistenza_2 =Paragraph(self.cons_legante,styNormal)
+            tipo_1 = Paragraph(self.escape_html(self.tipo_legante_usm), styNormal)
+            consistenza_2 = Paragraph(self.escape_html(self.cons_legante), styNormal)
             colore_aaa =self.unzip_colore_usm()
             inerti_aaa =self.unzip_inerti_usm()
-            colore_3 =Paragraph(colore_aaa,styNormal)
-            inerti_4 =Paragraph(inerti_aaa,styNormal)
-            spessore_5 =Paragraph(self.spessore_usm,styNormal)
-            rifinitura_6 =Paragraph(self.rifinitura_usm,styNormal)
+            colore_3 = Paragraph(self.escape_html(colore_aaa), styNormal)
+            inerti_4 = Paragraph(self.escape_html(inerti_aaa), styNormal)
+            spessore_5 = Paragraph(self.escape_html(self.spessore_usm), styNormal)
+            rifinitura_6 = Paragraph(self.escape_html(self.rifinitura_usm), styNormal)
             
             note_legante = Paragraph("<b>NOTE SPECIFICHE DEL LEGANTE</b><br/>" , styDescrizione)
             note_materiali = Paragraph("<b>NOTE SPECIFICHE SUI MATERIALI</b><br/><br/><br/><br/><br/><br/>" , styDescrizione)
@@ -1687,48 +1687,48 @@ class single_US_pdf_sheet(object):
 
             #13-22 row
 
-            si_lega_a = Paragraph("<b>SI LEGA A</b><br/>" + self.si_lega_a, styNormal)
-            uguale_a = Paragraph("<b>UGUALE A</b><br/>" + self.uguale_a, styNormal)
-            copre = Paragraph("<b>COPRE</b><br/>" + self.copre, styNormal)
-            coperto_da = Paragraph("<b>COPERTO DA</b><br/>" + self.coperto_da, styNormal)
-            riempie = Paragraph("<b>RIEMPIE</b><br/>" + self.riempie, styNormal)
-            riempito_da = Paragraph("<b>RIEMPITO DA</b><br/>" + self.riempito_da, styNormal)
-            taglia = Paragraph("<b>TAGLIA</b><br/>" + self.taglia, styNormal)
-            tagliato_da = Paragraph("<b>TAGLIATO DA</b><br/>" + self.tagliato_da, styNormal)
-            si_appoggia_a = Paragraph("<b>SI APPOGGIA A</b><br/>" + self.si_appoggia_a, styNormal)
-            gli_si_appoggia = Paragraph("<b>GLI SI APPOGGIA</b><br/>" + self.gli_si_appoggia, styNormal)
+            si_lega_a = Paragraph("<b>SI LEGA A</b><br/>" + self.escape_html(self.si_lega_a), styNormal)
+            uguale_a = Paragraph("<b>UGUALE A</b><br/>" + self.escape_html(self.uguale_a), styNormal)
+            copre = Paragraph("<b>COPRE</b><br/>" + self.escape_html(self.copre), styNormal)
+            coperto_da = Paragraph("<b>COPERTO DA</b><br/>" + self.escape_html(self.coperto_da), styNormal)
+            riempie = Paragraph("<b>RIEMPIE</b><br/>" + self.escape_html(self.riempie), styNormal)
+            riempito_da = Paragraph("<b>RIEMPITO DA</b><br/>" + self.escape_html(self.riempito_da), styNormal)
+            taglia = Paragraph("<b>TAGLIA</b><br/>" + self.escape_html(self.taglia), styNormal)
+            tagliato_da = Paragraph("<b>TAGLIATO DA</b><br/>" + self.escape_html(self.tagliato_da), styNormal)
+            si_appoggia_a = Paragraph("<b>SI APPOGGIA A</b><br/>" + self.escape_html(self.si_appoggia_a), styNormal)
+            gli_si_appoggia = Paragraph("<b>GLI SI APPOGGIA</b><br/>" + self.escape_html(self.gli_si_appoggia), styNormal)
 
             label_sequenza_stratigrafica = Paragraph("<b>S<br/>E<br/>Q<br/>U<br/>E<br/>N<br/>Z<br/>A<br/><br/>S<br/>T<br/>R<br/>A<br/>T<br/>I<br/>G<br/>R<br/>A<br/>F<br/>I<br/>C<br/>A</b>", styVerticale)
 
-            posteriore_a = Paragraph("<b>POSTERIORE A</b><br/>" + self.copre +"<br/>" + self.riempie +"<br/>"+  self.taglia+ "<br/>" +   self.si_appoggia_a, styNormal)               # manca valore
-            anteriore_a = Paragraph("<b>ANTERIORE A</b><br/>"+ self.coperto_da +"<br/>"+  self.riempito_da +"<br/>"+ self.tagliato_da +  "<br/>" + self.gli_si_appoggia, styNormal)                 # manca valore
+            posteriore_a = Paragraph("<b>POSTERIORE A</b><br/>" + self.escape_html(self.copre) + "<br/>" + self.escape_html(self.riempie) + "<br/>" + self.escape_html(self.taglia) + "<br/>" + self.escape_html(self.si_appoggia_a), styNormal)               # manca valore
+            anteriore_a = Paragraph("<b>ANTERIORE A</b><br/>" + self.escape_html(self.coperto_da) + "<br/>" + self.escape_html(self.riempito_da) + "<br/>" + self.escape_html(self.tagliato_da) + "<br/>" + self.escape_html(self.gli_si_appoggia), styNormal)                 # manca valore
 
             descrizione = Paragraph("<b>DESCRIZIONE</b><br/>" + self.escape_html(self.descrizione), styDescrizione)
 
-            osservazioni = Paragraph("<b>OSSERVAZIONI</b><br/>" + self.osservazioni, styDescrizione)
+            osservazioni = Paragraph("<b>OSSERVAZIONI</b><br/>" + self.escape_html(self.osservazioni), styDescrizione)
 
             #24 row
 
-            interpretazione = Paragraph("<b>INTERPRETAZIONE</b><br/>" + self.interpretazione, styDescrizione)
+            interpretazione = Paragraph("<b>INTERPRETAZIONE</b><br/>" + self.escape_html(self.interpretazione), styDescrizione)
 
-            campioni_malta = Paragraph("<b>CAMPIONATURE MALTA</b><br/>"+ str(self.campioni_malta_usm), styNormal)
-            campioni_mattone = Paragraph("<b>CAMPIONATURE LATERIZI</b><br/>"+ str(self.campioni_mattone_usm), styNormal)
-            campioni_pietra = Paragraph("<b>CAMPIONATURE ELEMENTI LITICI</b><br/>"+ str(self.campioni_pietra_usm), styNormal)
+            campioni_malta = Paragraph("<b>CAMPIONATURE MALTA</b><br/>" + self.escape_html(str(self.campioni_malta_usm)), styNormal)
+            campioni_mattone = Paragraph("<b>CAMPIONATURE LATERIZI</b><br/>" + self.escape_html(str(self.campioni_mattone_usm)), styNormal)
+            campioni_pietra = Paragraph("<b>CAMPIONATURE ELEMENTI LITICI</b><br/>" + self.escape_html(str(self.campioni_pietra_usm)), styNormal)
 
-            elementi_datanti = Paragraph("<b>ELEMENTI DATANTI</b><br/>" + self.elem_datanti, styDescrizione)
+            elementi_datanti = Paragraph("<b>ELEMENTI DATANTI</b><br/>" + self.escape_html(self.elem_datanti), styDescrizione)
 
             #26 row
 
-            datazione_ipotesi = Paragraph("<b>DATAZIONE</b><br/>" + str(self.datazione), styNormal)
-            periodo_o_fase = Paragraph("<b>PERIODO O FASE</b><br/>Periodo iniziale: "+self.periodo_iniziale+"<br/>Fase iniziale: "+self.fase_iniziale+"<br/>Periodo finale: "+self.periodo_finale+"<br/>Fase finale: "+self.fase_finale, styNormal)
+            datazione_ipotesi = Paragraph("<b>DATAZIONE</b><br/>" + self.escape_html(str(self.datazione)), styNormal)
+            periodo_o_fase = Paragraph("<b>PERIODO O FASE</b><br/>Periodo iniziale: " + self.escape_html(self.periodo_iniziale) + "<br/>Fase iniziale: " + self.escape_html(self.fase_iniziale) + "<br/>Periodo finale: " + self.escape_html(self.periodo_finale) + "<br/>Fase finale: " + self.escape_html(self.fase_finale), styNormal)
 
-            affidabilita = Paragraph("<b>AFFIDABILITÀ STRATIGRAFICA</b><br/>" + self.affidabilita, styNormal)
-            direttore = Paragraph("<b>RESPONSABILE SCIENTIFICO DELLE INDAGINI</b><br/>" + self.direttore_us, styNormal)
-            responsabile2 = Paragraph("<b>RESPONSABILE COMPILAZIONE SUL CAMPO</b><br/>" + self.schedatore, styNormal)
-            responsabile = Paragraph("<b>RESPONSABILE RIELABORAZIONE</b><br/>" + self.responsabile_us, styNormal)
-            data_rilievo = Paragraph("<b>DATA RILEVAMENTO SUL CAMPO</b><br/>" + self.data_rilevazione, styNormal)
-            data_rielaborazione = Paragraph("<b>DATA RIELABORAZIONE</b><br/>" + self.data_rielaborazione, styNormal)
-            attivita = Paragraph("<b>ATTIVITÀ</b><br/>" + self.attivita, styNormal)
+            affidabilita = Paragraph("<b>AFFIDABILITÀ STRATIGRAFICA</b><br/>" + self.escape_html(self.affidabilita), styNormal)
+            direttore = Paragraph("<b>RESPONSABILE SCIENTIFICO DELLE INDAGINI</b><br/>" + self.escape_html(self.direttore_us), styNormal)
+            responsabile2 = Paragraph("<b>RESPONSABILE COMPILAZIONE SUL CAMPO</b><br/>" + self.escape_html(self.schedatore), styNormal)
+            responsabile = Paragraph("<b>RESPONSABILE RIELABORAZIONE</b><br/>" + self.escape_html(self.responsabile_us), styNormal)
+            data_rilievo = Paragraph("<b>DATA RILEVAMENTO SUL CAMPO</b><br/>" + self.escape_html(self.data_rilevazione), styNormal)
+            data_rielaborazione = Paragraph("<b>DATA RIELABORAZIONE</b><br/>" + self.escape_html(self.data_rielaborazione), styNormal)
+            attivita = Paragraph("<b>ATTIVITÀ</b><br/>" + self.escape_html(self.attivita), styNormal)
             licenza =  Paragraph("<b>MIBACT- ICCD_licenza CC BY-SA 4.0_Creative Commons Attribution-ShareAlike 4.0 International</b>",styL)
             # schema
 
@@ -2077,14 +2077,14 @@ class single_US_pdf_sheet(object):
         lst.append(logo)
         if str(self.unita_tipo)== 'SU':
             unita_tipo = Paragraph(str(self.unita_tipo), styUnitaTipo)
-            label_ente_responsabile = Paragraph("<b>RESPONSIBLE INSTITUTION</b><br/>"+str(self.cod_ente_schedatore), styNormal)
+            label_ente_responsabile = Paragraph("<b>RESPONSIBLE INSTITUTION</b><br/>" + self.escape_html(str(self.cod_ente_schedatore)), styNormal)
             #label_catalogo_internazionale = Paragraph("<b>N° CATALOGO INTERNAZIONALE</b>", styNormal)
             ente_responsabile = Paragraph(str(self.n_catalogo_generale), styNormal)
             #catalogo_internazionale = Paragraph(str(self.n_catalogo_internazionale), styNormal)
-            sop =  Paragraph("<b>SUPERINTENDENCE RESPONSIBLE FOR PROTECTION</b><br/>" +str(self.soprintendenza), styNormal)
+            sop =  Paragraph("<b>SUPERINTENDENCE RESPONSIBLE FOR PROTECTION</b><br/>" + self.escape_html(str(self.soprintendenza)), styNormal)
             #2-3 row
 
-            sito = Paragraph("<b>LOCATION</b><br/>" + str(self.sito), styNormal)
+            sito = Paragraph("<b>LOCATION</b><br/>" + self.escape_html(str(self.sito)), styNormal)
             #anno_di_scavo = Paragraph("<b>ANNO</b><br/>" + self.anno_scavo, styNormal)
             if self.struttura!='':
             
@@ -2103,11 +2103,11 @@ class single_US_pdf_sheet(object):
             label_sas = Paragraph("<b>NUMBER/IDENTIFICATION CODE OF THE STRATIGRAPHIC ASSAY/BUILDING/STRUCTURE/FUNERARY DEPOSITION OF REFERENCE</b><br/>", styNormal)
             
             if self.formazione == 'Natural':
-                label_NAT = Paragraph("<i>NAT.</i><br/>" + self.formazione, styNormal)
+                label_NAT = Paragraph("<i>NAT.</i><br/>" + self.escape_html(self.formazione), styNormal)
                 label_ART = Paragraph("<i>ART.</i>",  styNormal) 
             elif self.formazione == 'Artificial':
                 label_NAT = Paragraph("<i>NAT.</i>", styNormal)
-                label_ART = Paragraph("<i>ART.</i><br/>"+ self.formazione, styNormal)
+                label_ART = Paragraph("<i>ART.</i><br/>" + self.escape_html(self.formazione), styNormal)
             elif self.formazione !='Natural' or 'Artificial':    
                 label_NAT = Paragraph("<i>NAT.</i><br/>", styNormal)
                 label_ART = Paragraph("<i>ART.</i>",  styNormal) 
@@ -2155,8 +2155,8 @@ class single_US_pdf_sheet(object):
             label_organici = Paragraph("<i>ORGANIC</i>", styTitoloComponenti) #organici
             #label_artificiali = Paragraph("<i>INORGANICI</i>", styTitoloComponenti) #inclusi
 
-            comp_organici = Paragraph(organici, styNormal) #organici
-            comp_inorganici = Paragraph(inorganici, styNormal)  #geologici
+            comp_organici = Paragraph(self.escape_html(organici), styNormal) #organici
+            comp_inorganici = Paragraph(self.escape_html(inorganici), styNormal)  #geologici
             #inclusi = Paragraph(inclusi, styNormal)  #artificiali
 
             #10 row
@@ -2443,14 +2443,14 @@ class single_US_pdf_sheet(object):
             return t
         elif str(self.unita_tipo)=='WSU':
             unita_tipo = Paragraph(str(self.unita_tipo), styUnitaTipo)
-            label_ente_responsabile = Paragraph("<b>RESPONSIBLE INSTITUTION</b><br/>"+str(self.cod_ente_schedatore), styNormal)
+            label_ente_responsabile = Paragraph("<b>RESPONSIBLE INSTITUTION</b><br/>" + self.escape_html(str(self.cod_ente_schedatore)), styNormal)
             #label_catalogo_internazionale = Paragraph("<b>N° CATALOGO INTERNAZIONALE</b>", styNormal)
             ente_responsabile = Paragraph(str(self.n_catalogo_generale), styNormal)
             #catalogo_internazionale = Paragraph(str(self.n_catalogo_internazionale), styNormal)
-            sop =  Paragraph("<b>SUPERINTENDENCE RESPONSIBLE FOR PROTECTION</b><br/>" +str(self.soprintendenza), styNormal)
+            sop =  Paragraph("<b>SUPERINTENDENCE RESPONSIBLE FOR PROTECTION</b><br/>" + self.escape_html(str(self.soprintendenza)), styNormal)
             #2-3 row
 
-            sito = Paragraph("<b>LOCATION</b><br/>" + str(self.sito), styNormal)
+            sito = Paragraph("<b>LOCATION</b><br/>" + self.escape_html(str(self.sito)), styNormal)
             #anno_di_scavo = Paragraph("<b>ANNO</b><br/>" + self.anno_scavo, styNormal)
             if self.struttura!='':
             
@@ -2469,11 +2469,11 @@ class single_US_pdf_sheet(object):
             label_sas = Paragraph("<b>NUMBER/IDENTIFICATION CODE OF THE STRATIGRAPHIC ASSAY/BUILDING/STRUCTURE/FUNERARY DEPOSITION OF REFERENCE</b><br/>", styNormal)
             
             if self.formazione == 'Natural':
-                label_NAT = Paragraph("<i>NAT.</i><br/>" + self.formazione, styNormal)
+                label_NAT = Paragraph("<i>NAT.</i><br/>" + self.escape_html(self.formazione), styNormal)
                 label_ART = Paragraph("<i>ART.</i>",  styNormal) 
             elif self.formazione == 'Artificial':
                 label_NAT = Paragraph("<i>NAT.</i>", styNormal)
-                label_ART = Paragraph("<i>ART.</i><br/>"+ self.formazione, styNormal)
+                label_ART = Paragraph("<i>ART.</i><br/>" + self.escape_html(self.formazione), styNormal)
             elif self.formazione !='Natural' or 'Artificial':    
                 label_NAT = Paragraph("<i>NAT.</i><br/>", styNormal)
                 label_ART = Paragraph("<i>ART.</i>",  styNormal) 
@@ -2535,22 +2535,22 @@ class single_US_pdf_sheet(object):
             posa_opera= Paragraph("<b>INSTALLATION</b><br/>", styNormal)
             
             
-            materiali_1 =Paragraph(self.materiali_lat,styNormal)
-            lavorazione_1 =Paragraph(self.lavorazione_lat,styNormal)
-            consistenza_1 =Paragraph(self.consistenza_lat,styNormal)
-            forma_1 =Paragraph(self.forma_lat,styNormal)
-            colore_1 =Paragraph(self.colore_lat,styNormal)
-            impasto_1 =Paragraph(self.impasto_lat,styNormal)
-            posa_opera_1 =Paragraph(self.posa_opera,styNormal)
+            materiali_1 = Paragraph(self.escape_html(self.materiali_lat), styNormal)
+            lavorazione_1 = Paragraph(self.escape_html(self.lavorazione_lat), styNormal)
+            consistenza_1 = Paragraph(self.escape_html(self.consistenza_lat), styNormal)
+            forma_1 = Paragraph(self.escape_html(self.forma_lat), styNormal)
+            colore_1 = Paragraph(self.escape_html(self.colore_lat), styNormal)
+            impasto_1 = Paragraph(self.escape_html(self.impasto_lat), styNormal)
+            posa_opera_1 = Paragraph(self.escape_html(self.posa_opera), styNormal)
             #taglio_l = Paragraph(self.taglio_p,styNormal)
             label_pietra = Paragraph("<b>LITHICS ELEMENTS</b>", styVerticale)
-            p_1 =Paragraph(self.materiale_p,styNormal)
-            p_2 =Paragraph(self.lavorazione,styNormal)
-            p_3 =Paragraph(self.consistenza_p,styNormal)
-            p_4 =Paragraph(self.forma_p,styNormal)
-            p_5 =Paragraph(self.colore_p,styNormal)
+            p_1 = Paragraph(self.escape_html(self.materiale_p), styNormal)
+            p_2 = Paragraph(self.escape_html(self.lavorazione), styNormal)
+            p_3 = Paragraph(self.escape_html(self.consistenza_p), styNormal)
+            p_4 = Paragraph(self.escape_html(self.forma_p), styNormal)
+            p_5 = Paragraph(self.escape_html(self.colore_p), styNormal)
             taglio= Paragraph("<b>CUT</b><br/>"+ self.taglio_p, styNormal)
-            p_7 =Paragraph(self.posa_opera_p,styNormal)
+            p_7 = Paragraph(self.escape_html(self.posa_opera_p), styNormal)
             
             #12 row
             n=Paragraph('',styNormal)
@@ -2563,12 +2563,12 @@ class single_US_pdf_sheet(object):
             rifinitura = Paragraph("<b>REFINEMENT</b><br/>", styNormal)
             
             label_legante= Paragraph("<b>LEGANTE</b>", styVerticale)
-            tipo_1 =Paragraph(self.tipo_legante_usm,styNormal)
-            consistenza_2 =Paragraph(self.cons_legante,styNormal)
+            tipo_1 = Paragraph(self.escape_html(self.tipo_legante_usm), styNormal)
+            consistenza_2 = Paragraph(self.escape_html(self.cons_legante), styNormal)
             colore_3 =Paragraph(self.col_legante,styNormal)
             inerti_4 =Paragraph(self.aggreg_legante,styNormal)
-            spessore_5 =Paragraph(self.spessore_usm,styNormal)
-            rifinitura_6 =Paragraph(self.rifinitura_usm,styNormal)
+            spessore_5 = Paragraph(self.escape_html(self.spessore_usm), styNormal)
+            rifinitura_6 = Paragraph(self.escape_html(self.rifinitura_usm), styNormal)
             
             note_legante = Paragraph("<b>LEGANTE NOTE</b><br/>" , styDescrizione)
             note_materiali = Paragraph("<b>MATERIALS NOTE</b><br/>" , styDescrizione)
@@ -2991,7 +2991,7 @@ class single_US_pdf_sheet(object):
             label_sas = Paragraph("<b>NUMMER/IDENTIFIZIERUNGSCODE DES STRATIGRAPHISCHEN AUFSATZES/GEBÄUDES/DER STRUKTUR/DER FUNERÄREN ABLAGERUNG DER REFERENZ</b><br/>", styNormal)
             
             if self.formazione == 'Natürlich':
-                label_NAT = Paragraph("<i>NAT.</i><br/>" + self.formazione, styNormal)
+                label_NAT = Paragraph("<i>NAT.</i><br/>" + self.escape_html(self.formazione), styNormal)
                 label_ART = Paragraph("<i>KÜN.</i>",  styNormal) 
             elif self.formazione == 'Künstliche':
                 label_NAT = Paragraph("<i>NAT.</i>", styNormal)
@@ -3043,8 +3043,8 @@ class single_US_pdf_sheet(object):
             label_organici = Paragraph("<i>ORGANIK</i>", styTitoloComponenti) #organici
             #label_artificiali = Paragraph("<i>INORGANICI</i>", styTitoloComponenti) #inclusi
 
-            comp_organici = Paragraph(organici, styNormal) #organici
-            comp_inorganici = Paragraph(inorganici, styNormal)  #geologici
+            comp_organici = Paragraph(self.escape_html(organici), styNormal) #organici
+            comp_inorganici = Paragraph(self.escape_html(inorganici), styNormal)  #geologici
             #inclusi = Paragraph(inclusi, styNormal)  #artificiali
 
             #10 row
@@ -3418,22 +3418,22 @@ class single_US_pdf_sheet(object):
             posa_opera= Paragraph("<b>INSTALLIERUNG</b><br/>", styNormal)
             
             
-            materiali_1 =Paragraph(self.materiali_lat,styNormal)
-            lavorazione_1 =Paragraph(self.lavorazione_lat,styNormal)
-            consistenza_1 =Paragraph(self.consistenza_lat,styNormal)
-            forma_1 =Paragraph(self.forma_lat,styNormal)
-            colore_1 =Paragraph(self.colore_lat,styNormal)
-            impasto_1 =Paragraph(self.impasto_lat,styNormal)
-            posa_opera_1 =Paragraph(self.posa_opera,styNormal)
+            materiali_1 = Paragraph(self.escape_html(self.materiali_lat), styNormal)
+            lavorazione_1 = Paragraph(self.escape_html(self.lavorazione_lat), styNormal)
+            consistenza_1 = Paragraph(self.escape_html(self.consistenza_lat), styNormal)
+            forma_1 = Paragraph(self.escape_html(self.forma_lat), styNormal)
+            colore_1 = Paragraph(self.escape_html(self.colore_lat), styNormal)
+            impasto_1 = Paragraph(self.escape_html(self.impasto_lat), styNormal)
+            posa_opera_1 = Paragraph(self.escape_html(self.posa_opera), styNormal)
             #taglio_l = Paragraph(self.taglio_p,styNormal)
             label_pietra = Paragraph("<b>LITHIK</b>", styVerticale)
-            p_1 =Paragraph(self.materiale_p,styNormal)
-            p_2 =Paragraph(self.lavorazione,styNormal)
-            p_3 =Paragraph(self.consistenza_p,styNormal)
-            p_4 =Paragraph(self.forma_p,styNormal)
-            p_5 =Paragraph(self.colore_p,styNormal)
+            p_1 = Paragraph(self.escape_html(self.materiale_p), styNormal)
+            p_2 = Paragraph(self.escape_html(self.lavorazione), styNormal)
+            p_3 = Paragraph(self.escape_html(self.consistenza_p), styNormal)
+            p_4 = Paragraph(self.escape_html(self.forma_p), styNormal)
+            p_5 = Paragraph(self.escape_html(self.colore_p), styNormal)
             taglio= Paragraph("<b>SCHNITT</b><br/>"+ self.taglio_p, styNormal)
-            p_7 =Paragraph(self.posa_opera_p,styNormal)
+            p_7 = Paragraph(self.escape_html(self.posa_opera_p), styNormal)
             
             #12 row
             n=Paragraph('',styNormal)
@@ -3446,12 +3446,12 @@ class single_US_pdf_sheet(object):
             rifinitura = Paragraph("<b>ENDE</b><br/>", styNormal)
             
             label_legante= Paragraph("<b>HINWEISE</b>", styVerticale)
-            tipo_1 =Paragraph(self.tipo_legante_usm,styNormal)
-            consistenza_2 =Paragraph(self.cons_legante,styNormal)
+            tipo_1 = Paragraph(self.escape_html(self.tipo_legante_usm), styNormal)
+            consistenza_2 = Paragraph(self.escape_html(self.cons_legante), styNormal)
             colore_3 =Paragraph(self.col_legante,styNormal)
             inerti_4 =Paragraph(self.aggreg_legante,styNormal)
-            spessore_5 =Paragraph(self.spessore_usm,styNormal)
-            rifinitura_6 =Paragraph(self.rifinitura_usm,styNormal)
+            spessore_5 = Paragraph(self.escape_html(self.spessore_usm), styNormal)
+            rifinitura_6 = Paragraph(self.escape_html(self.rifinitura_usm), styNormal)
             
             note_legante = Paragraph("<b>BINDERSPEZIFISCHE HINWEISE</b><br/>" , styDescrizione)
             note_materiali = Paragraph("<b>BESONDERE HINWEISE ZU WERKSTOFFEN</b><br/>" , styDescrizione)
