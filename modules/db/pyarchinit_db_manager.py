@@ -136,6 +136,16 @@ class Pyarchinit_db_management(object):
             log_debug("Calling update_table()")
             db_upd.update_table()
             log_debug("DB_update completed")
+
+            # Update triggers for multi-user permission compatibility
+            try:
+                log_debug("Starting trigger update check")
+                from .db_updater import DatabaseUpdater
+                updater = DatabaseUpdater(self)
+                updater.check_and_update_triggers()
+                log_debug("Trigger update check completed")
+            except Exception as e:
+                log_debug(f"Trigger update check failed (non-critical): {e}")
             
             # After database update, we need to refresh metadata to reflect the changes
             # Clear existing metadata

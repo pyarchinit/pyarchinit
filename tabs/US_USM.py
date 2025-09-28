@@ -100,6 +100,7 @@ from ..modules.utility.delegateComboBox import ComboBoxDelegate
 from ..modules.utility.pyarchinit_error_check import Error_check
 from ..modules.utility.pyarchinit_exp_USsheet_pdf import generate_US_pdf
 from ..modules.db.concurrency_manager import ConcurrencyManager, RecordLockIndicator
+from ..modules.db.permission_handler import PermissionHandler
 from ..modules.utility.pyarchinit_print_utility import Print_utility
 from ..modules.utility.settings import Settings
 from ..modules.utility.skatch_gpt_US import GPTWindow
@@ -2738,6 +2739,10 @@ class ProgressDialog:
 
 
     def closeEvent(self, event):
+        # Stop the refresh timer when closing the form
+        if hasattr(self, 'refresh_timer') and self.refresh_timer:
+            self.refresh_timer.stop()
+
         self.progressDialog.close()
         event.ignore()
 
@@ -3508,13 +3513,14 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         # Initialize Concurrency Management
         self.concurrency_manager = ConcurrencyManager(self)
         self.lock_indicator = RecordLockIndicator(self)
+        self.permission_handler = PermissionHandler(self, self.L)
         self.current_record_version = None
         self.editing_record_id = None
 
         # Setup auto-refresh timer for checking concurrent modifications
         self.refresh_timer = QtCore.QTimer()
         self.refresh_timer.timeout.connect(self.check_for_updates)
-        self.refresh_timer.start(30000)  # Check every 30 seconds
+        self.refresh_timer.start(60000)  # Check every 60 seconds (increased from 30 to reduce overhead)
         self.search = SearchLayers(iface)
         # Dizionario per memorizzare le immagini in cache
         self.image_cache = OrderedDict()
@@ -3579,15 +3585,15 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.charge_insert_ra()
         self.charge_struttura_list()
         self.tableWidget_rapporti.itemChanged.connect(self.check_listoflist)
-        # Pianifica l'aggiornamento dating per dopo che la GUI si è caricata
-        # per evitare falsi prompt di salvataggio
-        QTimer.singleShot(500, self.update_dating_deferred)
+        # L'aggiornamento dating viene ora fatto solo quando si naviga ai record
+        # per evitare falsi prompt di salvataggio durante l'inizializzazione
         # Imposta il collegamento nascosto per attivare text2sql
         self.text2sql_db_shortcut = QShortcut(QKeySequence("Ctrl+Shift+X"), self)
         self.text2sql_db_shortcut.activated.connect(self.text2sql)
-        # Imposta la scorciatoia da tastiera per l'aggiornamento
+        # Imposta la scorciatoia da tastiera per l'aggiornamento area/sito nei rapporti
         self.update_shortcut = QShortcut(QKeySequence("Ctrl+U"), self)
         self.update_shortcut.activated.connect(self.update_all_areas)
+        # Il campo datazione si aggiorna automaticamente quando periodo_iniziale e fase_iniziale cambiano
 
         #self.update2_shortcut = QShortcut(QKeySequence("Ctrl+P"), self)
         #self.update2_shortcut.activated.connect(self.update_rapporti_col_2)
@@ -8394,39 +8400,63 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         except Exception as e:
             print(f"Error in deferred dating update: {e}")
 
+    # Funzione rimossa - il campo datazione si aggiorna automaticamente tramite charge_datazione_list()
+
+    # Funzione rimossa - usa campi che non esistono nella scheda US
+    # (lineEdit_cronologia_iniziale, lineEdit_datazione_estesa, lineEdit_cronologia_finale)
+    # Il campo datazione viene aggiornato automaticamente tramite charge_datazione_list()
+
     # This function should be connected to the button click event
     def update_dating(self):
         '''
-            This function updates the 'Dating' field for all US records in the database.
+            This function updates the 'Dating' field.
+            For new records (INSERT mode), only updates the form field.
+            For existing records (UPDATE mode), can update the database if the user has permissions.
         '''
+        # Always update the form field
         self.charge_datazione_list()
-        try:
-            updates_made = self.DB_MANAGER.update_us_dating_from_periodizzazione(self.comboBox_sito.currentText())
-            if updates_made > 0:
-                # Inform the user that updates have been made
-                print(f"All 'Dating' fields have been updated successfully. "
-                      f"Total updates made: {updates_made}")
 
-                # If we're in browse mode, we need to reload data and reset comparison
-                if self.BROWSE_STATUS == "b" and hasattr(self, 'DATA_LIST'):
-                    # Ricarica i dati dal database per riflettere gli aggiornamenti
-                    search_dict = {'sito': "'" + str(self.comboBox_sito.currentText()) + "'"}
-                    new_data_list = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
-                    if new_data_list:
-                        self.DATA_LIST = new_data_list
-                        # Ricarica il record corrente
-                        if self.rec_num < len(self.DATA_LIST):
-                            self.fill_fields(self.rec_num)
-                        # Reset comparison data per evitare falsi prompt
-                        self.LIST_REC_TEMP = []
-                        self.set_LIST_REC_TEMP()
+        # Only perform database-wide updates if:
+        # 1. We're in browse mode (editing existing records)
+        # 2. This is an explicit update request (like Ctrl+D)
+        # Do NOT update database when just creating a new record
+        if self.BROWSE_STATUS == "b" and hasattr(self, 'explicit_dating_update') and self.explicit_dating_update:
+            try:
+                # Check if user has UPDATE permissions before attempting database-wide update
+                if hasattr(self, 'permission_handler'):
+                    if not self.permission_handler.has_permission('us_table', 'UPDATE'):
+                        print("Skipping database-wide dating update - insufficient permissions")
+                        return
 
-            else:
-                # Inform the user that no updates were necessary
-                pass#QMessageBox.information(self, "No Updates", "No 'Dating' fields needed to be updated.",
-                                        #QMessageBox.Ok)
-        except Exception as e:
-            print(f"An error occurred while updating 'Dating': {e}")
+                updates_made = self.DB_MANAGER.update_us_dating_from_periodizzazione(self.comboBox_sito.currentText())
+                if updates_made > 0:
+                    # Inform the user that updates have been made
+                    print(f"All 'Dating' fields have been updated successfully. "
+                          f"Total updates made: {updates_made}")
+
+                    # If we're in browse mode, we need to reload data and reset comparison
+                    if self.BROWSE_STATUS == "b" and hasattr(self, 'DATA_LIST'):
+                        # Ricarica i dati dal database per riflettere gli aggiornamenti
+                        search_dict = {'sito': "'" + str(self.comboBox_sito.currentText()) + "'"}
+                        new_data_list = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
+                        if new_data_list:
+                            self.DATA_LIST = new_data_list
+                            # Ricarica il record corrente
+                            if self.rec_num < len(self.DATA_LIST):
+                                self.fill_fields(self.rec_num)
+                            # Reset comparison data per evitare falsi prompt
+                            self.LIST_REC_TEMP = []
+                            self.set_LIST_REC_TEMP()
+
+                else:
+                    # Inform the user that no updates were necessary
+                    pass#QMessageBox.information(self, "No Updates", "No 'Dating' fields needed to be updated.",
+                                            #QMessageBox.Ok)
+            except Exception as e:
+                print(f"An error occurred while updating 'Dating': {e}")
+            finally:
+                # Reset the flag
+                self.explicit_dating_update = False
 
     def on_pushButton_draw_doc_pressed(self):
         sito = str(self.comboBox_sito.currentText())
@@ -8818,6 +8848,16 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         try:
             self.DB_MANAGER = Pyarchinit_db_management(conn_str)
             self.DB_MANAGER.connection()
+
+            # Get database username and set it in the concurrency manager
+            user_info = conn.datauser()
+            db_username = user_info.get('user', 'unknown')
+            self.concurrency_manager.set_username(db_username)
+
+            # Set DB manager for permission handler
+            if hasattr(self, 'permission_handler'):
+                self.permission_handler.set_db_manager(self.DB_MANAGER)
+
             self.charge_records()  # charge records from DB
             # check if DB is empty
             if self.DATA_LIST:
@@ -12638,6 +12678,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 except TypeError:
                     pass  # Ignore the error if no connections exist
                 self.comboBox_fas_iniz.currentIndexChanged.connect(self.charge_datazione_list)
+                self.comboBox_per_iniz.currentIndexChanged.connect(self.charge_datazione_list)
 
                 try:
                     self.comboBox_fas_fin.currentIndexChanged.disconnect()
@@ -12645,6 +12686,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 except TypeError:
                     pass  # Ignore the error if no connections exist
                 self.comboBox_fas_fin.currentIndexChanged.connect(self.charge_datazione_list)
+                self.comboBox_per_fin.currentIndexChanged.connect(self.charge_datazione_list)
 
                 self.BROWSE_STATUS = "n"
 
@@ -14482,7 +14524,10 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                     QMessageBox.warning(self, "Error", "Error 1 \n" + str(msg), QMessageBox.Ok)
                 return 0
         except Exception as e:
-            QMessageBox.warning(self, "Error", "Error 2 \n" + str(e), QMessageBox.Ok)
+            # Check if it's a permission error
+            if not self.permission_handler.handle_permission_error(e, 'insert'):
+                # If not a permission error, show regular error message
+                QMessageBox.warning(self, "Error", "Error 2 \n" + str(e), QMessageBox.Ok)
             return 0
             # insert new row into tableWidget
     def on_pushButton_insert_row_rapporti_pressed(self):
@@ -15138,7 +15183,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             self.comboBox_reimpiego_usm.setEnabled(True)
             self.comboBox_posa_in_opera_usm.setEnabled(True)
             self.textEdit_osservazioni.setEnabled(True)
-            self.lineEdit_datazione.setEnabled(True)
+            self.lineEdit_datazione.setEnabled(False)  # Campo datazione sempre non editabile, si aggiorna automaticamente
             self.comboBox_flottazione.setEnabled(True)
             self.comboBox_setacciatura.setEnabled(True)
             self.comboBox_affidabilita.setEnabled(True)
@@ -15537,6 +15582,10 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         if msg == QMessageBox.Ok:
             test = self.update_record()
             if test == 1:
+                # Save the current record's ID to maintain position after reload
+                current_id = None
+                if self.REC_CORR < len(self.DATA_LIST):
+                    current_id = eval("self.DATA_LIST[self.REC_CORR]." + self.ID_TABLE)
 
                 # reload IDs
                 id_list = []
@@ -15555,13 +15604,16 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 for i in temp_data_list:
                     self.DATA_LIST.append(i)
 
-                #
-                # We skip the incrementing step
-                #
-                # check boundaries, if at end, loop to start
-                # self.REC_CORR += 1
-                # if self.REC_CORR >= len(self.DATA_LIST):
-                #    self.REC_CORR = 0
+                # Find the position of the previously current record
+                if current_id is not None:
+                    for idx, record in enumerate(self.DATA_LIST):
+                        if eval("record." + self.ID_TABLE) == current_id:
+                            self.REC_CORR = idx
+                            break
+                else:
+                    # If we can't find it, stay at the same position if valid
+                    if self.REC_CORR >= len(self.DATA_LIST):
+                        self.REC_CORR = len(self.DATA_LIST) - 1 if self.DATA_LIST else 0
 
                 # other settings
                 self.BROWSE_STATUS = "b"
@@ -15580,6 +15632,10 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                                    self.rec_toupdate())
             return 1
         except Exception as e:
+            # Check if it's a permission error first
+            if self.permission_handler.handle_permission_error(e, 'update'):
+                return 0  # Permission error was handled
+
             str(e)
             save_file='{}{}{}'.format(self.HOME, os.sep,"pyarchinit_Report_folder")
             file_=os.path.join(save_file,'error_encodig_data_recover.txt')
@@ -16260,11 +16316,11 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                     if self.editing_record_id:
                         import getpass
                         current_user = getpass.getuser()
-                        self.DB_MANAGER.set_editing_lock(
-                            'us_table',
-                            self.editing_record_id,
-                            current_user
-                        )
+                        # self.DB_MANAGER.set_editing_lock(
+                        #     'us_table',
+                        #     self.editing_record_id,
+                        #     current_user
+                        # )
             except Exception as e:
                 QgsMessageLog.logMessage(f"Error setting version tracking: {str(e)}", "PyArchInit", Qgis.Warning)
 
@@ -16289,11 +16345,18 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         """Check if current record has been modified by others"""
         try:
             if self.BROWSE_STATUS == "b" and self.editing_record_id and self.DB_MANAGER:
+                # Skip check if we're currently saving to avoid false positives
+                if hasattr(self, 'is_saving') and self.is_saving:
+                    return
+
                 # Determine table name based on current unit type
                 if hasattr(self, 'DATA_LIST') and len(self.DATA_LIST) > 0:
                     current_rec = self.DATA_LIST[self.REC_CORR] if self.REC_CORR < len(self.DATA_LIST) else None
                     if current_rec and hasattr(current_rec, 'unita_tipo'):
                         table_name = 'us_table' if current_rec.unita_tipo == 'US' else 'us_table_usm'
+
+                        # Get current username to skip self-modifications
+                        current_user = self.concurrency_manager.get_username() if hasattr(self, 'concurrency_manager') else 'unknown'
 
                         has_conflict, db_version, last_modified_by, last_modified_timestamp = \
                             self.concurrency_manager.check_version_conflict(
@@ -16303,7 +16366,14 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                                 self.DB_MANAGER
                             )
 
-                        if has_conflict:
+                        # Only show conflict if it's a real conflict:
+                        # - Not a self-modification (different user)
+                        # - Not a system update
+                        # - Has actual version change
+                        if has_conflict and last_modified_by and \
+                           last_modified_by != current_user and \
+                           last_modified_by.lower() not in ['system', 'postgres'] and \
+                           db_version != self.current_record_version:
                             # Show notification
                             msg = QMessageBox()
                             msg.setIcon(QMessageBox.Warning)
@@ -16318,10 +16388,17 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                             msg.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
 
                             if msg.exec_() == QMessageBox.Yes:
+                                # Save current record position
+                                current_pos = self.REC_CORR
+                                # Reload records
                                 self.charge_records()
-                                self.fill_fields(self.REC_CORR)
+                                # Restore position and fill fields
+                                self.fill_fields(current_pos)
+                                # Update version after reload
+                                self.current_record_version = db_version
         except Exception as e:
-            QgsMessageLog.logMessage(f"Update check error: {str(e)}", "PyArchInit", Qgis.Info)
+            # Log silently to avoid annoying messages
+            pass  # QgsMessageLog.logMessage(f"Update check error: {str(e)}", "PyArchInit", Qgis.Info)
 
     def set_rec_counter(self, t, c):
         self.rec_tot = t
