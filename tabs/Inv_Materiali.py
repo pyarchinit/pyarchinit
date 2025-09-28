@@ -23,7 +23,7 @@ from __future__ import absolute_import
 
 import math
 import traceback
-from datetime import date
+from datetime import date, datetime
 import platform
 
 
@@ -40,7 +40,7 @@ from builtins import range
 import sys
 import subprocess
 
-from qgis.PyQt.QtCore import Qt, QSize, QVariant, QDateTime
+from qgis.PyQt.QtCore import Qt, QSize, QVariant, QDateTime, QTimer
 from qgis.PyQt.QtGui import QIcon, QColor
 from qgis.PyQt.QtWidgets import *
 from qgis.PyQt.uic import loadUiType
@@ -942,6 +942,13 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         try:
             self.DB_MANAGER = Pyarchinit_db_management(conn_str)
             self.DB_MANAGER.connection()
+
+            # Get database username and set it in the concurrency manager
+            user_info = conn.datauser()
+            db_username = user_info.get('user', 'unknown')
+            if hasattr(self, 'concurrency_manager'):
+                self.concurrency_manager.set_username(db_username)
+
             self.charge_records()
             # check if DB is empty
             if self.DATA_LIST:
@@ -5062,25 +5069,51 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             else:
                 return 0
         except Exception as e:
-            str(e)
-            save_file='{}{}{}'.format(self.HOME, os.sep,"pyarchinit_Report_folder") 
-            file_=os.path.join(save_file,'error_encodig_data_recover.txt')
-            with open(file_, "a") as fh:
-                try:
-                    raise ValueError(str(e))
-                except ValueError as s:
-                    print(s, file=fh)
-            if self.L=='it':
-                QMessageBox.warning(self, "Messaggio",
-                                    "Problema di encoding: sono stati inseriti accenti o caratteri non accettati dal database. Verrà fatta una copia dell'errore con i dati che puoi recuperare nella cartella pyarchinit_Report _Folder", QMessageBox.Ok)
+            error_msg = str(e)
 
+            # Check if we have a permission handler to handle permission errors
+            if hasattr(self, 'permission_handler') and self.permission_handler.handle_permission_error(e, 'UPDATE'):
+                return 0
 
-            elif self.L=='de':
-                QMessageBox.warning(self, "Message",
-                                    "Encoding problem: accents or characters not accepted by the database were entered. A copy of the error will be made with the data you can retrieve in the pyarchinit_Report _Folder", QMessageBox.Ok) 
+            # Determine the actual error type
+            if 'InsufficientPrivilege' in str(type(e)) or 'permission denied' in error_msg.lower():
+                # Permission error
+                if self.L == 'it':
+                    QMessageBox.warning(self, "Errore Permessi",
+                                        "Non hai i permessi per modificare questo record.", QMessageBox.Ok)
+                elif self.L == 'de':
+                    QMessageBox.warning(self, "Berechtigungsfehler",
+                                        "Sie haben keine Berechtigung, diesen Datensatz zu ändern.", QMessageBox.Ok)
+                else:
+                    QMessageBox.warning(self, "Permission Error",
+                                        "You don't have permission to modify this record.", QMessageBox.Ok)
+            elif 'encode' in error_msg.lower() or 'decode' in error_msg.lower() or 'codec' in error_msg.lower():
+                # Actual encoding error
+                save_file = '{}{}{}'.format(self.HOME, os.sep, "pyarchinit_Report_folder")
+                file_ = os.path.join(save_file, 'error_encoding_data_recover.txt')
+                with open(file_, "a") as fh:
+                    print(f"{datetime.now()}: {error_msg}", file=fh)
+
+                if self.L == 'it':
+                    QMessageBox.warning(self, "Messaggio",
+                                        "Problema di encoding: sono stati inseriti accenti o caratteri non accettati dal database. Verrà fatta una copia dell'errore con i dati che puoi recuperare nella cartella pyarchinit_Report_Folder", QMessageBox.Ok)
+                elif self.L == 'de':
+                    QMessageBox.warning(self, "Message",
+                                        "Kodierungsproblem: Es wurden Akzente oder Zeichen eingegeben, die von der Datenbank nicht akzeptiert werden. Es wird eine Kopie des Fehlers mit den Daten erstellt, die Sie im pyarchinit_Report_Ordner abrufen können", QMessageBox.Ok)
+                else:
+                    QMessageBox.warning(self, "Message",
+                                        "Encoding problem: accents or characters not accepted by the database were entered. A copy of the error will be made with the data you can retrieve in the pyarchinit_Report_Folder", QMessageBox.Ok)
             else:
-                QMessageBox.warning(self, "Message",
-                                    "Kodierungsproblem: Es wurden Akzente oder Zeichen eingegeben, die von der Datenbank nicht akzeptiert werden. Es wird eine Kopie des Fehlers mit den Daten erstellt, die Sie im pyarchinit_Report _Ordner abrufen können", QMessageBox.Ok)
+                # Generic database error
+                if self.L == 'it':
+                    QMessageBox.warning(self, "Errore Database",
+                                        f"Errore durante l'aggiornamento del record: {error_msg}", QMessageBox.Ok)
+                elif self.L == 'de':
+                    QMessageBox.warning(self, "Datenbankfehler",
+                                        f"Fehler beim Aktualisieren des Datensatzes: {error_msg}", QMessageBox.Ok)
+                else:
+                    QMessageBox.warning(self, "Database Error",
+                                        f"Error updating record: {error_msg}", QMessageBox.Ok)
             return 0
 
     def charge_struttura(self):
@@ -5645,11 +5678,11 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                     if self.editing_record_id:
                         import getpass
                         current_user = getpass.getuser()
-                        self.DB_MANAGER.set_editing_lock(
-                            'inventario_materiali_table',
-                            self.editing_record_id,
-                            current_user
-                        )
+                        # self.DB_MANAGER.set_editing_lock(
+                        #     'inventario_materiali_table',
+                        #     self.editing_record_id,
+                        #     current_user
+                        # )
             except Exception as e:
                 QgsMessageLog.logMessage(f"Error setting version tracking: {str(e)}", "PyArchInit", Qgis.Warning)
 
@@ -5916,6 +5949,63 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         if self.mapper is None:
             self.mapper = ArchaeologicalDataMapper(None)
         self.mapper.show()
+
+    def check_for_updates(self):
+        """Check if current record has been modified by others"""
+        try:
+            if self.BROWSE_STATUS == "b" and self.editing_record_id and self.DB_MANAGER:
+                # Skip check if we're currently saving to avoid false positives
+                if hasattr(self, 'is_saving') and self.is_saving:
+                    return
+
+                # Determine table name
+                table_name = 'inventario_materiali_table'
+
+                # Get current username to skip self-modifications
+                current_user = self.concurrency_manager.get_username() if hasattr(self, 'concurrency_manager') else 'unknown'
+
+                has_conflict, db_version, last_modified_by, last_modified_timestamp = \
+                    self.concurrency_manager.check_version_conflict(
+                        table_name,
+                        self.editing_record_id,
+                        self.current_record_version,
+                        self.DB_MANAGER
+                    )
+
+                # Only show conflict if it's a real conflict:
+                # - Not a self-modification (different user)
+                # - Not a system update
+                # - Has actual version change
+                if has_conflict and last_modified_by and \
+                   last_modified_by != current_user and \
+                   last_modified_by.lower() not in ['system', 'postgres'] and \
+                   db_version != self.current_record_version:
+                    # Show notification
+                    msg = QMessageBox()
+                    msg.setIcon(QMessageBox.Warning)
+                    msg.setWindowTitle("Record Modificato / Record Modified")
+                    msg.setText(
+                        f"Questo record è stato modificato da {last_modified_by} "
+                        f"alle {last_modified_timestamp}.\n\n"
+                        f"This record was modified by {last_modified_by} "
+                        f"at {last_modified_timestamp}.\n\n"
+                        f"Vuoi ricaricare il record? / Do you want to reload?"
+                    )
+                    msg.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
+
+                    if msg.exec_() == QMessageBox.Yes:
+                        # Save current record position
+                        current_pos = self.REC_CORR
+                        # Reload records
+                        self.charge_records()
+                        # Restore position and fill fields
+                        self.fill_fields(current_pos)
+                        # Update version after reload
+                        self.current_record_version = db_version
+        except Exception as e:
+            # Log silently to avoid annoying messages
+            pass  # QgsMessageLog.logMessage(f"Update check error: {str(e)}", "PyArchInit", Qgis.Info)
+
 ## Class end
 
 # if __name__ == "__main__":

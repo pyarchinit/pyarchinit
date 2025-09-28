@@ -433,7 +433,12 @@ CREATE TABLE public.inventario_materiali_table (
 	date_scheda text,
 	punto_rinv text,
 	negativo_photo text,
-	diapositiva text
+	diapositiva text,
+	version_number INTEGER DEFAULT 1,
+	editing_by VARCHAR(100),
+	editing_since TIMESTAMP,
+	last_modified_by VARCHAR(100) DEFAULT 'system',
+	last_modified_timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 
@@ -756,7 +761,12 @@ CREATE TABLE public.periodizzazione_table (
     descrizione text,
     datazione_estesa character varying(300),
     cont_per BIGINT,
-	area text
+	area text,
+	version_number INTEGER DEFAULT 1,
+	editing_by VARCHAR(100),
+	editing_since TIMESTAMP,
+	last_modified_by VARCHAR(100) DEFAULT 'system',
+	last_modified_timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 
@@ -1159,7 +1169,12 @@ CREATE TABLE public.us_table (
     provenienza_materiali_usm text DEFAULT ''::text,
     criteri_distinzione_usm text DEFAULT ''::text,
     uso_primario_usm text DEFAULT ''::text,
-	doc_usv text DEFAULT ''::text
+	doc_usv text DEFAULT ''::text,
+	version_number INTEGER DEFAULT 1,
+	editing_by VARCHAR(100),
+	editing_since TIMESTAMP,
+	last_modified_by VARCHAR(100) DEFAULT 'system',
+	last_modified_timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 
@@ -2006,7 +2021,12 @@ CREATE TABLE public.site_table (
     descrizione text,
     provincia character varying DEFAULT 'inserici un valore'::character varying,
     definizione_sito character varying DEFAULT 'inserici un valore'::character varying,
-    find_check BIGINT DEFAULT 0
+    find_check BIGINT DEFAULT 0,
+    version_number INTEGER DEFAULT 1,
+    editing_by VARCHAR(100),
+    editing_since TIMESTAMP,
+    last_modified_by VARCHAR(100) DEFAULT 'system',
+    last_modified_timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 
@@ -2131,7 +2151,12 @@ CREATE TABLE public.tma_materiali_archeologici (
     created_at TEXT,
     updated_at TEXT,
     created_by TEXT,
-    updated_by TEXT
+    updated_by TEXT,
+    version_number INTEGER DEFAULT 1,
+    editing_by VARCHAR(100),
+    editing_since TIMESTAMP,
+    last_modified_by VARCHAR(100) DEFAULT 'system',
+    last_modified_timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 ALTER TABLE public.tma_materiali_archeologici OWNER TO postgres;
@@ -2173,7 +2198,12 @@ CREATE TABLE public.tma_materiali_ripetibili (
     created_at TEXT,
     updated_at TEXT,
     created_by TEXT,
-    updated_by TEXT
+    updated_by TEXT,
+    version_number INTEGER DEFAULT 1,
+    editing_by VARCHAR(100),
+    editing_since TIMESTAMP,
+    last_modified_by VARCHAR(100) DEFAULT 'system',
+    last_modified_timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 ALTER TABLE public.tma_materiali_ripetibili OWNER TO postgres;
@@ -3515,11 +3545,52 @@ CREATE OR REPLACE FUNCTION public.create_doc()
     VOLATILE NOT LEAKPROOF
 AS $BODY$
 BEGIN
- if new.d_interpretativa is null or new.d_interpretativa = '' or new.d_interpretativa!= old.d_interpretativa then
+    -- Only perform UPDATE if this is an UPDATE operation (not INSERT)
+    -- and only if the user has UPDATE permission
+    IF TG_OP = 'UPDATE' THEN
+        -- Check if d_interpretativa has changed
+        IF (NEW.d_interpretativa IS DISTINCT FROM OLD.d_interpretativa) THEN
+            -- Try to update related DOC records
+            -- This will fail if user doesn't have UPDATE permission, which is ok
+            BEGIN
+                UPDATE us_table
+                SET d_interpretativa = NEW.doc_usv
+                WHERE sito = NEW.sito
+                  AND area = NEW.area
+                  AND us = NEW.us
+                  AND unita_tipo = 'DOC';
+            EXCEPTION
+                WHEN insufficient_privilege THEN
+                    -- User doesn't have UPDATE permission, skip this operation
+                    NULL;
+                WHEN OTHERS THEN
+                    -- Ignore other errors too
+                    NULL;
+            END;
+        END IF;
+    ELSIF TG_OP = 'INSERT' THEN
+        -- For INSERT operations, only update if d_interpretativa is empty
+        IF (NEW.d_interpretativa IS NULL OR NEW.d_interpretativa = '') THEN
+            -- Try to update, but ignore if user lacks permissions
+            BEGIN
+                UPDATE us_table
+                SET d_interpretativa = NEW.doc_usv
+                WHERE sito = NEW.sito
+                  AND area = NEW.area
+                  AND us = NEW.us
+                  AND unita_tipo = 'DOC';
+            EXCEPTION
+                WHEN insufficient_privilege THEN
+                    -- User doesn't have UPDATE permission, skip this operation
+                    NULL;
+                WHEN OTHERS THEN
+                    -- Ignore other errors too
+                    NULL;
+            END;
+        END IF;
+    END IF;
 
-  update us_table set d_interpretativa = doc_usv where sito=New.sito and area=New.area and us=New.us and unita_tipo='DOC' ;
-END IF;
-RETURN NEW;
+    RETURN NEW;
 END;
 $BODY$;
 

@@ -3532,11 +3532,52 @@ CREATE OR REPLACE FUNCTION public.create_doc()
     VOLATILE NOT LEAKPROOF
 AS $BODY$
 BEGIN
- if new.d_interpretativa is null or new.d_interpretativa = '' or new.d_interpretativa!= old.d_interpretativa then
+    -- Only perform UPDATE if this is an UPDATE operation (not INSERT)
+    -- and only if the user has UPDATE permission
+    IF TG_OP = 'UPDATE' THEN
+        -- Check if d_interpretativa has changed
+        IF (NEW.d_interpretativa IS DISTINCT FROM OLD.d_interpretativa) THEN
+            -- Try to update related DOC records
+            -- This will fail if user doesn't have UPDATE permission, which is ok
+            BEGIN
+                UPDATE us_table
+                SET d_interpretativa = NEW.doc_usv
+                WHERE sito = NEW.sito
+                  AND area = NEW.area
+                  AND us = NEW.us
+                  AND unita_tipo = 'DOC';
+            EXCEPTION
+                WHEN insufficient_privilege THEN
+                    -- User doesn't have UPDATE permission, skip this operation
+                    NULL;
+                WHEN OTHERS THEN
+                    -- Ignore other errors too
+                    NULL;
+            END;
+        END IF;
+    ELSIF TG_OP = 'INSERT' THEN
+        -- For INSERT operations, only update if d_interpretativa is empty
+        IF (NEW.d_interpretativa IS NULL OR NEW.d_interpretativa = '') THEN
+            -- Try to update, but ignore if user lacks permissions
+            BEGIN
+                UPDATE us_table
+                SET d_interpretativa = NEW.doc_usv
+                WHERE sito = NEW.sito
+                  AND area = NEW.area
+                  AND us = NEW.us
+                  AND unita_tipo = 'DOC';
+            EXCEPTION
+                WHEN insufficient_privilege THEN
+                    -- User doesn't have UPDATE permission, skip this operation
+                    NULL;
+                WHEN OTHERS THEN
+                    -- Ignore other errors too
+                    NULL;
+            END;
+        END IF;
+    END IF;
 
-  update us_table set d_interpretativa = doc_usv where sito=New.sito and area=New.area and us=New.us and unita_tipo='DOC' ;
-END IF;
-RETURN NEW;
+    RETURN NEW;
 END;
 $BODY$;
 
@@ -3544,7 +3585,7 @@ ALTER FUNCTION public.create_doc()
     OWNER TO postgres;
 
 COMMENT ON FUNCTION public.create_doc()
-    IS 'When a new record is added to write coordinates if coord is null in coord field';
+    IS 'Updates d_interpretativa field for related DOC records with proper permission handling';
 DO $$
 BEGIN
     IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'create_doc') THEN

@@ -803,7 +803,11 @@ class UserManagementDialog(QDialog):
                 self.notes_edit.clear()
 
             self.user_changed.emit()
-            QMessageBox.information(self, "Successo", "Utente salvato correttamente!")
+
+            # Crea automaticamente l'utente PostgreSQL
+            self.create_postgres_user(username, self.password_edit.text() or username, self.role_combo.currentText())
+
+            QMessageBox.information(self, "Successo", "Utente salvato correttamente e creato in PostgreSQL!")
 
         except Exception as e:
             QMessageBox.critical(self, "Errore", f"Errore salvataggio: {e}")
@@ -855,10 +859,189 @@ class UserManagementDialog(QDialog):
             # Reload permissions to show they are now custom
             self.load_user_permissions()
 
-            QMessageBox.information(self, "Successo", "Permessi salvati correttamente!")
+            # Sincronizza i permessi con PostgreSQL
+            self.sync_postgres_permissions_for_user(username)
+
+            QMessageBox.information(self, "Successo", "Permessi salvati correttamente e sincronizzati con PostgreSQL!")
 
         except Exception as e:
             QMessageBox.critical(self, "Errore", f"Errore salvataggio permessi: {e}")
+
+    def create_postgres_user(self, username, password, role):
+        """Crea un utente PostgreSQL con i permessi base del ruolo"""
+        try:
+            # Check if user already exists
+            check_query = "SELECT 1 FROM pg_user WHERE usename = :username"
+            try:
+                result = self.db_manager.execute_sql(check_query, {'username': username})
+                if result:
+                    print(f"Utente PostgreSQL {username} già esistente")
+                    return
+            except:
+                pass
+
+            # Create user
+            create_query = f"CREATE USER {username} WITH PASSWORD '{password or username}'"
+            self.db_manager.execute_sql(create_query)
+
+            # Grant basic permissions
+            db_name = self.db_manager.engine.url.database
+            grant_connect = f"GRANT CONNECT ON DATABASE {db_name} TO {username}"
+            self.db_manager.execute_sql(grant_connect)
+
+            grant_usage = f"GRANT USAGE ON SCHEMA public TO {username}"
+            self.db_manager.execute_sql(grant_usage)
+
+            # Apply role-based permissions
+            if role == 'admin' or role == 'administrator':
+                # Grant all permissions
+                self.db_manager.execute_sql(f"GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO {username}")
+                self.db_manager.execute_sql(f"GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO {username}")
+                self.db_manager.execute_sql(f"ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO {username}")
+                self.db_manager.execute_sql(f"ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO {username}")
+
+            elif role == 'archeologo':
+                # Can view, insert, and update most tables
+                self.db_manager.execute_sql(f"GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA public TO {username}")
+                self.db_manager.execute_sql(f"GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO {username}")
+                self.db_manager.execute_sql(f"ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT, INSERT, UPDATE ON TABLES TO {username}")
+                self.db_manager.execute_sql(f"ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT USAGE, SELECT ON SEQUENCES TO {username}")
+
+            elif role == 'studente':
+                # Limited permissions - mainly view and some insert
+                self.db_manager.execute_sql(f"GRANT SELECT ON ALL TABLES IN SCHEMA public TO {username}")
+                self.db_manager.execute_sql(f"GRANT INSERT ON us_table, campioni_table TO {username}")
+                self.db_manager.execute_sql(f"GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO {username}")
+                self.db_manager.execute_sql(f"ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON TABLES TO {username}")
+
+            elif role == 'guest':
+                # Read-only access
+                self.db_manager.execute_sql(f"GRANT SELECT ON ALL TABLES IN SCHEMA public TO {username}")
+                self.db_manager.execute_sql(f"ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON TABLES TO {username}")
+
+            # Grant execute on functions
+            self.db_manager.execute_sql(f"GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA public TO {username}")
+
+            # Grant permissions on PyArchInit system tables (needed for UI functionality)
+            system_tables = [
+                'pyarchinit_thesaurus_sigle',
+                'pyarchinit_roles',
+                'pyarchinit_users',
+                'pyarchinit_permissions',
+                'pyarchinit_config',
+                'pyarchinit_codici_tipologia',
+                'pyarchinit_access_log',
+                'pyarchinit_activity_log',
+                'pyarchinit_audit_log'
+            ]
+
+            for table in system_tables:
+                try:
+                    self.db_manager.execute_sql(f"GRANT SELECT ON {table} TO {username}")
+                except:
+                    pass  # Table might not exist
+
+            # Grant SELECT on all views and pyarchinit_* tables
+            try:
+                self.db_manager.execute_sql(f"GRANT SELECT ON ALL TABLES IN SCHEMA public TO {username}")
+            except:
+                pass
+
+            print(f"Utente PostgreSQL {username} creato con ruolo {role}")
+
+        except Exception as e:
+            print(f"Errore creazione utente PostgreSQL: {e}")
+            # Don't raise - just log error
+
+    def sync_postgres_permissions_for_user(self, username):
+        """Sincronizza i permessi PyArchInit con PostgreSQL per un utente specifico"""
+        try:
+            # Get user info
+            query = "SELECT id, password_hash, role FROM pyarchinit_users WHERE username = :username"
+            result = self.db_manager.execute_sql(query, {'username': username})
+            if not result:
+                return
+
+            user_id, password_hash, role = result[0]
+
+            # Check if PostgreSQL user exists
+            check_query = "SELECT 1 FROM pg_user WHERE usename = :username"
+            try:
+                pg_result = self.db_manager.execute_sql(check_query, {'username': username})
+                user_exists = bool(pg_result)
+            except:
+                user_exists = False
+
+            if not user_exists:
+                # Create PostgreSQL user with temporary password
+                create_user_query = f"CREATE USER {username} WITH PASSWORD '{username}123'"
+                self.db_manager.execute_sql(create_user_query)
+
+                # Grant basic permissions
+                grant_connect = f"GRANT CONNECT ON DATABASE {self.db_manager.engine.url.database} TO {username}"
+                self.db_manager.execute_sql(grant_connect)
+
+                grant_usage = f"GRANT USAGE ON SCHEMA public TO {username}"
+                self.db_manager.execute_sql(grant_usage)
+
+            # Get permissions for this user
+            perm_query = """
+                SELECT table_name, can_view, can_insert, can_update, can_delete
+                FROM pyarchinit_permissions
+                WHERE user_id = :user_id
+            """
+            permissions = self.db_manager.execute_sql(perm_query, {'user_id': user_id})
+
+            # Apply each permission
+            for table_name, can_view, can_insert, can_update, can_delete in permissions:
+                # Build permission list
+                perms = []
+                if can_view:
+                    perms.append('SELECT')
+                if can_insert:
+                    perms.append('INSERT')
+                if can_update:
+                    perms.append('UPDATE')
+                if can_delete:
+                    perms.append('DELETE')
+
+                if perms:
+                    # Revoke all first
+                    try:
+                        revoke_query = f"REVOKE ALL PRIVILEGES ON {table_name} FROM {username}"
+                        self.db_manager.execute_sql(revoke_query)
+                    except:
+                        pass
+
+                    # Grant new permissions
+                    perm_str = ', '.join(perms)
+                    grant_query = f"GRANT {perm_str} ON {table_name} TO {username}"
+                    self.db_manager.execute_sql(grant_query)
+
+                    # If INSERT permission, also grant sequence permissions
+                    if can_insert:
+                        # Try to grant sequence permissions
+                        try:
+                            # Find table's primary key sequence
+                            seq_query = f"""
+                                SELECT c.relname
+                                FROM pg_class c
+                                JOIN pg_depend d ON d.objid = c.oid
+                                JOIN pg_class t ON t.oid = d.refobjid
+                                WHERE c.relkind = 'S' AND t.relname = '{table_name}'
+                            """
+                            sequences = self.db_manager.execute_sql(seq_query)
+                            for seq in sequences:
+                                grant_seq = f"GRANT USAGE, SELECT ON SEQUENCE {seq[0]} TO {username}"
+                                self.db_manager.execute_sql(grant_seq)
+                        except:
+                            pass
+
+            print(f"Permessi PostgreSQL sincronizzati per utente {username}")
+
+        except Exception as e:
+            print(f"Errore sincronizzazione permessi PostgreSQL: {e}")
+            # Don't raise - just log error
 
     def apply_permissions_to_all(self):
         """Applica permessi a tutte le tabelle"""

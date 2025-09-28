@@ -3405,11 +3405,11 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
                     if self.editing_record_id:
                         import getpass
                         current_user = getpass.getuser()
-                        self.DB_MANAGER.set_editing_lock(
-                            'pottery_table',
-                            self.editing_record_id,
-                            current_user
-                        )
+                        # self.DB_MANAGER.set_editing_lock(
+                        #     'pottery_table',
+                        #     self.editing_record_id,
+                        #     current_user
+                        # )
             except Exception as e:
                 QgsMessageLog.logMessage(f"Error setting version tracking: {str(e)}", "PyArchInit", Qgis.Warning)
 

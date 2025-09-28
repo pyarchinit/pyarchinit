@@ -26,6 +26,7 @@ from builtins import range
 from builtins import str
 
 from qgis.PyQt.QtCore import *
+from qgis.PyQt.QtCore import QTimer
 from qgis.PyQt.QtWidgets import QDialog, QMessageBox
 from qgis.PyQt.uic import loadUiType
 from qgis.core import QgsSettings
@@ -255,6 +256,13 @@ class pyarchinit_Documentazione(QDialog, MAIN_DIALOG_CLASS):
         try:
             self.DB_MANAGER = Pyarchinit_db_management(conn_str)
             self.DB_MANAGER.connection()
+
+            # Get database username and set it in the concurrency manager
+            user_info = conn.datauser()
+            db_username = user_info.get('user', 'unknown')
+            if hasattr(self, 'concurrency_manager'):
+                self.concurrency_manager.set_username(db_username)
+
             self.charge_records()  # charge records from DB
             # check if DB is empty
             if bool(self.DATA_LIST):
@@ -1320,11 +1328,11 @@ class pyarchinit_Documentazione(QDialog, MAIN_DIALOG_CLASS):
                     if self.editing_record_id:
                         import getpass
                         current_user = getpass.getuser()
-                        self.DB_MANAGER.set_editing_lock(
-                            'documentazione_table',
-                            self.editing_record_id,
-                            current_user
-                        )
+                        # self.DB_MANAGER.set_editing_lock(
+                        #     'documentazione_table',
+                        #     self.editing_record_id,
+                        #     current_user
+                        # )
             except Exception as e:
                 QgsMessageLog.logMessage(f"Error setting version tracking: {str(e)}", "PyArchInit", Qgis.Warning)
 
@@ -1417,6 +1425,63 @@ class pyarchinit_Documentazione(QDialog, MAIN_DIALOG_CLASS):
         f.write(str(message))
         f.close()
 
+
+
+    def check_for_updates(self):
+        """Check if current record has been modified by others"""
+        try:
+            if self.BROWSE_STATUS == "b" and self.editing_record_id and self.DB_MANAGER:
+                # Skip check if we're currently saving to avoid false positives
+                if hasattr(self, 'is_saving') and self.is_saving:
+                    return
+
+                # Determine table name
+                table_name = 'documentazione_table'
+
+                # Get current username to skip self-modifications
+                current_user = self.concurrency_manager.get_username() if hasattr(self, 'concurrency_manager') else 'unknown'
+
+                has_conflict, db_version, last_modified_by, last_modified_timestamp = \
+                    self.concurrency_manager.check_version_conflict(
+                        table_name,
+                        self.editing_record_id,
+                        self.current_record_version,
+                        self.DB_MANAGER
+                    )
+
+                # Only show conflict if it's a real conflict:
+                # - Not a self-modification (different user)
+                # - Not a system update
+                # - Has actual version change
+                if has_conflict and last_modified_by and \
+                   last_modified_by != current_user and \
+                   last_modified_by.lower() not in ['system', 'postgres'] and \
+                   db_version != self.current_record_version:
+                    # Show notification
+                    msg = QMessageBox()
+                    msg.setIcon(QMessageBox.Warning)
+                    msg.setWindowTitle("Record Modificato / Record Modified")
+                    msg.setText(
+                        f"Questo record è stato modificato da {last_modified_by} "
+                        f"alle {last_modified_timestamp}.\n\n"
+                        f"This record was modified by {last_modified_by} "
+                        f"at {last_modified_timestamp}.\n\n"
+                        f"Vuoi ricaricare il record? / Do you want to reload?"
+                    )
+                    msg.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
+
+                    if msg.exec_() == QMessageBox.Yes:
+                        # Save current record position
+                        current_pos = self.REC_CORR
+                        # Reload records
+                        self.charge_records()
+                        # Restore position and fill fields
+                        self.fill_fields(current_pos)
+                        # Update version after reload
+                        self.current_record_version = db_version
+        except Exception as e:
+            # Log silently to avoid annoying messages
+            pass  # QgsMessageLog.logMessage(f"Update check error: {str(e)}", "PyArchInit", Qgis.Info)
 
 ## Class end
 

@@ -1345,6 +1345,10 @@ class DB_update(object):
         #     # Table might not exist
         #     pass
         
+        # Add concurrency columns to all tables
+        log_debug("Adding concurrency columns to all tables")
+        self._add_concurrency_columns()
+
         # Update thesaurus table structure for PostgreSQL
         try:
             update_thesaurus_table(self.engine, self.metadata)
@@ -2134,3 +2138,91 @@ class DB_update(object):
             
         except Exception as e:
             print(f"Error ensuring TMA tables exist: {str(e)}")
+
+    def _add_concurrency_columns(self):
+        """Add concurrency columns to all PyArchInit tables if they don't exist"""
+
+        # Helper function for safe table loading - define at the start
+        def safe_load_table(table_name):
+            """Load a table handling encoding errors"""
+            try:
+                return Table(table_name, self.metadata, autoload=True)
+            except Exception:
+                return None
+
+        try:
+            # List of all PyArchInit tables that should have concurrency columns
+            tables_to_update = [
+                'us_table',
+                'site_table',
+                'periodizzazione_table',
+                'inventario_materiali_table',
+                'struttura_table',
+                'tomba_table',
+                'schedaind_table',
+                'detsesso_table',
+                'deteta_table',
+                'documentazione_table',
+                'campioni_table',
+                'inventario_lapidei_table',
+                'media_table',
+                'media_thumb_table',
+                'media_to_entity_table',
+                'pyarchinit_thesaurus_sigle',
+                'pottery_table',
+                'tma_materiali_archeologici',
+                'tma_materiali_ripetibili'
+            ]
+
+            # Concurrency columns to add
+            concurrency_columns = [
+                ('version_number', 'INTEGER', '1'),
+                ('editing_by', 'VARCHAR(100)', None),
+                ('editing_since', 'TIMESTAMP', None),
+                ('last_modified_by', 'VARCHAR(100)', "'system'"),
+                ('last_modified_timestamp', 'TIMESTAMP', 'CURRENT_TIMESTAMP')
+            ]
+
+            # Check if we're using SQLite
+            is_sqlite = 'sqlite' in str(self.engine.url).lower()
+
+            for table_name in tables_to_update:
+                try:
+                    # Load table metadata if it exists
+                    table = safe_load_table(table_name)
+                    if table is None:
+                        continue
+
+                    # Get existing columns
+                    existing_columns = [col.name for col in table.columns]
+
+                    # Add missing concurrency columns
+                    for col_name, col_type, col_default in concurrency_columns:
+                        if col_name not in existing_columns:
+                            try:
+                                if is_sqlite:
+                                    # SQLite syntax
+                                    if col_default:
+                                        self.engine.execute(f"ALTER TABLE {table_name} ADD COLUMN {col_name} {col_type} DEFAULT {col_default}")
+                                    else:
+                                        self.engine.execute(f"ALTER TABLE {table_name} ADD COLUMN {col_name} {col_type}")
+                                else:
+                                    # PostgreSQL syntax
+                                    if col_default:
+                                        self.engine.execute(f"ALTER TABLE {table_name} ADD COLUMN {col_name} {col_type} DEFAULT {col_default}")
+                                    else:
+                                        self.engine.execute(f"ALTER TABLE {table_name} ADD COLUMN {col_name} {col_type}")
+                                print(f"Added {col_name} to {table_name}")
+                            except Exception as e:
+                                # Column might already exist or table might have issues
+                                pass
+
+                except Exception as e:
+                    # Skip tables that don't exist or have other issues
+                    continue
+
+            print("Concurrency columns check completed")
+
+        except Exception as e:
+            print(f"Error adding concurrency columns: {str(e)}")
+            # Don't raise - let the process continue

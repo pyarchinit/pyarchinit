@@ -19,7 +19,9 @@ class ConcurrencyManager:
 
     def __init__(self, parent=None):
         self.parent = parent
-        self.current_user = os.environ.get('USER', 'unknown')
+        # Try to get database username first, then OS username
+        self.current_user = None
+        self.db_username = None  # Will be set when connecting to DB
 
     def check_version_conflict(self, table_name, record_id, current_version, db_manager, id_field=None):
         """
@@ -175,6 +177,21 @@ class ConcurrencyManager:
             return result if result else []
         except Exception as e:
             return []
+
+    def set_username(self, username):
+        """Set the current username for the session"""
+        self.current_user = username
+        self.db_username = username
+
+    def get_username(self):
+        """Get the current username, preferring database username over OS username"""
+        if self.db_username:
+            return self.db_username
+        elif self.current_user:
+            return self.current_user
+        else:
+            # Fallback to OS username
+            return os.environ.get('USER', 'unknown')
 
 
 class ConflictResolutionDialog(QDialog):
