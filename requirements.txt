@@ -29,6 +29,7 @@ langsmith==0.3.42
 beautifulsoup4==4.13.3
 faiss-cpu==1.11.0
 qrcode==8.2
+s3dgraphy==0.1.6
 # Note: The following packages are installed in a virtual environment for Pottery Tools
 # They are NOT installed in QGIS Python to avoid conflicts
 # ultralytics==8.2.0

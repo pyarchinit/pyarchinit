@@ -1,11 +1,13 @@
 from modules.report.action import ArchaeologicalActions
 from modules.report.validation_tools import ArchaeologicalValidators
+from modules.utility.report_text_cleaner import ReportTextCleaner
 
 
 class ArchaeologicalStepProcessor:
     def __init__(self):
         self.actions = ArchaeologicalActions()
         self.validators = ArchaeologicalValidators()
+        self.text_cleaner = ReportTextCleaner()
 
     def process_step(self, step, context):
         """Processa uno step dell'analisi"""
@@ -33,6 +35,15 @@ class ArchaeologicalStepProcessor:
         action = step.get('action')
         if action and hasattr(self.actions, action):
             action_func = getattr(self.actions, action)
-            results['action_result'] = action_func(context)
+            action_result = action_func(context)
+
+            # Clean the text result if it's a string
+            if isinstance(action_result, str):
+                section_name = step.get('section', '')
+                action_result = ReportTextCleaner.clean_section_content(
+                    section_name, action_result
+                )
+
+            results['action_result'] = action_result
 
         return results

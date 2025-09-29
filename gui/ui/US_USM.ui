@@ -45967,6 +45967,52 @@ p, li { white-space: pre-wrap; }
                       </widget>
                      </item>
                      <item row="5" column="0">
+                      <widget class="QPushButton" name="pushButton_export_extended_matrix">
+                       <property name="minimumSize">
+                        <size>
+                         <width>120</width>
+                         <height>25</height>
+                        </size>
+                       </property>
+                       <property name="maximumSize">
+                        <size>
+                         <width>150</width>
+                         <height>30</height>
+                        </size>
+                       </property>
+                       <property name="font">
+                        <font>
+                         <family>Times New Roman</family>
+                         <pointsize>9</pointsize>
+                         <weight>50</weight>
+                         <italic>false</italic>
+                         <bold>false</bold>
+                        </font>
+                       </property>
+                       <property name="toolTip">
+                        <string>Export to S3DGraphy Extended Matrix format for 3D visualization</string>
+                       </property>
+                       <property name="text">
+                        <string>Extended Matrix</string>
+                       </property>
+                       <property name="styleSheet">
+                        <string notr="true">QPushButton {
+    background-color: #4CAF50;
+    color: white;
+    border: 1px solid #45a049;
+    border-radius: 3px;
+    padding: 2px;
+}
+QPushButton:hover {
+    background-color: #45a049;
+}
+QPushButton:pressed {
+    background-color: #3d8b40;
+}</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="7" column="0">
                       <widget class="QLineEdit" name="lineEditOrderLayer">
                        <property name="enabled">
                         <bool>false</bool>
