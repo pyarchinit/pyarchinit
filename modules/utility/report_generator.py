@@ -4,7 +4,7 @@ from sqlalchemy.orm import sessionmaker
 from qgis.PyQt.QtWidgets import *
 import socket
 from openai import OpenAI
-from docx import Document
+from modules.utility.report_text_cleaner import ReportTextCleaner
 
 
 class ReportGenerator(QWidget):
@@ -59,13 +59,17 @@ class ReportGenerator(QWidget):
         except Exception as e:
             print(f"Errore nel processo di stream: {e}")
 
+        # Clean the generated text before returning
+        messaggio_combinato = ReportTextCleaner.clean_report_text(messaggio_combinato)
+
         return messaggio_combinato
 
     @staticmethod
     def is_connected():
         try:
             # Try to connect to one of the DNS servers
-            socket.create_connection(("1.1.1.1", 53))
+            sock = socket.create_connection(("1.1.1.1", 53), timeout=2)
+            sock.close()  # Close the socket properly to avoid ResourceWarning
             return True
         except OSError:
             pass
@@ -78,5 +82,42 @@ class ReportGenerator(QWidget):
         # Add the report text to the document
         doc.add_paragraph(report)
         # Save the document to the specified file path
+        doc.save(file_path)
+
+    @staticmethod
+    def save_report_to_file(report, file_path):
+        """
+        Save report with proper formatting and cleaning
+        """
+        from docx.shared import Pt
+
+        # Clean the report text first
+        cleaned_report = ReportTextCleaner.clean_report_text(report)
+
+        # Prepare for docx
+        prepared = ReportTextCleaner.prepare_for_docx(cleaned_report)
+
+        # Create document
+        doc = Document()
+
+        # Add paragraphs with proper formatting
+        for para_info in prepared['paragraphs']:
+            text = para_info['text']
+            style = para_info['style']
+
+            if style.startswith('heading'):
+                level = int(style[-1]) if style[-1].isdigit() else 1
+                para = doc.add_heading(text, level=level)
+            elif style == 'list':
+                para = doc.add_paragraph(text, style='List Bullet')
+            else:
+                para = doc.add_paragraph(text)
+
+            # Apply Cambria font
+            for run in para.runs:
+                run.font.name = 'Cambria'
+                run.font.size = Pt(12)
+
+        # Save the document
         doc.save(file_path)
 

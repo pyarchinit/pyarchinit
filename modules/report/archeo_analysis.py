@@ -11,6 +11,7 @@ class ArchaeologicalAnalysis:
             "METODOLOGIA DI SCAVO": 16000,
             "ANALISI STRATIGRAFICA E INTERPRETAZIONE": 16000,
             "CATALOGO DEI MATERIALI": 16000,
+            "GESTIONE CASSETTE TMA": 16000,
             "CONCLUSIONI": 8000
         }
         self.max_tokens = 16000
@@ -24,7 +25,8 @@ class ArchaeologicalAnalysis:
             1: self.get_methodology_step,
             2: self.get_stratigraphy_step,
             3: self.get_materials_step,
-            4: self.get_conclusions_step
+            4: self.get_tma_cassette_step,
+            5: self.get_conclusions_step
         }
 
         if self.current_step < len(steps):
@@ -79,8 +81,8 @@ class ArchaeologicalAnalysis:
             "prompt": (
                 "Elabora un'analisi approfondita della sequenza stratigrafica seguendo questa struttura:\n\n"
                 "1. ELENCO STRUTTURATO DELLE US:\n"
-                "   - Crea un elenco numerato di tutte le US identificate\n"
-                "   - Per ogni US fornisci:\n"
+                "   Crea un elenco numerato di tutte le US identificate.\n"
+                "   Per ogni US fornisci:\n"
                 "     * Numero US\n"
                 "     * Definizione/Tipologia\n"
                 "     * Interpretazione dettagliata\n"
@@ -132,6 +134,52 @@ class ArchaeologicalAnalysis:
                 "   - Indicatori cronologici\n"
                 "   - Inserisci immagini pertinenti con caption descrittive dove necessario.\n\n"
                 "Includi tabelle riassuntive e usa un formato strutturato con numerazione chiara."
+            )
+        }
+
+    def get_tma_cassette_step(self):
+        return {
+            "thought": "Analizzare la gestione delle cassette e i materiali TMA",
+            "action": "AnalisiCassetteTMA",
+            "section": "GESTIONE CASSETTE TMA",
+            "required_table": ["tma_materiali_archeologici", "tma_materiali_ripetibili"],
+            "validation_tool": ["validate_tma"],
+            "prompt": (
+                "Elabora un'analisi completa della gestione delle cassette e dei materiali TMA seguendo questa struttura:\n\n"
+                "1. QUADRO GENERALE DELLE CASSETTE:\n"
+                "   - Numero totale di cassette utilizzate\n"
+                "   - Lista completa delle cassette con identificativi\n"
+                "   - Stato di conservazione generale\n\n"
+                "2. DISTRIBUZIONE DEI MATERIALI PER CASSETTA:\n"
+                "   Per ogni cassetta fornisci:\n"
+                "   - Identificativo cassetta\n"
+                "   - Numero totale di materiali contenuti\n"
+                "   - Tipologie di materiali presenti (OGTM)\n"
+                "   - Quantità per ogni tipologia\n"
+                "   - Stato di conservazione\n\n"
+                "3. ANALISI PER CATEGORIA (LDCT) E CLASSE (LDCN):\n"
+                "   - Tabella riassuntiva con categorie e classi\n"
+                "   - Quantità totali per ogni combinazione categoria/classe\n"
+                "   - Distribuzione percentuale\n"
+                "   - Grafici di distribuzione\n\n"
+                "4. MATERIALI RIPETIBILI:\n"
+                "   Per i materiali con elementi ripetibili:\n"
+                "   - Elenco dettagliato dei reperti\n"
+                "   - Quantità e misure per ogni elemento\n"
+                "   - Analisi delle ricorrenze\n\n"
+                "5. STATISTICHE COMPLESSIVE TMA:\n"
+                "   - Totale materiali catalogati\n"
+                "   - Distribuzione per area di scavo\n"
+                "   - Distribuzione per US\n"
+                "   - Analisi quantitativa con grafici\n"
+                "   - Materiali più rappresentativi\n\n"
+                "6. GESTIONE E CONSERVAZIONE:\n"
+                "   - Analisi dello stato di conservazione per cassetta\n"
+                "   - Eventuali problematiche di stoccaggio\n"
+                "   - Raccomandazioni per la conservazione\n\n"
+                "Utilizza tabelle, grafici e statistiche dettagliate. Fornisci un quadro completo "
+                "della gestione delle cassette e dei materiali TMA con particolare attenzione "
+                "all'organizzazione fisica dei reperti e alla loro catalogazione sistematica."
             )
         }
 
