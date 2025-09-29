@@ -35,8 +35,14 @@ import time
 
 import numpy as np
 import urllib.parse
-import pyvista as pv
-import vtk
+try:
+    import pyvista as pv
+except ImportError:
+    pv = None  # pyvista is optional, only needed for 3D visualization
+try:
+    import vtk
+except ImportError:
+    vtk = None  # vtk is optional
 from qgis.PyQt.QtGui import QDesktopServices,QImage
 
 
@@ -46,7 +52,10 @@ from docx.enum.text import WD_ALIGN_PARAGRAPH
 
 from docx.oxml.ns import nsdecls
 
-from pyvistaqt import QtInteractor
+try:
+    from pyvistaqt import QtInteractor
+except ImportError:
+    QtInteractor = None  # pyvistaqt is optional
 import functools
 from collections import OrderedDict, Counter, defaultdict
 from datetime import date
@@ -54,6 +63,7 @@ from xml.etree.ElementTree import ElementTree as ET
 
 import cv2
 import matplotlib
+import matplotlib.pyplot as plt
 import pandas as pd
 import requests
 from openai import OpenAI
@@ -61,15 +71,16 @@ from docx import Document
 from docx.shared import Pt, Inches
 from docx.oxml import parse_xml
 
-from langchain.chat_models import ChatOpenAI
-from langchain.vectorstores import FAISS
-from langchain.embeddings import OpenAIEmbeddings
+from langchain_openai import ChatOpenAI, OpenAIEmbeddings
+from langchain_community.vectorstores import FAISS
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.chains import RetrievalQA
 from langchain.prompts import PromptTemplate
 
 from langchain.agents import AgentType, Tool, initialize_agent
-from langchain.memory import ConversationBufferMemory
+from langchain.memory import ConversationSummaryMemory  # Using newer memory class
+from langchain_community.chat_message_histories import ChatMessageHistory
+from langchain_core.runnables.history import RunnableWithMessageHistory
 
 from langchain.schema import SystemMessage
 
@@ -118,6 +129,7 @@ MAIN_DIALOG_CLASS, _ = loadUiType(
 class CollapsibleSection(QWidget):
     def __init__(self, title, parent=None):
         super().__init__(parent)
+        self.title = title  # Store title for later use
         self.setLayout(QVBoxLayout())
 
         # Header button
@@ -150,7 +162,12 @@ class CollapsibleSection(QWidget):
     def toggle_content(self):
         self.is_expanded = not self.is_expanded
         self.content.setVisible(self.is_expanded)
-        self.toggle_button.setText(f"{'▼' if self.is_expanded else '▶'} {self.toggle_button.text()[2:]}")
+        # Safely update toggle button text
+        current_text = self.toggle_button.text()
+        if len(current_text) >= 2:
+            self.toggle_button.setText(f"{'▼' if self.is_expanded else '▶'} {current_text[2:]}")
+        else:
+            self.toggle_button.setText(f"{'▼' if self.is_expanded else '▶'} {self.title}")
 
     def add_widget(self, widget):
         self.content_layout.addWidget(widget)
@@ -190,6 +207,15 @@ class ReportGeneratorDialog(QDialog):
         language_layout.addWidget(language_label)
         language_layout.addWidget(self.language_combo)
         language_section.add_layout(language_layout)
+
+        # Add streaming checkbox
+        streaming_layout = QHBoxLayout()
+        self.streaming_checkbox = QCheckBox("Abilita streaming (generazione testo in tempo reale)")
+        self.streaming_checkbox.setChecked(True)  # Enabled by default
+        self.streaming_checkbox.setToolTip("Mostra il testo mentre viene generato. Disabilita se hai problemi con GPT-5.")
+        streaming_layout.addWidget(self.streaming_checkbox)
+        language_section.add_layout(streaming_layout)
+
         main_layout.addWidget(language_section)
 
         # Tables Section
@@ -197,7 +223,7 @@ class ReportGeneratorDialog(QDialog):
         self.combo_box = CheckableComboBox()
         self.TABLES_NAMES = [
             'site_table', 'us_table', 'inventario_materiali_table',
-            'pottery_table', 'periodizzazione_table','struttura_table','tomba_table',
+            'pottery_table', 'tma_table', 'periodizzazione_table','struttura_table','tomba_table',
 
         ]
         for table_name in self.TABLES_NAMES:
@@ -249,6 +275,10 @@ class ReportGeneratorDialog(QDialog):
         """Get the selected output language"""
         return self.language_combo.currentText()
 
+    def get_streaming_enabled(self):
+        """Get whether streaming is enabled"""
+        return self.streaming_checkbox.isChecked()
+
     def validate_data(self):
         """Esegue la validazione dei dati"""
         try:
@@ -266,7 +296,8 @@ class ReportGeneratorDialog(QDialog):
                 pottery_data=self.get_pottery_data(),
                 site_data={},
                 py_dialog=self,
-                output_language=self.get_selected_language()
+                output_language=self.get_selected_language(),
+                tma_data=self.get_tma_data()
             )
 
             missing_data_report = []
@@ -286,6 +317,11 @@ class ReportGeneratorDialog(QDialog):
                 pottery_validation = report_thread.validate_pottery()
                 if not pottery_validation['valid']:
                     missing_data_report.append(pottery_validation['message'])
+
+            if 'tma_table' in self.get_selected_tables():
+                tma_validation = report_thread.validate_tma()
+                if not tma_validation['valid']:
+                    missing_data_report.append(tma_validation['message'])
 
             # Mostra i risultati
             if missing_data_report:
@@ -382,6 +418,39 @@ class ReportGeneratorDialog(QDialog):
             'area': getattr(r, 'area', ''),
             'us': getattr(r, 'us', '')
         } for r in records]
+
+    def get_tma_data(self):
+        """Recupera i dati TMA dal database"""
+        selected_tables = self.get_selected_tables()
+        if 'tma_table' not in selected_tables:
+            return []
+
+        conn = Connection()
+        # Usa il nome corretto della tabella nel database
+        records, _ = ReportGenerator.read_data_from_db(conn.conn_str(), 'tma_materiali_archeologici')
+
+        # Applica i filtri
+        us_start, us_end = self.get_us_range()
+
+        if us_start and us_end:
+            records = [r for r in records if us_start <= str(getattr(r, 'us', '')) <= us_end]
+
+        # Converte in dizionario
+        tma_data = []
+        for r in records:
+            tma_record = {
+                'id_tma': getattr(r, 'id_tma', ''),
+                'sito': getattr(r, 'sito', ''),
+                'area': getattr(r, 'area', ''),
+                'us': getattr(r, 'us', ''),
+                'tipo_materiale': getattr(r, 'tipo_materiale', ''),
+                'quantita': getattr(r, 'quantita', ''),
+                'cassetta': getattr(r, 'cassetta', ''),
+                'note': getattr(r, 'note', '')
+            }
+            tma_data.append(tma_record)
+
+        return tma_data
 
     def get_selected_tables(self):
         """Get list of checked tables"""
@@ -480,9 +549,37 @@ class ReportDialog(QDialog):
         self.terminal_widget = QWidget()
         terminal_layout = QVBoxLayout(self.terminal_widget)
 
+        # Add header with progress bar
+        terminal_header_layout = QHBoxLayout()
+
         terminal_header = QLabel("Process Terminal")
         terminal_header.setStyleSheet("font-weight: bold; font-size: 14px; padding: 5px;")
-        terminal_layout.addWidget(terminal_header)
+        terminal_header_layout.addWidget(terminal_header)
+
+        # Add time progress bar and timer label
+        self.time_label = QLabel("Tempo: 00:00")
+        self.time_label.setStyleSheet("font-size: 12px; padding: 5px; color: #3498db;")
+        terminal_header_layout.addWidget(self.time_label)
+
+        # Progress bar for estimated time
+        self.time_progress = QProgressBar()
+        self.time_progress.setMaximum(600)  # 10 minuti default
+        self.time_progress.setValue(0)
+        self.time_progress.setStyleSheet("""
+            QProgressBar {
+                border: 1px solid #333;
+                border-radius: 3px;
+                text-align: center;
+                height: 20px;
+            }
+            QProgressBar::chunk {
+                background-color: #3498db;
+                border-radius: 2px;
+            }
+        """)
+        terminal_header_layout.addWidget(self.time_progress)
+
+        terminal_layout.addLayout(terminal_header_layout)
 
         self.terminal = QTextEdit()
         self.terminal.setReadOnly(True)
@@ -519,10 +616,16 @@ class ReportDialog(QDialog):
         button_layout.addWidget(self.copy_button)
 
         self.close_button = QPushButton("Close")
-        self.close_button.clicked.connect(self.reject)
+        self.close_button.clicked.connect(self.close)
         button_layout.addWidget(self.close_button)
 
         self.main_layout.addLayout(button_layout)
+
+        # Initialize timer for time tracking
+        self.start_time = None
+        self.timer = QTimer()
+        self.timer.timeout.connect(self.update_time)
+        self.estimated_duration = 600  # 10 minuti stimati di default
 
     def update_content(self, new_content):
         """Update the report content"""
@@ -534,6 +637,25 @@ class ReportDialog(QDialog):
                 scrollbar.setValue(scrollbar.maximum())
         except Exception as e:
             print(f"Errore nell'aggiornamento del contenuto: {str(e)}")
+
+    def append_streaming_token(self, token):
+        """Append a streaming token to the content"""
+        try:
+            # Get current cursor position at the end
+            cursor = self.text_edit.textCursor()
+            cursor.movePosition(cursor.End)
+
+            # Insert the token
+            cursor.insertText(token)
+
+            # Ensure the text is visible
+            self.text_edit.setTextCursor(cursor)
+            self.text_edit.ensureCursorVisible()
+
+            # Process events to update UI in real-time
+            QApplication.processEvents()
+        except Exception as e:
+            print(f"Error appending streaming token: {str(e)}")
 
     def handle_mouse_press(self, event):
         """Gestisce il click del mouse nel text edit"""
@@ -585,6 +707,40 @@ class ReportDialog(QDialog):
 
     def log_to_terminal(self, message, msg_type="info"):
         """Add a new log message to the terminal"""
+        # Start timer on first message if not started
+        if self.start_time is None and msg_type in ['info', 'step']:
+            self.start_timer()
+
+        # Adjust estimated duration based on message content
+        if "US data:" in message and "record" in message:
+            # Extract number of US records to estimate time
+            try:
+                import re
+                match = re.search(r'(\d+)\s+record', message)
+                if match:
+                    us_count = int(match.group(1))
+                    # Estimate 10 seconds per US + 180 seconds base time
+                    self.estimated_duration = 180 + (us_count * 10)
+                    self.time_progress.setMaximum(self.estimated_duration)
+            except:
+                pass
+
+        # Update progress based on step messages
+        if msg_type == 'step' and 'Completed' in message:
+            # A section was completed, update progress
+            if "INTRODUZIONE" in message:
+                self.time_progress.setValue(min(self.time_progress.value() + self.estimated_duration // 6, self.estimated_duration))
+            elif "METODOLOGIA" in message:
+                self.time_progress.setValue(min(self.time_progress.value() + self.estimated_duration // 6, self.estimated_duration))
+            elif "ANALISI" in message:
+                self.time_progress.setValue(min(self.time_progress.value() + self.estimated_duration // 6, self.estimated_duration))
+            elif "CONCLUSIONI" in message:
+                self.time_progress.setValue(min(self.time_progress.value() + self.estimated_duration // 6, self.estimated_duration))
+        elif msg_type == 'validation' and 'completed' in message.lower():
+            # Report completed
+            self.time_progress.setValue(self.estimated_duration)
+            self.timer.stop()
+
         colors = {
             'info': '#FFFFFF',  # bianco per info
             'warning': '#f1c40f',  # Giallo per warning
@@ -639,6 +795,7 @@ class ReportDialog(QDialog):
 
     def save_report(self):
         """Save the report content to a file"""
+        import os
 
         file_path, _ = QFileDialog.getSaveFileName(
             self,
@@ -676,7 +833,7 @@ class ReportDialog(QDialog):
                 header = sections[0].header
                 header_para = header.paragraphs[0]
                 header_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
-                current_date = datetime.now().strftime("%d/%m/%Y")
+                current_date = datetime.datetime.now().strftime("%d/%m/%Y")
                 header_run = header_para.add_run(f'Report di scavo: {current_date}')
                 header_run.font.size = Pt(11)
 
@@ -716,6 +873,33 @@ class ReportDialog(QDialog):
 
                 # Process the HTML content
                 self.process_html_content(soup, doc, figure_counter)
+
+                # Apply DocumentStyleAgent corrections before saving
+                try:
+                    from modules.utility.document_processor import DocumentProcessor
+
+                    # Save temporary document
+                    temp_path = file_path.replace('.docx', '_temp.docx')
+                    doc.save(temp_path)
+
+                    # Process with agent
+                    processor = DocumentProcessor()
+                    stats = processor.process_document(temp_path, file_path)
+
+                    # Remove temp file
+                    import os
+                    if os.path.exists(temp_path):
+                        os.remove(temp_path)
+
+                    self.log_to_terminal(f"✅ Report salvato e formattato: {stats['corrected']} correzioni applicate")
+
+                    # Don't save again, processor already saved to file_path
+                    return
+
+                except ImportError:
+                    self.log_to_terminal("⚠️ DocumentProcessor non disponibile, salvataggio senza correzioni automatiche")
+                    # Fall back to normal save
+                    pass
 
                 try:
                     doc.save(file_path)
@@ -1076,15 +1260,44 @@ class ReportDialog(QDialog):
         clipboard.setText(self.text_edit.toPlainText())
         QMessageBox.information(self, "Success", "Report copied to clipboard!")
 
+    def start_timer(self):
+        """Start the timer for tracking report generation time"""
+        self.start_time = QDateTime.currentDateTime()
+        self.timer.start(1000)  # Update every second
+
+    def update_time(self):
+        """Update the time display and progress bar"""
+        if self.start_time:
+            elapsed = self.start_time.secsTo(QDateTime.currentDateTime())
+            minutes = int(elapsed // 60)
+            seconds = int(elapsed % 60)
+            self.time_label.setText(f"Tempo: {minutes:02d}:{seconds:02d}")
+
+            # Update progress bar based on elapsed time
+            if elapsed < self.estimated_duration:
+                progress = int((elapsed / self.estimated_duration) * 100)
+                self.time_progress.setValue(int(elapsed))
+                self.time_progress.setFormat(f"{progress}% - Stima: {self.estimated_duration//60}m")
+            else:
+                # Over time estimate
+                self.time_progress.setFormat(f"Elaborazione in corso... {minutes}m {seconds}s")
+
+    def close(self):
+        """Override close to stop timer"""
+        if hasattr(self, 'timer'):
+            self.timer.stop()
+        super().close()
+
 
 class GenerateReportThread(QThread):
     report_generated = pyqtSignal(str)
     log_message = pyqtSignal(str, str)
     report_completed = pyqtSignal(str, dict)
+    stream_token = pyqtSignal(str)  # New signal for streaming tokens
 
     def __init__(self, custom_prompt, descriptions_text, api_key, selected_model, selected_tables, analysis_steps,
                  agent, us_data, materials_data, pottery_data, site_data, py_dialog, output_language='italiano',
-                 tomba_data=None, periodizzazione_data=None, struttura_data=None):
+                 tomba_data=None, periodizzazione_data=None, struttura_data=None, tma_data=None, enable_streaming=True):
         super().__init__()
 
         self.custom_prompt = custom_prompt
@@ -1101,8 +1314,10 @@ class GenerateReportThread(QThread):
         self.tomba_data = tomba_data if tomba_data is not None else []
         self.periodizzazione_data = periodizzazione_data if periodizzazione_data is not None else []
         self.struttura_data = struttura_data if struttura_data is not None else []
+        self.tma_data = tma_data if tma_data is not None else []
         self.py_dialog = py_dialog
         self.output_language = output_language
+        self.enable_streaming = enable_streaming  # Store streaming preference
         self.full_report = ""
         self.formatted_report = ""  # Inizializza qui la variabile
 
@@ -1214,11 +1429,16 @@ class GenerateReportThread(QThread):
                 input_variables=["context", "question"]
             )
 
-            # Create the chain
+            # Create the chain with optimized retriever
+            # Reduce the number of documents retrieved to speed up processing
+            retriever = vector_store.as_retriever(
+                search_kwargs={"k": 2}  # Retrieve only 2 docs instead of default 4
+            )
+
             chain = RetrievalQA.from_chain_type(
                 llm=llm,
                 chain_type="stuff",
-                retriever=vector_store.as_retriever(),
+                retriever=retriever,
                 chain_type_kwargs={"prompt": prompt}
             )
 
@@ -1285,6 +1505,26 @@ class GenerateReportThread(QThread):
             "struttura_data": self.struttura_data
         }
         return ArchaeologicalValidators.validate_struttura(context)
+
+    def validate_tma(self):
+        """Validate TMA data"""
+        context = {
+            "tma_data": self.tma_data
+        }
+        # Check if TMA data has required fields
+        if not self.tma_data:
+            return {'valid': False, 'message': "Nessun dato TMA disponibile"}
+
+        missing_fields = []
+        for tma in self.tma_data:
+            if not tma.get('tipo_materiale'):
+                missing_fields.append(f"TMA {tma.get('id_tma', 'Unknown')}")
+
+        return {
+            'valid': len(missing_fields) == 0,
+            'missing': missing_fields,
+            'message': f"Dati TMA incompleti per: {', '.join(missing_fields)}" if missing_fields else "Tutti i dati TMA sono completi"
+        }
 
     def format_prompt_from_json(self, prompt_template):
         """Converte il template JSON in un prompt testuale strutturato in modo sicuro"""
@@ -1362,9 +1602,9 @@ class GenerateReportThread(QThread):
         """Get specific instructions for the selected language"""
         instructions = {
             'Italiano': {
-                'style': 'Scrivi in italiano formale e tecnico.',
+                'style': 'Scrivi ESCLUSIVAMENTE in italiano formale e tecnico. NON mischiare mai lingue diverse.',
                 'terms': 'Usa terminologia archeologica italiana standard.',
-                'format': 'Mantieni i nomi tecnici in italiano.'
+                'format': 'Mantieni TUTTI i termini e le frasi in italiano. Non usare MAI espressioni inglesi.'
             },
             'English': {
                 'style': 'Write in formal and technical English.',
@@ -1392,9 +1632,20 @@ class GenerateReportThread(QThread):
 
 
     def format_for_widget(self, text):
-        """Converte il formato immagine per la visualizzazione nel widget."""
+        """Converte il formato immagine per la visualizzazione nel widget e formatta il testo in HTML con stili corretti."""
         # Dictionary to track which images have been used
         used_images = {}
+
+        # Apply DocumentStyleAgent for proper styling
+        try:
+            from modules.utility.document_style_agent import DocumentStyleAgent
+            from modules.utility.report_text_cleaner import ReportTextCleaner
+            agent = DocumentStyleAgent()
+
+            # IMPORTANT: Clean the text FIRST to remove inappropriate dashes
+            text = ReportTextCleaner.clean_report_text(text)
+        except ImportError:
+            agent = None
 
         def replace_image(match):
             """
@@ -1464,7 +1715,7 @@ class GenerateReportThread(QThread):
                         '''
             return full_match
 
-        def convert_to_html(text):
+        def convert_to_html(text, style_analysis=None):
             lines = text.split('\n')
             html_lines = []
             i = 0
@@ -1526,10 +1777,10 @@ class GenerateReportThread(QThread):
 
             # Function to apply text formatting (bold, italic)
             def format_text(text):
-                # Convert markdown bold formatting to HTML bold
+                # First handle bold (double asterisk) to avoid conflicts
                 text = re.sub(r'\*\*(.*?)\*\*', r'<span style="font-weight: bold;">\1</span>', text)
-                # Convert markdown italic formatting to HTML italic
-                text = re.sub(r'\*(.*?)\*', r'<span style="font-style: italic;">\1</span>', text)
+                # Then handle italic (single asterisk) but not inside bold tags
+                text = re.sub(r'(?<!</span>)\*([^*]+?)\*(?!<span)', r'<span style="font-style: italic;">\1</span>', text)
                 # Process image references
                 text = re.sub(r'\[IMMAGINE[^:]*:.*?\]', replace_image, text)
                 return text
@@ -1648,9 +1899,37 @@ class GenerateReportThread(QThread):
 
                 # Gestisci le righe normali di testo
                 if line:
-                    # Apply text formatting and ensure it's not bold by default
+                    # Apply text formatting
                     formatted_line = format_text(line)
-                    html_lines.append(f'<div style="margin: 5px 0; font-weight: normal;">{formatted_line}</div>')
+
+                    # Use style analysis if available
+                    if style_analysis and i < len(style_analysis):
+                        style_info = style_analysis[i]
+                        suggested_style = style_info.get('style', 'normal')
+
+                        # Apply HTML based on suggested style
+                        if suggested_style in ['title', 'heading1']:
+                            html_lines.append(f'<h1 style="font-size: 16pt; font-weight: bold; margin: 20px 0 10px 0;">{formatted_line}</h1>')
+                        elif suggested_style == 'heading2':
+                            html_lines.append(f'<h2 style="font-size: 14pt; font-weight: bold; margin: 15px 0 10px 0;">{formatted_line}</h2>')
+                        elif suggested_style == 'heading3':
+                            html_lines.append(f'<h3 style="font-size: 13pt; font-weight: bold; margin: 12px 0 8px 0;">{formatted_line}</h3>')
+                        elif suggested_style == 'list':
+                            # Will be handled by list processing
+                            html_lines.append(f'<li style="margin: 5px 0;">{formatted_line}</li>')
+                        else:  # normal
+                            html_lines.append(f'<p style="margin: 5px 0; font-weight: normal; font-size: 11pt;">{formatted_line}</p>')
+                    else:
+                        # Fallback: Determine style based on content
+                        if len(line) > 100:
+                            # Long paragraphs are always normal text
+                            html_lines.append(f'<p style="margin: 5px 0; font-weight: normal; font-size: 11pt;">{formatted_line}</p>')
+                        elif line.startswith('US ') and ':' in line and len(line) < 100:
+                            # US references are subheadings
+                            html_lines.append(f'<h4 style="font-size: 12pt; font-weight: bold; margin: 10px 0 5px 0;">{formatted_line}</h4>')
+                        else:
+                            # Default normal text
+                            html_lines.append(f'<div style="margin: 5px 0; font-weight: normal;">{formatted_line}</div>')
 
                 i += 1
 
@@ -1660,11 +1939,23 @@ class GenerateReportThread(QThread):
 
             return '\n'.join(html_lines)
 
-        # Converti il testo in HTML
-        html_content = convert_to_html(text)
+        # Clean the text BEFORE converting to HTML
+        from modules.utility.report_text_cleaner import ReportTextCleaner
+        cleaned_text = ReportTextCleaner.clean_report_text(text)
+
+        # Apply style analysis if agent is available
+        if agent:
+            # Split into paragraphs for analysis
+            paragraphs = cleaned_text.split('\n')
+            style_analysis = agent.analyze_document(paragraphs)
+        else:
+            style_analysis = None
+
+        # Converti il testo pulito in HTML with proper styles
+        html_content = convert_to_html(cleaned_text, style_analysis)
 
         return f'''
-        <div style='font-family: Arial; font-size: 11pt; line-height: 1.5; padding: 10px;'>
+        <div style='font-family: Cambria, Arial; font-size: 11pt; line-height: 1.5; padding: 10px;'>
             {html_content}
         </div>
         '''
@@ -1712,12 +2003,25 @@ class GenerateReportThread(QThread):
                 self.us_data = safe_convert_list(self.us_data)
                 self.materials_data = safe_convert_list(self.materials_data)
                 self.pottery_data = safe_convert_list(self.pottery_data)
+                # Converti anche le altre tabelle
+                self.tomba_data = safe_convert_list(self.tomba_data)
+                self.periodizzazione_data = safe_convert_list(self.periodizzazione_data)
+                self.struttura_data = safe_convert_list(self.struttura_data)
+                self.tma_data = safe_convert_list(self.tma_data)
 
                 self.log_message.emit("Data conversion successful", "info")
-                self.log_message.emit(f"Site data type: {type(self.site_data)}", "info")
-                self.log_message.emit(f"US data length: {len(self.us_data)}", "info")
-                self.log_message.emit(f"Materials data length: {len(self.materials_data)}", "info")
-                self.log_message.emit(f"Pottery data length: {len(self.pottery_data)}", "info")
+                self.log_message.emit("=" * 50, "info")
+                self.log_message.emit("TABELLE CARICATE:", "info")
+                self.log_message.emit("=" * 50, "info")
+                self.log_message.emit(f"Site data: {type(self.site_data).__name__}", "info")
+                self.log_message.emit(f"US data: {len(self.us_data)} record", "info")
+                self.log_message.emit(f"Materiali: {len(self.materials_data)} record", "info")
+                self.log_message.emit(f"Ceramica: {len(self.pottery_data)} record", "info")
+                self.log_message.emit(f"Tombe: {len(self.tomba_data)} record", "info")
+                self.log_message.emit(f"Periodizzazione: {len(self.periodizzazione_data)} record", "info")
+                self.log_message.emit(f"Strutture: {len(self.struttura_data)} record", "info")
+                self.log_message.emit(f"TMA (Cassette): {len(self.tma_data)} record", "info")
+                self.log_message.emit("=" * 50, "info")
 
             except Exception as conv_error:
                 self.log_message.emit(f"Warning: Error converting data: {str(conv_error)}", "warning")
@@ -1726,6 +2030,10 @@ class GenerateReportThread(QThread):
                 self.us_data = []
                 self.materials_data = []
                 self.pottery_data = []
+                self.tomba_data = []
+                self.periodizzazione_data = []
+                self.struttura_data = []
+                self.tma_data = []
 
             while True:
                 step = self.archaeological_analysis.get_next_analysis_step()
@@ -1744,11 +2052,12 @@ class GenerateReportThread(QThread):
                 # Verifica se tutte le tabelle richieste sono state selezionate
                 missing_tables = [table for table in required_tables if table not in self.selected_tables]
 
-                # Special case for CATALOGO DEI MATERIALI: check if at least one of pottery_table or inventario_materiali_table is selected
+                # Special case for CATALOGO DEI MATERIALI: check if at least one material table is selected
                 if step['section'] == "CATALOGO DEI MATERIALI":
-                    if "pottery_table" in self.selected_tables or "inventario_materiali_table" in self.selected_tables:
+                    material_tables = ["pottery_table", "inventario_materiali_table", "tma_table"]
+                    if any(table in self.selected_tables for table in material_tables):
                         # At least one of the required tables is selected, so we can proceed
-                        missing_tables = [table for table in missing_tables if table != "pottery_table" and table != "inventario_materiali_table"]
+                        missing_tables = [table for table in missing_tables if table not in material_tables]
 
                 if missing_tables and step['section'] != "CONCLUSIONI":
                     self.log_message.emit(
@@ -1768,7 +2077,8 @@ class GenerateReportThread(QThread):
                         "pottery_data": self.pottery_data if "pottery_table" in required_tables else [],
                         "tomba_data": self.tomba_data if "tomba_table" in required_tables else [],
                         "periodizzazione_data": self.periodizzazione_data if "periodizzazione_table" in required_tables else [],
-                        "struttura_data": self.struttura_data if "struttura_table" in required_tables else []
+                        "struttura_data": self.struttura_data if "struttura_table" in required_tables else [],
+                        "tma_data": self.tma_data if "tma_table" in required_tables else []
                     }
 
                     # Log validation requirements
@@ -1874,6 +2184,10 @@ class GenerateReportThread(QThread):
 
                     entity_ids = []
                     if should_process_images and "us_table" in required_tables and context["us_data"]:
+                        # Add separator for image processing step
+                        self.log_message.emit("-"*50, "info")
+                        self.log_message.emit("📷 INIZIO ELABORAZIONE IMMAGINI US", "step")
+                        self.log_message.emit("-"*50, "info")
                         self.log_message.emit(f"Processing images for US data...", "info")
                         id_list = [str(us.get('id_us')) for us in context["us_data"] if us.get('id_us')]
                         entity_ids.extend(id_list)
@@ -1890,12 +2204,16 @@ class GenerateReportThread(QThread):
                     if should_process_images:
                         # Get material IDs if materials data is available
                         if "materials_data" in context and context["materials_data"]:
+                            self.log_message.emit("-"*30, "info")
+                            self.log_message.emit("📷 Elaborazione immagini materiali...", "info")
                             self.log_message.emit(f"Processing images for materials data...", "info")
                             material_ids = [str(mat.get('id_invmat')) for mat in context["materials_data"] if mat.get('id_invmat')]
                             self.log_message.emit(f"Collected {len(material_ids)} material IDs", "info")
 
                         # Get pottery IDs if pottery data is available
                         if "pottery_data" in context and context["pottery_data"]:
+                            self.log_message.emit("-"*30, "info")
+                            self.log_message.emit("📷 Elaborazione immagini ceramica...", "info")
                             self.log_message.emit(f"Processing images for pottery data...", "info")
                             pottery_ids = [str(pot.get('id_rep')) for pot in context["pottery_data"] if pot.get('id_rep')]
                             self.log_message.emit(f"Collected {len(pottery_ids)} pottery IDs", "info")
@@ -1906,6 +2224,8 @@ class GenerateReportThread(QThread):
                             us_images = dialog.get_images_for_entities(entity_ids, self.log_message, 'US')
                             self.log_message.emit(f"Retrieved {len(us_images)} US images", "info")
                             images.extend(us_images)
+                            if len(us_images) > 0:
+                                self.log_message.emit("✅ Immagini US elaborate", "success")
 
                             for img in us_images:
                                 us_id = img['id']
@@ -2085,14 +2405,45 @@ class GenerateReportThread(QThread):
                                 large_data_tables.append(table_name)
 
                     if use_chunking and large_data_tables:
-                        self.log_message.emit(f"Using RAG approach for large datasets: {', '.join(large_data_tables)}", "info")
+                        # Check if this is ANALISI STRATIGRAFICA with many US
+                        if step['section'] == 'ANALISI STRATIGRAFICA E INTERPRETAZIONE' and 'us_data' in large_data_tables:
+                            us_count = len(context.get('us_data', []))
+                            if us_count > 40:
+                                self.log_message.emit(f"OTTIMIZZAZIONE: {us_count} US trovate, uso approccio diretto senza RAG completo", "warning")
+                                # Force non-RAG approach for very large US datasets
+                                use_chunking = False
+                                large_data_tables = []
 
-                        # Initialize LLM for RAG
+                        if use_chunking and large_data_tables:
+                            self.log_message.emit(f"Using RAG approach for large datasets: {', '.join(large_data_tables)}", "info")
+                        else:
+                            self.log_message.emit(f"Using direct approach due to optimization", "info")
+
+                        # Initialize LLM for RAG with streaming
+                        from langchain.callbacks.base import BaseCallbackHandler
+
+                        class StreamingHandler(BaseCallbackHandler):
+                            def __init__(self, parent_thread):
+                                self.parent_thread = parent_thread
+                                self.current_section = ""
+
+                            def on_llm_new_token(self, token, **kwargs):
+                                self.parent_thread.stream_token.emit(token)
+
+                        streaming_handler = StreamingHandler(self)
+
+                        # Use streaming based on user preference and GPT-5 capability
+                        # If user enables streaming but model is GPT-5, we can try it
+                        use_streaming = self.enable_streaming
+
+                        # Use appropriate token limit for RAG
                         llm = ChatOpenAI(
-                            temperature=0.0,
                             model_name=self.selected_model,
                             api_key=self.api_key,
-                            max_tokens=4000
+                            max_completion_tokens=3500,  # Balanced: not too slow, not truncating content
+                            streaming=use_streaming,
+                            callbacks=[streaming_handler] if use_streaming else []
+                            # Note: temperature removed as GPT-5 doesn't support it
                         )
 
                         # Create vector databases for large tables
@@ -2109,6 +2460,13 @@ class GenerateReportThread(QThread):
 
                         # Process with RAG approach
                         section_results = []
+
+                        # OPTIMIZATION: Skip RAG for ANALISI STRATIGRAFICA if more than 30 records
+                        if step['section'] == 'ANALISI STRATIGRAFICA E INTERPRETAZIONE' and len(context.get('us_data', [])) > 30:
+                            self.log_message.emit("Dataset troppo grande per RAG completo, uso approccio semplificato...", "info")
+                            # Use simplified approach for large US datasets
+                            use_chunking = False
+                            large_data_tables = []
 
                         # First, process with a summary of all data to get an overview
                         self.log_message.emit("Generating overview...", "info")
@@ -2130,12 +2488,37 @@ class GenerateReportThread(QThread):
                                 simplified_data_summary += f"- {table_name}: {len(data)} records (sample)\n"
 
                         simplified_prompt = base_prompt.replace(data_summary, simplified_data_summary)
-                        overview_result = self.agent.run(simplified_prompt)
+
+                        # Create streaming handler for overview
+                        from langchain.callbacks.base import BaseCallbackHandler
+
+                        class OverviewStreamHandler(BaseCallbackHandler):
+                            def __init__(self, parent_thread):
+                                self.parent_thread = parent_thread
+
+                            def on_llm_new_token(self, token, **kwargs):
+                                self.parent_thread.stream_token.emit(token)
+
+                        overview_handler = OverviewStreamHandler(self)
+                        overview_result = self.agent.invoke(
+                            {"input": simplified_prompt},
+                            config={"callbacks": [overview_handler]}
+                        )["output"]
                         if overview_result:
                             section_results.append(overview_result)
 
                         # Then process each large table using RAG
+                        # OPTIMIZATION: Limit processing time to avoid 5-minute timeout
+                        import time
+                        rag_start_time = time.time()
+                        max_rag_time = 240  # 4 minutes max for RAG processing (leave 1 minute buffer)
+
                         for table_name in large_data_tables:
+                            # Check if we're approaching timeout
+                            if time.time() - rag_start_time > max_rag_time:
+                                self.log_message.emit(f"Approaching timeout limit, skipping remaining RAG processing", "warning")
+                                break
+
                             if table_name not in vector_stores:
                                 self.log_message.emit(f"Skipping {table_name} as vector database creation failed", "warning")
                                 continue
@@ -2143,14 +2526,42 @@ class GenerateReportThread(QThread):
                             vector_store = vector_stores[table_name]
                             self.log_message.emit(f"Processing {table_name} with RAG approach...", "info")
 
-                            # Create analysis questions based on the section
-                            analysis_questions = [
-                                f"What are the key patterns or trends in the {table_name} data?",
-                                f"What are the most significant findings in the {table_name} data?",
-                                f"How does the {table_name} data relate to the archaeological context?",
-                                f"What chronological information can be derived from the {table_name} data?",
-                                f"What spatial distribution patterns are evident in the {table_name} data?"
-                            ]
+                            # Get data for this table to check size
+                            data = context.get(table_name, [])
+
+                            # Create analysis questions based on the section and language
+                            if self.output_language and 'English' in self.output_language:
+                                analysis_questions = [
+                                    f"What are the key patterns or trends in the {table_name} data?",
+                                    f"What are the most significant findings in the {table_name} data?",
+                                    f"How does the {table_name} data relate to the archaeological context?",
+                                    f"What chronological information can be derived from the {table_name} data?",
+                                    f"What spatial distribution patterns are evident in the {table_name} data?"
+                                ]
+                            elif self.output_language == 'Español':
+                                analysis_questions = [
+                                    f"¿Cuáles son los principales patrones o tendencias en los datos de {table_name}?",
+                                    f"¿Cuáles son los hallazgos más significativos en los datos de {table_name}?",
+                                    f"¿Cómo se relacionan los datos de {table_name} con el contexto arqueológico?",
+                                    f"¿Qué información cronológica se puede derivar de los datos de {table_name}?",
+                                    f"¿Qué patrones de distribución espacial son evidentes en los datos de {table_name}?"
+                                ]
+                            elif self.output_language == 'Français':
+                                analysis_questions = [
+                                    f"Quels sont les principaux modèles ou tendances dans les données {table_name}?",
+                                    f"Quelles sont les découvertes les plus significatives dans les données {table_name}?",
+                                    f"Comment les données {table_name} se rapportent-elles au contexte archéologique?",
+                                    f"Quelles informations chronologiques peuvent être dérivées des données {table_name}?",
+                                    f"Quels modèles de distribution spatiale sont évidents dans les données {table_name}?"
+                                ]
+                            else:  # Default to Italian
+                                analysis_questions = [
+                                    f"Quali sono i principali pattern o tendenze nei dati {table_name}?",
+                                    f"Quali sono i risultati più significativi nei dati {table_name}?",
+                                    f"Come si relazionano i dati {table_name} con il contesto archeologico?",
+                                    f"Quali informazioni cronologiche si possono derivare dai dati {table_name}?",
+                                    f"Quali pattern di distribuzione spaziale sono evidenti nei dati {table_name}?"
+                                ]
 
                             # Add image-related questions if images are available
                             if should_process_images and image_context:
@@ -2184,59 +2595,119 @@ class GenerateReportThread(QThread):
 
                             # Process each analysis question
                             table_results = []
-                            for i, question in enumerate(analysis_questions):
-                                self.log_message.emit(f"Processing question {i+1}/{len(analysis_questions)} for {table_name}...", "info")
+                            # OPTIMIZATION: Limit questions for large datasets
+                            # For very large datasets, process only 1-2 key questions
+                            if len(data) > 40:
+                                questions_to_process = analysis_questions[:1]  # Only 1 question for very large datasets
+                            elif len(data) > 30:
+                                questions_to_process = analysis_questions[:2]  # 2 questions for large datasets
+                            else:
+                                questions_to_process = analysis_questions[:3]  # 3 questions for medium datasets
+
+                            # OPTIMIZATION: Process questions in a single prompt instead of multiple calls
+                            if len(questions_to_process) > 1:
+                                self.log_message.emit(f"Processing {len(questions_to_process)} questions in batch for {table_name}...", "info")
+                                # Combine all questions into a single prompt
+                                combined_questions = "\n".join([f"{i+1}. {q}" for i, q in enumerate(questions_to_process)])
+                                combined_prompt = f"""Please answer the following questions about the {table_name} data:
+
+{combined_questions}
+
+Provide detailed answers for each question, clearly numbered."""
+
                                 try:
-                                    # Prepare the question with image instructions if available
-                                    enhanced_question = question
-                                    if should_process_images and image_context and i >= len(analysis_questions) - 2:  # For image-specific questions
-                                        # Find relevant entity IDs for this table
-                                        relevant_ids = []
-                                        if table_name == "us_data":
-                                            relevant_ids = [str(us.get('id_us')) for us in context["us_data"] if us.get('id_us')]
-                                        elif table_name == "materials_data":
-                                            relevant_ids = [str(mat.get('id_invmat')) for mat in context["materials_data"] if mat.get('id_invmat')]
-                                        elif table_name == "pottery_data":
-                                            relevant_ids = [str(pot.get('id_rep')) for pot in context["pottery_data"] if pot.get('id_rep')]
+                                    # Single RAG call for all questions
+                                    import concurrent.futures
+                                    def invoke_batch():
+                                        return rag_chain.invoke({"query": combined_prompt})["result"]
 
-                                        # Filter image_context to only include relevant entities
-                                        relevant_images = {entity_id: imgs for entity_id, imgs in image_context.items() if entity_id in relevant_ids}
-
-                                        if relevant_images:
-                                            # Add image instructions to the question
-                                            image_instructions = "\n\nImmagini disponibili:\n"
-
-                                            for entity_id, images_list in relevant_images.items():
-                                                for img in images_list:
-                                                    entity_type = img.get('entity_type', 'US')
-                                                    if entity_type == 'US':
-                                                        image_instructions += f"[IMMAGINE US {entity_id}: {img['url']}, {img['caption']}]\n"
-                                                    elif entity_type == 'REPERTO':
-                                                        image_instructions += f"[IMMAGINE REPERTO {entity_id}: {img['url']}, {img['caption']}]\n"
-                                                    elif entity_type == 'CERAMICA':
-                                                        image_instructions += f"[IMMAGINE CERAMICA {entity_id}: {img['url']}, {img['caption']}]\n"
-
-                                            image_instructions += """
-                                            Per favore, quando menzioni un'entità che ha immagini associate, inserisci l'immagine nel testo usando questa sintassi:
-                                            - Per le US: [IMMAGINE US numero: percorso, caption]
-                                            - Per i Materiali: [IMMAGINE REPERTO numero: percorso, caption]
-                                            - Per la Ceramica: [IMMAGINE CERAMICA numero: percorso, caption]
-
-                                            Inserisci le immagini nei punti appropriati del testo, quando menzioni l'entità corrispondente.
-                                            """
-
-                                            enhanced_question = f"{question}\n\n{image_instructions}"
-
-                                    # Run the RAG chain with the enhanced question
-                                    response = rag_chain.run(enhanced_question)
-                                    if response:
-                                        table_results.append(f"Analysis {i+1}: {question}\n{response}")
+                                    with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
+                                        future = executor.submit(invoke_batch)
+                                        try:
+                                            response = future.result(timeout=40)  # Longer timeout for batch
+                                            if response:
+                                                table_results.append(response)
+                                        except concurrent.futures.TimeoutError:
+                                            self.log_message.emit(f"Timeout for batch questions after 40 seconds", "warning")
                                 except Exception as e:
-                                    self.log_message.emit(f"Error processing question {i+1} for {table_name}: {str(e)}", "warning")
+                                    self.log_message.emit(f"Error processing batch questions: {str(e)}", "warning")
+                            else:
+                                # Process single question as before
+                                for i, question in enumerate(questions_to_process):
+                                    self.log_message.emit(f"Processing question {i+1}/{len(questions_to_process)} for {table_name}...", "info")
+                                    try:
+                                        # Prepare the question with image instructions if available
+                                        enhanced_question = question
+                                        if should_process_images and image_context and i >= len(analysis_questions) - 2:  # For image-specific questions
+                                            # Find relevant entity IDs for this table
+                                            relevant_ids = []
+                                            if table_name == "us_data":
+                                                relevant_ids = [str(us.get('id_us')) for us in context["us_data"] if us.get('id_us')]
+                                            elif table_name == "materials_data":
+                                                relevant_ids = [str(mat.get('id_invmat')) for mat in context["materials_data"] if mat.get('id_invmat')]
+                                            elif table_name == "pottery_data":
+                                                relevant_ids = [str(pot.get('id_rep')) for pot in context["pottery_data"] if pot.get('id_rep')]
 
-                            # Combine results for this table
+                                            # Filter image_context to only include relevant entities
+                                            relevant_images = {entity_id: imgs for entity_id, imgs in image_context.items() if entity_id in relevant_ids}
+
+                                            if relevant_images:
+                                                # Add image instructions to the question
+                                                image_instructions = "\n\nImmagini disponibili:\n"
+
+                                                for entity_id, images_list in relevant_images.items():
+                                                    for img in images_list:
+                                                        entity_type = img.get('entity_type', 'US')
+                                                        if entity_type == 'US':
+                                                            image_instructions += f"[IMMAGINE US {entity_id}: {img['url']}, {img['caption']}]\n"
+                                                        elif entity_type == 'REPERTO':
+                                                            image_instructions += f"[IMMAGINE REPERTO {entity_id}: {img['url']}, {img['caption']}]\n"
+                                                        elif entity_type == 'CERAMICA':
+                                                            image_instructions += f"[IMMAGINE CERAMICA {entity_id}: {img['url']}, {img['caption']}]\n"
+
+                                                image_instructions += """
+                                                Per favore, quando menzioni un'entità che ha immagini associate, inserisci l'immagine nel testo usando questa sintassi:
+                                                - Per le US: [IMMAGINE US numero: percorso, caption]
+                                                - Per i Materiali: [IMMAGINE REPERTO numero: percorso, caption]
+                                                - Per la Ceramica: [IMMAGINE CERAMICA numero: percorso, caption]
+
+                                                Inserisci le immagini nei punti appropriati del testo, quando menzioni l'entità corrispondente.
+                                                """
+
+                                                enhanced_question = f"{question}\n\n{image_instructions}"
+
+                                        # Run the RAG chain with the enhanced question WITH TIMEOUT
+                                        import concurrent.futures
+                                        import time
+
+                                        def invoke_with_timeout():
+                                            return rag_chain.invoke({"query": enhanced_question})["result"]
+
+                                        # Use ThreadPoolExecutor for timeout control (20 seconds per question)
+                                        with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
+                                            future = executor.submit(invoke_with_timeout)
+                                            try:
+                                                response = future.result(timeout=20)  # Reduced to 20 second timeout per question
+                                                if response:
+                                                    table_results.append(f"Analysis {i+1}: {question}\n{response}")
+                                            except concurrent.futures.TimeoutError:
+                                                self.log_message.emit(f"Timeout for question {i+1} after 30 seconds, skipping...", "warning")
+                                                continue
+                                    except Exception as e:
+                                        self.log_message.emit(f"Error processing question {i+1} for {table_name}: {str(e)}", "warning")
+
+                            # Combine results for this table - in the selected language
                             if table_results:
-                                table_analysis = f"\n\n### Analysis of {table_name} data:\n\n" + "\n\n".join(table_results)
+                                if self.output_language and 'English' in self.output_language:
+                                    table_analysis = f"\n\n### Analysis of {table_name} data:\n\n" + "\n\n".join(table_results)
+                                elif self.output_language == 'Español':
+                                    table_analysis = f"\n\n### Análisis de datos {table_name}:\n\n" + "\n\n".join(table_results)
+                                elif self.output_language == 'Français':
+                                    table_analysis = f"\n\n### Analyse des données {table_name}:\n\n" + "\n\n".join(table_results)
+                                elif self.output_language == 'Deutsch':
+                                    table_analysis = f"\n\n### Analyse der {table_name}-Daten:\n\n" + "\n\n".join(table_results)
+                                else:  # Default to Italian
+                                    table_analysis = f"\n\n### Analisi dei dati {table_name}:\n\n" + "\n\n".join(table_results)
                                 section_results.append(table_analysis)
 
                         # Final integration using RAG
@@ -2256,21 +2727,49 @@ class GenerateReportThread(QThread):
                             Eliminate repetitions, organize the information logically, and ensure a smooth flow between topics.
                             Focus on the most significant findings and patterns across all the data.
 
+                            FORMATTING RULES - MOLTO IMPORTANTE:
+                            1. NON iniziare MAI i paragrafi normali con trattini "-"
+                            2. Usa trattini SOLO per vere liste di elementi correlati
+                            3. Per i paragrafi descrittivi, inizia direttamente con il testo
+                            4. Invece di "- La fase micenea..." scrivi "La fase micenea..."
+                            5. Invece di "- Il vano presenta..." scrivi "Il vano presenta..."
+                            6. Usa elenchi puntati SOLO quando elencando più elementi brevi
+
                             IMPORTANT: Preserve all image references in the format [IMMAGINE US/REPERTO/CERAMICA numero: percorso, caption].
                             These are essential for the report and must be included exactly as they appear in the analyses.
                             """
 
-                            # Use a direct call to the model with a reduced token count to avoid exceeding limits
+                            # Use a direct call to the model with streaming if enabled
                             try:
                                 client = OpenAI(api_key=self.api_key)
-                                response = client.chat.completions.create(
-                                    model=self.selected_model,
-                                    messages=[{"role": "system", "content": "You are an archaeological expert."},
-                                              {"role": "user", "content": integration_prompt}],
-                                    max_tokens=4000,
-                                    temperature=0.0
-                                )
-                                final_result = response.choices[0].message.content
+
+                                if self.enable_streaming:
+                                    # Use streaming API
+                                    response = client.chat.completions.create(
+                                        model=self.selected_model,
+                                        messages=[{"role": "system", "content": "You are an archaeological expert."},
+                                                  {"role": "user", "content": integration_prompt}],
+                                        max_tokens=4000,
+                                        stream=True
+                                    )
+
+                                    # Collect streamed chunks
+                                    final_result = ""
+                                    for chunk in response:
+                                        if chunk.choices[0].delta.content is not None:
+                                            chunk_text = chunk.choices[0].delta.content
+                                            final_result += chunk_text
+                                            # Emit each chunk for real-time display
+                                            self.stream_token.emit(chunk_text)
+                                else:
+                                    # Non-streaming request
+                                    response = client.chat.completions.create(
+                                        model=self.selected_model,
+                                        messages=[{"role": "system", "content": "You are an archaeological expert."},
+                                                  {"role": "user", "content": integration_prompt}],
+                                        max_tokens=4000
+                                    )
+                                    final_result = response.choices[0].message.content
                                 if final_result:
                                     result = final_result
                                 else:
@@ -2282,26 +2781,91 @@ class GenerateReportThread(QThread):
                                 result = "\n\n".join(section_results)
                         else:
                             result = section_results[0] if section_results else ""
+
+                        # If no result yet and we skipped RAG, use direct approach
+                        if not result and step['section'] == 'ANALISI STRATIGRAFICA E INTERPRETAZIONE':
+                            self.log_message.emit("Generazione diretta senza RAG per ANALISI STRATIGRAFICA...", "info")
+                            # Fall through to the normal processing below
                     else:
-                        # For smaller datasets, process normally
-                        result = self.agent.run(base_prompt)
+                        # For smaller datasets, process normally with streaming
+                        from langchain.callbacks.base import BaseCallbackHandler
+
+                        class StreamHandler(BaseCallbackHandler):
+                            def __init__(self, parent_thread):
+                                self.parent_thread = parent_thread
+                                self.buffer = ""
+
+                            def on_llm_new_token(self, token, **kwargs):
+                                # Emit token for streaming display
+                                self.parent_thread.stream_token.emit(token)
+                                # Also accumulate in buffer for complete response
+                                self.buffer += token
+
+                        # Create streaming handler only if streaming is enabled
+                        if self.enable_streaming:
+                            stream_handler = StreamHandler(self)
+                            callbacks = [stream_handler]
+                        else:
+                            callbacks = []
+
+                        # Invoke with or without streaming callback
+                        result_dict = self.agent.invoke(
+                            {"input": base_prompt},
+                            config={"callbacks": callbacks}
+                        )
+
+                        # Get the output from the result
+                        if isinstance(result_dict, dict):
+                            result = result_dict.get("output", "")
+                        else:
+                            result = str(result_dict)
 
                     if result:
                         # Post-process to remove AI's notes and thoughts
                         result = self.clean_ai_notes(result)
 
+                        self.log_message.emit(f"Risultato ricevuto: {len(result)} caratteri", "info")
                         self.log_message.emit("Formattazione del risultato...", "info")
-                        section_text = f"{step['section']}\n{'=' * len(step['section'])}\n{result}"
+
+                        # Clean the result BEFORE formatting
+                        from modules.utility.report_text_cleaner import ReportTextCleaner
+                        cleaned_result = ReportTextCleaner.clean_section_content(
+                            step.get('section', ''),
+                            result
+                        )
+
+                        # Check if result already starts with the section name to avoid duplication
+                        result_lines = cleaned_result.strip().split('\n')
+                        if result_lines and result_lines[0].strip().upper() == step['section'].upper():
+                            # Result already contains the section heading, use as is
+                            section_text = cleaned_result
+                        else:
+                            # Add section heading
+                            section_text = f"{step['section']}\n{'=' * len(step['section'])}\n{cleaned_result}"
+
                         formatted_section = self.format_for_widget(section_text)
+
+                        # Debug: log formatted content
+                        self.log_message.emit(f"Sezione formattata: {len(formatted_section)} caratteri HTML", "info")
 
                         if self.formatted_report:
                             self.formatted_report += "<br><br>"
                         self.formatted_report += formatted_section
+
+                        # Emit the formatted report for display
                         self.report_generated.emit(self.formatted_report)
+
                         self.full_report += f"\n\n{section_text}"
                         self.log_message.emit(f"Completed {step['section']}", "step")
                     else:
-                        self.log_message.emit("Nessun risultato generato", "warning")
+                        self.log_message.emit("ATTENZIONE: Nessun risultato generato dall'agent", "warning")
+                        # Try to add a placeholder so the user knows something happened
+                        placeholder = f"La sezione '{step['section']}' non ha generato contenuto. Verificare i dati di input."
+                        formatted_placeholder = self.format_for_widget(placeholder)
+                        if self.formatted_report:
+                            self.formatted_report += "<br><br>"
+                        self.formatted_report += formatted_placeholder
+                        self.report_generated.emit(self.formatted_report)
 
                 except Exception as section_error:
                     error_message = str(section_error)
@@ -2311,7 +2875,7 @@ class GenerateReportThread(QThread):
                     )
 
                     # Check if it's a token limit error
-                    if "context_length_exceeded" in error_message or "max_tokens" in error_message:
+                    if "context_length_exceeded" in error_message or "max_tokens" in error_message or "max_completion_tokens" in error_message:
                         # Try to process with RAG approach
                         try:
                             self.log_message.emit("Retrying with RAG approach due to token limit...", "info")
@@ -2319,10 +2883,9 @@ class GenerateReportThread(QThread):
 
                             # Initialize LLM for RAG with reduced tokens
                             llm = ChatOpenAI(
-                                temperature=0.0,
                                 model_name=self.selected_model,
                                 api_key=self.api_key,
-                                max_tokens=2000  # Reduced token count for safety
+                                max_completion_tokens=2000  # Reduced token count for safety
                             )
 
                             # Identify large tables that need RAG
@@ -2348,8 +2911,21 @@ class GenerateReportThread(QThread):
                                 simplified_prompt = base_prompt.replace(data_summary, "Processing with reduced dataset due to token limits.\n")
                                 simplified_prompt += "\n\nAnalizza i dati disponibili e fornisci un'analisi generale. Indica chiaramente che l'analisi è basata su un campione ridotto dei dati."
 
-                                # Process with simplified data
-                                result = self.agent.run(simplified_prompt)
+                                # Process with simplified data with streaming
+                                from langchain.callbacks.base import BaseCallbackHandler
+
+                                class SimplifiedStreamHandler(BaseCallbackHandler):
+                                    def __init__(self, parent_thread):
+                                        self.parent_thread = parent_thread
+
+                                    def on_llm_new_token(self, token, **kwargs):
+                                        self.parent_thread.stream_token.emit(token)
+
+                                simplified_handler = SimplifiedStreamHandler(self)
+                                result = self.agent.invoke(
+                                    {"input": simplified_prompt},
+                                    config={"callbacks": [simplified_handler]}
+                                )["output"]
                             else:
                                 # Use RAG approach for large tables
                                 self.log_message.emit(f"Using RAG approach for tables: {', '.join(rag_tables)}", "info")
@@ -2389,16 +2965,32 @@ class GenerateReportThread(QThread):
                                 Keep your response concise and focused on the main points only.
                                 """
 
-                                # Use direct API call with reduced tokens
+                                # Use direct API call with streaming if enabled
                                 client = OpenAI(api_key=self.api_key)
-                                response = client.chat.completions.create(
-                                    model=self.selected_model,
-                                    messages=[{"role": "system", "content": "You are an archaeological expert."},
-                                              {"role": "user", "content": overview_prompt}],
-                                    max_tokens=1000,
-                                    temperature=0.0
-                                )
-                                overview_result = response.choices[0].message.content
+
+                                if self.enable_streaming:
+                                    response = client.chat.completions.create(
+                                        model=self.selected_model,
+                                        messages=[{"role": "system", "content": "You are an archaeological expert."},
+                                                  {"role": "user", "content": overview_prompt}],
+                                        max_tokens=1000,
+                                        stream=True
+                                    )
+
+                                    overview_result = ""
+                                    for chunk in response:
+                                        if chunk.choices[0].delta.content is not None:
+                                            chunk_text = chunk.choices[0].delta.content
+                                            overview_result += chunk_text
+                                            self.stream_token.emit(chunk_text)
+                                else:
+                                    response = client.chat.completions.create(
+                                        model=self.selected_model,
+                                        messages=[{"role": "system", "content": "You are an archaeological expert."},
+                                                  {"role": "user", "content": overview_prompt}],
+                                        max_tokens=1000
+                                    )
+                                    overview_result = response.choices[0].message.content
                                 if overview_result:
                                     section_results.append(overview_result)
 
@@ -2410,10 +3002,10 @@ class GenerateReportThread(QThread):
                                     vector_store = vector_stores[table_name]
                                     self.log_message.emit(f"Processing {table_name} with RAG approach...", "info")
 
-                                    # Create focused analysis questions
+                                    # Create focused analysis questions - IN ITALIAN
                                     analysis_questions = [
-                                        f"What are the key patterns in the {table_name} data?",
-                                        f"What are the most significant findings in the {table_name} data?"
+                                        f"Quali sono i principali pattern nei dati {table_name}?",
+                                        f"Quali sono i risultati più significativi nei dati {table_name}?"
                                     ]
 
                                     # Create RAG chain
@@ -2466,15 +3058,26 @@ class GenerateReportThread(QThread):
                                                     enhanced_question = f"{question}\n\n{image_instructions}"
                                                     self.log_message.emit(f"Including images in error recovery RAG approach for {table_name}...", "info")
 
-                                            response = rag_chain.run(enhanced_question)
-                                            if response:
-                                                table_results.append(response)
+                                            # Run with timeout (30 seconds per question)
+                                            import concurrent.futures
+                                            def invoke_with_timeout():
+                                                return rag_chain.invoke({"query": enhanced_question})["result"]
+
+                                            with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
+                                                future = executor.submit(invoke_with_timeout)
+                                                try:
+                                                    response = future.result(timeout=30)  # 30 second timeout
+                                                    if response:
+                                                        table_results.append(response)
+                                                except concurrent.futures.TimeoutError:
+                                                    self.log_message.emit(f"Timeout for question after 30 seconds, skipping...", "warning")
+                                                    continue
                                         except Exception as e:
                                             self.log_message.emit(f"Error in RAG processing: {str(e)}", "warning")
 
-                                    # Combine results
+                                    # Combine results - IN ITALIAN
                                     if table_results:
-                                        table_analysis = f"\n\n### Analysis of {table_name} data:\n\n" + "\n\n".join(table_results)
+                                        table_analysis = f"\n\n### Analisi dei dati {table_name}:\n\n" + "\n\n".join(table_results)
                                         section_results.append(table_analysis)
 
                                 # Combine all results
@@ -2492,7 +3095,16 @@ class GenerateReportThread(QThread):
                                 # Ensure image references are preserved in the final result
                                 if should_process_images and image_context:
                                     self.log_message.emit("Ensuring image references are preserved in the final result...", "info")
-                                section_text = f"{step['section']}\n{'=' * len(step['section'])}\n{result}"
+
+                                # Check if result already starts with the section name to avoid duplication
+                                result_lines = result.strip().split('\n')
+                                if result_lines and result_lines[0].strip().upper() == step['section'].upper():
+                                    # Result already contains the section heading, use as is
+                                    section_text = result
+                                else:
+                                    # Add section heading
+                                    section_text = f"{step['section']}\n{'=' * len(step['section'])}\n{result}"
+
                                 formatted_section = self.format_for_widget(section_text)
 
                                 if self.formatted_report:
@@ -2520,41 +3132,86 @@ class GenerateReportThread(QThread):
                 'struttura_table': self.format_struttura_table() if hasattr(self, 'format_struttura_table') else None
             }
 
+            # Final completion messages
+            self.log_message.emit("="*50, "success")
+            self.log_message.emit("🎆 REPORT COMPLETATO CON SUCCESSO!", "success")
+            self.log_message.emit("="*50, "success")
+
+            # Emit signals
             self.report_completed.emit(self.full_report, report_data)
+
+            # Final instructions
+            self.log_message.emit("Il report è stato generato e formattato correttamente.", "validation")
+            self.log_message.emit("Puoi ora:", "info")
+            self.log_message.emit("  1. Salvare il report usando il pulsante 'Save Report'", "info")
+            self.log_message.emit("  2. Copiare il contenuto negli appunti con 'Copy to Clipboard'", "info")
             self.log_message.emit("Report generation completed!", "validation")
 
         except Exception as e:
             self.log_message.emit(f"Error during report generation: {str(e)}", "error")
             raise
     def clean_ai_notes(self, text):
-        """Remove AI's notes and thoughts from the text"""
+        """Remove AI's notes, recommendations, and meta-commentary from the text"""
         if not text:
             return text
+
+        # Remove recommendations and next steps
+        text = re.sub(r'RACCOMANDAZIONI.*?(?=\n\n[A-Z]|\Z)', '', text, flags=re.IGNORECASE | re.DOTALL)
+        text = re.sub(r'Raccomandazioni operative.*?(?=\n\n[A-Z]|\Z)', '', text, flags=re.IGNORECASE | re.DOTALL)
+        text = re.sub(r'Prossimi passi.*?(?=\n\n[A-Z]|\Z)', '', text, flags=re.IGNORECASE | re.DOTALL)
+        text = re.sub(r'Si raccomanda.*?\.', '', text, flags=re.IGNORECASE)
+        text = re.sub(r'Si suggerisce.*?\.', '', text, flags=re.IGNORECASE)
+        text = re.sub(r'Si consiglia.*?\.', '', text, flags=re.IGNORECASE)
+        text = re.sub(r'È opportuno.*?\.', '', text, flags=re.IGNORECASE)
+        text = re.sub(r'Verificare.*?\.', '', text, flags=re.IGNORECASE)
+        text = re.sub(r'Effettuare.*?\.', '', text, flags=re.IGNORECASE)
+        text = re.sub(r'Eseguire.*?\.', '', text, flags=re.IGNORECASE)
+
+        # Remove English text like "Analysis of us_data data:"
+        text = re.sub(r'Analysis of \w+_data data:', '', text, flags=re.IGNORECASE)
+        text = re.sub(r'Analysis \d+:.*?\n', '', text, flags=re.IGNORECASE)
+        text = re.sub(r'What are the.*?\?', '', text, flags=re.IGNORECASE)
 
         # Remove notes about complete lists being available
         text = re.sub(r'--\*?Nota: L\'elenco completo .*? disponibile.*?\*?', '', text)
         text = re.sub(r'--Nota: L\'elenco completo .*? può essere fornito.*?\.', '', text)
 
+        # Remove English notes mixed in Italian text
+        text = re.sub(r'Note: The complete list.*?available.*?\.', '', text, flags=re.IGNORECASE)
+        text = re.sub(r'Note: All.*?are preserved.*?\.', '', text, flags=re.IGNORECASE)
+
         # Remove continuation notes
         text = re.sub(r'\.\.\. \(continua per tutte le fasi.*?\)', '', text)
         text = re.sub(r'\.\.\. \(continua per tutte le US.*?\)', '', text)
+        text = re.sub(r'\.\.\. \(continues for all.*?\)', '', text, flags=re.IGNORECASE)
 
         # Remove any other AI thoughts or notes
         text = re.sub(r'--\*?Nota:.*?\*?', '', text)
+        text = re.sub(r'--\*?Note:.*?\*?', '', text, flags=re.IGNORECASE)
 
-        # Remove common AI response phrases
-        text = re.sub(r'^Certainly!.*?integrated,?\s+', '', text)
-        text = re.sub(r'^Here is an integrated,?\s+', '', text)
-        text = re.sub(r'^I\'ll provide an integrated,?\s+', '', text)
-        text = re.sub(r'\*\(All image references are preserved.*?layout\.\)\*', '', text)
-        text = re.sub(r'\(All image references are preserved.*?layout\.\)', '', text)
-        text = re.sub(r'\*\(Please insert the relevant image references.*?data\.\)\*', '', text)
-        text = re.sub(r'\(Please insert the relevant image references.*?data\.\)', '', text)
+        # Remove common AI response phrases in English
+        text = re.sub(r'^Certainly!.*?integrated,?\s+', '', text, flags=re.IGNORECASE | re.MULTILINE)
+        text = re.sub(r'^Here is an integrated,?\s+', '', text, flags=re.IGNORECASE | re.MULTILINE)
+        text = re.sub(r'^I\'ll provide an integrated,?\s+', '', text, flags=re.IGNORECASE | re.MULTILINE)
+        text = re.sub(r'^Based on the.*?analysis,?\s+', '', text, flags=re.IGNORECASE | re.MULTILINE)
+        text = re.sub(r'^Let me analyze.*?\.\s+', '', text, flags=re.IGNORECASE | re.MULTILINE)
+
+        # Remove common AI response phrases in Italian
+        text = re.sub(r'^Ecco un.*?integrat[oa],?\s+', '', text, flags=re.IGNORECASE | re.MULTILINE)
+        text = re.sub(r'^Basandomi su.*?analisi,?\s+', '', text, flags=re.IGNORECASE | re.MULTILINE)
+
+        # Remove parenthetical notes about images
+        text = re.sub(r'\*?\(All image references are preserved.*?layout\.\)\*?', '', text)
+        text = re.sub(r'\*?\(Please insert the relevant image references.*?data\.\)\*?', '', text)
+        text = re.sub(r'\*?\(Tutti i riferimenti alle immagini.*?\.\)\*?', '', text)
         text = re.sub(r'\[IMMAGINE US/REPERTO/CERAMICA numero: percorso, caption\]', '', text)
 
         # Clean up any double spaces or newlines created by the removals
-        text = re.sub(r'\n\s*\n\s*\n', '\n\n', text)
+        text = re.sub(r'\n\s*\n\s*\n+', '\n\n', text)
         text = re.sub(r'  +', ' ', text)
+
+        # Clean up any leading/trailing whitespace
+        text = text.strip()
 
         return text
 
@@ -2562,7 +3219,7 @@ class GenerateReportThread(QThread):
 
 
         language_instructions = {
-            'Italiano': "Rispondi in italiano.",
+            'Italiano': "IMPORTANTE: Rispondi ESCLUSIVAMENTE in italiano. Non usare MAI parole o frasi in inglese. Tutto il testo deve essere completamente in italiano.",
             'English (UK)': "Reply in British English.",
             'English (US)': "Reply in American English.",
             'Español': "Responde en español.",
@@ -2611,6 +3268,182 @@ class GenerateReportThread(QThread):
                     pottery.get('note', '')
                 ])
         return table_data
+
+    def format_tma_table(self):
+        """Formatta i dati TMA per la tabella"""
+        table_data = []
+        if self.tma_data:
+            table_data.append(['ID TMA', 'Sito', 'Area', 'US', 'Tipo Materiale (OGTM)',
+                             'Categoria (LDCT)', 'Classe (LDCN)', 'Quantità', 'Cassetta', 'Note'])
+            for tma in self.tma_data:
+                table_data.append([
+                    tma.get('id_tma', ''),
+                    tma.get('sito', ''),
+                    tma.get('area', ''),
+                    tma.get('us', ''),
+                    tma.get('ogtm', ''),  # Tipo materiale
+                    tma.get('ldct', ''),  # Categoria
+                    tma.get('ldcn', ''),  # Classe/denominazione
+                    tma.get('quantita', ''),
+                    tma.get('cassetta', ''),
+                    tma.get('note', '')
+                ])
+        return table_data
+
+    def create_tma_statistics(self):
+        """Crea statistiche complete per i dati TMA"""
+        if not self.tma_data:
+            return None
+
+        statistics = {
+            'total_records': len(self.tma_data),
+            'by_cassetta': {},
+            'by_material_type': {},
+            'by_category': {},
+            'by_class': {},
+            'by_area': {},
+            'by_us': {},
+            'total_quantities': 0,
+            'materials_with_ripetibili': []
+        }
+
+        for tma in self.tma_data:
+            # Raggruppamento per cassetta
+            cassetta = tma.get('cassetta', 'Non specificata')
+            if cassetta:
+                if cassetta not in statistics['by_cassetta']:
+                    statistics['by_cassetta'][cassetta] = []
+                statistics['by_cassetta'][cassetta].append(tma)
+
+            # Raggruppamento per tipo materiale (OGTM)
+            ogtm = tma.get('ogtm', 'Non specificato')
+            if ogtm:
+                if ogtm not in statistics['by_material_type']:
+                    statistics['by_material_type'][ogtm] = {'count': 0, 'total_qty': 0, 'items': []}
+                statistics['by_material_type'][ogtm]['count'] += 1
+                qty = tma.get('quantita', 0)
+                if qty and str(qty).isdigit():
+                    statistics['by_material_type'][ogtm]['total_qty'] += int(qty)
+                    statistics['total_quantities'] += int(qty)
+                statistics['by_material_type'][ogtm]['items'].append(tma)
+
+            # Raggruppamento per categoria (LDCT)
+            ldct = tma.get('ldct', 'Non specificata')
+            if ldct:
+                if ldct not in statistics['by_category']:
+                    statistics['by_category'][ldct] = {'count': 0, 'classes': {}}
+                statistics['by_category'][ldct]['count'] += 1
+
+                # Sotto-raggruppamento per classe (LDCN)
+                ldcn = tma.get('ldcn', 'Non specificata')
+                if ldcn:
+                    if ldcn not in statistics['by_category'][ldct]['classes']:
+                        statistics['by_category'][ldct]['classes'][ldcn] = 0
+                    statistics['by_category'][ldct]['classes'][ldcn] += 1
+
+            # Raggruppamento per area
+            area = tma.get('area', 'Non specificata')
+            if area:
+                if area not in statistics['by_area']:
+                    statistics['by_area'][area] = 0
+                statistics['by_area'][area] += 1
+
+            # Raggruppamento per US
+            us = tma.get('us', 'Non specificata')
+            if us:
+                if us not in statistics['by_us']:
+                    statistics['by_us'][us] = []
+                statistics['by_us'][us].append(tma)
+
+            # Check for materiali_ripetibili
+            if 'materiali_ripetibili' in tma and tma['materiali_ripetibili']:
+                statistics['materials_with_ripetibili'].append({
+                    'id_tma': tma.get('id_tma'),
+                    'count': len(tma['materiali_ripetibili']),
+                    'details': tma['materiali_ripetibili']
+                })
+
+        return statistics
+
+    def generate_tma_report_section(self):
+        """Genera una sezione completa del report TMA con statistiche e grafici"""
+        if not self.tma_data:
+            return ""
+
+        statistics = self.create_tma_statistics()
+        if not statistics:
+            return ""
+
+        report = []
+
+        # Intestazione
+        report.append("CATALOGO DEI MATERIALI ARCHEOLOGICI (TMA)")
+        report.append("=" * 50)
+        report.append("")
+
+        # Riepilogo generale
+        report.append(f"**RIEPILOGO GENERALE**")
+        report.append(f"- Totale record TMA: {statistics['total_records']}")
+        report.append(f"- Quantità totale materiali: {statistics['total_quantities']}")
+        report.append(f"- Numero di cassette: {len(statistics['by_cassetta'])}")
+        report.append(f"- Tipi di materiale: {len(statistics['by_material_type'])}")
+        report.append(f"- Categorie: {len(statistics['by_category'])}")
+        report.append(f"- Aree coinvolte: {len(statistics['by_area'])}")
+        report.append("")
+
+        # Materiali per cassetta
+        report.append("**MATERIALI PER CASSETTA**")
+        report.append("-" * 30)
+        for cassetta, items in sorted(statistics['by_cassetta'].items()):
+            report.append(f"\nCassetta {cassetta}:")
+            for item in items:
+                report.append(f"  - {item.get('ogtm', 'N/D')} - {item.get('ldct', 'N/D')} - {item.get('ldcn', 'N/D')}")
+                report.append(f"    Area: {item.get('area', 'N/D')}, US: {item.get('us', 'N/D')}, Quantità: {item.get('quantita', 'N/D')}")
+        report.append("")
+
+        # Statistiche per tipo di materiale
+        report.append("**STATISTICHE PER TIPO DI MATERIALE (OGTM)**")
+        report.append("-" * 30)
+        for mat_type, data in sorted(statistics['by_material_type'].items(),
+                                     key=lambda x: x[1]['count'], reverse=True):
+            report.append(f"{mat_type}: {data['count']} record, Quantità totale: {data['total_qty']}")
+        report.append("")
+
+        # Statistiche per categoria e classe
+        report.append("**MATERIALI PER CATEGORIA (LDCT) E CLASSE (LDCN)**")
+        report.append("-" * 30)
+        for category, cat_data in sorted(statistics['by_category'].items()):
+            report.append(f"\n{category} ({cat_data['count']} record):")
+            for class_name, count in sorted(cat_data['classes'].items()):
+                report.append(f"  - {class_name}: {count} record")
+        report.append("")
+
+        # Distribuzione per area
+        report.append("**DISTRIBUZIONE PER AREA**")
+        report.append("-" * 30)
+        for area, count in sorted(statistics['by_area'].items(), key=lambda x: x[1], reverse=True):
+            report.append(f"Area {area}: {count} record")
+        report.append("")
+
+        # Materiali con elementi ripetibili
+        if statistics['materials_with_ripetibili']:
+            report.append("**MATERIALI CON ELEMENTI RIPETIBILI**")
+            report.append("-" * 30)
+            for mat in statistics['materials_with_ripetibili']:
+                report.append(f"TMA ID {mat['id_tma']}: {mat['count']} elementi")
+                for detail in mat['details']:
+                    if 'reperto' in detail:
+                        report.append(f"  - {detail.get('reperto', 'N/D')}: {detail.get('quantita', 'N/D')} pezzi")
+            report.append("")
+
+        # Suggerimenti per grafici (da implementare nel template)
+        report.append("**GRAFICI SUGGERITI**")
+        report.append("1. Grafico a torta: Distribuzione materiali per tipo (OGTM)")
+        report.append("2. Istogramma: Quantità materiali per cassetta")
+        report.append("3. Grafico a barre: Distribuzione per categoria e classe")
+        report.append("4. Mappa di calore: Distribuzione materiali per area e US")
+
+        return "\n".join(report)
 
     def format_tomba_table(self):
         """Formatta i dati delle tombe per la tabella"""
@@ -2717,6 +3550,1141 @@ class GenerateReportThread(QThread):
         # Combine all parts
         return f"\n\n{header}\n{separator}\n" + "\n".join(rows)
 
+
+
+class RAGQueryDialog(QDialog):
+    """Dialog for RAG-based database querying with GPT-5"""
+
+    def __init__(self, db_manager, parent=None):
+        super().__init__(parent)
+        self.db_manager = db_manager
+        self.parent = parent
+        self.current_results = None
+        self.vectorstore = None
+        self.agent = None
+        self.conversation_history = []  # Store conversation history
+        self.memory = None  # Will store LangChain memory
+        self.last_data_hash = None  # Track data changes
+        self.auto_update_enabled = True  # Enable auto-update by default
+
+        self.setWindowTitle("Interrogazione Database con AI (RAG)")
+        self.resize(1200, 800)
+        self.setup_ui()
+
+    def setup_ui(self):
+        """Setup the user interface"""
+        layout = QVBoxLayout()
+
+        # Instructions
+        instructions = QLabel(
+            "Interroga il database archeologico usando linguaggio naturale. "
+            "Puoi chiedere analisi, statistiche, grafici e tabelle."
+        )
+        instructions.setWordWrap(True)
+        layout.addWidget(instructions)
+
+        # Query input area
+        query_group = QGroupBox("Query")
+        query_layout = QVBoxLayout()
+
+        self.query_input = QTextEdit()
+        self.query_input.setPlaceholderText(
+            "Esempi:\n"
+            "- Mostra una tabella con tutte le US del sito X ordinate per periodo\n"
+            "- Crea un grafico a barre dei materiali per tipologia\n"
+            "- Calcola statistiche sui reperti ceramici per area di scavo\n"
+            "- Analizza le relazioni stratigrafiche dell'area A"
+        )
+        self.query_input.setMaximumHeight(150)
+        query_layout.addWidget(self.query_input)
+
+        # Query buttons
+        button_layout = QHBoxLayout()
+
+        self.execute_button = QPushButton("Esegui Query")
+        self.execute_button.clicked.connect(self.execute_query)
+        button_layout.addWidget(self.execute_button)
+
+        self.clear_button = QPushButton("Pulisci")
+        self.clear_button.clicked.connect(self.clear_query)
+        button_layout.addWidget(self.clear_button)
+
+        # Model selection
+        self.model_combo = QComboBox()
+        self.model_combo.addItems(["gpt-5", "gpt-5-mini"])
+        button_layout.addWidget(QLabel("Modello:"))
+        button_layout.addWidget(self.model_combo)
+
+        # Add streaming checkbox
+        self.streaming_checkbox = QCheckBox("Streaming")
+        self.streaming_checkbox.setChecked(True)
+        self.streaming_checkbox.setToolTip("Abilita streaming per risposte in tempo reale")
+        button_layout.addWidget(self.streaming_checkbox)
+
+        # Add auto-update checkbox
+        self.auto_update_checkbox = QCheckBox("Auto-aggiorna")
+        self.auto_update_checkbox.setChecked(True)
+        self.auto_update_checkbox.setToolTip("Aggiorna automaticamente il RAG quando i dati cambiano")
+        button_layout.addWidget(self.auto_update_checkbox)
+
+        button_layout.addStretch()
+        query_layout.addLayout(button_layout)
+
+        query_group.setLayout(query_layout)
+        layout.addWidget(query_group)
+
+        # Results area with tabs
+        self.results_tabs = QTabWidget()
+
+        # Text results tab
+        self.text_results = QTextEdit()
+        self.text_results.setReadOnly(True)
+        self.results_tabs.addTab(self.text_results, "Risultati Testo")
+
+        # Table results tab
+        self.table_widget = QTableWidget()
+        self.results_tabs.addTab(self.table_widget, "Tabella")
+
+        # Chart tab
+        self.chart_widget = QWidget()
+        self.chart_layout = QVBoxLayout()
+        self.chart_widget.setLayout(self.chart_layout)
+        self.results_tabs.addTab(self.chart_widget, "Grafico")
+
+        layout.addWidget(self.results_tabs)
+
+        # Progress bar
+        self.progress_bar = QProgressBar()
+        self.progress_bar.setVisible(False)
+        layout.addWidget(self.progress_bar)
+
+        # Status label
+        self.status_label = QLabel("")
+        layout.addWidget(self.status_label)
+
+        # Export buttons
+        export_layout = QHBoxLayout()
+
+        self.export_text_button = QPushButton("Esporta Testo")
+        self.export_text_button.clicked.connect(self.export_text)
+        self.export_text_button.setEnabled(False)
+        export_layout.addWidget(self.export_text_button)
+
+        self.export_table_button = QPushButton("Esporta Tabella (CSV)")
+        self.export_table_button.clicked.connect(self.export_table_csv)
+        self.export_table_button.setEnabled(False)
+        export_layout.addWidget(self.export_table_button)
+
+        self.export_excel_button = QPushButton("Esporta Excel")
+        self.export_excel_button.clicked.connect(self.export_excel)
+        self.export_excel_button.setEnabled(False)
+        export_layout.addWidget(self.export_excel_button)
+
+        self.export_chart_button = QPushButton("Esporta Grafico")
+        self.export_chart_button.clicked.connect(self.export_chart)
+        self.export_chart_button.setEnabled(False)
+        export_layout.addWidget(self.export_chart_button)
+
+        export_layout.addStretch()
+        layout.addLayout(export_layout)
+
+        # Close button
+        close_button = QPushButton("Chiudi")
+        close_button.clicked.connect(self.close)
+        layout.addWidget(close_button)
+
+        self.setLayout(layout)
+
+    def execute_query(self):
+        """Execute the RAG query with conversation history"""
+        query = self.query_input.toPlainText().strip()
+        if not query:
+            QMessageBox.warning(self, "Attenzione", "Inserisci una query")
+            return
+
+        # Check API key
+        api_key = self.parent.apikey_gpt() if hasattr(self.parent, 'apikey_gpt') else None
+        if not api_key:
+            QMessageBox.warning(self, "API Key Required", "Please set your OpenAI API key in settings")
+            return
+
+        # Add query to conversation history
+        self.conversation_history.append({"role": "user", "content": query})
+
+        # Display user query in text results
+        current_html = self.text_results.toHtml()
+        self.text_results.setHtml(current_html + f"<p><b>Tu:</b> {query}</p>")
+
+        self.progress_bar.setVisible(True)
+        self.status_label.setText("Inizializzazione RAG...")
+
+        # Pass conversation history to worker
+        # Force reload if auto-update is enabled and this is not the first query
+        force_reload = self.auto_update_checkbox.isChecked() and len(self.conversation_history) > 0
+
+        self.query_thread = RAGQueryWorker(
+            query=query,
+            db_manager=self.db_manager,
+            api_key=api_key,
+            conversation_history=self.conversation_history,
+            model=self.model_combo.currentText(),
+            parent=self.parent,
+            enable_streaming=self.streaming_checkbox.isChecked(),
+            force_reload=force_reload
+        )
+
+        self.query_thread.result_ready.connect(self.handle_results)
+        self.query_thread.error_occurred.connect(self.handle_error)
+        self.query_thread.progress_update.connect(self.update_progress)
+        self.query_thread.stream_token.connect(self.append_streaming_response)  # Connect streaming
+        self.query_thread.start()
+
+    def append_streaming_response(self, token):
+        """Append streaming response tokens to the text results"""
+        # Get current HTML and append token
+        current_html = self.text_results.toHtml()
+        # If this is the first token of a new response, add assistant label
+        if "<b>Assistente:</b>" not in current_html.split("<p><b>Tu:</b>")[-1]:
+            current_html += "<p><b>Assistente:</b> "
+        # Append token
+        self.text_results.setHtml(current_html + token)
+        # Auto-scroll to bottom
+        scrollbar = self.text_results.verticalScrollBar()
+        scrollbar.setValue(scrollbar.maximum())
+
+    def handle_results(self, results):
+        """Handle query results and update conversation history"""
+        self.progress_bar.setVisible(False)
+        self.status_label.setText("Query completata")
+        self.current_results = results
+
+        # Add response to conversation history
+        if results and results.get('response'):
+            response_text = results['response']
+            self.conversation_history.append({"role": "assistant", "content": response_text})
+
+        # Update text results only if not streaming (streaming already updated)
+        if 'text' in results and not self.query_thread.enable_streaming:
+            self.text_results.setHtml(self.format_text_results(results['text']))
+
+        # Update table if present
+        if 'table' in results:
+            self.display_table(results['table'])
+            self.export_table_button.setEnabled(True)
+            self.export_excel_button.setEnabled(True)
+
+        # Update chart if present
+        if 'chart' in results:
+            self.display_chart(results['chart'])
+            self.export_chart_button.setEnabled(True)
+
+        self.export_text_button.setEnabled(True)
+
+    def format_text_results(self, text):
+        """Format text results for display"""
+        # Convert markdown to HTML for better display
+        text_with_breaks = text.replace('\n', '<br>')
+        html = f"""
+        <div style="font-family: Arial; padding: 10px;">
+            {text_with_breaks}
+        </div>
+        """
+        return html
+
+    def display_table(self, table_data):
+        """Display table data in the table widget"""
+        if not table_data:
+            return
+
+        # Clear existing table
+        self.table_widget.clear()
+
+        # Set dimensions
+        self.table_widget.setRowCount(len(table_data['rows']))
+        self.table_widget.setColumnCount(len(table_data['columns']))
+
+        # Set headers
+        self.table_widget.setHorizontalHeaderLabels(table_data['columns'])
+
+        # Populate table
+        for row_idx, row in enumerate(table_data['rows']):
+            for col_idx, value in enumerate(row):
+                item = QTableWidgetItem(str(value))
+                self.table_widget.setItem(row_idx, col_idx, item)
+
+        # Auto-resize columns
+        self.table_widget.resizeColumnsToContents()
+
+    def display_chart(self, chart_data):
+        """Display chart in the chart widget"""
+        # Clear existing chart
+        for i in reversed(range(self.chart_layout.count())):
+            self.chart_layout.itemAt(i).widget().setParent(None)
+
+        # Create matplotlib figure
+        from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+        from matplotlib.figure import Figure
+
+        fig = Figure(figsize=(10, 6))
+        canvas = FigureCanvas(fig)
+        ax = fig.add_subplot(111)
+
+        # Create chart based on type
+        chart_type = chart_data.get('type', 'bar')
+
+        if chart_type == 'bar':
+            ax.bar(chart_data['x'], chart_data['y'])
+            ax.set_xlabel(chart_data.get('x_label', ''))
+            ax.set_ylabel(chart_data.get('y_label', ''))
+
+        elif chart_type == 'pie':
+            ax.pie(chart_data['values'], labels=chart_data['labels'], autopct='%1.1f%%')
+
+        elif chart_type == 'line':
+            ax.plot(chart_data['x'], chart_data['y'], marker='o')
+            ax.set_xlabel(chart_data.get('x_label', ''))
+            ax.set_ylabel(chart_data.get('y_label', ''))
+
+        elif chart_type == 'scatter':
+            ax.scatter(chart_data['x'], chart_data['y'])
+            ax.set_xlabel(chart_data.get('x_label', ''))
+            ax.set_ylabel(chart_data.get('y_label', ''))
+
+        ax.set_title(chart_data.get('title', 'Grafico'))
+
+        # Rotate x labels if needed
+        if chart_type in ['bar', 'line'] and len(chart_data.get('x', [])) > 5:
+            plt.setp(ax.xaxis.get_majorticklabels(), rotation=45, ha='right')
+
+        fig.tight_layout()
+        self.chart_layout.addWidget(canvas)
+
+    def export_text(self):
+        """Export text results"""
+        if not self.current_results or 'text' not in self.current_results:
+            return
+
+        file_path, _ = QFileDialog.getSaveFileName(
+            self, "Salva Risultati", "", "Text Files (*.txt);;All Files (*.*)"
+        )
+
+        if file_path:
+            try:
+                with open(file_path, 'w', encoding='utf-8') as f:
+                    f.write(self.current_results['text'])
+                QMessageBox.information(self, "Successo", "Risultati esportati con successo")
+            except Exception as e:
+                QMessageBox.critical(self, "Errore", f"Errore durante l'esportazione: {str(e)}")
+
+    def export_table_csv(self):
+        """Export table as CSV"""
+        if not self.current_results or 'table' not in self.current_results:
+            return
+
+        file_path, _ = QFileDialog.getSaveFileName(
+            self, "Esporta CSV", "", "CSV Files (*.csv);;All Files (*.*)"
+        )
+
+        if file_path:
+            try:
+                import csv
+                with open(file_path, 'w', newline='', encoding='utf-8') as f:
+                    writer = csv.writer(f)
+                    writer.writerow(self.current_results['table']['columns'])
+                    writer.writerows(self.current_results['table']['rows'])
+                QMessageBox.information(self, "Successo", "Tabella esportata con successo")
+            except Exception as e:
+                QMessageBox.critical(self, "Errore", f"Errore durante l'esportazione: {str(e)}")
+
+    def export_excel(self):
+        """Export table as Excel"""
+        if not self.current_results or 'table' not in self.current_results:
+            return
+
+        file_path, _ = QFileDialog.getSaveFileName(
+            self, "Esporta Excel", "", "Excel Files (*.xlsx);;All Files (*.*)"
+        )
+
+        if file_path:
+            try:
+                import pandas as pd
+                df = pd.DataFrame(
+                    self.current_results['table']['rows'],
+                    columns=self.current_results['table']['columns']
+                )
+                df.to_excel(file_path, index=False)
+                QMessageBox.information(self, "Successo", "Excel esportato con successo")
+            except Exception as e:
+                QMessageBox.critical(self, "Errore", f"Errore durante l'esportazione: {str(e)}")
+
+    def export_chart(self):
+        """Export chart as image"""
+        if not self.current_results or 'chart' not in self.current_results:
+            return
+
+        file_path, _ = QFileDialog.getSaveFileName(
+            self, "Esporta Grafico", "", "PNG Files (*.png);;PDF Files (*.pdf);;All Files (*.*)"
+        )
+
+        if file_path:
+            try:
+                # Get the canvas from chart widget
+                canvas = self.chart_layout.itemAt(0).widget()
+                if canvas:
+                    canvas.figure.savefig(file_path, dpi=150, bbox_inches='tight')
+                    QMessageBox.information(self, "Successo", "Grafico esportato con successo")
+            except Exception as e:
+                QMessageBox.critical(self, "Errore", f"Errore durante l'esportazione: {str(e)}")
+
+    def clear_query(self):
+        """Clear query and results"""
+        self.query_input.clear()
+        self.text_results.clear()
+        self.table_widget.clear()
+        for i in reversed(range(self.chart_layout.count())):
+            self.chart_layout.itemAt(i).widget().setParent(None)
+        self.status_label.setText("")
+        self.current_results = None
+
+    def handle_error(self, error_msg):
+        """Handle errors"""
+        self.progress_bar.setVisible(False)
+        self.status_label.setText("Errore durante l'esecuzione")
+        QMessageBox.critical(self, "Errore", error_msg)
+
+    def update_progress(self, message):
+        """Update progress status"""
+        self.status_label.setText(message)
+
+
+class RAGQueryWorker(QThread):
+    """Worker thread for RAG queries"""
+    result_ready = pyqtSignal(dict)
+    error_occurred = pyqtSignal(str)
+    progress_update = pyqtSignal(str)
+    stream_token = pyqtSignal(str)  # Add streaming signal
+
+    # Class-level cache for vectorstore
+    _cached_vectorstore = None
+    _cached_data_hash = None
+
+    def __init__(self, query, db_manager, api_key, model, conversation_history=None, parent=None, enable_streaming=True, force_reload=False):
+        super().__init__()
+        self.query = query
+        self.db_manager = db_manager
+        self.api_key = api_key
+        self.model = model
+        self.conversation_history = conversation_history or []
+        self.parent = parent
+        self.enable_streaming = enable_streaming
+        self.force_reload = force_reload
+
+    def run(self):
+        """Execute the RAG query"""
+        try:
+            self.progress_update.emit("Caricamento dati dal database...")
+
+            # Load data from database
+            data = self.load_database_data()
+
+            # Calculate data hash to check for changes
+            import hashlib
+            import json
+            data_str = json.dumps(data, sort_keys=True, default=str)
+            current_data_hash = hashlib.md5(data_str.encode()).hexdigest()
+
+            # Check if we can use cached vectorstore
+            if (not self.force_reload and
+                RAGQueryWorker._cached_vectorstore is not None and
+                RAGQueryWorker._cached_data_hash == current_data_hash):
+                self.progress_update.emit("Uso vectorstore in cache...")
+                vectorstore = RAGQueryWorker._cached_vectorstore
+                texts = None  # Not needed when using cache
+            else:
+                self.progress_update.emit("Creazione vectorstore (dati aggiornati)...")
+
+                # Create vectorstore
+                embeddings = OpenAIEmbeddings(api_key=self.api_key)
+                texts = self.prepare_texts(data)
+
+                # Check if we have any texts - try to load without filters if empty
+                if not texts:
+                    self.progress_update.emit("Nessun dato con filtri, carico tutto il database...")
+                    # Try loading all data without filters
+                    data_unfiltered = self.load_all_database_data()
+                    texts = self.prepare_texts(data_unfiltered)
+
+                    if not texts:
+                        self.error_occurred.emit("Nessun dato trovato nel database. Verifica la connessione.")
+                        return
+                    else:
+                        self.progress_update.emit(f"Caricati {len(texts)} record senza filtri...")
+
+                text_splitter = RecursiveCharacterTextSplitter(
+                    chunk_size=1000,
+                    chunk_overlap=200
+                )
+                documents = text_splitter.create_documents(texts)
+
+                # Check if we have documents
+                if not documents:
+                    self.error_occurred.emit("Impossibile creare documenti dai dati. Verifica i dati nel database.")
+                    return
+
+                vectorstore = FAISS.from_documents(documents, embeddings)
+
+                # Cache the vectorstore for future queries
+                RAGQueryWorker._cached_vectorstore = vectorstore
+                RAGQueryWorker._cached_data_hash = current_data_hash
+                self.progress_update.emit("Vectorstore creato e salvato in cache")
+
+            self.progress_update.emit("Inizializzazione AI...")
+
+            # Initialize LLM
+            llm = ChatOpenAI(
+                model_name=self.model,
+                api_key=self.api_key,
+                max_completion_tokens=4000
+            )
+
+            # Create tools for analysis
+            tools = self.create_analysis_tools(data, vectorstore)
+
+            # For GPT-5 models, use direct LLM calls instead of agents to avoid stop parameter issues
+            if "gpt-5" in self.model.lower():
+                # Create a simple wrapper that uses direct LLM calls
+                class SimpleGPT5Wrapper:
+                    def __init__(self, llm, vectorstore, parent_thread, enable_streaming):
+                        self.llm = llm
+                        self.vectorstore = vectorstore
+                        self.parent_thread = parent_thread
+                        self.enable_streaming = enable_streaming
+
+                    def invoke(self, input_dict):
+                        query = input_dict.get("input", "")
+
+                        # Search vectorstore for context with more results
+                        context = ""
+                        if self.vectorstore:
+                            try:
+                                # Aumenta il numero di documenti recuperati per query TMA
+                                k_docs = 30 if "cassett" in query.lower() or "tma" in query.lower() or "categoria" in query.lower() else 15
+
+                                # Cerca più documenti per avere più contesto
+                                docs = self.vectorstore.similarity_search(query, k=k_docs)
+                                context = "\n".join([doc.page_content for doc in docs])
+
+                                # Se la query riguarda TMA/cassette, aggiungi anche ricerca specifica
+                                if "cassett" in query.lower() or "categoria" in query.lower() or "ldct" in query.lower():
+                                    tma_query = "TMA cassetta categoria ldct ogtm quantita"
+                                    tma_docs = self.vectorstore.similarity_search(tma_query, k=20)
+                                    tma_context = "\n".join([doc.page_content for doc in tma_docs if "TMA" in doc.page_content])
+                                    if tma_context:
+                                        context = context + "\n\nDati TMA aggiuntivi:\n" + tma_context
+                            except:
+                                context = ""
+
+                        # Create enhanced prompt with context
+                        if context:
+                            full_prompt = f"""Sei un assistente archeologico esperto e amichevole. Rispondi in modo naturale e colloquiale.
+
+STRUTTURA DEL DATABASE PYARCHINIT:
+
+TABELLE PRINCIPALI:
+- US (us_table) - Unità Stratigrafiche: id_us, sito, area, us, d_stratigrafica, d_interpretativa, rapporti
+- USM (us_table_usm) - Unità Stratigrafiche Murarie: simile a US ma per strutture murarie
+- TMA (tma_materiali_archeologici) - Tipologia Materiali Archeologici:
+  * Campi principali: id_tma, sito, area, us, settore, quad_par, ambient, saggio
+  * Classificazione: ogtm (tipo materiale), ldct (categoria), ldcn (denominazione)
+  * Dati fisici: quantita, stato_conservazione, stato_reperto
+  * Gestione: inventario, cassetta, lavato, n_inv
+  * Note e descrizioni: descrizione, note, bibliografia, compilatore
+- TMA_MATERIALI_RIPETIBILI (tma_materiali_ripetibili) - Dettagli materiali collegati a TMA:
+  * id_tma (foreign key a TMA)
+  * Descrizione materiale: madi
+  * Componenti materiale: macc, macl, macp, macd
+  * Caratteristiche: macs, macq, macm, mact
+  * Note: note
+
+ALTRE TABELLE IMPORTANTI:
+- INVENTARIO_MATERIALI - Inventario generale dei reperti
+- POTTERY - Ceramica con analisi specifiche
+- SITE - Informazioni sui siti archeologici
+- PERIODIZZAZIONE - Fasi e periodi cronologici
+- RAPPORTI - Relazioni stratigrafiche tra US
+- STRUTTURA - Strutture architettoniche
+- TOMBA - Sepolture e contesti funerari
+
+RELAZIONI CHIAVE:
+- TMA ← TMA_MATERIALI_RIPETIBILI (uno a molti via id_tma)
+- US ← TMA (collegamento via sito, area, us)
+- SITE ← US/TMA/INVENTARIO (via campo sito)
+
+Dati disponibili nel database:
+{context}
+
+Domanda dell'utente: {query}
+
+Rispondi in modo:
+1. Naturale e conversazionale, come se stessi parlando con un collega archeologo
+2. Quando analizzi TMA, considera anche i materiali ripetibili collegati
+3. Sfrutta le relazioni tra tabelle per dare risposte complete
+4. Se richiesto un "resoconto", genera IMMEDIATAMENTE una tabella con i dati disponibili nel contesto
+5. Usa SEMPRE i dati effettivi dal contesto, non dire mai "mancano i dati" se ci sono TMA nel contesto
+6. Se chiesto un totale o statistica, calcola dai dati reali disponibili
+7. Per resoconti di cassette/categorie, crea SEMPRE una tabella anche con dati parziali
+8. NON chiedere conferme, genera subito il resoconto con i dati che hai
+
+Risposta:"""
+                        else:
+                            full_prompt = f"""Sei un assistente archeologico esperto.
+
+La domanda riguarda: {query}
+
+Non ho trovato dati specifici nel database, ma posso aiutarti a capire come strutturare la query o cosa cercare.
+
+Le tabelle disponibili sono:
+- TMA (tma_materiali_archeologici) per i materiali archeologici
+- US per le unità stratigrafiche
+- INVENTARIO_MATERIALI per l'inventario
+- POTTERY per la ceramica
+
+Come posso aiutarti meglio?"""
+
+                        # Use streaming if enabled
+                        if self.enable_streaming and self.parent_thread:
+                            # Use OpenAI client directly for streaming
+                            from openai import OpenAI
+                            client = OpenAI(api_key=self.llm.openai_api_key)
+
+                            response_stream = client.chat.completions.create(
+                                model=self.llm.model_name,
+                                messages=[
+                                    {"role": "system", "content": "Sei un assistente archeologico esperto."},
+                                    {"role": "user", "content": full_prompt}
+                                ],
+                                max_completion_tokens=4000,
+                                stream=True
+                            )
+
+                            full_response = ""
+                            for chunk in response_stream:
+                                if chunk.choices[0].delta.content is not None:
+                                    chunk_text = chunk.choices[0].delta.content
+                                    full_response += chunk_text
+                                    # Emit streaming token
+                                    if self.parent_thread:
+                                        self.parent_thread.stream_token.emit(chunk_text)
+
+                            return {"output": full_response}
+                        else:
+                            # Non-streaming direct LLM call
+                            response = self.llm.invoke(full_prompt)
+                            return {"output": response.content if hasattr(response, 'content') else str(response)}
+
+                agent = SimpleGPT5Wrapper(llm, vectorstore, self, self.enable_streaming)
+            else:
+                # For non-GPT-5 models, use the standard agent
+                agent_kwargs = {"stop": ["\nObservation:", "\n\tObservation:"]}
+                agent = initialize_agent(
+                    tools,
+                    llm,
+                    agent=AgentType.ZERO_SHOT_REACT_DESCRIPTION,
+                    verbose=True,
+                    handle_parsing_errors=True,
+                    agent_kwargs=agent_kwargs
+                )
+
+            self.progress_update.emit("Elaborazione query...")
+
+            # Build conversation context
+            context = ""
+            if self.conversation_history:
+                context = "Conversazione precedente:\n"
+                for msg in self.conversation_history[-5:]:  # Last 5 messages for context
+                    role = "Utente" if msg["role"] == "user" else "Assistente"
+                    context += f"{role}: {msg['content'][:200]}...\n" if len(msg['content']) > 200 else f"{role}: {msg['content']}\n"
+                context += "\n"
+
+            # Enhanced prompt with instructions for structured output
+            enhanced_prompt = f"""
+            {context}
+            Analizza questa richiesta e fornisci una risposta strutturata in italiano:
+
+            {self.query}
+
+            IMPORTANTE:
+            1. Se richiesta una tabella, formatta i dati in modo tabellare
+            2. Se richiesto un grafico, specifica tipo e dati necessari
+            3. Se richieste statistiche, calcola e presenta i risultati
+            4. Usa SEMPRE l'italiano per tutte le risposte
+            5. Ricorda il contesto della conversazione precedente
+
+            Formato risposta:
+            - TESTO: Analisi testuale e spiegazioni
+            - TABELLA: Dati strutturati (se applicabile)
+            - GRAFICO: Tipo e dati per visualizzazione (se applicabile)
+            - STATISTICHE: Calcoli e metriche (se applicabile)
+            """
+
+            # Execute query
+            response = agent.invoke({"input": enhanced_prompt})
+
+            # Parse response and extract structured data
+            results = self.parse_response(response['output'], data)
+
+            self.result_ready.emit(results)
+
+        except Exception as e:
+            self.error_occurred.emit(str(e))
+
+    def load_all_database_data(self):
+        """Load all available data from database without filters"""
+        data = {}
+
+        try:
+            # Try to load ALL US data (limited for performance)
+            try:
+                us_data = self.db_manager.query("US")
+                if us_data:
+                    if not hasattr(us_data, '__iter__'):
+                        us_data = [us_data]
+                    data['us'] = []
+                    for row in us_data[:100]:  # Limit to first 100 records
+                        try:
+                            row_dict = {col.name: getattr(row, col.name) for col in row.__table__.columns}
+                            data['us'].append(row_dict)
+                        except:
+                            pass
+            except Exception as e:
+                print(f"Error loading all US data: {e}")
+
+            # Try to load ALL materials data (limited)
+            try:
+                mat_data = self.db_manager.query("INVENTARIO_MATERIALI")
+                if mat_data:
+                    if not hasattr(mat_data, '__iter__'):
+                        mat_data = [mat_data]
+                    data['materials'] = []
+                    for row in mat_data[:100]:
+                        try:
+                            row_dict = {col.name: getattr(row, col.name) for col in row.__table__.columns}
+                            data['materials'].append(row_dict)
+                        except:
+                            pass
+            except Exception as e:
+                print(f"Error loading all materials: {e}")
+
+        except Exception as e:
+            print(f"Error in load_all_database_data: {e}")
+
+        return data
+
+    def load_database_data(self):
+        """Load relevant data from database"""
+        data = {}
+
+        try:
+            # Try to get current site from parent dialog if available
+            search_dict = {}
+            if hasattr(self.parent, 'sito') and self.parent.sito:
+                search_dict = {'sito': self.parent.sito}
+            else:
+                # Fallback to a known site
+                search_dict = {'sito': "Festòs_2025"}
+
+            try:
+                us_data = self.db_manager.query_bool(search_dict, "US")
+                if us_data:
+                    data['us'] = []
+                    # Ensure us_data is iterable
+                    if not hasattr(us_data, '__iter__'):
+                        us_data = [us_data]
+
+                    for row in us_data:
+                        try:
+                            # Convert SQLAlchemy object to dict
+                            row_dict = {col.name: getattr(row, col.name) for col in row.__table__.columns}
+                            data['us'].append(row_dict)
+                        except:
+                            # Fallback for non-SQLAlchemy objects
+                            try:
+                                data['us'].append(dict(row))
+                            except:
+                                # If dict() fails, try to extract attributes manually
+                                row_dict = {}
+                                for attr in dir(row):
+                                    if not attr.startswith('_'):
+                                        try:
+                                            value = getattr(row, attr)
+                                            if not callable(value):
+                                                row_dict[attr] = value
+                                        except:
+                                            pass
+                                if row_dict:
+                                    data['us'].append(row_dict)
+            except Exception as e:
+                print(f"Error loading US data: {e}")
+                data['us'] = []
+
+            # Load materials data
+            try:
+                materials_data = self.db_manager.query_bool(search_dict, "INVENTARIO_MATERIALI")
+                if materials_data:
+                    data['materials'] = []
+                    # Ensure materials_data is iterable
+                    if not hasattr(materials_data, '__iter__'):
+                        materials_data = [materials_data]
+
+                    for row in materials_data:
+                        try:
+                            row_dict = {col.name: getattr(row, col.name) for col in row.__table__.columns}
+                            data['materials'].append(row_dict)
+                        except:
+                            try:
+                                data['materials'].append(dict(row))
+                            except:
+                                # Manual extraction as fallback
+                                row_dict = {}
+                                for attr in dir(row):
+                                    if not attr.startswith('_'):
+                                        try:
+                                            value = getattr(row, attr)
+                                            if not callable(value):
+                                                row_dict[attr] = value
+                                        except:
+                                            pass
+                                if row_dict:
+                                    data['materials'].append(row_dict)
+            except Exception as e:
+                print(f"Error loading materials data: {e}")
+                data['materials'] = []
+
+            # Load pottery data
+            try:
+                pottery_data = self.db_manager.query_bool(search_dict, "POTTERY")
+
+                # Ensure pottery_data is iterable
+                if pottery_data is not None and not hasattr(pottery_data, '__iter__'):
+                    pottery_data = [pottery_data]
+
+                if pottery_data:
+                    data['pottery'] = []
+                    for row in pottery_data:
+                        try:
+                            row_dict = {col.name: getattr(row, col.name) for col in row.__table__.columns}
+                            data['pottery'].append(row_dict)
+                        except:
+                            data['pottery'].append(dict(row))
+            except Exception as e:
+                print(f"Error loading pottery data: {e}")
+                data['pottery'] = []
+
+            # Load TMA data
+            try:
+                tma_data = self.db_manager.query_bool(search_dict, "TMA")
+
+                # Ensure tma_data is iterable
+                if tma_data is not None and not hasattr(tma_data, '__iter__'):
+                    tma_data = [tma_data]
+
+                if tma_data:
+                    data['tma'] = []
+                    for row in tma_data:
+                        try:
+                            row_dict = {col.name: getattr(row, col.name) for col in row.__table__.columns}
+
+                            # Load related TMA_MATERIALI_RIPETIBILI data
+                            try:
+                                # Query for related materials using id_tma
+                                tma_id = getattr(row, 'id_tma', None)
+                                if tma_id:
+                                    mat_search = {'id_tma': tma_id}
+                                    mat_ripetibili = self.db_manager.query_bool(mat_search, "TMA_MATERIALI")
+
+                                    if mat_ripetibili:
+                                        # Ensure it's iterable
+                                        if not hasattr(mat_ripetibili, '__iter__'):
+                                            mat_ripetibili = [mat_ripetibili]
+
+                                        # Add related materials to the TMA record
+                                        row_dict['materiali_ripetibili'] = []
+                                        for mat in mat_ripetibili:
+                                            try:
+                                                mat_dict = {col.name: getattr(mat, col.name) for col in mat.__table__.columns}
+                                                row_dict['materiali_ripetibili'].append(mat_dict)
+                                            except:
+                                                try:
+                                                    row_dict['materiali_ripetibili'].append(dict(mat))
+                                                except:
+                                                    pass
+                            except Exception as e:
+                                print(f"Error loading TMA_MATERIALI_RIPETIBILI for TMA {tma_id}: {e}")
+                                row_dict['materiali_ripetibili'] = []
+
+                            data['tma'].append(row_dict)
+                        except:
+                            data['tma'].append(dict(row))
+            except Exception as e:
+                print(f"Error loading TMA data: {e}")
+                data['tma'] = []
+
+        except Exception as e:
+            print(f"Error in load_database_data: {e}")
+            import traceback
+            traceback.print_exc()
+
+        return data
+
+    def prepare_texts(self, data):
+        """Prepare texts for vectorstore"""
+        texts = []
+
+        # Map table names to more descriptive ones
+        table_name_map = {
+            'us_table': 'US - Unità Stratigrafiche',
+            'materials': 'INVENTARIO_MATERIALI - Inventario materiali',
+            'pottery': 'POTTERY - Ceramica',
+            'tma': 'TMA - Tipologia Materiali Archeologici',
+            'tma_table': 'TMA - Tipologia Materiali Archeologici'
+        }
+
+        for table_name, records in data.items():
+            if not records:  # Skip empty tables
+                continue
+
+            display_name = table_name_map.get(table_name, table_name)
+
+            for record in records:
+                if not record:  # Skip None or empty records
+                    continue
+
+                # Special handling for TMA to ensure all fields are captured
+                if table_name in ['tma', 'tma_table']:
+                    text = f"Tabella: TMA (Tipologia Materiali Archeologici)\n"
+                    # Add specific TMA fields for better indexing
+                    if isinstance(record, dict):
+                        text += f"ID TMA: {record.get('id_tma', '')}\n"
+                        text += f"Sito: {record.get('sito', '')}\n"
+                        text += f"Area: {record.get('area', '')}\n"
+                        text += f"US: {record.get('us', '')}\n"
+                        text += f"Cassetta: {record.get('cassetta', '')}\n"
+                        text += f"Categoria LDCT: {record.get('ldct', '')}\n"
+                        text += f"Tipo Materiale OGTM: {record.get('ogtm', '')}\n"
+                        text += f"Denominazione LDCN: {record.get('ldcn', '')}\n"
+                        text += f"Quantità: {record.get('quantita', '')}\n"
+                        text += f"Numero Inventario: {record.get('n_inv', '')}\n"
+                        text += f"Inventario: {record.get('inventario', '')}\n"
+                        text += f"Stato Conservazione: {record.get('stato_conservazione', '')}\n"
+
+                        # Add materiali_ripetibili if present
+                        if 'materiali_ripetibili' in record and record['materiali_ripetibili']:
+                            text += f"Materiali Ripetibili collegati: {len(record['materiali_ripetibili'])} elementi\n"
+                            for mat in record['materiali_ripetibili']:
+                                if isinstance(mat, dict):
+                                    text += f"  - {mat.get('madi', '')} quantità: {mat.get('macq', '')}\n"
+                else:
+                    text = f"Tabella: {display_name}\n"
+
+                # Handle both dict and object types
+                if isinstance(record, dict) and table_name not in ['tma', 'tma_table']:
+                    for key, value in record.items():
+                        # Skip materiali_ripetibili for now, handle it separately
+                        if key == 'materiali_ripetibili':
+                            continue
+                        if value:
+                            # Format field names better
+                            formatted_key = key.replace('_', ' ').title()
+                            text += f"{formatted_key}: {value}\n"
+
+                    # Handle materiali_ripetibili if present
+                    if 'materiali_ripetibili' in record and record['materiali_ripetibili']:
+                        text += "\nMateriali Ripetibili collegati:\n"
+                        for idx, mat in enumerate(record['materiali_ripetibili'], 1):
+                            text += f"  Materiale {idx}:\n"
+                            for mat_key, mat_value in mat.items():
+                                if mat_value:
+                                    formatted_key = mat_key.replace('_', ' ').title()
+                                    text += f"    {formatted_key}: {mat_value}\n"
+                else:
+                    # Handle SQLAlchemy objects
+                    try:
+                        # Get all attributes from the SQLAlchemy object
+                        if hasattr(record, '__table__'):
+                            for column in record.__table__.columns:
+                                value = getattr(record, column.name, None)
+                                if value:
+                                    formatted_key = column.name.replace('_', ' ').title()
+                                    text += f"{formatted_key}: {value}\n"
+                        else:
+                            for key in dir(record):
+                                if not key.startswith('_'):
+                                    value = getattr(record, key, None)
+                                    if value and not callable(value):
+                                        formatted_key = key.replace('_', ' ').title()
+                                        text += f"{formatted_key}: {value}\n"
+                    except Exception as e:
+                        print(f"Error processing record: {e}")
+                        continue
+
+                if len(text) > len(f"Tabella: {display_name}\n"):  # Only add if has content
+                    texts.append(text)
+
+        # Log how many texts were prepared
+        print(f"Prepared {len(texts)} text entries for vectorstore")
+        for table_name in data:
+            if data[table_name]:
+                print(f"  - {table_name}: {len(data[table_name])} records")
+
+        return texts
+
+    def create_analysis_tools(self, data, vectorstore):
+        """Create analysis tools"""
+        return [
+            Tool(
+                name="QueryDatabase",
+                func=lambda x: self.query_data(x, data),
+                description="Query archaeological database for specific information"
+            ),
+            Tool(
+                name="CreateTable",
+                func=lambda x: self.create_table_data(x, data),
+                description="Create structured table from data"
+            ),
+            Tool(
+                name="CalculateStatistics",
+                func=lambda x: self.calculate_statistics(x, data),
+                description="Calculate statistics from archaeological data"
+            ),
+            Tool(
+                name="SearchVectorstore",
+                func=lambda x: vectorstore.similarity_search(x, k=5),
+                description="Search for similar content in the database"
+            )
+        ]
+
+    def query_data(self, query, data):
+        """Query data based on natural language"""
+        # Simple implementation - can be enhanced
+        results = []
+        query_lower = query.lower()
+
+        for table_name, records in data.items():
+            for record in records:
+                record_str = str(record).lower()
+                if any(term in record_str for term in query_lower.split()):
+                    results.append({
+                        'table': table_name,
+                        'record': record
+                    })
+
+        return str(results[:10])  # Limit results
+
+    def create_table_data(self, request, data):
+        """Create table data from request"""
+        # Parse request and create appropriate table
+        # This is a simplified implementation
+        if 'us' in request.lower():
+            table_data = []
+            for us in data.get('us', [])[:20]:  # Limit rows
+                table_data.append({
+                    'US': us.get('us', ''),
+                    'Area': us.get('area', ''),
+                    'Descrizione': us.get('d_stratigrafica', ''),
+                    'Periodo': us.get('periodo_iniziale', '')
+                })
+            return str(table_data)
+        return "No table data available"
+
+    def calculate_statistics(self, request, data):
+        """Calculate statistics from data"""
+        stats = {}
+
+        # Basic statistics
+        stats['total_us'] = len(data.get('us', []))
+        stats['total_materials'] = len(data.get('materials', []))
+        stats['total_pottery'] = len(data.get('pottery', []))
+
+        # Group by area
+        if 'area' in request.lower() and data.get('us'):
+            from collections import Counter
+            areas = [us.get('area', 'Unknown') for us in data['us']]
+            stats['us_by_area'] = dict(Counter(areas))
+
+        return str(stats)
+
+    def parse_response(self, response_text, data):
+        """Parse AI response and extract structured data"""
+        results = {'text': response_text}
+
+        # Try to extract table data
+        if 'tabella' in response_text.lower() or '|' in response_text:
+            table_data = self.extract_table_from_text(response_text, data)
+            if table_data:
+                results['table'] = table_data
+
+        # Try to extract chart data
+        if any(word in response_text.lower() for word in ['grafico', 'chart', 'plot']):
+            chart_data = self.extract_chart_data(response_text, data)
+            if chart_data:
+                results['chart'] = chart_data
+
+        return results
+
+    def extract_table_from_text(self, text, data):
+        """Extract table data from text response"""
+        # Look for markdown tables or structured data
+        lines = text.split('\n')
+        table_data = {'columns': [], 'rows': []}
+
+        in_table = False
+        for line in lines:
+            if '|' in line:
+                cells = [cell.strip() for cell in line.split('|') if cell.strip()]
+                if not in_table:
+                    # First row with pipes is headers
+                    table_data['columns'] = cells
+                    in_table = True
+                elif not all(c in '-:' for c in ''.join(cells)):
+                    # Not a separator line
+                    table_data['rows'].append(cells)
+
+        if table_data['columns'] and table_data['rows']:
+            return table_data
+
+        return None
+
+    def extract_chart_data(self, text, data):
+        """Extract chart data from response"""
+        # Simple implementation - look for data patterns
+        chart_data = {}
+
+        # Check for specific chart types mentioned
+        if 'barre' in text.lower() or 'bar' in text.lower():
+            chart_data['type'] = 'bar'
+        elif 'torta' in text.lower() or 'pie' in text.lower():
+            chart_data['type'] = 'pie'
+        elif 'linea' in text.lower() or 'line' in text.lower():
+            chart_data['type'] = 'line'
+        else:
+            chart_data['type'] = 'bar'  # Default
+
+        # Try to extract data from the context
+        # This is simplified - in production would need better parsing
+        if data.get('us'):
+            from collections import Counter
+            areas = [us.get('area', 'Unknown') for us in data['us']]
+            area_counts = Counter(areas)
+
+            chart_data['x'] = list(area_counts.keys())
+            chart_data['y'] = list(area_counts.values())
+            chart_data['title'] = 'Distribuzione US per Area'
+            chart_data['x_label'] = 'Area'
+            chart_data['y_label'] = 'Numero US'
+
+            return chart_data
+
+        return None
 
 
 class ProgressDialog:
@@ -3487,6 +5455,19 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
         self.setupUi(self)
         self.setAcceptDrops(True)
+
+        # Connect S3DGraphy Extended Matrix export button from UI
+        try:
+            # The button is now created in the UI file, just connect the signal
+            if hasattr(self, 'pushButton_export_extended_matrix'):
+                self.pushButton_export_extended_matrix.clicked.connect(self.on_pushButton_export_extended_matrix_pressed)
+                print("S3DGraphy Extended Matrix button connected successfully")
+
+        except Exception as e:
+            print(f"Error creating S3DGraphy button: {e}")
+            import traceback
+            traceback.print_exc()
+
         self.progress_dialog = None
         self.report_thread = None
         self.report_rapporti2 = None
@@ -3611,6 +5592,77 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.report_rapporti=''
         self.list_rapporti=[]
         self.pushButton_report_generator.clicked.connect(self.generate_and_display_report)
+
+        # Add RAG Query button
+        try:
+            # Check if button exists in UI
+            if hasattr(self, 'pushButton_rag_query'):
+                self.pushButton_rag_query.clicked.connect(self.open_rag_query_dialog)
+            else:
+                # Create button dynamically - try multiple approaches
+                button_added = False
+
+                # Approach 1: Add to same parent as report generator
+                if hasattr(self, 'pushButton_report_generator') and not button_added:
+                    try:
+                        parent_widget = self.pushButton_report_generator.parent()
+                        self.pushButton_rag_query = QPushButton("🤖 Query AI Database")
+                        self.pushButton_rag_query.setToolTip("Interroga il database con linguaggio naturale usando GPT-5")
+                        self.pushButton_rag_query.setStyleSheet("""
+                            QPushButton {
+                                background-color: #4CAF50;
+                                color: white;
+                                font-weight: bold;
+                                padding: 5px;
+                            }
+                            QPushButton:hover {
+                                background-color: #45a049;
+                            }
+                        """)
+                        self.pushButton_rag_query.clicked.connect(self.open_rag_query_dialog)
+
+                        # Try to insert after report generator button
+                        if hasattr(parent_widget, 'layout') and parent_widget.layout():
+                            layout = parent_widget.layout()
+                            # Find index of report generator button
+                            for i in range(layout.count()):
+                                item = layout.itemAt(i)
+                                if item and item.widget() == self.pushButton_report_generator:
+                                    layout.insertWidget(i + 1, self.pushButton_rag_query)
+                                    button_added = True
+                                    break
+
+                            if not button_added:
+                                layout.addWidget(self.pushButton_rag_query)
+                                button_added = True
+                    except Exception as e:
+                        print(f"Approach 1 failed: {e}")
+
+                # Approach 2: Add to toolBox if exists
+                if hasattr(self, 'toolBox') and not button_added:
+                    try:
+                        # Create a container widget
+                        container = QWidget()
+                        layout = QVBoxLayout(container)
+                        self.pushButton_rag_query = QPushButton("🤖 Query AI Database")
+                        self.pushButton_rag_query.setToolTip("Interroga il database con linguaggio naturale usando GPT-5")
+                        self.pushButton_rag_query.clicked.connect(self.open_rag_query_dialog)
+                        layout.addWidget(self.pushButton_rag_query)
+                        layout.addStretch()
+
+                        # Add as new tab in toolBox
+                        self.toolBox.addItem(container, "AI Query")
+                        button_added = True
+                    except Exception as e:
+                        print(f"Approach 2 failed: {e}")
+
+                if button_added:
+                    print("RAG Query button successfully added")
+                else:
+                    print("Could not add RAG Query button to UI")
+
+        except Exception as e:
+            print(f"Error setting up RAG query button: {e}")
 
         # Definizione completa degli analysis steps
         self.analysis_steps = []
@@ -3832,11 +5884,16 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 input_variables=["context", "question"]
             )
 
-            # Create the chain
+            # Create the chain with optimized retriever
+            # Reduce the number of documents retrieved to speed up processing
+            retriever = vector_store.as_retriever(
+                search_kwargs={"k": 2}  # Retrieve only 2 docs instead of default 4
+            )
+
             chain = RetrievalQA.from_chain_type(
                 llm=llm,
                 chain_type="stuff",
-                retriever=vector_store.as_retriever(),
+                retriever=retriever,
                 chain_type_kwargs={"prompt": prompt}
             )
 
@@ -4207,6 +6264,34 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             )
         return formatted.strip()
 
+    def format_tma_data(self, tma_data):
+        """Format TMA (Tipologia Materiali Archeologici) data for the report"""
+        formatted = ""
+        if not tma_data:
+            return "Nessun dato TMA disponibile"
+
+        for tma in tma_data:
+            formatted += (
+                f"ID TMA: {tma.get('id_tma', '')}\n"
+                f"Sito: {tma.get('sito', '')}\n"
+                f"Area: {tma.get('area', '')}\n"
+                f"US: {tma.get('us', '')}\n"
+                f"Località: {tma.get('localita', '')}\n"
+                f"Settore: {tma.get('settore', '')}\n"
+                f"Inventario: {tma.get('inventario', '')}\n"
+                f"Tipo materiale: {tma.get('ogtm', '')}\n"
+                f"Categoria: {tma.get('ldct', '')}\n"
+                f"Denominazione: {tma.get('ldcn', '')}\n"
+                f"Cassetta: {tma.get('cassetta', '')}\n"
+                f"Stato conservazione: {tma.get('stato_conservazione', '')}\n"
+                f"Stato reperto: {tma.get('stato_reperto', '')}\n"
+                f"Descrizione: {tma.get('descrizione', '')}\n"
+                f"Materiale: {tma.get('materiale', '')}\n"
+                f"Note: {tma.get('note', '')}\n\n"
+                f"-------------------\n\n"
+            )
+        return formatted.strip()
+
     def create_analysis_tools(self, report_data, site_data, us_data, materials_data, pottery_data):
         """Create analysis tools for the LangChain agent"""
         return [
@@ -4385,8 +6470,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
     def process_table_data(self, table_name, records, current_site, year_filter,
                           us_start, us_end, report_data, us_data,
-                          materials_data, pottery_data, tomba_data=None, 
-                          periodizzazione_data=None, struttura_data=None):
+                          materials_data, pottery_data, tomba_data=None,
+                          periodizzazione_data=None, struttura_data=None, tma_data=None):
         """Process table data and update corresponding data structures"""
         if tomba_data is None:
             tomba_data = []
@@ -4394,6 +6479,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             periodizzazione_data = []
         if struttura_data is None:
             struttura_data = []
+        if tma_data is None:
+            tma_data = []
 
         if table_name == 'site_table':
             self.process_site_table(records, current_site, report_data)
@@ -4481,9 +6568,45 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                     'descrizione': getattr(record, 'descrizione', ''),
                     'interpretazione': getattr(record, 'interpretazione', '')
                 })
+        elif table_name == 'tma_table':
+            # TMA table is actually named 'tma_materiali_archeologici' in the database
+            # The records should already be loaded from the correct table name
+            # thanks to the mapping in generate_and_display_report
+            pass  # Just process the records as they are
+
+            # Filter records by site
+            records = [r for r in records if str(getattr(r, 'sito', '')) == current_site]
+
+            for record in records:
+                tma_data.append({
+                    'id_tma': getattr(record, 'id_tma', ''),
+                    'sito': getattr(record, 'sito', ''),
+                    'area': getattr(record, 'area', ''),
+                    'us': getattr(record, 'us', ''),
+                    'localita': getattr(record, 'localita', ''),
+                    'settore': getattr(record, 'settore', ''),
+                    'inventario': getattr(record, 'inventario', ''),
+                    'ogtm': getattr(record, 'ogtm', ''),
+                    'ldct': getattr(record, 'ldct', ''),
+                    'ldcn': getattr(record, 'ldcn', ''),
+                    'cassetta': getattr(record, 'cassetta', ''),
+                    'stato_conservazione': getattr(record, 'stato_conservazione', ''),
+                    'stato_reperto': getattr(record, 'stato_reperto', ''),
+                    'descrizione': getattr(record, 'descrizione', ''),
+                    'materiale': getattr(record, 'materiale', ''),
+                    'note': getattr(record, 'note', '')
+                })
     def create_system_message(self):
-        """Create the system message for the LangChain agent"""
-        return SystemMessage(content="""Sei un esperto archeologo specializzato in relazioni di scavo stratigrafiche.
+        """Create the system message for the LangChain agent with full schema knowledge"""
+        # Import database schema knowledge
+        try:
+            from modules.utility.database_schema_knowledge import DatabaseSchemaKnowledge
+            schema_context = DatabaseSchemaKnowledge.get_schema_prompt()
+        except:
+            # Fallback if import fails
+            schema_context = ""
+
+        base_message = """Sei un esperto archeologo specializzato in relazioni di scavo stratigrafiche.
         Il tuo compito è generare un report dettagliato e approfondito che deve:
 
         1. Per la stratigrafia:
@@ -4504,23 +6627,67 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         - Analizzare impasti e decorazioni
         - Fornire confronti tipologici
 
-        Il report deve essere lungo almeno tre pagine e utilizzare un linguaggio tecnico appropriato.""")
+        4. Per la Tipologia Materiali Archeologici (TMA):
+        - Catalogare i materiali per tipo e categoria
+        - Descrivere lo stato di conservazione
+        - Analizzare la distribuzione spaziale (area, US, settore)
+        - Collegare i materiali TMA con l'inventario generale
+        - Fornire analisi quantitative e qualitative
+
+        Il report deve essere lungo almeno tre pagine e utilizzare un linguaggio tecnico appropriato."""
+
+        # Combine schema knowledge with base message
+        if schema_context:
+            full_message = f"""{base_message}
+
+DATABASE SCHEMA KNOWLEDGE:
+{schema_context}"""
+        else:
+            full_message = base_message
+
+        return SystemMessage(content=full_message)
 
     def create_custom_prompt(self, formatted_us_data, formatted_material_data,
                              formatted_pottery_data, report_data,
                              formatted_tomba_data="", formatted_periodizzazione_data="",
-                             formatted_struttura_data=""):
+                             formatted_struttura_data="", formatted_tma_data=""):
         """Create the custom prompt for the report generation"""
+
+        # Language-specific instructions
+        language_prompts = {
+            'Italiano': "Genera una relazione archeologica dettagliata e discorsiva in ITALIANO",
+            'English (UK)': "Generate a detailed archaeological report in BRITISH ENGLISH",
+            'English (US)': "Generate a detailed archaeological report in AMERICAN ENGLISH",
+            'Español': "Genera un informe arqueológico detallado en ESPAÑOL",
+            'Français': "Générez un rapport archéologique détaillé en FRANÇAIS",
+            'Deutsch': "Erstellen Sie einen detaillierten archäologischen Bericht auf DEUTSCH",
+            'العربية': "قم بإنشاء تقرير أثري مفصل باللغة العربية",
+            'Ελληνικά': "Δημιουργήστε μια λεπτομερή αρχαιολογική αναφορά στα ΕΛΛΗΝΙΚΑ",
+            'Русский': "Создайте подробный археологический отчет на РУССКОМ языке",
+            'Português': "Gere um relatório arqueológico detalhado em PORTUGUÊS"
+        }
+
+        # Get the language instruction
+        language = self.output_language if hasattr(self, 'output_language') else 'Italiano'
+        language_instruction = language_prompts.get(language, language_prompts['Italiano'])
+
         return f"""
-        Genera una relazione archeologica dettagliata e discorsiva in italiano basata sui seguenti dati. 
+        {language_instruction} basata sui seguenti dati. 
         La relazione deve essere un testo fluido e narrativo, che analizza in profondità tutte le unità 
         stratigrafiche (US) e le mette in relazione tra loro.
 
         ISTRUZIONI IMPORTANTI:
+        - SE I DATI SONO IN UNA LINGUA DIVERSA, TRADUCI TUTTO NELLA LINGUA RICHIESTA ({language})
+        - Scrivi TUTTO il report ESCLUSIVAMENTE in {language}
         - Analizza TUTTI i dati forniti senza tralasciare nulla
         - NON inserire note personali o pensieri come "Nota: L'elenco completo delle US è disponibile..."
         - NON scrivere frasi come "... (continua per tutte le fasi/US)"
         - NON menzionare limiti di token o di spazio
+        - NON includere raccomandazioni, suggerimenti o prossimi passi
+        - NON aggiungere commenti personali o firme
+        - NON suggerire cosa fare dopo o verifiche da effettuare
+        - Attieniti SOLO ai dati del database e a quanto richiesto
+        - TRADUCI automaticamente qualsiasi dato dal database nella lingua richiesta
         - Crea un testo discorsivo che integri tutti i dati in modo fluido
         - Evita di elencare singolarmente tutte le US, ma creane una narrazione coerente
         - Evidenzia le US più significative e le loro relazioni
@@ -4528,10 +6695,11 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
         1. INTRODUZIONE:
            - Fornisci una panoramica dettagliata della campagna di scavo basandoti su:
-        {formatted_us_data}   
+        {formatted_us_data}
         {formatted_material_data}
         {formatted_pottery_data}
         {formatted_periodizzazione_data}
+        {formatted_tma_data}
 
         2. DESCRIZIONE METODOLOGICA ED ESITO DELL'INDAGINE:
            - Inizia con una descrizione generale dell'area di scavo e della sua suddivisione in settori.
@@ -4548,13 +6716,19 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
            - Se presenti, descrivi le fasi cronologiche identificate:
         {formatted_periodizzazione_data}
 
-        5. DESCRIZIONE DEI MATERIALI:   
+        5. DESCRIZIONE DEI MATERIALI:
            - Se presenti inserisci l'elenco dei materiali o delle ceramiche rinvenuti in ogni unità stratigrafica.
            - Se presenti, descrivi i materiali e/o le ceramiche in dettaglio come indicato.
         {formatted_material_data}
         {formatted_pottery_data}
 
-        6. CONCLUSIONI:
+        6. TIPOLOGIA MATERIALI ARCHEOLOGICI (TMA):
+           - Se presenti, analizza i materiali catalogati nel sistema TMA.
+           - Descrivi la tipologia dei materiali e la loro distribuzione per area e US.
+           - Analizza lo stato di conservazione e la significatività dei reperti.
+        {formatted_tma_data}
+
+        7. CONCLUSIONI:
            - Sintetizza i risultati principali dello scavo.
            - Discuti delle unità stratigrafiche, strutture, tombe e materiali rinvenuti.
            - Concludi con una sintesi delle principali scoperte e la loro interpretazione cronologica.
@@ -4705,7 +6879,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 py_dialog=self,
                 tomba_data=tomba_data,
                 periodizzazione_data=periodizzazione_data,
-                struttura_data=struttura_data
+                struttura_data=struttura_data,
+                tma_data=tma_data
             )
 
             # Check each type of data
@@ -4739,6 +6914,11 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 if not struttura_validation['valid']:
                     missing_data_report.append(struttura_validation['message'])
 
+            if 'tma_table' in selected_tables:
+                tma_validation = report_thread.validate_tma()
+                if not tma_validation['valid']:
+                    missing_data_report.append(tma_validation['message'])
+
             # Show results
             if missing_data_report:
                 msg = "REPORT DATI MANCANTI\n\n" + "\n\n".join(missing_data_report)
@@ -4749,6 +6929,14 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 return True
 
         return None
+    def open_rag_query_dialog(self):
+        """Open the RAG query dialog"""
+        try:
+            dialog = RAGQueryDialog(self.DB_MANAGER, parent=self)
+            dialog.exec_()
+        except Exception as e:
+            QMessageBox.critical(self, "Errore", f"Errore nell'apertura del dialogo query: {str(e)}")
+
     def generate_and_display_report(self):
         # Prima verifica la presenza di dati mancanti
         if not self.check_missing_data():
@@ -4788,15 +6976,21 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             tomba_data = []
             periodizzazione_data = []
             struttura_data = []
+            tma_data = []
 
             # Step 4: Fetch and process data from selected tables
             for table_name in selected_tables:
-                records, columns = ReportGenerator.read_data_from_db(db_url, table_name)
+                # Map UI table names to actual database table names
+                actual_table_name = table_name
+                if table_name == 'tma_table':
+                    actual_table_name = 'tma_materiali_archeologici'
+
+                records, columns = ReportGenerator.read_data_from_db(db_url, actual_table_name)
                 self.process_table_data(
                     table_name, records, current_site, year_filter,
                     us_start, us_end, report_data, us_data,
                     materials_data, pottery_data, tomba_data,
-                    periodizzazione_data, struttura_data
+                    periodizzazione_data, struttura_data, tma_data
                 )
 
             # Step 5: Format data for report
@@ -4806,6 +7000,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             formatted_tomba_data = self.format_tomba_data(tomba_data)
             formatted_periodizzazione_data = self.format_periodizzazione_data(periodizzazione_data)
             formatted_struttura_data = self.format_struttura_data(struttura_data)
+            formatted_tma_data = self.format_tma_data(tma_data)
 
             # Crea il testo delle descrizioni combinando tutti i dati formattati
             descriptions_text = f"""
@@ -4826,13 +7021,16 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
             STRUTTURE:
             {formatted_struttura_data}
+
+            TIPOLOGIA MATERIALI ARCHEOLOGICI:
+            {formatted_tma_data}
             """
             # Step 6: Create custom prompt
             custom_prompt = self.create_custom_prompt(
                 formatted_us_data, formatted_material_data,
                 formatted_pottery_data, report_data,
                 formatted_tomba_data, formatted_periodizzazione_data,
-                formatted_struttura_data
+                formatted_struttura_data, formatted_tma_data
             )
 
             # Step 7: Check internet connection and start report generation
@@ -4855,28 +7053,84 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
                 # Step 10: Set up LangChain components
                 llm = ChatOpenAI(
-                    temperature=0.0,
-                    model_name="gpt-4.1",
+                    model_name="gpt-5",
                     api_key=api_key,
-                    max_tokens=16000,
-                    streaming=True
+                    max_completion_tokens=16000,
+                    streaming=False  # Disabled until organization is verified
                 )
 
                 system_message = self.create_system_message()
-                memory = ConversationBufferMemory(
+                # Using newer memory class to avoid deprecation warning
+                memory = ConversationSummaryMemory(
+                    llm=llm,
                     memory_key="chat_history",
-                    return_messages=True,
-                    system_message=system_message
+                    return_messages=True
                 )
 
-                agent = initialize_agent(
-                    tools + enhanced_tools,  # Combine both tool sets
-                    llm,
-                    agent=AgentType.CHAT_CONVERSATIONAL_REACT_DESCRIPTION,
-                    memory=memory,
-                    system_message=system_message,
-                    verbose=True
-                )
+                # Initialize agent with custom configuration for GPT-5
+                # GPT-5 doesn't support 'stop' parameter, so we need to handle it
+
+                # Create a wrapper class that simulates agent behavior without using LangChain agents
+                # This avoids the stop parameter issue entirely
+                class GPT5DirectWrapper:
+                    def __init__(self, llm, tools, system_message=None, parent_thread=None):
+                        self.llm = llm
+                        self.tools = tools
+                        self.system_message = system_message
+                        self.parent_thread = parent_thread  # Store reference to parent thread
+
+                    def invoke(self, input_dict, config=None):
+                        """Direct LLM invocation that simulates agent behavior"""
+                        try:
+                            prompt = input_dict.get("input", "")
+                            print(f"[GPT5DirectWrapper] Received prompt: {prompt[:100]}...")
+
+                            # Add system context if available
+                            if self.system_message:
+                                full_prompt = f"{self.system_message}\n\n{prompt}"
+                            else:
+                                full_prompt = prompt
+
+                            # Get callbacks if provided - these might have streaming handler
+                            callbacks = []
+                            if config and 'callbacks' in config:
+                                callbacks = config['callbacks']
+                                print(f"[GPT5DirectWrapper] Found {len(callbacks)} callbacks")
+
+                            # Since GPT-5 doesn't support streaming, generate response
+                            print("[GPT5DirectWrapper] Invoking LLM...")
+                            response = self.llm.invoke(full_prompt)
+
+                            # Format response
+                            if hasattr(response, 'content'):
+                                output = response.content
+                            else:
+                                output = str(response)
+
+                            print(f"[GPT5DirectWrapper] Got response: {len(output)} characters")
+
+                            # CRITICAL: Emit the response through callbacks for widget display
+                            if callbacks:
+                                for callback in callbacks:
+                                    if hasattr(callback, 'on_llm_new_token'):
+                                        print("[GPT5DirectWrapper] Emitting response chunks to callback...")
+                                        # Since GPT-5 doesn't support streaming, we simulate it
+                                        # by emitting the response in chunks
+                                        chunk_size = 100  # Characters per chunk
+                                        for i in range(0, len(output), chunk_size):
+                                            chunk = output[i:i+chunk_size]
+                                            # Emit each chunk to simulate streaming
+                                            callback.on_llm_new_token(chunk, chunk=None)
+
+                            return {"output": output}
+
+                        except Exception as e:
+                            print(f"Error in GPT5DirectWrapper: {str(e)}")
+                            # Return a default response
+                            return {"output": f"Errore durante l'elaborazione: {str(e)}"}
+
+                # Use the direct wrapper instead of LangChain agent
+                agent = GPT5DirectWrapper(llm, tools + enhanced_tools, system_message.content if system_message else None)
 
                 # Step 11: Create and show report dialog
                 self.report_dialog = ReportDialog(parent=self)
@@ -4887,7 +7141,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                     custom_prompt=custom_prompt,
                     descriptions_text=descriptions_text,
                     api_key=api_key,
-                    selected_model="gpt-4.1",
+                    selected_model="gpt-5",
                     selected_tables=selected_tables,
                     analysis_steps=self.analysis_steps,
                     agent=agent,
@@ -4899,13 +7153,16 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                     output_language=dialog.get_selected_language(),
                     tomba_data=tomba_data,
                     periodizzazione_data=periodizzazione_data,
-                    struttura_data=struttura_data
+                    struttura_data=struttura_data,
+                    tma_data=tma_data,
+                    enable_streaming=dialog.get_streaming_enabled()
                 )
 
                 # Step 13: Connect signals and start thread
                 self.report_thread.report_generated.connect(self.report_dialog.update_content)
                 self.report_thread.log_message.connect(self.report_dialog.log_to_terminal)
                 self.report_thread.report_completed.connect(self.on_report_generated)  # Aggiungi questa linea
+                self.report_thread.stream_token.connect(self.report_dialog.append_streaming_token)  # Connect streaming
                 self.report_thread.start()
 
 
@@ -5063,6 +7320,14 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             print("Warning: Empty report text passed to parse_report_into_sections")
             return {}
 
+        # Import and use the text cleaner
+        try:
+            from modules.utility.report_text_cleaner import ReportTextCleaner
+            report_text = ReportTextCleaner.clean_report_text(report_text)
+            print("Report text cleaned by ReportTextCleaner")
+        except ImportError:
+            print("Warning: ReportTextCleaner not available, using raw text")
+
         sections = {}
         current_section = None
         current_content = []
@@ -5123,7 +7388,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
     def process_section_content(self, doc, section_info, content, report_data):
         """
-        Process the content of a section and add it to the document.
+        Process the content of a section and add it to the document with proper styles.
 
         Args:
             doc: Word document
@@ -5131,6 +7396,21 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             content: Text content of the section
             report_data: Dictionary with all report data
         """
+        # Import the text cleaner and style agent
+        try:
+            from modules.utility.report_text_cleaner import ReportTextCleaner
+            from modules.utility.document_style_agent import DocumentStyleAgent
+            from docx.shared import Pt
+            # Clean the content before processing
+            if content:
+                content = ReportTextCleaner.clean_section_content(
+                    section_info.get("heading", ""),
+                    content
+                )
+        except ImportError as e:
+            print(f"Warning: Some modules not available: {e}")
+            from docx.shared import Pt
+
         if not content or content.strip() == "":
             print(f"WARNING: Empty content for section '{section_info['key']}', adding placeholder text")
             # Add a note that this section has no data
@@ -5168,8 +7448,17 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                         self._process_content_lines(doc, subsection_content.split('\n'))
             return
 
-        # Add section heading
-        doc.add_heading(section_info["heading"], level=1)
+        # Check if content already starts with the section heading
+        content_starts_with_heading = False
+        if content and content.strip():
+            first_line = content.strip().split('\n')[0].strip()
+            # Check if first line is the same as the heading (case insensitive)
+            if first_line.upper() == section_info["heading"].upper():
+                content_starts_with_heading = True
+
+        # Only add section heading if content doesn't already start with it
+        if not content_starts_with_heading:
+            doc.add_heading(section_info["heading"], level=1)
 
         # Check if this section has subsections
         if "subsections" in section_info:
@@ -5193,19 +7482,45 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 self._process_content_lines(doc, subsection_content.split('\n'))
         else:
             # Process content line by line for sections without subsections
-            self._process_content_lines(doc, content.split('\n'))
+            lines_to_process = content.split('\n')
 
-    def _process_content_lines(self, doc, lines):
+            # If content already starts with the heading, skip the first line
+            if content_starts_with_heading and len(lines_to_process) > 0:
+                lines_to_process = lines_to_process[1:]
+
+            self._process_content_lines(doc, lines_to_process)
+
+    def _process_content_lines(self, doc, lines, skip_first_heading=False):
         """
         Process content lines and add them to the document.
 
         Args:
             doc: Word document
             lines: List of text lines
+            skip_first_heading: Whether to skip the first heading (if it's a duplicate)
         """
+        import re
+        from docx.shared import Pt, Inches
+        from docx.enum.text import WD_ALIGN_PARAGRAPH
+
         i = 0
+        first_heading_skipped = False
         while i < len(lines):
             line = lines[i].strip()
+
+            # Clean up inappropriate leading dashes from paragraphs
+            # Check if this looks like a paragraph (not a real list item)
+            if line.startswith('- ') and len(line) > 50:
+                # Check if the next line also starts with dash (indicating a list)
+                is_list = False
+                if i + 1 < len(lines):
+                    next_line = lines[i + 1].strip()
+                    if next_line.startswith('- ') or next_line.startswith('• '):
+                        is_list = True
+
+                # If not a list and line is long (likely a paragraph), remove the dash
+                if not is_list:
+                    line = line[2:]  # Remove "- " prefix
 
             # Check for markdown headings (##, --, ==)
             if (line.startswith('#') or 
@@ -5235,11 +7550,33 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
                 # Use try-except to handle potential heading level issues
                 try:
-                    doc.add_heading(heading_text, level=heading_level)
+                    heading = doc.add_heading(heading_text, level=heading_level)
+
+                    # Apply consistent formatting to headings
+                    for run in heading.runs:
+                        run.font.name = 'Cambria'
+                        if heading_level == 1:
+                            run.font.size = Pt(16)
+                            run.font.bold = True
+                        elif heading_level == 2:
+                            run.font.size = Pt(14)
+                            run.font.bold = True
+                        else:
+                            run.font.size = Pt(12)
+                            run.font.bold = True
+
+                    # Set spacing for headings
+                    heading.paragraph_format.space_before = Pt(12)
+                    heading.paragraph_format.space_after = Pt(6)
+
                 except Exception as e:
                     print(f"Error adding heading '{heading_text}' with level {heading_level}: {str(e)}")
                     # Fallback to a safe heading level (3)
-                    doc.add_heading(heading_text, level=3)
+                    heading = doc.add_heading(heading_text, level=3)
+                    for run in heading.runs:
+                        run.font.name = 'Cambria'
+                        run.font.size = Pt(12)
+                        run.font.bold = True
 
                 # Skip the underline if present
                 if (i+1 < len(lines) and (all(c == '=' for c in lines[i+1].strip()) or 
@@ -5321,9 +7658,101 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 i = j  # Skip processed table lines
                 continue
 
-            # Regular paragraph
+            # Check for bullet list items (already cleaned above, so only real lists remain)
+            if line.startswith('- ') or line.startswith('• ') or line.startswith('* '):
+                # This should only happen for real list items now
+                list_text = line[2:].strip()
+
+                # Add as a bullet list item with proper formatting
+                para = doc.add_paragraph(list_text, style='List Bullet')
+                para.paragraph_format.left_indent = Pt(18)  # Indent for bullet
+                para.paragraph_format.space_before = Pt(3)  # Small space before
+                para.paragraph_format.space_after = Pt(3)   # Small space after
+
+                # Set font for the list item
+                for run in para.runs:
+                    run.font.name = 'Cambria'
+                    run.font.size = Pt(11)  # Standard size for bullet items
+
+                i += 1
+                continue
+
+            # Check for numbered list items (1., 2., etc.)
+            if re.match(r'^\d+\.', line):
+                # Add as a numbered list item
+                try:
+                    para = doc.add_paragraph(line[line.index('.')+1:].strip(), style='List Number')
+                except KeyError:
+                    # If 'List Number' style doesn't exist, create a normal paragraph with numbering
+                    para = doc.add_paragraph(line)
+                para.paragraph_format.left_indent = Pt(18)
+                para.paragraph_format.space_before = Pt(3)
+                para.paragraph_format.space_after = Pt(3)
+
+                # Set font
+                for run in para.runs:
+                    run.font.name = 'Cambria'
+                    run.font.size = Pt(11)
+
+                i += 1
+                continue
+
+            # Check for bold text markers (**text** or __text__)
+            if '**' in line or '__' in line:
+                para = doc.add_paragraph()
+
+                # Process the line to handle bold markers
+                parts = re.split(r'(\*\*.*?\*\*|__.*?__)', line)
+                for part in parts:
+                    if part.startswith('**') and part.endswith('**'):
+                        # Bold text
+                        text = part[2:-2]
+                        run = para.add_run(text)
+                        run.bold = True
+                        run.font.name = 'Cambria'
+                        run.font.size = Pt(11)
+                    elif part.startswith('__') and part.endswith('__'):
+                        # Bold text (alternative marker)
+                        text = part[2:-2]
+                        run = para.add_run(text)
+                        run.bold = True
+                        run.font.name = 'Cambria'
+                        run.font.size = Pt(11)
+                    else:
+                        # Regular text
+                        run = para.add_run(part)
+                        run.font.name = 'Cambria'
+                        run.font.size = Pt(11)
+
+                # Set paragraph spacing
+                para.paragraph_format.space_before = Pt(6)
+                para.paragraph_format.space_after = Pt(6)
+                para.paragraph_format.line_spacing = 1.15
+
+                i += 1
+                continue
+
+            # Regular paragraph with consistent formatting
             if line:
-                doc.add_paragraph(line)
+                para = doc.add_paragraph(line)
+
+                # Apply consistent formatting to all runs
+                for run in para.runs:
+                    run.font.name = 'Cambria'
+                    run.font.size = Pt(11)
+                    run.bold = False  # Ensure it's not randomly bold
+
+                # If no runs exist, add the text with proper formatting
+                if not para.runs:
+                    run = para.add_run(line)
+                    run.font.name = 'Cambria'
+                    run.font.size = Pt(11)
+
+                # Set paragraph spacing
+                para.paragraph_format.space_before = Pt(6)
+                para.paragraph_format.space_after = Pt(6)
+                para.paragraph_format.line_spacing = 1.15
+
             i += 1
 
     def save_report_to_template(self, report_data, template_path, output_path):
@@ -6207,7 +8636,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         if "{{DATA}}" in str(doc.paragraphs):
             for para in doc.paragraphs:
                 if "{{DATA}}" in para.text:
-                    current_date = datetime.now().strftime("%d/%m/%Y")
+                    current_date = datetime.datetime.now().strftime("%d/%m/%Y")
                     para.text = para.text.replace("{{DATA}}", current_date)
 
         doc.save(output_path)
@@ -6493,7 +8922,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
 
         def log_error(message, error_type="ERROR", filename = self.HOME+"/error_log.txt"):
-            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             with open(filename, 'a', encoding='utf-8') as f:
                 f.write(f"[{timestamp}] {error_type}: {message}\n")
 
@@ -6601,7 +9030,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
         def log_error(message, error_type="ERROR", filename=self.HOME+"/rapporti_update_log.txt"):
             from datetime import datetime
-            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             with open(filename, 'a', encoding='utf-8') as f:
                 f.write(f"[{timestamp}] {error_type}: {message}\n")
         try:
@@ -6787,7 +9216,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
 
         def log_error(message, error_type="ERROR", filename=self.HOME+"/error_log_fetch.txt"):
-            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             with open(filename, 'a', encoding='utf-8') as f:
                 f.write(f"[{timestamp}] {error_type}: {message}\n")
         try:
@@ -7000,7 +9429,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             'missing_relationships': [],
             'incomplete_relationships': []
         }
-        
+
         if not hasattr(self, 'report_rapporti') or not self.report_rapporti:
             return errors
         
@@ -7038,44 +9467,341 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         except Exception as e:
             QMessageBox.warning(self, 'Errore', f'Errore durante aggiornamento aree: {str(e)}', QMessageBox.Ok)
     
+    def delete_auto_created_forms(self):
+        """Delete all US forms that were automatically created"""
+        try:
+            # Query for all forms with the automatic description
+            search_dict = {
+                'd_stratigrafica': 'Scheda creata automaticamente'
+            }
+
+            records = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
+
+            if not records:
+                QMessageBox.information(self, 'Info',
+                                      'Nessuna scheda creata automaticamente trovata.',
+                                      QMessageBox.Ok)
+                return 0
+
+            count = len(records)
+
+            # Confirm deletion
+            reply = QMessageBox.question(self, 'Conferma cancellazione',
+                                        f'Trovate {count} schede create automaticamente.\n'
+                                        f'Vuoi cancellarle tutte?',
+                                        QMessageBox.Yes | QMessageBox.No,
+                                        QMessageBox.No)
+
+            if reply == QMessageBox.Yes:
+                deleted = 0
+                for record in records:
+                    try:
+                        # Delete the record
+                        self.DB_MANAGER.delete_one_record(self.TABLE_NAME, self.ID_TABLE, record.id_us)
+                        deleted += 1
+                        print(f"Deleted US {record.sito}, {record.area}, {record.us} (ID: {record.id_us})")
+                    except Exception as e:
+                        print(f"Error deleting record {record.id_us}: {e}")
+
+                # Reload data
+                self.charge_records()
+
+                QMessageBox.information(self, 'Completato',
+                                      f'Cancellate {deleted} schede create automaticamente.',
+                                      QMessageBox.Ok)
+                return deleted
+            else:
+                return 0
+
+        except Exception as e:
+            QMessageBox.warning(self, 'Errore',
+                               f'Errore durante la cancellazione: {str(e)}',
+                               QMessageBox.Ok)
+            return 0
+
     def fix_missing_forms(self, missing_form_errors):
-        """Create missing US forms"""
+        """Create missing US forms with proper initialization"""
         created_count = 0
-        
-        for error in missing_form_errors:
+
+        print(f"\n=== FIX_MISSING_FORMS START ===")
+        print(f"Total missing forms to create: {len(missing_form_errors)}")
+
+        for i, error in enumerate(missing_form_errors):
+            print(f"\n--- Processing error {i+1}/{len(missing_form_errors)} ---")
+            print(f"Error string: {error}")
+
             try:
                 # Parse the error to extract site, area, and US
-                # Format: "Sito: SITE, Area: AREA, US: US_NUMBER non ha una scheda US"
+                # Format can be:
+                # "Sito: SITE, Area: AREA, US: US_NUMBER: Scheda US non esistente"
+                # or "Sito: SITE, Area: AREA, US: US1, US2, US3: Scheda US non esistente"
+
                 parts = error.split(',')
+                print(f"Split parts: {parts}")
+
                 sito = parts[0].split(':')[1].strip()
+                print(f"Extracted sito: '{sito}'")
+
                 area = parts[1].split(':')[1].strip()
-                us = parts[2].split(':')[1].strip().split()[0]  # Get US number only
-                
-                # Create new US record
-                new_rec = self.MAPPER_TABLE_CLASS(
-                    self.ID,
-                    sito,
-                    area,
-                    us
-                )
-                
-                # Save to database
-                try:
-                    self.DB_MANAGER.insert_values(
-                        self.DB_MANAGER.max_num_id(self.MAPPER_TABLE_CLASS, self.ID_TABLE) + 1,
-                        new_rec
-                    )
-                    created_count += 1
-                except Exception as e:
-                    print(f"Error creating US form for {us}: {e}")
-                    
+                print(f"Extracted area: '{area}'")
+
+                # Handle the US part - can contain multiple US separated by commas
+                # Find the part that starts with "US:"
+                us_section = None
+                for idx, part in enumerate(parts[2:], start=2):
+                    if 'US:' in part:
+                        # Collect all parts until we find "Scheda US non esistente"
+                        us_parts = []
+                        for j in range(idx, len(parts)):
+                            if 'Scheda US non esistente' in parts[j]:
+                                us_section = ', '.join(us_parts)
+                                break
+                            us_parts.append(parts[j].strip())
+                        break
+
+                if not us_section:
+                    us_section = parts[2]
+
+                print(f"US section: '{us_section}'")
+
+                # Extract all US numbers from the full error string
+                # Find everything between "US:" and ": Scheda US non esistente"
+                import re
+                pattern = r'US:\s*(.*?):\s*Scheda US non esistente'
+                match = re.search(pattern, error)
+
+                if match:
+                    us_text = match.group(1).strip()
+                    print(f"Extracted US text: '{us_text}'")
+
+                    # Split by comma and clean up
+                    us_list = []
+                    for item in us_text.split(','):
+                        item = item.strip()
+                        # Remove 'UM' prefix if present and note it for type determination
+                        if item:
+                            us_list.append(item)
+
+                    print(f"Extracted US list: {us_list}")
+                else:
+                    # Fallback to old method
+                    us_text = us_section.split('US:')[1].strip()
+                    us_text = us_text.replace(': Scheda US non esistente', '').strip()
+                    us_list = [u.strip() for u in us_text.split(',') if u.strip()]
+                    print(f"Extracted US list (fallback): {us_list}")
+
+                # Process each US in the list
+                for us_str in us_list:
+                    # Clean up the US string
+                    us_str = us_str.strip()
+                    print(f"Processing US: '{us_str}'")
+
+                    # Remove extra quotes from sito if present
+                    if sito.startswith("'") and sito.endswith("'"):
+                        sito = sito[1:-1]
+
+                    # Check if the US already exists
+                    search_dict = {
+                        'sito': sito,
+                        'area': area,
+                        'us': us_str  # Use the full string as-is
+                    }
+                    print(f"Search dict: {search_dict}")
+
+                    existing = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
+                    print(f"Existing records found: {len(existing) if existing else 0}")
+
+                    if not existing:
+                        print(f"US does not exist, creating new record...")
+
+                        # Determine unita_tipo based on prefix
+                        if us_str.startswith('UM'):
+                            unita_tipo = 'USM'
+                        else:
+                            unita_tipo = 'US'  # Default value
+                        print(f"Using unita_tipo: {unita_tipo}")
+
+                        # Create new US record with all required fields
+                        # The MAPPER_TABLE_CLASS expects many parameters, let's use the full constructor
+                        try:
+                            print(f"MAPPER_TABLE_CLASS: {self.MAPPER_TABLE_CLASS}")
+                            print(f"ID_TABLE: {self.ID_TABLE}")
+
+                            # Get next ID - must be recalculated each time!
+                            current_max_id = self.DB_MANAGER.max_num_id(self.MAPPER_TABLE_CLASS, self.ID_TABLE)
+                            print(f"Current max ID: {current_max_id}")
+
+                            next_id = current_max_id + 1
+                            print(f"Next ID to use: {next_id}")
+
+                            # Create the record with minimal required fields
+                            # Most fields will be empty strings or defaults
+                            print(f"Creating new record with ID: {next_id}, Sito: {sito}, Area: {area}, US: {us_str}, Type: {unita_tipo}")
+
+                            # Use DB_MANAGER.insert_values directly like insert_new_rec does
+                            # Pass all parameters individually, not as an object
+                            print(f"Attempting to insert record into database using DB_MANAGER.insert_values...")
+
+                            insert_result = self.DB_MANAGER.insert_values(
+                                next_id,  # id_us
+                                sito,  # 1 - sito
+                                area,  # 2 - area
+                                us_str,  # 3 - us (keep the full string as-is)
+                                'Scheda creata automaticamente',  # 4 - d_stratigrafica
+                                '',  # 5 - d_interpretativa
+                                '',  # 6 - descrizione
+                                '',  # 7 - interpretazione
+                                '',  # 8 - periodo_iniziale
+                                '',  # 9 - fase_iniziale
+                                '',  # 10 - periodo_finale
+                                '',  # 11 - fase_finale
+                                '',  # 12 - scavato
+                                '',  # 13 - attivita
+                                '',  # 14 - anno_scavo
+                                '',  # 15 - metodo_di_scavo
+                                '',  # 16 - inclusi
+                                '',  # 17 - campioni
+                                '[]',  # 18 - rapporti - empty list as string
+                                '',  # 19 - data_schedatura
+                                '',  # 20 - schedatore
+                                '',  # 21 - formazione
+                                '',  # 22 - stato_di_conservazione
+                                '',  # 23 - colore
+                                '',  # 24 - consistenza
+                                '',  # 25 - struttura
+                                '',  # 26 - cont_per
+                                0,  # 27 - order_layer
+                                '',  # 28 - documentazione
+                                unita_tipo,  # 29 - unita_tipo
+                                '',  # 30 - settore
+                                '',  # 31 - quad_par
+                                '',  # 32 - ambient
+                                '',  # 33 - saggio
+                                '',  # 34 - elem_datanti
+                                '',  # 35 - funz_statica
+                                '',  # 36 - lavorazione
+                                '',  # 37 - spess_giunti
+                                '',  # 38 - letti_posa
+                                '',  # 39 - alt_mod
+                                '',  # 40 - un_ed_riass
+                                '',  # 41 - reimp
+                                '',  # 42 - posa_opera
+                                None,  # 43 - quota_min_usm
+                                None,  # 44 - quota_max_usm
+                                '',  # 45 - cons_legante
+                                '',  # 46 - col_legante
+                                '',  # 47 - aggreg_legante
+                                '',  # 48 - con_text_mat
+                                '',  # 49 - col_materiale
+                                '',  # 50 - inclusi_materiali_usm
+                                '',  # 51 - n_catalogo_generale
+                                '',  # 52 - n_catalogo_interno
+                                '',  # 53 - n_catalogo_internazionale
+                                '',  # 54 - soprintendenza
+                                None,  # 55 - quota_relativa
+                                None,  # 56 - quota_abs
+                                '',  # 57 - ref_tm
+                                '',  # 58 - ref_ra
+                                '',  # 59 - ref_n
+                                '',  # 60 - posizione
+                                '',  # 61 - criteri_distinzione
+                                '',  # 62 - modo_formazione
+                                '',  # 63 - componenti_organici
+                                '',  # 64 - componenti_inorganici
+                                None,  # 65 - lunghezza_max
+                                None,  # 66 - altezza_max
+                                None,  # 67 - altezza_min
+                                None,  # 68 - profondita_max
+                                None,  # 69 - profondita_min
+                                None,  # 70 - larghezza_media
+                                None,  # 71 - quota_max_abs
+                                None,  # 72 - quota_max_rel
+                                None,  # 73 - quota_min_abs
+                                None,  # 74 - quota_min_rel
+                                '',  # 75 - osservazioni
+                                '',  # 76 - datazione
+                                '',  # 77 - flottazione
+                                '',  # 78 - setacciatura
+                                '',  # 79 - affidabilita
+                                '',  # 80 - direttore_us
+                                '',  # 81 - responsabile_us
+                                '',  # 82 - cod_ente_schedatore
+                                '',  # 83 - data_rilevazione
+                                '',  # 84 - data_rielaborazione
+                                None,  # 85 - lunghezza_usm
+                                None,  # 86 - altezza_usm
+                                None,  # 87 - spessore_usm
+                                '',  # 88 - tecnica_muraria_usm
+                                '',  # 89 - modulo_usm
+                                '',  # 90 - campioni_malta_usm
+                                '',  # 91 - campioni_mattone_usm
+                                '',  # 92 - campioni_pietra_usm
+                                '',  # 93 - provenienza_materiali_usm
+                                '',  # 94 - criteri_distinzione_usm
+                                '',  # 95 - uso_primario_usm
+                                '',  # 96 - tipologia_opera
+                                '',  # 97 - sezione_muraria
+                                '',  # 98 - superficie_analizzata
+                                '',  # 99 - orientamento
+                                '',  # 100 - materiali_lat
+                                '',  # 101 - lavorazione_lat
+                                '',  # 102 - consistenza_lat
+                                '',  # 103 - forma_lat
+                                '',  # 104 - colore_lat
+                                '',  # 105 - impasto_lat
+                                '',  # 106 - forma_p
+                                '',  # 107 - colore_p
+                                '',  # 108 - taglio_p
+                                '',  # 109 - posa_opera_p
+                                '',  # 110 - inerti_usm
+                                '',  # 111 - tipo_legante_usm
+                                '',  # 112 - rifinitura_usm
+                                '',  # 113 - materiale_p
+                                '',  # 114 - consistenza_p
+                                '[]',  # 115 - rapporti2 - empty list as string
+                                ''   # 116 - doc_usv (mQgsFileWidget)
+                            )
+                            print(f"Insert result: {insert_result}")
+
+                            # Commit the transaction to save the record
+                            try:
+                                self.DB_MANAGER.insert_data_session(insert_result)
+                                print(f"Record committed to database")
+                            except Exception as commit_err:
+                                print(f"Error committing record: {commit_err}")
+
+                            created_count += 1
+                            print(f"✅ Successfully created US form for Sito: {sito}, Area: {area}, US: {us_str}, Type: {unita_tipo}")
+
+                        except Exception as e:
+                            print(f"❌ Error creating US record: {e}")
+                            print(f"Error type: {type(e)}")
+                            import traceback
+                            traceback.print_exc()
+                    else:
+                        print(f"US already exists, skipping: Sito: {sito}, Area: {area}, US: {us_str}")
+
             except Exception as e:
-                print(f"Error parsing missing form error: {error} - {e}")
-        
+                print(f"❌ Error parsing missing form error: {error}")
+                print(f"Error details: {e}")
+                import traceback
+                traceback.print_exc()
+
+        print(f"\n=== FIX_MISSING_FORMS SUMMARY ===")
+        print(f"Total errors processed: {len(missing_form_errors)}")
+        print(f"Total US forms created: {created_count}")
+        print(f"=================================\n")
+
         if created_count > 0:
-            QMessageBox.information(self, 'Info', f'Create {created_count} schede US.', QMessageBox.Ok)
+            # Reload the data to include the new records
+            print(f"Reloading data after creating {created_count} new records...")
+            self.charge_records()
+            QMessageBox.information(self, 'Info',
+                                   f'Create {created_count} schede US con descrizione "Scheda creata automaticamente".\n'
+                                   f'Ricordati di completare le informazioni mancanti.',
+                                   QMessageBox.Ok)
         else:
-            QMessageBox.warning(self, 'Attenzione', 'Nessuna scheda US creata.', QMessageBox.Ok)
+            QMessageBox.warning(self, 'Attenzione', 'Nessuna scheda US creata.\nControlla la console per i dettagli.', QMessageBox.Ok)
     
     def fix_missing_relationships(self, relationship_errors):
         """Add missing reciprocal relationships"""
@@ -12291,6 +15017,503 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             self.on_pushButton_export_matrix_pressed()
         else:
             pass
+
+    def export_extended_matrix_action(self):
+        """
+        Alternative method to call Extended Matrix export
+        Can be called from menu or toolbar
+        """
+        self.on_pushButton_export_extended_matrix_pressed()
+
+    def on_pushButton_export_extended_matrix_pressed(self):
+        """Export to Extended Matrix format (S3DGraphy)"""
+        try:
+            from ..modules.s3dgraphy import S3DGraphyIntegration, S3DGRAPHY_AVAILABLE
+            from qgis.PyQt.QtWidgets import QDialog, QVBoxLayout, QHBoxLayout, QPushButton, QCheckBox, QLabel, QGroupBox, QFileDialog
+
+            if not S3DGRAPHY_AVAILABLE:
+                QMessageBox.warning(self, "S3DGraphy Not Available",
+                                  "S3DGraphy is not installed.\n"
+                                  "Install it with: pip install s3dgraphy",
+                                  QMessageBox.Ok)
+                return
+
+            # Get current site and area
+            if not self.DATA_LIST:
+                QMessageBox.warning(self, "No Data",
+                                  "No stratigraphic data to export",
+                                  QMessageBox.Ok)
+                return
+
+            current_site = self.DATA_LIST[0].sito
+            current_area = self.DATA_LIST[0].area
+
+            # Create options dialog
+            dialog = QDialog(self)
+            dialog.setWindowTitle("Extended Matrix Export Options")
+            dialog.setMinimumWidth(400)
+            layout = QVBoxLayout()
+
+            # Info label
+            info_label = QLabel(f"<b>Site:</b> {current_site}<br><b>Area:</b> {current_area}")
+            layout.addWidget(info_label)
+
+            # Export formats group
+            formats_group = QGroupBox("Export Formats")
+            formats_layout = QVBoxLayout()
+
+            cb_json = QCheckBox("JSON (Extended Matrix)")
+            cb_json.setChecked(True)
+            cb_graphml = QCheckBox("GraphML (for yEd/Gephi)")
+            cb_graphml.setChecked(True)
+            cb_phased = QCheckBox("Phased Matrix (chronological)")
+            cb_cidoc_jsonld = QCheckBox("CIDOC-CRM JSON-LD (semantic)")
+            cb_cidoc_rdf = QCheckBox("CIDOC-CRM RDF/Turtle")
+            cb_blender = QCheckBox("Blender/EMtools (3D visualization)")
+
+            formats_layout.addWidget(cb_json)
+            formats_layout.addWidget(cb_graphml)
+            formats_layout.addWidget(cb_phased)
+            formats_layout.addWidget(cb_cidoc_jsonld)
+            formats_layout.addWidget(cb_cidoc_rdf)
+            formats_layout.addWidget(cb_blender)
+            formats_group.setLayout(formats_layout)
+            layout.addWidget(formats_group)
+
+            # Visualization options group
+            viz_group = QGroupBox("Visualization Options")
+            viz_layout = QVBoxLayout()
+
+            # Add radio buttons for visualizer choice
+            from qgis.PyQt.QtWidgets import QRadioButton, QButtonGroup
+            viz_label = QLabel("<b>Graph Type:</b>")
+            viz_layout.addWidget(viz_label)
+
+            rb_plotly = QRadioButton("Interactive HTML (Plotly)")
+            rb_plotly.setChecked(True)  # Default to Plotly
+            rb_graphviz = QRadioButton("Static PNG (Graphviz)")
+            rb_none = QRadioButton("No visualization")
+
+            # Group radio buttons
+            viz_button_group = QButtonGroup()
+            viz_button_group.addButton(rb_plotly)
+            viz_button_group.addButton(rb_graphviz)
+            viz_button_group.addButton(rb_none)
+
+            viz_layout.addWidget(rb_plotly)
+            viz_layout.addWidget(rb_graphviz)
+            viz_layout.addWidget(rb_none)
+
+            # Separator
+            sep_label = QLabel("")
+            viz_layout.addWidget(sep_label)
+
+            # Other options
+            cb_graph_dot = QCheckBox("Export DOT file (for Graphviz)")
+            cb_blender_send = QCheckBox("Send to Blender (if running)")
+            cb_qgis_viz = QCheckBox("Create QGIS visualization layers")
+            cb_open_folder = QCheckBox("Open output folder when complete")
+            cb_open_folder.setChecked(False)  # Default OFF
+            cb_show_graph = QCheckBox("Open graph after export")
+            cb_show_graph.setChecked(False)  # Default OFF
+            cb_validate = QCheckBox("Show validation report")
+            cb_validate.setChecked(True)
+
+            viz_layout.addWidget(cb_graph_dot)
+            viz_layout.addWidget(cb_blender_send)
+            viz_layout.addWidget(cb_qgis_viz)
+            viz_layout.addWidget(cb_open_folder)
+            viz_layout.addWidget(cb_show_graph)
+            viz_layout.addWidget(cb_validate)
+            viz_group.setLayout(viz_layout)
+            layout.addWidget(viz_group)
+
+            # Buttons
+            buttons_layout = QHBoxLayout()
+            btn_export = QPushButton("Export")
+            btn_cancel = QPushButton("Cancel")
+            buttons_layout.addWidget(btn_export)
+            buttons_layout.addWidget(btn_cancel)
+            layout.addLayout(buttons_layout)
+
+            dialog.setLayout(layout)
+
+            # Connect buttons
+            btn_export.clicked.connect(dialog.accept)
+            btn_cancel.clicked.connect(dialog.reject)
+
+            # Show dialog
+            if dialog.exec_() != QDialog.Accepted:
+                return
+
+            # Ask for output directory
+            output_dir = QFileDialog.getExistingDirectory(
+                self,
+                "Select Output Directory",
+                os.path.join(self.HOME, "extended_matrix_exports")
+            )
+
+            if not output_dir:
+                return
+
+            # Create subdirectory for this export
+            from datetime import datetime
+            timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+            export_dir = os.path.join(output_dir, f"{current_site}_{current_area}_{timestamp}")
+            os.makedirs(export_dir, exist_ok=True)
+
+            # Create integration and export
+            integration = S3DGraphyIntegration(self.DB_MANAGER)
+
+            # Import from PyArchInit
+            print(f"Importing data for {current_site} - {current_area}...")
+            success = integration.import_from_pyarchinit(current_site, current_area)
+
+            if not success:
+                QMessageBox.warning(self, "Export Failed",
+                                  "Failed to import stratigraphic data",
+                                  QMessageBox.Ok)
+                return
+
+            # Validate if requested
+            if cb_validate.isChecked():
+                warnings = integration.validate_stratigraphic_sequence()
+                if warnings:
+                    # Process orphaned units warning specially
+                    orphaned_warning = None
+                    other_warnings = []
+
+                    for w in warnings:
+                        if "Orphaned units found" in w:
+                            orphaned_units = w.split(": ", 1)[1] if ": " in w else ""
+                            orphaned_list = orphaned_units.split(", ")
+                            orphaned_count = len(orphaned_list)
+
+                            if orphaned_count > 5:
+                                sample_units = ", ".join(orphaned_list[:5])
+                                orphaned_warning = f"Found {orphaned_count} US without relationships (e.g., {sample_units}...)"
+                            else:
+                                orphaned_warning = f"Found {orphaned_count} US without relationships: {orphaned_units}"
+                        else:
+                            other_warnings.append(w)
+
+                    warning_messages = []
+                    if orphaned_warning:
+                        warning_messages.append(orphaned_warning)
+                    warning_messages.extend(other_warnings[:5])
+
+                    if len(other_warnings) > 5:
+                        warning_messages.append(f"... and {len(other_warnings)-5} more warnings")
+
+                    warning_text = "\n".join(warning_messages)
+
+                    msg = QMessageBox(self)
+                    msg.setIcon(QMessageBox.Information)
+                    msg.setWindowTitle("Export Extended Matrix - Validation")
+                    msg.setText("Validation found some issues:")
+                    msg.setDetailedText(warning_text)
+                    msg.setInformativeText(
+                        "These warnings don't prevent export.\n"
+                        "Do you want to continue with the export?"
+                    )
+                    msg.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
+                    msg.setDefaultButton(QMessageBox.Yes)
+
+                    if msg.exec_() != QMessageBox.Yes:
+                        return
+
+            # Export selected formats
+            exported_files = []
+            base_name = f"{current_site}_{current_area}_extended_matrix"
+
+            # Export JSON
+            if cb_json.isChecked():
+                json_path = os.path.join(export_dir, f"{base_name}.json")
+                if integration.export_to_json(json_path):
+                    exported_files.append(json_path)
+                    print(f"✅ Exported JSON: {json_path}")
+
+            # Export GraphML
+            if cb_graphml.isChecked():
+                graphml_path = os.path.join(export_dir, f"{base_name}.graphml")
+                if integration.export_to_graphml(graphml_path):
+                    exported_files.append(graphml_path)
+                    print(f"✅ Exported GraphML: {graphml_path}")
+
+            # Export Phased Matrix
+            if cb_phased.isChecked():
+                phased_path = os.path.join(export_dir, f"{base_name}_phased.json")
+                if integration.export_phased_matrix(phased_path):
+                    exported_files.append(phased_path)
+                    print(f"✅ Exported Phased Matrix: {phased_path}")
+
+            # Export CIDOC-CRM JSON-LD
+            if cb_cidoc_jsonld.isChecked():
+                from ..modules.s3dgraphy.cidoc_crm_mapper import CIDOCCRMMapper
+                mapper = CIDOCCRMMapper()
+
+                # First need to get the graph data
+                json_temp = os.path.join(export_dir, "temp.json")
+                if integration.export_to_json(json_temp):
+                    import json
+                    with open(json_temp, 'r') as f:
+                        graph_data = json.load(f)
+
+                    jsonld_path = os.path.join(export_dir, f"{base_name}_cidoc.jsonld")
+                    if mapper.export_to_cidoc_jsonld(graph_data, jsonld_path):
+                        exported_files.append(jsonld_path)
+                        print(f"✅ Exported CIDOC-CRM JSON-LD: {jsonld_path}")
+
+                    # Clean up temp file
+                    os.remove(json_temp)
+
+            # Export CIDOC-CRM RDF/Turtle
+            if cb_cidoc_rdf.isChecked():
+                from ..modules.s3dgraphy.cidoc_crm_mapper import CIDOCCRMMapper
+                mapper = CIDOCCRMMapper()
+
+                # First need to get the graph data
+                json_temp = os.path.join(export_dir, "temp.json")
+                if integration.export_to_json(json_temp):
+                    import json
+                    with open(json_temp, 'r') as f:
+                        graph_data = json.load(f)
+
+                    rdf_path = os.path.join(export_dir, f"{base_name}_cidoc.ttl")
+                    if mapper.export_to_rdf_turtle(graph_data, rdf_path):
+                        exported_files.append(rdf_path)
+                        print(f"✅ Exported CIDOC-CRM RDF/Turtle: {rdf_path}")
+
+                    # Clean up temp file
+                    if os.path.exists(json_temp):
+                        os.remove(json_temp)
+
+            # Export Blender/EMtools
+            if cb_blender.isChecked():
+                viz_data = integration.prepare_for_3d_visualization()
+                if viz_data:
+                    blender_path = os.path.join(export_dir, f"{base_name}_blender_3d.json")
+                    import json
+                    with open(blender_path, 'w') as f:
+                        json.dump(viz_data, f, indent=2)
+                    exported_files.append(blender_path)
+                    print(f"✅ Exported Blender/EMtools data: {blender_path}")
+
+            # Generate graph visualization based on selection
+            graph_output_path = None  # Initialize variable
+
+            # Check which visualizer to use
+            if rb_plotly.isChecked():
+                # Use Plotly for interactive visualization
+                try:
+                    print("Attempting to generate interactive graph with Plotly...")
+                    from ..modules.s3dgraphy.plotly_visualizer import PlotlyMatrixVisualizer, PLOTLY_AVAILABLE
+
+                    if PLOTLY_AVAILABLE:
+                        print("Using Plotly for interactive visualization...")
+                        # Get graph data
+                        json_temp = os.path.join(export_dir, f"{base_name}.json")
+                        if not os.path.exists(json_temp):
+                            print(f"Creating JSON file: {json_temp}")
+                            integration.export_to_json(json_temp)
+
+                        if os.path.exists(json_temp):
+                            import json
+                            with open(json_temp, 'r') as f:
+                                graph_data = json.load(f)
+                            print(f"Loaded graph data with {len(graph_data.get('nodes', []))} nodes")
+
+                            # Create interactive HTML visualization
+                            visualizer = PlotlyMatrixVisualizer(qgis_integration=True)
+                            graph_output_path = os.path.join(export_dir, f"{base_name}_interactive.html")
+                            print(f"Creating interactive graph at: {graph_output_path}")
+
+                            if visualizer.create_interactive_graph(graph_data, graph_output_path):
+                                exported_files.append(graph_output_path)
+                                print(f"✅ Generated interactive graph: {graph_output_path}")
+
+                                # Open in browser if requested
+                                if cb_show_graph.isChecked():
+                                    import webbrowser
+                                    webbrowser.open('file://' + os.path.realpath(graph_output_path))
+                            else:
+                                print("❌ Failed to create interactive graph")
+                                graph_output_path = None
+                    else:
+                        print("Plotly not available. Install with: pip install plotly")
+                        QMessageBox.warning(self, "Plotly Not Available",
+                                          "Plotly is not installed.\nInstall with: pip install plotly",
+                                          QMessageBox.Ok)
+
+                except Exception as e:
+                    print(f"⚠️ Error generating interactive graph: {e}")
+                    import traceback
+                    traceback.print_exc()
+
+            elif rb_graphviz.isChecked():
+                # Use Graphviz for static visualization
+                try:
+                    print("Attempting to generate static graph with Graphviz...")
+                    from ..modules.s3dgraphy.graphviz_visualizer import GraphvizVisualizer
+
+                    # Get graph data
+                    json_temp = os.path.join(export_dir, f"{base_name}.json")
+                    if not os.path.exists(json_temp):
+                        print(f"Creating JSON file: {json_temp}")
+                        integration.export_to_json(json_temp)
+
+                    if os.path.exists(json_temp):
+                        import json
+                        with open(json_temp, 'r') as f:
+                            graph_data = json.load(f)
+                        print(f"Loaded graph data with {len(graph_data.get('nodes', []))} nodes")
+
+                        # Create static PNG visualization
+                        visualizer = GraphvizVisualizer()
+                        graph_output_path = os.path.join(export_dir, f"{base_name}_matrix_graph.png")
+                        print(f"Creating static graph at: {graph_output_path}")
+
+                        if visualizer.create_graph_image(graph_data, graph_output_path):
+                            exported_files.append(graph_output_path)
+                            print(f"✅ Generated static graph: {graph_output_path}")
+
+                            # DOT file is also created
+                            dot_path = os.path.join(export_dir, f"{base_name}_matrix_graph.dot")
+                            if cb_graph_dot.isChecked() and os.path.exists(dot_path):
+                                exported_files.append(dot_path)
+                                print(f"✅ DOT file available: {dot_path}")
+
+                            # Show image if requested
+                            if cb_show_graph.isChecked() and os.path.exists(graph_output_path):
+                                # Try to open with system viewer
+                                try:
+                                    import subprocess
+                                    import platform
+                                    if platform.system() == 'Darwin':
+                                        subprocess.run(['open', graph_output_path], check=False)
+                                    elif platform.system() == 'Windows':
+                                        os.startfile(graph_output_path)
+                                    else:
+                                        subprocess.run(['xdg-open', graph_output_path], check=False)
+                                except:
+                                    pass
+                        else:
+                            print("❌ Failed to create static graph")
+                            graph_output_path = None
+
+                except Exception as e:
+                    print(f"⚠️ Error generating static graph: {e}")
+                    import traceback
+                    traceback.print_exc()
+
+            # Send to Blender if requested
+            if cb_blender_send.isChecked():
+                try:
+                    from ..modules.s3dgraphy.blender_integration import BlenderIntegration
+                    blender = BlenderIntegration()
+
+                    if blender.is_blender_connected():
+                        # Get graph data
+                        json_temp = os.path.join(export_dir, f"{base_name}.json")
+                        if os.path.exists(json_temp):
+                            import json
+                            with open(json_temp, 'r') as f:
+                                graph_data = json.load(f)
+
+                            if blender.send_to_blender(graph_data):
+                                print("✅ Sent data to Blender")
+                                exported_files.append("Data sent to Blender")
+                            else:
+                                print("❌ Failed to send data to Blender")
+                    else:
+                        print("Blender not connected")
+
+                        # Save addon script
+                        from ..modules.s3dgraphy.blender_integration import BlenderAddonScript
+                        addon_path = os.path.join(export_dir, "pyarchinit_blender_addon.py")
+                        if BlenderAddonScript.save_addon(addon_path):
+                            print(f"✅ Blender addon saved: {addon_path}")
+                            exported_files.append(addon_path)
+
+                except Exception as e:
+                    print(f"⚠️ Error with Blender integration: {e}")
+
+            # Create QGIS visualization
+            if cb_qgis_viz.isChecked():
+                from ..modules.s3dgraphy.matrix_visualizer_qgis import MatrixVisualizerQGIS
+
+                # Get graph data
+                json_temp = os.path.join(export_dir, f"{base_name}.json")
+                if os.path.exists(json_temp):
+                    import json
+                    with open(json_temp, 'r') as f:
+                        graph_data = json.load(f)
+
+                    # Get chronological sequence
+                    chronological_sequence = integration.calculate_chronological_sequence()
+
+                    # Create visualization
+                    visualizer = MatrixVisualizerQGIS(self.iface)
+                    layers = visualizer.visualize_extended_matrix(graph_data, chronological_sequence)
+
+                    if layers:
+                        print(f"✅ Created QGIS visualization layers")
+                        exported_files.append("QGIS Layers created")
+
+            # Open folder if requested
+            if cb_open_folder.isChecked():
+                import subprocess
+                import platform
+                try:
+                    if platform.system() == 'Windows':
+                        os.startfile(export_dir)
+                    elif platform.system() == 'Darwin':  # macOS
+                        # Use subprocess.run instead of Popen to avoid warning
+                        subprocess.run(['open', export_dir], check=False)
+                    else:  # Linux
+                        subprocess.run(['xdg-open', export_dir], check=False)
+                except Exception as e:
+                    print(f"Could not open folder: {e}")
+
+            # Note: graph opening is now handled within each visualizer section above
+            # based on cb_show_graph checkbox
+
+            # Show success message
+            if exported_files:
+                export_msg = f"Extended Matrix exported successfully!\n\nOutput directory:\n{export_dir}\n\nFiles created:\n"
+                for file_path in exported_files[:10]:  # Show max 10 files
+                    if "QGIS" in str(file_path):
+                        export_msg += f"• {file_path}\n"
+                    else:
+                        export_msg += f"• {os.path.basename(file_path)}\n"
+
+                if len(exported_files) > 10:
+                    export_msg += f"... and {len(exported_files)-10} more files"
+
+                # Add button to view graph if it exists
+                msg_box = QMessageBox(self)
+                msg_box.setIcon(QMessageBox.Information)
+                msg_box.setWindowTitle("Export Successful")
+                msg_box.setText(export_msg)
+
+                # Check if graph was created
+                if graph_output_path and os.path.exists(graph_output_path):
+                    msg_box.setStandardButtons(QMessageBox.Ok)
+                    graph_type = "Interactive HTML" if graph_output_path.endswith('.html') else "Static PNG"
+                    msg_box.setInformativeText(f"\n{graph_type} graph saved at: {os.path.basename(graph_output_path)}")
+                    msg_box.exec_()
+                else:
+                    msg_box.setStandardButtons(QMessageBox.Ok)
+                    msg_box.exec_()
+            else:
+                QMessageBox.warning(self, "Export Failed",
+                                  "No files were exported. Please check your selections.",
+                                  QMessageBox.Ok)
+
+        except Exception as e:
+            QMessageBox.critical(self, "Error",
+                               f"Error exporting Extended Matrix:\n{str(e)}",
+                               QMessageBox.Ok)
     def on_pushButton_orderLayers_pressed(self):
         # QMessageBox.warning(self, 'ATTENZIONE',
         #                     """Il sistema accetta come dataset da elaborare ricerche su singolo SITO e AREA. Se state lanciando il sistema su siti o aree differenti, i dati di siti differenti saranno sovrascritti. Per terminare il sistema dopo l'Ok premere Cancel.""",
@@ -12922,7 +16145,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.listWidget_rapp.clear()
         sito_check = str(self.comboBox_sito.currentText())
         area_check = str(self.comboBox_area.currentText())
-        models = ["gpt-4.1", "gpt-4o-mini"]
+        models = ["gpt-5", "gpt-5-mini"]
         try:
             self.rapporti_stratigrafici_check(sito_check)
             if self.checkBox_validate.isChecked():
