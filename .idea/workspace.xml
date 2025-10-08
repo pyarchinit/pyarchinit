@@ -61,7 +61,7 @@
     </favorite-branches>
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="dev28052025" />
+        <entry key="$PROJECT_DIR$" value="97c1422d34d88a9598f584c3d3cebfa235143739" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -1089,17 +1089,6 @@
     <MESSAGE value="feat: add HTML escaping for descriptions and improve inventory field handling with US ranges&#10;&#10;- Introduced `escape_html` static method to safely render user-provided descriptions in PDF output.&#10;- Updated `pyarchinit_exp_USsheet_pdf.py` to use HTML escaping for description fields.&#10;- Enhanced `Tma.py` to support US ranges (e.g., &quot;3200-3201&quot;) when querying inventory materials.&#10;- Improved logging for debugging including materials found, US parsing, and fallback scenarios.&#10;- Added error logging with traceback to aid in diagnosing issues during inventory field updates." />
     <MESSAGE value="feat(concurrency): add PostgreSQL user sync, permission checks, and record versioning&#10;&#10;- Automatically create PostgreSQL users with role-based permissions when PyArchInit users are saved&#10;- Synchronize permissions from PyArchInit permission table to PostgreSQL GRANTs&#10;- Add support for record versioning and concurrency fields (e.g., version_number, editing_by, last_modified_by)&#10;- Add auto-refresh interval to check for concurrent record modifications across forms&#10;- Show user-friendly conflict resolution dialog when records are updated externally&#10;- Improve error handling with permission-based feedback for UPDATE/INSERT operations&#10;- Disable manual editing of computed fields like 'datazione', auto-update via triggers or form logic&#10;- Include database username in session for accurate tracking and permissions&#10;- Refactor trigger logic for proper privilege checks during automated updates of related records&#10;- Introduce permission handler and concurrency manager modules for modular access control logic" />
     <option name="LAST_COMMIT_MESSAGE" value="feat(concurrency): add PostgreSQL user sync, permission checks, and record versioning&#10;&#10;- Automatically create PostgreSQL users with role-based permissions when PyArchInit users are saved&#10;- Synchronize permissions from PyArchInit permission table to PostgreSQL GRANTs&#10;- Add support for record versioning and concurrency fields (e.g., version_number, editing_by, last_modified_by)&#10;- Add auto-refresh interval to check for concurrent record modifications across forms&#10;- Show user-friendly conflict resolution dialog when records are updated externally&#10;- Improve error handling with permission-based feedback for UPDATE/INSERT operations&#10;- Disable manual editing of computed fields like 'datazione', auto-update via triggers or form logic&#10;- Include database username in session for accurate tracking and permissions&#10;- Refactor trigger logic for proper privilege checks during automated updates of related records&#10;- Introduce permission handler and concurrency manager modules for modular access control logic" />
-  </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/tabs/US_USM.py</url>
-          <line>16810</line>
-          <option name="timeStamp" value="1" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/pyarchinit$test_renem_file.coverage" NAME="test_renem_file Coverage Results" MODIFIED="1725894617454" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
