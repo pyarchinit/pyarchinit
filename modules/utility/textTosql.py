@@ -1,107 +1,16 @@
-# import requests
-# from qgis.PyQt.QtWidgets import QMessageBox
-#
-# from . import database_schema
-#
-#
-# class MakeSQL:
-#     def __init__(self):
-#         pass
-#     # Funzione per convertire lo schema in formato testuale (esempio semplificato)
-#     @staticmethod
-#     def schema_to_text(metadata):
-#         schema_text = ""
-#         for table in metadata.tables.values():
-#             # Inizia con il nome della tabella
-#             table_description = f"{table.name} ("
-#             # Aggiungi ogni colonna e il suo tipo
-#             columns_descriptions = [f"{col.name}" for col in table.columns]
-#             table_description += ", ".join(columns_descriptions)
-#             table_description += ");"
-#             # Aggiungi la descrizione della tabella al testo dello schema
-#             schema_text += table_description + "\n"
-#         return schema_text
-#
-#     # Utilizzo della funzione per includere lo schema nella richiesta API
-#     @staticmethod
-#     def make_api_request(prompt,db,apikey):
-#         # Preparazione dello schema
-#         #schema = Base.metadata  # Assuming Campioni_table is part of Base
-#         schema_text = MakeSQL.schema_to_text(database_schema.metadata)  # Converti lo schema in testo
-#         #QMessageBox.information(None, "Schema", schema_text)
-#         api_key = apikey  # Sostituisci con la tua chiave API
-#         url = "https://app2.text2sql.ai/api/external/generate-sql"
-#         headers = {
-#             "Authorization": f"Bearer {api_key}",
-#             "Content-Type": "application/json"
-#         }
-#         data = {
-#             "prompt": prompt,
-#             "type": db,
-#             "schema": schema_text  # Utilizzo dello schema convertito
-#         }
-#
-#         try:
-#             response = requests.post(url, headers=headers, json=data)
-#             response.raise_for_status()
-#             return response.json().get('output')
-#         except requests.exceptions.HTTPError as he:
-#             QMessageBox.critical(None, "Error", str(he))
-#             return None
-#
-#
-#         except Exception as e:
-#             print(f"An error occurred: {e}")
-#             QMessageBox.critical(None, "Error", str(e))
-#             return None
-#
-#         return None
-#
-#     @staticmethod
-#     def explain_request(prompt, apikey):
-#         # Preparazione dello schema
-#         # schema = Base.metadata  # Assuming Campioni_table is part of Base
-#         #schema_text = MakeSQL.schema_to_text(database_schema.metadata)  # Converti lo schema in testo
-#         # QMessageBox.information(None, "Schema", schema_text)
-#         api_key = apikey  # Sostituisci con la tua chiave API
-#         url = "https://app2.text2sql.ai/api/external/explain-sql"
-#         headers = {
-#             "Authorization": f"Bearer {api_key}",
-#             "Content-Type": "application/json"
-#         }
-#         data = {
-#             "prompt": prompt
-#         }
-#
-#         try:
-#             response = requests.post(url, headers=headers, json=data)
-#             response.raise_for_status()
-#             return response.json().get('output')
-#         except requests.exceptions.HTTPError as he:
-#             QMessageBox.critical(None, "Error", str(he))
-#             return None
-#
-#
-#         except Exception as e:
-#             print(f"An error occurred: {e}")
-#             QMessageBox.critical(None, "Error", str(e))
-#             return None
-#
-#         return None
+import os
 import re
-from qgis.PyQt.QtWidgets import (QWidget,  QHBoxLayout,
+import requests
+import threading
+from typing import Optional, Dict, Any
+from qgis.PyQt.QtWidgets import (QWidget, QHBoxLayout, QVBoxLayout,
                                  QRadioButton, QGroupBox,
                                  QTextEdit, QLineEdit, QComboBox,
-                                 QSizePolicy, QSpacerItem)
-
+                                 QSizePolicy, QSpacerItem, QMessageBox, 
+                                 QProgressDialog, QLabel, QDialog, QPushButton,
+                                 QInputDialog, QApplication)
 from qgis.PyQt.QtGui import QFont
-import os
-import requests
-
-import threading
-from qgis.PyQt.QtWidgets import QMessageBox, QProgressDialog, QLabel, QVBoxLayout, QDialog, QPushButton
-from qgis.PyQt.QtCore import Qt,  pyqtSignal, QObject
-
+from qgis.PyQt.QtCore import Qt, pyqtSignal, QObject
 
 from . import database_schema
 
@@ -133,35 +42,34 @@ class Text2SQLWidget(QWidget):
         mode_layout = QVBoxLayout()
 
         # RadioButton per scelta modalità
-        self.api_radio = QRadioButton("Utilizza API (richiede chiave API)")
-        self.api_radio.setChecked(True)
-        self.local_radio = QRadioButton("Utilizza modello locale (senza costi)")
+        self.openai_radio = QRadioButton("OpenAI GPT-4 (API già configurata)")
+        self.openai_radio.setChecked(True)
+        self.ollama_radio = QRadioButton("Ollama (modello locale)")
+        self.free_radio = QRadioButton("API gratuita (se disponibile)")
 
-        mode_layout.addWidget(self.api_radio)
+        mode_layout.addWidget(self.openai_radio)
+        mode_layout.addWidget(self.ollama_radio)
+        mode_layout.addWidget(self.free_radio)
 
-        # Box per API key
-        api_key_layout = QHBoxLayout()
-        api_key_layout.addItem(QSpacerItem(20, 10, QSizePolicy.Fixed, QSizePolicy.Minimum))
-        api_key_layout.addWidget(QLabel("API Key:"))
-        self.api_key_input = QLineEdit()
-        self.api_key_input.setPlaceholderText("Inserisci la tua chiave API")
-        api_key_layout.addWidget(self.api_key_input)
-        mode_layout.addLayout(api_key_layout)
-
-        mode_layout.addWidget(self.local_radio)
-
-        # Box per modello locale
-        local_model_layout = QHBoxLayout()
-        local_model_layout.addItem(QSpacerItem(20, 10, QSizePolicy.Fixed, QSizePolicy.Minimum))
-
-        self.model_status_label = QLabel("Stato modello: Non trovato")
-        local_model_layout.addWidget(self.model_status_label)
-
-        self.download_model_btn = QPushButton("Scarica Modello")
-        self.download_model_btn.clicked.connect(self.on_download_model_clicked)
-        local_model_layout.addWidget(self.download_model_btn)
-
-        mode_layout.addLayout(local_model_layout)
+        # Box per Ollama
+        ollama_layout = QHBoxLayout()
+        ollama_layout.addItem(QSpacerItem(20, 10, QSizePolicy.Fixed, QSizePolicy.Minimum))
+        ollama_layout.addWidget(QLabel("Modello Ollama:"))
+        self.ollama_model_combo = QComboBox()
+        self.ollama_model_combo.setEditable(True)
+        self.ollama_model_combo.addItems(["llama3.2", "mistral", "codellama", "phi3", "qwen2.5-coder"])
+        self.ollama_model_combo.setEnabled(False)
+        ollama_layout.addWidget(self.ollama_model_combo)
+        
+        self.ollama_status_label = QLabel("Stato: Non verificato")
+        ollama_layout.addWidget(self.ollama_status_label)
+        
+        self.check_ollama_btn = QPushButton("Verifica Ollama")
+        self.check_ollama_btn.clicked.connect(self.check_ollama_status)
+        self.check_ollama_btn.setEnabled(False)
+        ollama_layout.addWidget(self.check_ollama_btn)
+        
+        mode_layout.addLayout(ollama_layout)
         mode_group.setLayout(mode_layout)
         main_layout.addWidget(mode_group)
 
@@ -181,7 +89,8 @@ class Text2SQLWidget(QWidget):
         input_layout.addWidget(QLabel("Descrivi la query che vuoi generare:"))
         self.prompt_input = QTextEdit()
         self.prompt_input.setPlaceholderText(
-            "Es: 'Trova tutti i record nella tabella X dove il campo Y è maggiore di 10 e ordina per Z'")
+            "Es: 'Trova tutti i reperti ceramici dal sito con ID 1 che hanno datazione tra 100 e 200 d.C.' \n"
+            "oppure 'Mostra le US che si trovano entro 50 metri dalla struttura STR001'")
         self.prompt_input.setMinimumHeight(100)
         input_layout.addWidget(self.prompt_input)
 
@@ -233,7 +142,7 @@ class Text2SQLWidget(QWidget):
         main_layout.addWidget(output_group)
 
         # Spiegazione
-        explanation_group = QGroupBox("Spiegazione")
+        explanation_group = QGroupBox("Spiegazione della Query")
         explanation_layout = QVBoxLayout()
 
         self.explanation_text = QTextEdit()
@@ -245,39 +154,34 @@ class Text2SQLWidget(QWidget):
         main_layout.addWidget(explanation_group)
 
         # Connetti segnali
-        self.api_radio.toggled.connect(self.on_mode_toggled)
-        self.local_radio.toggled.connect(self.on_mode_toggled)
-
-        # Controlla lo stato del modello
-        self.check_model_status()
-
-    def check_model_status(self):
-        """Controlla se il modello locale è disponibile"""
-        from .textTosql import MakeSQL
-
-        if MakeSQL.check_local_model():
-            self.model_status_label.setText("Stato modello: Installato")
-            self.model_status_label.setStyleSheet("color: green;")
-            self.download_model_btn.setText("Modello già scaricato")
-            self.download_model_btn.setEnabled(False)
-        else:
-            self.model_status_label.setText("Stato modello: Non trovato")
-            self.model_status_label.setStyleSheet("color: red;")
-            self.download_model_btn.setText("Scarica Modello")
-            self.download_model_btn.setEnabled(True)
+        self.openai_radio.toggled.connect(self.on_mode_toggled)
+        self.ollama_radio.toggled.connect(self.on_mode_toggled)
+        self.free_radio.toggled.connect(self.on_mode_toggled)
 
     def on_mode_toggled(self):
         """Gestisce il cambio di modalità"""
-        api_mode = self.api_radio.isChecked()
-        self.api_key_input.setEnabled(api_mode)
-        self.download_model_btn.setEnabled(not api_mode and not MakeSQL.check_local_model())
-
-    def on_download_model_clicked(self):
-        """Gestisce il click sul pulsante di download del modello"""
+        ollama_mode = self.ollama_radio.isChecked()
+        self.ollama_model_combo.setEnabled(ollama_mode)
+        self.check_ollama_btn.setEnabled(ollama_mode)
+        
+    def check_ollama_status(self):
+        """Verifica lo stato di Ollama"""
         from .textTosql import MakeSQL
-
-        if MakeSQL.download_model_dialog(self):
-            self.check_model_status()
+        
+        if MakeSQL.check_ollama_status():
+            self.ollama_status_label.setText("Stato: Connesso")
+            self.ollama_status_label.setStyleSheet("color: green;")
+            # Aggiorna la lista dei modelli disponibili
+            models = MakeSQL.get_ollama_models()
+            if models:
+                self.ollama_model_combo.clear()
+                self.ollama_model_combo.addItems(models)
+        else:
+            self.ollama_status_label.setText("Stato: Non disponibile")
+            self.ollama_status_label.setStyleSheet("color: red;")
+            QMessageBox.warning(self, "Ollama non disponibile", 
+                              "Ollama non è in esecuzione o non è installato.\n"
+                              "Installa Ollama da https://ollama.ai e assicurati che sia in esecuzione.")
 
     def on_generate_clicked(self):
         """Gestisce il click sul pulsante di generazione"""
@@ -292,39 +196,27 @@ class Text2SQLWidget(QWidget):
         db_type = self.db_type_combo.currentText()
 
         # Genera SQL in base alla modalità selezionata
-        if self.api_radio.isChecked():
-            # Modalità API
-            api_key = self.api_key_input.text().strip()
-            if not api_key:
-                QMessageBox.warning(self, "API Key mancante",
-                                    "Inserisci la tua chiave API per utilizzare la modalità API.")
-                return
-
-            sql_query = MakeSQL.make_api_request(prompt, db_type, api_key)
-        else:
-            # Modalità locale
-            if not MakeSQL.check_local_model():
-                result = QMessageBox.question(
-                    self,
-                    "Modello non trovato",
-                    "Il modello locale non è stato trovato. Vuoi scaricarlo ora?",
-                    QMessageBox.Yes | QMessageBox.No
-                )
-
-                if result == QMessageBox.Yes:
-                    if MakeSQL.download_model_dialog(self):
-                        self.check_model_status()
-                    else:
-                        return
-                else:
-                    return
-
-            sql_query = MakeSQL.make_local_request(prompt, db_type, self)
+        if self.openai_radio.isChecked():
+            # Modalità OpenAI
+            sql_query, explanation = MakeSQL.make_openai_request(prompt, db_type, self.parent)
+            
+        elif self.ollama_radio.isChecked():
+            # Modalità Ollama
+            model = self.ollama_model_combo.currentText()
+            sql_query, explanation = MakeSQL.make_ollama_request(prompt, db_type, model, self)
+            
+        elif self.free_radio.isChecked():
+            # Modalità API gratuita (da implementare)
+            QMessageBox.information(self, "Non disponibile", 
+                                  "Le API gratuite non sono ancora implementate.\n"
+                                  "Usa OpenAI o Ollama per ora.")
+            return
 
         # Mostra il risultato
         if sql_query:
             self.output_text.setPlainText(sql_query)
-            self.explanation_text.clear()
+            if explanation:
+                self.explanation_text.setPlainText(explanation)
             self.explain_btn.setEnabled(True)
             self.copy_btn.setEnabled(True)
             self.use_btn.setEnabled(True)
@@ -343,22 +235,14 @@ class Text2SQLWidget(QWidget):
             return
 
         # Spiega SQL in base alla modalità selezionata
-        if self.api_radio.isChecked():
-            # Modalità API
-            api_key = self.api_key_input.text().strip()
-            if not api_key:
-                QMessageBox.warning(self, "API Key mancante",
-                                    "Inserisci la tua chiave API per utilizzare la modalità API.")
-                return
-
-            explanation = MakeSQL.explain_request(sql_query, api_key)
-        else:
-            # Modalità locale
-            if not MakeSQL.check_local_model():
-                QMessageBox.warning(self, "Modello non trovato", "Modello locale non trovato.")
-                return
-
-            explanation = MakeSQL.explain_local_request(sql_query, self)
+        if self.openai_radio.isChecked():
+            # Modalità OpenAI
+            explanation = MakeSQL.explain_openai_request(sql_query, self.parent)
+            
+        elif self.ollama_radio.isChecked():
+            # Modalità Ollama
+            model = self.ollama_model_combo.currentText()
+            explanation = MakeSQL.explain_ollama_request(sql_query, model, self)
 
         # Mostra il risultato
         if explanation:
@@ -379,7 +263,6 @@ class Text2SQLWidget(QWidget):
         """Copia la query negli appunti"""
         sql_query = self.output_text.toPlainText().strip()
         if sql_query:
-            from qgis.PyQt.QtWidgets import QApplication
             clipboard = QApplication.clipboard()
             clipboard.setText(sql_query)
             QMessageBox.information(self, "Copiato", "La query SQL è stata copiata negli appunti.")
@@ -389,10 +272,6 @@ class Text2SQLWidget(QWidget):
         sql_query = self.output_text.toPlainText().strip()
         if not sql_query:
             return
-
-        # Esempio: questa funzione dovrebbe essere personalizzata in base all'uso specifico
-        # Ad esempio, potresti voler inviare la query al db manager di QGIS
-        # o inserirla in un campo di testo specifico della tua interfaccia
 
         # Se sei nella classe US_USM, puoi fare qualcosa come:
         if hasattr(self.parent, 'lineEdit_sql'):
@@ -404,461 +283,422 @@ class Text2SQLWidget(QWidget):
             QMessageBox.information(self, "Query Pronta",
                                     "La query SQL è pronta per l'uso. Puoi copiarla e utilizzarla dove necessario.")
 
-    def apikey_text2sql(self):
-        """Restituisce la chiave API (per compatibilità con il codice esistente)"""
-        return self.api_key_input.text().strip()
-
-
-
-
-class DownloadModelWorker(QObject):
-    """Worker per il download del modello in background"""
-    progress_updated = pyqtSignal(int, str)
-    download_complete = pyqtSignal(bool, str)
-
-    def __init__(self):
-        super().__init__()
-        self.stop_requested = False
-
-    def download_model(self, download_url, save_path):
-        try:
-            # Crea la directory se non esiste
-            os.makedirs(os.path.dirname(save_path), exist_ok=True)
-
-            # Invia una richiesta HEAD per ottenere la dimensione del file
-            response = requests.head(download_url)
-            total_size = int(response.headers.get('content-length', 0))
-
-            # Scarica il file
-            response = requests.get(download_url, stream=True)
-            response.raise_for_status()
-
-            # Apri il file di destinazione
-            with open(save_path, 'wb') as f:
-                downloaded = 0
-                chunk_size = 1024 * 1024  # 1MB
-
-                for chunk in response.iter_content(chunk_size=chunk_size):
-                    if self.stop_requested:
-                        f.close()
-                        os.remove(save_path)
-                        self.download_complete.emit(False, "Download annullato")
-                        return
-
-                    if chunk:
-                        f.write(chunk)
-                        downloaded += len(chunk)
-
-                        # Emetti progresso
-                        percent = int(100 * downloaded / total_size) if total_size > 0 else 0
-                        self.progress_updated.emit(
-                            percent,
-                            f"Scaricato {downloaded / (1024 * 1024):.1f} MB / {total_size / (1024 * 1024):.1f} MB"
-                        )
-
-            self.download_complete.emit(True, save_path)
-
-        except Exception as e:
-            self.download_complete.emit(False, str(e))
-
-    def stop(self):
-        self.stop_requested = True
-
-
-class DownloadModelDialog(QDialog):
-    """Dialog per scaricare il modello"""
-
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self.setWindowTitle("Download Modello Text2SQL")
-        self.setMinimumWidth(500)
-
-        # URL del modello
-        self.model_url = "https://huggingface.co/dmedhi/Phi-3-mini-text2SQL-4k-instruct-GGUF-f16/resolve/main/unsloth.F16.gguf"
-
-        # Path dove salvare il modello
-        self.home_dir = os.path.expanduser("~")
-        self.save_dir = os.path.join(self.home_dir, "pyarchinit", "bin")
-        self.save_path = os.path.join(self.save_dir, "phi3_text2sql.gguf")
-
-        # Crea il layout
-        layout = QVBoxLayout()
-
-        # Informazioni sul download
-        self.info_label = QLabel(f"Il modello verrà scaricato in:\n{self.save_path}\n\nDimensione: circa 2 GB. "
-                                 "Questo potrebbe richiedere tempo in base alla tua connessione internet.")
-        self.info_label.setWordWrap(True)
-        layout.addWidget(self.info_label)
-
-        # Stato del download
-        self.status_label = QLabel("Pronto per iniziare il download")
-        layout.addWidget(self.status_label)
-
-        # Bottoni
-        button_layout = QVBoxLayout()
-
-        self.download_button = QPushButton("Avvia Download")
-        self.download_button.clicked.connect(self.start_download)
-        button_layout.addWidget(self.download_button)
-
-        self.cancel_button = QPushButton("Annulla")
-        self.cancel_button.clicked.connect(self.reject)
-        button_layout.addWidget(self.cancel_button)
-
-        layout.addLayout(button_layout)
-
-        self.setLayout(layout)
-
-        # Progress dialog
-        self.progress = QProgressDialog(self)
-        self.progress.setWindowTitle("Download in Corso")
-        self.progress.setLabelText("Inizializzazione download...")
-        self.progress.setMinimum(0)
-        self.progress.setMaximum(100)
-        self.progress.setWindowModality(Qt.WindowModal)
-        self.progress.setAutoClose(False)
-        self.progress.canceled.connect(self.cancel_download)
-
-        # Thread di download
-        self.download_thread = None
-        self.download_worker = None
-
-    def start_download(self):
-        """Avvia il download del modello"""
-        # Disabilita il pulsante di download
-        self.download_button.setEnabled(False)
-        self.status_label.setText("Avvio download...")
-
-        # Crea e avvia il worker
-        self.download_worker = DownloadModelWorker()
-        self.download_worker.progress_updated.connect(self.update_progress)
-        self.download_worker.download_complete.connect(self.download_finished)
-
-        # Crea e avvia il thread
-        self.download_thread = threading.Thread(
-            target=self.download_worker.download_model,
-            args=(self.model_url, self.save_path)
-        )
-        self.download_thread.start()
-
-        # Mostra la progress dialog
-        self.progress.setValue(0)
-        self.progress.setLabelText("Inizializzazione download...")
-        self.progress.show()
-
-    def update_progress(self, percent, status):
-        """Aggiorna il progresso del download"""
-        self.progress.setValue(percent)
-        self.progress.setLabelText(status)
-        self.status_label.setText(status)
-
-    def download_finished(self, success, message):
-        """Gestisce il completamento del download"""
-        self.progress.close()
-
-        if success:
-            self.status_label.setText(f"Download completato! Modello salvato in:\n{message}")
-            QMessageBox.information(self, "Download Completato",
-                                    f"Il modello è stato scaricato con successo in:\n{message}")
-            self.accept()
-        else:
-            self.status_label.setText(f"Errore durante il download: {message}")
-            self.download_button.setEnabled(True)
-            QMessageBox.critical(self, "Errore Download",
-                                 f"Si è verificato un errore durante il download:\n{message}")
-
-    def cancel_download(self):
-        """Annulla il download in corso"""
-        if self.download_worker:
-            self.download_worker.stop()
-            self.status_label.setText("Download annullato")
-            self.download_button.setEnabled(True)
-
 
 class MakeSQL:
-    def __init__(self):
-        pass
-
-    # Funzione per convertire lo schema in formato testuale (esempio semplificato)
+    """Classe per generare SQL da linguaggio naturale usando diversi LLM"""
+    
     @staticmethod
     def schema_to_text(metadata):
-        schema_text = ""
+        """Converte lo schema del database in formato testuale"""
+        schema_text = "Database Schema:\n\n"
         for table in metadata.tables.values():
-            # Inizia con il nome della tabella
-            table_description = f"{table.name} ("
-            # Aggiungi ogni colonna e il suo tipo
-            columns_descriptions = [f"{col.name}" for col in table.columns]
-            table_description += ", ".join(columns_descriptions)
-            table_description += ");"
-            # Aggiungi la descrizione della tabella al testo dello schema
-            schema_text += table_description + "\n"
+            # Nome della tabella con descrizione
+            table_description = f"Table: {table.name}\n"
+            table_description += "Columns:\n"
+            
+            # Aggiungi ogni colonna con tipo e descrizione
+            for col in table.columns:
+                col_type = str(col.type)
+                nullable = "NULL" if col.nullable else "NOT NULL"
+                primary = " PRIMARY KEY" if col.primary_key else ""
+                foreign = ""
+                if col.foreign_keys:
+                    fk = list(col.foreign_keys)[0]
+                    foreign = f" REFERENCES {fk.column.table.name}({fk.column.name})"
+                
+                table_description += f"  - {col.name}: {col_type} {nullable}{primary}{foreign}\n"
+            
+            table_description += "\n"
+            schema_text += table_description
+            
+        # Aggiungi informazioni specifiche per query geometriche
+        schema_text += "\nNote per query geometriche:\n"
+        schema_text += "- Le tabelle con colonne 'the_geom' supportano query spaziali PostGIS/Spatialite\n"
+        schema_text += "- Usa ST_DWithin per query di prossimità\n"
+        schema_text += "- Usa ST_Contains, ST_Intersects per relazioni spaziali\n"
+        schema_text += "- Le coordinate sono in EPSG:4326 (WGS84)\n"
+        
         return schema_text
 
-    # Utilizzo della funzione per includere lo schema nella richiesta API
     @staticmethod
-    def make_api_request(prompt, db, apikey):
-        # Preparazione dello schema
-        schema_text = MakeSQL.schema_to_text(database_schema.metadata)  # Converti lo schema in testo
-
-        api_key = apikey  # Sostituisci con la tua chiave API
-        url = "https://app2.text2sql.ai/api/external/generate-sql"
-        headers = {
-            "Authorization": f"Bearer {api_key}",
-            "Content-Type": "application/json"
-        }
-        data = {
-            "prompt": prompt,
-            "type": db,
-            "schema": schema_text  # Utilizzo dello schema convertito
-        }
-
-        try:
-            response = requests.post(url, headers=headers, json=data)
-            response.raise_for_status()
-            return response.json().get('output')
-        except requests.exceptions.HTTPError as he:
-            QMessageBox.critical(None, "Error", str(he))
-            return None
-        except Exception as e:
-            print(f"An error occurred: {e}")
-            QMessageBox.critical(None, "Error", str(e))
-            return None
-
-        return None
-
-    @staticmethod
-    def explain_request(prompt, apikey):
-        api_key = apikey  # Sostituisci con la tua chiave API
-        url = "https://app2.text2sql.ai/api/external/explain-sql"
-        headers = {
-            "Authorization": f"Bearer {api_key}",
-            "Content-Type": "application/json"
-        }
-        data = {
-            "prompt": prompt
-        }
-
-        try:
-            response = requests.post(url, headers=headers, json=data)
-            response.raise_for_status()
-            return response.json().get('output')
-        except requests.exceptions.HTTPError as he:
-            QMessageBox.critical(None, "Error", str(he))
-            return None
-        except Exception as e:
-            print(f"An error occurred: {e}")
-            QMessageBox.critical(None, "Error", str(e))
-            return None
-
-        return None
-
-    @staticmethod
-    def check_local_model():
-        """Verifica se il modello locale esiste"""
-        model_path = os.path.join(os.path.expanduser("~"), "pyarchinit", "bin", "phi3_text2sql.gguf")
-        return os.path.exists(model_path)
-
-    @staticmethod
-    def download_model_dialog(parent=None):
-        """Mostra il dialog per scaricare il modello"""
-        dialog = DownloadModelDialog(parent)
-        return dialog.exec_()
-
-
-    @staticmethod
-    def make_local_request(prompt, db, parent=None):
-        """
-        Genera una query SQL usando il modello locale Phi-3
-
-        Args:
-            prompt: La domanda in linguaggio naturale
-            db: Tipo di database (sqlite, postgresql, etc.)
-            parent: Widget genitore per i dialoghi
-
-        Returns:
-            La query SQL generata o None in caso di errore
-        """
-        # Verifica che il modello esista localmente
+    def get_api_key(parent):
+        """Ottiene l'API key di OpenAI dal file di configurazione"""
+        api_key = ""
+        
+        # Usa il percorso corretto: home_utente/pyarchinit/bin
         HOME = os.path.expanduser("~")
-        #BIN = '{}{}{}'.format(HOME, os.sep, "bin")BIN = '{}{}{}'.format(HOME, os.sep, "bin")
-        model_path = os.path.join(HOME, "pyarchinit", "bin", "phi3_text2sql.gguf")
+        PYARCHINIT_HOME = os.path.join(HOME, "pyarchinit")
+        BIN = os.path.join(PYARCHINIT_HOME, "bin")
+        path_key = os.path.join(BIN, 'gpt_api_key.txt')
+        
+        # Verifica se il file esiste
+        if os.path.exists(path_key):
+            try:
+                with open(path_key, 'r') as f:
+                    api_key = f.read().strip()
+                    
+                if api_key:
+                    return api_key
+            except Exception as e:
+                print(f"Errore lettura API key: {e}")
+        
+        # Se non troviamo l'API key e c'è un parent con il metodo apikey_gpt, usalo
+        if not api_key and parent and hasattr(parent, 'apikey_gpt'):
+            try:
+                api_key = parent.apikey_gpt()
+                if api_key:
+                    return api_key
+            except:
+                pass
+                
+        # Se ancora non abbiamo l'API key, chiediamola all'utente
+        if not api_key:
+            reply = QMessageBox.question(None, 'API Key OpenAI non trovata', 
+                                       f'Il file {path_key} non esiste o è vuoto.\n'
+                                       'Vuoi inserire ora la tua API key OpenAI?',
+                                       QMessageBox.Yes | QMessageBox.No)
+            
+            if reply == QMessageBox.Yes:
+                api_key, ok = QInputDialog.getText(None, 'OpenAI API Key', 
+                                                  'Inserisci la tua API key OpenAI:')
+                if ok and api_key:
+                    try:
+                        # Crea la directory se non esiste
+                        os.makedirs(BIN, exist_ok=True)
+                        # Salva l'API key
+                        with open(path_key, 'w') as f:
+                            f.write(api_key)
+                        print(f"API key salvata in: {path_key}")
+                    except Exception as e:
+                        QMessageBox.critical(None, "Errore", 
+                                           f"Impossibile salvare l'API key: {str(e)}")
+                        
+        return api_key
 
-        if not os.path.exists(model_path):
-            QMessageBox.critical(parent, "Modello non trovato",
-                                 f"Il modello non è stato trovato in {model_path}.\n"
-                                 "Usa il pulsante 'Scarica Modello' prima di procedere.")
-            return None
-
+    @staticmethod
+    def make_openai_request(prompt, db_type, parent=None):
+        """Genera SQL usando OpenAI GPT-4"""
         try:
-            # Importa llama_cpp solo quando necessario
-            try:
-                from llama_cpp import Llama
-            except ImportError:
-                QMessageBox.critical(None, "Libreria mancante",
-                                     "La libreria 'llama_cpp' non è installata.\n"
-                                     "Installala con: pip install llama-cpp-python")
-                return None
-
-            # Carica il modello (questo può richiedere tempo)
-            progress = QProgressDialog("Caricamento del modello in corso...", "Annulla", 0, 0, parent)
-            progress.setWindowTitle("Attendi")
-            progress.setWindowModality(Qt.WindowModal)
-            progress.show()
-
-            try:
-                llm = Llama(
-                    model_path=model_path,
-                    n_ctx=4096,
-                    n_gpu_layers=-1
-                )
-            finally:
-                progress.close()
-
-            # Preparazione dello schema
+            from openai import OpenAI
+        except ImportError:
+            QMessageBox.critical(None, "Libreria mancante",
+                               "La libreria 'openai' non è installata.\n"
+                               "Installala con: pip install openai")
+            return None, None
+            
+        api_key = MakeSQL.get_api_key(parent)
+        if not api_key:
+            return None, None
+            
+        try:
+            client = OpenAI(api_key=api_key)
+            
+            # Prepara lo schema
             schema_text = MakeSQL.schema_to_text(database_schema.metadata)
+            
+            # Costruisci il prompt di sistema
+            system_prompt = f"""Sei un esperto di SQL e database archeologici PyArchInit.
+Database type: {db_type}
 
-            # Costruisci il prompt per il modello
-            system_prompt = f"""You are a SQL expert. You translate natural language questions into SQL queries.
-    Database type: {db}
-    Database schema:
-    {schema_text}
+{schema_text}
 
-    IMPORTANT: Generate ONLY the SQL query code. Do not include ANY comments, explanation, or markdown formatting. 
-    Return ONLY the raw SQL query, nothing more."""
+Regole importanti:
+1. Genera SOLO la query SQL, senza commenti o formattazione markdown
+2. La query deve essere eseguibile direttamente
+3. Per query geometriche usa le funzioni PostGIS/Spatialite appropriate
+4. Considera sempre il contesto archeologico dei dati
+5. Dopo la query, su una nuova riga preceduta da "---", fornisci una spiegazione dettagliata in italiano di cosa fa la query, con esempi di risultati attesi"""
 
-            user_prompt = prompt
-
-            # Crea il messaggio di chat
             messages = [
                 {"role": "system", "content": system_prompt},
-                {"role": "user", "content": user_prompt}
+                {"role": "user", "content": prompt}
             ]
-
-            # Progress dialog per generazione
+            
+            # Progress dialog
             progress = QProgressDialog("Generazione SQL in corso...", "Annulla", 0, 0, parent)
             progress.setWindowTitle("Attendi")
             progress.setWindowModality(Qt.WindowModal)
             progress.show()
-
+            
             try:
-                # Genera la query SQL
-                response = llm.create_chat_completion(
+                response = client.chat.completions.create(
+                    model="gpt-4",
                     messages=messages,
                     temperature=0.1,
-                    max_tokens=512
+                    max_tokens=1500
                 )
-
-                # Estrai la query SQL dalla risposta
-                sql_query = response.get("choices", [{}])[0].get("message", {}).get("content", "")
-
+                
+                content = response.choices[0].message.content
+                
+                # Separa query e spiegazione
+                if "---" in content:
+                    parts = content.split("---", 1)
+                    sql_query = parts[0].strip()
+                    explanation = parts[1].strip() if len(parts) > 1 else ""
+                else:
+                    sql_query = content.strip()
+                    explanation = ""
+                
                 # Pulisci la query
-                # Rimuovi blocchi di codice markdown
-                sql_query = sql_query.replace("```sql", "").replace("```", "")
-
-                # Rimuovi commenti
-                sql_query = re.sub(r'--.*$', '', sql_query, flags=re.MULTILINE)  # Rimuovi commenti SQL di tipo --
-                sql_query = re.sub(r'/\*.*?\*/', '', sql_query, flags=re.DOTALL)  # Rimuovi commenti SQL tipo /* */
-
-                # Rimuovi spiegazioni testuali (spesso incluse prima o dopo la query)
-                sql_lines = sql_query.strip().split('\n')
-                clean_lines = []
-
-                # Filtra solo le linee che sembrano essere SQL
-                for line in sql_lines:
-                    stripped = line.strip()
-                    if stripped and not stripped.startswith('Here') and not stripped.startswith(
-                            'This') and not stripped.startswith('Note'):
-                        clean_lines.append(line)
-
-                # Ricomponi la query
-                sql_query = '\n'.join(clean_lines).strip()
-
-                return sql_query
+                sql_query = MakeSQL.clean_sql_query(sql_query)
+                
+                return sql_query, explanation
+                
             finally:
                 progress.close()
-
+                
         except Exception as e:
-            QMessageBox.critical(parent, "Errore", f"Si è verificato un errore: {str(e)}")
-            return None
+            error_msg = str(e)
+            if "api_key" in error_msg.lower() or "unauthorized" in error_msg.lower():
+                QMessageBox.critical(parent, "Errore API Key", 
+                                   f"Errore di autenticazione OpenAI.\n\n"
+                                   f"Verifica che l'API key sia valida nel file:\n"
+                                   f"~/pyarchinit/bin/gpt_api_key.txt\n\n"
+                                   f"Errore: {error_msg}")
+            else:
+                QMessageBox.critical(parent, "Errore", f"Errore OpenAI: {error_msg}")
+            return None, None
 
     @staticmethod
-    def explain_local_request(prompt, parent=None):
-        """
-        Spiega una query SQL usando il modello locale Phi-3
-
-        Args:
-            prompt: La query SQL da spiegare
-            parent: Widget genitore per i dialoghi
-
-        Returns:
-            Spiegazione della query o None in caso di errore
-        """
-        # Verifica che il modello esista localmente
-        model_path = os.path.join(os.path.expanduser("~"), "pyarchinit", "bin", "phi3_text2sql.gguf")
-
-        if not os.path.exists(model_path):
-            QMessageBox.critical(parent, "Modello non trovato",
-                                 f"Il modello non è stato trovato in {model_path}.\n"
-                                 "Usa il pulsante 'Scarica Modello' prima di procedere.")
-            return None
-
+    def explain_openai_request(sql_query, parent=None):
+        """Spiega una query SQL usando OpenAI"""
         try:
-            # Importa llama_cpp solo quando necessario
-            try:
-                from llama_cpp import Llama
-            except ImportError:
-                QMessageBox.critical(parent, "Libreria mancante",
-                                     "La libreria 'llama_cpp' non è installata.\n"
-                                     "Installala con: pip install llama-cpp-python")
-                return None
+            from openai import OpenAI
+        except ImportError:
+            return None
+            
+        api_key = MakeSQL.get_api_key(parent)
+        if not api_key:
+            return None
+            
+        try:
+            client = OpenAI(api_key=api_key)
+            
+            system_prompt = """Sei un esperto di SQL e database archeologici.
+Spiega la query SQL fornita in modo chiaro e dettagliato in italiano.
+Includi:
+1. Cosa fa ogni parte della query
+2. Quali tabelle vengono interrogate
+3. Quali filtri vengono applicati
+4. Che tipo di risultati ci si può aspettare
+5. Esempi concreti nel contesto archeologico"""
 
-            # Carica il modello (questo può richiedere tempo)
-            progress = QProgressDialog("Caricamento del modello in corso...", "Annulla", 0, 0, parent)
-            progress.setWindowTitle("Attendi")
-            progress.setWindowModality(Qt.WindowModal)
-            progress.show()
-
-            try:
-                llm = Llama(
-                    model_path=model_path,
-                    n_ctx=4096,
-                    n_gpu_layers=-1
-                )
-            finally:
-                progress.close()
-
-            system_prompt = """You are a SQL expert. Explain the provided SQL query in simple terms.
-Break down what each part of the query does in clear, non-technical language."""
-
-            user_prompt = f"Explain this SQL query: {prompt}"
-
-            # Crea il messaggio di chat
             messages = [
                 {"role": "system", "content": system_prompt},
-                {"role": "user", "content": user_prompt}
+                {"role": "user", "content": f"Spiega questa query SQL:\n{sql_query}"}
             ]
+            
+            response = client.chat.completions.create(
+                model="gpt-4",
+                messages=messages,
+                temperature=0.3,
+                max_tokens=1000
+            )
+            
+            return response.choices[0].message.content
+            
+        except Exception as e:
+            return f"Errore nella spiegazione: {str(e)}"
 
-            # Progress dialog per generazione
-            progress = QProgressDialog("Generazione spiegazione in corso...", "Annulla", 0, 0, parent)
+    @staticmethod
+    def check_ollama_status():
+        """Verifica se Ollama è disponibile"""
+        try:
+            response = requests.get("http://localhost:11434/api/tags", timeout=2)
+            return response.status_code == 200
+        except:
+            return False
+
+    @staticmethod
+    def get_ollama_models():
+        """Ottiene la lista dei modelli Ollama disponibili"""
+        try:
+            response = requests.get("http://localhost:11434/api/tags", timeout=5)
+            if response.status_code == 200:
+                data = response.json()
+                return [model['name'] for model in data.get('models', [])]
+        except:
+            pass
+        return []
+
+    @staticmethod
+    def make_ollama_request(prompt, db_type, model="llama3.2", parent=None):
+        """Genera SQL usando Ollama"""
+        if not MakeSQL.check_ollama_status():
+            QMessageBox.critical(parent, "Ollama non disponibile",
+                               "Ollama non è in esecuzione. Avvialo con 'ollama serve'")
+            return None, None
+            
+        try:
+            # Prepara lo schema
+            schema_text = MakeSQL.schema_to_text(database_schema.metadata)
+            
+            # Costruisci il prompt
+            full_prompt = f"""You are an SQL expert for archaeological databases.
+Database type: {db_type}
+
+{schema_text}
+
+Task: Convert this natural language query to SQL: {prompt}
+
+Rules:
+1. Generate ONLY the SQL query, no comments or markdown
+2. The query must be directly executable
+3. For geometric queries use PostGIS/Spatialite functions
+4. Consider the archaeological context
+5. After the query, on a new line preceded by "---", provide a detailed explanation in Italian
+
+SQL Query:"""
+
+            # Progress dialog
+            progress = QProgressDialog("Generazione SQL con Ollama...", "Annulla", 0, 0, parent)
             progress.setWindowTitle("Attendi")
             progress.setWindowModality(Qt.WindowModal)
             progress.show()
-
+            
             try:
-                # Genera la spiegazione
-                response = llm.create_chat_completion(
-                    messages=messages,
-                    temperature=0.3,
-                    max_tokens=1024
+                response = requests.post(
+                    "http://localhost:11434/api/generate",
+                    json={
+                        "model": model,
+                        "prompt": full_prompt,
+                        "stream": False,
+                        "options": {
+                            "temperature": 0.1,
+                            "num_predict": 1500
+                        }
+                    },
+                    timeout=60
                 )
-
-                # Estrai la spiegazione dalla risposta
-                explanation = response.get("choices", [{}])[0].get("message", {}).get("content", "")
-
-                return explanation
+                
+                if response.status_code == 200:
+                    content = response.json().get('response', '')
+                    
+                    # Separa query e spiegazione
+                    if "---" in content:
+                        parts = content.split("---", 1)
+                        sql_query = parts[0].strip()
+                        explanation = parts[1].strip() if len(parts) > 1 else ""
+                    else:
+                        sql_query = content.strip()
+                        explanation = ""
+                    
+                    # Pulisci la query
+                    sql_query = MakeSQL.clean_sql_query(sql_query)
+                    
+                    return sql_query, explanation
+                else:
+                    QMessageBox.critical(parent, "Errore Ollama", 
+                                       f"Errore nella risposta: {response.status_code}")
+                    return None, None
+                    
             finally:
                 progress.close()
-
+                
         except Exception as e:
-            QMessageBox.critical(parent, "Errore", f"Si è verificato un errore: {str(e)}")
+            QMessageBox.critical(parent, "Errore", f"Errore Ollama: {str(e)}")
+            return None, None
+
+    @staticmethod
+    def explain_ollama_request(sql_query, model="llama3.2", parent=None):
+        """Spiega una query SQL usando Ollama"""
+        if not MakeSQL.check_ollama_status():
             return None
+            
+        try:
+            prompt = f"""Explain this SQL query in Italian, providing:
+1. What each part of the query does
+2. Which tables are queried
+3. What filters are applied
+4. What results to expect
+5. Concrete examples in archaeological context
+
+SQL Query:
+{sql_query}
+
+Explanation in Italian:"""
+
+            response = requests.post(
+                "http://localhost:11434/api/generate",
+                json={
+                    "model": model,
+                    "prompt": prompt,
+                    "stream": False,
+                    "options": {
+                        "temperature": 0.3,
+                        "num_predict": 1000
+                    }
+                },
+                timeout=60
+            )
+            
+            if response.status_code == 200:
+                return response.json().get('response', '')
+            
+        except Exception as e:
+            return f"Errore nella spiegazione: {str(e)}"
+            
+        return None
+
+    @staticmethod
+    def clean_sql_query(sql_query):
+        """Pulisce la query SQL rimuovendo elementi non necessari"""
+        # Rimuovi blocchi di codice markdown
+        sql_query = re.sub(r'```sql\s*', '', sql_query)
+        sql_query = re.sub(r'```\s*', '', sql_query)
+        
+        # Rimuovi commenti SQL
+        sql_query = re.sub(r'--.*$', '', sql_query, flags=re.MULTILINE)
+        sql_query = re.sub(r'/\*.*?\*/', '', sql_query, flags=re.DOTALL)
+        
+        # Rimuovi spiegazioni testuali all'inizio
+        lines = sql_query.strip().split('\n')
+        clean_lines = []
+        sql_started = False
+        
+        for line in lines:
+            stripped = line.strip().upper()
+            # Controlla se la linea inizia con una keyword SQL
+            if any(stripped.startswith(kw) for kw in ['SELECT', 'INSERT', 'UPDATE', 'DELETE', 'WITH', 'CREATE']):
+                sql_started = True
+                
+            if sql_started or (stripped and not any(word in stripped for word in ['HERE', 'THIS', 'QUERY', 'SQL'])):
+                clean_lines.append(line)
+        
+        return '\n'.join(clean_lines).strip()
+
+    @staticmethod
+    def make_api_request(prompt, db, apikey):
+        """Metodo legacy per compatibilità - ora usa OpenAI GPT-4 invece di text2sql.ai"""
+        # Ignora l'apikey passata e usa quella di OpenAI da ~/pyarchinit/bin/gpt_api_key.txt
+        # Questo metodo è mantenuto solo per compatibilità con il codice esistente
+        
+        print("Info: Text2SQL ora usa OpenAI GPT-4 con l'API key da ~/pyarchinit/bin/gpt_api_key.txt")
+        
+        # Usa il nuovo metodo OpenAI
+        sql_query, explanation = MakeSQL.make_openai_request(prompt, db, None)
+        
+        # Restituisci solo la query SQL per compatibilità
+        return sql_query
+
+    @staticmethod
+    def explain_request(prompt, apikey):
+        """Metodo legacy per compatibilità - ora usa OpenAI GPT-4 invece di text2sql.ai"""
+        # Ignora l'apikey passata e usa quella di OpenAI
+        # Questo metodo è mantenuto solo per compatibilità con il codice esistente
+        
+        # Ottieni il parent dal contesto se possibile
+        parent = None
+        
+        # Usa il nuovo metodo OpenAI
+        return MakeSQL.explain_openai_request(prompt, parent)
+
+
+# Backward compatibility - mantieni le vecchie funzioni globali per non rompere il codice esistente
+def make_api_request(prompt, db, apikey):
+    """Funzione legacy per compatibilità"""
+    return MakeSQL.make_api_request(prompt, db, apikey)
+
+def explain_request(prompt, apikey):
+    """Funzione legacy per compatibilità"""
+    return MakeSQL.explain_request(prompt, apikey)
