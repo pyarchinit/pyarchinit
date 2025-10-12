@@ -110,6 +110,17 @@ class SQLiteDBUpdater:
                     # Has backups but no main table - needs restoration
                     return True
             
+            # Check if pyarchinit_reperti has quota field
+            self.cursor.execute("""
+                SELECT name FROM sqlite_master 
+                WHERE type='table' AND name='pyarchinit_reperti'
+            """)
+            if self.cursor.fetchone():
+                self.cursor.execute("PRAGMA table_info(pyarchinit_reperti)")
+                columns = [column[1] for column in self.cursor.fetchall()]
+                if 'quota' not in columns:
+                    return True
+            
             return False
             
         except Exception as e:
@@ -367,6 +378,12 @@ class SQLiteDBUpdater:
             self.add_column_if_missing('pottery_table', 'percent', 'TEXT')
             self.add_column_if_missing('pottery_table', 'material', 'TEXT')
             self.add_column_if_missing('pottery_table', 'form', 'TEXT')
+        
+        # pyarchinit_reperti
+        if self.table_exists('pyarchinit_reperti'):
+            self.add_column_if_missing('pyarchinit_reperti', 'quota', 'REAL')
+            # Ricrea la view con il nuovo campo quota
+            self._recreate_reperti_view()
     
     def restore_tables_from_backups(self):
         """Ripristina tabelle mancanti dai backup se necessario"""
@@ -643,6 +660,64 @@ class SQLiteDBUpdater:
                 self.updates_made.append(f"{table_name}.{column_name}")
             except Exception as e:
                 self.log_message(f"Errore aggiungendo colonna {table_name}.{column_name}: {e}", Qgis.Warning if QGIS_AVAILABLE else None)
+    
+    def _recreate_reperti_view(self):
+        """Ricrea la view pyarchinit_reperti_view con il campo quota"""
+        try:
+            # Drop existing view if any
+            self.cursor.execute("DROP VIEW IF EXISTS pyarchinit_reperti_view")
+            
+            # Create view with all fields including quota
+            self.cursor.execute("""
+                CREATE VIEW pyarchinit_reperti_view AS 
+                SELECT
+                    a.gid,
+                    a.the_geom,
+                    a.id_rep,
+                    a.siti,
+                    a.quota,
+                    b.id_invmat,
+                    b.sito,
+                    b.numero_inventario,
+                    b.tipo_reperto,
+                    b.criterio_schedatura,
+                    b.definizione,
+                    b.descrizione,
+                    b.area,
+                    b.us,
+                    b.lavato,
+                    b.nr_cassa,
+                    b.luogo_conservazione,
+                    b.stato_conservazione,
+                    b.datazione_reperto,
+                    b.elementi_reperto,
+                    b.misurazioni,
+                    b.rif_biblio,
+                    b.tecnologie,
+                    b.forme_minime,
+                    b.forme_massime,
+                    b.totale_frammenti,
+                    b.corpo_ceramico,
+                    b.rivestimento,
+                    b.diametro_orlo,
+                    b.peso,
+                    b.tipo,
+                    b.eve_orlo,
+                    b.repertato,
+                    b.diagnostico,
+                    b.n_reperto,
+                    b.tipo_contenitore,
+                    b.struttura,
+                    b.years
+                FROM pyarchinit_reperti a
+                JOIN inventario_materiali_table b ON 
+                    a.siti = b.sito AND 
+                    a.id_rep = b.numero_inventario
+            """)
+            self.log_message("Ricreata view pyarchinit_reperti_view con campo quota")
+            self.updates_made.append("pyarchinit_reperti_view")
+        except Exception as e:
+            self.log_message(f"Errore ricreando pyarchinit_reperti_view: {e}", Qgis.Warning if QGIS_AVAILABLE else None)
 
 
 def check_and_update_sqlite_db(db_path, parent=None):

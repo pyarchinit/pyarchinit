@@ -2191,7 +2191,8 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                     id_rep   INTEGER,
                     siti     TEXT,
                     link     TEXT,
-                    the_geom POINT
+                    the_geom POINT,
+                    quota    REAL
                 );
 
                 INSERT INTO pyarchinit_reperti (
@@ -2199,13 +2200,15 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                                                    id_rep,
                                                    siti,
                                                    link,
-                                                   the_geom
+                                                   the_geom,
+                                                   quota
                                                )
                                                SELECT ROWIND,
                                                       id_rep,
                                                       siti,
                                                       link,
-                                                      the_geom
+                                                      the_geom,
+                                                      NULL as quota
                                                  FROM sqlitestudio_temp_table;
 
                 DROP TABLE sqlitestudio_temp_table;
@@ -3350,7 +3353,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             self.pushButton_upd_sqlite.setEnabled(is_admin)
             self.pushButton_upd_sqlite.setToolTip(admin_msg)
             # Disable PostgreSQL buttons
-            self.pushButton_upd_postgres.setEnabled(True)
+            self.pushButton_upd_postgres.setEnabled(False)
             if hasattr(self, 'pushButton_crea_database'):
                 self.pushButton_crea_database.setEnabled(False)
             if hasattr(self, 'pushButton_restore_postgres'):

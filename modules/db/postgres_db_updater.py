@@ -42,6 +42,9 @@ class PostgresDbUpdater:
             # Aggiorna la tabella thesaurus
             self.update_thesaurus_table()
             
+            # Aggiorna la tabella reperti
+            self.update_reperti_table()
+            
             # Altri aggiornamenti possono essere aggiunti qui in futuro
             
             if self.updates_made:
@@ -138,6 +141,131 @@ class PostgresDbUpdater:
         except Exception as e:
             self.log_message(f"Errore durante l'aggiornamento della tabella thesaurus: {e}")
             raise
+    
+    def update_reperti_table(self):
+        """Aggiorna la tabella pyarchinit_reperti"""
+        self.log_message("Controllo tabella pyarchinit_reperti...")
+        
+        try:
+            # Verifica se la tabella esiste
+            from sqlalchemy import text
+            query = text("""
+                SELECT table_name 
+                FROM information_schema.tables 
+                WHERE table_name = 'pyarchinit_reperti' 
+                AND table_schema = 'public'
+            """)
+            result = self.db_manager.engine.execute(query).fetchone()
+            
+            if not result:
+                self.log_message("Tabella pyarchinit_reperti non trovata, skip")
+                return
+            
+            # Aggiungi campo quota se mancante
+            updated = self.add_column_if_missing('pyarchinit_reperti', 'quota', 'REAL', 'NULL')
+            
+            if updated:
+                self.log_message("Tabella pyarchinit_reperti aggiornata con successo")
+                # Ricrea la view con il nuovo campo quota
+                self._recreate_reperti_view()
+            else:
+                self.log_message("Tabella pyarchinit_reperti già aggiornata")
+                # Controlla comunque se la view ha il campo quota
+                self._check_and_update_reperti_view()
+                
+        except Exception as e:
+            self.log_message(f"Errore durante l'aggiornamento della tabella reperti: {e}")
+            raise
+    
+    def _recreate_reperti_view(self):
+        """Ricrea la view pyarchinit_reperti_view con il campo quota"""
+        try:
+            from sqlalchemy import text
+            
+            # Drop existing view if any
+            drop_query = text("DROP VIEW IF EXISTS pyarchinit_reperti_view CASCADE")
+            self.db_manager.engine.execute(drop_query)
+            
+            # Create view with all fields including quota
+            create_query = text("""
+                CREATE VIEW pyarchinit_reperti_view AS 
+                SELECT
+                    a.gid,
+                    a.the_geom,
+                    a.id_rep,
+                    a.siti,
+                    a.quota,
+                    b.id_invmat,
+                    b.sito,
+                    b.numero_inventario,
+                    b.tipo_reperto,
+                    b.criterio_schedatura,
+                    b.definizione,
+                    b.descrizione,
+                    b.area::text,
+                    b.us::text,
+                    b.lavato,
+                    b.nr_cassa,
+                    b.luogo_conservazione,
+                    b.stato_conservazione,
+                    b.datazione_reperto,
+                    b.elementi_reperto,
+                    b.misurazioni,
+                    b.rif_biblio,
+                    b.tecnologie,
+                    b.forme_minime,
+                    b.forme_massime,
+                    b.totale_frammenti,
+                    b.corpo_ceramico,
+                    b.rivestimento,
+                    b.diametro_orlo,
+                    b.peso,
+                    b.tipo,
+                    b.eve_orlo,
+                    b.repertato,
+                    b.diagnostico,
+                    b.n_reperto,
+                    b.tipo_contenitore,
+                    b.struttura,
+                    b.years::text as years,
+                    b.schedatore,
+                    b.date_scheda,
+                    b.punto_rinv,
+                    b.negativo_photo,
+                    b.diapositiva
+                FROM pyarchinit_reperti a
+                JOIN inventario_materiali_table b ON 
+                    a.siti = b.sito AND 
+                    a.id_rep = b.numero_inventario
+            """)
+            self.db_manager.engine.execute(create_query)
+            
+            self.log_message("Ricreata view pyarchinit_reperti_view con campo quota")
+            self.updates_made.append("pyarchinit_reperti_view")
+            
+        except Exception as e:
+            self.log_message(f"Errore ricreando pyarchinit_reperti_view: {e}")
+    
+    def _check_and_update_reperti_view(self):
+        """Controlla se la view ha il campo quota e la ricrea se necessario"""
+        try:
+            from sqlalchemy import text
+            
+            # Check if view exists and has quota field
+            check_query = text("""
+                SELECT column_name
+                FROM information_schema.columns
+                WHERE table_name = 'pyarchinit_reperti_view'
+                AND column_name = 'quota'
+            """)
+            result = self.db_manager.engine.execute(check_query).fetchone()
+            
+            if not result:
+                self.log_message("Campo quota mancante nella view, ricreazione...")
+                self._recreate_reperti_view()
+            
+        except Exception as e:
+            self.log_message(f"Errore controllando pyarchinit_reperti_view: {e}")
 
 
 def check_and_update_postgres_db(db_manager, parent=None):

@@ -666,7 +666,7 @@
       <workItem from="1758880970850" duration="4096000" />
       <workItem from="1758887487435" duration="101896000" />
       <workItem from="1760002230538" duration="633000" />
-      <workItem from="1760003122645" duration="17728000" />
+      <workItem from="1760003122645" duration="22099000" />
     </task>
     <task id="LOCAL-00022" summary="v3.9.14">
       <created>1649165457258</created>
@@ -1011,7 +1011,7 @@
       <option name="project" value="LOCAL" />
       <updated>1679662089681</updated>
     </task>
-    <option name="localTasksCounter" value="284" />
+    <option name="localTasksCounter" value="285" />
     <option name="createChangelist" value="false" />
     <servers>
       <GitHub url="https://github.com">
@@ -1065,7 +1065,6 @@
     <ignored-roots>
       <path value="$PROJECT_DIR$/ext-libs/totalopenstation-0.5.2-py3.9.egg/totalopenstation_" />
     </ignored-roots>
-    <MESSAGE value="Update TMA row validation to check 'madi' instead of 'macc', log missing 'madi' values, clear 'localita' field" />
     <MESSAGE value="Update TMA row validation to check 'madi' instead of 'macc', log missing 'madi' values, clear 'localita' field on" />
     <MESSAGE value="Update TMA row validation to check 'madi' instead of 'macc', log missing 'madi' values, clear 'localita' field on reset" />
     <MESSAGE value="Update TMA row validation to check 'madi' instead of 'macc', log missing 'madi' values, clear 'localita' field on reset," />
@@ -1090,7 +1089,8 @@
     <MESSAGE value="feat: add HTML escaping for descriptions and improve inventory field handling with US ranges&#10;&#10;- Introduced `escape_html` static method to safely render user-provided descriptions in PDF output.&#10;- Updated `pyarchinit_exp_USsheet_pdf.py` to use HTML escaping for description fields.&#10;- Enhanced `Tma.py` to support US ranges (e.g., &quot;3200-3201&quot;) when querying inventory materials.&#10;- Improved logging for debugging including materials found, US parsing, and fallback scenarios.&#10;- Added error logging with traceback to aid in diagnosing issues during inventory field updates." />
     <MESSAGE value="feat(concurrency): add PostgreSQL user sync, permission checks, and record versioning&#10;&#10;- Automatically create PostgreSQL users with role-based permissions when PyArchInit users are saved&#10;- Synchronize permissions from PyArchInit permission table to PostgreSQL GRANTs&#10;- Add support for record versioning and concurrency fields (e.g., version_number, editing_by, last_modified_by)&#10;- Add auto-refresh interval to check for concurrent record modifications across forms&#10;- Show user-friendly conflict resolution dialog when records are updated externally&#10;- Improve error handling with permission-based feedback for UPDATE/INSERT operations&#10;- Disable manual editing of computed fields like 'datazione', auto-update via triggers or form logic&#10;- Include database username in session for accurate tracking and permissions&#10;- Refactor trigger logic for proper privilege checks during automated updates of related records&#10;- Introduce permission handler and concurrency manager modules for modular access control logic" />
     <MESSAGE value="feat(text2sql): support multiple LLMs including OpenAI GPT-4 and Ollama&#10;&#10;- Replaced old text2sql.ai API with OpenAI GPT-4 integration using local API key&#10;- Added support for local models via Ollama with dynamic model selection&#10;- Refactored UI to allow selecting between OpenAI, Ollama, and placeholder for free API&#10;- Modularized SQL generation and explanation logic for each mode&#10;- Improved schema-to-text conversion with spatial notes for better prompt context&#10;- Removed legacy local model download and management code&#10;- Ensured backward compatibility by keeping legacy function names as wrappers&#10;- Updated workspace configuration and removed obsolete Python breakpoints" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat(text2sql): support multiple LLMs including OpenAI GPT-4 and Ollama&#10;&#10;- Replaced old text2sql.ai API with OpenAI GPT-4 integration using local API key&#10;- Added support for local models via Ollama with dynamic model selection&#10;- Refactored UI to allow selecting between OpenAI, Ollama, and placeholder for free API&#10;- Modularized SQL generation and explanation logic for each mode&#10;- Improved schema-to-text conversion with spatial notes for better prompt context&#10;- Removed legacy local model download and management code&#10;- Ensured backward compatibility by keeping legacy function names as wrappers&#10;- Updated workspace configuration and removed obsolete Python breakpoints" />
+    <MESSAGE value="feat(db-updater): add automatic PostgreSQL and SQLite schema alignment tools&#10;&#10;- Implemented automatic schema check and update for both PostgreSQL and SQLite databases&#10;- Added `postgres_db_updater.py` and `sqlite_db_updater.py` for validation and patching of outdated schema&#10;- Integrated update logic into `pyarchinit_db_manager.py` for seamless schema verification on connection&#10;- Enabled &quot;Update Postgres DB&quot; button by default in configuration dialog&#10;- Added utility scripts for verifying, fixing, and restoring database structures&#10;- Updated thesaurus schema with new constraints and hierarchy fields&#10;- Improved S3DGraphy export with integrated DOT/GraphML output using `s3dgraphy_dot_bridge.py` for yEd compatibility&#10;- Included backup files and migration scripts for KTM24 and Sant'Arcangelo database alignment" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat(db-updater): add automatic PostgreSQL and SQLite schema alignment tools&#10;&#10;- Implemented automatic schema check and update for both PostgreSQL and SQLite databases&#10;- Added `postgres_db_updater.py` and `sqlite_db_updater.py` for validation and patching of outdated schema&#10;- Integrated update logic into `pyarchinit_db_manager.py` for seamless schema verification on connection&#10;- Enabled &quot;Update Postgres DB&quot; button by default in configuration dialog&#10;- Added utility scripts for verifying, fixing, and restoring database structures&#10;- Updated thesaurus schema with new constraints and hierarchy fields&#10;- Improved S3DGraphy export with integrated DOT/GraphML output using `s3dgraphy_dot_bridge.py` for yEd compatibility&#10;- Included backup files and migration scripts for KTM24 and Sant'Arcangelo database alignment" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/pyarchinit$test_renem_file.coverage" NAME="test_renem_file Coverage Results" MODIFIED="1725894617454" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
