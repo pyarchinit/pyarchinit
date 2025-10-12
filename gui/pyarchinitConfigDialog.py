@@ -52,6 +52,7 @@ from modules.db.pyarchinit_db_manager import Pyarchinit_db_management
 from modules.db.pyarchinit_utility import Utility
 
 from modules.db.db_createdump import CreateDatabase, RestoreSchema, DropDatabase, SchemaDump
+from modules.db.media_migration_mapper import MediaMigrationMapper
 from modules.utility.pyarchinit_OS_utility import Pyarchinit_OS_Utility
 
 
@@ -7020,7 +7021,11 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 QMessageBox.information(self, "Message", "Data Loaded")
                 
             elif mapper_class_write == 'ALL' :
+                # Initialize media migration mapper
+                media_mapper = MediaMigrationMapper()
+                
                 # Import all tables - we'll process each one individually
+                # IMPORTANT: MEDIATOENTITY must be last to use the ID mappings
                 tables_to_import = ['SITE', 'US', 'UT', 'PERIODIZZAZIONE', 'INVENTARIO_MATERIALI', 
                                    'POTTERY', 'STRUTTURA', 'TOMBA', 'SCHEDAIND', 'CAMPIONI', 
                                    'DOCUMENTAZIONE', 'PYARCHINIT_THESAURUS_SIGLE', 'TMA',
@@ -7086,8 +7091,14 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                                             data_list_toimp_current[sing_rec].find_check
                                         )
                                     elif current_table == 'US':
+                                        # Get old ID and generate new ID
+                                        old_id = data_list_toimp_current[sing_rec].id_us
+                                        new_id = self.DB_MANAGER_write.max_num_id(current_table, 'id_us') + 1
+                                        # Store mapping
+                                        media_mapper.add_id_mapping('US', old_id, new_id)
+                                        
                                         data = self.DB_MANAGER_write.insert_values(
-                                            self.DB_MANAGER_write.max_num_id(current_table, 'id_us') + 1,
+                                            new_id,
                                             data_list_toimp_current[sing_rec].sito,
                                             data_list_toimp_current[sing_rec].area,
                                             data_list_toimp_current[sing_rec].us,
@@ -7197,8 +7208,14 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                                             data_list_toimp_current[sing_rec].cont_per
                                         )
                                     elif current_table == 'INVENTARIO_MATERIALI':
+                                        # Get old ID and generate new ID
+                                        old_id = data_list_toimp_current[sing_rec].id_invmat
+                                        new_id = self.DB_MANAGER_write.max_num_id(current_table, 'id_invmat') + 1
+                                        # Store mapping
+                                        media_mapper.add_id_mapping('INVENTARIO_MATERIALI', old_id, new_id)
+                                        
                                         data = self.DB_MANAGER_write.insert_values_reperti(
-                                            self.DB_MANAGER_write.max_num_id(current_table, 'id_invmat') + 1,
+                                            new_id,
                                             data_list_toimp_current[sing_rec].sito,
                                             data_list_toimp_current[sing_rec].numero_inventario,
                                             data_list_toimp_current[sing_rec].tipo_reperto,
@@ -7229,8 +7246,14 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                                             data_list_toimp_current[sing_rec].diagnostico
                                         )
                                     elif current_table == 'POTTERY':
+                                        # Get old ID and generate new ID
+                                        old_id = data_list_toimp_current[sing_rec].id_rep
+                                        new_id = self.DB_MANAGER_write.max_num_id(current_table, 'id_rep') + 1
+                                        # Store mapping
+                                        media_mapper.add_id_mapping('POTTERY', old_id, new_id)
+                                        
                                         data = self.DB_MANAGER_write.insert_pottery_values(
-                                            self.DB_MANAGER_write.max_num_id(current_table, 'id_rep') + 1,
+                                            new_id,
                                             data_list_toimp_current[sing_rec].id_number,
                                             data_list_toimp_current[sing_rec].sito,
                                             data_list_toimp_current[sing_rec].area,
@@ -7268,8 +7291,14 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                                         fas_iniz = data_list_toimp_current[sing_rec].fase_iniziale if data_list_toimp_current[sing_rec].fase_iniziale else ''
                                         fas_fin = data_list_toimp_current[sing_rec].fase_finale if data_list_toimp_current[sing_rec].fase_finale else ''
                                         
+                                        # Get old ID and generate new ID
+                                        old_id = data_list_toimp_current[sing_rec].id_struttura
+                                        new_id = self.DB_MANAGER_write.max_num_id(current_table, 'id_struttura') + 1
+                                        # Store mapping
+                                        media_mapper.add_id_mapping('STRUTTURA', old_id, new_id)
+                                        
                                         data = self.DB_MANAGER_write.insert_struttura_values(
-                                            self.DB_MANAGER_write.max_num_id(current_table, 'id_struttura') + 1,
+                                            new_id,
                                             data_list_toimp_current[sing_rec].sito,
                                             data_list_toimp_current[sing_rec].sigla_struttura,
                                             data_list_toimp_current[sing_rec].numero_struttura,
@@ -7294,8 +7323,14 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                                         per_fin = '' if not data_list_toimp_current[sing_rec].periodo_finale else int(data_list_toimp_current[sing_rec].periodo_finale)
                                         fas_fin = '' if not data_list_toimp_current[sing_rec].fase_finale else int(data_list_toimp_current[sing_rec].fase_finale)
                                         
+                                        # Get old ID and generate new ID
+                                        old_id = data_list_toimp_current[sing_rec].id_tomba
+                                        new_id = self.DB_MANAGER_write.max_num_id(current_table, 'id_tomba') + 1
+                                        # Store mapping
+                                        media_mapper.add_id_mapping('TOMBA', old_id, new_id)
+                                        
                                         data = self.DB_MANAGER_write.insert_values_tomba(
-                                            self.DB_MANAGER_write.max_num_id(current_table, 'id_tomba') + 1,
+                                            new_id,
                                             str(data_list_toimp_current[sing_rec].sito),
                                             str(data_list_toimp_current[sing_rec].area),
                                             str(data_list_toimp_current[sing_rec].nr_scheda_taf),
@@ -7456,8 +7491,14 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                                             except:
                                                 continue  # Skip on any error
                                     elif current_table == 'TMA':
+                                        # Get old ID and generate new ID
+                                        old_id = data_list_toimp_current[sing_rec].id
+                                        new_id = self.DB_MANAGER_write.max_num_id(current_table, 'id_tma') + 1
+                                        # Store mapping
+                                        media_mapper.add_id_mapping('TMA', old_id, new_id)
+                                        
                                         data = self.DB_MANAGER_write.insert_tma_values(
-                                            self.DB_MANAGER_write.max_num_id(current_table, 'id_tma') + 1,
+                                            new_id,
                                             data_list_toimp_current[sing_rec].sito,
                                             data_list_toimp_current[sing_rec].area,
                                             data_list_toimp_current[sing_rec].ogtm,
@@ -7495,8 +7536,14 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                                             data_list_toimp_current[sing_rec].draa
                                         )
                                     elif current_table == 'MEDIA':
+                                        # Get old ID and generate new ID
+                                        old_id = data_list_toimp_current[sing_rec].id_media
+                                        new_id = self.DB_MANAGER_write.max_num_id(current_table, 'id_media') + 1
+                                        # Store mapping
+                                        media_mapper.add_id_mapping('MEDIA', old_id, new_id)
+                                        
                                         data = self.DB_MANAGER_write.insert_media_values(
-                                            self.DB_MANAGER_write.max_num_id(current_table, 'id_media') + 1,
+                                            new_id,
                                             data_list_toimp_current[sing_rec].mediatype,
                                             data_list_toimp_current[sing_rec].filename,
                                             data_list_toimp_current[sing_rec].filetype,
@@ -7516,14 +7563,17 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                                             data_list_toimp_current[sing_rec].path_resize
                                         )
                                     elif current_table == 'MEDIATOENTITY':
+                                        # Usa il mapper per ottenere gli ID aggiornati
+                                        updated_data = media_mapper.update_mediatoentity_record(data_list_toimp_current[sing_rec])
+                                        
                                         data = self.DB_MANAGER_write.insert_media2entity_values(
                                             self.DB_MANAGER_write.max_num_id(current_table, 'id_mediaToEntity') + 1,
-                                            data_list_toimp_current[sing_rec].id_entity,
-                                            data_list_toimp_current[sing_rec].entity_type,
-                                            data_list_toimp_current[sing_rec].table_name,
-                                            data_list_toimp_current[sing_rec].id_media,
-                                            data_list_toimp_current[sing_rec].filepath,
-                                            data_list_toimp_current[sing_rec].media_name
+                                            updated_data['id_entity'],
+                                            updated_data['entity_type'],
+                                            updated_data['table_name'],
+                                            updated_data['id_media'],
+                                            updated_data['filepath'],
+                                            updated_data['media_name']
                                         )
                                     else:
                                         # Skip unknown tables
@@ -7567,20 +7617,35 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 success_count = len(tables_imported)
                 fail_count = len(failed_tables)
                 
+                # Ottieni il riepilogo dei mapping
+                mapping_summary = media_mapper.get_mapping_summary()
+                
                 if self.L=='it':
                     message = f"Importazione completata.\n\nTabelle importate: {success_count}\nTabelle fallite: {fail_count}\nRecord totali importati: {total_records_imported}"
                     if failed_tables:
                         message += f"\n\nTabelle fallite:\n{', '.join(failed_tables)}"
+                    if mapping_summary:
+                        message += "\n\nMapping ID per media:"
+                        for table, info in mapping_summary.items():
+                            message += f"\n{table}: {info['count']} record mappati"
                     QMessageBox.information(self, "Riepilogo importazione", message, QMessageBox.Ok)
                 elif self.L=='de':
                     message = f"Import abgeschlossen.\n\nTabellen importiert: {success_count}\nFehlgeschlagene Tabellen: {fail_count}\nGesamtzahl importierter Datensätze: {total_records_imported}"
                     if failed_tables:
                         message += f"\n\nFehlgeschlagene Tabellen:\n{', '.join(failed_tables)}"
+                    if mapping_summary:
+                        message += "\n\nID-Zuordnung für Medien:"
+                        for table, info in mapping_summary.items():
+                            message += f"\n{table}: {info['count']} Datensätze zugeordnet"
                     QMessageBox.information(self, "Import-Zusammenfassung", message, QMessageBox.Ok)
                 else:
                     message = f"Import completed.\n\nTables imported: {success_count}\nTables failed: {fail_count}\nTotal records imported: {total_records_imported}"
                     if failed_tables:
                         message += f"\n\nFailed tables:\n{', '.join(failed_tables)}"
+                    if mapping_summary:
+                        message += "\n\nID mapping for media:"
+                        for table, info in mapping_summary.items():
+                            message += f"\n{table}: {info['count']} records mapped"
                     QMessageBox.information(self, "Import Summary", message, QMessageBox.Ok)
                 
                 return  # Exit after ALL import
