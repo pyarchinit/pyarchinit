@@ -108,11 +108,40 @@ class Pyarchinit_db_management(object):
             test_conn = self.conn_str.find("sqlite")
             if test_conn == 0:
                 log_debug("Creating SQLite engine")
+                
+                # Check and update SQLite database if needed
+                db_path = self.conn_str.replace('sqlite:///', '')
+                if os.path.exists(db_path):
+                    log_debug(f"Checking SQLite database for updates: {db_path}")
+                    try:
+                        from .sqlite_db_updater import check_and_update_sqlite_db
+                        # Run updater silently (no parent widget for background operation)
+                        if check_and_update_sqlite_db(db_path):
+                            log_debug("SQLite database updated successfully")
+                        else:
+                            log_debug("SQLite database update not needed or failed")
+                    except Exception as e:
+                        log_debug(f"Error checking SQLite database updates: {e}")
+                        # Continue anyway - don't block connection
+                
                 self.engine = create_engine(self.conn_str, echo=eval(self.boolean))
                 listen(self.engine, 'connect', self.load_spatialite)
             else:
                 log_debug("Creating PostgreSQL engine")
                 self.engine = create_engine(self.conn_str, max_overflow=-1, echo=eval(self.boolean))
+                
+                # Check and update PostgreSQL database if needed
+                log_debug("Checking PostgreSQL database for updates")
+                try:
+                    from .postgres_db_updater import check_and_update_postgres_db
+                    # Create a temporary connection for the updater
+                    if check_and_update_postgres_db(self):
+                        log_debug("PostgreSQL database updated successfully")
+                    else:
+                        log_debug("PostgreSQL database update not needed or failed")
+                except Exception as e:
+                    log_debug(f"Error checking PostgreSQL database updates: {e}")
+                    # Continue anyway - don't block connection
 
             log_debug("Creating metadata")
             self.metadata = MetaData(self.engine)

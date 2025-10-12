@@ -5460,8 +5460,22 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         try:
             # The button is now created in the UI file, just connect the signal
             if hasattr(self, 'pushButton_export_extended_matrix'):
-                self.pushButton_export_extended_matrix.clicked.connect(self.on_pushButton_export_extended_matrix_pressed)
-                print("S3DGraphy Extended Matrix button connected successfully")
+                # Check if we should use integrated export (with DOT/GraphML bridge)
+                use_integrated_export = True  # Set to True to use new integrated export
+                
+                if use_integrated_export:
+                    # Use new integrated export with s3dgraphy + DOT/GraphML
+                    self.pushButton_export_extended_matrix.clicked.connect(self.on_pushButton_export_extended_matrix_integrated)
+                    # Update tooltip
+                    self.pushButton_export_extended_matrix.setToolTip(
+                        "Export Extended Matrix with s3dgraphy + yEd integration\n"
+                        "Combines s3dgraphy processing with DOT/GraphML output"
+                    )
+                    print("S3DGraphy Extended Matrix button connected with INTEGRATED export")
+                else:
+                    # Use original s3dgraphy-only export
+                    self.pushButton_export_extended_matrix.clicked.connect(self.on_pushButton_export_extended_matrix_pressed)
+                    print("S3DGraphy Extended Matrix button connected with standard export")
 
         except Exception as e:
             print(f"Error creating S3DGraphy button: {e}")
@@ -14980,6 +14994,61 @@ DATABASE SCHEMA KNOWLEDGE:
         except AssertionError as e:
             print(e)
 
+    def on_pushButton_export_extended_matrix_integrated(self):
+        """
+        Export Extended Matrix with integrated s3dgraphy + DOT/GraphML support
+        This provides compatibility with yEd and other graph visualization tools
+        """
+        try:
+            from ..modules.s3dgraphy.s3dgraphy_dot_bridge import S3DGraphyExportDialog
+            
+            # Get current site and area
+            site = self.comboBox_sito.currentText()
+            area = self.comboBox_area.currentText()
+            
+            if not site:
+                QMessageBox.warning(self, "No Site Selected",
+                                  "Please select a site before exporting.",
+                                  QMessageBox.Ok)
+                return
+            
+            # Show integrated export dialog
+            dialog = S3DGraphyExportDialog(
+                self,
+                self.DB_MANAGER,
+                site,
+                area if area else None
+            )
+            
+            if dialog.exec_():
+                # Export was successful
+                exported_files = dialog.exported_files
+                if exported_files:
+                    # Optionally open the output folder
+                    import platform
+                    import subprocess
+                    
+                    # Get directory of first exported file
+                    first_file = list(exported_files.values())[0]
+                    output_dir = os.path.dirname(first_file)
+                    
+                    try:
+                        if platform.system() == 'Darwin':  # macOS
+                            subprocess.run(['open', output_dir])
+                        elif platform.system() == 'Windows':
+                            os.startfile(output_dir)
+                        else:  # Linux
+                            subprocess.run(['xdg-open', output_dir])
+                    except:
+                        pass
+                        
+        except Exception as e:
+            QMessageBox.critical(self, "Export Error",
+                               f"Error during integrated export:\n{str(e)}",
+                               QMessageBox.Ok)
+            import traceback
+            traceback.print_exc()
+
     def on_pushButton_export_matrix_pressed(self):
         if self.checkBox_ED.isChecked():
 
@@ -15027,6 +15096,11 @@ DATABASE SCHEMA KNOWLEDGE:
 
     def on_pushButton_export_extended_matrix_pressed(self):
         """Export to Extended Matrix format (S3DGraphy)"""
+        # REDIRECT TO NEW INTEGRATED EXPORT
+        self.on_pushButton_export_extended_matrix_integrated()
+        return
+        
+        # Original code below (disabled)
         try:
             from ..modules.s3dgraphy import S3DGraphyIntegration, S3DGRAPHY_AVAILABLE
             from qgis.PyQt.QtWidgets import QDialog, QVBoxLayout, QHBoxLayout, QPushButton, QCheckBox, QLabel, QGroupBox, QFileDialog
@@ -15158,7 +15232,7 @@ DATABASE SCHEMA KNOWLEDGE:
 
             # Create subdirectory for this export
             from datetime import datetime
-            timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
             export_dir = os.path.join(output_dir, f"{current_site}_{current_area}_{timestamp}")
             os.makedirs(export_dir, exist_ok=True)
 
