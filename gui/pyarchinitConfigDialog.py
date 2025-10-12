@@ -3350,7 +3350,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             self.pushButton_upd_sqlite.setEnabled(is_admin)
             self.pushButton_upd_sqlite.setToolTip(admin_msg)
             # Disable PostgreSQL buttons
-            self.pushButton_upd_postgres.setEnabled(False)
+            self.pushButton_upd_postgres.setEnabled(True)
             if hasattr(self, 'pushButton_crea_database'):
                 self.pushButton_crea_database.setEnabled(False)
             if hasattr(self, 'pushButton_restore_postgres'):

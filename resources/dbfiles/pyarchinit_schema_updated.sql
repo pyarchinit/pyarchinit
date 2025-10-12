@@ -1654,7 +1654,16 @@ CREATE TABLE public.pyarchinit_thesaurus_sigle (
     sigla character varying(255),
     sigla_estesa character varying,
     descrizione character varying,
-    tipologia_sigla character varying
+    tipologia_sigla character varying,
+    lingua character varying(10) DEFAULT 'it',
+    n_tipologia integer,
+    n_sigla integer,
+    order_layer integer DEFAULT 0,
+    id_parent integer,
+    parent_sigla character varying,
+    hierarchy_level integer DEFAULT 0,
+    CONSTRAINT thesaurus_unique_key UNIQUE (lingua, nome_tabella, tipologia_sigla, sigla_estesa),
+    CONSTRAINT thesaurus_unique_sigla UNIQUE (lingua, nome_tabella, tipologia_sigla, sigla)
 );
 
 
