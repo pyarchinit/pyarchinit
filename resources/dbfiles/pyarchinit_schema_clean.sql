@@ -2232,7 +2232,8 @@ CREATE TABLE public.pyarchinit_reperti
     the_geom geometry(Point,-1),
     id_rep BIGINT,
     siti character varying(255),
-    link character varying(255)
+    link character varying(255),
+    quota REAL
 );
 
 ALTER TABLE public.pyarchinit_reperti
@@ -2241,6 +2242,58 @@ ALTER TABLE public.pyarchinit_reperti
 -- Index: sidx_pyarchinit_reperti_the_geom
 
 -- DROP INDEX public.sidx_pyarchinit_reperti_the_geom;
+
+-- Create view for pyarchinit_reperti
+CREATE VIEW pyarchinit_reperti_view AS 
+SELECT
+    a.gid,
+    a.the_geom,
+    a.id_rep,
+    a.siti,
+    a.quota,
+    b.id_invmat,
+    b.sito,
+    b.numero_inventario,
+    b.tipo_reperto,
+    b.criterio_schedatura,
+    b.definizione,
+    b.descrizione,
+    b.area::text as area,
+    b.us::text as us,
+    b.lavato,
+    b.nr_cassa,
+    b.luogo_conservazione,
+    b.stato_conservazione,
+    b.datazione_reperto,
+    b.elementi_reperto,
+    b.misurazioni,
+    b.rif_biblio,
+    b.tecnologie,
+    b.forme_minime,
+    b.forme_massime,
+    b.totale_frammenti,
+    b.corpo_ceramico,
+    b.rivestimento,
+    b.diametro_orlo,
+    b.peso,
+    b.tipo,
+    b.eve_orlo,
+    b.repertato,
+    b.diagnostico,
+    b.n_reperto,
+    b.tipo_contenitore,
+    b.struttura,
+    b.years::text as years,
+    b.schedatore,
+    b.date_scheda,
+    b.punto_rinv,
+    b.negativo_photo,
+    b.diapositiva
+FROM pyarchinit_reperti a
+JOIN inventario_materiali_table b ON 
+    a.siti = b.sito AND 
+    a.id_rep = b.numero_inventario;
+
 CREATE TABLE public.us_table_toimp (
     id_us BIGINT NOT NULL,
     sito text,
