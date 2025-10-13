@@ -672,47 +672,142 @@ class pyarchinit_view_Matrix_pre(QDialog, MAIN_DIALOG_CLASS):
         data = []
         negative = []
         conteporane = []
-        # QMessageBox.information(None, "Info", str(self.DATA_LIST[0].us), QMessageBox.Ok)
+        
+        # Prepara lista delle US visibili per filtraggio
+        visible_us_set = set()
+        bridge_us_set = set()  # US ponte per mantenere continuità
+        
+        if hasattr(self, 'visible_us_list') and self.visible_us_list:
+            for area_val, us_val in self.visible_us_list:
+                visible_us_set.add(f"{area_val}_US{us_val}")
+        
+        print(f"DEBUG - Total records in DATA_LIST: {len(self.DATA_LIST)}")
+        print(f"DEBUG - Visible US list length: {len(self.visible_us_list) if hasattr(self, 'visible_us_list') and self.visible_us_list else 0}")
+        
+        # Primo pass: identifica US ponte necessarie per mantenere continuità
+        if visible_us_set:
+            print(f"DEBUG - Looking for bridge US to maintain continuity...")
+            for sing_rec in self.DATA_LIST:
+                us = str(sing_rec['us'])
+                area = str(sing_rec['area'])
+                current_us_key = f"{area}_US{us}"
+                
+                if current_us_key in visible_us_set:
+                    try:
+                        rapporti_stratigrafici = eval(sing_rec['rapporti'])
+                        for sing_rapp in rapporti_stratigrafici:
+                            if len(sing_rapp) >= 2 and sing_rapp[1] != '':
+                                target_area = str(sing_rapp[2]) if len(sing_rapp) > 2 else area
+                                target_us_key = f"{target_area}_US{sing_rapp[1]}"
+                                
+                                # Se target non è visibile ma necessario per continuità, aggiungilo come ponte
+                                if target_us_key not in visible_us_set:
+                                    bridge_us_set.add(target_us_key)
+                                    print(f"DEBUG - Added bridge US: {target_us_key}")
+                    except:
+                        pass
+            
+            print(f"DEBUG - Bridge US found: {len(bridge_us_set)}")
+        
+        # Combina visible e bridge US
+        all_us_set = visible_us_set | bridge_us_set if visible_us_set else set()
+        print(f"DEBUG - Total US to process: {len(all_us_set)}")
+        
+        # Set per tracciare relazioni già aggiunte e prevenire cicli semplici
+        added_relations = set()
+        
         for sing_rec in self.DATA_LIST:
             us = str(sing_rec['us'])
-
-
             area = str(sing_rec['area'])
+            current_us_key = f"{area}_US{us}"
+            
+            # Se abbiamo una lista di US visibili, filtra usando all_us_set (include bridge US)
+            if all_us_set and current_us_key not in all_us_set:
+                print(f"DEBUG - Skipping US {current_us_key} - not in visible/bridge set")
+                continue
+            else:
+                print(f"DEBUG - Processing US {current_us_key}")
 
-            rapporti_stratigrafici = eval(sing_rec['rapporti'])
+            try:
+                rapporti_stratigrafici = eval(sing_rec['rapporti'])
+            except:
+                print(f"DEBUG - Error parsing rapporti for US {current_us_key}: {sing_rec.get('rapporti', 'N/A')}")
+                rapporti_stratigrafici = []
 
 
             try:
                 for sing_rapp in rapporti_stratigrafici:
-                    if sing_rapp[0] in ['Covers', 'Abuts', 'Fills', 'Copre', 'Si appoggia a', 'Riempie', 'Verfüllt',
-                                        'Bindet an', 'Entspricht']:
-                        if sing_rapp[1] != '':
-                            harris_rapp = (area + '_' + 'US' + us, str(sing_rapp[2]) + '_' + 'US' + str(sing_rapp[1]))
-                            data.append(harris_rapp)
+                    if len(sing_rapp) >= 2 and sing_rapp[1] != '':
+                        # Gestisce sia formato a 2 elementi che formato a 3+ elementi
+                        target_area = str(sing_rapp[2]) if len(sing_rapp) > 2 else area
+                        target_us_key = f"{target_area}_US{sing_rapp[1]}"
+                        
+                        # Se abbiamo filtro e l'US target non è nella lista (visible + bridge), salta
+                        if all_us_set and target_us_key not in all_us_set:
+                            print(f"DEBUG - Skipping relation to {target_us_key} - not in processed set")
+                            continue
+                            
+                        if sing_rapp[0] in ['Covers', 'Abuts', 'Fills', 'Copre', 'Si appoggia a', 'Riempie', 'Verfüllt',
+                                            'Bindet an', 'Entspricht']:
+                            harris_rapp = (current_us_key, target_us_key)
+                            reverse_relation = (target_us_key, current_us_key)
+                            
+                            # Evita cicli diretti
+                            if harris_rapp not in added_relations and reverse_relation not in added_relations:
+                                data.append(harris_rapp)
+                                added_relations.add(harris_rapp)
+                        elif sing_rapp[0] in ['Coperto da', 'Covered by', 'Riempito da']:
+                            # Inverti la relazione per "coperto da"
+                            harris_rapp = (target_us_key, current_us_key)
+                            reverse_relation = (current_us_key, target_us_key)
+                            
+                            # Evita cicli diretti
+                            if harris_rapp not in added_relations and reverse_relation not in added_relations:
+                                data.append(harris_rapp)
+                                added_relations.add(harris_rapp)
 
-                    if sing_rapp[0] in ['Taglia', 'Cuts', 'Schneidet']:
-                        if sing_rapp[1] != '':
-                            harris_rapp1 = (area + '_' + 'US' + us, str(sing_rapp[2]) + '_' + 'US' + str(sing_rapp[1]))
-                            negative.append(harris_rapp1)
+                        elif sing_rapp[0] in ['Taglia', 'Cuts', 'Schneidet']:
+                            harris_rapp1 = (current_us_key, target_us_key)
+                            if harris_rapp1 not in added_relations:
+                                negative.append(harris_rapp1)
+                                added_relations.add(harris_rapp1)
+                        elif sing_rapp[0] in ['Tagliato da', 'Cut by']:
+                            # Inverti la relazione per "tagliato da"
+                            harris_rapp1 = (target_us_key, current_us_key)
+                            if harris_rapp1 not in added_relations:
+                                negative.append(harris_rapp1)
+                                added_relations.add(harris_rapp1)
 
-                    if sing_rapp[0] in ['Si lega a', 'Uguale a', 'Connected to', 'Same as', 'Liegt über',
-                                        'Stützt sich auf']:
-                        if sing_rapp[1] != '':
-                            harris_rapp2 = (area + '_' + 'US' + us, str(sing_rapp[2]) + '_' + 'US' + str(sing_rapp[1]))
-                            conteporane.append(harris_rapp2)
+                        elif sing_rapp[0] in ['Si lega a', 'Uguale a', 'Connected to', 'Same as', 'Liegt über',
+                                            'Stützt sich auf', 'Gli si appoggia', '<']:
+                            harris_rapp2 = (current_us_key, target_us_key)
+                            if harris_rapp2 not in added_relations:
+                                conteporane.append(harris_rapp2)
+                                added_relations.add(harris_rapp2)
+                        elif sing_rapp[0] in ['Riempie', 'Fills']:
+                            harris_rapp = (current_us_key, target_us_key)
+                            reverse_relation = (target_us_key, current_us_key)
+                            
+                            # Evita cicli diretti
+                            if harris_rapp not in added_relations and reverse_relation not in added_relations:
+                                data.append(harris_rapp)
+                                added_relations.add(harris_rapp)
+                        elif sing_rapp[0] in ['Riempito da', 'Filled by']:
+                            harris_rapp = (target_us_key, current_us_key)
+                            reverse_relation = (current_us_key, target_us_key)
+                            
+                            # Evita cicli diretti
+                            if harris_rapp not in added_relations and reverse_relation not in added_relations:
+                                data.append(harris_rapp)
+                                added_relations.add(harris_rapp)
             except Exception as e:
-                print(f"Errore durante la generazione della matrice: {e}")
-
-
-            except Exception as e:
-
+                print(f"Errore durante la generazione della matrice per US {current_us_key}: {e}")
                 if self.L == 'it':
                     QMessageBox.warning(self, "Warning", "Problema nel sistema di esportazione del Matrix:" + str(e),
                                         QMessageBox.Ok)
                 elif self.L == 'de':
                     QMessageBox.warning(self, "Warnung", "Problem im Matrix-Exportsystem:" + str(e),
                                         QMessageBox.Ok)
-
                 else:
                     QMessageBox.warning(self, "Warning", "Problem in the Matrix export system:" + str(e),
                                         QMessageBox.Ok)
@@ -757,32 +852,51 @@ class pyarchinit_view_Matrix_pre(QDialog, MAIN_DIALOG_CLASS):
 
                 periodo_label = "%s" % (str(i[1]))
 
-                sing_us = [rec.area + '_' + 'US' + str(rec.us) for rec in
-                           us_group]  # create list of 'us' under the same 'area', 'periodo_iniziale' and 'fase_iniziale'
+                # Filtra solo le US visibili se abbiamo un filtro
+                if visible_us_set:
+                    sing_us = []
+                    for rec in us_group:
+                        us_key = f"{rec.area}_US{rec.us}"
+                        if us_key in visible_us_set:
+                            sing_us.append(us_key)
+                else:
+                    sing_us = [rec.area + '_' + 'US' + str(rec.us) for rec in us_group]
 
-                fase = "Fase%s: %s" % (str(i[3]), str(i[4]))
-                sing_fase = [fase,
-                             sing_us]  # create a nested list for each 'periodo_fase' with its corresponding list of 'us'
+                # Solo aggiungi se ci sono US visibili
+                if sing_us:
+                    fase = "Fase%s: %s" % (str(i[3]), str(i[4]))
+                    sing_fase = [fase,
+                                 sing_us]  # create a nested list for each 'periodo_fase' with its corresponding list of 'us'
 
-                periodo = "%s" % (str(i[2]))
-                sing_per = [periodo,
-                            sing_fase]  # create a nested list for each 'periodo_fase' with its corresponding list of 'us'
+                    periodo = "%s" % (str(i[2]))
+                    sing_per = [periodo,
+                                sing_fase]  # create a nested list for each 'periodo_fase' with its corresponding list of 'us'
 
-                sing_per = [periodo_label,
-                            sing_per]  # create a nested list for each 'periodo_fase' with its corresponding list of 'us'
+                    sing_per = [periodo_label,
+                                sing_per]  # create a nested list for each 'periodo_fase' with its corresponding list of 'us'
 
-                area_label = "%s" % str(area)  # create area label
-                sing_area = [cluster_label, area_label,
-                             sing_per]  # create list that includes area label and the nested 'sing_per' list
+                    area_label = "%s" % str(area)  # create area label
+                    sing_area = [cluster_label, area_label,
+                                 sing_per]  # create list that includes area label and the nested 'sing_per' list
 
-                sito_label = "%s" % str(sito)  # create sito label
-                sing_sito = [cluster_label, sito_label,
-                             sing_area]  # create list that includes sito label and the nested 'sing_area' list
+                    sito_label = "%s" % str(sito)  # create sito label
+                    sing_sito = [cluster_label, sito_label,
+                                 sing_area]  # create list that includes sito label and the nested 'sing_area' list
 
-                periodi_us_list.append(sing_sito)  # append the nested 'sing_sito' list to the 'periodi_us_list'
+                    periodi_us_list.append(sing_sito)  # append the nested 'sing_sito' list to the 'periodi_us_list'
 
                 clust_number += 1
 
+        print(f"DEBUG - Data nodes: {len(data)}")
+        print(f"DEBUG - Negative nodes: {len(negative)}")
+        print(f"DEBUG - Conteporane nodes: {len(conteporane)}")
+        print(f"DEBUG - Visible US set size: {len(visible_us_set)}")
+        print(f"DEBUG - Visible US set: {list(visible_us_set)[:10]}")
+        if data:
+            print(f"DEBUG - Sample data: {data[:5]}")
+        else:
+            print("DEBUG - No data nodes generated!")
+        
         matrix_exp = ViewHarrisMatrix(data, negative, conteporane, '', '', periodi_us_list)
 
         data_plotting = matrix_exp.export_matrix_3

@@ -39,7 +39,7 @@ except ImportError:
         raise Exception(f"Unsupported platform: {sys.platform}")
     print("openai installed successfully")
 from qgis.PyQt.QtGui import QPixmap, QPainter, QImage
-from qgis.PyQt.QtWidgets import QFileDialog, QGraphicsScene,  QGraphicsView, QListWidgetItem, QDialog, QMessageBox
+from qgis.PyQt.QtWidgets import QFileDialog, QGraphicsScene,  QGraphicsView, QListWidgetItem, QDialog, QMessageBox, QProgressDialog
 from qgis.PyQt.QtCore import Qt, pyqtSlot, QCoreApplication, QThread
 from qgis.core import Qgis,QgsLayoutFrame, QgsMessageLog, QgsProject, QgsLayoutExporter, QgsApplication, QgsLayoutItemMap, QgsReadWriteContext, QgsPrintLayout,QgsLayoutMultiFrame, QgsLayoutItemHtml, QgsLayoutItemPicture
 from qgis.PyQt.QtXml import QDomDocument
@@ -216,30 +216,43 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
             try:
                 self.id_us_dict = {}
 
+                # Ottieni il valore corrente dell'order_layer
+                current_order_layer = self.spinBox_relative_cronology.value()
+                
                 data_list = []
+                visible_us_list = []
+                
                 for layer in self.selected_layers:
-
                     fields = layer.fields()
                     self.fieldname = next((field.name() for field in fields if 'datazione' in field.name().lower()), '')
                     if not self.fieldname:
                         print(f"No 'datazione' field found in layer {layer.name()}")
                         continue
-                    #self.us = next((field.name() for field in fields if 'us' in field.name().lower()), '')
-                    #self.rapporti = next((field.name() for field in fields if 'rapporti' in field.name().lower()), '')
-                    # Crea un dizionario che mappa ogni attributo "us" a una lista di attributi "datazione" corrispondenti
 
                     for feature in layer.getFeatures():
-                        data_dict = {field.name(): feature[field.name()] for field in feature.fields()}
-                        data_list.append(data_dict)
-                        order_layer = feature.attribute("order_layer")
-                        datazione = feature.attribute(self.fieldname)
-                        if order_layer in self.id_us_dict:
-                            self.id_us_dict[order_layer].append(datazione)
-                        else:
-                            self.id_us_dict[order_layer] = [datazione]
+                        feature_order_layer = feature.attribute("order_layer")
+                        
+                        # Include solo le US con order_layer <= valore corrente
+                        if feature_order_layer is not None and feature_order_layer <= current_order_layer:
+                            data_dict = {field.name(): feature[field.name()] for field in feature.fields()}
+                            data_list.append(data_dict)
+                            
+                            # Aggiungi alla lista delle US visibili
+                            us_val = feature.attribute("us")
+                            area_val = feature.attribute("area")
+                            if us_val is not None and area_val is not None:
+                                visible_us_list.append((str(area_val), str(us_val)))
+                            
+                            datazione = feature.attribute(self.fieldname)
+                            if feature_order_layer in self.id_us_dict:
+                                self.id_us_dict[feature_order_layer].append(datazione)
+                            else:
+                                self.id_us_dict[feature_order_layer] = [datazione]
 
-                dlg = pyarchinit_view_Matrix_pre(self.iface, data_list, self.id_us_dict)
-                dlg.generate_matrix_3()
+                if data_list:  # Genera matrice solo se ci sono dati
+                    dlg = pyarchinit_view_Matrix_pre(self.iface, data_list, self.id_us_dict)
+                    dlg.visible_us_list = visible_us_list  # Passa la lista delle US visibili
+                    dlg.generate_matrix_3()
                 HOME = os.environ['PYARCHINIT_HOME']
                 path = '{}{}{}{}'.format(HOME, os.sep, "pyarchinit_Matrix_folder/", 'Harris_matrix_viewtred.dot.jpg')
                 if path:
@@ -400,8 +413,51 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
             return
 
         max_num_order_layer = self.DB_MANAGER.max_num_id(self.MAPPER_TABLE_CLASS, "order_layer")
-        for value in range(self.spinBox_relative_cronology.minimum(), max_num_order_layer):
-            if self.abort:
+        
+        # Calcola quanti order_layer hanno datazione valida per la progress bar
+        valid_order_layers = []
+        for value in range(0, max_num_order_layer + 1):
+            has_valid_datazione = False
+            for layer in self.selected_layers:
+                fields = layer.fields()
+                fieldname = next((field.name() for field in fields if 'datazione' in field.name().lower()), '')
+                if fieldname:
+                    for feature in layer.getFeatures():
+                        if (feature.attribute("order_layer") == value and 
+                            feature.attribute(fieldname) and 
+                            str(feature.attribute(fieldname)).strip() != ''):
+                            has_valid_datazione = True
+                            break
+                if has_valid_datazione:
+                    break
+            if has_valid_datazione:
+                valid_order_layers.append(value)
+        
+        if not valid_order_layers:
+            QMessageBox.information(self, "Info", "Nessun order_layer con datazione valida trovato.")
+            return
+        
+        # Crea progress dialog non modale
+        progress = QProgressDialog("Generazione tavole in corso...", "Annulla", 0, len(valid_order_layers), self)
+        progress.setWindowTitle("Generazione Atlas")
+        progress.setWindowModality(Qt.NonModal)  # Non bloccare l'interfaccia
+        progress.setAutoClose(False)  # Non chiudere automaticamente
+        progress.setAutoReset(False)  # Non reset automaticamente
+        progress.show()
+        progress_count = 0
+        
+        print(f"=== DEBUG: Inizio atlas generation ===")
+        print(f"Valid order layers: {valid_order_layers}")
+        print(f"Max order layer: {max_num_order_layer}")
+        
+        print(f"Inizio generazione atlas per {len(valid_order_layers)} order_layer validi...")
+        
+        # Usa tutti gli order_layer da 0 al massimo
+        # Il controllo per la datazione verrà fatto durante l'iterazione
+        for value in range(0, max_num_order_layer + 1):
+            print(f"DEBUG: Processing order_layer {value}")
+            if self.abort or progress.wasCanceled():
+                print(f"DEBUG: Aborted at order_layer {value}")
                 self.abort = False  # resetta l'attributo per il prossimo utilizzo
                 break
             self.current_value = value
@@ -452,27 +508,54 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
 
             self.id_us_dict = {}
 
+            # Raccogli solo le US visibili nel layer corrente (order_layer <= value)
             data_list = []
+            visible_us_list = []
+            has_valid_datazione = False
+            
             for layer in self.selected_layers:
-
                 fields = layer.fields()
                 self.fieldname = next((field.name() for field in fields if 'datazione' in field.name().lower()), '')
                 if not self.fieldname:
                     print(f"No 'datazione' field found in layer {layer.name()}")
                     continue
-                # self.us = next((field.name() for field in fields if 'us' in field.name().lower()), '')
-                # self.rapporti = next((field.name() for field in fields if 'rapporti' in field.name().lower()), '')
-                # Crea un dizionario che mappa ogni attributo "us" a una lista di attributi "datazione" corrispondenti
 
-                for feature in layer.getFeatures():
-                    data_dict = {field.name(): feature[field.name()] for field in feature.fields()}
-                    data_list.append(data_dict)
-                    order_layer = feature.attribute("order_layer")
-                    datazione = feature.attribute(self.fieldname)
-                    #if order_layer in self.id_us_dict:
-                        #self.id_us_dict[order_layer].append(datazione)
-                    #else:
-                        #self.id_us_dict[order_layer] = [datazione]
+                # Ottieni solo le features visibili (che rispettano il filtro corrente)
+                request = layer.getFeatures()
+                for feature in request:
+                    feature_order_layer = feature.attribute("order_layer")
+                    
+                    # Include solo le US con order_layer <= valore corrente
+                    if feature_order_layer is not None and feature_order_layer <= value:
+                        datazione = feature.attribute(self.fieldname)
+                        
+                        # Controlla se almeno una US ha datazione per questo order_layer
+                        if feature_order_layer == value and datazione and str(datazione).strip() != '':
+                            has_valid_datazione = True
+                        
+                        data_dict = {field.name(): feature[field.name()] for field in feature.fields()}
+                        data_list.append(data_dict)
+                        
+                        # Aggiungi alla lista delle US visibili
+                        us_val = feature.attribute("us")
+                        area_val = feature.attribute("area")
+                        if us_val is not None and area_val is not None:
+                            visible_us_list.append((str(area_val), str(us_val)))
+            
+            # Salta questo order_layer se non ha datazione valida
+            if not has_valid_datazione:
+                print(f"Skipping order_layer {value} - no valid datazione")
+                continue
+            
+            # Aggiorna progress dialog
+            progress_count += 1
+            progress.setValue(progress_count)
+            progress.setLabelText(f"Generando Tavola {value} ({progress_count}/{len(valid_order_layers)})...")
+            
+            # Controlla se l'utente ha annullato
+            if progress.wasCanceled():
+                self.abort = True
+                break
 
             # Ottieni l'elemento immagine dal layout
             image_item = None
@@ -485,11 +568,13 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
                 return
 
             # controllo se il checkbox 'matrix' è attivo
-            if bool(self.checkBox_matrix.isChecked()):
+            if bool(self.checkBox_matrix.isChecked()) and data_list:
+                # Passa solo i dati delle US visibili alla generazione della matrice
                 dlg = pyarchinit_view_Matrix_pre(self.iface, data_list, self.id_us_dict)
+                dlg.visible_us_list = visible_us_list  # Passa la lista delle US visibili
                 dlg.generate_matrix_3()
                 matrix_image = '{}{}{}{}'.format(HOME, os.sep, "pyarchinit_Matrix_folder/",
-                                                 "Harris_matrix_viewtred.jpg")  # path dell'immagine della matrice
+                                                 "Harris_matrix_viewtred.dot.jpg")  # path dell'immagine della matrice
 
                 if matrix_image:
                     # Impostare l'immagine della matrice sull'elemento immagine
@@ -513,7 +598,9 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
             self.current_layout.refresh()
             exporter = QgsLayoutExporter(self.current_layout)
             image_path = f"{self.path}/Tavola_{value}.jpg"
+            print(f"DEBUG: Exporting Tavola_{value}.jpg to {image_path}")
             exporter.exportToImage(image_path, QgsLayoutExporter.ImageExportSettings())
+            print(f"DEBUG: ✓ Tavola_{value}.jpg exported successfully")
             # Rimuovi la graphicsView esistente dal layout
             self.horizontalLayout_2.removeWidget(self.graphicsView)
 
@@ -530,6 +617,21 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
             self.graphicsView.setScene(scene)
             self.graphicsView.setFocus()
             self.graphicsView.fitInView(scene.itemsBoundingRect(), Qt.KeepAspectRatio)
+        
+        # Chiudi progress bar e mostra messaggio di completamento
+        progress.close()
+        
+        if not self.abort and not progress.wasCanceled():
+            QMessageBox.information(self, "Atlas Completato", 
+                                  f"Generazione atlas completata con successo!\n"
+                                  f"Tavole generate: {progress_count}\n"
+                                  f"Salvate in: {self.path}")
+            print(f"Atlas generato con successo: {progress_count} tavole create")
+        else:
+            QMessageBox.information(self, "Atlas Interrotto", 
+                                  f"Generazione atlas interrotta dall'utente.\n"
+                                  f"Tavole generate prima dell'interruzione: {progress_count}")
+            print("Generazione atlas interrotta dall'utente")
 
     def stop_processes_named(self, name):
         for proc in psutil.process_iter(['pid', 'name']):

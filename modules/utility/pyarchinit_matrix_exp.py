@@ -758,7 +758,8 @@ class ViewHarrisMatrix:
         G.graph_attr['nodesep'] = "1"
         G.graph_attr['ranksep'] = "3"
         G.graph_attr['splines'] = 'ortho'
-        G.graph_attr['dpi'] = '300'
+        # DPI iniziale, verrà ottimizzato automaticamente se necessario
+        G.graph_attr['dpi'] = '150'
 
         elist1 = []
         elist2 = []
@@ -910,7 +911,7 @@ class ViewHarrisMatrix:
             # Rendering del file DOT
             G.format = 'dot'
             dot_file = G.render(directory=matrix_path, filename=filename)
-            tred_output_file_path = os.path.join(matrix_path, f"{filename}_viewtred")
+            tred_output_file_path = os.path.join(matrix_path, f"{filename}_viewtred.dot")
 
             error_file_path = os.path.join(matrix_path, 'matrix_error.txt')
         except Exception as e:
@@ -923,27 +924,59 @@ class ViewHarrisMatrix:
             startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
             startupinfo.wShowWindow = subprocess.SW_HIDE
 
-        try:
-
-            with open(tred_output_file_path, "w") as out_file, open(error_file_path, "w") as err_file:
-                subprocess.call(['tred', dot_file], stdout=out_file, stderr=err_file, startupinfo=startupinfo)
-            # showMessage("Comando `tred` eseguito con successo.")
-        except Exception as e:
-            #showMessage(f"Errore durante l'esecuzione di `tred`: {e}", title='Errore', icon=QMessageBox.Critical)
-            return
-        if os.path.getsize(error_file_path) > 0:
-            with open(error_file_path, "r") as err_file:
-                errors = err_file.read()
-                showMessage(f"Errori durante l'esecuzione di `tred`:\n{errors}\n prova a ridurre i dpi", title='Errore',
-                icon=QMessageBox.Warning)
+        # Sistema intelligente auto-adattivo per DPI
+        dpi_levels = ['150', '120', '100', '75', '50']  # DPI decrescenti da provare
+        matrix_generated = False
+        
+        for i, current_dpi in enumerate(dpi_levels):
+            try:
+                print(f"Tentativo generazione matrice con DPI {current_dpi} ({i+1}/{len(dpi_levels)})...")
+                
+                # Aggiorna DPI nel grafico
+                G.graph_attr['dpi'] = current_dpi
+                
+                # Rigenera il file DOT con il nuovo DPI
+                G.format = 'dot'
+                dot_file = G.render(directory=matrix_path, filename=filename, cleanup=True)
+                
+                # Esegui tred
+                with open(tred_output_file_path, "w") as out_file, open(error_file_path, "w") as err_file:
+                    subprocess.call(['tred', dot_file], stdout=out_file, stderr=err_file, startupinfo=startupinfo)
+                
+                # Controlla errori ma non mostrare all'utente se sono solo warning sui cicli
+                has_critical_errors = False
+                if os.path.getsize(error_file_path) > 0:
+                    with open(error_file_path, "r") as err_file:
+                        errors = err_file.read().lower()
+                        # Solo errori critici, non warning sui cicli
+                        if 'error' in errors and 'warning' not in errors:
+                            has_critical_errors = True
+                            print(f"Errori critici con DPI {current_dpi}: {errors}")
+                        else:
+                            print(f"Warning tred con DPI {current_dpi} (normale per matrici complesse)")
+                
+                # Prova il rendering
+                if not has_critical_errors:
+                    try:
+                        g = Source.from_file(tred_output_file_path, format='jpg')
+                        g.render()
+                        matrix_generated = True
+                        print(f"✓ Matrice generata con successo con DPI {current_dpi}")
+                        break  # Successo, esci dal loop
+                    except Exception as render_error:
+                        print(f"Errore rendering con DPI {current_dpi}: {render_error}")
+                        continue  # Prova DPI successivo
+                        
+            except Exception as e:
+                print(f"Errore generale con DPI {current_dpi}: {e}")
+                continue  # Prova DPI successivo
+        
+        # Solo se non riusciamo a generare con nessun DPI, mostra errore (solo in console)
+        if not matrix_generated:
+            print("ERRORE: Impossibile generare la matrice anche con DPI ridotti. Controlla i dati stratigrafici.")
+            # Solo per debug critici, non durante l'atlas
+            # showMessage(f"Impossibile generare la matrice anche con DPI ridotti. Controlla i dati stratigrafici.", 
+            #            title='Errore Matrix', icon=QMessageBox.Warning)
         else:
-            pass#showMessage("Nessun errore riportato da `tred`.")
-
-        try:
-            g = Source.from_file(tred_output_file_path, format='jpg')
-            g.render()
-            #showMessage("Rendering del grafico completato.")
-            # return g (Considera che in una GUI, potresti voler gestire il risultato in modo diverso)
-        except Exception as e:
-            showMessage(f"Errore durante il rendering del grafico finale: {e}", title='Errore',
-            icon=QMessageBox.Critical)
+            # Messaggio di successo solo in console per non interrompere l'atlas
+            print(f"✓ Matrice Harris generata con successo! Utilizzato DPI ottimale per le dimensioni dei dati.")
