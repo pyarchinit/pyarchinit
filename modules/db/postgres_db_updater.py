@@ -45,6 +45,9 @@ class PostgresDbUpdater:
             # Aggiorna la tabella reperti
             self.update_reperti_table()
             
+            # Aggiorna la view pyarchinit_us_view
+            self.update_us_view()
+            
             # Altri aggiornamenti possono essere aggiunti qui in futuro
             
             if self.updates_made:
@@ -266,6 +269,122 @@ class PostgresDbUpdater:
             
         except Exception as e:
             self.log_message(f"Errore controllando pyarchinit_reperti_view: {e}")
+    
+    def update_us_view(self):
+        """Crea o aggiorna la view pyarchinit_us_view"""
+        self.log_message("Controllo view pyarchinit_us_view...")
+        
+        try:
+            from sqlalchemy import text
+            
+            # Drop existing view if any
+            drop_query = text("DROP VIEW IF EXISTS pyarchinit_us_view CASCADE")
+            self.db_manager.engine.execute(drop_query)
+            
+            # Create view with all fields including order_layer and cont_per
+            create_query = text("""
+                CREATE VIEW pyarchinit_us_view AS
+                SELECT 
+                    pyunitastratigrafiche.gid::INTEGER as gid,
+                    pyunitastratigrafiche.the_geom,
+                    pyunitastratigrafiche.tipo_us_s,
+                    pyunitastratigrafiche.scavo_s,
+                    pyunitastratigrafiche.area_s,
+                    pyunitastratigrafiche.us_s,
+                    pyunitastratigrafiche.stratigraph_index_us,
+                    us_table.id_us,
+                    us_table.sito,
+                    us_table.area,
+                    us_table.us,
+                    us_table.struttura,
+                    us_table.d_stratigrafica,
+                    us_table.d_interpretativa,
+                    us_table.descrizione,
+                    us_table.interpretazione,
+                    us_table.rapporti,
+                    us_table.periodo_iniziale,
+                    us_table.fase_iniziale,
+                    us_table.periodo_finale,
+                    us_table.fase_finale,
+                    us_table.attivita,
+                    us_table.anno_scavo,
+                    us_table.metodo_di_scavo,
+                    us_table.inclusi,
+                    us_table.campioni,
+                    us_table.organici,
+                    us_table.inorganici,
+                    us_table.data_schedatura,
+                    us_table.schedatore,
+                    us_table.formazione,
+                    us_table.stato_di_conservazione,
+                    us_table.colore,
+                    us_table.consistenza,
+                    us_table.unita_tipo,
+                    us_table.settore,
+                    us_table.quad_par,
+                    us_table.ambient,
+                    us_table.saggio,
+                    us_table.elem_datanti,
+                    us_table.funz_statica,
+                    us_table.lavorazione,
+                    us_table.spess_giunti,
+                    us_table.letti_posa,
+                    us_table.alt_mod,
+                    us_table.un_ed_riass,
+                    us_table.reimp,
+                    us_table.posa_opera,
+                    us_table.quota_min_usm,
+                    us_table.quota_max_usm,
+                    us_table.cons_legante,
+                    us_table.col_legante,
+                    us_table.aggreg_legante,
+                    us_table.con_text_mat,
+                    us_table.col_materiale,
+                    us_table.inclusi_materiali_usm,
+                    us_table.n_catalogo_generale,
+                    us_table.n_catalogo_interno,
+                    us_table.n_catalogo_internazionale,
+                    us_table.soprintendenza,
+                    us_table.quota_relativa,
+                    us_table.quota_abs,
+                    us_table.ref_tm,
+                    us_table.ref_ra,
+                    us_table.ref_n,
+                    us_table.posizione,
+                    us_table.criteri_distinzione,
+                    us_table.modo_formazione,
+                    us_table.componenti_organici,
+                    us_table.componenti_inorganici,
+                    us_table.lunghezza_max,
+                    us_table.altezza_max,
+                    us_table.altezza_min,
+                    us_table.profondita_max,
+                    us_table.profondita_min,
+                    us_table.larghezza_media,
+                    us_table.quota_max,
+                    us_table.quota_min,
+                    us_table.piante,
+                    us_table.documentazione,
+                    us_table.scavato,
+                    us_table.cont_per,
+                    us_table.order_layer,
+                    us_table.rapporti2,
+                    us_table.sing_doc,
+                    us_table.unita_edilizie,
+                    us_table.quantificazioni,
+                    us_table.doc_usv
+                FROM pyunitastratigrafiche
+                JOIN us_table ON 
+                    pyunitastratigrafiche.scavo_s = us_table.sito AND 
+                    pyunitastratigrafiche.area_s = us_table.area AND 
+                    pyunitastratigrafiche.us_s = us_table.us
+            """)
+            
+            self.db_manager.engine.execute(create_query)
+            self.log_message("View pyarchinit_us_view creata/aggiornata con successo")
+            
+        except Exception as e:
+            self.log_message(f"Errore creando/aggiornando pyarchinit_us_view: {e}")
 
 
 def check_and_update_postgres_db(db_manager, parent=None):

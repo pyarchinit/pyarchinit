@@ -55,7 +55,9 @@ CREATE OR REPLACE VIEW public.pyarchinit_pyuscarlinee_view AS
     us_table.periodo_finale,
     us_table.fase_finale,
     us_table.anno_scavo,
-    us_table.cont_per
+    us_table.cont_per,
+    us_table.order_layer,
+    us_table.datazione
    FROM pyuscarlinee
      JOIN us_table ON pyuscarlinee.sito_l::text = us_table.sito AND pyuscarlinee.area_l::text = us_table.area::text AND pyuscarlinee.us_l::text = us_table.us::text;
 
@@ -89,7 +91,9 @@ CREATE OR REPLACE VIEW public.pyarchinit_quote_view AS
     us_table.periodo_finale,
     us_table.fase_finale,
     us_table.anno_scavo,
-    us_table.cont_per
+    us_table.cont_per,
+    us_table.order_layer,
+    us_table.datazione
    FROM pyarchinit_quote
      JOIN us_table ON pyarchinit_quote.sito_q::text = us_table.sito AND pyarchinit_quote.area_q::text = us_table.area::text AND pyarchinit_quote.us_q::text = us_table.us::text AND pyarchinit_quote.unita_tipo_q::text = us_table.unita_tipo::text;
 
@@ -123,7 +127,9 @@ CREATE OR REPLACE VIEW public.pyarchinit_quote_usm_view AS
     us_table.periodo_finale,
     us_table.fase_finale,
     us_table.anno_scavo,
-    us_table.cont_per
+    us_table.cont_per,
+    us_table.order_layer,
+    us_table.datazione
    FROM pyarchinit_quote_usm
      JOIN us_table ON pyarchinit_quote_usm.sito_q::text = us_table.sito AND pyarchinit_quote_usm.area_q::text = us_table.area::text AND pyarchinit_quote_usm.us_q::text = us_table.us::text AND pyarchinit_quote_usm.unita_tipo_q::text = us_table.unita_tipo::text;
 
@@ -515,7 +521,38 @@ ALTER VIEW public.pyarchinit_usm_view
     OWNER TO postgres;
 
 -- View: public.pyarchinit_uscaratterizzazioni_view
--- VIEW REMOVED - pyuscaratterizzazioni table no longer exists
+-- DROP VIEW public.pyarchinit_uscaratterizzazioni_view;
+
+CREATE OR REPLACE VIEW public.pyarchinit_uscaratterizzazioni_view AS
+ SELECT pyuscaratterizzazioni.gid,
+    pyuscaratterizzazioni.the_geom,
+    pyuscaratterizzazioni.tipo_us_c,
+    pyuscaratterizzazioni.scavo_c,
+    pyuscaratterizzazioni.area_c,
+    pyuscaratterizzazioni.us_c,
+    us_table.sito,
+    us_table.id_us,
+    us_table.area,
+    us_table.us,
+    us_table.struttura,
+    us_table.d_stratigrafica AS definizione_stratigrafica,
+    us_table.d_interpretativa AS definizione_interpretativa,
+    us_table.descrizione,
+    us_table.interpretazione,
+    us_table.rapporti,
+    us_table.periodo_iniziale,
+    us_table.fase_iniziale,
+    us_table.periodo_finale,
+    us_table.fase_finale,
+    us_table.anno_scavo,
+    us_table.cont_per,
+    us_table.order_layer,
+    us_table.datazione
+   FROM pyuscaratterizzazioni
+     JOIN us_table ON pyuscaratterizzazioni.scavo_c::text = us_table.sito AND pyuscaratterizzazioni.area_c::text = us_table.area::text AND pyuscaratterizzazioni.us_c::text = us_table.us::text;
+
+ALTER VIEW public.pyarchinit_uscaratterizzazioni_view
+    OWNER TO postgres;
 
 -- View: public.pyarchinit_doc_view
 CREATE OR REPLACE VIEW pyarchinit_doc_view AS 
@@ -618,7 +655,8 @@ CREATE OR REPLACE VIEW public.pyarchinit_doc_view_b AS SELECT
 	struttura AS struttura, 
 	cont_per AS cont_per,
 	order_layer AS order_layer, 
-	documentazione AS documentazione
+	documentazione AS documentazione,
+	datazione AS datazione
 	FROM pyunitastratigrafiche AS a
 	JOIN us_table ON scavo_s ::text = sito AND area_s ::text = area::text AND us_s ::text = us::text;
 	ALTER VIEW public.pyarchinit_doc_view_b OWNER TO postgres;
@@ -659,7 +697,8 @@ CREATE OR REPLACE VIEW public.pyarchinit_us_negative_doc_view AS SELECT
 	struttura,
 	cont_per ,
 	order_layer ,
-	documentazione 
+	documentazione,
+	datazione 
 	FROM pyarchinit_us_negative_doc 
 	JOIN us_table ON  sito_n ::text = sito AND area_n ::text = area::text AND us_n::text = us::text;
 
@@ -696,50 +735,58 @@ ALTER VIEW public.mediaentity_view
 -- View: public.pyarchinit_reperti_view
 CREATE OR REPLACE VIEW pyarchinit_reperti_view AS 
 	SELECT
-	gid,
-	the_geom,
-	id_rep,
-	siti,
-	id_invmat,
-    sito,
-    numero_inventario,
-    tipo_reperto,
-    criterio_schedatura,
-    definizione,
-    descrizione,
-    area,
-    us,
-    lavato,
-    nr_cassa,
-    luogo_conservazione,
-    stato_conservazione,
-    datazione_reperto,
-    elementi_reperto,
-    misurazioni,
-    rif_biblio,
-    tecnologie,
-    forme_minime,
-    forme_massime,
-    totale_frammenti,
-    corpo_ceramico,
-    rivestimento,
-    diametro_orlo,
-    peso,
-    tipo,
-    eve_orlo,
-    repertato,
-    diagnostico,
-    n_reperto,
-    tipo_contenitore,
-    struttura,
-    years,
-    schedatore,
-    date_scheda,
-    punto_rinv,
-    negativo_photo,
-    diapositiva
-	FROM pyarchinit_reperti
-     JOIN inventario_materiali_table ON siti::text = sito AND id_rep = numero_inventario;
+	a.gid,
+	a.the_geom,
+	a.id_rep,
+	a.siti,
+	a.quota,
+	b.id_invmat,
+    b.sito,
+    b.numero_inventario,
+    b.tipo_reperto,
+    b.criterio_schedatura,
+    b.definizione,
+    b.descrizione,
+    b.area,
+    b.us,
+    b.lavato,
+    b.nr_cassa,
+    b.luogo_conservazione,
+    b.stato_conservazione,
+    b.datazione_reperto,
+    b.elementi_reperto,
+    b.misurazioni,
+    b.rif_biblio,
+    b.tecnologie,
+    b.forme_minime,
+    b.forme_massime,
+    b.totale_frammenti,
+    b.corpo_ceramico,
+    b.rivestimento,
+    b.diametro_orlo,
+    b.peso,
+    b.tipo,
+    b.eve_orlo,
+    b.repertato,
+    b.diagnostico,
+    b.n_reperto,
+    b.tipo_contenitore,
+    b.struttura,
+    b.years,
+    b.schedatore,
+    b.date_scheda,
+    b.punto_rinv,
+    b.negativo_photo,
+    b.diapositiva,
+    b.quota_usm,
+    b.unita_misura_quota,
+    b.last_modified_timestamp,
+    b.last_modified_by,
+    b.version_number,
+    b.editing_by,
+    b.editing_since
+	FROM pyarchinit_reperti a
+     JOIN inventario_materiali_table b ON a.siti::text = b.sito AND a.id_rep = b.numero_inventario;
 
 ALTER VIEW pyarchinit_reperti_view
     OWNER TO postgres;

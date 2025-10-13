@@ -55,7 +55,9 @@ CREATE OR REPLACE VIEW public.pyarchinit_pyuscarlinee_view AS
     us_table.periodo_finale,
     us_table.fase_finale,
     us_table.anno_scavo,
-    us_table.cont_per
+    us_table.cont_per,
+    us_table.order_layer,
+    us_table.datazione
    FROM pyuscarlinee
      JOIN us_table ON pyuscarlinee.sito_l::text = us_table.sito AND pyuscarlinee.area_l::text = us_table.area::text AND pyuscarlinee.us_l::text = us_table.us;
 
@@ -89,7 +91,9 @@ CREATE OR REPLACE VIEW public.pyarchinit_quote_view AS
     us_table.periodo_finale,
     us_table.fase_finale,
     us_table.anno_scavo,
-    us_table.cont_per
+    us_table.cont_per,
+    us_table.order_layer,
+    us_table.datazione
    FROM pyarchinit_quote
      JOIN us_table ON pyarchinit_quote.sito_q::text = us_table.sito AND pyarchinit_quote.area_q::text = us_table.area::text AND pyarchinit_quote.us_q = us_table.us AND pyarchinit_quote.unita_tipo_q::text = us_table.unita_tipo::text;
 
@@ -123,7 +127,9 @@ CREATE OR REPLACE VIEW public.pyarchinit_quote_usm_view AS
     us_table.periodo_finale,
     us_table.fase_finale,
     us_table.anno_scavo,
-    us_table.cont_per
+    us_table.cont_per,
+    us_table.order_layer,
+    us_table.datazione
    FROM pyarchinit_quote_usm
      JOIN us_table ON pyarchinit_quote_usm.sito_q::text = us_table.sito AND pyarchinit_quote_usm.area_q::text = us_table.area::text AND pyarchinit_quote_usm.us_q = us_table.us AND pyarchinit_quote_usm.unita_tipo_q::text = us_table.unita_tipo::text;
 
@@ -539,7 +545,9 @@ CREATE OR REPLACE VIEW public.pyarchinit_uscaratterizzazioni_view AS
     us_table.periodo_finale,
     us_table.fase_finale,
     us_table.anno_scavo,
-    us_table.cont_per
+    us_table.cont_per,
+    us_table.order_layer,
+    us_table.datazione
    FROM pyuscaratterizzazioni
      JOIN us_table ON pyuscaratterizzazioni.scavo_c::text = us_table.sito AND pyuscaratterizzazioni.area_c::text = us_table.area::text AND pyuscaratterizzazioni.us_c = us_table.us;
 
@@ -647,7 +655,8 @@ CREATE OR REPLACE VIEW public.pyarchinit_doc_view_b AS SELECT
 	struttura AS struttura, 
 	cont_per AS cont_per,
 	order_layer AS order_layer, 
-	documentazione AS documentazione
+	documentazione AS documentazione,
+	datazione AS datazione
 	FROM pyunitastratigrafiche AS a
 	JOIN us_table ON scavo_s ::text = sito AND area_s ::text = area AND us_s ::text = us;
 	ALTER TABLE public.pyarchinit_doc_view_b OWNER TO postgres;
@@ -688,7 +697,8 @@ CREATE OR REPLACE VIEW public.pyarchinit_us_negative_doc_view AS SELECT
 	struttura,
 	cont_per ,
 	order_layer ,
-	documentazione 
+	documentazione,
+	datazione
 	FROM pyarchinit_us_negative_doc 
 	JOIN us_table ON  sito_n ::text = sito AND area_n ::text = area AND us_n = us;
 
