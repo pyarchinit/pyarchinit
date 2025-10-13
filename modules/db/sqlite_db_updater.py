@@ -121,6 +121,44 @@ class SQLiteDBUpdater:
                 if 'quota' not in columns:
                     return True
             
+            # Check if pyarchinit_us_view exists and has order_layer field
+            self.cursor.execute("""
+                SELECT name FROM sqlite_master 
+                WHERE type='view' AND name='pyarchinit_us_view'
+            """)
+            if not self.cursor.fetchone():
+                # View doesn't exist - needs update
+                return True
+            else:
+                # Check if view has order_layer field
+                try:
+                    # Prima verifica se le tabelle sottostanti esistono
+                    self.cursor.execute("""
+                        SELECT name FROM sqlite_master 
+                        WHERE type IN ('table', 'view') 
+                        AND name IN ('pyunitastratigrafiche', 'us_table')
+                    """)
+                    tables = [row[0] for row in self.cursor.fetchall()]
+                    if len(tables) < 2:
+                        # Mancano tabelle necessarie
+                        self.log_message(f"Tabelle mancanti per pyarchinit_us_view: trovate {tables}")
+                        return False  # Non possiamo creare la view senza le tabelle
+                    
+                    # Verifica se us_table ha order_layer
+                    self.cursor.execute("PRAGMA table_info(us_table)")
+                    us_columns = [column[1] for column in self.cursor.fetchall()]
+                    if 'order_layer' not in us_columns:
+                        self.log_message("Campo order_layer non trovato in us_table")
+                        return False  # Dobbiamo prima aggiungere il campo alla tabella
+                    
+                    # Prova a selezionare sia order_layer che cont_per
+                    self.cursor.execute("SELECT order_layer, cont_per FROM pyarchinit_us_view LIMIT 1")
+                except sqlite3.OperationalError as e:
+                    error_msg = str(e)
+                    if "no such column: order_layer" in error_msg or "no such column: cont_per" in error_msg:
+                        self.log_message(f"View pyarchinit_us_view mancante di colonne: {error_msg}")
+                        return True
+            
             return False
             
         except Exception as e:
@@ -237,12 +275,21 @@ class SQLiteDBUpdater:
             
             # Show result
             if QGIS_AVAILABLE and self.parent:
+                message = f"Database aggiornato con successo!\n\n"
+                message += f"Modifiche effettuate: {len(self.updates_made)}\n"
+                message += f"Backup salvato con estensione .backup\n\n"
+                
+                # Se abbiamo ricreato delle view, suggerisci di ricaricare
+                if any("VIEW" in update for update in self.updates_made):
+                    message += "IMPORTANTE: Sono state aggiornate delle view.\n"
+                    message += "Si consiglia di:\n"
+                    message += "1. Rimuovere e riaggiungere i layer dalle view aggiornate\n"
+                    message += "2. O riavviare QGIS per assicurarsi che le modifiche siano caricate"
+                
                 QMessageBox.information(
                     self.parent,
                     "Aggiornamento Completato",
-                    f"Database aggiornato con successo!\n\n"
-                    f"Modifiche effettuate: {len(self.updates_made)}\n"
-                    f"Backup salvato con estensione .backup"
+                    message
                 )
             
             self.log_message(
@@ -343,6 +390,7 @@ class SQLiteDBUpdater:
             self.add_column_if_missing('us_table', 'doc_usv', "TEXT DEFAULT ''")
             self.add_column_if_missing('us_table', 'organici', 'TEXT')
             self.add_column_if_missing('us_table', 'inorganici', 'TEXT')
+            self.add_column_if_missing('us_table', 'cont_per', 'TEXT')
     
     def update_site_table(self):
         """Aggiorna la tabella site_table"""
@@ -481,6 +529,104 @@ class SQLiteDBUpdater:
         self.fix_field_types_in_base_tables()
         
         views_to_fix = [
+            ('pyarchinit_us_view', '''
+                CREATE VIEW pyarchinit_us_view AS
+                SELECT 
+                    CAST(pyunitastratigrafiche.gid AS INTEGER) as gid,
+                    pyunitastratigrafiche.the_geom,
+                    pyunitastratigrafiche.tipo_us_s,
+                    pyunitastratigrafiche.scavo_s,
+                    pyunitastratigrafiche.area_s,
+                    pyunitastratigrafiche.us_s,
+                    pyunitastratigrafiche.stratigraph_index_us,
+                    us_table.id_us,
+                    us_table.sito,
+                    us_table.area,
+                    us_table.us,
+                    us_table.struttura,
+                    us_table.d_stratigrafica,
+                    us_table.d_interpretativa,
+                    us_table.descrizione,
+                    us_table.interpretazione,
+                    us_table.rapporti,
+                    us_table.periodo_iniziale,
+                    us_table.fase_iniziale,
+                    us_table.periodo_finale,
+                    us_table.fase_finale,
+                    us_table.attivita,
+                    us_table.anno_scavo,
+                    us_table.metodo_di_scavo,
+                    us_table.inclusi,
+                    us_table.campioni,
+                    us_table.organici,
+                    us_table.inorganici,
+                    us_table.data_schedatura,
+                    us_table.schedatore,
+                    us_table.formazione,
+                    us_table.stato_di_conservazione,
+                    us_table.colore,
+                    us_table.consistenza,
+                    us_table.unita_tipo,
+                    us_table.settore,
+                    us_table.quad_par,
+                    us_table.ambient,
+                    us_table.saggio,
+                    us_table.elem_datanti,
+                    us_table.funz_statica,
+                    us_table.lavorazione,
+                    us_table.spess_giunti,
+                    us_table.letti_posa,
+                    us_table.alt_mod,
+                    us_table.un_ed_riass,
+                    us_table.reimp,
+                    us_table.posa_opera,
+                    us_table.quota_min_usm,
+                    us_table.quota_max_usm,
+                    us_table.cons_legante,
+                    us_table.col_legante,
+                    us_table.aggreg_legante,
+                    us_table.con_text_mat,
+                    us_table.col_materiale,
+                    us_table.inclusi_materiali_usm,
+                    us_table.n_catalogo_generale,
+                    us_table.n_catalogo_interno,
+                    us_table.n_catalogo_internazionale,
+                    us_table.soprintendenza,
+                    us_table.quota_relativa,
+                    us_table.quota_abs,
+                    us_table.ref_tm,
+                    us_table.ref_ra,
+                    us_table.ref_n,
+                    us_table.posizione,
+                    us_table.criteri_distinzione,
+                    us_table.modo_formazione,
+                    us_table.componenti_organici,
+                    us_table.componenti_inorganici,
+                    us_table.lunghezza_max,
+                    us_table.altezza_max,
+                    us_table.altezza_min,
+                    us_table.profondita_max,
+                    us_table.profondita_min,
+                    us_table.larghezza_media,
+                    us_table.quota_max,
+                    us_table.quota_min,
+                    us_table.piante,
+                    us_table.documentazione,
+                    us_table.scavato,
+                    us_table.cont_per,
+                    us_table.order_layer,
+                    us_table.rapporti2,
+                    us_table.sing_doc,
+                    us_table.unita_edilizie,
+                    us_table.quantificazioni,
+                    us_table.doc_usv,
+                    us_table.datazione
+                FROM pyunitastratigrafiche
+                JOIN us_table ON 
+                    pyunitastratigrafiche.scavo_s = us_table.sito AND 
+                    pyunitastratigrafiche.area_s = us_table.area AND 
+                    pyunitastratigrafiche.us_s = us_table.us
+            '''),
             ('pyarchinit_quote', '''
                 CREATE VIEW pyarchinit_quote AS
                 SELECT 
@@ -490,6 +636,9 @@ class SQLiteDBUpdater:
                     unita_tipo,
                     quota_min,
                     quota_max,
+                    cont_per,
+                    order_layer,
+                    datazione,
                     the_geom
                 FROM us_table
                 WHERE quota_min IS NOT NULL OR quota_max IS NOT NULL
@@ -586,16 +735,39 @@ class SQLiteDBUpdater:
         
         for view_name, create_sql in views_to_fix:
             try:
-                # Check if view exists
-                self.cursor.execute(
-                    "SELECT name FROM sqlite_master WHERE type='view' AND name=?", 
-                    (view_name,)
-                )
-                if self.cursor.fetchone():
-                    self.log_message(f"Dropping and recreating view {view_name}")
-                    self.cursor.execute(f"DROP VIEW IF EXISTS {view_name}")
-                    self.cursor.execute(create_sql)
-                    self.updates_made.append(f"RECREATE VIEW {view_name}")
+                # Always drop and recreate views during update
+                self.log_message(f"Dropping and recreating view {view_name}")
+                self.cursor.execute(f"DROP VIEW IF EXISTS {view_name}")
+                # Commit the drop to ensure it's completed
+                self.conn.commit()
+                
+                self.cursor.execute(create_sql)
+                # Commit the create to ensure it's saved
+                self.conn.commit()
+                
+                self.updates_made.append(f"RECREATE VIEW {view_name}")
+                self.log_message(f"View {view_name} ricreata con successo")
+                
+                # Verifica che la view sia stata creata correttamente
+                if view_name == 'pyarchinit_us_view':
+                    try:
+                        # Prima verifica le tabelle sottostanti
+                        self.cursor.execute("PRAGMA table_info(pyunitastratigrafiche)")
+                        pyunit_cols = [col[1] for col in self.cursor.fetchall()]
+                        self.log_message(f"Colonne in pyunitastratigrafiche: {', '.join(pyunit_cols[:5])}...")
+                        
+                        self.cursor.execute("PRAGMA table_info(us_table)")
+                        us_cols = [col[1] for col in self.cursor.fetchall()]
+                        has_order_layer = 'order_layer' in us_cols
+                        has_cont_per = 'cont_per' in us_cols
+                        self.log_message(f"us_table ha order_layer: {has_order_layer}, cont_per: {has_cont_per}")
+                        
+                        # Prova a fare select dalla view
+                        self.cursor.execute("SELECT order_layer, cont_per FROM pyarchinit_us_view LIMIT 1")
+                        self.log_message("Verifica: pyarchinit_us_view contiene order_layer e cont_per")
+                    except Exception as verify_error:
+                        self.log_message(f"ATTENZIONE: Verifica fallita per {view_name}: {verify_error}")
+                        
             except Exception as e:
                 self.log_message(f"Error fixing view {view_name}: {e}", Qgis.Warning if QGIS_AVAILABLE else None)
     

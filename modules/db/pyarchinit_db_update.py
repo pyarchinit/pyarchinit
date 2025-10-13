@@ -501,7 +501,13 @@ class DB_update(object):
                             us_table.fase_iniziale, 
                             us_table.periodo_finale, 
                             us_table.fase_finale, 
-                            us_table.anno_scavo
+                            us_table.anno_scavo,
+                            us_table.scavato,
+                            us_table.attivita,
+                            us_table.cont_per,
+                            us_table.order_layer,
+                            us_table.documentazione,
+                            us_table.datazione
                         FROM pyunitastratigrafiche
                         JOIN us_table ON 
                             pyunitastratigrafiche.scavo_s = us_table.sito 
@@ -1106,7 +1112,10 @@ class DB_update(object):
                                     us_table.fase_iniziale, 
                                     us_table.periodo_finale, 
                                     us_table.fase_finale, 
-                                    us_table.anno_scavo
+                                    us_table.anno_scavo,
+                                    us_table.cont_per,
+                                    us_table.order_layer,
+                                    us_table.datazione
                                 FROM pyarchinit_quote
                                 JOIN us_table ON 
                                     pyarchinit_quote.sito_q = us_table.sito 
@@ -1202,7 +1211,13 @@ class DB_update(object):
                                     us_table.fase_iniziale, 
                                     us_table.periodo_finale, 
                                     us_table.fase_finale, 
-                                    us_table.anno_scavo
+                                    us_table.anno_scavo,
+                                    us_table.scavato,
+                                    us_table.attivita,
+                                    us_table.cont_per,
+                                    us_table.order_layer,
+                                    us_table.documentazione,
+                                    us_table.datazione
                                 FROM pyunitastratigrafiche
                                 JOIN us_table ON 
                                     pyunitastratigrafiche.scavo_s = us_table.sito 
@@ -1670,7 +1685,10 @@ class DB_update(object):
                     us_table.fase_iniziale, 
                     us_table.periodo_finale, 
                     us_table.fase_finale, 
-                    us_table.anno_scavo
+                    us_table.anno_scavo,
+                    us_table.cont_per,
+                    us_table.order_layer,
+                    us_table.datazione
                 FROM pyarchinit_quote
                 JOIN us_table ON 
                     pyarchinit_quote.sito_q = us_table.sito 
@@ -1702,7 +1720,26 @@ class DB_update(object):
                     us_table.fase_iniziale as fase_iniziale, 
                     us_table.periodo_finale as periodo_finale, 
                     us_table.fase_finale as fase_finale, 
+                    us_table.attivita as attivita,
                     us_table.anno_scavo as anno_scavo,
+                    us_table.metodo_di_scavo as metodo_di_scavo,
+                    us_table.inclusi as inclusi,
+                    us_table.campioni as campioni,
+                    us_table.organici as organici,
+                    us_table.inorganici as inorganici,
+                    us_table.data_schedatura as data_schedatura,
+                    us_table.schedatore as schedatore,
+                    us_table.formazione as formazione,
+                    us_table.stato_di_conservazione as stato_di_conservazione,
+                    us_table.colore as colore,
+                    us_table.consistenza as consistenza,
+                    us_table.unita_tipo as unita_tipo,
+                    us_table.settore as settore,
+                    us_table.scavato as scavato,
+                    us_table.cont_per as cont_per,
+                    us_table.order_layer as order_layer,
+                    us_table.documentazione as documentazione,
+                    us_table.datazione as datazione,
                     pyunitastratigrafiche.ROWID as ROWID
                 FROM pyunitastratigrafiche
                 JOIN us_table ON 
