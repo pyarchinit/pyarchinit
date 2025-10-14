@@ -261,10 +261,15 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 # Consider user as admin if:
                 # 1. Username in UI is 'admin'
                 # 2. System username is 'admin'
-                # 3. Database is PostgreSQL and user is 'postgres'
+                # 3. Database is PostgreSQL and user is 'postgres' (standard PostgreSQL)
+                # 4. Database is PostgreSQL and user starts with 'postgres.' (Supabase admin users)
+                # 5. Username contains 'admin' (flexible admin detection)
                 is_admin = (username_ui == 'admin' or
                            system_user == 'admin' or
-                           (self.comboBox_Database.currentText() == 'postgres' and username_ui == 'postgres'))
+                           (self.comboBox_Database.currentText() == 'postgres' and 
+                            (username_ui == 'postgres' or 
+                             username_ui.startswith('postgres.') or
+                             'admin' in username_ui.lower())))
 
                 # Debug
                 print(f"Admin check - Username UI: {username_ui}, System user: {system_user}, Is admin: {is_admin}")
@@ -3971,9 +3976,11 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                     # Continue anyway, the database is created
 
                 #set owner
-                if self.lineEdit_db_user.text() != 'postgres':
+                # Don't change owner if user is a PostgreSQL admin (postgres or postgres.xxx for Supabase)
+                db_user = self.lineEdit_db_user.text()
+                if not (db_user == 'postgres' or db_user.startswith('postgres.')):
                     try:
-                        RestoreSchema(db_url).set_owner(self.lineEdit_db_user.text())
+                        RestoreSchema(db_url).set_owner(db_user)
                     except:
                         pass  # Non-critical error, continue
 

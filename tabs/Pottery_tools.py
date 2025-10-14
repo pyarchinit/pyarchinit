@@ -52,10 +52,20 @@ class PotteryToolsDialog(QDialog, MAIN_DIALOG_CLASS):
         # Initialize components
         self.DB_MANAGER = None
         self.extracted_images = []
+        
+        # Package cache to avoid repeated checks
+        self._package_cache = {}
+        self._cache_timestamp = None
+        self._cache_valid_duration = 300  # 5 minutes
+        
+        # Show startup progress
+        self.progressBar.setRange(0, 100)
+        self.progressBar.setValue(10)
+        self.log_message("Initializing Pottery Tools...")
         self.selected_images = []
         self.current_preview = None
         self.model_path = None
-        self.has_gpu = self.detect_gpu()
+        self.has_gpu = False  # Will be updated after venv setup
         self.external_python = None  # Store the external Python path
         self.venv_path = None  # Virtual environment path
         self.venv_python = None  # Python executable in venv
@@ -64,25 +74,65 @@ class PotteryToolsDialog(QDialog, MAIN_DIALOG_CLASS):
         self.pottery_ink = PotteryInkProcessor()
 
         # Setup virtual environment for external packages
+        self.progressBar.setValue(30)
+        self.log_message("Setting up virtual environment...")
         self.setup_pottery_venv()
 
         # Setup external Python with ultralytics (non-blocking)
+        self.progressBar.setValue(60)
+        self.log_message("Configuring Python environment...")
         QTimer.singleShot(100, self.setup_external_python)
 
         # Setup database connection
+        self.progressBar.setValue(70)
+        self.log_message("Setting up database...")
         self.setup_database()
 
         # Connect signals
         self.connect_signals()
 
         # Initialize UI state
+        self.progressBar.setValue(90)
+        self.log_message("Finalizing UI...")
         self.init_ui_state()
+
+        # Complete initialization
+        QTimer.singleShot(500, lambda: (
+            self.progressBar.setValue(100),
+            self.log_message("✓ Pottery Tools initialized successfully!"),
+            QTimer.singleShot(1000, lambda: self.progressBar.setValue(0))
+        ))
 
         QgsMessageLog.logMessage("Pottery Tools initialized", "PyArchInit", Qgis.Info)
 
-    def setup_pottery_venv(self):
+    def is_cache_valid(self):
+        """Check if package cache is still valid"""
+        if not self._cache_timestamp:
+            return False
+        import time
+        return (time.time() - self._cache_timestamp) < self._cache_valid_duration
+    
+    def update_cache(self, package, status):
+        """Update package cache"""
+        import time
+        if not self._cache_timestamp:
+            self._cache_timestamp = time.time()
+        self._package_cache[package] = status
+    
+    def get_cached_status(self, package):
+        """Get cached package status"""
+        if self.is_cache_valid() and package in self._package_cache:
+            return self._package_cache[package]
+        return None
+
+    def setup_pottery_venv(self, retry_count=0):
         """Setup virtual environment for Pottery Tools"""
         try:
+            # Prevent infinite loops
+            if retry_count > 2:
+                self.log_message("⚠ Maximum retry attempts reached. Pottery Tools will work with limited functionality.", Qgis.Warning)
+                return
+                
             # Define venv path
             home_dir = os.path.expanduser('~')
             self.venv_path = os.path.join(home_dir, 'pyarchinit', 'bin', 'pottery_venv')
@@ -101,24 +151,63 @@ class PotteryToolsDialog(QDialog, MAIN_DIALOG_CLASS):
                 try:
                     # Create the venv using subprocess to avoid QGIS Python issues
                     import subprocess
+                    import shutil
 
-                    # Use sys.executable which is the QGIS Python
-                    create_cmd = [sys.executable, '-m', 'venv', self.venv_path, '--clear']
-                    result = subprocess.run(create_cmd, capture_output=True, text=True, timeout=30)
+                    # Find the actual Python executable, not QGIS
+                    python_exe = None
+                    
+                    # Try to find Python executable in different locations
+                    possible_pythons = [
+                        'python3',  # System Python on macOS/Linux
+                        'python',   # Fallback
+                        '/usr/bin/python3',  # macOS system Python
+                        '/usr/local/bin/python3',  # Homebrew Python
+                        '/opt/homebrew/bin/python3',  # M1 Mac Homebrew
+                        '/Applications/QGIS.app/Contents/MacOS/bin/python3'  # QGIS bundled Python
+                    ]
+                    
+                    # Try each Python executable until one works
+                    venv_created = False
+                    for py in possible_pythons:
+                        if not shutil.which(py):
+                            continue
+                            
+                        # Test if Python executable works
+                        test_cmd = [py, '--version']
+                        test_result = subprocess.run(test_cmd, capture_output=True, text=True, timeout=10)
+                        if test_result.returncode != 0:
+                            self.log_message(f"Python {py} test failed: {test_result.stderr}", Qgis.Warning)
+                            continue
+                        
+                        self.log_message(f"Testing Python: {py} - {test_result.stdout.strip()}")
+                        
+                        # Create the directory if it doesn't exist
+                        venv_parent = os.path.dirname(self.venv_path)
+                        os.makedirs(venv_parent, exist_ok=True)
+                        
+                        create_cmd = [py, '-m', 'venv', self.venv_path, '--clear']
+                        self.log_message(f"Running command: {' '.join(create_cmd)}")
+                        result = subprocess.run(create_cmd, capture_output=True, text=True, timeout=30)
 
-                    if result.returncode == 0:
-                        self.log_message(f"✓ Virtual environment created at: {self.venv_path}")
+                        if result.returncode == 0:
+                            self.log_message(f"✓ Virtual environment created at: {self.venv_path}")
+                            python_exe = py
+                            venv_created = True
 
-                        # Upgrade pip in venv
-                        self.upgrade_venv_pip()
+                            # Upgrade pip in venv
+                            self.upgrade_venv_pip()
 
-                        # Mark for package installation
-                        self.need_venv_packages = True
-                    else:
-                        self.log_message(f"Failed to create venv: {result.stderr[:200]}", Qgis.Warning)
-                        self.venv_path = None
-                        self.venv_python = None
-                        return
+                            # Mark for package installation
+                            self.need_venv_packages = True
+                            break  # Success, exit the loop
+                        else:
+                            error_msg = result.stderr.strip() if result.stderr.strip() else result.stdout.strip()
+                            if not error_msg:
+                                error_msg = f"Unknown error (return code: {result.returncode})"
+                            self.log_message(f"Failed to create venv with {py}: {error_msg}", Qgis.Warning)
+                    
+                    if not venv_created:
+                        raise Exception("Failed to create virtual environment with any Python executable")
 
                 except Exception as e:
                     self.log_message(f"Error creating venv: {str(e)}", Qgis.Warning)
@@ -167,7 +256,9 @@ class PotteryToolsDialog(QDialog, MAIN_DIALOG_CLASS):
 
             for package in check_packages:
                 cmd = [self.venv_python, '-c', f'import {package}']
-                result = subprocess.run(cmd, capture_output=True, text=True, timeout=10, env=clean_env)
+                # Longer timeout for heavy packages like torch/ultralytics
+                timeout = 30 if package in ['torch', 'ultralytics', 'diffusers'] else 10
+                result = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout, env=clean_env)
                 if result.returncode != 0:
                     self.log_message(f"Package {package} not found in venv")
                     return False
@@ -220,7 +311,7 @@ class PotteryToolsDialog(QDialog, MAIN_DIALOG_CLASS):
 
                     # Check if already installed
                     check_cmd = [self.venv_python, '-c', 'import torch, diffusers, ultralytics']
-                    result = subprocess.run(check_cmd, capture_output=True, env=clean_env, timeout=5)
+                    result = subprocess.run(check_cmd, capture_output=True, env=clean_env, timeout=30)
 
                     if result.returncode == 0:
                         # Already installed
@@ -230,7 +321,7 @@ class PotteryToolsDialog(QDialog, MAIN_DIALOG_CLASS):
                     # Essential packages for PotteryInk
                     essential_packages = [
                         'torch', 'torchvision',
-                        'diffusers', 'transformers',
+                        'diffusers', 'transformers', 'peft',
                         'ultralytics'  # For YOLO
                     ]
 
@@ -242,9 +333,17 @@ class PotteryToolsDialog(QDialog, MAIN_DIALOG_CLASS):
                         result = subprocess.run(check_cmd, capture_output=True, env=clean_env, timeout=5)
 
                         if result.returncode != 0:
-                            # Install the package quietly
-                            install_cmd = [self.venv_python, '-m', 'pip', 'install', package, '--quiet', '--no-warn-script-location']
-                            subprocess.run(install_cmd, capture_output=True, env=clean_env, timeout=300)
+                            # Install the package with progress logging
+                            self.log_message(f"Installing {package}...")
+                            install_cmd = [self.venv_python, '-m', 'pip', 'install', package, '--no-warn-script-location']
+                            result = subprocess.run(install_cmd, capture_output=True, text=True, env=clean_env, timeout=300)
+                            
+                            if result.returncode == 0:
+                                self.log_message(f"✓ {package} installed successfully")
+                            else:
+                                self.log_message(f"✗ Failed to install {package}: {result.stderr[:200]}", Qgis.Warning)
+                        else:
+                            self.log_message(f"✓ {package} already installed")
 
                     # After installation, reset the trigger flag and check status again
                     if hasattr(self, '_auto_install_triggered'):
@@ -288,7 +387,8 @@ class PotteryToolsDialog(QDialog, MAIN_DIALOG_CLASS):
             
             for package in core_packages:
                 check_cmd = [self.venv_python, '-c', f'import {package}']
-                result = subprocess.run(check_cmd, capture_output=True, env=clean_env, timeout=5)
+                timeout = 30 if package in ['torch', 'ultralytics', 'diffusers'] else 10
+                result = subprocess.run(check_cmd, capture_output=True, env=clean_env, timeout=timeout)
                 if result.returncode != 0:
                     all_installed = False
                     break
@@ -362,13 +462,28 @@ class PotteryToolsDialog(QDialog, MAIN_DIALOG_CLASS):
                 deps_to_check = ['torch', 'torchvision', 'diffusers', 'transformers', 'peft', 'ultralytics']
 
                 for dep in deps_to_check:
+                    # Check cache first
+                    cached_status = self.get_cached_status(dep)
+                    if cached_status is not None:
+                        if cached_status == 'missing':
+                            missing_deps.append(dep)
+                            self.log_message(f"⚠ Missing dependency: {dep} (cached)")
+                        else:
+                            self.log_message(f"✓ Found: {dep} {cached_status} (cached)")
+                        continue
+                    
+                    # Not in cache, check normally
                     check_cmd = [self.venv_python, '-c', f'import {dep}; print({dep}.__version__)']
-                    dep_result = subprocess.run(check_cmd, capture_output=True, text=True, env=clean_env, timeout=5)
+                    timeout = 30 if dep in ['torch', 'ultralytics', 'diffusers'] else 10
+                    dep_result = subprocess.run(check_cmd, capture_output=True, text=True, env=clean_env, timeout=timeout)
                     if dep_result.returncode != 0:
                         missing_deps.append(dep)
                         self.log_message(f"⚠ Missing dependency: {dep}")
+                        self.update_cache(dep, 'missing')
                     else:
-                        self.log_message(f"✓ Found: {dep} {dep_result.stdout.strip()}")
+                        version = dep_result.stdout.strip()
+                        self.log_message(f"✓ Found: {dep} {version}")
+                        self.update_cache(dep, version)
 
                 # Quick check for torch and diffusers
                 check_cmd = [self.venv_python, '-c',
@@ -543,7 +658,7 @@ class PotteryToolsDialog(QDialog, MAIN_DIALOG_CLASS):
         self.load_sites()
         self.check_model_status()
         self.create_pottery_ink_ui()  # Create PotteryInk UI dynamically
-        self.check_pottery_ink_status()
+        # Note: check_pottery_ink_status() will be called from setup_external_python()
 
     def log_message(self, message, level=Qgis.Info):
         """Log message to both QGIS log and UI text edit"""
@@ -1149,8 +1264,7 @@ class PotteryToolsDialog(QDialog, MAIN_DIALOG_CLASS):
             if hasattr(self, 'tabWidget_main'):
                 self.tabWidget_main.addTab(self.tab_pottery_ink, "🏺 PotteryInk")
 
-            # Initialize status
-            self.check_pottery_ink_status()
+            # Note: Status will be checked once from setup_external_python()
             self.log_message("✓ PotteryInk tab created successfully")
 
         except Exception as e:
@@ -1490,14 +1604,17 @@ class PotteryToolsDialog(QDialog, MAIN_DIALOG_CLASS):
                 #     reply = QMessageBox.question(...)
                 #     ...installation logic...
 
+                # Now that venv is ready, detect GPU capabilities
+                self.has_gpu = self.detect_gpu()
+                
                 # Just log that we're using the virtual environment
                 self.log_message("✓ Virtual environment packages ready")
 
             else:
-                # Virtual environment not available - this shouldn't happen
-                self.log_message("⚠ Virtual environment not found. Trying to recreate...", Qgis.Warning)
-                # Try to recreate the venv
-                self.setup_pottery_venv()
+                # Virtual environment not available - disable functionality gracefully
+                self.log_message("⚠ Virtual environment not found. Pottery Tools will work with limited functionality.", Qgis.Warning)
+                self.external_python = None
+                self.venv_python = None
 
         except Exception as e:
             self.log_message(f"Error setting up virtual environment: {str(e)}", Qgis.Warning)
@@ -1508,21 +1625,48 @@ class PotteryToolsDialog(QDialog, MAIN_DIALOG_CLASS):
         pass
 
     def detect_gpu(self):
-        """Detect if GPU is available for YOLO inference"""
+        """Detect if GPU is available for YOLO inference using virtual environment"""
+        if not self.venv_python or not os.path.exists(self.venv_python):
+            self.log_message("No virtual environment available for GPU detection")
+            return False
+            
         try:
-            # Check for CUDA (NVIDIA GPU)
-            import torch
-            if torch.cuda.is_available():
-                self.log_message(f"CUDA GPU detected: {torch.cuda.get_device_name(0)}")
-                return True
-
-            # Check for MPS (Apple Silicon)
-            if hasattr(torch.backends, 'mps') and torch.backends.mps.is_available():
-                self.log_message("Apple Metal GPU detected")
-                return True
-
-        except ImportError:
-            pass
+            import subprocess
+            
+            # Check for CUDA and MPS using virtual environment
+            check_cmd = [
+                self.venv_python, '-c',
+                '''
+import torch
+import platform
+print("CUDA_AVAILABLE:", torch.cuda.is_available())
+if torch.cuda.is_available():
+    print("CUDA_DEVICE:", torch.cuda.get_device_name(0))
+    
+print("MPS_AVAILABLE:", hasattr(torch.backends, "mps") and torch.backends.mps.is_available())
+print("PLATFORM:", platform.system())
+'''
+            ]
+            
+            result = subprocess.run(check_cmd, capture_output=True, text=True, timeout=10)
+            
+            if result.returncode == 0:
+                output = result.stdout
+                
+                if "CUDA_AVAILABLE: True" in output:
+                    # Extract device name
+                    for line in output.split('\n'):
+                        if line.startswith("CUDA_DEVICE:"):
+                            device_name = line.split(":", 1)[1].strip()
+                            self.log_message(f"✓ CUDA GPU detected: {device_name}")
+                            return True
+                
+                if "MPS_AVAILABLE: True" in output and "PLATFORM: Darwin" in output:
+                    self.log_message("✓ Apple Metal Performance Shaders (MPS) detected")
+                    return True
+                    
+        except Exception as e:
+            self.log_message(f"GPU detection error: {e}")
 
         self.log_message("No GPU detected, will use CPU for inference")
         return False
@@ -1640,6 +1784,18 @@ class PotteryToolsDialog(QDialog, MAIN_DIALOG_CLASS):
     def test_model_loading(self):
         """Test if the model can be loaded"""
         try:
+            # If we don't have a working virtual environment, try to install ultralytics
+            if not self.venv_python or not os.path.exists(self.venv_python):
+                self.log_message("No virtual environment available, checking system Python...", Qgis.Warning)
+                # Try to find or install ultralytics in system Python
+                python_exe = self.find_python_executable()
+                if python_exe:
+                    self.external_python = python_exe
+                    self.log_message(f"Using system Python: {python_exe}")
+                else:
+                    self.log_message("Could not find suitable Python with ultralytics", Qgis.Warning)
+                    return
+            
             from ultralytics import YOLO
             import torch
 
