@@ -39,7 +39,7 @@ import processing
 
 
 from ..modules.db.pyarchinit_conn_strings import Connection
-from ..modules.db.pyarchinit_db_manager import Pyarchinit_db_management
+from ..modules.db.pyarchinit_db_manager import get_db_manager
 from ..modules.db.concurrency_manager import ConcurrencyManager, RecordLockIndicator
 from ..modules.db.pyarchinit_utility import Utility
 from ..modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis
@@ -482,8 +482,7 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
             self.DB_SERVER = "sqlite"
 
         try:
-            self.DB_MANAGER = Pyarchinit_db_management(conn_str)
-            self.DB_MANAGER.connection()
+            self.DB_MANAGER = get_db_manager(conn_str, use_singleton=True)
 
             # Get database username and set it in the concurrency manager
             user_info = conn.datauser()

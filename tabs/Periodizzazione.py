@@ -35,7 +35,7 @@ import pandas as pd
 from ..gui.pyarchinitConfigDialog import pyArchInitDialog_Config
 from ..gui.sortpanelmain import SortPanelMain
 from ..modules.db.pyarchinit_conn_strings import Connection
-from ..modules.db.pyarchinit_db_manager import Pyarchinit_db_management
+from ..modules.db.pyarchinit_db_manager import get_db_manager
 from qgis.PyQt.QtCore import QTimer
 from ..modules.db.concurrency_manager import ConcurrencyManager, RecordLockIndicator
 from ..modules.db.pyarchinit_utility import Utility
@@ -239,8 +239,7 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
             self.DB_SERVER = "sqlite"
 
         try:
-            self.DB_MANAGER = Pyarchinit_db_management(conn_str)
-            self.DB_MANAGER.connection()
+            self.DB_MANAGER = get_db_manager(conn_str, use_singleton=True)
 
             # Get database username and set it in the concurrency manager
             user_info = conn.datauser()

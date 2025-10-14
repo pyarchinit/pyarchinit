@@ -50,7 +50,7 @@
 
 # # from ..modules.utility.pyarchinit_OS_utility import Pyarchinit_OS_Utility
 # # from ..modules.db.pyarchinit_conn_strings import Connection
-# # from ..modules.db.pyarchinit_db_manager import Pyarchinit_db_management
+# # from ..modules.db.pyarchinit_db_manager import get_db_manager
 from ..modules.db.concurrency_manager import ConcurrencyManager, RecordLockIndicator
 # # from ..modules.db.pyarchinit_utility import Utility
 # # from ..modules.gis.pyarchinit_pyqgis_archeozoo import Pyarchinit_pyqgis

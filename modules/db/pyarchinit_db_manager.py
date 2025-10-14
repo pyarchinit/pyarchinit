@@ -36,11 +36,12 @@ from qgis.core import *
 
 import psycopg2
 from geoalchemy2 import *
-from sqlalchemy import and_, or_, asc, desc
+from sqlalchemy import and_, or_, asc, desc, func, select, Table
 from sqlalchemy.engine import create_engine
 from sqlalchemy.event import listen
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import sessionmaker
+from contextlib import contextmanager
 from sqlalchemy.sql.schema import MetaData
 
 from modules.db.pyarchinit_db_mapper import US, UT, SITE, PERIODIZZAZIONE, POTTERY, TMA, TMA_MATERIALI, \
@@ -54,10 +55,62 @@ from modules.db.pyarchinit_utility import Utility
 from modules.utility.pyarchinit_OS_utility import Pyarchinit_OS_Utility
 
 
+class DbConnectionSingleton:
+    """Singleton per gestire connessioni database globali"""
+    _instances = {}
+    
+    @classmethod
+    def get_instance(cls, conn_str):
+        """Ottieni istanza singleton per una specifica connection string"""
+        import datetime
+        log_file = '/Users/enzo/pyarchinit_debug.log'
+        def log_debug(msg):
+            try:
+                timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
+                with open(log_file, 'a', encoding='utf-8') as f:
+                    f.write(f"[{timestamp}] [SINGLETON] {msg}\n")
+                    f.flush()
+            except:
+                pass
+        
+        if conn_str not in cls._instances:
+            log_debug(f"Creating NEW singleton instance for conn_str")
+            cls._instances[conn_str] = Pyarchinit_db_management(conn_str, _singleton=True)
+            cls._instances[conn_str].connection()
+        else:
+            log_debug(f"Reusing EXISTING singleton instance")
+        return cls._instances[conn_str]
+    
+    @classmethod
+    def clear_instances(cls):
+        """Pulisci tutte le istanze (per reset/disconnessione)"""
+        for instance in cls._instances.values():
+            try:
+                if hasattr(instance, 'engine') and instance.engine:
+                    instance.engine.dispose()
+            except:
+                pass
+        cls._instances.clear()
+
+
+def get_db_manager(conn_str, use_singleton=True):
+    """
+    Factory function per ottenere DB Manager
+    Se use_singleton=True usa il singleton (per performance)
+    Se use_singleton=False crea nuova istanza (per operazioni specifiche)
+    """
+    if use_singleton:
+        return DbConnectionSingleton.get_instance(conn_str)
+    else:
+        return Pyarchinit_db_management(conn_str)
+
+
 class Pyarchinit_db_management(object):
     metadata = ''
     engine = ''
     boolean = ''
+    Session = None  # Session factory
+    _query_cache = {}  # Cache per query frequenti
     
     if os.name == 'posix':
         boolean = 'True'
@@ -65,9 +118,31 @@ class Pyarchinit_db_management(object):
         boolean = 'True'
     L = QgsSettings().value("locale/userLocale")[0:2]
 
-    def __init__(self, c):
+    def __init__(self, c, _singleton=False):
         self.conn_str = c
+        self.Session = None
+        self._is_singleton = _singleton
+        self._local_cache = {}  # Cache locale per questa istanza
         
+    def _get_cache_key(self, method_name, *args, **kwargs):
+        """Genera una chiave di cache per metodo e parametri"""
+        import hashlib
+        key_data = f"{method_name}_{str(args)}_{str(sorted(kwargs.items()))}"
+        return hashlib.md5(key_data.encode()).hexdigest()
+    
+    def _get_cached_result(self, cache_key, cache_timeout=300):
+        """Ottieni risultato dalla cache se valido (default 5 minuti)"""
+        if cache_key in self._local_cache:
+            result, timestamp = self._local_cache[cache_key]
+            import time
+            if time.time() - timestamp < cache_timeout:
+                return result
+        return None
+    
+    def _set_cached_result(self, cache_key, result):
+        """Salva risultato nella cache"""
+        import time
+        self._local_cache[cache_key] = (result, time.time())
     
     def load_spatialite(self,dbapi_conn, connection_record):
         dbapi_conn.enable_load_extension(True)
@@ -98,7 +173,15 @@ class Pyarchinit_db_management(object):
                     f.flush()
             except:
                 pass
-
+        
+        # Se è un singleton e già connesso, non rifarlo
+        log_debug(f"connection() called - singleton: {getattr(self, '_is_singleton', False)}, has_engine: {hasattr(self, 'engine')}, engine_valid: {bool(getattr(self, 'engine', None))}")
+        
+        if getattr(self, '_is_singleton', False) and hasattr(self, 'engine') and self.engine:
+            log_debug("Reusing existing singleton connection")
+            return True
+            
+        # Continue with new connection
         log_debug("connection() method started")
         conn = None
         test = True
@@ -124,27 +207,76 @@ class Pyarchinit_db_management(object):
                         log_debug(f"Error checking SQLite database updates: {e}")
                         # Continue anyway - don't block connection
                 
-                self.engine = create_engine(self.conn_str, echo=eval(self.boolean))
+                self.engine = create_engine(
+                    self.conn_str, 
+                    echo=eval(self.boolean),
+                    pool_size=3,
+                    max_overflow=5,
+                    pool_timeout=30,
+                    pool_recycle=3600
+                )
                 listen(self.engine, 'connect', self.load_spatialite)
             else:
                 log_debug("Creating PostgreSQL engine")
-                self.engine = create_engine(self.conn_str, max_overflow=-1, echo=eval(self.boolean))
+                # Ottimizzazioni specifiche per database remoti
+                is_remote_db = any(host in self.conn_str for host in [
+                    'supabase.com', 'amazonaws.com', 'azure.com', 'cloud.google.com',
+                    'heroku.com', 'planetscale.com', 'neon.tech'
+                ])
                 
-                # Check and update PostgreSQL database if needed
-                log_debug("Checking PostgreSQL database for updates")
-                try:
-                    from .postgres_db_updater import check_and_update_postgres_db
-                    # Create a temporary connection for the updater
-                    if check_and_update_postgres_db(self):
-                        log_debug("PostgreSQL database updated successfully")
-                    else:
-                        log_debug("PostgreSQL database update not needed or failed")
-                except Exception as e:
-                    log_debug(f"Error checking PostgreSQL database updates: {e}")
-                    # Continue anyway - don't block connection
+                if is_remote_db:
+                    # Configurazione ottimizzata per database remoti/cloud
+                    self.engine = create_engine(
+                        self.conn_str, 
+                        echo=eval(self.boolean),
+                        pool_size=10,           # Pool più grande per connessioni remote
+                        max_overflow=20,        # Più overflow per latenza
+                        pool_timeout=60,        # Timeout più lungo per connessioni remote
+                        pool_recycle=1800,      # Ricrea connessioni ogni 30 min
+                        pool_pre_ping=True,     # Verifica connessioni prima dell'uso
+                        connect_args={
+                            "connect_timeout": 10,
+                            "application_name": "PyArchInit",
+                            "options": "-c statement_timeout=30000"  # 30 sec timeout per query
+                        }
+                    )
+                else:
+                    # Configurazione per database locali
+                    self.engine = create_engine(
+                        self.conn_str, 
+                        echo=eval(self.boolean),
+                        pool_size=5,
+                        max_overflow=10,
+                        pool_timeout=30,
+                        pool_recycle=3600,
+                        pool_pre_ping=True
+                    )
+                
+                # Skip database update for remote/cloud databases (Supabase, etc.)
+                # to avoid slow schema checks on every connection                
+                if not is_remote_db:
+                    # Check and update PostgreSQL database if needed (local only)
+                    log_debug("Checking PostgreSQL database for updates")
+                    try:
+                        from .postgres_db_updater import check_and_update_postgres_db
+                        # Create a temporary connection for the updater
+                        if check_and_update_postgres_db(self):
+                            log_debug("PostgreSQL database updated successfully")
+                        else:
+                            log_debug("PostgreSQL database update not needed or failed")
+                    except Exception as e:
+                        log_debug(f"Error checking PostgreSQL database updates: {e}")
+                        # Continue anyway - don't block connection
+                else:
+                    log_debug("Skipping database update for remote/cloud database")
 
             log_debug("Creating metadata")
             self.metadata = MetaData(self.engine)
+            
+            # Create session factory once
+            log_debug("Creating session factory")
+            self.Session = sessionmaker(bind=self.engine, autoflush=False, autocommit=False)
+            
             log_debug("Connecting to database")
             conn = self.engine.connect()
             log_debug("Connection successful")
@@ -159,34 +291,56 @@ class Pyarchinit_db_management(object):
                 log_debug("Closing initial connection")
                 conn.close()
 
-        try:
-            log_debug("Starting DB_update")
-            db_upd = DB_update(self.conn_str)
-            log_debug("Calling update_table()")
-            db_upd.update_table()
-            log_debug("DB_update completed")
-
-            # Update triggers for multi-user permission compatibility
+        # Skip DB_update for remote databases to avoid slow operations
+        is_remote_db = any(host in self.conn_str for host in [
+            'supabase.com', 'amazonaws.com', 'azure.com', 'cloud.google.com',
+            'heroku.com', 'planetscale.com', 'neon.tech'
+        ])
+        
+        if not is_remote_db:
             try:
-                log_debug("Starting trigger update check")
-                from .db_updater import DatabaseUpdater
-                updater = DatabaseUpdater(self)
-                updater.check_and_update_triggers()
-                log_debug("Trigger update check completed")
+                log_debug("Starting DB_update")
+                db_upd = DB_update(self.conn_str)
+                log_debug("Calling update_table()")
+                db_upd.update_table()
+                log_debug("DB_update completed")
             except Exception as e:
-                log_debug(f"Trigger update check failed (non-critical): {e}")
-            
-            # After database update, we need to refresh metadata to reflect the changes
-            # Clear existing metadata
-            self.metadata.clear()
-            
-            # Recreate metadata with updated table structures
-            self.metadata = MetaData(self.engine)
-            
-            # Force metadata to reflect all tables
-            self.metadata.reflect(bind=self.engine)
-            
-            print("Database metadata refreshed after update")
+                error_message = f"Error. problema nell' aggiornamento del db: {e}\nTraceback: {traceback.format_exc()}"
+                QMessageBox.warning(None, "Message", error_message, QMessageBox.Ok)
+                test = False
+        else:
+            log_debug("Skipping DB_update for remote/cloud database")
+        
+        try:
+
+            # Skip trigger updates for remote databases
+            if not is_remote_db:
+                # Update triggers for multi-user permission compatibility
+                try:
+                    log_debug("Starting trigger update check")
+                    from .db_updater import DatabaseUpdater
+                    updater = DatabaseUpdater(self)
+                    updater.check_and_update_triggers()
+                    log_debug("Trigger update check completed")
+                except Exception as e:
+                    log_debug(f"Trigger update check failed (non-critical): {e}")
+                
+                # After database update, we need to refresh metadata to reflect the changes
+                # Clear existing metadata
+                self.metadata.clear()
+                
+                # Recreate metadata with updated table structures
+                self.metadata = MetaData(self.engine)
+                
+                # Force metadata to reflect all tables
+                self.metadata.reflect(bind=self.engine)
+                
+                print("Database metadata refreshed after update")
+            else:
+                log_debug("Skipping trigger update check for remote/cloud database")
+                # For remote databases, skip metadata reflection for faster startup
+                # Metadata will be loaded on-demand when needed
+                pass
             
         except Exception as e:
             error_message = f"Error. problema nell' aggiornamento del db: {e}\nTraceback: {traceback.format_exc()}"
@@ -206,6 +360,28 @@ class Pyarchinit_db_management(object):
             print(f"Error fixing macc field: {e}")
 
         return test
+    
+    @contextmanager
+    def session_scope(self):
+        """Provide a transactional scope around a series of operations."""
+        if not self.Session:
+            raise RuntimeError("Database not connected. Call connection() first.")
+        
+        session = self.Session()
+        try:
+            yield session
+            session.commit()
+        except Exception:
+            session.rollback()
+            raise
+        finally:
+            session.close()
+    
+    def get_session(self):
+        """Get a new session - use session_scope() for transactions"""
+        if not self.Session:
+            raise RuntimeError("Database not connected. Call connection() first.")
+        return self.Session()
     
     def ensure_tma_tables_exist(self):
         """Ensure TMA tables are created if they don't exist"""
@@ -1375,63 +1551,58 @@ class Pyarchinit_db_management(object):
 
     def query(self, n):
         class_name = eval(n)
-        # engine = self.connection()
-        Session = sessionmaker(bind=self.engine, autoflush=True, autocommit=True)
-        session = Session()
-        query = session.query(class_name)
-        res = query.all()
-        session.close()
-        return res
+        # Usa session factory ottimizzata ma mantieni compatibilità
+        session = self.get_session()
+        try:
+            query = session.query(class_name)
+            res = query.all()
+            return res
+        finally:
+            session.close()
 
     def query_limit_offset(self, table_name, filter_text=None, limit=None, offset=None):
-        # Inizializza la sessione
-        Session = sessionmaker(bind=self.engine)
-        session = Session()
+        # Usa session factory ottimizzata
+        session = self.get_session()
+        try:
+            # Ottieni la tabella
+            table = Table(table_name, MetaData(bind=self.engine), autoload_with=self.engine)
 
-        # Ottieni la tabella
-        table = Table(table_name, MetaData(bind=self.engine), autoload_with=self.engine)
+            # Costruisci la query
+            query = select(table)
 
-        # Costruisci la query
-        query = select(table)
+            # Se c'è un testo da filtrare
+            if filter_text:
+                query = query.where(table.c.media_filename.ilike(f"%{filter_text}%")).order_by(table.c.media_filename)
 
-        # Se c'è un testo da filtrare
-        if filter_text:
-            query = query.where(table.c.media_filename.ilike(f"%{filter_text}%")).order_by(table.c.media_filename)
+            # Se c'è un limite e un offset
+            if limit is not None and offset is not None:
+                query = query.limit(limit).offset(offset)
 
-        # Se c'è un limite e un offset
-        if limit is not None and offset is not None:
-            query = query.limit(limit).offset(offset)
-
-        # Esegui la query e ottieni i risultati
-        records = session.execute(query).fetchall()
-
-        # Chiudi la sessione
-        session.close()
-
-        return records
+            # Esegui la query e ottieni i risultati
+            records = session.execute(query).fetchall()
+            return records
+        finally:
+            session.close()
 
     def count_total_images(self, table_name, filter_text=None):
-        # Inizializza la sessione
-        Session = sessionmaker(bind=self.engine)
-        session = Session()
+        # Usa session factory ottimizzata
+        session = self.get_session()
+        try:
+            # Ottieni la tabella
+            table = Table(table_name, MetaData(bind=self.engine), autoload_with=self.engine)
 
-        # Ottieni la tabella
-        table = Table(table_name, MetaData(bind=self.engine), autoload_with=self.engine)
+            # Costruisci la query per ottenere il conteggio totale delle immagini
+            query = select(func.count('*')).select_from(table)
 
-        # Costruisci la query per ottenere il conteggio totale delle immagini
-        query = select(func.count('*')).select_from(table)
+            # Se c'è un testo da filtrare
+            if filter_text:
+                query = query.where(table.c.title.ilike(f"%{filter_text}%"))
 
-        # Se c'è un testo da filtrare
-        if filter_text:
-            query = query.where(table.c.title.ilike(f"%{filter_text}%"))
-
-        # Esegui la query e ottieni il conteggio
-        total_images = session.execute(query).scalar()
-
-        # Chiudi la sessione
-        session.close()
-
-        return total_images
+            # Esegui la query e ottieni il conteggio
+            total_images = session.execute(query).scalar()
+            return total_images
+        finally:
+            session.close()
 
     def query_bool_us(self, params, table_class):
 
@@ -1557,6 +1728,12 @@ class Pyarchinit_db_management(object):
             return None
 
     def query_bool(self, params, table_class_name):
+        # Cache per query_bool (molto usato nelle schede)
+        cache_key = self._get_cache_key('query_bool', params, table_class_name)
+        cached_result = self._get_cached_result(cache_key, cache_timeout=300)  # 5 minuti
+        if cached_result is not None:
+            return cached_result
+        
         u = Utility()
         params = u.remove_empty_items_fr_dict(params)
 
@@ -1653,6 +1830,8 @@ class Pyarchinit_db_management(object):
         # Close the session
         session.close()
 
+        # Salva nella cache
+        self._set_cached_result(cache_key, res)
         return res
 
     def select_mediapath_from_id(self, media_id):
@@ -1831,34 +2010,27 @@ class Pyarchinit_db_management(object):
 
     # session statement
     def insert_data_session(self, data):
-        Session = sessionmaker(bind=self.engine, autoflush=False, autocommit=False)
-        session = Session()
-        session.add(data)
-        # Log per debug
-        try:
-            # Try to flush first to get better error messages
-            session.flush()
-            session.commit()
-        except Exception as e:
-            session.rollback()
-            if hasattr(data, '__dict__'):
-                # Check id field specifically
-                if hasattr(data, 'id'):
+        with self.session_scope() as session:
+            session.add(data)
+            # Log per debug
+            try:
+                # Try to flush first to get better error messages
+                session.flush()
+                # No need to commit here - session_scope handles it
+            except Exception as e:
+                if hasattr(data, '__dict__'):
+                    # Check id field specifically
+                    if hasattr(data, 'id'):
+                        pass  # Previously had debug print here
+                # Try to get the actual database error
+                if hasattr(e, 'orig'):
                     pass  # Previously had debug print here
-            # Try to get the actual database error
-            if hasattr(e, 'orig'):
-                pass  # Previously had debug print here
-            raise
-        session.close()
+                raise
     def insert_data_conflict(self, data):
-        Session = sessionmaker(bind=self.engine, autoflush=False, autocommit=False)
-        session = Session()
-        session.begin_nested()
-        session.merge(data)
-       
-        session.commit()
-        
-        session.close()
+        with self.session_scope() as session:
+            session.begin_nested()
+            session.merge(data)
+            # session_scope handles commit
     def update(self, table_class_str, id_table_str, value_id_list, columns_name_list, values_update_list):
         """
         Receives 5 values then putted in a list. The values must be passed
@@ -2337,15 +2509,26 @@ class Pyarchinit_db_management(object):
 
     def group_by(self, tn, fn, CD):
         """Group by the values by table name - string, field name - string, table class DB from mapper - string"""
+        # Aggiungi caching per group_by (spesso usato per dropdown)
+        cache_key = self._get_cache_key('group_by', tn, fn, CD)
+        cached_result = self._get_cached_result(cache_key, cache_timeout=600)  # 10 minuti
+        if cached_result is not None:
+            return cached_result
+        
         self.table_name = tn
         self.field_name = fn
         self.table_class = CD
 
-        Session = sessionmaker(bind=self.engine, autoflush=True, autocommit=True)
-        session = Session()
-        s = eval('select([{0}.{1}]).group_by({0}.{1})'.format(self.table_class, self.field_name))
-        session.close()
-        return self.engine.execute(s).fetchall()
+        session = self.get_session()
+        try:
+            s = eval('select([{0}.{1}]).group_by({0}.{1})'.format(self.table_class, self.field_name))
+            result = self.engine.execute(s).fetchall()
+            
+            # Salva nella cache
+            self._set_cached_result(cache_key, result)
+            return result
+        finally:
+            session.close()
 
     def query_where_text(self, c, v):
         self.c = c

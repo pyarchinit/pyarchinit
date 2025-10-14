@@ -52,7 +52,7 @@ from ..modules.utility.skatch_gpt_INVMAT import GPTWindow
 from ..modules.utility.VideoPlayerArtefact import VideoPlayerWindow
 from ..modules.utility.pyarchinit_media_utility import *
 from ..modules.db.pyarchinit_conn_strings import Connection
-from ..modules.db.pyarchinit_db_manager import Pyarchinit_db_management
+from ..modules.db.pyarchinit_db_manager import get_db_manager
 from ..modules.db.concurrency_manager import ConcurrencyManager, RecordLockIndicator
 from ..modules.db.pyarchinit_utility import Utility
 from ..modules.utility.csv_writer import UnicodeWriter
@@ -940,8 +940,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             self.DB_SERVER = "sqlite"
 
         try:
-            self.DB_MANAGER = Pyarchinit_db_management(conn_str)
-            self.DB_MANAGER.connection()
+            self.DB_MANAGER = get_db_manager(conn_str, use_singleton=True)
 
             # Get database username and set it in the concurrency manager
             user_info = conn.datauser()
@@ -2124,8 +2123,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             self.DB_SERVER = "sqlite"
 
         try:
-            self.DB_MANAGER = Pyarchinit_db_management(conn_str)
-            self.DB_MANAGER.connection()
+            self.DB_MANAGER = get_db_manager(conn_str, use_singleton=True)
             self.charge_records()  # charge records from DB
             # check if DB is empty
             if self.DATA_LIST:

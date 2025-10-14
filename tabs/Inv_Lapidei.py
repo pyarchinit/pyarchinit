@@ -34,7 +34,7 @@ from qgis.core import QgsSettings
 
 from ..gui.imageViewer import ImageViewer
 from ..modules.db.pyarchinit_conn_strings import Connection
-from ..modules.db.pyarchinit_db_manager import Pyarchinit_db_management
+from ..modules.db.pyarchinit_db_manager import get_db_manager
 from ..modules.db.pyarchinit_utility import Utility
 from ..modules.utility.pyarchinit_error_check import Error_check
 from ..modules.utility.pyarchinit_exp_Findssheet_pdf import generate_reperti_pdf
@@ -351,8 +351,7 @@ class pyarchinit_Inventario_Lapidei(QDialog, MAIN_DIALOG_CLASS):
             self.DB_SERVER = "sqlite"
 
         try:
-            self.DB_MANAGER = Pyarchinit_db_management(conn_str)
-            self.DB_MANAGER.connection()
+            self.DB_MANAGER = get_db_manager(conn_str, use_singleton=True)
             self.charge_records()
             # check if DB is empty
             if bool(self.DATA_LIST):
