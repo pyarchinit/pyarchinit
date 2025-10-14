@@ -28,7 +28,7 @@ from qgis.PyQt.QtWidgets import QDialog, QMessageBox, QTableWidgetItem
 from qgis.PyQt.uic import loadUiType
 from qgis.core import QgsSettings
 from ..modules.db.pyarchinit_conn_strings import Connection
-from ..modules.db.pyarchinit_db_manager import Pyarchinit_db_management
+from ..modules.db.pyarchinit_db_manager import get_db_manager
 from ..modules.db.pyarchinit_utility import Utility
 from ..modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis
 #from ..modules.utility.pdf_models.pyarchinit_exp_Findssheet_pdf import generate_pdf
@@ -455,8 +455,7 @@ class pyarchinit_UT(QDialog, MAIN_DIALOG_CLASS):
             self.DB_SERVER = "sqlite"
 
         try:
-            self.DB_MANAGER = Pyarchinit_db_management(conn_str)
-            self.DB_MANAGER.connection()
+            self.DB_MANAGER = get_db_manager(conn_str, use_singleton=True)
             self.charge_records()  # charge records from DB
             # check if DB is empty
             if bool(self.DATA_LIST):

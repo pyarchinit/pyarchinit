@@ -30,7 +30,7 @@ from builtins import str
 from gui.sortpanelmain import SortPanelMain
 from .US_USM import pyarchinit_US
 from ..modules.db.pyarchinit_conn_strings import Connection
-from ..modules.db.pyarchinit_db_manager import Pyarchinit_db_management
+from ..modules.db.pyarchinit_db_manager import get_db_manager
 from ..modules.db.pyarchinit_utility import Utility
 
 MAIN_DIALOG_CLASS, _ = loadUiType(
@@ -144,8 +144,7 @@ class pyarchinit_PDFAdministrator(QDialog, MAIN_DIALOG_CLASS):
         conn = Connection()
         conn_str = conn.conn_str()
         try:
-            self.DB_MANAGER = Pyarchinit_db_management(conn_str)
-            self.DB_MANAGER.connection()
+            self.DB_MANAGER = get_db_manager(conn_str, use_singleton=True)
             self.charge_records()  # charge records from DB
             # check if DB is empty
             if bool(self.DATA_LIST):

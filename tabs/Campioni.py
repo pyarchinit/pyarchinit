@@ -30,7 +30,7 @@ from qgis.PyQt.QtCore import QVariant
 from qgis.core import QgsSettings
 
 from ..modules.db.pyarchinit_conn_strings import Connection
-from ..modules.db.pyarchinit_db_manager import Pyarchinit_db_management
+from ..modules.db.pyarchinit_db_manager import get_db_manager
 from ..modules.db.pyarchinit_utility import Utility
 from ..modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis
 from ..modules.utility.pyarchinit_error_check import Error_check
@@ -251,8 +251,7 @@ class pyarchinit_Campioni(QDialog, MAIN_DIALOG_CLASS):
         if test_conn == 0:
             self.DB_SERVER = "sqlite"
         try:
-            self.DB_MANAGER = Pyarchinit_db_management(conn_str)
-            self.DB_MANAGER.connection()
+            self.DB_MANAGER = get_db_manager(conn_str, use_singleton=True)
             self.charge_records()  # charge records from DB
             # check if DB is empty
             if self.DATA_LIST:

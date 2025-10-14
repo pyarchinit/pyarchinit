@@ -104,7 +104,7 @@ from ..modules.utility.pyarchinit_media_utility import *
 from ..modules.utility.response_sql import ResponseSQL
 from ..modules.utility.textTosql import *
 from ..modules.db.pyarchinit_conn_strings import Connection
-from ..modules.db.pyarchinit_db_manager import Pyarchinit_db_management
+from ..modules.db.pyarchinit_db_manager import get_db_manager
 from ..modules.db.pyarchinit_utility import Utility
 from ..modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis, Order_layer_v2, Order_layer_graph
 from ..modules.utility.delegateComboBox import ComboBoxDelegate
@@ -11586,8 +11586,7 @@ DATABASE SCHEMA KNOWLEDGE:
             self.DB_SERVER = "sqlite"
 
         try:
-            self.DB_MANAGER = Pyarchinit_db_management(conn_str)
-            self.DB_MANAGER.connection()
+            self.DB_MANAGER = get_db_manager(conn_str, use_singleton=True)
 
             # Get database username and set it in the concurrency manager
             user_info = conn.datauser()
@@ -11663,8 +11662,7 @@ DATABASE SCHEMA KNOWLEDGE:
             self.DB_SERVER = "sqlite"
 
         try:
-            self.DB_MANAGER = Pyarchinit_db_management(conn_str)
-            self.DB_MANAGER.connection()
+            self.DB_MANAGER = get_db_manager(conn_str, use_singleton=True)
             self.charge_records()  # charge records from DB
             # check if DB is empty
             if self.DATA_LIST:
