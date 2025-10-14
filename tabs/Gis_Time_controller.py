@@ -39,9 +39,9 @@ except ImportError:
         raise Exception(f"Unsupported platform: {sys.platform}")
     print("openai installed successfully")
 from qgis.PyQt.QtGui import QPixmap, QPainter, QImage
-from qgis.PyQt.QtWidgets import QFileDialog, QGraphicsScene,  QGraphicsView, QListWidgetItem, QDialog, QMessageBox, QProgressDialog
-from qgis.PyQt.QtCore import Qt, pyqtSlot, QCoreApplication, QThread
-from qgis.core import Qgis,QgsLayoutFrame, QgsMessageLog, QgsProject, QgsLayoutExporter, QgsApplication, QgsLayoutItemMap, QgsReadWriteContext, QgsPrintLayout,QgsLayoutMultiFrame, QgsLayoutItemHtml, QgsLayoutItemPicture
+from qgis.PyQt.QtWidgets import QFileDialog, QGraphicsScene,  QGraphicsView, QListWidgetItem, QDialog, QMessageBox, QProgressDialog, QInputDialog, QVBoxLayout, QHBoxLayout, QPushButton, QListWidget, QLabel
+from qgis.PyQt.QtCore import Qt, pyqtSlot, QCoreApplication, QThread, QRectF
+from qgis.core import Qgis,QgsLayoutFrame, QgsMessageLog, QgsProject, QgsLayoutExporter, QgsApplication, QgsLayoutItemMap, QgsReadWriteContext, QgsPrintLayout,QgsLayoutMultiFrame, QgsLayoutItemHtml, QgsLayoutItemPicture, QgsLayoutItemLabel
 from qgis.PyQt.QtXml import QDomDocument
 
 from ..modules.db.pyarchinit_utility import Utility
@@ -396,26 +396,389 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
 
 
 
+    def get_available_templates(self):
+        """Ottiene la lista dei template disponibili"""
+        template_paths = []
+        
+        # Cerca i template in diverse cartelle
+        search_paths = [
+            os.path.join(os.environ.get('PYARCHINIT_HOME', ''), 'bin', 'profile', 'template'),
+            os.path.join(os.path.dirname(__file__), '..', 'resources', 'dbfiles'),
+            os.path.dirname(__file__.replace('tabs', ''))  # directory principale plugin
+        ]
+        
+        for search_path in search_paths:
+            if os.path.exists(search_path):
+                for file in os.listdir(search_path):
+                    if file.endswith('.qpt'):
+                        full_path = os.path.join(search_path, file)
+                        template_name = os.path.splitext(file)[0]  # rimuove .qpt
+                        template_paths.append((template_name, full_path))
+        
+        # Rimuovi duplicati basandosi sul nome
+        seen_names = set()
+        unique_templates = []
+        for name, path in template_paths:
+            if name not in seen_names:
+                seen_names.add(name)
+                unique_templates.append((name, path))
+        
+        return unique_templates
+
+    def choose_template(self):
+        """Dialog avanzato per scegliere il template da utilizzare"""
+        from qgis.PyQt.QtWidgets import QDialog, QVBoxLayout, QHBoxLayout, QPushButton, QListWidget, QLabel, QListWidgetItem
+        
+        templates = self.get_available_templates()
+        if not templates:
+            QMessageBox.warning(self, "Warning", "Nessun template (.qpt) trovato nelle directory standard.")
+            return None
+        
+        # Crea dialog personalizzato
+        dialog = QDialog(self)
+        dialog.setWindowTitle("Scegli Layout Template per Atlas")
+        dialog.setModal(True)
+        dialog.resize(400, 300)
+        
+        layout = QVBoxLayout(dialog)
+        
+        # Label informativa
+        info_label = QLabel("Seleziona il template da utilizzare per la generazione dell'atlas:")
+        layout.addWidget(info_label)
+        
+        # Lista template
+        template_list = QListWidget()
+        for name, path in templates:
+            item = QListWidgetItem(f"{name}")
+            item.setToolTip(f"Path: {path}")
+            item.setData(Qt.UserRole, path)  # Salva il path nell'item
+            template_list.addItem(item)
+        
+        # Seleziona il primo per default
+        if template_list.count() > 0:
+            template_list.setCurrentRow(0)
+            
+        layout.addWidget(template_list)
+        
+        # Info sul template selezionato
+        info_path_label = QLabel("")
+        info_path_label.setWordWrap(True)
+        info_path_label.setStyleSheet("QLabel { color: gray; font-size: 10px; }")
+        layout.addWidget(info_path_label)
+        
+        # Aggiorna info quando si cambia selezione
+        def update_info():
+            current_item = template_list.currentItem()
+            if current_item:
+                path = current_item.data(Qt.UserRole)
+                info_path_label.setText(f"Path: {path}")
+        
+        template_list.currentItemChanged.connect(update_info)
+        update_info()  # Inizializza
+        
+        # Bottoni
+        button_layout = QHBoxLayout()
+        
+        browse_btn = QPushButton("Sfoglia...")
+        browse_btn.clicked.connect(lambda: self.browse_for_template(dialog))
+        
+        new_btn = QPushButton("Nuovo Template...")
+        new_btn.clicked.connect(lambda: self.create_new_template(dialog))
+        
+        ok_btn = QPushButton("Usa Template")
+        cancel_btn = QPushButton("Annulla")
+        
+        ok_btn.clicked.connect(dialog.accept)
+        cancel_btn.clicked.connect(dialog.reject)
+        
+        button_layout.addWidget(browse_btn)
+        button_layout.addWidget(new_btn)
+        button_layout.addStretch()
+        button_layout.addWidget(cancel_btn)
+        button_layout.addWidget(ok_btn)
+        
+        layout.addLayout(button_layout)
+        
+        # Imposta bottone di default
+        ok_btn.setDefault(True)
+        
+        # Esegui dialog
+        if dialog.exec_() == QDialog.Accepted:
+            # Controlla se è stato selezionato un template personalizzato
+            if hasattr(self, 'selected_custom_template'):
+                path = self.selected_custom_template
+                delattr(self, 'selected_custom_template')  # Pulisci
+                return path
+            
+            # Altrimenti usa quello dalla lista
+            current_item = template_list.currentItem()
+            if current_item:
+                return current_item.data(Qt.UserRole)
+        
+        return None
+    
+    def browse_for_template(self, parent_dialog):
+        """Permette di sfogliare per un template personalizzato"""
+        template_path, _ = QFileDialog.getOpenFileName(
+            parent_dialog,
+            "Seleziona Template Layout (.qpt)",
+            os.path.expanduser("~"),
+            "QGIS Layout Templates (*.qpt);;All Files (*)"
+        )
+        
+        if template_path:
+            parent_dialog.accept()
+            self.selected_custom_template = template_path
+            return template_path
+        
+        return None
+
+    def create_new_template(self, parent_dialog):
+        """Crea un nuovo template da zero"""
+        template_name, ok = QInputDialog.getText(
+            parent_dialog,
+            "Nuovo Template",
+            "Nome per il nuovo template:",
+            text="Atlas_Template_Custom"
+        )
+        
+        if not ok or not template_name.strip():
+            return None
+            
+        # Assicurati che abbia l'estensione .qpt
+        if not template_name.endswith('.qpt'):
+            template_name += '.qpt'
+            
+        try:
+            # Crea un nuovo layout vuoto
+            layout_manager = QgsProject.instance().layoutManager()
+            new_layout = QgsPrintLayout(QgsProject.instance())
+            new_layout.initializeDefaults()
+            new_layout.setName(template_name.replace('.qpt', ''))
+            
+            # Aggiungi elementi base per l'atlas
+            # Mappa principale
+            map_item = QgsLayoutItemMap(new_layout)
+            map_item.attemptSetSceneRect(QRectF(20, 20, 200, 150))  # x, y, width, height in mm
+            map_item.setFrameEnabled(True)
+            new_layout.addLayoutItem(map_item)
+            
+            # Titolo
+            from qgis.core import QgsLayoutItemLabel, QFont
+            title_item = QgsLayoutItemLabel(new_layout)
+            title_item.attemptSetSceneRect(QRectF(20, 5, 200, 10))
+            title_item.setText("Atlas Tavola [% @order_layer %]")
+            font = QFont()
+            font.setPointSize(16)
+            font.setBold(True)
+            title_item.setFont(font)
+            new_layout.addLayoutItem(title_item)
+            
+            # Area per matrice (placeholder)
+            matrix_item = QgsLayoutItemPicture(new_layout)
+            matrix_item.attemptSetSceneRect(QRectF(230, 20, 100, 100))
+            matrix_item.setFrameEnabled(True)
+            new_layout.addLayoutItem(matrix_item)
+            
+            # Salva il template
+            template_dir = os.path.join(os.path.dirname(__file__), '..', 'resources', 'dbfiles')
+            if not os.path.exists(template_dir):
+                os.makedirs(template_dir)
+                
+            template_path = os.path.join(template_dir, template_name)
+            
+            # Salva come XML
+            document = QDomDocument()
+            context = QgsReadWriteContext()
+            layout_element = document.createElement("Layout")
+            
+            new_layout.writeXml(layout_element, document, context)
+            document.appendChild(layout_element)
+            
+            with open(template_path, 'w') as f:
+                f.write(document.toString())
+                
+            # Apri il designer per personalizzazione
+            layout_manager.addLayout(new_layout)
+            from qgis.utils import iface
+            iface.openLayoutDesigner(new_layout)
+            
+            QMessageBox.information(
+                parent_dialog,
+                "Template Creato",
+                f"Nuovo template creato: {template_name}\n\n"
+                f"Il Layout Designer è ora aperto per personalizzare il template.\n"
+                f"Quando hai finito, chiudi il designer e il template sarà disponibile."
+            )
+            
+            # Chiudi il dialog di selezione
+            parent_dialog.accept()
+            self.selected_custom_template = template_path
+            return template_path
+            
+        except Exception as e:
+            QMessageBox.critical(
+                parent_dialog,
+                "Errore Creazione Template",
+                f"Errore nella creazione del template:\n{str(e)}"
+            )
+            return None
+
+    def open_layout_designer(self):
+        """Apre il Layout Designer di QGIS per modificare il template corrente"""
+        if not self.current_layout:
+            QMessageBox.warning(self, "Warning", "Nessun layout caricato.")
+            return
+            
+        try:
+            # Ottieni il layout manager
+            layout_manager = QgsProject.instance().layoutManager()
+            
+            # Controlla se il layout è già nel progetto
+            existing_layout = layout_manager.layoutByName(self.current_layout.name())
+            if not existing_layout:
+                # Aggiungi il layout al progetto se non esiste
+                layout_manager.addLayout(self.current_layout)
+            
+            # Apri il designer
+            from qgis.utils import iface
+            iface.openLayoutDesigner(self.current_layout)
+            
+            QMessageBox.information(
+                self,
+                "Layout Designer",
+                f"Il Layout Designer è stato aperto per il template: {self.current_layout.name()}\n\n"
+                f"Puoi modificare:\n"
+                f"• Posizione e dimensioni degli elementi\n"
+                f"• Stili, colori e font\n"
+                f"• Aggiungere nuovi elementi (testo, immagini, ecc.)\n"
+                f"• Configurare la mappa e la scala\n\n"
+                f"Chiudi il designer e clicca OK quando hai terminato le modifiche."
+            )
+            
+        except Exception as e:
+            QMessageBox.critical(
+                self,
+                "Errore Layout Designer",
+                f"Errore nell'apertura del Layout Designer:\n{str(e)}"
+            )
+
+    def save_current_as_template(self):
+        """Salva il layout corrente come nuovo template"""
+        if not self.current_layout:
+            QMessageBox.warning(self, "Warning", "Nessun layout caricato.")
+            return
+            
+        # Chiedi il nome del nuovo template
+        template_name, ok = QInputDialog.getText(
+            self, 
+            "Salva Template", 
+            "Inserisci il nome per il nuovo template:",
+            text="Nuovo_Template_Atlas"
+        )
+        
+        if not ok or not template_name.strip():
+            return
+            
+        # Assicurati che abbia l'estensione .qpt
+        if not template_name.endswith('.qpt'):
+            template_name += '.qpt'
+            
+        # Cartella di destinazione
+        template_dir = os.path.join(os.path.dirname(__file__), '..', 'resources', 'dbfiles')
+        if not os.path.exists(template_dir):
+            os.makedirs(template_dir)
+            
+        template_path = os.path.join(template_dir, template_name)
+        
+        # Controlla se esiste già
+        if os.path.exists(template_path):
+            reply = QMessageBox.question(
+                self, 
+                "File Esiste", 
+                f"Il template '{template_name}' esiste già. Sovrascrivere?",
+                QMessageBox.Yes | QMessageBox.No
+            )
+            if reply != QMessageBox.Yes:
+                return
+        
+        try:
+            # Salva il layout come template
+            document = QDomDocument()
+            context = QgsReadWriteContext()
+            layout_element = document.createElement("Layout")
+            
+            self.current_layout.writeXml(layout_element, document, context)
+            document.appendChild(layout_element)
+            
+            with open(template_path, 'w') as f:
+                f.write(document.toString())
+                
+            QMessageBox.information(
+                self, 
+                "Template Salvato", 
+                f"Template salvato con successo:\n{template_path}"
+            )
+            
+        except Exception as e:
+            QMessageBox.critical(
+                self, 
+                "Errore Salvataggio", 
+                f"Errore durante il salvataggio del template:\n{str(e)}"
+            )
+
     def generate_images(self):
-        # Aprire un dialogo per la selezione del percorso del file
-        self.path = QFileDialog.getExistingDirectory(self, 'Selezionare una cartella', '/')
+        # Prima scegli il template
+        template_path = self.choose_template()
+        if not template_path:
+            return
+            
+        # Poi scegli la cartella di destinazione
+        self.path = QFileDialog.getExistingDirectory(self, 'Selezionare una cartella per salvare le tavole', '/')
         if not self.path:
             return
+            
         # Get reference to active QgsMapCanvas:
         #logging.info('Start generating images.')
         canvas = self.iface.mapCanvas()
-        # Carica il template
-        HOME = os.environ['PYARCHINIT_HOME']
-        path = '{}{}{}{}'.format(HOME, os.sep, "bin/profile/template/", 'layout_TimeManager.qpt')
-
-        self.load_template(path)
+        
+        # Carica il template scelto
+        print(f"Caricando template: {template_path}")
+        self.load_template(template_path)
         if not self.current_layout:
+            QMessageBox.warning(self, "Errore Template", 
+                              f"Impossibile caricare il template:\n{template_path}")
             return
+            
+        # Chiedi se vuole modificare il template prima di procedere
+        reply = QMessageBox.question(
+            self, 
+            "Modifica Template", 
+            "Vuoi aprire il Layout Designer per modificare il template prima di generare l'atlas?",
+            QMessageBox.Yes | QMessageBox.No | QMessageBox.Cancel
+        )
+        
+        if reply == QMessageBox.Cancel:
+            return
+        elif reply == QMessageBox.Yes:
+            # Apri il layout designer
+            self.open_layout_designer()
+            
+            # Chiedi conferma per procedere
+            proceed = QMessageBox.question(
+                self,
+                "Continua Atlas",
+                "Hai terminato le modifiche al layout?\nProcedere con la generazione dell'atlas?",
+                QMessageBox.Yes | QMessageBox.No
+            )
+            if proceed != QMessageBox.Yes:
+                return
 
         max_num_order_layer = self.DB_MANAGER.max_num_id(self.MAPPER_TABLE_CLASS, "order_layer")
+        total_order_layers = max_num_order_layer + 1  # da 0 a max incluso
         
-        # Calcola quanti order_layer hanno datazione valida per la progress bar
-        valid_order_layers = []
+        # Conta quanti order_layer hanno datazione valida (solo per info)
+        valid_count = 0
         for value in range(0, max_num_order_layer + 1):
             has_valid_datazione = False
             for layer in self.selected_layers:
@@ -431,14 +794,14 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
                 if has_valid_datazione:
                     break
             if has_valid_datazione:
-                valid_order_layers.append(value)
+                valid_count += 1
         
-        if not valid_order_layers:
+        if valid_count == 0:
             QMessageBox.information(self, "Info", "Nessun order_layer con datazione valida trovato.")
             return
         
-        # Crea progress dialog non modale
-        progress = QProgressDialog("Generazione tavole in corso...", "Annulla", 0, len(valid_order_layers), self)
+        # Crea progress dialog per tutti gli order_layer (inclusi quelli skippati)
+        progress = QProgressDialog("Generazione tavole in corso...", "Annulla", 0, total_order_layers, self)
         progress.setWindowTitle("Generazione Atlas")
         progress.setWindowModality(Qt.NonModal)  # Non bloccare l'interfaccia
         progress.setAutoClose(False)  # Non chiudere automaticamente
@@ -447,10 +810,11 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
         progress_count = 0
         
         print(f"=== DEBUG: Inizio atlas generation ===")
-        print(f"Valid order layers: {valid_order_layers}")
+        print(f"Total order layers to process: {total_order_layers} (0 to {max_num_order_layer})")
+        print(f"Order layers with valid datazione: {valid_count}")
         print(f"Max order layer: {max_num_order_layer}")
         
-        print(f"Inizio generazione atlas per {len(valid_order_layers)} order_layer validi...")
+        print(f"Inizio generazione atlas per {valid_count} order_layer validi su {total_order_layers} totali...")
         
         # Usa tutti gli order_layer da 0 al massimo
         # Il controllo per la datazione verrà fatto durante l'iterazione
@@ -542,15 +906,18 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
                         if us_val is not None and area_val is not None:
                             visible_us_list.append((str(area_val), str(us_val)))
             
+            # Aggiorna progress dialog per tutti gli order_layer
+            progress_count += 1
+            progress.setValue(progress_count)
+            
             # Salta questo order_layer se non ha datazione valida
             if not has_valid_datazione:
+                progress.setLabelText(f"Saltando order_layer {value} (nessuna datazione) - {progress_count}/{total_order_layers}")
                 print(f"Skipping order_layer {value} - no valid datazione")
                 continue
             
-            # Aggiorna progress dialog
-            progress_count += 1
-            progress.setValue(progress_count)
-            progress.setLabelText(f"Generando Tavola {value} ({progress_count}/{len(valid_order_layers)})...")
+            progress.setLabelText(f"Generando Tavola {value} - {progress_count}/{total_order_layers}")
+            print(f"DEBUG: Progress updated - Generando Tavola {value} ({progress_count}/{total_order_layers})")
             
             # Controlla se l'utente ha annullato
             if progress.wasCanceled():
@@ -573,6 +940,7 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
                 dlg = pyarchinit_view_Matrix_pre(self.iface, data_list, self.id_us_dict)
                 dlg.visible_us_list = visible_us_list  # Passa la lista delle US visibili
                 dlg.generate_matrix_3()
+                HOME = os.environ.get('PYARCHINIT_HOME', os.path.expanduser('~'))
                 matrix_image = '{}{}{}{}'.format(HOME, os.sep, "pyarchinit_Matrix_folder/",
                                                  "Harris_matrix_viewtred.dot.jpg")  # path dell'immagine della matrice
 
@@ -624,13 +992,14 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
         if not self.abort and not progress.wasCanceled():
             QMessageBox.information(self, "Atlas Completato", 
                                   f"Generazione atlas completata con successo!\n"
-                                  f"Tavole generate: {progress_count}\n"
+                                  f"Order layers processati: {progress_count}/{total_order_layers}\n"
+                                  f"Tavole con datazione valida generate: {valid_count}\n"
                                   f"Salvate in: {self.path}")
-            print(f"Atlas generato con successo: {progress_count} tavole create")
+            print(f"Atlas generato con successo: {valid_count} tavole create su {progress_count} order_layer processati")
         else:
             QMessageBox.information(self, "Atlas Interrotto", 
                                   f"Generazione atlas interrotta dall'utente.\n"
-                                  f"Tavole generate prima dell'interruzione: {progress_count}")
+                                  f"Order layers processati prima dell'interruzione: {progress_count}/{total_order_layers}")
             print("Generazione atlas interrotta dall'utente")
 
     def stop_processes_named(self, name):
