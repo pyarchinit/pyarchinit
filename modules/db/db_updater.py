@@ -24,7 +24,17 @@ class DatabaseUpdater:
         """
         try:
             # Check if we're connected to PostgreSQL
-            if not hasattr(self.db_manager, 'engine') or 'postgresql' not in str(self.db_manager.engine.url):
+            if not hasattr(self.db_manager, 'engine'):
+                return True  # No engine, skip
+                
+            # Check connection type - handle both string and engine object
+            try:
+                engine_str = str(self.db_manager.engine.url)
+            except AttributeError:
+                # engine might not have url attribute (e.g., for some SQLite connections)
+                engine_str = str(self.db_manager.engine)
+            
+            if 'postgresql' not in engine_str:
                 return True  # Skip for SQLite
 
             # Check if create_doc trigger needs updating

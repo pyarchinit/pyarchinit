@@ -121,6 +121,8 @@ class Pyarchinit_db_management(object):
     def __init__(self, c, _singleton=False):
         self.conn_str = c
         self.Session = None
+        self.engine = None
+        self.metadata = None
         self._is_singleton = _singleton
         self._local_cache = {}  # Cache locale per questa istanza
         
@@ -207,13 +209,10 @@ class Pyarchinit_db_management(object):
                         log_debug(f"Error checking SQLite database updates: {e}")
                         # Continue anyway - don't block connection
                 
+                # SQLite doesn't support connection pooling parameters
                 self.engine = create_engine(
                     self.conn_str, 
-                    echo=eval(self.boolean),
-                    pool_size=3,
-                    max_overflow=5,
-                    pool_timeout=30,
-                    pool_recycle=3600
+                    echo=eval(self.boolean)
                 )
                 listen(self.engine, 'connect', self.load_spatialite)
             else:
@@ -291,6 +290,11 @@ class Pyarchinit_db_management(object):
                 log_debug("Closing initial connection")
                 conn.close()
 
+        # If connection failed, return early
+        if not test:
+            log_debug("Connection failed, returning early")
+            return test
+
         # Skip DB_update for remote databases to avoid slow operations
         is_remote_db = any(host in self.conn_str for host in [
             'supabase.com', 'amazonaws.com', 'azure.com', 'cloud.google.com',
@@ -311,6 +315,11 @@ class Pyarchinit_db_management(object):
         else:
             log_debug("Skipping DB_update for remote/cloud database")
         
+        # If DB update failed, return early
+        if not test:
+            log_debug("DB update failed, returning early")
+            return test
+            
         try:
 
             # Skip trigger updates for remote databases
@@ -326,14 +335,17 @@ class Pyarchinit_db_management(object):
                     log_debug(f"Trigger update check failed (non-critical): {e}")
                 
                 # After database update, we need to refresh metadata to reflect the changes
-                # Clear existing metadata
-                self.metadata.clear()
-                
-                # Recreate metadata with updated table structures
-                self.metadata = MetaData(self.engine)
-                
-                # Force metadata to reflect all tables
-                self.metadata.reflect(bind=self.engine)
+                # Only if we have a valid engine
+                if hasattr(self, 'engine') and self.engine:
+                    # Clear existing metadata if it's a MetaData object
+                    if hasattr(self, 'metadata') and hasattr(self.metadata, 'clear'):
+                        self.metadata.clear()
+                    
+                    # Recreate metadata with updated table structures
+                    self.metadata = MetaData(self.engine)
+                    
+                    # Force metadata to reflect all tables
+                    self.metadata.reflect(bind=self.engine)
                 
                 print("Database metadata refreshed after update")
             else:
