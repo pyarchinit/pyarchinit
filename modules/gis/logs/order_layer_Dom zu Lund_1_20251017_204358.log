@@ -1,0 +1,1811 @@
+2025-10-17 20:43:58,132 - INFO - Inizializzazione Order_layer_graph per Dom zu Lund - 1
+2025-10-17 20:43:58,360 - INFO - Avvio caricamento dati dal database...
+2025-10-17 20:43:58,371 - INFO - Tipo database rilevato: SQLite
+2025-10-17 20:43:58,372 - DEBUG - Esecuzione query: 
+            SELECT us, rapporti 
+            FROM us_table 
+            WHERE sito = 'Dom zu Lund' AND area = '1'
+            
+2025-10-17 20:43:58,411 - DEBUG - Caricate 50 US...
+2025-10-17 20:43:58,415 - DEBUG - Caricate 100 US...
+2025-10-17 20:43:58,416 - DEBUG - Caricate 150 US...
+2025-10-17 20:43:58,417 - DEBUG - Caricate 200 US...
+2025-10-17 20:43:58,417 - DEBUG - Caricate 250 US...
+2025-10-17 20:43:58,418 - DEBUG - Caricate 300 US...
+2025-10-17 20:43:58,418 - DEBUG - Caricate 350 US...
+2025-10-17 20:43:58,419 - DEBUG - Caricate 400 US...
+2025-10-17 20:43:58,419 - DEBUG - Caricate 450 US...
+2025-10-17 20:43:58,420 - DEBUG - Caricate 500 US...
+2025-10-17 20:43:58,420 - DEBUG - Caricate 550 US...
+2025-10-17 20:43:58,420 - DEBUG - Caricate 600 US...
+2025-10-17 20:43:58,421 - DEBUG - Caricate 650 US...
+2025-10-17 20:43:58,421 - DEBUG - Caricate 700 US...
+2025-10-17 20:43:58,421 - DEBUG - Caricate 750 US...
+2025-10-17 20:43:58,458 - INFO - Completato: caricate 758 US dal database
+2025-10-17 20:43:58,461 - INFO - Costruzione del grafo stratigrafico...
+2025-10-17 20:43:58,461 - DEBUG - Aggiunta relazione: 757 -> 1 (Covers)
+2025-10-17 20:43:58,462 - DEBUG - Aggiunta relazione: 15 -> 4 (Covers)
+2025-10-17 20:43:58,462 - DEBUG - Aggiunta relazione: 14 -> 4 (Fills)
+2025-10-17 20:43:58,462 - DEBUG - Aggiunta relazione: 18 -> 4 (Fills)
+2025-10-17 20:43:58,463 - DEBUG - Aggiunta relazione: 4 -> 5 (Fills)
+2025-10-17 20:43:58,465 - DEBUG - Aggiunta relazione: 7 -> 6 (Covers)
+2025-10-17 20:43:58,466 - DEBUG - Aggiunta relazione: 4 -> 7 (Covers)
+2025-10-17 20:43:58,467 - DEBUG - Aggiunta relazione: 10 -> 8 (Covers)
+2025-10-17 20:43:58,467 - DEBUG - Aggiunta relazione: 11 -> 8 (Covers)
+2025-10-17 20:43:58,468 - DEBUG - Aggiunta relazione: 13 -> 8 (Covers)
+2025-10-17 20:43:58,469 - DEBUG - Aggiunta relazione: 18 -> 8 (Covers)
+2025-10-17 20:43:58,470 - DEBUG - Aggiunta relazione: 5 -> 8 (Covers)
+2025-10-17 20:43:58,470 - DEBUG - Aggiunta relazione: 6 -> 8 (Covers)
+2025-10-17 20:43:58,471 - DEBUG - Aggiunta relazione: 7 -> 8 (Covers)
+2025-10-17 20:43:58,472 - DEBUG - Aggiunta relazione: 9 -> 8 (Covers)
+2025-10-17 20:43:58,473 - DEBUG - Aggiunta relazione: 12 -> 8 (Fills)
+2025-10-17 20:43:58,474 - DEBUG - Aggiunta relazione: 9 -> 10 (Covers)
+2025-10-17 20:43:58,475 - DEBUG - Aggiunta relazione: 10 -> 11 (Covers)
+2025-10-17 20:43:58,476 - DEBUG - Aggiunta relazione: 11 -> 12 (Covers)
+2025-10-17 20:43:58,477 - DEBUG - Aggiunta relazione: 8 -> 12 (Fills)
+2025-10-17 20:43:58,478 - DEBUG - Aggiunta relazione: 8 -> 12 (Fills)
+2025-10-17 20:43:58,479 - DEBUG - Aggiunta relazione: 12 -> 13 (Covers)
+2025-10-17 20:43:58,479 - DEBUG - Aggiunta relazione: 8 -> 13 (Covers)
+2025-10-17 20:43:58,480 - DEBUG - Aggiunta relazione: 8 -> 13 (Covers)
+2025-10-17 20:43:58,481 - DEBUG - Aggiunta relazione: 4 -> 14 (Fills)
+2025-10-17 20:43:58,482 - DEBUG - Aggiunta relazione: 4 -> 14 (Fills)
+2025-10-17 20:43:58,483 - DEBUG - Aggiunta relazione: 14 -> 15 (Covers)
+2025-10-17 20:43:58,484 - DEBUG - Aggiunta relazione: 16 -> 17 (Covers)
+2025-10-17 20:43:58,485 - DEBUG - Aggiunta relazione: 17 -> 18 (Covers)
+2025-10-17 20:43:58,486 - DEBUG - Aggiunta relazione: 4 -> 18 (Fills)
+2025-10-17 20:43:58,487 - DEBUG - Aggiunta relazione: 4 -> 18 (Fills)
+2025-10-17 20:43:58,488 - DEBUG - Aggiunta uguaglianza: 20 = 21
+2025-10-17 20:43:58,489 - DEBUG - Aggiunta uguaglianza: 21 = 20
+2025-10-17 20:43:58,490 - DEBUG - Aggiunta relazione: 20 -> 22 (Covers)
+2025-10-17 20:43:58,491 - DEBUG - Aggiunta relazione: 20 -> 25 (Covers)
+2025-10-17 20:43:58,492 - DEBUG - Aggiunta uguaglianza: 27 = 35
+2025-10-17 20:43:58,493 - DEBUG - Aggiunta relazione: 29 -> 28 (Fills)
+2025-10-17 20:43:58,494 - DEBUG - Aggiunta relazione: 27 -> 29 (Covers)
+2025-10-17 20:43:58,494 - DEBUG - Aggiunta uguaglianza: 29 = 36
+2025-10-17 20:43:58,495 - DEBUG - Aggiunta relazione: 28 -> 30 (Covers)
+2025-10-17 20:43:58,496 - DEBUG - Aggiunta relazione: 29 -> 30 (Covers)
+2025-10-17 20:43:58,497 - DEBUG - Aggiunta uguaglianza: 30 = 37
+2025-10-17 20:43:58,498 - DEBUG - Aggiunta uguaglianza: 30 = 38
+2025-10-17 20:43:58,499 - DEBUG - Aggiunta relazione: 33 -> 30 (Covers)
+2025-10-17 20:43:58,500 - DEBUG - Aggiunta relazione: 33 -> 30 (Covers)
+2025-10-17 20:43:58,501 - DEBUG - Aggiunta relazione: 30 -> 31 (Covers)
+2025-10-17 20:43:58,502 - DEBUG - Aggiunta relazione: 37 -> 31 (Covers)
+2025-10-17 20:43:58,503 - DEBUG - Aggiunta relazione: 38 -> 31 (Covers)
+2025-10-17 20:43:58,503 - DEBUG - Aggiunta relazione: 30 -> 33 (Covers)
+2025-10-17 20:43:58,504 - DEBUG - Aggiunta uguaglianza: 35 = 27
+2025-10-17 20:43:58,505 - DEBUG - Aggiunta uguaglianza: 36 = 29
+2025-10-17 20:43:58,506 - DEBUG - Aggiunta uguaglianza: 37 = 30
+2025-10-17 20:43:58,507 - DEBUG - Aggiunta uguaglianza: 38 = 30
+2025-10-17 20:43:58,508 - DEBUG - Aggiunta uguaglianza: 41 = 557
+2025-10-17 20:43:58,509 - DEBUG - Aggiunta uguaglianza: 41 = 558
+2025-10-17 20:43:58,510 - DEBUG - Aggiunta uguaglianza: 42 = 557
+2025-10-17 20:43:58,511 - DEBUG - Aggiunta uguaglianza: 42 = 558
+2025-10-17 20:43:58,512 - DEBUG - Aggiunta relazione: 53 -> 52 (Covers)
+2025-10-17 20:43:58,513 - DEBUG - Aggiunta relazione: 52 -> 54 (Cuts)
+2025-10-17 20:43:58,514 - DEBUG - Aggiunta relazione: 53 -> 54 (Cuts)
+2025-10-17 20:43:58,515 - DEBUG - Aggiunta relazione: 57 -> 56 (Covers)
+2025-10-17 20:43:58,516 - DEBUG - Aggiunta relazione: 55 -> 56 (Fills)
+2025-10-17 20:43:58,516 - DEBUG - Aggiunta relazione: 58 -> 57 (Covers)
+2025-10-17 20:43:58,518 - DEBUG - Aggiunta relazione: 55 -> 57 (Fills)
+2025-10-17 20:43:58,518 - DEBUG - Aggiunta relazione: 59 -> 58 (Covers)
+2025-10-17 20:43:58,519 - DEBUG - Aggiunta relazione: 65 -> 58 (Covers)
+2025-10-17 20:43:58,520 - DEBUG - Aggiunta relazione: 55 -> 58 (Fills)
+2025-10-17 20:43:58,521 - DEBUG - Aggiunta relazione: 60 -> 59 (Covers)
+2025-10-17 20:43:58,522 - DEBUG - Aggiunta relazione: 55 -> 59 (Fills)
+2025-10-17 20:43:58,523 - DEBUG - Aggiunta relazione: 61 -> 60 (Covers)
+2025-10-17 20:43:58,524 - DEBUG - Aggiunta relazione: 55 -> 60 (Fills)
+2025-10-17 20:43:58,525 - DEBUG - Aggiunta relazione: 62 -> 61 (Covers)
+2025-10-17 20:43:58,526 - DEBUG - Aggiunta relazione: 55 -> 61 (Fills)
+2025-10-17 20:43:58,527 - DEBUG - Aggiunta relazione: 55 -> 62 (Fills)
+2025-10-17 20:43:58,528 - DEBUG - Aggiunta relazione: 58 -> 63 (Covers)
+2025-10-17 20:43:58,528 - DEBUG - Aggiunta relazione: 59 -> 64 (Covers)
+2025-10-17 20:43:58,529 - DEBUG - Aggiunta relazione: 91 -> 66 (Covers)
+2025-10-17 20:43:58,530 - DEBUG - Aggiunta relazione: 124 -> 67 (Covers)
+2025-10-17 20:43:58,531 - DEBUG - Aggiunta relazione: 127 -> 67 (Covers)
+2025-10-17 20:43:58,532 - DEBUG - Aggiunta relazione: 138 -> 67 (Covers)
+2025-10-17 20:43:58,533 - DEBUG - Aggiunta relazione: 272 -> 67 (Cuts)
+2025-10-17 20:43:58,534 - DEBUG - Aggiunta relazione: 295 -> 67 (Cuts)
+2025-10-17 20:43:58,535 - DEBUG - Aggiunta relazione: 296 -> 67 (Cuts)
+2025-10-17 20:43:58,536 - DEBUG - Aggiunta relazione: 299 -> 67 (Cuts)
+2025-10-17 20:43:58,537 - DEBUG - Aggiunta relazione: 300 -> 67 (Cuts)
+2025-10-17 20:43:58,538 - DEBUG - Aggiunta relazione: 302 -> 67 (Cuts)
+2025-10-17 20:43:58,539 - DEBUG - Aggiunta relazione: 322 -> 67 (Cuts)
+2025-10-17 20:43:58,540 - DEBUG - Aggiunta relazione: 333 -> 67 (Cuts)
+2025-10-17 20:43:58,541 - DEBUG - Aggiunta relazione: 334 -> 67 (Cuts)
+2025-10-17 20:43:58,542 - DEBUG - Aggiunta relazione: 336 -> 67 (Cuts)
+2025-10-17 20:43:58,543 - DEBUG - Aggiunta relazione: 337 -> 67 (Cuts)
+2025-10-17 20:43:58,544 - DEBUG - Aggiunta relazione: 344 -> 67 (Cuts)
+2025-10-17 20:43:58,545 - DEBUG - Aggiunta relazione: 345 -> 67 (Cuts)
+2025-10-17 20:43:58,546 - DEBUG - Aggiunta relazione: 346 -> 67 (Cuts)
+2025-10-17 20:43:58,547 - DEBUG - Aggiunta uguaglianza: 67 = 106
+2025-10-17 20:43:58,548 - DEBUG - Aggiunta uguaglianza: 67 = 115
+2025-10-17 20:43:58,549 - DEBUG - Aggiunta uguaglianza: 67 = 72
+2025-10-17 20:43:58,550 - DEBUG - Aggiunta uguaglianza: 67 = 728
+2025-10-17 20:43:58,551 - DEBUG - Aggiunta relazione: 282 -> 67 (Covers)
+2025-10-17 20:43:58,551 - DEBUG - Aggiunta relazione: 282 -> 67 (Covers)
+2025-10-17 20:43:58,552 - DEBUG - Aggiunta uguaglianza: 68 = 98
+2025-10-17 20:43:58,553 - DEBUG - Aggiunta uguaglianza: 69 = 92
+2025-10-17 20:43:58,554 - DEBUG - Aggiunta uguaglianza: 70 = 367
+2025-10-17 20:43:58,555 - DEBUG - Aggiunta relazione: 365 -> 70 (Cuts)
+2025-10-17 20:43:58,556 - DEBUG - Aggiunta relazione: 367 -> 71 (Covers)
+2025-10-17 20:43:58,557 - DEBUG - Aggiunta relazione: 70 -> 71 (Covers)
+2025-10-17 20:43:58,558 - DEBUG - Aggiunta relazione: 358 -> 71 (Cuts)
+2025-10-17 20:43:58,559 - DEBUG - Aggiunta relazione: 368 -> 71 (Cuts)
+2025-10-17 20:43:58,560 - DEBUG - Aggiunta relazione: 382 -> 71 (Cuts)
+2025-10-17 20:43:58,561 - DEBUG - Aggiunta relazione: 383 -> 71 (Cuts)
+2025-10-17 20:43:58,562 - DEBUG - Aggiunta relazione: 384 -> 71 (Cuts)
+2025-10-17 20:43:58,563 - DEBUG - Aggiunta relazione: 70 -> 71 (Cuts)
+2025-10-17 20:43:58,564 - DEBUG - Aggiunta relazione: 438 -> 72 (Covers)
+2025-10-17 20:43:58,565 - DEBUG - Aggiunta relazione: 437 -> 72 (Cuts)
+2025-10-17 20:43:58,566 - DEBUG - Aggiunta relazione: 438 -> 72 (Cuts)
+2025-10-17 20:43:58,566 - DEBUG - Aggiunta relazione: 439 -> 72 (Cuts)
+2025-10-17 20:43:58,567 - DEBUG - Aggiunta relazione: 440 -> 72 (Cuts)
+2025-10-17 20:43:58,568 - DEBUG - Aggiunta relazione: 488 -> 72 (Cuts)
+2025-10-17 20:43:58,569 - DEBUG - Aggiunta uguaglianza: 72 = 106
+2025-10-17 20:43:58,570 - DEBUG - Aggiunta uguaglianza: 72 = 115
+2025-10-17 20:43:58,571 - DEBUG - Aggiunta uguaglianza: 72 = 67
+2025-10-17 20:43:58,572 - DEBUG - Aggiunta uguaglianza: 72 = 728
+2025-10-17 20:43:58,573 - DEBUG - Aggiunta relazione: 425 -> 72 (Covers)
+2025-10-17 20:43:58,574 - DEBUG - Aggiunta relazione: 425 -> 72 (Covers)
+2025-10-17 20:43:58,575 - DEBUG - Aggiunta relazione: 721 -> 73 (Cuts)
+2025-10-17 20:43:58,576 - DEBUG - Aggiunta relazione: 723 -> 73 (Cuts)
+2025-10-17 20:43:58,576 - DEBUG - Aggiunta relazione: 724 -> 73 (Cuts)
+2025-10-17 20:43:58,577 - DEBUG - Aggiunta relazione: 132 -> 75 (Covers)
+2025-10-17 20:43:58,578 - DEBUG - Aggiunta uguaglianza: 75 = 76
+2025-10-17 20:43:58,579 - DEBUG - Aggiunta relazione: 131 -> 76 (Covers)
+2025-10-17 20:43:58,580 - DEBUG - Aggiunta relazione: 132 -> 76 (Covers)
+2025-10-17 20:43:58,581 - DEBUG - Aggiunta uguaglianza: 76 = 75
+2025-10-17 20:43:58,582 - DEBUG - Aggiunta uguaglianza: 77 = 177
+2025-10-17 20:43:58,583 - DEBUG - Aggiunta uguaglianza: 77 = 553
+2025-10-17 20:43:58,584 - DEBUG - Aggiunta uguaglianza: 77 = 78
+2025-10-17 20:43:58,585 - DEBUG - Aggiunta uguaglianza: 77 = 79
+2025-10-17 20:43:58,586 - DEBUG - Aggiunta uguaglianza: 78 = 505
+2025-10-17 20:43:58,587 - DEBUG - Aggiunta uguaglianza: 78 = 553
+2025-10-17 20:43:58,587 - DEBUG - Aggiunta uguaglianza: 78 = 77
+2025-10-17 20:43:58,588 - DEBUG - Aggiunta uguaglianza: 78 = 79
+2025-10-17 20:43:58,589 - DEBUG - Aggiunta uguaglianza: 79 = 520
+2025-10-17 20:43:58,590 - DEBUG - Aggiunta uguaglianza: 79 = 521
+2025-10-17 20:43:58,591 - DEBUG - Aggiunta uguaglianza: 79 = 522
+2025-10-17 20:43:58,592 - DEBUG - Aggiunta uguaglianza: 79 = 523
+2025-10-17 20:43:58,593 - DEBUG - Aggiunta uguaglianza: 79 = 531
+2025-10-17 20:43:58,594 - DEBUG - Aggiunta uguaglianza: 79 = 540
+2025-10-17 20:43:58,595 - DEBUG - Aggiunta uguaglianza: 79 = 548
+2025-10-17 20:43:58,595 - DEBUG - Aggiunta uguaglianza: 79 = 77
+2025-10-17 20:43:58,596 - DEBUG - Aggiunta uguaglianza: 79 = 78
+2025-10-17 20:43:58,597 - DEBUG - Aggiunta relazione: 172 -> 80 (Abuts)
+2025-10-17 20:43:58,598 - DEBUG - Aggiunta uguaglianza: 80 = 172
+2025-10-17 20:43:58,599 - DEBUG - Aggiunta uguaglianza: 80 = 172
+2025-10-17 20:43:58,600 - DEBUG - Aggiunta uguaglianza: 81 = 553
+2025-10-17 20:43:58,601 - DEBUG - Aggiunta uguaglianza: 81 = 82
+2025-10-17 20:43:58,601 - DEBUG - Aggiunta uguaglianza: 81 = 552
+2025-10-17 20:43:58,602 - DEBUG - Aggiunta uguaglianza: 82 = 158
+2025-10-17 20:43:58,603 - DEBUG - Aggiunta uguaglianza: 82 = 159
+2025-10-17 20:43:58,604 - DEBUG - Aggiunta uguaglianza: 82 = 514
+2025-10-17 20:43:58,605 - DEBUG - Aggiunta uguaglianza: 82 = 81
+2025-10-17 20:43:58,606 - DEBUG - Aggiunta uguaglianza: 83 = 517
+2025-10-17 20:43:58,606 - DEBUG - Aggiunta uguaglianza: 83 = 520
+2025-10-17 20:43:58,607 - DEBUG - Aggiunta uguaglianza: 83 = 103
+2025-10-17 20:43:58,608 - DEBUG - Aggiunta uguaglianza: 83 = 105
+2025-10-17 20:43:58,609 - DEBUG - Aggiunta uguaglianza: 83 = 106
+2025-10-17 20:43:58,610 - DEBUG - Aggiunta uguaglianza: 83 = 339
+2025-10-17 20:43:58,610 - DEBUG - Aggiunta relazione: 587 -> 84 (Cuts)
+2025-10-17 20:43:58,611 - DEBUG - Aggiunta uguaglianza: 86 = 87
+2025-10-17 20:43:58,612 - DEBUG - Aggiunta uguaglianza: 87 = 86
+2025-10-17 20:43:58,613 - DEBUG - Aggiunta relazione: 83 -> 89 (Cuts)
+2025-10-17 20:43:58,614 - DEBUG - Aggiunta uguaglianza: 89 = 90
+2025-10-17 20:43:58,615 - DEBUG - Aggiunta relazione: 83 -> 90 (Cuts)
+2025-10-17 20:43:58,616 - DEBUG - Aggiunta uguaglianza: 90 = 89
+2025-10-17 20:43:58,616 - DEBUG - Aggiunta relazione: 707 -> 91 (Covers)
+2025-10-17 20:43:58,617 - DEBUG - Aggiunta relazione: 708 -> 91 (Covers)
+2025-10-17 20:43:58,618 - DEBUG - Aggiunta uguaglianza: 91 = 104
+2025-10-17 20:43:58,619 - DEBUG - Aggiunta uguaglianza: 92 = 69
+2025-10-17 20:43:58,620 - DEBUG - Aggiunta relazione: 93 -> 94 (Covers)
+2025-10-17 20:43:58,621 - DEBUG - Aggiunta relazione: 94 -> 95 (Covers)
+2025-10-17 20:43:58,622 - DEBUG - Aggiunta uguaglianza: 96 = 221
+2025-10-17 20:43:58,623 - DEBUG - Aggiunta relazione: 199 -> 96 (Covers)
+2025-10-17 20:43:58,624 - DEBUG - Aggiunta relazione: 222 -> 96 (Covers)
+2025-10-17 20:43:58,625 - DEBUG - Aggiunta relazione: 199 -> 96 (Fills)
+2025-10-17 20:43:58,625 - DEBUG - Aggiunta uguaglianza: 96 = 222
+2025-10-17 20:43:58,626 - DEBUG - Aggiunta uguaglianza: 97 = 290
+2025-10-17 20:43:58,627 - DEBUG - Aggiunta relazione: 309 -> 97 (Covers)
+2025-10-17 20:43:58,628 - DEBUG - Aggiunta relazione: 312 -> 97 (Covers)
+2025-10-17 20:43:58,629 - DEBUG - Aggiunta relazione: 313 -> 97 (Covers)
+2025-10-17 20:43:58,630 - DEBUG - Aggiunta relazione: 314 -> 97 (Covers)
+2025-10-17 20:43:58,631 - DEBUG - Aggiunta uguaglianza: 98 = 68
+2025-10-17 20:43:58,631 - DEBUG - Aggiunta uguaglianza: 98 = 99
+2025-10-17 20:43:58,633 - DEBUG - Aggiunta uguaglianza: 99 = 98
+2025-10-17 20:43:58,634 - DEBUG - Aggiunta uguaglianza: 103 = 83
+2025-10-17 20:43:58,635 - DEBUG - Aggiunta relazione: 85 -> 104 (Covers)
+2025-10-17 20:43:58,636 - DEBUG - Aggiunta uguaglianza: 104 = 91
+2025-10-17 20:43:58,636 - DEBUG - Aggiunta uguaglianza: 105 = 83
+2025-10-17 20:43:58,637 - DEBUG - Aggiunta uguaglianza: 105 = 339
+2025-10-17 20:43:58,638 - DEBUG - Aggiunta relazione: 387 -> 106 (Cuts)
+2025-10-17 20:43:58,639 - DEBUG - Aggiunta relazione: 407 -> 106 (Cuts)
+2025-10-17 20:43:58,640 - DEBUG - Aggiunta relazione: 408 -> 106 (Cuts)
+2025-10-17 20:43:58,641 - DEBUG - Aggiunta relazione: 409 -> 106 (Cuts)
+2025-10-17 20:43:58,642 - DEBUG - Aggiunta relazione: 410 -> 106 (Cuts)
+2025-10-17 20:43:58,643 - DEBUG - Aggiunta relazione: 411 -> 106 (Cuts)
+2025-10-17 20:43:58,644 - DEBUG - Aggiunta relazione: 442 -> 106 (Cuts)
+2025-10-17 20:43:58,645 - DEBUG - Aggiunta relazione: 444 -> 106 (Cuts)
+2025-10-17 20:43:58,646 - DEBUG - Aggiunta relazione: 446 -> 106 (Cuts)
+2025-10-17 20:43:58,647 - DEBUG - Aggiunta relazione: 447 -> 106 (Cuts)
+2025-10-17 20:43:58,649 - DEBUG - Aggiunta relazione: 449 -> 106 (Cuts)
+2025-10-17 20:43:58,650 - DEBUG - Aggiunta relazione: 450 -> 106 (Cuts)
+2025-10-17 20:43:58,651 - DEBUG - Aggiunta relazione: 411 -> 106 (Fills)
+2025-10-17 20:43:58,652 - DEBUG - Aggiunta uguaglianza: 106 = 115
+2025-10-17 20:43:58,654 - DEBUG - Aggiunta uguaglianza: 106 = 67
+2025-10-17 20:43:58,655 - DEBUG - Aggiunta uguaglianza: 106 = 72
+2025-10-17 20:43:58,656 - DEBUG - Aggiunta uguaglianza: 106 = 728
+2025-10-17 20:43:58,657 - DEBUG - Aggiunta uguaglianza: 106 = 83
+2025-10-17 20:43:58,659 - DEBUG - Aggiunta uguaglianza: 107 = 347
+2025-10-17 20:43:58,660 - DEBUG - Aggiunta relazione: 290 -> 107 (Cuts)
+2025-10-17 20:43:58,661 - DEBUG - Aggiunta relazione: 300 -> 107 (Cuts)
+2025-10-17 20:43:58,662 - DEBUG - Aggiunta relazione: 303 -> 107 (Cuts)
+2025-10-17 20:43:58,663 - DEBUG - Aggiunta relazione: 306 -> 107 (Cuts)
+2025-10-17 20:43:58,664 - DEBUG - Aggiunta relazione: 319 -> 107 (Cuts)
+2025-10-17 20:43:58,665 - DEBUG - Aggiunta relazione: 324 -> 107 (Cuts)
+2025-10-17 20:43:58,667 - DEBUG - Aggiunta relazione: 464 -> 107 (Covers)
+2025-10-17 20:43:58,668 - DEBUG - Aggiunta relazione: 466 -> 107 (Cuts)
+2025-10-17 20:43:58,669 - DEBUG - Aggiunta relazione: 464 -> 107 (Covers)
+2025-10-17 20:43:58,670 - DEBUG - Aggiunta relazione: 466 -> 107 (Cuts)
+2025-10-17 20:43:58,671 - DEBUG - Aggiunta uguaglianza: 108 = 290
+2025-10-17 20:43:58,672 - DEBUG - Aggiunta relazione: 147 -> 108 (Covers)
+2025-10-17 20:43:58,673 - DEBUG - Aggiunta relazione: 147 -> 108 (Cuts)
+2025-10-17 20:43:58,674 - DEBUG - Aggiunta relazione: 303 -> 108 (Cuts)
+2025-10-17 20:43:58,675 - DEBUG - Aggiunta relazione: 304 -> 108 (Cuts)
+2025-10-17 20:43:58,676 - DEBUG - Aggiunta relazione: 306 -> 108 (Cuts)
+2025-10-17 20:43:58,677 - DEBUG - Aggiunta relazione: 454 -> 108 (Cuts)
+2025-10-17 20:43:58,679 - DEBUG - Aggiunta relazione: 455 -> 108 (Cuts)
+2025-10-17 20:43:58,680 - DEBUG - Aggiunta relazione: 187 -> 111 (Covers)
+2025-10-17 20:43:58,681 - DEBUG - Aggiunta relazione: 190 -> 111 (Fills)
+2025-10-17 20:43:58,682 - DEBUG - Aggiunta relazione: 215 -> 111 (Fills)
+2025-10-17 20:43:58,684 - DEBUG - Aggiunta relazione: 200 -> 112 (Covers)
+2025-10-17 20:43:58,685 - DEBUG - Aggiunta uguaglianza: 113 = 114
+2025-10-17 20:43:58,686 - DEBUG - Aggiunta uguaglianza: 113 = 225
+2025-10-17 20:43:58,687 - DEBUG - Aggiunta relazione: 203 -> 113 (Covers)
+2025-10-17 20:43:58,688 - DEBUG - Aggiunta relazione: 209 -> 113 (Covers)
+2025-10-17 20:43:58,689 - DEBUG - Aggiunta relazione: 218 -> 113 (Covers)
+2025-10-17 20:43:58,690 - DEBUG - Aggiunta uguaglianza: 114 = 113
+2025-10-17 20:43:58,692 - DEBUG - Aggiunta uguaglianza: 114 = 281
+2025-10-17 20:43:58,693 - DEBUG - Aggiunta relazione: 200 -> 114 (Covers)
+2025-10-17 20:43:58,694 - DEBUG - Aggiunta relazione: 203 -> 114 (Covers)
+2025-10-17 20:43:58,695 - DEBUG - Aggiunta uguaglianza: 114 = 226
+2025-10-17 20:43:58,696 - DEBUG - Aggiunta relazione: 203 -> 115 (Cuts)
+2025-10-17 20:43:58,697 - DEBUG - Aggiunta relazione: 204 -> 115 (Cuts)
+2025-10-17 20:43:58,699 - DEBUG - Aggiunta relazione: 208 -> 115 (Cuts)
+2025-10-17 20:43:58,700 - DEBUG - Aggiunta relazione: 210 -> 115 (Cuts)
+2025-10-17 20:43:58,701 - DEBUG - Aggiunta relazione: 271 -> 115 (Cuts)
+2025-10-17 20:43:58,702 - DEBUG - Aggiunta relazione: 272 -> 115 (Cuts)
+2025-10-17 20:43:58,703 - DEBUG - Aggiunta relazione: 281 -> 115 (Cuts)
+2025-10-17 20:43:58,704 - DEBUG - Aggiunta relazione: 292 -> 115 (Cuts)
+2025-10-17 20:43:58,705 - DEBUG - Aggiunta relazione: 293 -> 115 (Cuts)
+2025-10-17 20:43:58,706 - DEBUG - Aggiunta relazione: 294 -> 115 (Cuts)
+2025-10-17 20:43:58,708 - DEBUG - Aggiunta relazione: 328 -> 115 (Cuts)
+2025-10-17 20:43:58,709 - DEBUG - Aggiunta relazione: 329 -> 115 (Cuts)
+2025-10-17 20:43:58,710 - DEBUG - Aggiunta relazione: 330 -> 115 (Cuts)
+2025-10-17 20:43:58,711 - DEBUG - Aggiunta relazione: 332 -> 115 (Cuts)
+2025-10-17 20:43:58,712 - DEBUG - Aggiunta uguaglianza: 115 = 106
+2025-10-17 20:43:58,713 - DEBUG - Aggiunta uguaglianza: 115 = 67
+2025-10-17 20:43:58,714 - DEBUG - Aggiunta uguaglianza: 115 = 72
+2025-10-17 20:43:58,716 - DEBUG - Aggiunta uguaglianza: 115 = 728
+2025-10-17 20:43:58,717 - DEBUG - Aggiunta uguaglianza: 116 = 340
+2025-10-17 20:43:58,718 - DEBUG - Aggiunta relazione: 283 -> 116 (Cuts)
+2025-10-17 20:43:58,719 - DEBUG - Aggiunta relazione: 284 -> 116 (Cuts)
+2025-10-17 20:43:58,720 - DEBUG - Aggiunta relazione: 285 -> 116 (Cuts)
+2025-10-17 20:43:58,721 - DEBUG - Aggiunta relazione: 297 -> 116 (Cuts)
+2025-10-17 20:43:58,722 - DEBUG - Aggiunta relazione: 121 -> 122 (Covers)
+2025-10-17 20:43:58,723 - DEBUG - Aggiunta relazione: 477 -> 123 (Cuts)
+2025-10-17 20:43:58,724 - DEBUG - Aggiunta relazione: 477 -> 123 (Cuts)
+2025-10-17 20:43:58,726 - DEBUG - Aggiunta relazione: 434 -> 124 (Cuts)
+2025-10-17 20:43:58,727 - DEBUG - Aggiunta relazione: 435 -> 124 (Cuts)
+2025-10-17 20:43:58,728 - DEBUG - Aggiunta relazione: 398 -> 124 (Fills)
+2025-10-17 20:43:58,729 - DEBUG - Aggiunta relazione: 67 -> 124 (Covers)
+2025-10-17 20:43:58,730 - DEBUG - Aggiunta relazione: 67 -> 124 (Covers)
+2025-10-17 20:43:58,731 - DEBUG - Aggiunta relazione: 424 -> 125 (Covers)
+2025-10-17 20:43:58,732 - DEBUG - Aggiunta relazione: 425 -> 125 (Covers)
+2025-10-17 20:43:58,733 - DEBUG - Aggiunta relazione: 424 -> 125 (Covers)
+2025-10-17 20:43:58,734 - DEBUG - Aggiunta relazione: 425 -> 125 (Covers)
+2025-10-17 20:43:58,735 - DEBUG - Aggiunta uguaglianza: 127 = 343
+2025-10-17 20:43:58,736 - DEBUG - Aggiunta relazione: 20 -> 127 (Covers)
+2025-10-17 20:43:58,737 - DEBUG - Aggiunta relazione: 83 -> 127 (Covers)
+2025-10-17 20:43:58,738 - DEBUG - Aggiunta relazione: 283 -> 127 (Cuts)
+2025-10-17 20:43:58,739 - DEBUG - Aggiunta relazione: 284 -> 127 (Cuts)
+2025-10-17 20:43:58,741 - DEBUG - Aggiunta relazione: 285 -> 127 (Cuts)
+2025-10-17 20:43:58,742 - DEBUG - Aggiunta relazione: 299 -> 127 (Cuts)
+2025-10-17 20:43:58,744 - DEBUG - Aggiunta relazione: 429 -> 128 (Covers)
+2025-10-17 20:43:58,745 - DEBUG - Aggiunta relazione: 477 -> 128 (Covers)
+2025-10-17 20:43:58,746 - DEBUG - Aggiunta uguaglianza: 138 = 286
+2025-10-17 20:43:58,747 - DEBUG - Aggiunta relazione: 83 -> 138 (Covers)
+2025-10-17 20:43:58,748 - DEBUG - Aggiunta relazione: 346 -> 138 (Cuts)
+2025-10-17 20:43:58,750 - DEBUG - Aggiunta uguaglianza: 138 = 276
+2025-10-17 20:43:58,751 - DEBUG - Aggiunta relazione: 209 -> 139 (Covers)
+2025-10-17 20:43:58,752 - DEBUG - Aggiunta relazione: 375 -> 139 (Covers)
+2025-10-17 20:43:58,753 - DEBUG - Aggiunta relazione: 376 -> 139 (Covers)
+2025-10-17 20:43:58,754 - DEBUG - Aggiunta relazione: 377 -> 140 (Covers)
+2025-10-17 20:43:58,755 - DEBUG - Aggiunta relazione: 142 -> 141 (Covers)
+2025-10-17 20:43:58,756 - DEBUG - Aggiunta relazione: 377 -> 141 (Covers)
+2025-10-17 20:43:58,758 - DEBUG - Aggiunta relazione: 359 -> 142 (Cuts)
+2025-10-17 20:43:58,759 - DEBUG - Aggiunta relazione: 377 -> 142 (Fills)
+2025-10-17 20:43:58,760 - DEBUG - Aggiunta relazione: 377 -> 142 (Covers)
+2025-10-17 20:43:58,761 - DEBUG - Aggiunta relazione: 377 -> 142 (Covers)
+2025-10-17 20:43:58,762 - DEBUG - Aggiunta relazione: 440 -> 143 (Cuts)
+2025-10-17 20:43:58,763 - DEBUG - Aggiunta relazione: 441 -> 143 (Cuts)
+2025-10-17 20:43:58,764 - DEBUG - Aggiunta relazione: 445 -> 143 (Cuts)
+2025-10-17 20:43:58,766 - DEBUG - Aggiunta relazione: 410 -> 144 (Cuts)
+2025-10-17 20:43:58,767 - DEBUG - Aggiunta relazione: 445 -> 144 (Cuts)
+2025-10-17 20:43:58,768 - DEBUG - Aggiunta relazione: 447 -> 144 (Cuts)
+2025-10-17 20:43:58,769 - DEBUG - Aggiunta relazione: 426 -> 144 (Fills)
+2025-10-17 20:43:58,770 - DEBUG - Aggiunta uguaglianza: 144 = 427
+2025-10-17 20:43:58,771 - DEBUG - Aggiunta relazione: 426 -> 145 (Fills)
+2025-10-17 20:43:58,773 - DEBUG - Aggiunta relazione: 451 -> 146 (Covers)
+2025-10-17 20:43:58,774 - DEBUG - Aggiunta relazione: 453 -> 147 (Covers)
+2025-10-17 20:43:58,776 - DEBUG - Aggiunta relazione: 83 -> 148 (Covers)
+2025-10-17 20:43:58,777 - DEBUG - Aggiunta relazione: 282 -> 149 (Cuts)
+2025-10-17 20:43:58,778 - DEBUG - Aggiunta relazione: 294 -> 149 (Cuts)
+2025-10-17 20:43:58,779 - DEBUG - Aggiunta relazione: 432 -> 150 (Cuts)
+2025-10-17 20:43:58,780 - DEBUG - Aggiunta relazione: 433 -> 150 (Cuts)
+2025-10-17 20:43:58,781 - DEBUG - Aggiunta relazione: 471 -> 150 (Fills)
+2025-10-17 20:43:58,782 - DEBUG - Aggiunta relazione: 79 -> 154 (Covers)
+2025-10-17 20:43:58,783 - DEBUG - Aggiunta relazione: 83 -> 154 (Covers)
+2025-10-17 20:43:58,784 - DEBUG - Aggiunta relazione: 83 -> 155 (Covers)
+2025-10-17 20:43:58,785 - DEBUG - Aggiunta uguaglianza: 158 = 82
+2025-10-17 20:43:58,786 - DEBUG - Aggiunta relazione: 158 -> 159 (Covers)
+2025-10-17 20:43:58,788 - DEBUG - Aggiunta uguaglianza: 159 = 82
+2025-10-17 20:43:58,789 - DEBUG - Aggiunta relazione: 159 -> 160 (Covers)
+2025-10-17 20:43:58,790 - DEBUG - Aggiunta relazione: 160 -> 161 (Covers)
+2025-10-17 20:43:58,791 - DEBUG - Aggiunta relazione: 162 -> 163 (Covers)
+2025-10-17 20:43:58,792 - DEBUG - Aggiunta relazione: 163 -> 165 (Covers)
+2025-10-17 20:43:58,793 - DEBUG - Aggiunta relazione: 165 -> 166 (Covers)
+2025-10-17 20:43:58,794 - DEBUG - Aggiunta relazione: 169 -> 167 (Covers)
+2025-10-17 20:43:58,795 - DEBUG - Aggiunta uguaglianza: 167 = 599
+2025-10-17 20:43:58,796 - DEBUG - Aggiunta relazione: 164 -> 168 (Cuts)
+2025-10-17 20:43:58,797 - DEBUG - Aggiunta relazione: 164 -> 169 (Covers)
+2025-10-17 20:43:58,798 - DEBUG - Aggiunta relazione: 168 -> 169 (Covers)
+2025-10-17 20:43:58,800 - DEBUG - Aggiunta relazione: 164 -> 169 (Cuts)
+2025-10-17 20:43:58,801 - DEBUG - Aggiunta relazione: 170 -> 171 (Covers)
+2025-10-17 20:43:58,802 - DEBUG - Aggiunta uguaglianza: 172 = 80
+2025-10-17 20:43:58,803 - DEBUG - Aggiunta relazione: 171 -> 172 (Covers)
+2025-10-17 20:43:58,804 - DEBUG - Aggiunta uguaglianza: 172 = 197
+2025-10-17 20:43:58,805 - DEBUG - Aggiunta uguaglianza: 172 = 80
+2025-10-17 20:43:58,806 - DEBUG - Aggiunta relazione: 172 -> 173 (Covers)
+2025-10-17 20:43:58,808 - DEBUG - Aggiunta uguaglianza: 173 = 599
+2025-10-17 20:43:58,810 - DEBUG - Aggiunta relazione: 197 -> 174 (Covers)
+2025-10-17 20:43:58,811 - DEBUG - Aggiunta relazione: 223 -> 174 (Covers)
+2025-10-17 20:43:58,812 - DEBUG - Aggiunta relazione: 172 -> 175 (Cuts)
+2025-10-17 20:43:58,813 - DEBUG - Aggiunta relazione: 176 -> 177 (Covers)
+2025-10-17 20:43:58,814 - DEBUG - Aggiunta relazione: 201 -> 177 (Cuts)
+2025-10-17 20:43:58,815 - DEBUG - Aggiunta uguaglianza: 177 = 77
+2025-10-17 20:43:58,816 - DEBUG - Aggiunta relazione: 177 -> 178 (Covers)
+2025-10-17 20:43:58,818 - DEBUG - Aggiunta relazione: 178 -> 179 (Covers)
+2025-10-17 20:43:58,819 - DEBUG - Aggiunta uguaglianza: 179 = 599
+2025-10-17 20:43:58,820 - DEBUG - Aggiunta uguaglianza: 180 = 181
+2025-10-17 20:43:58,821 - DEBUG - Aggiunta uguaglianza: 180 = 182
+2025-10-17 20:43:58,822 - DEBUG - Aggiunta uguaglianza: 181 = 180
+2025-10-17 20:43:58,823 - DEBUG - Aggiunta uguaglianza: 181 = 182
+2025-10-17 20:43:58,825 - DEBUG - Aggiunta uguaglianza: 182 = 180
+2025-10-17 20:43:58,826 - DEBUG - Aggiunta uguaglianza: 182 = 181
+2025-10-17 20:43:58,827 - DEBUG - Aggiunta relazione: 189 -> 183 (Fills)
+2025-10-17 20:43:58,828 - DEBUG - Aggiunta relazione: 189 -> 184 (Fills)
+2025-10-17 20:43:58,829 - DEBUG - Aggiunta uguaglianza: 185 = 191
+2025-10-17 20:43:58,830 - DEBUG - Aggiunta relazione: 214 -> 185 (Covers)
+2025-10-17 20:43:58,831 - DEBUG - Aggiunta relazione: 186 -> 185 (Cuts)
+2025-10-17 20:43:58,833 - DEBUG - Aggiunta relazione: 214 -> 185 (Cuts)
+2025-10-17 20:43:58,834 - DEBUG - Aggiunta relazione: 214 -> 186 (Covers)
+2025-10-17 20:43:58,835 - DEBUG - Aggiunta relazione: 214 -> 187 (Covers)
+2025-10-17 20:43:58,836 - DEBUG - Aggiunta relazione: 215 -> 188 (Covers)
+2025-10-17 20:43:58,837 - DEBUG - Aggiunta relazione: 190 -> 188 (Fills)
+2025-10-17 20:43:58,838 - DEBUG - Aggiunta uguaglianza: 189 = 190
+2025-10-17 20:43:58,839 - DEBUG - Aggiunta uguaglianza: 189 = 224
+2025-10-17 20:43:58,840 - DEBUG - Aggiunta relazione: 185 -> 189 (Covers)
+2025-10-17 20:43:58,842 - DEBUG - Aggiunta relazione: 186 -> 189 (Covers)
+2025-10-17 20:43:58,843 - DEBUG - Aggiunta relazione: 187 -> 189 (Covers)
+2025-10-17 20:43:58,844 - DEBUG - Aggiunta relazione: 189 -> 189 (Covers)
+2025-10-17 20:43:58,845 - DEBUG - Aggiunta relazione: 214 -> 189 (Covers)
+2025-10-17 20:43:58,846 - DEBUG - Aggiunta uguaglianza: 190 = 189
+2025-10-17 20:43:58,847 - DEBUG - Aggiunta uguaglianza: 190 = 224
+2025-10-17 20:43:58,849 - DEBUG - Aggiunta relazione: 186 -> 190 (Covers)
+2025-10-17 20:43:58,850 - DEBUG - Aggiunta relazione: 187 -> 190 (Covers)
+2025-10-17 20:43:58,851 - DEBUG - Aggiunta relazione: 215 -> 190 (Covers)
+2025-10-17 20:43:58,852 - DEBUG - Aggiunta uguaglianza: 191 = 185
+2025-10-17 20:43:58,853 - DEBUG - Aggiunta relazione: 111 -> 191 (Covers)
+2025-10-17 20:43:58,854 - DEBUG - Aggiunta relazione: 214 -> 191 (Covers)
+2025-10-17 20:43:58,855 - DEBUG - Aggiunta relazione: 111 -> 191 (Cuts)
+2025-10-17 20:43:58,856 - DEBUG - Aggiunta relazione: 214 -> 191 (Cuts)
+2025-10-17 20:43:58,858 - DEBUG - Aggiunta relazione: 189 -> 191 (Fills)
+2025-10-17 20:43:58,859 - DEBUG - Aggiunta relazione: 189 -> 192 (Fills)
+2025-10-17 20:43:58,860 - DEBUG - Aggiunta relazione: 189 -> 193 (Fills)
+2025-10-17 20:43:58,861 - DEBUG - Aggiunta relazione: 189 -> 194 (Fills)
+2025-10-17 20:43:58,862 - DEBUG - Aggiunta relazione: 189 -> 195 (Fills)
+2025-10-17 20:43:58,863 - DEBUG - Aggiunta uguaglianza: 196 = 196
+2025-10-17 20:43:58,864 - DEBUG - Aggiunta uguaglianza: 196 = 197
+2025-10-17 20:43:58,865 - DEBUG - Aggiunta relazione: 111 -> 196 (Covers)
+2025-10-17 20:43:58,867 - DEBUG - Aggiunta relazione: 190 -> 196 (Covers)
+2025-10-17 20:43:58,868 - DEBUG - Aggiunta relazione: 197 -> 196 (Covers)
+2025-10-17 20:43:58,869 - DEBUG - Aggiunta relazione: 189 -> 196 (Fills)
+2025-10-17 20:43:58,870 - DEBUG - Aggiunta uguaglianza: 197 = 196
+2025-10-17 20:43:58,871 - DEBUG - Aggiunta relazione: 190 -> 197 (Covers)
+2025-10-17 20:43:58,872 - DEBUG - Aggiunta relazione: 196 -> 197 (Covers)
+2025-10-17 20:43:58,873 - DEBUG - Aggiunta relazione: 198 -> 197 (Covers)
+2025-10-17 20:43:58,875 - DEBUG - Aggiunta uguaglianza: 197 = 172
+2025-10-17 20:43:58,876 - DEBUG - Aggiunta relazione: 196 -> 198 (Covers)
+2025-10-17 20:43:58,877 - DEBUG - Aggiunta relazione: 197 -> 198 (Covers)
+2025-10-17 20:43:58,878 - DEBUG - Aggiunta relazione: 215 -> 199 (Covers)
+2025-10-17 20:43:58,879 - DEBUG - Aggiunta relazione: 217 -> 200 (Covers)
+2025-10-17 20:43:58,880 - DEBUG - Aggiunta relazione: 112 -> 201 (Covers)
+2025-10-17 20:43:58,881 - DEBUG - Aggiunta relazione: 113 -> 201 (Covers)
+2025-10-17 20:43:58,883 - DEBUG - Aggiunta relazione: 225 -> 201 (Covers)
+2025-10-17 20:43:58,884 - DEBUG - Aggiunta relazione: 228 -> 201 (Covers)
+2025-10-17 20:43:58,885 - DEBUG - Aggiunta relazione: 232 -> 201 (Cuts)
+2025-10-17 20:43:58,886 - DEBUG - Aggiunta relazione: 225 -> 201 (Covers)
+2025-10-17 20:43:58,887 - DEBUG - Aggiunta relazione: 228 -> 201 (Covers)
+2025-10-17 20:43:58,888 - DEBUG - Aggiunta relazione: 232 -> 201 (Cuts)
+2025-10-17 20:43:58,889 - DEBUG - Aggiunta relazione: 201 -> 202 (Covers)
+2025-10-17 20:43:58,890 - DEBUG - Aggiunta relazione: 225 -> 202 (Covers)
+2025-10-17 20:43:58,891 - DEBUG - Aggiunta relazione: 225 -> 202 (Covers)
+2025-10-17 20:43:58,892 - DEBUG - Aggiunta relazione: 210 -> 203 (Covers)
+2025-10-17 20:43:58,894 - DEBUG - Aggiunta uguaglianza: 204 = 281
+2025-10-17 20:43:58,895 - DEBUG - Aggiunta relazione: 203 -> 204 (Fills)
+2025-10-17 20:43:58,896 - DEBUG - Aggiunta relazione: 262 -> 205 (Covers)
+2025-10-17 20:43:58,897 - DEBUG - Aggiunta uguaglianza: 205 = 211
+2025-10-17 20:43:58,898 - DEBUG - Aggiunta uguaglianza: 206 = 207
+2025-10-17 20:43:58,899 - DEBUG - Aggiunta uguaglianza: 206 = 208
+2025-10-17 20:43:58,900 - DEBUG - Aggiunta uguaglianza: 206 = 217
+2025-10-17 20:43:58,901 - DEBUG - Aggiunta uguaglianza: 207 = 206
+2025-10-17 20:43:58,902 - DEBUG - Aggiunta uguaglianza: 207 = 208
+2025-10-17 20:43:58,903 - DEBUG - Aggiunta relazione: 181 -> 207 (Covers)
+2025-10-17 20:43:58,904 - DEBUG - Aggiunta relazione: 182 -> 207 (Covers)
+2025-10-17 20:43:58,905 - DEBUG - Aggiunta relazione: 270 -> 207 (Covers)
+2025-10-17 20:43:58,906 - DEBUG - Aggiunta relazione: 328 -> 207 (Covers)
+2025-10-17 20:43:58,908 - DEBUG - Aggiunta uguaglianza: 208 = 206
+2025-10-17 20:43:58,909 - DEBUG - Aggiunta uguaglianza: 208 = 207
+2025-10-17 20:43:58,910 - DEBUG - Aggiunta uguaglianza: 208 = 209
+2025-10-17 20:43:58,911 - DEBUG - Aggiunta uguaglianza: 208 = 218
+2025-10-17 20:43:58,912 - DEBUG - Aggiunta uguaglianza: 208 = 265
+2025-10-17 20:43:58,913 - DEBUG - Aggiunta relazione: 235 -> 208 (Covers)
+2025-10-17 20:43:58,914 - DEBUG - Aggiunta relazione: 238 -> 208 (Covers)
+2025-10-17 20:43:58,915 - DEBUG - Aggiunta relazione: 263 -> 208 (Covers)
+2025-10-17 20:43:58,916 - DEBUG - Aggiunta relazione: 264 -> 208 (Covers)
+2025-10-17 20:43:58,918 - DEBUG - Aggiunta uguaglianza: 209 = 208
+2025-10-17 20:43:58,919 - DEBUG - Aggiunta relazione: 218 -> 209 (Covers)
+2025-10-17 20:43:58,920 - DEBUG - Aggiunta relazione: 267 -> 209 (Covers)
+2025-10-17 20:43:58,921 - DEBUG - Aggiunta relazione: 268 -> 210 (Covers)
+2025-10-17 20:43:58,922 - DEBUG - Aggiunta relazione: 262 -> 211 (Covers)
+2025-10-17 20:43:58,923 - DEBUG - Aggiunta uguaglianza: 211 = 205
+2025-10-17 20:43:58,924 - DEBUG - Aggiunta relazione: 239 -> 212 (Covers)
+2025-10-17 20:43:58,925 - DEBUG - Aggiunta relazione: 240 -> 212 (Covers)
+2025-10-17 20:43:58,926 - DEBUG - Aggiunta relazione: 241 -> 213 (Covers)
+2025-10-17 20:43:58,927 - DEBUG - Aggiunta relazione: 242 -> 213 (Covers)
+2025-10-17 20:43:58,929 - DEBUG - Aggiunta uguaglianza: 214 = 215
+2025-10-17 20:43:58,930 - DEBUG - Aggiunta relazione: 243 -> 214 (Covers)
+2025-10-17 20:43:58,931 - DEBUG - Aggiunta relazione: 244 -> 214 (Covers)
+2025-10-17 20:43:58,932 - DEBUG - Aggiunta relazione: 245 -> 214 (Covers)
+2025-10-17 20:43:58,933 - DEBUG - Aggiunta relazione: 247 -> 214 (Covers)
+2025-10-17 20:43:58,934 - DEBUG - Aggiunta relazione: 249 -> 214 (Covers)
+2025-10-17 20:43:58,935 - DEBUG - Aggiunta uguaglianza: 215 = 214
+2025-10-17 20:43:58,936 - DEBUG - Aggiunta uguaglianza: 215 = 216
+2025-10-17 20:43:58,937 - DEBUG - Aggiunta uguaglianza: 215 = 217
+2025-10-17 20:43:58,938 - DEBUG - Aggiunta relazione: 219 -> 215 (Covers)
+2025-10-17 20:43:58,940 - DEBUG - Aggiunta relazione: 220 -> 215 (Covers)
+2025-10-17 20:43:58,941 - DEBUG - Aggiunta relazione: 241 -> 215 (Covers)
+2025-10-17 20:43:58,942 - DEBUG - Aggiunta relazione: 262 -> 215 (Covers)
+2025-10-17 20:43:58,943 - DEBUG - Aggiunta uguaglianza: 216 = 215
+2025-10-17 20:43:58,944 - DEBUG - Aggiunta relazione: 205 -> 216 (Covers)
+2025-10-17 20:43:58,945 - DEBUG - Aggiunta relazione: 230 -> 216 (Covers)
+2025-10-17 20:43:58,946 - DEBUG - Aggiunta uguaglianza: 217 = 206
+2025-10-17 20:43:58,947 - DEBUG - Aggiunta uguaglianza: 217 = 215
+2025-10-17 20:43:58,948 - DEBUG - Aggiunta relazione: 230 -> 217 (Covers)
+2025-10-17 20:43:58,950 - DEBUG - Aggiunta relazione: 269 -> 217 (Covers)
+2025-10-17 20:43:58,951 - DEBUG - Aggiunta uguaglianza: 218 = 208
+2025-10-17 20:43:58,952 - DEBUG - Aggiunta relazione: 235 -> 218 (Covers)
+2025-10-17 20:43:58,953 - DEBUG - Aggiunta relazione: 262 -> 219 (Covers)
+2025-10-17 20:43:58,954 - DEBUG - Aggiunta relazione: 262 -> 220 (Covers)
+2025-10-17 20:43:58,955 - DEBUG - Aggiunta relazione: 215 -> 220 (Fills)
+2025-10-17 20:43:58,956 - DEBUG - Aggiunta uguaglianza: 221 = 96
+2025-10-17 20:43:58,958 - DEBUG - Aggiunta relazione: 199 -> 221 (Covers)
+2025-10-17 20:43:58,959 - DEBUG - Aggiunta uguaglianza: 222 = 96
+2025-10-17 20:43:58,960 - DEBUG - Aggiunta relazione: 199 -> 222 (Covers)
+2025-10-17 20:43:58,961 - DEBUG - Aggiunta relazione: 96 -> 222 (Covers)
+2025-10-17 20:43:58,962 - DEBUG - Aggiunta relazione: 96 -> 222 (Covers)
+2025-10-17 20:43:58,963 - DEBUG - Aggiunta relazione: 221 -> 223 (Covers)
+2025-10-17 20:43:58,964 - DEBUG - Aggiunta relazione: 190 -> 223 (Cuts)
+2025-10-17 20:43:58,965 - DEBUG - Aggiunta relazione: 196 -> 223 (Cuts)
+2025-10-17 20:43:58,967 - DEBUG - Aggiunta relazione: 197 -> 223 (Cuts)
+2025-10-17 20:43:58,968 - DEBUG - Aggiunta relazione: 198 -> 223 (Cuts)
+2025-10-17 20:43:58,969 - DEBUG - Aggiunta relazione: 199 -> 223 (Cuts)
+2025-10-17 20:43:58,970 - DEBUG - Aggiunta relazione: 221 -> 223 (Cuts)
+2025-10-17 20:43:58,971 - DEBUG - Aggiunta relazione: 215 -> 223 (Fills)
+2025-10-17 20:43:58,972 - DEBUG - Aggiunta uguaglianza: 224 = 189
+2025-10-17 20:43:58,973 - DEBUG - Aggiunta uguaglianza: 224 = 190
+2025-10-17 20:43:58,974 - DEBUG - Aggiunta relazione: 197 -> 224 (Covers)
+2025-10-17 20:43:58,975 - DEBUG - Aggiunta relazione: 198 -> 224 (Covers)
+2025-10-17 20:43:58,976 - DEBUG - Aggiunta relazione: 221 -> 224 (Covers)
+2025-10-17 20:43:58,977 - DEBUG - Aggiunta relazione: 222 -> 224 (Covers)
+2025-10-17 20:43:58,978 - DEBUG - Aggiunta relazione: 222 -> 224 (Covers)
+2025-10-17 20:43:58,979 - DEBUG - Aggiunta relazione: 223 -> 224 (Covers)
+2025-10-17 20:43:58,980 - DEBUG - Aggiunta relazione: 96 -> 224 (Covers)
+2025-10-17 20:43:58,982 - DEBUG - Aggiunta uguaglianza: 225 = 113
+2025-10-17 20:43:58,983 - DEBUG - Aggiunta relazione: 201 -> 225 (Covers)
+2025-10-17 20:43:58,984 - DEBUG - Aggiunta relazione: 202 -> 225 (Covers)
+2025-10-17 20:43:58,985 - DEBUG - Aggiunta uguaglianza: 226 = 114
+2025-10-17 20:43:58,986 - DEBUG - Aggiunta relazione: 225 -> 226 (Covers)
+2025-10-17 20:43:58,987 - DEBUG - Aggiunta relazione: 217 -> 227 (Covers)
+2025-10-17 20:43:58,988 - DEBUG - Aggiunta relazione: 199 -> 227 (Cuts)
+2025-10-17 20:43:58,989 - DEBUG - Aggiunta relazione: 200 -> 227 (Cuts)
+2025-10-17 20:43:58,990 - DEBUG - Aggiunta relazione: 201 -> 227 (Cuts)
+2025-10-17 20:43:58,991 - DEBUG - Aggiunta relazione: 202 -> 227 (Cuts)
+2025-10-17 20:43:58,992 - DEBUG - Aggiunta relazione: 222 -> 227 (Cuts)
+2025-10-17 20:43:58,993 - DEBUG - Aggiunta relazione: 225 -> 227 (Cuts)
+2025-10-17 20:43:58,994 - DEBUG - Aggiunta relazione: 226 -> 227 (Cuts)
+2025-10-17 20:43:58,995 - DEBUG - Aggiunta relazione: 113 -> 228 (Covers)
+2025-10-17 20:43:58,997 - DEBUG - Aggiunta relazione: 114 -> 228 (Covers)
+2025-10-17 20:43:58,998 - DEBUG - Aggiunta relazione: 201 -> 228 (Covers)
+2025-10-17 20:43:58,999 - DEBUG - Aggiunta relazione: 329 -> 228 (Covers)
+2025-10-17 20:43:59,000 - DEBUG - Aggiunta relazione: 232 -> 229 (Fills)
+2025-10-17 20:43:59,001 - DEBUG - Aggiunta relazione: 216 -> 230 (Covers)
+2025-10-17 20:43:59,002 - DEBUG - Aggiunta relazione: 232 -> 231 (Fills)
+2025-10-17 20:43:59,003 - DEBUG - Aggiunta relazione: 114 -> 232 (Cuts)
+2025-10-17 20:43:59,004 - DEBUG - Aggiunta relazione: 201 -> 232 (Cuts)
+2025-10-17 20:43:59,005 - DEBUG - Aggiunta relazione: 203 -> 232 (Cuts)
+2025-10-17 20:43:59,006 - DEBUG - Aggiunta relazione: 228 -> 232 (Cuts)
+2025-10-17 20:43:59,008 - DEBUG - Aggiunta uguaglianza: 233 = 234
+2025-10-17 20:43:59,009 - DEBUG - Aggiunta relazione: 232 -> 233 (Covers)
+2025-10-17 20:43:59,010 - DEBUG - Aggiunta relazione: 241 -> 233 (Covers)
+2025-10-17 20:43:59,011 - DEBUG - Aggiunta uguaglianza: 233 = 317
+2025-10-17 20:43:59,012 - DEBUG - Aggiunta uguaglianza: 234 = 233
+2025-10-17 20:43:59,013 - DEBUG - Aggiunta relazione: 113 -> 234 (Covers)
+2025-10-17 20:43:59,014 - DEBUG - Aggiunta relazione: 226 -> 234 (Covers)
+2025-10-17 20:43:59,015 - DEBUG - Aggiunta relazione: 227 -> 234 (Covers)
+2025-10-17 20:43:59,017 - DEBUG - Aggiunta relazione: 228 -> 234 (Covers)
+2025-10-17 20:43:59,018 - DEBUG - Aggiunta relazione: 232 -> 234 (Covers)
+2025-10-17 20:43:59,019 - DEBUG - Aggiunta uguaglianza: 234 = 236
+2025-10-17 20:43:59,020 - DEBUG - Aggiunta relazione: 206 -> 235 (Covers)
+2025-10-17 20:43:59,021 - DEBUG - Aggiunta relazione: 224 -> 236 (Covers)
+2025-10-17 20:43:59,022 - DEBUG - Aggiunta uguaglianza: 236 = 234
+2025-10-17 20:43:59,023 - DEBUG - Aggiunta relazione: 207 -> 237 (Fills)
+2025-10-17 20:43:59,024 - DEBUG - Aggiunta relazione: 207 -> 238 (Covers)
+2025-10-17 20:43:59,025 - DEBUG - Aggiunta relazione: 237 -> 238 (Covers)
+2025-10-17 20:43:59,027 - DEBUG - Aggiunta relazione: 211 -> 239 (Covers)
+2025-10-17 20:43:59,028 - DEBUG - Aggiunta relazione: 211 -> 240 (Covers)
+2025-10-17 20:43:59,029 - DEBUG - Aggiunta relazione: 239 -> 240 (Covers)
+2025-10-17 20:43:59,030 - DEBUG - Aggiunta relazione: 424 -> 240 (Covers)
+2025-10-17 20:43:59,031 - DEBUG - Aggiunta relazione: 424 -> 240 (Covers)
+2025-10-17 20:43:59,032 - DEBUG - Aggiunta relazione: 205 -> 241 (Covers)
+2025-10-17 20:43:59,033 - DEBUG - Aggiunta relazione: 212 -> 241 (Covers)
+2025-10-17 20:43:59,035 - DEBUG - Aggiunta relazione: 241 -> 242 (Covers)
+2025-10-17 20:43:59,036 - DEBUG - Aggiunta relazione: 250 -> 242 (Covers)
+2025-10-17 20:43:59,037 - DEBUG - Aggiunta relazione: 213 -> 243 (Covers)
+2025-10-17 20:43:59,038 - DEBUG - Aggiunta relazione: 213 -> 244 (Covers)
+2025-10-17 20:43:59,039 - DEBUG - Aggiunta relazione: 246 -> 244 (Covers)
+2025-10-17 20:43:59,040 - DEBUG - Aggiunta relazione: 213 -> 245 (Covers)
+2025-10-17 20:43:59,041 - DEBUG - Aggiunta relazione: 243 -> 245 (Covers)
+2025-10-17 20:43:59,043 - DEBUG - Aggiunta relazione: 213 -> 246 (Covers)
+2025-10-17 20:43:59,044 - DEBUG - Aggiunta relazione: 244 -> 247 (Covers)
+2025-10-17 20:43:59,045 - DEBUG - Aggiunta relazione: 180 -> 248 (Cuts)
+2025-10-17 20:43:59,046 - DEBUG - Aggiunta relazione: 213 -> 249 (Covers)
+2025-10-17 20:43:59,047 - DEBUG - Aggiunta relazione: 251 -> 250 (Covers)
+2025-10-17 20:43:59,048 - DEBUG - Aggiunta relazione: 205 -> 250 (Cuts)
+2025-10-17 20:43:59,049 - DEBUG - Aggiunta relazione: 211 -> 250 (Cuts)
+2025-10-17 20:43:59,051 - DEBUG - Aggiunta relazione: 213 -> 250 (Cuts)
+2025-10-17 20:43:59,052 - DEBUG - Aggiunta relazione: 241 -> 250 (Cuts)
+2025-10-17 20:43:59,053 - DEBUG - Aggiunta relazione: 213 -> 250 (Fills)
+2025-10-17 20:43:59,054 - DEBUG - Aggiunta relazione: 251 -> 250 (Fills)
+2025-10-17 20:43:59,055 - DEBUG - Aggiunta relazione: 242 -> 250 (Covers)
+2025-10-17 20:43:59,056 - DEBUG - Aggiunta relazione: 242 -> 250 (Covers)
+2025-10-17 20:43:59,057 - DEBUG - Aggiunta relazione: 248 -> 251 (Covers)
+2025-10-17 20:43:59,058 - DEBUG - Aggiunta relazione: 205 -> 251 (Cuts)
+2025-10-17 20:43:59,059 - DEBUG - Aggiunta relazione: 211 -> 251 (Cuts)
+2025-10-17 20:43:59,060 - DEBUG - Aggiunta relazione: 262 -> 251 (Cuts)
+2025-10-17 20:43:59,062 - DEBUG - Aggiunta relazione: 205 -> 252 (Cuts)
+2025-10-17 20:43:59,063 - DEBUG - Aggiunta relazione: 212 -> 252 (Cuts)
+2025-10-17 20:43:59,064 - DEBUG - Aggiunta relazione: 241 -> 252 (Cuts)
+2025-10-17 20:43:59,065 - DEBUG - Aggiunta relazione: 215 -> 252 (Fills)
+2025-10-17 20:43:59,066 - DEBUG - Aggiunta relazione: 215 -> 253 (Fills)
+2025-10-17 20:43:59,067 - DEBUG - Aggiunta uguaglianza: 254 = 259
+2025-10-17 20:43:59,068 - DEBUG - Aggiunta relazione: 215 -> 254 (Fills)
+2025-10-17 20:43:59,069 - DEBUG - Aggiunta relazione: 215 -> 255 (Cuts)
+2025-10-17 20:43:59,070 - DEBUG - Aggiunta relazione: 256 -> 255 (Cuts)
+2025-10-17 20:43:59,071 - DEBUG - Aggiunta relazione: 215 -> 255 (Fills)
+2025-10-17 20:43:59,073 - DEBUG - Aggiunta relazione: 215 -> 256 (Fills)
+2025-10-17 20:43:59,074 - DEBUG - Aggiunta relazione: 259 -> 257 (Cuts)
+2025-10-17 20:43:59,075 - DEBUG - Aggiunta relazione: 215 -> 257 (Fills)
+2025-10-17 20:43:59,076 - DEBUG - Aggiunta relazione: 217 -> 257 (Fills)
+2025-10-17 20:43:59,077 - DEBUG - Aggiunta relazione: 259 -> 258 (Cuts)
+2025-10-17 20:43:59,078 - DEBUG - Aggiunta relazione: 215 -> 258 (Fills)
+2025-10-17 20:43:59,079 - DEBUG - Aggiunta uguaglianza: 259 = 254
+2025-10-17 20:43:59,080 - DEBUG - Aggiunta relazione: 215 -> 259 (Fills)
+2025-10-17 20:43:59,081 - DEBUG - Aggiunta relazione: 254 -> 260 (Covers)
+2025-10-17 20:43:59,083 - DEBUG - Aggiunta relazione: 218 -> 260 (Cuts)
+2025-10-17 20:43:59,084 - DEBUG - Aggiunta relazione: 215 -> 260 (Fills)
+2025-10-17 20:43:59,085 - DEBUG - Aggiunta relazione: 217 -> 260 (Fills)
+2025-10-17 20:43:59,086 - DEBUG - Aggiunta relazione: 235 -> 261 (Covers)
+2025-10-17 20:43:59,087 - DEBUG - Aggiunta relazione: 218 -> 261 (Fills)
+2025-10-17 20:43:59,088 - DEBUG - Aggiunta uguaglianza: 262 = 269
+2025-10-17 20:43:59,089 - DEBUG - Aggiunta relazione: 180 -> 262 (Covers)
+2025-10-17 20:43:59,090 - DEBUG - Aggiunta relazione: 248 -> 262 (Covers)
+2025-10-17 20:43:59,092 - DEBUG - Aggiunta uguaglianza: 263 = 269
+2025-10-17 20:43:59,093 - DEBUG - Aggiunta relazione: 180 -> 263 (Covers)
+2025-10-17 20:43:59,094 - DEBUG - Aggiunta relazione: 181 -> 263 (Covers)
+2025-10-17 20:43:59,095 - DEBUG - Aggiunta uguaglianza: 264 = 269
+2025-10-17 20:43:59,096 - DEBUG - Aggiunta relazione: 182 -> 264 (Covers)
+2025-10-17 20:43:59,097 - DEBUG - Aggiunta relazione: 271 -> 264 (Covers)
+2025-10-17 20:43:59,098 - DEBUG - Aggiunta uguaglianza: 264 = 328
+2025-10-17 20:43:59,099 - DEBUG - Aggiunta uguaglianza: 265 = 208
+2025-10-17 20:43:59,101 - DEBUG - Aggiunta relazione: 218 -> 265 (Covers)
+2025-10-17 20:43:59,102 - DEBUG - Aggiunta relazione: 235 -> 265 (Covers)
+2025-10-17 20:43:59,103 - DEBUG - Aggiunta relazione: 218 -> 265 (Fills)
+2025-10-17 20:43:59,104 - DEBUG - Aggiunta relazione: 208 -> 266 (Covers)
+2025-10-17 20:43:59,105 - DEBUG - Aggiunta relazione: 266 -> 267 (Covers)
+2025-10-17 20:43:59,106 - DEBUG - Aggiunta relazione: 208 -> 268 (Covers)
+2025-10-17 20:43:59,107 - DEBUG - Aggiunta relazione: 209 -> 268 (Covers)
+2025-10-17 20:43:59,109 - DEBUG - Aggiunta uguaglianza: 269 = 262
+2025-10-17 20:43:59,110 - DEBUG - Aggiunta uguaglianza: 269 = 263
+2025-10-17 20:43:59,111 - DEBUG - Aggiunta uguaglianza: 269 = 264
+2025-10-17 20:43:59,112 - DEBUG - Aggiunta relazione: 180 -> 269 (Covers)
+2025-10-17 20:43:59,113 - DEBUG - Aggiunta relazione: 180 -> 270 (Covers)
+2025-10-17 20:43:59,114 - DEBUG - Aggiunta relazione: 181 -> 270 (Covers)
+2025-10-17 20:43:59,115 - DEBUG - Aggiunta relazione: 182 -> 270 (Covers)
+2025-10-17 20:43:59,116 - DEBUG - Aggiunta relazione: 328 -> 270 (Covers)
+2025-10-17 20:43:59,118 - DEBUG - Aggiunta relazione: 292 -> 272 (Covers)
+2025-10-17 20:43:59,119 - DEBUG - Aggiunta relazione: 292 -> 272 (Covers)
+2025-10-17 20:43:59,120 - DEBUG - Aggiunta relazione: 274 -> 275 (Covers)
+2025-10-17 20:43:59,121 - DEBUG - Aggiunta uguaglianza: 276 = 138
+2025-10-17 20:43:59,122 - DEBUG - Aggiunta relazione: 319 -> 277 (Covers)
+2025-10-17 20:43:59,123 - DEBUG - Aggiunta relazione: 305 -> 277 (Cuts)
+2025-10-17 20:43:59,125 - DEBUG - Aggiunta uguaglianza: 278 = 303
+2025-10-17 20:43:59,126 - DEBUG - Aggiunta relazione: 345 -> 278 (Covers)
+2025-10-17 20:43:59,127 - DEBUG - Aggiunta relazione: 304 -> 279 (Fills)
+2025-10-17 20:43:59,128 - DEBUG - Aggiunta relazione: 108 -> 280 (Covers)
+2025-10-17 20:43:59,129 - DEBUG - Aggiunta relazione: 304 -> 280 (Covers)
+2025-10-17 20:43:59,130 - DEBUG - Aggiunta uguaglianza: 281 = 114
+2025-10-17 20:43:59,131 - DEBUG - Aggiunta uguaglianza: 281 = 204
+2025-10-17 20:43:59,133 - DEBUG - Aggiunta relazione: 115 -> 282 (Covers)
+2025-10-17 20:43:59,134 - DEBUG - Aggiunta relazione: 149 -> 282 (Covers)
+2025-10-17 20:43:59,135 - DEBUG - Aggiunta relazione: 294 -> 282 (Covers)
+2025-10-17 20:43:59,136 - DEBUG - Aggiunta relazione: 315 -> 282 (Covers)
+2025-10-17 20:43:59,137 - DEBUG - Aggiunta relazione: 67 -> 282 (Covers)
+2025-10-17 20:43:59,138 - DEBUG - Aggiunta relazione: 298 -> 283 (Covers)
+2025-10-17 20:43:59,139 - DEBUG - Aggiunta relazione: 339 -> 283 (Covers)
+2025-10-17 20:43:59,141 - DEBUG - Aggiunta relazione: 284 -> 283 (Covers)
+2025-10-17 20:43:59,142 - DEBUG - Aggiunta relazione: 284 -> 283 (Covers)
+2025-10-17 20:43:59,143 - DEBUG - Aggiunta relazione: 283 -> 284 (Covers)
+2025-10-17 20:43:59,144 - DEBUG - Aggiunta relazione: 284 -> 285 (Covers)
+2025-10-17 20:43:59,145 - DEBUG - Aggiunta relazione: 284 -> 285 (Covers)
+2025-10-17 20:43:59,146 - DEBUG - Aggiunta uguaglianza: 286 = 138
+2025-10-17 20:43:59,148 - DEBUG - Aggiunta relazione: 276 -> 286 (Covers)
+2025-10-17 20:43:59,149 - DEBUG - Aggiunta uguaglianza: 287 = 315
+2025-10-17 20:43:59,150 - DEBUG - Aggiunta relazione: 286 -> 287 (Covers)
+2025-10-17 20:43:59,151 - DEBUG - Aggiunta relazione: 287 -> 288 (Covers)
+2025-10-17 20:43:59,152 - DEBUG - Aggiunta relazione: 280 -> 289 (Covers)
+2025-10-17 20:43:59,153 - DEBUG - Aggiunta uguaglianza: 290 = 108
+2025-10-17 20:43:59,154 - DEBUG - Aggiunta uguaglianza: 290 = 97
+2025-10-17 20:43:59,155 - DEBUG - Aggiunta relazione: 306 -> 290 (Covers)
+2025-10-17 20:43:59,156 - DEBUG - Aggiunta relazione: 107 -> 291 (Covers)
+2025-10-17 20:43:59,158 - DEBUG - Aggiunta relazione: 290 -> 291 (Covers)
+2025-10-17 20:43:59,159 - DEBUG - Aggiunta uguaglianza: 292 = 295
+2025-10-17 20:43:59,160 - DEBUG - Aggiunta relazione: 272 -> 292 (Covers)
+2025-10-17 20:43:59,161 - DEBUG - Aggiunta relazione: 330 -> 293 (Covers)
+2025-10-17 20:43:59,162 - DEBUG - Aggiunta relazione: 332 -> 294 (Covers)
+2025-10-17 20:43:59,163 - DEBUG - Aggiunta relazione: 272 -> 295 (Covers)
+2025-10-17 20:43:59,164 - DEBUG - Aggiunta uguaglianza: 295 = 292
+2025-10-17 20:43:59,166 - DEBUG - Aggiunta relazione: 334 -> 296 (Covers)
+2025-10-17 20:43:59,167 - DEBUG - Aggiunta relazione: 335 -> 296 (Covers)
+2025-10-17 20:43:59,168 - DEBUG - Aggiunta relazione: 336 -> 296 (Covers)
+2025-10-17 20:43:59,169 - DEBUG - Aggiunta relazione: 67 -> 296 (Cuts)
+2025-10-17 20:43:59,170 - DEBUG - Aggiunta relazione: 67 -> 296 (Cuts)
+2025-10-17 20:43:59,171 - DEBUG - Aggiunta uguaglianza: 297 = 298
+2025-10-17 20:43:59,172 - DEBUG - Aggiunta relazione: 292 -> 297 (Covers)
+2025-10-17 20:43:59,173 - DEBUG - Aggiunta relazione: 331 -> 297 (Covers)
+2025-10-17 20:43:59,174 - DEBUG - Aggiunta uguaglianza: 298 = 297
+2025-10-17 20:43:59,175 - DEBUG - Aggiunta uguaglianza: 298 = 299
+2025-10-17 20:43:59,176 - DEBUG - Aggiunta relazione: 334 -> 298 (Covers)
+2025-10-17 20:43:59,178 - DEBUG - Aggiunta relazione: 337 -> 299 (Covers)
+2025-10-17 20:43:59,179 - DEBUG - Aggiunta uguaglianza: 299 = 298
+2025-10-17 20:43:59,180 - DEBUG - Aggiunta relazione: 273 -> 300 (Covers)
+2025-10-17 20:43:59,181 - DEBUG - Aggiunta relazione: 325 -> 300 (Cuts)
+2025-10-17 20:43:59,182 - DEBUG - Aggiunta relazione: 325 -> 300 (Cuts)
+2025-10-17 20:43:59,183 - DEBUG - Aggiunta relazione: 300 -> 301 (Covers)
+2025-10-17 20:43:59,184 - DEBUG - Aggiunta relazione: 327 -> 301 (Covers)
+2025-10-17 20:43:59,185 - DEBUG - Aggiunta uguaglianza: 302 = 303
+2025-10-17 20:43:59,186 - DEBUG - Aggiunta relazione: 322 -> 302 (Covers)
+2025-10-17 20:43:59,187 - DEBUG - Aggiunta relazione: 324 -> 302 (Covers)
+2025-10-17 20:43:59,188 - DEBUG - Aggiunta relazione: 67 -> 302 (Cuts)
+2025-10-17 20:43:59,189 - DEBUG - Aggiunta relazione: 67 -> 302 (Cuts)
+2025-10-17 20:43:59,191 - DEBUG - Aggiunta uguaglianza: 303 = 302
+2025-10-17 20:43:59,192 - DEBUG - Aggiunta uguaglianza: 303 = 344
+2025-10-17 20:43:59,193 - DEBUG - Aggiunta relazione: 322 -> 303 (Covers)
+2025-10-17 20:43:59,194 - DEBUG - Aggiunta relazione: 324 -> 303 (Covers)
+2025-10-17 20:43:59,195 - DEBUG - Aggiunta uguaglianza: 303 = 278
+2025-10-17 20:43:59,196 - DEBUG - Aggiunta uguaglianza: 304 = 315
+2025-10-17 20:43:59,198 - DEBUG - Aggiunta relazione: 278 -> 304 (Covers)
+2025-10-17 20:43:59,199 - DEBUG - Aggiunta relazione: 303 -> 304 (Covers)
+2025-10-17 20:43:59,200 - DEBUG - Aggiunta uguaglianza: 305 = 307
+2025-10-17 20:43:59,201 - DEBUG - Aggiunta relazione: 275 -> 305 (Covers)
+2025-10-17 20:43:59,202 - DEBUG - Aggiunta uguaglianza: 306 = 307
+2025-10-17 20:43:59,204 - DEBUG - Aggiunta uguaglianza: 306 = 308
+2025-10-17 20:43:59,205 - DEBUG - Aggiunta relazione: 277 -> 306 (Covers)
+2025-10-17 20:43:59,206 - DEBUG - Aggiunta relazione: 305 -> 306 (Covers)
+2025-10-17 20:43:59,207 - DEBUG - Aggiunta relazione: 319 -> 306 (Covers)
+2025-10-17 20:43:59,208 - DEBUG - Aggiunta relazione: 325 -> 306 (Covers)
+2025-10-17 20:43:59,210 - DEBUG - Aggiunta relazione: 326 -> 306 (Covers)
+2025-10-17 20:43:59,211 - DEBUG - Aggiunta uguaglianza: 307 = 305
+2025-10-17 20:43:59,212 - DEBUG - Aggiunta uguaglianza: 307 = 306
+2025-10-17 20:43:59,213 - DEBUG - Aggiunta uguaglianza: 307 = 310
+2025-10-17 20:43:59,214 - DEBUG - Aggiunta relazione: 326 -> 307 (Covers)
+2025-10-17 20:43:59,215 - DEBUG - Aggiunta uguaglianza: 308 = 306
+2025-10-17 20:43:59,217 - DEBUG - Aggiunta uguaglianza: 308 = 314
+2025-10-17 20:43:59,218 - DEBUG - Aggiunta relazione: 328 -> 308 (Covers)
+2025-10-17 20:43:59,219 - DEBUG - Aggiunta relazione: 348 -> 308 (Covers)
+2025-10-17 20:43:59,220 - DEBUG - Aggiunta relazione: 352 -> 308 (Cuts)
+2025-10-17 20:43:59,221 - DEBUG - Aggiunta uguaglianza: 309 = 314
+2025-10-17 20:43:59,222 - DEBUG - Aggiunta relazione: 308 -> 309 (Covers)
+2025-10-17 20:43:59,223 - DEBUG - Aggiunta relazione: 314 -> 309 (Covers)
+2025-10-17 20:43:59,225 - DEBUG - Aggiunta relazione: 351 -> 309 (Covers)
+2025-10-17 20:43:59,226 - DEBUG - Aggiunta relazione: 323 -> 309 (Cuts)
+2025-10-17 20:43:59,227 - DEBUG - Aggiunta relazione: 323 -> 309 (Cuts)
+2025-10-17 20:43:59,228 - DEBUG - Aggiunta uguaglianza: 310 = 307
+2025-10-17 20:43:59,229 - DEBUG - Aggiunta uguaglianza: 310 = 311
+2025-10-17 20:43:59,230 - DEBUG - Aggiunta relazione: 275 -> 310 (Covers)
+2025-10-17 20:43:59,231 - DEBUG - Aggiunta uguaglianza: 311 = 310
+2025-10-17 20:43:59,233 - DEBUG - Aggiunta uguaglianza: 311 = 313
+2025-10-17 20:43:59,234 - DEBUG - Aggiunta relazione: 275 -> 311 (Covers)
+2025-10-17 20:43:59,235 - DEBUG - Aggiunta uguaglianza: 312 = 314
+2025-10-17 20:43:59,236 - DEBUG - Aggiunta uguaglianza: 312 = 350
+2025-10-17 20:43:59,237 - DEBUG - Aggiunta relazione: 310 -> 312 (Covers)
+2025-10-17 20:43:59,238 - DEBUG - Aggiunta relazione: 349 -> 312 (Covers)
+2025-10-17 20:43:59,239 - DEBUG - Aggiunta uguaglianza: 313 = 311
+2025-10-17 20:43:59,240 - DEBUG - Aggiunta relazione: 275 -> 313 (Covers)
+2025-10-17 20:43:59,242 - DEBUG - Aggiunta relazione: 97 -> 313 (Covers)
+2025-10-17 20:43:59,243 - DEBUG - Aggiunta relazione: 97 -> 313 (Covers)
+2025-10-17 20:43:59,244 - DEBUG - Aggiunta uguaglianza: 314 = 308
+2025-10-17 20:43:59,245 - DEBUG - Aggiunta uguaglianza: 314 = 309
+2025-10-17 20:43:59,246 - DEBUG - Aggiunta uguaglianza: 314 = 312
+2025-10-17 20:43:59,247 - DEBUG - Aggiunta relazione: 307 -> 314 (Covers)
+2025-10-17 20:43:59,248 - DEBUG - Aggiunta relazione: 350 -> 314 (Covers)
+2025-10-17 20:43:59,250 - DEBUG - Aggiunta uguaglianza: 315 = 304
+2025-10-17 20:43:59,251 - DEBUG - Aggiunta relazione: 108 -> 315 (Covers)
+2025-10-17 20:43:59,252 - DEBUG - Aggiunta relazione: 138 -> 315 (Covers)
+2025-10-17 20:43:59,253 - DEBUG - Aggiunta relazione: 278 -> 315 (Covers)
+2025-10-17 20:43:59,254 - DEBUG - Aggiunta relazione: 291 -> 315 (Covers)
+2025-10-17 20:43:59,255 - DEBUG - Aggiunta relazione: 292 -> 315 (Covers)
+2025-10-17 20:43:59,256 - DEBUG - Aggiunta relazione: 313 -> 315 (Covers)
+2025-10-17 20:43:59,257 - DEBUG - Aggiunta relazione: 87 -> 315 (Covers)
+2025-10-17 20:43:59,259 - DEBUG - Aggiunta relazione: 280 -> 315 (Cuts)
+2025-10-17 20:43:59,260 - DEBUG - Aggiunta relazione: 289 -> 315 (Cuts)
+2025-10-17 20:43:59,261 - DEBUG - Aggiunta relazione: 304 -> 315 (Cuts)
+2025-10-17 20:43:59,262 - DEBUG - Aggiunta relazione: 282 -> 315 (Covers)
+2025-10-17 20:43:59,263 - DEBUG - Aggiunta uguaglianza: 315 = 287
+2025-10-17 20:43:59,264 - DEBUG - Aggiunta relazione: 282 -> 315 (Covers)
+2025-10-17 20:43:59,265 - DEBUG - Aggiunta relazione: 107 -> 316 (Covers)
+2025-10-17 20:43:59,267 - DEBUG - Aggiunta relazione: 290 -> 316 (Covers)
+2025-10-17 20:43:59,268 - DEBUG - Aggiunta relazione: 291 -> 316 (Covers)
+2025-10-17 20:43:59,269 - DEBUG - Aggiunta relazione: 310 -> 316 (Covers)
+2025-10-17 20:43:59,270 - DEBUG - Aggiunta relazione: 313 -> 316 (Covers)
+2025-10-17 20:43:59,271 - DEBUG - Aggiunta relazione: 315 -> 316 (Fills)
+2025-10-17 20:43:59,272 - DEBUG - Aggiunta relazione: 115 -> 317 (Covers)
+2025-10-17 20:43:59,273 - DEBUG - Aggiunta relazione: 116 -> 317 (Covers)
+2025-10-17 20:43:59,274 - DEBUG - Aggiunta relazione: 127 -> 317 (Covers)
+2025-10-17 20:43:59,276 - DEBUG - Aggiunta relazione: 138 -> 317 (Covers)
+2025-10-17 20:43:59,277 - DEBUG - Aggiunta relazione: 149 -> 317 (Covers)
+2025-10-17 20:43:59,278 - DEBUG - Aggiunta relazione: 232 -> 317 (Covers)
+2025-10-17 20:43:59,279 - DEBUG - Aggiunta relazione: 282 -> 317 (Covers)
+2025-10-17 20:43:59,280 - DEBUG - Aggiunta relazione: 288 -> 317 (Covers)
+2025-10-17 20:43:59,281 - DEBUG - Aggiunta relazione: 316 -> 317 (Covers)
+2025-10-17 20:43:59,282 - DEBUG - Aggiunta relazione: 318 -> 317 (Covers)
+2025-10-17 20:43:59,283 - DEBUG - Aggiunta relazione: 342 -> 317 (Covers)
+2025-10-17 20:43:59,284 - DEBUG - Aggiunta relazione: 67 -> 317 (Covers)
+2025-10-17 20:43:59,285 - DEBUG - Aggiunta uguaglianza: 317 = 233
+2025-10-17 20:43:59,287 - DEBUG - Aggiunta relazione: 127 -> 318 (Covers)
+2025-10-17 20:43:59,288 - DEBUG - Aggiunta relazione: 284 -> 318 (Covers)
+2025-10-17 20:43:59,289 - DEBUG - Aggiunta relazione: 285 -> 318 (Covers)
+2025-10-17 20:43:59,290 - DEBUG - Aggiunta relazione: 343 -> 318 (Covers)
+2025-10-17 20:43:59,291 - DEBUG - Aggiunta relazione: 274 -> 319 (Cuts)
+2025-10-17 20:43:59,292 - DEBUG - Aggiunta relazione: 275 -> 319 (Cuts)
+2025-10-17 20:43:59,293 - DEBUG - Aggiunta relazione: 333 -> 320 (Cuts)
+2025-10-17 20:43:59,294 - DEBUG - Aggiunta relazione: 334 -> 320 (Cuts)
+2025-10-17 20:43:59,295 - DEBUG - Aggiunta relazione: 334 -> 320 (Cuts)
+2025-10-17 20:43:59,297 - DEBUG - Aggiunta relazione: 300 -> 321 (Cuts)
+2025-10-17 20:43:59,298 - DEBUG - Aggiunta relazione: 327 -> 321 (Cuts)
+2025-10-17 20:43:59,299 - DEBUG - Aggiunta relazione: 301 -> 321 (Fills)
+2025-10-17 20:43:59,300 - DEBUG - Aggiunta relazione: 352 -> 321 (Fills)
+2025-10-17 20:43:59,301 - DEBUG - Aggiunta uguaglianza: 322 = 324
+2025-10-17 20:43:59,302 - DEBUG - Aggiunta relazione: 301 -> 322 (Covers)
+2025-10-17 20:43:59,303 - DEBUG - Aggiunta uguaglianza: 323 = 324
+2025-10-17 20:43:59,304 - DEBUG - Aggiunta relazione: 300 -> 323 (Cuts)
+2025-10-17 20:43:59,305 - DEBUG - Aggiunta relazione: 309 -> 323 (Cuts)
+2025-10-17 20:43:59,306 - DEBUG - Aggiunta relazione: 327 -> 323 (Cuts)
+2025-10-17 20:43:59,308 - DEBUG - Aggiunta relazione: 301 -> 323 (Fills)
+2025-10-17 20:43:59,309 - DEBUG - Aggiunta uguaglianza: 324 = 322
+2025-10-17 20:43:59,310 - DEBUG - Aggiunta uguaglianza: 324 = 323
+2025-10-17 20:43:59,311 - DEBUG - Aggiunta relazione: 300 -> 324 (Covers)
+2025-10-17 20:43:59,312 - DEBUG - Aggiunta relazione: 277 -> 325 (Covers)
+2025-10-17 20:43:59,313 - DEBUG - Aggiunta relazione: 300 -> 325 (Cuts)
+2025-10-17 20:43:59,314 - DEBUG - Aggiunta relazione: 305 -> 326 (Covers)
+2025-10-17 20:43:59,316 - DEBUG - Aggiunta relazione: 300 -> 327 (Covers)
+2025-10-17 20:43:59,317 - DEBUG - Aggiunta relazione: 271 -> 328 (Covers)
+2025-10-17 20:43:59,318 - DEBUG - Aggiunta uguaglianza: 328 = 264
+2025-10-17 20:43:59,319 - DEBUG - Aggiunta relazione: 208 -> 329 (Covers)
+2025-10-17 20:43:59,320 - DEBUG - Aggiunta relazione: 292 -> 330 (Covers)
+2025-10-17 20:43:59,321 - DEBUG - Aggiunta relazione: 292 -> 331 (Covers)
+2025-10-17 20:43:59,322 - DEBUG - Aggiunta relazione: 293 -> 332 (Covers)
+2025-10-17 20:43:59,323 - DEBUG - Aggiunta relazione: 295 -> 333 (Covers)
+2025-10-17 20:43:59,325 - DEBUG - Aggiunta relazione: 333 -> 334 (Covers)
+2025-10-17 20:43:59,326 - DEBUG - Aggiunta relazione: 296 -> 334 (Covers)
+2025-10-17 20:43:59,327 - DEBUG - Aggiunta relazione: 296 -> 334 (Covers)
+2025-10-17 20:43:59,328 - DEBUG - Aggiunta relazione: 334 -> 335 (Covers)
+2025-10-17 20:43:59,329 - DEBUG - Aggiunta relazione: 336 -> 335 (Fills)
+2025-10-17 20:43:59,331 - DEBUG - Aggiunta relazione: 296 -> 335 (Covers)
+2025-10-17 20:43:59,332 - DEBUG - Aggiunta relazione: 296 -> 335 (Covers)
+2025-10-17 20:43:59,333 - DEBUG - Aggiunta relazione: 334 -> 336 (Covers)
+2025-10-17 20:43:59,334 - DEBUG - Aggiunta relazione: 296 -> 337 (Covers)
+2025-10-17 20:43:59,335 - DEBUG - Aggiunta relazione: 298 -> 338 (Fills)
+2025-10-17 20:43:59,337 - DEBUG - Aggiunta relazione: 299 -> 339 (Cuts)
+2025-10-17 20:43:59,338 - DEBUG - Aggiunta uguaglianza: 339 = 105
+2025-10-17 20:43:59,339 - DEBUG - Aggiunta uguaglianza: 339 = 83
+2025-10-17 20:43:59,340 - DEBUG - Aggiunta relazione: 283 -> 339 (Covers)
+2025-10-17 20:43:59,341 - DEBUG - Aggiunta relazione: 283 -> 339 (Covers)
+2025-10-17 20:43:59,342 - DEBUG - Aggiunta uguaglianza: 340 = 116
+2025-10-17 20:43:59,343 - DEBUG - Aggiunta relazione: 283 -> 340 (Cuts)
+2025-10-17 20:43:59,344 - DEBUG - Aggiunta relazione: 284 -> 340 (Cuts)
+2025-10-17 20:43:59,345 - DEBUG - Aggiunta relazione: 285 -> 340 (Cuts)
+2025-10-17 20:43:59,346 - DEBUG - Aggiunta relazione: 292 -> 341 (Cuts)
+2025-10-17 20:43:59,347 - DEBUG - Aggiunta relazione: 342 -> 341 (Fills)
+2025-10-17 20:43:59,348 - DEBUG - Aggiunta relazione: 116 -> 342 (Cuts)
+2025-10-17 20:43:59,350 - DEBUG - Aggiunta relazione: 282 -> 342 (Cuts)
+2025-10-17 20:43:59,351 - DEBUG - Aggiunta relazione: 293 -> 342 (Cuts)
+2025-10-17 20:43:59,352 - DEBUG - Aggiunta relazione: 294 -> 342 (Cuts)
+2025-10-17 20:43:59,353 - DEBUG - Aggiunta relazione: 297 -> 342 (Cuts)
+2025-10-17 20:43:59,354 - DEBUG - Aggiunta relazione: 299 -> 342 (Cuts)
+2025-10-17 20:43:59,355 - DEBUG - Aggiunta relazione: 332 -> 342 (Cuts)
+2025-10-17 20:43:59,356 - DEBUG - Aggiunta uguaglianza: 343 = 127
+2025-10-17 20:43:59,357 - DEBUG - Aggiunta relazione: 283 -> 343 (Cuts)
+2025-10-17 20:43:59,358 - DEBUG - Aggiunta relazione: 284 -> 343 (Cuts)
+2025-10-17 20:43:59,359 - DEBUG - Aggiunta uguaglianza: 344 = 303
+2025-10-17 20:43:59,360 - DEBUG - Aggiunta relazione: 302 -> 344 (Covers)
+2025-10-17 20:43:59,362 - DEBUG - Aggiunta relazione: 344 -> 345 (Covers)
+2025-10-17 20:43:59,363 - DEBUG - Aggiunta uguaglianza: 347 = 107
+2025-10-17 20:43:59,364 - DEBUG - Aggiunta relazione: 303 -> 347 (Cuts)
+2025-10-17 20:43:59,365 - DEBUG - Aggiunta relazione: 304 -> 347 (Cuts)
+2025-10-17 20:43:59,366 - DEBUG - Aggiunta relazione: 307 -> 348 (Covers)
+2025-10-17 20:43:59,367 - DEBUG - Aggiunta relazione: 311 -> 349 (Covers)
+2025-10-17 20:43:59,368 - DEBUG - Aggiunta uguaglianza: 350 = 312
+2025-10-17 20:43:59,369 - DEBUG - Aggiunta relazione: 310 -> 350 (Covers)
+2025-10-17 20:43:59,370 - DEBUG - Aggiunta relazione: 308 -> 351 (Covers)
+2025-10-17 20:43:59,371 - DEBUG - Aggiunta relazione: 300 -> 352 (Cuts)
+2025-10-17 20:43:59,372 - DEBUG - Aggiunta uguaglianza: 353 = 355
+2025-10-17 20:43:59,374 - DEBUG - Aggiunta relazione: 365 -> 353 (Covers)
+2025-10-17 20:43:59,375 - DEBUG - Aggiunta uguaglianza: 353 = 354
+2025-10-17 20:43:59,376 - DEBUG - Aggiunta uguaglianza: 354 = 353
+2025-10-17 20:43:59,377 - DEBUG - Aggiunta relazione: 365 -> 354 (Covers)
+2025-10-17 20:43:59,378 - DEBUG - Aggiunta uguaglianza: 355 = 353
+2025-10-17 20:43:59,379 - DEBUG - Aggiunta relazione: 353 -> 356 (Covers)
+2025-10-17 20:43:59,380 - DEBUG - Aggiunta relazione: 355 -> 356 (Covers)
+2025-10-17 20:43:59,381 - DEBUG - Aggiunta relazione: 364 -> 356 (Cuts)
+2025-10-17 20:43:59,382 - DEBUG - Aggiunta relazione: 369 -> 356 (Cuts)
+2025-10-17 20:43:59,383 - DEBUG - Aggiunta relazione: 375 -> 356 (Cuts)
+2025-10-17 20:43:59,384 - DEBUG - Aggiunta relazione: 364 -> 356 (Cuts)
+2025-10-17 20:43:59,385 - DEBUG - Aggiunta relazione: 369 -> 356 (Cuts)
+2025-10-17 20:43:59,386 - DEBUG - Aggiunta relazione: 375 -> 356 (Cuts)
+2025-10-17 20:43:59,388 - DEBUG - Aggiunta relazione: 367 -> 357 (Covers)
+2025-10-17 20:43:59,389 - DEBUG - Aggiunta relazione: 354 -> 357 (Cuts)
+2025-10-17 20:43:59,390 - DEBUG - Aggiunta relazione: 365 -> 357 (Cuts)
+2025-10-17 20:43:59,391 - DEBUG - Aggiunta relazione: 380 -> 358 (Covers)
+2025-10-17 20:43:59,392 - DEBUG - Aggiunta relazione: 384 -> 358 (Cuts)
+2025-10-17 20:43:59,393 - DEBUG - Aggiunta relazione: 384 -> 358 (Cuts)
+2025-10-17 20:43:59,394 - DEBUG - Aggiunta uguaglianza: 359 = 370
+2025-10-17 20:43:59,395 - DEBUG - Aggiunta relazione: 353 -> 359 (Covers)
+2025-10-17 20:43:59,396 - DEBUG - Aggiunta relazione: 364 -> 359 (Fills)
+2025-10-17 20:43:59,397 - DEBUG - Aggiunta relazione: 366 -> 359 (Fills)
+2025-10-17 20:43:59,398 - DEBUG - Aggiunta relazione: 366 -> 359 (Fills)
+2025-10-17 20:43:59,400 - DEBUG - Aggiunta relazione: 366 -> 359 (Fills)
+2025-10-17 20:43:59,401 - DEBUG - Aggiunta relazione: 71 -> 360 (Covers)
+2025-10-17 20:43:59,402 - DEBUG - Aggiunta relazione: 384 -> 360 (Covers)
+2025-10-17 20:43:59,403 - DEBUG - Aggiunta relazione: 384 -> 360 (Covers)
+2025-10-17 20:43:59,404 - DEBUG - Aggiunta relazione: 384 -> 361 (Covers)
+2025-10-17 20:43:59,405 - DEBUG - Aggiunta relazione: 362 -> 361 (Cuts)
+2025-10-17 20:43:59,406 - DEBUG - Aggiunta relazione: 360 -> 362 (Covers)
+2025-10-17 20:43:59,407 - DEBUG - Aggiunta relazione: 430 -> 362 (Covers)
+2025-10-17 20:43:59,408 - DEBUG - Aggiunta relazione: 383 -> 362 (Cuts)
+2025-10-17 20:43:59,409 - DEBUG - Aggiunta relazione: 384 -> 362 (Cuts)
+2025-10-17 20:43:59,410 - DEBUG - Aggiunta uguaglianza: 362 = 470
+2025-10-17 20:43:59,411 - DEBUG - Aggiunta relazione: 362 -> 363 (Covers)
+2025-10-17 20:43:59,412 - DEBUG - Aggiunta relazione: 362 -> 363 (Covers)
+2025-10-17 20:43:59,413 - DEBUG - Aggiunta relazione: 384 -> 363 (Covers)
+2025-10-17 20:43:59,414 - DEBUG - Aggiunta uguaglianza: 363 = 472
+2025-10-17 20:43:59,416 - DEBUG - Aggiunta relazione: 356 -> 364 (Cuts)
+2025-10-17 20:43:59,417 - DEBUG - Aggiunta relazione: 353 -> 366 (Cuts)
+2025-10-17 20:43:59,418 - DEBUG - Aggiunta relazione: 359 -> 366 (Fills)
+2025-10-17 20:43:59,419 - DEBUG - Aggiunta relazione: 359 -> 366 (Fills)
+2025-10-17 20:43:59,420 - DEBUG - Aggiunta relazione: 359 -> 366 (Fills)
+2025-10-17 20:43:59,421 - DEBUG - Aggiunta uguaglianza: 367 = 70
+2025-10-17 20:43:59,422 - DEBUG - Aggiunta relazione: 365 -> 367 (Cuts)
+2025-10-17 20:43:59,423 - DEBUG - Aggiunta relazione: 357 -> 367 (Covers)
+2025-10-17 20:43:59,425 - DEBUG - Aggiunta relazione: 357 -> 367 (Covers)
+2025-10-17 20:43:59,426 - DEBUG - Aggiunta relazione: 379 -> 368 (Covers)
+2025-10-17 20:43:59,427 - DEBUG - Aggiunta relazione: 379 -> 368 (Covers)
+2025-10-17 20:43:59,428 - DEBUG - Aggiunta relazione: 355 -> 369 (Cuts)
+2025-10-17 20:43:59,429 - DEBUG - Aggiunta relazione: 356 -> 369 (Cuts)
+2025-10-17 20:43:59,430 - DEBUG - Aggiunta uguaglianza: 370 = 359
+2025-10-17 20:43:59,431 - DEBUG - Aggiunta relazione: 356 -> 370 (Covers)
+2025-10-17 20:43:59,433 - DEBUG - Aggiunta relazione: 370 -> 371 (Covers)
+2025-10-17 20:43:59,434 - DEBUG - Aggiunta relazione: 371 -> 372 (Covers)
+2025-10-17 20:43:59,435 - DEBUG - Aggiunta relazione: 374 -> 372 (Covers)
+2025-10-17 20:43:59,436 - DEBUG - Aggiunta relazione: 372 -> 373 (Covers)
+2025-10-17 20:43:59,437 - DEBUG - Aggiunta relazione: 373 -> 374 (Covers)
+2025-10-17 20:43:59,438 - DEBUG - Aggiunta relazione: 372 -> 374 (Covers)
+2025-10-17 20:43:59,439 - DEBUG - Aggiunta relazione: 372 -> 374 (Covers)
+2025-10-17 20:43:59,440 - DEBUG - Aggiunta relazione: 369 -> 375 (Covers)
+2025-10-17 20:43:59,442 - DEBUG - Aggiunta relazione: 356 -> 375 (Cuts)
+2025-10-17 20:43:59,443 - DEBUG - Aggiunta relazione: 370 -> 375 (Cuts)
+2025-10-17 20:43:59,444 - DEBUG - Aggiunta relazione: 371 -> 375 (Cuts)
+2025-10-17 20:43:59,456 - DEBUG - Aggiunta relazione: 372 -> 375 (Cuts)
+2025-10-17 20:43:59,459 - DEBUG - Aggiunta relazione: 373 -> 375 (Cuts)
+2025-10-17 20:43:59,460 - DEBUG - Aggiunta relazione: 374 -> 375 (Cuts)
+2025-10-17 20:43:59,461 - DEBUG - Aggiunta relazione: 376 -> 375 (Cuts)
+2025-10-17 20:43:59,462 - DEBUG - Aggiunta relazione: 374 -> 376 (Covers)
+2025-10-17 20:43:59,463 - DEBUG - Aggiunta relazione: 142 -> 377 (Covers)
+2025-10-17 20:43:59,464 - DEBUG - Aggiunta relazione: 359 -> 377 (Covers)
+2025-10-17 20:43:59,466 - DEBUG - Aggiunta relazione: 370 -> 377 (Cuts)
+2025-10-17 20:43:59,467 - DEBUG - Aggiunta relazione: 371 -> 377 (Cuts)
+2025-10-17 20:43:59,468 - DEBUG - Aggiunta relazione: 372 -> 377 (Cuts)
+2025-10-17 20:43:59,469 - DEBUG - Aggiunta relazione: 373 -> 377 (Cuts)
+2025-10-17 20:43:59,470 - DEBUG - Aggiunta relazione: 376 -> 377 (Cuts)
+2025-10-17 20:43:59,471 - DEBUG - Aggiunta uguaglianza: 377 = 526
+2025-10-17 20:43:59,473 - DEBUG - Aggiunta relazione: 377 -> 378 (Fills)
+2025-10-17 20:43:59,476 - DEBUG - Aggiunta relazione: 353 -> 379 (Covers)
+2025-10-17 20:43:59,477 - DEBUG - Aggiunta relazione: 354 -> 379 (Covers)
+2025-10-17 20:43:59,479 - DEBUG - Aggiunta relazione: 357 -> 379 (Covers)
+2025-10-17 20:43:59,480 - DEBUG - Aggiunta relazione: 367 -> 379 (Covers)
+2025-10-17 20:43:59,481 - DEBUG - Aggiunta relazione: 368 -> 380 (Covers)
+2025-10-17 20:43:59,482 - DEBUG - Aggiunta relazione: 381 -> 380 (Covers)
+2025-10-17 20:43:59,484 - DEBUG - Aggiunta relazione: 368 -> 381 (Covers)
+2025-10-17 20:43:59,485 - DEBUG - Aggiunta relazione: 358 -> 382 (Covers)
+2025-10-17 20:43:59,486 - DEBUG - Aggiunta relazione: 380 -> 383 (Cuts)
+2025-10-17 20:43:59,488 - DEBUG - Aggiunta relazione: 381 -> 383 (Cuts)
+2025-10-17 20:43:59,489 - DEBUG - Aggiunta relazione: 362 -> 383 (Cuts)
+2025-10-17 20:43:59,490 - DEBUG - Aggiunta relazione: 362 -> 383 (Cuts)
+2025-10-17 20:43:59,492 - DEBUG - Aggiunta relazione: 353 -> 384 (Covers)
+2025-10-17 20:43:59,493 - DEBUG - Aggiunta relazione: 360 -> 384 (Covers)
+2025-10-17 20:43:59,494 - DEBUG - Aggiunta relazione: 382 -> 384 (Covers)
+2025-10-17 20:43:59,495 - DEBUG - Aggiunta relazione: 358 -> 384 (Cuts)
+2025-10-17 20:43:59,496 - DEBUG - Aggiunta relazione: 360 -> 384 (Cuts)
+2025-10-17 20:43:59,497 - DEBUG - Aggiunta relazione: 379 -> 384 (Cuts)
+2025-10-17 20:43:59,498 - DEBUG - Aggiunta relazione: 380 -> 384 (Cuts)
+2025-10-17 20:43:59,500 - DEBUG - Aggiunta relazione: 430 -> 384 (Cuts)
+2025-10-17 20:43:59,501 - DEBUG - Aggiunta relazione: 71 -> 384 (Cuts)
+2025-10-17 20:43:59,502 - DEBUG - Aggiunta relazione: 363 -> 384 (Covers)
+2025-10-17 20:43:59,503 - DEBUG - Aggiunta relazione: 363 -> 384 (Covers)
+2025-10-17 20:43:59,504 - DEBUG - Aggiunta uguaglianza: 386 = 387
+2025-10-17 20:43:59,505 - DEBUG - Aggiunta uguaglianza: 386 = 452
+2025-10-17 20:43:59,506 - DEBUG - Aggiunta uguaglianza: 387 = 386
+2025-10-17 20:43:59,508 - DEBUG - Aggiunta uguaglianza: 388 = 389
+2025-10-17 20:43:59,509 - DEBUG - Aggiunta uguaglianza: 388 = 390
+2025-10-17 20:43:59,510 - DEBUG - Aggiunta uguaglianza: 389 = 388
+2025-10-17 20:43:59,512 - DEBUG - Aggiunta uguaglianza: 390 = 388
+2025-10-17 20:43:59,513 - DEBUG - Aggiunta relazione: 433 -> 392 (Covers)
+2025-10-17 20:43:59,514 - DEBUG - Aggiunta relazione: 412 -> 393 (Covers)
+2025-10-17 20:43:59,515 - DEBUG - Aggiunta uguaglianza: 394 = 419
+2025-10-17 20:43:59,516 - DEBUG - Aggiunta relazione: 434 -> 394 (Covers)
+2025-10-17 20:43:59,517 - DEBUG - Aggiunta relazione: 478 -> 394 (Cuts)
+2025-10-17 20:43:59,518 - DEBUG - Aggiunta relazione: 478 -> 394 (Cuts)
+2025-10-17 20:43:59,520 - DEBUG - Aggiunta relazione: 477 -> 395 (Cuts)
+2025-10-17 20:43:59,521 - DEBUG - Aggiunta relazione: 471 -> 395 (Fills)
+2025-10-17 20:43:59,522 - DEBUG - Aggiunta relazione: 436 -> 396 (Cuts)
+2025-10-17 20:43:59,523 - DEBUG - Aggiunta relazione: 425 -> 396 (Covers)
+2025-10-17 20:43:59,524 - DEBUG - Aggiunta relazione: 425 -> 396 (Covers)
+2025-10-17 20:43:59,525 - DEBUG - Aggiunta relazione: 396 -> 397 (Covers)
+2025-10-17 20:43:59,527 - DEBUG - Aggiunta relazione: 396 -> 398 (Cuts)
+2025-10-17 20:43:59,528 - DEBUG - Aggiunta relazione: 397 -> 398 (Cuts)
+2025-10-17 20:43:59,529 - DEBUG - Aggiunta relazione: 400 -> 398 (Cuts)
+2025-10-17 20:43:59,530 - DEBUG - Aggiunta relazione: 401 -> 398 (Cuts)
+2025-10-17 20:43:59,531 - DEBUG - Aggiunta relazione: 434 -> 398 (Cuts)
+2025-10-17 20:43:59,532 - DEBUG - Aggiunta relazione: 435 -> 398 (Cuts)
+2025-10-17 20:43:59,533 - DEBUG - Aggiunta relazione: 436 -> 398 (Cuts)
+2025-10-17 20:43:59,534 - DEBUG - Aggiunta uguaglianza: 399 = 401
+2025-10-17 20:43:59,535 - DEBUG - Aggiunta relazione: 398 -> 399 (Covers)
+2025-10-17 20:43:59,536 - DEBUG - Aggiunta relazione: 397 -> 400 (Covers)
+2025-10-17 20:43:59,538 - DEBUG - Aggiunta uguaglianza: 401 = 399
+2025-10-17 20:43:59,539 - DEBUG - Aggiunta relazione: 400 -> 401 (Covers)
+2025-10-17 20:43:59,540 - DEBUG - Aggiunta relazione: 442 -> 402 (Covers)
+2025-10-17 20:43:59,541 - DEBUG - Aggiunta relazione: 446 -> 402 (Covers)
+2025-10-17 20:43:59,542 - DEBUG - Aggiunta relazione: 404 -> 403 (Covers)
+2025-10-17 20:43:59,543 - DEBUG - Aggiunta relazione: 441 -> 403 (Covers)
+2025-10-17 20:43:59,544 - DEBUG - Aggiunta relazione: 446 -> 403 (Covers)
+2025-10-17 20:43:59,546 - DEBUG - Aggiunta relazione: 402 -> 404 (Covers)
+2025-10-17 20:43:59,547 - DEBUG - Aggiunta relazione: 402 -> 405 (Covers)
+2025-10-17 20:43:59,548 - DEBUG - Aggiunta relazione: 443 -> 405 (Covers)
+2025-10-17 20:43:59,549 - DEBUG - Aggiunta relazione: 404 -> 406 (Covers)
+2025-10-17 20:43:59,550 - DEBUG - Aggiunta relazione: 407 -> 406 (Covers)
+2025-10-17 20:43:59,551 - DEBUG - Aggiunta relazione: 408 -> 406 (Covers)
+2025-10-17 20:43:59,553 - DEBUG - Aggiunta relazione: 443 -> 406 (Covers)
+2025-10-17 20:43:59,554 - DEBUG - Aggiunta relazione: 444 -> 406 (Covers)
+2025-10-17 20:43:59,555 - DEBUG - Aggiunta relazione: 406 -> 407 (Covers)
+2025-10-17 20:43:59,556 - DEBUG - Aggiunta relazione: 443 -> 407 (Covers)
+2025-10-17 20:43:59,557 - DEBUG - Aggiunta relazione: 444 -> 407 (Covers)
+2025-10-17 20:43:59,558 - DEBUG - Aggiunta relazione: 446 -> 408 (Covers)
+2025-10-17 20:43:59,559 - DEBUG - Aggiunta relazione: 408 -> 409 (Covers)
+2025-10-17 20:43:59,560 - DEBUG - Aggiunta relazione: 446 -> 409 (Covers)
+2025-10-17 20:43:59,561 - DEBUG - Aggiunta relazione: 445 -> 410 (Covers)
+2025-10-17 20:43:59,562 - DEBUG - Aggiunta relazione: 447 -> 410 (Covers)
+2025-10-17 20:43:59,563 - DEBUG - Aggiunta uguaglianza: 412 = 433
+2025-10-17 20:43:59,564 - DEBUG - Aggiunta relazione: 386 -> 412 (Cuts)
+2025-10-17 20:43:59,566 - DEBUG - Aggiunta relazione: 433 -> 412 (Cuts)
+2025-10-17 20:43:59,567 - DEBUG - Aggiunta relazione: 388 -> 413 (Covers)
+2025-10-17 20:43:59,568 - DEBUG - Aggiunta relazione: 389 -> 413 (Covers)
+2025-10-17 20:43:59,569 - DEBUG - Aggiunta relazione: 390 -> 414 (Covers)
+2025-10-17 20:43:59,570 - DEBUG - Aggiunta relazione: 390 -> 415 (Covers)
+2025-10-17 20:43:59,571 - DEBUG - Aggiunta uguaglianza: 416 = 418
+2025-10-17 20:43:59,572 - DEBUG - Aggiunta relazione: 394 -> 416 (Covers)
+2025-10-17 20:43:59,573 - DEBUG - Aggiunta relazione: 417 -> 416 (Covers)
+2025-10-17 20:43:59,575 - DEBUG - Aggiunta relazione: 416 -> 417 (Covers)
+2025-10-17 20:43:59,576 - DEBUG - Aggiunta relazione: 418 -> 417 (Covers)
+2025-10-17 20:43:59,577 - DEBUG - Aggiunta relazione: 478 -> 417 (Cuts)
+2025-10-17 20:43:59,579 - DEBUG - Aggiunta relazione: 478 -> 417 (Cuts)
+2025-10-17 20:43:59,580 - DEBUG - Aggiunta uguaglianza: 418 = 416
+2025-10-17 20:43:59,581 - DEBUG - Aggiunta uguaglianza: 418 = 419
+2025-10-17 20:43:59,583 - DEBUG - Aggiunta uguaglianza: 418 = 421
+2025-10-17 20:43:59,584 - DEBUG - Aggiunta relazione: 394 -> 418 (Covers)
+2025-10-17 20:43:59,585 - DEBUG - Aggiunta relazione: 416 -> 418 (Cuts)
+2025-10-17 20:43:59,587 - DEBUG - Aggiunta uguaglianza: 419 = 394
+2025-10-17 20:43:59,588 - DEBUG - Aggiunta uguaglianza: 419 = 418
+2025-10-17 20:43:59,589 - DEBUG - Aggiunta relazione: 434 -> 419 (Covers)
+2025-10-17 20:43:59,590 - DEBUG - Aggiunta relazione: 421 -> 420 (Covers)
+2025-10-17 20:43:59,592 - DEBUG - Aggiunta relazione: 422 -> 420 (Covers)
+2025-10-17 20:43:59,593 - DEBUG - Aggiunta uguaglianza: 421 = 418
+2025-10-17 20:43:59,594 - DEBUG - Aggiunta relazione: 399 -> 421 (Covers)
+2025-10-17 20:43:59,595 - DEBUG - Aggiunta relazione: 419 -> 421 (Covers)
+2025-10-17 20:43:59,596 - DEBUG - Aggiunta relazione: 434 -> 421 (Covers)
+2025-10-17 20:43:59,597 - DEBUG - Aggiunta relazione: 417 -> 422 (Covers)
+2025-10-17 20:43:59,598 - DEBUG - Aggiunta relazione: 399 -> 423 (Covers)
+2025-10-17 20:43:59,600 - DEBUG - Aggiunta relazione: 401 -> 423 (Covers)
+2025-10-17 20:43:59,602 - DEBUG - Aggiunta relazione: 421 -> 423 (Covers)
+2025-10-17 20:43:59,603 - DEBUG - Aggiunta relazione: 125 -> 424 (Covers)
+2025-10-17 20:43:59,604 - DEBUG - Aggiunta relazione: 143 -> 424 (Covers)
+2025-10-17 20:43:59,605 - DEBUG - Aggiunta relazione: 240 -> 424 (Covers)
+2025-10-17 20:43:59,606 - DEBUG - Aggiunta relazione: 423 -> 424 (Covers)
+2025-10-17 20:43:59,607 - DEBUG - Aggiunta relazione: 125 -> 425 (Covers)
+2025-10-17 20:43:59,609 - DEBUG - Aggiunta relazione: 143 -> 425 (Covers)
+2025-10-17 20:43:59,610 - DEBUG - Aggiunta relazione: 396 -> 425 (Covers)
+2025-10-17 20:43:59,612 - DEBUG - Aggiunta relazione: 488 -> 425 (Covers)
+2025-10-17 20:43:59,613 - DEBUG - Aggiunta relazione: 72 -> 425 (Covers)
+2025-10-17 20:43:59,614 - DEBUG - Aggiunta relazione: 400 -> 425 (Cuts)
+2025-10-17 20:43:59,615 - DEBUG - Aggiunta relazione: 401 -> 425 (Cuts)
+2025-10-17 20:43:59,617 - DEBUG - Aggiunta relazione: 424 -> 425 (Cuts)
+2025-10-17 20:43:59,618 - DEBUG - Aggiunta relazione: 425 -> 426 (Covers)
+2025-10-17 20:43:59,619 - DEBUG - Aggiunta relazione: 427 -> 426 (Covers)
+2025-10-17 20:43:59,620 - DEBUG - Aggiunta relazione: 459 -> 426 (Cuts)
+2025-10-17 20:43:59,621 - DEBUG - Aggiunta relazione: 460 -> 426 (Cuts)
+2025-10-17 20:43:59,622 - DEBUG - Aggiunta relazione: 410 -> 427 (Cuts)
+2025-10-17 20:43:59,623 - DEBUG - Aggiunta relazione: 445 -> 427 (Cuts)
+2025-10-17 20:43:59,625 - DEBUG - Aggiunta uguaglianza: 427 = 144
+2025-10-17 20:43:59,627 - DEBUG - Aggiunta uguaglianza: 428 = 431
+2025-10-17 20:43:59,628 - DEBUG - Aggiunta relazione: 385 -> 428 (Covers)
+2025-10-17 20:43:59,629 - DEBUG - Aggiunta relazione: 494 -> 429 (Covers)
+2025-10-17 20:43:59,630 - DEBUG - Aggiunta relazione: 495 -> 429 (Covers)
+2025-10-17 20:43:59,631 - DEBUG - Aggiunta relazione: 71 -> 430 (Covers)
+2025-10-17 20:43:59,634 - DEBUG - Aggiunta uguaglianza: 431 = 428
+2025-10-17 20:43:59,635 - DEBUG - Aggiunta uguaglianza: 431 = 432
+2025-10-17 20:43:59,636 - DEBUG - Aggiunta relazione: 385 -> 431 (Covers)
+2025-10-17 20:43:59,637 - DEBUG - Aggiunta uguaglianza: 432 = 431
+2025-10-17 20:43:59,638 - DEBUG - Aggiunta uguaglianza: 432 = 433
+2025-10-17 20:43:59,639 - DEBUG - Aggiunta relazione: 385 -> 432 (Covers)
+2025-10-17 20:43:59,640 - DEBUG - Aggiunta relazione: 485 -> 432 (Fills)
+2025-10-17 20:43:59,642 - DEBUG - Aggiunta uguaglianza: 433 = 412
+2025-10-17 20:43:59,644 - DEBUG - Aggiunta uguaglianza: 433 = 432
+2025-10-17 20:43:59,645 - DEBUG - Aggiunta relazione: 385 -> 433 (Covers)
+2025-10-17 20:43:59,646 - DEBUG - Aggiunta relazione: 386 -> 433 (Covers)
+2025-10-17 20:43:59,647 - DEBUG - Aggiunta relazione: 386 -> 434 (Covers)
+2025-10-17 20:43:59,648 - DEBUG - Aggiunta relazione: 486 -> 434 (Fills)
+2025-10-17 20:43:59,650 - DEBUG - Aggiunta relazione: 486 -> 434 (Cuts)
+2025-10-17 20:43:59,651 - DEBUG - Aggiunta relazione: 486 -> 434 (Cuts)
+2025-10-17 20:43:59,652 - DEBUG - Aggiunta relazione: 386 -> 435 (Covers)
+2025-10-17 20:43:59,654 - DEBUG - Aggiunta uguaglianza: 436 = 437
+2025-10-17 20:43:59,655 - DEBUG - Aggiunta relazione: 386 -> 436 (Covers)
+2025-10-17 20:43:59,656 - DEBUG - Aggiunta relazione: 387 -> 436 (Covers)
+2025-10-17 20:43:59,657 - DEBUG - Aggiunta uguaglianza: 437 = 438
+2025-10-17 20:43:59,659 - DEBUG - Aggiunta relazione: 387 -> 437 (Covers)
+2025-10-17 20:43:59,660 - DEBUG - Aggiunta uguaglianza: 437 = 436
+2025-10-17 20:43:59,661 - DEBUG - Aggiunta uguaglianza: 438 = 437
+2025-10-17 20:43:59,662 - DEBUG - Aggiunta uguaglianza: 438 = 439
+2025-10-17 20:43:59,663 - DEBUG - Aggiunta relazione: 387 -> 438 (Covers)
+2025-10-17 20:43:59,664 - DEBUG - Aggiunta relazione: 72 -> 438 (Covers)
+2025-10-17 20:43:59,667 - DEBUG - Aggiunta relazione: 72 -> 438 (Covers)
+2025-10-17 20:43:59,668 - DEBUG - Aggiunta uguaglianza: 439 = 438
+2025-10-17 20:43:59,669 - DEBUG - Aggiunta uguaglianza: 439 = 440
+2025-10-17 20:43:59,670 - DEBUG - Aggiunta relazione: 387 -> 439 (Covers)
+2025-10-17 20:43:59,671 - DEBUG - Aggiunta uguaglianza: 440 = 439
+2025-10-17 20:43:59,672 - DEBUG - Aggiunta uguaglianza: 440 = 441
+2025-10-17 20:43:59,673 - DEBUG - Aggiunta relazione: 387 -> 440 (Covers)
+2025-10-17 20:43:59,675 - DEBUG - Aggiunta uguaglianza: 440 = 446
+2025-10-17 20:43:59,677 - DEBUG - Aggiunta uguaglianza: 441 = 440
+2025-10-17 20:43:59,678 - DEBUG - Aggiunta uguaglianza: 441 = 442
+2025-10-17 20:43:59,679 - DEBUG - Aggiunta relazione: 387 -> 441 (Covers)
+2025-10-17 20:43:59,680 - DEBUG - Aggiunta uguaglianza: 442 = 441
+2025-10-17 20:43:59,681 - DEBUG - Aggiunta relazione: 387 -> 442 (Covers)
+2025-10-17 20:43:59,682 - DEBUG - Aggiunta uguaglianza: 443 = 444
+2025-10-17 20:43:59,684 - DEBUG - Aggiunta relazione: 404 -> 443 (Covers)
+2025-10-17 20:43:59,685 - DEBUG - Aggiunta uguaglianza: 444 = 445
+2025-10-17 20:43:59,687 - DEBUG - Aggiunta relazione: 404 -> 444 (Covers)
+2025-10-17 20:43:59,688 - DEBUG - Aggiunta relazione: 442 -> 444 (Covers)
+2025-10-17 20:43:59,689 - DEBUG - Aggiunta uguaglianza: 444 = 443
+2025-10-17 20:43:59,690 - DEBUG - Aggiunta uguaglianza: 445 = 446
+2025-10-17 20:43:59,693 - DEBUG - Aggiunta relazione: 403 -> 445 (Covers)
+2025-10-17 20:43:59,694 - DEBUG - Aggiunta uguaglianza: 445 = 444
+2025-10-17 20:43:59,695 - DEBUG - Aggiunta uguaglianza: 446 = 440
+2025-10-17 20:43:59,696 - DEBUG - Aggiunta uguaglianza: 446 = 445
+2025-10-17 20:43:59,697 - DEBUG - Aggiunta relazione: 407 -> 446 (Covers)
+2025-10-17 20:43:59,698 - DEBUG - Aggiunta relazione: 409 -> 447 (Covers)
+2025-10-17 20:43:59,700 - DEBUG - Aggiunta relazione: 489 -> 448 (Covers)
+2025-10-17 20:43:59,702 - DEBUG - Aggiunta relazione: 489 -> 448 (Covers)
+2025-10-17 20:43:59,703 - DEBUG - Aggiunta relazione: 448 -> 449 (Covers)
+2025-10-17 20:43:59,704 - DEBUG - Aggiunta relazione: 489 -> 449 (Covers)
+2025-10-17 20:43:59,705 - DEBUG - Aggiunta relazione: 490 -> 449 (Covers)
+2025-10-17 20:43:59,706 - DEBUG - Aggiunta relazione: 411 -> 450 (Covers)
+2025-10-17 20:43:59,708 - DEBUG - Aggiunta uguaglianza: 451 = 453
+2025-10-17 20:43:59,710 - DEBUG - Aggiunta relazione: 389 -> 451 (Covers)
+2025-10-17 20:43:59,711 - DEBUG - Aggiunta relazione: 413 -> 451 (Covers)
+2025-10-17 20:43:59,712 - DEBUG - Aggiunta relazione: 491 -> 451 (Covers)
+2025-10-17 20:43:59,713 - DEBUG - Aggiunta uguaglianza: 452 = 386
+2025-10-17 20:43:59,714 - DEBUG - Aggiunta uguaglianza: 452 = 455
+2025-10-17 20:43:59,715 - DEBUG - Aggiunta relazione: 388 -> 452 (Covers)
+2025-10-17 20:43:59,717 - DEBUG - Aggiunta relazione: 413 -> 452 (Covers)
+2025-10-17 20:43:59,718 - DEBUG - Aggiunta uguaglianza: 453 = 451
+2025-10-17 20:43:59,720 - DEBUG - Aggiunta relazione: 491 -> 453 (Covers)
+2025-10-17 20:43:59,721 - DEBUG - Aggiunta relazione: 454 -> 453 (Covers)
+2025-10-17 20:43:59,722 - DEBUG - Aggiunta relazione: 454 -> 453 (Covers)
+2025-10-17 20:43:59,723 - DEBUG - Aggiunta relazione: 146 -> 454 (Covers)
+2025-10-17 20:43:59,725 - DEBUG - Aggiunta relazione: 147 -> 454 (Covers)
+2025-10-17 20:43:59,726 - DEBUG - Aggiunta relazione: 453 -> 454 (Covers)
+2025-10-17 20:43:59,728 - DEBUG - Aggiunta relazione: 147 -> 455 (Covers)
+2025-10-17 20:43:59,729 - DEBUG - Aggiunta relazione: 491 -> 455 (Covers)
+2025-10-17 20:43:59,730 - DEBUG - Aggiunta uguaglianza: 455 = 452
+2025-10-17 20:43:59,731 - DEBUG - Aggiunta uguaglianza: 455 = 456
+2025-10-17 20:43:59,732 - DEBUG - Aggiunta uguaglianza: 456 = 455
+2025-10-17 20:43:59,734 - DEBUG - Aggiunta relazione: 390 -> 456 (Covers)
+2025-10-17 20:43:59,736 - DEBUG - Aggiunta relazione: 414 -> 456 (Covers)
+2025-10-17 20:43:59,737 - DEBUG - Aggiunta relazione: 415 -> 456 (Covers)
+2025-10-17 20:43:59,738 - DEBUG - Aggiunta uguaglianza: 456 = 457
+2025-10-17 20:43:59,739 - DEBUG - Aggiunta uguaglianza: 457 = 456
+2025-10-17 20:43:59,740 - DEBUG - Aggiunta relazione: 391 -> 458 (Covers)
+2025-10-17 20:43:59,743 - DEBUG - Aggiunta relazione: 475 -> 458 (Covers)
+2025-10-17 20:43:59,744 - DEBUG - Aggiunta relazione: 475 -> 458 (Covers)
+2025-10-17 20:43:59,745 - DEBUG - Aggiunta relazione: 106 -> 459 (Covers)
+2025-10-17 20:43:59,746 - DEBUG - Aggiunta relazione: 410 -> 459 (Covers)
+2025-10-17 20:43:59,748 - DEBUG - Aggiunta relazione: 459 -> 460 (Covers)
+2025-10-17 20:43:59,749 - DEBUG - Aggiunta relazione: 461 -> 460 (Covers)
+2025-10-17 20:43:59,751 - DEBUG - Aggiunta relazione: 459 -> 461 (Covers)
+2025-10-17 20:43:59,753 - DEBUG - Aggiunta relazione: 461 -> 462 (Covers)
+2025-10-17 20:43:59,754 - DEBUG - Aggiunta relazione: 463 -> 462 (Cuts)
+2025-10-17 20:43:59,755 - DEBUG - Aggiunta relazione: 464 -> 462 (Cuts)
+2025-10-17 20:43:59,756 - DEBUG - Aggiunta relazione: 473 -> 462 (Covers)
+2025-10-17 20:43:59,757 - DEBUG - Aggiunta relazione: 473 -> 462 (Covers)
+2025-10-17 20:43:59,759 - DEBUG - Aggiunta relazione: 106 -> 463 (Covers)
+2025-10-17 20:43:59,760 - DEBUG - Aggiunta relazione: 449 -> 463 (Cuts)
+2025-10-17 20:43:59,761 - DEBUG - Aggiunta relazione: 450 -> 463 (Cuts)
+2025-10-17 20:43:59,763 - DEBUG - Aggiunta relazione: 462 -> 463 (Cuts)
+2025-10-17 20:43:59,764 - DEBUG - Aggiunta relazione: 462 -> 463 (Cuts)
+2025-10-17 20:43:59,765 - DEBUG - Aggiunta relazione: 462 -> 463 (Cuts)
+2025-10-17 20:43:59,767 - DEBUG - Aggiunta relazione: 107 -> 464 (Covers)
+2025-10-17 20:43:59,768 - DEBUG - Aggiunta relazione: 108 -> 464 (Covers)
+2025-10-17 20:43:59,769 - DEBUG - Aggiunta relazione: 454 -> 464 (Cuts)
+2025-10-17 20:43:59,770 - DEBUG - Aggiunta relazione: 455 -> 464 (Cuts)
+2025-10-17 20:43:59,771 - DEBUG - Aggiunta relazione: 462 -> 464 (Cuts)
+2025-10-17 20:43:59,772 - DEBUG - Aggiunta relazione: 474 -> 464 (Covers)
+2025-10-17 20:43:59,773 - DEBUG - Aggiunta relazione: 462 -> 464 (Cuts)
+2025-10-17 20:43:59,775 - DEBUG - Aggiunta relazione: 474 -> 464 (Covers)
+2025-10-17 20:43:59,777 - DEBUG - Aggiunta relazione: 466 -> 465 (Fills)
+2025-10-17 20:43:59,778 - DEBUG - Aggiunta relazione: 107 -> 466 (Cuts)
+2025-10-17 20:43:59,779 - DEBUG - Aggiunta relazione: 108 -> 466 (Cuts)
+2025-10-17 20:43:59,780 - DEBUG - Aggiunta relazione: 389 -> 466 (Cuts)
+2025-10-17 20:43:59,781 - DEBUG - Aggiunta relazione: 448 -> 466 (Cuts)
+2025-10-17 20:43:59,783 - DEBUG - Aggiunta relazione: 449 -> 466 (Cuts)
+2025-10-17 20:43:59,785 - DEBUG - Aggiunta relazione: 451 -> 466 (Cuts)
+2025-10-17 20:43:59,786 - DEBUG - Aggiunta relazione: 463 -> 466 (Cuts)
+2025-10-17 20:43:59,787 - DEBUG - Aggiunta relazione: 464 -> 466 (Cuts)
+2025-10-17 20:43:59,788 - DEBUG - Aggiunta relazione: 490 -> 466 (Cuts)
+2025-10-17 20:43:59,789 - DEBUG - Aggiunta relazione: 457 -> 467 (Covers)
+2025-10-17 20:43:59,790 - DEBUG - Aggiunta relazione: 457 -> 467 (Covers)
+2025-10-17 20:43:59,793 - DEBUG - Aggiunta relazione: 492 -> 468 (Fills)
+2025-10-17 20:43:59,795 - DEBUG - Aggiunta relazione: 390 -> 469 (Cuts)
+2025-10-17 20:43:59,796 - DEBUG - Aggiunta relazione: 391 -> 469 (Cuts)
+2025-10-17 20:43:59,797 - DEBUG - Aggiunta relazione: 415 -> 469 (Cuts)
+2025-10-17 20:43:59,798 - DEBUG - Aggiunta relazione: 457 -> 469 (Cuts)
+2025-10-17 20:43:59,799 - DEBUG - Aggiunta relazione: 467 -> 469 (Cuts)
+2025-10-17 20:43:59,801 - DEBUG - Aggiunta relazione: 468 -> 469 (Cuts)
+2025-10-17 20:43:59,802 - DEBUG - Aggiunta relazione: 492 -> 469 (Cuts)
+2025-10-17 20:43:59,803 - DEBUG - Aggiunta relazione: 360 -> 470 (Covers)
+2025-10-17 20:43:59,804 - DEBUG - Aggiunta relazione: 430 -> 470 (Covers)
+2025-10-17 20:43:59,805 - DEBUG - Aggiunta relazione: 476 -> 470 (Cuts)
+2025-10-17 20:43:59,807 - DEBUG - Aggiunta uguaglianza: 470 = 362
+2025-10-17 20:43:59,809 - DEBUG - Aggiunta relazione: 128 -> 471 (Covers)
+2025-10-17 20:43:59,810 - DEBUG - Aggiunta relazione: 139 -> 471 (Covers)
+2025-10-17 20:43:59,811 - DEBUG - Aggiunta relazione: 150 -> 471 (Covers)
+2025-10-17 20:43:59,812 - DEBUG - Aggiunta relazione: 392 -> 471 (Covers)
+2025-10-17 20:43:59,813 - DEBUG - Aggiunta relazione: 393 -> 471 (Covers)
+2025-10-17 20:43:59,814 - DEBUG - Aggiunta relazione: 477 -> 471 (Covers)
+2025-10-17 20:43:59,815 - DEBUG - Aggiunta relazione: 150 -> 471 (Cuts)
+2025-10-17 20:43:59,817 - DEBUG - Aggiunta relazione: 394 -> 471 (Cuts)
+2025-10-17 20:43:59,819 - DEBUG - Aggiunta relazione: 429 -> 471 (Cuts)
+2025-10-17 20:43:59,820 - DEBUG - Aggiunta relazione: 430 -> 471 (Cuts)
+2025-10-17 20:43:59,821 - DEBUG - Aggiunta relazione: 470 -> 471 (Cuts)
+2025-10-17 20:43:59,822 - DEBUG - Aggiunta relazione: 476 -> 471 (Cuts)
+2025-10-17 20:43:59,823 - DEBUG - Aggiunta relazione: 476 -> 471 (Cuts)
+2025-10-17 20:43:59,824 - DEBUG - Aggiunta relazione: 470 -> 472 (Covers)
+2025-10-17 20:43:59,826 - DEBUG - Aggiunta relazione: 471 -> 472 (Covers)
+2025-10-17 20:43:59,827 - DEBUG - Aggiunta relazione: 476 -> 472 (Covers)
+2025-10-17 20:43:59,828 - DEBUG - Aggiunta relazione: 479 -> 472 (Covers)
+2025-10-17 20:43:59,829 - DEBUG - Aggiunta relazione: 416 -> 472 (Cuts)
+2025-10-17 20:43:59,830 - DEBUG - Aggiunta relazione: 417 -> 472 (Cuts)
+2025-10-17 20:43:59,831 - DEBUG - Aggiunta uguaglianza: 472 = 363
+2025-10-17 20:43:59,833 - DEBUG - Aggiunta uguaglianza: 472 = 473
+2025-10-17 20:43:59,835 - DEBUG - Aggiunta uguaglianza: 473 = 472
+2025-10-17 20:43:59,836 - DEBUG - Aggiunta uguaglianza: 473 = 474
+2025-10-17 20:43:59,837 - DEBUG - Aggiunta relazione: 426 -> 473 (Covers)
+2025-10-17 20:43:59,838 - DEBUG - Aggiunta relazione: 460 -> 473 (Covers)
+2025-10-17 20:43:59,839 - DEBUG - Aggiunta relazione: 461 -> 473 (Covers)
+2025-10-17 20:43:59,840 - DEBUG - Aggiunta relazione: 462 -> 473 (Covers)
+2025-10-17 20:43:59,842 - DEBUG - Aggiunta relazione: 480 -> 473 (Covers)
+2025-10-17 20:43:59,843 - DEBUG - Aggiunta relazione: 481 -> 473 (Covers)
+2025-10-17 20:43:59,844 - DEBUG - Aggiunta relazione: 463 -> 474 (Covers)
+2025-10-17 20:43:59,845 - DEBUG - Aggiunta relazione: 464 -> 474 (Covers)
+2025-10-17 20:43:59,846 - DEBUG - Aggiunta relazione: 466 -> 474 (Covers)
+2025-10-17 20:43:59,847 - DEBUG - Aggiunta uguaglianza: 474 = 473
+2025-10-17 20:43:59,848 - DEBUG - Aggiunta relazione: 456 -> 475 (Covers)
+2025-10-17 20:43:59,850 - DEBUG - Aggiunta relazione: 458 -> 475 (Covers)
+2025-10-17 20:43:59,852 - DEBUG - Aggiunta relazione: 467 -> 475 (Covers)
+2025-10-17 20:43:59,853 - DEBUG - Aggiunta relazione: 469 -> 475 (Covers)
+2025-10-17 20:43:59,854 - DEBUG - Aggiunta relazione: 492 -> 475 (Covers)
+2025-10-17 20:43:59,855 - DEBUG - Aggiunta relazione: 493 -> 475 (Covers)
+2025-10-17 20:43:59,856 - DEBUG - Aggiunta relazione: 123 -> 477 (Cuts)
+2025-10-17 20:43:59,857 - DEBUG - Aggiunta relazione: 150 -> 477 (Cuts)
+2025-10-17 20:43:59,859 - DEBUG - Aggiunta relazione: 429 -> 477 (Cuts)
+2025-10-17 20:43:59,860 - DEBUG - Aggiunta relazione: 431 -> 477 (Cuts)
+2025-10-17 20:43:59,861 - DEBUG - Aggiunta relazione: 432 -> 477 (Cuts)
+2025-10-17 20:43:59,862 - DEBUG - Aggiunta relazione: 495 -> 477 (Cuts)
+2025-10-17 20:43:59,863 - DEBUG - Aggiunta relazione: 478 -> 477 (Fills)
+2025-10-17 20:43:59,864 - DEBUG - Aggiunta relazione: 478 -> 477 (Fills)
+2025-10-17 20:43:59,865 - DEBUG - Aggiunta relazione: 395 -> 478 (Covers)
+2025-10-17 20:43:59,868 - DEBUG - Aggiunta relazione: 394 -> 478 (Cuts)
+2025-10-17 20:43:59,869 - DEBUG - Aggiunta relazione: 416 -> 478 (Cuts)
+2025-10-17 20:43:59,870 - DEBUG - Aggiunta relazione: 417 -> 478 (Cuts)
+2025-10-17 20:43:59,871 - DEBUG - Aggiunta relazione: 420 -> 478 (Cuts)
+2025-10-17 20:43:59,872 - DEBUG - Aggiunta relazione: 422 -> 478 (Cuts)
+2025-10-17 20:43:59,873 - DEBUG - Aggiunta relazione: 471 -> 478 (Cuts)
+2025-10-17 20:43:59,875 - DEBUG - Aggiunta relazione: 479 -> 478 (Cuts)
+2025-10-17 20:43:59,877 - DEBUG - Aggiunta relazione: 471 -> 478 (Fills)
+2025-10-17 20:43:59,878 - DEBUG - Aggiunta relazione: 477 -> 478 (Fills)
+2025-10-17 20:43:59,879 - DEBUG - Aggiunta uguaglianza: 479 = 480
+2025-10-17 20:43:59,880 - DEBUG - Aggiunta relazione: 420 -> 479 (Covers)
+2025-10-17 20:43:59,881 - DEBUG - Aggiunta relazione: 423 -> 479 (Cuts)
+2025-10-17 20:43:59,882 - DEBUG - Aggiunta relazione: 424 -> 479 (Cuts)
+2025-10-17 20:43:59,884 - DEBUG - Aggiunta relazione: 478 -> 479 (Cuts)
+2025-10-17 20:43:59,885 - DEBUG - Aggiunta relazione: 478 -> 479 (Cuts)
+2025-10-17 20:43:59,886 - DEBUG - Aggiunta uguaglianza: 480 = 479
+2025-10-17 20:43:59,888 - DEBUG - Aggiunta uguaglianza: 480 = 481
+2025-10-17 20:43:59,889 - DEBUG - Aggiunta relazione: 424 -> 480 (Covers)
+2025-10-17 20:43:59,890 - DEBUG - Aggiunta relazione: 426 -> 480 (Covers)
+2025-10-17 20:43:59,892 - DEBUG - Aggiunta uguaglianza: 481 = 480
+2025-10-17 20:43:59,893 - DEBUG - Aggiunta relazione: 426 -> 481 (Covers)
+2025-10-17 20:43:59,894 - DEBUG - Aggiunta relazione: 475 -> 482 (Covers)
+2025-10-17 20:43:59,895 - DEBUG - Aggiunta relazione: 391 -> 483 (Cuts)
+2025-10-17 20:43:59,896 - DEBUG - Aggiunta relazione: 458 -> 483 (Cuts)
+2025-10-17 20:43:59,897 - DEBUG - Aggiunta relazione: 385 -> 484 (Cuts)
+2025-10-17 20:43:59,903 - DEBUG - Aggiunta relazione: 385 -> 485 (Cuts)
+2025-10-17 20:43:59,904 - DEBUG - Aggiunta relazione: 386 -> 485 (Cuts)
+2025-10-17 20:43:59,905 - DEBUG - Aggiunta relazione: 434 -> 486 (Cuts)
+2025-10-17 20:43:59,907 - DEBUG - Aggiunta relazione: 386 -> 487 (Cuts)
+2025-10-17 20:43:59,909 - DEBUG - Aggiunta relazione: 387 -> 487 (Cuts)
+2025-10-17 20:43:59,910 - DEBUG - Aggiunta relazione: 436 -> 487 (Cuts)
+2025-10-17 20:43:59,911 - DEBUG - Aggiunta relazione: 438 -> 488 (Cuts)
+2025-10-17 20:43:59,912 - DEBUG - Aggiunta relazione: 425 -> 488 (Covers)
+2025-10-17 20:43:59,913 - DEBUG - Aggiunta relazione: 425 -> 488 (Covers)
+2025-10-17 20:43:59,914 - DEBUG - Aggiunta uguaglianza: 489 = 490
+2025-10-17 20:43:59,915 - DEBUG - Aggiunta relazione: 448 -> 489 (Covers)
+2025-10-17 20:43:59,917 - DEBUG - Aggiunta uguaglianza: 490 = 489
+2025-10-17 20:43:59,919 - DEBUG - Aggiunta relazione: 448 -> 490 (Covers)
+2025-10-17 20:43:59,920 - DEBUG - Aggiunta relazione: 413 -> 491 (Covers)
+2025-10-17 20:43:59,921 - DEBUG - Aggiunta relazione: 391 -> 492 (Cuts)
+2025-10-17 20:43:59,922 - DEBUG - Aggiunta relazione: 483 -> 493 (Covers)
+2025-10-17 20:43:59,923 - DEBUG - Aggiunta relazione: 458 -> 493 (Cuts)
+2025-10-17 20:43:59,925 - DEBUG - Aggiunta relazione: 428 -> 494 (Covers)
+2025-10-17 20:43:59,927 - DEBUG - Aggiunta relazione: 428 -> 495 (Covers)
+2025-10-17 20:43:59,928 - DEBUG - Aggiunta relazione: 501 -> 497 (Fills)
+2025-10-17 20:43:59,929 - DEBUG - Aggiunta relazione: 496 -> 498 (Covers)
+2025-10-17 20:43:59,930 - DEBUG - Aggiunta relazione: 499 -> 498 (Covers)
+2025-10-17 20:43:59,931 - DEBUG - Aggiunta relazione: 499 -> 498 (Covers)
+2025-10-17 20:43:59,933 - DEBUG - Aggiunta relazione: 498 -> 499 (Covers)
+2025-10-17 20:43:59,935 - DEBUG - Aggiunta relazione: 499 -> 500 (Fills)
+2025-10-17 20:43:59,936 - DEBUG - Aggiunta relazione: 499 -> 501 (Covers)
+2025-10-17 20:43:59,937 - DEBUG - Aggiunta relazione: 500 -> 501 (Covers)
+2025-10-17 20:43:59,938 - DEBUG - Aggiunta relazione: 501 -> 502 (Covers)
+2025-10-17 20:43:59,939 - DEBUG - Aggiunta relazione: 502 -> 503 (Covers)
+2025-10-17 20:43:59,940 - DEBUG - Aggiunta relazione: 503 -> 504 (Covers)
+2025-10-17 20:43:59,943 - DEBUG - Aggiunta relazione: 506 -> 504 (Covers)
+2025-10-17 20:43:59,944 - DEBUG - Aggiunta relazione: 497 -> 505 (Cuts)
+2025-10-17 20:43:59,945 - DEBUG - Aggiunta relazione: 501 -> 505 (Cuts)
+2025-10-17 20:43:59,947 - DEBUG - Aggiunta uguaglianza: 505 = 78
+2025-10-17 20:43:59,948 - DEBUG - Aggiunta relazione: 502 -> 506 (Cuts)
+2025-10-17 20:43:59,950 - DEBUG - Aggiunta relazione: 503 -> 506 (Cuts)
+2025-10-17 20:43:59,951 - DEBUG - Aggiunta relazione: 507 -> 508 (Covers)
+2025-10-17 20:43:59,952 - DEBUG - Aggiunta relazione: 508 -> 509 (Covers)
+2025-10-17 20:43:59,953 - DEBUG - Aggiunta relazione: 509 -> 511 (Cuts)
+2025-10-17 20:43:59,955 - DEBUG - Aggiunta relazione: 512 -> 511 (Cuts)
+2025-10-17 20:43:59,956 - DEBUG - Aggiunta relazione: 513 -> 514 (Covers)
+2025-10-17 20:43:59,957 - DEBUG - Aggiunta uguaglianza: 514 = 82
+2025-10-17 20:43:59,959 - DEBUG - Aggiunta relazione: 514 -> 515 (Covers)
+2025-10-17 20:43:59,960 - DEBUG - Aggiunta relazione: 515 -> 516 (Covers)
+2025-10-17 20:43:59,961 - DEBUG - Aggiunta uguaglianza: 517 = 83
+2025-10-17 20:43:59,962 - DEBUG - Aggiunta relazione: 83 -> 517 (Covers)
+2025-10-17 20:43:59,964 - DEBUG - Aggiunta relazione: 517 -> 518 (Covers)
+2025-10-17 20:43:59,965 - DEBUG - Aggiunta relazione: 518 -> 519 (Covers)
+2025-10-17 20:43:59,967 - DEBUG - Aggiunta uguaglianza: 520 = 83
+2025-10-17 20:43:59,968 - DEBUG - Aggiunta relazione: 83 -> 520 (Covers)
+2025-10-17 20:43:59,970 - DEBUG - Aggiunta uguaglianza: 520 = 79
+2025-10-17 20:43:59,971 - DEBUG - Aggiunta relazione: 520 -> 521 (Covers)
+2025-10-17 20:43:59,972 - DEBUG - Aggiunta uguaglianza: 521 = 79
+2025-10-17 20:43:59,979 - DEBUG - Aggiunta uguaglianza: 522 = 79
+2025-10-17 20:43:59,980 - DEBUG - Aggiunta uguaglianza: 523 = 79
+2025-10-17 20:43:59,981 - DEBUG - Aggiunta relazione: 524 -> 525 (Covers)
+2025-10-17 20:43:59,983 - DEBUG - Aggiunta relazione: 525 -> 526 (Covers)
+2025-10-17 20:43:59,985 - DEBUG - Aggiunta uguaglianza: 526 = 377
+2025-10-17 20:43:59,986 - DEBUG - Aggiunta relazione: 526 -> 527 (Covers)
+2025-10-17 20:43:59,987 - DEBUG - Aggiunta relazione: 527 -> 528 (Covers)
+2025-10-17 20:43:59,988 - DEBUG - Aggiunta relazione: 530 -> 529 (Abuts)
+2025-10-17 20:43:59,989 - DEBUG - Aggiunta relazione: 525 -> 529 (Cuts)
+2025-10-17 20:43:59,990 - DEBUG - Aggiunta relazione: 526 -> 529 (Cuts)
+2025-10-17 20:43:59,992 - DEBUG - Aggiunta relazione: 527 -> 529 (Cuts)
+2025-10-17 20:43:59,994 - DEBUG - Aggiunta uguaglianza: 530 = 531
+2025-10-17 20:43:59,995 - DEBUG - Aggiunta uguaglianza: 531 = 530
+2025-10-17 20:43:59,996 - DEBUG - Aggiunta uguaglianza: 531 = 532
+2025-10-17 20:43:59,997 - DEBUG - Aggiunta uguaglianza: 531 = 79
+2025-10-17 20:43:59,998 - DEBUG - Aggiunta uguaglianza: 532 = 531
+2025-10-17 20:43:59,999 - DEBUG - Aggiunta relazione: 533 -> 534 (Covers)
+2025-10-17 20:44:00,001 - DEBUG - Aggiunta relazione: 534 -> 535 (Covers)
+2025-10-17 20:44:00,002 - DEBUG - Aggiunta relazione: 535 -> 536 (Covers)
+2025-10-17 20:44:00,003 - DEBUG - Aggiunta relazione: 536 -> 537 (Covers)
+2025-10-17 20:44:00,004 - DEBUG - Aggiunta relazione: 537 -> 538 (Covers)
+2025-10-17 20:44:00,005 - DEBUG - Aggiunta relazione: 538 -> 539 (Covers)
+2025-10-17 20:44:00,006 - DEBUG - Aggiunta uguaglianza: 540 = 541
+2025-10-17 20:44:00,008 - DEBUG - Aggiunta uguaglianza: 540 = 79
+2025-10-17 20:44:00,010 - DEBUG - Aggiunta uguaglianza: 541 = 540
+2025-10-17 20:44:00,011 - DEBUG - Aggiunta relazione: 542 -> 543 (Covers)
+2025-10-17 20:44:00,012 - DEBUG - Aggiunta relazione: 543 -> 544 (Covers)
+2025-10-17 20:44:00,013 - DEBUG - Aggiunta relazione: 544 -> 545 (Covers)
+2025-10-17 20:44:00,014 - DEBUG - Aggiunta relazione: 545 -> 546 (Covers)
+2025-10-17 20:44:00,015 - DEBUG - Aggiunta relazione: 546 -> 547 (Covers)
+2025-10-17 20:44:00,017 - DEBUG - Aggiunta uguaglianza: 547 = 599
+2025-10-17 20:44:00,019 - DEBUG - Aggiunta relazione: 542 -> 548 (Cuts)
+2025-10-17 20:44:00,020 - DEBUG - Aggiunta relazione: 543 -> 548 (Cuts)
+2025-10-17 20:44:00,021 - DEBUG - Aggiunta relazione: 544 -> 548 (Cuts)
+2025-10-17 20:44:00,022 - DEBUG - Aggiunta relazione: 545 -> 548 (Cuts)
+2025-10-17 20:44:00,023 - DEBUG - Aggiunta uguaglianza: 548 = 79
+2025-10-17 20:44:00,024 - DEBUG - Aggiunta relazione: 549 -> 550 (Covers)
+2025-10-17 20:44:00,026 - DEBUG - Aggiunta relazione: 550 -> 551 (Covers)
+2025-10-17 20:44:00,027 - DEBUG - Aggiunta relazione: 553 -> 552 (Abuts)
+2025-10-17 20:44:00,028 - DEBUG - Aggiunta uguaglianza: 552 = 81
+2025-10-17 20:44:00,029 - DEBUG - Aggiunta relazione: 551 -> 553 (Covers)
+2025-10-17 20:44:00,030 - DEBUG - Aggiunta uguaglianza: 553 = 77
+2025-10-17 20:44:00,031 - DEBUG - Aggiunta uguaglianza: 553 = 81
+2025-10-17 20:44:00,032 - DEBUG - Aggiunta uguaglianza: 553 = 78
+2025-10-17 20:44:00,034 - DEBUG - Aggiunta relazione: 556 -> 557 (Covers)
+2025-10-17 20:44:00,036 - DEBUG - Aggiunta uguaglianza: 557 = 41
+2025-10-17 20:44:00,037 - DEBUG - Aggiunta uguaglianza: 557 = 42
+2025-10-17 20:44:00,038 - DEBUG - Aggiunta relazione: 557 -> 558 (Covers)
+2025-10-17 20:44:00,039 - DEBUG - Aggiunta uguaglianza: 558 = 41
+2025-10-17 20:44:00,040 - DEBUG - Aggiunta uguaglianza: 558 = 42
+2025-10-17 20:44:00,042 - DEBUG - Aggiunta relazione: 558 -> 559 (Covers)
+2025-10-17 20:44:00,043 - DEBUG - Aggiunta relazione: 565 -> 566 (Covers)
+2025-10-17 20:44:00,044 - DEBUG - Aggiunta relazione: 663 -> 567 (Covers)
+2025-10-17 20:44:00,045 - DEBUG - Aggiunta relazione: 568 -> 571 (Covers)
+2025-10-17 20:44:00,046 - DEBUG - Aggiunta relazione: 572 -> 571 (Covers)
+2025-10-17 20:44:00,047 - DEBUG - Aggiunta relazione: 572 -> 571 (Covers)
+2025-10-17 20:44:00,048 - DEBUG - Aggiunta relazione: 571 -> 572 (Covers)
+2025-10-17 20:44:00,050 - DEBUG - Aggiunta relazione: 573 -> 574 (Covers)
+2025-10-17 20:44:00,051 - DEBUG - Aggiunta relazione: 574 -> 575 (Covers)
+2025-10-17 20:44:00,052 - DEBUG - Aggiunta relazione: 574 -> 576 (Covers)
+2025-10-17 20:44:00,054 - DEBUG - Aggiunta relazione: 577 -> 576 (Covers)
+2025-10-17 20:44:00,055 - DEBUG - Aggiunta relazione: 577 -> 576 (Covers)
+2025-10-17 20:44:00,056 - DEBUG - Aggiunta relazione: 575 -> 577 (Covers)
+2025-10-17 20:44:00,057 - DEBUG - Aggiunta relazione: 576 -> 577 (Covers)
+2025-10-17 20:44:00,059 - DEBUG - Aggiunta relazione: 582 -> 578 (Covers)
+2025-10-17 20:44:00,060 - DEBUG - Aggiunta relazione: 578 -> 579 (Covers)
+2025-10-17 20:44:00,061 - DEBUG - Aggiunta relazione: 579 -> 580 (Covers)
+2025-10-17 20:44:00,062 - DEBUG - Aggiunta relazione: 580 -> 581 (Covers)
+2025-10-17 20:44:00,063 - DEBUG - Aggiunta relazione: 583 -> 582 (Covers)
+2025-10-17 20:44:00,064 - DEBUG - Aggiunta relazione: 584 -> 585 (Covers)
+2025-10-17 20:44:00,065 - DEBUG - Aggiunta relazione: 587 -> 586 (Covers)
+2025-10-17 20:44:00,067 - DEBUG - Aggiunta relazione: 586 -> 588 (Covers)
+2025-10-17 20:44:00,069 - DEBUG - Aggiunta relazione: 587 -> 589 (Covers)
+2025-10-17 20:44:00,070 - DEBUG - Aggiunta relazione: 598 -> 589 (Covers)
+2025-10-17 20:44:00,071 - DEBUG - Aggiunta relazione: 599 -> 589 (Covers)
+2025-10-17 20:44:00,072 - DEBUG - Aggiunta relazione: 601 -> 589 (Covers)
+2025-10-17 20:44:00,073 - DEBUG - Aggiunta relazione: 607 -> 589 (Covers)
+2025-10-17 20:44:00,075 - DEBUG - Aggiunta relazione: 621 -> 589 (Covers)
+2025-10-17 20:44:00,076 - DEBUG - Aggiunta uguaglianza: 589 = 590
+2025-10-17 20:44:00,078 - DEBUG - Aggiunta uguaglianza: 589 = 597
+2025-10-17 20:44:00,080 - DEBUG - Aggiunta uguaglianza: 589 = 602
+2025-10-17 20:44:00,081 - DEBUG - Aggiunta uguaglianza: 590 = 589
+2025-10-17 20:44:00,082 - DEBUG - Aggiunta uguaglianza: 590 = 597
+2025-10-17 20:44:00,084 - DEBUG - Aggiunta relazione: 2 -> 591 (Covers)
+2025-10-17 20:44:00,085 - DEBUG - Aggiunta uguaglianza: 591 = 600
+2025-10-17 20:44:00,086 - DEBUG - Aggiunta uguaglianza: 591 = 605
+2025-10-17 20:44:00,088 - DEBUG - Aggiunta relazione: 593 -> 592 (Fills)
+2025-10-17 20:44:00,089 - DEBUG - Aggiunta relazione: 592 -> 594 (Cuts)
+2025-10-17 20:44:00,090 - DEBUG - Aggiunta relazione: 592 -> 595 (Cuts)
+2025-10-17 20:44:00,092 - DEBUG - Aggiunta relazione: 592 -> 596 (Cuts)
+2025-10-17 20:44:00,093 - DEBUG - Aggiunta uguaglianza: 597 = 589
+2025-10-17 20:44:00,094 - DEBUG - Aggiunta uguaglianza: 597 = 590
+2025-10-17 20:44:00,095 - DEBUG - Aggiunta uguaglianza: 597 = 602
+2025-10-17 20:44:00,097 - DEBUG - Aggiunta uguaglianza: 599 = 167
+2025-10-17 20:44:00,098 - DEBUG - Aggiunta uguaglianza: 599 = 173
+2025-10-17 20:44:00,099 - DEBUG - Aggiunta uguaglianza: 599 = 179
+2025-10-17 20:44:00,101 - DEBUG - Aggiunta uguaglianza: 599 = 547
+2025-10-17 20:44:00,102 - DEBUG - Aggiunta uguaglianza: 600 = 591
+2025-10-17 20:44:00,103 - DEBUG - Aggiunta uguaglianza: 600 = 605
+2025-10-17 20:44:00,104 - DEBUG - Aggiunta uguaglianza: 602 = 589
+2025-10-17 20:44:00,105 - DEBUG - Aggiunta uguaglianza: 602 = 606
+2025-10-17 20:44:00,106 - DEBUG - Aggiunta uguaglianza: 602 = 597
+2025-10-17 20:44:00,108 - DEBUG - Aggiunta uguaglianza: 605 = 591
+2025-10-17 20:44:00,109 - DEBUG - Aggiunta uguaglianza: 605 = 600
+2025-10-17 20:44:00,110 - DEBUG - Aggiunta uguaglianza: 606 = 602
+2025-10-17 20:44:00,111 - DEBUG - Aggiunta relazione: 589 -> 608 (Covers)
+2025-10-17 20:44:00,112 - DEBUG - Aggiunta relazione: 614 -> 610 (Covers)
+2025-10-17 20:44:00,113 - DEBUG - Aggiunta relazione: 614 -> 611 (Covers)
+2025-10-17 20:44:00,115 - DEBUG - Aggiunta uguaglianza: 614 = 620
+2025-10-17 20:44:00,117 - DEBUG - Aggiunta relazione: 614 -> 616 (Fills)
+2025-10-17 20:44:00,118 - DEBUG - Aggiunta uguaglianza: 616 = 617
+2025-10-17 20:44:00,119 - DEBUG - Aggiunta relazione: 614 -> 617 (Fills)
+2025-10-17 20:44:00,120 - DEBUG - Aggiunta uguaglianza: 617 = 616
+2025-10-17 20:44:00,121 - DEBUG - Aggiunta uguaglianza: 617 = 618
+2025-10-17 20:44:00,122 - DEBUG - Aggiunta relazione: 614 -> 618 (Fills)
+2025-10-17 20:44:00,124 - DEBUG - Aggiunta uguaglianza: 618 = 617
+2025-10-17 20:44:00,126 - DEBUG - Aggiunta relazione: 614 -> 619 (Fills)
+2025-10-17 20:44:00,127 - DEBUG - Aggiunta uguaglianza: 620 = 614
+2025-10-17 20:44:00,128 - DEBUG - Aggiunta relazione: 624 -> 623 (Covers)
+2025-10-17 20:44:00,129 - DEBUG - Aggiunta relazione: 625 -> 624 (Covers)
+2025-10-17 20:44:00,130 - DEBUG - Aggiunta relazione: 626 -> 625 (Covers)
+2025-10-17 20:44:00,131 - DEBUG - Aggiunta relazione: 629 -> 628 (Covers)
+2025-10-17 20:44:00,133 - DEBUG - Aggiunta relazione: 630 -> 629 (Covers)
+2025-10-17 20:44:00,135 - DEBUG - Aggiunta relazione: 632 -> 631 (Covers)
+2025-10-17 20:44:00,136 - DEBUG - Aggiunta relazione: 633 -> 632 (Covers)
+2025-10-17 20:44:00,137 - DEBUG - Aggiunta relazione: 636 -> 635 (Covers)
+2025-10-17 20:44:00,138 - DEBUG - Aggiunta relazione: 637 -> 636 (Covers)
+2025-10-17 20:44:00,140 - DEBUG - Aggiunta relazione: 638 -> 637 (Covers)
+2025-10-17 20:44:00,142 - DEBUG - Aggiunta relazione: 639 -> 638 (Covers)
+2025-10-17 20:44:00,143 - DEBUG - Aggiunta relazione: 640 -> 639 (Covers)
+2025-10-17 20:44:00,144 - DEBUG - Aggiunta relazione: 643 -> 642 (Covers)
+2025-10-17 20:44:00,145 - DEBUG - Aggiunta relazione: 644 -> 643 (Covers)
+2025-10-17 20:44:00,147 - DEBUG - Aggiunta relazione: 645 -> 644 (Covers)
+2025-10-17 20:44:00,148 - DEBUG - Aggiunta relazione: 646 -> 645 (Covers)
+2025-10-17 20:44:00,149 - DEBUG - Aggiunta relazione: 649 -> 648 (Covers)
+2025-10-17 20:44:00,151 - DEBUG - Aggiunta relazione: 650 -> 649 (Covers)
+2025-10-17 20:44:00,152 - DEBUG - Aggiunta relazione: 651 -> 650 (Covers)
+2025-10-17 20:44:00,154 - DEBUG - Aggiunta relazione: 652 -> 651 (Covers)
+2025-10-17 20:44:00,155 - DEBUG - Aggiunta relazione: 655 -> 654 (Covers)
+2025-10-17 20:44:00,156 - DEBUG - Aggiunta relazione: 656 -> 655 (Covers)
+2025-10-17 20:44:00,157 - DEBUG - Aggiunta relazione: 668 -> 658 (Covers)
+2025-10-17 20:44:00,159 - DEBUG - Aggiunta relazione: 683 -> 658 (Covers)
+2025-10-17 20:44:00,161 - DEBUG - Aggiunta uguaglianza: 658 = 674
+2025-10-17 20:44:00,162 - DEBUG - Aggiunta relazione: 659 -> 661 (Covers)
+2025-10-17 20:44:00,163 - DEBUG - Aggiunta relazione: 660 -> 661 (Covers)
+2025-10-17 20:44:00,164 - DEBUG - Aggiunta relazione: 662 -> 661 (Covers)
+2025-10-17 20:44:00,165 - DEBUG - Aggiunta relazione: 664 -> 661 (Covers)
+2025-10-17 20:44:00,167 - DEBUG - Aggiunta relazione: 664 -> 661 (Covers)
+2025-10-17 20:44:00,169 - DEBUG - Aggiunta relazione: 567 -> 663 (Covers)
+2025-10-17 20:44:00,170 - DEBUG - Aggiunta relazione: 678 -> 663 (Covers)
+2025-10-17 20:44:00,171 - DEBUG - Aggiunta relazione: 567 -> 663 (Covers)
+2025-10-17 20:44:00,172 - DEBUG - Aggiunta relazione: 678 -> 663 (Covers)
+2025-10-17 20:44:00,173 - DEBUG - Aggiunta relazione: 661 -> 664 (Covers)
+2025-10-17 20:44:00,176 - DEBUG - Aggiunta relazione: 664 -> 665 (Covers)
+2025-10-17 20:44:00,177 - DEBUG - Aggiunta relazione: 666 -> 665 (Covers)
+2025-10-17 20:44:00,178 - DEBUG - Aggiunta relazione: 667 -> 666 (Covers)
+2025-10-17 20:44:00,179 - DEBUG - Aggiunta relazione: 676 -> 666 (Covers)
+2025-10-17 20:44:00,180 - DEBUG - Aggiunta relazione: 678 -> 666 (Covers)
+2025-10-17 20:44:00,181 - DEBUG - Aggiunta relazione: 680 -> 666 (Covers)
+2025-10-17 20:44:00,184 - DEBUG - Aggiunta relazione: 665 -> 666 (Covers)
+2025-10-17 20:44:00,185 - DEBUG - Aggiunta relazione: 665 -> 666 (Covers)
+2025-10-17 20:44:00,186 - DEBUG - Aggiunta relazione: 663 -> 667 (Covers)
+2025-10-17 20:44:00,188 - DEBUG - Aggiunta uguaglianza: 667 = 680
+2025-10-17 20:44:00,189 - DEBUG - Aggiunta relazione: 670 -> 668 (Covers)
+2025-10-17 20:44:00,190 - DEBUG - Aggiunta relazione: 671 -> 668 (Covers)
+2025-10-17 20:44:00,192 - DEBUG - Aggiunta relazione: 670 -> 669 (Covers)
+2025-10-17 20:44:00,193 - DEBUG - Aggiunta relazione: 669 -> 670 (Covers)
+2025-10-17 20:44:00,195 - DEBUG - Aggiunta relazione: 679 -> 670 (Covers)
+2025-10-17 20:44:00,196 - DEBUG - Aggiunta relazione: 669 -> 670 (Covers)
+2025-10-17 20:44:00,197 - DEBUG - Aggiunta relazione: 679 -> 670 (Covers)
+2025-10-17 20:44:00,198 - DEBUG - Aggiunta relazione: 683 -> 673 (Covers)
+2025-10-17 20:44:00,201 - DEBUG - Aggiunta uguaglianza: 674 = 658
+2025-10-17 20:44:00,202 - DEBUG - Aggiunta relazione: 672 -> 676 (Covers)
+2025-10-17 20:44:00,203 - DEBUG - Aggiunta uguaglianza: 676 = 680
+2025-10-17 20:44:00,204 - DEBUG - Aggiunta relazione: 667 -> 677 (Covers)
+2025-10-17 20:44:00,205 - DEBUG - Aggiunta relazione: 680 -> 677 (Covers)
+2025-10-17 20:44:00,206 - DEBUG - Aggiunta relazione: 663 -> 678 (Covers)
+2025-10-17 20:44:00,209 - DEBUG - Aggiunta uguaglianza: 678 = 679
+2025-10-17 20:44:00,210 - DEBUG - Aggiunta relazione: 670 -> 679 (Covers)
+2025-10-17 20:44:00,211 - DEBUG - Aggiunta uguaglianza: 679 = 678
+2025-10-17 20:44:00,213 - DEBUG - Aggiunta relazione: 672 -> 680 (Covers)
+2025-10-17 20:44:00,214 - DEBUG - Aggiunta uguaglianza: 680 = 667
+2025-10-17 20:44:00,215 - DEBUG - Aggiunta uguaglianza: 680 = 676
+2025-10-17 20:44:00,217 - DEBUG - Aggiunta uguaglianza: 681 = 682
+2025-10-17 20:44:00,218 - DEBUG - Aggiunta uguaglianza: 682 = 681
+2025-10-17 20:44:00,220 - DEBUG - Aggiunta relazione: 686 -> 685 (Covers)
+2025-10-17 20:44:00,221 - DEBUG - Aggiunta relazione: 687 -> 686 (Covers)
+2025-10-17 20:44:00,222 - DEBUG - Aggiunta relazione: 689 -> 688 (Covers)
+2025-10-17 20:44:00,223 - DEBUG - Aggiunta relazione: 690 -> 689 (Covers)
+2025-10-17 20:44:00,224 - DEBUG - Aggiunta relazione: 692 -> 691 (Covers)
+2025-10-17 20:44:00,226 - DEBUG - Aggiunta relazione: 693 -> 692 (Covers)
+2025-10-17 20:44:00,227 - DEBUG - Aggiunta relazione: 696 -> 697 (Covers)
+2025-10-17 20:44:00,229 - DEBUG - Aggiunta relazione: 700 -> 698 (Covers)
+2025-10-17 20:44:00,230 - DEBUG - Aggiunta relazione: 697 -> 698 (Cuts)
+2025-10-17 20:44:00,231 - DEBUG - Aggiunta relazione: 696 -> 700 (Covers)
+2025-10-17 20:44:00,232 - DEBUG - Aggiunta relazione: 697 -> 700 (Covers)
+2025-10-17 20:44:00,234 - DEBUG - Aggiunta relazione: 698 -> 701 (Covers)
+2025-10-17 20:44:00,235 - DEBUG - Aggiunta relazione: 700 -> 701 (Covers)
+2025-10-17 20:44:00,237 - DEBUG - Aggiunta relazione: 701 -> 702 (Fills)
+2025-10-17 20:44:00,238 - DEBUG - Aggiunta relazione: 701 -> 703 (Covers)
+2025-10-17 20:44:00,239 - DEBUG - Aggiunta relazione: 701 -> 704 (Fills)
+2025-10-17 20:44:00,240 - DEBUG - Aggiunta relazione: 701 -> 705 (Fills)
+2025-10-17 20:44:00,242 - DEBUG - Aggiunta relazione: 701 -> 706 (Covers)
+2025-10-17 20:44:00,243 - DEBUG - Aggiunta relazione: 703 -> 706 (Cuts)
+2025-10-17 20:44:00,245 - DEBUG - Aggiunta relazione: 707 -> 708 (Covers)
+2025-10-17 20:44:00,246 - DEBUG - Aggiunta relazione: 709 -> 710 (Covers)
+2025-10-17 20:44:00,247 - DEBUG - Aggiunta relazione: 709 -> 711 (Covers)
+2025-10-17 20:44:00,248 - DEBUG - Aggiunta relazione: 709 -> 712 (Covers)
+2025-10-17 20:44:00,249 - DEBUG - Aggiunta relazione: 710 -> 712 (Covers)
+2025-10-17 20:44:00,251 - DEBUG - Aggiunta relazione: 711 -> 712 (Covers)
+2025-10-17 20:44:00,252 - DEBUG - Aggiunta relazione: 710 -> 712 (Cuts)
+2025-10-17 20:44:00,253 - DEBUG - Aggiunta relazione: 712 -> 713 (Covers)
+2025-10-17 20:44:00,255 - DEBUG - Aggiunta relazione: 133 -> 714 (Cuts)
+2025-10-17 20:44:00,256 - DEBUG - Aggiunta relazione: 134 -> 714 (Cuts)
+2025-10-17 20:44:00,257 - DEBUG - Aggiunta relazione: 135 -> 714 (Cuts)
+2025-10-17 20:44:00,259 - DEBUG - Aggiunta relazione: 136 -> 714 (Cuts)
+2025-10-17 20:44:00,261 - DEBUG - Aggiunta relazione: 135 -> 715 (Cuts)
+2025-10-17 20:44:00,262 - DEBUG - Aggiunta relazione: 716 -> 717 (Covers)
+2025-10-17 20:44:00,263 - DEBUG - Aggiunta relazione: 717 -> 718 (Covers)
+2025-10-17 20:44:00,264 - DEBUG - Aggiunta relazione: 717 -> 719 (Covers)
+2025-10-17 20:44:00,265 - DEBUG - Aggiunta relazione: 718 -> 719 (Covers)
+2025-10-17 20:44:00,267 - DEBUG - Aggiunta relazione: 719 -> 720 (Covers)
+2025-10-17 20:44:00,269 - DEBUG - Aggiunta relazione: 721 -> 722 (Covers)
+2025-10-17 20:44:00,270 - DEBUG - Aggiunta relazione: 722 -> 723 (Covers)
+2025-10-17 20:44:00,271 - DEBUG - Aggiunta relazione: 723 -> 724 (Covers)
+2025-10-17 20:44:00,272 - DEBUG - Aggiunta relazione: 724 -> 725 (Covers)
+2025-10-17 20:44:00,273 - DEBUG - Aggiunta relazione: 73 -> 725 (Covers)
+2025-10-17 20:44:00,275 - DEBUG - Aggiunta uguaglianza: 728 = 106
+2025-10-17 20:44:00,277 - DEBUG - Aggiunta uguaglianza: 728 = 115
+2025-10-17 20:44:00,278 - DEBUG - Aggiunta uguaglianza: 728 = 67
+2025-10-17 20:44:00,279 - DEBUG - Aggiunta uguaglianza: 728 = 72
+2025-10-17 20:44:00,280 - DEBUG - Aggiunta relazione: 744 -> 750 (Cuts)
+2025-10-17 20:44:00,281 - DEBUG - Aggiunta relazione: 1 -> 757 (Covers)
+2025-10-17 20:44:00,282 - INFO - Grafo costruito: 758 nodi, 1092 archi, 1552 relazioni totali
+2025-10-17 20:44:00,284 - INFO - Ricerca cicli nel grafo...
+2025-10-17 20:44:00,287 - WARNING - Trovati 112 cicli nel grafo
+2025-10-17 20:44:00,288 - INFO - Ciclo 1: rimosso arco 394 -> 478 (478 -> 394...)
+2025-10-17 20:44:00,289 - INFO - Ciclo 2: rimosso arco 416 -> 478 (478 -> 394 -> 416...)
+2025-10-17 20:44:00,290 - INFO - Ciclo 3: rimosso arco 417 -> 478 (478 -> 394 -> 416...)
+2025-10-17 20:44:00,293 - INFO - Ciclo 4: rimosso arco 417 -> 416 (416 -> 418 -> 417...)
+2025-10-17 20:44:00,294 - INFO - Ciclo 5: rimosso arco 422 -> 478 (478 -> 394 -> 416...)
+2025-10-17 20:44:00,295 - INFO - Ciclo 6: rimosso arco 420 -> 478 (478 -> 394 -> 416...)
+2025-10-17 20:44:00,296 - INFO - Ciclo 7: rimosso arco 479 -> 478 (478 -> 394 -> 416...)
+2025-10-17 20:44:00,297 - INFO - Ciclo 8: rimosso arco 394 -> 471 (471 -> 478 -> 394...)
+2025-10-17 20:44:00,298 - INFO - Ciclo 9: rimosso arco 477 -> 478 (478 -> 477...)
+2025-10-17 20:44:00,301 - INFO - Ciclo 10: rimosso arco 128 -> 471 (471 -> 478 -> 477...)
+2025-10-17 20:44:00,302 - INFO - Ciclo 11: rimosso arco 123 -> 477 (477 -> 123...)
+2025-10-17 20:44:00,303 - INFO - Ciclo 12: rimosso arco 395 -> 478 (478 -> 477 -> 395...)
+2025-10-17 20:44:00,305 - INFO - Ciclo 13: rimosso arco 477 -> 471 (471 -> 478 -> 477...)
+2025-10-17 20:44:00,306 - INFO - Ciclo 14: rimosso arco 150 -> 471 (471 -> 150...)
+2025-10-17 20:44:00,307 - INFO - Ciclo 15: rimosso arco 369 -> 356 (356 -> 369...)
+2025-10-17 20:44:00,309 - INFO - Ciclo 16: rimosso arco 369 -> 375 (375 -> 356 -> 369...)
+2025-10-17 20:44:00,311 - INFO - Ciclo 17: rimosso arco 356 -> 375 (375 -> 356...)
+2025-10-17 20:44:00,312 - INFO - Ciclo 18: rimosso arco 371 -> 375 (375 -> 356 -> 370...)
+2025-10-17 20:44:00,313 - INFO - Ciclo 19: rimosso arco 372 -> 374 (374 -> 376 -> 375...)
+2025-10-17 20:44:00,314 - INFO - Ciclo 20: rimosso arco 372 -> 375 (375 -> 356 -> 370...)
+2025-10-17 20:44:00,316 - INFO - Ciclo 21: rimosso arco 142 -> 377 (377 -> 142...)
+2025-10-17 20:44:00,318 - INFO - Ciclo 22: rimosso arco 373 -> 374 (374 -> 376 -> 375...)
+2025-10-17 20:44:00,319 - INFO - Ciclo 23: rimosso arco 373 -> 375 (375 -> 356 -> 370...)
+2025-10-17 20:44:00,321 - INFO - Ciclo 24: rimosso arco 370 -> 375 (375 -> 356 -> 370...)
+2025-10-17 20:44:00,322 - INFO - Ciclo 25: rimosso arco 366 -> 359 (359 -> 366...)
+2025-10-17 20:44:00,324 - INFO - Ciclo 26: rimosso arco 364 -> 356 (356 -> 364...)
+2025-10-17 20:44:00,326 - INFO - Ciclo 27: rimosso arco 1 -> 757 (757 -> 1...)
+2025-10-17 20:44:00,327 - INFO - Ciclo 28: rimosso arco 302 -> 67 (67 -> 302...)
+2025-10-17 20:44:00,329 - INFO - Ciclo 29: rimosso arco 149 -> 282 (282 -> 149...)
+2025-10-17 20:44:00,330 - INFO - Ciclo 30: rimosso arco 282 -> 67 (67 -> 302 -> 344...)
+2025-10-17 20:44:00,331 - INFO - Ciclo 31: rimosso arco 282 -> 315 (315 -> 282...)
+2025-10-17 20:44:00,334 - INFO - Ciclo 32: rimosso arco 107 -> 464 (464 -> 107...)
+2025-10-17 20:44:00,336 - INFO - Ciclo 33: rimosso arco 466 -> 107 (107 -> 466...)
+2025-10-17 20:44:00,337 - INFO - Ciclo 34: rimosso arco 474 -> 464 (464 -> 107 -> 466...)
+2025-10-17 20:44:00,338 - INFO - Ciclo 35: rimosso arco 463 -> 462 (462 -> 463...)
+2025-10-17 20:44:00,339 - INFO - Ciclo 36: rimosso arco 473 -> 462 (462 -> 473...)
+2025-10-17 20:44:00,341 - INFO - Ciclo 37: rimosso arco 462 -> 464 (464 -> 462...)
+2025-10-17 20:44:00,343 - INFO - Ciclo 38: rimosso arco 345 -> 67 (67 -> 302 -> 344...)
+2025-10-17 20:44:00,344 - INFO - Ciclo 39: rimosso arco 344 -> 67 (67 -> 302 -> 344...)
+2025-10-17 20:44:00,346 - INFO - Ciclo 40: rimosso arco 334 -> 67 (67 -> 296 -> 334...)
+2025-10-17 20:44:00,347 - INFO - Ciclo 41: rimosso arco 334 -> 296 (296 -> 334...)
+2025-10-17 20:44:00,349 - INFO - Ciclo 42: rimosso arco 339 -> 283 (283 -> 339...)
+2025-10-17 20:44:00,351 - INFO - Ciclo 43: rimosso arco 127 -> 67 (67 -> 296 -> 334...)
+2025-10-17 20:44:00,352 - INFO - Ciclo 44: rimosso arco 284 -> 283 (283 -> 284...)
+2025-10-17 20:44:00,354 - INFO - Ciclo 45: rimosso arco 336 -> 296 (296 -> 334 -> 336...)
+2025-10-17 20:44:00,355 - INFO - Ciclo 46: rimosso arco 335 -> 296 (296 -> 334 -> 336...)
+2025-10-17 20:44:00,356 - INFO - Ciclo 47: rimosso arco 336 -> 67 (67 -> 296 -> 334...)
+2025-10-17 20:44:00,359 - INFO - Ciclo 48: rimosso arco 299 -> 67 (67 -> 296 -> 337...)
+2025-10-17 20:44:00,360 - INFO - Ciclo 49: rimosso arco 337 -> 67 (67 -> 296 -> 337...)
+2025-10-17 20:44:00,361 - INFO - Ciclo 50: rimosso arco 296 -> 67 (67 -> 296...)
+2025-10-17 20:44:00,363 - INFO - Ciclo 51: rimosso arco 67 -> 124 (124 -> 67...)
+2025-10-17 20:44:00,364 - INFO - Ciclo 52: rimosso arco 125 -> 424 (424 -> 425 -> 125...)
+2025-10-17 20:44:00,366 - INFO - Ciclo 53: rimosso arco 125 -> 425 (425 -> 125...)
+2025-10-17 20:44:00,368 - INFO - Ciclo 54: rimosso arco 72 -> 425 (425 -> 72...)
+2025-10-17 20:44:00,369 - INFO - Ciclo 55: rimosso arco 488 -> 425 (425 -> 72 -> 438...)
+2025-10-17 20:44:00,371 - INFO - Ciclo 56: rimosso arco 488 -> 72 (72 -> 438 -> 488...)
+2025-10-17 20:44:00,372 - INFO - Ciclo 57: rimosso arco 438 -> 72 (72 -> 438...)
+2025-10-17 20:44:00,373 - INFO - Ciclo 58: rimosso arco 396 -> 398 (398 -> 399 -> 423...)
+2025-10-17 20:44:00,376 - INFO - Ciclo 59: rimosso arco 396 -> 425 (425 -> 396...)
+2025-10-17 20:44:00,377 - INFO - Ciclo 60: rimosso arco 397 -> 398 (398 -> 399 -> 423...)
+2025-10-17 20:44:00,379 - INFO - Ciclo 61: rimosso arco 397 -> 400 (400 -> 398 -> 399...)
+2025-10-17 20:44:00,380 - INFO - Ciclo 62: rimosso arco 240 -> 424 (424 -> 240...)
+2025-10-17 20:44:00,381 - INFO - Ciclo 63: rimosso arco 197 -> 196 (196 -> 197...)
+2025-10-17 20:44:00,384 - INFO - Ciclo 64: rimosso arco 198 -> 197 (197 -> 198...)
+2025-10-17 20:44:00,385 - INFO - Ciclo 66: rimosso arco 250 -> 242 (242 -> 213 -> 250...)
+2025-10-17 20:44:00,386 - INFO - Ciclo 67: rimosso arco 222 -> 96 (96 -> 222...)
+2025-10-17 20:44:00,388 - INFO - Ciclo 68: rimosso arco 220 -> 215 (215 -> 220...)
+2025-10-17 20:44:00,389 - INFO - Ciclo 69: rimosso arco 360 -> 384 (384 -> 71 -> 360...)
+2025-10-17 20:44:00,390 - INFO - Ciclo 70: rimosso arco 383 -> 362 (362 -> 383...)
+2025-10-17 20:44:00,393 - INFO - Ciclo 71: rimosso arco 383 -> 71 (71 -> 360 -> 362...)
+2025-10-17 20:44:00,394 - INFO - Ciclo 72: rimosso arco 363 -> 384 (384 -> 71 -> 360...)
+2025-10-17 20:44:00,396 - INFO - Ciclo 73: rimosso arco 71 -> 384 (384 -> 71...)
+2025-10-17 20:44:00,397 - INFO - Ciclo 74: rimosso arco 430 -> 384 (384 -> 71 -> 430...)
+2025-10-17 20:44:00,401 - INFO - Ciclo 75: rimosso arco 358 -> 384 (384 -> 358...)
+2025-10-17 20:44:00,405 - INFO - Ciclo 76: rimosso arco 358 -> 382 (382 -> 384 -> 358...)
+2025-10-17 20:44:00,406 - INFO - Ciclo 77: rimosso arco 8 -> 13 (13 -> 8...)
+2025-10-17 20:44:00,409 - INFO - Ciclo 78: rimosso arco 8 -> 12 (12 -> 13 -> 8...)
+2025-10-17 20:44:00,411 - INFO - Ciclo 79: rimosso arco 309 -> 323 (323 -> 309...)
+2025-10-17 20:44:00,412 - INFO - Ciclo 80: rimosso arco 313 -> 97 (97 -> 313...)
+2025-10-17 20:44:00,413 - INFO - Ciclo 81: rimosso arco 300 -> 325 (325 -> 300...)
+2025-10-17 20:44:00,415 - INFO - Ciclo 82: rimosso arco 454 -> 453 (453 -> 147 -> 454...)
+2025-10-17 20:44:00,417 - INFO - Ciclo 83: rimosso arco 225 -> 202 (202 -> 225...)
+2025-10-17 20:44:00,419 - INFO - Ciclo 84: rimosso arco 225 -> 201 (201 -> 202 -> 225...)
+2025-10-17 20:44:00,420 - INFO - Ciclo 85: rimosso arco 201 -> 228 (228 -> 232 -> 201...)
+2025-10-17 20:44:00,421 - INFO - Ciclo 86: rimosso arco 201 -> 232 (232 -> 201...)
+2025-10-17 20:44:00,423 - INFO - Ciclo 87: rimosso arco 670 -> 679 (679 -> 670...)
+2025-10-17 20:44:00,424 - INFO - Ciclo 88: rimosso arco 669 -> 670 (670 -> 669...)
+2025-10-17 20:44:00,426 - INFO - Ciclo 89: rimosso arco 571 -> 572 (572 -> 571...)
+2025-10-17 20:44:00,428 - INFO - Ciclo 90: rimosso arco 367 -> 357 (357 -> 367...)
+2025-10-17 20:44:00,429 - INFO - Ciclo 91: rimosso arco 4 -> 18 (18 -> 4...)
+2025-10-17 20:44:00,431 - INFO - Ciclo 92: rimosso arco 14 -> 4 (4 -> 14...)
+2025-10-17 20:44:00,432 - INFO - Ciclo 93: rimosso arco 15 -> 4 (4 -> 14 -> 15...)
+2025-10-17 20:44:00,434 - INFO - Ciclo 94: rimosso arco 407 -> 406 (406 -> 407...)
+2025-10-17 20:44:00,436 - INFO - Ciclo 95: rimosso arco 408 -> 406 (406 -> 407 -> 446...)
+2025-10-17 20:44:00,437 - INFO - Ciclo 96: rimosso arco 404 -> 406 (406 -> 407 -> 446...)
+2025-10-17 20:44:00,438 - INFO - Ciclo 97: rimosso arco 404 -> 443 (443 -> 406 -> 407...)
+2025-10-17 20:44:00,440 - INFO - Ciclo 98: rimosso arco 444 -> 406 (406 -> 407 -> 446...)
+2025-10-17 20:44:00,442 - INFO - Ciclo 99: rimosso arco 444 -> 407 (407 -> 446 -> 402...)
+2025-10-17 20:44:00,444 - INFO - Ciclo 100: rimosso arco 292 -> 272 (272 -> 292...)
+2025-10-17 20:44:00,445 - INFO - Ciclo 101: rimosso arco 493 -> 475 (475 -> 458 -> 483...)
+2025-10-17 20:44:00,446 - INFO - Ciclo 102: rimosso arco 458 -> 475 (475 -> 458...)
+2025-10-17 20:44:00,447 - INFO - Ciclo 103: rimosso arco 230 -> 216 (216 -> 230...)
+2025-10-17 20:44:00,449 - INFO - Ciclo 104: rimosso arco 664 -> 661 (661 -> 664...)
+2025-10-17 20:44:00,451 - INFO - Ciclo 105: rimosso arco 666 -> 665 (665 -> 666...)
+2025-10-17 20:44:00,452 - INFO - Ciclo 106: rimosso arco 576 -> 577 (577 -> 576...)
+2025-10-17 20:44:00,454 - INFO - Ciclo 107: rimosso arco 33 -> 30 (30 -> 33...)
+2025-10-17 20:44:00,455 - INFO - Ciclo 108: rimosso arco 434 -> 486 (486 -> 434...)
+2025-10-17 20:44:00,456 - INFO - Ciclo 109: rimosso arco 678 -> 663 (663 -> 678...)
+2025-10-17 20:44:00,457 - INFO - Ciclo 110: rimosso arco 663 -> 567 (567 -> 663...)
+2025-10-17 20:44:00,460 - INFO - Ciclo 111: rimosso arco 498 -> 499 (499 -> 498...)
+2025-10-17 20:44:00,461 - INFO - Ciclo 112: rimosso arco 448 -> 489 (489 -> 448...)
+2025-10-17 20:44:00,463 - INFO - Inizio calcolo sequenza stratigrafica...
+2025-10-17 20:44:00,464 - INFO - Inizio calcolo sequenza stratigrafica...
+2025-10-17 20:44:00,466 - INFO - DEBUG MAIN: Prima di chiamare topological_sort. all_us=758
+2025-10-17 20:44:00,469 - INFO - US di base (senza predecessori): ['100', '101', '102', '103', '105', '109', '110', '117', '118', '119', '120', '121', '126', '129', '130', '131', '132', '133', '134', '135', '136', '137', '151', '152', '153', '156', '157', '158', '16', '162', '164', '170', '176', '180', '181', '182', '19', '2', '20', '206', '21', '23', '24', '26', '27', '271', '272', '273', '274', '276', '281', '3', '32', '34', '346', '35', '355', '36', '365', '37', '374', '38', '382', '385', '386', '387', '388', '389', '39', '390', '391', '40', '400', '41', '411', '42', '43', '44', '443', '45', '457', '46', '47', '476', '48', '486', '489', '49', '496', '499', '50', '507', '51', '510', '512', '513', '522', '523', '524', '53', '530', '531', '532', '533', '540', '541', '542', '549', '55', '554', '555', '556', '560', '561', '562', '563', '564', '565', '567', '568', '569', '570', '572', '573', '583', '584', '587', '590', '593', '597', '598', '599', '600', '601', '602', '603', '604', '605', '606', '607', '609', '612', '613', '614', '615', '620', '621', '622', '626', '627', '630', '633', '634', '640', '641', '646', '647', '65', '652', '653', '656', '657', '659', '660', '662', '671', '672', '674', '675', '679', '68', '681', '682', '683', '684', '687', '69', '690', '693', '694', '695', '696', '699', '707', '709', '716', '721', '728', '729', '730', '731', '732', '733', '734', '735', '736', '737', '738', '739', '74', '740', '741', '742', '743', '744', '745', '746', '747', '748', '749', '751', '752', '753', '754', '755', '756', '757', '758', '759', '760', '77', '78', '79', '81', '82', '83', '85', '86', '87', '88', '9', '92', '93', '98', '99']
+2025-10-17 20:44:00,472 - DEBUG - Livello 0: 100, 101, 102, 103, 105, 106, 109, 110, 114, 115, 117, 118, 119, 120, 121, 126, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 151, 152, 153, 156, 157, 158, 16, 162, 164, 167, 170, 173, 176, 179, 180, 181, 182, 19, 2, 20, 204, 206, 207, 208, 21, 217, 23, 24, 26, 27, 271, 272, 273, 274, 276, 281, 29, 3, 30, 32, 339, 34, 346, 35, 353, 355, 36, 365, 37, 374, 38, 382, 385, 386, 387, 388, 389, 39, 390, 391, 40, 400, 41, 411, 42, 43, 44, 443, 444, 45, 456, 457, 46, 47, 476, 48, 486, 489, 49, 490, 496, 499, 50, 505, 507, 51, 510, 512, 513, 517, 520, 522, 523, 524, 53, 530, 531, 532, 533, 540, 541, 542, 547, 549, 55, 552, 553, 554, 555, 556, 557, 558, 560, 561, 562, 563, 564, 565, 567, 568, 569, 570, 572, 573, 583, 584, 587, 589, 590, 591, 593, 597, 598, 599, 600, 601, 602, 603, 604, 605, 606, 607, 609, 612, 613, 614, 615, 620, 621, 622, 626, 627, 630, 633, 634, 640, 641, 646, 647, 65, 652, 653, 656, 657, 658, 659, 660, 662, 67, 671, 672, 674, 675, 678, 679, 68, 681, 682, 683, 684, 687, 69, 690, 693, 694, 695, 696, 699, 707, 709, 716, 72, 721, 728, 729, 730, 731, 732, 733, 734, 735, 736, 737, 738, 739, 74, 740, 741, 742, 743, 744, 745, 746, 747, 748, 749, 751, 752, 753, 754, 755, 756, 757, 758, 759, 760, 77, 78, 79, 81, 82, 83, 85, 86, 87, 88, 9, 92, 93, 98, 99
+2025-10-17 20:44:00,477 - DEBUG - Livello 1: 1, 10, 104, 122, 148, 155, 159, 163, 168, 17, 171, 235, 264, 269, 275, 286, 292, 295, 328, 354, 367, 376, 399, 401, 406, 428, 431, 432, 436, 437, 438, 439, 440, 441, 442, 448, 450, 467, 484, 492, 498, 500, 508, 514, 52, 525, 534, 543, 550, 566, 571, 574, 582, 585, 586, 592, 62, 625, 629, 632, 639, 645, 651, 655, 661, 663, 670, 673, 676, 680, 686, 689, 692, 697, 70, 708, 710, 711, 714, 715, 717, 722, 75, 750, 76, 84, 89, 90, 91, 94
+2025-10-17 20:44:00,481 - DEBUG - Livello 2: 11, 160, 165, 169, 172, 18, 197, 218, 287, 305, 307, 310, 311, 313, 315, 319, 330, 331, 357, 375, 377, 407, 468, 501, 509, 515, 526, 535, 54, 544, 551, 575, 578, 588, 594, 595, 596, 61, 624, 628, 631, 638, 644, 650, 654, 664, 667, 668, 669, 685, 688, 691, 700, 712, 718, 723, 80, 95
+2025-10-17 20:44:00,486 - DEBUG - Livello 3: 12, 161, 166, 175, 261, 265, 277, 288, 293, 297, 298, 326, 349, 4, 445, 446, 497, 502, 511, 516, 527, 536, 545, 577, 579, 60, 623, 637, 643, 649, 665, 698, 713, 719, 724
+2025-10-17 20:44:00,489 - DEBUG - Livello 4: 13, 14, 325, 332, 402, 408, 5, 503, 528, 537, 546, 548, 576, 580, 59, 636, 642, 648, 7, 701, 720, 73
+2025-10-17 20:44:00,493 - DEBUG - Livello 5: 15, 294, 300, 306, 308, 404, 405, 409, 506, 538, 58, 581, 6, 635, 64, 702, 703, 704, 705, 725
+2025-10-17 20:44:00,496 - DEBUG - Livello 6: 108, 290, 322, 323, 324, 327, 352, 447, 504, 539, 57, 63, 706, 8, 97
+2025-10-17 20:44:00,499 - DEBUG - Livello 7: 301, 56
+2025-10-17 20:44:00,503 - DEBUG - Livello 8: 321
+2025-10-17 20:44:00,505 - WARNING - US non processate (possibili componenti disconnesse): ['107', '111', '112', '113', '116', '123', '124', '125', '127', '128', '139', '140', '141', '142', '143', '144', '145', '146', '147', '149', '150', '154', '174', '177', '178', '183', '184', '185', '186', '187', '188', '189', '190', '191', '192', '193', '194', '195', '196', '198', '199', '200', '201', '202', '203', '205', '209', '210', '211', '212', '213', '214', '215', '216', '219', '22', '220', '221', '222', '223', '224', '225', '226', '227', '228', '229', '230', '231', '232', '233', '234', '236', '237', '238', '239', '240', '241', '242', '243', '244', '245', '246', '247', '248', '249', '25', '250', '251', '252', '253', '254', '255', '256', '257', '258', '259', '260', '262', '263', '266', '267', '268', '270', '278', '279', '28', '280', '282', '283', '284', '285', '289', '291', '296', '299', '302', '303', '304', '309', '31', '312', '314', '316', '317', '318', '320', '329', '33', '333', '334', '335', '336', '337', '338', '340', '341', '342', '343', '344', '345', '347', '348', '350', '351', '356', '358', '359', '360', '361', '362', '363', '364', '366', '368', '369', '370', '371', '372', '373', '378', '379', '380', '381', '383', '384', '392', '393', '394', '395', '396', '397', '398', '403', '410', '412', '413', '414', '415', '416', '417', '418', '419', '420', '421', '422', '423', '424', '425', '426', '427', '429', '430', '433', '434', '435', '449', '451', '452', '453', '454', '455', '458', '459', '460', '461', '462', '463', '464', '465', '466', '469', '470', '471', '472', '473', '474', '475', '477', '478', '479', '480', '481', '482', '483', '485', '487', '488', '491', '493', '494', '495', '518', '519', '521', '529', '559', '608', '610', '611', '616', '617', '618', '619', '66', '666', '677', '71', '96']
+2025-10-17 20:44:00,508 - INFO - DEBUG MAIN: Dopo topological_sort. levels type=<class 'list'>, is None=False
+2025-10-17 20:44:00,512 - INFO - DEBUG MAIN: levels length=10
+2025-10-17 20:44:00,514 - INFO - DEBUG MAIN: generated_levels exists, length=0
+2025-10-17 20:44:00,516 - INFO - Matrix generato con successo: 10 livelli
+2025-10-17 20:44:00,520 - INFO - Preparazione risultati finali...
+2025-10-17 20:44:00,522 - INFO - Matrix completato: 10 livelli, 758 US
+2025-10-17 20:44:00,524 - INFO - === RISULTATI FINALI ===
+2025-10-17 20:44:00,527 - INFO - Livello 0: 100, 101, 102, 103, 105, 106, 109, 110, 114, 115, 117, 118, 119, 120, 121, 126, 129, 130, 131, 132, ...
+2025-10-17 20:44:00,529 - INFO - Livello 1: 1, 10, 104, 122, 148, 155, 159, 163, 168, 17, 171, 235, 264, 269, 275, 286, 292, 295, 328, 354, 367,...
+2025-10-17 20:44:00,531 - INFO - Livello 2: 11, 160, 165, 169, 172, 18, 197, 218, 287, 305, 307, 310, 311, 313, 315, 319, 330, 331, 357, 375, 37...
+2025-10-17 20:44:00,533 - INFO - Livello 3: 12, 161, 166, 175, 261, 265, 277, 288, 293, 297, 298, 326, 349, 4, 445, 446, 497, 502, 511, 516, 527...
+2025-10-17 20:44:00,536 - INFO - Livello 4: 13, 14, 325, 332, 402, 408, 5, 503, 528, 537, 546, 548, 576, 580, 59, 636, 642, 648, 7, 701, 720, 73
+2025-10-17 20:44:00,538 - INFO - Livello 5: 15, 294, 300, 306, 308, 404, 405, 409, 506, 538, 58, 581, 6, 635, 64, 702, 703, 704, 705, 725
+2025-10-17 20:44:00,540 - INFO - Livello 6: 108, 290, 322, 323, 324, 327, 352, 447, 504, 539, 57, 63, 706, 8, 97
+2025-10-17 20:44:00,543 - INFO - Livello 7: 301, 56
+2025-10-17 20:44:00,546 - INFO - Livello 8: 321
+2025-10-17 20:44:00,548 - INFO - Livello 9: 107, 111, 112, 113, 116, 123, 124, 125, 127, 128, 139, 140, 141, 142, 143, 144, 145, 146, 147, 149, ...
+2025-10-17 20:44:00,552 - INFO - Matrix calcolato con successo. Pronto per aggiornamento database.
+2025-10-17 20:44:00,555 - INFO - === INIZIO AGGIORNAMENTO DATABASE ===
+2025-10-17 20:44:00,558 - DEBUG - Aggiornamento livello 0: 267 US
+2025-10-17 20:44:02,163 - DEBUG - Aggiornate 10 US...
+2025-10-17 20:44:03,833 - DEBUG - Aggiornate 20 US...
+2025-10-17 20:44:05,820 - DEBUG - Aggiornate 30 US...
+2025-10-17 20:44:07,327 - DEBUG - Aggiornate 40 US...
+2025-10-17 20:44:09,207 - DEBUG - Aggiornate 50 US...
+2025-10-17 20:44:11,082 - DEBUG - Aggiornate 60 US...
+2025-10-17 20:44:12,655 - DEBUG - Aggiornate 70 US...
+2025-10-17 20:44:14,778 - DEBUG - Aggiornate 80 US...
+2025-10-17 20:44:16,331 - DEBUG - Aggiornate 90 US...
+2025-10-17 20:44:18,182 - DEBUG - Aggiornate 100 US...
+2025-10-17 20:44:20,083 - DEBUG - Aggiornate 110 US...
+2025-10-17 20:44:21,650 - DEBUG - Aggiornate 120 US...
+2025-10-17 20:44:23,796 - DEBUG - Aggiornate 130 US...
+2025-10-17 20:44:25,445 - DEBUG - Aggiornate 140 US...
+2025-10-17 20:44:27,301 - DEBUG - Aggiornate 150 US...
+2025-10-17 20:44:29,265 - DEBUG - Aggiornate 160 US...
+2025-10-17 20:44:30,867 - DEBUG - Aggiornate 170 US...
+2025-10-17 20:44:33,050 - DEBUG - Aggiornate 180 US...
+2025-10-17 20:44:34,706 - DEBUG - Aggiornate 190 US...
+2025-10-17 20:44:36,622 - DEBUG - Aggiornate 200 US...
+2025-10-17 20:44:38,584 - DEBUG - Aggiornate 210 US...
+2025-10-17 20:44:40,221 - DEBUG - Aggiornate 220 US...
+2025-10-17 20:44:42,480 - DEBUG - Aggiornate 230 US...
+2025-10-17 20:44:44,121 - DEBUG - Aggiornate 240 US...
+2025-10-17 20:44:46,130 - DEBUG - Aggiornate 250 US...
+2025-10-17 20:44:48,215 - DEBUG - Aggiornate 260 US...
+2025-10-17 20:44:49,469 - DEBUG - Aggiornamento livello 1: 90 US
+2025-10-17 20:44:50,164 - DEBUG - Aggiornate 270 US...
+2025-10-17 20:44:52,268 - DEBUG - Aggiornate 280 US...
+2025-10-17 20:44:53,939 - DEBUG - Aggiornate 290 US...
+2025-10-17 20:44:56,241 - DEBUG - Aggiornate 300 US...
+2025-10-17 20:44:58,170 - DEBUG - Aggiornate 310 US...
+2025-10-17 20:45:00,334 - DEBUG - Aggiornate 320 US...
+2025-10-17 20:45:02,207 - DEBUG - Aggiornate 330 US...
+2025-10-17 20:45:04,171 - DEBUG - Aggiornate 340 US...
+2025-10-17 20:45:06,273 - DEBUG - Aggiornate 350 US...
+2025-10-17 20:45:07,480 - DEBUG - Aggiornamento livello 2: 58 US
+2025-10-17 20:45:08,049 - DEBUG - Aggiornate 360 US...
+2025-10-17 20:45:10,449 - DEBUG - Aggiornate 370 US...
+2025-10-17 20:45:12,193 - DEBUG - Aggiornate 380 US...
+2025-10-17 20:45:14,507 - DEBUG - Aggiornate 390 US...
+2025-10-17 20:45:16,335 - DEBUG - Aggiornate 400 US...
+2025-10-17 20:45:18,489 - DEBUG - Aggiornate 410 US...
+2025-10-17 20:45:19,635 - DEBUG - Aggiornamento livello 3: 35 US
+2025-10-17 20:45:20,544 - DEBUG - Aggiornate 420 US...
+2025-10-17 20:45:22,604 - DEBUG - Aggiornate 430 US...
+2025-10-17 20:45:24,795 - DEBUG - Aggiornate 440 US...
+2025-10-17 20:45:26,719 - DEBUG - Aggiornate 450 US...
+2025-10-17 20:45:26,723 - DEBUG - Aggiornamento livello 4: 22 US
+2025-10-17 20:45:29,060 - DEBUG - Aggiornate 460 US...
+2025-10-17 20:45:30,899 - DEBUG - Aggiornate 470 US...
+2025-10-17 20:45:31,389 - DEBUG - Aggiornamento livello 5: 20 US
+2025-10-17 20:45:33,357 - DEBUG - Aggiornate 480 US...
+2025-10-17 20:45:35,214 - DEBUG - Aggiornate 490 US...
+2025-10-17 20:45:35,607 - DEBUG - Aggiornamento livello 6: 15 US
+2025-10-17 20:45:37,637 - DEBUG - Aggiornate 500 US...
+2025-10-17 20:45:39,002 - DEBUG - Aggiornamento livello 7: 2 US
+2025-10-17 20:45:39,380 - DEBUG - Aggiornamento livello 8: 1 US
+2025-10-17 20:45:39,572 - DEBUG - Aggiornate 510 US...
+2025-10-17 20:45:39,575 - DEBUG - Aggiornamento livello 9: 248 US
+2025-10-17 20:45:41,920 - DEBUG - Aggiornate 520 US...
+2025-10-17 20:45:43,943 - DEBUG - Aggiornate 530 US...
+2025-10-17 20:45:46,223 - DEBUG - Aggiornate 540 US...
+2025-10-17 20:45:48,531 - DEBUG - Aggiornate 550 US...
+2025-10-17 20:45:50,953 - DEBUG - Aggiornate 560 US...
+2025-10-17 20:45:53,060 - DEBUG - Aggiornate 570 US...
+2025-10-17 20:45:55,332 - DEBUG - Aggiornate 580 US...
+2025-10-17 20:45:57,516 - DEBUG - Aggiornate 590 US...
+2025-10-17 20:45:59,752 - DEBUG - Aggiornate 600 US...
+2025-10-17 20:46:02,007 - DEBUG - Aggiornate 610 US...
+2025-10-17 20:46:04,218 - DEBUG - Aggiornate 620 US...
+2025-10-17 20:46:06,528 - DEBUG - Aggiornate 630 US...
+2025-10-17 20:46:08,728 - DEBUG - Aggiornate 640 US...
+2025-10-17 20:46:11,182 - DEBUG - Aggiornate 650 US...
+2025-10-17 20:46:13,430 - DEBUG - Aggiornate 660 US...
+2025-10-17 20:46:15,802 - DEBUG - Aggiornate 670 US...
+2025-10-17 20:46:18,138 - DEBUG - Aggiornate 680 US...
+2025-10-17 20:46:20,434 - DEBUG - Aggiornate 690 US...
+2025-10-17 20:46:23,036 - DEBUG - Aggiornate 700 US...
+2025-10-17 20:46:25,261 - DEBUG - Aggiornate 710 US...
+2025-10-17 20:46:27,818 - DEBUG - Aggiornate 720 US...
+2025-10-17 20:46:29,991 - DEBUG - Aggiornate 730 US...
+2025-10-17 20:46:32,598 - DEBUG - Aggiornate 740 US...
+2025-10-17 20:46:34,792 - DEBUG - Aggiornate 750 US...
+2025-10-17 20:46:36,962 - INFO - === AGGIORNAMENTO COMPLETATO ===
+2025-10-17 20:46:36,963 - INFO - US aggiornate: 758

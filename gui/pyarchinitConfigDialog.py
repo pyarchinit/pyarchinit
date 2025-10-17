@@ -3444,15 +3444,20 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             # Update toolButton after save operation
             self.tool_ok()
 
+            # Check if DB_MANAGER is connected before using it
+            if hasattr(self, 'DB_MANAGER') and self.DB_MANAGER:
+                try:
+                    # Fetch site_table grouped by 'sito' and 'SITE' and converts it into a list
+                    site_values_list = self.UTILITY.tup_2_list_III(self.DB_MANAGER.group_by('site_table', 'sito', 'SITE'))
 
-
-            # Fetch site_table grouped by 'sito' and 'SITE' and converts it into a list
-            site_values_list = self.UTILITY.tup_2_list_III(self.DB_MANAGER.group_by('site_table', 'sito', 'SITE'))
-
-            if len(site_values_list) > 0:
-                self.comboBox_sito.setCurrentText(site_values_list[0])
-            else:
-                self.comboBox_sito.setCurrentText('')  # or some default value
+                    if len(site_values_list) > 0:
+                        self.comboBox_sito.setCurrentText(site_values_list[0])
+                    else:
+                        self.comboBox_sito.setCurrentText('')  # or some default value
+                except Exception as e:
+                    # Log error but don't crash
+                    QgsMessageLog.logMessage(f"Error loading site values: {str(e)}", "PyArchInit", Qgis.Warning)
+                    self.comboBox_sito.setCurrentText('')
 
             # Save after comboBox_sito text change
             self.save_p()
@@ -4842,16 +4847,30 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
 
         self.DB_MANAGER = Pyarchinit_db_management(conn_str)
         test = self.DB_MANAGER.connection()
+        
+        # Check if connection was successful
+        if not test:
+            QMessageBox.warning(self, "Database Connection", 
+                              "Failed to connect to database. Please check your settings.", 
+                              QMessageBox.Ok)
+            return
+            
         # Verifica che self.DB_MANAGER sia un'istanza della classe DBManager
         if not isinstance(self.DB_MANAGER, Pyarchinit_db_management):
             raise TypeError("self.DB_MANAGER is not an instance of DBManager")
 
-        sito_vl = self.UTILITY.tup_2_list_III(self.DB_MANAGER.group_by('site_table', 'sito', 'SITE'))
         try:
-            sito_vl.remove('')
+            sito_vl = self.UTILITY.tup_2_list_III(self.DB_MANAGER.group_by('site_table', 'sito', 'SITE'))
+            try:
+                sito_vl.remove('')
+            except Exception as e:
+                # if str(e) == "list.remove(x): x not in list":
+                pass
         except Exception as e:
-            # if str(e) == "list.remove(x): x not in list":
-            pass
+            QMessageBox.warning(self, "Database Error", 
+                              f"Error loading site list: {str(e)}", 
+                              QMessageBox.Ok)
+            return
 
         self.comboBox_sito.clear()
         sito_vl.sort()
