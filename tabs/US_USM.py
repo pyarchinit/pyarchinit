@@ -127,38 +127,6 @@ MAIN_DIALOG_CLASS, _ = loadUiType(
     os.path.join(os.path.dirname(__file__), os.pardir, 'gui', 'ui', 'US_USM.ui'))
 
 
-class UpdateAreasWorker(QThread):
-    """Worker thread for updating areas asynchronously"""
-    progress = pyqtSignal(int, int, str)  # current, total, message
-    finished = pyqtSignal()
-    
-    def __init__(self, parent, sito_set_str, all_areas):
-        super().__init__()
-        self.parent = parent
-        self.sito_set_str = sito_set_str
-        self.all_areas = all_areas
-    
-    def run(self):
-        """Run the update process in a separate thread"""
-        try:
-            # Update each area
-            for i, area in enumerate(self.all_areas):
-                self.progress.emit(i, len(self.all_areas) + 1, 
-                                 f"Aggiornamento area '{area}' ({i+1}/{len(self.all_areas)})...")
-                self.parent.update_rapporti_col(self.sito_set_str, area)
-                self.progress.emit(i + 1, len(self.all_areas) + 1, f"Area '{area}' aggiornata")
-            
-            # Final update
-            self.progress.emit(len(self.all_areas), len(self.all_areas) + 1, "Finalizzazione aggiornamenti...")
-            self.parent.update_rapporti_col_2()
-            
-            self.finished.emit()
-        except Exception as e:
-            print(f"Error in UpdateAreasWorker: {e}")
-            import traceback
-            traceback.print_exc()
-            self.finished.emit()
-
 #from ..modules.utility.screen_adaptative import ScreenAdaptive
 
 class CollapsibleSection(QWidget):
@@ -8936,7 +8904,7 @@ DATABASE SCHEMA KNOWLEDGE:
         QMessageBox.warning(self, "Error", f"An error occurred during {original_message}: {error}", QMessageBox.Ok)
 
     def update_all_areas(self):
-        """Launch async update of all areas"""
+        """Update all areas with progress tracking (synchronous version)"""
         conn = Connection()
         sito_set = conn.sito_set()
         sito_set_str = sito_set['sito_set']
@@ -8945,26 +8913,42 @@ DATABASE SCHEMA KNOWLEDGE:
         total_steps = len(all_areas) + 1  # +1 for update_rapporti_col_2
         
         # Create progress dialog
-        self.update_dialog = ProgressDialog(
+        dialog = ProgressDialog(
             title="Aggiornamento aree e siti",
             total_items=total_steps
         )
         
-        # Create and start worker thread
-        self.update_worker = UpdateAreasWorker(self, sito_set_str, all_areas)
-        self.update_worker.progress.connect(self.on_update_progress)
-        self.update_worker.finished.connect(self.on_update_finished)
-        self.update_worker.start()
-    
-    def on_update_progress(self, current, total, message):
-        """Update progress dialog from worker thread"""
-        self.update_dialog.setValue(current, message)
-    
-    def on_update_finished(self):
-        """Clean up when update is finished"""
-        self.update_dialog.setValue(self.update_dialog.total_items, "Completato!")
-        # Auto-close after a short delay
-        QTimer.singleShot(500, self.update_dialog.close)
+        try:
+            # Update each area with progress tracking
+            for i, area in enumerate(all_areas):
+                dialog.setValue(i, f"Aggiornamento area '{area}' ({i+1}/{len(all_areas)})...")
+                QApplication.processEvents()  # Keep UI responsive
+                
+                # Perform the actual update
+                self.update_rapporti_col(sito_set_str, area)
+                
+                dialog.setValue(i + 1)
+                QApplication.processEvents()
+            
+            # Final step: update_rapporti_col_2
+            dialog.setValue(len(all_areas), "Finalizzazione aggiornamenti...")
+            QApplication.processEvents()
+            
+            self.update_rapporti_col_2()
+            
+            dialog.setValue(total_steps, "Completato!")
+            QApplication.processEvents()
+            
+            # Auto-close after a short delay
+            import time
+            time.sleep(0.5)
+            dialog.close()
+            
+        except Exception as e:
+            dialog.close()
+            QMessageBox.critical(None, "Errore", f"Errore durante l'aggiornamento: {str(e)}")
+            import traceback
+            traceback.print_exc()
     # def get_all_areas(self):
     #     conn = Connection()
     #     conn_str = conn.conn_str()
@@ -9989,7 +9973,9 @@ DATABASE SCHEMA KNOWLEDGE:
         self.progressBar_3.setMaximum(len(relationship_errors))
         self.progressBar_3.setValue(0)
         self.progressBar_3.setFormat("Inizializzazione correzione rapporti...")
+        self.progressBar_3.repaint()  # Force immediate repaint
         QApplication.processEvents()  # Force UI update
+        QApplication.instance().processEvents()  # Extra call
         
         # Log initial call
         print(f"fix_missing_relationships called with {len(relationship_errors)} errors")
