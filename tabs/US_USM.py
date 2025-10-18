@@ -98,6 +98,7 @@ from qgis.PyQt.QtSql import QSqlDatabase, QSqlTableModel
 from .Interactive_matrix import *
 from ..modules.report.archeo_analysis import ArchaeologicalAnalysis
 from ..modules.report.validation_tools import ArchaeologicalValidators
+from ..gui.download_dialog import DownloadModelDialog
 from ..modules.utility.report_generator import ReportGenerator
 from ..modules.utility.VideoPlayer import VideoPlayerWindow
 from ..modules.utility.pyarchinit_media_utility import *
@@ -120,9 +121,43 @@ from ..gui.imageViewer import ImageViewer
 from ..gui.pyarchinitConfigDialog import pyArchInitDialog_Config
 from ..gui.sortpanelmain import SortPanelMain
 from sqlalchemy import create_engine, MetaData, Table, select, update, and_
+from PyQt5.QtCore import QThread, pyqtSignal, QTimer
 
 MAIN_DIALOG_CLASS, _ = loadUiType(
     os.path.join(os.path.dirname(__file__), os.pardir, 'gui', 'ui', 'US_USM.ui'))
+
+
+class UpdateAreasWorker(QThread):
+    """Worker thread for updating areas asynchronously"""
+    progress = pyqtSignal(int, int, str)  # current, total, message
+    finished = pyqtSignal()
+    
+    def __init__(self, parent, sito_set_str, all_areas):
+        super().__init__()
+        self.parent = parent
+        self.sito_set_str = sito_set_str
+        self.all_areas = all_areas
+    
+    def run(self):
+        """Run the update process in a separate thread"""
+        try:
+            # Update each area
+            for i, area in enumerate(self.all_areas):
+                self.progress.emit(i, len(self.all_areas) + 1, 
+                                 f"Aggiornamento area '{area}' ({i+1}/{len(self.all_areas)})...")
+                self.parent.update_rapporti_col(self.sito_set_str, area)
+                self.progress.emit(i + 1, len(self.all_areas) + 1, f"Area '{area}' aggiornata")
+            
+            # Final update
+            self.progress.emit(len(self.all_areas), len(self.all_areas) + 1, "Finalizzazione aggiornamenti...")
+            self.parent.update_rapporti_col_2()
+            
+            self.finished.emit()
+        except Exception as e:
+            print(f"Error in UpdateAreasWorker: {e}")
+            import traceback
+            traceback.print_exc()
+            self.finished.emit()
 
 #from ..modules.utility.screen_adaptative import ScreenAdaptive
 
@@ -4688,22 +4723,57 @@ Come posso aiutarti meglio?"""
 
 
 class ProgressDialog:
-    def __init__(self):
+    def __init__(self, title="Aggiornamento rapporti area e sito", total_items=None):
         self.progressDialog = QProgressDialog()
-        self.progressDialog.setWindowTitle("Aggiornamento rapporti area e sito")
+        self.progressDialog.setWindowTitle(title)
         self.progressDialog.setLabelText("Inizializzazione...")
-        #self.progressDialog.setCancelButtonText("")  # Disallow cancelling
-        self.progressDialog.setRange(0, 0)
-        self.progressDialog.setModal(True)
-        self.progressDialog.show()
-
-    def setValue(self, value):
-        self.progressDialog.setValue(value)
-        if value < value +1:  # Assuming that 100 is the maximum value
-            self.progressDialog.setLabelText(f"Aggiornamento in corso... {value}")
+        self.progressDialog.setCancelButton(None)  # Disallow cancelling
+        
+        if total_items is not None:
+            self.progressDialog.setRange(0, total_items)
+            self.total_items = total_items
         else:
-            self.progressDialog.setLabelText("Finito")
-            #self.progressDialog.close()
+            self.progressDialog.setRange(0, 0)  # Indeterminate progress
+            self.total_items = None
+            
+        self.progressDialog.setModal(True)
+        self.progressDialog.setMinimumDuration(0)  # Show immediately
+        self.progressDialog.show()
+        self.start_time = time.time()
+
+    def setValue(self, value, label_text=None):
+        self.progressDialog.setValue(value)
+        
+        if label_text:
+            self.progressDialog.setLabelText(label_text)
+        elif self.total_items:
+            # Calculate progress percentage
+            percentage = (value / self.total_items) * 100 if self.total_items > 0 else 0
+            
+            # Calculate elapsed time and estimate remaining time
+            elapsed_time = time.time() - self.start_time
+            if value > 0 and percentage > 0:
+                estimated_total_time = elapsed_time / (percentage / 100)
+                remaining_time = estimated_total_time - elapsed_time
+                remaining_str = f" - Tempo rimanente: {int(remaining_time)}s" if remaining_time > 0 else ""
+            else:
+                remaining_str = ""
+            
+            self.progressDialog.setLabelText(
+                f"Elaborazione in corso... {value}/{self.total_items} ({percentage:.1f}%){remaining_str}"
+            )
+        else:
+            self.progressDialog.setLabelText(f"Aggiornamento in corso... {value}")
+            
+        # Force GUI update
+        QApplication.processEvents()
+    
+    def close(self):
+        self.progressDialog.close()
+        
+    def setLabelText(self, text):
+        self.progressDialog.setLabelText(text)
+        QApplication.processEvents()
 
 
     def closeEvent(self, event):
@@ -5497,6 +5567,11 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.mQgsFileWidget.setHidden(True)
         self.toolButton_file_doc.setHidden(True)
         self.mDockWidget_5.setHidden(True)
+        
+        # Hide the validation widgets as requested
+        self.comboBox_sito_rappcheck.setHidden(True)
+        self.comboBox_area_rappcheck.setHidden(True)
+        self.pushButton_rapp_check.setHidden(True)
         #self.tableWidget_rapporti2.setHidden(True)
         self.pushButton_insert_row_rapporti2.setHidden(True)
         self.pushButton_remove_row_rapporti2.setHidden(True)
@@ -8861,22 +8936,35 @@ DATABASE SCHEMA KNOWLEDGE:
         QMessageBox.warning(self, "Error", f"An error occurred during {original_message}: {error}", QMessageBox.Ok)
 
     def update_all_areas(self):
+        """Launch async update of all areas"""
         conn = Connection()
         sito_set = conn.sito_set()
         sito_set_str = sito_set['sito_set']
 
-
         all_areas = self.get_all_areas(sito_set_str)
-
-        dialog = ProgressDialog()
-
-
-        for i, area in enumerate(all_areas):
-            self.update_rapporti_col(sito_set_str, area)
-            dialog.setValue(i + 1)
-
-        self.update_rapporti_col_2()
-        dialog.setValue(len(all_areas) + 1)
+        total_steps = len(all_areas) + 1  # +1 for update_rapporti_col_2
+        
+        # Create progress dialog
+        self.update_dialog = ProgressDialog(
+            title="Aggiornamento aree e siti",
+            total_items=total_steps
+        )
+        
+        # Create and start worker thread
+        self.update_worker = UpdateAreasWorker(self, sito_set_str, all_areas)
+        self.update_worker.progress.connect(self.on_update_progress)
+        self.update_worker.finished.connect(self.on_update_finished)
+        self.update_worker.start()
+    
+    def on_update_progress(self, current, total, message):
+        """Update progress dialog from worker thread"""
+        self.update_dialog.setValue(current, message)
+    
+    def on_update_finished(self):
+        """Clean up when update is finished"""
+        self.update_dialog.setValue(self.update_dialog.total_items, "Completato!")
+        # Auto-close after a short delay
+        QTimer.singleShot(500, self.update_dialog.close)
     # def get_all_areas(self):
     #     conn = Connection()
     #     conn_str = conn.conn_str()
@@ -9441,8 +9529,12 @@ DATABASE SCHEMA KNOWLEDGE:
             'empty_areas': [],
             'missing_forms': [],
             'missing_relationships': [],
-            'incomplete_relationships': []
+            'incomplete_relationships': [],
+            'orphan_forms': []
         }
+
+        # Check for orphan forms
+        errors['orphan_forms'] = self.find_orphan_forms()
 
         if not hasattr(self, 'report_rapporti') or not self.report_rapporti:
             return errors
@@ -9451,11 +9543,12 @@ DATABASE SCHEMA KNOWLEDGE:
         current_section = None
         
         for line in lines:
-            line = line.strip()
-            if not line or line.startswith('=') or line.startswith('-'):
+            # Keep original line for section detection, but strip for content checking
+            line_stripped = line.strip()
+            if not line_stripped or line_stripped.startswith('=') or line_stripped.startswith('-'):
                 continue
                 
-            # Detect sections
+            # Detect sections (check in original line to catch section headers)
             if 'AREE VUOTE' in line or 'LEERE BEREICHE' in line or 'EMPTY AREAS' in line:
                 current_section = 'empty_areas'
             elif 'SCHEDE US MANCANTI' in line or 'FEHLENDE SE-FORMULARE' in line or 'MISSING SU FORMS' in line:
@@ -9464,9 +9557,9 @@ DATABASE SCHEMA KNOWLEDGE:
                 current_section = 'missing_relationships'
             elif 'RAPPORTI SENZA AREA/SITO' in line or 'BEZIEHUNGEN OHNE AREAL' in line or 'RELATIONSHIPS WITHOUT AREA/SITE' in line:
                 current_section = 'incomplete_relationships'
-            elif line.startswith('•'):
-                # Extract error items
-                error_item = line[1:].strip()
+            elif '•' in line and line_stripped.startswith('•'):
+                # Extract error items - handle indented bullet points
+                error_item = line_stripped[1:].strip()
                 if current_section and error_item:
                     errors[current_section].append(error_item)
         
@@ -9559,29 +9652,47 @@ DATABASE SCHEMA KNOWLEDGE:
                 area = parts[1].split(':')[1].strip()
                 print(f"Extracted area: '{area}'")
 
-                # Handle the US part - can contain multiple US separated by commas
-                # Find the part that starts with "US:"
+                # Handle the US/USM/SU part - can contain multiple units separated by commas
+                # Find the part that contains unit information (US:, USM:, SU:, etc.)
                 us_section = None
+                unit_type_found = None
+                
+                # List of possible unit type prefixes to search for
+                unit_prefixes = ['US:', 'USM:', 'SU:', 'WSU:', 'SF:', 'VSF:', 'USD:', 'USR:', 'USP:', 
+                                'USVA:', 'CON:', 'BSU:', 'MSU:', 'FSU:', 'PSU:', 'HSU:', 'CSU:', 
+                                'DSU:', 'SOG:', 'UM:']
+                
                 for idx, part in enumerate(parts[2:], start=2):
-                    if 'US:' in part:
-                        # Collect all parts until we find "Scheda US non esistente"
-                        us_parts = []
-                        for j in range(idx, len(parts)):
-                            if 'Scheda US non esistente' in parts[j]:
-                                us_section = ', '.join(us_parts)
-                                break
-                            us_parts.append(parts[j].strip())
+                    # Check if this part contains any unit type prefix
+                    for prefix in unit_prefixes:
+                        if prefix in part:
+                            unit_type_found = prefix.rstrip(':')
+                            # Collect all parts until we find "Scheda US non esistente"
+                            us_parts = []
+                            for j in range(idx, len(parts)):
+                                if 'Scheda US non esistente' in parts[j]:
+                                    us_section = ', '.join(us_parts)
+                                    break
+                                us_parts.append(parts[j].strip())
+                            break
+                    if unit_type_found:
                         break
 
                 if not us_section:
                     us_section = parts[2]
 
                 print(f"US section: '{us_section}'")
+                print(f"Unit type found: {unit_type_found}")
 
-                # Extract all US numbers from the full error string
-                # Find everything between "US:" and ": Scheda US non esistente"
+                # Extract all unit numbers from the full error string
+                # Build dynamic pattern based on unit type found
                 import re
-                pattern = r'US:\s*(.*?):\s*Scheda US non esistente'
+                if unit_type_found:
+                    pattern = rf'{unit_type_found}:\s*(.*?):\s*Scheda US non esistente'
+                else:
+                    # Fallback pattern that matches any unit type
+                    pattern = r'(?:US|USM|SU|WSU|SF|VSF|USD|USR|USP|USVA|CON|BSU|MSU|FSU|PSU|HSU|CSU|DSU|SOG|UM):\s*(.*?):\s*Scheda US non esistente'
+                    
                 match = re.search(pattern, error)
 
                 if match:
@@ -9598,11 +9709,22 @@ DATABASE SCHEMA KNOWLEDGE:
 
                     print(f"Extracted US list: {us_list}")
                 else:
-                    # Fallback to old method
-                    us_text = us_section.split('US:')[1].strip()
-                    us_text = us_text.replace(': Scheda US non esistente', '').strip()
-                    us_list = [u.strip() for u in us_text.split(',') if u.strip()]
-                    print(f"Extracted US list (fallback): {us_list}")
+                    # Fallback to old method - try to find any unit type
+                    us_text = None
+                    for prefix in ['US:', 'USM:', 'SU:', 'WSU:', 'SF:', 'VSF:', 'USD:', 'USR:', 'USP:', 
+                                  'USVA:', 'CON:', 'BSU:', 'MSU:', 'FSU:', 'PSU:', 'HSU:', 'CSU:', 
+                                  'DSU:', 'SOG:', 'UM:']:
+                        if prefix in us_section:
+                            us_text = us_section.split(prefix)[1].strip()
+                            break
+                    
+                    if us_text:
+                        us_text = us_text.replace(': Scheda US non esistente', '').strip()
+                        us_list = [u.strip() for u in us_text.split(',') if u.strip()]
+                        print(f"Extracted US list (fallback): {us_list}")
+                    else:
+                        print(f"ERROR: Could not extract unit list from: {us_section}")
+                        us_list = []
 
                 # Process each US in the list
                 for us_str in us_list:
@@ -9628,12 +9750,52 @@ DATABASE SCHEMA KNOWLEDGE:
                     if not existing:
                         print(f"US does not exist, creating new record...")
 
-                        # Determine unita_tipo based on prefix
-                        if us_str.startswith('UM'):
+                        # Determine unita_tipo based on prefix or pattern
+                        unita_tipo = 'US'  # Default value
+                        
+                        # Check various prefixes and patterns
+                        if us_str.startswith('UM') or us_str.startswith('USM'):
                             unita_tipo = 'USM'
-                        else:
-                            unita_tipo = 'US'  # Default value
-                        print(f"Using unita_tipo: {unita_tipo}")
+                        elif us_str.startswith('SU'):
+                            unita_tipo = 'SU'
+                        elif us_str.startswith('WSU'):
+                            unita_tipo = 'WSU'
+                        elif us_str.startswith('SF'):
+                            unita_tipo = 'SF'
+                        elif us_str.startswith('VSF'):
+                            unita_tipo = 'VSF'
+                        elif us_str.startswith('USD'):
+                            unita_tipo = 'USD'
+                        elif us_str.startswith('USR'):
+                            unita_tipo = 'USR'
+                        elif us_str.startswith('USP'):
+                            unita_tipo = 'USP'
+                        elif us_str.startswith('USVA'):
+                            unita_tipo = 'USVA'
+                        elif us_str.startswith('CON'):
+                            unita_tipo = 'CON'
+                        elif us_str.startswith('BSU'):
+                            unita_tipo = 'BSU'
+                        elif us_str.startswith('MSU'):
+                            unita_tipo = 'MSU'
+                        elif us_str.startswith('FSU'):
+                            unita_tipo = 'FSU'
+                        elif us_str.startswith('PSU'):
+                            unita_tipo = 'PSU'
+                        elif us_str.startswith('HSU'):
+                            unita_tipo = 'HSU'
+                        elif us_str.startswith('CSU'):
+                            unita_tipo = 'CSU'
+                        elif us_str.startswith('DSU'):
+                            unita_tipo = 'DSU'
+                        elif us_str.startswith('SOG'):
+                            unita_tipo = 'SOG'
+                        # Check if it's a pure number (could be any type)
+                        elif us_str.isdigit():
+                            # For pure numbers, default to US unless we have more context
+                            unita_tipo = 'US'
+                        
+                        print(f"US string: {us_str}, determined unita_tipo: {unita_tipo}")
 
                         # Create new US record with all required fields
                         # The MAPPER_TABLE_CLASS expects many parameters, let's use the full constructor
@@ -9822,10 +9984,23 @@ DATABASE SCHEMA KNOWLEDGE:
         fixed_count = 0
         current_us_updated = False
         
+        # Make progress bar visible
+        self.progressBar_3.setVisible(True)
+        self.progressBar_3.setMaximum(len(relationship_errors))
+        self.progressBar_3.setValue(0)
+        self.progressBar_3.setFormat("Inizializzazione correzione rapporti...")
+        QApplication.processEvents()  # Force UI update
+        
         # Log initial call
         print(f"fix_missing_relationships called with {len(relationship_errors)} errors")
         
-        for error in relationship_errors:
+        for idx, error in enumerate(relationship_errors):
+            # Update progress bar
+            self.progressBar_3.setValue(idx + 1)  # Use idx + 1 to show progress from 1
+            percentage = ((idx + 1) / len(relationship_errors)) * 100
+            self.progressBar_3.setFormat(f"Correzione rapporti: {idx+1}/{len(relationship_errors)} ({percentage:.0f}%)")
+            QApplication.processEvents()  # Force UI update
+            QApplication.instance().processEvents()  # Extra call to ensure update
             try:
                 # Parse the error to extract the relationship info
                 # Format: "Sito: SITE, Area: AREA, US: X tipo_rapporto US: Y Area: AREA: Rapporto reciproco non trovato"
@@ -9834,29 +10009,40 @@ DATABASE SCHEMA KNOWLEDGE:
                 # Use regex to extract the pattern more reliably
                 import re
                 
-                # Pattern to match: US: (number) (relationship type) US: (number)
-                pattern = r'US:\s*(\d+)\s+(.+?)\s+US:\s*(\d+)'
+                # Pattern to match any unit type: (SU/US/USM/WSU): (number) (relationship type) (SU/US/USM/WSU): (number)
+                # This pattern captures the unit type as well
+                pattern = r'(SU|US|USM|WSU):\s*(\d+)\s+(.+?)\s+(SU|US|USM|WSU):\s*(\d+)'
                 match = re.search(pattern, error)
                 
                 if match:
-                    us_from = match.group(1)
-                    rel_type = match.group(2).strip()
-                    us_to = match.group(3)
+                    unit_type_from = match.group(1)
+                    us_from = match.group(2)
+                    rel_type = match.group(3).strip()
+                    unit_type_to = match.group(4)
+                    us_to = match.group(5)
                 else:
-                    # Fallback to manual parsing
-                    # Split and find the US numbers and relationship
-                    if 'US:' in error:
-                        parts = error.split('US:')
+                    # Fallback to manual parsing for any unit type
+                    # Look for any of the unit types
+                    unit_types = ['SU:', 'US:', 'USM:', 'WSU:']
+                    unit_type_found = None
+                    
+                    for unit_type in unit_types:
+                        if unit_type in error:
+                            unit_type_found = unit_type
+                            break
+                    
+                    if unit_type_found:
+                        parts = error.split(unit_type_found)
                         if len(parts) >= 3:
-                            # First US number
+                            # First unit number
                             us_from = parts[1].strip().split()[0]
                             
-                            # Find relationship and second US
+                            # Find relationship and second unit
                             middle_part = parts[1].strip()
                             # Everything after the first number until the end
                             after_first_us = ' '.join(middle_part.split()[1:])
                             
-                            # Second US number
+                            # Second unit number
                             us_to = parts[2].strip().split()[0]
                             
                             # Relationship is what's between them
@@ -9864,9 +10050,13 @@ DATABASE SCHEMA KNOWLEDGE:
                         else:
                             raise ValueError(f"Cannot parse error format: {error}")
                     else:
-                        raise ValueError(f"No US: found in error: {error}")
+                        raise ValueError(f"No unit type (SU/US/USM/WSU) found in error: {error}")
                 
-                print(f"Extracted - From: US {us_from}, Type: '{rel_type}', To: US {us_to}")
+                # Log with unit type if captured
+                if 'unit_type_from' in locals() and 'unit_type_to' in locals():
+                    print(f"Extracted - From: {unit_type_from} {us_from}, Type: '{rel_type}', To: {unit_type_to} {us_to}")
+                else:
+                    print(f"Extracted - From: Unit {us_from}, Type: '{rel_type}', To: Unit {us_to}")
                 
                 # Find the target US record
                 search_dict = {
@@ -9950,6 +10140,11 @@ DATABASE SCHEMA KNOWLEDGE:
                 import traceback
                 traceback.print_exc()
         
+        # Final progress update
+        self.progressBar_3.setValue(len(relationship_errors))
+        self.progressBar_3.setFormat(f"Completato! Corretti {fixed_count} rapporti.")
+        QApplication.processEvents()
+        
         if fixed_count > 0:
             # If the current US was updated, reload the form to show the new relationships
             if current_us_updated:
@@ -9969,10 +10164,16 @@ DATABASE SCHEMA KNOWLEDGE:
             QMessageBox.information(self, 'Info', f'Aggiunti {fixed_count} rapporti reciproci.', QMessageBox.Ok)
         else:
             QMessageBox.warning(self, 'Attenzione', 'Nessun rapporto reciproco aggiunto.', QMessageBox.Ok)
+        
+        # Hide progress bar after a short delay
+        import time
+        time.sleep(1)  # Show completion message briefly
+        self.progressBar_3.setVisible(False)
     
     def get_reciprocal_relationship_type(self, rel_type):
-        """Get the reciprocal relationship type"""
-        reciprocal_map = {
+        """Get the reciprocal relationship type with support for Italian, English and German"""
+        reciprocal_maps = {
+            # Italian
             'Si lega a': 'Si lega a',
             'Copre': 'Coperto da',
             'Coperto da': 'Copre',
@@ -9982,38 +10183,220 @@ DATABASE SCHEMA KNOWLEDGE:
             'Tagliato da': 'Taglia',
             'Si appoggia a': 'Gli si appoggia',
             'Gli si appoggia': 'Si appoggia a',
-            'Uguale a': 'Uguale a'
+            'Uguale a': 'Uguale a',
+            
+            # English
+            'Connected to': 'Connected to',
+            'Covers': 'Covered by',
+            'Covered by': 'Covers',
+            'Fills': 'Filled by',
+            'Filled by': 'Fills',
+            'Cuts': 'Cut by',
+            'Cut by': 'Cuts',
+            'Abuts': 'Supports',
+            'Supports': 'Abuts',
+            'Same as': 'Same as',
+            
+            # German
+            'Bindet sich mit': 'Bindet sich mit',
+            'Liegt über': 'Liegt unter',
+            'Liegt unter': 'Liegt über',
+            'Verfüllt': 'Verfüllt von',
+            'Verfüllt von': 'Verfüllt',
+            'Schneidet': 'Geschnitten von',
+            'Geschnitten von': 'Schneidet',
+            'Stützt sich auf': 'Wird gestützt von',
+            'Wird gestützt von': 'Stützt sich auf',
+            'Entspricht': 'Entspricht'
         }
-        return reciprocal_map.get(rel_type, rel_type)
+        return reciprocal_maps.get(rel_type, rel_type)
+    
+    def find_orphan_forms(self):
+        """Find US forms that have no relationships with other forms"""
+        orphan_forms = []
+        
+        try:
+            # Get current site
+            site = str(self.comboBox_sito.currentText())
+            if not site:
+                return orphan_forms
+            
+            # Query all US forms for the current site
+            search_dict = {'sito': "'" + site + "'"}
+            all_records = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
+            
+            # Check each record for relationships
+            for record in all_records:
+                # Parse relationships
+                try:
+                    rapporti = ast.literal_eval(record.rapporti)
+                except:
+                    rapporti = []
+                
+                # Check if it has any relationships
+                has_relationships = False
+                for relationship in rapporti:
+                    if isinstance(relationship, list) and len(relationship) >= 2:
+                        # Check if relationship has actual content
+                        if relationship[1] and str(relationship[1]).strip():
+                            has_relationships = True
+                            break
+                
+                # If no relationships found, it's an orphan
+                if not has_relationships:
+                    orphan_desc = f"Sito: {record.sito}, Area: {record.area}, US: {record.us}"
+                    orphan_forms.append(orphan_desc)
+            
+        except Exception as e:
+            print(f"Error finding orphan forms: {str(e)}")
+        
+        return orphan_forms
+    
+    def delete_orphan_forms(self, orphan_forms):
+        """Delete orphan US forms"""
+        deleted = 0
+        
+        try:
+            for orphan in orphan_forms:
+                # Parse the orphan description
+                parts = orphan.split(', ')
+                if len(parts) >= 3:
+                    site = parts[0].replace('Sito: ', '')
+                    area = parts[1].replace('Area: ', '')
+                    us = parts[2].replace('US: ', '')
+                    
+                    # Find and delete the record
+                    search_dict = {
+                        'sito': "'" + site + "'",
+                        'area': "'" + area + "'",
+                        'us': us
+                    }
+                    
+                    records = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
+                    
+                    for record in records:
+                        try:
+                            self.DB_MANAGER.delete_one_record(self.TABLE_NAME, self.ID_TABLE, record.id_us)
+                            deleted += 1
+                            print(f"Deleted orphan US: {site}, {area}, {us}")
+                        except Exception as e:
+                            print(f"Error deleting orphan record: {str(e)}")
+            
+            # Reload data
+            if deleted > 0:
+                self.charge_records()
+                
+        except Exception as e:
+            print(f"Error in delete_orphan_forms: {str(e)}")
+            
+        return deleted
+    
+    def fix_incomplete_relationships(self, incomplete_errors):
+        """Fix relationships missing area/site information"""
+        fixed_count = 0
+        
+        try:
+            # This is similar to update_all_areas but targets specific errors
+            for error in incomplete_errors:
+                # Parse the error to get the US information
+                parts = error.split(', ')
+                if len(parts) >= 3:
+                    site = parts[0].replace('Sito: ', '').strip("'")
+                    area = parts[1].replace('Area: ', '').strip("'")
+                    us = parts[2].split()[1]  # Extract US number
+                    
+                    # Query the specific record
+                    search_dict = {
+                        'sito': "'" + site + "'",
+                        'area': "'" + area + "'",
+                        'us': us
+                    }
+                    
+                    records = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
+                    
+                    if records:
+                        record = records[0]
+                        # Update the relationships with area/site info
+                        try:
+                            rapporti = ast.literal_eval(record.rapporti)
+                            updated = False
+                            
+                            for i, relationship in enumerate(rapporti):
+                                if isinstance(relationship, list):
+                                    # If relationship has only 2 elements, add area and site
+                                    if len(relationship) == 2:
+                                        # Query the related US to get its area
+                                        related_us = str(relationship[1])
+                                        related_search = {
+                                            'sito': "'" + site + "'",
+                                            'us': related_us
+                                        }
+                                        related_records = self.DB_MANAGER.query_bool(related_search, self.MAPPER_TABLE_CLASS)
+                                        
+                                        if related_records:
+                                            related_area = related_records[0].area
+                                            rapporti[i] = [relationship[0], relationship[1], related_area, site]
+                                            updated = True
+                            
+                            if updated:
+                                # Update the record
+                                record.rapporti = str(rapporti)
+                                self.DB_MANAGER.update(self.MAPPER_TABLE_CLASS, self.ID_TABLE, 
+                                                     [eval("int(record." + self.ID_TABLE + ")")], 
+                                                     [record])
+                                fixed_count += 1
+                                
+                        except Exception as e:
+                            print(f"Error updating relationships for US {us}: {str(e)}")
+            
+            if fixed_count > 0:
+                QMessageBox.information(self, 'Info', 
+                                      f'Aggiornate {fixed_count} relazioni incomplete.', 
+                                      QMessageBox.Ok)
+            
+        except Exception as e:
+            QMessageBox.warning(self, 'Errore', 
+                               f'Errore durante aggiornamento relazioni incomplete: {str(e)}', 
+                               QMessageBox.Ok)
 
     def on_pushButton_fix_pressed(self):
         """Enhanced fix button that offers options to resolve different types of errors"""
-        from PyQt5.QtWidgets import QDialog, QVBoxLayout, QCheckBox, QDialogButtonBox, QLabel, QGroupBox
+        from PyQt5.QtWidgets import QDialog, QVBoxLayout, QCheckBox, QDialogButtonBox, QLabel, QGroupBox, QScrollArea
         
         # Parse the error report to extract different error types
         errors = self.parse_error_report()
         
-        if not any([errors['empty_areas'], errors['missing_forms'], errors['missing_relationships']]):
+        # Check if any errors exist
+        if not any([errors['empty_areas'], errors['missing_forms'], errors['missing_relationships'], 
+                   errors['orphan_forms'], errors['incomplete_relationships']]):
             QMessageBox.information(self, 'Info', 'Nessun errore da correggere.', QMessageBox.Ok)
             return
         
         # Create dialog for selecting fixes
         dialog = QDialog(self)
         dialog.setWindowTitle("Selezione correzioni automatiche")
-        dialog.resize(500, 400)
-        layout = QVBoxLayout(dialog)
+        dialog.resize(600, 500)
+        
+        # Main layout with scroll area
+        main_layout = QVBoxLayout(dialog)
         
         # Information label
         info_label = QLabel("Seleziona quali correzioni vuoi applicare automaticamente:")
         info_label.setWordWrap(True)
-        layout.addWidget(info_label)
+        main_layout.addWidget(info_label)
+        
+        # Scroll area for options
+        scroll_area = QScrollArea()
+        scroll_widget = QWidget()
+        layout = QVBoxLayout(scroll_widget)
         
         # Checkboxes for different fix types
         fix_options = {}
         
-        # Empty areas section
+        # Empty areas section - show only if errors exist
         if errors['empty_areas']:
             group_empty = QGroupBox(f"Aree vuote ({len(errors['empty_areas'])} trovate)")
+            group_empty.setVisible(True)  # Explicitly show when errors exist
             group_layout = QVBoxLayout()
             fix_options['empty_areas'] = QCheckBox("Aggiorna aree vuote (Ctrl+U)")
             fix_options['empty_areas'].setChecked(True)
@@ -10022,9 +10405,10 @@ DATABASE SCHEMA KNOWLEDGE:
             group_empty.setLayout(group_layout)
             layout.addWidget(group_empty)
         
-        # Missing forms section
+        # Missing forms section - show only if errors exist
         if errors['missing_forms']:
             group_forms = QGroupBox(f"Schede US mancanti ({len(errors['missing_forms'])} trovate)")
+            group_forms.setVisible(True)  # Explicitly show when errors exist
             group_layout = QVBoxLayout()
             fix_options['missing_forms'] = QCheckBox("Crea schede US mancanti")
             fix_options['missing_forms'].setChecked(True)
@@ -10033,9 +10417,10 @@ DATABASE SCHEMA KNOWLEDGE:
             group_forms.setLayout(group_layout)
             layout.addWidget(group_forms)
         
-        # Missing relationships section
+        # Missing relationships section - show only if errors exist
         if errors['missing_relationships']:
             group_rel = QGroupBox(f"Rapporti reciproci mancanti ({len(errors['missing_relationships'])} trovati)")
+            group_rel.setVisible(True)  # Explicitly show when errors exist
             group_layout = QVBoxLayout()
             fix_options['missing_relationships'] = QCheckBox("Aggiungi rapporti reciproci mancanti")
             fix_options['missing_relationships'].setChecked(True)
@@ -10044,11 +10429,47 @@ DATABASE SCHEMA KNOWLEDGE:
             group_rel.setLayout(group_layout)
             layout.addWidget(group_rel)
         
+        # Orphan forms section - show only if errors exist
+        if errors['orphan_forms']:
+            group_orphans = QGroupBox(f"Schede orfane ({len(errors['orphan_forms'])} trovate)")
+            group_orphans.setVisible(True)  # Explicitly show when errors exist
+            group_layout = QVBoxLayout()
+            fix_options['orphan_forms'] = QCheckBox("Elimina schede orfane")
+            fix_options['orphan_forms'].setChecked(False)  # Default unchecked for safety
+            group_layout.addWidget(fix_options['orphan_forms'])
+            group_layout.addWidget(QLabel("⚠️ ATTENZIONE: Questa azione eliminerà permanentemente le schede senza relazioni"))
+            
+            # Option to use delete_auto_created_forms if they match
+            fix_options['delete_auto'] = QCheckBox("Elimina solo schede create automaticamente")
+            fix_options['delete_auto'].setChecked(True)
+            group_layout.addWidget(fix_options['delete_auto'])
+            
+            group_orphans.setLayout(group_layout)
+            layout.addWidget(group_orphans)
+        
+        # Incomplete relationships section - show only if errors exist
+        if errors['incomplete_relationships']:
+            group_incomplete = QGroupBox(f"Rapporti incompleti ({len(errors['incomplete_relationships'])} trovati)")
+            group_incomplete.setVisible(True)  # Explicitly show when errors exist
+            group_layout = QVBoxLayout()
+            fix_options['incomplete_relationships'] = QCheckBox("Completa rapporti mancanti di area/sito")
+            fix_options['incomplete_relationships'].setChecked(True)
+            group_layout.addWidget(fix_options['incomplete_relationships'])
+            group_layout.addWidget(QLabel("Nota: Aggiungerà area e sito ai rapporti incompleti"))
+            group_incomplete.setLayout(group_layout)
+            layout.addWidget(group_incomplete)
+        
+        # Set scroll area
+        scroll_widget.setLayout(layout)
+        scroll_area.setWidget(scroll_widget)
+        scroll_area.setWidgetResizable(True)
+        main_layout.addWidget(scroll_area)
+        
         # Dialog buttons
         buttons = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
         buttons.accepted.connect(dialog.accept)
         buttons.rejected.connect(dialog.reject)
-        layout.addWidget(buttons)
+        main_layout.addWidget(buttons)
         
         # Show dialog
         if dialog.exec_() == QDialog.Accepted:
@@ -10067,13 +10488,37 @@ DATABASE SCHEMA KNOWLEDGE:
                 self.fix_missing_relationships(errors['missing_relationships'])
                 fixes_applied.append("rapporti reciproci aggiunti")
             
+            if fix_options.get('orphan_forms') and fix_options['orphan_forms'].isChecked():
+                if fix_options.get('delete_auto') and fix_options['delete_auto'].isChecked():
+                    # Use delete_auto_created_forms function
+                    deleted = self.delete_auto_created_forms()
+                    if deleted > 0:
+                        fixes_applied.append(f"{deleted} schede create automaticamente eliminate")
+                else:
+                    # Delete all orphan forms
+                    deleted = self.delete_orphan_forms(errors['orphan_forms'])
+                    if deleted > 0:
+                        fixes_applied.append(f"{deleted} schede orfane eliminate")
+            
+            if fix_options.get('incomplete_relationships') and fix_options['incomplete_relationships'].isChecked():
+                self.fix_incomplete_relationships(errors['incomplete_relationships'])
+                fixes_applied.append("rapporti incompleti aggiornati")
+            
             if fixes_applied:
                 QMessageBox.information(self, 'Correzioni completate', 
                                       f"Correzioni applicate:\n- " + "\n- ".join(fixes_applied) + 
-                                      "\n\nEsegui nuovamente il controllo per verificare.", 
+                                      "\n\nIl controllo verrà eseguito nuovamente.", 
                                       QMessageBox.Ok)
-                # Refresh the view
-                self.view_all()
+                
+                # Refresh the view and re-run check
+                self.charge_records()
+                self.fill_fields()
+                
+                # Re-run the stratigraphic check
+                sito = str(self.comboBox_sito.currentText())
+                self.rapporti_stratigrafici_check(sito)
+            else:
+                QMessageBox.information(self, 'Info', 'Nessuna correzione applicata.', QMessageBox.Ok)
 
     def check_listoflist(self):
         if self.checkBox_validation_rapp.isChecked():
@@ -16218,12 +16663,47 @@ DATABASE SCHEMA KNOWLEDGE:
         sito_check = str(self.comboBox_sito.currentText())
         area_check = str(self.comboBox_area.currentText())
         models = ["gpt-5", "gpt-5-mini"]
+        
+        # Setup progress tracking
+        validation_steps = 2  # rapporti_stratigrafici_check + automaticform_check
+        if self.checkBox_validate.isChecked():
+            validation_steps += 2  # def_strati + periodi checks
+        
+        # Create progress dialog
+        progress_dialog = ProgressDialog(
+            title="Validazione dati archeologici",
+            total_items=validation_steps
+        )
+        
         try:
+            current_step = 0
+            
+            # Step 1: Check stratigraphic relationships
+            progress_dialog.setValue(current_step, "Controllo rapporti stratigrafici...")
             self.rapporti_stratigrafici_check(sito_check)
+            current_step += 1
+            progress_dialog.setValue(current_step)
+            
+            # Step 2 & 3: Additional validation if checked
             if self.checkBox_validate.isChecked():
+                progress_dialog.setValue(current_step, "Controllo definizioni stratigrafiche...")
                 self.def_strati_to_rapporti_stratigrafici_check(sito_check)
+                current_step += 1
+                progress_dialog.setValue(current_step)
+                
+                progress_dialog.setValue(current_step, "Controllo periodi stratigrafici...")
                 self.periodi_to_rapporti_stratigrafici_check(sito_check)
+                current_step += 1
+                progress_dialog.setValue(current_step)
+            
+            # Step 4: Automatic form check
+            progress_dialog.setValue(current_step, "Controllo schede automatiche...")
             self.automaticform_check(sito_check)
+            current_step += 1
+            progress_dialog.setValue(current_step, "Validazione completata!")
+            
+            # Close progress dialog
+            progress_dialog.close()
 
             # # Nuovo controllo per "Area non trovata"
             # us_area_non_trovata = []
@@ -16238,6 +16718,9 @@ DATABASE SCHEMA KNOWLEDGE:
             #     message += ", ".join(us_area_non_trovata)
             #     self.listWidget_rapp.addItem(message)
         except Exception as e:
+            # Close progress dialog on error
+            progress_dialog.close()
+            
             full_exception = traceback.format_exc()
 
             os.environ["OPENAI_API_KEY"] = self.apikey_gpt()
@@ -16285,7 +16768,7 @@ DATABASE SCHEMA KNOWLEDGE:
                 self.listWidget_rapp.addItem("Model selection was canceled.")
 
         else:
-
+            # Progress dialog is already closed in try block
             success_message = {
                 'it': "Controllo dei Rapporti Stratigrafici, Definizione Stratigrafica a Rapporti Stratigrafici, Periodi a Rapporti Stratigrafici e Automaticform eseguito con successo",
                 'de': "Prüfen der stratigraphischen Beziehung, Definition Stratigraphische zu Stratigraphische Berichte, Perioden zu Stratigraphische Berichte und Automaticform erfolgereich durchgeführt",
