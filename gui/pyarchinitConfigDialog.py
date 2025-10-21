@@ -4042,7 +4042,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                     conn_str_read = "%s://%s:%s@%s:%d/%s?client_encoding=utf8" % (
                         "postgresql", conn_str_dict_read["user"], conn_str_dict_read["password"],
                         conn_str_dict_read["host"],
-                        conn_str_dict_read["port"], conn_str_dict_read["db_name"])
+                        conn_str_dict_reclaudead["port"], conn_str_dict_read["db_name"])
             elif conn_str_dict_read["server"] == 'sqlite':
                 sqlite_DB_path = '{}{}{}'.format(self.HOME, os.sep,
                                                  "pyarchinit_DB_folder")

@@ -240,7 +240,16 @@ class PackageManager:
         Returns:
             List of missing packages
         """
-        installed_packages = {pkg.metadata['Name'] + '==' + pkg.version for pkg in distributions()}
+        installed_packages = set()
+        for pkg in distributions():
+            try:
+                name = pkg.metadata.get('Name')
+                version = pkg.version
+                if name and version:
+                    installed_packages.add(f"{name}=={version}")
+            except Exception:
+                # Skip packages with incomplete metadata
+                continue
 
         with open(requirements_path, 'r') as f:
             required_packages = set(line.strip() for line in f)

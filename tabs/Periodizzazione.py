@@ -38,7 +38,7 @@ from ..modules.db.pyarchinit_conn_strings import Connection
 from ..modules.db.pyarchinit_db_manager import Pyarchinit_db_management
 from ..modules.db.pyarchinit_utility import Utility
 from ..modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis
-from ..modules.utility.askgpt import MyApp
+# MyApp is imported lazily in contenuto to avoid pydantic/openai conflicts on Windows
 from ..modules.utility.pyarchinit_error_check import Error_check
 from ..modules.utility.pyarchinit_exp_Periodizzazionesheet_pdf import generate_Periodizzazione_pdf
 
@@ -389,6 +389,41 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
 
 
     def contenuto(self, b):
+        """Get content suggestions from GPT with lazy import to avoid pydantic conflicts."""
+        try:
+            # Lazy import to avoid loading openai/pydantic at plugin startup
+            from ..modules.utility.askgpt import MyApp
+        except ImportError as e:
+            error_msg = str(e)
+            if 'pydantic' in error_msg.lower() or 'openai' in error_msg.lower():
+                QMessageBox.warning(
+                    self,
+                    "GPT Feature Unavailable",
+                    "The GPT suggestion feature cannot be loaded due to a pydantic/openai library conflict.\n\n"
+                    "This is a known issue with incompatible versions of pydantic and pydantic_core.\n\n"
+                    "Possible solutions:\n"
+                    "1. Update pydantic: python -m pip install --upgrade pydantic pydantic-core\n"
+                    "2. Reinstall openai: python -m pip uninstall openai -y && python -m pip install openai\n\n"
+                    "The rest of the plugin will continue to work normally.",
+                    QMessageBox.Ok
+                )
+            else:
+                QMessageBox.warning(
+                    self,
+                    "Import Error",
+                    f"Cannot load GPT feature:\n\n{error_msg}",
+                    QMessageBox.Ok
+                )
+            return ""
+        except Exception as e:
+            QMessageBox.warning(
+                self,
+                "Error",
+                f"An unexpected error occurred:\n\n{str(e)}",
+                QMessageBox.Ok
+            )
+            return ""
+
         models = ["gpt-4o", "gpt-4"]  # Replace with actual model names
         combo = QComboBox()
         combo.addItems(models)
@@ -402,6 +437,7 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
             #url_pattern = r"(https?:\/\/\S+)"
             #urls = re.findall(url_pattern, text)
             return text#, urls
+        return ""
 
     def handleComboActivated(self, index):
         selected_text = self.comboBox_per_estesa.itemText(index)

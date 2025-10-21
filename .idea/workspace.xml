@@ -9,7 +9,20 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="13d9711e-af47-4516-9a74-091c329d410d" name="Changes" comment="Refactor progress bar update logic and clean up duplicated code&#10;&#10;Enhanced progress bar update by modifying the calculation and update logic. Now, it accurately calculates the progress as a percentage and stores it as an integer, improving performance. This update applies across multiple files. Redundant code lines were also eliminated for a cleaner, more readable code.">
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gui/pyarchinitConfigDialog.py" beforeDir="false" afterPath="$PROJECT_DIR$/gui/pyarchinitConfigDialog.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/metadata.txt" beforeDir="false" afterPath="$PROJECT_DIR$/metadata.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/utility/report_generator.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/utility/report_generator.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/utility/skatch_gpt_INVMAT.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/utility/skatch_gpt_INVMAT.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/utility/skatch_gpt_US.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/utility/skatch_gpt_US.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tabs/Image_viewer.py" beforeDir="false" afterPath="$PROJECT_DIR$/tabs/Image_viewer.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tabs/Inv_Materiali.py" beforeDir="false" afterPath="$PROJECT_DIR$/tabs/Inv_Materiali.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tabs/Periodizzazione.py" beforeDir="false" afterPath="$PROJECT_DIR$/tabs/Periodizzazione.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tabs/Thesaurus.py" beforeDir="false" afterPath="$PROJECT_DIR$/tabs/Thesaurus.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tabs/US_USM.py" beforeDir="false" afterPath="$PROJECT_DIR$/tabs/US_USM.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -182,6 +195,7 @@
     &quot;Python.train_groq.executor&quot;: &quot;Run&quot;,
     &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
     &quot;ToolWindowCodeGPT.ShowToolbar&quot;: &quot;false&quot;,
     &quot;git-widget-placeholder&quot;: &quot;master&quot;,
@@ -191,7 +205,7 @@
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
     &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
     &quot;run.code.analysis.last.selected.profile&quot;: &quot;aDefault&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;junie.project.settings&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;ml.llm.LLMConfigurable&quot;,
     &quot;tasks.open.task.update.state.enabled&quot;: &quot;true&quot;
   },
   &quot;keyToStringList&quot;: {
@@ -349,28 +363,28 @@
       <method v="2" />
     </configuration>
     <list>
-      <item itemvalue="Python.test_matrix" />
       <item itemvalue="Python.t_4707" />
+      <item itemvalue="Python.test_matrix" />
       <item itemvalue="Python.train_groq" />
+      <item itemvalue="Python tests.Python tests for unitest.TestYourModule.test_openai_not_installed" />
       <item itemvalue="Python tests.Python tests in /Users/enzo/Library/Application Support/QGIS/QGIS3/profiles/default/python/plugins/pyarchinit/test1.py" />
       <item itemvalue="Python tests.Python tests in t_4707.py" />
-      <item itemvalue="Python tests.Python tests for unitest.TestYourModule.test_openai_not_installed" />
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.t_4707" />
         <item itemvalue="Python tests.Python tests in t_4707.py" />
-        <item itemvalue="Python.train_groq" />
         <item itemvalue="Python tests.Python tests in /Users/enzo/Library/Application Support/QGIS/QGIS3/profiles/default/python/plugins/pyarchinit/test1.py" />
         <item itemvalue="Python tests.Python tests for unitest.TestYourModule.test_openai_not_installed" />
+        <item itemvalue="Python.train_groq" />
+        <item itemvalue="Python.t_4707" />
       </list>
     </recent_temporary>
   </component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-js-predefined-d6986cc7102b-6a121458b545-JavaScript-PY-251.25410.159" />
-        <option value="bundled-python-sdk-e0ed3721d81e-36ea0e71a18c-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-251.25410.159" />
+        <option value="bundled-js-predefined-d6986cc7102b-3aa1da707db6-JavaScript-PY-252.26830.99" />
+        <option value="bundled-python-sdk-164cda30dcd9-0af03a5fa574-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-252.26830.99" />
       </set>
     </attachedChunks>
   </component>
@@ -575,6 +589,9 @@
       <workItem from="1747305398230" duration="10559000" />
       <workItem from="1747376621430" duration="3227000" />
       <workItem from="1747382749454" duration="6966000" />
+      <workItem from="1761053975786" duration="389000" />
+      <workItem from="1761054823549" duration="1395000" />
+      <workItem from="1761059810699" duration="2830000" />
     </task>
     <task id="LOCAL-00022" summary="v3.9.14">
       <created>1649165457258</created>
@@ -956,7 +973,7 @@
                   <entry key="branch">
                     <value>
                       <list>
-                        <option value="origin/master" />
+                        <option value="master" />
                       </list>
                     </value>
                   </entry>

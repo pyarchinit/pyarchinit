@@ -56,22 +56,22 @@ import cv2
 import matplotlib
 import pandas as pd
 import requests
-from openai import OpenAI
+# OpenAI and Langchain imports are commented to avoid pydantic conflicts on Windows
+# They will be imported lazily in the methods that use them
+# from openai import OpenAI
 from docx import Document
 from docx.shared import Pt, Inches
 from docx.oxml import parse_xml
 
-from langchain.chat_models import ChatOpenAI
-from langchain.vectorstores import FAISS
-from langchain.embeddings import OpenAIEmbeddings
-from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain.chains import RetrievalQA
-from langchain.prompts import PromptTemplate
-
-from langchain.agents import AgentType, Tool, initialize_agent
-from langchain.memory import ConversationBufferMemory
-
-from langchain.schema import SystemMessage
+# from langchain.chat_models import ChatOpenAI
+# from langchain.vectorstores import FAISS
+# from langchain.embeddings import OpenAIEmbeddings
+# from langchain.text_splitter import RecursiveCharacterTextSplitter
+# from langchain.chains import RetrievalQA
+# from langchain.prompts import PromptTemplate
+# from langchain.agents import AgentType, Tool, initialize_agent
+# from langchain.memory import ConversationBufferMemory
+# from langchain.schema import SystemMessage
 
 matplotlib.use('QT5Agg')  # Assicurati di chiamare use() prima di importare FigureCanvas
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
@@ -100,7 +100,7 @@ from ..modules.utility.pyarchinit_error_check import Error_check
 from ..modules.utility.pyarchinit_exp_USsheet_pdf import generate_US_pdf
 from ..modules.utility.pyarchinit_print_utility import Print_utility
 from ..modules.utility.settings import Settings
-from ..modules.utility.skatch_gpt_US import GPTWindow
+# GPTWindow is imported lazily in sketchgpt to avoid PyMuPDF DLL conflicts on Windows
 from ..searchLayers import SearchLayers
 from ..gui.imageViewer import ImageViewer
 from ..gui.pyarchinitConfigDialog import pyArchInitDialog_Config
@@ -1114,6 +1114,15 @@ class GenerateReportThread(QThread):
         Returns:
             FAISS vector store for retrieval
         """
+        # Lazy import to avoid pydantic conflicts
+        try:
+            from langchain.embeddings import OpenAIEmbeddings
+            from langchain.vectorstores import FAISS
+            from langchain.text_splitter import RecursiveCharacterTextSplitter
+        except ImportError as e:
+            self.log_message.emit(f"Error importing AI libraries: {str(e)}. Please install langchain and openai.", "error")
+            return None
+
         if not data:
             return None
 
@@ -1127,7 +1136,7 @@ class GenerateReportThread(QThread):
             else:
                 # Format object as text
                 content = f"Record {i+1} from {table_name}:\n"
-                content += "\n".join(f"{k}: {getattr(record, k, '')}" for k in dir(record) 
+                content += "\n".join(f"{k}: {getattr(record, k, '')}" for k in dir(record)
                                     if not k.startswith('_') and not callable(getattr(record, k, None)))
 
             documents.append(content)
@@ -1187,6 +1196,14 @@ class GenerateReportThread(QThread):
         Returns:
             RetrievalQA chain
         """
+        # Lazy import to avoid pydantic conflicts
+        try:
+            from langchain.chains import RetrievalQA
+            from langchain.prompts import PromptTemplate
+        except ImportError as e:
+            self.log_message.emit(f"Error importing AI libraries: {str(e)}. Please install langchain.", "error")
+            return None
+
         if not vector_store:
             return None
 
@@ -1668,6 +1685,15 @@ class GenerateReportThread(QThread):
 
     def run(self):
         self.formatted_report = ""
+        # Lazy import to avoid pydantic conflicts
+        try:
+            from openai import OpenAI
+            from langchain.chat_models import ChatOpenAI
+        except ImportError as e:
+            self.log_message.emit(f"Error importing AI libraries: {str(e)}. Please install openai and langchain.", "error")
+            self.finished.emit("", {})
+            return
+
         try:
             self.log_message.emit("Starting report generation...", "info")
             self.archaeological_analysis = ArchaeologicalAnalysis()
@@ -3702,6 +3728,15 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         Returns:
             FAISS vector store for retrieval
         """
+        # Lazy import to avoid pydantic conflicts
+        try:
+            from langchain.embeddings import OpenAIEmbeddings
+            from langchain.vectorstores import FAISS
+            from langchain.text_splitter import RecursiveCharacterTextSplitter
+        except ImportError as e:
+            self.log_message.emit(f"Error importing AI libraries: {str(e)}. Please install langchain and openai.", "error")
+            return None
+
         if not data:
             return None
 
@@ -3715,7 +3750,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             else:
                 # Format object as text
                 content = f"Record {i+1} from {table_name}:\n"
-                content += "\n".join(f"{k}: {getattr(record, k, '')}" for k in dir(record) 
+                content += "\n".join(f"{k}: {getattr(record, k, '')}" for k in dir(record)
                                     if not k.startswith('_') and not callable(getattr(record, k, None)))
 
             documents.append(content)
@@ -3775,6 +3810,14 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         Returns:
             RetrievalQA chain
         """
+        # Lazy import to avoid pydantic conflicts
+        try:
+            from langchain.chains import RetrievalQA
+            from langchain.prompts import PromptTemplate
+        except ImportError as e:
+            self.log_message.emit(f"Error importing AI libraries: {str(e)}. Please install langchain.", "error")
+            return None
+
         if not vector_store:
             return None
 
@@ -6297,6 +6340,42 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         doc.add_paragraph()
 
     def sketchgpt(self):
+        """Open GPT Sketch window with lazy import to avoid DLL conflicts on Windows."""
+        try:
+            # Lazy import to avoid loading PyMuPDF at plugin startup
+            from ..modules.utility.skatch_gpt_US import GPTWindow
+        except ImportError as e:
+            error_msg = str(e)
+            if 'DLL load failed' in error_msg or '_extra' in error_msg or 'pymupdf' in error_msg.lower():
+                QMessageBox.warning(
+                    self,
+                    "GPT Sketch Feature Unavailable",
+                    "The GPT Sketch feature cannot be loaded due to a PyMuPDF library conflict on Windows.\n\n"
+                    "This is a known issue with PyMuPDF in QGIS environments.\n\n"
+                    "Possible solutions:\n"
+                    "1. Reinstall PyMuPDF: python -m pip uninstall pymupdf && python -m pip install pymupdf\n"
+                    "2. Try installing an older version: python -m pip install pymupdf==1.23.26\n"
+                    "3. Install PyMuPDF-binary: python -m pip install --force-reinstall pymupdf\n\n"
+                    "The rest of the plugin will continue to work normally.",
+                    QMessageBox.Ok
+                )
+            else:
+                QMessageBox.warning(
+                    self,
+                    "GPT Sketch Import Error",
+                    f"Cannot load GPT Sketch feature:\n\n{error_msg}",
+                    QMessageBox.Ok
+                )
+            return
+        except Exception as e:
+            QMessageBox.warning(
+                self,
+                "Error",
+                f"An unexpected error occurred:\n\n{str(e)}",
+                QMessageBox.Ok
+            )
+            return
+
         items = self.iconListWidget.selectedItems()
         conn = Connection()
         thumb_resize = conn.thumb_resize()

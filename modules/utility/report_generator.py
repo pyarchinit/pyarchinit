@@ -3,8 +3,7 @@ from sqlalchemy import create_engine, MetaData, Table, select
 from sqlalchemy.orm import sessionmaker
 from qgis.PyQt.QtWidgets import *
 import socket
-from openai import OpenAI
-from docx import Document
+# OpenAI import removed to avoid pydantic conflicts - will be imported lazily in generate_report_with_openai
 
 
 class ReportGenerator(QWidget):
@@ -37,6 +36,14 @@ class ReportGenerator(QWidget):
         '''
         Usa l'API di OpenAI per generare un report basato sul prompt combinato e le descrizioni.
         '''
+        # Lazy import to avoid pydantic conflicts
+        try:
+            from openai import OpenAI
+        except ImportError as e:
+            error_msg = f"Cannot import OpenAI: {str(e)}\n\nPlease install: python -m pip install --upgrade openai pydantic pydantic-core"
+            QMessageBox.warning(None, "OpenAI Import Error", error_msg, QMessageBox.Ok)
+            return "Error: Could not load OpenAI library"
+
         client= OpenAI(api_key=apikey)
 
         response = client.chat.completions.create(
