@@ -8,22 +8,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="13d9711e-af47-4516-9a74-091c329d410d" name="Changes" comment="Refactor progress bar update logic and clean up duplicated code&#10;&#10;Enhanced progress bar update by modifying the calculation and update logic. Now, it accurately calculates the progress as a percentage and stores it as an integer, improving performance. This update applies across multiple files. Redundant code lines were also eliminated for a cleaner, more readable code.">
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gui/pyarchinitConfigDialog.py" beforeDir="false" afterPath="$PROJECT_DIR$/gui/pyarchinitConfigDialog.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/metadata.txt" beforeDir="false" afterPath="$PROJECT_DIR$/metadata.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/utility/report_generator.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/utility/report_generator.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/utility/skatch_gpt_INVMAT.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/utility/skatch_gpt_INVMAT.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/utility/skatch_gpt_US.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/utility/skatch_gpt_US.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tabs/Image_viewer.py" beforeDir="false" afterPath="$PROJECT_DIR$/tabs/Image_viewer.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tabs/Inv_Materiali.py" beforeDir="false" afterPath="$PROJECT_DIR$/tabs/Inv_Materiali.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tabs/Periodizzazione.py" beforeDir="false" afterPath="$PROJECT_DIR$/tabs/Periodizzazione.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tabs/Thesaurus.py" beforeDir="false" afterPath="$PROJECT_DIR$/tabs/Thesaurus.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tabs/US_USM.py" beforeDir="false" afterPath="$PROJECT_DIR$/tabs/US_USM.py" afterDir="false" />
-    </list>
+    <list default="true" id="13d9711e-af47-4516-9a74-091c329d410d" name="Changes" comment="feat: implement lazy loading across modules to resolve DLL conflicts on Windows&#10;&#10;This update introduces lazy loading patterns in several modules to address and resolve persistent DLL conflicts, particularly with PyMuPDF and OpenAI libraries on Windows environments. Additionally, error handling has been enhanced to provide more informative feedback to users when issues arise. The changes include adjustments in `.gitignore`, `__init__.py`, and various Python modules where imports have been strategically delayed to the point of use. This ensures that the application remains lightweight at startup and avoids loading potentially conflicting libraries until absolutely necessary. The version has been bumped in `metadata.txt`, reflecting these significant enhancements aimed at improving compatibility and stability on Windows platforms." />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -363,12 +348,12 @@
       <method v="2" />
     </configuration>
     <list>
-      <item itemvalue="Python.t_4707" />
       <item itemvalue="Python.test_matrix" />
+      <item itemvalue="Python.t_4707" />
       <item itemvalue="Python.train_groq" />
-      <item itemvalue="Python tests.Python tests for unitest.TestYourModule.test_openai_not_installed" />
       <item itemvalue="Python tests.Python tests in /Users/enzo/Library/Application Support/QGIS/QGIS3/profiles/default/python/plugins/pyarchinit/test1.py" />
       <item itemvalue="Python tests.Python tests in t_4707.py" />
+      <item itemvalue="Python tests.Python tests for unitest.TestYourModule.test_openai_not_installed" />
     </list>
     <recent_temporary>
       <list>
@@ -591,7 +576,7 @@
       <workItem from="1747382749454" duration="6966000" />
       <workItem from="1761053975786" duration="389000" />
       <workItem from="1761054823549" duration="1395000" />
-      <workItem from="1761059810699" duration="2830000" />
+      <workItem from="1761059810699" duration="3588000" />
     </task>
     <task id="LOCAL-00022" summary="v3.9.14">
       <created>1649165457258</created>
@@ -936,7 +921,7 @@
       <option name="project" value="LOCAL" />
       <updated>1679662089681</updated>
     </task>
-    <option name="localTasksCounter" value="214" />
+    <option name="localTasksCounter" value="215" />
     <option name="createChangelist" value="false" />
     <servers>
       <GitHub url="https://github.com">
@@ -990,7 +975,6 @@
     <ignored-roots>
       <path value="$PROJECT_DIR$/ext-libs/totalopenstation-0.5.2-py3.9.egg/totalopenstation_" />
     </ignored-roots>
-    <MESSAGE value="Enhance error handling with traceback details in DB manager&#10;&#10;Improve error messages by including traceback details for better debugging. Fix possible issue with closing connections by ensuring `conn` is safely checked before calling `close()`." />
     <MESSAGE value="Upgrade GeoAlchemy2 to version 0.9.1 in requirements.txt&#10;&#10;Updated the GeoAlchemy2 package to the latest version for improved compatibility and bug fixes. This change should address potential issues with older dependencies and streamline future maintenance." />
     <MESSAGE value="Update GeoAlchemy2 to version 0.17.1&#10;&#10;Upgraded GeoAlchemy2 from 0.9.1 to 0.17.1 in requirements.txt. This ensures compatibility with newer dependencies and introduces performance improvements and bug fixes." />
     <MESSAGE value="Update GeoAlchemy2 to version 0.9.1 in requirements&#10;&#10;Upgraded GeoAlchemy2 from 0.17.1 to 0.9.1 to ensure compatibility with the latest dependencies and features. This change helps maintain the stability and security of the application." />
@@ -1015,7 +999,8 @@
     <MESSAGE value="Update dependencies in requirements.txt&#10;&#10;Upgraded multiple packages, including OpenAI to 1.78.1, Anthropic to 0.51.0, and several LangChain-related libraries to their latest versions. These updates ensure compatibility, address potential bugs, and bring new features or improvements." />
     <MESSAGE value="Implement RAG approach with FAISS for large dataset analysis&#10;&#10;Add Retrieval-Augmented Generation (RAG) capabilities using FAISS, OpenAI embeddings, and chain integrations for comprehensive analysis of large datasets. Enhance image handling by avoiding duplicates and using the original version instead of thumbnails. Introduce token estimation and chunking strategies to mitigate token limit issues during report generation." />
     <MESSAGE value="Implement Retrieval-Augmented Generation (RAG) workflow&#10;&#10;Added capabilities for creating and utilizing FAISS vector databases to handle large datasets using the RAG approach. Enhanced image handling with duplicate checks, original image retrieval, and organized storage for thumbnails. Refined token limit handling by integrating simplified context and RAG-based processing for large datasets." />
-    <option name="LAST_COMMIT_MESSAGE" value="Implement Retrieval-Augmented Generation (RAG) workflow&#10;&#10;Added capabilities for creating and utilizing FAISS vector databases to handle large datasets using the RAG approach. Enhanced image handling with duplicate checks, original image retrieval, and organized storage for thumbnails. Refined token limit handling by integrating simplified context and RAG-based processing for large datasets." />
+    <MESSAGE value="feat: implement lazy loading across modules to resolve DLL conflicts on Windows&#10;&#10;This update introduces lazy loading patterns in several modules to address and resolve persistent DLL conflicts, particularly with PyMuPDF and OpenAI libraries on Windows environments. Additionally, error handling has been enhanced to provide more informative feedback to users when issues arise. The changes include adjustments in `.gitignore`, `__init__.py`, and various Python modules where imports have been strategically delayed to the point of use. This ensures that the application remains lightweight at startup and avoids loading potentially conflicting libraries until absolutely necessary. The version has been bumped in `metadata.txt`, reflecting these significant enhancements aimed at improving compatibility and stability on Windows platforms." />
+    <option name="LAST_COMMIT_MESSAGE" value="feat: implement lazy loading across modules to resolve DLL conflicts on Windows&#10;&#10;This update introduces lazy loading patterns in several modules to address and resolve persistent DLL conflicts, particularly with PyMuPDF and OpenAI libraries on Windows environments. Additionally, error handling has been enhanced to provide more informative feedback to users when issues arise. The changes include adjustments in `.gitignore`, `__init__.py`, and various Python modules where imports have been strategically delayed to the point of use. This ensures that the application remains lightweight at startup and avoids loading potentially conflicting libraries until absolutely necessary. The version has been bumped in `metadata.txt`, reflecting these significant enhancements aimed at improving compatibility and stability on Windows platforms." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
