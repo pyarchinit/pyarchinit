@@ -48,7 +48,7 @@ from qgis.core import QgsSettings, Qgis, QgsMessageLog
 from qgis.gui import QgsMapCanvas
 from collections import OrderedDict
 
-from ..modules.utility.skatch_gpt_INVMAT import GPTWindow
+# GPTWindow is imported lazily in sketchgpt to avoid PyMuPDF DLL conflicts on Windows
 from ..modules.utility.VideoPlayerArtefact import VideoPlayerWindow
 from ..modules.utility.pyarchinit_media_utility import *
 from ..modules.db.pyarchinit_conn_strings import Connection
@@ -2180,6 +2180,42 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                     msg = "Warning bug detected! Report it to the developer. Error: ".format(str(e))
                     self.iface.messageBar().pushMessage(self.tr(msg), Qgis.Warning, 0)
     def sketchgpt(self):
+        """Open GPT Sketch window with lazy import to avoid DLL conflicts on Windows."""
+        try:
+            # Lazy import to avoid loading PyMuPDF at plugin startup
+            from ..modules.utility.skatch_gpt_INVMAT import GPTWindow
+        except ImportError as e:
+            error_msg = str(e)
+            if 'DLL load failed' in error_msg or '_extra' in error_msg or 'pymupdf' in error_msg.lower():
+                QMessageBox.warning(
+                    self,
+                    "GPT Sketch Feature Unavailable",
+                    "The GPT Sketch feature cannot be loaded due to a PyMuPDF library conflict on Windows.\n\n"
+                    "This is a known issue with PyMuPDF in QGIS environments.\n\n"
+                    "Possible solutions:\n"
+                    "1. Reinstall PyMuPDF: python -m pip uninstall pymupdf && python -m pip install pymupdf\n"
+                    "2. Try installing an older version: python -m pip install pymupdf==1.23.26\n"
+                    "3. Install PyMuPDF-binary: python -m pip install --force-reinstall pymupdf\n\n"
+                    "The rest of the plugin will continue to work normally.",
+                    QMessageBox.Ok
+                )
+            else:
+                QMessageBox.warning(
+                    self,
+                    "GPT Sketch Import Error",
+                    f"Cannot load GPT Sketch feature:\n\n{error_msg}",
+                    QMessageBox.Ok
+                )
+            return
+        except Exception as e:
+            QMessageBox.warning(
+                self,
+                "Error",
+                f"An unexpected error occurred:\n\n{str(e)}",
+                QMessageBox.Ok
+            )
+            return
+
         items = self.iconListWidget.selectedItems()
         conn = Connection()
         thumb_resize = conn.thumb_resize()

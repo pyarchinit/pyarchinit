@@ -8,7 +8,7 @@ import csv
 import re
 import cv2
 import docx
-import fitz
+import pymupdf as fitz
 from openai import OpenAI
 from anthropic import Anthropic
 import requests

@@ -38,7 +38,7 @@ from ..modules.utility.delegateComboBox import ComboBoxDelegate
 from ..modules.db.pyarchinit_db_manager import *
 from ..modules.db.pyarchinit_utility import *
 from ..modules.utility.pyarchinit_media_utility import *
-from ..modules.utility.skatch_gpt_US import GPTWindow
+# GPTWindow is imported lazily in on_pushButton_gptsketch_pressed to avoid PyMuPDF DLL conflicts on Windows
 MAIN_DIALOG_CLASS, _ = loadUiType(
     os.path.join(os.path.dirname(__file__), os.pardir, 'gui', 'ui', 'pyarchinit_image_viewer_dialog.ui'))
 conn = Connection()
@@ -147,8 +147,41 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
         self.tableWidgetTags_tomba_2.setRowCount(1)
     
     def on_pushButton_gptsketch_pressed(self):
-        self.gpt_window = GPTWindow()
-        self.gpt_window.show()
+        """Open GPT Sketch window with lazy import to avoid DLL conflicts on Windows."""
+        try:
+            # Lazy import to avoid loading PyMuPDF at plugin startup
+            from ..modules.utility.skatch_gpt_US import GPTWindow
+            self.gpt_window = GPTWindow()
+            self.gpt_window.show()
+        except ImportError as e:
+            error_msg = str(e)
+            if 'DLL load failed' in error_msg or '_extra' in error_msg or 'pymupdf' in error_msg.lower():
+                QMessageBox.warning(
+                    self,
+                    "GPT Sketch Feature Unavailable",
+                    "The GPT Sketch feature cannot be loaded due to a PyMuPDF library conflict on Windows.\n\n"
+                    "This is a known issue with PyMuPDF in QGIS environments.\n\n"
+                    "Possible solutions:\n"
+                    "1. Reinstall PyMuPDF: python -m pip uninstall pymupdf && python -m pip install pymupdf\n"
+                    "2. Try installing an older version: python -m pip install pymupdf==1.23.26\n"
+                    "3. Install PyMuPDF-binary: python -m pip install --force-reinstall pymupdf\n\n"
+                    "The rest of the plugin will continue to work normally.",
+                    QMessageBox.Ok
+                )
+            else:
+                QMessageBox.warning(
+                    self,
+                    "GPT Sketch Import Error",
+                    f"Cannot load GPT Sketch feature:\n\n{error_msg}",
+                    QMessageBox.Ok
+                )
+        except Exception as e:
+            QMessageBox.warning(
+                self,
+                "Error",
+                f"An unexpected error occurred:\n\n{str(e)}",
+                QMessageBox.Ok
+            )
 
     def split_2(self):
         items_selected = self.iconListWidget.selectedItems()#seleziono le icone
