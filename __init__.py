@@ -240,17 +240,35 @@ class PackageManager:
         Returns:
             List of missing packages
         """
-        installed_packages = {pkg.metadata['Name'] + '==' + pkg.version for pkg in distributions()}
+        # Get installed package names (normalized to lowercase for comparison)
+        installed_package_names = set()
+        for pkg in distributions():
+            try:
+                name = pkg.metadata.get('Name')
+                if name:
+                    # Normalize to lowercase for case-insensitive comparison
+                    installed_package_names.add(name.lower())
+            except Exception:
+                # Skip packages with incomplete metadata
+                continue
 
+        missing_packages = []
         with open(requirements_path, 'r') as f:
-            # Filter out comment lines (starting with #) and empty lines
-            required_packages = set(
-                line.strip() for line in f 
-                if line.strip() and not line.strip().startswith('#')
-            )
+            for line in f:
+                line = line.strip()
+                # Skip comment lines and empty lines
+                if not line or line.startswith('#'):
+                    continue
 
-        missing_packages = required_packages - installed_packages
-        return list(missing_packages)
+                # Extract package name (everything before ==, >=, <=, etc.)
+                package_spec = line
+                package_name = line.split('==')[0].split('>=')[0].split('<=')[0].split('~=')[0].split('!=')[0].strip()
+
+                # Check if package is installed (case-insensitive)
+                if package_name.lower() not in installed_package_names:
+                    missing_packages.append(package_spec)
+
+        return missing_packages
 
 
 class Worker(QObject):

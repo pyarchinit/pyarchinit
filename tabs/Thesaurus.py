@@ -31,7 +31,7 @@ from builtins import range
 from builtins import str
 from qgis._core import QgsMessageLog
 
-from openai import OpenAI
+# OpenAI import removed to avoid pydantic conflicts - will be imported lazily in contenuto method
 import requests
 from qgis.PyQt.QtCore import QUrl, Qt, QTimer
 from qgis.PyQt.QtWidgets import QApplication, QFileDialog,QDialog, QMessageBox,QCompleter,QComboBox,QInputDialog,QLabel,QFormLayout,QPushButton,QVBoxLayout,QHBoxLayout
@@ -44,7 +44,7 @@ from ..modules.db.pyarchinit_db_manager import get_db_manager
 from ..modules.db.pyarchinit_utility import Utility
 from ..modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis
 from ..modules.utility.pyarchinit_error_check import Error_check
-from ..modules.utility.askgpt import MyApp
+# MyApp is imported lazily in contenuto to avoid pydantic/openai conflicts on Windows
 from ..gui.sortpanelmain import SortPanelMain
 
 MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), os.pardir, 'gui', 'ui', 'Thesaurus.ui'))
@@ -255,6 +255,19 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
             self.pushButton_import_csvthesaurus.setHidden(True)
 
     def contenuto(self, b):
+        # Lazy import to avoid pydantic conflicts
+        try:
+            from openai import OpenAI
+        except ImportError as e:
+            QMessageBox.warning(
+                self,
+                "GPT Feature Unavailable",
+                f"Cannot load GPT feature due to import error:\n\n{str(e)}\n\n"
+                "Please install or update: python -m pip install --upgrade openai pydantic pydantic-core",
+                QMessageBox.Ok
+            )
+            return ""
+
         models = ["gpt-4o", "gpt-4-turbo"]  # Replace with actual model names
         os.environ["OPENAI_API_KEY"] = self.apikey_gpt()
         combo = QComboBox()
