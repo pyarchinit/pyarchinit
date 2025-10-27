@@ -34,7 +34,7 @@ from qgis.core import *
 
 import psycopg2
 from geoalchemy2 import *
-from sqlalchemy import and_, or_, asc, desc
+from sqlalchemy import and_, or_, asc, desc, select
 from sqlalchemy.engine import create_engine
 from sqlalchemy.event import listen
 from sqlalchemy.exc import SQLAlchemyError
