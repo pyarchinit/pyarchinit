@@ -18858,11 +18858,13 @@ DATABASE SCHEMA KNOWLEDGE:
 
                 else:
                     self.BROWSE_STATUS = "f"
+                    self.empty_fields()
                     ###
                     self.lineEdit_data_schedatura.setText("")
                     self.lineEdit_anno.setText("")
                     self.comboBox_formazione.setEditText("")
                     self.comboBox_metodo.setEditText("")
+                    self.comboBox_unita_tipo.setEditText("")
                     self.setComboBoxEditable(["self.comboBox_sito"], 1)
                     self.setComboBoxEditable(["self.comboBox_area"], 1)
                     self.setComboBoxEditable(["self.comboBox_unita_tipo"], 1)
@@ -18889,7 +18891,7 @@ DATABASE SCHEMA KNOWLEDGE:
                     self.set_rec_counter('', '')
                     self.label_sort.setText(self.SORTED_ITEMS["n"])
                     self.charge_list()
-                    self.empty_fields()
+
     def on_pushButton_showLayer_pressed(self):
         """
         for sing_us in range(len(self.DATA_LIST)):
@@ -19954,6 +19956,9 @@ DATABASE SCHEMA KNOWLEDGE:
     def fill_fields(self, n=0):
         self.rec_num = n
         try:
+            # Block signals for unita_tipo to prevent unwanted modifications during fill
+            self.comboBox_unita_tipo.blockSignals(True)
+
             str(self.comboBox_sito.setEditText(self.DATA_LIST[self.rec_num].sito))  # 1 - Sito
             str(self.comboBox_area.setEditText(self.DATA_LIST[self.rec_num].area))  # 2 - Area
             self.lineEdit_us.setText(self.DATA_LIST[self.rec_num].us)  # 3 - US
