@@ -118,6 +118,38 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
             self.listWidget.addItem(item)
         self.abort = False
 
+        # Add checkbox for cumulative mode (default: checked/cumulative)
+        try:
+            from qgis.PyQt.QtWidgets import QCheckBox
+            if not hasattr(self, 'checkBox_cumulative'):
+                self.checkBox_cumulative = QCheckBox()
+                if self.L == 'it':
+                    self.checkBox_cumulative.setText("Modalità Cumulativa (mostra <= livello)")
+                    self.checkBox_cumulative.setToolTip("Se attivo, mostra tutte le US fino al livello selezionato.\nSe disattivo, mostra solo le US del livello esatto.")
+                elif self.L == 'de':
+                    self.checkBox_cumulative.setText("Kumulativer Modus (zeige <= Ebene)")
+                    self.checkBox_cumulative.setToolTip("Wenn aktiviert, zeigt alle US bis zur ausgewählten Ebene.\nWenn deaktiviert, zeigt nur US der genauen Ebene.")
+                else:
+                    self.checkBox_cumulative.setText("Cumulative Mode (show <= level)")
+                    self.checkBox_cumulative.setToolTip("If checked, shows all US up to selected level.\nIf unchecked, shows only US at exact level.")
+
+                self.checkBox_cumulative.setChecked(False)  # Default: NON cumulativo (singolo livello)
+
+                # Add to layout - try to find a good place near the dial/spinbox
+                if hasattr(self, 'verticalLayout') and self.verticalLayout:
+                    self.verticalLayout.addWidget(self.checkBox_cumulative)
+                elif hasattr(self, 'layout') and self.layout():
+                    self.layout().addWidget(self.checkBox_cumulative)
+
+                # Connect checkbox to update filter when changed
+                self.checkBox_cumulative.stateChanged.connect(lambda: self.define_order_layer_value(self.ORDER_LAYER_VALUE))
+
+                print("Cumulative mode checkbox added successfully")
+        except Exception as e:
+            print(f"Error creating cumulative checkbox: {e}")
+            import traceback
+            traceback.print_exc()
+
         self.listWidget.itemChanged.connect(self.update_selected_layers)
         self.dial_relative_cronology.valueChanged.connect(self.set_max_num)
         self.spinBox_relative_cronology.valueChanged.connect(self.set_max_num)
@@ -278,7 +310,14 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
 
                 QMessageBox.warning(self, "Alert", str(e))
 
-    def define_order_layer_value(self, v):
+    def define_order_layer_value(self, v, apply_period_filter=False):
+        """
+        Aggiorna il filtro dei layer in base al valore di order_layer e opzionalmente alla periodizzazione.
+
+        Args:
+            v: Valore di order_layer
+            apply_period_filter: Se True, applica anche il filtro sulla periodizzazione basato sull'intervallo cronologico
+        """
         if self.selected_layers is None or not self.selected_layers:
             QgsMessageLog.logMessage('I layer Quote View e US View devono essere caricati.', 'Avviso')
             return
@@ -288,9 +327,35 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
 
         self.ORDER_LAYER_VALUE = v
 
+        # Se richiesto, ottieni i periodi/fasi nell'intervallo cronologico
+        periodi_fasi = None
+        if apply_period_filter:
+            try:
+                # Ottieni i valori dagli spinBox cronologici
+                cron_iniz = int(self.spinBox_cron_iniz.text()) if hasattr(self, 'spinBox_cron_iniz') and self.spinBox_cron_iniz.text() else None
+                cron_fin = int(self.spinBox_cron_fin.text()) if hasattr(self, 'spinBox_cron_fin') and self.spinBox_cron_fin.text() else None
+
+                if cron_iniz is not None and cron_fin is not None:
+                    # Query alla tabella PERIODIZZAZIONE per ottenere i periodi nell'intervallo
+                    per_res = self.DB_MANAGER.query_operator(
+                        [
+                            ['cron_finale', '>=', cron_iniz],
+                            ['cron_iniziale', '<=', cron_fin],
+                        ], 'PERIODIZZAZIONE')
+
+                    if per_res and len(per_res) > 0:
+                        # Estrai le tuple (periodo, fase)
+                        periodi_fasi = [(str(p.periodo), str(p.fase)) for p in per_res]
+            except Exception as e:
+                print(f"Errore nell'applicare il filtro periodizzazione: {e}")
+
+        # Determina se usare modalità cumulativa o singolo livello
+        cumulative = getattr(self, 'checkBox_cumulative', None)
+        cumulative_value = cumulative.isChecked() if cumulative else True  # Default: cumulativo
+
         for layer in self.selected_layers:
             data_provider = layer.dataProvider()
-            self.liststring(sito, area, layer, data_provider)
+            self.liststring(sito, area, layer, data_provider, periodi_fasi, cumulative_value)
 
 
 
@@ -302,8 +367,37 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
         unique_datazioni = set(datazioni)
         self.textEdit_datazione.setPlainText('\n'.join(map(str, unique_datazioni)))
 
-    def liststring(self, sito, area, i, e):
-        new_sub_set_string = f"order_layer <= {self.ORDER_LAYER_VALUE} AND sito IN ('{sito}') AND area IN ('{area}')"
+    def liststring(self, sito, area, i, e, periodi_fasi=None, cumulative=True):
+        """
+        Imposta il filtro sui layer in base a order_layer, sito, area e opzionalmente periodizzazione.
+
+        Args:
+            sito: Lista di siti da filtrare
+            area: Lista di aree da filtrare
+            i: Layer
+            e: Data provider
+            periodi_fasi: Lista opzionale di tuple (periodo, fase) per filtrare le US
+            cumulative: Se True usa "order_layer <= valore" (cumulativo), se False usa "order_layer = valore" (singolo livello)
+        """
+        # Usa operatore <= per cumulativo o = per singolo livello
+        operator = "<=" if cumulative else "="
+        new_sub_set_string = f"order_layer {operator} {self.ORDER_LAYER_VALUE} AND sito IN ('{sito}') AND area IN ('{area}')"
+
+        # Aggiungi filtro per periodizzazione se specificato
+        if periodi_fasi and len(periodi_fasi) > 0:
+            # Costruisci una condizione SQL per filtrare per periodo_iniziale e fase_iniziale
+            # Esempio: (periodo_iniziale = 'Periodo1' AND fase_iniziale = 'Fase1') OR (periodo_iniziale = 'Periodo2' AND fase_iniziale = 'Fase2') ...
+            periodo_conditions = []
+            for periodo, fase in periodi_fasi:
+                if periodo and fase:
+                    periodo_conditions.append(f"(periodo_iniziale = '{periodo}' AND fase_iniziale = '{fase}')")
+                elif periodo:  # Solo periodo specificato
+                    periodo_conditions.append(f"periodo_iniziale = '{periodo}'")
+
+            if periodo_conditions:
+                periodo_filter = " OR ".join(periodo_conditions)
+                new_sub_set_string += f" AND ({periodo_filter})"
+
         i.setSubsetString(new_sub_set_string)
         e.setSubsetString(new_sub_set_string)
 

@@ -7930,7 +7930,14 @@ class Pyarchinit_pyqgis(QDialog):
 #     def remove_from_list_in_dict(self, curr_base_matrix):
 #         self.curr_base_matrix = curr_base_matrix
 #
-#         for k, v in list(self.order_dict.items()):
+#         for k, v in list(self.order_dict.item
+# ▝▜█████▛▘  Sonnet 4.5 · Claude Max
+#   ▘▘ ▝▝    /Users/enzo/Library/Application Support/QGIS/QGIS3/profiles/default/python/plugins/pyarchinit
+#
+# ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+# > Try "fix typecheck errors"
+# ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+#   ? for shortcuts                                                                                                                           ⧉ In pyarchinit_pyqgis.pys()):
 #             l = v
 #             # print self.curr_base_matrix
 #             for i in self.curr_base_matrix:
@@ -8504,9 +8511,13 @@ class Order_layer_graph(object):  # Rinominata per compatibilità con il codice 
 
         QApplication.processEvents()
 
-    def main_order_layer(self):
+    def main_order_layer(self, reverse_order=True):
         """
         Metodo principale che calcola l'ordine stratigrafico usando grafi in memoria.
+
+        Args:
+            reverse_order (bool): Se True, ordina da antico a recente (default).
+                                 Se False, ordina da recente ad antico.
 
         Returns:
         - order_dict (dict): Il dizionario con l'ordinamento delle US per livelli
@@ -8572,7 +8583,7 @@ class Order_layer_graph(object):  # Rinominata per compatibilità con il codice 
             self.logger.info(f"DEBUG MAIN: Prima di chiamare topological_sort. all_us={len(self.all_us)}")
 
             # Genera i livelli
-            levels = self._topological_sort_with_levels()
+            levels = self._topological_sort_with_levels(reverse_order=reverse_order)
 
             # DEBUG: Verifica risultato
             self.logger.info(f"DEBUG MAIN: Dopo topological_sort. levels type={type(levels)}, is None={levels is None}")
@@ -8847,12 +8858,13 @@ class Order_layer_graph(object):  # Rinominata per compatibilità con il codice 
                             # Aggiungi target_us al set di tutti i nodi
                             self.all_us.add(target_us)
 
-                            # Relazioni di copertura (us copre target_us = us viene dopo)
+                            # Relazioni di copertura (us copre target_us = us è più recente, target_us è più antica)
+                            # Nel grafo: us -> target_us (us dipende da target_us, che deve essere processata prima)
                             if rel_type in rel_covers:
-                                self.graph_edges[target_us].add(us)
-                                self.graph_reverse[us].add(target_us)
+                                self.graph_edges[us].add(target_us)
+                                self.graph_reverse[target_us].add(us)
                                 rel_count += 1
-                                self.logger.debug(f"Aggiunta relazione: {target_us} -> {us} ({rel_type})")
+                                self.logger.debug(f"Aggiunta relazione: {us} -> {target_us} ({rel_type})")
 
                             # Relazioni di uguaglianza
                             elif rel_type in rel_equals:
@@ -8954,10 +8966,15 @@ class Order_layer_graph(object):  # Rinominata per compatibilità con il codice 
         else:
             self.logger.info("Nessun ciclo trovato nel grafo")
 
-    def _topological_sort_with_levels(self):
+    def _topological_sort_with_levels(self, reverse_order=True):
         """
         Esegue l'ordinamento topologico restituendo i livelli.
         Usa l'algoritmo di Kahn modificato per raggruppare per livelli.
+
+        Args:
+            reverse_order (bool): Se True, inverte i livelli per ottenere ordine antico→recente.
+                                 Se False, mantiene l'ordine diretto (recente→antico).
+                                 Default: True (comportamento attuale)
         """
         # Calcola i gradi entranti
         in_degree = {}
@@ -9015,7 +9032,60 @@ class Order_layer_graph(object):  # Rinominata per compatibilità con il codice 
             if unprocessed:
                 levels.append(sorted(list(unprocessed)))
 
-        return levels
+        # CORREZIONE ORDINE STRATIGRAFICO
+        # L'algoritmo di Kahn parte dalle US senza predecessori (quelle più recenti che non sono coperte)
+        # e procede verso le US più antiche.
+        # Se reverse_order=True: inverti per avere Livello 0 = US più antiche (antico → recente)
+        # Se reverse_order=False: mantieni ordine diretto Livello 0 = US più recenti (recente → antico)
+        self.logger.info("=" * 80)
+        self.logger.info("GESTIONE ORDINE STRATIGRAFICO")
+        self.logger.info("=" * 80)
+
+        # Log ordine algoritmo Kahn (sempre mostrato)
+        if len(levels) > 0:
+            self.logger.info("ORDINE ALGORITMO KAHN (base = US più recenti senza predecessori):")
+            # Primi 3 livelli
+            for i in range(min(3, len(levels))):
+                us_list = ', '.join(str(u) for u in sorted(levels[i]))
+                self.logger.info(f"  Livello {i}: [{us_list}]")
+            if len(levels) > 6:
+                self.logger.info("  ...")
+            # Ultimi 3 livelli
+            for i in range(max(3, len(levels) - 3), len(levels)):
+                us_list = ', '.join(str(u) for u in sorted(levels[i]))
+                self.logger.info(f"  Livello {i}: [{us_list}]")
+
+        # Applica inversione se richiesto
+        if reverse_order:
+            final_levels = levels[::-1]
+            order_label = "INVERTITO (antico → recente)"
+            level_0_desc = "Più antiche"
+            level_n_desc = "Più recenti"
+        else:
+            final_levels = levels
+            order_label = "DIRETTO (recente → antico)"
+            level_0_desc = "Più recenti"
+            level_n_desc = "Più antiche"
+
+        # Log ordine finale
+        if len(final_levels) > 0:
+            self.logger.info("")
+            self.logger.info(f"ORDINE FINALE {order_label}:")
+            # Primi 3 livelli
+            for i in range(min(3, len(final_levels))):
+                us_list = ', '.join(str(u) for u in sorted(final_levels[i]))
+                self.logger.info(f"  Livello {i}: [{us_list}] <- {level_0_desc if i == 0 else ''}")
+            if len(final_levels) > 6:
+                self.logger.info("  ...")
+            # Ultimi 3 livelli
+            for i in range(max(3, len(final_levels) - 3), len(final_levels)):
+                us_list = ', '.join(str(u) for u in sorted(final_levels[i]))
+                last_idx = len(final_levels) - 1
+                self.logger.info(f"  Livello {i}: [{us_list}] <- {level_n_desc if i == last_idx else ''}")
+
+        self.logger.info("=" * 80)
+
+        return final_levels
 
     def update_database_with_order(self, db_manager, mapper_table_class, id_table, sito, area):
         """
