@@ -46,13 +46,6 @@
       </map>
     </option>
   </component>
-  <component name="Git.Pull.Settings">
-    <option name="OPTIONS">
-      <set>
-        <option value="REBASE" />
-      </set>
-    </option>
-  </component>
   <component name="Git.Settings">
     <favorite-branches>
       <branch-storage>
@@ -175,77 +168,79 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;Python tests.Python tests for test1.test_field.executor&quot;: &quot;Run&quot;,
-    &quot;Python tests.Python tests for unitest.TestYourModule.test_openai_not_installed.executor&quot;: &quot;Run&quot;,
-    &quot;Python tests.Python tests in test1.py.executor&quot;: &quot;Run&quot;,
-    &quot;Python tests.Python tests in test_4707.py.executor&quot;: &quot;Run&quot;,
-    &quot;Python tests.Python tests in test_matrix.py.executor&quot;: &quot;Run&quot;,
-    &quot;Python tests.Python tests in test_renem_file.py.executor&quot;: &quot;Run&quot;,
-    &quot;Python tests.Python tests in test_thesaurus.py.executor&quot;: &quot;Run&quot;,
-    &quot;Python tests.Python tests in test_tma_materials_persistence.py.executor&quot;: &quot;Run&quot;,
-    &quot;Python.__init__.executor&quot;: &quot;Run&quot;,
-    &quot;Python.archaeological_data_mapping.executor&quot;: &quot;Run&quot;,
-    &quot;Python.archeo_analysis.executor&quot;: &quot;Run&quot;,
-    &quot;Python.autoemotive.executor&quot;: &quot;Run&quot;,
-    &quot;Python.copy_excelfile.executor&quot;: &quot;Run&quot;,
-    &quot;Python.grok-1.executor&quot;: &quot;Run&quot;,
-    &quot;Python.insert_aint_from_excel.executor&quot;: &quot;Run&quot;,
-    &quot;Python.insert_area_from_excel.executor&quot;: &quot;Run&quot;,
-    &quot;Python.insert_cronologia_from_excel.executor&quot;: &quot;Run&quot;,
-    &quot;Python.insert_dtzg_from_excel.executor&quot;: &quot;Run&quot;,
-    &quot;Python.insert_ftap_from_excel.executor&quot;: &quot;Run&quot;,
-    &quot;Python.insert_ldcn_from_excel.executor&quot;: &quot;Run&quot;,
-    &quot;Python.insert_ldct_from_excel.executor&quot;: &quot;Run&quot;,
-    &quot;Python.insert_localita_from_excel.executor&quot;: &quot;Run&quot;,
-    &quot;Python.insert_macc_from_excel.executor&quot;: &quot;Run&quot;,
-    &quot;Python.insert_macd_from_excel.executor&quot;: &quot;Run&quot;,
-    &quot;Python.insert_macl_from_excel.executor&quot;: &quot;Run&quot;,
-    &quot;Python.insert_macp_from_excel.executor&quot;: &quot;Run&quot;,
-    &quot;Python.insert_scan_from_excel.executor&quot;: &quot;Debug&quot;,
-    &quot;Python.insert_settore_from_excel.executor&quot;: &quot;Run&quot;,
-    &quot;Python.insert_tma_thesaurus.executor&quot;: &quot;Run&quot;,
-    &quot;Python.insert_tma_vocabularies.executor&quot;: &quot;Run&quot;,
-    &quot;Python.reformat_dir.executor&quot;: &quot;Run&quot;,
-    &quot;Python.skatch_gpt_US.executor&quot;: &quot;Run&quot;,
-    &quot;Python.sync_tma_thesaurus.executor&quot;: &quot;Run&quot;,
-    &quot;Python.t_4707.executor&quot;: &quot;Run&quot;,
-    &quot;Python.test_matrix.executor&quot;: &quot;Run&quot;,
-    &quot;Python.test_renem_file.executor&quot;: &quot;Run&quot;,
-    &quot;Python.train_groq.executor&quot;: &quot;Run&quot;,
-    &quot;Python.update_entities_us_field.executor&quot;: &quot;Run&quot;,
-    &quot;Python.update_forms_us_field.executor&quot;: &quot;Run&quot;,
-    &quot;Python.verify_mapping.executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;ToolWindowCodeGPT.ShowToolbar&quot;: &quot;false&quot;,
-    &quot;com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;dev__pottery__cardarelli&quot;,
-    &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/Users/enzo/Library/Application Support/QGIS/QGIS3/profiles/default/python/plugins/pyarchinit/resources/dbfiles&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;run.code.analysis.last.selected.profile&quot;: &quot;aDefault&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;junie.mcp&quot;,
-    &quot;tasks.open.task.update.state.enabled&quot;: &quot;true&quot;,
-    &quot;to.speed.mode.migration.done&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Python tests.Python tests for test1.test_field.executor": "Run",
+    "Python tests.Python tests for unitest.TestYourModule.test_openai_not_installed.executor": "Run",
+    "Python tests.Python tests in test1.py.executor": "Run",
+    "Python tests.Python tests in test_4707.py.executor": "Run",
+    "Python tests.Python tests in test_matrix.py.executor": "Run",
+    "Python tests.Python tests in test_renem_file.py.executor": "Run",
+    "Python tests.Python tests in test_thesaurus.py.executor": "Run",
+    "Python tests.Python tests in test_tma_materials_persistence.py.executor": "Run",
+    "Python.__init__.executor": "Run",
+    "Python.archaeological_data_mapping.executor": "Run",
+    "Python.archeo_analysis.executor": "Run",
+    "Python.autoemotive.executor": "Run",
+    "Python.copy_excelfile.executor": "Run",
+    "Python.grok-1.executor": "Run",
+    "Python.insert_aint_from_excel.executor": "Run",
+    "Python.insert_area_from_excel.executor": "Run",
+    "Python.insert_cronologia_from_excel.executor": "Run",
+    "Python.insert_dtzg_from_excel.executor": "Run",
+    "Python.insert_ftap_from_excel.executor": "Run",
+    "Python.insert_ldcn_from_excel.executor": "Run",
+    "Python.insert_ldct_from_excel.executor": "Run",
+    "Python.insert_localita_from_excel.executor": "Run",
+    "Python.insert_macc_from_excel.executor": "Run",
+    "Python.insert_macd_from_excel.executor": "Run",
+    "Python.insert_macl_from_excel.executor": "Run",
+    "Python.insert_macp_from_excel.executor": "Run",
+    "Python.insert_scan_from_excel.executor": "Debug",
+    "Python.insert_settore_from_excel.executor": "Run",
+    "Python.insert_tma_thesaurus.executor": "Run",
+    "Python.insert_tma_vocabularies.executor": "Run",
+    "Python.reformat_dir.executor": "Run",
+    "Python.skatch_gpt_US.executor": "Run",
+    "Python.sync_tma_thesaurus.executor": "Run",
+    "Python.t_4707.executor": "Run",
+    "Python.test_matrix.executor": "Run",
+    "Python.test_renem_file.executor": "Run",
+    "Python.train_groq.executor": "Run",
+    "Python.update_entities_us_field.executor": "Run",
+    "Python.update_forms_us_field.executor": "Run",
+    "Python.verify_mapping.executor": "Run",
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "ToolWindowCodeGPT.ShowToolbar": "false",
+    "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultAutoModeForALLUsers.v1": "true",
+    "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
+    "git-widget-placeholder": "dev__pottery__cardarelli",
+    "junie.onboarding.icon.badge.shown": "true",
+    "last_opened_file_path": "/Users/enzo/Library/Application Support/QGIS/QGIS3/profiles/default/python/plugins/pyarchinit/resources/dbfiles",
+    "node.js.detected.package.eslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "run.code.analysis.last.selected.profile": "aDefault",
+    "settings.editor.selected.configurable": "junie.mcp",
+    "tasks.open.task.update.state.enabled": "true",
+    "to.speed.mode.migration.done": "true"
   },
-  &quot;keyToStringList&quot;: {
-    &quot;DatabaseDriversLRU&quot;: [
-      &quot;sqlite&quot;,
-      &quot;postgresql&quot;
+  "keyToStringList": {
+    "DatabaseDriversLRU": [
+      "sqlite",
+      "postgresql"
     ],
-    &quot;GitStage.ChangesTree.GroupingKeys&quot;: [
-      &quot;directory&quot;,
-      &quot;module&quot;,
-      &quot;repository&quot;
+    "GitStage.ChangesTree.GroupingKeys": [
+      "directory",
+      "module",
+      "repository"
     ],
-    &quot;stardust.markdown.MarkdownSplitEditorSuppressor:keyList&quot;: []
+    "stardust.markdown.MarkdownSplitEditorSuppressor:keyList": []
   }
-}</component>
+}]]></component>
   <component name="PyConsoleOptionsProvider">
     <option name="myPythonConsoleState">
       <console-settings module-name="pyarchinit" is-module-sdk="true">
@@ -410,11 +405,11 @@
       <method v="2" />
     </configuration>
     <list>
+      <item itemvalue="Python.test_matrix" />
       <item itemvalue="Python.insert_macl_from_excel" />
       <item itemvalue="Python.insert_macp_from_excel" />
       <item itemvalue="Python.insert_scan_from_excel" />
       <item itemvalue="Python.sync_tma_thesaurus" />
-      <item itemvalue="Python.test_matrix" />
       <item itemvalue="Python.verify_mapping" />
     </list>
     <recent_temporary>
@@ -430,8 +425,8 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-js-predefined-d6986cc7102b-3aa1da707db6-JavaScript-PY-252.26830.99" />
-        <option value="bundled-python-sdk-164cda30dcd9-0af03a5fa574-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-252.26830.99" />
+        <option value="bundled-js-predefined-d6986cc7102b-3aa1da707db6-JavaScript-PY-252.27397.106" />
+        <option value="bundled-python-sdk-4e2b1448bda8-9a97661f3031-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-252.27397.106" />
       </set>
     </attachedChunks>
   </component>
@@ -680,6 +675,8 @@
       <workItem from="1760422075981" duration="3334000" />
       <workItem from="1760432655490" duration="15106000" />
       <workItem from="1760770607339" duration="5337000" />
+      <workItem from="1761414878851" duration="275000" />
+      <workItem from="1762931614388" duration="3183000" />
     </task>
     <task id="LOCAL-00022" summary="v3.9.14">
       <created>1649165457258</created>
