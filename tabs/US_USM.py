@@ -5529,6 +5529,81 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.setupUi(self)
         self.setAcceptDrops(True)
 
+        # Add checkbox for order layer direction (reverse or not)
+        try:
+            # Create checkbox for stratigraphic order direction
+            if not hasattr(self, 'checkBox_reverse_order'):
+                self.checkBox_reverse_order = QCheckBox(self)
+                self.checkBox_reverse_order.setText("Ordine: Antico → Recente" if self.L == 'it'
+                                                   else "Order: Ancient → Recent" if self.L == 'en'
+                                                   else "Reihenfolge: Alt → Neu")
+                self.checkBox_reverse_order.setChecked(True)  # Default: reverse order (ancient to recent)
+                self.checkBox_reverse_order.setToolTip(
+                    "Se attivo, ordina da antico (livello 0) a recente (livello N).\n"
+                    "Se disattivo, ordina da recente (livello 0) ad antico (livello N)." if self.L == 'it'
+                    else "If checked, orders from ancient (level 0) to recent (level N).\n"
+                         "If unchecked, orders from recent (level 0) to ancient (level N)." if self.L == 'en'
+                    else "Wenn aktiviert, sortiert von alt (Ebene 0) bis neu (Ebene N).\n"
+                         "Wenn deaktiviert, sortiert von neu (Ebene 0) bis alt (Ebene N)."
+                )
+
+                # Try multiple strategies to add the checkbox to the UI
+                added = False
+
+                # Strategy 1: Try to add near the lineEditOrderLayer (they're in the same functional area)
+                if hasattr(self, 'lineEditOrderLayer') and self.lineEditOrderLayer.parent():
+                    try:
+                        parent_widget = self.lineEditOrderLayer.parent()
+                        parent_layout = parent_widget.layout()
+                        if parent_layout:
+                            # Find lineEditOrderLayer and add checkbox before it
+                            for i in range(parent_layout.count()):
+                                item = parent_layout.itemAt(i)
+                                if item and item.widget() == self.lineEditOrderLayer:
+                                    parent_layout.insertWidget(i, self.checkBox_reverse_order)
+                                    added = True
+                                    print("Order layer checkbox added before lineEditOrderLayer")
+                                    break
+                    except Exception as e:
+                        print(f"Strategy 1 failed: {e}")
+
+                # Strategy 2: Try to find a QGridLayout and add in a new row
+                if not added and hasattr(self, 'pushButton_orderLayers'):
+                    try:
+                        widget = self.pushButton_orderLayers
+                        while widget and not added:
+                            parent = widget.parent()
+                            if parent and hasattr(parent, 'layout'):
+                                layout = parent.layout()
+                                if layout and layout.__class__.__name__ == 'QGridLayout':
+                                    # Add in a new row after finding the button
+                                    row_count = layout.rowCount()
+                                    layout.addWidget(self.checkBox_reverse_order, row_count, 0, 1, 2)
+                                    added = True
+                                    print(f"Order layer checkbox added to QGridLayout at row {row_count}")
+                                    break
+                            widget = parent
+                    except Exception as e:
+                        print(f"Strategy 2 failed: {e}")
+
+                # Strategy 3: Add to main layout as fallback
+                if not added:
+                    try:
+                        if hasattr(self, 'layout') and self.layout():
+                            self.layout().addWidget(self.checkBox_reverse_order)
+                            added = True
+                            print("Order layer checkbox added to main layout")
+                    except Exception as e:
+                        print(f"Strategy 3 failed: {e}")
+
+                if not added:
+                    print("Warning: Could not add checkbox to any layout")
+
+        except Exception as e:
+            print(f"Error creating order layer checkbox: {e}")
+            import traceback
+            traceback.print_exc()
+
         # Connect S3DGraphy Extended Matrix export button from UI
         try:
             # The button is now created in the UI file, just connect the signal
@@ -16202,7 +16277,12 @@ DATABASE SCHEMA KNOWLEDGE:
             # Il tuo codice modificato:
             # Crea l'istanza
             OL = Order_layer_graph(self.DB_MANAGER, sito, area)
-            order_layer_dict = OL.main_order_layer()
+
+            # Get reverse_order setting from checkbox (default True if checkbox doesn't exist)
+            reverse_order = getattr(self, 'checkBox_reverse_order', None)
+            reverse_order_value = reverse_order.isChecked() if reverse_order else True
+
+            order_layer_dict = OL.main_order_layer(reverse_order=reverse_order_value)
 
             if order_layer_dict == "error":
                 # La finestra rimane aperta con i dettagli dell'errore
