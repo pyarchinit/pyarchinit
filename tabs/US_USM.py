@@ -57,13 +57,12 @@ try:
 except ImportError:
     QtInteractor = None  # pyvistaqt is optional
 import functools
-from collections import OrderedDict, Counter, defaultdict
+from collections import OrderedDict, Counter
 from datetime import date
 from xml.etree.ElementTree import ElementTree as ET
 
 import cv2
 import matplotlib
-import matplotlib.pyplot as plt
 import pandas as pd
 import requests
 # OpenAI and Langchain imports are commented to avoid pydantic conflicts on Windows
@@ -73,21 +72,16 @@ from docx import Document
 from docx.shared import Pt, Inches
 from docx.oxml import parse_xml
 
-# from langchain_openai import ChatOpenAI, OpenAIEmbeddings
-# from langchain_community.vectorstores import FAISS
-# from langchain.text_splitter import RecursiveCharacterTextSplitter
-# from langchain.chains import RetrievalQA
-# from langchain.prompts import PromptTemplate
-# from langchain.agents import AgentType, Tool, initialize_agent
-# from langchain.memory import ConversationSummaryMemory
-# from langchain_community.chat_message_histories import ChatMessageHistory
-# from langchain_core.runnables.history import RunnableWithMessageHistory
-# from langchain.schema import SystemMessage
+from langchain_openai import ChatOpenAI
+from langchain.chains import RetrievalQA
+from langchain.agents import AgentType, Tool, initialize_agent
+from langchain.memory import ConversationSummaryMemory
+
+from langchain.schema import SystemMessage
 
 matplotlib.use('QT5Agg')  # Assicurati di chiamare use() prima di importare FigureCanvas
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from qgis.PyQt import QtCore, QtGui, QtWidgets
-from qgis.PyQt.QtCore import QTimer
 
 from qgis.PyQt.QtGui import QFont,QKeySequence,QStandardItemModel,QStandardItem
 from qgis.core import *
