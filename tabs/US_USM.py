@@ -23,7 +23,7 @@ import ast
 import csv
 import json
 import traceback
-from datetime import datetime
+
 
 import math
 import platform
@@ -58,7 +58,7 @@ except ImportError:
     QtInteractor = None  # pyvistaqt is optional
 import functools
 from collections import OrderedDict, Counter
-from datetime import date
+from datetime import date, datetime
 from xml.etree.ElementTree import ElementTree as ET
 
 import cv2
@@ -9272,7 +9272,7 @@ DATABASE SCHEMA KNOWLEDGE:
         sito_set_str = sito_set['sito_set']
 
         def log_error(message, error_type="ERROR", filename=self.HOME+"/rapporti_update_log.txt"):
-            from datetime import datetime
+
             timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             with open(filename, 'a', encoding='utf-8') as f:
                 f.write(f"[{timestamp}] {error_type}: {message}\n")
