@@ -5571,7 +5571,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             excel_path = os.path.join(home, 'pyarchinit_EXCEL_folder')
             os.makedirs(excel_path, exist_ok=True)
 
-            timestamp = datetime.now().strftime("%d_%m_%Y_%H_%M_%S")
+            timestamp = datetime.datetime.now().strftime("%d_%m_%Y_%H_%M_%S")
             filepath = os.path.join(excel_path, f'Lista_Casse_{timestamp}.xlsx')
 
             # Create DataFrame
