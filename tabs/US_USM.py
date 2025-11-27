@@ -830,7 +830,7 @@ class ReportDialog(QDialog):
                 header = sections[0].header
                 header_para = header.paragraphs[0]
                 header_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
-                current_date = datetime.now().strftime("%d/%m/%Y")
+                current_date = datetime.datetime.now().strftime("%d/%m/%Y")
                 header_run = header_para.add_run(f'Report di scavo: {current_date}')
                 header_run.font.size = Pt(11)
 
@@ -8814,7 +8814,7 @@ DATABASE SCHEMA KNOWLEDGE:
         if "{{DATA}}" in str(doc.paragraphs):
             for para in doc.paragraphs:
                 if "{{DATA}}" in para.text:
-                    current_date = datetime.now().strftime("%d/%m/%Y")
+                    current_date = datetime.datetime.now().strftime("%d/%m/%Y")
                     para.text = para.text.replace("{{DATA}}", current_date)
 
         doc.save(output_path)
@@ -9165,7 +9165,7 @@ DATABASE SCHEMA KNOWLEDGE:
 
 
         def log_error(message, error_type="ERROR", filename = self.HOME+"/error_log.txt"):
-            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             with open(filename, 'a', encoding='utf-8') as f:
                 f.write(f"[{timestamp}] {error_type}: {message}\n")
 
@@ -9273,7 +9273,7 @@ DATABASE SCHEMA KNOWLEDGE:
 
         def log_error(message, error_type="ERROR", filename=self.HOME+"/rapporti_update_log.txt"):
 
-            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             with open(filename, 'a', encoding='utf-8') as f:
                 f.write(f"[{timestamp}] {error_type}: {message}\n")
         try:
@@ -9459,7 +9459,7 @@ DATABASE SCHEMA KNOWLEDGE:
 
 
         def log_error(message, error_type="ERROR", filename=self.HOME+"/error_log_fetch.txt"):
-            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             with open(filename, 'a', encoding='utf-8') as f:
                 f.write(f"[{timestamp}] {error_type}: {message}\n")
         try:
@@ -15818,7 +15818,7 @@ DATABASE SCHEMA KNOWLEDGE:
 
             # Create subdirectory for this export
             from datetime import datetime
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
             export_dir = os.path.join(output_dir, f"{current_site}_{current_area}_{timestamp}")
             os.makedirs(export_dir, exist_ok=True)
 
