@@ -2933,7 +2933,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
     
     def customize(self):
         # Prevent recursive calls
-        if hasattr(self, '_customizing'):
+        if getattr(self, '_customizing', False):
             return
         self._customizing = True
 
@@ -3336,51 +3336,51 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
 
     def db_active (self):
         # Prevent recursive calls
-        if hasattr(self, '_db_active_running'):
+        if getattr(self, '_db_active_running', False):
             return
         self._db_active_running = True
 
         try:
             self.comboBox_Database.update()
             self.comboBox_sito.clear()
+
+            # Check if user is admin
+            is_admin = self.check_if_admin()
+
+            # Set tooltip for non-admin users
+            admin_msg = "Solo gli amministratori possono eseguire backup/restore" if not is_admin else ""
+
+            if self.comboBox_Database.currentText() == 'sqlite':
+                #self.comboBox_Database.editTextChanged.connect(self.set_db_parameter)
+                self.toolButton_db.setEnabled(True)
+                # Enable SQLite backup button only for admin
+                self.pushButton_upd_sqlite.setEnabled(is_admin)
+                self.pushButton_upd_sqlite.setToolTip(admin_msg)
+                # Disable PostgreSQL buttons
+                self.pushButton_upd_postgres.setEnabled(False)
+                if hasattr(self, 'pushButton_crea_database'):
+                    self.pushButton_crea_database.setEnabled(False)
+                if hasattr(self, 'pushButton_restore_postgres'):
+                    self.pushButton_restore_postgres.setEnabled(False)
+
+            elif self.comboBox_Database.currentText() == 'postgres':
+                #self.comboBox_Database.currentIndexChanged.connect(self.set_db_parameter)
+                self.toolButton_db.setEnabled(False)
+                # Enable PostgreSQL buttons only for admin
+                self.pushButton_upd_postgres.setEnabled(is_admin)
+                self.pushButton_upd_postgres.setToolTip(admin_msg)
+                if hasattr(self, 'pushButton_crea_database'):
+                    self.pushButton_crea_database.setEnabled(is_admin)
+                    self.pushButton_crea_database.setToolTip(admin_msg)
+                if hasattr(self, 'pushButton_restore_postgres'):
+                    self.pushButton_restore_postgres.setEnabled(is_admin)
+                    self.pushButton_restore_postgres.setToolTip(admin_msg)
+                # Disable SQLite backup button
+                self.pushButton_upd_sqlite.setEnabled(False)
+
+            self.comboBox_sito.clear()
         finally:
             self._db_active_running = False
-
-        # Check if user is admin
-        is_admin = self.check_if_admin()
-
-        # Set tooltip for non-admin users
-        admin_msg = "Solo gli amministratori possono eseguire backup/restore" if not is_admin else ""
-
-        if self.comboBox_Database.currentText() == 'sqlite':
-            #self.comboBox_Database.editTextChanged.connect(self.set_db_parameter)
-            self.toolButton_db.setEnabled(True)
-            # Enable SQLite backup button only for admin
-            self.pushButton_upd_sqlite.setEnabled(is_admin)
-            self.pushButton_upd_sqlite.setToolTip(admin_msg)
-            # Disable PostgreSQL buttons
-            self.pushButton_upd_postgres.setEnabled(False)
-            if hasattr(self, 'pushButton_crea_database'):
-                self.pushButton_crea_database.setEnabled(False)
-            if hasattr(self, 'pushButton_restore_postgres'):
-                self.pushButton_restore_postgres.setEnabled(False)
-
-        elif self.comboBox_Database.currentText() == 'postgres':
-            #self.comboBox_Database.currentIndexChanged.connect(self.set_db_parameter)
-            self.toolButton_db.setEnabled(False)
-            # Enable PostgreSQL buttons only for admin
-            self.pushButton_upd_postgres.setEnabled(is_admin)
-            self.pushButton_upd_postgres.setToolTip(admin_msg)
-            if hasattr(self, 'pushButton_crea_database'):
-                self.pushButton_crea_database.setEnabled(is_admin)
-                self.pushButton_crea_database.setToolTip(admin_msg)
-            if hasattr(self, 'pushButton_restore_postgres'):
-                self.pushButton_restore_postgres.setEnabled(is_admin)
-                self.pushButton_restore_postgres.setToolTip(admin_msg)
-            # Disable SQLite backup button
-            self.pushButton_upd_sqlite.setEnabled(False)
-
-        self.comboBox_sito.clear()
     def setPathDBsqlite1(self):
         s = QgsSettings()
         dbpath = QFileDialog.getOpenFileName(
@@ -3695,7 +3695,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             QMessageBox.warning(self, "Set Environmental Variable", "The path has been set successful", QMessageBox.Ok)
     def set_db_parameter(self):
         # Prevent recursive calls
-        if hasattr(self, '_setting_parameters'):
+        if getattr(self, '_setting_parameters', False):
             return
         self._setting_parameters = True
 
@@ -3788,7 +3788,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         self.logger.log("\n=== on_pushButton_save_pressed called ===")
 
         # Prevent re-entry
-        if hasattr(self, '_save_in_progress'):
+        if getattr(self, '_save_in_progress', False):
             self.logger.log("WARNING: Save already in progress, preventing re-entry")
             return
 
@@ -3852,9 +3852,6 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
 
         except Exception as e:
             self.logger.log_exception("on_pushButton_save_pressed", e)
-            # Clear the save flag on exception
-            if hasattr(self, '_save_in_progress'):
-                del self._save_in_progress
 
             if self.L=='it':
                 QMessageBox.warning(self, "INFO", "Problema di connessione al db. Controlla i paramatri inseriti", QMessageBox.Ok)
@@ -3864,9 +3861,8 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 QMessageBox.warning(self, "INFO", "Db connection problem. Check the parameters inserted", QMessageBox.Ok)
         finally:
             # Always clear the save flag
-            if hasattr(self, '_save_in_progress'):
-                self.logger.log("Clearing _save_in_progress flag in finally block")
-                del self._save_in_progress
+            self._save_in_progress = False
+            self.logger.log("Clearing _save_in_progress flag in finally block")
             self.logger.log("on_pushButton_save_pressed completed")
     def compare(self):
         if self.comboBox_server_wt.currentText() == 'sqlite':
