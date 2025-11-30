@@ -788,6 +788,10 @@ class UserManagementDialog(QDialog):
             except:
                 pass
 
+            # IMPORTANT: Save password and role BEFORE clearing the form!
+            password_for_postgres = self.password_edit.text() or username
+            role_for_postgres = self.role_combo.currentText()
+
             # Reload data to show changes
             self.load_data()
 
@@ -804,8 +808,8 @@ class UserManagementDialog(QDialog):
 
             self.user_changed.emit()
 
-            # Crea automaticamente l'utente PostgreSQL
-            self.create_postgres_user(username, self.password_edit.text() or username, self.role_combo.currentText())
+            # Crea automaticamente l'utente PostgreSQL (using saved password, not the cleared field!)
+            self.create_postgres_user(username, password_for_postgres, role_for_postgres)
 
             QMessageBox.information(self, "Successo", "Utente salvato correttamente e creato in PostgreSQL!")
 
@@ -870,19 +874,32 @@ class UserManagementDialog(QDialog):
     def create_postgres_user(self, username, password, role):
         """Crea un utente PostgreSQL con i permessi base del ruolo"""
         try:
+            # Use the provided password or fallback to username
+            actual_password = password if password else username
+
             # Check if user already exists
             check_query = "SELECT 1 FROM pg_user WHERE usename = :username"
+            user_exists = False
             try:
                 result = self.db_manager.execute_sql(check_query, {'username': username})
-                if result:
-                    print(f"Utente PostgreSQL {username} già esistente")
-                    return
+                user_exists = bool(result)
             except:
                 pass
 
-            # Create user
-            create_query = f"CREATE USER {username} WITH PASSWORD '{password or username}'"
-            self.db_manager.execute_sql(create_query)
+            if user_exists:
+                # User exists - UPDATE the password
+                print(f"Utente PostgreSQL {username} già esistente, aggiorno la password...")
+                try:
+                    alter_query = f"ALTER USER {username} WITH PASSWORD '{actual_password}'"
+                    self.db_manager.execute_sql(alter_query)
+                    print(f"Password aggiornata per utente PostgreSQL {username}")
+                except Exception as e:
+                    print(f"Errore aggiornamento password PostgreSQL: {e}")
+            else:
+                # Create new user
+                create_query = f"CREATE USER {username} WITH PASSWORD '{actual_password}'"
+                self.db_manager.execute_sql(create_query)
+                print(f"Utente PostgreSQL {username} creato")
 
             # Grant basic permissions
             db_name = self.db_manager.engine.url.database
