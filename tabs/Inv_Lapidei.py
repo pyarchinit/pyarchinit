@@ -41,6 +41,7 @@ from ..modules.utility.pyarchinit_exp_Findssheet_pdf import generate_reperti_pdf
 from ..modules.utility.pyarchinit_exp_Invlapsheet_pdf import generate_reperti_pdf
 from ..gui.sortpanelmain import SortPanelMain
 from ..gui.pyarchinitConfigDialog import pyArchInitDialog_Config
+from ..modules.utility.remote_image_loader import load_icon, get_image_path, initialize as init_remote_loader
 MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), os.pardir, 'gui', 'ui', 'Inv_Lapidei.ui'))
 
 
@@ -297,6 +298,8 @@ class pyarchinit_Inventario_Lapidei(QDialog, MAIN_DIALOG_CLASS):
         self.fill_fields()
         self.set_sito()
         self.msg_sito()
+        init_remote_loader()
+
     def plot_chart(self, d, t, yl):
         self.data_list = d
         self.title = t
@@ -460,7 +463,7 @@ class pyarchinit_Inventario_Lapidei(QDialog, MAIN_DIALOG_CLASS):
                 item = QListWidgetItem(str(i.id_media))
 
                 item.setData(QtCore.Qt.UserRole, str(i.id_media))
-                icon = QIcon(thumb_path)
+                icon = load_icon(thumb_path)
                 item.setIcon(icon)
                 self.iconListWidget.addItem(item)
         elif mode == 1:

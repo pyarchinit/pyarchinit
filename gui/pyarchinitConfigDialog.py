@@ -170,6 +170,33 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         self.toolButton_logo.clicked.connect(self.setPathlogo)
         self.toolButton_thumbpath.clicked.connect(self.setPathThumb)
         self.toolButton_resizepath.clicked.connect(self.setPathResize)
+
+        # Add tooltips for remote storage support
+        remote_tooltip = (
+            "Path can be local or remote:\n"
+            "• Local: /path/to/folder/ or C:\\path\\to\\folder\\\n"
+            "• Google Drive: gdrive://folder/path/\n"
+            "• Dropbox: dropbox://folder/path/\n"
+            "• S3: s3://bucket/path/\n"
+            "• WebDAV: webdav://server/path/\n"
+            "• HTTP: https://server/path/"
+        )
+        self.lineEdit_Thumb_path.setToolTip(remote_tooltip)
+        self.lineEdit_Thumb_resize.setToolTip(remote_tooltip)
+
+        # Add remote storage config button programmatically
+        try:
+            from qgis.PyQt.QtWidgets import QPushButton
+            from qgis.PyQt.QtGui import QIcon
+            self.pushButton_remote_storage = QPushButton("Remote Storage Config")
+            self.pushButton_remote_storage.setToolTip("Configure credentials for remote storage backends")
+            # Add to the Path Settings groupbox layout
+            if hasattr(self, 'groupBox_4') and self.groupBox_4.layout():
+                self.groupBox_4.layout().addWidget(self.pushButton_remote_storage, 9, 0, 1, 2)
+            self.pushButton_remote_storage.clicked.connect(self.openRemoteStorageConfig)
+        except Exception as e:
+            pass  # Silently fail if button can't be added
+
         self.toolButton_set_dbsqlite1.clicked.connect(self.setPathDBsqlite1)
         self.toolButton_set_dbsqlite2.clicked.connect(self.setPathDBsqlite2)
         self.pbnOpenthumbDirectory.clicked.connect(self.openthumbDir)
@@ -3645,6 +3672,31 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             self.lineEdit_Thumb_resize.setText(self.resizepath+"/")
             s.setValue('pyArchInit/risizepath', self.resizepath)
 
+    def openRemoteStorageConfig(self):
+        """
+        Open the remote storage configuration dialog.
+
+        Allows users to configure credentials for:
+        - Google Drive (gdrive://)
+        - Dropbox (dropbox://)
+        - Amazon S3 / Cloudflare R2 (s3://, r2://)
+        - WebDAV (webdav://)
+        - HTTP/HTTPS (http://, https://)
+        """
+        try:
+            from .remote_storage_dialog import RemoteStorageDialog
+            dialog = RemoteStorageDialog(self)
+            dialog.exec_()
+        except ImportError as e:
+            QMessageBox.warning(
+                self, "Remote Storage",
+                f"Remote storage module not available: {str(e)}"
+            )
+        except Exception as e:
+            QMessageBox.critical(
+                self, "Error",
+                f"Error opening remote storage configuration: {str(e)}"
+            )
 
     def setPathGraphviz(self):
         s = QgsSettings()

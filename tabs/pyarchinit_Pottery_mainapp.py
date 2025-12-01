@@ -56,6 +56,7 @@ from ..modules.db.concurrency_manager import ConcurrencyManager, RecordLockIndic
 from ..modules.utility.pyarchinit_error_check import Error_check
 from ..modules.db.pyarchinit_utility import Utility
 from ..gui.pyarchinitConfigDialog import pyArchInitDialog_Config
+from ..modules.utility.remote_image_loader import load_icon, get_image_path, initialize as init_remote_loader
 
 
 
@@ -302,6 +303,8 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
         self.pbnOpenpdfDirectory.clicked.connect(self.openpdfDir)
         self.setnone()
 
+        # Initialize remote image loader with credentials from QGIS settings
+        init_remote_loader()
 
     def get_images_for_entities(self, entity_ids, log_signal=None):
         def log(message, level="info"):
@@ -1199,7 +1202,7 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
 
                     item = QListWidgetItem(str(filenameorig))
                     item.setData(Qt.UserRole, str(media_max_num_id))
-                    icon = QIcon(str(thumb_path_str) + filepath_thumb)
+                    icon = load_icon(get_image_path(str(thumb_path_str), filepath_thumb))
                     item.setIcon(icon)
                     self.iconListWidget.addItem(item)
 
@@ -1474,7 +1477,7 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
                 # Verifica se l'immagine è già in cache
                 if thumb_path not in self.image_cache:
                     # Se non è in cache, carica l'immagine
-                    icon = QIcon(thumb_path_str + thumb_path)
+                    icon = load_icon(get_image_path(thumb_path_str, thumb_path))
 
                     # Se la cache ha raggiunto il limite, rimuove l'elemento più vecchio
                     if len(self.image_cache) >= self.cache_limit:
@@ -1490,7 +1493,7 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
 
                 item = QListWidgetItem(str(i.media_filename))
                 item.setData(Qt.UserRole, str(i.media_filename))
-                icon = QIcon(thumb_path_str + thumb_path)
+                icon = load_icon(get_image_path(thumb_path_str, thumb_path))
                 item.setIcon(icon)
 
                 item.setBackground(QColor("yellow"))
@@ -1545,7 +1548,7 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
                 # Verifica se l'immagine è già in cache
                 if thumb_path not in self.image_cache:
                     # Se non è in cache, carica l'immagine
-                    icon = QIcon(thumb_path_str + thumb_path)
+                    icon = load_icon(get_image_path(thumb_path_str, thumb_path))
 
                     # Se la cache ha raggiunto il limite, rimuove l'elemento più vecchio
                     if len(self.image_cache) >= self.cache_limit:
@@ -1574,7 +1577,7 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
                     # us_list = [g.id_entity for g in mediatoentity_data if 'US' in g.entity_type]
                     item = QListWidgetItem(str(i.media_filename))
                     item.setData(Qt.UserRole, str(i.media_filename))
-                    icon = QIcon(thumb_path_str + thumb_path)
+                    icon = load_icon(get_image_path(thumb_path_str, thumb_path))
                     item.setIcon(icon)
 
                     item.setBackground(QColor("white"))
@@ -1605,7 +1608,7 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
                     # us_list = [g.id_entity for g in mediatoentity_data if 'US' in g.entity_type]
                     item = QListWidgetItem(str(i.media_filename))
                     item.setData(Qt.UserRole, str(i.media_filename))
-                    icon = QIcon(thumb_path_str + thumb_path)
+                    icon = load_icon(get_image_path(thumb_path_str, thumb_path))
                     item.setIcon(icon)
 
                     item.setBackground(QColor("yellow"))
@@ -1761,8 +1764,7 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
             list_item.setData(Qt.UserRole,data[0].media_filename)  # utilizza il nome del file come dati personalizzati dell'elemento
 
             # crea una QIcon con l'immagine
-            #icon = QIcon(thumb_path_str + thumb_path)
-            icon = QIcon(thumb_path_str + data[0].filepath)  # utilizza il percorso del file per creare l'icona
+            icon = load_icon(get_image_path(thumb_path_str, data[0].filepath))  # utilizza il percorso del file per creare l'icona
             #QMessageBox.information(self,'ok',str(thumb_path_str + data[0].filepath))
             # imposta l'icona dell'elemento
             list_item.setIcon(icon)
@@ -1790,7 +1792,7 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
             thumb_path = str(mediathumb_data[0].filepath)
             item = QListWidgetItem(str(i.media_name))
             item.setData(Qt.UserRole, str(i.media_name))
-            icon = QIcon(thumb_path_str + thumb_path)
+            icon = load_icon(get_image_path(thumb_path_str, thumb_path))
             item.setIcon(icon)
             self.iconListWidget.addItem(item)
         # elif mode == 1:
@@ -1815,7 +1817,7 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
         # Aggiungi l'item alla lista
         item = QListWidgetItem(str(filename))
         item.setData(Qt.UserRole, str(media_max_num_id))
-        icon = QIcon(thumbnail_path)
+        icon = load_icon(thumbnail_path)
         item.setIcon(icon)
         self.iconListWidget.addItem(item)
 

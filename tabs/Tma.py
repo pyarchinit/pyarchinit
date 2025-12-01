@@ -37,6 +37,7 @@ from sqlalchemy import text
 
 from ..gui.pyarchinitConfigDialog import pyArchInitDialog_Config
 from ..gui.sortpanelmain import SortPanelMain
+from ..modules.utility.remote_image_loader import load_icon, get_image_path, initialize as init_remote_loader
 from ..modules.db.pyarchinit_conn_strings import Connection
 from ..modules.db.pyarchinit_db_manager import get_db_manager
 from ..modules.db.concurrency_manager import ConcurrencyManager, RecordLockIndicator
@@ -262,6 +263,8 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         self.refresh_timer.start(60000)  # Check every 60 seconds
         # SIGNALS & SLOTS Functions
 
+        # Initialize remote image loader
+        init_remote_loader()
 
     def add_custom_toolbar_buttons(self):
         """Add custom buttons between toolbar and tabWidget."""
@@ -4522,7 +4525,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                         thumb_path = thumb_data[0].filepath
                         item = QListWidgetItem(str(media.media_name))
                         item.setData(Qt.UserRole, str(media.media_name))
-                        icon = QIcon(thumb_path_str + thumb_path)
+                        icon = load_icon(get_image_path(thumb_path_str, thumb_path))
                         item.setIcon(icon)
                         self.iconListWidget.addItem(item)
                         
