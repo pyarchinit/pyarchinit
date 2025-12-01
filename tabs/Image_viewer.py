@@ -38,6 +38,7 @@ from ..modules.utility.delegateComboBox import ComboBoxDelegate
 from ..modules.db.pyarchinit_db_manager import *
 from ..modules.db.pyarchinit_utility import *
 from ..modules.utility.pyarchinit_media_utility import *
+from ..modules.utility.remote_image_loader import load_icon, get_image_path, initialize as init_remote_loader
 # GPTWindow is imported lazily in on_pushButton_gptsketch_pressed to avoid PyMuPDF DLL conflicts on Windows
 MAIN_DIALOG_CLASS, _ = loadUiType(
     os.path.join(os.path.dirname(__file__), os.pardir, 'gui', 'ui', 'pyarchinit_image_viewer_dialog.ui'))
@@ -139,6 +140,10 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
         self.charge_nr_st_list()
         self.charge_data()
         self.view_num_rec()
+
+        # Initialize remote image loader with credentials from QGIS settings
+        init_remote_loader()
+
     def remove_all(self):
         self.tableWidgetTags_US.setRowCount(1)
         self.tableWidgetTags_POT.setRowCount(1)
@@ -630,7 +635,7 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                 thumb_path = str(mediathumb_data[0].filepath)
                 item = QListWidgetItem(str(i.media_name))
                 item.setData(Qt.UserRole, str(i.media_name))
-                icon = QIcon(thumb_path_str+thumb_path)
+                icon = load_icon(get_image_path(thumb_path_str, thumb_path))
                 item.setIcon(icon)
                 self.iconListWidget.addItem(item)
         if self.radioButton_pottery.isChecked():
@@ -720,7 +725,7 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                 thumb_path = str(mediathumb_data[0].filepath)
                 item = QListWidgetItem(str(i.media_name))
                 item.setData(Qt.UserRole, str(i.media_name))
-                icon = QIcon(thumb_path_str+thumb_path)
+                icon = load_icon(get_image_path(thumb_path_str, thumb_path))
                 item.setIcon(icon)
                 self.iconListWidget.addItem(item)
         if self.radioButton_materiali.isChecked():
@@ -810,7 +815,7 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                 thumb_path = str(mediathumb_data[0].filepath)
                 item = QListWidgetItem(str(i.media_name))
                 item.setData(Qt.UserRole, str(i.media_name))
-                icon = QIcon(thumb_path_str + thumb_path)
+                icon = load_icon(get_image_path(thumb_path_str, thumb_path))
                 item.setIcon(icon)
                 self.iconListWidget.addItem(item)
         if self.radioButton_tomba.isChecked():
@@ -899,7 +904,7 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                 thumb_path = str(mediathumb_data[0].filepath)
                 item = QListWidgetItem(str(i.media_name))
                 item.setData(Qt.UserRole, str(i.media_name))
-                icon = QIcon(thumb_path_str+thumb_path)
+                icon = load_icon(get_image_path(thumb_path_str, thumb_path))
                 item.setIcon(icon)
                 self.iconListWidget.addItem(item)
     
@@ -997,7 +1002,7 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                 thumb_path = str(mediathumb_data[0].filepath)
                 item = QListWidgetItem(str(i.media_name))
                 item.setData(Qt.UserRole, str(i.media_name))
-                icon = QIcon(thumb_path_str+thumb_path)
+                icon = load_icon(get_image_path(thumb_path_str, thumb_path))
                 item.setIcon(icon)
                 self.iconListWidget.addItem(item)
     
@@ -1079,7 +1084,7 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                                                           filepath_thumb, filepath_resize)
                             item = QListWidgetItem(str(filenameorig))
                             item.setData(Qt.UserRole, str(media_max_num_id))
-                            icon = QIcon(str(thumb_path_str)+filepath_thumb)
+                            icon = load_icon(get_image_path(str(thumb_path_str), filepath_thumb))
                             item.setIcon(icon)
                             self.iconListWidget.addItem(item)
                             
@@ -1094,7 +1099,7 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                             try:
                                 thumb_path = data_for_thumb[0].filepath_thumb
                                 item.setData(Qt.UserRole, thumb_path)
-                                icon = QIcon(str(thumb_path_str)+filepath_thumb)  # os.path.join('%s/%s' % (directory.toUtf8(), image)))
+                                icon = load_icon(get_image_path(str(thumb_path_str), filepath_thumb))  # os.path.join('%s/%s' % (directory.toUtf8(), image)))
                                 item.setIcon(icon)
                                 self.iconListWidget.addItem(item)
                             except:
@@ -1195,7 +1200,7 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                                                           filepath_thumb, filepath_resize)
                             item = QListWidgetItem(str(filenameorig))
                             item.setData(Qt.UserRole, str(media_max_num_id))
-                            icon = QIcon(str(thumb_path_str)+filepath_thumb)
+                            icon = load_icon(get_image_path(str(thumb_path_str), filepath_thumb))
                             item.setIcon(icon)
                             self.iconListWidget.addItem(item)
                             #self.progressBar.reset()
@@ -1211,7 +1216,7 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                                 self.iconListWidget.clear()
                                 thumb_path = data_for_thumb[0].filepath_thumb
                                 item.setData(Qt.UserRole, thumb_path)
-                                icon = QIcon(str(thumb_path_str)+filepath_thumb)  # os.path.join('%s/%s' % (directory.toUtf8(), image)))
+                                icon = load_icon(get_image_path(str(thumb_path_str), filepath_thumb))  # os.path.join('%s/%s' % (directory.toUtf8(), image)))
                                 item.setIcon(icon)
                                 self.iconListWidget.addItem(item)
                             except:
@@ -1957,7 +1962,7 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                 thumb_path = data[i].filepath
                 # QMessageBox.warning(self, "Errore",str(thumb_path),  QMessageBox.Ok)
                 item.setData(Qt.UserRole, str(data[i].media_filename ))
-                icon = QIcon(thumb_path_str+thumb_path)  # os.path.join('%s/%s' % (directory.toUtf8(), image)))
+                icon = load_icon(get_image_path(thumb_path_str, thumb_path))  # os.path.join('%s/%s' % (directory.toUtf8(), image)))
                 item.setIcon(icon)
                 self.iconListWidget.addItem(item)
                 # Button utility

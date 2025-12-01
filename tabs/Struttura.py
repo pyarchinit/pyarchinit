@@ -59,6 +59,7 @@ from ..modules.utility.pyarchinit_error_check import Error_check
 from ..modules.utility.pyarchinit_exp_Strutturasheet_pdf import generate_struttura_pdf
 from ..gui.sortpanelmain import SortPanelMain
 from ..gui.pyarchinitConfigDialog import pyArchInitDialog_Config
+from ..modules.utility.remote_image_loader import load_icon, get_image_path, initialize as init_remote_loader
 MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), os.pardir, 'gui', 'ui', 'Struttura.ui'))
 
 
@@ -286,7 +287,7 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
         self.customize_GUI()
         self.set_sito()
         self.msg_sito()
-
+        init_remote_loader()
 
     def loadMediaPreview(self):
         self.iconListWidget.clear()
@@ -309,7 +310,7 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
             thumb_path = str(mediathumb_data[0].filepath)
             item = QListWidgetItem(str(i.media_name))
             item.setData(Qt.UserRole, str(i.media_name))
-            icon = QIcon(thumb_path_str+thumb_path)
+            icon = load_icon(get_image_path(thumb_path_str, thumb_path))
             item.setIcon(icon)
             self.iconListWidget.addItem(item)
 

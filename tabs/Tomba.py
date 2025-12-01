@@ -50,6 +50,7 @@ from ..modules.utility.pyarchinit_exp_Tombasheet_pdf import generate_tomba_pdf
 from ..gui.imageViewer import ImageViewer
 from ..gui.sortpanelmain import SortPanelMain
 from ..gui.pyarchinitConfigDialog import pyArchInitDialog_Config
+from ..modules.utility.remote_image_loader import load_icon, get_image_path, initialize as init_remote_loader
 MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), os.pardir, 'gui', 'ui', 'Tomba.ui'))
 
 
@@ -402,6 +403,8 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
         self.msg_sito()
         self.numero_invetario()
         self.update_dating()
+        init_remote_loader()
+
     def numero_invetario(self):
         # self.set_sito()
         contatore = 0
@@ -1210,7 +1213,7 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
                 # Verifica se l'immagine è già in cache
                 if thumb_path not in self.image_cache:
                     # Se non è in cache, carica l'immagine
-                    icon = QIcon(thumb_path_str + thumb_path)
+                    icon = load_icon(get_image_path(thumb_path_str, thumb_path))
 
                     # Se la cache ha raggiunto il limite, rimuove l'elemento più vecchio
                     if len(self.image_cache) >= self.cache_limit:
@@ -1226,7 +1229,7 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
 
                 item = QListWidgetItem(str(i.media_filename))
                 item.setData(Qt.UserRole, str(i.media_filename))
-                icon = QIcon(thumb_path_str + thumb_path)
+                icon = load_icon(get_image_path(thumb_path_str, thumb_path))
                 item.setIcon(icon)
 
                 item.setBackground(QColor("yellow"))
@@ -1277,7 +1280,7 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
                 # Verifica se l'immagine è già in cache
                 if thumb_path not in self.image_cache:
                     # Se non è in cache, carica l'immagine
-                    icon = QIcon(thumb_path_str + thumb_path)
+                    icon = load_icon(get_image_path(thumb_path_str, thumb_path))
 
                     # Se la cache ha raggiunto il limite, rimuove l'elemento più vecchio
                     if len(self.image_cache) >= self.cache_limit:
@@ -1304,7 +1307,7 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
                 us_list = [g.id_entity for g in mediatoentity_data if 'TOMBA' in g.entity_type]
                 item = QListWidgetItem(str(i.media_filename))
                 item.setData(Qt.UserRole, str(i.media_filename))
-                icon = QIcon(thumb_path_str + thumb_path)
+                icon = load_icon(get_image_path(thumb_path_str, thumb_path))
                 item.setIcon(icon)
                 if us_list:
 
@@ -1476,8 +1479,8 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
             list_item.setData(Qt.UserRole,data[0].media_filename)  # utilizza il nome del file come dati personalizzati dell'elemento
 
             # crea una QIcon con l'immagine
-            #icon = QIcon(thumb_path_str + thumb_path)
-            icon = QIcon(thumb_path_str + data[0].filepath)  # utilizza il percorso del file per creare l'icona
+            #icon = load_icon(get_image_path(thumb_path_str, thumb_path))
+            icon = load_icon(get_image_path(thumb_path_str, data[0].filepath))  # utilizza il percorso del file per creare l'icona
             #QMessageBox.information(self,'ok',str(thumb_path_str + data[0].filepath))
             # imposta l'icona dell'elemento
             list_item.setIcon(icon)
@@ -1505,7 +1508,7 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
             thumb_path = str(mediathumb_data[0].filepath)
             item = QListWidgetItem(str(i.media_name))
             item.setData(Qt.UserRole, str(i.media_name))
-            icon = QIcon(thumb_path_str+thumb_path)
+            icon = load_icon(get_image_path(thumb_path_str, thumb_path))
             item.setIcon(icon)
             self.iconListWidget.addItem(item)
         # elif mode == 1:
