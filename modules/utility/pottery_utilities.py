@@ -89,8 +89,8 @@ class PDFExtractor:
         extracted_images = []
         os.makedirs(output_dir, exist_ok=True)
 
-        # Load YOLO model if auto_detect is enabled
-        if auto_detect and not self.model_loaded:
+        # Load YOLO model if auto_detect is enabled and available in QGIS Python
+        if auto_detect and HAS_YOLO and not self.model_loaded:
             self.load_yolo_model()
 
         for img_path in image_paths:
@@ -114,51 +114,61 @@ class PDFExtractor:
                 # Load image
                 img = Image.open(img_path)
 
-                # If auto_detect and YOLO model is available, run detection
-                if auto_detect and self.model_loaded and self.yolo_model:
-                    detections = self.detect_and_extract_pottery(
-                        img_path, confidence, kernel_size, iterations
-                    )
+                # Try YOLO detection
+                detection_success = False
 
-                    if detections:
-                        # Extract each detected pottery region
-                        import cv2
-                        import numpy as np
-
-                        cv_img = cv2.imread(img_path)
-                        for idx, detection in enumerate(detections):
-                            x, y, w, h = detection['bbox']
-
-                            # Add padding
-                            padding = 20
-                            x = max(0, x - padding)
-                            y = max(0, y - padding)
-                            w = min(cv_img.shape[1] - x, w + 2 * padding)
-                            h = min(cv_img.shape[0] - y, h + 2 * padding)
-
-                            # Extract region
-                            roi = cv_img[y:y+h, x:x+w]
-
-                            # Save extracted region
-                            region_path = os.path.join(
-                                output_dir,
-                                f"{os.path.splitext(base_name)[0]}_region{idx+1:02d}.png"
-                            )
-                            cv2.imwrite(region_path, roi)
-                            extracted_images.append(region_path)
-
-                        QgsMessageLog.logMessage(
-                            f"Detected {len(detections)} pottery regions in {base_name}",
-                            "PyArchInit", Qgis.Info
+                if auto_detect:
+                    # Try YOLO in QGIS Python first
+                    if self.model_loaded and self.yolo_model:
+                        detections = self.detect_and_extract_pottery(
+                            img_path, confidence, kernel_size, iterations
                         )
-                    else:
-                        # No detections, save the whole image
-                        img.save(output_path)
-                        extracted_images.append(output_path)
-                else:
-                    # Save the whole image as-is
+                        if detections:
+                            # Extract each detected pottery region
+                            import cv2
+                            cv_img = cv2.imread(img_path)
+                            for idx, detection in enumerate(detections):
+                                x, y, w, h = detection['bbox']
+                                padding = 20
+                                x = max(0, x - padding)
+                                y = max(0, y - padding)
+                                w = min(cv_img.shape[1] - x, w + 2 * padding)
+                                h = min(cv_img.shape[0] - y, h + 2 * padding)
+                                roi = cv_img[y:y+h, x:x+w]
+                                region_path = os.path.join(
+                                    output_dir,
+                                    f"{os.path.splitext(base_name)[0]}_pottery{idx+1:02d}.png"
+                                )
+                                cv2.imwrite(region_path, roi)
+                                extracted_images.append(region_path)
+                            detection_success = True
+                            QgsMessageLog.logMessage(
+                                f"Detected {len(detections)} pottery regions in {base_name}",
+                                "PyArchInit", Qgis.Info
+                            )
+
+                    # Try subprocess with pottery_venv if YOLO not available in QGIS
+                    if not detection_success:
+                        yolo_results = self._detect_pottery_subprocess(
+                            img_path, output_dir, confidence
+                        )
+                        if yolo_results and yolo_results.get('extracted_images'):
+                            extracted_images.extend(yolo_results['extracted_images'])
+                            detection_success = True
+                            QgsMessageLog.logMessage(
+                                f"Detected {len(yolo_results['extracted_images'])} pottery regions via subprocess",
+                                "PyArchInit", Qgis.Info
+                            )
+
+                # If no detection, save the whole image
+                if not detection_success:
                     img.save(output_path)
                     extracted_images.append(output_path)
+                    if auto_detect:
+                        QgsMessageLog.logMessage(
+                            f"No pottery detected in {base_name}, saved whole image",
+                            "PyArchInit", Qgis.Info
+                        )
 
             except Exception as e:
                 QgsMessageLog.logMessage(f"Error processing {img_path}: {str(e)}",
@@ -167,6 +177,92 @@ class PDFExtractor:
         QgsMessageLog.logMessage(f"Extracted {len(extracted_images)} images",
                                 "PyArchInit", Qgis.Info)
         return extracted_images
+
+    def _detect_pottery_subprocess(self, image_path: str, output_dir: str,
+                                   confidence: float = 0.5) -> dict:
+        """
+        Run YOLO detection via subprocess using pottery_venv
+
+        Args:
+            image_path: Path to input image
+            output_dir: Output directory for extracted regions
+            confidence: Detection confidence threshold
+
+        Returns:
+            Dict with detection results or None if failed
+        """
+        import subprocess
+        import json
+        import sys
+
+        # Find pottery_venv Python
+        home_dir = os.path.expanduser('~')
+        if sys.platform == 'win32':
+            venv_python = os.path.join(home_dir, 'pyarchinit', 'bin', 'pottery_venv', 'Scripts', 'python.exe')
+        else:
+            venv_python = os.path.join(home_dir, 'pyarchinit', 'bin', 'pottery_venv', 'bin', 'python')
+
+        if not os.path.exists(venv_python):
+            QgsMessageLog.logMessage(f"pottery_venv not found: {venv_python}",
+                                   "PyArchInit", Qgis.Warning)
+            return None
+
+        # Find YOLO model
+        model_path = os.path.join(home_dir, 'pyarchinit', 'bin', 'pottery_yolo.pt')
+        if not os.path.exists(model_path):
+            QgsMessageLog.logMessage(f"YOLO model not found: {model_path}",
+                                   "PyArchInit", Qgis.Warning)
+            return None
+
+        # Find detection script
+        plugin_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+        script_path = os.path.join(plugin_dir, 'scripts', 'yolo_pottery_detection.py')
+
+        if not os.path.exists(script_path):
+            QgsMessageLog.logMessage(f"YOLO detection script not found: {script_path}",
+                                   "PyArchInit", Qgis.Warning)
+            return None
+
+        try:
+            # Run detection script
+            cmd = [
+                venv_python,
+                script_path,
+                '--input', image_path,
+                '--output', output_dir,
+                '--model', model_path,
+                '--confidence', str(confidence),
+                '--json-output'
+            ]
+
+            QgsMessageLog.logMessage(f"Running YOLO detection: {' '.join(cmd)}",
+                                   "PyArchInit", Qgis.Info)
+
+            result = subprocess.run(
+                cmd,
+                capture_output=True,
+                text=True,
+                timeout=300  # 5 minute timeout
+            )
+
+            if result.returncode == 0:
+                # Parse JSON output
+                output = result.stdout
+                if '---JSON_OUTPUT---' in output:
+                    json_str = output.split('---JSON_OUTPUT---')[1].strip()
+                    return json.loads(json_str)
+            else:
+                QgsMessageLog.logMessage(f"YOLO detection failed: {result.stderr}",
+                                       "PyArchInit", Qgis.Warning)
+
+        except subprocess.TimeoutExpired:
+            QgsMessageLog.logMessage("YOLO detection timed out",
+                                   "PyArchInit", Qgis.Warning)
+        except Exception as e:
+            QgsMessageLog.logMessage(f"YOLO subprocess error: {str(e)}",
+                                   "PyArchInit", Qgis.Warning)
+
+        return None
 
     def load_yolo_model(self):
         """Load YOLO model for pottery detection if available"""
