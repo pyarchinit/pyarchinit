@@ -54,8 +54,240 @@ def is_remote_path(path):
     if not path:
         return False
     remote_prefixes = ('gdrive://', 'dropbox://', 's3://', 'r2://',
-                       'webdav://', 'http://', 'https://', 'sftp://')
+                       'webdav://', 'http://', 'https://', 'sftp://', 'cloudinary://')
     return any(path.lower().startswith(prefix) for prefix in remote_prefixes)
+
+
+class CloudinarySync:
+    """
+    Utility class for syncing media files to Cloudinary CDN.
+    Supports automatic upload, AI tagging, and URL generation.
+    """
+
+    _instance = None
+    _backend = None
+    _enabled = False
+
+    @classmethod
+    def get_instance(cls):
+        """Get the singleton instance."""
+        if cls._instance is None:
+            cls._instance = cls()
+        return cls._instance
+
+    def __init__(self):
+        """Initialize Cloudinary sync."""
+        self._check_enabled()
+
+    def _check_enabled(self):
+        """Check if Cloudinary sync is enabled and configured."""
+        try:
+            from qgis.core import QgsSettings
+            settings = QgsSettings()
+
+            cloud_name = settings.value("pyarchinit/storage/cloudinary/cloud_name", "")
+            api_key = settings.value("pyarchinit/storage/cloudinary/api_key", "")
+            api_secret = settings.value("pyarchinit/storage/cloudinary/api_secret", "")
+
+            self._enabled = bool(cloud_name and api_key and api_secret)
+
+            if self._enabled:
+                self._folder = settings.value("pyarchinit/storage/cloudinary/folder", "pyarchinit")
+                auto_tag = settings.value("pyarchinit/storage/cloudinary/auto_tagging", "false")
+                self._auto_tagging = auto_tag.lower() in ('true', '1', 'yes')
+        except Exception:
+            self._enabled = False
+
+    def is_enabled(self):
+        """Check if Cloudinary sync is enabled."""
+        return self._enabled
+
+    def get_backend(self):
+        """Get the Cloudinary backend instance."""
+        if self._backend is None and self._enabled:
+            try:
+                storage = get_storage_manager()
+                if storage:
+                    # Create a cloudinary path to get the backend
+                    self._backend = storage.get_backend(f"cloudinary://{self._folder}")
+            except Exception:
+                pass
+        return self._backend
+
+    def sync_file(self, local_path, cloudinary_folder=None, auto_tag=None):
+        """
+        Sync a local file to Cloudinary.
+
+        Args:
+            local_path: Path to the local file
+            cloudinary_folder: Optional subfolder in Cloudinary (relative to base folder)
+            auto_tag: Override auto-tagging setting (None uses default from settings)
+
+        Returns:
+            dict with 'success', 'url', and optionally 'tags'
+        """
+        if not self._enabled:
+            return {'success': False, 'error': 'Cloudinary not enabled'}
+
+        backend = self.get_backend()
+        if not backend:
+            return {'success': False, 'error': 'Cannot connect to Cloudinary'}
+
+        try:
+            # Read local file
+            with open(local_path, 'rb') as f:
+                file_data = f.read()
+
+            # Determine filename and path
+            filename = os.path.basename(local_path)
+            if cloudinary_folder:
+                remote_path = f"{cloudinary_folder}/{filename}"
+            else:
+                remote_path = filename
+
+            # Upload with AI features if auto-tagging is enabled
+            use_auto_tag = auto_tag if auto_tag is not None else self._auto_tagging
+
+            if use_auto_tag:
+                result = backend.write_with_ai(remote_path, file_data, features=['auto_tagging'])
+                if result:
+                    return {
+                        'success': True,
+                        'url': backend.get_url(remote_path),
+                        'tags': result.tags,
+                        'public_id': result.public_id
+                    }
+            else:
+                success = backend.write(remote_path, file_data)
+                if success:
+                    return {
+                        'success': True,
+                        'url': backend.get_url(remote_path)
+                    }
+
+            return {'success': False, 'error': 'Upload failed'}
+
+        except Exception as e:
+            return {'success': False, 'error': str(e)}
+
+    def sync_thumbnail(self, local_path, entity_type='media', entity_id=None):
+        """
+        Sync a thumbnail to Cloudinary with appropriate organization.
+
+        Args:
+            local_path: Path to the local thumbnail
+            entity_type: Type of entity (e.g., 'us', 'pottery', 'media')
+            entity_id: Optional entity ID for organization
+
+        Returns:
+            dict with sync result
+        """
+        subfolder = f"thumbnails/{entity_type}"
+        return self.sync_file(local_path, cloudinary_folder=subfolder)
+
+    def delete_file(self, remote_path):
+        """
+        Delete a file from Cloudinary.
+
+        Args:
+            remote_path: Path to the file in Cloudinary (relative to base folder)
+
+        Returns:
+            bool: True if deletion successful
+        """
+        if not self._enabled:
+            return False
+
+        backend = self.get_backend()
+        if not backend:
+            return False
+
+        try:
+            return backend.delete(remote_path)
+        except Exception:
+            return False
+
+    def get_optimized_url(self, remote_path, width=None, height=None, quality='auto'):
+        """
+        Get an optimized URL for a Cloudinary file.
+
+        Args:
+            remote_path: Path to the file in Cloudinary
+            width: Target width (optional)
+            height: Target height (optional)
+            quality: Quality setting ('auto', 'auto:best', etc.)
+
+        Returns:
+            Optimized URL string or None
+        """
+        if not self._enabled:
+            return None
+
+        backend = self.get_backend()
+        if not backend:
+            return None
+
+        try:
+            return backend.get_optimized_url(remote_path, width=width, height=height, quality=quality)
+        except Exception:
+            return None
+
+    def get_thumbnail_url(self, remote_path, size=150):
+        """
+        Get a thumbnail URL for a Cloudinary file.
+
+        Args:
+            remote_path: Path to the file in Cloudinary
+            size: Thumbnail size (default 150)
+
+        Returns:
+            Thumbnail URL string or None
+        """
+        return self.get_optimized_url(remote_path, width=size, height=size)
+
+    def get_ai_tags(self, remote_path):
+        """
+        Get AI-generated tags for an image.
+
+        Args:
+            remote_path: Path to the image in Cloudinary
+
+        Returns:
+            List of tag strings or empty list
+        """
+        if not self._enabled:
+            return []
+
+        backend = self.get_backend()
+        if not backend:
+            return []
+
+        try:
+            return backend.get_ai_tags(remote_path)
+        except Exception:
+            return []
+
+    def extract_text(self, remote_path):
+        """
+        Extract text from an image using OCR.
+
+        Args:
+            remote_path: Path to the image in Cloudinary
+
+        Returns:
+            Extracted text or None
+        """
+        if not self._enabled:
+            return None
+
+        backend = self.get_backend()
+        if not backend:
+            return None
+
+        try:
+            return backend.get_ocr_text(remote_path)
+        except Exception:
+            return None
 
 
 class Media_utility(object):

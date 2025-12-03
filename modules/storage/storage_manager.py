@@ -47,6 +47,7 @@ class StorageManager:
         'http': StorageType.HTTP,
         'https': StorageType.HTTP,
         'sftp': StorageType.SFTP,
+        'cloudinary': StorageType.CLOUDINARY,
     }
 
     # Registry of backend classes
@@ -163,6 +164,12 @@ class StorageManager:
             relative_path = parsed.path.lstrip('/')
             return storage_type, server, relative_path
 
+        if storage_type == StorageType.CLOUDINARY:
+            # Format: cloudinary://folder/path or cloudinary://cloud_name/folder/path
+            base_folder = parsed.netloc or ""
+            relative_path = parsed.path.lstrip('/')
+            return storage_type, base_folder, relative_path
+
         return storage_type, path, ""
 
     def get_backend(self, path: str, connect: bool = True) -> StorageBackend:
@@ -254,6 +261,10 @@ class StorageManager:
             elif storage_type == StorageType.SFTP:
                 from .sftp_backend import SFTPBackend
                 self.register_backend(StorageType.SFTP, SFTPBackend)
+
+            elif storage_type == StorageType.CLOUDINARY:
+                from .cloudinary_backend import CloudinaryBackend
+                self.register_backend(StorageType.CLOUDINARY, CloudinaryBackend)
 
         except ImportError as e:
             # Backend not available (missing dependencies)

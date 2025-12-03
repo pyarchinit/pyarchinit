@@ -26,6 +26,7 @@ class StorageType(Enum):
     WEBDAV = "webdav"
     HTTP = "http"
     SFTP = "sftp"
+    CLOUDINARY = "cloudinary"
 
 
 @dataclass
