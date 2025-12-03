@@ -670,50 +670,76 @@ class PotteryToolsDialog(QDialog, MAIN_DIALOG_CLASS):
 
     # PDF Extraction methods
     def browse_pdf(self):
-        """Browse for PDF file"""
-        pdf_path, _ = QFileDialog.getOpenFileName(
-            self, "Select PDF File", "", "PDF Files (*.pdf)")
+        """Browse for PDF or image files"""
+        file_path, _ = QFileDialog.getOpenFileName(
+            self, "Select PDF or Image File", "",
+            "All Supported Files (*.pdf *.jpg *.jpeg *.png *.bmp *.tiff *.tif);;"
+            "PDF Files (*.pdf);;"
+            "Image Files (*.jpg *.jpeg *.png *.bmp *.tiff *.tif)")
 
-        if pdf_path:
-            self.lineEdit_pdf_path.setText(pdf_path)
-            self.log_message(f"Selected PDF: {os.path.basename(pdf_path)}")
+        if file_path:
+            self.lineEdit_pdf_path.setText(file_path)
+            ext = os.path.splitext(file_path)[1].lower()
+            if ext == '.pdf':
+                self.log_message(f"Selected PDF: {os.path.basename(file_path)}")
+            else:
+                self.log_message(f"Selected Image: {os.path.basename(file_path)}")
 
     def update_confidence_label(self, value):
         """Update confidence label with slider value"""
         self.label_confidence_value.setText(f"{value}%")
 
     def extract_from_pdf(self):
-        """Extract pottery images from PDF"""
-        pdf_path = self.lineEdit_pdf_path.text()
+        """Extract pottery images from PDF or image file"""
+        file_path = self.lineEdit_pdf_path.text()
 
-        if not pdf_path or not os.path.exists(pdf_path):
-            QMessageBox.warning(self, "Warning", "Please select a valid PDF file")
+        if not file_path or not os.path.exists(file_path):
+            QMessageBox.warning(self, "Warning", "Please select a valid PDF or image file")
             return
 
         try:
-            self.log_message("Starting PDF extraction...")
+            ext = os.path.splitext(file_path)[1].lower()
+            is_pdf = ext == '.pdf'
+            is_image = ext in ['.jpg', '.jpeg', '.png', '.bmp', '.tiff', '.tif']
+
+            if is_pdf:
+                self.log_message("Starting PDF extraction...")
+            elif is_image:
+                self.log_message("Starting image extraction...")
+            else:
+                QMessageBox.warning(self, "Warning", f"Unsupported file format: {ext}")
+                return
+
             self.progressBar.setValue(10)
 
             # Create output directory
-            output_dir = os.path.join(os.path.dirname(pdf_path),
-                                     f"{Path(pdf_path).stem}_extracted")
+            output_dir = os.path.join(os.path.dirname(file_path),
+                                     f"{Path(file_path).stem}_extracted")
             os.makedirs(output_dir, exist_ok=True)
 
-            # Extract images (simplified version for now)
+            # Extract images
             extractor = PDFExtractor()
-            split_pages = self.checkBox_split_pages.isChecked()
             auto_detect = self.checkBox_auto_detect.isChecked()
             confidence = self.slider_confidence.value() / 100.0
 
             self.progressBar.setValue(30)
 
-            # Perform extraction
-            extracted = extractor.extract(
-                pdf_path, output_dir,
-                split_pages=split_pages,
-                auto_detect=auto_detect,
-                confidence=confidence
-            )
+            # Perform extraction based on file type
+            if is_pdf:
+                split_pages = self.checkBox_split_pages.isChecked()
+                extracted = extractor.extract(
+                    file_path, output_dir,
+                    split_pages=split_pages,
+                    auto_detect=auto_detect,
+                    confidence=confidence
+                )
+            else:
+                # Handle image files
+                extracted = extractor.extract_from_images(
+                    file_path, output_dir,
+                    auto_detect=auto_detect,
+                    confidence=confidence
+                )
 
             self.progressBar.setValue(70)
 
@@ -726,7 +752,7 @@ class PotteryToolsDialog(QDialog, MAIN_DIALOG_CLASS):
 
         except Exception as e:
             self.log_message(f"Extraction error: {str(e)}", Qgis.Critical)
-            QMessageBox.critical(self, "Error", f"Failed to extract from PDF:\n{str(e)}")
+            QMessageBox.critical(self, "Error", f"Failed to extract:\n{str(e)}")
         finally:
             self.progressBar.setValue(0)
 
@@ -2910,6 +2936,22 @@ if __name__ == '__main__':
                         overlap = self.spin_overlap.value() if hasattr(self, 'spin_overlap') else 64
                         stippling = self.slider_stippling.value() / 100.0 if hasattr(self, 'slider_stippling') else 1.0
 
+                        # Get selected model path
+                        model_path = None
+                        if hasattr(self, 'combo_pottery_ink_model'):
+                            model_name_map = {
+                                "10k Model (General)": "model_10k.pkl",
+                                "6h-MCG Model (Bronze Age)": "6h-MCG.pkl",
+                                "6h-MC Model (Protohistoric)": "6h-MC.pkl",
+                                "4h-PAINT Model (Historic/Painted)": "4h-PAINT.pkl"
+                            }
+                            selected = self.combo_pottery_ink_model.currentText()
+                            if selected in model_name_map:
+                                models_dir = os.path.join(os.path.expanduser("~"), "pyarchinit", "bin", "models")
+                                model_path = os.path.join(models_dir, model_name_map[selected])
+                                if not os.path.exists(model_path):
+                                    model_path = None
+
                         # Run enhancement
                         self.text_pottery_log.append(f"Enhancing: {os.path.basename(input_path)}")
                         self.text_pottery_log.append(f"  Options: Preprocessing={apply_preprocessing}, High-res={high_res}, Extract={extract_elements}, SVG={export_svg}")
@@ -2936,7 +2978,9 @@ if __name__ == '__main__':
                                 contrast_scale=stippling,
                                 patch_size=patch_size,
                                 overlap=overlap,
-                                apply_preprocessing=apply_preprocessing
+                                apply_preprocessing=apply_preprocessing,
+                                model_path=model_path,
+                                use_ml=True
                             )
                         self.log_message(f"Processing returned: {success}")
 

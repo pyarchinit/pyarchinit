@@ -56,13 +56,117 @@ PAGE_SIZES_PX = {
 
 
 class PDFExtractor:
-    """Extract images from PDF files - Step 1 of PyPotteryLens workflow"""
+    """Extract images from PDF files and image files - Step 1 of PyPotteryLens workflow"""
 
     def __init__(self):
         self.supported_formats = ['.jpg', '.jpeg', '.png', '.bmp', '.tiff', '.tif']
         self.yolo_model = None
         self.model_loaded = False
         self.mask_outputs = {}  # Store masks for later extraction
+
+    def extract_from_images(self, image_paths: List[str], output_dir: str,
+                           auto_detect: bool = True,
+                           confidence: float = 0.5,
+                           kernel_size: int = 2,
+                           iterations: int = 10) -> List[str]:
+        """
+        Extract pottery drawings from image files (JPEG, PNG, etc.)
+
+        Args:
+            image_paths: List of image file paths or single path
+            output_dir: Output directory for processed images
+            auto_detect: Auto-detect pottery using YOLO model
+            confidence: Detection confidence threshold
+            kernel_size: Size of morphological kernel
+            iterations: Number of dilation iterations
+
+        Returns:
+            List of extracted/processed image paths
+        """
+        if isinstance(image_paths, str):
+            image_paths = [image_paths]
+
+        extracted_images = []
+        os.makedirs(output_dir, exist_ok=True)
+
+        # Load YOLO model if auto_detect is enabled
+        if auto_detect and not self.model_loaded:
+            self.load_yolo_model()
+
+        for img_path in image_paths:
+            try:
+                # Check if file exists and is supported format
+                if not os.path.exists(img_path):
+                    QgsMessageLog.logMessage(f"File not found: {img_path}",
+                                           "PyArchInit", Qgis.Warning)
+                    continue
+
+                ext = os.path.splitext(img_path)[1].lower()
+                if ext not in self.supported_formats:
+                    QgsMessageLog.logMessage(f"Unsupported format: {ext}",
+                                           "PyArchInit", Qgis.Warning)
+                    continue
+
+                # Copy image to output directory
+                base_name = os.path.basename(img_path)
+                output_path = os.path.join(output_dir, f"extracted_{base_name}")
+
+                # Load image
+                img = Image.open(img_path)
+
+                # If auto_detect and YOLO model is available, run detection
+                if auto_detect and self.model_loaded and self.yolo_model:
+                    detections = self.detect_and_extract_pottery(
+                        img_path, confidence, kernel_size, iterations
+                    )
+
+                    if detections:
+                        # Extract each detected pottery region
+                        import cv2
+                        import numpy as np
+
+                        cv_img = cv2.imread(img_path)
+                        for idx, detection in enumerate(detections):
+                            x, y, w, h = detection['bbox']
+
+                            # Add padding
+                            padding = 20
+                            x = max(0, x - padding)
+                            y = max(0, y - padding)
+                            w = min(cv_img.shape[1] - x, w + 2 * padding)
+                            h = min(cv_img.shape[0] - y, h + 2 * padding)
+
+                            # Extract region
+                            roi = cv_img[y:y+h, x:x+w]
+
+                            # Save extracted region
+                            region_path = os.path.join(
+                                output_dir,
+                                f"{os.path.splitext(base_name)[0]}_region{idx+1:02d}.png"
+                            )
+                            cv2.imwrite(region_path, roi)
+                            extracted_images.append(region_path)
+
+                        QgsMessageLog.logMessage(
+                            f"Detected {len(detections)} pottery regions in {base_name}",
+                            "PyArchInit", Qgis.Info
+                        )
+                    else:
+                        # No detections, save the whole image
+                        img.save(output_path)
+                        extracted_images.append(output_path)
+                else:
+                    # Save the whole image as-is
+                    img.save(output_path)
+                    extracted_images.append(output_path)
+
+            except Exception as e:
+                QgsMessageLog.logMessage(f"Error processing {img_path}: {str(e)}",
+                                       "PyArchInit", Qgis.Warning)
+
+        QgsMessageLog.logMessage(f"Extracted {len(extracted_images)} images",
+                                "PyArchInit", Qgis.Info)
+        return extracted_images
 
     def load_yolo_model(self):
         """Load YOLO model for pottery detection if available"""
@@ -906,7 +1010,9 @@ else:
                        contrast_scale: float = 1.0,
                        patch_size: int = 512,
                        overlap: int = 64,
-                       apply_preprocessing: bool = True) -> bool:
+                       apply_preprocessing: bool = True,
+                       model_path: str = None,
+                       use_ml: bool = True) -> bool:
         """
         Transform a pencil drawing into publication-ready illustration
 
@@ -914,10 +1020,12 @@ else:
             input_image_path: Path to input pencil drawing
             output_path: Path for output illustration
             prompt: Processing prompt for AI model
-            contrast_scale: Contrast enhancement factor
+            contrast_scale: Contrast enhancement factor (also used as strength for ML)
             patch_size: Size of processing patches
             overlap: Overlap between patches
             apply_preprocessing: Whether to apply preprocessing
+            model_path: Path to .pkl model file (optional, will use default if not provided)
+            use_ml: Whether to use ML-based enhancement (True) or basic filters (False)
 
         Returns:
             True if successful, False otherwise
@@ -930,9 +1038,21 @@ else:
                                     "PyArchInit", Qgis.Warning)
             return False
 
-        # Note: Full model-based enhancement not yet implemented
-        # For now, using basic image processing
+        # Try ML-based enhancement first if available and requested
+        if use_ml and self.venv_python:
+            ml_result = self._enhance_with_ml(
+                input_image_path, output_path,
+                model_path=model_path,
+                strength=min(contrast_scale, 1.0) if contrast_scale > 0 else 0.6,
+                size=patch_size
+            )
+            if ml_result:
+                return True
+            else:
+                QgsMessageLog.logMessage("ML enhancement failed, falling back to basic enhancement",
+                                        "PyArchInit", Qgis.Warning)
 
+        # Fall back to basic enhancement
         try:
             # Load image
             image = Image.open(input_image_path).convert('RGB')
@@ -950,17 +1070,13 @@ else:
             height = image.height - image.height % 4
             image = image.resize((width, height), Image.BICUBIC)
 
-            # For now, this is a simplified enhancement
-            # In the full implementation, you'd process the image through patches
-            # using the loaded PotteryInk model
-
-            # Apply basic enhancement as placeholder
+            # Apply basic enhancement
             enhanced_image = self._basic_enhancement(image, contrast_scale)
 
             # Save result
             enhanced_image.save(output_path, 'PNG', dpi=(300, 300))
 
-            QgsMessageLog.logMessage(f"Enhanced drawing saved: {output_path}",
+            QgsMessageLog.logMessage(f"Enhanced drawing saved (basic): {output_path}",
                                     "PyArchInit", Qgis.Info)
             return True
 
@@ -968,6 +1084,104 @@ else:
             import traceback
             error_detail = traceback.format_exc()
             QgsMessageLog.logMessage(f"Drawing enhancement error: {str(e)}\n{error_detail}",
+                                    "PyArchInit", Qgis.Warning)
+            return False
+
+    def _enhance_with_ml(self, input_path: str, output_path: str,
+                        model_path: str = None, strength: float = 0.6,
+                        size: int = 512, steps: int = 4) -> bool:
+        """
+        Enhance drawing using ML model via subprocess
+
+        Args:
+            input_path: Path to input image
+            output_path: Path for output image
+            model_path: Path to .pkl model file
+            strength: Denoising strength (0-1)
+            size: Processing size
+            steps: Number of inference steps
+
+        Returns:
+            True if successful, False otherwise
+        """
+        if not self.venv_python:
+            return False
+
+        try:
+            import subprocess
+
+            # Find inference script
+            script_path = os.path.join(
+                os.path.dirname(os.path.dirname(os.path.dirname(__file__))),
+                'scripts', 'pottery_ink_inference.py'
+            )
+
+            if not os.path.exists(script_path):
+                QgsMessageLog.logMessage(f"Inference script not found: {script_path}",
+                                        "PyArchInit", Qgis.Warning)
+                return False
+
+            # Find model if not provided
+            if not model_path:
+                models_dir = os.path.join(os.path.expanduser("~"), "pyarchinit", "bin", "models")
+                # Try to find any available model
+                for model_name in ['model_10k.pkl', '6h-MCG.pkl', '6h-MC.pkl', '4h-PAINT.pkl']:
+                    potential_path = os.path.join(models_dir, model_name)
+                    if os.path.exists(potential_path):
+                        model_path = potential_path
+                        break
+
+            if not model_path or not os.path.exists(model_path):
+                QgsMessageLog.logMessage("No PotteryInk model found. Please download models first.",
+                                        "PyArchInit", Qgis.Warning)
+                return False
+
+            # Prepare environment
+            clean_env = os.environ.copy()
+            for key in ['PYTHONHOME', 'PYTHONPATH', 'PYTHONSTARTUP', 'VIRTUAL_ENV']:
+                clean_env.pop(key, None)
+
+            # Build command
+            cmd = [
+                self.venv_python,
+                script_path,
+                '--input', input_path,
+                '--output', output_path,
+                '--model', model_path,
+                '--device', 'auto',
+                '--strength', str(strength),
+                '--steps', str(steps),
+                '--size', str(size),
+                '--json-output'
+            ]
+
+            QgsMessageLog.logMessage(f"Running ML enhancement: {os.path.basename(model_path)}",
+                                    "PyArchInit", Qgis.Info)
+
+            # Run inference
+            result = subprocess.run(
+                cmd,
+                capture_output=True,
+                text=True,
+                env=clean_env,
+                timeout=600  # 10 minute timeout for large images
+            )
+
+            if result.returncode == 0:
+                QgsMessageLog.logMessage(f"ML enhancement successful: {output_path}",
+                                        "PyArchInit", Qgis.Info)
+                return True
+            else:
+                QgsMessageLog.logMessage(f"ML enhancement failed: {result.stderr}",
+                                        "PyArchInit", Qgis.Warning)
+                return False
+
+        except subprocess.TimeoutExpired:
+            QgsMessageLog.logMessage("ML enhancement timed out after 10 minutes",
+                                    "PyArchInit", Qgis.Warning)
+            return False
+        except Exception as e:
+            QgsMessageLog.logMessage(f"ML enhancement error: {str(e)}",
                                     "PyArchInit", Qgis.Warning)
             return False
 
