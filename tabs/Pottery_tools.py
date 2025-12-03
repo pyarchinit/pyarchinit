@@ -712,10 +712,24 @@ class PotteryToolsDialog(QDialog, MAIN_DIALOG_CLASS):
 
             self.progressBar.setValue(10)
 
-            # Create output directory
-            output_dir = os.path.join(os.path.dirname(file_path),
-                                     f"{Path(file_path).stem}_extracted")
-            os.makedirs(output_dir, exist_ok=True)
+            # Create output directory - try source location first, fall back to home if read-only
+            source_dir = os.path.dirname(file_path)
+            output_folder_name = f"{Path(file_path).stem}_extracted"
+            output_dir = os.path.join(source_dir, output_folder_name)
+
+            try:
+                os.makedirs(output_dir, exist_ok=True)
+                # Test if writable
+                test_file = os.path.join(output_dir, ".write_test")
+                with open(test_file, 'w') as f:
+                    f.write("test")
+                os.remove(test_file)
+            except (OSError, IOError, PermissionError):
+                # Fall back to home directory
+                fallback_dir = os.path.join(os.path.expanduser("~"), "pyarchinit", "pottery_extracted")
+                output_dir = os.path.join(fallback_dir, output_folder_name)
+                os.makedirs(output_dir, exist_ok=True)
+                self.log_message(f"Source folder is read-only. Saving to: {output_dir}")
 
             # Extract images
             extractor = PDFExtractor()
