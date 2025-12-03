@@ -6,6 +6,7 @@ A flexible storage system that supports both local and remote storage backends.
 
 Supported backends:
 - Local filesystem (default)
+- Cloudinary CDN (cloudinary://) - with AI tagging support
 - Google Drive (gdrive://)
 - Dropbox (dropbox://)
 - Amazon S3 / Cloudflare R2 (s3://, r2://)

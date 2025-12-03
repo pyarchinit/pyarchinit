@@ -82,6 +82,7 @@ class CredentialsManager:
         StorageType.WEBDAV: ['username', 'password'],
         StorageType.HTTP: [],  # May be empty for public URLs
         StorageType.SFTP: ['username'],  # Password or key
+        StorageType.CLOUDINARY: ['cloud_name', 'api_key', 'api_secret'],
     }
 
     # Environment variable names for each storage type
@@ -122,6 +123,13 @@ class CredentialsManager:
             'password': 'SFTP_PASSWORD',
             'private_key': 'SFTP_PRIVATE_KEY',
             'private_key_path': 'SFTP_PRIVATE_KEY_PATH',
+        },
+        StorageType.CLOUDINARY: {
+            'cloud_name': 'CLOUDINARY_CLOUD_NAME',
+            'api_key': 'CLOUDINARY_API_KEY',
+            'api_secret': 'CLOUDINARY_API_SECRET',
+            'folder': 'CLOUDINARY_FOLDER',
+            'auto_tagging': 'CLOUDINARY_AUTO_TAGGING',
         },
     }
 

@@ -60,6 +60,7 @@ class RemoteStorageDialog(QDialog):
         layout.addWidget(self.tab_widget)
 
         # Add tabs for each backend
+        self.setup_cloudinary_tab()  # Cloudinary first (most commonly used)
         self.setup_gdrive_tab()
         self.setup_dropbox_tab()
         self.setup_s3_tab()
@@ -84,6 +85,65 @@ class RemoteStorageDialog(QDialog):
         button_layout.addWidget(self.cancel_button)
 
         layout.addLayout(button_layout)
+
+    def setup_cloudinary_tab(self):
+        """Set up Cloudinary configuration tab"""
+        tab = QWidget()
+        layout = QVBoxLayout(tab)
+
+        # Instructions
+        instructions = QLabel(
+            "<b>Cloudinary Setup:</b><br>"
+            "1. Sign up at <a href='https://cloudinary.com/'>cloudinary.com</a><br>"
+            "2. Go to Dashboard to find your Cloud Name, API Key, and API Secret<br>"
+            "3. Enter your credentials below<br><br>"
+            "<b>AI Features:</b><br>"
+            "Enable auto-tagging to automatically tag images with Google Vision AI.<br>"
+            "Use path format: <code>cloudinary://folder/subfolder</code>"
+        )
+        instructions.setOpenExternalLinks(True)
+        instructions.setWordWrap(True)
+        layout.addWidget(instructions)
+
+        # Form
+        form_group = QGroupBox("Credentials")
+        form_layout = QFormLayout(form_group)
+
+        self.cloudinary_cloud_name = QLineEdit()
+        self.cloudinary_cloud_name.setPlaceholderText("Your Cloudinary cloud name")
+        form_layout.addRow("Cloud Name:", self.cloudinary_cloud_name)
+
+        self.cloudinary_api_key = QLineEdit()
+        self.cloudinary_api_key.setPlaceholderText("API Key from Dashboard")
+        form_layout.addRow("API Key:", self.cloudinary_api_key)
+
+        self.cloudinary_api_secret = QLineEdit()
+        self.cloudinary_api_secret.setEchoMode(QLineEdit.Password)
+        self.cloudinary_api_secret.setPlaceholderText("API Secret from Dashboard")
+        form_layout.addRow("API Secret:", self.cloudinary_api_secret)
+
+        self.cloudinary_folder = QLineEdit()
+        self.cloudinary_folder.setPlaceholderText("Base folder for uploads (e.g., pyarchinit)")
+        form_layout.addRow("Base Folder:", self.cloudinary_folder)
+
+        layout.addWidget(form_group)
+
+        # AI Features group
+        ai_group = QGroupBox("AI Features")
+        ai_layout = QFormLayout(ai_group)
+
+        self.cloudinary_auto_tagging = QComboBox()
+        self.cloudinary_auto_tagging.addItems(["Disabled", "Enabled"])
+        self.cloudinary_auto_tagging.setToolTip(
+            "When enabled, images are automatically tagged using Google Vision AI.\n"
+            "This helps with search and organization of archaeological media."
+        )
+        ai_layout.addRow("Auto-Tagging:", self.cloudinary_auto_tagging)
+
+        layout.addWidget(ai_group)
+        layout.addStretch()
+
+        self.tab_widget.addTab(tab, "Cloudinary")
 
     def setup_gdrive_tab(self):
         """Set up Google Drive configuration tab"""
@@ -289,6 +349,18 @@ class RemoteStorageDialog(QDialog):
 
     def load_settings(self):
         """Load settings from QGIS settings"""
+        # Cloudinary
+        self.cloudinary_cloud_name.setText(
+            self.settings.value("pyarchinit/storage/cloudinary/cloud_name", ""))
+        self.cloudinary_api_key.setText(
+            self.settings.value("pyarchinit/storage/cloudinary/api_key", ""))
+        self.cloudinary_api_secret.setText(
+            self.settings.value("pyarchinit/storage/cloudinary/api_secret", ""))
+        self.cloudinary_folder.setText(
+            self.settings.value("pyarchinit/storage/cloudinary/folder", ""))
+        auto_tag = self.settings.value("pyarchinit/storage/cloudinary/auto_tagging", "false")
+        self.cloudinary_auto_tagging.setCurrentIndex(1 if auto_tag.lower() in ('true', '1', 'yes') else 0)
+
         # Google Drive
         self.gdrive_client_id.setText(
             self.settings.value("pyarchinit/storage/gdrive/client_id", ""))
@@ -335,6 +407,18 @@ class RemoteStorageDialog(QDialog):
 
     def save_settings(self):
         """Save settings to QGIS settings"""
+        # Cloudinary
+        self.settings.setValue("pyarchinit/storage/cloudinary/cloud_name",
+                               self.cloudinary_cloud_name.text())
+        self.settings.setValue("pyarchinit/storage/cloudinary/api_key",
+                               self.cloudinary_api_key.text())
+        self.settings.setValue("pyarchinit/storage/cloudinary/api_secret",
+                               self.cloudinary_api_secret.text())
+        self.settings.setValue("pyarchinit/storage/cloudinary/folder",
+                               self.cloudinary_folder.text())
+        self.settings.setValue("pyarchinit/storage/cloudinary/auto_tagging",
+                               "true" if self.cloudinary_auto_tagging.currentIndex() == 1 else "false")
+
         # Google Drive
         self.settings.setValue("pyarchinit/storage/gdrive/client_id",
                                self.gdrive_client_id.text())
@@ -399,17 +483,20 @@ class RemoteStorageDialog(QDialog):
             storage = StorageManager(credentials_manager=creds_manager)
 
             # Test based on current tab
-            if current_tab == 0:  # Google Drive
+            if current_tab == 0:  # Cloudinary
+                storage_type = StorageType.CLOUDINARY
+                test_path = "cloudinary://test"
+            elif current_tab == 1:  # Google Drive
                 storage_type = StorageType.GOOGLE_DRIVE
                 test_path = "gdrive://test"
-            elif current_tab == 1:  # Dropbox
+            elif current_tab == 2:  # Dropbox
                 storage_type = StorageType.DROPBOX
                 test_path = "dropbox://test"
-            elif current_tab == 2:  # S3
+            elif current_tab == 3:  # S3
                 storage_type = StorageType.S3
                 bucket = "test-bucket"
                 test_path = f"s3://{bucket}"
-            elif current_tab == 3:  # WebDAV
+            elif current_tab == 4:  # WebDAV
                 storage_type = StorageType.WEBDAV
                 test_path = "webdav://test"
             else:  # HTTP
@@ -450,6 +537,18 @@ class RemoteStorageDialog(QDialog):
 
         # Actually save the current values
         settings = QgsSettings()
+
+        # Cloudinary
+        settings.setValue("pyarchinit/storage/cloudinary/cloud_name",
+                          self.cloudinary_cloud_name.text())
+        settings.setValue("pyarchinit/storage/cloudinary/api_key",
+                          self.cloudinary_api_key.text())
+        settings.setValue("pyarchinit/storage/cloudinary/api_secret",
+                          self.cloudinary_api_secret.text())
+        settings.setValue("pyarchinit/storage/cloudinary/folder",
+                          self.cloudinary_folder.text())
+        settings.setValue("pyarchinit/storage/cloudinary/auto_tagging",
+                          "true" if self.cloudinary_auto_tagging.currentIndex() == 1 else "false")
 
         # Google Drive
         settings.setValue("pyarchinit/storage/gdrive/client_id",
