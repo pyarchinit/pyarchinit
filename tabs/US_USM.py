@@ -72,12 +72,13 @@ from docx import Document
 from docx.shared import Pt, Inches
 from docx.oxml import parse_xml
 
-from langchain_openai import ChatOpenAI
-from langchain.chains import RetrievalQA
-from langchain.agents import AgentType, Tool, initialize_agent
-from langchain.memory import ConversationSummaryMemory
-
-from langchain.schema import SystemMessage
+# LangChain imports removed from top-level to avoid pydantic conflicts on Windows
+# They are imported lazily in the methods that use them:
+# - ChatOpenAI: imported in methods that create LLM instances
+# - RetrievalQA: imported in create_qa_chain methods
+# - AgentType, Tool, initialize_agent: imported where agents are created
+# - ConversationSummaryMemory: imported in generate_and_display_report
+# - SystemMessage: imported in create_system_message
 
 matplotlib.use('QT5Agg')  # Assicurati di chiamare use() prima di importare FigureCanvas
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
@@ -6780,6 +6781,9 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 })
     def create_system_message(self):
         """Create the system message for the LangChain agent with full schema knowledge"""
+        # Lazy import to avoid pydantic conflicts on Windows
+        from langchain.schema import SystemMessage
+
         # Import database schema knowledge
         try:
             from modules.utility.database_schema_knowledge import DatabaseSchemaKnowledge
@@ -7234,6 +7238,10 @@ DATABASE SCHEMA KNOWLEDGE:
                 enhanced_tools = self.create_validation_tools(site_data, us_data, materials_data, pottery_data)
 
                 # Step 10: Set up LangChain components
+                # Lazy imports to avoid pydantic conflicts on Windows
+                from langchain_openai import ChatOpenAI
+                from langchain.memory import ConversationSummaryMemory
+
                 llm = ChatOpenAI(
                     model_name="gpt-5",
                     api_key=api_key,
