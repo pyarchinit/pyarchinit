@@ -772,6 +772,24 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
 
         try:
             self.DB_MANAGER = get_db_manager(conn_str, use_singleton=True)
+
+            # Initialize concurrency manager with current username
+            self.concurrency_manager = ConcurrencyManager(self)
+            # Get username from connection settings
+            s = QgsSettings()
+            db_username = s.value('pyArchInit/current_user', '', type=str)
+            if not db_username:
+                # Fallback to lineEdit_User from config if available
+                db_username = conn.conn_str().split('/')[-1].split('@')[0] if '@' in conn.conn_str() else ''
+            if not db_username:
+                import getpass
+                db_username = getpass.getuser()
+            self.concurrency_manager.set_username(db_username)
+            print(f"Pottery form: ConcurrencyManager initialized with username: {db_username}")
+
+            # Initialize lock indicator (a simple status object)
+            self.lock_indicator = RecordLockIndicator(self)
+
             self.charge_records()  # charge records from DB
             # check if DB is empty
             if self.DATA_LIST:
@@ -2484,6 +2502,10 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
                             self.label_sort.setText(self.SORTED_ITEMS[self.SORT_STATUS])
                             self.enable_button(1)
 
+                            # Unlock the record after successful save
+                            if hasattr(self, 'concurrency_manager') and hasattr(self, 'editing_record_id') and self.editing_record_id:
+                                self.concurrency_manager.unlock_record('pottery_table', self.editing_record_id, self.DB_MANAGER)
+
                             self.fill_fields(self.REC_CORR)
                         else:
                             if self.L == 'it':
@@ -3403,14 +3425,12 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
                         )
 
                     # Set soft lock for this record
-                    if self.editing_record_id:
-                        import getpass
-                        current_user = getpass.getuser()
-                        # self.DB_MANAGER.set_editing_lock(
-                        #     'pottery_table',
-                        #     self.editing_record_id,
-                        #     current_user
-                        # )
+                    if self.editing_record_id and hasattr(self, 'concurrency_manager'):
+                        self.concurrency_manager.lock_record(
+                            'pottery_table',
+                            self.editing_record_id,
+                            self.DB_MANAGER
+                        )
             except Exception as e:
                 QgsMessageLog.logMessage(f"Error setting version tracking: {str(e)}", "PyArchInit", Qgis.Warning)
 
