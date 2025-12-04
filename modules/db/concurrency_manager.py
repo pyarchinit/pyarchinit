@@ -109,6 +109,26 @@ class ConcurrencyManager:
 
         return 'cancel'
 
+    def _get_id_field(self, table_name):
+        """Get the correct ID field name for a table"""
+        id_field_mappings = {
+            'us_table': 'id_us',
+            'tma_materiali_archeologici': 'id',
+            'inventario_materiali_table': 'id_invmat',
+            'site_table': 'id_sito',
+            'tomba_table': 'id_tomba',
+            'struttura_table': 'id_struttura',
+            'periodizzazione_table': 'id_perfass',
+            'individui_table': 'id_scheda_ind',
+            'campioni_table': 'id_campione',
+            'documentazione_table': 'id_documentazione',
+            'detsesso_table': 'id_det_sesso',
+            'deteta_table': 'id_det_eta',
+            'archeozoology_table': 'id_archzoo',
+            'pottery_table': 'id_rep'
+        }
+        return id_field_mappings.get(table_name, f"id_{table_name.replace('_table', '')}")
+
     def lock_record(self, table_name, record_id, db_manager):
         """
         Create a soft lock on a record (informational only)
@@ -119,17 +139,23 @@ class ConcurrencyManager:
             db_manager: Database manager instance
         """
         try:
-            # Update the last_modified_by to show who's editing
+            if not self.current_user:
+                print(f"ConcurrencyManager: No username set, cannot lock record")
+                return False
+
+            id_field = self._get_id_field(table_name)
             query = f"""
                 UPDATE {table_name}
                 SET editing_by = '{self.current_user}',
                     editing_since = CURRENT_TIMESTAMP
-                WHERE id_{table_name.replace('_table', '')} = {record_id}
+                WHERE {id_field} = {record_id}
             """
             db_manager.execute_sql(query)
+            print(f"ConcurrencyManager: Locked {table_name} record {record_id} for user {self.current_user}")
+            return True
         except Exception as e:
-            # If columns don't exist yet, ignore
-            pass
+            print(f"ConcurrencyManager: Error locking record - {e}")
+            return False
 
     def unlock_record(self, table_name, record_id, db_manager):
         """
@@ -141,16 +167,19 @@ class ConcurrencyManager:
             db_manager: Database manager instance
         """
         try:
+            id_field = self._get_id_field(table_name)
             query = f"""
                 UPDATE {table_name}
                 SET editing_by = NULL,
                     editing_since = NULL
-                WHERE id_{table_name.replace('_table', '')} = {record_id}
+                WHERE {id_field} = {record_id}
             """
             db_manager.execute_sql(query)
+            print(f"ConcurrencyManager: Unlocked {table_name} record {record_id}")
+            return True
         except Exception as e:
-            # If columns don't exist yet, ignore
-            pass
+            print(f"ConcurrencyManager: Error unlocking record - {e}")
+            return False
 
     def get_active_editors(self, table_name, record_id, db_manager):
         """

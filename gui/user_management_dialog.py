@@ -11,6 +11,7 @@ from PyQt5.QtWidgets import (QDialog, QWidget, QVBoxLayout, QHBoxLayout, QTabWid
                             QTextEdit, QSplitter, QListWidget, QListWidgetItem)
 from PyQt5.QtCore import Qt, QTimer, pyqtSignal
 from PyQt5.QtGui import QBrush, QColor, QFont
+from qgis.core import QgsSettings
 import hashlib
 import getpass
 from datetime import datetime
@@ -23,7 +24,14 @@ class UserManagementDialog(QDialog):
     def __init__(self, db_manager, parent=None):
         super().__init__(parent)
         self.db_manager = db_manager
-        self.current_user = getpass.getuser()
+        # Get database username from QGIS settings, fallback to OS username
+        s = QgsSettings()
+        self.current_user = s.value('pyArchInit/current_user', '', type=str)
+        if not self.current_user:
+            # Fallback: try to get from database connection
+            self.current_user = getpass.getuser()
+        # Also store the database connection username
+        self.db_username = self._get_db_username()
 
         # Verifica se l'utente è admin
         if not self.check_admin_access():
@@ -35,38 +43,81 @@ class UserManagementDialog(QDialog):
         self.init_ui()
         self.load_data()
 
-    def check_admin_access(self):
-        """Verifica se l'utente corrente è admin"""
-        # Prima verifica: se l'utente di sistema è 'admin'
-        if self.current_user.lower() == 'admin':
-            return True
-
-        # Seconda verifica: se siamo collegati come 'postgres' (superuser database)
+    def _get_db_username(self):
+        """Get the database connection username"""
+        # First try from settings (saved by pyarchinitConfigDialog)
         try:
-            # Verifica se siamo collegati come postgres
+            s = QgsSettings()
+            db_username = s.value('pyArchInit/db_username', '', type=str)
+            if db_username:
+                return db_username
+        except:
+            pass
+
+        # Fallback: query database directly
+        try:
             query = "SELECT current_user"
             result = self.db_manager.execute_sql(query)
-            if result and result[0][0].lower() in ['postgres', 'admin']:
-                return True
+            if result and result[0][0]:
+                return result[0][0]
         except:
             pass
+        return ''
 
-        # Terza verifica: controlla nella tabella se esiste
+    def check_admin_access(self):
+        """Verifica se l'utente corrente è admin"""
+        # Debug info
+        print(f"Admin access check - current_user: {self.current_user}, db_username: {self.db_username}")
+
+        # Prima verifica: se siamo collegati come 'postgres' (superuser database)
+        if self.db_username:
+            db_user_lower = self.db_username.lower()
+            if db_user_lower == 'postgres' or db_user_lower.startswith('postgres.'):
+                print(f"Admin access granted - database superuser: {self.db_username}")
+                return True
+
+        # Seconda verifica: controlla nella tabella pyarchinit_users
         try:
-            # Query per verificare ruolo admin
-            query = """
-                SELECT role FROM pyarchinit_users
-                WHERE username = :username AND is_active = TRUE
+            # Check if table exists first
+            check_table = """
+                SELECT EXISTS (
+                    SELECT FROM information_schema.tables
+                    WHERE table_name = 'pyarchinit_users'
+                )
             """
-            result = self.db_manager.execute_sql(query, {'username': self.current_user})
-            if result and result[0][0] == 'admin':
-                return True
-        except:
-            # Se la tabella non esiste, considera admin se username è 'admin' o 'postgres'
-            pass
+            table_exists = self.db_manager.execute_sql(check_table)
 
-        # Per ora, accetta sempre per test
-        return True  # TODO: Rimuovere in produzione, lasciato per configurazione iniziale
+            if not table_exists or not table_exists[0][0]:
+                # Table doesn't exist - allow admin for initial setup
+                print("Admin access granted - pyarchinit_users table doesn't exist")
+                return True
+
+            # Query per verificare ruolo admin - check both current_user and db_username
+            usernames_to_check = [self.current_user, self.db_username]
+            usernames_to_check = [u for u in usernames_to_check if u]  # Remove empty strings
+
+            for username in usernames_to_check:
+                query = """
+                    SELECT role FROM pyarchinit_users
+                    WHERE LOWER(username) = LOWER(:username) AND is_active = TRUE
+                """
+                result = self.db_manager.execute_sql(query, {'username': username})
+                if result and len(result) > 0:
+                    if result[0][0] == 'admin':
+                        print(f"Admin access granted - user '{username}' has admin role")
+                        return True
+                    else:
+                        print(f"Admin access denied - user '{username}' has role: {result[0][0]}")
+                        return False
+
+            # User not found in table
+            print(f"Admin access denied - user not found in pyarchinit_users")
+            return False
+
+        except Exception as e:
+            # If query fails, allow admin for backward compatibility
+            print(f"Admin check query failed ({e}), defaulting to admin")
+            return True
 
     def init_ui(self):
         """Inizializza interfaccia"""
@@ -81,7 +132,10 @@ class UserManagementDialog(QDialog):
         title.setStyleSheet("font-size: 18px; font-weight: bold; color: #2196F3;")
         header_layout.addWidget(title)
 
-        self.status_label = QLabel(f"Connesso come: {self.current_user} (Admin)")
+        # Show both PyArchInit user and database user for clarity
+        user_display = self.current_user if self.current_user else self.db_username
+        db_display = f" [DB: {self.db_username}]" if self.db_username and self.db_username != user_display else ""
+        self.status_label = QLabel(f"Connesso come: {user_display}{db_display} (Admin)")
         self.status_label.setStyleSheet("color: green;")
         header_layout.addStretch()
         header_layout.addWidget(self.status_label)
@@ -519,6 +573,26 @@ class UserManagementDialog(QDialog):
     def load_monitor(self):
         """Carica monitor attività real-time"""
         try:
+            # First check if the view exists
+            check_view = """
+                SELECT EXISTS (
+                    SELECT FROM pg_views
+                    WHERE viewname = 'active_editing_sessions'
+                )
+            """
+            view_exists = self.db_manager.execute_sql(check_view)
+
+            if not view_exists or not view_exists[0][0]:
+                # View doesn't exist - show info message
+                self.monitor_table.setRowCount(1)
+                item = QTableWidgetItem("La vista active_editing_sessions non esiste. "
+                                       "Eseguire 'Applica Sistema Concorrenza' dalla configurazione.")
+                item.setBackground(QBrush(QColor(255, 255, 200)))
+                self.monitor_table.setItem(0, 0, item)
+                self.monitor_table.setSpan(0, 0, 1, 7)
+                print("Monitor: active_editing_sessions view doesn't exist")
+                return
+
             query = """
                 SELECT
                     editing_by,
@@ -538,23 +612,61 @@ class UserManagementDialog(QDialog):
 
             activities = self.db_manager.execute_sql(query)
 
+            if not activities:
+                # No active sessions
+                self.monitor_table.setRowCount(1)
+                item = QTableWidgetItem("Nessuna sessione di editing attiva al momento")
+                item.setBackground(QBrush(QColor(200, 255, 200)))
+                self.monitor_table.setItem(0, 0, item)
+                self.monitor_table.setSpan(0, 0, 1, 7)
+                print("Monitor: No active editing sessions")
+                return
+
+            self.monitor_table.clearSpans()
             self.monitor_table.setRowCount(len(activities))
 
             for i, activity in enumerate(activities):
                 for j, value in enumerate(activity):
-                    item = QTableWidgetItem(str(value))
+                    item = QTableWidgetItem(str(value) if value is not None else "")
                     if j == 6:  # Status column
                         item.setTextAlignment(Qt.AlignCenter)
                         if '🔴' in str(value):
                             item.setBackground(QBrush(QColor(255, 200, 200)))
                     self.monitor_table.setItem(i, j, item)
 
+            print(f"Monitor: Loaded {len(activities)} active sessions")
+
         except Exception as e:
             print(f"Errore monitor: {e}")
+            self.monitor_table.setRowCount(1)
+            item = QTableWidgetItem(f"Errore: {str(e)[:50]}...")
+            item.setBackground(QBrush(QColor(255, 200, 200)))
+            self.monitor_table.setItem(0, 0, item)
+            self.monitor_table.setSpan(0, 0, 1, 7)
 
     def load_access_log(self):
         """Carica log accessi"""
         try:
+            # First check if the table exists
+            check_table = """
+                SELECT EXISTS (
+                    SELECT FROM information_schema.tables
+                    WHERE table_name = 'pyarchinit_access_log'
+                )
+            """
+            table_exists = self.db_manager.execute_sql(check_table)
+
+            if not table_exists or not table_exists[0][0]:
+                # Table doesn't exist - show info message
+                self.log_table.setRowCount(1)
+                item = QTableWidgetItem("La tabella pyarchinit_access_log non esiste. "
+                                       "Eseguire 'Inizializza Database Utenti' per crearla.")
+                item.setBackground(QBrush(QColor(255, 255, 200)))
+                self.log_table.setItem(0, 0, item)
+                self.log_table.setSpan(0, 0, 1, 6)
+                print("Access log: pyarchinit_access_log table doesn't exist")
+                return
+
             query = """
                 SELECT
                     timestamp,
@@ -571,12 +683,26 @@ class UserManagementDialog(QDialog):
 
             logs = self.db_manager.execute_sql(query)
 
+            if not logs:
+                # No logs in last 24 hours
+                self.log_table.setRowCount(1)
+                item = QTableWidgetItem("Nessun log di accesso nelle ultime 24 ore")
+                item.setBackground(QBrush(QColor(200, 255, 200)))
+                self.log_table.setItem(0, 0, item)
+                self.log_table.setSpan(0, 0, 1, 6)
+                print("Access log: No logs in last 24 hours")
+                return
+
+            self.log_table.clearSpans()
             self.log_table.setRowCount(len(logs))
 
             for i, log in enumerate(logs):
                 for j, value in enumerate(log):
                     if j == 0 and value:  # Timestamp
-                        item = QTableWidgetItem(value.strftime("%Y-%m-%d %H:%M:%S"))
+                        try:
+                            item = QTableWidgetItem(value.strftime("%Y-%m-%d %H:%M:%S"))
+                        except:
+                            item = QTableWidgetItem(str(value))
                     elif j == 4:  # Success
                         item = QTableWidgetItem("✓" if value else "✗")
                         item.setTextAlignment(Qt.AlignCenter)
@@ -586,8 +712,15 @@ class UserManagementDialog(QDialog):
                         item = QTableWidgetItem(str(value) if value else "")
                     self.log_table.setItem(i, j, item)
 
+            print(f"Access log: Loaded {len(logs)} entries")
+
         except Exception as e:
             print(f"Errore log: {e}")
+            self.log_table.setRowCount(1)
+            item = QTableWidgetItem(f"Errore: {str(e)[:50]}...")
+            item.setBackground(QBrush(QColor(255, 200, 200)))
+            self.log_table.setItem(0, 0, item)
+            self.log_table.setSpan(0, 0, 1, 6)
 
     def load_roles(self):
         """Carica ruoli"""

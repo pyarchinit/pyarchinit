@@ -280,26 +280,59 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
 
             # Check if we're connected and if user is admin
             if hasattr(self, 'DB_MANAGER') and self.DB_MANAGER:
-                # Simple check: if username in UI is 'admin' or current system user is 'admin'
-                import getpass
-                username_ui = self.lineEdit_User.text().lower() if hasattr(self, 'lineEdit_User') else ''
-                system_user = getpass.getuser().lower()
+                # Get username from UI field (database connection username)
+                username_ui = self.lineEdit_User.text() if hasattr(self, 'lineEdit_User') else ''
+                username_ui_lower = username_ui.lower()
 
-                # Consider user as admin if:
-                # 1. Username in UI is 'admin'
-                # 2. System username is 'admin'
-                # 3. Database is PostgreSQL and user is 'postgres' (standard PostgreSQL)
-                # 4. Database is PostgreSQL and user starts with 'postgres.' (Supabase admin users)
-                # 5. Username contains 'admin' (flexible admin detection)
-                is_admin = (username_ui == 'admin' or
-                           system_user == 'admin' or
-                           (self.comboBox_Database.currentText() == 'postgres' and 
-                            (username_ui == 'postgres' or 
-                             username_ui.startswith('postgres.') or
-                             'admin' in username_ui.lower())))
+                # Default to admin for backward compatibility
+                is_admin = True
+
+                # Check admin status
+                try:
+                    if self.comboBox_Database.currentText() == 'postgres':
+                        # First: Check if user is 'postgres' or starts with 'postgres.' (superuser)
+                        if username_ui_lower == 'postgres' or username_ui_lower.startswith('postgres.'):
+                            is_admin = True
+                            print(f"Admin check - User is postgres superuser: {username_ui}")
+                        else:
+                            # Check if pyarchinit_users table exists
+                            check_table = "SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'pyarchinit_users')"
+                            table_exists = self.DB_MANAGER.execute_sql(check_table)
+
+                            if table_exists and table_exists[0][0]:
+                                # Table exists - check user's role
+                                # Try with the exact username first (case-sensitive)
+                                query = f"SELECT role FROM pyarchinit_users WHERE username = '{username_ui}' AND is_active = TRUE"
+                                result = self.DB_MANAGER.execute_sql(query)
+
+                                if not result:
+                                    # Try case-insensitive
+                                    query = f"SELECT role FROM pyarchinit_users WHERE LOWER(username) = LOWER('{username_ui}') AND is_active = TRUE"
+                                    result = self.DB_MANAGER.execute_sql(query)
+
+                                if result and len(result) > 0:
+                                    role = result[0][0]
+                                    is_admin = (role == 'admin')
+                                    print(f"Admin check - User '{username_ui}' has role: {role}, is_admin: {is_admin}")
+                                else:
+                                    # User not found in pyarchinit_users - default to admin for initial setup
+                                    is_admin = True
+                                    print(f"Admin check - User '{username_ui}' not in pyarchinit_users, defaulting to admin")
+                            else:
+                                # Table doesn't exist - allow admin for initial setup
+                                is_admin = True
+                                print("Admin check - pyarchinit_users table doesn't exist, defaulting to admin")
+                    else:
+                        # SQLite - default to admin for local databases
+                        is_admin = True
+                        print("Admin check - SQLite database, defaulting to admin")
+                except Exception as e:
+                    # If any check fails, default to admin for backward compatibility
+                    is_admin = True
+                    print(f"Admin check - Exception occurred ({e}), defaulting to admin")
 
                 # Debug
-                print(f"Admin check - Username UI: {username_ui}, System user: {system_user}, Is admin: {is_admin}")
+                print(f"Admin check FINAL - Username: {username_ui}, Is admin: {is_admin}")
 
                 if is_admin:
                     # Add admin section to the config dialog
@@ -4664,6 +4697,9 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                     self.reconnect_set_db_param_func()
                     delattr(self, 'reconnect_set_db_param_func')
 
+                # Save current user to settings for admin checks
+                self.save_current_user_to_settings()
+
                 # Setup admin features after successful connection
                 self.setup_admin_features()
 
@@ -4697,6 +4733,9 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 if hasattr(self, 'reconnect_set_db_param_func'):
                     self.reconnect_set_db_param_func()
                     delattr(self, 'reconnect_set_db_param_func')
+
+                # Save current user to settings for admin checks
+                self.save_current_user_to_settings()
 
                 # Setup admin features after successful connection
                 self.setup_admin_features()
@@ -4733,6 +4772,9 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                     self.reconnect_set_db_param_func()
                     delattr(self, 'reconnect_set_db_param_func')
 
+                # Save current user to settings for admin checks
+                self.save_current_user_to_settings()
+
                 # Setup admin features after successful connection
                 self.setup_admin_features()
 
@@ -4757,6 +4799,41 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 QMessageBox.warning(self, "Alert", "Errore di connessione: <br>" +
                     "Cambia i parametri e riprova a connetterti. Oppure aggiorna il database con l'apposita funzione che trovi in basso a sinistra",
                                     QMessageBox.Ok)
+
+    def save_current_user_to_settings(self):
+        """Save current database username to settings for admin checks"""
+        try:
+            s = QgsSettings()
+            # Get the username from UI field
+            username = self.lineEdit_User.text() if hasattr(self, 'lineEdit_User') else ''
+
+            if username:
+                s.setValue('pyArchInit/current_user', username)
+                print(f"Saved current user to settings: {username}")
+
+                # Also try to get the database username for reference
+                if hasattr(self, 'DB_MANAGER') and self.DB_MANAGER:
+                    try:
+                        query = "SELECT current_user"
+                        result = self.DB_MANAGER.execute_sql(query)
+                        if result and result[0][0]:
+                            db_username = result[0][0]
+                            s.setValue('pyArchInit/db_username', db_username)
+                            print(f"Saved DB username to settings: {db_username}")
+                    except:
+                        pass
+
+                    # Update last_login in pyarchinit_users table
+                    try:
+                        if self.comboBox_Database.currentText() == 'postgres':
+                            update_login = f"UPDATE pyarchinit_users SET last_login = CURRENT_TIMESTAMP WHERE LOWER(username) = LOWER('{username}')"
+                            self.DB_MANAGER.execute_sql(update_login)
+                            print(f"Updated last_login for user: {username}")
+                    except Exception as e:
+                        print(f"Could not update last_login: {e}")
+
+        except Exception as e:
+            print(f"Error saving current user to settings: {e}")
 
     def connection_up(self):
         self.summary()
