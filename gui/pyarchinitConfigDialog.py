@@ -4004,6 +4004,8 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                                    'pyarchinit_schema_updated.sql')
         view_file = os.path.join(os.path.dirname(__file__), os.pardir, 'resources', 'dbfiles',
                                    'create_view_updated.sql')
+        trigger_file = os.path.join(os.path.dirname(__file__), os.pardir, 'sql',
+                                   'create_activity_triggers.sql')
 
         if not bool(self.lineEdit_db_passwd.text()):
             self.creating_database = False  # Clear flag if password missing
@@ -4060,6 +4062,16 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                     else:
                         QMessageBox.warning(self, "WARNING", "Database created but views were not created. Error: " + str(e)[:200], QMessageBox.Ok)
                     # Continue anyway, the database is created
+
+                # create activity tracking triggers
+                try:
+                    if os.path.exists(trigger_file):
+                        RestoreSchema(db_url, trigger_file).restore_schema()
+                        self.logger.log("Activity tracking triggers created successfully")
+                except Exception as e:
+                    # Log the trigger creation error but don't fail the entire process
+                    self.logger.log(f"Warning: Activity triggers not created: {str(e)[:200]}")
+                    # This is non-critical, don't show a warning to the user
 
                 #set owner
                 # Don't change owner if user is a PostgreSQL admin (postgres or postgres.xxx for Supabase)

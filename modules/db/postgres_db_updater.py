@@ -47,7 +47,10 @@ class PostgresDbUpdater:
             
             # Aggiorna la view pyarchinit_us_view
             self.update_us_view()
-            
+
+            # Installa/aggiorna i trigger per il tracking delle attività
+            self.update_activity_triggers()
+
             # Altri aggiornamenti possono essere aggiunti qui in futuro
             
             if self.updates_made:
@@ -382,9 +385,47 @@ class PostgresDbUpdater:
             
             self.db_manager.engine.execute(create_query)
             self.log_message("View pyarchinit_us_view creata/aggiornata con successo")
-            
+
         except Exception as e:
             self.log_message(f"Errore creando/aggiornando pyarchinit_us_view: {e}")
+
+    def update_activity_triggers(self):
+        """Installa/aggiorna i trigger per il tracking delle attività"""
+        self.log_message("Controllo trigger per tracking attività...")
+
+        try:
+            import os
+            from sqlalchemy import text
+
+            # Path to trigger SQL file
+            trigger_file = os.path.join(os.path.dirname(__file__), os.pardir, os.pardir,
+                                       'sql', 'create_activity_triggers.sql')
+
+            if not os.path.exists(trigger_file):
+                self.log_message(f"File trigger non trovato: {trigger_file}")
+                return
+
+            # Read and execute the trigger SQL
+            with open(trigger_file, 'r', encoding='utf-8') as f:
+                trigger_sql = f.read()
+
+            # Execute the SQL script
+            # Split by statements for proper execution
+            statements = trigger_sql.split(';')
+            for stmt in statements:
+                stmt = stmt.strip()
+                if stmt and not stmt.startswith('--'):
+                    try:
+                        self.db_manager.engine.execute(text(stmt))
+                    except Exception as stmt_error:
+                        # Skip errors for already existing objects
+                        if 'already exists' not in str(stmt_error).lower():
+                            self.log_message(f"Warning eseguendo statement trigger: {str(stmt_error)[:100]}")
+
+            self.log_message("Trigger per tracking attività installati/aggiornati")
+
+        except Exception as e:
+            self.log_message(f"Errore installando trigger attività: {e}")
 
 
 def check_and_update_postgres_db(db_manager, parent=None):

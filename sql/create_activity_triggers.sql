@@ -4,6 +4,65 @@
 -- =====================================================
 
 -- =====================================================
+-- 0. CREAZIONE TABELLA ACCESS LOG (se non esiste)
+-- =====================================================
+
+CREATE TABLE IF NOT EXISTS pyarchinit_access_log (
+    id SERIAL PRIMARY KEY,
+    username VARCHAR(100),
+    action VARCHAR(50),
+    table_accessed VARCHAR(100),
+    operation VARCHAR(50),
+    record_id TEXT,
+    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    success BOOLEAN DEFAULT TRUE,
+    details TEXT
+);
+
+-- Create index for faster queries
+CREATE INDEX IF NOT EXISTS idx_access_log_username ON pyarchinit_access_log(username);
+CREATE INDEX IF NOT EXISTS idx_access_log_timestamp ON pyarchinit_access_log(timestamp);
+CREATE INDEX IF NOT EXISTS idx_access_log_table ON pyarchinit_access_log(table_accessed);
+
+-- =====================================================
+-- 0b. AGGIUNGI COLONNE CONCURRENCY ALLE TABELLE
+-- =====================================================
+
+-- Funzione per aggiungere colonne di concurrency a una tabella
+CREATE OR REPLACE FUNCTION add_concurrency_columns(p_table_name TEXT)
+RETURNS VOID AS $$
+BEGIN
+    -- Add editing_by column if not exists
+    EXECUTE format('ALTER TABLE %I ADD COLUMN IF NOT EXISTS editing_by VARCHAR(100)', p_table_name);
+    -- Add editing_since column if not exists
+    EXECUTE format('ALTER TABLE %I ADD COLUMN IF NOT EXISTS editing_since TIMESTAMP', p_table_name);
+    -- Add version_number column if not exists
+    EXECUTE format('ALTER TABLE %I ADD COLUMN IF NOT EXISTS version_number INTEGER DEFAULT 1', p_table_name);
+    -- Add last_modified_by column if not exists
+    EXECUTE format('ALTER TABLE %I ADD COLUMN IF NOT EXISTS last_modified_by VARCHAR(100)', p_table_name);
+    -- Add last_modified_timestamp column if not exists
+    EXECUTE format('ALTER TABLE %I ADD COLUMN IF NOT EXISTS last_modified_timestamp TIMESTAMP', p_table_name);
+EXCEPTION WHEN OTHERS THEN
+    -- Ignore errors (table might not exist)
+    RAISE NOTICE 'Could not add columns to %: %', p_table_name, SQLERRM;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Apply to all main tables
+SELECT add_concurrency_columns('us_table');
+SELECT add_concurrency_columns('pottery_table');
+SELECT add_concurrency_columns('inventario_materiali_table');
+SELECT add_concurrency_columns('tma_materiali_archeologici');
+SELECT add_concurrency_columns('site_table');
+SELECT add_concurrency_columns('periodizzazione_table');
+SELECT add_concurrency_columns('struttura_table');
+SELECT add_concurrency_columns('tomba_table');
+SELECT add_concurrency_columns('individui_table');
+SELECT add_concurrency_columns('campioni_table');
+SELECT add_concurrency_columns('documentazione_table');
+SELECT add_concurrency_columns('archeozoology_table');
+
+-- =====================================================
 -- 1. FUNZIONE PER LOG ACCESSI
 -- =====================================================
 
