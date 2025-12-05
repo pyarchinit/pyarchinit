@@ -1257,6 +1257,9 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         self.delegateUnMis.def_editable('False')
         self.tableWidget_tecnologie.setItemDelegateForColumn(3, self.delegateUnMis)
 
+        # Setup Statistics Tab
+        self.setup_statistics_tab()
+
     def dropEvent(self, event):
         mimeData = event.mimeData()
         accepted_formats = ["jpg", "jpeg", "png", "tiff", "tif", "bmp", "mp4", "avi", "mov", "mkv", "flv", "obj", "stl",
@@ -6043,6 +6046,832 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         except Exception as e:
             # Log silently to avoid annoying messages
             pass  # QgsMessageLog.logMessage(f"Update check error: {str(e)}", "PyArchInit", Qgis.Info)
+
+    # =====================================================
+    # STATISTICS TAB METHODS
+    # =====================================================
+
+    def setup_statistics_tab(self):
+        """Setup the Statistics tab with all necessary widgets"""
+        try:
+            # Find the Quantificazioni tab (tab_6)
+            stats_tab = self.tab_6
+
+            # Create main layout for the statistics tab
+            main_layout = QVBoxLayout()
+
+            # Create a splitter for flexible layout
+            splitter = QSplitter(Qt.Horizontal)
+
+            # ========== LEFT PANEL - Tables and Controls ==========
+            left_widget = QWidget()
+            left_layout = QVBoxLayout(left_widget)
+
+            # Header with controls
+            controls_layout = QHBoxLayout()
+
+            # Refresh button
+            self.pushButton_refresh_stats = QPushButton("Aggiorna Statistiche" if self.L == 'it' else
+                                                         "Statistiken aktualisieren" if self.L == 'de' else
+                                                         "Refresh Statistics")
+            self.pushButton_refresh_stats.setMaximumWidth(150)
+            self.pushButton_refresh_stats.clicked.connect(self.calculate_statistics)
+            controls_layout.addWidget(self.pushButton_refresh_stats)
+
+            # Analysis type combo
+            self.comboBox_stats_type = QComboBox()
+            if self.L == 'it':
+                stats_items = [
+                    "Distribuzione per Tipo Reperto",
+                    "Distribuzione per Classe Materiale",
+                    "Distribuzione per Definizione",
+                    "Distribuzione per Area",
+                    "Distribuzione per US",
+                    "Distribuzione per Datazione",
+                    "Distribuzione per Corpo Ceramico",
+                    "Distribuzione per Rivestimento"
+                ]
+            elif self.L == 'de':
+                stats_items = [
+                    "Verteilung nach Artefakttyp",
+                    "Verteilung nach Materialklasse",
+                    "Verteilung nach Definition",
+                    "Verteilung nach Areal",
+                    "Verteilung nach SE",
+                    "Verteilung nach Datierung",
+                    "Verteilung nach Keramikkörper",
+                    "Verteilung nach Beschichtung"
+                ]
+            else:
+                stats_items = [
+                    "Distribution by Artefact Type",
+                    "Distribution by Material Class",
+                    "Distribution by Definition",
+                    "Distribution by Area",
+                    "Distribution by SU",
+                    "Distribution by Dating",
+                    "Distribution by Ceramic Body",
+                    "Distribution by Coating"
+                ]
+            self.comboBox_stats_type.addItems(stats_items)
+            self.comboBox_stats_type.currentIndexChanged.connect(self.on_stats_combo_changed)
+
+            lbl_text = "Tipo Analisi:" if self.L == 'it' else "Analysetyp:" if self.L == 'de' else "Analysis Type:"
+            controls_layout.addWidget(QLabel(lbl_text))
+            controls_layout.addWidget(self.comboBox_stats_type)
+            controls_layout.addStretch()
+
+            left_layout.addLayout(controls_layout)
+
+            # Summary table
+            grp_title = "Riepilogo Generale" if self.L == 'it' else "Allgemeine Zusammenfassung" if self.L == 'de' else "General Summary"
+            summary_group = QGroupBox(grp_title)
+            summary_layout = QVBoxLayout(summary_group)
+
+            self.tableWidget_stats = QTableWidget()
+            self.tableWidget_stats.setColumnCount(3)
+            headers = ["Categoria", "Conteggio", "Percentuale"] if self.L == 'it' else \
+                      ["Kategorie", "Anzahl", "Prozent"] if self.L == 'de' else \
+                      ["Category", "Count", "Percentage"]
+            self.tableWidget_stats.setHorizontalHeaderLabels(headers)
+            self.tableWidget_stats.horizontalHeader().setStretchLastSection(True)
+            self.tableWidget_stats.setAlternatingRowColors(True)
+            self.tableWidget_stats.setMinimumHeight(200)
+            summary_layout.addWidget(self.tableWidget_stats)
+
+            left_layout.addWidget(summary_group)
+
+            # Measurements statistics table
+            measures_title = "Statistiche Quantitative" if self.L == 'it' else "Quantitative Statistiken" if self.L == 'de' else "Quantitative Statistics"
+            measures_group = QGroupBox(measures_title)
+            measures_layout = QVBoxLayout(measures_group)
+
+            self.tableWidget_measures = QTableWidget()
+            self.tableWidget_measures.setColumnCount(5)
+            headers_m = ["Misura", "Min", "Max", "Media", "Mediana"] if self.L == 'it' else \
+                        ["Maß", "Min", "Max", "Mittel", "Median"] if self.L == 'de' else \
+                        ["Measure", "Min", "Max", "Mean", "Median"]
+            self.tableWidget_measures.setHorizontalHeaderLabels(headers_m)
+            self.tableWidget_measures.horizontalHeader().setStretchLastSection(True)
+            self.tableWidget_measures.setAlternatingRowColors(True)
+            self.tableWidget_measures.setMinimumHeight(150)
+            measures_layout.addWidget(self.tableWidget_measures)
+
+            left_layout.addWidget(measures_group)
+
+            # AI Report section
+            ai_title = "Report AI Descrittivo" if self.L == 'it' else "KI-Beschreibender Bericht" if self.L == 'de' else "AI Descriptive Report"
+            ai_group = QGroupBox(ai_title)
+            ai_layout = QVBoxLayout(ai_group)
+
+            ai_buttons_layout = QHBoxLayout()
+            btn_gen = "Genera Report AI" if self.L == 'it' else "KI-Bericht erstellen" if self.L == 'de' else "Generate AI Report"
+            self.pushButton_generate_ai_report = QPushButton(btn_gen)
+            self.pushButton_generate_ai_report.clicked.connect(self.generate_ai_report)
+            ai_buttons_layout.addWidget(self.pushButton_generate_ai_report)
+
+            btn_exp = "Esporta PDF" if self.L == 'it' else "PDF exportieren" if self.L == 'de' else "Export PDF"
+            self.pushButton_export_stats_pdf = QPushButton(btn_exp)
+            self.pushButton_export_stats_pdf.clicked.connect(self.export_statistics_pdf)
+            ai_buttons_layout.addWidget(self.pushButton_export_stats_pdf)
+            ai_buttons_layout.addStretch()
+
+            ai_layout.addLayout(ai_buttons_layout)
+
+            self.textEdit_ai_report = QTextEdit()
+            placeholder = "Il report AI verrà visualizzato qui dopo la generazione..." if self.L == 'it' else \
+                         "Der KI-Bericht wird hier nach der Erstellung angezeigt..." if self.L == 'de' else \
+                         "AI report will be displayed here after generation..."
+            self.textEdit_ai_report.setPlaceholderText(placeholder)
+            self.textEdit_ai_report.setMinimumHeight(150)
+            ai_layout.addWidget(self.textEdit_ai_report)
+
+            left_layout.addWidget(ai_group)
+
+            splitter.addWidget(left_widget)
+
+            # ========== RIGHT PANEL - Chart (existing Mplwidget) ==========
+            if hasattr(self, 'widget') and self.widget is not None:
+                splitter.addWidget(self.widget)
+
+            splitter.setSizes([400, 600])
+
+            # Clear existing layout and set new layout
+            if stats_tab.layout():
+                old_layout = stats_tab.layout()
+                while old_layout.count():
+                    item = old_layout.takeAt(0)
+                    if item.widget() and item.widget() != self.widget:
+                        pass
+            else:
+                stats_tab.setLayout(QVBoxLayout())
+
+            stats_tab.layout().addWidget(splitter)
+
+            # Keep reference to pushButtonQuant if it exists
+            if hasattr(self, 'pushButtonQuant'):
+                self.pushButtonQuant.setParent(None)
+                controls_layout.addWidget(self.pushButtonQuant)
+
+            self.stats_data = {}
+
+        except Exception as e:
+            print(f"Error setting up statistics tab: {e}")
+            import traceback
+            traceback.print_exc()
+
+    def calculate_statistics(self):
+        """Calculate all statistics for the current site"""
+        try:
+            sito = self.comboBox_sito.currentText()
+            if not sito or sito == "Inserisci un valore":
+                msg = "Seleziona prima un sito." if self.L == 'it' else \
+                      "Bitte wählen Sie zuerst eine Ausgrabungsstätte." if self.L == 'de' else \
+                      "Please select a site first."
+                QMessageBox.warning(self, "Warning", msg, QMessageBox.Ok)
+                return
+
+            search_dict = {'sito': f"'{sito}'"}
+            records = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
+
+            if not records:
+                msg = "Nessun record trovato per questo sito." if self.L == 'it' else \
+                      "Keine Datensätze für diese Ausgrabungsstätte gefunden." if self.L == 'de' else \
+                      "No records found for this site."
+                QMessageBox.information(self, "Info", msg, QMessageBox.Ok)
+                return
+
+            self.stats_records = records
+            self.stats_data = {
+                'sito': sito,
+                'total': len(records),
+                'records': records
+            }
+
+            self.on_stats_combo_changed()
+            self.generate_measurement_stats()
+            self.calculate_provenance_stats()
+
+        except Exception as e:
+            QMessageBox.warning(self, "Error", f"Error calculating statistics: {e}", QMessageBox.Ok)
+
+    def on_stats_combo_changed(self):
+        """Handle statistics type combo box change"""
+        if not hasattr(self, 'stats_records') or not self.stats_records:
+            return
+
+        stat_type = self.comboBox_stats_type.currentIndex()
+
+        field_mapping = {
+            0: "tipo_reperto",
+            1: "criterio_schedatura",
+            2: "definizione",
+            3: "area",
+            4: "us",
+            5: "datazione_reperto",
+            6: "corpo_ceramico",
+            7: "rivestimento"
+        }
+
+        field = field_mapping.get(stat_type, "tipo_reperto")
+        self.generate_category_stats(field)
+
+    def generate_category_stats(self, field):
+        """Generate statistics for a specific category field"""
+        if not hasattr(self, 'stats_records') or not self.stats_records:
+            return
+
+        try:
+            counts = {}
+            total = len(self.stats_records)
+
+            for record in self.stats_records:
+                value = getattr(record, field, None)
+                if value is None or str(value).strip() == '' or str(value) == 'None':
+                    value = 'N/D'
+                else:
+                    value = str(value)
+
+                counts[value] = counts.get(value, 0) + 1
+
+            sorted_counts = sorted(counts.items(), key=lambda x: x[1], reverse=True)
+
+            self.tableWidget_stats.setRowCount(len(sorted_counts) + 1)
+
+            total_label = "TOTALE" if self.L == 'it' else "GESAMT" if self.L == 'de' else "TOTAL"
+            self.tableWidget_stats.setItem(0, 0, QTableWidgetItem(total_label))
+            self.tableWidget_stats.setItem(0, 1, QTableWidgetItem(str(total)))
+            self.tableWidget_stats.setItem(0, 2, QTableWidgetItem("100%"))
+
+            for col in range(3):
+                item = self.tableWidget_stats.item(0, col)
+                font = item.font()
+                font.setBold(True)
+                item.setFont(font)
+
+            for i, (category, count) in enumerate(sorted_counts, 1):
+                percentage = (count / total) * 100 if total > 0 else 0
+                self.tableWidget_stats.setItem(i, 0, QTableWidgetItem(category))
+                self.tableWidget_stats.setItem(i, 1, QTableWidgetItem(str(count)))
+                self.tableWidget_stats.setItem(i, 2, QTableWidgetItem(f"{percentage:.1f}%"))
+
+            self.tableWidget_stats.resizeColumnsToContents()
+
+            chart_data = [(cat, cnt) for cat, cnt in sorted_counts[:15]]
+            if chart_data:
+                field_label = field.replace('_', ' ').title()
+                title = f"Distribuzione per {field_label}" if self.L == 'it' else \
+                        f"Verteilung nach {field_label}" if self.L == 'de' else \
+                        f"Distribution by {field_label}"
+                self.plot_chart(chart_data, title, "Qty")
+
+            self.stats_data[field] = sorted_counts
+
+        except Exception as e:
+            print(f"Error generating category stats: {e}")
+
+    def calculate_provenance_stats(self):
+        """Calculate provenance statistics (area, US distributions)"""
+        if not hasattr(self, 'stats_records') or not self.stats_records:
+            return
+
+        try:
+            for field in ['area', 'us']:
+                counts = {}
+                for record in self.stats_records:
+                    value = getattr(record, field, None)
+                    if value is None or str(value).strip() == '' or str(value) == 'None':
+                        value = 'N/D'
+                    else:
+                        value = str(value)
+                    counts[value] = counts.get(value, 0) + 1
+
+                sorted_counts = sorted(counts.items(), key=lambda x: x[1], reverse=True)
+                self.stats_data[field] = sorted_counts
+
+        except Exception as e:
+            print(f"Error calculating provenance stats: {e}")
+
+    def generate_measurement_stats(self):
+        """Generate statistics for measurement fields"""
+        if not hasattr(self, 'stats_records') or not self.stats_records:
+            return
+
+        try:
+            if self.L == 'it':
+                measurements = {
+                    'Forme Minime': 'forme_minime',
+                    'Forme Massime': 'forme_massime',
+                    'Totale Frammenti': 'totale_frammenti',
+                    'Diametro Orlo': 'diametro_orlo',
+                    'Peso': 'peso',
+                    'EVE Orlo': 'eve_orlo'
+                }
+            elif self.L == 'de':
+                measurements = {
+                    'Min. Formen': 'forme_minime',
+                    'Max. Formen': 'forme_massime',
+                    'Gesamtfragmente': 'totale_frammenti',
+                    'Randdurchmesser': 'diametro_orlo',
+                    'Gewicht': 'peso',
+                    'EVE Rand': 'eve_orlo'
+                }
+            else:
+                measurements = {
+                    'Min Forms': 'forme_minime',
+                    'Max Forms': 'forme_massime',
+                    'Total Fragments': 'totale_frammenti',
+                    'Rim Diameter': 'diametro_orlo',
+                    'Weight': 'peso',
+                    'EVE Rim': 'eve_orlo'
+                }
+
+            self.tableWidget_measures.setRowCount(len(measurements))
+            self.stats_data['measurements'] = {}
+
+            for row, (label, field) in enumerate(measurements.items()):
+                values = []
+                for record in self.stats_records:
+                    value = getattr(record, field, None)
+                    if value is not None and str(value) not in ['', 'None', 'NULL']:
+                        try:
+                            values.append(float(value))
+                        except (ValueError, TypeError):
+                            pass
+
+                self.tableWidget_measures.setItem(row, 0, QTableWidgetItem(label))
+
+                if values:
+                    min_val = min(values)
+                    max_val = max(values)
+                    mean_val = sum(values) / len(values)
+                    sorted_vals = sorted(values)
+                    median_val = sorted_vals[len(sorted_vals) // 2]
+
+                    self.tableWidget_measures.setItem(row, 1, QTableWidgetItem(f"{min_val:.2f}"))
+                    self.tableWidget_measures.setItem(row, 2, QTableWidgetItem(f"{max_val:.2f}"))
+                    self.tableWidget_measures.setItem(row, 3, QTableWidgetItem(f"{mean_val:.2f}"))
+                    self.tableWidget_measures.setItem(row, 4, QTableWidgetItem(f"{median_val:.2f}"))
+
+                    self.stats_data['measurements'][label] = {
+                        'min': min_val, 'max': max_val,
+                        'mean': mean_val, 'median': median_val,
+                        'count': len(values)
+                    }
+                else:
+                    for col in range(1, 5):
+                        self.tableWidget_measures.setItem(row, col, QTableWidgetItem("N/D"))
+
+            self.tableWidget_measures.resizeColumnsToContents()
+
+        except Exception as e:
+            print(f"Error generating measurement stats: {e}")
+
+    def build_statistics_prompt(self):
+        """Build a prompt for AI report generation with language support"""
+        if not hasattr(self, 'stats_data') or not self.stats_data:
+            return None
+
+        sito = self.stats_data.get('sito', 'Unknown')
+        total = self.stats_data.get('total', 0)
+
+        self.calculate_provenance_stats()
+
+        data_section = f"""
+SITE: {sito}
+TOTAL ARTEFACTS: {total}
+
+"""
+        categories = ['tipo_reperto', 'criterio_schedatura', 'definizione', 'datazione_reperto']
+        category_labels = {
+            'tipo_reperto': 'ARTEFACT TYPE',
+            'criterio_schedatura': 'MATERIAL CLASS',
+            'definizione': 'DEFINITION',
+            'datazione_reperto': 'DATING'
+        }
+
+        for cat in categories:
+            if cat in self.stats_data:
+                data = self.stats_data[cat]
+                data_section += f"\n{category_labels.get(cat, cat.upper())} DISTRIBUTION:\n"
+                for item, count in data[:10]:
+                    percentage = (count / total) * 100 if total > 0 else 0
+                    data_section += f"  - {item}: {count} ({percentage:.1f}%)\n"
+
+        data_section += "\n--- PROVENANCE DATA ---\n"
+
+        provenance_fields = ['area', 'us']
+        provenance_labels = {'area': 'AREA', 'us': 'STRATIGRAPHIC UNIT (US)'}
+
+        for field in provenance_fields:
+            if field in self.stats_data:
+                data = self.stats_data[field]
+                data_section += f"\n{provenance_labels.get(field, field.upper())} DISTRIBUTION:\n"
+                for item, count in data[:15]:
+                    percentage = (count / total) * 100 if total > 0 else 0
+                    data_section += f"  - {item}: {count} ({percentage:.1f}%)\n"
+
+        if 'measurements' in self.stats_data:
+            data_section += "\nQUANTITATIVE STATISTICS:\n"
+            for label, stats in self.stats_data['measurements'].items():
+                if isinstance(stats, dict):
+                    data_section += f"  - {label}: min={stats['min']:.2f}, max={stats['max']:.2f}, mean={stats['mean']:.2f}, median={stats['median']:.2f} (n={stats['count']})\n"
+
+        if self.L == 'it':
+            instructions = """
+ISTRUZIONI:
+Genera un report descrittivo in ITALIANO (circa 400-600 parole) che:
+1. Riassuma le caratteristiche principali del complesso di materiali archeologici
+2. Evidenzi le categorie predominanti (tipi di reperti, classi materiali, definizioni)
+3. Analizzi la distribuzione spaziale per area e US, identificando concentrazioni significative
+4. Discuta le quantità e le datazioni dei reperti
+5. Fornisca considerazioni cronologiche e tipologiche
+6. Identifichi eventuali pattern significativi nella distribuzione spaziale
+7. Proponga interpretazioni archeologiche preliminari
+
+Il tono deve essere professionale e scientifico, adatto a una pubblicazione archeologica.
+"""
+        elif self.L == 'de':
+            instructions = """
+ANWEISUNGEN:
+Erstellen Sie einen beschreibenden Bericht auf DEUTSCH (ca. 400-600 Wörter), der:
+1. Die Hauptmerkmale des archäologischen Fundkomplexes zusammenfasst
+2. Die vorherrschenden Kategorien hervorhebt (Artefakttypen, Materialklassen, Definitionen)
+3. Die räumliche Verteilung nach Areal und SE analysiert
+4. Die Mengen und Datierungen der Funde diskutiert
+5. Chronologische und typologische Überlegungen liefert
+6. Signifikante Muster in der räumlichen Verteilung identifiziert
+7. Vorläufige archäologische Interpretationen vorschlägt
+
+Der Ton sollte professionell und wissenschaftlich sein.
+"""
+        else:
+            instructions = """
+INSTRUCTIONS:
+Generate a descriptive report in ENGLISH (approximately 400-600 words) that:
+1. Summarizes the main characteristics of the archaeological assemblage
+2. Highlights the predominant categories (artefact types, material classes, definitions)
+3. Analyzes the spatial distribution by area and SU, identifying significant concentrations
+4. Discusses the quantities and dating of the finds
+5. Provides chronological and typological considerations
+6. Identifies any significant patterns in the spatial distribution
+7. Proposes preliminary archaeological interpretations
+
+The tone should be professional and scientific, suitable for an archaeological publication.
+"""
+
+        prompt = f"""Analyze the following archaeological artefact data from the site:
+
+{data_section}
+
+{instructions}
+"""
+        return prompt
+
+    def get_openai_api_key(self):
+        """Get OpenAI API key from file or prompt user to enter it"""
+        HOME = os.environ.get('PYARCHINIT_HOME', os.path.join(os.path.expanduser('~'), 'pyarchinit'))
+        BIN = os.path.join(HOME, 'bin')
+
+        if not os.path.exists(BIN):
+            os.makedirs(BIN, exist_ok=True)
+
+        path_key = os.path.join(BIN, 'gpt_api_key.txt')
+        api_key = ""
+
+        if os.path.exists(path_key):
+            with open(path_key, 'r') as f:
+                api_key = f.read().strip()
+
+            if api_key:
+                return api_key
+            else:
+                msg = 'Il file gpt_api_key.txt è vuoto.\nInserisci la tua OpenAI API key:' if self.L == 'it' else \
+                      'Die Datei gpt_api_key.txt ist leer.\nGeben Sie Ihren OpenAI API-Schlüssel ein:' if self.L == 'de' else \
+                      'The gpt_api_key.txt file is empty.\nEnter your OpenAI API key:'
+                api_key, ok = QInputDialog.getText(self, 'OpenAI API Key', msg)
+                if ok and api_key:
+                    with open(path_key, 'w') as f:
+                        f.write(api_key)
+                    return api_key
+        else:
+            msg = 'API key non trovata.\nInserisci la tua OpenAI API key:\n\n(Verrà salvata in ~/pyarchinit/bin/gpt_api_key.txt)' if self.L == 'it' else \
+                  'API-Schlüssel nicht gefunden.\nGeben Sie Ihren OpenAI API-Schlüssel ein:' if self.L == 'de' else \
+                  'API key not found.\nEnter your OpenAI API key:\n\n(Will be saved to ~/pyarchinit/bin/gpt_api_key.txt)'
+            api_key, ok = QInputDialog.getText(self, 'OpenAI API Key', msg)
+            if ok and api_key:
+                with open(path_key, 'w') as f:
+                    f.write(api_key)
+                return api_key
+
+        return None
+
+    def generate_ai_report(self):
+        """Generate AI-based descriptive report with streaming"""
+        if not hasattr(self, 'stats_data') or not self.stats_data:
+            msg = "Calcola prima le statistiche." if self.L == 'it' else \
+                  "Berechnen Sie zuerst die Statistiken." if self.L == 'de' else \
+                  "Calculate statistics first."
+            QMessageBox.warning(self, "Warning", msg, QMessageBox.Ok)
+            return
+
+        try:
+            api_key = self.get_openai_api_key()
+
+            if not api_key:
+                msg = "È necessaria una API key di OpenAI." if self.L == 'it' else \
+                      "Ein OpenAI API-Schlüssel ist erforderlich." if self.L == 'de' else \
+                      "An OpenAI API key is required."
+                QMessageBox.warning(self, "API Key", msg, QMessageBox.Ok)
+                return
+
+            model = 'gpt-4o-mini'
+
+            prompt = self.build_statistics_prompt()
+            if not prompt:
+                return
+
+            progress_msg = "Generazione report in corso..." if self.L == 'it' else \
+                          "Bericht wird erstellt..." if self.L == 'de' else \
+                          "Generating report..."
+
+            self.textEdit_ai_report.setText(progress_msg)
+            QApplication.processEvents()
+
+            from ..modules.utility.report_generator import ReportGenerator
+            if not ReportGenerator.is_connected():
+                msg = "Connessione internet non disponibile." if self.L == 'it' else \
+                      "Keine Internetverbindung." if self.L == 'de' else \
+                      "No internet connection."
+                QMessageBox.warning(self, "Connection", msg, QMessageBox.Ok)
+                self.textEdit_ai_report.setText("")
+                return
+
+            try:
+                from openai import OpenAI
+                client = OpenAI(api_key=api_key)
+
+                response = client.chat.completions.create(
+                    model=model,
+                    messages=[{"role": "user", "content": prompt}],
+                    stream=True,
+                )
+
+                self.textEdit_ai_report.clear()
+                full_report = ""
+
+                for chunk in response:
+                    if chunk.choices[0].delta.content is not None:
+                        content = chunk.choices[0].delta.content
+                        full_report += content
+                        self.textEdit_ai_report.setText(full_report)
+                        QApplication.processEvents()
+
+                if full_report:
+                    self.stats_data['ai_report'] = full_report
+
+            except ImportError:
+                generator = ReportGenerator()
+                report = generator.generate_report_with_openai(prompt, model, api_key)
+                if report:
+                    self.textEdit_ai_report.setText(report)
+                    self.stats_data['ai_report'] = report
+
+        except Exception as e:
+            QMessageBox.warning(self, "Error", f"Error generating AI report: {e}", QMessageBox.Ok)
+            self.textEdit_ai_report.setText("")
+
+    def generate_chart_image(self, data, title, chart_type='bar'):
+        """Generate a chart image and return the path"""
+        import matplotlib
+        matplotlib.use('Agg')
+        import matplotlib.pyplot as plt
+        from io import BytesIO
+
+        try:
+            fig, ax = plt.subplots(figsize=(8, 4))
+
+            if not data:
+                return None
+
+            labels = [str(item[0])[:20] for item in data[:10]]
+            values = [item[1] for item in data[:10]]
+
+            if chart_type == 'bar':
+                ax.bar(range(len(values)), values, color='steelblue', alpha=0.7)
+                ax.set_xticks(range(len(values)))
+                ax.set_xticklabels(labels, rotation=45, ha='right', fontsize=8)
+                ax.set_ylabel('Count')
+            elif chart_type == 'pie':
+                ax.pie(values, labels=labels, autopct='%1.1f%%', startangle=90)
+                ax.axis('equal')
+
+            ax.set_title(title, fontsize=10, fontweight='bold')
+            plt.tight_layout()
+
+            img_buffer = BytesIO()
+            plt.savefig(img_buffer, format='png', dpi=150, bbox_inches='tight')
+            img_buffer.seek(0)
+            plt.close(fig)
+
+            return img_buffer
+
+        except Exception as e:
+            print(f"Error generating chart: {e}")
+            return None
+
+    def export_statistics_pdf(self):
+        """Export statistics to PDF with charts and multilingual support"""
+        if not hasattr(self, 'stats_data') or not self.stats_data:
+            msg = "Calcola prima le statistiche." if self.L == 'it' else \
+                  "Berechnen Sie zuerst die Statistiken." if self.L == 'de' else \
+                  "Calculate statistics first."
+            QMessageBox.warning(self, "Warning", msg, QMessageBox.Ok)
+            return
+
+        try:
+            from reportlab.lib import colors
+            from reportlab.lib.pagesizes import A4
+            from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+            from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, Image, PageBreak
+            from reportlab.lib.units import cm
+
+            sito = self.stats_data.get('sito', 'Unknown')
+            total = self.stats_data.get('total', 0)
+
+            if self.L == 'it':
+                labels = {
+                    'title': f"Report Statistico Materiali - {sito}",
+                    'summary': "Riepilogo Generale",
+                    'total': f"Totale reperti: {total}",
+                    'type_dist': "Distribuzione per Tipo Reperto",
+                    'class_dist': "Distribuzione per Classe Materiale",
+                    'provenance': "Distribuzione per Provenienza",
+                    'area_dist': "Distribuzione per Area",
+                    'us_dist': "Distribuzione per US",
+                    'measures': "Statistiche Quantitative",
+                    'ai_report': "Report Descrittivo AI",
+                    'category': "Categoria", 'count': "Conteggio", 'percentage': "Percentuale",
+                    'measure': "Misura", 'min': "Min", 'max': "Max", 'mean': "Media", 'median': "Mediana",
+                    'save_title': "Salva Report PDF", 'success': "Successo",
+                    'saved_msg': "Report PDF salvato in:\n"
+                }
+            elif self.L == 'de':
+                labels = {
+                    'title': f"Statistischer Materialbericht - {sito}",
+                    'summary': "Allgemeine Zusammenfassung",
+                    'total': f"Gesamtfunde: {total}",
+                    'type_dist': "Verteilung nach Artefakttyp",
+                    'class_dist': "Verteilung nach Materialklasse",
+                    'provenance': "Verteilung nach Herkunft",
+                    'area_dist': "Verteilung nach Areal",
+                    'us_dist': "Verteilung nach SE",
+                    'measures': "Quantitative Statistiken",
+                    'ai_report': "KI-Beschreibender Bericht",
+                    'category': "Kategorie", 'count': "Anzahl", 'percentage': "Prozent",
+                    'measure': "Maß", 'min': "Min", 'max': "Max", 'mean': "Mittel", 'median': "Median",
+                    'save_title': "PDF-Bericht speichern", 'success': "Erfolg",
+                    'saved_msg': "PDF-Bericht gespeichert in:\n"
+                }
+            else:
+                labels = {
+                    'title': f"Artefacts Statistical Report - {sito}",
+                    'summary': "General Summary",
+                    'total': f"Total finds: {total}",
+                    'type_dist': "Distribution by Artefact Type",
+                    'class_dist': "Distribution by Material Class",
+                    'provenance': "Distribution by Provenance",
+                    'area_dist': "Distribution by Area",
+                    'us_dist': "Distribution by SU",
+                    'measures': "Quantitative Statistics",
+                    'ai_report': "AI Descriptive Report",
+                    'category': "Category", 'count': "Count", 'percentage': "Percentage",
+                    'measure': "Measure", 'min': "Min", 'max': "Max", 'mean': "Mean", 'median': "Median",
+                    'save_title': "Save PDF Report", 'success': "Success",
+                    'saved_msg': "PDF report saved to:\n"
+                }
+
+            HOME = os.environ.get('PYARCHINIT_HOME', os.path.join(os.path.expanduser('~'), 'pyarchinit'))
+            PDFFOLDER = os.path.join(HOME, "pyarchinit_PDF_folder")
+
+            filename, _ = QFileDialog.getSaveFileName(
+                self, labels['save_title'],
+                os.path.join(PDFFOLDER, f"Artefacts_Statistics_{sito}.pdf"),
+                "PDF Files (*.pdf)"
+            )
+
+            if not filename:
+                return
+
+            doc = SimpleDocTemplate(filename, pagesize=A4,
+                                   rightMargin=2*cm, leftMargin=2*cm,
+                                   topMargin=2*cm, bottomMargin=2*cm)
+
+            styles = getSampleStyleSheet()
+            title_style = ParagraphStyle('Title', parent=styles['Title'], fontSize=16, spaceAfter=20)
+            heading_style = ParagraphStyle('Heading', parent=styles['Heading2'], fontSize=12, spaceAfter=10)
+            normal_style = styles['Normal']
+
+            elements = []
+
+            elements.append(Paragraph(labels['title'], title_style))
+            elements.append(Spacer(1, 12))
+            elements.append(Paragraph(labels['summary'], heading_style))
+            elements.append(Paragraph(labels['total'], normal_style))
+            elements.append(Spacer(1, 12))
+
+            if 'tipo_reperto' in self.stats_data and self.stats_data['tipo_reperto']:
+                elements.append(Paragraph(labels['type_dist'], heading_style))
+                chart_buffer = self.generate_chart_image(self.stats_data['tipo_reperto'], labels['type_dist'], 'bar')
+                if chart_buffer:
+                    img = Image(chart_buffer, width=14*cm, height=7*cm)
+                    elements.append(img)
+                    elements.append(Spacer(1, 6))
+
+                table_data = [[labels['category'], labels['count'], labels['percentage']]]
+                for item, count in self.stats_data['tipo_reperto'][:15]:
+                    percentage = (count / total) * 100 if total > 0 else 0
+                    table_data.append([str(item), str(count), f"{percentage:.1f}%"])
+
+                table = Table(table_data, colWidths=[8*cm, 3*cm, 3*cm])
+                table.setStyle(TableStyle([
+                    ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+                    ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+                    ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+                    ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                    ('GRID', (0, 0), (-1, -1), 1, colors.black),
+                ]))
+                elements.append(table)
+                elements.append(Spacer(1, 12))
+
+            elements.append(PageBreak())
+            elements.append(Paragraph(labels['provenance'], heading_style))
+
+            if 'area' in self.stats_data and self.stats_data['area']:
+                elements.append(Paragraph(labels['area_dist'], heading_style))
+                chart_buffer = self.generate_chart_image(self.stats_data['area'], labels['area_dist'], 'bar')
+                if chart_buffer:
+                    img = Image(chart_buffer, width=14*cm, height=6*cm)
+                    elements.append(img)
+                    elements.append(Spacer(1, 6))
+
+            if 'us' in self.stats_data and self.stats_data['us']:
+                elements.append(Paragraph(labels['us_dist'], heading_style))
+                chart_buffer = self.generate_chart_image(self.stats_data['us'], labels['us_dist'], 'bar')
+                if chart_buffer:
+                    img = Image(chart_buffer, width=14*cm, height=6*cm)
+                    elements.append(img)
+                    elements.append(Spacer(1, 12))
+
+            if 'measurements' in self.stats_data:
+                elements.append(Paragraph(labels['measures'], heading_style))
+                table_data = [[labels['measure'], labels['min'], labels['max'], labels['mean'], labels['median']]]
+                for label_m, stats in self.stats_data['measurements'].items():
+                    if isinstance(stats, dict):
+                        table_data.append([label_m, f"{stats['min']:.2f}", f"{stats['max']:.2f}",
+                                          f"{stats['mean']:.2f}", f"{stats['median']:.2f}"])
+
+                table = Table(table_data, colWidths=[4*cm, 2.5*cm, 2.5*cm, 2.5*cm, 2.5*cm])
+                table.setStyle(TableStyle([
+                    ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+                    ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+                    ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+                    ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                    ('GRID', (0, 0), (-1, -1), 1, colors.black),
+                ]))
+                elements.append(table)
+                elements.append(Spacer(1, 12))
+
+            if 'ai_report' in self.stats_data and self.stats_data['ai_report']:
+                elements.append(PageBreak())
+                elements.append(Paragraph(labels['ai_report'], heading_style))
+                report_text = self.stats_data['ai_report']
+                for para in report_text.split('\n\n'):
+                    if para.strip():
+                        clean_para = para.strip()
+                        if clean_para.startswith('##'):
+                            clean_para = clean_para.replace('##', '').strip()
+                            elements.append(Paragraph(f"<b>{clean_para}</b>", normal_style))
+                        elif clean_para.startswith('#'):
+                            clean_para = clean_para.replace('#', '').strip()
+                            elements.append(Paragraph(f"<b>{clean_para}</b>", normal_style))
+                        else:
+                            elements.append(Paragraph(clean_para, normal_style))
+                        elements.append(Spacer(1, 6))
+
+            doc.build(elements)
+
+            QMessageBox.information(self, labels['success'], labels['saved_msg'] + filename, QMessageBox.Ok)
+
+            if platform.system() == "Windows":
+                os.startfile(filename)
+            elif platform.system() == "Darwin":
+                subprocess.Popen(["open", filename])
+            else:
+                subprocess.Popen(["xdg-open", filename])
+
+        except Exception as e:
+            QMessageBox.warning(self, "Error", f"Error exporting PDF: {e}", QMessageBox.Ok)
 
 ## Class end
 
