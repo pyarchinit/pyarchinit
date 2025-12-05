@@ -246,19 +246,94 @@ CREATE TRIGGER trg_site_table_editing
     BEFORE UPDATE ON site_table
     FOR EACH ROW EXECUTE FUNCTION track_editing_user();
 
+-- Periodizzazione Table
+DROP TRIGGER IF EXISTS trg_periodizzazione_editing ON periodizzazione_table;
+CREATE TRIGGER trg_periodizzazione_editing
+    BEFORE UPDATE ON periodizzazione_table
+    FOR EACH ROW EXECUTE FUNCTION track_editing_user();
+
+-- Struttura Table
+DROP TRIGGER IF EXISTS trg_struttura_editing ON struttura_table;
+CREATE TRIGGER trg_struttura_editing
+    BEFORE UPDATE ON struttura_table
+    FOR EACH ROW EXECUTE FUNCTION track_editing_user();
+
+-- Tomba Table
+DROP TRIGGER IF EXISTS trg_tomba_editing ON tomba_table;
+CREATE TRIGGER trg_tomba_editing
+    BEFORE UPDATE ON tomba_table
+    FOR EACH ROW EXECUTE FUNCTION track_editing_user();
+
+-- Individui Table
+DROP TRIGGER IF EXISTS trg_individui_editing ON individui_table;
+CREATE TRIGGER trg_individui_editing
+    BEFORE UPDATE ON individui_table
+    FOR EACH ROW EXECUTE FUNCTION track_editing_user();
+
+-- Campioni Table
+DROP TRIGGER IF EXISTS trg_campioni_editing ON campioni_table;
+CREATE TRIGGER trg_campioni_editing
+    BEFORE UPDATE ON campioni_table
+    FOR EACH ROW EXECUTE FUNCTION track_editing_user();
+
+-- Documentazione Table
+DROP TRIGGER IF EXISTS trg_documentazione_editing ON documentazione_table;
+CREATE TRIGGER trg_documentazione_editing
+    BEFORE UPDATE ON documentazione_table
+    FOR EACH ROW EXECUTE FUNCTION track_editing_user();
+
+-- Archeozoology Table
+DROP TRIGGER IF EXISTS trg_archeozoology_editing ON archeozoology_table;
+CREATE TRIGGER trg_archeozoology_editing
+    BEFORE UPDATE ON archeozoology_table
+    FOR EACH ROW EXECUTE FUNCTION track_editing_user();
+
 -- =====================================================
--- 6. VERIFICA
+-- 6. VIEW PER MONITOR SESSIONI ATTIVE
+-- Mostra chi sta modificando cosa in tutte le tabelle
+-- =====================================================
+
+CREATE OR REPLACE VIEW active_editing_sessions AS
+SELECT 'us_table' as table_name, id_us as record_id, editing_by, editing_since FROM us_table WHERE editing_by IS NOT NULL
+UNION ALL
+SELECT 'pottery_table', id_rep, editing_by, editing_since FROM pottery_table WHERE editing_by IS NOT NULL
+UNION ALL
+SELECT 'inventario_materiali_table', id_invmat, editing_by, editing_since FROM inventario_materiali_table WHERE editing_by IS NOT NULL
+UNION ALL
+SELECT 'tma_materiali_archeologici', id, editing_by, editing_since FROM tma_materiali_archeologici WHERE editing_by IS NOT NULL
+UNION ALL
+SELECT 'site_table', id_sito, editing_by, editing_since FROM site_table WHERE editing_by IS NOT NULL
+UNION ALL
+SELECT 'periodizzazione_table', id_perfas, editing_by, editing_since FROM periodizzazione_table WHERE editing_by IS NOT NULL
+UNION ALL
+SELECT 'struttura_table', id_struttura, editing_by, editing_since FROM struttura_table WHERE editing_by IS NOT NULL
+UNION ALL
+SELECT 'tomba_table', id_tomba, editing_by, editing_since FROM tomba_table WHERE editing_by IS NOT NULL
+UNION ALL
+SELECT 'individui_table', id_scheda_ind, editing_by, editing_since FROM individui_table WHERE editing_by IS NOT NULL
+UNION ALL
+SELECT 'campioni_table', id_campione, editing_by, editing_since FROM campioni_table WHERE editing_by IS NOT NULL
+UNION ALL
+SELECT 'documentazione_table', id_documentazione, editing_by, editing_since FROM documentazione_table WHERE editing_by IS NOT NULL
+UNION ALL
+SELECT 'archeozoology_table', id_archzoo, editing_by, editing_since FROM archeozoology_table WHERE editing_by IS NOT NULL;
+
+-- =====================================================
+-- 7. VERIFICA
 -- =====================================================
 
 DO $$
 BEGIN
     RAISE NOTICE '=== TRIGGER CREATI CON SUCCESSO ===';
-    RAISE NOTICE 'Trigger di logging creati per: us_table, pottery_table, inventario_materiali_table,';
-    RAISE NOTICE '  tma_materiali_archeologici, site_table, periodizzazione_table, struttura_table,';
-    RAISE NOTICE '  tomba_table, individui_table, campioni_table, documentazione_table, archeozoology_table';
+    RAISE NOTICE 'Trigger di logging creati per 12 tabelle:';
+    RAISE NOTICE '  us_table, pottery_table, inventario_materiali_table, tma_materiali_archeologici,';
+    RAISE NOTICE '  site_table, periodizzazione_table, struttura_table, tomba_table,';
+    RAISE NOTICE '  individui_table, campioni_table, documentazione_table, archeozoology_table';
     RAISE NOTICE '';
-    RAISE NOTICE 'Trigger di editing tracking creati per: us_table, pottery_table,';
-    RAISE NOTICE '  inventario_materiali_table, tma_materiali_archeologici, site_table';
+    RAISE NOTICE 'Trigger di editing tracking creati per tutte le 12 tabelle';
+    RAISE NOTICE '';
+    RAISE NOTICE 'View active_editing_sessions creata per monitorare sessioni attive';
     RAISE NOTICE '';
     RAISE NOTICE 'Per pulire lock stalli: SELECT clear_stale_editing_locks();';
+    RAISE NOTICE 'Per vedere sessioni attive: SELECT * FROM active_editing_sessions;';
 END $$;
