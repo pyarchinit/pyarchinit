@@ -891,6 +891,14 @@ class pyarchinit_dbmanagment(QDialog, MAIN_DIALOG_CLASS):
                               '-c', check_tables_sql]
             subprocess.run(check_tables_cmd, env=env, capture_output=True)
 
+            # Install activity tracking triggers if trigger file exists
+            trigger_file = os.path.join(os.path.dirname(__file__), os.pardir, 'sql',
+                                       'create_activity_triggers.sql')
+            if os.path.exists(trigger_file):
+                trigger_cmd = ['psql', '-h', host, '-p', port, '-U', db_username, '-d', db_names,
+                              '-f', trigger_file]
+                subprocess.run(trigger_cmd, env=env, capture_output=True)
+
             # Analyze restore output
             critical_errors = []
             warnings = []
