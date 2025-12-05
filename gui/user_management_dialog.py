@@ -526,6 +526,7 @@ class UserManagementDialog(QDialog):
                         'site_table', 'periodizzazione_table', 'struttura_table', 'tomba_table',
                         'individui_table', 'campioni_table', 'documentazione_table',
                         'detsesso_table', 'deteta_table', 'archeozoology_table', 'pottery_table',
+                        'pyarchinit_thesaurus_sigle',
                         'pyarchinit_quote_view', 'pyarchinit_us_view', 'pyarchinit_site_view',
                         'pyarchinit_strutture_view', 'pyarchinit_reperti_view', 'pyarchinit_tombe_view',
                         'pyarchinit_pyuscarlinee', 'pyarchinit_pyuscarassoc', 'pyarchinit_pysiti_polygon',
