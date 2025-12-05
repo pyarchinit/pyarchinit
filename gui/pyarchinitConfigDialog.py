@@ -3334,17 +3334,25 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 # self.model_a.select()
             self.tableView_summary.clearSpans()
         else:
+            # Use unique connection name to avoid conflicts
+            conn_name = "pyarchinit_summary_conn"
+            if QSqlDatabase.contains(conn_name):
+                db = QSqlDatabase.database(conn_name)
+            else:
+                db = QSqlDatabase.addDatabase("QPSQL", conn_name)
 
-            db = QSqlDatabase.addDatabase("QPSQL")
             db.setHostName(conn_host["host"])
-
             db.setDatabaseName(conn_sqlite["db_name"])
             db.setPort(int(port_int))
             db.setUserName(conn_user['user'])
             db.setPassword(conn_password['password'])
-            db.open()
+            # Add SSL option for Supabase
+            db.setConnectOptions("sslmode=require")
 
-
+            if not db.open():
+                # Try without SSL if it fails
+                db.setConnectOptions("")
+                db.open()
 
             self.model_a = QSqlQueryModel()
 
