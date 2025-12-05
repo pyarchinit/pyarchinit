@@ -3294,51 +3294,31 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
 
             self.tableView_summary.setModel(self.model_a)
 
-            # Check which tables exist
-            has_pottery = QSqlQuery("SELECT name FROM sqlite_master WHERE type='table' AND name='pottery_table'", db=db)
-            has_pottery_table = has_pottery.next()
-            has_media = QSqlQuery("SELECT name FROM sqlite_master WHERE type='table' AND name='media_thumb_table'", db=db)
-            has_media_table = has_media.next()
-
             if bool(self.comboBox_sito.currentText()):
-                # Build query dynamically based on available tables
-                pottery_join = "LEFT JOIN pottery_table as e ON a.sito=e.sito" if has_pottery_table else ""
-                pottery_col = "CASE WHEN count(DISTINCT e.id_rep)=0 THEN 0 ELSE count(DISTINCT e.id_rep) END as 'Pottery'," if has_pottery_table else ""
-                media_col = "(SELECT count(*) FROM media_thumb_table) as 'Media'" if has_media_table else "0 as 'Media'"
-
-                query_str = """
-                    SELECT DISTINCT a.sito as 'Sito',
-                        CASE WHEN count(DISTINCT a.us)=0 THEN 0 ELSE count(DISTINCT a.us) END as 'US',
-                        CASE WHEN count(DISTINCT b.numero_inventario)=0 THEN 0 ELSE count(DISTINCT b.numero_inventario) END as 'Materiali',
-                        CASE WHEN count(DISTINCT c.id_struttura)=0 THEN 0 ELSE count(DISTINCT c.id_struttura) END as 'Strutture',
-                        CASE WHEN count(DISTINCT d.id_tomba)=0 THEN 0 ELSE count(DISTINCT d.id_tomba) END as 'Tombe',
-                        {} {}
-                    FROM us_table as a
-                    LEFT JOIN inventario_materiali_table as b ON a.sito=b.sito
-                    LEFT JOIN struttura_table as c ON a.sito=c.sito
-                    LEFT JOIN tomba_table as d ON a.sito=d.sito
-                    {}
-                    WHERE a.sito = '{}'
-                    GROUP BY a.sito
-                """.format(pottery_col, media_col, pottery_join, str(self.comboBox_sito.currentText()))
-                query = QSqlQuery(query_str, db=db)
+                query = QSqlQuery("SELECT DISTINCT a.sito as 'Sito', "
+                                  "CASE WHEN count(DISTINCT a.us)=0 THEN 0 ELSE count(DISTINCT a.us) END as 'US', "
+                                  "CASE WHEN count(DISTINCT b.numero_inventario)=0 THEN 0 ELSE count(DISTINCT b.numero_inventario) END as 'Materiali', "
+                                  "CASE WHEN count(DISTINCT c.id_struttura)=0 THEN 0 ELSE count(DISTINCT c.id_struttura) END as 'Strutture', "
+                                  "CASE WHEN count(DISTINCT d.id_tomba)=0 THEN 0 ELSE count(DISTINCT d.id_tomba) END as 'Tombe', "
+                                  "CASE WHEN count(DISTINCT e.id_rep)=0 THEN 0 ELSE count(DISTINCT e.id_rep) END as 'Pottery', "
+                                  "(SELECT count(*) FROM media_thumb_table) as 'Media' "
+                                  "FROM us_table as a "
+                                  "LEFT JOIN inventario_materiali_table as b ON a.sito=b.sito "
+                                  "LEFT JOIN struttura_table as c ON a.sito=c.sito "
+                                  "LEFT JOIN tomba_table as d ON a.sito=d.sito "
+                                  "LEFT JOIN pottery_table as e ON a.sito=e.sito "
+                                  "WHERE a.sito = '{}' GROUP BY a.sito".format(str(self.comboBox_sito.currentText())), db=db)
                 self.model_a.setQuery(query)
             else:
-                # Build query dynamically based on available tables
-                pottery_col = "(SELECT count(DISTINCT id_rep) FROM pottery_table p WHERE s.sito = p.sito) as Pottery," if has_pottery_table else ""
-                media_col = "(SELECT count(*) FROM media_thumb_table) as Media" if has_media_table else "0 as Media"
-
-                query_str = """
-                    SELECT s.sito as Sito,
-                        (SELECT count(DISTINCT id_us) FROM us_table ad WHERE s.sito=ad.sito) as US,
-                        (SELECT count(DISTINCT id_invmat) FROM inventario_materiali_table m WHERE s.sito = m.sito) as Materiali,
-                        (SELECT count(DISTINCT id_struttura) FROM struttura_table st WHERE s.sito = st.sito) as Strutture,
-                        (SELECT count(DISTINCT id_tomba) FROM tomba_table t WHERE s.sito = t.sito) as Tombe,
-                        {} {}
-                    FROM (SELECT sito, count(DISTINCT id_us) FROM us_table GROUP BY sito) as s
-                    ORDER BY s.sito
-                """.format(pottery_col, media_col)
-                query1 = QSqlQuery(query_str, db=db)
+                query1 = QSqlQuery("SELECT s.sito as Sito, "
+                                   "(SELECT count(DISTINCT id_us) FROM us_table ad WHERE s.sito=ad.sito) as US, "
+                                   "(SELECT count(DISTINCT id_invmat) FROM inventario_materiali_table m WHERE s.sito = m.sito) as Materiali, "
+                                   "(SELECT count(DISTINCT id_struttura) FROM struttura_table st WHERE s.sito = st.sito) as Strutture, "
+                                   "(SELECT count(DISTINCT id_tomba) FROM tomba_table t WHERE s.sito = t.sito) as Tombe, "
+                                   "(SELECT count(DISTINCT id_rep) FROM pottery_table p WHERE s.sito = p.sito) as Pottery, "
+                                   "(SELECT count(*) FROM media_thumb_table) as Media "
+                                   "FROM (SELECT sito, count(DISTINCT id_us) FROM us_table GROUP BY sito) as s "
+                                   "ORDER BY s.sito", db=db)
                 self.model_a.setQuery(query1)
 
 
@@ -3371,51 +3351,31 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
 
             self.tableView_summary.setModel(self.model_a)
 
-            # Check which tables exist in PostgreSQL
-            has_pottery = QSqlQuery("SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'pottery_table')", db=db)
-            has_pottery_table = has_pottery.next() and has_pottery.value(0)
-            has_media = QSqlQuery("SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'media_thumb_table')", db=db)
-            has_media_table = has_media.next() and has_media.value(0)
-
             if bool(self.comboBox_sito.currentText()):
-                # Build query dynamically based on available tables
-                pottery_join = "LEFT JOIN pottery_table as e ON a.sito=e.sito" if has_pottery_table else ""
-                pottery_col = 'CASE WHEN count(DISTINCT e.id_rep)=0 THEN 0 ELSE count(DISTINCT e.id_rep) END as "Pottery",' if has_pottery_table else ""
-                media_col = '(SELECT COALESCE(count(*), 0) FROM media_thumb_table) as "Media"' if has_media_table else '0 as "Media"'
-
-                query_str = """
-                    SELECT DISTINCT a.sito as "Sito",
-                        CASE WHEN count(DISTINCT a.id_us)=0 THEN 0 ELSE count(DISTINCT a.id_us) END as "US",
-                        CASE WHEN count(DISTINCT b.id_invmat)=0 THEN 0 ELSE count(DISTINCT b.id_invmat) END as "Materiali",
-                        CASE WHEN count(DISTINCT c.id_struttura)=0 THEN 0 ELSE count(DISTINCT c.id_struttura) END as "Strutture",
-                        CASE WHEN count(DISTINCT d.id_tomba)=0 THEN 0 ELSE count(DISTINCT d.id_tomba) END as "Tombe",
-                        {} {}
-                    FROM us_table as a
-                    LEFT JOIN inventario_materiali_table as b ON a.sito=b.sito
-                    LEFT JOIN struttura_table as c ON a.sito=c.sito
-                    LEFT JOIN tomba_table as d ON a.sito=d.sito
-                    {}
-                    WHERE a.sito = '{}'
-                    GROUP BY a.sito
-                """.format(pottery_col, media_col, pottery_join, str(self.comboBox_sito.currentText()))
-                query = QSqlQuery(query_str, db=db)
+                query = QSqlQuery('SELECT DISTINCT a.sito as "Sito", '
+                                  'COALESCE(count(DISTINCT a.id_us), 0) as "US", '
+                                  'COALESCE(count(DISTINCT b.id_invmat), 0) as "Materiali", '
+                                  'COALESCE(count(DISTINCT c.id_struttura), 0) as "Strutture", '
+                                  'COALESCE(count(DISTINCT d.id_tomba), 0) as "Tombe", '
+                                  'COALESCE(count(DISTINCT e.id_rep), 0) as "Pottery", '
+                                  '(SELECT COALESCE(count(*), 0) FROM media_thumb_table) as "Media" '
+                                  'FROM us_table as a '
+                                  'LEFT JOIN inventario_materiali_table as b ON a.sito=b.sito '
+                                  'LEFT JOIN struttura_table as c ON a.sito=c.sito '
+                                  'LEFT JOIN tomba_table as d ON a.sito=d.sito '
+                                  'LEFT JOIN pottery_table as e ON a.sito=e.sito '
+                                  "WHERE a.sito = '{}' GROUP BY a.sito".format(str(self.comboBox_sito.currentText())), db=db)
                 self.model_a.setQuery(query)
             else:
-                # Build query dynamically based on available tables
-                pottery_col = '(SELECT COALESCE(count(DISTINCT id_rep), 0) FROM pottery_table p WHERE s.sito = p.sito) as "Pottery",' if has_pottery_table else ""
-                media_col = '(SELECT COALESCE(count(*), 0) FROM media_thumb_table) as "Media"' if has_media_table else '0 as "Media"'
-
-                query_str = """
-                    SELECT s.sito as "Sito",
-                        (SELECT COALESCE(count(DISTINCT id_us), 0) FROM us_table ad WHERE s.sito=ad.sito) as "US",
-                        (SELECT COALESCE(count(DISTINCT id_invmat), 0) FROM inventario_materiali_table m WHERE s.sito = m.sito) as "Materiali",
-                        (SELECT COALESCE(count(DISTINCT id_struttura), 0) FROM struttura_table st WHERE s.sito = st.sito) as "Strutture",
-                        (SELECT COALESCE(count(DISTINCT id_tomba), 0) FROM tomba_table t WHERE s.sito = t.sito) as "Tombe",
-                        {} {}
-                    FROM (SELECT sito, count(DISTINCT id_us) FROM us_table GROUP BY sito) as s
-                    ORDER BY s.sito
-                """.format(pottery_col, media_col)
-                query1 = QSqlQuery(query_str, db=db)
+                query1 = QSqlQuery('SELECT s.sito as "Sito", '
+                                   '(SELECT COALESCE(count(DISTINCT id_us), 0) FROM us_table ad WHERE s.sito=ad.sito) as "US", '
+                                   '(SELECT COALESCE(count(DISTINCT id_invmat), 0) FROM inventario_materiali_table m WHERE s.sito = m.sito) as "Materiali", '
+                                   '(SELECT COALESCE(count(DISTINCT id_struttura), 0) FROM struttura_table st WHERE s.sito = st.sito) as "Strutture", '
+                                   '(SELECT COALESCE(count(DISTINCT id_tomba), 0) FROM tomba_table t WHERE s.sito = t.sito) as "Tombe", '
+                                   '(SELECT COALESCE(count(DISTINCT id_rep), 0) FROM pottery_table p WHERE s.sito = p.sito) as "Pottery", '
+                                   '(SELECT COALESCE(count(*), 0) FROM media_thumb_table) as "Media" '
+                                   'FROM (SELECT sito, count(DISTINCT id_us) FROM us_table GROUP BY sito) as s '
+                                   'ORDER BY s.sito', db=db)
                 self.model_a.setQuery(query1)
 
             self.tableView_summary.clearSpans()
