@@ -3019,11 +3019,6 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
                 if bool(self.comboBox_sito.currentText()) and self.comboBox_sito.currentText() == sito_set_str:
 
                     self.BROWSE_STATUS = "f"
-                    self.empty_fields_nosite()
-                    self.lineEdit_box.setText("")
-                    self.lineEdit_anno.setText("")
-                    self.comboBox_fabric.setEditText("")
-                    self.comboBox_ware.setEditText("")
                     #self.setComboBoxEditable(["self.comboBox_sito"],0)
                     #self.setComboBoxEditable(["self.comboBox_area"],1)
                     self.setComboBoxEnable(["self.lineEdit_id_number"],"True")
@@ -3037,14 +3032,9 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
                     self.set_rec_counter('','')
                     self.label_sort.setText(self.SORTED_ITEMS["n"])
                     self.charge_list()
-                    #self.empty_fields()
+                    self.empty_fields_nosite()
                 else:
                     self.BROWSE_STATUS = "f"
-
-                    self.lineEdit_box.setText("")
-                    self.lineEdit_anno.setText("")
-                    self.comboBox_fabric.setEditText("")
-                    self.comboBox_ware.setEditText("")
                     #self.setComboBoxEditable(["self.comboBox_sito"], 0)
                     #self.setComboBoxEditable(["self.comboBox_area"], 1)
                     self.setComboBoxEnable(["self.lineEdit_id_number"], "True")

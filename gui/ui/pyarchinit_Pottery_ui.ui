@@ -1699,16 +1699,6 @@
          <property name="editable">
           <bool>true</bool>
          </property>
-         <item>
-          <property name="text">
-           <string>Ceramic</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Stone</string>
-          </property>
-         </item>
         </widget>
        </item>
        <item row="1" column="3" colspan="3">
