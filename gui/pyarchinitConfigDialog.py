@@ -3294,29 +3294,28 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
 
             self.tableView_summary.setModel(self.model_a)
 
-            if bool(self.comboBox_sito.currentText()):
-                query = QSqlQuery("select distinct a.sito as Sito, count(distinct a.us) as US, "
-                                  "count(distinct b.numero_inventario) as Materiali, "
-                                  "count(distinct c.id_struttura) as Strutture, "
-                                  "count(distinct d.id_tomba) as Tombe, "
-                                  "count(distinct e.id_rep) as Pottery, "
-                                  "(select count(*) from media_thumb_table) as Media "
-                                  "from us_table as a "
-                                  "left join inventario_materiali_table as b on a.sito=b.sito "
-                                  "left join struttura_table as c on a.sito=c.sito "
-                                  "left join tomba_table as d on a.sito=d.sito "
-                                  "left join pottery_table as e on a.sito=e.sito "
-                                  "where a.sito = '{}' group by a.sito".format(str(self.comboBox_sito.currentText())), db=db)
+            sito_filter = str(self.comboBox_sito.currentText()) if bool(self.comboBox_sito.currentText()) else None
+
+            if sito_filter:
+                # Use subqueries instead of JOINs (more efficient, avoids cartesian product)
+                query = QSqlQuery("select '{}' as Sito,"
+                                  "(select count(distinct us) from us_table where sito = '{}') as US,"
+                                  "(select count(distinct numero_inventario) from inventario_materiali_table where sito = '{}') as Materiali,"
+                                  "(select count(distinct id_struttura) from struttura_table where sito = '{}') as Strutture,"
+                                  "(select count(distinct id_tomba) from tomba_table where sito = '{}') as Tombe,"
+                                  "(select count(distinct id_rep) from pottery_table where sito = '{}') as Pottery,"
+                                  "(select count(*) from media_thumb_table) as Media".format(
+                                      sito_filter, sito_filter, sito_filter, sito_filter, sito_filter, sito_filter), db=db)
                 self.model_a.setQuery(query)
             else:
                 query1 = QSqlQuery("select s.sito as Sito,"
-                                   "(select count(distinct id_invmat) from inventario_materiali_table m where s.sito = m.sito) as Materiali,"
+                                   "(select count(distinct us) from us_table ad where s.sito=ad.sito) as US,"
+                                   "(select count(distinct numero_inventario) from inventario_materiali_table m where s.sito = m.sito) as Materiali,"
                                    "(select count(distinct id_struttura) from struttura_table st where s.sito = st.sito) as Strutture,"
                                    "(select count(distinct id_tomba) from tomba_table t where s.sito = t.sito) as Tombe,"
-                                   "(select count(distinct id_us) from us_table ad where s.sito=ad.sito) as US,"
                                    "(select count(distinct id_rep) from pottery_table p where s.sito = p.sito) as Pottery,"
                                    "(select count(*) from media_thumb_table) as Media "
-                                   "from (select sito, count(distinct id_us) from us_table group by sito) as s "
+                                   "from (select sito, count(distinct us) from us_table group by sito) as s "
                                    "order by s.sito;", db=db)
                 self.model_a.setQuery(query1)
 
@@ -3358,24 +3357,25 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
 
             self.tableView_summary.setModel(self.model_a)
 
-            if bool(self.comboBox_sito.currentText()):
-                query = QSqlQuery("select distinct a.sito as Sito, count(distinct a.id_us) as US, "
-                                  "count(distinct b.id_invmat) as Materiali, count(distinct c.id_struttura) as Strutture, "
-                                  "count(distinct d.id_tomba) as Tombe, count(distinct e.id_rep) as Pottery, "
-                                  "(select count(*) from media_thumb_table) as Media "
-                                  "from us_table as a "
-                                  "left join inventario_materiali_table as b on a.sito=b.sito "
-                                  "left join struttura_table as c on a.sito=c.sito "
-                                  "left join tomba_table as d on a.sito=d.sito "
-                                  "left join pottery_table as e on a.sito=e.sito "
-                                  "where a.sito = '{}' group by a.sito".format(str(self.comboBox_sito.currentText())), db=db)
+            sito_filter = str(self.comboBox_sito.currentText()) if bool(self.comboBox_sito.currentText()) else None
+
+            if sito_filter:
+                # Use subqueries instead of JOINs (more efficient, avoids cartesian product)
+                query = QSqlQuery("select '{}' as Sito,"
+                                  "(select count(distinct id_us) from us_table where sito = '{}') as US,"
+                                  "(select count(distinct id_invmat) from inventario_materiali_table where sito = '{}') as Materiali,"
+                                  "(select count(distinct id_struttura) from struttura_table where sito = '{}') as Strutture,"
+                                  "(select count(distinct id_tomba) from tomba_table where sito = '{}') as Tombe,"
+                                  "(select count(distinct id_rep) from pottery_table where sito = '{}') as Pottery,"
+                                  "(select count(*) from media_thumb_table) as Media".format(
+                                      sito_filter, sito_filter, sito_filter, sito_filter, sito_filter, sito_filter), db=db)
                 self.model_a.setQuery(query)
             else:
                 query1 = QSqlQuery("select s.sito as Sito,"
+                                   "(select count(distinct id_us) from us_table ad where s.sito=ad.sito) as US,"
                                    "(select count(distinct id_invmat) from inventario_materiali_table m where s.sito = m.sito) as Materiali,"
                                    "(select count(distinct id_struttura) from struttura_table st where s.sito = st.sito) as Strutture,"
                                    "(select count(distinct id_tomba) from tomba_table t where s.sito = t.sito) as Tombe,"
-                                   "(select count(distinct id_us) from us_table ad where s.sito=ad.sito) as US,"
                                    "(select count(distinct id_rep) from pottery_table p where s.sito = p.sito) as Pottery,"
                                    "(select count(*) from media_thumb_table) as Media "
                                    "from (select sito, count(distinct id_us) from us_table group by sito) as s "
