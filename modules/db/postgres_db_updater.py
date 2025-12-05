@@ -51,6 +51,9 @@ class PostgresDbUpdater:
             # Installa/aggiorna i trigger per il tracking delle attività
             self.update_activity_triggers()
 
+            # Installa/aggiorna le voci thesaurus per Pottery
+            self.update_pottery_thesaurus()
+
             # Altri aggiornamenti possono essere aggiunti qui in futuro
             
             if self.updates_made:
@@ -426,6 +429,58 @@ class PostgresDbUpdater:
 
         except Exception as e:
             self.log_message(f"Errore installando trigger attività: {e}")
+
+    def update_pottery_thesaurus(self):
+        """Installa/aggiorna le voci thesaurus per la tabella Pottery"""
+        self.log_message("Controllo voci thesaurus Pottery...")
+
+        try:
+            import os
+            from sqlalchemy import text
+
+            # Check if pottery thesaurus entries already exist
+            check_query = text("""
+                SELECT COUNT(*) FROM pyarchinit_thesaurus_sigle
+                WHERE nome_tabella = 'pottery_table' AND tipologia_sigla LIKE '11.%'
+            """)
+            result = self.db_manager.engine.execute(check_query)
+            count = result.fetchone()[0]
+
+            if count > 0:
+                self.log_message(f"Voci thesaurus Pottery già presenti ({count} voci)")
+                return
+
+            # Path to pottery thesaurus SQL file
+            thesaurus_file = os.path.join(os.path.dirname(__file__), os.pardir, os.pardir,
+                                          'sql', 'pottery_thesaurus.sql')
+
+            if not os.path.exists(thesaurus_file):
+                self.log_message(f"File thesaurus pottery non trovato: {thesaurus_file}")
+                return
+
+            # Read and execute the thesaurus SQL
+            with open(thesaurus_file, 'r', encoding='utf-8') as f:
+                thesaurus_sql = f.read()
+
+            # Execute the SQL script - split by semicolons
+            statements = thesaurus_sql.split(';')
+            inserted_count = 0
+            for stmt in statements:
+                stmt = stmt.strip()
+                if stmt and not stmt.startswith('--') and 'INSERT' in stmt.upper():
+                    try:
+                        self.db_manager.engine.execute(text(stmt))
+                        inserted_count += 1
+                    except Exception as stmt_error:
+                        # Skip errors for duplicate entries
+                        if 'duplicate' not in str(stmt_error).lower() and 'conflict' not in str(stmt_error).lower():
+                            self.log_message(f"Warning inserendo voce thesaurus: {str(stmt_error)[:100]}")
+
+            if inserted_count > 0:
+                self.log_message(f"Voci thesaurus Pottery installate ({inserted_count} voci)")
+
+        except Exception as e:
+            self.log_message(f"Errore installando voci thesaurus Pottery: {e}")
 
 
 def check_and_update_postgres_db(db_manager, parent=None):

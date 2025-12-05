@@ -260,7 +260,10 @@ class SQLiteDBUpdater:
             
             # Create/update pyarchinit_thesaurus_sigle table
             self.create_or_update_thesaurus_table()
-            
+
+            # Add pottery thesaurus entries
+            self.update_pottery_thesaurus()
+
             # Add missing columns to various tables
             self.update_us_table()
             self.update_site_table()
@@ -890,6 +893,53 @@ class SQLiteDBUpdater:
             self.updates_made.append("pyarchinit_reperti_view")
         except Exception as e:
             self.log_message(f"Errore ricreando pyarchinit_reperti_view: {e}", Qgis.Warning if QGIS_AVAILABLE else None)
+
+    def update_pottery_thesaurus(self):
+        """Installa/aggiorna le voci thesaurus per la tabella Pottery"""
+        try:
+            # Check if pottery thesaurus entries already exist
+            self.cursor.execute("""
+                SELECT COUNT(*) FROM pyarchinit_thesaurus_sigle
+                WHERE nome_tabella = 'pottery_table' AND tipologia_sigla LIKE '11.%'
+            """)
+            count = self.cursor.fetchone()[0]
+
+            if count > 0:
+                self.log_message(f"Voci thesaurus Pottery già presenti ({count} voci)")
+                return
+
+            # Path to pottery thesaurus SQL file (SQLite version)
+            thesaurus_file = os.path.join(os.path.dirname(__file__), os.pardir, os.pardir,
+                                          'sql', 'pottery_thesaurus_sqlite.sql')
+
+            if not os.path.exists(thesaurus_file):
+                self.log_message(f"File thesaurus pottery non trovato: {thesaurus_file}")
+                return
+
+            # Read and execute the thesaurus SQL
+            with open(thesaurus_file, 'r', encoding='utf-8') as f:
+                thesaurus_sql = f.read()
+
+            # Execute the SQL script - split by semicolons
+            statements = thesaurus_sql.split(';')
+            inserted_count = 0
+            for stmt in statements:
+                stmt = stmt.strip()
+                if stmt and not stmt.startswith('--') and 'INSERT' in stmt.upper():
+                    try:
+                        self.cursor.execute(stmt)
+                        inserted_count += 1
+                    except Exception as stmt_error:
+                        # Skip errors for duplicate entries
+                        if 'unique constraint' not in str(stmt_error).lower():
+                            self.log_message(f"Warning inserendo voce thesaurus: {str(stmt_error)[:100]}")
+
+            if inserted_count > 0:
+                self.log_message(f"Voci thesaurus Pottery installate ({inserted_count} voci)")
+                self.updates_made.append("pottery_thesaurus")
+
+        except Exception as e:
+            self.log_message(f"Errore installando voci thesaurus Pottery: {e}", Qgis.Warning if QGIS_AVAILABLE else None)
 
 
 def check_and_update_sqlite_db(db_path, parent=None):
