@@ -258,9 +258,9 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
                     "sector"
                     ]
     LANG = {
-        "IT": ['it_IT', 'IT', 'it', 'IT_IT'],
-        "EN_US": ['en_US', 'EN_US', 'en', 'EN'],
-        "DE": ['de_DE', 'de', 'DE', 'DE_DE']
+        "IT": ['it_IT', 'IT', 'it', 'IT_IT', 'it_CH'],
+        "EN": ['en_US', 'EN_US', 'en', 'EN', 'en_GB', 'en_AU', 'en_CA', 'en_NZ', 'en_IE', 'en_ZA'],
+        "DE": ['de_DE', 'de', 'DE', 'DE_DE', 'de_AT', 'de_CH']
     }
 
 
@@ -2302,7 +2302,18 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
                 QMessageBox.warning(self, "Error", f"File not found: {id_orig_item}", QMessageBox.Ok)
 
     def charge_list(self):
-        #lista sito
+        # Get language from QgsSettings
+        l = QgsSettings().value("locale/userLocale", QVariant)
+        lang = ""
+        for key, values in self.LANG.items():
+            if values.__contains__(l):
+                lang = str(key)
+        # Fallback to EN if no match found
+        if not lang:
+            lang = "EN"
+        lang = "'" + lang + "'"
+
+        # Lista sito
         sito_vl = self.UTILITY.tup_2_list_III(self.DB_MANAGER.group_by('site_table', 'sito', 'SITE'))
         try:
             sito_vl.remove('')
@@ -2313,10 +2324,119 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
                 QMessageBox.warning(self, "Message", "Update system in site list: " + str(e), QMessageBox.Ok)
 
         self.comboBox_sito.clear()
-
-
         sito_vl.sort()
         self.comboBox_sito.addItems(sito_vl)
+
+        # Lista area from thesaurus (11.13)
+        self.comboBox_area.clear()
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'Pottery'",
+            'tipologia_sigla': "'11.13'"
+        }
+        area_vl_thesaurus = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        area_vl = []
+        for i in range(len(area_vl_thesaurus)):
+            area_vl.append(area_vl_thesaurus[i].sigla_estesa)
+        area_vl.sort()
+        self.comboBox_area.addItems(area_vl)
+
+        # Load thesaurus values for Pottery comboboxes
+        self.charge_thesaurus_combos(lang)
+
+    def charge_thesaurus_combos(self, lang):
+        """Load thesaurus values for all Pottery comboboxes"""
+
+        # Helper function to load thesaurus values
+        def load_thesaurus(tipologia_sigla, use_sigla=False):
+            search_dict = {
+                'lingua': lang,
+                'nome_tabella': "'Pottery'",
+                'tipologia_sigla': "'" + tipologia_sigla + "'"
+            }
+            thesaurus_data = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+            values = []
+            for item in thesaurus_data:
+                if use_sigla:
+                    val = item.sigla.strip() if item.sigla else ''
+                else:
+                    val = item.sigla_estesa.strip() if item.sigla_estesa else ''
+                if val and val not in values:
+                    values.append(val)
+            values.sort()
+            return values
+
+        # 11.1 - Fabric
+        self.comboBox_fabric.clear()
+        fabric_vl = load_thesaurus('11.1')
+        if fabric_vl:
+            self.comboBox_fabric.addItems(fabric_vl)
+
+        # 11.2 - Percent
+        self.comboBox_percent.clear()
+        percent_vl = load_thesaurus('11.2', use_sigla=True)
+        if percent_vl:
+            self.comboBox_percent.addItems(percent_vl)
+
+        # 11.3 - Material
+        self.comboBox_material.clear()
+        material_vl = load_thesaurus('11.3')
+        if material_vl:
+            self.comboBox_material.addItems(material_vl)
+
+        # 11.4 - Form (Open/Closed)
+        self.comboBox_form.clear()
+        form_vl = load_thesaurus('11.4')
+        if form_vl:
+            self.comboBox_form.addItems(form_vl)
+
+        # 11.5 - Specific Form/Part
+        self.comboBox_specific_form.clear()
+        specific_form_vl = load_thesaurus('11.5')
+        if specific_form_vl:
+            self.comboBox_specific_form.addItems(specific_form_vl)
+
+        # 11.6 - Ware Type
+        self.comboBox_ware.clear()
+        ware_vl = load_thesaurus('11.6')
+        if ware_vl:
+            self.comboBox_ware.addItems(ware_vl)
+
+        # 11.7 - Munsell Color
+        self.comboBox_munsell.clear()
+        munsell_vl = load_thesaurus('11.7')
+        if munsell_vl:
+            self.comboBox_munsell.addItems(munsell_vl)
+
+        # 11.8 - Surface Treatment
+        self.comboBox_surf_trat.clear()
+        surf_trat_vl = load_thesaurus('11.8')
+        if surf_trat_vl:
+            self.comboBox_surf_trat.addItems(surf_trat_vl)
+
+        # 11.9 - External Decoration
+        self.comboBox_exdeco.clear()
+        exdeco_vl = load_thesaurus('11.9')
+        if exdeco_vl:
+            self.comboBox_exdeco.addItems(exdeco_vl)
+
+        # 11.10 - Internal Decoration
+        self.comboBox_intdeco.clear()
+        intdeco_vl = load_thesaurus('11.10')
+        if intdeco_vl:
+            self.comboBox_intdeco.addItems(intdeco_vl)
+
+        # 11.11 - Wheel Made
+        self.comboBox_wheel_made.clear()
+        wheel_made_vl = load_thesaurus('11.11')
+        if wheel_made_vl:
+            self.comboBox_wheel_made.addItems(wheel_made_vl)
+
+        # 11.12 - Specific Shape
+        self.comboBox_specific_shape.clear()
+        specific_shape_vl = load_thesaurus('11.12')
+        if specific_shape_vl:
+            self.comboBox_specific_shape.addItems(specific_shape_vl)
 
 
     def on_toolButtonPreview_toggled(self):

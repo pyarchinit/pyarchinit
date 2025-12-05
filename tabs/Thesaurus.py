@@ -527,7 +527,8 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
             'Individui': 'individui_table',
             'Documentazione': 'documentazione_table',
             'TMA materiali archeologici': 'tma_materiali_archeologici',
-            'TMA Materiali Ripetibili': 'tma_materiali_ripetibili'
+            'TMA Materiali Ripetibili': 'tma_materiali_ripetibili',
+            'Pottery': 'pottery_table'
         }
         
         # Mappatura dei campi sincronizzati tra tabelle
@@ -538,7 +539,8 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
                 ('inventario_materiali_table', '3.11'),
                 ('tomba_table', '7.8'),
                 ('individui_table', '8.6'),
-                ('TMA materiali archeologici', '10.7')
+                ('TMA materiali archeologici', '10.7'),
+                ('pottery_table', '11.13')
             ],
             
 
@@ -722,6 +724,21 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
                 '10.12': 'Precisazione tipologica',
                 '10.13': 'Definizione',
                 '10.4': 'Cronologia'
+            },
+            'pottery_table': {
+                '11.1': 'Fabric (Impasto)',
+                '11.2': 'Percent (Percentuale)',
+                '11.3': 'Material (Materiale)',
+                '11.4': 'Form (Forma)',
+                '11.5': 'Specific Form/Part (Forma specifica)',
+                '11.6': 'Ware Type (Tipo ceramica)',
+                '11.7': 'Munsell Color (Colore Munsell)',
+                '11.8': 'Surface Treatment (Trattamento superficie)',
+                '11.9': 'External Decoration (Decorazione esterna)',
+                '11.10': 'Internal Decoration (Decorazione interna)',
+                '11.11': 'Wheel Made (Tornio)',
+                '11.12': 'Specific Shape (Forma specifica)',
+                '11.13': 'Area'
             }
         }
         
