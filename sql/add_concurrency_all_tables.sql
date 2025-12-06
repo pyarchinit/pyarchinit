@@ -323,49 +323,168 @@ $$ LANGUAGE plpgsql;
 -- VISTE UTILI PER MONITORAGGIO
 -- =====================================================
 
--- Vista per vedere chi sta editando cosa
+-- Vista per vedere chi sta editando cosa (TUTTE LE TABELLE)
 CREATE OR REPLACE VIEW active_editing_sessions AS
-SELECT
-    'us_table' as table_name,
-    id,
-    COALESCE(us::text, '') as reference,
-    sito,
-    area,
-    editing_by,
-    editing_since,
-    EXTRACT(EPOCH FROM (CURRENT_TIMESTAMP - editing_since))/60 as minutes_editing
-FROM us_table
-WHERE editing_by IS NOT NULL
+-- us_table
+SELECT 'us_table'::text AS table_name,
+    id_us AS id,
+    COALESCE(us::text, '') AS reference,
+    sito, area,
+    editing_by, editing_since,
+    EXTRACT(epoch FROM CURRENT_TIMESTAMP - editing_since) / 60 AS minutes_editing
+FROM us_table WHERE editing_by IS NOT NULL
 
 UNION ALL
-
-SELECT
-    'inventario_materiali_table' as table_name,
-    id_invmat as id,
-    numero_inventario::text as reference,
-    sito,
-    area,
-    editing_by,
-    editing_since,
-    EXTRACT(EPOCH FROM (CURRENT_TIMESTAMP - editing_since))/60 as minutes_editing
-FROM inventario_materiali_table
-WHERE editing_by IS NOT NULL
+-- pottery_table
+SELECT 'pottery_table'::text,
+    id_rep,
+    id_number::text,
+    sito, area,
+    editing_by, editing_since,
+    EXTRACT(epoch FROM CURRENT_TIMESTAMP - editing_since) / 60
+FROM pottery_table WHERE editing_by IS NOT NULL
 
 UNION ALL
+-- inventario_materiali_table
+SELECT 'inventario_materiali_table'::text,
+    id_invmat,
+    numero_inventario::text,
+    sito, area,
+    editing_by, editing_since,
+    EXTRACT(epoch FROM CURRENT_TIMESTAMP - editing_since) / 60
+FROM inventario_materiali_table WHERE editing_by IS NOT NULL
 
-SELECT
-    'tma_materiali_archeologici' as table_name,
+UNION ALL
+-- tma_materiali_archeologici
+SELECT 'tma_materiali_archeologici'::text,
     id,
-    COALESCE(dscu, '') as reference,
-    sito,
-    area,
-    editing_by,
-    editing_since,
-    EXTRACT(EPOCH FROM (CURRENT_TIMESTAMP - editing_since))/60 as minutes_editing
-FROM tma_materiali_archeologici
-WHERE editing_by IS NOT NULL
+    COALESCE(dscu, ''),
+    sito, area,
+    editing_by, editing_since,
+    EXTRACT(epoch FROM CURRENT_TIMESTAMP - editing_since) / 60
+FROM tma_materiali_archeologici WHERE editing_by IS NOT NULL
 
-ORDER BY editing_since DESC;
+UNION ALL
+-- archeozoology_table
+SELECT 'archeozoology_table'::text,
+    id_archzoo,
+    id_archzoo::text,
+    sito, area,
+    editing_by, editing_since,
+    EXTRACT(epoch FROM CURRENT_TIMESTAMP - editing_since) / 60
+FROM archeozoology_table WHERE editing_by IS NOT NULL
+
+UNION ALL
+-- campioni_table
+SELECT 'campioni_table'::text,
+    id_campione,
+    nr_campione::text,
+    sito, area,
+    editing_by, editing_since,
+    EXTRACT(epoch FROM CURRENT_TIMESTAMP - editing_since) / 60
+FROM campioni_table WHERE editing_by IS NOT NULL
+
+UNION ALL
+-- individui_table
+SELECT 'individui_table'::text,
+    id_scheda_ind,
+    nr_individuo::text,
+    sito, area,
+    editing_by, editing_since,
+    EXTRACT(epoch FROM CURRENT_TIMESTAMP - editing_since) / 60
+FROM individui_table WHERE editing_by IS NOT NULL
+
+UNION ALL
+-- tomba_table
+SELECT 'tomba_table'::text,
+    id_tomba,
+    nr_scheda_taf::text,
+    sito, area,
+    editing_by, editing_since,
+    EXTRACT(epoch FROM CURRENT_TIMESTAMP - editing_since) / 60
+FROM tomba_table WHERE editing_by IS NOT NULL
+
+UNION ALL
+-- periodizzazione_table
+SELECT 'periodizzazione_table'::text,
+    id_perfas,
+    (periodo::text || '.' || fase::text),
+    sito, area,
+    editing_by, editing_since,
+    EXTRACT(epoch FROM CURRENT_TIMESTAMP - editing_since) / 60
+FROM periodizzazione_table WHERE editing_by IS NOT NULL
+
+UNION ALL
+-- struttura_table
+SELECT 'struttura_table'::text,
+    id_struttura,
+    sigla_struttura,
+    sito, ''::text,
+    editing_by, editing_since,
+    EXTRACT(epoch FROM CURRENT_TIMESTAMP - editing_since) / 60
+FROM struttura_table WHERE editing_by IS NOT NULL
+
+UNION ALL
+-- documentazione_table
+SELECT 'documentazione_table'::text,
+    id_documentazione,
+    nome_doc,
+    sito, ''::text,
+    editing_by, editing_since,
+    EXTRACT(epoch FROM CURRENT_TIMESTAMP - editing_since) / 60
+FROM documentazione_table WHERE editing_by IS NOT NULL
+
+UNION ALL
+-- site_table
+SELECT 'site_table'::text,
+    id_sito,
+    sito,
+    sito, ''::text,
+    editing_by, editing_since,
+    EXTRACT(epoch FROM CURRENT_TIMESTAMP - editing_since) / 60
+FROM site_table WHERE editing_by IS NOT NULL
+
+UNION ALL
+-- inventario_lapidei_table
+SELECT 'inventario_lapidei_table'::text,
+    id_invlap,
+    scheda_numero::text,
+    sito, ''::text,
+    editing_by, editing_since,
+    EXTRACT(epoch FROM CURRENT_TIMESTAMP - editing_since) / 60
+FROM inventario_lapidei_table WHERE editing_by IS NOT NULL
+
+UNION ALL
+-- deteta_table
+SELECT 'deteta_table'::text,
+    id_det_eta,
+    id_det_eta::text,
+    sito, ''::text,
+    editing_by, editing_since,
+    EXTRACT(epoch FROM CURRENT_TIMESTAMP - editing_since) / 60
+FROM deteta_table WHERE editing_by IS NOT NULL
+
+UNION ALL
+-- detsesso_table
+SELECT 'detsesso_table'::text,
+    id_det_sesso,
+    id_det_sesso::text,
+    sito, ''::text,
+    editing_by, editing_since,
+    EXTRACT(epoch FROM CURRENT_TIMESTAMP - editing_since) / 60
+FROM detsesso_table WHERE editing_by IS NOT NULL
+
+UNION ALL
+-- pyarchinit_thesaurus_sigle
+SELECT 'pyarchinit_thesaurus_sigle'::text,
+    id_thesaurus_sigle,
+    sigla,
+    ''::text, ''::text,
+    editing_by, editing_since,
+    EXTRACT(epoch FROM CURRENT_TIMESTAMP - editing_since) / 60
+FROM pyarchinit_thesaurus_sigle WHERE editing_by IS NOT NULL
+
+ORDER BY 7 DESC;
 
 -- Vista per vedere le modifiche recenti
 CREATE OR REPLACE VIEW recent_changes AS
