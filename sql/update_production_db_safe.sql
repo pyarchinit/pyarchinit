@@ -192,52 +192,28 @@ CREATE INDEX IF NOT EXISTS idx_audit_table_record ON pyarchinit_audit_log(table_
 CREATE INDEX IF NOT EXISTS idx_audit_timestamp ON pyarchinit_audit_log(timestamp DESC);
 CREATE INDEX IF NOT EXISTS idx_audit_user ON pyarchinit_audit_log(user_name);
 
--- 5. RICREA VIEW IN MODO SICURO (gestisce colonne mancanti)
+-- 5. RICREA VIEW IN MODO SICURO (TUTTE LE TABELLE)
 -- Drop e ricrea active_editing_sessions
 DROP VIEW IF EXISTS active_editing_sessions CASCADE;
 
 CREATE VIEW active_editing_sessions AS
-SELECT
-    'us_table' as table_name,
-    id_us as id,
-    COALESCE(us::text, '') as reference,
-    sito,
-    area,
-    editing_by,
-    editing_since,
-    EXTRACT(EPOCH FROM (CURRENT_TIMESTAMP - editing_since))/60 as minutes_editing
-FROM us_table
-WHERE editing_by IS NOT NULL
-
-UNION ALL
-
-SELECT
-    'inventario_materiali_table' as table_name,
-    id_invmat as id,
-    numero_inventario::text as reference,
-    sito,
-    area,
-    editing_by,
-    editing_since,
-    EXTRACT(EPOCH FROM (CURRENT_TIMESTAMP - editing_since))/60 as minutes_editing
-FROM inventario_materiali_table
-WHERE editing_by IS NOT NULL
-
-UNION ALL
-
-SELECT
-    'tma_materiali_archeologici' as table_name,
-    id,
-    COALESCE(dscu, '') as reference,
-    sito,
-    area,
-    editing_by,
-    editing_since,
-    EXTRACT(EPOCH FROM (CURRENT_TIMESTAMP - editing_since))/60 as minutes_editing
-FROM tma_materiali_archeologici
-WHERE editing_by IS NOT NULL
-
-ORDER BY editing_since DESC;
+SELECT 'us_table'::text AS table_name, id_us AS id, COALESCE(us::text, '') AS reference, sito, area, editing_by, editing_since, EXTRACT(epoch FROM CURRENT_TIMESTAMP - editing_since) / 60 AS minutes_editing FROM us_table WHERE editing_by IS NOT NULL
+UNION ALL SELECT 'pottery_table'::text, id_rep, id_number::text, sito, area, editing_by, editing_since, EXTRACT(epoch FROM CURRENT_TIMESTAMP - editing_since) / 60 FROM pottery_table WHERE editing_by IS NOT NULL
+UNION ALL SELECT 'inventario_materiali_table'::text, id_invmat, numero_inventario::text, sito, area, editing_by, editing_since, EXTRACT(epoch FROM CURRENT_TIMESTAMP - editing_since) / 60 FROM inventario_materiali_table WHERE editing_by IS NOT NULL
+UNION ALL SELECT 'tma_materiali_archeologici'::text, id, COALESCE(dscu, ''), sito, area, editing_by, editing_since, EXTRACT(epoch FROM CURRENT_TIMESTAMP - editing_since) / 60 FROM tma_materiali_archeologici WHERE editing_by IS NOT NULL
+UNION ALL SELECT 'archeozoology_table'::text, id_archzoo, id_archzoo::text, sito, area, editing_by, editing_since, EXTRACT(epoch FROM CURRENT_TIMESTAMP - editing_since) / 60 FROM archeozoology_table WHERE editing_by IS NOT NULL
+UNION ALL SELECT 'campioni_table'::text, id_campione, nr_campione::text, sito, area, editing_by, editing_since, EXTRACT(epoch FROM CURRENT_TIMESTAMP - editing_since) / 60 FROM campioni_table WHERE editing_by IS NOT NULL
+UNION ALL SELECT 'individui_table'::text, id_scheda_ind, nr_individuo::text, sito, area, editing_by, editing_since, EXTRACT(epoch FROM CURRENT_TIMESTAMP - editing_since) / 60 FROM individui_table WHERE editing_by IS NOT NULL
+UNION ALL SELECT 'tomba_table'::text, id_tomba, nr_scheda_taf::text, sito, area, editing_by, editing_since, EXTRACT(epoch FROM CURRENT_TIMESTAMP - editing_since) / 60 FROM tomba_table WHERE editing_by IS NOT NULL
+UNION ALL SELECT 'periodizzazione_table'::text, id_perfas, (periodo::text || '.' || fase::text), sito, area, editing_by, editing_since, EXTRACT(epoch FROM CURRENT_TIMESTAMP - editing_since) / 60 FROM periodizzazione_table WHERE editing_by IS NOT NULL
+UNION ALL SELECT 'struttura_table'::text, id_struttura, sigla_struttura, sito, ''::text, editing_by, editing_since, EXTRACT(epoch FROM CURRENT_TIMESTAMP - editing_since) / 60 FROM struttura_table WHERE editing_by IS NOT NULL
+UNION ALL SELECT 'documentazione_table'::text, id_documentazione, nome_doc, sito, ''::text, editing_by, editing_since, EXTRACT(epoch FROM CURRENT_TIMESTAMP - editing_since) / 60 FROM documentazione_table WHERE editing_by IS NOT NULL
+UNION ALL SELECT 'site_table'::text, id_sito, sito, sito, ''::text, editing_by, editing_since, EXTRACT(epoch FROM CURRENT_TIMESTAMP - editing_since) / 60 FROM site_table WHERE editing_by IS NOT NULL
+UNION ALL SELECT 'inventario_lapidei_table'::text, id_invlap, scheda_numero::text, sito, ''::text, editing_by, editing_since, EXTRACT(epoch FROM CURRENT_TIMESTAMP - editing_since) / 60 FROM inventario_lapidei_table WHERE editing_by IS NOT NULL
+UNION ALL SELECT 'deteta_table'::text, id_det_eta, id_det_eta::text, sito, ''::text, editing_by, editing_since, EXTRACT(epoch FROM CURRENT_TIMESTAMP - editing_since) / 60 FROM deteta_table WHERE editing_by IS NOT NULL
+UNION ALL SELECT 'detsesso_table'::text, id_det_sesso, id_det_sesso::text, sito, ''::text, editing_by, editing_since, EXTRACT(epoch FROM CURRENT_TIMESTAMP - editing_since) / 60 FROM detsesso_table WHERE editing_by IS NOT NULL
+UNION ALL SELECT 'pyarchinit_thesaurus_sigle'::text, id_thesaurus_sigle, sigla, ''::text, ''::text, editing_by, editing_since, EXTRACT(epoch FROM CURRENT_TIMESTAMP - editing_since) / 60 FROM pyarchinit_thesaurus_sigle WHERE editing_by IS NOT NULL
+ORDER BY 7 DESC;
 
 -- Ricrea recent_changes view
 DROP VIEW IF EXISTS recent_changes CASCADE;

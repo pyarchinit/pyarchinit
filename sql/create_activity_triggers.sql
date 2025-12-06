@@ -348,34 +348,28 @@ CREATE TRIGGER trg_archeozoology_editing
     FOR EACH ROW EXECUTE FUNCTION track_editing_user();
 
 -- =====================================================
--- 6. VIEW PER MONITOR SESSIONI ATTIVE
+-- 6. VIEW PER MONITOR SESSIONI ATTIVE (TUTTE LE TABELLE)
 -- Mostra chi sta modificando cosa in tutte le tabelle
 -- =====================================================
 
 CREATE OR REPLACE VIEW active_editing_sessions AS
-SELECT 'us_table' as table_name, id_us as record_id, editing_by, editing_since FROM us_table WHERE editing_by IS NOT NULL
-UNION ALL
-SELECT 'pottery_table', id_rep, editing_by, editing_since FROM pottery_table WHERE editing_by IS NOT NULL
-UNION ALL
-SELECT 'inventario_materiali_table', id_invmat, editing_by, editing_since FROM inventario_materiali_table WHERE editing_by IS NOT NULL
-UNION ALL
-SELECT 'tma_materiali_archeologici', id, editing_by, editing_since FROM tma_materiali_archeologici WHERE editing_by IS NOT NULL
-UNION ALL
-SELECT 'site_table', id_sito, editing_by, editing_since FROM site_table WHERE editing_by IS NOT NULL
-UNION ALL
-SELECT 'periodizzazione_table', id_perfas, editing_by, editing_since FROM periodizzazione_table WHERE editing_by IS NOT NULL
-UNION ALL
-SELECT 'struttura_table', id_struttura, editing_by, editing_since FROM struttura_table WHERE editing_by IS NOT NULL
-UNION ALL
-SELECT 'tomba_table', id_tomba, editing_by, editing_since FROM tomba_table WHERE editing_by IS NOT NULL
-UNION ALL
-SELECT 'individui_table', id_scheda_ind, editing_by, editing_since FROM individui_table WHERE editing_by IS NOT NULL
-UNION ALL
-SELECT 'campioni_table', id_campione, editing_by, editing_since FROM campioni_table WHERE editing_by IS NOT NULL
-UNION ALL
-SELECT 'documentazione_table', id_documentazione, editing_by, editing_since FROM documentazione_table WHERE editing_by IS NOT NULL
-UNION ALL
-SELECT 'archeozoology_table', id_archzoo, editing_by, editing_since FROM archeozoology_table WHERE editing_by IS NOT NULL;
+SELECT 'us_table'::text AS table_name, id_us AS id, COALESCE(us::text, '') AS reference, sito, area, editing_by, editing_since, EXTRACT(epoch FROM CURRENT_TIMESTAMP - editing_since) / 60 AS minutes_editing FROM us_table WHERE editing_by IS NOT NULL
+UNION ALL SELECT 'pottery_table'::text, id_rep, id_number::text, sito, area, editing_by, editing_since, EXTRACT(epoch FROM CURRENT_TIMESTAMP - editing_since) / 60 FROM pottery_table WHERE editing_by IS NOT NULL
+UNION ALL SELECT 'inventario_materiali_table'::text, id_invmat, numero_inventario::text, sito, area, editing_by, editing_since, EXTRACT(epoch FROM CURRENT_TIMESTAMP - editing_since) / 60 FROM inventario_materiali_table WHERE editing_by IS NOT NULL
+UNION ALL SELECT 'tma_materiali_archeologici'::text, id, COALESCE(dscu, ''), sito, area, editing_by, editing_since, EXTRACT(epoch FROM CURRENT_TIMESTAMP - editing_since) / 60 FROM tma_materiali_archeologici WHERE editing_by IS NOT NULL
+UNION ALL SELECT 'archeozoology_table'::text, id_archzoo, id_archzoo::text, sito, area, editing_by, editing_since, EXTRACT(epoch FROM CURRENT_TIMESTAMP - editing_since) / 60 FROM archeozoology_table WHERE editing_by IS NOT NULL
+UNION ALL SELECT 'campioni_table'::text, id_campione, nr_campione::text, sito, area, editing_by, editing_since, EXTRACT(epoch FROM CURRENT_TIMESTAMP - editing_since) / 60 FROM campioni_table WHERE editing_by IS NOT NULL
+UNION ALL SELECT 'individui_table'::text, id_scheda_ind, nr_individuo::text, sito, area, editing_by, editing_since, EXTRACT(epoch FROM CURRENT_TIMESTAMP - editing_since) / 60 FROM individui_table WHERE editing_by IS NOT NULL
+UNION ALL SELECT 'tomba_table'::text, id_tomba, nr_scheda_taf::text, sito, area, editing_by, editing_since, EXTRACT(epoch FROM CURRENT_TIMESTAMP - editing_since) / 60 FROM tomba_table WHERE editing_by IS NOT NULL
+UNION ALL SELECT 'periodizzazione_table'::text, id_perfas, (periodo::text || '.' || fase::text), sito, area, editing_by, editing_since, EXTRACT(epoch FROM CURRENT_TIMESTAMP - editing_since) / 60 FROM periodizzazione_table WHERE editing_by IS NOT NULL
+UNION ALL SELECT 'struttura_table'::text, id_struttura, sigla_struttura, sito, ''::text, editing_by, editing_since, EXTRACT(epoch FROM CURRENT_TIMESTAMP - editing_since) / 60 FROM struttura_table WHERE editing_by IS NOT NULL
+UNION ALL SELECT 'documentazione_table'::text, id_documentazione, nome_doc, sito, ''::text, editing_by, editing_since, EXTRACT(epoch FROM CURRENT_TIMESTAMP - editing_since) / 60 FROM documentazione_table WHERE editing_by IS NOT NULL
+UNION ALL SELECT 'site_table'::text, id_sito, sito, sito, ''::text, editing_by, editing_since, EXTRACT(epoch FROM CURRENT_TIMESTAMP - editing_since) / 60 FROM site_table WHERE editing_by IS NOT NULL
+UNION ALL SELECT 'inventario_lapidei_table'::text, id_invlap, scheda_numero::text, sito, ''::text, editing_by, editing_since, EXTRACT(epoch FROM CURRENT_TIMESTAMP - editing_since) / 60 FROM inventario_lapidei_table WHERE editing_by IS NOT NULL
+UNION ALL SELECT 'deteta_table'::text, id_det_eta, id_det_eta::text, sito, ''::text, editing_by, editing_since, EXTRACT(epoch FROM CURRENT_TIMESTAMP - editing_since) / 60 FROM deteta_table WHERE editing_by IS NOT NULL
+UNION ALL SELECT 'detsesso_table'::text, id_det_sesso, id_det_sesso::text, sito, ''::text, editing_by, editing_since, EXTRACT(epoch FROM CURRENT_TIMESTAMP - editing_since) / 60 FROM detsesso_table WHERE editing_by IS NOT NULL
+UNION ALL SELECT 'pyarchinit_thesaurus_sigle'::text, id_thesaurus_sigle, sigla, ''::text, ''::text, editing_by, editing_since, EXTRACT(epoch FROM CURRENT_TIMESTAMP - editing_since) / 60 FROM pyarchinit_thesaurus_sigle WHERE editing_by IS NOT NULL
+ORDER BY 7 DESC;
 
 -- =====================================================
 -- 7. VERIFICA
