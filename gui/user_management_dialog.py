@@ -520,17 +520,31 @@ class UserManagementDialog(QDialog):
                 if role_result and len(role_result) > 0:
                     role = role_result[0][0]
 
-                    # Define default tables (including geometric tables)
+                    # Define ALL tables (archaeological + geometric + system)
                     tables = [
+                        # Archaeological data tables
                         'us_table', 'tma_materiali_archeologici', 'inventario_materiali_table',
                         'site_table', 'periodizzazione_table', 'struttura_table', 'tomba_table',
                         'individui_table', 'campioni_table', 'documentazione_table',
                         'detsesso_table', 'deteta_table', 'archeozoology_table', 'pottery_table',
-                        'pyarchinit_thesaurus_sigle',
-                        'pyarchinit_quote_view', 'pyarchinit_us_view', 'pyarchinit_site_view',
-                        'pyarchinit_strutture_view', 'pyarchinit_reperti_view', 'pyarchinit_tombe_view',
-                        'pyarchinit_pyuscarlinee', 'pyarchinit_pyuscarassoc', 'pyarchinit_pysiti_polygon',
-                        'pyarchinit_pyripartizioni', 'pyarchinit_pysiti_point'
+                        'inventario_lapidei_table', 'tafonomia_table', 'ut_table',
+                        'tma_materiali_ripetibili', 'media_table', 'media_thumb_table',
+                        'media_to_entity_table', 'media_to_us_table',
+                        # Thesaurus tables
+                        'pyarchinit_thesaurus_sigle', 'pyarchinit_codici_tipologia',
+                        # Geometric tables (points, lines, polygons)
+                        'pyunitastratigrafiche', 'pyunitastratigrafiche_usm',
+                        'pyarchinit_quote', 'pyarchinit_quote_usm',
+                        'pyarchinit_siti', 'pyarchinit_siti_polygonal',
+                        'pyarchinit_ripartizioni_spaziali', 'pyarchinit_ripartizioni_temporali',
+                        'pyarchinit_documentazione', 'pyarchinit_individui',
+                        'pyarchinit_campionature', 'pyarchinit_reperti',
+                        'pyarchinit_strutture_ipotesi', 'pyarchinit_ipotesi_strutture',
+                        'pyarchinit_tafonomia', 'pyarchinit_sezioni', 'pyarchinit_sondaggi',
+                        'pyarchinit_linee_rif', 'pyarchinit_punti_rif',
+                        'pyarchinit_inventario_materiali', 'pyarcheozoo',
+                        'pyuscarlinee', 'pyuscaratterizzazioni',
+                        'pyarchinit_us_negative_doc', 'pyarchinit_tipologia_sepolture'
                     ]
 
                     # Create default permissions based on role
