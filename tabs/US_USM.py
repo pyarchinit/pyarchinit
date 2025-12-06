@@ -10164,44 +10164,58 @@ DATABASE SCHEMA KNOWLEDGE:
                 # Use regex to extract the pattern more reliably
                 import re
                 
-                # Pattern to match any unit type: (SU/US/USM/WSU): (number) (relationship type) (SU/US/USM/WSU): (number)
-                # This pattern captures the unit type as well
-                pattern = r'(SU|US|USM|WSU):\s*(\d+)\s+(.+?)\s+(SU|US|USM|WSU):\s*(\d+)'
+                # Pattern to match any unit type: (SU/US/USM/WSU): (number) (relationship type) (SU/US/USM/WSU): (number) Area: (number)
+                # This pattern captures the unit type, numbers and area
+                pattern = r'(SU|US|USM|WSU):\s*(\d+)\s+(.+?)\s+(SU|US|USM|WSU):\s*(\d+)\s+Area:\s*(\d+)'
                 match = re.search(pattern, error)
-                
+
+                # Also extract site from the beginning of the error
+                site_pattern = r'Site:\s*([^,]+)'
+                site_match = re.search(site_pattern, error)
+                error_sito = site_match.group(1).strip() if site_match else str(self.comboBox_sito.currentText())
+
+                # Extract area from the beginning too (Area: X after Site)
+                area_from_pattern = r'Area:\s*(\d+),'
+                area_from_match = re.search(area_from_pattern, error)
+                error_area_from = area_from_match.group(1) if area_from_match else '1'
+
                 if match:
                     unit_type_from = match.group(1)
                     us_from = match.group(2)
                     rel_type = match.group(3).strip()
                     unit_type_to = match.group(4)
                     us_to = match.group(5)
+                    error_area_to = match.group(6)  # Area of the target US
                 else:
                     # Fallback to manual parsing for any unit type
                     # Look for any of the unit types
                     unit_types = ['SU:', 'US:', 'USM:', 'WSU:']
                     unit_type_found = None
-                    
+
                     for unit_type in unit_types:
                         if unit_type in error:
                             unit_type_found = unit_type
                             break
-                    
+
                     if unit_type_found:
                         parts = error.split(unit_type_found)
                         if len(parts) >= 3:
                             # First unit number
                             us_from = parts[1].strip().split()[0]
-                            
+
                             # Find relationship and second unit
                             middle_part = parts[1].strip()
                             # Everything after the first number until the end
                             after_first_us = ' '.join(middle_part.split()[1:])
-                            
+
                             # Second unit number
                             us_to = parts[2].strip().split()[0]
-                            
+
                             # Relationship is what's between them
                             rel_type = after_first_us.strip()
+
+                            # Use the area from the beginning of the error
+                            error_area_to = error_area_from
                         else:
                             raise ValueError(f"Cannot parse error format: {error}")
                     else:
@@ -10247,10 +10261,19 @@ DATABASE SCHEMA KNOWLEDGE:
                     
                     # Determine reciprocal relationship type
                     reciprocal_type = self.get_reciprocal_relationship_type(rel_type)
-                    
-                    # Add reciprocal relationship if not already present
-                    new_rel = [reciprocal_type, us_from]
-                    if new_rel not in current_rapporti:
+
+                    # Add reciprocal relationship with full format [type, us, area, sito]
+                    new_rel = [reciprocal_type, us_from, error_area_from, error_sito]
+
+                    # Check if relationship already exists (check by type and us, ignore area/sito variations)
+                    relationship_exists = False
+                    for existing_rel in current_rapporti:
+                        if len(existing_rel) >= 2:
+                            if existing_rel[0] == reciprocal_type and str(existing_rel[1]) == str(us_from):
+                                relationship_exists = True
+                                break
+
+                    if not relationship_exists:
                         current_rapporti.append(new_rel)
                         
                         # Update the record with properly formatted string
@@ -10286,7 +10309,7 @@ DATABASE SCHEMA KNOWLEDGE:
                             import traceback
                             traceback.print_exc()
                     else:
-                        print(f"Relationship {new_rel} already exists in US {us_to}")
+                        print(f"Relationship [{reciprocal_type}, {us_from}] already exists in US {us_to}")
                 else:
                     print(f"No target record found for US {us_to}")
                         
