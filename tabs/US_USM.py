@@ -11869,6 +11869,8 @@ DATABASE SCHEMA KNOWLEDGE:
         # seleziona tutte le row della tablewidget dei rapporti
         for row in range(self.tableWidget_rapporti.rowCount()):
             table_item = self.tableWidget_rapporti.item(row, 1)
+            if table_item is None:
+                continue
             row_data = table_item.data(QtCore.Qt.UserRole)
             row_id = row_data
             self.tableWidget_rapporti.selectRow(row)
@@ -17347,7 +17349,7 @@ DATABASE SCHEMA KNOWLEDGE:
                 if def_stratigrafica.find('SCHEDA CREATA IN AUTOMATICO')  >=0:
 
 
-                    report3 = 'Sito: %s, Area: %s, US: %d - %s. Da rivedere ' % (
+                    report3 = 'Sito: %s, Area: %s, US: %s - %s. Da rivedere ' % (
                         sito, area, us, def_stratigrafica)
             else:
                 if def_stratigrafica.find('FORM MADE AUTOMATIC') >= 0:
