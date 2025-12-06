@@ -489,79 +489,81 @@ class UserManagementDialog(QDialog):
             QMessageBox.warning(self, "Errore", f"Errore caricamento utenti: {e}")
 
     def load_user_permissions(self):
-        """Carica permessi utente selezionato"""
+        """Carica permessi utente selezionato - mostra SEMPRE tutte le tabelle"""
         username = self.perm_user_combo.currentText()
         if not username:
             return
 
         try:
             # Get user role
+            role = 'guest'
             query = "SELECT role FROM pyarchinit_users WHERE username = :username"
             result = self.db_manager.execute_sql(query, {'username': username})
             if result:
-                self.perm_role_label.setText(f"Ruolo: {result[0][0]}")
+                role = result[0][0]
+                self.perm_role_label.setText(f"Ruolo: {role}")
 
-            # First check if user has any custom permissions
+            # Get existing custom permissions from database
             query = """
                 SELECT table_name, can_view, can_insert, can_update, can_delete
                 FROM pyarchinit_permissions p
                 JOIN pyarchinit_users u ON p.user_id = u.id
                 WHERE u.username = :username
-                ORDER BY table_name
             """
-            permissions = self.db_manager.execute_sql(query, {'username': username})
+            db_permissions = self.db_manager.execute_sql(query, {'username': username})
 
-            # If no custom permissions, create default based on role
-            if not permissions:
-                # Get user role to determine default permissions
-                role_query = "SELECT role FROM pyarchinit_users WHERE username = :username"
-                role_result = self.db_manager.execute_sql(role_query, {'username': username})
+            # Convert to dictionary for easy lookup
+            custom_perms = {}
+            if db_permissions:
+                for perm in db_permissions:
+                    custom_perms[perm[0]] = (perm[1], perm[2], perm[3], perm[4])
 
-                if role_result and len(role_result) > 0:
-                    role = role_result[0][0]
+            # Define ALL tables - always show complete list
+            all_tables = [
+                # Archaeological data tables
+                'us_table', 'tma_materiali_archeologici', 'inventario_materiali_table',
+                'site_table', 'periodizzazione_table', 'struttura_table', 'tomba_table',
+                'individui_table', 'campioni_table', 'documentazione_table',
+                'detsesso_table', 'deteta_table', 'archeozoology_table', 'pottery_table',
+                'inventario_lapidei_table', 'tafonomia_table', 'ut_table',
+                'tma_materiali_ripetibili', 'media_table', 'media_thumb_table',
+                'media_to_entity_table', 'media_to_us_table',
+                # Thesaurus tables
+                'pyarchinit_thesaurus_sigle', 'pyarchinit_codici_tipologia',
+                # Geometric tables (points, lines, polygons)
+                'pyunitastratigrafiche', 'pyunitastratigrafiche_usm',
+                'pyarchinit_quote', 'pyarchinit_quote_usm',
+                'pyarchinit_siti', 'pyarchinit_siti_polygonal',
+                'pyarchinit_ripartizioni_spaziali', 'pyarchinit_ripartizioni_temporali',
+                'pyarchinit_documentazione', 'pyarchinit_individui',
+                'pyarchinit_campionature', 'pyarchinit_reperti',
+                'pyarchinit_strutture_ipotesi', 'pyarchinit_ipotesi_strutture',
+                'pyarchinit_tafonomia', 'pyarchinit_sezioni', 'pyarchinit_sondaggi',
+                'pyarchinit_linee_rif', 'pyarchinit_punti_rif',
+                'pyarchinit_inventario_materiali', 'pyarcheozoo',
+                'pyuscarlinee', 'pyuscaratterizzazioni',
+                'pyarchinit_us_negative_doc', 'pyarchinit_tipologia_sepolture'
+            ]
 
-                    # Define ALL tables (archaeological + geometric + system)
-                    tables = [
-                        # Archaeological data tables
-                        'us_table', 'tma_materiali_archeologici', 'inventario_materiali_table',
-                        'site_table', 'periodizzazione_table', 'struttura_table', 'tomba_table',
-                        'individui_table', 'campioni_table', 'documentazione_table',
-                        'detsesso_table', 'deteta_table', 'archeozoology_table', 'pottery_table',
-                        'inventario_lapidei_table', 'tafonomia_table', 'ut_table',
-                        'tma_materiali_ripetibili', 'media_table', 'media_thumb_table',
-                        'media_to_entity_table', 'media_to_us_table',
-                        # Thesaurus tables
-                        'pyarchinit_thesaurus_sigle', 'pyarchinit_codici_tipologia',
-                        # Geometric tables (points, lines, polygons)
-                        'pyunitastratigrafiche', 'pyunitastratigrafiche_usm',
-                        'pyarchinit_quote', 'pyarchinit_quote_usm',
-                        'pyarchinit_siti', 'pyarchinit_siti_polygonal',
-                        'pyarchinit_ripartizioni_spaziali', 'pyarchinit_ripartizioni_temporali',
-                        'pyarchinit_documentazione', 'pyarchinit_individui',
-                        'pyarchinit_campionature', 'pyarchinit_reperti',
-                        'pyarchinit_strutture_ipotesi', 'pyarchinit_ipotesi_strutture',
-                        'pyarchinit_tafonomia', 'pyarchinit_sezioni', 'pyarchinit_sondaggi',
-                        'pyarchinit_linee_rif', 'pyarchinit_punti_rif',
-                        'pyarchinit_inventario_materiali', 'pyarcheozoo',
-                        'pyuscarlinee', 'pyuscaratterizzazioni',
-                        'pyarchinit_us_negative_doc', 'pyarchinit_tipologia_sepolture'
-                    ]
-
-                    # Create default permissions based on role
-                    permissions = []
-                    for table in tables:
-                        if role == 'admin':
-                            permissions.append([table, True, True, True, True, False])
-                        elif role == 'responsabile':
-                            permissions.append([table, True, True, True, False, False])
-                        elif role == 'archeologo':
-                            permissions.append([table, True, True, False, False, False])
-                        elif role == 'studente':
-                            permissions.append([table, True, False, False, False, False])
-                        else:  # guest
-                            permissions.append([table, True, False, False, False, False])
+            # Build permissions list - use custom if exists, otherwise default based on role
+            permissions = []
+            for table in all_tables:
+                if table in custom_perms:
+                    # Use custom permissions from database
+                    p = custom_perms[table]
+                    permissions.append([table, p[0], p[1], p[2], p[3], True])  # True = custom
                 else:
-                    permissions = []
+                    # Use default permissions based on role
+                    if role == 'admin':
+                        permissions.append([table, True, True, True, True, False])
+                    elif role == 'responsabile':
+                        permissions.append([table, True, True, True, False, False])
+                    elif role == 'archeologo':
+                        permissions.append([table, True, True, False, False, False])
+                    elif role == 'studente':
+                        permissions.append([table, True, False, False, False, False])
+                    else:  # guest
+                        permissions.append([table, True, False, False, False, False])
 
             self.permissions_table.setRowCount(len(permissions))
 
@@ -572,11 +574,11 @@ class UserManagementDialog(QDialog):
                 # Checkboxes for permissions
                 for j, value in enumerate(perm[1:5], 1):
                     checkbox = QCheckBox()
-                    checkbox.setChecked(value)
+                    checkbox.setChecked(bool(value))
                     self.permissions_table.setCellWidget(i, j, checkbox)
 
                 # Permission type (custom if from DB, default if generated)
-                is_custom = len(perm) > 5 and perm[5]
+                is_custom = perm[5]
                 type_item = QTableWidgetItem("Personalizzato" if is_custom else "Default")
                 if is_custom:
                     type_item.setBackground(QBrush(QColor(255, 255, 200)))
