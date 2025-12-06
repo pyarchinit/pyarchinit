@@ -18117,83 +18117,99 @@ DATABASE SCHEMA KNOWLEDGE:
                             ut, str(us), sing_rapp[2], str(sing_rapp[1]))
 
                     if sing_rapp[4]!='-':
+                        # Validate values before int conversion
+                        rapp_periodo_str = str(sing_rapp[4]).replace('-','').strip() if sing_rapp[4] else ''
+                        periodo_in_str = str(periodo_in).strip() if periodo_in and periodo_in != 'None' else ''
+                        fase_in_str = str(fase_in).strip() if fase_in and fase_in != 'None' else ''
 
-                        if sing_rapp[0] == 'Covers' and int(sing_rapp[4].replace('-',''))<self.concat(int(periodo_in),int(fase_in)):
+                        # Only do comparison if all values are valid integers
+                        can_compare = (rapp_periodo_str.isdigit() and
+                                      periodo_in_str.isdigit() and
+                                      fase_in_str.isdigit())
+
+                        if can_compare:
+                            rapp_periodo_val = int(rapp_periodo_str)
+                            current_periodo_val = self.concat(int(periodo_in_str), int(fase_in_str))
+                        else:
+                            rapp_periodo_val = None
+                            current_periodo_val = None
+
+                        if can_compare and sing_rapp[0] == 'Covers' and rapp_periodo_val < current_periodo_val:
 
                             report2 = '%s : %s : %s- should be Covered by %s : %s-%s' % (
                                 ut, str(us),str(sing_rapp[4]), sing_rapp[1],  str(periodo_in),str(fase_in))
 
-                        if sing_rapp[0] == 'Covered by' and int(sing_rapp[4].replace('-',''))>self.concat(int(periodo_in),int(fase_in)):
+                        if can_compare and sing_rapp[0] == 'Covered by' and rapp_periodo_val > current_periodo_val:
 
                             report2 = '%s : %s : %s- should be Covers %s : %s-%s' % (
                                 ut, str(us),str(sing_rapp[4]), sing_rapp[1], str(periodo_in),str(fase_in))
 
-                        if sing_rapp[0] == 'Fills' and int(sing_rapp[4].replace('-',''))<self.concat(int(periodo_in),int(fase_in)):
+                        if can_compare and sing_rapp[0] == 'Fills' and rapp_periodo_val < current_periodo_val:
 
                             report2 = '%s : %s : %s- Should be Filled by %s : %s-%s' % (
                                 ut, str(us),str(sing_rapp[4]), sing_rapp[1],  str(periodo_in),str(fase_in))
 
-                        if sing_rapp[0] == 'Filled by' and int(sing_rapp[4].replace('-',''))>self.concat(int(periodo_in),int(fase_in)):
+                        if can_compare and sing_rapp[0] == 'Filled by' and rapp_periodo_val > current_periodo_val:
 
                             report2 = '%s : %s : %s- Shuld be Fills %s : %s-%s' % (
                                 ut, str(us),str(sing_rapp[4]), sing_rapp[1], str(periodo_in),str(fase_in))
 
-                        if sing_rapp[0] == 'Cuts' and int(sing_rapp[4].replace('-',''))<self.concat(int(periodo_in),int(fase_in)):
+                        if can_compare and sing_rapp[0] == 'Cuts' and rapp_periodo_val < current_periodo_val:
 
                             report2 = '%s : %s : %s- Shuld be Cut by %s : %s-%s' % (
                                 ut, str(us),str(sing_rapp[4]), sing_rapp[1],  str(periodo_in),str(fase_in))
 
-                        if sing_rapp[0] == 'Cut by' and int(sing_rapp[4].replace('-',''))>self.concat(int(periodo_in),int(fase_in)):
+                        if can_compare and sing_rapp[0] == 'Cut by' and rapp_periodo_val > current_periodo_val:
 
                             report2 = '%s : %s : %s- Shuld be Cuts %s : %s-%s' % (
                                 ut, str(us),str(sing_rapp[4]), sing_rapp[1], str(periodo_in),str(fase_in))
 
-                        if sing_rapp[0] == 'Abuts' and int(sing_rapp[4].replace('-',''))<self.concat(int(periodo_in),int(fase_in)):
+                        if can_compare and sing_rapp[0] == 'Abuts' and rapp_periodo_val < current_periodo_val:
 
                             report2 = '%s : %s : %s- Shuld be Supports %s : %s-%s' % (
                                 ut, str(us),str(sing_rapp[4]), sing_rapp[1],  str(periodo_in),str(fase_in))
 
-                        if sing_rapp[0] == 'Supports' and int(sing_rapp[4].replace('-',''))>self.concat(int(periodo_in),int(fase_in)):
+                        if can_compare and sing_rapp[0] == 'Supports' and rapp_periodo_val > current_periodo_val:
 
                             report2 = '%s : %s : %s- Shuld be Abuts %s : %s-%s' % (
                                 ut, str(us),str(sing_rapp[4]), sing_rapp[1], str(periodo_in),str(fase_in))
 
-                        if sing_rapp[0] == 'Copre' and int(sing_rapp[4].replace('-',''))<self.concat(int(periodo_in),int(fase_in)):
+                        if can_compare and sing_rapp[0] == 'Copre' and rapp_periodo_val < current_periodo_val:
 
                             report2 = '%s : %s : %s- Dovrebbe essere Coperto da %s : %s-%s' % (
                                 ut, str(us),str(sing_rapp[4]), sing_rapp[1],  str(periodo_in),str(fase_in))
 
-                        if sing_rapp[0] == 'Coperto da' and int(sing_rapp[4].replace('-',''))>self.concat(int(periodo_in),int(fase_in)):
+                        if can_compare and sing_rapp[0] == 'Coperto da' and rapp_periodo_val > current_periodo_val:
 
                             report2 = '%s : %s : %s- Dovrebbe Coprire %s : %s-%s' % (
                                 ut, str(us),str(sing_rapp[4]), sing_rapp[1], str(periodo_in),str(fase_in))
 
-                        if sing_rapp[0] == 'Riempie' and int(sing_rapp[4].replace('-',''))<self.concat(int(periodo_in),int(fase_in)):
+                        if can_compare and sing_rapp[0] == 'Riempie' and rapp_periodo_val < current_periodo_val:
 
                             report2 = '%s : %s : %s- Dovrebbe essere Riempito da %s : %s-%s' % (
                                 ut, str(us),str(sing_rapp[4]), sing_rapp[1],  str(periodo_in),str(fase_in))
 
-                        if sing_rapp[0] == 'Riempito da' and int(sing_rapp[4].replace('-',''))>self.concat(int(periodo_in),int(fase_in)):
+                        if can_compare and sing_rapp[0] == 'Riempito da' and rapp_periodo_val > current_periodo_val:
 
                             report2 = '%s : %s : %s- Dovrebbe Riempire %s : %s-%s' % (
                                 ut, str(us),str(sing_rapp[4]), sing_rapp[1], str(periodo_in),str(fase_in))
 
-                        if sing_rapp[0] == 'Taglia' and int(sing_rapp[4].replace('-',''))<self.concat(int(periodo_in),int(fase_in)):
+                        if can_compare and sing_rapp[0] == 'Taglia' and rapp_periodo_val < current_periodo_val:
 
                             report2 = '%s : %s : %s- Dovrebbe essere Tagliato da %s : %s-%s' % (
                                 ut, str(us),str(sing_rapp[4]), sing_rapp[1],  str(periodo_in),str(fase_in))
 
-                        if sing_rapp[0] == 'Tagliato da' and int(sing_rapp[4].replace('-',''))>self.concat(int(periodo_in),int(fase_in)):
+                        if can_compare and sing_rapp[0] == 'Tagliato da' and rapp_periodo_val > current_periodo_val:
 
                             report2 = '%s : %s : %s- Dovrebbe Tagliare %s : %s-%s' % (
                                 ut, str(us),str(sing_rapp[4]), sing_rapp[1], str(periodo_in),str(fase_in))
 
-                        if sing_rapp[0] == 'Si appoggia a' and int(sing_rapp[4].replace('-',''))<self.concat(int(periodo_in),int(fase_in)):
+                        if can_compare and sing_rapp[0] == 'Si appoggia a' and rapp_periodo_val < current_periodo_val:
 
                             report2 = '%s : %s : %s- Dovrebbe essere Gli si appoggia %s : %s-%s' % (
                                 ut, str(us),str(sing_rapp[4]), sing_rapp[1],  str(periodo_in),str(fase_in))
 
-                        if sing_rapp[0] == 'Gli si appoggia' and int(sing_rapp[4].replace('-',''))>self.concat(int(periodo_in),int(fase_in)):
+                        if can_compare and sing_rapp[0] == 'Gli si appoggia' and rapp_periodo_val > current_periodo_val:
 
                             report2 = '%s : %s : %s- Dovrebbe Si appoggia a %s : %s-%s' % (
                                 ut, str(us),str(sing_rapp[4]), sing_rapp[1], str(periodo_in),str(fase_in))
