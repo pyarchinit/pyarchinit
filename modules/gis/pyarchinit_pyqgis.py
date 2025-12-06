@@ -9131,7 +9131,7 @@ class Order_layer_graph(object):  # Rinominata per compatibilità con il codice 
                     search_dict = {
                         'sito': "'" + str(sito) + "'",
                         'area': "'" + str(area) + "'",
-                        'us': int(sing_us)
+                        'us': str(sing_us)
                     }
 
                     try:
@@ -9287,7 +9287,7 @@ class Order_layer_graph(object):  # Rinominata per compatibilità con il codice 
                     search_dict = {
                         'sito': "'" + str(sito) + "'",
                         'area': "'" + str(area) + "'",
-                        'us': int(sing_us)
+                        'us': str(sing_us)
                     }
 
                     try:
