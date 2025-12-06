@@ -16890,6 +16890,7 @@ DATABASE SCHEMA KNOWLEDGE:
                                                       False)
 
             if ok and selected_model:
+                from openai import OpenAI
                 client = OpenAI()
 
                 response = client.chat.completions.create(
@@ -17352,7 +17353,7 @@ DATABASE SCHEMA KNOWLEDGE:
                 if def_stratigrafica.find('FORM MADE AUTOMATIC') >= 0:
 
 
-                    report3 = 'Sito: %s, Area: %s, US: %d - %s. Review it ' % (
+                    report3 = 'Sito: %s, Area: %s, US: %s - %s. Review it ' % (
                         sito, area, us, def_stratigrafica)
             if report3 != "":
                 report_rapporti3 = report_rapporti3 + report3 + '\n'
