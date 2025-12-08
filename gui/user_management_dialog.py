@@ -1275,11 +1275,16 @@ class UserManagementDialog(QDialog):
         """Attiva/disattiva auto-refresh"""
         if state == Qt.Checked:
             self.refresh_timer = QTimer()
-            self.refresh_timer.timeout.connect(self.load_monitor)
+            self.refresh_timer.timeout.connect(self.refresh_all_monitors)
             self.refresh_timer.start(10000)  # 10 secondi
         else:
             if hasattr(self, 'refresh_timer'):
                 self.refresh_timer.stop()
+
+    def refresh_all_monitors(self):
+        """Aggiorna monitor e log accessi"""
+        self.load_monitor()
+        self.load_access_log()
 
     def initialize_user_tables(self):
         """Inizializza le tabelle del sistema utenti nel database"""

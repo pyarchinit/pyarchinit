@@ -48,6 +48,9 @@ class PostgresDbUpdater:
             # Aggiorna la view pyarchinit_us_view
             self.update_us_view()
 
+            # Aggiorna la view pyarchinit_usm_view
+            self.update_usm_view()
+
             # Installa/aggiorna i trigger per il tracking delle attività
             self.update_activity_triggers()
 
@@ -277,120 +280,186 @@ class PostgresDbUpdater:
             self.log_message(f"Errore controllando pyarchinit_reperti_view: {e}")
     
     def update_us_view(self):
-        """Crea o aggiorna la view pyarchinit_us_view"""
+        """Crea o aggiorna la view pyarchinit_us_view - gestisce colonne mancanti"""
         self.log_message("Controllo view pyarchinit_us_view...")
-        
+
         try:
             from sqlalchemy import text
-            
-            # Drop existing view if any
-            drop_query = text("DROP VIEW IF EXISTS pyarchinit_us_view CASCADE")
-            self.db_manager.engine.execute(drop_query)
-            
-            # Create view with all fields including order_layer and cont_per
-            create_query = text("""
-                CREATE VIEW pyarchinit_us_view AS
-                SELECT 
-                    pyunitastratigrafiche.gid::INTEGER as gid,
-                    pyunitastratigrafiche.the_geom,
-                    pyunitastratigrafiche.tipo_us_s,
-                    pyunitastratigrafiche.scavo_s,
-                    pyunitastratigrafiche.area_s,
-                    pyunitastratigrafiche.us_s,
-                    pyunitastratigrafiche.stratigraph_index_us,
-                    us_table.id_us,
-                    us_table.sito,
-                    us_table.area,
-                    us_table.us,
-                    us_table.struttura,
-                    us_table.d_stratigrafica,
-                    us_table.d_interpretativa,
-                    us_table.descrizione,
-                    us_table.interpretazione,
-                    us_table.rapporti,
-                    us_table.periodo_iniziale,
-                    us_table.fase_iniziale,
-                    us_table.periodo_finale,
-                    us_table.fase_finale,
-                    us_table.attivita,
-                    us_table.anno_scavo,
-                    us_table.metodo_di_scavo,
-                    us_table.inclusi,
-                    us_table.campioni,
-                    us_table.organici,
-                    us_table.inorganici,
-                    us_table.data_schedatura,
-                    us_table.schedatore,
-                    us_table.formazione,
-                    us_table.stato_di_conservazione,
-                    us_table.colore,
-                    us_table.consistenza,
-                    us_table.unita_tipo,
-                    us_table.settore,
-                    us_table.quad_par,
-                    us_table.ambient,
-                    us_table.saggio,
-                    us_table.elem_datanti,
-                    us_table.funz_statica,
-                    us_table.lavorazione,
-                    us_table.spess_giunti,
-                    us_table.letti_posa,
-                    us_table.alt_mod,
-                    us_table.un_ed_riass,
-                    us_table.reimp,
-                    us_table.posa_opera,
-                    us_table.quota_min_usm,
-                    us_table.quota_max_usm,
-                    us_table.cons_legante,
-                    us_table.col_legante,
-                    us_table.aggreg_legante,
-                    us_table.con_text_mat,
-                    us_table.col_materiale,
-                    us_table.inclusi_materiali_usm,
-                    us_table.n_catalogo_generale,
-                    us_table.n_catalogo_interno,
-                    us_table.n_catalogo_internazionale,
-                    us_table.soprintendenza,
-                    us_table.quota_relativa,
-                    us_table.quota_abs,
-                    us_table.ref_tm,
-                    us_table.ref_ra,
-                    us_table.ref_n,
-                    us_table.posizione,
-                    us_table.criteri_distinzione,
-                    us_table.modo_formazione,
-                    us_table.componenti_organici,
-                    us_table.componenti_inorganici,
-                    us_table.lunghezza_max,
-                    us_table.altezza_max,
-                    us_table.altezza_min,
-                    us_table.profondita_max,
-                    us_table.profondita_min,
-                    us_table.larghezza_media,
-                    us_table.quota_max,
-                    us_table.quota_min,
-                    us_table.piante,
-                    us_table.documentazione,
-                    us_table.scavato,
-                    us_table.cont_per,
-                    us_table.order_layer,
-                    us_table.rapporti2,
-                    us_table.sing_doc,
-                    us_table.unita_edilizie,
-                    us_table.quantificazioni,
-                    us_table.doc_usv
-                FROM pyunitastratigrafiche
-                JOIN us_table ON 
-                    pyunitastratigrafiche.scavo_s = us_table.sito AND 
-                    pyunitastratigrafiche.area_s = us_table.area AND 
-                    pyunitastratigrafiche.us_s = us_table.us
+
+            # Prima verifica quali colonne esistono effettivamente
+            check_columns_query = text("""
+                SELECT column_name
+                FROM information_schema.columns
+                WHERE table_name = 'us_table' AND table_schema = 'public'
             """)
-            
-            self.db_manager.engine.execute(create_query)
-            self.log_message("View pyarchinit_us_view creata/aggiornata con successo")
+            result = self.db_manager.engine.execute(check_columns_query)
+            existing_us_columns = {row[0] for row in result}
+
+            check_geo_columns_query = text("""
+                SELECT column_name
+                FROM information_schema.columns
+                WHERE table_name = 'pyunitastratigrafiche' AND table_schema = 'public'
+            """)
+            result = self.db_manager.engine.execute(check_geo_columns_query)
+            existing_geo_columns = {row[0] for row in result}
+
+            # Colonne obbligatorie dalla tabella geometrica
+            geo_columns = [
+                ('gid', 'pyunitastratigrafiche.gid::INTEGER as gid'),
+                ('the_geom', 'pyunitastratigrafiche.the_geom'),
+                ('tipo_us_s', 'pyunitastratigrafiche.tipo_us_s'),
+                ('scavo_s', 'pyunitastratigrafiche.scavo_s'),
+                ('area_s', 'pyunitastratigrafiche.area_s'),
+                ('us_s', 'pyunitastratigrafiche.us_s'),
+                ('stratigraph_index_us', 'pyunitastratigrafiche.stratigraph_index_us'),
+            ]
+
+            # Colonne dalla us_table - tutte opzionali
+            us_columns = [
+                'id_us', 'sito', 'area', 'us', 'struttura', 'd_stratigrafica',
+                'd_interpretativa', 'descrizione', 'interpretazione', 'rapporti',
+                'periodo_iniziale', 'fase_iniziale', 'periodo_finale', 'fase_finale',
+                'attivita', 'anno_scavo', 'metodo_di_scavo', 'inclusi', 'campioni',
+                'organici', 'inorganici', 'data_schedatura', 'schedatore', 'formazione',
+                'stato_di_conservazione', 'colore', 'consistenza', 'unita_tipo',
+                'settore', 'quad_par', 'ambient', 'saggio', 'elem_datanti',
+                'funz_statica', 'lavorazione', 'spess_giunti', 'letti_posa', 'alt_mod',
+                'un_ed_riass', 'reimp', 'posa_opera', 'quota_min_usm', 'quota_max_usm',
+                'cons_legante', 'col_legante', 'aggreg_legante', 'con_text_mat',
+                'col_materiale', 'inclusi_materiali_usm', 'n_catalogo_generale',
+                'n_catalogo_interno', 'n_catalogo_internazionale', 'soprintendenza',
+                'quota_relativa', 'quota_abs', 'ref_tm', 'ref_ra', 'ref_n', 'posizione',
+                'criteri_distinzione', 'modo_formazione', 'componenti_organici',
+                'componenti_inorganici', 'lunghezza_max', 'altezza_max', 'altezza_min',
+                'profondita_max', 'profondita_min', 'larghezza_media', 'quota_max',
+                'quota_min', 'piante', 'documentazione', 'scavato', 'cont_per',
+                'order_layer', 'rapporti2', 'sing_doc', 'unita_edilizie',
+                'quantificazioni', 'doc_usv'
+            ]
+
+            # Costruisci la lista di colonne disponibili
+            select_parts = []
+
+            # Aggiungi colonne geometriche esistenti
+            for col_name, col_expr in geo_columns:
+                if col_name in existing_geo_columns:
+                    select_parts.append(col_expr)
+
+            # Aggiungi colonne us_table esistenti
+            for col in us_columns:
+                if col in existing_us_columns:
+                    select_parts.append(f'us_table.{col}')
+
+            if not select_parts:
+                self.log_message("Errore: nessuna colonna disponibile per la view")
+                return
+
+            # Costruisci e esegui la query CREATE VIEW
+            select_clause = ',\n                    '.join(select_parts)
+            create_query = f"""
+                CREATE OR REPLACE VIEW pyarchinit_us_view AS
+                SELECT
+                    {select_clause}
+                FROM pyunitastratigrafiche
+                JOIN us_table ON
+                    pyunitastratigrafiche.scavo_s = us_table.sito AND
+                    pyunitastratigrafiche.area_s::text = us_table.area AND
+                    pyunitastratigrafiche.us_s = us_table.us
+            """
+
+            self.db_manager.engine.execute(text(create_query))
+            self.log_message(f"View pyarchinit_us_view creata/aggiornata con successo ({len(select_parts)} colonne)")
 
         except Exception as e:
             self.log_message(f"Errore creando/aggiornando pyarchinit_us_view: {e}")
+
+    def update_usm_view(self):
+        """Crea o aggiorna la view pyarchinit_usm_view - gestisce colonne mancanti"""
+        self.log_message("Controllo view pyarchinit_usm_view...")
+
+        try:
+            from sqlalchemy import text
+
+            # Prima verifica quali colonne esistono effettivamente
+            check_columns_query = text("""
+                SELECT column_name
+                FROM information_schema.columns
+                WHERE table_name = 'us_table' AND table_schema = 'public'
+            """)
+            result = self.db_manager.engine.execute(check_columns_query)
+            existing_us_columns = {row[0] for row in result}
+
+            check_geo_columns_query = text("""
+                SELECT column_name
+                FROM information_schema.columns
+                WHERE table_name = 'pyunitastratigrafiche_usm' AND table_schema = 'public'
+            """)
+            result = self.db_manager.engine.execute(check_geo_columns_query)
+            existing_geo_columns = {row[0] for row in result}
+
+            # Colonne obbligatorie dalla tabella geometrica USM
+            geo_columns = [
+                ('gid', 'pyunitastratigrafiche_usm.gid::INTEGER as gid'),
+                ('the_geom', 'pyunitastratigrafiche_usm.the_geom'),
+                ('tipo_us_s', 'pyunitastratigrafiche_usm.tipo_us_s'),
+                ('scavo_s', 'pyunitastratigrafiche_usm.scavo_s'),
+                ('area_s', 'pyunitastratigrafiche_usm.area_s'),
+                ('us_s', 'pyunitastratigrafiche_usm.us_s'),
+                ('stratigraph_index_us', 'pyunitastratigrafiche_usm.stratigraph_index_us'),
+            ]
+
+            # Colonne dalla us_table - tutte opzionali
+            us_columns = [
+                'id_us', 'sito', 'area', 'us', 'struttura', 'd_stratigrafica',
+                'd_interpretativa', 'descrizione', 'interpretazione', 'rapporti',
+                'periodo_iniziale', 'fase_iniziale', 'periodo_finale', 'fase_finale',
+                'attivita', 'anno_scavo', 'metodo_di_scavo', 'inclusi', 'campioni',
+                'data_schedatura', 'schedatore', 'formazione', 'stato_di_conservazione',
+                'colore', 'consistenza', 'unita_tipo', 'settore', 'quad_par', 'ambient',
+                'saggio', 'elem_datanti', 'funz_statica', 'lavorazione', 'spess_giunti',
+                'letti_posa', 'alt_mod', 'un_ed_riass', 'reimp', 'posa_opera',
+                'quota_min_usm', 'quota_max_usm', 'cons_legante', 'col_legante',
+                'aggreg_legante', 'con_text_mat', 'col_materiale', 'inclusi_materiali_usm',
+                'n_catalogo_generale', 'n_catalogo_interno', 'n_catalogo_internazionale',
+                'soprintendenza', 'quota_relativa', 'quota_abs', 'documentazione',
+                'scavato', 'cont_per', 'order_layer', 'rapporti2', 'doc_usv'
+            ]
+
+            # Costruisci la lista di colonne disponibili
+            select_parts = []
+
+            # Aggiungi colonne geometriche esistenti
+            for col_name, col_expr in geo_columns:
+                if col_name in existing_geo_columns:
+                    select_parts.append(col_expr)
+
+            # Aggiungi colonne us_table esistenti
+            for col in us_columns:
+                if col in existing_us_columns:
+                    select_parts.append(f'us_table.{col}')
+
+            if not select_parts:
+                self.log_message("Errore: nessuna colonna disponibile per la view USM")
+                return
+
+            # Costruisci e esegui la query CREATE VIEW
+            select_clause = ',\n                    '.join(select_parts)
+            create_query = f"""
+                CREATE OR REPLACE VIEW pyarchinit_usm_view AS
+                SELECT
+                    {select_clause}
+                FROM pyunitastratigrafiche_usm
+                JOIN us_table ON
+                    pyunitastratigrafiche_usm.scavo_s::text = us_table.sito AND
+                    pyunitastratigrafiche_usm.area_s::text = us_table.area AND
+                    pyunitastratigrafiche_usm.us_s = us_table.us
+            """
+
+            self.db_manager.engine.execute(text(create_query))
+            self.log_message(f"View pyarchinit_usm_view creata/aggiornata con successo ({len(select_parts)} colonne)")
+
+        except Exception as e:
+            self.log_message(f"Errore creando/aggiornando pyarchinit_usm_view: {e}")
 
     def update_activity_triggers(self):
         """Installa/aggiorna i trigger per il tracking delle attività"""
