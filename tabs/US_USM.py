@@ -4113,11 +4113,12 @@ class RAGQueryWorker(QThread):
             if "gpt-5" in self.model.lower() or "gpt-5.1" in self.model.lower():
                 # Create a simple wrapper that uses direct LLM calls
                 class SimpleGPT5Wrapper:
-                    def __init__(self, llm, vectorstore, parent_thread, enable_streaming):
+                    def __init__(self, llm, vectorstore, parent_thread, enable_streaming, raw_data=None):
                         self.llm = llm
                         self.vectorstore = vectorstore
                         self.parent_thread = parent_thread
                         self.enable_streaming = enable_streaming
+                        self.raw_data = raw_data or {}
 
                     def invoke(self, input_dict):
                         query = input_dict.get("input", "")
@@ -4126,21 +4127,51 @@ class RAGQueryWorker(QThread):
                         context = ""
                         if self.vectorstore:
                             try:
-                                # Aumenta il numero di documenti recuperati per query TMA
-                                k_docs = 30 if "cassett" in query.lower() or "tma" in query.lower() or "categoria" in query.lower() else 15
+                                query_lower = query.lower()
 
-                                # Cerca più documenti per avere più contesto
-                                docs = self.vectorstore.similarity_search(query, k=k_docs)
-                                context = "\n".join([doc.page_content for doc in docs])
+                                # Check if query requires ALL data (not just similar)
+                                needs_all_data = any(word in query_lower for word in [
+                                    'tutt', 'tutti', 'tutte', 'elenco', 'elenca', 'lista',
+                                    'quant', 'quante', 'quanti', 'totale', 'completo'
+                                ])
 
-                                # Se la query riguarda TMA/cassette, aggiungi anche ricerca specifica
-                                if "cassett" in query.lower() or "categoria" in query.lower() or "ldct" in query.lower():
-                                    tma_query = "TMA cassetta categoria ldct ogtm quantita"
-                                    tma_docs = self.vectorstore.similarity_search(tma_query, k=20)
-                                    tma_context = "\n".join([doc.page_content for doc in tma_docs if "TMA" in doc.page_content])
-                                    if tma_context:
-                                        context = context + "\n\nDati TMA aggiuntivi:\n" + tma_context
-                            except:
+                                if needs_all_data and hasattr(self, 'raw_data'):
+                                    # For queries needing all data, use raw data directly
+                                    context_parts = []
+                                    raw_data = self.raw_data
+
+                                    # Format US data
+                                    if 'us' in raw_data and raw_data['us']:
+                                        us_lines = []
+                                        for us in raw_data['us']:
+                                            anno = us.get('anno_scavo', us.get('data_schedatura', ''))
+                                            if anno or 'data' in query_lower or 'anno' in query_lower:
+                                                us_lines.append(f"US {us.get('us', '?')}: sito={us.get('sito', '?')}, area={us.get('area', '?')}, anno_scavo={anno}, datazione={us.get('datazione', '')}")
+                                        if us_lines:
+                                            context_parts.append("DATI US COMPLETI:\n" + "\n".join(us_lines))
+
+                                    # Format materials data
+                                    if 'materials' in raw_data and raw_data['materials']:
+                                        mat_lines = [f"Materiale: {m.get('tipo_reperto', '?')}, US={m.get('us', '?')}" for m in raw_data['materials'][:50]]
+                                        if mat_lines:
+                                            context_parts.append("MATERIALI:\n" + "\n".join(mat_lines))
+
+                                    context = "\n\n".join(context_parts)
+                                else:
+                                    # Use similarity search for specific queries
+                                    k_docs = 30 if "cassett" in query_lower or "tma" in query_lower or "categoria" in query_lower else 15
+                                    docs = self.vectorstore.similarity_search(query, k=k_docs)
+                                    context = "\n".join([doc.page_content for doc in docs])
+
+                                    # Se la query riguarda TMA/cassette, aggiungi anche ricerca specifica
+                                    if "cassett" in query_lower or "categoria" in query_lower or "ldct" in query_lower:
+                                        tma_query = "TMA cassetta categoria ldct ogtm quantita"
+                                        tma_docs = self.vectorstore.similarity_search(tma_query, k=20)
+                                        tma_context = "\n".join([doc.page_content for doc in tma_docs if "TMA" in doc.page_content])
+                                        if tma_context:
+                                            context = context + "\n\nDati TMA aggiuntivi:\n" + tma_context
+                            except Exception as e:
+                                print(f"[AI Query] Error building context: {e}")
                                 context = ""
 
                         # Create enhanced prompt with context
@@ -4184,15 +4215,20 @@ Dati disponibili nel database:
 
 Domanda dell'utente: {query}
 
+ISTRUZIONI DI FORMATTAZIONE:
+- Rispondi SEMPRE in TESTO NORMALE, NO markdown, NO asterischi, NO formattazione speciale
+- Per gli elenchi usa semplicemente numeri (1. 2. 3.) o trattini (-)
+- Per le tabelle usa semplice testo tabulato con spazi o pipe (|)
+- NON usare **grassetto**, *corsivo*, # titoli o altri simboli markdown
+
 Rispondi in modo:
 1. Naturale e conversazionale, come se stessi parlando con un collega archeologo
 2. Quando analizzi TMA, considera anche i materiali ripetibili collegati
 3. Sfrutta le relazioni tra tabelle per dare risposte complete
-4. Se richiesto un "resoconto", genera IMMEDIATAMENTE una tabella con i dati disponibili nel contesto
-5. Usa SEMPRE i dati effettivi dal contesto, non dire mai "mancano i dati" se ci sono TMA nel contesto
+4. Se richiesto un elenco, fornisci TUTTI i dati disponibili nel contesto, ordinati come richiesto
+5. Usa SEMPRE i dati effettivi dal contesto, non dire mai "mancano i dati" se ci sono dati nel contesto
 6. Se chiesto un totale o statistica, calcola dai dati reali disponibili
-7. Per resoconti di cassette/categorie, crea SEMPRE una tabella anche con dati parziali
-8. NON chiedere conferme, genera subito il resoconto con i dati che hai
+7. NON chiedere conferme, genera subito la risposta con i dati che hai
 
 Risposta:"""
                         else:
@@ -4245,7 +4281,7 @@ Come posso aiutarti meglio?"""
                             response = self.llm.invoke(full_prompt)
                             return {"output": response.content if hasattr(response, 'content') else str(response)}
 
-                agent = SimpleGPT5Wrapper(llm, vectorstore, self, self.enable_streaming)
+                agent = SimpleGPT5Wrapper(llm, vectorstore, self, self.enable_streaming, raw_data=data)
             else:
                 # For non-GPT-5 models, use the standard agent
                 agent_kwargs = {"stop": ["\nObservation:", "\n\tObservation:"]}
