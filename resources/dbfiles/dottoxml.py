@@ -258,7 +258,7 @@ def exportGraphml(o, nodes, edges, options,ff=0):
     
     for i in sorted(epoch, reverse=tf):
         color = "#"+''.join([random.choice('0123456789ABCDEF') for j in range(6)])
-        s=i.split(' : ')
+        s=i.split(' : ', 1)  # Split only on first occurrence to preserve date ranges
         a=len(i)
         a=x/a*100
         b=w/a*100
@@ -494,9 +494,9 @@ def exportGraphml(o, nodes, edges, options,ff=0):
     
     
     for i in sorted(epoch,reverse=tf):
-        
-        
-        s=i.split(' : ')
+
+
+        s=i.split(' : ', 1)  # Split only on first occurrence to preserve date ranges
         a=len(i)
         a=x/100*94
             
