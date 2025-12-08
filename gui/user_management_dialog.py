@@ -1070,16 +1070,27 @@ class UserManagementDialog(QDialog):
             elif role == 'archeologo':
                 # Can view, insert, and update most tables
                 self.db_manager.execute_sql(f"GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA public TO {username}")
-                self.db_manager.execute_sql(f"GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO {username}")
+                # UPDATE on sequences is needed to increment gid when inserting geometric features
+                self.db_manager.execute_sql(f"GRANT USAGE, SELECT, UPDATE ON ALL SEQUENCES IN SCHEMA public TO {username}")
                 self.db_manager.execute_sql(f"ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT, INSERT, UPDATE ON TABLES TO {username}")
-                self.db_manager.execute_sql(f"ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT USAGE, SELECT ON SEQUENCES TO {username}")
+                self.db_manager.execute_sql(f"ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT USAGE, SELECT, UPDATE ON SEQUENCES TO {username}")
+
+            elif role == 'responsabile':
+                # Responsabile can view, insert, update, and delete most tables
+                self.db_manager.execute_sql(f"GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO {username}")
+                # UPDATE on sequences is needed to increment gid when inserting geometric features
+                self.db_manager.execute_sql(f"GRANT USAGE, SELECT, UPDATE ON ALL SEQUENCES IN SCHEMA public TO {username}")
+                self.db_manager.execute_sql(f"ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO {username}")
+                self.db_manager.execute_sql(f"ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT USAGE, SELECT, UPDATE ON SEQUENCES TO {username}")
 
             elif role == 'studente':
                 # Limited permissions - mainly view and some insert
                 self.db_manager.execute_sql(f"GRANT SELECT ON ALL TABLES IN SCHEMA public TO {username}")
                 self.db_manager.execute_sql(f"GRANT INSERT ON us_table, campioni_table TO {username}")
-                self.db_manager.execute_sql(f"GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO {username}")
+                # UPDATE on sequences is needed for INSERT to work (to get next gid)
+                self.db_manager.execute_sql(f"GRANT USAGE, SELECT, UPDATE ON ALL SEQUENCES IN SCHEMA public TO {username}")
                 self.db_manager.execute_sql(f"ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON TABLES TO {username}")
+                self.db_manager.execute_sql(f"ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT USAGE, SELECT, UPDATE ON SEQUENCES TO {username}")
 
             elif role == 'guest':
                 # Read-only access
@@ -1185,30 +1196,95 @@ class UserManagementDialog(QDialog):
                     grant_query = f"GRANT {perm_str} ON {table_name} TO {username}"
                     self.db_manager.execute_sql(grant_query)
 
-                    # If INSERT permission, also grant sequence permissions
-                    if can_insert:
-                        # Try to grant sequence permissions
-                        try:
-                            # Find table's primary key sequence
-                            seq_query = f"""
-                                SELECT c.relname
-                                FROM pg_class c
-                                JOIN pg_depend d ON d.objid = c.oid
-                                JOIN pg_class t ON t.oid = d.refobjid
-                                WHERE c.relkind = 'S' AND t.relname = '{table_name}'
-                            """
-                            sequences = self.db_manager.execute_sql(seq_query)
-                            for seq in sequences:
-                                grant_seq = f"GRANT USAGE, SELECT ON SEQUENCE {seq[0]} TO {username}"
-                                self.db_manager.execute_sql(grant_seq)
-                        except:
-                            pass
+                    # If INSERT or UPDATE permission, also grant sequence permissions
+                    if can_insert or can_update:
+                        self._grant_sequence_permissions_for_table(username, table_name)
 
             print(f"Permessi PostgreSQL sincronizzati per utente {username}")
 
         except Exception as e:
             print(f"Errore sincronizzazione permessi PostgreSQL: {e}")
             # Don't raise - just log error
+
+    def _grant_sequence_permissions_for_table(self, username, table_name):
+        """Grant sequence permissions for a table (needed for INSERT/UPDATE on geometric tables)"""
+        try:
+            # Method 1: Find sequences directly dependent on the table
+            seq_query = f"""
+                SELECT c.relname
+                FROM pg_class c
+                JOIN pg_depend d ON d.objid = c.oid
+                JOIN pg_class t ON t.oid = d.refobjid
+                WHERE c.relkind = 'S' AND t.relname = '{table_name}'
+            """
+            sequences = self.db_manager.execute_sql(seq_query)
+
+            if sequences:
+                for seq in sequences:
+                    try:
+                        grant_seq = f"GRANT USAGE, SELECT, UPDATE ON SEQUENCE {seq[0]} TO {username}"
+                        self.db_manager.execute_sql(grant_seq)
+                        print(f"  Granted sequence permissions on {seq[0]} to {username}")
+                    except Exception as e:
+                        print(f"  Warning: Could not grant on sequence {seq[0]}: {e}")
+
+            # Method 2: Try common naming patterns for sequences
+            # PostgreSQL typically names sequences as table_column_seq
+            common_patterns = [
+                f"{table_name}_gid_seq",
+                f"{table_name}_id_seq",
+                f"{table_name}_pkuid_seq",
+                f"{table_name}_fid_seq",
+            ]
+
+            for seq_name in common_patterns:
+                try:
+                    # Check if sequence exists
+                    check_seq = f"""
+                        SELECT 1 FROM pg_class
+                        WHERE relkind = 'S' AND relname = '{seq_name}'
+                    """
+                    exists = self.db_manager.execute_sql(check_seq)
+                    if exists:
+                        grant_seq = f"GRANT USAGE, SELECT, UPDATE ON SEQUENCE {seq_name} TO {username}"
+                        self.db_manager.execute_sql(grant_seq)
+                        print(f"  Granted sequence permissions on {seq_name} to {username}")
+                except:
+                    pass  # Sequence doesn't exist or already granted
+
+            # Method 3: For geometric tables, also check related sequences
+            # Map of geometric tables to their known sequences
+            geometric_seq_map = {
+                'pyunitastratigrafiche': ['pyunitastratigrafiche_gid_seq'],
+                'pyunitastratigrafiche_usm': ['pyunitastratigrafiche_usm_gid_seq'],
+                'pyarchinit_quote': ['pyarchinit_quote_gid_seq'],
+                'pyarchinit_quote_usm': ['pyarchinit_quote_usm_gid_seq'],
+                'pyarchinit_siti': ['pyarchinit_siti_gid_seq'],
+                'pyarchinit_siti_polygonal': ['pyarchinit_siti_polygonal_gid_seq'],
+                'pyarchinit_ripartizioni_spaziali': ['pyarchinit_ripartizioni_spaziali_gid_seq'],
+                'pyarchinit_documentazione': ['pyarchinit_documentazione_gid_seq'],
+                'pyarchinit_individui': ['pyarchinit_individui_gid_seq'],
+                'pyarchinit_reperti': ['pyarchinit_reperti_gid_seq'],
+                'pyarchinit_strutture_ipotesi': ['pyarchinit_strutture_ipotesi_gid_seq', 'pyarchinit_strutture_ipotesi_gid_seq1'],
+                'pyarchinit_ipotesi_strutture': ['pyarchinit_ipotesi_strutture_gid_seq'],
+                'pyarchinit_sezioni': ['pyarchinit_sezioni_gid_seq'],
+                'pyarchinit_sondaggi': ['pyarchinit_sondaggi_gid_seq'],
+                'pyarchinit_linee_rif': ['pyarchinit_linee_rif_gid_seq'],
+                'pyarchinit_punti_rif': ['pyarchinit_punti_rif_gid_seq', 'pyarchinit_punti_rif_gid'],
+                'pyarcheozoo': ['pyarcheozoo_gid_seq'],
+            }
+
+            if table_name in geometric_seq_map:
+                for seq_name in geometric_seq_map[table_name]:
+                    try:
+                        grant_seq = f"GRANT USAGE, SELECT, UPDATE ON SEQUENCE {seq_name} TO {username}"
+                        self.db_manager.execute_sql(grant_seq)
+                        print(f"  Granted sequence permissions on {seq_name} to {username} (geometric table)")
+                    except Exception as e:
+                        print(f"  Warning: Could not grant on sequence {seq_name}: {e}")
+
+        except Exception as e:
+            print(f"Error granting sequence permissions for {table_name}: {e}")
 
     def apply_permissions_to_all(self):
         """Applica permessi a tutte le tabelle"""
