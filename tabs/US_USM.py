@@ -3742,6 +3742,10 @@ class RAGQueryDialog(QDialog):
         current_html = self.text_results.toHtml()
         self.text_results.setHtml(current_html + f"<p><b>Tu:</b> {query}</p>")
 
+        # Reset streaming state for new query
+        self._streaming_started = False
+        self._streaming_buffer = ""
+
         self.progress_bar.setVisible(True)
         self.status_label.setText("Inizializzazione RAG...")
 
@@ -3768,16 +3772,30 @@ class RAGQueryDialog(QDialog):
 
     def append_streaming_response(self, token):
         """Append streaming response tokens to the text results"""
-        # Get current HTML and append token
-        current_html = self.text_results.toHtml()
-        # If this is the first token of a new response, add assistant label
-        if "<b>Assistente:</b>" not in current_html.split("<p><b>Tu:</b>")[-1]:
-            current_html += "<p><b>Assistente:</b> "
-        # Append token
-        self.text_results.setHtml(current_html + token)
-        # Auto-scroll to bottom
-        scrollbar = self.text_results.verticalScrollBar()
-        scrollbar.setValue(scrollbar.maximum())
+        # Initialize streaming buffer if needed
+        if not hasattr(self, '_streaming_started') or not self._streaming_started:
+            self._streaming_started = True
+            self._streaming_buffer = ""
+            # Add "Assistente: " label at the start
+            cursor = self.text_results.textCursor()
+            cursor.movePosition(cursor.End)
+            cursor.insertHtml("<p><b>Assistente:</b> ")
+            self.text_results.setTextCursor(cursor)
+
+        # Append token directly using cursor (much faster than setHtml)
+        cursor = self.text_results.textCursor()
+        cursor.movePosition(cursor.End)
+        # Convert newlines to HTML breaks for proper display
+        display_token = token.replace('\n', '<br>')
+        cursor.insertHtml(display_token)
+        self.text_results.setTextCursor(cursor)
+        self.text_results.ensureCursorVisible()
+
+        # Accumulate in buffer for final response
+        self._streaming_buffer += token
+
+        # Process events periodically to keep UI responsive
+        QApplication.processEvents()
 
     def handle_results(self, results):
         """Handle query results and update conversation history"""
