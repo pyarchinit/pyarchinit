@@ -30,13 +30,14 @@ from .pyarchinit_OS_utility import Pyarchinit_OS_Utility
 
 
 class Settings(object):
-     
+
     SERVER = ""
     HOST = ""
     DATABASE = ""
     PASSWORD = ""
     PORT = ""
     USER = ""
+    SSLMODE = "allow"
     THUMB_PATH = ""
     THUMB_RESIZE = ""
     SITE_SET = ""
@@ -53,6 +54,7 @@ class Settings(object):
     text = (b'THUMB_RESIZE')
     text_a = (b'SITE_SET')
     text_b = (b'LOGO')
+    text_c = (b'SSLMODE')
 
     if text in data:
         pass
@@ -67,15 +69,27 @@ class Settings(object):
         conf.seek(-3, 2)
         conf.read(1)
         conf.write(b"','SITE_SET' : '")
-        
+
     if text_b in data:
         pass
     else:
         conf.seek(-3, 2)
         conf.read(1)
         conf.write(b"','LOGO' : 'insert path for the image logo'}")
-    
+
     conf.close()
+
+    # Add SSLMODE if missing (reopen file)
+    if text_c not in data:
+        conf = open(path_rel, "r")
+        content = conf.read()
+        conf.close()
+        # Insert SSLMODE before the closing brace
+        if "'SSLMODE'" not in content:
+            content = content.rstrip().rstrip('}') + ", 'SSLMODE': 'allow'}"
+            conf = open(path_rel, "w")
+            conf.write(content)
+            conf.close()
 
     def __init__(self, s):
 
@@ -89,6 +103,7 @@ class Settings(object):
         self.PASSWORD = self.configuration['PASSWORD']
         self.PORT = self.configuration['PORT']
         self.USER = self.configuration['USER']
+        self.SSLMODE = self.configuration.get('SSLMODE', 'allow')
         self.THUMB_PATH = self.configuration['THUMB_PATH']
         self.THUMB_RESIZE = self.configuration['THUMB_RESIZE']
         self.SITE_SET = self.configuration['SITE_SET']
