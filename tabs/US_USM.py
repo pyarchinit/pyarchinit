@@ -3785,9 +3785,21 @@ class RAGQueryDialog(QDialog):
         # Append token directly using cursor (much faster than setHtml)
         cursor = self.text_results.textCursor()
         cursor.movePosition(cursor.End)
-        # Convert newlines to HTML breaks for proper display
-        display_token = token.replace('\n', '<br>')
-        cursor.insertHtml(display_token)
+
+        # Use insertText for normal text to preserve spaces
+        # Only use insertHtml for newlines
+        if '\n' in token:
+            # Split by newlines and insert text + breaks
+            parts = token.split('\n')
+            for i, part in enumerate(parts):
+                if part:
+                    cursor.insertText(part)
+                if i < len(parts) - 1:
+                    cursor.insertHtml('<br>')
+        else:
+            # Normal text - use insertText to preserve spaces
+            cursor.insertText(token)
+
         self.text_results.setTextCursor(cursor)
         self.text_results.ensureCursorVisible()
 
