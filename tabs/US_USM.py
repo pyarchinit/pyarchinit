@@ -3636,7 +3636,7 @@ class RAGQueryDialog(QDialog):
 
         # Model selection
         self.model_combo = QComboBox()
-        self.model_combo.addItems(["gpt-5", "gpt-5-mini"])
+        self.model_combo.addItems(["gpt-5.1", "gpt-5.1-chat-latest"])
         button_layout.addWidget(QLabel("Modello:"))
         button_layout.addWidget(self.model_combo)
 
@@ -4084,8 +4084,8 @@ class RAGQueryWorker(QThread):
             # Create tools for analysis
             tools = self.create_analysis_tools(data, vectorstore)
 
-            # For GPT-5 models, use direct LLM calls instead of agents to avoid stop parameter issues
-            if "gpt-5" in self.model.lower():
+            # For GPT-5.x models, use direct LLM calls instead of agents to avoid stop parameter issues
+            if "gpt-5" in self.model.lower() or "gpt-5.1" in self.model.lower():
                 # Create a simple wrapper that uses direct LLM calls
                 class SimpleGPT5Wrapper:
                     def __init__(self, llm, vectorstore, parent_thread, enable_streaming):
@@ -4321,14 +4321,25 @@ Come posso aiutarti meglio?"""
         try:
             # Try to get current site from parent dialog if available
             search_dict = {}
-            if hasattr(self.parent, 'sito') and self.parent.sito:
-                search_dict = {'sito': self.parent.sito}
+            current_site = None
+
+            # Check for comboBox_sito (the actual way US_USM stores the site selection)
+            if hasattr(self.parent, 'comboBox_sito') and self.parent.comboBox_sito:
+                current_site = str(self.parent.comboBox_sito.currentText()).strip()
+                if current_site:
+                    search_dict = {'sito': current_site}
+                    print(f"[AI Query] Loading data for site: {current_site}")
+                else:
+                    print("[AI Query] Site combobox is empty, loading all data")
             else:
-                # Fallback to a known site
-                search_dict = {'sito': "Festòs_2025"}
+                # No filter - load all data
+                print("[AI Query] No site combobox found, will load all available data")
 
             try:
-                us_data = self.db_manager.query_bool(search_dict, "US")
+                if search_dict:
+                    us_data = self.db_manager.query_bool(search_dict, "US")
+                else:
+                    us_data = self.db_manager.query("US")
                 if us_data:
                     data['us'] = []
                     # Ensure us_data is iterable
@@ -4357,13 +4368,17 @@ Come posso aiutarti meglio?"""
                                             pass
                                 if row_dict:
                                     data['us'].append(row_dict)
+                print(f"[AI Query] Loaded {len(data.get('us', []))} US records")
             except Exception as e:
-                print(f"Error loading US data: {e}")
+                print(f"[AI Query] Error loading US data: {e}")
                 data['us'] = []
 
             # Load materials data
             try:
-                materials_data = self.db_manager.query_bool(search_dict, "INVENTARIO_MATERIALI")
+                if search_dict:
+                    materials_data = self.db_manager.query_bool(search_dict, "INVENTARIO_MATERIALI")
+                else:
+                    materials_data = self.db_manager.query("INVENTARIO_MATERIALI")
                 if materials_data:
                     data['materials'] = []
                     # Ensure materials_data is iterable
@@ -4390,13 +4405,17 @@ Come posso aiutarti meglio?"""
                                             pass
                                 if row_dict:
                                     data['materials'].append(row_dict)
+                print(f"[AI Query] Loaded {len(data.get('materials', []))} materials records")
             except Exception as e:
-                print(f"Error loading materials data: {e}")
+                print(f"[AI Query] Error loading materials data: {e}")
                 data['materials'] = []
 
             # Load pottery data
             try:
-                pottery_data = self.db_manager.query_bool(search_dict, "POTTERY")
+                if search_dict:
+                    pottery_data = self.db_manager.query_bool(search_dict, "POTTERY")
+                else:
+                    pottery_data = self.db_manager.query("POTTERY")
 
                 # Ensure pottery_data is iterable
                 if pottery_data is not None and not hasattr(pottery_data, '__iter__'):
@@ -4410,13 +4429,17 @@ Come posso aiutarti meglio?"""
                             data['pottery'].append(row_dict)
                         except:
                             data['pottery'].append(dict(row))
+                print(f"[AI Query] Loaded {len(data.get('pottery', []))} pottery records")
             except Exception as e:
-                print(f"Error loading pottery data: {e}")
+                print(f"[AI Query] Error loading pottery data: {e}")
                 data['pottery'] = []
 
             # Load TMA data
             try:
-                tma_data = self.db_manager.query_bool(search_dict, "TMA")
+                if search_dict:
+                    tma_data = self.db_manager.query_bool(search_dict, "TMA")
+                else:
+                    tma_data = self.db_manager.query("TMA")
 
                 # Ensure tma_data is iterable
                 if tma_data is not None and not hasattr(tma_data, '__iter__'):
@@ -4459,14 +4482,19 @@ Come posso aiutarti meglio?"""
                             data['tma'].append(row_dict)
                         except:
                             data['tma'].append(dict(row))
+                print(f"[AI Query] Loaded {len(data.get('tma', []))} TMA records")
             except Exception as e:
-                print(f"Error loading TMA data: {e}")
+                print(f"[AI Query] Error loading TMA data: {e}")
                 data['tma'] = []
 
         except Exception as e:
-            print(f"Error in load_database_data: {e}")
+            print(f"[AI Query] Error in load_database_data: {e}")
             import traceback
             traceback.print_exc()
+
+        # Summary
+        total_records = sum(len(v) for v in data.values() if isinstance(v, list))
+        print(f"[AI Query] Total records loaded: {total_records}")
 
         return data
 
@@ -4476,6 +4504,7 @@ Come posso aiutarti meglio?"""
 
         # Map table names to more descriptive ones
         table_name_map = {
+            'us': 'US - Unità Stratigrafiche',
             'us_table': 'US - Unità Stratigrafiche',
             'materials': 'INVENTARIO_MATERIALI - Inventario materiali',
             'pottery': 'POTTERY - Ceramica',
@@ -7243,7 +7272,7 @@ DATABASE SCHEMA KNOWLEDGE:
                 from langchain.memory import ConversationSummaryMemory
 
                 llm = ChatOpenAI(
-                    model_name="gpt-5",
+                    model_name="gpt-5.1",
                     api_key=api_key,
                     max_completion_tokens=16000,
                     streaming=False  # Disabled until organization is verified
@@ -7331,7 +7360,7 @@ DATABASE SCHEMA KNOWLEDGE:
                     custom_prompt=custom_prompt,
                     descriptions_text=descriptions_text,
                     api_key=api_key,
-                    selected_model="gpt-5",
+                    selected_model="gpt-5.1",
                     selected_tables=selected_tables,
                     analysis_steps=self.analysis_steps,
                     agent=agent,
@@ -16847,7 +16876,7 @@ DATABASE SCHEMA KNOWLEDGE:
         self.listWidget_rapp.clear()
         sito_check = str(self.comboBox_sito.currentText())
         area_check = str(self.comboBox_area.currentText())
-        models = ["gpt-5", "gpt-5-mini"]
+        models = ["gpt-5.1", "gpt-5.1-chat-latest"]
         
         # Setup progress tracking
         validation_steps = 2  # rapporti_stratigrafici_check + automaticform_check
