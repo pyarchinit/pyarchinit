@@ -4196,7 +4196,11 @@ Come posso aiutarti meglio?"""
                         if self.enable_streaming and self.parent_thread:
                             # Use OpenAI client directly for streaming
                             from openai import OpenAI
-                            client = OpenAI(api_key=self.llm.openai_api_key)
+                            # Get the actual API key value (it's a SecretStr in langchain)
+                            api_key_value = self.llm.openai_api_key
+                            if hasattr(api_key_value, 'get_secret_value'):
+                                api_key_value = api_key_value.get_secret_value()
+                            client = OpenAI(api_key=api_key_value)
 
                             response_stream = client.chat.completions.create(
                                 model=self.llm.model_name,
