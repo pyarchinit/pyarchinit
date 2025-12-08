@@ -118,6 +118,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                    'PASSWORD': '',
                    'PORT': '',
                    'USER': '',
+                   'SSLMODE': 'allow',
                    'THUMB_PATH': '',
                    'THUMB_RESIZE': '',
                    'EXPERIMENTAL': '',
@@ -3567,6 +3568,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 self.PARAMS_DICT['PASSWORD'] = str(self.lineEdit_Password.text())
                 self.PARAMS_DICT['PORT'] = str(self.lineEdit_Port.text())
                 self.PARAMS_DICT['USER'] = str(self.lineEdit_User.text())
+                self.PARAMS_DICT['SSLMODE'] = str(self.comboBox_sslmode.currentText())
                 self.PARAMS_DICT['THUMB_PATH'] = str(self.lineEdit_Thumb_path.text())
                 self.PARAMS_DICT['THUMB_RESIZE'] = str(self.lineEdit_Thumb_resize.text())
                 self.PARAMS_DICT['EXPERIMENTAL'] = str(self.comboBox_experimental.currentText())
@@ -3888,6 +3890,13 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         f.write(str(self.PARAMS_DICT))
         f.close()
 
+        # Clear database connection cache when settings change
+        try:
+            from ..modules.db.pyarchinit_db_manager import DbConnectionSingleton
+            DbConnectionSingleton.clear_instances()
+        except Exception as e:
+            pass  # Ignore if not available
+
     def on_pushButton_save_pressed(self):
         self.logger.log("\n=== on_pushButton_save_pressed called ===")
 
@@ -3919,6 +3928,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 self.PARAMS_DICT['PASSWORD'] = str(self.lineEdit_Password.text())
                 self.PARAMS_DICT['PORT'] = str(self.lineEdit_Port.text())
                 self.PARAMS_DICT['USER'] = str(self.lineEdit_User.text())
+                self.PARAMS_DICT['SSLMODE'] = str(self.comboBox_sslmode.currentText())
                 self.PARAMS_DICT['THUMB_PATH'] = str(self.lineEdit_Thumb_path.text())
                 self.PARAMS_DICT['THUMB_RESIZE'] = str(self.lineEdit_Thumb_resize.text())
                 self.PARAMS_DICT['EXPERIMENTAL'] = str(self.comboBox_experimental.currentText())
@@ -4172,8 +4182,12 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
     def select_version_sql(self):
         conn = Connection()
         db_url = conn.conn_str()
+        # Debug: mostra la connection string (mascherata)
+        import re
+        masked_url = re.sub(r':([^:@]+)@', ':***@', str(db_url)) if db_url else "None"
+        print(f"[DEBUG] select_version_sql - db_url: {masked_url}")
         sql_query_string = "SELECT current_setting('server_version_num')"
-        self.engine= create_engine(db_url)
+        self.engine = create_engine(db_url, connect_args={'connect_timeout': 10})
         res = self.engine.execute(sql_query_string)
         rows= res.fetchone()
         vers = ''.join(rows)
@@ -4949,17 +4963,22 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
 
     def charge_data(self):
         # load data from config.cfg file
-        
-            
+
+
         self.comboBox_Database.setCurrentText(self.PARAMS_DICT['SERVER'])
         self.lineEdit_Host.setText(self.PARAMS_DICT['HOST'])
         self.lineEdit_DBname.setText(self.PARAMS_DICT['DATABASE'])
         self.lineEdit_Password.setText(self.PARAMS_DICT['PASSWORD'])
         self.lineEdit_Port.setText(self.PARAMS_DICT['PORT'])
         self.lineEdit_User.setText(self.PARAMS_DICT['USER'])
+        # Set SSLMODE combobox
+        sslmode = self.PARAMS_DICT.get('SSLMODE', 'allow')
+        index = self.comboBox_sslmode.findText(sslmode)
+        if index >= 0:
+            self.comboBox_sslmode.setCurrentIndex(index)
         self.lineEdit_Thumb_path.setText(self.PARAMS_DICT['THUMB_PATH'])
         self.lineEdit_Thumb_resize.setText(self.PARAMS_DICT['THUMB_RESIZE'])
-        
+
         try:
             self.comboBox_experimental.setEditText(self.PARAMS_DICT['EXPERIMENTAL'])
         except:
@@ -5087,12 +5106,12 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             ####CREA LA STRINGA DI CONNESSIONE IN LETTURA
             if conn_str_dict_read["server"] == 'postgres':
                 try:
-                    conn_str_read = "%s://%s:%s@%s:%s/%s?client_encoding=utf8" % (
+                    conn_str_read = "%s://%s:%s@%s:%s/%s?sslmode=allow&client_encoding=utf8" % (
                         "postgresql", conn_str_dict_read["user"], conn_str_dict_read["password"],
                         conn_str_dict_read["host"],
                         conn_str_dict_read["port"], conn_str_dict_read["db_name"])
                 except:
-                    conn_str_read = "%s://%s:%s@%s:%d/%s?client_encoding=utf8" % (
+                    conn_str_read = "%s://%s:%s@%s:%d/%s?sslmode=allow&client_encoding=utf8" % (
                         "postgresql", conn_str_dict_read["user"], conn_str_dict_read["password"],
                         conn_str_dict_read["host"],
                         conn_str_dict_read["port"], conn_str_dict_read["db_name"])
@@ -5130,17 +5149,15 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 "port": str(self.lineEdit_port_wt.text()),
                 "db_name": str(self.lineEdit_database_wt.text())
             }
-            ####CREA LA STRINGA DI CONNESSIONE IN LETTURA
+            ####CREA LA STRINGA DI CONNESSIONE IN SCRITTURA
             if conn_str_dict_write["server"] == 'postgres':
                 try:
-                    conn_str_write = "%s://%s:%s@%s:%s/%s%s?client_encoding=utf8" % (
+                    conn_str_write = "%s://%s:%s@%s:%s/%s?sslmode=allow&client_encoding=utf8" % (
                         "postgresql", conn_str_dict_write["user"], conn_str_dict_write["password"],
-                        conn_str_dict_write["host"], conn_str_dict_write["port"], conn_str_dict_write["db_name"],
-                        "?sslmode=allow")
+                        conn_str_dict_write["host"], conn_str_dict_write["port"], conn_str_dict_write["db_name"])
                 except:
                     print('error')
-                else:
-                    conn_str_write = "%s://%s:%s@%s:%d/%s?client_encoding=utf8" % (
+                    conn_str_write = "%s://%s:%s@%s:%d/%s?sslmode=allow&client_encoding=utf8" % (
                         "postgresql", conn_str_dict_write["user"], conn_str_dict_write["password"],
                         conn_str_dict_write["host"],
                         int(conn_str_dict_write["port"]), conn_str_dict_write["db_name"])
@@ -6131,20 +6148,17 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             ####CREA LA STRINGA DI CONNESSIONE IN LETTURA
             if conn_str_dict_read["server"] == 'postgres':
                 try:
-                    conn_str_read = "%s://%s:%s@%s:%s/%s?client_encoding=utf8" % (
+                    conn_str_read = "%s://%s:%s@%s:%s/%s?sslmode=allow&client_encoding=utf8" % (
                         "postgresql", conn_str_dict_read["user"], conn_str_dict_read["password"],
                         conn_str_dict_read["host"],
                         conn_str_dict_read["port"], conn_str_dict_read["db_name"])
                 except Exception as e:
                     print(
                         "Error in connection parameter. <br> If they are correct restart QGIS. <br> Error: " + str(e))
-
-                else:
-                    conn_str_read = "%s://%s:%s@%s:%s/%s?client_encoding=utf8" % (
+                    conn_str_read = "%s://%s:%s@%s:%s/%s?sslmode=allow&client_encoding=utf8" % (
                         "postgresql", conn_str_dict_read["user"], conn_str_dict_read["password"],
                         conn_str_dict_read["host"],
                         conn_str_dict_read["port"], conn_str_dict_read["db_name"])
-
 
             elif conn_str_dict_read["server"] == 'sqlite':
 

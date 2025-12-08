@@ -85,7 +85,8 @@ class Connection(object):
                          "host": settings.HOST,
                          "port": settings.PORT,
                          "db_name": settings.DATABASE,
-                         "password": settings.PASSWORD}
+                         "password": settings.PASSWORD,
+                         "sslmode": getattr(settings, 'SSLMODE', 'allow')}
 
             # Log connection parameters (mask password)
             self.logger.log(f"Server type: {conn_str_dict['server']}")
@@ -93,27 +94,29 @@ class Connection(object):
             self.logger.log(f"Host: {conn_str_dict['host']}")
             self.logger.log(f"Port: {conn_str_dict['port']}")
             self.logger.log(f"Database: {conn_str_dict['db_name']}")
+            self.logger.log(f"SSL Mode: {conn_str_dict['sslmode']}")
 
             if conn_str_dict["server"] == 'postgres':
+                sslmode = conn_str_dict.get("sslmode", "allow")
                 try:
-                    conn_str = "%s://%s:%s@%s:%s/%s" % (
+                    conn_str = "%s://%s:%s@%s:%s/%s?sslmode=%s" % (
                     "postgresql", conn_str_dict["user"], conn_str_dict["password"], conn_str_dict["host"],
-                    conn_str_dict["port"], conn_str_dict["db_name"])
+                    conn_str_dict["port"], conn_str_dict["db_name"], sslmode)
                     # Log masked connection string
-                    masked_str = "%s://%s:***@%s:%s/%s" % (
+                    masked_str = "%s://%s:***@%s:%s/%s?sslmode=%s" % (
                     "postgresql", conn_str_dict["user"], conn_str_dict["host"],
-                    conn_str_dict["port"], conn_str_dict["db_name"])
+                    conn_str_dict["port"], conn_str_dict["db_name"], sslmode)
                     self.logger.log(f"PostgreSQL connection string (masked): {masked_str}")
                     test=True
                 except Exception as e:
                     self.logger.log_exception(e, "creating PostgreSQL connection string (with SSL)")
                     QMessageBox.warning(self, "Attenzione", 'Problema', QMessageBox.Ok)
-                    conn_str = "%s://%s:%s@%s:%s/%s" % (
+                    conn_str = "%s://%s:%s@%s:%s/%s?sslmode=%s" % (
                     "postgresql", conn_str_dict["user"], conn_str_dict["password"], conn_str_dict["host"],
-                    conn_str_dict["port"], conn_str_dict["db_name"])
-                    masked_str = "%s://%s:***@%s:%s/%s" % (
+                    conn_str_dict["port"], conn_str_dict["db_name"], sslmode)
+                    masked_str = "%s://%s:***@%s:%s/%s?sslmode=%s" % (
                     "postgresql", conn_str_dict["user"], conn_str_dict["host"],
-                    conn_str_dict["port"], conn_str_dict["db_name"])
+                    conn_str_dict["port"], conn_str_dict["db_name"], sslmode)
                     self.logger.log(f"PostgreSQL connection string fallback (masked): {masked_str}")
 
             elif conn_str_dict["server"] == 'sqlite':

@@ -200,12 +200,13 @@ class RestoreSchema(object):
 
 class CreateDatabase(object):
 
-    def __init__(self, db_name, db_host, db_port, db_user, db_passwd):
+    def __init__(self, db_name, db_host, db_port, db_user, db_passwd, sslmode="allow"):
         self.db_name = db_name
         self.db_host = db_host
         self.user = db_user
         self.passwd = db_passwd
         self.port = db_port
+        self.sslmode = sslmode
         self.logger = PyArchInitDBLogger()
 
     def createdb(self):
@@ -213,15 +214,16 @@ class CreateDatabase(object):
         self.logger.log(f"Database: {self.db_name}")
         self.logger.log(f"Host: {self.db_host}:{self.port}")
         self.logger.log(f"User: {self.user}")
+        self.logger.log(f"SSL Mode: {self.sslmode}")
 
         # Build connection URL (mask password in logs)
-        url_string = "postgresql://{}:***@{}:{}/{}".format(self.user, self.db_host, self.port, self.db_name)
+        url_string = "postgresql://{}:***@{}:{}/{}?sslmode={}".format(self.user, self.db_host, self.port, self.db_name, self.sslmode)
         self.logger.log(f"Connection URL (masked): {url_string}")
 
         try:
             # Create the database URL string
-            db_url_string = "postgresql://{}:{}@{}:{}/{}".format(
-                self.user, self.passwd, self.db_host, self.port, self.db_name)
+            db_url_string = "postgresql://{}:{}@{}:{}/{}?sslmode={}".format(
+                self.user, self.passwd, self.db_host, self.port, self.db_name, self.sslmode)
 
             engine = create_engine(db_url_string)
             self.logger.log("Engine created")
