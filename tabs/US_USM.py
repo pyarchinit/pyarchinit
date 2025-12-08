@@ -3729,6 +3729,8 @@ class RAGQueryDialog(QDialog):
 
         # Check API key
         api_key = self.parent.apikey_gpt() if hasattr(self.parent, 'apikey_gpt') else None
+        print(f"[AI Query] API key retrieved: {api_key[:20]}...{api_key[-10:] if api_key else 'None'}")
+        print(f"[AI Query] API key length: {len(api_key) if api_key else 0}")
         if not api_key:
             QMessageBox.warning(self, "API Key Required", "Please set your OpenAI API key in settings")
             return
@@ -4037,6 +4039,10 @@ class RAGQueryWorker(QThread):
                 texts = None  # Not needed when using cache
             else:
                 self.progress_update.emit("Creazione vectorstore (dati aggiornati)...")
+
+                # Debug API key
+                print(f"[RAGQueryWorker] API key in worker: {self.api_key[:20] if self.api_key else 'None'}...{self.api_key[-10:] if self.api_key else ''}")
+                print(f"[RAGQueryWorker] API key length in worker: {len(self.api_key) if self.api_key else 0}")
 
                 # Create vectorstore
                 embeddings = OpenAIEmbeddings(api_key=self.api_key)
@@ -4418,18 +4424,21 @@ Come posso aiutarti meglio?"""
                 else:
                     pottery_data = self.db_manager.query("POTTERY")
 
-                # Ensure pottery_data is iterable
-                if pottery_data is not None and not hasattr(pottery_data, '__iter__'):
-                    pottery_data = [pottery_data]
+                # Ensure pottery_data is a list (SQLAlchemy objects have __iter__ but aren't iterable as expected)
+                if pottery_data is not None:
+                    if not isinstance(pottery_data, (list, tuple)):
+                        pottery_data = [pottery_data]
 
-                if pottery_data:
                     data['pottery'] = []
                     for row in pottery_data:
                         try:
                             row_dict = {col.name: getattr(row, col.name) for col in row.__table__.columns}
                             data['pottery'].append(row_dict)
                         except:
-                            data['pottery'].append(dict(row))
+                            try:
+                                data['pottery'].append(dict(row))
+                            except:
+                                pass
                 print(f"[AI Query] Loaded {len(data.get('pottery', []))} pottery records")
             except Exception as e:
                 print(f"[AI Query] Error loading pottery data: {e}")
@@ -4442,11 +4451,11 @@ Come posso aiutarti meglio?"""
                 else:
                     tma_data = self.db_manager.query("TMA")
 
-                # Ensure tma_data is iterable
-                if tma_data is not None and not hasattr(tma_data, '__iter__'):
-                    tma_data = [tma_data]
+                # Ensure tma_data is a list
+                if tma_data is not None:
+                    if not isinstance(tma_data, (list, tuple)):
+                        tma_data = [tma_data]
 
-                if tma_data:
                     data['tma'] = []
                     for row in tma_data:
                         try:
@@ -4461,8 +4470,8 @@ Come posso aiutarti meglio?"""
                                     mat_ripetibili = self.db_manager.query_bool(mat_search, "TMA_MATERIALI")
 
                                     if mat_ripetibili:
-                                        # Ensure it's iterable
-                                        if not hasattr(mat_ripetibili, '__iter__'):
+                                        # Ensure it's a list
+                                        if not isinstance(mat_ripetibili, (list, tuple)):
                                             mat_ripetibili = [mat_ripetibili]
 
                                         # Add related materials to the TMA record
@@ -4482,7 +4491,10 @@ Come posso aiutarti meglio?"""
 
                             data['tma'].append(row_dict)
                         except:
-                            data['tma'].append(dict(row))
+                            try:
+                                data['tma'].append(dict(row))
+                            except:
+                                pass
                 print(f"[AI Query] Loaded {len(data.get('tma', []))} TMA records")
             except Exception as e:
                 print(f"[AI Query] Error loading TMA data: {e}")
