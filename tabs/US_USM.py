@@ -16738,7 +16738,8 @@ DATABASE SCHEMA KNOWLEDGE:
                 # Determine table name
                 current_rec = self.DATA_LIST[self.REC_CORR] if self.REC_CORR < len(self.DATA_LIST) else None
                 if current_rec and hasattr(current_rec, 'unita_tipo'):
-                    table_name = 'us_table' if current_rec.unita_tipo == 'US' else 'us_table_usm'
+                    # All US/USM records are stored in us_table (us_table_usm doesn't exist)
+                    table_name = 'us_table'
 
                     # Check for version conflict
                     has_conflict, db_version, last_modified_by, last_modified_timestamp = \
@@ -20383,7 +20384,8 @@ DATABASE SCHEMA KNOWLEDGE:
                 if hasattr(self, 'DATA_LIST') and len(self.DATA_LIST) > 0:
                     current_rec = self.DATA_LIST[self.REC_CORR] if self.REC_CORR < len(self.DATA_LIST) else None
                     if current_rec and hasattr(current_rec, 'unita_tipo'):
-                        table_name = 'us_table' if current_rec.unita_tipo == 'US' else 'us_table_usm'
+                        # All US/USM records are stored in us_table (us_table_usm doesn't exist)
+                        table_name = 'us_table'
 
                         # Get current username to skip self-modifications
                         current_user = self.concurrency_manager.get_username() if hasattr(self, 'concurrency_manager') else 'unknown'
