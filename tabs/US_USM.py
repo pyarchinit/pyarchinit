@@ -4011,6 +4011,7 @@ class RAGQueryWorker(QThread):
             from langchain_openai import ChatOpenAI, OpenAIEmbeddings
             from langchain_community.vectorstores import FAISS
             from langchain.text_splitter import RecursiveCharacterTextSplitter
+            from langchain.agents import Tool
         except ImportError as e:
             self.error_occurred.emit(f"Error importing AI libraries: {str(e)}. Please install langchain and openai.")
             return
@@ -4603,6 +4604,9 @@ Come posso aiutarti meglio?"""
 
     def create_analysis_tools(self, data, vectorstore):
         """Create analysis tools"""
+        # Lazy import to avoid pydantic conflicts
+        from langchain.agents import Tool
+
         return [
             Tool(
                 name="QueryDatabase",
