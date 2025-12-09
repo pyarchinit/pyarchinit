@@ -11198,46 +11198,8 @@ DATABASE SCHEMA KNOWLEDGE:
 
 
     def charge_insert_ra(self):
-        try:
-            current_sito = "'"+str(self.comboBox_sito.currentText())+"'"
-            current_area = "'" + str(self.DATA_LIST[self.REC_CORR].area) + "'"
-            current_us = "'" + str(self.DATA_LIST[self.REC_CORR].us) + "'"
-
-            # Ensure current_area and current_us are not None
-            if current_area is None or current_us is None:
-                return
-
-            search_dict_inv = {
-                'sito': current_sito,
-                'area': current_area,
-                'us': current_us
-            }
-
-            inv_vl = self.DB_MANAGER.query_bool(search_dict_inv, 'INVENTARIO_MATERIALI')
-            inv_vl2 = self.DB_MANAGER.query_bool(search_dict_inv, 'POTTERY')
-
-            # Build lists using list comprehensions
-            inv_list = [f"{item.n_reperto}" for item in inv_vl if
-                        item.n_reperto]
-            inv_list2 = [f"{item.id_number})" for item in inv_vl2 if item.id_number]
-
-            # Sort and remove duplicates
-            inv_list = sorted(set(inv_list))
-            inv_list2 = sorted(set(inv_list2))
-
-            # Update the QComboBox
-            self.comboBox_ref_ra.clear()
-            self.comboBox_ref_ra.addItems(inv_list + inv_list2)
-
-            # Set the edit text based on the browse status
-            browse_status = self.STATUS_ITEMS.get(self.BROWSE_STATUS, "")
-            if browse_status in ["Trova", "Finden", "Find"]:
-                self.comboBox_ref_ra.setEditText("")
-            elif browse_status in ["Usa", "Aktuell", "Current"] and self.DATA_LIST:
-                self.comboBox_ref_ra.setEditText(self.DATA_LIST[self.rec_num].ref_ra)
-
-        except Exception as e:
-            print(f"An error occurred in charge_insert_ra: {e}")
+        """Legacy function - now handled by sync_ra_from_inventario"""
+        pass
 
     def sync_tm_from_tma(self):
         """Synchronize TM (ref_tm) field with cassetta from TMA table"""
@@ -11267,39 +11229,288 @@ DATABASE SCHEMA KNOWLEDGE:
             # Silently fail if TMA table doesn't exist or other error
             pass
 
-    def charge_insert_ra_pottery(self):
+    def sync_ra_from_inventario(self):
+        """
+        Automatically synchronize ref_ra field with inventory numbers from inventario_materiali only.
+        This populates the field without requiring user interaction with the combobox.
+        The field becomes read-only when auto-populated from inventory.
+        """
         try:
-
+            # Get current values
+            sito = str(self.comboBox_sito.currentText())
+            area = str(self.comboBox_area.currentText())
             us = str(self.lineEdit_us.text())
 
-            search_dict_inv = {
+            if not (sito and area and us):
+                # Re-enable the field if no context
+                self.lineEdit_ref_ra.setEnabled(True)
+                self.lineEdit_ref_ra.setStyleSheet("")
+                return
 
-                'sito': "'" + str(self.comboBox_sito.currentText()) + "'",
-                'area': "'" + str(self.DATA_LIST[int(self.REC_CORR)].area) + "'",
-                'us': "'" + str(self.DATA_LIST[int(self.REC_CORR)].us) + "'"
+            # Query inventario_materiali for matching records
+            search_dict = {
+                'sito': "'" + sito + "'",
+                'area': "'" + area + "'",
+                'us': "'" + us + "'"
             }
 
-            inv_vl = self.DB_MANAGER.query_bool(search_dict_inv, 'POTTERY')
-            inv_list = []
-            for i in range(len(inv_vl)):
-                inv_list.append(str(inv_vl[i].id_number))
-                inv_list.sort()
+            inv_numbers = []
+
+            # Only inventario_materiali
             try:
-                inv_vl.remove('')
+                res = self.DB_MANAGER.query_bool(search_dict, 'INVENTARIO_MATERIALI')
+                if res:
+                    for item in res:
+                        if hasattr(item, 'n_reperto') and item.n_reperto:
+                            inv_numbers.append(str(item.n_reperto))
             except:
                 pass
-            self.comboBox_ref_ra.clear()
-            self.comboBox_ref_ra.addItems(self.UTILITY.remove_dup_from_list(inv_list))
-            if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Finden" or "Find":
-                self.comboBox_ref_ra.setEditText("")
-            elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Aktuell " or "Current":
-                if len(self.DATA_LIST) > 0:
-                    try:
-                        self.comboBox_ref_ra.setEditText(self.DATA_LIST[self.rec_num].ref_ra)
-                    except:
-                        pass
-        except:
-            pass
+
+            # Remove duplicates and sort
+            inv_numbers = sorted(set(inv_numbers), key=lambda x: int(x) if x.isdigit() else x)
+
+            if inv_numbers:
+                # Join all inventory numbers with comma
+                ref_ra_value = ', '.join(inv_numbers)
+                # Set the lineEdit text
+                self.lineEdit_ref_ra.setText(ref_ra_value)
+                # Make it visually distinct with light blue background and disable editing
+                self.lineEdit_ref_ra.setStyleSheet("background-color: #e8f4fc; color: #333;")
+                # Disable to make read-only (value is auto-managed)
+                self.lineEdit_ref_ra.setEnabled(False)
+            else:
+                # No inventory items - enable field for manual entry and clear styling
+                self.lineEdit_ref_ra.setEnabled(True)
+                self.lineEdit_ref_ra.setStyleSheet("")
+                # Keep any existing database value (don't clear)
+
+        except Exception as e:
+            # On error, ensure field is usable
+            self.lineEdit_ref_ra.setEnabled(True)
+            self.lineEdit_ref_ra.setStyleSheet("")
+
+    def sync_n_from_pottery(self):
+        """
+        Automatically synchronize ref_n field with id_number from pottery table.
+        This populates the field without requiring user interaction.
+        The field becomes read-only when auto-populated from pottery.
+        """
+        try:
+            # Get current values
+            sito = str(self.comboBox_sito.currentText())
+            area = str(self.comboBox_area.currentText())
+            us = str(self.lineEdit_us.text())
+
+            if not (sito and area and us):
+                # Re-enable the field if no context
+                self.lineEdit_ref_n.setEnabled(True)
+                self.lineEdit_ref_n.setStyleSheet("")
+                return
+
+            # Query pottery for matching records
+            search_dict = {
+                'sito': "'" + sito + "'",
+                'area': "'" + area + "'",
+                'us': "'" + us + "'"
+            }
+
+            pottery_numbers = []
+
+            try:
+                res_pottery = self.DB_MANAGER.query_bool(search_dict, 'POTTERY')
+                if res_pottery:
+                    for item in res_pottery:
+                        if hasattr(item, 'id_number') and item.id_number:
+                            pottery_numbers.append(str(item.id_number))
+            except:
+                pass
+
+            # Remove duplicates and sort
+            pottery_numbers = sorted(set(pottery_numbers), key=lambda x: int(x) if x.isdigit() else x)
+
+            if pottery_numbers:
+                # Join all pottery numbers with comma
+                ref_n_value = ', '.join(pottery_numbers)
+                # Set the lineEdit text
+                self.lineEdit_ref_n.setText(ref_n_value)
+                # Make it visually distinct with light green background and disable editing
+                self.lineEdit_ref_n.setStyleSheet("background-color: #e8fce8; color: #333;")
+                # Disable to make read-only (value is auto-managed)
+                self.lineEdit_ref_n.setEnabled(False)
+            else:
+                # No pottery items - enable field for manual entry and clear styling
+                self.lineEdit_ref_n.setEnabled(True)
+                self.lineEdit_ref_n.setStyleSheet("")
+                # Keep any existing database value (don't clear)
+
+        except Exception as e:
+            # On error, ensure field is usable
+            self.lineEdit_ref_n.setEnabled(True)
+            self.lineEdit_ref_n.setStyleSheet("")
+
+    def charge_insert_ra_pottery(self):
+        """Legacy function - pottery is now handled by sync_n_from_pottery for ref_n field"""
+        pass
+
+    def setup_ref_click_handlers(self):
+        """Setup click handlers for ref_ra and ref_n to open related records"""
+        # Install event filter for mouse press events
+        self.lineEdit_ref_ra.installEventFilter(self)
+        self.lineEdit_ref_n.installEventFilter(self)
+        # Change cursor to indicate clickable
+        self.lineEdit_ref_ra.setCursor(QtCore.Qt.PointingHandCursor)
+        self.lineEdit_ref_n.setCursor(QtCore.Qt.PointingHandCursor)
+
+    def eventFilter(self, obj, event):
+        """Handle click events on ref_ra and ref_n fields"""
+        if event.type() == QtCore.QEvent.MouseButtonPress:
+            if obj == self.lineEdit_ref_ra and self.lineEdit_ref_ra.text().strip():
+                self.show_ref_ra_menu(event.pos())
+                return True
+            elif obj == self.lineEdit_ref_n and self.lineEdit_ref_n.text().strip():
+                self.show_ref_n_menu(event.pos())
+                return True
+        return super().eventFilter(obj, event)
+
+    def show_ref_ra_menu(self, pos):
+        """Show context menu with inventory numbers from ref_ra"""
+        text = self.lineEdit_ref_ra.text().strip()
+        if not text:
+            return
+
+        numbers = [n.strip() for n in text.split(',') if n.strip()]
+        if not numbers:
+            return
+
+        menu = QtWidgets.QMenu(self)
+        menu.setStyleSheet("QMenu { background-color: #f5f5f5; } QMenu::item:selected { background-color: #0078d4; color: white; }")
+
+        # Add header
+        header = menu.addAction("📦 Apri Scheda Inventario Materiali:")
+        header.setEnabled(False)
+        menu.addSeparator()
+
+        for num in numbers:
+            action = menu.addAction(f"  Reperto n. {num}")
+            action.setData(('inventario', num))
+
+        # Show menu at cursor position
+        global_pos = self.lineEdit_ref_ra.mapToGlobal(pos)
+        selected = menu.exec_(global_pos)
+
+        if selected and selected.data():
+            form_type, num = selected.data()
+            self.open_inventario_record(num)
+
+    def show_ref_n_menu(self, pos):
+        """Show context menu with pottery numbers from ref_n"""
+        text = self.lineEdit_ref_n.text().strip()
+        if not text:
+            return
+
+        numbers = [n.strip() for n in text.split(',') if n.strip()]
+        if not numbers:
+            return
+
+        menu = QtWidgets.QMenu(self)
+        menu.setStyleSheet("QMenu { background-color: #f5f5f5; } QMenu::item:selected { background-color: #0078d4; color: white; }")
+
+        # Add header
+        header = menu.addAction("🏺 Apri Scheda Ceramica:")
+        header.setEnabled(False)
+        menu.addSeparator()
+
+        for num in numbers:
+            action = menu.addAction(f"  Ceramica n. {num}")
+            action.setData(('pottery', num))
+
+        # Show menu at cursor position
+        global_pos = self.lineEdit_ref_n.mapToGlobal(pos)
+        selected = menu.exec_(global_pos)
+
+        if selected and selected.data():
+            form_type, num = selected.data()
+            self.open_pottery_record(num)
+
+    def open_inventario_record(self, n_reperto):
+        """Open the Inventario Materiali form and navigate to the specified record"""
+        try:
+            from .Inv_Materiali import pyarchinit_Inventario_reperti
+
+            sito = str(self.comboBox_sito.currentText())
+
+            # Create and show the form
+            inv_form = pyarchinit_Inventario_reperti(self.iface)
+            inv_form.show()
+
+            # Search for the specific record
+            search_dict = {
+                'sito': "'" + sito + "'",
+                'n_reperto': n_reperto
+            }
+
+            # Query for the record
+            res = inv_form.DB_MANAGER.query_bool(search_dict, 'INVENTARIO_MATERIALI')
+
+            if res:
+                inv_form.DATA_LIST = res
+                inv_form.REC_TOT = len(res)
+                inv_form.REC_CORR = 0
+                inv_form.BROWSE_STATUS = "b"
+                inv_form.fill_fields(0)
+                inv_form.set_rec_counter(len(res), 0)
+                inv_form.label_status.setText("Aperto da scheda US")
+            else:
+                QtWidgets.QMessageBox.information(
+                    self, "Info",
+                    f"Reperto n. {n_reperto} non trovato nel sito {sito}"
+                )
+
+        except Exception as e:
+            QtWidgets.QMessageBox.warning(
+                self, "Errore",
+                f"Impossibile aprire la scheda inventario: {str(e)}"
+            )
+
+    def open_pottery_record(self, id_number):
+        """Open the Pottery form and navigate to the specified record"""
+        try:
+            from .pyarchinit_Pottery_mainapp import pyarchinit_Pottery
+
+            sito = str(self.comboBox_sito.currentText())
+
+            # Create and show the form
+            pottery_form = pyarchinit_Pottery(self.iface)
+            pottery_form.show()
+
+            # Search for the specific record
+            search_dict = {
+                'sito': "'" + sito + "'",
+                'id_number': "'" + id_number + "'"
+            }
+
+            # Query for the record
+            res = pottery_form.DB_MANAGER.query_bool(search_dict, 'POTTERY')
+
+            if res:
+                pottery_form.DATA_LIST = res
+                pottery_form.REC_TOT = len(res)
+                pottery_form.REC_CORR = 0
+                pottery_form.BROWSE_STATUS = "b"
+                pottery_form.fill_fields(0)
+                pottery_form.set_rec_counter(len(res), 0)
+                pottery_form.label_status.setText("Aperto da scheda US")
+            else:
+                QtWidgets.QMessageBox.information(
+                    self, "Info",
+                    f"Ceramica n. {id_number} non trovata nel sito {sito}"
+                )
+
+        except Exception as e:
+            QtWidgets.QMessageBox.warning(
+                self, "Errore",
+                f"Impossibile aprire la scheda ceramica: {str(e)}"
+            )
 
     def listview_us(self):
         '''
@@ -12460,6 +12671,8 @@ DATABASE SCHEMA KNOWLEDGE:
                     self.iface.messageBar().pushMessage(self.tr(msg), Qgis.Warning, 0)
     def customize_GUI(self):
         self.iconListWidget.update()
+        # Setup click handlers for ref_ra and ref_n fields to open related records
+        self.setup_ref_click_handlers()
         l = QgsSettings().value("locale/userLocale", QVariant)[0:2]
         lang = ""
         for key, values in self.LANG.items():
@@ -12513,7 +12726,7 @@ DATABASE SCHEMA KNOWLEDGE:
         self.setComboBoxEditable(["self.comboBox_per_iniz"], 1)
         self.setComboBoxEditable(["self.comboBox_fas_iniz"], 1)
         self.setComboBoxEditable(["self.comboBox_struttura"], 1)
-        self.setComboBoxEditable(["self.comboBox_ref_ra"], 1)
+        # ref_ra is now a lineEdit, no longer a comboBox
         #self.setComboBoxEditable(["self.comboBox_datazione"],1)
         # lista tipo rapporti stratigrafici
         if self.L=='it':
@@ -18533,7 +18746,7 @@ DATABASE SCHEMA KNOWLEDGE:
                 quota_relativa, #55 quota relativa
                 quota_abs, #56 quota abs
                 str(self.lineEdit_ref_tm.text()),  # 57 ref tm
-                str(self.comboBox_ref_ra.currentText()),  # 58 ref ra
+                str(self.lineEdit_ref_ra.text()),  # 58 ref ra
                 str(self.lineEdit_ref_n.text()),  # 59 ref n
                 str(self.comboBox_posizione.currentText()),  # 60 posizione
                 str(self.lineEdit_criteri_distinzione.text()),  # 61 criteri distinzione
@@ -19498,7 +19711,7 @@ DATABASE SCHEMA KNOWLEDGE:
                 self.TABLE_FIELDS[54]:  quota_relativa,  # 55 quota relativa
                 self.TABLE_FIELDS[55]:  quota_abs,  # 56 quota abs
                 self.TABLE_FIELDS[56]:  "'" +str(self.lineEdit_ref_tm.text()) +"'",  # 57 ref tm
-                self.TABLE_FIELDS[57]:  "'" +str(self.comboBox_ref_ra.currentText()) +"'",  # 58 ref ra
+                self.TABLE_FIELDS[57]:  "'" +str(self.lineEdit_ref_ra.text()) +"'",  # 58 ref ra
                 self.TABLE_FIELDS[58]:  "'" +str(self.lineEdit_ref_n.text()) +"'",  # 59 ref n
                 self.TABLE_FIELDS[59]:  "'" +str(self.comboBox_posizione.currentText())+"'" ,  # 60 posizione
                 self.TABLE_FIELDS[60]:  "'" +str(self.lineEdit_criteri_distinzione.text())+"'" ,
@@ -19976,7 +20189,7 @@ DATABASE SCHEMA KNOWLEDGE:
         self.lineEdit_quota_relativa.clear()  # 55
         self.lineEdit_quota_abs.clear()  # 56
         self.lineEdit_ref_tm.clear()  # 57 ref tm
-        self.comboBox_ref_ra.setEditText("")   # 58 ref ra
+        self.lineEdit_ref_ra.clear()   # 58 ref ra
         self.lineEdit_ref_n.clear()  # 59 ref n
         self.comboBox_posizione.setEditText("")  # 60 posizione
         self.lineEdit_criteri_distinzione.clear()  # 61 criteri distinzione
@@ -20139,7 +20352,7 @@ DATABASE SCHEMA KNOWLEDGE:
         self.lineEdit_quota_relativa.clear()  # 55
         self.lineEdit_quota_abs.clear()  # 56
         self.lineEdit_ref_tm.clear()  # 57 ref tm
-        self.comboBox_ref_ra.setEditText("")   # 58 ref ra
+        self.lineEdit_ref_ra.clear()   # 58 ref ra
         self.lineEdit_ref_n.clear()  # 59 ref n
         self.comboBox_posizione.setEditText("")  # 60 posizione
         self.lineEdit_criteri_distinzione.clear()  # 61 criteri distinzione
@@ -20280,7 +20493,7 @@ DATABASE SCHEMA KNOWLEDGE:
             else:
                 self.lineEdit_quota_abs.setText(str(self.DATA_LIST[self.rec_num].quota_abs))
             str(self.lineEdit_ref_tm.setText(self.DATA_LIST[self.rec_num].ref_tm))  # 57 ref tm
-            str(self.comboBox_ref_ra.setDefaultText(self.DATA_LIST[self.rec_num].ref_ra))  # 58 ref ra
+            str(self.lineEdit_ref_ra.setText(self.DATA_LIST[self.rec_num].ref_ra))  # 58 ref ra
             str(self.lineEdit_ref_n.setText(self.DATA_LIST[self.rec_num].ref_n))  # 59 ref n
             str(self.comboBox_posizione.setEditText(self.DATA_LIST[self.rec_num].posizione))  # 60 posizione
             str(self.lineEdit_criteri_distinzione.setText(self.DATA_LIST[self.rec_num].criteri_distinzione))  # 61 criteri distinzione
@@ -20386,9 +20599,11 @@ DATABASE SCHEMA KNOWLEDGE:
             if self.toolButtonPreviewMedia.isChecked():
                 self.loadMediaPreview()
             
-            # Sync TM and RA fields automatically
+            # Sync TM, RA and N fields automatically
             self.sync_tm_from_tma()
             self.charge_insert_ra()
+            self.sync_ra_from_inventario()  # Auto-populate ref_ra with inventario_materiali numbers
+            self.sync_n_from_pottery()  # Auto-populate ref_n with pottery numbers
 
             # Reset the comparison after loading to avoid false positives
             if self.BROWSE_STATUS == "b":
@@ -20678,7 +20893,7 @@ DATABASE SCHEMA KNOWLEDGE:
             str(quota_relativa),  # 55 quota relativa
             str(quota_abs),  # 56 quota abs
             str(self.lineEdit_ref_tm.text()),  # 57 ref tm
-            str(self.comboBox_ref_ra.currentText()),  # 58 ref ra
+            str(self.lineEdit_ref_ra.text()),  # 58 ref ra
             str(self.lineEdit_ref_n.text()),  # 59 ref n
             str(self.comboBox_posizione.currentText()),  # 60 posizione
             str(self.lineEdit_criteri_distinzione.text()), # 61 criteri distinzione
