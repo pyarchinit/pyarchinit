@@ -43,7 +43,7 @@ try:
     import vtk
 except ImportError:
     vtk = None  # vtk is optional
-from qgis.PyQt.QtGui import QDesktopServices,QImage
+from qgis.PyQt.QtGui import QDesktopServices, QImage, QPixmap
 
 
 from bs4 import BeautifulSoup
