@@ -3728,7 +3728,13 @@ class RAGQueryDialog(QDialog):
 
         # Model selection
         self.model_combo = QComboBox()
-        self.model_combo.addItems(["gpt-5.1", "gpt-5.1-chat-latest"])
+        self.model_combo.addItems([
+            "gpt-4.1-mini",
+            "gpt-4.1",
+            "gpt-4o-mini",
+            "gpt-4o",
+            "gpt-4-turbo"
+        ])
         button_layout.addWidget(QLabel("Modello:"))
         button_layout.addWidget(self.model_combo)
 
@@ -5351,8 +5357,8 @@ class RAGQueryWorker(QThread):
             # Create tools for analysis
             tools = self.create_analysis_tools(data, vectorstore)
 
-            # For GPT-5.x models, use direct LLM calls instead of agents to avoid stop parameter issues
-            if "gpt-5" in self.model.lower() or "gpt-5.1" in self.model.lower():
+            # Use direct LLM calls instead of agents for better compatibility
+            if True:  # Always use direct calls for simplicity
                 # Create a simple wrapper that uses direct LLM calls
                 class SimpleGPT5Wrapper:
                     def __init__(self, llm, vectorstore, parent_thread, enable_streaming, raw_data=None):
@@ -8795,10 +8801,10 @@ DATABASE SCHEMA KNOWLEDGE:
                 from langchain.memory import ConversationSummaryMemory
 
                 llm = ChatOpenAI(
-                    model_name="gpt-5.1",
+                    model_name="gpt-4.1-mini",
                     api_key=api_key,
-                    max_completion_tokens=16000,
-                    streaming=False  # Disabled until organization is verified
+                    max_tokens=16000,
+                    streaming=False
                 )
 
                 system_message = self.create_system_message()
@@ -8883,7 +8889,7 @@ DATABASE SCHEMA KNOWLEDGE:
                     custom_prompt=custom_prompt,
                     descriptions_text=descriptions_text,
                     api_key=api_key,
-                    selected_model="gpt-5.1",
+                    selected_model="gpt-4.1-mini",
                     selected_tables=selected_tables,
                     analysis_steps=self.analysis_steps,
                     agent=agent,
@@ -18613,7 +18619,7 @@ DATABASE SCHEMA KNOWLEDGE:
         self.listWidget_rapp.clear()
         sito_check = str(self.comboBox_sito.currentText())
         area_check = str(self.comboBox_area.currentText())
-        models = ["gpt-5.1", "gpt-5.1-chat-latest"]
+        models = ["gpt-4.1-mini", "gpt-4.1", "gpt-4o-mini", "gpt-4o"]
         
         # Setup progress tracking
         validation_steps = 2  # rapporti_stratigrafici_check + automaticform_check
