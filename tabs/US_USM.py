@@ -4840,12 +4840,13 @@ class RAGQueryDialog(QDialog):
             QMessageBox.warning(self, "Errore", f"Errore nella creazione della mappa dedicata: {str(e)}")
 
     def _find_us_layer(self):
-        """Find the US layer in the QGIS project"""
+        """Find the US layer in the QGIS project, auto-load if not found"""
         try:
-            from qgis.core import QgsProject
+            from qgis.core import QgsProject, QgsVectorLayer, QgsDataSourceUri
 
-            # Common layer names for US
+            # Common layer names for US (including views)
             layer_names = [
+                'pyarchinit_us_view',
                 'pyunitastratigrafiche',
                 'us_layer',
                 'unita_stratigrafiche',
@@ -4864,10 +4865,74 @@ class RAGQueryDialog(QDialog):
                 if 'us' in layer.name().lower() and hasattr(layer, 'geometryType'):
                     return layer
 
+            # Layer not found - try to load pyarchinit_us_view automatically
+            print("[AI Query] US layer not found in TOC, attempting to load pyarchinit_us_view...")
+            loaded_layer = self._load_us_view_layer()
+            if loaded_layer:
+                return loaded_layer
+
         except Exception as e:
             print(f"[AI Query] Error finding US layer: {e}")
 
         return None
+
+    def _load_us_view_layer(self):
+        """Load pyarchinit_us_view layer from database"""
+        try:
+            from qgis.core import QgsProject, QgsVectorLayer, QgsDataSourceUri
+            from ..modules.db.pyarchinit_conn_strings import Connection
+
+            conn = Connection()
+            conn_dict = conn.conn_str()
+
+            if not conn_dict:
+                print("[AI Query] No connection string available")
+                return None
+
+            uri = QgsDataSourceUri()
+
+            # Determine database type from connection string
+            if 'postgresql' in conn_dict:
+                # PostgreSQL connection
+                # Parse connection string: postgresql://user:pass@host:port/dbname?sslmode=...
+                import re
+                match = re.match(r'postgresql://([^:]+):([^@]+)@([^:]+):(\d+)/([^?]+)', conn_dict)
+                if match:
+                    user, password, host, port, dbname = match.groups()
+                    uri.setConnection(host, port, dbname, user, password)
+                    uri.setDataSource("public", "pyarchinit_us_view", "the_geom", "", "gid")
+                    provider = "postgres"
+                    layer_name = "pyarchinit_us_view (AI Query)"
+                else:
+                    print("[AI Query] Could not parse PostgreSQL connection string")
+                    return None
+            elif 'sqlite' in conn_dict:
+                # SQLite connection
+                # Parse: sqlite:///path/to/db.sqlite
+                db_path = conn_dict.replace('sqlite:///', '')
+                uri.setDatabase(db_path)
+                uri.setDataSource('', 'pyarchinit_us_view', 'the_geom', '', "ROWID")
+                provider = "spatialite"
+                layer_name = "pyarchinit_us_view (AI Query)"
+            else:
+                print(f"[AI Query] Unknown database type in connection: {conn_dict[:50]}")
+                return None
+
+            # Create and add layer
+            layer = QgsVectorLayer(uri.uri(), layer_name, provider)
+
+            if layer.isValid():
+                QgsProject.instance().addMapLayer(layer)
+                print(f"[AI Query] Successfully loaded {layer_name}")
+                self.status_label.setText(f"Layer '{layer_name}' caricato automaticamente")
+                return layer
+            else:
+                print(f"[AI Query] Layer not valid: {uri.uri()}")
+                return None
+
+        except Exception as e:
+            print(f"[AI Query] Error loading US view layer: {e}")
+            return None
 
     def handle_error(self, error_msg):
         """Handle errors"""
@@ -4887,9 +4952,10 @@ class RAGQueryWorker(QThread):
     progress_update = pyqtSignal(str)
     stream_token = pyqtSignal(str)  # Add streaming signal
 
-    # Class-level cache for vectorstore
+    # Class-level cache for vectorstore and data
     _cached_vectorstore = None
     _cached_data_hash = None
+    _cached_data = None  # Cache loaded data to avoid reloading
 
     # Configuration for all tables to include in RAG
     RAG_TABLE_CONFIG = {
@@ -5103,68 +5169,82 @@ class RAGQueryWorker(QThread):
             return
 
         try:
-            self.progress_update.emit("Caricamento dati dal database...")
-
-            # Load data from database
-            data = self.load_database_data()
-
-            # Store loaded data for spatial operations
-            self.loaded_data = data
-
-            # Calculate data hash to check for changes
-            import hashlib
-            import json
-            data_str = json.dumps(data, sort_keys=True, default=str)
-            current_data_hash = hashlib.md5(data_str.encode()).hexdigest()
-
-            # Check if we can use cached vectorstore
+            # Check if we can use cached data and vectorstore
             if (not self.force_reload and
                 RAGQueryWorker._cached_vectorstore is not None and
-                RAGQueryWorker._cached_data_hash == current_data_hash):
-                self.progress_update.emit("Uso vectorstore in cache...")
+                RAGQueryWorker._cached_data is not None):
+
+                self.progress_update.emit("Uso cache (dati e vectorstore)...")
+                data = RAGQueryWorker._cached_data
                 vectorstore = RAGQueryWorker._cached_vectorstore
+                self.loaded_data = data
                 texts = None  # Not needed when using cache
             else:
-                self.progress_update.emit("Creazione vectorstore (dati aggiornati)...")
+                self.progress_update.emit("Caricamento dati dal database...")
 
-                # Debug API key
-                print(f"[RAGQueryWorker] API key in worker: {self.api_key[:20] if self.api_key else 'None'}...{self.api_key[-10:] if self.api_key else ''}")
-                print(f"[RAGQueryWorker] API key length in worker: {len(self.api_key) if self.api_key else 0}")
+                # Load data from database
+                data = self.load_database_data()
 
-                # Create vectorstore
-                embeddings = OpenAIEmbeddings(api_key=self.api_key)
-                texts = self.prepare_texts(data)
+                # Store loaded data for spatial operations
+                self.loaded_data = data
 
-                # Check if we have any texts - try to load without filters if empty
-                if not texts:
-                    self.progress_update.emit("Nessun dato con filtri, carico tutto il database...")
-                    # Try loading all data without filters
-                    data_unfiltered = self.load_all_database_data()
-                    texts = self.prepare_texts(data_unfiltered)
+                # Calculate data hash to check for changes
+                import hashlib
+                import json
+                data_str = json.dumps(data, sort_keys=True, default=str)
+                current_data_hash = hashlib.md5(data_str.encode()).hexdigest()
 
+                # Check if we can use cached vectorstore (data loaded but vectorstore might be valid)
+                if (not self.force_reload and
+                    RAGQueryWorker._cached_vectorstore is not None and
+                    RAGQueryWorker._cached_data_hash == current_data_hash):
+                    self.progress_update.emit("Uso vectorstore in cache...")
+                    vectorstore = RAGQueryWorker._cached_vectorstore
+                    # Update cached data
+                    RAGQueryWorker._cached_data = data
+                    texts = None  # Not needed when using cache
+                else:
+                    self.progress_update.emit("Creazione vectorstore (dati aggiornati)...")
+
+                    # Debug API key
+                    print(f"[RAGQueryWorker] API key in worker: {self.api_key[:20] if self.api_key else 'None'}...{self.api_key[-10:] if self.api_key else ''}")
+                    print(f"[RAGQueryWorker] API key length in worker: {len(self.api_key) if self.api_key else 0}")
+
+                    # Create vectorstore
+                    embeddings = OpenAIEmbeddings(api_key=self.api_key)
+                    texts = self.prepare_texts(data)
+
+                    # Check if we have any texts - try to load without filters if empty
                     if not texts:
-                        self.error_occurred.emit("Nessun dato trovato nel database. Verifica la connessione.")
+                        self.progress_update.emit("Nessun dato con filtri, carico tutto il database...")
+                        # Try loading all data without filters
+                        data_unfiltered = self.load_all_database_data()
+                        texts = self.prepare_texts(data_unfiltered)
+
+                        if not texts:
+                            self.error_occurred.emit("Nessun dato trovato nel database. Verifica la connessione.")
+                            return
+                        else:
+                            self.progress_update.emit(f"Caricati {len(texts)} record senza filtri...")
+
+                    text_splitter = RecursiveCharacterTextSplitter(
+                        chunk_size=1000,
+                        chunk_overlap=200
+                    )
+                    documents = text_splitter.create_documents(texts)
+
+                    # Check if we have documents
+                    if not documents:
+                        self.error_occurred.emit("Impossibile creare documenti dai dati. Verifica i dati nel database.")
                         return
-                    else:
-                        self.progress_update.emit(f"Caricati {len(texts)} record senza filtri...")
 
-                text_splitter = RecursiveCharacterTextSplitter(
-                    chunk_size=1000,
-                    chunk_overlap=200
-                )
-                documents = text_splitter.create_documents(texts)
+                    vectorstore = FAISS.from_documents(documents, embeddings)
 
-                # Check if we have documents
-                if not documents:
-                    self.error_occurred.emit("Impossibile creare documenti dai dati. Verifica i dati nel database.")
-                    return
-
-                vectorstore = FAISS.from_documents(documents, embeddings)
-
-                # Cache the vectorstore for future queries
-                RAGQueryWorker._cached_vectorstore = vectorstore
-                RAGQueryWorker._cached_data_hash = current_data_hash
-                self.progress_update.emit("Vectorstore creato e salvato in cache")
+                    # Cache the vectorstore, data hash, and loaded data for future queries
+                    RAGQueryWorker._cached_vectorstore = vectorstore
+                    RAGQueryWorker._cached_data_hash = current_data_hash
+                    RAGQueryWorker._cached_data = data  # Cache data too!
+                    self.progress_update.emit("Vectorstore e dati salvati in cache")
 
             self.progress_update.emit("Inizializzazione AI...")
 
@@ -5427,6 +5507,10 @@ Come posso aiutarti meglio?"""
 
         total_records = 0
 
+        # Pre-load related data in BULK to avoid N+1 queries
+        self.progress_update.emit("Pre-caricamento dati correlati...")
+        self._preloaded_related_data = self._bulk_load_related_data()
+
         for table_key, config in self.RAG_TABLE_CONFIG.items():
             query_name = config['query_name']
             display_name = config['display_name']
@@ -5454,10 +5538,10 @@ Come posso aiutarti meglio?"""
                         try:
                             row_dict = self._row_to_dict(row)
                             if row_dict:
-                                # Load related table data if configured
+                                # Use pre-loaded related data (no extra queries!)
                                 related_table = config.get('related_table')
                                 if related_table:
-                                    row_dict = self._load_related_data(row, row_dict, table_key, related_table)
+                                    row_dict = self._attach_related_data(row_dict, table_key, related_table)
 
                                 data[data_key].append(row_dict)
                         except Exception as e:
@@ -5499,46 +5583,83 @@ Come posso aiutarti meglio?"""
             print(f"Error in _row_to_dict: {e}")
             return None
 
-    def _load_related_data(self, row, row_dict, table_key, related_table):
-        """Load related table data for a record"""
+    def _bulk_load_related_data(self):
+        """Pre-load all related data in BULK to avoid N+1 queries"""
+        related_data = {
+            'mediatoentity': {},  # keyed by id_media
+            'tma_materiali': {}   # keyed by id_tma
+        }
+
+        try:
+            # Load ALL MEDIATOENTITY records in one query
+            self.progress_update.emit("Caricamento relazioni media...")
+            all_mediatoentity = self.db_manager.query('MEDIATOENTITY')
+            if all_mediatoentity:
+                if not isinstance(all_mediatoentity, (list, tuple)):
+                    all_mediatoentity = [all_mediatoentity]
+                for mte in all_mediatoentity:
+                    mte_dict = self._row_to_dict(mte)
+                    if mte_dict:
+                        media_id = mte_dict.get('id_media')
+                        if media_id:
+                            if media_id not in related_data['mediatoentity']:
+                                related_data['mediatoentity'][media_id] = []
+                            related_data['mediatoentity'][media_id].append(mte_dict)
+                print(f"[AI Query] Pre-loaded MEDIATOENTITY: {len(related_data['mediatoentity'])} media with links")
+
+            # Load ALL TMA_MATERIALI records in one query
+            self.progress_update.emit("Caricamento materiali TMA...")
+            all_tma_mat = self.db_manager.query('TMA_MATERIALI')
+            if all_tma_mat:
+                if not isinstance(all_tma_mat, (list, tuple)):
+                    all_tma_mat = [all_tma_mat]
+                for mat in all_tma_mat:
+                    mat_dict = self._row_to_dict(mat)
+                    if mat_dict:
+                        tma_id = mat_dict.get('id_tma')
+                        if tma_id:
+                            if tma_id not in related_data['tma_materiali']:
+                                related_data['tma_materiali'][tma_id] = []
+                            related_data['tma_materiali'][tma_id].append(mat_dict)
+                print(f"[AI Query] Pre-loaded TMA_MATERIALI: {len(related_data['tma_materiali'])} TMA with materials")
+
+        except Exception as e:
+            print(f"[AI Query] Error in bulk load related data: {e}")
+
+        return related_data
+
+    def _attach_related_data(self, row_dict, table_key, related_table):
+        """Attach pre-loaded related data to a record (no DB queries!)"""
         try:
             if table_key == 'TMA':
-                # Load TMA_MATERIALI related data
-                tma_id = getattr(row, 'id_tma', None)
-                if tma_id:
-                    mat_search = {'id_tma': tma_id}
-                    mat_data = self.db_manager.query_bool(mat_search, related_table)
-                    if mat_data:
-                        if not isinstance(mat_data, (list, tuple)):
-                            mat_data = [mat_data]
-                        row_dict['materiali_ripetibili'] = [
-                            self._row_to_dict(mat) for mat in mat_data if self._row_to_dict(mat)
-                        ]
-                    else:
-                        row_dict['materiali_ripetibili'] = []
+                # Get TMA_MATERIALI from pre-loaded data
+                tma_id = row_dict.get('id_tma')
+                if tma_id and hasattr(self, '_preloaded_related_data'):
+                    row_dict['materiali_ripetibili'] = self._preloaded_related_data.get(
+                        'tma_materiali', {}
+                    ).get(tma_id, [])
+                else:
+                    row_dict['materiali_ripetibili'] = []
 
             elif table_key == 'MEDIA':
-                # Load MEDIATOENTITY relations for media
+                # Get MEDIATOENTITY from pre-loaded data
                 media_id = row_dict.get('id_media')
-                if media_id:
-                    try:
-                        entity_search = {'id_media': media_id}
-                        entity_data = self.db_manager.query_bool(entity_search, related_table)
-                        if entity_data:
-                            if not isinstance(entity_data, (list, tuple)):
-                                entity_data = [entity_data]
-                            row_dict['linked_entities'] = [
-                                self._row_to_dict(ent) for ent in entity_data if self._row_to_dict(ent)
-                            ]
-                        else:
-                            row_dict['linked_entities'] = []
-                    except Exception as e:
-                        print(f"Error loading MEDIATOENTITY for media {media_id}: {e}")
-                        row_dict['linked_entities'] = []
+                if media_id and hasattr(self, '_preloaded_related_data'):
+                    row_dict['linked_entities'] = self._preloaded_related_data.get(
+                        'mediatoentity', {}
+                    ).get(media_id, [])
+                else:
+                    row_dict['linked_entities'] = []
+
         except Exception as e:
-            print(f"Error loading related data for {table_key}: {e}")
+            print(f"Error attaching related data for {table_key}: {e}")
 
         return row_dict
+
+    def _load_related_data(self, row, row_dict, table_key, related_table):
+        """Load related table data for a record - DEPRECATED, use _attach_related_data"""
+        # Keep for backwards compatibility, but use bulk loading when possible
+        return self._attach_related_data(row_dict, table_key, related_table)
 
     def load_database_data(self):
         """Load relevant data from database - delegates to load_complete_database_data"""
@@ -5681,16 +5802,32 @@ Come posso aiutarti meglio?"""
         media_records = data.get('media', [])
         linked_media = []
 
+        # Handle multiple possible entity_type formats
+        entity_type_upper = entity_type.upper()
+        entity_type_variants = [
+            entity_type_upper,
+            f'{entity_type_upper}_TABLE',
+            f'{entity_type_upper}_USM' if entity_type_upper == 'US' else None,
+            entity_type.lower(),
+            'us_table' if entity_type_upper == 'US' else None,
+        ]
+        entity_type_variants = [v for v in entity_type_variants if v]
+
         for media in media_records:
             linked_entities = media.get('linked_entities', [])
             for entity in linked_entities:
                 if isinstance(entity, dict):
-                    if (entity.get('entity_type', '').upper() == entity_type.upper() and
-                        str(entity.get('id_entity', '')) == str(entity_id)):
+                    stored_entity_type = str(entity.get('entity_type', '')).upper()
+                    stored_id = str(entity.get('id_entity', ''))
+
+                    # Check if entity matches any variant
+                    if (stored_entity_type in [v.upper() for v in entity_type_variants] and
+                        stored_id == str(entity_id)):
                         # Add thumbnail path to the media record
                         media_with_thumb = dict(media)
                         media_with_thumb['thumbnail_path'] = self.get_media_thumbnail_path(media)
                         media_with_thumb['resize_path'] = self.get_media_resize_path(media)
+                        media_with_thumb['entity_ref'] = f"{entity_type} {entity_id}"
                         linked_media.append(media_with_thumb)
                         break
 
