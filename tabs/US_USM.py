@@ -5278,17 +5278,36 @@ class RAGQueryWorker(QThread):
         return None
 
     def get_media_resize_path(self, media_record):
-        """Get the full resize path for a media record"""
+        """Get the full resize path for a media record from MEDIA_THUMB table"""
         if not self._thumb_resize:
             return None
 
         try:
+            import os
+            # Try to get path_resize from MEDIA_THUMB table
+            media_id = media_record.get('id_media')
+            if media_id:
+                thumb_search = {'id_media': media_id}
+                thumb_data = self.db_manager.query_bool(thumb_search, 'MEDIA_THUMB')
+                if thumb_data:
+                    if not isinstance(thumb_data, (list, tuple)):
+                        thumb_data = [thumb_data]
+                    if thumb_data:
+                        thumb_record = self._row_to_dict(thumb_data[0])
+                        if thumb_record:
+                            # Use path_resize field from MEDIA_THUMB
+                            resize_filename = thumb_record.get('path_resize', '')
+                            if resize_filename:
+                                return os.path.join(self._thumb_resize, resize_filename)
+
+            # Fallback: use original filename without _thumb suffix
             filename = media_record.get('filename', '')
             if filename:
-                import os
                 base, ext = os.path.splitext(filename)
-                resize_filename = f"{base}_resize{ext}"
-                return os.path.join(self._thumb_resize, resize_filename)
+                # Remove _thumb if present, otherwise use as-is
+                if base.endswith('_thumb'):
+                    base = base[:-6]
+                return os.path.join(self._thumb_resize, f"{base}{ext}")
         except Exception as e:
             print(f"[AI Query] Error getting resize path: {e}")
 
@@ -5386,11 +5405,12 @@ class RAGQueryWorker(QThread):
 
             self.progress_update.emit("Inizializzazione AI...")
 
-            # Initialize LLM
+            # Initialize LLM with low temperature for factual responses
             llm = ChatOpenAI(
                 model_name=self.model,
                 api_key=self.api_key,
-                max_completion_tokens=4000
+                max_completion_tokens=4000,
+                temperature=0.1  # Low temperature for precise, factual responses
             )
 
             # Create tools for analysis
@@ -5518,14 +5538,16 @@ ISTRUZIONI DI FORMATTAZIONE:
 - Per le tabelle usa semplice testo tabulato con spazi o pipe (|)
 - NON usare **grassetto**, *corsivo*, # titoli o altri simboli markdown
 
-Rispondi in modo:
-1. Naturale e conversazionale, come se stessi parlando con un collega archeologo
-2. Sfrutta le relazioni tra tabelle per dare risposte complete
-3. Se richiesto un elenco, fornisci TUTTI i dati disponibili nel contesto, ordinati come richiesto
-4. Usa SEMPRE i dati effettivi dal contesto, non dire mai "mancano i dati" se ci sono dati nel contesto
-5. Se chiesto un totale o statistica, calcola dai dati reali disponibili
-6. NON chiedere conferme, genera subito la risposta con i dati che hai
-7. NON menzionare tabelle che non sono nell'elenco delle tabelle disponibili sopra
+REGOLE DI RISPOSTA:
+1. Rispondi SOLO con i dati richiesti, senza proporre domande o suggerimenti aggiuntivi
+2. Se l'utente chiede materiali di una US, elenca TUTTI i materiali specifici trovati (id, tipo, descrizione)
+3. Se l'utente chiede ceramiche di una US, elenca TUTTI i record pottery con i loro id_number
+4. NON dire "esistono materiali" senza elencarli - ELENCA SEMPRE i dati specifici
+5. NON proporre "fammi sapere se vuoi altro" o domande alla fine
+6. NON fare introduzioni lunghe - vai dritto ai dati
+7. Se non ci sono dati, dillo chiaramente senza giri di parole
+8. Usa SEMPRE i dati effettivi dal contesto, mai frasi generiche
+9. NON menzionare tabelle che non sono nell'elenco delle tabelle disponibili sopra
 
 Risposta:"""
                         else:
@@ -6086,6 +6108,57 @@ Posso aiutarti a capire come strutturare la query o cosa cercare. Come posso aiu
 
         return linked_media
 
+    def find_all_media_for_us(self, us_number, data):
+        """Find ALL media related to a US: direct US media + pottery media + inventory media.
+
+        This is useful when user asks "show me media for US 644" and wants to see
+        all related media including pottery and inventory items from that US.
+        """
+        all_media = []
+        us_number_str = str(us_number)
+
+        # 1. Direct US media
+        us_media = self.find_media_for_entity('US', us_number, data)
+        for m in us_media:
+            m['media_source'] = f'US {us_number}'
+        all_media.extend(us_media)
+
+        # 2. Find pottery items from this US and their media
+        pottery_data = data.get('pottery', [])
+        for pottery in pottery_data:
+            if str(pottery.get('us', '')) == us_number_str:
+                pot_id = pottery.get('id_number') or pottery.get('id_rep')
+                if pot_id:
+                    pot_media = self.find_media_for_entity('CERAMICA', pot_id, data)
+                    for m in pot_media:
+                        m['media_source'] = f'Ceramica {pot_id} (US {us_number})'
+                    all_media.extend(pot_media)
+
+        # 3. Find inventory items from this US and their media
+        inventory_data = data.get('inventario_materiali', [])
+        for inv in inventory_data:
+            if str(inv.get('us', '')) == us_number_str:
+                inv_id = inv.get('numero_inventario') or inv.get('id_invmat')
+                if inv_id:
+                    inv_media = self.find_media_for_entity('REPERTO', inv_id, data)
+                    for m in inv_media:
+                        m['media_source'] = f'Reperto {inv_id} (US {us_number})'
+                    all_media.extend(inv_media)
+
+        # Remove duplicates based on id_media
+        seen_ids = set()
+        unique_media = []
+        for media in all_media:
+            media_id = media.get('id_media')
+            if media_id and media_id not in seen_ids:
+                seen_ids.add(media_id)
+                unique_media.append(media)
+
+        print(f"[AI Query] Found {len(unique_media)} total media for US {us_number}: "
+              f"{len(us_media)} direct, {len(all_media) - len(us_media) - len(unique_media) + len(unique_media)} from pottery/inventory")
+
+        return unique_media
+
     def extract_media_from_response(self, response_text, data):
         """Extract media references from AI response and find corresponding thumbnails.
 
@@ -6101,9 +6174,9 @@ Posso aiutarti a capire come strutturare la query o cosa cercare. Come posso aiu
         for match in us_matches:
             us_number = match[0] or match[1] or match[2]
             if us_number:
-                # Find media for this US
-                us_media = self.find_media_for_entity('US', us_number, data)
-                media_refs.extend(us_media[:5])  # Limit to 5 per US
+                # Find ALL media for this US (direct + pottery + inventory)
+                us_media = self.find_all_media_for_us(us_number, data)
+                media_refs.extend(us_media[:15])  # Limit to 15 per US (includes related)
 
         # Look for CERAMICA/pottery references
         pottery_pattern = r'ceramica[:\s#]*(\d+)|pottery[:\s#]*(\d+)|id_number[:\s]*(\d+)'
