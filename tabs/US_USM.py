@@ -5095,6 +5095,10 @@ class RAGQueryWorker(QThread):
     _cached_data_hash = None
     _cached_data = None  # Cache loaded data to avoid reloading
 
+    # Path for persistent vectorstore storage
+    FAISS_INDEX_PATH = os.path.join(os.environ.get('PYARCHINIT_HOME', os.path.expanduser('~/pyarchinit')), 'bin', 'faiss_index')
+    FAISS_HASH_FILE = os.path.join(os.environ.get('PYARCHINIT_HOME', os.path.expanduser('~/pyarchinit')), 'bin', 'faiss_index_hash.txt')
+
     # Configuration for all tables to include in RAG
     RAG_TABLE_CONFIG = {
         'US': {
@@ -5241,6 +5245,61 @@ class RAGQueryWorker(QThread):
             self._thumb_path = ''
             self._thumb_resize = ''
 
+    def _save_vectorstore_to_disk(self, vectorstore, data_hash):
+        """Save vectorstore to disk for persistence across sessions"""
+        try:
+            # Create directory if it doesn't exist
+            os.makedirs(os.path.dirname(self.FAISS_INDEX_PATH), exist_ok=True)
+
+            # Save FAISS index
+            vectorstore.save_local(self.FAISS_INDEX_PATH)
+
+            # Save the data hash to verify validity on reload
+            with open(self.FAISS_HASH_FILE, 'w') as f:
+                f.write(data_hash)
+
+            print(f"[AI Query] Vectorstore saved to disk: {self.FAISS_INDEX_PATH}")
+            return True
+        except Exception as e:
+            print(f"[AI Query] Error saving vectorstore to disk: {e}")
+            return False
+
+    def _load_vectorstore_from_disk(self, embeddings, expected_hash=None):
+        """Load vectorstore from disk if it exists and is valid"""
+        try:
+            from langchain_community.vectorstores import FAISS
+
+            # Check if index exists
+            if not os.path.exists(self.FAISS_INDEX_PATH):
+                print(f"[AI Query] No saved vectorstore found at {self.FAISS_INDEX_PATH}")
+                return None
+
+            # Check hash if provided
+            if expected_hash and os.path.exists(self.FAISS_HASH_FILE):
+                with open(self.FAISS_HASH_FILE, 'r') as f:
+                    saved_hash = f.read().strip()
+                if saved_hash != expected_hash:
+                    print(f"[AI Query] Saved vectorstore hash mismatch, will rebuild")
+                    return None
+
+            # Load the vectorstore
+            vectorstore = FAISS.load_local(
+                self.FAISS_INDEX_PATH,
+                embeddings,
+                allow_dangerous_deserialization=True  # Required for loading pickled data
+            )
+
+            # Load the hash
+            if os.path.exists(self.FAISS_HASH_FILE):
+                with open(self.FAISS_HASH_FILE, 'r') as f:
+                    RAGQueryWorker._cached_data_hash = f.read().strip()
+
+            print(f"[AI Query] Vectorstore loaded from disk: {self.FAISS_INDEX_PATH}")
+            return vectorstore
+        except Exception as e:
+            print(f"[AI Query] Error loading vectorstore from disk: {e}")
+            return None
+
     def get_media_thumbnail_path(self, media_record):
         """Get the full thumbnail path for a media record"""
         if not self._thumb_path:
@@ -5361,47 +5420,69 @@ class RAGQueryWorker(QThread):
                     RAGQueryWorker._cached_data = data
                     texts = None  # Not needed when using cache
                 else:
-                    self.progress_update.emit("Creazione vectorstore (dati aggiornati)...")
-
-                    # Debug API key
-                    print(f"[RAGQueryWorker] API key in worker: {self.api_key[:20] if self.api_key else 'None'}...{self.api_key[-10:] if self.api_key else ''}")
-                    print(f"[RAGQueryWorker] API key length in worker: {len(self.api_key) if self.api_key else 0}")
-
-                    # Create vectorstore
+                    # Initialize embeddings first (needed for both load and create)
                     embeddings = OpenAIEmbeddings(api_key=self.api_key)
-                    texts = self.prepare_texts(data)
 
-                    # Check if we have any texts - try to load without filters if empty
-                    if not texts:
-                        self.progress_update.emit("Nessun dato con filtri, carico tutto il database...")
-                        # Try loading all data without filters
-                        data_unfiltered = self.load_all_database_data()
-                        texts = self.prepare_texts(data_unfiltered)
-
-                        if not texts:
-                            self.error_occurred.emit("Nessun dato trovato nel database. Verifica la connessione.")
-                            return
+                    # Try to load vectorstore from disk first
+                    if not self.force_reload:
+                        self.progress_update.emit("Controllo vectorstore salvato...")
+                        vectorstore = self._load_vectorstore_from_disk(embeddings, current_data_hash)
+                        if vectorstore is not None:
+                            self.progress_update.emit("Vectorstore caricato da disco!")
+                            RAGQueryWorker._cached_vectorstore = vectorstore
+                            RAGQueryWorker._cached_data_hash = current_data_hash
+                            RAGQueryWorker._cached_data = data
+                            texts = None
                         else:
-                            self.progress_update.emit(f"Caricati {len(texts)} record senza filtri...")
+                            vectorstore = None  # Will be created below
+                    else:
+                        vectorstore = None
 
-                    text_splitter = RecursiveCharacterTextSplitter(
-                        chunk_size=1000,
-                        chunk_overlap=200
-                    )
-                    documents = text_splitter.create_documents(texts)
+                    # Create new vectorstore if not loaded from cache or disk
+                    if vectorstore is None:
+                        self.progress_update.emit("Creazione vectorstore (dati aggiornati)...")
 
-                    # Check if we have documents
-                    if not documents:
-                        self.error_occurred.emit("Impossibile creare documenti dai dati. Verifica i dati nel database.")
-                        return
+                        # Debug API key
+                        print(f"[RAGQueryWorker] API key in worker: {self.api_key[:20] if self.api_key else 'None'}...{self.api_key[-10:] if self.api_key else ''}")
+                        print(f"[RAGQueryWorker] API key length in worker: {len(self.api_key) if self.api_key else 0}")
 
-                    vectorstore = FAISS.from_documents(documents, embeddings)
+                        texts = self.prepare_texts(data)
 
-                    # Cache the vectorstore, data hash, and loaded data for future queries
-                    RAGQueryWorker._cached_vectorstore = vectorstore
-                    RAGQueryWorker._cached_data_hash = current_data_hash
-                    RAGQueryWorker._cached_data = data  # Cache data too!
-                    self.progress_update.emit("Vectorstore e dati salvati in cache")
+                        # Check if we have any texts - try to load without filters if empty
+                        if not texts:
+                            self.progress_update.emit("Nessun dato con filtri, carico tutto il database...")
+                            # Try loading all data without filters
+                            data_unfiltered = self.load_all_database_data()
+                            texts = self.prepare_texts(data_unfiltered)
+
+                            if not texts:
+                                self.error_occurred.emit("Nessun dato trovato nel database. Verifica la connessione.")
+                                return
+                            else:
+                                self.progress_update.emit(f"Caricati {len(texts)} record senza filtri...")
+
+                        text_splitter = RecursiveCharacterTextSplitter(
+                            chunk_size=1000,
+                            chunk_overlap=200
+                        )
+                        documents = text_splitter.create_documents(texts)
+
+                        # Check if we have documents
+                        if not documents:
+                            self.error_occurred.emit("Impossibile creare documenti dai dati. Verifica i dati nel database.")
+                            return
+
+                        vectorstore = FAISS.from_documents(documents, embeddings)
+
+                        # Cache the vectorstore in memory
+                        RAGQueryWorker._cached_vectorstore = vectorstore
+                        RAGQueryWorker._cached_data_hash = current_data_hash
+                        RAGQueryWorker._cached_data = data
+
+                        # Save to disk for persistence across sessions
+                        self.progress_update.emit("Salvataggio vectorstore su disco...")
+                        self._save_vectorstore_to_disk(vectorstore, current_data_hash)
+                        self.progress_update.emit("Vectorstore salvato in cache e su disco")
 
             self.progress_update.emit("Inizializzazione AI...")
 
