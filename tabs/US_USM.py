@@ -3615,9 +3615,10 @@ class RAGRebuildWorker(QThread):
 
             self.rebuild_progress.emit("Dati modificati, ricostruzione in corso...")
 
-            # Force rebuild by clearing cache
+            # Force rebuild by clearing cache completely
             RAGQueryWorker._cached_vectorstore = None
             RAGQueryWorker._cached_data_hash = None
+            RAGQueryWorker._cached_data = None  # Clear data cache too
 
             self.rebuild_complete.emit({
                 'hash': current_hash,
@@ -3985,9 +3986,10 @@ class RAGQueryDialog(QDialog):
 
     def force_rebuild_rag(self):
         """Force a complete rebuild of the RAG vectorstore"""
-        # Clear the cache
+        # Clear all cache components
         RAGQueryWorker._cached_vectorstore = None
         RAGQueryWorker._cached_data_hash = None
+        RAGQueryWorker._cached_data = None  # Clear data cache too
 
         self.status_label.setText("Cache RAG invalidata")
         QMessageBox.information(
@@ -4027,8 +4029,9 @@ class RAGQueryDialog(QDialog):
         self.status_label.setText("Inizializzazione RAG...")
 
         # Pass conversation history to worker
-        # Force reload if auto-update is enabled and this is not the first query
-        force_reload = self.auto_update_checkbox.isChecked() and len(self.conversation_history) > 0
+        # DON'T force reload on every query - let the hash check handle it
+        # force_reload should only be True when explicitly requested (e.g., via a Refresh button)
+        force_reload = False  # Cache will be used if data hasn't changed
 
         self.query_thread = RAGQueryWorker(
             query=query,
