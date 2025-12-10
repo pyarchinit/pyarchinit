@@ -4839,100 +4839,193 @@ class RAGQueryDialog(QDialog):
         except Exception as e:
             QMessageBox.warning(self, "Errore", f"Errore nella creazione della mappa dedicata: {str(e)}")
 
-    def _find_us_layer(self):
-        """Find the US layer in the QGIS project, auto-load if not found"""
+    # Configuration for all pyarchinit layers and their corresponding views
+    PYARCHINIT_LAYER_CONFIG = {
+        'US': {
+            'layer_names': ['pyarchinit_us_view', 'pyunitastratigrafiche', 'us_layer', 'unita_stratigrafiche'],
+            'view_name': 'pyarchinit_us_view',
+            'geom_column': 'the_geom',
+            'pk_column_pg': 'gid',
+            'pk_column_sqlite': 'ROWID'
+        },
+        'USM': {
+            'layer_names': ['pyarchinit_usm_view', 'pyunitastratigrafiche_usm', 'usm_layer'],
+            'view_name': 'pyarchinit_usm_view',
+            'geom_column': 'the_geom',
+            'pk_column_pg': 'gid',
+            'pk_column_sqlite': 'ROWID'
+        },
+        'SITE': {
+            'layer_names': ['pyarchinit_site_view', 'pyarchinit_siti', 'siti_layer', 'site'],
+            'view_name': 'pyarchinit_site_view',
+            'geom_column': 'the_geom',
+            'pk_column_pg': 'gid',
+            'pk_column_sqlite': 'ROWID'
+        },
+        'SITE_POLYGONAL': {
+            'layer_names': ['pyarchinit_siti_polygonal_view', 'pyarchinit_siti_polygonal'],
+            'view_name': 'pyarchinit_siti_polygonal_view',
+            'geom_column': 'the_geom',
+            'pk_column_pg': 'gid',
+            'pk_column_sqlite': 'ROWID'
+        },
+        'STRUTTURE': {
+            'layer_names': ['pyarchinit_strutture_view', 'pyarchinit_strutture_ipotesi', 'strutture'],
+            'view_name': 'pyarchinit_strutture_view',
+            'geom_column': 'the_geom',
+            'pk_column_pg': 'gid',
+            'pk_column_sqlite': 'ROWID'
+        },
+        'TOMBA': {
+            'layer_names': ['pyarchinit_tomba_view', 'pyarchinit_tafonomia', 'tomba'],
+            'view_name': 'pyarchinit_tomba_view',
+            'geom_column': 'the_geom',
+            'pk_column_pg': 'gid',
+            'pk_column_sqlite': 'ROWID'
+        },
+        'QUOTE': {
+            'layer_names': ['pyarchinit_quote_view', 'pyarchinit_quote', 'quote'],
+            'view_name': 'pyarchinit_quote_view',
+            'geom_column': 'the_geom',
+            'pk_column_pg': 'gid',
+            'pk_column_sqlite': 'ROWID'
+        },
+        'QUOTE_USM': {
+            'layer_names': ['pyarchinit_quote_usm_view', 'pyarchinit_quote_usm'],
+            'view_name': 'pyarchinit_quote_usm_view',
+            'geom_column': 'the_geom',
+            'pk_column_pg': 'gid',
+            'pk_column_sqlite': 'ROWID'
+        },
+        'DOCUMENTAZIONE': {
+            'layer_names': ['pyarchinit_doc_view', 'pyarchinit_documentazione', 'documentazione'],
+            'view_name': 'pyarchinit_doc_view',
+            'geom_column': 'the_geom',
+            'pk_column_pg': 'gid',
+            'pk_column_sqlite': 'ROWID'
+        },
+        'REPERTI': {
+            'layer_names': ['pyarchinit_reperti_view', 'pyarchinit_reperti', 'reperti'],
+            'view_name': 'pyarchinit_reperti_view',
+            'geom_column': 'the_geom',
+            'pk_column_pg': 'gid',
+            'pk_column_sqlite': 'ROWID'
+        },
+        'SEZIONI': {
+            'layer_names': ['pyarchinit_sezioni_view', 'pyarchinit_sezioni', 'sezioni'],
+            'view_name': 'pyarchinit_sezioni_view',
+            'geom_column': 'the_geom',
+            'pk_column_pg': 'gid',
+            'pk_column_sqlite': 'ROWID'
+        }
+    }
+
+    def _find_layer_by_type(self, layer_type='US'):
+        """Find a pyarchinit layer in QGIS project, auto-load view if not found"""
         try:
-            from qgis.core import QgsProject, QgsVectorLayer, QgsDataSourceUri
+            from qgis.core import QgsProject
 
-            # Common layer names for US (including views)
-            layer_names = [
-                'pyarchinit_us_view',
-                'pyunitastratigrafiche',
-                'us_layer',
-                'unita_stratigrafiche',
-                'US'
-            ]
+            config = self.PYARCHINIT_LAYER_CONFIG.get(layer_type.upper())
+            if not config:
+                print(f"[AI Query] Unknown layer type: {layer_type}")
+                return None
 
+            layer_names = config['layer_names']
+
+            # Search in existing layers
             layers = QgsProject.instance().mapLayers()
             for layer_id, layer in layers.items():
-                layer_name = layer.name().lower()
+                layer_name_lower = layer.name().lower()
                 for name in layer_names:
-                    if name.lower() in layer_name:
+                    if name.lower() in layer_name_lower:
                         return layer
 
-            # Also check for layers with 'us' in the name
-            for layer_id, layer in layers.items():
-                if 'us' in layer.name().lower() and hasattr(layer, 'geometryType'):
-                    return layer
-
-            # Layer not found - try to load pyarchinit_us_view automatically
-            print("[AI Query] US layer not found in TOC, attempting to load pyarchinit_us_view...")
-            loaded_layer = self._load_us_view_layer()
+            # Layer not found - try to load the view automatically
+            print(f"[AI Query] {layer_type} layer not found in TOC, attempting to load {config['view_name']}...")
+            loaded_layer = self._load_view_layer(layer_type)
             if loaded_layer:
                 return loaded_layer
 
         except Exception as e:
-            print(f"[AI Query] Error finding US layer: {e}")
+            print(f"[AI Query] Error finding {layer_type} layer: {e}")
 
         return None
 
-    def _load_us_view_layer(self):
-        """Load pyarchinit_us_view layer from database"""
+    def _find_us_layer(self):
+        """Find the US layer in the QGIS project, auto-load if not found"""
+        return self._find_layer_by_type('US')
+
+    def _load_view_layer(self, layer_type='US'):
+        """Load a pyarchinit view layer from database"""
         try:
             from qgis.core import QgsProject, QgsVectorLayer, QgsDataSourceUri
             from ..modules.db.pyarchinit_conn_strings import Connection
 
-            conn = Connection()
-            conn_dict = conn.conn_str()
+            config = self.PYARCHINIT_LAYER_CONFIG.get(layer_type.upper())
+            if not config:
+                print(f"[AI Query] Unknown layer type: {layer_type}")
+                return None
 
-            if not conn_dict:
+            conn = Connection()
+            conn_str = conn.conn_str()
+
+            if not conn_str:
                 print("[AI Query] No connection string available")
                 return None
 
             uri = QgsDataSourceUri()
+            view_name = config['view_name']
+            geom_column = config['geom_column']
 
             # Determine database type from connection string
-            if 'postgresql' in conn_dict:
+            if 'postgresql' in conn_str:
                 # PostgreSQL connection
-                # Parse connection string: postgresql://user:pass@host:port/dbname?sslmode=...
                 import re
-                match = re.match(r'postgresql://([^:]+):([^@]+)@([^:]+):(\d+)/([^?]+)', conn_dict)
+                match = re.match(r'postgresql://([^:]+):([^@]+)@([^:]+):(\d+)/([^?]+)', conn_str)
                 if match:
                     user, password, host, port, dbname = match.groups()
                     uri.setConnection(host, port, dbname, user, password)
-                    uri.setDataSource("public", "pyarchinit_us_view", "the_geom", "", "gid")
+                    uri.setDataSource("public", view_name, geom_column, "", config['pk_column_pg'])
                     provider = "postgres"
-                    layer_name = "pyarchinit_us_view (AI Query)"
                 else:
                     print("[AI Query] Could not parse PostgreSQL connection string")
                     return None
-            elif 'sqlite' in conn_dict:
+            elif 'sqlite' in conn_str:
                 # SQLite connection
-                # Parse: sqlite:///path/to/db.sqlite
-                db_path = conn_dict.replace('sqlite:///', '')
+                db_path = conn_str.replace('sqlite:///', '')
                 uri.setDatabase(db_path)
-                uri.setDataSource('', 'pyarchinit_us_view', 'the_geom', '', "ROWID")
+                uri.setDataSource('', view_name, geom_column, '', config['pk_column_sqlite'])
                 provider = "spatialite"
-                layer_name = "pyarchinit_us_view (AI Query)"
             else:
-                print(f"[AI Query] Unknown database type in connection: {conn_dict[:50]}")
+                print(f"[AI Query] Unknown database type in connection")
                 return None
 
             # Create and add layer
-            layer = QgsVectorLayer(uri.uri(), layer_name, provider)
+            display_name = f"{view_name} (AI Query)"
+            layer = QgsVectorLayer(uri.uri(), display_name, provider)
 
             if layer.isValid():
                 QgsProject.instance().addMapLayer(layer)
-                print(f"[AI Query] Successfully loaded {layer_name}")
-                self.status_label.setText(f"Layer '{layer_name}' caricato automaticamente")
+                print(f"[AI Query] Successfully loaded {display_name}")
+                if hasattr(self, 'status_label'):
+                    self.status_label.setText(f"Layer '{display_name}' caricato automaticamente")
                 return layer
             else:
-                print(f"[AI Query] Layer not valid: {uri.uri()}")
+                print(f"[AI Query] Layer not valid: {view_name}")
                 return None
 
         except Exception as e:
-            print(f"[AI Query] Error loading US view layer: {e}")
+            print(f"[AI Query] Error loading {layer_type} view layer: {e}")
             return None
+
+    def _load_multiple_view_layers(self, layer_types):
+        """Load multiple view layers at once"""
+        loaded_layers = {}
+        for layer_type in layer_types:
+            layer = self._find_layer_by_type(layer_type)
+            if layer:
+                loaded_layers[layer_type] = layer
+        return loaded_layers
 
     def handle_error(self, error_msg):
         """Handle errors"""
