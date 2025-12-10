@@ -5407,6 +5407,32 @@ class RAGQueryWorker(QThread):
                         self.enable_streaming = enable_streaming
                         self.raw_data = raw_data or {}
 
+                    def _get_available_tables_info(self):
+                        """Get info about tables that actually have data"""
+                        available = []
+                        if self.raw_data:
+                            if self.raw_data.get('us'):
+                                available.append("- US (us_table) - Unità Stratigrafiche: id_us, sito, area, us, d_stratigrafica, d_interpretativa, rapporti")
+                            if self.raw_data.get('usm'):
+                                available.append("- USM (us_table_usm) - Unità Stratigrafiche Murarie: simile a US ma per strutture murarie")
+                            if self.raw_data.get('tma') and len(self.raw_data.get('tma', [])) > 0:
+                                available.append("- TMA (tma_materiali_archeologici) - Tipologia Materiali Archeologici")
+                            if self.raw_data.get('inventario_materiali'):
+                                available.append("- INVENTARIO_MATERIALI - Inventario generale dei reperti")
+                            if self.raw_data.get('pottery'):
+                                available.append("- POTTERY - Ceramica con analisi specifiche")
+                            if self.raw_data.get('site'):
+                                available.append("- SITE - Informazioni sui siti archeologici")
+                            if self.raw_data.get('periodizzazione'):
+                                available.append("- PERIODIZZAZIONE - Fasi e periodi cronologici")
+                            if self.raw_data.get('struttura'):
+                                available.append("- STRUTTURA - Strutture architettoniche")
+                            if self.raw_data.get('tomba'):
+                                available.append("- TOMBA - Sepolture e contesti funerari")
+                            if self.raw_data.get('media'):
+                                available.append("- MEDIA - Immagini e documenti multimediali collegati a US, ceramica e reperti")
+                        return "\n".join(available) if available else "Nessuna tabella con dati disponibile"
+
                     def invoke(self, input_dict):
                         query = input_dict.get("input", "")
 
@@ -5463,39 +5489,23 @@ class RAGQueryWorker(QThread):
 
                         # Create enhanced prompt with context
                         if context:
+                            # Get available tables dynamically (only tables with data)
+                            available_tables = self._get_available_tables_info()
+
                             full_prompt = f"""Sei un assistente archeologico esperto e amichevole. Rispondi in modo naturale e colloquiale.
 
-STRUTTURA DEL DATABASE PYARCHINIT:
+TABELLE DISPONIBILI CON DATI:
+{available_tables}
 
-TABELLE PRINCIPALI:
-- US (us_table) - Unità Stratigrafiche: id_us, sito, area, us, d_stratigrafica, d_interpretativa, rapporti
-- USM (us_table_usm) - Unità Stratigrafiche Murarie: simile a US ma per strutture murarie
-- TMA (tma_materiali_archeologici) - Tipologia Materiali Archeologici:
-  * Campi principali: id_tma, sito, area, us, settore, quad_par, ambient, saggio
-  * Classificazione: ogtm (tipo materiale), ldct (categoria), ldcn (denominazione)
-  * Dati fisici: quantita, stato_conservazione, stato_reperto
-  * Gestione: inventario, cassetta, lavato, n_inv
-  * Note e descrizioni: descrizione, note, bibliografia, compilatore
-- TMA_MATERIALI_RIPETIBILI (tma_materiali_ripetibili) - Dettagli materiali collegati a TMA:
-  * id_tma (foreign key a TMA)
-  * Descrizione materiale: madi
-  * Componenti materiale: macc, macl, macp, macd
-  * Caratteristiche: macs, macq, macm, mact
-  * Note: note
+RELAZIONI CHIAVE TRA TABELLE:
+- US può avere MEDIA collegati (immagini)
+- POTTERY (ceramica) può avere MEDIA collegati
+- INVENTARIO_MATERIALI (reperti) può avere MEDIA collegati
+- Le entità sono collegate tramite sito, area, us
 
-ALTRE TABELLE IMPORTANTI:
-- INVENTARIO_MATERIALI - Inventario generale dei reperti
-- POTTERY - Ceramica con analisi specifiche
-- SITE - Informazioni sui siti archeologici
-- PERIODIZZAZIONE - Fasi e periodi cronologici
-- RAPPORTI - Relazioni stratigrafiche tra US
-- STRUTTURA - Strutture architettoniche
-- TOMBA - Sepolture e contesti funerari
-
-RELAZIONI CHIAVE:
-- TMA ← TMA_MATERIALI_RIPETIBILI (uno a molti via id_tma)
-- US ← TMA (collegamento via sito, area, us)
-- SITE ← US/TMA/INVENTARIO (via campo sito)
+IMPORTANTE SUI MEDIA:
+- I media sono immagini collegate a US, ceramica o reperti
+- Se l'utente chiede immagini o media di una US, cerca nei dati del contesto
 
 Dati disponibili nel database:
 {context}
@@ -5510,28 +5520,28 @@ ISTRUZIONI DI FORMATTAZIONE:
 
 Rispondi in modo:
 1. Naturale e conversazionale, come se stessi parlando con un collega archeologo
-2. Quando analizzi TMA, considera anche i materiali ripetibili collegati
-3. Sfrutta le relazioni tra tabelle per dare risposte complete
-4. Se richiesto un elenco, fornisci TUTTI i dati disponibili nel contesto, ordinati come richiesto
-5. Usa SEMPRE i dati effettivi dal contesto, non dire mai "mancano i dati" se ci sono dati nel contesto
-6. Se chiesto un totale o statistica, calcola dai dati reali disponibili
-7. NON chiedere conferme, genera subito la risposta con i dati che hai
+2. Sfrutta le relazioni tra tabelle per dare risposte complete
+3. Se richiesto un elenco, fornisci TUTTI i dati disponibili nel contesto, ordinati come richiesto
+4. Usa SEMPRE i dati effettivi dal contesto, non dire mai "mancano i dati" se ci sono dati nel contesto
+5. Se chiesto un totale o statistica, calcola dai dati reali disponibili
+6. NON chiedere conferme, genera subito la risposta con i dati che hai
+7. NON menzionare tabelle che non sono nell'elenco delle tabelle disponibili sopra
 
 Risposta:"""
                         else:
+                            # Get available tables dynamically
+                            available_tables = self._get_available_tables_info()
+
                             full_prompt = f"""Sei un assistente archeologico esperto.
 
 La domanda riguarda: {query}
 
-Non ho trovato dati specifici nel database, ma posso aiutarti a capire come strutturare la query o cosa cercare.
+Non ho trovato dati specifici nel database per questa query.
 
-Le tabelle disponibili sono:
-- TMA (tma_materiali_archeologici) per i materiali archeologici
-- US per le unità stratigrafiche
-- INVENTARIO_MATERIALI per l'inventario
-- POTTERY per la ceramica
+Tabelle con dati disponibili:
+{available_tables}
 
-Come posso aiutarti meglio?"""
+Posso aiutarti a capire come strutturare la query o cosa cercare. Come posso aiutarti meglio?"""
 
                         # Use streaming if enabled
                         if self.enable_streaming and self.parent_thread:
@@ -5725,10 +5735,66 @@ Come posso aiutarti meglio?"""
         """Pre-load all related data in BULK to avoid N+1 queries"""
         related_data = {
             'mediatoentity': {},  # keyed by id_media
-            'tma_materiali': {}   # keyed by id_tma
+            'mediatoentity_by_entity': {},  # keyed by (entity_type, id_entity) for fast lookup
+            'tma_materiali': {},   # keyed by id_tma
+            # Entity ID mappings: readable number -> internal id
+            'us_number_to_id': {},  # us number -> id_us
+            'us_id_to_number': {},  # id_us -> us number
+            'pottery_number_to_id': {},  # id_number -> id_rep
+            'pottery_id_to_number': {},  # id_rep -> id_number
+            'inventory_number_to_id': {},  # numero_inventario -> id_invmat
+            'inventory_id_to_number': {}  # id_invmat -> numero_inventario
         }
 
         try:
+            # Load US records to build id_us <-> us number mapping
+            self.progress_update.emit("Caricamento mapping US...")
+            all_us = self.db_manager.query('US')
+            if all_us:
+                if not isinstance(all_us, (list, tuple)):
+                    all_us = [all_us]
+                for us_row in all_us:
+                    us_dict = self._row_to_dict(us_row)
+                    if us_dict:
+                        id_us = us_dict.get('id_us')
+                        us_number = us_dict.get('us')
+                        if id_us and us_number:
+                            related_data['us_number_to_id'][str(us_number)] = id_us
+                            related_data['us_id_to_number'][id_us] = str(us_number)
+                print(f"[AI Query] Built US mapping: {len(related_data['us_number_to_id'])} entries")
+
+            # Load POTTERY records for id_rep <-> id_number mapping
+            self.progress_update.emit("Caricamento mapping Ceramica...")
+            all_pottery = self.db_manager.query('POTTERY')
+            if all_pottery:
+                if not isinstance(all_pottery, (list, tuple)):
+                    all_pottery = [all_pottery]
+                for pot_row in all_pottery:
+                    pot_dict = self._row_to_dict(pot_row)
+                    if pot_dict:
+                        id_rep = pot_dict.get('id_rep')
+                        id_number = pot_dict.get('id_number')
+                        if id_rep and id_number:
+                            related_data['pottery_number_to_id'][str(id_number)] = id_rep
+                            related_data['pottery_id_to_number'][id_rep] = str(id_number)
+                print(f"[AI Query] Built POTTERY mapping: {len(related_data['pottery_number_to_id'])} entries")
+
+            # Load INVENTARIO_MATERIALI records for id_invmat <-> numero_inventario mapping
+            self.progress_update.emit("Caricamento mapping Inventario...")
+            all_inv = self.db_manager.query('INVENTARIO_MATERIALI')
+            if all_inv:
+                if not isinstance(all_inv, (list, tuple)):
+                    all_inv = [all_inv]
+                for inv_row in all_inv:
+                    inv_dict = self._row_to_dict(inv_row)
+                    if inv_dict:
+                        id_invmat = inv_dict.get('id_invmat')
+                        num_inv = inv_dict.get('numero_inventario')
+                        if id_invmat and num_inv:
+                            related_data['inventory_number_to_id'][str(num_inv)] = id_invmat
+                            related_data['inventory_id_to_number'][id_invmat] = str(num_inv)
+                print(f"[AI Query] Built INVENTORY mapping: {len(related_data['inventory_number_to_id'])} entries")
+
             # Load ALL MEDIATOENTITY records in one query
             self.progress_update.emit("Caricamento relazioni media...")
             all_mediatoentity = self.db_manager.query('MEDIATOENTITY')
@@ -5739,11 +5805,37 @@ Come posso aiutarti meglio?"""
                     mte_dict = self._row_to_dict(mte)
                     if mte_dict:
                         media_id = mte_dict.get('id_media')
+                        entity_type = str(mte_dict.get('entity_type', '')).upper()
+                        id_entity = mte_dict.get('id_entity')
+
+                        # Add readable entity reference to mte_dict
+                        if entity_type == 'US' and id_entity:
+                            readable_num = related_data['us_id_to_number'].get(id_entity)
+                            if readable_num:
+                                mte_dict['readable_entity_number'] = readable_num
+                        elif entity_type == 'CERAMICA' and id_entity:
+                            readable_num = related_data['pottery_id_to_number'].get(id_entity)
+                            if readable_num:
+                                mte_dict['readable_entity_number'] = readable_num
+                        elif entity_type == 'REPERTO' and id_entity:
+                            readable_num = related_data['inventory_id_to_number'].get(id_entity)
+                            if readable_num:
+                                mte_dict['readable_entity_number'] = readable_num
+
                         if media_id:
                             if media_id not in related_data['mediatoentity']:
                                 related_data['mediatoentity'][media_id] = []
                             related_data['mediatoentity'][media_id].append(mte_dict)
+
+                        # Also index by (entity_type, id_entity) for fast lookup
+                        if entity_type and id_entity:
+                            key = (entity_type, id_entity)
+                            if key not in related_data['mediatoentity_by_entity']:
+                                related_data['mediatoentity_by_entity'][key] = []
+                            related_data['mediatoentity_by_entity'][key].append(mte_dict)
+
                 print(f"[AI Query] Pre-loaded MEDIATOENTITY: {len(related_data['mediatoentity'])} media with links")
+                print(f"[AI Query] Indexed by entity: {len(related_data['mediatoentity_by_entity'])} entity-media pairs")
 
             # Load ALL TMA_MATERIALI records in one query
             self.progress_update.emit("Caricamento materiali TMA...")
@@ -5763,6 +5855,8 @@ Come posso aiutarti meglio?"""
 
         except Exception as e:
             print(f"[AI Query] Error in bulk load related data: {e}")
+            import traceback
+            traceback.print_exc()
 
         return related_data
 
@@ -5936,56 +6030,100 @@ Come posso aiutarti meglio?"""
         return text
 
     def find_media_for_entity(self, entity_type, entity_id, data):
-        """Find media records linked to a specific entity"""
+        """Find media records linked to a specific entity.
+
+        Uses pre-loaded mappings to convert readable entity numbers to internal IDs.
+        entity_type can be: US, CERAMICA, REPERTO
+        entity_id is the readable number (e.g., US number, not id_us)
+        """
         media_records = data.get('media', [])
         linked_media = []
 
-        # Handle multiple possible entity_type formats
+        # Get the preloaded related data with mappings
+        related_data = getattr(self, '_preloaded_related_data', {})
+
         entity_type_upper = entity_type.upper()
-        entity_type_variants = [
-            entity_type_upper,
-            f'{entity_type_upper}_TABLE',
-            f'{entity_type_upper}_USM' if entity_type_upper == 'US' else None,
-            entity_type.lower(),
-            'us_table' if entity_type_upper == 'US' else None,
-        ]
-        entity_type_variants = [v for v in entity_type_variants if v]
+        entity_id_str = str(entity_id)
 
-        for media in media_records:
-            linked_entities = media.get('linked_entities', [])
-            for entity in linked_entities:
-                if isinstance(entity, dict):
-                    stored_entity_type = str(entity.get('entity_type', '')).upper()
-                    stored_id = str(entity.get('id_entity', ''))
+        # Convert readable entity number to internal ID based on entity type
+        internal_id = None
+        if entity_type_upper == 'US':
+            internal_id = related_data.get('us_number_to_id', {}).get(entity_id_str)
+        elif entity_type_upper in ['CERAMICA', 'POTTERY']:
+            internal_id = related_data.get('pottery_number_to_id', {}).get(entity_id_str)
+            entity_type_upper = 'CERAMICA'  # Normalize
+        elif entity_type_upper in ['REPERTO', 'INVENTARIO', 'MATERIALI']:
+            internal_id = related_data.get('inventory_number_to_id', {}).get(entity_id_str)
+            entity_type_upper = 'REPERTO'  # Normalize
 
-                    # Check if entity matches any variant
-                    if (stored_entity_type in [v.upper() for v in entity_type_variants] and
-                        stored_id == str(entity_id)):
-                        # Add thumbnail path to the media record
-                        media_with_thumb = dict(media)
-                        media_with_thumb['thumbnail_path'] = self.get_media_thumbnail_path(media)
-                        media_with_thumb['resize_path'] = self.get_media_resize_path(media)
-                        media_with_thumb['entity_ref'] = f"{entity_type} {entity_id}"
-                        linked_media.append(media_with_thumb)
-                        break
+        if not internal_id:
+            print(f"[AI Query] No internal ID found for {entity_type} {entity_id}")
+            # Try direct lookup as fallback (maybe entity_id is already the internal ID)
+            internal_id = int(entity_id_str) if entity_id_str.isdigit() else None
+
+        if internal_id:
+            # Use pre-indexed lookup by (entity_type, id_entity)
+            mediatoentity_by_entity = related_data.get('mediatoentity_by_entity', {})
+            key = (entity_type_upper, internal_id)
+
+            matching_mte = mediatoentity_by_entity.get(key, [])
+            print(f"[AI Query] Found {len(matching_mte)} media links for {entity_type} {entity_id} (internal ID: {internal_id})")
+
+            # Get the actual media records for these links
+            for mte in matching_mte:
+                media_id = mte.get('id_media')
+                if media_id:
+                    # Find the media record
+                    for media in media_records:
+                        if media.get('id_media') == media_id:
+                            media_with_thumb = dict(media)
+                            media_with_thumb['thumbnail_path'] = self.get_media_thumbnail_path(media)
+                            media_with_thumb['resize_path'] = self.get_media_resize_path(media)
+                            media_with_thumb['entity_ref'] = f"{entity_type} {entity_id}"
+                            media_with_thumb['filepath'] = mte.get('filepath', media.get('filepath', ''))
+                            linked_media.append(media_with_thumb)
+                            break
 
         return linked_media
 
     def extract_media_from_response(self, response_text, data):
-        """Extract media references from AI response and find corresponding thumbnails"""
+        """Extract media references from AI response and find corresponding thumbnails.
+
+        Supports US, CERAMICA (pottery), and REPERTO (inventario materiali).
+        """
         import re
         media_refs = []
 
         # Look for US references in the response
-        us_pattern = r'US[:\s]*(\d+)|unità[:\s]*(\d+)'
+        us_pattern = r'US[:\s]*(\d+)|unità[:\s]*stratigrafic[ae][:\s]*(\d+)|SU[:\s]*(\d+)'
         us_matches = re.findall(us_pattern, response_text, re.IGNORECASE)
 
         for match in us_matches:
-            us_number = match[0] or match[1]
+            us_number = match[0] or match[1] or match[2]
             if us_number:
                 # Find media for this US
                 us_media = self.find_media_for_entity('US', us_number, data)
-                media_refs.extend(us_media[:3])  # Limit to 3 per US
+                media_refs.extend(us_media[:5])  # Limit to 5 per US
+
+        # Look for CERAMICA/pottery references
+        pottery_pattern = r'ceramica[:\s#]*(\d+)|pottery[:\s#]*(\d+)|id_number[:\s]*(\d+)'
+        pottery_matches = re.findall(pottery_pattern, response_text, re.IGNORECASE)
+
+        for match in pottery_matches:
+            pot_number = match[0] or match[1] or match[2]
+            if pot_number:
+                pot_media = self.find_media_for_entity('CERAMICA', pot_number, data)
+                media_refs.extend(pot_media[:5])
+
+        # Look for REPERTO/inventory references
+        inventory_pattern = r'reperto[:\s#]*(\d+)|inventario[:\s#]*(\d+)|materiale[:\s#]*(\d+)|numero_inventario[:\s]*(\d+)'
+        inventory_matches = re.findall(inventory_pattern, response_text, re.IGNORECASE)
+
+        for match in inventory_matches:
+            inv_number = match[0] or match[1] or match[2] or match[3]
+            if inv_number:
+                inv_media = self.find_media_for_entity('REPERTO', inv_number, data)
+                media_refs.extend(inv_media[:5])
 
         # Look for direct media ID references
         media_pattern = r'media[:\s#]*(\d+)|id_media[:\s]*(\d+)'
