@@ -7802,6 +7802,23 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.list_rapporti=[]
         self.pushButton_report_generator.clicked.connect(self.generate_and_display_report)
 
+        # Connect new toolbar buttons to their respective functions
+        # pushButton_text2sql -> text2sql (Ctrl+Shift+X)
+        if hasattr(self, 'pushButton_text2sql'):
+            self.pushButton_text2sql.clicked.connect(self.text2sql)
+
+        # pushButton_area_sito_update -> update_all_areas (Ctrl+U)
+        if hasattr(self, 'pushButton_area_sito_update'):
+            self.pushButton_area_sito_update.clicked.connect(self.update_all_areas)
+
+        # pushButton_ricerca_avanzata -> switch_search_mode (Ctrl+Shift+N)
+        if hasattr(self, 'pushButton_ricerca_avanzata'):
+            self.pushButton_ricerca_avanzata.clicked.connect(self.switch_search_mode)
+
+        # pushButton_elimina__record_filtrati -> delete_all_filtered_records (Ctrl+Shift+D)
+        if hasattr(self, 'pushButton_elimina__record_filtrati'):
+            self.pushButton_elimina__record_filtrati.clicked.connect(self.delete_all_filtered_records)
+
         # Add RAG Query button
         try:
             # Check if button exists in UI
