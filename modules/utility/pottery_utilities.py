@@ -1108,7 +1108,11 @@ else:
                        overlap: int = 64,
                        apply_preprocessing: bool = True,
                        model_path: str = None,
-                       use_ml: bool = True) -> bool:
+                       use_ml: bool = True,
+                       manual_contrast: float = 1.0,
+                       manual_brightness: float = 1.0,
+                       background_mode: str = "Keep Original",
+                       bg_threshold: int = 240) -> bool:
         """
         Transform a pencil drawing into publication-ready illustration
 
@@ -1122,6 +1126,10 @@ else:
             apply_preprocessing: Whether to apply preprocessing
             model_path: Path to .pkl model file (optional, will use default if not provided)
             use_ml: Whether to use ML-based enhancement (True) or basic filters (False)
+            manual_contrast: Manual contrast adjustment (1.0 = no change)
+            manual_brightness: Manual brightness adjustment (1.0 = no change)
+            background_mode: Background treatment ("Keep Original", "White", "Transparent")
+            bg_threshold: Brightness threshold for background detection (200-255)
 
         Returns:
             True if successful, False otherwise
@@ -1139,8 +1147,14 @@ else:
             ml_result = self._enhance_with_ml(
                 input_image_path, output_path,
                 model_path=model_path,
-                strength=min(contrast_scale, 1.0) if contrast_scale > 0 else 0.6,
-                size=patch_size
+                contrast=contrast_scale if contrast_scale > 0 else 1.0,
+                patch_size=patch_size,
+                overlap=64,
+                prompt="make it ready for publication",
+                manual_contrast=manual_contrast,
+                manual_brightness=manual_brightness,
+                background_mode=background_mode,
+                bg_threshold=bg_threshold
             )
             if ml_result:
                 return True
@@ -1152,6 +1166,16 @@ else:
         try:
             # Load image
             image = Image.open(input_image_path).convert('RGB')
+
+            # Apply manual adjustments if specified
+            if manual_contrast != 1.0 or manual_brightness != 1.0:
+                QgsMessageLog.logMessage(f"Applying manual adjustments: contrast={manual_contrast}, brightness={manual_brightness}",
+                                        "PyArchInit", Qgis.Info)
+                from PIL import ImageEnhance
+                if manual_brightness != 1.0:
+                    image = ImageEnhance.Brightness(image).enhance(manual_brightness)
+                if manual_contrast != 1.0:
+                    image = ImageEnhance.Contrast(image).enhance(manual_contrast)
 
             # Apply preprocessing if requested
             if apply_preprocessing:
@@ -1169,6 +1193,9 @@ else:
             # Apply basic enhancement
             enhanced_image = self._basic_enhancement(image, contrast_scale)
 
+            # Apply background treatment
+            enhanced_image = self._apply_background_treatment(enhanced_image, background_mode, bg_threshold)
+
             # Save result
             enhanced_image.save(output_path, 'PNG', dpi=(300, 300))
 
@@ -1184,18 +1211,28 @@ else:
             return False
 
     def _enhance_with_ml(self, input_path: str, output_path: str,
-                        model_path: str = None, strength: float = 0.6,
-                        size: int = 512, steps: int = 4) -> bool:
+                        model_path: str = None, contrast: float = 1.0,
+                        patch_size: int = 512, overlap: int = 64,
+                        prompt: str = "make it ready for publication",
+                        manual_contrast: float = 1.0,
+                        manual_brightness: float = 1.0,
+                        background_mode: str = "Keep Original",
+                        bg_threshold: int = 240) -> bool:
         """
-        Enhance drawing using ML model via subprocess
+        Enhance drawing using ML model via subprocess (Pix2Pix_Turbo)
 
         Args:
             input_path: Path to input image
             output_path: Path for output image
             model_path: Path to .pkl model file
-            strength: Denoising strength (0-1)
-            size: Processing size
-            steps: Number of inference steps
+            contrast: Contrast enhancement factor (default 1.0)
+            patch_size: Size of processing patches (default 512)
+            overlap: Overlap between patches (default 64)
+            prompt: Text prompt for model conditioning
+            manual_contrast: Manual contrast adjustment (1.0 = no change)
+            manual_brightness: Manual brightness adjustment (1.0 = no change)
+            background_mode: Background treatment ("Keep Original", "White", "Transparent")
+            bg_threshold: Brightness threshold for background detection (200-255)
 
         Returns:
             True if successful, False otherwise
@@ -1237,7 +1274,7 @@ else:
             for key in ['PYTHONHOME', 'PYTHONPATH', 'PYTHONSTARTUP', 'VIRTUAL_ENV']:
                 clean_env.pop(key, None)
 
-            # Build command
+            # Build command with new Pix2Pix_Turbo parameters
             cmd = [
                 self.venv_python,
                 script_path,
@@ -1245,11 +1282,23 @@ else:
                 '--output', output_path,
                 '--model', model_path,
                 '--device', 'auto',
-                '--strength', str(strength),
-                '--steps', str(steps),
-                '--size', str(size),
+                '--contrast', str(contrast),
+                '--patch-size', str(patch_size),
+                '--overlap', str(overlap),
+                '--prompt', prompt,
                 '--json-output'
             ]
+
+            # Add manual adjustment parameters if not default
+            if manual_contrast != 1.0:
+                cmd.extend(['--manual-contrast', str(manual_contrast)])
+            if manual_brightness != 1.0:
+                cmd.extend(['--manual-brightness', str(manual_brightness)])
+
+            # Add background parameters
+            if background_mode != "Keep Original":
+                cmd.extend(['--background', background_mode.lower()])
+                cmd.extend(['--bg-threshold', str(bg_threshold)])
 
             QgsMessageLog.logMessage(f"Running ML enhancement: {os.path.basename(model_path)}",
                                     "PyArchInit", Qgis.Info)
@@ -1355,6 +1404,74 @@ else:
         except Exception as e:
             QgsMessageLog.logMessage(f"Enhancement error: {str(e)}", "PyArchInit", Qgis.Warning)
             return image
+
+    def _apply_background_treatment(self, image: Image.Image, background_mode: str,
+                                   bg_threshold: int = 240) -> Image.Image:
+        """
+        Apply background treatment to the enhanced image
+
+        Args:
+            image: Input PIL Image
+            background_mode: "Keep Original", "White", or "Transparent"
+            bg_threshold: Brightness threshold for background detection (200-255)
+
+        Returns:
+            Processed PIL Image with background treatment applied
+        """
+        if background_mode == "Keep Original":
+            return image
+
+        try:
+            import numpy as np
+
+            # Convert to grayscale for threshold detection
+            if image.mode == 'L':
+                gray = image
+            else:
+                gray = image.convert('L')
+
+            gray_array = np.array(gray)
+
+            # Create mask where pixels are above threshold (background)
+            bg_mask = gray_array >= bg_threshold
+
+            if background_mode == "White":
+                # Force all background pixels to pure white
+                QgsMessageLog.logMessage(f"Applying white background (threshold={bg_threshold})",
+                                        "PyArchInit", Qgis.Info)
+                if image.mode == 'L':
+                    result_array = np.array(image)
+                    result_array[bg_mask] = 255
+                    return Image.fromarray(result_array, mode='L')
+                else:
+                    # For RGB images
+                    result = image.convert('RGB')
+                    result_array = np.array(result)
+                    result_array[bg_mask] = [255, 255, 255]
+                    return Image.fromarray(result_array, mode='RGB')
+
+            elif background_mode == "Transparent":
+                # Make background transparent
+                QgsMessageLog.logMessage(f"Applying transparent background (threshold={bg_threshold})",
+                                        "PyArchInit", Qgis.Info)
+                # Convert to RGBA
+                if image.mode != 'RGBA':
+                    result = image.convert('RGBA')
+                else:
+                    result = image.copy()
+
+                result_array = np.array(result)
+
+                # Set alpha channel to 0 for background pixels
+                result_array[bg_mask, 3] = 0
+
+                return Image.fromarray(result_array, mode='RGBA')
+
+        except Exception as e:
+            QgsMessageLog.logMessage(f"Background treatment error: {str(e)}", "PyArchInit", Qgis.Warning)
+            return image
+
+        return image
 
     def extract_elements(self, image_path: str, output_dir: str,
                         min_area: int = 1000) -> List[str]:
@@ -1509,7 +1626,11 @@ else:
     def enhance_high_res(self, input_image_path: str, output_path: str,
                         patch_size: int = 512, overlap: int = 64,
                         contrast_scale: float = 1.0,
-                        apply_preprocessing: bool = True) -> bool:
+                        apply_preprocessing: bool = True,
+                        manual_contrast: float = 1.0,
+                        manual_brightness: float = 1.0,
+                        background_mode: str = "Keep Original",
+                        bg_threshold: int = 240) -> bool:
         """
         Process high-resolution images using patch-based processing
 
@@ -1520,6 +1641,10 @@ else:
             overlap: Overlap between patches in pixels
             contrast_scale: Contrast enhancement factor
             apply_preprocessing: Whether to apply preprocessing
+            manual_contrast: Manual contrast adjustment (1.0 = no change)
+            manual_brightness: Manual brightness adjustment (1.0 = no change)
+            background_mode: Background treatment ("Keep Original", "White", "Transparent")
+            bg_threshold: Brightness threshold for background detection (200-255)
 
         Returns:
             True if successful, False otherwise
@@ -1529,6 +1654,16 @@ else:
 
             # Load image
             image = Image.open(input_image_path).convert('RGB')
+
+            # Apply manual adjustments if specified
+            if manual_contrast != 1.0 or manual_brightness != 1.0:
+                QgsMessageLog.logMessage(f"Applying manual adjustments: contrast={manual_contrast}, brightness={manual_brightness}",
+                                        "PyArchInit", Qgis.Info)
+                from PIL import ImageEnhance
+                if manual_brightness != 1.0:
+                    image = ImageEnhance.Brightness(image).enhance(manual_brightness)
+                if manual_contrast != 1.0:
+                    image = ImageEnhance.Contrast(image).enhance(manual_contrast)
 
             # Apply preprocessing if requested
             if apply_preprocessing:
@@ -1606,6 +1741,9 @@ else:
                     # Blend patch into output
                     output.paste(enhanced_patch, (x1, y1))
                     weight_map.paste(weight, (x1, y1))
+
+            # Apply background treatment
+            output = self._apply_background_treatment(output, background_mode, bg_threshold)
 
             # Save result
             output.save(output_path, 'PNG', dpi=(300, 300))

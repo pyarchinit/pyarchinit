@@ -318,32 +318,41 @@ class PotteryToolsDialog(QDialog, MAIN_DIALOG_CLASS):
                         QTimer.singleShot(100, self.check_pottery_ink_status)
                         return
 
-                    # Essential packages for PotteryInk
+                    # Essential packages for PotteryInk with compatible versions
                     essential_packages = [
-                        'torch', 'torchvision',
-                        'diffusers', 'transformers', 'peft',
+                        'torch>=2.0',
+                        'torchvision',
+                        'diffusers>=0.28,<0.30',
+                        'transformers>=4.40,<4.45',
+                        'peft==0.10.0',
+                        'accelerate',
+                        'safetensors',
                         'ultralytics'  # For YOLO
                     ]
 
                     self.log_message("Auto-installing PotteryInk dependencies in background...")
 
-                    for package in essential_packages:
+                    for package_spec in essential_packages:
+                        # Extract module name from package spec (e.g., 'torch>=2.0' -> 'torch')
+                        import re
+                        module_name = re.split(r'[<>=!]', package_spec)[0]
+
                         # Check if already installed
-                        check_cmd = [self.venv_python, '-c', f'import {package}']
+                        check_cmd = [self.venv_python, '-c', f'import {module_name}']
                         result = subprocess.run(check_cmd, capture_output=True, env=clean_env, timeout=5)
 
                         if result.returncode != 0:
                             # Install the package with progress logging
-                            self.log_message(f"Installing {package}...")
-                            install_cmd = [self.venv_python, '-m', 'pip', 'install', package, '--no-warn-script-location']
+                            self.log_message(f"Installing {package_spec}...")
+                            install_cmd = [self.venv_python, '-m', 'pip', 'install', package_spec, '--no-warn-script-location']
                             result = subprocess.run(install_cmd, capture_output=True, text=True, env=clean_env, timeout=300)
-                            
+
                             if result.returncode == 0:
-                                self.log_message(f"✓ {package} installed successfully")
+                                self.log_message(f"✓ {module_name} installed successfully")
                             else:
-                                self.log_message(f"✗ Failed to install {package}: {result.stderr[:200]}", Qgis.Warning)
+                                self.log_message(f"✗ Failed to install {module_name}: {result.stderr[:200]}", Qgis.Warning)
                         else:
-                            self.log_message(f"✓ {package} already installed")
+                            self.log_message(f"✓ {module_name} already installed")
 
                     # After installation, reset the trigger flag and check status again
                     if hasattr(self, '_auto_install_triggered'):
@@ -931,6 +940,13 @@ class PotteryToolsDialog(QDialog, MAIN_DIALOG_CLASS):
             self.log_message(f"Batch enhancement error: {str(e)}", Qgis.Warning)
             QMessageBox.critical(self, "Error", f"Batch enhancement failed:\n{str(e)}")
 
+    def reset_manual_adjustments(self):
+        """Reset manual contrast and brightness to default values"""
+        if hasattr(self, 'spin_manual_contrast'):
+            self.spin_manual_contrast.setValue(1.0)
+        if hasattr(self, 'spin_manual_brightness'):
+            self.spin_manual_brightness.setValue(1.0)
+
     def download_pottery_ink_models(self):
         """Download PotteryInk models from HuggingFace"""
         try:
@@ -1058,7 +1074,7 @@ class PotteryToolsDialog(QDialog, MAIN_DIALOG_CLASS):
 
             from qgis.PyQt.QtWidgets import (QWidget, QGroupBox, QVBoxLayout, QHBoxLayout,
                                              QCheckBox, QPushButton, QLabel, QComboBox,
-                                             QSpinBox, QTextEdit, QSplitter, QListWidget,
+                                             QSpinBox, QDoubleSpinBox, QTextEdit, QSplitter, QListWidget,
                                              QRadioButton, QSlider, QButtonGroup, QProgressBar)
             from qgis.PyQt.QtCore import Qt
 
@@ -1187,11 +1203,73 @@ class PotteryToolsDialog(QDialog, MAIN_DIALOG_CLASS):
 
             settings_layout.addLayout(preprocess_row)
 
+            # Manual adjustment row
+            manual_row = QHBoxLayout()
+            manual_row.addWidget(QLabel("Manual Adjust:"))
+
+            # Manual Contrast
+            manual_row.addWidget(QLabel("Contrast:"))
+            self.spin_manual_contrast = QDoubleSpinBox()
+            self.spin_manual_contrast.setRange(0.1, 3.0)
+            self.spin_manual_contrast.setValue(1.0)
+            self.spin_manual_contrast.setSingleStep(0.1)
+            self.spin_manual_contrast.setDecimals(1)
+            self.spin_manual_contrast.setToolTip("Manual contrast adjustment (1.0 = no change)")
+            self.spin_manual_contrast.setFixedWidth(70)
+            manual_row.addWidget(self.spin_manual_contrast)
+
+            # Manual Brightness
+            manual_row.addWidget(QLabel("Brightness:"))
+            self.spin_manual_brightness = QDoubleSpinBox()
+            self.spin_manual_brightness.setRange(0.1, 3.0)
+            self.spin_manual_brightness.setValue(1.0)
+            self.spin_manual_brightness.setSingleStep(0.1)
+            self.spin_manual_brightness.setDecimals(1)
+            self.spin_manual_brightness.setToolTip("Manual brightness adjustment (1.0 = no change)")
+            self.spin_manual_brightness.setFixedWidth(70)
+            manual_row.addWidget(self.spin_manual_brightness)
+
+            # Reset button
+            self.btn_reset_adjustments = QPushButton("Reset")
+            self.btn_reset_adjustments.setFixedWidth(50)
+            self.btn_reset_adjustments.setToolTip("Reset to default values")
+            self.btn_reset_adjustments.clicked.connect(self.reset_manual_adjustments)
+            manual_row.addWidget(self.btn_reset_adjustments)
+
+            manual_row.addStretch()
+            settings_layout.addLayout(manual_row)
+
+            # Background options row
+            bg_row = QHBoxLayout()
+            bg_row.addWidget(QLabel("Background:"))
+
+            self.combo_background = QComboBox()
+            self.combo_background.addItems(["Keep Original", "White", "Transparent"])
+            self.combo_background.setToolTip("Background treatment for output image")
+            self.combo_background.setFixedWidth(120)
+            bg_row.addWidget(self.combo_background)
+
+            bg_row.addWidget(QLabel("Threshold:"))
+            self.spin_bg_threshold = QSpinBox()
+            self.spin_bg_threshold.setRange(200, 255)
+            self.spin_bg_threshold.setValue(240)
+            self.spin_bg_threshold.setToolTip("Brightness threshold for background detection (higher = stricter)")
+            self.spin_bg_threshold.setFixedWidth(60)
+            bg_row.addWidget(self.spin_bg_threshold)
+
+            bg_row.addStretch()
+            settings_layout.addLayout(bg_row)
+
             # Connect preprocessing checkbox to show/hide options
             self.check_preprocessing.toggled.connect(lambda checked: [
                 self.check_auto_brightness.setEnabled(checked),
                 self.check_auto_contrast.setEnabled(checked),
-                self.check_histogram_eq.setEnabled(checked)
+                self.check_histogram_eq.setEnabled(checked),
+                self.spin_manual_contrast.setEnabled(checked),
+                self.spin_manual_brightness.setEnabled(checked),
+                self.btn_reset_adjustments.setEnabled(checked),
+                self.combo_background.setEnabled(checked),
+                self.spin_bg_threshold.setEnabled(checked)
             ])
 
             settings_group.setLayout(settings_layout)
@@ -2950,6 +3028,14 @@ if __name__ == '__main__':
                         overlap = self.spin_overlap.value() if hasattr(self, 'spin_overlap') else 64
                         stippling = self.slider_stippling.value() / 100.0 if hasattr(self, 'slider_stippling') else 1.0
 
+                        # Get manual adjustment values
+                        manual_contrast = self.spin_manual_contrast.value() if hasattr(self, 'spin_manual_contrast') else 1.0
+                        manual_brightness = self.spin_manual_brightness.value() if hasattr(self, 'spin_manual_brightness') else 1.0
+
+                        # Get background options
+                        background_mode = self.combo_background.currentText() if hasattr(self, 'combo_background') else "Keep Original"
+                        bg_threshold = self.spin_bg_threshold.value() if hasattr(self, 'spin_bg_threshold') else 240
+
                         # Get selected model path
                         model_path = None
                         if hasattr(self, 'combo_pottery_ink_model'):
@@ -2970,6 +3056,10 @@ if __name__ == '__main__':
                         self.text_pottery_log.append(f"Enhancing: {os.path.basename(input_path)}")
                         self.text_pottery_log.append(f"  Options: Preprocessing={apply_preprocessing}, High-res={high_res}, Extract={extract_elements}, SVG={export_svg}")
                         self.text_pottery_log.append(f"  Parameters: Patch={patch_size}, Overlap={overlap}, Stippling={stippling}")
+                        if manual_contrast != 1.0 or manual_brightness != 1.0:
+                            self.text_pottery_log.append(f"  Manual: Contrast={manual_contrast}, Brightness={manual_brightness}")
+                        if background_mode != "Keep Original":
+                            self.text_pottery_log.append(f"  Background: {background_mode} (threshold={bg_threshold})")
 
                         # Call enhancement with parameters
                         self.log_message(f"Processing with preprocessing={apply_preprocessing}, high_res={high_res}, extract={extract_elements}, svg={export_svg}")
@@ -2983,7 +3073,11 @@ if __name__ == '__main__':
                                 patch_size=patch_size,
                                 overlap=overlap,
                                 contrast_scale=stippling,
-                                apply_preprocessing=apply_preprocessing
+                                apply_preprocessing=apply_preprocessing,
+                                manual_contrast=manual_contrast,
+                                manual_brightness=manual_brightness,
+                                background_mode=background_mode,
+                                bg_threshold=bg_threshold
                             )
                         else:
                             success = self.pottery_ink.enhance_drawing(
@@ -2994,7 +3088,11 @@ if __name__ == '__main__':
                                 overlap=overlap,
                                 apply_preprocessing=apply_preprocessing,
                                 model_path=model_path,
-                                use_ml=True
+                                use_ml=True,
+                                manual_contrast=manual_contrast,
+                                manual_brightness=manual_brightness,
+                                background_mode=background_mode,
+                                bg_threshold=bg_threshold
                             )
                         self.log_message(f"Processing returned: {success}")
 
