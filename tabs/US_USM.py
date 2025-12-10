@@ -3774,6 +3774,50 @@ class RAGQueryDialog(QDialog):
         self.chart_widget.setLayout(self.chart_layout)
         self.results_tabs.addTab(self.chart_widget, "Grafico")
 
+        # Media tab (for thumbnails and images)
+        self.media_widget = QWidget()
+        self.media_layout = QVBoxLayout(self.media_widget)
+
+        # Label for media section
+        self.media_label = QLabel("Media correlati alle US trovate:")
+        self.media_label.setStyleSheet("font-weight: bold; font-size: 14px;")
+        self.media_layout.addWidget(self.media_label)
+
+        # Scroll area for thumbnails
+        media_scroll_area = QScrollArea()
+        media_scroll_area.setWidgetResizable(True)
+        media_scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+        media_scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+
+        # Container for thumbnails
+        self.media_gallery = QWidget()
+        self.gallery_layout = QGridLayout(self.media_gallery)
+        self.gallery_layout.setSpacing(10)
+        media_scroll_area.setWidget(self.media_gallery)
+
+        self.media_layout.addWidget(media_scroll_area)
+
+        # Info label when no media
+        self.no_media_label = QLabel(
+            "Nessun media trovato.\n\n"
+            "I media verranno visualizzati quando la query AI\n"
+            "trova US che hanno immagini associate nel database\n"
+            "(tabella MEDIATOENTITY)."
+        )
+        self.no_media_label.setAlignment(Qt.AlignCenter)
+        self.no_media_label.setStyleSheet("""
+            QLabel {
+                background-color: #f5f5f5;
+                border: 1px dashed #ccc;
+                border-radius: 5px;
+                padding: 20px;
+                color: #666;
+            }
+        """)
+        self.gallery_layout.addWidget(self.no_media_label, 0, 0, 1, 4)
+
+        self.results_tabs.addTab(self.media_widget, "Media")
+
         # Map tab (for spatial visualization)
         self.map_widget = QWidget()
         self.map_layout = QVBoxLayout(self.map_widget)
@@ -4165,46 +4209,38 @@ class RAGQueryDialog(QDialog):
         self.chart_layout.addWidget(canvas)
 
     def display_media(self, media_list):
-        """Display media thumbnails in a gallery widget"""
+        """Display media thumbnails in the gallery widget"""
         import os
 
-        # Create or get the media gallery widget
-        if not hasattr(self, 'media_gallery'):
-            # Create media tab if it doesn't exist
-            self.media_widget = QWidget()
-            self.media_layout = QVBoxLayout(self.media_widget)
-
-            # Label for media section
-            media_label = QLabel("Media correlati:")
-            media_label.setStyleSheet("font-weight: bold; font-size: 14px;")
-            self.media_layout.addWidget(media_label)
-
-            # Scroll area for thumbnails
-            scroll_area = QScrollArea()
-            scroll_area.setWidgetResizable(True)
-            scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
-            scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
-
-            # Container for thumbnails
-            self.media_gallery = QWidget()
-            self.gallery_layout = QGridLayout(self.media_gallery)
-            self.gallery_layout.setSpacing(10)
-            scroll_area.setWidget(self.media_gallery)
-
-            self.media_layout.addWidget(scroll_area)
-
-            # Add to tabs if tabs exist
-            if hasattr(self, 'results_tabs'):
-                self.results_tabs.addTab(self.media_widget, "Media")
-            else:
-                # Add directly to layout
-                self.layout().addWidget(self.media_widget)
-
-        # Clear existing thumbnails
+        # Clear existing thumbnails (including the no_media_label)
         while self.gallery_layout.count():
             item = self.gallery_layout.takeAt(0)
             if item.widget():
                 item.widget().deleteLater()
+
+        # Update the label to show count
+        if media_list:
+            self.media_label.setText(f"Media correlati alle US trovate: {len(media_list)} immagini")
+        else:
+            self.media_label.setText("Media correlati alle US trovate:")
+            # Show no media message
+            no_media = QLabel(
+                "Nessun media trovato per questa query.\n\n"
+                "Assicurati che le US abbiano immagini associate\n"
+                "nella tabella MEDIATOENTITY."
+            )
+            no_media.setAlignment(Qt.AlignCenter)
+            no_media.setStyleSheet("""
+                QLabel {
+                    background-color: #f5f5f5;
+                    border: 1px dashed #ccc;
+                    border-radius: 5px;
+                    padding: 20px;
+                    color: #666;
+                }
+            """)
+            self.gallery_layout.addWidget(no_media, 0, 0, 1, 4)
+            return
 
         # Display thumbnails
         row = 0
