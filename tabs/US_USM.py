@@ -7802,22 +7802,40 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.list_rapporti=[]
         self.pushButton_report_generator.clicked.connect(self.generate_and_display_report)
 
-        # Connect new toolbar buttons to their respective functions
+        # Connect new toolbar buttons to their respective functions and set icons
+        icons_path = os.path.join(os.path.dirname(__file__), '..', 'resources', 'icons')
+
         # pushButton_text2sql -> text2sql (Ctrl+Shift+X)
         if hasattr(self, 'pushButton_text2sql'):
             self.pushButton_text2sql.clicked.connect(self.text2sql)
+            icon_path = os.path.join(icons_path, 'text2sql.png')
+            if os.path.exists(icon_path):
+                self.pushButton_text2sql.setIcon(QIcon(icon_path))
+            self.pushButton_text2sql.setToolTip("Text to SQL (Ctrl+Shift+X)")
 
         # pushButton_area_sito_update -> update_all_areas (Ctrl+U)
         if hasattr(self, 'pushButton_area_sito_update'):
             self.pushButton_area_sito_update.clicked.connect(self.update_all_areas)
+            icon_path = os.path.join(icons_path, 'area_update.png')
+            if os.path.exists(icon_path):
+                self.pushButton_area_sito_update.setIcon(QIcon(icon_path))
+            self.pushButton_area_sito_update.setToolTip("Aggiorna Area/Sito nei rapporti (Ctrl+U)")
 
         # pushButton_ricerca_avanzata -> switch_search_mode (Ctrl+Shift+N)
         if hasattr(self, 'pushButton_ricerca_avanzata'):
             self.pushButton_ricerca_avanzata.clicked.connect(self.switch_search_mode)
+            icon_path = os.path.join(icons_path, 'search_advanced.png')
+            if os.path.exists(icon_path):
+                self.pushButton_ricerca_avanzata.setIcon(QIcon(icon_path))
+            self.pushButton_ricerca_avanzata.setToolTip("Ricerca Avanzata LIKE (Ctrl+Shift+N)")
 
         # pushButton_elimina__record_filtrati -> delete_all_filtered_records (Ctrl+Shift+D)
         if hasattr(self, 'pushButton_elimina__record_filtrati'):
             self.pushButton_elimina__record_filtrati.clicked.connect(self.delete_all_filtered_records)
+            icon_path = os.path.join(icons_path, 'delete_filtered.png')
+            if os.path.exists(icon_path):
+                self.pushButton_elimina__record_filtrati.setIcon(QIcon(icon_path))
+            self.pushButton_elimina__record_filtrati.setToolTip("Elimina Record Filtrati (Ctrl+Shift+D)")
 
         # Add RAG Query button
         try:
