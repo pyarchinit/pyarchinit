@@ -3576,6 +3576,94 @@ Provide detailed answers for each question, clearly numbered."""
         return f"\n\n{header}\n{separator}\n" + "\n".join(rows)
 
 
+class RAGRebuildWorker(QThread):
+    """Worker thread for rebuilding RAG vectorstore in background"""
+    rebuild_complete = pyqtSignal(dict)  # Emits hash and status
+    rebuild_progress = pyqtSignal(str)   # Progress messages
+    rebuild_error = pyqtSignal(str)      # Error messages
+
+    def __init__(self, db_manager, parent_dialog=None):
+        super().__init__()
+        self.db_manager = db_manager
+        self.parent_dialog = parent_dialog
+
+    def run(self):
+        """Rebuild the RAG vectorstore"""
+        try:
+            self.rebuild_progress.emit("Controllo database...")
+
+            # Calculate current data hash
+            import hashlib
+            import json
+
+            # Use the RAG_TABLE_CONFIG from RAGQueryWorker
+            data_summary = self._get_data_summary()
+            data_str = json.dumps(data_summary, sort_keys=True, default=str)
+            current_hash = hashlib.md5(data_str.encode()).hexdigest()
+
+            # Check if rebuild is needed
+            cached_hash = RAGQueryWorker._cached_data_hash
+
+            if cached_hash == current_hash and RAGQueryWorker._cached_vectorstore is not None:
+                self.rebuild_progress.emit("Vectorstore aggiornato, nessun rebuild necessario")
+                self.rebuild_complete.emit({
+                    'hash': current_hash,
+                    'status': 'cached',
+                    'message': 'Vectorstore già aggiornato'
+                })
+                return
+
+            self.rebuild_progress.emit("Dati modificati, ricostruzione in corso...")
+
+            # Force rebuild by clearing cache
+            RAGQueryWorker._cached_vectorstore = None
+            RAGQueryWorker._cached_data_hash = None
+
+            self.rebuild_complete.emit({
+                'hash': current_hash,
+                'status': 'needs_rebuild',
+                'message': 'Cache invalidata, rebuild necessario alla prossima query'
+            })
+
+        except Exception as e:
+            self.rebuild_error.emit(f"Errore durante il controllo RAG: {str(e)}")
+
+    def _get_data_summary(self):
+        """Get a summary of database data for hash calculation"""
+        summary = {}
+
+        for table_key in RAGQueryWorker.RAG_TABLE_CONFIG.keys():
+            try:
+                query_name = RAGQueryWorker.RAG_TABLE_CONFIG[table_key]['query_name']
+                data = self.db_manager.query(query_name)
+
+                if data is not None:
+                    if not isinstance(data, (list, tuple)):
+                        data = [data]
+                    # Store count and sample of IDs for hash
+                    summary[table_key] = {
+                        'count': len(data),
+                        'sample_ids': []
+                    }
+                    # Get first few IDs for change detection
+                    for i, row in enumerate(data[:5]):
+                        try:
+                            if hasattr(row, '__table__'):
+                                # Get primary key columns
+                                pk_cols = [col.name for col in row.__table__.primary_key.columns]
+                                if pk_cols:
+                                    pk_values = [getattr(row, col) for col in pk_cols]
+                                    summary[table_key]['sample_ids'].append(pk_values)
+                        except:
+                            pass
+                else:
+                    summary[table_key] = {'count': 0, 'sample_ids': []}
+
+            except Exception as e:
+                summary[table_key] = {'count': -1, 'error': str(e)}
+
+        return summary
+
 
 class RAGQueryDialog(QDialog):
     """Dialog for RAG-based database querying with GPT-5"""
@@ -3591,10 +3679,14 @@ class RAGQueryDialog(QDialog):
         self.memory = None  # Will store LangChain memory
         self.last_data_hash = None  # Track data changes
         self.auto_update_enabled = True  # Enable auto-update by default
+        self.rebuild_worker = None  # RAG rebuild worker thread
 
         self.setWindowTitle("Interrogazione Database con AI (RAG)")
         self.resize(1200, 800)
         self.setup_ui()
+
+        # Check and rebuild RAG on-demand when dialog opens
+        QTimer.singleShot(100, self.check_and_rebuild_rag)
 
     def setup_ui(self):
         """Setup the user interface"""
@@ -3676,6 +3768,71 @@ class RAGQueryDialog(QDialog):
         self.chart_widget.setLayout(self.chart_layout)
         self.results_tabs.addTab(self.chart_widget, "Grafico")
 
+        # Map tab (for spatial visualization)
+        self.map_widget = QWidget()
+        self.map_layout = QVBoxLayout(self.map_widget)
+
+        # Spatial controls
+        spatial_controls = QHBoxLayout()
+
+        self.show_on_canvas_checkbox = QCheckBox("Mostra su mappa principale")
+        self.show_on_canvas_checkbox.setChecked(True)
+        self.show_on_canvas_checkbox.setToolTip("Evidenzia i risultati sulla mappa QGIS")
+        spatial_controls.addWidget(self.show_on_canvas_checkbox)
+
+        self.show_dedicated_map_checkbox = QCheckBox("Finestra mappa dedicata")
+        self.show_dedicated_map_checkbox.setChecked(False)
+        self.show_dedicated_map_checkbox.setToolTip("Mostra risultati in una finestra mappa separata")
+        spatial_controls.addWidget(self.show_dedicated_map_checkbox)
+
+        self.zoom_to_results_button = QPushButton("Zoom ai Risultati")
+        self.zoom_to_results_button.clicked.connect(self.zoom_to_query_results)
+        self.zoom_to_results_button.setEnabled(False)
+        spatial_controls.addWidget(self.zoom_to_results_button)
+
+        self.highlight_results_button = QPushButton("Evidenzia")
+        self.highlight_results_button.clicked.connect(self.highlight_query_results)
+        self.highlight_results_button.setEnabled(False)
+        spatial_controls.addWidget(self.highlight_results_button)
+
+        self.clear_highlight_button = QPushButton("Rimuovi Evidenziazione")
+        self.clear_highlight_button.clicked.connect(self.clear_highlights)
+        self.clear_highlight_button.setEnabled(False)
+        spatial_controls.addWidget(self.clear_highlight_button)
+
+        spatial_controls.addStretch()
+        self.map_layout.addLayout(spatial_controls)
+
+        # Map canvas placeholder (will show embedded mini-map or instructions)
+        self.map_info_label = QLabel(
+            "I risultati della query verranno visualizzati sulla mappa principale di QGIS.\n"
+            "Seleziona le opzioni sopra per controllare la visualizzazione.\n\n"
+            "Usa 'Zoom ai Risultati' per centrare la mappa sui record trovati.\n"
+            "Usa 'Evidenzia' per evidenziare le US sulla mappa."
+        )
+        self.map_info_label.setAlignment(Qt.AlignCenter)
+        self.map_info_label.setStyleSheet("""
+            QLabel {
+                background-color: #f0f0f0;
+                border: 1px solid #ccc;
+                border-radius: 5px;
+                padding: 20px;
+                font-size: 12px;
+            }
+        """)
+        self.map_layout.addWidget(self.map_info_label)
+
+        # US list for spatial operations
+        self.us_list_widget = QTableWidget()
+        self.us_list_widget.setColumnCount(4)
+        self.us_list_widget.setHorizontalHeaderLabels(["US", "Area", "Tipo", "Periodo"])
+        self.us_list_widget.setSelectionBehavior(QTableWidget.SelectRows)
+        self.us_list_widget.setSelectionMode(QTableWidget.MultiSelection)
+        self.us_list_widget.itemSelectionChanged.connect(self.on_us_selection_changed)
+        self.map_layout.addWidget(self.us_list_widget)
+
+        self.results_tabs.addTab(self.map_widget, "Mappa")
+
         layout.addWidget(self.results_tabs)
 
         # Progress bar
@@ -3710,6 +3867,20 @@ class RAGQueryDialog(QDialog):
         self.export_chart_button.setEnabled(False)
         export_layout.addWidget(self.export_chart_button)
 
+        # PDF Report button
+        self.export_pdf_button = QPushButton("Report PDF")
+        self.export_pdf_button.clicked.connect(self.export_pdf_report)
+        self.export_pdf_button.setEnabled(False)
+        self.export_pdf_button.setToolTip("Esporta report completo con testo, tabelle e grafici")
+        export_layout.addWidget(self.export_pdf_button)
+
+        # Complete Excel button
+        self.export_excel_complete_button = QPushButton("Excel Completo")
+        self.export_excel_complete_button.clicked.connect(self.export_excel_complete)
+        self.export_excel_complete_button.setEnabled(False)
+        self.export_excel_complete_button.setToolTip("Esporta Excel multi-foglio con tutti i dati")
+        export_layout.addWidget(self.export_excel_complete_button)
+
         export_layout.addStretch()
         layout.addLayout(export_layout)
 
@@ -3719,6 +3890,62 @@ class RAGQueryDialog(QDialog):
         layout.addWidget(close_button)
 
         self.setLayout(layout)
+
+    def check_and_rebuild_rag(self):
+        """Check if RAG needs rebuilding when dialog opens"""
+        if not self.auto_update_checkbox.isChecked():
+            self.status_label.setText("Auto-aggiornamento RAG disabilitato")
+            return
+
+        self.status_label.setText("Controllo aggiornamenti database...")
+        self.progress_bar.setVisible(True)
+        self.progress_bar.setRange(0, 0)  # Indeterminate
+
+        # Start rebuild worker
+        self.rebuild_worker = RAGRebuildWorker(self.db_manager, self)
+        self.rebuild_worker.rebuild_progress.connect(self.on_rebuild_progress)
+        self.rebuild_worker.rebuild_complete.connect(self.on_rebuild_complete)
+        self.rebuild_worker.rebuild_error.connect(self.on_rebuild_error)
+        self.rebuild_worker.start()
+
+    def on_rebuild_progress(self, message):
+        """Handle rebuild progress updates"""
+        self.status_label.setText(message)
+
+    def on_rebuild_complete(self, result):
+        """Handle rebuild completion"""
+        self.progress_bar.setVisible(False)
+        status = result.get('status', '')
+        message = result.get('message', '')
+
+        if status == 'cached':
+            self.status_label.setText("RAG pronto (cache aggiornata)")
+        elif status == 'needs_rebuild':
+            self.status_label.setText("RAG aggiornato - pronto per le query")
+        else:
+            self.status_label.setText(message)
+
+        self.last_data_hash = result.get('hash')
+
+    def on_rebuild_error(self, error_msg):
+        """Handle rebuild errors"""
+        self.progress_bar.setVisible(False)
+        self.status_label.setText(f"Errore controllo RAG: {error_msg}")
+        print(f"[AI Query] RAG rebuild error: {error_msg}")
+
+    def force_rebuild_rag(self):
+        """Force a complete rebuild of the RAG vectorstore"""
+        # Clear the cache
+        RAGQueryWorker._cached_vectorstore = None
+        RAGQueryWorker._cached_data_hash = None
+
+        self.status_label.setText("Cache RAG invalidata")
+        QMessageBox.information(
+            self,
+            "RAG Reset",
+            "La cache RAG è stata invalidata.\n"
+            "Il vectorstore verrà ricostruito alla prossima query."
+        )
 
     def execute_query(self):
         """Execute the RAG query with conversation history"""
@@ -3835,7 +4062,22 @@ class RAGQueryDialog(QDialog):
             self.display_chart(results['chart'])
             self.export_chart_button.setEnabled(True)
 
+        # Display media thumbnails if present
+        if 'media' in results and results['media']:
+            self.display_media(results['media'])
+
+        # Populate spatial US list if US data is present
+        if 'us_records' in results and results['us_records']:
+            self.populate_spatial_us_list(results['us_records'])
+        elif hasattr(self, 'query_thread') and hasattr(self.query_thread, 'loaded_data'):
+            # Try to get US data from the worker's loaded data
+            loaded_data = self.query_thread.loaded_data
+            if loaded_data and 'us' in loaded_data:
+                self.populate_spatial_us_list(loaded_data['us'])
+
         self.export_text_button.setEnabled(True)
+        self.export_pdf_button.setEnabled(True)
+        self.export_excel_complete_button.setEnabled(True)
 
     def format_text_results(self, text):
         """Format text results for display"""
@@ -3916,6 +4158,156 @@ class RAGQueryDialog(QDialog):
         fig.tight_layout()
         self.chart_layout.addWidget(canvas)
 
+    def display_media(self, media_list):
+        """Display media thumbnails in a gallery widget"""
+        import os
+
+        # Create or get the media gallery widget
+        if not hasattr(self, 'media_gallery'):
+            # Create media tab if it doesn't exist
+            self.media_widget = QWidget()
+            self.media_layout = QVBoxLayout(self.media_widget)
+
+            # Label for media section
+            media_label = QLabel("Media correlati:")
+            media_label.setStyleSheet("font-weight: bold; font-size: 14px;")
+            self.media_layout.addWidget(media_label)
+
+            # Scroll area for thumbnails
+            scroll_area = QScrollArea()
+            scroll_area.setWidgetResizable(True)
+            scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+            scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+
+            # Container for thumbnails
+            self.media_gallery = QWidget()
+            self.gallery_layout = QGridLayout(self.media_gallery)
+            self.gallery_layout.setSpacing(10)
+            scroll_area.setWidget(self.media_gallery)
+
+            self.media_layout.addWidget(scroll_area)
+
+            # Add to tabs if tabs exist
+            if hasattr(self, 'results_tabs'):
+                self.results_tabs.addTab(self.media_widget, "Media")
+            else:
+                # Add directly to layout
+                self.layout().addWidget(self.media_widget)
+
+        # Clear existing thumbnails
+        while self.gallery_layout.count():
+            item = self.gallery_layout.takeAt(0)
+            if item.widget():
+                item.widget().deleteLater()
+
+        # Display thumbnails
+        row = 0
+        col = 0
+        max_cols = 4
+
+        for media in media_list:
+            thumb_path = media.get('thumbnail_path', '')
+            filename = media.get('filename', 'Unknown')
+            media_id = media.get('id_media', '')
+            description = media.get('descrizione', '')
+
+            # Create thumbnail container
+            thumb_container = QWidget()
+            thumb_layout = QVBoxLayout(thumb_container)
+            thumb_layout.setSpacing(2)
+            thumb_layout.setContentsMargins(5, 5, 5, 5)
+
+            # Create thumbnail label
+            thumb_label = QLabel()
+            thumb_label.setFixedSize(120, 120)
+            thumb_label.setAlignment(Qt.AlignCenter)
+            thumb_label.setStyleSheet("""
+                QLabel {
+                    border: 1px solid #ccc;
+                    border-radius: 5px;
+                    background-color: #f5f5f5;
+                }
+            """)
+
+            # Try to load thumbnail
+            if thumb_path and os.path.exists(thumb_path):
+                pixmap = QPixmap(thumb_path)
+                if not pixmap.isNull():
+                    scaled_pixmap = pixmap.scaled(
+                        110, 110,
+                        Qt.KeepAspectRatio,
+                        Qt.SmoothTransformation
+                    )
+                    thumb_label.setPixmap(scaled_pixmap)
+                else:
+                    thumb_label.setText("Immagine\nnon disponibile")
+            else:
+                thumb_label.setText("Thumbnail\nnon trovato")
+
+            # Make thumbnail clickable
+            thumb_label.setToolTip(f"ID: {media_id}\n{filename}\n{description[:100] if description else ''}")
+            thumb_label.setCursor(Qt.PointingHandCursor)
+
+            # Store media info for click handling
+            thumb_label.media_info = media
+
+            # Install event filter for click handling
+            thumb_label.mousePressEvent = lambda event, m=media: self.open_media(m)
+
+            thumb_layout.addWidget(thumb_label)
+
+            # Add filename label
+            name_label = QLabel(filename[:15] + "..." if len(filename) > 15 else filename)
+            name_label.setAlignment(Qt.AlignCenter)
+            name_label.setStyleSheet("font-size: 10px;")
+            name_label.setToolTip(filename)
+            thumb_layout.addWidget(name_label)
+
+            self.gallery_layout.addWidget(thumb_container, row, col)
+
+            col += 1
+            if col >= max_cols:
+                col = 0
+                row += 1
+
+        # Switch to media tab
+        if hasattr(self, 'results_tabs'):
+            for i in range(self.results_tabs.count()):
+                if self.results_tabs.tabText(i) == "Media":
+                    self.results_tabs.setCurrentIndex(i)
+                    break
+
+    def open_media(self, media):
+        """Open media file in default application"""
+        import os
+        import subprocess
+
+        # Try resize path first, then original filepath
+        file_path = media.get('resize_path') or media.get('filepath', '')
+
+        if file_path and os.path.exists(file_path):
+            try:
+                # Open with default application
+                if os.name == 'nt':  # Windows
+                    os.startfile(file_path)
+                elif os.name == 'posix':  # macOS/Linux
+                    if os.uname().sysname == 'Darwin':  # macOS
+                        subprocess.run(['open', file_path])
+                    else:  # Linux
+                        subprocess.run(['xdg-open', file_path])
+            except Exception as e:
+                QMessageBox.warning(
+                    self,
+                    "Errore",
+                    f"Impossibile aprire il file: {str(e)}"
+                )
+        else:
+            QMessageBox.warning(
+                self,
+                "File non trovato",
+                f"Il file non esiste:\n{file_path}"
+            )
+
     def export_text(self):
         """Export text results"""
         if not self.current_results or 'text' not in self.current_results:
@@ -3993,6 +4385,227 @@ class RAGQueryDialog(QDialog):
             except Exception as e:
                 QMessageBox.critical(self, "Errore", f"Errore durante l'esportazione: {str(e)}")
 
+    def export_pdf_report(self):
+        """Export complete report as PDF with text, tables, and charts"""
+        if not self.current_results:
+            QMessageBox.warning(self, "Attenzione", "Nessun risultato da esportare")
+            return
+
+        file_path, _ = QFileDialog.getSaveFileName(
+            self, "Esporta Report PDF", "", "PDF Files (*.pdf);;All Files (*.*)"
+        )
+
+        if not file_path:
+            return
+
+        try:
+            from reportlab.lib import colors
+            from reportlab.lib.pagesizes import A4
+            from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+            from reportlab.lib.units import cm
+            from reportlab.platypus import (SimpleDocTemplate, Paragraph, Spacer,
+                                           Table, TableStyle, Image, PageBreak)
+            from datetime import datetime
+            import tempfile
+            import os
+
+            # Create PDF document
+            doc = SimpleDocTemplate(file_path, pagesize=A4,
+                                   leftMargin=2*cm, rightMargin=2*cm,
+                                   topMargin=2*cm, bottomMargin=2*cm)
+
+            styles = getSampleStyleSheet()
+            story = []
+
+            # Title
+            title_style = ParagraphStyle(
+                'CustomTitle',
+                parent=styles['Heading1'],
+                fontSize=18,
+                spaceAfter=30,
+                alignment=1  # Center
+            )
+            story.append(Paragraph("Report Query AI Database", title_style))
+
+            # Metadata
+            meta_style = styles['Normal']
+            story.append(Paragraph(f"Data: {datetime.now().strftime('%d/%m/%Y %H:%M')}", meta_style))
+            story.append(Spacer(1, 20))
+
+            # Query section
+            if hasattr(self, 'query_input') and self.query_input.toPlainText():
+                story.append(Paragraph("<b>Query:</b>", styles['Heading3']))
+                query_text = self.query_input.toPlainText()
+                story.append(Paragraph(query_text, meta_style))
+                story.append(Spacer(1, 20))
+
+            # Text results
+            if 'text' in self.current_results:
+                story.append(Paragraph("<b>Risposta AI:</b>", styles['Heading3']))
+                # Clean and format text
+                text = self.current_results['text']
+                # Replace markdown-like formatting
+                text = text.replace('\n', '<br/>')
+                text = text.replace('**', '')
+                story.append(Paragraph(text, meta_style))
+                story.append(Spacer(1, 20))
+
+            # Table results
+            if 'table' in self.current_results:
+                table_data = self.current_results['table']
+                if table_data.get('columns') and table_data.get('rows'):
+                    story.append(Paragraph("<b>Tabella Dati:</b>", styles['Heading3']))
+
+                    # Prepare table data
+                    pdf_table_data = [table_data['columns']]
+                    pdf_table_data.extend(table_data['rows'])
+
+                    # Create table
+                    col_width = (A4[0] - 4*cm) / len(table_data['columns'])
+                    t = Table(pdf_table_data, colWidths=[col_width] * len(table_data['columns']))
+                    t.setStyle(TableStyle([
+                        ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+                        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+                        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+                        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                        ('FONTSIZE', (0, 0), (-1, 0), 10),
+                        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+                        ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+                        ('TEXTCOLOR', (0, 1), (-1, -1), colors.black),
+                        ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
+                        ('FONTSIZE', (0, 1), (-1, -1), 8),
+                        ('GRID', (0, 0), (-1, -1), 1, colors.black),
+                        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+                    ]))
+                    story.append(t)
+                    story.append(Spacer(1, 20))
+
+            # Chart
+            if 'chart' in self.current_results and self.chart_layout.count() > 0:
+                story.append(Paragraph("<b>Grafico:</b>", styles['Heading3']))
+
+                # Save chart to temp file
+                canvas = self.chart_layout.itemAt(0).widget()
+                if canvas:
+                    with tempfile.NamedTemporaryFile(suffix='.png', delete=False) as tmp:
+                        canvas.figure.savefig(tmp.name, dpi=150, bbox_inches='tight')
+                        chart_img = Image(tmp.name, width=14*cm, height=10*cm)
+                        story.append(chart_img)
+                        story.append(Spacer(1, 20))
+                    os.unlink(tmp.name)
+
+            # Build PDF
+            doc.build(story)
+            QMessageBox.information(self, "Successo", f"Report PDF esportato:\n{file_path}")
+
+        except ImportError:
+            QMessageBox.critical(
+                self, "Errore",
+                "ReportLab non installato.\n"
+                "Esegui: pip install reportlab"
+            )
+        except Exception as e:
+            QMessageBox.critical(self, "Errore", f"Errore durante l'esportazione PDF: {str(e)}")
+
+    def export_excel_complete(self):
+        """Export complete results to Excel with multiple sheets"""
+        if not self.current_results:
+            QMessageBox.warning(self, "Attenzione", "Nessun risultato da esportare")
+            return
+
+        file_path, _ = QFileDialog.getSaveFileName(
+            self, "Esporta Excel Completo", "", "Excel Files (*.xlsx);;All Files (*.*)"
+        )
+
+        if not file_path:
+            return
+
+        try:
+            import pandas as pd
+            from openpyxl import Workbook
+            from openpyxl.utils.dataframe import dataframe_to_rows
+            from openpyxl.chart import BarChart, PieChart, Reference
+            from datetime import datetime
+
+            wb = Workbook()
+
+            # Summary sheet
+            ws_summary = wb.active
+            ws_summary.title = "Sommario"
+            ws_summary['A1'] = "Report Query AI Database"
+            ws_summary['A2'] = f"Data: {datetime.now().strftime('%d/%m/%Y %H:%M')}"
+            ws_summary['A4'] = "Query:"
+            if hasattr(self, 'query_input'):
+                ws_summary['A5'] = self.query_input.toPlainText()
+
+            # Text results sheet
+            if 'text' in self.current_results:
+                ws_text = wb.create_sheet("Risposta AI")
+                ws_text['A1'] = "Risposta:"
+                ws_text['A2'] = self.current_results['text']
+
+            # Table sheet
+            if 'table' in self.current_results:
+                table_data = self.current_results['table']
+                if table_data.get('columns') and table_data.get('rows'):
+                    ws_data = wb.create_sheet("Dati")
+                    df = pd.DataFrame(table_data['rows'], columns=table_data['columns'])
+
+                    for r_idx, row in enumerate(dataframe_to_rows(df, index=False, header=True), 1):
+                        for c_idx, value in enumerate(row, 1):
+                            ws_data.cell(row=r_idx, column=c_idx, value=value)
+
+                    # Auto-size columns
+                    for column in ws_data.columns:
+                        max_length = 0
+                        column_letter = column[0].column_letter
+                        for cell in column:
+                            try:
+                                if len(str(cell.value)) > max_length:
+                                    max_length = len(str(cell.value))
+                            except:
+                                pass
+                        ws_data.column_dimensions[column_letter].width = min(max_length + 2, 50)
+
+            # Chart sheet (if chart data available)
+            if 'chart' in self.current_results:
+                chart_data = self.current_results['chart']
+                ws_chart = wb.create_sheet("Grafico")
+
+                # Write chart data
+                if chart_data.get('x') and chart_data.get('y'):
+                    ws_chart['A1'] = chart_data.get('x_label', 'Categoria')
+                    ws_chart['B1'] = chart_data.get('y_label', 'Valore')
+
+                    for i, (x, y) in enumerate(zip(chart_data['x'], chart_data['y']), 2):
+                        ws_chart[f'A{i}'] = x
+                        ws_chart[f'B{i}'] = y
+
+                    # Create chart
+                    chart_type = chart_data.get('type', 'bar')
+                    if chart_type == 'bar':
+                        chart = BarChart()
+                        chart.title = chart_data.get('title', 'Grafico')
+                        data = Reference(ws_chart, min_col=2, min_row=1,
+                                        max_row=len(chart_data['x']) + 1)
+                        cats = Reference(ws_chart, min_col=1, min_row=2,
+                                        max_row=len(chart_data['x']) + 1)
+                        chart.add_data(data, titles_from_data=True)
+                        chart.set_categories(cats)
+                        ws_chart.add_chart(chart, "D2")
+
+            wb.save(file_path)
+            QMessageBox.information(self, "Successo", f"Excel esportato:\n{file_path}")
+
+        except ImportError as e:
+            QMessageBox.critical(
+                self, "Errore",
+                f"Librerie mancanti: {str(e)}\n"
+                "Esegui: pip install pandas openpyxl"
+            )
+        except Exception as e:
+            QMessageBox.critical(self, "Errore", f"Errore durante l'esportazione Excel: {str(e)}")
+
     def clear_query(self):
         """Clear query and results"""
         self.query_input.clear()
@@ -4002,6 +4615,259 @@ class RAGQueryDialog(QDialog):
             self.chart_layout.itemAt(i).widget().setParent(None)
         self.status_label.setText("")
         self.current_results = None
+
+        # Clear spatial data
+        self.us_list_widget.setRowCount(0)
+        self.spatial_us_data = []
+        self.zoom_to_results_button.setEnabled(False)
+        self.highlight_results_button.setEnabled(False)
+        self.clear_highlight_button.setEnabled(False)
+
+    def populate_spatial_us_list(self, us_records):
+        """Populate the US list widget for spatial operations"""
+        self.us_list_widget.setRowCount(0)
+        self.spatial_us_data = us_records or []
+
+        if not us_records:
+            return
+
+        self.us_list_widget.setRowCount(len(us_records))
+
+        for row, us in enumerate(us_records):
+            us_item = QTableWidgetItem(str(us.get('us', '')))
+            area_item = QTableWidgetItem(str(us.get('area', '')))
+            tipo_item = QTableWidgetItem(str(us.get('unita_tipo', '')))
+            periodo_item = QTableWidgetItem(str(us.get('periodo_iniziale', '')))
+
+            self.us_list_widget.setItem(row, 0, us_item)
+            self.us_list_widget.setItem(row, 1, area_item)
+            self.us_list_widget.setItem(row, 2, tipo_item)
+            self.us_list_widget.setItem(row, 3, periodo_item)
+
+        self.us_list_widget.resizeColumnsToContents()
+
+        # Enable spatial buttons
+        self.zoom_to_results_button.setEnabled(True)
+        self.highlight_results_button.setEnabled(True)
+        self.clear_highlight_button.setEnabled(True)
+
+    def on_us_selection_changed(self):
+        """Handle US selection change in the list"""
+        selected_rows = set()
+        for item in self.us_list_widget.selectedItems():
+            selected_rows.add(item.row())
+
+        if selected_rows and self.show_on_canvas_checkbox.isChecked():
+            # Get selected US numbers
+            us_numbers = []
+            for row in selected_rows:
+                us_item = self.us_list_widget.item(row, 0)
+                if us_item:
+                    us_numbers.append(us_item.text())
+
+            if us_numbers and hasattr(self.parent, 'pyQGIS'):
+                # Highlight selected US on map
+                self.highlight_us_on_map(us_numbers)
+
+    def zoom_to_query_results(self):
+        """Zoom to all US from query results on the map"""
+        if not hasattr(self, 'spatial_us_data') or not self.spatial_us_data:
+            QMessageBox.warning(self, "Attenzione", "Nessun dato US disponibile per la visualizzazione")
+            return
+
+        # Get US numbers from results
+        us_numbers = [str(us.get('us', '')) for us in self.spatial_us_data if us.get('us')]
+
+        if not us_numbers:
+            QMessageBox.warning(self, "Attenzione", "Nessuna US trovata nei risultati")
+            return
+
+        # Check if dedicated map window is requested
+        if self.show_dedicated_map_checkbox.isChecked():
+            self.show_dedicated_map_window(us_numbers)
+            return
+
+        try:
+            # Try to use pyQGIS to zoom to features on main canvas
+            us_layer = self._find_us_layer()
+            if us_layer:
+                # Build filter expression
+                filter_expr = f"us IN ({','.join(repr(n) for n in us_numbers)})"
+
+                # Select features
+                us_layer.selectByExpression(filter_expr)
+
+                # Zoom to selection
+                from qgis.core import QgsProject
+                from qgis.utils import iface
+                if iface:
+                    iface.mapCanvas().zoomToSelected(us_layer)
+                    self.status_label.setText(f"Zoom a {len(us_numbers)} US")
+            else:
+                QMessageBox.warning(
+                    self, "Layer non trovato",
+                    "Il layer 'pyunitastratigrafiche' non è stato trovato.\n"
+                    "Assicurati che il layer sia caricato nel progetto."
+                )
+        except Exception as e:
+            QMessageBox.warning(self, "Errore", f"Errore durante lo zoom: {str(e)}")
+
+    def highlight_query_results(self):
+        """Highlight all US from query results on the map"""
+        if not hasattr(self, 'spatial_us_data') or not self.spatial_us_data:
+            QMessageBox.warning(self, "Attenzione", "Nessun dato US disponibile")
+            return
+
+        us_numbers = [str(us.get('us', '')) for us in self.spatial_us_data if us.get('us')]
+
+        if us_numbers:
+            self.highlight_us_on_map(us_numbers)
+            self.status_label.setText(f"Evidenziate {len(us_numbers)} US")
+
+    def highlight_us_on_map(self, us_numbers):
+        """Highlight specific US on the QGIS map"""
+        try:
+            from qgis.core import QgsProject
+            from qgis.utils import iface
+
+            us_layer = self._find_us_layer()
+            if us_layer and iface:
+                # Build filter expression
+                filter_expr = f"us IN ({','.join(repr(n) for n in us_numbers)})"
+
+                # Select features (this will highlight them)
+                us_layer.selectByExpression(filter_expr)
+
+                # Refresh canvas
+                iface.mapCanvas().refresh()
+        except Exception as e:
+            print(f"[AI Query] Error highlighting US: {e}")
+
+    def clear_highlights(self):
+        """Clear all highlights from the map"""
+        try:
+            from qgis.utils import iface
+
+            us_layer = self._find_us_layer()
+            if us_layer:
+                us_layer.removeSelection()
+
+            if iface:
+                iface.mapCanvas().refresh()
+
+            self.status_label.setText("Evidenziazione rimossa")
+        except Exception as e:
+            print(f"[AI Query] Error clearing highlights: {e}")
+
+    def show_dedicated_map_window(self, us_numbers):
+        """Show query results in a dedicated map window"""
+        try:
+            from qgis.core import QgsProject, QgsFeatureRequest, QgsVectorLayer, QgsField
+            from qgis.gui import QgsMapCanvas, QgsMapToolPan
+            from qgis.PyQt.QtCore import QVariant
+
+            us_layer = self._find_us_layer()
+            if not us_layer:
+                QMessageBox.warning(
+                    self, "Layer non trovato",
+                    "Il layer 'pyunitastratigrafiche' non è stato trovato."
+                )
+                return
+
+            # Create a memory layer with selected features
+            filter_expr = f"us IN ({','.join(repr(n) for n in us_numbers)})"
+            request = QgsFeatureRequest().setFilterExpression(filter_expr)
+
+            # Create dialog for dedicated map
+            map_dialog = QDialog(self)
+            map_dialog.setWindowTitle(f"Mappa Risultati Query - {len(us_numbers)} US")
+            map_dialog.setMinimumSize(800, 600)
+            map_dialog.resize(1000, 700)
+
+            layout = QVBoxLayout(map_dialog)
+
+            # Create map canvas
+            canvas = QgsMapCanvas()
+            canvas.setCanvasColor(Qt.white)
+
+            # Set the same CRS as the project
+            canvas.setDestinationCrs(QgsProject.instance().crs())
+
+            # Add layers to canvas (copy the US layer)
+            canvas.setLayers([us_layer])
+
+            # Calculate extent from selected features
+            features = list(us_layer.getFeatures(request))
+            if features:
+                from qgis.core import QgsGeometry
+                combined_geom = QgsGeometry()
+                for feat in features:
+                    if feat.hasGeometry():
+                        if combined_geom.isEmpty():
+                            combined_geom = feat.geometry()
+                        else:
+                            combined_geom = combined_geom.combine(feat.geometry())
+
+                if not combined_geom.isEmpty():
+                    extent = combined_geom.boundingBox()
+                    extent.scale(1.2)  # Add 20% buffer
+                    canvas.setExtent(extent)
+
+            # Enable pan tool
+            pan_tool = QgsMapToolPan(canvas)
+            canvas.setMapTool(pan_tool)
+
+            layout.addWidget(canvas)
+
+            # Add info label
+            info_label = QLabel(f"Visualizzazione di {len(us_numbers)} US: {', '.join(us_numbers[:10])}{'...' if len(us_numbers) > 10 else ''}")
+            layout.addWidget(info_label)
+
+            # Add close button
+            close_btn = QPushButton("Chiudi")
+            close_btn.clicked.connect(map_dialog.close)
+            layout.addWidget(close_btn)
+
+            # Select features on the source layer for highlighting
+            us_layer.selectByExpression(filter_expr)
+
+            canvas.refresh()
+            map_dialog.exec_()
+
+            self.status_label.setText(f"Finestra mappa dedicata chiusa")
+
+        except Exception as e:
+            QMessageBox.warning(self, "Errore", f"Errore nella creazione della mappa dedicata: {str(e)}")
+
+    def _find_us_layer(self):
+        """Find the US layer in the QGIS project"""
+        try:
+            from qgis.core import QgsProject
+
+            # Common layer names for US
+            layer_names = [
+                'pyunitastratigrafiche',
+                'us_layer',
+                'unita_stratigrafiche',
+                'US'
+            ]
+
+            layers = QgsProject.instance().mapLayers()
+            for layer_id, layer in layers.items():
+                layer_name = layer.name().lower()
+                for name in layer_names:
+                    if name.lower() in layer_name:
+                        return layer
+
+            # Also check for layers with 'us' in the name
+            for layer_id, layer in layers.items():
+                if 'us' in layer.name().lower() and hasattr(layer, 'geometryType'):
+                    return layer
+
+        except Exception as e:
+            print(f"[AI Query] Error finding US layer: {e}")
+
+        return None
 
     def handle_error(self, error_msg):
         """Handle errors"""
@@ -4025,6 +4891,123 @@ class RAGQueryWorker(QThread):
     _cached_vectorstore = None
     _cached_data_hash = None
 
+    # Configuration for all tables to include in RAG
+    RAG_TABLE_CONFIG = {
+        'US': {
+            'query_name': 'US',
+            'display_name': 'US - Unità Stratigrafiche',
+            'key_fields': ['sito', 'area', 'us', 'unita_tipo', 'd_stratigrafica', 'd_interpretativa',
+                          'periodo_iniziale', 'fase_iniziale', 'periodo_finale', 'fase_finale',
+                          'struttura', 'scavato', 'osservazioni', 'anno_scavo'],
+            'site_field': 'sito',
+            'has_geometry': True
+        },
+        'STRUTTURA': {
+            'query_name': 'STRUTTURA',
+            'display_name': 'STRUTTURA - Strutture archeologiche',
+            'key_fields': ['sito', 'sigla_struttura', 'numero_struttura', 'categoria_struttura',
+                          'tipologia_struttura', 'definizione_struttura', 'descrizione',
+                          'interpretazione', 'periodo_iniziale', 'fase_iniziale',
+                          'periodo_finale', 'fase_finale', 'datazione_estesa'],
+            'site_field': 'sito',
+            'has_geometry': False
+        },
+        'TOMBA': {
+            'query_name': 'TOMBA',
+            'display_name': 'TOMBA - Sepolture',
+            'key_fields': ['sito', 'area', 'nr_scheda_taf', 'sigla_struttura', 'nr_struttura',
+                          'nr_individuo', 'rito', 'descrizione_taf', 'interpretazione_taf',
+                          'periodo_iniziale', 'fase_iniziale', 'periodo_finale', 'fase_finale',
+                          'corredo_presenza', 'corredo_tipo', 'corredo_descrizione'],
+            'site_field': 'sito',
+            'has_geometry': False
+        },
+        'PERIODIZZAZIONE': {
+            'query_name': 'PERIODIZZAZIONE',
+            'display_name': 'PERIODIZZAZIONE - Periodi e fasi',
+            'key_fields': ['sito', 'periodo', 'fase', 'cron_iniziale', 'cron_finale',
+                          'descrizione', 'datazione_estesa', 'cont_per'],
+            'site_field': 'sito',
+            'has_geometry': False
+        },
+        'INVENTARIO_MATERIALI': {
+            'query_name': 'INVENTARIO_MATERIALI',
+            'display_name': 'INVENTARIO_MATERIALI - Inventario reperti',
+            'key_fields': ['sito', 'area', 'us', 'numero_inventario', 'tipo_reperto',
+                          'criterio_schedatura', 'definizione_reperto', 'descrizione_reperto',
+                          'stato_conservazione', 'datazione_reperto', 'elementi_reperto'],
+            'site_field': 'sito',
+            'has_geometry': False
+        },
+        'POTTERY': {
+            'query_name': 'POTTERY',
+            'display_name': 'POTTERY - Ceramica',
+            'key_fields': ['sito', 'area', 'us', 'id_number', 'fabric', 'percent', 'material',
+                          'form', 'specific_shape', 'ware', 'mupieces', 'surf_treatment',
+                          'conservation', 'drawings', 'qty', 'anno'],
+            'site_field': 'sito',
+            'has_geometry': False
+        },
+        'TMA': {
+            'query_name': 'TMA',
+            'display_name': 'TMA - Tipologia Materiali Archeologici',
+            'key_fields': ['sito', 'area', 'us', 'cassetta', 'ldct', 'ogtm', 'ldcn',
+                          'quantita', 'n_inv', 'inventario', 'stato_conservazione'],
+            'site_field': 'sito',
+            'has_geometry': False,
+            'related_table': 'TMA_MATERIALI'
+        },
+        'CAMPIONI': {
+            'query_name': 'CAMPIONI',
+            'display_name': 'CAMPIONI - Campioni archeologici',
+            'key_fields': ['sito', 'area', 'us', 'numero_campione', 'tipo_campione',
+                          'descrizione', 'luogo_conservazione'],
+            'site_field': 'sito',
+            'has_geometry': False
+        },
+        'DOCUMENTAZIONE': {
+            'query_name': 'DOCUMENTAZIONE',
+            'display_name': 'DOCUMENTAZIONE - Documentazione di scavo',
+            'key_fields': ['sito', 'nome_doc', 'data', 'tipo_documentazione',
+                          'sorgente', 'scala', 'disegnatore', 'note'],
+            'site_field': 'sito',
+            'has_geometry': False
+        },
+        'SCHEDAIND': {
+            'query_name': 'SCHEDAIND',
+            'display_name': 'SCHEDAIND - Schede individuali (antropologia)',
+            'key_fields': ['sito', 'area', 'us', 'nr_individuo', 'sigla_struttura',
+                          'nr_struttura', 'sesso', 'eta_min', 'eta_max', 'classi_eta'],
+            'site_field': 'sito',
+            'has_geometry': False
+        },
+        'SITE': {
+            'query_name': 'SITE',
+            'display_name': 'SITE - Siti archeologici',
+            'key_fields': ['sito', 'nazione', 'regione', 'comune', 'descrizione',
+                          'provincia', 'definizione_sito'],
+            'site_field': 'sito',
+            'has_geometry': False
+        },
+        'MEDIA': {
+            'query_name': 'MEDIA',
+            'display_name': 'MEDIA - Media e immagini',
+            'key_fields': ['id_media', 'mediatype', 'filename', 'filetype', 'filepath',
+                          'descrizione', 'tags'],
+            'site_field': None,  # Media doesn't have site field directly
+            'has_geometry': False,
+            'related_table': 'MEDIATOENTITY'
+        },
+        'MEDIA_THUMB': {
+            'query_name': 'MEDIA_THUMB',
+            'display_name': 'MEDIA_THUMB - Thumbnail immagini',
+            'key_fields': ['id_media_thumb', 'id_media', 'mediatype', 'media_filename',
+                          'media_thumb_filename', 'filetype', 'filepath'],
+            'site_field': None,
+            'has_geometry': False
+        }
+    }
+
     def __init__(self, query, db_manager, api_key, model, conversation_history=None, parent=None, enable_streaming=True, force_reload=False):
         super().__init__()
         self.query = query
@@ -4035,6 +5018,77 @@ class RAGQueryWorker(QThread):
         self.parent = parent
         self.enable_streaming = enable_streaming
         self.force_reload = force_reload
+
+        # Initialize media paths from config
+        self._thumb_path = None
+        self._thumb_resize = None
+        self._load_media_paths()
+
+    def _load_media_paths(self):
+        """Load media paths from config.cfg"""
+        try:
+            from ..modules.db.pyarchinit_conn_strings import Connection
+            conn = Connection()
+            self._thumb_path = conn.thumb_path().get('thumb_path', '')
+            self._thumb_resize = conn.thumb_resize().get('thumb_resize', '')
+            print(f"[AI Query] Media paths loaded - thumb: {self._thumb_path}, resize: {self._thumb_resize}")
+        except Exception as e:
+            print(f"[AI Query] Error loading media paths: {e}")
+            self._thumb_path = ''
+            self._thumb_resize = ''
+
+    def get_media_thumbnail_path(self, media_record):
+        """Get the full thumbnail path for a media record"""
+        if not self._thumb_path:
+            return None
+
+        try:
+            # Try to get from MEDIA_THUMB first
+            media_id = media_record.get('id_media')
+            if media_id:
+                # Query media_thumb table
+                thumb_search = {'id_media': media_id}
+                thumb_data = self.db_manager.query_bool(thumb_search, 'MEDIA_THUMB')
+                if thumb_data:
+                    if not isinstance(thumb_data, (list, tuple)):
+                        thumb_data = [thumb_data]
+                    if thumb_data:
+                        thumb_record = self._row_to_dict(thumb_data[0])
+                        if thumb_record:
+                            thumb_filename = thumb_record.get('media_thumb_filename', '')
+                            if thumb_filename:
+                                import os
+                                return os.path.join(self._thumb_path, thumb_filename)
+
+            # Fallback: construct from original filename
+            filename = media_record.get('filename', '')
+            if filename:
+                import os
+                # Common thumbnail suffix pattern
+                base, ext = os.path.splitext(filename)
+                thumb_filename = f"{base}_thumb{ext}"
+                return os.path.join(self._thumb_path, thumb_filename)
+        except Exception as e:
+            print(f"[AI Query] Error getting thumbnail path: {e}")
+
+        return None
+
+    def get_media_resize_path(self, media_record):
+        """Get the full resize path for a media record"""
+        if not self._thumb_resize:
+            return None
+
+        try:
+            filename = media_record.get('filename', '')
+            if filename:
+                import os
+                base, ext = os.path.splitext(filename)
+                resize_filename = f"{base}_resize{ext}"
+                return os.path.join(self._thumb_resize, resize_filename)
+        except Exception as e:
+            print(f"[AI Query] Error getting resize path: {e}")
+
+        return None
 
     def run(self):
         """Execute the RAG query"""
@@ -4053,6 +5107,9 @@ class RAGQueryWorker(QThread):
 
             # Load data from database
             data = self.load_database_data()
+
+            # Store loaded data for spatial operations
+            self.loaded_data = data
 
             # Calculate data hash to check for changes
             import hashlib
@@ -4350,330 +5407,175 @@ Come posso aiutarti meglio?"""
             self.error_occurred.emit(str(e))
 
     def load_all_database_data(self):
-        """Load all available data from database without filters"""
+        """Load all available data from database without filters - uses RAG_TABLE_CONFIG"""
+        return self.load_complete_database_data(use_site_filter=False)
+
+    def load_complete_database_data(self, use_site_filter=True):
+        """Load complete database data using RAG_TABLE_CONFIG without limits"""
         data = {}
 
-        try:
-            # Try to load ALL US data (limited for performance)
-            try:
-                us_data = self.db_manager.query("US")
-                if us_data:
-                    if not hasattr(us_data, '__iter__'):
-                        us_data = [us_data]
-                    data['us'] = []
-                    for row in us_data[:100]:  # Limit to first 100 records
-                        try:
-                            row_dict = {col.name: getattr(row, col.name) for col in row.__table__.columns}
-                            data['us'].append(row_dict)
-                        except:
-                            pass
-            except Exception as e:
-                print(f"Error loading all US data: {e}")
+        # Get current site filter if applicable
+        search_dict = {}
+        current_site = None
 
-            # Try to load ALL materials data (limited)
-            try:
-                mat_data = self.db_manager.query("INVENTARIO_MATERIALI")
-                if mat_data:
-                    if not hasattr(mat_data, '__iter__'):
-                        mat_data = [mat_data]
-                    data['materials'] = []
-                    for row in mat_data[:100]:
-                        try:
-                            row_dict = {col.name: getattr(row, col.name) for col in row.__table__.columns}
-                            data['materials'].append(row_dict)
-                        except:
-                            pass
-            except Exception as e:
-                print(f"Error loading all materials: {e}")
-
-        except Exception as e:
-            print(f"Error in load_all_database_data: {e}")
-
-        return data
-
-    def load_database_data(self):
-        """Load relevant data from database"""
-        data = {}
-
-        try:
-            # Try to get current site from parent dialog if available
-            search_dict = {}
-            current_site = None
-
-            # Check for comboBox_sito (the actual way US_USM stores the site selection)
+        if use_site_filter:
             if hasattr(self.parent, 'comboBox_sito') and self.parent.comboBox_sito:
                 current_site = str(self.parent.comboBox_sito.currentText()).strip()
                 if current_site:
                     search_dict = {'sito': current_site}
                     print(f"[AI Query] Loading data for site: {current_site}")
-                else:
-                    print("[AI Query] Site combobox is empty, loading all data")
-            else:
-                # No filter - load all data
-                print("[AI Query] No site combobox found, will load all available data")
+
+        total_records = 0
+
+        for table_key, config in self.RAG_TABLE_CONFIG.items():
+            query_name = config['query_name']
+            display_name = config['display_name']
+            site_field = config.get('site_field')
 
             try:
-                if search_dict:
-                    us_data = self.db_manager.query_bool(search_dict, "US")
+                self.progress_update.emit(f"Caricamento {display_name}...")
+
+                # Apply site filter only if table has site field and filter is requested
+                if search_dict and site_field:
+                    table_data = self.db_manager.query_bool(search_dict, query_name)
                 else:
-                    us_data = self.db_manager.query("US")
-                if us_data:
-                    data['us'] = []
-                    # Ensure us_data is iterable
-                    if not hasattr(us_data, '__iter__'):
-                        us_data = [us_data]
+                    table_data = self.db_manager.query(query_name)
 
-                    for row in us_data:
+                if table_data is not None:
+                    # Ensure it's a list
+                    if not isinstance(table_data, (list, tuple)):
+                        table_data = [table_data]
+
+                    # Convert to list of dicts - NO LIMIT
+                    data_key = table_key.lower()
+                    data[data_key] = []
+
+                    for row in table_data:
                         try:
-                            # Convert SQLAlchemy object to dict
-                            row_dict = {col.name: getattr(row, col.name) for col in row.__table__.columns}
-                            data['us'].append(row_dict)
-                        except:
-                            # Fallback for non-SQLAlchemy objects
-                            try:
-                                data['us'].append(dict(row))
-                            except:
-                                # If dict() fails, try to extract attributes manually
-                                row_dict = {}
-                                for attr in dir(row):
-                                    if not attr.startswith('_'):
-                                        try:
-                                            value = getattr(row, attr)
-                                            if not callable(value):
-                                                row_dict[attr] = value
-                                        except:
-                                            pass
-                                if row_dict:
-                                    data['us'].append(row_dict)
-                print(f"[AI Query] Loaded {len(data.get('us', []))} US records")
+                            row_dict = self._row_to_dict(row)
+                            if row_dict:
+                                # Load related table data if configured
+                                related_table = config.get('related_table')
+                                if related_table:
+                                    row_dict = self._load_related_data(row, row_dict, table_key, related_table)
+
+                                data[data_key].append(row_dict)
+                        except Exception as e:
+                            print(f"Error converting row in {query_name}: {e}")
+
+                    record_count = len(data[data_key])
+                    total_records += record_count
+                    print(f"[AI Query] Loaded {record_count} {query_name} records")
+
             except Exception as e:
-                print(f"[AI Query] Error loading US data: {e}")
-                data['us'] = []
+                print(f"[AI Query] Error loading {query_name}: {e}")
+                data[table_key.lower()] = []
 
-            # Load materials data
-            try:
-                if search_dict:
-                    materials_data = self.db_manager.query_bool(search_dict, "INVENTARIO_MATERIALI")
-                else:
-                    materials_data = self.db_manager.query("INVENTARIO_MATERIALI")
-                if materials_data:
-                    data['materials'] = []
-                    # Ensure materials_data is iterable
-                    if not hasattr(materials_data, '__iter__'):
-                        materials_data = [materials_data]
-
-                    for row in materials_data:
-                        try:
-                            row_dict = {col.name: getattr(row, col.name) for col in row.__table__.columns}
-                            data['materials'].append(row_dict)
-                        except:
-                            try:
-                                data['materials'].append(dict(row))
-                            except:
-                                # Manual extraction as fallback
-                                row_dict = {}
-                                for attr in dir(row):
-                                    if not attr.startswith('_'):
-                                        try:
-                                            value = getattr(row, attr)
-                                            if not callable(value):
-                                                row_dict[attr] = value
-                                        except:
-                                            pass
-                                if row_dict:
-                                    data['materials'].append(row_dict)
-                print(f"[AI Query] Loaded {len(data.get('materials', []))} materials records")
-            except Exception as e:
-                print(f"[AI Query] Error loading materials data: {e}")
-                data['materials'] = []
-
-            # Load pottery data
-            try:
-                if search_dict:
-                    pottery_data = self.db_manager.query_bool(search_dict, "POTTERY")
-                else:
-                    pottery_data = self.db_manager.query("POTTERY")
-
-                # Ensure pottery_data is a list (SQLAlchemy objects have __iter__ but aren't iterable as expected)
-                if pottery_data is not None:
-                    if not isinstance(pottery_data, (list, tuple)):
-                        pottery_data = [pottery_data]
-
-                    data['pottery'] = []
-                    for row in pottery_data:
-                        try:
-                            row_dict = {col.name: getattr(row, col.name) for col in row.__table__.columns}
-                            data['pottery'].append(row_dict)
-                        except:
-                            try:
-                                data['pottery'].append(dict(row))
-                            except:
-                                pass
-                print(f"[AI Query] Loaded {len(data.get('pottery', []))} pottery records")
-            except Exception as e:
-                print(f"[AI Query] Error loading pottery data: {e}")
-                data['pottery'] = []
-
-            # Load TMA data
-            try:
-                if search_dict:
-                    tma_data = self.db_manager.query_bool(search_dict, "TMA")
-                else:
-                    tma_data = self.db_manager.query("TMA")
-
-                # Ensure tma_data is a list
-                if tma_data is not None:
-                    if not isinstance(tma_data, (list, tuple)):
-                        tma_data = [tma_data]
-
-                    data['tma'] = []
-                    for row in tma_data:
-                        try:
-                            row_dict = {col.name: getattr(row, col.name) for col in row.__table__.columns}
-
-                            # Load related TMA_MATERIALI_RIPETIBILI data
-                            try:
-                                # Query for related materials using id_tma
-                                tma_id = getattr(row, 'id_tma', None)
-                                if tma_id:
-                                    mat_search = {'id_tma': tma_id}
-                                    mat_ripetibili = self.db_manager.query_bool(mat_search, "TMA_MATERIALI")
-
-                                    if mat_ripetibili:
-                                        # Ensure it's a list
-                                        if not isinstance(mat_ripetibili, (list, tuple)):
-                                            mat_ripetibili = [mat_ripetibili]
-
-                                        # Add related materials to the TMA record
-                                        row_dict['materiali_ripetibili'] = []
-                                        for mat in mat_ripetibili:
-                                            try:
-                                                mat_dict = {col.name: getattr(mat, col.name) for col in mat.__table__.columns}
-                                                row_dict['materiali_ripetibili'].append(mat_dict)
-                                            except:
-                                                try:
-                                                    row_dict['materiali_ripetibili'].append(dict(mat))
-                                                except:
-                                                    pass
-                            except Exception as e:
-                                print(f"Error loading TMA_MATERIALI_RIPETIBILI for TMA {tma_id}: {e}")
-                                row_dict['materiali_ripetibili'] = []
-
-                            data['tma'].append(row_dict)
-                        except:
-                            try:
-                                data['tma'].append(dict(row))
-                            except:
-                                pass
-                print(f"[AI Query] Loaded {len(data.get('tma', []))} TMA records")
-            except Exception as e:
-                print(f"[AI Query] Error loading TMA data: {e}")
-                data['tma'] = []
-
-        except Exception as e:
-            print(f"[AI Query] Error in load_database_data: {e}")
-            import traceback
-            traceback.print_exc()
-
-        # Summary
-        total_records = sum(len(v) for v in data.values() if isinstance(v, list))
         print(f"[AI Query] Total records loaded: {total_records}")
-
         return data
 
+    def _row_to_dict(self, row):
+        """Convert SQLAlchemy row to dictionary"""
+        try:
+            if hasattr(row, '__table__'):
+                return {col.name: getattr(row, col.name) for col in row.__table__.columns}
+            elif hasattr(row, '_asdict'):
+                return row._asdict()
+            elif isinstance(row, dict):
+                return row
+            else:
+                # Manual extraction as fallback
+                row_dict = {}
+                for attr in dir(row):
+                    if not attr.startswith('_'):
+                        try:
+                            value = getattr(row, attr)
+                            if not callable(value):
+                                row_dict[attr] = value
+                        except:
+                            pass
+                return row_dict if row_dict else None
+        except Exception as e:
+            print(f"Error in _row_to_dict: {e}")
+            return None
+
+    def _load_related_data(self, row, row_dict, table_key, related_table):
+        """Load related table data for a record"""
+        try:
+            if table_key == 'TMA':
+                # Load TMA_MATERIALI related data
+                tma_id = getattr(row, 'id_tma', None)
+                if tma_id:
+                    mat_search = {'id_tma': tma_id}
+                    mat_data = self.db_manager.query_bool(mat_search, related_table)
+                    if mat_data:
+                        if not isinstance(mat_data, (list, tuple)):
+                            mat_data = [mat_data]
+                        row_dict['materiali_ripetibili'] = [
+                            self._row_to_dict(mat) for mat in mat_data if self._row_to_dict(mat)
+                        ]
+                    else:
+                        row_dict['materiali_ripetibili'] = []
+
+            elif table_key == 'MEDIA':
+                # Load MEDIATOENTITY relations for media
+                media_id = row_dict.get('id_media')
+                if media_id:
+                    try:
+                        entity_search = {'id_media': media_id}
+                        entity_data = self.db_manager.query_bool(entity_search, related_table)
+                        if entity_data:
+                            if not isinstance(entity_data, (list, tuple)):
+                                entity_data = [entity_data]
+                            row_dict['linked_entities'] = [
+                                self._row_to_dict(ent) for ent in entity_data if self._row_to_dict(ent)
+                            ]
+                        else:
+                            row_dict['linked_entities'] = []
+                    except Exception as e:
+                        print(f"Error loading MEDIATOENTITY for media {media_id}: {e}")
+                        row_dict['linked_entities'] = []
+        except Exception as e:
+            print(f"Error loading related data for {table_key}: {e}")
+
+        return row_dict
+
+    def load_database_data(self):
+        """Load relevant data from database - delegates to load_complete_database_data"""
+        return self.load_complete_database_data(use_site_filter=True)
+
     def prepare_texts(self, data):
-        """Prepare texts for vectorstore"""
+        """Prepare texts for vectorstore using RAG_TABLE_CONFIG"""
         texts = []
 
-        # Map table names to more descriptive ones
-        table_name_map = {
-            'us': 'US - Unità Stratigrafiche',
-            'us_table': 'US - Unità Stratigrafiche',
-            'materials': 'INVENTARIO_MATERIALI - Inventario materiali',
-            'pottery': 'POTTERY - Ceramica',
-            'tma': 'TMA - Tipologia Materiali Archeologici',
-            'tma_table': 'TMA - Tipologia Materiali Archeologici'
-        }
+        # Build table name map from RAG_TABLE_CONFIG
+        table_name_map = {}
+        for table_key, config in self.RAG_TABLE_CONFIG.items():
+            table_name_map[table_key.lower()] = config['display_name']
+            # Also add lowercase variations
+            table_name_map[table_key.lower().replace('_', '')] = config['display_name']
+
+        # Add legacy mappings for backward compatibility
+        table_name_map['materials'] = self.RAG_TABLE_CONFIG.get('INVENTARIO_MATERIALI', {}).get(
+            'display_name', 'INVENTARIO_MATERIALI - Inventario materiali')
+        table_name_map['us_table'] = self.RAG_TABLE_CONFIG.get('US', {}).get(
+            'display_name', 'US - Unità Stratigrafiche')
+        table_name_map['tma_table'] = self.RAG_TABLE_CONFIG.get('TMA', {}).get(
+            'display_name', 'TMA - Tipologia Materiali Archeologici')
 
         for table_name, records in data.items():
             if not records:  # Skip empty tables
                 continue
 
-            display_name = table_name_map.get(table_name, table_name)
+            display_name = table_name_map.get(table_name.lower(), table_name.upper())
 
             for record in records:
                 if not record:  # Skip None or empty records
                     continue
 
-                # Special handling for TMA to ensure all fields are captured
-                if table_name in ['tma', 'tma_table']:
-                    text = f"Tabella: TMA (Tipologia Materiali Archeologici)\n"
-                    # Add specific TMA fields for better indexing
-                    if isinstance(record, dict):
-                        text += f"ID TMA: {record.get('id_tma', '')}\n"
-                        text += f"Sito: {record.get('sito', '')}\n"
-                        text += f"Area: {record.get('area', '')}\n"
-                        text += f"US: {record.get('us', '')}\n"
-                        text += f"Cassetta: {record.get('cassetta', '')}\n"
-                        text += f"Categoria LDCT: {record.get('ldct', '')}\n"
-                        text += f"Tipo Materiale OGTM: {record.get('ogtm', '')}\n"
-                        text += f"Denominazione LDCN: {record.get('ldcn', '')}\n"
-                        text += f"Quantità: {record.get('quantita', '')}\n"
-                        text += f"Numero Inventario: {record.get('n_inv', '')}\n"
-                        text += f"Inventario: {record.get('inventario', '')}\n"
-                        text += f"Stato Conservazione: {record.get('stato_conservazione', '')}\n"
+                text = self._format_record_for_rag(table_name, record, display_name)
 
-                        # Add materiali_ripetibili if present
-                        if 'materiali_ripetibili' in record and record['materiali_ripetibili']:
-                            text += f"Materiali Ripetibili collegati: {len(record['materiali_ripetibili'])} elementi\n"
-                            for mat in record['materiali_ripetibili']:
-                                if isinstance(mat, dict):
-                                    text += f"  - {mat.get('madi', '')} quantità: {mat.get('macq', '')}\n"
-                else:
-                    text = f"Tabella: {display_name}\n"
-
-                # Handle both dict and object types
-                if isinstance(record, dict) and table_name not in ['tma', 'tma_table']:
-                    for key, value in record.items():
-                        # Skip materiali_ripetibili for now, handle it separately
-                        if key == 'materiali_ripetibili':
-                            continue
-                        if value:
-                            # Format field names better
-                            formatted_key = key.replace('_', ' ').title()
-                            text += f"{formatted_key}: {value}\n"
-
-                    # Handle materiali_ripetibili if present
-                    if 'materiali_ripetibili' in record and record['materiali_ripetibili']:
-                        text += "\nMateriali Ripetibili collegati:\n"
-                        for idx, mat in enumerate(record['materiali_ripetibili'], 1):
-                            text += f"  Materiale {idx}:\n"
-                            for mat_key, mat_value in mat.items():
-                                if mat_value:
-                                    formatted_key = mat_key.replace('_', ' ').title()
-                                    text += f"    {formatted_key}: {mat_value}\n"
-                else:
-                    # Handle SQLAlchemy objects
-                    try:
-                        # Get all attributes from the SQLAlchemy object
-                        if hasattr(record, '__table__'):
-                            for column in record.__table__.columns:
-                                value = getattr(record, column.name, None)
-                                if value:
-                                    formatted_key = column.name.replace('_', ' ').title()
-                                    text += f"{formatted_key}: {value}\n"
-                        else:
-                            for key in dir(record):
-                                if not key.startswith('_'):
-                                    value = getattr(record, key, None)
-                                    if value and not callable(value):
-                                        formatted_key = key.replace('_', ' ').title()
-                                        text += f"{formatted_key}: {value}\n"
-                    except Exception as e:
-                        print(f"Error processing record: {e}")
-                        continue
-
-                if len(text) > len(f"Tabella: {display_name}\n"):  # Only add if has content
+                if text and len(text) > len(f"Tabella: {display_name}\n"):
                     texts.append(text)
 
         # Log how many texts were prepared
@@ -4683,6 +5585,212 @@ Come posso aiutarti meglio?"""
                 print(f"  - {table_name}: {len(data[table_name])} records")
 
         return texts
+
+    def _format_record_for_rag(self, table_name, record, display_name):
+        """Format a single record for RAG indexing"""
+        text = f"Tabella: {display_name}\n"
+
+        if not isinstance(record, dict):
+            return None
+
+        # Special formatting for specific tables
+        table_key = table_name.upper()
+
+        if table_key in ['TMA', 'TMA_TABLE']:
+            text = self._format_tma_record(record)
+        elif table_key == 'MEDIA':
+            text = self._format_media_record(record)
+        elif table_key == 'US':
+            text = self._format_us_record(record, display_name)
+        else:
+            # Generic formatting for other tables
+            text = f"Tabella: {display_name}\n"
+            for key, value in record.items():
+                if key in ['materiali_ripetibili', 'linked_entities']:
+                    continue  # Handle separately
+                if value is not None and value != '':
+                    formatted_key = key.replace('_', ' ').title()
+                    text += f"{formatted_key}: {value}\n"
+
+            # Handle related data
+            if 'materiali_ripetibili' in record and record['materiali_ripetibili']:
+                text += self._format_related_materials(record['materiali_ripetibili'])
+
+            if 'linked_entities' in record and record['linked_entities']:
+                text += self._format_linked_entities(record['linked_entities'])
+
+        return text
+
+    def _format_tma_record(self, record):
+        """Format TMA record with specific fields"""
+        text = "Tabella: TMA (Tipologia Materiali Archeologici)\n"
+        text += f"ID TMA: {record.get('id_tma', '')}\n"
+        text += f"Sito: {record.get('sito', '')}\n"
+        text += f"Area: {record.get('area', '')}\n"
+        text += f"US: {record.get('us', '')}\n"
+        text += f"Cassetta: {record.get('cassetta', '')}\n"
+        text += f"Categoria LDCT: {record.get('ldct', '')}\n"
+        text += f"Tipo Materiale OGTM: {record.get('ogtm', '')}\n"
+        text += f"Denominazione LDCN: {record.get('ldcn', '')}\n"
+        text += f"Quantità: {record.get('quantita', '')}\n"
+        text += f"Numero Inventario: {record.get('n_inv', '')}\n"
+        text += f"Inventario: {record.get('inventario', '')}\n"
+        text += f"Stato Conservazione: {record.get('stato_conservazione', '')}\n"
+
+        if 'materiali_ripetibili' in record and record['materiali_ripetibili']:
+            text += f"Materiali Ripetibili collegati: {len(record['materiali_ripetibili'])} elementi\n"
+            for mat in record['materiali_ripetibili']:
+                if isinstance(mat, dict):
+                    text += f"  - {mat.get('madi', '')} quantità: {mat.get('macq', '')}\n"
+
+        return text
+
+    def _format_media_record(self, record):
+        """Format MEDIA record for RAG indexing"""
+        text = "Tabella: MEDIA - Media e immagini\n"
+        text += f"ID Media: {record.get('id_media', '')}\n"
+        text += f"Tipo Media: {record.get('mediatype', '')}\n"
+        text += f"Nome File: {record.get('filename', '')}\n"
+        text += f"Tipo File: {record.get('filetype', '')}\n"
+        text += f"Percorso: {record.get('filepath', '')}\n"
+
+        # Add thumbnail path if available
+        thumb_path = self.get_media_thumbnail_path(record)
+        if thumb_path:
+            text += f"Percorso Thumbnail: {thumb_path}\n"
+
+        if record.get('descrizione'):
+            text += f"Descrizione: {record.get('descrizione')}\n"
+        if record.get('tags'):
+            text += f"Tags: {record.get('tags')}\n"
+
+        # Include linked entities for context
+        if 'linked_entities' in record and record['linked_entities']:
+            text += f"Entità collegate: {len(record['linked_entities'])} elementi\n"
+            for entity in record['linked_entities'][:5]:  # Limit to first 5 for brevity
+                if isinstance(entity, dict):
+                    entity_type = entity.get('entity_type', '')
+                    id_entity = entity.get('id_entity', '')
+                    if entity_type and id_entity:
+                        text += f"  - {entity_type}: {id_entity}\n"
+
+        return text
+
+    def find_media_for_entity(self, entity_type, entity_id, data):
+        """Find media records linked to a specific entity"""
+        media_records = data.get('media', [])
+        linked_media = []
+
+        for media in media_records:
+            linked_entities = media.get('linked_entities', [])
+            for entity in linked_entities:
+                if isinstance(entity, dict):
+                    if (entity.get('entity_type', '').upper() == entity_type.upper() and
+                        str(entity.get('id_entity', '')) == str(entity_id)):
+                        # Add thumbnail path to the media record
+                        media_with_thumb = dict(media)
+                        media_with_thumb['thumbnail_path'] = self.get_media_thumbnail_path(media)
+                        media_with_thumb['resize_path'] = self.get_media_resize_path(media)
+                        linked_media.append(media_with_thumb)
+                        break
+
+        return linked_media
+
+    def extract_media_from_response(self, response_text, data):
+        """Extract media references from AI response and find corresponding thumbnails"""
+        import re
+        media_refs = []
+
+        # Look for US references in the response
+        us_pattern = r'US[:\s]*(\d+)|unità[:\s]*(\d+)'
+        us_matches = re.findall(us_pattern, response_text, re.IGNORECASE)
+
+        for match in us_matches:
+            us_number = match[0] or match[1]
+            if us_number:
+                # Find media for this US
+                us_media = self.find_media_for_entity('US', us_number, data)
+                media_refs.extend(us_media[:3])  # Limit to 3 per US
+
+        # Look for direct media ID references
+        media_pattern = r'media[:\s#]*(\d+)|id_media[:\s]*(\d+)'
+        media_matches = re.findall(media_pattern, response_text, re.IGNORECASE)
+
+        for match in media_matches:
+            media_id = match[0] or match[1]
+            if media_id:
+                # Find this specific media
+                media_records = data.get('media', [])
+                for media in media_records:
+                    if str(media.get('id_media', '')) == str(media_id):
+                        media_with_thumb = dict(media)
+                        media_with_thumb['thumbnail_path'] = self.get_media_thumbnail_path(media)
+                        media_with_thumb['resize_path'] = self.get_media_resize_path(media)
+                        media_refs.append(media_with_thumb)
+                        break
+
+        # Remove duplicates based on id_media
+        seen_ids = set()
+        unique_media = []
+        for media in media_refs:
+            media_id = media.get('id_media')
+            if media_id and media_id not in seen_ids:
+                seen_ids.add(media_id)
+                unique_media.append(media)
+
+        return unique_media[:10]  # Limit total media refs
+
+    def _format_us_record(self, record, display_name):
+        """Format US record with key archaeological fields"""
+        text = f"Tabella: {display_name}\n"
+        text += f"Sito: {record.get('sito', '')}\n"
+        text += f"Area: {record.get('area', '')}\n"
+        text += f"US: {record.get('us', '')}\n"
+        text += f"Tipo Unità: {record.get('unita_tipo', '')}\n"
+        text += f"Definizione Stratigrafica: {record.get('d_stratigrafica', '')}\n"
+        text += f"Definizione Interpretativa: {record.get('d_interpretativa', '')}\n"
+        text += f"Descrizione: {record.get('descrizione', '')}\n"
+        text += f"Interpretazione: {record.get('interpretazione', '')}\n"
+        text += f"Periodo Iniziale: {record.get('periodo_iniziale', '')}\n"
+        text += f"Fase Iniziale: {record.get('fase_iniziale', '')}\n"
+        text += f"Periodo Finale: {record.get('periodo_finale', '')}\n"
+        text += f"Fase Finale: {record.get('fase_finale', '')}\n"
+        text += f"Struttura: {record.get('struttura', '')}\n"
+        text += f"Scavato: {record.get('scavato', '')}\n"
+        text += f"Anno Scavo: {record.get('anno_scavo', '')}\n"
+
+        # Add observations if present
+        if record.get('osservazioni'):
+            text += f"Osservazioni: {record.get('osservazioni')}\n"
+
+        # Add relationships if present
+        rapporti = record.get('rapporti', '')
+        if rapporti:
+            text += f"Rapporti Stratigrafici: {rapporti}\n"
+
+        return text
+
+    def _format_related_materials(self, materials):
+        """Format related materials for RAG"""
+        text = "\nMateriali Ripetibili collegati:\n"
+        for idx, mat in enumerate(materials[:10], 1):  # Limit to 10
+            text += f"  Materiale {idx}:\n"
+            if isinstance(mat, dict):
+                for mat_key, mat_value in mat.items():
+                    if mat_value is not None and mat_value != '':
+                        formatted_key = mat_key.replace('_', ' ').title()
+                        text += f"    {formatted_key}: {mat_value}\n"
+        return text
+
+    def _format_linked_entities(self, entities):
+        """Format linked entities for RAG"""
+        text = "\nEntità collegate:\n"
+        for idx, entity in enumerate(entities[:10], 1):  # Limit to 10
+            if isinstance(entity, dict):
+                entity_type = entity.get('entity_type', 'Unknown')
+                id_entity = entity.get('id_entity', '')
+                text += f"  - {entity_type}: {id_entity}\n"
+        return text
 
     def create_analysis_tools(self, data, vectorstore):
         """Create analysis tools"""
@@ -4746,24 +5854,109 @@ Come posso aiutarti meglio?"""
         return "No table data available"
 
     def calculate_statistics(self, request, data):
-        """Calculate statistics from data"""
+        """Calculate comprehensive statistics from all database tables"""
+        from collections import Counter
         stats = {}
 
-        # Basic statistics
-        stats['total_us'] = len(data.get('us', []))
-        stats['total_materials'] = len(data.get('materials', []))
-        stats['total_pottery'] = len(data.get('pottery', []))
+        # Count all tables
+        for table_name, records in data.items():
+            if records:
+                stats[f'total_{table_name}'] = len(records)
 
-        # Group by area
-        if 'area' in request.lower() and data.get('us'):
-            from collections import Counter
-            areas = [us.get('area', 'Unknown') for us in data['us']]
-            stats['us_by_area'] = dict(Counter(areas))
+        # US-specific statistics
+        us_data = data.get('us', [])
+        if us_data:
+            # Group by area
+            if 'area' in request.lower():
+                areas = [us.get('area', 'Sconosciuto') for us in us_data if us.get('area')]
+                stats['us_by_area'] = dict(Counter(areas))
+
+            # Group by period
+            if 'period' in request.lower() or 'periodo' in request.lower():
+                periods = [us.get('periodo_iniziale', 'Sconosciuto') for us in us_data if us.get('periodo_iniziale')]
+                stats['us_by_period'] = dict(Counter(periods))
+
+            # Group by unit type
+            if 'tipo' in request.lower() or 'type' in request.lower():
+                types = [us.get('unita_tipo', 'Sconosciuto') for us in us_data if us.get('unita_tipo')]
+                stats['us_by_type'] = dict(Counter(types))
+
+            # Group by excavation year
+            if 'anno' in request.lower() or 'year' in request.lower():
+                years = [us.get('anno_scavo', 'Sconosciuto') for us in us_data if us.get('anno_scavo')]
+                stats['us_by_year'] = dict(Counter(years))
+
+            # Group by structure
+            if 'struttura' in request.lower() or 'structure' in request.lower():
+                structures = [us.get('struttura', 'Nessuna') for us in us_data if us.get('struttura')]
+                stats['us_by_structure'] = dict(Counter(structures))
+
+        # Pottery-specific statistics
+        pottery_data = data.get('pottery', [])
+        if pottery_data:
+            if 'fabric' in request.lower() or 'ceramica' in request.lower():
+                fabrics = [p.get('fabric', 'Sconosciuto') for p in pottery_data if p.get('fabric')]
+                stats['pottery_by_fabric'] = dict(Counter(fabrics))
+
+            if 'form' in request.lower() or 'forma' in request.lower():
+                forms = [p.get('form', 'Sconosciuto') for p in pottery_data if p.get('form')]
+                stats['pottery_by_form'] = dict(Counter(forms))
+
+            if 'ware' in request.lower():
+                wares = [p.get('ware', 'Sconosciuto') for p in pottery_data if p.get('ware')]
+                stats['pottery_by_ware'] = dict(Counter(wares))
+
+        # Materials-specific statistics
+        materials_data = data.get('inventario_materiali', []) or data.get('materials', [])
+        if materials_data:
+            if 'tipo' in request.lower() or 'type' in request.lower():
+                types = [m.get('tipo_reperto', 'Sconosciuto') for m in materials_data if m.get('tipo_reperto')]
+                stats['materials_by_type'] = dict(Counter(types))
+
+            if 'stato' in request.lower() or 'conservazione' in request.lower():
+                states = [m.get('stato_conservazione', 'Sconosciuto') for m in materials_data if m.get('stato_conservazione')]
+                stats['materials_by_conservation'] = dict(Counter(states))
+
+        # TMA-specific statistics
+        tma_data = data.get('tma', [])
+        if tma_data:
+            if 'categoria' in request.lower() or 'ldct' in request.lower():
+                categories = [t.get('ldct', 'Sconosciuto') for t in tma_data if t.get('ldct')]
+                stats['tma_by_category'] = dict(Counter(categories))
+
+            # Sum quantities
+            total_qty = sum(t.get('quantita', 0) or 0 for t in tma_data if isinstance(t.get('quantita'), (int, float)))
+            stats['tma_total_quantity'] = total_qty
+
+        # Tomba-specific statistics
+        tomba_data = data.get('tomba', [])
+        if tomba_data:
+            if 'rito' in request.lower() or 'ritual' in request.lower():
+                riti = [t.get('rito', 'Sconosciuto') for t in tomba_data if t.get('rito')]
+                stats['tomba_by_rito'] = dict(Counter(riti))
+
+            if 'corredo' in request.lower():
+                corredi = [t.get('corredo_presenza', 'Sconosciuto') for t in tomba_data if t.get('corredo_presenza')]
+                stats['tomba_by_corredo'] = dict(Counter(corredi))
+
+        # Media-specific statistics
+        media_data = data.get('media', [])
+        if media_data:
+            media_types = [m.get('mediatype', 'Sconosciuto') for m in media_data if m.get('mediatype')]
+            stats['media_by_type'] = dict(Counter(media_types))
+
+            file_types = [m.get('filetype', 'Sconosciuto') for m in media_data if m.get('filetype')]
+            stats['media_by_filetype'] = dict(Counter(file_types))
+
+        # Periodizzazione statistics
+        period_data = data.get('periodizzazione', [])
+        if period_data:
+            stats['periodizzazione_count'] = len(period_data)
 
         return str(stats)
 
     def parse_response(self, response_text, data):
-        """Parse AI response and extract structured data"""
+        """Parse AI response and extract structured data including media"""
         results = {'text': response_text}
 
         # Try to extract table data
@@ -4773,10 +5966,24 @@ Come posso aiutarti meglio?"""
                 results['table'] = table_data
 
         # Try to extract chart data
-        if any(word in response_text.lower() for word in ['grafico', 'chart', 'plot']):
+        if any(word in response_text.lower() for word in ['grafico', 'chart', 'plot', 'statistiche']):
             chart_data = self.extract_chart_data(response_text, data)
             if chart_data:
                 results['chart'] = chart_data
+
+        # Extract media references from the response
+        media_refs = self.extract_media_from_response(response_text, data)
+        if media_refs:
+            results['media'] = media_refs
+            print(f"[AI Query] Found {len(media_refs)} media references in response")
+
+        # Also include media paths for display
+        results['thumb_path'] = self._thumb_path
+        results['resize_path'] = self._thumb_resize
+
+        # Include US records for spatial visualization
+        if data.get('us'):
+            results['us_records'] = data['us']
 
         return results
 
