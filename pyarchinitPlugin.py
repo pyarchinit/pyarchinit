@@ -25,7 +25,7 @@ from builtins import object
 
 from qgis.PyQt.QtCore import Qt, QFileInfo, QTranslator, QVariant, QCoreApplication
 from qgis.PyQt.QtGui import QIcon
-from qgis.PyQt.QtWidgets import QAction, QToolButton, QMenu
+from qgis.PyQt.QtWidgets import QAction, QToolButton, QMenu, QMessageBox
 from qgis.core import QgsApplication, QgsSettings, QgsMessageLog, Qgis
 
 from PyQt5.QtCore import QLocale
@@ -50,7 +50,7 @@ from .tabs.Site import pyarchinit_Site
 from .tabs.Struttura import pyarchinit_Struttura
 from .tabs.Tomba import pyarchinit_Tomba
 from .tabs.Thesaurus import pyarchinit_Thesaurus
-from .tabs.US_USM import pyarchinit_US
+from .tabs.US_USM import pyarchinit_US, RAGQueryDialog
 from .tabs.UT import pyarchinit_UT
 from .tabs.PRINTMAP import pyarchinit_PRINTMAP
 from .tabs.gpkg_export import pyarchinit_GPKG
@@ -242,6 +242,16 @@ class PyArchInitPlugin(object):
             self.toolBar = self.iface.addToolBar("pyArchInit")
             self.toolBar.setObjectName("pyArchInit")
             self.toolBar.addAction(self.action)
+
+            # AI Query Database button - standalone before data entry section
+            icon_ai_query = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'gpt.png'))
+            self.actionAIQuery = QAction(QIcon(icon_ai_query), "AI Query Database", self.iface.mainWindow())
+            self.actionAIQuery.setWhatsThis("Interroga il database con linguaggio naturale usando AI")
+            self.actionAIQuery.setToolTip("Query AI Database - Interroga il database archeologico con linguaggio naturale")
+            self.actionAIQuery.triggered.connect(self.runAIQuery)
+            self.toolBar.addAction(self.actionAIQuery)
+            self.toolBar.addSeparator()
+
             self.dataToolButton = QToolButton(self.toolBar)
             self.dataToolButton.setPopupMode(QToolButton.MenuButtonPopup)
             ######  Section dedicated to the basic data entry
@@ -525,6 +535,16 @@ class PyArchInitPlugin(object):
             self.toolBar = self.iface.addToolBar("pyArchInit")
             self.toolBar.setObjectName("pyArchInit")
             self.toolBar.addAction(self.action)
+
+            # AI Query Database button - standalone before data entry section
+            icon_ai_query = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'gpt.png'))
+            self.actionAIQuery = QAction(QIcon(icon_ai_query), "AI Query Database", self.iface.mainWindow())
+            self.actionAIQuery.setWhatsThis("Query the database with natural language using AI")
+            self.actionAIQuery.setToolTip("AI Query Database - Query the archaeological database with natural language")
+            self.actionAIQuery.triggered.connect(self.runAIQuery)
+            self.toolBar.addAction(self.actionAIQuery)
+            self.toolBar.addSeparator()
+
             self.dataToolButton = QToolButton(self.toolBar)
             self.dataToolButton.setPopupMode(QToolButton.MenuButtonPopup)
             ######  Section dedicated to the basic data entry
@@ -810,6 +830,16 @@ class PyArchInitPlugin(object):
             self.toolBar = self.iface.addToolBar("pyArchInit")
             self.toolBar.setObjectName("pyArchInit")
             self.toolBar.addAction(self.action)
+
+            # AI Query Database button - standalone before data entry section
+            icon_ai_query = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'gpt.png'))
+            self.actionAIQuery = QAction(QIcon(icon_ai_query), "AI Query Database", self.iface.mainWindow())
+            self.actionAIQuery.setWhatsThis("Datenbank mit natürlicher Sprache abfragen")
+            self.actionAIQuery.setToolTip("AI Query Database - Archäologische Datenbank mit natürlicher Sprache abfragen")
+            self.actionAIQuery.triggered.connect(self.runAIQuery)
+            self.toolBar.addAction(self.actionAIQuery)
+            self.toolBar.addSeparator()
+
             self.dataToolButton = QToolButton(self.toolBar)
             self.dataToolButton.setPopupMode(QToolButton.MenuButtonPopup)
             ######  Section dedicated to the basic data entry
@@ -1097,6 +1127,26 @@ class PyArchInitPlugin(object):
         pluginGui = pyarchinit_US(self.iface)
         pluginGui.show()
         self.pluginGui = pluginGui  # save
+
+    def runAIQuery(self):
+        """Open the AI Query Database dialog for natural language database queries"""
+        try:
+            from .modules.db.pyarchinit_conn_strings import Connection
+            from .modules.db.pyarchinit_db_manager import get_db_manager
+
+            conn = Connection()
+            conn_str = conn.conn_str()
+            db_manager = get_db_manager(conn_str, use_singleton=True)
+
+            dialog = RAGQueryDialog(db_manager, parent=None)
+            dialog.exec_()
+        except Exception as e:
+            QMessageBox.critical(
+                self.iface.mainWindow(),
+                "Error",
+                f"Errore nell'apertura del dialogo AI Query:\n{str(e)}"
+            )
+
     def runInr(self):
         pluginGui = pyarchinit_Inventario_reperti(self.iface)
         pluginGui.show()
