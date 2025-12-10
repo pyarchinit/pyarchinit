@@ -5571,6 +5571,68 @@ class RAGQueryWorker(QThread):
                                             context_parts.append("MATERIALI:\n" + "\n".join(mat_lines))
 
                                     context = "\n\n".join(context_parts)
+
+                                    # ANCHE per needs_all_data, se c'è una US specifica, aggiungi i dati correlati
+                                    us_match_all = re.search(r'\bus\s*(\d+)\b', query_lower)
+                                    if us_match_all and hasattr(self, 'raw_data') and self.raw_data:
+                                        us_num = us_match_all.group(1)
+                                        from qgis.core import QgsMessageLog, Qgis
+                                        QgsMessageLog.logMessage(f"[AI Query] needs_all_data: Searching for US {us_num}", "pyArchInit", Qgis.Info)
+
+                                        # Cerca pottery per questa US nei raw_data
+                                        pottery_data = self.raw_data.get('pottery', [])
+                                        us_pottery = [p for p in pottery_data if str(p.get('us', '')) == us_num]
+                                        QgsMessageLog.logMessage(f"[AI Query] Found {len(us_pottery)} pottery for US {us_num}", "pyArchInit", Qgis.Info)
+                                        if us_pottery:
+                                            pottery_lines = []
+                                            for p in us_pottery:
+                                                pottery_lines.append(f"Ceramica id_number={p.get('id_number', '?')}: fabric={p.get('fabric', '')}, form={p.get('form', '')}, ware={p.get('ware', '')}, material={p.get('material', '')}, qty={p.get('qty', '')}")
+                                            context = context + f"\n\nCERAMICA (POTTERY) trovata per US {us_num}:\n" + "\n".join(pottery_lines)
+
+                                        # Cerca inventario per questa US nei raw_data
+                                        inv_data = self.raw_data.get('inventario_materiali', [])
+                                        us_inv = [i for i in inv_data if str(i.get('us', '')) == us_num]
+                                        QgsMessageLog.logMessage(f"[AI Query] Found {len(us_inv)} inventory for US {us_num}", "pyArchInit", Qgis.Info)
+                                        if us_inv:
+                                            inv_lines = []
+                                            for i in us_inv:
+                                                inv_lines.append(f"Reperto numero_inventario={i.get('numero_inventario', '?')}: tipo={i.get('tipo_reperto', '')}, definizione={i.get('definizione_reperto', '')}, descrizione={i.get('descrizione_reperto', '')}")
+                                            context = context + f"\n\nINVENTARIO MATERIALI trovato per US {us_num}:\n" + "\n".join(inv_lines)
+
+                                        # Cerca media per questa US
+                                        related_data = getattr(self.parent_thread, '_preloaded_related_data', {})
+                                        mediatoentity_by_entity = related_data.get('mediatoentity_by_entity', {})
+                                        media_data = self.raw_data.get('media', [])
+                                        us_id = related_data.get('us_number_to_id', {}).get(us_num)
+
+                                        us_media_ids = set()
+                                        if us_id:
+                                            us_mte = mediatoentity_by_entity.get(('US', us_id), [])
+                                            for mte in us_mte:
+                                                us_media_ids.add(mte.get('id_media'))
+
+                                        for p in us_pottery:
+                                            pot_id = related_data.get('pottery_number_to_id', {}).get(str(p.get('id_number', '')))
+                                            if pot_id:
+                                                pot_mte = mediatoentity_by_entity.get(('CERAMICA', pot_id), [])
+                                                for mte in pot_mte:
+                                                    us_media_ids.add(mte.get('id_media'))
+
+                                        for i in us_inv:
+                                            inv_id = related_data.get('inventory_number_to_id', {}).get(str(i.get('numero_inventario', '')))
+                                            if inv_id:
+                                                inv_mte = mediatoentity_by_entity.get(('REPERTO', inv_id), [])
+                                                for mte in inv_mte:
+                                                    us_media_ids.add(mte.get('id_media'))
+
+                                        QgsMessageLog.logMessage(f"[AI Query] Total {len(us_media_ids)} media IDs for US {us_num}", "pyArchInit", Qgis.Info)
+                                        if us_media_ids:
+                                            media_lines = []
+                                            for m in media_data:
+                                                if m.get('id_media') in us_media_ids:
+                                                    media_lines.append(f"Media id={m.get('id_media')}: filename={m.get('filename', '')}, type={m.get('mediatype', '')}")
+                                            if media_lines:
+                                                context = context + f"\n\nMEDIA associati a US {us_num} (diretti + ceramica + reperti):\n" + "\n".join(media_lines)
                                 else:
                                     # Use similarity search for specific queries
                                     k_docs = 30 if "cassett" in query_lower or "tma" in query_lower or "categoria" in query_lower else 15
@@ -5584,6 +5646,101 @@ class RAGQueryWorker(QThread):
                                         tma_context = "\n".join([doc.page_content for doc in tma_docs if "TMA" in doc.page_content])
                                         if tma_context:
                                             context = context + "\n\nDati TMA aggiuntivi:\n" + tma_context
+
+                                    # Se la query riguarda pottery/ceramica, aggiungi ricerca specifica
+                                    if any(word in query_lower for word in ["ceramic", "pottery", "ceramich", "vasi", "anfore", "ciotol"]):
+                                        pottery_query = "POTTERY ceramica fabric form ware material specific_shape"
+                                        pottery_docs = self.vectorstore.similarity_search(pottery_query, k=30)
+                                        pottery_context = "\n".join([doc.page_content for doc in pottery_docs if "POTTERY" in doc.page_content or "Ceramica" in doc.page_content])
+                                        if pottery_context:
+                                            context = context + "\n\nDati POTTERY/Ceramica aggiuntivi:\n" + pottery_context
+
+                                    # Se la query riguarda inventario/materiali/reperti, aggiungi ricerca specifica
+                                    if any(word in query_lower for word in ["material", "inventar", "repert", "oggett", "ritrov"]):
+                                        inv_query = "INVENTARIO_MATERIALI numero_inventario tipo_reperto definizione_reperto descrizione_reperto"
+                                        inv_docs = self.vectorstore.similarity_search(inv_query, k=30)
+                                        inv_context = "\n".join([doc.page_content for doc in inv_docs if "INVENTARIO" in doc.page_content or "Inventario" in doc.page_content])
+                                        if inv_context:
+                                            context = context + "\n\nDati INVENTARIO MATERIALI aggiuntivi:\n" + inv_context
+
+                                    # Se la query menziona una US specifica, cerca pottery/inventario/media direttamente nei raw_data
+                                    us_match = re.search(r'\bus\s*(\d+)\b', query_lower)
+                                    from qgis.core import QgsMessageLog, Qgis
+                                    QgsMessageLog.logMessage(f"[AI Query DEBUG] query_lower: {query_lower}", "pyArchInit", Qgis.Info)
+                                    QgsMessageLog.logMessage(f"[AI Query DEBUG] us_match: {us_match}", "pyArchInit", Qgis.Info)
+                                    QgsMessageLog.logMessage(f"[AI Query DEBUG] hasattr raw_data: {hasattr(self, 'raw_data')}", "pyArchInit", Qgis.Info)
+                                    QgsMessageLog.logMessage(f"[AI Query DEBUG] raw_data keys: {list(self.raw_data.keys()) if hasattr(self, 'raw_data') and self.raw_data else 'EMPTY'}", "pyArchInit", Qgis.Info)
+                                    if us_match and hasattr(self, 'raw_data') and self.raw_data:
+                                        us_num = us_match.group(1)
+                                        QgsMessageLog.logMessage(f"[AI Query] Searching raw_data for US {us_num}", "pyArchInit", Qgis.Info)
+                                        QgsMessageLog.logMessage(f"[AI Query DEBUG] pottery count in raw_data: {len(self.raw_data.get('pottery', []))}", "pyArchInit", Qgis.Info)
+                                        QgsMessageLog.logMessage(f"[AI Query DEBUG] inventario_materiali count in raw_data: {len(self.raw_data.get('inventario_materiali', []))}", "pyArchInit", Qgis.Info)
+
+                                        # Cerca pottery per questa US nei raw_data
+                                        pottery_data = self.raw_data.get('pottery', [])
+                                        us_pottery = [p for p in pottery_data if str(p.get('us', '')) == us_num]
+                                        print(f"[AI Query] Found {len(us_pottery)} pottery records for US {us_num} in raw_data")
+                                        if us_pottery:
+                                            pottery_lines = []
+                                            for p in us_pottery:
+                                                pottery_lines.append(f"Ceramica id_number={p.get('id_number', '?')}: fabric={p.get('fabric', '')}, form={p.get('form', '')}, ware={p.get('ware', '')}, material={p.get('material', '')}, qty={p.get('qty', '')}")
+                                            context = context + f"\n\nCERAMICA (POTTERY) trovata per US {us_num}:\n" + "\n".join(pottery_lines)
+
+                                        # Cerca inventario per questa US nei raw_data
+                                        inv_data = self.raw_data.get('inventario_materiali', [])
+                                        us_inv = [i for i in inv_data if str(i.get('us', '')) == us_num]
+                                        print(f"[AI Query] Found {len(us_inv)} inventory records for US {us_num} in raw_data")
+                                        if us_inv:
+                                            inv_lines = []
+                                            for i in us_inv:
+                                                inv_lines.append(f"Reperto numero_inventario={i.get('numero_inventario', '?')}: tipo={i.get('tipo_reperto', '')}, definizione={i.get('definizione_reperto', '')}, descrizione={i.get('descrizione_reperto', '')}")
+                                            context = context + f"\n\nINVENTARIO MATERIALI trovato per US {us_num}:\n" + "\n".join(inv_lines)
+
+                                        # Cerca media per questa US e i suoi pottery/inventario
+                                        # Use _preloaded_related_data for mediatoentity_by_entity lookup
+                                        related_data = getattr(self.parent_thread, '_preloaded_related_data', {})
+                                        mediatoentity_by_entity = related_data.get('mediatoentity_by_entity', {})
+                                        media_data = self.raw_data.get('media', [])
+                                        us_id = related_data.get('us_number_to_id', {}).get(us_num)
+
+                                        us_media_ids = set()
+                                        if us_id:
+                                            # Find media linked to this US using indexed lookup
+                                            us_mte = mediatoentity_by_entity.get(('US', us_id), [])
+                                            for mte in us_mte:
+                                                us_media_ids.add(mte.get('id_media'))
+                                            print(f"[AI Query] Found {len(us_mte)} direct media links for US {us_num}")
+
+                                        # Find media linked to pottery of this US
+                                        pottery_media_count = 0
+                                        for p in us_pottery:
+                                            pot_id = related_data.get('pottery_number_to_id', {}).get(str(p.get('id_number', '')))
+                                            if pot_id:
+                                                pot_mte = mediatoentity_by_entity.get(('CERAMICA', pot_id), [])
+                                                for mte in pot_mte:
+                                                    us_media_ids.add(mte.get('id_media'))
+                                                    pottery_media_count += 1
+                                        print(f"[AI Query] Found {pottery_media_count} media links for pottery of US {us_num}")
+
+                                        # Find media linked to inventory of this US
+                                        inv_media_count = 0
+                                        for i in us_inv:
+                                            inv_id = related_data.get('inventory_number_to_id', {}).get(str(i.get('numero_inventario', '')))
+                                            if inv_id:
+                                                inv_mte = mediatoentity_by_entity.get(('REPERTO', inv_id), [])
+                                                for mte in inv_mte:
+                                                    us_media_ids.add(mte.get('id_media'))
+                                                    inv_media_count += 1
+                                        print(f"[AI Query] Found {inv_media_count} media links for inventory of US {us_num}")
+
+                                        print(f"[AI Query] Total {len(us_media_ids)} unique media IDs for US {us_num}")
+                                        if us_media_ids:
+                                            media_lines = []
+                                            for m in media_data:
+                                                if m.get('id_media') in us_media_ids:
+                                                    media_lines.append(f"Media id={m.get('id_media')}: filename={m.get('filename', '')}, type={m.get('mediatype', '')}")
+                                            if media_lines:
+                                                context = context + f"\n\nMEDIA associati a US {us_num} (diretti + ceramica + reperti):\n" + "\n".join(media_lines)
                             except Exception as e:
                                 print(f"[AI Query] Error building context: {e}")
                                 context = ""
