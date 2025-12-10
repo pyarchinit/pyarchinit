@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugins>
+    <!-- ============================================ -->
+    <!-- PyArchInit - Stable Release (Master Branch) -->
+    <!-- ============================================ -->
+    <pyqgis_plugin name="pyarchinit" version="4.0.0">
+        <description><![CDATA[PyArchInit - Archaeological Data Management System for QGIS. Comprehensive tools for managing excavations, stratigraphic units, finds, and documentation.]]></description>
+        <about><![CDATA[PyArchInit is a complete archaeological information system integrated with QGIS.
+
+Features:
+- Stratigraphic unit management (US/USM/WSU)
+- Harris Matrix generation
+- Finds inventory
+- Burial records
+- Period/Phase management
+- PDF report generation
+- AI-powered database queries
+- Multi-database support (PostgreSQL/SQLite)]]></about>
+        <version>4.0.0</version>
+        <qgis_minimum_version>3.22</qgis_minimum_version>
+        <qgis_maximum_version>3.99</qgis_maximum_version>
+        <homepage>https://github.com/pyarchinit/pyarchinit</homepage>
+        <file_name>pyarchinit-master.zip</file_name>
+        <icon>https://raw.githubusercontent.com/pyarchinit/pyarchinit/master/resources/icons/IconPAI.png</icon>
+        <author_name>Luca Mandolesi, Enzo Cocca</author_name>
+        <download_url>https://github.com/pyarchinit/pyarchinit/archive/refs/heads/master.zip</download_url>
+        <uploaded_by>pyarchinit</uploaded_by>
+        <create_date>2024-01-01</create_date>
+        <update_date>2024-12-10</update_date>
+        <experimental>False</experimental>
+        <deprecated>False</deprecated>
+        <tracker>https://github.com/pyarchinit/pyarchinit/issues</tracker>
+        <repository>https://github.com/pyarchinit/pyarchinit</repository>
+        <tags>archaeology,excavation,stratigraphy,harris matrix,database,gis,qgis</tags>
+        <category>Database</category>
+        <server>False</server>
+    </pyqgis_plugin>
+
+    <!-- ============================================ -->
+    <!-- PyArchInit - Development Version -->
+    <!-- ============================================ -->
+    <pyqgis_plugin name="pyarchinit-dev" version="4.1.0-dev">
+        <description><![CDATA[PyArchInit DEVELOPMENT VERSION - Contains latest features and experimental functionality.]]></description>
+        <about><![CDATA[DEVELOPMENT VERSION - NOT FOR PRODUCTION USE
+
+This is the development version of PyArchInit with experimental features:
+- Latest AI Query improvements
+- New toolbar buttons
+- Cloudinary integration (experimental)
+- Bug fixes not yet in stable
+
+Install only if you want to test new features.]]></about>
+        <version>4.1.0-dev</version>
+        <qgis_minimum_version>3.22</qgis_minimum_version>
+        <qgis_maximum_version>3.99</qgis_maximum_version>
+        <homepage>https://github.com/pyarchinit/pyarchinit</homepage>
+        <file_name>pyarchinit-dev.zip</file_name>
+        <icon>https://raw.githubusercontent.com/pyarchinit/pyarchinit/master/resources/icons/IconPAI.png</icon>
+        <author_name>Luca Mandolesi, Enzo Cocca</author_name>
+        <download_url>https://github.com/pyarchinit/pyarchinit/archive/refs/heads/feature/cloudinary-integration.zip</download_url>
+        <uploaded_by>pyarchinit</uploaded_by>
+        <create_date>2024-12-10</create_date>
+        <update_date>2024-12-10</update_date>
+        <experimental>True</experimental>
+        <deprecated>False</deprecated>
+        <tracker>https://github.com/pyarchinit/pyarchinit/issues</tracker>
+        <repository>https://github.com/pyarchinit/pyarchinit</repository>
+        <tags>archaeology,excavation,stratigraphy,harris matrix,database,gis,qgis,development</tags>
+        <category>Database</category>
+        <server>False</server>
+    </pyqgis_plugin>
+</plugins>
