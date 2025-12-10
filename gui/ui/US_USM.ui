@@ -12490,7 +12490,7 @@ background-color: rgb(180, 180, 180);QgsCollapsibleGroupBoxBasic::title, QgsColl
       <enum>QTabWidget::Rounded</enum>
      </property>
      <property name="currentIndex">
-      <number>2</number>
+      <number>0</number>
      </property>
      <property name="elideMode">
       <enum>Qt::ElideNone</enum>
@@ -13902,7 +13902,7 @@ p, li { white-space: pre-wrap; }
            </property>
            <property name="icon">
             <iconset resource="../../resources/resources.qrc">
-             <normaloff>:/icons/toolbox.png</normaloff>:/icons/toolbox.png</iconset>
+             <normaloff>:/icons/area_update.png</normaloff>:/icons/area_update.png</iconset>
            </property>
           </widget>
          </item>
@@ -49103,7 +49103,11 @@ QPushButton:pressed {
         <bool>false</bool>
        </property>
        <property name="text">
-        <string>Ricerca Avanzata</string>
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset resource="../../resources/resources.qrc">
+         <normaloff>:/icons/search_advanced.png</normaloff>:/icons/search_advanced.png</iconset>
        </property>
       </widget>
      </item>
@@ -53029,7 +53033,11 @@ QPushButton:pressed {
      <item row="2" column="2">
       <widget class="QPushButton" name="pushButton_text2sql">
        <property name="text">
-        <string>Text2Sql</string>
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset resource="../../resources/resources.qrc">
+         <normaloff>:/icons/text2sql.png</normaloff>:/icons/text2sql.png</iconset>
        </property>
       </widget>
      </item>
@@ -55436,7 +55444,11 @@ QPushButton:pressed {
      <item row="3" column="1">
       <widget class="QPushButton" name="pushButton_elimina_record_filtrati">
        <property name="text">
-        <string>Elimina Record Filtarti</string>
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset resource="../../resources/resources.qrc">
+         <normaloff>:/icons/delete_filtered.png</normaloff>:/icons/delete_filtered.png</iconset>
        </property>
       </widget>
      </item>
