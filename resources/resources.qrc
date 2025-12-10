@@ -92,7 +92,10 @@
     <file>icons/gpt.png</file>
     <file>icons/tma.png</file>
     <file>icons/gpt.jpg</file>
-
+    <file>icons/text2sql.png</file>
+    <file>icons/area_update.png</file>
+    <file>icons/search_advanced.png</file>
+    <file>icons/delete_filtered.png</file>
 
   </qresource>
 </RCC>
