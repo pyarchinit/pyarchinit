@@ -4681,6 +4681,14 @@ Use well-structured paragraphs with headings for each section.
         threshold_layout.addWidget(self.label_threshold_value)
         similarity_layout.addLayout(threshold_layout)
 
+        # Filter options
+        filter_layout = QHBoxLayout()
+        self.chk_only_decorated = QCheckBox("Only decorated pottery")
+        self.chk_only_decorated.setToolTip("Filter results to show only pottery with decoration (exdeco or intdeco field not empty)")
+        self.chk_only_decorated.setChecked(True)  # Default ON for decoration searches
+        filter_layout.addWidget(self.chk_only_decorated)
+        similarity_layout.addLayout(filter_layout)
+
         # Buttons
         buttons_layout = QHBoxLayout()
         self.btn_find_similar = QPushButton("Find Similar")
@@ -4792,7 +4800,26 @@ Use well-structured paragraphs with headings for each section.
             QMessageBox.information(self, "Results", "No similar pottery found above the threshold")
             return
 
-        self.label_similarity_status.setText(f"Found {len(results)} similar items")
+        # Filter results if "Only decorated" is checked
+        original_count = len(results)
+        if hasattr(self, 'chk_only_decorated') and self.chk_only_decorated.isChecked():
+            filtered_results = []
+            for r in results:
+                pottery_data = r.get('pottery_data', {})
+                exdeco = pottery_data.get('exdeco', '')
+                intdeco = pottery_data.get('intdeco', '')
+                # Keep only if exdeco OR intdeco has a value (not empty/None)
+                has_decoration = (exdeco and str(exdeco).strip()) or (intdeco and str(intdeco).strip())
+                if has_decoration:
+                    filtered_results.append(r)
+            results = filtered_results
+            self.label_similarity_status.setText(f"Found {len(results)} decorated (filtered from {original_count})")
+        else:
+            self.label_similarity_status.setText(f"Found {len(results)} similar items")
+
+        if not results:
+            QMessageBox.information(self, "Results", "No decorated pottery found above the threshold.\nTry unchecking 'Only decorated pottery' filter.")
+            return
 
         # Show results dialog
         self.show_similarity_results_dialog(results)
@@ -4880,6 +4907,9 @@ Use well-structured paragraphs with headings for each section.
         layout.addWidget(btn_close)
 
         dialog.setLayout(layout)
+
+        # Store dialog reference to close it when navigating
+        self._similarity_dialog = dialog
         dialog.exec_()
 
     def navigate_to_pottery(self, result_data):
@@ -4890,6 +4920,10 @@ Use well-structured paragraphs with headings for each section.
         pottery_id = result_data.get('pottery_id')
         if not pottery_id:
             return
+
+        # Close the results dialog first so user can see the main form
+        if hasattr(self, '_similarity_dialog') and self._similarity_dialog:
+            self._similarity_dialog.close()
 
         # Find the record in DATA_LIST
         for i, record in enumerate(self.DATA_LIST):
