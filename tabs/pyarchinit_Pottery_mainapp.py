@@ -4702,7 +4702,7 @@ Use well-structured paragraphs with headings for each section.
         preproc_layout.addWidget(self.chk_edge_preproc)
         similarity_layout.addLayout(preproc_layout)
 
-        # Buttons
+        # Buttons - Row 1
         buttons_layout = QHBoxLayout()
         self.btn_find_similar = QPushButton("Find Similar")
         self.btn_find_similar.setToolTip("Find pottery visually similar to current record")
@@ -4714,6 +4714,19 @@ Use well-structured paragraphs with headings for each section.
         self.btn_build_index.clicked.connect(self.on_build_index_clicked)
         buttons_layout.addWidget(self.btn_build_index)
         similarity_layout.addLayout(buttons_layout)
+
+        # Buttons - Row 2 (Import/Export)
+        io_layout = QHBoxLayout()
+        self.btn_export_index = QPushButton("Export Indexes")
+        self.btn_export_index.setToolTip("Export all indexes to ZIP for sharing with other PCs")
+        self.btn_export_index.clicked.connect(self.on_export_indexes_clicked)
+        io_layout.addWidget(self.btn_export_index)
+
+        self.btn_import_index = QPushButton("Import Indexes")
+        self.btn_import_index.setToolTip("Import indexes from ZIP (from another PC with same database)")
+        self.btn_import_index.clicked.connect(self.on_import_indexes_clicked)
+        io_layout.addWidget(self.btn_import_index)
+        similarity_layout.addLayout(io_layout)
 
         # Status label
         self.label_similarity_status = QLabel("Ready")
@@ -5480,5 +5493,143 @@ Use well-structured paragraphs with headings for each section.
         self.progress_similarity.setVisible(False)
         self.label_similarity_status.setText(message)
         QMessageBox.information(self, "Index Built", message)
+
+    def on_export_indexes_clicked(self):
+        """Export all similarity indexes to a ZIP file for sharing"""
+        import zipfile
+        import datetime
+        from qgis.PyQt.QtWidgets import QFileDialog
+
+        index_dir = os.path.expanduser('~/pyarchinit/bin/pottery_similarity')
+
+        if not os.path.exists(index_dir):
+            QMessageBox.warning(self, "No Indexes",
+                "No similarity indexes found.\nBuild indexes first before exporting.")
+            return
+
+        # Find all index files
+        index_files = []
+        for f in os.listdir(index_dir):
+            if f.endswith('.faiss') or f.endswith('_mapping.pkl'):
+                index_files.append(f)
+
+        if not index_files:
+            QMessageBox.warning(self, "No Indexes",
+                "No similarity indexes found in the index directory.")
+            return
+
+        # Show what will be exported
+        file_list = "\n".join(f"  - {f}" for f in sorted(index_files))
+        reply = QMessageBox.question(
+            self,
+            "Export Indexes",
+            f"Export the following {len(index_files)} files?\n\n{file_list}\n\n"
+            "These indexes can be imported on other PCs with the same database.",
+            QMessageBox.Yes | QMessageBox.No
+        )
+
+        if reply != QMessageBox.Yes:
+            return
+
+        # Ask for save location
+        default_name = f"pottery_similarity_indexes_{datetime.datetime.now().strftime('%Y%m%d')}.zip"
+        file_path, _ = QFileDialog.getSaveFileName(
+            self, "Export Indexes", default_name, "ZIP Files (*.zip)"
+        )
+
+        if not file_path:
+            return
+
+        try:
+            with zipfile.ZipFile(file_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
+                for f in index_files:
+                    full_path = os.path.join(index_dir, f)
+                    zipf.write(full_path, f)
+
+            # Get file size
+            size_mb = os.path.getsize(file_path) / (1024 * 1024)
+
+            QMessageBox.information(self, "Export Complete",
+                f"Indexes exported successfully!\n\n"
+                f"File: {file_path}\n"
+                f"Size: {size_mb:.1f} MB\n"
+                f"Files: {len(index_files)}\n\n"
+                "You can share this ZIP with other users who have the same database.")
+
+        except Exception as e:
+            QMessageBox.warning(self, "Export Error", f"Failed to export indexes:\n{str(e)}")
+
+    def on_import_indexes_clicked(self):
+        """Import similarity indexes from a ZIP file"""
+        import zipfile
+        from qgis.PyQt.QtWidgets import QFileDialog
+
+        index_dir = os.path.expanduser('~/pyarchinit/bin/pottery_similarity')
+
+        # Ask for ZIP file
+        file_path, _ = QFileDialog.getOpenFileName(
+            self, "Import Indexes", "", "ZIP Files (*.zip)"
+        )
+
+        if not file_path:
+            return
+
+        try:
+            # Check ZIP contents first
+            with zipfile.ZipFile(file_path, 'r') as zipf:
+                contents = zipf.namelist()
+
+                # Verify it contains index files
+                faiss_files = [f for f in contents if f.endswith('.faiss')]
+                mapping_files = [f for f in contents if f.endswith('_mapping.pkl')]
+
+                if not faiss_files:
+                    QMessageBox.warning(self, "Invalid ZIP",
+                        "This ZIP file does not contain any similarity index files (.faiss)")
+                    return
+
+                # Show what will be imported
+                file_list = "\n".join(f"  - {f}" for f in sorted(contents))
+
+                # Check for existing files
+                existing = []
+                for f in contents:
+                    if os.path.exists(os.path.join(index_dir, f)):
+                        existing.append(f)
+
+                warning_msg = ""
+                if existing:
+                    warning_msg = f"\n\nWARNING: {len(existing)} existing files will be overwritten!"
+
+                reply = QMessageBox.question(
+                    self,
+                    "Import Indexes",
+                    f"Import the following {len(contents)} files?\n\n{file_list}{warning_msg}\n\n"
+                    "Make sure these indexes were created with the SAME database!",
+                    QMessageBox.Yes | QMessageBox.No
+                )
+
+                if reply != QMessageBox.Yes:
+                    return
+
+                # Create directory if needed
+                os.makedirs(index_dir, exist_ok=True)
+
+                # Extract files
+                zipf.extractall(index_dir)
+
+            QMessageBox.information(self, "Import Complete",
+                f"Indexes imported successfully!\n\n"
+                f"FAISS indexes: {len(faiss_files)}\n"
+                f"Mapping files: {len(mapping_files)}\n\n"
+                "The indexes are now ready to use.")
+
+            # Update status
+            self.label_similarity_status.setText(f"Imported {len(faiss_files)} indexes")
+
+        except zipfile.BadZipFile:
+            QMessageBox.warning(self, "Invalid File", "The selected file is not a valid ZIP file.")
+        except Exception as e:
+            QMessageBox.warning(self, "Import Error", f"Failed to import indexes:\n{str(e)}")
 
 
