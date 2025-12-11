@@ -733,6 +733,44 @@ class Pyarchinit_db_management(object):
         finally:
             session.close()
 
+    def get_image_path_by_media_id(self, media_id):
+        """Get image path_resize by media_id (for similarity search results)"""
+        session = self.Session()
+        try:
+            sql = """
+                SELECT mt.path_resize
+                FROM media_thumb_table mt
+                WHERE mt.id_media = :media_id AND mt.path_resize IS NOT NULL
+                LIMIT 1
+            """
+            result = session.execute(sql, {'media_id': media_id}).fetchone()
+            return result[0] if result else None
+        except Exception as e:
+            print(f"Error getting image path by media_id: {e}")
+            return None
+        finally:
+            session.close()
+
+    def get_all_pottery_images(self, id_rep):
+        """Get ALL image paths for a pottery record (for multi-image similarity search)"""
+        session = self.Session()
+        try:
+            sql = """
+                SELECT m.id_media, mt.path_resize, m.filename
+                FROM pottery_table p
+                JOIN media_to_entity_table mte ON p.id_rep = mte.id_entity AND mte.entity_type = 'CERAMICA'
+                JOIN media_table m ON mte.id_media = m.id_media
+                LEFT JOIN media_thumb_table mt ON m.id_media = mt.id_media
+                WHERE p.id_rep = :id_rep AND m.mediatype = 'image' AND mt.path_resize IS NOT NULL
+            """
+            results = session.execute(sql, {'id_rep': id_rep}).fetchall()
+            return [{'id_media': r[0], 'path_resize': r[1], 'filename': r[2]} for r in results]
+        except Exception as e:
+            print(f"Error getting all pottery images: {e}")
+            return []
+        finally:
+            session.close()
+
     # ============== END POTTERY EMBEDDING METADATA METHODS ==============
 
     def insert_pyus(self, *arg):
