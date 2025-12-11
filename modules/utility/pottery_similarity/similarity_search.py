@@ -349,10 +349,13 @@ class PotterySimilaritySearchEngine:
             # Generate embedding
             embedding = model.get_embedding(image_path, search_type)
             if embedding is not None:
+                # Compute hash for incremental update support
+                image_hash = compute_image_hash(image_path)
                 embeddings.append((
                     embedding,
                     item.get('id_rep'),
-                    item.get('id_media')
+                    item.get('id_media'),
+                    image_hash
                 ))
             else:
                 errors += 1
@@ -376,9 +379,14 @@ class PotterySimilaritySearchEngine:
     def update_index_incremental(self,
                                  model_name: str,
                                  search_type: str,
-                                 progress_callback: Optional[Callable[[int, int, str], None]] = None) -> int:
+                                 progress_callback: Optional[Callable[[int, int, str], None]] = None) -> Dict:
         """
-        Update index with only new/changed images.
+        Update index with only new/changed/deleted images.
+
+        Detects:
+        - NEW: images in DB not in index
+        - MODIFIED: images where file hash changed
+        - DELETED: images in index but no longer in DB or file missing
 
         Args:
             model_name: Embedding model
@@ -386,69 +394,136 @@ class PotterySimilaritySearchEngine:
             progress_callback: Optional progress callback
 
         Returns:
-            Number of images added
+            Dict with counts: {'added': int, 'updated': int, 'removed': int}
         """
+        result = {'added': 0, 'updated': 0, 'removed': 0}
+
         if not self.db_manager:
-            return 0
+            return result
 
         model = self._get_model(model_name)
         if model is None:
-            return 0
+            return result
 
-        # Get unindexed images
-        unindexed = self.db_manager.get_unindexed_pottery_images(model_name, search_type)
-        total = len(unindexed)
+        if progress_callback:
+            progress_callback(0, 100, "Analyzing changes...")
 
-        if total == 0:
+        # Get current index state
+        indexed_media_ids = self.index_manager.get_indexed_media_ids(model_name, search_type)
+        indexed_hashes = self.index_manager.get_indexed_hashes(model_name, search_type)
+
+        # Get all pottery images from DB
+        db_images = self.db_manager.get_all_pottery_with_images()
+        db_media_ids = {item['id_media'] for item in db_images}
+        db_items_by_media = {item['id_media']: item for item in db_images}
+
+        # Find what needs to be done
+        new_media_ids = db_media_ids - indexed_media_ids
+        deleted_media_ids = indexed_media_ids - db_media_ids
+        potential_updated = indexed_media_ids & db_media_ids
+
+        # Check for modified images (hash changed or file missing)
+        modified_media_ids = set()
+        for media_id in potential_updated:
+            item = db_items_by_media.get(media_id)
+            if not item:
+                continue
+
+            relative_path = item.get('filepath')
+            if not relative_path:
+                deleted_media_ids.add(media_id)
+                continue
+
+            image_path = self._build_image_path(relative_path)
+            if not os.path.exists(image_path):
+                # File deleted from disk
+                deleted_media_ids.add(media_id)
+                continue
+
+            # Check hash
+            old_hash = indexed_hashes.get(media_id)
+            if old_hash:
+                new_hash = compute_image_hash(image_path)
+                if new_hash and new_hash != old_hash:
+                    modified_media_ids.add(media_id)
+
+        total_ops = len(new_media_ids) + len(modified_media_ids) + len(deleted_media_ids)
+
+        if total_ops == 0:
             if progress_callback:
-                progress_callback(0, 0, "Index is up to date")
-            return 0
+                progress_callback(100, 100, "Index is up to date")
+            return result
 
-        added = 0
-        for i, item in enumerate(unindexed):
+        current_op = 0
+
+        # Remove deleted
+        if progress_callback:
+            progress_callback(current_op, total_ops, f"Removing {len(deleted_media_ids)} deleted images...")
+
+        for media_id in deleted_media_ids:
+            if self.index_manager.remove_embedding(model_name, search_type, media_id):
+                result['removed'] += 1
+            current_op += 1
+
+        # Update modified
+        for media_id in modified_media_ids:
             if progress_callback:
-                progress_callback(i, total, f"Adding image {i+1}/{total}...")
+                progress_callback(current_op, total_ops, f"Updating modified images... ({result['updated'] + 1})")
 
-            image_path = item.get('filepath')
-            if not image_path or not os.path.exists(image_path):
+            item = db_items_by_media.get(media_id)
+            if not item:
+                continue
+
+            relative_path = item.get('filepath')
+            image_path = self._build_image_path(relative_path)
+
+            embedding = model.get_embedding(image_path, search_type)
+            if embedding is not None:
+                image_hash = compute_image_hash(image_path)
+                if self.index_manager.update_embedding(
+                    model_name, search_type, embedding,
+                    item['id_rep'], media_id, image_hash
+                ):
+                    result['updated'] += 1
+
+            current_op += 1
+
+        # Add new
+        for media_id in new_media_ids:
+            if progress_callback:
+                progress_callback(current_op, total_ops, f"Adding new images... ({result['added'] + 1})")
+
+            item = db_items_by_media.get(media_id)
+            if not item:
+                continue
+
+            relative_path = item.get('filepath')
+            if not relative_path:
+                continue
+
+            image_path = self._build_image_path(relative_path)
+            if not os.path.exists(image_path):
                 continue
 
             embedding = model.get_embedding(image_path, search_type)
             if embedding is not None:
-                success = self.index_manager.add_embedding(
-                    model_name, search_type,
-                    embedding,
-                    item.get('id_rep'),
-                    item.get('id_media')
-                )
-                if success:
-                    added += 1
+                image_hash = compute_image_hash(image_path)
+                if self.index_manager.add_embedding(
+                    model_name, search_type, embedding,
+                    item['id_rep'], media_id, image_hash
+                ):
+                    result['added'] += 1
 
-                    # Save metadata
-                    image_hash = compute_image_hash(image_path)
-                    if image_hash:
-                        metadata = self.db_manager.insert_pottery_embedding_metadata(
-                            item.get('id_rep'),
-                            item.get('id_media'),
-                            image_hash,
-                            model_name,
-                            search_type
-                        )
-                        try:
-                            session = self.db_manager.Session()
-                            session.add(metadata)
-                            session.commit()
-                            session.close()
-                        except Exception as e:
-                            print(f"Error saving metadata: {e}")
+            current_op += 1
 
         # Save updated index
         self.index_manager.save_indexes()
 
         if progress_callback:
-            progress_callback(total, total, f"Added {added} images to index")
+            msg = f"Done: +{result['added']} added, ~{result['updated']} updated, -{result['removed']} removed"
+            progress_callback(total_ops, total_ops, msg)
 
-        return added
+        return result
 
     def get_indexing_status(self) -> Dict:
         """
@@ -553,12 +628,46 @@ if HAS_QGIS:
                         self.error_occurred.emit("Index building failed")
 
                 elif self.operation == 'update_index':
-                    added = self.search_engine.update_index_incremental(
+                    result = self.search_engine.update_index_incremental(
                         self.kwargs.get('model_name', 'clip'),
                         self.kwargs.get('search_type', 'general'),
                         progress_callback=self._progress_callback
                     )
-                    self.operation_complete.emit(f"Added {added} images to index")
+                    msg = f"+{result['added']} added, ~{result['updated']} updated, -{result['removed']} removed"
+                    self.operation_complete.emit(msg)
+
+                elif self.operation == 'update_all_indexes':
+                    # Update all model/search_type combinations
+                    models = self.kwargs.get('models', ['clip', 'dinov2', 'openai'])
+                    search_types = self.kwargs.get('search_types', ['decoration', 'general', 'shape'])
+
+                    total_results = {'added': 0, 'updated': 0, 'removed': 0}
+                    total_combinations = len(models) * len(search_types)
+                    current = 0
+
+                    for model_name in models:
+                        for search_type in search_types:
+                            current += 1
+                            self._progress_callback(
+                                current, total_combinations,
+                                f"Updating {model_name}/{search_type}..."
+                            )
+
+                            # Skip if index doesn't exist yet
+                            indexed_count = self.search_engine.index_manager.get_index(model_name, search_type)[0]
+                            if indexed_count is None or indexed_count.ntotal == 0:
+                                continue
+
+                            result = self.search_engine.update_index_incremental(
+                                model_name, search_type,
+                                progress_callback=None  # Don't emit progress for each sub-operation
+                            )
+                            total_results['added'] += result['added']
+                            total_results['updated'] += result['updated']
+                            total_results['removed'] += result['removed']
+
+                    msg = f"All indexes: +{total_results['added']} added, ~{total_results['updated']} updated, -{total_results['removed']} removed"
+                    self.operation_complete.emit(msg)
 
                 else:
                     self.error_occurred.emit(f"Unknown operation: {self.operation}")
