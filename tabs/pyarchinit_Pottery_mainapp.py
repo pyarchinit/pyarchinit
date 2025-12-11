@@ -4937,12 +4937,16 @@ Use well-structured paragraphs with headings for each section.
             print("[SIMILARITY] ERROR: id_number is None or empty")
             return
 
-        # Close the results dialog first so user can see the main form
-        if hasattr(self, '_similarity_dialog') and self._similarity_dialog:
-            self._similarity_dialog.close()
-            self._similarity_dialog = None
+        # First, load ALL records (like View All button) to ensure record is findable
+        print("[SIMILARITY] Loading all records (view_all)...")
+        self.empty_fields()
+        self.charge_records()  # Reload all records from DB
+        self.BROWSE_STATUS = "b"
+        self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
+        self.SORT_STATUS = "n"
+        self.label_sort.setText(self.SORTED_ITEMS[self.SORT_STATUS])
 
-        # Find the record in DATA_LIST using id_number
+        # Now find the record in DATA_LIST using id_number
         found = False
         for i, record in enumerate(self.DATA_LIST):
             if str(getattr(record, 'id_number', '')) == str(pottery_id_number):
@@ -4955,10 +4959,14 @@ Use well-structured paragraphs with headings for each section.
                 break
 
         if not found:
-            print(f"[SIMILARITY] WARNING: pottery id_number={pottery_id_number} not found in DATA_LIST (len={len(self.DATA_LIST)})")
+            print(f"[SIMILARITY] WARNING: pottery id_number={pottery_id_number} not found even after view_all (len={len(self.DATA_LIST)})")
             QMessageBox.warning(self, "Not Found",
-                f"Pottery ID {pottery_id_number} not found in current filter.\n"
-                "Try clearing the filter to see all records.")
+                f"Pottery ID {pottery_id_number} not found in database.")
+
+        # Keep dialog open and on top - don't close it
+        if hasattr(self, '_similarity_dialog') and self._similarity_dialog:
+            self._similarity_dialog.raise_()
+            self._similarity_dialog.activateWindow()
 
     def on_build_index_clicked(self):
         """Handle build index button click"""
