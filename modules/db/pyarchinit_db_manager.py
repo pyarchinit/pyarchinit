@@ -49,7 +49,7 @@ from modules.db.pyarchinit_db_mapper import US, UT, SITE, PERIODIZZAZIONE, POTTE
     MEDIA_THUMB, MEDIATOENTITY, MEDIAVIEW, TOMBA, CAMPIONI, PYARCHINIT_THESAURUS_SIGLE, \
     INVENTARIO_LAPIDEI, PDF_ADMINISTRATOR, PYUS, PYUSM, PYSITO_POINT, PYSITO_POLYGON, PYQUOTE, PYQUOTEUSM, \
     PYUS_NEGATIVE, PYSTRUTTURE, PYREPERTI, PYINDIVIDUI, PYCAMPIONI, PYTOMBA, PYDOCUMENTAZIONE, PYLINEERIFERIMENTO, \
-    PYRIPARTIZIONI_SPAZIALI, PYSEZIONI
+    PYRIPARTIZIONI_SPAZIALI, PYSEZIONI, POTTERY_EMBEDDING_METADATA
 from modules.db.pyarchinit_db_update import DB_update
 from modules.db.pyarchinit_utility import Utility
 from modules.utility.pyarchinit_OS_utility import Pyarchinit_OS_Utility
@@ -562,6 +562,179 @@ class Pyarchinit_db_management(object):
                   arg[31])
 
         return pottery
+
+    # ============== POTTERY EMBEDDING METADATA METHODS ==============
+
+    def insert_pottery_embedding_metadata(self, id_rep, id_media, image_hash, model_name, search_type, embedding_version='1.0'):
+        """Insert a new pottery embedding metadata record"""
+        from datetime import datetime
+        metadata = POTTERY_EMBEDDING_METADATA(
+            None,  # id_embedding - auto generated
+            id_rep,
+            id_media,
+            image_hash,
+            model_name,
+            search_type,
+            embedding_version,
+            datetime.now()
+        )
+        return metadata
+
+    def get_pottery_embedding_metadata(self, id_media, model_name, search_type):
+        """Get embedding metadata for a specific media/model/search_type combination"""
+        session = self.Session()
+        try:
+            result = session.query(POTTERY_EMBEDDING_METADATA).filter(
+                POTTERY_EMBEDDING_METADATA.id_media == id_media,
+                POTTERY_EMBEDDING_METADATA.model_name == model_name,
+                POTTERY_EMBEDDING_METADATA.search_type == search_type
+            ).first()
+            return result
+        except Exception as e:
+            print(f"Error getting embedding metadata: {e}")
+            return None
+        finally:
+            session.close()
+
+    def get_all_pottery_embedding_metadata(self, model_name=None, search_type=None):
+        """Get all embedding metadata, optionally filtered by model and search type"""
+        session = self.Session()
+        try:
+            query = session.query(POTTERY_EMBEDDING_METADATA)
+            if model_name:
+                query = query.filter(POTTERY_EMBEDDING_METADATA.model_name == model_name)
+            if search_type:
+                query = query.filter(POTTERY_EMBEDDING_METADATA.search_type == search_type)
+            return query.all()
+        except Exception as e:
+            print(f"Error getting all embedding metadata: {e}")
+            return []
+        finally:
+            session.close()
+
+    def get_unindexed_pottery_images(self, model_name, search_type):
+        """Get pottery images that don't have embeddings for the specified model/search_type"""
+        session = self.Session()
+        try:
+            # Get all pottery with media links
+            sql = """
+                SELECT DISTINCT p.id_rep, m.id_media, m.filepath
+                FROM pottery_table p
+                JOIN media_to_entity_table mte ON p.id_rep = mte.id_entity AND mte.entity_type = 'CERAMICA'
+                JOIN media_table m ON mte.id_media = m.id_media
+                WHERE m.mediatype = 'image'
+                AND NOT EXISTS (
+                    SELECT 1 FROM pottery_embeddings_metadata_table pem
+                    WHERE pem.id_media = m.id_media
+                    AND pem.model_name = :model_name
+                    AND pem.search_type = :search_type
+                )
+            """
+            result = session.execute(sql, {'model_name': model_name, 'search_type': search_type})
+            return [{'id_rep': row[0], 'id_media': row[1], 'filepath': row[2]} for row in result]
+        except Exception as e:
+            print(f"Error getting unindexed pottery images: {e}")
+            return []
+        finally:
+            session.close()
+
+    def get_all_pottery_with_images(self):
+        """Get all pottery records that have associated images.
+        Returns path_resize from media_thumb_table (relative filename to be joined with THUMB_RESIZE from config)
+        """
+        session = self.Session()
+        try:
+            sql = """
+                SELECT p.id_rep, p.id_number, p.sito, p.area, p.us, p.anno,
+                       p.form, p.specific_form, p.specific_shape, p.ware,
+                       p.exdeco, p.intdeco, p.fabric,
+                       m.id_media, mt.path_resize as filepath, m.filename
+                FROM pottery_table p
+                JOIN media_to_entity_table mte ON p.id_rep = mte.id_entity AND mte.entity_type = 'CERAMICA'
+                JOIN media_table m ON mte.id_media = m.id_media
+                LEFT JOIN media_thumb_table mt ON m.id_media = mt.id_media
+                WHERE m.mediatype = 'image' AND mt.path_resize IS NOT NULL
+                ORDER BY p.id_rep
+            """
+            result = session.execute(sql)
+            return [dict(row) for row in result]
+        except Exception as e:
+            print(f"Error getting pottery with images: {e}")
+            return []
+        finally:
+            session.close()
+
+    def delete_pottery_embedding_metadata(self, id_media, model_name=None, search_type=None):
+        """Delete embedding metadata for a media item"""
+        session = self.Session()
+        try:
+            query = session.query(POTTERY_EMBEDDING_METADATA).filter(
+                POTTERY_EMBEDDING_METADATA.id_media == id_media
+            )
+            if model_name:
+                query = query.filter(POTTERY_EMBEDDING_METADATA.model_name == model_name)
+            if search_type:
+                query = query.filter(POTTERY_EMBEDDING_METADATA.search_type == search_type)
+            deleted = query.delete()
+            session.commit()
+            return deleted
+        except Exception as e:
+            print(f"Error deleting embedding metadata: {e}")
+            session.rollback()
+            return 0
+        finally:
+            session.close()
+
+    def count_pottery_embeddings(self, model_name=None, search_type=None):
+        """Count total embeddings, optionally by model/search_type"""
+        session = self.Session()
+        try:
+            query = session.query(POTTERY_EMBEDDING_METADATA)
+            if model_name:
+                query = query.filter(POTTERY_EMBEDDING_METADATA.model_name == model_name)
+            if search_type:
+                query = query.filter(POTTERY_EMBEDDING_METADATA.search_type == search_type)
+            return query.count()
+        except Exception as e:
+            print(f"Error counting embeddings: {e}")
+            return 0
+        finally:
+            session.close()
+
+    def get_pottery_by_id_rep(self, id_rep):
+        """Get a single pottery record by id_rep"""
+        session = self.Session()
+        try:
+            return session.query(POTTERY).filter(POTTERY.id_rep == id_rep).first()
+        except Exception as e:
+            print(f"Error getting pottery by id_rep: {e}")
+            return None
+        finally:
+            session.close()
+
+    def get_pottery_image_path(self, id_rep):
+        """Get the first image path_resize for a pottery record (relative filename)"""
+        session = self.Session()
+        try:
+            sql = """
+                SELECT mt.path_resize
+                FROM pottery_table p
+                JOIN media_to_entity_table mte ON p.id_rep = mte.id_entity AND mte.entity_type = 'CERAMICA'
+                JOIN media_table m ON mte.id_media = m.id_media
+                LEFT JOIN media_thumb_table mt ON m.id_media = mt.id_media
+                WHERE p.id_rep = :id_rep AND m.mediatype = 'image' AND mt.path_resize IS NOT NULL
+                LIMIT 1
+            """
+            result = session.execute(sql, {'id_rep': id_rep}).fetchone()
+            return result[0] if result else None
+        except Exception as e:
+            print(f"Error getting pottery image path: {e}")
+            return None
+        finally:
+            session.close()
+
+    # ============== END POTTERY EMBEDDING METADATA METHODS ==============
+
     def insert_pyus(self, *arg):
         pyus = PYUS(arg[0],
                 arg[1],
