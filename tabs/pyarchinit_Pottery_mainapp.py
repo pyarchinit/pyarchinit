@@ -58,6 +58,18 @@ from ..modules.db.pyarchinit_utility import Utility
 from ..gui.pyarchinitConfigDialog import pyArchInitDialog_Config
 from ..modules.utility.remote_image_loader import load_icon, get_image_path, initialize as init_remote_loader
 
+# Pottery Visual Similarity Search - lazy import to avoid startup errors
+try:
+    from ..modules.utility.pottery_similarity import (
+        PotterySimilaritySearchEngine,
+        PotterySimilarityWorker,
+        get_available_models
+    )
+    HAS_SIMILARITY_SEARCH = True
+except ImportError as e:
+    print(f"Pottery similarity search not available: {e}")
+    HAS_SIMILARITY_SEARCH = False
+
 
 
 MAIN_DIALOG_CLASS, _ = loadUiType(
@@ -900,6 +912,8 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
         # Setup Statistics Tab
         self.setup_statistics_tab()
 
+        # Setup Visual Similarity Search
+        self.setup_similarity_search_ui()
 
     def dropEvent(self, event):
         mimeData = event.mimeData()
@@ -4608,5 +4622,312 @@ Use well-structured paragraphs with headings for each section.
 
         except Exception as e:
             QMessageBox.warning(self, "Errore", f"Errore nell'esportazione PDF: {e}", QMessageBox.Ok)
+
+    # ==================== POTTERY VISUAL SIMILARITY SEARCH ====================
+
+    def setup_similarity_search_ui(self):
+        """Setup UI controls for visual similarity search"""
+        if not HAS_SIMILARITY_SEARCH:
+            return
+
+        # Initialize search engine
+        self.similarity_engine = None
+        self.similarity_worker = None
+
+        # Find or create a group box for similarity search
+        # This creates UI programmatically since we don't have .ui file changes
+
+        # Create similarity search group box
+        self.similarity_group = QGroupBox("Visual Similarity Search")
+        similarity_layout = QVBoxLayout()
+
+        # Model selector
+        model_layout = QHBoxLayout()
+        model_layout.addWidget(QLabel("Model:"))
+        self.combo_similarity_model = QComboBox()
+        self.combo_similarity_model.addItems(['CLIP (Local)', 'DINOv2 (Local)', 'OpenAI (Cloud)'])
+        self.combo_similarity_model.setToolTip("Select embedding model for similarity search")
+        model_layout.addWidget(self.combo_similarity_model)
+        similarity_layout.addLayout(model_layout)
+
+        # Search type selector
+        type_layout = QHBoxLayout()
+        type_layout.addWidget(QLabel("Search Type:"))
+        self.combo_similarity_type = QComboBox()
+        self.combo_similarity_type.addItems(['General', 'Decoration', 'Shape'])
+        self.combo_similarity_type.setToolTip("Type of similarity to search for")
+        type_layout.addWidget(self.combo_similarity_type)
+        similarity_layout.addLayout(type_layout)
+
+        # Threshold slider
+        threshold_layout = QHBoxLayout()
+        threshold_layout.addWidget(QLabel("Threshold:"))
+        self.slider_similarity_threshold = QSlider(Qt.Horizontal)
+        self.slider_similarity_threshold.setMinimum(50)
+        self.slider_similarity_threshold.setMaximum(99)
+        self.slider_similarity_threshold.setValue(70)
+        self.slider_similarity_threshold.setTickPosition(QSlider.TicksBelow)
+        self.slider_similarity_threshold.setTickInterval(10)
+        self.slider_similarity_threshold.valueChanged.connect(self.on_threshold_changed)
+        threshold_layout.addWidget(self.slider_similarity_threshold)
+        self.label_threshold_value = QLabel("70%")
+        threshold_layout.addWidget(self.label_threshold_value)
+        similarity_layout.addLayout(threshold_layout)
+
+        # Buttons
+        buttons_layout = QHBoxLayout()
+        self.btn_find_similar = QPushButton("Find Similar")
+        self.btn_find_similar.setToolTip("Find pottery visually similar to current record")
+        self.btn_find_similar.clicked.connect(self.on_find_similar_clicked)
+        buttons_layout.addWidget(self.btn_find_similar)
+
+        self.btn_build_index = QPushButton("Build Index")
+        self.btn_build_index.setToolTip("Build/rebuild similarity index for selected model")
+        self.btn_build_index.clicked.connect(self.on_build_index_clicked)
+        buttons_layout.addWidget(self.btn_build_index)
+        similarity_layout.addLayout(buttons_layout)
+
+        # Status label
+        self.label_similarity_status = QLabel("Ready")
+        self.label_similarity_status.setStyleSheet("color: gray; font-style: italic;")
+        similarity_layout.addWidget(self.label_similarity_status)
+
+        # Progress bar (hidden by default)
+        self.progress_similarity = QProgressBar()
+        self.progress_similarity.setVisible(False)
+        similarity_layout.addWidget(self.progress_similarity)
+
+        self.similarity_group.setLayout(similarity_layout)
+
+        # Try to add to existing tab widget or create dock
+        # First look for an existing tab widget
+        tab_widget = self.findChild(QTabWidget)
+        if tab_widget:
+            # Create a new widget for the tab
+            similarity_tab = QWidget()
+            tab_layout = QVBoxLayout()
+            tab_layout.addWidget(self.similarity_group)
+            tab_layout.addStretch()
+            similarity_tab.setLayout(tab_layout)
+            tab_widget.addTab(similarity_tab, "Similarity")
+        else:
+            # Try to find a suitable place in the existing layout
+            # For now, we'll add it to the main layout if possible
+            pass
+
+    def on_threshold_changed(self, value):
+        """Update threshold label when slider changes"""
+        self.label_threshold_value.setText(f"{value}%")
+
+    def get_similarity_model_name(self):
+        """Get model name from combo box selection"""
+        text = self.combo_similarity_model.currentText()
+        if 'CLIP' in text:
+            return 'clip'
+        elif 'DINOv2' in text:
+            return 'dinov2'
+        elif 'OpenAI' in text:
+            return 'openai'
+        return 'clip'
+
+    def get_similarity_search_type(self):
+        """Get search type from combo box selection"""
+        text = self.combo_similarity_type.currentText().lower()
+        if text in ['general', 'decoration', 'shape']:
+            return text
+        return 'general'
+
+    def on_find_similar_clicked(self):
+        """Handle find similar button click"""
+        if not HAS_SIMILARITY_SEARCH:
+            QMessageBox.warning(self, "Error", "Similarity search module not available")
+            return
+
+        # Check if we have a current record
+        if not self.DATA_LIST or self.REC_CORR >= len(self.DATA_LIST):
+            QMessageBox.warning(self, "Error", "No pottery record selected")
+            return
+
+        current_record = self.DATA_LIST[self.REC_CORR]
+        pottery_id = current_record.id_rep
+
+        # Initialize engine if needed
+        if self.similarity_engine is None:
+            self.similarity_engine = PotterySimilaritySearchEngine(self.DB_MANAGER)
+
+        model_name = self.get_similarity_model_name()
+        search_type = self.get_similarity_search_type()
+        threshold = self.slider_similarity_threshold.value() / 100.0
+
+        # Update status
+        self.label_similarity_status.setText(f"Searching with {model_name}...")
+        self.btn_find_similar.setEnabled(False)
+
+        # Create worker for background search
+        self.similarity_worker = PotterySimilarityWorker(
+            self.similarity_engine,
+            'search_by_id',
+            pottery_id=pottery_id,
+            model_name=model_name,
+            search_type=search_type,
+            threshold=threshold
+        )
+        self.similarity_worker.search_complete.connect(self.on_similarity_search_complete)
+        self.similarity_worker.error_occurred.connect(self.on_similarity_error)
+        self.similarity_worker.start()
+
+    def on_similarity_search_complete(self, results):
+        """Handle search completion"""
+        self.btn_find_similar.setEnabled(True)
+
+        if not results:
+            self.label_similarity_status.setText("No similar pottery found")
+            QMessageBox.information(self, "Results", "No similar pottery found above the threshold")
+            return
+
+        self.label_similarity_status.setText(f"Found {len(results)} similar items")
+
+        # Show results dialog
+        self.show_similarity_results_dialog(results)
+
+    def on_similarity_error(self, error_msg):
+        """Handle search error"""
+        self.btn_find_similar.setEnabled(True)
+        self.label_similarity_status.setText("Error occurred")
+        QMessageBox.warning(self, "Error", f"Similarity search error: {error_msg}")
+
+    def show_similarity_results_dialog(self, results):
+        """Show dialog with similarity search results"""
+        dialog = QDialog(self)
+        dialog.setWindowTitle(f"Similar Pottery ({len(results)} results)")
+        dialog.setMinimumSize(800, 600)
+
+        layout = QVBoxLayout()
+
+        # Results list with thumbnails
+        list_widget = QListWidget()
+        list_widget.setViewMode(QListWidget.IconMode)
+        list_widget.setIconSize(QSize(150, 150))
+        list_widget.setSpacing(10)
+        list_widget.setResizeMode(QListWidget.Adjust)
+        list_widget.setWordWrap(True)
+
+        conn = Connection()
+        thumb_path = conn.thumb_path()
+        thumb_path_str = thumb_path.get('thumb_path', '')
+
+        for result in results:
+            pottery_data = result.get('pottery_data', {})
+            similarity = result.get('similarity_percent', 0)
+
+            # Create item label
+            label = f"{similarity:.1f}%\n"
+            label += f"ID: {result.get('pottery_id', 'N/A')}\n"
+            if pottery_data:
+                if pottery_data.get('form'):
+                    label += f"Form: {pottery_data.get('form', '')}\n"
+                if pottery_data.get('exdeco'):
+                    label += f"Deco: {pottery_data.get('exdeco', '')}"
+
+            item = QListWidgetItem(label)
+
+            # Try to load thumbnail
+            image_path = result.get('image_path', '')
+            if image_path and os.path.exists(image_path):
+                pixmap = QPixmap(image_path)
+                if not pixmap.isNull():
+                    item.setIcon(QIcon(pixmap.scaled(150, 150, Qt.KeepAspectRatio, Qt.SmoothTransformation)))
+
+            item.setData(Qt.UserRole, result)
+            list_widget.addItem(item)
+
+        # Double-click to navigate to record
+        list_widget.itemDoubleClicked.connect(lambda item: self.navigate_to_pottery(item.data(Qt.UserRole)))
+
+        layout.addWidget(list_widget)
+
+        # Close button
+        btn_close = QPushButton("Close")
+        btn_close.clicked.connect(dialog.close)
+        layout.addWidget(btn_close)
+
+        dialog.setLayout(layout)
+        dialog.exec_()
+
+    def navigate_to_pottery(self, result_data):
+        """Navigate to a pottery record from search results"""
+        if not result_data:
+            return
+
+        pottery_id = result_data.get('pottery_id')
+        if not pottery_id:
+            return
+
+        # Find the record in DATA_LIST
+        for i, record in enumerate(self.DATA_LIST):
+            if record.id_rep == pottery_id:
+                self.REC_CORR = i
+                self.REC_TOT = len(self.DATA_LIST)
+                self.fill_fields()
+                self.set_rec_counter(self.REC_TOT, self.REC_CORR + 1)
+                break
+
+    def on_build_index_clicked(self):
+        """Handle build index button click"""
+        if not HAS_SIMILARITY_SEARCH:
+            QMessageBox.warning(self, "Error", "Similarity search module not available")
+            return
+
+        model_name = self.get_similarity_model_name()
+        search_type = self.get_similarity_search_type()
+
+        reply = QMessageBox.question(
+            self,
+            "Build Index",
+            f"Build similarity index for {model_name} ({search_type})?\n\n"
+            "This may take several minutes depending on the number of images.",
+            QMessageBox.Yes | QMessageBox.No
+        )
+
+        if reply != QMessageBox.Yes:
+            return
+
+        # Initialize engine if needed
+        if self.similarity_engine is None:
+            self.similarity_engine = PotterySimilaritySearchEngine(self.DB_MANAGER)
+
+        # Update UI
+        self.btn_build_index.setEnabled(False)
+        self.btn_find_similar.setEnabled(False)
+        self.progress_similarity.setVisible(True)
+        self.progress_similarity.setValue(0)
+        self.label_similarity_status.setText("Building index...")
+
+        # Create worker
+        self.similarity_worker = PotterySimilarityWorker(
+            self.similarity_engine,
+            'build_index',
+            model_name=model_name,
+            search_type=search_type
+        )
+        self.similarity_worker.index_progress.connect(self.on_index_progress)
+        self.similarity_worker.operation_complete.connect(self.on_index_complete)
+        self.similarity_worker.error_occurred.connect(self.on_similarity_error)
+        self.similarity_worker.start()
+
+    def on_index_progress(self, current, total, message):
+        """Update progress during index building"""
+        if total > 0:
+            self.progress_similarity.setMaximum(total)
+            self.progress_similarity.setValue(current)
+        self.label_similarity_status.setText(message)
+
+    def on_index_complete(self, message):
+        """Handle index building completion"""
+        self.btn_build_index.setEnabled(True)
+        self.btn_find_similar.setEnabled(True)
+        self.progress_similarity.setVisible(False)
+        self.label_similarity_status.setText(message)
+        QMessageBox.information(self, "Index Built", message)
 
 

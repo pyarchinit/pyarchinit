@@ -268,7 +268,10 @@ class SQLiteDBUpdater:
             self.update_us_table()
             self.update_site_table()
             self.update_other_tables()
-            
+
+            # Create pottery embeddings metadata table for visual similarity search
+            self.create_pottery_embeddings_metadata_table()
+
             # Fix vector layer views
             self.fix_vector_layer_views()
             
@@ -525,7 +528,42 @@ class SQLiteDBUpdater:
                             
         except Exception as e:
             self.log_message(f"Errore nel recupero geometrie: {e}")
-    
+
+    def create_pottery_embeddings_metadata_table(self):
+        """Create pottery embeddings metadata table for visual similarity search"""
+        # Check if table exists
+        self.cursor.execute("""
+            SELECT name FROM sqlite_master
+            WHERE type='table' AND name='pottery_embeddings_metadata_table'
+        """)
+
+        if not self.cursor.fetchone():
+            # Create table
+            self.log_message("Creazione tabella pottery_embeddings_metadata_table...")
+            self.cursor.execute('''
+                CREATE TABLE pottery_embeddings_metadata_table (
+                    id_embedding INTEGER PRIMARY KEY AUTOINCREMENT,
+                    id_rep INTEGER NOT NULL,
+                    id_media INTEGER NOT NULL,
+                    image_hash TEXT NOT NULL,
+                    model_name TEXT NOT NULL,
+                    search_type TEXT NOT NULL,
+                    embedding_version TEXT DEFAULT '1.0',
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    UNIQUE(id_media, model_name, search_type)
+                )
+            ''')
+            # Create indexes for faster queries
+            self.cursor.execute('''
+                CREATE INDEX IF NOT EXISTS idx_pottery_emb_id_rep
+                ON pottery_embeddings_metadata_table(id_rep)
+            ''')
+            self.cursor.execute('''
+                CREATE INDEX IF NOT EXISTS idx_pottery_emb_model
+                ON pottery_embeddings_metadata_table(model_name, search_type)
+            ''')
+            self.updates_made.append("CREATE TABLE pottery_embeddings_metadata_table")
+
     def fix_vector_layer_views(self):
         """Corregge i tipi di campo nelle view dei layer vettoriali"""
         # Prima correggi i tipi di campo nelle tabelle base

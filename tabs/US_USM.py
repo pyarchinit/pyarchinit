@@ -473,11 +473,11 @@ class CheckableComboBox(QComboBox):
         self.view().pressed.connect(self.handle_item_pressed)
         self.setStyleSheet("QComboBox { combobox-popup: 0; }")
 
-    def add_item(self, text):
+    def add_item(self, text, checked=True):
         """Add a checkable item to the combo box"""
         item = QStandardItem(text)
         item.setFlags(item.flags() | Qt.ItemIsUserCheckable)
-        item.setData(Qt.Unchecked, Qt.CheckStateRole)
+        item.setData(Qt.Checked if checked else Qt.Unchecked, Qt.CheckStateRole)
         self.model().appendRow(item)
 
     def items_checked(self):
@@ -3751,6 +3751,12 @@ class RAGQueryDialog(QDialog):
         self.auto_update_checkbox.setToolTip("Aggiorna automaticamente il RAG quando i dati cambiano")
         button_layout.addWidget(self.auto_update_checkbox)
 
+        # Add refresh button to force reload vectorstore
+        self.refresh_btn = QPushButton("🔄 Ricarica DB")
+        self.refresh_btn.setToolTip("Forza ricaricamento di tutte le tabelle e ricostruzione del vectorstore")
+        self.refresh_btn.clicked.connect(self.force_refresh_vectorstore)
+        button_layout.addWidget(self.refresh_btn)
+
         button_layout.addStretch()
         query_layout.addLayout(button_layout)
 
@@ -4006,12 +4012,29 @@ class RAGQueryDialog(QDialog):
             QMessageBox.warning(self, "Attenzione", "Inserisci una query")
             return
 
-        # Check API key
-        api_key = self.parent.apikey_gpt() if hasattr(self.parent, 'apikey_gpt') else None
-        print(f"[AI Query] API key retrieved: {api_key[:20]}...{api_key[-10:] if api_key else 'None'}")
-        print(f"[AI Query] API key length: {len(api_key) if api_key else 0}")
+        # Check API key - try parent first, then read from file directly
+        api_key = None
+        if self.parent and hasattr(self.parent, 'apikey_gpt'):
+            api_key = self.parent.apikey_gpt()
+
+        # If no parent or parent doesn't have apikey_gpt, read from file directly
         if not api_key:
-            QMessageBox.warning(self, "API Key Required", "Please set your OpenAI API key in settings")
+            try:
+                home_dir = os.path.expanduser("~")
+                path_key = os.path.join(home_dir, "pyarchinit", "bin", "gpt_api_key.txt")
+                if os.path.exists(path_key):
+                    with open(path_key, 'r') as f:
+                        api_key = f.read().strip()
+            except Exception as e:
+                print(f"[AI Query] Error reading API key from file: {e}")
+
+        if api_key:
+            print(f"[AI Query] API key retrieved: {api_key[:20]}...{api_key[-10:]}")
+            print(f"[AI Query] API key length: {len(api_key)}")
+        else:
+            print("[AI Query] API key is None or empty")
+        if not api_key:
+            QMessageBox.warning(self, "API Key Required", "Please set your OpenAI API key in ~/pyarchinit/bin/gpt_api_key.txt")
             return
 
         # Add query to conversation history
@@ -5082,6 +5105,37 @@ class RAGQueryDialog(QDialog):
         """Update progress status"""
         self.status_label.setText(message)
 
+    def force_refresh_vectorstore(self):
+        """Force refresh of vectorstore cache - clears cache and reloads all data"""
+        # Clear in-memory cache
+        RAGQueryWorker._cached_vectorstore = None
+        RAGQueryWorker._cached_data_hash = None
+        RAGQueryWorker._cached_data = None
+
+        # Delete disk cache files
+        try:
+            faiss_path = RAGQueryWorker.FAISS_INDEX_PATH
+            hash_file = RAGQueryWorker.FAISS_HASH_FILE
+            import shutil
+            if os.path.exists(faiss_path):
+                shutil.rmtree(faiss_path)
+                print(f"[AI Query] Deleted FAISS index: {faiss_path}")
+            if os.path.exists(hash_file):
+                os.remove(hash_file)
+                print(f"[AI Query] Deleted hash file: {hash_file}")
+        except Exception as e:
+            print(f"[AI Query] Error deleting cache files: {e}")
+
+        self.status_label.setText("Cache cancellata! La prossima query ricostruirà il vectorstore.")
+        QMessageBox.information(self, "Cache Cancellata",
+            "La cache del vectorstore è stata cancellata.\n\n"
+            "La prossima query ricaricherà TUTTI i dati dalle tabelle:\n"
+            "- US, Strutture, Tombe\n"
+            "- Pottery, Inventario Materiali, TMA\n"
+            "- Periodizzazione, Campioni, Documentazione\n"
+            "- Siti, Media, Schede Individuali\n\n"
+            "Questo può richiedere qualche minuto.")
+
 
 class RAGQueryWorker(QThread):
     """Worker thread for RAG queries"""
@@ -5150,9 +5204,11 @@ class RAGQueryWorker(QThread):
         'POTTERY': {
             'query_name': 'POTTERY',
             'display_name': 'POTTERY - Ceramica',
-            'key_fields': ['sito', 'area', 'us', 'id_number', 'fabric', 'percent', 'material',
-                          'form', 'specific_shape', 'ware', 'mupieces', 'surf_treatment',
-                          'conservation', 'drawings', 'qty', 'anno'],
+            'key_fields': ['sito', 'area', 'us', 'id_number', 'id_rep', 'anno', 'fabric', 'percent', 'material',
+                          'form', 'specific_form', 'specific_shape', 'ware', 'munsell', 'surf_trat',
+                          'exdeco', 'intdeco', 'wheel_made', 'descrip_ex_deco', 'descrip_in_deco',
+                          'note', 'diametro_max', 'qty', 'diametro_rim', 'diametro_bottom',
+                          'diametro_height', 'diametro_preserved', 'box', 'photo', 'drawing', 'bag', 'sector'],
             'site_field': 'sito',
             'has_geometry': False
         },
@@ -5586,7 +5642,7 @@ class RAGQueryWorker(QThread):
                                         if us_pottery:
                                             pottery_lines = []
                                             for p in us_pottery:
-                                                pottery_lines.append(f"Ceramica id_number={p.get('id_number', '?')}: fabric={p.get('fabric', '')}, form={p.get('form', '')}, ware={p.get('ware', '')}, material={p.get('material', '')}, qty={p.get('qty', '')}")
+                                                pottery_lines.append(f"Ceramica id_number={p.get('id_number', '?')}: anno={p.get('anno', '')}, fabric={p.get('fabric', '')}, form={p.get('form', '')}, specific_form={p.get('specific_form', '')}, specific_shape={p.get('specific_shape', '')}, ware={p.get('ware', '')}, material={p.get('material', '')}, qty={p.get('qty', '')}")
                                             context = context + f"\n\nCERAMICA (POTTERY) trovata per US {us_num}:\n" + "\n".join(pottery_lines)
 
                                         # Cerca inventario per questa US nei raw_data
@@ -5683,7 +5739,7 @@ class RAGQueryWorker(QThread):
                                         if us_pottery:
                                             pottery_lines = []
                                             for p in us_pottery:
-                                                pottery_lines.append(f"Ceramica id_number={p.get('id_number', '?')}: fabric={p.get('fabric', '')}, form={p.get('form', '')}, ware={p.get('ware', '')}, material={p.get('material', '')}, qty={p.get('qty', '')}")
+                                                pottery_lines.append(f"Ceramica id_number={p.get('id_number', '?')}: anno={p.get('anno', '')}, fabric={p.get('fabric', '')}, form={p.get('form', '')}, specific_form={p.get('specific_form', '')}, specific_shape={p.get('specific_shape', '')}, ware={p.get('ware', '')}, material={p.get('material', '')}, qty={p.get('qty', '')}")
                                             context = context + f"\n\nCERAMICA (POTTERY) trovata per US {us_num}:\n" + "\n".join(pottery_lines)
 
                                         # Cerca inventario per questa US nei raw_data
@@ -5750,20 +5806,37 @@ class RAGQueryWorker(QThread):
                             # Get available tables dynamically (only tables with data)
                             available_tables = self._get_available_tables_info()
 
+                            # Get database schema knowledge for AI
+                            try:
+                                from ..modules.utility.database_schema_knowledge import DatabaseSchemaKnowledge
+                                schema_info = DatabaseSchemaKnowledge.get_schema_prompt()
+                            except Exception as e:
+                                print(f"[AI Query] Error loading schema knowledge: {e}")
+                                schema_info = ""
+
                             full_prompt = f"""Sei un assistente archeologico esperto e amichevole. Rispondi in modo naturale e colloquiale.
 
 TABELLE DISPONIBILI CON DATI:
 {available_tables}
 
+{schema_info}
+
 RELAZIONI CHIAVE TRA TABELLE:
 - US può avere MEDIA collegati (immagini)
-- POTTERY (ceramica) può avere MEDIA collegati
+- POTTERY (ceramica) può avere MEDIA collegati - campi importanti: id_rep, id_number, anno (anno scavo), form (forma), specific_form, specific_shape (forma specifica dettagliata), fabric (impasto), ware (classe)
 - INVENTARIO_MATERIALI (reperti) può avere MEDIA collegati
 - Le entità sono collegate tramite sito, area, us
 
 IMPORTANTE SUI MEDIA:
 - I media sono immagini collegate a US, ceramica o reperti
 - Se l'utente chiede immagini o media di una US, cerca nei dati del contesto
+
+IMPORTANTE PER POTTERY (CERAMICA):
+- Per le query sull'anno di scavo usa il campo 'anno'
+- Per le forme usa i campi 'form', 'specific_form', 'specific_shape'
+- Il campo 'id_number' è l'ID della ceramica
+- Il campo 'us' è il numero dell'unità stratigrafica
+- Il campo 'qty' è la quantità di frammenti
 
 Dati disponibili nel database:
 {context}
@@ -6215,6 +6288,8 @@ Posso aiutarti a capire come strutturare la query o cosa cercare. Come posso aiu
             text = self._format_media_record(record)
         elif table_key == 'US':
             text = self._format_us_record(record, display_name)
+        elif table_key == 'POTTERY':
+            text = self._format_pottery_record(record)
         else:
             # Generic formatting for other tables
             text = f"Tabella: {display_name}\n"
@@ -6287,6 +6362,44 @@ Posso aiutarti a capire come strutturare la query o cosa cercare. Come posso aiu
                     if entity_type and id_entity:
                         text += f"  - {entity_type}: {id_entity}\n"
 
+        return text
+
+    def _format_pottery_record(self, record):
+        """Format POTTERY record with all relevant fields for AI understanding"""
+        text = "Tabella: POTTERY - Ceramica\n"
+        text += f"ID Rep (chiave primaria): {record.get('id_rep', '')}\n"
+        text += f"ID Number (numero identificativo ceramica): {record.get('id_number', '')}\n"
+        text += f"Sito: {record.get('sito', '')}\n"
+        text += f"Area: {record.get('area', '')}\n"
+        text += f"US (unità stratigrafica): {record.get('us', '')}\n"
+        text += f"Anno (anno di scavo): {record.get('anno', '')}\n"
+        text += f"Fabric (impasto): {record.get('fabric', '')}\n"
+        text += f"Percent (percentuale conservata): {record.get('percent', '')}\n"
+        text += f"Material (materiale): {record.get('material', '')}\n"
+        text += f"Form (forma generale): {record.get('form', '')}\n"
+        text += f"Specific Form (forma specifica): {record.get('specific_form', '')}\n"
+        text += f"Specific Shape (forma dettagliata): {record.get('specific_shape', '')}\n"
+        text += f"Ware (classe ceramica): {record.get('ware', '')}\n"
+        text += f"Munsell (colore): {record.get('munsell', '')}\n"
+        text += f"Surface Treatment (trattamento superficie): {record.get('surf_trat', '')}\n"
+        text += f"External Decoration (decorazione esterna): {record.get('exdeco', '')}\n"
+        text += f"Internal Decoration (decorazione interna): {record.get('intdeco', '')}\n"
+        text += f"Wheel Made (tornito): {record.get('wheel_made', '')}\n"
+        text += f"Qty (quantità frammenti): {record.get('qty', '')}\n"
+        text += f"Diametro Max: {record.get('diametro_max', '')}\n"
+        text += f"Diametro Rim (orlo): {record.get('diametro_rim', '')}\n"
+        text += f"Diametro Bottom (fondo): {record.get('diametro_bottom', '')}\n"
+        text += f"Height (altezza): {record.get('diametro_height', '')}\n"
+        text += f"Preserved Height (altezza conservata): {record.get('diametro_preserved', '')}\n"
+        text += f"Box (cassetta): {record.get('box', '')}\n"
+        text += f"Bag (sacchetto): {record.get('bag', '')}\n"
+        text += f"Sector (settore): {record.get('sector', '')}\n"
+        if record.get('note'):
+            text += f"Note: {record.get('note')}\n"
+        if record.get('descrip_ex_deco'):
+            text += f"Descrizione Decorazione Esterna: {record.get('descrip_ex_deco')}\n"
+        if record.get('descrip_in_deco'):
+            text += f"Descrizione Decorazione Interna: {record.get('descrip_in_deco')}\n"
         return text
 
     def find_media_for_entity(self, entity_type, entity_id, data):

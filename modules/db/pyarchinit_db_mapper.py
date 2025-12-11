@@ -35,6 +35,7 @@ from modules.db.entities.MEDIA_THUMB import MEDIA_THUMB
 from modules.db.entities.PDF_ADMINISTRATOR import PDF_ADMINISTRATOR
 from modules.db.entities.PERIODIZZAZIONE import PERIODIZZAZIONE
 from modules.db.entities.POTTERY import POTTERY
+from modules.db.entities.POTTERY_EMBEDDING_METADATA import POTTERY_EMBEDDING_METADATA
 from modules.db.entities.PYARCHINIT_THESAURUS_SIGLE import PYARCHINIT_THESAURUS_SIGLE
 from modules.db.entities.PYCAMPIONI import PYCAMPIONI
 from modules.db.entities.PYDOCUMENTAZIONE import PYDOCUMENTAZIONE
@@ -75,6 +76,7 @@ from modules.db.structures.Media_to_Entity_table_view import Media_to_Entity_tab
 from modules.db.structures.PDF_administrator_table import PDF_administrator_table
 from modules.db.structures.Periodizzazione_table import Periodizzazione_table
 from modules.db.structures.Pottery_table import Pottery_table
+from modules.db.structures.Pottery_embeddings_metadata_table import Pottery_embeddings_metadata_table
 from modules.db.structures.Pyarchinit_thesaurus_sigle import Pyarchinit_thesaurus_sigle
 from modules.db.structures.SCHEDAIND_table import SCHEDAIND_table
 from modules.db.structures.Site_table import Site_table
@@ -219,7 +221,10 @@ try:
 
     # mapper
     mapper(POTTERY, Pottery_table.pottery_table)
-    
+
+    # mapper - Pottery embeddings metadata for visual similarity search
+    mapper(POTTERY_EMBEDDING_METADATA, Pottery_embeddings_metadata_table.pottery_embeddings_metadata_table)
+
     # mapper
     mapper(TMA, Tma_table.tma_table)
     
