@@ -21,13 +21,16 @@ class EmbeddingModel(ABC):
     """Abstract base class for embedding models"""
 
     @abstractmethod
-    def get_embedding(self, image_path: str, search_type: str = 'general') -> Optional[np.ndarray]:
+    def get_embedding(self, image_path: str, search_type: str = 'general',
+                      auto_crop: bool = False, edge_preprocessing: bool = False) -> Optional[np.ndarray]:
         """
         Generate embedding for a single image.
 
         Args:
             image_path: Path to the image file
             search_type: Type of search ('general', 'decoration', 'shape')
+            auto_crop: If True, auto-crop to region with most detail (for decoration)
+            edge_preprocessing: If True, use edge-based preprocessing (better for textures)
 
         Returns:
             numpy array of embeddings or None if failed
@@ -91,7 +94,8 @@ class CLIPEmbeddingModel(EmbeddingModel):
     def get_embedding_dimension(self) -> int:
         return self.EMBEDDING_DIM
 
-    def get_embedding(self, image_path: str, search_type: str = 'general') -> Optional[np.ndarray]:
+    def get_embedding(self, image_path: str, search_type: str = 'general',
+                      auto_crop: bool = False, edge_preprocessing: bool = False) -> Optional[np.ndarray]:
         """Generate CLIP embedding via subprocess"""
         if not os.path.exists(image_path):
             print(f"Image not found: {image_path}")
@@ -114,6 +118,12 @@ class CLIPEmbeddingModel(EmbeddingModel):
                 '--search-type', search_type,
                 '--output', output_path
             ]
+
+            # Add optional preprocessing flags
+            if auto_crop:
+                cmd.append('--auto-crop')
+            if edge_preprocessing:
+                cmd.extend(['--preprocessing', 'edge'])
 
             # Clean environment: remove QGIS Python paths that interfere with venv
             clean_env = os.environ.copy()
@@ -183,7 +193,8 @@ class DINOv2EmbeddingModel(EmbeddingModel):
     def get_embedding_dimension(self) -> int:
         return self.EMBEDDING_DIM
 
-    def get_embedding(self, image_path: str, search_type: str = 'general') -> Optional[np.ndarray]:
+    def get_embedding(self, image_path: str, search_type: str = 'general',
+                      auto_crop: bool = False, edge_preprocessing: bool = False) -> Optional[np.ndarray]:
         """Generate DINOv2 embedding via subprocess"""
         if not os.path.exists(image_path):
             print(f"Image not found: {image_path}")
@@ -205,6 +216,12 @@ class DINOv2EmbeddingModel(EmbeddingModel):
                 '--search-type', search_type,
                 '--output', output_path
             ]
+
+            # Add optional preprocessing flags
+            if auto_crop:
+                cmd.append('--auto-crop')
+            if edge_preprocessing:
+                cmd.extend(['--preprocessing', 'edge'])
 
             # Clean environment: remove QGIS Python paths that interfere with venv
             clean_env = os.environ.copy()
@@ -282,8 +299,10 @@ class OpenAIVisionEmbeddingModel(EmbeddingModel):
     def get_embedding_dimension(self) -> int:
         return self.EMBEDDING_DIM
 
-    def get_embedding(self, image_path: str, search_type: str = 'general') -> Optional[np.ndarray]:
-        """Generate embedding via OpenAI API using image description"""
+    def get_embedding(self, image_path: str, search_type: str = 'general',
+                      auto_crop: bool = False, edge_preprocessing: bool = False) -> Optional[np.ndarray]:
+        """Generate embedding via OpenAI API using image description
+        Note: auto_crop and edge_preprocessing are ignored for OpenAI (uses text description)"""
         if not self.api_key:
             print("OpenAI API key not configured")
             return None
