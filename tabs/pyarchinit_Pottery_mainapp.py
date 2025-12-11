@@ -4777,6 +4777,31 @@ Use well-structured paragraphs with headings for each section.
         if self.similarity_engine is None:
             self.similarity_engine = PotterySimilaritySearchEngine(self.DB_MANAGER)
 
+        # Get all images for this pottery record
+        all_images = self.DB_MANAGER.get_all_pottery_images(pottery_id)
+
+        if not all_images:
+            QMessageBox.warning(self, "No Images", f"No images found for pottery ID {pottery_id_number}")
+            return
+
+        # If multiple images, let user choose which one to search with
+        selected_image_path = None
+        if len(all_images) > 1:
+            selected_image_path = self.show_image_selection_dialog(all_images, pottery_id_number)
+            if not selected_image_path:
+                return  # User cancelled
+        else:
+            # Only one image, use it directly
+            relative_path = all_images[0].get('path_resize')
+            if relative_path:
+                selected_image_path = self.similarity_engine._build_image_path(relative_path)
+
+        if not selected_image_path:
+            QMessageBox.warning(self, "Error", "Could not determine image path")
+            return
+
+        print(f"[SIMILARITY] Selected image: {selected_image_path}")
+
         model_name = self.get_similarity_model_name()
         search_type = self.get_similarity_search_type()
         threshold = self.slider_similarity_threshold.value() / 100.0
@@ -4787,18 +4812,97 @@ Use well-structured paragraphs with headings for each section.
         self.label_similarity_status.setText(f"Searching with {model_name}...")
         self.btn_find_similar.setEnabled(False)
 
-        # Create worker for background search
+        # Create worker for background search - use search_similar with specific image
         self.similarity_worker = PotterySimilarityWorker(
             self.similarity_engine,
-            'search_by_id',
-            pottery_id=pottery_id,
+            'search',  # Use direct search instead of search_by_id
+            image_path=selected_image_path,
             model_name=model_name,
             search_type=search_type,
-            threshold=threshold
+            threshold=threshold,
+            exclude_pottery_id=pottery_id  # Exclude current pottery from results
         )
         self.similarity_worker.search_complete.connect(self.on_similarity_search_complete)
         self.similarity_worker.error_occurred.connect(self.on_similarity_error)
         self.similarity_worker.start()
+
+    def show_image_selection_dialog(self, images, pottery_id_number):
+        """Show dialog to let user select which image to use for similarity search"""
+        dialog = QDialog(self)
+        dialog.setWindowTitle(f"Select Image for Pottery {pottery_id_number}")
+        dialog.setMinimumSize(600, 400)
+
+        layout = QVBoxLayout()
+
+        label = QLabel(f"This pottery has {len(images)} images. Select one to search for similar:")
+        layout.addWidget(label)
+
+        # Image list with thumbnails
+        list_widget = QListWidget()
+        list_widget.setViewMode(QListWidget.IconMode)
+        list_widget.setIconSize(QSize(120, 120))
+        list_widget.setSpacing(10)
+        list_widget.setResizeMode(QListWidget.Adjust)
+
+        # Get config for path building
+        conn = Connection()
+        thumb_path_config = conn.thumb_path()
+        thumb_path_str = thumb_path_config.get('thumb_path', '')
+        is_cloudinary = thumb_path_str.lower().startswith('cloudinary://')
+
+        for img in images:
+            filename = img.get('filename', img.get('path_resize', 'Unknown'))
+            relative_path = img.get('path_resize', '')
+
+            item = QListWidgetItem(filename)
+
+            # Try to load thumbnail
+            if relative_path:
+                if is_cloudinary and HAS_REMOTE_LOADER:
+                    cloudinary_path = f"{thumb_path_str}/{relative_path}"
+                    pixmap = RemoteImageLoader.load_pixmap(cloudinary_path, 120, 120)
+                else:
+                    full_path = self.similarity_engine._build_image_path(relative_path)
+                    if os.path.exists(full_path):
+                        pixmap = QPixmap(full_path)
+                        if not pixmap.isNull():
+                            pixmap = pixmap.scaled(120, 120, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+                    else:
+                        pixmap = None
+
+                if pixmap and not pixmap.isNull():
+                    item.setIcon(QIcon(pixmap))
+
+            # Store full path in item data
+            if relative_path:
+                full_path = self.similarity_engine._build_image_path(relative_path)
+                item.setData(Qt.UserRole, full_path)
+
+            list_widget.addItem(item)
+
+        layout.addWidget(list_widget)
+
+        # Buttons
+        btn_layout = QHBoxLayout()
+        btn_ok = QPushButton("Search with Selected")
+        btn_cancel = QPushButton("Cancel")
+        btn_ok.clicked.connect(dialog.accept)
+        btn_cancel.clicked.connect(dialog.reject)
+        btn_layout.addWidget(btn_ok)
+        btn_layout.addWidget(btn_cancel)
+        layout.addLayout(btn_layout)
+
+        dialog.setLayout(layout)
+
+        # Select first item by default
+        if list_widget.count() > 0:
+            list_widget.setCurrentRow(0)
+
+        if dialog.exec_() == QDialog.Accepted:
+            selected_item = list_widget.currentItem()
+            if selected_item:
+                return selected_item.data(Qt.UserRole)
+        return None
 
     def on_similarity_search_complete(self, results):
         """Handle search completion"""
@@ -4918,9 +5022,13 @@ Use well-structured paragraphs with headings for each section.
 
         dialog.setLayout(layout)
 
-        # Store dialog reference to close it when navigating
+        # Store dialog reference
         self._similarity_dialog = dialog
-        dialog.exec_()
+
+        # Make dialog non-modal so user can interact with main form
+        dialog.setModal(False)
+        dialog.setAttribute(Qt.WA_DeleteOnClose)  # Clean up when closed
+        dialog.show()  # Non-blocking show instead of exec_()
 
     def navigate_to_pottery(self, result_data):
         """Navigate to a pottery record from search results using id_number"""

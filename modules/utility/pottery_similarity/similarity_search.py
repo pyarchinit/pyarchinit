@@ -517,6 +517,10 @@ if HAS_QGIS:
                         self.kwargs.get('search_type', 'general'),
                         self.kwargs.get('threshold', 0.7)
                     )
+                    # Filter out excluded pottery if specified
+                    exclude_id = self.kwargs.get('exclude_pottery_id')
+                    if exclude_id is not None:
+                        self.results = [r for r in self.results if r.get('pottery_id') != exclude_id]
                     self.search_complete.emit(self.results)
 
                 elif self.operation == 'search_by_id':
