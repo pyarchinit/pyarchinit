@@ -4689,6 +4689,19 @@ Use well-structured paragraphs with headings for each section.
         filter_layout.addWidget(self.chk_only_decorated)
         similarity_layout.addLayout(filter_layout)
 
+        # Advanced preprocessing options
+        preproc_layout = QHBoxLayout()
+        self.chk_auto_crop = QCheckBox("Auto-crop detail")
+        self.chk_auto_crop.setToolTip("Auto-crop to region with most decoration detail")
+        self.chk_auto_crop.setChecked(False)
+        preproc_layout.addWidget(self.chk_auto_crop)
+
+        self.chk_edge_preproc = QCheckBox("Edge-enhance")
+        self.chk_edge_preproc.setToolTip("Use edge-detection preprocessing (better for line decorations)")
+        self.chk_edge_preproc.setChecked(False)
+        preproc_layout.addWidget(self.chk_edge_preproc)
+        similarity_layout.addLayout(preproc_layout)
+
         # Buttons
         buttons_layout = QHBoxLayout()
         self.btn_find_similar = QPushButton("Find Similar")
@@ -4806,7 +4819,12 @@ Use well-structured paragraphs with headings for each section.
         search_type = self.get_similarity_search_type()
         threshold = self.slider_similarity_threshold.value() / 100.0
 
+        # Get advanced preprocessing options
+        auto_crop = getattr(self, 'chk_auto_crop', None) and self.chk_auto_crop.isChecked()
+        edge_preproc = getattr(self, 'chk_edge_preproc', None) and self.chk_edge_preproc.isChecked()
+
         print(f"[SIMILARITY] Model={model_name}, Type={search_type}, Threshold={threshold}")
+        print(f"[SIMILARITY] Auto-crop={auto_crop}, Edge-preproc={edge_preproc}")
 
         # Update status
         self.label_similarity_status.setText(f"Searching with {model_name}...")
@@ -4820,7 +4838,9 @@ Use well-structured paragraphs with headings for each section.
             model_name=model_name,
             search_type=search_type,
             threshold=threshold,
-            exclude_pottery_id=pottery_id  # Exclude current pottery from results
+            exclude_pottery_id=pottery_id,  # Exclude current pottery from results
+            auto_crop=auto_crop,
+            edge_preprocessing=edge_preproc
         )
         self.similarity_worker.search_complete.connect(self.on_similarity_search_complete)
         self.similarity_worker.error_occurred.connect(self.on_similarity_error)
