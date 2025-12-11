@@ -4710,9 +4710,14 @@ Use well-structured paragraphs with headings for each section.
         buttons_layout.addWidget(self.btn_find_similar)
 
         self.btn_build_index = QPushButton("Build Index")
-        self.btn_build_index.setToolTip("Build/rebuild similarity index for selected model")
+        self.btn_build_index.setToolTip("Build/rebuild similarity index for selected model (from scratch)")
         self.btn_build_index.clicked.connect(self.on_build_index_clicked)
         buttons_layout.addWidget(self.btn_build_index)
+
+        self.btn_update_index = QPushButton("Update Index")
+        self.btn_update_index.setToolTip("Update existing indexes: add new, update modified, remove deleted images")
+        self.btn_update_index.clicked.connect(self.on_update_index_clicked)
+        buttons_layout.addWidget(self.btn_update_index)
         similarity_layout.addLayout(buttons_layout)
 
         # Buttons - Row 2 (Import/Export)
@@ -5631,5 +5636,62 @@ Use well-structured paragraphs with headings for each section.
             QMessageBox.warning(self, "Invalid File", "The selected file is not a valid ZIP file.")
         except Exception as e:
             QMessageBox.warning(self, "Import Error", f"Failed to import indexes:\n{str(e)}")
+
+    def on_update_index_clicked(self):
+        """Update existing indexes with new/modified/deleted images"""
+        from modules.utility.pottery_similarity.similarity_search import (
+            PotterySimilaritySearchEngine, PotterySimilarityWorker
+        )
+
+        # Ask user what to update
+        reply = QMessageBox.question(
+            self,
+            "Update Indexes",
+            "Update all existing indexes?\n\n"
+            "This will:\n"
+            "• Add new images not yet indexed\n"
+            "• Update embeddings for modified images\n"
+            "• Remove embeddings for deleted images\n\n"
+            "Only indexes that already exist will be updated.\n"
+            "(Use 'Build Index' to create new indexes)",
+            QMessageBox.Yes | QMessageBox.No
+        )
+
+        if reply != QMessageBox.Yes:
+            return
+
+        # Disable buttons during update
+        self.btn_find_similar.setEnabled(False)
+        self.btn_build_index.setEnabled(False)
+        self.btn_update_index.setEnabled(False)
+        self.progress_similarity.setVisible(True)
+        self.progress_similarity.setMaximum(100)
+        self.label_similarity_status.setText("Analyzing changes...")
+
+        # Create search engine
+        search_engine = PotterySimilaritySearchEngine(self.DB_MANAGER)
+
+        # Create worker for updating all indexes
+        self.similarity_worker = PotterySimilarityWorker(
+            search_engine,
+            'update_all_indexes'
+        )
+
+        # Connect signals
+        self.similarity_worker.index_progress.connect(self.on_index_progress)
+        self.similarity_worker.operation_complete.connect(self.on_update_complete)
+        self.similarity_worker.error_occurred.connect(self.on_similarity_error)
+
+        # Start worker
+        self.similarity_worker.start()
+
+    def on_update_complete(self, message):
+        """Handle update completion"""
+        self.btn_build_index.setEnabled(True)
+        self.btn_find_similar.setEnabled(True)
+        self.btn_update_index.setEnabled(True)
+        self.progress_similarity.setVisible(False)
+        self.label_similarity_status.setText(message)
+        QMessageBox.information(self, "Update Complete", message)
 
 

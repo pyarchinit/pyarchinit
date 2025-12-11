@@ -3,6 +3,7 @@ FAISS Index Manager for Pottery Visual Similarity Search
 
 Manages FAISS indexes for different embedding models and search types.
 Handles index creation, persistence, and similarity search operations.
+Supports incremental updates (add/remove/update individual embeddings).
 
 Author: Enzo Cocca <enzo.ccc@gmail.com>
 """
@@ -29,6 +30,8 @@ class PotterySimilarityIndexManager:
 
     Each combination of (model_name, search_type) has its own index.
     Indexes are stored in ~/pyarchinit/bin/pottery_similarity/
+
+    Uses IndexIDMap to allow incremental updates (add/remove by media_id).
     """
 
     INDEX_BASE_PATH = os.path.join(
@@ -52,7 +55,7 @@ class PotterySimilarityIndexManager:
         """
         self.db_manager = db_manager
         self.indexes: Dict[str, faiss.Index] = {}  # Cache loaded indexes
-        self.id_mappings: Dict[str, Dict] = {}  # FAISS index pos -> (pottery_id, media_id)
+        self.id_mappings: Dict[str, Dict] = {}  # media_id -> {pottery_id, image_hash}
         self._modified_indexes = set()  # Track which indexes need saving
 
         # Ensure index directory exists
@@ -74,13 +77,15 @@ class PotterySimilarityIndexManager:
         return self.MODEL_DIMENSIONS.get(model_name, 512)
 
     def _create_index(self, dimension: int) -> 'faiss.Index':
-        """Create a new FAISS index"""
+        """Create a new FAISS index with ID mapping for incremental updates"""
         if not HAS_FAISS:
             raise RuntimeError("FAISS not installed")
 
-        # Use IndexFlatIP for cosine similarity (with normalized vectors)
-        # Inner product on normalized vectors = cosine similarity
-        index = faiss.IndexFlatIP(dimension)
+        # Use IndexIDMap wrapping IndexFlatIP for cosine similarity
+        # IndexIDMap allows us to use media_id as the ID for each vector
+        # This enables add/remove operations by ID
+        base_index = faiss.IndexFlatIP(dimension)
+        index = faiss.IndexIDMap(base_index)
         return index
 
     def get_index(self, model_name: str, search_type: str) -> Tuple[Optional['faiss.Index'], Dict]:
@@ -128,7 +133,8 @@ class PotterySimilarityIndexManager:
         return index, mapping
 
     def add_embedding(self, model_name: str, search_type: str,
-                     embedding: np.ndarray, pottery_id: int, media_id: int) -> bool:
+                     embedding: np.ndarray, pottery_id: int, media_id: int,
+                     image_hash: str = None) -> bool:
         """
         Add embedding to appropriate index.
 
@@ -137,7 +143,8 @@ class PotterySimilarityIndexManager:
             search_type: Search type
             embedding: Normalized embedding vector
             pottery_id: Pottery record ID (id_rep)
-            media_id: Media file ID (id_media)
+            media_id: Media file ID (id_media) - used as FAISS ID
+            image_hash: Optional SHA256 hash of image for change detection
 
         Returns:
             True if successful
@@ -155,15 +162,19 @@ class PotterySimilarityIndexManager:
                 embedding = embedding.reshape(1, -1)
             embedding = embedding.astype(np.float32)
 
-            # Get current index position
-            idx = index.ntotal
+            # Use media_id as the FAISS ID (allows removal/update by ID)
+            ids = np.array([media_id], dtype=np.int64)
 
-            # Add to FAISS index
-            index.add(embedding)
+            # Add to FAISS index with ID
+            index.add_with_ids(embedding, ids)
 
-            # Update mapping
+            # Update mapping: media_id -> {pottery_id, image_hash}
             key = self._get_index_key(model_name, search_type)
-            mapping[idx] = {'pottery_id': pottery_id, 'media_id': media_id}
+            mapping[media_id] = {
+                'pottery_id': pottery_id,
+                'media_id': media_id,
+                'image_hash': image_hash
+            }
             self.id_mappings[key] = mapping
 
             # Mark as modified
@@ -218,13 +229,15 @@ class PotterySimilarityIndexManager:
                 similarity = float(score)
 
                 if similarity >= threshold:
-                    if idx in mapping:
-                        info = mapping[idx]
+                    # idx is the media_id (we use IndexIDMap with media_id as ID)
+                    media_id = int(idx)
+                    if media_id in mapping:
+                        info = mapping[media_id]
                         results.append({
                             'pottery_id': info['pottery_id'],
-                            'media_id': info['media_id'],
+                            'media_id': media_id,
                             'similarity': similarity,
-                            'faiss_idx': int(idx)
+                            'faiss_idx': media_id
                         })
 
             # Sort by similarity descending
@@ -240,8 +253,7 @@ class PotterySimilarityIndexManager:
         """
         Remove embedding from index by media_id.
 
-        Note: FAISS doesn't support direct removal, so we mark it as invalid
-        and rebuild periodically.
+        Uses IndexIDMap.remove_ids() for direct removal.
 
         Args:
             model_name: Embedding model name
@@ -249,29 +261,47 @@ class PotterySimilarityIndexManager:
             media_id: Media file ID to remove
 
         Returns:
-            True if found and marked for removal
+            True if successfully removed
         """
-        key = self._get_index_key(model_name, search_type)
-        mapping = self.id_mappings.get(key, {})
+        if not HAS_FAISS:
+            return False
 
-        # Find and mark for removal
-        for idx, info in list(mapping.items()):
-            if info.get('media_id') == media_id:
-                mapping[idx]['removed'] = True
+        key = self._get_index_key(model_name, search_type)
+        index, mapping = self.get_index(model_name, search_type)
+
+        if index is None:
+            return False
+
+        try:
+            # Remove from FAISS index using remove_ids
+            ids_to_remove = np.array([media_id], dtype=np.int64)
+            n_removed = index.remove_ids(ids_to_remove)
+
+            # Remove from mapping
+            if media_id in mapping:
+                del mapping[media_id]
+                self.id_mappings[key] = mapping
+
+            if n_removed > 0:
                 self._modified_indexes.add(key)
                 return True
 
-        return False
+            return False
+
+        except Exception as e:
+            print(f"Error removing embedding: {e}")
+            return False
 
     def rebuild_index(self, model_name: str, search_type: str,
-                     embeddings: List[Tuple[np.ndarray, int, int]]) -> bool:
+                     embeddings: List[Tuple[np.ndarray, int, int, str]]) -> bool:
         """
         Rebuild entire index from scratch.
 
         Args:
             model_name: Embedding model name
             search_type: Search type
-            embeddings: List of (embedding, pottery_id, media_id) tuples
+            embeddings: List of (embedding, pottery_id, media_id, image_hash) tuples
+                       image_hash can be None
 
         Returns:
             True if successful
@@ -292,13 +322,28 @@ class PotterySimilarityIndexManager:
             index = self._create_index(dimension)
             mapping = {}
 
-            for i, (embedding, pottery_id, media_id) in enumerate(embeddings):
+            for item in embeddings:
+                # Handle both old format (3 items) and new format (4 items)
+                if len(item) == 4:
+                    embedding, pottery_id, media_id, image_hash = item
+                else:
+                    embedding, pottery_id, media_id = item
+                    image_hash = None
+
                 if embedding.ndim == 1:
                     embedding = embedding.reshape(1, -1)
                 embedding = embedding.astype(np.float32)
 
-                index.add(embedding)
-                mapping[i] = {'pottery_id': pottery_id, 'media_id': media_id}
+                # Use media_id as the FAISS ID
+                ids = np.array([media_id], dtype=np.int64)
+                index.add_with_ids(embedding, ids)
+
+                # Mapping: media_id -> {pottery_id, media_id, image_hash}
+                mapping[media_id] = {
+                    'pottery_id': pottery_id,
+                    'media_id': media_id,
+                    'image_hash': image_hash
+                }
 
             key = self._get_index_key(model_name, search_type)
             self.indexes[key] = index
@@ -435,6 +480,44 @@ class PotterySimilarityIndexManager:
                 if not self.clear_index(model, search_type):
                     success = False
         return success
+
+    def get_indexed_media_ids(self, model_name: str, search_type: str) -> set:
+        """Get set of media_ids currently in the index"""
+        key = self._get_index_key(model_name, search_type)
+        _, mapping = self.get_index(model_name, search_type)
+        return set(mapping.keys())
+
+    def get_indexed_hashes(self, model_name: str, search_type: str) -> Dict[int, str]:
+        """Get dict of media_id -> image_hash for all indexed images"""
+        key = self._get_index_key(model_name, search_type)
+        _, mapping = self.get_index(model_name, search_type)
+        return {
+            media_id: info.get('image_hash')
+            for media_id, info in mapping.items()
+            if info.get('image_hash')
+        }
+
+    def update_embedding(self, model_name: str, search_type: str,
+                        embedding: np.ndarray, pottery_id: int, media_id: int,
+                        image_hash: str = None) -> bool:
+        """
+        Update existing embedding (remove old, add new).
+
+        Args:
+            model_name: Embedding model name
+            search_type: Search type
+            embedding: New embedding vector
+            pottery_id: Pottery record ID
+            media_id: Media file ID
+            image_hash: New image hash
+
+        Returns:
+            True if successful
+        """
+        # Remove old embedding
+        self.remove_embedding(model_name, search_type, media_id)
+        # Add new embedding
+        return self.add_embedding(model_name, search_type, embedding, pottery_id, media_id, image_hash)
 
 
 def compute_image_hash(image_path: str) -> Optional[str]:
