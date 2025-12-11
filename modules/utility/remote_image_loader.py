@@ -107,6 +107,8 @@ class RemoteImageLoader:
         Format: cloudinary://folder/subfolder/filename
         Result: https://res.cloudinary.com/{cloud_name}/image/upload/folder/subfolder/filename
 
+        Note: Removes '_thumb' from filename as Cloudinary stores files without this suffix.
+
         Args:
             cloudinary_path: Path starting with cloudinary://
 
@@ -125,7 +127,12 @@ class RemoteImageLoader:
 
         # Clean up path
         path_part = path_part.strip('/')
-        print(f"[CLOUDINARY DEBUG] After strip: {path_part}")
+
+        # Remove '_thumb' from filename (Cloudinary files don't have this suffix)
+        # Example: 2446_DSC02076_thumb.png -> 2446_DSC02076.png
+        import re
+        path_part = re.sub(r'_thumb(\.[^.]+)$', r'\1', path_part)
+        print(f"[CLOUDINARY DEBUG] After removing _thumb: {path_part}")
 
         # Build full URL
         full_url = f"{CLOUDINARY_BASE_URL}/{path_part}"
