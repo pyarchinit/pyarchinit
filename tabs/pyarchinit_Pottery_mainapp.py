@@ -4766,6 +4766,13 @@ Use well-structured paragraphs with headings for each section.
         current_record = self.DATA_LIST[self.REC_CORR]
         pottery_id = current_record.id_rep
 
+        # Log which record we're searching from
+        print(f"[SIMILARITY] Starting search from pottery id_rep={pottery_id}")
+        print(f"[SIMILARITY] Record info: sito={getattr(current_record, 'sito', 'N/A')}, "
+              f"area={getattr(current_record, 'area', 'N/A')}, "
+              f"us={getattr(current_record, 'us', 'N/A')}, "
+              f"id_number={getattr(current_record, 'id_number', 'N/A')}")
+
         # Initialize engine if needed
         if self.similarity_engine is None:
             self.similarity_engine = PotterySimilaritySearchEngine(self.DB_MANAGER)
@@ -4773,6 +4780,8 @@ Use well-structured paragraphs with headings for each section.
         model_name = self.get_similarity_model_name()
         search_type = self.get_similarity_search_type()
         threshold = self.slider_similarity_threshold.value() / 100.0
+
+        print(f"[SIMILARITY] Model={model_name}, Type={search_type}, Threshold={threshold}")
 
         # Update status
         self.label_similarity_status.setText(f"Searching with {model_name}...")
@@ -4914,25 +4923,41 @@ Use well-structured paragraphs with headings for each section.
 
     def navigate_to_pottery(self, result_data):
         """Navigate to a pottery record from search results"""
+        print(f"[SIMILARITY] navigate_to_pottery called with: {result_data}")
+
         if not result_data:
+            print("[SIMILARITY] ERROR: result_data is None or empty")
             return
 
         pottery_id = result_data.get('pottery_id')
+        print(f"[SIMILARITY] Navigating to pottery_id={pottery_id}")
+
         if not pottery_id:
+            print("[SIMILARITY] ERROR: pottery_id is None")
             return
 
         # Close the results dialog first so user can see the main form
         if hasattr(self, '_similarity_dialog') and self._similarity_dialog:
             self._similarity_dialog.close()
+            self._similarity_dialog = None
 
         # Find the record in DATA_LIST
+        found = False
         for i, record in enumerate(self.DATA_LIST):
             if record.id_rep == pottery_id:
+                print(f"[SIMILARITY] Found record at index {i}, navigating...")
                 self.REC_CORR = i
                 self.REC_TOT = len(self.DATA_LIST)
                 self.fill_fields()
                 self.set_rec_counter(self.REC_TOT, self.REC_CORR + 1)
+                found = True
                 break
+
+        if not found:
+            print(f"[SIMILARITY] WARNING: pottery_id={pottery_id} not found in DATA_LIST (len={len(self.DATA_LIST)})")
+            QMessageBox.warning(self, "Not Found",
+                f"Pottery ID {pottery_id} not found in current filter.\n"
+                "Try clearing the filter to see all records.")
 
     def on_build_index_clicked(self):
         """Handle build index button click"""
