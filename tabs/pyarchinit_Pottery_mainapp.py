@@ -5035,10 +5035,37 @@ Use well-structured paragraphs with headings for each section.
 
         layout.addWidget(list_widget)
 
+        # Summary statistics
+        if results:
+            similarities = [r.get('similarity_percent', 0) for r in results]
+            avg_sim = sum(similarities) / len(similarities)
+            max_sim = max(similarities)
+            min_sim = min(similarities)
+            summary_label = QLabel(f"Statistics: {len(results)} results | Avg: {avg_sim:.1f}% | Max: {max_sim:.1f}% | Min: {min_sim:.1f}%")
+            summary_label.setStyleSheet("font-weight: bold; padding: 5px; background-color: #f0f0f0;")
+            layout.addWidget(summary_label)
+
+        # Buttons row
+        buttons_layout = QHBoxLayout()
+
+        # Export to Excel button
+        btn_export = QPushButton("Export to Excel")
+        btn_export.setToolTip("Export results to Excel with thumbnails and chart")
+        btn_export.clicked.connect(lambda: self.export_similarity_results(results, thumb_path_str, is_cloudinary))
+        buttons_layout.addWidget(btn_export)
+
+        # Show Chart button
+        btn_chart = QPushButton("Show Chart")
+        btn_chart.setToolTip("Show similarity distribution chart")
+        btn_chart.clicked.connect(lambda: self.show_similarity_chart(results))
+        buttons_layout.addWidget(btn_chart)
+
         # Close button
         btn_close = QPushButton("Close")
         btn_close.clicked.connect(dialog.close)
-        layout.addWidget(btn_close)
+        buttons_layout.addWidget(btn_close)
+
+        layout.addLayout(buttons_layout)
 
         dialog.setLayout(layout)
 
@@ -5095,6 +5122,306 @@ Use well-structured paragraphs with headings for each section.
         if hasattr(self, '_similarity_dialog') and self._similarity_dialog:
             self._similarity_dialog.raise_()
             self._similarity_dialog.activateWindow()
+
+    def export_similarity_results(self, results, thumb_path_str, is_cloudinary):
+        """Export similarity results to Excel with thumbnails and embedded chart"""
+        if not results:
+            QMessageBox.warning(self, "Export", "No results to export")
+            return
+
+        # Ask for save location
+        from qgis.PyQt.QtWidgets import QFileDialog
+        import datetime
+
+        default_name = f"pottery_similarity_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.xlsx"
+        file_path, _ = QFileDialog.getSaveFileName(
+            self, "Save Excel Report", default_name, "Excel Files (*.xlsx)"
+        )
+
+        if not file_path:
+            return
+
+        try:
+            # Try to use openpyxl for Excel with images
+            from openpyxl import Workbook
+            from openpyxl.drawing.image import Image as XLImage
+            from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
+            from openpyxl.chart import BarChart, Reference
+            from openpyxl.utils import get_column_letter
+            import tempfile
+            import urllib.request
+
+            wb = Workbook()
+            ws = wb.active
+            ws.title = "Similarity Results"
+
+            # Header styling
+            header_font = Font(bold=True, color="FFFFFF")
+            header_fill = PatternFill(start_color="4472C4", end_color="4472C4", fill_type="solid")
+            header_align = Alignment(horizontal="center", vertical="center", wrap_text=True)
+            thin_border = Border(
+                left=Side(style='thin'),
+                right=Side(style='thin'),
+                top=Side(style='thin'),
+                bottom=Side(style='thin')
+            )
+
+            # Headers
+            headers = ["Thumbnail", "Similarity %", "ID Number", "Site", "Area", "US",
+                      "Form", "Specific Form", "Ext. Decoration", "Int. Decoration", "Specific Shape"]
+            for col, header in enumerate(headers, 1):
+                cell = ws.cell(row=1, column=col, value=header)
+                cell.font = header_font
+                cell.fill = header_fill
+                cell.alignment = header_align
+                cell.border = thin_border
+
+            # Set column widths
+            ws.column_dimensions['A'].width = 15  # Thumbnail
+            ws.column_dimensions['B'].width = 12  # Similarity
+            ws.column_dimensions['C'].width = 12  # ID
+            ws.column_dimensions['D'].width = 15  # Site
+            ws.column_dimensions['E'].width = 8   # Area
+            ws.column_dimensions['F'].width = 8   # US
+            ws.column_dimensions['G'].width = 15  # Form
+            ws.column_dimensions['H'].width = 15  # Specific Form
+            ws.column_dimensions['I'].width = 20  # Ext Deco
+            ws.column_dimensions['J'].width = 20  # Int Deco
+            ws.column_dimensions['K'].width = 15  # Specific Shape
+
+            # Data rows
+            row_num = 2
+            temp_files = []  # Track temp files for cleanup
+
+            for result in results:
+                pottery_data = result.get('pottery_data', {})
+                similarity = result.get('similarity_percent', 0)
+
+                # Set row height for thumbnail
+                ws.row_dimensions[row_num].height = 80
+
+                # Try to add thumbnail
+                image_path = result.get('image_path', '')
+                thumb_added = False
+
+                if image_path:
+                    try:
+                        local_path = None
+                        if is_cloudinary and HAS_REMOTE_LOADER:
+                            # Download from Cloudinary
+                            relative_path = result.get('relative_path', '')
+                            if relative_path:
+                                cloudinary_url = RemoteImageLoader.cloudinary_to_url(f"{thumb_path_str}/{relative_path}")
+                                if cloudinary_url:
+                                    temp_file = tempfile.NamedTemporaryFile(suffix='.jpg', delete=False)
+                                    temp_files.append(temp_file.name)
+                                    urllib.request.urlretrieve(cloudinary_url, temp_file.name)
+                                    local_path = temp_file.name
+                        elif os.path.exists(image_path):
+                            local_path = image_path
+
+                        if local_path and os.path.exists(local_path):
+                            img = XLImage(local_path)
+                            img.width = 80
+                            img.height = 80
+                            ws.add_image(img, f'A{row_num}')
+                            thumb_added = True
+                    except Exception as e:
+                        print(f"[EXPORT] Could not add thumbnail: {e}")
+
+                if not thumb_added:
+                    ws.cell(row=row_num, column=1, value="[No image]")
+
+                # Data cells
+                ws.cell(row=row_num, column=2, value=round(similarity, 1))
+                ws.cell(row=row_num, column=3, value=pottery_data.get('id_number', ''))
+                ws.cell(row=row_num, column=4, value=pottery_data.get('sito', ''))
+                ws.cell(row=row_num, column=5, value=pottery_data.get('area', ''))
+                ws.cell(row=row_num, column=6, value=pottery_data.get('us', ''))
+                ws.cell(row=row_num, column=7, value=pottery_data.get('form', ''))
+                ws.cell(row=row_num, column=8, value=pottery_data.get('specific_form', ''))
+                ws.cell(row=row_num, column=9, value=pottery_data.get('exdeco', ''))
+                ws.cell(row=row_num, column=10, value=pottery_data.get('intdeco', ''))
+                ws.cell(row=row_num, column=11, value=pottery_data.get('specific_shape', ''))
+
+                # Apply borders to data cells
+                for col in range(1, 12):
+                    ws.cell(row=row_num, column=col).border = thin_border
+                    ws.cell(row=row_num, column=col).alignment = Alignment(vertical="center")
+
+                row_num += 1
+
+            # Add summary statistics
+            row_num += 1
+            ws.cell(row=row_num, column=1, value="STATISTICS").font = Font(bold=True)
+            row_num += 1
+
+            similarities = [r.get('similarity_percent', 0) for r in results]
+            ws.cell(row=row_num, column=1, value="Total Results:")
+            ws.cell(row=row_num, column=2, value=len(results))
+            row_num += 1
+            ws.cell(row=row_num, column=1, value="Average Similarity:")
+            ws.cell(row=row_num, column=2, value=round(sum(similarities)/len(similarities), 1))
+            row_num += 1
+            ws.cell(row=row_num, column=1, value="Max Similarity:")
+            ws.cell(row=row_num, column=2, value=round(max(similarities), 1))
+            row_num += 1
+            ws.cell(row=row_num, column=1, value="Min Similarity:")
+            ws.cell(row=row_num, column=2, value=round(min(similarities), 1))
+
+            # Create chart sheet
+            ws_chart = wb.create_sheet("Similarity Chart")
+
+            # Create histogram data (similarity distribution)
+            bins = list(range(50, 105, 5))  # 50-55, 55-60, ..., 95-100
+            bin_counts = [0] * (len(bins) - 1)
+            for sim in similarities:
+                for i in range(len(bins) - 1):
+                    if bins[i] <= sim < bins[i+1]:
+                        bin_counts[i] += 1
+                        break
+                else:
+                    if sim >= 100:
+                        bin_counts[-1] += 1
+
+            # Write chart data
+            ws_chart['A1'] = "Similarity Range"
+            ws_chart['B1'] = "Count"
+            for i, (start, count) in enumerate(zip(bins[:-1], bin_counts), 2):
+                ws_chart[f'A{i}'] = f"{start}-{start+5}%"
+                ws_chart[f'B{i}'] = count
+
+            # Create bar chart
+            chart = BarChart()
+            chart.title = "Similarity Distribution"
+            chart.x_axis.title = "Similarity Range"
+            chart.y_axis.title = "Count"
+            chart.style = 10
+
+            data = Reference(ws_chart, min_col=2, min_row=1, max_row=len(bins))
+            cats = Reference(ws_chart, min_col=1, min_row=2, max_row=len(bins))
+            chart.add_data(data, titles_from_data=True)
+            chart.set_categories(cats)
+            chart.shape = 4
+            chart.width = 15
+            chart.height = 10
+
+            ws_chart.add_chart(chart, "D2")
+
+            # Save workbook
+            wb.save(file_path)
+
+            # Cleanup temp files
+            for temp_file in temp_files:
+                try:
+                    os.unlink(temp_file)
+                except:
+                    pass
+
+            QMessageBox.information(self, "Export Complete",
+                f"Results exported to:\n{file_path}\n\n"
+                f"Contains {len(results)} pottery records with thumbnails and similarity chart.")
+
+        except ImportError:
+            # Fallback to CSV if openpyxl not available
+            QMessageBox.warning(self, "Missing Library",
+                "openpyxl is required for Excel export with images.\n"
+                "Install with: pip install openpyxl\n\n"
+                "Falling back to CSV export.")
+            self.export_similarity_to_csv(results, file_path.replace('.xlsx', '.csv'))
+
+        except Exception as e:
+            QMessageBox.warning(self, "Export Error", f"Failed to export: {str(e)}")
+            print(f"[EXPORT] Error: {e}")
+            import traceback
+            traceback.print_exc()
+
+    def export_similarity_to_csv(self, results, file_path):
+        """Fallback CSV export without thumbnails"""
+        import csv
+
+        with open(file_path, 'w', newline='', encoding='utf-8') as f:
+            writer = csv.writer(f)
+            writer.writerow(["Similarity %", "ID Number", "Site", "Area", "US",
+                           "Form", "Specific Form", "Ext. Decoration", "Int. Decoration", "Specific Shape"])
+
+            for result in results:
+                pottery_data = result.get('pottery_data', {})
+                writer.writerow([
+                    round(result.get('similarity_percent', 0), 1),
+                    pottery_data.get('id_number', ''),
+                    pottery_data.get('sito', ''),
+                    pottery_data.get('area', ''),
+                    pottery_data.get('us', ''),
+                    pottery_data.get('form', ''),
+                    pottery_data.get('specific_form', ''),
+                    pottery_data.get('exdeco', ''),
+                    pottery_data.get('intdeco', ''),
+                    pottery_data.get('specific_shape', '')
+                ])
+
+        QMessageBox.information(self, "Export Complete", f"Results exported to:\n{file_path}")
+
+    def show_similarity_chart(self, results):
+        """Show similarity distribution chart in a popup dialog"""
+        if not results:
+            return
+
+        try:
+            import matplotlib
+            matplotlib.use('Qt5Agg')
+            from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+            from matplotlib.figure import Figure
+            import numpy as np
+
+            similarities = [r.get('similarity_percent', 0) for r in results]
+
+            # Create dialog
+            chart_dialog = QDialog(self)
+            chart_dialog.setWindowTitle("Similarity Distribution")
+            chart_dialog.setMinimumSize(600, 450)
+
+            layout = QVBoxLayout()
+
+            # Create matplotlib figure
+            fig = Figure(figsize=(8, 5), dpi=100)
+            canvas = FigureCanvas(fig)
+
+            # Create subplot
+            ax = fig.add_subplot(111)
+
+            # Histogram
+            bins = list(range(50, 105, 5))
+            ax.hist(similarities, bins=bins, edgecolor='black', alpha=0.7, color='#4472C4')
+
+            ax.set_xlabel('Similarity (%)', fontsize=11)
+            ax.set_ylabel('Count', fontsize=11)
+            ax.set_title(f'Similarity Distribution ({len(results)} results)', fontsize=12, fontweight='bold')
+
+            # Add statistics text
+            avg_sim = sum(similarities) / len(similarities)
+            stats_text = f'Avg: {avg_sim:.1f}%  |  Max: {max(similarities):.1f}%  |  Min: {min(similarities):.1f}%'
+            ax.text(0.5, 0.95, stats_text, transform=ax.transAxes, ha='center',
+                   fontsize=10, bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.5))
+
+            ax.grid(axis='y', alpha=0.3)
+            fig.tight_layout()
+
+            layout.addWidget(canvas)
+
+            # Close button
+            btn_close = QPushButton("Close")
+            btn_close.clicked.connect(chart_dialog.close)
+            layout.addWidget(btn_close)
+
+            chart_dialog.setLayout(layout)
+            chart_dialog.exec_()
+
+        except ImportError as e:
+            QMessageBox.warning(self, "Missing Library",
+                f"matplotlib is required for charts.\n"
+                f"Install with: pip install matplotlib\n\n"
+                f"Error: {e}")
 
     def on_build_index_clicked(self):
         """Handle build index button click"""
