@@ -113,17 +113,25 @@ class RemoteImageLoader:
         Returns:
             Full HTTPS URL to the image on Cloudinary
         """
+        print(f"[CLOUDINARY DEBUG] Input path: {cloudinary_path}")
+
         if not cloudinary_path or not cls.is_cloudinary_path(cloudinary_path):
+            print(f"[CLOUDINARY DEBUG] Not a cloudinary path, returning as-is")
             return cloudinary_path
 
         # Remove cloudinary:// prefix
         path_part = cloudinary_path[len('cloudinary://'):]
+        print(f"[CLOUDINARY DEBUG] After removing prefix: {path_part}")
 
         # Clean up path
         path_part = path_part.strip('/')
+        print(f"[CLOUDINARY DEBUG] After strip: {path_part}")
 
         # Build full URL
-        return f"{CLOUDINARY_BASE_URL}/{path_part}"
+        full_url = f"{CLOUDINARY_BASE_URL}/{path_part}"
+        print(f"[CLOUDINARY DEBUG] Final URL: {full_url}")
+
+        return full_url
 
     @classmethod
     def clear_cache(cls):
@@ -280,7 +288,10 @@ class RemoteImageLoader:
         Returns:
             Full path or URL
         """
+        print(f"[CLOUDINARY DEBUG] get_image_path called: base_path={base_path}, filename={filename}")
+
         if not base_path or not filename:
+            print(f"[CLOUDINARY DEBUG] Empty base_path or filename, returning empty")
             return ""
 
         # Clean up paths
@@ -289,10 +300,14 @@ class RemoteImageLoader:
 
         if cls.is_cloudinary_path(base_path) or cls.is_remote_url(base_path):
             # URL or Cloudinary path - use forward slash
-            return f"{base_path}/{filename}"
+            result = f"{base_path}/{filename}"
+            print(f"[CLOUDINARY DEBUG] Remote/Cloudinary path result: {result}")
+            return result
         else:
             # Local path - use os.path.join
-            return os.path.join(base_path, filename)
+            result = os.path.join(base_path, filename)
+            print(f"[CLOUDINARY DEBUG] Local path result: {result}")
+            return result
 
 
 # Convenience functions for easy import
