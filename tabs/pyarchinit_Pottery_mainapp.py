@@ -70,6 +70,13 @@ except ImportError as e:
     print(f"Pottery similarity search not available: {e}")
     HAS_SIMILARITY_SEARCH = False
 
+# Remote image loader for Cloudinary support
+try:
+    from ..modules.utility.remote_image_loader import RemoteImageLoader
+    HAS_REMOTE_LOADER = True
+except ImportError:
+    HAS_REMOTE_LOADER = False
+
 
 
 MAIN_DIALOG_CLASS, _ = loadUiType(
@@ -4804,6 +4811,10 @@ Use well-structured paragraphs with headings for each section.
 
         layout = QVBoxLayout()
 
+        # Info label
+        info_label = QLabel("Double-click on an item to navigate to that pottery record")
+        layout.addWidget(info_label)
+
         # Results list with thumbnails
         list_widget = QListWidget()
         list_widget.setViewMode(QListWidget.IconMode)
@@ -4812,31 +4823,48 @@ Use well-structured paragraphs with headings for each section.
         list_widget.setResizeMode(QListWidget.Adjust)
         list_widget.setWordWrap(True)
 
+        # Get config for Cloudinary detection
         conn = Connection()
-        thumb_path = conn.thumb_path()
-        thumb_path_str = thumb_path.get('thumb_path', '')
+        thumb_path_config = conn.thumb_path()
+        thumb_path_str = thumb_path_config.get('thumb_path', '')
+        is_cloudinary = thumb_path_str.lower().startswith('cloudinary://')
 
         for result in results:
             pottery_data = result.get('pottery_data', {})
             similarity = result.get('similarity_percent', 0)
 
-            # Create item label
+            # Create item label with more info
             label = f"{similarity:.1f}%\n"
             label += f"ID: {result.get('pottery_id', 'N/A')}\n"
             if pottery_data:
                 if pottery_data.get('form'):
                     label += f"Form: {pottery_data.get('form', '')}\n"
+                if pottery_data.get('specific_form'):
+                    label += f"Spec: {pottery_data.get('specific_form', '')}\n"
                 if pottery_data.get('exdeco'):
                     label += f"Deco: {pottery_data.get('exdeco', '')}"
 
             item = QListWidgetItem(label)
 
-            # Try to load thumbnail
+            # Try to load thumbnail - supports both local and Cloudinary
             image_path = result.get('image_path', '')
-            if image_path and os.path.exists(image_path):
-                pixmap = QPixmap(image_path)
-                if not pixmap.isNull():
-                    item.setIcon(QIcon(pixmap.scaled(150, 150, Qt.KeepAspectRatio, Qt.SmoothTransformation)))
+            pixmap = None
+
+            if image_path:
+                if is_cloudinary and HAS_REMOTE_LOADER:
+                    # For Cloudinary: build cloudinary URL from relative path
+                    relative_path = result.get('relative_path', '')
+                    if relative_path:
+                        cloudinary_path = f"{thumb_path_str}/{relative_path}"
+                        pixmap = RemoteImageLoader.load_pixmap(cloudinary_path, 150, 150)
+                elif os.path.exists(image_path):
+                    # Local file
+                    pixmap = QPixmap(image_path)
+                    if not pixmap.isNull():
+                        pixmap = pixmap.scaled(150, 150, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+
+            if pixmap and not pixmap.isNull():
+                item.setIcon(QIcon(pixmap))
 
             item.setData(Qt.UserRole, result)
             list_widget.addItem(item)

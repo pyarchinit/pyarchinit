@@ -176,11 +176,16 @@ class PotterySimilaritySearchEngine:
                 'similarity_percent': model.normalize_similarity(result['similarity'])
             }
 
-            # Get image path and pottery data from database
+            # Get image path (using media_id to get the SPECIFIC matched image) and pottery data from database
             if self.db_manager:
                 try:
-                    image_path = self.db_manager.get_pottery_image_path(result['pottery_id'])
-                    enriched['image_path'] = image_path
+                    # Use media_id to get the exact image that matched, not just the first one
+                    relative_path = self.db_manager.get_image_path_by_media_id(result['media_id'])
+                    if relative_path:
+                        # Build full path for local files, or cloudinary path
+                        full_path = self._build_image_path(relative_path)
+                        enriched['image_path'] = full_path
+                        enriched['relative_path'] = relative_path  # Keep relative for Cloudinary
 
                     pottery = self.db_manager.get_pottery_by_id_rep(result['pottery_id'])
                     if pottery:
@@ -213,6 +218,9 @@ class PotterySimilaritySearchEngine:
         """
         Find similar pottery starting from existing record.
 
+        If the pottery has multiple images, searches with ALL of them and
+        returns the best matches (highest similarity) for each found pottery.
+
         Args:
             pottery_id: ID of pottery record (id_rep)
             model_name: Embedding model
@@ -226,25 +234,49 @@ class PotterySimilaritySearchEngine:
             print("Database manager required for this operation")
             return []
 
-        # Get image path for pottery (relative from media_thumb_table.path_resize)
-        relative_path = self.db_manager.get_pottery_image_path(pottery_id)
-        if not relative_path:
-            print(f"No image found for pottery {pottery_id}")
+        # Get ALL images for this pottery
+        all_images = self.db_manager.get_all_pottery_images(pottery_id)
+        if not all_images:
+            print(f"No images found for pottery {pottery_id}")
             return []
 
-        # Build full path using config THUMB_RESIZE
-        image_path = self._build_image_path(relative_path)
-        if not os.path.exists(image_path):
-            print(f"Image file not found: {image_path}")
-            return []
+        print(f"[DEBUG] Found {len(all_images)} images for pottery {pottery_id}")
 
-        # Search
-        results = self.search_similar(image_path, model_name, search_type, threshold)
+        # Search with each image and collect all results
+        all_results = {}  # pottery_id -> best result
 
-        # Exclude the query pottery from results
-        results = [r for r in results if r['pottery_id'] != pottery_id]
+        for img_info in all_images:
+            relative_path = img_info.get('path_resize')
+            if not relative_path:
+                continue
 
-        return results
+            # Build full path
+            image_path = self._build_image_path(relative_path)
+            if not os.path.exists(image_path):
+                print(f"[DEBUG] Image not found: {image_path}")
+                continue
+
+            print(f"[DEBUG] Searching with image: {img_info.get('filename', relative_path)}")
+
+            # Search
+            results = self.search_similar(image_path, model_name, search_type, threshold)
+
+            # Merge results, keeping the best similarity for each pottery
+            for result in results:
+                pid = result['pottery_id']
+                if pid == pottery_id:
+                    continue  # Skip self
+
+                if pid not in all_results or result['similarity'] > all_results[pid]['similarity']:
+                    all_results[pid] = result
+
+        # Convert to list and sort by similarity
+        final_results = list(all_results.values())
+        final_results.sort(key=lambda x: x['similarity'], reverse=True)
+
+        print(f"[DEBUG] Total unique matches: {len(final_results)}")
+
+        return final_results
 
     def build_index_for_model(self,
                               model_name: str,
