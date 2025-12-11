@@ -35,7 +35,7 @@ import vtk
 from pyvistaqt import QtInteractor
 import functools
 from qgis.PyQt.QtCore import *
-from qgis.PyQt.QtGui import QColor, QIcon
+from qgis.PyQt.QtGui import QColor, QIcon, QPixmap
 from qgis.PyQt.QtWidgets import *
 from collections import OrderedDict
 from qgis.PyQt.uic import loadUiType
