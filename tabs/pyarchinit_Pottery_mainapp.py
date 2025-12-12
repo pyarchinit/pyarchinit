@@ -4689,7 +4689,7 @@ Use well-structured paragraphs with headings for each section.
         filter_layout.addWidget(self.chk_only_decorated)
         similarity_layout.addLayout(filter_layout)
 
-        # Advanced preprocessing options
+        # Advanced preprocessing options - Row 1
         preproc_layout = QHBoxLayout()
         self.chk_auto_crop = QCheckBox("Auto-crop detail")
         self.chk_auto_crop.setToolTip("Auto-crop to region with most decoration detail")
@@ -4701,6 +4701,19 @@ Use well-structured paragraphs with headings for each section.
         self.chk_edge_preproc.setChecked(False)
         preproc_layout.addWidget(self.chk_edge_preproc)
         similarity_layout.addLayout(preproc_layout)
+
+        # Advanced preprocessing options - Row 2 (Segmentation)
+        segment_layout = QHBoxLayout()
+        self.chk_segment_decoration = QCheckBox("Isolate decoration")
+        self.chk_segment_decoration.setToolTip("Segment and isolate decorated areas (mask plain clay)")
+        self.chk_segment_decoration.setChecked(False)
+        segment_layout.addWidget(self.chk_segment_decoration)
+
+        self.chk_remove_background = QCheckBox("Remove background")
+        self.chk_remove_background.setToolTip("Remove photo background from pottery (useful for studio photos)")
+        self.chk_remove_background.setChecked(False)
+        segment_layout.addWidget(self.chk_remove_background)
+        similarity_layout.addLayout(segment_layout)
 
         # Buttons - Row 1
         buttons_layout = QHBoxLayout()
@@ -4840,9 +4853,12 @@ Use well-structured paragraphs with headings for each section.
         # Get advanced preprocessing options
         auto_crop = getattr(self, 'chk_auto_crop', None) and self.chk_auto_crop.isChecked()
         edge_preproc = getattr(self, 'chk_edge_preproc', None) and self.chk_edge_preproc.isChecked()
+        segment_decoration = getattr(self, 'chk_segment_decoration', None) and self.chk_segment_decoration.isChecked()
+        remove_background = getattr(self, 'chk_remove_background', None) and self.chk_remove_background.isChecked()
 
         print(f"[SIMILARITY] Model={model_name}, Type={search_type}, Threshold={threshold}")
         print(f"[SIMILARITY] Auto-crop={auto_crop}, Edge-preproc={edge_preproc}")
+        print(f"[SIMILARITY] Segment-decoration={segment_decoration}, Remove-background={remove_background}")
 
         # Update status
         self.label_similarity_status.setText(f"Searching with {model_name}...")
@@ -4858,7 +4874,9 @@ Use well-structured paragraphs with headings for each section.
             threshold=threshold,
             exclude_pottery_id=pottery_id,  # Exclude current pottery from results
             auto_crop=auto_crop,
-            edge_preprocessing=edge_preproc
+            edge_preprocessing=edge_preproc,
+            segment_decoration=segment_decoration,
+            remove_background=remove_background
         )
         self.similarity_worker.search_complete.connect(self.on_similarity_search_complete)
         self.similarity_worker.error_occurred.connect(self.on_similarity_error)
