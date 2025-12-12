@@ -4668,18 +4668,42 @@ Use well-structured paragraphs with headings for each section.
 
         # Custom prompt for semantic search (OpenAI only) - hidden by default
         self.custom_prompt_widget = QWidget()
-        prompt_layout = QHBoxLayout(self.custom_prompt_widget)
+        prompt_layout = QVBoxLayout(self.custom_prompt_widget)
         prompt_layout.setContentsMargins(0, 0, 0, 0)
-        self.label_custom_prompt = QLabel("Custom Prompt:")
-        prompt_layout.addWidget(self.label_custom_prompt)
-        self.lineEdit_custom_prompt = QLineEdit()
-        self.lineEdit_custom_prompt.setPlaceholderText("Es: ceramica con decorazione a bande rosse e nere...")
-        self.lineEdit_custom_prompt.setToolTip(
-            "Prompt personalizzato per ricerca semantica.\n"
-            "Descrivi le caratteristiche che cerchi: decorazione, forma, texture, colore, etc.\n"
-            "Lascia vuoto per usare il Search Type selezionato."
+        prompt_layout.setSpacing(5)
+
+        # Search mode radio buttons
+        mode_layout = QHBoxLayout()
+        self.radio_search_global = QRadioButton("Global Search")
+        self.radio_search_global.setToolTip(
+            "Cerca in TUTTO il database ceramiche che corrispondono alla descrizione.\n"
+            "Non richiede un'immagine di partenza."
         )
-        prompt_layout.addWidget(self.lineEdit_custom_prompt)
+        self.radio_search_combined = QRadioButton("Combined Search")
+        self.radio_search_combined.setToolTip(
+            "Analizza l'immagine corrente con il prompt personalizzato,\n"
+            "poi cerca ceramiche simili per quelle caratteristiche specifiche."
+        )
+        self.radio_search_combined.setChecked(True)  # Default to combined
+        mode_layout.addWidget(QLabel("Mode:"))
+        mode_layout.addWidget(self.radio_search_combined)
+        mode_layout.addWidget(self.radio_search_global)
+        mode_layout.addStretch()
+        prompt_layout.addLayout(mode_layout)
+
+        # Prompt input
+        prompt_input_layout = QHBoxLayout()
+        self.label_custom_prompt = QLabel("Prompt:")
+        prompt_input_layout.addWidget(self.label_custom_prompt)
+        self.lineEdit_custom_prompt = QLineEdit()
+        self.lineEdit_custom_prompt.setPlaceholderText("Es: decorazione a bande, forma globulare, texture ruvida...")
+        self.lineEdit_custom_prompt.setToolTip(
+            "Combined: Descrivi su cosa focalizzare l'analisi dell'immagine corrente.\n"
+            "Global: Descrivi le caratteristiche da cercare in tutto il database."
+        )
+        prompt_input_layout.addWidget(self.lineEdit_custom_prompt)
+        prompt_layout.addLayout(prompt_input_layout)
+
         similarity_layout.addWidget(self.custom_prompt_widget)
         self.custom_prompt_widget.setVisible(False)  # Hidden by default, shown only for OpenAI
 
@@ -4851,29 +4875,38 @@ Use well-structured paragraphs with headings for each section.
         segment_decoration = getattr(self, 'chk_segment_decoration', None) and self.chk_segment_decoration.isChecked()
         remove_background = getattr(self, 'chk_remove_background', None) and self.chk_remove_background.isChecked()
 
-        # TWO MODES:
-        # 1. With custom prompt (OpenAI only): text-based semantic search, no image needed
-        # 2. Without custom prompt: image-based similarity search
+        # THREE MODES:
+        # 1. Global Search (with custom prompt, OpenAI): text-only search in entire DB
+        # 2. Combined Search (with custom prompt + image, OpenAI): analyze image with custom focus
+        # 3. Standard Search (no custom prompt): image-based similarity search
 
-        if custom_prompt:
-            # MODE 1: Text-based semantic search using custom prompt
-            print(f"[SIMILARITY] TEXT SEARCH MODE - Custom prompt: {custom_prompt[:50]}...")
+        # Check search mode when custom prompt is provided
+        is_global_search = hasattr(self, 'radio_search_global') and self.radio_search_global.isChecked()
+
+        if custom_prompt and is_global_search:
+            # MODE 1: Global text-based semantic search (no image needed)
+            print(f"[SIMILARITY] GLOBAL TEXT SEARCH - Prompt: {custom_prompt[:50]}...")
             print(f"[SIMILARITY] Model={model_name}, Threshold={threshold}")
 
             if model_name != 'openai':
                 QMessageBox.warning(self, "OpenAI Required",
-                    "Custom prompt search requires OpenAI model.\n"
+                    "Global text search requires OpenAI model.\n"
                     "Please select 'OpenAI Vision (cloud)' from the model dropdown.")
                 return
 
+            # For global text search, use lower default threshold (text vs image descriptions = lower scores)
+            if threshold > 0.5:
+                threshold = 0.40  # Override to 40% for text search
+                print(f"[SIMILARITY] Threshold adjusted to {threshold*100:.0f}% for text search")
+
             # Update status
-            self.label_similarity_status.setText("Searching by description...")
+            self.label_similarity_status.setText("Global search by description...")
             self.btn_find_similar.setEnabled(False)
 
             # Create worker for text-based search (no image needed)
             self.similarity_worker = PotterySimilarityWorker(
                 self.similarity_engine,
-                'search_by_text',  # New operation type for text search
+                'search_by_text',
                 custom_prompt=custom_prompt,
                 model_name=model_name,
                 search_type=search_type,
@@ -4884,7 +4917,7 @@ Use well-structured paragraphs with headings for each section.
             self.similarity_worker.start()
             return
 
-        # MODE 2: Image-based similarity search (original behavior)
+        # MODE 2 & 3: Need an image - either combined search or standard search
         # Check if we have a current record
         if not self.DATA_LIST or self.REC_CORR >= len(self.DATA_LIST):
             QMessageBox.warning(self, "Error", "No pottery record selected")
@@ -4923,13 +4956,24 @@ Use well-structured paragraphs with headings for each section.
             QMessageBox.warning(self, "Error", "Could not determine image path")
             return
 
+        # Determine search mode
+        is_combined_search = custom_prompt and not is_global_search
+
+        if is_combined_search:
+            print(f"[SIMILARITY] COMBINED SEARCH - Image + Custom prompt: {custom_prompt[:50]}...")
+        else:
+            print(f"[SIMILARITY] STANDARD IMAGE SEARCH")
+
         print(f"[SIMILARITY] Selected image: {selected_image_path}")
         print(f"[SIMILARITY] Model={model_name}, Type={search_type}, Threshold={threshold}")
         print(f"[SIMILARITY] Auto-crop={auto_crop}, Edge-preproc={edge_preproc}")
         print(f"[SIMILARITY] Segment-decoration={segment_decoration}, Remove-background={remove_background}")
 
         # Update status
-        self.label_similarity_status.setText(f"Searching with {model_name}...")
+        if is_combined_search:
+            self.label_similarity_status.setText(f"Combined search with {model_name}...")
+        else:
+            self.label_similarity_status.setText(f"Searching with {model_name}...")
         self.btn_find_similar.setEnabled(False)
 
         # Create worker for background search - use search_similar with specific image
@@ -4945,7 +4989,7 @@ Use well-structured paragraphs with headings for each section.
             edge_preprocessing=edge_preproc,
             segment_decoration=segment_decoration,
             remove_background=remove_background,
-            custom_prompt=custom_prompt  # For OpenAI semantic search
+            custom_prompt=custom_prompt  # For OpenAI combined search - analyzes image with this focus
         )
         self.similarity_worker.search_complete.connect(self.on_similarity_search_complete)
         self.similarity_worker.error_occurred.connect(self.on_similarity_error)
