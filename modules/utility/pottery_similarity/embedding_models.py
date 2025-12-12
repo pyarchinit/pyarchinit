@@ -364,9 +364,11 @@ Be detailed but concise, focusing on features useful for finding similar pottery
         return self.EMBEDDING_DIM
 
     def get_embedding(self, image_path: str, search_type: str = 'general',
-                      auto_crop: bool = False, edge_preprocessing: bool = False) -> Optional[np.ndarray]:
+                      auto_crop: bool = False, edge_preprocessing: bool = False,
+                      segment_decoration: bool = False, remove_background: bool = False) -> Optional[np.ndarray]:
         """Generate embedding via OpenAI API using specialized prompts
-        Note: auto_crop and edge_preprocessing are ignored for OpenAI (uses text description)"""
+        Note: auto_crop, edge_preprocessing, segment_decoration, remove_background are ignored
+        for OpenAI (uses text description approach, not image preprocessing)"""
         if not self.api_key:
             print("OpenAI API key not configured")
             return None
