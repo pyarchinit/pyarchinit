@@ -247,6 +247,36 @@ class PotterySimilarityIndexManager:
 
         except Exception as e:
             print(f"Error searching index: {e}")
+
+    def get_top_scores(self, model_name: str, search_type: str,
+                       query_embedding: np.ndarray, top_k: int = 5) -> List[float]:
+        """
+        Get top K similarity scores without filtering by threshold.
+        Useful for showing users what scores are available.
+
+        Returns:
+            List of top K similarity scores (0-1 range)
+        """
+        if not HAS_FAISS:
+            return []
+
+        index, mapping = self.get_index(model_name, search_type)
+        if index is None or index.ntotal == 0:
+            return []
+
+        try:
+            if query_embedding.ndim == 1:
+                query_embedding = query_embedding.reshape(1, -1)
+            query_embedding = query_embedding.astype(np.float32)
+
+            k = min(top_k, index.ntotal)
+            scores, indices = index.search(query_embedding, k)
+
+            # Return only valid scores
+            return [float(s) for s, i in zip(scores[0], indices[0]) if i >= 0]
+
+        except Exception as e:
+            print(f"Error getting top scores: {e}")
             return []
 
     def remove_embedding(self, model_name: str, search_type: str, media_id: int) -> bool:
