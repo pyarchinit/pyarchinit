@@ -95,8 +95,18 @@ class CLIPEmbeddingModel(EmbeddingModel):
         return self.EMBEDDING_DIM
 
     def get_embedding(self, image_path: str, search_type: str = 'general',
-                      auto_crop: bool = False, edge_preprocessing: bool = False) -> Optional[np.ndarray]:
-        """Generate CLIP embedding via subprocess"""
+                      auto_crop: bool = False, edge_preprocessing: bool = False,
+                      segment_decoration: bool = False, remove_background: bool = False) -> Optional[np.ndarray]:
+        """Generate CLIP embedding via subprocess
+
+        Args:
+            image_path: Path to image file
+            search_type: 'general', 'decoration', or 'shape'
+            auto_crop: Crop to region with most detail
+            edge_preprocessing: Use edge-based preprocessing for decoration
+            segment_decoration: Mask non-decorated areas (isolate decoration only)
+            remove_background: Remove photo background from pottery
+        """
         if not os.path.exists(image_path):
             print(f"Image not found: {image_path}")
             return None
@@ -124,6 +134,10 @@ class CLIPEmbeddingModel(EmbeddingModel):
                 cmd.append('--auto-crop')
             if edge_preprocessing:
                 cmd.extend(['--preprocessing', 'edge'])
+            if segment_decoration:
+                cmd.append('--segment-decoration')
+            if remove_background:
+                cmd.append('--remove-background')
 
             # Clean environment: remove QGIS Python paths that interfere with venv
             clean_env = os.environ.copy()
@@ -194,8 +208,18 @@ class DINOv2EmbeddingModel(EmbeddingModel):
         return self.EMBEDDING_DIM
 
     def get_embedding(self, image_path: str, search_type: str = 'general',
-                      auto_crop: bool = False, edge_preprocessing: bool = False) -> Optional[np.ndarray]:
-        """Generate DINOv2 embedding via subprocess"""
+                      auto_crop: bool = False, edge_preprocessing: bool = False,
+                      segment_decoration: bool = False, remove_background: bool = False) -> Optional[np.ndarray]:
+        """Generate DINOv2 embedding via subprocess
+
+        Args:
+            image_path: Path to image file
+            search_type: 'general', 'decoration', or 'shape'
+            auto_crop: Crop to region with most detail
+            edge_preprocessing: Use edge-based preprocessing for decoration
+            segment_decoration: Mask non-decorated areas (isolate decoration only)
+            remove_background: Remove photo background from pottery
+        """
         if not os.path.exists(image_path):
             print(f"Image not found: {image_path}")
             return None
@@ -222,6 +246,10 @@ class DINOv2EmbeddingModel(EmbeddingModel):
                 cmd.append('--auto-crop')
             if edge_preprocessing:
                 cmd.extend(['--preprocessing', 'edge'])
+            if segment_decoration:
+                cmd.append('--segment-decoration')
+            if remove_background:
+                cmd.append('--remove-background')
 
             # Clean environment: remove QGIS Python paths that interfere with venv
             clean_env = os.environ.copy()
@@ -260,9 +288,45 @@ class DINOv2EmbeddingModel(EmbeddingModel):
 
 
 class OpenAIVisionEmbeddingModel(EmbeddingModel):
-    """OpenAI Vision API for embeddings (cloud)"""
+    """OpenAI Vision API for embeddings (cloud) with specialized prompts"""
 
     EMBEDDING_DIM = 1536  # text-embedding-3-small
+
+    # Specialized prompts for different search types
+    PROMPTS = {
+        'decoration': """Analyze ONLY the DECORATION of this pottery. Describe in detail:
+1. Type of decorative motifs (geometric, figurative, abstract, naturalistic)
+2. Specific patterns (bands, spirals, zigzags, crosshatch, chevrons, waves)
+3. Decorative technique (painted, incised, impressed, stamped, relief, appliqué)
+4. Position of decoration (rim, body, base, handles)
+5. Color and pigments used in decoration
+6. Style or cultural attribution if recognizable
+
+DO NOT describe: overall shape, size, clay color, or non-decorated areas.
+Focus EXCLUSIVELY on decorative elements.""",
+
+        'shape': """Analyze ONLY the SHAPE and FORM of this pottery. Describe in detail:
+1. Vessel type (bowl, jar, amphora, cup, plate, jug, etc.)
+2. Overall profile (globular, cylindrical, conical, biconical, carinated)
+3. Rim type (everted, inverted, straight, thickened, rolled)
+4. Base type (flat, rounded, pointed, ring, pedestal)
+5. Handles/attachments (vertical, horizontal, loop, lug, none)
+6. Proportions (height vs width, neck vs body ratio)
+7. Wall thickness and curvature
+
+DO NOT describe: decoration, color, surface treatment, or painted elements.
+Focus EXCLUSIVELY on morphological features.""",
+
+        'general': """Describe this pottery for archaeological similarity search:
+1. Vessel shape and type
+2. Decoration patterns and techniques
+3. Surface treatment (burnished, slipped, glazed, rough)
+4. Fabric/clay characteristics visible
+5. Any distinctive or diagnostic features
+6. Possible cultural/chronological attribution
+
+Be detailed but concise, focusing on features useful for finding similar pottery."""
+    }
 
     def __init__(self, api_key: str = None):
         self.api_key = api_key or self._load_api_key()
@@ -293,15 +357,15 @@ class OpenAIVisionEmbeddingModel(EmbeddingModel):
 
     @property
     def supported_search_types(self) -> List[str]:
-        # OpenAI provides general embeddings only
-        return ['general']
+        # Now supports all search types with specialized prompts
+        return ['general', 'decoration', 'shape']
 
     def get_embedding_dimension(self) -> int:
         return self.EMBEDDING_DIM
 
     def get_embedding(self, image_path: str, search_type: str = 'general',
                       auto_crop: bool = False, edge_preprocessing: bool = False) -> Optional[np.ndarray]:
-        """Generate embedding via OpenAI API using image description
+        """Generate embedding via OpenAI API using specialized prompts
         Note: auto_crop and edge_preprocessing are ignored for OpenAI (uses text description)"""
         if not self.api_key:
             print("OpenAI API key not configured")
@@ -333,7 +397,10 @@ class OpenAIVisionEmbeddingModel(EmbeddingModel):
             }
             mime_type = mime_types.get(ext, 'image/jpeg')
 
-            # First, get image description using GPT-4 Vision
+            # Get specialized prompt for search type
+            prompt = self.PROMPTS.get(search_type, self.PROMPTS['general'])
+
+            # Get image description using GPT-4 Vision with specialized prompt
             description_response = client.chat.completions.create(
                 model="gpt-4o-mini",
                 messages=[
@@ -342,9 +409,7 @@ class OpenAIVisionEmbeddingModel(EmbeddingModel):
                         "content": [
                             {
                                 "type": "text",
-                                "text": "Describe this pottery image in detail for similarity search. "
-                                        "Focus on: shape, form, decoration patterns, surface treatment, "
-                                        "color, and any distinctive features. Be concise but thorough."
+                                "text": prompt
                             },
                             {
                                 "type": "image_url",
@@ -356,12 +421,12 @@ class OpenAIVisionEmbeddingModel(EmbeddingModel):
                         ]
                     }
                 ],
-                max_tokens=300
+                max_tokens=400
             )
 
             description = description_response.choices[0].message.content
 
-            # Now generate embedding from description
+            # Generate embedding from description
             embedding_response = client.embeddings.create(
                 model="text-embedding-3-small",
                 input=description

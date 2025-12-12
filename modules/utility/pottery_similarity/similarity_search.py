@@ -122,7 +122,9 @@ class PotterySimilaritySearchEngine:
                       search_type: str = 'general',
                       threshold: float = 0.7,
                       auto_crop: bool = False,
-                      edge_preprocessing: bool = False) -> List[Dict]:
+                      edge_preprocessing: bool = False,
+                      segment_decoration: bool = False,
+                      remove_background: bool = False) -> List[Dict]:
         """
         Find all images similar to query above threshold.
 
@@ -133,6 +135,8 @@ class PotterySimilaritySearchEngine:
             threshold: Minimum similarity (0-1)
             auto_crop: If True, auto-crop to region with most detail
             edge_preprocessing: If True, use edge-based preprocessing
+            segment_decoration: If True, mask non-decorated areas
+            remove_background: If True, remove photo background
 
         Returns:
             List of dicts with:
@@ -161,7 +165,8 @@ class PotterySimilaritySearchEngine:
         # Generate query embedding with optional preprocessing
         query_embedding = model.get_embedding(
             query_image_path, search_type,
-            auto_crop=auto_crop, edge_preprocessing=edge_preprocessing
+            auto_crop=auto_crop, edge_preprocessing=edge_preprocessing,
+            segment_decoration=segment_decoration, remove_background=remove_background
         )
         if query_embedding is None:
             print("Failed to generate query embedding")
@@ -599,7 +604,9 @@ if HAS_QGIS:
                         self.kwargs.get('search_type', 'general'),
                         self.kwargs.get('threshold', 0.7),
                         auto_crop=self.kwargs.get('auto_crop', False),
-                        edge_preprocessing=self.kwargs.get('edge_preprocessing', False)
+                        edge_preprocessing=self.kwargs.get('edge_preprocessing', False),
+                        segment_decoration=self.kwargs.get('segment_decoration', False),
+                        remove_background=self.kwargs.get('remove_background', False)
                     )
                     # Filter out excluded pottery if specified
                     exclude_id = self.kwargs.get('exclude_pottery_id')
