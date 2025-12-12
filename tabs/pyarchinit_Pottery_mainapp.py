@@ -4994,6 +4994,8 @@ Use well-structured paragraphs with headings for each section.
             custom_prompt=custom_prompt  # For OpenAI combined search - analyzes image with this focus
         )
         self.similarity_worker.search_complete.connect(self.on_similarity_search_complete)
+        # Connect with_meta signal for detailed feedback
+        self.similarity_worker.search_complete_with_meta.connect(self.on_similarity_search_complete_with_meta)
         self.similarity_worker.error_occurred.connect(self.on_similarity_error)
         self.similarity_worker.start()
 
@@ -5159,6 +5161,12 @@ Use well-structured paragraphs with headings for each section.
         # Get current settings
         current_threshold = self.slider_similarity_threshold.value()
         top_scores = meta.get('top_scores', [])
+        model_name = self.get_similarity_model_name()
+        search_type = self.get_similarity_search_type()
+        custom_prompt = ''
+        if hasattr(self, 'lineEdit_custom_prompt'):
+            custom_prompt = self.lineEdit_custom_prompt.text().strip()
+        is_global_search = hasattr(self, 'radio_search_global') and self.radio_search_global.isChecked()
 
         if not results:
             self.label_similarity_status.setText("No similar pottery found")
@@ -5177,9 +5185,31 @@ Use well-structured paragraphs with headings for each section.
                     suggested = max(40, suggested)  # But not below 40%
                     msg_parts.append(f"\n\n💡 Suggestion: Lower threshold to {suggested}% to see results")
 
-            msg_parts.append("\n\n📌 Notes for Global Text Search:")
-            msg_parts.append("• Text-to-image similarity scores are typically 40-60%")
-            msg_parts.append("• This is normal - text and image embeddings differ")
+            # Model-specific tips
+            msg_parts.append("\n\n📌 Tips:")
+
+            if custom_prompt and is_global_search:
+                msg_parts.append("• Global text search: scores typically 40-60%")
+                msg_parts.append("• Try more specific descriptions")
+            elif model_name == 'openai':
+                if search_type == 'general':
+                    msg_parts.append("• For decorations: use 'Decoration' search type")
+                    msg_parts.append("• Build 'Decoration' index for better results")
+                msg_parts.append("• Combined search with prompt focuses the analysis")
+            elif model_name == 'clip':
+                msg_parts.append("• CLIP scores typically 60-85%")
+                msg_parts.append("• Try 'Edge-enhance' for line decorations")
+                msg_parts.append("• Try 'Auto-crop' to focus on decoration details")
+            elif model_name == 'dinov2':
+                msg_parts.append("• DINOv2 scores typically 50-80%")
+                msg_parts.append("• Best for texture/surface patterns")
+                msg_parts.append("• Try 'Edge-enhance' for clearer features")
+
+            # Check preprocessing options
+            chk_auto = getattr(self, 'chk_auto_crop', None) and self.chk_auto_crop.isChecked()
+            chk_edge = getattr(self, 'chk_edge_preproc', None) and self.chk_edge_preproc.isChecked()
+            if not chk_auto and not chk_edge and model_name in ['clip', 'dinov2']:
+                msg_parts.append("\n• Enable preprocessing options for better matching")
 
             QMessageBox.information(self, "No Results", ''.join(msg_parts))
             return
