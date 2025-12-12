@@ -125,7 +125,8 @@ class PotterySimilaritySearchEngine:
                       edge_preprocessing: bool = False,
                       segment_decoration: bool = False,
                       remove_background: bool = False,
-                      custom_prompt: str = '') -> List[Dict]:
+                      custom_prompt: str = '',
+                      return_top_scores: bool = False):
         """
         Find all images similar to query above threshold.
 
@@ -139,6 +140,7 @@ class PotterySimilaritySearchEngine:
             segment_decoration: If True, mask non-decorated areas
             remove_background: If True, remove photo background
             custom_prompt: Custom prompt for semantic search (OpenAI only)
+            return_top_scores: If True, returns (results, top_5_scores) tuple
 
         Returns:
             List of dicts with:
@@ -148,16 +150,19 @@ class PotterySimilaritySearchEngine:
             - similarity_percent: float (0-100)
             - image_path: str (if available)
             - pottery_data: dict (form, decoration, etc.)
+            OR tuple (results, top_scores) if return_top_scores=True
         """
+        empty_result = ([], []) if return_top_scores else []
+
         if not os.path.exists(query_image_path):
             print(f"Query image not found: {query_image_path}")
-            return []
+            return empty_result
 
         # Get embedding model
         model = self._get_model(model_name)
         if model is None:
             print(f"Model not available: {model_name}")
-            return []
+            return empty_result
 
         # Check if search type is supported by model
         if search_type not in model.supported_search_types:
@@ -173,13 +178,16 @@ class PotterySimilaritySearchEngine:
         )
         if query_embedding is None:
             print("Failed to generate query embedding")
-            return []
+            return empty_result
 
         # Search index
         raw_results = self.index_manager.search(
             model_name, search_type,
             query_embedding, threshold
         )
+
+        # Store embedding for top_scores calculation
+        self._last_query_embedding = query_embedding
 
         # Enrich results with pottery data
         results = []
@@ -222,6 +230,14 @@ class PotterySimilaritySearchEngine:
                     print(f"Error enriching result: {e}")
 
             results.append(enriched)
+
+        if return_top_scores:
+            # Get top 5 scores regardless of threshold for user feedback
+            top_scores = self.index_manager.get_top_scores(model_name, search_type, query_embedding, 5)
+            # Convert to percentages using model's normalization
+            top_scores_percent = [model.normalize_similarity(s) for s in top_scores]
+            print(f"[SEARCH_SIMILAR] Top 5 scores: {[f'{s:.1f}%' for s in top_scores_percent]}")
+            return (results, top_scores_percent)
 
         return results
 
@@ -726,7 +742,7 @@ if HAS_QGIS:
             """Execute operation in background"""
             try:
                 if self.operation == 'search':
-                    self.results = self.search_engine.search_similar(
+                    search_result = self.search_engine.search_similar(
                         self.kwargs.get('image_path'),
                         self.kwargs.get('model_name', 'clip'),
                         self.kwargs.get('search_type', 'general'),
@@ -735,13 +751,24 @@ if HAS_QGIS:
                         edge_preprocessing=self.kwargs.get('edge_preprocessing', False),
                         segment_decoration=self.kwargs.get('segment_decoration', False),
                         remove_background=self.kwargs.get('remove_background', False),
-                        custom_prompt=self.kwargs.get('custom_prompt', '')
+                        custom_prompt=self.kwargs.get('custom_prompt', ''),
+                        return_top_scores=True  # Get top scores for feedback
                     )
+                    # search_result is now (results, top_scores)
+                    if isinstance(search_result, tuple):
+                        self.results, top_scores = search_result
+                    else:
+                        self.results = search_result
+                        top_scores = []
+
                     # Filter out excluded pottery if specified
                     exclude_id = self.kwargs.get('exclude_pottery_id')
                     if exclude_id is not None:
                         self.results = [r for r in self.results if r.get('pottery_id') != exclude_id]
-                    self.search_complete.emit(self.results)
+
+                    # Emit with metadata
+                    meta = {'top_scores': top_scores, 'threshold': self.kwargs.get('threshold', 0.7)}
+                    self.search_complete_with_meta.emit(self.results, meta)
 
                 elif self.operation == 'search_by_id':
                     self.results = self.search_engine.search_similar_by_pottery_id(
