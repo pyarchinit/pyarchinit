@@ -4666,18 +4666,25 @@ Use well-structured paragraphs with headings for each section.
         type_layout.addWidget(self.combo_similarity_type)
         similarity_layout.addLayout(type_layout)
 
-        # Custom prompt for semantic search (OpenAI only)
-        prompt_layout = QHBoxLayout()
-        prompt_layout.addWidget(QLabel("Custom Prompt:"))
+        # Custom prompt for semantic search (OpenAI only) - hidden by default
+        self.custom_prompt_widget = QWidget()
+        prompt_layout = QHBoxLayout(self.custom_prompt_widget)
+        prompt_layout.setContentsMargins(0, 0, 0, 0)
+        self.label_custom_prompt = QLabel("Custom Prompt:")
+        prompt_layout.addWidget(self.label_custom_prompt)
         self.lineEdit_custom_prompt = QLineEdit()
         self.lineEdit_custom_prompt.setPlaceholderText("Es: ceramica con decorazione a bande rosse e nere...")
         self.lineEdit_custom_prompt.setToolTip(
-            "Prompt personalizzato per ricerca semantica (solo OpenAI).\n"
+            "Prompt personalizzato per ricerca semantica.\n"
             "Descrivi le caratteristiche che cerchi: decorazione, forma, texture, colore, etc.\n"
             "Lascia vuoto per usare il Search Type selezionato."
         )
         prompt_layout.addWidget(self.lineEdit_custom_prompt)
-        similarity_layout.addLayout(prompt_layout)
+        similarity_layout.addWidget(self.custom_prompt_widget)
+        self.custom_prompt_widget.setVisible(False)  # Hidden by default, shown only for OpenAI
+
+        # Connect model selector to show/hide custom prompt
+        self.combo_similarity_model.currentIndexChanged.connect(self.on_similarity_model_changed)
 
         # Threshold slider
         threshold_layout = QHBoxLayout()
@@ -4790,6 +4797,16 @@ Use well-structured paragraphs with headings for each section.
     def on_threshold_changed(self, value):
         """Update threshold label when slider changes"""
         self.label_threshold_value.setText(f"{value}%")
+
+    def on_similarity_model_changed(self, index):
+        """Show/hide custom prompt based on selected model"""
+        model_text = self.combo_similarity_model.currentText()
+        is_openai = 'OpenAI' in model_text
+        if hasattr(self, 'custom_prompt_widget'):
+            self.custom_prompt_widget.setVisible(is_openai)
+            # Clear the prompt when switching away from OpenAI
+            if not is_openai and hasattr(self, 'lineEdit_custom_prompt'):
+                self.lineEdit_custom_prompt.clear()
 
     def get_similarity_model_name(self):
         """Get model name from combo box selection"""
