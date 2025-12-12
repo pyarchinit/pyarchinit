@@ -293,6 +293,106 @@ class PotterySimilaritySearchEngine:
 
         return final_results
 
+    def search_by_text(self,
+                      text_query: str,
+                      model_name: str = 'openai',
+                      search_type: str = 'general',
+                      threshold: float = 0.7) -> List[Dict]:
+        """
+        Search for pottery by text description (semantic search).
+        Only works with OpenAI model - generates embedding from text and searches index.
+
+        Args:
+            text_query: Text description of what to search for
+            model_name: Must be 'openai' for text search
+            search_type: Type of search (for index selection)
+            threshold: Minimum similarity (0-1)
+
+        Returns:
+            List of matching pottery with similarity scores
+        """
+        if not text_query:
+            print("Empty text query")
+            return []
+
+        if model_name != 'openai':
+            print("Text search only supported with OpenAI model")
+            return []
+
+        # Get OpenAI model
+        model = self._get_model('openai')
+        if model is None:
+            print("OpenAI model not available")
+            return []
+
+        try:
+            # Generate embedding directly from text using OpenAI
+            from openai import OpenAI
+
+            # Load API key
+            api_key_path = os.path.expanduser("~/pyarchinit/bin/gpt_api_key.txt")
+            if not os.path.exists(api_key_path):
+                print(f"OpenAI API key not found at {api_key_path}")
+                return []
+
+            with open(api_key_path, 'r') as f:
+                api_key = f.read().strip()
+
+            client = OpenAI(api_key=api_key)
+
+            # Generate text embedding directly from the search query
+            embedding_response = client.embeddings.create(
+                model="text-embedding-3-small",
+                input=text_query
+            )
+            query_embedding = np.array(embedding_response.data[0].embedding, dtype=np.float32)
+
+            print(f"[SEARCH_BY_TEXT] Generated embedding for: '{text_query[:50]}...'")
+            print(f"[SEARCH_BY_TEXT] Embedding shape: {query_embedding.shape}")
+
+        except Exception as e:
+            print(f"Failed to generate text embedding: {e}")
+            return []
+
+        # Search index with the text embedding
+        raw_results = self.index_manager.search(
+            model_name, search_type,
+            query_embedding, threshold
+        )
+
+        # Enrich results with pottery data
+        results = []
+        for r in raw_results:
+            pottery_id = r.get('pottery_id')
+            media_id = r.get('media_id')
+
+            result = {
+                'pottery_id': pottery_id,
+                'media_id': media_id,
+                'similarity': r.get('similarity', 0),
+                'similarity_percent': r.get('similarity', 0) * 100
+            }
+
+            # Get pottery data
+            if self.db_manager and pottery_id:
+                pottery_data = self.db_manager.get_pottery_data_by_id(pottery_id)
+                if pottery_data:
+                    result['pottery_data'] = pottery_data
+
+            # Get image path
+            if self.db_manager and media_id:
+                image_info = self.db_manager.get_image_path_by_media_id(media_id)
+                if image_info:
+                    relative_path = image_info.get('path_resize')
+                    if relative_path:
+                        result['image_path'] = self._build_image_path(relative_path)
+                        result['relative_path'] = relative_path
+
+            results.append(result)
+
+        print(f"[SEARCH_BY_TEXT] Found {len(results)} results above {threshold*100:.0f}% threshold")
+        return results
+
     def build_index_for_model(self,
                               model_name: str,
                               search_type: str,
@@ -622,6 +722,16 @@ if HAS_QGIS:
                     self.results = self.search_engine.search_similar_by_pottery_id(
                         self.kwargs.get('pottery_id'),
                         self.kwargs.get('model_name', 'clip'),
+                        self.kwargs.get('search_type', 'general'),
+                        self.kwargs.get('threshold', 0.7)
+                    )
+                    self.search_complete.emit(self.results)
+
+                elif self.operation == 'search_by_text':
+                    # Text-based semantic search (OpenAI only)
+                    self.results = self.search_engine.search_by_text(
+                        self.kwargs.get('custom_prompt', ''),
+                        self.kwargs.get('model_name', 'openai'),
                         self.kwargs.get('search_type', 'general'),
                         self.kwargs.get('threshold', 0.7)
                     )
