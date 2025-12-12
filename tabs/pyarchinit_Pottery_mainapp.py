@@ -5146,12 +5146,20 @@ Use well-structured paragraphs with headings for each section.
             if record_id_number == str(pottery_id_number):
                 print(f"[SIMILARITY] Found record at index {i}, id_number={record_id_number}")
                 print(f"[SIMILARITY] Record details: id_rep={getattr(record, 'id_rep', 'N/A')}, sito={getattr(record, 'sito', 'N/A')}")
+
+                # Debug: check what's at index i vs index 0
+                print(f"[SIMILARITY] DATA_LIST[{i}].id_number = {getattr(self.DATA_LIST[i], 'id_number', 'N/A')}")
+                print(f"[SIMILARITY] DATA_LIST[0].id_number = {getattr(self.DATA_LIST[0], 'id_number', 'N/A')}")
+
                 self.REC_CORR = i
                 self.REC_TOT = len(self.DATA_LIST)
-                self.DATA_LIST_REC_CORR = record  # Set current record reference
-                self.DATA_LIST_REC_TEMP = record
+                self.DATA_LIST_REC_CORR = self.DATA_LIST[i]  # Set current record reference
+                self.DATA_LIST_REC_TEMP = self.DATA_LIST[i]
                 self.set_rec_counter(self.REC_TOT, self.REC_CORR + 1)
-                self.fill_fields(i)  # Pass explicit index to fill_fields
+
+                print(f"[SIMILARITY] Before fill_fields: REC_CORR={self.REC_CORR}")
+                self.fill_fields(self.REC_CORR)  # Use REC_CORR explicitly
+
                 found = True
                 # Verify what was actually filled
                 filled_id = self.lineEdit_id_number.text() if hasattr(self, 'lineEdit_id_number') else 'N/A'
