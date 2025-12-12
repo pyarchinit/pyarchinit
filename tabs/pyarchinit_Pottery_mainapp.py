@@ -4832,6 +4832,59 @@ Use well-structured paragraphs with headings for each section.
             QMessageBox.warning(self, "Error", "Similarity search module not available")
             return
 
+        # Initialize engine if needed
+        if self.similarity_engine is None:
+            self.similarity_engine = PotterySimilaritySearchEngine(self.DB_MANAGER)
+
+        # Get custom prompt first - determines search mode
+        custom_prompt = ''
+        if hasattr(self, 'lineEdit_custom_prompt'):
+            custom_prompt = self.lineEdit_custom_prompt.text().strip()
+
+        model_name = self.get_similarity_model_name()
+        search_type = self.get_similarity_search_type()
+        threshold = self.slider_similarity_threshold.value() / 100.0
+
+        # Get advanced preprocessing options
+        auto_crop = getattr(self, 'chk_auto_crop', None) and self.chk_auto_crop.isChecked()
+        edge_preproc = getattr(self, 'chk_edge_preproc', None) and self.chk_edge_preproc.isChecked()
+        segment_decoration = getattr(self, 'chk_segment_decoration', None) and self.chk_segment_decoration.isChecked()
+        remove_background = getattr(self, 'chk_remove_background', None) and self.chk_remove_background.isChecked()
+
+        # TWO MODES:
+        # 1. With custom prompt (OpenAI only): text-based semantic search, no image needed
+        # 2. Without custom prompt: image-based similarity search
+
+        if custom_prompt:
+            # MODE 1: Text-based semantic search using custom prompt
+            print(f"[SIMILARITY] TEXT SEARCH MODE - Custom prompt: {custom_prompt[:50]}...")
+            print(f"[SIMILARITY] Model={model_name}, Threshold={threshold}")
+
+            if model_name != 'openai':
+                QMessageBox.warning(self, "OpenAI Required",
+                    "Custom prompt search requires OpenAI model.\n"
+                    "Please select 'OpenAI Vision (cloud)' from the model dropdown.")
+                return
+
+            # Update status
+            self.label_similarity_status.setText("Searching by description...")
+            self.btn_find_similar.setEnabled(False)
+
+            # Create worker for text-based search (no image needed)
+            self.similarity_worker = PotterySimilarityWorker(
+                self.similarity_engine,
+                'search_by_text',  # New operation type for text search
+                custom_prompt=custom_prompt,
+                model_name=model_name,
+                search_type=search_type,
+                threshold=threshold
+            )
+            self.similarity_worker.search_complete.connect(self.on_similarity_search_complete)
+            self.similarity_worker.error_occurred.connect(self.on_similarity_error)
+            self.similarity_worker.start()
+            return
+
+        # MODE 2: Image-based similarity search (original behavior)
         # Check if we have a current record
         if not self.DATA_LIST or self.REC_CORR >= len(self.DATA_LIST):
             QMessageBox.warning(self, "Error", "No pottery record selected")
@@ -4842,14 +4895,10 @@ Use well-structured paragraphs with headings for each section.
         pottery_id_number = getattr(current_record, 'id_number', 'N/A')  # Display ID for user
 
         # Log which record we're searching from
-        print(f"[SIMILARITY] Starting search from pottery id_number={pottery_id_number} (id_rep={pottery_id})")
+        print(f"[SIMILARITY] IMAGE SEARCH MODE from pottery id_number={pottery_id_number} (id_rep={pottery_id})")
         print(f"[SIMILARITY] Record info: sito={getattr(current_record, 'sito', 'N/A')}, "
               f"area={getattr(current_record, 'area', 'N/A')}, "
               f"us={getattr(current_record, 'us', 'N/A')}")
-
-        # Initialize engine if needed
-        if self.similarity_engine is None:
-            self.similarity_engine = PotterySimilaritySearchEngine(self.DB_MANAGER)
 
         # Get all images for this pottery record
         all_images = self.DB_MANAGER.get_all_pottery_images(pottery_id)
@@ -4875,27 +4924,9 @@ Use well-structured paragraphs with headings for each section.
             return
 
         print(f"[SIMILARITY] Selected image: {selected_image_path}")
-
-        model_name = self.get_similarity_model_name()
-        search_type = self.get_similarity_search_type()
-        threshold = self.slider_similarity_threshold.value() / 100.0
-
-        # Get advanced preprocessing options
-        auto_crop = getattr(self, 'chk_auto_crop', None) and self.chk_auto_crop.isChecked()
-        edge_preproc = getattr(self, 'chk_edge_preproc', None) and self.chk_edge_preproc.isChecked()
-        segment_decoration = getattr(self, 'chk_segment_decoration', None) and self.chk_segment_decoration.isChecked()
-        remove_background = getattr(self, 'chk_remove_background', None) and self.chk_remove_background.isChecked()
-
-        # Get custom prompt for semantic search (OpenAI only)
-        custom_prompt = ''
-        if hasattr(self, 'lineEdit_custom_prompt'):
-            custom_prompt = self.lineEdit_custom_prompt.text().strip()
-
         print(f"[SIMILARITY] Model={model_name}, Type={search_type}, Threshold={threshold}")
         print(f"[SIMILARITY] Auto-crop={auto_crop}, Edge-preproc={edge_preproc}")
         print(f"[SIMILARITY] Segment-decoration={segment_decoration}, Remove-background={remove_background}")
-        if custom_prompt:
-            print(f"[SIMILARITY] Custom prompt: {custom_prompt[:50]}...")
 
         # Update status
         self.label_similarity_status.setText(f"Searching with {model_name}...")
