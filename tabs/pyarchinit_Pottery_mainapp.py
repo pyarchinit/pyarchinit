@@ -5144,12 +5144,18 @@ Use well-structured paragraphs with headings for each section.
         for i, record in enumerate(self.DATA_LIST):
             record_id_number = str(getattr(record, 'id_number', ''))
             if record_id_number == str(pottery_id_number):
-                print(f"[SIMILARITY] Found record at index {i}, navigating to id_number={pottery_id_number}")
+                print(f"[SIMILARITY] Found record at index {i}, id_number={record_id_number}")
+                print(f"[SIMILARITY] Record details: id_rep={getattr(record, 'id_rep', 'N/A')}, sito={getattr(record, 'sito', 'N/A')}")
                 self.REC_CORR = i
                 self.REC_TOT = len(self.DATA_LIST)
+                self.DATA_LIST_REC_CORR = record  # Set current record reference
+                self.DATA_LIST_REC_TEMP = record
                 self.set_rec_counter(self.REC_TOT, self.REC_CORR + 1)
-                self.fill_fields()  # Fill fields AFTER setting counter
+                self.fill_fields(i)  # Pass explicit index to fill_fields
                 found = True
+                # Verify what was actually filled
+                filled_id = self.lineEdit_id_number.text() if hasattr(self, 'lineEdit_id_number') else 'N/A'
+                print(f"[SIMILARITY] After fill_fields: lineEdit_id_number='{filled_id}'")
                 print(f"[SIMILARITY] Navigation complete. REC_CORR={self.REC_CORR}, showing record {self.REC_CORR + 1}/{self.REC_TOT}")
                 break
 
