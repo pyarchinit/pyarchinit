@@ -5137,20 +5137,27 @@ Use well-structured paragraphs with headings for each section.
         self.SORT_STATUS = "n"
         self.label_sort.setText(self.SORTED_ITEMS[self.SORT_STATUS])
 
+        print(f"[SIMILARITY] Loaded {len(self.DATA_LIST)} records")
+
         # Now find the record in DATA_LIST using id_number
         found = False
         for i, record in enumerate(self.DATA_LIST):
-            if str(getattr(record, 'id_number', '')) == str(pottery_id_number):
+            record_id_number = str(getattr(record, 'id_number', ''))
+            if record_id_number == str(pottery_id_number):
                 print(f"[SIMILARITY] Found record at index {i}, navigating to id_number={pottery_id_number}")
                 self.REC_CORR = i
                 self.REC_TOT = len(self.DATA_LIST)
-                self.fill_fields()
                 self.set_rec_counter(self.REC_TOT, self.REC_CORR + 1)
+                self.fill_fields()  # Fill fields AFTER setting counter
                 found = True
+                print(f"[SIMILARITY] Navigation complete. REC_CORR={self.REC_CORR}, showing record {self.REC_CORR + 1}/{self.REC_TOT}")
                 break
 
         if not found:
             print(f"[SIMILARITY] WARNING: pottery id_number={pottery_id_number} not found even after view_all (len={len(self.DATA_LIST)})")
+            # Debug: print first 5 id_numbers to check format
+            for j, r in enumerate(self.DATA_LIST[:5]):
+                print(f"[SIMILARITY] Sample record {j}: id_number='{getattr(r, 'id_number', 'N/A')}'")
             QMessageBox.warning(self, "Not Found",
                 f"Pottery ID {pottery_id_number} not found in database.")
 
