@@ -96,7 +96,8 @@ class CLIPEmbeddingModel(EmbeddingModel):
 
     def get_embedding(self, image_path: str, search_type: str = 'general',
                       auto_crop: bool = False, edge_preprocessing: bool = False,
-                      segment_decoration: bool = False, remove_background: bool = False) -> Optional[np.ndarray]:
+                      segment_decoration: bool = False, remove_background: bool = False,
+                      custom_prompt: str = '') -> Optional[np.ndarray]:
         """Generate CLIP embedding via subprocess
 
         Args:
@@ -106,6 +107,7 @@ class CLIPEmbeddingModel(EmbeddingModel):
             edge_preprocessing: Use edge-based preprocessing for decoration
             segment_decoration: Mask non-decorated areas (isolate decoration only)
             remove_background: Remove photo background from pottery
+            custom_prompt: Ignored for CLIP (only used by OpenAI)
         """
         if not os.path.exists(image_path):
             print(f"Image not found: {image_path}")
@@ -209,7 +211,8 @@ class DINOv2EmbeddingModel(EmbeddingModel):
 
     def get_embedding(self, image_path: str, search_type: str = 'general',
                       auto_crop: bool = False, edge_preprocessing: bool = False,
-                      segment_decoration: bool = False, remove_background: bool = False) -> Optional[np.ndarray]:
+                      segment_decoration: bool = False, remove_background: bool = False,
+                      custom_prompt: str = '') -> Optional[np.ndarray]:
         """Generate DINOv2 embedding via subprocess
 
         Args:
@@ -219,6 +222,7 @@ class DINOv2EmbeddingModel(EmbeddingModel):
             edge_preprocessing: Use edge-based preprocessing for decoration
             segment_decoration: Mask non-decorated areas (isolate decoration only)
             remove_background: Remove photo background from pottery
+            custom_prompt: Ignored for DINOv2 (only used by OpenAI)
         """
         if not os.path.exists(image_path):
             print(f"Image not found: {image_path}")
@@ -365,10 +369,16 @@ Be detailed but concise, focusing on features useful for finding similar pottery
 
     def get_embedding(self, image_path: str, search_type: str = 'general',
                       auto_crop: bool = False, edge_preprocessing: bool = False,
-                      segment_decoration: bool = False, remove_background: bool = False) -> Optional[np.ndarray]:
+                      segment_decoration: bool = False, remove_background: bool = False,
+                      custom_prompt: str = '') -> Optional[np.ndarray]:
         """Generate embedding via OpenAI API using specialized prompts
         Note: auto_crop, edge_preprocessing, segment_decoration, remove_background are ignored
-        for OpenAI (uses text description approach, not image preprocessing)"""
+        for OpenAI (uses text description approach, not image preprocessing)
+
+        Args:
+            custom_prompt: If provided, uses this prompt instead of the search_type preset.
+                          This allows semantic searches like "ceramica con decorazione a bande".
+        """
         if not self.api_key:
             print("OpenAI API key not configured")
             return None
@@ -399,8 +409,19 @@ Be detailed but concise, focusing on features useful for finding similar pottery
             }
             mime_type = mime_types.get(ext, 'image/jpeg')
 
-            # Get specialized prompt for search type
-            prompt = self.PROMPTS.get(search_type, self.PROMPTS['general'])
+            # Use custom prompt if provided, otherwise use search_type preset
+            if custom_prompt:
+                prompt = f"""Analizza questa ceramica e descrivi se e come corrisponde a questa richiesta:
+"{custom_prompt}"
+
+Descrivi in dettaglio le caratteristiche rilevanti per questa ricerca:
+- Elementi che corrispondono alla richiesta
+- Caratteristiche visive specifiche (decorazione, forma, texture, colore)
+- Qualsiasi dettaglio distintivo
+
+Sii dettagliato ma conciso."""
+            else:
+                prompt = self.PROMPTS.get(search_type, self.PROMPTS['general'])
 
             # Get image description using GPT-4 Vision with specialized prompt
             description_response = client.chat.completions.create(
