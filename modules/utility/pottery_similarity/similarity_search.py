@@ -124,7 +124,8 @@ class PotterySimilaritySearchEngine:
                       auto_crop: bool = False,
                       edge_preprocessing: bool = False,
                       segment_decoration: bool = False,
-                      remove_background: bool = False) -> List[Dict]:
+                      remove_background: bool = False,
+                      custom_prompt: str = '') -> List[Dict]:
         """
         Find all images similar to query above threshold.
 
@@ -137,6 +138,7 @@ class PotterySimilaritySearchEngine:
             edge_preprocessing: If True, use edge-based preprocessing
             segment_decoration: If True, mask non-decorated areas
             remove_background: If True, remove photo background
+            custom_prompt: Custom prompt for semantic search (OpenAI only)
 
         Returns:
             List of dicts with:
@@ -166,7 +168,8 @@ class PotterySimilaritySearchEngine:
         query_embedding = model.get_embedding(
             query_image_path, search_type,
             auto_crop=auto_crop, edge_preprocessing=edge_preprocessing,
-            segment_decoration=segment_decoration, remove_background=remove_background
+            segment_decoration=segment_decoration, remove_background=remove_background,
+            custom_prompt=custom_prompt
         )
         if query_embedding is None:
             print("Failed to generate query embedding")
@@ -606,7 +609,8 @@ if HAS_QGIS:
                         auto_crop=self.kwargs.get('auto_crop', False),
                         edge_preprocessing=self.kwargs.get('edge_preprocessing', False),
                         segment_decoration=self.kwargs.get('segment_decoration', False),
-                        remove_background=self.kwargs.get('remove_background', False)
+                        remove_background=self.kwargs.get('remove_background', False),
+                        custom_prompt=self.kwargs.get('custom_prompt', '')
                     )
                     # Filter out excluded pottery if specified
                     exclude_id = self.kwargs.get('exclude_pottery_id')

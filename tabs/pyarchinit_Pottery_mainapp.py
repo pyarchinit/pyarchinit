@@ -4666,6 +4666,19 @@ Use well-structured paragraphs with headings for each section.
         type_layout.addWidget(self.combo_similarity_type)
         similarity_layout.addLayout(type_layout)
 
+        # Custom prompt for semantic search (OpenAI only)
+        prompt_layout = QHBoxLayout()
+        prompt_layout.addWidget(QLabel("Custom Prompt:"))
+        self.lineEdit_custom_prompt = QLineEdit()
+        self.lineEdit_custom_prompt.setPlaceholderText("Es: ceramica con decorazione a bande rosse e nere...")
+        self.lineEdit_custom_prompt.setToolTip(
+            "Prompt personalizzato per ricerca semantica (solo OpenAI).\n"
+            "Descrivi le caratteristiche che cerchi: decorazione, forma, texture, colore, etc.\n"
+            "Lascia vuoto per usare il Search Type selezionato."
+        )
+        prompt_layout.addWidget(self.lineEdit_custom_prompt)
+        similarity_layout.addLayout(prompt_layout)
+
         # Threshold slider
         threshold_layout = QHBoxLayout()
         threshold_layout.addWidget(QLabel("Threshold:"))
@@ -4856,9 +4869,16 @@ Use well-structured paragraphs with headings for each section.
         segment_decoration = getattr(self, 'chk_segment_decoration', None) and self.chk_segment_decoration.isChecked()
         remove_background = getattr(self, 'chk_remove_background', None) and self.chk_remove_background.isChecked()
 
+        # Get custom prompt for semantic search (OpenAI only)
+        custom_prompt = ''
+        if hasattr(self, 'lineEdit_custom_prompt'):
+            custom_prompt = self.lineEdit_custom_prompt.text().strip()
+
         print(f"[SIMILARITY] Model={model_name}, Type={search_type}, Threshold={threshold}")
         print(f"[SIMILARITY] Auto-crop={auto_crop}, Edge-preproc={edge_preproc}")
         print(f"[SIMILARITY] Segment-decoration={segment_decoration}, Remove-background={remove_background}")
+        if custom_prompt:
+            print(f"[SIMILARITY] Custom prompt: {custom_prompt[:50]}...")
 
         # Update status
         self.label_similarity_status.setText(f"Searching with {model_name}...")
@@ -4876,7 +4896,8 @@ Use well-structured paragraphs with headings for each section.
             auto_crop=auto_crop,
             edge_preprocessing=edge_preproc,
             segment_decoration=segment_decoration,
-            remove_background=remove_background
+            remove_background=remove_background,
+            custom_prompt=custom_prompt  # For OpenAI semantic search
         )
         self.similarity_worker.search_complete.connect(self.on_similarity_search_complete)
         self.similarity_worker.error_occurred.connect(self.on_similarity_error)
@@ -5034,10 +5055,16 @@ Use well-structured paragraphs with headings for each section.
             id_number = pottery_data.get('id_number', '') if pottery_data else ''
             label += f"ID: {id_number if id_number else result.get('pottery_id', 'N/A')}\n"
             if pottery_data:
+                # Show US
+                us_val = pottery_data.get('us', '')
+                if us_val:
+                    label += f"US: {us_val}\n"
+                # Show form and specific_form
                 if pottery_data.get('form'):
                     label += f"Form: {pottery_data.get('form', '')}\n"
                 if pottery_data.get('specific_form'):
                     label += f"Spec: {pottery_data.get('specific_form', '')}\n"
+                # Show decoration
                 if pottery_data.get('exdeco'):
                     label += f"Deco: {pottery_data.get('exdeco', '')}"
 
