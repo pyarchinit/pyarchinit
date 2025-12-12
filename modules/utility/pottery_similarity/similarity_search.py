@@ -297,7 +297,8 @@ class PotterySimilaritySearchEngine:
                       text_query: str,
                       model_name: str = 'openai',
                       search_type: str = 'general',
-                      threshold: float = 0.7) -> List[Dict]:
+                      threshold: float = 0.7,
+                      return_top_scores: bool = False):
         """
         Search for pottery by text description (semantic search).
         Only works with OpenAI model - generates embedding from text and searches index.
@@ -307,23 +308,27 @@ class PotterySimilaritySearchEngine:
             model_name: Must be 'openai' for text search
             search_type: Type of search (for index selection)
             threshold: Minimum similarity (0-1)
+            return_top_scores: If True, returns (results, top_5_scores) tuple
 
         Returns:
             List of matching pottery with similarity scores
+            OR tuple (results, top_scores) if return_top_scores=True
         """
+        empty_result = ([], []) if return_top_scores else []
+
         if not text_query:
             print("Empty text query")
-            return []
+            return empty_result
 
         if model_name != 'openai':
             print("Text search only supported with OpenAI model")
-            return []
+            return empty_result
 
         # Get OpenAI model
         model = self._get_model('openai')
         if model is None:
             print("OpenAI model not available")
-            return []
+            return empty_result
 
         try:
             # Generate embedding directly from text using OpenAI
@@ -333,7 +338,7 @@ class PotterySimilaritySearchEngine:
             api_key_path = os.path.expanduser("~/pyarchinit/bin/gpt_api_key.txt")
             if not os.path.exists(api_key_path):
                 print(f"OpenAI API key not found at {api_key_path}")
-                return []
+                return empty_result
 
             with open(api_key_path, 'r') as f:
                 api_key = f.read().strip()
@@ -352,7 +357,7 @@ class PotterySimilaritySearchEngine:
 
         except Exception as e:
             print(f"Failed to generate text embedding: {e}")
-            return []
+            return empty_result
 
         # Search index with the text embedding
         print(f"[SEARCH_BY_TEXT] Searching index: model={model_name}, type={search_type}, threshold={threshold}")
@@ -401,6 +406,15 @@ class PotterySimilaritySearchEngine:
             results.append(result)
 
         print(f"[SEARCH_BY_TEXT] Found {len(results)} results above {threshold*100:.0f}% threshold")
+
+        if return_top_scores:
+            # Get top 5 scores regardless of threshold for user feedback
+            top_scores = self.index_manager.get_top_scores(model_name, search_type, query_embedding, 5)
+            # Convert to percentages
+            top_scores_percent = [s * 100 for s in top_scores]
+            print(f"[SEARCH_BY_TEXT] Top 5 scores: {[f'{s:.1f}%' for s in top_scores_percent]}")
+            return (results, top_scores_percent)
+
         return results
 
     def build_index_for_model(self,
@@ -686,6 +700,7 @@ if HAS_QGIS:
         """
 
         search_complete = pyqtSignal(list)
+        search_complete_with_meta = pyqtSignal(list, dict)  # results, metadata (top_scores, etc.)
         index_progress = pyqtSignal(int, int, str)
         error_occurred = pyqtSignal(str)
         operation_complete = pyqtSignal(str)
@@ -739,13 +754,21 @@ if HAS_QGIS:
 
                 elif self.operation == 'search_by_text':
                     # Text-based semantic search (OpenAI only)
-                    self.results = self.search_engine.search_by_text(
+                    search_result = self.search_engine.search_by_text(
                         self.kwargs.get('custom_prompt', ''),
                         self.kwargs.get('model_name', 'openai'),
                         self.kwargs.get('search_type', 'general'),
-                        self.kwargs.get('threshold', 0.7)
+                        self.kwargs.get('threshold', 0.7),
+                        return_top_scores=True  # Get top scores for feedback
                     )
-                    self.search_complete.emit(self.results)
+                    # search_result is now (results, top_scores)
+                    if isinstance(search_result, tuple):
+                        self.results, top_scores = search_result
+                        meta = {'top_scores': top_scores, 'threshold': self.kwargs.get('threshold', 0.7)}
+                        self.search_complete_with_meta.emit(self.results, meta)
+                    else:
+                        self.results = search_result
+                        self.search_complete.emit(self.results)
 
                 elif self.operation == 'build_index':
                     success = self.search_engine.build_index_for_model(

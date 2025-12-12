@@ -4912,7 +4912,9 @@ Use well-structured paragraphs with headings for each section.
                 search_type=search_type,
                 threshold=threshold
             )
+            # Connect both signals - with_meta has top scores for feedback
             self.similarity_worker.search_complete.connect(self.on_similarity_search_complete)
+            self.similarity_worker.search_complete_with_meta.connect(self.on_similarity_search_complete_with_meta)
             self.similarity_worker.error_occurred.connect(self.on_similarity_error)
             self.similarity_worker.start()
             return
@@ -5077,9 +5079,53 @@ Use well-structured paragraphs with headings for each section.
         """Handle search completion"""
         self.btn_find_similar.setEnabled(True)
 
+        # Get current settings for informative message
+        current_threshold = self.slider_similarity_threshold.value()
+        model_name = self.get_similarity_model_name()
+        search_type = self.get_similarity_search_type()
+        custom_prompt = ''
+        if hasattr(self, 'lineEdit_custom_prompt'):
+            custom_prompt = self.lineEdit_custom_prompt.text().strip()
+        is_global_search = hasattr(self, 'radio_search_global') and self.radio_search_global.isChecked()
+
         if not results:
             self.label_similarity_status.setText("No similar pottery found")
-            QMessageBox.information(self, "Results", "No similar pottery found above the threshold")
+
+            # Build informative message with suggestions
+            msg_parts = [f"No pottery found above {current_threshold}% threshold."]
+
+            # Try to get max score from index to show what's available
+            if self.similarity_engine and hasattr(self.similarity_engine, 'index_manager'):
+                try:
+                    index, mapping = self.similarity_engine.index_manager.get_index(model_name, search_type)
+                    if index and index.ntotal > 0:
+                        msg_parts.append(f"\nIndex contains {index.ntotal} pottery images.")
+                    else:
+                        msg_parts.append(f"\nIndex '{model_name}_{search_type}' is empty or not built.")
+                        msg_parts.append("→ Try: Build Index first!")
+                except:
+                    pass
+
+            # Suggestions based on settings
+            msg_parts.append("\n\n📌 Suggestions:")
+
+            if current_threshold > 70:
+                msg_parts.append(f"• Lower threshold (currently {current_threshold}%)")
+
+            if custom_prompt and is_global_search:
+                msg_parts.append("• Global text search typically has lower scores (40-60%)")
+                msg_parts.append("• Try threshold ≤ 50%")
+
+            if model_name == 'openai' and search_type == 'general':
+                msg_parts.append("• For decorations: build 'Decoration' index")
+
+            if not custom_prompt and model_name in ['clip', 'dinov2']:
+                chk_auto = getattr(self, 'chk_auto_crop', None) and self.chk_auto_crop.isChecked()
+                chk_edge = getattr(self, 'chk_edge_preproc', None) and self.chk_edge_preproc.isChecked()
+                if not chk_auto and not chk_edge:
+                    msg_parts.append("• Try enabling 'Auto-crop' or 'Edge-enhance'")
+
+            QMessageBox.information(self, "No Results", ''.join(msg_parts))
             return
 
         # Filter results if "Only decorated" is checked
@@ -5105,6 +5151,41 @@ Use well-structured paragraphs with headings for each section.
 
         # Show results dialog
         self.show_similarity_results_dialog(results)
+
+    def on_similarity_search_complete_with_meta(self, results, meta):
+        """Handle search completion with metadata (top scores)"""
+        self.btn_find_similar.setEnabled(True)
+
+        # Get current settings
+        current_threshold = self.slider_similarity_threshold.value()
+        top_scores = meta.get('top_scores', [])
+
+        if not results:
+            self.label_similarity_status.setText("No similar pottery found")
+
+            # Build detailed message with top scores
+            msg_parts = [f"No pottery found above {current_threshold}% threshold."]
+
+            if top_scores:
+                max_score = max(top_scores)
+                msg_parts.append(f"\n\n📊 Best matches found:")
+                msg_parts.append(f"• Top score: {max_score:.1f}%")
+                msg_parts.append(f"• Top 5: {', '.join([f'{s:.1f}%' for s in top_scores[:5]])}")
+
+                if max_score < current_threshold:
+                    suggested = int(max_score - 5)  # Suggest 5% below best match
+                    suggested = max(40, suggested)  # But not below 40%
+                    msg_parts.append(f"\n\n💡 Suggestion: Lower threshold to {suggested}% to see results")
+
+            msg_parts.append("\n\n📌 Notes for Global Text Search:")
+            msg_parts.append("• Text-to-image similarity scores are typically 40-60%")
+            msg_parts.append("• This is normal - text and image embeddings differ")
+
+            QMessageBox.information(self, "No Results", ''.join(msg_parts))
+            return
+
+        # If we have results, proceed normally
+        self.on_similarity_search_complete(results)
 
     def on_similarity_error(self, error_msg):
         """Handle search error"""
