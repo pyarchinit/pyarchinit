@@ -355,10 +355,20 @@ class PotterySimilaritySearchEngine:
             return []
 
         # Search index with the text embedding
+        print(f"[SEARCH_BY_TEXT] Searching index: model={model_name}, type={search_type}, threshold={threshold}")
+
+        # Debug: check index status
+        index, mapping = self.index_manager.get_index(model_name, search_type)
+        if index is None:
+            print(f"[SEARCH_BY_TEXT] ERROR: Index is None!")
+        else:
+            print(f"[SEARCH_BY_TEXT] Index has {index.ntotal} vectors, mapping has {len(mapping)} entries")
+
         raw_results = self.index_manager.search(
             model_name, search_type,
             query_embedding, threshold
         )
+        print(f"[SEARCH_BY_TEXT] Raw results from index: {len(raw_results)}")
 
         # Enrich results with pottery data
         results = []
