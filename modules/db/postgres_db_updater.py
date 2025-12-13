@@ -60,6 +60,9 @@ class PostgresDbUpdater:
             # Aggiorna pottery_table con nuovi campi decorazione
             self.update_pottery_table()
 
+            # Installa/aggiorna le funzioni per la sincronizzazione automatica dei GRANT
+            self.install_grant_sync_functions()
+
             # Altri aggiornamenti possono essere aggiunti qui in futuro
 
             if self.updates_made:
@@ -595,6 +598,162 @@ class PostgresDbUpdater:
 
         except Exception as e:
             self.log_message(f"Errore installando voci thesaurus Pottery: {e}")
+
+    def install_grant_sync_functions(self):
+        """
+        Installa le funzioni e l'event trigger per la sincronizzazione automatica dei GRANT.
+        Quando una tabella viene ricreata (DROP + CREATE), i permessi GRANT vengono
+        automaticamente ripristinati dalla tabella pyarchinit_permissions.
+        """
+        try:
+            from sqlalchemy import text
+
+            # Verifica se le tabelle necessarie esistono
+            check_tables = text("""
+                SELECT COUNT(*) FROM information_schema.tables
+                WHERE table_name IN ('pyarchinit_permissions', 'pyarchinit_users')
+                AND table_schema = 'public'
+            """)
+            result = self.db_manager.engine.execute(check_tables)
+            table_count = result.fetchone()[0]
+
+            if table_count < 2:
+                # Le tabelle dei permessi non esistono ancora
+                return
+
+            # Verifica se l'event trigger esiste già
+            check_trigger = text("""
+                SELECT 1 FROM pg_event_trigger WHERE evtname = 'trg_sync_grants_on_create'
+            """)
+            result = self.db_manager.engine.execute(check_trigger)
+            trigger_exists = result.fetchone() is not None
+
+            if trigger_exists:
+                # Le funzioni sono già installate
+                return
+
+            self.log_message("Installazione funzioni sincronizzazione GRANT...")
+
+            # Funzione 1: sync_grants_for_table - sincronizza i GRANT per una singola tabella
+            func1_sql = text("""
+                CREATE OR REPLACE FUNCTION sync_grants_for_table(p_table_name TEXT)
+                RETURNS void AS $func$
+                DECLARE
+                    perm_record RECORD;
+                    grant_perms TEXT;
+                    v_username TEXT;
+                BEGIN
+                    FOR perm_record IN
+                        SELECT u.username, p.can_view, p.can_insert, p.can_update, p.can_delete
+                        FROM pyarchinit_permissions p
+                        JOIN pyarchinit_users u ON u.id = p.user_id
+                        WHERE p.table_name = p_table_name
+                    LOOP
+                        v_username := perm_record.username;
+
+                        IF EXISTS (SELECT 1 FROM pg_user WHERE usename = v_username) THEN
+                            grant_perms := '';
+
+                            IF perm_record.can_view THEN
+                                grant_perms := 'SELECT';
+                            END IF;
+
+                            IF perm_record.can_insert THEN
+                                IF grant_perms <> '' THEN grant_perms := grant_perms || ', '; END IF;
+                                grant_perms := grant_perms || 'INSERT';
+                            END IF;
+
+                            IF perm_record.can_update THEN
+                                IF grant_perms <> '' THEN grant_perms := grant_perms || ', '; END IF;
+                                grant_perms := grant_perms || 'UPDATE';
+                            END IF;
+
+                            IF perm_record.can_delete THEN
+                                IF grant_perms <> '' THEN grant_perms := grant_perms || ', '; END IF;
+                                grant_perms := grant_perms || 'DELETE';
+                            END IF;
+
+                            IF grant_perms <> '' THEN
+                                EXECUTE format('GRANT %s ON %I TO %I', grant_perms, p_table_name, v_username);
+                            END IF;
+                        END IF;
+                    END LOOP;
+                END;
+                $func$ LANGUAGE plpgsql
+            """)
+            self.db_manager.engine.execute(func1_sql)
+
+            # Funzione 2: sync_all_grants - sincronizza tutti i GRANT
+            func2_sql = text("""
+                CREATE OR REPLACE FUNCTION sync_all_grants()
+                RETURNS void AS $func$
+                DECLARE
+                    table_rec RECORD;
+                BEGIN
+                    FOR table_rec IN
+                        SELECT DISTINCT table_name FROM pyarchinit_permissions
+                    LOOP
+                        IF EXISTS (SELECT 1 FROM information_schema.tables
+                                   WHERE table_name = table_rec.table_name AND table_schema = 'public') THEN
+                            PERFORM sync_grants_for_table(table_rec.table_name);
+                        END IF;
+                    END LOOP;
+                END;
+                $func$ LANGUAGE plpgsql
+            """)
+            self.db_manager.engine.execute(func2_sql)
+
+            # Funzione 3: on_table_created - event trigger function
+            func3_sql = text("""
+                CREATE OR REPLACE FUNCTION on_table_created()
+                RETURNS event_trigger AS $func$
+                DECLARE
+                    obj record;
+                    v_table_name TEXT;
+                BEGIN
+                    FOR obj IN SELECT * FROM pg_event_trigger_ddl_commands() WHERE command_tag = 'CREATE TABLE'
+                    LOOP
+                        v_table_name := split_part(obj.object_identity, '.', 2);
+                        IF v_table_name IS NULL OR v_table_name = '' THEN
+                            v_table_name := obj.object_identity;
+                        END IF;
+
+                        IF EXISTS (SELECT 1 FROM pyarchinit_permissions WHERE table_name = v_table_name) THEN
+                            PERFORM sync_grants_for_table(v_table_name);
+                        END IF;
+                    END LOOP;
+                END;
+                $func$ LANGUAGE plpgsql
+            """)
+            self.db_manager.engine.execute(func3_sql)
+
+            # Crea l'event trigger
+            create_trigger_sql = text("""
+                CREATE EVENT TRIGGER trg_sync_grants_on_create
+                ON ddl_command_end
+                WHEN TAG IN ('CREATE TABLE')
+                EXECUTE FUNCTION on_table_created()
+            """)
+            self.db_manager.engine.execute(create_trigger_sql)
+
+            # Aggiungi commenti
+            self.db_manager.engine.execute(text(
+                "COMMENT ON FUNCTION sync_grants_for_table(TEXT) IS "
+                "'Sincronizza i GRANT PostgreSQL da pyarchinit_permissions per una tabella specifica'"
+            ))
+            self.db_manager.engine.execute(text(
+                "COMMENT ON FUNCTION sync_all_grants() IS "
+                "'Sincronizza tutti i GRANT PostgreSQL da pyarchinit_permissions'"
+            ))
+            self.db_manager.engine.execute(text(
+                "COMMENT ON EVENT TRIGGER trg_sync_grants_on_create IS "
+                "'Sincronizza automaticamente i GRANT quando una tabella viene creata'"
+            ))
+
+            self.log_message("Funzioni sincronizzazione GRANT installate")
+
+        except Exception as e:
+            self.log_message(f"Errore installando funzioni sincronizzazione GRANT: {e}")
 
 
 def check_and_update_postgres_db(db_manager, parent=None):
