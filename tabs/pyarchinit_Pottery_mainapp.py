@@ -982,15 +982,16 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
             print(f"Error setting up filter button: {e}")
 
     def on_pushButton_filter_pottery_pressed(self):
-        """Open the filter dialog for ID Number selection"""
+        """Open the filter dialog for ID Number and Year selection"""
         self.empty_fields()
         # Create and show the dialog
         filter_dialog = PotteryFilterDialog(self.DB_MANAGER, self)
         result = filter_dialog.exec_()
 
         if result:
-            # Get the selected ID numbers from the dialog
+            # Get the selected ID numbers and year from the dialog
             selected_ids = filter_dialog.get_selected_ids()
+            selected_year = filter_dialog.get_selected_year()
 
             if not selected_ids:
                 if self.L == 'it':
@@ -999,14 +1000,25 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
                     QMessageBox.information(self, 'Info', "No ID Number selected.", QMessageBox.Ok)
                 return
 
-            # Sort DATA_LIST based on the selected IDs
-            sorted_data_list = sorted(
-                self.DATA_LIST,
+            # Filter DATA_LIST based on selected IDs and optionally year
+            if selected_year is not None:
+                # Filter by both year and ID numbers
+                filtered_data_list = [
+                    record for record in self.DATA_LIST
+                    if record.id_number in selected_ids and record.anno == selected_year
+                ]
+            else:
+                # Filter by ID numbers only
+                filtered_data_list = [
+                    record for record in self.DATA_LIST
+                    if record.id_number in selected_ids
+                ]
+
+            # Sort filtered list based on the order of selected IDs
+            filtered_data_list = sorted(
+                filtered_data_list,
                 key=lambda record: selected_ids.index(record.id_number) if record.id_number in selected_ids else -1
             )
-
-            # Filter out any records that are not in selected_ids
-            filtered_data_list = [record for record in sorted_data_list if record.id_number in selected_ids]
 
             # Update the UI with the filtered and sorted data
             if filtered_data_list:
@@ -6113,28 +6125,47 @@ Use well-structured paragraphs with headings for each section.
 
 
 class PotteryFilterDialog(QDialog):
-    """Dialog for filtering Pottery records by ID Number with checkboxes"""
+    """Dialog for filtering Pottery records by ID Number and Year with checkboxes"""
     L = QgsSettings().value("locale/userLocale")[0:2]
 
     def __init__(self, db_manager, parent=None):
         super().__init__(parent)
         self.db_manager = db_manager
         self.selected_ids = []
+        self.selected_year = None
         self.pottery_records = []
         self.initUI()
 
     def initUI(self):
         if self.L == 'it':
-            self.setWindowTitle("Filtra Record Ceramica per ID Number")
+            self.setWindowTitle("Filtra Record Ceramica per Anno e ID Number")
         elif self.L == 'de':
-            self.setWindowTitle("Keramikdatensätze nach ID-Nummer filtern")
+            self.setWindowTitle("Keramikdatensätze nach Jahr und ID-Nummer filtern")
         else:
-            self.setWindowTitle("Filter Pottery Records by ID Number")
+            self.setWindowTitle("Filter Pottery Records by Year and ID Number")
 
-        self.setMinimumSize(400, 500)
+        self.setMinimumSize(450, 550)
         layout = QVBoxLayout(self)
 
-        # Search bar
+        # Year filter section
+        year_layout = QHBoxLayout()
+        year_label = QLabel(self)
+        if self.L == 'it':
+            year_label.setText("Anno:")
+        elif self.L == 'de':
+            year_label.setText("Jahr:")
+        else:
+            year_label.setText("Year:")
+        year_layout.addWidget(year_label)
+
+        self.comboBox_year = QComboBox(self)
+        self.comboBox_year.setMinimumWidth(100)
+        self.comboBox_year.currentIndexChanged.connect(self.on_year_changed)
+        year_layout.addWidget(self.comboBox_year)
+        year_layout.addStretch()
+        layout.addLayout(year_layout)
+
+        # Search bar for ID Number
         self.search_bar = QLineEdit(self)
         if self.L == 'it':
             self.search_bar.setPlaceholderText("Cerca ID Number...")
@@ -6170,8 +6201,8 @@ class PotteryFilterDialog(QDialog):
         self.list_widget = QListWidget(self)
         layout.addWidget(self.list_widget)
 
-        # Populate list widget
-        self.populate_list_with_ids()
+        # Populate year combobox and list widget
+        self.populate_years_and_ids()
 
         # Status label
         self.label_status = QLabel(self)
@@ -6195,29 +6226,79 @@ class PotteryFilterDialog(QDialog):
         """Natural sorting key that handles alphanumeric values correctly"""
         return [int(c) if c.isdigit() else c.lower() for c in re.split(r'(\d+)', str(text))]
 
-    def populate_list_with_ids(self):
-        """Fetch pottery records and populate the list with unique ID numbers"""
+    def populate_years_and_ids(self):
+        """Fetch pottery records and populate year combobox and ID list"""
         try:
             # Get all pottery records
             self.pottery_records = self.db_manager.query_all('pottery_table')
 
-            # Get unique id_numbers and sort them naturally
-            unique_ids = sorted(
-                set(record.id_number for record in self.pottery_records if record.id_number is not None),
-                key=self.natural_sort_key
+            # Get unique years and sort them
+            unique_years = sorted(
+                set(record.anno for record in self.pottery_records if record.anno is not None),
+                reverse=True  # Most recent first
             )
 
-            self.update_list_widget(unique_ids)
-        except Exception as e:
-            print(f"Error populating pottery filter list: {e}")
+            # Populate year combobox
+            self.comboBox_year.blockSignals(True)
+            self.comboBox_year.clear()
+            if self.L == 'it':
+                self.comboBox_year.addItem("Tutti gli anni", None)
+            elif self.L == 'de':
+                self.comboBox_year.addItem("Alle Jahre", None)
+            else:
+                self.comboBox_year.addItem("All years", None)
 
-    def update_list_widget(self, id_numbers):
+            for year in unique_years:
+                self.comboBox_year.addItem(str(year), year)
+            self.comboBox_year.blockSignals(False)
+
+            # Populate list with all IDs initially
+            self.update_id_list()
+
+        except Exception as e:
+            print(f"Error populating pottery filter: {e}")
+
+    def on_year_changed(self, index):
+        """Handle year selection change"""
+        self.selected_year = self.comboBox_year.currentData()
+        self.search_bar.clear()
+        self.update_id_list()
+
+    def get_filtered_records(self):
+        """Get records filtered by selected year"""
+        if self.selected_year is None:
+            return self.pottery_records
+        return [r for r in self.pottery_records if r.anno == self.selected_year]
+
+    def update_id_list(self):
+        """Update the ID list based on current year filter"""
+        filtered_records = self.get_filtered_records()
+
+        # Get unique id_numbers from filtered records and sort them naturally
+        unique_ids = sorted(
+            set(record.id_number for record in filtered_records if record.id_number is not None),
+            key=self.natural_sort_key
+        )
+
+        self.update_list_widget(unique_ids, filtered_records)
+
+    def update_list_widget(self, id_numbers, records=None):
         """Update the list widget with the given ID numbers"""
         self.list_widget.clear()
 
+        if records is None:
+            records = self.get_filtered_records()
+
+        # Create a dict to count occurrences per id_number
+        id_count = {}
+        for record in records:
+            if record.id_number is not None:
+                id_count[record.id_number] = id_count.get(record.id_number, 0) + 1
+
         for id_num in id_numbers:
             list_item = QListWidgetItem(self.list_widget)
-            checkbox = QCheckBox(f"ID: {id_num}")
+            count = id_count.get(id_num, 0)
+            checkbox = QCheckBox(f"ID: {id_num} ({count} record{'s' if count != 1 else ''})")
             checkbox.id_number = id_num
             checkbox.stateChanged.connect(self.update_status_label)
             self.list_widget.addItem(list_item)
@@ -6225,20 +6306,22 @@ class PotteryFilterDialog(QDialog):
 
     def filter_list(self, text):
         """Filter the list based on search text"""
+        filtered_records = self.get_filtered_records()
+
         if not text:
             # Show all if search is empty
             unique_ids = sorted(
-                set(record.id_number for record in self.pottery_records if record.id_number is not None),
+                set(record.id_number for record in filtered_records if record.id_number is not None),
                 key=self.natural_sort_key
             )
         else:
             # Filter by search text
             unique_ids = sorted(
-                set(record.id_number for record in self.pottery_records
+                set(record.id_number for record in filtered_records
                     if record.id_number is not None and str(record.id_number).startswith(text)),
                 key=self.natural_sort_key
             )
-        self.update_list_widget(unique_ids)
+        self.update_list_widget(unique_ids, filtered_records)
 
     def select_all(self):
         """Select all visible checkboxes"""
@@ -6260,12 +6343,16 @@ class PotteryFilterDialog(QDialog):
         """Update the status label with count of selected items"""
         count = self.get_selected_count()
         total = self.list_widget.count()
+        year_text = ""
+        if self.selected_year:
+            year_text = f" ({self.selected_year})"
+
         if self.L == 'it':
-            self.label_status.setText(f"Selezionati: {count} di {total}")
+            self.label_status.setText(f"Selezionati: {count} di {total}{year_text}")
         elif self.L == 'de':
-            self.label_status.setText(f"Ausgewählt: {count} von {total}")
+            self.label_status.setText(f"Ausgewählt: {count} von {total}{year_text}")
         else:
-            self.label_status.setText(f"Selected: {count} of {total}")
+            self.label_status.setText(f"Selected: {count} of {total}{year_text}")
 
     def get_selected_count(self):
         """Get the count of selected checkboxes"""
@@ -6287,9 +6374,13 @@ class PotteryFilterDialog(QDialog):
             if checkbox and checkbox.isChecked():
                 self.selected_ids.append(checkbox.id_number)
 
-        print(f"Selected ID Numbers: {self.selected_ids}")
+        print(f"Selected ID Numbers: {self.selected_ids}, Year: {self.selected_year}")
         self.accept()
 
     def get_selected_ids(self):
         """Return the list of selected ID numbers"""
         return self.selected_ids
+
+    def get_selected_year(self):
+        """Return the selected year (None if 'All years')"""
+        return self.selected_year
