@@ -832,7 +832,10 @@ CREATE TABLE public.pottery_table (
     diametro_preserved numeric(7,3),
     specific_shape text,
     bag BIGINT,
-    sector text
+    sector text,
+    decoration_type text,
+    decoration_motif text,
+    decoration_position text
 );
 
 

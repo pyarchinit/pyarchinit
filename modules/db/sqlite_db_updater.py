@@ -112,7 +112,7 @@ class SQLiteDBUpdater:
             
             # Check if pyarchinit_reperti has quota field
             self.cursor.execute("""
-                SELECT name FROM sqlite_master 
+                SELECT name FROM sqlite_master
                 WHERE type='table' AND name='pyarchinit_reperti'
             """)
             if self.cursor.fetchone():
@@ -120,7 +120,20 @@ class SQLiteDBUpdater:
                 columns = [column[1] for column in self.cursor.fetchall()]
                 if 'quota' not in columns:
                     return True
-            
+
+            # Check if pottery_table has decoration fields
+            self.cursor.execute("""
+                SELECT name FROM sqlite_master
+                WHERE type='table' AND name='pottery_table'
+            """)
+            if self.cursor.fetchone():
+                self.cursor.execute("PRAGMA table_info(pottery_table)")
+                columns = [column[1] for column in self.cursor.fetchall()]
+                required_pottery_columns = ['decoration_type', 'decoration_motif', 'decoration_position']
+                for col in required_pottery_columns:
+                    if col not in columns:
+                        return True
+
             # Check if pyarchinit_us_view exists and has order_layer field
             self.cursor.execute("""
                 SELECT name FROM sqlite_master 
@@ -432,6 +445,9 @@ class SQLiteDBUpdater:
             self.add_column_if_missing('pottery_table', 'percent', 'TEXT')
             self.add_column_if_missing('pottery_table', 'material', 'TEXT')
             self.add_column_if_missing('pottery_table', 'form', 'TEXT')
+            self.add_column_if_missing('pottery_table', 'decoration_type', 'TEXT')
+            self.add_column_if_missing('pottery_table', 'decoration_motif', 'TEXT')
+            self.add_column_if_missing('pottery_table', 'decoration_position', 'TEXT')
         
         # pyarchinit_reperti
         if self.table_exists('pyarchinit_reperti'):
@@ -935,15 +951,15 @@ class SQLiteDBUpdater:
     def update_pottery_thesaurus(self):
         """Installa/aggiorna le voci thesaurus per la tabella Pottery"""
         try:
-            # Check if pottery thesaurus entries already exist
+            # Check if new decoration thesaurus entries exist (11.14, 11.15, 11.16)
             self.cursor.execute("""
                 SELECT COUNT(*) FROM pyarchinit_thesaurus_sigle
-                WHERE nome_tabella = 'pottery_table' AND tipologia_sigla LIKE '11.%'
+                WHERE nome_tabella = 'Pottery' AND tipologia_sigla IN ('11.14', '11.15', '11.16')
             """)
-            count = self.cursor.fetchone()[0]
+            new_decoration_count = self.cursor.fetchone()[0]
 
-            if count > 0:
-                self.log_message(f"Voci thesaurus Pottery già presenti ({count} voci)")
+            if new_decoration_count >= 30:  # Expected ~31 entries for decoration fields
+                self.log_message(f"Voci thesaurus Pottery decorazione già presenti ({new_decoration_count} voci)")
                 return
 
             # Path to pottery thesaurus SQL file (SQLite version)

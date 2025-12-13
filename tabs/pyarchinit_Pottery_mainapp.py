@@ -157,7 +157,10 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
     "Preserved height":"diametro_preserved",
     "Specific shape":"specific_shape",
     "Bag": "bag",
-    "Sector": "sector"
+    "Sector": "sector",
+    "Decoration type": "decoration_type",
+    "Decoration motif": "decoration_motif",
+    "Decoration position": "decoration_position"
     }
 
     SORT_ITEMS = [
@@ -241,7 +244,10 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
                     "diametro_preserved",
                     "specific_shape",
                     "bag",
-                    "sector"
+                    "sector",
+                    "decoration_type",
+                    "decoration_motif",
+                    "decoration_position"
                     ]
     TABLE_FIELDS = [
                     "id_number",
@@ -274,7 +280,10 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
                     "diametro_preserved",
                     "specific_shape",
                     "bag",
-                    "sector"
+                    "sector",
+                    "decoration_type",
+                    "decoration_motif",
+                    "decoration_position"
                     ]
     LANG = {
         "IT": ['it_IT', 'IT', 'it', 'IT_IT', 'it_CH'],
@@ -899,7 +908,6 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
                 self.tabWidget.setCurrentIndex(0)
                 self.loadMapPreview(1)
     def customize_GUI(self):
-
         # media prevew system
         self.iconListWidget.setDragEnabled(True)
         self.iconListWidget.setAcceptDrops(True)
@@ -2459,6 +2467,24 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
         if specific_shape_vl:
             self.comboBox_specific_shape.addItems(specific_shape_vl)
 
+        # 11.14 - Decoration Type
+        self.comboBox_decoration_type.clear()
+        decoration_type_vl = load_thesaurus('11.14')
+        if decoration_type_vl:
+            self.comboBox_decoration_type.addItems(decoration_type_vl)
+
+        # 11.15 - Decoration Motif
+        self.comboBox_decoration_motif.clear()
+        decoration_motif_vl = load_thesaurus('11.15')
+        if decoration_motif_vl:
+            self.comboBox_decoration_motif.addItems(decoration_motif_vl)
+
+        # 11.16 - Decoration Position
+        self.comboBox_decoration_position.clear()
+        decoration_position_vl = load_thesaurus('11.16')
+        if decoration_position_vl:
+            self.comboBox_decoration_position.addItems(decoration_position_vl)
+
 
     def on_toolButtonPreview_toggled(self):
         if self.L=='it':
@@ -2777,6 +2803,9 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
                     str(self.comboBox_specific_shape.currentText()),
                     bag,
                     str(self.comboBox_sector.currentText()),
+                    str(self.comboBox_decoration_type.currentText()),
+                    str(self.comboBox_decoration_motif.currentText()),
+                    str(self.comboBox_decoration_position.currentText()),
                     )							#25 - struttura
                                                     #28 - documentazione
             try:
@@ -3169,6 +3198,9 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
             self.TABLE_FIELDS[28] : "'"+str(self.comboBox_specific_shape.currentText())+"'",
             self.TABLE_FIELDS[29]: bag,
             self.TABLE_FIELDS[30]: "'" + str(self.comboBox_sector.currentText()) + "'",
+            self.TABLE_FIELDS[31]: "'" + str(self.comboBox_decoration_type.currentText()) + "'",
+            self.TABLE_FIELDS[32]: "'" + str(self.comboBox_decoration_motif.currentText()) + "'",
+            self.TABLE_FIELDS[33]: "'" + str(self.comboBox_decoration_position.currentText()) + "'",
             }
             u = Utility()
             search_dict = u.remove_empty_items_fr_dict(search_dict)
@@ -3417,6 +3449,9 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
         self.comboBox_specific_shape.setEditText("")
         self.lineEdit_bag.clear()
         self.comboBox_sector.setEditText("")
+        self.comboBox_decoration_type.setEditText("")
+        self.comboBox_decoration_motif.setEditText("")
+        self.comboBox_decoration_position.setEditText("")
         #for i in range(rif_biblio_row_count):
             #self.tableWidget_rif_biblio.removeRow(0)
         #self.insert_new_row("self.tableWidget_rif_biblio")
@@ -3454,6 +3489,9 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
         self.comboBox_specific_shape.setEditText("")
         self.lineEdit_bag.clear()
         self.comboBox_sector.setEditText("")
+        self.comboBox_decoration_type.setEditText("")
+        self.comboBox_decoration_motif.setEditText("")
+        self.comboBox_decoration_position.setEditText("")
         #for i in range(rif_biblio_row_count):
             #self.tableWidget_rif_biblio.removeRow(0)
         #self.insert_new_row("self.tableWidget_rif_biblio")
@@ -3535,6 +3573,18 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
                 self.lineEdit_bag.setText(str(self.DATA_LIST[self.rec_num].bag))
 
             str(self.comboBox_sector.setEditText(self.DATA_LIST[self.rec_num].sector))
+
+            # New decoration fields
+
+            str(self.comboBox_decoration_type.setEditText(self.DATA_LIST[self.rec_num].decoration_type))
+
+
+
+            str(self.comboBox_decoration_motif.setEditText(self.DATA_LIST[self.rec_num].decoration_motif))
+
+
+
+            str(self.comboBox_decoration_position.setEditText(self.DATA_LIST[self.rec_num].decoration_position))
 
             if self.toolButtonPreviewMedia.isChecked() == False:
                 self.loadMediaPreview()
@@ -3663,12 +3713,17 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
         str(self.comboBox_specific_shape.currentText()),
         str(bag),
         str(self.comboBox_sector.currentText()),
+        str(self.comboBox_decoration_type.currentText()),
+        str(self.comboBox_decoration_motif.currentText()),
+        str(self.comboBox_decoration_position.currentText()),
         ]
 
     def set_LIST_REC_CORR(self):
         self.DATA_LIST_REC_CORR = []
         for i in self.TABLE_FIELDS:
-            self.DATA_LIST_REC_CORR.append(eval("str(self.DATA_LIST[self.REC_CORR]." + i + ")"))
+            # Use getattr with default None to handle missing attributes (backward compatibility)
+            value = getattr(self.DATA_LIST[self.REC_CORR], i, None)
+            self.DATA_LIST_REC_CORR.append(str(value) if value is not None else "")
 
     def records_equal_check(self):
         self.set_LIST_REC_TEMP()
@@ -4714,8 +4769,8 @@ Use well-structured paragraphs with headings for each section.
         threshold_layout = QHBoxLayout()
         threshold_layout.addWidget(QLabel("Threshold:"))
         self.slider_similarity_threshold = QSlider(Qt.Horizontal)
-        self.slider_similarity_threshold.setMinimum(50)
-        self.slider_similarity_threshold.setMaximum(99)
+        self.slider_similarity_threshold.setMinimum(10)
+        self.slider_similarity_threshold.setMaximum(100)
         self.slider_similarity_threshold.setValue(70)
         self.slider_similarity_threshold.setTickPosition(QSlider.TicksBelow)
         self.slider_similarity_threshold.setTickInterval(10)

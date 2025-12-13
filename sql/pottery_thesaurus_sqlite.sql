@@ -634,3 +634,145 @@ INSERT OR IGNORE INTO pyarchinit_thesaurus_sigle (nome_tabella, sigla, sigla_est
 VALUES ('Pottery', 'WS', 'Weißer Überzug', 'Weißer Überzug Oberflächenbehandlung', '11.8', 'DE');
 INSERT OR IGNORE INTO pyarchinit_thesaurus_sigle (nome_tabella, sigla, sigla_estesa, descrizione, tipologia_sigla, lingua)
 VALUES ('Pottery', 'RBS', 'Rotbrauner Überzug', 'Rotbrauner Überzug Oberflächenbehandlung', '11.8', 'DE');
+
+-- =====================================================
+-- 11.14 - Decoration Type (with n_tipologia=11, n_sigla=14)
+-- =====================================================
+INSERT OR IGNORE INTO pyarchinit_thesaurus_sigle (nome_tabella, sigla, sigla_estesa, descrizione, tipologia_sigla, lingua, n_tipologia, n_sigla)
+VALUES ('Pottery', 'PAINTED', 'Painted', 'Painted decoration', '11.14', 'EN', 11, 14);
+INSERT OR IGNORE INTO pyarchinit_thesaurus_sigle (nome_tabella, sigla, sigla_estesa, descrizione, tipologia_sigla, lingua, n_tipologia, n_sigla)
+VALUES ('Pottery', 'INCISED', 'Incised', 'Incised decoration', '11.14', 'EN', 11, 14);
+INSERT OR IGNORE INTO pyarchinit_thesaurus_sigle (nome_tabella, sigla, sigla_estesa, descrizione, tipologia_sigla, lingua, n_tipologia, n_sigla)
+VALUES ('Pottery', 'IMPRESSED', 'Impressed', 'Impressed decoration', '11.14', 'EN', 11, 14);
+INSERT OR IGNORE INTO pyarchinit_thesaurus_sigle (nome_tabella, sigla, sigla_estesa, descrizione, tipologia_sigla, lingua, n_tipologia, n_sigla)
+VALUES ('Pottery', 'STAMPED', 'Stamped', 'Stamped decoration', '11.14', 'EN', 11, 14);
+INSERT OR IGNORE INTO pyarchinit_thesaurus_sigle (nome_tabella, sigla, sigla_estesa, descrizione, tipologia_sigla, lingua, n_tipologia, n_sigla)
+VALUES ('Pottery', 'APPLIED', 'Applied', 'Applied decoration', '11.14', 'EN', 11, 14);
+INSERT OR IGNORE INTO pyarchinit_thesaurus_sigle (nome_tabella, sigla, sigla_estesa, descrizione, tipologia_sigla, lingua, n_tipologia, n_sigla)
+VALUES ('Pottery', 'SLIPPED', 'Slipped', 'Slipped/slip decoration', '11.14', 'EN', 11, 14);
+INSERT OR IGNORE INTO pyarchinit_thesaurus_sigle (nome_tabella, sigla, sigla_estesa, descrizione, tipologia_sigla, lingua, n_tipologia, n_sigla)
+VALUES ('Pottery', 'BANDED', 'Banded', 'Banded decoration', '11.14', 'EN', 11, 14);
+INSERT OR IGNORE INTO pyarchinit_thesaurus_sigle (nome_tabella, sigla, sigla_estesa, descrizione, tipologia_sigla, lingua, n_tipologia, n_sigla)
+VALUES ('Pottery', 'BURNISHED', 'Burnished', 'Burnished decoration', '11.14', 'EN', 11, 14);
+INSERT OR IGNORE INTO pyarchinit_thesaurus_sigle (nome_tabella, sigla, sigla_estesa, descrizione, tipologia_sigla, lingua, n_tipologia, n_sigla)
+VALUES ('Pottery', 'NONE', 'None', 'No decoration', '11.14', 'EN', 11, 14);
+
+-- 11.14 - Italian translations
+INSERT OR IGNORE INTO pyarchinit_thesaurus_sigle (nome_tabella, sigla, sigla_estesa, descrizione, tipologia_sigla, lingua, n_tipologia, n_sigla)
+VALUES ('Pottery', 'PAINTED', 'Dipinta', 'Decorazione dipinta', '11.14', 'IT', 11, 14);
+INSERT OR IGNORE INTO pyarchinit_thesaurus_sigle (nome_tabella, sigla, sigla_estesa, descrizione, tipologia_sigla, lingua, n_tipologia, n_sigla)
+VALUES ('Pottery', 'INCISED', 'Incisa', 'Decorazione incisa', '11.14', 'IT', 11, 14);
+INSERT OR IGNORE INTO pyarchinit_thesaurus_sigle (nome_tabella, sigla, sigla_estesa, descrizione, tipologia_sigla, lingua, n_tipologia, n_sigla)
+VALUES ('Pottery', 'IMPRESSED', 'Impressa', 'Decorazione impressa', '11.14', 'IT', 11, 14);
+INSERT OR IGNORE INTO pyarchinit_thesaurus_sigle (nome_tabella, sigla, sigla_estesa, descrizione, tipologia_sigla, lingua, n_tipologia, n_sigla)
+VALUES ('Pottery', 'STAMPED', 'Stampigliata', 'Decorazione stampigliata', '11.14', 'IT', 11, 14);
+INSERT OR IGNORE INTO pyarchinit_thesaurus_sigle (nome_tabella, sigla, sigla_estesa, descrizione, tipologia_sigla, lingua, n_tipologia, n_sigla)
+VALUES ('Pottery', 'APPLIED', 'Applicata', 'Decorazione applicata', '11.14', 'IT', 11, 14);
+INSERT OR IGNORE INTO pyarchinit_thesaurus_sigle (nome_tabella, sigla, sigla_estesa, descrizione, tipologia_sigla, lingua, n_tipologia, n_sigla)
+VALUES ('Pottery', 'SLIPPED', 'Ingobbiata', 'Decorazione a ingobbio', '11.14', 'IT', 11, 14);
+INSERT OR IGNORE INTO pyarchinit_thesaurus_sigle (nome_tabella, sigla, sigla_estesa, descrizione, tipologia_sigla, lingua, n_tipologia, n_sigla)
+VALUES ('Pottery', 'BANDED', 'A bande', 'Decorazione a bande', '11.14', 'IT', 11, 14);
+INSERT OR IGNORE INTO pyarchinit_thesaurus_sigle (nome_tabella, sigla, sigla_estesa, descrizione, tipologia_sigla, lingua, n_tipologia, n_sigla)
+VALUES ('Pottery', 'BURNISHED', 'Brunita', 'Decorazione brunita', '11.14', 'IT', 11, 14);
+INSERT OR IGNORE INTO pyarchinit_thesaurus_sigle (nome_tabella, sigla, sigla_estesa, descrizione, tipologia_sigla, lingua, n_tipologia, n_sigla)
+VALUES ('Pottery', 'NONE', 'Nessuna', 'Nessuna decorazione', '11.14', 'IT', 11, 14);
+
+-- =====================================================
+-- 11.15 - Decoration Motif (with n_tipologia=11, n_sigla=15)
+-- =====================================================
+INSERT OR IGNORE INTO pyarchinit_thesaurus_sigle (nome_tabella, sigla, sigla_estesa, descrizione, tipologia_sigla, lingua, n_tipologia, n_sigla)
+VALUES ('Pottery', 'BANDS', 'Bands', 'Band motif', '11.15', 'EN', 11, 15);
+INSERT OR IGNORE INTO pyarchinit_thesaurus_sigle (nome_tabella, sigla, sigla_estesa, descrizione, tipologia_sigla, lingua, n_tipologia, n_sigla)
+VALUES ('Pottery', 'LINES', 'Lines', 'Linear motif', '11.15', 'EN', 11, 15);
+INSERT OR IGNORE INTO pyarchinit_thesaurus_sigle (nome_tabella, sigla, sigla_estesa, descrizione, tipologia_sigla, lingua, n_tipologia, n_sigla)
+VALUES ('Pottery', 'DOTS', 'Dots', 'Dotted motif', '11.15', 'EN', 11, 15);
+INSERT OR IGNORE INTO pyarchinit_thesaurus_sigle (nome_tabella, sigla, sigla_estesa, descrizione, tipologia_sigla, lingua, n_tipologia, n_sigla)
+VALUES ('Pottery', 'GEOMETRIC', 'Geometric', 'Geometric motif', '11.15', 'EN', 11, 15);
+INSERT OR IGNORE INTO pyarchinit_thesaurus_sigle (nome_tabella, sigla, sigla_estesa, descrizione, tipologia_sigla, lingua, n_tipologia, n_sigla)
+VALUES ('Pottery', 'WAVE', 'Wave', 'Wave/wavy motif', '11.15', 'EN', 11, 15);
+INSERT OR IGNORE INTO pyarchinit_thesaurus_sigle (nome_tabella, sigla, sigla_estesa, descrizione, tipologia_sigla, lingua, n_tipologia, n_sigla)
+VALUES ('Pottery', 'CROSS', 'Cross', 'Cross/crossed motif', '11.15', 'EN', 11, 15);
+INSERT OR IGNORE INTO pyarchinit_thesaurus_sigle (nome_tabella, sigla, sigla_estesa, descrizione, tipologia_sigla, lingua, n_tipologia, n_sigla)
+VALUES ('Pottery', 'ZIGZAG', 'Zigzag', 'Zigzag motif', '11.15', 'EN', 11, 15);
+INSERT OR IGNORE INTO pyarchinit_thesaurus_sigle (nome_tabella, sigla, sigla_estesa, descrizione, tipologia_sigla, lingua, n_tipologia, n_sigla)
+VALUES ('Pottery', 'TRIANGLES', 'Triangles', 'Triangular motif', '11.15', 'EN', 11, 15);
+INSERT OR IGNORE INTO pyarchinit_thesaurus_sigle (nome_tabella, sigla, sigla_estesa, descrizione, tipologia_sigla, lingua, n_tipologia, n_sigla)
+VALUES ('Pottery', 'CIRCLES', 'Circles', 'Circular motif', '11.15', 'EN', 11, 15);
+INSERT OR IGNORE INTO pyarchinit_thesaurus_sigle (nome_tabella, sigla, sigla_estesa, descrizione, tipologia_sigla, lingua, n_tipologia, n_sigla)
+VALUES ('Pottery', 'FLORAL', 'Floral', 'Floral/vegetal motif', '11.15', 'EN', 11, 15);
+INSERT OR IGNORE INTO pyarchinit_thesaurus_sigle (nome_tabella, sigla, sigla_estesa, descrizione, tipologia_sigla, lingua, n_tipologia, n_sigla)
+VALUES ('Pottery', 'ANIMAL', 'Animal', 'Animal/zoomorphic motif', '11.15', 'EN', 11, 15);
+INSERT OR IGNORE INTO pyarchinit_thesaurus_sigle (nome_tabella, sigla, sigla_estesa, descrizione, tipologia_sigla, lingua, n_tipologia, n_sigla)
+VALUES ('Pottery', 'HUMAN', 'Human', 'Human/anthropomorphic motif', '11.15', 'EN', 11, 15);
+INSERT OR IGNORE INTO pyarchinit_thesaurus_sigle (nome_tabella, sigla, sigla_estesa, descrizione, tipologia_sigla, lingua, n_tipologia, n_sigla)
+VALUES ('Pottery', 'ABSTRACT', 'Abstract', 'Abstract motif', '11.15', 'EN', 11, 15);
+
+-- 11.15 - Italian translations
+INSERT OR IGNORE INTO pyarchinit_thesaurus_sigle (nome_tabella, sigla, sigla_estesa, descrizione, tipologia_sigla, lingua, n_tipologia, n_sigla)
+VALUES ('Pottery', 'BANDS', 'Bande', 'Motivo a bande', '11.15', 'IT', 11, 15);
+INSERT OR IGNORE INTO pyarchinit_thesaurus_sigle (nome_tabella, sigla, sigla_estesa, descrizione, tipologia_sigla, lingua, n_tipologia, n_sigla)
+VALUES ('Pottery', 'LINES', 'Linee', 'Motivo lineare', '11.15', 'IT', 11, 15);
+INSERT OR IGNORE INTO pyarchinit_thesaurus_sigle (nome_tabella, sigla, sigla_estesa, descrizione, tipologia_sigla, lingua, n_tipologia, n_sigla)
+VALUES ('Pottery', 'DOTS', 'Punti', 'Motivo puntinato', '11.15', 'IT', 11, 15);
+INSERT OR IGNORE INTO pyarchinit_thesaurus_sigle (nome_tabella, sigla, sigla_estesa, descrizione, tipologia_sigla, lingua, n_tipologia, n_sigla)
+VALUES ('Pottery', 'GEOMETRIC', 'Geometrico', 'Motivo geometrico', '11.15', 'IT', 11, 15);
+INSERT OR IGNORE INTO pyarchinit_thesaurus_sigle (nome_tabella, sigla, sigla_estesa, descrizione, tipologia_sigla, lingua, n_tipologia, n_sigla)
+VALUES ('Pottery', 'WAVE', 'Onde', 'Motivo ondulato', '11.15', 'IT', 11, 15);
+INSERT OR IGNORE INTO pyarchinit_thesaurus_sigle (nome_tabella, sigla, sigla_estesa, descrizione, tipologia_sigla, lingua, n_tipologia, n_sigla)
+VALUES ('Pottery', 'CROSS', 'Croci', 'Motivo a croce', '11.15', 'IT', 11, 15);
+INSERT OR IGNORE INTO pyarchinit_thesaurus_sigle (nome_tabella, sigla, sigla_estesa, descrizione, tipologia_sigla, lingua, n_tipologia, n_sigla)
+VALUES ('Pottery', 'ZIGZAG', 'Zigzag', 'Motivo a zigzag', '11.15', 'IT', 11, 15);
+INSERT OR IGNORE INTO pyarchinit_thesaurus_sigle (nome_tabella, sigla, sigla_estesa, descrizione, tipologia_sigla, lingua, n_tipologia, n_sigla)
+VALUES ('Pottery', 'TRIANGLES', 'Triangoli', 'Motivo triangolare', '11.15', 'IT', 11, 15);
+INSERT OR IGNORE INTO pyarchinit_thesaurus_sigle (nome_tabella, sigla, sigla_estesa, descrizione, tipologia_sigla, lingua, n_tipologia, n_sigla)
+VALUES ('Pottery', 'CIRCLES', 'Cerchi', 'Motivo circolare', '11.15', 'IT', 11, 15);
+INSERT OR IGNORE INTO pyarchinit_thesaurus_sigle (nome_tabella, sigla, sigla_estesa, descrizione, tipologia_sigla, lingua, n_tipologia, n_sigla)
+VALUES ('Pottery', 'FLORAL', 'Floreale', 'Motivo floreale/vegetale', '11.15', 'IT', 11, 15);
+INSERT OR IGNORE INTO pyarchinit_thesaurus_sigle (nome_tabella, sigla, sigla_estesa, descrizione, tipologia_sigla, lingua, n_tipologia, n_sigla)
+VALUES ('Pottery', 'ANIMAL', 'Animale', 'Motivo animale/zoomorfo', '11.15', 'IT', 11, 15);
+INSERT OR IGNORE INTO pyarchinit_thesaurus_sigle (nome_tabella, sigla, sigla_estesa, descrizione, tipologia_sigla, lingua, n_tipologia, n_sigla)
+VALUES ('Pottery', 'HUMAN', 'Umano', 'Motivo umano/antropomorfo', '11.15', 'IT', 11, 15);
+INSERT OR IGNORE INTO pyarchinit_thesaurus_sigle (nome_tabella, sigla, sigla_estesa, descrizione, tipologia_sigla, lingua, n_tipologia, n_sigla)
+VALUES ('Pottery', 'ABSTRACT', 'Astratto', 'Motivo astratto', '11.15', 'IT', 11, 15);
+
+-- =====================================================
+-- 11.16 - Decoration Position (with n_tipologia=11, n_sigla=16)
+-- =====================================================
+INSERT OR IGNORE INTO pyarchinit_thesaurus_sigle (nome_tabella, sigla, sigla_estesa, descrizione, tipologia_sigla, lingua, n_tipologia, n_sigla)
+VALUES ('Pottery', 'RIM', 'Rim', 'Decoration on rim', '11.16', 'EN', 11, 16);
+INSERT OR IGNORE INTO pyarchinit_thesaurus_sigle (nome_tabella, sigla, sigla_estesa, descrizione, tipologia_sigla, lingua, n_tipologia, n_sigla)
+VALUES ('Pottery', 'NECK', 'Neck', 'Decoration on neck', '11.16', 'EN', 11, 16);
+INSERT OR IGNORE INTO pyarchinit_thesaurus_sigle (nome_tabella, sigla, sigla_estesa, descrizione, tipologia_sigla, lingua, n_tipologia, n_sigla)
+VALUES ('Pottery', 'SHOULDER', 'Shoulder', 'Decoration on shoulder', '11.16', 'EN', 11, 16);
+INSERT OR IGNORE INTO pyarchinit_thesaurus_sigle (nome_tabella, sigla, sigla_estesa, descrizione, tipologia_sigla, lingua, n_tipologia, n_sigla)
+VALUES ('Pottery', 'BODY', 'Body', 'Decoration on body', '11.16', 'EN', 11, 16);
+INSERT OR IGNORE INTO pyarchinit_thesaurus_sigle (nome_tabella, sigla, sigla_estesa, descrizione, tipologia_sigla, lingua, n_tipologia, n_sigla)
+VALUES ('Pottery', 'HANDLE', 'Handle', 'Decoration on handle', '11.16', 'EN', 11, 16);
+INSERT OR IGNORE INTO pyarchinit_thesaurus_sigle (nome_tabella, sigla, sigla_estesa, descrizione, tipologia_sigla, lingua, n_tipologia, n_sigla)
+VALUES ('Pottery', 'BASE', 'Base', 'Decoration on base', '11.16', 'EN', 11, 16);
+INSERT OR IGNORE INTO pyarchinit_thesaurus_sigle (nome_tabella, sigla, sigla_estesa, descrizione, tipologia_sigla, lingua, n_tipologia, n_sigla)
+VALUES ('Pottery', 'EXT', 'External', 'Decoration on external surface', '11.16', 'EN', 11, 16);
+INSERT OR IGNORE INTO pyarchinit_thesaurus_sigle (nome_tabella, sigla, sigla_estesa, descrizione, tipologia_sigla, lingua, n_tipologia, n_sigla)
+VALUES ('Pottery', 'INT', 'Internal', 'Decoration on internal surface', '11.16', 'EN', 11, 16);
+INSERT OR IGNORE INTO pyarchinit_thesaurus_sigle (nome_tabella, sigla, sigla_estesa, descrizione, tipologia_sigla, lingua, n_tipologia, n_sigla)
+VALUES ('Pottery', 'ALL', 'All over', 'Decoration all over', '11.16', 'EN', 11, 16);
+
+-- 11.16 - Italian translations
+INSERT OR IGNORE INTO pyarchinit_thesaurus_sigle (nome_tabella, sigla, sigla_estesa, descrizione, tipologia_sigla, lingua, n_tipologia, n_sigla)
+VALUES ('Pottery', 'RIM', 'Orlo', 'Decorazione sull''orlo', '11.16', 'IT', 11, 16);
+INSERT OR IGNORE INTO pyarchinit_thesaurus_sigle (nome_tabella, sigla, sigla_estesa, descrizione, tipologia_sigla, lingua, n_tipologia, n_sigla)
+VALUES ('Pottery', 'NECK', 'Collo', 'Decorazione sul collo', '11.16', 'IT', 11, 16);
+INSERT OR IGNORE INTO pyarchinit_thesaurus_sigle (nome_tabella, sigla, sigla_estesa, descrizione, tipologia_sigla, lingua, n_tipologia, n_sigla)
+VALUES ('Pottery', 'SHOULDER', 'Spalla', 'Decorazione sulla spalla', '11.16', 'IT', 11, 16);
+INSERT OR IGNORE INTO pyarchinit_thesaurus_sigle (nome_tabella, sigla, sigla_estesa, descrizione, tipologia_sigla, lingua, n_tipologia, n_sigla)
+VALUES ('Pottery', 'BODY', 'Corpo', 'Decorazione sul corpo', '11.16', 'IT', 11, 16);
+INSERT OR IGNORE INTO pyarchinit_thesaurus_sigle (nome_tabella, sigla, sigla_estesa, descrizione, tipologia_sigla, lingua, n_tipologia, n_sigla)
+VALUES ('Pottery', 'HANDLE', 'Ansa', 'Decorazione sull''ansa', '11.16', 'IT', 11, 16);
+INSERT OR IGNORE INTO pyarchinit_thesaurus_sigle (nome_tabella, sigla, sigla_estesa, descrizione, tipologia_sigla, lingua, n_tipologia, n_sigla)
+VALUES ('Pottery', 'BASE', 'Fondo', 'Decorazione sul fondo', '11.16', 'IT', 11, 16);
+INSERT OR IGNORE INTO pyarchinit_thesaurus_sigle (nome_tabella, sigla, sigla_estesa, descrizione, tipologia_sigla, lingua, n_tipologia, n_sigla)
+VALUES ('Pottery', 'EXT', 'Esterna', 'Decorazione superficie esterna', '11.16', 'IT', 11, 16);
+INSERT OR IGNORE INTO pyarchinit_thesaurus_sigle (nome_tabella, sigla, sigla_estesa, descrizione, tipologia_sigla, lingua, n_tipologia, n_sigla)
+VALUES ('Pottery', 'INT', 'Interna', 'Decorazione superficie interna', '11.16', 'IT', 11, 16);
+INSERT OR IGNORE INTO pyarchinit_thesaurus_sigle (nome_tabella, sigla, sigla_estesa, descrizione, tipologia_sigla, lingua, n_tipologia, n_sigla)
+VALUES ('Pottery', 'ALL', 'Ovunque', 'Decorazione su tutta la superficie', '11.16', 'IT', 11, 16);

@@ -24,7 +24,7 @@ from __future__ import absolute_import
 
 import os
 import re
-from datetime import date
+from datetime import date, datetime
 
 import sys
 from builtins import range
@@ -739,7 +739,10 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
                 '11.10': 'Internal Decoration (Decorazione interna)',
                 '11.11': 'Wheel Made (Tornio)',
                 '11.12': 'Specific Shape (Forma specifica)',
-                '11.13': 'Area'
+                '11.13': 'Area',
+                '11.14': 'Decoration Type (Tipo decorazione)',
+                '11.15': 'Decoration Motif (Motivo decorazione)',
+                '11.16': 'Decoration Position (Posizione decorazione)'
             }
         }
         
@@ -1922,7 +1925,7 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
                     elif self.L=='de':
                         QMessageBox.warning(self, "ACHTUNG", "Keinen Record gefunden!", QMessageBox.Ok)
                     else:
-                        QMessageBox.warning(self, "WARNING," "No record found!", QMessageBox.Ok) 
+                        QMessageBox.warning(self, "WARNING", "No record found!", QMessageBox.Ok) 
 
                     self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR + 1)
                     self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
@@ -2305,27 +2308,25 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
         self.label_rec_corrente.setText(str(self.rec_corr))
 
     def set_LIST_REC_TEMP(self):
-        lingua=""
-        l = self.comboBox_lingua.currentText()
-        for key,values in self.LANG.items():
-            if values.__contains__(l):
-                lingua = key
+        # Get lingua - use the text directly from combobox (it should match what's in DB)
+        lingua = str(self.comboBox_lingua.currentText())
+
         # data - Convert display name to actual table name
         table_name = self.get_table_name_from_display(str(self.comboBox_nome_tabella.currentText()))
         
         # Get hierarchy data if this is TMA material
         id_parent = None
         parent_sigla = None
-        hierarchy_level = 0
-        order_layer = 0
-        
+        hierarchy_level = None
+        order_layer = None
+
         if self.DATA_LIST and self.REC_CORR < len(self.DATA_LIST):
             # Get existing values from record
             current_record = self.DATA_LIST[self.REC_CORR]
-            order_layer = current_record.order_layer if hasattr(current_record, 'order_layer') else 0
-            id_parent = current_record.id_parent if hasattr(current_record, 'id_parent') else None
-            parent_sigla = current_record.parent_sigla if hasattr(current_record, 'parent_sigla') else None
-            hierarchy_level = current_record.hierarchy_level if hasattr(current_record, 'hierarchy_level') else 0
+            order_layer = getattr(current_record, 'order_layer', None)
+            id_parent = getattr(current_record, 'id_parent', None)
+            parent_sigla = getattr(current_record, 'parent_sigla', None)
+            hierarchy_level = getattr(current_record, 'hierarchy_level', None)
             
             # Update if hierarchy widgets are visible and this is TMA
             if table_name == 'TMA materiali archeologici' and hasattr(self, 'comboBox_parent_localita'):
@@ -2371,16 +2372,20 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
             str(self.textEdit_descrizione_sigla.toPlainText()),  # 4 - descrizione
             str(self.comboBox_tipologia_sigla.currentText()),  # 5 - tipologia sigla
             str(lingua),  # 6 - lingua
-            str(order_layer),  # 7 - order_layer
-            str(id_parent) if id_parent is not None else '',  # 8 - id_parent
-            str(parent_sigla) if parent_sigla else '',  # 9 - parent_sigla
-            str(hierarchy_level)  # 10 - hierarchy_level
+            str(order_layer) if order_layer is not None else 'None',  # 7 - order_layer (integer)
+            str(id_parent) if id_parent is not None else 'None',  # 8 - id_parent (integer)
+            str(parent_sigla) if parent_sigla else 'None',  # 9 - parent_sigla (text)
+            str(hierarchy_level) if hierarchy_level is not None else 'None'  # 10 - hierarchy_level (integer)
         ]
 
     def set_LIST_REC_CORR(self):
         self.DATA_LIST_REC_CORR = []
         for i in self.TABLE_FIELDS:
-            self.DATA_LIST_REC_CORR.append(eval("unicode(self.DATA_LIST[self.REC_CORR]." + i + ")"))
+            value = getattr(self.DATA_LIST[self.REC_CORR], i, None)
+            # Convert None to 'None' string (for pos_none_in_list compatibility)
+            if value is None:
+                value = 'None'
+            self.DATA_LIST_REC_CORR.append(str(value))
 
     def setComboBoxEnable(self, f, v):
         field_names = f
@@ -2450,25 +2455,33 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
             
             return 1
         except Exception as e:
-            str(e)
-            save_file='{}{}{}'.format(self.HOME, os.sep,"pyarchinit_Report_folder") 
-            file_=os.path.join(save_file,'error_encodig_data_recover.txt')
-            with open(file_, "a") as fh:
-                try:
-                    raise ValueError(str(e))
-                except ValueError as s:
-                    print(s, file=fh)
-            if self.L=='it':
+            import traceback
+            error_msg = str(e)
+            error_traceback = traceback.format_exc()
+
+            # Print to console for debugging
+            print(f"[Thesaurus] Update error: {error_msg}")
+            print(f"[Thesaurus] Traceback: {error_traceback}")
+
+            save_file = os.path.join(self.HOME, "pyarchinit_Report_folder")
+            if not os.path.exists(save_file):
+                os.makedirs(save_file)
+            file_ = os.path.join(save_file, 'error_encoding_data_recover.txt')
+            with open(file_, "a", encoding='utf-8') as fh:
+                fh.write(f"\n--- Error at {str(datetime.now())} ---\n")
+                fh.write(f"Error: {error_msg}\n")
+                fh.write(f"Traceback: {error_traceback}\n")
+                fh.write(f"DATA_LIST_REC_TEMP: {self.DATA_LIST_REC_TEMP}\n")
+
+            if self.L == 'it':
                 QMessageBox.warning(self, "Messaggio",
-                                    "Problema di encoding: sono stati inseriti accenti o caratteri non accettati dal database. Verrà fatta una copia dell'errore con i dati che puoi recuperare nella cartella pyarchinit_Report _Folder", QMessageBox.Ok)
-            
-            
-            elif self.L=='de':
-                QMessageBox.warning(self, "Message",
-                                    "Encoding problem: accents or characters not accepted by the database were entered. A copy of the error will be made with the data you can retrieve in the pyarchinit_Report _Folder", QMessageBox.Ok) 
+                                    f"Errore durante l'aggiornamento: {error_msg}\n\nDettagli salvati in pyarchinit_Report_folder", QMessageBox.Ok)
+            elif self.L == 'de':
+                QMessageBox.warning(self, "Nachricht",
+                                    f"Fehler beim Aktualisieren: {error_msg}\n\nDetails im pyarchinit_Report_Ordner gespeichert", QMessageBox.Ok)
             else:
                 QMessageBox.warning(self, "Message",
-                                    "Kodierungsproblem: Es wurden Akzente oder Zeichen eingegeben, die von der Datenbank nicht akzeptiert werden. Es wird eine Kopie des Fehlers mit den Daten erstellt, die Sie im pyarchinit_Report _Ordner abrufen können", QMessageBox.Ok)
+                                    f"Error during update: {error_msg}\n\nDetails saved in pyarchinit_Report_folder", QMessageBox.Ok)
             return 0
 
     def testing(self, name_file, message):

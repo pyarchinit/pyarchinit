@@ -251,23 +251,18 @@ class Pyarchinit_db_management(object):
                         pool_pre_ping=True
                     )
                 
-                # Skip database update for remote/cloud databases (Supabase, etc.)
-                # to avoid slow schema checks on every connection                
-                if not is_remote_db:
-                    # Check and update PostgreSQL database if needed (local only)
-                    log_debug("Checking PostgreSQL database for updates")
-                    try:
-                        from .postgres_db_updater import check_and_update_postgres_db
-                        # Create a temporary connection for the updater
-                        if check_and_update_postgres_db(self):
-                            log_debug("PostgreSQL database updated successfully")
-                        else:
-                            log_debug("PostgreSQL database update not needed or failed")
-                    except Exception as e:
-                        log_debug(f"Error checking PostgreSQL database updates: {e}")
-                        # Continue anyway - don't block connection
-                else:
-                    log_debug("Skipping database update for remote/cloud database")
+                # Check and update PostgreSQL database if needed
+                # Always run for PostgreSQL databases (local or remote)
+                log_debug("Checking PostgreSQL database for updates")
+                try:
+                    from .postgres_db_updater import check_and_update_postgres_db
+                    if check_and_update_postgres_db(self):
+                        log_debug("PostgreSQL database updated successfully")
+                    else:
+                        log_debug("PostgreSQL database update not needed or failed")
+                except Exception as e:
+                    log_debug(f"Error checking PostgreSQL database updates: {e}")
+                    # Continue anyway - don't block connection
 
             log_debug("Creating metadata")
             self.metadata = MetaData(self.engine)
@@ -559,7 +554,10 @@ class Pyarchinit_db_management(object):
                   arg[28],
                   arg[29],
                   arg[30],
-                  arg[31])
+                  arg[31],
+                  arg[32],
+                  arg[33],
+                  arg[34])
 
         return pottery
 
@@ -2035,10 +2033,36 @@ class Pyarchinit_db_management(object):
         
         # Start with an empty list of conditions
         conditions = []
-        
+
+        # Get the underlying table from the mapper to access columns directly
+        from sqlalchemy.orm import class_mapper
+        try:
+            mapper_obj = class_mapper(table_class)
+            mapped_table = mapper_obj.mapped_table
+        except Exception:
+            mapped_table = None
+
         # Iterate over the parameters to create conditions
         for key, value in params.items():
-            column = getattr(table_class, key)
+            column = None
+            # Try to get column from mapped class first
+            if hasattr(table_class, key):
+                attr = getattr(table_class, key)
+                # Check if it's an InstrumentedAttribute (SQLAlchemy column)
+                if hasattr(attr, '__clause_element__') or hasattr(attr, 'property'):
+                    column = attr
+
+            # If not found on class, try the mapped table directly
+            if column is None and mapped_table is not None:
+                if key in mapped_table.c:
+                    column = mapped_table.c[key]
+
+            # If still not found, skip this condition
+            if column is None:
+                # Column not found - might be a new column not yet mapped
+                print(f"[PyArchInit] Column {key} not found for {table_class_name}, skipping in search")
+                continue
+
             # Clean the value if it's a string with quotes
             if isinstance(value, str) and value.startswith("'") and value.endswith("'"):
                 value = value.strip("'")
@@ -3511,7 +3535,7 @@ class Pyarchinit_db_management(object):
 
         data_ins = self.insert_pottery_values(id_rep, id_number, sito, area, us, 0, '', '', 0, '', '', '', '',
                                               '', '', '', '', '', '', '', '', '', '', None, 0, None, None, None, None, '',
-                                              0,'')
+                                              0, '', '', '', '')
 
         self.insert_data_session(data_ins)
 
