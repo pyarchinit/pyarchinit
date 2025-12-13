@@ -20,6 +20,7 @@
 from __future__ import absolute_import
 
 import platform
+import re
 import subprocess
 import time
 
@@ -929,6 +930,98 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
 
         # Setup Visual Similarity Search
         self.setup_similarity_search_ui()
+
+        # Setup Filter Button for ID Number selection
+        self.setup_filter_button()
+
+    def setup_filter_button(self):
+        """Setup the filter button for ID Number selection"""
+        # Find the layout where pushButton_view_all is located
+        # and add a filter button next to it
+        try:
+            # Create the filter button programmatically
+            self.pushButton_filter_pottery = QPushButton(self)
+            if self.L == 'it':
+                self.pushButton_filter_pottery.setText("Filtra ID")
+                self.pushButton_filter_pottery.setToolTip("Filtra i record per ID Number")
+            elif self.L == 'de':
+                self.pushButton_filter_pottery.setText("Filter ID")
+                self.pushButton_filter_pottery.setToolTip("Datensätze nach ID-Nummer filtern")
+            else:
+                self.pushButton_filter_pottery.setText("Filter ID")
+                self.pushButton_filter_pottery.setToolTip("Filter records by ID Number")
+
+            # Style the button to match existing buttons
+            self.pushButton_filter_pottery.setMinimumSize(QSize(50, 25))
+            self.pushButton_filter_pottery.setMaximumSize(QSize(100, 25))
+
+            # Find the parent layout of pushButton_view_all and insert the filter button
+            parent_layout = self.pushButton_view_all.parent().layout()
+            if parent_layout:
+                # Find the index of pushButton_view_all
+                index = parent_layout.indexOf(self.pushButton_view_all)
+                if index >= 0:
+                    parent_layout.insertWidget(index + 1, self.pushButton_filter_pottery)
+                else:
+                    # Fallback: add to the end
+                    parent_layout.addWidget(self.pushButton_filter_pottery)
+            else:
+                # Alternative: add next to view_all button manually
+                view_all_geom = self.pushButton_view_all.geometry()
+                self.pushButton_filter_pottery.setGeometry(
+                    view_all_geom.x() + view_all_geom.width() + 5,
+                    view_all_geom.y(),
+                    80,
+                    view_all_geom.height()
+                )
+
+            # Connect the button to the filter method
+            self.pushButton_filter_pottery.clicked.connect(self.on_pushButton_filter_pottery_pressed)
+
+        except Exception as e:
+            print(f"Error setting up filter button: {e}")
+
+    def on_pushButton_filter_pottery_pressed(self):
+        """Open the filter dialog for ID Number selection"""
+        self.empty_fields()
+        # Create and show the dialog
+        filter_dialog = PotteryFilterDialog(self.DB_MANAGER, self)
+        result = filter_dialog.exec_()
+
+        if result:
+            # Get the selected ID numbers from the dialog
+            selected_ids = filter_dialog.get_selected_ids()
+
+            if not selected_ids:
+                if self.L == 'it':
+                    QMessageBox.information(self, 'Info', "Nessun ID Number selezionato.", QMessageBox.Ok)
+                else:
+                    QMessageBox.information(self, 'Info', "No ID Number selected.", QMessageBox.Ok)
+                return
+
+            # Sort DATA_LIST based on the selected IDs
+            sorted_data_list = sorted(
+                self.DATA_LIST,
+                key=lambda record: selected_ids.index(record.id_number) if record.id_number in selected_ids else -1
+            )
+
+            # Filter out any records that are not in selected_ids
+            filtered_data_list = [record for record in sorted_data_list if record.id_number in selected_ids]
+
+            # Update the UI with the filtered and sorted data
+            if filtered_data_list:
+                self.DATA_LIST = filtered_data_list
+                self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
+                self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR + 1)
+                self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
+                self.fill_fields()
+                self.BROWSE_STATUS = "b"
+                self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
+            else:
+                if self.L == 'it':
+                    QMessageBox.information(self, 'Nessun Risultato', "Nessun record corrisponde ai filtri selezionati.", QMessageBox.Ok)
+                else:
+                    QMessageBox.information(self, 'No Results', "No records match the selected filters.", QMessageBox.Ok)
 
     def dropEvent(self, event):
         mimeData = event.mimeData()
@@ -6019,3 +6112,184 @@ Use well-structured paragraphs with headings for each section.
         QMessageBox.information(self, "Update Complete", message)
 
 
+class PotteryFilterDialog(QDialog):
+    """Dialog for filtering Pottery records by ID Number with checkboxes"""
+    L = QgsSettings().value("locale/userLocale")[0:2]
+
+    def __init__(self, db_manager, parent=None):
+        super().__init__(parent)
+        self.db_manager = db_manager
+        self.selected_ids = []
+        self.pottery_records = []
+        self.initUI()
+
+    def initUI(self):
+        if self.L == 'it':
+            self.setWindowTitle("Filtra Record Ceramica per ID Number")
+        elif self.L == 'de':
+            self.setWindowTitle("Keramikdatensätze nach ID-Nummer filtern")
+        else:
+            self.setWindowTitle("Filter Pottery Records by ID Number")
+
+        self.setMinimumSize(400, 500)
+        layout = QVBoxLayout(self)
+
+        # Search bar
+        self.search_bar = QLineEdit(self)
+        if self.L == 'it':
+            self.search_bar.setPlaceholderText("Cerca ID Number...")
+        elif self.L == 'de':
+            self.search_bar.setPlaceholderText("ID-Nummer suchen...")
+        else:
+            self.search_bar.setPlaceholderText("Search ID Number...")
+        self.search_bar.textChanged.connect(self.filter_list)
+        layout.addWidget(self.search_bar)
+
+        # Select All / Deselect All buttons
+        btn_layout = QHBoxLayout()
+        self.btn_select_all = QPushButton(self)
+        self.btn_deselect_all = QPushButton(self)
+
+        if self.L == 'it':
+            self.btn_select_all.setText("Seleziona Tutti")
+            self.btn_deselect_all.setText("Deseleziona Tutti")
+        elif self.L == 'de':
+            self.btn_select_all.setText("Alle auswählen")
+            self.btn_deselect_all.setText("Alle abwählen")
+        else:
+            self.btn_select_all.setText("Select All")
+            self.btn_deselect_all.setText("Deselect All")
+
+        self.btn_select_all.clicked.connect(self.select_all)
+        self.btn_deselect_all.clicked.connect(self.deselect_all)
+        btn_layout.addWidget(self.btn_select_all)
+        btn_layout.addWidget(self.btn_deselect_all)
+        layout.addLayout(btn_layout)
+
+        # List widget with checkboxes
+        self.list_widget = QListWidget(self)
+        layout.addWidget(self.list_widget)
+
+        # Populate list widget
+        self.populate_list_with_ids()
+
+        # Status label
+        self.label_status = QLabel(self)
+        self.update_status_label()
+        layout.addWidget(self.label_status)
+
+        # Filter button
+        filter_button = QPushButton(self)
+        if self.L == 'it':
+            filter_button.setText("Applica Filtro")
+        elif self.L == 'de':
+            filter_button.setText("Filter anwenden")
+        else:
+            filter_button.setText("Apply Filter")
+        filter_button.clicked.connect(self.apply_filter)
+        layout.addWidget(filter_button)
+
+        self.setLayout(layout)
+
+    def natural_sort_key(self, text):
+        """Natural sorting key that handles alphanumeric values correctly"""
+        return [int(c) if c.isdigit() else c.lower() for c in re.split(r'(\d+)', str(text))]
+
+    def populate_list_with_ids(self):
+        """Fetch pottery records and populate the list with unique ID numbers"""
+        try:
+            # Get all pottery records
+            self.pottery_records = self.db_manager.query_all('pottery_table')
+
+            # Get unique id_numbers and sort them naturally
+            unique_ids = sorted(
+                set(record.id_number for record in self.pottery_records if record.id_number is not None),
+                key=self.natural_sort_key
+            )
+
+            self.update_list_widget(unique_ids)
+        except Exception as e:
+            print(f"Error populating pottery filter list: {e}")
+
+    def update_list_widget(self, id_numbers):
+        """Update the list widget with the given ID numbers"""
+        self.list_widget.clear()
+
+        for id_num in id_numbers:
+            list_item = QListWidgetItem(self.list_widget)
+            checkbox = QCheckBox(f"ID: {id_num}")
+            checkbox.id_number = id_num
+            checkbox.stateChanged.connect(self.update_status_label)
+            self.list_widget.addItem(list_item)
+            self.list_widget.setItemWidget(list_item, checkbox)
+
+    def filter_list(self, text):
+        """Filter the list based on search text"""
+        if not text:
+            # Show all if search is empty
+            unique_ids = sorted(
+                set(record.id_number for record in self.pottery_records if record.id_number is not None),
+                key=self.natural_sort_key
+            )
+        else:
+            # Filter by search text
+            unique_ids = sorted(
+                set(record.id_number for record in self.pottery_records
+                    if record.id_number is not None and str(record.id_number).startswith(text)),
+                key=self.natural_sort_key
+            )
+        self.update_list_widget(unique_ids)
+
+    def select_all(self):
+        """Select all visible checkboxes"""
+        for i in range(self.list_widget.count()):
+            item = self.list_widget.item(i)
+            checkbox = self.list_widget.itemWidget(item)
+            if checkbox:
+                checkbox.setChecked(True)
+
+    def deselect_all(self):
+        """Deselect all visible checkboxes"""
+        for i in range(self.list_widget.count()):
+            item = self.list_widget.item(i)
+            checkbox = self.list_widget.itemWidget(item)
+            if checkbox:
+                checkbox.setChecked(False)
+
+    def update_status_label(self):
+        """Update the status label with count of selected items"""
+        count = self.get_selected_count()
+        total = self.list_widget.count()
+        if self.L == 'it':
+            self.label_status.setText(f"Selezionati: {count} di {total}")
+        elif self.L == 'de':
+            self.label_status.setText(f"Ausgewählt: {count} von {total}")
+        else:
+            self.label_status.setText(f"Selected: {count} of {total}")
+
+    def get_selected_count(self):
+        """Get the count of selected checkboxes"""
+        count = 0
+        for i in range(self.list_widget.count()):
+            item = self.list_widget.item(i)
+            checkbox = self.list_widget.itemWidget(item)
+            if checkbox and checkbox.isChecked():
+                count += 1
+        return count
+
+    def apply_filter(self):
+        """Apply the filter and close the dialog"""
+        self.selected_ids.clear()
+
+        for i in range(self.list_widget.count()):
+            item = self.list_widget.item(i)
+            checkbox = self.list_widget.itemWidget(item)
+            if checkbox and checkbox.isChecked():
+                self.selected_ids.append(checkbox.id_number)
+
+        print(f"Selected ID Numbers: {self.selected_ids}")
+        self.accept()
+
+    def get_selected_ids(self):
+        """Return the list of selected ID numbers"""
+        return self.selected_ids
