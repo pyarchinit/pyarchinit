@@ -3,7 +3,7 @@ name=pyArchInit
 qgisMinimumVersion=3.22
 description=pyarchinit a tool for archaeological works
 
-version=4.9.8
+version=4.9.9
 
 author=Luca Mandolesi&Enzo Cocca
 email=pyarchinit@gmail.com
@@ -15,7 +15,8 @@ tracker=https://github.com/pyarchinit/pyarchinit/issues
 repository=https://github.com/pyarchinit/pyarchinit
 
 
-changelog=4.9.8 Update 2025-12-10
+changelog=4.9.9 Update 2025-12-13
+  4.9.8 Update 2025-12-10
   4.9.7 Update 2025-12-10
   4.9.6 Update 2025-12-10
   4.9.5 Fix Windows plugin loading issues: improved package version matching logic to check only package names (not versions) preventing false positives for pandas and PyMuPDF. Implemented lazy imports for OpenAI, Langchain, and PyMuPDF to avoid DLL conflicts on Windows startup. Fixed NoneType errors in package metadata checking. Enhanced cross-platform compatibility and plugin startup performance.
