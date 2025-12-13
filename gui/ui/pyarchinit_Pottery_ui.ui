@@ -36,18 +36,45 @@
    <bool>true</bool>
   </property>
   <layout class="QGridLayout" name="gridLayout_2">
-   <item row="0" column="3">
-    <widget class="QLabel" name="label_34">
+   <item row="0" column="4">
+    <widget class="QLabel" name="label_status">
+     <property name="minimumSize">
+      <size>
+       <width>40</width>
+       <height>0</height>
+      </size>
+     </property>
      <property name="font">
       <font>
-       <family>Times New Roman</family>
+       <family>.AppleSystemUIFont</family>
        <pointsize>9</pointsize>
        <weight>75</weight>
        <bold>true</bold>
       </font>
      </property>
+     <property name="cursor">
+      <cursorShape>ForbiddenCursor</cursorShape>
+     </property>
+     <property name="mouseTracking">
+      <bool>true</bool>
+     </property>
+     <property name="contextMenuPolicy">
+      <enum>Qt::DefaultContextMenu</enum>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background-color: rgb(255, 255, 255);</string>
+     </property>
+     <property name="frameShape">
+      <enum>QFrame::Box</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Sunken</enum>
+     </property>
      <property name="text">
-      <string>Status</string>
+      <string/>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
      </property>
      <property name="margin">
       <number>0</number>
@@ -533,14 +560,26 @@
      </item>
     </layout>
    </item>
-   <item row="0" column="4">
-    <widget class="QLabel" name="label_status">
-     <property name="minimumSize">
-      <size>
-       <width>40</width>
-       <height>0</height>
-      </size>
+   <item row="0" column="3">
+    <widget class="QLabel" name="label_34">
+     <property name="font">
+      <font>
+       <family>Times New Roman</family>
+       <pointsize>9</pointsize>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
      </property>
+     <property name="text">
+      <string>Status</string>
+     </property>
+     <property name="margin">
+      <number>0</number>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="2">
+    <widget class="QLabel" name="label_sort">
      <property name="font">
       <font>
        <family>.AppleSystemUIFont</family>
@@ -572,6 +611,122 @@
      </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>
+     </property>
+     <property name="margin">
+      <number>0</number>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="1">
+    <widget class="QLabel" name="label_43">
+     <property name="font">
+      <font>
+       <family>Times New Roman</family>
+       <pointsize>9</pointsize>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string>Ordinamento</string>
+     </property>
+     <property name="margin">
+      <number>0</number>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="3">
+    <widget class="QLabel" name="label_27">
+     <property name="font">
+      <font>
+       <family>Times New Roman</family>
+       <pointsize>9</pointsize>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string>record n.</string>
+     </property>
+     <property name="margin">
+      <number>0</number>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="4">
+    <widget class="QLabel" name="label_rec_corrente">
+     <property name="font">
+      <font>
+       <family>Microsoft Sans Serif</family>
+       <pointsize>9</pointsize>
+      </font>
+     </property>
+     <property name="cursor">
+      <cursorShape>ForbiddenCursor</cursorShape>
+     </property>
+     <property name="mouseTracking">
+      <bool>true</bool>
+     </property>
+     <property name="contextMenuPolicy">
+      <enum>Qt::DefaultContextMenu</enum>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background-color: rgb(255, 255, 255);</string>
+     </property>
+     <property name="frameShape">
+      <enum>QFrame::Box</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Sunken</enum>
+     </property>
+     <property name="text">
+      <string>1</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="2">
+    <widget class="QLabel" name="label_rec_tot">
+     <property name="font">
+      <font>
+       <family>Microsoft Sans Serif</family>
+       <pointsize>9</pointsize>
+      </font>
+     </property>
+     <property name="cursor">
+      <cursorShape>ForbiddenCursor</cursorShape>
+     </property>
+     <property name="mouseTracking">
+      <bool>true</bool>
+     </property>
+     <property name="contextMenuPolicy">
+      <enum>Qt::DefaultContextMenu</enum>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background-color: rgb(255, 255, 255);</string>
+     </property>
+     <property name="frameShape">
+      <enum>QFrame::Box</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Sunken</enum>
+     </property>
+     <property name="text">
+      <string>1</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="1">
+    <widget class="QLabel" name="label_28">
+     <property name="font">
+      <font>
+       <family>Times New Roman</family>
+       <pointsize>9</pointsize>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string>record tot.</string>
      </property>
      <property name="margin">
       <number>0</number>
@@ -1086,161 +1241,6 @@
      </item>
     </layout>
    </item>
-   <item row="0" column="1">
-    <widget class="QLabel" name="label_43">
-     <property name="font">
-      <font>
-       <family>Times New Roman</family>
-       <pointsize>9</pointsize>
-       <weight>75</weight>
-       <bold>true</bold>
-      </font>
-     </property>
-     <property name="text">
-      <string>Ordinamento</string>
-     </property>
-     <property name="margin">
-      <number>0</number>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="2">
-    <widget class="QLabel" name="label_rec_tot">
-     <property name="font">
-      <font>
-       <family>Microsoft Sans Serif</family>
-       <pointsize>9</pointsize>
-      </font>
-     </property>
-     <property name="cursor">
-      <cursorShape>ForbiddenCursor</cursorShape>
-     </property>
-     <property name="mouseTracking">
-      <bool>true</bool>
-     </property>
-     <property name="contextMenuPolicy">
-      <enum>Qt::DefaultContextMenu</enum>
-     </property>
-     <property name="styleSheet">
-      <string notr="true">background-color: rgb(255, 255, 255);</string>
-     </property>
-     <property name="frameShape">
-      <enum>QFrame::Box</enum>
-     </property>
-     <property name="frameShadow">
-      <enum>QFrame::Sunken</enum>
-     </property>
-     <property name="text">
-      <string>1</string>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="4">
-    <widget class="QLabel" name="label_rec_corrente">
-     <property name="font">
-      <font>
-       <family>Microsoft Sans Serif</family>
-       <pointsize>9</pointsize>
-      </font>
-     </property>
-     <property name="cursor">
-      <cursorShape>ForbiddenCursor</cursorShape>
-     </property>
-     <property name="mouseTracking">
-      <bool>true</bool>
-     </property>
-     <property name="contextMenuPolicy">
-      <enum>Qt::DefaultContextMenu</enum>
-     </property>
-     <property name="styleSheet">
-      <string notr="true">background-color: rgb(255, 255, 255);</string>
-     </property>
-     <property name="frameShape">
-      <enum>QFrame::Box</enum>
-     </property>
-     <property name="frameShadow">
-      <enum>QFrame::Sunken</enum>
-     </property>
-     <property name="text">
-      <string>1</string>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="1">
-    <widget class="QLabel" name="label_28">
-     <property name="font">
-      <font>
-       <family>Times New Roman</family>
-       <pointsize>9</pointsize>
-       <weight>75</weight>
-       <bold>true</bold>
-      </font>
-     </property>
-     <property name="text">
-      <string>record tot.</string>
-     </property>
-     <property name="margin">
-      <number>0</number>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="3">
-    <widget class="QLabel" name="label_27">
-     <property name="font">
-      <font>
-       <family>Times New Roman</family>
-       <pointsize>9</pointsize>
-       <weight>75</weight>
-       <bold>true</bold>
-      </font>
-     </property>
-     <property name="text">
-      <string>record n.</string>
-     </property>
-     <property name="margin">
-      <number>0</number>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="2">
-    <widget class="QLabel" name="label_sort">
-     <property name="font">
-      <font>
-       <family>.AppleSystemUIFont</family>
-       <pointsize>9</pointsize>
-       <weight>75</weight>
-       <bold>true</bold>
-      </font>
-     </property>
-     <property name="cursor">
-      <cursorShape>ForbiddenCursor</cursorShape>
-     </property>
-     <property name="mouseTracking">
-      <bool>true</bool>
-     </property>
-     <property name="contextMenuPolicy">
-      <enum>Qt::DefaultContextMenu</enum>
-     </property>
-     <property name="styleSheet">
-      <string notr="true">background-color: rgb(255, 255, 255);</string>
-     </property>
-     <property name="frameShape">
-      <enum>QFrame::Box</enum>
-     </property>
-     <property name="frameShadow">
-      <enum>QFrame::Sunken</enum>
-     </property>
-     <property name="text">
-      <string/>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignCenter</set>
-     </property>
-     <property name="margin">
-      <number>0</number>
-     </property>
-    </widget>
-   </item>
    <item row="3" column="0" colspan="5">
     <widget class="QTabWidget" name="tabWidget">
      <property name="font">
@@ -1487,6 +1487,312 @@
        <string>Technical Data</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_6">
+       <item row="3" column="7">
+        <widget class="QLabel" name="label_decoration_motif">
+         <property name="font">
+          <font>
+           <family>MS Shell Dlg 2</family>
+           <pointsize>9</pointsize>
+           <weight>50</weight>
+           <italic>false</italic>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>Decoration Motif</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="2" colspan="2">
+        <widget class="QComboBox" name="comboBox_intdeco">
+         <property name="font">
+          <font>
+           <family>MS Shell Dlg 2</family>
+           <pointsize>9</pointsize>
+           <weight>50</weight>
+           <italic>false</italic>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(255, 255, 255);</string>
+         </property>
+         <property name="editable">
+          <bool>true</bool>
+         </property>
+         <item>
+          <property name="text">
+           <string>Yes</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>No</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+       <item row="1" column="10" colspan="3">
+        <widget class="QLabel" name="label_22">
+         <property name="font">
+          <font>
+           <family>MS Shell Dlg 2</family>
+           <pointsize>9</pointsize>
+           <weight>50</weight>
+           <italic>false</italic>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>Wheel made</string>
+         </property>
+        </widget>
+       </item>
+       <item row="13" column="0" colspan="5">
+        <widget class="QLabel" name="label_47">
+         <property name="font">
+          <font>
+           <family>MS Shell Dlg 2</family>
+           <pointsize>9</pointsize>
+           <weight>50</weight>
+           <italic>false</italic>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>Preserved Height</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="3" colspan="3">
+        <widget class="QLabel" name="label_9">
+         <property name="font">
+          <font>
+           <family>MS Shell Dlg 2</family>
+           <pointsize>9</pointsize>
+           <weight>50</weight>
+           <italic>false</italic>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>Munsell color</string>
+         </property>
+        </widget>
+       </item>
+       <item row="7" column="0" colspan="5">
+        <widget class="QLabel" name="label_44">
+         <property name="font">
+          <font>
+           <family>MS Shell Dlg 2</family>
+           <pointsize>9</pointsize>
+           <weight>50</weight>
+           <italic>false</italic>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>Diameter Rim</string>
+         </property>
+        </widget>
+       </item>
+       <item row="10" column="0" colspan="3">
+        <widget class="QLineEdit" name="lineEdit_diametro_bottom">
+         <property name="font">
+          <font>
+           <family>MS Shell Dlg 2</family>
+           <pointsize>9</pointsize>
+           <weight>50</weight>
+           <italic>false</italic>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(255, 255, 255);</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="0" colspan="2">
+        <widget class="QLabel" name="label_20">
+         <property name="font">
+          <font>
+           <family>MS Shell Dlg 2</family>
+           <pointsize>9</pointsize>
+           <weight>50</weight>
+           <italic>false</italic>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>Internal decoration</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="4" colspan="2">
+        <widget class="QLabel" name="label_decoration_position">
+         <property name="font">
+          <font>
+           <family>MS Shell Dlg 2</family>
+           <pointsize>9</pointsize>
+           <weight>50</weight>
+           <italic>false</italic>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>Decoration Position</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="13">
+        <widget class="QComboBox" name="comboBox_wheel_made">
+         <property name="font">
+          <font>
+           <family>MS Shell Dlg 2</family>
+           <pointsize>9</pointsize>
+           <weight>50</weight>
+           <italic>false</italic>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(255, 255, 255);</string>
+         </property>
+         <property name="editable">
+          <bool>true</bool>
+         </property>
+         <item>
+          <property name="text">
+           <string>Yes</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>No</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+       <item row="14" column="0" colspan="5">
+        <widget class="QLineEdit" name="lineEdit_diametro_preserved">
+         <property name="font">
+          <font>
+           <family>MS Shell Dlg 2</family>
+           <pointsize>9</pointsize>
+           <weight>50</weight>
+           <italic>false</italic>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(255, 255, 255);</string>
+         </property>
+        </widget>
+       </item>
+       <item row="8" column="0" colspan="5">
+        <widget class="QLineEdit" name="lineEdit_diametro_rim">
+         <property name="font">
+          <font>
+           <family>MS Shell Dlg 2</family>
+           <pointsize>9</pointsize>
+           <weight>50</weight>
+           <italic>false</italic>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(255, 255, 255);</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="label_13">
+         <property name="font">
+          <font>
+           <family>MS Shell Dlg 2</family>
+           <pointsize>9</pointsize>
+           <weight>50</weight>
+           <italic>false</italic>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>Material</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="7">
+        <widget class="QLabel" name="label_17">
+         <property name="font">
+          <font>
+           <family>MS Shell Dlg 2</family>
+           <pointsize>9</pointsize>
+           <weight>50</weight>
+           <italic>false</italic>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>Fabric</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="6">
+        <widget class="QComboBox" name="comboBox_munsell">
+         <property name="font">
+          <font>
+           <family>MS Shell Dlg 2</family>
+           <pointsize>9</pointsize>
+           <weight>50</weight>
+           <italic>false</italic>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(255, 255, 255);</string>
+         </property>
+         <property name="editable">
+          <bool>true</bool>
+         </property>
+         <item>
+          <property name="text">
+           <string/>
+          </property>
+         </item>
+        </widget>
+       </item>
+       <item row="4" column="0" colspan="2">
+        <widget class="QLabel" name="label_21">
+         <property name="font">
+          <font>
+           <family>MS Shell Dlg 2</family>
+           <pointsize>9</pointsize>
+           <weight>50</weight>
+           <italic>false</italic>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>External decoration</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="4" colspan="2">
+        <widget class="QLabel" name="label_23">
+         <property name="font">
+          <font>
+           <family>MS Shell Dlg 2</family>
+           <pointsize>9</pointsize>
+           <weight>50</weight>
+           <italic>false</italic>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>Specific Shape</string>
+         </property>
+        </widget>
+       </item>
        <item row="0" column="0">
         <widget class="QLabel" name="label_10">
          <property name="font">
@@ -1500,6 +1806,271 @@
          </property>
          <property name="text">
           <string>Photo</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="1" colspan="3">
+        <widget class="QComboBox" name="comboBox_form">
+         <property name="font">
+          <font>
+           <family>MS Shell Dlg 2</family>
+           <pointsize>9</pointsize>
+           <weight>50</weight>
+           <italic>false</italic>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(255, 255, 255);</string>
+         </property>
+         <property name="editable">
+          <bool>true</bool>
+         </property>
+         <item>
+          <property name="text">
+           <string>Open</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Close</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Undeterminable</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+       <item row="12" column="0" colspan="5">
+        <widget class="QLineEdit" name="lineEdit_diametro_height">
+         <property name="font">
+          <font>
+           <family>MS Shell Dlg 2</family>
+           <pointsize>9</pointsize>
+           <weight>50</weight>
+           <italic>false</italic>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(255, 255, 255);</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="2" colspan="2">
+        <widget class="QComboBox" name="comboBox_exdeco">
+         <property name="font">
+          <font>
+           <family>MS Shell Dlg 2</family>
+           <pointsize>9</pointsize>
+           <weight>50</weight>
+           <italic>false</italic>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(255, 255, 255);</string>
+         </property>
+         <property name="editable">
+          <bool>true</bool>
+         </property>
+         <item>
+          <property name="text">
+           <string>Yes</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>No</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+       <item row="6" column="0" colspan="5">
+        <widget class="QLineEdit" name="lineEdit_diametro_max">
+         <property name="font">
+          <font>
+           <family>MS Shell Dlg 2</family>
+           <pointsize>9</pointsize>
+           <weight>50</weight>
+           <italic>false</italic>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(255, 255, 255);</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="6">
+        <widget class="QComboBox" name="comboBox_decoration_position">
+         <property name="font">
+          <font>
+           <family>MS Shell Dlg 2</family>
+           <pointsize>9</pointsize>
+           <weight>50</weight>
+           <italic>false</italic>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(255, 255, 255);</string>
+         </property>
+         <property name="editable">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="6">
+        <widget class="QLineEdit" name="lineEdit_drawing">
+         <property name="font">
+          <font>
+           <family>MS Shell Dlg 2</family>
+           <pointsize>9</pointsize>
+           <weight>50</weight>
+           <italic>false</italic>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(255, 255, 255);</string>
+         </property>
+        </widget>
+       </item>
+       <item row="9" column="0" colspan="5">
+        <widget class="QLabel" name="label_45">
+         <property name="font">
+          <font>
+           <family>MS Shell Dlg 2</family>
+           <pointsize>9</pointsize>
+           <weight>50</weight>
+           <italic>false</italic>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>Diameter Bottom</string>
+         </property>
+        </widget>
+       </item>
+       <item row="11" column="0" colspan="2">
+        <widget class="QLabel" name="label_46">
+         <property name="font">
+          <font>
+           <family>MS Shell Dlg 2</family>
+           <pointsize>9</pointsize>
+           <weight>50</weight>
+           <italic>false</italic>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>Total Height</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="6">
+        <widget class="QComboBox" name="comboBox_specific_shape">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
+         <property name="font">
+          <font>
+           <family>MS Shell Dlg 2</family>
+           <pointsize>9</pointsize>
+           <weight>50</weight>
+           <italic>false</italic>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(255, 255, 255);</string>
+         </property>
+         <property name="editable">
+          <bool>true</bool>
+         </property>
+         <item>
+          <property name="text">
+           <string/>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Bowl</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Lid</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Jar</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Spouted jar</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Cup</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+       <item row="5" column="0" colspan="5">
+        <widget class="QLabel" name="label_42">
+         <property name="font">
+          <font>
+           <family>MS Shell Dlg 2</family>
+           <pointsize>9</pointsize>
+           <weight>50</weight>
+           <italic>false</italic>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>Diameter Max</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0">
+        <widget class="QLabel" name="label_14">
+         <property name="font">
+          <font>
+           <family>MS Shell Dlg 2</family>
+           <pointsize>9</pointsize>
+           <weight>50</weight>
+           <italic>false</italic>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>Shape</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1" colspan="2">
+        <widget class="QComboBox" name="comboBox_material">
+         <property name="font">
+          <font>
+           <family>MS Shell Dlg 2</family>
+           <pointsize>9</pointsize>
+           <weight>50</weight>
+           <italic>false</italic>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(255, 255, 255);</string>
+         </property>
+         <property name="editable">
+          <bool>true</bool>
          </property>
         </widget>
        </item>
@@ -1535,8 +2106,8 @@
          </property>
         </widget>
        </item>
-       <item row="0" column="6">
-        <widget class="QLineEdit" name="lineEdit_drawing">
+       <item row="3" column="6">
+        <widget class="QComboBox" name="comboBox_decoration_type">
          <property name="font">
           <font>
            <family>MS Shell Dlg 2</family>
@@ -1549,21 +2120,8 @@
          <property name="styleSheet">
           <string notr="true">background-color: rgb(255, 255, 255);</string>
          </property>
-        </widget>
-       </item>
-       <item row="0" column="7">
-        <widget class="QLabel" name="label_17">
-         <property name="font">
-          <font>
-           <family>MS Shell Dlg 2</family>
-           <pointsize>9</pointsize>
-           <weight>50</weight>
-           <italic>false</italic>
-           <bold>false</bold>
-          </font>
-         </property>
-         <property name="text">
-          <string>Fabric</string>
+         <property name="editable">
+          <bool>true</bool>
          </property>
         </widget>
        </item>
@@ -1602,6 +2160,149 @@
          <item>
           <property name="text">
            <string>Coarse ware</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+       <item row="3" column="4" colspan="2">
+        <widget class="QLabel" name="label_decoration_type">
+         <property name="font">
+          <font>
+           <family>MS Shell Dlg 2</family>
+           <pointsize>9</pointsize>
+           <weight>50</weight>
+           <italic>false</italic>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>Decoration Type</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="8" colspan="6">
+        <widget class="QComboBox" name="comboBox_decoration_motif">
+         <property name="font">
+          <font>
+           <family>MS Shell Dlg 2</family>
+           <pointsize>9</pointsize>
+           <weight>50</weight>
+           <italic>false</italic>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(255, 255, 255);</string>
+         </property>
+         <property name="editable">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="7">
+        <widget class="QLabel" name="label_15">
+         <property name="font">
+          <font>
+           <family>MS Shell Dlg 2</family>
+           <pointsize>9</pointsize>
+           <weight>50</weight>
+           <italic>false</italic>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>Specific Part</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="7">
+        <widget class="QLabel" name="label_19">
+         <property name="font">
+          <font>
+           <family>MS Shell Dlg 2</family>
+           <pointsize>9</pointsize>
+           <weight>50</weight>
+           <italic>false</italic>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>Surface tratment</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="8" colspan="2">
+        <widget class="QComboBox" name="comboBox_surf_trat">
+         <property name="font">
+          <font>
+           <family>MS Shell Dlg 2</family>
+           <pointsize>9</pointsize>
+           <weight>50</weight>
+           <italic>false</italic>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(255, 255, 255);</string>
+         </property>
+         <property name="editable">
+          <bool>true</bool>
+         </property>
+         <item>
+          <property name="text">
+           <string>Slipped red</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Buff</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+       <item row="2" column="8" colspan="6">
+        <widget class="QComboBox" name="comboBox_specific_form">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
+         <property name="font">
+          <font>
+           <family>MS Shell Dlg 2</family>
+           <pointsize>9</pointsize>
+           <weight>50</weight>
+           <italic>false</italic>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(255, 255, 255);</string>
+         </property>
+         <property name="editable">
+          <bool>true</bool>
+         </property>
+         <item>
+          <property name="text">
+           <string>Rim</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Neck</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Handle</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Wall</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Base</string>
           </property>
          </item>
         </widget>
@@ -1666,353 +2367,7 @@
          </item>
         </widget>
        </item>
-       <item row="1" column="0">
-        <widget class="QLabel" name="label_13">
-         <property name="font">
-          <font>
-           <family>MS Shell Dlg 2</family>
-           <pointsize>9</pointsize>
-           <weight>50</weight>
-           <italic>false</italic>
-           <bold>false</bold>
-          </font>
-         </property>
-         <property name="text">
-          <string>Material</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="1" colspan="2">
-        <widget class="QComboBox" name="comboBox_material">
-         <property name="font">
-          <font>
-           <family>MS Shell Dlg 2</family>
-           <pointsize>9</pointsize>
-           <weight>50</weight>
-           <italic>false</italic>
-           <bold>false</bold>
-          </font>
-         </property>
-         <property name="styleSheet">
-          <string notr="true">background-color: rgb(255, 255, 255);</string>
-         </property>
-         <property name="editable">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="3" colspan="3">
-        <widget class="QLabel" name="label_9">
-         <property name="font">
-          <font>
-           <family>MS Shell Dlg 2</family>
-           <pointsize>9</pointsize>
-           <weight>50</weight>
-           <italic>false</italic>
-           <bold>false</bold>
-          </font>
-         </property>
-         <property name="text">
-          <string>Munsell color</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="6">
-        <widget class="QComboBox" name="comboBox_munsell">
-         <property name="font">
-          <font>
-           <family>MS Shell Dlg 2</family>
-           <pointsize>9</pointsize>
-           <weight>50</weight>
-           <italic>false</italic>
-           <bold>false</bold>
-          </font>
-         </property>
-         <property name="styleSheet">
-          <string notr="true">background-color: rgb(255, 255, 255);</string>
-         </property>
-         <property name="editable">
-          <bool>true</bool>
-         </property>
-         <item>
-          <property name="text">
-           <string/>
-          </property>
-         </item>
-        </widget>
-       </item>
-       <item row="1" column="7" colspan="2">
-        <widget class="QLabel" name="label_19">
-         <property name="font">
-          <font>
-           <family>MS Shell Dlg 2</family>
-           <pointsize>9</pointsize>
-           <weight>50</weight>
-           <italic>false</italic>
-           <bold>false</bold>
-          </font>
-         </property>
-         <property name="text">
-          <string>Surface tratment</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="9">
-        <widget class="QComboBox" name="comboBox_surf_trat">
-         <property name="font">
-          <font>
-           <family>MS Shell Dlg 2</family>
-           <pointsize>9</pointsize>
-           <weight>50</weight>
-           <italic>false</italic>
-           <bold>false</bold>
-          </font>
-         </property>
-         <property name="styleSheet">
-          <string notr="true">background-color: rgb(255, 255, 255);</string>
-         </property>
-         <property name="editable">
-          <bool>true</bool>
-         </property>
-         <item>
-          <property name="text">
-           <string>Slipped red</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Buff</string>
-          </property>
-         </item>
-        </widget>
-       </item>
-       <item row="1" column="10" colspan="3">
-        <widget class="QLabel" name="label_22">
-         <property name="font">
-          <font>
-           <family>MS Shell Dlg 2</family>
-           <pointsize>9</pointsize>
-           <weight>50</weight>
-           <italic>false</italic>
-           <bold>false</bold>
-          </font>
-         </property>
-         <property name="text">
-          <string>Wheel made</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="13">
-        <widget class="QComboBox" name="comboBox_wheel_made">
-         <property name="font">
-          <font>
-           <family>MS Shell Dlg 2</family>
-           <pointsize>9</pointsize>
-           <weight>50</weight>
-           <italic>false</italic>
-           <bold>false</bold>
-          </font>
-         </property>
-         <property name="styleSheet">
-          <string notr="true">background-color: rgb(255, 255, 255);</string>
-         </property>
-         <property name="editable">
-          <bool>true</bool>
-         </property>
-         <item>
-          <property name="text">
-           <string>Yes</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>No</string>
-          </property>
-         </item>
-        </widget>
-       </item>
-       <item row="2" column="0">
-        <widget class="QLabel" name="label_14">
-         <property name="font">
-          <font>
-           <family>MS Shell Dlg 2</family>
-           <pointsize>9</pointsize>
-           <weight>50</weight>
-           <italic>false</italic>
-           <bold>false</bold>
-          </font>
-         </property>
-         <property name="text">
-          <string>Shape</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="1" colspan="3">
-        <widget class="QComboBox" name="comboBox_form">
-         <property name="font">
-          <font>
-           <family>MS Shell Dlg 2</family>
-           <pointsize>9</pointsize>
-           <weight>50</weight>
-           <italic>false</italic>
-           <bold>false</bold>
-          </font>
-         </property>
-         <property name="styleSheet">
-          <string notr="true">background-color: rgb(255, 255, 255);</string>
-         </property>
-         <property name="editable">
-          <bool>true</bool>
-         </property>
-         <item>
-          <property name="text">
-           <string>Open</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Close</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Undeterminable</string>
-          </property>
-         </item>
-        </widget>
-       </item>
-       <item row="2" column="4" colspan="2">
-        <widget class="QLabel" name="label_23">
-         <property name="font">
-          <font>
-           <family>MS Shell Dlg 2</family>
-           <pointsize>9</pointsize>
-           <weight>50</weight>
-           <italic>false</italic>
-           <bold>false</bold>
-          </font>
-         </property>
-         <property name="text">
-          <string>Specific Shape</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="6">
-        <widget class="QComboBox" name="comboBox_specific_shape">
-         <property name="enabled">
-          <bool>true</bool>
-         </property>
-         <property name="font">
-          <font>
-           <family>MS Shell Dlg 2</family>
-           <pointsize>9</pointsize>
-           <weight>50</weight>
-           <italic>false</italic>
-           <bold>false</bold>
-          </font>
-         </property>
-         <property name="styleSheet">
-          <string notr="true">background-color: rgb(255, 255, 255);</string>
-         </property>
-         <property name="editable">
-          <bool>true</bool>
-         </property>
-         <item>
-          <property name="text">
-           <string/>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Bowl</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Lid</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Jar</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Spouted jar</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Cup</string>
-          </property>
-         </item>
-        </widget>
-       </item>
-       <item row="2" column="7" colspan="2">
-        <widget class="QLabel" name="label_15">
-         <property name="font">
-          <font>
-           <family>MS Shell Dlg 2</family>
-           <pointsize>9</pointsize>
-           <weight>50</weight>
-           <italic>false</italic>
-           <bold>false</bold>
-          </font>
-         </property>
-         <property name="text">
-          <string>Specific Part</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="9">
-        <widget class="QComboBox" name="comboBox_specific_form">
-         <property name="enabled">
-          <bool>true</bool>
-         </property>
-         <property name="font">
-          <font>
-           <family>MS Shell Dlg 2</family>
-           <pointsize>9</pointsize>
-           <weight>50</weight>
-           <italic>false</italic>
-           <bold>false</bold>
-          </font>
-         </property>
-         <property name="styleSheet">
-          <string notr="true">background-color: rgb(255, 255, 255);</string>
-         </property>
-         <property name="editable">
-          <bool>true</bool>
-         </property>
-         <item>
-          <property name="text">
-           <string>Rim</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Neck</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Handle</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Wall</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Base</string>
-          </property>
-         </item>
-        </widget>
-       </item>
-       <item row="2" column="10" colspan="2">
+       <item row="4" column="7">
         <widget class="QLabel" name="label_16">
          <property name="font">
           <font>
@@ -2028,7 +2383,7 @@
          </property>
         </widget>
        </item>
-       <item row="2" column="12" colspan="2">
+       <item row="4" column="8" colspan="6">
         <widget class="QComboBox" name="comboBox_ware">
          <property name="font">
           <font>
@@ -2060,256 +2415,6 @@
            <string>Coarse</string>
           </property>
          </item>
-        </widget>
-       </item>
-       <item row="3" column="0" colspan="2">
-        <widget class="QLabel" name="label_20">
-         <property name="font">
-          <font>
-           <family>MS Shell Dlg 2</family>
-           <pointsize>9</pointsize>
-           <weight>50</weight>
-           <italic>false</italic>
-           <bold>false</bold>
-          </font>
-         </property>
-         <property name="text">
-          <string>Internal decoration</string>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="2" colspan="2">
-        <widget class="QComboBox" name="comboBox_intdeco">
-         <property name="font">
-          <font>
-           <family>MS Shell Dlg 2</family>
-           <pointsize>9</pointsize>
-           <weight>50</weight>
-           <italic>false</italic>
-           <bold>false</bold>
-          </font>
-         </property>
-         <property name="styleSheet">
-          <string notr="true">background-color: rgb(255, 255, 255);</string>
-         </property>
-         <property name="editable">
-          <bool>true</bool>
-         </property>
-         <item>
-          <property name="text">
-           <string>Yes</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>No</string>
-          </property>
-         </item>
-        </widget>
-       </item>
-       <item row="4" column="0" colspan="2">
-        <widget class="QLabel" name="label_21">
-         <property name="font">
-          <font>
-           <family>MS Shell Dlg 2</family>
-           <pointsize>9</pointsize>
-           <weight>50</weight>
-           <italic>false</italic>
-           <bold>false</bold>
-          </font>
-         </property>
-         <property name="text">
-          <string>External decoration</string>
-         </property>
-        </widget>
-       </item>
-       <item row="4" column="2" colspan="2">
-        <widget class="QComboBox" name="comboBox_exdeco">
-         <property name="font">
-          <font>
-           <family>MS Shell Dlg 2</family>
-           <pointsize>9</pointsize>
-           <weight>50</weight>
-           <italic>false</italic>
-           <bold>false</bold>
-          </font>
-         </property>
-         <property name="styleSheet">
-          <string notr="true">background-color: rgb(255, 255, 255);</string>
-         </property>
-         <property name="editable">
-          <bool>true</bool>
-         </property>
-         <item>
-          <property name="text">
-           <string>Yes</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>No</string>
-          </property>
-         </item>
-        </widget>
-       </item>
-       <item row="5" column="0" colspan="5">
-        <widget class="QLabel" name="label_42">
-         <property name="font">
-          <font>
-           <family>MS Shell Dlg 2</family>
-           <pointsize>9</pointsize>
-           <weight>50</weight>
-           <italic>false</italic>
-           <bold>false</bold>
-          </font>
-         </property>
-         <property name="text">
-          <string>Diameter Max</string>
-         </property>
-        </widget>
-       </item>
-       <item row="6" column="0" colspan="5">
-        <widget class="QLineEdit" name="lineEdit_diametro_max">
-         <property name="font">
-          <font>
-           <family>MS Shell Dlg 2</family>
-           <pointsize>9</pointsize>
-           <weight>50</weight>
-           <italic>false</italic>
-           <bold>false</bold>
-          </font>
-         </property>
-         <property name="styleSheet">
-          <string notr="true">background-color: rgb(255, 255, 255);</string>
-         </property>
-        </widget>
-       </item>
-       <item row="7" column="0" colspan="5">
-        <widget class="QLabel" name="label_44">
-         <property name="font">
-          <font>
-           <family>MS Shell Dlg 2</family>
-           <pointsize>9</pointsize>
-           <weight>50</weight>
-           <italic>false</italic>
-           <bold>false</bold>
-          </font>
-         </property>
-         <property name="text">
-          <string>Diameter Rim</string>
-         </property>
-        </widget>
-       </item>
-       <item row="8" column="0" colspan="5">
-        <widget class="QLineEdit" name="lineEdit_diametro_rim">
-         <property name="font">
-          <font>
-           <family>MS Shell Dlg 2</family>
-           <pointsize>9</pointsize>
-           <weight>50</weight>
-           <italic>false</italic>
-           <bold>false</bold>
-          </font>
-         </property>
-         <property name="styleSheet">
-          <string notr="true">background-color: rgb(255, 255, 255);</string>
-         </property>
-        </widget>
-       </item>
-       <item row="9" column="0" colspan="5">
-        <widget class="QLabel" name="label_45">
-         <property name="font">
-          <font>
-           <family>MS Shell Dlg 2</family>
-           <pointsize>9</pointsize>
-           <weight>50</weight>
-           <italic>false</italic>
-           <bold>false</bold>
-          </font>
-         </property>
-         <property name="text">
-          <string>Diameter Bottom</string>
-         </property>
-        </widget>
-       </item>
-       <item row="11" column="0" colspan="2">
-        <widget class="QLabel" name="label_46">
-         <property name="font">
-          <font>
-           <family>MS Shell Dlg 2</family>
-           <pointsize>9</pointsize>
-           <weight>50</weight>
-           <italic>false</italic>
-           <bold>false</bold>
-          </font>
-         </property>
-         <property name="text">
-          <string>Total Height</string>
-         </property>
-        </widget>
-       </item>
-       <item row="12" column="0" colspan="5">
-        <widget class="QLineEdit" name="lineEdit_diametro_height">
-         <property name="font">
-          <font>
-           <family>MS Shell Dlg 2</family>
-           <pointsize>9</pointsize>
-           <weight>50</weight>
-           <italic>false</italic>
-           <bold>false</bold>
-          </font>
-         </property>
-         <property name="styleSheet">
-          <string notr="true">background-color: rgb(255, 255, 255);</string>
-         </property>
-        </widget>
-       </item>
-       <item row="13" column="0" colspan="5">
-        <widget class="QLabel" name="label_47">
-         <property name="font">
-          <font>
-           <family>MS Shell Dlg 2</family>
-           <pointsize>9</pointsize>
-           <weight>50</weight>
-           <italic>false</italic>
-           <bold>false</bold>
-          </font>
-         </property>
-         <property name="text">
-          <string>Preserved Height</string>
-         </property>
-        </widget>
-       </item>
-       <item row="14" column="0" colspan="5">
-        <widget class="QLineEdit" name="lineEdit_diametro_preserved">
-         <property name="font">
-          <font>
-           <family>MS Shell Dlg 2</family>
-           <pointsize>9</pointsize>
-           <weight>50</weight>
-           <italic>false</italic>
-           <bold>false</bold>
-          </font>
-         </property>
-         <property name="styleSheet">
-          <string notr="true">background-color: rgb(255, 255, 255);</string>
-         </property>
-        </widget>
-       </item>
-       <item row="10" column="0" colspan="3">
-        <widget class="QLineEdit" name="lineEdit_diametro_bottom">
-         <property name="font">
-          <font>
-           <family>MS Shell Dlg 2</family>
-           <pointsize>9</pointsize>
-           <weight>50</weight>
-           <italic>false</italic>
-           <bold>false</bold>
-          </font>
-         </property>
-         <property name="styleSheet">
-          <string notr="true">background-color: rgb(255, 255, 255);</string>
-         </property>
         </widget>
        </item>
       </layout>

@@ -20,7 +20,7 @@ class PostgresDbUpdater:
     def __init__(self, db_manager, parent=None):
         """
         Inizializza l'updater per PostgreSQL
-        
+
         Args:
             db_manager: istanza di Pyarchinit_db_management
             parent: widget parent per i messaggi (opzionale)
@@ -28,23 +28,23 @@ class PostgresDbUpdater:
         self.db_manager = db_manager
         self.parent = parent
         self.updates_made = []
-    
+
     def log_message(self, message, level=None):
         """Log dei messaggi"""
         print(message)
         self.updates_made.append(message)
-    
+
     def check_and_update_database(self):
         """Controlla e aggiorna il database PostgreSQL"""
         try:
             self.log_message("Controllo database PostgreSQL per aggiornamenti necessari...")
-            
+
             # Aggiorna la tabella thesaurus
             self.update_thesaurus_table()
-            
+
             # Aggiorna la tabella reperti
             self.update_reperti_table()
-            
+
             # Aggiorna la view pyarchinit_us_view
             self.update_us_view()
 
@@ -57,8 +57,11 @@ class PostgresDbUpdater:
             # Installa/aggiorna le voci thesaurus per Pottery
             self.update_pottery_thesaurus()
 
+            # Aggiorna pottery_table con nuovi campi decorazione
+            self.update_pottery_table()
+
             # Altri aggiornamenti possono essere aggiunti qui in futuro
-            
+
             if self.updates_made:
                 message = f"Database PostgreSQL aggiornato con successo!\n\nModifiche effettuate:\n" + \
                          "\n".join(f"- {update}" for update in self.updates_made)
@@ -68,9 +71,9 @@ class PostgresDbUpdater:
                     print(message)
             else:
                 self.log_message("Nessun aggiornamento necessario per il database PostgreSQL")
-            
+
             return True
-            
+
         except Exception as e:
             error_msg = f"Errore durante l'aggiornamento del database PostgreSQL: {str(e)}"
             self.log_message(error_msg)
@@ -103,8 +106,11 @@ class PostgresDbUpdater:
                     sql = text(f"ALTER TABLE {table_name} ADD COLUMN {column_name} {column_type} DEFAULT {default_value}")
                 else:
                     sql = text(f"ALTER TABLE {table_name} ADD COLUMN {column_name} {column_type}")
-                
-                self.db_manager.engine.execute(sql)
+
+                # Use connection context for proper transaction handling
+                with self.db_manager.engine.connect() as conn:
+                    conn.execute(sql)
+                    conn.execute(text("COMMIT"))
                 self.log_message(f"Aggiunta colonna {column_name} a tabella {table_name}")
                 return True
             except Exception as e:
@@ -499,6 +505,39 @@ class PostgresDbUpdater:
         except Exception as e:
             self.log_message(f"Errore installando trigger attività: {e}")
 
+    def update_pottery_table(self):
+        """Aggiorna la tabella pottery_table con i nuovi campi decorazione"""
+        self.log_message("Controllo tabella pottery_table...")
+
+        try:
+            # Verifica se la tabella esiste
+            from sqlalchemy import text
+            query = text("""
+                SELECT table_name
+                FROM information_schema.tables
+                WHERE table_name = 'pottery_table'
+                AND table_schema = 'public'
+            """)
+            result = self.db_manager.engine.execute(query).fetchone()
+
+            if not result:
+                self.log_message("Tabella pottery_table non trovata, skip")
+                return
+
+            # Aggiungi colonne mancanti per la decorazione
+            updated = False
+            updated |= self.add_column_if_missing('pottery_table', 'decoration_type', 'TEXT')
+            updated |= self.add_column_if_missing('pottery_table', 'decoration_motif', 'TEXT')
+            updated |= self.add_column_if_missing('pottery_table', 'decoration_position', 'TEXT')
+
+            if updated:
+                self.log_message("Tabella pottery_table aggiornata con nuovi campi decorazione")
+            else:
+                self.log_message("Tabella pottery_table già aggiornata")
+
+        except Exception as e:
+            self.log_message(f"Errore durante l'aggiornamento della tabella pottery: {e}")
+
     def update_pottery_thesaurus(self):
         """Installa/aggiorna le voci thesaurus per la tabella Pottery"""
         self.log_message("Controllo voci thesaurus Pottery...")
@@ -507,16 +546,16 @@ class PostgresDbUpdater:
             import os
             from sqlalchemy import text
 
-            # Check if pottery thesaurus entries already exist
+            # Check if new decoration thesaurus entries exist (11.14, 11.15, 11.16)
             check_query = text("""
                 SELECT COUNT(*) FROM pyarchinit_thesaurus_sigle
-                WHERE nome_tabella = 'pottery_table' AND tipologia_sigla LIKE '11.%'
+                WHERE nome_tabella = 'Pottery' AND tipologia_sigla IN ('11.14', '11.15', '11.16')
             """)
             result = self.db_manager.engine.execute(check_query)
             count = result.fetchone()[0]
 
-            if count > 0:
-                self.log_message(f"Voci thesaurus Pottery già presenti ({count} voci)")
+            if count >= 30:  # Expected ~31 entries for decoration fields
+                self.log_message(f"Voci thesaurus Pottery decorazione già presenti ({count} voci)")
                 return
 
             # Path to pottery thesaurus SQL file
@@ -534,16 +573,22 @@ class PostgresDbUpdater:
             # Execute the SQL script - split by semicolons
             statements = thesaurus_sql.split(';')
             inserted_count = 0
-            for stmt in statements:
-                stmt = stmt.strip()
-                if stmt and not stmt.startswith('--') and 'INSERT' in stmt.upper():
-                    try:
-                        self.db_manager.engine.execute(text(stmt))
-                        inserted_count += 1
-                    except Exception as stmt_error:
-                        # Skip errors for duplicate entries
-                        if 'duplicate' not in str(stmt_error).lower() and 'conflict' not in str(stmt_error).lower():
-                            self.log_message(f"Warning inserendo voce thesaurus: {str(stmt_error)[:100]}")
+
+            # Use connection context for proper transaction handling
+            with self.db_manager.engine.connect() as conn:
+                for stmt in statements:
+                    stmt = stmt.strip()
+                    if stmt and not stmt.startswith('--') and 'INSERT' in stmt.upper():
+                        try:
+                            conn.execute(text(stmt))
+                            inserted_count += 1
+                        except Exception as stmt_error:
+                            # Skip errors for duplicate entries
+                            if 'duplicate' not in str(stmt_error).lower() and 'conflict' not in str(stmt_error).lower():
+                                self.log_message(f"Warning inserendo voce thesaurus: {str(stmt_error)[:100]}")
+
+                # Commit all inserts
+                conn.execute(text("COMMIT"))
 
             if inserted_count > 0:
                 self.log_message(f"Voci thesaurus Pottery installate ({inserted_count} voci)")

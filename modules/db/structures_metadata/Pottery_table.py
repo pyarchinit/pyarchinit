@@ -107,6 +107,12 @@ class PotteryTable:
                      # Excavation sector
                      Column('sector', Text),
 
+                     Column('decoration_type', Text),
+
+                     Column('decoration_motif', Text),
+
+                     Column('decoration_position', Text),
+
                      # Unique constraint ensuring the combination of site and ID number is unique
                      UniqueConstraint('sito', 'id_number', name='ID_rep_unico')
                      )
