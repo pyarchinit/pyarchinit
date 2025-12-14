@@ -5063,6 +5063,22 @@ Use well-structured paragraphs with headings for each section.
         )
         self.btn_prepare_dataset.clicked.connect(self.on_prepare_dataset_clicked)
         training_layout.addWidget(self.btn_prepare_dataset)
+
+        self.btn_export_khutm_model = QPushButton("Export Model")
+        self.btn_export_khutm_model.setToolTip(
+            "Export the trained KhutmML-CLIP model to a ZIP file.\n"
+            "Use this to backup or share your trained model."
+        )
+        self.btn_export_khutm_model.clicked.connect(self.on_export_khutm_model_clicked)
+        training_layout.addWidget(self.btn_export_khutm_model)
+
+        self.btn_import_khutm_model = QPushButton("Import Model")
+        self.btn_import_khutm_model.setToolTip(
+            "Import a KhutmML-CLIP model from a ZIP file.\n"
+            "Replaces the current trained model with the imported one."
+        )
+        self.btn_import_khutm_model.clicked.connect(self.on_import_khutm_model_clicked)
+        training_layout.addWidget(self.btn_import_khutm_model)
         similarity_layout.addLayout(training_layout)
 
         # Auto-update checkbox
@@ -5993,11 +6009,17 @@ Use well-structured paragraphs with headings for each section.
                 msg_parts.append("• DINOv2 scores typically 50-80%")
                 msg_parts.append("• Best for texture/surface patterns")
                 msg_parts.append("• Try 'Edge-enhance' for clearer features")
+            elif model_name == 'khutm_clip':
+                msg_parts.append("• KhutmML-CLIP is fine-tuned for archaeological pottery")
+                msg_parts.append("• Scores typically 55-90% for similar pottery")
+                msg_parts.append("• Use 'decoration' search for painted/incised patterns")
+                msg_parts.append("• Use 'shape' search for vessel forms")
+                msg_parts.append("• Re-index after adding new pottery images")
 
             # Check preprocessing options
             chk_auto = getattr(self, 'chk_auto_crop', None) and self.chk_auto_crop.isChecked()
             chk_edge = getattr(self, 'chk_edge_preproc', None) and self.chk_edge_preproc.isChecked()
-            if not chk_auto and not chk_edge and model_name in ['clip', 'dinov2']:
+            if not chk_auto and not chk_edge and model_name in ['clip', 'dinov2', 'khutm_clip']:
                 msg_parts.append("\n• Enable preprocessing options for better matching")
 
             QMessageBox.information(self, "No Results", ''.join(msg_parts))
@@ -6772,6 +6794,147 @@ Use well-structured paragraphs with headings for each section.
                 "and rebuild indexes to use your trained model.")
         else:
             QMessageBox.warning(self, "Training Failed", f"Training failed:\n{message}")
+
+    def on_export_khutm_model_clicked(self):
+        """Export the trained KhutmML-CLIP model to a ZIP file"""
+        import zipfile
+        from datetime import datetime
+
+        model_dir = os.path.expanduser('~/pyarchinit/bin/models/khutm_clip')
+
+        # Check if model exists
+        if not os.path.exists(model_dir):
+            QMessageBox.warning(self, "No Model Found",
+                "No trained KhutmML-CLIP model found.\n\n"
+                "Train a model first using the 'Train KhutmML' button.")
+            return
+
+        # Check for model files
+        model_files = []
+        for f in os.listdir(model_dir):
+            if f.endswith(('.pt', '.json', '.txt', '.pkl')):
+                model_files.append(f)
+
+        if not model_files:
+            QMessageBox.warning(self, "No Model Files",
+                f"No model files found in:\n{model_dir}\n\n"
+                "Train a model first using the 'Train KhutmML' button.")
+            return
+
+        # Ask for save location
+        default_name = f"khutm_clip_model_{datetime.now().strftime('%Y%m%d_%H%M%S')}.zip"
+        save_path, _ = QFileDialog.getSaveFileName(
+            self,
+            "Export KhutmML-CLIP Model",
+            os.path.join(os.path.expanduser('~'), default_name),
+            "ZIP Archive (*.zip)"
+        )
+
+        if not save_path:
+            return
+
+        try:
+            self.label_similarity_status.setText("Exporting model...")
+            QApplication.processEvents()
+
+            # Create ZIP file with model files
+            with zipfile.ZipFile(save_path, 'w', zipfile.ZIP_DEFLATED) as zf:
+                for f in model_files:
+                    file_path = os.path.join(model_dir, f)
+                    zf.write(file_path, f)
+
+                # Add a manifest with export info
+                manifest = {
+                    'export_date': datetime.now().isoformat(),
+                    'model_type': 'khutm_clip',
+                    'files': model_files
+                }
+                import json
+                zf.writestr('manifest.json', json.dumps(manifest, indent=2))
+
+            self.label_similarity_status.setText("Model exported successfully")
+            QMessageBox.information(self, "Export Complete",
+                f"KhutmML-CLIP model exported to:\n{save_path}\n\n"
+                f"Files included: {len(model_files)}")
+
+        except Exception as e:
+            self.label_similarity_status.setText("Export failed")
+            QMessageBox.critical(self, "Export Error", f"Failed to export model:\n{str(e)}")
+
+    def on_import_khutm_model_clicked(self):
+        """Import a KhutmML-CLIP model from a ZIP file"""
+        import zipfile
+        import shutil
+
+        model_dir = os.path.expanduser('~/pyarchinit/bin/models/khutm_clip')
+
+        # Ask for ZIP file
+        zip_path, _ = QFileDialog.getOpenFileName(
+            self,
+            "Import KhutmML-CLIP Model",
+            os.path.expanduser('~'),
+            "ZIP Archive (*.zip)"
+        )
+
+        if not zip_path:
+            return
+
+        # Confirm if model already exists
+        if os.path.exists(model_dir) and os.listdir(model_dir):
+            reply = QMessageBox.question(
+                self, "Confirm Import",
+                "A trained model already exists.\n\n"
+                "Do you want to replace it with the imported model?\n\n"
+                "(The existing model will be backed up)",
+                QMessageBox.Yes | QMessageBox.No,
+                QMessageBox.No
+            )
+            if reply != QMessageBox.Yes:
+                return
+
+        try:
+            self.label_similarity_status.setText("Importing model...")
+            QApplication.processEvents()
+
+            # Verify ZIP contains expected files
+            with zipfile.ZipFile(zip_path, 'r') as zf:
+                file_list = zf.namelist()
+
+                # Check for model files (at least one .pt file expected)
+                pt_files = [f for f in file_list if f.endswith('.pt')]
+                if not pt_files:
+                    QMessageBox.warning(self, "Invalid Model Archive",
+                        "The ZIP file does not contain valid model files (.pt).\n\n"
+                        "Please select a valid KhutmML-CLIP model archive.")
+                    self.label_similarity_status.setText("Import cancelled")
+                    return
+
+                # Backup existing model if present
+                if os.path.exists(model_dir) and os.listdir(model_dir):
+                    from datetime import datetime
+                    backup_dir = model_dir + f"_backup_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+                    shutil.move(model_dir, backup_dir)
+
+                # Create model directory
+                os.makedirs(model_dir, exist_ok=True)
+
+                # Extract files
+                for f in file_list:
+                    if f != 'manifest.json':  # Skip manifest
+                        zf.extract(f, model_dir)
+
+            self.label_similarity_status.setText("Model imported successfully")
+            QMessageBox.information(self, "Import Complete",
+                f"KhutmML-CLIP model imported successfully!\n\n"
+                f"Files imported: {len(pt_files)} model file(s)\n\n"
+                "You may need to rebuild the similarity indexes to use the new model.")
+
+        except zipfile.BadZipFile:
+            self.label_similarity_status.setText("Import failed")
+            QMessageBox.critical(self, "Import Error", "The selected file is not a valid ZIP archive.")
+        except Exception as e:
+            self.label_similarity_status.setText("Import failed")
+            QMessageBox.critical(self, "Import Error", f"Failed to import model:\n{str(e)}")
 
 
 class KhutmTrainingDialog(QDialog):
