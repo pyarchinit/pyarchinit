@@ -26,6 +26,12 @@ from .similarity_search import (
     PotterySimilaritySearchEngine,
     PotterySimilarityWorker
 )
+from .embedding_index_updater import (
+    EmbeddingIndexUpdater,
+    get_embedding_updater,
+    set_auto_update_enabled,
+    set_auto_update_models
+)
 
 __all__ = [
     'EmbeddingModel',
@@ -35,5 +41,9 @@ __all__ = [
     'get_available_models',
     'PotterySimilarityIndexManager',
     'PotterySimilaritySearchEngine',
-    'PotterySimilarityWorker'
+    'PotterySimilarityWorker',
+    'EmbeddingIndexUpdater',
+    'get_embedding_updater',
+    'set_auto_update_enabled',
+    'set_auto_update_models'
 ]

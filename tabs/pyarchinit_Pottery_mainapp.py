@@ -64,7 +64,9 @@ try:
     from ..modules.utility.pottery_similarity import (
         PotterySimilaritySearchEngine,
         PotterySimilarityWorker,
-        get_available_models
+        get_available_models,
+        get_embedding_updater,
+        set_auto_update_enabled
     )
     HAS_SIMILARITY_SEARCH = True
 except ImportError as e:
@@ -161,7 +163,8 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
     "Sector": "sector",
     "Decoration type": "decoration_type",
     "Decoration motif": "decoration_motif",
-    "Decoration position": "decoration_position"
+    "Decoration position": "decoration_position",
+    "Datazione": "datazione"
     }
 
     SORT_ITEMS = [
@@ -248,7 +251,8 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
                     "sector",
                     "decoration_type",
                     "decoration_motif",
-                    "decoration_position"
+                    "decoration_position",
+                    "datazione"
                     ]
     TABLE_FIELDS = [
                     "id_number",
@@ -284,7 +288,8 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
                     "sector",
                     "decoration_type",
                     "decoration_motif",
-                    "decoration_position"
+                    "decoration_position",
+                    "datazione"
                     ]
     LANG = {
         "IT": ['it_IT', 'IT', 'it', 'IT_IT', 'it_CH'],
@@ -931,6 +936,9 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
         # Setup Visual Similarity Search
         self.setup_similarity_search_ui()
 
+        # Setup Embedding Index Auto-Updater
+        self.setup_embedding_auto_updater()
+
         # Setup Filter Button for ID Number selection
         self.setup_filter_button()
 
@@ -1237,6 +1245,15 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
             self.insert_mediaToEntity_rec(rep_data[0], rep_data[1], rep_data[2], media_data[0].id_media,
                                           media_data[0].filepath, media_data[0].filename)
 
+            # Trigger automatic embedding index update
+            if hasattr(self, 'embedding_updater') and self.embedding_updater is not None:
+                try:
+                    pottery_id = rep_data[0]  # id_rep
+                    media_id = media_data[0].id_media
+                    self.embedding_updater.on_image_added(pottery_id, media_id)
+                except Exception as e:
+                    print(f"[Pottery] Error triggering embedding update on image add: {e}")
+
     def load_and_process_image(self, filepath):
         media_resize_suffix = ''
         media_thumb_suffix = ''
@@ -1392,6 +1409,34 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
         res = self.DB_MANAGER.query_bool(search_dict, self.table_class)
         return res
 
+    def _remove_image_tag_and_embedding(self, pottery_id, filename):
+        """
+        Helper method to remove image tag and trigger embedding removal.
+
+        Args:
+            pottery_id: The pottery record ID (id_rep)
+            filename: The original filename of the image
+        """
+        # Get media_id before removing the tag
+        media_id = None
+        try:
+            search_dict = {'filename': "'" + str(filename) + "'"}
+            media_data = self.DB_MANAGER.query_bool(search_dict, 'MEDIA')
+            if media_data:
+                media_id = media_data[0].id_media
+        except Exception as e:
+            print(f"[Pottery] Error getting media_id for embedding removal: {e}")
+
+        # Remove the tag from database
+        self.DB_MANAGER.remove_tags_from_db_sql_scheda(pottery_id, filename)
+
+        # Trigger embedding removal
+        if media_id is not None and hasattr(self, 'embedding_updater') and self.embedding_updater is not None:
+            try:
+                self.embedding_updater.on_image_removed(pottery_id, media_id)
+            except Exception as e:
+                print(f"[Pottery] Error triggering embedding removal: {e}")
+
     def on_pushButton_removetags_pressed(self):
         def r_id():
             record_rep_list = []
@@ -1442,11 +1487,12 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
                     QMessageBox.warning(self, "Messaggio!!!", "Azione Annullata!")
                 else:
                     # items_selected = self.iconListWidget.selectedItems()
+                    pottery_id = r_id()
                     for item in items_selected:
                         id_orig_item = item.text()  # return the name of original file
 
                         # s = self.iconListWidget.item(0, 0).text()
-                        self.DB_MANAGER.remove_tags_from_db_sql_scheda(r_id(), id_orig_item)
+                        self._remove_image_tag_and_embedding(pottery_id, id_orig_item)
                         row = self.iconListWidget.row(item)
                         self.iconListWidget.takeItem(row)
                     QMessageBox.warning(self, "Info", "Tags rimossi!")
@@ -1458,11 +1504,12 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
                     QMessageBox.warning(self, "Warnung", "Azione Annullata!")
                 else:
                     # items_selected = self.iconListWidget.selectedItems()
+                    pottery_id = r_id()
                     for item in items_selected:
                         id_orig_item = item.text()  # return the name of original file
 
                         # s = self.iconListWidget.item(0, 0).text()
-                        self.DB_MANAGER.remove_tags_from_db_sql_scheda(r_id(), id_orig_item)
+                        self._remove_image_tag_and_embedding(pottery_id, id_orig_item)
                         row = self.iconListWidget.row(item)
                         self.iconListWidget.takeItem(row)
                     QMessageBox.warning(self, "Info", "Tags entfernt")
@@ -1475,11 +1522,12 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
                     QMessageBox.warning(self, "Warning", "Action cancelled")
                 else:
                     # items_selected = self.iconListWidget.selectedItems()
+                    pottery_id = r_id()
                     for item in items_selected:
                         id_orig_item = item.text()  # return the name of original file
 
                         # s = self.iconListWidget.item(0, 0).text()
-                        self.DB_MANAGER.remove_tags_from_db_sql_scheda(r_id(), id_orig_item)
+                        self._remove_image_tag_and_embedding(pottery_id, id_orig_item)
                         row = self.iconListWidget.row(item)
                         self.iconListWidget.takeItem(row)  # remove the item from the list
 
@@ -1820,7 +1868,7 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
         global item
 
         def r_list():
-            us_list = []
+            result_list = []
 
             sito = self.comboBox_sito.currentText()
             area = self.comboBox_area.currentText()
@@ -1833,13 +1881,12 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
                 'area': "'" + str(area) + "'",
                 'us': "'" + str(us) + "'",
             }
-            j = self.DB_MANAGER.query_bool(search_dict, 'POTTERY')
-            us_list.append(j)
+            pottery_records = self.DB_MANAGER.query_bool(search_dict, 'POTTERY')
 
-            for r in us_list:
-                us_list.append([r[0].id_rep, 'CERAMICA', 'pottery_table'])
-            # QMessageBox.information(self, "Scheda US", str(us_list), QMessageBox.Ok)
-            return us_list
+            for pottery in pottery_records:
+                result_list.append([pottery.id_rep, 'CERAMICA', 'pottery_table'])
+            # QMessageBox.information(self, "Scheda US", str(result_list), QMessageBox.Ok)
+            return result_list
 
         items_selected = self.new_list_widget.selectedItems()
         for item in items_selected:
@@ -2590,6 +2637,27 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
         if decoration_position_vl:
             self.comboBox_decoration_position.addItems(decoration_position_vl)
 
+        # Load datazione from periodizzazione_table
+        self.load_datazione_list()
+
+    def load_datazione_list(self):
+        """Load datazione_estesa values from periodizzazione_table for current sito"""
+        try:
+            self.comboBox_datazione.clear()
+            sito = str(self.comboBox_sito.currentText())
+            if sito:
+                search_dict = {'sito': "'" + sito + "'"}
+                datazione_list_vl = self.DB_MANAGER.query_bool(search_dict, 'PERIODIZZAZIONE')
+                datazione_list = []
+                for item in datazione_list_vl:
+                    if item.datazione_estesa and str(item.datazione_estesa).strip():
+                        datazione_list.append(str(item.datazione_estesa))
+                if datazione_list:
+                    datazione_list = list(set(datazione_list))  # Remove duplicates
+                    datazione_list.sort()
+                    self.comboBox_datazione.addItems(datazione_list)
+        except Exception as e:
+            pass  # Silently fail if periodizzazione_table doesn't exist
 
     def on_toolButtonPreview_toggled(self):
         if self.L=='it':
@@ -2911,6 +2979,7 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
                     str(self.comboBox_decoration_type.currentText()),
                     str(self.comboBox_decoration_motif.currentText()),
                     str(self.comboBox_decoration_position.currentText()),
+                    str(self.comboBox_datazione.currentText()),
                     )							#25 - struttura
                                                     #28 - documentazione
             try:
@@ -3306,6 +3375,7 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
             self.TABLE_FIELDS[31]: "'" + str(self.comboBox_decoration_type.currentText()) + "'",
             self.TABLE_FIELDS[32]: "'" + str(self.comboBox_decoration_motif.currentText()) + "'",
             self.TABLE_FIELDS[33]: "'" + str(self.comboBox_decoration_position.currentText()) + "'",
+            self.TABLE_FIELDS[34]: "'" + str(self.comboBox_datazione.currentText()) + "'",
             }
             u = Utility()
             search_dict = u.remove_empty_items_fr_dict(search_dict)
@@ -3557,6 +3627,7 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
         self.comboBox_decoration_type.setEditText("")
         self.comboBox_decoration_motif.setEditText("")
         self.comboBox_decoration_position.setEditText("")
+        self.comboBox_datazione.setEditText("")
         #for i in range(rif_biblio_row_count):
             #self.tableWidget_rif_biblio.removeRow(0)
         #self.insert_new_row("self.tableWidget_rif_biblio")
@@ -3597,6 +3668,7 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
         self.comboBox_decoration_type.setEditText("")
         self.comboBox_decoration_motif.setEditText("")
         self.comboBox_decoration_position.setEditText("")
+        self.comboBox_datazione.setEditText("")
         #for i in range(rif_biblio_row_count):
             #self.tableWidget_rif_biblio.removeRow(0)
         #self.insert_new_row("self.tableWidget_rif_biblio")
@@ -3690,6 +3762,12 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
 
 
             str(self.comboBox_decoration_position.setEditText(self.DATA_LIST[self.rec_num].decoration_position))
+
+            # Datazione field
+            if self.DATA_LIST[self.rec_num].datazione:
+                self.comboBox_datazione.setEditText(str(self.DATA_LIST[self.rec_num].datazione))
+            else:
+                self.comboBox_datazione.setEditText("")
 
             if self.toolButtonPreviewMedia.isChecked() == False:
                 self.loadMediaPreview()
@@ -3821,6 +3899,7 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
         str(self.comboBox_decoration_type.currentText()),
         str(self.comboBox_decoration_motif.currentText()),
         str(self.comboBox_decoration_position.currentText()),
+        str(self.comboBox_datazione.currentText()),
         ]
 
     def set_LIST_REC_CORR(self):
@@ -4812,7 +4891,12 @@ Use well-structured paragraphs with headings for each section.
         model_layout = QHBoxLayout()
         model_layout.addWidget(QLabel("Model:"))
         self.combo_similarity_model = QComboBox()
-        self.combo_similarity_model.addItems(['CLIP (Local)', 'DINOv2 (Local)', 'OpenAI (Cloud)'])
+        self.combo_similarity_model.addItems([
+            'CLIP (Local)',
+            'DINOv2 (Local)',
+            'OpenAI (Cloud)',
+            'KhutmML-CLIP (Fine-tuned)'
+        ])
         self.combo_similarity_model.setToolTip("Select embedding model for similarity search")
         model_layout.addWidget(self.combo_similarity_model)
         similarity_layout.addLayout(model_layout)
@@ -4919,23 +5003,34 @@ Use well-structured paragraphs with headings for each section.
         segment_layout.addWidget(self.chk_remove_background)
         similarity_layout.addLayout(segment_layout)
 
-        # Buttons - Row 1
+        # Buttons - Row 1 (Search)
         buttons_layout = QHBoxLayout()
         self.btn_find_similar = QPushButton("Find Similar")
         self.btn_find_similar.setToolTip("Find pottery visually similar to current record")
         self.btn_find_similar.clicked.connect(self.on_find_similar_clicked)
         buttons_layout.addWidget(self.btn_find_similar)
 
+        self.btn_compare_external = QPushButton("Compare External Image")
+        self.btn_compare_external.setToolTip(
+            "Compare an external image (not in database) against the pottery index.\n"
+            "Useful for identifying unknown pottery fragments by visual similarity."
+        )
+        self.btn_compare_external.clicked.connect(self.on_compare_external_clicked)
+        buttons_layout.addWidget(self.btn_compare_external)
+        similarity_layout.addLayout(buttons_layout)
+
+        # Buttons - Row 2 (Index management)
+        index_buttons_layout = QHBoxLayout()
         self.btn_build_index = QPushButton("Build Index")
         self.btn_build_index.setToolTip("Build/rebuild similarity index for selected model (from scratch)")
         self.btn_build_index.clicked.connect(self.on_build_index_clicked)
-        buttons_layout.addWidget(self.btn_build_index)
+        index_buttons_layout.addWidget(self.btn_build_index)
 
         self.btn_update_index = QPushButton("Update Index")
         self.btn_update_index.setToolTip("Update existing indexes: add new, update modified, remove deleted images")
         self.btn_update_index.clicked.connect(self.on_update_index_clicked)
-        buttons_layout.addWidget(self.btn_update_index)
-        similarity_layout.addLayout(buttons_layout)
+        index_buttons_layout.addWidget(self.btn_update_index)
+        similarity_layout.addLayout(index_buttons_layout)
 
         # Buttons - Row 2 (Import/Export)
         io_layout = QHBoxLayout()
@@ -4949,6 +5044,68 @@ Use well-structured paragraphs with headings for each section.
         self.btn_import_index.clicked.connect(self.on_import_indexes_clicked)
         io_layout.addWidget(self.btn_import_index)
         similarity_layout.addLayout(io_layout)
+
+        # Buttons - Row 4 (Training KhutmML)
+        training_layout = QHBoxLayout()
+        self.btn_train_khutm = QPushButton("Train KhutmML")
+        self.btn_train_khutm.setToolTip(
+            "Fine-tune the KhutmML-CLIP model on your pottery dataset.\n"
+            "This creates a specialized model for your archaeological collection,\n"
+            "improving similarity search accuracy."
+        )
+        self.btn_train_khutm.clicked.connect(self.on_train_khutm_clicked)
+        training_layout.addWidget(self.btn_train_khutm)
+
+        self.btn_prepare_dataset = QPushButton("Prepare Dataset")
+        self.btn_prepare_dataset.setToolTip(
+            "Prepare a training dataset from existing pottery images.\n"
+            "Organizes images by type and creates positive/negative pairs."
+        )
+        self.btn_prepare_dataset.clicked.connect(self.on_prepare_dataset_clicked)
+        training_layout.addWidget(self.btn_prepare_dataset)
+        similarity_layout.addLayout(training_layout)
+
+        # Auto-update checkbox
+        auto_update_layout = QHBoxLayout()
+        self.checkbox_auto_update = QCheckBox("Auto-update index when images are added/removed")
+        self.checkbox_auto_update.setToolTip(
+            "Automatically update CLIP embedding index when pottery images are added or removed.\n"
+            "This keeps the similarity search index up-to-date without manual rebuild."
+        )
+        # Load saved state from settings
+        s = QSettings()
+        auto_update_enabled = s.value('pyArchInit/pottery_similarity_auto_update', True, type=bool)
+        self.checkbox_auto_update.setChecked(auto_update_enabled)
+        self.checkbox_auto_update.stateChanged.connect(self.on_auto_update_changed)
+        auto_update_layout.addWidget(self.checkbox_auto_update)
+        similarity_layout.addLayout(auto_update_layout)
+
+        # Drop zone for external images
+        self.drop_zone_frame = QFrame()
+        self.drop_zone_frame.setFrameStyle(QFrame.StyledPanel | QFrame.Sunken)
+        self.drop_zone_frame.setAcceptDrops(True)
+        self.drop_zone_frame.setMinimumHeight(60)
+        self.drop_zone_frame.setStyleSheet("""
+            QFrame {
+                border: 2px dashed #aaa;
+                border-radius: 5px;
+                background-color: #f5f5f5;
+            }
+            QFrame:hover {
+                border-color: #666;
+                background-color: #e8e8e8;
+            }
+        """)
+        drop_zone_layout = QVBoxLayout(self.drop_zone_frame)
+        self.drop_zone_label = QLabel("Drop image here to compare\nor click 'Compare External Image'")
+        self.drop_zone_label.setAlignment(Qt.AlignCenter)
+        self.drop_zone_label.setStyleSheet("color: #666; border: none; background: transparent;")
+        drop_zone_layout.addWidget(self.drop_zone_label)
+
+        # Install event filter for drag & drop
+        self.drop_zone_frame.installEventFilter(self)
+
+        similarity_layout.addWidget(self.drop_zone_frame)
 
         # Status label
         self.label_similarity_status = QLabel("Ready")
@@ -4978,6 +5135,476 @@ Use well-structured paragraphs with headings for each section.
             # For now, we'll add it to the main layout if possible
             pass
 
+    def setup_embedding_auto_updater(self):
+        """Setup the automatic embedding index updater"""
+        if not HAS_SIMILARITY_SEARCH:
+            self.embedding_updater = None
+            return
+
+        try:
+            # Get the singleton embedding updater and set up DB manager
+            self.embedding_updater = get_embedding_updater(self.DB_MANAGER)
+
+            # Read auto-update setting from QGIS settings
+            s = QSettings()
+            auto_update_enabled = s.value('pyArchInit/pottery_similarity_auto_update', True, type=bool)
+            self.embedding_updater.set_enabled(auto_update_enabled)
+
+            # Connect signals for status updates
+            if hasattr(self.embedding_updater, 'embedding_added'):
+                self.embedding_updater.embedding_added.connect(self.on_embedding_added)
+            if hasattr(self.embedding_updater, 'embedding_removed'):
+                self.embedding_updater.embedding_removed.connect(self.on_embedding_removed)
+            if hasattr(self.embedding_updater, 'embedding_error'):
+                self.embedding_updater.embedding_error.connect(self.on_embedding_error)
+
+            print(f"[Pottery] Embedding auto-updater initialized (enabled={auto_update_enabled})")
+
+        except Exception as e:
+            print(f"[Pottery] Error setting up embedding auto-updater: {e}")
+            self.embedding_updater = None
+
+    def on_embedding_added(self, pottery_id, media_id, model):
+        """Callback when embedding is added to index"""
+        print(f"[Pottery] Embedding added: pottery={pottery_id}, media={media_id}, model={model}")
+        # Update status in similarity panel if available
+        if hasattr(self, 'label_similarity_status'):
+            self.label_similarity_status.setText(f"Index updated (+1 {model})")
+
+    def on_embedding_removed(self, pottery_id, media_id, model):
+        """Callback when embedding is removed from index"""
+        print(f"[Pottery] Embedding removed: pottery={pottery_id}, media={media_id}, model={model}")
+        if hasattr(self, 'label_similarity_status'):
+            self.label_similarity_status.setText(f"Index updated (-1 {model})")
+
+    def on_embedding_error(self, error_msg):
+        """Callback when embedding operation fails"""
+        print(f"[Pottery] Embedding error: {error_msg}")
+
+    def on_auto_update_changed(self, state):
+        """Handle checkbox state change for auto-update setting"""
+        enabled = state == Qt.Checked
+        # Save to settings
+        s = QSettings()
+        s.setValue('pyArchInit/pottery_similarity_auto_update', enabled)
+
+        # Update the embedding updater
+        if hasattr(self, 'embedding_updater') and self.embedding_updater is not None:
+            self.embedding_updater.set_enabled(enabled)
+
+        # Update status label
+        if hasattr(self, 'label_similarity_status'):
+            status = "Auto-update enabled" if enabled else "Auto-update disabled"
+            self.label_similarity_status.setText(status)
+
+        print(f"[Pottery] Auto-update index {'enabled' if enabled else 'disabled'}")
+
+    def eventFilter(self, obj, event):
+        """Handle drag & drop events for external image comparison"""
+        if obj == getattr(self, 'drop_zone_frame', None):
+            if event.type() == QEvent.DragEnter:
+                if event.mimeData().hasUrls():
+                    # Check if any URL is an image
+                    for url in event.mimeData().urls():
+                        file_path = url.toLocalFile()
+                        if file_path.lower().endswith(('.jpg', '.jpeg', '.png', '.tif', '.tiff', '.bmp')):
+                            event.acceptProposedAction()
+                            # Visual feedback
+                            self.drop_zone_frame.setStyleSheet("""
+                                QFrame {
+                                    border: 2px dashed #4CAF50;
+                                    border-radius: 5px;
+                                    background-color: #e8f5e9;
+                                }
+                            """)
+                            return True
+                return False
+
+            elif event.type() == QEvent.DragLeave:
+                # Reset visual feedback
+                self.drop_zone_frame.setStyleSheet("""
+                    QFrame {
+                        border: 2px dashed #aaa;
+                        border-radius: 5px;
+                        background-color: #f5f5f5;
+                    }
+                    QFrame:hover {
+                        border-color: #666;
+                        background-color: #e8e8e8;
+                    }
+                """)
+                return True
+
+            elif event.type() == QEvent.Drop:
+                # Reset visual feedback
+                self.drop_zone_frame.setStyleSheet("""
+                    QFrame {
+                        border: 2px dashed #aaa;
+                        border-radius: 5px;
+                        background-color: #f5f5f5;
+                    }
+                    QFrame:hover {
+                        border-color: #666;
+                        background-color: #e8e8e8;
+                    }
+                """)
+
+                # Get dropped file
+                if event.mimeData().hasUrls():
+                    for url in event.mimeData().urls():
+                        file_path = url.toLocalFile()
+                        if file_path.lower().endswith(('.jpg', '.jpeg', '.png', '.tif', '.tiff', '.bmp')):
+                            self._compare_external_image(file_path)
+                            return True
+                return False
+
+        return super().eventFilter(obj, event)
+
+    def on_compare_external_clicked(self):
+        """Handle compare external image button click - opens file dialog"""
+        # Open file dialog
+        file_path, _ = QFileDialog.getOpenFileName(
+            self,
+            "Select Image to Compare",
+            "",
+            "Images (*.jpg *.jpeg *.png *.tif *.tiff *.bmp);;All Files (*)"
+        )
+
+        if file_path:
+            self._compare_external_image(file_path)
+
+    def _compare_external_image(self, image_path: str):
+        """
+        Compare an external image against the pottery index.
+
+        Args:
+            image_path: Full path to the external image file
+        """
+        if not os.path.exists(image_path):
+            QMessageBox.warning(self, "Error", f"Image file not found:\n{image_path}")
+            return
+
+        if not HAS_SIMILARITY_SEARCH:
+            QMessageBox.warning(self, "Error", "Similarity search module not available")
+            return
+
+        # Initialize engine if needed
+        if self.similarity_engine is None:
+            self.similarity_engine = PotterySimilaritySearchEngine(self.DB_MANAGER)
+
+        # Get search parameters
+        model_name = self.get_similarity_model_name()
+        search_type = self.get_similarity_search_type()
+        threshold = self.slider_similarity_threshold.value() / 100.0
+
+        # Get preprocessing options
+        auto_crop = getattr(self, 'chk_auto_crop', None) and self.chk_auto_crop.isChecked()
+        edge_preproc = getattr(self, 'chk_edge_preproc', None) and self.chk_edge_preproc.isChecked()
+        segment_decoration = getattr(self, 'chk_segment_decoration', None) and self.chk_segment_decoration.isChecked()
+        remove_background = getattr(self, 'chk_remove_background', None) and self.chk_remove_background.isChecked()
+
+        # Update status
+        self.label_similarity_status.setText(f"Comparing external image with {model_name}...")
+        self.drop_zone_label.setText(f"Analyzing: {os.path.basename(image_path)}")
+
+        # Store external image path for results dialog
+        self._external_image_path = image_path
+
+        # Create and start worker
+        self.similarity_worker = PotterySimilarityWorker(
+            self.similarity_engine,
+            'search',
+            image_path=image_path,
+            model_name=model_name,
+            search_type=search_type,
+            threshold=threshold,
+            auto_crop=auto_crop,
+            edge_preprocessing=edge_preproc,
+            segment_decoration=segment_decoration,
+            remove_background=remove_background,
+            exclude_pottery_id=None  # No exclusion for external images
+        )
+
+        self.similarity_worker.search_complete.connect(self.on_external_search_complete)
+        self.similarity_worker.search_complete_with_meta.connect(self.on_external_search_complete_with_meta)
+        self.similarity_worker.error_occurred.connect(self.on_similarity_error)
+        self.similarity_worker.start()
+
+    def on_external_search_complete(self, results):
+        """Handle completion of external image search"""
+        self.on_external_search_complete_with_meta(results, {})
+
+    def on_external_search_complete_with_meta(self, results, meta):
+        """Handle completion of external image search with metadata"""
+        # Reset drop zone
+        self.drop_zone_label.setText("Drop image here to compare\nor click 'Compare External Image'")
+
+        threshold = self.slider_similarity_threshold.value()
+        model_name = self.get_similarity_model_name()
+
+        if not results:
+            self.label_similarity_status.setText("No similar pottery found")
+            # Show info about top scores if available
+            top_scores = meta.get('top_scores', [])
+            if top_scores:
+                msg = f"No matches found above {threshold}% threshold.\n\n"
+                msg += f"Best available scores: {', '.join([f'{s:.1f}%' for s in top_scores[:3]])}\n\n"
+                msg += "Try lowering the threshold slider to see more results."
+                QMessageBox.information(self, "No Matches", msg)
+            else:
+                QMessageBox.information(self, "No Matches",
+                    f"No similar pottery found above {threshold}% threshold.\n"
+                    "The index may be empty - try building the index first.")
+            return
+
+        self.label_similarity_status.setText(f"Found {len(results)} similar items")
+
+        # Show results dialog with external image info
+        self.show_external_results_dialog(results)
+
+    def show_external_results_dialog(self, results):
+        """
+        Show similarity search results for external image with datazione info.
+
+        Args:
+            results: List of match results
+        """
+        dialog = QDialog(self)
+        dialog.setWindowTitle("External Image Comparison Results")
+        dialog.setMinimumSize(900, 700)
+
+        layout = QVBoxLayout(dialog)
+
+        # Header with external image info
+        header_layout = QHBoxLayout()
+
+        # Show external image thumbnail if available
+        external_path = getattr(self, '_external_image_path', None)
+        if external_path and os.path.exists(external_path):
+            thumb_label = QLabel()
+            pixmap = QPixmap(external_path)
+            if not pixmap.isNull():
+                thumb_label.setPixmap(pixmap.scaled(100, 100, Qt.KeepAspectRatio, Qt.SmoothTransformation))
+                header_layout.addWidget(thumb_label)
+
+        header_text = QLabel(f"<b>External Image:</b> {os.path.basename(external_path) if external_path else 'Unknown'}<br>"
+                            f"<b>Found:</b> {len(results)} similar pottery")
+        header_text.setTextFormat(Qt.RichText)
+        header_layout.addWidget(header_text)
+        header_layout.addStretch()
+        layout.addLayout(header_layout)
+
+        # Separator
+        line = QFrame()
+        line.setFrameShape(QFrame.HLine)
+        line.setFrameShadow(QFrame.Sunken)
+        layout.addWidget(line)
+
+        # Results table
+        table = QTableWidget()
+        table.setColumnCount(9)
+        table.setHorizontalHeaderLabels([
+            "Similarity", "ID", "Sito", "Area", "US", "Form", "Decoration", "Datazione", "Image"
+        ])
+        table.setRowCount(len(results))
+        table.setSelectionBehavior(QAbstractItemView.SelectRows)
+        table.setAlternatingRowColors(True)
+
+        # Column widths
+        table.setColumnWidth(0, 80)   # Similarity
+        table.setColumnWidth(1, 60)   # ID
+        table.setColumnWidth(2, 100)  # Sito
+        table.setColumnWidth(3, 50)   # Area
+        table.setColumnWidth(4, 50)   # US
+        table.setColumnWidth(5, 100)  # Form
+        table.setColumnWidth(6, 120)  # Decoration
+        table.setColumnWidth(7, 150)  # Datazione
+        table.setColumnWidth(8, 80)   # Image
+
+        for row, result in enumerate(results):
+            pottery_data = result.get('pottery_data', {})
+
+            # Similarity percentage
+            sim_percent = result.get('similarity_percent', result.get('similarity', 0) * 100)
+            sim_item = QTableWidgetItem(f"{sim_percent:.1f}%")
+            sim_item.setTextAlignment(Qt.AlignCenter)
+            # Color code similarity
+            if sim_percent >= 80:
+                sim_item.setBackground(QColor(200, 255, 200))  # Green
+            elif sim_percent >= 60:
+                sim_item.setBackground(QColor(255, 255, 200))  # Yellow
+            else:
+                sim_item.setBackground(QColor(255, 220, 220))  # Red
+            table.setItem(row, 0, sim_item)
+
+            # ID
+            id_number = pottery_data.get('id_number', str(result.get('pottery_id', '')))
+            table.setItem(row, 1, QTableWidgetItem(str(id_number)))
+
+            # Sito
+            table.setItem(row, 2, QTableWidgetItem(str(pottery_data.get('sito', ''))))
+
+            # Area
+            table.setItem(row, 3, QTableWidgetItem(str(pottery_data.get('area', ''))))
+
+            # US
+            table.setItem(row, 4, QTableWidgetItem(str(pottery_data.get('us', ''))))
+
+            # Form
+            form = pottery_data.get('form', '')
+            specific_form = pottery_data.get('specific_form', '')
+            form_text = f"{form} - {specific_form}" if form and specific_form else (form or specific_form)
+            table.setItem(row, 5, QTableWidgetItem(str(form_text)))
+
+            # Decoration
+            exdeco = pottery_data.get('exdeco', '')
+            intdeco = pottery_data.get('intdeco', '')
+            deco_text = f"Ext: {exdeco}" if exdeco else ""
+            if intdeco:
+                deco_text += f" Int: {intdeco}" if deco_text else f"Int: {intdeco}"
+            table.setItem(row, 6, QTableWidgetItem(str(deco_text)))
+
+            # Datazione - from pottery record
+            datazione = ''
+            pottery_id = result.get('pottery_id')
+            if pottery_id and self.DB_MANAGER:
+                try:
+                    pottery_rec = self.DB_MANAGER.get_pottery_by_id_rep(pottery_id)
+                    if pottery_rec and hasattr(pottery_rec, 'datazione'):
+                        datazione = pottery_rec.datazione or ''
+                except:
+                    pass
+            datazione_item = QTableWidgetItem(str(datazione))
+            datazione_item.setToolTip("Chronological dating from periodizzazione")
+            if datazione:
+                datazione_item.setBackground(QColor(230, 230, 255))  # Light blue for dated items
+            table.setItem(row, 7, datazione_item)
+
+            # Image button
+            img_btn = QPushButton("View")
+            img_btn.setProperty('pottery_id', result.get('pottery_id'))
+            img_btn.setProperty('image_path', result.get('image_path', ''))
+            img_btn.clicked.connect(lambda checked, r=result: self._show_result_image(r))
+            table.setCellWidget(row, 8, img_btn)
+
+        layout.addWidget(table)
+
+        # Summary statistics
+        stats_layout = QHBoxLayout()
+
+        # Count by datazione
+        datazioni = {}
+        for result in results:
+            pottery_id = result.get('pottery_id')
+            if pottery_id and self.DB_MANAGER:
+                try:
+                    pottery_rec = self.DB_MANAGER.get_pottery_by_id_rep(pottery_id)
+                    if pottery_rec and hasattr(pottery_rec, 'datazione') and pottery_rec.datazione:
+                        dat = pottery_rec.datazione
+                        datazioni[dat] = datazioni.get(dat, 0) + 1
+                except:
+                    pass
+
+        if datazioni:
+            stats_text = "<b>Datazione summary:</b> "
+            sorted_dat = sorted(datazioni.items(), key=lambda x: -x[1])
+            stats_text += ", ".join([f"{d}: {c}" for d, c in sorted_dat[:5]])
+            stats_label = QLabel(stats_text)
+            stats_label.setTextFormat(Qt.RichText)
+            stats_layout.addWidget(stats_label)
+
+        stats_layout.addStretch()
+        layout.addLayout(stats_layout)
+
+        # Buttons
+        button_layout = QHBoxLayout()
+        button_layout.addStretch()
+
+        btn_go_to = QPushButton("Go to Selected")
+        btn_go_to.setToolTip("Navigate to the selected pottery record")
+        btn_go_to.clicked.connect(lambda: self._go_to_result_from_table(table, dialog))
+        button_layout.addWidget(btn_go_to)
+
+        btn_close = QPushButton("Close")
+        btn_close.clicked.connect(dialog.close)
+        button_layout.addWidget(btn_close)
+
+        layout.addLayout(button_layout)
+
+        dialog.exec_()
+
+    def _show_result_image(self, result):
+        """Show the matched image in a popup"""
+        image_path = result.get('image_path', '')
+        if not image_path or not os.path.exists(image_path):
+            # Try to get from relative path
+            relative_path = result.get('relative_path', '')
+            if relative_path and self.similarity_engine:
+                image_path = self.similarity_engine._build_image_path(relative_path)
+
+        if image_path and os.path.exists(image_path):
+            dialog = QDialog(self)
+            dialog.setWindowTitle(f"Match - {result.get('similarity_percent', 0):.1f}%")
+            layout = QVBoxLayout(dialog)
+
+            label = QLabel()
+            pixmap = QPixmap(image_path)
+            if not pixmap.isNull():
+                # Scale to reasonable size
+                scaled = pixmap.scaled(600, 600, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+                label.setPixmap(scaled)
+            else:
+                label.setText("Could not load image")
+
+            layout.addWidget(label)
+            dialog.exec_()
+        else:
+            QMessageBox.warning(self, "Image Not Found",
+                f"Could not find image file:\n{image_path or 'No path available'}")
+
+    def _go_to_result_from_table(self, table, dialog):
+        """Navigate to selected result from table"""
+        selected = table.selectedItems()
+        if not selected:
+            QMessageBox.warning(self, "No Selection", "Please select a row first")
+            return
+
+        row = selected[0].row()
+        # Get pottery_id from the View button in that row
+        btn = table.cellWidget(row, 8)
+        if btn:
+            pottery_id = btn.property('pottery_id')
+            if pottery_id:
+                dialog.close()
+                self._navigate_to_pottery(pottery_id)
+
+    def _navigate_to_pottery(self, pottery_id):
+        """Navigate to a specific pottery record by id_rep"""
+        try:
+            # Find the record in DATA_LIST
+            for i, record in enumerate(self.DATA_LIST):
+                if record.id_rep == pottery_id:
+                    self.rec_num = i
+                    self.fill_fields()
+                    self.set_rec_counter(len(self.DATA_LIST), self.rec_num + 1)
+                    return
+
+            # If not found in current list, search database
+            search_dict = {'id_rep': pottery_id}
+            results = self.DB_MANAGER.query_bool(search_dict, 'POTTERY')
+            if results:
+                pottery = results[0]
+                # Re-search to get full data
+                self.empty_fields()
+                search_dict = {
+                    'sito': "'" + pottery.sito + "'",
+                    'id_number': "'" + str(pottery.id_number) + "'"
+                }
+                self.search_rec(search_dict)
+
+        except Exception as e:
+            QMessageBox.warning(self, "Error", f"Could not navigate to record: {e}")
+
     def on_threshold_changed(self, value):
         """Update threshold label when slider changes"""
         self.label_threshold_value.setText(f"{value}%")
@@ -4995,7 +5622,9 @@ Use well-structured paragraphs with headings for each section.
     def get_similarity_model_name(self):
         """Get model name from combo box selection"""
         text = self.combo_similarity_model.currentText()
-        if 'CLIP' in text:
+        if 'KhutmML' in text or 'Fine-tuned' in text:
+            return 'khutm_clip'
+        elif 'CLIP' in text:
             return 'clip'
         elif 'DINOv2' in text:
             return 'dinov2'
@@ -6122,6 +6751,672 @@ Use well-structured paragraphs with headings for each section.
         self.progress_similarity.setVisible(False)
         self.label_similarity_status.setText(message)
         QMessageBox.information(self, "Update Complete", message)
+
+    def on_train_khutm_clicked(self):
+        """Open training dialog for KhutmML-CLIP model"""
+        dialog = KhutmTrainingDialog(self.DB_MANAGER, self)
+        dialog.training_complete.connect(self.on_khutm_training_complete)
+        dialog.exec_()
+
+    def on_prepare_dataset_clicked(self):
+        """Prepare dataset for KhutmML training"""
+        dialog = DatasetPreparationDialog(self.DB_MANAGER, self)
+        dialog.exec_()
+
+    def on_khutm_training_complete(self, success, message):
+        """Handle training completion"""
+        if success:
+            QMessageBox.information(self, "Training Complete",
+                f"KhutmML-CLIP training completed successfully!\n\n{message}\n\n"
+                "You can now select 'KhutmML-CLIP (Fine-tuned)' in the model selector "
+                "and rebuild indexes to use your trained model.")
+        else:
+            QMessageBox.warning(self, "Training Failed", f"Training failed:\n{message}")
+
+
+class KhutmTrainingDialog(QDialog):
+    """Dialog for fine-tuning the KhutmML-CLIP model"""
+    training_complete = pyqtSignal(bool, str)  # success, message
+
+    def __init__(self, db_manager, parent=None):
+        super().__init__(parent)
+        self.db_manager = db_manager
+        self.training_process = None
+        self.training_output = ""
+        self.initUI()
+
+    def initUI(self):
+        self.setWindowTitle("Train KhutmML-CLIP Model")
+        self.setMinimumSize(600, 500)
+
+        layout = QVBoxLayout(self)
+
+        # Header
+        header_label = QLabel(
+            "<h3>Fine-tune CLIP on Your Pottery Dataset</h3>"
+            "<p>Train a specialized model that better recognizes your archaeological pottery.</p>"
+        )
+        header_label.setWordWrap(True)
+        layout.addWidget(header_label)
+
+        # Data source selection
+        source_group = QGroupBox("Training Data Source")
+        source_layout = QVBoxLayout()
+
+        self.radio_database = QRadioButton("Use pottery images from database")
+        self.radio_database.setChecked(True)
+        self.radio_database.setToolTip("Uses all pottery images linked in the database for training")
+        source_layout.addWidget(self.radio_database)
+
+        self.radio_folder = QRadioButton("Use images from folder")
+        self.radio_folder.setToolTip("Select a folder with pottery images organized by category")
+        source_layout.addWidget(self.radio_folder)
+
+        folder_layout = QHBoxLayout()
+        self.lineEdit_folder = QLineEdit()
+        self.lineEdit_folder.setEnabled(False)
+        self.lineEdit_folder.setPlaceholderText("Select folder with images...")
+        folder_layout.addWidget(self.lineEdit_folder)
+        self.btn_browse_folder = QPushButton("Browse...")
+        self.btn_browse_folder.setEnabled(False)
+        self.btn_browse_folder.clicked.connect(self.browse_training_folder)
+        folder_layout.addWidget(self.btn_browse_folder)
+        source_layout.addLayout(folder_layout)
+
+        self.radio_folder.toggled.connect(lambda checked: self.lineEdit_folder.setEnabled(checked))
+        self.radio_folder.toggled.connect(lambda checked: self.btn_browse_folder.setEnabled(checked))
+
+        source_group.setLayout(source_layout)
+        layout.addWidget(source_group)
+
+        # Training parameters
+        params_group = QGroupBox("Training Parameters")
+        params_layout = QGridLayout()
+
+        params_layout.addWidget(QLabel("Epochs:"), 0, 0)
+        self.spinBox_epochs = QSpinBox()
+        self.spinBox_epochs.setRange(1, 100)
+        self.spinBox_epochs.setValue(10)
+        self.spinBox_epochs.setToolTip("Number of training epochs (more = longer but potentially better)")
+        params_layout.addWidget(self.spinBox_epochs, 0, 1)
+
+        params_layout.addWidget(QLabel("Batch Size:"), 0, 2)
+        self.spinBox_batch = QSpinBox()
+        self.spinBox_batch.setRange(4, 64)
+        self.spinBox_batch.setValue(16)
+        self.spinBox_batch.setToolTip("Batch size (lower = less memory, higher = faster training)")
+        params_layout.addWidget(self.spinBox_batch, 0, 3)
+
+        params_layout.addWidget(QLabel("Learning Rate:"), 1, 0)
+        self.comboBox_lr = QComboBox()
+        self.comboBox_lr.addItems(['1e-3', '1e-4', '1e-5', '5e-5'])
+        self.comboBox_lr.setCurrentIndex(1)  # Default 1e-4
+        self.comboBox_lr.setToolTip("Learning rate (smaller = safer, larger = faster)")
+        params_layout.addWidget(self.comboBox_lr, 1, 1)
+
+        params_layout.addWidget(QLabel("Min images per class:"), 1, 2)
+        self.spinBox_min_images = QSpinBox()
+        self.spinBox_min_images.setRange(2, 50)
+        self.spinBox_min_images.setValue(5)
+        self.spinBox_min_images.setToolTip("Minimum images required per pottery type for training")
+        params_layout.addWidget(self.spinBox_min_images, 1, 3)
+
+        params_group.setLayout(params_layout)
+        layout.addWidget(params_group)
+
+        # Output location
+        output_group = QGroupBox("Model Output")
+        output_layout = QHBoxLayout()
+        self.lineEdit_output = QLineEdit()
+        self.lineEdit_output.setText(os.path.expanduser('~/pyarchinit/bin/models/khutm_clip'))
+        self.lineEdit_output.setToolTip("Directory where trained model will be saved")
+        output_layout.addWidget(self.lineEdit_output)
+        self.btn_browse_output = QPushButton("Browse...")
+        self.btn_browse_output.clicked.connect(self.browse_output_folder)
+        output_layout.addWidget(self.btn_browse_output)
+        output_group.setLayout(output_layout)
+        layout.addWidget(output_group)
+
+        # Progress section
+        progress_group = QGroupBox("Training Progress")
+        progress_layout = QVBoxLayout()
+
+        self.label_status = QLabel("Ready to train")
+        self.label_status.setStyleSheet("color: gray; font-style: italic;")
+        progress_layout.addWidget(self.label_status)
+
+        self.progressBar = QProgressBar()
+        self.progressBar.setVisible(False)
+        progress_layout.addWidget(self.progressBar)
+
+        self.textEdit_log = QTextEdit()
+        self.textEdit_log.setReadOnly(True)
+        self.textEdit_log.setMaximumHeight(150)
+        self.textEdit_log.setVisible(False)
+        progress_layout.addWidget(self.textEdit_log)
+
+        progress_group.setLayout(progress_layout)
+        layout.addWidget(progress_group)
+
+        # Buttons
+        btn_layout = QHBoxLayout()
+        self.btn_train = QPushButton("Start Training")
+        self.btn_train.clicked.connect(self.start_training)
+        btn_layout.addWidget(self.btn_train)
+
+        self.btn_cancel = QPushButton("Cancel")
+        self.btn_cancel.clicked.connect(self.cancel_or_close)
+        btn_layout.addWidget(self.btn_cancel)
+
+        layout.addLayout(btn_layout)
+
+    def browse_training_folder(self):
+        folder = QFileDialog.getExistingDirectory(self, "Select Training Folder")
+        if folder:
+            self.lineEdit_folder.setText(folder)
+
+    def browse_output_folder(self):
+        folder = QFileDialog.getExistingDirectory(self, "Select Output Folder")
+        if folder:
+            self.lineEdit_output.setText(folder)
+
+    def start_training(self):
+        """Start the training process"""
+        import subprocess
+        import json
+
+        # Validate
+        if self.radio_folder.isChecked() and not self.lineEdit_folder.text():
+            QMessageBox.warning(self, "Error", "Please select a training folder")
+            return
+
+        output_dir = self.lineEdit_output.text()
+        if not output_dir:
+            QMessageBox.warning(self, "Error", "Please specify output directory")
+            return
+
+        # Prepare command
+        trainer_script = os.path.expanduser('~/pyarchinit/bin/khutm_clip_trainer.py')
+        python_exec = os.path.expanduser('~/pyarchinit/bin/pottery_venv/bin/python')
+
+        if not os.path.exists(trainer_script):
+            QMessageBox.warning(self, "Error",
+                f"Training script not found:\n{trainer_script}")
+            return
+
+        if not os.path.exists(python_exec):
+            QMessageBox.warning(self, "Error",
+                f"Python environment not found:\n{python_exec}")
+            return
+
+        # Build command arguments
+        cmd = [
+            python_exec,
+            trainer_script,
+            '--epochs', str(self.spinBox_epochs.value()),
+            '--batch-size', str(self.spinBox_batch.value()),
+            '--learning-rate', self.comboBox_lr.currentText(),
+            '--output-dir', output_dir,
+            '--min-images-per-class', str(self.spinBox_min_images.value())
+        ]
+
+        if self.radio_database.isChecked():
+            # Get database path from connection settings
+            from ..modules.db.pyarchinit_conn_strings import Connection
+            conn = Connection()
+            thumb_path = conn.thumb_path().get('thumb_path', '')
+            cmd.extend(['--data-source', 'database', '--thumb-path', thumb_path])
+        else:
+            cmd.extend(['--data-source', 'folder', '--data-path', self.lineEdit_folder.text()])
+
+        # Update UI
+        self.btn_train.setEnabled(False)
+        self.progressBar.setVisible(True)
+        self.progressBar.setRange(0, 0)  # Indeterminate
+        self.textEdit_log.setVisible(True)
+        self.textEdit_log.clear()
+        self.label_status.setText("Training in progress...")
+        self.label_status.setStyleSheet("color: blue;")
+
+        # Create timer for reading output
+        self.output_timer = QTimer(self)
+        self.output_timer.timeout.connect(self.read_training_output)
+
+        try:
+            # Clean environment to avoid QGIS Python interference
+            clean_env = os.environ.copy()
+            # Remove QGIS-specific Python paths that interfere with virtualenv
+            keys_to_remove = ['PYTHONHOME', 'PYTHONPATH', 'PYTHONEXECUTABLE']
+            for key in keys_to_remove:
+                clean_env.pop(key, None)
+
+            # Start subprocess with clean environment
+            self.training_process = subprocess.Popen(
+                cmd,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                text=True,
+                bufsize=1,
+                env=clean_env
+            )
+
+            self.output_timer.start(500)  # Check every 500ms
+
+            # Start monitoring in background
+            self.monitor_timer = QTimer(self)
+            self.monitor_timer.timeout.connect(self.check_training_status)
+            self.monitor_timer.start(1000)
+
+        except Exception as e:
+            self.label_status.setText(f"Error starting training: {str(e)}")
+            self.label_status.setStyleSheet("color: red;")
+            self.btn_train.setEnabled(True)
+
+    def read_training_output(self):
+        """Read output from training process"""
+        if self.training_process and self.training_process.stdout:
+            try:
+                # Non-blocking read
+                import select
+                if hasattr(select, 'select'):
+                    ready, _, _ = select.select([self.training_process.stdout], [], [], 0)
+                    if ready:
+                        line = self.training_process.stdout.readline()
+                        if line:
+                            self.training_output += line
+                            self.textEdit_log.append(line.strip())
+
+                            # Parse progress if available
+                            if 'Epoch' in line and '/' in line:
+                                try:
+                                    parts = line.split('Epoch')[1].split('/')
+                                    current = int(parts[0].strip())
+                                    total = int(parts[1].split()[0])
+                                    self.progressBar.setRange(0, total)
+                                    self.progressBar.setValue(current)
+                                except:
+                                    pass
+            except:
+                pass
+
+    def check_training_status(self):
+        """Check if training is complete"""
+        if self.training_process:
+            retcode = self.training_process.poll()
+            if retcode is not None:
+                # Training finished
+                self.output_timer.stop()
+                self.monitor_timer.stop()
+
+                # Read any remaining output
+                try:
+                    remaining = self.training_process.stdout.read()
+                    if remaining:
+                        self.training_output += remaining
+                        self.textEdit_log.append(remaining.strip())
+                except:
+                    pass
+
+                self.progressBar.setRange(0, 100)
+                self.progressBar.setValue(100)
+                self.btn_train.setEnabled(True)
+
+                if retcode == 0:
+                    self.label_status.setText("Training completed successfully!")
+                    self.label_status.setStyleSheet("color: green;")
+                    self.training_complete.emit(True, "Model saved to " + self.lineEdit_output.text())
+                else:
+                    self.label_status.setText(f"Training failed (exit code {retcode})")
+                    self.label_status.setStyleSheet("color: red;")
+                    self.training_complete.emit(False, self.training_output[-500:])
+
+                self.training_process = None
+
+    def cancel_or_close(self):
+        """Cancel training or close dialog"""
+        if self.training_process:
+            reply = QMessageBox.question(
+                self, "Cancel Training",
+                "Training is in progress. Are you sure you want to cancel?",
+                QMessageBox.Yes | QMessageBox.No
+            )
+            if reply == QMessageBox.Yes:
+                try:
+                    self.training_process.terminate()
+                    self.training_process.wait(timeout=5)
+                except:
+                    self.training_process.kill()
+                self.training_process = None
+                self.reject()
+        else:
+            self.accept()
+
+
+class DatasetPreparationDialog(QDialog):
+    """Dialog for preparing training dataset"""
+
+    def __init__(self, db_manager, parent=None):
+        super().__init__(parent)
+        self.db_manager = db_manager
+        self.initUI()
+
+    def initUI(self):
+        self.setWindowTitle("Prepare Training Dataset")
+        self.setMinimumSize(550, 400)
+
+        layout = QVBoxLayout(self)
+
+        # Description
+        desc_label = QLabel(
+            "<h3>Dataset Preparation</h3>"
+            "<p>Organize pottery images for training. This will analyze your database "
+            "and help you prepare a dataset with proper groupings.</p>"
+        )
+        desc_label.setWordWrap(True)
+        layout.addWidget(desc_label)
+
+        # Grouping strategy
+        group_box = QGroupBox("Grouping Strategy")
+        group_layout = QVBoxLayout()
+
+        self.radio_fabric = QRadioButton("Group by Fabric")
+        self.radio_fabric.setToolTip("Group pottery by fabric type for material similarity")
+        group_layout.addWidget(self.radio_fabric)
+
+        self.radio_form = QRadioButton("Group by Form")
+        self.radio_form.setChecked(True)
+        self.radio_form.setToolTip("Group pottery by general form for shape similarity")
+        group_layout.addWidget(self.radio_form)
+
+        self.radio_specific_form = QRadioButton("Group by Specific Form")
+        self.radio_specific_form.setToolTip("Group pottery by specific typological form for detailed shape similarity")
+        group_layout.addWidget(self.radio_specific_form)
+
+        self.radio_decoration_type = QRadioButton("Group by Decoration Type")
+        self.radio_decoration_type.setToolTip("Group pottery by decoration type (geometric, figurative, etc.)")
+        group_layout.addWidget(self.radio_decoration_type)
+
+        self.radio_decoration_motif = QRadioButton("Group by Decoration Motif")
+        self.radio_decoration_motif.setToolTip("Group pottery by decorative motif pattern")
+        group_layout.addWidget(self.radio_decoration_motif)
+
+        self.radio_decoration_combined = QRadioButton("Group by Decoration (Type+Motif+Position)")
+        self.radio_decoration_combined.setToolTip("Group pottery by combined decoration attributes for detailed pattern similarity")
+        group_layout.addWidget(self.radio_decoration_combined)
+
+        self.radio_ware = QRadioButton("Group by Ware")
+        self.radio_ware.setToolTip("Group pottery by ware type")
+        group_layout.addWidget(self.radio_ware)
+
+        self.radio_site = QRadioButton("Group by Site")
+        self.radio_site.setToolTip("Group pottery by archaeological site")
+        group_layout.addWidget(self.radio_site)
+
+        group_box.setLayout(group_layout)
+        layout.addWidget(group_box)
+
+        # Output location
+        output_layout = QHBoxLayout()
+        output_layout.addWidget(QLabel("Output Folder:"))
+        self.lineEdit_output = QLineEdit()
+        self.lineEdit_output.setText(os.path.expanduser('~/pyarchinit/bin/training_data'))
+        output_layout.addWidget(self.lineEdit_output)
+        self.btn_browse = QPushButton("Browse...")
+        self.btn_browse.clicked.connect(self.browse_output)
+        output_layout.addWidget(self.btn_browse)
+        layout.addLayout(output_layout)
+
+        # Statistics
+        self.label_stats = QLabel("Analyzing database...")
+        self.label_stats.setStyleSheet("color: gray;")
+        layout.addWidget(self.label_stats)
+
+        # Progress
+        self.progressBar = QProgressBar()
+        self.progressBar.setVisible(False)
+        layout.addWidget(self.progressBar)
+
+        # Buttons
+        btn_layout = QHBoxLayout()
+        self.btn_analyze = QPushButton("Analyze Database")
+        self.btn_analyze.clicked.connect(self.analyze_database)
+        btn_layout.addWidget(self.btn_analyze)
+
+        self.btn_prepare = QPushButton("Prepare Dataset")
+        self.btn_prepare.clicked.connect(self.prepare_dataset)
+        self.btn_prepare.setEnabled(False)
+        btn_layout.addWidget(self.btn_prepare)
+
+        self.btn_close = QPushButton("Close")
+        self.btn_close.clicked.connect(self.accept)
+        btn_layout.addWidget(self.btn_close)
+
+        layout.addLayout(btn_layout)
+
+        # Run initial analysis
+        QTimer.singleShot(100, self.analyze_database)
+
+    def browse_output(self):
+        folder = QFileDialog.getExistingDirectory(self, "Select Output Folder")
+        if folder:
+            self.lineEdit_output.setText(folder)
+
+    def get_grouping_field(self):
+        """Return the field to use for grouping based on radio selection"""
+        if self.radio_fabric.isChecked():
+            return 'fabric'
+        elif self.radio_form.isChecked():
+            return 'form'
+        elif self.radio_specific_form.isChecked():
+            return 'specific_form'
+        elif self.radio_decoration_type.isChecked():
+            return 'decoration_type'
+        elif self.radio_decoration_motif.isChecked():
+            return 'decoration_motif'
+        elif self.radio_decoration_combined.isChecked():
+            return 'decoration_combined'  # Special case handled in queries
+        elif self.radio_ware.isChecked():
+            return 'ware'
+        elif self.radio_site.isChecked():
+            return 'sito'
+        return 'form'
+
+    def analyze_database(self):
+        """Analyze database to show statistics"""
+        try:
+            field = self.get_grouping_field()
+
+            # Handle combined decoration field specially
+            if field == 'decoration_combined':
+                # Concatenate decoration_type, decoration_motif, decoration_position
+                query = """
+                    SELECT CONCAT_WS('_', p.decoration_type, p.decoration_motif, p.decoration_position) as combined,
+                           COUNT(DISTINCT p.id_rep) as count
+                    FROM pottery_table p
+                    INNER JOIN media_to_entity_table mte ON p.id_rep = mte.id_entity AND mte.entity_type = 'CERAMICA'
+                    INNER JOIN media_table m ON mte.id_media = m.id_media
+                    WHERE (p.decoration_type IS NOT NULL AND p.decoration_type != ''
+                           OR p.decoration_motif IS NOT NULL AND p.decoration_motif != ''
+                           OR p.decoration_position IS NOT NULL AND p.decoration_position != '')
+                          AND m.mediatype = 'image'
+                    GROUP BY combined
+                    ORDER BY count DESC
+                """
+            else:
+                # Count pottery with images by grouping field
+                # Use correct join through media_to_entity_table
+                query = f"""
+                    SELECT p.{field}, COUNT(DISTINCT p.id_rep) as count
+                    FROM pottery_table p
+                    INNER JOIN media_to_entity_table mte ON p.id_rep = mte.id_entity AND mte.entity_type = 'CERAMICA'
+                    INNER JOIN media_table m ON mte.id_media = m.id_media
+                    WHERE p.{field} IS NOT NULL AND p.{field} != '' AND m.mediatype = 'image'
+                    GROUP BY p.{field}
+                    ORDER BY count DESC
+                """
+
+            results = []
+            total_count = 0
+
+            # Create session from db_manager
+            session = self.db_manager.Session()
+            try:
+                from sqlalchemy import text
+                results = session.execute(text(query)).fetchall()
+
+                # Count total pottery with images
+                total_query = """
+                    SELECT COUNT(DISTINCT p.id_rep)
+                    FROM pottery_table p
+                    INNER JOIN media_to_entity_table mte ON p.id_rep = mte.id_entity AND mte.entity_type = 'CERAMICA'
+                    INNER JOIN media_table m ON mte.id_media = m.id_media
+                    WHERE m.mediatype = 'image'
+                """
+                total_count = session.execute(text(total_query)).scalar() or 0
+            except Exception as e:
+                print(f"Query error: {e}")
+            finally:
+                session.close()
+
+            # Build stats text
+            stats_parts = [f"<b>Total pottery with images:</b> {total_count}"]
+
+            if results:
+                valid_groups = [(r[0], r[1]) for r in results if r[1] >= 5]
+                stats_parts.append(f"<b>Groups with >= 5 images:</b> {len(valid_groups)}")
+                if valid_groups[:5]:
+                    top_groups = ", ".join([f"{g[0]}({g[1]})" for g in valid_groups[:5]])
+                    stats_parts.append(f"<b>Top groups:</b> {top_groups}")
+            else:
+                stats_parts.append("(Could not analyze groupings)")
+
+            self.label_stats.setText("<br>".join(stats_parts))
+            self.label_stats.setStyleSheet("")
+            self.btn_prepare.setEnabled(total_count > 10)
+
+        except Exception as e:
+            self.label_stats.setText(f"Error analyzing database: {str(e)}")
+            self.label_stats.setStyleSheet("color: red;")
+
+    def prepare_dataset(self):
+        """Prepare the training dataset"""
+        import shutil
+
+        output_dir = self.lineEdit_output.text()
+        if not output_dir:
+            QMessageBox.warning(self, "Error", "Please specify output directory")
+            return
+
+        field = self.get_grouping_field()
+
+        try:
+            os.makedirs(output_dir, exist_ok=True)
+
+            # Handle combined decoration field specially
+            if field == 'decoration_combined':
+                query = """
+                    SELECT p.id_rep,
+                           CONCAT_WS('_', p.decoration_type, p.decoration_motif, p.decoration_position) as combined,
+                           mt.path_resize, m.filepath
+                    FROM pottery_table p
+                    INNER JOIN media_to_entity_table mte ON p.id_rep = mte.id_entity AND mte.entity_type = 'CERAMICA'
+                    INNER JOIN media_table m ON mte.id_media = m.id_media
+                    LEFT JOIN media_thumb_table mt ON m.id_media = mt.id_media
+                    WHERE (p.decoration_type IS NOT NULL AND p.decoration_type != ''
+                           OR p.decoration_motif IS NOT NULL AND p.decoration_motif != ''
+                           OR p.decoration_position IS NOT NULL AND p.decoration_position != '')
+                          AND m.mediatype = 'image'
+                """
+            else:
+                # Get all pottery with images, grouped by field
+                # Use correct join through media_to_entity_table and media_thumb_table
+                query = f"""
+                    SELECT p.id_rep, p.{field}, mt.path_resize, m.filepath
+                    FROM pottery_table p
+                    INNER JOIN media_to_entity_table mte ON p.id_rep = mte.id_entity AND mte.entity_type = 'CERAMICA'
+                    INNER JOIN media_table m ON mte.id_media = m.id_media
+                    LEFT JOIN media_thumb_table mt ON m.id_media = mt.id_media
+                    WHERE p.{field} IS NOT NULL AND p.{field} != '' AND m.mediatype = 'image'
+                """
+
+            from sqlalchemy import text
+            session = self.db_manager.Session()
+            try:
+                results = session.execute(text(query)).fetchall()
+            finally:
+                session.close()
+
+            if not results:
+                QMessageBox.warning(self, "No Data", "No pottery with images found in database")
+                return
+
+            # Group by field value
+            groups = {}
+            for row in results:
+                id_rep, group_value, thumb_path_db, original_path = row
+                # Prefer thumbnail, fallback to original
+                image_path = thumb_path_db or original_path
+                if not image_path:
+                    continue
+                if group_value not in groups:
+                    groups[group_value] = []
+                groups[group_value].append((id_rep, image_path))
+
+            # Create directories and copy images
+            self.progressBar.setVisible(True)
+            self.progressBar.setMaximum(len(results))
+
+            copied = 0
+            skipped_groups = 0
+
+            # Get base path for images
+            from ..modules.db.pyarchinit_conn_strings import Connection
+            conn = Connection()
+            thumb_resize_path = conn.thumb_resize().get('thumb_resize', '')
+
+            for group_name, images in groups.items():
+                if len(images) < 5:
+                    skipped_groups += 1
+                    continue
+
+                # Create safe directory name
+                safe_name = "".join(c for c in str(group_name) if c.isalnum() or c in (' ', '-', '_')).strip()
+                if not safe_name:
+                    safe_name = f"group_{hash(group_name) % 10000}"
+
+                group_dir = os.path.join(output_dir, safe_name)
+                os.makedirs(group_dir, exist_ok=True)
+
+                for id_rep, rel_path in images:
+                    # Build full path - try thumb_resize first
+                    full_path = os.path.join(thumb_resize_path, rel_path) if thumb_resize_path else rel_path
+                    if not os.path.exists(full_path):
+                        # Try as absolute path
+                        full_path = rel_path
+                    if os.path.exists(full_path):
+                        dest_name = f"pottery_{id_rep}_{os.path.basename(rel_path)}"
+                        dest_path = os.path.join(group_dir, dest_name)
+                        try:
+                            shutil.copy2(full_path, dest_path)
+                            copied += 1
+                        except Exception as copy_err:
+                            print(f"Copy error: {copy_err}")
+
+                    self.progressBar.setValue(copied)
+
+            self.progressBar.setVisible(False)
+
+            QMessageBox.information(self, "Dataset Prepared",
+                f"Dataset prepared successfully!\n\n"
+                f"Images copied: {copied}\n"
+                f"Groups created: {len(groups) - skipped_groups}\n"
+                f"Groups skipped (< 5 images): {skipped_groups}\n\n"
+                f"Output: {output_dir}\n\n"
+                "You can now use this folder for training.")
+
+        except Exception as e:
+            self.progressBar.setVisible(False)
+            QMessageBox.warning(self, "Error", f"Failed to prepare dataset:\n{str(e)}")
 
 
 class PotteryFilterDialog(QDialog):

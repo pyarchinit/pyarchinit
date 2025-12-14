@@ -557,7 +557,8 @@ class Pyarchinit_db_management(object):
                   arg[31],
                   arg[32],
                   arg[33],
-                  arg[34])
+                  arg[34],
+                  arg[35])
 
         return pottery
 

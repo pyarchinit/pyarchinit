@@ -143,8 +143,8 @@ class CLIPEmbeddingModel(EmbeddingModel):
 
             # Clean environment: remove QGIS Python paths that interfere with venv
             clean_env = os.environ.copy()
-            clean_env.pop('PYTHONHOME', None)
-            clean_env.pop('PYTHONPATH', None)
+            for var in ['PYTHONHOME', 'PYTHONPATH', 'PYTHONEXECUTABLE']:
+                clean_env.pop(var, None)
 
             result = subprocess.run(
                 cmd,
@@ -257,8 +257,8 @@ class DINOv2EmbeddingModel(EmbeddingModel):
 
             # Clean environment: remove QGIS Python paths that interfere with venv
             clean_env = os.environ.copy()
-            clean_env.pop('PYTHONHOME', None)
-            clean_env.pop('PYTHONPATH', None)
+            for var in ['PYTHONHOME', 'PYTHONPATH', 'PYTHONEXECUTABLE']:
+                clean_env.pop(var, None)
 
             result = subprocess.run(
                 cmd,
@@ -467,6 +467,201 @@ Sii dettagliato ma conciso."""
         return max(0.0, min(100.0, raw_score * 100.0))
 
 
+class KhutmCLIPEmbeddingModel(EmbeddingModel):
+    """
+    KhutmML-CLIP: Fine-tuned CLIP model for archaeological pottery.
+
+    This model uses a CLIP base with a fine-tuned projection layer
+    trained specifically on pottery images from PyArchInit.
+    """
+
+    EMBEDDING_DIM = 512  # Same as CLIP
+    MODEL_DIR = os.path.expanduser('~/pyarchinit/bin/models/khutm_clip')
+
+    def __init__(self, venv_python: str = None, model_dir: str = None):
+        self.venv_python = venv_python or self._find_venv_python()
+        self.model_dir = model_dir or self.MODEL_DIR
+        self._model_available = self._check_model_available()
+
+        if self._model_available:
+            print(f"[KhutmCLIP] Fine-tuned model found at {self.model_dir}")
+        else:
+            print(f"[KhutmCLIP] No fine-tuned model found. Train with khutm_clip_trainer.py")
+
+    def _find_venv_python(self) -> str:
+        """Find the pottery_venv Python executable"""
+        venv_path = os.path.expanduser('~/pyarchinit/bin/pottery_venv/bin/python')
+        if os.path.exists(venv_path):
+            return venv_path
+        return sys.executable
+
+    def _check_model_available(self) -> bool:
+        """Check if fine-tuned model is available"""
+        proj_path = os.path.join(self.model_dir, 'khutm_clip_final_projection.pt')
+        best_path = os.path.join(self.model_dir, 'best_model_projection.pt')
+        return os.path.exists(proj_path) or os.path.exists(best_path)
+
+    @property
+    def model_name(self) -> str:
+        return 'khutm_clip'
+
+    @property
+    def supported_search_types(self) -> List[str]:
+        return ['general', 'decoration', 'shape']
+
+    def get_embedding_dimension(self) -> int:
+        return self.EMBEDDING_DIM
+
+    def is_available(self) -> bool:
+        """Check if the model is available for use"""
+        return self._model_available
+
+    def get_embedding(self, image_path: str, search_type: str = 'general',
+                      auto_crop: bool = False, edge_preprocessing: bool = False,
+                      segment_decoration: bool = False, remove_background: bool = False,
+                      custom_prompt: str = '') -> Optional[np.ndarray]:
+        """
+        Generate embedding using KhutmML-CLIP fine-tuned model.
+
+        Falls back to regular CLIP if fine-tuned model not available.
+        """
+        if not self._model_available:
+            # Fall back to regular CLIP
+            print("[KhutmCLIP] Fine-tuned model not available, using base CLIP")
+            clip_model = CLIPEmbeddingModel(self.venv_python)
+            return clip_model.get_embedding(
+                image_path, search_type, auto_crop, edge_preprocessing,
+                segment_decoration, remove_background, custom_prompt
+            )
+
+        # Use khutm_clip inference script
+        runner_script = os.path.expanduser('~/pyarchinit/bin/khutm_clip_inference.py')
+
+        # If inference script doesn't exist, fall back to creating embedding inline
+        if not os.path.exists(runner_script):
+            return self._generate_embedding_inline(
+                image_path, search_type, auto_crop, edge_preprocessing,
+                segment_decoration, remove_background
+            )
+
+        # Run inference via subprocess
+        with tempfile.NamedTemporaryFile(suffix='.npy', delete=False) as tmp:
+            output_path = tmp.name
+
+        try:
+            cmd = [
+                self.venv_python, runner_script,
+                '--image', image_path,
+                '--model-dir', self.model_dir,
+                '--search-type', search_type,
+                '--output', output_path
+            ]
+
+            if auto_crop:
+                cmd.append('--auto-crop')
+            if edge_preprocessing:
+                cmd.extend(['--preprocessing', 'edge'])
+            if segment_decoration:
+                cmd.append('--segment-decoration')
+            if remove_background:
+                cmd.append('--remove-background')
+
+            # Clean environment to avoid QGIS Python interference
+            clean_env = os.environ.copy()
+            for var in ['PYTHONHOME', 'PYTHONPATH', 'PYTHONEXECUTABLE']:
+                clean_env.pop(var, None)
+
+            result = subprocess.run(
+                cmd,
+                capture_output=True,
+                text=True,
+                timeout=120,
+                env=clean_env
+            )
+
+            if result.returncode == 0 and os.path.exists(output_path):
+                embedding = np.load(output_path)
+                return embedding.astype(np.float32)
+            else:
+                print(f"[KhutmCLIP] Error: {result.stderr}")
+                # Fall back to inline generation
+                return self._generate_embedding_inline(
+                    image_path, search_type, auto_crop, edge_preprocessing,
+                    segment_decoration, remove_background
+                )
+
+        except subprocess.TimeoutExpired:
+            print("[KhutmCLIP] Timeout generating embedding")
+            return None
+        except Exception as e:
+            print(f"[KhutmCLIP] Error: {e}")
+            return None
+        finally:
+            if os.path.exists(output_path):
+                os.unlink(output_path)
+
+    def _generate_embedding_inline(self, image_path: str, search_type: str,
+                                    auto_crop: bool, edge_preprocessing: bool,
+                                    segment_decoration: bool, remove_background: bool) -> Optional[np.ndarray]:
+        """
+        Generate embedding using inline Python (requires torch in current env).
+        Falls back to CLIP if torch not available.
+        """
+        try:
+            import torch
+            import torch.nn.functional as F
+            from sentence_transformers import SentenceTransformer
+            from PIL import Image
+
+            # Load base CLIP model
+            device = 'cuda' if torch.cuda.is_available() else ('mps' if hasattr(torch.backends, 'mps') and torch.backends.mps.is_available() else 'cpu')
+            clip_model = SentenceTransformer('clip-ViT-B-32', device=device)
+
+            # Load projection layer
+            proj_path = os.path.join(self.model_dir, 'khutm_clip_final_projection.pt')
+            if not os.path.exists(proj_path):
+                proj_path = os.path.join(self.model_dir, 'best_model_projection.pt')
+
+            projection = torch.nn.Linear(512, 512).to(device)
+            projection.load_state_dict(torch.load(proj_path, map_location=device))
+            projection.eval()
+
+            # Load and preprocess image
+            image = Image.open(image_path).convert('RGB')
+
+            # Apply preprocessing based on search type
+            # (simplified - full preprocessing in runner script)
+
+            # Encode with CLIP
+            with torch.no_grad():
+                base_emb = clip_model.encode(image, convert_to_tensor=True)
+                base_emb = base_emb.to(device)
+
+                # Apply projection
+                proj_emb = projection(base_emb.unsqueeze(0))
+                proj_emb = F.normalize(proj_emb, p=2, dim=1)
+
+            return proj_emb.squeeze().cpu().numpy().astype(np.float32)
+
+        except ImportError:
+            print("[KhutmCLIP] torch/sentence-transformers not available, using base CLIP")
+            clip_model = CLIPEmbeddingModel(self.venv_python)
+            return clip_model.get_embedding(
+                image_path, search_type, auto_crop, edge_preprocessing,
+                segment_decoration, remove_background
+            )
+        except Exception as e:
+            print(f"[KhutmCLIP] Error in inline generation: {e}")
+            return None
+
+    def normalize_similarity(self, raw_score: float) -> float:
+        """Same normalization as CLIP"""
+        # KhutmCLIP typically produces higher similarity scores for pottery
+        # Map [0.5, 1.0] to [0, 100] (pottery-optimized range)
+        normalized = (raw_score - 0.5) * 200.0
+        return max(0.0, min(100.0, normalized))
+
+
 def get_available_models() -> dict:
     """
     Return dictionary of available embedding models with their info.
@@ -495,6 +690,14 @@ def get_available_models() -> dict:
             'search_types': ['general'],
             'local': False,
             'description': 'OpenAI Vision - Cloud, requires API key'
+        },
+        'khutm_clip': {
+            'class': KhutmCLIPEmbeddingModel,
+            'dim': KhutmCLIPEmbeddingModel.EMBEDDING_DIM,
+            'search_types': ['general', 'decoration', 'shape'],
+            'local': True,
+            'description': 'KhutmML-CLIP - Fine-tuned for archaeological pottery',
+            'requires_training': True
         }
     }
 

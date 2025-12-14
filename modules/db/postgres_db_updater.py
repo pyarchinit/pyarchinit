@@ -120,6 +120,168 @@ class PostgresDbUpdater:
                 self.log_message(f"Errore aggiungendo colonna {column_name} a {table_name}: {e}")
                 return False
         return False
+
+    def get_column_position(self, table_name, column_name):
+        """Restituisce la posizione ordinale di una colonna"""
+        try:
+            from sqlalchemy import text
+            query = text("""
+                SELECT ordinal_position
+                FROM information_schema.columns
+                WHERE table_name = :table_name
+                AND column_name = :column_name
+            """)
+            result = self.db_manager.engine.execute(query, {'table_name': table_name, 'column_name': column_name})
+            row = result.fetchone()
+            return row[0] if row else None
+        except Exception as e:
+            self.log_message(f"Errore verificando posizione colonna {column_name} in {table_name}: {e}")
+            return None
+
+    def reorder_pottery_datazione_column(self):
+        """
+        Riordina la colonna datazione nella pottery_table se si trova dopo i campi audit.
+        La colonna datazione deve essere in posizione 36 (dopo decoration_position e prima di editing_by).
+        """
+        try:
+            from sqlalchemy import text
+
+            # Verifica se datazione esiste e se è dopo editing_by
+            datazione_pos = self.get_column_position('pottery_table', 'datazione')
+            editing_by_pos = self.get_column_position('pottery_table', 'editing_by')
+
+            if datazione_pos is None:
+                return False  # datazione non esiste ancora
+
+            if editing_by_pos is None:
+                return False  # audit fields non esistono ancora
+
+            if datazione_pos < editing_by_pos:
+                self.log_message("Colonna datazione già nella posizione corretta")
+                return False  # datazione è già prima di editing_by
+
+            self.log_message("Riordinamento colonna datazione in pottery_table...")
+
+            # Esegui il riordinamento ricreando la tabella
+            reorder_sql = text("""
+                DO $$
+                DECLARE
+                    v_view_def TEXT;
+                BEGIN
+                    -- Salva la definizione della view se esiste
+                    SELECT pg_get_viewdef('active_editing_sessions', true) INTO v_view_def;
+
+                    -- Drop della view
+                    DROP VIEW IF EXISTS active_editing_sessions;
+
+                    -- Crea tabella temporanea con ordine corretto
+                    CREATE TABLE pottery_table_reorder (
+                        id_rep BIGINT NOT NULL,
+                        id_number BIGINT,
+                        sito text,
+                        area text,
+                        us TEXT,
+                        box BIGINT,
+                        photo text,
+                        drawing text,
+                        anno BIGINT,
+                        fabric text,
+                        percent text,
+                        material text,
+                        form text,
+                        specific_form text,
+                        ware text,
+                        munsell text,
+                        surf_trat text,
+                        exdeco character varying(4),
+                        intdeco character varying(4),
+                        wheel_made character varying(4),
+                        descrip_ex_deco text,
+                        descrip_in_deco text,
+                        note text,
+                        diametro_max numeric(7,3),
+                        qty BIGINT,
+                        diametro_rim numeric(7,3),
+                        diametro_bottom numeric(7,3),
+                        diametro_height numeric(7,3),
+                        diametro_preserved numeric(7,3),
+                        specific_shape text,
+                        bag BIGINT,
+                        sector text,
+                        decoration_type text,
+                        decoration_motif text,
+                        decoration_position text,
+                        datazione text,
+                        editing_by varchar(100),
+                        editing_since timestamp,
+                        version_number int4 DEFAULT 1,
+                        last_modified_by varchar(100),
+                        last_modified_timestamp timestamp,
+                        audit_trail jsonb DEFAULT '[]'::jsonb
+                    );
+
+                    -- Copia i dati
+                    INSERT INTO pottery_table_reorder
+                    SELECT id_rep, id_number, sito, area, us, box, photo, drawing, anno,
+                           fabric, percent, material, form, specific_form, ware, munsell,
+                           surf_trat, exdeco, intdeco, wheel_made, descrip_ex_deco,
+                           descrip_in_deco, note, diametro_max, qty, diametro_rim,
+                           diametro_bottom, diametro_height, diametro_preserved,
+                           specific_shape, bag, sector, decoration_type, decoration_motif,
+                           decoration_position, datazione, editing_by, editing_since,
+                           version_number, last_modified_by, last_modified_timestamp, audit_trail
+                    FROM pottery_table;
+
+                    -- Drop vecchia tabella
+                    DROP TABLE pottery_table;
+
+                    -- Rinomina nuova tabella
+                    ALTER TABLE pottery_table_reorder RENAME TO pottery_table;
+
+                    -- Ricrea constraints
+                    ALTER TABLE pottery_table ADD PRIMARY KEY (id_rep);
+
+                    -- Ricollega sequence se esiste
+                    IF EXISTS (SELECT 1 FROM pg_sequences WHERE schemaname = 'public' AND sequencename = 'pottery_table_id_rep_seq') THEN
+                        ALTER SEQUENCE pottery_table_id_rep_seq OWNED BY pottery_table.id_rep;
+                        ALTER TABLE pottery_table ALTER COLUMN id_rep SET DEFAULT nextval('pottery_table_id_rep_seq');
+                    END IF;
+
+                    -- Ricrea unique constraint
+                    ALTER TABLE pottery_table ADD CONSTRAINT ID_rep_unico UNIQUE (sito, id_number);
+
+                    -- Ricrea la view
+                    CREATE VIEW active_editing_sessions AS
+                    SELECT 'pottery_table'::text AS table_name,
+                        pottery_table.id_rep,
+                        pottery_table.editing_by,
+                        pottery_table.editing_since
+                    FROM pottery_table
+                    WHERE pottery_table.editing_by IS NOT NULL
+                    UNION ALL
+                    SELECT 'us_table'::text AS table_name,
+                        us_table.id_us AS id_rep,
+                        us_table.editing_by,
+                        us_table.editing_since
+                    FROM us_table
+                    WHERE us_table.editing_by IS NOT NULL;
+
+                    -- Sincronizza i permessi
+                    PERFORM sync_grants_for_table('pottery_table');
+
+                END $$;
+            """)
+
+            with self.db_manager.engine.connect() as conn:
+                conn.execute(reorder_sql)
+                conn.execute(text("COMMIT"))
+
+            self.log_message("Colonna datazione riordinata correttamente in pottery_table")
+            return True
+
+        except Exception as e:
+            self.log_message(f"Errore durante il riordinamento della colonna datazione: {e}")
+            return False
     
     def update_thesaurus_table(self):
         """Aggiorna la tabella pyarchinit_thesaurus_sigle"""
@@ -532,9 +694,13 @@ class PostgresDbUpdater:
             updated |= self.add_column_if_missing('pottery_table', 'decoration_type', 'TEXT')
             updated |= self.add_column_if_missing('pottery_table', 'decoration_motif', 'TEXT')
             updated |= self.add_column_if_missing('pottery_table', 'decoration_position', 'TEXT')
+            updated |= self.add_column_if_missing('pottery_table', 'datazione', 'TEXT')
+
+            # Se datazione è stata aggiunta ma si trova dopo i campi audit, riordina
+            self.reorder_pottery_datazione_column()
 
             if updated:
-                self.log_message("Tabella pottery_table aggiornata con nuovi campi decorazione")
+                self.log_message("Tabella pottery_table aggiornata con nuovi campi (decorazione, datazione)")
             else:
                 self.log_message("Tabella pottery_table già aggiornata")
 

@@ -43,7 +43,8 @@ class POTTERY(object):
 				sector,
 				decoration_type,
 				decoration_motif,
-				decoration_position
+				decoration_position,
+				datazione
 				):
 		self.id_rep=id_rep
 		self.id_number=id_number
@@ -80,9 +81,10 @@ class POTTERY(object):
 		self.decoration_type = decoration_type
 		self.decoration_motif = decoration_motif
 		self.decoration_position = decoration_position
+		self.datazione = datazione
 	#def __repr__"
 	def __repr__(self):
-		return "<POTTERY('%d','%d','%s','%s',%d,'%d','%s', '%s', '%d', '%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%r','%d','%r','%r','%r','%r','%s','%d','%s','%s','%s','%s')>" % (
+		return "<POTTERY('%d','%d','%s','%s',%d,'%d','%s', '%s', '%d', '%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%r','%d','%r','%r','%r','%r','%s','%d','%s','%s','%s','%s','%s')>" % (
 		self.id_rep,
 		self.id_number,
 		self.sito,
@@ -117,5 +119,6 @@ class POTTERY(object):
 		self.sector,
 		self.decoration_type,
 		self.decoration_motif,
-		self.decoration_position
+		self.decoration_position,
+		self.datazione
 		)
