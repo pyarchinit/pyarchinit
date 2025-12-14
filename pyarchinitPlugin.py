@@ -243,6 +243,14 @@ class PyArchInitPlugin(object):
             self.toolBar.setObjectName("pyArchInit")
             self.toolBar.addAction(self.action)
 
+            # SAM Stone Segmentation button - before AI Query
+            icon_sam = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'sam_stones.png'))
+            self.actionSamSegmentation = QAction(QIcon(icon_sam), "SAM Stone Segmentation", self.iface.mainWindow())
+            self.actionSamSegmentation.setWhatsThis("Automatic stone segmentation using SAM AI model")
+            self.actionSamSegmentation.setToolTip("SAM Stone Segmentation - Automatically detect and digitize stones from orthophotos")
+            self.actionSamSegmentation.triggered.connect(self.runSamSegmentation)
+            self.toolBar.addAction(self.actionSamSegmentation)
+
             # AI Query Database button - standalone before data entry section
             icon_ai_query = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'gpt.png'))
             self.actionAIQuery = QAction(QIcon(icon_ai_query), "AI Query Database", self.iface.mainWindow())
@@ -1145,6 +1153,26 @@ class PyArchInitPlugin(object):
                 self.iface.mainWindow(),
                 "Error",
                 f"Errore nell'apertura del dialogo AI Query:\n{str(e)}"
+            )
+
+    def runSamSegmentation(self):
+        """Open the SAM Stone Segmentation dialog"""
+        try:
+            from .tabs.Sam_Segmentation_Dialog import SamSegmentationDialog
+            from .modules.db.pyarchinit_conn_strings import Connection
+            from .modules.db.pyarchinit_db_manager import get_db_manager
+
+            conn = Connection()
+            conn_str = conn.conn_str()
+            db_manager = get_db_manager(conn_str, use_singleton=True)
+
+            dialog = SamSegmentationDialog(db_manager, parent=self.iface.mainWindow())
+            dialog.exec_()
+        except Exception as e:
+            QMessageBox.critical(
+                self.iface.mainWindow(),
+                "Error",
+                f"Error opening SAM Segmentation dialog:\n{str(e)}"
             )
 
     def runInr(self):

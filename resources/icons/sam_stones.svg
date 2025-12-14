@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <!-- Background circle -->
+  <circle cx="32" cy="32" r="30" fill="#4a90d9" stroke="#2c5aa0" stroke-width="2"/>
+
+  <!-- Stones (polygons) -->
+  <polygon points="15,25 25,18 35,22 32,35 18,32" fill="#8b7355" stroke="#5d4e37" stroke-width="1.5"/>
+  <polygon points="30,15 42,12 48,22 45,32 35,30" fill="#a08060" stroke="#5d4e37" stroke-width="1.5"/>
+  <polygon points="12,35 22,38 25,50 15,52" fill="#9a8a70" stroke="#5d4e37" stroke-width="1.5"/>
+  <polygon points="28,35 40,32 50,40 48,52 35,50" fill="#8b7355" stroke="#5d4e37" stroke-width="1.5"/>
+
+  <!-- SAM highlight effect (selection outline) -->
+  <polygon points="30,15 42,12 48,22 45,32 35,30" fill="none" stroke="#00ff00" stroke-width="2" stroke-dasharray="3,2"/>
+
+  <!-- AI sparkle -->
+  <text x="50" y="15" font-family="Arial" font-size="12" fill="#ffffff" font-weight="bold">AI</text>
+</svg>
