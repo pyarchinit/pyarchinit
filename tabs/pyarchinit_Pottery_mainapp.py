@@ -6788,12 +6788,96 @@ Use well-structured paragraphs with headings for each section.
     def on_khutm_training_complete(self, success, message):
         """Handle training completion"""
         if success:
-            QMessageBox.information(self, "Training Complete",
+            # Ask if user wants to rebuild indexes automatically
+            reply = QMessageBox.question(
+                self, "Training Complete",
                 f"KhutmML-CLIP training completed successfully!\n\n{message}\n\n"
-                "You can now select 'KhutmML-CLIP (Fine-tuned)' in the model selector "
-                "and rebuild indexes to use your trained model.")
+                "Do you want to rebuild the similarity indexes now?\n\n"
+                "(This will index all pottery images with the new model)",
+                QMessageBox.Yes | QMessageBox.No,
+                QMessageBox.Yes
+            )
+
+            if reply == QMessageBox.Yes:
+                self.run_khutm_indexing_pipeline()
+            else:
+                QMessageBox.information(self, "Training Complete",
+                    "You can rebuild indexes later using the 'Build Index' button\n"
+                    "with 'KhutmML-CLIP (Fine-tuned)' model selected.")
         else:
             QMessageBox.warning(self, "Training Failed", f"Training failed:\n{message}")
+
+    def run_khutm_indexing_pipeline(self):
+        """Run the KhutmML indexing pipeline after training"""
+        import subprocess
+
+        venv_python = os.path.expanduser('~/pyarchinit/bin/pottery_venv/bin/python')
+        indexer_script = os.path.expanduser('~/pyarchinit/bin/khutm_clip_indexer.py')
+        faiss_script = os.path.expanduser('~/pyarchinit/bin/import_embeddings_to_faiss.py')
+        model_dir = os.path.expanduser('~/pyarchinit/bin/models/khutm_clip')
+
+        # Check scripts exist
+        if not os.path.exists(indexer_script) or not os.path.exists(faiss_script):
+            QMessageBox.warning(self, "Scripts Not Found",
+                "Indexing scripts not found. Please rebuild indexes manually.")
+            return
+
+        self.label_similarity_status.setText("Indexing with new model...")
+        self.progress_similarity.setVisible(True)
+        self.progress_similarity.setMaximum(0)  # Indeterminate
+        QApplication.processEvents()
+
+        # Clean environment
+        clean_env = os.environ.copy()
+        for var in ['PYTHONHOME', 'PYTHONPATH', 'PYTHONEXECUTABLE']:
+            clean_env.pop(var, None)
+
+        search_types = ['general', 'decoration', 'shape']
+        errors = []
+
+        try:
+            for i, search_type in enumerate(search_types):
+                self.label_similarity_status.setText(f"Indexing {search_type} ({i+1}/3)...")
+                QApplication.processEvents()
+
+                # Run indexer
+                cmd = [venv_python, indexer_script,
+                       '--search-type', search_type,
+                       '--model-dir', model_dir]
+
+                result = subprocess.run(cmd, capture_output=True, text=True,
+                                        timeout=600, env=clean_env)
+
+                if result.returncode != 0:
+                    errors.append(f"{search_type}: {result.stderr[:200]}")
+
+            # Convert to FAISS
+            self.label_similarity_status.setText("Converting to FAISS format...")
+            QApplication.processEvents()
+
+            cmd = [venv_python, faiss_script, '--search-type', 'all']
+            result = subprocess.run(cmd, capture_output=True, text=True,
+                                    timeout=300, env=clean_env)
+
+            if result.returncode != 0:
+                errors.append(f"FAISS conversion: {result.stderr[:200]}")
+
+        except subprocess.TimeoutExpired:
+            errors.append("Indexing timed out")
+        except Exception as e:
+            errors.append(str(e))
+
+        self.progress_similarity.setVisible(False)
+
+        if errors:
+            self.label_similarity_status.setText("Indexing completed with errors")
+            QMessageBox.warning(self, "Indexing Errors",
+                f"Indexing completed with some errors:\n\n" + "\n".join(errors))
+        else:
+            self.label_similarity_status.setText("Indexing complete!")
+            QMessageBox.information(self, "Indexing Complete",
+                "All indexes rebuilt successfully!\n\n"
+                "You can now use KhutmML-CLIP for similarity search.")
 
     def on_export_khutm_model_clicked(self):
         """Export the trained KhutmML-CLIP model to a ZIP file"""
