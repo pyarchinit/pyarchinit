@@ -1532,22 +1532,6 @@
          </item>
         </widget>
        </item>
-       <item row="1" column="10" colspan="3">
-        <widget class="QLabel" name="label_22">
-         <property name="font">
-          <font>
-           <family>MS Shell Dlg 2</family>
-           <pointsize>9</pointsize>
-           <weight>50</weight>
-           <italic>false</italic>
-           <bold>false</bold>
-          </font>
-         </property>
-         <property name="text">
-          <string>Wheel made</string>
-         </property>
-        </widget>
-       </item>
        <item row="13" column="0" colspan="5">
         <widget class="QLabel" name="label_47">
          <property name="font">
@@ -1642,35 +1626,6 @@
          <property name="text">
           <string>Decoration Position</string>
          </property>
-        </widget>
-       </item>
-       <item row="1" column="13">
-        <widget class="QComboBox" name="comboBox_wheel_made">
-         <property name="font">
-          <font>
-           <family>MS Shell Dlg 2</family>
-           <pointsize>9</pointsize>
-           <weight>50</weight>
-           <italic>false</italic>
-           <bold>false</bold>
-          </font>
-         </property>
-         <property name="styleSheet">
-          <string notr="true">background-color: rgb(255, 255, 255);</string>
-         </property>
-         <property name="editable">
-          <bool>true</bool>
-         </property>
-         <item>
-          <property name="text">
-           <string>Yes</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>No</string>
-          </property>
-         </item>
         </widget>
        </item>
        <item row="14" column="0" colspan="5">
@@ -2231,35 +2186,6 @@
          </property>
         </widget>
        </item>
-       <item row="1" column="8" colspan="2">
-        <widget class="QComboBox" name="comboBox_surf_trat">
-         <property name="font">
-          <font>
-           <family>MS Shell Dlg 2</family>
-           <pointsize>9</pointsize>
-           <weight>50</weight>
-           <italic>false</italic>
-           <bold>false</bold>
-          </font>
-         </property>
-         <property name="styleSheet">
-          <string notr="true">background-color: rgb(255, 255, 255);</string>
-         </property>
-         <property name="editable">
-          <bool>true</bool>
-         </property>
-         <item>
-          <property name="text">
-           <string>Slipped red</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Buff</string>
-          </property>
-         </item>
-        </widget>
-       </item>
        <item row="2" column="8" colspan="6">
         <widget class="QComboBox" name="comboBox_specific_form">
          <property name="enabled">
@@ -2415,6 +2341,115 @@
            <string>Coarse</string>
           </property>
          </item>
+        </widget>
+       </item>
+       <item row="6" column="5">
+        <widget class="QLabel" name="label_datazione">
+         <property name="font">
+          <font>
+           <family>MS Shell Dlg 2</family>
+           <pointsize>9</pointsize>
+           <weight>50</weight>
+           <italic>false</italic>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>Datazione</string>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="7">
+        <widget class="QLabel" name="label_22">
+         <property name="font">
+          <font>
+           <family>MS Shell Dlg 2</family>
+           <pointsize>9</pointsize>
+           <weight>50</weight>
+           <italic>false</italic>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>Wheel made</string>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="8" colspan="6">
+        <widget class="QComboBox" name="comboBox_wheel_made">
+         <property name="font">
+          <font>
+           <family>MS Shell Dlg 2</family>
+           <pointsize>9</pointsize>
+           <weight>50</weight>
+           <italic>false</italic>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(255, 255, 255);</string>
+         </property>
+         <property name="editable">
+          <bool>true</bool>
+         </property>
+         <item>
+          <property name="text">
+           <string>Yes</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>No</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+       <item row="1" column="8" colspan="6">
+        <widget class="QComboBox" name="comboBox_surf_trat">
+         <property name="font">
+          <font>
+           <family>MS Shell Dlg 2</family>
+           <pointsize>9</pointsize>
+           <weight>50</weight>
+           <italic>false</italic>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(255, 255, 255);</string>
+         </property>
+         <property name="editable">
+          <bool>true</bool>
+         </property>
+         <item>
+          <property name="text">
+           <string>Slipped red</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Buff</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+       <item row="6" column="6" colspan="8">
+        <widget class="QComboBox" name="comboBox_datazione">
+         <property name="font">
+          <font>
+           <family>MS Shell Dlg 2</family>
+           <pointsize>9</pointsize>
+           <weight>50</weight>
+           <italic>false</italic>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(255, 255, 255);</string>
+         </property>
+         <property name="editable">
+          <bool>true</bool>
+         </property>
         </widget>
        </item>
       </layout>

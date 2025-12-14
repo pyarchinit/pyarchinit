@@ -43,7 +43,8 @@ class PotterySimilarityIndexManager:
     MODEL_DIMENSIONS = {
         'clip': 512,
         'dinov2': 768,
-        'openai': 1536
+        'openai': 1536,
+        'khutm_clip': 512
     }
 
     def __init__(self, db_manager=None):

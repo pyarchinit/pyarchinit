@@ -834,7 +834,8 @@ CREATE TABLE public.pottery_table (
     sector text,
     decoration_type text,
     decoration_motif text,
-    decoration_position text
+    decoration_position text,
+    datazione text
 );
 
 
