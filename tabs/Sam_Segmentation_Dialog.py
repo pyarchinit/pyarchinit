@@ -38,9 +38,10 @@ from qgis.utils import iface
 try:
     from modules.gis.sam_map_tools import SamPointMapTool, SamBoxMapTool
     HAS_MAP_TOOLS = True
-except ImportError:
+    print("DEBUG SAM: Map tools imported successfully")
+except ImportError as e:
     HAS_MAP_TOOLS = False
-    print("Warning: SAM map tools not available")
+    print(f"Warning: SAM map tools not available: {e}")
 
 
 class SamApiWorkerThread(QThread):
@@ -106,26 +107,27 @@ class SamApiWorkerThread(QThread):
 
 
 class SamSegmentationWorkerThread(QThread):
-    """Worker thread to run SAM segmentation in background"""
+    """Worker thread to run SAM segmentation in background using official segment-anything"""
     finished = pyqtSignal(bool, str, str)  # success, message, output_file
     progress = pyqtSignal(str)  # status message
 
-    def __init__(self, input_raster, output_gpkg, mode='auto', prompts=None, model='fast'):
+    def __init__(self, input_raster, output_gpkg, mode='auto', prompts=None, model='vit_b'):
         super().__init__()
         self.input_raster = input_raster
         self.output_gpkg = output_gpkg
         self.mode = mode
         self.prompts = prompts
-        self.model = model
+        self.model = model  # vit_b, vit_l, or vit_h
 
     def run(self):
-        """Run SAM segmentation in subprocess"""
+        """Run SAM segmentation in subprocess using official segment-anything"""
         try:
             venv_python = os.path.expanduser('~/pyarchinit/bin/sam_venv/bin/python')
-            worker_script = os.path.expanduser('~/pyarchinit/bin/sam_segmentation_worker.py')
+            # Use new local worker that uses official segment-anything
+            worker_script = os.path.expanduser('~/pyarchinit/bin/sam_local_worker.py')
 
             if not os.path.exists(venv_python):
-                self.finished.emit(False, "SAM virtual environment not found", "")
+                self.finished.emit(False, "SAM virtual environment not found at ~/pyarchinit/bin/sam_venv/", "")
                 return
 
             if not os.path.exists(worker_script):
@@ -321,9 +323,16 @@ class SamSegmentationDialog(QDialog):
         self.comboBox_model = QComboBox()
         self.comboBox_model.addItems([
             "API: Replicate SAM-2 (cloud, recommended)",
+            "Local: SAM vit_b (fast, ~375MB)",
+            "Local: SAM vit_l (balanced, ~1.2GB)",
+            "Local: SAM vit_h (best quality, ~2.5GB)",
             "Local: OpenCV (edge detection fallback)"
         ])
-        self.comboBox_model.setToolTip("SAM Cloud is recommended for best results. Local OpenCV is a fallback option.")
+        self.comboBox_model.setToolTip(
+            "Cloud API is recommended.\n"
+            "Local SAM requires downloading model weights on first use.\n"
+            "vit_b = fastest, vit_h = most accurate"
+        )
         self.comboBox_model.currentIndexChanged.connect(self._on_model_changed)
         model_layout.addWidget(self.comboBox_model, 0, 1)
 
@@ -439,13 +448,17 @@ class SamSegmentationDialog(QDialog):
     def get_model(self):
         """Get selected model"""
         model_text = self.comboBox_model.currentText()
-        if 'FastSAM' in model_text:
-            return 'fast'
+        if 'vit_b' in model_text:
+            return 'vit_b'
+        elif 'vit_l' in model_text:
+            return 'vit_l'
+        elif 'vit_h' in model_text:
+            return 'vit_h'
         elif 'OpenCV' in model_text:
             return 'opencv'
         elif 'API' in model_text:
             return 'api'
-        return 'sam'
+        return 'vit_b'  # default
 
     def is_api_mode(self):
         """Check if API mode is selected"""
@@ -493,20 +506,37 @@ class SamSegmentationDialog(QDialog):
 
     def _start_interactive_selection(self, raster_layer, mode):
         """Start interactive map tool for point or box selection"""
+        print(f"DEBUG SAM: _start_interactive_selection called with mode={mode}")
+        print(f"DEBUG SAM: HAS_MAP_TOOLS={HAS_MAP_TOOLS}")
+        print(f"DEBUG SAM: raster_layer={raster_layer}, name={raster_layer.name() if raster_layer else 'None'}")
+
         canvas = iface.mapCanvas()
+        print(f"DEBUG SAM: canvas={canvas}")
 
         # Store previous tool to restore later
         self.previous_map_tool = canvas.mapTool()
+        print(f"DEBUG SAM: previous_map_tool={self.previous_map_tool}")
 
         # Hide dialog temporarily
         self.hide()
+        print("DEBUG SAM: Dialog hidden")
 
         # Create appropriate map tool
         if mode == 'points':
-            self.map_tool = SamPointMapTool(canvas, raster_layer)
-            self.map_tool.pointsCollected.connect(self._on_points_collected)
-            self.map_tool.pointAdded.connect(self._on_point_added)
-            self.map_tool.cancelled.connect(self._on_selection_cancelled)
+            print("DEBUG SAM: Creating SamPointMapTool...")
+            try:
+                self.map_tool = SamPointMapTool(canvas, raster_layer)
+                print(f"DEBUG SAM: SamPointMapTool created: {self.map_tool}")
+                self.map_tool.pointsCollected.connect(self._on_points_collected)
+                self.map_tool.pointAdded.connect(self._on_point_added)
+                self.map_tool.cancelled.connect(self._on_selection_cancelled)
+                print("DEBUG SAM: Signals connected for point tool")
+            except Exception as e:
+                print(f"DEBUG SAM ERROR: Failed to create SamPointMapTool: {e}")
+                import traceback
+                traceback.print_exc()
+                self.show()
+                return
 
             # Show info message
             iface.messageBar().pushInfo(
@@ -514,9 +544,19 @@ class SamSegmentationDialog(QDialog):
                 "Click on stones to mark them. Right-click or press Enter when done. Press Escape to cancel."
             )
         else:  # box mode
-            self.map_tool = SamBoxMapTool(canvas, raster_layer)
-            self.map_tool.boxDrawn.connect(self._on_box_drawn)
-            self.map_tool.cancelled.connect(self._on_selection_cancelled)
+            print("DEBUG SAM: Creating SamBoxMapTool...")
+            try:
+                self.map_tool = SamBoxMapTool(canvas, raster_layer)
+                print(f"DEBUG SAM: SamBoxMapTool created: {self.map_tool}")
+                self.map_tool.boxDrawn.connect(self._on_box_drawn)
+                self.map_tool.cancelled.connect(self._on_selection_cancelled)
+                print("DEBUG SAM: Signals connected for box tool")
+            except Exception as e:
+                print(f"DEBUG SAM ERROR: Failed to create SamBoxMapTool: {e}")
+                import traceback
+                traceback.print_exc()
+                self.show()
+                return
 
             # Show info message
             iface.messageBar().pushInfo(
@@ -525,7 +565,9 @@ class SamSegmentationDialog(QDialog):
             )
 
         # Activate the tool
+        print(f"DEBUG SAM: Setting map tool on canvas...")
         canvas.setMapTool(self.map_tool)
+        print(f"DEBUG SAM: Map tool set. Current tool: {canvas.mapTool()}")
 
     def _on_points_collected(self, points):
         """Handle collected points from click mode"""
