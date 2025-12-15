@@ -1130,6 +1130,81 @@ class ReportDialog(QDialog):
             # Check if this is a regular bullet point
             elif text.startswith('- ') or text.startswith('* '):
                 doc.add_paragraph(text[2:].strip(), style='List Bullet')
+            # Check if this is a standalone image reference (not in bullet point)
+            elif '[IMMAGINE' in text and ']' in text:
+                # Extract and process all image references in the text
+                img_pattern = r'\[IMMAGINE[^:]*:\s*(.*?),\s*(.*?)\]'
+                matches = list(re.finditer(img_pattern, text))
+
+                if matches:
+                    last_end = 0
+                    for match in matches:
+                        # Add text before the image
+                        text_before = text[last_end:match.start()].strip()
+                        if text_before:
+                            p = doc.add_paragraph()
+                            run = p.add_run(text_before)
+                            run.bold = False
+
+                        # Process the image
+                        img_path = match.group(1).strip()
+                        caption = match.group(2).strip()
+
+                        # Clean path
+                        if img_path.startswith('file://'):
+                            img_path = img_path[7:]
+                        import urllib.parse
+                        img_path = urllib.parse.unquote(img_path)
+
+                        try:
+                            if os.path.exists(img_path):
+                                # Add image to document
+                                picture = doc.add_picture(img_path)
+
+                                # Resize proportionally
+                                max_width_px = 450
+                                width = picture.width
+                                height = picture.height
+                                aspect_ratio = width / height
+
+                                if width > max_width_px * 9525:  # Convert to EMU
+                                    picture.width = max_width_px * 9525
+                                    picture.height = int((max_width_px * 9525) / aspect_ratio)
+
+                                # Center the image
+                                last_paragraph = doc.paragraphs[-1]
+                                last_paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
+
+                                # Add caption
+                                caption_para = doc.add_paragraph()
+                                caption_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
+                                caption_run = caption_para.add_run(f"Figura {figure_counter}: {caption}")
+                                caption_run.italic = True
+                                caption_run.font.size = Pt(9)
+                                caption_run.font.name = 'Calibri'
+
+                                figure_counter += 1
+                            else:
+                                # If image doesn't exist, add a placeholder
+                                doc.add_paragraph(f"[Immagine non trovata: {caption}]")
+                                print(f"Image not found: {img_path}")
+                        except Exception as e:
+                            doc.add_paragraph(f"[Errore immagine: {str(e)}]")
+                            print(f"Error processing image {img_path}: {e}")
+
+                        last_end = match.end()
+
+                    # Add any remaining text after the last image
+                    text_after = text[last_end:].strip()
+                    if text_after:
+                        p = doc.add_paragraph()
+                        run = p.add_run(text_after)
+                        run.bold = False
+                else:
+                    # No valid image matches, add as regular paragraph
+                    p = doc.add_paragraph()
+                    run = p.add_run(text)
+                    run.bold = False
             else:
                 # Regular paragraph
                 p = doc.add_paragraph()
