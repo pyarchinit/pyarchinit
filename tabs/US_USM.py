@@ -1014,6 +1014,116 @@ class ReportDialog(QDialog):
             if all(c == '=' for c in text):
                 return
 
+            # IMPORTANT: Check for image tags FIRST, before markdown processing
+            # This ensures images are not skipped when text also contains asterisks
+            if '[IMMAGINE' in text and ']' in text:
+                print(f"DEBUG: Found image tag in paragraph text: {text[:100]}...")
+                # Extract and process all image references in the text
+                img_pattern = r'\[IMMAGINE[^:]*:\s*(.*?),\s*(.*?)\]'
+                matches = list(re.finditer(img_pattern, text))
+
+                if matches:
+                    print(f"DEBUG: Found {len(matches)} image matches")
+                    last_end = 0
+                    for match in matches:
+                        # Add text before the image
+                        text_before = text[last_end:match.start()].strip()
+                        if text_before:
+                            p = doc.add_paragraph()
+                            run = p.add_run(text_before)
+                            run.bold = False
+
+                        # Process the image
+                        img_path = match.group(1).strip()
+                        caption = match.group(2).strip()
+
+                        # Clean path
+                        if img_path.startswith('file://'):
+                            img_path = img_path[7:]
+                        import urllib.parse
+                        img_path = urllib.parse.unquote(img_path)
+
+                        print(f"DEBUG: Processing image - path={img_path}, exists={os.path.exists(img_path)}")
+
+                        try:
+                            if os.path.exists(img_path):
+                                # Add image to document
+                                picture = doc.add_picture(img_path)
+
+                                # Resize proportionally
+                                max_width_px = 450
+                                width = picture.width
+                                height = picture.height
+                                if height > 0:
+                                    aspect_ratio = width / height
+                                    if width > max_width_px * 9525:  # Convert to EMU
+                                        picture.width = max_width_px * 9525
+                                        picture.height = int((max_width_px * 9525) / aspect_ratio)
+
+                                # Center the image
+                                last_paragraph = doc.paragraphs[-1]
+                                last_paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
+
+                                # Add caption
+                                caption_para = doc.add_paragraph()
+                                caption_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
+                                caption_run = caption_para.add_run(f"Figura: {caption}")
+                                caption_run.italic = True
+                                caption_run.font.size = Pt(9)
+                                caption_run.font.name = 'Calibri'
+                                print(f"DEBUG: Successfully added image: {img_path}")
+                            else:
+                                # If image doesn't exist, add a placeholder
+                                doc.add_paragraph(f"[Immagine non trovata: {caption}]")
+                                print(f"DEBUG: Image not found: {img_path}")
+                        except Exception as e:
+                            doc.add_paragraph(f"[Errore immagine: {str(e)}]")
+                            print(f"DEBUG: Error processing image {img_path}: {e}")
+
+                        last_end = match.end()
+
+                    # Add any remaining text after the last image
+                    text_after = text[last_end:].strip()
+                    if text_after:
+                        p = doc.add_paragraph()
+                        run = p.add_run(text_after)
+                        run.bold = False
+                    return  # Done processing this element
+                else:
+                    # No regex match - try manual fallback
+                    print(f"DEBUG: No regex match, trying fallback extraction")
+                    try:
+                        start_idx = text.find(':') + 1
+                        comma_idx = text.rfind(',')
+                        end_idx = text.rfind(']')
+                        if start_idx > 0 and comma_idx > start_idx and end_idx > comma_idx:
+                            fallback_path = text[start_idx:comma_idx].strip()
+                            fallback_caption = text[comma_idx+1:end_idx].strip()
+                            import urllib.parse
+                            fallback_path = urllib.parse.unquote(fallback_path)
+
+                            if fallback_path and os.path.exists(fallback_path):
+                                picture = doc.add_picture(fallback_path)
+                                max_width_px = 450
+                                width = picture.width
+                                height = picture.height
+                                if height > 0:
+                                    aspect_ratio = width / height
+                                    if width > max_width_px * 9525:
+                                        picture.width = max_width_px * 9525
+                                        picture.height = int((max_width_px * 9525) / aspect_ratio)
+                                last_paragraph = doc.paragraphs[-1]
+                                last_paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
+                                caption_para = doc.add_paragraph()
+                                caption_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
+                                caption_run = caption_para.add_run(fallback_caption)
+                                caption_run.italic = True
+                                caption_run.font.size = Pt(9)
+                                print(f"DEBUG: Fallback image added: {fallback_path}")
+                                return
+                    except Exception as e:
+                        print(f"DEBUG: Fallback failed: {e}")
+
             # Process markdown formatting (bold and italic)
             # Check if text contains markdown formatting
             if '**' in text or '*' in text:
