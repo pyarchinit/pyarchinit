@@ -320,31 +320,29 @@ class SamSegmentationDialog(QDialog):
         model_layout.addWidget(QLabel("Method:"), 0, 0)
         self.comboBox_model = QComboBox()
         self.comboBox_model.addItems([
-            "Local: FastSAM (CPU friendly)",
-            "Local: Standard SAM (more accurate)",
-            "Local: OpenCV (edge detection)",
-            "API: Replicate SAM (cloud)"
+            "API: Replicate SAM-2 (cloud, recommended)",
+            "Local: OpenCV (edge detection fallback)"
         ])
-        self.comboBox_model.setToolTip("Select local model or cloud API")
+        self.comboBox_model.setToolTip("SAM Cloud is recommended for best results. Local OpenCV is a fallback option.")
         self.comboBox_model.currentIndexChanged.connect(self._on_model_changed)
         model_layout.addWidget(self.comboBox_model, 0, 1)
 
-        # API Key (shown only when API is selected)
+        # API Key (shown by default since API is first option)
         self.label_api_key = QLabel("API Key:")
-        self.label_api_key.setVisible(False)
+        self.label_api_key.setVisible(True)
         model_layout.addWidget(self.label_api_key, 1, 0)
 
         self.lineEdit_api_key = QLineEdit()
         self.lineEdit_api_key.setPlaceholderText("Replicate API key")
         self.lineEdit_api_key.setEchoMode(QLineEdit.Password)
         self.lineEdit_api_key.setToolTip("Get your API key from replicate.com")
-        self.lineEdit_api_key.setVisible(False)
+        self.lineEdit_api_key.setVisible(True)
         model_layout.addWidget(self.lineEdit_api_key, 1, 1)
 
         # Link to get API key
         self.label_api_link = QLabel('<a href="https://replicate.com/account/api-tokens">Get API key</a>')
         self.label_api_link.setOpenExternalLinks(True)
-        self.label_api_link.setVisible(False)
+        self.label_api_link.setVisible(True)
         model_layout.addWidget(self.label_api_link, 2, 1)
 
         model_group.setLayout(model_layout)
@@ -563,6 +561,10 @@ class SamSegmentationDialog(QDialog):
 
         # Show dialog again
         self.show()
+
+        if not boxes or len(boxes) == 0:
+            QMessageBox.warning(self, "Warning", "No box was drawn or box was outside raster bounds.")
+            return
 
         # Run segmentation with box prompt
         raster_layer = self.comboBox_raster.currentLayer()

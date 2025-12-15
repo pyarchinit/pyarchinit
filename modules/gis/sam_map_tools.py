@@ -126,9 +126,10 @@ class SamPointMapTool(QgsMapToolEmitPoint):
 
     def _finish_collection(self):
         """Finish point collection and emit signal"""
-        if self.points:
-            self.pointsCollected.emit(self.points.copy())
+        # Always emit signal, even if empty (dialog will handle empty case)
+        points_to_emit = self.points.copy()
         self._cleanup()
+        self.pointsCollected.emit(points_to_emit)
 
     def _cancel(self):
         """Cancel point collection"""
@@ -233,7 +234,12 @@ class SamBoxMapTool(QgsMapTool):
     def _finish_box(self, end_point):
         """Finish drawing and emit the box coordinates"""
         if not self.start_point:
+            # If no start point, emit empty and cleanup
+            self._cleanup()
+            self.boxDrawn.emit([])
             return
+
+        box_to_emit = None
 
         # Calculate box in pixel coordinates
         if self.raster_layer:
@@ -247,9 +253,8 @@ class SamBoxMapTool(QgsMapTool):
                 x2 = max(start_pixel[0], end_pixel[0])
                 y2 = max(start_pixel[1], end_pixel[1])
 
-                box = [x1, y1, x2, y2]
-                print(f"Box drawn: {box}")
-                self.boxDrawn.emit([box])  # Emit as list of boxes
+                box_to_emit = [x1, y1, x2, y2]
+                print(f"Box drawn: {box_to_emit}")
         else:
             # If no raster, use map coordinates
             x1 = min(self.start_point.x(), end_point.x())
@@ -257,9 +262,15 @@ class SamBoxMapTool(QgsMapTool):
             x2 = max(self.start_point.x(), end_point.x())
             y2 = max(self.start_point.y(), end_point.y())
 
-            self.boxDrawn.emit([[x1, y1, x2, y2]])
+            box_to_emit = [x1, y1, x2, y2]
 
         self._cleanup()
+
+        # Always emit signal (dialog will handle empty case)
+        if box_to_emit:
+            self.boxDrawn.emit([box_to_emit])
+        else:
+            self.boxDrawn.emit([])
 
     def _map_to_pixel(self, map_point):
         """Convert map coordinates to raster pixel coordinates"""
