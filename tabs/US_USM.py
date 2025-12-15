@@ -9268,7 +9268,11 @@ DATABASE SCHEMA KNOWLEDGE:
 
         # Fetch data
         for table_name in selected_tables:
-            records, columns = ReportGenerator.read_data_from_db(db_url, table_name)
+            try:
+                records, columns = ReportGenerator.read_data_from_db(db_url, table_name)
+            except Exception as e:
+                print(f"Warning: Could not read table {table_name}: {e}")
+                continue  # Skip this table if it doesn't exist
 
             if table_name == 'us_table':
                 # Filter by site first
