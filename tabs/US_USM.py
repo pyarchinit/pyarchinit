@@ -1685,12 +1685,16 @@ class GenerateReportThread(QThread):
             # Estrai le informazioni con una regex più generica
             pattern_parts = re.match(r'\[IMMAGINE\s+([^:]+):\s+(.*?),\s+(.*?)\]', full_match)
             if pattern_parts:
-                number = pattern_parts.group(1)
-                path = pattern_parts.group(2)
-                caption = pattern_parts.group(3)
+                number = pattern_parts.group(1).strip()
+                path = pattern_parts.group(2).strip()
+                caption = pattern_parts.group(3).strip()
 
+                # Clean path
                 if path.startswith('file://'):
                     path = path[7:]
+                # URL decode if needed
+                import urllib.parse
+                path = urllib.parse.unquote(path)
 
                 # Check if this image has already been used
                 image_key = f"{number}_{path}"
@@ -1704,31 +1708,73 @@ class GenerateReportThread(QThread):
                 # Debug print
                 print(f"Processando immagine: numero={number}, path={path}, caption={caption}")
 
-                # Carica l'immagine
-                image = QImage(path)
-                if not image.isNull():
-                    # Ridimensiona mantenendo l'aspect ratio
-                    scaled_image = image.scaled(500, 400, Qt.KeepAspectRatio, Qt.SmoothTransformation)
-
-                    # Create a temporary directory for thumbnails if it doesn't exist
-                    import os
-                    thumb_dir = os.path.join(os.path.dirname(path), "thumbnails")
-                    if not os.path.exists(thumb_dir):
-                        os.makedirs(thumb_dir)
-
-                    # Save the thumbnail in the thumbnails directory
-                    filename = os.path.basename(path)
-                    temp_path = os.path.join(thumb_dir, filename.replace('.png', '_thumb.png'))
-                    scaled_image.save(temp_path)
-
+                # Check if file exists first
+                import os
+                if not os.path.exists(path):
+                    print(f"ERRORE: File non trovato: {path}")
                     return f'''
-                        <div style="margin: 10px 0; text-align: center;">
-                            <img src="{temp_path}"/>
-                            <div style="font-style: italic; margin-top: 5px;">
-                                Immagine {caption}
+                        <div style="margin: 10px 0; text-align: center; color: red;">
+                            <p>[Immagine non trovata: {caption}]</p>
+                            <p style="font-size: 9px;">Path: {path}</p>
+                        </div>
+                        '''
+
+                # Try to load with QImage first
+                image = QImage(path)
+                temp_path = None
+
+                if not image.isNull():
+                    # Ridimensiona mantenendo l'aspect ratio - dimensioni maggiori per report
+                    scaled_image = image.scaled(1024, 768, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+
+                    # Create a temporary directory for report images if it doesn't exist
+                    report_img_dir = os.path.join(os.path.dirname(path), "report_images")
+                    try:
+                        if not os.path.exists(report_img_dir):
+                            os.makedirs(report_img_dir)
+
+                        # Save the scaled image in the report_images directory
+                        filename = os.path.basename(path)
+                        base_name = os.path.splitext(filename)[0]
+                        temp_path = os.path.join(report_img_dir, f"{base_name}_report.png")
+                        scaled_image.save(temp_path)
+                    except Exception as e:
+                        print(f"Errore creazione report_images directory: {e}")
+                        # Use temp directory as fallback
+                        import tempfile
+                        temp_path = os.path.join(tempfile.gettempdir(), f"pyarchinit_report_{os.path.basename(path)}")
+                        scaled_image.save(temp_path)
+                else:
+                    # Fallback: try with PIL
+                    print(f"QImage fallito, provo con PIL...")
+                    try:
+                        from PIL import Image as PILImage
+                        pil_img = PILImage.open(path)
+                        pil_img.thumbnail((1024, 768), PILImage.LANCZOS)
+
+                        import tempfile
+                        temp_path = os.path.join(tempfile.gettempdir(), f"pyarchinit_report_{os.path.basename(path)}")
+                        pil_img.save(temp_path)
+                        print(f"PIL caricamento riuscito: {temp_path}")
+                    except Exception as e:
+                        print(f"Anche PIL fallito: {e}")
+                        return f'''
+                            <div style="margin: 10px 0; text-align: center; color: orange;">
+                                <p>[Impossibile caricare immagine: {caption}]</p>
+                                <p style="font-size: 9px;">Path: {path}</p>
+                            </div>
+                            '''
+
+                if temp_path and os.path.exists(temp_path):
+                    return f'''
+                        <div style="margin: 20px 0; text-align: center;">
+                            <img src="{temp_path}" style="max-width: 100%; height: auto;"/>
+                            <div style="font-style: italic; margin-top: 8px; font-size: 10pt;">
+                                Figura: {caption}
                             </div>
                         </div>
                         '''
+
             return full_match
 
         def convert_to_html(text, style_analysis=None):
@@ -8671,6 +8717,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
     def create_analysis_tools(self, report_data, site_data, us_data, materials_data, pottery_data):
         """Create analysis tools for the LangChain agent"""
+        from langchain.agents import Tool
         return [
             Tool(
                 name="AnalisiContestoSito",
@@ -8723,6 +8770,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
     def create_validation_tools(self, site_data, us_data, materials_data, pottery_data):
         """Create validation tools for the LangChain agent"""
+        from langchain.agents import Tool
         return [
             Tool(
                 name="ValidazioneUS",
@@ -9122,7 +9170,8 @@ DATABASE SCHEMA KNOWLEDGE:
 
         # Get selected tables
         dialog = ReportGeneratorDialog(self)
-        #if dialog.exec_() == QDialog.Accepted:
+        if dialog.exec_() != QDialog.Accepted:
+            return  # User cancelled
         selected_tables = dialog.get_selected_tables()
         year_filter = dialog.get_year_filter()
         us_start, us_end = dialog.get_us_range()
@@ -9140,13 +9189,17 @@ DATABASE SCHEMA KNOWLEDGE:
         tomba_data = []
         periodizzazione_data = []
         struttura_data = []
+        tma_data = []
 
         # Fetch data
         for table_name in selected_tables:
             records, columns = ReportGenerator.read_data_from_db(db_url, table_name)
 
             if table_name == 'us_table':
-                # Filter records
+                # Filter by site first
+                records = [r for r in records if str(getattr(r, 'sito', '')) == current_site]
+
+                # Then filter by year or US range
                 if year_filter:
                     records = [r for r in records if str(getattr(r, 'anno_scavo', '')) == year_filter]
                 elif us_start and us_end:
@@ -9163,7 +9216,10 @@ DATABASE SCHEMA KNOWLEDGE:
                     })
 
             elif table_name == 'inventario_materiali_table':
-                # Filter records
+                # Filter by site first
+                records = [r for r in records if str(getattr(r, 'sito', '')) == current_site]
+
+                # Then filter by year or US range
                 if year_filter:
                     records = [r for r in records if str(getattr(r, 'years', '')) == year_filter]
                 elif us_start and us_end:
@@ -9183,7 +9239,10 @@ DATABASE SCHEMA KNOWLEDGE:
                     })
 
             elif table_name == 'pottery_table':
-                # Filter records
+                # Filter by site first
+                records = [r for r in records if str(getattr(r, 'sito', '')) == current_site]
+
+                # Then filter by year or US range
                 if year_filter:
                     records = [r for r in records if str(getattr(r, 'anno', '')) == year_filter]
                 elif us_start and us_end:
@@ -9243,72 +9302,99 @@ DATABASE SCHEMA KNOWLEDGE:
                         'interpretazione': getattr(record, 'interpretazione', '')
                     })
 
-            # Create report thread instance for validation methods
-            report_thread = GenerateReportThread(
-                custom_prompt="",
-                descriptions_text="",
-                api_key="",
-                selected_model="",
-                selected_tables=selected_tables,
-                analysis_steps=[],
-                agent=None,
-                us_data=us_data,
-                materials_data=materials_data,
-                pottery_data=pottery_data,
-                site_data=site_data,
-                py_dialog=self,
-                tomba_data=tomba_data,
-                periodizzazione_data=periodizzazione_data,
-                struttura_data=struttura_data,
-                tma_data=tma_data
+            elif table_name == 'tma_table':
+                # Filter records by site
+                records = [r for r in records if str(getattr(r, 'sito', '')) == current_site]
+
+                for record in records:
+                    tma_data.append({
+                        'id_tma': getattr(record, 'id_tma', ''),
+                        'sito': getattr(record, 'sito', ''),
+                        'area': getattr(record, 'area', ''),
+                        'us': getattr(record, 'us', ''),
+                        'nr_campione': getattr(record, 'nr_campione', ''),
+                        'tipo_campione': getattr(record, 'tipo_campione', ''),
+                        'descrizione': getattr(record, 'descrizione', '')
+                    })
+
+        # Create report thread instance for validation methods (outside for loop)
+        report_thread = GenerateReportThread(
+            custom_prompt="",
+            descriptions_text="",
+            api_key="",
+            selected_model="",
+            selected_tables=selected_tables,
+            analysis_steps=[],
+            agent=None,
+            us_data=us_data,
+            materials_data=materials_data,
+            pottery_data=pottery_data,
+            site_data=site_data,
+            py_dialog=self,
+            tomba_data=tomba_data,
+            periodizzazione_data=periodizzazione_data,
+            struttura_data=struttura_data,
+            tma_data=tma_data
+        )
+
+        # Check each type of data
+        if 'us_table' in selected_tables:
+            us_validation = report_thread.validate_us()
+            if not us_validation['valid']:
+                missing_data_report.append(us_validation['message'])
+
+        if 'inventario_materiali_table' in selected_tables:
+            materials_validation = report_thread.validate_materials()
+            if not materials_validation['valid']:
+                missing_data_report.append(materials_validation['message'])
+
+        if 'pottery_table' in selected_tables:
+            pottery_validation = report_thread.validate_pottery()
+            if not pottery_validation['valid']:
+                missing_data_report.append(pottery_validation['message'])
+
+        if 'tomba_table' in selected_tables:
+            tomba_validation = report_thread.validate_tomba()
+            if not tomba_validation['valid']:
+                missing_data_report.append(tomba_validation['message'])
+
+        if 'periodizzazione_table' in selected_tables:
+            periodizzazione_validation = report_thread.validate_periodizzazione()
+            if not periodizzazione_validation['valid']:
+                missing_data_report.append(periodizzazione_validation['message'])
+
+        if 'struttura_table' in selected_tables:
+            struttura_validation = report_thread.validate_struttura()
+            if not struttura_validation['valid']:
+                missing_data_report.append(struttura_validation['message'])
+
+        if 'tma_table' in selected_tables:
+            tma_validation = report_thread.validate_tma()
+            if not tma_validation['valid']:
+                missing_data_report.append(tma_validation['message'])
+
+        # Show results
+        if missing_data_report:
+            msg = "REPORT DATI MANCANTI\n\n" + "\n\n".join(missing_data_report)
+            msg += "\n\n" + "=" * 40 + "\n\nVuoi continuare comunque con la generazione del report?"
+
+            reply = QMessageBox.question(
+                self,
+                "Dati Mancanti",
+                msg,
+                QMessageBox.Yes | QMessageBox.No,
+                QMessageBox.Yes
             )
 
-            # Check each type of data
-            if 'us_table' in selected_tables:
-                us_validation = report_thread.validate_us()
-                if not us_validation['valid']:
-                    missing_data_report.append(us_validation['message'])
-
-            if 'inventario_materiali_table' in selected_tables:
-                materials_validation = report_thread.validate_materials()
-                if not materials_validation['valid']:
-                    missing_data_report.append(materials_validation['message'])
-
-            if 'pottery_table' in selected_tables:
-                pottery_validation = report_thread.validate_pottery()
-                if not pottery_validation['valid']:
-                    missing_data_report.append(pottery_validation['message'])
-
-            if 'tomba_table' in selected_tables:
-                tomba_validation = report_thread.validate_tomba()
-                if not tomba_validation['valid']:
-                    missing_data_report.append(tomba_validation['message'])
-
-            if 'periodizzazione_table' in selected_tables:
-                periodizzazione_validation = report_thread.validate_periodizzazione()
-                if not periodizzazione_validation['valid']:
-                    missing_data_report.append(periodizzazione_validation['message'])
-
-            if 'struttura_table' in selected_tables:
-                struttura_validation = report_thread.validate_struttura()
-                if not struttura_validation['valid']:
-                    missing_data_report.append(struttura_validation['message'])
-
-            if 'tma_table' in selected_tables:
-                tma_validation = report_thread.validate_tma()
-                if not tma_validation['valid']:
-                    missing_data_report.append(tma_validation['message'])
-
-            # Show results
-            if missing_data_report:
-                msg = "REPORT DATI MANCANTI\n\n" + "\n\n".join(missing_data_report)
-                QMessageBox.warning(self, "Dati Mancanti", msg)
-                return False
-            else:
-                QMessageBox.information(self, "Verifica Completata", "Tutti i dati sono completi!")
+            if reply == QMessageBox.Yes:
+                # User wants to continue despite missing data
                 return True
+            else:
+                return False
+        else:
+            QMessageBox.information(self, "Verifica Completata", "Tutti i dati sono completi!")
+            return True
 
-        return None
     def open_rag_query_dialog(self):
         """Open the RAG query dialog"""
         try:
