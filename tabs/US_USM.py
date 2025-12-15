@@ -9266,12 +9266,20 @@ DATABASE SCHEMA KNOWLEDGE:
         struttura_data = []
         tma_data = []
 
+        # Map UI table names to actual database table names
+        table_name_mapping = {
+            'tma_table': 'tma_materiali_archeologici'
+        }
+
         # Fetch data
         for table_name in selected_tables:
+            # Get actual database table name
+            actual_table_name = table_name_mapping.get(table_name, table_name)
+
             try:
-                records, columns = ReportGenerator.read_data_from_db(db_url, table_name)
+                records, columns = ReportGenerator.read_data_from_db(db_url, actual_table_name)
             except Exception as e:
-                print(f"Warning: Could not read table {table_name}: {e}")
+                print(f"Warning: Could not read table {actual_table_name}: {e}")
                 continue  # Skip this table if it doesn't exist
 
             if table_name == 'us_table':
