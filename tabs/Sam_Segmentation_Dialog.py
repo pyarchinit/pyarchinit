@@ -34,6 +34,14 @@ from qgis.gui import QgsMapLayerComboBox, QgsMapCanvas
 
 from qgis.utils import iface
 
+# Import map tools for interactive modes
+try:
+    from modules.gis.sam_map_tools import SamPointMapTool, SamBoxMapTool
+    HAS_MAP_TOOLS = True
+except ImportError:
+    HAS_MAP_TOOLS = False
+    print("Warning: SAM map tools not available")
+
 
 class SamApiWorkerThread(QThread):
     """Worker thread to run SAM segmentation via Replicate API using external script"""
@@ -181,6 +189,9 @@ class SamSegmentationDialog(QDialog):
         self.db_manager = db_manager
         self.worker_thread = None
         self.temp_output = None
+        self.map_tool = None  # Current active map tool
+        self.collected_prompts = None  # Prompts collected from interactive modes
+        self.previous_map_tool = None  # Store previous tool to restore
         self.initUI()
         self.load_settings()
 
@@ -275,12 +286,10 @@ class SamSegmentationDialog(QDialog):
         self.radio_auto.setChecked(True)
 
         self.radio_click = QRadioButton("Click mode (click on each stone)")
-        self.radio_click.setToolTip("Click on individual stones to segment them")
-        self.radio_click.setEnabled(False)  # TODO: implement map tool
+        self.radio_click.setToolTip("Click on individual stones to segment them. Right-click or press Enter when done.")
 
         self.radio_box = QRadioButton("Box mode (draw rectangle)")
-        self.radio_box.setToolTip("Draw a rectangle to segment all stones within")
-        self.radio_box.setEnabled(False)  # TODO: implement map tool
+        self.radio_box.setToolTip("Draw a rectangle to segment all stones within that area")
 
         self.mode_group = QButtonGroup()
         self.mode_group.addButton(self.radio_auto, 1)
@@ -291,8 +300,18 @@ class SamSegmentationDialog(QDialog):
         mode_layout.addWidget(self.radio_click)
         mode_layout.addWidget(self.radio_box)
 
+        # Instructions label for interactive modes
+        self.label_instructions = QLabel("")
+        self.label_instructions.setStyleSheet("color: #0066cc; font-style: italic;")
+        self.label_instructions.setWordWrap(True)
+        self.label_instructions.setVisible(False)
+        mode_layout.addWidget(self.label_instructions)
+
         mode_group.setLayout(mode_layout)
         layout.addWidget(mode_group)
+
+        # Connect mode change to update instructions
+        self.mode_group.buttonClicked.connect(self._on_mode_changed)
 
         # Model selection
         model_group = QGroupBox("Model")
@@ -361,6 +380,26 @@ class SamSegmentationDialog(QDialog):
         self.label_api_key.setVisible(is_api)
         self.lineEdit_api_key.setVisible(is_api)
         self.label_api_link.setVisible(is_api)
+
+    def _on_mode_changed(self, button):
+        """Update UI when segmentation mode changes"""
+        if self.radio_click.isChecked():
+            self.label_instructions.setText(
+                "Click mode: Click 'Start' then click on stones in the map. "
+                "Right-click or press Enter when done. Press Escape to cancel."
+            )
+            self.label_instructions.setVisible(True)
+            self.btn_segment.setText("Start Selection")
+        elif self.radio_box.isChecked():
+            self.label_instructions.setText(
+                "Box mode: Click 'Start' then draw a rectangle on the map. "
+                "Press Escape to cancel."
+            )
+            self.label_instructions.setVisible(True)
+            self.btn_segment.setText("Start Selection")
+        else:
+            self.label_instructions.setVisible(False)
+            self.btn_segment.setText("Start Segmentation")
 
     def _load_site_from_config(self):
         """Load site from PyArchInit config"""
@@ -442,16 +481,129 @@ class SamSegmentationDialog(QDialog):
             QMessageBox.warning(self, "Error", f"Raster file not found: {raster_path}")
             return
 
-        # Create temp output file
-        self.temp_output = tempfile.mktemp(suffix='.gpkg')
-
         # Save settings
         self.save_settings()
+
+        # Handle interactive modes (click or box)
+        mode = self.get_mode()
+        if mode in ['points', 'box'] and HAS_MAP_TOOLS:
+            self._start_interactive_selection(raster_layer, mode)
+            return
+
+        # For auto mode or if map tools not available, run directly
+        self._run_segmentation(raster_path, None)
+
+    def _start_interactive_selection(self, raster_layer, mode):
+        """Start interactive map tool for point or box selection"""
+        canvas = iface.mapCanvas()
+
+        # Store previous tool to restore later
+        self.previous_map_tool = canvas.mapTool()
+
+        # Hide dialog temporarily
+        self.hide()
+
+        # Create appropriate map tool
+        if mode == 'points':
+            self.map_tool = SamPointMapTool(canvas, raster_layer)
+            self.map_tool.pointsCollected.connect(self._on_points_collected)
+            self.map_tool.pointAdded.connect(self._on_point_added)
+            self.map_tool.cancelled.connect(self._on_selection_cancelled)
+
+            # Show info message
+            iface.messageBar().pushInfo(
+                "SAM Click Mode",
+                "Click on stones to mark them. Right-click or press Enter when done. Press Escape to cancel."
+            )
+        else:  # box mode
+            self.map_tool = SamBoxMapTool(canvas, raster_layer)
+            self.map_tool.boxDrawn.connect(self._on_box_drawn)
+            self.map_tool.cancelled.connect(self._on_selection_cancelled)
+
+            # Show info message
+            iface.messageBar().pushInfo(
+                "SAM Box Mode",
+                "Click and drag to draw a rectangle. Press Escape to cancel."
+            )
+
+        # Activate the tool
+        canvas.setMapTool(self.map_tool)
+
+    def _on_points_collected(self, points):
+        """Handle collected points from click mode"""
+        print(f"Points collected: {len(points)} points")
+        self.collected_prompts = points
+
+        # Restore previous map tool
+        self._restore_map_tool()
+
+        # Show dialog again
+        self.show()
+
+        if len(points) == 0:
+            QMessageBox.warning(self, "Warning", "No points were selected.")
+            return
+
+        # Run segmentation with prompts
+        raster_layer = self.comboBox_raster.currentLayer()
+        if raster_layer:
+            self._run_segmentation(raster_layer.source(), points)
+
+    def _on_point_added(self, count):
+        """Handle point added event for feedback"""
+        iface.messageBar().pushInfo("SAM", f"{count} point(s) selected")
+
+    def _on_box_drawn(self, boxes):
+        """Handle drawn box from box mode"""
+        print(f"Box drawn: {boxes}")
+        self.collected_prompts = boxes
+
+        # Restore previous map tool
+        self._restore_map_tool()
+
+        # Show dialog again
+        self.show()
+
+        # Run segmentation with box prompt
+        raster_layer = self.comboBox_raster.currentLayer()
+        if raster_layer:
+            self._run_segmentation(raster_layer.source(), boxes)
+
+    def _on_selection_cancelled(self):
+        """Handle cancellation of interactive selection"""
+        print("Selection cancelled")
+
+        # Restore previous map tool
+        self._restore_map_tool()
+
+        # Show dialog again
+        self.show()
+
+        iface.messageBar().pushInfo("SAM", "Selection cancelled")
+
+    def _restore_map_tool(self):
+        """Restore the previous map tool"""
+        canvas = iface.mapCanvas()
+
+        if self.map_tool:
+            self.map_tool.deactivate()
+            self.map_tool = None
+
+        if self.previous_map_tool:
+            canvas.setMapTool(self.previous_map_tool)
+            self.previous_map_tool = None
+
+    def _run_segmentation(self, raster_path, prompts):
+        """Run the segmentation with optional prompts"""
+        # Create temp output file
+        self.temp_output = tempfile.mktemp(suffix='.gpkg')
 
         # Start worker thread
         self.btn_segment.setEnabled(False)
         self.progressBar.setVisible(True)
         self.label_status.setText("Segmentation in progress...")
+
+        mode = self.get_mode()
 
         if self.is_api_mode():
             # Use API worker
@@ -459,15 +611,15 @@ class SamSegmentationDialog(QDialog):
                 input_raster=raster_path,
                 output_gpkg=self.temp_output,
                 api_key=self.lineEdit_api_key.text().strip(),
-                mode=self.get_mode()
+                mode=mode
             )
         else:
             # Use local worker
             self.worker_thread = SamSegmentationWorkerThread(
                 input_raster=raster_path,
                 output_gpkg=self.temp_output,
-                mode=self.get_mode(),
-                prompts=None,  # For auto mode
+                mode=mode,
+                prompts=prompts,
                 model=self.get_model()
             )
 
