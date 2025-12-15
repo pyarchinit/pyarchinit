@@ -10131,8 +10131,46 @@ DATABASE SCHEMA KNOWLEDGE:
                     i += 1
                 continue
 
-            # Check for images (US, RAPPORTI, FASE, MATERIALE, CERAMICA)
-            img_match = re.search(r'\[IMMAGINE\s+(?:US|RAPPORTI|FASE|REPERTO|CERAMICA)\s+[^:]*:\s+(.*?),\s*(.*?)\]', line)
+            # Check for images (US, RAPPORTI, FASE, MATERIALE, CERAMICA) - more flexible regex
+            # First check if line contains image tag
+            if '[IMMAGINE' in line and ']' in line:
+                # Try multiple regex patterns
+                img_patterns = [
+                    r'\[IMMAGINE\s+(?:US|RAPPORTI|FASE|REPERTO|CERAMICA)\s+[^:]*:\s*(.*?),\s*(.*?)\]',
+                    r'\[IMMAGINE\s+[^:]+:\s*(.*?),\s*(.*?)\]',
+                    r'\[IMMAGINE[^:]*:\s*(.*?),\s*(.*?)\]'
+                ]
+
+                img_match = None
+                for pattern in img_patterns:
+                    img_match = re.search(pattern, line)
+                    if img_match:
+                        print(f"Image matched with pattern: {pattern}")
+                        break
+
+                if not img_match:
+                    print(f"WARNING: Could not parse image tag in line: {line[:100]}")
+                    # Try manual extraction as last resort
+                    try:
+                        # Extract path and caption manually
+                        start_idx = line.find(':') + 1
+                        comma_idx = line.rfind(',')
+                        end_idx = line.rfind(']')
+                        if start_idx > 0 and comma_idx > start_idx and end_idx > comma_idx:
+                            manual_path = line[start_idx:comma_idx].strip()
+                            manual_caption = line[comma_idx+1:end_idx].strip()
+                            if manual_path and manual_caption:
+                                print(f"Manual extraction: path={manual_path}, caption={manual_caption}")
+                                # Create a fake match result
+                                class FakeMatch:
+                                    def group(self, n):
+                                        return manual_path if n == 1 else manual_caption
+                                img_match = FakeMatch()
+                    except Exception as e:
+                        print(f"Manual extraction failed: {e}")
+            else:
+                img_match = None
+
             if img_match:
                 img_path = img_match.group(1).strip()
                 caption = img_match.group(2).strip()
@@ -10140,6 +10178,10 @@ DATABASE SCHEMA KNOWLEDGE:
                 # Remove file:// prefix if present
                 if img_path.startswith('file://'):
                     img_path = img_path[7:]
+
+                # URL decode the path
+                import urllib.parse
+                img_path = urllib.parse.unquote(img_path)
 
                 # Ensure the path is absolute
                 if not os.path.isabs(img_path):
@@ -10156,7 +10198,7 @@ DATABASE SCHEMA KNOWLEDGE:
                             img_path = path
                             break
 
-                print(f"Processing image: path={img_path}, caption={caption}")
+                print(f"Processing image: path={img_path}, exists={os.path.exists(img_path)}, caption={caption}")
 
                 if os.path.exists(img_path):
                     try:
