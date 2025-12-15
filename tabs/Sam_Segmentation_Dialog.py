@@ -20,7 +20,7 @@ from qgis.PyQt.QtWidgets import (
     QDialog, QVBoxLayout, QHBoxLayout, QGridLayout, QGroupBox,
     QLabel, QComboBox, QLineEdit, QPushButton, QProgressBar,
     QRadioButton, QButtonGroup, QSpinBox, QMessageBox,
-    QApplication, QFrame
+    QApplication, QFrame, QCheckBox
 )
 from qgis.PyQt.QtGui import QIcon
 
@@ -33,6 +33,187 @@ from qgis.core import (
 from qgis.gui import QgsMapLayerComboBox, QgsMapCanvas
 
 from qgis.utils import iface
+
+
+class SamApiWorkerThread(QThread):
+    """Worker thread to run SAM segmentation via Replicate API"""
+    finished = pyqtSignal(bool, str, str)  # success, message, output_file
+    progress = pyqtSignal(str)  # status message
+
+    def __init__(self, input_raster, output_gpkg, api_key, mode='auto'):
+        super().__init__()
+        self.input_raster = input_raster
+        self.output_gpkg = output_gpkg
+        self.api_key = api_key
+        self.mode = mode
+
+    def run(self):
+        """Run SAM segmentation via Replicate API"""
+        try:
+            import requests
+            import base64
+            from PIL import Image
+            import numpy as np
+            import rasterio
+            from shapely.geometry import shape, Polygon
+            import geopandas as gpd
+            import cv2
+
+            self.progress.emit("Loading raster...")
+
+            # Read raster
+            with rasterio.open(self.input_raster) as src:
+                img_array = src.read()
+                transform = src.transform
+                crs = src.crs
+
+                # Convert to RGB
+                if img_array.shape[0] >= 3:
+                    rgb = np.transpose(img_array[:3], (1, 2, 0))
+                else:
+                    rgb = np.stack([img_array[0]] * 3, axis=-1)
+
+                # Normalize to 0-255
+                if rgb.max() > 255:
+                    rgb = (rgb / rgb.max() * 255).astype(np.uint8)
+                else:
+                    rgb = rgb.astype(np.uint8)
+
+            # Save to temp PNG for API
+            temp_img = tempfile.mktemp(suffix='.png')
+            Image.fromarray(rgb).save(temp_img)
+
+            # Encode image to base64
+            with open(temp_img, 'rb') as f:
+                img_base64 = base64.b64encode(f.read()).decode('utf-8')
+
+            self.progress.emit("Calling SAM API...")
+
+            # Call Replicate API
+            headers = {
+                'Authorization': f'Token {self.api_key}',
+                'Content-Type': 'application/json'
+            }
+
+            # Use SAM model on Replicate
+            response = requests.post(
+                'https://api.replicate.com/v1/predictions',
+                headers=headers,
+                json={
+                    'version': 'a00b72d583b4d42bd6dc7ae89b0f81e7f89e1d66a3e3e9d0c9c86c1e6d72a1d4',  # SAM model
+                    'input': {
+                        'image': f'data:image/png;base64,{img_base64}',
+                        'points_per_side': 32,
+                        'pred_iou_thresh': 0.86,
+                        'stability_score_thresh': 0.92
+                    }
+                },
+                timeout=30
+            )
+
+            if response.status_code != 201:
+                self.finished.emit(False, f"API Error: {response.text}", "")
+                return
+
+            prediction = response.json()
+            prediction_url = prediction.get('urls', {}).get('get')
+
+            # Poll for results
+            self.progress.emit("Waiting for results...")
+            import time
+            for _ in range(60):  # Max 60 attempts (5 minutes)
+                time.sleep(5)
+                result = requests.get(prediction_url, headers=headers, timeout=30)
+                result_json = result.json()
+
+                if result_json.get('status') == 'succeeded':
+                    # Process masks
+                    masks = result_json.get('output', [])
+                    self.progress.emit(f"Processing {len(masks)} masks...")
+
+                    # Convert masks to polygons
+                    polygons = self._masks_to_polygons(masks, transform, rgb.shape)
+
+                    if not polygons:
+                        self.finished.emit(False, "No valid polygons generated", "")
+                        return
+
+                    # Create GeoPackage
+                    gdf = gpd.GeoDataFrame(
+                        {'id': range(len(polygons)), 'area': [p.area for p in polygons]},
+                        geometry=polygons,
+                        crs=crs
+                    )
+                    gdf.to_file(self.output_gpkg, driver='GPKG')
+
+                    self.finished.emit(True, "Segmentation completed", self.output_gpkg)
+                    return
+
+                elif result_json.get('status') == 'failed':
+                    self.finished.emit(False, f"API failed: {result_json.get('error')}", "")
+                    return
+
+            self.finished.emit(False, "API timeout", "")
+
+        except ImportError as e:
+            self.finished.emit(False, f"Missing dependency: {e}. Install with pip install requests pillow", "")
+        except Exception as e:
+            self.finished.emit(False, f"Error: {str(e)}", "")
+        finally:
+            # Cleanup temp file
+            if 'temp_img' in locals() and os.path.exists(temp_img):
+                try:
+                    os.remove(temp_img)
+                except:
+                    pass
+
+    def _masks_to_polygons(self, masks, transform, shape):
+        """Convert API mask results to polygons"""
+        import cv2
+        from shapely.geometry import Polygon
+        polygons = []
+
+        for mask_data in masks:
+            try:
+                # Decode mask if it's base64
+                if isinstance(mask_data, str):
+                    import base64
+                    mask_bytes = base64.b64decode(mask_data)
+                    mask_array = np.frombuffer(mask_bytes, dtype=np.uint8)
+                    mask = cv2.imdecode(mask_array, cv2.IMREAD_GRAYSCALE)
+                else:
+                    mask = np.array(mask_data, dtype=np.uint8)
+
+                if mask is None:
+                    continue
+
+                # Find contours
+                contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+                for cnt in contours:
+                    if len(cnt) >= 3:
+                        # Simplify
+                        epsilon = 0.01 * cv2.arcLength(cnt, True)
+                        approx = cv2.approxPolyDP(cnt, epsilon, True)
+
+                        if len(approx) >= 3:
+                            # Convert to map coords
+                            coords = []
+                            for pt in approx:
+                                px, py = pt[0]
+                                mx = transform.c + px * transform.a + py * transform.b
+                                my = transform.f + px * transform.d + py * transform.e
+                                coords.append((mx, my))
+
+                            if len(coords) >= 3:
+                                poly = Polygon(coords)
+                                if poly.is_valid and poly.area > 0:
+                                    polygons.append(poly)
+            except Exception as e:
+                print(f"Error processing mask: {e}")
+                continue
+
+        return polygons
 
 
 class SamSegmentationWorkerThread(QThread):
@@ -234,16 +415,37 @@ class SamSegmentationDialog(QDialog):
 
         # Model selection
         model_group = QGroupBox("Model")
-        model_layout = QHBoxLayout()
+        model_layout = QGridLayout()
 
+        model_layout.addWidget(QLabel("Method:"), 0, 0)
         self.comboBox_model = QComboBox()
         self.comboBox_model.addItems([
-            "fast (FastSAM - CPU friendly)",
-            "sam (Standard SAM - more accurate)",
-            "opencv (Fallback - edge detection)"
+            "Local: FastSAM (CPU friendly)",
+            "Local: Standard SAM (more accurate)",
+            "Local: OpenCV (edge detection)",
+            "API: Replicate SAM (cloud)"
         ])
-        self.comboBox_model.setToolTip("Select the segmentation model")
-        model_layout.addWidget(self.comboBox_model)
+        self.comboBox_model.setToolTip("Select local model or cloud API")
+        self.comboBox_model.currentIndexChanged.connect(self._on_model_changed)
+        model_layout.addWidget(self.comboBox_model, 0, 1)
+
+        # API Key (shown only when API is selected)
+        self.label_api_key = QLabel("API Key:")
+        self.label_api_key.setVisible(False)
+        model_layout.addWidget(self.label_api_key, 1, 0)
+
+        self.lineEdit_api_key = QLineEdit()
+        self.lineEdit_api_key.setPlaceholderText("Replicate API key")
+        self.lineEdit_api_key.setEchoMode(QLineEdit.Password)
+        self.lineEdit_api_key.setToolTip("Get your API key from replicate.com")
+        self.lineEdit_api_key.setVisible(False)
+        model_layout.addWidget(self.lineEdit_api_key, 1, 1)
+
+        # Link to get API key
+        self.label_api_link = QLabel('<a href="https://replicate.com/account/api-tokens">Get API key</a>')
+        self.label_api_link.setOpenExternalLinks(True)
+        self.label_api_link.setVisible(False)
+        model_layout.addWidget(self.label_api_link, 2, 1)
 
         model_group.setLayout(model_layout)
         layout.addWidget(model_group)
@@ -272,6 +474,13 @@ class SamSegmentationDialog(QDialog):
 
         layout.addLayout(btn_layout)
 
+    def _on_model_changed(self, index):
+        """Show/hide API key field based on model selection"""
+        is_api = 'API' in self.comboBox_model.currentText()
+        self.label_api_key.setVisible(is_api)
+        self.lineEdit_api_key.setVisible(is_api)
+        self.label_api_link.setVisible(is_api)
+
     def _load_site_from_config(self):
         """Load site from PyArchInit config"""
         try:
@@ -289,11 +498,15 @@ class SamSegmentationDialog(QDialog):
         """Load saved settings"""
         s = QSettings()
         self.lineEdit_area.setText(s.value('pyArchInit/sam_last_area', ''))
+        self.lineEdit_api_key.setText(s.value('pyArchInit/sam_api_key', ''))
 
     def save_settings(self):
         """Save settings"""
         s = QSettings()
         s.setValue('pyArchInit/sam_last_area', self.lineEdit_area.text())
+        # Save API key if provided
+        if self.lineEdit_api_key.text().strip():
+            s.setValue('pyArchInit/sam_api_key', self.lineEdit_api_key.text().strip())
 
     def get_mode(self):
         """Get selected segmentation mode"""
@@ -308,11 +521,17 @@ class SamSegmentationDialog(QDialog):
     def get_model(self):
         """Get selected model"""
         model_text = self.comboBox_model.currentText()
-        if 'fast' in model_text.lower():
+        if 'FastSAM' in model_text:
             return 'fast'
-        elif 'opencv' in model_text.lower():
+        elif 'OpenCV' in model_text:
             return 'opencv'
+        elif 'API' in model_text:
+            return 'api'
         return 'sam'
+
+    def is_api_mode(self):
+        """Check if API mode is selected"""
+        return 'API' in self.comboBox_model.currentText()
 
     def on_segment_clicked(self):
         """Start segmentation process"""
@@ -326,6 +545,15 @@ class SamSegmentationDialog(QDialog):
         if not area:
             QMessageBox.warning(self, "Error", "Please enter an area number")
             return
+
+        # Check API key if API mode
+        if self.is_api_mode():
+            api_key = self.lineEdit_api_key.text().strip()
+            if not api_key:
+                QMessageBox.warning(self, "Error",
+                    "Please enter your Replicate API key.\n\n"
+                    "Get one at: https://replicate.com/account/api-tokens")
+                return
 
         # Get raster file path
         raster_path = raster_layer.source()
@@ -344,13 +572,24 @@ class SamSegmentationDialog(QDialog):
         self.progressBar.setVisible(True)
         self.label_status.setText("Segmentation in progress...")
 
-        self.worker_thread = SamSegmentationWorkerThread(
-            input_raster=raster_path,
-            output_gpkg=self.temp_output,
-            mode=self.get_mode(),
-            prompts=None,  # For auto mode
-            model=self.get_model()
-        )
+        if self.is_api_mode():
+            # Use API worker
+            self.worker_thread = SamApiWorkerThread(
+                input_raster=raster_path,
+                output_gpkg=self.temp_output,
+                api_key=self.lineEdit_api_key.text().strip(),
+                mode=self.get_mode()
+            )
+        else:
+            # Use local worker
+            self.worker_thread = SamSegmentationWorkerThread(
+                input_raster=raster_path,
+                output_gpkg=self.temp_output,
+                mode=self.get_mode(),
+                prompts=None,  # For auto mode
+                model=self.get_model()
+            )
+
         self.worker_thread.finished.connect(self.on_segmentation_finished)
         self.worker_thread.progress.connect(self.on_progress)
         self.worker_thread.start()
