@@ -36,7 +36,7 @@ from qgis.utils import iface
 
 
 class SamApiWorkerThread(QThread):
-    """Worker thread to run SAM segmentation via Replicate API"""
+    """Worker thread to run SAM segmentation via Replicate API using external script"""
     finished = pyqtSignal(bool, str, str)  # success, message, output_file
     progress = pyqtSignal(str)  # status message
 
@@ -48,172 +48,53 @@ class SamApiWorkerThread(QThread):
         self.mode = mode
 
     def run(self):
-        """Run SAM segmentation via Replicate API"""
+        """Run SAM API segmentation via external subprocess"""
         try:
-            import requests
-            import base64
-            from PIL import Image
-            import numpy as np
-            import rasterio
-            from shapely.geometry import shape, Polygon
-            import geopandas as gpd
-            import cv2
+            venv_python = os.path.expanduser('~/pyarchinit/bin/sam_venv/bin/python')
+            worker_script = os.path.expanduser('~/pyarchinit/bin/sam_api_worker.py')
 
-            self.progress.emit("Loading raster...")
-
-            # Read raster
-            with rasterio.open(self.input_raster) as src:
-                img_array = src.read()
-                transform = src.transform
-                crs = src.crs
-
-                # Convert to RGB
-                if img_array.shape[0] >= 3:
-                    rgb = np.transpose(img_array[:3], (1, 2, 0))
-                else:
-                    rgb = np.stack([img_array[0]] * 3, axis=-1)
-
-                # Normalize to 0-255
-                if rgb.max() > 255:
-                    rgb = (rgb / rgb.max() * 255).astype(np.uint8)
-                else:
-                    rgb = rgb.astype(np.uint8)
-
-            # Save to temp PNG for API
-            temp_img = tempfile.mktemp(suffix='.png')
-            Image.fromarray(rgb).save(temp_img)
-
-            # Encode image to base64
-            with open(temp_img, 'rb') as f:
-                img_base64 = base64.b64encode(f.read()).decode('utf-8')
-
-            self.progress.emit("Calling SAM API...")
-
-            # Call Replicate API
-            headers = {
-                'Authorization': f'Token {self.api_key}',
-                'Content-Type': 'application/json'
-            }
-
-            # Use SAM model on Replicate
-            response = requests.post(
-                'https://api.replicate.com/v1/predictions',
-                headers=headers,
-                json={
-                    'version': 'a00b72d583b4d42bd6dc7ae89b0f81e7f89e1d66a3e3e9d0c9c86c1e6d72a1d4',  # SAM model
-                    'input': {
-                        'image': f'data:image/png;base64,{img_base64}',
-                        'points_per_side': 32,
-                        'pred_iou_thresh': 0.86,
-                        'stability_score_thresh': 0.92
-                    }
-                },
-                timeout=30
-            )
-
-            if response.status_code != 201:
-                self.finished.emit(False, f"API Error: {response.text}", "")
+            if not os.path.exists(venv_python):
+                self.finished.emit(False, "SAM virtual environment not found", "")
                 return
 
-            prediction = response.json()
-            prediction_url = prediction.get('urls', {}).get('get')
+            if not os.path.exists(worker_script):
+                self.finished.emit(False, "SAM API worker script not found", "")
+                return
 
-            # Poll for results
-            self.progress.emit("Waiting for results...")
-            import time
-            for _ in range(60):  # Max 60 attempts (5 minutes)
-                time.sleep(5)
-                result = requests.get(prediction_url, headers=headers, timeout=30)
-                result_json = result.json()
+            # Build command
+            cmd = [
+                venv_python, worker_script,
+                '--input', self.input_raster,
+                '--output', self.output_gpkg,
+                '--api-key', self.api_key
+            ]
 
-                if result_json.get('status') == 'succeeded':
-                    # Process masks
-                    masks = result_json.get('output', [])
-                    self.progress.emit(f"Processing {len(masks)} masks...")
+            self.progress.emit("Starting API segmentation...")
 
-                    # Convert masks to polygons
-                    polygons = self._masks_to_polygons(masks, transform, rgb.shape)
+            # Clean environment to avoid QGIS Python conflicts
+            clean_env = os.environ.copy()
+            for var in ['PYTHONHOME', 'PYTHONPATH', 'PYTHONEXECUTABLE']:
+                clean_env.pop(var, None)
 
-                    if not polygons:
-                        self.finished.emit(False, "No valid polygons generated", "")
-                        return
+            # Run subprocess
+            result = subprocess.run(
+                cmd,
+                capture_output=True,
+                text=True,
+                timeout=900,  # 15 minutes timeout for API
+                env=clean_env
+            )
 
-                    # Create GeoPackage
-                    gdf = gpd.GeoDataFrame(
-                        {'id': range(len(polygons)), 'area': [p.area for p in polygons]},
-                        geometry=polygons,
-                        crs=crs
-                    )
-                    gdf.to_file(self.output_gpkg, driver='GPKG')
+            if result.returncode == 0:
+                self.finished.emit(True, "Segmentation completed", self.output_gpkg)
+            else:
+                error_msg = result.stderr[:500] if result.stderr else result.stdout[:500] if result.stdout else "Unknown error"
+                self.finished.emit(False, f"Segmentation failed: {error_msg}", "")
 
-                    self.finished.emit(True, "Segmentation completed", self.output_gpkg)
-                    return
-
-                elif result_json.get('status') == 'failed':
-                    self.finished.emit(False, f"API failed: {result_json.get('error')}", "")
-                    return
-
-            self.finished.emit(False, "API timeout", "")
-
-        except ImportError as e:
-            self.finished.emit(False, f"Missing dependency: {e}. Install with pip install requests pillow", "")
+        except subprocess.TimeoutExpired:
+            self.finished.emit(False, "Segmentation timed out (15 min)", "")
         except Exception as e:
             self.finished.emit(False, f"Error: {str(e)}", "")
-        finally:
-            # Cleanup temp file
-            if 'temp_img' in locals() and os.path.exists(temp_img):
-                try:
-                    os.remove(temp_img)
-                except:
-                    pass
-
-    def _masks_to_polygons(self, masks, transform, shape):
-        """Convert API mask results to polygons"""
-        import cv2
-        from shapely.geometry import Polygon
-        polygons = []
-
-        for mask_data in masks:
-            try:
-                # Decode mask if it's base64
-                if isinstance(mask_data, str):
-                    import base64
-                    mask_bytes = base64.b64decode(mask_data)
-                    mask_array = np.frombuffer(mask_bytes, dtype=np.uint8)
-                    mask = cv2.imdecode(mask_array, cv2.IMREAD_GRAYSCALE)
-                else:
-                    mask = np.array(mask_data, dtype=np.uint8)
-
-                if mask is None:
-                    continue
-
-                # Find contours
-                contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-
-                for cnt in contours:
-                    if len(cnt) >= 3:
-                        # Simplify
-                        epsilon = 0.01 * cv2.arcLength(cnt, True)
-                        approx = cv2.approxPolyDP(cnt, epsilon, True)
-
-                        if len(approx) >= 3:
-                            # Convert to map coords
-                            coords = []
-                            for pt in approx:
-                                px, py = pt[0]
-                                mx = transform.c + px * transform.a + py * transform.b
-                                my = transform.f + px * transform.d + py * transform.e
-                                coords.append((mx, my))
-
-                            if len(coords) >= 3:
-                                poly = Polygon(coords)
-                                if poly.is_valid and poly.area > 0:
-                                    polygons.append(poly)
-            except Exception as e:
-                print(f"Error processing mask: {e}")
-                continue
-
-        return polygons
 
 
 class SamSegmentationWorkerThread(QThread):
