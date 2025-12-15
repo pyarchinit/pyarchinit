@@ -1080,8 +1080,8 @@ class ReportDialog(QDialog):
 
             # Check if this is a bullet point with an image reference
             if (text.startswith('- ') or text.startswith('* ')) and '[IMMAGINE' in text:
-                # Extract the image reference
-                img_match = re.search(r'\[IMMAGINE[^:]*:\s+(.*?),\s*(.*?)\]', text)
+                # Extract the image reference - use \s* (zero or more) instead of \s+ for flexibility
+                img_match = re.search(r'\[IMMAGINE[^:]*:\s*(.*?),\s*(.*?)\]', text)
                 if img_match:
                     # Process the image
                     img_path = img_match.group(1).strip()
@@ -1201,10 +1201,50 @@ class ReportDialog(QDialog):
                         run = p.add_run(text_after)
                         run.bold = False
                 else:
-                    # No valid image matches, add as regular paragraph
-                    p = doc.add_paragraph()
-                    run = p.add_run(text)
-                    run.bold = False
+                    # No regex match - try manual fallback extraction
+                    print(f"WARNING: No regex match for image tag, trying fallback: {text[:100]}")
+                    try:
+                        start_idx = text.find(':') + 1
+                        comma_idx = text.rfind(',')
+                        end_idx = text.rfind(']')
+                        if start_idx > 0 and comma_idx > start_idx and end_idx > comma_idx:
+                            fallback_path = text[start_idx:comma_idx].strip()
+                            fallback_caption = text[comma_idx+1:end_idx].strip()
+                            import urllib.parse
+                            fallback_path = urllib.parse.unquote(fallback_path)
+
+                            if fallback_path and fallback_caption and os.path.exists(fallback_path):
+                                print(f"Fallback extraction succeeded: {fallback_path}")
+                                picture = doc.add_picture(fallback_path)
+                                max_width_px = 450
+                                width = picture.width
+                                height = picture.height
+                                if height > 0:
+                                    aspect_ratio = width / height
+                                    if width > max_width_px * 9525:
+                                        picture.width = max_width_px * 9525
+                                        picture.height = int((max_width_px * 9525) / aspect_ratio)
+                                last_paragraph = doc.paragraphs[-1]
+                                last_paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
+                                caption_para = doc.add_paragraph()
+                                caption_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
+                                caption_run = caption_para.add_run(fallback_caption)
+                                caption_run.italic = True
+                                caption_run.font.size = Pt(9)
+                            else:
+                                print(f"Fallback path not found: {fallback_path}")
+                                p = doc.add_paragraph()
+                                run = p.add_run(f"[Immagine non trovata: {fallback_caption}]")
+                                run.bold = False
+                        else:
+                            p = doc.add_paragraph()
+                            run = p.add_run(text)
+                            run.bold = False
+                    except Exception as e:
+                        print(f"Fallback extraction failed: {e}")
+                        p = doc.add_paragraph()
+                        run = p.add_run(text)
+                        run.bold = False
             else:
                 # Regular paragraph
                 p = doc.add_paragraph()
@@ -10214,26 +10254,34 @@ DATABASE SCHEMA KNOWLEDGE:
 
                 if os.path.exists(img_path):
                     try:
-                        # Load the image to verify it's valid
-                        from PIL import Image
+                        # Try to add the image directly - python-docx will validate it
+                        print(f"Attempting to add image: {img_path}")
+                        doc.add_picture(img_path, width=Inches(6))
+                        caption_para = doc.add_paragraph(caption)
+                        caption_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
                         try:
-                            img = Image.open(img_path)
-                            img.verify()  # Verify it's a valid image
-
-                            # Add the image to the document
-                            doc.add_picture(img_path, width=Inches(6))
-                            caption_para = doc.add_paragraph(caption)
-                            caption_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
                             caption_para.style = 'Caption'
-                        except Exception as img_error:
-                            print(f"Invalid image file {img_path}: {str(img_error)}")
-                            doc.add_paragraph(f"[Immagine non valida: {caption}]")
+                        except KeyError:
+                            # Caption style might not exist, use formatting instead
+                            for run in caption_para.runs:
+                                run.font.italic = True
+                                run.font.size = Pt(10)
+                        print(f"Successfully added image: {img_path}")
                     except Exception as e:
                         print(f"Error adding image {img_path}: {str(e)}")
-                        doc.add_paragraph(f"[Immagine non disponibile: {caption}]")
+                        # Try with PIL as fallback to diagnose the issue
+                        try:
+                            from PIL import Image
+                            img = Image.open(img_path)
+                            img_format = img.format
+                            img.close()
+                            print(f"PIL can open the image (format: {img_format}), but docx failed")
+                        except Exception as pil_error:
+                            print(f"PIL also failed: {pil_error}")
+                        doc.add_paragraph(f"[Errore immagine: {caption}]")
                 else:
                     print(f"Image file not found: {img_path}")
-                    doc.add_paragraph(f"[Immagine non disponibile: {caption}]")
+                    doc.add_paragraph(f"[Immagine non trovata: {caption}]")
                 i += 1
                 continue
 
@@ -10333,7 +10381,45 @@ DATABASE SCHEMA KNOWLEDGE:
 
             # Regular paragraph with consistent formatting
             if line:
-                para = doc.add_paragraph(line)
+                # SAFETY CHECK: Catch any remaining image tags that weren't processed
+                if '[IMMAGINE' in line and ']' in line:
+                    print(f"WARNING: Unprocessed image tag fell through to regular paragraph: {line[:100]}")
+                    # Try one more time to extract and process the image
+                    try:
+                        start_idx = line.find(':') + 1
+                        comma_idx = line.rfind(',')
+                        end_idx = line.rfind(']')
+                        if start_idx > 0 and comma_idx > start_idx and end_idx > comma_idx:
+                            fallback_path = line[start_idx:comma_idx].strip()
+                            fallback_caption = line[comma_idx+1:end_idx].strip()
+
+                            # URL decode the path
+                            import urllib.parse
+                            fallback_path = urllib.parse.unquote(fallback_path)
+
+                            print(f"Fallback extraction: path={fallback_path}, caption={fallback_caption}")
+
+                            if os.path.exists(fallback_path):
+                                try:
+                                    doc.add_picture(fallback_path, width=Inches(6))
+                                    caption_para = doc.add_paragraph(fallback_caption)
+                                    caption_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
+                                    for run in caption_para.runs:
+                                        run.font.italic = True
+                                        run.font.size = Pt(10)
+                                    print(f"Fallback image added successfully: {fallback_path}")
+                                    i += 1
+                                    continue
+                                except Exception as e:
+                                    print(f"Fallback image add failed: {e}")
+                            else:
+                                print(f"Fallback path not found: {fallback_path}")
+                    except Exception as e:
+                        print(f"Fallback extraction failed: {e}")
+                    # If fallback fails, add error message instead of raw tag
+                    para = doc.add_paragraph(f"[Immagine non processata correttamente]")
+                else:
+                    para = doc.add_paragraph(line)
 
                 # Apply consistent formatting to all runs
                 for run in para.runs:
