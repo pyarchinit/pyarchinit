@@ -513,7 +513,7 @@ class SamSegmentationDialog(QDialog):
                 pass
 
     def add_polygons_to_target(self, gpkg_path):
-        """Add segmented polygons to the target layer"""
+        """Add segmented polygons to the target layer or load as new layer"""
         # Load segmented polygons
         temp_layer = QgsVectorLayer(gpkg_path, "sam_segments", "ogr")
         if not temp_layer.isValid():
@@ -529,7 +529,32 @@ class SamSegmentationDialog(QDialog):
                 break
 
         if not target_layer:
-            raise Exception(f"Target layer '{target_name}' not found in project")
+            # Target layer not found - load as new layer in QGIS
+            print(f"Target layer '{target_name}' not found, loading as new layer")
+
+            # Copy to permanent location in pyarchinit folder
+            import shutil
+            pyarchinit_dir = os.path.expanduser('~/pyarchinit/pyarchinit_DB_folder')
+            os.makedirs(pyarchinit_dir, exist_ok=True)
+
+            timestamp = __import__('datetime').datetime.now().strftime('%Y%m%d_%H%M%S')
+            layer_name = f"SAM_Segments_{self.lineEdit_area.text()}_{timestamp}"
+            permanent_path = os.path.join(pyarchinit_dir, f"{layer_name}.gpkg")
+
+            shutil.copy2(gpkg_path, permanent_path)
+            print(f"Saved to: {permanent_path}")
+
+            new_layer = QgsVectorLayer(permanent_path, layer_name, "ogr")
+
+            if new_layer.isValid():
+                QgsProject.instance().addMapLayer(new_layer)
+                iface.mapCanvas().refresh()
+                iface.setActiveLayer(new_layer)
+                iface.zoomToActiveLayer()
+                print(f"Added {new_layer.featureCount()} polygons as new layer '{layer_name}'")
+            else:
+                raise Exception("Could not load segmented polygons as layer")
+            return
 
         # Get attributes
         site = self.lineEdit_site.text()
