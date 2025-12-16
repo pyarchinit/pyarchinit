@@ -36,7 +36,7 @@ from qgis.utils import iface
 
 # Import map tools for interactive modes
 try:
-    from modules.gis.sam_map_tools import SamPointMapTool, SamBoxMapTool
+    from modules.gis.sam_map_tools import SamPointMapTool, SamBoxMapTool, SamPolygonMapTool
     HAS_MAP_TOOLS = True
     print("DEBUG SAM: Map tools imported successfully")
 except ImportError as e:
@@ -174,6 +174,69 @@ class SamSegmentationWorkerThread(QThread):
             self.finished.emit(False, f"Error: {str(e)}", "")
 
 
+class Sam3RoboflowWorkerThread(QThread):
+    """Worker thread to run SAM3 segmentation via Roboflow API with text prompts"""
+    finished = pyqtSignal(bool, str, str)  # success, message, output_file
+    progress = pyqtSignal(str)  # status message
+
+    def __init__(self, input_raster, output_gpkg, api_key, text_prompt='stones'):
+        super().__init__()
+        self.input_raster = input_raster
+        self.output_gpkg = output_gpkg
+        self.api_key = api_key
+        self.text_prompt = text_prompt
+
+    def run(self):
+        """Run SAM3 segmentation via Roboflow API"""
+        try:
+            venv_python = os.path.expanduser('~/pyarchinit/bin/sam_venv/bin/python')
+            worker_script = os.path.expanduser('~/pyarchinit/bin/sam3_roboflow_worker.py')
+
+            if not os.path.exists(venv_python):
+                self.finished.emit(False, "SAM virtual environment not found", "")
+                return
+
+            if not os.path.exists(worker_script):
+                self.finished.emit(False, "SAM3 Roboflow worker script not found", "")
+                return
+
+            # Build command
+            cmd = [
+                venv_python, worker_script,
+                '--input', self.input_raster,
+                '--output', self.output_gpkg,
+                '--api-key', self.api_key,
+                '--prompt', self.text_prompt
+            ]
+
+            self.progress.emit(f"Starting SAM3 segmentation with prompt: '{self.text_prompt}'...")
+
+            # Clean environment
+            clean_env = os.environ.copy()
+            for var in ['PYTHONHOME', 'PYTHONPATH', 'PYTHONEXECUTABLE']:
+                clean_env.pop(var, None)
+
+            # Run subprocess
+            result = subprocess.run(
+                cmd,
+                capture_output=True,
+                text=True,
+                timeout=600,
+                env=clean_env
+            )
+
+            if result.returncode == 0:
+                self.finished.emit(True, "SAM3 segmentation completed", self.output_gpkg)
+            else:
+                error_msg = result.stderr[:500] if result.stderr else result.stdout[:500] if result.stdout else "Unknown error"
+                self.finished.emit(False, f"SAM3 segmentation failed: {error_msg}", "")
+
+        except subprocess.TimeoutExpired:
+            self.finished.emit(False, "SAM3 segmentation timed out", "")
+        except Exception as e:
+            self.finished.emit(False, f"Error: {str(e)}", "")
+
+
 class SamSegmentationDialog(QDialog):
     """
     Dialog for SAM-based stone/object segmentation
@@ -293,14 +356,33 @@ class SamSegmentationDialog(QDialog):
         self.radio_box = QRadioButton("Box mode (draw rectangle)")
         self.radio_box.setToolTip("Draw a rectangle to segment all stones within that area")
 
+        self.radio_polygon = QRadioButton("Polygon mode (draw freehand)")
+        self.radio_polygon.setToolTip("Draw a polygon to define the area to segment. Click vertices, right-click to finish.")
+
+        self.radio_from_layer = QRadioButton("From layer (use existing polygon)")
+        self.radio_from_layer.setToolTip("Select a polygon feature from an existing layer as the area to segment")
+
         self.mode_group = QButtonGroup()
         self.mode_group.addButton(self.radio_auto, 1)
         self.mode_group.addButton(self.radio_click, 2)
         self.mode_group.addButton(self.radio_box, 3)
+        self.mode_group.addButton(self.radio_polygon, 4)
+        self.mode_group.addButton(self.radio_from_layer, 5)
 
         mode_layout.addWidget(self.radio_auto)
         mode_layout.addWidget(self.radio_click)
         mode_layout.addWidget(self.radio_box)
+        mode_layout.addWidget(self.radio_polygon)
+        mode_layout.addWidget(self.radio_from_layer)
+
+        # Layer selection for "from layer" mode
+        self.layer_select_layout = QHBoxLayout()
+        self.layer_select_layout.addWidget(QLabel("   Polygon layer:"))
+        self.comboBox_polygon_layer = QgsMapLayerComboBox()
+        self.comboBox_polygon_layer.setFilters(QgsMapLayerProxyModel.PolygonLayer)
+        self.comboBox_polygon_layer.setVisible(False)
+        self.layer_select_layout.addWidget(self.comboBox_polygon_layer)
+        mode_layout.addLayout(self.layer_select_layout)
 
         # Instructions label for interactive modes
         self.label_instructions = QLabel("")
@@ -323,15 +405,16 @@ class SamSegmentationDialog(QDialog):
         self.comboBox_model = QComboBox()
         self.comboBox_model.addItems([
             "API: Replicate SAM-2 (cloud, recommended)",
+            "API: Roboflow SAM-3 (cloud, text prompts)",
             "Local: SAM vit_b (fast, ~375MB)",
             "Local: SAM vit_l (balanced, ~1.2GB)",
             "Local: SAM vit_h (best quality, ~2.5GB)",
             "Local: OpenCV (edge detection fallback)"
         ])
         self.comboBox_model.setToolTip(
-            "Cloud API is recommended.\n"
-            "Local SAM requires downloading model weights on first use.\n"
-            "vit_b = fastest, vit_h = most accurate"
+            "Cloud APIs recommended for best results.\n"
+            "SAM-3 supports text prompts like 'stones' or 'pottery'.\n"
+            "Local SAM requires downloading model weights."
         )
         self.comboBox_model.currentIndexChanged.connect(self._on_model_changed)
         model_layout.addWidget(self.comboBox_model, 0, 1)
@@ -344,15 +427,27 @@ class SamSegmentationDialog(QDialog):
         self.lineEdit_api_key = QLineEdit()
         self.lineEdit_api_key.setPlaceholderText("Replicate API key")
         self.lineEdit_api_key.setEchoMode(QLineEdit.Password)
-        self.lineEdit_api_key.setToolTip("Get your API key from replicate.com")
+        self.lineEdit_api_key.setToolTip("Get your API key from replicate.com or roboflow.com")
         self.lineEdit_api_key.setVisible(True)
         model_layout.addWidget(self.lineEdit_api_key, 1, 1)
 
         # Link to get API key
-        self.label_api_link = QLabel('<a href="https://replicate.com/account/api-tokens">Get API key</a>')
+        self.label_api_link = QLabel('<a href="https://replicate.com/account/api-tokens">Get Replicate key</a> | <a href="https://app.roboflow.com/settings/api">Get Roboflow key</a>')
         self.label_api_link.setOpenExternalLinks(True)
         self.label_api_link.setVisible(True)
         model_layout.addWidget(self.label_api_link, 2, 1)
+
+        # Text prompt for SAM3 (only shown when SAM3 selected)
+        self.label_text_prompt = QLabel("Text Prompt:")
+        self.label_text_prompt.setVisible(False)
+        model_layout.addWidget(self.label_text_prompt, 3, 0)
+
+        self.lineEdit_text_prompt = QLineEdit()
+        self.lineEdit_text_prompt.setPlaceholderText("e.g., stones, pottery fragments, bones")
+        self.lineEdit_text_prompt.setText("stones")
+        self.lineEdit_text_prompt.setToolTip("Describe what objects to segment (SAM-3 only)")
+        self.lineEdit_text_prompt.setVisible(False)
+        model_layout.addWidget(self.lineEdit_text_prompt, 3, 1)
 
         model_group.setLayout(model_layout)
         layout.addWidget(model_group)
@@ -382,14 +477,33 @@ class SamSegmentationDialog(QDialog):
         layout.addLayout(btn_layout)
 
     def _on_model_changed(self, index):
-        """Show/hide API key field based on model selection"""
-        is_api = 'API' in self.comboBox_model.currentText()
+        """Show/hide API key and text prompt fields based on model selection"""
+        model_text = self.comboBox_model.currentText()
+        is_api = 'API' in model_text
+        is_sam3 = 'SAM-3' in model_text
+
         self.label_api_key.setVisible(is_api)
         self.lineEdit_api_key.setVisible(is_api)
         self.label_api_link.setVisible(is_api)
 
+        # Show text prompt only for SAM-3
+        self.label_text_prompt.setVisible(is_sam3)
+        self.lineEdit_text_prompt.setVisible(is_sam3)
+
+        # Load the appropriate API key for the selected model
+        self._load_api_key_for_model()
+
+        # Update API link based on model
+        if is_sam3:
+            self.label_api_link.setText('<a href="https://app.roboflow.com/settings/api">Get Roboflow API key</a>')
+        else:
+            self.label_api_link.setText('<a href="https://replicate.com/account/api-tokens">Get Replicate API key</a>')
+
     def _on_mode_changed(self, button):
         """Update UI when segmentation mode changes"""
+        # Hide layer selector by default
+        self.comboBox_polygon_layer.setVisible(False)
+
         if self.radio_click.isChecked():
             self.label_instructions.setText(
                 "Click mode: Click 'Start' then click on stones in the map. "
@@ -404,6 +518,21 @@ class SamSegmentationDialog(QDialog):
             )
             self.label_instructions.setVisible(True)
             self.btn_segment.setText("Start Selection")
+        elif self.radio_polygon.isChecked():
+            self.label_instructions.setText(
+                "Polygon mode: Click 'Start' then click to add vertices. "
+                "Right-click or press Enter to finish. Backspace to remove last point. Escape to cancel."
+            )
+            self.label_instructions.setVisible(True)
+            self.btn_segment.setText("Start Drawing")
+        elif self.radio_from_layer.isChecked():
+            self.label_instructions.setText(
+                "From layer: Select a polygon layer and a feature. "
+                "The selected polygon will be used as the segmentation area."
+            )
+            self.label_instructions.setVisible(True)
+            self.comboBox_polygon_layer.setVisible(True)
+            self.btn_segment.setText("Start Segmentation")
         else:
             self.label_instructions.setVisible(False)
             self.btn_segment.setText("Start Segmentation")
@@ -425,15 +554,34 @@ class SamSegmentationDialog(QDialog):
         """Load saved settings"""
         s = QSettings()
         self.lineEdit_area.setText(s.value('pyArchInit/sam_last_area', ''))
-        self.lineEdit_api_key.setText(s.value('pyArchInit/sam_api_key', ''))
+        # Load appropriate API key based on current model selection
+        self._load_api_key_for_model()
+
+    def _load_api_key_for_model(self):
+        """Load the appropriate API key based on selected model"""
+        s = QSettings()
+        if self.is_sam3_mode():
+            # Load Roboflow API key for SAM3
+            api_key = s.value('pyArchInit/sam3_roboflow_api_key', '')
+            self.lineEdit_api_key.setText(api_key)
+            self.lineEdit_api_key.setPlaceholderText("Roboflow API key (get at roboflow.com)")
+        else:
+            # Load Replicate API key for SAM2
+            api_key = s.value('pyArchInit/sam2_replicate_api_key', '')
+            self.lineEdit_api_key.setText(api_key)
+            self.lineEdit_api_key.setPlaceholderText("Replicate API key (get at replicate.com)")
 
     def save_settings(self):
         """Save settings"""
         s = QSettings()
         s.setValue('pyArchInit/sam_last_area', self.lineEdit_area.text())
-        # Save API key if provided
-        if self.lineEdit_api_key.text().strip():
-            s.setValue('pyArchInit/sam_api_key', self.lineEdit_api_key.text().strip())
+        # Save API key to the appropriate setting based on model
+        api_key = self.lineEdit_api_key.text().strip()
+        if api_key:
+            if self.is_sam3_mode():
+                s.setValue('pyArchInit/sam3_roboflow_api_key', api_key)
+            else:
+                s.setValue('pyArchInit/sam2_replicate_api_key', api_key)
 
     def get_mode(self):
         """Get selected segmentation mode"""
@@ -443,6 +591,10 @@ class SamSegmentationDialog(QDialog):
             return 'points'
         elif self.radio_box.isChecked():
             return 'box'
+        elif self.radio_polygon.isChecked():
+            return 'polygon'
+        elif self.radio_from_layer.isChecked():
+            return 'from_layer'
         return 'auto'
 
     def get_model(self):
@@ -456,13 +608,19 @@ class SamSegmentationDialog(QDialog):
             return 'vit_h'
         elif 'OpenCV' in model_text:
             return 'opencv'
-        elif 'API' in model_text:
-            return 'api'
+        elif 'SAM-3' in model_text:
+            return 'sam3'
+        elif 'SAM-2' in model_text:
+            return 'sam2'
         return 'vit_b'  # default
 
     def is_api_mode(self):
         """Check if API mode is selected"""
         return 'API' in self.comboBox_model.currentText()
+
+    def is_sam3_mode(self):
+        """Check if SAM-3 (Roboflow) mode is selected"""
+        return 'SAM-3' in self.comboBox_model.currentText()
 
     def on_segment_clicked(self):
         """Start segmentation process"""
@@ -495,10 +653,15 @@ class SamSegmentationDialog(QDialog):
         # Save settings
         self.save_settings()
 
-        # Handle interactive modes (click or box)
+        # Handle interactive modes (click, box, or polygon)
         mode = self.get_mode()
-        if mode in ['points', 'box'] and HAS_MAP_TOOLS:
+        if mode in ['points', 'box', 'polygon'] and HAS_MAP_TOOLS:
             self._start_interactive_selection(raster_layer, mode)
+            return
+
+        # Handle "from layer" mode
+        if mode == 'from_layer':
+            self._start_from_layer_selection(raster_layer)
             return
 
         # For auto mode or if map tools not available, run directly
@@ -525,12 +688,19 @@ class SamSegmentationDialog(QDialog):
         if mode == 'points':
             print("DEBUG SAM: Creating SamPointMapTool...")
             try:
-                self.map_tool = SamPointMapTool(canvas, raster_layer)
+                # Pass callbacks directly to bypass signal issues
+                self.map_tool = SamPointMapTool(
+                    canvas, raster_layer,
+                    on_points_collected=self._on_points_collected,
+                    on_point_added=self._on_point_added,
+                    on_cancelled=self._on_selection_cancelled
+                )
                 print(f"DEBUG SAM: SamPointMapTool created: {self.map_tool}")
-                self.map_tool.pointsCollected.connect(self._on_points_collected)
-                self.map_tool.pointAdded.connect(self._on_point_added)
-                self.map_tool.cancelled.connect(self._on_selection_cancelled)
-                print("DEBUG SAM: Signals connected for point tool")
+                # Also connect signals as backup
+                self.map_tool.pointsCollected.connect(self._on_points_collected, Qt.DirectConnection)
+                self.map_tool.pointAdded.connect(self._on_point_added, Qt.DirectConnection)
+                self.map_tool.cancelled.connect(self._on_selection_cancelled, Qt.DirectConnection)
+                print("DEBUG SAM: Callbacks and signals connected for point tool")
             except Exception as e:
                 print(f"DEBUG SAM ERROR: Failed to create SamPointMapTool: {e}")
                 import traceback
@@ -543,14 +713,20 @@ class SamSegmentationDialog(QDialog):
                 "SAM Click Mode",
                 "Click on stones to mark them. Right-click or press Enter when done. Press Escape to cancel."
             )
-        else:  # box mode
+        elif mode == 'box':
             print("DEBUG SAM: Creating SamBoxMapTool...")
             try:
-                self.map_tool = SamBoxMapTool(canvas, raster_layer)
+                # Pass callbacks directly to bypass signal issues
+                self.map_tool = SamBoxMapTool(
+                    canvas, raster_layer,
+                    on_box_drawn=self._on_box_drawn,
+                    on_cancelled=self._on_selection_cancelled
+                )
                 print(f"DEBUG SAM: SamBoxMapTool created: {self.map_tool}")
-                self.map_tool.boxDrawn.connect(self._on_box_drawn)
-                self.map_tool.cancelled.connect(self._on_selection_cancelled)
-                print("DEBUG SAM: Signals connected for box tool")
+                # Also connect signals as backup
+                self.map_tool.boxDrawn.connect(self._on_box_drawn, Qt.DirectConnection)
+                self.map_tool.cancelled.connect(self._on_selection_cancelled, Qt.DirectConnection)
+                print("DEBUG SAM: Callbacks and signals connected for box tool")
             except Exception as e:
                 print(f"DEBUG SAM ERROR: Failed to create SamBoxMapTool: {e}")
                 import traceback
@@ -563,6 +739,32 @@ class SamSegmentationDialog(QDialog):
                 "SAM Box Mode",
                 "Click and drag to draw a rectangle. Press Escape to cancel."
             )
+        elif mode == 'polygon':
+            print("DEBUG SAM: Creating SamPolygonMapTool...")
+            try:
+                # Pass callbacks directly to bypass signal issues
+                self.map_tool = SamPolygonMapTool(
+                    canvas, raster_layer,
+                    on_polygon_drawn=self._on_polygon_drawn,
+                    on_cancelled=self._on_selection_cancelled
+                )
+                print(f"DEBUG SAM: SamPolygonMapTool created: {self.map_tool}")
+                # Also connect signals as backup
+                self.map_tool.polygonDrawn.connect(self._on_polygon_drawn, Qt.DirectConnection)
+                self.map_tool.cancelled.connect(self._on_selection_cancelled, Qt.DirectConnection)
+                print("DEBUG SAM: Callbacks and signals connected for polygon tool")
+            except Exception as e:
+                print(f"DEBUG SAM ERROR: Failed to create SamPolygonMapTool: {e}")
+                import traceback
+                traceback.print_exc()
+                self.show()
+                return
+
+            # Show info message
+            iface.messageBar().pushInfo(
+                "SAM Polygon Mode",
+                "Click to add vertices. Right-click or Enter to finish. Backspace removes last point. Escape to cancel."
+            )
 
         # Activate the tool
         print(f"DEBUG SAM: Setting map tool on canvas...")
@@ -571,23 +773,29 @@ class SamSegmentationDialog(QDialog):
 
     def _on_points_collected(self, points):
         """Handle collected points from click mode"""
-        print(f"Points collected: {len(points)} points")
-        self.collected_prompts = points
+        try:
+            print(f"DEBUG SAM Dialog: _on_points_collected CALLED with {len(points)} points: {points}")
+            self.collected_prompts = points
 
-        # Restore previous map tool
-        self._restore_map_tool()
+            # Restore previous map tool
+            self._restore_map_tool()
 
-        # Show dialog again
-        self.show()
+            # Show dialog again
+            self.show()
 
-        if len(points) == 0:
-            QMessageBox.warning(self, "Warning", "No points were selected.")
-            return
+            if len(points) == 0:
+                QMessageBox.warning(self, "Warning", "No points were selected.")
+                return
 
-        # Run segmentation with prompts
-        raster_layer = self.comboBox_raster.currentLayer()
-        if raster_layer:
-            self._run_segmentation(raster_layer.source(), points)
+            # Run segmentation with prompts
+            raster_layer = self.comboBox_raster.currentLayer()
+            if raster_layer:
+                self._run_segmentation(raster_layer.source(), points)
+        except Exception as e:
+            print(f"DEBUG SAM Dialog ERROR in _on_points_collected: {e}")
+            import traceback
+            traceback.print_exc()
+            self.show()
 
     def _on_point_added(self, count):
         """Handle point added event for feedback"""
@@ -595,27 +803,107 @@ class SamSegmentationDialog(QDialog):
 
     def _on_box_drawn(self, boxes):
         """Handle drawn box from box mode"""
-        print(f"Box drawn: {boxes}")
-        self.collected_prompts = boxes
+        try:
+            print(f"DEBUG SAM Dialog: _on_box_drawn CALLED with boxes={boxes}")
+            self.collected_prompts = boxes
 
-        # Restore previous map tool
-        self._restore_map_tool()
+            # Restore previous map tool
+            self._restore_map_tool()
 
-        # Show dialog again
-        self.show()
+            # Show dialog again
+            self.show()
 
-        if not boxes or len(boxes) == 0:
-            QMessageBox.warning(self, "Warning", "No box was drawn or box was outside raster bounds.")
-            return
+            if not boxes or len(boxes) == 0:
+                QMessageBox.warning(self, "Warning", "No box was drawn or box was outside raster bounds.")
+                return
 
-        # Run segmentation with box prompt
-        raster_layer = self.comboBox_raster.currentLayer()
-        if raster_layer:
-            self._run_segmentation(raster_layer.source(), boxes)
+            # Run segmentation with box prompt
+            raster_layer = self.comboBox_raster.currentLayer()
+            if raster_layer:
+                self._run_segmentation(raster_layer.source(), boxes)
+        except Exception as e:
+            print(f"DEBUG SAM Dialog ERROR in _on_box_drawn: {e}")
+            import traceback
+            traceback.print_exc()
+            self.show()
+
+    def _on_polygon_drawn(self, polygon_wkt):
+        """Handle drawn polygon from polygon mode"""
+        try:
+            print(f"DEBUG SAM Dialog: _on_polygon_drawn CALLED with WKT length={len(polygon_wkt)}")
+            self.collected_prompts = polygon_wkt
+
+            # Restore previous map tool
+            self._restore_map_tool()
+
+            # Show dialog again
+            self.show()
+
+            if not polygon_wkt:
+                QMessageBox.warning(self, "Warning", "No polygon was drawn.")
+                return
+
+            # Run segmentation with polygon prompt
+            raster_layer = self.comboBox_raster.currentLayer()
+            if raster_layer:
+                self._run_segmentation(raster_layer.source(), polygon_wkt)
+        except Exception as e:
+            print(f"DEBUG SAM Dialog ERROR in _on_polygon_drawn: {e}")
+            import traceback
+            traceback.print_exc()
+            self.show()
+
+    def _start_from_layer_selection(self, raster_layer):
+        """Start segmentation using selected polygon from layer"""
+        try:
+            # Get selected polygon layer
+            polygon_layer = self.comboBox_polygon_layer.currentLayer()
+            if not polygon_layer:
+                QMessageBox.warning(self, "Error", "Please select a polygon layer")
+                return
+
+            # Get selected features or all features if none selected
+            selected_features = polygon_layer.selectedFeatures()
+            if not selected_features:
+                # Ask user if they want to use all features
+                reply = QMessageBox.question(
+                    self, "No Selection",
+                    "No features selected. Use all features from the layer?",
+                    QMessageBox.Yes | QMessageBox.No
+                )
+                if reply == QMessageBox.Yes:
+                    selected_features = list(polygon_layer.getFeatures())
+                else:
+                    return
+
+            if not selected_features:
+                QMessageBox.warning(self, "Error", "No features found in layer")
+                return
+
+            # Use first selected feature for now
+            feature = selected_features[0]
+            geom = feature.geometry()
+
+            if geom.isEmpty() or QgsWkbTypes.geometryType(geom.wkbType()) != QgsWkbTypes.PolygonGeometry:
+                QMessageBox.warning(self, "Error", "Selected feature is not a valid polygon")
+                return
+
+            # Get WKT of the polygon
+            polygon_wkt = geom.asWkt()
+            print(f"DEBUG SAM: Using polygon from layer: {polygon_layer.name()}")
+
+            # Run segmentation with polygon
+            self._run_segmentation(raster_layer.source(), polygon_wkt)
+
+        except Exception as e:
+            print(f"DEBUG SAM Dialog ERROR in _start_from_layer_selection: {e}")
+            import traceback
+            traceback.print_exc()
+            QMessageBox.warning(self, "Error", f"Error processing polygon: {str(e)}")
 
     def _on_selection_cancelled(self):
         """Handle cancellation of interactive selection"""
-        print("Selection cancelled")
+        print("DEBUG SAM Dialog: _on_selection_cancelled CALLED")
 
         # Restore previous map tool
         self._restore_map_tool()
@@ -637,10 +925,127 @@ class SamSegmentationDialog(QDialog):
             canvas.setMapTool(self.previous_map_tool)
             self.previous_map_tool = None
 
+    def _crop_raster_to_box(self, raster_path, box_pixels):
+        """Crop raster to the given box (in pixel coordinates) and return path to cropped file"""
+        try:
+            from osgeo import gdal
+            import numpy as np
+
+            print(f"DEBUG SAM: Cropping raster to box {box_pixels}")
+
+            # box_pixels is [x1, y1, x2, y2] in pixel coordinates
+            x1, y1, x2, y2 = box_pixels
+
+            # Open source raster
+            src_ds = gdal.Open(raster_path)
+            if not src_ds:
+                print(f"DEBUG SAM: Could not open raster {raster_path}")
+                return None
+
+            # Get geotransform
+            gt = src_ds.GetGeoTransform()
+            projection = src_ds.GetProjection()
+
+            # Calculate width and height of crop
+            width = x2 - x1
+            height = y2 - y1
+
+            if width <= 0 or height <= 0:
+                print(f"DEBUG SAM: Invalid crop dimensions {width}x{height}")
+                return None
+
+            print(f"DEBUG SAM: Crop dimensions: {width}x{height} pixels")
+
+            # Create output file
+            crop_path = tempfile.mktemp(suffix='_crop.tif')
+
+            # Use gdal.Translate for cropping (srcWin = [xoff, yoff, xsize, ysize])
+            translate_options = gdal.TranslateOptions(
+                srcWin=[x1, y1, width, height],
+                format='GTiff'
+            )
+
+            dst_ds = gdal.Translate(crop_path, src_ds, options=translate_options)
+
+            if dst_ds:
+                dst_ds = None  # Close the dataset
+                print(f"DEBUG SAM: Cropped raster saved to {crop_path}")
+                return crop_path
+            else:
+                print("DEBUG SAM: Failed to create cropped raster")
+                return None
+
+        except Exception as e:
+            print(f"DEBUG SAM: Error cropping raster: {e}")
+            import traceback
+            traceback.print_exc()
+            return None
+
+    def _crop_raster_to_polygon(self, raster_path, polygon_wkt, raster_layer):
+        """Crop raster to a polygon boundary and return path to cropped file"""
+        try:
+            from osgeo import gdal, ogr
+            import numpy as np
+
+            print(f"DEBUG SAM: Cropping raster to polygon")
+
+            # Create a temporary vector file with the polygon
+            temp_vector = tempfile.mktemp(suffix='.geojson')
+            crop_path = tempfile.mktemp(suffix='_crop.tif')
+
+            # Create GeoJSON with the polygon
+            geom = ogr.CreateGeometryFromWkt(polygon_wkt)
+            if not geom:
+                print("DEBUG SAM: Could not create geometry from WKT")
+                return None
+
+            # Get CRS from raster layer
+            crs = raster_layer.crs().toWkt() if raster_layer else None
+
+            # Create GeoJSON
+            driver = ogr.GetDriverByName('GeoJSON')
+            ds = driver.CreateDataSource(temp_vector)
+            srs = ogr.osr.SpatialReference()
+            if crs:
+                srs.ImportFromWkt(crs)
+            layer = ds.CreateLayer('polygon', srs, ogr.wkbPolygon)
+            feature = ogr.Feature(layer.GetLayerDefn())
+            feature.SetGeometry(geom)
+            layer.CreateFeature(feature)
+            ds = None
+
+            # Use gdalwarp to clip
+            warp_options = gdal.WarpOptions(
+                cutlineDSName=temp_vector,
+                cropToCutline=True,
+                format='GTiff'
+            )
+
+            result = gdal.Warp(crop_path, raster_path, options=warp_options)
+
+            # Cleanup temp vector
+            if os.path.exists(temp_vector):
+                os.remove(temp_vector)
+
+            if result:
+                result = None  # Close dataset
+                print(f"DEBUG SAM: Cropped raster saved to {crop_path}")
+                return crop_path
+            else:
+                print("DEBUG SAM: Failed to create cropped raster")
+                return None
+
+        except Exception as e:
+            print(f"DEBUG SAM: Error cropping raster to polygon: {e}")
+            import traceback
+            traceback.print_exc()
+            return None
+
     def _run_segmentation(self, raster_path, prompts):
         """Run the segmentation with optional prompts"""
         # Create temp output file
         self.temp_output = tempfile.mktemp(suffix='.gpkg')
+        self.temp_cropped_raster = None  # Track cropped raster for cleanup
 
         # Start worker thread
         self.btn_segment.setEnabled(False)
@@ -648,11 +1053,58 @@ class SamSegmentationDialog(QDialog):
         self.label_status.setText("Segmentation in progress...")
 
         mode = self.get_mode()
+        actual_raster_path = raster_path
 
-        if self.is_api_mode():
-            # Use API worker
+        # If we have box prompts, crop the raster first
+        if mode == 'box' and prompts and len(prompts) > 0:
+            # prompts is [[x1, y1, x2, y2]] - take the first box
+            box = prompts[0]
+            self.label_status.setText("Cropping raster to selection...")
+            QApplication.processEvents()
+
+            cropped_path = self._crop_raster_to_box(raster_path, box)
+            if cropped_path:
+                actual_raster_path = cropped_path
+                self.temp_cropped_raster = cropped_path
+                # Reset prompts and mode since we're using cropped image
+                prompts = None
+                mode = 'auto'  # Use auto mode on cropped raster
+                print(f"DEBUG SAM: Using cropped raster: {cropped_path}")
+            else:
+                print("DEBUG SAM: Crop failed, using full raster with box prompts")
+
+        # If we have polygon prompts (polygon mode or from_layer mode), crop the raster first
+        elif mode in ['polygon', 'from_layer'] and prompts and isinstance(prompts, str):
+            self.label_status.setText("Cropping raster to polygon...")
+            QApplication.processEvents()
+
+            raster_layer = self.comboBox_raster.currentLayer()
+            cropped_path = self._crop_raster_to_polygon(raster_path, prompts, raster_layer)
+            if cropped_path:
+                actual_raster_path = cropped_path
+                self.temp_cropped_raster = cropped_path
+                # Reset prompts and mode since we're using cropped image
+                prompts = None
+                mode = 'auto'  # Use auto mode on cropped raster
+                print(f"DEBUG SAM: Using cropped raster: {cropped_path}")
+            else:
+                print("DEBUG SAM: Polygon crop failed")
+
+        self.label_status.setText("Segmentation in progress...")
+
+        if self.is_sam3_mode():
+            # Use SAM3 Roboflow API worker with text prompts
+            text_prompt = self.lineEdit_text_prompt.text().strip() or "stones"
+            self.worker_thread = Sam3RoboflowWorkerThread(
+                input_raster=actual_raster_path,
+                output_gpkg=self.temp_output,
+                api_key=self.lineEdit_api_key.text().strip(),
+                text_prompt=text_prompt
+            )
+        elif self.is_api_mode():
+            # Use SAM2 Replicate API worker
             self.worker_thread = SamApiWorkerThread(
-                input_raster=raster_path,
+                input_raster=actual_raster_path,
                 output_gpkg=self.temp_output,
                 api_key=self.lineEdit_api_key.text().strip(),
                 mode=mode
@@ -660,7 +1112,7 @@ class SamSegmentationDialog(QDialog):
         else:
             # Use local worker
             self.worker_thread = SamSegmentationWorkerThread(
-                input_raster=raster_path,
+                input_raster=actual_raster_path,
                 output_gpkg=self.temp_output,
                 mode=mode,
                 prompts=prompts,
@@ -707,6 +1159,16 @@ class SamSegmentationDialog(QDialog):
                 os.remove(self.temp_output)
             except:
                 pass
+
+        # Cleanup cropped raster if used
+        if hasattr(self, 'temp_cropped_raster') and self.temp_cropped_raster:
+            if os.path.exists(self.temp_cropped_raster):
+                try:
+                    os.remove(self.temp_cropped_raster)
+                    print(f"DEBUG SAM: Cleaned up cropped raster: {self.temp_cropped_raster}")
+                except:
+                    pass
+            self.temp_cropped_raster = None
 
     def add_polygons_to_target(self, gpkg_path):
         """Add segmented polygons to the target layer or load as new layer"""

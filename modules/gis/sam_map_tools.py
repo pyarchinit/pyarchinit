@@ -41,16 +41,22 @@ class SamPointMapTool(QgsMapToolEmitPoint):
     # Signal emitted when cancelled
     cancelled = pyqtSignal()
 
-    def __init__(self, canvas, raster_layer=None):
+    def __init__(self, canvas, raster_layer=None, on_points_collected=None, on_point_added=None, on_cancelled=None):
         super().__init__(canvas)
         self.canvas = canvas
         self.raster_layer = raster_layer
         self.points = []  # Collected points in pixel coordinates
         self.markers = []  # Visual markers on map
 
+        # Direct callbacks (bypass signal system)
+        self.on_points_collected_callback = on_points_collected
+        self.on_point_added_callback = on_point_added
+        self.on_cancelled_callback = on_cancelled
+
         # Set cursor
         self.setCursor(Qt.CrossCursor)
         print(f"DEBUG SamPointMapTool: Initialized with canvas={canvas}, raster_layer={raster_layer}")
+        print(f"DEBUG SamPointMapTool: Callbacks - on_points_collected={on_points_collected}")
 
     def canvasPressEvent(self, event):
         """Handle mouse press events"""
@@ -142,6 +148,18 @@ class SamPointMapTool(QgsMapToolEmitPoint):
         print(f"DEBUG SamPointMapTool: _finish_collection called, points={len(self.points)}")
         points_to_emit = self.points.copy()
         self._cleanup()
+
+        # First try direct callback (more reliable)
+        if self.on_points_collected_callback:
+            print(f"DEBUG SamPointMapTool: Calling callback with {len(points_to_emit)} points")
+            try:
+                self.on_points_collected_callback(points_to_emit)
+                print("DEBUG SamPointMapTool: Callback executed successfully")
+            except Exception as e:
+                print(f"DEBUG SamPointMapTool: Callback error: {e}")
+                import traceback
+                traceback.print_exc()
+
         print(f"DEBUG SamPointMapTool: Emitting pointsCollected signal with {len(points_to_emit)} points")
         self.pointsCollected.emit(points_to_emit)
 
@@ -149,6 +167,16 @@ class SamPointMapTool(QgsMapToolEmitPoint):
         """Cancel point collection"""
         print("DEBUG SamPointMapTool: _cancel called")
         self._cleanup()
+
+        # First try direct callback (more reliable)
+        if self.on_cancelled_callback:
+            print("DEBUG SamPointMapTool: Calling cancelled callback")
+            try:
+                self.on_cancelled_callback()
+                print("DEBUG SamPointMapTool: Cancelled callback executed successfully")
+            except Exception as e:
+                print(f"DEBUG SamPointMapTool: Cancelled callback error: {e}")
+
         print("DEBUG SamPointMapTool: Emitting cancelled signal")
         self.cancelled.emit()
 
@@ -190,7 +218,7 @@ class SamBoxMapTool(QgsMapTool):
     # Signal emitted when cancelled
     cancelled = pyqtSignal()
 
-    def __init__(self, canvas, raster_layer=None):
+    def __init__(self, canvas, raster_layer=None, on_box_drawn=None, on_cancelled=None):
         super().__init__(canvas)
         self.canvas = canvas
         self.raster_layer = raster_layer
@@ -198,9 +226,14 @@ class SamBoxMapTool(QgsMapTool):
         self.start_point = None
         self.is_drawing = False
 
+        # Direct callbacks (bypass signal system)
+        self.on_box_drawn_callback = on_box_drawn
+        self.on_cancelled_callback = on_cancelled
+
         # Set cursor
         self.setCursor(Qt.CrossCursor)
         print(f"DEBUG SamBoxMapTool: Initialized with canvas={canvas}, raster_layer={raster_layer}")
+        print(f"DEBUG SamBoxMapTool: Callbacks - on_box_drawn={on_box_drawn}, on_cancelled={on_cancelled}")
 
     def canvasPressEvent(self, event):
         """Handle mouse press - start drawing box"""
@@ -300,7 +333,21 @@ class SamBoxMapTool(QgsMapTool):
 
         self._cleanup()
 
-        # Always emit signal (dialog will handle empty case)
+        # Prepare the result
+        result = [box_to_emit] if box_to_emit else []
+
+        # First try direct callback (more reliable)
+        if self.on_box_drawn_callback:
+            print(f"DEBUG SamBoxMapTool: Calling callback with box={result}")
+            try:
+                self.on_box_drawn_callback(result)
+                print("DEBUG SamBoxMapTool: Callback executed successfully")
+            except Exception as e:
+                print(f"DEBUG SamBoxMapTool: Callback error: {e}")
+                import traceback
+                traceback.print_exc()
+
+        # Also emit signal for backwards compatibility
         if box_to_emit:
             print(f"DEBUG SamBoxMapTool: Emitting boxDrawn signal with box={box_to_emit}")
             self.boxDrawn.emit([box_to_emit])
@@ -330,6 +377,16 @@ class SamBoxMapTool(QgsMapTool):
         """Cancel box drawing"""
         print("DEBUG SamBoxMapTool: _cancel called")
         self._cleanup()
+
+        # First try direct callback (more reliable)
+        if self.on_cancelled_callback:
+            print("DEBUG SamBoxMapTool: Calling cancelled callback")
+            try:
+                self.on_cancelled_callback()
+                print("DEBUG SamBoxMapTool: Cancelled callback executed successfully")
+            except Exception as e:
+                print(f"DEBUG SamBoxMapTool: Cancelled callback error: {e}")
+
         print("DEBUG SamBoxMapTool: Emitting cancelled signal")
         self.cancelled.emit()
 
@@ -345,5 +402,178 @@ class SamBoxMapTool(QgsMapTool):
     def deactivate(self):
         """Called when tool is deactivated"""
         print("DEBUG SamBoxMapTool: deactivate called")
+        self._cleanup()
+        super().deactivate()
+
+
+class SamPolygonMapTool(QgsMapTool):
+    """
+    Map tool for drawing a freehand polygon for SAM segmentation.
+
+    Users can click to add vertices, double-click or right-click to finish.
+    The polygon defines the area to segment.
+    """
+
+    # Signal emitted when polygon is drawn
+    # Emits polygon as WKT string
+    polygonDrawn = pyqtSignal(str)
+
+    # Signal emitted when cancelled
+    cancelled = pyqtSignal()
+
+    def __init__(self, canvas, raster_layer=None, on_polygon_drawn=None, on_cancelled=None):
+        super().__init__(canvas)
+        self.canvas = canvas
+        self.raster_layer = raster_layer
+        self.rubber_band = None
+        self.points = []  # Map coordinates
+        self.is_drawing = False
+
+        # Direct callbacks (bypass signal system)
+        self.on_polygon_drawn_callback = on_polygon_drawn
+        self.on_cancelled_callback = on_cancelled
+
+        # Set cursor
+        self.setCursor(Qt.CrossCursor)
+        print(f"DEBUG SamPolygonMapTool: Initialized")
+
+    def canvasPressEvent(self, event):
+        """Handle mouse press - add vertex"""
+        print(f"DEBUG SamPolygonMapTool: canvasPressEvent called, button={event.button()}")
+
+        if event.button() == Qt.LeftButton:
+            point = self.toMapCoordinates(event.pos())
+            self.points.append(point)
+            self.is_drawing = True
+            print(f"DEBUG SamPolygonMapTool: Added point {len(self.points)}: {point}")
+
+            # Create rubber band on first click
+            if not self.rubber_band:
+                self.rubber_band = QgsRubberBand(self.canvas, QgsWkbTypes.PolygonGeometry)
+                self.rubber_band.setColor(QColor(255, 0, 0, 100))
+                self.rubber_band.setFillColor(QColor(255, 0, 0, 50))
+                self.rubber_band.setWidth(2)
+
+            self._update_rubber_band()
+
+        elif event.button() == Qt.RightButton:
+            if len(self.points) >= 3:
+                # Finish polygon
+                print("DEBUG SamPolygonMapTool: Right click - finishing polygon")
+                self._finish_polygon()
+            else:
+                print("DEBUG SamPolygonMapTool: Right click - cancelling (not enough points)")
+                self._cancel()
+
+    def canvasDoubleClickEvent(self, event):
+        """Handle double click - finish polygon"""
+        print(f"DEBUG SamPolygonMapTool: canvasDoubleClickEvent called")
+        if event.button() == Qt.LeftButton and len(self.points) >= 3:
+            self._finish_polygon()
+
+    def canvasMoveEvent(self, event):
+        """Handle mouse move - update rubber band preview"""
+        if self.is_drawing and self.rubber_band and self.points:
+            current_point = self.toMapCoordinates(event.pos())
+            self._update_rubber_band(current_point)
+
+    def keyPressEvent(self, event):
+        """Handle key press events"""
+        print(f"DEBUG SamPolygonMapTool: keyPressEvent called, key={event.key()}")
+        if event.key() == Qt.Key_Escape:
+            print("DEBUG SamPolygonMapTool: Escape pressed - cancelling")
+            self._cancel()
+        elif event.key() in [Qt.Key_Return, Qt.Key_Enter]:
+            if len(self.points) >= 3:
+                print("DEBUG SamPolygonMapTool: Enter pressed - finishing polygon")
+                self._finish_polygon()
+        elif event.key() in [Qt.Key_Backspace, Qt.Key_Delete]:
+            # Remove last point
+            if self.points:
+                self.points.pop()
+                self._update_rubber_band()
+                print(f"DEBUG SamPolygonMapTool: Removed last point, {len(self.points)} remaining")
+
+    def _update_rubber_band(self, preview_point=None):
+        """Update the rubber band polygon"""
+        if not self.rubber_band:
+            return
+
+        self.rubber_band.reset(QgsWkbTypes.PolygonGeometry)
+
+        # Add existing points
+        for point in self.points:
+            self.rubber_band.addPoint(point, False)
+
+        # Add preview point if provided
+        if preview_point:
+            self.rubber_band.addPoint(preview_point, False)
+
+        # Close the polygon if we have points
+        if self.points:
+            self.rubber_band.addPoint(self.points[0], True)
+
+    def _finish_polygon(self):
+        """Finish drawing and emit the polygon"""
+        print(f"DEBUG SamPolygonMapTool: _finish_polygon called with {len(self.points)} points")
+
+        if len(self.points) < 3:
+            print("DEBUG SamPolygonMapTool: Not enough points for polygon")
+            self._cleanup()
+            return
+
+        # Create WKT from points
+        coords = [(p.x(), p.y()) for p in self.points]
+        # Close the polygon
+        coords.append(coords[0])
+        coord_str = ", ".join([f"{x} {y}" for x, y in coords])
+        polygon_wkt = f"POLYGON(({coord_str}))"
+
+        print(f"DEBUG SamPolygonMapTool: Created polygon WKT")
+
+        self._cleanup()
+
+        # First try direct callback
+        if self.on_polygon_drawn_callback:
+            print("DEBUG SamPolygonMapTool: Calling callback")
+            try:
+                self.on_polygon_drawn_callback(polygon_wkt)
+                print("DEBUG SamPolygonMapTool: Callback executed successfully")
+            except Exception as e:
+                print(f"DEBUG SamPolygonMapTool: Callback error: {e}")
+                import traceback
+                traceback.print_exc()
+
+        # Also emit signal
+        print("DEBUG SamPolygonMapTool: Emitting polygonDrawn signal")
+        self.polygonDrawn.emit(polygon_wkt)
+
+    def _cancel(self):
+        """Cancel polygon drawing"""
+        print("DEBUG SamPolygonMapTool: _cancel called")
+        self._cleanup()
+
+        if self.on_cancelled_callback:
+            print("DEBUG SamPolygonMapTool: Calling cancelled callback")
+            try:
+                self.on_cancelled_callback()
+            except Exception as e:
+                print(f"DEBUG SamPolygonMapTool: Cancelled callback error: {e}")
+
+        print("DEBUG SamPolygonMapTool: Emitting cancelled signal")
+        self.cancelled.emit()
+
+    def _cleanup(self):
+        """Clean up rubber band and reset state"""
+        print("DEBUG SamPolygonMapTool: _cleanup called")
+        if self.rubber_band:
+            self.canvas.scene().removeItem(self.rubber_band)
+            self.rubber_band = None
+        self.points = []
+        self.is_drawing = False
+
+    def deactivate(self):
+        """Called when tool is deactivated"""
+        print("DEBUG SamPolygonMapTool: deactivate called")
         self._cleanup()
         super().deactivate()
