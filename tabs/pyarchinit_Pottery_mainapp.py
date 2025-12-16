@@ -3963,23 +3963,40 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
     # =====================================================
 
     def setup_statistics_tab(self):
-        """Setup the Statistics tab with all necessary widgets"""
+        """Setup the Statistics tab with all necessary widgets - RESPONSIVE LAYOUT"""
         try:
             # Find the Statistics tab (tab_8)
             stats_tab = self.tab_8
 
-            # Create main layout for the statistics tab
-            main_layout = QVBoxLayout()
+            # Clear existing layout if any
+            if stats_tab.layout():
+                old_layout = stats_tab.layout()
+                while old_layout.count():
+                    item = old_layout.takeAt(0)
+                    if item.widget():
+                        item.widget().setParent(None)
+                QWidget().setLayout(old_layout)
 
-            # Create a splitter for flexible layout
+            # Create main layout for the statistics tab
+            main_layout = QVBoxLayout(stats_tab)
+            main_layout.setContentsMargins(5, 5, 5, 5)
+            main_layout.setSpacing(5)
+
+            # Create a splitter for flexible layout - THIS IS KEY FOR RESPONSIVE DESIGN
             splitter = QSplitter(Qt.Horizontal)
+            splitter.setChildrenCollapsible(False)
 
             # ========== LEFT PANEL - Tables and Controls ==========
             left_widget = QWidget()
+            left_widget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
             left_layout = QVBoxLayout(left_widget)
+            left_layout.setContentsMargins(5, 5, 5, 5)
+            left_layout.setSpacing(5)
 
-            # Header with controls
-            controls_layout = QHBoxLayout()
+            # Header with controls - wrap in a scroll area for small windows
+            controls_widget = QWidget()
+            controls_layout = QHBoxLayout(controls_widget)
+            controls_layout.setContentsMargins(0, 0, 0, 0)
 
             # Refresh button
             self.pushButton_refresh_stats = QPushButton("Aggiorna Statistiche")
@@ -3990,7 +4007,9 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
             # Analysis type combo
             self.comboBox_stats_type = QComboBox()
             self.comboBox_stats_type.addItems([
-                "Distribuzione per Forma",
+                "Distribuzione per Forma (Shape)",
+                "Distribuzione per Forma Specifica",
+                "Distribuzione per Shape Specifica",
                 "Distribuzione per Ware",
                 "Distribuzione per Fabric",
                 "Distribuzione per Area",
@@ -3998,46 +4017,84 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
                 "Distribuzione per Materiale",
                 "Distribuzione per Trattamento Superficie",
                 "Distribuzione per Decorazione Esterna",
-                "Distribuzione per Decorazione Interna"
+                "Distribuzione per Decorazione Interna",
+                "Distribuzione per Tipo Decorazione",
+                "Distribuzione per Motivo Decorazione",
+                "Distribuzione per Datazione",
+                "Crosstab Forma × US",
+                "Crosstab Forma × Area",
+                "Crosstab Forma Specifica × US",
+                "Crosstab Forma Specifica × Area",
+                "Crosstab Ware × US",
+                "Crosstab Ware × Area"
             ])
-            self.comboBox_stats_type.currentIndexChanged.connect(self.on_stats_combo_changed)
+
+            # Chart type combo
+            self.comboBox_chart_type = QComboBox()
+            self.comboBox_chart_type.addItems([
+                "Barre Verticali",
+                "Barre Orizzontali",
+                "Torta",
+                "Linea",
+                "Area",
+                "Donut"
+            ])
             controls_layout.addWidget(QLabel("Tipo Analisi:"))
             controls_layout.addWidget(self.comboBox_stats_type)
+            self.comboBox_stats_type.currentIndexChanged.connect(self.on_stats_combo_changed)
+            controls_layout.addWidget(QLabel("Tipo Grafico:"))
+            controls_layout.addWidget(self.comboBox_chart_type)
+            self.comboBox_chart_type.currentIndexChanged.connect(self.on_chart_type_changed)
             controls_layout.addStretch()
 
-            left_layout.addLayout(controls_layout)
+            left_layout.addWidget(controls_widget)
 
-            # Summary table
+            # Create a vertical splitter for left panel sections (tables can resize)
+            left_splitter = QSplitter(Qt.Vertical)
+            left_splitter.setChildrenCollapsible(False)
+
+            # Summary table - RESPONSIVE
             summary_group = QGroupBox("Riepilogo Generale")
+            summary_group.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
             summary_layout = QVBoxLayout(summary_group)
+            summary_layout.setContentsMargins(5, 5, 5, 5)
 
             self.tableWidget_stats = QTableWidget()
             self.tableWidget_stats.setColumnCount(3)
             self.tableWidget_stats.setHorizontalHeaderLabels(["Categoria", "Conteggio", "Percentuale"])
             self.tableWidget_stats.horizontalHeader().setStretchLastSection(True)
+            self.tableWidget_stats.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
             self.tableWidget_stats.setAlternatingRowColors(True)
-            self.tableWidget_stats.setMinimumHeight(200)
+            self.tableWidget_stats.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+            self.tableWidget_stats.setMinimumHeight(100)
             summary_layout.addWidget(self.tableWidget_stats)
 
-            left_layout.addWidget(summary_group)
+            left_splitter.addWidget(summary_group)
 
-            # Measurements statistics table
+            # Measurements statistics table - RESPONSIVE
             measures_group = QGroupBox("Statistiche Misure")
+            measures_group.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Minimum)
             measures_layout = QVBoxLayout(measures_group)
+            measures_layout.setContentsMargins(5, 5, 5, 5)
 
             self.tableWidget_measures = QTableWidget()
             self.tableWidget_measures.setColumnCount(5)
             self.tableWidget_measures.setHorizontalHeaderLabels(["Misura", "Min", "Max", "Media", "Mediana"])
             self.tableWidget_measures.horizontalHeader().setStretchLastSection(True)
+            self.tableWidget_measures.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
             self.tableWidget_measures.setAlternatingRowColors(True)
-            self.tableWidget_measures.setMinimumHeight(150)
+            self.tableWidget_measures.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Minimum)
+            self.tableWidget_measures.setMinimumHeight(80)
+            self.tableWidget_measures.setMaximumHeight(200)
             measures_layout.addWidget(self.tableWidget_measures)
 
-            left_layout.addWidget(measures_group)
+            left_splitter.addWidget(measures_group)
 
-            # AI Report section
+            # AI Report section - RESPONSIVE
             ai_group = QGroupBox("Report AI Descrittivo")
+            ai_group.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
             ai_layout = QVBoxLayout(ai_group)
+            ai_layout.setContentsMargins(5, 5, 5, 5)
 
             ai_buttons_layout = QHBoxLayout()
             self.pushButton_generate_ai_report = QPushButton("Genera Report AI")
@@ -4053,40 +4110,52 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
 
             self.textEdit_ai_report = QTextEdit()
             self.textEdit_ai_report.setPlaceholderText("Il report AI verrà visualizzato qui dopo la generazione...")
-            self.textEdit_ai_report.setMinimumHeight(150)
+            self.textEdit_ai_report.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+            self.textEdit_ai_report.setMinimumHeight(80)
             ai_layout.addWidget(self.textEdit_ai_report)
 
-            left_layout.addWidget(ai_group)
+            left_splitter.addWidget(ai_group)
+
+            # Set proportions for left splitter
+            left_splitter.setStretchFactor(0, 3)  # Summary table gets more space
+            left_splitter.setStretchFactor(1, 1)  # Measures table smaller
+            left_splitter.setStretchFactor(2, 2)  # AI report medium
+
+            left_layout.addWidget(left_splitter)
 
             splitter.addWidget(left_widget)
 
             # ========== RIGHT PANEL - Chart (existing Mplwidget) ==========
-            # The existing widget is already in the tab, we'll use it for charts
-            # Move it to our layout
+            # Create a container for the chart that can resize
+            right_widget = QWidget()
+            right_widget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+            right_layout = QVBoxLayout(right_widget)
+            right_layout.setContentsMargins(5, 5, 5, 5)
+
+            # Move existing Mplwidget to our layout
             if hasattr(self, 'widget') and self.widget is not None:
-                splitter.addWidget(self.widget)
+                self.widget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+                self.widget.setMinimumSize(300, 200)
+                right_layout.addWidget(self.widget)
 
-            # Set splitter proportions
-            splitter.setSizes([400, 600])
+            splitter.addWidget(right_widget)
 
-            # Clear existing layout if any and set new layout
-            if stats_tab.layout():
-                # Remove old widgets but keep the Mplwidget
-                old_layout = stats_tab.layout()
-                while old_layout.count():
-                    item = old_layout.takeAt(0)
-                    if item.widget() and item.widget() != self.widget:
-                        pass  # Don't delete, might be needed
-            else:
-                stats_tab.setLayout(QVBoxLayout())
+            # Set splitter proportions and stretch factors
+            splitter.setStretchFactor(0, 1)  # Left panel
+            splitter.setStretchFactor(1, 1)  # Right panel (chart)
+            splitter.setSizes([450, 550])
 
-            # Add splitter to tab
-            stats_tab.layout().addWidget(splitter)
+            # Add splitter to main layout
+            main_layout.addWidget(splitter)
 
             # Keep reference to pushButtonQuant if it exists
             if hasattr(self, 'pushButtonQuant'):
-                self.pushButtonQuant.setParent(None)  # Remove from old position
+                self.pushButtonQuant.setParent(None)
                 controls_layout.addWidget(self.pushButtonQuant)
+
+            # Store splitter reference for programmatic resizing
+            self.stats_splitter = splitter
+            self.stats_left_splitter = left_splitter
 
             # Initialize statistics data storage
             self.stats_data = {}
@@ -4138,7 +4207,9 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
 
         # Map combo text to field name
         field_mapping = {
-            "Distribuzione per Forma": "form",
+            "Distribuzione per Forma (Shape)": "form",
+            "Distribuzione per Forma Specifica": "specific_form",
+            "Distribuzione per Shape Specifica": "specific_shape",
             "Distribuzione per Ware": "ware",
             "Distribuzione per Fabric": "fabric",
             "Distribuzione per Area": "area",
@@ -4146,11 +4217,33 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
             "Distribuzione per Materiale": "material",
             "Distribuzione per Trattamento Superficie": "surf_trat",
             "Distribuzione per Decorazione Esterna": "exdeco",
-            "Distribuzione per Decorazione Interna": "intdeco"
+            "Distribuzione per Decorazione Interna": "intdeco",
+            "Distribuzione per Tipo Decorazione": "decoration_type",
+            "Distribuzione per Motivo Decorazione": "decoration_motif",
+            "Distribuzione per Datazione": "datazione"
         }
 
-        field = field_mapping.get(stat_type, "form")
-        self.generate_category_stats(field)
+        # Check if it's a crosstab analysis
+        crosstab_mapping = {
+            "Crosstab Forma × US": ("form", "us"),
+            "Crosstab Forma × Area": ("form", "area"),
+            "Crosstab Forma Specifica × US": ("specific_form", "us"),
+            "Crosstab Forma Specifica × Area": ("specific_form", "area"),
+            "Crosstab Ware × US": ("ware", "us"),
+            "Crosstab Ware × Area": ("ware", "area")
+        }
+
+        if stat_type in crosstab_mapping:
+            field1, field2 = crosstab_mapping[stat_type]
+            self.generate_crosstab_stats(field1, field2)
+        else:
+            field = field_mapping.get(stat_type, "form")
+            self.generate_category_stats(field)
+
+    def on_chart_type_changed(self):
+        """Handle chart type combo box change - refresh current chart"""
+        if hasattr(self, 'current_chart_data') and self.current_chart_data:
+            self.update_chart_display()
 
     def generate_category_stats(self, field):
         """Generate statistics for a specific category field"""
@@ -4174,40 +4267,186 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
             # Sort by count descending
             sorted_counts = sorted(counts.items(), key=lambda x: x[1], reverse=True)
 
+            # Calculate additional statistics
+            num_categories = len(sorted_counts)
+            values_list = [cnt for _, cnt in sorted_counts]
+            mean_count = sum(values_list) / len(values_list) if values_list else 0
+            max_count = max(values_list) if values_list else 0
+            min_count = min(values_list) if values_list else 0
+
+            # Expand table with more columns
+            self.tableWidget_stats.setColumnCount(5)
+            self.tableWidget_stats.setHorizontalHeaderLabels([
+                "Categoria", "Conteggio", "Percentuale", "% Cumulativa", "Rank"
+            ])
+
             # Update table
-            self.tableWidget_stats.setRowCount(len(sorted_counts) + 1)
+            self.tableWidget_stats.setRowCount(len(sorted_counts) + 2)  # +2 for total and summary
 
             # Add total row first
             self.tableWidget_stats.setItem(0, 0, QTableWidgetItem("TOTALE"))
             self.tableWidget_stats.setItem(0, 1, QTableWidgetItem(str(total)))
             self.tableWidget_stats.setItem(0, 2, QTableWidgetItem("100%"))
+            self.tableWidget_stats.setItem(0, 3, QTableWidgetItem("-"))
+            self.tableWidget_stats.setItem(0, 4, QTableWidgetItem(f"{num_categories} categorie"))
 
             # Make total row bold
-            for col in range(3):
+            for col in range(5):
                 item = self.tableWidget_stats.item(0, col)
-                font = item.font()
-                font.setBold(True)
-                item.setFont(font)
+                if item:
+                    font = item.font()
+                    font.setBold(True)
+                    item.setFont(font)
 
-            # Add category rows
+            # Add category rows with cumulative percentage
+            cumulative = 0
             for i, (category, count) in enumerate(sorted_counts, 1):
                 percentage = (count / total) * 100 if total > 0 else 0
+                cumulative += percentage
                 self.tableWidget_stats.setItem(i, 0, QTableWidgetItem(category))
                 self.tableWidget_stats.setItem(i, 1, QTableWidgetItem(str(count)))
                 self.tableWidget_stats.setItem(i, 2, QTableWidgetItem(f"{percentage:.1f}%"))
+                self.tableWidget_stats.setItem(i, 3, QTableWidgetItem(f"{cumulative:.1f}%"))
+                self.tableWidget_stats.setItem(i, 4, QTableWidgetItem(f"#{i}"))
+
+            # Add summary row
+            summary_row = len(sorted_counts) + 1
+            self.tableWidget_stats.setItem(summary_row, 0, QTableWidgetItem("STATISTICHE"))
+            self.tableWidget_stats.setItem(summary_row, 1, QTableWidgetItem(f"Media: {mean_count:.1f}"))
+            self.tableWidget_stats.setItem(summary_row, 2, QTableWidgetItem(f"Max: {max_count}"))
+            self.tableWidget_stats.setItem(summary_row, 3, QTableWidgetItem(f"Min: {min_count}"))
+            self.tableWidget_stats.setItem(summary_row, 4, QTableWidgetItem(""))
+
+            # Make summary row italic
+            for col in range(5):
+                item = self.tableWidget_stats.item(summary_row, col)
+                if item:
+                    font = item.font()
+                    font.setItalic(True)
+                    item.setFont(font)
 
             self.tableWidget_stats.resizeColumnsToContents()
 
-            # Update chart
+            # Store chart data for dynamic updates
             chart_data = [(cat, cnt) for cat, cnt in sorted_counts[:15]]  # Top 15 for readability
+            self.current_chart_data = chart_data
+            self.current_chart_title = f"Distribuzione per {field.replace('_', ' ').title()}"
+
+            # Update chart using selected chart type
             if chart_data:
-                self.plot_chart(chart_data, f"Distribuzione per {field.replace('_', ' ').title()}", "Quantità")
+                self.update_chart_display()
 
             # Store for AI report
             self.stats_data[field] = sorted_counts
 
         except Exception as e:
             print(f"Error generating category stats: {e}")
+            import traceback
+            traceback.print_exc()
+
+    def update_chart_display(self):
+        """Update chart based on selected chart type"""
+        if not hasattr(self, 'current_chart_data') or not self.current_chart_data:
+            return
+
+        chart_type = self.comboBox_chart_type.currentText() if hasattr(self, 'comboBox_chart_type') else "Barre Verticali"
+
+        chart_type_map = {
+            "Barre Verticali": "vbar",
+            "Barre Orizzontali": "hbar",
+            "Torta": "pie",
+            "Linea": "line",
+            "Area": "area",
+            "Donut": "donut"
+        }
+
+        chart_code = chart_type_map.get(chart_type, "vbar")
+        self.plot_advanced_chart(self.current_chart_data, self.current_chart_title, chart_code)
+
+    def plot_advanced_chart(self, d, title, chart_type='vbar'):
+        """Generate various chart types"""
+        if not d or not hasattr(self, 'widget') or self.widget is None:
+            return
+
+        try:
+            data_diz = {item[0]: item[1] for item in d}
+            labels = list(data_diz.keys())
+            values = list(data_diz.values())
+
+            self.widget.canvas.ax.clear()
+
+            colors = ['#3498db', '#e74c3c', '#2ecc71', '#f39c12', '#9b59b6',
+                     '#1abc9c', '#e67e22', '#34495e', '#16a085', '#c0392b',
+                     '#27ae60', '#8e44ad', '#2980b9', '#d35400', '#7f8c8d']
+
+            if chart_type == 'vbar':
+                x = list(range(len(values)))
+                bars = self.widget.canvas.ax.bar(x, height=values, width=0.6, alpha=0.8, color=colors[:len(values)])
+                self.widget.canvas.ax.set_ylabel('Quantità')
+                # Add value labels
+                for bar, val in zip(bars, values):
+                    height = bar.get_height()
+                    self.widget.canvas.ax.text(bar.get_x() + bar.get_width()/2., height,
+                                              f'{val}', ha='center', va='bottom', fontsize=8)
+                # Rotate labels
+                for i, label in enumerate(labels):
+                    self.widget.canvas.ax.text(i, -max(values)*0.05, label[:12],
+                                              ha='center', va='top', fontsize=7, rotation=45)
+                self.widget.canvas.ax.set_xticks([])
+
+            elif chart_type == 'hbar':
+                y = list(range(len(values)))
+                bars = self.widget.canvas.ax.barh(y, values, height=0.6, alpha=0.8, color=colors[:len(values)])
+                self.widget.canvas.ax.set_yticks(y)
+                self.widget.canvas.ax.set_yticklabels([l[:15] for l in labels], fontsize=8)
+                self.widget.canvas.ax.set_xlabel('Quantità')
+                # Add value labels
+                for bar, val in zip(bars, values):
+                    width = bar.get_width()
+                    self.widget.canvas.ax.text(width, bar.get_y() + bar.get_height()/2.,
+                                              f' {val}', ha='left', va='center', fontsize=8)
+
+            elif chart_type == 'pie':
+                wedges, texts, autotexts = self.widget.canvas.ax.pie(
+                    values, labels=[l[:10] for l in labels], autopct='%1.1f%%',
+                    startangle=90, colors=colors[:len(values)], textprops={'fontsize': 8}
+                )
+                self.widget.canvas.ax.axis('equal')
+
+            elif chart_type == 'donut':
+                wedges, texts, autotexts = self.widget.canvas.ax.pie(
+                    values, labels=[l[:10] for l in labels], autopct='%1.1f%%',
+                    startangle=90, colors=colors[:len(values)], textprops={'fontsize': 8},
+                    wedgeprops=dict(width=0.5)
+                )
+                self.widget.canvas.ax.axis('equal')
+
+            elif chart_type == 'line':
+                x = list(range(len(values)))
+                self.widget.canvas.ax.plot(x, values, 'o-', linewidth=2, markersize=8, color='#3498db')
+                self.widget.canvas.ax.fill_between(x, values, alpha=0.3, color='#3498db')
+                self.widget.canvas.ax.set_xticks(x)
+                self.widget.canvas.ax.set_xticklabels([l[:10] for l in labels], rotation=45, ha='right', fontsize=7)
+                self.widget.canvas.ax.set_ylabel('Quantità')
+                self.widget.canvas.ax.grid(True, alpha=0.3)
+
+            elif chart_type == 'area':
+                x = list(range(len(values)))
+                self.widget.canvas.ax.fill_between(x, values, alpha=0.6, color='#3498db')
+                self.widget.canvas.ax.plot(x, values, 'o-', linewidth=2, markersize=6, color='#2980b9')
+                self.widget.canvas.ax.set_xticks(x)
+                self.widget.canvas.ax.set_xticklabels([l[:10] for l in labels], rotation=45, ha='right', fontsize=7)
+                self.widget.canvas.ax.set_ylabel('Quantità')
+                self.widget.canvas.ax.grid(True, alpha=0.3)
+
+            self.widget.canvas.ax.set_title(title, fontsize=10, fontweight='bold')
+            self.widget.canvas.figure.tight_layout()
+            self.widget.canvas.draw()
+
+        except Exception as e:
+            print(f"Error plotting advanced chart: {e}")
+            import traceback
+            traceback.print_exc()
 
     def generate_measurement_stats(self):
         """Generate statistics for measurement fields"""
@@ -4263,6 +4502,168 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
 
         except Exception as e:
             print(f"Error generating measurement stats: {e}")
+
+    def generate_crosstab_stats(self, field1, field2):
+        """Generate cross-tabulation statistics for two fields"""
+        if not hasattr(self, 'stats_records') or not self.stats_records:
+            return
+
+        try:
+            total = len(self.stats_records)
+
+            # Build crosstab data
+            crosstab = {}
+            field1_values = set()
+            field2_values = set()
+
+            for record in self.stats_records:
+                val1 = getattr(record, field1, None)
+                val2 = getattr(record, field2, None)
+
+                if val1 is None or str(val1).strip() == '' or str(val1) == 'None':
+                    val1 = 'N/D'
+                else:
+                    val1 = str(val1)
+
+                if val2 is None or str(val2).strip() == '' or str(val2) == 'None':
+                    val2 = 'N/D'
+                else:
+                    val2 = str(val2)
+
+                field1_values.add(val1)
+                field2_values.add(val2)
+
+                key = (val1, val2)
+                crosstab[key] = crosstab.get(key, 0) + 1
+
+            # Sort values by frequency
+            field1_counts = {}
+            field2_counts = {}
+            for (v1, v2), cnt in crosstab.items():
+                field1_counts[v1] = field1_counts.get(v1, 0) + cnt
+                field2_counts[v2] = field2_counts.get(v2, 0) + cnt
+
+            sorted_field1 = sorted(field1_counts.keys(), key=lambda x: field1_counts[x], reverse=True)[:15]
+            sorted_field2 = sorted(field2_counts.keys(), key=lambda x: field2_counts[x], reverse=True)[:15]
+
+            # Update table as a crosstab matrix
+            self.tableWidget_stats.setColumnCount(len(sorted_field2) + 2)  # +2 for row label and total
+            headers = [field1.replace('_', ' ').title()] + [f"{v2[:10]}" for v2 in sorted_field2] + ["Totale"]
+            self.tableWidget_stats.setHorizontalHeaderLabels(headers)
+
+            self.tableWidget_stats.setRowCount(len(sorted_field1) + 1)  # +1 for column totals
+
+            # Fill data
+            for row_idx, val1 in enumerate(sorted_field1):
+                self.tableWidget_stats.setItem(row_idx, 0, QTableWidgetItem(val1[:15]))
+                row_total = 0
+                for col_idx, val2 in enumerate(sorted_field2):
+                    count = crosstab.get((val1, val2), 0)
+                    row_total += count
+                    item = QTableWidgetItem(str(count) if count > 0 else "-")
+                    if count > 0:
+                        # Color intensity based on value
+                        intensity = min(255, 200 + int(55 * (count / max(crosstab.values()))))
+                        item.setBackground(QColor(200, 230, intensity))
+                    self.tableWidget_stats.setItem(row_idx, col_idx + 1, item)
+                # Row total
+                total_item = QTableWidgetItem(str(row_total))
+                total_item.setFont(self._get_bold_font())
+                self.tableWidget_stats.setItem(row_idx, len(sorted_field2) + 1, total_item)
+
+            # Column totals row
+            total_row = len(sorted_field1)
+            self.tableWidget_stats.setItem(total_row, 0, QTableWidgetItem("Totale"))
+            self.tableWidget_stats.item(total_row, 0).setFont(self._get_bold_font())
+            grand_total = 0
+            for col_idx, val2 in enumerate(sorted_field2):
+                col_total = sum(crosstab.get((v1, val2), 0) for v1 in sorted_field1)
+                grand_total += col_total
+                item = QTableWidgetItem(str(col_total))
+                item.setFont(self._get_bold_font())
+                self.tableWidget_stats.setItem(total_row, col_idx + 1, item)
+
+            # Grand total
+            item = QTableWidgetItem(str(grand_total))
+            item.setFont(self._get_bold_font())
+            self.tableWidget_stats.setItem(total_row, len(sorted_field2) + 1, item)
+
+            self.tableWidget_stats.resizeColumnsToContents()
+
+            # Plot heatmap-style chart
+            self.plot_crosstab_chart(crosstab, sorted_field1, sorted_field2, field1, field2)
+
+            # Store for export
+            self.stats_data['crosstab'] = {
+                'field1': field1,
+                'field2': field2,
+                'data': crosstab,
+                'rows': sorted_field1,
+                'cols': sorted_field2
+            }
+
+        except Exception as e:
+            print(f"Error generating crosstab stats: {e}")
+            import traceback
+            traceback.print_exc()
+
+    def _get_bold_font(self):
+        """Helper to get bold font"""
+        from qgis.PyQt.QtGui import QFont
+        font = QFont()
+        font.setBold(True)
+        return font
+
+    def plot_crosstab_chart(self, crosstab, rows, cols, field1, field2):
+        """Plot a stacked bar chart for crosstab data"""
+        if not hasattr(self, 'widget') or self.widget is None:
+            return
+
+        try:
+            import numpy as np
+
+            self.widget.canvas.ax.clear()
+
+            # Prepare data matrix
+            data_matrix = []
+            for col in cols[:10]:  # Limit columns
+                col_data = [crosstab.get((row, col), 0) for row in rows[:10]]
+                data_matrix.append(col_data)
+
+            data_matrix = np.array(data_matrix)
+            x = np.arange(len(rows[:10]))
+            width = 0.6
+
+            colors = ['#3498db', '#e74c3c', '#2ecc71', '#f39c12', '#9b59b6',
+                     '#1abc9c', '#e67e22', '#34495e', '#16a085', '#c0392b']
+
+            # Plot stacked bars
+            bottom = np.zeros(len(rows[:10]))
+            for i, col in enumerate(cols[:10]):
+                values = data_matrix[i]
+                self.widget.canvas.ax.bar(x, values, width, bottom=bottom,
+                                         label=col[:12], color=colors[i % len(colors)], alpha=0.8)
+                bottom += values
+
+            self.widget.canvas.ax.set_ylabel('Quantità')
+            self.widget.canvas.ax.set_xticks(x)
+            self.widget.canvas.ax.set_xticklabels([r[:10] for r in rows[:10]], rotation=45, ha='right', fontsize=7)
+            self.widget.canvas.ax.set_title(f'Crosstab: {field1.title()} × {field2.title()}', fontsize=10, fontweight='bold')
+
+            # Legend
+            self.widget.canvas.ax.legend(loc='upper right', fontsize=7, ncol=2)
+
+            self.widget.canvas.figure.tight_layout()
+            self.widget.canvas.draw()
+
+            # Store current chart info
+            self.current_chart_data = None  # Crosstab uses different format
+            self.current_chart_title = f'Crosstab: {field1.title()} × {field2.title()}'
+
+        except Exception as e:
+            print(f"Error plotting crosstab chart: {e}")
+            import traceback
+            traceback.print_exc()
 
     def torta_chart(self, d, t, yl):
         """Generate a pie chart"""
@@ -4322,9 +4723,11 @@ TOTAL POTTERY FRAGMENTS: {total}
 """
 
         # Add category distributions
-        categories_to_report = ['form', 'ware', 'fabric', 'material']
+        categories_to_report = ['form', 'specific_form', 'specific_shape', 'ware', 'fabric', 'material']
         category_labels = {
             'form': 'FORM/SHAPE',
+            'specific_form': 'SPECIFIC FORM',
+            'specific_shape': 'SPECIFIC SHAPE',
             'ware': 'WARE TYPE',
             'fabric': 'FABRIC',
             'material': 'MATERIAL'
@@ -4633,13 +5036,16 @@ Use well-structured paragraphs with headings for each section.
                     'title': f"Report Statistico Ceramica - {sito}",
                     'summary': "Riepilogo Generale",
                     'total': f"Totale reperti ceramici: {total}",
-                    'form_dist': "Distribuzione per Forma",
+                    'form_dist': "Distribuzione per Forma (Shape)",
+                    'specific_form_dist': "Distribuzione per Forma Specifica",
+                    'specific_shape_dist': "Distribuzione per Shape Specifica",
                     'ware_dist': "Distribuzione per Classe Ceramica",
                     'provenance': "Distribuzione per Provenienza",
                     'area_dist': "Distribuzione per Area",
                     'us_dist': "Distribuzione per US",
                     'sector_dist': "Distribuzione per Settore",
                     'measures': "Statistiche Misure",
+                    'crosstab': "Analisi Incrociata",
                     'ai_report': "Report Descrittivo AI",
                     'category': "Categoria",
                     'count': "Conteggio",
@@ -4658,13 +5064,16 @@ Use well-structured paragraphs with headings for each section.
                     'title': f"Statistischer Keramikbericht - {sito}",
                     'summary': "Allgemeine Zusammenfassung",
                     'total': f"Gesamtzahl der Keramikfunde: {total}",
-                    'form_dist': "Verteilung nach Form",
+                    'form_dist': "Verteilung nach Form (Shape)",
+                    'specific_form_dist': "Verteilung nach Spezifische Form",
+                    'specific_shape_dist': "Verteilung nach Spezifische Shape",
                     'ware_dist': "Verteilung nach Keramikklasse",
                     'provenance': "Verteilung nach Herkunft",
                     'area_dist': "Verteilung nach Areal",
                     'us_dist': "Verteilung nach SE",
                     'sector_dist': "Verteilung nach Sektor",
                     'measures': "Maßstatistiken",
+                    'crosstab': "Kreuzanalyse",
                     'ai_report': "KI-Beschreibender Bericht",
                     'category': "Kategorie",
                     'count': "Anzahl",
@@ -4683,13 +5092,16 @@ Use well-structured paragraphs with headings for each section.
                     'title': f"Pottery Statistical Report - {sito}",
                     'summary': "General Summary",
                     'total': f"Total pottery finds: {total}",
-                    'form_dist': "Distribution by Form",
+                    'form_dist': "Distribution by Form (Shape)",
+                    'specific_form_dist': "Distribution by Specific Form",
+                    'specific_shape_dist': "Distribution by Specific Shape",
                     'ware_dist': "Distribution by Ware Type",
                     'provenance': "Distribution by Provenance",
                     'area_dist': "Distribution by Area",
                     'us_dist': "Distribution by SU",
                     'sector_dist': "Distribution by Sector",
                     'measures': "Measurement Statistics",
+                    'crosstab': "Cross-Tabulation Analysis",
                     'ai_report': "AI Descriptive Report",
                     'category': "Category",
                     'count': "Count",
@@ -4765,6 +5177,40 @@ Use well-structured paragraphs with headings for each section.
                 ]))
                 elements.append(table)
                 elements.append(Spacer(1, 12))
+
+            # Specific Form distribution
+            if 'specific_form' in self.stats_data and self.stats_data['specific_form']:
+                elements.append(Paragraph(labels['specific_form_dist'], heading_style))
+                chart_buffer = self.generate_chart_image(self.stats_data['specific_form'], labels['specific_form_dist'], 'bar')
+                if chart_buffer:
+                    img = Image(chart_buffer, width=14*cm, height=6*cm)
+                    elements.append(img)
+                    elements.append(Spacer(1, 6))
+
+                table_data = [[labels['category'], labels['count'], labels['percentage']]]
+                for item, count in self.stats_data['specific_form'][:15]:
+                    percentage = (count / total) * 100 if total > 0 else 0
+                    table_data.append([str(item), str(count), f"{percentage:.1f}%"])
+
+                table = Table(table_data, colWidths=[8*cm, 3*cm, 3*cm])
+                table.setStyle(TableStyle([
+                    ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+                    ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+                    ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+                    ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                    ('GRID', (0, 0), (-1, -1), 1, colors.black),
+                ]))
+                elements.append(table)
+                elements.append(Spacer(1, 12))
+
+            # Specific Shape distribution
+            if 'specific_shape' in self.stats_data and self.stats_data['specific_shape']:
+                elements.append(Paragraph(labels['specific_shape_dist'], heading_style))
+                chart_buffer = self.generate_chart_image(self.stats_data['specific_shape'], labels['specific_shape_dist'], 'pie')
+                if chart_buffer:
+                    img = Image(chart_buffer, width=12*cm, height=8*cm)
+                    elements.append(img)
+                    elements.append(Spacer(1, 12))
 
             # Ware distribution with chart
             if 'ware' in self.stats_data and self.stats_data['ware']:
