@@ -4007,6 +4007,7 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
             # Analysis type combo
             self.comboBox_stats_type = QComboBox()
             self.comboBox_stats_type.addItems([
+                "── DISTRIBUZIONI ──",
                 "Distribuzione per Forma (Shape)",
                 "Distribuzione per Forma Specifica",
                 "Distribuzione per Shape Specifica",
@@ -4020,14 +4021,27 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
                 "Distribuzione per Decorazione Interna",
                 "Distribuzione per Tipo Decorazione",
                 "Distribuzione per Motivo Decorazione",
+                "Distribuzione per Posizione Decorazione",
                 "Distribuzione per Datazione",
+                "── CROSSTAB FORME ──",
                 "Crosstab Forma × US",
                 "Crosstab Forma × Area",
                 "Crosstab Forma Specifica × US",
                 "Crosstab Forma Specifica × Area",
                 "Crosstab Ware × US",
-                "Crosstab Ware × Area"
+                "Crosstab Ware × Area",
+                "── CROSSTAB DECORAZIONI ──",
+                "Crosstab Deco Esterna × US",
+                "Crosstab Deco Interna × US",
+                "Crosstab Tipo Deco × US",
+                "Crosstab Motivo Deco × US",
+                "Crosstab Posizione Deco × US",
+                "Crosstab Deco Esterna × Interna",
+                "Crosstab Tipo Deco × Motivo",
+                "Crosstab Deco Esterna × Motivo",
+                "Crosstab Deco Interna × Motivo"
             ])
+            self.comboBox_stats_type.setCurrentIndex(1)  # Skip separator
 
             # Chart type combo
             self.comboBox_chart_type = QComboBox()
@@ -4205,6 +4219,10 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
 
         stat_type = self.comboBox_stats_type.currentText()
 
+        # Skip separator items
+        if stat_type.startswith("──"):
+            return
+
         # Map combo text to field name
         field_mapping = {
             "Distribuzione per Forma (Shape)": "form",
@@ -4220,17 +4238,30 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
             "Distribuzione per Decorazione Interna": "intdeco",
             "Distribuzione per Tipo Decorazione": "decoration_type",
             "Distribuzione per Motivo Decorazione": "decoration_motif",
+            "Distribuzione per Posizione Decorazione": "decoration_position",
             "Distribuzione per Datazione": "datazione"
         }
 
         # Check if it's a crosstab analysis
         crosstab_mapping = {
+            # Forme × Provenienza
             "Crosstab Forma × US": ("form", "us"),
             "Crosstab Forma × Area": ("form", "area"),
             "Crosstab Forma Specifica × US": ("specific_form", "us"),
             "Crosstab Forma Specifica × Area": ("specific_form", "area"),
             "Crosstab Ware × US": ("ware", "us"),
-            "Crosstab Ware × Area": ("ware", "area")
+            "Crosstab Ware × Area": ("ware", "area"),
+            # Decorazioni × US
+            "Crosstab Deco Esterna × US": ("exdeco", "us"),
+            "Crosstab Deco Interna × US": ("intdeco", "us"),
+            "Crosstab Tipo Deco × US": ("decoration_type", "us"),
+            "Crosstab Motivo Deco × US": ("decoration_motif", "us"),
+            "Crosstab Posizione Deco × US": ("decoration_position", "us"),
+            # Decorazioni × Decorazioni
+            "Crosstab Deco Esterna × Interna": ("exdeco", "intdeco"),
+            "Crosstab Tipo Deco × Motivo": ("decoration_type", "decoration_motif"),
+            "Crosstab Deco Esterna × Motivo": ("exdeco", "decoration_motif"),
+            "Crosstab Deco Interna × Motivo": ("intdeco", "decoration_motif")
         }
 
         if stat_type in crosstab_mapping:
@@ -4242,7 +4273,11 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
 
     def on_chart_type_changed(self):
         """Handle chart type combo box change - refresh current chart"""
-        if hasattr(self, 'current_chart_data') and self.current_chart_data:
+        # Check if we have crosstab data
+        if hasattr(self, 'current_crosstab_data') and self.current_crosstab_data:
+            self.update_crosstab_chart_display()
+        # Check if we have regular chart data
+        elif hasattr(self, 'current_chart_data') and self.current_chart_data:
             self.update_chart_display()
 
     def generate_category_stats(self, field):
@@ -4331,6 +4366,7 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
             chart_data = [(cat, cnt) for cat, cnt in sorted_counts[:15]]  # Top 15 for readability
             self.current_chart_data = chart_data
             self.current_chart_title = f"Distribuzione per {field.replace('_', ' ').title()}"
+            self.current_crosstab_data = None  # Reset crosstab data
 
             # Update chart using selected chart type
             if chart_data:
@@ -4656,12 +4692,151 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
             self.widget.canvas.figure.tight_layout()
             self.widget.canvas.draw()
 
-            # Store current chart info
-            self.current_chart_data = None  # Crosstab uses different format
+            # Store current chart info for dynamic updates
+            self.current_chart_data = None  # Reset regular chart data
+            self.current_crosstab_data = {
+                'crosstab': crosstab,
+                'rows': rows,
+                'cols': cols,
+                'field1': field1,
+                'field2': field2
+            }
             self.current_chart_title = f'Crosstab: {field1.title()} × {field2.title()}'
 
         except Exception as e:
             print(f"Error plotting crosstab chart: {e}")
+            import traceback
+            traceback.print_exc()
+
+    def update_crosstab_chart_display(self):
+        """Update crosstab chart based on selected chart type"""
+        if not hasattr(self, 'current_crosstab_data') or not self.current_crosstab_data:
+            return
+
+        data = self.current_crosstab_data
+        chart_type = self.comboBox_chart_type.currentText() if hasattr(self, 'comboBox_chart_type') else "Barre Verticali"
+
+        chart_type_map = {
+            "Barre Verticali": "stacked",
+            "Barre Orizzontali": "hstacked",
+            "Torta": "pie_top",
+            "Linea": "line_multi",
+            "Area": "area_stacked",
+            "Donut": "heatmap"
+        }
+
+        chart_code = chart_type_map.get(chart_type, "stacked")
+        self.plot_crosstab_advanced(data['crosstab'], data['rows'], data['cols'],
+                                    data['field1'], data['field2'], chart_code)
+
+    def plot_crosstab_advanced(self, crosstab, rows, cols, field1, field2, chart_type='stacked'):
+        """Plot crosstab with various chart types"""
+        if not hasattr(self, 'widget') or self.widget is None:
+            return
+
+        try:
+            import numpy as np
+
+            self.widget.canvas.ax.clear()
+
+            colors = ['#3498db', '#e74c3c', '#2ecc71', '#f39c12', '#9b59b6',
+                     '#1abc9c', '#e67e22', '#34495e', '#16a085', '#c0392b']
+
+            rows_limited = rows[:10]
+            cols_limited = cols[:10]
+
+            # Prepare data matrix
+            data_matrix = []
+            for col in cols_limited:
+                col_data = [crosstab.get((row, col), 0) for row in rows_limited]
+                data_matrix.append(col_data)
+
+            data_matrix = np.array(data_matrix)
+            x = np.arange(len(rows_limited))
+            width = 0.6
+
+            if chart_type == 'stacked':
+                # Stacked vertical bars
+                bottom = np.zeros(len(rows_limited))
+                for i, col in enumerate(cols_limited):
+                    values = data_matrix[i]
+                    self.widget.canvas.ax.bar(x, values, width, bottom=bottom,
+                                             label=col[:12], color=colors[i % len(colors)], alpha=0.8)
+                    bottom += values
+                self.widget.canvas.ax.set_ylabel('Quantità')
+                self.widget.canvas.ax.set_xticks(x)
+                self.widget.canvas.ax.set_xticklabels([r[:10] for r in rows_limited], rotation=45, ha='right', fontsize=7)
+                self.widget.canvas.ax.legend(loc='upper right', fontsize=6, ncol=2)
+
+            elif chart_type == 'hstacked':
+                # Stacked horizontal bars
+                y = np.arange(len(rows_limited))
+                left = np.zeros(len(rows_limited))
+                for i, col in enumerate(cols_limited):
+                    values = data_matrix[i]
+                    self.widget.canvas.ax.barh(y, values, height=0.6, left=left,
+                                              label=col[:12], color=colors[i % len(colors)], alpha=0.8)
+                    left += values
+                self.widget.canvas.ax.set_xlabel('Quantità')
+                self.widget.canvas.ax.set_yticks(y)
+                self.widget.canvas.ax.set_yticklabels([r[:12] for r in rows_limited], fontsize=7)
+                self.widget.canvas.ax.legend(loc='upper right', fontsize=6, ncol=2)
+
+            elif chart_type == 'pie_top':
+                # Pie chart of row totals
+                row_totals = [sum(crosstab.get((row, col), 0) for col in cols_limited) for row in rows_limited]
+                self.widget.canvas.ax.pie(row_totals, labels=[r[:10] for r in rows_limited],
+                                         autopct='%1.1f%%', colors=colors[:len(rows_limited)],
+                                         textprops={'fontsize': 7})
+                self.widget.canvas.ax.axis('equal')
+
+            elif chart_type == 'line_multi':
+                # Multi-line chart
+                for i, col in enumerate(cols_limited[:5]):  # Limit to 5 lines
+                    values = data_matrix[i]
+                    self.widget.canvas.ax.plot(x, values, 'o-', linewidth=2, markersize=6,
+                                              label=col[:12], color=colors[i % len(colors)])
+                self.widget.canvas.ax.set_ylabel('Quantità')
+                self.widget.canvas.ax.set_xticks(x)
+                self.widget.canvas.ax.set_xticklabels([r[:10] for r in rows_limited], rotation=45, ha='right', fontsize=7)
+                self.widget.canvas.ax.legend(loc='upper right', fontsize=6)
+                self.widget.canvas.ax.grid(True, alpha=0.3)
+
+            elif chart_type == 'area_stacked':
+                # Stacked area chart
+                cumulative = np.zeros(len(rows_limited))
+                for i, col in enumerate(cols_limited):
+                    values = data_matrix[i]
+                    self.widget.canvas.ax.fill_between(x, cumulative, cumulative + values,
+                                                       label=col[:12], color=colors[i % len(colors)], alpha=0.7)
+                    cumulative += values
+                self.widget.canvas.ax.set_ylabel('Quantità')
+                self.widget.canvas.ax.set_xticks(x)
+                self.widget.canvas.ax.set_xticklabels([r[:10] for r in rows_limited], rotation=45, ha='right', fontsize=7)
+                self.widget.canvas.ax.legend(loc='upper right', fontsize=6, ncol=2)
+
+            elif chart_type == 'heatmap':
+                # Heatmap style
+                im = self.widget.canvas.ax.imshow(data_matrix, cmap='YlOrRd', aspect='auto')
+                self.widget.canvas.ax.set_xticks(np.arange(len(rows_limited)))
+                self.widget.canvas.ax.set_yticks(np.arange(len(cols_limited)))
+                self.widget.canvas.ax.set_xticklabels([r[:8] for r in rows_limited], rotation=45, ha='right', fontsize=7)
+                self.widget.canvas.ax.set_yticklabels([c[:10] for c in cols_limited], fontsize=7)
+                # Add text annotations
+                for i in range(len(cols_limited)):
+                    for j in range(len(rows_limited)):
+                        val = data_matrix[i, j]
+                        if val > 0:
+                            self.widget.canvas.ax.text(j, i, str(int(val)), ha='center', va='center',
+                                                       fontsize=6, color='black' if val < data_matrix.max()/2 else 'white')
+                self.widget.canvas.figure.colorbar(im, ax=self.widget.canvas.ax, shrink=0.8)
+
+            self.widget.canvas.ax.set_title(f'Crosstab: {field1.title()} × {field2.title()}', fontsize=10, fontweight='bold')
+            self.widget.canvas.figure.tight_layout()
+            self.widget.canvas.draw()
+
+        except Exception as e:
+            print(f"Error plotting crosstab advanced: {e}")
             import traceback
             traceback.print_exc()
 
