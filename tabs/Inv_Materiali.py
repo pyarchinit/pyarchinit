@@ -7126,7 +7126,7 @@ class InventarioFilterDialog(QDialog):
         """Fetch inventory records and populate year combobox and list"""
         try:
             # Get all inventory records
-            self.inv_records = self.db_manager.query_all('inventario_materiali_table')
+            self.inv_records = self.db_manager.query('INVENTARIO_MATERIALI')
 
             # Get unique years and sort them
             unique_years = sorted(
