@@ -1257,8 +1257,120 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         self.delegateUnMis.def_editable('False')
         self.tableWidget_tecnologie.setItemDelegateForColumn(3, self.delegateUnMis)
 
+        # Add filter button for Inventario
+        self.setup_filter_button()
+
         # Setup Statistics Tab
         self.setup_statistics_tab()
+
+    def setup_filter_button(self):
+        """Setup the filter button for Inventario Materiali"""
+        try:
+            self.pushButton_filter_inv = QPushButton(self)
+            if self.L == 'it':
+                self.pushButton_filter_inv.setText("Filtra Record")
+                self.pushButton_filter_inv.setToolTip("Filtra i record per Nr. Inventario, Nr. Reperto o Anno")
+            elif self.L == 'de':
+                self.pushButton_filter_inv.setText("Filter")
+                self.pushButton_filter_inv.setToolTip("Datensätze nach Inventarnr., Fundnr. oder Jahr filtern")
+            else:
+                self.pushButton_filter_inv.setText("Filter Records")
+                self.pushButton_filter_inv.setToolTip("Filter records by Inventory Nr., Find Nr. or Year")
+
+            self.pushButton_filter_inv.setMinimumSize(QSize(80, 25))
+            self.pushButton_filter_inv.setMaximumSize(QSize(120, 25))
+
+            # Find pushButton_view_all_2 and insert filter button next to it
+            if hasattr(self, 'pushButton_view_all_2'):
+                parent_layout = self.pushButton_view_all_2.parent().layout()
+                if parent_layout:
+                    index = parent_layout.indexOf(self.pushButton_view_all_2)
+                    if index >= 0:
+                        parent_layout.insertWidget(index + 1, self.pushButton_filter_inv)
+                    else:
+                        parent_layout.addWidget(self.pushButton_filter_inv)
+                else:
+                    # Position next to pushButton_view_all_2
+                    geo = self.pushButton_view_all_2.geometry()
+                    self.pushButton_filter_inv.setGeometry(
+                        geo.x() + geo.width() + 5, geo.y(),
+                        100, geo.height()
+                    )
+
+            self.pushButton_filter_inv.clicked.connect(self.on_pushButton_filter_inv_pressed)
+
+        except Exception as e:
+            print(f"Error setting up filter button: {e}")
+
+    def on_pushButton_filter_inv_pressed(self):
+        """Open filter dialog for Inventario Materiali"""
+        try:
+            dialog = InventarioFilterDialog(self.DB_MANAGER, self)
+            if dialog.exec_() == QDialog.Accepted:
+                selected_ids = dialog.get_selected_ids()
+                selected_year = dialog.get_selected_year()
+                filter_type = dialog.get_filter_type()
+
+                if selected_ids:
+                    # Build search query based on filter type
+                    self.filter_records_by_selection(selected_ids, selected_year, filter_type)
+        except Exception as e:
+            QMessageBox.warning(self, "Error", f"Filter error: {str(e)}", QMessageBox.Ok)
+
+    def filter_records_by_selection(self, selected_ids, selected_year, filter_type):
+        """Filter records based on selected IDs and year"""
+        try:
+            # Build the filtered data list
+            filtered_records = []
+
+            for record in self.DB_MANAGER.query_all(self.MAPPER_TABLE_CLASS):
+                match = False
+
+                if filter_type == 'numero_inventario':
+                    if record.numero_inventario is not None and record.numero_inventario in selected_ids:
+                        match = True
+                elif filter_type == 'n_reperto':
+                    if record.n_reperto is not None and record.n_reperto in selected_ids:
+                        match = True
+                elif filter_type == 'years':
+                    if record.years is not None and record.years in selected_ids:
+                        match = True
+
+                # Also filter by year if specified
+                if match and selected_year is not None:
+                    if record.years != selected_year:
+                        match = False
+
+                if match:
+                    filtered_records.append(record)
+
+            if filtered_records:
+                self.DATA_LIST = filtered_records
+                self.REC_TOT = len(self.DATA_LIST)
+                self.REC_CORR = 0
+                self.rec_num = 0
+                self.set_rec_counter(self.REC_TOT, self.REC_CORR + 1)
+                self.fill_fields()
+
+                if self.L == 'it':
+                    msg = f"Trovati {self.REC_TOT} record filtrati"
+                elif self.L == 'de':
+                    msg = f"{self.REC_TOT} gefilterte Datensätze gefunden"
+                else:
+                    msg = f"Found {self.REC_TOT} filtered records"
+
+                QMessageBox.information(self, "Filter", msg, QMessageBox.Ok)
+            else:
+                if self.L == 'it':
+                    msg = "Nessun record trovato con i criteri di filtro"
+                elif self.L == 'de':
+                    msg = "Keine Datensätze mit den Filterkriterien gefunden"
+                else:
+                    msg = "No records found with filter criteria"
+                QMessageBox.warning(self, "Filter", msg, QMessageBox.Ok)
+
+        except Exception as e:
+            QMessageBox.warning(self, "Error", f"Filter error: {str(e)}", QMessageBox.Ok)
 
     def dropEvent(self, event):
         mimeData = event.mimeData()
@@ -6874,6 +6986,354 @@ The tone should be professional and scientific, suitable for an archaeological p
             QMessageBox.warning(self, "Error", f"Error exporting PDF: {e}", QMessageBox.Ok)
 
 ## Class end
+
+
+class InventarioFilterDialog(QDialog):
+    """Dialog for filtering Inventario Materiali records by numero_inventario, n_reperto, or years with checkboxes"""
+    L = QgsSettings().value("locale/userLocale")[0:2]
+
+    def __init__(self, db_manager, parent=None):
+        super().__init__(parent)
+        self.db_manager = db_manager
+        self.selected_ids = []
+        self.selected_year = None
+        self.filter_type = 'numero_inventario'  # default filter type
+        self.inv_records = []
+        self.initUI()
+
+    def initUI(self):
+        if self.L == 'it':
+            self.setWindowTitle("Filtra Record Inventario Materiali")
+        elif self.L == 'de':
+            self.setWindowTitle("Inventarmaterialien filtern")
+        else:
+            self.setWindowTitle("Filter Inventory Records")
+
+        self.setMinimumSize(500, 600)
+        layout = QVBoxLayout(self)
+
+        # Filter type selection
+        filter_type_layout = QHBoxLayout()
+        filter_type_label = QLabel(self)
+        if self.L == 'it':
+            filter_type_label.setText("Filtra per:")
+        elif self.L == 'de':
+            filter_type_label.setText("Filtern nach:")
+        else:
+            filter_type_label.setText("Filter by:")
+        filter_type_layout.addWidget(filter_type_label)
+
+        self.comboBox_filter_type = QComboBox(self)
+        if self.L == 'it':
+            self.comboBox_filter_type.addItem("Nr. Inventario", 'numero_inventario')
+            self.comboBox_filter_type.addItem("Nr. Reperto (RA)", 'n_reperto')
+            self.comboBox_filter_type.addItem("Anno", 'years')
+        elif self.L == 'de':
+            self.comboBox_filter_type.addItem("Inventarnr.", 'numero_inventario')
+            self.comboBox_filter_type.addItem("Fundnr. (RA)", 'n_reperto')
+            self.comboBox_filter_type.addItem("Jahr", 'years')
+        else:
+            self.comboBox_filter_type.addItem("Inventory Nr.", 'numero_inventario')
+            self.comboBox_filter_type.addItem("Find Nr. (RA)", 'n_reperto')
+            self.comboBox_filter_type.addItem("Year", 'years')
+
+        self.comboBox_filter_type.currentIndexChanged.connect(self.on_filter_type_changed)
+        filter_type_layout.addWidget(self.comboBox_filter_type)
+        filter_type_layout.addStretch()
+        layout.addLayout(filter_type_layout)
+
+        # Year filter section (for additional filtering)
+        year_layout = QHBoxLayout()
+        year_label = QLabel(self)
+        if self.L == 'it':
+            year_label.setText("Anno (opzionale):")
+        elif self.L == 'de':
+            year_label.setText("Jahr (optional):")
+        else:
+            year_label.setText("Year (optional):")
+        year_layout.addWidget(year_label)
+
+        self.comboBox_year = QComboBox(self)
+        self.comboBox_year.setMinimumWidth(100)
+        self.comboBox_year.currentIndexChanged.connect(self.on_year_changed)
+        year_layout.addWidget(self.comboBox_year)
+        year_layout.addStretch()
+        layout.addLayout(year_layout)
+
+        # Search bar
+        self.search_bar = QLineEdit(self)
+        if self.L == 'it':
+            self.search_bar.setPlaceholderText("Cerca...")
+        elif self.L == 'de':
+            self.search_bar.setPlaceholderText("Suchen...")
+        else:
+            self.search_bar.setPlaceholderText("Search...")
+        self.search_bar.textChanged.connect(self.filter_list)
+        layout.addWidget(self.search_bar)
+
+        # Select All / Deselect All buttons
+        btn_layout = QHBoxLayout()
+        self.btn_select_all = QPushButton(self)
+        self.btn_deselect_all = QPushButton(self)
+
+        if self.L == 'it':
+            self.btn_select_all.setText("Seleziona Tutti")
+            self.btn_deselect_all.setText("Deseleziona Tutti")
+        elif self.L == 'de':
+            self.btn_select_all.setText("Alle auswählen")
+            self.btn_deselect_all.setText("Alle abwählen")
+        else:
+            self.btn_select_all.setText("Select All")
+            self.btn_deselect_all.setText("Deselect All")
+
+        self.btn_select_all.clicked.connect(self.select_all)
+        self.btn_deselect_all.clicked.connect(self.deselect_all)
+        btn_layout.addWidget(self.btn_select_all)
+        btn_layout.addWidget(self.btn_deselect_all)
+        layout.addLayout(btn_layout)
+
+        # List widget with checkboxes
+        self.list_widget = QListWidget(self)
+        layout.addWidget(self.list_widget)
+
+        # Populate data
+        self.populate_data()
+
+        # Status label
+        self.label_status = QLabel(self)
+        self.update_status_label()
+        layout.addWidget(self.label_status)
+
+        # Filter button
+        filter_button = QPushButton(self)
+        if self.L == 'it':
+            filter_button.setText("Applica Filtro")
+        elif self.L == 'de':
+            filter_button.setText("Filter anwenden")
+        else:
+            filter_button.setText("Apply Filter")
+        filter_button.clicked.connect(self.apply_filter)
+        layout.addWidget(filter_button)
+
+        self.setLayout(layout)
+
+    def natural_sort_key(self, text):
+        """Natural sorting key that handles alphanumeric values correctly"""
+        import re
+        return [int(c) if c.isdigit() else c.lower() for c in re.split(r'(\d+)', str(text))]
+
+    def populate_data(self):
+        """Fetch inventory records and populate year combobox and list"""
+        try:
+            # Get all inventory records
+            self.inv_records = self.db_manager.query_all('inventario_materiali_table')
+
+            # Get unique years and sort them
+            unique_years = sorted(
+                set(record.years for record in self.inv_records if record.years is not None),
+                reverse=True  # Most recent first
+            )
+
+            # Populate year combobox
+            self.comboBox_year.blockSignals(True)
+            self.comboBox_year.clear()
+            if self.L == 'it':
+                self.comboBox_year.addItem("Tutti gli anni", None)
+            elif self.L == 'de':
+                self.comboBox_year.addItem("Alle Jahre", None)
+            else:
+                self.comboBox_year.addItem("All years", None)
+
+            for year in unique_years:
+                self.comboBox_year.addItem(str(year), year)
+            self.comboBox_year.blockSignals(False)
+
+            # Populate list based on current filter type
+            self.update_id_list()
+
+        except Exception as e:
+            print(f"Error populating inventory filter: {e}")
+
+    def on_filter_type_changed(self, index):
+        """Handle filter type selection change"""
+        self.filter_type = self.comboBox_filter_type.currentData()
+        self.search_bar.clear()
+        self.update_id_list()
+
+    def on_year_changed(self, index):
+        """Handle year selection change"""
+        self.selected_year = self.comboBox_year.currentData()
+        self.search_bar.clear()
+        self.update_id_list()
+
+    def get_filtered_records(self):
+        """Get records filtered by selected year"""
+        if self.selected_year is None:
+            return self.inv_records
+        return [r for r in self.inv_records if r.years == self.selected_year]
+
+    def update_id_list(self):
+        """Update the list based on current filter type and year filter"""
+        filtered_records = self.get_filtered_records()
+
+        # Get unique values based on filter type
+        if self.filter_type == 'numero_inventario':
+            unique_values = sorted(
+                set(record.numero_inventario for record in filtered_records if record.numero_inventario is not None),
+                key=self.natural_sort_key
+            )
+        elif self.filter_type == 'n_reperto':
+            unique_values = sorted(
+                set(record.n_reperto for record in filtered_records if record.n_reperto is not None),
+                key=self.natural_sort_key
+            )
+        else:  # years
+            unique_values = sorted(
+                set(record.years for record in filtered_records if record.years is not None),
+                reverse=True
+            )
+
+        self.update_list_widget(unique_values, filtered_records)
+
+    def update_list_widget(self, values, records=None):
+        """Update the list widget with the given values"""
+        self.list_widget.clear()
+
+        if records is None:
+            records = self.get_filtered_records()
+
+        # Create a dict to count occurrences per value
+        value_count = {}
+        for record in records:
+            if self.filter_type == 'numero_inventario':
+                val = record.numero_inventario
+            elif self.filter_type == 'n_reperto':
+                val = record.n_reperto
+            else:
+                val = record.years
+
+            if val is not None:
+                value_count[val] = value_count.get(val, 0) + 1
+
+        # Get label prefix based on filter type
+        if self.L == 'it':
+            prefixes = {
+                'numero_inventario': 'Inv.',
+                'n_reperto': 'RA',
+                'years': 'Anno'
+            }
+        elif self.L == 'de':
+            prefixes = {
+                'numero_inventario': 'Inv.',
+                'n_reperto': 'RA',
+                'years': 'Jahr'
+            }
+        else:
+            prefixes = {
+                'numero_inventario': 'Inv.',
+                'n_reperto': 'RA',
+                'years': 'Year'
+            }
+
+        prefix = prefixes.get(self.filter_type, '')
+
+        for val in values:
+            list_item = QListWidgetItem(self.list_widget)
+            count = value_count.get(val, 0)
+            checkbox = QCheckBox(f"{prefix} {val} ({count} record{'s' if count != 1 else ''})")
+            checkbox.filter_value = val
+            checkbox.stateChanged.connect(self.update_status_label)
+            self.list_widget.addItem(list_item)
+            self.list_widget.setItemWidget(list_item, checkbox)
+
+    def filter_list(self, text):
+        """Filter the list based on search text"""
+        filtered_records = self.get_filtered_records()
+
+        # Get unique values based on filter type
+        if self.filter_type == 'numero_inventario':
+            all_values = set(record.numero_inventario for record in filtered_records if record.numero_inventario is not None)
+        elif self.filter_type == 'n_reperto':
+            all_values = set(record.n_reperto for record in filtered_records if record.n_reperto is not None)
+        else:
+            all_values = set(record.years for record in filtered_records if record.years is not None)
+
+        if not text:
+            unique_values = sorted(all_values, key=self.natural_sort_key if self.filter_type != 'years' else lambda x: -x)
+        else:
+            unique_values = sorted(
+                [v for v in all_values if str(v).startswith(text)],
+                key=self.natural_sort_key if self.filter_type != 'years' else lambda x: -x
+            )
+
+        self.update_list_widget(unique_values, filtered_records)
+
+    def select_all(self):
+        """Select all visible checkboxes"""
+        for i in range(self.list_widget.count()):
+            item = self.list_widget.item(i)
+            checkbox = self.list_widget.itemWidget(item)
+            if checkbox:
+                checkbox.setChecked(True)
+
+    def deselect_all(self):
+        """Deselect all visible checkboxes"""
+        for i in range(self.list_widget.count()):
+            item = self.list_widget.item(i)
+            checkbox = self.list_widget.itemWidget(item)
+            if checkbox:
+                checkbox.setChecked(False)
+
+    def update_status_label(self):
+        """Update the status label with count of selected items"""
+        count = self.get_selected_count()
+        total = self.list_widget.count()
+        year_text = ""
+        if self.selected_year:
+            year_text = f" ({self.selected_year})"
+
+        if self.L == 'it':
+            self.label_status.setText(f"Selezionati: {count} di {total}{year_text}")
+        elif self.L == 'de':
+            self.label_status.setText(f"Ausgewählt: {count} von {total}{year_text}")
+        else:
+            self.label_status.setText(f"Selected: {count} of {total}{year_text}")
+
+    def get_selected_count(self):
+        """Get the count of selected checkboxes"""
+        count = 0
+        for i in range(self.list_widget.count()):
+            item = self.list_widget.item(i)
+            checkbox = self.list_widget.itemWidget(item)
+            if checkbox and checkbox.isChecked():
+                count += 1
+        return count
+
+    def apply_filter(self):
+        """Apply the filter and close the dialog"""
+        self.selected_ids.clear()
+
+        for i in range(self.list_widget.count()):
+            item = self.list_widget.item(i)
+            checkbox = self.list_widget.itemWidget(item)
+            if checkbox and checkbox.isChecked():
+                self.selected_ids.append(checkbox.filter_value)
+
+        print(f"Selected values: {self.selected_ids}, Year: {self.selected_year}, Type: {self.filter_type}")
+        self.accept()
+
+    def get_selected_ids(self):
+        """Return the list of selected values"""
+        return self.selected_ids
+
+    def get_selected_year(self):
+        """Return the selected year (None if 'All years')"""
+        return self.selected_year
+
+    def get_filter_type(self):
+        """Return the current filter type"""
+        return self.filter_type
+
 
 # if __name__ == "__main__":
     # app = QApplication(sys.argv)
