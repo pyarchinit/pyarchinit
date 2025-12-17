@@ -1305,7 +1305,10 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
     def on_pushButton_filter_inv_pressed(self):
         """Open filter dialog for Inventario Materiali"""
         try:
+            print(f"[InventarioFilter] Opening filter dialog...")
+            print(f"[InventarioFilter] DB_MANAGER type: {type(self.DB_MANAGER)}")
             dialog = InventarioFilterDialog(self.DB_MANAGER, self)
+            print(f"[InventarioFilter] Dialog created, showing...")
             if dialog.exec_() == QDialog.Accepted:
                 selected_ids = dialog.get_selected_ids()
                 selected_year = dialog.get_selected_year()
@@ -1315,6 +1318,9 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                     # Build search query based on filter type
                     self.filter_records_by_selection(selected_ids, selected_year, filter_type)
         except Exception as e:
+            import traceback
+            print(f"[InventarioFilter] Error in filter: {e}")
+            print(f"[InventarioFilter] Traceback: {traceback.format_exc()}")
             QMessageBox.warning(self, "Error", f"Filter error: {str(e)}", QMessageBox.Ok)
 
     def filter_records_by_selection(self, selected_ids, selected_year, filter_type):
@@ -7126,13 +7132,19 @@ class InventarioFilterDialog(QDialog):
         """Fetch inventory records and populate year combobox and list"""
         try:
             # Get all inventory records
+            print(f"[InventarioFilter] Starting populate_data...")
+            print(f"[InventarioFilter] db_manager type: {type(self.db_manager)}")
+
+            # Use the same approach as the main class
             self.inv_records = self.db_manager.query('INVENTARIO_MATERIALI')
+            print(f"[InventarioFilter] Got {len(self.inv_records)} records")
 
             # Get unique years and sort them
             unique_years = sorted(
                 set(record.years for record in self.inv_records if record.years is not None),
                 reverse=True  # Most recent first
             )
+            print(f"[InventarioFilter] Found {len(unique_years)} unique years")
 
             # Populate year combobox
             self.comboBox_year.blockSignals(True)
@@ -7150,9 +7162,12 @@ class InventarioFilterDialog(QDialog):
 
             # Populate list based on current filter type
             self.update_id_list()
+            print(f"[InventarioFilter] populate_data completed successfully")
 
         except Exception as e:
-            print(f"Error populating inventory filter: {e}")
+            import traceback
+            print(f"[InventarioFilter] Error populating inventory filter: {e}")
+            print(f"[InventarioFilter] Traceback: {traceback.format_exc()}")
 
     def on_filter_type_changed(self, index):
         """Handle filter type selection change"""
