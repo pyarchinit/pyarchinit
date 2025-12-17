@@ -1329,7 +1329,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             # Build the filtered data list
             filtered_records = []
 
-            for record in self.DB_MANAGER.query_all(self.MAPPER_TABLE_CLASS):
+            for record in self.DB_MANAGER.query(self.MAPPER_TABLE_CLASS):
                 match = False
 
                 if filter_type == 'numero_inventario':
