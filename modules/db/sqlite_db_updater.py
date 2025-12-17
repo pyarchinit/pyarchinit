@@ -437,6 +437,9 @@ class SQLiteDBUpdater:
             self.add_column_if_missing('inventario_materiali_table', 'forme_massime', 'INTEGER')
             self.add_column_if_missing('inventario_materiali_table', 'totale_frammenti', 'INTEGER')
             self.add_column_if_missing('inventario_materiali_table', 'stato_conservazione', 'TEXT')
+            # Nuovi campi per nomi foto e disegni
+            self.add_column_if_missing('inventario_materiali_table', 'photo_id', 'TEXT')
+            self.add_column_if_missing('inventario_materiali_table', 'drawing_id', 'TEXT')
         
         # pottery_table
         if self.table_exists('pottery_table'):

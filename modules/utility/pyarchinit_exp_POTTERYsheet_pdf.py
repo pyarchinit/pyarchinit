@@ -262,6 +262,7 @@ class single_pottery_pdf_sheet:
 
 
 class FOTO_index_pdf_sheet_2(object):
+    """PDF sheet for pottery list WITH thumbnail"""
 
     def __init__(self, data):
         self.sito = data[0]
@@ -273,6 +274,8 @@ class FOTO_index_pdf_sheet_2(object):
         self.description = data[6]
         self.foto = data[7]
         self.thumbnail = data[8]
+        self.photo = data[9] if len(data) > 9 else ''
+        self.drawing = data[10] if len(data) > 10 else ''
 
     def getTable(self):
         styleSheet = getSampleStyleSheet()
@@ -281,6 +284,9 @@ class FOTO_index_pdf_sheet_2(object):
         styNormal.spaceAfter = 20
         styNormal.alignment = 0  # LEFT
         styNormal.fontSize = 6
+
+        # Style for wordwrap on photo and drawing
+        styWrap = ParagraphStyle('wrap', parent=styNormal, wordWrap='CJK', fontSize=5)
 
         conn = Connection()
 
@@ -294,7 +300,13 @@ class FOTO_index_pdf_sheet_2(object):
         decription = Paragraph("<b>Note</b><br/>" + str(self.description), styNormal)
         anno = Paragraph("<b>Year</b><br/>" + str(self.anno), styNormal)
 
-        logo= Image(self.thumbnail)
+        # Photo and Drawing with wordwrap
+        photo_text = str(self.photo).replace('; ', '<br/>') if self.photo else ''
+        drawing_text = str(self.drawing).replace('; ', '<br/>') if self.drawing else ''
+        photo = Paragraph("<b>Photo</b><br/>" + photo_text, styWrap)
+        drawing = Paragraph("<b>Drawing</b><br/>" + drawing_text, styWrap)
+
+        logo = Image(self.thumbnail)
         logo.drawHeight = 0.8 * inch * logo.drawHeight / logo.drawWidth
         logo.drawWidth = 0.8 * inch
         logo.hAlign = "CENTER"
@@ -308,6 +320,8 @@ class FOTO_index_pdf_sheet_2(object):
             anno,
             decription,
             foto,
+            photo,
+            drawing,
             thumbnail
         ]
 
@@ -318,19 +332,20 @@ class FOTO_index_pdf_sheet_2(object):
 
         return styles
 class FOTO_index_pdf_sheet(object):
-    
+    """PDF sheet for pottery list WITHOUT thumbnail"""
 
     def __init__(self, data):
-        
-        self.sito= data[0]
+        self.sito = data[0]
         self.id_number = data[5]
         self.area = data[1]
         self.us = data[2]
         self.sector = data[3]
         self.anno = data[4]
-        self.description= data[6]
+        self.description = data[6]
         self.foto = data[7]
-        #self.unita_tipo =data[3]
+        self.photo = data[9] if len(data) > 9 else ''
+        self.drawing = data[10] if len(data) > 10 else ''
+
     def getTable(self):
         styleSheet = getSampleStyleSheet()
         styNormal = styleSheet['Normal']
@@ -339,10 +354,11 @@ class FOTO_index_pdf_sheet(object):
         styNormal.alignment = 0  # LEFT
         styNormal.fontSize = 6
 
-        
+        # Style for wordwrap on photo and drawing
+        styWrap = ParagraphStyle('wrap', parent=styNormal, wordWrap='CJK', fontSize=5)
 
         conn = Connection()
-    
+
         thumb_path = conn.thumb_path()
         thumb_path_str = thumb_path['thumb_path']
         id_number = Paragraph("<b>Pottery ID</b><br/>" + str(self.id_number), styNormal)
@@ -352,13 +368,13 @@ class FOTO_index_pdf_sheet(object):
         foto = Paragraph("<b>Photo ID</b><br/>" + str(self.foto), styNormal)
         description = Paragraph("<b>Note</b><br/>" + str(self.description), styNormal)
         anno = Paragraph("<b>Year</b><br/>" + str(self.anno), styNormal)
-        
-        # logo= Image(self.thumbnail)
-        # logo.drawHeight = 1 * inch * logo.drawHeight / logo.drawWidth
-        # logo.drawWidth = 1 * inch
-        # logo.hAlign = "CENTER"
-        
-        #thumbnail= logo
+
+        # Photo and Drawing with wordwrap
+        photo_text = str(self.photo).replace('; ', '<br/>') if self.photo else ''
+        drawing_text = str(self.drawing).replace('; ', '<br/>') if self.drawing else ''
+        photo = Paragraph("<b>Photo</b><br/>" + photo_text, styWrap)
+        drawing = Paragraph("<b>Drawing</b><br/>" + drawing_text, styWrap)
+
         data = [
                 id_number,
                 area,
@@ -366,7 +382,9 @@ class FOTO_index_pdf_sheet(object):
                 sector,
                 anno,
                 description,
-                foto
+                foto,
+                photo,
+                drawing
                 ]
 
         return data
@@ -486,7 +504,8 @@ class generate_POTTERY_pdf:
             table_data.append(exp_index.getTable())
 
         styles = exp_index.makeStyles()
-        colWidths = [40, 40, 40,40,40, 100, 40, 100]
+        # 10 columns: id_number, area, us, sector, anno, description, foto, photo, drawing, thumbnail
+        colWidths = [30, 30, 30, 30, 30, 70, 30, 65, 65, 80]
 
         table_data_formatted = Table(table_data, colWidths, style=styles)
         table_data_formatted.hAlign = "LEFT"
@@ -532,7 +551,8 @@ class generate_POTTERY_pdf:
             table_data.append(exp_index.getTable())
 
         styles = exp_index.makeStyles()
-        colWidths = [40, 40, 40,40,40, 160,40]
+        # 9 columns: id_number, area, us, sector, anno, description, foto, photo, drawing
+        colWidths = [35, 35, 35, 35, 35, 100, 35, 80, 80]
 
         table_data_formatted = Table(table_data, colWidths, style=styles)
         table_data_formatted.hAlign = "LEFT"

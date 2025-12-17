@@ -63,6 +63,9 @@ class PostgresDbUpdater:
             # Installa/aggiorna le funzioni per la sincronizzazione automatica dei GRANT
             self.install_grant_sync_functions()
 
+            # Aggiorna inventario_materiali_table con nuovi campi photo_id e drawing_id
+            self.update_inventario_materiali_table()
+
             # Altri aggiornamenti possono essere aggiunti qui in futuro
 
             if self.updates_made:
@@ -920,6 +923,43 @@ class PostgresDbUpdater:
 
         except Exception as e:
             self.log_message(f"Errore installando funzioni sincronizzazione GRANT: {e}")
+
+    def update_inventario_materiali_table(self):
+        """Aggiorna la tabella inventario_materiali_table con nuovi campi photo_id e drawing_id"""
+        self.log_message("Controllo tabella inventario_materiali_table...")
+
+        try:
+            # Verifica se la tabella esiste
+            from sqlalchemy import text
+            query = text("""
+                SELECT table_name
+                FROM information_schema.tables
+                WHERE table_name = 'inventario_materiali_table'
+                AND table_schema = 'public'
+            """)
+            result = self.db_manager.engine.execute(query).fetchone()
+
+            if not result:
+                self.log_message("Tabella inventario_materiali_table non trovata, skip")
+                return
+
+            # Aggiungi nuove colonne se mancanti
+            updated = False
+
+            # photo_id - per i nomi delle foto (immagini che NON iniziano con D_)
+            updated |= self.add_column_if_missing('inventario_materiali_table', 'photo_id', 'TEXT', 'NULL')
+
+            # drawing_id - per i nomi dei disegni (immagini che iniziano con D_)
+            updated |= self.add_column_if_missing('inventario_materiali_table', 'drawing_id', 'TEXT', 'NULL')
+
+            if updated:
+                self.log_message("Tabella inventario_materiali_table aggiornata con campi photo_id e drawing_id")
+                self.updates_made.append("inventario_materiali_table: photo_id, drawing_id")
+            else:
+                self.log_message("Tabella inventario_materiali_table già aggiornata")
+
+        except Exception as e:
+            self.log_message(f"Errore durante l'aggiornamento della tabella inventario_materiali: {e}")
 
 
 def check_and_update_postgres_db(db_manager, parent=None):

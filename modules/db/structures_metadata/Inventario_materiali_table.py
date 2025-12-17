@@ -4,7 +4,7 @@ Created on 15 feb 2018
 @author: Serena Sensini; Enzo Cocca <enzo.ccc@gmail.com>
 '''
 
-from sqlalchemy import Table, Column, Integer, String, Text, Numeric,  UniqueConstraint
+from sqlalchemy import Table, Column, Integer, String, Text, Numeric, UniqueConstraint
 
 
 # Table representing archaeological materials inventory
@@ -34,10 +34,10 @@ class Inventario_materiali_table:
                      Column('descrizione', Text),
 
                      # Excavation area number
-                     Column('area', Integer),
+                     Column('area', Text),
 
                      # Stratigraphic unit number
-                     Column('us', Integer),
+                     Column('us', Text),
 
                      # Indicates if the artifact has been washed (Yes/No)
                      Column('lavato', String(3)),
@@ -110,6 +110,33 @@ class Inventario_materiali_table:
 
                      # Year of discovery/excavation
                      Column('years', Integer),
+
+                     # Cataloger/compiler name
+                     Column('schedatore', Text),
+
+                     # Date of cataloging
+                     Column('date_scheda', Text),
+
+                     # Find point/location
+                     Column('punto_rinv', Text),
+
+                     # Negative photo references
+                     Column('negativo_photo', Text),
+
+                     # Slide/transparency references
+                     Column('diapositiva', Text),
+
+                     # Elevation/quota in meters
+                     Column('quota_usm', Numeric(10, 3)),
+
+                     # Unit of measurement for quota
+                     Column('unita_misura_quota', String(20)),
+
+                     # Photo IDs - auto-populated with associated photo names (not starting with D_)
+                     Column('photo_id', Text),
+
+                     # Drawing IDs - auto-populated with associated drawing names (starting with D_)
+                     Column('drawing_id', Text),
 
                      # Unique constraint ensuring the combination of site and inventory number is unique
                      UniqueConstraint('sito', 'numero_inventario', name='ID_invmat_unico')

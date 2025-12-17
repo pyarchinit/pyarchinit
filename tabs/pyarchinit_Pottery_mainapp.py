@@ -443,16 +443,26 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
                     thumbnail = (thumb_path_str + media.filepath)
                     foto = (media.id_media)
 
+                    # Get photo and drawing fields from pottery record
+                    photo_val = ''
+                    drawing_val = ''
+                    if hasattr(self.DATA_LIST[i], 'photo') and self.DATA_LIST[i].photo:
+                        photo_val = str(self.DATA_LIST[i].photo)
+                    if hasattr(self.DATA_LIST[i], 'drawing') and self.DATA_LIST[i].drawing:
+                        drawing_val = str(self.DATA_LIST[i].drawing)
+
                     data_list_foto.append([
-                        str(self.DATA_LIST[i].sito),  # 1 - Sito
-                        str(self.DATA_LIST[i].area),
-                        str(self.DATA_LIST[i].us),
-                        str(self.DATA_LIST[i].sector),
-                        str(self.DATA_LIST[i].anno),
-                        str(self.DATA_LIST[i].id_number),  # 2 -
-                        str(self.DATA_LIST[i].note),
-                        str(foto), # 5
-                        str(thumbnail)])  # 6
+                        str(self.DATA_LIST[i].sito),  # 0 - Sito
+                        str(self.DATA_LIST[i].area),  # 1 - Area
+                        str(self.DATA_LIST[i].us),  # 2 - US
+                        str(self.DATA_LIST[i].sector),  # 3 - Sector
+                        str(self.DATA_LIST[i].anno),  # 4 - Anno
+                        str(self.DATA_LIST[i].id_number),  # 5 - ID Number
+                        str(self.DATA_LIST[i].note),  # 6 - Note
+                        str(foto),  # 7 - Foto (media_id)
+                        str(thumbnail),  # 8 - Thumbnail
+                        photo_val,  # 9 - Photo (from pottery_table)
+                        drawing_val])  # 10 - Drawing (from pottery_table)
 
         return data_list_foto
 
@@ -941,6 +951,69 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
 
         # Setup Filter Button for ID Number selection
         self.setup_filter_button()
+
+        # Setup Auto-Populate Photo/Drawing button
+        self.setup_auto_populate_button()
+
+    def setup_auto_populate_button(self):
+        """Setup the button to auto-populate photo and drawing fields from media associations"""
+        try:
+            from qgis.PyQt.QtWidgets import QPushButton
+            from qgis.PyQt.QtCore import QSize
+
+            # Create the auto-populate button
+            self.pushButton_auto_populate_photo = QPushButton(self)
+            if self.L == 'it':
+                self.pushButton_auto_populate_photo.setText("Popola Foto/Disegni")
+                self.pushButton_auto_populate_photo.setToolTip(
+                    "Auto-popola i campi Photo e Drawing dai media associati")
+            elif self.L == 'de':
+                self.pushButton_auto_populate_photo.setText("Fotos/Zeich. füllen")
+                self.pushButton_auto_populate_photo.setToolTip(
+                    "Foto- und Zeichnungsfelder aus Medienverknüpfungen automatisch füllen")
+            else:
+                self.pushButton_auto_populate_photo.setText("Populate Photo/Drawing")
+                self.pushButton_auto_populate_photo.setToolTip(
+                    "Auto-populate Photo and Drawing fields from media associations")
+
+            # Style the button
+            self.pushButton_auto_populate_photo.setMinimumSize(QSize(120, 25))
+            self.pushButton_auto_populate_photo.setMaximumSize(QSize(150, 25))
+
+            # Find the parent layout of pushButton_print and insert after it
+            try:
+                parent_layout = self.pushButton_print.parent().layout()
+                if parent_layout:
+                    index = parent_layout.indexOf(self.pushButton_print)
+                    if index >= 0:
+                        parent_layout.insertWidget(index + 1, self.pushButton_auto_populate_photo)
+                    else:
+                        parent_layout.addWidget(self.pushButton_auto_populate_photo)
+                else:
+                    # Alternative: position next to lineEdit_photo
+                    photo_geom = self.lineEdit_photo.geometry()
+                    self.pushButton_auto_populate_photo.setGeometry(
+                        photo_geom.x() + photo_geom.width() + 5,
+                        photo_geom.y(),
+                        140,
+                        photo_geom.height()
+                    )
+            except:
+                # Fallback: position it relative to lineEdit_photo if available
+                if hasattr(self, 'lineEdit_photo'):
+                    photo_geom = self.lineEdit_photo.geometry()
+                    self.pushButton_auto_populate_photo.setGeometry(
+                        photo_geom.x() + photo_geom.width() + 5,
+                        photo_geom.y(),
+                        140,
+                        photo_geom.height()
+                    )
+
+            # Connect the button
+            self.pushButton_auto_populate_photo.clicked.connect(self.populate_photo_drawing_from_media)
+
+        except Exception as e:
+            print(f"Error setting up auto-populate button: {e}")
 
     def setup_filter_button(self):
         """Setup the filter button for ID Number selection"""
@@ -3957,6 +4030,96 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
             subprocess.Popen(["open", path])
         else:
             subprocess.Popen(["xdg-open", path])
+
+    def populate_photo_drawing_from_media(self):
+        """
+        Auto-populate photo and drawing fields for all Pottery records from media associations.
+        Photos = images NOT starting with 'D_'
+        Drawings = images starting with 'D_'
+        """
+        try:
+            from sqlalchemy import text
+
+            # Query to get all pottery records with their associated images
+            query = """
+                SELECT p.id_rep, mt.filename
+                FROM pottery_table p
+                INNER JOIN media_to_entity_table mte ON p.id_rep = mte.id_entity
+                    AND mte.entity_type = 'CERAMICA'
+                INNER JOIN media_thumb_table mt ON mte.id_media = mt.id_media
+                ORDER BY p.id_rep, mt.filename
+            """
+
+            session = self.DB_MANAGER.Session()
+            try:
+                results = session.execute(text(query)).fetchall()
+            finally:
+                session.close()
+
+            if not results:
+                QMessageBox.warning(self, "Info",
+                    "No media associations found for Pottery records.\n"
+                    "Make sure images are tagged with entity_type='CERAMICA' in media_to_entity_table.")
+                return
+
+            # Group images by pottery record
+            pottery_images = {}
+            for row in results:
+                id_rep, filename = row
+                if id_rep not in pottery_images:
+                    pottery_images[id_rep] = {'photos': [], 'drawings': []}
+
+                if filename:
+                    # Check if it's a drawing (starts with D_) or photo
+                    if filename.startswith('D_'):
+                        pottery_images[id_rep]['drawings'].append(filename)
+                    else:
+                        pottery_images[id_rep]['photos'].append(filename)
+
+            # Update each pottery record
+            updated_count = 0
+            session = self.DB_MANAGER.Session()
+            try:
+                for id_rep, images in pottery_images.items():
+                    photo_str = '; '.join(images['photos']) if images['photos'] else ''
+                    drawing_str = '; '.join(images['drawings']) if images['drawings'] else ''
+
+                    update_query = text("""
+                        UPDATE pottery_table
+                        SET photo = :photo, drawing = :drawing
+                        WHERE id_rep = :id_rep
+                    """)
+                    session.execute(update_query, {
+                        'photo': photo_str,
+                        'drawing': drawing_str,
+                        'id_rep': id_rep
+                    })
+                    updated_count += 1
+
+                session.commit()
+            except Exception as e:
+                session.rollback()
+                raise e
+            finally:
+                session.close()
+
+            # Count how many have photos vs drawings
+            photo_count = sum(1 for v in pottery_images.values() if v['photos'])
+            drawing_count = sum(1 for v in pottery_images.values() if v['drawings'])
+
+            QMessageBox.information(self, "Auto-Population Complete",
+                f"Updated {updated_count} Pottery records:\n\n"
+                f"Records with photos: {photo_count}\n"
+                f"Records with drawings: {drawing_count}\n\n"
+                "Click 'View All' to refresh the data.")
+
+            # Refresh the current view
+            self.charge_records()
+            self.fill_fields()
+
+        except Exception as e:
+            QMessageBox.warning(self, "Error",
+                f"Failed to auto-populate photo/drawing fields:\n{str(e)}")
 
     # =====================================================
     # STATISTICS TAB METHODS
