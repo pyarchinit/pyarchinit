@@ -40,7 +40,16 @@ class INVENTARIO_MATERIALI(object):
                  n_reperto,
                  tipo_contenitore,
                  struttura,
-                 years
+                 years,
+                 schedatore,
+                 date_scheda,
+                 punto_rinv,
+                 negativo_photo,
+                 diapositiva,
+                 quota_usm,
+                 unita_misura_quota,
+                 photo_id,
+                 drawing_id
                  ):
         self.id_invmat = id_invmat  # 0
         self.sito = sito  # 1
@@ -71,14 +80,23 @@ class INVENTARIO_MATERIALI(object):
         self.eve_orlo = eve_orlo  # 26
         self.repertato = repertato  # 27
         self.diagnostico = diagnostico  # 28
-        self.n_reperto=n_reperto
-        self.tipo_contenitore = tipo_contenitore
-        self.struttura = struttura
-        self.years=years
+        self.n_reperto = n_reperto  # 29
+        self.tipo_contenitore = tipo_contenitore  # 30
+        self.struttura = struttura  # 31
+        self.years = years  # 32
+        self.schedatore = schedatore  # 33
+        self.date_scheda = date_scheda  # 34
+        self.punto_rinv = punto_rinv  # 35
+        self.negativo_photo = negativo_photo  # 36
+        self.diapositiva = diapositiva  # 37
+        self.quota_usm = quota_usm  # 38
+        self.unita_misura_quota = unita_misura_quota  # 39
+        self.photo_id = photo_id  # 40
+        self.drawing_id = drawing_id  # 41
 
     # def __repr__"
     def __repr__(self):
-        return "<INVENTARIO_MATERIALI('%d', '%s', '%d', '%s', '%s', '%s', '%s', '%d', '%d', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%d', '%d', '%d', '%s', '%s', '%r', '%r','%s', '%r', '%s', '%s','%d','%s', '%s', '%d')>" % (
+        return "<INVENTARIO_MATERIALI('%d', '%s', '%d', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%d', '%d', '%d', '%s', '%s', '%r', '%r', '%s', '%r', '%s', '%s', '%d', '%s', '%s', '%d', '%s', '%s', '%s', '%s', '%s', '%r', '%s', '%s', '%s')>" % (
             self.id_invmat,
             self.sito,
             self.numero_inventario,
@@ -111,5 +129,14 @@ class INVENTARIO_MATERIALI(object):
             self.n_reperto,
             self.tipo_contenitore,
             self.struttura,
-            self.years
+            self.years,
+            self.schedatore,
+            self.date_scheda,
+            self.punto_rinv,
+            self.negativo_photo,
+            self.diapositiva,
+            self.quota_usm,
+            self.unita_misura_quota,
+            self.photo_id,
+            self.drawing_id
         )

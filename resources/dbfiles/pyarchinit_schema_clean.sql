@@ -437,6 +437,9 @@ CREATE TABLE public.inventario_materiali_table (
 	-- Campo quota
 	quota_usm FLOAT,
 	unita_misura_quota VARCHAR(20) DEFAULT 'm s.l.m.',
+	-- Campi foto e disegni (auto-popolati)
+	photo_id TEXT,
+	drawing_id TEXT,
 	-- Campi concorrenza
 	last_modified_timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 	last_modified_by VARCHAR(100),

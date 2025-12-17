@@ -1507,7 +1507,7 @@ class CASSE_index_pdf_sheet(object):
 class FINDS_index_pdf_sheet(object):
     def __init__(self, data):
         self.sito = data[1]  # 1 - sito
-        self.num_inventario = data[2]  # 2- numero_inventario
+        self.num_inventario = data[2]  # 2 - numero_inventario
         self.tipo_reperto = data[3]  # 3 - tipo_reperto
         self.criterio_schedatura = data[4]  # 4 - criterio_schedatura
         self.definizione = data[5]  # 5 - definizione
@@ -1515,9 +1515,11 @@ class FINDS_index_pdf_sheet(object):
         self.us = data[8]  # 8 - us
         self.lavato = data[9]  # 9 - lavato
         self.numero_cassa = data[10]  # 10 - numero cassa
-        self.repertato = data[21]  # 22 - repertato
-        self.diagnostico = data[22]  # 23 - diagnostico
-        self.n_reperto = data[23]  # 23 - diagnostico
+        self.repertato = data[21]  # 21 - repertato
+        self.diagnostico = data[22]  # 22 - diagnostico
+        self.n_reperto = data[23]  # 23 - n_reperto
+        self.photo_id = data[28] if len(data) > 28 else ''  # 28 - photo_id
+        self.drawing_id = data[29] if len(data) > 29 else ''  # 29 - drawing_id
 
     def getTable(self):
         styleSheet = getSampleStyleSheet()
@@ -1527,7 +1529,9 @@ class FINDS_index_pdf_sheet(object):
         styNormal.alignment = 0  # LEFT
         styNormal.fontSize = 7
         styNormal.fontName = 'Cambria'
-        # self.unzip_rapporti_stratigrafici()
+
+        # Style for wordwrap on photo_id and drawing_id
+        styWrap = ParagraphStyle('wrap', parent=styNormal, wordWrap='CJK', fontSize=5)
 
         num_inventario = Paragraph("<b>N° inv.</b><br/>" + str(self.num_inventario), styNormal)
 
@@ -1575,12 +1579,18 @@ class FINDS_index_pdf_sheet(object):
             nr_cassa = Paragraph("<b>N° cassa</b><br/>", styNormal)
         else:
             nr_cassa = Paragraph("<b>N° cassa</b><br/>" + str(self.numero_cassa), styNormal)
-        
+
         if str(self.n_reperto) == "None":
             n_reperto = Paragraph("<b>N° reperto</b><br/>", styNormal)
         else:
             n_reperto = Paragraph("<b>N° reperto</b><br/>" + str(self.n_reperto), styNormal)
-        
+
+        # Photo ID and Drawing ID with wordwrap
+        photo_id_text = str(self.photo_id).replace('; ', '<br/>') if self.photo_id else ''
+        drawing_id_text = str(self.drawing_id).replace('; ', '<br/>') if self.drawing_id else ''
+        photo_id = Paragraph("<b>Photo ID</b><br/>" + photo_id_text, styWrap)
+        drawing_id = Paragraph("<b>Drawing ID</b><br/>" + drawing_id_text, styWrap)
+
         data = [num_inventario,
                 tipo_reperto,
                 classe_materiale,
@@ -1591,7 +1601,9 @@ class FINDS_index_pdf_sheet(object):
                 repertato,
                 diagnostico,
                 nr_cassa,
-                n_reperto]
+                n_reperto,
+                photo_id,
+                drawing_id]
 
         return data
     
@@ -1603,14 +1615,16 @@ class FINDS_index_pdf_sheet(object):
         styNormal.alignment = 0  # LEFT
         styNormal.fontSize = 7
         styNormal.fontName = 'Cambria'
-        # self.unzip_rapporti_stratigrafici()
+
+        # Style for wordwrap on photo_id and drawing_id
+        styWrap = ParagraphStyle('wrap', parent=styNormal, wordWrap='CJK', fontSize=5)
 
         num_inventario = Paragraph("<b>N° Inv.</b><br/>" + str(self.num_inventario), styNormal)
 
         if self.tipo_reperto == None:
-            tipo_reperto = Paragraph("<b>Funde Art</b><br/>", styNormal)
+            tipo_reperto = Paragraph("<b>Fundeart</b><br/>", styNormal)
         else:
-            tipo_reperto = Paragraph("<b>Funde Art</b><br/>" + str(self.tipo_reperto), styNormal)
+            tipo_reperto = Paragraph("<b>Fundeart</b><br/>" + str(self.tipo_reperto), styNormal)
 
         if self.criterio_schedatura == None:
             classe_materiale = Paragraph("<b>Materialklasse</b><br/>", styNormal)
@@ -1638,19 +1652,30 @@ class FINDS_index_pdf_sheet(object):
             lavato = Paragraph("<b>Gewaschen</b><br/>" + str(self.lavato), styNormal)
 
         if self.repertato == None:
-            repertato = Paragraph("<b>Abgerufen</b><br/>", styNormal)
+            repertato = Paragraph("<b>Inventarisiert</b><br/>", styNormal)
         else:
-            repertato = Paragraph("<b>Abgerufen</b><br/>" + str(self.repertato), styNormal)
+            repertato = Paragraph("<b>Inventarisiert</b><br/>" + str(self.repertato), styNormal)
 
         if self.diagnostico == None:
-            diagnostico = Paragraph("<b>Diagnose</b><br/>", styNormal)
+            diagnostico = Paragraph("<b>Diagnostisch</b><br/>", styNormal)
         else:
-            diagnostico = Paragraph("<b>Diagnose</b><br/>" + str(self.diagnostico), styNormal)
+            diagnostico = Paragraph("<b>Diagnostisch</b><br/>" + str(self.diagnostico), styNormal)
 
         if str(self.numero_cassa) == "None":
-            nr_cassa = Paragraph("<b>N° Box</b><br/>", styNormal)
+            nr_cassa = Paragraph("<b>Kisten-Nr.</b><br/>", styNormal)
         else:
-            nr_cassa = Paragraph("<b>N° Box</b><br/>" + str(self.numero_cassa), styNormal)
+            nr_cassa = Paragraph("<b>Kisten-Nr.</b><br/>" + str(self.numero_cassa), styNormal)
+
+        if str(self.n_reperto) == "None":
+            n_reperto = Paragraph("<b>Fund-Nr.</b><br/>", styNormal)
+        else:
+            n_reperto = Paragraph("<b>Fund-Nr.</b><br/>" + str(self.n_reperto), styNormal)
+
+        # Photo ID and Drawing ID with wordwrap
+        photo_id_text = str(self.photo_id).replace('; ', '<br/>') if self.photo_id else ''
+        drawing_id_text = str(self.drawing_id).replace('; ', '<br/>') if self.drawing_id else ''
+        photo_id = Paragraph("<b>Foto-ID</b><br/>" + photo_id_text, styWrap)
+        drawing_id = Paragraph("<b>Zeichnungs-ID</b><br/>" + drawing_id_text, styWrap)
 
         data = [num_inventario,
                 tipo_reperto,
@@ -1661,7 +1686,10 @@ class FINDS_index_pdf_sheet(object):
                 lavato,
                 repertato,
                 diagnostico,
-                nr_cassa]
+                nr_cassa,
+                n_reperto,
+                photo_id,
+                drawing_id]
 
         return data
         
@@ -1672,10 +1700,12 @@ class FINDS_index_pdf_sheet(object):
         styNormal.spaceAfter = 20
         styNormal.alignment = 0  # LEFT
         styNormal.fontSize = 7
+        styNormal.fontName = 'Cambria'
 
-        # self.unzip_rapporti_stratigrafici()
+        # Style for wordwrap on photo_id and drawing_id
+        styWrap = ParagraphStyle('wrap', parent=styNormal, wordWrap='CJK', fontSize=5)
 
-        num_inventario = Paragraph("<b>Inventary Nr.</b><br/>" + str(self.num_inventario), styNormal)
+        num_inventario = Paragraph("<b>Inventory Nr.</b><br/>" + str(self.num_inventario), styNormal)
 
         if self.tipo_reperto == None:
             tipo_reperto = Paragraph("<b>Find Type</b><br/>", styNormal)
@@ -1703,14 +1733,14 @@ class FINDS_index_pdf_sheet(object):
             us = Paragraph("<b>SU</b><br/>" + str(self.us), styNormal)
 
         if self.lavato == None:
-            lavato = Paragraph("<b>Whashed</b><br/>", styNormal)
+            lavato = Paragraph("<b>Washed</b><br/>", styNormal)
         else:
-            lavato = Paragraph("<b>Whashed</b><br/>" + str(self.lavato), styNormal)
+            lavato = Paragraph("<b>Washed</b><br/>" + str(self.lavato), styNormal)
 
         if self.repertato == None:
-            repertato = Paragraph("<b>Found</b><br/>", styNormal)
+            repertato = Paragraph("<b>Inventoried</b><br/>", styNormal)
         else:
-            repertato = Paragraph("<b>Found</b><br/>" + str(self.repertato), styNormal)
+            repertato = Paragraph("<b>Inventoried</b><br/>" + str(self.repertato), styNormal)
 
         if self.diagnostico == None:
             diagnostico = Paragraph("<b>Diagnostic</b><br/>", styNormal)
@@ -1722,6 +1752,17 @@ class FINDS_index_pdf_sheet(object):
         else:
             nr_cassa = Paragraph("<b>Box Nr.</b><br/>" + str(self.numero_cassa), styNormal)
 
+        if str(self.n_reperto) == "None":
+            n_reperto = Paragraph("<b>Find Nr.</b><br/>", styNormal)
+        else:
+            n_reperto = Paragraph("<b>Find Nr.</b><br/>" + str(self.n_reperto), styNormal)
+
+        # Photo ID and Drawing ID with wordwrap
+        photo_id_text = str(self.photo_id).replace('; ', '<br/>') if self.photo_id else ''
+        drawing_id_text = str(self.drawing_id).replace('; ', '<br/>') if self.drawing_id else ''
+        photo_id = Paragraph("<b>Photo ID</b><br/>" + photo_id_text, styWrap)
+        drawing_id = Paragraph("<b>Drawing ID</b><br/>" + drawing_id_text, styWrap)
+
         data = [num_inventario,
                 tipo_reperto,
                 classe_materiale,
@@ -1731,7 +1772,10 @@ class FINDS_index_pdf_sheet(object):
                 lavato,
                 repertato,
                 diagnostico,
-                nr_cassa]
+                nr_cassa,
+                n_reperto,
+                photo_id,
+                drawing_id]
 
         return data 
     def makeStyles(self):
@@ -1740,11 +1784,11 @@ class FINDS_index_pdf_sheet(object):
 
         return styles
 class FOTO_index_pdf_sheet(object):
-    
+
 
     def __init__(self, data):
-        
-        
+
+
         self.sito= data[0]
         self.n_reperto=data[1]
         self.thumbnail = data[2]
@@ -1754,6 +1798,8 @@ class FOTO_index_pdf_sheet(object):
         self.stato_conservazione =data[6]
         self.tipo_contenitore =data[7]
         self.nr_cassa= data[8]
+        self.photo_id = data[9] if len(data) > 9 else ''
+        self.drawing_id = data[10] if len(data) > 10 else ''
         
         
         
@@ -1767,10 +1813,11 @@ class FOTO_index_pdf_sheet(object):
         styNormal.alignment = 0  # LEFT
         styNormal.fontSize = 6
         styNormal.fontName = 'Cambria'
-        
+
+        # Style for wordwrap on photo_id and drawing_id
+        styWrap = ParagraphStyle('wrap', parent=styNormal, wordWrap='CJK', fontSize=5)
 
 
-        
         n_reperto = Paragraph("<b>Numero reperto</b><br/>" + str(self.n_reperto), styNormal)
         us = Paragraph("<b>US</b><br/>" + str(self.us), styNormal)
         definizione = Paragraph("<b>Tipo materiale</b><br/>" + str(self.definizione), styNormal)
@@ -1781,6 +1828,13 @@ class FOTO_index_pdf_sheet(object):
         else:
             tipo_contenitore = Paragraph("<b>Tipo di contenitore</b><br/>"+ str(self.tipo_contenitore), styNormal)
         nr_cassa = Paragraph("<b>Numero contenitore</b><br/>"+ str(self.nr_cassa), styNormal)
+
+        # Photo ID and Drawing ID with wordwrap (replace ; with line breaks for better display)
+        photo_id_text = str(self.photo_id).replace('; ', '<br/>') if self.photo_id else ''
+        drawing_id_text = str(self.drawing_id).replace('; ', '<br/>') if self.drawing_id else ''
+        photo_id = Paragraph("<b>Photo ID</b><br/>" + photo_id_text, styWrap)
+        drawing_id = Paragraph("<b>Drawing ID</b><br/>" + drawing_id_text, styWrap)
+
         try:
             if bool(self.thumbnail):
                 th = Image(self.thumbnail)
@@ -1793,8 +1847,8 @@ class FOTO_index_pdf_sheet(object):
         except:
             foto = Paragraph("<b>IMG</b><br/>" + str('Immagine taggata\n ma manca la thubmnail'), styNormal)
 
-        
-        data = [                
+
+        data = [
                 n_reperto,
                 foto,
                 us,
@@ -1802,7 +1856,9 @@ class FOTO_index_pdf_sheet(object):
                 datazione_reperto,
                 stato_conservazione,
                 tipo_contenitore,
-                nr_cassa
+                nr_cassa,
+                photo_id,
+                drawing_id
                 ]
 
         return data
@@ -1814,14 +1870,12 @@ class FOTO_index_pdf_sheet(object):
         styNormal.spaceAfter = 20
         styNormal.alignment = 0  # LEFT
         styNormal.fontSize = 6
+        styNormal.fontName = 'Cambria'
 
-        
+        # Style for wordwrap on photo_id and drawing_id
+        styWrap = ParagraphStyle('wrap', parent=styNormal, wordWrap='CJK', fontSize=5)
 
-        conn = Connection()
-    
-        thumb_path = conn.thumb_path()
-
-        n_reperto = Paragraph("<b>Aretfact number</b><br/>" + str(self.n_reperto), styNormal)
+        n_reperto = Paragraph("<b>Artefact number</b><br/>" + str(self.n_reperto), styNormal)
         us = Paragraph("<b>SU</b><br/>" + str(self.us), styNormal)
         definizione = Paragraph("<b>Artefact type</b><br/>" + str(self.definizione), styNormal)
         datazione_reperto = Paragraph("<b>Dating</b><br/>" + str(self.datazione_reperto), styNormal)
@@ -1831,6 +1885,13 @@ class FOTO_index_pdf_sheet(object):
         else:
             tipo_contenitore = Paragraph("<b>Container type</b><br/>"+ str(self.tipo_contenitore), styNormal)
         nr_cassa = Paragraph("<b>Container number</b><br/>"+ str(self.nr_cassa), styNormal)
+
+        # Photo ID and Drawing ID with wordwrap
+        photo_id_text = str(self.photo_id).replace('; ', '<br/>') if self.photo_id else ''
+        drawing_id_text = str(self.drawing_id).replace('; ', '<br/>') if self.drawing_id else ''
+        photo_id = Paragraph("<b>Photo ID</b><br/>" + photo_id_text, styWrap)
+        drawing_id = Paragraph("<b>Drawing ID</b><br/>" + drawing_id_text, styWrap)
+
         try:
             if bool(self.thumbnail):
                 th = Image(self.thumbnail)
@@ -1841,8 +1902,8 @@ class FOTO_index_pdf_sheet(object):
             else:
                 foto = Paragraph("<b>IMG</b><br/>" + str('Not in database'), styNormal)
         except:
-            foto = Paragraph("<b>IMG</b><br/>" + str('Tagged image \n but thubmnail missing'), styNormal)
-        data = [                
+            foto = Paragraph("<b>IMG</b><br/>" + str('Tagged image \n but thumbnail missing'), styNormal)
+        data = [
                 n_reperto,
                 foto,
                 us,
@@ -1850,7 +1911,9 @@ class FOTO_index_pdf_sheet(object):
                 datazione_reperto,
                 stato_conservazione,
                 tipo_contenitore,
-                nr_cassa
+                nr_cassa,
+                photo_id,
+                drawing_id
                 ]
 
         return data
@@ -1862,23 +1925,28 @@ class FOTO_index_pdf_sheet(object):
         styNormal.spaceAfter = 20
         styNormal.alignment = 0  # LEFT
         styNormal.fontSize = 6
+        styNormal.fontName = 'Cambria'
 
-        
+        # Style for wordwrap on photo_id and drawing_id
+        styWrap = ParagraphStyle('wrap', parent=styNormal, wordWrap='CJK', fontSize=5)
 
-        # conn = Connection()
-    
-        # thumb_path = conn.thumb_path()
-        
         n_reperto = Paragraph("<b>Artefaktnummer</b><br/>" + str(self.n_reperto), styNormal)
         us = Paragraph("<b>SE</b><br/>" + str(self.us), styNormal)
         definizione = Paragraph("<b>Artefakttyp</b><br/>" + str(self.definizione), styNormal)
-        datazione_reperto = Paragraph("<b>Datum</b><br/>" + str(self.datazione_reperto), styNormal)
+        datazione_reperto = Paragraph("<b>Datierung</b><br/>" + str(self.datazione_reperto), styNormal)
         stato_conservazione = Paragraph("<b>Erhaltungszustand</b><br/>"+ str(self.stato_conservazione), styNormal)
         if self.tipo_contenitore=='None':
-            tipo_contenitore = Paragraph("<b>Typ des Container</b><br/>", styNormal)
+            tipo_contenitore = Paragraph("<b>Behältertyp</b><br/>", styNormal)
         else:
-            tipo_contenitore = Paragraph("<b>Typ des Container</b><br/>"+ str(self.tipo_contenitore), styNormal)
-        nr_cassa = Paragraph("<b>Container-Nummer</b><br/>"+ str(self.nr_cassa), styNormal)
+            tipo_contenitore = Paragraph("<b>Behältertyp</b><br/>"+ str(self.tipo_contenitore), styNormal)
+        nr_cassa = Paragraph("<b>Behälternummer</b><br/>"+ str(self.nr_cassa), styNormal)
+
+        # Photo ID and Drawing ID with wordwrap
+        photo_id_text = str(self.photo_id).replace('; ', '<br/>') if self.photo_id else ''
+        drawing_id_text = str(self.drawing_id).replace('; ', '<br/>') if self.drawing_id else ''
+        photo_id = Paragraph("<b>Foto-ID</b><br/>" + photo_id_text, styWrap)
+        drawing_id = Paragraph("<b>Zeichnungs-ID</b><br/>" + drawing_id_text, styWrap)
+
         try:
             if bool(self.thumbnail):
                 th = Image(self.thumbnail)
@@ -1887,10 +1955,10 @@ class FOTO_index_pdf_sheet(object):
                 th.hAlign = "CENTER"
                 foto = th
             else:
-                foto = Paragraph("<b>IMG</b><br/>" + str('Not in database'), styNormal)
+                foto = Paragraph("<b>IMG</b><br/>" + str('Nicht in der Datenbank'), styNormal)
         except:
-            foto = Paragraph("<b>IMG</b><br/>" + str('Afbeelding getagd\n, maar dubbeltag ontbreekt'), styNormal)
-        data = [                
+            foto = Paragraph("<b>IMG</b><br/>" + str('Bild markiert\n aber Thumbnail fehlt'), styNormal)
+        data = [
                 n_reperto,
                 foto,
                 us,
@@ -1898,7 +1966,9 @@ class FOTO_index_pdf_sheet(object):
                 datazione_reperto,
                 stato_conservazione,
                 tipo_contenitore,
-                nr_cassa
+                nr_cassa,
+                photo_id,
+                drawing_id
                 ]
 
         return data
@@ -1908,22 +1978,22 @@ class FOTO_index_pdf_sheet(object):
 
         return styles
 class FOTO_index_pdf_sheet_2(object):
-    
+    """PDF sheet for inventory list WITHOUT thumbnail"""
 
     def __init__(self, data):
-        
-        
-        self.sito= data[0]
-        self.numero_inventario= data[1]
-        #self.foto = data[2]
+        self.sito = data[0]
+        self.numero_inventario = data[1]
+        self.area = data[2]
         self.us = data[3]
         self.tipo_reperto = data[4]
-        self.repertato= data[5]
-        self.n_reperto=data[6]
-        self.tipo_contenitore =data[7]
-        self.nr_cassa= data[8]
-        self.luogo_conservazione =data[9]
+        self.repertato = data[5]
+        self.n_reperto = data[6]
+        self.tipo_contenitore = data[7]
+        self.nr_cassa = data[8]
+        self.luogo_conservazione = data[9]
         self.years = data[10]
+        self.photo_id = data[11] if len(data) > 11 else ''
+        self.drawing_id = data[12] if len(data) > 12 else ''
         
         
         
@@ -1936,39 +2006,41 @@ class FOTO_index_pdf_sheet_2(object):
         styNormal.alignment = 0  # LEFT
         styNormal.fontSize = 6
         styNormal.fontName = 'Cambria'
-        
 
-        
-        numero_inventario = Paragraph("<b>Numero inv.</b><br/>" + str(self.numero_inventario), styNormal)
+        # Style for wordwrap on photo_id and drawing_id
+        styWrap = ParagraphStyle('wrap', parent=styNormal, wordWrap='CJK', fontSize=5)
+
+        numero_inventario = Paragraph("<b>N° inv.</b><br/>" + str(self.numero_inventario), styNormal)
         us = Paragraph("<b>US</b><br/>" + str(self.us), styNormal)
-        # if bool(self.foto):
-        #     foto = Paragraph("<b>IMG</b><br/>" + str(self.foto), styNormal)
-        # else:
-        #     pass
         tipo_reperto = Paragraph("<b>Tipo reperto</b><br/>" + str(self.tipo_reperto), styNormal)
         repertato = Paragraph("<b>Repertato</b><br/>" + str(self.repertato), styNormal)
-        if self.repertato=='No':
-            n_reperto = Paragraph("<b>Numero reperto</b><br/>", styNormal)
+        if self.repertato == 'No':
+            n_reperto = Paragraph("<b>N° reperto</b><br/>", styNormal)
         else:
-            n_reperto = Paragraph("<b>Numero reperto</b><br/>"+ str(self.n_reperto), styNormal)
-        tipo_contenitore = Paragraph("<b>Tipo di contenitore</b><br/>"+ str(self.tipo_contenitore), styNormal)
-        nr_cassa = Paragraph("<b>Numero contenitore</b><br/>"+ str(self.nr_cassa), styNormal)
-        luogo_conservazione = Paragraph("<b>Luogo di conservazione</b><br/>"+ str(self.luogo_conservazione), styNormal)
+            n_reperto = Paragraph("<b>N° reperto</b><br/>" + str(self.n_reperto), styNormal)
+        tipo_contenitore = Paragraph("<b>Tipo contenitore</b><br/>" + str(self.tipo_contenitore), styNormal)
+        nr_cassa = Paragraph("<b>N° contenitore</b><br/>" + str(self.nr_cassa), styNormal)
+        luogo_conservazione = Paragraph("<b>Luogo conserv.</b><br/>" + str(self.luogo_conservazione), styNormal)
         anno = Paragraph("<b>Anno</b><br/>" + str(self.years), styNormal)
-        
-        
+
+        # Photo ID and Drawing ID with wordwrap
+        photo_id_text = str(self.photo_id).replace('; ', '<br/>') if self.photo_id else ''
+        drawing_id_text = str(self.drawing_id).replace('; ', '<br/>') if self.drawing_id else ''
+        photo_id = Paragraph("<b>Photo ID</b><br/>" + photo_id_text, styWrap)
+        drawing_id = Paragraph("<b>Drawing ID</b><br/>" + drawing_id_text, styWrap)
 
         data = [
                 numero_inventario,
-                us ,
-                #foto,
+                us,
                 tipo_reperto,
                 repertato,
                 n_reperto,
                 tipo_contenitore,
                 nr_cassa,
                 luogo_conservazione,
-                anno
+                anno,
+                photo_id,
+                drawing_id
                 ]
 
         return data
@@ -1980,42 +2052,46 @@ class FOTO_index_pdf_sheet_2(object):
         styNormal.spaceAfter = 20
         styNormal.alignment = 0  # LEFT
         styNormal.fontSize = 6
+        styNormal.fontName = 'Cambria'
 
-        
+        # Style for wordwrap on photo_id and drawing_id
+        styWrap = ParagraphStyle('wrap', parent=styNormal, wordWrap='CJK', fontSize=5)
 
-        
-        numero_inventario = Paragraph("<b>Inventory Number</b><br/>" + str(self.numero_inventario), styNormal)
+        numero_inventario = Paragraph("<b>Inv. Nr.</b><br/>" + str(self.numero_inventario), styNormal)
         us = Paragraph("<b>SU</b><br/>" + str(self.us), styNormal)
-        # if bool(self.foto):
-        #     foto = Paragraph("<b>IMG</b><br/>" + str(self.foto), styNormal)
-        # else:
-        #     pass
         tipo_reperto = Paragraph("<b>Artefact type</b><br/>" + str(self.tipo_reperto), styNormal)
-        repertato = Paragraph("<b>Aretfact</b><br/>" + str(self.repertato), styNormal)
-        if self.repertato=='No':
-            n_reperto = Paragraph("<b>Number artefact</b><br/>", styNormal)
+        repertato = Paragraph("<b>Inventoried</b><br/>" + str(self.repertato), styNormal)
+        if self.repertato == 'No':
+            n_reperto = Paragraph("<b>Find Nr.</b><br/>", styNormal)
         else:
-            n_reperto = Paragraph("<b>Number artefact</b><br/>"+ str(self.n_reperto), styNormal)
-        tipo_contenitore = Paragraph("<b>Container type</b><br/>"+ str(self.tipo_contenitore), styNormal)
-        nr_cassa = Paragraph("<b>Container numebr</b><br/>"+ str(self.nr_cassa), styNormal)
-        luogo_conservazione = Paragraph("<b>Place of conservation</b><br/>"+ str(self.luogo_conservazione), styNormal)
+            n_reperto = Paragraph("<b>Find Nr.</b><br/>" + str(self.n_reperto), styNormal)
+        tipo_contenitore = Paragraph("<b>Container type</b><br/>" + str(self.tipo_contenitore), styNormal)
+        nr_cassa = Paragraph("<b>Container Nr.</b><br/>" + str(self.nr_cassa), styNormal)
+        luogo_conservazione = Paragraph("<b>Storage location</b><br/>" + str(self.luogo_conservazione), styNormal)
         years = Paragraph("<b>Year</b><br/>" + str(self.years), styNormal)
-       
+
+        # Photo ID and Drawing ID with wordwrap
+        photo_id_text = str(self.photo_id).replace('; ', '<br/>') if self.photo_id else ''
+        drawing_id_text = str(self.drawing_id).replace('; ', '<br/>') if self.drawing_id else ''
+        photo_id = Paragraph("<b>Photo ID</b><br/>" + photo_id_text, styWrap)
+        drawing_id = Paragraph("<b>Drawing ID</b><br/>" + drawing_id_text, styWrap)
+
         data = [
                 numero_inventario,
-                us ,
-                #foto,
+                us,
                 tipo_reperto,
                 repertato,
                 n_reperto,
                 tipo_contenitore,
                 nr_cassa,
                 luogo_conservazione,
-                years
+                years,
+                photo_id,
+                drawing_id
                 ]
 
         return data
-    
+
     def getTable_de(self):
         styleSheet = getSampleStyleSheet()
         styNormal = styleSheet['Normal']
@@ -2023,39 +2099,42 @@ class FOTO_index_pdf_sheet_2(object):
         styNormal.spaceAfter = 20
         styNormal.alignment = 0  # LEFT
         styNormal.fontSize = 6
+        styNormal.fontName = 'Cambria'
 
-        
+        # Style for wordwrap on photo_id and drawing_id
+        styWrap = ParagraphStyle('wrap', parent=styNormal, wordWrap='CJK', fontSize=5)
 
-        
-        numero_inventario = Paragraph("<b>Artefaktnummer</b><br/>" + str(self.numero_inventario), styNormal)
+        numero_inventario = Paragraph("<b>Inv.-Nr.</b><br/>" + str(self.numero_inventario), styNormal)
         us = Paragraph("<b>SE</b><br/>" + str(self.us), styNormal)
-        # if bool(self.foto):
-        #     foto = Paragraph("<b>IMG</b><br/>" + str(self.foto), styNormal)
-        # else:
-        #     pass
         tipo_reperto = Paragraph("<b>Artefakttyp</b><br/>" + str(self.tipo_reperto), styNormal)
-        repertato = Paragraph("<b>Artefakt</b><br/>" + str(self.repertato), styNormal)
-        if self.repertato=='No':
-            n_reperto = Paragraph("<b>Artefakt n.</b><br/>", styNormal)
+        repertato = Paragraph("<b>Inventarisiert</b><br/>" + str(self.repertato), styNormal)
+        if self.repertato == 'No':
+            n_reperto = Paragraph("<b>Fund-Nr.</b><br/>", styNormal)
         else:
-            n_reperto = Paragraph("<b>Artefakt n.</b><br/>"+ str(self.n_reperto), styNormal)
-        tipo_contenitore = Paragraph("<b>Container-Typ</b><br/>"+ str(self.tipo_contenitore), styNormal)
-        nr_cassa = Paragraph("<b>Container-Nummer</b><br/>"+ str(self.nr_cassa), styNormal)
-        luogo_conservazione = Paragraph("<b>Ort der Lagerung</b><br/>"+ str(self.luogo_conservazione), styNormal)
-        years = Paragraph("<b>Years</b><br/>" + str(self.years), styNormal)
-        
-       
+            n_reperto = Paragraph("<b>Fund-Nr.</b><br/>" + str(self.n_reperto), styNormal)
+        tipo_contenitore = Paragraph("<b>Behältertyp</b><br/>" + str(self.tipo_contenitore), styNormal)
+        nr_cassa = Paragraph("<b>Behälter-Nr.</b><br/>" + str(self.nr_cassa), styNormal)
+        luogo_conservazione = Paragraph("<b>Lagerort</b><br/>" + str(self.luogo_conservazione), styNormal)
+        years = Paragraph("<b>Jahr</b><br/>" + str(self.years), styNormal)
+
+        # Photo ID and Drawing ID with wordwrap
+        photo_id_text = str(self.photo_id).replace('; ', '<br/>') if self.photo_id else ''
+        drawing_id_text = str(self.drawing_id).replace('; ', '<br/>') if self.drawing_id else ''
+        photo_id = Paragraph("<b>Foto-ID</b><br/>" + photo_id_text, styWrap)
+        drawing_id = Paragraph("<b>Zeichnungs-ID</b><br/>" + drawing_id_text, styWrap)
+
         data = [
                 numero_inventario,
-                us ,
-                #foto,
+                us,
                 tipo_reperto,
                 repertato,
                 n_reperto,
                 tipo_contenitore,
                 nr_cassa,
                 luogo_conservazione,
-                years
+                years,
+                photo_id,
+                drawing_id
                 ]
 
         return data
@@ -2119,7 +2198,8 @@ class generate_reperti_pdf(object):
             table_data.append(exp_index.getTable())
 
         styles = exp_index.makeStyles()
-        colWidths = [100, 100, 50, 100,100,100,100, 100]
+        # Updated colWidths to include photo_id and drawing_id columns
+        colWidths = [60, 80, 40, 60, 60, 60, 60, 50, 80, 80]
 
         table_data_formatted = Table(table_data, colWidths, style=styles)
         table_data_formatted.hAlign = "LEFT"
@@ -2179,7 +2259,8 @@ class generate_reperti_pdf(object):
             table_data.append(exp_index.getTable_en())
 
         styles = exp_index.makeStyles()
-        colWidths = [100, 100, 50, 100,100,100,100, 100]
+        # Updated colWidths to include photo_id and drawing_id columns
+        colWidths = [60, 80, 40, 60, 60, 60, 60, 50, 80, 80]
 
         table_data_formatted = Table(table_data, colWidths, style=styles)
         table_data_formatted.hAlign = "LEFT"
@@ -2189,7 +2270,7 @@ class generate_reperti_pdf(object):
 
         dt = datetime.datetime.now()
         filename = ('%s%s%s_%s_%s_%s_%s_%s_%s%s') % (
-        self.PDF_path, os.sep, 'List Artefact thumnail', dt.day, dt.month, dt.year, dt.hour, dt.minute, dt.second, ".pdf")
+        self.PDF_path, os.sep, 'List Artefact thumbnail', dt.day, dt.month, dt.year, dt.hour, dt.minute, dt.second, ".pdf")
         f = open(filename, "wb")
 
         doc = SimpleDocTemplate(f, pagesize=(29 * cm, 21 * cm), showBoundary=0, topMargin=15, bottomMargin=40,
@@ -2241,7 +2322,8 @@ class generate_reperti_pdf(object):
             table_data.append(exp_index.getTable_de())
 
         styles = exp_index.makeStyles()
-        colWidths = [100, 100, 50, 100,100,100,100,100]
+        # Updated colWidths to include photo_id and drawing_id columns
+        colWidths = [60, 80, 40, 60, 60, 60, 60, 50, 80, 80]
 
         table_data_formatted = Table(table_data, colWidths, style=styles)
         table_data_formatted.hAlign = "LEFT"
@@ -2251,7 +2333,7 @@ class generate_reperti_pdf(object):
 
         dt = datetime.datetime.now()
         filename = ('%s%s%s_%s_%s_%s_%s_%s_%s%s') % (
-        self.PDF_path, os.sep, 'Liste der Artefakte', dt.day, dt.month, dt.year, dt.hour, dt.minute, dt.second, ".pdf")
+        self.PDF_path, os.sep, 'Liste der Artefakte thumbnail', dt.day, dt.month, dt.year, dt.hour, dt.minute, dt.second, ".pdf")
         f = open(filename, "wb")
 
         doc = SimpleDocTemplate(f, pagesize=(29 * cm, 21 * cm), showBoundary=0, topMargin=15, bottomMargin=40,
@@ -2301,7 +2383,8 @@ class generate_reperti_pdf(object):
             table_data.append(exp_index.getTable())
 
         styles = exp_index.makeStyles()
-        colWidths = [50, 50, 50,100,100,100,150,100]
+        # Updated colWidths to include photo_id and drawing_id columns (11 total)
+        colWidths = [40, 35, 60, 35, 40, 50, 45, 70, 35, 80, 80]
 
         table_data_formatted = Table(table_data, colWidths, style=styles)
         table_data_formatted.hAlign = "LEFT"
@@ -2362,7 +2445,8 @@ class generate_reperti_pdf(object):
             table_data.append(exp_index.getTable_en())
 
         styles = exp_index.makeStyles()
-        colWidths = [50, 50, 50,100,100,80,80,100]
+        # Updated colWidths to include photo_id and drawing_id columns (11 total)
+        colWidths = [40, 35, 60, 35, 40, 50, 45, 70, 35, 80, 80]
 
         table_data_formatted = Table(table_data, colWidths, style=styles)
         table_data_formatted.hAlign = "LEFT"
@@ -2423,7 +2507,8 @@ class generate_reperti_pdf(object):
             table_data.append(exp_index.getTable_de())
 
         styles = exp_index.makeStyles()
-        colWidths = [50, 50, 50,100,100,100,150,100]
+        # Updated colWidths to include photo_id and drawing_id columns (11 total)
+        colWidths = [40, 35, 60, 35, 40, 50, 45, 70, 35, 80, 80]
 
         table_data_formatted = Table(table_data, colWidths, style=styles)
         table_data_formatted.hAlign = "LEFT"
@@ -2510,7 +2595,8 @@ class generate_reperti_pdf(object):
             table_data.append(exp_index.getTable())
 
         styles = exp_index.makeStyles()
-        colWidths = [70, 110, 110, 110, 35, 35, 60, 60, 60, 60,60]
+        # Updated colWidths to include n_reperto, photo_id and drawing_id columns (13 total)
+        colWidths = [50, 70, 70, 70, 30, 30, 30, 30, 30, 40, 40, 80, 80]
 
         table_data_formatted = Table(table_data, colWidths, style=styles)
         table_data_formatted.hAlign = "LEFT"
@@ -2559,7 +2645,8 @@ class generate_reperti_pdf(object):
             table_data.append(exp_index.getTable_de())
 
         styles = exp_index.makeStyles()
-        colWidths = [70, 110, 110, 110, 35, 35, 60, 60, 60, 60,60]
+        # Updated colWidths to include n_reperto, photo_id and drawing_id columns (13 total)
+        colWidths = [50, 70, 70, 70, 30, 30, 30, 30, 30, 40, 40, 80, 80]
 
         table_data_formatted = Table(table_data, colWidths, style=styles)
         table_data_formatted.hAlign = "LEFT"
@@ -2567,7 +2654,7 @@ class generate_reperti_pdf(object):
         lst.append(table_data_formatted)
         lst.append(Spacer(0, 0))
 
-        filename = '{}{}{}'.format(self.PDF_path, os.sep, 'liste_material.pdf')
+        filename = '{}{}{}'.format(self.PDF_path, os.sep, 'Liste Material.pdf')
         f = open(filename, "wb")
 
         doc = SimpleDocTemplate(f, pagesize=(29 * cm, 21 * cm), showBoundary=0, topMargin=15, bottomMargin=40,
@@ -2608,7 +2695,8 @@ class generate_reperti_pdf(object):
             table_data.append(exp_index.getTable_en())
 
         styles = exp_index.makeStyles()
-        colWidths = [70, 110, 110, 110, 35, 35, 60, 60, 60, 60,60]
+        # Updated colWidths to include n_reperto, photo_id and drawing_id columns (13 total)
+        colWidths = [50, 70, 70, 70, 30, 30, 30, 30, 30, 40, 40, 80, 80]
 
         table_data_formatted = Table(table_data, colWidths, style=styles)
         table_data_formatted.hAlign = "LEFT"
@@ -2616,7 +2704,7 @@ class generate_reperti_pdf(object):
         lst.append(table_data_formatted)
         lst.append(Spacer(0, 0))
 
-        filename = '{}{}{}'.format(self.PDF_path, os.sep, 'list_material.pdf')
+        filename = '{}{}{}'.format(self.PDF_path, os.sep, 'List Material.pdf')
         f = open(filename, "wb")
 
         doc = SimpleDocTemplate(f, pagesize=(29 * cm, 21 * cm), showBoundary=0, topMargin=15, bottomMargin=40,

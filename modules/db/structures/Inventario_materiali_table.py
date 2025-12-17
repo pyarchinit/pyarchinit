@@ -58,6 +58,10 @@ class Inventario_materiali_table:
                                        Column('punto_rinv', Text),# nuovo campo
                                        Column('negativo_photo', Text),# nuovo campo
                                        Column('diapositiva', Text),# nuovo campo
+                                       Column('quota_usm', Numeric(10, 3)),# quota
+                                       Column('unita_misura_quota', String(20)),# unità misura quota
+                                       Column('photo_id', Text),# nuovo campo - nomi foto associate
+                                       Column('drawing_id', Text),# nuovo campo - nomi disegni associati
 
                                        # explicit/composite unique constraint.  'name' is optional.
                                        

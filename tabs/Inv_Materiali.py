@@ -3505,16 +3505,26 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                     else:
                         a = ''
 
+                    # Get photo_id and drawing_id with safe access
+                    photo_id_val = ''
+                    drawing_id_val = ''
+                    if hasattr(self.DATA_LIST[i], 'photo_id') and self.DATA_LIST[i].photo_id:
+                        photo_id_val = str(self.DATA_LIST[i].photo_id)
+                    if hasattr(self.DATA_LIST[i], 'drawing_id') and self.DATA_LIST[i].drawing_id:
+                        drawing_id_val = str(self.DATA_LIST[i].drawing_id)
+
                     data_list_foto.append([
-                        str(self.DATA_LIST[i].sito.replace('_',' ')), #1
-                        str(self.DATA_LIST[i].n_reperto),  #6 
-                        str(a),
+                        str(self.DATA_LIST[i].sito.replace('_',' ')), #0
+                        str(self.DATA_LIST[i].n_reperto),  #1
+                        str(a),  #2 - thumbnail
                         str(self.DATA_LIST[i].us),    #3
                         str(self.DATA_LIST[i].definizione),#4
                         str(self.DATA_LIST[i].datazione_reperto), #5
-                        str(self.DATA_LIST[i].stato_conservazione), #5
+                        str(self.DATA_LIST[i].stato_conservazione), #6
                         str(self.DATA_LIST[i].tipo_contenitore), #7
-                        str(self.DATA_LIST[i].nr_cassa)])
+                        str(self.DATA_LIST[i].nr_cassa),  #8
+                        photo_id_val,  #9 - photo_id
+                        drawing_id_val])  #10 - drawing_id
             except Exception as e:
                 QMessageBox.warning(self, "Error", str(e), QMessageBox.Ok)
 
@@ -3523,21 +3533,29 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
     def generate_list(self):
         data_list = []
         for i in range(len(self.DATA_LIST)):
-
+            # Get photo_id and drawing_id with safe access
+            photo_id_val = ''
+            drawing_id_val = ''
+            if hasattr(self.DATA_LIST[i], 'photo_id') and self.DATA_LIST[i].photo_id:
+                photo_id_val = str(self.DATA_LIST[i].photo_id)
+            if hasattr(self.DATA_LIST[i], 'drawing_id') and self.DATA_LIST[i].drawing_id:
+                drawing_id_val = str(self.DATA_LIST[i].drawing_id)
 
             data_list.append([
-                str(self.DATA_LIST[i].sito.replace('_',' ')), #0
-                str(self.DATA_LIST[i].numero_inventario), #1
-                str(self.DATA_LIST[i].area), #2
-                str(self.DATA_LIST[i].us),    #3
-                str(self.DATA_LIST[i].tipo_reperto),#4
-                str(self.DATA_LIST[i].repertato), #5
-                str(self.DATA_LIST[i].n_reperto),  #6 
-                str(self.DATA_LIST[i].tipo_contenitore), #7
-                str(self.DATA_LIST[i].nr_cassa), #8
-                str(self.DATA_LIST[i].luogo_conservazione),
-                str(self.DATA_LIST[i].years)])#9
-
+                str(self.DATA_LIST[i].sito.replace('_',' ')),  # 0 - sito
+                str(self.DATA_LIST[i].numero_inventario),  # 1 - numero_inventario
+                str(self.DATA_LIST[i].area),  # 2 - area
+                str(self.DATA_LIST[i].us),  # 3 - us
+                str(self.DATA_LIST[i].tipo_reperto),  # 4 - tipo_reperto
+                str(self.DATA_LIST[i].repertato),  # 5 - repertato
+                str(self.DATA_LIST[i].n_reperto),  # 6 - n_reperto
+                str(self.DATA_LIST[i].tipo_contenitore),  # 7 - tipo_contenitore
+                str(self.DATA_LIST[i].nr_cassa),  # 8 - nr_cassa
+                str(self.DATA_LIST[i].luogo_conservazione),  # 9 - luogo_conservazione
+                str(self.DATA_LIST[i].years),  # 10 - years
+                photo_id_val,  # 11 - photo_id
+                drawing_id_val  # 12 - drawing_id
+            ])
 
         return data_list
 
@@ -3579,36 +3597,45 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                     else:
                         a=''
 
+                    # Get photo_id and drawing_id values
+                    photo_id_val = ''
+                    drawing_id_val = ''
+                    if hasattr(self.DATA_LIST[i], 'photo_id') and self.DATA_LIST[i].photo_id:
+                        photo_id_val = str(self.DATA_LIST[i].photo_id)
+                    if hasattr(self.DATA_LIST[i], 'drawing_id') and self.DATA_LIST[i].drawing_id:
+                        drawing_id_val = str(self.DATA_LIST[i].drawing_id)
+
                     data_list.append([
-                        str(self.DATA_LIST[i].id_invmat),  # 1 - id_invmat
-                        str(self.DATA_LIST[i].sito.replace('_',' ')),  # 2 - sito
-                        int(self.DATA_LIST[i].numero_inventario),  # 3 - numero_inventario
-                        str(self.DATA_LIST[i].tipo_reperto),  # 4 - tipo_reperto
-                        str(self.DATA_LIST[i].criterio_schedatura),  # 5 - criterio_schedatura
-                        str(self.DATA_LIST[i].definizione),  # 6 - definizione
-                        str(self.DATA_LIST[i].descrizione),  # 7 - descrizione
-                        str(self.DATA_LIST[i].area),  # 8 - area
-                        str(self.DATA_LIST[i].us),  # 9 - us
-                        str(self.DATA_LIST[i].lavato),  # 10 - lavato
-                        str(self.DATA_LIST[i].nr_cassa),  # 11 - nr_cassa
-                        str(self.DATA_LIST[i].luogo_conservazione),  # 12 - luogo_conservazione
-                        str(self.DATA_LIST[i].stato_conservazione),  # 13 - stato_conservazione
-                        str(self.DATA_LIST[i].datazione_reperto),  # 14 - datazione_reperto
-                        str(self.DATA_LIST[i].elementi_reperto),  # 15 - elementi_reperto
-                        str(self.DATA_LIST[i].misurazioni),  # 16 - misurazioni
-                        str(self.DATA_LIST[i].rif_biblio),  # 17 - rif_biblio
-                        str(self.DATA_LIST[i].tecnologie),  # 18 - misurazioni
-                        str(self.DATA_LIST[i].tipo),  # 19 - tipo
-                        str(self.DATA_LIST[i].corpo_ceramico),  # 20 - corpo_ceramico
-                        str(self.DATA_LIST[i].rivestimento),  # 21 - rivestimento
-                        str(self.DATA_LIST[i].repertato),  # 22 - repertato
-                        str(self.DATA_LIST[i].diagnostico),
-                        str(self.DATA_LIST[i].n_reperto),
-                        str(self.DATA_LIST[i].tipo_contenitore),
-                        str(self.DATA_LIST[i].struttura),
-                        str(self.DATA_LIST[i].years),# 23 - diagnostico
-                        str(a)
-                        #str(image_path)
+                        str(self.DATA_LIST[i].id_invmat),  # 0 - id_invmat
+                        str(self.DATA_LIST[i].sito.replace('_',' ')),  # 1 - sito
+                        int(self.DATA_LIST[i].numero_inventario),  # 2 - numero_inventario
+                        str(self.DATA_LIST[i].tipo_reperto),  # 3 - tipo_reperto
+                        str(self.DATA_LIST[i].criterio_schedatura),  # 4 - criterio_schedatura
+                        str(self.DATA_LIST[i].definizione),  # 5 - definizione
+                        str(self.DATA_LIST[i].descrizione),  # 6 - descrizione
+                        str(self.DATA_LIST[i].area),  # 7 - area
+                        str(self.DATA_LIST[i].us),  # 8 - us
+                        str(self.DATA_LIST[i].lavato),  # 9 - lavato
+                        str(self.DATA_LIST[i].nr_cassa),  # 10 - nr_cassa
+                        str(self.DATA_LIST[i].luogo_conservazione),  # 11 - luogo_conservazione
+                        str(self.DATA_LIST[i].stato_conservazione),  # 12 - stato_conservazione
+                        str(self.DATA_LIST[i].datazione_reperto),  # 13 - datazione_reperto
+                        str(self.DATA_LIST[i].elementi_reperto),  # 14 - elementi_reperto
+                        str(self.DATA_LIST[i].misurazioni),  # 15 - misurazioni
+                        str(self.DATA_LIST[i].rif_biblio),  # 16 - rif_biblio
+                        str(self.DATA_LIST[i].tecnologie),  # 17 - tecnologie
+                        str(self.DATA_LIST[i].tipo),  # 18 - tipo
+                        str(self.DATA_LIST[i].corpo_ceramico),  # 19 - corpo_ceramico
+                        str(self.DATA_LIST[i].rivestimento),  # 20 - rivestimento
+                        str(self.DATA_LIST[i].repertato),  # 21 - repertato
+                        str(self.DATA_LIST[i].diagnostico),  # 22 - diagnostico
+                        str(self.DATA_LIST[i].n_reperto),  # 23 - n_reperto
+                        str(self.DATA_LIST[i].tipo_contenitore),  # 24 - tipo_contenitore
+                        str(self.DATA_LIST[i].struttura),  # 25 - struttura
+                        str(self.DATA_LIST[i].years),  # 26 - years
+                        str(a),  # 27 - thumbnail
+                        photo_id_val,  # 28 - photo_id
+                        drawing_id_val  # 29 - drawing_id
                     ])
             except Exception as e:
                 QMessageBox.warning(self, "Error", str(e), QMessageBox.Ok)
@@ -5568,6 +5595,11 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         self.comboBox_tipo_contenitore.setEditText("")
         self.comboBox_struttura.setEditText("")  # 9 - diagnostico
         self.comboBox_year.setEditText("")  # 9 - diagnostico
+
+        # Clear photo_id and drawing_id (read-only fields)
+        self.lineEdit_photo_id.clear()
+        self.lineEdit_drawing_id.clear()
+
     def empty_fields_nosite(self):
         elementi_reperto_row_count = self.tableWidget_elementi_reperto.rowCount()
         misurazioni_row_count = self.tableWidget_misurazioni.rowCount()
@@ -5639,8 +5671,9 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         self.comboBox_struttura.setEditText("")  # 9 - diagnostico
         self.comboBox_year.setEditText("")  # 9 - diagnostico
 
-
-
+        # Clear photo_id and drawing_id (read-only fields)
+        self.lineEdit_photo_id.clear()
+        self.lineEdit_drawing_id.clear()
 
     def fill_fields(self, n=0):
         self.rec_num = n
@@ -5809,6 +5842,17 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             else:
                 self.tableWidget_diapositive.setRowCount(0)
                 self.insert_new_row("self.tableWidget_diapositive")
+
+            # Handle photo_id and drawing_id (read-only, auto-populated fields)
+            if hasattr(self.DATA_LIST[self.rec_num], 'photo_id') and self.DATA_LIST[self.rec_num].photo_id is not None:
+                self.lineEdit_photo_id.setText(str(self.DATA_LIST[self.rec_num].photo_id))
+            else:
+                self.lineEdit_photo_id.setText('')
+
+            if hasattr(self.DATA_LIST[self.rec_num], 'drawing_id') and self.DATA_LIST[self.rec_num].drawing_id is not None:
+                self.lineEdit_drawing_id.setText(str(self.DATA_LIST[self.rec_num].drawing_id))
+            else:
+                self.lineEdit_drawing_id.setText('')
 
             if self.toolButtonPreviewMedia.isChecked():
                 self.loadMediaPreview()

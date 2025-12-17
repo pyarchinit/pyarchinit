@@ -12,6 +12,15 @@ ADD COLUMN IF NOT EXISTS unita_misura_quota VARCHAR(20) DEFAULT 'm s.l.m.';
 COMMENT ON COLUMN inventario_materiali_table.quota_usm IS 'Quota US/USM (può essere negativa)';
 COMMENT ON COLUMN inventario_materiali_table.unita_misura_quota IS 'Unità di misura quota (es: m s.l.m., m, cm)';
 
+-- 1b. CAMPI PHOTO_ID E DRAWING_ID PER INVENTARIO MATERIALI
+-- =====================================================
+ALTER TABLE inventario_materiali_table
+ADD COLUMN IF NOT EXISTS photo_id TEXT,
+ADD COLUMN IF NOT EXISTS drawing_id TEXT;
+
+COMMENT ON COLUMN inventario_materiali_table.photo_id IS 'Nomi delle foto associate (auto-popolato, immagini che NON iniziano con D_)';
+COMMENT ON COLUMN inventario_materiali_table.drawing_id IS 'Nomi dei disegni associati (auto-popolato, immagini che iniziano con D_)';
+
 -- 2. CAMPI CONCORRENZA PER TUTTE LE TABELLE
 -- =====================================================
 
