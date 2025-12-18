@@ -1510,6 +1510,33 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
             except Exception as e:
                 print(f"[Pottery] Error triggering embedding removal: {e}")
 
+    def on_pushButton_search_images_pressed(self):
+        """Open the Image Search dialog with pre-filled filters for current Pottery record."""
+        from .Image_search import pyarchinit_Image_Search
+
+        # Get current record context
+        sito = self.comboBox_sito.currentText() if hasattr(self, 'comboBox_sito') else ''
+        area = self.comboBox_area.currentText() if hasattr(self, 'comboBox_area') else ''
+        us = self.lineEdit_us.text() if hasattr(self, 'lineEdit_us') else ''
+
+        # Open Image Search dialog
+        dialog = pyarchinit_Image_Search(self.iface, self)
+
+        # Set pre-filled filters
+        dialog.comboBox_entity_type.setCurrentText('Pottery')
+        if sito:
+            index = dialog.comboBox_sito.findText(sito)
+            if index >= 0:
+                dialog.comboBox_sito.setCurrentIndex(index)
+            else:
+                dialog.comboBox_sito.setCurrentText(sito)
+        if area:
+            dialog.comboBox_area.setCurrentText(str(area))
+        if us:
+            dialog.comboBox_us.setCurrentText(str(us))
+
+        dialog.show()
+
     def on_pushButton_removetags_pressed(self):
         def r_id():
             record_rep_list = []

@@ -1,0 +1,404 @@
+#! /usr/bin/env python
+# -*- coding: utf-8 -*-
+"""
+/***************************************************************************
+        pyArchInit Plugin  - A QGIS plugin to manage archaeological dataset
+                             -------------------
+        begin                : 2024
+        copyright            : (C) 2024 by Enzo Cocca <enzo.ccc@gmail.com>
+        email                : enzo.ccc@gmail.com
+ ***************************************************************************/
+
+/***************************************************************************
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ ***************************************************************************/
+"""
+
+import os
+import subprocess
+import sys
+
+from qgis.PyQt.QtCore import Qt, QSize
+from qgis.PyQt.QtGui import QIcon, QPixmap
+from qgis.PyQt.QtWidgets import (
+    QDialog, QMessageBox, QListWidgetItem, QApplication
+)
+from qgis.PyQt.uic import loadUiType
+
+from ..modules.db.pyarchinit_conn_strings import Connection
+from ..modules.db.pyarchinit_db_manager import Pyarchinit_db_management
+from ..modules.utility.pyarchinit_OS_utility import Pyarchinit_OS_Utility
+from ..modules.utility.remote_image_loader import load_icon, get_image_path
+
+# Load UI
+MAIN_DIALOG_CLASS, _ = loadUiType(
+    os.path.join(os.path.dirname(__file__), os.pardir, 'gui', 'ui', 'pyarchinit_image_search_dialog.ui')
+)
+
+
+class pyarchinit_Image_Search(QDialog, MAIN_DIALOG_CLASS):
+    """Dialog for global image search across all entity types."""
+
+    ENTITY_TYPE_MAP = {
+        '-- Tutti --': None,
+        'US': 'US',
+        'Pottery': 'CERAMICA',
+        'Materiali': 'REPERTO',
+        'Tomba': 'TOMBA',
+        'Struttura': 'STRUTTURA'
+    }
+
+    def __init__(self, iface=None, parent=None):
+        super().__init__(parent)
+        self.iface = iface
+        self.setupUi(self)
+        self.setWindowTitle("pyArchInit - Ricerca Immagini")
+
+        # Database connection
+        self.DB_MANAGER = None
+        self.connect_to_db()
+
+        # Store search results
+        self.search_results = []
+        self.current_selection = None
+
+        # Setup UI connections
+        self.setup_connections()
+
+        # Load initial data
+        self.load_sites()
+
+    def connect_to_db(self):
+        """Connect to the database."""
+        conn = Connection()
+        conn_str = conn.conn_str()
+        try:
+            self.DB_MANAGER = Pyarchinit_db_management(conn_str)
+        except Exception as e:
+            QMessageBox.critical(self, "Errore", f"Connessione al database fallita:\n{str(e)}")
+
+    def setup_connections(self):
+        """Setup signal/slot connections."""
+        self.pushButton_search.clicked.connect(self.perform_search)
+        self.pushButton_clear.clicked.connect(self.clear_filters)
+        self.pushButton_goto_record.clicked.connect(self.goto_record)
+        self.pushButton_open_image.clicked.connect(self.open_image)
+        self.pushButton_open_media_manager.clicked.connect(self.open_media_manager)
+
+        self.listWidget_results.itemSelectionChanged.connect(self.on_selection_changed)
+        self.listWidget_results.itemDoubleClicked.connect(self.open_image)
+
+        self.comboBox_sito.currentTextChanged.connect(self.on_sito_changed)
+        self.comboBox_entity_type.currentTextChanged.connect(self.on_entity_type_changed)
+        self.checkBox_untagged.toggled.connect(self.on_untagged_toggled)
+
+    def load_sites(self):
+        """Load available sites into combobox."""
+        if not self.DB_MANAGER:
+            return
+
+        try:
+            sites = self.DB_MANAGER.query_distinct('SITE', ['sito'])
+            self.comboBox_sito.clear()
+            self.comboBox_sito.addItem('')
+            for site in sites:
+                if site.sito:
+                    self.comboBox_sito.addItem(site.sito)
+        except Exception as e:
+            print(f"Error loading sites: {e}")
+
+    def on_sito_changed(self, sito):
+        """Load areas when site changes."""
+        if not self.DB_MANAGER or not sito:
+            return
+
+        try:
+            # Load areas for selected site
+            search_dict = {'sito': f"'{sito}'"}
+            areas = self.DB_MANAGER.query_distinct('US', ['area'])
+            self.comboBox_area.clear()
+            self.comboBox_area.addItem('')
+            for area in areas:
+                if area.area:
+                    self.comboBox_area.addItem(str(area.area))
+
+            # Load US for selected site
+            us_list = self.DB_MANAGER.query_distinct('US', ['us'])
+            self.comboBox_us.clear()
+            self.comboBox_us.addItem('')
+            for us in us_list:
+                if us.us:
+                    self.comboBox_us.addItem(str(us.us))
+        except Exception as e:
+            print(f"Error loading areas/US: {e}")
+
+    def on_entity_type_changed(self, entity_type):
+        """Show/hide inventory number field based on entity type."""
+        show_inv = entity_type == 'Materiali'
+        self.label_inventario.setVisible(show_inv)
+        self.lineEdit_inventario.setVisible(show_inv)
+
+    def on_untagged_toggled(self, checked):
+        """Enable/disable entity filters when untagged mode is active."""
+        enabled = not checked
+        self.comboBox_entity_type.setEnabled(enabled)
+        self.comboBox_sito.setEnabled(enabled)
+        self.comboBox_area.setEnabled(enabled)
+        self.comboBox_us.setEnabled(enabled)
+        self.lineEdit_inventario.setEnabled(enabled)
+
+    def clear_filters(self):
+        """Clear all search filters."""
+        self.lineEdit_text_search.clear()
+        self.comboBox_entity_type.setCurrentIndex(0)
+        self.comboBox_sito.setCurrentIndex(0)
+        self.comboBox_area.clear()
+        self.comboBox_us.clear()
+        self.lineEdit_inventario.clear()
+        self.checkBox_untagged.setChecked(False)
+        self.checkBox_partial.setChecked(True)
+
+    def perform_search(self):
+        """Execute the search based on current filters."""
+        if not self.DB_MANAGER:
+            QMessageBox.warning(self, "Attenzione", "Database non connesso")
+            return
+
+        QApplication.setOverrideCursor(Qt.WaitCursor)
+
+        try:
+            text_filter = self.lineEdit_text_search.text().strip() or None
+            use_like = self.checkBox_partial.isChecked()
+
+            if self.checkBox_untagged.isChecked():
+                # Search untagged images
+                results = self.DB_MANAGER.search_untagged_media(text_filter=text_filter)
+                self.display_untagged_results(results)
+            else:
+                # Search tagged images
+                entity_type_text = self.comboBox_entity_type.currentText()
+                entity_type = self.ENTITY_TYPE_MAP.get(entity_type_text)
+
+                sito = self.comboBox_sito.currentText().strip() or None
+                area = self.comboBox_area.currentText().strip() or None
+                us = self.comboBox_us.currentText().strip() or None
+                numero_inv = self.lineEdit_inventario.text().strip() or None
+
+                results = self.DB_MANAGER.search_tagged_media_flexible(
+                    entity_type=entity_type,
+                    sito=sito,
+                    area=area,
+                    us=us,
+                    numero_inventario=numero_inv,
+                    text_filter=text_filter,
+                    use_like=use_like
+                )
+                self.display_tagged_results(results, entity_type)
+
+        except Exception as e:
+            import traceback
+            QMessageBox.critical(self, "Errore", f"Errore durante la ricerca:\n{str(e)}\n\n{traceback.format_exc()}")
+        finally:
+            QApplication.restoreOverrideCursor()
+
+    def display_untagged_results(self, results):
+        """Display untagged search results."""
+        self.listWidget_results.clear()
+        self.search_results = []
+
+        if not results:
+            self.label_results_count.setText("0 immagini trovate")
+            return
+
+        # Convert to list if needed
+        if not isinstance(results, list):
+            results = list(results)
+
+        conn = Connection()
+        thumb_path_config = conn.thumb_path()
+        thumb_path_str = thumb_path_config.get('thumb_path', '')
+
+        for row in results:
+            # Untagged: id_media, filename, filepath, thumb_path
+            id_media = row[0] if len(row) > 0 else None
+            filename = str(row[1]) if len(row) > 1 else ''
+            filepath = str(row[2]) if len(row) > 2 else ''
+            thumb_path = str(row[3]) if len(row) > 3 and row[3] else ''
+
+            item = QListWidgetItem(filename)
+            item.setData(Qt.UserRole, {
+                'id_media': id_media,
+                'filename': filename,
+                'filepath': filepath,
+                'thumb_path': thumb_path,
+                'entity_type': None,
+                'sito': None,
+                'area': None,
+                'us': None,
+                'tagged': False
+            })
+
+            if thumb_path:
+                icon = load_icon(get_image_path(thumb_path_str, thumb_path))
+                item.setIcon(icon)
+
+            self.listWidget_results.addItem(item)
+            self.search_results.append(row)
+
+        self.label_results_count.setText(f"{len(results)} immagini non taggate trovate")
+
+    def display_tagged_results(self, results, entity_type):
+        """Display tagged search results."""
+        self.listWidget_results.clear()
+        self.search_results = []
+
+        if not results:
+            self.label_results_count.setText("0 immagini trovate")
+            return
+
+        # Convert to list if needed
+        if not isinstance(results, list):
+            results = list(results)
+
+        conn = Connection()
+        thumb_path_config = conn.thumb_path()
+        thumb_path_str = thumb_path_config.get('thumb_path', '')
+
+        for row in results:
+            # Tagged: filepath, media_name, sito, area, us/other
+            thumb_path = str(row[0]) if len(row) > 0 else ''
+            filename = str(row[1]) if len(row) > 1 else ''
+            sito = str(row[2]) if len(row) > 2 else ''
+            area_or_other = str(row[3]) if len(row) > 3 else ''
+            us_or_other = str(row[4]) if len(row) > 4 else ''
+
+            item = QListWidgetItem(filename)
+            item.setData(Qt.UserRole, {
+                'filename': filename,
+                'thumb_path': thumb_path,
+                'entity_type': entity_type,
+                'sito': sito,
+                'area': area_or_other,
+                'us': us_or_other,
+                'tagged': True
+            })
+
+            if thumb_path:
+                icon = load_icon(get_image_path(thumb_path_str, thumb_path))
+                item.setIcon(icon)
+
+            self.listWidget_results.addItem(item)
+            self.search_results.append(row)
+
+        self.label_results_count.setText(f"{len(results)} immagini trovate")
+
+    def on_selection_changed(self):
+        """Update details panel when selection changes."""
+        items = self.listWidget_results.selectedItems()
+        if not items:
+            self.clear_details()
+            return
+
+        item = items[0]
+        data = item.data(Qt.UserRole)
+        self.current_selection = data
+
+        # Update labels
+        self.label_filename.setText(data.get('filename', '-'))
+
+        if data.get('tagged'):
+            entity_type = data.get('entity_type', '-')
+            self.label_entity_info.setText(entity_type if entity_type else 'Varie entità')
+            self.label_sito_info.setText(data.get('sito', '-'))
+            self.label_area_info.setText(f"{data.get('area', '-')} / {data.get('us', '-')}")
+        else:
+            self.label_entity_info.setText('Non taggata')
+            self.label_sito_info.setText('-')
+            self.label_area_info.setText('-')
+
+        # Update preview
+        conn = Connection()
+        thumb_path_config = conn.thumb_path()
+        thumb_path_str = thumb_path_config.get('thumb_path', '')
+        thumb_path = data.get('thumb_path', '')
+
+        if thumb_path:
+            full_path = get_image_path(thumb_path_str, thumb_path)
+            pixmap = QPixmap(full_path)
+            if not pixmap.isNull():
+                scaled = pixmap.scaled(150, 150, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+                self.label_preview.setPixmap(scaled)
+            else:
+                self.label_preview.setText('Anteprima\nnon disponibile')
+        else:
+            self.label_preview.setText('Anteprima\nnon disponibile')
+
+    def clear_details(self):
+        """Clear the details panel."""
+        self.label_filename.setText('-')
+        self.label_entity_info.setText('-')
+        self.label_sito_info.setText('-')
+        self.label_area_info.setText('-')
+        self.label_preview.setText('Anteprima')
+        self.current_selection = None
+
+    def goto_record(self):
+        """Open the form for the associated record."""
+        if not self.current_selection:
+            QMessageBox.information(self, "Info", "Seleziona un'immagine prima")
+            return
+
+        if not self.current_selection.get('tagged'):
+            QMessageBox.information(self, "Info", "L'immagine non è associata a nessun record.\nUsa il Media Manager per taggarla.")
+            return
+
+        entity_type = self.current_selection.get('entity_type')
+        sito = self.current_selection.get('sito')
+        area = self.current_selection.get('area')
+        us = self.current_selection.get('us')
+
+        # TODO: Open the appropriate form based on entity type
+        # This requires integration with the main plugin to open forms
+        QMessageBox.information(self, "Info",
+            f"Vai al record:\nTipo: {entity_type}\nSito: {sito}\nArea: {area}\nUS: {us}\n\n"
+            "Funzionalità in sviluppo - aprire manualmente la scheda corrispondente.")
+
+    def open_image(self):
+        """Open the selected image in the system viewer."""
+        if not self.current_selection:
+            QMessageBox.information(self, "Info", "Seleziona un'immagine prima")
+            return
+
+        filepath = self.current_selection.get('filepath', '')
+        if not filepath:
+            # Try to get from thumb_path
+            conn = Connection()
+            media_path_config = conn.media_path()
+            thumb_path = self.current_selection.get('thumb_path', '')
+            if thumb_path:
+                # Try to find original from thumbnail
+                filepath = thumb_path.replace('_thumb', '').replace('thumb_', '')
+
+        if filepath and os.path.exists(filepath):
+            if sys.platform == 'darwin':
+                subprocess.call(['open', filepath])
+            elif sys.platform == 'win32':
+                os.startfile(filepath)
+            else:
+                subprocess.call(['xdg-open', filepath])
+        else:
+            QMessageBox.warning(self, "Attenzione", f"File non trovato:\n{filepath}")
+
+    def open_media_manager(self):
+        """Open the Media Manager dialog."""
+        try:
+            from .Image_viewer import pyarchinit_Images_mainapp
+            dialog = pyarchinit_Images_mainapp(self.iface)
+            dialog.show()
+        except Exception as e:
+            QMessageBox.warning(self, "Errore", f"Impossibile aprire Media Manager:\n{str(e)}")

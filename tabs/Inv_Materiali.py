@@ -1713,6 +1713,30 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         res = self.DB_MANAGER.query_bool(search_dict, self.table_class)
         return res
 
+    def on_pushButton_search_images_pressed(self):
+        """Open the Image Search dialog with pre-filled filters for current Inventario Materiali record."""
+        from .Image_search import pyarchinit_Image_Search
+
+        # Get current record context
+        sito = self.comboBox_sito.currentText() if hasattr(self, 'comboBox_sito') else ''
+        numero_inv = self.lineEdit_num_inv.text() if hasattr(self, 'lineEdit_num_inv') else ''
+
+        # Open Image Search dialog
+        dialog = pyarchinit_Image_Search(self.iface, self)
+
+        # Set pre-filled filters
+        dialog.comboBox_entity_type.setCurrentText('Materiali')
+        if sito:
+            index = dialog.comboBox_sito.findText(sito)
+            if index >= 0:
+                dialog.comboBox_sito.setCurrentIndex(index)
+            else:
+                dialog.comboBox_sito.setCurrentText(sito)
+        if numero_inv:
+            dialog.lineEdit_inventario.setText(str(numero_inv))
+
+        dialog.show()
+
     def on_pushButton_removetags_pressed(self):
         def r_id():
             sito = self.comboBox_sito.currentText()

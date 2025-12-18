@@ -15790,6 +15790,34 @@ DATABASE SCHEMA KNOWLEDGE:
         search_dict = u.remove_empty_items_fr_dict(search_dict)
         res = self.DB_MANAGER.query_bool(search_dict, self.table_class)
         return res
+
+    def on_pushButton_search_images_pressed(self):
+        """Open the Image Search dialog with pre-filled filters for current US."""
+        from .Image_search import pyarchinit_Image_Search
+
+        # Get current record context
+        sito = self.comboBox_sito.currentText() if hasattr(self, 'comboBox_sito') else ''
+        area = self.comboBox_area.currentText() if hasattr(self, 'comboBox_area') else ''
+        us = self.lineEdit_us.text() if hasattr(self, 'lineEdit_us') else ''
+
+        # Open Image Search dialog
+        dialog = pyarchinit_Image_Search(self.iface, self)
+
+        # Set pre-filled filters
+        dialog.comboBox_entity_type.setCurrentText('US')
+        if sito:
+            index = dialog.comboBox_sito.findText(sito)
+            if index >= 0:
+                dialog.comboBox_sito.setCurrentIndex(index)
+            else:
+                dialog.comboBox_sito.setCurrentText(sito)
+        if area:
+            dialog.comboBox_area.setCurrentText(str(area))
+        if us:
+            dialog.comboBox_us.setCurrentText(str(us))
+
+        dialog.show()
+
     def on_pushButton_assigntags_pressed(self):
 
         # Check the locale and set the button text and message box content

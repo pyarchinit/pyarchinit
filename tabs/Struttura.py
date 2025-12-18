@@ -781,6 +781,27 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
 
         self.widget.close()  # Chiude il widget dopo che l'utente ha premuto "Fatto"
 
+    def on_pushButton_search_images_pressed(self):
+        """Open the Image Search dialog with pre-filled filters for current Struttura record."""
+        from .Image_search import pyarchinit_Image_Search
+
+        # Get current record context
+        sito = self.comboBox_sito.currentText() if hasattr(self, 'comboBox_sito') else ''
+
+        # Open Image Search dialog
+        dialog = pyarchinit_Image_Search(self.iface, self)
+
+        # Set pre-filled filters
+        dialog.comboBox_entity_type.setCurrentText('Struttura')
+        if sito:
+            index = dialog.comboBox_sito.findText(sito)
+            if index >= 0:
+                dialog.comboBox_sito.setCurrentIndex(index)
+            else:
+                dialog.comboBox_sito.setCurrentText(sito)
+
+        dialog.show()
+
     def on_pushButton_removetags_pressed(self):
         def r_id():
             record_us_list=[]
