@@ -20,18 +20,20 @@
 """
 
 import os
+import shutil
 import subprocess
 import sys
 
 from qgis.PyQt.QtCore import Qt, QSize
 from qgis.PyQt.QtGui import QIcon, QPixmap
 from qgis.PyQt.QtWidgets import (
-    QDialog, QMessageBox, QListWidgetItem, QApplication
+    QDialog, QMessageBox, QListWidgetItem, QApplication, QMenu, QFileDialog
 )
 from qgis.PyQt.uic import loadUiType
 
 from ..modules.db.pyarchinit_conn_strings import Connection
-from ..modules.db.pyarchinit_db_manager import Pyarchinit_db_management
+from ..modules.db.pyarchinit_db_manager import get_db_manager
+from ..modules.db.pyarchinit_utility import Utility
 from ..modules.utility.pyarchinit_OS_utility import Pyarchinit_OS_Utility
 from ..modules.utility.remote_image_loader import load_icon, get_image_path
 
@@ -59,8 +61,12 @@ class pyarchinit_Image_Search(QDialog, MAIN_DIALOG_CLASS):
         self.setupUi(self)
         self.setWindowTitle("pyArchInit - Ricerca Immagini")
 
+        # Utilities
+        self.UTILITY = Utility()
+
         # Database connection
         self.DB_MANAGER = None
+        self.DB_SERVER = "not defined"
         self.connect_to_db()
 
         # Store search results
@@ -70,6 +76,9 @@ class pyarchinit_Image_Search(QDialog, MAIN_DIALOG_CLASS):
         # Setup UI connections
         self.setup_connections()
 
+        # Setup context menu for right-click export
+        self.setup_context_menu()
+
         # Load initial data
         self.load_sites()
 
@@ -77,10 +86,19 @@ class pyarchinit_Image_Search(QDialog, MAIN_DIALOG_CLASS):
         """Connect to the database."""
         conn = Connection()
         conn_str = conn.conn_str()
+
+        # Determine DB type
+        test_conn = conn_str.find('sqlite')
+        if test_conn == 0:
+            self.DB_SERVER = "sqlite"
+        else:
+            self.DB_SERVER = "postgres"
+
         try:
-            self.DB_MANAGER = Pyarchinit_db_management(conn_str)
+            self.DB_MANAGER = get_db_manager(conn_str, use_singleton=True)
         except Exception as e:
             QMessageBox.critical(self, "Errore", f"Connessione al database fallita:\n{str(e)}")
+            self.DB_MANAGER = None
 
     def setup_connections(self):
         """Setup signal/slot connections."""
@@ -89,6 +107,7 @@ class pyarchinit_Image_Search(QDialog, MAIN_DIALOG_CLASS):
         self.pushButton_goto_record.clicked.connect(self.goto_record)
         self.pushButton_open_image.clicked.connect(self.open_image)
         self.pushButton_open_media_manager.clicked.connect(self.open_media_manager)
+        self.pushButton_export_image.clicked.connect(self.export_image)
 
         self.listWidget_results.itemSelectionChanged.connect(self.on_selection_changed)
         self.listWidget_results.itemDoubleClicked.connect(self.open_image)
@@ -97,43 +116,83 @@ class pyarchinit_Image_Search(QDialog, MAIN_DIALOG_CLASS):
         self.comboBox_entity_type.currentTextChanged.connect(self.on_entity_type_changed)
         self.checkBox_untagged.toggled.connect(self.on_untagged_toggled)
 
+    def setup_context_menu(self):
+        """Setup context menu for right-click on results list."""
+        self.listWidget_results.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.listWidget_results.customContextMenuRequested.connect(self.show_context_menu)
+
+    def show_context_menu(self, pos):
+        """Show context menu at the given position."""
+        item = self.listWidget_results.itemAt(pos)
+        if not item:
+            return
+
+        menu = QMenu(self)
+
+        action_open = menu.addAction("Apri immagine")
+        action_open.triggered.connect(self.open_image)
+
+        action_export = menu.addAction("Esporta immagine...")
+        action_export.triggered.connect(self.export_image)
+
+        menu.addSeparator()
+
+        action_goto = menu.addAction("Vai al record")
+        action_goto.triggered.connect(self.goto_record)
+
+        menu.exec_(self.listWidget_results.mapToGlobal(pos))
+
     def load_sites(self):
         """Load available sites into combobox."""
         if not self.DB_MANAGER:
             return
 
         try:
-            sites = self.DB_MANAGER.query_distinct('SITE', ['sito'])
+            # Use the same method as other forms
+            sito_vl = self.UTILITY.tup_2_list_III(self.DB_MANAGER.group_by('site_table', 'sito', 'SITE'))
+            try:
+                sito_vl.remove('')
+            except:
+                pass
+
             self.comboBox_sito.clear()
-            self.comboBox_sito.addItem('')
-            for site in sites:
-                if site.sito:
-                    self.comboBox_sito.addItem(site.sito)
+            self.comboBox_sito.addItem('')  # Empty option for "all"
+            sito_vl.sort()
+            self.comboBox_sito.addItems(sito_vl)
         except Exception as e:
             print(f"Error loading sites: {e}")
 
     def on_sito_changed(self, sito):
         """Load areas when site changes."""
-        if not self.DB_MANAGER or not sito:
+        if not self.DB_MANAGER:
+            return
+
+        self.comboBox_area.clear()
+        self.comboBox_area.addItem('')
+        self.comboBox_us.clear()
+        self.comboBox_us.addItem('')
+
+        if not sito:
             return
 
         try:
             # Load areas for selected site
-            search_dict = {'sito': f"'{sito}'"}
-            areas = self.DB_MANAGER.query_distinct('US', ['area'])
-            self.comboBox_area.clear()
-            self.comboBox_area.addItem('')
-            for area in areas:
-                if area.area:
-                    self.comboBox_area.addItem(str(area.area))
+            area_vl = self.UTILITY.tup_2_list_III(self.DB_MANAGER.group_by('us_table', 'area', 'US'))
+            try:
+                area_vl.remove('')
+            except:
+                pass
+            area_vl.sort()
+            self.comboBox_area.addItems([str(a) for a in area_vl])
 
             # Load US for selected site
-            us_list = self.DB_MANAGER.query_distinct('US', ['us'])
-            self.comboBox_us.clear()
-            self.comboBox_us.addItem('')
-            for us in us_list:
-                if us.us:
-                    self.comboBox_us.addItem(str(us.us))
+            us_vl = self.UTILITY.tup_2_list_III(self.DB_MANAGER.group_by('us_table', 'us', 'US'))
+            try:
+                us_vl.remove('')
+            except:
+                pass
+            us_vl.sort(key=lambda x: int(x) if str(x).isdigit() else 0)
+            self.comboBox_us.addItems([str(u) for u in us_vl])
         except Exception as e:
             print(f"Error loading areas/US: {e}")
 
@@ -158,7 +217,9 @@ class pyarchinit_Image_Search(QDialog, MAIN_DIALOG_CLASS):
         self.comboBox_entity_type.setCurrentIndex(0)
         self.comboBox_sito.setCurrentIndex(0)
         self.comboBox_area.clear()
+        self.comboBox_area.addItem('')
         self.comboBox_us.clear()
+        self.comboBox_us.addItem('')
         self.lineEdit_inventario.clear()
         self.checkBox_untagged.setChecked(False)
         self.checkBox_partial.setChecked(True)
@@ -166,7 +227,7 @@ class pyarchinit_Image_Search(QDialog, MAIN_DIALOG_CLASS):
     def perform_search(self):
         """Execute the search based on current filters."""
         if not self.DB_MANAGER:
-            QMessageBox.warning(self, "Attenzione", "Database non connesso")
+            QMessageBox.warning(self, "Attenzione", "Database non connesso.\nVerificare la connessione al database.")
             return
 
         QApplication.setOverrideCursor(Qt.WaitCursor)
@@ -222,6 +283,8 @@ class pyarchinit_Image_Search(QDialog, MAIN_DIALOG_CLASS):
         conn = Connection()
         thumb_path_config = conn.thumb_path()
         thumb_path_str = thumb_path_config.get('thumb_path', '')
+        media_path_config = conn.media_path()
+        media_path_str = media_path_config.get('media_path', '')
 
         for row in results:
             # Untagged: id_media, filename, filepath, thumb_path
@@ -229,6 +292,10 @@ class pyarchinit_Image_Search(QDialog, MAIN_DIALOG_CLASS):
             filename = str(row[1]) if len(row) > 1 else ''
             filepath = str(row[2]) if len(row) > 2 else ''
             thumb_path = str(row[3]) if len(row) > 3 and row[3] else ''
+
+            # Build full filepath if needed
+            if filepath and not os.path.isabs(filepath):
+                filepath = os.path.join(media_path_str, filepath)
 
             item = QListWidgetItem(filename)
             item.setData(Qt.UserRole, {
@@ -268,6 +335,8 @@ class pyarchinit_Image_Search(QDialog, MAIN_DIALOG_CLASS):
         conn = Connection()
         thumb_path_config = conn.thumb_path()
         thumb_path_str = thumb_path_config.get('thumb_path', '')
+        media_path_config = conn.media_path()
+        media_path_str = media_path_config.get('media_path', '')
 
         for row in results:
             # Tagged: filepath, media_name, sito, area, us/other
@@ -277,9 +346,23 @@ class pyarchinit_Image_Search(QDialog, MAIN_DIALOG_CLASS):
             area_or_other = str(row[3]) if len(row) > 3 else ''
             us_or_other = str(row[4]) if len(row) > 4 else ''
 
+            # Try to get the full file path from the database
+            filepath = ''
+            if filename:
+                try:
+                    search_dict = {'filename': f"'{filename}'"}
+                    media_data = self.DB_MANAGER.query_bool(search_dict, 'MEDIA')
+                    if media_data:
+                        filepath = media_data[0].filepath
+                        if filepath and not os.path.isabs(filepath):
+                            filepath = os.path.join(media_path_str, filepath)
+                except:
+                    pass
+
             item = QListWidgetItem(filename)
             item.setData(Qt.UserRole, {
                 'filename': filename,
+                'filepath': filepath,
                 'thumb_path': thumb_path,
                 'entity_type': entity_type,
                 'sito': sito,
@@ -347,6 +430,49 @@ class pyarchinit_Image_Search(QDialog, MAIN_DIALOG_CLASS):
         self.label_preview.setText('Anteprima')
         self.current_selection = None
 
+    def get_original_filepath(self):
+        """Get the original file path for the current selection."""
+        if not self.current_selection:
+            return None
+
+        filepath = self.current_selection.get('filepath', '')
+
+        # If no filepath, try to find it from the database
+        if not filepath:
+            filename = self.current_selection.get('filename', '')
+            if filename and self.DB_MANAGER:
+                try:
+                    search_dict = {'filename': f"'{filename}'"}
+                    media_data = self.DB_MANAGER.query_bool(search_dict, 'MEDIA')
+                    if media_data:
+                        filepath = media_data[0].filepath
+                        conn = Connection()
+                        media_path_config = conn.media_path()
+                        media_path_str = media_path_config.get('media_path', '')
+                        if filepath and not os.path.isabs(filepath):
+                            filepath = os.path.join(media_path_str, filepath)
+                except Exception as e:
+                    print(f"Error getting filepath: {e}")
+
+        # If still no filepath, try from thumb_path
+        if not filepath:
+            thumb_path = self.current_selection.get('thumb_path', '')
+            if thumb_path:
+                # Try to derive original path from thumbnail path
+                conn = Connection()
+                media_path_config = conn.media_path()
+                media_path_str = media_path_config.get('media_path', '')
+                thumb_path_config = conn.thumb_path()
+                thumb_path_str = thumb_path_config.get('thumb_path', '')
+
+                # Replace thumb path with media path
+                if thumb_path_str and media_path_str:
+                    filepath = thumb_path.replace(thumb_path_str, media_path_str)
+                    # Remove _thumb suffix if present
+                    filepath = filepath.replace('_thumb', '')
+
+        return filepath
+
     def goto_record(self):
         """Open the form for the associated record."""
         if not self.current_selection:
@@ -374,15 +500,7 @@ class pyarchinit_Image_Search(QDialog, MAIN_DIALOG_CLASS):
             QMessageBox.information(self, "Info", "Seleziona un'immagine prima")
             return
 
-        filepath = self.current_selection.get('filepath', '')
-        if not filepath:
-            # Try to get from thumb_path
-            conn = Connection()
-            media_path_config = conn.media_path()
-            thumb_path = self.current_selection.get('thumb_path', '')
-            if thumb_path:
-                # Try to find original from thumbnail
-                filepath = thumb_path.replace('_thumb', '').replace('thumb_', '')
+        filepath = self.get_original_filepath()
 
         if filepath and os.path.exists(filepath):
             if sys.platform == 'darwin':
@@ -394,11 +512,41 @@ class pyarchinit_Image_Search(QDialog, MAIN_DIALOG_CLASS):
         else:
             QMessageBox.warning(self, "Attenzione", f"File non trovato:\n{filepath}")
 
+    def export_image(self):
+        """Export the selected image to a user-chosen location."""
+        if not self.current_selection:
+            QMessageBox.information(self, "Info", "Seleziona un'immagine prima")
+            return
+
+        filepath = self.get_original_filepath()
+
+        if not filepath or not os.path.exists(filepath):
+            QMessageBox.warning(self, "Attenzione", f"File sorgente non trovato:\n{filepath}")
+            return
+
+        # Get original filename
+        filename = self.current_selection.get('filename', os.path.basename(filepath))
+
+        # Ask user for save location
+        save_path, _ = QFileDialog.getSaveFileName(
+            self,
+            "Esporta immagine",
+            os.path.join(os.path.expanduser("~"), "Desktop", filename),
+            "Tutti i file (*.*)"
+        )
+
+        if save_path:
+            try:
+                shutil.copy2(filepath, save_path)
+                QMessageBox.information(self, "Successo", f"Immagine esportata con successo:\n{save_path}")
+            except Exception as e:
+                QMessageBox.critical(self, "Errore", f"Errore durante l'esportazione:\n{str(e)}")
+
     def open_media_manager(self):
         """Open the Media Manager dialog."""
         try:
-            from .Image_viewer import pyarchinit_Images_mainapp
-            dialog = pyarchinit_Images_mainapp(self.iface)
+            from .Image_viewer import Main
+            dialog = Main(self.iface)
             dialog.show()
         except Exception as e:
             QMessageBox.warning(self, "Errore", f"Impossibile aprire Media Manager:\n{str(e)}")

@@ -334,6 +334,13 @@
           </property>
          </widget>
         </item>
+        <item>
+         <widget class="QPushButton" name="pushButton_export_image">
+          <property name="text">
+           <string>Esporta immagine</string>
+          </property>
+         </widget>
+        </item>
        </layout>
       </item>
      </layout>
