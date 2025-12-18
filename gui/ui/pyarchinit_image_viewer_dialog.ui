@@ -1465,7 +1465,7 @@
                  </property>
                 </widget>
                </item>
-               <item row="7" column="1">
+               <item row="11" column="1">
                 <widget class="QPushButton" name="pushButton_go">
                  <property name="enabled">
                   <bool>true</bool>
@@ -1482,6 +1482,13 @@
                  <property name="icon">
                   <iconset resource="../../resources/resources.qrc">
                    <normaloff>:/icons/search.png</normaloff>:/icons/search.png</iconset>
+                 </property>
+                </widget>
+               </item>
+               <item row="11" column="2" colspan="4">
+                <widget class="QPushButton" name="pushButton_clear_search">
+                 <property name="text">
+                  <string>Pulisci filtri</string>
                  </property>
                 </widget>
                </item>
@@ -1512,6 +1519,57 @@
                 <widget class="QRadioButton" name="radioButton_pottery">
                  <property name="text">
                   <string>Pottery</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="8" column="0">
+                <widget class="QLabel" name="label_text_search">
+                 <property name="frameShape">
+                  <enum>QFrame::StyledPanel</enum>
+                 </property>
+                 <property name="text">
+                  <string>Cerca testo</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="8" column="1" colspan="5">
+                <widget class="QLineEdit" name="lineEdit_text_search">
+                 <property name="placeholderText">
+                  <string>Nome file o descrizione...</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="9" column="0">
+                <widget class="QLabel" name="label_nr_inventario">
+                 <property name="frameShape">
+                  <enum>QFrame::StyledPanel</enum>
+                 </property>
+                 <property name="text">
+                  <string>Nr. Inv.</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="9" column="1">
+                <widget class="QLineEdit" name="lineEdit_nr_inventario">
+                 <property name="placeholderText">
+                  <string>Numero inventario...</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="10" column="1">
+                <widget class="QCheckBox" name="checkBox_untagged">
+                 <property name="text">
+                  <string>Solo non taggate</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="10" column="2" colspan="2">
+                <widget class="QCheckBox" name="checkBox_partial_match">
+                 <property name="text">
+                  <string>Ricerca parziale</string>
+                 </property>
+                 <property name="checked">
+                  <bool>true</bool>
                  </property>
                 </widget>
                </item>

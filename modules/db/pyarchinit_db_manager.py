@@ -3232,10 +3232,264 @@ class Pyarchinit_db_management(object):
         return rows
     
     def select_medianame_2_from_db_sql(self,sito,area,us):
-        sql_query_string = ("SELECT c.filepath, a.media_name FROM media_to_entity_table as a,  us_table as b, media_thumb_table as c WHERE b.id_us=a.id_entity and c.id_media=a.id_media  and b.sito= '%s' and b.area='%s' and b.us = '%s' and entity_type='US'")%(sito,area,us) 
-        
+        sql_query_string = ("SELECT c.filepath, a.media_name FROM media_to_entity_table as a,  us_table as b, media_thumb_table as c WHERE b.id_us=a.id_entity and c.id_media=a.id_media  and b.sito= '%s' and b.area='%s' and b.us = '%s' and entity_type='US'")%(sito,area,us)
+
         res = self.engine.execute(sql_query_string)
         rows= res.fetchall()
+        return rows
+
+    # =====================================================
+    # ADVANCED MEDIA SEARCH METHODS
+    # =====================================================
+
+    def search_untagged_media(self, text_filter=None):
+        """
+        Search for untagged images (not associated with any entity).
+        Returns images in media_table that have no entry in media_to_entity_table.
+
+        Args:
+            text_filter: Optional text to filter by filename (LIKE pattern)
+        """
+        if text_filter:
+            sql_query_string = """
+                SELECT DISTINCT m.id_media, m.filename, m.filepath, t.filepath as thumb_path
+                FROM media_table m
+                LEFT JOIN media_thumb_table t ON m.id_media = t.id_media
+                WHERE m.id_media NOT IN (SELECT DISTINCT id_media FROM media_to_entity_table)
+                AND (m.filename LIKE '%{0}%' OR m.descrizione LIKE '%{0}%')
+                ORDER BY m.filename
+            """.format(text_filter.replace("'", "''"))
+        else:
+            sql_query_string = """
+                SELECT DISTINCT m.id_media, m.filename, m.filepath, t.filepath as thumb_path
+                FROM media_table m
+                LEFT JOIN media_thumb_table t ON m.id_media = t.id_media
+                WHERE m.id_media NOT IN (SELECT DISTINCT id_media FROM media_to_entity_table)
+                ORDER BY m.filename
+            """
+        res = self.engine.execute(sql_query_string)
+        rows = res.fetchall()
+        return rows
+
+    def search_tagged_media_flexible(self, entity_type=None, sito=None, area=None, us=None,
+                                      numero_inventario=None, text_filter=None, use_like=True):
+        """
+        Flexible search for tagged images with optional parameters and LIKE patterns.
+
+        Args:
+            entity_type: 'US', 'CERAMICA', 'REPERTO', 'TOMBA', 'STRUTTURA' or None for all
+            sito: Site name (exact or LIKE pattern if use_like=True)
+            area: Area (exact or LIKE pattern if use_like=True)
+            us: Stratigraphic unit (exact or LIKE pattern if use_like=True)
+            numero_inventario: Inventory number for materials (exact or LIKE)
+            text_filter: Text to filter by filename/description
+            use_like: If True, use LIKE for partial matching
+        """
+        conditions = []
+
+        # Build base query - join with appropriate entity table based on type
+        if entity_type == 'US':
+            base_query = """
+                SELECT DISTINCT c.filepath, a.media_name, b.sito, b.area, b.us
+                FROM media_to_entity_table a
+                JOIN us_table b ON b.id_us = a.id_entity
+                JOIN media_thumb_table c ON c.id_media = a.id_media
+                WHERE a.entity_type = 'US'
+            """
+            if sito:
+                if use_like:
+                    conditions.append("b.sito LIKE '%{0}%'".format(sito.replace("'", "''")))
+                else:
+                    conditions.append("b.sito = '{0}'".format(sito.replace("'", "''")))
+            if area:
+                if use_like:
+                    conditions.append("b.area LIKE '%{0}%'".format(area.replace("'", "''")))
+                else:
+                    conditions.append("b.area = '{0}'".format(area.replace("'", "''")))
+            if us:
+                if use_like:
+                    conditions.append("CAST(b.us AS TEXT) LIKE '%{0}%'".format(str(us).replace("'", "''")))
+                else:
+                    conditions.append("b.us = '{0}'".format(str(us).replace("'", "''")))
+
+        elif entity_type == 'CERAMICA':
+            base_query = """
+                SELECT DISTINCT c.filepath, a.media_name, b.sito, b.area, b.us
+                FROM media_to_entity_table a
+                JOIN pottery_table b ON b.id_rep = a.id_entity
+                JOIN media_thumb_table c ON c.id_media = a.id_media
+                WHERE a.entity_type = 'CERAMICA'
+            """
+            if sito:
+                if use_like:
+                    conditions.append("b.sito LIKE '%{0}%'".format(sito.replace("'", "''")))
+                else:
+                    conditions.append("b.sito = '{0}'".format(sito.replace("'", "''")))
+            if area:
+                if use_like:
+                    conditions.append("b.area LIKE '%{0}%'".format(area.replace("'", "''")))
+                else:
+                    conditions.append("b.area = '{0}'".format(area.replace("'", "''")))
+            if us:
+                if use_like:
+                    conditions.append("CAST(b.us AS TEXT) LIKE '%{0}%'".format(str(us).replace("'", "''")))
+                else:
+                    conditions.append("b.us = '{0}'".format(str(us).replace("'", "''")))
+
+        elif entity_type == 'REPERTO':
+            base_query = """
+                SELECT DISTINCT c.filepath, a.media_name, b.sito, b.area, b.us, b.numero_inventario
+                FROM media_to_entity_table a
+                JOIN inventario_materiali_table b ON b.id_invmat = a.id_entity
+                JOIN media_thumb_table c ON c.id_media = a.id_media
+                WHERE a.entity_type = 'REPERTO'
+            """
+            if sito:
+                if use_like:
+                    conditions.append("b.sito LIKE '%{0}%'".format(sito.replace("'", "''")))
+                else:
+                    conditions.append("b.sito = '{0}'".format(sito.replace("'", "''")))
+            if area:
+                if use_like:
+                    conditions.append("b.area LIKE '%{0}%'".format(area.replace("'", "''")))
+                else:
+                    conditions.append("b.area = '{0}'".format(area.replace("'", "''")))
+            if us:
+                if use_like:
+                    conditions.append("CAST(b.us AS TEXT) LIKE '%{0}%'".format(str(us).replace("'", "''")))
+                else:
+                    conditions.append("b.us = '{0}'".format(str(us).replace("'", "''")))
+            if numero_inventario:
+                if use_like:
+                    conditions.append("CAST(b.numero_inventario AS TEXT) LIKE '%{0}%'".format(str(numero_inventario).replace("'", "''")))
+                else:
+                    conditions.append("b.numero_inventario = {0}".format(int(numero_inventario)))
+
+        elif entity_type == 'TOMBA':
+            base_query = """
+                SELECT DISTINCT c.filepath, a.media_name, b.sito, b.area, b.nr_scheda_taf
+                FROM media_to_entity_table a
+                JOIN tomba_table b ON b.id_tomba = a.id_entity
+                JOIN media_thumb_table c ON c.id_media = a.id_media
+                WHERE a.entity_type = 'TOMBA'
+            """
+            if sito:
+                if use_like:
+                    conditions.append("b.sito LIKE '%{0}%'".format(sito.replace("'", "''")))
+                else:
+                    conditions.append("b.sito = '{0}'".format(sito.replace("'", "''")))
+            if area:
+                if use_like:
+                    conditions.append("b.area LIKE '%{0}%'".format(area.replace("'", "''")))
+                else:
+                    conditions.append("b.area = '{0}'".format(area.replace("'", "''")))
+
+        elif entity_type == 'STRUTTURA':
+            base_query = """
+                SELECT DISTINCT c.filepath, a.media_name, b.sito, b.sigla_struttura, b.numero_struttura
+                FROM media_to_entity_table a
+                JOIN struttura_table b ON b.id_struttura = a.id_entity
+                JOIN media_thumb_table c ON c.id_media = a.id_media
+                WHERE a.entity_type = 'STRUTTURA'
+            """
+            if sito:
+                if use_like:
+                    conditions.append("b.sito LIKE '%{0}%'".format(sito.replace("'", "''")))
+                else:
+                    conditions.append("b.sito = '{0}'".format(sito.replace("'", "''")))
+        else:
+            # All entity types - generic search
+            base_query = """
+                SELECT DISTINCT c.filepath, a.media_name, a.entity_type
+                FROM media_to_entity_table a
+                JOIN media_thumb_table c ON c.id_media = a.id_media
+                WHERE 1=1
+            """
+
+        # Add text filter on media name
+        if text_filter:
+            conditions.append("(a.media_name LIKE '%{0}%')".format(text_filter.replace("'", "''")))
+
+        # Build final query
+        sql_query_string = base_query
+        if conditions:
+            sql_query_string += " AND " + " AND ".join(conditions)
+        sql_query_string += " ORDER BY a.media_name"
+
+        res = self.engine.execute(sql_query_string)
+        rows = res.fetchall()
+        return rows
+
+    def search_all_media(self, text_filter=None, tagged_only=None):
+        """
+        Search all media with optional text filter and tagged/untagged filter.
+
+        Args:
+            text_filter: Text to filter by filename
+            tagged_only: True=only tagged, False=only untagged, None=all
+        """
+        if tagged_only is True:
+            # Only tagged images
+            base_query = """
+                SELECT DISTINCT m.id_media, m.filename, m.filepath, t.filepath as thumb_path, 'tagged' as status
+                FROM media_table m
+                JOIN media_thumb_table t ON m.id_media = t.id_media
+                WHERE m.id_media IN (SELECT DISTINCT id_media FROM media_to_entity_table)
+            """
+        elif tagged_only is False:
+            # Only untagged images
+            base_query = """
+                SELECT DISTINCT m.id_media, m.filename, m.filepath, t.filepath as thumb_path, 'untagged' as status
+                FROM media_table m
+                LEFT JOIN media_thumb_table t ON m.id_media = t.id_media
+                WHERE m.id_media NOT IN (SELECT DISTINCT id_media FROM media_to_entity_table)
+            """
+        else:
+            # All images
+            base_query = """
+                SELECT DISTINCT m.id_media, m.filename, m.filepath, t.filepath as thumb_path,
+                    CASE WHEN m.id_media IN (SELECT DISTINCT id_media FROM media_to_entity_table)
+                         THEN 'tagged' ELSE 'untagged' END as status
+                FROM media_table m
+                LEFT JOIN media_thumb_table t ON m.id_media = t.id_media
+                WHERE 1=1
+            """
+
+        if text_filter:
+            base_query += " AND (m.filename LIKE '%{0}%' OR m.descrizione LIKE '%{0}%')".format(
+                text_filter.replace("'", "''"))
+
+        base_query += " ORDER BY m.filename"
+
+        res = self.engine.execute(base_query)
+        rows = res.fetchall()
+        return rows
+
+    def search_media_by_inventario(self, sito=None, numero_inventario=None, text_filter=None):
+        """
+        Search media specifically for Inventario Materiali by numero_inventario.
+        """
+        conditions = ["a.entity_type = 'REPERTO'"]
+
+        if sito:
+            conditions.append("b.sito LIKE '%{0}%'".format(sito.replace("'", "''")))
+        if numero_inventario:
+            conditions.append("CAST(b.numero_inventario AS TEXT) LIKE '%{0}%'".format(
+                str(numero_inventario).replace("'", "''")))
+        if text_filter:
+            conditions.append("a.media_name LIKE '%{0}%'".format(text_filter.replace("'", "''")))
+
+        sql_query_string = """
+            SELECT DISTINCT c.filepath, a.media_name, b.sito, b.area, b.us, b.numero_inventario
+            FROM media_to_entity_table a
+            JOIN inventario_materiali_table b ON b.id_invmat = a.id_entity
+            JOIN media_thumb_table c ON c.id_media = a.id_media
+            WHERE {0}
+            ORDER BY b.numero_inventario, a.media_name
+        """.format(" AND ".join(conditions))
+
+        res = self.engine.execute(sql_query_string)
+        rows = res.fetchall()
         return rows
 
     def get_total_pages(self, filter_query, page_size):
