@@ -677,6 +677,10 @@ class PyArchInitPlugin(object):
             self.actionimageViewer = QAction(QIcon(icon_imageViewer), "Media manager", self.iface.mainWindow())
             self.actionimageViewer.setWhatsThis("Media menager")
             self.actionimageViewer.triggered.connect(self.runImageViewer)
+            icon_imageSearch = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'search.png'))
+            self.actionImageSearch = QAction(QIcon(icon_imageSearch), "Ricerca Immagini", self.iface.mainWindow())
+            self.actionImageSearch.setWhatsThis("Ricerca Immagini")
+            self.actionImageSearch.triggered.connect(self.runImageSearch)
             icon_Directory_export = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'directoryExp.png'))
             self.actionImages_Directory_export = QAction(QIcon(icon_Directory_export), "Image exportation",
                                                          self.iface.mainWindow())
@@ -691,7 +695,7 @@ class PyArchInitPlugin(object):
                                                    self.iface.mainWindow())
             self.actionGisTimeController.setWhatsThis("Time Manager")
             self.actionGisTimeController.triggered.connect(self.runGisTimeController)
-            self.docToolButton.addActions([self.actionDocumentazione,self.actionpdfExp, self.actionimageViewer, self.actionpdfExp, self.actionImages_Directory_export, self.actionExcel, self.actionGisTimeController])
+            self.docToolButton.addActions([self.actionDocumentazione,self.actionpdfExp, self.actionimageViewer, self.actionImageSearch, self.actionpdfExp, self.actionImages_Directory_export, self.actionExcel, self.actionGisTimeController])
             self.docToolButton.setDefaultAction(self.actionDocumentazione)
             self.toolBar.addWidget(self.docToolButton)
             self.toolBar.addSeparator()
@@ -1247,6 +1251,11 @@ class PyArchInitPlugin(object):
         pluginImageView = Main()
         pluginImageView.show()
         self.pluginGui = pluginImageView  # save
+    def runImageSearch(self):
+        from .tabs.Image_search import pyarchinit_Image_Search
+        pluginImageSearch = pyarchinit_Image_Search(self.iface)
+        pluginImageSearch.show()
+        self.pluginGui = pluginImageSearch  # save
     def runTomba(self):
         pluginTomba = pyarchinit_Tomba(self.iface)
         pluginTomba.show()
