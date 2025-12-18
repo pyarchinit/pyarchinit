@@ -283,8 +283,6 @@ class pyarchinit_Image_Search(QDialog, MAIN_DIALOG_CLASS):
         conn = Connection()
         thumb_path_config = conn.thumb_path()
         thumb_path_str = thumb_path_config.get('thumb_path', '')
-        media_path_config = conn.media_path()
-        media_path_str = media_path_config.get('media_path', '')
 
         for row in results:
             # Untagged: id_media, filename, filepath, thumb_path
@@ -293,9 +291,7 @@ class pyarchinit_Image_Search(QDialog, MAIN_DIALOG_CLASS):
             filepath = str(row[2]) if len(row) > 2 else ''
             thumb_path = str(row[3]) if len(row) > 3 and row[3] else ''
 
-            # Build full filepath if needed
-            if filepath and not os.path.isabs(filepath):
-                filepath = os.path.join(media_path_str, filepath)
+            # filepath is stored as absolute in the MEDIA table
 
             item = QListWidgetItem(filename)
             item.setData(Qt.UserRole, {
@@ -335,8 +331,6 @@ class pyarchinit_Image_Search(QDialog, MAIN_DIALOG_CLASS):
         conn = Connection()
         thumb_path_config = conn.thumb_path()
         thumb_path_str = thumb_path_config.get('thumb_path', '')
-        media_path_config = conn.media_path()
-        media_path_str = media_path_config.get('media_path', '')
 
         for row in results:
             # Tagged: filepath, media_name, sito, area, us/other
@@ -354,8 +348,6 @@ class pyarchinit_Image_Search(QDialog, MAIN_DIALOG_CLASS):
                     media_data = self.DB_MANAGER.query_bool(search_dict, 'MEDIA')
                     if media_data:
                         filepath = media_data[0].filepath
-                        if filepath and not os.path.isabs(filepath):
-                            filepath = os.path.join(media_path_str, filepath)
                 except:
                     pass
 
@@ -437,7 +429,7 @@ class pyarchinit_Image_Search(QDialog, MAIN_DIALOG_CLASS):
 
         filepath = self.current_selection.get('filepath', '')
 
-        # If no filepath, try to find it from the database
+        # If no filepath, try to find it from the database using filename
         if not filepath:
             filename = self.current_selection.get('filename', '')
             if filename and self.DB_MANAGER:
@@ -445,33 +437,44 @@ class pyarchinit_Image_Search(QDialog, MAIN_DIALOG_CLASS):
                     search_dict = {'filename': f"'{filename}'"}
                     media_data = self.DB_MANAGER.query_bool(search_dict, 'MEDIA')
                     if media_data:
+                        # filepath is stored as absolute path in MEDIA table
                         filepath = media_data[0].filepath
-                        conn = Connection()
-                        media_path_config = conn.media_path()
-                        media_path_str = media_path_config.get('media_path', '')
-                        if filepath and not os.path.isabs(filepath):
-                            filepath = os.path.join(media_path_str, filepath)
                 except Exception as e:
                     print(f"Error getting filepath: {e}")
 
-        # If still no filepath, try from thumb_path
-        if not filepath:
-            thumb_path = self.current_selection.get('thumb_path', '')
-            if thumb_path:
-                # Try to derive original path from thumbnail path
-                conn = Connection()
-                media_path_config = conn.media_path()
-                media_path_str = media_path_config.get('media_path', '')
-                thumb_path_config = conn.thumb_path()
-                thumb_path_str = thumb_path_config.get('thumb_path', '')
-
-                # Replace thumb path with media path
-                if thumb_path_str and media_path_str:
-                    filepath = thumb_path.replace(thumb_path_str, media_path_str)
-                    # Remove _thumb suffix if present
-                    filepath = filepath.replace('_thumb', '')
-
         return filepath
+
+    def get_resize_filepath(self):
+        """Get the resize image path for the current selection.
+
+        Pattern: thumb_resize_str (from config) + path_resize (from MEDIA_THUMB table)
+        """
+        if not self.current_selection:
+            return None
+
+        filename = self.current_selection.get('filename', '')
+        if not filename or not self.DB_MANAGER:
+            return None
+
+        try:
+            # Get thumb_resize path from config
+            conn = Connection()
+            thumb_resize = conn.thumb_resize()
+            thumb_resize_str = thumb_resize.get('thumb_resize', '')
+
+            # Search MEDIA_THUMB table by media_filename
+            search_dict = {'media_filename': f"'{filename}'"}
+            thumb_data = self.DB_MANAGER.query_bool(search_dict, 'MEDIA_THUMB')
+
+            if thumb_data:
+                # Get path_resize and build full path
+                path_resize = str(thumb_data[0].path_resize)
+                full_path = os.path.join(thumb_resize_str, path_resize) if thumb_resize_str else path_resize
+                return full_path
+        except Exception as e:
+            print(f"Error getting resize filepath: {e}")
+
+        return None
 
     def goto_record(self):
         """Open the form for the associated record."""
@@ -488,29 +491,171 @@ class pyarchinit_Image_Search(QDialog, MAIN_DIALOG_CLASS):
         area = self.current_selection.get('area')
         us = self.current_selection.get('us')
 
-        # TODO: Open the appropriate form based on entity type
-        # This requires integration with the main plugin to open forms
-        QMessageBox.information(self, "Info",
-            f"Vai al record:\nTipo: {entity_type}\nSito: {sito}\nArea: {area}\nUS: {us}\n\n"
-            "Funzionalità in sviluppo - aprire manualmente la scheda corrispondente.")
+        try:
+            if entity_type == 'US':
+                self._open_us_form(sito, area, us)
+            elif entity_type == 'CERAMICA':
+                self._open_pottery_form(sito, us)  # us contains id_number for pottery
+            elif entity_type == 'REPERTO':
+                self._open_inventario_form(sito, us)  # us contains numero_inventario
+            elif entity_type == 'TOMBA':
+                self._open_tomba_form(sito, us)  # us contains nr_scheda_taf
+            elif entity_type == 'STRUTTURA':
+                self._open_struttura_form(sito, area, us)  # area=sigla, us=numero
+            else:
+                QMessageBox.information(self, "Info",
+                    f"Tipo entità non riconosciuto: {entity_type}")
+        except Exception as e:
+            QMessageBox.warning(self, "Errore", f"Impossibile aprire la scheda:\n{str(e)}")
+
+    def _open_us_form(self, sito, area, us):
+        """Open US form and navigate to record."""
+        from .US_USM import pyarchinit_US
+
+        us_form = pyarchinit_US(self.iface)
+        us_form.show()
+
+        search_dict = {
+            'sito': f"'{sito}'",
+            'area': f"'{area}'",
+            'us': us
+        }
+
+        res = us_form.DB_MANAGER.query_bool(search_dict, 'US')
+        if res:
+            us_form.DATA_LIST = res
+            us_form.REC_TOT = len(res)
+            us_form.REC_CORR = 0
+            us_form.BROWSE_STATUS = "b"
+            us_form.fill_fields(0)
+            us_form.set_rec_counter(len(res), 1)
+            us_form.label_status.setText("Aperto da Ricerca Immagini")
+        else:
+            QMessageBox.information(self, "Info", f"US {us} non trovata nel sito {sito}")
+
+    def _open_pottery_form(self, sito, id_number):
+        """Open Pottery form and navigate to record."""
+        from .pyarchinit_Pottery_mainapp import pyarchinit_Pottery
+
+        pottery_form = pyarchinit_Pottery(self.iface)
+        pottery_form.show()
+
+        search_dict = {
+            'sito': f"'{sito}'",
+            'id_number': f"'{id_number}'"
+        }
+
+        res = pottery_form.DB_MANAGER.query_bool(search_dict, 'POTTERY')
+        if res:
+            pottery_form.DATA_LIST = res
+            pottery_form.REC_TOT = len(res)
+            pottery_form.REC_CORR = 0
+            pottery_form.BROWSE_STATUS = "b"
+            pottery_form.fill_fields(0)
+            pottery_form.set_rec_counter(len(res), 1)
+            pottery_form.label_status.setText("Aperto da Ricerca Immagini")
+        else:
+            QMessageBox.information(self, "Info", f"Ceramica {id_number} non trovata nel sito {sito}")
+
+    def _open_inventario_form(self, sito, numero_inventario):
+        """Open Inventario Materiali form and navigate to record."""
+        from .Inv_Materiali import pyarchinit_Inventario_reperti
+
+        inv_form = pyarchinit_Inventario_reperti(self.iface)
+        inv_form.show()
+
+        search_dict = {
+            'sito': f"'{sito}'",
+            'numero_inventario': numero_inventario
+        }
+
+        res = inv_form.DB_MANAGER.query_bool(search_dict, 'INVENTARIO_MATERIALI')
+        if res:
+            inv_form.DATA_LIST = res
+            inv_form.REC_TOT = len(res)
+            inv_form.REC_CORR = 0
+            inv_form.BROWSE_STATUS = "b"
+            inv_form.fill_fields(0)
+            inv_form.set_rec_counter(len(res), 1)
+            inv_form.label_status.setText("Aperto da Ricerca Immagini")
+        else:
+            QMessageBox.information(self, "Info", f"Reperto {numero_inventario} non trovato nel sito {sito}")
+
+    def _open_tomba_form(self, sito, nr_scheda_taf):
+        """Open Tomba form and navigate to record."""
+        from .Tomba import pyarchinit_Tomba
+
+        tomba_form = pyarchinit_Tomba(self.iface)
+        tomba_form.show()
+
+        search_dict = {
+            'sito': f"'{sito}'",
+            'nr_scheda_taf': nr_scheda_taf
+        }
+
+        res = tomba_form.DB_MANAGER.query_bool(search_dict, 'TOMBA')
+        if res:
+            tomba_form.DATA_LIST = res
+            tomba_form.REC_TOT = len(res)
+            tomba_form.REC_CORR = 0
+            tomba_form.BROWSE_STATUS = "b"
+            tomba_form.fill_fields(0)
+            tomba_form.set_rec_counter(len(res), 1)
+            tomba_form.label_status.setText("Aperto da Ricerca Immagini")
+        else:
+            QMessageBox.information(self, "Info", f"Tomba {nr_scheda_taf} non trovata nel sito {sito}")
+
+    def _open_struttura_form(self, sito, sigla, numero):
+        """Open Struttura form and navigate to record."""
+        from .Struttura import pyarchinit_Struttura
+
+        struttura_form = pyarchinit_Struttura(self.iface)
+        struttura_form.show()
+
+        search_dict = {
+            'sito': f"'{sito}'",
+            'sigla_struttura': f"'{sigla}'",
+            'numero_struttura': numero
+        }
+
+        res = struttura_form.DB_MANAGER.query_bool(search_dict, 'STRUTTURA')
+        if res:
+            struttura_form.DATA_LIST = res
+            struttura_form.REC_TOT = len(res)
+            struttura_form.REC_CORR = 0
+            struttura_form.BROWSE_STATUS = "b"
+            struttura_form.fill_fields(0)
+            struttura_form.set_rec_counter(len(res), 1)
+            struttura_form.label_status.setText("Aperto da Ricerca Immagini")
+        else:
+            QMessageBox.information(self, "Info", f"Struttura {sigla} {numero} non trovata nel sito {sito}")
 
     def open_image(self):
-        """Open the selected image in the system viewer."""
+        """Open the selected image in the ImageViewer dialog."""
         if not self.current_selection:
             QMessageBox.information(self, "Info", "Seleziona un'immagine prima")
             return
 
-        filepath = self.get_original_filepath()
+        # Use resize filepath (thumb_resize_str + path_resize from MEDIA_THUMB)
+        filepath = self.get_resize_filepath()
 
         if filepath and os.path.exists(filepath):
-            if sys.platform == 'darwin':
-                subprocess.call(['open', filepath])
-            elif sys.platform == 'win32':
-                os.startfile(filepath)
-            else:
-                subprocess.call(['xdg-open', filepath])
+            from ..gui.imageViewer import ImageViewer
+            dlg = ImageViewer()
+            dlg.show_image(filepath)
+            dlg.exec_()
         else:
-            QMessageBox.warning(self, "Attenzione", f"File non trovato:\n{filepath}")
+            # Fallback to original filepath
+            filepath = self.get_original_filepath()
+            if filepath and os.path.exists(filepath):
+                if sys.platform == 'darwin':
+                    subprocess.call(['open', filepath])
+                elif sys.platform == 'win32':
+                    os.startfile(filepath)
+                else:
+                    subprocess.call(['xdg-open', filepath])
+            else:
+                QMessageBox.warning(self, "Attenzione", f"File non trovato:\n{filepath}")
 
     def export_image(self):
         """Export the selected image to a user-chosen location."""
@@ -518,10 +663,13 @@ class pyarchinit_Image_Search(QDialog, MAIN_DIALOG_CLASS):
             QMessageBox.information(self, "Info", "Seleziona un'immagine prima")
             return
 
+        # Try original filepath first, then resize filepath
         filepath = self.get_original_filepath()
+        if not filepath or not os.path.exists(filepath):
+            filepath = self.get_resize_filepath()
 
         if not filepath or not os.path.exists(filepath):
-            QMessageBox.warning(self, "Attenzione", f"File sorgente non trovato:\n{filepath}")
+            QMessageBox.warning(self, "Attenzione", "File sorgente non trovato")
             return
 
         # Get original filename
