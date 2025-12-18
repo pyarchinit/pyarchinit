@@ -3,7 +3,7 @@
  <class>DialogPottery</class>
  <widget class="QDialog" name="DialogPottery">
   <property name="windowModality">
-   <enum>Qt::WindowModal</enum>
+   <enum>Qt::NonModal</enum>
   </property>
   <property name="geometry">
    <rect>
@@ -33,7 +33,7 @@
    <bool>false</bool>
   </property>
   <property name="modal">
-   <bool>true</bool>
+   <bool>false</bool>
   </property>
   <layout class="QGridLayout" name="gridLayout_2">
    <item row="0" column="4">
@@ -2627,113 +2627,7 @@
              <property name="styleSheet">
               <string notr="true">background-color: rgb(239, 236, 236);</string>
              </property>
-             <layout class="QGridLayout" name="gridLayout_7">
-              <item row="0" column="0">
-               <widget class="QDockWidget" name="mDockWidget_export">
-                <widget class="QWidget" name="dockWidgetContents_5">
-                 <widget class="QCheckBox" name="checkBox_e_foto_t">
-                  <property name="geometry">
-                   <rect>
-                    <x>90</x>
-                    <y>30</y>
-                    <width>302</width>
-                    <height>18</height>
-                   </rect>
-                  </property>
-                  <property name="text">
-                   <string>Photo list with Thumbnail</string>
-                  </property>
-                 </widget>
-                 <widget class="QCheckBox" name="checkBox_e_foto">
-                  <property name="geometry">
-                   <rect>
-                    <x>90</x>
-                    <y>70</y>
-                    <width>302</width>
-                    <height>18</height>
-                   </rect>
-                  </property>
-                  <property name="text">
-                   <string>Photo list without Thumbnail</string>
-                  </property>
-                 </widget>
-                 <widget class="QPushButton" name="pushButton_print">
-                  <property name="geometry">
-                   <rect>
-                    <x>10</x>
-                    <y>70</y>
-                    <width>75</width>
-                    <height>20</height>
-                   </rect>
-                  </property>
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="minimumSize">
-                   <size>
-                    <width>0</width>
-                    <height>0</height>
-                   </size>
-                  </property>
-                  <property name="maximumSize">
-                   <size>
-                    <width>100</width>
-                    <height>20</height>
-                   </size>
-                  </property>
-                  <property name="text">
-                   <string>Print</string>
-                  </property>
-                  <property name="icon">
-                   <iconset resource="../../resources/resources.qrc">
-                    <normaloff>:/icons/pdf-icon.png</normaloff>:/icons/pdf-icon.png</iconset>
-                  </property>
-                  <property name="iconSize">
-                   <size>
-                    <width>10</width>
-                    <height>10</height>
-                   </size>
-                  </property>
-                 </widget>
-                 <widget class="QPushButton" name="pushButton_word">
-                  <property name="enabled">
-                   <bool>false</bool>
-                  </property>
-                  <property name="geometry">
-                   <rect>
-                    <x>30</x>
-                    <y>30</y>
-                    <width>30</width>
-                    <height>24</height>
-                   </rect>
-                  </property>
-                  <property name="minimumSize">
-                   <size>
-                    <width>0</width>
-                    <height>0</height>
-                   </size>
-                  </property>
-                  <property name="maximumSize">
-                   <size>
-                    <width>30</width>
-                    <height>16777215</height>
-                   </size>
-                  </property>
-                  <property name="text">
-                   <string/>
-                  </property>
-                  <property name="icon">
-                   <iconset resource="../../resources/resources.qrc">
-                    <normaloff>:/icons/word.png</normaloff>:/icons/word.png</iconset>
-                  </property>
-                 </widget>
-                </widget>
-               </widget>
-              </item>
-             </layout>
+             <layout class="QGridLayout" name="gridLayout_7"/>
             </widget>
            </item>
           </layout>
@@ -2912,6 +2806,114 @@
          </widget>
         </widget>
        </item>
+       <item row="1" column="0">
+        <widget class="QDockWidget" name="mDockWidget_export">
+         <property name="floating">
+          <bool>true</bool>
+         </property>
+         <widget class="QWidget" name="dockWidgetContents">
+          <widget class="QCheckBox" name="checkBox_e_foto">
+           <property name="geometry">
+            <rect>
+             <x>103</x>
+             <y>47</y>
+             <width>197</width>
+             <height>20</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string>Photo list without Thumbnail</string>
+           </property>
+          </widget>
+          <widget class="QCheckBox" name="checkBox_e_foto_t">
+           <property name="geometry">
+            <rect>
+             <x>103</x>
+             <y>16</y>
+             <width>178</width>
+             <height>20</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string>Photo list with Thumbnail</string>
+           </property>
+          </widget>
+          <widget class="QPushButton" name="pushButton_word">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="geometry">
+            <rect>
+             <x>12</x>
+             <y>12</y>
+             <width>30</width>
+             <height>32</height>
+            </rect>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>30</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="icon">
+            <iconset resource="../../resources/resources.qrc">
+             <normaloff>:/icons/word.png</normaloff>:/icons/word.png</iconset>
+           </property>
+          </widget>
+          <widget class="QPushButton" name="pushButton_print">
+           <property name="geometry">
+            <rect>
+             <x>12</x>
+             <y>48</y>
+             <width>85</width>
+             <height>20</height>
+            </rect>
+           </property>
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>100</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>Print</string>
+           </property>
+           <property name="icon">
+            <iconset resource="../../resources/resources.qrc">
+             <normaloff>:/icons/pdf-icon.png</normaloff>:/icons/pdf-icon.png</iconset>
+           </property>
+           <property name="iconSize">
+            <size>
+             <width>10</width>
+             <height>10</height>
+            </size>
+           </property>
+          </widget>
+         </widget>
+        </widget>
+       </item>
       </layout>
      </widget>
     </widget>
@@ -2945,12 +2947,12 @@
    <slot>show()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>678</x>
-     <y>363</y>
+     <x>593</x>
+     <y>348</y>
     </hint>
     <hint type="destinationlabel">
-     <x>545</x>
-     <y>768</y>
+     <x>1039</x>
+     <y>664</y>
     </hint>
    </hints>
   </connection>
@@ -2958,15 +2960,15 @@
    <sender>pushButton_print_2</sender>
    <signal>pressed()</signal>
    <receiver>mDockWidget_export</receiver>
-   <slot>show()</slot>
+   <slot>showNormal()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>300</x>
-     <y>73</y>
+     <x>302</x>
+     <y>75</y>
     </hint>
     <hint type="destinationlabel">
-     <x>664</x>
-     <y>332</y>
+     <x>756</x>
+     <y>225</y>
     </hint>
    </hints>
   </connection>
