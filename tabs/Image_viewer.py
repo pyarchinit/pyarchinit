@@ -240,6 +240,12 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                     use_like=use_like
                 )
 
+            # Convert to list if needed
+            if res is None:
+                res = []
+            elif not isinstance(res, list):
+                res = list(res)
+
             # Process results
             if not res:
                 if self.L == 'it':
@@ -253,7 +259,7 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
             # Display results
             self.iconListWidget.clear()
             thumb_path_config = conn.thumb_path()
-            thumb_path_str = thumb_path_config.get('thumb_path', '')
+            thumb_path_str = thumb_path_config['thumb_path']
 
             for row in res:
                 # Get filename and thumb path from result
@@ -300,7 +306,9 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
             QMessageBox.information(self, "Info", msg, QMessageBox.Ok)
 
         except Exception as e:
-            QMessageBox.critical(self, "Errore", f"Errore durante la ricerca: {str(e)}", QMessageBox.Ok)
+            import traceback
+            error_detail = traceback.format_exc()
+            QMessageBox.critical(self, "Errore", f"Errore durante la ricerca:\n{str(e)}\n\n{error_detail}", QMessageBox.Ok)
 
     def remove_all(self):
         self.tableWidgetTags_US.setRowCount(1)
