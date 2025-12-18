@@ -1197,7 +1197,16 @@ class Pyarchinit_db_management(object):
             self._convert_empty_to_none(arg[29], 'bigint'),  # n_reperto
             arg[30],  # tipo_contenitore
             arg[31],  # struttura
-            self._convert_empty_to_none(arg[32], 'integer')  # years
+            self._convert_empty_to_none(arg[32], 'integer'),  # years
+            arg[33] if len(arg) > 33 else None,  # schedatore
+            arg[34] if len(arg) > 34 else None,  # date_scheda
+            arg[35] if len(arg) > 35 else None,  # punto_rinv
+            arg[36] if len(arg) > 36 else None,  # negativo_photo
+            arg[37] if len(arg) > 37 else None,  # diapositiva
+            self._convert_empty_to_none(arg[38], 'float') if len(arg) > 38 else None,  # quota_usm
+            arg[39] if len(arg) > 39 else None,  # unita_misura_quota
+            arg[40] if len(arg) > 40 else None,  # photo_id
+            arg[41] if len(arg) > 41 else None   # drawing_id
         )
 
         return inventario_materiali
