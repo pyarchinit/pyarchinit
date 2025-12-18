@@ -1288,7 +1288,7 @@
           </widget>
          </item>
          <item row="2" column="0">
-          <widget class="QgsDockWidget" name="mDockWidget">
+          <widget class="QDockWidget" name="mDockWidget">
            <property name="minimumSize">
             <size>
              <width>757</width>
@@ -2257,14 +2257,6 @@
   <zorder>pushButton_remove_tags</zorder>
   <zorder></zorder>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>QgsDockWidget</class>
-   <extends>QDockWidget</extends>
-   <header>qgsdockwidget.h</header>
-   <container>1</container>
-  </customwidget>
- </customwidgets>
  <resources>
   <include location="../../resources/resources.qrc"/>
   <include location="../../../HFF-master/resources/resources.qrc"/>
@@ -2325,8 +2317,8 @@
    <slot>resizeColumnsToContents()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>435</x>
-     <y>622</y>
+     <x>592</x>
+     <y>843</y>
     </hint>
     <hint type="destinationlabel">
      <x>878</x>
@@ -2341,12 +2333,12 @@
    <slot>clearEditText()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>661</x>
-     <y>250</y>
+     <x>927</x>
+     <y>277</y>
     </hint>
     <hint type="destinationlabel">
-     <x>864</x>
-     <y>276</y>
+     <x>1241</x>
+     <y>313</y>
     </hint>
    </hints>
   </connection>
@@ -2357,12 +2349,12 @@
    <slot>clearEditText()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>730</x>
-     <y>250</y>
+     <x>1085</x>
+     <y>277</y>
     </hint>
     <hint type="destinationlabel">
-     <x>864</x>
-     <y>276</y>
+     <x>1241</x>
+     <y>313</y>
     </hint>
    </hints>
   </connection>
@@ -2373,12 +2365,12 @@
    <slot>clearEditText()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>661</x>
-     <y>250</y>
+     <x>927</x>
+     <y>277</y>
     </hint>
     <hint type="destinationlabel">
-     <x>661</x>
-     <y>302</y>
+     <x>930</x>
+     <y>349</y>
     </hint>
    </hints>
   </connection>
@@ -2389,12 +2381,12 @@
    <slot>clearEditText()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>661</x>
-     <y>250</y>
+     <x>927</x>
+     <y>277</y>
     </hint>
     <hint type="destinationlabel">
-     <x>661</x>
-     <y>328</y>
+     <x>930</x>
+     <y>385</y>
     </hint>
    </hints>
   </connection>
@@ -2405,12 +2397,12 @@
    <slot>clearEditText()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>730</x>
-     <y>250</y>
+     <x>1085</x>
+     <y>277</y>
     </hint>
     <hint type="destinationlabel">
-     <x>661</x>
-     <y>302</y>
+     <x>930</x>
+     <y>349</y>
     </hint>
    </hints>
   </connection>
@@ -2421,12 +2413,12 @@
    <slot>clearEditText()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>730</x>
-     <y>250</y>
+     <x>1085</x>
+     <y>277</y>
     </hint>
     <hint type="destinationlabel">
-     <x>661</x>
-     <y>328</y>
+     <x>930</x>
+     <y>385</y>
     </hint>
    </hints>
   </connection>
@@ -2453,12 +2445,12 @@
    <slot>clearEditText()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>791</x>
-     <y>250</y>
+     <x>1157</x>
+     <y>277</y>
     </hint>
     <hint type="destinationlabel">
-     <x>864</x>
-     <y>276</y>
+     <x>1241</x>
+     <y>313</y>
     </hint>
    </hints>
   </connection>
@@ -2469,124 +2461,124 @@
    <slot>clearEditText()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>791</x>
-     <y>250</y>
+     <x>1157</x>
+     <y>277</y>
     </hint>
     <hint type="destinationlabel">
-     <x>661</x>
-     <y>302</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>radioButton_tomba</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>comboBox_us</receiver>
-   <slot>clearEditText()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>791</x>
-     <y>250</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>661</x>
-     <y>328</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>radioButton_struttura</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>comboBox_sigla_struttura</receiver>
-   <slot>clearEditText()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>802</x>
-     <y>243</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>641</x>
-     <y>345</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>radioButton_struttura</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>comboBox_nr_struttura</receiver>
-   <slot>clearEditText()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>823</x>
-     <y>242</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>652</x>
-     <y>372</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>radioButton_tomba</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>comboBox_sigla_struttura</receiver>
-   <slot>setHidden(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>750</x>
-     <y>241</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>636</x>
-     <y>345</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>radioButton_tomba</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>comboBox_nr_struttura</receiver>
-   <slot>setHidden(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>765</x>
-     <y>235</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>623</x>
-     <y>373</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>radioButton_materiali</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>comboBox_sigla_struttura</receiver>
-   <slot>setHidden(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>682</x>
-     <y>241</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>627</x>
+     <x>930</x>
      <y>349</y>
     </hint>
    </hints>
   </connection>
   <connection>
+   <sender>radioButton_tomba</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>comboBox_us</receiver>
+   <slot>clearEditText()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>1157</x>
+     <y>277</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>930</x>
+     <y>385</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radioButton_struttura</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>comboBox_sigla_struttura</receiver>
+   <slot>clearEditText()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>1238</x>
+     <y>277</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>930</x>
+     <y>421</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radioButton_struttura</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>comboBox_nr_struttura</receiver>
+   <slot>clearEditText()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>1238</x>
+     <y>277</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>930</x>
+     <y>457</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radioButton_tomba</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>comboBox_sigla_struttura</receiver>
+   <slot>setHidden(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>1157</x>
+     <y>277</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>930</x>
+     <y>421</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radioButton_tomba</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>comboBox_nr_struttura</receiver>
+   <slot>setHidden(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>1157</x>
+     <y>277</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>930</x>
+     <y>457</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radioButton_materiali</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>comboBox_sigla_struttura</receiver>
+   <slot>setHidden(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>1085</x>
+     <y>277</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>930</x>
+     <y>421</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
    <sender>radioButton_materiali</sender>
    <signal>toggled(bool)</signal>
    <receiver>comboBox_nr_struttura</receiver>
    <slot>setHidden(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>702</x>
-     <y>242</y>
+     <x>1085</x>
+     <y>277</y>
     </hint>
     <hint type="destinationlabel">
-     <x>636</x>
-     <y>376</y>
+     <x>930</x>
+     <y>457</y>
     </hint>
    </hints>
   </connection>
@@ -2597,12 +2589,12 @@
    <slot>setHidden(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>637</x>
-     <y>244</y>
+     <x>927</x>
+     <y>277</y>
     </hint>
     <hint type="destinationlabel">
-     <x>641</x>
-     <y>341</y>
+     <x>930</x>
+     <y>421</y>
     </hint>
    </hints>
   </connection>
@@ -2613,12 +2605,12 @@
    <slot>setHidden(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>564</x>
-     <y>240</y>
+     <x>927</x>
+     <y>277</y>
     </hint>
     <hint type="destinationlabel">
-     <x>569</x>
-     <y>373</y>
+     <x>930</x>
+     <y>457</y>
     </hint>
    </hints>
   </connection>
@@ -2629,12 +2621,12 @@
    <slot>setVisible(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>831</x>
-     <y>238</y>
+     <x>1238</x>
+     <y>277</y>
     </hint>
     <hint type="destinationlabel">
-     <x>630</x>
-     <y>343</y>
+     <x>930</x>
+     <y>421</y>
     </hint>
    </hints>
   </connection>
@@ -2645,12 +2637,12 @@
    <slot>setVisible(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>839</x>
-     <y>244</y>
+     <x>1238</x>
+     <y>277</y>
     </hint>
     <hint type="destinationlabel">
-     <x>636</x>
-     <y>367</y>
+     <x>930</x>
+     <y>457</y>
     </hint>
    </hints>
   </connection>
@@ -2661,12 +2653,12 @@
    <slot>setHidden(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>847</x>
-     <y>241</y>
+     <x>1238</x>
+     <y>277</y>
     </hint>
     <hint type="destinationlabel">
-     <x>634</x>
-     <y>319</y>
+     <x>930</x>
+     <y>385</y>
     </hint>
    </hints>
   </connection>
@@ -2677,12 +2669,12 @@
    <slot>setHidden(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>810</x>
-     <y>239</y>
+     <x>1238</x>
+     <y>277</y>
     </hint>
     <hint type="destinationlabel">
-     <x>635</x>
-     <y>297</y>
+     <x>930</x>
+     <y>349</y>
     </hint>
    </hints>
   </connection>
