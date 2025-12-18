@@ -144,6 +144,164 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
         # Initialize remote image loader with credentials from QGIS settings
         init_remote_loader()
 
+        # Initialize advanced search UI elements
+        self.setup_advanced_search()
+
+    def setup_advanced_search(self):
+        """Initialize advanced search UI elements and connections."""
+        # Hide numero_inventario by default (only shown for Materiali)
+        self.label_nr_inventario.setVisible(False)
+        self.lineEdit_nr_inventario.setVisible(False)
+
+        # Connect radio buttons to toggle numero_inventario visibility
+        self.radioButton_materiali.toggled.connect(self.toggle_inventario_field)
+        self.radioButton_us.toggled.connect(self.toggle_inventario_field)
+        self.radioButton_pottery.toggled.connect(self.toggle_inventario_field)
+        self.radioButton_tomba.toggled.connect(self.toggle_inventario_field)
+        self.radioButton_struttura.toggled.connect(self.toggle_inventario_field)
+
+        # Connect clear search button
+        self.pushButton_clear_search.clicked.connect(self.clear_search_filters)
+
+        # Connect untagged checkbox to toggle entity type selection
+        self.checkBox_untagged.toggled.connect(self.toggle_entity_selection)
+
+    def toggle_inventario_field(self):
+        """Show/hide numero_inventario field based on selected entity type."""
+        show_inv = self.radioButton_materiali.isChecked()
+        self.label_nr_inventario.setVisible(show_inv)
+        self.lineEdit_nr_inventario.setVisible(show_inv)
+
+    def toggle_entity_selection(self, checked):
+        """Enable/disable entity type selection when untagged mode is active."""
+        enabled = not checked
+        self.radioButton_us.setEnabled(enabled)
+        self.radioButton_pottery.setEnabled(enabled)
+        self.radioButton_materiali.setEnabled(enabled)
+        self.radioButton_tomba.setEnabled(enabled)
+        self.radioButton_struttura.setEnabled(enabled)
+        self.comboBox_sito.setEnabled(enabled)
+        self.comboBox_area.setEnabled(enabled)
+        self.comboBox_us.setEnabled(enabled)
+        self.comboBox_sigla_struttura.setEnabled(enabled)
+        self.comboBox_nr_struttura.setEnabled(enabled)
+        self.lineEdit_nr_inventario.setEnabled(enabled)
+
+    def clear_search_filters(self):
+        """Clear all search filters."""
+        self.lineEdit_text_search.clear()
+        self.lineEdit_nr_inventario.clear()
+        self.comboBox_sito.setCurrentIndex(-1)
+        self.comboBox_area.setCurrentIndex(-1)
+        self.comboBox_us.setCurrentIndex(-1)
+        self.comboBox_sigla_struttura.setCurrentIndex(-1)
+        self.comboBox_nr_struttura.setCurrentIndex(-1)
+        self.checkBox_untagged.setChecked(False)
+        self.checkBox_partial_match.setChecked(True)
+
+    def perform_advanced_search(self):
+        """Perform advanced search with text filter, untagged mode, and partial matching."""
+        text_filter = self.lineEdit_text_search.text().strip() or None
+        use_like = self.checkBox_partial_match.isChecked()
+
+        try:
+            if self.checkBox_untagged.isChecked():
+                # Search for untagged images
+                res = self.DB_MANAGER.search_untagged_media(text_filter=text_filter)
+            else:
+                # Determine entity type
+                if self.radioButton_us.isChecked():
+                    entity_type = 'US'
+                elif self.radioButton_pottery.isChecked():
+                    entity_type = 'CERAMICA'
+                elif self.radioButton_materiali.isChecked():
+                    entity_type = 'REPERTO'
+                elif self.radioButton_tomba.isChecked():
+                    entity_type = 'TOMBA'
+                elif self.radioButton_struttura.isChecked():
+                    entity_type = 'STRUTTURA'
+                else:
+                    entity_type = None
+
+                # Get search parameters
+                sito = self.comboBox_sito.currentText().strip() or None
+                area = self.comboBox_area.currentText().strip() or None
+                us = self.comboBox_us.currentText().strip() or None
+                numero_inventario = self.lineEdit_nr_inventario.text().strip() or None
+
+                # Search with flexible method
+                res = self.DB_MANAGER.search_tagged_media_flexible(
+                    entity_type=entity_type,
+                    sito=sito,
+                    area=area,
+                    us=us,
+                    numero_inventario=numero_inventario,
+                    text_filter=text_filter,
+                    use_like=use_like
+                )
+
+            # Process results
+            if not res:
+                if self.L == 'it':
+                    QMessageBox.warning(self, "ATTENZIONE", "Non è stato trovato nessun record!", QMessageBox.Ok)
+                elif self.L == 'de':
+                    QMessageBox.warning(self, "ACHTUNG", "Keinen Record gefunden!", QMessageBox.Ok)
+                else:
+                    QMessageBox.warning(self, "WARNING", "No record found!", QMessageBox.Ok)
+                return
+
+            # Display results
+            self.iconListWidget.clear()
+            thumb_path_config = conn.thumb_path()
+            thumb_path_str = thumb_path_config.get('thumb_path', '')
+
+            for row in res:
+                # Get filename and thumb path from result
+                if self.checkBox_untagged.isChecked():
+                    # Untagged search returns: id_media, filename, filepath, thumb_path
+                    filename = str(row[1]) if len(row) > 1 else ''
+                    thumb_path = str(row[3]) if len(row) > 3 and row[3] else ''
+                else:
+                    # Tagged search returns: filepath, media_name, ...
+                    filename = str(row[1]) if len(row) > 1 else ''
+                    thumb_path = str(row[0]) if len(row) > 0 else ''
+
+                item = QListWidgetItem(filename)
+                item.setData(Qt.UserRole, filename)
+
+                if thumb_path:
+                    icon = load_icon(get_image_path(thumb_path_str, thumb_path))
+                    item.setIcon(icon)
+
+                self.iconListWidget.addItem(item)
+
+            # Update counters
+            self.REC_TOT = len(res)
+            self.REC_CORR = 0
+            self.set_rec_counter(self.REC_TOT, self.REC_CORR + 1)
+
+            # Show result message
+            if self.L == 'it':
+                if self.REC_TOT == 1:
+                    msg = f"È stato trovato {self.REC_TOT} record"
+                else:
+                    msg = f"Sono stati trovati {self.REC_TOT} records"
+            elif self.L == 'de':
+                if self.REC_TOT == 1:
+                    msg = f"Es wurde {self.REC_TOT} Record gefunden"
+                else:
+                    msg = f"Es wurden {self.REC_TOT} Records gefunden"
+            else:
+                if self.REC_TOT == 1:
+                    msg = f"{self.REC_TOT} record found"
+                else:
+                    msg = f"{self.REC_TOT} records found"
+
+            QMessageBox.information(self, "Info", msg, QMessageBox.Ok)
+
+        except Exception as e:
+            QMessageBox.critical(self, "Errore", f"Errore durante la ricerca: {str(e)}", QMessageBox.Ok)
+
     def remove_all(self):
         self.tableWidgetTags_US.setRowCount(1)
         self.tableWidgetTags_POT.setRowCount(1)
@@ -544,6 +702,11 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
         self.pushButton_sort.setEnabled(n)
         self.pushButton_go.setEnabled(n)
     def on_pushButton_go_pressed(self):
+        # Check if advanced search mode is active
+        if self.checkBox_untagged.isChecked() or self.lineEdit_text_search.text().strip():
+            self.perform_advanced_search()
+            return
+
         if self.radioButton_us.isChecked():
             sito = str(self.comboBox_sito.currentText())
             area = str(self.comboBox_area.currentText())
