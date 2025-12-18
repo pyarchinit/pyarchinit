@@ -36,7 +36,7 @@ from qgis.core import *
 
 import psycopg2
 from geoalchemy2 import *
-from sqlalchemy import and_, or_, asc, desc, func, select, Table
+from sqlalchemy import and_, or_, asc, desc, func, select, Table, text
 from sqlalchemy.engine import create_engine
 from sqlalchemy.event import listen
 from sqlalchemy.exc import SQLAlchemyError
@@ -3256,9 +3256,12 @@ class Pyarchinit_db_management(object):
                 FROM media_table m
                 LEFT JOIN media_thumb_table t ON m.id_media = t.id_media
                 WHERE m.id_media NOT IN (SELECT DISTINCT id_media FROM media_to_entity_table)
-                AND (m.filename LIKE '%{0}%' OR m.descrizione LIKE '%{0}%')
+                AND (m.filename LIKE :filter OR m.descrizione LIKE :filter)
                 ORDER BY m.filename
-            """.format(text_filter.replace("'", "''"))
+            """
+            with self.engine.connect() as connection:
+                res = connection.execute(text(sql_query_string), {"filter": f"%{text_filter}%"})
+                rows = res.fetchall()
         else:
             sql_query_string = """
                 SELECT DISTINCT m.id_media, m.filename, m.filepath, t.filepath as thumb_path
@@ -3267,8 +3270,9 @@ class Pyarchinit_db_management(object):
                 WHERE m.id_media NOT IN (SELECT DISTINCT id_media FROM media_to_entity_table)
                 ORDER BY m.filename
             """
-        res = self.engine.execute(sql_query_string)
-        rows = res.fetchall()
+            with self.engine.connect() as connection:
+                res = connection.execute(text(sql_query_string))
+                rows = res.fetchall()
         return rows
 
     def search_tagged_media_flexible(self, entity_type=None, sito=None, area=None, us=None,
@@ -3416,8 +3420,9 @@ class Pyarchinit_db_management(object):
             sql_query_string += " AND " + " AND ".join(conditions)
         sql_query_string += " ORDER BY a.media_name"
 
-        res = self.engine.execute(sql_query_string)
-        rows = res.fetchall()
+        with self.engine.connect() as connection:
+            res = connection.execute(text(sql_query_string))
+            rows = res.fetchall()
         return rows
 
     def search_all_media(self, text_filter=None, tagged_only=None):
@@ -3461,8 +3466,9 @@ class Pyarchinit_db_management(object):
 
         base_query += " ORDER BY m.filename"
 
-        res = self.engine.execute(base_query)
-        rows = res.fetchall()
+        with self.engine.connect() as connection:
+            res = connection.execute(text(base_query))
+            rows = res.fetchall()
         return rows
 
     def search_media_by_inventario(self, sito=None, numero_inventario=None, text_filter=None):
@@ -3488,8 +3494,9 @@ class Pyarchinit_db_management(object):
             ORDER BY b.numero_inventario, a.media_name
         """.format(" AND ".join(conditions))
 
-        res = self.engine.execute(sql_query_string)
-        rows = res.fetchall()
+        with self.engine.connect() as connection:
+            res = connection.execute(text(sql_query_string))
+            rows = res.fetchall()
         return rows
 
     def get_total_pages(self, filter_query, page_size):
