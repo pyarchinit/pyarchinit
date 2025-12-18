@@ -4465,45 +4465,62 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             date_scheda = self.mDateTimeEdit_date.dateTime().toString('yyyy-MM-dd')
             punto_rinv = str(self.lineEdit_punto_rinv.text())
 
+            # Get quota value if widget exists
+            quota_usm = None
+            if hasattr(self, 'lineEdit_quota') and self.lineEdit_quota.text():
+                try:
+                    quota_usm = float(self.lineEdit_quota.text())
+                except:
+                    quota_usm = None
+
+            # Get unita_misura_quota if widget exists
+            unita_misura_quota = None
+            if hasattr(self, 'comboBox_unita_quota'):
+                unita_misura_quota = str(self.comboBox_unita_quota.currentText()) if self.comboBox_unita_quota.currentText() else 'm s.l.m.'
+
             data = self.DB_MANAGER.insert_values_reperti(
-                self.DB_MANAGER.max_num_id(self.MAPPER_TABLE_CLASS, self.ID_TABLE) + 1,  # 0 - IDsito
-                str(self.comboBox_sito.currentText()),  # 1 - Sito
-                inv,  # 2 - num_inv
+                self.DB_MANAGER.max_num_id(self.MAPPER_TABLE_CLASS, self.ID_TABLE) + 1,  # 0 - id_invmat
+                str(self.comboBox_sito.currentText()),  # 1 - sito
+                inv,  # 2 - numero_inventario
                 str(self.comboBox_tipo_reperto.currentText()),  # 3 - tipo_reperto
-                str(self.comboBox_criterio_schedatura.currentText()),  # 4 - criterio
+                str(self.comboBox_criterio_schedatura.currentText()),  # 4 - criterio_schedatura
                 str(self.comboBox_definizione.currentText()),  # 5 - definizione
                 str(self.textEdit_descrizione_reperto.toPlainText()),  # 6 - descrizione
-                area,
-                us,
+                area,  # 7 - area
+                us,  # 8 - us
                 str(self.comboBox_lavato.currentText()),  # 9 - lavato
-                nr_cassa,
-                str(self.comboBox_magazzino.currentText()),  # 11 - luogo conservazione
-                str(self.comboBox_conservazione.currentText()),  # 12 - stato di conservazione
-                str(self.comboBox_datazione.currentText()),  # 13 - datazione reperto
-                str(elementi_reperto),  # 14 - elementi reperto
+                nr_cassa,  # 10 - nr_cassa
+                str(self.comboBox_magazzino.currentText()),  # 11 - luogo_conservazione
+                str(self.comboBox_conservazione.currentText()),  # 12 - stato_conservazione
+                str(self.comboBox_datazione.currentText()),  # 13 - datazione_reperto
+                str(elementi_reperto),  # 14 - elementi_reperto
                 str(misurazioni),  # 15 - misurazioni
-                str(rif_biblio),  # 16 - rif biblio
+                str(rif_biblio),  # 16 - rif_biblio
                 str(tecnologie),  # 17 - tecnologie
-                forme_minime,
-                forme_massime,
-                totale_frammenti,
-                str(self.lineEditCorpoCeramico.text()),  # 20 - corpo ceramico
-                str(self.lineEditRivestimento.text()),  # 21   rivestimento
-                diametro_orlo,  # 22 - diametro orlo
-                peso,  # 23- peso
-                str(self.comboBox_tipologia.currentText()),  # 24 - tipo
-                eve_orlo,  # 25 - eve_orlo,
-                str(self.comboBox_repertato.currentText()),  # 26 - repertato
-                str(self.comboBox_diagnostico.currentText()),  # 27 - diagnostico
-                n_reperto,  # 28 - n_reperto
-                str(self.comboBox_tipo_contenitore.currentText()),  # 29 - tipo_contenitore
-                str(self.comboBox_struttura.currentText()),  # 30 - struttura
-                str(self.comboBox_year.currentText()),  # 31 - years
-                schedatore,  # 32 - schedatore
-                date_scheda,  # 33 - date_scheda
-                punto_rinv,  # 34 - punto_rinv
-                str(negative),  # 35 - negativo_photo
-                str(diapositive),  # 36 - diapositiva
+                forme_minime,  # 18 - forme_minime
+                forme_massime,  # 19 - forme_massime
+                totale_frammenti,  # 20 - totale_frammenti
+                str(self.lineEditCorpoCeramico.text()),  # 21 - corpo_ceramico
+                str(self.lineEditRivestimento.text()),  # 22 - rivestimento
+                diametro_orlo,  # 23 - diametro_orlo
+                peso,  # 24 - peso
+                str(self.comboBox_tipologia.currentText()),  # 25 - tipo
+                eve_orlo,  # 26 - eve_orlo
+                str(self.comboBox_repertato.currentText()),  # 27 - repertato
+                str(self.comboBox_diagnostico.currentText()),  # 28 - diagnostico
+                n_reperto,  # 29 - n_reperto
+                str(self.comboBox_tipo_contenitore.currentText()),  # 30 - tipo_contenitore
+                str(self.comboBox_struttura.currentText()),  # 31 - struttura
+                str(self.comboBox_year.currentText()),  # 32 - years
+                schedatore,  # 33 - schedatore
+                date_scheda,  # 34 - date_scheda
+                punto_rinv,  # 35 - punto_rinv
+                str(negative),  # 36 - negativo_photo
+                str(diapositive),  # 37 - diapositiva
+                quota_usm,  # 38 - quota_usm
+                unita_misura_quota,  # 39 - unita_misura_quota
+                None,  # 40 - photo_id (auto-populated)
+                None,  # 41 - drawing_id (auto-populated)
             )
 
 
