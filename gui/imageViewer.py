@@ -41,12 +41,13 @@
 """
 
 import os
+import shutil
 
 from qgis.PyQt.QtGui import QPixmap
 
 from qgis.PyQt.QtCore import Qt
 
-from qgis.PyQt.QtWidgets import QDialog, QMessageBox,  QGraphicsView, QGraphicsScene
+from qgis.PyQt.QtWidgets import QDialog, QMessageBox, QGraphicsView, QGraphicsScene, QPushButton, QFileDialog
 
 from qgis.PyQt.uic import loadUiType
 
@@ -66,7 +67,15 @@ class ImageViewer(QDialog, IMAGE_VIEWER):
 
         self.setupUi(self)
 
-        
+        # Store current image path for export
+        self.current_image_path = None
+
+        # Add export button to the button box
+        self.exportButton = QPushButton("Esporta")
+        self.exportButton.clicked.connect(self.export_image)
+        self.buttonBox.addButton(self.exportButton, self.buttonBox.ActionRole)
+
+
 
     
 
@@ -83,6 +92,9 @@ class ImageViewer(QDialog, IMAGE_VIEWER):
             Returns:
                 None
         """
+        # Store the path for export functionality
+        self.current_image_path = path
+
         pic = QPixmap(path)
 
         grview = ImageViewClass(origPixmap=pic)
@@ -94,6 +106,30 @@ class ImageViewer(QDialog, IMAGE_VIEWER):
         grview.setScene(scene)
 
         self.gridLayout_2.addWidget(grview)
+
+    def export_image(self):
+        """Export the current image to a user-chosen location."""
+        if not self.current_image_path or not os.path.exists(self.current_image_path):
+            QMessageBox.warning(self, "Attenzione", "Nessuna immagine da esportare.")
+            return
+
+        # Get the original filename
+        filename = os.path.basename(self.current_image_path)
+
+        # Ask user for save location
+        save_path, _ = QFileDialog.getSaveFileName(
+            self,
+            "Esporta immagine",
+            os.path.join(os.path.expanduser("~"), "Desktop", filename),
+            "Tutti i file (*.*)"
+        )
+
+        if save_path:
+            try:
+                shutil.copy2(self.current_image_path, save_path)
+                QMessageBox.information(self, "Successo", f"Immagine esportata:\n{save_path}")
+            except Exception as e:
+                QMessageBox.critical(self, "Errore", f"Errore durante l'esportazione:\n{str(e)}")
 
         
 
