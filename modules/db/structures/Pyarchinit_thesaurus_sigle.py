@@ -10,13 +10,8 @@ from modules.db.pyarchinit_conn_strings import Connection
 
 
 class Pyarchinit_thesaurus_sigle:
-    # connection string postgres"
-    internal_connection = Connection()
 
-    # create engine and metadata
-
-    engine = create_engine(internal_connection.conn_str(), echo=False, convert_unicode=True)
-    metadata = MetaData(engine)
+    metadata = MetaData()
 
     # define tables
     pyarchinit_thesaurus_sigle = Table('pyarchinit_thesaurus_sigle', metadata,
@@ -43,59 +38,4 @@ class Pyarchinit_thesaurus_sigle:
                                        )
 
     # DO NOT create tables at module import time!
-
-
-    # metadata.create_all(engine)  # This line was causing connection errors
-    
-    # Check and add missing columns for both SQLite and PostgreSQL
-    try:
-        conn = engine.connect()
-        
-        if 'sqlite' in internal_connection.conn_str().lower():
-            # SQLite: Check existing columns
-            result = conn.execute("PRAGMA table_info(pyarchinit_thesaurus_sigle)")
-            existing_columns = [row[1] for row in result]
-            
-            # Add missing columns if needed
-            if 'lingua' not in existing_columns:
-                conn.execute("ALTER TABLE pyarchinit_thesaurus_sigle ADD COLUMN lingua VARCHAR(10) DEFAULT 'it'")
-            if 'order_layer' not in existing_columns:
-                conn.execute("ALTER TABLE pyarchinit_thesaurus_sigle ADD COLUMN order_layer INTEGER DEFAULT 0")
-            if 'id_parent' not in existing_columns:
-                conn.execute("ALTER TABLE pyarchinit_thesaurus_sigle ADD COLUMN id_parent INTEGER")
-            if 'parent_sigla' not in existing_columns:
-                conn.execute("ALTER TABLE pyarchinit_thesaurus_sigle ADD COLUMN parent_sigla VARCHAR(100)")
-            if 'hierarchy_level' not in existing_columns:
-                conn.execute("ALTER TABLE pyarchinit_thesaurus_sigle ADD COLUMN hierarchy_level INTEGER DEFAULT 0")
-            if 'n_tipologia' not in existing_columns:
-                conn.execute("ALTER TABLE pyarchinit_thesaurus_sigle ADD COLUMN n_tipologia INTEGER")
-            if 'n_sigla' not in existing_columns:
-                conn.execute("ALTER TABLE pyarchinit_thesaurus_sigle ADD COLUMN n_sigla INTEGER")
-        else:
-            # PostgreSQL: Check existing columns
-            result = conn.execute("""
-                SELECT column_name 
-                FROM information_schema.columns 
-                WHERE table_name = 'pyarchinit_thesaurus_sigle'
-            """)
-            existing_columns = [row[0] for row in result]
-            
-            # Add missing columns if needed
-            if 'lingua' not in existing_columns:
-                conn.execute("ALTER TABLE pyarchinit_thesaurus_sigle ADD COLUMN lingua VARCHAR(10) DEFAULT 'it'")
-            if 'order_layer' not in existing_columns:
-                conn.execute("ALTER TABLE pyarchinit_thesaurus_sigle ADD COLUMN order_layer INTEGER DEFAULT 0")
-            if 'id_parent' not in existing_columns:
-                conn.execute("ALTER TABLE pyarchinit_thesaurus_sigle ADD COLUMN id_parent INTEGER")
-            if 'parent_sigla' not in existing_columns:
-                conn.execute("ALTER TABLE pyarchinit_thesaurus_sigle ADD COLUMN parent_sigla VARCHAR(100)")
-            if 'hierarchy_level' not in existing_columns:
-                conn.execute("ALTER TABLE pyarchinit_thesaurus_sigle ADD COLUMN hierarchy_level INTEGER DEFAULT 0")
-            if 'n_tipologia' not in existing_columns:
-                conn.execute("ALTER TABLE pyarchinit_thesaurus_sigle ADD COLUMN n_tipologia INTEGER")
-            if 'n_sigla' not in existing_columns:
-                conn.execute("ALTER TABLE pyarchinit_thesaurus_sigle ADD COLUMN n_sigla INTEGER")
-                
-        conn.close()
-    except:
-        pass  # Silently ignore any errors
+    # Column updates are handled by pyarchinit_db_update.py

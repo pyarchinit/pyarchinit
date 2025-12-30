@@ -23,9 +23,6 @@
 
 from datetime import date
 
-from builtins import object
-from builtins import range
-from builtins import str
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import (A4,A3)
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
@@ -103,7 +100,7 @@ class NumberedCanvas_TOMBAindex(canvas.Canvas):
 
 
 class Tomba_index_pdf_sheet(object):
-    L=QgsSettings().value("locale/userLocale")[0:2]
+    L=QgsSettings().value("locale/userLocale", "it", type=str)[:2]
     
     def __init__(self, data):
         self.nr_scheda_taf = data[1]
@@ -607,7 +604,7 @@ class Tomba_index_pdf_sheet(object):
 
 
 class Tomba_index_II_pdf_sheet(object):
-    L=QgsSettings().value("locale/userLocale")[0:2]
+    L=QgsSettings().value("locale/userLocale", "it", type=str)[:2]
     PU = Utility()
     # this model includes str.n., area/sett, descrizione, rito
     # corredo,orient., UUSS/UUSSMM, quotemax, misure, datazione
@@ -892,7 +889,7 @@ class Tomba_index_II_pdf_sheet(object):
 
 
 class single_Tomba_pdf_sheet(object):
-    L=QgsSettings().value("locale/userLocale")[0:2]
+    L=QgsSettings().value("locale/userLocale", "it", type=str)[:2]
     PU = Utility()
 
     # rapporti stratigrafici
@@ -1870,7 +1867,7 @@ class single_Tomba_pdf_sheet(object):
 
         return t    
 class generate_tomba_pdf(object):
-    L=QgsSettings().value("locale/userLocale")[0:2]
+    L=QgsSettings().value("locale/userLocale", "it", type=str)[:2]
     HOME = os.environ['PYARCHINIT_HOME']
 
     PDF_path = '{}{}{}'.format(HOME, os.sep, "pyarchinit_PDF_folder")

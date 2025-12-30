@@ -118,7 +118,7 @@ class pyarchinit_Image_Search(QDialog, MAIN_DIALOG_CLASS):
 
     def setup_context_menu(self):
         """Setup context menu for right-click on results list."""
-        self.listWidget_results.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.listWidget_results.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self.listWidget_results.customContextMenuRequested.connect(self.show_context_menu)
 
     def show_context_menu(self, pos):
@@ -140,7 +140,7 @@ class pyarchinit_Image_Search(QDialog, MAIN_DIALOG_CLASS):
         action_goto = menu.addAction("Vai al record")
         action_goto.triggered.connect(self.goto_record)
 
-        menu.exec_(self.listWidget_results.mapToGlobal(pos))
+        menu.exec(self.listWidget_results.mapToGlobal(pos))
 
     def load_sites(self):
         """Load available sites into combobox."""
@@ -230,7 +230,7 @@ class pyarchinit_Image_Search(QDialog, MAIN_DIALOG_CLASS):
             QMessageBox.warning(self, "Attenzione", "Database non connesso.\nVerificare la connessione al database.")
             return
 
-        QApplication.setOverrideCursor(Qt.WaitCursor)
+        QApplication.setOverrideCursor(Qt.CursorShape.WaitCursor)
 
         try:
             text_filter = self.lineEdit_text_search.text().strip() or None
@@ -294,7 +294,7 @@ class pyarchinit_Image_Search(QDialog, MAIN_DIALOG_CLASS):
             # filepath is stored as absolute in the MEDIA table
 
             item = QListWidgetItem(filename)
-            item.setData(Qt.UserRole, {
+            item.setData(Qt.ItemDataRole.UserRole, {
                 'id_media': id_media,
                 'filename': filename,
                 'filepath': filepath,
@@ -352,7 +352,7 @@ class pyarchinit_Image_Search(QDialog, MAIN_DIALOG_CLASS):
                     pass
 
             item = QListWidgetItem(filename)
-            item.setData(Qt.UserRole, {
+            item.setData(Qt.ItemDataRole.UserRole, {
                 'filename': filename,
                 'filepath': filepath,
                 'thumb_path': thumb_path,
@@ -380,7 +380,7 @@ class pyarchinit_Image_Search(QDialog, MAIN_DIALOG_CLASS):
             return
 
         item = items[0]
-        data = item.data(Qt.UserRole)
+        data = item.data(Qt.ItemDataRole.UserRole)
         self.current_selection = data
 
         # Update labels
@@ -406,7 +406,7 @@ class pyarchinit_Image_Search(QDialog, MAIN_DIALOG_CLASS):
             full_path = get_image_path(thumb_path_str, thumb_path)
             pixmap = QPixmap(full_path)
             if not pixmap.isNull():
-                scaled = pixmap.scaled(150, 150, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+                scaled = pixmap.scaled(150, 150, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
                 self.label_preview.setPixmap(scaled)
             else:
                 self.label_preview.setText('Anteprima\nnon disponibile')
@@ -643,7 +643,7 @@ class pyarchinit_Image_Search(QDialog, MAIN_DIALOG_CLASS):
             from ..gui.imageViewer import ImageViewer
             dlg = ImageViewer()
             dlg.show_image(filepath)
-            dlg.exec_()
+            dlg.exec()
         else:
             # Fallback to original filepath
             filepath = self.get_original_filepath()

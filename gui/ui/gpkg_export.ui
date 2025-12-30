@@ -3,7 +3,7 @@
  <class>Dialog_gpkg</class>
  <widget class="QDialog" name="Dialog_gpkg">
   <property name="windowModality">
-   <enum>Qt::ApplicationModal</enum>
+   <enum>Qt::WindowModality::ApplicationModal</enum>
   </property>
   <property name="geometry">
    <rect>

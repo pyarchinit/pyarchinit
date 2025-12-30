@@ -24,8 +24,6 @@ import os
 from datetime import date
 
 import sys
-from builtins import range
-from builtins import str
 
 from gui.sortpanelmain import SortPanelMain
 from .US_USM import pyarchinit_US
@@ -158,7 +156,7 @@ class pyarchinit_PDFAdministrator(QDialog, MAIN_DIALOG_CLASS):
             else:
                 QMessageBox.warning(self, "BENVENUTO",
                                     "Benvenuto in pyArchInit" + self.NOME_SCHEDA + ". Il database e' vuoto. Premi 'Ok' e buon lavoro!",
-                                    QMessageBox.Ok)
+                                    QMessageBox.StandardButton.Ok)
                 # QMessageBox.warning(self, "BENVENUTO", "lanciato da connect prima di charge list",  QMessageBox.Ok)
                 self.BROWSE_STATUS = 'x'
                 self.charge_list()
@@ -168,11 +166,11 @@ class pyarchinit_PDFAdministrator(QDialog, MAIN_DIALOG_CLASS):
             if e.find("no such table"):
                 QMessageBox.warning(self, "Alert",
                                     "La connessione e' fallita <br><br> Tabella non presente. E' NECESSARIO RIAVVIARE QGIS" + str(
-                                        e), QMessageBox.Ok)
+                                        e), QMessageBox.StandardButton.Ok)
             else:
                 QMessageBox.warning(self, "Alert",
                                     "Attenzione rilevato bug! Segnalarlo allo sviluppatore<br> Errore: <br>" + str(e),
-                                    QMessageBox.Ok)
+                                    QMessageBox.StandardButton.Ok)
 
     def cellchanged(self):
         self.ROW = self.tableWidget_schema_griglia.currentRow()
@@ -217,14 +215,14 @@ class pyarchinit_PDFAdministrator(QDialog, MAIN_DIALOG_CLASS):
                                     ["C0R6", "C1R6", "C2R6", "C3R6", "C4R4", "C5R6", "C6R6", "C7R6", "C8R6"]]"""
 
         self.tableInsertData('self.tableWidget_schema_griglia', default_schema)
-        QMessageBox.warning(self, "Alert", str(self.ID_LIST), QMessageBox.Ok)
+        QMessageBox.warning(self, "Alert", str(self.ID_LIST), QMessageBox.StandardButton.Ok)
 
         # buttons functions
 
     def on_pushButton_sort_pressed(self):
         dlg = SortPanelMain(self)
         dlg.insertItems(self.SORT_ITEMS)
-        dlg.exec_()
+        dlg.exec()
 
         items, order_type = dlg.ITEMS, dlg.TYPE_ORDER
 
@@ -237,7 +235,7 @@ class pyarchinit_PDFAdministrator(QDialog, MAIN_DIALOG_CLASS):
 
         id_list = []
         for i in self.DATA_LIST:
-            id_list.append(eval("i." + self.ID_TABLE))
+            id_list.append(getattr(i, self.ID_TABLE))
         self.DATA_LIST = []
 
         temp_data_list = self.DB_MANAGER.query_sort(id_list, self.SORT_ITEMS_CONVERTED, self.SORT_MODE,
@@ -267,7 +265,7 @@ class pyarchinit_PDFAdministrator(QDialog, MAIN_DIALOG_CLASS):
                     self.update_if(QMessageBox.warning(self,
                                                        'Errore',
                                                        "Il record e' stato modificato. Vuoi salvare le modifiche?",
-                                                       QMessageBox.Ok | QMessageBox.Cancel))
+                                                       QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel))
 
                     # set the GUI for a new record
         if self.BROWSE_STATUS != "n":
@@ -284,11 +282,11 @@ class pyarchinit_PDFAdministrator(QDialog, MAIN_DIALOG_CLASS):
             if self.records_equal_check() == 1:
                 self.update_if(
                     QMessageBox.warning(self, 'ATTENZIONE', "Il record e' stato modificato. Vuoi salvare le modifiche?",
-                                        QMessageBox.Ok | QMessageBox.Cancel))
+                                        QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel))
                 self.label_sort.setText(self.SORTED_ITEMS["n"])
                 self.enable_button(1)
             else:
-                QMessageBox.warning(self, "ATTENZIONE", "Non è stata realizzata alcuna modifica.", QMessageBox.Ok)
+                QMessageBox.warning(self, "ATTENZIONE", "Non è stata realizzata alcuna modifica.", QMessageBox.StandardButton.Ok)
         else:
             if self.data_error_check() == 0:
                 test_insert = self.insert_new_rec()
@@ -338,10 +336,10 @@ class pyarchinit_PDFAdministrator(QDialog, MAIN_DIALOG_CLASS):
                     msg = self.ID_TABLE + " gia' presente nel database"
                 else:
                     msg = e
-                QMessageBox.warning(self, "Errore", "Attenzione 1 ! \n" + str(msg), QMessageBox.Ok)
+                QMessageBox.warning(self, "Errore", "Attenzione 1 ! \n" + str(msg), QMessageBox.StandardButton.Ok)
                 return 0
         except Exception as e:
-            QMessageBox.warning(self, "Errore", "Attenzione 2 ! \n" + str(e), QMessageBox.Ok)
+            QMessageBox.warning(self, "Errore", "Attenzione 2 ! \n" + str(e), QMessageBox.StandardButton.Ok)
             return 0
 
     def on_pushButton_view_all_pressed(self):
@@ -366,7 +364,7 @@ class pyarchinit_PDFAdministrator(QDialog, MAIN_DIALOG_CLASS):
         if self.records_equal_check() == 1:
             self.update_if(
                 QMessageBox.warning(self, 'Errore', "Il record e' stato modificato. Vuoi salvare le modifiche?",
-                                    QMessageBox.Ok | QMessageBox.Cancel))
+                                    QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel))
         try:
             self.empty_fields()
             self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
@@ -374,13 +372,13 @@ class pyarchinit_PDFAdministrator(QDialog, MAIN_DIALOG_CLASS):
             self.fill_fields(0)
             self.set_rec_counter(self.REC_TOT, self.REC_CORR + 1)
         except Exception as e:
-            QMessageBox.warning(self, "Errore", str(e), QMessageBox.Ok)
+            QMessageBox.warning(self, "Errore", str(e), QMessageBox.StandardButton.Ok)
 
     def on_pushButton_last_rec_pressed(self):
         if self.records_equal_check() == 1:
             self.update_if(
                 QMessageBox.warning(self, 'Errore', "Il record e' stato modificato. Vuoi salvare le modifiche?",
-                                    QMessageBox.Ok | QMessageBox.Cancel))
+                                    QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel))
         try:
             self.empty_fields()
             self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), len(self.DATA_LIST) - 1
@@ -388,18 +386,18 @@ class pyarchinit_PDFAdministrator(QDialog, MAIN_DIALOG_CLASS):
             self.fill_fields(self.REC_CORR)
             self.set_rec_counter(self.REC_TOT, self.REC_CORR + 1)
         except Exception as e:
-            QMessageBox.warning(self, "Errore", str(e), QMessageBox.Ok)
+            QMessageBox.warning(self, "Errore", str(e), QMessageBox.StandardButton.Ok)
 
     def on_pushButton_prev_rec_pressed(self):
         if self.records_equal_check() == 1:
             self.update_if(
                 QMessageBox.warning(self, 'Errore', "Il record e' stato modificato. Vuoi salvare le modifiche?",
-                                    QMessageBox.Ok | QMessageBox.Cancel))
+                                    QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel))
 
         self.REC_CORR = self.REC_CORR - 1
         if self.REC_CORR == -1:
             self.REC_CORR = 0
-            QMessageBox.warning(self, "Errore", "Sei al primo record!", QMessageBox.Ok)
+            QMessageBox.warning(self, "Errore", "Sei al primo record!", QMessageBox.StandardButton.Ok)
         else:
             try:
                 self.empty_fields()
@@ -407,19 +405,19 @@ class pyarchinit_PDFAdministrator(QDialog, MAIN_DIALOG_CLASS):
                 self.fill_fields(self.REC_CORR)
                 self.set_rec_counter(self.REC_TOT, self.REC_CORR + 1)
             except Exception as e:
-                QMessageBox.warning(self, "Errore", str(e), QMessageBox.Ok)
+                QMessageBox.warning(self, "Errore", str(e), QMessageBox.StandardButton.Ok)
 
     def on_pushButton_next_rec_pressed(self):
 
         if self.records_equal_check() == 1:
             self.update_if(
                 QMessageBox.warning(self, 'Errore', "Il record e' stato modificato. Vuoi salvare le modifiche?",
-                                    QMessageBox.Ok | QMessageBox.Cancel))
+                                    QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel))
 
         self.REC_CORR = self.REC_CORR + 1
         if self.REC_CORR >= self.REC_TOT:
             self.REC_CORR = self.REC_CORR - 1
-            QMessageBox.warning(self, "Errore", "Sei all'ultimo record!", QMessageBox.Ok)
+            QMessageBox.warning(self, "Errore", "Sei all'ultimo record!", QMessageBox.StandardButton.Ok)
         else:
             try:
                 self.empty_fields()
@@ -427,23 +425,23 @@ class pyarchinit_PDFAdministrator(QDialog, MAIN_DIALOG_CLASS):
                 self.fill_fields(self.REC_CORR)
                 self.set_rec_counter(self.REC_TOT, self.REC_CORR + 1)
             except Exception as e:
-                QMessageBox.warning(self, "Errore", str(e), QMessageBox.Ok)
+                QMessageBox.warning(self, "Errore", str(e), QMessageBox.StandardButton.Ok)
 
     def on_pushButton_delete_pressed(self):
         msg = QMessageBox.warning(self, "Attenzione!!!",
                                   "Vuoi veramente eliminare il record? \n L'azione e' irreversibile",
-                                  QMessageBox.Ok | QMessageBox.Cancel)
-        if msg == QMessageBox.Cancel:
+                                  QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel)
+        if msg == QMessageBox.StandardButton.Cancel:
             QMessageBox.warning(self, "Messagio!!!", "Azione Annullata!")
         else:
             try:
-                id_to_delete = eval("self.DATA_LIST[self.REC_CORR]." + self.ID_TABLE)
+                id_to_delete = getattr(self.DATA_LIST[self.REC_CORR], self.ID_TABLE)
                 self.DB_MANAGER.delete_one_record(self.TABLE_NAME, self.ID_TABLE, id_to_delete)
                 self.charge_records()  # charge records from DB
                 QMessageBox.warning(self, "Messaggio!!!", "Record eliminato!")
                 self.charge_list()
             except:
-                QMessageBox.warning(self, "Attenzione", "Il database e' vuoto!", QMessageBox.Ok)
+                QMessageBox.warning(self, "Attenzione", "Il database e' vuoto!", QMessageBox.StandardButton.Ok)
 
             if not bool(self.DATA_LIST):
                 self.DATA_LIST = []
@@ -469,7 +467,7 @@ class pyarchinit_PDFAdministrator(QDialog, MAIN_DIALOG_CLASS):
         if self.records_equal_check() == 1 and self.BROWSE_STATUS == "b":
             self.update_if(QMessageBox.warning(self, 'Errore',
                                                "Il record e' stato modificato. Vuoi salvare le modifiche?",
-                                               QMessageBox.Ok | QMessageBox.Cancel))
+                                               QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel))
             # else:
         self.enable_button_search(0)
 
@@ -486,11 +484,11 @@ class pyarchinit_PDFAdministrator(QDialog, MAIN_DIALOG_CLASS):
 
     def update_if(self, msg):
         rec_corr = self.REC_CORR
-        if msg == QMessageBox.Ok:
+        if msg == QMessageBox.StandardButton.Ok:
             self.update_record()
             id_list = []
             for i in self.DATA_LIST:
-                id_list.append(eval("i." + self.ID_TABLE))
+                id_list.append(getattr(i, self.ID_TABLE))
             self.DATA_LIST = []
             if self.SORT_STATUS == "n":
                 temp_data_list = self.DB_MANAGER.query_sort(id_list, [self.ID_TABLE], 'asc', self.MAPPER_TABLE_CLASS,
@@ -514,7 +512,7 @@ class pyarchinit_PDFAdministrator(QDialog, MAIN_DIALOG_CLASS):
         self.DATA_LIST = []
         id_list = []
         for i in self.DB_MANAGER.query(eval(self.MAPPER_TABLE_CLASS)):
-            id_list.append(eval("i." + self.ID_TABLE))
+            id_list.append(getattr(i, self.ID_TABLE))
         temp_data_list = self.DB_MANAGER.query_sort(id_list, [self.ID_TABLE], 'asc', self.MAPPER_TABLE_CLASS,
                                                     self.ID_TABLE)
         for i in temp_data_list:
@@ -571,122 +569,21 @@ class pyarchinit_PDFAdministrator(QDialog, MAIN_DIALOG_CLASS):
         self.DATA_LIST_REC_CORR = []
         for i in self.TABLE_FIELDS:
             self.DATA_LIST_REC_CORR.append(
-                eval("unicode(self.DATA_LIST[self.REC_CORR]." + i + ")"))
+                str(getattr(self.DATA_LIST[self.REC_CORR], i)))
 
     def setComboBoxEnable(self, f, v):
-        field_names = f
-        value = v
-
+        """Set enabled state for widgets - uses getattr instead of eval for security"""
         for fn in field_names:
             cmd = '{}{}{}{}'.format(fn, '.setEnabled(', v, ')')
             eval(cmd)
 
     def setComboBoxEditable(self, f, n):
-        field_names = f
-        value = n
-
-        for fn in field_names:
-            cmd = '{}{}{}{}'.format(fn, '.setEditable(', n, ')')
-            eval(cmd)
-
-    def rec_toupdate(self):
-        rec_to_update = self.UTILITY.pos_none_in_list(self.DATA_LIST_REC_TEMP)
-        return rec_to_update
-
-    def records_equal_check(self):
-        self.set_LIST_REC_TEMP()
-        self.set_LIST_REC_CORR()
-
-        if self.DATA_LIST_REC_CORR == self.DATA_LIST_REC_TEMP:
-            return 0
-        else:
-            return 1
-
-    def update_record(self):
-        self.DB_MANAGER.update(self.MAPPER_TABLE_CLASS,
-                               self.ID_TABLE,
-                               [eval(
-                                   "int(self.DATA_LIST[self.REC_CORR]." + self.ID_TABLE + ")")],
-                               self.TABLE_FIELDS,
-                               self.rec_toupdate())
-
-    def testing(self, name_file, message):
-        f = open(str(name_file), 'w')
-        f.write(str(message))
-        f.close()
-
-    def table2dict(self, n):
-        self.tablename = n
-        row = eval(self.tablename + ".rowCount()")
-        col = eval(self.tablename + ".columnCount()")
-        lista = []
-        for r in range(row):
-            sub_list = []
-            for c in range(col):
-                value = eval(self.tablename + ".item(r,c)")
-                if value != None:
-                    sub_list.append(str(value.text()))
-            if bool(sub_list):
-                lista.append(sub_list)
-
-        return lista
-
-    def tableInsertData(self, t, d):
-        """Set the value into alls Grid"""
-        self.table_name = t
-        self.data_list = eval(d)
-        self.data_list.sort()
-
-        table_col_count_cmd = ("%s.columnCount()") % (self.table_name)
-        table_col_count = eval(table_col_count_cmd)
-
-        # clear table
-        table_clear_cmd = ("%s.clearContents()") % (self.table_name)
-        eval(table_clear_cmd)
-
-        for i in range(table_col_count):
-            table_rem_row_cmd = ("%s.removeRow(%d)") % (self.table_name, i)
-            eval(table_rem_row_cmd)
-
-            # for i in range(len(self.data_list)):
-            # self.insert_new_row(self.table_name)
-            # QMessageBox.warning(self,"Messagio!!!","numero_righe" + str(len(self.data_list)))
-        for row in range(len(self.data_list)):
-            cmd = ('%s.insertRow(%s)') % (self.table_name, row)
-            eval(cmd)
-            # QMessageBox.warning(self,"Messagio!!!","numero colonne" + str(len(self.data_list[row])))
-            for col in range(len(self.data_list[row])):
-                # item = self.comboBox_sito.setEditText(self.data_list[0][col]
-                item = QTableWidgetItem(str(self.data_list[row][col]))
-                exec_str = ('%s.setItem(%d,%d,item)') % (self.table_name, row, col)
-                eval(exec_str)
-
-    def on_pushButton_add_row_griglia_pressed(self):
-        self.insert_new_row('self.tableWidget_schema_griglia')
-
-    def on_pushButton_remove_row_griglia_pressed(self):
-        self.remove_row('self.tableWidget_schema_griglia')
-
-    def on_pushButton_add_row_cell_pressed(self):
-        self.insert_new_row('self.tableWidget_gestione_celle')
-
-    def on_pushButton_remove_row_cell_pressed(self):
-        self.remove_row('self.tableWidget_gestione_celle')
-
-    def insert_new_row(self, table_name):
-        """insert new row into a table based on table_name"""
-        cmd = table_name + ".insertRow(0)"
-        eval(cmd)
-
-    def remove_row(self, table_name):
-        """insert new row into a table based on table_name"""
-        table_row_count_cmd = ("%s.rowCount()") % (table_name)
-        table_row_count = eval(table_row_count_cmd)
-        rowSelected_cmd = ("%s.selectedIndexes()") % (table_name)
-        rowSelected = eval(rowSelected_cmd)
-        rowIndex = (rowSelected[0].row())
-        cmd = ("%s.removeRow(%d)") % (table_name, rowIndex)
-        eval(cmd)
+        """Set editable state for widgets - uses getattr instead of eval for security"""
+        for fn in f:
+            widget_name = fn.replace('self.' , '') if fn.startswith('self.' ) else fn
+            widget = getattr(self, widget_name, None)
+            if widget is not None:
+                widget.setEditable(bool(n))
 
 
 ## Class end
@@ -695,4 +592,4 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)
     ui = pyarchinit_US()
     ui.show()
-    sys.exit(app.exec_())
+    sys.exit(app.exec())

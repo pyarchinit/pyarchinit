@@ -922,7 +922,7 @@ class GPTWindow(QMainWindow):
 
         msg.setInformativeText(details)
         msg.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
-        reply = msg.exec_()
+        reply = msg.exec()
 
         if reply == QMessageBox.Yes:
             return True
@@ -945,7 +945,7 @@ class GPTWindow(QMainWindow):
 
         msg.setInformativeText(details)
         msg.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
-        reply = msg.exec_()
+        reply = msg.exec()
 
         if reply == QMessageBox.Yes:
             return True
@@ -1544,4 +1544,4 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)
     mainWin = GPTWindow()
     mainWin.show()
-    sys.exit(app.exec_())
+    sys.exit(app.exec())

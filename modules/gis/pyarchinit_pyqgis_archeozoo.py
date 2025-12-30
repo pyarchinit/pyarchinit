@@ -20,9 +20,6 @@
  ***************************************************************************/
 """
 import os
-from builtins import str
-from builtins import range
-from builtins import object
 
 from qgis.PyQt.QtWidgets import QDialog, QMessageBox, QFileDialog
 from qgis.core import QgsProject, QgsDataSourceUri, QgsVectorLayer, QgsCoordinateReferenceSystem

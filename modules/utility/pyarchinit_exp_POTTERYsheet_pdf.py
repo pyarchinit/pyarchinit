@@ -1,8 +1,5 @@
 import datetime
 from datetime import date
-from builtins import object
-from builtins import range
-from builtins import str
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import (A4)
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle

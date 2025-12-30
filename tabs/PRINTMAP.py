@@ -18,8 +18,6 @@
  ***************************************************************************/
 """
 from __future__ import absolute_import
-from builtins import range
-from builtins import str
 import psycopg2
 import sqlite3  as sq
 from sqlite3 import Error
@@ -35,7 +33,7 @@ from datetime import date
 
 from distutils.dir_util import copy_tree
 from random import randrange as rand
-from PyQt5 import QtCore, QtGui, QtWidgets
+from qgis.PyQt import QtCore, QtGui, QtWidgets
 #from PyQt5.QtXml import QDomDocument
 from qgis.PyQt.QtCore import *
 from qgis.PyQt.QtGui import QColor, QIcon
@@ -47,7 +45,11 @@ from qgis.PyQt.QtSql import QSqlDatabase, QSqlTableModel
 from ..gui.imageViewer import ImageViewer
 from ..modules.utility.pyarchinit_OS_utility import Pyarchinit_OS_Utility
 
-from ..resources.resources_rc import *
+# Qt6 removed pyrcc6, resources loaded directly from filesystem
+try:
+    from ..resources.resources_rc import *
+except ImportError:
+    pass  # Qt6 compatibility - resources loaded from disk
 
 MAIN_DIALOG_CLASS, _ = loadUiType(
     os.path.join(os.path.dirname(__file__), os.pardir, 'gui', 'ui', 'Print_map.ui'))
@@ -65,7 +67,7 @@ class pyarchinit_PRINTMAP(QDialog, MAIN_DIALOG_CLASS):
         self.plugin_dir = os.path.dirname(__file__)
         self.listWidget.itemClicked.connect(self.suggestLayoutName)
         self.btnAddMore.clicked.connect(self.addMoreTemplates)        
-        self.listWidget.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.listWidget.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self.listWidget.customContextMenuRequested.connect(self.listMenu)
         self.customize_GUI()
         self.txtLayoutName.setEnabled(False)
@@ -118,7 +120,7 @@ class pyarchinit_PRINTMAP(QDialog, MAIN_DIALOG_CLASS):
             menu.addAction('Mostra Preview')
             # menu.addAction(self.tr('Future context menu option'))
          
-            menu_choice = menu.exec_(self.listWidget.viewport().mapToGlobal(position))
+            menu_choice = menu.exec(self.listWidget.viewport().mapToGlobal(position))
 
             try:
                 
@@ -140,7 +142,7 @@ class pyarchinit_PRINTMAP(QDialog, MAIN_DIALOG_CLASS):
                     template_path = os.path.join(self.HOME,'bin','profile','template',template_name + '.jpeg')
                     
                     item = QListWidgetItem(str(template_name))
-                    item.setData(Qt.UserRole, str(template_name))
+                    item.setData(Qt.ItemDataRole.UserRole, str(template_name))
                     icon = QIcon(template_path)
                     item.setIcon(icon)
                     self.listWidget_2.addItem(item)
@@ -155,7 +157,7 @@ class pyarchinit_PRINTMAP(QDialog, MAIN_DIALOG_CLASS):
         template_path = os.path.join(self.HOME,'bin','profile','template',template_name + '.jpeg')
         dlg = ImageViewer()
         dlg.show_image(template_path)  
-        dlg.exec_()
+        dlg.exec()
     
     
     # Does a layout already exist
@@ -165,7 +167,7 @@ class pyarchinit_PRINTMAP(QDialog, MAIN_DIALOG_CLASS):
           are_you_sure = 'Questo aggiungerà modelli e risorse come file SVG e funzioni di script.\n\n'
           are_you_sure += 'Vuoi sovrascrivere i file esistenti con lo stesso nome?'
           addMoreBox = QMessageBox()
-          addMoreBox.setIcon(QMessageBox.Question)
+          addMoreBox.setIcon(QMessageBox.Icon.Question)
           addMoreBox.setWindowTitle('Aggiungi Template')
           addMoreBox.setText(are_you_sure)
           more_information = 'Se schiacci \'No\', i file non saranno sovrascritti, ma un nuovo fila verrà aggiunto.\n\n'
@@ -173,19 +175,19 @@ class pyarchinit_PRINTMAP(QDialog, MAIN_DIALOG_CLASS):
           more_information += 'Se schiacci \'Annulla\' Non si apporterà nessuna modifica!\n\n'
           more_information += 'Alcune funzioni potrebbero richiedere il riavvio di QGIS come per le mappe militari prima di funzionare correttamente.'
           addMoreBox.setDetailedText(more_information)
-          addMoreBox.setStandardButtons(QMessageBox.Cancel|QMessageBox.No|QMessageBox.Yes)
+          addMoreBox.setStandardButtons(QMessageBox.StandardButton.Cancel|QMessageBox.StandardButton.No|QMessageBox.StandardButton.Yes)
           
-          button_pressed = addMoreBox.exec_()
+          button_pressed = addMoreBox.exec()
           
           # Paths to source files and qgis profile directory
           source_profile = os.path.join(self.HOME,'bin', 'profile')
           profile_home = QgsApplication.qgisSettingsDirPath()
 
           # The acutal "copy" with or without overwrite (update)
-          if button_pressed == QMessageBox.Yes:
+          if button_pressed == QMessageBox.StandardButton.Yes:
               copy_tree(source_profile, profile_home)
               self.loadTemplates()
-          elif button_pressed == QMessageBox.No:
+          elif button_pressed == QMessageBox.StandardButton.No:
               copy_tree(source_profile, profile_home, update=1)
               self.loadTemplates()
     
@@ -216,7 +218,7 @@ class pyarchinit_PRINTMAP(QDialog, MAIN_DIALOG_CLASS):
                        QgsPrintLayout,
                        QgsReadWriteContext)
         from qgis.utils import iface
-        from PyQt5.QtXml import QDomDocument
+        from qgis.PyQt.QtXml import QDomDocument
 
         #template_source = '/home/user/Document/Template.qpt'
         #layout_name = 'NewLayout'
@@ -257,10 +259,10 @@ class pyarchinit_PRINTMAP(QDialog, MAIN_DIALOG_CLASS):
            self.iface.openLayoutDesigner(l)
         except:
            oopsBox = QMessageBox()
-           oopsBox.setIcon(QMessageBox.Warning)
+           oopsBox.setIcon(QMessageBox.Icon.Warning)
            oopsBox.setText('Ooops. Qualcosa è andato storto. Il tentativo di aprire il layout generato ({}) ha restituito errori.'.format(l.name()))
            oopsBox.setWindowTitle('Crea la tua mappa')
-           oopsBox.exec_()
+           oopsBox.exec()
     
     def run(self):
         """Run method that performs all the real work"""
@@ -275,7 +277,7 @@ class pyarchinit_PRINTMAP(QDialog, MAIN_DIALOG_CLASS):
         #show the dialog
         #self.show()
         # Run the dialog event loop
-        result = self.exec_()
+        result = self.exec()
         
         # See if OK was pressed TODO: probably need something to happen when pressing "cancel" too.
         if result:
@@ -308,17 +310,17 @@ class pyarchinit_PRINTMAP(QDialog, MAIN_DIALOG_CLASS):
                   self.layoutLoader(template_source, layout_name, map_title) # CALLING MAIN LAYOUT LOADING PROCESS
                else:
                   infoBox = QMessageBox()
-                  infoBox.setIcon(QMessageBox.Information)
+                  infoBox.setIcon(QMessageBox.Icon.Information)
                   infoBox.setText('Seleziona un template valido dalla lista.')
                   infoBox.setWindowTitle('Crea la tua mappa')
-                  infoBox.exec_()
+                  infoBox.exec()
             except:
                oopsBox = QMessageBox()
-               oopsBox.setIcon(QMessageBox.Warning)
+               oopsBox.setIcon(QMessageBox.Icon.Warning)
                oopsBox.setText('Ooops. qualcosa è andato storto ({}). Ma non so cosa?'.format(layout_name))
                oopsBox.setWindowTitle('Crea la tua mappa')
                oopsBox.setDetailedText('Titolo della Mappa: {}\nNome del Template: {}\nNome del Layout: {}\nDorectory del profilo {}\nPath del Template: {}\nConteggio Layout: {}' % (map_title, template_name, layout_name, profile_dir, template_source, layout_count))
-               oopsBox.exec_()
+               oopsBox.exec()
                    
             # Clean up
             self.txtLayoutName.clear()

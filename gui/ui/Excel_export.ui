@@ -3,7 +3,7 @@
  <class>Dialog_pdf_exp</class>
  <widget class="QDialog" name="Dialog_pdf_exp">
   <property name="windowModality">
-   <enum>Qt::NonModal</enum>
+   <enum>Qt::WindowModality::NonModal</enum>
   </property>
   <property name="enabled">
    <bool>true</bool>
@@ -482,7 +482,7 @@
    <item row="6" column="0">
     <widget class="Line" name="line">
      <property name="orientation">
-      <enum>Qt::Horizontal</enum>
+      <enum>Qt::Orientation::Horizontal</enum>
      </property>
     </widget>
    </item>
@@ -551,7 +551,7 @@
            <bool>false</bool>
           </property>
           <property name="contextMenuPolicy">
-           <enum>Qt::DefaultContextMenu</enum>
+           <enum>Qt::ContextMenuPolicy::DefaultContextMenu</enum>
           </property>
           <property name="acceptDrops">
            <bool>false</bool>

@@ -24,7 +24,6 @@ from __future__ import absolute_import
 import os
 import platform
 import subprocess
-from builtins import str
 from qgis.PyQt.QtWidgets import QDialog, QMessageBox
 from qgis.PyQt.uic import loadUiType
 from qgis.core import QgsSettings
@@ -39,7 +38,7 @@ MAIN_DIALOG_CLASS, _ = loadUiType(
 
 
 class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
-    L=QgsSettings().value("locale/userLocale")[0:2]
+    L=QgsSettings().value("locale/userLocale", "it", type=str)[:2]
     UTILITY = Utility()
     OS_UTILITY = Pyarchinit_OS_Utility()
     DB_MANAGER = ""
@@ -68,11 +67,11 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
             if e.find("no such table"):
                 QMessageBox.warning(self, "Alert",
                                     "La connessione e' fallita <br><br> %s. E' NECESSARIO RIAVVIARE QGIS" % (str(e)),
-                                    QMessageBox.Ok)
+                                    QMessageBox.StandardButton.Ok)
             else:
                 QMessageBox.warning(self, "Alert",
                                     "Attenzione rilevato bug! Segnalarlo allo sviluppatore<br> Errore: <br>" + str(e),
-                                    QMessageBox.Ok)
+                                    QMessageBox.StandardButton.Ok)
     def on_pushButton_open_dir_pressed(self):
         #HOME = os.environ['PYARCHINIT_HOME']
         path = '{}{}{}'.format(self.HOME, os.sep, "pyarchinit_image_export")
@@ -510,19 +509,19 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
 
                     if images_found:
                         if self.L == 'it':
-                            QMessageBox.warning(self, "Alert", "Creazione directories terminata", QMessageBox.Ok)
+                            QMessageBox.warning(self, "Alert", "Creazione directories terminata", QMessageBox.StandardButton.Ok)
                         elif self.L == 'de':
-                            QMessageBox.warning(self, "Alert", "Verzeichniserstellung abgeschlossen", QMessageBox.Ok)
+                            QMessageBox.warning(self, "Alert", "Verzeichniserstellung abgeschlossen", QMessageBox.StandardButton.Ok)
                         else:
-                            QMessageBox.warning(self, "Alert", "Directory creation complete", QMessageBox.Ok)
+                            QMessageBox.warning(self, "Alert", "Directory creation complete", QMessageBox.StandardButton.Ok)
 
                     else:
                         if self.L == 'it':
-                            QMessageBox.warning(self, "Alert", "Non ci sono immagini da esportare", QMessageBox.Ok)
+                            QMessageBox.warning(self, "Alert", "Non ci sono immagini da esportare", QMessageBox.StandardButton.Ok)
                         elif self.L == 'de':
-                            QMessageBox.warning(self, "Alert", "No image", QMessageBox.Ok)
+                            QMessageBox.warning(self, "Alert", "No image", QMessageBox.StandardButton.Ok)
                         else:
-                            QMessageBox.warning(self, "Alert", "No Image to export", QMessageBox.Ok)
+                            QMessageBox.warning(self, "Alert", "No Image to export", QMessageBox.StandardButton.Ok)
             ############################immagini us##########################################################
             elif self.comboBox_export.currentIndex()==1:
                 
@@ -616,20 +615,20 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
                             images_found=True
                     if images_found:
                         if self.L == 'it':
-                            QMessageBox.warning(self, "Alert", "Creazione directories terminata", QMessageBox.Ok)
+                            QMessageBox.warning(self, "Alert", "Creazione directories terminata", QMessageBox.StandardButton.Ok)
                         elif self.L == 'de':
                             QMessageBox.warning(self, "Alert", "Verzeichniserstellung abgeschlossen",
-                                                QMessageBox.Ok)
+                                                QMessageBox.StandardButton.Ok)
                         else:
-                            QMessageBox.warning(self, "Alert", "Directory creation complete", QMessageBox.Ok)
+                            QMessageBox.warning(self, "Alert", "Directory creation complete", QMessageBox.StandardButton.Ok)
 
                     else:
                         if self.L == 'it':
-                            QMessageBox.warning(self, "Alert", "Non ci sono immagini da esportare", QMessageBox.Ok)
+                            QMessageBox.warning(self, "Alert", "Non ci sono immagini da esportare", QMessageBox.StandardButton.Ok)
                         elif self.L == 'de':
-                            QMessageBox.warning(self, "Alert", "No image", QMessageBox.Ok)
+                            QMessageBox.warning(self, "Alert", "No image", QMessageBox.StandardButton.Ok)
                         else:
-                            QMessageBox.warning(self, "Alert", "No Image to export", QMessageBox.Ok)
+                            QMessageBox.warning(self, "Alert", "No Image to export", QMessageBox.StandardButton.Ok)
 
             
             
@@ -689,20 +688,20 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
                             images_found = True
                     if images_found:
                         if self.L == 'it':
-                            QMessageBox.warning(self, "Alert", "Creazione directories terminata", QMessageBox.Ok)
+                            QMessageBox.warning(self, "Alert", "Creazione directories terminata", QMessageBox.StandardButton.Ok)
                         elif self.L == 'de':
                             QMessageBox.warning(self, "Alert", "Verzeichniserstellung abgeschlossen",
-                                                QMessageBox.Ok)
+                                                QMessageBox.StandardButton.Ok)
                         else:
-                            QMessageBox.warning(self, "Alert", "Directory creation complete", QMessageBox.Ok)
+                            QMessageBox.warning(self, "Alert", "Directory creation complete", QMessageBox.StandardButton.Ok)
 
                     else:
                         if self.L == 'it':
-                            QMessageBox.warning(self, "Alert", "Non ci sono immagini da esportare", QMessageBox.Ok)
+                            QMessageBox.warning(self, "Alert", "Non ci sono immagini da esportare", QMessageBox.StandardButton.Ok)
                         elif self.L == 'de':
-                            QMessageBox.warning(self, "Alert", "No image", QMessageBox.Ok)
+                            QMessageBox.warning(self, "Alert", "No image", QMessageBox.StandardButton.Ok)
                         else:
-                            QMessageBox.warning(self, "Alert", "No Image to export", QMessageBox.Ok)
+                            QMessageBox.warning(self, "Alert", "No Image to export", QMessageBox.StandardButton.Ok)
             
             
             
@@ -757,20 +756,20 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
                             images_found=True
                     if images_found:
                         if self.L == 'it':
-                            QMessageBox.warning(self, "Alert", "Creazione directories terminata", QMessageBox.Ok)
+                            QMessageBox.warning(self, "Alert", "Creazione directories terminata", QMessageBox.StandardButton.Ok)
                         elif self.L == 'de':
                             QMessageBox.warning(self, "Alert", "Verzeichniserstellung abgeschlossen",
-                                                QMessageBox.Ok)
+                                                QMessageBox.StandardButton.Ok)
                         else:
-                            QMessageBox.warning(self, "Alert", "Directory creation complete", QMessageBox.Ok)
+                            QMessageBox.warning(self, "Alert", "Directory creation complete", QMessageBox.StandardButton.Ok)
 
                     else:
                         if self.L == 'it':
-                            QMessageBox.warning(self, "Alert", "Non ci sono immagini da esportare", QMessageBox.Ok)
+                            QMessageBox.warning(self, "Alert", "Non ci sono immagini da esportare", QMessageBox.StandardButton.Ok)
                         elif self.L == 'de':
-                            QMessageBox.warning(self, "Alert", "No image", QMessageBox.Ok)
+                            QMessageBox.warning(self, "Alert", "No image", QMessageBox.StandardButton.Ok)
                         else:
-                            QMessageBox.warning(self, "Alert", "No Image to export", QMessageBox.Ok)
+                            QMessageBox.warning(self, "Alert", "No Image to export", QMessageBox.StandardButton.Ok)
             
             elif self.comboBox_export.currentIndex()==11:
                 
@@ -825,20 +824,20 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
                             images_found = True
                     if images_found:
                         if self.L == 'it':
-                            QMessageBox.warning(self, "Alert", "Creazione directories terminata", QMessageBox.Ok)
+                            QMessageBox.warning(self, "Alert", "Creazione directories terminata", QMessageBox.StandardButton.Ok)
                         elif self.L == 'de':
                             QMessageBox.warning(self, "Alert", "Verzeichniserstellung abgeschlossen",
-                                                QMessageBox.Ok)
+                                                QMessageBox.StandardButton.Ok)
                         else:
-                            QMessageBox.warning(self, "Alert", "Directory creation complete", QMessageBox.Ok)
+                            QMessageBox.warning(self, "Alert", "Directory creation complete", QMessageBox.StandardButton.Ok)
 
                     else:
                         if self.L == 'it':
-                            QMessageBox.warning(self, "Alert", "Non ci sono immagini da esportare", QMessageBox.Ok)
+                            QMessageBox.warning(self, "Alert", "Non ci sono immagini da esportare", QMessageBox.StandardButton.Ok)
                         elif self.L == 'de':
-                            QMessageBox.warning(self, "Alert", "No image", QMessageBox.Ok)
+                            QMessageBox.warning(self, "Alert", "No image", QMessageBox.StandardButton.Ok)
                         else:
-                            QMessageBox.warning(self, "Alert", "No Image to export", QMessageBox.Ok)
+                            QMessageBox.warning(self, "Alert", "No Image to export", QMessageBox.StandardButton.Ok)
 
 
             elif self.comboBox_export.currentIndex() == 12:
@@ -895,20 +894,20 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
                             images_found = True
                     if images_found:
                         if self.L == 'it':
-                            QMessageBox.warning(self, "Alert", "Creazione directories terminata", QMessageBox.Ok)
+                            QMessageBox.warning(self, "Alert", "Creazione directories terminata", QMessageBox.StandardButton.Ok)
                         elif self.L == 'de':
                             QMessageBox.warning(self, "Alert", "Verzeichniserstellung abgeschlossen",
-                                                QMessageBox.Ok)
+                                                QMessageBox.StandardButton.Ok)
                         else:
-                            QMessageBox.warning(self, "Alert", "Directory creation complete", QMessageBox.Ok)
+                            QMessageBox.warning(self, "Alert", "Directory creation complete", QMessageBox.StandardButton.Ok)
 
                     else:
                         if self.L == 'it':
-                            QMessageBox.warning(self, "Alert", "Non ci sono immagini da esportare", QMessageBox.Ok)
+                            QMessageBox.warning(self, "Alert", "Non ci sono immagini da esportare", QMessageBox.StandardButton.Ok)
                         elif self.L == 'de':
-                            QMessageBox.warning(self, "Alert", "No image", QMessageBox.Ok)
+                            QMessageBox.warning(self, "Alert", "No image", QMessageBox.StandardButton.Ok)
                         else:
-                            QMessageBox.warning(self, "Alert", "No Image to export", QMessageBox.Ok)
+                            QMessageBox.warning(self, "Alert", "No Image to export", QMessageBox.StandardButton.Ok)
             ############################Immagini reperti#################################################
             
             
@@ -961,21 +960,21 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
                     if images_found:
                         if self.L == 'it':
                             QMessageBox.warning(self, "Alert", "Creazione directories terminata",
-                                                QMessageBox.Ok)
+                                                QMessageBox.StandardButton.Ok)
                         elif self.L == 'de':
                             QMessageBox.warning(self, "Alert", "Verzeichniserstellung abgeschlossen",
-                                                QMessageBox.Ok)
+                                                QMessageBox.StandardButton.Ok)
                         else:
-                            QMessageBox.warning(self, "Alert", "Directory creation complete", QMessageBox.Ok)
+                            QMessageBox.warning(self, "Alert", "Directory creation complete", QMessageBox.StandardButton.Ok)
 
                     else:
                         if self.L == 'it':
                             QMessageBox.warning(self, "Alert", "Non ci sono immagini da esportare",
-                                                QMessageBox.Ok)
+                                                QMessageBox.StandardButton.Ok)
                         elif self.L == 'de':
-                            QMessageBox.warning(self, "Alert", "No image", QMessageBox.Ok)
+                            QMessageBox.warning(self, "Alert", "No image", QMessageBox.StandardButton.Ok)
                         else:
-                            QMessageBox.warning(self, "Alert", "No Image to export", QMessageBox.Ok)
+                            QMessageBox.warning(self, "Alert", "No Image to export", QMessageBox.StandardButton.Ok)
             
             elif self.comboBox_export.currentIndex()==4:
                 
@@ -1032,21 +1031,21 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
                     if images_found:
                         if self.L == 'it':
                             QMessageBox.warning(self, "Alert", "Creazione directories terminata",
-                                                QMessageBox.Ok)
+                                                QMessageBox.StandardButton.Ok)
                         elif self.L == 'de':
                             QMessageBox.warning(self, "Alert", "Verzeichniserstellung abgeschlossen",
-                                                QMessageBox.Ok)
+                                                QMessageBox.StandardButton.Ok)
                         else:
-                            QMessageBox.warning(self, "Alert", "Directory creation complete", QMessageBox.Ok)
+                            QMessageBox.warning(self, "Alert", "Directory creation complete", QMessageBox.StandardButton.Ok)
 
                     else:
                         if self.L == 'it':
                             QMessageBox.warning(self, "Alert", "Non ci sono immagini da esportare",
-                                                QMessageBox.Ok)
+                                                QMessageBox.StandardButton.Ok)
                         elif self.L == 'de':
-                            QMessageBox.warning(self, "Alert", "No image", QMessageBox.Ok)
+                            QMessageBox.warning(self, "Alert", "No image", QMessageBox.StandardButton.Ok)
                         else:
-                            QMessageBox.warning(self, "Alert", "No Image to export", QMessageBox.Ok)
+                            QMessageBox.warning(self, "Alert", "No Image to export", QMessageBox.StandardButton.Ok)
 
             elif self.comboBox_export.currentIndex()==5:
                 
@@ -1126,21 +1125,21 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
                     if images_found:
                         if self.L == 'it':
                             QMessageBox.warning(self, "Alert", "Creazione directories terminata",
-                                                QMessageBox.Ok)
+                                                QMessageBox.StandardButton.Ok)
                         elif self.L == 'de':
                             QMessageBox.warning(self, "Alert", "Verzeichniserstellung abgeschlossen",
-                                                QMessageBox.Ok)
+                                                QMessageBox.StandardButton.Ok)
                         else:
-                            QMessageBox.warning(self, "Alert", "Directory creation complete", QMessageBox.Ok)
+                            QMessageBox.warning(self, "Alert", "Directory creation complete", QMessageBox.StandardButton.Ok)
 
                     else:
                         if self.L == 'it':
                             QMessageBox.warning(self, "Alert", "Non ci sono immagini da esportare",
-                                                QMessageBox.Ok)
+                                                QMessageBox.StandardButton.Ok)
                         elif self.L == 'de':
-                            QMessageBox.warning(self, "Alert", "No image", QMessageBox.Ok)
+                            QMessageBox.warning(self, "Alert", "No image", QMessageBox.StandardButton.Ok)
                         else:
-                            QMessageBox.warning(self, "Alert", "No Image to export", QMessageBox.Ok)
+                            QMessageBox.warning(self, "Alert", "No Image to export", QMessageBox.StandardButton.Ok)
                 
             
             #############################################immagini Tomba############################################
@@ -1194,21 +1193,21 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
                     if images_found:
                         if self.L == 'it':
                             QMessageBox.warning(self, "Alert", "Creazione directories terminata",
-                                                QMessageBox.Ok)
+                                                QMessageBox.StandardButton.Ok)
                         elif self.L == 'de':
                             QMessageBox.warning(self, "Alert", "Verzeichniserstellung abgeschlossen",
-                                                QMessageBox.Ok)
+                                                QMessageBox.StandardButton.Ok)
                         else:
-                            QMessageBox.warning(self, "Alert", "Directory creation complete", QMessageBox.Ok)
+                            QMessageBox.warning(self, "Alert", "Directory creation complete", QMessageBox.StandardButton.Ok)
 
                     else:
                         if self.L == 'it':
                             QMessageBox.warning(self, "Alert", "Non ci sono immagini da esportare",
-                                                QMessageBox.Ok)
+                                                QMessageBox.StandardButton.Ok)
                         elif self.L == 'de':
-                            QMessageBox.warning(self, "Alert", "No image", QMessageBox.Ok)
+                            QMessageBox.warning(self, "Alert", "No image", QMessageBox.StandardButton.Ok)
                         else:
-                            QMessageBox.warning(self, "Alert", "No Image to export", QMessageBox.Ok)
+                            QMessageBox.warning(self, "Alert", "No Image to export", QMessageBox.StandardButton.Ok)
             
             elif self.comboBox_export.currentIndex()==7:
                 
@@ -1294,20 +1293,20 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
                             images_found = True
                     if images_found:
                         if self.L == 'it':
-                            QMessageBox.warning(self, "Alert", "Creazione directories terminata", QMessageBox.Ok)
+                            QMessageBox.warning(self, "Alert", "Creazione directories terminata", QMessageBox.StandardButton.Ok)
                         elif self.L == 'de':
                             QMessageBox.warning(self, "Alert", "Verzeichniserstellung abgeschlossen",
-                                                QMessageBox.Ok)
+                                                QMessageBox.StandardButton.Ok)
                         else:
-                            QMessageBox.warning(self, "Alert", "Directory creation complete", QMessageBox.Ok)
+                            QMessageBox.warning(self, "Alert", "Directory creation complete", QMessageBox.StandardButton.Ok)
 
                     else:
                         if self.L == 'it':
-                            QMessageBox.warning(self, "Alert", "Non ci sono immagini da esportare", QMessageBox.Ok)
+                            QMessageBox.warning(self, "Alert", "Non ci sono immagini da esportare", QMessageBox.StandardButton.Ok)
                         elif self.L == 'de':
-                            QMessageBox.warning(self, "Alert", "No image", QMessageBox.Ok)
+                            QMessageBox.warning(self, "Alert", "No image", QMessageBox.StandardButton.Ok)
                         else:
-                            QMessageBox.warning(self, "Alert", "No Image to export", QMessageBox.Ok)
+                            QMessageBox.warning(self, "Alert", "No Image to export", QMessageBox.StandardButton.Ok)
 
 
             
@@ -1352,20 +1351,20 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
                             images_found = True
                     if images_found:
                         if self.L == 'it':
-                            QMessageBox.warning(self, "Alert", "Creazione directories terminata", QMessageBox.Ok)
+                            QMessageBox.warning(self, "Alert", "Creazione directories terminata", QMessageBox.StandardButton.Ok)
                         elif self.L == 'de':
                             QMessageBox.warning(self, "Alert", "Verzeichniserstellung abgeschlossen",
-                                                QMessageBox.Ok)
+                                                QMessageBox.StandardButton.Ok)
                         else:
-                            QMessageBox.warning(self, "Alert", "Directory creation complete", QMessageBox.Ok)
+                            QMessageBox.warning(self, "Alert", "Directory creation complete", QMessageBox.StandardButton.Ok)
 
                     else:
                         if self.L == 'it':
-                            QMessageBox.warning(self, "Alert", "Non ci sono immagini da esportare", QMessageBox.Ok)
+                            QMessageBox.warning(self, "Alert", "Non ci sono immagini da esportare", QMessageBox.StandardButton.Ok)
                         elif self.L == 'de':
-                            QMessageBox.warning(self, "Alert", "No image", QMessageBox.Ok)
+                            QMessageBox.warning(self, "Alert", "No image", QMessageBox.StandardButton.Ok)
                         else:
-                            QMessageBox.warning(self, "Alert", "No Image to export", QMessageBox.Ok)
+                            QMessageBox.warning(self, "Alert", "No Image to export", QMessageBox.StandardButton.Ok)
            
             elif self.comboBox_export.currentIndex()==9:
                 
@@ -1443,29 +1442,29 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
                     if images_found:
                         if self.L == 'it':
                             QMessageBox.warning(self, "Alert", "Creazione directories terminata",
-                                                QMessageBox.Ok)
+                                                QMessageBox.StandardButton.Ok)
                         elif self.L == 'de':
                             QMessageBox.warning(self, "Alert", "Verzeichniserstellung abgeschlossen",
-                                                QMessageBox.Ok)
+                                                QMessageBox.StandardButton.Ok)
                         else:
-                            QMessageBox.warning(self, "Alert", "Directory creation complete", QMessageBox.Ok)
+                            QMessageBox.warning(self, "Alert", "Directory creation complete", QMessageBox.StandardButton.Ok)
 
                     else:
                         if self.L == 'it':
                             QMessageBox.warning(self, "Alert", "Non ci sono immagini da esportare",
-                                                QMessageBox.Ok)
+                                                QMessageBox.StandardButton.Ok)
                         elif self.L == 'de':
-                            QMessageBox.warning(self, "Alert", "No image", QMessageBox.Ok)
+                            QMessageBox.warning(self, "Alert", "No image", QMessageBox.StandardButton.Ok)
                         else:
-                            QMessageBox.warning(self, "Alert", "No Image to export", QMessageBox.Ok)
+                            QMessageBox.warning(self, "Alert", "No Image to export", QMessageBox.StandardButton.Ok)
         
         except Exception as e:
             if self.L=='it':
-                QMessageBox.warning(self, "Attenzione", " Priodo iniziale o fase iniziale mancante. Ricontrolla", QMessageBox.Ok)
+                QMessageBox.warning(self, "Attenzione", " Priodo iniziale o fase iniziale mancante. Ricontrolla", QMessageBox.StandardButton.Ok)
             elif self.L=='de':
-                QMessageBox.warning(self, "Achtung", str(e), QMessageBox.Ok)
+                QMessageBox.warning(self, "Achtung", str(e), QMessageBox.StandardButton.Ok)
             elif self.L=='en':   
-                QMessageBox.warning(self, "Attention", str(e), QMessageBox.Ok)
+                QMessageBox.warning(self, "Attention", str(e), QMessageBox.StandardButton.Ok)
 
 
 
@@ -1511,4 +1510,4 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
     # app = QApplication(sys.argv)
     # ui = pyArchInitDialog_Config()
     # ui.show()
-    # sys.exit(app.exec_())
+    # sys.exit(app.exec())

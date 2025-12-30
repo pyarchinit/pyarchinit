@@ -17,10 +17,8 @@ from modules.db.pyarchinit_conn_strings import Connection
 
 class pyripartizioni_spaziali:
     # Connessione a postgres
-    internal_connection = Connection()
     # Creazione del motore e dei metadati
-    engine = create_engine(internal_connection.conn_str(), echo=False, convert_unicode=True)
-    metadata = MetaData(engine)
+    metadata = MetaData()
     # Definizione della tabella per verifica fill fields 20/10/2016 OK
     pyripartizioni_spaziali = Table('pyarchinit_ripartizioni_spaziali', metadata,
                      Column('gid', Integer, primary_key=True),  # 0

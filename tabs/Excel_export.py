@@ -21,8 +21,6 @@
  ***************************************************************************/
 """
 from __future__ import absolute_import
-from builtins import str
-from builtins import range
 
 from qgis.PyQt.QtWidgets import QDialog, QMessageBox, QApplication
 from qgis.PyQt.uic import loadUiType
@@ -52,7 +50,7 @@ class pyarchinit_excel_export(QDialog, MAIN_DIALOG_CLASS):
     DB_MANAGER = ""
     HOME = ""
     DATA_LIST = []
-    L=QgsSettings().value("locale/userLocale")[0:2]
+    L=QgsSettings().value("locale/userLocale", "it", type=str)[:2]
     ##  if os.name == 'posix':
     ##      HOME = os.environ['HOME']
     ##  elif os.name == 'nt':
@@ -427,7 +425,7 @@ class pyarchinit_excel_export(QDialog, MAIN_DIALOG_CLASS):
                 #QMessageBox.warning(self, "Message","ok" , QMessageBox.Ok)         
                     # for i in temp_data_list:
                     # self.DATA_LIST.append(i)
-            QMessageBox.warning(self, "Message","Exported completed" , QMessageBox.Ok)
+            QMessageBox.warning(self, "Message","Exported completed" , QMessageBox.StandardButton.Ok)
             
     
 
@@ -437,5 +435,5 @@ if __name__ == '__main__':
     app = QApplication(sys.argv)
     ui = pyarchinit_excel_export()
     ui.show()
-    sys.exit(app.exec_())
+    sys.exit(app.exec())
 

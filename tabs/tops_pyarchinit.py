@@ -22,7 +22,6 @@
 """
 from __future__ import absolute_import
 from pathlib import Path
-from builtins import str
 
 from osgeo import gdal
 import os
@@ -158,7 +157,7 @@ class pyarchinit_TOPS(QDialog, MAIN_DIALOG_CLASS):
                     QgsProject.instance().addMapLayer(layer)
 
                     QMessageBox.warning(self, 'Total Open Station',
-                                              'data loaded into panel Layer', QMessageBox.Ok)
+                                              'data loaded into panel Layer', QMessageBox.StandardButton.Ok)
 
 
                     self.loadCsv(str(self.lineEdit_output.text()))
@@ -250,7 +249,7 @@ class pyarchinit_TOPS(QDialog, MAIN_DIALOG_CLASS):
                     QgsProject.instance().addMapLayer(layer)
 
                     QMessageBox.warning(self, 'Total Open Station',
-                                              'data loaded into panel Layer', QMessageBox.Ok)
+                                              'data loaded into panel Layer', QMessageBox.StandardButton.Ok)
 
 
                     self.loadCsv(str(self.lineEdit_output.text()))
@@ -343,7 +342,7 @@ class pyarchinit_TOPS(QDialog, MAIN_DIALOG_CLASS):
                     QgsProject.instance().addMapLayer(layer)
 
                     QMessageBox.warning(self, 'Total Open Station',
-                                              'data loaded into panel Layer', QMessageBox.Ok)
+                                              'data loaded into panel Layer', QMessageBox.StandardButton.Ok)
 
 
                     self.loadCsv(str(self.lineEdit_output.text()))
@@ -418,7 +417,7 @@ class pyarchinit_TOPS(QDialog, MAIN_DIALOG_CLASS):
             except Exception as e:
 
                 QMessageBox.warning(self, 'Total Open Station',
-                                          "Error:\n"+str(e), QMessageBox.Ok)
+                                          "Error:\n"+str(e), QMessageBox.StandardButton.Ok)
         else:
             try:  # os.system("start cmd /k" + ' python ' +cmd+' '+cmd2)
                 p = subprocess.check_call(
@@ -439,7 +438,7 @@ class pyarchinit_TOPS(QDialog, MAIN_DIALOG_CLASS):
                     QgsProject.instance().addMapLayer(layer)
 
                     QMessageBox.warning(self, 'Total Open Station',
-                                        'data loaded into panel Layer', QMessageBox.Ok)
+                                        'data loaded into panel Layer', QMessageBox.StandardButton.Ok)
 
                     self.loadCsv(str(self.lineEdit_output.text()))
 
@@ -525,7 +524,7 @@ class pyarchinit_TOPS(QDialog, MAIN_DIALOG_CLASS):
                     QgsProject.instance().addMapLayer(layer)
 
                     QMessageBox.warning(self, 'Total Open Station',
-                                        'data loaded into panel Layer', QMessageBox.Ok)
+                                        'data loaded into panel Layer', QMessageBox.StandardButton.Ok)
 
                     self.loadCsv(str(self.lineEdit_output.text()))
 
@@ -608,7 +607,7 @@ class pyarchinit_TOPS(QDialog, MAIN_DIALOG_CLASS):
                     QgsProject.instance().addMapLayer(layer)
 
                     QMessageBox.warning(self, 'Total Open Station',
-                                        'data loaded into panel Layer', QMessageBox.Ok)
+                                        'data loaded into panel Layer', QMessageBox.StandardButton.Ok)
 
                     self.loadCsv(str(self.lineEdit_output.text()))
 
@@ -679,7 +678,7 @@ class pyarchinit_TOPS(QDialog, MAIN_DIALOG_CLASS):
             except Exception as e:
 
                 QMessageBox.warning(self, 'Total Open Station',
-                                    "Error:\n" + str(e), QMessageBox.Ok)
+                                    "Error:\n" + str(e), QMessageBox.StandardButton.Ok)
 
     def rmvLyr(lyrname):
         qinst = QgsProject.instance()

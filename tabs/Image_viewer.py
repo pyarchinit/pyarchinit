@@ -44,7 +44,7 @@ MAIN_DIALOG_CLASS, _ = loadUiType(
     os.path.join(os.path.dirname(__file__), os.pardir, 'gui', 'ui', 'pyarchinit_image_viewer_dialog.ui'))
 conn = Connection()
 class Main(QDialog,MAIN_DIALOG_CLASS):
-    L=QgsSettings().value("locale/userLocale")[0:2]
+    L=QgsSettings().value("locale/userLocale", "it", type=str)[:2]
     FILE_MODE = 'a'
     delegateSites = ''
     DB_MANAGER = ""
@@ -113,9 +113,9 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
         self.setupUi(self)
         self.customize_gui()
         self.mDockWidget.setHidden(True)      
-        self.iconListWidget.SelectionMode()
+        #self.iconListWidget.SelectionMode()  # Removed for Qt6 compatibility
         #self.iconListWidget.itemSelectionChanged.connect(self.remove_all)
-        self.iconListWidget.setSelectionMode(QAbstractItemView.ExtendedSelection)
+        self.iconListWidget.setSelectionMode(QAbstractItemView.SelectionMode.ExtendedSelection)
         self.iconListWidget.itemDoubleClicked.connect(self.openWide_image)
         self.sl.valueChanged.connect(self.valuechange)
         self.iconListWidget.itemSelectionChanged.connect(self.open_tags)
@@ -249,11 +249,11 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
             # Process results
             if not res:
                 if self.L == 'it':
-                    QMessageBox.warning(self, "ATTENZIONE", "Non è stato trovato nessun record!", QMessageBox.Ok)
+                    QMessageBox.warning(self, "ATTENZIONE", "Non è stato trovato nessun record!", QMessageBox.StandardButton.Ok)
                 elif self.L == 'de':
-                    QMessageBox.warning(self, "ACHTUNG", "Keinen Record gefunden!", QMessageBox.Ok)
+                    QMessageBox.warning(self, "ACHTUNG", "Keinen Record gefunden!", QMessageBox.StandardButton.Ok)
                 else:
-                    QMessageBox.warning(self, "WARNING", "No record found!", QMessageBox.Ok)
+                    QMessageBox.warning(self, "WARNING", "No record found!", QMessageBox.StandardButton.Ok)
                 return
 
             # Display results
@@ -273,7 +273,7 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                     thumb_path = str(row[0]) if len(row) > 0 else ''
 
                 item = QListWidgetItem(filename)
-                item.setData(Qt.UserRole, filename)
+                item.setData(Qt.ItemDataRole.UserRole, filename)
 
                 if thumb_path:
                     icon = load_icon(get_image_path(thumb_path_str, thumb_path))
@@ -303,12 +303,12 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                 else:
                     msg = f"{self.REC_TOT} records found"
 
-            QMessageBox.information(self, "Info", msg, QMessageBox.Ok)
+            QMessageBox.information(self, "Info", msg, QMessageBox.StandardButton.Ok)
 
         except Exception as e:
             import traceback
             error_detail = traceback.format_exc()
-            QMessageBox.critical(self, "Errore", f"Errore durante la ricerca:\n{str(e)}\n\n{error_detail}", QMessageBox.Ok)
+            QMessageBox.critical(self, "Errore", f"Errore durante la ricerca:\n{str(e)}\n\n{error_detail}", QMessageBox.StandardButton.Ok)
 
     def remove_all(self):
         self.tableWidgetTags_US.setRowCount(1)
@@ -337,21 +337,21 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                     "2. Try installing an older version: python -m pip install pymupdf==1.23.26\n"
                     "3. Install PyMuPDF-binary: python -m pip install --force-reinstall pymupdf\n\n"
                     "The rest of the plugin will continue to work normally.",
-                    QMessageBox.Ok
+                    QMessageBox.StandardButton.Ok
                 )
             else:
                 QMessageBox.warning(
                     self,
                     "GPT Sketch Import Error",
                     f"Cannot load GPT Sketch feature:\n\n{error_msg}",
-                    QMessageBox.Ok
+                    QMessageBox.StandardButton.Ok
                 )
         except Exception as e:
             QMessageBox.warning(
                 self,
                 "Error",
                 f"An unexpected error occurred:\n\n{str(e)}",
-                QMessageBox.Ok
+                QMessageBox.StandardButton.Ok
             )
 
     def split_2(self):
@@ -380,7 +380,7 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                         self.tableWidgetTags_US.setItem(row,1,QTableWidgetItem(str(i[1])))
                         self.tableWidgetTags_US.setItem(row,2,QTableWidgetItem(str(i[2])))
                 except Exception as e:
-                    QMessageBox.warning(self, "Messaggio", "Sistema di aggiornamento lista Sito: " + str(e), QMessageBox.Ok)
+                    QMessageBox.warning(self, "Messaggio", "Sistema di aggiornamento lista Sito: " + str(e), QMessageBox.StandardButton.Ok)
                 self.remove_row('self.tableWidgetTags_US')
     def split_1(self):
         items_selected = self.iconListWidget.selectedItems()#seleziono le icone
@@ -402,7 +402,7 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                     self.tableWidgetTags_US.setItem(row,1,QTableWidgetItem(str(a[1])))
                     self.tableWidgetTags_US.setItem(row,2,QTableWidgetItem(str(a[2])))
             except Exception as e:
-                QMessageBox.warning(self, "Messaggio", "Sistema di aggiornamento lista Sito: " + str(e), QMessageBox.Ok)
+                QMessageBox.warning(self, "Messaggio", "Sistema di aggiornamento lista Sito: " + str(e), QMessageBox.StandardButton.Ok)
     def customize_gui(self):
         self.tableWidgetTags_US.setColumnWidth(0, 300)
         self.tableWidgetTags_US.setColumnWidth(1, 80)
@@ -477,7 +477,7 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
             if str(e) == "list.remove(x): x not in list":
                 pass
             else:
-                QMessageBox.warning(self, "Warning", str(e), QMessageBox.Ok)
+                QMessageBox.warning(self, "Warning", str(e), QMessageBox.StandardButton.Ok)
         self.comboBox_sito.clear()
         sito_vl.sort()
         self.comboBox_sito.addItems(sito_vl)
@@ -507,7 +507,7 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                 self.comboBox_sigla_struttura.clear()
                 self.comboBox_sigla_struttura.addItems(self.UTILITY.remove_dup_from_list(us_list))
             except Exception as e:
-                QMessageBox.warning(self, "Warning", str(e), QMessageBox.Ok)
+                QMessageBox.warning(self, "Warning", str(e), QMessageBox.StandardButton.Ok)
     def charge_nr_st_list(self):
         sito = str(self.comboBox_sito.currentText())
         if self.radioButton_struttura.isChecked():
@@ -532,7 +532,7 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                 self.comboBox_nr_struttura.clear()
                 self.comboBox_nr_struttura.addItems(self.UTILITY.remove_dup_from_list(us_list))
             except Exception as e:
-                QMessageBox.warning(self, "Warning", str(e), QMessageBox.Ok)
+                QMessageBox.warning(self, "Warning", str(e), QMessageBox.StandardButton.Ok)
     def charge_us_list(self):
         sito = str(self.comboBox_sito.currentText())
         if self.radioButton_us.isChecked():
@@ -559,7 +559,7 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                 self.comboBox_us.clear()
                 self.comboBox_us.addItems(self.UTILITY.remove_dup_from_list(us_list))
             except Exception as e:
-                QMessageBox.warning(self, "Warning", str(e), QMessageBox.Ok)
+                QMessageBox.warning(self, "Warning", str(e), QMessageBox.StandardButton.Ok)
         if self.radioButton_materiali.isChecked():
             try: 
                 self.label_8.clear()
@@ -586,7 +586,7 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
 
 
             except Exception as e:
-                QMessageBox.warning(self, "Warning", str(e), QMessageBox.Ok)
+                QMessageBox.warning(self, "Warning", str(e), QMessageBox.StandardButton.Ok)
         if self.radioButton_tomba.isChecked():
             try:
                 self.label_8.clear()
@@ -611,7 +611,7 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                 self.comboBox_us.clear()
                 self.comboBox_us.addItems(self.UTILITY.remove_dup_from_list(us_list))
             except Exception as e:
-                QMessageBox.warning(self, "Warning", str(e), QMessageBox.Ok)
+                QMessageBox.warning(self, "Warning", str(e), QMessageBox.StandardButton.Ok)
     def charge_area_list(self):
         if self.radioButton_us.isChecked():
             sito = str(self.comboBox_sito.currentText())
@@ -685,11 +685,11 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                 self.fill_fields()
             else:
                 if self.L=='it':
-                    QMessageBox.warning(self, "BENVENUTI", "Benvenuti in pyArchInit" + self.NOME_SCHEDA + ". Il database è vuoto. premere 'Ok' e buon lavoro!",  QMessageBox.Ok)
+                    QMessageBox.warning(self, "BENVENUTI", "Benvenuti in pyArchInit" + self.NOME_SCHEDA + ". Il database è vuoto. premere 'Ok' e buon lavoro!",  QMessageBox.StandardButton.Ok)
                 if self.L=='de':
-                    QMessageBox.warning(self, "WILLKOMMEN", "Willkommen in pyArchInit" + self.NOME_SCHEDA + ". Die Datenbank ist leer. Drücken Sie 'Ok' und gute Arbeit!",  QMessageBox.Ok)
+                    QMessageBox.warning(self, "WILLKOMMEN", "Willkommen in pyArchInit" + self.NOME_SCHEDA + ". Die Datenbank ist leer. Drücken Sie 'Ok' und gute Arbeit!",  QMessageBox.StandardButton.Ok)
                 else:
-                    QMessageBox.warning(self, "WELCOME", "Welcome in pyArchInit" + self.NOME_SCHEDA + ". The database is empty. Push 'Ok' and good work!",  QMessageBox.Ok)
+                    QMessageBox.warning(self, "WELCOME", "Welcome in pyArchInit" + self.NOME_SCHEDA + ". The database is empty. Push 'Ok' and good work!",  QMessageBox.StandardButton.Ok)
                 
                 self.charge_sito_list()
                 self.BROWSE_STATUS = 'x'
@@ -729,20 +729,20 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
             us_vl = self.DB_MANAGER.select_medianame_2_from_db_sql(sito,area,us)
             if not bool(search_dict):
                 if self.L=='it':
-                    QMessageBox.warning(self, "ATTENZIONE", "Inserisci un valore", QMessageBox.Ok)
+                    QMessageBox.warning(self, "ATTENZIONE", "Inserisci un valore", QMessageBox.StandardButton.Ok)
                 elif self.L=='de':
-                    QMessageBox.warning(self, "ACHTUNG", "Einen Wert einfügen", QMessageBox.Ok)
+                    QMessageBox.warning(self, "ACHTUNG", "Einen Wert einfügen", QMessageBox.StandardButton.Ok)
                 else:
-                    QMessageBox.warning(self, "WARNING", "Insert a value", QMessageBox.Ok)   
+                    QMessageBox.warning(self, "WARNING", "Insert a value", QMessageBox.StandardButton.Ok)   
             else:
                 res = self.DB_MANAGER.select_medianame_2_from_db_sql(sito,area,us)
                 if not bool(res):
                     if self.L=='it':
-                        QMessageBox.warning(self, "ATTENZIONE", "Non è stato trovato nessun record!", QMessageBox.Ok)
+                        QMessageBox.warning(self, "ATTENZIONE", "Non è stato trovato nessun record!", QMessageBox.StandardButton.Ok)
                     elif self.L=='de':
-                        QMessageBox.warning(self, "ACHTUNG", "Keinen Record gefunden!", QMessageBox.Ok)
+                        QMessageBox.warning(self, "ACHTUNG", "Keinen Record gefunden!", QMessageBox.StandardButton.Ok)
                     else:
-                        QMessageBox.warning(self, "WARNING", "No record found!", QMessageBox.Ok)   
+                        QMessageBox.warning(self, "WARNING", "No record found!", QMessageBox.StandardButton.Ok)   
                     self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR+1)
                     self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
 
@@ -789,7 +789,7 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                     self.setComboBoxEnable(["self.comboBox_area"],"True")
                     self.setComboBoxEnable(["self.comboBox_us"],"True")
                     #check_for_buttons = 1
-                    QMessageBox.information(self, "Info", "%s %d %s" % strings, QMessageBox.Ok)
+                    QMessageBox.information(self, "Info", "%s %d %s" % strings, QMessageBox.StandardButton.Ok)
             self.NUM_DATA_BEGIN =  1
             self.NUM_DATA_END = len(self.DATA_LIST)
             self.view_num_rec()
@@ -805,7 +805,7 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                 mediathumb_data = self.DB_MANAGER.query_bool(search_dict, "MEDIA_THUMB")
                 thumb_path = str(mediathumb_data[0].filepath)
                 item = QListWidgetItem(str(i.media_name))
-                item.setData(Qt.UserRole, str(i.media_name))
+                item.setData(Qt.ItemDataRole.UserRole, str(i.media_name))
                 icon = load_icon(get_image_path(thumb_path_str, thumb_path))
                 item.setIcon(icon)
                 self.iconListWidget.addItem(item)
@@ -823,20 +823,20 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
             us_vl = self.DB_MANAGER.select_medianame_pot_from_db_sql(sito,area,us)
             if not bool(search_dict):
                 if self.L=='it':
-                    QMessageBox.warning(self, "ATTENZIONE", "Inserisci un valore", QMessageBox.Ok)
+                    QMessageBox.warning(self, "ATTENZIONE", "Inserisci un valore", QMessageBox.StandardButton.Ok)
                 elif self.L=='de':
-                    QMessageBox.warning(self, "ACHTUNG", "Einen Wert einfügen", QMessageBox.Ok)
+                    QMessageBox.warning(self, "ACHTUNG", "Einen Wert einfügen", QMessageBox.StandardButton.Ok)
                 else:
-                    QMessageBox.warning(self, "WARNING", "Insert a value", QMessageBox.Ok)
+                    QMessageBox.warning(self, "WARNING", "Insert a value", QMessageBox.StandardButton.Ok)
             else:
                 res = self.DB_MANAGER.select_medianame_ra_from_db_sql(sito,area,us)
                 if not bool(res):
                     if self.L=='it':
-                        QMessageBox.warning(self, "ATTENZIONE", "Non è stato trovato nessun record!", QMessageBox.Ok)
+                        QMessageBox.warning(self, "ATTENZIONE", "Non è stato trovato nessun record!", QMessageBox.StandardButton.Ok)
                     elif self.L=='de':
-                        QMessageBox.warning(self, "ACHTUNG", "Keinen Record gefunden!", QMessageBox.Ok)
+                        QMessageBox.warning(self, "ACHTUNG", "Keinen Record gefunden!", QMessageBox.StandardButton.Ok)
                     else:
-                        QMessageBox.warning(self, "WARNING", "No record found!", QMessageBox.Ok)   
+                        QMessageBox.warning(self, "WARNING", "No record found!", QMessageBox.StandardButton.Ok)   
                     self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR+1)
                     self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
                     self.fill_fields(self.REC_CORR)
@@ -879,7 +879,7 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                     self.setComboBoxEnable(["self.comboBox_sito"],"True")
                     self.setComboBoxEnable(["self.comboBox_area"],"True")
                     self.setComboBoxEnable(["self.comboBox_us"],"True")
-                    QMessageBox.warning(self, "Messaggio", "%s %d %s" % strings, QMessageBox.Ok)
+                    QMessageBox.warning(self, "Messaggio", "%s %d %s" % strings, QMessageBox.StandardButton.Ok)
             self.NUM_DATA_BEGIN =  1
             self.NUM_DATA_END = len(self.DATA_LIST)
             self.view_num_rec()
@@ -895,7 +895,7 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                 mediathumb_data = self.DB_MANAGER.query_bool(search_dict, "MEDIA_THUMB")
                 thumb_path = str(mediathumb_data[0].filepath)
                 item = QListWidgetItem(str(i.media_name))
-                item.setData(Qt.UserRole, str(i.media_name))
+                item.setData(Qt.ItemDataRole.UserRole, str(i.media_name))
                 icon = load_icon(get_image_path(thumb_path_str, thumb_path))
                 item.setIcon(icon)
                 self.iconListWidget.addItem(item)
@@ -913,20 +913,20 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
             us_vl = self.DB_MANAGER.select_medianame_ra_from_db_sql(sito, area, us)
             if not bool(search_dict):
                 if self.L == 'it':
-                    QMessageBox.warning(self, "ATTENZIONE", "Inserisci un valore", QMessageBox.Ok)
+                    QMessageBox.warning(self, "ATTENZIONE", "Inserisci un valore", QMessageBox.StandardButton.Ok)
                 elif self.L == 'de':
-                    QMessageBox.warning(self, "ACHTUNG", "Einen Wert einfügen", QMessageBox.Ok)
+                    QMessageBox.warning(self, "ACHTUNG", "Einen Wert einfügen", QMessageBox.StandardButton.Ok)
                 else:
-                    QMessageBox.warning(self, "WARNING", "Insert a value", QMessageBox.Ok)
+                    QMessageBox.warning(self, "WARNING", "Insert a value", QMessageBox.StandardButton.Ok)
             else:
                 res = self.DB_MANAGER.select_medianame_ra_from_db_sql(sito, area, us)
                 if not bool(res):
                     if self.L == 'it':
-                        QMessageBox.warning(self, "ATTENZIONE", "Non è stato trovato nessun record!", QMessageBox.Ok)
+                        QMessageBox.warning(self, "ATTENZIONE", "Non è stato trovato nessun record!", QMessageBox.StandardButton.Ok)
                     elif self.L == 'de':
-                        QMessageBox.warning(self, "ACHTUNG", "Keinen Record gefunden!", QMessageBox.Ok)
+                        QMessageBox.warning(self, "ACHTUNG", "Keinen Record gefunden!", QMessageBox.StandardButton.Ok)
                     else:
-                        QMessageBox.warning(self, "WARNING", "No record found!", QMessageBox.Ok)
+                        QMessageBox.warning(self, "WARNING", "No record found!", QMessageBox.StandardButton.Ok)
                     self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR + 1)
                     self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
                     self.fill_fields(self.REC_CORR)
@@ -969,7 +969,7 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                     self.setComboBoxEnable(["self.comboBox_sito"], "True")
                     self.setComboBoxEnable(["self.comboBox_area"], "True")
                     self.setComboBoxEnable(["self.comboBox_us"], "True")
-                    QMessageBox.warning(self, "Messaggio", "%s %d %s" % strings, QMessageBox.Ok)
+                    QMessageBox.warning(self, "Messaggio", "%s %d %s" % strings, QMessageBox.StandardButton.Ok)
             self.NUM_DATA_BEGIN = 1
             self.NUM_DATA_END = len(self.DATA_LIST)
             self.view_num_rec()
@@ -985,7 +985,7 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                 mediathumb_data = self.DB_MANAGER.query_bool(search_dict, "MEDIA_THUMB")
                 thumb_path = str(mediathumb_data[0].filepath)
                 item = QListWidgetItem(str(i.media_name))
-                item.setData(Qt.UserRole, str(i.media_name))
+                item.setData(Qt.ItemDataRole.UserRole, str(i.media_name))
                 icon = load_icon(get_image_path(thumb_path_str, thumb_path))
                 item.setIcon(icon)
                 self.iconListWidget.addItem(item)
@@ -1002,20 +1002,20 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
             us_vl = self.DB_MANAGER.select_medianame_tb_from_db_sql(sito,area)
             if not bool(search_dict):
                 if self.L=='it':
-                    QMessageBox.warning(self, "ATTENZIONE", "Inserisci un valore", QMessageBox.Ok)
+                    QMessageBox.warning(self, "ATTENZIONE", "Inserisci un valore", QMessageBox.StandardButton.Ok)
                 elif self.L=='de':
-                    QMessageBox.warning(self, "ACHTUNG", "Einen Wert einfügen", QMessageBox.Ok)
+                    QMessageBox.warning(self, "ACHTUNG", "Einen Wert einfügen", QMessageBox.StandardButton.Ok)
                 else:
-                    QMessageBox.warning(self, "WARNING", "Insert a value", QMessageBox.Ok)
+                    QMessageBox.warning(self, "WARNING", "Insert a value", QMessageBox.StandardButton.Ok)
             else:
                 res = self.DB_MANAGER.select_medianame_tb_from_db_sql(sito,area)
                 if not bool(res):
                     if self.L=='it':
-                        QMessageBox.warning(self, "ATTENZIONE", "Non è stato trovato nessun record!", QMessageBox.Ok)
+                        QMessageBox.warning(self, "ATTENZIONE", "Non è stato trovato nessun record!", QMessageBox.StandardButton.Ok)
                     elif self.L=='de':
-                        QMessageBox.warning(self, "ACHTUNG", "Keinen Record gefunden!", QMessageBox.Ok)
+                        QMessageBox.warning(self, "ACHTUNG", "Keinen Record gefunden!", QMessageBox.StandardButton.Ok)
                     else:
-                        QMessageBox.warning(self, "WARNING", "No record found!", QMessageBox.Ok)   
+                        QMessageBox.warning(self, "WARNING", "No record found!", QMessageBox.StandardButton.Ok)   
                     self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR+1)
                     self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
                     self.fill_fields(self.REC_CORR)
@@ -1058,7 +1058,7 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                     self.setComboBoxEnable(["self.comboBox_sito"],"True")
                     self.setComboBoxEnable(["self.comboBox_area"],"True")
                     #self.setComboBoxEnable(["self.comboBox_us"],"True")
-                    QMessageBox.warning(self, "Messaggio", "%s %d %s" % strings, QMessageBox.Ok)
+                    QMessageBox.warning(self, "Messaggio", "%s %d %s" % strings, QMessageBox.StandardButton.Ok)
             self.NUM_DATA_BEGIN =  1
             self.NUM_DATA_END = len(self.DATA_LIST)
             self.view_num_rec()
@@ -1074,7 +1074,7 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                 mediathumb_data = self.DB_MANAGER.query_bool(search_dict, "MEDIA_THUMB")
                 thumb_path = str(mediathumb_data[0].filepath)
                 item = QListWidgetItem(str(i.media_name))
-                item.setData(Qt.UserRole, str(i.media_name))
+                item.setData(Qt.ItemDataRole.UserRole, str(i.media_name))
                 icon = load_icon(get_image_path(thumb_path_str, thumb_path))
                 item.setIcon(icon)
                 self.iconListWidget.addItem(item)
@@ -1100,20 +1100,20 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
             us_vl = self.DB_MANAGER.select_medianame_from_st_sql(sito,sigla,nr_st)
             if not bool(search_dict):
                 if self.L=='it':
-                    QMessageBox.warning(self, "ATTENZIONE", "Inserisci un valore", QMessageBox.Ok)
+                    QMessageBox.warning(self, "ATTENZIONE", "Inserisci un valore", QMessageBox.StandardButton.Ok)
                 elif self.L=='de':
-                    QMessageBox.warning(self, "ACHTUNG", "Einen Wert einfügen", QMessageBox.Ok)
+                    QMessageBox.warning(self, "ACHTUNG", "Einen Wert einfügen", QMessageBox.StandardButton.Ok)
                 else:
-                    QMessageBox.warning(self, "WARNING", "Insert a value", QMessageBox.Ok)
+                    QMessageBox.warning(self, "WARNING", "Insert a value", QMessageBox.StandardButton.Ok)
             else:
                 res = self.DB_MANAGER.select_medianame_from_st_sql(sito,sigla,nr_st)
                 if not bool(res):
                     if self.L=='it':
-                        QMessageBox.warning(self, "ATTENZIONE", "Non è stato trovato nessun record!", QMessageBox.Ok)
+                        QMessageBox.warning(self, "ATTENZIONE", "Non è stato trovato nessun record!", QMessageBox.StandardButton.Ok)
                     elif self.L=='de':
-                        QMessageBox.warning(self, "ACHTUNG", "Keinen Record gefunden!", QMessageBox.Ok)
+                        QMessageBox.warning(self, "ACHTUNG", "Keinen Record gefunden!", QMessageBox.StandardButton.Ok)
                     else:
-                        QMessageBox.warning(self, "WARNING", "No record found!", QMessageBox.Ok)   
+                        QMessageBox.warning(self, "WARNING", "No record found!", QMessageBox.StandardButton.Ok)   
                     self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR+1)
                     self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
                     self.fill_fields(self.REC_CORR)
@@ -1156,7 +1156,7 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                     self.setComboBoxEnable(["self.comboBox_sito"],"True")
                     self.setComboBoxEnable(["self.comboBox_sigla_struttura"],"True")
                     self.setComboBoxEnable(["self.comboBox_nr_struttura"],"True")
-                    QMessageBox.warning(self, "Messaggio", "%s %d %s" % strings, QMessageBox.Ok)
+                    QMessageBox.warning(self, "Messaggio", "%s %d %s" % strings, QMessageBox.StandardButton.Ok)
             self.NUM_DATA_BEGIN =  1
             self.NUM_DATA_END = len(self.DATA_LIST)
             self.view_num_rec()
@@ -1172,7 +1172,7 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                 mediathumb_data = self.DB_MANAGER.query_bool(search_dict, "MEDIA_THUMB")
                 thumb_path = str(mediathumb_data[0].filepath)
                 item = QListWidgetItem(str(i.media_name))
-                item.setData(Qt.UserRole, str(i.media_name))
+                item.setData(Qt.ItemDataRole.UserRole, str(i.media_name))
                 icon = load_icon(get_image_path(thumb_path_str, thumb_path))
                 item.setIcon(icon)
                 self.iconListWidget.addItem(item)
@@ -1191,7 +1191,7 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
         else:    
             video_list=[]
             directory = QFileDialog.getExistingDirectory(self, "Directory", "Choose a directory:",
-                                                         QFileDialog.ShowDirsOnly)
+                                                         QFileDialog.Option.ShowDirsOnly)
             if not directory:
                 return 0
             try:
@@ -1234,13 +1234,13 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                             try:
                                 MUR.resample_images(media_max_num_id, filepathv, filenameorig, thumb_resize_str, media_resize_suffix)
                             except Exception as e:
-                                QMessageBox.warning(self, "Cucu", str(e), QMessageBox.Ok)
+                                QMessageBox.warning(self, "Cucu", str(e), QMessageBox.StandardButton.Ok)
                                 # progressBAr
 
                             try:
                                 MU.resample_images(media_max_num_id, outputfile, filenameorig, thumb_path_str, media_thumb_suffix)
                             except Exception as e:
-                                QMessageBox.warning(self, "Cucu", str(e), QMessageBox.Ok)
+                                QMessageBox.warning(self, "Cucu", str(e), QMessageBox.StandardButton.Ok)
 
                             try:
                                 for i in enumerate(video):
@@ -1254,7 +1254,7 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                             self.insert_record_mediathumb(media_max_num_id, mediatype, filenamev, filename_thumb, filetypev,
                                                           filepath_thumb, filepath_resize)
                             item = QListWidgetItem(str(filenameorig))
-                            item.setData(Qt.UserRole, str(media_max_num_id))
+                            item.setData(Qt.ItemDataRole.UserRole, str(media_max_num_id))
                             icon = load_icon(get_image_path(str(thumb_path_str), filepath_thumb))
                             item.setIcon(icon)
                             self.iconListWidget.addItem(item)
@@ -1269,7 +1269,7 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                                                                   media_filename)  # recupera i valori della thumb in base al valore id_media del file originale
                             try:
                                 thumb_path = data_for_thumb[0].filepath_thumb
-                                item.setData(Qt.UserRole, thumb_path)
+                                item.setData(Qt.ItemDataRole.UserRole, thumb_path)
                                 icon = load_icon(get_image_path(str(thumb_path_str), filepath_thumb))  # os.path.join('%s/%s' % (directory.toUtf8(), image)))
                                 item.setIcon(icon)
                                 self.iconListWidget.addItem(item)
@@ -1300,11 +1300,11 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
             
             except:
                 if self.L=='it':
-                    QMessageBox.warning(self, "Warning", "controlla che il nome del file non abbia caratteri speciali", QMessageBox.Ok)
+                    QMessageBox.warning(self, "Warning", "controlla che il nome del file non abbia caratteri speciali", QMessageBox.StandardButton.Ok)
                 if self.L=='de':
-                    QMessageBox.warning(self, "Warning", "prüfen, ob der Dateiname keine Sonderzeichen enthält", QMessageBox.Ok)
+                    QMessageBox.warning(self, "Warning", "prüfen, ob der Dateiname keine Sonderzeichen enthält", QMessageBox.StandardButton.Ok)
                 else:
-                    QMessageBox.warning(self, "Warning", "check that the file name has no special characters", QMessageBox.Ok)    
+                    QMessageBox.warning(self, "Warning", "check that the file name has no special characters", QMessageBox.StandardButton.Ok)    
             self.progressBar.reset()
             self.charge_data ()
             self.view_num_rec()
@@ -1325,7 +1325,7 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
         else:    
             image_list=[]
             directory = QFileDialog.getExistingDirectory(self, "Directory", "Choose a directory:",
-                                                         QFileDialog.ShowDirsOnly)
+                                                         QFileDialog.Option.ShowDirsOnly)
             if not directory:
                 return 0
             try:
@@ -1362,7 +1362,7 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                                 MU.resample_images(media_max_num_id, filepath, filenameorig, thumb_path_str, media_thumb_suffix)
                                 MUR.resample_images(media_max_num_id, filepath, filenameorig, thumb_resize_str, media_resize_suffix)
                             except Exception as e:
-                                QMessageBox.warning(self, "Cucu", str(e), QMessageBox.Ok)
+                                QMessageBox.warning(self, "Cucu", str(e), QMessageBox.StandardButton.Ok)
                                 # progressBAr
                             
                             
@@ -1370,7 +1370,7 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                             self.insert_record_mediathumb(media_max_num_id, mediatype, filename, filename_thumb, filetype,
                                                           filepath_thumb, filepath_resize)
                             item = QListWidgetItem(str(filenameorig))
-                            item.setData(Qt.UserRole, str(media_max_num_id))
+                            item.setData(Qt.ItemDataRole.UserRole, str(media_max_num_id))
                             icon = load_icon(get_image_path(str(thumb_path_str), filepath_thumb))
                             item.setIcon(icon)
                             self.iconListWidget.addItem(item)
@@ -1386,7 +1386,7 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                             try:
                                 self.iconListWidget.clear()
                                 thumb_path = data_for_thumb[0].filepath_thumb
-                                item.setData(Qt.UserRole, thumb_path)
+                                item.setData(Qt.ItemDataRole.UserRole, thumb_path)
                                 icon = load_icon(get_image_path(str(thumb_path_str), filepath_thumb))  # os.path.join('%s/%s' % (directory.toUtf8(), image)))
                                 item.setIcon(icon)
                                 self.iconListWidget.addItem(item)
@@ -1419,11 +1419,11 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                             QMessageBox.information(self, "Message", "Uploaded images! You can tag them")
             except:
                 if self.L=='it':
-                    QMessageBox.warning(self, "Warning", "controlla che il nome del file non abbia caratteri speciali", QMessageBox.Ok)
+                    QMessageBox.warning(self, "Warning", "controlla che il nome del file non abbia caratteri speciali", QMessageBox.StandardButton.Ok)
                 elif self.L=='de':
-                    QMessageBox.warning(self, "Warning", "prüfen, ob der Dateiname keine Sonderzeichen enthält", QMessageBox.Ok)
+                    QMessageBox.warning(self, "Warning", "prüfen, ob der Dateiname keine Sonderzeichen enthält", QMessageBox.StandardButton.Ok)
                 else:
-                    QMessageBox.warning(self, "Warning", "check that the file name has no special characters", QMessageBox.Ok)    
+                    QMessageBox.warning(self, "Warning", "check that the file name has no special characters", QMessageBox.StandardButton.Ok)    
             
             self.progressBar.reset()
             #####codice da sviluppare per lautotag#########################################
@@ -1532,7 +1532,7 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                 #QMessageBox.warning(self, "Errore", "Warning 1 ! \n"+ str(msg),  QMessageBox.Ok)
                 return 0
         except Exception as  e:
-            QMessageBox.warning(self, "Error", "Warning 2 ! \n"+str(e),  QMessageBox.Ok)
+            QMessageBox.warning(self, "Error", "Warning 2 ! \n"+str(e),  QMessageBox.StandardButton.Ok)
             return 0
     def insert_record_mediathumb(self, media_max_num_id, mediatype, filename, filename_thumb, filetype, filepath_thumb, filepath_resize):
         self.media_max_num_id = media_max_num_id
@@ -1564,7 +1564,7 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                 #QMessageBox.warning(self, "Error", "warming 1 ! \n"+ str(msg),  QMessageBox.Ok)
                 return 0
         except Exception as  e:
-            QMessageBox.warning(self, "Error", "Warning 2 ! \n"+str(e),  QMessageBox.Ok)
+            QMessageBox.warning(self, "Error", "Warning 2 ! \n"+str(e),  QMessageBox.StandardButton.Ok)
             return 0
     def insert_mediaToEntity_rec(self, id_entity, entity_type, table_name, id_media, filepath, media_name):
         """
@@ -1599,10 +1599,10 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                     msg = self.ID_TABLE + " already present into the database"
                 else:
                     msg = e
-                QMessageBox.warning(self, "Error", "Warning 1 ! \n"+ str(msg),  QMessageBox.Ok)
+                QMessageBox.warning(self, "Error", "Warning 1 ! \n"+ str(msg),  QMessageBox.StandardButton.Ok)
                 return 0
         except Exception as  e:
-            QMessageBox.warning(self, "Error", "Warning 2 ! \n"+str(e),  QMessageBox.Ok)
+            QMessageBox.warning(self, "Error", "Warning 2 ! \n"+str(e),  QMessageBox.StandardButton.Ok)
             return 0
     def delete_mediaToEntity_rec(self, id_entity, entity_type, table_name, id_media, filepath, media_name):
         """
@@ -1629,7 +1629,7 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
             str(self.filepath),                                                     #5 - filepath
             str(self.media_name))
         except Exception as  e:
-            QMessageBox.warning(self, "Error", "Warning 2 ! \n"+str(e),  QMessageBox.Ok)
+            QMessageBox.warning(self, "Error", "Warning 2 ! \n"+str(e),  QMessageBox.StandardButton.Ok)
             return 0
     def db_search_check(self, table_class, field, value):
         self.table_class = table_class
@@ -1647,7 +1647,7 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
         #else:
         dlg = SortPanelMain(self)
         dlg.insertItems(self.SORT_ITEMS)
-        dlg.exec_()
+        dlg.exec()
         items,order_type = dlg.ITEMS, dlg.TYPE_ORDER
         self.SORT_ITEMS_CONVERTED = []
         for i in items:
@@ -1742,7 +1742,7 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                 pass
             if bool(res_2):
                 dlg.show_image(str(thumb_resize_str+file_path_3))  
-                dlg.exec_()
+                dlg.exec()
             else:
                 pass
     def charge_sito_list(self):
@@ -1802,37 +1802,37 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
 
         if not record_us_list[0]:
             if self.L=='it':
-                result = QMessageBox.warning(self, "Attenzione",  "Scheda US non presente. Vuoi generala? Clicca ok oppure Annulla per abortire", QMessageBox.Ok|QMessageBox.Cancel)
+                result = QMessageBox.warning(self, "Attenzione",  "Scheda US non presente. Vuoi generala? Clicca ok oppure Annulla per abortire", QMessageBox.StandardButton.Ok|QMessageBox.StandardButton.Cancel)
             elif self.L == 'de':
-                result = QMessageBox.warning(self, "Warnung", "SE-Karte nicht vorhanden. Sie wollen es generieren? Klicken Sie auf OK oder Abbrechen, um abzubrechen", QMessageBox.Ok|QMessageBox.Cancel)
+                result = QMessageBox.warning(self, "Warnung", "SE-Karte nicht vorhanden. Sie wollen es generieren? Klicken Sie auf OK oder Abbrechen, um abzubrechen", QMessageBox.StandardButton.Ok|QMessageBox.StandardButton.Cancel)
             else:
-                result = QMessageBox.warning(self, "Warning", "SU form not present. Do you want to generate it? Click OK or Cancel to abort", QMessageBox.Ok|QMessageBox.Cancel)
+                result = QMessageBox.warning(self, "Warning", "SU form not present. Do you want to generate it? Click OK or Cancel to abort", QMessageBox.StandardButton.Ok|QMessageBox.StandardButton.Cancel)
 
 
-            if result == QMessageBox.Ok:
+            if result == QMessageBox.StandardButton.Ok:
 
 
                 rs = self.DB_MANAGER.insert_number_of_us_records(str(sing_tags[0]), str(sing_tags[1]), str(sing_tags[2]))
 
                 if self.L == 'it':
-                    QMessageBox.information(self, "Info", "Scheda creata", QMessageBox.Ok)
+                    QMessageBox.information(self, "Info", "Scheda creata", QMessageBox.StandardButton.Ok)
                 if self.L == 'de':
-                    QMessageBox.information(self, "Info", "Formular erstellt", QMessageBox.Ok)
+                    QMessageBox.information(self, "Info", "Formular erstellt", QMessageBox.StandardButton.Ok)
                 else:
-                    QMessageBox.information(self, "Info", "Form created", QMessageBox.Ok)
+                    QMessageBox.information(self, "Info", "Form created", QMessageBox.StandardButton.Ok)
 
                 #record_us_list[0].pop()
                 return rs
             else:
                 if self.L=='it':
 
-                    QMessageBox.information(self, "Info", "Azione annullata", QMessageBox.Ok)
+                    QMessageBox.information(self, "Info", "Azione annullata", QMessageBox.StandardButton.Ok)
                 elif self.L=='de':
 
-                    QMessageBox.information(self, "Info", "Aktion abgebrochen", QMessageBox.Ok)
+                    QMessageBox.information(self, "Info", "Aktion abgebrochen", QMessageBox.StandardButton.Ok)
                 else:
 
-                    QMessageBox.information(self, "Info", "Action cancelled", QMessageBox.Ok)
+                    QMessageBox.information(self, "Info", "Action cancelled", QMessageBox.StandardButton.Ok)
 
                 return
 
@@ -1840,7 +1840,7 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
         for r in record_us_list:
 
             us_list.append([r[0].id_us, 'US', 'us_table'])
-        QMessageBox.information(self, "Scheda US", str(us_list), QMessageBox.Ok)
+        QMessageBox.information(self, "Scheda US", str(us_list), QMessageBox.StandardButton.Ok)
         return us_list
             #record_us_list[0].pop()
     def remove_US(self):
@@ -1873,35 +1873,35 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
             if self.L == 'it':
                 result = QMessageBox.warning(self, "Attenzione",
                                              "Scheda Reperti non presente. Vuoi generala? Clicca ok oppure Annulla per abortire",
-                                             QMessageBox.Ok | QMessageBox.Cancel)
+                                             QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel)
             elif self.L == 'de':
                 result = QMessageBox.warning(self, "Warnung",
                                              "Karte nicht vorhanden. Sie wollen es generieren? Klicken Sie auf OK oder Abbrechen, um abzubrechen",
-                                             QMessageBox.Ok | QMessageBox.Cancel)
+                                             QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel)
             else:
                 result = QMessageBox.warning(self, "Warning",
                                              "Form not present. Do you want to generate it? Click OK or Cancel to abort",
-                                             QMessageBox.Ok | QMessageBox.Cancel)
-            if result == QMessageBox.Ok:
+                                             QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel)
+            if result == QMessageBox.StandardButton.Ok:
                 rs = self.DB_MANAGER.insert_number_of_pottery_records(int(sing_tags[0]), str(sing_tags[1]),str(sing_tags[2]),int(sing_tags[3]))
                 if self.L == 'it':
-                    QMessageBox.information(self, "Info", "Scheda creata", QMessageBox.Ok)
+                    QMessageBox.information(self, "Info", "Scheda creata", QMessageBox.StandardButton.Ok)
                 if self.L == 'de':
-                    QMessageBox.information(self, "Info", "Formular erstellt", QMessageBox.Ok)
+                    QMessageBox.information(self, "Info", "Formular erstellt", QMessageBox.StandardButton.Ok)
                 else:
-                    QMessageBox.information(self, "Info", "Form created", QMessageBox.Ok)
+                    QMessageBox.information(self, "Info", "Form created", QMessageBox.StandardButton.Ok)
 
                 return rs
             else:
                 if self.L == 'it':
 
-                    QMessageBox.information(self, "Info", "Azione annullata", QMessageBox.Ok)
+                    QMessageBox.information(self, "Info", "Azione annullata", QMessageBox.StandardButton.Ok)
                 elif self.L == 'de':
 
-                    QMessageBox.information(self, "Info", "Aktion abgebrochen", QMessageBox.Ok)
+                    QMessageBox.information(self, "Info", "Aktion abgebrochen", QMessageBox.StandardButton.Ok)
                 else:
 
-                    QMessageBox.information(self, "Info", "Action cancelled", QMessageBox.Ok)
+                    QMessageBox.information(self, "Info", "Action cancelled", QMessageBox.StandardButton.Ok)
                 return
         rep_list = []
         for r in record_rep_list:
@@ -1939,31 +1939,31 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
             record_rep_list.append(self.DB_MANAGER.query_bool(search_dict, 'INVENTARIO_MATERIALI'))
         if not record_rep_list[0]:
             if self.L=='it':
-                result=QMessageBox.warning(self, "Attenzione",  "Scheda Reperti non presente. Vuoi generala? Clicca ok oppure Annulla per abortire", QMessageBox.Ok|QMessageBox.Cancel)
+                result=QMessageBox.warning(self, "Attenzione",  "Scheda Reperti non presente. Vuoi generala? Clicca ok oppure Annulla per abortire", QMessageBox.StandardButton.Ok|QMessageBox.StandardButton.Cancel)
             elif self.L=='de':
-                result=QMessageBox.warning(self, "Warnung", "Karte nicht vorhanden. Sie wollen es generieren? Klicken Sie auf OK oder Abbrechen, um abzubrechen", QMessageBox.Ok|QMessageBox.Cancel)
+                result=QMessageBox.warning(self, "Warnung", "Karte nicht vorhanden. Sie wollen es generieren? Klicken Sie auf OK oder Abbrechen, um abzubrechen", QMessageBox.StandardButton.Ok|QMessageBox.StandardButton.Cancel)
             else:
-                result=QMessageBox.warning(self, "Warning", "Form not present. Do you want to generate it? Click OK or Cancel to abort", QMessageBox.Ok|QMessageBox.Cancel)    
-            if result==QMessageBox.Ok:
+                result=QMessageBox.warning(self, "Warning", "Form not present. Do you want to generate it? Click OK or Cancel to abort", QMessageBox.StandardButton.Ok|QMessageBox.StandardButton.Cancel)    
+            if result==QMessageBox.StandardButton.Ok:
                 rs= self.DB_MANAGER.insert_number_of_reperti_records(str(sing_tags[0]),str(sing_tags[1]))
                 if self.L=='it':
-                    QMessageBox.information(self, "Info",  "Scheda creata", QMessageBox.Ok)
+                    QMessageBox.information(self, "Info",  "Scheda creata", QMessageBox.StandardButton.Ok)
                 if self.L=='de':
-                    QMessageBox.information(self, "Info",  "Formular erstellt", QMessageBox.Ok)
+                    QMessageBox.information(self, "Info",  "Formular erstellt", QMessageBox.StandardButton.Ok)
                 else:
-                    QMessageBox.information(self, "Info",  "Form created", QMessageBox.Ok)
+                    QMessageBox.information(self, "Info",  "Form created", QMessageBox.StandardButton.Ok)
                 
                 return rs
             else:
                 if self.L=='it':
                 
-                    QMessageBox.information(self, "Info", "Azione annullata", QMessageBox.Ok)
+                    QMessageBox.information(self, "Info", "Azione annullata", QMessageBox.StandardButton.Ok)
                 elif self.L=='de':
                 
-                    QMessageBox.information(self, "Info", "Aktion abgebrochen", QMessageBox.Ok)
+                    QMessageBox.information(self, "Info", "Aktion abgebrochen", QMessageBox.StandardButton.Ok)
                 else:
                 
-                    QMessageBox.information(self, "Info", "Action cancelled", QMessageBox.Ok)
+                    QMessageBox.information(self, "Info", "Action cancelled", QMessageBox.StandardButton.Ok)
                 return    
         rep_list = []
         for r in record_rep_list:
@@ -1993,31 +1993,31 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
             record_tmb_list.append(self.DB_MANAGER.query_bool(search_dict, 'TOMBA'))
         if not record_tmb_list[0]:
             if self.L=='it':
-                result=QMessageBox.warning(self, "Attenzione",  "Scheda Tomba non presente. Vuoi generala? Clicca ok oppure Annulla per abortire", QMessageBox.Ok|QMessageBox.Cancel)
+                result=QMessageBox.warning(self, "Attenzione",  "Scheda Tomba non presente. Vuoi generala? Clicca ok oppure Annulla per abortire", QMessageBox.StandardButton.Ok|QMessageBox.StandardButton.Cancel)
             elif self.L=='de':
-                result=QMessageBox.warning(self, "Warnung", "Karte nicht vorhanden. Sie wollen es generieren? Klicken Sie auf OK oder Abbrechen, um abzubrechen", QMessageBox.Ok|QMessageBox.Cancel)
+                result=QMessageBox.warning(self, "Warnung", "Karte nicht vorhanden. Sie wollen es generieren? Klicken Sie auf OK oder Abbrechen, um abzubrechen", QMessageBox.StandardButton.Ok|QMessageBox.StandardButton.Cancel)
             else:
-                result=QMessageBox.warning(self, "Warning", "Form not present. Do you want to generate it? Click OK or Cancel to abort", QMessageBox.Ok|QMessageBox.Cancel)  
-            if result==QMessageBox.Ok:
+                result=QMessageBox.warning(self, "Warning", "Form not present. Do you want to generate it? Click OK or Cancel to abort", QMessageBox.StandardButton.Ok|QMessageBox.StandardButton.Cancel)  
+            if result==QMessageBox.StandardButton.Ok:
                 rs= self.DB_MANAGER.insert_number_of_tomba_records(str(sing_tags[0]),str(sing_tags[1]))
                 if self.L=='it':
-                    QMessageBox.information(self, "Info",  "Scheda creata", QMessageBox.Ok)
+                    QMessageBox.information(self, "Info",  "Scheda creata", QMessageBox.StandardButton.Ok)
                 if self.L=='de':
-                    QMessageBox.information(self, "Info",  "Formular erstellt", QMessageBox.Ok)
+                    QMessageBox.information(self, "Info",  "Formular erstellt", QMessageBox.StandardButton.Ok)
                 else:
-                    QMessageBox.information(self, "Info",  "Form created", QMessageBox.Ok)
+                    QMessageBox.information(self, "Info",  "Form created", QMessageBox.StandardButton.Ok)
                 
                 return rs
             else:
                 if self.L=='it':
                 
-                    QMessageBox.information(self, "Info", "Azione annullata", QMessageBox.Ok)
+                    QMessageBox.information(self, "Info", "Azione annullata", QMessageBox.StandardButton.Ok)
                 elif self.L=='de':
                 
-                    QMessageBox.information(self, "Info", "Aktion abgebrochen", QMessageBox.Ok)
+                    QMessageBox.information(self, "Info", "Aktion abgebrochen", QMessageBox.StandardButton.Ok)
                 else:
                 
-                    QMessageBox.information(self, "Info", "Action cancelled", QMessageBox.Ok)
+                    QMessageBox.information(self, "Info", "Action cancelled", QMessageBox.StandardButton.Ok)
                 return    
         tmb_list = []
         for r in record_tmb_list:
@@ -2050,31 +2050,31 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
             record_tmb_list.append(self.DB_MANAGER.query_bool(search_dict, 'STRUTTURA'))
         if not record_tmb_list[0]:
             if self.L=='it':
-                result=QMessageBox.warning(self, "Attenzione",  "Scheda Struttura non presente. Vuoi generala? Clicca ok oppure Annulla per abortire", QMessageBox.Ok|QMessageBox.Cancel)
+                result=QMessageBox.warning(self, "Attenzione",  "Scheda Struttura non presente. Vuoi generala? Clicca ok oppure Annulla per abortire", QMessageBox.StandardButton.Ok|QMessageBox.StandardButton.Cancel)
             elif self.L=='de':
-                result=QMessageBox.warning(self, "Warnung", "Karte nicht vorhanden. Sie wollen es generieren? Klicken Sie auf OK oder Abbrechen, um abzubrechen", QMessageBox.Ok|QMessageBox.Cancel)
+                result=QMessageBox.warning(self, "Warnung", "Karte nicht vorhanden. Sie wollen es generieren? Klicken Sie auf OK oder Abbrechen, um abzubrechen", QMessageBox.StandardButton.Ok|QMessageBox.StandardButton.Cancel)
             else:
-                result=QMessageBox.warning(self, "Warning", "Form not present. Do you want to generate it? Click OK or Cancel to abort", QMessageBox.Ok|QMessageBox.Cancel)  
-            if result==QMessageBox.Ok:
+                result=QMessageBox.warning(self, "Warning", "Form not present. Do you want to generate it? Click OK or Cancel to abort", QMessageBox.StandardButton.Ok|QMessageBox.StandardButton.Cancel)  
+            if result==QMessageBox.StandardButton.Ok:
                 rs= self.DB_MANAGER.insert_struttura_records(str(sing_tags[0]),str(sing_tags[1]),str(sing_tags[2]))
                 if self.L=='it':
-                    QMessageBox.information(self, "Info",  "Scheda creata", QMessageBox.Ok)
+                    QMessageBox.information(self, "Info",  "Scheda creata", QMessageBox.StandardButton.Ok)
                 if self.L=='de':
-                    QMessageBox.information(self, "Info",  "Formular erstellt", QMessageBox.Ok)
+                    QMessageBox.information(self, "Info",  "Formular erstellt", QMessageBox.StandardButton.Ok)
                 else:
-                    QMessageBox.information(self, "Info",  "Form created", QMessageBox.Ok)
+                    QMessageBox.information(self, "Info",  "Form created", QMessageBox.StandardButton.Ok)
                 
                 return rs
             else:
                 if self.L=='it':
                 
-                    QMessageBox.information(self, "Info", "Azione annullata", QMessageBox.Ok)
+                    QMessageBox.information(self, "Info", "Azione annullata", QMessageBox.StandardButton.Ok)
                 elif self.L=='de':
                 
-                    QMessageBox.information(self, "Info", "Aktion abgebrochen", QMessageBox.Ok)
+                    QMessageBox.information(self, "Info", "Aktion abgebrochen", QMessageBox.StandardButton.Ok)
                 else:
                 
-                    QMessageBox.information(self, "Info", "Action cancelled", QMessageBox.Ok)
+                    QMessageBox.information(self, "Info", "Action cancelled", QMessageBox.StandardButton.Ok)
                 return    
         tmb_list = []
         for r in record_tmb_list:
@@ -2098,13 +2098,14 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
     
     def table2dict(self, n):
         self.tablename = n
-        row = eval(self.tablename + ".rowCount()")
-        col = eval(self.tablename + ".columnCount()")
+        table = getattr(self, self.tablename.replace("self.", "") if self.tablename.startswith("self.") else self.tablename)
+        row = table.rowCount()
+        col = table.columnCount()
         lista = []
         for r in range(row):
             sub_list = []
             for c in range(col):
-                value = eval(self.tablename + ".item(r,c)")
+                value = table.item(r, c)
                 if value != None:
                     sub_list.append(str(value.text()))
             if bool(sub_list):
@@ -2132,7 +2133,7 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                 # data_for_thumb = self.db_search_check(self.MAPPER_TABLE_CLASS_thumb, 'id_media', id_media) # recupera i valori della thumb in base al valore id_media del file originale
                 thumb_path = data[i].filepath
                 # QMessageBox.warning(self, "Errore",str(thumb_path),  QMessageBox.Ok)
-                item.setData(Qt.UserRole, str(data[i].media_filename ))
+                item.setData(Qt.ItemDataRole.UserRole, str(data[i].media_filename ))
                 icon = load_icon(get_image_path(thumb_path_str, thumb_path))  # os.path.join('%s/%s' % (directory.toUtf8(), image)))
                 item.setIcon(icon)
                 self.iconListWidget.addItem(item)
@@ -2296,8 +2297,8 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
             
                 msg = QMessageBox.warning(self, "Attenzione",
                                       "Vuoi veramente eliminare la thumb selezionata? \n L'azione è irreversibile",
-                                      QMessageBox.Ok | QMessageBox.Cancel)
-                if msg == QMessageBox.Cancel:
+                                      QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel)
+                if msg == QMessageBox.StandardButton.Cancel:
                     QMessageBox.warning(self, "Info", "Azione Annullata!")
                 else:
                     try:
@@ -2319,8 +2320,8 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
             
                 msg = QMessageBox.warning(self, "Warnung",
                                       "Wollen Sie den ausgewählten Daumen wirklich beseitigen? \Die Aktion ist unumkehrbar",
-                                      QMessageBox.Ok | QMessageBox.Cancel)
-                if msg == QMessageBox.Cancel:
+                                      QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel)
+                if msg == QMessageBox.StandardButton.Cancel:
                     QMessageBox.warning(self, "Info", "Aktion abgebrochen")
                 else:
                     try:
@@ -2343,8 +2344,8 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
             
                 msg = QMessageBox.warning(self, "Warning",
                                       "Do you really want to delete the selected thumb? \n The action is irreversible",
-                                      QMessageBox.Ok | QMessageBox.Cancel)
-                if msg == QMessageBox.Cancel:
+                                      QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel)
+                if msg == QMessageBox.StandardButton.Cancel:
                     QMessageBox.warning(self, "Info", "Action cancelled")
                 else:
                     try:
@@ -2378,24 +2379,24 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                 
                 msg = QMessageBox.warning(self, "Attenzione!!!",
                                       "devi selezionare prima un tag",
-                                      QMessageBox.Ok)
+                                      QMessageBox.StandardButton.Ok)
         
             elif self.L=='de':
                 
                 msg = QMessageBox.warning(self, "Warnung",
                                       "Sie müssen zuerst ein Tag auswählen",
-                                      QMessageBox.Ok)
+                                      QMessageBox.StandardButton.Ok)
             else:
                 
                 msg = QMessageBox.warning(self, "Warning",
                                       "you must first select a tag",
-                                      QMessageBox.Ok)
+                                      QMessageBox.StandardButton.Ok)
         else:
             if self.L=='it':
                 msg = QMessageBox.warning(self, "Warning",
                                           "Vuoi veramente cancellare i tags dalle thumbnail selezionate? \n L'azione è irreversibile",
-                                          QMessageBox.Ok | QMessageBox.Cancel)
-                if msg == QMessageBox.Cancel:
+                                          QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel)
+                if msg == QMessageBox.StandardButton.Cancel:
                     QMessageBox.warning(self, "Messaggio!!!", "Azione Annullata!")
                 else:
                     items_selected = self.tableWidget_tags.selectedItems()
@@ -2407,8 +2408,8 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
             elif self.L=='de':
                 msg = QMessageBox.warning(self, "Warning",
                                           "Wollen Sie wirklich die Tags aus den ausgewählten Miniaturbildern löschen? \n Die Aktion ist unumkehrbar",
-                                          QMessageBox.Ok | QMessageBox.Cancel)
-                if msg == QMessageBox.Cancel:
+                                          QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel)
+                if msg == QMessageBox.StandardButton.Cancel:
                     QMessageBox.warning(self, "Warnung", "Azione Annullata!")
                 else:
                     items_selected = self.tableWidget_tags.selectedItems()
@@ -2421,8 +2422,8 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
             else:
                 msg = QMessageBox.warning(self, "Warning",
                                           "Do you really want to delete the tags from the selected thumbnails? \n The action is irreversible",
-                                          QMessageBox.Ok | QMessageBox.Cancel)
-                if msg == QMessageBox.Cancel:
+                                          QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel)
+                if msg == QMessageBox.StandardButton.Cancel:
                     QMessageBox.warning(self, "Warning", "Action cancelled")
                 else:
                     items_selected = self.tableWidget_tags.selectedItems()
@@ -2442,8 +2443,8 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
             if self.L=='it':
                 msg = QMessageBox.warning(self, "Attenzione!!!",
                                           "Vuoi veramente eliminare tutti i tags dalle immagini selezionate? \n L'azione è irreversibile",
-                                          QMessageBox.Ok | QMessageBox.Cancel)
-                if msg == QMessageBox.Cancel:
+                                          QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel)
+                if msg == QMessageBox.StandardButton.Cancel:
                     QMessageBox.warning(self, "Info", "Azione Annullata!")
                 else:
                     try:
@@ -2460,8 +2461,8 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
             elif self.L=='de':
                 msg = QMessageBox.warning(self, "Warnung",
                                           "Wollen Sie wirklich alle Tags aus den ausgewählten Bildern löschen? \n Die Aktion ist unumkehrbar",
-                                          QMessageBox.Ok | QMessageBox.Cancel)
-                if msg == QMessageBox.Cancel:
+                                          QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel)
+                if msg == QMessageBox.StandardButton.Cancel:
                     QMessageBox.warning(self, "Info", "Aktion abgebrochen")
                 else:
                     try:
@@ -2479,8 +2480,8 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
             else:
                 msg = QMessageBox.warning(self, "Worning",
                                           "Do you really want to delete all tags from the selected images? \n The action is irreversible",
-                                          QMessageBox.Ok | QMessageBox.Cancel)
-                if msg == QMessageBox.Cancel:
+                                          QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel)
+                if msg == QMessageBox.StandardButton.Cancel:
                     QMessageBox.warning(self, "Info", "Action cancelled")
                 else:
                     try:
@@ -2575,15 +2576,15 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                     print(s, file=fh)
             if self.L=='it':
                 QMessageBox.warning(self, "Messaggio",
-                                    "Problema di encoding: sono stati inseriti accenti o caratteri non accettati dal database. Verrà fatta una copia dell'errore con i dati che puoi recuperare nella cartella pyarchinit_Report _Folder", QMessageBox.Ok)
+                                    "Problema di encoding: sono stati inseriti accenti o caratteri non accettati dal database. Verrà fatta una copia dell'errore con i dati che puoi recuperare nella cartella pyarchinit_Report _Folder", QMessageBox.StandardButton.Ok)
             
             
             elif self.L=='de':
                 QMessageBox.warning(self, "Message",
-                                    "Encoding problem: accents or characters not accepted by the database were entered. A copy of the error will be made with the data you can retrieve in the pyarchinit_Report _Folder", QMessageBox.Ok) 
+                                    "Encoding problem: accents or characters not accepted by the database were entered. A copy of the error will be made with the data you can retrieve in the pyarchinit_Report _Folder", QMessageBox.StandardButton.Ok) 
             else:
                 QMessageBox.warning(self, "Message",
-                                    "Kodierungsproblem: Es wurden Akzente oder Zeichen eingegeben, die von der Datenbank nicht akzeptiert werden. Es wird eine Kopie des Fehlers mit den Daten erstellt, die Sie im pyarchinit_Report _Ordner abrufen können", QMessageBox.Ok)
+                                    "Kodierungsproblem: Es wurden Akzente oder Zeichen eingegeben, die von der Datenbank nicht akzeptiert werden. Es wird eine Kopie des Fehlers mit den Daten erstellt, die Sie im pyarchinit_Report _Ordner abrufen können", QMessageBox.StandardButton.Ok)
             return 0
     def rec_toupdate(self):
         self.DATA_LIST = []
@@ -2783,20 +2784,17 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
         # except Exception as  e:
             # QMessageBox.warning(self, "Error Fill Fields", str(e),  QMessageBox.Ok)
     def setComboBoxEnable(self, f, v):
-        field_names = f
-        value = v
+        """Set enabled state for widgets - uses getattr instead of eval for security"""
         for fn in field_names:
             cmd = ('%s%s%s%s') % (fn, '.setEnabled(', v, ')')
             eval(cmd)
     def setComboBoxEditable(self, f, n):
-        field_names = f
-        value = n
+        """Set editable state for widgets - uses getattr instead of eval for security"""
         for fn in field_names:
             cmd = '{}{}{}{}'.format(fn, '.setEditable(', n, ')')
             eval(cmd)
     def setTableEnable(self, t, v):
-        tab_names = t
-        value = v
+        """Set enabled state for table widgets - uses getattr instead of eval"""
         for tn in tab_names:
             cmd = ('%s%s%s%s') % (tn, '.setEnabled(', v, ')')
             eval(cmd)

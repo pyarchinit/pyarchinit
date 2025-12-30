@@ -23,7 +23,6 @@
 import os
 import traceback
 import sys
-from builtins import object
 from qgis.PyQt.QtWidgets import *
 from qgis.core import QgsMessageLog, Qgis, QgsSettings
 from .pyarchinit_OS_utility import Pyarchinit_OS_Utility

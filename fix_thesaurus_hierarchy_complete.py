@@ -52,7 +52,7 @@ def create_hierarchy_widgets(self):
         if isinstance(layout, QFormLayout):
             # Trova la riga di tipologia_sigla
             for i in range(layout.rowCount()):
-                field_item = layout.itemAt(i, QFormLayout.FieldRole)
+                field_item = layout.itemAt(i, QFormLayout.ItemRole.FieldRole)
                 if field_item and field_item.widget() == self.comboBox_tipologia_sigla:
                     # Inserisci dopo questa riga
                     layout.insertRow(i + 1, self.label_parent_localita, self.comboBox_parent_localita)

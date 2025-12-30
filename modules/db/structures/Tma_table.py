@@ -26,13 +26,8 @@ from modules.db.pyarchinit_conn_strings import Connection
 class Tma_table:
     """TMA (Tabella Materiali Archeologici) table structure"""
 
-    # connection string postgres"
-    internal_connection = Connection()
 
-    # create engine and metadata
-
-    engine = create_engine(internal_connection.conn_str(), echo=False, convert_unicode=True)
-    metadata = MetaData(engine)
+    metadata = MetaData()
         
     tma_table = Table('tma_materiali_archeologici', metadata,
                       Column('id', Integer, primary_key=True),

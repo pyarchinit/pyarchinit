@@ -34,7 +34,7 @@ class Text2SQLWidget(QWidget):
         title_font.setBold(True)
         title_font.setPointSize(14)
         title_label.setFont(title_font)
-        title_label.setAlignment(Qt.AlignCenter)
+        title_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         main_layout.addWidget(title_label)
 
         # Modalità di generazione
@@ -394,7 +394,7 @@ class MakeSQL:
             client = OpenAI(api_key=api_key)
             
             # Prepara lo schema
-            schema_text = MakeSQL.schema_to_text(database_schema.metadata)
+            schema_text = MakeSQL.schema_to_text(database_schema.get_metadata())
             
             # Costruisci il prompt di sistema
             system_prompt = f"""Sei un esperto di SQL e database archeologici PyArchInit.
@@ -531,7 +531,7 @@ Includi:
             
         try:
             # Prepara lo schema
-            schema_text = MakeSQL.schema_to_text(database_schema.metadata)
+            schema_text = MakeSQL.schema_to_text(database_schema.get_metadata())
             
             # Costruisci il prompt
             full_prompt = f"""You are an SQL expert for archaeological databases.

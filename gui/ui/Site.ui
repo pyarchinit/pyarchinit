@@ -602,13 +602,13 @@
         <bool>false</bool>
        </property>
        <property name="contextMenuPolicy">
-        <enum>Qt::DefaultContextMenu</enum>
+        <enum>Qt::ContextMenuPolicy::DefaultContextMenu</enum>
        </property>
        <property name="frameShape">
-        <enum>QFrame::Box</enum>
+        <enum>QFrame::Shape::Box</enum>
        </property>
        <property name="frameShadow">
-        <enum>QFrame::Sunken</enum>
+        <enum>QFrame::Shadow::Sunken</enum>
        </property>
        <property name="text">
         <string/>
@@ -643,13 +643,13 @@
         <bool>false</bool>
        </property>
        <property name="contextMenuPolicy">
-        <enum>Qt::DefaultContextMenu</enum>
+        <enum>Qt::ContextMenuPolicy::DefaultContextMenu</enum>
        </property>
        <property name="frameShape">
-        <enum>QFrame::Box</enum>
+        <enum>QFrame::Shape::Box</enum>
        </property>
        <property name="frameShadow">
-        <enum>QFrame::Sunken</enum>
+        <enum>QFrame::Shadow::Sunken</enum>
        </property>
        <property name="text">
         <string/>
@@ -706,13 +706,13 @@
         <bool>false</bool>
        </property>
        <property name="contextMenuPolicy">
-        <enum>Qt::DefaultContextMenu</enum>
+        <enum>Qt::ContextMenuPolicy::DefaultContextMenu</enum>
        </property>
        <property name="frameShape">
-        <enum>QFrame::Box</enum>
+        <enum>QFrame::Shape::Box</enum>
        </property>
        <property name="frameShadow">
-        <enum>QFrame::Sunken</enum>
+        <enum>QFrame::Shadow::Sunken</enum>
        </property>
        <property name="text">
         <string>1</string>
@@ -763,13 +763,13 @@
         <bool>false</bool>
        </property>
        <property name="contextMenuPolicy">
-        <enum>Qt::DefaultContextMenu</enum>
+        <enum>Qt::ContextMenuPolicy::DefaultContextMenu</enum>
        </property>
        <property name="frameShape">
-        <enum>QFrame::Box</enum>
+        <enum>QFrame::Shape::Box</enum>
        </property>
        <property name="frameShadow">
-        <enum>QFrame::Sunken</enum>
+        <enum>QFrame::Shadow::Sunken</enum>
        </property>
        <property name="text">
         <string>1</string>
@@ -1644,7 +1644,7 @@
                  <number>2147483647</number>
                 </property>
                 <property name="sizeAdjustPolicy">
-                 <enum>QComboBox::AdjustToMinimumContentsLength</enum>
+                 <enum>QComboBox::SizeAdjustPolicy::AdjustToContents</enum>
                 </property>
                 <item>
                  <property name="text">
@@ -1828,7 +1828,7 @@
               <item row="2" column="0">
                <spacer name="horizontalSpacer">
                 <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
+                 <enum>Qt::Orientation::Horizontal</enum>
                 </property>
                 <property name="sizeHint" stdset="0">
                  <size>
@@ -1979,7 +1979,7 @@ Step 3 - Riavviare Qgis e cliccare sul pulsante Run Test per verificare l'output
                 <item row="0" column="2">
                  <spacer name="horizontalSpacer_3">
                   <property name="orientation">
-                   <enum>Qt::Horizontal</enum>
+                   <enum>Qt::Orientation::Horizontal</enum>
                   </property>
                   <property name="sizeHint" stdset="0">
                    <size>
@@ -2330,10 +2330,10 @@ background-color: rgb(255, 255, 127);</string>
               </font>
              </property>
              <property name="layoutDirection">
-              <enum>Qt::LeftToRight</enum>
+              <enum>Qt::LayoutDirection::LeftToRight</enum>
              </property>
              <property name="tabPosition">
-              <enum>QTabWidget::North</enum>
+              <enum>QTabWidget::TabPosition::North</enum>
              </property>
              <property name="currentIndex">
               <number>0</number>
@@ -2428,7 +2428,7 @@ background-color: rgb(255, 255, 127);</string>
                   </layout>
                  </item>
                  <item row="2" column="0" rowspan="2">
-                  <widget class="QWebView" name="webView" native="true">
+                  <widget class="QTextBrowser" name="webView">
                    <property name="sizePolicy">
                     <sizepolicy hsizetype="Ignored" vsizetype="Expanding">
                      <horstretch>0</horstretch>
@@ -2486,7 +2486,7 @@ background-color: rgb(255, 255, 127);</string>
                     </font>
                    </property>
                    <property name="orientation">
-                    <enum>Qt::Horizontal</enum>
+                    <enum>Qt::Orientation::Horizontal</enum>
                    </property>
                   </widget>
                  </item>
@@ -2531,11 +2531,6 @@ background-color: rgb(255, 255, 127);</string>
    <extends>QDockWidget</extends>
    <header>qgsdockwidget.h</header>
    <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>QWebView</class>
-   <extends>QWidget</extends>
-   <header>QtWebKit/QWebView</header>
   </customwidget>
  </customwidgets>
  <resources>

@@ -11,15 +11,10 @@ from modules.db.pyarchinit_conn_strings import Connection
 
 
 class pyus_negative:
-    # connection string postgres
-    internal_connection = Connection()
 
-    # create engine and metadata
-
-    engine = create_engine(internal_connection.conn_str(), echo=False, convert_unicode=True)
 
     # engine.connect()
-    metadata = MetaData(engine)
+    metadata = MetaData()
 
     # define tables check per verifica fill fields 20/10/2016 OK
     pyus_negative = Table('pyarchinit_us_negative_doc', metadata,

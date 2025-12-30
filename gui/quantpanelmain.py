@@ -20,8 +20,6 @@
  ***************************************************************************/
 """
 
-from builtins import str
-from builtins import range
 from qgis.PyQt.QtWidgets import QDialog, QMessageBox
 from qgis.PyQt.uic import loadUiType
 from .sortpanelmain import SortPanelMain
@@ -107,4 +105,4 @@ if __name__ == '__main__':
     a = QApplication(sys.argv)
     dlg = SortPanelMain()
     dlg.show()
-    sys.exit(a.exec_())
+    sys.exit(a.exec())

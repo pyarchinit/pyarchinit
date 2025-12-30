@@ -19,7 +19,6 @@
 """
 from __future__ import absolute_import
 from pathlib import Path
-from builtins import str
 import os
 from osgeo import gdal
 from qgis.PyQt.QtCore import *
@@ -29,7 +28,7 @@ from qgis.core import *
 MAIN_DIALOG_CLASS, _ = loadUiType(
     os.path.join(os.path.dirname(__file__), os.pardir, 'gui', 'ui', 'gpkg_export.ui'))
 class pyarchinit_GPKG(QDialog, MAIN_DIALOG_CLASS):
-    L=QgsSettings().value("locale/userLocale")[0:2]
+    L=QgsSettings().value("locale/userLocale", "it", type=str)[:2]
     if L=='it':
         MSG_BOX_TITLE = "PyArchInit - Importa in Geopackge"
     elif L=='en':
@@ -42,7 +41,7 @@ class pyarchinit_GPKG(QDialog, MAIN_DIALOG_CLASS):
     def __init__(self, iface):
         super().__init__()
         self.iface = iface
-        QDialog.__init__(self, None,Qt.WindowStaysOnTopHint)
+        QDialog.__init__(self, None,Qt.WindowType.WindowStaysOnTopHint)
         self.setupUi(self)
         self.toolButton.clicked.connect(self.setPath)
     def setPath(self):
@@ -69,14 +68,14 @@ class pyarchinit_GPKG(QDialog, MAIN_DIALOG_CLASS):
                     _writer = QgsVectorFileWriter.writeAsVectorFormat(lyr, gpkgPath, options,"GPKG")
                 if _writer:
                     if self.L=='it':
-                        QMessageBox.warning(self, "OK","Importazione completata\n",QMessageBox.Ok ) 
+                        QMessageBox.warning(self, "OK","Importazione completata\n",QMessageBox.StandardButton.Ok ) 
                     else:
-                        QMessageBox.warning(self, "OK","Import completed\n",QMessageBox.Ok )
+                        QMessageBox.warning(self, "OK","Import completed\n",QMessageBox.StandardButton.Ok )
                 else:
                     if self.L=='it':
-                        QMessageBox.warning(self, "Ops","Importazione fallita\n",QMessageBox.Ok )
+                        QMessageBox.warning(self, "Ops","Importazione fallita\n",QMessageBox.StandardButton.Ok )
                     else:
-                        QMessageBox.warning(self, "OK","Import completed\n",QMessageBox.Ok )
+                        QMessageBox.warning(self, "OK","Import completed\n",QMessageBox.StandardButton.Ok )
             else:
                 QgsVectorFileWriter.writeAsVectorFormat(lyrs[0],gpkgPath,"GPKG")    
                 for lyr in filter(lambda l: l.type() == QgsMapLayer.VectorLayer, lyrs):
@@ -86,19 +85,19 @@ class pyarchinit_GPKG(QDialog, MAIN_DIALOG_CLASS):
                     _writer = QgsVectorFileWriter.writeAsVectorFormat(lyr, gpkgPath, options,"GPKG")
                 if _writer:
                     if self.L=='it':
-                        QMessageBox.warning(self, "OK","Importazione completata\n",QMessageBox.Ok ) # print(lyr.name(), _writer)
+                        QMessageBox.warning(self, "OK","Importazione completata\n",QMessageBox.StandardButton.Ok ) # print(lyr.name(), _writer)
                     else:
-                        QMessageBox.warning(self, "OK","Import completed\n",QMessageBox.Ok )
+                        QMessageBox.warning(self, "OK","Import completed\n",QMessageBox.StandardButton.Ok )
                 else:
                     if self.L=='it':
-                        QMessageBox.warning(self, "Ops","Importazione fallita\n",QMessageBox.Ok ) # print(lyr.name(), _writer)
+                        QMessageBox.warning(self, "Ops","Importazione fallita\n",QMessageBox.StandardButton.Ok ) # print(lyr.name(), _writer)
                     else:
-                        QMessageBox.warning(self, "OK","Import completed\n",QMessageBox.Ok )
+                        QMessageBox.warning(self, "OK","Import completed\n",QMessageBox.StandardButton.Ok )
         else:
             if self.L=='it':
-                QMessageBox.warning(self, "Attenzione","Non è stato selezionato nessun layer\n",QMessageBox.Ok )
+                QMessageBox.warning(self, "Attenzione","Non è stato selezionato nessun layer\n",QMessageBox.StandardButton.Ok )
             else:
-                QMessageBox.warning(self, "Warning","No layer selected\n",QMessageBox.Ok )
+                QMessageBox.warning(self, "Warning","No layer selected\n",QMessageBox.StandardButton.Ok )
     def on_pushButton_gpkg2_pressed(self):
         lyrs = self.iface.layerTreeView().selectedLayers()
         lyr = lyrs[0]
@@ -116,7 +115,7 @@ class pyarchinit_GPKG(QDialog, MAIN_DIALOG_CLASS):
                 projector.setCrs(provider.crs(), provider.crs())
                 if pipe.insert(2, projector) is True:
                     if fw.writeRaster(pipe, provider.xSize(),provider.ySize(),provider.extent(),provider.crs()) == 0:
-                        QMessageBox.warning(self, "OK","Import completed\n",QMessageBox.Ok )
+                        QMessageBox.warning(self, "OK","Import completed\n",QMessageBox.StandardButton.Ok )
                     else:
-                        QMessageBox.warning(self, "Ops","Import failed\n",QMessageBox.Ok ) # print(lyr.name(), _writer)
+                        QMessageBox.warning(self, "Ops","Import failed\n",QMessageBox.StandardButton.Ok ) # print(lyr.name(), _writer)
         ds = None    

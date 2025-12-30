@@ -315,7 +315,7 @@ class InstallDialog(QDialog):
 
         self.table = QTableWidget(len(self.packages), 2)
         self.table.setHorizontalHeaderLabels(["Package", "Install"])
-        self.table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
 
         for i, package in enumerate(self.packages):
             self.table.setItem(i, 0, QTableWidgetItem(package))
@@ -451,8 +451,8 @@ class FontManager:
                                              "INFO: The Cambria font does not appear to be installed. "
                                              "Click Ok to install it\nand then double click on cambria.*\n"
                                              "After that, reload the plugin",
-                                             QMessageBox.Ok)
-                if result == QMessageBox.Ok:
+                                             QMessageBox.StandardButton.Ok)
+                if result == QMessageBox.StandardButton.Ok:
                     home = os.environ['PYARCHINIT_HOME']
                     path = f"{home}{os.sep}bin"
                     subprocess.Popen(["open", path])
@@ -553,7 +553,7 @@ def show_install_dialog(packages: List[str]) -> None:
         packages: List of packages to install
     """
     dialog = InstallDialog(packages)
-    dialog.exec_()
+    dialog.exec()
 
 
 def classFactory(iface):

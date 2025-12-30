@@ -474,7 +474,7 @@ from ..modules.db.concurrency_manager import ConcurrencyManager, RecordLockIndic
     # # def on_pushButton_sort_pressed(self):
         # # dlg = SortPanelMain(self)
         # # dlg.insertItems(self.SORT_ITEMS)
-        # # dlg.exec_()
+        # # dlg.exec()
 
         # # items,order_type = dlg.ITEMS, dlg.TYPE_ORDER
 
@@ -487,7 +487,7 @@ from ..modules.db.concurrency_manager import ConcurrencyManager, RecordLockIndic
 
         # # id_list = []
         # # for i in self.DATA_LIST:
-            # # id_list.append(eval("i." + self.ID_TABLE))
+            # # id_list.append(getattr(i, self.ID_TABLE))
         # # self.DATA_LIST = []
 
         # # temp_data_list = self.DB_MANAGER.query_sort(id_list, self.SORT_ITEMS_CONVERTED, self.SORT_MODE, self.MAPPER_TABLE_CLASS, self.ID_TABLE)
@@ -877,7 +877,7 @@ from ..modules.db.concurrency_manager import ConcurrencyManager, RecordLockIndic
             # # QMessageBox.warning(self,"Messagio!!!","Azione Annullata!")
         # # else:
             # # try:
-                # # id_to_delete = eval("self.DATA_LIST[self.REC_CORR]." + self.ID_TABLE)
+                # # id_to_delete = getattr(self.DATA_LIST[self.REC_CORR], self.ID_TABLE)
                 # # self.DB_MANAGER.delete_one_record(self.TABLE_NAME, self.ID_TABLE, id_to_delete)
                 # # self.charge_records() #charge records from DB
                 # # QMessageBox.warning(self,"Messaggio!!!","Record eliminato!")
@@ -1185,7 +1185,7 @@ from ..modules.db.concurrency_manager import ConcurrencyManager, RecordLockIndic
     
             # bottone per creare semivariogrammi
                 # dlg = QuantPanelMain(self)
-        # dlg.exec_()
+        # dlg.exec()
         # dataset = []
                 
         
@@ -1537,7 +1537,7 @@ from ..modules.db.concurrency_manager import ConcurrencyManager, RecordLockIndic
         
             # bottone per creare semivariogrammi
                 # dlg = QuantPanelMain(self)
-        # dlg.exec_()
+        # dlg.exec()
         # dataset = []
                 
         
@@ -2349,13 +2349,13 @@ from ..modules.db.concurrency_manager import ConcurrencyManager, RecordLockIndic
 
     # # def runToolDialog( self, dlg ):
             # # dlg.show_()
-            # # dlg.exec_()
+            # # dlg.exec()
             # # del dlg
 
     # # def doSettings( self ):
             # from tools.doSettings import GdalToolsSettingsDialog as Settings
             # # d = Settings( self.iface )
-            # # d.exec_()
+            # # d.exec()
 
 
     # # def on_matrix_pressed(self):
@@ -2964,7 +2964,7 @@ from ..modules.db.concurrency_manager import ConcurrencyManager, RecordLockIndic
         # # else:
             # # id_list = []
             # # for i in self.DB_MANAGER.query(self.MAPPER_TABLE_CLASS):
-                # # id_list.append(eval("i." + self.ID_TABLE))
+                # # id_list.append(getattr(i, self.ID_TABLE))
 
             # # temp_data_list = self.DB_MANAGER.query_sort(id_list, [self.ID_TABLE], 'asc', self.MAPPER_TABLE_CLASS,
                                                         # # self.ID_TABLE)
@@ -3427,4 +3427,4 @@ from ..modules.db.concurrency_manager import ConcurrencyManager, RecordLockIndic
     # # ui = pyarchinit_US()
     # # ui.show()
     # # barra.show()
-    # # sys.exit(app.exec_())
+    # # sys.exit(app.exec())

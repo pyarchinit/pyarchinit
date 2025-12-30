@@ -3,7 +3,7 @@
  <class>Dialog_pdf_exp</class>
  <widget class="QDialog" name="Dialog_pdf_exp">
   <property name="windowModality">
-   <enum>Qt::NonModal</enum>
+   <enum>Qt::WindowModality::NonModal</enum>
   </property>
   <property name="enabled">
    <bool>true</bool>
@@ -494,7 +494,7 @@
    <item row="6" column="0">
     <widget class="Line" name="line">
      <property name="orientation">
-      <enum>Qt::Horizontal</enum>
+      <enum>Qt::Orientation::Horizontal</enum>
      </property>
     </widget>
    </item>
@@ -566,7 +566,7 @@
           <bool>false</bool>
          </property>
          <property name="contextMenuPolicy">
-          <enum>Qt::DefaultContextMenu</enum>
+          <enum>Qt::ContextMenuPolicy::DefaultContextMenu</enum>
          </property>
          <property name="acceptDrops">
           <bool>false</bool>
@@ -628,7 +628,7 @@
        <item row="2" column="1" colspan="6">
         <spacer name="horizontalSpacer_3">
          <property name="orientation">
-          <enum>Qt::Horizontal</enum>
+          <enum>Qt::Orientation::Horizontal</enum>
          </property>
          <property name="sizeHint" stdset="0">
           <size>
@@ -678,7 +678,7 @@
        <item row="3" column="2" colspan="2">
         <spacer name="horizontalSpacer_2">
          <property name="orientation">
-          <enum>Qt::Horizontal</enum>
+          <enum>Qt::Orientation::Horizontal</enum>
          </property>
          <property name="sizeHint" stdset="0">
           <size>
@@ -845,7 +845,7 @@
        <item row="4" column="3">
         <spacer name="horizontalSpacer">
          <property name="orientation">
-          <enum>Qt::Horizontal</enum>
+          <enum>Qt::Orientation::Horizontal</enum>
          </property>
          <property name="sizeHint" stdset="0">
           <size>

@@ -788,20 +788,20 @@ class PotteryToolsDialog(QDialog, MAIN_DIALOG_CLASS):
                 # Create thumbnail
                 pixmap = QPixmap(img_path)
                 if not pixmap.isNull():
-                    pixmap = pixmap.scaled(100, 100, Qt.KeepAspectRatio,
-                                          Qt.SmoothTransformation)
+                    pixmap = pixmap.scaled(100, 100, Qt.AspectRatioMode.KeepAspectRatio,
+                                          Qt.TransformationMode.SmoothTransformation)
 
                     # Create list item
                     item = QListWidgetItem()
                     item.setIcon(QIcon(pixmap))
                     item.setText(os.path.basename(img_path))
-                    item.setData(Qt.UserRole, img_path)
+                    item.setData(Qt.ItemDataRole.UserRole, img_path)
 
                     self.listWidget_extracted.addItem(item)
 
     def open_extracted_image(self, item):
         """Open extracted image when double-clicked"""
-        img_path = item.data(Qt.UserRole)
+        img_path = item.data(Qt.ItemDataRole.UserRole)
         if img_path and os.path.exists(img_path):
             # Open image with system default viewer
             import subprocess
@@ -821,12 +821,12 @@ class PotteryToolsDialog(QDialog, MAIN_DIALOG_CLASS):
 
     def open_mask_image(self, item):
         """Open mask image when double-clicked"""
-        img_path, detections = item.data(Qt.UserRole)
+        img_path, detections = item.data(Qt.ItemDataRole.UserRole)
         self.open_image_with_system(img_path)
 
     def open_pottery_card(self, item):
         """Open pottery card when double-clicked"""
-        card_data = item.data(Qt.UserRole)
+        card_data = item.data(Qt.ItemDataRole.UserRole)
         if isinstance(card_data, dict):
             img_path = card_data.get('path')
         else:
@@ -835,7 +835,7 @@ class PotteryToolsDialog(QDialog, MAIN_DIALOG_CLASS):
 
     def open_processed_image(self, item):
         """Open processed image when double-clicked"""
-        card_data = item.data(Qt.UserRole)
+        card_data = item.data(Qt.ItemDataRole.UserRole)
         if isinstance(card_data, dict):
             img_path = card_data.get('path')
         else:
@@ -902,7 +902,7 @@ class PotteryToolsDialog(QDialog, MAIN_DIALOG_CLASS):
             from qgis.PyQt.QtCore import Qt
 
             progress = QProgressDialog("Enhancing drawings with PotteryInk...", "Cancel", 0, 100, self)
-            progress.setWindowModality(Qt.WindowModal)
+            progress.setWindowModality(Qt.WindowModality.WindowModal)
             progress.show()
 
             def progress_callback(current, total, message):
@@ -994,9 +994,9 @@ class PotteryToolsDialog(QDialog, MAIN_DIALOG_CLASS):
                         self,
                         "Model Exists",
                         f"Model {model_info['filename']} already exists.\nDownload again?",
-                        QMessageBox.Yes | QMessageBox.No
+                        QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
                     )
-                    if reply == QMessageBox.No:
+                    if reply == QMessageBox.StandardButton.No:
                         return
 
                 self.progressBar.setRange(0, 0)  # Indeterminate progress
@@ -1045,7 +1045,7 @@ class PotteryToolsDialog(QDialog, MAIN_DIALOG_CLASS):
             self,
             "Select Input Folder",
             os.path.expanduser("~"),
-            QFileDialog.ShowDirsOnly
+            QFileDialog.Option.ShowDirsOnly
         )
 
         if not input_folder:
@@ -1056,7 +1056,7 @@ class PotteryToolsDialog(QDialog, MAIN_DIALOG_CLASS):
             self,
             "Select Output Folder",
             input_folder,
-            QFileDialog.ShowDirsOnly
+            QFileDialog.Option.ShowDirsOnly
         )
 
         if not output_folder:
@@ -1162,7 +1162,7 @@ class PotteryToolsDialog(QDialog, MAIN_DIALOG_CLASS):
 
             # Stippling control
             param_row.addWidget(QLabel("Stippling:"))
-            self.slider_stippling = QSlider(Qt.Horizontal)
+            self.slider_stippling = QSlider(Qt.Orientation.Horizontal)
             self.slider_stippling.setRange(0, 100)
             self.slider_stippling.setValue(50)
             self.slider_stippling.setToolTip("Control dot pattern density")
@@ -1276,14 +1276,14 @@ class PotteryToolsDialog(QDialog, MAIN_DIALOG_CLASS):
             main_layout.addWidget(settings_group)
 
             # === File Lists with Splitter ===
-            splitter = QSplitter(Qt.Horizontal)
+            splitter = QSplitter(Qt.Orientation.Horizontal)
 
             # Input files
             input_group = QGroupBox("Input Images")
             input_layout = QVBoxLayout()
 
             self.list_pottery_ink_input = QListWidget()
-            self.list_pottery_ink_input.setSelectionMode(QListWidget.ExtendedSelection)
+            self.list_pottery_ink_input.setSelectionMode(QListWidget.SelectionMode.ExtendedSelection)
             input_layout.addWidget(self.list_pottery_ink_input)
 
             input_buttons = QHBoxLayout()
@@ -1307,7 +1307,7 @@ class PotteryToolsDialog(QDialog, MAIN_DIALOG_CLASS):
             output_layout = QVBoxLayout()
 
             self.list_pottery_ink_output = QListWidget()
-            self.list_pottery_ink_output.setSelectionMode(QListWidget.ExtendedSelection)
+            self.list_pottery_ink_output.setSelectionMode(QListWidget.SelectionMode.ExtendedSelection)
             output_layout.addWidget(self.list_pottery_ink_output)
 
             output_buttons = QHBoxLayout()
@@ -1456,7 +1456,7 @@ class PotteryToolsDialog(QDialog, MAIN_DIALOG_CLASS):
                 scene.addPixmap(pixmap)
                 self.graphicsView_preview.setScene(scene)
                 self.graphicsView_preview.fitInView(scene.itemsBoundingRect(),
-                                                   Qt.KeepAspectRatio)
+                                                   Qt.AspectRatioMode.KeepAspectRatio)
 
                 self.log_message("Preview generated")
         except Exception as e:
@@ -2298,11 +2298,11 @@ if __name__ == '__main__':
                 f'Would you like to install it automatically?\n'
                 f'This will run: pip install ultralytics\n\n'
                 f'Using Python: {python_exe}',
-                QMessageBox.Yes | QMessageBox.No,
-                QMessageBox.Yes
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                QMessageBox.StandardButton.Yes
             )
 
-            if reply != QMessageBox.Yes:
+            if reply != QMessageBox.StandardButton.Yes:
                 return False
 
             self.log_message("=" * 50)
@@ -2537,7 +2537,7 @@ if __name__ == '__main__':
                 item_text = f"{os.path.basename(img_path)} - No pottery detected"
 
             item = QListWidgetItem(item_text)
-            item.setData(Qt.UserRole, (img_path, detections))
+            item.setData(Qt.ItemDataRole.UserRole, (img_path, detections))
             self.listWidget_masks.addItem(item)
 
     # Step 3: Extract Individual Pottery Instances
@@ -2649,14 +2649,14 @@ if __name__ == '__main__':
             if os.path.exists(card['path']):
                 pixmap = QPixmap(card['path'])
                 if not pixmap.isNull():
-                    pixmap = pixmap.scaled(100, 100, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+                    pixmap = pixmap.scaled(100, 100, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
 
                     item = QListWidgetItem()
                     item.setIcon(QIcon(pixmap))
                     # Show filename with confidence if available
                     conf_text = f" [{card.get('confidence', 0.5):.0%}]" if 'confidence' in card else ""
                     item.setText(f"{os.path.basename(card['path'])}{conf_text}")
-                    item.setData(Qt.UserRole, card)
+                    item.setData(Qt.ItemDataRole.UserRole, card)
 
                     self.listWidget_pottery_cards.addItem(item)
 
@@ -2842,12 +2842,12 @@ if __name__ == '__main__':
             if os.path.exists(card['path']):
                 pixmap = QPixmap(card['path'])
                 if not pixmap.isNull():
-                    pixmap = pixmap.scaled(100, 100, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+                    pixmap = pixmap.scaled(100, 100, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
 
                     item = QListWidgetItem()
                     item.setIcon(QIcon(pixmap))
                     item.setText(f"{os.path.basename(card['path'])} [{card['type']}]")
-                    item.setData(Qt.UserRole, card)
+                    item.setData(Qt.ItemDataRole.UserRole, card)
 
                     self.listWidget_processed.addItem(item)
 
@@ -2863,12 +2863,12 @@ if __name__ == '__main__':
                 for card in self.processed_cards:
                     if os.path.exists(card['path']):
                         item = QListWidgetItem(os.path.basename(card['path']))
-                        item.setData(Qt.UserRole, card['path'])
+                        item.setData(Qt.ItemDataRole.UserRole, card['path'])
 
                         # Create thumbnail
                         pixmap = QPixmap(card['path'])
                         if not pixmap.isNull():
-                            pixmap = pixmap.scaled(64, 64, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+                            pixmap = pixmap.scaled(64, 64, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
                             item.setIcon(QIcon(pixmap))
 
                         self.list_pottery_ink_input.addItem(item)
@@ -2898,7 +2898,7 @@ if __name__ == '__main__':
             self.extracted_images = []
             for i in range(output_count):
                 item = self.list_pottery_ink_output.item(i)
-                image_path = item.data(Qt.UserRole)
+                image_path = item.data(Qt.ItemDataRole.UserRole)
                 if image_path and os.path.exists(image_path):
                     self.extracted_images.append(image_path)
 
@@ -2926,12 +2926,12 @@ if __name__ == '__main__':
                     if os.path.exists(file_path):
                         # Add to list widget
                         item = QListWidgetItem(os.path.basename(file_path))
-                        item.setData(Qt.UserRole, file_path)
+                        item.setData(Qt.ItemDataRole.UserRole, file_path)
                         
                         # Create thumbnail
                         pixmap = QPixmap(file_path)
                         if not pixmap.isNull():
-                            pixmap = pixmap.scaled(64, 64, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+                            pixmap = pixmap.scaled(64, 64, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
                             item.setIcon(QIcon(pixmap))
                         
                         self.list_pottery_ink_input.addItem(item)
@@ -3011,7 +3011,7 @@ if __name__ == '__main__':
             # Process each file
             for i in range(input_count):
                 item = self.list_pottery_ink_input.item(i)
-                input_path = item.data(Qt.UserRole)
+                input_path = item.data(Qt.ItemDataRole.UserRole)
                 
                 if input_path and os.path.exists(input_path):
                     try:
@@ -3099,12 +3099,12 @@ if __name__ == '__main__':
                         if success:
                             # Add to output list
                             output_item = QListWidgetItem(os.path.basename(output_path))
-                            output_item.setData(Qt.UserRole, output_path)
+                            output_item.setData(Qt.ItemDataRole.UserRole, output_path)
 
                             # Create thumbnail
                             pixmap = QPixmap(output_path)
                             if not pixmap.isNull():
-                                pixmap = pixmap.scaled(64, 64, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+                                pixmap = pixmap.scaled(64, 64, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
                                 output_item.setIcon(QIcon(pixmap))
 
                             self.list_pottery_ink_output.addItem(output_item)
@@ -3175,7 +3175,7 @@ if __name__ == '__main__':
                 copied = 0
                 for i in range(output_count):
                     item = self.list_pottery_ink_output.item(i)
-                    source_path = item.data(Qt.UserRole)
+                    source_path = item.data(Qt.ItemDataRole.UserRole)
                     
                     if source_path and os.path.exists(source_path):
                         dest_path = os.path.join(output_folder, os.path.basename(source_path))
@@ -3214,7 +3214,7 @@ if __name__ == '__main__':
             # Run diagnostic on each file
             for i in range(input_count):
                 item = self.list_pottery_ink_input.item(i)
-                input_path = item.data(Qt.UserRole)
+                input_path = item.data(Qt.ItemDataRole.UserRole)
 
                 if input_path and os.path.exists(input_path):
                     self.text_pottery_log.append(f"\n📊 Analyzing: {os.path.basename(input_path)}")
@@ -3270,7 +3270,7 @@ if __name__ == '__main__':
                 self.text_pottery_log.append("\n" + "=" * 50)
                 self.text_pottery_log.append("🖥️ System Information:")
                 first_diagnostic = self.pottery_ink.run_diagnostic(
-                    self.list_pottery_ink_input.item(0).data(Qt.UserRole)
+                    self.list_pottery_ink_input.item(0).data(Qt.ItemDataRole.UserRole)
                 )
                 if 'device_info' in first_diagnostic:
                     device_info = first_diagnostic['device_info']
@@ -3305,7 +3305,7 @@ if __name__ == '__main__':
             # Add enhanced images to layout
             for i in range(output_count):
                 item = self.listWidget_pottery_ink_output.item(i)
-                image_path = item.data(Qt.UserRole)
+                image_path = item.data(Qt.ItemDataRole.UserRole)
                 
                 if image_path and os.path.exists(image_path):
                     self.extracted_images.append(image_path)

@@ -3,7 +3,7 @@
  <class>Dialog_Matrix</class>
  <widget class="QDialog" name="Dialog_Matrix">
   <property name="windowModality">
-   <enum>Qt::WindowModal</enum>
+   <enum>Qt::WindowModality::WindowModal</enum>
   </property>
   <property name="geometry">
    <rect>
@@ -462,7 +462,7 @@
    </palette>
   </property>
   <property name="contextMenuPolicy">
-   <enum>Qt::CustomContextMenu</enum>
+   <enum>Qt::ContextMenuPolicy::CustomContextMenu</enum>
   </property>
   <property name="windowTitle">
    <string>Setting matrix</string>

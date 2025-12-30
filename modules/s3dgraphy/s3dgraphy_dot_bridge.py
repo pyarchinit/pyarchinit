@@ -427,7 +427,7 @@ if QGIS_AVAILABLE:
                 
                 # Show grouping dialog
                 grouping_dialog = SpatialGroupingDialog(us_data, self)
-                if grouping_dialog.exec_():
+                if grouping_dialog.exec():
                     spatial_groupings = grouping_dialog.get_groupings()
                 else:
                     # User cancelled grouping configuration
@@ -540,7 +540,7 @@ if QGIS_AVAILABLE:
                     area if area else None
                 )
                 
-                if dialog.exec_():
+                if dialog.exec():
                     # Export was successful
                     pass
                     

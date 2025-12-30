@@ -426,7 +426,7 @@ class SamSegmentationDialog(QDialog):
 
         self.lineEdit_api_key = QLineEdit()
         self.lineEdit_api_key.setPlaceholderText("Replicate API key")
-        self.lineEdit_api_key.setEchoMode(QLineEdit.Password)
+        self.lineEdit_api_key.setEchoMode(QLineEdit.EchoMode.Password)
         self.lineEdit_api_key.setToolTip("Get your API key from replicate.com or roboflow.com")
         self.lineEdit_api_key.setVisible(True)
         model_layout.addWidget(self.lineEdit_api_key, 1, 1)
@@ -697,9 +697,9 @@ class SamSegmentationDialog(QDialog):
                 )
                 print(f"DEBUG SAM: SamPointMapTool created: {self.map_tool}")
                 # Also connect signals as backup
-                self.map_tool.pointsCollected.connect(self._on_points_collected, Qt.DirectConnection)
-                self.map_tool.pointAdded.connect(self._on_point_added, Qt.DirectConnection)
-                self.map_tool.cancelled.connect(self._on_selection_cancelled, Qt.DirectConnection)
+                self.map_tool.pointsCollected.connect(self._on_points_collected, Qt.ConnectionType.DirectConnection)
+                self.map_tool.pointAdded.connect(self._on_point_added, Qt.ConnectionType.DirectConnection)
+                self.map_tool.cancelled.connect(self._on_selection_cancelled, Qt.ConnectionType.DirectConnection)
                 print("DEBUG SAM: Callbacks and signals connected for point tool")
             except Exception as e:
                 print(f"DEBUG SAM ERROR: Failed to create SamPointMapTool: {e}")
@@ -724,8 +724,8 @@ class SamSegmentationDialog(QDialog):
                 )
                 print(f"DEBUG SAM: SamBoxMapTool created: {self.map_tool}")
                 # Also connect signals as backup
-                self.map_tool.boxDrawn.connect(self._on_box_drawn, Qt.DirectConnection)
-                self.map_tool.cancelled.connect(self._on_selection_cancelled, Qt.DirectConnection)
+                self.map_tool.boxDrawn.connect(self._on_box_drawn, Qt.ConnectionType.DirectConnection)
+                self.map_tool.cancelled.connect(self._on_selection_cancelled, Qt.ConnectionType.DirectConnection)
                 print("DEBUG SAM: Callbacks and signals connected for box tool")
             except Exception as e:
                 print(f"DEBUG SAM ERROR: Failed to create SamBoxMapTool: {e}")
@@ -750,8 +750,8 @@ class SamSegmentationDialog(QDialog):
                 )
                 print(f"DEBUG SAM: SamPolygonMapTool created: {self.map_tool}")
                 # Also connect signals as backup
-                self.map_tool.polygonDrawn.connect(self._on_polygon_drawn, Qt.DirectConnection)
-                self.map_tool.cancelled.connect(self._on_selection_cancelled, Qt.DirectConnection)
+                self.map_tool.polygonDrawn.connect(self._on_polygon_drawn, Qt.ConnectionType.DirectConnection)
+                self.map_tool.cancelled.connect(self._on_selection_cancelled, Qt.ConnectionType.DirectConnection)
                 print("DEBUG SAM: Callbacks and signals connected for polygon tool")
             except Exception as e:
                 print(f"DEBUG SAM ERROR: Failed to create SamPolygonMapTool: {e}")
@@ -869,9 +869,9 @@ class SamSegmentationDialog(QDialog):
                 reply = QMessageBox.question(
                     self, "No Selection",
                     "No features selected. Use all features from the layer?",
-                    QMessageBox.Yes | QMessageBox.No
+                    QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
                 )
-                if reply == QMessageBox.Yes:
+                if reply == QMessageBox.StandardButton.Yes:
                     selected_features = list(polygon_layer.getFeatures())
                 else:
                     return

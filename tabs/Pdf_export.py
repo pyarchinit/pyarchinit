@@ -20,8 +20,6 @@
  ***************************************************************************/
 """
 from __future__ import absolute_import
-from builtins import str
-from builtins import range
 
 from qgis.PyQt.QtWidgets import QDialog, QMessageBox
 from qgis.PyQt.uic import loadUiType
@@ -52,7 +50,7 @@ class pyarchinit_pdf_export(QDialog, MAIN_DIALOG_CLASS):
     DB_MANAGER = ""
     HOME = ""
     DATA_LIST = []
-    L=QgsSettings().value("locale/userLocale")[0:2]
+    L=QgsSettings().value("locale/userLocale", "it", type=str)[:2]
     ##  if os.name == 'posix':
     ##      HOME = os.environ['HOME']
     ##  elif os.name == 'nt':
@@ -172,7 +170,7 @@ class pyarchinit_pdf_export(QDialog, MAIN_DIALOG_CLASS):
                     self.DATA_LIST.append(i)
 
                 if len(self.DATA_LIST) < 1:
-                    QMessageBox.warning(self, "Alert", "No form to print, before you need fill it", QMessageBox.Ok)
+                    QMessageBox.warning(self, "Alert", "No form to print, before you need fill it", QMessageBox.StandardButton.Ok)
                 else:
                     
                     US_pdf_sheet = generate_US_pdf()
@@ -995,4 +993,4 @@ if __name__ == '__main__':
     app = QApplication(sys.argv)
     ui = pyarchinit_pdf_export()
     ui.show()
-    sys.exit(app.exec_())
+    sys.exit(app.exec())

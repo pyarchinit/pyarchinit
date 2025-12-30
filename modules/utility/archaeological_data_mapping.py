@@ -311,4 +311,4 @@ if __name__ == '__main__':
     app = QApplication(sys.argv)
     ex = ArchaeologicalDataMapper(None)  # Passa None come parent
     ex.show()  # Mostra l'interfaccia
-    sys.exit(app.exec_())
+    sys.exit(app.exec())

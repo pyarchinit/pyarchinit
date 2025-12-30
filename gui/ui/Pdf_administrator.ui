@@ -584,7 +584,7 @@
          <item row="1" column="2">
           <spacer name="horizontalSpacer">
            <property name="orientation">
-            <enum>Qt::Horizontal</enum>
+            <enum>Qt::Orientation::Horizontal</enum>
            </property>
            <property name="sizeHint" stdset="0">
             <size>
@@ -673,7 +673,7 @@
          <item row="0" column="3">
           <spacer name="horizontalSpacer_2">
            <property name="orientation">
-            <enum>Qt::Horizontal</enum>
+            <enum>Qt::Orientation::Horizontal</enum>
            </property>
            <property name="sizeHint" stdset="0">
             <size>
@@ -690,7 +690,7 @@
      <item>
       <widget class="Line" name="line_6">
        <property name="orientation">
-        <enum>Qt::Vertical</enum>
+        <enum>Qt::Orientation::Vertical</enum>
        </property>
       </widget>
      </item>
@@ -753,13 +753,13 @@
             <bool>false</bool>
            </property>
            <property name="contextMenuPolicy">
-            <enum>Qt::DefaultContextMenu</enum>
+            <enum>Qt::ContextMenuPolicy::DefaultContextMenu</enum>
            </property>
            <property name="frameShape">
-            <enum>QFrame::Box</enum>
+            <enum>QFrame::Shape::Box</enum>
            </property>
            <property name="frameShadow">
-            <enum>QFrame::Sunken</enum>
+            <enum>QFrame::Shadow::Sunken</enum>
            </property>
            <property name="text">
             <string/>
@@ -806,13 +806,13 @@
             <bool>false</bool>
            </property>
            <property name="contextMenuPolicy">
-            <enum>Qt::DefaultContextMenu</enum>
+            <enum>Qt::ContextMenuPolicy::DefaultContextMenu</enum>
            </property>
            <property name="frameShape">
-            <enum>QFrame::Box</enum>
+            <enum>QFrame::Shape::Box</enum>
            </property>
            <property name="frameShadow">
-            <enum>QFrame::Sunken</enum>
+            <enum>QFrame::Shadow::Sunken</enum>
            </property>
            <property name="text">
             <string/>
@@ -878,13 +878,13 @@
             <bool>false</bool>
            </property>
            <property name="contextMenuPolicy">
-            <enum>Qt::DefaultContextMenu</enum>
+            <enum>Qt::ContextMenuPolicy::DefaultContextMenu</enum>
            </property>
            <property name="frameShape">
-            <enum>QFrame::Box</enum>
+            <enum>QFrame::Shape::Box</enum>
            </property>
            <property name="frameShadow">
-            <enum>QFrame::Sunken</enum>
+            <enum>QFrame::Shadow::Sunken</enum>
            </property>
            <property name="text">
             <string>1</string>
@@ -923,13 +923,13 @@
             <bool>false</bool>
            </property>
            <property name="contextMenuPolicy">
-            <enum>Qt::DefaultContextMenu</enum>
+            <enum>Qt::ContextMenuPolicy::DefaultContextMenu</enum>
            </property>
            <property name="frameShape">
-            <enum>QFrame::Box</enum>
+            <enum>QFrame::Shape::Box</enum>
            </property>
            <property name="frameShadow">
-            <enum>QFrame::Sunken</enum>
+            <enum>QFrame::Shadow::Sunken</enum>
            </property>
            <property name="text">
             <string>1</string>
@@ -985,7 +985,7 @@
      <item>
       <spacer name="horizontalSpacer_5">
        <property name="orientation">
-        <enum>Qt::Horizontal</enum>
+        <enum>Qt::Orientation::Horizontal</enum>
        </property>
        <property name="sizeHint" stdset="0">
         <size>
@@ -1077,16 +1077,16 @@
           </font>
          </property>
          <property name="frameShape">
-          <enum>QFrame::WinPanel</enum>
+          <enum>QFrame::Shape::WinPanel</enum>
          </property>
          <property name="frameShadow">
-          <enum>QFrame::Sunken</enum>
+          <enum>QFrame::Shadow::Sunken</enum>
          </property>
          <property name="lineWidth">
           <number>1</number>
          </property>
          <property name="gridStyle">
-          <enum>Qt::SolidLine</enum>
+          <enum>Qt::PenStyle::SolidLine</enum>
          </property>
          <attribute name="horizontalHeaderVisible">
           <bool>true</bool>
@@ -1278,16 +1278,16 @@
        <item row="1" column="0" colspan="2">
         <widget class="QTableWidget" name="tableWidget_gestione_celle">
          <property name="frameShape">
-          <enum>QFrame::WinPanel</enum>
+          <enum>QFrame::Shape::WinPanel</enum>
          </property>
          <property name="frameShadow">
-          <enum>QFrame::Sunken</enum>
+          <enum>QFrame::Shadow::Sunken</enum>
          </property>
          <property name="lineWidth">
           <number>1</number>
          </property>
          <property name="gridStyle">
-          <enum>Qt::SolidLine</enum>
+          <enum>Qt::PenStyle::SolidLine</enum>
          </property>
          <column>
           <property name="text">

@@ -9,13 +9,8 @@ from modules.db.pyarchinit_conn_strings import Connection
 
 
 class Media_to_Entity_table:
-    # connection string postgres"
-    internal_connection = Connection()
 
-    # create engine and metadata
-
-    engine = create_engine(internal_connection.conn_str(), echo=False, convert_unicode=True)
-    metadata = MetaData(engine)
+    metadata = MetaData()
 
     # define tables
     media_to_entity_table = Table('media_to_entity_table', metadata,

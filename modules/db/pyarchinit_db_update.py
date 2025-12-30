@@ -18,8 +18,6 @@
  *                                                                         *
  ***************************************************************************/
 """
-from builtins import object
-from builtins import str
 import time
 from sqlalchemy import Table
 from sqlalchemy.engine import create_engine
@@ -36,7 +34,64 @@ class DB_update(object):
     def __init__(self, conn_str):
         # create engine and metadata
         self.engine = create_engine(conn_str, echo=False)
-        self.metadata = MetaData(self.engine)
+        self.metadata = MetaData()
+
+    def _execute(self, sql):
+        """SQLAlchemy 2.0 compatible execute wrapper.
+
+        Handles common DDL errors gracefully (duplicate column, table exists, etc.)
+        to maintain backward compatibility with the old engine.execute() behavior.
+        """
+        from sqlalchemy import text
+        from sqlalchemy.exc import ProgrammingError, OperationalError
+
+        class ResultWrapper:
+            """Wrapper to maintain compatibility with old engine.execute() API"""
+            def __init__(self, rows):
+                self._rows = list(rows) if rows else []
+                self._index = 0
+
+            def fetchall(self):
+                return self._rows
+
+            def fetchone(self):
+                if self._index < len(self._rows):
+                    row = self._rows[self._index]
+                    self._index += 1
+                    return row
+                return None
+
+            def __iter__(self):
+                return iter(self._rows)
+
+        try:
+            # Use begin() for auto-commit DDL statements
+            with self.engine.begin() as conn:
+                result = conn.execute(text(sql) if isinstance(sql, str) else sql)
+                try:
+                    rows = result.fetchall()
+                    return ResultWrapper(rows)
+                except:
+                    return ResultWrapper([])
+        except (ProgrammingError, OperationalError) as e:
+            # Handle common DDL errors that should be ignored:
+            # - DuplicateColumn: column already exists (PostgreSQL)
+            # - duplicate column name (SQLite)
+            # - table already exists
+            error_str = str(e).lower()
+            ignorable_errors = [
+                'duplicate column',
+                'already exists',
+                'duplicate key',
+                'column "' in error_str and '" of relation' in error_str and 'already exists' in error_str,
+            ]
+
+            if any(err in error_str if isinstance(err, str) else err for err in ignorable_errors):
+                # Silently ignore - column/table already exists
+                return ResultWrapper([])
+            else:
+                # Re-raise unexpected errors
+                raise
 
     def update_table(self):
         # Add debug logging
@@ -85,10 +140,10 @@ class DB_update(object):
             log_debug("Checking if old tma_table exists")
             # Now check if old tma_table exists and needs migration
             if is_sqlite:
-                result = self.engine.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='tma_table'")
+                result = self._execute("SELECT name FROM sqlite_master WHERE type='table' AND name='tma_table'")
                 old_tma_exists = result.fetchone() is not None
             else:
-                result = self.engine.execute("""
+                result = self._execute("""
                     SELECT EXISTS (
                         SELECT FROM information_schema.tables
                         WHERE table_name = 'tma_table'
@@ -135,7 +190,7 @@ class DB_update(object):
                 for field, field_type in missing_fields.items():
                     if field not in column_names:
                         log_debug(f"Adding missing '{field}' field to tma_materiali_archeologici")
-                        self.engine.execute(f"ALTER TABLE tma_materiali_archeologici ADD COLUMN {field} {field_type}")
+                        self._execute(f"ALTER TABLE tma_materiali_archeologici ADD COLUMN {field} {field_type}")
                         log_debug(f"'{field}' field added successfully")
                     else:
                         log_debug(f"'{field}' field already exists")
@@ -156,7 +211,7 @@ class DB_update(object):
         # for i in table.columns:
         #     table_column_names_list.append(str(i.name))
         # if table_column_names_list.__contains__('coord'):
-        #     self.engine.execute(
+        #     self._execute(
         #         "ALTER TABLE pyunitastratigrafiche ALTER COLUMN coord TYPE text")
         #
         # table = Table("pyunitastratigrafiche_usm", self.metadata, autoload=True)
@@ -165,7 +220,7 @@ class DB_update(object):
         # for i in table.columns:
         #     table_column_names_list.append(str(i.name))
         # if table_column_names_list.__contains__('coord'):
-        #     self.engine.execute(
+        #     self._execute(
         #         "ALTER TABLE pyunitastratigrafiche ALTER COLUMN coord TYPE text")
 
         ####pottery_table
@@ -193,34 +248,34 @@ class DB_update(object):
                         col_type = str(us_column.type)
                         if 'INTEGER' in col_type.upper() or 'BIGINT' in col_type.upper():
                             # Convert the column type
-                            self.engine.execute("ALTER TABLE pottery_table ALTER COLUMN us TYPE TEXT USING us::TEXT")
+                            self._execute("ALTER TABLE pottery_table ALTER COLUMN us TYPE TEXT USING us::TEXT")
             except Exception as e:
                 # Log the error but continue with other updates
                 log_debug(f"Error updating us column: {e}")
                 pass
 
             if not table_column_names_list.__contains__('sector'):
-                self.engine.execute(
+                self._execute(
                     "ALTER TABLE pottery_table ADD COLUMN sector text")
             try:
                 if table_column_names_list.__contains__('diametro_max'):
-                    self.engine.execute(
+                    self._execute(
                         "ALTER TABLE pottery_table ALTER COLUMN diametro_max TYPE Numeric(7,3)")
 
                 if table_column_names_list.__contains__('diametro_rim'):
-                    self.engine.execute(
+                    self._execute(
                         "ALTER TABLE pottery_table ALTER COLUMN diametro_rim TYPE Numeric(7,3)")
 
                 if table_column_names_list.__contains__('diametro_bottom'):
-                    self.engine.execute(
+                    self._execute(
                         "ALTER TABLE pottery_table ALTER COLUMN diametro_bottom TYPE Numeric(7,3)")
 
                 if table_column_names_list.__contains__('diametro_height'):
-                    self.engine.execute(
+                    self._execute(
                         "ALTER TABLE pottery_table ALTER COLUMN diametro_height TYPE Numeric(7,3)")
 
                 if table_column_names_list.__contains__('diametro_preserved'):
-                    self.engine.execute(
+                    self._execute(
                         "ALTER TABLE pottery_table ALTER COLUMN diametro_preserved TYPE Numeric(7,3)")
 
             except:
@@ -262,7 +317,7 @@ class DB_update(object):
                     if col_name in table_column_names_list:
                         try:
                             # Try to convert column to TEXT if it's not already
-                            self.engine.execute(
+                            self._execute(
                                 f"ALTER TABLE inventario_materiali_table ALTER COLUMN {col_name} TYPE TEXT USING {col_name}::TEXT")
                             log_debug(f"Converted {col_name} column to TEXT")
                         except Exception as e:
@@ -274,93 +329,93 @@ class DB_update(object):
                 pass
 
             if not table_column_names_list.__contains__('years'):
-                self.engine.execute(
+                self._execute(
                     "ALTER TABLE inventario_materiali_table ADD COLUMN years BIGINT")
 
             if not table_column_names_list.__contains__('stato_conservazione'):
-                self.engine.execute(
+                self._execute(
                     "ALTER TABLE inventario_materiali_table ADD COLUMN stato_conservazione varchar DEFAULT ''")
 
             if not table_column_names_list.__contains__('datazione_reperto'):
-                self.engine.execute(
+                self._execute(
                     "ALTER TABLE inventario_materiali_table ADD COLUMN datazione_reperto varchar(30) DEFAULT 'inserisci un valore'")
 
             if not table_column_names_list.__contains__('elementi_reperto'):
-                self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN elementi_reperto text")
+                self._execute("ALTER TABLE inventario_materiali_table ADD COLUMN elementi_reperto text")
 
             if not table_column_names_list.__contains__('misurazioni'):
-                self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN misurazioni text")
+                self._execute("ALTER TABLE inventario_materiali_table ADD COLUMN misurazioni text")
 
             if not table_column_names_list.__contains__('rif_biblio'):
-                self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN rif_biblio text")
+                self._execute("ALTER TABLE inventario_materiali_table ADD COLUMN rif_biblio text")
 
             if not table_column_names_list.__contains__('tecnologie'):
-                self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN tecnologie text")
+                self._execute("ALTER TABLE inventario_materiali_table ADD COLUMN tecnologie text")
 
             if not table_column_names_list.__contains__('forme_minime'):
-                self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN forme_minime BIGINT DEFAULT 0")
+                self._execute("ALTER TABLE inventario_materiali_table ADD COLUMN forme_minime BIGINT DEFAULT 0")
 
             if not table_column_names_list.__contains__('forme_massime'):
-                self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN forme_massime BIGINT DEFAULT 0")
+                self._execute("ALTER TABLE inventario_materiali_table ADD COLUMN forme_massime BIGINT DEFAULT 0")
 
             if not table_column_names_list.__contains__('totale_frammenti'):
-                self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN totale_frammenti BIGINT DEFAULT 0")
+                self._execute("ALTER TABLE inventario_materiali_table ADD COLUMN totale_frammenti BIGINT DEFAULT 0")
 
             if not table_column_names_list.__contains__('corpo_ceramico'):
-                self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN corpo_ceramico varchar(20)")
-                self.engine.execute("update inventario_materiali_table set corpo_ceramico = ''")
+                self._execute("ALTER TABLE inventario_materiali_table ADD COLUMN corpo_ceramico varchar(20)")
+                self._execute("update inventario_materiali_table set corpo_ceramico = ''")
 
             if not table_column_names_list.__contains__('rivestimento'):
-                self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN rivestimento varchar(20)")
-                self.engine.execute("update inventario_materiali_table set rivestimento = ''")
+                self._execute("ALTER TABLE inventario_materiali_table ADD COLUMN rivestimento varchar(20)")
+                self._execute("update inventario_materiali_table set rivestimento = ''")
 
             if not table_column_names_list.__contains__('diametro_orlo'):
-                self.engine.execute(
+                self._execute(
                     "ALTER TABLE inventario_materiali_table ADD COLUMN diametro_orlo Numeric(7,3) DEFAULT 0")
 
             if not table_column_names_list.__contains__('peso'):
-                self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN peso Numeric(9,3) DEFAULT 0")
+                self._execute("ALTER TABLE inventario_materiali_table ADD COLUMN peso Numeric(9,3) DEFAULT 0")
 
             if not table_column_names_list.__contains__('tipo'):
-                self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN tipo varchar(20)")
-                self.engine.execute("update inventario_materiali_table set tipo = ''")
+                self._execute("ALTER TABLE inventario_materiali_table ADD COLUMN tipo varchar(20)")
+                self._execute("update inventario_materiali_table set tipo = ''")
 
             if not table_column_names_list.__contains__('eve_orlo'):
-                self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN eve_orlo Numeric(7,3) DEFAULT 0")
+                self._execute("ALTER TABLE inventario_materiali_table ADD COLUMN eve_orlo Numeric(7,3) DEFAULT 0")
 
             if not table_column_names_list.__contains__('repertato'):
-                self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN repertato varchar(3)")
-                self.engine.execute("update inventario_materiali_table set repertato = ''No")
+                self._execute("ALTER TABLE inventario_materiali_table ADD COLUMN repertato varchar(3)")
+                self._execute("update inventario_materiali_table set repertato = ''No")
 
             if not table_column_names_list.__contains__('diagnostico'):
-                self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN diagnostico varchar(3)")
-                self.engine.execute("update inventario_materiali_table set diagnostico = ''No")
+                self._execute("ALTER TABLE inventario_materiali_table ADD COLUMN diagnostico varchar(3)")
+                self._execute("update inventario_materiali_table set diagnostico = ''No")
             if not table_column_names_list.__contains__('n_reperto'):
-                self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN n_reperto BIGINT")
+                self._execute("ALTER TABLE inventario_materiali_table ADD COLUMN n_reperto BIGINT")
             if not table_column_names_list.__contains__('tipo_contenitore'):
-                self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN tipo_contenitore varchar DEFAULT ''")
+                self._execute("ALTER TABLE inventario_materiali_table ADD COLUMN tipo_contenitore varchar DEFAULT ''")
             if not table_column_names_list.__contains__('struttura'):
-                self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN struttura text")
+                self._execute("ALTER TABLE inventario_materiali_table ADD COLUMN struttura text")
 
             # Add new columns for inventario_materiali_table
             if not table_column_names_list.__contains__('schedatore'):
-                self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN schedatore TEXT")
+                self._execute("ALTER TABLE inventario_materiali_table ADD COLUMN schedatore TEXT")
 
             if not table_column_names_list.__contains__('date_scheda'):
-                self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN date_scheda TEXT")
+                self._execute("ALTER TABLE inventario_materiali_table ADD COLUMN date_scheda TEXT")
 
             if not table_column_names_list.__contains__('punto_rinv'):
-                self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN punto_rinv TEXT")
+                self._execute("ALTER TABLE inventario_materiali_table ADD COLUMN punto_rinv TEXT")
 
             if not table_column_names_list.__contains__('negativo_photo'):
-                self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN negativo_photo TEXT")
+                self._execute("ALTER TABLE inventario_materiali_table ADD COLUMN negativo_photo TEXT")
 
             if not table_column_names_list.__contains__('diapositiva'):
-                self.engine.execute("ALTER TABLE inventario_materiali_table ADD COLUMN diapositiva TEXT")
+                self._execute("ALTER TABLE inventario_materiali_table ADD COLUMN diapositiva TEXT")
 
             # Update the pyarchinit_reperti_view to include the new fields
             try:
-                self.engine.execute("""
+                self._execute("""
                 CREATE OR REPLACE VIEW pyarchinit_reperti_view AS
                 SELECT
                 gid,
@@ -429,17 +484,17 @@ class DB_update(object):
 
             # Only try to alter table if it exists
             if not table_column_names_list.__contains__('provincia'):
-                self.engine.execute("ALTER TABLE site_table ADD COLUMN provincia varchar DEFAULT 'inserici un valore' ")
+                self._execute("ALTER TABLE site_table ADD COLUMN provincia varchar DEFAULT 'inserici un valore' ")
 
         if not table_column_names_list.__contains__('definizione_sito'):
-            self.engine.execute(
+            self._execute(
                 "ALTER TABLE site_table ADD COLUMN definizione_sito varchar DEFAULT 'inserici un valore' ")
 
         if not table_column_names_list.__contains__('sito_path'):
-            self.engine.execute("ALTER TABLE site_table ADD COLUMN sito_path varchar DEFAULT 'inserisci path' ")
+            self._execute("ALTER TABLE site_table ADD COLUMN sito_path varchar DEFAULT 'inserisci path' ")
 
         if not table_column_names_list.__contains__('find_check'):
-            self.engine.execute("ALTER TABLE site_table ADD COLUMN find_check BIGINT DEFAULT 0")
+            self._execute("ALTER TABLE site_table ADD COLUMN find_check BIGINT DEFAULT 0")
 
         ####US_table
         table = safe_load_table("us_table")
@@ -466,18 +521,18 @@ class DB_update(object):
                 if 'INTEGER' in col_type.upper() or 'BIGINT' in col_type.upper():
                     # Drop dependent views first
                     try:
-                        self.engine.execute("DROP VIEW IF EXISTS pyarchinit_quote_view CASCADE")
-                        self.engine.execute("DROP VIEW IF EXISTS pyarchinit_us_view CASCADE")
-                        self.engine.execute("DROP VIEW IF EXISTS pyarchinit_uscaratterizzazioni_view CASCADE")
+                        self._execute("DROP VIEW IF EXISTS pyarchinit_quote_view CASCADE")
+                        self._execute("DROP VIEW IF EXISTS pyarchinit_us_view CASCADE")
+                        self._execute("DROP VIEW IF EXISTS pyarchinit_uscaratterizzazioni_view CASCADE")
                     except:
                         pass
                     
                     # Convert the column type
-                    self.engine.execute("ALTER TABLE us_table ALTER COLUMN us TYPE TEXT USING us::TEXT")
+                    self._execute("ALTER TABLE us_table ALTER COLUMN us TYPE TEXT USING us::TEXT")
                     
                     # Recreate views
                     try:
-                        self.engine.execute("""
+                        self._execute("""
                         CREATE VIEW pyarchinit_us_view AS
                         SELECT 
                             pyunitastratigrafiche.gid, 
@@ -521,263 +576,263 @@ class DB_update(object):
             pass
 
         if not table_column_names_list.__contains__('cont_per'):
-            self.engine.execute("ALTER TABLE us_table ADD COLUMN cont_per varchar DEFAULT")
+            self._execute("ALTER TABLE us_table ADD COLUMN cont_per varchar DEFAULT")
 
         if not table_column_names_list.__contains__('documentazione'):
-            self.engine.execute("ALTER TABLE us_table ADD COLUMN documentazione varchar")
+            self._execute("ALTER TABLE us_table ADD COLUMN documentazione varchar")
 
             # nuovi campi per USM 1/9/2016 generati correttamente
         if not table_column_names_list.__contains__('unita_tipo'):
-            self.engine.execute("ALTER TABLE us_table ADD COLUMN unita_tipo varchar DEFAULT 'US' ")
+            self._execute("ALTER TABLE us_table ADD COLUMN unita_tipo varchar DEFAULT 'US' ")
 
         if not table_column_names_list.__contains__('settore'):
-            self.engine.execute("ALTER TABLE us_table ADD COLUMN settore text DEFAULT '' ")
+            self._execute("ALTER TABLE us_table ADD COLUMN settore text DEFAULT '' ")
 
         if not table_column_names_list.__contains__('quad_par'):
-            self.engine.execute("ALTER TABLE us_table ADD COLUMN quad_par text DEFAULT '' ")
+            self._execute("ALTER TABLE us_table ADD COLUMN quad_par text DEFAULT '' ")
 
         if not table_column_names_list.__contains__('ambient'):
-            self.engine.execute("ALTER TABLE us_table ADD COLUMN ambient text DEFAULT '' ")
+            self._execute("ALTER TABLE us_table ADD COLUMN ambient text DEFAULT '' ")
 
         if not table_column_names_list.__contains__('saggio'):
-            self.engine.execute("ALTER TABLE us_table ADD COLUMN saggio text DEFAULT '' ")
+            self._execute("ALTER TABLE us_table ADD COLUMN saggio text DEFAULT '' ")
 
         if not table_column_names_list.__contains__('elem_datanti'):
-            self.engine.execute("ALTER TABLE us_table ADD COLUMN elem_datanti text DEFAULT '' ")
+            self._execute("ALTER TABLE us_table ADD COLUMN elem_datanti text DEFAULT '' ")
 
         if not table_column_names_list.__contains__('funz_statica'):
-            self.engine.execute("ALTER TABLE us_table ADD COLUMN funz_statica text DEFAULT '' ")
+            self._execute("ALTER TABLE us_table ADD COLUMN funz_statica text DEFAULT '' ")
 
         if not table_column_names_list.__contains__('lavorazione'):
-            self.engine.execute("ALTER TABLE us_table ADD COLUMN lavorazione text DEFAULT '' ")
+            self._execute("ALTER TABLE us_table ADD COLUMN lavorazione text DEFAULT '' ")
 
         if not table_column_names_list.__contains__('spess_giunti'):
-            self.engine.execute("ALTER TABLE us_table ADD COLUMN spess_giunti text DEFAULT '' ")
+            self._execute("ALTER TABLE us_table ADD COLUMN spess_giunti text DEFAULT '' ")
 
         if not table_column_names_list.__contains__('letti_posa'):
-            self.engine.execute("ALTER TABLE us_table ADD COLUMN letti_posa text DEFAULT '' ")
+            self._execute("ALTER TABLE us_table ADD COLUMN letti_posa text DEFAULT '' ")
 
         if not table_column_names_list.__contains__('alt_mod'):
-            self.engine.execute("ALTER TABLE us_table ADD COLUMN alt_mod text DEFAULT '' ")
+            self._execute("ALTER TABLE us_table ADD COLUMN alt_mod text DEFAULT '' ")
 
         if not table_column_names_list.__contains__('un_ed_riass'):
-            self.engine.execute("ALTER TABLE us_table ADD COLUMN un_ed_riass text DEFAULT '' ")
+            self._execute("ALTER TABLE us_table ADD COLUMN un_ed_riass text DEFAULT '' ")
 
         if not table_column_names_list.__contains__('reimp'):
-            self.engine.execute("ALTER TABLE us_table ADD COLUMN reimp text DEFAULT '' ")
+            self._execute("ALTER TABLE us_table ADD COLUMN reimp text DEFAULT '' ")
 
         if not table_column_names_list.__contains__('posa_opera'):
-            self.engine.execute("ALTER TABLE us_table ADD COLUMN posa_opera text DEFAULT '' ")
+            self._execute("ALTER TABLE us_table ADD COLUMN posa_opera text DEFAULT '' ")
 
         if not table_column_names_list.__contains__('quota_min_usm'):
-            self.engine.execute("ALTER TABLE us_table ADD COLUMN quota_min_usm NUMERIC(6,2)")
+            self._execute("ALTER TABLE us_table ADD COLUMN quota_min_usm NUMERIC(6,2)")
 
         if not table_column_names_list.__contains__('quota_max_usm'):
-            self.engine.execute("ALTER TABLE us_table ADD COLUMN quota_max_usm NUMERIC(6,2)")
+            self._execute("ALTER TABLE us_table ADD COLUMN quota_max_usm NUMERIC(6,2)")
 
         if not table_column_names_list.__contains__('cons_legante'):
-            self.engine.execute("ALTER TABLE us_table ADD COLUMN cons_legante text DEFAULT '' ")
+            self._execute("ALTER TABLE us_table ADD COLUMN cons_legante text DEFAULT '' ")
 
         if not table_column_names_list.__contains__('col_legante'):
-            self.engine.execute("ALTER TABLE us_table ADD COLUMN col_legante text DEFAULT '[]' ")
+            self._execute("ALTER TABLE us_table ADD COLUMN col_legante text DEFAULT '[]' ")
 
         if not table_column_names_list.__contains__('aggreg_legante'):
-            self.engine.execute("ALTER TABLE us_table ADD COLUMN aggreg_legante text DEFAULT '[]' ")
+            self._execute("ALTER TABLE us_table ADD COLUMN aggreg_legante text DEFAULT '[]' ")
 
         if not table_column_names_list.__contains__('con_text_mat'):
-            self.engine.execute("ALTER TABLE us_table ADD COLUMN con_text_mat text DEFAULT '[]' ")
+            self._execute("ALTER TABLE us_table ADD COLUMN con_text_mat text DEFAULT '[]' ")
 
         if not table_column_names_list.__contains__('col_materiale'):
-            self.engine.execute("ALTER TABLE us_table ADD COLUMN col_materiale text DEFAULT '[]' ")
+            self._execute("ALTER TABLE us_table ADD COLUMN col_materiale text DEFAULT '[]' ")
 
         if not table_column_names_list.__contains__('inclusi_materiali_usm'):
-            self.engine.execute("ALTER TABLE us_table ADD COLUMN inclusi_materiali_usm text DEFAULT '[]' ")
+            self._execute("ALTER TABLE us_table ADD COLUMN inclusi_materiali_usm text DEFAULT '[]' ")
 
         if not table_column_names_list.__contains__('n_catalogo_generale'):
-            self.engine.execute("ALTER TABLE us_table ADD COLUMN n_catalogo_generale text DEFAULT '' ")
+            self._execute("ALTER TABLE us_table ADD COLUMN n_catalogo_generale text DEFAULT '' ")
 
         if not table_column_names_list.__contains__('n_catalogo_interno'):
-            self.engine.execute("ALTER TABLE us_table ADD COLUMN n_catalogo_interno text DEFAULT '' ")
+            self._execute("ALTER TABLE us_table ADD COLUMN n_catalogo_interno text DEFAULT '' ")
 
         if not table_column_names_list.__contains__('n_catalogo_internazionale'):
-            self.engine.execute("ALTER TABLE us_table ADD COLUMN n_catalogo_internazionale text DEFAULT '' ")
+            self._execute("ALTER TABLE us_table ADD COLUMN n_catalogo_internazionale text DEFAULT '' ")
 
         if not table_column_names_list.__contains__('soprintendenza'):
-            self.engine.execute("ALTER TABLE us_table ADD COLUMN soprintendenza text DEFAULT '' ")
+            self._execute("ALTER TABLE us_table ADD COLUMN soprintendenza text DEFAULT '' ")
 
         if not table_column_names_list.__contains__('quota_relativa'):
-            self.engine.execute("ALTER TABLE us_table ADD COLUMN quota_relativa NUMERIC(6,2)")
+            self._execute("ALTER TABLE us_table ADD COLUMN quota_relativa NUMERIC(6,2)")
 
         if not table_column_names_list.__contains__('quota_abs'):
-            self.engine.execute("ALTER TABLE us_table ADD COLUMN quota_abs   NUMERIC(6,2)")
+            self._execute("ALTER TABLE us_table ADD COLUMN quota_abs   NUMERIC(6,2)")
 
         if not table_column_names_list.__contains__('ref_tm'):
-            self.engine.execute("ALTER TABLE us_table ADD COLUMN ref_tm text DEFAULT '' ")
+            self._execute("ALTER TABLE us_table ADD COLUMN ref_tm text DEFAULT '' ")
 
         if not table_column_names_list.__contains__('ref_ra'):
-            self.engine.execute("ALTER TABLE us_table ADD COLUMN ref_ra text DEFAULT '' ")
+            self._execute("ALTER TABLE us_table ADD COLUMN ref_ra text DEFAULT '' ")
 
         if not table_column_names_list.__contains__('ref_n'):
-            self.engine.execute("ALTER TABLE us_table ADD COLUMN ref_n text DEFAULT '' ")
+            self._execute("ALTER TABLE us_table ADD COLUMN ref_n text DEFAULT '' ")
 
         if not table_column_names_list.__contains__('posizione'):
-            self.engine.execute("ALTER TABLE us_table ADD COLUMN posizione text DEFAULT '' ")
+            self._execute("ALTER TABLE us_table ADD COLUMN posizione text DEFAULT '' ")
 
         if not table_column_names_list.__contains__('criteri_distinzione'):
-            self.engine.execute("ALTER TABLE us_table ADD COLUMN criteri_distinzione text DEFAULT '' ")
+            self._execute("ALTER TABLE us_table ADD COLUMN criteri_distinzione text DEFAULT '' ")
 
         if not table_column_names_list.__contains__('modo_formazione'):
-            self.engine.execute("ALTER TABLE us_table ADD COLUMN modo_formazione text DEFAULT '' ")
+            self._execute("ALTER TABLE us_table ADD COLUMN modo_formazione text DEFAULT '' ")
 
         if not table_column_names_list.__contains__('componenti_organici'):
-            self.engine.execute("ALTER TABLE us_table ADD COLUMN componenti_organici text DEFAULT '[]' ")
+            self._execute("ALTER TABLE us_table ADD COLUMN componenti_organici text DEFAULT '[]' ")
 
         if not table_column_names_list.__contains__('componenti_inorganici'):
-            self.engine.execute("ALTER TABLE us_table ADD COLUMN componenti_inorganici text DEFAULT '[]' ")
+            self._execute("ALTER TABLE us_table ADD COLUMN componenti_inorganici text DEFAULT '[]' ")
 
         if not table_column_names_list.__contains__('lunghezza_max'):
-            self.engine.execute("ALTER TABLE us_table ADD COLUMN lunghezza_max NUMERIC(6,2)")
+            self._execute("ALTER TABLE us_table ADD COLUMN lunghezza_max NUMERIC(6,2)")
 
         if not table_column_names_list.__contains__('altezza_max'):
-            self.engine.execute("ALTER TABLE us_table ADD COLUMN altezza_max NUMERIC(6,2)")
+            self._execute("ALTER TABLE us_table ADD COLUMN altezza_max NUMERIC(6,2)")
 
         if not table_column_names_list.__contains__('altezza_min'):
-            self.engine.execute("ALTER TABLE us_table ADD COLUMN altezza_min NUMERIC(6,2)")
+            self._execute("ALTER TABLE us_table ADD COLUMN altezza_min NUMERIC(6,2)")
 
         if not table_column_names_list.__contains__('profondita_max'):
-            self.engine.execute("ALTER TABLE us_table ADD COLUMN profondita_max NUMERIC(6,2)")
+            self._execute("ALTER TABLE us_table ADD COLUMN profondita_max NUMERIC(6,2)")
 
         if not table_column_names_list.__contains__('profondita_min'):
-            self.engine.execute("ALTER TABLE us_table ADD COLUMN profondita_min NUMERIC(6,2)")
+            self._execute("ALTER TABLE us_table ADD COLUMN profondita_min NUMERIC(6,2)")
 
         if not table_column_names_list.__contains__('larghezza_media'):
-            self.engine.execute("ALTER TABLE us_table ADD COLUMN larghezza_media NUMERIC(6,2)")
+            self._execute("ALTER TABLE us_table ADD COLUMN larghezza_media NUMERIC(6,2)")
 
         if not table_column_names_list.__contains__('quota_max_abs'):
-            self.engine.execute("ALTER TABLE us_table ADD COLUMN quota_max_abs NUMERIC(6,2)")
+            self._execute("ALTER TABLE us_table ADD COLUMN quota_max_abs NUMERIC(6,2)")
 
         if not table_column_names_list.__contains__('quota_max_rel'):
-            self.engine.execute("ALTER TABLE us_table ADD COLUMN quota_max_rel NUMERIC(6,2)")
+            self._execute("ALTER TABLE us_table ADD COLUMN quota_max_rel NUMERIC(6,2)")
 
         if not table_column_names_list.__contains__('quota_min_abs'):
-            self.engine.execute("ALTER TABLE us_table ADD COLUMN quota_min_abs NUMERIC(6,2)")
+            self._execute("ALTER TABLE us_table ADD COLUMN quota_min_abs NUMERIC(6,2)")
 
         if not table_column_names_list.__contains__('quota_min_rel'):
-            self.engine.execute("ALTER TABLE us_table ADD COLUMN quota_min_rel NUMERIC(6,2)")
+            self._execute("ALTER TABLE us_table ADD COLUMN quota_min_rel NUMERIC(6,2)")
 
         if not table_column_names_list.__contains__('osservazioni'):
-            self.engine.execute("ALTER TABLE us_table ADD COLUMN osservazioni text DEFAULT '' ")
+            self._execute("ALTER TABLE us_table ADD COLUMN osservazioni text DEFAULT '' ")
 
         if not table_column_names_list.__contains__('datazione'):
-            self.engine.execute("ALTER TABLE us_table ADD COLUMN datazione text DEFAULT '' ")
+            self._execute("ALTER TABLE us_table ADD COLUMN datazione text DEFAULT '' ")
 
         if not table_column_names_list.__contains__('flottazione'):
-            self.engine.execute("ALTER TABLE us_table ADD COLUMN flottazione text DEFAULT '' ")
+            self._execute("ALTER TABLE us_table ADD COLUMN flottazione text DEFAULT '' ")
 
         if not table_column_names_list.__contains__('setacciatura'):
-            self.engine.execute("ALTER TABLE us_table ADD COLUMN setacciatura text DEFAULT '' ")
+            self._execute("ALTER TABLE us_table ADD COLUMN setacciatura text DEFAULT '' ")
 
         if not table_column_names_list.__contains__('affidabilita'):
-            self.engine.execute("ALTER TABLE us_table ADD COLUMN affidabilita text DEFAULT '' ")
+            self._execute("ALTER TABLE us_table ADD COLUMN affidabilita text DEFAULT '' ")
 
         if not table_column_names_list.__contains__('direttore_us'):
-            self.engine.execute("ALTER TABLE us_table ADD COLUMN direttore_us text DEFAULT '' ")
+            self._execute("ALTER TABLE us_table ADD COLUMN direttore_us text DEFAULT '' ")
 
         if not table_column_names_list.__contains__('responsabile_us'):
-            self.engine.execute("ALTER TABLE us_table ADD COLUMN responsabile_us text DEFAULT '' ")
+            self._execute("ALTER TABLE us_table ADD COLUMN responsabile_us text DEFAULT '' ")
 
         if not table_column_names_list.__contains__('cod_ente_schedatore'):
-            self.engine.execute("ALTER TABLE us_table ADD COLUMN cod_ente_schedatore text DEFAULT '' ")
+            self._execute("ALTER TABLE us_table ADD COLUMN cod_ente_schedatore text DEFAULT '' ")
 
         if not table_column_names_list.__contains__('data_rilevazione'):
-            self.engine.execute("ALTER TABLE us_table ADD COLUMN data_rilevazione text DEFAULT '' ")
+            self._execute("ALTER TABLE us_table ADD COLUMN data_rilevazione text DEFAULT '' ")
 
         if not table_column_names_list.__contains__('data_rielaborazione'):
-            self.engine.execute("ALTER TABLE us_table ADD COLUMN data_rielaborazione text DEFAULT '' ")
+            self._execute("ALTER TABLE us_table ADD COLUMN data_rielaborazione text DEFAULT '' ")
 
         if not table_column_names_list.__contains__('lunghezza_usm'):
-            self.engine.execute("ALTER TABLE us_table ADD COLUMN lunghezza_usm NUMERIC(6,2)")
+            self._execute("ALTER TABLE us_table ADD COLUMN lunghezza_usm NUMERIC(6,2)")
 
         if not table_column_names_list.__contains__('altezza_usm'):
-            self.engine.execute("ALTER TABLE us_table ADD COLUMN altezza_usm NUMERIC(6,2)")
+            self._execute("ALTER TABLE us_table ADD COLUMN altezza_usm NUMERIC(6,2)")
 
         if not table_column_names_list.__contains__('spessore_usm'):
-            self.engine.execute("ALTER TABLE us_table ADD COLUMN spessore_usm NUMERIC(6,2)")
+            self._execute("ALTER TABLE us_table ADD COLUMN spessore_usm NUMERIC(6,2)")
 
         if not table_column_names_list.__contains__('tecnica_muraria_usm'):
-            self.engine.execute("ALTER TABLE us_table ADD COLUMN tecnica_muraria_usm text DEFAULT '' ")
+            self._execute("ALTER TABLE us_table ADD COLUMN tecnica_muraria_usm text DEFAULT '' ")
 
         if not table_column_names_list.__contains__('modulo_usm'):
-            self.engine.execute("ALTER TABLE us_table ADD COLUMN modulo_usm text DEFAULT '' ")
+            self._execute("ALTER TABLE us_table ADD COLUMN modulo_usm text DEFAULT '' ")
 
         if not table_column_names_list.__contains__('campioni_malta_usm'):
-            self.engine.execute("ALTER TABLE us_table ADD COLUMN campioni_malta_usm text DEFAULT '' ")
+            self._execute("ALTER TABLE us_table ADD COLUMN campioni_malta_usm text DEFAULT '' ")
 
         if not table_column_names_list.__contains__('campioni_mattone_usm'):
-            self.engine.execute("ALTER TABLE us_table ADD COLUMN campioni_mattone_usm text DEFAULT '' ")
+            self._execute("ALTER TABLE us_table ADD COLUMN campioni_mattone_usm text DEFAULT '' ")
 
         if not table_column_names_list.__contains__('campioni_pietra_usm'):
-            self.engine.execute("ALTER TABLE us_table ADD COLUMN campioni_pietra_usm text DEFAULT '' ")
+            self._execute("ALTER TABLE us_table ADD COLUMN campioni_pietra_usm text DEFAULT '' ")
 
         if not table_column_names_list.__contains__('provenienza_materiali_usm'):
-            self.engine.execute("ALTER TABLE us_table ADD COLUMN provenienza_materiali_usm text DEFAULT '' ")
+            self._execute("ALTER TABLE us_table ADD COLUMN provenienza_materiali_usm text DEFAULT '' ")
 
         if not table_column_names_list.__contains__('criteri_distinzione_usm'):
-            self.engine.execute("ALTER TABLE us_table ADD COLUMN criteri_distinzione_usm text DEFAULT '' ")
+            self._execute("ALTER TABLE us_table ADD COLUMN criteri_distinzione_usm text DEFAULT '' ")
 
         if not table_column_names_list.__contains__('uso_primario_usm'):
-            self.engine.execute("ALTER TABLE us_table ADD COLUMN uso_primario_usm text DEFAULT '' ")
+            self._execute("ALTER TABLE us_table ADD COLUMN uso_primario_usm text DEFAULT '' ")
 
         if not table_column_names_list.__contains__('doc_usv'):
-            self.engine.execute("ALTER TABLE us_table ADD COLUMN doc_usv text DEFAULT '' ")
+            self._execute("ALTER TABLE us_table ADD COLUMN doc_usv text DEFAULT '' ")
 
         #############nuovi##############################################################
         if not table_column_names_list.__contains__('tipologia_opera'):
-            self.engine.execute("ALTER TABLE us_table ADD COLUMN tipologia_opera text DEFAULT '' ")
+            self._execute("ALTER TABLE us_table ADD COLUMN tipologia_opera text DEFAULT '' ")
 
         if not table_column_names_list.__contains__('sezione_muraria'):
-            self.engine.execute("ALTER TABLE us_table ADD COLUMN sezione_muraria text DEFAULT '' ")
+            self._execute("ALTER TABLE us_table ADD COLUMN sezione_muraria text DEFAULT '' ")
         if not table_column_names_list.__contains__('superficie_analizzata'):
-            self.engine.execute("ALTER TABLE us_table ADD COLUMN superficie_analizzata text DEFAULT '' ")
+            self._execute("ALTER TABLE us_table ADD COLUMN superficie_analizzata text DEFAULT '' ")
         if not table_column_names_list.__contains__('orientamento'):
-                self.engine.execute("ALTER TABLE us_table ADD COLUMN orientamento text DEFAULT '' ")
+                self._execute("ALTER TABLE us_table ADD COLUMN orientamento text DEFAULT '' ")
         if not table_column_names_list.__contains__('materiali_lat'):
-                self.engine.execute("ALTER TABLE us_table ADD COLUMN materiali_lat text DEFAULT '' ")
+                self._execute("ALTER TABLE us_table ADD COLUMN materiali_lat text DEFAULT '' ")
         if not table_column_names_list.__contains__('lavorazione_lat'):
-                self.engine.execute("ALTER TABLE us_table ADD COLUMN lavorazione_lat text DEFAULT '' ")
+                self._execute("ALTER TABLE us_table ADD COLUMN lavorazione_lat text DEFAULT '' ")
         if not table_column_names_list.__contains__('consistenza_lat'):
-                self.engine.execute("ALTER TABLE us_table ADD COLUMN consistenza_lat text DEFAULT '' ")
+                self._execute("ALTER TABLE us_table ADD COLUMN consistenza_lat text DEFAULT '' ")
         if not table_column_names_list.__contains__('forma_lat'):
-                self.engine.execute("ALTER TABLE us_table ADD COLUMN forma_lat text DEFAULT '' ")
+                self._execute("ALTER TABLE us_table ADD COLUMN forma_lat text DEFAULT '' ")
         if not table_column_names_list.__contains__('colore_lat'):
-                self.engine.execute("ALTER TABLE us_table ADD COLUMN colore_lat text DEFAULT '' ")
+                self._execute("ALTER TABLE us_table ADD COLUMN colore_lat text DEFAULT '' ")
         if not table_column_names_list.__contains__('impasto_lat'):
-                self.engine.execute("ALTER TABLE us_table ADD COLUMN impasto_lat text DEFAULT '' ")
+                self._execute("ALTER TABLE us_table ADD COLUMN impasto_lat text DEFAULT '' ")
 
 
         if not table_column_names_list.__contains__('forma_p'):
-                self.engine.execute("ALTER TABLE us_table ADD COLUMN forma_p text DEFAULT '' ")
+                self._execute("ALTER TABLE us_table ADD COLUMN forma_p text DEFAULT '' ")
         if not table_column_names_list.__contains__('colore_p'):
-                self.engine.execute("ALTER TABLE us_table ADD COLUMN colore_p text DEFAULT '' ")
+                self._execute("ALTER TABLE us_table ADD COLUMN colore_p text DEFAULT '' ")
         if not table_column_names_list.__contains__('taglio_p'):
-                self.engine.execute("ALTER TABLE us_table ADD COLUMN taglio_p text DEFAULT '' ")
+                self._execute("ALTER TABLE us_table ADD COLUMN taglio_p text DEFAULT '' ")
         if not table_column_names_list.__contains__('posa_opera_p'):
-                self.engine.execute("ALTER TABLE us_table ADD COLUMN posa_opera_p text DEFAULT '' ")
+                self._execute("ALTER TABLE us_table ADD COLUMN posa_opera_p text DEFAULT '' ")
         if not table_column_names_list.__contains__('inerti_usm'):
-                self.engine.execute("ALTER TABLE us_table ADD COLUMN inerti_usm text DEFAULT '' ")
+                self._execute("ALTER TABLE us_table ADD COLUMN inerti_usm text DEFAULT '' ")
         if not table_column_names_list.__contains__('tipo_legante_usm'):
-                self.engine.execute("ALTER TABLE us_table ADD COLUMN tipo_legante_usm text DEFAULT '' ")
+                self._execute("ALTER TABLE us_table ADD COLUMN tipo_legante_usm text DEFAULT '' ")
         if not table_column_names_list.__contains__('rifinitura_usm'):
-                self.engine.execute("ALTER TABLE us_table ADD COLUMN rifinitura_usm text DEFAULT '' ")
+                self._execute("ALTER TABLE us_table ADD COLUMN rifinitura_usm text DEFAULT '' ")
         if not table_column_names_list.__contains__('materiale_p'):
-                self.engine.execute("ALTER TABLE us_table ADD COLUMN materiale_p text DEFAULT '' ")
+                self._execute("ALTER TABLE us_table ADD COLUMN materiale_p text DEFAULT '' ")
         if not table_column_names_list.__contains__('consistenza_p'):
-                self.engine.execute("ALTER TABLE us_table ADD COLUMN consistenza_p text DEFAULT '' ")                    
+                self._execute("ALTER TABLE us_table ADD COLUMN consistenza_p text DEFAULT '' ")                    
         if not table_column_names_list.__contains__('rapporti2'):
-            self.engine.execute("ALTER TABLE us_table ADD COLUMN rapporti2 text DEFAULT '' ")
+            self._execute("ALTER TABLE us_table ADD COLUMN rapporti2 text DEFAULT '' ")
 
         # try:
-            # self.engine.execute("ALTER TABLE us_table ADD CONSTRAINT ID_us_unico UNIQUE (unita_tipo);")
+            # self._execute("ALTER TABLE us_table ADD CONSTRAINT ID_us_unico UNIQUE (unita_tipo);")
         # except:
             # pass
         ####pyarchinit_thesaurus_sigle
@@ -789,7 +844,7 @@ class DB_update(object):
             table_column_names_list.append(str(i.name))
 
         if not table_column_names_list.__contains__('lingua'):
-            self.engine.execute("ALTER TABLE pyarchinit_thesaurus_sigle ADD COLUMN lingua text DEFAULT '' ")
+            self._execute("ALTER TABLE pyarchinit_thesaurus_sigle ADD COLUMN lingua text DEFAULT '' ")
 
 
 
@@ -802,9 +857,9 @@ class DB_update(object):
             table_column_names_list.append(str(i.name))
 
         if not table_column_names_list.__contains__('cont_per'):
-            self.engine.execute("ALTER TABLE periodizzazione_table ADD COLUMN cont_per BIGINT DEFAULT '' ")
+            self._execute("ALTER TABLE periodizzazione_table ADD COLUMN cont_per BIGINT DEFAULT '' ")
         # if not table_column_names_list.__contains__('area'):
-            # self.engine.execute("ALTER TABLE periodizzazione_table ADD COLUMN area BIGINT")
+            # self._execute("ALTER TABLE periodizzazione_table ADD COLUMN area BIGINT")
 
         ####tomba_table
         table = safe_load_table("tomba_table")
@@ -815,19 +870,19 @@ class DB_update(object):
             table_column_names_list.append(str(i.name))
 
         if not table_column_names_list.__contains__('periodo_iniziale'):
-            self.engine.execute("ALTER TABLE tomba_table ADD COLUMN periodo_iniziale BIGINT")
+            self._execute("ALTER TABLE tomba_table ADD COLUMN periodo_iniziale BIGINT")
 
         if not table_column_names_list.__contains__('fase_iniziale'):
-            self.engine.execute("ALTER TABLE tomba_table ADD COLUMN fase_iniziale BIGINT")
+            self._execute("ALTER TABLE tomba_table ADD COLUMN fase_iniziale BIGINT")
 
         if not table_column_names_list.__contains__('periodo_finale'):
-            self.engine.execute("ALTER TABLE tomba_table ADD COLUMN periodo_finale BIGINT")
+            self._execute("ALTER TABLE tomba_table ADD COLUMN periodo_finale BIGINT")
 
         if not table_column_names_list.__contains__('fase_finale'):
-            self.engine.execute("ALTER TABLE tomba_table ADD COLUMN fase_finale BIGINT")
+            self._execute("ALTER TABLE tomba_table ADD COLUMN fase_finale BIGINT")
 
         if not table_column_names_list.__contains__('datazione_estesa'):
-            self.engine.execute("ALTER TABLE tomba_table ADD COLUMN datazione_estesa text")
+            self._execute("ALTER TABLE tomba_table ADD COLUMN datazione_estesa text")
 
         ####individui_table
         table = safe_load_table("individui_table")
@@ -838,51 +893,51 @@ class DB_update(object):
             table_column_names_list.append(str(i.name))
 
         if not table_column_names_list.__contains__('sigla_struttura'):
-            self.engine.execute("ALTER TABLE individui_table ADD COLUMN sigla_struttura text")
+            self._execute("ALTER TABLE individui_table ADD COLUMN sigla_struttura text")
 
         if not table_column_names_list.__contains__('nr_struttura'):
-            self.engine.execute("ALTER TABLE individui_table ADD COLUMN nr_struttura text")
+            self._execute("ALTER TABLE individui_table ADD COLUMN nr_struttura text")
 
         if not table_column_names_list.__contains__('completo_si_no'):
-            self.engine.execute("ALTER TABLE individui_table ADD COLUMN completo_si_no varchar")
+            self._execute("ALTER TABLE individui_table ADD COLUMN completo_si_no varchar")
 
         if not table_column_names_list.__contains__('disturbato_si_no'):
-            self.engine.execute("ALTER TABLE individui_table ADD COLUMN disturbato_si_no varchar")
+            self._execute("ALTER TABLE individui_table ADD COLUMN disturbato_si_no varchar")
 
         if not table_column_names_list.__contains__('in_connessione_si_no'):
-            self.engine.execute("ALTER TABLE individui_table ADD COLUMN in_connessione_si_no varchar")
+            self._execute("ALTER TABLE individui_table ADD COLUMN in_connessione_si_no varchar")
 
         if not table_column_names_list.__contains__('lunghezza_scheletro'):
-            self.engine.execute("ALTER TABLE individui_table ADD COLUMN lunghezza_scheletro NUMERIC(6,2)")
+            self._execute("ALTER TABLE individui_table ADD COLUMN lunghezza_scheletro NUMERIC(6,2)")
 
         if not table_column_names_list.__contains__('posizione_scheletro'):
-            self.engine.execute("ALTER TABLE individui_table ADD COLUMN posizione_scheletro varchar")
+            self._execute("ALTER TABLE individui_table ADD COLUMN posizione_scheletro varchar")
 
         if not table_column_names_list.__contains__('posizione_cranio'):
-            self.engine.execute("ALTER TABLE individui_table ADD COLUMN posizione_cranio varchar")
+            self._execute("ALTER TABLE individui_table ADD COLUMN posizione_cranio varchar")
 
         if not table_column_names_list.__contains__('posizione_arti_superiori'):
-            self.engine.execute("ALTER TABLE individui_table ADD COLUMN posizione_arti_superiori varchar")
+            self._execute("ALTER TABLE individui_table ADD COLUMN posizione_arti_superiori varchar")
 
         if not table_column_names_list.__contains__('posizione_arti_inferiori'):
-            self.engine.execute("ALTER TABLE individui_table ADD COLUMN posizione_arti_inferiori varchar")
+            self._execute("ALTER TABLE individui_table ADD COLUMN posizione_arti_inferiori varchar")
 
         if not table_column_names_list.__contains__('orientamento_asse'):
-            self.engine.execute("ALTER TABLE individui_table ADD COLUMN orientamento_asse text")
+            self._execute("ALTER TABLE individui_table ADD COLUMN orientamento_asse text")
 
         if not table_column_names_list.__contains__('orientamento_azimut'):
-            self.engine.execute("ALTER TABLE individui_table ADD COLUMN orientamento_azimut text")
+            self._execute("ALTER TABLE individui_table ADD COLUMN orientamento_azimut text")
         try:
             if table_column_names_list.__contains__('nr_struttura'):
-                self.engine.execute("ALTER TABLE individui_table ALTER COLUMN nr_struttura  TYPE text")
+                self._execute("ALTER TABLE individui_table ALTER COLUMN nr_struttura  TYPE text")
             if table_column_names_list.__contains__('orientamento_azimut'):
-                self.engine.execute("ALTER TABLE individui_table ALTER COLUMN orientamento_azimut TYPE text")
+                self._execute("ALTER TABLE individui_table ALTER COLUMN orientamento_azimut TYPE text")
             if table_column_names_list.__contains__('us'):
-                self.engine.execute("ALTER TABLE individui_table ALTER COLUMN us TYPE text")
+                self._execute("ALTER TABLE individui_table ALTER COLUMN us TYPE text")
             if table_column_names_list.__contains__('eta_min'):
-                self.engine.execute("ALTER TABLE individui_table ALTER COLUMN eta_min TYPE text")
+                self._execute("ALTER TABLE individui_table ALTER COLUMN eta_min TYPE text")
             if table_column_names_list.__contains__('eta_max'):
-                self.engine.execute("ALTER TABLE individui_table ALTER COLUMN eta_max TYPE text")
+                self._execute("ALTER TABLE individui_table ALTER COLUMN eta_max TYPE text")
         except:
             pass
 
@@ -897,7 +952,7 @@ class DB_update(object):
             table_column_names_list.append(str(i.name))
         try: 
             if table_column_names_list.__contains__('fase'):
-                self.engine.execute("ALTER TABLE periodizzazione_table ALTER COLUMN fase TYPE text")
+                self._execute("ALTER TABLE periodizzazione_table ALTER COLUMN fase TYPE text")
         except:
             pass
         ####aggiornamento tabelle geografiche
@@ -909,14 +964,14 @@ class DB_update(object):
         for i in table.columns:
             table_column_names_list.append(str(i.name))
         # if table_column_names_list.__contains__('rilievo_orginale'):
-            # self.engine.execute("ALTER TABLE pyunitastratigrafiche RENAME COLUMN rilievo_orginale TO rilievo_originale")   
+            # self._execute("ALTER TABLE pyunitastratigrafiche RENAME COLUMN rilievo_orginale TO rilievo_originale")   
 
         if not table_column_names_list.__contains__('coord'):
-            self.engine.execute("ALTER TABLE pyunitastratigrafiche ADD COLUMN coord text")
+            self._execute("ALTER TABLE pyunitastratigrafiche ADD COLUMN coord text")
         if not table_column_names_list.__contains__('unita_tipo_s'):
-            self.engine.execute("ALTER TABLE pyunitastratigrafiche ADD COLUMN unita_tipo_s text")
+            self._execute("ALTER TABLE pyunitastratigrafiche ADD COLUMN unita_tipo_s text")
         # if table_column_names_list.__contains__('id'):
-            # self.engine.execute("ALTER TABLE pyunitastratigrafiche RENAME COLUMN id TO gid")
+            # self._execute("ALTER TABLE pyunitastratigrafiche RENAME COLUMN id TO gid")
 
         table = safe_load_table("pyunitastratigrafiche_usm")
         if table is None:
@@ -926,7 +981,7 @@ class DB_update(object):
             table_column_names_list.append(str(i.name))
 
         if not table_column_names_list.__contains__('unita_tipo_s'):
-            self.engine.execute("ALTER TABLE pyunitastratigrafiche_usm ADD COLUMN unita_tipo_s text")
+            self._execute("ALTER TABLE pyunitastratigrafiche_usm ADD COLUMN unita_tipo_s text")
 
 
         table = safe_load_table("pyarchinit_quote_usm")
@@ -937,7 +992,7 @@ class DB_update(object):
             table_column_names_list.append(str(i.name))
 
         if not table_column_names_list.__contains__('unita_tipo_q'):
-            self.engine.execute("ALTER TABLE pyarchinit_quote_usm ADD COLUMN unita_tipo_q text")
+            self._execute("ALTER TABLE pyarchinit_quote_usm ADD COLUMN unita_tipo_q text")
 
 
         table = safe_load_table("pyarchinit_quote")
@@ -948,7 +1003,7 @@ class DB_update(object):
             table_column_names_list.append(str(i.name))
 
         if not table_column_names_list.__contains__('unita_tipo_q'):
-            self.engine.execute("ALTER TABLE pyarchinit_quote ADD COLUMN unita_tipo_q text")
+            self._execute("ALTER TABLE pyarchinit_quote ADD COLUMN unita_tipo_q text")
 
         table = safe_load_table("pyarchinit_strutture_ipotesi")
         if table is None:
@@ -959,10 +1014,10 @@ class DB_update(object):
 
         if not table_column_names_list.__contains__('sigla_strut'):
 
-            self.engine.execute( "ALTER TABLE pyarchinit_strutture_ipotesi ADD COLUMN sigla_strut varchar(3) DEFAULT 'NoD'")
+            self._execute( "ALTER TABLE pyarchinit_strutture_ipotesi ADD COLUMN sigla_strut varchar(3) DEFAULT 'NoD'")
 
         if not table_column_names_list.__contains__('nr_strut'):
-            self.engine.execute("ALTER TABLE pyarchinit_strutture_ipotesi ADD COLUMN nr_strut BIGINT DEFAULT 0 ")
+            self._execute("ALTER TABLE pyarchinit_strutture_ipotesi ADD COLUMN nr_strut BIGINT DEFAULT 0 ")
 
 
         table = safe_load_table("pyarchinit_sezioni")
@@ -973,10 +1028,10 @@ class DB_update(object):
             table_column_names_list.append(str(i.name))
 
         if not table_column_names_list.__contains__('tipo_doc'):
-            self.engine.execute("ALTER TABLE pyarchinit_sezioni  ADD COLUMN tipo_doc text")   
+            self._execute("ALTER TABLE pyarchinit_sezioni  ADD COLUMN tipo_doc text")   
 
         if not table_column_names_list.__contains__('nome_doc'):
-            self.engine.execute("ALTER TABLE pyarchinit_sezioni  ADD COLUMN nome_doc text")
+            self._execute("ALTER TABLE pyarchinit_sezioni  ADD COLUMN nome_doc text")
 
         ####campioni_table - Convert US column from INTEGER to TEXT
         table = safe_load_table("campioni_table")
@@ -1000,7 +1055,7 @@ class DB_update(object):
                         col_type = str(us_column.type)
                         if 'INTEGER' in col_type.upper() or 'BIGINT' in col_type.upper():
                             # Convert the column type
-                            self.engine.execute("ALTER TABLE campioni_table ALTER COLUMN us TYPE TEXT USING us::TEXT")
+                            self._execute("ALTER TABLE campioni_table ALTER COLUMN us TYPE TEXT USING us::TEXT")
             except Exception as e:
                 # Log the error but continue with other updates
                 pass
@@ -1020,7 +1075,7 @@ class DB_update(object):
                         col_type = str(nr_cassa_column.type)
                         if 'INTEGER' in col_type.upper() or 'BIGINT' in col_type.upper():
                             # Convert the column type
-                            self.engine.execute("ALTER TABLE campioni_table ALTER COLUMN nr_cassa TYPE TEXT USING nr_cassa::TEXT")
+                            self._execute("ALTER TABLE campioni_table ALTER COLUMN nr_cassa TYPE TEXT USING nr_cassa::TEXT")
             except Exception as e:
                 # Log the error but continue with other updates
                 pass
@@ -1048,7 +1103,7 @@ class DB_update(object):
                             col_type = str(us_column.type)
                             if 'INTEGER' in col_type.upper() or 'BIGINT' in col_type.upper():
                                 # Convert the column type
-                                self.engine.execute("ALTER TABLE us_table_toimp ALTER COLUMN us TYPE TEXT USING us::TEXT")
+                                self._execute("ALTER TABLE us_table_toimp ALTER COLUMN us TYPE TEXT USING us::TEXT")
                 except Exception as e:
                     # Log the error but continue with other updates
                     pass
@@ -1079,16 +1134,16 @@ class DB_update(object):
                         if 'INTEGER' in col_type.upper() or 'BIGINT' in col_type.upper():
                             # Drop dependent views first
                             try:
-                                self.engine.execute("DROP VIEW IF EXISTS pyarchinit_quote_view CASCADE")
+                                self._execute("DROP VIEW IF EXISTS pyarchinit_quote_view CASCADE")
                             except:
                                 pass
                             
                             # Convert the column type
-                            self.engine.execute("ALTER TABLE pyarchinit_quote ALTER COLUMN us_q TYPE TEXT USING us_q::TEXT")
+                            self._execute("ALTER TABLE pyarchinit_quote ALTER COLUMN us_q TYPE TEXT USING us_q::TEXT")
                             
                             # Recreate view
                             try:
-                                self.engine.execute("""
+                                self._execute("""
                                 CREATE VIEW pyarchinit_quote_view AS
                                 SELECT 
                                     pyarchinit_quote.gid,
@@ -1150,7 +1205,7 @@ class DB_update(object):
                         col_type = str(us_column.type)
                         if 'INTEGER' in col_type.upper() or 'BIGINT' in col_type.upper():
                             # Convert the column type
-                            self.engine.execute("ALTER TABLE pyarchinit_quote_usm ALTER COLUMN us_q TYPE TEXT USING us_q::TEXT")
+                            self._execute("ALTER TABLE pyarchinit_quote_usm ALTER COLUMN us_q TYPE TEXT USING us_q::TEXT")
             except Exception as e:
                 # Log the error but continue with other updates
                 pass
@@ -1178,16 +1233,16 @@ class DB_update(object):
                         if 'INTEGER' in col_type.upper() or 'BIGINT' in col_type.upper():
                             # Drop dependent views first if they exist
                             try:
-                                self.engine.execute("DROP VIEW IF EXISTS pyarchinit_us_view CASCADE")
+                                self._execute("DROP VIEW IF EXISTS pyarchinit_us_view CASCADE")
                             except:
                                 pass
                             
                             # Convert the column type
-                            self.engine.execute("ALTER TABLE pyunitastratigrafiche ALTER COLUMN us_s TYPE TEXT USING us_s::TEXT")
+                            self._execute("ALTER TABLE pyunitastratigrafiche ALTER COLUMN us_s TYPE TEXT USING us_s::TEXT")
                             
                             # Recreate the view if us_table has already been converted
                             try:
-                                self.engine.execute("""
+                                self._execute("""
                                 CREATE VIEW pyarchinit_us_view AS
                                 SELECT 
                                     pyunitastratigrafiche.gid, 
@@ -1252,7 +1307,7 @@ class DB_update(object):
                         col_type = str(us_column.type)
                         if 'INTEGER' in col_type.upper() or 'BIGINT' in col_type.upper():
                             # Convert the column type
-                            self.engine.execute("ALTER TABLE pyunitastratigrafiche_usm ALTER COLUMN us_s TYPE TEXT USING us_s::TEXT")
+                            self._execute("ALTER TABLE pyunitastratigrafiche_usm ALTER COLUMN us_s TYPE TEXT USING us_s::TEXT")
             except Exception as e:
                 # Log the error but continue with other updates
                 pass
@@ -1280,7 +1335,7 @@ class DB_update(object):
                             col_type = str(us_column.type)
                             if 'INTEGER' in col_type.upper() or 'BIGINT' in col_type.upper():
                                 # Convert the column type
-                                self.engine.execute("ALTER TABLE pyarchinit_us_negative_doc ALTER COLUMN us_n TYPE TEXT USING us_n::TEXT")
+                                self._execute("ALTER TABLE pyarchinit_us_negative_doc ALTER COLUMN us_n TYPE TEXT USING us_n::TEXT")
                 except Exception as e:
                     # Log the error but continue with other updates
                     pass
@@ -1312,16 +1367,16 @@ class DB_update(object):
         #                     if 'INTEGER' in col_type.upper() or 'BIGINT' in col_type.upper():
         #                         # Drop dependent views first if they exist
         #                         try:
-        #                             self.engine.execute("DROP VIEW IF EXISTS pyarchinit_uscaratterizzazioni_view CASCADE")
+        #                             self._execute("DROP VIEW IF EXISTS pyarchinit_uscaratterizzazioni_view CASCADE")
         #                         except:
         #                             pass
         #
         #                         # Convert the column type
-        #                         self.engine.execute("ALTER TABLE pyuscaratterizzazioni ALTER COLUMN us_c TYPE TEXT USING us_c::TEXT")
+        #                         self._execute("ALTER TABLE pyuscaratterizzazioni ALTER COLUMN us_c TYPE TEXT USING us_c::TEXT")
         #
         #                         # Recreate view
         #                         # try:
-        #                         #     self.engine.execute("""
+        #                         #     self._execute("""
         #                         #     CREATE VIEW pyarchinit_uscaratterizzazioni_view AS
         #                         #     SELECT
         #                         #         pyuscaratterizzazioni.gid,
@@ -1376,10 +1431,10 @@ class DB_update(object):
         """SQLite-specific migration for US fields from INTEGER to TEXT"""
         try:
             # First, clean up any leftover _new tables from previous failed migrations
-            result = self.engine.execute("SELECT name FROM sqlite_master WHERE type='table' AND name LIKE '%_new'")
+            result = self._execute("SELECT name FROM sqlite_master WHERE type='table' AND name LIKE '%_new'")
             for row in result:
                 try:
-                    self.engine.execute(f"DROP TABLE IF EXISTS {row[0]}")
+                    self._execute(f"DROP TABLE IF EXISTS {row[0]}")
                 except:
                     pass
             
@@ -1397,7 +1452,7 @@ class DB_update(object):
             
             for view in views_to_drop:
                 try:
-                    self.engine.execute(f"DROP VIEW IF EXISTS {view}")
+                    self._execute(f"DROP VIEW IF EXISTS {view}")
                 except:
                     pass
             
@@ -1424,13 +1479,13 @@ class DB_update(object):
             for table_name, fields_to_migrate in migrations:
                 try:
                     # Check if table exists
-                    check_exists = self.engine.execute(f"SELECT name FROM sqlite_master WHERE type='table' AND name='{table_name}'")
+                    check_exists = self._execute(f"SELECT name FROM sqlite_master WHERE type='table' AND name='{table_name}'")
                     if not check_exists.fetchone():
                         continue
                     
                     # Check which fields need migration
                     needs_migration = False
-                    result = self.engine.execute(f"PRAGMA table_info({table_name})")
+                    result = self._execute(f"PRAGMA table_info({table_name})")
                     columns_info = result.fetchall()
                     
                     for col in columns_info:
@@ -1451,10 +1506,10 @@ class DB_update(object):
             self._recreate_sqlite_views()
             
             # Final cleanup - remove any remaining _new tables
-            result = self.engine.execute("SELECT name FROM sqlite_master WHERE type='table' AND name LIKE '%_new'")
+            result = self._execute("SELECT name FROM sqlite_master WHERE type='table' AND name LIKE '%_new'")
             for row in result:
                 try:
-                    self.engine.execute(f"DROP TABLE IF EXISTS {row[0]}")
+                    self._execute(f"DROP TABLE IF EXISTS {row[0]}")
                 except:
                     pass
             
@@ -1469,7 +1524,7 @@ class DB_update(object):
         """Migrate a single SQLite table by recreating it with TEXT type for US field"""
         try:
             # Get current table structure
-            result = self.engine.execute(f"PRAGMA table_info({table_name})")
+            result = self._execute(f"PRAGMA table_info({table_name})")
             columns = result.fetchall()
             
             # Build new table definition
@@ -1505,7 +1560,7 @@ class DB_update(object):
             new_table_sql += ", ".join(column_defs) + ")"
             
             # Create new table
-            self.engine.execute(new_table_sql)
+            self._execute(new_table_sql)
             
             # Copy data, converting US field to TEXT
             columns_list = [col[1] for col in columns]
@@ -1520,14 +1575,14 @@ class DB_update(object):
                     select_list.append(col_name)
             select_str = ", ".join(select_list)
             
-            self.engine.execute(f"INSERT INTO {table_name}_new SELECT {select_str} FROM {table_name}")
+            self._execute(f"INSERT INTO {table_name}_new SELECT {select_str} FROM {table_name}")
             
             # Drop old table and rename new one
-            self.engine.execute(f"DROP TABLE {table_name}")
-            self.engine.execute(f"ALTER TABLE {table_name}_new RENAME TO {table_name}")
+            self._execute(f"DROP TABLE {table_name}")
+            self._execute(f"ALTER TABLE {table_name}_new RENAME TO {table_name}")
             
             # Create index on US field
-            self.engine.execute(f"CREATE INDEX idx_{table_name}_{us_field} ON {table_name}({us_field})")
+            self._execute(f"CREATE INDEX idx_{table_name}_{us_field} ON {table_name}({us_field})")
             
         except Exception as e:
             raise Exception(f"Errore durante la migrazione della tabella {table_name}: {str(e)}")
@@ -1538,14 +1593,14 @@ class DB_update(object):
         
         try:
             # First, create a backup of the original table
-            self.engine.execute(f"CREATE TABLE {backup_table_name} AS SELECT * FROM {table_name}")
+            self._execute(f"CREATE TABLE {backup_table_name} AS SELECT * FROM {table_name}")
             
             # Count rows in backup to ensure data was copied
-            result = self.engine.execute(f"SELECT COUNT(*) FROM {backup_table_name}")
+            result = self._execute(f"SELECT COUNT(*) FROM {backup_table_name}")
             backup_count = result.fetchone()[0]
             
             # Count rows in original table
-            result = self.engine.execute(f"SELECT COUNT(*) FROM {table_name}")
+            result = self._execute(f"SELECT COUNT(*) FROM {table_name}")
             original_count = result.fetchone()[0]
             
             # Verify backup has same number of rows
@@ -1586,7 +1641,7 @@ class DB_update(object):
             new_table_sql += ", ".join(column_defs) + ")"
             
             # Create new table
-            self.engine.execute(new_table_sql)
+            self._execute(new_table_sql)
             
             # Copy data, converting fields to TEXT
             columns_list = [col[1] for col in columns_info]
@@ -1603,21 +1658,21 @@ class DB_update(object):
             
             # Use INSERT with explicit column list to handle potential column order differences
             columns_str = ", ".join(columns_list)
-            self.engine.execute(f"INSERT INTO {table_name}_new ({columns_str}) SELECT {select_str} FROM {table_name}")
+            self._execute(f"INSERT INTO {table_name}_new ({columns_str}) SELECT {select_str} FROM {table_name}")
             
             # Verify data was copied to new table
-            result = self.engine.execute(f"SELECT COUNT(*) FROM {table_name}_new")
+            result = self._execute(f"SELECT COUNT(*) FROM {table_name}_new")
             new_count = result.fetchone()[0]
             
             if new_count != original_count:
                 raise Exception(f"Migration verification failed: {new_count} rows in new table vs {original_count} in original")
             
             # Only drop old table and rename if everything is OK
-            self.engine.execute(f"DROP TABLE {table_name}")
-            self.engine.execute(f"ALTER TABLE {table_name}_new RENAME TO {table_name}")
+            self._execute(f"DROP TABLE {table_name}")
+            self._execute(f"ALTER TABLE {table_name}_new RENAME TO {table_name}")
             
             # Drop backup table only after successful migration
-            self.engine.execute(f"DROP TABLE {backup_table_name}")
+            self._execute(f"DROP TABLE {backup_table_name}")
             
             # Log successful migration
             print(f"Successfully migrated {table_name} fields to TEXT: {', '.join(fields_to_migrate)}")
@@ -1625,7 +1680,7 @@ class DB_update(object):
             # Create indexes on migrated fields
             for field in fields_to_migrate:
                 try:
-                    self.engine.execute(f"CREATE INDEX idx_{table_name}_{field} ON {table_name}({field})")
+                    self._execute(f"CREATE INDEX idx_{table_name}_{field} ON {table_name}({field})")
                 except:
                     pass  # Index might already exist
                     
@@ -1633,17 +1688,17 @@ class DB_update(object):
             # If anything goes wrong, try to restore from backup
             try:
                 # Drop the failed new table if it exists
-                self.engine.execute(f"DROP TABLE IF EXISTS {table_name}_new")
+                self._execute(f"DROP TABLE IF EXISTS {table_name}_new")
                 
                 # Check if original table still exists
-                result = self.engine.execute(f"SELECT name FROM sqlite_master WHERE type='table' AND name='{table_name}'")
+                result = self._execute(f"SELECT name FROM sqlite_master WHERE type='table' AND name='{table_name}'")
                 if not result.fetchone():
                     # Original table was dropped, restore from backup
-                    self.engine.execute(f"ALTER TABLE {backup_table_name} RENAME TO {table_name}")
+                    self._execute(f"ALTER TABLE {backup_table_name} RENAME TO {table_name}")
                     print(f"Restored {table_name} from backup after migration failure")
                 else:
                     # Original table still exists, just drop the backup
-                    self.engine.execute(f"DROP TABLE IF EXISTS {backup_table_name}")
+                    self._execute(f"DROP TABLE IF EXISTS {backup_table_name}")
             except Exception as restore_error:
                 print(f"Error during restore: {restore_error}")
                 # Leave backup table for manual recovery
@@ -1653,7 +1708,7 @@ class DB_update(object):
         except Exception as e:
             # If something goes wrong, clean up the _new table
             try:
-                self.engine.execute(f"DROP TABLE IF EXISTS {table_name}_new")
+                self._execute(f"DROP TABLE IF EXISTS {table_name}_new")
             except:
                 pass
             raise Exception(f"Errore durante la migrazione della tabella {table_name}: {str(e)}")
@@ -1875,7 +1930,7 @@ class DB_update(object):
         
         for view_name, view_sql in views_sql.items():
             try:
-                self.engine.execute(view_sql)
+                self._execute(view_sql)
             except:
                 # View might not be needed or table might not exist
                 pass
@@ -1887,7 +1942,7 @@ class DB_update(object):
         """Register views in SpatiaLite geometry metadata tables"""
         try:
             # Check if we have views_geometry_columns table (newer SpatiaLite)
-            result = self.engine.execute("""
+            result = self._execute("""
                 SELECT name FROM sqlite_master 
                 WHERE type='table' AND name='views_geometry_columns'
             """)
@@ -1896,13 +1951,13 @@ class DB_update(object):
                 # Register pyarchinit_us_view
                 try:
                     # Remove any existing registration
-                    self.engine.execute("""
+                    self._execute("""
                         DELETE FROM views_geometry_columns 
                         WHERE view_name = 'pyarchinit_us_view'
                     """)
                     
                     # Register the view (view_rowid must be lowercase)
-                    self.engine.execute("""
+                    self._execute("""
                         INSERT INTO views_geometry_columns 
                         (view_name, view_geometry, view_rowid, f_table_name, f_geometry_column, read_only)
                         VALUES 
@@ -1914,7 +1969,7 @@ class DB_update(object):
                 # Fallback: Register directly in geometry_columns for older SpatiaLite
                 try:
                     # Get geometry info from source table
-                    result = self.engine.execute("""
+                    result = self._execute("""
                         SELECT coord_dimension, srid, geometry_type 
                         FROM geometry_columns 
                         WHERE f_table_name = 'pyunitastratigrafiche' 
@@ -1924,13 +1979,13 @@ class DB_update(object):
                     geo_info = result.fetchone()
                     if geo_info:
                         # Remove any existing registration
-                        self.engine.execute("""
+                        self._execute("""
                             DELETE FROM geometry_columns 
                             WHERE f_table_name = 'pyarchinit_us_view'
                         """)
                         
                         # Register the view
-                        self.engine.execute("""
+                        self._execute("""
                             INSERT INTO geometry_columns 
                             (f_table_name, f_geometry_column, coord_dimension, srid, geometry_type)
                             VALUES 
@@ -1949,12 +2004,12 @@ class DB_update(object):
                 
                 for view_name, source_table in other_views:
                     try:
-                        self.engine.execute(f"""
+                        self._execute(f"""
                             DELETE FROM views_geometry_columns 
                             WHERE view_name = '{view_name}'
                         """)
                         
-                        self.engine.execute(f"""
+                        self._execute(f"""
                             INSERT INTO views_geometry_columns 
                             (view_name, view_geometry, view_rowid, f_table_name, f_geometry_column, read_only)
                             VALUES 
@@ -1964,7 +2019,7 @@ class DB_update(object):
                         pass
             
             # Also update geometry_columns_auth if it exists
-            result = self.engine.execute("""
+            result = self._execute("""
                 SELECT name FROM sqlite_master 
                 WHERE type='table' AND name='geometry_columns_auth'
             """)
@@ -1996,7 +2051,7 @@ class DB_update(object):
                             continue
                         
                         # Get SRID from source
-                        result = self.engine.execute(f"""
+                        result = self._execute(f"""
                             SELECT srid FROM geometry_columns_auth 
                             WHERE f_table_name = '{source_table}' 
                             AND f_geometry_column = 'the_geom'
@@ -2007,13 +2062,13 @@ class DB_update(object):
                             srid = row[0]
                             
                             # Remove existing entry
-                            self.engine.execute(f"""
+                            self._execute(f"""
                                 DELETE FROM geometry_columns_auth 
                                 WHERE f_table_name = '{view_name}'
                             """)
                             
                             # Add new entry
-                            self.engine.execute(f"""
+                            self._execute(f"""
                                 INSERT INTO geometry_columns_auth 
                                 (f_table_name, f_geometry_column, read_only, hidden, srid, auth_name, auth_srid)
                                 VALUES 
@@ -2032,11 +2087,11 @@ class DB_update(object):
             print("Starting TMA table migration...")
             
             # Backup existing data
-            old_data = self.engine.execute("SELECT * FROM tma_table").fetchall()
+            old_data = self._execute("SELECT * FROM tma_table").fetchall()
             print(f"Found {len(old_data)} records to migrate")
             
             # Drop the old table
-            self.engine.execute("DROP TABLE IF EXISTS tma_table")
+            self._execute("DROP TABLE IF EXISTS tma_table")
             
             # The new tables will be created automatically by the mapper
             # Force import to trigger table creation
@@ -2091,7 +2146,7 @@ class DB_update(object):
                         del new_values['localita']
                     
                     # Insert the main record
-                    self.engine.execute("""
+                    self._execute("""
                         INSERT INTO tma_materiali_archeologici 
                         (id, sito, area, ogtm, ldct, ldcn, vecchia_collocazione, cassetta,
                          scan, saggio, vano_locus, dscd, dscu, rcgd, rcgz,
@@ -2122,7 +2177,7 @@ class DB_update(object):
                             'updated_by': 'migration'
                         }
                         
-                        self.engine.execute("""
+                        self._execute("""
                             INSERT INTO tma_materiali_ripetibili
                             (id_tma, madi, macc, macl, macp, macd, cronologia_mac, macq, peso,
                              created_at, updated_at, created_by, updated_by)
@@ -2240,15 +2295,15 @@ class DB_update(object):
                                 if is_sqlite:
                                     # SQLite syntax
                                     if col_default:
-                                        self.engine.execute(f"ALTER TABLE {table_name} ADD COLUMN {col_name} {col_type} DEFAULT {col_default}")
+                                        self._execute(f"ALTER TABLE {table_name} ADD COLUMN {col_name} {col_type} DEFAULT {col_default}")
                                     else:
-                                        self.engine.execute(f"ALTER TABLE {table_name} ADD COLUMN {col_name} {col_type}")
+                                        self._execute(f"ALTER TABLE {table_name} ADD COLUMN {col_name} {col_type}")
                                 else:
                                     # PostgreSQL syntax
                                     if col_default:
-                                        self.engine.execute(f"ALTER TABLE {table_name} ADD COLUMN {col_name} {col_type} DEFAULT {col_default}")
+                                        self._execute(f"ALTER TABLE {table_name} ADD COLUMN {col_name} {col_type} DEFAULT {col_default}")
                                     else:
-                                        self.engine.execute(f"ALTER TABLE {table_name} ADD COLUMN {col_name} {col_type}")
+                                        self._execute(f"ALTER TABLE {table_name} ADD COLUMN {col_name} {col_type}")
                                 print(f"Added {col_name} to {table_name}")
                             except Exception as e:
                                 # Column might already exist or table might have issues
@@ -2263,3 +2318,4 @@ class DB_update(object):
         except Exception as e:
             print(f"Error adding concurrency columns: {str(e)}")
             # Don't raise - let the process continue
+#engine.execute

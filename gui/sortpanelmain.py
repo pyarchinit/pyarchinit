@@ -22,7 +22,6 @@
 from __future__ import absolute_import
 
 
-from builtins import range
 from qgis.PyQt.QtWidgets import QApplication, QDialog, QMessageBox
 from qgis.PyQt.uic import loadUiType
 
@@ -114,4 +113,4 @@ if __name__ == '__main__':
     a = QApplication(sys.argv)
     dlg = SortPanelMain()
     dlg.show()
-    sys.exit(a.exec_())
+    sys.exit(a.exec())

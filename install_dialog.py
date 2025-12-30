@@ -38,4 +38,4 @@ class InstallDialog(QDialog):
 
 def show_install_dialog(packages):
     dialog = InstallDialog(packages)
-    dialog.exec_()
+    dialog.exec()

@@ -4,7 +4,7 @@
  <class>DialogUS</class>
  <widget class="QDialog" name="DialogUS">
   <property name="windowModality">
-   <enum>Qt::WindowModal</enum>
+   <enum>Qt::WindowModality::WindowModal</enum>
   </property>
   <property name="geometry">
    <rect>
@@ -962,16 +962,16 @@
         <bool>false</bool>
        </property>
        <property name="contextMenuPolicy">
-        <enum>Qt::DefaultContextMenu</enum>
+        <enum>Qt::ContextMenuPolicy::DefaultContextMenu</enum>
        </property>
        <property name="toolTip">
         <string>Numero record corrente</string>
        </property>
        <property name="frameShape">
-        <enum>QFrame::Box</enum>
+        <enum>QFrame::Shape::Box</enum>
        </property>
        <property name="frameShadow">
-        <enum>QFrame::Sunken</enum>
+        <enum>QFrame::Shadow::Sunken</enum>
        </property>
        <property name="text">
         <string>1</string>
@@ -1444,13 +1444,13 @@
         <bool>false</bool>
        </property>
        <property name="contextMenuPolicy">
-        <enum>Qt::DefaultContextMenu</enum>
+        <enum>Qt::ContextMenuPolicy::DefaultContextMenu</enum>
        </property>
        <property name="frameShape">
-        <enum>QFrame::Box</enum>
+        <enum>QFrame::Shape::Box</enum>
        </property>
        <property name="frameShadow">
-        <enum>QFrame::Sunken</enum>
+        <enum>QFrame::Shadow::Sunken</enum>
        </property>
        <property name="text">
         <string/>
@@ -3809,16 +3809,16 @@
         <bool>false</bool>
        </property>
        <property name="contextMenuPolicy">
-        <enum>Qt::DefaultContextMenu</enum>
+        <enum>Qt::ContextMenuPolicy::DefaultContextMenu</enum>
        </property>
        <property name="toolTip">
         <string>Numero totale dei record</string>
        </property>
        <property name="frameShape">
-        <enum>QFrame::Box</enum>
+        <enum>QFrame::Shape::Box</enum>
        </property>
        <property name="frameShadow">
-        <enum>QFrame::Sunken</enum>
+        <enum>QFrame::Shadow::Sunken</enum>
        </property>
        <property name="text">
         <string>1</string>
@@ -4291,13 +4291,13 @@
         <bool>false</bool>
        </property>
        <property name="contextMenuPolicy">
-        <enum>Qt::DefaultContextMenu</enum>
+        <enum>Qt::ContextMenuPolicy::DefaultContextMenu</enum>
        </property>
        <property name="frameShape">
-        <enum>QFrame::Box</enum>
+        <enum>QFrame::Shape::Box</enum>
        </property>
        <property name="frameShadow">
-        <enum>QFrame::Sunken</enum>
+        <enum>QFrame::Shadow::Sunken</enum>
        </property>
        <property name="text">
         <string/>
@@ -12484,16 +12484,16 @@ background-color: rgb(180, 180, 180);QgsCollapsibleGroupBoxBasic::title, QgsColl
       <string notr="true"/>
      </property>
      <property name="tabPosition">
-      <enum>QTabWidget::North</enum>
+      <enum>QTabWidget::TabPosition::North</enum>
      </property>
      <property name="tabShape">
-      <enum>QTabWidget::Rounded</enum>
+      <enum>QTabWidget::TabShape::Rounded</enum>
      </property>
      <property name="currentIndex">
       <number>0</number>
      </property>
      <property name="elideMode">
-      <enum>Qt::ElideNone</enum>
+      <enum>Qt::TextElideMode::ElideNone</enum>
      </property>
      <property name="documentMode">
       <bool>true</bool>
@@ -12751,7 +12751,7 @@ p, li { white-space: pre-wrap; }
           </font>
          </property>
          <property name="orientation">
-          <enum>Qt::Vertical</enum>
+          <enum>Qt::Orientation::Vertical</enum>
          </property>
          <property name="sizeHint" stdset="0">
           <size>
@@ -12947,7 +12947,7 @@ p, li { white-space: pre-wrap; }
             </font>
            </property>
            <property name="orientation">
-            <enum>Qt::Horizontal</enum>
+            <enum>Qt::Orientation::Horizontal</enum>
            </property>
            <property name="sizeHint" stdset="0">
             <size>
@@ -13174,7 +13174,7 @@ p, li { white-space: pre-wrap; }
             </font>
            </property>
            <property name="orientation">
-            <enum>Qt::Horizontal</enum>
+            <enum>Qt::Orientation::Horizontal</enum>
            </property>
           </widget>
          </item>
@@ -13486,19 +13486,19 @@ p, li { white-space: pre-wrap; }
             </font>
            </property>
            <property name="frameShape">
-            <enum>QFrame::StyledPanel</enum>
+            <enum>QFrame::Shape::StyledPanel</enum>
            </property>
            <property name="frameShadow">
-            <enum>QFrame::Raised</enum>
+            <enum>QFrame::Shadow::Raised</enum>
            </property>
            <property name="verticalScrollBarPolicy">
-            <enum>Qt::ScrollBarAsNeeded</enum>
+            <enum>Qt::ScrollBarPolicy::ScrollBarAsNeeded</enum>
            </property>
            <property name="horizontalScrollBarPolicy">
-            <enum>Qt::ScrollBarAsNeeded</enum>
+            <enum>Qt::ScrollBarPolicy::ScrollBarAsNeeded</enum>
            </property>
            <property name="sizeAdjustPolicy">
-            <enum>QAbstractScrollArea::AdjustToContents</enum>
+            <enum>QAbstractScrollArea::SizeAdjustPolicy::AdjustToContents</enum>
            </property>
            <property name="editTriggers">
             <set>QAbstractItemView::AnyKeyPressed|QAbstractItemView::DoubleClicked|QAbstractItemView::EditKeyPressed</set>
@@ -13507,10 +13507,10 @@ p, li { white-space: pre-wrap; }
             <bool>true</bool>
            </property>
            <property name="selectionMode">
-            <enum>QAbstractItemView::ExtendedSelection</enum>
+            <enum>QAbstractItemView::SelectionMode::ExtendedSelection</enum>
            </property>
            <property name="selectionBehavior">
-            <enum>QAbstractItemView::SelectRows</enum>
+            <enum>QAbstractItemView::SelectionBehavior::SelectRows</enum>
            </property>
            <property name="sortingEnabled">
             <bool>true</bool>
@@ -13679,25 +13679,25 @@ p, li { white-space: pre-wrap; }
                 <set>Qt::ImhMultiLine|Qt::ImhNoTextHandles</set>
                </property>
                <property name="sizeAdjustPolicy">
-                <enum>QAbstractScrollArea::AdjustToContents</enum>
+                <enum>QAbstractScrollArea::SizeAdjustPolicy::AdjustToContents</enum>
                </property>
                <property name="alternatingRowColors">
                 <bool>true</bool>
                </property>
                <property name="selectionBehavior">
-                <enum>QAbstractItemView::SelectRows</enum>
+                <enum>QAbstractItemView::SelectionBehavior::SelectRows</enum>
                </property>
                <property name="verticalScrollMode">
-                <enum>QAbstractItemView::ScrollPerPixel</enum>
+                <enum>QAbstractItemView::ScrollMode::ScrollPerPixel</enum>
                </property>
                <property name="isWrapping" stdset="0">
                 <bool>false</bool>
                </property>
                <property name="resizeMode">
-                <enum>QListView::Adjust</enum>
+                <enum>QListView::ResizeMode::Adjust</enum>
                </property>
                <property name="layoutMode">
-                <enum>QListView::SinglePass</enum>
+                <enum>QListView::LayoutMode::SinglePass</enum>
                </property>
                <property name="uniformItemSizes">
                 <bool>false</bool>
@@ -13990,22 +13990,22 @@ p, li { white-space: pre-wrap; }
             </font>
            </property>
            <property name="frameShadow">
-            <enum>QFrame::Raised</enum>
+            <enum>QFrame::Shadow::Raised</enum>
            </property>
            <property name="verticalScrollBarPolicy">
-            <enum>Qt::ScrollBarAlwaysOn</enum>
+            <enum>Qt::ScrollBarPolicy::ScrollBarAlwaysOn</enum>
            </property>
            <property name="horizontalScrollBarPolicy">
-            <enum>Qt::ScrollBarAsNeeded</enum>
+            <enum>Qt::ScrollBarPolicy::ScrollBarAsNeeded</enum>
            </property>
            <property name="sizeAdjustPolicy">
-            <enum>QAbstractScrollArea::AdjustToContents</enum>
+            <enum>QAbstractScrollArea::SizeAdjustPolicy::AdjustToContents</enum>
            </property>
            <property name="alternatingRowColors">
             <bool>true</bool>
            </property>
            <property name="selectionBehavior">
-            <enum>QAbstractItemView::SelectRows</enum>
+            <enum>QAbstractItemView::SelectionBehavior::SelectRows</enum>
            </property>
            <property name="sortingEnabled">
             <bool>true</bool>
@@ -14131,7 +14131,7 @@ p, li { white-space: pre-wrap; }
        <item row="0" column="0">
         <layout class="QGridLayout" name="gridLayout_14" columnstretch="0,0,0,0,0,0">
          <property name="sizeConstraint">
-          <enum>QLayout::SetDefaultConstraint</enum>
+          <enum>QLayout::SizeConstraint::SetDefaultConstraint</enum>
          </property>
          <property name="verticalSpacing">
           <number>7</number>
@@ -14183,16 +14183,16 @@ p, li { white-space: pre-wrap; }
             </font>
            </property>
            <property name="frameShape">
-            <enum>QFrame::StyledPanel</enum>
+            <enum>QFrame::Shape::StyledPanel</enum>
            </property>
            <property name="frameShadow">
-            <enum>QFrame::Sunken</enum>
+            <enum>QFrame::Shadow::Sunken</enum>
            </property>
            <property name="verticalScrollBarPolicy">
-            <enum>Qt::ScrollBarAsNeeded</enum>
+            <enum>Qt::ScrollBarPolicy::ScrollBarAsNeeded</enum>
            </property>
            <property name="horizontalScrollBarPolicy">
-            <enum>Qt::ScrollBarAsNeeded</enum>
+            <enum>Qt::ScrollBarPolicy::ScrollBarAsNeeded</enum>
            </property>
            <property name="editTriggers">
             <set>QAbstractItemView::AnyKeyPressed|QAbstractItemView::DoubleClicked|QAbstractItemView::EditKeyPressed</set>
@@ -14201,10 +14201,10 @@ p, li { white-space: pre-wrap; }
             <bool>true</bool>
            </property>
            <property name="selectionMode">
-            <enum>QAbstractItemView::SingleSelection</enum>
+            <enum>QAbstractItemView::SelectionMode::SingleSelection</enum>
            </property>
            <property name="selectionBehavior">
-            <enum>QAbstractItemView::SelectRows</enum>
+            <enum>QAbstractItemView::SelectionBehavior::SelectRows</enum>
            </property>
            <property name="rowCount">
             <number>1</number>
@@ -14757,16 +14757,16 @@ p, li { white-space: pre-wrap; }
             </font>
            </property>
            <property name="frameShape">
-            <enum>QFrame::StyledPanel</enum>
+            <enum>QFrame::Shape::StyledPanel</enum>
            </property>
            <property name="frameShadow">
-            <enum>QFrame::Sunken</enum>
+            <enum>QFrame::Shadow::Sunken</enum>
            </property>
            <property name="verticalScrollBarPolicy">
-            <enum>Qt::ScrollBarAlwaysOn</enum>
+            <enum>Qt::ScrollBarPolicy::ScrollBarAlwaysOn</enum>
            </property>
            <property name="horizontalScrollBarPolicy">
-            <enum>Qt::ScrollBarAlwaysOff</enum>
+            <enum>Qt::ScrollBarPolicy::ScrollBarAlwaysOff</enum>
            </property>
            <property name="editTriggers">
             <set>QAbstractItemView::AnyKeyPressed|QAbstractItemView::DoubleClicked|QAbstractItemView::EditKeyPressed</set>
@@ -14775,10 +14775,10 @@ p, li { white-space: pre-wrap; }
             <bool>true</bool>
            </property>
            <property name="selectionMode">
-            <enum>QAbstractItemView::SingleSelection</enum>
+            <enum>QAbstractItemView::SelectionMode::SingleSelection</enum>
            </property>
            <property name="selectionBehavior">
-            <enum>QAbstractItemView::SelectRows</enum>
+            <enum>QAbstractItemView::SelectionBehavior::SelectRows</enum>
            </property>
            <property name="rowCount">
             <number>1</number>
@@ -14846,16 +14846,16 @@ p, li { white-space: pre-wrap; }
             </font>
            </property>
            <property name="frameShadow">
-            <enum>QFrame::Sunken</enum>
+            <enum>QFrame::Shadow::Sunken</enum>
            </property>
            <property name="alternatingRowColors">
             <bool>true</bool>
            </property>
            <property name="selectionMode">
-            <enum>QAbstractItemView::SingleSelection</enum>
+            <enum>QAbstractItemView::SelectionMode::SingleSelection</enum>
            </property>
            <property name="selectionBehavior">
-            <enum>QAbstractItemView::SelectRows</enum>
+            <enum>QAbstractItemView::SelectionBehavior::SelectRows</enum>
            </property>
            <property name="rowCount">
             <number>1</number>
@@ -15789,7 +15789,7 @@ p, li { white-space: pre-wrap; }
              </font>
             </property>
             <property name="orientation">
-             <enum>Qt::Vertical</enum>
+             <enum>Qt::Orientation::Vertical</enum>
             </property>
             <property name="sizeHint" stdset="0">
              <size>
@@ -15852,7 +15852,7 @@ p, li { white-space: pre-wrap; }
              <string/>
             </property>
             <property name="echoMode">
-             <enum>QLineEdit::Normal</enum>
+             <enum>QLineEdit::EchoMode::Normal</enum>
             </property>
            </widget>
           </item>
@@ -16254,25 +16254,25 @@ p, li { white-space: pre-wrap; }
           </font>
          </property>
          <property name="frameShape">
-          <enum>QFrame::StyledPanel</enum>
+          <enum>QFrame::Shape::StyledPanel</enum>
          </property>
          <property name="frameShadow">
-          <enum>QFrame::Raised</enum>
+          <enum>QFrame::Shadow::Raised</enum>
          </property>
          <property name="verticalScrollBarPolicy">
-          <enum>Qt::ScrollBarAsNeeded</enum>
+          <enum>Qt::ScrollBarPolicy::ScrollBarAsNeeded</enum>
          </property>
          <property name="horizontalScrollBarPolicy">
-          <enum>Qt::ScrollBarAsNeeded</enum>
+          <enum>Qt::ScrollBarPolicy::ScrollBarAsNeeded</enum>
          </property>
          <property name="editTriggers">
           <set>QAbstractItemView::AnyKeyPressed|QAbstractItemView::DoubleClicked|QAbstractItemView::EditKeyPressed</set>
          </property>
          <property name="selectionMode">
-          <enum>QAbstractItemView::SingleSelection</enum>
+          <enum>QAbstractItemView::SelectionMode::SingleSelection</enum>
          </property>
          <property name="selectionBehavior">
-          <enum>QAbstractItemView::SelectRows</enum>
+          <enum>QAbstractItemView::SelectionBehavior::SelectRows</enum>
          </property>
          <property name="rowCount">
           <number>1</number>
@@ -16351,7 +16351,7 @@ p, li { white-space: pre-wrap; }
             </font>
            </property>
            <property name="orientation">
-            <enum>Qt::Horizontal</enum>
+            <enum>Qt::Orientation::Horizontal</enum>
            </property>
            <property name="sizeHint" stdset="0">
             <size>
@@ -16449,7 +16449,7 @@ p, li { white-space: pre-wrap; }
                </font>
               </property>
               <property name="orientation">
-               <enum>Qt::Horizontal</enum>
+               <enum>Qt::Orientation::Horizontal</enum>
               </property>
               <property name="sizeHint" stdset="0">
                <size>
@@ -16509,7 +16509,7 @@ p, li { white-space: pre-wrap; }
                </font>
               </property>
               <property name="orientation">
-               <enum>Qt::Horizontal</enum>
+               <enum>Qt::Orientation::Horizontal</enum>
               </property>
               <property name="sizeHint" stdset="0">
                <size>
@@ -16581,7 +16581,7 @@ p, li { white-space: pre-wrap; }
                </font>
               </property>
               <property name="orientation">
-               <enum>Qt::Horizontal</enum>
+               <enum>Qt::Orientation::Horizontal</enum>
               </property>
               <property name="sizeHint" stdset="0">
                <size>
@@ -16603,7 +16603,7 @@ p, li { white-space: pre-wrap; }
                </font>
               </property>
               <property name="orientation">
-               <enum>Qt::Horizontal</enum>
+               <enum>Qt::Orientation::Horizontal</enum>
               </property>
               <property name="sizeHint" stdset="0">
                <size>
@@ -17932,7 +17932,7 @@ p, li { white-space: pre-wrap; }
              </font>
             </property>
             <property name="orientation">
-             <enum>Qt::Vertical</enum>
+             <enum>Qt::Orientation::Vertical</enum>
             </property>
             <property name="sizeHint" stdset="0">
              <size>
@@ -18062,16 +18062,16 @@ p, li { white-space: pre-wrap; }
           </font>
          </property>
          <property name="frameShape">
-          <enum>QFrame::StyledPanel</enum>
+          <enum>QFrame::Shape::StyledPanel</enum>
          </property>
          <property name="frameShadow">
-          <enum>QFrame::Raised</enum>
+          <enum>QFrame::Shadow::Raised</enum>
          </property>
          <property name="verticalScrollBarPolicy">
-          <enum>Qt::ScrollBarAsNeeded</enum>
+          <enum>Qt::ScrollBarPolicy::ScrollBarAsNeeded</enum>
          </property>
          <property name="horizontalScrollBarPolicy">
-          <enum>Qt::ScrollBarAsNeeded</enum>
+          <enum>Qt::ScrollBarPolicy::ScrollBarAsNeeded</enum>
          </property>
          <property name="editTriggers">
           <set>QAbstractItemView::AnyKeyPressed|QAbstractItemView::DoubleClicked|QAbstractItemView::EditKeyPressed</set>
@@ -18080,10 +18080,10 @@ p, li { white-space: pre-wrap; }
           <bool>true</bool>
          </property>
          <property name="selectionMode">
-          <enum>QAbstractItemView::SingleSelection</enum>
+          <enum>QAbstractItemView::SelectionMode::SingleSelection</enum>
          </property>
          <property name="selectionBehavior">
-          <enum>QAbstractItemView::SelectRows</enum>
+          <enum>QAbstractItemView::SelectionBehavior::SelectRows</enum>
          </property>
          <property name="rowCount">
           <number>1</number>
@@ -18304,16 +18304,16 @@ p, li { white-space: pre-wrap; }
           </font>
          </property>
          <property name="frameShape">
-          <enum>QFrame::StyledPanel</enum>
+          <enum>QFrame::Shape::StyledPanel</enum>
          </property>
          <property name="frameShadow">
-          <enum>QFrame::Raised</enum>
+          <enum>QFrame::Shadow::Raised</enum>
          </property>
          <property name="verticalScrollBarPolicy">
-          <enum>Qt::ScrollBarAsNeeded</enum>
+          <enum>Qt::ScrollBarPolicy::ScrollBarAsNeeded</enum>
          </property>
          <property name="horizontalScrollBarPolicy">
-          <enum>Qt::ScrollBarAsNeeded</enum>
+          <enum>Qt::ScrollBarPolicy::ScrollBarAsNeeded</enum>
          </property>
          <property name="editTriggers">
           <set>QAbstractItemView::AnyKeyPressed|QAbstractItemView::DoubleClicked|QAbstractItemView::EditKeyPressed</set>
@@ -18322,10 +18322,10 @@ p, li { white-space: pre-wrap; }
           <bool>true</bool>
          </property>
          <property name="selectionMode">
-          <enum>QAbstractItemView::SingleSelection</enum>
+          <enum>QAbstractItemView::SelectionMode::SingleSelection</enum>
          </property>
          <property name="selectionBehavior">
-          <enum>QAbstractItemView::SelectRows</enum>
+          <enum>QAbstractItemView::SelectionBehavior::SelectRows</enum>
          </property>
          <property name="rowCount">
           <number>1</number>
@@ -18353,7 +18353,7 @@ p, li { white-space: pre-wrap; }
           </font>
          </property>
          <property name="orientation">
-          <enum>Qt::Vertical</enum>
+          <enum>Qt::Orientation::Vertical</enum>
          </property>
          <property name="sizeHint" stdset="0">
           <size>
@@ -18375,7 +18375,7 @@ p, li { white-space: pre-wrap; }
           </font>
          </property>
          <property name="orientation">
-          <enum>Qt::Horizontal</enum>
+          <enum>Qt::Orientation::Horizontal</enum>
          </property>
          <property name="sizeHint" stdset="0">
           <size>
@@ -18644,16 +18644,16 @@ p, li { white-space: pre-wrap; }
             </font>
            </property>
            <property name="frameShape">
-            <enum>QFrame::StyledPanel</enum>
+            <enum>QFrame::Shape::StyledPanel</enum>
            </property>
            <property name="frameShadow">
-            <enum>QFrame::Raised</enum>
+            <enum>QFrame::Shadow::Raised</enum>
            </property>
            <property name="verticalScrollBarPolicy">
-            <enum>Qt::ScrollBarAsNeeded</enum>
+            <enum>Qt::ScrollBarPolicy::ScrollBarAsNeeded</enum>
            </property>
            <property name="horizontalScrollBarPolicy">
-            <enum>Qt::ScrollBarAsNeeded</enum>
+            <enum>Qt::ScrollBarPolicy::ScrollBarAsNeeded</enum>
            </property>
            <property name="editTriggers">
             <set>QAbstractItemView::AnyKeyPressed|QAbstractItemView::DoubleClicked|QAbstractItemView::EditKeyPressed</set>
@@ -18662,10 +18662,10 @@ p, li { white-space: pre-wrap; }
             <bool>true</bool>
            </property>
            <property name="selectionMode">
-            <enum>QAbstractItemView::SingleSelection</enum>
+            <enum>QAbstractItemView::SelectionMode::SingleSelection</enum>
            </property>
            <property name="selectionBehavior">
-            <enum>QAbstractItemView::SelectRows</enum>
+            <enum>QAbstractItemView::SelectionBehavior::SelectRows</enum>
            </property>
            <property name="rowCount">
             <number>1</number>
@@ -18699,16 +18699,16 @@ p, li { white-space: pre-wrap; }
             </font>
            </property>
            <property name="frameShape">
-            <enum>QFrame::StyledPanel</enum>
+            <enum>QFrame::Shape::StyledPanel</enum>
            </property>
            <property name="frameShadow">
-            <enum>QFrame::Raised</enum>
+            <enum>QFrame::Shadow::Raised</enum>
            </property>
            <property name="verticalScrollBarPolicy">
-            <enum>Qt::ScrollBarAsNeeded</enum>
+            <enum>Qt::ScrollBarPolicy::ScrollBarAsNeeded</enum>
            </property>
            <property name="horizontalScrollBarPolicy">
-            <enum>Qt::ScrollBarAsNeeded</enum>
+            <enum>Qt::ScrollBarPolicy::ScrollBarAsNeeded</enum>
            </property>
            <property name="editTriggers">
             <set>QAbstractItemView::AnyKeyPressed|QAbstractItemView::DoubleClicked|QAbstractItemView::EditKeyPressed</set>
@@ -18717,10 +18717,10 @@ p, li { white-space: pre-wrap; }
             <bool>true</bool>
            </property>
            <property name="selectionMode">
-            <enum>QAbstractItemView::SingleSelection</enum>
+            <enum>QAbstractItemView::SelectionMode::SingleSelection</enum>
            </property>
            <property name="selectionBehavior">
-            <enum>QAbstractItemView::SelectRows</enum>
+            <enum>QAbstractItemView::SelectionBehavior::SelectRows</enum>
            </property>
            <property name="rowCount">
             <number>1</number>
@@ -18820,16 +18820,16 @@ p, li { white-space: pre-wrap; }
             </font>
            </property>
            <property name="frameShape">
-            <enum>QFrame::StyledPanel</enum>
+            <enum>QFrame::Shape::StyledPanel</enum>
            </property>
            <property name="frameShadow">
-            <enum>QFrame::Raised</enum>
+            <enum>QFrame::Shadow::Raised</enum>
            </property>
            <property name="verticalScrollBarPolicy">
-            <enum>Qt::ScrollBarAsNeeded</enum>
+            <enum>Qt::ScrollBarPolicy::ScrollBarAsNeeded</enum>
            </property>
            <property name="horizontalScrollBarPolicy">
-            <enum>Qt::ScrollBarAsNeeded</enum>
+            <enum>Qt::ScrollBarPolicy::ScrollBarAsNeeded</enum>
            </property>
            <property name="editTriggers">
             <set>QAbstractItemView::AnyKeyPressed|QAbstractItemView::DoubleClicked|QAbstractItemView::EditKeyPressed</set>
@@ -18838,10 +18838,10 @@ p, li { white-space: pre-wrap; }
             <bool>true</bool>
            </property>
            <property name="selectionMode">
-            <enum>QAbstractItemView::SingleSelection</enum>
+            <enum>QAbstractItemView::SelectionMode::SingleSelection</enum>
            </property>
            <property name="selectionBehavior">
-            <enum>QAbstractItemView::SelectRows</enum>
+            <enum>QAbstractItemView::SelectionBehavior::SelectRows</enum>
            </property>
            <property name="rowCount">
             <number>1</number>
@@ -18869,7 +18869,7 @@ p, li { white-space: pre-wrap; }
             </font>
            </property>
            <property name="orientation">
-            <enum>Qt::Horizontal</enum>
+            <enum>Qt::Orientation::Horizontal</enum>
            </property>
            <property name="sizeHint" stdset="0">
             <size>
@@ -18961,7 +18961,7 @@ p, li { white-space: pre-wrap; }
              </font>
             </property>
             <property name="orientation">
-             <enum>Qt::Vertical</enum>
+             <enum>Qt::Orientation::Vertical</enum>
             </property>
             <property name="sizeHint" stdset="0">
              <size>
@@ -19232,7 +19232,7 @@ p, li { white-space: pre-wrap; }
               <bool>true</bool>
              </property>
              <property name="features">
-              <set>QDockWidget::AllDockWidgetFeatures</set>
+              <set>QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetMovable|QDockWidget::DockWidgetFloatable</set>
              </property>
              <property name="allowedAreas">
               <set>Qt::AllDockWidgetAreas</set>
@@ -19431,13 +19431,13 @@ p, li { white-space: pre-wrap; }
               </font>
              </property>
              <property name="frameShape">
-              <enum>QFrame::WinPanel</enum>
+              <enum>QFrame::Shape::WinPanel</enum>
              </property>
              <property name="frameShadow">
-              <enum>QFrame::Sunken</enum>
+              <enum>QFrame::Shadow::Sunken</enum>
              </property>
              <property name="sizeAdjustPolicy">
-              <enum>QAbstractScrollArea::AdjustToContents</enum>
+              <enum>QAbstractScrollArea::SizeAdjustPolicy::AdjustToContents</enum>
              </property>
              <property name="editTriggers">
               <set>QAbstractItemView::AllEditTriggers</set>
@@ -19455,28 +19455,28 @@ p, li { white-space: pre-wrap; }
               <bool>true</bool>
              </property>
              <property name="dragDropMode">
-              <enum>QAbstractItemView::NoDragDrop</enum>
+              <enum>QAbstractItemView::DragDropMode::NoDragDrop</enum>
              </property>
              <property name="defaultDropAction">
-              <enum>Qt::LinkAction</enum>
+              <enum>Qt::DropAction::LinkAction</enum>
              </property>
              <property name="alternatingRowColors">
               <bool>true</bool>
              </property>
              <property name="movement">
-              <enum>QListView::Static</enum>
+              <enum>QListView::Movement::Static</enum>
              </property>
              <property name="isWrapping" stdset="0">
               <bool>true</bool>
              </property>
              <property name="resizeMode">
-              <enum>QListView::Adjust</enum>
+              <enum>QListView::ResizeMode::Adjust</enum>
              </property>
              <property name="layoutMode">
-              <enum>QListView::Batched</enum>
+              <enum>QListView::LayoutMode::Batched</enum>
              </property>
              <property name="viewMode">
-              <enum>QListView::IconMode</enum>
+              <enum>QListView::ViewMode::IconMode</enum>
              </property>
              <property name="modelColumn">
               <number>0</number>
@@ -19966,10 +19966,10 @@ p, li { white-space: pre-wrap; }
           </font>
          </property>
          <property name="layoutDirection">
-          <enum>Qt::LeftToRight</enum>
+          <enum>Qt::LayoutDirection::LeftToRight</enum>
          </property>
          <property name="tabPosition">
-          <enum>QTabWidget::North</enum>
+          <enum>QTabWidget::TabPosition::North</enum>
          </property>
          <property name="currentIndex">
           <number>0</number>
@@ -24158,12 +24158,12 @@ p, li { white-space: pre-wrap; }
                 </font>
                </property>
                <property name="orientation">
-                <enum>Qt::Horizontal</enum>
+                <enum>Qt::Orientation::Horizontal</enum>
                </property>
               </widget>
              </item>
              <item row="2" column="0" rowspan="2">
-              <widget class="QWebView" name="webView" native="true">
+              <widget class="QTextBrowser" name="webView">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Ignored" vsizetype="Expanding">
                  <horstretch>0</horstretch>
@@ -31445,7 +31445,7 @@ p, li { white-space: pre-wrap; }
                   </palette>
                  </property>
                  <property name="frameShape">
-                  <enum>QFrame::StyledPanel</enum>
+                  <enum>QFrame::Shape::StyledPanel</enum>
                  </property>
                  <property name="currentIndex">
                   <number>0</number>
@@ -34721,7 +34721,7 @@ p, li { white-space: pre-wrap; }
                       </palette>
                      </property>
                      <property name="orientation">
-                      <enum>Qt::Horizontal</enum>
+                      <enum>Qt::Orientation::Horizontal</enum>
                      </property>
                     </widget>
                    </item>
@@ -39585,10 +39585,10 @@ QPushButton:pressed {
                        <bool>false</bool>
                       </property>
                       <property name="toolButtonStyle">
-                       <enum>Qt::ToolButtonTextOnly</enum>
+                       <enum>Qt::ToolButtonStyle::ToolButtonTextOnly</enum>
                       </property>
                       <property name="arrowType">
-                       <enum>Qt::NoArrow</enum>
+                       <enum>Qt::ArrowType::NoArrow</enum>
                       </property>
                      </widget>
                     </item>
@@ -39714,13 +39714,13 @@ QPushButton:pressed {
                        </size>
                       </property>
                       <property name="toolButtonStyle">
-                       <enum>Qt::ToolButtonTextOnly</enum>
+                       <enum>Qt::ToolButtonStyle::ToolButtonTextOnly</enum>
                       </property>
                       <property name="autoRaise">
                        <bool>true</bool>
                       </property>
                       <property name="arrowType">
-                       <enum>Qt::NoArrow</enum>
+                       <enum>Qt::ArrowType::NoArrow</enum>
                       </property>
                      </widget>
                     </item>
@@ -47670,13 +47670,13 @@ QPushButton:pressed {
         <bool>false</bool>
        </property>
        <property name="toolButtonStyle">
-        <enum>Qt::ToolButtonIconOnly</enum>
+        <enum>Qt::ToolButtonStyle::ToolButtonIconOnly</enum>
        </property>
        <property name="autoRaise">
         <bool>false</bool>
        </property>
        <property name="arrowType">
-        <enum>Qt::NoArrow</enum>
+        <enum>Qt::ArrowType::NoArrow</enum>
        </property>
       </widget>
      </item>
@@ -51089,10 +51089,10 @@ QPushButton:pressed {
         <bool>false</bool>
        </property>
        <property name="toolButtonStyle">
-        <enum>Qt::ToolButtonTextOnly</enum>
+        <enum>Qt::ToolButtonStyle::ToolButtonTextOnly</enum>
        </property>
        <property name="arrowType">
-        <enum>Qt::NoArrow</enum>
+        <enum>Qt::ArrowType::NoArrow</enum>
        </property>
       </widget>
      </item>
@@ -55499,11 +55499,6 @@ QPushButton:pressed {
    <class>QgsSymbolButton</class>
    <extends>QToolButton</extends>
    <header>qgssymbolbutton.h</header>
-  </customwidget>
-  <customwidget>
-   <class>QWebView</class>
-   <extends>QWidget</extends>
-   <header>QtWebKit/QWebView</header>
   </customwidget>
  </customwidgets>
  <tabstops>

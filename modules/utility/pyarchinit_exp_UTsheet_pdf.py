@@ -26,9 +26,6 @@ from datetime import date
 from numpy import *
 import io
 
-from builtins import object
-from builtins import range
-from builtins import str
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import (A4,A3)
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle

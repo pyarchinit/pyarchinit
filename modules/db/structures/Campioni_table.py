@@ -9,13 +9,8 @@ from modules.db.pyarchinit_conn_strings import Connection
 
 
 class Campioni_table:
-    # connection string postgres"
-    internal_connection = Connection()
 
-    # create engine and metadata
-
-    engine = create_engine(internal_connection.conn_str(), echo=True, convert_unicode=True)
-    metadata = MetaData(engine)
+    metadata = MetaData()
 
     # define tables
     campioni_table = Table('campioni_table', metadata,

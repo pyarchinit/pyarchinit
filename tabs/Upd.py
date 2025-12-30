@@ -20,7 +20,6 @@
  ***************************************************************************/
 """
 from __future__ import absolute_import
-from builtins import str
 import os
 
 from qgis.PyQt.QtWidgets import QDialog, QMessageBox
@@ -65,7 +64,7 @@ class pyarchinit_Upd_Values(QDialog, MAIN_DIALOG_CLASS):
         self.load_connection()
 
     def load_connection(self):
-        QMessageBox.warning(self, "Alert", "Sistema in corso di abbandono. A breve verra' eliminato.", QMessageBox.Ok)
+        QMessageBox.warning(self, "Alert", "Sistema in corso di abbandono. A breve verra' eliminato.", QMessageBox.StandardButton.Ok)
 
         conn = Connection()
         conn_str = conn.conn_str()

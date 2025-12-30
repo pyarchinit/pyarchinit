@@ -3,7 +3,7 @@
  <class>DialogPreviewDoc</class>
  <widget class="QDialog" name="DialogPreviewDoc">
   <property name="windowModality">
-   <enum>Qt::WindowModal</enum>
+   <enum>Qt::WindowModality::WindowModal</enum>
   </property>
   <property name="geometry">
    <rect>

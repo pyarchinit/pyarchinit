@@ -32,13 +32,13 @@ class VideoPlayerWindow(QMainWindow):
 
         # Creazione dei widget
         self.video_label = QLabel()
-        self.video_label.setAlignment(Qt.AlignCenter)
+        self.video_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.video_label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
 
         self.play_button = QPushButton("Play")
         self.play_button.clicked.connect(self.play_pause)
 
-        self.slider = QSlider(Qt.Horizontal)
+        self.slider = QSlider(Qt.Orientation.Horizontal)
         self.slider.sliderMoved.connect(self.slider_moved)
         self.slider.sliderReleased.connect(self.slider_released)
 
@@ -134,7 +134,7 @@ class VideoPlayerWindow(QMainWindow):
             bytes_per_line = ch * w
             q_image = QImage(frame.data, w, h, bytes_per_line, QImage.Format_RGB888)
             pixmap = QPixmap.fromImage(q_image)
-            scaled_pixmap = pixmap.scaled(self.video_label.size(), Qt.KeepAspectRatio, Qt.SmoothTransformation)
+            scaled_pixmap = pixmap.scaled(self.video_label.size(), Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
             self.video_label.setPixmap(scaled_pixmap)
 
     def slider_moved(self, position):
