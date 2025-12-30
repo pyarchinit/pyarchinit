@@ -23,9 +23,9 @@
 
 import os
 import sys
-from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLabel, QPushButton, QProgressBar, QDialogButtonBox
-from PyQt5.QtCore import QThread, pyqtSignal, QTimer
-from PyQt5.QtGui import QFont
+from qgis.PyQt.QtWidgets import QDialog, QVBoxLayout, QLabel, QPushButton, QProgressBar, QDialogButtonBox
+from qgis.PyQt.QtCore import QThread, pyqtSignal, QTimer
+from qgis.PyQt.QtGui import QFont
 import requests
 import time
 

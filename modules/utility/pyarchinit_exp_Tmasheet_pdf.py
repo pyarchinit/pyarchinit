@@ -23,9 +23,6 @@ import os
 import datetime
 from datetime import date
 from qgis.PyQt.QtWidgets import QDialog, QMessageBox
-from builtins import object
-from builtins import range
-from builtins import str
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import A4, letter
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle

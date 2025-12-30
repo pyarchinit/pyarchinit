@@ -27,7 +27,6 @@ import platform
 import subprocess
 import shutil
 import datetime
-from builtins import range
 from qgis.PyQt.QtWidgets import *
 from qgis.PyQt.QtCore import Qt, QTimer
 from qgis.PyQt.QtGui import QBrush, QColor
@@ -65,7 +64,7 @@ MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), os.par
 class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
     """This class provides the implementation of the TMA (Tabella Materiali Archeologici) tab."""
 
-    L = QgsSettings().value("locale/userLocale")[0:2]
+    L = QgsSettings().value("locale/userLocale", "it", type=str)[:2]
     if L == 'it':
         MSG_BOX_TITLE = "PyArchInit - Scheda TMA"
     else:
@@ -187,8 +186,12 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
 
     LANG = {
         "IT": ['it_IT', 'IT', 'it', 'IT_IT'],
-        "EN": ['en_US', 'EN', "en", "EN_US"],
-        "DE": ['de_DE', 'de', 'DE', 'DE_DE']
+        "EN": ['en_US', 'EN', 'en', 'EN_US'],
+        "DE": ['de_DE', 'de', 'DE', 'DE_DE'],
+        "FR": ['fr_FR', 'fr', 'FR', 'FR_FR'],
+        "ES": ['es_ES', 'es', 'ES', 'ES_ES'],
+        "AR": ['ar_LB', 'ar', 'AR', 'AR_LB', 'ar_AR', 'AR_AR'],
+        "CA": ['ca_ES', 'ca', 'CA', 'CA_ES'],
     }
 
     HOME = os.environ['PYARCHINIT_HOME']
@@ -217,13 +220,13 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
 
         # Initialize media widget
         self.iconListWidget = QListWidget(self)
-        self.iconListWidget.setViewMode(QListWidget.IconMode)
+        self.iconListWidget.setViewMode(QListWidget.ViewMode.IconMode)
         self.iconListWidget.setIconSize(QSize(150, 150))
-        self.iconListWidget.setMovement(QListWidget.Static)
+        self.iconListWidget.setMovement(QListWidget.Movement.Static)
         self.iconListWidget.setSpacing(12)
-        self.iconListWidget.setResizeMode(QListWidget.Adjust)
-        self.iconListWidget.setLayoutMode(QListWidget.Batched)
-        self.iconListWidget.setSelectionMode(QAbstractItemView.ExtendedSelection)
+        self.iconListWidget.setResizeMode(QListWidget.ResizeMode.Adjust)
+        self.iconListWidget.setLayoutMode(QListWidget.LayoutMode.Batched)
+        self.iconListWidget.setSelectionMode(QAbstractItemView.SelectionMode.ExtendedSelection)
         self.iconListWidget.setLineWidth(2)
         self.iconListWidget.setMidLineWidth(2)
         self.iconListWidget.itemDoubleClicked.connect(self.openWide_image)
@@ -249,7 +252,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         try:
             self.on_pushButton_connect_pressed()
         except Exception as e:
-            QMessageBox.warning(self, "Connection System", str(e), QMessageBox.Ok)
+            QMessageBox.warning(self, "Connection System", str(e), QMessageBox.StandardButton.Ok)
 
         # Initialize concurrency management
         self.concurrency_manager = ConcurrencyManager(self)
@@ -512,13 +515,13 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             else:
                 if self.L=='it':
                     QMessageBox.warning(self,"BENVENUTO", "Benvenuto in pyArchInit " + self.NOME_SCHEDA + ". Il database e' vuoto. Premi 'Ok' e buon lavoro!",
-                                        QMessageBox.Ok)
+                                        QMessageBox.StandardButton.Ok)
                 elif self.L=='de':
                     QMessageBox.warning(self,"WILLKOMMEN","WILLKOMMEN in pyArchInit" + "SE-MSE formular"+ ". Die Datenbank ist leer. Tippe 'Ok' und aufgehts!",
-                                        QMessageBox.Ok)
+                                        QMessageBox.StandardButton.Ok)
                 else:
                     QMessageBox.warning(self,"WELCOME", "Welcome in pyArchInit" + "Samples SU-WSU" + ". The DB is empty. Push 'Ok' and Good Work!",
-                                        QMessageBox.Ok)
+                                        QMessageBox.StandardButton.Ok)
                 self.charge_list()
                 self.lists_loaded = True  # Mark lists as loaded
                 self.BROWSE_STATUS = 'x'
@@ -593,11 +596,11 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                 if self.L == 'it':
                     QMessageBox.information(self, "Database aggiornato", 
                                           "La tabella TMA è stata aggiornata con i nuovi campi località e settore.",
-                                          QMessageBox.Ok)
+                                          QMessageBox.StandardButton.Ok)
                 else:
                     QMessageBox.information(self, "Database updated", 
                                           "The TMA table has been updated with new locality and sector fields.",
-                                          QMessageBox.Ok)
+                                          QMessageBox.StandardButton.Ok)
             
             cursor.close()
             
@@ -651,9 +654,9 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             else:
                 if self.L == 'it':
                     QMessageBox.warning(self, "Messaggio", "Sistema di aggiornamento lista Sito: " + str(e),
-                                        QMessageBox.Ok)
+                                        QMessageBox.StandardButton.Ok)
                 else:
-                    QMessageBox.warning(self, "Message", "Site list update system: " + str(e), QMessageBox.Ok)
+                    QMessageBox.warning(self, "Message", "Site list update system: " + str(e), QMessageBox.StandardButton.Ok)
 
         self.comboBox_sito.clear()
         sito_vl.sort()
@@ -678,11 +681,11 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                 pass
             else:
                 if self.L=='it':
-                    QMessageBox.warning(self, "Messaggio", "Sistema di aggiornamento lista area: " + str(e), QMessageBox.Ok)
+                    QMessageBox.warning(self, "Messaggio", "Sistema di aggiornamento lista area: " + str(e), QMessageBox.StandardButton.Ok)
                 elif self.L=='en':
-                    QMessageBox.warning(self, "Message", "Area list update system: " + str(e), QMessageBox.Ok)
+                    QMessageBox.warning(self, "Message", "Area list update system: " + str(e), QMessageBox.StandardButton.Ok)
                 elif self.L=='de':
-                    QMessageBox.warning(self, "Nachricht", "Aktualisierungssystem für die Area: " + str(e), QMessageBox.Ok)
+                    QMessageBox.warning(self, "Nachricht", "Aktualisierungssystem für die Area: " + str(e), QMessageBox.StandardButton.Ok)
                 else:
                     pass
 
@@ -709,7 +712,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         for sigla_estesa in sorted(ldcn_dict.keys()):
             self.comboBox_ldcn.addItem(sigla_estesa)
             index = self.comboBox_ldcn.count() - 1
-            self.comboBox_ldcn.setItemData(index, f"Codice: {ldcn_dict[sigla_estesa]}", Qt.ToolTipRole)
+            self.comboBox_ldcn.setItemData(index, f"Codice: {ldcn_dict[sigla_estesa]}", Qt.ItemDataRole.ToolTipRole)
         # Restore saved value
         if 'ldcn' in current_values and current_values['ldcn']:
             self.comboBox_ldcn.setEditText(current_values['ldcn'])
@@ -732,7 +735,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         for sigla_estesa in sorted(ldct_dict.keys()):
             self.comboBox_ldct.addItem(sigla_estesa)
             index = self.comboBox_ldct.count() - 1
-            self.comboBox_ldct.setItemData(index, f"Codice: {ldct_dict[sigla_estesa]}", Qt.ToolTipRole)
+            self.comboBox_ldct.setItemData(index, f"Codice: {ldct_dict[sigla_estesa]}", Qt.ItemDataRole.ToolTipRole)
         # Restore saved value
         if 'ldct' in current_values and current_values['ldct']:
             self.comboBox_ldct.setEditText(current_values['ldct'])
@@ -756,7 +759,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         for sigla_estesa in sorted(localita_dict.keys()):
             self.comboBox_localita.addItem(sigla_estesa)
             index = self.comboBox_localita.count() - 1
-            self.comboBox_localita.setItemData(index, f"Codice: {localita_dict[sigla_estesa]}", Qt.ToolTipRole)
+            self.comboBox_localita.setItemData(index, f"Codice: {localita_dict[sigla_estesa]}", Qt.ItemDataRole.ToolTipRole)
         # Restore saved value
         if 'localita' in current_values and current_values['localita']:
             self.comboBox_localita.setEditText(current_values['localita'])
@@ -778,7 +781,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         for sigla_estesa in sorted(settore_dict.keys()):
             self.comboBox_settore.addItem(sigla_estesa)
             index = self.comboBox_settore.count() - 1
-            self.comboBox_settore.setItemData(index, f"Codice: {settore_dict[sigla_estesa]}", Qt.ToolTipRole)
+            self.comboBox_settore.setItemData(index, f"Codice: {settore_dict[sigla_estesa]}", Qt.ItemDataRole.ToolTipRole)
         # Don't restore settore here - it will be set at the end of fill_fields
         
         # 10.5 - Denominazione Scavo
@@ -798,7 +801,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         for sigla_estesa in sorted(scan_dict.keys()):
             self.comboBox_scan.addItem(sigla_estesa)
             index = self.comboBox_scan.count() - 1
-            self.comboBox_scan.setItemData(index, f"Codice: {scan_dict[sigla_estesa]}", Qt.ToolTipRole)
+            self.comboBox_scan.setItemData(index, f"Codice: {scan_dict[sigla_estesa]}", Qt.ItemDataRole.ToolTipRole)
         # Restore saved value
         if 'scan' in current_values and current_values['scan']:
             self.comboBox_scan.setEditText(current_values['scan'])
@@ -821,7 +824,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         for sigla_estesa in sorted(dtzg_dict.keys()):
             self.comboBox_dtzg.addItem(sigla_estesa)
             index = self.comboBox_dtzg.count() - 1
-            self.comboBox_dtzg.setItemData(index, f"Codice: {dtzg_dict[sigla_estesa]}", Qt.ToolTipRole)
+            self.comboBox_dtzg.setItemData(index, f"Codice: {dtzg_dict[sigla_estesa]}", Qt.ItemDataRole.ToolTipRole)
         
         # Restore saved value
         if 'dtzg' in current_values and current_values['dtzg']:
@@ -845,7 +848,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         for sigla_estesa in sorted(aint_dict.keys()):
             self.comboBox_aint.addItem(sigla_estesa)
             index = self.comboBox_aint.count() - 1
-            self.comboBox_aint.setItemData(index, f"Codice: {aint_dict[sigla_estesa]}", Qt.ToolTipRole)
+            self.comboBox_aint.setItemData(index, f"Codice: {aint_dict[sigla_estesa]}", Qt.ItemDataRole.ToolTipRole)
         # Restore saved value
         if 'aint' in current_values and current_values['aint']:
             self.comboBox_aint.setEditText(current_values['aint'])
@@ -879,7 +882,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         else:
             id_list = []
             for i in self.DB_MANAGER.query(self.MAPPER_TABLE_CLASS):
-                id_list.append(eval("i." + self.ID_TABLE))
+                id_list.append(getattr(i, self.ID_TABLE))
             temp_data_list = self.DB_MANAGER.query_sort(id_list, [self.ID_TABLE], 'asc', self.MAPPER_TABLE_CLASS,
                                                         self.ID_TABLE)
             for i in temp_data_list:
@@ -922,26 +925,26 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         sito_set_str = sito_set['sito_set']
         if bool(self.comboBox_sito.currentText()) and self.comboBox_sito.currentText() == sito_set_str:
             if self.L == 'it':
-                QMessageBox.information(self, "OK", "Sei connesso al sito: %s" % str(sito_set_str), QMessageBox.Ok)
+                QMessageBox.information(self, "OK", "Sei connesso al sito: %s" % str(sito_set_str), QMessageBox.StandardButton.Ok)
             else:
                 QMessageBox.information(self, "OK", "You are connected to the site: %s" % str(sito_set_str),
-                                        QMessageBox.Ok)
+                                        QMessageBox.StandardButton.Ok)
 
         elif sito_set_str == '':
             if self.L == 'it':
                 msg = QMessageBox.information(self, "Attenzione",
                                               "Non hai settato alcun sito. Vuoi settarne uno? click Ok altrimenti Annulla per  vedere tutti i record",
-                                              QMessageBox.Ok | QMessageBox.Cancel)
+                                              QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel)
             else:
                 msg = QMessageBox.information(self, "Warning",
                                               "You have not set up any archaeological site. Do you want to set one? click Ok otherwise Cancel to see all records",
-                                              QMessageBox.Ok | QMessageBox.Cancel)
-            if msg == QMessageBox.Cancel:
+                                              QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel)
+            if msg == QMessageBox.StandardButton.Cancel:
                 pass
             else:
                 dlg = pyArchInitDialog_Config(self)
                 dlg.charge_list()
-                dlg.exec_()
+                dlg.exec()
 
     def set_sito(self):
         conn = Connection()
@@ -972,12 +975,12 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                         QMessageBox.information(self, "Attenzione", 
                                                 f"Non ci sono record TMA per il sito: '{sito_set_str}'. "
                                                 "Puoi crearne di nuovi o cambiare sito.",
-                                                QMessageBox.Ok)
+                                                QMessageBox.StandardButton.Ok)
                     else:
                         QMessageBox.information(self, "Warning", 
                                                 f"There are no TMA records for site: '{sito_set_str}'. "
                                                 "You can create new ones or change site.",
-                                                QMessageBox.Ok)
+                                                QMessageBox.StandardButton.Ok)
             else:
                 self.setComboBoxEnable(["self.comboBox_sito"], "True")
                 self.setComboBoxEditable(["self.comboBox_sito"], 1)
@@ -1064,7 +1067,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         except Exception as e:
             # Make sure to clear the flag even if there's an error
             self.loading_data = False
-            QMessageBox.warning(self, "Error", str(e), QMessageBox.Ok)
+            QMessageBox.warning(self, "Error", str(e), QMessageBox.StandardButton.Ok)
 
         # Track version number and record ID for concurrency
         if hasattr(self, 'concurrency_manager'):
@@ -1220,7 +1223,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                         if thumb_data:
                             # Create list item
                             item = QListWidgetItem(str(media.filename))
-                            item.setData(Qt.UserRole, str(media.id_media))
+                            item.setData(Qt.ItemDataRole.UserRole, str(media.id_media))
                             
                             # Set icon
                             icon_path = os.path.join(thumb_path_str, thumb_data[0].filepath)
@@ -1267,7 +1270,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                    db_version != self.current_record_version:
                     # Show notification
                     msg = QMessageBox()
-                    msg.setIcon(QMessageBox.Warning)
+                    msg.setIcon(QMessageBox.Icon.Warning)
                     msg.setWindowTitle("Record Modificato / Record Modified")
                     msg.setText(
                         f"Questo record è stato modificato da {last_modified_by} "
@@ -1276,9 +1279,9 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                         f"at {last_modified_timestamp}.\n\n"
                         f"Vuoi ricaricare il record? / Do you want to reload?"
                     )
-                    msg.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
+                    msg.setStandardButtons(QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
 
-                    if msg.exec_() == QMessageBox.Yes:
+                    if msg.exec() == QMessageBox.StandardButton.Yes:
                         # Save current record position
                         current_pos = self.REC_CORR
                         # Reload records
@@ -1578,7 +1581,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             # Try newer PyQt5 method first
             from qgis.PyQt.QtWidgets import QHeaderView
             for i in range(len(headers)):
-                header.setSectionResizeMode(i, QHeaderView.Stretch)
+                header.setSectionResizeMode(i, QHeaderView.ResizeMode.Stretch)
         except (ImportError, AttributeError):
             # Fallback for older versions
             try:
@@ -1652,7 +1655,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
 
                     # Column 0: Categoria <- macc
                     item0 = QTableWidgetItem(str(row[3]).strip() if row[3] else "")  # macc
-                    item0.setData(Qt.UserRole, int(row[0]))  # Store material ID
+                    item0.setData(Qt.ItemDataRole.UserRole, int(row[0]))  # Store material ID
                     self.tableWidget_materiali.setItem(table_row, 0, item0)
 
                     # Column 1: Classe <- macl
@@ -1683,7 +1686,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                 for i in range(self.tableWidget_materiali.rowCount()):
                     item0 = self.tableWidget_materiali.item(i, 0)
                     if item0:
-                        QgsMessageLog.logMessage(f"  Row {i}: Category='{item0.text()}', ID={item0.data(Qt.UserRole)}", "PyArchInit", Qgis.Info)
+                        QgsMessageLog.logMessage(f"  Row {i}: Category='{item0.text()}', ID={item0.data(Qt.ItemDataRole.UserRole)}", "PyArchInit", Qgis.Info)
                 
                 # Mark materials as loaded
                 self.materials_loaded = True
@@ -1787,7 +1790,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                         self.tableWidget_materiali.closePersistentEditor(item)
             
             # Method 2: End edit mode
-            if self.tableWidget_materiali.state() == QAbstractItemView.EditingState:
+            if self.tableWidget_materiali.state() == QAbstractItemView.State.EditingState:
                 current = self.tableWidget_materiali.currentItem()
                 if current:
                     # Get the delegate and force it to commit
@@ -1865,17 +1868,17 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                         return val
                     
                     # Try EditRole
-                    val = item.data(Qt.EditRole)
+                    val = item.data(Qt.ItemDataRole.EditRole)
                     if val:
                         return str(val)
                     
                     # Try DisplayRole
-                    val = item.data(Qt.DisplayRole)
+                    val = item.data(Qt.ItemDataRole.DisplayRole)
                     if val:
                         return str(val)
                     
                     # Try backup UserRole+1
-                    val = item.data(Qt.UserRole + 1)
+                    val = item.data(Qt.ItemDataRole.UserRole + 1)
                     if val:
                         return str(val)
                     
@@ -1944,7 +1947,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                     continue
                 
                 # Check if this row has an existing ID (stored as row data)
-                material_id = self.tableWidget_materiali.item(row, 0).data(Qt.UserRole) if self.tableWidget_materiali.item(row, 0) else None
+                material_id = self.tableWidget_materiali.item(row, 0).data(Qt.ItemDataRole.UserRole) if self.tableWidget_materiali.item(row, 0) else None
                 
                 # Convert to int if not None
                 if material_id is not None:
@@ -2046,7 +2049,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                             
                             # Store the new material ID in the table widget for future updates
                             if self.tableWidget_materiali.item(row, 0):
-                                self.tableWidget_materiali.item(row, 0).setData(Qt.UserRole, new_material_id)
+                                self.tableWidget_materiali.item(row, 0).setData(Qt.ItemDataRole.UserRole, new_material_id)
                             
                         finally:
                             insert_session.close()
@@ -2141,7 +2144,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                         msg = f"Attenzione: Le righe {', '.join(map(str, truly_empty_rows))} non sono state salvate perché manca la categoria (campo obbligatorio)."
                     else:
                         msg = f"Warning: Rows {', '.join(map(str, truly_empty_rows))} were not saved because category is missing (required field)."
-                    QMessageBox.information(self, "Materiali vuoti", msg, QMessageBox.Ok)
+                    QMessageBox.information(self, "Materiali vuoti", msg, QMessageBox.StandardButton.Ok)
                     
         except Exception as e:
             import traceback
@@ -2149,7 +2152,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             error_msg = f"Errore nel salvataggio materiali: {str(e)}\n\n"
             error_msg += f"TMA ID: {tma_id}\n"
             error_msg += f"Tabelle verificate nel database."
-            QMessageBox.warning(self, "Error", error_msg, QMessageBox.Ok)
+            QMessageBox.warning(self, "Error", error_msg, QMessageBox.StandardButton.Ok)
 
     def on_pushButton_add_materiale_pressed(self):
         """Add a new row to materials table."""
@@ -2219,8 +2222,8 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             if current_row >= 0:
                 # Get the material ID if it exists (for existing records)
                 item = self.tableWidget_materiali.item(current_row, 0)
-                if item and item.data(Qt.UserRole) is not None:
-                    material_id = item.data(Qt.UserRole)
+                if item and item.data(Qt.ItemDataRole.UserRole) is not None:
+                    material_id = item.data(Qt.ItemDataRole.UserRole)
                     # Mark as deleted (will be handled during save)
                     if not hasattr(self, 'deleted_material_ids'):
                         self.deleted_material_ids = set()
@@ -2569,7 +2572,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         from ..gui.tma_import_dialog import TMAImportDialog
         
         dlg = TMAImportDialog(self.DB_MANAGER, self)
-        dlg.exec_()
+        dlg.exec()
         
         # Refresh data after import
         self.charge_records()
@@ -2589,8 +2592,8 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         if self.check_record_state() == 1:
             msg = QMessageBox.warning(self, "Attenzione",
                                       "Il record è stato modificato. Vuoi salvare le modifiche?",
-                                      QMessageBox.Save | QMessageBox.Cancel)
-            if msg == QMessageBox.Save:
+                                      QMessageBox.StandardButton.Save | QMessageBox.StandardButton.Cancel)
+            if msg == QMessageBox.StandardButton.Save:
                 self.on_pushButton_save_pressed()
 
     def setComboBoxEnable(self, f, v):
@@ -2628,10 +2631,10 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         if self.check_record_state() == 1:
             msg = QMessageBox.warning(self, 'Attenzione', 
                                      "Il record è stato modificato. Vuoi salvare le modifiche?",
-                                     QMessageBox.Yes | QMessageBox.No | QMessageBox.Cancel)
-            if msg == QMessageBox.Cancel:
+                                     QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No | QMessageBox.StandardButton.Cancel)
+            if msg == QMessageBox.StandardButton.Cancel:
                 return
-            elif msg == QMessageBox.Yes:
+            elif msg == QMessageBox.StandardButton.Yes:
                 self.on_pushButton_save_pressed()
                 if self.REC_CORR == 0:
                     return  # Already at first record
@@ -2643,7 +2646,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             self.fill_fields(0)
             self.set_rec_counter(self.REC_TOT, self.REC_CORR + 1)
         except Exception as e:
-            QMessageBox.warning(self, "Error", str(e), QMessageBox.Ok)
+            QMessageBox.warning(self, "Error", str(e), QMessageBox.StandardButton.Ok)
         finally:
             self._navigation_in_progress = False
 
@@ -2663,10 +2666,10 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         if self.check_record_state() == 1:
             msg = QMessageBox.warning(self, 'Attenzione', 
                                      "Il record è stato modificato. Vuoi salvare le modifiche?",
-                                     QMessageBox.Yes | QMessageBox.No | QMessageBox.Cancel)
-            if msg == QMessageBox.Cancel:
+                                     QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No | QMessageBox.StandardButton.Cancel)
+            if msg == QMessageBox.StandardButton.Cancel:
                 return
-            elif msg == QMessageBox.Yes:
+            elif msg == QMessageBox.StandardButton.Yes:
                 self.on_pushButton_save_pressed()
                 if self.REC_CORR == len(self.DATA_LIST) - 1:
                     return  # Already at last record
@@ -2678,7 +2681,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             self.fill_fields(self.REC_CORR)
             self.set_rec_counter(self.REC_TOT, self.REC_CORR + 1)
         except Exception as e:
-            QMessageBox.warning(self, "Error", str(e), QMessageBox.Ok)
+            QMessageBox.warning(self, "Error", str(e), QMessageBox.StandardButton.Ok)
         finally:
             self._navigation_in_progress = False
 
@@ -2698,20 +2701,20 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             
         if self.REC_CORR <= 0:
             if self.L=='it':
-                QMessageBox.warning(self, "Attenzione", "Sei al primo record!", QMessageBox.Ok)
+                QMessageBox.warning(self, "Attenzione", "Sei al primo record!", QMessageBox.StandardButton.Ok)
             elif self.L=='de':
-                QMessageBox.warning(self, "Warnung", "du befindest dich im ersten Datensatz!", QMessageBox.Ok)
+                QMessageBox.warning(self, "Warnung", "du befindest dich im ersten Datensatz!", QMessageBox.StandardButton.Ok)
             else:
-                QMessageBox.warning(self, "Warning", "You are at the first record!", QMessageBox.Ok)
+                QMessageBox.warning(self, "Warning", "You are at the first record!", QMessageBox.StandardButton.Ok)
             return
             
         if self.check_record_state() == 1:
             msg = QMessageBox.warning(self, 'Attenzione', 
                                      "Il record è stato modificato. Vuoi salvare le modifiche?",
-                                     QMessageBox.Yes | QMessageBox.No | QMessageBox.Cancel)
-            if msg == QMessageBox.Cancel:
+                                     QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No | QMessageBox.StandardButton.Cancel)
+            if msg == QMessageBox.StandardButton.Cancel:
                 return
-            elif msg == QMessageBox.Yes:
+            elif msg == QMessageBox.StandardButton.Yes:
                 self.on_pushButton_save_pressed()
         
         self._navigation_in_progress = True
@@ -2721,7 +2724,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             self.fill_fields(self.REC_CORR)
             self.set_rec_counter(self.REC_TOT, self.REC_CORR + 1)
         except Exception as e:
-            QMessageBox.warning(self, "Error", str(e), QMessageBox.Ok)
+            QMessageBox.warning(self, "Error", str(e), QMessageBox.StandardButton.Ok)
         finally:
             self._navigation_in_progress = False
 
@@ -2741,20 +2744,20 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             
         if self.REC_CORR >= self.REC_TOT - 1:
             if self.L=='it':
-                QMessageBox.warning(self, "Attenzione", "Sei all'ultimo record!", QMessageBox.Ok)
+                QMessageBox.warning(self, "Attenzione", "Sei all'ultimo record!", QMessageBox.StandardButton.Ok)
             elif self.L=='de':
-                QMessageBox.warning(self, "Warnung", "du befindest dich im letzten Datensatz!", QMessageBox.Ok)
+                QMessageBox.warning(self, "Warnung", "du befindest dich im letzten Datensatz!", QMessageBox.StandardButton.Ok)
             else:
-                QMessageBox.warning(self, "Warning", "You are at the last record!", QMessageBox.Ok)
+                QMessageBox.warning(self, "Warning", "You are at the last record!", QMessageBox.StandardButton.Ok)
             return
             
         if self.check_record_state() == 1:
             msg = QMessageBox.warning(self, 'Attenzione', 
                                      "Il record è stato modificato. Vuoi salvare le modifiche?",
-                                     QMessageBox.Yes | QMessageBox.No | QMessageBox.Cancel)
-            if msg == QMessageBox.Cancel:
+                                     QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No | QMessageBox.StandardButton.Cancel)
+            if msg == QMessageBox.StandardButton.Cancel:
                 return
-            elif msg == QMessageBox.Yes:
+            elif msg == QMessageBox.StandardButton.Yes:
                 self.on_pushButton_save_pressed()
         
         self._navigation_in_progress = True
@@ -2764,7 +2767,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             self.fill_fields(self.REC_CORR)
             self.set_rec_counter(self.REC_TOT, self.REC_CORR + 1)
         except Exception as e:
-            QMessageBox.warning(self, "Error", str(e), QMessageBox.Ok)
+            QMessageBox.warning(self, "Error", str(e), QMessageBox.StandardButton.Ok)
         finally:
             self._navigation_in_progress = False
 
@@ -2834,13 +2837,13 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
 
         # Prevent multiple simultaneous saves
         if self.is_saving:
-            QMessageBox.warning(self, "ATTENZIONE", "Salvataggio già in corso. Attendere...", QMessageBox.Ok)
+            QMessageBox.warning(self, "ATTENZIONE", "Salvataggio già in corso. Attendere...", QMessageBox.StandardButton.Ok)
             return
 
         # Check for rapid consecutive saves (prevent double-clicks)
         current_time = time.time()
         if current_time - self.last_save_time < 1.0:  # Less than 1 second since last save
-            QMessageBox.warning(self, "ATTENZIONE", "Attendere prima di salvare di nuovo.", QMessageBox.Ok)
+            QMessageBox.warning(self, "ATTENZIONE", "Attendere prima di salvare di nuovo.", QMessageBox.StandardButton.Ok)
             return
 
         self.is_saving = True
@@ -2889,16 +2892,16 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                                     # Just update the temp record without reloading UI
                                     self.set_LIST_REC_TEMP()
                                     self.set_LIST_REC_CORR()
-                                QMessageBox.information(self, "Info", "Record aggiornato con successo", QMessageBox.Ok)
+                                QMessageBox.information(self, "Info", "Record aggiornato con successo", QMessageBox.StandardButton.Ok)
                                 # If we're in filtered data (single record after search), allow new search
                                 if len(self.DATA_LIST) == 1:
                                     self.enable_button_search(1)  # Re-enable search buttons
                             else:
-                                QMessageBox.warning(self, "ATTENZIONE", "Non è stata realizzata alcuna modifica!", QMessageBox.Ok)
+                                QMessageBox.warning(self, "ATTENZIONE", "Non è stata realizzata alcuna modifica!", QMessageBox.StandardButton.Ok)
                         except Exception as e:
                             import traceback
                             traceback.print_exc()
-                            QMessageBox.warning(self, "Error", f"Errore nel salvataggio materiali: {str(e)}", QMessageBox.Ok)
+                            QMessageBox.warning(self, "Error", f"Errore nel salvataggio materiali: {str(e)}", QMessageBox.StandardButton.Ok)
                         self.enable_button(1)
             else:
                 if self.data_error_check() == 0:
@@ -2907,7 +2910,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                         self.is_saving = False
                         QMessageBox.warning(self, "ATTENZIONE",
                             "Un record simile è stato inserito di recente. Verificare prima di continuare.",
-                            QMessageBox.Ok)
+                            QMessageBox.StandardButton.Ok)
                         return
 
                     test_insert = self.insert_new_rec()
@@ -2937,7 +2940,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         except Exception as e:
             import traceback
             traceback.print_exc()
-            QMessageBox.warning(self, "Error", f"Errore nel salvataggio: {str(e)}", QMessageBox.Ok)
+            QMessageBox.warning(self, "Error", f"Errore nel salvataggio: {str(e)}", QMessageBox.StandardButton.Ok)
         finally:
             # Always reset the saving flag
             self.is_saving = False
@@ -2946,10 +2949,10 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         """Delete the current record."""
         msg = QMessageBox.warning(self, "Attenzione!!!",
                                   "Vuoi veramente eliminare il record? \n L'azione è irreversibile",
-                                  QMessageBox.Ok | QMessageBox.Cancel)
-        if msg == QMessageBox.Ok:
+                                  QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel)
+        if msg == QMessageBox.StandardButton.Ok:
             try:
-                id_to_delete = eval("self.DATA_LIST[self.REC_CORR]." + self.ID_TABLE)
+                id_to_delete = getattr(self.DATA_LIST[self.REC_CORR], self.ID_TABLE)
                 
                 # First delete all related materials from tma_materiali_ripetibili
                 try:
@@ -2965,12 +2968,12 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                 self.DB_MANAGER.delete_one_record(self.TABLE_NAME, self.ID_TABLE, id_to_delete)
                 self.charge_list()
                 self.charge_records()
-                QMessageBox.warning(self, "Messaggio", "Record eliminato!", QMessageBox.Ok)
+                QMessageBox.warning(self, "Messaggio", "Record eliminato!", QMessageBox.StandardButton.Ok)
             except Exception as e:
                 import traceback
                 traceback.print_exc()
                 QgsMessageLog.logMessage(f"ERROR deleting TMA record: {str(e)}", "PyArchInit", Qgis.Critical)
-                QMessageBox.warning(self, "Errore", f"Errore nella cancellazione: {str(e)}", QMessageBox.Ok)
+                QMessageBox.warning(self, "Errore", f"Errore nella cancellazione: {str(e)}", QMessageBox.StandardButton.Ok)
 
             if not bool(self.DATA_LIST):
                 self.DATA_LIST = []
@@ -3026,13 +3029,13 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                 self.tabWidget.setCurrentIndex(self.table_view_tab_index)
                 self.populate_table_view()
         except Exception as e:
-            QMessageBox.warning(self, "Errore", f"Errore nell'apertura vista tabella: {str(e)}", QMessageBox.Ok)
+            QMessageBox.warning(self, "Errore", f"Errore nell'apertura vista tabella: {str(e)}", QMessageBox.StandardButton.Ok)
 
     def on_pushButton_advanced_search_pressed(self):
         """Open advanced search dialog for US and cassette ranges."""
-        from PyQt5.QtWidgets import QDialog, QVBoxLayout, QHBoxLayout, QGroupBox, QCheckBox
-        from PyQt5.QtWidgets import QListWidget, QAbstractItemView, QDialogButtonBox
-        from PyQt5.QtWidgets import QSpinBox, QLabel
+        from qgis.PyQt.QtWidgets import QDialog, QVBoxLayout, QHBoxLayout, QGroupBox, QCheckBox
+        from qgis.PyQt.QtWidgets import QListWidget, QAbstractItemView, QDialogButtonBox
+        from qgis.PyQt.QtWidgets import QSpinBox, QLabel
 
         dialog = QDialog(self)
         dialog.setWindowTitle("Ricerca Avanzata TMA")
@@ -3084,7 +3087,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         us_layout.addWidget(us_list_label)
 
         us_list_widget = QListWidget()
-        us_list_widget.setSelectionMode(QAbstractItemView.MultiSelection)
+        us_list_widget.setSelectionMode(QAbstractItemView.SelectionMode.MultiSelection)
 
         # Get unique US values from database
         try:
@@ -3106,7 +3109,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         cassette_layout.addWidget(cassette_list_label)
 
         cassette_list_widget = QListWidget()
-        cassette_list_widget.setSelectionMode(QAbstractItemView.MultiSelection)
+        cassette_list_widget.setSelectionMode(QAbstractItemView.SelectionMode.MultiSelection)
 
         # Get unique cassette values
         try:
@@ -3131,12 +3134,12 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         layout.addWidget(cassette_group)
 
         # Buttons
-        buttons = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        buttons = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
         buttons.accepted.connect(dialog.accept)
         buttons.rejected.connect(dialog.reject)
         layout.addWidget(buttons)
 
-        if dialog.exec_() == QDialog.Accepted:
+        if dialog.exec() == QDialog.DialogCode.Accepted:
             # Build search
             search_results = []
 
@@ -3187,17 +3190,17 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
 
                 QMessageBox.information(self, "Risultati",
                                       f"Trovati {len(search_results)} record TMA",
-                                      QMessageBox.Ok)
+                                      QMessageBox.StandardButton.Ok)
             else:
                 QMessageBox.warning(self, "Attenzione",
                                    "Nessun record trovato con i criteri specificati",
-                                   QMessageBox.Ok)
+                                   QMessageBox.StandardButton.Ok)
 
     def on_pushButton_search_go_pressed(self):
         """Execute search."""
         if self.BROWSE_STATUS != "f":
             QMessageBox.warning(self, "ATTENZIONE", "Per eseguire una nuova ricerca clicca sul pulsante 'new search'",
-                                QMessageBox.Ok)
+                                QMessageBox.StandardButton.Ok)
         else:
             search_dict = self.build_search_dict()
             materials_search = self.build_materials_search_dict()
@@ -3205,7 +3208,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             # DEBUG: Log the search dictionary
 
             if not bool(search_dict) and not bool(materials_search):
-                QMessageBox.warning(self, "ATTENZIONE", "Non è stata impostata alcuna ricerca!", QMessageBox.Ok)
+                QMessageBox.warning(self, "ATTENZIONE", "Non è stata impostata alcuna ricerca!", QMessageBox.StandardButton.Ok)
             else:
                 # Check if we have a cassetta search - handle it specially
                 cassetta_search = None
@@ -3248,7 +3251,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                     res = filtered_res
 
                 if not bool(res):
-                    QMessageBox.warning(self, "ATTENZIONE", "Non è stato trovato alcun record!", QMessageBox.Ok)
+                    QMessageBox.warning(self, "ATTENZIONE", "Non è stato trovato alcun record!", QMessageBox.StandardButton.Ok)
 
                     if self.DATA_LIST:  # Check if DATA_LIST is not empty before accessing index 0
                         self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR + 1)
@@ -3277,7 +3280,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
 
                     self.setComboBoxEnable(["self.comboBox_sito"], "False")
 
-                    QMessageBox.warning(self, "Messaggio", "%s %d %s" % strings, QMessageBox.Ok)
+                    QMessageBox.warning(self, "Messaggio", "%s %d %s" % strings, QMessageBox.StandardButton.Ok)
 
         self.enable_button_search(1)
 
@@ -3285,12 +3288,12 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         """Open sort dialog."""
         dlg = SortPanelMain(self)
         dlg.insertItems(self.SORT_ITEMS)
-        dlg.exec_()
+        dlg.exec()
 
         items, order_type = dlg.ITEMS, dlg.TYPE_ORDER
 
         if not items:
-            QMessageBox.warning(self, "Messaggio", "Non hai ordinato alcun campo", QMessageBox.Ok)
+            QMessageBox.warning(self, "Messaggio", "Non hai ordinato alcun campo", QMessageBox.StandardButton.Ok)
         else:
             self.SORT_ITEMS_CONVERTED = []
             for i in items:
@@ -3361,11 +3364,11 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         if self.toolButtonGis.isChecked():
             QMessageBox.warning(self, "Messaggio",
                                 "Sistema attivato. Da ora le tue ricerche verranno visualizzate sul GIS",
-                                QMessageBox.Ok)
+                                QMessageBox.StandardButton.Ok)
         else:
             QMessageBox.warning(self, "Messaggio",
                                 "Sistema disattivato. Da ora le tue ricerche non verranno visualizzate sul GIS",
-                                QMessageBox.Ok)
+                                QMessageBox.StandardButton.Ok)
 
     # Export handlers
     def on_pushButton_open_dir_pressed(self):
@@ -3598,7 +3601,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         except Exception as e:
             # Rollback on any error
             session.rollback()
-            QMessageBox.warning(self, "Error", "Problema nell'inserimento: " + str(e), QMessageBox.Ok)
+            QMessageBox.warning(self, "Error", "Problema nell'inserimento: " + str(e), QMessageBox.StandardButton.Ok)
             return 0
         finally:
             session.close()
@@ -3621,7 +3624,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
 
             # Update main TMA record
             self.set_LIST_REC_TEMP()  # This sets self.DATA_LIST_REC_TEMP
-            current_id = eval("int(self.DATA_LIST[self.REC_CORR]." + self.ID_TABLE + ")")
+            current_id = int(getattr(self.DATA_LIST[self.REC_CORR], self.ID_TABLE))
             
             self.DB_MANAGER.update(self.MAPPER_TABLE_CLASS,
                                    self.ID_TABLE,
@@ -3643,13 +3646,13 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             
             return 1
         except Exception as e:
-            QMessageBox.warning(self, "Error", "Problema nell'aggiornamento: " + str(e), QMessageBox.Ok)
+            QMessageBox.warning(self, "Error", "Problema nell'aggiornamento: " + str(e), QMessageBox.StandardButton.Ok)
             return 0
     
     def on_pushButton_export_pdf_pressed(self):
         """Export current TMA record to PDF."""
         if not self.DATA_LIST:
-            QMessageBox.warning(self, "Attenzione", "Nessun record da esportare!", QMessageBox.Ok)
+            QMessageBox.warning(self, "Attenzione", "Nessun record da esportare!", QMessageBox.StandardButton.Ok)
             return
             
         try:
@@ -3690,11 +3693,11 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             if self.L == 'it':
                 QMessageBox.information(self, "Esportazione completata", 
                                         f"Scheda TMA esportata con successo!\nFile: {pdf_path}", 
-                                        QMessageBox.Ok)
+                                        QMessageBox.StandardButton.Ok)
             else:
                 QMessageBox.information(self, "Export completed", 
                                         f"TMA form exported successfully!\nFile: {pdf_path}", 
-                                        QMessageBox.Ok)
+                                        QMessageBox.StandardButton.Ok)
             
             # Open the PDF file
             if platform.system() == "Windows":
@@ -3705,7 +3708,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                 subprocess.Popen(["xdg-open", pdf_path])
                 
         except Exception as e:
-            QMessageBox.warning(self, "Errore", f"Errore nell'esportazione PDF: {str(e)}", QMessageBox.Ok)
+            QMessageBox.warning(self, "Errore", f"Errore nell'esportazione PDF: {str(e)}", QMessageBox.StandardButton.Ok)
     
     def on_pushButton_export_tma_pdf_pressed(self):
         """Export current TMA record to PDF using the specific TMA template."""
@@ -3722,7 +3725,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             if not sito or not area or not us:
                 QMessageBox.warning(self, "Attenzione", 
                                     "Compilare Sito, Area e US per recuperare i materiali dall'inventario!", 
-                                    QMessageBox.Ok)
+                                    QMessageBox.StandardButton.Ok)
                 return
             
             # Query inventory materials with repertato = 'Si'
@@ -3738,16 +3741,16 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             if not inventory_materials:
                 QMessageBox.information(self, "Info", 
                                         f"Nessun materiale repertato trovato per Sito: {sito}, Area: {area}, US: {us}", 
-                                        QMessageBox.Ok)
+                                        QMessageBox.StandardButton.Ok)
                 return
             
             # Ask user for confirmation
             msg = QMessageBox.question(self, "Conferma", 
                                        f"Trovati {len(inventory_materials)} materiali repertati.\n"
                                        f"Vuoi aggiungerli alla tabella materiali?", 
-                                       QMessageBox.Yes | QMessageBox.No)
+                                       QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
             
-            if msg == QMessageBox.No:
+            if msg == QMessageBox.StandardButton.No:
                 return
             
             # Add materials to table
@@ -3790,10 +3793,10 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             
             QMessageBox.information(self, "Completato", 
                                     f"Aggiunti {len(inventory_materials)} materiali dall'inventario!", 
-                                    QMessageBox.Ok)
+                                    QMessageBox.StandardButton.Ok)
             
         except Exception as e:
-            QMessageBox.warning(self, "Errore", f"Errore nel recupero materiali: {str(e)}", QMessageBox.Ok)
+            QMessageBox.warning(self, "Errore", f"Errore nel recupero materiali: {str(e)}", QMessageBox.StandardButton.Ok)
     
     def on_us_changed(self):
         """Handle US field change - only updates inventory."""
@@ -3993,7 +3996,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
 
             # Set table properties
             self.tableWidget_tma_view.setAlternatingRowColors(True)
-            self.tableWidget_tma_view.setSelectionBehavior(QTableWidget.SelectRows)
+            self.tableWidget_tma_view.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
             self.tableWidget_tma_view.setSortingEnabled(True)
             self.tableWidget_tma_view.horizontalHeader().setStretchLastSection(True)
 
@@ -4071,7 +4074,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             self.tableWidget_tma_view.resizeColumnsToContents()
 
         except Exception as e:
-            QMessageBox.warning(self, "Errore", f"Errore nel popolamento tabella: {str(e)}", QMessageBox.Ok)
+            QMessageBox.warning(self, "Errore", f"Errore nel popolamento tabella: {str(e)}", QMessageBox.StandardButton.Ok)
 
     def on_table_item_double_clicked(self, item):
         """Handle double-click on table row to load record in form view."""
@@ -4090,7 +4093,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                 self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR + 1)
 
         except Exception as e:
-            QMessageBox.warning(self, "Errore", f"Errore nel caricamento record: {str(e)}", QMessageBox.Ok)
+            QMessageBox.warning(self, "Errore", f"Errore nel caricamento record: {str(e)}", QMessageBox.StandardButton.Ok)
 
     def load_settore_values(self):
         """Load all settore values from thesaurus."""
@@ -4524,13 +4527,13 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                     if thumb_data:
                         thumb_path = thumb_data[0].filepath
                         item = QListWidgetItem(str(media.media_name))
-                        item.setData(Qt.UserRole, str(media.media_name))
+                        item.setData(Qt.ItemDataRole.UserRole, str(media.media_name))
                         icon = load_icon(get_image_path(thumb_path_str, thumb_path))
                         item.setIcon(icon)
                         self.iconListWidget.addItem(item)
                         
             except Exception as e:
-                QMessageBox.warning(self, "Error", str(e), QMessageBox.Ok)
+                QMessageBox.warning(self, "Error", str(e), QMessageBox.StandardButton.Ok)
                 
         elif mode == 1:
             self.iconListWidget.clear()
@@ -4545,7 +4548,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         
         for item in items:
             # Get the media id or filename from item data
-            item_data = item.data(Qt.UserRole)
+            item_data = item.data(Qt.ItemDataRole.UserRole)
             
             # Try to get media by id first, then by filename
             if str(item_data).isdigit():
@@ -4569,7 +4572,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                     if file_path.lower().endswith(('.jpg', '.jpeg', '.png', '.gif', '.bmp', '.tiff')):
                         dlg = ImageViewer(self)
                         dlg.show_image(full_path)
-                        dlg.exec_()
+                        dlg.exec()
     
     def loadMapPreview(self, mode=0):
         """Load map preview for current TMA record."""
@@ -4593,7 +4596,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                 self.mapPreview.zoomToFullExtent()
                 
             except Exception as e:
-                QMessageBox.warning(self, "Error", str(e), QMessageBox.Ok)
+                QMessageBox.warning(self, "Error", str(e), QMessageBox.StandardButton.Ok)
                 
         elif mode == 1:
             self.mapPreview.setLayers([])
@@ -4605,7 +4608,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             current_tma = self.DATA_LIST[self.REC_CORR]
             
             # Get media ID from item data
-            media_id = item.data(Qt.UserRole)
+            media_id = item.data(Qt.ItemDataRole.UserRole)
             
             if str(media_id).isdigit():
                 # Search by media ID
@@ -4625,12 +4628,12 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
     def assignTags_TMA(self):
         """Assign current TMA record as tag to selected media."""
         if not self.DATA_LIST:
-            QMessageBox.warning(self, "Warning", "No TMA record loaded", QMessageBox.Ok)
+            QMessageBox.warning(self, "Warning", "No TMA record loaded", QMessageBox.StandardButton.Ok)
             return
             
         items_selected = self.iconListWidget.selectedItems()
         if not items_selected:
-            QMessageBox.warning(self, "Warning", "Select media items first", QMessageBox.Ok)
+            QMessageBox.warning(self, "Warning", "Select media items first", QMessageBox.StandardButton.Ok)
             return
             
         # Get current record data
@@ -4638,7 +4641,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         
         for item in items_selected:
             # Get media ID from item data (we store media_id in UserRole)
-            media_id = item.data(Qt.UserRole)
+            media_id = item.data(Qt.ItemDataRole.UserRole)
             media_name = item.text()
             
             # Check if already tagged
@@ -4669,9 +4672,9 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                     item.setBackground(QColor("green"))
                     
                 except Exception as e:
-                    QMessageBox.warning(self, "Error", f"Error tagging media: {str(e)}", QMessageBox.Ok)
+                    QMessageBox.warning(self, "Error", f"Error tagging media: {str(e)}", QMessageBox.StandardButton.Ok)
             else:
-                QMessageBox.information(self, "Info", f"Media {media_name} already tagged", QMessageBox.Ok)
+                QMessageBox.information(self, "Info", f"Media {media_name} already tagged", QMessageBox.StandardButton.Ok)
     
     def dropEvent(self, event):
         """Handle file drop events for media upload."""
@@ -4690,9 +4693,9 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                         if filetype in ["jpg", "jpeg", "png", "tiff", "tif", "bmp"]:
                             self.load_and_process_image(path)
                         else:
-                            QMessageBox.warning(self, "Error", f"Unsupported file type: {filetype}", QMessageBox.Ok)
+                            QMessageBox.warning(self, "Error", f"Unsupported file type: {filetype}", QMessageBox.StandardButton.Ok)
                 except Exception as e:
-                    QMessageBox.warning(self, "Error", f"Failed to process the file: {str(e)}", QMessageBox.Ok)
+                    QMessageBox.warning(self, "Error", f"Failed to process the file: {str(e)}", QMessageBox.StandardButton.Ok)
         super().dropEvent(event)
 
     def dragEnterEvent(self, event):
@@ -4775,7 +4778,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                 
                 # Add to iconListWidget  
                 item = QListWidgetItem(str(filename_orig))
-                item.setData(Qt.UserRole, str(media_max_num_id))
+                item.setData(Qt.ItemDataRole.UserRole, str(media_max_num_id))
                 # Set icon using the thumbnail
                 icon_path = os.path.join(str(thumb_path['thumb_path']), filename_thumb)
                 icon = QIcon(icon_path)
@@ -4786,23 +4789,23 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                 if self.DATA_LIST and self.REC_CORR < len(self.DATA_LIST):
                     self.assignTags_TMA_from_item(item)
                 
-                QMessageBox.information(self, "Success", f"Image {filename} added successfully!", QMessageBox.Ok)
+                QMessageBox.information(self, "Success", f"Image {filename} added successfully!", QMessageBox.StandardButton.Ok)
                 
             except Exception as e:
-                QMessageBox.warning(self, "Error", f"Error saving to database: {str(e)}", QMessageBox.Ok)
+                QMessageBox.warning(self, "Error", f"Error saving to database: {str(e)}", QMessageBox.StandardButton.Ok)
                 
         except Exception as e:
-            QMessageBox.warning(self, "Error", f"Error processing image: {str(e)}", QMessageBox.Ok)
+            QMessageBox.warning(self, "Error", f"Error processing image: {str(e)}", QMessageBox.StandardButton.Ok)
     
     def removeTags_TMA(self):
         """Remove tags from selected media."""
         if not self.DATA_LIST:
-            QMessageBox.warning(self, "Warning", "No TMA record loaded", QMessageBox.Ok)
+            QMessageBox.warning(self, "Warning", "No TMA record loaded", QMessageBox.StandardButton.Ok)
             return
             
         items_selected = self.iconListWidget.selectedItems()
         if not items_selected:
-            QMessageBox.warning(self, "Warning", "Select media items first", QMessageBox.Ok)
+            QMessageBox.warning(self, "Warning", "Select media items first", QMessageBox.StandardButton.Ok)
             return
             
         # Get current record data
@@ -4810,14 +4813,14 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         
         msg = QMessageBox.question(self, "Confirm", 
                                    f"Remove tags from {len(items_selected)} selected media?", 
-                                   QMessageBox.Yes | QMessageBox.No)
+                                   QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
         
-        if msg == QMessageBox.No:
+        if msg == QMessageBox.StandardButton.No:
             return
             
         for item in items_selected:
             # Get media ID from item data
-            media_id = item.data(Qt.UserRole)
+            media_id = item.data(Qt.ItemDataRole.UserRole)
             
             # Find and delete the relation
             search_dict = {
@@ -4837,7 +4840,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                     item.setBackground(QColor())  # Reset background
                     
                 except Exception as e:
-                    QMessageBox.warning(self, "Error", f"Error removing tag: {str(e)}", QMessageBox.Ok)
+                    QMessageBox.warning(self, "Error", f"Error removing tag: {str(e)}", QMessageBox.StandardButton.Ok)
                     
     def viewAllImages(self):
         """View all images in the database."""
@@ -4867,7 +4870,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                     
                     if os.path.exists(thumb_filepath):
                         item = QListWidgetItem(str(media.filename))
-                        item.setData(Qt.UserRole, str(media.id_media))
+                        item.setData(Qt.ItemDataRole.UserRole, str(media.id_media))
                         icon = QIcon(thumb_filepath)
                         item.setIcon(icon)
                         
@@ -4884,7 +4887,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                                 
                         self.iconListWidget.addItem(item)
                         
-            QMessageBox.information(self, "Info", f"Loaded {self.iconListWidget.count()} images", QMessageBox.Ok)
+            QMessageBox.information(self, "Info", f"Loaded {self.iconListWidget.count()} images", QMessageBox.StandardButton.Ok)
             
             # Restore current state if saved
             if current_state:
@@ -4893,7 +4896,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                 self.load_tma_media()
             
         except Exception as e:
-            QMessageBox.warning(self, "Error", f"Error loading images: {str(e)}", QMessageBox.Ok)
+            QMessageBox.warning(self, "Error", f"Error loading images: {str(e)}", QMessageBox.StandardButton.Ok)
     
     def insert_mediaToEntity_rec(self, id_entity, entity_type, table_name, id_media, filepath, media_name):
         """Insert record into MEDIATOENTITY table."""
@@ -4913,12 +4916,12 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                 e_str = str(e)
                 if e_str.__contains__("Integrity"):
                     msg = "Media to entity association already present in database"
-                    QMessageBox.warning(self, "Warning", msg, QMessageBox.Ok)
+                    QMessageBox.warning(self, "Warning", msg, QMessageBox.StandardButton.Ok)
                 else:
-                    QMessageBox.critical(self, "Error", str(e), QMessageBox.Ok)
+                    QMessageBox.critical(self, "Error", str(e), QMessageBox.StandardButton.Ok)
                 return 0
         except Exception as e:
-            QMessageBox.critical(self, "Error", f"Database error: {str(e)}", QMessageBox.Ok)
+            QMessageBox.critical(self, "Error", f"Database error: {str(e)}", QMessageBox.StandardButton.Ok)
     
     def on_pushButton_print_pressed(self):
         """Handle print button click - show dialog to choose print type."""
@@ -5023,7 +5026,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         toggle_filters()
         
         # Buttons
-        button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        button_box = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
         button_box.accepted.connect(dialog.accept)
         button_box.rejected.connect(dialog.reject)
         layout.addWidget(button_box)
@@ -5032,7 +5035,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         self.populate_filter_combos()
         
         # Execute dialog
-        if dialog.exec_() == QDialog.Accepted:
+        if dialog.exec() == QDialog.DialogCode.Accepted:
             # Save font size
             self.selected_font_size = self.spin_font_size.value()
             
@@ -5094,7 +5097,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             tma_list = self.DB_MANAGER.query('TMA')
             
             if not tma_list:
-                QMessageBox.warning(self, "Attenzione", "Nessun record TMA trovato nel database", QMessageBox.Ok)
+                QMessageBox.warning(self, "Attenzione", "Nessun record TMA trovato nel database", QMessageBox.StandardButton.Ok)
                 return
             
             # Generate PDF for all records
@@ -5108,10 +5111,10 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             HOME = os.environ['PYARCHINIT_HOME']
             PDF_path = os.path.join(HOME, "pyarchinit_PDF_folder")
             msg = f"Tutte le schede TMA esportate in:\n{PDF_path}\n\nTotale schede: {len(tma_list)}"
-            QMessageBox.information(self, "Esportazione completata", msg, QMessageBox.Ok)
+            QMessageBox.information(self, "Esportazione completata", msg, QMessageBox.StandardButton.Ok)
             
         except Exception as e:
-            QMessageBox.critical(self, "Errore", f"Errore nella generazione del PDF: {str(e)}", QMessageBox.Ok)
+            QMessageBox.critical(self, "Errore", f"Errore nella generazione del PDF: {str(e)}", QMessageBox.StandardButton.Ok)
 
     def print_tma_list(self):
         """Print filtered TMA list."""
@@ -5155,7 +5158,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                 tma_list = self.DATA_LIST
             
             if not tma_list:
-                QMessageBox.warning(self, "Attenzione", "Nessun record trovato con i filtri specificati", QMessageBox.Ok)
+                QMessageBox.warning(self, "Attenzione", "Nessun record trovato con i filtri specificati", QMessageBox.StandardButton.Ok)
                 return
             
             # Prepare data for list
@@ -5214,7 +5217,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                         data_list.append(row_data)
             
             if not data_list:
-                QMessageBox.warning(self, "Attenzione", "Nessun record trovato con i filtri specificati", QMessageBox.Ok)
+                QMessageBox.warning(self, "Attenzione", "Nessun record trovato con i filtri specificati", QMessageBox.StandardButton.Ok)
                 return
             
             # Sort by cassetta, area, US
@@ -5311,10 +5314,10 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             doc.build(elements)
             
             msg = f"Lista TMA esportata in:\n{filepath}\n\nTotale record: {len(data_list)}"
-            QMessageBox.information(self, "Esportazione completata", msg, QMessageBox.Ok)
+            QMessageBox.information(self, "Esportazione completata", msg, QMessageBox.StandardButton.Ok)
             
         except Exception as e:
-            QMessageBox.critical(self, "Errore", f"Errore nella generazione del PDF: {str(e)}", QMessageBox.Ok)
+            QMessageBox.critical(self, "Errore", f"Errore nella generazione del PDF: {str(e)}", QMessageBox.StandardButton.Ok)
     
     def on_pushButton_export_crate_list_pressed(self):
         """Export crate list with materials summary from TMA to Excel."""
@@ -5331,11 +5334,11 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             msg.setWindowTitle("Esportazione Lista Casse")
             msg.setText("Quale lista vuoi esportare?")
 
-            all_btn = msg.addButton("Tutti i record TMA", QMessageBox.YesRole)
-            site_btn = msg.addButton("Solo sito corrente", QMessageBox.NoRole)
-            cancel_btn = msg.addButton("Annulla", QMessageBox.RejectRole)
+            all_btn = msg.addButton("Tutti i record TMA", QMessageBox.ButtonRole.YesRole)
+            site_btn = msg.addButton("Solo sito corrente", QMessageBox.ButtonRole.NoRole)
+            cancel_btn = msg.addButton("Annulla", QMessageBox.ButtonRole.RejectRole)
 
-            msg.exec_()
+            msg.exec()
 
             if msg.clickedButton() == cancel_btn:
                 return
@@ -5347,7 +5350,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                 # Get current site
                 sito = self.comboBox_sito.currentText()
                 if not sito:
-                    QMessageBox.warning(self, "Attenzione", "Selezionare un sito", QMessageBox.Ok)
+                    QMessageBox.warning(self, "Attenzione", "Selezionare un sito", QMessageBox.StandardButton.Ok)
                     return
                 search_dict = {'sito': "'" + str(sito) + "'"}
                 tma_records = self.DB_MANAGER.query_bool(search_dict, 'TMA')
@@ -5360,13 +5363,13 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                     tma_records = self.DB_MANAGER.query_bool({}, 'TMA')
 
             if not tma_records:
-                QMessageBox.information(self, "Info", "Nessun record TMA trovato nel database", QMessageBox.Ok)
+                QMessageBox.information(self, "Info", "Nessun record TMA trovato nel database", QMessageBox.StandardButton.Ok)
                 return
 
             # Show how many records were found
             QMessageBox.information(self, "Record TMA trovati",
                                   f"Trovati {len(tma_records)} record TMA da processare",
-                                  QMessageBox.Ok)
+                                  QMessageBox.StandardButton.Ok)
 
             # Process TMA materials - group by crate
             crate_groups = defaultdict(lambda: {
@@ -5554,13 +5557,13 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                                   f"Record TMA processati: {processed_count}\n"
                                   f"Materiali totali: {total_materials}\n"
                                   f"Casse uniche: {len(export_data)}",
-                                  QMessageBox.Ok)
+                                  QMessageBox.StandardButton.Ok)
 
             # Export to Excel
             self.export_crate_list_to_excel(export_data)
 
         except Exception as e:
-            QMessageBox.critical(self, "Errore", f"Errore nell'esportazione lista casse: {str(e)}", QMessageBox.Ok)
+            QMessageBox.critical(self, "Errore", f"Errore nell'esportazione lista casse: {str(e)}", QMessageBox.StandardButton.Ok)
 
     def export_crate_list_to_excel(self, export_data):
         """Export crate list to Excel file."""
@@ -5632,7 +5635,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
 
             QMessageBox.information(self, "Esportazione completata",
                                   f"Lista casse esportata in:\n{filepath}\n\nTotale record: {len(export_data)}",
-                                  QMessageBox.Ok)
+                                  QMessageBox.StandardButton.Ok)
 
             # Try to open the file
             try:
@@ -5644,7 +5647,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                 pass
 
         except Exception as e:
-            QMessageBox.critical(self, "Errore", f"Errore nella generazione dell'Excel: {str(e)}", QMessageBox.Ok)
+            QMessageBox.critical(self, "Errore", f"Errore nella generazione dell'Excel: {str(e)}", QMessageBox.StandardButton.Ok)
 
     def on_pushButton_export_labels_pressed(self):
         """Handle label export button click."""
@@ -5724,13 +5727,13 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         toggle_label_filters()
         
         # Buttons
-        button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        button_box = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
         button_box.accepted.connect(dialog.accept)
         button_box.rejected.connect(dialog.reject)
         layout.addWidget(button_box)
         
         # Execute dialog
-        if dialog.exec_() == QDialog.Accepted:
+        if dialog.exec() == QDialog.DialogCode.Accepted:
             # Get selected format
             format_map = {
                 0: 'single_70x37',
@@ -5756,7 +5759,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         """Export single label for current record."""
         try:
             if not self.DATA_LIST or self.REC_CORR < 0:
-                QMessageBox.warning(self, "Attenzione", "Nessun record corrente da esportare", QMessageBox.Ok)
+                QMessageBox.warning(self, "Attenzione", "Nessun record corrente da esportare", QMessageBox.StandardButton.Ok)
                 return
                 
             # Get current record
@@ -5772,10 +5775,10 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             label_gen.generate_single_label(current_tma, filepath, label_style)
             
             QMessageBox.information(self, "Esportazione completata", 
-                                    f"Etichetta esportata in:\n{filepath}", QMessageBox.Ok)
+                                    f"Etichetta esportata in:\n{filepath}", QMessageBox.StandardButton.Ok)
                                     
         except Exception as e:
-            QMessageBox.critical(self, "Errore", f"Errore nell'esportazione: {str(e)}", QMessageBox.Ok)
+            QMessageBox.critical(self, "Errore", f"Errore nell'esportazione: {str(e)}", QMessageBox.StandardButton.Ok)
     
     def export_all_labels(self, label_format, label_style):
         """Export labels for all TMA records."""
@@ -5784,7 +5787,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             tma_list = self.DB_MANAGER.query('TMA')
             
             if not tma_list:
-                QMessageBox.warning(self, "Attenzione", "Nessun record TMA nel database", QMessageBox.Ok)
+                QMessageBox.warning(self, "Attenzione", "Nessun record TMA nel database", QMessageBox.StandardButton.Ok)
                 return
                 
             # Create labels
@@ -5798,10 +5801,10 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             
             QMessageBox.information(self, "Esportazione completata", 
                                     f"Etichette esportate in:\n{filepath}\n\nTotale etichette: {len(tma_list)}", 
-                                    QMessageBox.Ok)
+                                    QMessageBox.StandardButton.Ok)
                                     
         except Exception as e:
-            QMessageBox.critical(self, "Errore", f"Errore nell'esportazione: {str(e)}", QMessageBox.Ok)
+            QMessageBox.critical(self, "Errore", f"Errore nell'esportazione: {str(e)}", QMessageBox.StandardButton.Ok)
     
     def export_filtered_labels(self, label_format, label_style):
         """Export labels for filtered TMA records."""
@@ -5830,7 +5833,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                 tma_list = self.DB_MANAGER.query('TMA')
                 
             if not tma_list:
-                QMessageBox.warning(self, "Attenzione", "Nessun record trovato con i filtri specificati", QMessageBox.Ok)
+                QMessageBox.warning(self, "Attenzione", "Nessun record trovato con i filtri specificati", QMessageBox.StandardButton.Ok)
                 return
                 
             # Create labels
@@ -5844,10 +5847,10 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             
             QMessageBox.information(self, "Esportazione completata", 
                                     f"Etichette esportate in:\n{filepath}\n\nTotale etichette: {len(tma_list)}", 
-                                    QMessageBox.Ok)
+                                    QMessageBox.StandardButton.Ok)
                                     
         except Exception as e:
-            QMessageBox.critical(self, "Errore", f"Errore nell'esportazione: {str(e)}", QMessageBox.Ok)
+            QMessageBox.critical(self, "Errore", f"Errore nell'esportazione: {str(e)}", QMessageBox.StandardButton.Ok)
     def insert_new_row(self, table_name):
         """Insert new row into a table based on table_name."""
         cmd = table_name + ".insertRow(0)"
@@ -5865,22 +5868,23 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             eval(cmd)
         except:
             if self.L=='it':
-                QMessageBox.warning(self, "Messaggio", "Devi selezionare una riga", QMessageBox.Ok)
+                QMessageBox.warning(self, "Messaggio", "Devi selezionare una riga", QMessageBox.StandardButton.Ok)
             elif self.L=='de':
-                QMessageBox.warning(self, "Message", "Sie müssen eine Zeile markieren.", QMessageBox.Ok)
+                QMessageBox.warning(self, "Message", "Sie müssen eine Zeile markieren.", QMessageBox.StandardButton.Ok)
             else:
-                QMessageBox.warning(self, "Message", "You must select a row", QMessageBox.Ok)
+                QMessageBox.warning(self, "Message", "You must select a row", QMessageBox.StandardButton.Ok)
     
     def table2dict(self, table_name):
         """Convert table widget data to dictionary list."""
         self.tablename = table_name
-        row = eval(self.tablename + ".rowCount()")
-        col = eval(self.tablename + ".columnCount()")
+        table = getattr(self, self.tablename.replace("self.", "") if self.tablename.startswith("self.") else self.tablename)
+        row = table.rowCount()
+        col = table.columnCount()
         lista = []
         for r in range(row):
             sub_list = []
             for c in range(col):
-                value = eval(self.tablename + ".item(r,c)")
+                value = table.item(r, c)
                 if value != None:
                     sub_list.append(str(value.text()))
             if bool(sub_list):

@@ -117,7 +117,7 @@ from ..gui.pyarchinitConfigDialog import pyArchInitDialog_Config
 from ..gui.sortpanelmain import SortPanelMain
 from ..modules.utility.remote_image_loader import load_icon, get_image_path, initialize as init_remote_loader
 from sqlalchemy import create_engine, MetaData, Table, select, update, and_
-from PyQt5.QtCore import QThread, pyqtSignal, QTimer
+from qgis.PyQt.QtCore import QThread, pyqtSignal, QTimer
 
 MAIN_DIALOG_CLASS, _ = loadUiType(
     os.path.join(os.path.dirname(__file__), os.pardir, 'gui', 'ui', 'US_USM.ui'))
@@ -261,7 +261,7 @@ class ReportGeneratorDialog(QDialog):
         self.validate_button.clicked.connect(self.validate_data)
         button_layout.addWidget(self.validate_button)
         button_layout.addStretch()
-        self.buttons = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        self.buttons = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
         self.buttons.accepted.connect(self.accept)
         self.buttons.rejected.connect(self.reject)
         button_layout.addWidget(self.buttons)
@@ -476,8 +476,8 @@ class CheckableComboBox(QComboBox):
     def add_item(self, text, checked=True):
         """Add a checkable item to the combo box"""
         item = QStandardItem(text)
-        item.setFlags(item.flags() | Qt.ItemIsUserCheckable)
-        item.setData(Qt.Checked if checked else Qt.Unchecked, Qt.CheckStateRole)
+        item.setFlags(item.flags() | Qt.ItemFlag.ItemIsUserCheckable)
+        item.setData(Qt.CheckState.Checked if checked else Qt.CheckState.Unchecked, Qt.ItemDataRole.CheckStateRole)
         self.model().appendRow(item)
 
     def items_checked(self):
@@ -485,17 +485,17 @@ class CheckableComboBox(QComboBox):
         checked_items = []
         for index in range(self.count()):
             item = self.model().item(index)
-            if item.data(Qt.CheckStateRole) == Qt.Checked:
+            if item.data(Qt.ItemDataRole.CheckStateRole) == Qt.CheckState.Checked:
                 checked_items.append(item.text())
         return checked_items
 
     def handle_item_pressed(self, index):
         """Handle item check/uncheck"""
         item = self.model().itemFromIndex(index)
-        if item.data(Qt.CheckStateRole) == Qt.Checked:
-            item.setData(Qt.Unchecked, Qt.CheckStateRole)
+        if item.data(Qt.ItemDataRole.CheckStateRole) == Qt.CheckState.Checked:
+            item.setData(Qt.CheckState.Unchecked, Qt.ItemDataRole.CheckStateRole)
         else:
-            item.setData(Qt.Checked, Qt.CheckStateRole)
+            item.setData(Qt.CheckState.Checked, Qt.ItemDataRole.CheckStateRole)
 
 
 class ReportDialog(QDialog):
@@ -509,7 +509,7 @@ class ReportDialog(QDialog):
         self.main_layout = QVBoxLayout(self)
 
         # Create splitter for resizable sections
-        self.splitter = QSplitter(Qt.Vertical)
+        self.splitter = QSplitter(Qt.Orientation.Vertical)
 
         # Report Preview Section
         self.report_widget = QWidget()
@@ -531,9 +531,9 @@ class ReportDialog(QDialog):
         """)
         # Abilita la selezione del testo e i link
         self.text_edit.setTextInteractionFlags(
-            Qt.TextSelectableByMouse |
-            Qt.TextSelectableByKeyboard |
-            Qt.LinksAccessibleByMouse
+            Qt.TextInteractionFlag.TextSelectableByMouse |
+            Qt.TextInteractionFlag.TextSelectableByKeyboard |
+            Qt.TextInteractionFlag.LinksAccessibleByMouse
         )
 
         # Connetti l'evento mousePressEvent
@@ -658,7 +658,7 @@ class ReportDialog(QDialog):
 
     def handle_mouse_press(self, event):
         """Gestisce il click del mouse nel text edit"""
-        if event.button() == Qt.LeftButton:
+        if event.button() == Qt.MouseButton.LeftButton:
             cursor = self.text_edit.cursorForPosition(event.pos())
             format = cursor.charFormat()
             if format.isAnchor():
@@ -1950,7 +1950,7 @@ class GenerateReportThread(QThread):
 
                 if not image.isNull():
                     # Ridimensiona mantenendo l'aspect ratio - dimensioni maggiori per report
-                    scaled_image = image.scaled(1024, 768, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+                    scaled_image = image.scaled(1024, 768, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
 
                     # Create a temporary directory for report images if it doesn't exist
                     report_img_dir = os.path.join(os.path.dirname(path), "report_images")
@@ -4064,8 +4064,8 @@ class RAGQueryDialog(QDialog):
         # Scroll area for thumbnails
         media_scroll_area = QScrollArea()
         media_scroll_area.setWidgetResizable(True)
-        media_scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
-        media_scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+        media_scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
+        media_scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
 
         # Container for thumbnails
         self.media_gallery = QWidget()
@@ -4082,7 +4082,7 @@ class RAGQueryDialog(QDialog):
             "trova US che hanno immagini associate nel database\n"
             "(tabella MEDIATOENTITY)."
         )
-        self.no_media_label.setAlignment(Qt.AlignCenter)
+        self.no_media_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.no_media_label.setStyleSheet("""
             QLabel {
                 background-color: #f5f5f5;
@@ -4138,7 +4138,7 @@ class RAGQueryDialog(QDialog):
             "Usa 'Zoom ai Risultati' per centrare la mappa sui record trovati.\n"
             "Usa 'Evidenzia' per evidenziare le US sulla mappa."
         )
-        self.map_info_label.setAlignment(Qt.AlignCenter)
+        self.map_info_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.map_info_label.setStyleSheet("""
             QLabel {
                 background-color: #f0f0f0;
@@ -4154,8 +4154,8 @@ class RAGQueryDialog(QDialog):
         self.us_list_widget = QTableWidget()
         self.us_list_widget.setColumnCount(4)
         self.us_list_widget.setHorizontalHeaderLabels(["US", "Area", "Tipo", "Periodo"])
-        self.us_list_widget.setSelectionBehavior(QTableWidget.SelectRows)
-        self.us_list_widget.setSelectionMode(QTableWidget.MultiSelection)
+        self.us_list_widget.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
+        self.us_list_widget.setSelectionMode(QTableWidget.SelectionMode.MultiSelection)
         self.us_list_widget.itemSelectionChanged.connect(self.on_us_selection_changed)
         self.map_layout.addWidget(self.us_list_widget)
 
@@ -4526,7 +4526,7 @@ class RAGQueryDialog(QDialog):
                 "Assicurati che le US abbiano immagini associate\n"
                 "nella tabella MEDIATOENTITY."
             )
-            no_media.setAlignment(Qt.AlignCenter)
+            no_media.setAlignment(Qt.AlignmentFlag.AlignCenter)
             no_media.setStyleSheet("""
                 QLabel {
                     background-color: #f5f5f5;
@@ -4559,7 +4559,7 @@ class RAGQueryDialog(QDialog):
             # Create thumbnail label
             thumb_label = QLabel()
             thumb_label.setFixedSize(120, 120)
-            thumb_label.setAlignment(Qt.AlignCenter)
+            thumb_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
             thumb_label.setStyleSheet("""
                 QLabel {
                     border: 1px solid #ccc;
@@ -4574,8 +4574,8 @@ class RAGQueryDialog(QDialog):
                 if not pixmap.isNull():
                     scaled_pixmap = pixmap.scaled(
                         110, 110,
-                        Qt.KeepAspectRatio,
-                        Qt.SmoothTransformation
+                        Qt.AspectRatioMode.KeepAspectRatio,
+                        Qt.TransformationMode.SmoothTransformation
                     )
                     thumb_label.setPixmap(scaled_pixmap)
                 else:
@@ -4585,7 +4585,7 @@ class RAGQueryDialog(QDialog):
 
             # Make thumbnail clickable
             thumb_label.setToolTip(f"ID: {media_id}\n{filename}\n{description[:100] if description else ''}")
-            thumb_label.setCursor(Qt.PointingHandCursor)
+            thumb_label.setCursor(Qt.CursorShape.PointingHandCursor)
 
             # Store media info for click handling
             thumb_label.media_info = media
@@ -4597,7 +4597,7 @@ class RAGQueryDialog(QDialog):
 
             # Add filename label
             name_label = QLabel(filename[:15] + "..." if len(filename) > 15 else filename)
-            name_label.setAlignment(Qt.AlignCenter)
+            name_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
             name_label.setStyleSheet("font-size: 10px;")
             name_label.setToolTip(filename)
             thumb_layout.addWidget(name_label)
@@ -5127,7 +5127,7 @@ class RAGQueryDialog(QDialog):
 
             # Create map canvas
             canvas = QgsMapCanvas()
-            canvas.setCanvasColor(Qt.white)
+            canvas.setCanvasColor(Qt.GlobalColor.white)
 
             # Set the same CRS as the project
             canvas.setDestinationCrs(QgsProject.instance().crs())
@@ -5171,7 +5171,7 @@ class RAGQueryDialog(QDialog):
             us_layer.selectByExpression(filter_expr)
 
             canvas.refresh()
-            map_dialog.exec_()
+            map_dialog.exec()
 
             self.status_label.setText(f"Finestra mappa dedicata chiusa")
 
@@ -7219,7 +7219,7 @@ class ProgressDialog:
 
 class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
     ''' This class creates the main dialog for the US form'''
-    L=QgsSettings().value("locale/userLocale")[0:2]
+    L=QgsSettings().value("locale/userLocale", "it", type=str)[:2]
     if L=='it':
         MSG_BOX_TITLE = "PyArchInit - Scheda US"
     elif L=='en':
@@ -7929,8 +7929,12 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         ]
     LANG = {
         "IT": ['it_IT', 'IT', 'it', 'IT_IT'],
-        "EN_US": ['en_US','EN_US','en','EN'],
-        "DE": ['de_DE','de','DE', 'DE_DE']
+        "EN_US": ['en_US', 'EN_US', 'en', 'EN'],
+        "DE": ['de_DE', 'de', 'DE', 'DE_DE'],
+        "FR": ['fr_FR', 'fr', 'FR', 'FR_FR'],
+        "ES": ['es_ES', 'es', 'ES', 'ES_ES'],
+        "AR": ['ar_LB', 'ar', 'AR', 'AR_LB', 'ar_AR', 'AR_AR'],
+        "CA": ['ca_ES', 'ca', 'CA', 'CA_ES'],
     }
 
     REPORT_PATH = '{}{}{}'.format(HOME, os.sep, "pyarchinit_Report_folder")
@@ -8062,7 +8066,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.fig = None
         self.canvas = None
         self.video_player=None
-        self.iconListWidget.setDragDropMode(QAbstractItemView.DragDrop)
+        self.iconListWidget.setDragDropMode(QAbstractItemView.DragDropMode.DragDrop)
         self.mDockWidget_2.setHidden(True)
         self.mDockWidget_export.setHidden(True)
         self.mDockWidget_3.setHidden(True)
@@ -8106,7 +8110,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         try:
             self.on_pushButton_connect_pressed()
         except Exception as e:
-            QMessageBox.warning(self, "Connection System", str(e), QMessageBox.Ok)
+            QMessageBox.warning(self, "Connection System", str(e), QMessageBox.StandardButton.Ok)
             # SIGNALS & SLOTS Functions
         if len(self.DATA_LIST)==0:
             self.comboBox_sito.setCurrentIndex(0)
@@ -9395,7 +9399,7 @@ DATABASE SCHEMA KNOWLEDGE:
 
         # Get selected tables
         dialog = ReportGeneratorDialog(self)
-        if dialog.exec_() != QDialog.Accepted:
+        if dialog.exec() != QDialog.DialogCode.Accepted:
             return  # User cancelled
         selected_tables = dialog.get_selected_tables()
         year_filter = dialog.get_year_filter()
@@ -9619,11 +9623,11 @@ DATABASE SCHEMA KNOWLEDGE:
                 self,
                 "Dati Mancanti",
                 msg,
-                QMessageBox.Yes | QMessageBox.No,
-                QMessageBox.Yes
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                QMessageBox.StandardButton.Yes
             )
 
-            if reply == QMessageBox.Yes:
+            if reply == QMessageBox.StandardButton.Yes:
                 # User wants to continue despite missing data
                 return True
             else:
@@ -9636,7 +9640,7 @@ DATABASE SCHEMA KNOWLEDGE:
         """Open the RAG query dialog"""
         try:
             dialog = RAGQueryDialog(self.DB_MANAGER, parent=self)
-            dialog.exec_()
+            dialog.exec()
         except Exception as e:
             QMessageBox.critical(self, "Errore", f"Errore nell'apertura del dialogo query: {str(e)}")
 
@@ -9647,17 +9651,17 @@ DATABASE SCHEMA KNOWLEDGE:
                 self,
                 "Dati Mancanti",
                 "Sono stati rilevati dati mancanti. Vuoi procedere comunque con la generazione del report?",
-                QMessageBox.Yes | QMessageBox.No,
-                QMessageBox.No
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                QMessageBox.StandardButton.No
             )
-            if reply == QMessageBox.No:
+            if reply == QMessageBox.StandardButton.No:
                 return
 
         # Procedi con la generazione del report
         dialog = ReportGeneratorDialog(self)
 
 
-        if dialog.exec_() == QDialog.Accepted:
+        if dialog.exec() == QDialog.DialogCode.Accepted:
 
 
 
@@ -9901,11 +9905,11 @@ DATABASE SCHEMA KNOWLEDGE:
             self,
             "Scelta Template",
             "Vuoi salvare il contenuto usando il template predefinito?",
-            QMessageBox.Yes | QMessageBox.No
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
         )
 
         # If user selects No or closes dialog, just return
-        if response != QMessageBox.Yes:
+        if response != QMessageBox.StandardButton.Yes:
             print("User chose not to use template, exiting")
             return
 
@@ -11571,14 +11575,14 @@ DATABASE SCHEMA KNOWLEDGE:
                     "2. Try installing an older version: python -m pip install pymupdf==1.23.26\n"
                     "3. Install PyMuPDF-binary: python -m pip install --force-reinstall pymupdf\n\n"
                     "The rest of the plugin will continue to work normally.",
-                    QMessageBox.Ok
+                    QMessageBox.StandardButton.Ok
                 )
             else:
                 QMessageBox.warning(
                     self,
                     "GPT Sketch Import Error",
                     f"Cannot load GPT Sketch feature:\n\n{error_msg}",
-                    QMessageBox.Ok
+                    QMessageBox.StandardButton.Ok
                 )
             return
         except Exception as e:
@@ -11586,7 +11590,7 @@ DATABASE SCHEMA KNOWLEDGE:
                 self,
                 "Error",
                 f"An unexpected error occurred:\n\n{str(e)}",
-                QMessageBox.Ok
+                QMessageBox.StandardButton.Ok
             )
             return
 
@@ -11604,7 +11608,7 @@ DATABASE SCHEMA KNOWLEDGE:
             try:
                 return self.DB_MANAGER.query_bool(search_dict, table)
             except Exception as e:
-                QMessageBox.warning(self, "Error", f"Database query failed: {str(e)}", QMessageBox.Ok)
+                QMessageBox.warning(self, "Error", f"Database query failed: {str(e)}", QMessageBox.StandardButton.Ok)
                 return None
 
         selected_images = []
@@ -11626,7 +11630,7 @@ DATABASE SCHEMA KNOWLEDGE:
                     # Gestisci i video se necessario
                     selected_images.append(file_path)
             else:
-                QMessageBox.warning(self, "Error", f"File not found: {id_orig_item}", QMessageBox.Ok)
+                QMessageBox.warning(self, "Error", f"File not found: {id_orig_item}", QMessageBox.StandardButton.Ok)
 
         #if selected_images:
         self.gpt_window = GPTWindow(selected_images, dbmanager=self.DB_MANAGER, main_class=self)
@@ -11656,7 +11660,7 @@ DATABASE SCHEMA KNOWLEDGE:
         dialog.layout().addWidget(label)
 
         # Mostra la finestra di dialogo
-        dialog.exec_()
+        dialog.exec()
 
     def get_input_prompt(self, label):
         if self.L == 'it':
@@ -11673,9 +11677,9 @@ DATABASE SCHEMA KNOWLEDGE:
     def show_error(self, error, original_message):
         if self.L == 'it':
             QMessageBox.warning(self, "Error", f"Si è verificato un errore durante {original_message}: {error}",
-                                QMessageBox.Ok)
+                                QMessageBox.StandardButton.Ok)
             return
-        QMessageBox.warning(self, "Error", f"An error occurred during {original_message}: {error}", QMessageBox.Ok)
+        QMessageBox.warning(self, "Error", f"An error occurred during {original_message}: {error}", QMessageBox.StandardButton.Ok)
 
     def update_all_areas(self):
         """Update all areas with progress tracking (synchronous version)"""
@@ -12276,9 +12280,9 @@ DATABASE SCHEMA KNOWLEDGE:
             con.close()
 
         except AssertionError as e:
-            QMessageBox.warning(self, 'error', str(e), QMessageBox.Ok)
+            QMessageBox.warning(self, 'error', str(e), QMessageBox.StandardButton.Ok)
         else:
-            QMessageBox.information(self, 'ok', 'done', QMessageBox.Ok)
+            QMessageBox.information(self, 'ok', 'done', QMessageBox.StandardButton.Ok)
         self.pushButton_view_all.click()
     
     def parse_error_report(self):
@@ -12328,9 +12332,9 @@ DATABASE SCHEMA KNOWLEDGE:
         try:
             # Call the update_all_areas method which is connected to Ctrl+U
             self.update_all_areas()
-            QMessageBox.information(self, 'Info', 'Aree vuote aggiornate.', QMessageBox.Ok)
+            QMessageBox.information(self, 'Info', 'Aree vuote aggiornate.', QMessageBox.StandardButton.Ok)
         except Exception as e:
-            QMessageBox.warning(self, 'Errore', f'Errore durante aggiornamento aree: {str(e)}', QMessageBox.Ok)
+            QMessageBox.warning(self, 'Errore', f'Errore durante aggiornamento aree: {str(e)}', QMessageBox.StandardButton.Ok)
     
     def delete_auto_created_forms(self):
         """Delete all US forms that were automatically created"""
@@ -12345,7 +12349,7 @@ DATABASE SCHEMA KNOWLEDGE:
             if not records:
                 QMessageBox.information(self, 'Info',
                                       'Nessuna scheda creata automaticamente trovata.',
-                                      QMessageBox.Ok)
+                                      QMessageBox.StandardButton.Ok)
                 return 0
 
             count = len(records)
@@ -12354,10 +12358,10 @@ DATABASE SCHEMA KNOWLEDGE:
             reply = QMessageBox.question(self, 'Conferma cancellazione',
                                         f'Trovate {count} schede create automaticamente.\n'
                                         f'Vuoi cancellarle tutte?',
-                                        QMessageBox.Yes | QMessageBox.No,
-                                        QMessageBox.No)
+                                        QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                                        QMessageBox.StandardButton.No)
 
-            if reply == QMessageBox.Yes:
+            if reply == QMessageBox.StandardButton.Yes:
                 deleted = 0
                 for record in records:
                     try:
@@ -12373,7 +12377,7 @@ DATABASE SCHEMA KNOWLEDGE:
 
                 QMessageBox.information(self, 'Completato',
                                       f'Cancellate {deleted} schede create automaticamente.',
-                                      QMessageBox.Ok)
+                                      QMessageBox.StandardButton.Ok)
                 return deleted
             else:
                 return 0
@@ -12381,7 +12385,7 @@ DATABASE SCHEMA KNOWLEDGE:
         except Exception as e:
             QMessageBox.warning(self, 'Errore',
                                f'Errore durante la cancellazione: {str(e)}',
-                               QMessageBox.Ok)
+                               QMessageBox.StandardButton.Ok)
             return 0
 
     def fix_missing_forms(self, missing_form_errors):
@@ -12733,9 +12737,9 @@ DATABASE SCHEMA KNOWLEDGE:
             QMessageBox.information(self, 'Info',
                                    f'Create {created_count} schede US con descrizione "Scheda creata automaticamente".\n'
                                    f'Ricordati di completare le informazioni mancanti.',
-                                   QMessageBox.Ok)
+                                   QMessageBox.StandardButton.Ok)
         else:
-            QMessageBox.warning(self, 'Attenzione', 'Nessuna scheda US creata.\nControlla la console per i dettagli.', QMessageBox.Ok)
+            QMessageBox.warning(self, 'Attenzione', 'Nessuna scheda US creata.\nControlla la console per i dettagli.', QMessageBox.StandardButton.Ok)
     
     def fix_missing_relationships(self, relationship_errors):
         """Add missing reciprocal relationships"""
@@ -12944,9 +12948,9 @@ DATABASE SCHEMA KNOWLEDGE:
                         self.fill_fields(self.REC_CORR)
                         break
                 
-            QMessageBox.information(self, 'Info', f'Aggiunti {fixed_count} rapporti reciproci.', QMessageBox.Ok)
+            QMessageBox.information(self, 'Info', f'Aggiunti {fixed_count} rapporti reciproci.', QMessageBox.StandardButton.Ok)
         else:
-            QMessageBox.warning(self, 'Attenzione', 'Nessun rapporto reciproco aggiunto.', QMessageBox.Ok)
+            QMessageBox.warning(self, 'Attenzione', 'Nessun rapporto reciproco aggiunto.', QMessageBox.StandardButton.Ok)
         
         # Hide progress bar after a short delay
         import time
@@ -13124,8 +13128,8 @@ DATABASE SCHEMA KNOWLEDGE:
                             if updated:
                                 # Update the record
                                 record.rapporti = str(rapporti)
-                                self.DB_MANAGER.update(self.MAPPER_TABLE_CLASS, self.ID_TABLE, 
-                                                     [eval("int(record." + self.ID_TABLE + ")")], 
+                                self.DB_MANAGER.update(self.MAPPER_TABLE_CLASS, self.ID_TABLE,
+                                                     [int(getattr(record, self.ID_TABLE))],
                                                      [record])
                                 fixed_count += 1
                                 
@@ -13135,16 +13139,16 @@ DATABASE SCHEMA KNOWLEDGE:
             if fixed_count > 0:
                 QMessageBox.information(self, 'Info', 
                                       f'Aggiornate {fixed_count} relazioni incomplete.', 
-                                      QMessageBox.Ok)
+                                      QMessageBox.StandardButton.Ok)
             
         except Exception as e:
             QMessageBox.warning(self, 'Errore', 
                                f'Errore durante aggiornamento relazioni incomplete: {str(e)}', 
-                               QMessageBox.Ok)
+                               QMessageBox.StandardButton.Ok)
 
     def on_pushButton_fix_pressed(self):
         """Enhanced fix button that offers options to resolve different types of errors"""
-        from PyQt5.QtWidgets import QDialog, QVBoxLayout, QCheckBox, QDialogButtonBox, QLabel, QGroupBox, QScrollArea
+        from qgis.PyQt.QtWidgets import QDialog, QVBoxLayout, QCheckBox, QDialogButtonBox, QLabel, QGroupBox, QScrollArea
         
         # Parse the error report to extract different error types
         errors = self.parse_error_report()
@@ -13152,7 +13156,7 @@ DATABASE SCHEMA KNOWLEDGE:
         # Check if any errors exist
         if not any([errors['empty_areas'], errors['missing_forms'], errors['missing_relationships'], 
                    errors['orphan_forms'], errors['incomplete_relationships']]):
-            QMessageBox.information(self, 'Info', 'Nessun errore da correggere.', QMessageBox.Ok)
+            QMessageBox.information(self, 'Info', 'Nessun errore da correggere.', QMessageBox.StandardButton.Ok)
             return
         
         # Create dialog for selecting fixes
@@ -13249,13 +13253,13 @@ DATABASE SCHEMA KNOWLEDGE:
         main_layout.addWidget(scroll_area)
         
         # Dialog buttons
-        buttons = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        buttons = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
         buttons.accepted.connect(dialog.accept)
         buttons.rejected.connect(dialog.reject)
         main_layout.addWidget(buttons)
         
         # Show dialog
-        if dialog.exec_() == QDialog.Accepted:
+        if dialog.exec() == QDialog.DialogCode.Accepted:
             # Apply selected fixes
             fixes_applied = []
             
@@ -13291,7 +13295,7 @@ DATABASE SCHEMA KNOWLEDGE:
                 QMessageBox.information(self, 'Correzioni completate', 
                                       f"Correzioni applicate:\n- " + "\n- ".join(fixes_applied) + 
                                       "\n\nIl controllo verrà eseguito nuovamente.", 
-                                      QMessageBox.Ok)
+                                      QMessageBox.StandardButton.Ok)
                 
                 # Refresh the view and re-run check
                 self.charge_records()
@@ -13301,15 +13305,15 @@ DATABASE SCHEMA KNOWLEDGE:
                 sito = str(self.comboBox_sito.currentText())
                 self.rapporti_stratigrafici_check(sito)
             else:
-                QMessageBox.information(self, 'Info', 'Nessuna correzione applicata.', QMessageBox.Ok)
+                QMessageBox.information(self, 'Info', 'Nessuna correzione applicata.', QMessageBox.StandardButton.Ok)
 
     def check_listoflist(self):
         if self.checkBox_validation_rapp.isChecked():
             try:
 
-                table_name = "self.tableWidget_rapporti"
+                # table_name = "self.tableWidget_rapporti"  # Using direct access
                 rowSelected_cmd = ("%s.selectedItems()") % (table_name)
-                rowSelected = eval(rowSelected_cmd)
+                # rowSelected = eval(rowSelected_cmd)  # Replaced above
                 rowIndex = (rowSelected[0].row())
                 sito = str(self.comboBox_sito.currentText())
                 area = str(self.comboBox_area.currentText())
@@ -13378,14 +13382,14 @@ DATABASE SCHEMA KNOWLEDGE:
 
                 if bool(res):
 
-                    items = self.tableWidget_rapporti.findItems(us, Qt.MatchExactly)
-                    items_area = self.tableWidget_rapporti.findItems(ar_, Qt.MatchExactly)
-                    items_sito = self.tableWidget_rapporti.findItems(sito_, Qt.MatchExactly)
+                    items = self.tableWidget_rapporti.findItems(us, Qt.MatchFlag.MatchExactly)
+                    items_area = self.tableWidget_rapporti.findItems(ar_, Qt.MatchFlag.MatchExactly)
+                    items_sito = self.tableWidget_rapporti.findItems(sito_, Qt.MatchFlag.MatchExactly)
                     self.on_pushButton_go_to_us_pressed()
                     self.checkBox_validation_rapp.setChecked(False)
-                    items2 = self.tableWidget_rapporti.findItems(us_current, Qt.MatchExactly)
-                    items_area2 = self.tableWidget_rapporti.findItems(area, Qt.MatchExactly)
-                    items_sito2 = self.tableWidget_rapporti.findItems(sito, Qt.MatchExactly)
+                    items2 = self.tableWidget_rapporti.findItems(us_current, Qt.MatchFlag.MatchExactly)
+                    items_area2 = self.tableWidget_rapporti.findItems(area, Qt.MatchFlag.MatchExactly)
+                    items_sito2 = self.tableWidget_rapporti.findItems(sito, Qt.MatchFlag.MatchExactly)
                     # QMessageBox.information(self, 'caso1', f"{str(len(items))} - {str(len(items2))}  - {str(len(items_area))} - {str(len(items_sito))} -  {str(len(items_area2))} - {str(len(items_sito2))}")
                     if str(len(items)) == '1' and str(
                             len(items2)) == '1':  # and str(len(items_area))=='1' and str(len(items_sito))=='1' and str(len(items_area2))=='3' and str(len(items_sito2))=='5':
@@ -13636,7 +13640,7 @@ DATABASE SCHEMA KNOWLEDGE:
             # Empty string, don't search.
             return
 
-        matching_items = self.tableWidget_rapporti.findItems('1',Qt.MatchContains)
+        matching_items = self.tableWidget_rapporti.findItems('1',Qt.MatchFlag.MatchContains)
         if matching_items:
             # We have found something.
             item = matching_items[0]  # Take the first.
@@ -13886,7 +13890,7 @@ DATABASE SCHEMA KNOWLEDGE:
 
         # Show menu at cursor position
         global_pos = self.lineEdit_ref_ra.mapToGlobal(pos)
-        selected = menu.exec_(global_pos)
+        selected = menu.exec(global_pos)
 
         if selected and selected.data():
             form_type, num = selected.data()
@@ -13916,7 +13920,7 @@ DATABASE SCHEMA KNOWLEDGE:
 
         # Show menu at cursor position
         global_pos = self.lineEdit_ref_n.mapToGlobal(pos)
-        selected = menu.exec_(global_pos)
+        selected = menu.exec(global_pos)
 
         if selected and selected.data():
             form_type, num = selected.data()
@@ -14029,7 +14033,7 @@ DATABASE SCHEMA KNOWLEDGE:
                 self.model_a = QSqlTableModel(db = db)
                 self.table.setModel(self.model_a)
                 self.model_a.setTable("us_table")
-                self.model_a.setEditStrategy(QSqlTableModel.OnManualSubmit)
+                self.model_a.setEditStrategy(QSqlTableModel.EditStrategy.OnManualSubmit)
                 self.pushButton_submit.clicked.connect(self.submit)
                 self.pushButton_revert.clicked.connect(self.model_a.revertAll)
                 column_titles = {
@@ -14038,7 +14042,7 @@ DATABASE SCHEMA KNOWLEDGE:
                     "us": "US"}
                 for n, t in column_titles.items():
                     idx = self.model_a.fieldIndex( n)
-                    self.model_a.setHeaderData( idx, Qt.Horizontal, t)
+                    self.model_a.setHeaderData( idx, Qt.Orientation.Horizontal, t)
                 if bool (sito_set_str):
                     filter_str = "sito = '{}'".format(str(self.comboBox_sito.currentText()))
                     self.model_a.setFilter(filter_str)
@@ -14077,7 +14081,7 @@ DATABASE SCHEMA KNOWLEDGE:
                 self.model_a = QSqlTableModel(db = db)
                 self.table.setModel(self.model_a)
                 self.model_a.setTable("us_table")
-                self.model_a.setEditStrategy(QSqlTableModel.OnManualSubmit)
+                self.model_a.setEditStrategy(QSqlTableModel.EditStrategy.OnManualSubmit)
                 self.pushButton_submit.clicked.connect(self.submit)
                 self.pushButton_revert.clicked.connect(self.model_a.revertAll)
                 if bool (sito_set_str):
@@ -14557,7 +14561,7 @@ DATABASE SCHEMA KNOWLEDGE:
                 self.lineEdit_datazione.setText("")
                 self.lineEdit_datazione.update()
         except Exception as e:
-            QMessageBox.warning(self, "Warning", f"An error occurred while charging 'Datazione {e}'.", QMessageBox.Ok)
+            QMessageBox.warning(self, "Warning", f"An error occurred while charging 'Datazione {e}'.", QMessageBox.StandardButton.Ok)
 
 
     def update_dating_deferred(self):
@@ -14641,9 +14645,8 @@ DATABASE SCHEMA KNOWLEDGE:
         sito = str(self.comboBox_sito.currentText())
         area = str(self.comboBox_area.currentText())
         us = str(self.lineEdit_us.text())
-        table_name = "self.tableWidget_documentazione"
-        rowSelected_cmd = ("%s.selectedIndexes()") % (table_name)
-        rowSelected = eval(rowSelected_cmd)
+        # Use direct widget access instead of eval
+        rowSelected = self.tableWidget_documentazione.selectedIndexes()
         rowIndex = (rowSelected[0].row())
         tipo_doc_item = self.tableWidget_documentazione.item(rowIndex, 0)
         nome_doc_item = self.tableWidget_documentazione.item(rowIndex, 1)
@@ -14660,16 +14663,16 @@ DATABASE SCHEMA KNOWLEDGE:
                 if self.records_equal_check() == 1:
                     if self.L=='it':
                         self.update_if(QMessageBox.warning(self, 'Attenzione',
-                                                           "Il record e' stato modificato. Vuoi salvare le modifiche? \n Clicca OK per salvare o Annulla per abortire.\n Poi riselezione l'US su cui vuoi andare",QMessageBox.Ok | QMessageBox.Cancel))
+                                                           "Il record e' stato modificato. Vuoi salvare le modifiche? \n Clicca OK per salvare o Annulla per abortire.\n Poi riselezione l'US su cui vuoi andare",QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel))
                     elif self.L=='de':
                         self.update_if(QMessageBox.warning(self, 'Error',
                                                            "Der Record wurde geändert. Möchtest du die Änderungen speichern?",
-                                                           QMessageBox.Ok | QMessageBox.Cancel))
+                                                           QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel))
 
                     else:
                         self.update_if(QMessageBox.warning(self, 'Error',
                                                            "The record has been changed. Do you want to save the changes?",
-                                                           QMessageBox.Ok | QMessageBox.Cancel))
+                                                           QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel))
                     self.SORT_STATUS = "n"
                     self.label_sort.setText(self.SORTED_ITEMS[self.SORT_STATUS])
                     self.enable_button(1)
@@ -14710,7 +14713,7 @@ DATABASE SCHEMA KNOWLEDGE:
             table_item = self.tableWidget_rapporti.item(row, 1)
             if table_item is None:
                 continue
-            row_data = table_item.data(QtCore.Qt.UserRole)
+            row_data = table_item.data(QtCore.Qt.ItemDataRole.UserRole)
             row_id = row_data
             self.tableWidget_rapporti.selectRow(row)
 
@@ -14740,10 +14743,10 @@ DATABASE SCHEMA KNOWLEDGE:
         if self.checkBox_validate.isChecked():
             try:
 
-                table_name = "self.tableWidget_rapporti"
+                # table_name = "self.tableWidget_rapporti"  # Using direct access
 
                 rowSelected_cmd = ("%s.selectedItems()") % (table_name)
-                rowSelected = eval(rowSelected_cmd)
+                # rowSelected = eval(rowSelected_cmd)  # Replaced above
 
                 for i  in rowSelected:
                     s= self.tableWidget_rapporti.rowCount()
@@ -14796,26 +14799,26 @@ DATABASE SCHEMA KNOWLEDGE:
                         if self.L == 'it':
                             response = QMessageBox.warning(self, 'Attenzione',
                                                            "Il record e' stato modificato. Vuoi salvare le modifiche? \n Clicca OK per salvare o Annulla per abortire.\n Poi riselezione l'US su cui vuoi andare",
-                                                           QMessageBox.Ok | QMessageBox.Cancel)
+                                                           QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel)
                         elif self.L == 'de':
                             response = QMessageBox.warning(self, 'Error',
                                                            "Der Record wurde geändert. Möchtest du die Änderungen speichern?",
-                                                           QMessageBox.Ok | QMessageBox.Cancel)
+                                                           QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel)
                         else:
                             response = QMessageBox.warning(self, 'Error',
                                                            "The record has been changed. Do you want to save the changes?",
-                                                           QMessageBox.Ok | QMessageBox.Cancel)
+                                                           QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel)
 
                         # Check the user response and act accordingly
-                        if response == QMessageBox.Ok:
+                        if response == QMessageBox.StandardButton.Ok:
                             self.update_if(response)
                             self.SORT_STATUS = "n"
                             self.label_sort.setText(self.SORTED_ITEMS[self.SORT_STATUS])
                             self.enable_button(1)
                             #self.fill_fields(self.REC_CORR)
-                            table_name = "self.tableWidget_rapporti"
+                            # table_name = "self.tableWidget_rapporti"  # Using direct access
                             rowSelected_cmd = ("%s.selectedIndexes()") % (table_name)
-                            rowSelected = eval(rowSelected_cmd)
+                            # rowSelected = eval(rowSelected_cmd)  # Replaced above
                             rowIndex = (rowSelected[0].row())
                             sito_item = self.tableWidget_rapporti.item(rowIndex, 3)
                             area_item = self.tableWidget_rapporti.item(rowIndex, 2)
@@ -14865,9 +14868,9 @@ DATABASE SCHEMA KNOWLEDGE:
 
 
 
-            table_name = "self.tableWidget_rapporti"
+            # table_name = "self.tableWidget_rapporti"  # Using direct access
             rowSelected_cmd = ("%s.selectedIndexes()") % (table_name)
-            rowSelected = eval(rowSelected_cmd)
+            # rowSelected = eval(rowSelected_cmd)  # Replaced above
             rowIndex = (rowSelected[0].row())
             sito_item = self.tableWidget_rapporti.item(rowIndex, 3)
             area_item = self.tableWidget_rapporti.item(rowIndex, 2)
@@ -14886,12 +14889,12 @@ DATABASE SCHEMA KNOWLEDGE:
                 #self.DB_MANAGER.insert_number_of_us_records(sito,area,us,'US')
 
                 if self.L=='it':
-                    QMessageBox.warning(self, "ATTENZIONE", "Non e' stato trovato alcun record!", QMessageBox.Ok)
+                    QMessageBox.warning(self, "ATTENZIONE", "Non e' stato trovato alcun record!", QMessageBox.StandardButton.Ok)
 
                 elif self.L=='de':
-                    QMessageBox.warning(self, "ACHTUNG", "kein Eintrag gefunden!", QMessageBox.Ok)
+                    QMessageBox.warning(self, "ACHTUNG", "kein Eintrag gefunden!", QMessageBox.StandardButton.Ok)
                 else:
-                    QMessageBox.warning(self, "Warning", "The record has not been found ", QMessageBox.Ok)
+                    QMessageBox.warning(self, "Warning", "The record has not been found ", QMessageBox.StandardButton.Ok)
                 self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR + 1)
                 self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
                 self.fill_fields(self.REC_CORR)
@@ -14974,13 +14977,13 @@ DATABASE SCHEMA KNOWLEDGE:
             e = str(e)
             if self.L=='it':
                 QMessageBox.warning(self, "Alert", "Non hai selezionato nessuna riga. Errore python: %s " % (str(e)),
-                                QMessageBox.Ok)
+                                QMessageBox.StandardButton.Ok)
             elif self.L=='de':
                 QMessageBox.warning(self, "ACHTUNG", "Keine Spalte ausgewält. Error python: %s " % (str(e)),
-                                QMessageBox.Ok)
+                                QMessageBox.StandardButton.Ok)
             else:
                 QMessageBox.warning(self, "Alert", "You didn't select any row. Python error: %s " % (str(e)),
-                                QMessageBox.Ok)
+                                QMessageBox.StandardButton.Ok)
     def enable_button(self, n):
         self.pushButton_list.setEnabled(n)
         self.pushButton_new_rec.setEnabled(n)
@@ -15055,13 +15058,13 @@ DATABASE SCHEMA KNOWLEDGE:
             else:
                 if self.L=='it':
                     QMessageBox.warning(self,"BENVENUTO", "Benvenuto in pyArchInit " + self.NOME_SCHEDA + ". Il database e' vuoto. Premi 'Ok' e buon lavoro!",
-                                        QMessageBox.Ok)
+                                        QMessageBox.StandardButton.Ok)
                 elif self.L=='de':
                     QMessageBox.warning(self,"WILLKOMMEN","WILLKOMMEN in pyArchInit" + "SE-MSE formular"+ ". Die Datenbank ist leer. Tippe 'Ok' und aufgehts!",
-                                        QMessageBox.Ok)
+                                        QMessageBox.StandardButton.Ok)
                 else:
                     QMessageBox.warning(self,"WELCOME", "Welcome in pyArchInit" + "Samples SU-WSU" + ". The DB is empty. Push 'Ok' and Good Work!",
-                                        QMessageBox.Ok)
+                                        QMessageBox.StandardButton.Ok)
                 self.charge_list()
                 self.BROWSE_STATUS = 'x'
                 self.setComboBoxEnable(["self.comboBox_area"], "True")
@@ -15121,13 +15124,13 @@ DATABASE SCHEMA KNOWLEDGE:
             else:
                 if self.L=='it':
                     QMessageBox.warning(self,"BENVENUTO", "Benvenuto in pyArchInit " + self.NOME_SCHEDA + ". Il database e' vuoto. Premi 'Ok' e buon lavoro!",
-                                        QMessageBox.Ok)
+                                        QMessageBox.StandardButton.Ok)
                 elif self.L=='de':
                     QMessageBox.warning(self,"WILLKOMMEN","WILLKOMMEN in pyArchInit" + "SE-MSE formular"+ ". Die Datenbank ist leer. Tippe 'Ok' und aufgehts!",
-                                        QMessageBox.Ok)
+                                        QMessageBox.StandardButton.Ok)
                 else:
                     QMessageBox.warning(self,"WELCOME", "Welcome in pyArchInit" + "Samples SU-WSU" + ". The DB is empty. Push 'Ok' and Good Work!",
-                                        QMessageBox.Ok)
+                                        QMessageBox.StandardButton.Ok)
                 self.charge_list()
                 self.BROWSE_STATUS = 'x'
                 self.setComboBoxEnable(["self.comboBox_area"], "True")
@@ -15205,8 +15208,8 @@ DATABASE SCHEMA KNOWLEDGE:
 
         self.iconListWidget.setUniformItemSizes(True)
         self.iconListWidget.setObjectName("iconListWidget")
-        self.iconListWidget.SelectionMode()
-        self.iconListWidget.setSelectionMode(QAbstractItemView.ExtendedSelection)
+        #self.iconListWidget.SelectionMode()  # Removed for Qt6 compatibility
+        self.iconListWidget.setSelectionMode(QAbstractItemView.SelectionMode.ExtendedSelection)
         self.iconListWidget.itemDoubleClicked.connect(self.openWide_image)
         #self.listWidget_2.itemDoubleClicked.connect(self.opentepmplatePreview)
         # comboBox customizations
@@ -15431,7 +15434,7 @@ DATABASE SCHEMA KNOWLEDGE:
         if mode == 0:
             """ if has geometry column load to map canvas """
             gidstr = self.ID_TABLE + " = " + str(
-                eval("self.DATA_LIST[int(self.REC_CORR)]." + self.ID_TABLE))
+                getattr(self.DATA_LIST[int(self.REC_CORR)], self.ID_TABLE))
             layerToSet = self.pyQGIS.loadMapPreview_new(gidstr)
             #QMessageBox.warning(self, "layer to set", '\n'.join([l.name() for l in layerToSet]), QMessageBox.Ok)
             self.mapPreview.setLayers(layerToSet)
@@ -15455,9 +15458,9 @@ DATABASE SCHEMA KNOWLEDGE:
                         if filetype.lower() in accepted_formats:
                             self.load_and_process_image(path)
                         else:
-                            QMessageBox.warning(self, "Error", f"Unsupported file type: {filetype}", QMessageBox.Ok)
+                            QMessageBox.warning(self, "Error", f"Unsupported file type: {filetype}", QMessageBox.StandardButton.Ok)
                 except Exception as e:
-                    QMessageBox.warning(self, "Error", f"Failed to process the file: {str(e)}", QMessageBox.Ok)
+                    QMessageBox.warning(self, "Error", f"Failed to process the file: {str(e)}", QMessageBox.StandardButton.Ok)
         super().dropEvent(event)
 
     def dragEnterEvent(self, event):
@@ -15494,7 +15497,7 @@ DATABASE SCHEMA KNOWLEDGE:
                 #QMessageBox.warning(self, "Errore", "Warning 1 ! \n"+ str(msg),  QMessageBox.Ok)
                 return 0
         except Exception as  e:
-            QMessageBox.warning(self, "Error", "Warning 2 ! \n"+str(e),  QMessageBox.Ok)
+            QMessageBox.warning(self, "Error", "Warning 2 ! \n"+str(e),  QMessageBox.StandardButton.Ok)
             return 0
     def insert_record_mediathumb(self, media_max_num_id, mediatype, filename, filename_thumb, filetype, filepath_thumb, filepath_resize):
         self.media_max_num_id = media_max_num_id
@@ -15526,7 +15529,7 @@ DATABASE SCHEMA KNOWLEDGE:
                 #QMessageBox.warning(self, "Error", "warming 1 ! \n"+ str(msg),  QMessageBox.Ok)
                 return 0
         except Exception as  e:
-            QMessageBox.warning(self, "Error", "Warning 2 ! \n"+str(e),  QMessageBox.Ok)
+            QMessageBox.warning(self, "Error", "Warning 2 ! \n"+str(e),  QMessageBox.StandardButton.Ok)
             return 0
     def insert_mediaToEntity_rec(self, id_entity, entity_type, table_name, id_media, filepath, media_name):
         """
@@ -15561,10 +15564,10 @@ DATABASE SCHEMA KNOWLEDGE:
                     msg = self.ID_TABLE + " already present into the database"
                 else:
                     msg = e
-                QMessageBox.warning(self, "Error", "Warning 1 ! \n"+ str(msg),  QMessageBox.Ok)
+                QMessageBox.warning(self, "Error", "Warning 1 ! \n"+ str(msg),  QMessageBox.StandardButton.Ok)
                 return 0
         except Exception as  e:
-            QMessageBox.warning(self, "Error", "Warning 2 ! \n"+str(e),  QMessageBox.Ok)
+            QMessageBox.warning(self, "Error", "Warning 2 ! \n"+str(e),  QMessageBox.StandardButton.Ok)
             return 0
     def delete_mediaToEntity_rec(self, id_entity, entity_type, table_name, id_media, filepath, media_name):
         """
@@ -15591,7 +15594,7 @@ DATABASE SCHEMA KNOWLEDGE:
             str(self.filepath),                                                     #5 - filepath
             str(self.media_name))
         except Exception as  e:
-            QMessageBox.warning(self, "Error", "Warning 2 ! \n"+str(e),  QMessageBox.Ok)
+            QMessageBox.warning(self, "Error", "Warning 2 ! \n"+str(e),  QMessageBox.StandardButton.Ok)
             return 0
 
     def generate_US(self):
@@ -15749,12 +15752,12 @@ DATABASE SCHEMA KNOWLEDGE:
                             MUR.resample_images(media_max_num_id, filepath, filenameorig, thumb_resize_str,
                                                 media_resize_suffix)
                     except Exception as e:
-                        QMessageBox.warning(self, "Cucu", str(e), QMessageBox.Ok)
+                        QMessageBox.warning(self, "Cucu", str(e), QMessageBox.StandardButton.Ok)
                     self.insert_record_mediathumb(media_max_num_id, mediatype, filename, filename_thumb, filetype,
                                                   filepath_thumb, filepath_resize)
 
                     item = QListWidgetItem(str(filenameorig))
-                    item.setData(Qt.UserRole, str(media_max_num_id))
+                    item.setData(Qt.ItemDataRole.UserRole, str(media_max_num_id))
                     icon = QIcon(str(thumb_path_str) + filepath_thumb)
                     item.setIcon(icon)
                     self.iconListWidget.addItem(item)
@@ -15769,16 +15772,16 @@ DATABASE SCHEMA KNOWLEDGE:
                 if self.L == 'it':
                     QMessageBox.warning(self, "Warning", "controlla che il nome del file non abbia caratteri speciali",
 
-                                        QMessageBox.Ok)
+                                        QMessageBox.StandardButton.Ok)
 
                 if self.L == 'de':
 
                     QMessageBox.warning(self, "Warning", "prüfen, ob der Dateiname keine Sonderzeichen enthält",
-                                        QMessageBox.Ok)
+                                        QMessageBox.StandardButton.Ok)
 
                 else:
 
-                    QMessageBox.warning(self, "Warning", str(e), QMessageBox.Ok)
+                    QMessageBox.warning(self, "Warning", str(e), QMessageBox.StandardButton.Ok)
 
 
     def db_search_check(self, table_class, field, value):
@@ -15821,7 +15824,7 @@ DATABASE SCHEMA KNOWLEDGE:
     def on_pushButton_assigntags_pressed(self):
 
         # Check the locale and set the button text and message box content
-        L = QgsSettings().value("locale/userLocale")[0:2]
+        L = QgsSettings().value("locale/userLocale", "it", type=str)[:2]
         if L == 'it':
             done_button_text = "Fatto"
             warning_title = "Attenzione"
@@ -15847,14 +15850,14 @@ DATABASE SCHEMA KNOWLEDGE:
         self.us_listwidget = QListWidget()
         header_item = QListWidgetItem("Sito - Area - US")
         header_item.setBackground(QColor('lightgrey'))
-        header_item.setFlags(header_item.flags() & ~Qt.ItemIsSelectable)
+        header_item.setFlags(header_item.flags() & ~Qt.ItemFlag.ItemIsSelectable)
         self.us_listwidget.addItem(header_item)
         for us in sorted_us:
             item_string = f"{us.sito} - {us.area} - {us.us}"
             self.us_listwidget.addItem(QListWidgetItem(item_string))
 
         # Set selection mode to allow multiple selections
-        self.us_listwidget.setSelectionMode(QAbstractItemView.MultiSelection)
+        self.us_listwidget.setSelectionMode(QAbstractItemView.SelectionMode.MultiSelection)
 
         # Create a "Done" button and connect it to the slot
         done_button = QPushButton(done_button_text)
@@ -15872,7 +15875,7 @@ DATABASE SCHEMA KNOWLEDGE:
 
     def on_done_selecting(self):
         # Check the locale and set the button text and message box content
-        L = QgsSettings().value("locale/userLocale")[0:2]
+        L = QgsSettings().value("locale/userLocale", "it", type=str)[:2]
         if L == 'it':
             done_button_text = "Fatto"
             warning_title = "Attenzione"
@@ -15953,24 +15956,24 @@ DATABASE SCHEMA KNOWLEDGE:
 
                 msg = QMessageBox.warning(self, "Attenzione!!!",
                                           "devi selezionare prima l'immagine",
-                                          QMessageBox.Ok)
+                                          QMessageBox.StandardButton.Ok)
 
             elif self.L == 'de':
 
                 msg = QMessageBox.warning(self, "Warnung",
                                           "moet je eerst de afbeelding selecteren",
-                                          QMessageBox.Ok)
+                                          QMessageBox.StandardButton.Ok)
             else:
 
                 msg = QMessageBox.warning(self, "Warning",
                                           "you must first select an image",
-                                          QMessageBox.Ok)
+                                          QMessageBox.StandardButton.Ok)
         else:
             if self.L == 'it':
                 msg = QMessageBox.warning(self, "Warning",
                                           "Vuoi veramente cancellare i tags dalle thumbnail selezionate? \n L'azione è irreversibile",
-                                          QMessageBox.Ok | QMessageBox.Cancel)
-                if msg == QMessageBox.Cancel:
+                                          QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel)
+                if msg == QMessageBox.StandardButton.Cancel:
                     QMessageBox.warning(self, "Messaggio!!!", "Azione Annullata!")
                 else:
                     #items_selected = self.iconListWidget.selectedItems()
@@ -15985,8 +15988,8 @@ DATABASE SCHEMA KNOWLEDGE:
             elif self.L == 'de':
                 msg = QMessageBox.warning(self, "Warning",
                                           "Wollen Sie wirklich die Tags aus den ausgewählten Miniaturbildern löschen? \n Die Aktion ist unumkehrbar",
-                                          QMessageBox.Ok | QMessageBox.Cancel)
-                if msg == QMessageBox.Cancel:
+                                          QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel)
+                if msg == QMessageBox.StandardButton.Cancel:
                     QMessageBox.warning(self, "Warnung", "Azione Annullata!")
                 else:
                     #items_selected = self.iconListWidget.selectedItems()
@@ -16002,8 +16005,8 @@ DATABASE SCHEMA KNOWLEDGE:
             else:
                 msg = QMessageBox.warning(self, "Warning",
                                           "Do you really want to delete the tags from the selected thumbnails? \n The action is irreversible",
-                                          QMessageBox.Ok | QMessageBox.Cancel)
-                if msg == QMessageBox.Cancel:
+                                          QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel)
+                if msg == QMessageBox.StandardButton.Cancel:
                     QMessageBox.warning(self, "Warning", "Action cancelled")
                 else:
                     #items_selected = self.iconListWidget.selectedItems()
@@ -16030,7 +16033,7 @@ DATABASE SCHEMA KNOWLEDGE:
         # Inizializza la QListWidget fuori dal ciclo
         self.new_list_widget = QListWidget()
         # ##self.new_list_widget.setFixedSize(200, 300)
-        self.new_list_widget.setSelectionMode(QAbstractItemView.SingleSelection)  # Permette selezioni multiple
+        self.new_list_widget.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)  # Permette selezioni multiple
 
 
 
@@ -16060,9 +16063,9 @@ DATABASE SCHEMA KNOWLEDGE:
         self.pageLabels = []
         for i in range(1, 6):
             label = QLabel(str(i))
-            label.setAlignment(Qt.AlignCenter)
+            label.setAlignment(Qt.AlignmentFlag.AlignCenter)
             label.setMinimumWidth(30)
-            label.setFrameStyle(QFrame.Panel | QFrame.Sunken)
+            label.setFrameStyle(QFrame.Shape.Panel | QFrame.Shadow.Sunken)
             label.setMargin(2)
             label.mousePressEvent = functools.partial(self.on_page_label_clicked, i)
             self.pageLabels.append(label)
@@ -16157,7 +16160,7 @@ DATABASE SCHEMA KNOWLEDGE:
             header_item = QListWidgetItem(
                 "Le righe selezionate in giallo indicano immagini non taggate\n Da questo strumento solo le righe selezionate gialle posso essere taggate ")
             header_item.setBackground(QColor('lightgrey'))
-            header_item.setFlags(header_item.flags() & ~Qt.ItemIsSelectable)  # rendi l'item non selezionabile
+            header_item.setFlags(header_item.flags() & ~Qt.ItemFlag.ItemIsSelectable)  # rendi l'item non selezionabile
             self.new_list_widget.addItem(header_item)
             # Aggiungi le immagini alla QListWidget
 
@@ -16186,7 +16189,7 @@ DATABASE SCHEMA KNOWLEDGE:
                 self.image_cache.move_to_end(thumb_path)
 
                 item = QListWidgetItem(str(i.media_filename))
-                item.setData(Qt.UserRole, str(i.media_filename))
+                item.setData(Qt.ItemDataRole.UserRole, str(i.media_filename))
                 icon = load_icon(get_image_path(thumb_path_str, thumb_path))
                 item.setIcon(icon)
 
@@ -16225,7 +16228,7 @@ DATABASE SCHEMA KNOWLEDGE:
             header_item = QListWidgetItem(
                 "Le righe selezionate in giallo indicano immagini non taggate\n Da questo strumento solo le righe selezionate gialle posso essere taggate ")
             header_item.setBackground(QColor('lightgrey'))
-            header_item.setFlags(header_item.flags() & ~Qt.ItemIsSelectable)  # rendi l'item non selezionabile
+            header_item.setFlags(header_item.flags() & ~Qt.ItemFlag.ItemIsSelectable)  # rendi l'item non selezionabile
             self.new_list_widget.addItem(header_item)
             # Aggiungi le immagini alla QListWidget
 
@@ -16263,7 +16266,7 @@ DATABASE SCHEMA KNOWLEDGE:
                 us_list = list(set(us_list))
                 us_list = [g.id_entity for g in mediatoentity_data if 'US' in g.entity_type]
                 item = QListWidgetItem(str(i.media_filename))
-                item.setData(Qt.UserRole, str(i.media_filename))
+                item.setData(Qt.ItemDataRole.UserRole, str(i.media_filename))
                 icon = load_icon(get_image_path(thumb_path_str, thumb_path))
                 item.setIcon(icon)
                 if us_list:
@@ -16437,7 +16440,7 @@ DATABASE SCHEMA KNOWLEDGE:
         # crea un nuovo QListWidgetItem
         if data:
             list_item = QListWidgetItem(data[0].media_filename)  # utilizza il nome del file come testo dell'elemento
-            list_item.setData(Qt.UserRole,data[0].media_filename)  # utilizza il nome del file come dati personalizzati dell'elemento
+            list_item.setData(Qt.ItemDataRole.UserRole,data[0].media_filename)  # utilizza il nome del file come dati personalizzati dell'elemento
 
             # crea una QIcon con l'immagine
             #icon = load_icon(get_image_path(thumb_path_str, thumb_path))
@@ -16458,9 +16461,9 @@ DATABASE SCHEMA KNOWLEDGE:
         # if mode == 0:
         # """ if has geometry column load to map canvas """
         rec_list = self.ID_TABLE + " = " + str(
-            eval("self.DATA_LIST[int(self.REC_CORR)]." + self.ID_TABLE))
+            getattr(self.DATA_LIST[int(self.REC_CORR)], self.ID_TABLE))
         search_dict = {
-            'id_entity': "'" + str(eval("self.DATA_LIST[int(self.REC_CORR)]." + self.ID_TABLE)) + "'",
+            'id_entity': "'" + str(getattr(self.DATA_LIST[int(self.REC_CORR)], self.ID_TABLE)) + "'",
             'entity_type': "'US'"}
         record_us_list = self.DB_MANAGER.query_bool(search_dict, 'MEDIATOENTITY')
         for i in record_us_list:
@@ -16470,7 +16473,7 @@ DATABASE SCHEMA KNOWLEDGE:
             mediathumb_data = self.DB_MANAGER.query_bool(search_dict, "MEDIA_THUMB")
             thumb_path = str(mediathumb_data[0].filepath)
             item = QListWidgetItem(str(i.media_name))
-            item.setData(Qt.UserRole, str(i.media_name))
+            item.setData(Qt.ItemDataRole.UserRole, str(i.media_name))
             icon = load_icon(get_image_path(thumb_path_str, thumb_path))
             item.setIcon(icon)
             self.iconListWidget.addItem(item)
@@ -16496,7 +16499,7 @@ DATABASE SCHEMA KNOWLEDGE:
 
         # Aggiungi l'item alla lista
         item = QListWidgetItem(str(filename))
-        item.setData(Qt.UserRole, str(media_max_num_id))
+        item.setData(Qt.ItemDataRole.UserRole, str(media_max_num_id))
         icon = QIcon(thumbnail_path)
         item.setIcon(icon)
         self.iconListWidget.addItem(item)
@@ -16902,7 +16905,7 @@ DATABASE SCHEMA KNOWLEDGE:
         def show_image(file_path):
             dlg = ImageViewer(self)
             dlg.show_image(file_path)
-            dlg.exec_()
+            dlg.exec()
 
         def show_video(file_path):
             if self.video_player is None:
@@ -16921,7 +16924,7 @@ DATABASE SCHEMA KNOWLEDGE:
             elif media_type == '3d_model':
                 self.show_3d_model(file_path)
             else:
-                QMessageBox.warning(self, "Error", f"Unsupported media type: {media_type}", QMessageBox.Ok)
+                QMessageBox.warning(self, "Error", f"Unsupported media type: {media_type}", QMessageBox.StandardButton.Ok)
 
         def query_media(search_dict, table="MEDIA_THUMB"):
             u = Utility()
@@ -16929,7 +16932,7 @@ DATABASE SCHEMA KNOWLEDGE:
             try:
                 return self.DB_MANAGER.query_bool(search_dict, table)
             except Exception as e:
-                QMessageBox.warning(self, "Error", f"Database query failed: {str(e)}", QMessageBox.Ok)
+                QMessageBox.warning(self, "Error", f"Database query failed: {str(e)}", QMessageBox.StandardButton.Ok)
                 return None
 
         for item in items:
@@ -16957,11 +16960,11 @@ DATABASE SCHEMA KNOWLEDGE:
                     dialog.resize(800, 600)  # Puoi modificare queste dimensioni come preferisci
 
                     # Mostra il dialog
-                    dialog.exec_()
+                    dialog.exec()
                 else:
                     show_media(file_path, media_type)
             else:
-                QMessageBox.warning(self, "Error", f"File not found: {id_orig_item}", QMessageBox.Ok)
+                QMessageBox.warning(self, "Error", f"File not found: {id_orig_item}", QMessageBox.StandardButton.Ok)
 
     def charge_list(self):
         l = QgsSettings().value("locale/userLocale", QVariant)
@@ -17587,27 +17590,27 @@ DATABASE SCHEMA KNOWLEDGE:
         if bool(self.comboBox_sito.currentText()) and self.comboBox_sito.currentText()==sito_set_str:
 
             if self.L=='it':
-                QMessageBox.information(self, "OK" ,"Sei connesso al sito: %s" % str(sito_set_str),QMessageBox.Ok)
+                QMessageBox.information(self, "OK" ,"Sei connesso al sito: %s" % str(sito_set_str),QMessageBox.StandardButton.Ok)
 
             elif self.L=='de':
-                QMessageBox.information(self, "OK", "Sie sind mit der archäologischen Stätte verbunden: %s" % str(sito_set_str),QMessageBox.Ok)
+                QMessageBox.information(self, "OK", "Sie sind mit der archäologischen Stätte verbunden: %s" % str(sito_set_str),QMessageBox.StandardButton.Ok)
 
             else:
-                QMessageBox.information(self, "OK", "You are connected to the site: %s" % str(sito_set_str),QMessageBox.Ok)
+                QMessageBox.information(self, "OK", "You are connected to the site: %s" % str(sito_set_str),QMessageBox.StandardButton.Ok)
             #self.comboBox_sito.setCurrentText(sito_set_str)
         elif sito_set_str=='':
             if self.L=='it':
-                msg = QMessageBox.information(self, "Attenzione" ,"Non hai settato alcun sito. Vuoi settarne uno? click Ok altrimenti Annulla per  vedere tutti i record",QMessageBox.Ok | QMessageBox.Cancel)
+                msg = QMessageBox.information(self, "Attenzione" ,"Non hai settato alcun sito. Vuoi settarne uno? click Ok altrimenti Annulla per  vedere tutti i record",QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel)
             elif self.L=='de':
-                msg = QMessageBox.information(self, "Achtung", "Sie haben keine archäologischen Stätten eingerichtet. Klicken Sie auf OK oder Abbrechen, um alle Datensätze zu sehen",QMessageBox.Ok | QMessageBox.Cancel)
+                msg = QMessageBox.information(self, "Achtung", "Sie haben keine archäologischen Stätten eingerichtet. Klicken Sie auf OK oder Abbrechen, um alle Datensätze zu sehen",QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel)
             else:
-                msg = QMessageBox.information(self, "Warning" , "You have not set up any archaeological site. Do you want to set one? click Ok otherwise Cancel to see all records",QMessageBox.Ok | QMessageBox.Cancel)
-            if msg == QMessageBox.Cancel:
+                msg = QMessageBox.information(self, "Warning" , "You have not set up any archaeological site. Do you want to set one? click Ok otherwise Cancel to see all records",QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel)
+            if msg == QMessageBox.StandardButton.Cancel:
                 pass
             else:
                 dlg = pyArchInitDialog_Config(self)
                 dlg.charge_list()
-                dlg.exec_()
+                dlg.exec()
 
     def set_sito(self):
 
@@ -17639,17 +17642,17 @@ DATABASE SCHEMA KNOWLEDGE:
                 QMessageBox.information(self, "Attenzione",
                                         f"Non esiste questo sito: '{sito_set_str}' in questa scheda. "
                                         "Per favore disattiva la 'scelta sito' dalla scheda di configurazione plugin per vedere tutti i record oppure crea la scheda.",
-                                        QMessageBox.Ok)
+                                        QMessageBox.StandardButton.Ok)
             elif self.L == 'de':
                 QMessageBox.information(self, "Warnung",
                                         f"Es gibt keine solche archäologische Stätte: '{sito_set_str}' in dieser Registerkarte. "
                                         "Bitte deaktivieren Sie die 'Site-Wahl' in der Plugin-Konfigurationsregisterkarte, um alle Datensätze zu sehen oder die Registerkarte zu erstellen.",
-                                        QMessageBox.Ok)
+                                        QMessageBox.StandardButton.Ok)
             else:
                 QMessageBox.information(self, "Warning",
                                         f"There is no such site: '{sito_set_str}' in this tab. "
                                         "Please disable the 'site choice' from the plugin configuration tab to see all records or create the tab.",
-                                        QMessageBox.Ok)
+                                        QMessageBox.StandardButton.Ok)
     def generate_list_foto(self):
         data_list_foto = []
         for i in range(len(self.DATA_LIST)):
@@ -17958,7 +17961,7 @@ DATABASE SCHEMA KNOWLEDGE:
                 US_pdf_sheet = generate_US_pdf()
                 data_list = self.generate_list_pdf()
                 US_pdf_sheet.build_US_sheets(data_list)
-                QMessageBox.warning(self, 'Ok',"Esportazione terminata Schede US",QMessageBox.Ok)
+                QMessageBox.warning(self, 'Ok',"Esportazione terminata Schede US",QMessageBox.StandardButton.Ok)
             else:
                 pass
             if self.checkBox_e_us.isChecked() :
@@ -17967,11 +17970,11 @@ DATABASE SCHEMA KNOWLEDGE:
                 try:
                     if bool(data_list):
                         US_index_pdf.build_index_US(data_list, data_list[0][0])
-                        QMessageBox.warning(self, 'Ok',"Esportazione terminata Elenco US",QMessageBox.Ok)
+                        QMessageBox.warning(self, 'Ok',"Esportazione terminata Elenco US",QMessageBox.StandardButton.Ok)
                     else:
-                        QMessageBox.warning(self, 'ATTENZIONE',"L'elenco US non può essere esportato devi riempire prima le schede US",QMessageBox.Ok)
+                        QMessageBox.warning(self, 'ATTENZIONE',"L'elenco US non può essere esportato devi riempire prima le schede US",QMessageBox.StandardButton.Ok)
                 except Exception as e :
-                    QMessageBox.warning(self, 'ATTENZIONE',str(e),QMessageBox.Ok)
+                    QMessageBox.warning(self, 'ATTENZIONE',str(e),QMessageBox.StandardButton.Ok)
             else:
                 pass
             if self.checkBox_e_foto_t.isChecked():
@@ -17980,28 +17983,28 @@ DATABASE SCHEMA KNOWLEDGE:
                 try:
                         if bool(data_list_foto):
                             US_index_pdf.build_index_Foto(data_list_foto, data_list_foto[0][0])
-                            QMessageBox.warning(self, 'Ok',"Esportazione terminata Elenco Foto",QMessageBox.Ok)
+                            QMessageBox.warning(self, 'Ok',"Esportazione terminata Elenco Foto",QMessageBox.StandardButton.Ok)
                         else:
-                            QMessageBox.warning(self, 'ATTENZIONE',"L'elenco foto non può essere esportato perchè non hai immagini taggate.",QMessageBox.Ok)
+                            QMessageBox.warning(self, 'ATTENZIONE',"L'elenco foto non può essere esportato perchè non hai immagini taggate.",QMessageBox.StandardButton.Ok)
                 except Exception as e :
-                    QMessageBox.warning(self, 'ATTENZIONE',str(e),QMessageBox.Ok)
+                    QMessageBox.warning(self, 'ATTENZIONE',str(e),QMessageBox.StandardButton.Ok)
             if self.checkBox_e_foto.isChecked():
                 US_index_pdf = generate_US_pdf()
                 data_list_foto = self.generate_list_foto()
                 try:
                         if bool(data_list_foto):
                             US_index_pdf.build_index_Foto_2(data_list_foto, data_list_foto[0][0])
-                            QMessageBox.warning(self, 'Ok',"Esportazione terminata Elenco Foto senza thumbanil",QMessageBox.Ok)
+                            QMessageBox.warning(self, 'Ok',"Esportazione terminata Elenco Foto senza thumbanil",QMessageBox.StandardButton.Ok)
                         else:
-                            QMessageBox.warning(self, 'ATTENZIONE',"L'elenco foto non può essere esportato perchè non hai immagini taggate.",QMessageBox.Ok)
+                            QMessageBox.warning(self, 'ATTENZIONE',"L'elenco foto non può essere esportato perchè non hai immagini taggate.",QMessageBox.StandardButton.Ok)
                 except Exception as e :
-                    QMessageBox.warning(self, 'ATTENZIONE',str(e),QMessageBox.Ok)
+                    QMessageBox.warning(self, 'ATTENZIONE',str(e),QMessageBox.StandardButton.Ok)
         elif self.L=='en':
             if self.checkBox_s_us.isChecked():
                 US_pdf_sheet = generate_US_pdf()
                 data_list = self.generate_list_pdf()
                 US_pdf_sheet.build_US_sheets_en(data_list)
-                QMessageBox.warning(self, 'Ok',"Export finished SU Forms",QMessageBox.Ok)
+                QMessageBox.warning(self, 'Ok',"Export finished SU Forms",QMessageBox.StandardButton.Ok)
             else:
                 pass
             if self.checkBox_e_us.isChecked() :
@@ -18010,11 +18013,11 @@ DATABASE SCHEMA KNOWLEDGE:
                 try:
                     if bool(data_list):
                         US_index_pdf.build_index_US_en(data_list, data_list[0][0])
-                        QMessageBox.warning(self, 'Ok',"Export finished SU List",QMessageBox.Ok)
+                        QMessageBox.warning(self, 'Ok',"Export finished SU List",QMessageBox.StandardButton.Ok)
                     else:
-                        QMessageBox.warning(self, 'WARNING',"The SU list cannot be exported you have to fill in the SU tabs before",QMessageBox.Ok)
+                        QMessageBox.warning(self, 'WARNING',"The SU list cannot be exported you have to fill in the SU tabs before",QMessageBox.StandardButton.Ok)
                 except Exception as e :
-                    QMessageBox.warning(self, 'WARNING',str(e),QMessageBox.Ok)
+                    QMessageBox.warning(self, 'WARNING',str(e),QMessageBox.StandardButton.Ok)
             else:
                 pass
             if self.checkBox_e_foto_t.isChecked():
@@ -18024,11 +18027,11 @@ DATABASE SCHEMA KNOWLEDGE:
                 try:
                     if bool(data_list_foto):
                         US_index_pdf.build_index_Foto_en(data_list_foto, data_list_foto[0][0])
-                        QMessageBox.information(self, 'Ok',"Export finished SU List",QMessageBox.Ok)
+                        QMessageBox.information(self, 'Ok',"Export finished SU List",QMessageBox.StandardButton.Ok)
                     else:
-                        QMessageBox.warning(self, 'WARNING', 'The photo list cannot be exported because you do not have tagged images.',QMessageBox.Ok)
+                        QMessageBox.warning(self, 'WARNING', 'The photo list cannot be exported because you do not have tagged images.',QMessageBox.StandardButton.Ok)
                 except Exception as e :
-                    QMessageBox.warning(self, 'WARNING',str(e),QMessageBox.Ok)
+                    QMessageBox.warning(self, 'WARNING',str(e),QMessageBox.StandardButton.Ok)
 
             if self.checkBox_e_foto.isChecked():
                 US_index_pdf = generate_US_pdf()
@@ -18036,17 +18039,17 @@ DATABASE SCHEMA KNOWLEDGE:
                 try:
                         if bool(data_list_foto):
                             US_index_pdf.build_index_Foto_2_en(data_list_foto, data_list_foto[0][0])
-                            QMessageBox.information(self, 'Ok', "Export finished Photo List without thumbanil",QMessageBox.Ok)
+                            QMessageBox.information(self, 'Ok', "Export finished Photo List without thumbanil",QMessageBox.StandardButton.Ok)
                         else:
-                            QMessageBox.warning(self, 'WARNING', "The photo list cannot be exported because you do not have tagged images.",QMessageBox.Ok)
+                            QMessageBox.warning(self, 'WARNING', "The photo list cannot be exported because you do not have tagged images.",QMessageBox.StandardButton.Ok)
                 except Exception as e :
-                    QMessageBox.warning(self, 'WARNING',str(e),QMessageBox.Ok)
+                    QMessageBox.warning(self, 'WARNING',str(e),QMessageBox.StandardButton.Ok)
         elif self.L=='de':
             if self.checkBox_s_us.isChecked():
                 US_pdf_sheet = generate_US_pdf()
                 data_list = self.generate_list_pdf()
                 US_pdf_sheet.build_US_sheets_de(data_list)
-                QMessageBox.warning(self, "Okay", "Export beendet",QMessageBox.Ok)
+                QMessageBox.warning(self, "Okay", "Export beendet",QMessageBox.StandardButton.Ok)
             else:
                 pass
             if self.checkBox_e_us.isChecked() :
@@ -18055,11 +18058,11 @@ DATABASE SCHEMA KNOWLEDGE:
                 try:
                     if bool(data_list):
                         US_index_pdf.build_index_US_de(data_list, data_list[0][0])
-                        QMessageBox.warning(self, "Okay", "Export beendet",QMessageBox.Ok)
+                        QMessageBox.warning(self, "Okay", "Export beendet",QMessageBox.StandardButton.Ok)
                     else:
-                        QMessageBox.warning(self, 'WARNUNG', 'Die SE-Liste kann nicht exportiert werden, Sie müssen zuerst die SE-Formulare ausfüllen',QMessageBox.Ok)
+                        QMessageBox.warning(self, 'WARNUNG', 'Die SE-Liste kann nicht exportiert werden, Sie müssen zuerst die SE-Formulare ausfüllen',QMessageBox.StandardButton.Ok)
                 except Exception as e :
-                    QMessageBox.warning(self, 'WARNUNG',str(e),QMessageBox.Ok)
+                    QMessageBox.warning(self, 'WARNUNG',str(e),QMessageBox.StandardButton.Ok)
             else:
                 pass
             if self.checkBox_e_foto_t.isChecked():
@@ -18068,22 +18071,22 @@ DATABASE SCHEMA KNOWLEDGE:
                 try:
                         if bool(data_list_foto):
                             US_index_pdf.build_index_Foto_de(data_list_foto, data_list_foto[0][0])
-                            QMessageBox.warning(self, "Okay", "Fertige Fotoliste exportieren",QMessageBox.Ok)
+                            QMessageBox.warning(self, "Okay", "Fertige Fotoliste exportieren",QMessageBox.StandardButton.Ok)
                         else:
-                            QMessageBox.warning(self, 'WARNUNG', 'Die Fotoliste kann nicht exportiert werden, da Sie keine markierten Bilder haben.',QMessageBox.Ok)
+                            QMessageBox.warning(self, 'WARNUNG', 'Die Fotoliste kann nicht exportiert werden, da Sie keine markierten Bilder haben.',QMessageBox.StandardButton.Ok)
                 except Exception as e :
-                    QMessageBox.warning(self, 'WARNUNG',str(e),QMessageBox.Ok)
+                    QMessageBox.warning(self, 'WARNUNG',str(e),QMessageBox.StandardButton.Ok)
             if self.checkBox_e_foto.isChecked():
                 US_index_pdf = generate_US_pdf()
                 data_list_foto = self.generate_list_foto()
                 try:
                         if bool(data_list_foto):
                             US_index_pdf.build_index_Foto_2_de(data_list_foto, data_list_foto[0][0])
-                            QMessageBox.warning(self, 'Ok', 'Fertige Fotoliste ohne Daumenballen exportieren',QMessageBox.Ok)
+                            QMessageBox.warning(self, 'Ok', 'Fertige Fotoliste ohne Daumenballen exportieren',QMessageBox.StandardButton.Ok)
                         else:
-                            QMessageBox.warning(self, 'WARNUNG', 'Die Fotoliste kann nicht exportiert werden, da Sie keine markierten Bilder haben.',QMessageBox.Ok)
+                            QMessageBox.warning(self, 'WARNUNG', 'Die Fotoliste kann nicht exportiert werden, da Sie keine markierten Bilder haben.',QMessageBox.StandardButton.Ok)
                 except Exception as e :
-                    QMessageBox.warning(self, 'WARNUNG',str(e),QMessageBox.Ok)
+                    QMessageBox.warning(self, 'WARNUNG',str(e),QMessageBox.StandardButton.Ok)
     def setPathpdf(self):
         s = QgsSettings()
         dbpath = QFileDialog.getOpenFileName(
@@ -18139,11 +18142,11 @@ DATABASE SCHEMA KNOWLEDGE:
         lista =[]
         if isinstance(x,str) and x.startswith('[') and '], ['  and ', ' in x:
 
-            return ', '.join(str(e) for e in eval(x)).replace("]",'').replace("['Copre',",'').replace("['Coperto da',",'').replace("['Riempie',",'').replace("['Riempito da',",'').replace("['Taglia',",'').replace("['Tagliato da',",'').replace("['Si appoggia a',",'').replace("['Gli si appoggia',",'').replace("['Si lega a',",'').replace("['Uguale a',",'').replace("'",'').replace("Copre,",'').replace("Coperto da,",'').replace("Riempie,",'').replace("Riempito da,",'').replace("Taglia,",'').replace("Tagliato da,",'').replace("Si appoggia a,",'').replace("Gli si appoggia,",'').replace("Si lega a,",'').replace("Uguale a,",'')
+            return ', '.join(str(e) for e in ast.literal_eval(x)).replace("]",'').replace("['Copre',",'').replace("['Coperto da',",'').replace("['Riempie',",'').replace("['Riempito da',",'').replace("['Taglia',",'').replace("['Tagliato da',",'').replace("['Si appoggia a',",'').replace("['Gli si appoggia',",'').replace("['Si lega a',",'').replace("['Uguale a',",'').replace("'",'').replace("Copre,",'').replace("Coperto da,",'').replace("Riempie,",'').replace("Riempito da,",'').replace("Taglia,",'').replace("Tagliato da,",'').replace("Si appoggia a,",'').replace("Gli si appoggia,",'').replace("Si lega a,",'').replace("Uguale a,",'')
 
 
         elif isinstance(x,str) and x.startswith('['):
-            return ', '.join(str(e) for e in eval(x)[0])
+            return ', '.join(str(e) for e in ast.literal_eval(x)[0])
         else:
             return x
     def on_pushButton_graphml_pressed(self):
@@ -18422,10 +18425,10 @@ DATABASE SCHEMA KNOWLEDGE:
                 pass
 
             QMessageBox.information(self, "INFO", "Conversion completed",
-                                    QMessageBox.Ok)
+                                    QMessageBox.StandardButton.Ok)
         except ValueError as e:
             QMessageBox.warning(self, "Error", str(e),
-                                QMessageBox.Ok)
+                                QMessageBox.StandardButton.Ok)
 
 
     def openpdfDir(self):
@@ -18478,7 +18481,7 @@ DATABASE SCHEMA KNOWLEDGE:
             if not site:
                 QMessageBox.warning(self, "No Site Selected",
                                   "Please select a site before exporting.",
-                                  QMessageBox.Ok)
+                                  QMessageBox.StandardButton.Ok)
                 return
             
             # Show integrated export dialog
@@ -18489,7 +18492,7 @@ DATABASE SCHEMA KNOWLEDGE:
                 area if area else None
             )
             
-            if dialog.exec_():
+            if dialog.exec():
                 # Export was successful
                 exported_files = dialog.exported_files
                 if exported_files:
@@ -18514,7 +18517,7 @@ DATABASE SCHEMA KNOWLEDGE:
         except Exception as e:
             QMessageBox.critical(self, "Export Error",
                                f"Error during integrated export:\n{str(e)}",
-                               QMessageBox.Ok)
+                               QMessageBox.StandardButton.Ok)
             import traceback
             traceback.print_exc()
 
@@ -18534,7 +18537,7 @@ DATABASE SCHEMA KNOWLEDGE:
             # hm=os.path.join(matrix_path, filename)
             # gv = pgv.AGraph(hm, strict=False, directed=False)
             # dlg.plot_matrix(gv)
-            # dlg.exec_()
+            # dlg.exec()
         if not self.checkBox_ED.isChecked():
             id_us_dict = {}
             for i in range(len(self.DATA_LIST)):
@@ -18549,9 +18552,9 @@ DATABASE SCHEMA KNOWLEDGE:
             # hm=os.path.join(matrix_path, filename)
             # gv = pgv.AGraph(hm, strict=False, directed=True)
             # dlg.plot_matrix(gv)
-            # dlg.exec_()
+            # dlg.exec()
     def launch_matrix_exp_if(self, msg):
-        if msg == QMessageBox.Ok:
+        if msg == QMessageBox.StandardButton.Ok:
             self.on_pushButton_export_matrix_pressed()
         else:
             pass
@@ -18578,14 +18581,14 @@ DATABASE SCHEMA KNOWLEDGE:
                 QMessageBox.warning(self, "S3DGraphy Not Available",
                                   "S3DGraphy is not installed.\n"
                                   "Install it with: pip install s3dgraphy",
-                                  QMessageBox.Ok)
+                                  QMessageBox.StandardButton.Ok)
                 return
 
             # Get current site and area
             if not self.DATA_LIST:
                 QMessageBox.warning(self, "No Data",
                                   "No stratigraphic data to export",
-                                  QMessageBox.Ok)
+                                  QMessageBox.StandardButton.Ok)
                 return
 
             current_site = self.DATA_LIST[0].sito
@@ -18686,7 +18689,7 @@ DATABASE SCHEMA KNOWLEDGE:
             btn_cancel.clicked.connect(dialog.reject)
 
             # Show dialog
-            if dialog.exec_() != QDialog.Accepted:
+            if dialog.exec() != QDialog.DialogCode.Accepted:
                 return
 
             # Ask for output directory
@@ -18715,7 +18718,7 @@ DATABASE SCHEMA KNOWLEDGE:
             if not success:
                 QMessageBox.warning(self, "Export Failed",
                                   "Failed to import stratigraphic data",
-                                  QMessageBox.Ok)
+                                  QMessageBox.StandardButton.Ok)
                 return
 
             # Validate if requested
@@ -18751,7 +18754,7 @@ DATABASE SCHEMA KNOWLEDGE:
                     warning_text = "\n".join(warning_messages)
 
                     msg = QMessageBox(self)
-                    msg.setIcon(QMessageBox.Information)
+                    msg.setIcon(QMessageBox.Icon.Information)
                     msg.setWindowTitle("Export Extended Matrix - Validation")
                     msg.setText("Validation found some issues:")
                     msg.setDetailedText(warning_text)
@@ -18759,10 +18762,10 @@ DATABASE SCHEMA KNOWLEDGE:
                         "These warnings don't prevent export.\n"
                         "Do you want to continue with the export?"
                     )
-                    msg.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
-                    msg.setDefaultButton(QMessageBox.Yes)
+                    msg.setStandardButtons(QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
+                    msg.setDefaultButton(QMessageBox.StandardButton.Yes)
 
-                    if msg.exec_() != QMessageBox.Yes:
+                    if msg.exec() != QMessageBox.StandardButton.Yes:
                         return
 
             # Export selected formats
@@ -18886,7 +18889,7 @@ DATABASE SCHEMA KNOWLEDGE:
                         print("Plotly not available. Install with: pip install plotly")
                         QMessageBox.warning(self, "Plotly Not Available",
                                           "Plotly is not installed.\nInstall with: pip install plotly",
-                                          QMessageBox.Ok)
+                                          QMessageBox.StandardButton.Ok)
 
                 except Exception as e:
                     print(f"⚠️ Error generating interactive graph: {e}")
@@ -19035,28 +19038,28 @@ DATABASE SCHEMA KNOWLEDGE:
 
                 # Add button to view graph if it exists
                 msg_box = QMessageBox(self)
-                msg_box.setIcon(QMessageBox.Information)
+                msg_box.setIcon(QMessageBox.Icon.Information)
                 msg_box.setWindowTitle("Export Successful")
                 msg_box.setText(export_msg)
 
                 # Check if graph was created
                 if graph_output_path and os.path.exists(graph_output_path):
-                    msg_box.setStandardButtons(QMessageBox.Ok)
+                    msg_box.setStandardButtons(QMessageBox.StandardButton.Ok)
                     graph_type = "Interactive HTML" if graph_output_path.endswith('.html') else "Static PNG"
                     msg_box.setInformativeText(f"\n{graph_type} graph saved at: {os.path.basename(graph_output_path)}")
-                    msg_box.exec_()
+                    msg_box.exec()
                 else:
-                    msg_box.setStandardButtons(QMessageBox.Ok)
-                    msg_box.exec_()
+                    msg_box.setStandardButtons(QMessageBox.StandardButton.Ok)
+                    msg_box.exec()
             else:
                 QMessageBox.warning(self, "Export Failed",
                                   "No files were exported. Please check your selections.",
-                                  QMessageBox.Ok)
+                                  QMessageBox.StandardButton.Ok)
 
         except Exception as e:
             QMessageBox.critical(self, "Error",
                                f"Error exporting Extended Matrix:\n{str(e)}",
-                               QMessageBox.Ok)
+                               QMessageBox.StandardButton.Ok)
     def on_pushButton_orderLayers_pressed(self):
         # QMessageBox.warning(self, 'ATTENZIONE',
         #                     """Il sistema accetta come dataset da elaborare ricerche su singolo SITO e AREA. Se state lanciando il sistema su siti o aree differenti, i dati di siti differenti saranno sovrascritti. Per terminare il sistema dopo l'Ok premere Cancel.""",
@@ -19067,15 +19070,15 @@ DATABASE SCHEMA KNOWLEDGE:
         if self.L=='it':
             self.launch_order_layer_if(QMessageBox.warning(self, 'ATTENZIONE',
                                                        "Se saranno presenti paradossi stratigrafici l'order layer non andrà a buon fine",
-                                                       QMessageBox.Ok))
+                                                       QMessageBox.StandardButton.Ok))
         elif self.L=='de':
             self.launch_order_layer_if(QMessageBox.warning(self, 'ACHTUNG',
                                                        "Bist du sicher das du fortfahren möchtest? Wenn aktuell stratigraphische Paradoxa auftauchen Könnte das System zusammenbrechen!",
-                                                       QMessageBox.Ok | QMessageBox.Cancel))
+                                                       QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel))
         else:
             self.launch_order_layer_if(QMessageBox.warning(self, 'ATTENZIONE',
                                                        "Are you sure you want to go on? If there are stratigraphic paradoxes, the system could crush!",
-                                                       QMessageBox.Ok | QMessageBox.Cancel))
+                                                       QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel))
 
 
     def format_message(self, sing_rapp, us):
@@ -19090,7 +19093,7 @@ DATABASE SCHEMA KNOWLEDGE:
 
 
     def launch_order_layer_if(self, msg):
-        if msg == QMessageBox.Ok:
+        if msg == QMessageBox.StandardButton.Ok:
             # report errori rapporti stratigrafici
             if self.L=='it':
                 msg_tipo_rapp = "Manca il tipo di rapporto nell'US: \n"
@@ -19275,11 +19278,11 @@ DATABASE SCHEMA KNOWLEDGE:
                 self.testing(filename_paradosso_rapporti, str(msg_paradx_rapp))
                 self.testing(filename_us_mancanti, str(msg_us_mancanti))
                 if self.L=='it':
-                    QMessageBox.warning(self, u'ATTENZIONE', u"Sistema di ordinamento Terminato", QMessageBox.Ok)
+                    QMessageBox.warning(self, u'ATTENZIONE', u"Sistema di ordinamento Terminato", QMessageBox.StandardButton.Ok)
                 elif self.L=='de':
-                    QMessageBox.warning(self, u'ACHTUNG', "Ordnungssystem beendet", QMessageBox.Ok)
+                    QMessageBox.warning(self, u'ACHTUNG', "Ordnungssystem beendet", QMessageBox.StandardButton.Ok)
                 else:
-                    QMessageBox.warning(self, u'WARNING', "Sorting system Complete", QMessageBox.Ok)
+                    QMessageBox.warning(self, u'WARNING', "Sorting system Complete", QMessageBox.StandardButton.Ok)
             except Exception as e:
                 print(f"{e}")
 
@@ -19293,11 +19296,11 @@ DATABASE SCHEMA KNOWLEDGE:
             fieldname = self.ID_TABLE
             if not layer:
                 if self.L=='it':
-                    QMessageBox.warning(self, 'ATTENZIONE', "Nessun elemento selezionato", QMessageBox.Ok)
+                    QMessageBox.warning(self, 'ATTENZIONE', "Nessun elemento selezionato", QMessageBox.StandardButton.Ok)
                 elif self.L=='de':
-                    QMessageBox.warning(self, 'ACHTUNG', "keine Elemente ausgewählt", QMessageBox.Ok)
+                    QMessageBox.warning(self, 'ACHTUNG', "keine Elemente ausgewählt", QMessageBox.StandardButton.Ok)
                 else:
-                    QMessageBox.warning(self, 'WARNING', "No items selected", QMessageBox.Ok)
+                    QMessageBox.warning(self, 'WARNING', "No items selected", QMessageBox.StandardButton.Ok)
             features_list = layer.selectedFeatures()
             field_position = ""
             for single in layer.getFeatures():
@@ -19325,7 +19328,7 @@ DATABASE SCHEMA KNOWLEDGE:
             self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
             self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
         except Exception as e:
-            QMessageBox.warning(self, 'ATTENZIONE', str(e), QMessageBox.Ok)
+            QMessageBox.warning(self, 'ATTENZIONE', str(e), QMessageBox.StandardButton.Ok)
 
     def on_pushButton_sort_pressed(self):
         self.checkBox_query.setChecked(False)
@@ -19336,7 +19339,7 @@ DATABASE SCHEMA KNOWLEDGE:
         else:
             dlg = SortPanelMain(self)
             dlg.insertItems(self.SORT_ITEMS)
-            dlg.exec_()
+            dlg.exec()
             items, order_type = dlg.ITEMS, dlg.TYPE_ORDER
             self.SORT_ITEMS_CONVERTED = []
             for i in items:
@@ -19347,7 +19350,7 @@ DATABASE SCHEMA KNOWLEDGE:
             self.empty_fields()
             id_list = []
             for i in self.DATA_LIST:
-                id_list.append(eval("i." + self.ID_TABLE))
+                id_list.append(getattr(i, self.ID_TABLE))
             self.DATA_LIST = []
             temp_data_list = self.DB_MANAGER.query_sort(id_list, self.SORT_ITEMS_CONVERTED, self.SORT_MODE,
                                                         self.MAPPER_TABLE_CLASS, self.ID_TABLE)
@@ -19370,35 +19373,35 @@ DATABASE SCHEMA KNOWLEDGE:
             if self.toolButtonGis.isChecked():
                 QMessageBox.warning(self, "Messaggio",
                                     "Modalita' GIS attiva. Da ora le tue ricerche verranno visualizzate sul GIS",
-                                    QMessageBox.Ok)
+                                    QMessageBox.StandardButton.Ok)
             else:
                 QMessageBox.warning(self, "Messaggio",
                                     "Modalita' GIS disattivata. Da ora le tue ricerche non verranno piu' visualizzate sul GIS",
-                                    QMessageBox.Ok)
+                                    QMessageBox.StandardButton.Ok)
         elif self.L=='de':
             if self.toolButtonGis.isChecked():
                 QMessageBox.warning(self, "Message",
                                     "Modalität' GIS aktiv. Von jetzt wird Deine Untersuchung mit Gis visualisiert",
-                                    QMessageBox.Ok)
+                                    QMessageBox.StandardButton.Ok)
             else:
                 QMessageBox.warning(self, "Message",
                                     "Modalität' GIS deaktiviert. Von jetzt an wird deine Untersuchung nicht mehr mit Gis visualisiert",
-                                    QMessageBox.Ok)
+                                    QMessageBox.StandardButton.Ok)
         else:
             if self.toolButtonGis.isChecked():
                 QMessageBox.warning(self, "Message",
                                     "GIS mode active. From now on your searches will be displayed on the GIS",
-                                    QMessageBox.Ok)
+                                    QMessageBox.StandardButton.Ok)
             else:
                 QMessageBox.warning(self, "Message",
                                     "GIS mode disabled. From now on, your searches will no longer be displayed on the GIS.",
-                                    QMessageBox.Ok)
+                                    QMessageBox.StandardButton.Ok)
     def on_toolButtonPreview_toggled(self):
         if self.L=='it':
             if self.toolButtonPreview.isChecked():
                 QMessageBox.warning(self, "Messaggio",
                                     "Modalita' Preview US attivata. Le piante delle US saranno visualizzate nella sezione Piante",
-                                    QMessageBox.Ok)
+                                    QMessageBox.StandardButton.Ok)
                 self.tabWidget.setCurrentIndex(13)  # Set the current tab to the map preview tab
                 self.loadMapPreview()
             else:
@@ -19407,7 +19410,7 @@ DATABASE SCHEMA KNOWLEDGE:
             if self.toolButtonPreview.isChecked():
                 QMessageBox.warning(self, "Message",
                                     "Modalität' Preview der aktivierten SE. Die Plana der SE werden in der Auswahl der Plana visualisiert",
-                                    QMessageBox.Ok)
+                                    QMessageBox.StandardButton.Ok)
                 self.tabWidget.setCurrentIndex(13)  # Set the current tab to the map preview tab
                 self.loadMapPreview()
             else:
@@ -19417,7 +19420,7 @@ DATABASE SCHEMA KNOWLEDGE:
             if self.toolButtonPreview.isChecked():
                 QMessageBox.warning(self, "Message",
                                     "Preview SU mode enabled. US plants will be displayed in the Plants section",
-                                    QMessageBox.Ok)
+                                    QMessageBox.StandardButton.Ok)
                 self.tabWidget.setCurrentIndex(13)  # Set the current tab to the map preview tab
                 self.loadMapPreview()
             else:
@@ -19504,8 +19507,8 @@ DATABASE SCHEMA KNOWLEDGE:
             if self.data_error_check() == 0:
                 if self.records_equal_check() == 1:
 
-                    if self.update_if(QMessageBox.Ok):
-                        QMessageBox.Ok
+                    if self.update_if(QMessageBox.StandardButton.Ok):
+                        QMessageBox.StandardButton.Ok
 
 
     def on_pushButton_save_pressed(self):
@@ -19586,7 +19589,7 @@ DATABASE SCHEMA KNOWLEDGE:
                 if self.records_equal_check() == 1:
                     self.update_if(QMessageBox.warning(self, 'Attenzione',
                                                        messages[self.L]['change_warning'],
-                                                       QMessageBox.Ok | QMessageBox.Cancel))
+                                                       QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel))
                     self.empty_fields()
                     self.SORT_STATUS = "n"
                     self.label_sort.setText(self.SORTED_ITEMS[self.SORT_STATUS])
@@ -19594,7 +19597,7 @@ DATABASE SCHEMA KNOWLEDGE:
                     self.update_dating()
                     self.fill_fields(self.REC_CORR)
                 else:
-                    QMessageBox.warning(self, "ATTENZIONE", messages[self.L]['no_changes'], QMessageBox.Ok)
+                    QMessageBox.warning(self, "ATTENZIONE", messages[self.L]['no_changes'], QMessageBox.StandardButton.Ok)
         else:
             if self.data_error_check() == 0:
                 test_insert = self.insert_new_rec()
@@ -19620,7 +19623,7 @@ DATABASE SCHEMA KNOWLEDGE:
                     self.fill_fields(self.REC_CORR)
                     self.enable_button(1)
             else:
-                QMessageBox.warning(self, "ATTENZIONE", messages[self.L]['data_entry_problem'], QMessageBox.Ok)
+                QMessageBox.warning(self, "ATTENZIONE", messages[self.L]['data_entry_problem'], QMessageBox.StandardButton.Ok)
         self.update_dating()
 
 
@@ -19642,8 +19645,8 @@ DATABASE SCHEMA KNOWLEDGE:
                 except:
                     reply = QMessageBox.question(None, 'Warning', 'Apikey non valida' + '\n'
                                                  + 'Clicca ok per inserire la chiave',
-                                                 QMessageBox.Ok | QMessageBox.Cancel)
-                    if reply == QMessageBox.Ok:
+                                                 QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel)
+                    if reply == QMessageBox.StandardButton.Ok:
 
                         api_key, ok = QInputDialog.getText(None, 'Apikey gpt', 'Inserisci apikey valida:')
                         if ok:
@@ -19680,7 +19683,7 @@ DATABASE SCHEMA KNOWLEDGE:
             self.def_strati_to_rapporti_stratigrafici_check(sito_check)  # SPERIMENTALE
         except AssertionError as e:
             QMessageBox.critical(self, "Error", f"An error occurred while performing the check: {str(e)}",
-                                 QMessageBox.Ok)
+                                 QMessageBox.StandardButton.Ok)
             print(f"Error: {str(e)}")
         else:
             success_message = {
@@ -19688,7 +19691,7 @@ DATABASE SCHEMA KNOWLEDGE:
                 'de': "Prüfen der stratigraphischen Beziehung und Definition Stratigraphische zu Stratigraphische Berichte erfolgereich durchgeführt",
                 'en': "Monitoring of stratigraphic relationships and Definition Stratigraphic to Stratigraphic Reports performed successfully"
             }
-            QMessageBox.information(self, "Success", success_message.get(self.L, "Message"), QMessageBox.Ok)
+            QMessageBox.information(self, "Success", success_message.get(self.L, "Message"), QMessageBox.StandardButton.Ok)
 
     def on_pushButton_h_check_pressed(self):
         self.listWidget_rapp.clear()
@@ -19816,17 +19819,17 @@ DATABASE SCHEMA KNOWLEDGE:
         EC = Error_check()
         if self.L=='it':
             if EC.data_is_empty(str(self.comboBox_sito.currentText())) == 0:
-                QMessageBox.warning(self, "ATTENZIONE", "Campo Sito. \n Il campo non deve essere vuoto", QMessageBox.Ok)
+                QMessageBox.warning(self, "ATTENZIONE", "Campo Sito. \n Il campo non deve essere vuoto", QMessageBox.StandardButton.Ok)
                 test = 1
             if EC.data_is_empty(str(self.comboBox_area.currentText())) == 0:
-                QMessageBox.warning(self, "ATTENZIONE", "Campo Area. \n Il campo non deve essere vuoto", QMessageBox.Ok)
+                QMessageBox.warning(self, "ATTENZIONE", "Campo Area. \n Il campo non deve essere vuoto", QMessageBox.StandardButton.Ok)
                 test = 1
             if EC.data_is_empty(str(self.lineEdit_us.text())) == 0:
-                QMessageBox.warning(self, "ATTENZIONE", "Campo US. \n Il campo non deve essere vuoto", QMessageBox.Ok)
+                QMessageBox.warning(self, "ATTENZIONE", "Campo US. \n Il campo non deve essere vuoto", QMessageBox.StandardButton.Ok)
                 test = 1
             if EC.data_is_empty(str(self.comboBox_unita_tipo.currentText())) == 0:
                 QMessageBox.warning(self, "ATTENZIONE", "Campo Tipo US/USM. \n Il campo non deve essere vuoto",
-                                    QMessageBox.Ok)
+                                    QMessageBox.StandardButton.Ok)
                 test = 1
             """controllo campi numerici"""
             # area = self.comboBox_area.currentText()
@@ -19864,88 +19867,88 @@ DATABASE SCHEMA KNOWLEDGE:
             if spessore_usm != "":
                 if EC.data_is_float(spessore_usm) == 0:
                     QMessageBox.warning(self, "ATTENZIONE", "Campo USM-Spessore USM. \n Il valore deve essere di tipo numerico. \n (Sono stati inserite lettere, virgole, accenti o caratteri non numerici.",
-                                        QMessageBox.Ok)
+                                        QMessageBox.StandardButton.Ok)
                     test = 1
             if qmin_usm != "":
                 if EC.data_is_float(qmin_usm) == 0:
                     QMessageBox.warning(self, "ATTENZIONE", "Campo USM 3-Quota minima USM. \n Il valore deve essere di tipo numerico. \n (Sono stati inserite lettere, virgole, accenti o caratteri non numerici.",
-                                        QMessageBox.Ok)
+                                        QMessageBox.StandardButton.Ok)
                     test = 1
             if qmax_usm != "":
                 if EC.data_is_float(qmax_usm) == 0:
                     QMessageBox.warning(self, "ATTENZIONE", "Campo USM 3-Quota max USM. \n Il valore deve essere di tipo numerico. \n (Sono stati inserite lettere, virgole, accenti o caratteri non numerici.",
-                                        QMessageBox.Ok)
+                                        QMessageBox.StandardButton.Ok)
                     test = 1
             if lunghezza_usm != "":
                 if EC.data_is_float(lunghezza_usm) == 0:
                     QMessageBox.warning(self, "ATTENZIONE", "Campo USM 3-Lunghezza USM. \n Il valore deve essere di tipo numerico. \n (Sono stati inserite lettere, virgole, accenti o caratteri non numerici.",
-                                        QMessageBox.Ok)
+                                        QMessageBox.StandardButton.Ok)
                     test = 1
             if altezza_usm != "":
                 if EC.data_is_float(altezza_usm) == 0:
                     QMessageBox.warning(self, "ATTENZIONE", "Campo USM 3-Altezza USM. \n Il valore deve essere di tipo numerico. \n (Sono stati inserite lettere, virgole, accenti o caratteri non numerici.",
-                                        QMessageBox.Ok)
+                                        QMessageBox.StandardButton.Ok)
                     test = 1
             ###########################
             if quota_abs != "":
                 if EC.data_is_float(quota_abs) == 0:
                     QMessageBox.warning(self, "ATTENZIONE", "Campo Quota Assoluta. \n Il valore deve essere di tipo numerico. \n (Sono stati inserite lettere, virgole, accenti o caratteri non numerici.",
-                                        QMessageBox.Ok)
+                                        QMessageBox.StandardButton.Ok)
                     test = 1
             if quota_relativa != "":
                 if EC.data_is_float(quota_relativa) == 0:
                     QMessageBox.warning(self, "ATTENZIONE", "Campo Quota Relativa. \n Il valore deve essere di tipo numerico. \n (Sono stati inserite lettere, virgole, accenti o caratteri non numerici.",
-                                        QMessageBox.Ok)
+                                        QMessageBox.StandardButton.Ok)
                     test = 1
             if quota_max_abs != "":
                 if EC.data_is_float(quota_max_abs) == 0:
                     QMessageBox.warning(self, "ATTENZIONE", "Campo Quota Massima Assoluta. \n Il valore deve essere di tipo numerico. \n (Sono stati inserite lettere, virgole, accenti o caratteri non numerici.",
-                                        QMessageBox.Ok)
+                                        QMessageBox.StandardButton.Ok)
                     test = 1
             if quota_max_rel != "":
                 if EC.data_is_float(quota_max_rel) == 0:
                     QMessageBox.warning(self, "ATTENZIONE", "Campo Quota Massima Relativa. \n Il valore deve essere di tipo numerico. \n (Sono stati inserite lettere, virgole, accenti o caratteri non numerici.",
-                                        QMessageBox.Ok)
+                                        QMessageBox.StandardButton.Ok)
                     test = 1
             if quota_min_abs != "":
                 if EC.data_is_float(quota_min_abs) == 0:
                     QMessageBox.warning(self, "ATTENZIONE", "Campo Quota Minima Assoluta. \n Il valore deve essere di tipo numerico. \n (Sono stati inserite lettere, virgole, accenti o caratteri non numerici.",
-                                        QMessageBox.Ok)
+                                        QMessageBox.StandardButton.Ok)
                     test = 1
             if quota_min_rel != "":
                 if EC.data_is_float(quota_min_rel) == 0:
                     QMessageBox.warning(self, "ATTENZIONE", "Campo Quota Minima Relativa. \n Il valore deve essere di tipo numerico. \n (Sono stati inserite lettere, virgole, accenti o caratteri non numerici.",
-                                        QMessageBox.Ok)
+                                        QMessageBox.StandardButton.Ok)
                     test = 1
             if larghezza_media != "":
                 if EC.data_is_float(larghezza_media) == 0:
                     QMessageBox.warning(self, "ATTENZIONE", "Campo Larghezza Media. \n Il valore deve essere di tipo numerico. \n (Sono stati inserite lettere, virgole, accenti o caratteri non numerici.",
-                                        QMessageBox.Ok)
+                                        QMessageBox.StandardButton.Ok)
                     test = 1
             if lunghezza_max != "":
                 if EC.data_is_float(lunghezza_max) == 0:
                     QMessageBox.warning(self, "ATTENZIONE", "Campo Lunghezza Massima. \n Il valore deve essere di tipo numerico. \n (Sono stati inserite lettere, virgole, accenti o caratteri non numerici.",
-                                        QMessageBox.Ok)
+                                        QMessageBox.StandardButton.Ok)
                     test = 1
             if profondita_min != "":
                 if EC.data_is_float(profondita_min) == 0:
                     QMessageBox.warning(self, "ATTENZIONE", "Campo Profondità Minima. \n Il valore deve essere di tipo numerico. \n (Sono stati inserite lettere, virgole, accenti o caratteri non numerici.",
-                                        QMessageBox.Ok)
+                                        QMessageBox.StandardButton.Ok)
                     test = 1
             if profondita_max != "":
                 if EC.data_is_float(profondita_max) == 0:
                     QMessageBox.warning(self, "ATTENZIONE", "Campo Profondità Massima. \n Il valore deve essere di tipo numerico. \n (Sono stati inserite lettere, virgole, accenti o caratteri non numerici.",
-                                        QMessageBox.Ok)
+                                        QMessageBox.StandardButton.Ok)
                     test = 1
             if altezza_max != "":
                 if EC.data_is_float(altezza_max) == 0:
                     QMessageBox.warning(self, "ATTENZIONE", "Campo Spessore. \n Il valore deve essere di tipo numerico. \n (Sono stati inserite lettere, virgole, accenti o caratteri non numerici.",
-                                        QMessageBox.Ok)
+                                        QMessageBox.StandardButton.Ok)
                     test = 1
             if altezza_min != "":
                 if EC.data_is_float(altezza_min) == 0:
                     QMessageBox.warning(self, "ATTENZIONE", "Campo Spessore Minima. \n Il valore deve essere di tipo numerico. \n (Sono stati inserite lettere, virgole, accenti o caratteri non numerici.",
-                                        QMessageBox.Ok)
+                                        QMessageBox.StandardButton.Ok)
                     test = 1
             """controllo lunghezza campo alfanumerico"""
             attivita = self.lineEdit_attivita.text()
@@ -19963,7 +19966,7 @@ DATABASE SCHEMA KNOWLEDGE:
                 if EC.data_lenght(attivita, 3) == 0:
                     QMessageBox.warning(self, "ATTENZIONE",
                                         "Campo Attivita. \n Il valore non deve superare i 4 caratteri alfanumerici",
-                                        QMessageBox.Ok)
+                                        QMessageBox.StandardButton.Ok)
                     test = 1
             # if anno_scavo != "":
             # if EC.data_lenght(anno_scavo,3) == 0:
@@ -19974,58 +19977,58 @@ DATABASE SCHEMA KNOWLEDGE:
                 if EC.data_lenght(d_interpretativa, 254) == 0:
                     QMessageBox.warning(self, "ATTENZIONE",
                                         "Campo definizione interpreta. \n Il valore non deve superare i 255 caratteri alfanumerici",
-                                        QMessageBox.Ok)
+                                        QMessageBox.StandardButton.Ok)
                     test = 1
 
             if formazione != "":
                 if EC.data_lenght(d_stratigrafica, 254) == 0:
                     QMessageBox.warning(self, "ATTENZIONE",
                                         "Campo definizione stratigrafica. \n Il valore non deve superare i 255 caratteri alfanumerici",
-                                        QMessageBox.Ok)
+                                        QMessageBox.StandardButton.Ok)
                     test = 1
 
             if formazione != "":
                 if EC.data_lenght(formazione, 19) == 0:
                     QMessageBox.warning(self, "ATTENZIONE",
                                         "Campo Formazione. \n Il valore non deve superare i 20 caratteri alfanumerici",
-                                        QMessageBox.Ok)
+                                        QMessageBox.StandardButton.Ok)
                     test = 1
             if stato_conservazione != "":
                 if EC.data_lenght(stato_conservazione, 19) == 0:
                     QMessageBox.warning(self, "ATTENZIONE",
                                         "Campo Conservazione. \n Il valore non deve superare i 20 caratteri alfanumerici",
-                                        QMessageBox.Ok)
+                                        QMessageBox.StandardButton.Ok)
                     test = 1
             if colore != "":
                 if EC.data_lenght(colore, 19) == 0:
                     QMessageBox.warning(self, "ATTENZIONE",
                                         "Campo Colore. \n Il valore non deve superare i 20 caratteri alfanumerici",
-                                        QMessageBox.Ok)
+                                        QMessageBox.StandardButton.Ok)
                     test = 1
             if consistenza != "":
                 if EC.data_lenght(consistenza, 19) == 0:
                     QMessageBox.warning(self, "ATTENZIONE",
                                         "Campo Consistenza. \n Il valore non deve superare i 20 caratteri alfanumerici",
-                                        QMessageBox.Ok)
+                                        QMessageBox.StandardButton.Ok)
                     test = 1
             if struttura != "":
                 if EC.data_lenght(struttura, 29) == 0:
                     QMessageBox.warning(self, "ATTENZIONE",
                                         "Campo Struttura. \n Il valore non deve superare i 30 caratteri alfanumerici",
-                                        QMessageBox.Ok)
+                                        QMessageBox.StandardButton.Ok)
                     test = 1
         elif self.L=='de':
             if EC.data_is_empty(str(self.comboBox_sito.currentText())) == 0:
-                QMessageBox.warning(self, "ACHTUNG", " Feld Ausgrabungstätte. \n Das Feld darf nicht leer sein", QMessageBox.Ok)
+                QMessageBox.warning(self, "ACHTUNG", " Feld Ausgrabungstätte. \n Das Feld darf nicht leer sein", QMessageBox.StandardButton.Ok)
                 test = 1
             if EC.data_is_empty(str(self.comboBox_area.currentText())) == 0:
-                QMessageBox.warning(self, "ACHTUNG", "Feld Areal. \n Das Feld darf nicht leer sein", QMessageBox.Ok)
+                QMessageBox.warning(self, "ACHTUNG", "Feld Areal. \n Das Feld darf nicht leer sein", QMessageBox.StandardButton.Ok)
                 test = 1
             if EC.data_is_empty(str(self.lineEdit_us.text())) == 0:
-                QMessageBox.warning(self, "ACHTUNG", "Feld SE. \n Das Feld darf nicht leer sein", QMessageBox.Ok)
+                QMessageBox.warning(self, "ACHTUNG", "Feld SE. \n Das Feld darf nicht leer sein", QMessageBox.StandardButton.Ok)
                 test = 1
             if EC.data_is_empty(str(self.comboBox_unita_tipo.currentText())) == 0:
-                QMessageBox.warning(self, "ACHTUNG", "Feld SE/MSE Typ. \n Das Feld darf nicht leer sein",   QMessageBox.Ok)
+                QMessageBox.warning(self, "ACHTUNG", "Feld SE/MSE Typ. \n Das Feld darf nicht leer sein",   QMessageBox.StandardButton.Ok)
                 test = 1
             area = self.comboBox_area.currentText()
             us = self.lineEdit_us.text()
@@ -20041,14 +20044,14 @@ DATABASE SCHEMA KNOWLEDGE:
             if area != "":
                 if EC.data_is_int(area) == 0:
                     QMessageBox.warning(self, "ACHTUNG", "Feld Areal. \n Der Wert muss numerisch eingegeben werden",
-                                        QMessageBox.Ok)
+                                        QMessageBox.StandardButton.Ok)
                     test = 1
             # US field validation removed - now accepts alphanumeric values
             if attivita != "":
                 if EC.data_lenght(attivita, 3) == 0:
                     QMessageBox.warning(self, "ACHTUNG",
                                         "Feld aktiviert. \n Der Wert darf nicht mehr als 4 alphanumerische Zeichen enthalten",
-                                        QMessageBox.Ok)
+                                        QMessageBox.StandardButton.Ok)
                     test = 1
                     # if anno_scavo != "":
             # if EC.data_lenght(anno_scavo,3) == 0:
@@ -20058,45 +20061,45 @@ DATABASE SCHEMA KNOWLEDGE:
                 if EC.data_lenght(formazione, 19) == 0:
                     QMessageBox.warning(self, "ACHTUNG",
                                         "Feld Bodenart. \n Der Wert darf nicht mehr als 20 alphanumerische Zeichen enthalten",
-                                        QMessageBox.Ok)
+                                        QMessageBox.StandardButton.Ok)
                     test = 1
             if stato_conservazione != "":
                 if EC.data_lenght(stato_conservazione, 19) == 0:
                     QMessageBox.warning(self, "ACHTUNG",
                                         "Feld Erhaltungszustand.  Der Wert darf nicht mehr als 20 alphanumerische Zeichen enthalten",
-                                        QMessageBox.Ok)
+                                        QMessageBox.StandardButton.Ok)
                     test = 1
             if colore != "":
                 if EC.data_lenght(colore, 19) == 0:
                     QMessageBox.warning(self, "ACHTUNG",
                                         "Feld Farbe. \n Der Wert darf nicht mehr als 20 alphanumerische Zeichen enthalten",
-                                        QMessageBox.Ok)
+                                        QMessageBox.StandardButton.Ok)
                     test = 1
             if consistenza != "":
                 if EC.data_lenght(consistenza, 19) == 0:
                     QMessageBox.warning(self, "ACHTUNG",
                                         "Feld Konsistenz. \n Der Wert darf nicht mehr als 20 alphanumerische Zeichen enthalten",
-                                        QMessageBox.Ok)
+                                        QMessageBox.StandardButton.Ok)
                     test = 1
             if struttura != "":
                 if EC.data_lenght(struttura, 29) == 0:
                     QMessageBox.warning(self, "ACHTUNG",
                                         "Feld Struktur. \n Der Wert darf nicht mehr als 30 alphanumerische Zeichen enthalten",
-                                        QMessageBox.Ok)
+                                        QMessageBox.StandardButton.Ok)
                     test = 1
         else:
             if EC.data_is_empty(str(self.comboBox_sito.currentText())) == 0:
-                QMessageBox.warning(self, "WARNING", "Site Field. \n The field must not be empty", QMessageBox.Ok)
+                QMessageBox.warning(self, "WARNING", "Site Field. \n The field must not be empty", QMessageBox.StandardButton.Ok)
                 test = 1
             if EC.data_is_empty(str(self.comboBox_area.currentText())) == 0:
-                QMessageBox.warning(self, "WARNING", "Area Field. \n The field must not be empty", QMessageBox.Ok)
+                QMessageBox.warning(self, "WARNING", "Area Field. \n The field must not be empty", QMessageBox.StandardButton.Ok)
                 test = 1
             if EC.data_is_empty(str(self.lineEdit_us.text())) == 0:
-                QMessageBox.warning(self, "WARNING", "SU Field. \n The field must not be empty", QMessageBox.Ok)
+                QMessageBox.warning(self, "WARNING", "SU Field. \n The field must not be empty", QMessageBox.StandardButton.Ok)
                 test = 1
             if EC.data_is_empty(str(self.comboBox_unita_tipo.currentText())) == 0:
                 QMessageBox.warning(self, "WARNING", "SU-WSU Field. \n The field must not be empty",
-                                    QMessageBox.Ok)
+                                    QMessageBox.StandardButton.Ok)
                 test = 1
             area = self.comboBox_area.currentText()
             us = self.lineEdit_us.text()
@@ -20119,7 +20122,7 @@ DATABASE SCHEMA KNOWLEDGE:
                 if EC.data_lenght(attivita, 3) == 0:
                     QMessageBox.warning(self, "WARNING",
                                         "Activity Field. \n The value must not exceed 4 alphanumeric characters",
-                                        QMessageBox.Ok)
+                                        QMessageBox.StandardButton.Ok)
                     test = 1
                     # if anno_scavo != "":
             # if EC.data_lenght(anno_scavo,3) == 0:
@@ -20129,31 +20132,31 @@ DATABASE SCHEMA KNOWLEDGE:
                 if EC.data_lenght(formazione, 19) == 0:
                     QMessageBox.warning(self, "WARNING",
                                         "Formation Field. \n The value must not exceed 20 alphanumeric characters",
-                                        QMessageBox.Ok)
+                                        QMessageBox.StandardButton.Ok)
                     test = 1
             if stato_conservazione != "":
                 if EC.data_lenght(stato_conservazione, 19) == 0:
                     QMessageBox.warning(self, "WARNING",
                                         "Conservation Field. \n The value must not exceed 20 alphanumeric characters",
-                                        QMessageBox.Ok)
+                                        QMessageBox.StandardButton.Ok)
                     test = 1
             if colore != "":
                 if EC.data_lenght(colore, 19) == 0:
                     QMessageBox.warning(self, "WARNING",
                                         "Color Field. \n The value must not exceed 20 alphanumeric characters",
-                                        QMessageBox.Ok)
+                                        QMessageBox.StandardButton.Ok)
                     test = 1
             if consistenza != "":
                 if EC.data_lenght(consistenza, 19) == 0:
                     QMessageBox.warning(self, "WARNING",
                                         "Texture Field. \n The value must not exceed 20 alphanumeric characters",
-                                        QMessageBox.Ok)
+                                        QMessageBox.StandardButton.Ok)
                     test = 1
             if struttura != "":
                 if EC.data_lenght(struttura, 29) == 0:
                     QMessageBox.warning(self, "WARNING",
                                         "Structure Field. \n The value must not exceed 20 alphanumeric characters",
-                                        QMessageBox.Ok)
+                                        QMessageBox.StandardButton.Ok)
                     test = 1
                 # if cont_per != "":
                 #   if EC.data_lenght(cont_per,199) == 0:
@@ -20513,7 +20516,7 @@ DATABASE SCHEMA KNOWLEDGE:
                 summary_msg = f"Kontrolle abgeschlossen: {error_count} Fehler gefunden.\n\nBericht gespeichert in:\n{filename}"
             else:
                 summary_msg = f"Check completed: found {error_count} errors.\n\nReport saved to:\n{filename}"
-            QMessageBox.warning(self, "Controllo Rapporti", summary_msg, QMessageBox.Ok)
+            QMessageBox.warning(self, "Controllo Rapporti", summary_msg, QMessageBox.StandardButton.Ok)
         
         return self.report_rapporti
 
@@ -20834,8 +20837,9 @@ DATABASE SCHEMA KNOWLEDGE:
         f.write(report_rapporti1)
         f.close()
 
-    def concat(self,a, b):
-        return eval(f"{a}{b}")
+    def concat(self, a, b):
+        """Concatenate two numbers as strings and return as integer - safe alternative to eval"""
+        return int(str(a) + str(b))
 
     def report_with_phrase(self, ut, us, sing_rapp, periodo_in, fase_in, sito, area):
         replaced_str = sing_rapp[4].replace('-', '')
@@ -21339,22 +21343,22 @@ DATABASE SCHEMA KNOWLEDGE:
                 if e_str.__contains__("IntegrityError"):
                     if self.L=='it':
                         msg = "US già presente nel database"
-                        QMessageBox.warning(self, "Error", "Error: " + str(msg), QMessageBox.Ok)
+                        QMessageBox.warning(self, "Error", "Error: " + str(msg), QMessageBox.StandardButton.Ok)
                     elif self.L=='de':
                         msg = self.ID_TABLE + " bereits in der Datenbank"
-                        QMessageBox.warning(self, "Error", "Error: " + str(msg), QMessageBox.Ok)
+                        QMessageBox.warning(self, "Error", "Error: " + str(msg), QMessageBox.StandardButton.Ok)
                     else:
                         msg = self.ID_TABLE + " exist in db"
-                        QMessageBox.warning(self, "Error", "Error: " + str(msg), QMessageBox.Ok)
+                        QMessageBox.warning(self, "Error", "Error: " + str(msg), QMessageBox.StandardButton.Ok)
                 else:
                     msg = e
-                    QMessageBox.warning(self, "Error", "Error 1 \n" + str(msg), QMessageBox.Ok)
+                    QMessageBox.warning(self, "Error", "Error 1 \n" + str(msg), QMessageBox.StandardButton.Ok)
                 return 0
         except Exception as e:
             # Check if it's a permission error
             if not self.permission_handler.handle_permission_error(e, 'insert'):
                 # If not a permission error, show regular error message
-                QMessageBox.warning(self, "Error", "Error 2 \n" + str(e), QMessageBox.Ok)
+                QMessageBox.warning(self, "Error", "Error 2 \n" + str(e), QMessageBox.StandardButton.Ok)
             return 0
             # insert new row into tableWidget
     def on_pushButton_insert_row_rapporti_pressed(self):
@@ -21418,15 +21422,15 @@ DATABASE SCHEMA KNOWLEDGE:
             if self.L=='it':
                 self.update_if(
                     QMessageBox.warning(self, 'Errore', "Il record e' stato modificato. Vuoi salvare le modifiche?",
-                                        QMessageBox.Ok | QMessageBox.Cancel))
+                                        QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel))
             elif self.L=='de':
                 self.update_if(
                     QMessageBox.warning(self, 'Errore', "Der Record wurde geändert. Möchtest du die Änderungen speichern?",
-                                        QMessageBox.Ok | QMessageBox.Cancel))
+                                        QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel))
             else:
                 self.update_if(
                     QMessageBox.warning(self, "Error", "The record has been changed. You want to save the changes?",
-                                        QMessageBox.Ok | QMessageBox.Cancel))
+                                        QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel))
             return 0
             # records surf functions
     def on_pushButton_view_all_pressed(self):
@@ -21625,7 +21629,7 @@ DATABASE SCHEMA KNOWLEDGE:
                 self.fill_fields(self.REC_CORR)
                 self.set_rec_counter(self.REC_TOT, self.REC_CORR + 1)
             except Exception as e:
-                QMessageBox.warning(self, "Error", str(e), QMessageBox.Ok)
+                QMessageBox.warning(self, "Error", str(e), QMessageBox.StandardButton.Ok)
 
 
         if self.checkBox_validate.isChecked():
@@ -21647,12 +21651,12 @@ DATABASE SCHEMA KNOWLEDGE:
         if self.L=='it':
             msg = QMessageBox.warning(self, "Attenzione!!!",
                                       "Vuoi veramente eliminare il record? \n L'azione è irreversibile",
-                                      QMessageBox.Ok | QMessageBox.Cancel)
-            if msg == QMessageBox.Cancel:
+                                      QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel)
+            if msg == QMessageBox.StandardButton.Cancel:
                 QMessageBox.warning(self, "Messagio!!!", "Azione Annullata!")
             else:
                 try:
-                    id_to_delete = eval("self.DATA_LIST[self.REC_CORR]." + self.ID_TABLE)
+                    id_to_delete = getattr(self.DATA_LIST[self.REC_CORR], self.ID_TABLE)
                     self.DB_MANAGER.delete_one_record(self.TABLE_NAME, self.ID_TABLE, id_to_delete)
                     self.charge_records()  # charge records from DB
                     QMessageBox.warning(self, "Messaggio!!!", "Record eliminato!")
@@ -21660,7 +21664,7 @@ DATABASE SCHEMA KNOWLEDGE:
                 except Exception as e:
                     QMessageBox.warning(self, "Messaggio!!!", "Tipo di errore: " + str(e))
                 if not bool(self.DATA_LIST):
-                    QMessageBox.warning(self, "Attenzione", "Il database è vuoto!", QMessageBox.Ok)
+                    QMessageBox.warning(self, "Attenzione", "Il database è vuoto!", QMessageBox.StandardButton.Ok)
                     self.iconListWidget.update()
                     self.DATA_LIST = []
                     self.DATA_LIST_REC_CORR = []
@@ -21683,19 +21687,19 @@ DATABASE SCHEMA KNOWLEDGE:
         elif self.L=='de':
             msg = QMessageBox.warning(self, "Achtung!!!",
                                       "Willst du wirklich diesen Eintrag löschen? \n Der Vorgang ist unumkehrbar",
-                                      QMessageBox.Ok | QMessageBox.Cancel)
-            if msg == QMessageBox.Cancel:
+                                      QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel)
+            if msg == QMessageBox.StandardButton.Cancel:
                 QMessageBox.warning(self, "Message!!!", "Aktion annulliert!")
             else:
                 try:
-                    id_to_delete = eval("self.DATA_LIST[self.REC_CORR]." + self.ID_TABLE)
+                    id_to_delete = getattr(self.DATA_LIST[self.REC_CORR], self.ID_TABLE)
                     self.DB_MANAGER.delete_one_record(self.TABLE_NAME, self.ID_TABLE, id_to_delete)
                     self.charge_records()  # charge records from DB
                     QMessageBox.warning(self, "Message!!!", "Record gelöscht!")
                 except Exception as e:
                     QMessageBox.warning(self, "Messagge!!!", "Errortyp: " + str(e))
                 if not bool(self.DATA_LIST):
-                    QMessageBox.warning(self, "Attenzione", "Die Datenbank ist leer!", QMessageBox.Ok)
+                    QMessageBox.warning(self, "Attenzione", "Die Datenbank ist leer!", QMessageBox.StandardButton.Ok)
                     self.DATA_LIST = []
                     self.DATA_LIST_REC_CORR = []
                     self.DATA_LIST_REC_TEMP = []
@@ -21716,19 +21720,19 @@ DATABASE SCHEMA KNOWLEDGE:
         else:
             msg = QMessageBox.warning(self, "Warning!!!",
                                       "Do you really want to break the record? \n Action is irreversible.",
-                                      QMessageBox.Ok | QMessageBox.Cancel)
-            if msg == QMessageBox.Cancel:
+                                      QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel)
+            if msg == QMessageBox.StandardButton.Cancel:
                 QMessageBox.warning(self, "Message!!!", "Action deleted!")
             else:
                 try:
-                    id_to_delete = eval("self.DATA_LIST[self.REC_CORR]." + self.ID_TABLE)
+                    id_to_delete = getattr(self.DATA_LIST[self.REC_CORR], self.ID_TABLE)
                     self.DB_MANAGER.delete_one_record(self.TABLE_NAME, self.ID_TABLE, id_to_delete)
                     self.charge_records()  # charge records from DB
                     QMessageBox.warning(self, "Message!!!", "Record deleted!")
                 except Exception as e:
                     QMessageBox.warning(self, "Message", "error type: " + str(e))
                 if not bool(self.DATA_LIST):
-                    QMessageBox.warning(self, "Warning", "the db is empty!", QMessageBox.Ok)
+                    QMessageBox.warning(self, "Warning", "the db is empty!", QMessageBox.StandardButton.Ok)
                     self.DATA_LIST = []
                     self.DATA_LIST_REC_CORR = []
                     self.DATA_LIST_REC_TEMP = []
@@ -21753,26 +21757,26 @@ DATABASE SCHEMA KNOWLEDGE:
     def delete_all_filtered_records(self):
         # Se non ci sono record da eliminare, emetti un avvertimento e interrompi
         if not self.DATA_LIST:
-            QMessageBox.warning(self, "Warning", "No records to delete!", QMessageBox.Ok)
+            QMessageBox.warning(self, "Warning", "No records to delete!", QMessageBox.StandardButton.Ok)
             return
 
         # Chiedi conferma all'utente prima di eliminare i record
         if self.L == 'it':
             msg = QMessageBox.warning(self, "Attenzione!!!",
                                       "Vuoi veramente eliminare i record? \n L'azione è irreversibile",
-                                      QMessageBox.Ok | QMessageBox.Cancel)
+                                      QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel)
         elif self.L == 'de':
             msg = QMessageBox.warning(self, "Achtung!!!",
                                       "Willst du wirklich diese Einträge löschen? \n Der Vorgang ist unumkehrbar",
-                                      QMessageBox.Ok | QMessageBox.Cancel)
+                                      QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel)
         else:
             msg = QMessageBox.warning(self, "Warning!!!",
                                       "Do you really want to delete the records? \n Action is irreversible.",
-                                      QMessageBox.Ok | QMessageBox.Cancel)
+                                      QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel)
 
         # Se l'utente ha annullato, interrompi
-        if msg == QMessageBox.Cancel:
-            QMessageBox.warning(self, "Message!!!", "Action cancelled!", QMessageBox.Ok)
+        if msg == QMessageBox.StandardButton.Cancel:
+            QMessageBox.warning(self, "Message!!!", "Action cancelled!", QMessageBox.StandardButton.Ok)
             return
 
         # Cancella ogni record
@@ -21886,18 +21890,18 @@ DATABASE SCHEMA KNOWLEDGE:
             #self.charge_records()
             self.fill_fields(self.REC_CORR)  # ricaricare tutti i record in uso e passare il valore REC_CORR a fill_fields
             if self.L=='it':
-                QMessageBox.warning(self, "INFO", "Codice periodo aggiornato per lo scavo %s" % (sito), QMessageBox.Ok)
+                QMessageBox.warning(self, "INFO", "Codice periodo aggiornato per lo scavo %s" % (sito), QMessageBox.StandardButton.Ok)
             elif self.L=='de':
-                QMessageBox.warning(self, "INFO", "Der Zeitstellungscode wurde für die Ausgrabung hochgeladen %s" % (sito), QMessageBox.Ok)
+                QMessageBox.warning(self, "INFO", "Der Zeitstellungscode wurde für die Ausgrabung hochgeladen %s" % (sito), QMessageBox.StandardButton.Ok)
             elif self.L=='en':
-                QMessageBox.warning(self, "INFO", "Updated period code for excavation %s" % (sito), QMessageBox.Ok)
+                QMessageBox.warning(self, "INFO", "Updated period code for excavation %s" % (sito), QMessageBox.StandardButton.Ok)
         except KeyError as e:
             if self.L=='it':
-                QMessageBox.warning(self, "Attenzione", str(e), QMessageBox.Ok)
+                QMessageBox.warning(self, "Attenzione", str(e), QMessageBox.StandardButton.Ok)
             elif self.L=='de':
-                QMessageBox.warning(self, "Achtung", str(e), QMessageBox.Ok)
+                QMessageBox.warning(self, "Achtung", str(e), QMessageBox.StandardButton.Ok)
             elif self.L=='en':
-                QMessageBox.warning(self, "Attention", str(e), QMessageBox.Ok)
+                QMessageBox.warning(self, "Attention", str(e), QMessageBox.StandardButton.Ok)
 
     def switch_search_mode(self):
         self.use_like_query = not self.use_like_query
@@ -22060,13 +22064,13 @@ DATABASE SCHEMA KNOWLEDGE:
         if self.BROWSE_STATUS != "f":
             if self.L=='it':
                 QMessageBox.warning(self, "ATTENZIONE", "Per eseguire una nuova ricerca clicca sul pulsante 'new search' ",
-                                    QMessageBox.Ok)
+                                    QMessageBox.StandardButton.Ok)
             elif self.L=='de':
                 QMessageBox.warning(self, "ACHTUNG", "Um eine neue Abfrage zu starten drücke  'new search' ",
-                                    QMessageBox.Ok)
+                                    QMessageBox.StandardButton.Ok)
             else:
                 QMessageBox.warning(self, "WARNING", "To perform a new search click on the 'new search' button ",
-                                    QMessageBox.Ok)
+                                    QMessageBox.StandardButton.Ok)
         else:
             # TableWidget
             if self.lineEdit_us.text() != "":
@@ -22297,7 +22301,7 @@ DATABASE SCHEMA KNOWLEDGE:
             search_dict_like = u.remove_empty_items_fr_dict(search_dict_like)
 
             if not search_dict:
-                QMessageBox.warning(self, "WARNING", "No search is set", QMessageBox.Ok)
+                QMessageBox.warning(self, "WARNING", "No search is set", QMessageBox.StandardButton.Ok)
             else:
                 if self.use_like_query:
                     message = "Scegli l'operatore di unione:\n\n" + \
@@ -22315,11 +22319,11 @@ DATABASE SCHEMA KNOWLEDGE:
                     res = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
                 if not bool(res):
                     if self.L=='it':
-                        QMessageBox.warning(self, "ATTENZIONE", "Non è stato trovato nessun record!", QMessageBox.Ok)
+                        QMessageBox.warning(self, "ATTENZIONE", "Non è stato trovato nessun record!", QMessageBox.StandardButton.Ok)
                     elif self.L=='de':
-                        QMessageBox.warning(self, "ACHTUNG", "Keinen Record gefunden!", QMessageBox.Ok)
+                        QMessageBox.warning(self, "ACHTUNG", "Keinen Record gefunden!", QMessageBox.StandardButton.Ok)
                     else:
-                        QMessageBox.warning(self, "WARNING", "No record found!", QMessageBox.Ok)
+                        QMessageBox.warning(self, "WARNING", "No record found!", QMessageBox.StandardButton.Ok)
                     self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR + 1)
                     self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
                     self.BROWSE_STATUS = "b"
@@ -22402,24 +22406,24 @@ DATABASE SCHEMA KNOWLEDGE:
                          "self.tableWidget_colore_materiale_usm","self.tableWidget_rapporti2"], "True")
                     self.setComboBoxEnable(["self.textEdit_descrizione"], "True")
                     self.setComboBoxEnable(["self.textEdit_interpretazione"], "True")
-                    QMessageBox.warning(self, "Message", "%s %d %s" % strings, QMessageBox.Ok)
+                    QMessageBox.warning(self, "Message", "%s %d %s" % strings, QMessageBox.StandardButton.Ok)
         self.use_like_query = False  # Reimposta il flag dopo la ricerca
         self.enable_button_search(1)
 
     def update_if(self, msg):
         # Save current record
-        if msg == QMessageBox.Ok:
+        if msg == QMessageBox.StandardButton.Ok:
             test = self.update_record()
             if test == 1:
                 # Save the current record's ID to maintain position after reload
                 current_id = None
                 if self.REC_CORR < len(self.DATA_LIST):
-                    current_id = eval("self.DATA_LIST[self.REC_CORR]." + self.ID_TABLE)
+                    current_id = getattr(self.DATA_LIST[self.REC_CORR], self.ID_TABLE)
 
                 # reload IDs
                 id_list = []
                 for i in self.DATA_LIST:
-                    id_list.append(eval("i." + self.ID_TABLE))
+                    id_list.append(getattr(i, self.ID_TABLE))
                 self.DATA_LIST = []
 
                 # reload sorted data
@@ -22436,7 +22440,7 @@ DATABASE SCHEMA KNOWLEDGE:
                 # Find the position of the previously current record
                 if current_id is not None:
                     for idx, record in enumerate(self.DATA_LIST):
-                        if eval("record." + self.ID_TABLE) == current_id:
+                        if getattr(record, self.ID_TABLE) == current_id:
                             self.REC_CORR = idx
                             break
                 else:
@@ -22456,7 +22460,7 @@ DATABASE SCHEMA KNOWLEDGE:
         try:
             self.DB_MANAGER.update(self.MAPPER_TABLE_CLASS,
                                    self.ID_TABLE,
-                                   [eval("int(self.DATA_LIST[self.REC_CORR]." + self.ID_TABLE + ")")],
+                                   [int(getattr(self.DATA_LIST[self.REC_CORR], self.ID_TABLE))],
                                    self.TABLE_FIELDS,
                                    self.rec_toupdate())
             return 1
@@ -22475,19 +22479,19 @@ DATABASE SCHEMA KNOWLEDGE:
                     print(s, file=fh)
             if self.L=='it':
                 QMessageBox.warning(self, "Messaggio",
-                                    "Problema di encoding: sono stati inseriti accenti o caratteri non accettati dal database. Verrà fatta una copia dell'errore con i dati che puoi recuperare nella cartella pyarchinit_Report _Folder", QMessageBox.Ok)
+                                    "Problema di encoding: sono stati inseriti accenti o caratteri non accettati dal database. Verrà fatta una copia dell'errore con i dati che puoi recuperare nella cartella pyarchinit_Report _Folder", QMessageBox.StandardButton.Ok)
 
 
             elif self.L=='en':
                 QMessageBox.warning(self, "Message",
-                                    "Encoding problem: accents or characters not accepted by the database were entered. A copy of the error will be made with the data you can retrieve in the pyarchinit_Report _Folder", QMessageBox.Ok)
+                                    "Encoding problem: accents or characters not accepted by the database were entered. A copy of the error will be made with the data you can retrieve in the pyarchinit_Report _Folder", QMessageBox.StandardButton.Ok)
             elif self.L=='de':
                 QMessageBox.warning(self, "Message",
-                                    "Kodierungsproblem: Es wurden Akzente oder Zeichen eingegeben, die von der Datenbank nicht akzeptiert werden. Es wird eine Kopie des Fehlers mit den Daten erstellt, die Sie im pyarchinit_Report _Ordner abrufen können", QMessageBox.Ok)
+                                    "Kodierungsproblem: Es wurden Akzente oder Zeichen eingegeben, die von der Datenbank nicht akzeptiert werden. Es wird eine Kopie des Fehlers mit den Daten erstellt, die Sie im pyarchinit_Report _Ordner abrufen können", QMessageBox.StandardButton.Ok)
             else:
                 QMessageBox.warning(self, "Messaggio",
                                     "Problema di encoding: sono stati inseriti accenti o caratteri non accettati dal database. Verrà fatta una copia dell'errore con i dati che puoi recuperare nella cartella pyarchinit_Report _Folder",
-                                    QMessageBox.Ok)
+                                    QMessageBox.StandardButton.Ok)
 
             return 0
     def rec_toupdate(self):
@@ -22503,7 +22507,7 @@ DATABASE SCHEMA KNOWLEDGE:
         else:
             id_list = []
             for i in self.DB_MANAGER.query(self.MAPPER_TABLE_CLASS):
-                id_list.append(eval("i." + self.ID_TABLE))
+                id_list.append(getattr(i, self.ID_TABLE))
             temp_data_list = self.DB_MANAGER.query_sort(id_list, [self.ID_TABLE], 'asc', self.MAPPER_TABLE_CLASS,
                                                         self.ID_TABLE)
             for i in temp_data_list:
@@ -22517,7 +22521,7 @@ DATABASE SCHEMA KNOWLEDGE:
         else:
             id_list = []
             for i in self.DB_MANAGER.query(self.MAPPER_TABLE_CLASS):
-                id_list.append(eval("i." + self.ID_TABLE))
+                id_list.append(getattr(i, self.ID_TABLE))
             # Ordina in base a 'id_us' in ordine decrescente
             temp_data_list = self.DB_MANAGER.query_sort(id_list, [self.ID_TABLE], 'desc', self.MAPPER_TABLE_CLASS,
                                                         self.ID_TABLE)
@@ -22536,20 +22540,21 @@ DATABASE SCHEMA KNOWLEDGE:
         return year
     def table2dict(self, n):
         self.tablename = n
-        row = eval(self.tablename + ".rowCount()")
-        col = eval(self.tablename + ".columnCount()")
+        table = getattr(self, self.tablename.replace("self.", "") if self.tablename.startswith("self.") else self.tablename)
+        row = table.rowCount()
+        col = table.columnCount()
         lista = []
         for r in range(row):
             sub_list = []
             for c in range(col):
-                value = eval(self.tablename + ".item(r,c)")
+                value = table.item(r, c)
                 if value != None:
                     sub_list.append(str(value.text()))
             if bool(sub_list):
                 lista.append(sub_list)
         return lista
     def tableInsertData(self, t, d):
-        """Set the value into alls Grid"""
+        """Set the value into alls Grid - uses getattr instead of eval for security"""
         self.table_name = t
         # Handle empty or None data safely
         if not d or d == 'None' or d == '':
@@ -22557,51 +22562,51 @@ DATABASE SCHEMA KNOWLEDGE:
         else:
             try:
                 # Use ast.literal_eval for safer parsing
-                self.data_list = ast.literal_eval(d)
+                self.data_list = ast.literal_eval(d) if isinstance(d, str) else d
             except (ValueError, SyntaxError):
                 # If parsing fails, try to handle as empty list
                 self.data_list = []
-        
+
         if isinstance(self.data_list, list):
             self.data_list.sort()
         else:
             self.data_list = []
-        # column table count
-        table_col_count_cmd = "{}.columnCount()".format(self.table_name)
-        table_col_count = eval(table_col_count_cmd)
-        # clear table
-        table_clear_cmd = "{}.clearContents()".format(self.table_name)
-        eval(table_clear_cmd)
+
+        # Get table widget using getattr
+        widget_name = t.replace('self.', '') if t.startswith('self.') else t
+        table = getattr(self, widget_name)
+
+        table_col_count = table.columnCount()
+        table.clearContents()
+
         for i in range(table_col_count):
-            table_rem_row_cmd = "{}.removeRow(int({}))".format(self.table_name, i)
-            eval(table_rem_row_cmd)
+            table.removeRow(i)
+
         for row in range(len(self.data_list)):
-            cmd = '{}.insertRow(int({}))'.format(self.table_name, row)
-            eval(cmd)
+            table.insertRow(row)
             for col in range(len(self.data_list[row])):
-                # item = self.comboBox_sito.setEditText(self.data_list[0][col]
-                # item = QTableWidgetItem(self.data_list[row][col])
-                # TODO SL: evauation of QTableWidget does not work porperly
-                exec_str = '{}.setItem(int({}),int({}),QTableWidgetItem(self.data_list[row][col]))'.format(self.table_name, row, col)
-                eval(exec_str)
+                item = QTableWidgetItem(str(self.data_list[row][col]))
+                table.setItem(row, col, item)
+
         max_row_num = len(self.data_list)
-        value = eval(self.table_name+".item(max_row_num,1)")
+        value = table.item(max_row_num, 1)
         if value == '':
-            cmd = ("%s.removeRow(%d)") % (self.table_name, max_row_num)
-            eval(cmd)
+            table.removeRow(max_row_num)
+
     def insert_new_row(self, table_name):
-        """insert new row into a table based on table_name"""
-        cmd = table_name + ".insertRow(0)"
-        eval(cmd)
+        """insert new row into a table based on table_name - uses getattr instead of eval"""
+        widget_name = table_name.replace('self.', '') if table_name.startswith('self.') else table_name
+        table = getattr(self, widget_name)
+        table.insertRow(0)
+
     def remove_row(self, table_name):
-        """insert new row into a table based on table_name"""
-        table_row_count_cmd = ("%s.rowCount()") % (table_name)
-        table_row_count = eval(table_row_count_cmd)
-        rowSelected_cmd = ("%s.selectedIndexes()") % (table_name)
-        rowSelected = eval(rowSelected_cmd)
+        """Remove selected row from table - uses getattr instead of eval"""
+        widget_name = table_name.replace('self.', '') if table_name.startswith('self.') else table_name
+        table = getattr(self, widget_name)
+
+        rowSelected = table.selectedIndexes()
         rowIndex = (rowSelected[0].row())
-        cmd = ("%s.removeRow(%d)") % (table_name, rowIndex)
-        eval(cmd)
+        table.removeRow(rowIndex)
     def empty_fields(self):
         rapporti_row_count = self.tableWidget_rapporti.rowCount()
         rapporti_row_count2 = self.tableWidget_rapporti2.rowCount()
@@ -23211,7 +23216,7 @@ DATABASE SCHEMA KNOWLEDGE:
                            db_version != self.current_record_version:
                             # Show notification
                             msg = QMessageBox()
-                            msg.setIcon(QMessageBox.Warning)
+                            msg.setIcon(QMessageBox.Icon.Warning)
                             msg.setWindowTitle("Record Modificato / Record Modified")
                             msg.setText(
                                 f"Questo record è stato modificato da {last_modified_by} "
@@ -23220,9 +23225,9 @@ DATABASE SCHEMA KNOWLEDGE:
                                 f"at {last_modified_timestamp}.\n\n"
                                 f"Vuoi ricaricare il record? / Do you want to reload?"
                             )
-                            msg.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
+                            msg.setStandardButtons(QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
 
-                            if msg.exec_() == QMessageBox.Yes:
+                            if msg.exec() == QMessageBox.StandardButton.Yes:
                                 # Save current record position
                                 current_pos = self.REC_CORR
                                 # Reload records
@@ -23482,7 +23487,7 @@ DATABASE SCHEMA KNOWLEDGE:
         self.DATA_LIST_REC_CORR = []
         for i in self.TABLE_FIELDS:
             try:
-                self.DATA_LIST_REC_CORR.append(eval("unicode(self.DATA_LIST[self.REC_CORR]." + i + ")"))
+                self.DATA_LIST_REC_CORR.append(str(getattr(self.DATA_LIST[self.REC_CORR], i)))
             except IndexError as e:
                 print(f"IndexError: {e} - self.REC_CORR: {self.REC_CORR}, len(self.DATA_LIST): {len(self.DATA_LIST)}")
                 raise
@@ -23507,23 +23512,30 @@ DATABASE SCHEMA KNOWLEDGE:
             print(f"Unexpected error: {e}")
         return 0
     def setComboBoxEditable(self, f, n):
-        field_names = f
-        value = n
-        for fn in field_names:
-            cmd = '{}{}{}{}'.format(fn, '.setEditable(', n, ')')
-            eval(cmd)
+        """Set editable state for widgets - uses getattr instead of eval for security"""
+        for fn in f:
+            widget_name = fn.replace('self.', '') if fn.startswith('self.') else fn
+            widget = getattr(self, widget_name, None)
+            if widget is not None:
+                widget.setEditable(bool(n))
+
     def setComboBoxEnable(self, f, v):
-        field_names = f
-        value = v
-        for fn in field_names:
-            cmd = '{}{}{}{}'.format(fn, '.setEnabled(', v, ')')
-            eval(cmd)
+        """Set enabled state for widgets - uses getattr instead of eval for security"""
+        for fn in f:
+            widget_name = fn.replace('self.', '') if fn.startswith('self.') else fn
+            widget = getattr(self, widget_name, None)
+            if widget is not None:
+                enabled = v.lower() == 'true' if isinstance(v, str) else bool(v)
+                widget.setEnabled(enabled)
+
     def setTableEnable(self, t, v):
-        tab_names = t
-        value = v
-        for tn in tab_names:
-            cmd = '{}{}{}{}'.format(tn, '.setEnabled(', v, ')')
-            eval(cmd)
+        """Set enabled state for table widgets - uses getattr instead of eval"""
+        for tn in t:
+            widget_name = tn.replace('self.', '') if tn.startswith('self.') else tn
+            widget = getattr(self, widget_name, None)
+            if widget is not None:
+                enabled = v.lower() == 'true' if isinstance(v, str) else bool(v)
+                widget.setEnabled(enabled)
     def testing(self, name_file, message):
         f = open(str(name_file), 'w')
         f.write(str(message))
@@ -23783,10 +23795,10 @@ DATABASE SCHEMA KNOWLEDGE:
                 con.close()
 
         except AssertionError as e:
-            QMessageBox.warning(self, 'error', str(e), QMessageBox.Ok)
+            QMessageBox.warning(self, 'error', str(e), QMessageBox.StandardButton.Ok)
 
         else:
-            QMessageBox.information(self, 'OK', 'Imported complited', QMessageBox.Ok)
+            QMessageBox.information(self, 'OK', 'Imported complited', QMessageBox.StandardButton.Ok)
         self.view_all()
 
     # This method is part of your main application window class
@@ -23794,7 +23806,7 @@ DATABASE SCHEMA KNOWLEDGE:
         self.empty_fields()
         # Create and show the dialog
         filter_dialog = USFilterDialog(self.DB_MANAGER, self)
-        result = filter_dialog.exec_()  # Show the dialog and wait for it to close
+        result = filter_dialog.exec()  # Show the dialog and wait for it to close
 
         if result:
             # Get the selected US IDs from the dialog
@@ -23823,12 +23835,12 @@ DATABASE SCHEMA KNOWLEDGE:
                 if self.toolButton_usm.isChecked():
                     self.pyQGIS.charge_usm_layers(self.DATA_LIST)
             else:
-                QMessageBox.information(self, 'No Results', "No records match the selected filters.", QMessageBox.Ok)
+                QMessageBox.information(self, 'No Results', "No records match the selected filters.", QMessageBox.StandardButton.Ok)
 
     # In your main window or wherever the button is located
     def text2sql(self):
         dialog = SQLPromptDialog(iface=self.iface)
-        dialog.exec_()
+        dialog.exec()
 
 
 class SQLPromptDialog(QDialog):
@@ -24002,8 +24014,8 @@ class SQLPromptDialog(QDialog):
                     reply = QMessageBox.question(None, 'Warning', 'Apikey non valida' + '\n'
                                                  + '\n' + 'vai al sito https://www.text2sql.ai/ per ottenere una chiave valida'
                                                  + '\n' + 'Clicca ok per inserire la chiave',
-                                                 QMessageBox.Ok | QMessageBox.Cancel)
-                    if reply == QMessageBox.Ok:
+                                                 QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel)
+                    if reply == QMessageBox.StandardButton.Ok:
                         api_key, ok = QInputDialog.getText(None, 'Apikey gpt', 'Inserisci apikey valida:')
                         if ok:
                             # Salva la nuova API Key nel file
@@ -24049,7 +24061,7 @@ class SQLPromptDialog(QDialog):
                                   "Questo potrebbe richiedere tempo in base alla tua connessione internet.")
 
         # Execute dialog
-        if dialog.exec_() == QDialog.Accepted:
+        if dialog.exec() == QDialog.DialogCode.Accepted:
             # Check if download was successful
             if os.path.exists(model_path):
                 self.download_button.setText("Modello già scaricato")
@@ -24085,10 +24097,10 @@ class SQLPromptDialog(QDialog):
                 reply = QMessageBox.question(
                     self, 'Modello mancante',
                     f"Il modello non è stato trovato in {model_path}.\nVuoi scaricarlo ora?",
-                    QMessageBox.Yes | QMessageBox.No
+                    QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
                 )
 
-                if reply == QMessageBox.Yes:
+                if reply == QMessageBox.StandardButton.Yes:
                     self.on_download_model_clicked()
                     # Verifica se il download è riuscito
                     if not os.path.exists(model_path):
@@ -24119,7 +24131,7 @@ class SQLPromptDialog(QDialog):
 
     def on_explainsql_button_clicked(self):
         global tr, generated_explain
-        L = QgsSettings().value("locale/userLocale")[0:2]
+        L = QgsSettings().value("locale/userLocale", "it", type=str)[:2]
         prompt = self.prompt_input.toPlainText()
 
         # Determina quale modalità usare (API o locale)
@@ -24472,7 +24484,7 @@ class SQLPromptDialog(QDialog):
 
     def on_explainsql_button_clicked(self):
         global tr, generated_explain
-        L=QgsSettings().value("locale/userLocale")[0:2]
+        L=QgsSettings().value("locale/userLocale", "it", type=str)[:2]
         prompt = self.prompt_input.toPlainText()
 
         if L == "it":
@@ -24563,7 +24575,7 @@ class SQLPromptDialog(QDialog):
             dockWidget.setWidget(self.graph_window)  # Imposta il graph_window come widget del dock
 
             # Aggiungi il dock widget all'interfaccia utente di QGIS
-            self.iface.addDockWidget(Qt.BottomDockWidgetArea, dockWidget)
+            self.iface.addDockWidget(Qt.DockWidgetArea.BottomDockWidgetArea, dockWidget)
             dockWidget.show()  # Assicurati che il dock widget sia visibile
         except Exception as e:
             self.results_output.setText(f"An error occurred: {e}")
@@ -25119,7 +25131,7 @@ class SQLPromptDialog(QDialog):
                     self,
                     'Geometry Column',
                     'Enter the name of the geometry column:',
-                    QLineEdit.Normal,
+                    QLineEdit.EchoMode.Normal,
                     default_geom
                 )
 
@@ -25414,7 +25426,7 @@ class GraphWindow(QDockWidget):
         self.canvas.figure.canvas.draw_idle()
 
 class USFilterDialog(QDialog):
-    L = QgsSettings().value("locale/userLocale")[0:2]
+    L = QgsSettings().value("locale/userLocale", "it", type=str)[:2]
     def __init__(self, db_manager, parent=None):
         super().__init__(parent)
         self.db_manager = db_manager
@@ -25507,7 +25519,7 @@ class IntegerDelegate(QtWidgets.QStyledItemDelegate):
         The IntegerDelegate class is a subclass of QStyledItemDelegate from the PyQt5 library. It is used to create a delegate for editing integer values in a Qt model/view framework.
         Example Usage
         # Import the necessary libraries
-        from PyQt5 import QtGui, QtWidgets
+        from qgis.PyQt import QtGui, QtWidgets
 
         # Create an instance of the IntegerDelegate class
         delegate = IntegerDelegate()
@@ -25539,4 +25551,4 @@ class IntegerDelegate(QtWidgets.QStyledItemDelegate):
 #     app = QApplication(sys.argv)
 #     mainWin = GPTWindow()
 #     mainWin.show()
-#     sys.exit(app.exec_())
+#     sys.exit(app.exec())

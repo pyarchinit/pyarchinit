@@ -22,9 +22,6 @@
 
 from datetime import date
 
-from builtins import object
-from builtins import range
-from builtins import str
 from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import cm, mm

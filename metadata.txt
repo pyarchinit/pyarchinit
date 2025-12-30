@@ -1,6 +1,8 @@
 [general]
 name=pyArchInit
 qgisMinimumVersion=3.22
+qgisMaximumVersion=4.99
+supportsQt6=True
 description=pyarchinit a tool for archaeological works
 
 version=4.9.21
@@ -258,3 +260,4 @@ category=Plugins
 icon=icon.png
 experimental=False
 deprecated=False
+

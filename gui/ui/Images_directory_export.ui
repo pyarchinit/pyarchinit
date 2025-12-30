@@ -3,7 +3,7 @@
  <class>Dialog_img_exp</class>
  <widget class="QDialog" name="Dialog_img_exp">
   <property name="windowModality">
-   <enum>Qt::NonModal</enum>
+   <enum>Qt::WindowModality::NonModal</enum>
   </property>
   <property name="enabled">
    <bool>true</bool>
@@ -935,10 +935,10 @@
       <string notr="true">background-color: rgb(216, 216, 216);</string>
      </property>
      <property name="tabPosition">
-      <enum>QTabWidget::West</enum>
+      <enum>QTabWidget::TabPosition::West</enum>
      </property>
      <property name="tabShape">
-      <enum>QTabWidget::Triangular</enum>
+      <enum>QTabWidget::TabShape::Triangular</enum>
      </property>
      <property name="currentIndex">
       <number>0</number>
@@ -965,7 +965,7 @@
             <bool>false</bool>
            </property>
            <property name="contextMenuPolicy">
-            <enum>Qt::DefaultContextMenu</enum>
+            <enum>Qt::ContextMenuPolicy::DefaultContextMenu</enum>
            </property>
            <property name="acceptDrops">
             <bool>false</bool>

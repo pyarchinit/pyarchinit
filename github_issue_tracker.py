@@ -15,13 +15,13 @@ from pathlib import Path
 
 # Per l'interfaccia grafica opzionale
 try:
-    from PyQt5.QtWidgets import (QApplication, QMainWindow, QVBoxLayout, 
+    from qgis.PyQt.QtWidgets import (QApplication, QMainWindow, QVBoxLayout, 
                                  QHBoxLayout, QWidget, QPushButton, 
                                  QTableWidget, QTableWidgetItem, QLabel,
                                  QLineEdit, QComboBox, QTextEdit, QMessageBox,
                                  QHeaderView, QCheckBox, QGroupBox)
-    from PyQt5.QtCore import Qt, QThread, pyqtSignal
-    from PyQt5.QtGui import QColor
+    from qgis.PyQt.QtCore import Qt, QThread, pyqtSignal
+    from qgis.PyQt.QtGui import QColor
     GUI_AVAILABLE = True
 except ImportError:
     GUI_AVAILABLE = False
@@ -240,7 +240,7 @@ class IssueTrackerGUI(QMainWindow):
             "Risolta", "#", "Titolo", "Stato", "Labels", "Data Apertura", "Note Risoluzione"
         ])
         self.table.horizontalHeader().setStretchLastSection(True)
-        self.table.setSelectionBehavior(QTableWidget.SelectRows)
+        self.table.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
         self.table.itemDoubleClicked.connect(self.open_issue_details)
         layout.addWidget(self.table)
         
@@ -401,7 +401,7 @@ class IssueTrackerGUI(QMainWindow):
             
     def quick_toggle_resolution(self, issue_number: int, state: int):
         """Toggle veloce dalla checkbox"""
-        if state == Qt.Checked:
+        if state == Qt.CheckState.Checked:
             self.manager.mark_issue_resolved(issue_number, "Risolta via checkbox")
         else:
             self.manager.unmark_issue_resolved(issue_number)
@@ -541,7 +541,7 @@ def main():
             app = QApplication(sys.argv)
             window = IssueTrackerGUI(manager)
             window.show()
-            sys.exit(app.exec_())
+            sys.exit(app.exec())
         else:
             print("GUI non disponibile. Usando CLI...")
             main_cli()

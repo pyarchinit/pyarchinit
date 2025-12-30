@@ -33,7 +33,7 @@ FORM_CLASS, _ = loadUiType(os.path.join(
 
 
 class LayerSearchDialog(QDialog, FORM_CLASS):
-    L=QgsSettings().value("locale/userLocale")[0:2]
+    L=QgsSettings().value("locale/userLocale", "it", type=str)[:2]
     DB_MANAGER=''
     def __init__(self, iface, parent):
         '''Initialize the LayerSearch dialog box'''
@@ -64,7 +64,7 @@ class LayerSearchDialog(QDialog, FORM_CLASS):
             self.resultsTable.setHorizontalHeaderLabels(['Value','Table','Field','Feature Id'])
             self.comparisonComboBox.addItems(['=','contains','start with'])    
             
-        self.resultsTable.setSelectionBehavior(QAbstractItemView.SelectRows)
+        self.resultsTable.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
         
         self.resultsTable.itemSelectionChanged.connect(self.select_feature)
         self.worker = None
@@ -272,11 +272,11 @@ class LayerSearchDialog(QDialog, FORM_CLASS):
                 pass
         if not layer:
             if self.L=='it':
-                QMessageBox.warning(self, 'ATTENZIONE', "Nessun elemento selezionato", QMessageBox.Ok)
+                QMessageBox.warning(self, 'ATTENZIONE', "Nessun elemento selezionato", QMessageBox.StandardButton.Ok)
             elif self.L=='de':
-                QMessageBox.warning(self, 'ACHTUNG', "keine Elemente ausgewählt", QMessageBox.Ok)
+                QMessageBox.warning(self, 'ACHTUNG', "keine Elemente ausgewählt", QMessageBox.StandardButton.Ok)
             else:
-                QMessageBox.warning(self, 'WARNING', "No items selected", QMessageBox.Ok)
+                QMessageBox.warning(self, 'WARNING', "No items selected", QMessageBox.StandardButton.Ok)
         features_list = layer.selectedFeatures()
         field_position = ""
         for single in layer.getFeatures():

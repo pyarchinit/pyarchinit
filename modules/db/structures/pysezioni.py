@@ -12,15 +12,10 @@ from modules.utility.pyarchinit_OS_utility import Pyarchinit_OS_Utility
 class pysezioni:
     
     
-    # connection string postgres"
-    internal_connection = Connection()
 
-    # create engine and metadata
-
-    engine = create_engine(internal_connection.conn_str(), echo=False, convert_unicode=True)
     
     #engine.connect()
-    metadata = MetaData(engine)
+    metadata = MetaData()
 
     # define tables
     pysezioni = Table('pyarchinit_sezioni', metadata,

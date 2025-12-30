@@ -7,13 +7,8 @@ from sqlalchemy import Table, Column, Integer, Numeric, Text, MetaData, create_e
 
 from modules.db.pyarchinit_conn_strings import Connection
 class Pottery_table:
-	# connection string postgres"
-	internal_connection = Connection()
 
-	# create engine and metadata
-
-	engine = create_engine(internal_connection.conn_str(), echo=False, convert_unicode=True)
-	metadata = MetaData(engine)
+	metadata = MetaData()
 
 	# define tables
 	pottery_table = Table('pottery_table', metadata,

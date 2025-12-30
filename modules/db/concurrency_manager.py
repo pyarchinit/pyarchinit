@@ -11,8 +11,8 @@ Date: 2024
 import sys
 import os
 from datetime import datetime
-from PyQt5.QtWidgets import QMessageBox, QDialog, QVBoxLayout, QTextEdit, QPushButton, QLabel, QHBoxLayout
-from PyQt5.QtCore import Qt
+from qgis.PyQt.QtWidgets import QMessageBox, QDialog, QVBoxLayout, QTextEdit, QPushButton, QLabel, QHBoxLayout
+from qgis.PyQt.QtCore import Qt
 
 class ConcurrencyManager:
     """Manager for handling concurrent database modifications"""
@@ -102,7 +102,7 @@ class ConcurrencyManager:
             last_modified_timestamp
         )
 
-        result = dialog.exec_()
+        result = dialog.exec()
 
         if result == QDialog.Accepted:
             return dialog.get_choice()
@@ -321,7 +321,7 @@ class RecordLockIndicator:
             editors: List of (username, editing_since) tuples
         """
         if not self.lock_label:
-            from PyQt5.QtWidgets import QLabel
+            from qgis.PyQt.QtWidgets import QLabel
             self.lock_label = QLabel(self.parent)
             self.lock_label.setStyleSheet("""
                 QLabel {

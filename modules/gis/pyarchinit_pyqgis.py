@@ -23,9 +23,6 @@ import os
 import random
 import sqlite3
 
-from builtins import object
-from builtins import range
-from builtins import str
 
 from qgis.PyQt.QtGui import *
 from qgis.PyQt.QtWidgets import *
@@ -61,7 +58,7 @@ class Pyarchinit_pyqgis(QDialog):
     LAYER_STYLE_PATH = '{}{}{}{}'.format(FILEPATH, os.sep, 'styles', os.sep)
     LAYER_STYLE_PATH_SPATIALITE = '{}{}{}{}'.format(FILEPATH, os.sep, 'styles_spatialite', os.sep)
     #SRS = 3004
-    L=QgsSettings().value("locale/userLocale")[0:2]
+    L=QgsSettings().value("locale/userLocale", "it", type=str)[:2]
     USLayerId = ""
 
     LAYERS_DIZ = {"1": "pyarchinit_campionature",
@@ -4613,7 +4610,7 @@ class Pyarchinit_pyqgis(QDialog):
 #     order_dict = {}
 #     order_count = 0
 #     db = ''
-#     L=QgsSettings().value("locale/userLocale")[0:2]
+#     L=QgsSettings().value("locale/userLocale", "it", type=str)[:2]
 #     SITO = ""
 #     AREA = ""
 #
@@ -4673,7 +4670,7 @@ class Pyarchinit_pyqgis(QDialog):
 #         try:
 #             # Utilizziamo la classe Qt di QGIS
 #             progress.setWindowModality(Qt.WindowModal)
-#             progress.setAlignment(Qt.AlignCenter)
+#             progress.setAlignment(Qt.AlignmentFlag.AlignCenter)
 #         except AttributeError:
 #             pass
 #
@@ -5007,7 +5004,7 @@ class Pyarchinit_pyqgis(QDialog):
 #     order_dict = {}
 #     order_count = 0
 #     db = ''
-#     L = QgsSettings().value("locale/userLocale")[0:2]
+#     L = QgsSettings().value("locale/userLocale", "it", type=str)[:2]
 #     SITO = ""
 #     AREA = ""
 #
@@ -6402,7 +6399,7 @@ class Pyarchinit_pyqgis(QDialog):
 #     order_dict = {}
 #     order_count = 0
 #     db = ''
-#     L = QgsSettings().value("locale/userLocale")[0:2]
+#     L = QgsSettings().value("locale/userLocale", "it", type=str)[:2]
 #     SITO = ""
 #     AREA = ""
 #
@@ -6549,7 +6546,7 @@ class Pyarchinit_pyqgis(QDialog):
 #         try:
 #             # Utilizziamo la classe Qt di QGIS
 #             progress.setWindowModality(Qt.WindowModal)
-#             progress.setAlignment(Qt.AlignCenter)
+#             progress.setAlignment(Qt.AlignmentFlag.AlignCenter)
 #         except AttributeError:
 #             pass
 #
@@ -6813,7 +6810,7 @@ class Pyarchinit_pyqgis(QDialog):
 #     order_dict = {}
 #     order_count = 0
 #     db = ''
-#     L = QgsSettings().value("locale/userLocale")[0:2]
+#     L = QgsSettings().value("locale/userLocale", "it", type=str)[:2]
 #     SITO = ""
 #     AREA = ""
 #
@@ -6863,7 +6860,7 @@ class Pyarchinit_pyqgis(QDialog):
 #             if hasattr(self, 'L'):
 #                 lang = self.L
 #             else:
-#                 lang = QgsSettings().value("locale/userLocale")[0:2] if QgsSettings().value(
+#                 lang = QgsSettings().value("locale/userLocale", "it", type=str)[:2] if QgsSettings().value(
 #                     "locale/userLocale") else 'en'
 #
 #             if lang == 'it':
@@ -7813,7 +7810,7 @@ class Pyarchinit_pyqgis(QDialog):
 #     order_count = 0
 #     db = ''  # Pyarchinit_db_management('sqlite:////Users//Windows//pyarchinit_DB_folder//pyarchinit_db.sqlite')
 #     # db.connection()
-#     L = QgsSettings().value("locale/userLocale")[0:2]
+#     L = QgsSettings().value("locale/userLocale", "it", type=str)[:2]
 #     SITO = ""
 #     AREA = ""
 #
@@ -7956,7 +7953,7 @@ class Order_layer_v2(object):
     order_dict = {}
     order_count = 0
     db = ''
-    L = QgsSettings().value("locale/userLocale")[0:2]
+    L = QgsSettings().value("locale/userLocale", "it", type=str)[:2]
     SITO = ""
     AREA = ""
 
@@ -8103,7 +8100,7 @@ class Order_layer_v2(object):
         try:
             # Utilizziamo la classe Qt di QGIS
             progress.setWindowModality(Qt.WindowModal)
-            progress.setAlignment(Qt.AlignCenter)
+            progress.setAlignment(Qt.AlignmentFlag.AlignCenter)
         except AttributeError:
             pass
 
@@ -8398,7 +8395,7 @@ class Order_layer_graph(object):  # Rinominata per compatibilità con il codice 
     order_dict = {}
     order_count = 0
     db = ''
-    L = QgsSettings().value("locale/userLocale")[0:2]
+    L = QgsSettings().value("locale/userLocale", "it", type=str)[:2]
     SITO = ""
     AREA = ""
 
@@ -8782,7 +8779,7 @@ class Order_layer_graph(object):  # Rinominata per compatibilità con il codice 
 
             # Esegui query con gestione errori specifica
             try:
-                result = self.db.engine.execute(query)
+                result = self.db._execute_sql(query)
             except Exception as db_error:
                 self.logger.error(f"Errore esecuzione query: {str(db_error)}")
                 # Fornisci suggerimenti specifici per il tipo di database

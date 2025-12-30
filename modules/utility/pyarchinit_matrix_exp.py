@@ -37,7 +37,7 @@ class HarrisMatrix:
         MATRIX (Setting_Matrix): The matrix settings for the application.
         """
 
-    L=QgsSettings().value("locale/userLocale")[0:2]
+    L=QgsSettings().value("locale/userLocale", "it", type=str)[:2]
     HOME = os.environ['PYARCHINIT_HOME']
     DB_MANAGER = ""
     TABLE_NAME = 'us_table'
@@ -63,7 +63,7 @@ class HarrisMatrix:
         self.connection=connection
         self.connection_to=connection_to
         self.dialog = Setting_Matrix()        
-        self.dialog.exec_()
+        self.dialog.exec()
 
     @property
     def export_matrix(self):
@@ -341,7 +341,7 @@ class HarrisMatrix:
             msgBox.setIcon(icon)
             msgBox.setWindowTitle(title)
             msgBox.setText(message)
-            msgBox.exec_()
+            msgBox.exec()
         try:
             # Assumi che self.HOME sia già definito
             matrix_path = '{}{}{}'.format(self.HOME, os.sep, "pyarchinit_Matrix_folder")
@@ -554,7 +554,7 @@ class HarrisMatrix:
             msgBox.setIcon(icon)
             msgBox.setWindowTitle(title)
             msgBox.setText(message)
-            msgBox.exec_()
+            msgBox.exec()
 
         try:
             # Assumi che self.HOME sia già definito
@@ -605,7 +605,7 @@ class HarrisMatrix:
 
 
 class ViewHarrisMatrix:
-    L = QgsSettings().value("locale/userLocale")[0:2]
+    L = QgsSettings().value("locale/userLocale", "it", type=str)[:2]
     HOME = os.environ['PYARCHINIT_HOME']
     DB_MANAGER = ""
     TABLE_NAME = 'us_table'
@@ -622,7 +622,7 @@ class ViewHarrisMatrix:
         self.connection = connection
         self.connection_to = connection_to
         #self.dialog = Setting_Matrix()
-        #self.dialog.exec_()
+        #self.dialog.exec()
 
     @property
     def export_matrix(self):
@@ -901,7 +901,7 @@ class ViewHarrisMatrix:
             msgBox.setIcon(icon)
             msgBox.setWindowTitle(title)
             msgBox.setText(message)
-            msgBox.exec_()
+            msgBox.exec()
 
         try:
             # Assumi che self.HOME sia già definito

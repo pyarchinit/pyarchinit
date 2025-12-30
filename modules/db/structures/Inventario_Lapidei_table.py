@@ -10,13 +10,8 @@ from modules.db.pyarchinit_conn_strings import Connection
 
 
 class Inventario_Lapidei_table:
-    # connection string postgres"
-    internal_connection = Connection()
 
-    # create engine and metadata
-
-    engine = create_engine(internal_connection.conn_str(), echo=False, convert_unicode=True)
-    metadata = MetaData(engine)
+    metadata = MetaData()
 
     # define tables
     inventario_lapidei_table = Table('inventario_lapidei_table', metadata,

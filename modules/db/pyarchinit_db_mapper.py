@@ -18,7 +18,16 @@
  *                                                                         *
  ***************************************************************************/
 """
-from sqlalchemy.orm import mapper
+# SQLAlchemy 2.0: Use registry for imperative mapping instead of deprecated mapper()
+from sqlalchemy.orm import registry
+
+# Create a registry for mapping
+mapper_registry = registry()
+
+# Wrapper function to maintain backward compatibility
+def mapper(class_, table, **kwargs):
+    """SQLAlchemy 2.0 compatible mapper using registry.map_imperatively()"""
+    return mapper_registry.map_imperatively(class_, table, **kwargs)
 
 # from modules.db.entities.ARCHEOZOOLOGY import ARCHEOZOOLOGY
 from modules.db.entities.CAMPIONI import CAMPIONI

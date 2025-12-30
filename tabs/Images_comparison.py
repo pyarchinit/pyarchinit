@@ -21,8 +21,6 @@
 """
 from __future__ import absolute_import
 
-from builtins import str
-from builtins import range
 
 from qgis.PyQt.QtWidgets import QDialog, QMessageBox, QFileDialog
 from qgis.PyQt.uic import loadUiType
@@ -68,7 +66,7 @@ class Comparision(QDialog, MAIN_DIALOG_CLASS):
         QDialog.__init__(self)
         self.setupUi(self)
         self.setWindowTitle("pyArchInit - Images Comparision Tools")
-        QMessageBox.warning(self, "Alert", "Sistema sperimentale solo per lo sviluppo", QMessageBox.Ok)
+        QMessageBox.warning(self, "Alert", "Sistema sperimentale solo per lo sviluppo", QMessageBox.StandardButton.Ok)
 
     def connection(self):
 
@@ -81,15 +79,15 @@ class Comparision(QDialog, MAIN_DIALOG_CLASS):
             if e.find("no such table"):
                 QMessageBox.warning(self, "Alert",
                                     "La connessione e' fallita <br><br> Tabella non presente. E' NECESSARIO RIAVVIARE QGIS",
-                                    QMessageBox.Ok)
+                                    QMessageBox.StandardButton.Ok)
             else:
                 QMessageBox.warning(self, "Alert",
                                     "Attenzione rilevato bug! Segnalarlo allo sviluppatore<br> Errore: <br>" + str(e),
-                                    QMessageBox.Ok)
+                                    QMessageBox.StandardButton.Ok)
 
     def on_pushButton_chose_dir_pressed(self):
         path = QFileDialog.getExistingDirectory(self, "Scegli una directory", "Seleziona una directory:",
-                                                QFileDialog.ShowDirsOnly)
+                                                QFileDialog.Option.ShowDirsOnly)
         if path:
             self.PATH = path
 
@@ -134,7 +132,7 @@ class Comparision(QDialog, MAIN_DIALOG_CLASS):
 
             return (label, s)
         except Exception as e:
-            QMessageBox.warning(self, "Messaggio", str(e), QMessageBox.Ok)
+            QMessageBox.warning(self, "Messaggio", str(e), QMessageBox.StandardButton.Ok)
 
     def generate_files_couples(self):
         path = self.PATH
@@ -179,6 +177,6 @@ class Comparision(QDialog, MAIN_DIALOG_CLASS):
                                            rotation=90)
                 n += 1
         except:
-            QMessageBox.warning(self, "self.data_list", str(self.data_list), QMessageBox.Ok)
+            QMessageBox.warning(self, "self.data_list", str(self.data_list), QMessageBox.StandardButton.Ok)
 
         self.widget.canvas.draw()

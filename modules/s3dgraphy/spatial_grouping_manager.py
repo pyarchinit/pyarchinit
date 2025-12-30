@@ -193,7 +193,7 @@ if QGIS_AVAILABLE:
             layout.addWidget(title)
             
             # Main splitter
-            splitter = QSplitter(Qt.Horizontal)
+            splitter = QSplitter(Qt.Orientation.Horizontal)
             
             # Left panel - Grouping options
             left_panel = QGroupBox("Opzioni di Raggruppamento")

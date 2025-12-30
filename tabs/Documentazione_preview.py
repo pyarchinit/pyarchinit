@@ -20,7 +20,6 @@
  ***************************************************************************/
 """
 from __future__ import absolute_import
-from builtins import str
 import os
 from qgis.PyQt.QtCore import Qt, QSize, pyqtSlot, QVariant, QLocale
 from qgis.PyQt.QtGui import QColor, QIcon
@@ -86,14 +85,14 @@ class pyarchinit_doc_preview(QDialog, MAIN_DIALOG_CLASS):
             e = str(e)
             QMessageBox.warning(self, "Alert",
                                 "Attenzione rilevato bug! Segnalarlo allo sviluppatore <br> Errore: <br>" + str(e),
-                                QMessageBox.Ok)
+                                QMessageBox.StandardButton.Ok)
 
     def draw_preview(self):
         gidstr = self.ID_TABLE + " = " + str(
-                eval("self.DATA_LIST[int(self.REC_CORR)]." + self.ID_TABLE))
+                getattr(self.DATA_LIST[int(self.REC_CORR)], self.ID_TABLE))
         self.layerToSet = self.pyQGIS.loadMapPreviewDoc(gidstr)
         #self.vlayer = self.layerToSet[0].id()
-        QMessageBox.warning(self, "layer to set", '\n'.join([l.name() for l in layerToSet]), QMessageBox.Ok)
+        QMessageBox.warning(self, "layer to set", '\n'.join([l.name() for l in layerToSet]), QMessageBox.StandardButton.Ok)
         self.mapPreview.setLayers(self.layerToSet)
         self.mapPreview.zoomToFullExtent()
 

@@ -9,13 +9,8 @@ from modules.db.pyarchinit_conn_strings import Connection
 
 
 class Documentazione_table:
-    # connection string postgres"
-    internal_connection = Connection()
 
-    # create engine and metadata
-
-    engine = create_engine(internal_connection.conn_str(), echo=True, convert_unicode=True)
-    metadata = MetaData(engine)
+    metadata = MetaData()
 
     # define tables
     documentazione_table = Table('documentazione_table', metadata,

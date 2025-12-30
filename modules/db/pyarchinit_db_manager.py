@@ -25,10 +25,6 @@ import time
 import traceback
 import sqlite3
 from datetime import datetime
-from builtins import object
-from builtins import range
-from builtins import str
-from builtins import zip
 from qgis.PyQt.QtCore import Qt
 from qgis.PyQt.QtWidgets import QMessageBox
 from qgis.PyQt.QtWidgets import QProgressBar, QApplication
@@ -108,15 +104,15 @@ def get_db_manager(conn_str, use_singleton=True):
 class Pyarchinit_db_management(object):
     metadata = ''
     engine = ''
-    boolean = ''
+    boolean = False  # SQLAlchemy echo parameter (True for debug SQL output)
     Session = None  # Session factory
     _query_cache = {}  # Cache per query frequenti
-    
+
     if os.name == 'posix':
-        boolean = 'True'
+        boolean = True
     elif os.name == 'nt':
-        boolean = 'True'
-    L = QgsSettings().value("locale/userLocale")[0:2]
+        boolean = True
+    L = QgsSettings().value("locale/userLocale", "it", type=str)[:2]
 
     def __init__(self, c, _singleton=False):
         self.conn_str = c
@@ -145,15 +141,105 @@ class Pyarchinit_db_management(object):
         """Salva risultato nella cache"""
         import time
         self._local_cache[cache_key] = (result, time.time())
-    
+
+    def _execute_sql(self, sql, **params):
+        """SQLAlchemy 2.0 compatible execute wrapper.
+
+        Replaces engine.execute() which was removed in SQLAlchemy 2.0.
+        Uses connection context manager for proper resource handling.
+
+        Args:
+            sql: SQL string or text() object
+            **params: Named parameters to bind to the query
+
+        Returns:
+            ResultWrapper object with fetchone(), fetchall(), scalar() methods
+        """
+        class ResultWrapper:
+            """Wrapper to maintain compatibility with old engine.execute() API"""
+            def __init__(self, rows):
+                self._rows = list(rows) if rows else []
+                self._index = 0
+
+            def fetchall(self):
+                return self._rows
+
+            def fetchone(self):
+                if self._index < len(self._rows):
+                    row = self._rows[self._index]
+                    self._index += 1
+                    return row
+                return None
+
+            def scalar(self):
+                if self._rows:
+                    first_row = self._rows[0]
+                    if first_row:
+                        return first_row[0]
+                return None
+
+            def __iter__(self):
+                return iter(self._rows)
+
+        # Convert string to text if needed
+        if isinstance(sql, str):
+            sql = text(sql)
+
+        # Determine if this is a write operation (DDL/DML)
+        sql_str = str(sql).strip().upper()
+        is_write = sql_str.startswith(('INSERT', 'UPDATE', 'DELETE', 'DROP', 'CREATE', 'ALTER', 'TRUNCATE'))
+
+        try:
+            if is_write:
+                # Use begin() for auto-commit on write operations
+                with self.engine.begin() as conn:
+                    result = conn.execute(sql, params) if params else conn.execute(sql)
+                    try:
+                        rows = result.fetchall()
+                        return ResultWrapper(rows)
+                    except:
+                        return ResultWrapper([])
+            else:
+                # Use connect() for read operations
+                with self.engine.connect() as conn:
+                    result = conn.execute(sql, params) if params else conn.execute(sql)
+                    try:
+                        rows = result.fetchall()
+                        return ResultWrapper(rows)
+                    except:
+                        return ResultWrapper([])
+        except Exception as e:
+            # Log the error and re-raise
+            import traceback
+            print(f"SQL execution error: {e}\nSQL: {sql}\nParams: {params}")
+            traceback.print_exc()
+            raise
+
     def load_spatialite(self,dbapi_conn, connection_record):
         dbapi_conn.enable_load_extension(True)
-        
+
         if Pyarchinit_OS_Utility.isWindows()== True:
             dbapi_conn.load_extension('mod_spatialite.dll')
-        
+
         elif Pyarchinit_OS_Utility.isMac()== True:
-            dbapi_conn.load_extension('mod_spatialite.so')
+            # macOS hardened apps require full path to extension
+            spatialite_paths = [
+                '/opt/homebrew/lib/mod_spatialite.dylib',
+                '/usr/local/lib/mod_spatialite.dylib',
+                '/opt/local/lib/mod_spatialite.dylib',
+            ]
+            loaded = False
+            for path in spatialite_paths:
+                if os.path.exists(path):
+                    try:
+                        dbapi_conn.load_extension(path)
+                        loaded = True
+                        break
+                    except Exception:
+                        continue
+            if not loaded:
+                # Fallback - try without path (may work in some environments)
+                dbapi_conn.load_extension('mod_spatialite')
         else:
             dbapi_conn.load_extension('mod_spatialite.so')
         
@@ -189,6 +275,8 @@ class Pyarchinit_db_management(object):
         test = True
 
         try:
+            if self.conn_str is None:
+                raise Exception("Connection string is not configured")
             log_debug(f"Connection string: {self.conn_str[:50]}...")
             test_conn = self.conn_str.find("sqlite")
             if test_conn == 0:
@@ -212,7 +300,7 @@ class Pyarchinit_db_management(object):
                 # SQLite doesn't support connection pooling parameters
                 self.engine = create_engine(
                     self.conn_str, 
-                    echo=eval(self.boolean)
+                    echo=self.boolean
                 )
                 listen(self.engine, 'connect', self.load_spatialite)
             else:
@@ -227,7 +315,7 @@ class Pyarchinit_db_management(object):
                     # Configurazione ottimizzata per database remoti/cloud
                     self.engine = create_engine(
                         self.conn_str, 
-                        echo=eval(self.boolean),
+                        echo=self.boolean,
                         pool_size=10,           # Pool più grande per connessioni remote
                         max_overflow=20,        # Più overflow per latenza
                         pool_timeout=60,        # Timeout più lungo per connessioni remote
@@ -243,7 +331,7 @@ class Pyarchinit_db_management(object):
                     # Configurazione per database locali
                     self.engine = create_engine(
                         self.conn_str, 
-                        echo=eval(self.boolean),
+                        echo=self.boolean,
                         pool_size=5,
                         max_overflow=10,
                         pool_timeout=30,
@@ -265,7 +353,7 @@ class Pyarchinit_db_management(object):
                     # Continue anyway - don't block connection
 
             log_debug("Creating metadata")
-            self.metadata = MetaData(self.engine)
+            self.metadata = MetaData()
             
             # Create session factory once
             log_debug("Creating session factory")
@@ -337,7 +425,7 @@ class Pyarchinit_db_management(object):
                         self.metadata.clear()
                     
                     # Recreate metadata with updated table structures
-                    self.metadata = MetaData(self.engine)
+                    self.metadata = MetaData()
                     
                     # Force metadata to reflect all tables
                     self.metadata.reflect(bind=self.engine)
@@ -1984,18 +2072,39 @@ class Pyarchinit_db_management(object):
                     session = Session()
                     
                     # Build query with OR condition for all compatible names
+                    # Get the mapped table for column access fallback
+                    from sqlalchemy.orm import class_mapper
+                    try:
+                        mapper_obj = class_mapper(PYARCHINIT_THESAURUS_SIGLE)
+                        mapped_table = mapper_obj.mapped_table
+                    except Exception:
+                        mapped_table = None
+
                     all_results = []
                     for compat_name in compatible_names:
                         temp_params = params.copy()
                         temp_params['nome_tabella'] = f"'{compat_name}'"
-                        
+
                         conditions = []
                         for key, value in temp_params.items():
-                            column = getattr(PYARCHINIT_THESAURUS_SIGLE, key)
+                            column = None
+                            # Try to get column from mapped class first
+                            if hasattr(PYARCHINIT_THESAURUS_SIGLE, key):
+                                attr = getattr(PYARCHINIT_THESAURUS_SIGLE, key)
+                                if hasattr(attr, '__clause_element__') or hasattr(attr, 'property'):
+                                    column = attr
+                            # Fallback to mapped table
+                            if column is None and mapped_table is not None:
+                                if key in mapped_table.c:
+                                    column = mapped_table.c[key]
+                            if column is None:
+                                continue  # Skip unknown columns
                             if isinstance(value, str) and value.startswith("'") and value.endswith("'"):
                                 value = value.strip("'")
                             conditions.append(column == value)
-                        
+
+                        if not conditions:
+                            continue
                         query = session.query(PYARCHINIT_THESAURUS_SIGLE).filter(and_(*conditions))
                         results = query.all()
                         all_results.extend(results)
@@ -2092,9 +2201,8 @@ class Pyarchinit_db_management(object):
         return res
 
     def select_mediapath_from_id(self, media_id):
-        sql_query = "SELECT filepath FROM media_table WHERE id_media = ?"
-        params = (media_id,)
-        res = self.engine.execute(sql_query, params)
+        sql_query = "SELECT filepath FROM media_table WHERE id_media = :media_id"
+        res = self._execute_sql(sql_query, media_id=media_id)
         row = res.fetchone()
         return row[0] if row else None
 
@@ -2260,7 +2368,7 @@ class Pyarchinit_db_management(object):
 
         query_cmd = "SELECT DISTINCT " + distinct_string + " FROM " + table + ' WHERE ' + query_string
         # self.connection()
-        res = self.engine.execute(query_cmd)
+        res = self._execute_sql(query_cmd)
         return res
 
     # count distinct "name" values
@@ -2771,16 +2879,50 @@ class Pyarchinit_db_management(object):
         cached_result = self._get_cached_result(cache_key, cache_timeout=600)  # 10 minuti
         if cached_result is not None:
             return cached_result
-        
+
         self.table_name = tn
         self.field_name = fn
         self.table_class = CD
 
         session = self.get_session()
         try:
-            s = eval('select([{0}.{1}]).group_by({0}.{1})'.format(self.table_class, self.field_name))
-            result = self.engine.execute(s).fetchall()
-            
+            # Get the table class from the mapping
+            table_classes = {
+                'US': US, 'UT': UT, 'SITE': SITE, 'PERIODIZZAZIONE': PERIODIZZAZIONE, 'POTTERY': POTTERY,
+                'STRUTTURA': STRUTTURA, 'SCHEDAIND': SCHEDAIND, 'INVENTARIO_MATERIALI': INVENTARIO_MATERIALI,
+                'DETSESSO': DETSESSO, 'DOCUMENTAZIONE': DOCUMENTAZIONE, 'DETETA': DETETA, 'MEDIA': MEDIA,
+                'MEDIA_THUMB': MEDIA_THUMB, 'MEDIATOENTITY': MEDIATOENTITY, 'MEDIAVIEW': MEDIAVIEW,
+                'TOMBA': TOMBA, 'CAMPIONI': CAMPIONI, 'PYARCHINIT_THESAURUS_SIGLE': PYARCHINIT_THESAURUS_SIGLE,
+                'INVENTARIO_LAPIDEI': INVENTARIO_LAPIDEI, 'PDF_ADMINISTRATOR': PDF_ADMINISTRATOR,
+                'PYUS': PYUS, 'PYUSM': PYUSM, 'PYSITO_POINT': PYSITO_POINT, 'PYSITO_POLYGON': PYSITO_POLYGON,
+                'PYQUOTE': PYQUOTE, 'PYQUOTEUSM': PYQUOTEUSM, 'PYUS_NEGATIVE': PYUS_NEGATIVE,
+                'PYSTRUTTURE': PYSTRUTTURE, 'PYREPERTI': PYREPERTI, 'PYINDIVIDUI': PYINDIVIDUI,
+                'PYCAMPIONI': PYCAMPIONI, 'PYTOMBA': PYTOMBA, 'PYDOCUMENTAZIONE': PYDOCUMENTAZIONE,
+                'PYLINEERIFERIMENTO': PYLINEERIFERIMENTO, 'PYRIPARTIZIONI_SPAZIALI': PYRIPARTIZIONI_SPAZIALI,
+                'PYSEZIONI': PYSEZIONI, 'TMA': TMA, 'TMA_MATERIALI': TMA_MATERIALI
+            }
+
+            table_class = table_classes.get(CD)
+            if not table_class:
+                raise ValueError(f"No table class found for {CD}")
+
+            # Get the column from the mapped table (SQLAlchemy 2.0 compatible)
+            from sqlalchemy.orm import class_mapper
+            try:
+                mapper_obj = class_mapper(table_class)
+                mapped_table = mapper_obj.mapped_table
+                column = mapped_table.c[fn]
+            except Exception as e:
+                # Fallback to class attribute if available
+                if hasattr(table_class, fn):
+                    column = getattr(table_class, fn)
+                else:
+                    raise AttributeError(f"Column {fn} not found for {CD}: {e}")
+
+            # Build the select statement
+            s = select(column).group_by(column)
+            result = self._execute_sql(s).fetchall()
+
             # Salva nella cache
             self._set_cached_result(cache_key, result)
             return result
@@ -2837,7 +2979,7 @@ class Pyarchinit_db_management(object):
             # Utilizziamo la classe Qt di QGIS
             try:
                 progress.setWindowModality(Qt.WindowModal)
-                progress.setAlignment(Qt.AlignCenter)
+                progress.setAlignment(Qt.AlignmentFlag.AlignCenter)
             except AttributeError:
                 pass
 
@@ -3047,7 +3189,7 @@ class Pyarchinit_db_management(object):
     #         progress.setMinimum(0)
     #         progress.setMaximum(total_records)
     #         progress.setValue(0)
-    #         #progress.setAlignment(Qt.AlignCenter)
+    #         #progress.setAlignment(Qt.AlignmentFlag.AlignCenter)
     #         progress.show()
     #         QApplication.processEvents()
     #
@@ -3172,45 +3314,45 @@ class Pyarchinit_db_management(object):
     def remove_alltags_from_db_sql(self,s):
         sql_query_string = ("DELETE FROM media_to_entity_table WHERE media_name  = '%s'") % (s)
     
-        res = self.engine.execute(sql_query_string)
+        res = self._execute_sql(sql_query_string)
         # rows= res.fetchall()
         return res    
     
     def remove_tags_from_db_sql(self,s):
         sql_query_string = ("DELETE FROM media_to_entity_table WHERE id_entity  = '%s'") % (s)
     
-        res = self.engine.execute(sql_query_string)
+        res = self._execute_sql(sql_query_string)
         # rows= res.fetchall()
         return res
 
     def remove_tags_from_db_sql_scheda(self, s,n):
         sql_query_string = ("DELETE FROM media_to_entity_table WHERE id_entity  = '%s' and media_name= '%s' ") % (s,n)
 
-        res = self.engine.execute(sql_query_string)
+        res = self._execute_sql(sql_query_string)
         # rows= res.fetchall()
         return res
     def delete_thumb_from_db_sql(self,s):
         sql_query_string = ("DELETE FROM media_thumb_table WHERE media_filename  = '%s'") % (s)
     
-        res = self.engine.execute(sql_query_string)
+        res = self._execute_sql(sql_query_string)
         # rows= res.fetchall()
         return res    
     def select_medianame_from_st_sql(self,sito,sigla,numero):
         sql_query_string = ("SELECT c.filepath, a.media_name FROM media_to_entity_table as a,  struttura_table as b, media_thumb_table as c WHERE b.id_struttura=a.id_entity and c.id_media=a.id_media  and b.sito= '%s' and b.sigla_struttura='%s' and b.numero_struttura='%s' and entity_type='STRUTTURA'")%(sito,sigla,numero) 
         
-        res = self.engine.execute(sql_query_string)
+        res = self._execute_sql(sql_query_string)
         rows= res.fetchall()
         return rows    
     def select_medianame_from_db_sql(self,sito,area):
         sql_query_string = ("SELECT c.filepath, b.us,a.media_name FROM media_to_entity_table as a,  us_table as b, media_thumb_table as c WHERE b.id_us=a.id_entity and c.id_media=a.id_media  and b.sito= '%s' and b.area='%s'")%(sito,area) 
         
-        res = self.engine.execute(sql_query_string)
+        res = self._execute_sql(sql_query_string)
         rows= res.fetchall()
         return rows
     def select_medianame_tb_from_db_sql(self,sito,area):
         sql_query_string = ("SELECT c.filepath, a.media_name FROM media_to_entity_table as a,  tomba_table as b, media_thumb_table as c WHERE b.id_tomba=a.id_entity and c.id_media=a.id_media  and b.sito= '%s' and b.area='%s'and entity_type='TOMBA'")%(sito,area) 
         
-        res = self.engine.execute(sql_query_string)
+        res = self._execute_sql(sql_query_string)
         rows= res.fetchall()
         return rows
 
@@ -3219,7 +3361,7 @@ class Pyarchinit_db_management(object):
                                "SELECT c.filepath, a.media_name FROM media_to_entity_table as a,  pottery_table as b, media_thumb_table as c WHERE b.id_rep=a.id_entity and c.id_media=a.id_media  and b.sito= '%s' and b.area='%s' and b.us = '%s' and entity_type='CERAMICA'") % (
                            sito, area, us)
 
-        res = self.engine.execute(sql_query_string)
+        res = self._execute_sql(sql_query_string)
         rows = res.fetchall()
         return rows
 
@@ -3227,14 +3369,14 @@ class Pyarchinit_db_management(object):
     def select_medianame_ra_from_db_sql(self,sito,area,us):
         sql_query_string = ("SELECT c.filepath, a.media_name FROM media_to_entity_table as a,  inventario_materiali_table as b, media_thumb_table as c WHERE b.id_invmat=a.id_entity and c.id_media=a.id_media  and b.sito= '%s' and b.area='%s' and b.us = '%s' and entity_type='REPERTO'")%(sito,area,us) 
         
-        res = self.engine.execute(sql_query_string)
+        res = self._execute_sql(sql_query_string)
         rows= res.fetchall()
         return rows
     
     def select_medianame_2_from_db_sql(self,sito,area,us):
         sql_query_string = ("SELECT c.filepath, a.media_name FROM media_to_entity_table as a,  us_table as b, media_thumb_table as c WHERE b.id_us=a.id_entity and c.id_media=a.id_media  and b.sito= '%s' and b.area='%s' and b.us = '%s' and entity_type='US'")%(sito,area,us)
 
-        res = self.engine.execute(sql_query_string)
+        res = self._execute_sql(sql_query_string)
         rows= res.fetchall()
         return rows
 
@@ -3503,7 +3645,7 @@ class Pyarchinit_db_management(object):
         # Esegui una query per contare il numero totale di record che corrispondono al filtro
         sql_query_string = (
                                "SELECT COUNT(*) FROM media_thumb_table as a, media_to_entity_table as b  %s") % filter_query
-        res = self.engine.execute(sql_query_string)
+        res = self._execute_sql(sql_query_string)
         total_records = res.scalar()  # .scalar() restituisce il primo elemento della prima riga, che in questo caso è il conteggio
 
         # Calcola e restituisci il numero totale di pagine
@@ -3515,7 +3657,7 @@ class Pyarchinit_db_management(object):
         sql_query_string = (
             "SELECT * FROM media_thumb_table LIMIT {} OFFSET {}"
         ).format( page_size, start_index)
-        res = self.engine.execute(sql_query_string)
+        res = self._execute_sql(sql_query_string)
         rows = res.fetchall()
         return rows
     def select_original(self, page_number, page_size):
@@ -3523,59 +3665,59 @@ class Pyarchinit_db_management(object):
         sql_query_string = (
             "SELECT * FROM media_to_entity_table LIMIT {} OFFSET {}"
         ).format( page_size, start_index)
-        res = self.engine.execute(sql_query_string)
+        res = self._execute_sql(sql_query_string)
         rows = res.fetchall()
         return rows
     def select_ra_from_db_sql(self,sito,area,us):
         sql_query_string = ("SELECT n_reperto from inventario_materiali_table WHERE sito = '%s' and area = '%s' and us = '%s'")%(sito,area,us) 
         
-        res = self.engine.execute(sql_query_string)
+        res = self._execute_sql(sql_query_string)
         rows= res.fetchall()
         return rows
     def select_coord_from_db_sql(self,sito,area,us):
         sql_query_string = ("SELECT coord from pyunitastratigrafiche WHERE scavo_s = '%s' and area_s = '%s' and us_s = '%s'")%(sito,area,us) 
         
-        res = self.engine.execute(sql_query_string)
+        res = self._execute_sql(sql_query_string)
         rows= res.fetchall()
         return rows
     
     def select_medianame_3_from_db_sql(self,sito,area,us):
         sql_query_string = ("SELECT c.filepath, b.us,a.media_name FROM media_to_entity_table as a,  inventario_materiali_table as b, media_thumb_table as c WHERE b.id_invmat=a.id_entity and c.id_media=a.id_media  and b.sito= '%s' and b.area='%s' and us = '%s'")%(sito,area,us) 
         
-        res = self.engine.execute(sql_query_string)
+        res = self._execute_sql(sql_query_string)
         rows= res.fetchall()
         return rows
     
     def select_thumbnail_from_db_sql(self,sito):
         sql_query_string = ("SELECT c.filepath, group_concat ((select us from us_table where id_us like id_entity))as us,a.media_name,b.area,b.unita_tipo FROM  media_to_entity_table as a,  us_table as b, media_thumb_table as c WHERE b.id_us=a.id_entity and c.id_media=a.id_media and sito='%s' group by a.media_name order by a.media_name asc")%(sito)
-        res = self.engine.execute(sql_query_string)
+        res = self._execute_sql(sql_query_string)
         rows= res.fetchall()
         return rows
     
     def select_quote_from_db_sql(self, sito, area, us):
         sql_query_string = ("SELECT * FROM pyarchinit_quote WHERE sito_q = '%s' AND area_q = '%s' AND us_q = '%s'") % (
         sito, area, us)
-        res = self.engine.execute(sql_query_string)
+        res = self._execute_sql(sql_query_string)
         return res
     def select_us_from_db_sql(self, sito, area, us, stratigraph_index_us):
         sql_query_string = (
                            "SELECT * FROM pyunitastratigrafiche WHERE scavo_s = '%s' AND area_s = '%s' AND us_s = '%s' AND stratigraph_index_us = '%s'") % (
                            sito, area, us, stratigraph_index_us)
-        res = self.engine.execute(sql_query_string)
+        res = self._execute_sql(sql_query_string)
         return res
 
     # def select_us_doc_from_db_sql(self, sito, tipo_doc, nome_doc):
     #     sql_query_string = (
     #                        "SELECT * FROM pyunitastratigrafiche WHERE scavo_s = '%s' AND tipo_doc = '%s' AND nome_doc = '%s'") % (
     #                        sito, tipo_doc, nome_doc)
-    #     res = self.engine.execute(sql_query_string)
+    #     res = self._execute_sql(sql_query_string)
     #     return res
     #
     # def select_usneg_doc_from_db_sql(self, sito, tipo_doc, nome_doc):
     #     sql_query_string = (
     #                        "SELECT * FROM pyarchinit_us_negative_doc WHERE sito_n = '%s' AND  tipo_doc_n = '%s' AND nome_doc_n = '%s'") % (
     #                        sito, tipo_doc, nome_doc)
-    #     res = self.engine.execute(sql_query_string)
+    #     res = self._execute_sql(sql_query_string)
     #     return res
     def select_us_doc_from_db_sql(self, sito, tipo_doc, nome_doc):
 
@@ -3583,7 +3725,7 @@ class Pyarchinit_db_management(object):
         sql_query = text(
             "SELECT * FROM pyunitastratigrafiche WHERE scavo_s = :sito AND tipo_doc = :tipo_doc AND nome_doc = :nome_doc")
 
-        res = self.engine.execute(sql_query, sito=sito, tipo_doc=tipo_doc, nome_doc=nome_doc)
+        res = self._execute_sql(sql_query, sito=sito, tipo_doc=tipo_doc, nome_doc=nome_doc)
         return res
 
     def select_usneg_doc_from_db_sql(self, sito, tipo_doc, nome_doc):
@@ -3592,17 +3734,17 @@ class Pyarchinit_db_management(object):
         sql_query = text(
             "SELECT * FROM pyarchinit_us_negative_doc WHERE sito_n = :sito AND tipo_doc_n = :tipo_doc AND nome_doc_n = :nome_doc")
 
-        res = self.engine.execute(sql_query, sito=sito, tipo_doc=tipo_doc, nome_doc=nome_doc)
+        res = self._execute_sql(sql_query, sito=sito, tipo_doc=tipo_doc, nome_doc=nome_doc)
         return res
 
     def select_db_sql(self, table):
         sql_query_string = ("SELECT * FROM %s") % table
-        res = self.engine.execute(sql_query_string)
+        res = self._execute_sql(sql_query_string)
         return res
     
     def select_db_sql_2(self, sito,area,us,d_stratigrafica):
         sql_query_string = ("SELECT * FROM us_table as a where a.sito='%s' AND a.area='%s' AND a.us='%s' AND a.d_stratigrafica='%s'") % (sito,area,us,d_stratigrafica)
-        res = self.engine.execute(sql_query_string)
+        res = self._execute_sql(sql_query_string)
         rows= res.fetchall()
         
         return rows
@@ -3610,7 +3752,7 @@ class Pyarchinit_db_management(object):
     
     def test_ut_sql(self,unita_tipo):
         sql_query_string = ("SELECT %s FROM us_table")% (unita_tipo)
-        res = self.engine.execute(sql_query_string)
+        res = self._execute_sql(sql_query_string)
         return res
 
 
@@ -3713,7 +3855,7 @@ class Pyarchinit_db_management(object):
     def insert_arbitrary_number_of_us_records(self, us_range, sito, area, n_us, unita_tipo):
         id_us = self.max_num_id('US', 'id_us')
         
-        l=QgsSettings().value("locale/userLocale")[0:2]
+        l=QgsSettings().value("locale/userLocale", "it", type=str)[:2]
 
         for i in range(us_range):
             id_us += 1
@@ -3728,7 +3870,7 @@ class Pyarchinit_db_management(object):
 
     def insert_number_of_rapporti_records(self, sito, area, n_us, n_rapporti, unita_tipo):
         id_us = self.max_num_id('US', 'id_us')
-        l = QgsSettings().value("locale/userLocale")[0:2]
+        l = QgsSettings().value("locale/userLocale", "it", type=str)[:2]
 
         if l == 'it':
             text = "SCHEDA CREATA IN AUTOMATICO"
@@ -3760,7 +3902,7 @@ class Pyarchinit_db_management(object):
     def insert_number_of_us_records(self, sito, area, n_us,unita_tipo):
         id_us = self.max_num_id('US', 'id_us')
         #text = "SCHEDA CREATA IN AUTOMATICO"
-        l=QgsSettings().value("locale/userLocale")[0:2]
+        l=QgsSettings().value("locale/userLocale", "it", type=str)[:2]
 
         if l == 'it':
             text = "SCHEDA CREATA IN AUTOMATICO"
@@ -3785,7 +3927,7 @@ class Pyarchinit_db_management(object):
     def insert_number_of_reperti_records(self, sito, numero_inventario):
         id_invmat = self.max_num_id('INVENTARIO_MATERIALI', 'id_invmat')
         
-        l=QgsSettings().value("locale/userLocale")[0:2]
+        l=QgsSettings().value("locale/userLocale", "it", type=str)[:2]
 
         
         id_invmat += 1
@@ -3800,7 +3942,7 @@ class Pyarchinit_db_management(object):
     def insert_number_of_pottery_records(self,  id_number,sito, area,us):
         id_rep = self.max_num_id('POTTERY', 'id_rep')
 
-        l = QgsSettings().value("locale/userLocale")[0:2]
+        l = QgsSettings().value("locale/userLocale", "it", type=str)[:2]
 
         id_rep += 1
 
@@ -3817,7 +3959,7 @@ class Pyarchinit_db_management(object):
     def insert_number_of_tomba_records(self, sito, nr_scheda_taf):
         id_tomba = self.max_num_id('TOMBA', 'id_tomba')
         
-        l=QgsSettings().value("locale/userLocale")[0:2]
+        l=QgsSettings().value("locale/userLocale", "it", type=str)[:2]
 
         
         id_tomba += 1
@@ -3830,7 +3972,7 @@ class Pyarchinit_db_management(object):
     def insert_struttura_records(self, sito, sigla_struttura,numero_struttura):
         id_struttura = self.max_num_id('STRUTTURA', 'id_struttura')
         
-        l=QgsSettings().value("locale/userLocale")[0:2]
+        l=QgsSettings().value("locale/userLocale", "it", type=str)[:2]
 
         
         id_struttura += 1
@@ -3872,7 +4014,7 @@ class Pyarchinit_db_management(object):
 
     # def select_not_like_from_db_sql(self, sitof, areaf):
     #     # NB per funzionare con postgres è necessario che al posto di " ci sia '
-    #     l=QgsSettings().value("locale/userLocale")[0:2]
+    #     l=QgsSettings().value("locale/userLocale", "it", type=str)[:2]
     #     Session = sessionmaker(bind=self.engine, autoflush=True, autocommit=True)
     #     session = Session()
     #
@@ -3896,7 +4038,7 @@ class Pyarchinit_db_management(object):
     #     return res
 
     def select_not_like_from_db_sql(self, sitof, areaf):
-        l = QgsSettings().value("locale/userLocale")[0:2]
+        l = QgsSettings().value("locale/userLocale", "it", type=str)[:2]
         Session = sessionmaker(bind=self.engine, autoflush=True, autocommit=True)
         session = Session()
         res = None

@@ -10,13 +10,8 @@ from modules.db.pyarchinit_conn_strings import Connection
 
 
 class Inventario_materiali_table:
-    # connection string postgres"
-    internal_connection = Connection()
 
-    # create engine and metadata
-
-    engine = create_engine(internal_connection.conn_str(), echo=False, convert_unicode=True)
-    metadata = MetaData(engine)
+    metadata = MetaData()
 
     # define tables
     inventario_materiali_table = Table('inventario_materiali_table', metadata,
@@ -80,13 +75,9 @@ class Inventario_materiali_table:
 
 
 # class Inventario_materiali_table_toimp:
-#     # connection string postgres"
-#     internal_connection = Connection()
 #
-#     # create engine and metadata
 #
-#     engine = create_engine(internal_connection.conn_str(), echo=False, convert_unicode=True)
-#     metadata = MetaData(engine)
+#     metadata = MetaData()
 #
 #     # define tables
 #     inventario_materiali_table_toimp = Table('inventario_materiali_table_toimp', metadata,

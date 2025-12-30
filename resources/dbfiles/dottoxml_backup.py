@@ -24,8 +24,8 @@ import optparse
 import dot
 import xml.dom.minidom as F
 from xml.dom.minidom import *
-from PyQt5 import QtCore
-from PyQt5.QtWidgets import QInputDialog, QApplication
+from qgis.PyQt import QtCore
+from qgis.PyQt.QtWidgets import QInputDialog, QApplication
 # Usage message
 usgmsg = "Usage: dottoxml.py [options] infile.dot outfile.graphml"
 

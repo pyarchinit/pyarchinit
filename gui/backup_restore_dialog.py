@@ -132,7 +132,7 @@ class BackupRestoreDialog(QDialog):
         main_layout.addWidget(info_group)
 
         # Splitter for calendar and backup list
-        splitter = QSplitter(Qt.Horizontal)
+        splitter = QSplitter(Qt.Orientation.Horizontal)
 
         # Calendar section
         calendar_widget = QWidget()

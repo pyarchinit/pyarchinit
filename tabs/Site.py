@@ -24,8 +24,6 @@ import os
 from datetime import date
 import requests
 import urllib
-from builtins import range
-from builtins import str
 #from pyper import *
 from qgis.PyQt.QtGui import *
 from qgis.PyQt.QtCore import *
@@ -63,7 +61,7 @@ class QgsMapLayerRegistry:
 class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
     """This class provides to manage the Site Sheet"""
 
-    L=QgsSettings().value("locale/userLocale")[0:2]
+    L=QgsSettings().value("locale/userLocale", "it", type=str)[:2]
     if L=='it':
         MSG_BOX_TITLE = "PyArchInit - Scheda Sito"
     elif L=='en':
@@ -193,7 +191,8 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
         "SV": ['sv_SV','sv','SV', 'SV_SV'],
         "RU": ['ru_RU','ru','RU', 'RU_RU'],
         "RO": ['ro_RO','ro','RO', 'RO_RO'],
-        "AR": ['ar_AR','ar','AR', 'AR_AR'],
+        "AR": ['ar_LB', 'ar', 'AR', 'AR_LB', 'ar_AR', 'AR_AR'],
+        "CA": ['ca_ES', 'ca', 'CA', 'CA_ES'],
         "PT_BR": ['pt_BR','PT_BR'],
         "SL": ['sl_SL','sl','SL', 'SL_SL'],
     }
@@ -215,7 +214,7 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
         try:
             self.on_pushButton_connect_pressed()
         except Exception as e:
-            QMessageBox.warning(self, "Connection system", str(e), QMessageBox.Ok)
+            QMessageBox.warning(self, "Connection system", str(e), QMessageBox.StandardButton.Ok)
 
         self.pbnOpenSiteDirectory.clicked.connect(self.openSiteDir)
         self.pbn_browse_folder.clicked.connect(self.setPathToSites)
@@ -280,7 +279,7 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
             self,
             "Set path directory",
             self.HOME,
-            QFileDialog.ShowDirsOnly
+            QFileDialog.Option.ShowDirsOnly
         )
 
         if self.siti_path:
@@ -293,7 +292,7 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
             QDesktopServices.openUrl(QUrl.fromLocalFile(dir))
         else:
             QMessageBox.warning(self, "INFO", "Directory not found",
-                                QMessageBox.Ok)
+                                QMessageBox.StandardButton.Ok)
 
     def on_wms_vincoli_pressed(self):
         groupName="Vincoli Archelogici"
@@ -419,7 +418,7 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
                     QgsProject.instance().addMapLayers([rlayer_wiki,rlayer],False)
         
         else:
-            QMessageBox.warning(self, "Pyarchinit", "Internet Assente o Lento\n Non verranno caricate le Base Map", QMessageBox.Ok)
+            QMessageBox.warning(self, "Pyarchinit", "Internet Assente o Lento\n Non verranno caricate le Base Map", QMessageBox.StandardButton.Ok)
     
     def enable_button(self, n):
         """This method Unable or Enable the GUI buttons on browse modality"""
@@ -504,15 +503,15 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
             else:
                 if self.L=='it':
                     QMessageBox.warning(self,"BENVENUTO", "Benvenuto in pyArchInit " + self.NOME_SCHEDA + ". Il database e' vuoto. Premi 'Ok' e buon lavoro!",
-                                        QMessageBox.Ok)
+                                        QMessageBox.StandardButton.Ok)
                 
                 elif self.L=='de':
                     
                     QMessageBox.warning(self,"WILLKOMMEN","WILLKOMMEN in pyArchInit" + "Munsterformular"+ ". Die Datenbank ist leer. Tippe 'Ok' und aufgehts!",
-                                        QMessageBox.Ok) 
+                                        QMessageBox.StandardButton.Ok) 
                 else:
                     QMessageBox.warning(self,"WELCOME", "Welcome in pyArchInit" + "Samples form" + ". The DB is empty. Push 'Ok' and Good Work!",
-                                        QMessageBox.Ok) 
+                                        QMessageBox.StandardButton.Ok) 
                 self.charge_list()
                 self.BROWSE_STATUS = 'x'
                 self.on_pushButton_new_rec_pressed()
@@ -621,7 +620,7 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
         else:
             dlg = SortPanelMain(self)
             dlg.insertItems(self.SORT_ITEMS)
-            dlg.exec_()
+            dlg.exec()
 
             items, order_type = dlg.ITEMS, dlg.TYPE_ORDER
 
@@ -634,7 +633,7 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
 
             id_list = []
             for i in self.DATA_LIST:
-                id_list.append(eval("i." + self.ID_TABLE))
+                id_list.append(getattr(i, self.ID_TABLE))
 
             self.DATA_LIST = []
 
@@ -667,16 +666,16 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
                         if self.records_equal_check() == 1:
                             if self.L=='it':
                                 self.update_if(QMessageBox.warning(self, 'Errore',
-                                                                   "Il record e' stato modificato. Vuoi salvare le modifiche?",QMessageBox.Ok | QMessageBox.Cancel))
+                                                                   "Il record e' stato modificato. Vuoi salvare le modifiche?",QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel))
                             elif self.L=='de':
                                 self.update_if(QMessageBox.warning(self, 'Error',
                                                                    "Der Record wurde geändert. Möchtest du die Änderungen speichern?",
-                                                                   QMessageBox.Ok | QMessageBox.Cancel))
+                                                                   QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel))
                                                                    
                             else:
                                 self.update_if(QMessageBox.warning(self, 'Error',
                                                                    "The record has been changed. Do you want to save the changes?",
-                                                                   QMessageBox.Ok | QMessageBox.Cancel))
+                                                                   QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel))
                             # set the GUI for a new record
         if self.BROWSE_STATUS != "n":
             self.BROWSE_STATUS = "n"
@@ -723,27 +722,27 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
                             if self.records_equal_check() == 1:
                                 if self.L=='it':
                                     self.update_if(QMessageBox.warning(self, 'Errore',
-                                                                       "Il record e' stato modificato. Vuoi salvare le modifiche?",QMessageBox.Ok | QMessageBox.Cancel))
+                                                                       "Il record e' stato modificato. Vuoi salvare le modifiche?",QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel))
                                 elif self.L=='de':
                                     self.update_if(QMessageBox.warning(self, 'Error',
                                                                        "Der Record wurde geändert. Möchtest du die Änderungen speichern?",
-                                                                       QMessageBox.Ok | QMessageBox.Cancel))
+                                                                       QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel))
 
                                 else:
                                     self.update_if(QMessageBox.warning(self, 'Error',
                                                                        "The record has been changed. Do you want to save the changes?",
-                                                                       QMessageBox.Ok | QMessageBox.Cancel))
+                                                                       QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel))
                                 self.SORT_STATUS = "n"
                                 self.label_sort.setText(self.SORTED_ITEMS[self.SORT_STATUS])
                                 self.enable_button(1)
                                 self.fill_fields(self.REC_CORR)
                             else:
                                 if self.L=='it':
-                                    QMessageBox.warning(self, "ATTENZIONE", "Non è stata realizzata alcuna modifica.", QMessageBox.Ok)
+                                    QMessageBox.warning(self, "ATTENZIONE", "Non è stata realizzata alcuna modifica.", QMessageBox.StandardButton.Ok)
                                 elif self.L=='de':
-                                    QMessageBox.warning(self, "ACHTUNG", "Keine Änderung vorgenommen", QMessageBox.Ok)
+                                    QMessageBox.warning(self, "ACHTUNG", "Keine Änderung vorgenommen", QMessageBox.StandardButton.Ok)
                                 else:
-                                    QMessageBox.warning(self, "Warning", "No changes have been made", QMessageBox.Ok)  
+                                    QMessageBox.warning(self, "Warning", "No changes have been made", QMessageBox.StandardButton.Ok)  
         else:
             if self.data_error_check() == 0:
                 test_insert = self.insert_new_rec()
@@ -769,16 +768,16 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
         if self.L=='it':
 
             if EC.data_is_empty(str(self.comboBox_sito.currentText())) == 0:
-                QMessageBox.warning(self, "ATTENZIONE", "Campo Sito. \n Il campo non deve essere vuoto", QMessageBox.Ok)
+                QMessageBox.warning(self, "ATTENZIONE", "Campo Sito. \n Il campo non deve essere vuoto", QMessageBox.StandardButton.Ok)
                 test = 1
         elif self.L=='de':  
             if EC.data_is_empty(str(self.comboBox_sito.currentText())) == 0:
-                QMessageBox.warning(self, "ACHTUNG", " Feld Ausgrabungstätte. \n Das Feld darf nicht leer sein", QMessageBox.Ok)
+                QMessageBox.warning(self, "ACHTUNG", " Feld Ausgrabungstätte. \n Das Feld darf nicht leer sein", QMessageBox.StandardButton.Ok)
                 test = 1    
                 
         else:   
             if EC.data_is_empty(str(self.comboBox_sito.currentText())) == 0:
-                QMessageBox.warning(self, "WARNING", "Site Field. \n The field must not be empty", QMessageBox.Ok)
+                QMessageBox.warning(self, "WARNING", "Site Field. \n The field must not be empty", QMessageBox.StandardButton.Ok)
                 test = 1        
         return test
 
@@ -806,20 +805,20 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
                     
                     if self.L=='it':
                         msg = self.ID_TABLE + " gia' presente nel database"
-                        QMessageBox.warning(self, "Error", "Error" + str(msg), QMessageBox.Ok)
+                        QMessageBox.warning(self, "Error", "Error" + str(msg), QMessageBox.StandardButton.Ok)
                     elif self.L=='de':
                         msg = self.ID_TABLE + " bereits in der Datenbank"
-                        QMessageBox.warning(self, "Error", "Error" + str(msg), QMessageBox.Ok)  
+                        QMessageBox.warning(self, "Error", "Error" + str(msg), QMessageBox.StandardButton.Ok)  
                     else:
                         msg = self.ID_TABLE + " exist in db"
-                        QMessageBox.warning(self, "Error", "Error" + str(msg), QMessageBox.Ok)  
+                        QMessageBox.warning(self, "Error", "Error" + str(msg), QMessageBox.StandardButton.Ok)  
                 else:
                     msg = e
-                    QMessageBox.warning(self, "Error", "Error 1 \n" + str(msg), QMessageBox.Ok)
+                    QMessageBox.warning(self, "Error", "Error 1 \n" + str(msg), QMessageBox.StandardButton.Ok)
                 return 0
 
         except Exception as e:
-            QMessageBox.warning(self, "Error", "Error 2 \n" + str(e), QMessageBox.Ok)
+            QMessageBox.warning(self, "Error", "Error 2 \n" + str(e), QMessageBox.StandardButton.Ok)
             return 0
 
     def check_record_state(self):
@@ -831,15 +830,15 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
                 self.update_if(
                 
                     QMessageBox.warning(self, 'Errore', "Il record e' stato modificato. Vuoi salvare le modifiche?",
-                                        QMessageBox.Ok | QMessageBox.Cancel))
+                                        QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel))
             elif self.L=='de':
                 self.update_if(
                     QMessageBox.warning(self, 'Errore', "Der Record wurde geändert. Möchtest du die Änderungen speichern?",
-                                        QMessageBox.Ok | QMessageBox.Cancel))
+                                        QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel))
             else:
                 self.update_if(
                     QMessageBox.warning(self, "Error", "The record has been changed. You want to save the changes?",
-                                        QMessageBox.Ok | QMessageBox.Cancel))
+                                        QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel))
             # self.charge_records()
             return 0  # non ci sono errori di immissione
 
@@ -876,7 +875,7 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
                 self.fill_fields(0)
                 self.set_rec_counter(self.REC_TOT, self.REC_CORR + 1)
             except Exception as e:
-                QMessageBox.warning(self, "Errore", str(e), QMessageBox.Ok)
+                QMessageBox.warning(self, "Errore", str(e), QMessageBox.StandardButton.Ok)
 
     def on_pushButton_last_rec_pressed(self):
         if self.check_record_state() == 1:
@@ -888,7 +887,7 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
                 self.fill_fields(self.REC_CORR)
                 self.set_rec_counter(self.REC_TOT, self.REC_CORR + 1)
             except Exception as e:
-                QMessageBox.warning(self, "Errore", str(e), QMessageBox.Ok)
+                QMessageBox.warning(self, "Errore", str(e), QMessageBox.StandardButton.Ok)
 
     def on_pushButton_prev_rec_pressed(self):
         if self.check_record_state() == 1:
@@ -898,18 +897,18 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
             if self.REC_CORR == -1:
                 self.REC_CORR = 0
                 if self.L=='it':
-                    QMessageBox.warning(self, "Attenzione", "Sei al primo record!", QMessageBox.Ok)
+                    QMessageBox.warning(self, "Attenzione", "Sei al primo record!", QMessageBox.StandardButton.Ok)
                 elif self.L=='de':
-                    QMessageBox.warning(self, "Achtung", "du befindest dich im ersten Datensatz!", QMessageBox.Ok)
+                    QMessageBox.warning(self, "Achtung", "du befindest dich im ersten Datensatz!", QMessageBox.StandardButton.Ok)
                 else:
-                    QMessageBox.warning(self, "Warning", "You are to the first record!", QMessageBox.Ok)        
+                    QMessageBox.warning(self, "Warning", "You are to the first record!", QMessageBox.StandardButton.Ok)        
             else:
                 try:
                     self.empty_fields()
                     self.fill_fields(self.REC_CORR)
                     self.set_rec_counter(self.REC_TOT, self.REC_CORR + 1)
                 except Exception as e:
-                    QMessageBox.warning(self, "Error", str(e), QMessageBox.Ok)
+                    QMessageBox.warning(self, "Error", str(e), QMessageBox.StandardButton.Ok)
 
     def on_pushButton_next_rec_pressed(self):
         if self.check_record_state() == 1:
@@ -919,18 +918,18 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
             if self.REC_CORR >= self.REC_TOT:
                 self.REC_CORR = self.REC_CORR - 1
                 if self.L=='it':
-                    QMessageBox.warning(self, "Attenzione", "Sei all'ultimo record!", QMessageBox.Ok)
+                    QMessageBox.warning(self, "Attenzione", "Sei all'ultimo record!", QMessageBox.StandardButton.Ok)
                 elif self.L=='de':
-                    QMessageBox.warning(self, "Achtung", "du befindest dich im letzten Datensatz!", QMessageBox.Ok)
+                    QMessageBox.warning(self, "Achtung", "du befindest dich im letzten Datensatz!", QMessageBox.StandardButton.Ok)
                 else:
-                    QMessageBox.warning(self, "Error", "You are to the first record!", QMessageBox.Ok)  
+                    QMessageBox.warning(self, "Error", "You are to the first record!", QMessageBox.StandardButton.Ok)  
             else:
                 try:
                     self.empty_fields()
                     self.fill_fields(self.REC_CORR)
                     self.set_rec_counter(self.REC_TOT, self.REC_CORR + 1)
                 except Exception as e:
-                    QMessageBox.warning(self, "Error", str(e), QMessageBox.Ok)
+                    QMessageBox.warning(self, "Error", str(e), QMessageBox.StandardButton.Ok)
 
     def on_pushButton_delete_pressed(self):
         
@@ -938,19 +937,19 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
         if self.L=='it':
             msg = QMessageBox.warning(self, "Attenzione!!!",
                                       "Vuoi veramente eliminare il record? \n L'azione è irreversibile",
-                                      QMessageBox.Ok | QMessageBox.Cancel)
-            if msg == QMessageBox.Cancel:
+                                      QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel)
+            if msg == QMessageBox.StandardButton.Cancel:
                 QMessageBox.warning(self, "Messagio!!!", "Azione Annullata!")
             else:
                 try:
-                    id_to_delete = eval("self.DATA_LIST[self.REC_CORR]." + self.ID_TABLE)
+                    id_to_delete = getattr(self.DATA_LIST[self.REC_CORR], self.ID_TABLE)
                     self.DB_MANAGER.delete_one_record(self.TABLE_NAME, self.ID_TABLE, id_to_delete)
                     self.charge_records()  # charge records from DB
                     QMessageBox.warning(self, "Messaggio!!!", "Record eliminato!")
                 except Exception as e:
                     QMessageBox.warning(self, "Messaggio!!!", "Tipo di errore: " + str(e))
                 if not bool(self.DATA_LIST):
-                    QMessageBox.warning(self, "Attenzione", "Il database è vuoto!", QMessageBox.Ok)
+                    QMessageBox.warning(self, "Attenzione", "Il database è vuoto!", QMessageBox.StandardButton.Ok)
                     self.DATA_LIST = []
                     self.DATA_LIST_REC_CORR = []
                     self.DATA_LIST_REC_TEMP = []
@@ -971,19 +970,19 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
         elif self.L=='de':
             msg = QMessageBox.warning(self, "Achtung!!!",
                                       "Willst du wirklich diesen Eintrag löschen? \n Der Vorgang ist unumkehrbar",
-                                      QMessageBox.Ok | QMessageBox.Cancel)
-            if msg == QMessageBox.Cancel:
+                                      QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel)
+            if msg == QMessageBox.StandardButton.Cancel:
                 QMessageBox.warning(self, "Message!!!", "Aktion annulliert!")
             else:
                 try:
-                    id_to_delete = eval("self.DATA_LIST[self.REC_CORR]." + self.ID_TABLE)
+                    id_to_delete = getattr(self.DATA_LIST[self.REC_CORR], self.ID_TABLE)
                     self.DB_MANAGER.delete_one_record(self.TABLE_NAME, self.ID_TABLE, id_to_delete)
                     self.charge_records()  # charge records from DB
                     QMessageBox.warning(self, "Message!!!", "Record gelöscht!")
                 except Exception as e:
                     QMessageBox.warning(self, "Message!!!", "Errortyp: " + str(e))
                 if not bool(self.DATA_LIST):
-                    QMessageBox.warning(self, "Achtung", "Die Datenbank ist leer!", QMessageBox.Ok)
+                    QMessageBox.warning(self, "Achtung", "Die Datenbank ist leer!", QMessageBox.StandardButton.Ok)
                     self.DATA_LIST = []
                     self.DATA_LIST_REC_CORR = []
                     self.DATA_LIST_REC_TEMP = []
@@ -1004,19 +1003,19 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
         else:
             msg = QMessageBox.warning(self, "Warning!!!",
                                       "Do you really want to break the record? \n Action is irreversible.",
-                                      QMessageBox.Ok | QMessageBox.Cancel)
-            if msg == QMessageBox.Cancel:
+                                      QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel)
+            if msg == QMessageBox.StandardButton.Cancel:
                 QMessageBox.warning(self, "Message!!!", "Action deleted!")
             else:
                 try:
-                    id_to_delete = eval("self.DATA_LIST[self.REC_CORR]." + self.ID_TABLE)
+                    id_to_delete = getattr(self.DATA_LIST[self.REC_CORR], self.ID_TABLE)
                     self.DB_MANAGER.delete_one_record(self.TABLE_NAME, self.ID_TABLE, id_to_delete)
                     self.charge_records()  # charge records from DB
                     QMessageBox.warning(self, "Message!!!", "Record deleted!")
                 except Exception as e:
                     QMessageBox.warning(self, "Message!!!", "error type: " + str(e))
                 if not bool(self.DATA_LIST):
-                    QMessageBox.warning(self, "Warning", "the db is empty!", QMessageBox.Ok)
+                    QMessageBox.warning(self, "Warning", "the db is empty!", QMessageBox.StandardButton.Ok)
                     self.DATA_LIST = []
                     self.DATA_LIST_REC_CORR = []
                     self.DATA_LIST_REC_TEMP = []
@@ -1067,27 +1066,27 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
         if bool(self.comboBox_sito.currentText()) and self.comboBox_sito.currentText()==sito_set_str:
             
             if self.L=='it':
-                QMessageBox.information(self, "OK" ,"Sei connesso al sito: %s" % str(sito_set_str),QMessageBox.Ok) 
+                QMessageBox.information(self, "OK" ,"Sei connesso al sito: %s" % str(sito_set_str),QMessageBox.StandardButton.Ok) 
         
             elif self.L=='de':
-                QMessageBox.information(self, "OK", "Sie sind mit der archäologischen Stätte verbunden: %s" % str(sito_set_str),QMessageBox.Ok) 
+                QMessageBox.information(self, "OK", "Sie sind mit der archäologischen Stätte verbunden: %s" % str(sito_set_str),QMessageBox.StandardButton.Ok) 
                 
             else:
-                QMessageBox.information(self, "OK", "You are connected to the site: %s" % str(sito_set_str),QMessageBox.Ok)     
+                QMessageBox.information(self, "OK", "You are connected to the site: %s" % str(sito_set_str),QMessageBox.StandardButton.Ok)     
         
         elif sito_set_str=='':    
             if self.L=='it':
-                msg = QMessageBox.information(self, "Attenzione" ,"Non hai settato alcun sito. Vuoi settarne uno? click Ok altrimenti Annulla per  vedere tutti i record",QMessageBox.Ok | QMessageBox.Cancel) 
+                msg = QMessageBox.information(self, "Attenzione" ,"Non hai settato alcun sito. Vuoi settarne uno? click Ok altrimenti Annulla per  vedere tutti i record",QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel) 
             elif self.L=='de':
-                msg = QMessageBox.information(self, "Achtung", "Sie haben keine archäologischen Stätten eingerichtet. Klicken Sie auf OK oder Abbrechen, um alle Datensätze zu sehen",QMessageBox.Ok | QMessageBox.Cancel) 
+                msg = QMessageBox.information(self, "Achtung", "Sie haben keine archäologischen Stätten eingerichtet. Klicken Sie auf OK oder Abbrechen, um alle Datensätze zu sehen",QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel) 
             else:
-                msg = QMessageBox.information(self, "Warning" , "You have not set up any archaeological site. Do you want to set one? click Ok otherwise Cancel to see all records",QMessageBox.Ok | QMessageBox.Cancel) 
-            if msg == QMessageBox.Cancel:
+                msg = QMessageBox.information(self, "Warning" , "You have not set up any archaeological site. Do you want to set one? click Ok otherwise Cancel to see all records",QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel) 
+            if msg == QMessageBox.StandardButton.Cancel:
                 pass
             else: 
                 dlg = pyArchInitDialog_Config(self)
                 dlg.charge_list()
-                dlg.exec_()
+                dlg.exec()
     def set_sito(self):
         #self.model_a.database().close()
         conn = Connection()
@@ -1104,7 +1103,18 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
                 for i in res:
                     self.DATA_LIST.append(i)
                 self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
-                self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]  ####darivedere
+
+                # Check if we have results before accessing DATA_LIST[0]
+                if len(self.DATA_LIST) == 0:
+                    if self.L=='it':
+                        QMessageBox.information(self, "Attenzione", f"Il sito '{sito_set_str}' non ha record in questa scheda. Crea un nuovo record o disattiva la 'scelta sito' dalla configurazione.", QMessageBox.StandardButton.Ok)
+                    elif self.L=='de':
+                        QMessageBox.information(self, "Warnung", f"Die Fundstelle '{sito_set_str}' hat keine Datensätze. Erstellen Sie einen neuen Datensatz oder deaktivieren Sie die 'Site-Wahl'.", QMessageBox.StandardButton.Ok)
+                    else:
+                        QMessageBox.information(self, "Warning", f"Site '{sito_set_str}' has no records in this tab. Create a new record or disable 'site choice' from configuration.", QMessageBox.StandardButton.Ok)
+                    return
+
+                self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
                 self.fill_fields()
                 self.BROWSE_STATUS = "b"
                 self.SORT_STATUS = "n"
@@ -1113,27 +1123,29 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
                 self.setComboBoxEnable(["self.comboBox_sito"], "False")
             else:
                 pass#
-        except:
+        except Exception as e:
+            import traceback
+            error_msg = str(e)
+            traceback_str = traceback.format_exc()
+            print(f"[Site.set_sito] Error: {error_msg}\n{traceback_str}")
+
             if self.L=='it':
-            
-                QMessageBox.information(self, "Attenzione" ,"Non esiste questo sito: "'"'+ str(sito_set_str) +'"'" in questa scheda, Per favore distattiva la 'scelta sito' dalla scheda di configurazione plugin per vedere tutti i record oppure crea la scheda",QMessageBox.Ok) 
+                QMessageBox.warning(self, "Errore", f"Errore nel caricamento del sito '{sito_set_str}':\n{error_msg}", QMessageBox.StandardButton.Ok)
             elif self.L=='de':
-            
-                QMessageBox.information(self, "Warnung" , "Es gibt keine solche archäologische Stätte: "'""'+ str(sito_set_str) +'"'" in dieser Registerkarte, Bitte deaktivieren Sie die 'Site-Wahl' in der Plugin-Konfigurationsregisterkarte, um alle Datensätze zu sehen oder die Registerkarte zu erstellen",QMessageBox.Ok) 
+                QMessageBox.warning(self, "Fehler", f"Fehler beim Laden der Fundstelle '{sito_set_str}':\n{error_msg}", QMessageBox.StandardButton.Ok)
             else:
-            
-                QMessageBox.information(self, "Warning" , "There is no such site: "'"'+ str(sito_set_str) +'"'" in this tab, Please disable the 'site choice' from the plugin configuration tab to see all records or create the tab",QMessageBox.Ok)   
+                QMessageBox.warning(self, "Error", f"Error loading site '{sito_set_str}':\n{error_msg}", QMessageBox.StandardButton.Ok)   
     def on_pushButton_search_go_pressed(self):
         if self.BROWSE_STATUS != "f":
             if self.L=='it':
                 QMessageBox.warning(self, "ATTENZIONE", "Per eseguire una nuova ricerca clicca sul pulsante 'new search' ",
-                                    QMessageBox.Ok)
+                                    QMessageBox.StandardButton.Ok)
             elif self.L=='de':
                 QMessageBox.warning(self, "ACHTUNG", "Um eine neue Abfrage zu starten drücke  'new search' ",
-                                    QMessageBox.Ok)
+                                    QMessageBox.StandardButton.Ok)
             else:
                 QMessageBox.warning(self, "WARNING", "To perform a new search click on the 'new search' button ",
-                                    QMessageBox.Ok)  
+                                    QMessageBox.StandardButton.Ok)  
         else:
             search_dict = {
                 'sito': "'" + str(self.comboBox_sito.currentText()) + "'",  # 1 - Sito
@@ -1150,20 +1162,20 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
 
             if not bool(search_dict):
                 if self.L=='it':
-                    QMessageBox.warning(self, "ATTENZIONE", "Non è stata impostata nessuna ricerca!!!", QMessageBox.Ok)
+                    QMessageBox.warning(self, "ATTENZIONE", "Non è stata impostata nessuna ricerca!!!", QMessageBox.StandardButton.Ok)
                 elif self.L=='de':
-                    QMessageBox.warning(self, "ACHTUNG", "Keine Abfrage definiert!!!", QMessageBox.Ok)
+                    QMessageBox.warning(self, "ACHTUNG", "Keine Abfrage definiert!!!", QMessageBox.StandardButton.Ok)
                 else:
-                    QMessageBox.warning(self, " WARNING", "No search has been set!!!", QMessageBox.Ok)      
+                    QMessageBox.warning(self, " WARNING", "No search has been set!!!", QMessageBox.StandardButton.Ok)      
             else:
                 res = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
                 if not bool(res):
                     if self.L=='it':
-                        QMessageBox.warning(self, "ATTENZIONE", "Non è stato trovato nessun record!", QMessageBox.Ok)
+                        QMessageBox.warning(self, "ATTENZIONE", "Non è stato trovato nessun record!", QMessageBox.StandardButton.Ok)
                     elif self.L=='de':
-                        QMessageBox.warning(self, "ACHTUNG", "Keinen Record gefunden!", QMessageBox.Ok)
+                        QMessageBox.warning(self, "ACHTUNG", "Keinen Record gefunden!", QMessageBox.StandardButton.Ok)
                     else:
-                        QMessageBox.warning(self, "WARNING," "No record found!", QMessageBox.Ok) 
+                        QMessageBox.warning(self, "WARNING," "No record found!", QMessageBox.StandardButton.Ok) 
 
                     self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR + 1)
                     self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
@@ -1224,7 +1236,7 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
                     self.setComboBoxEnable(["self.comboBox_definizione_sito"], "True")
                     self.setComboBoxEnable(["self.textEdit_descrizione_site"], "True")
 
-                    QMessageBox.warning(self, "Message", "%s %d %s" % strings, QMessageBox.Ok)
+                    QMessageBox.warning(self, "Message", "%s %d %s" % strings, QMessageBox.StandardButton.Ok)
 
         self.enable_button_search(1)
 
@@ -1247,8 +1259,8 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
     def on_pushButton_rel_pdf_pressed(self):
         check = QMessageBox.warning(self, "Attention",
                                     "Under testing: this method can contains some bugs. Do you want proceed?",
-                                    QMessageBox.Ok | QMessageBox.Cancel)
-        if check == QMessageBox.Ok:
+                                    QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel)
+        if check == QMessageBox.StandardButton.Ok:
             erp = exp_rel_pdf(str(self.comboBox_sito.currentText()))
             erp.export_rel_pdf()
 
@@ -1257,30 +1269,30 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
             if self.toolButton_draw_siti.isChecked():
                 QMessageBox.warning(self, "Messaggio",
                                     "Modalita' GIS attiva. Da ora le tue ricerche verranno visualizzate sul GIS",
-                                    QMessageBox.Ok)
+                                    QMessageBox.StandardButton.Ok)
             else:
                 QMessageBox.warning(self, "Messaggio",
                                     "Modalita' GIS disattivata. Da ora le tue ricerche non verranno piu' visualizzate sul GIS",
-                                    QMessageBox.Ok)
+                                    QMessageBox.StandardButton.Ok)
         elif self.L=='de':
             if self.toolButton_draw_siti.isChecked():
                 QMessageBox.warning(self, "Message",
                                     "Modalität' GIS aktiv. Von jetzt wird Deine Untersuchung mit Gis visualisiert",
-                                    QMessageBox.Ok)
+                                    QMessageBox.StandardButton.Ok)
             else:
                 QMessageBox.warning(self, "Message",
                                     "Modalität' GIS deaktiviert. Von jetzt an wird deine Untersuchung nicht mehr mit Gis visualisiert",
-                                    QMessageBox.Ok)
+                                    QMessageBox.StandardButton.Ok)
                                     
         else:
             if self.toolButton_draw_siti.isChecked():
                 QMessageBox.warning(self, "Message",
                                     "GIS mode active. From now on your searches will be displayed on the GIS",
-                                    QMessageBox.Ok)
+                                    QMessageBox.StandardButton.Ok)
             else:
                 QMessageBox.warning(self, "Message",
                                     "GIS mode disabled. From now on, your searches will no longer be displayed on the GIS.",
-                                    QMessageBox.Ok)
+                                    QMessageBox.StandardButton.Ok)
     def on_pushButton_genera_us_pressed(self):
         self.DB_MANAGER.insert_arbitrary_number_of_us_records(int(self.lineEdit_us_range.text()),
                                                               str(self.comboBox_sito.currentText()),
@@ -1290,28 +1302,28 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
 
         if self.L=='it':
             QMessageBox.warning(self, "Messaggio",
-                                    "US create con successo nella Scheda US", QMessageBox.Ok)
+                                    "US create con successo nella Scheda US", QMessageBox.StandardButton.Ok)
 
         elif self.L=='de':
             QMessageBox.warning(self, "Message",
                                     "TO TRANSLATE: US create con successo nella Scheda US",
-                                    QMessageBox.Ok)
+                                    QMessageBox.StandardButton.Ok)
 
 
         else:
             QMessageBox.warning(self, "Message",
                                     "SU successfully created on SU Sheet",
-                                    QMessageBox.Ok)
+                                    QMessageBox.StandardButton.Ok)
 
 
     def update_if(self, msg):
         rec_corr = self.REC_CORR
-        if msg == QMessageBox.Ok:
+        if msg == QMessageBox.StandardButton.Ok:
             test = self.update_record()
             if test == 1:
                 id_list = []
                 for i in self.DATA_LIST:
-                    id_list.append(eval("i." + self.ID_TABLE))
+                    id_list.append(getattr(i, self.ID_TABLE))
                 self.DATA_LIST = []
                 if self.SORT_STATUS == "n":
                     temp_data_list = self.DB_MANAGER.query_sort(id_list, [self.ID_TABLE], 'asc',
@@ -1342,7 +1354,7 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
         else:
             id_list = []
             for i in self.DB_MANAGER.query(self.MAPPER_TABLE_CLASS):
-                id_list.append(eval("i." + self.ID_TABLE))
+                id_list.append(getattr(i, self.ID_TABLE))
 
             temp_data_list = self.DB_MANAGER.query_sort(id_list, [self.ID_TABLE], 'asc', self.MAPPER_TABLE_CLASS,
                                                         self.ID_TABLE)
@@ -1357,13 +1369,14 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
 
     def table2dict(self, n):
         self.tablename = n
-        row = eval(self.tablename + ".rowCount()")
-        col = eval(self.tablename + ".columnCount()")
+        table = getattr(self, self.tablename.replace("self.", "") if self.tablename.startswith("self.") else self.tablename)
+        row = table.rowCount()
+        col = table.columnCount()
         lista = []
         for r in range(row):
             sub_list = []
             for c in range(col):
-                value = eval(self.tablename + ".item(r,c)")
+                value = table.item(r, c)
                 if bool(value):
                     sub_list.append(str(value.text()))
             lista.append(sub_list)
@@ -1460,7 +1473,7 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
                    db_version != self.current_record_version:
                     # Show notification
                     msg = QMessageBox()
-                    msg.setIcon(QMessageBox.Warning)
+                    msg.setIcon(QMessageBox.Icon.Warning)
                     msg.setWindowTitle("Record Modificato / Record Modified")
                     msg.setText(
                         f"Questo record è stato modificato da {last_modified_by} "
@@ -1469,9 +1482,9 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
                         f"at {last_modified_timestamp}.\n\n"
                         f"Vuoi ricaricare il record? / Do you want to reload?"
                     )
-                    msg.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
+                    msg.setStandardButtons(QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
 
-                    if msg.exec_() == QMessageBox.Yes:
+                    if msg.exec() == QMessageBox.StandardButton.Yes:
                         # Save current record position
                         current_pos = self.REC_CORR
                         # Reload records
@@ -1513,23 +1526,23 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
     def set_LIST_REC_CORR(self):
         self.DATA_LIST_REC_CORR = []
         for i in self.TABLE_FIELDS:
-            self.DATA_LIST_REC_CORR.append(eval("unicode(self.DATA_LIST[self.REC_CORR]." + i + ")"))
+            self.DATA_LIST_REC_CORR.append(str(getattr(self.DATA_LIST[self.REC_CORR], i)))
 
     def setComboBoxEnable(self, f, v):
-        field_names = f
-        value = v
-
-        for fn in field_names:
-            cmd = '{}{}{}{}'.format(fn, '.setEnabled(', v, ')')
-            eval(cmd)
+        """Set enabled state for widgets"""
+        for fn in f:
+            widget_name = fn.replace('self.', '') if fn.startswith('self.') else fn
+            widget = getattr(self, widget_name, None)
+            if widget is not None:
+                widget.setEnabled(v == "True")
 
     def setComboBoxEditable(self, f, n):
-        field_names = f
-        value = n
-
-        for fn in field_names:
-            cmd = '{}{}{}{}'.format(fn, '.setEditable(', n, ')')
-            eval(cmd)
+        """Set editable state for widgets - uses getattr instead of eval for security"""
+        for fn in f:
+            widget_name = fn.replace('self.' , '') if fn.startswith('self.' ) else fn
+            widget = getattr(self, widget_name, None)
+            if widget is not None:
+                widget.setEditable(bool(n))
 
     def rec_toupdate(self):
         rec_to_update = self.UTILITY.pos_none_in_list(self.DATA_LIST_REC_TEMP)
@@ -1548,7 +1561,7 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
         try:
             self.DB_MANAGER.update(self.MAPPER_TABLE_CLASS,
                                    self.ID_TABLE,
-                                   [eval("int(self.DATA_LIST[self.REC_CORR]." + self.ID_TABLE + ")")],
+                                   [int(getattr(self.DATA_LIST[self.REC_CORR], self.ID_TABLE))],
                                    self.TABLE_FIELDS,
                                    self.rec_toupdate())
             return 1
@@ -1563,15 +1576,15 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
                     print(s, file=fh)
             if self.L=='it':
                 QMessageBox.warning(self, "Messaggio",
-                                    "Problema di encoding: sono stati inseriti accenti o caratteri non accettati dal database. Verrà fatta una copia dell'errore con i dati che puoi recuperare nella cartella pyarchinit_Report _Folder", QMessageBox.Ok)
+                                    "Problema di encoding: sono stati inseriti accenti o caratteri non accettati dal database. Verrà fatta una copia dell'errore con i dati che puoi recuperare nella cartella pyarchinit_Report _Folder", QMessageBox.StandardButton.Ok)
             
             
             elif self.L=='de':
                 QMessageBox.warning(self, "Message",
-                                    "Encoding problem: accents or characters not accepted by the database were entered. A copy of the error will be made with the data you can retrieve in the pyarchinit_Report _Folder", QMessageBox.Ok) 
+                                    "Encoding problem: accents or characters not accepted by the database were entered. A copy of the error will be made with the data you can retrieve in the pyarchinit_Report _Folder", QMessageBox.StandardButton.Ok) 
             else:
                 QMessageBox.warning(self, "Message",
-                                    "Kodierungsproblem: Es wurden Akzente oder Zeichen eingegeben, die von der Datenbank nicht akzeptiert werden. Es wird eine Kopie des Fehlers mit den Daten erstellt, die Sie im pyarchinit_Report _Ordner abrufen können", QMessageBox.Ok)                                               
+                                    "Kodierungsproblem: Es wurden Akzente oder Zeichen eingegeben, die von der Datenbank nicht akzeptiert werden. Es wird eine Kopie des Fehlers mit den Daten erstellt, die Sie im pyarchinit_Report _Ordner abrufen können", QMessageBox.StandardButton.Ok)                                               
             return 0
 
     def testing(self, name_file, message):
@@ -1638,7 +1651,7 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
         # # show the dialog
         # dlg.adjustSize()
         # dlg.show()
-        #result = DialogSita.exec_()
+        #result = DialogSita.exec()
         # # See if OK was pressed
         # if result == 1 :
         try:
@@ -1663,7 +1676,7 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
             #place_dlg.placesComboBox.addItem(all_str)
             place_dlg.placesComboBox.addItems(places.keys())
             place_dlg.show()
-            result = place_dlg.exec_()
+            result = place_dlg.exec()
             # if result == 1 :
                 # if place_dlg.placesComboBox.currentText() == 'Tutti':
                     # for place in places:

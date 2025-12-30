@@ -796,7 +796,7 @@
        <item row="0" column="4">
         <spacer name="horizontalSpacer_4">
          <property name="orientation">
-          <enum>Qt::Horizontal</enum>
+          <enum>Qt::Orientation::Horizontal</enum>
          </property>
          <property name="sizeHint" stdset="0">
           <size>
@@ -813,7 +813,7 @@
    <item row="1" column="0">
     <layout class="QGridLayout" name="gridLayout">
      <property name="sizeConstraint">
-      <enum>QLayout::SetDefaultConstraint</enum>
+      <enum>QLayout::SizeConstraint::SetDefaultConstraint</enum>
      </property>
      <item row="2" column="0">
       <widget class="QLabel" name="label_2">
@@ -853,10 +853,10 @@
         </size>
        </property>
        <property name="frameShape">
-        <enum>QFrame::StyledPanel</enum>
+        <enum>QFrame::Shape::StyledPanel</enum>
        </property>
        <property name="frameShadow">
-        <enum>QFrame::Sunken</enum>
+        <enum>QFrame::Shadow::Sunken</enum>
        </property>
        <property name="lineWidth">
         <number>2</number>
@@ -865,7 +865,7 @@
         <number>2</number>
        </property>
        <property name="sizeAdjustPolicy">
-        <enum>QAbstractScrollArea::AdjustToContents</enum>
+        <enum>QAbstractScrollArea::SizeAdjustPolicy::AdjustToContents</enum>
        </property>
        <property name="editTriggers">
         <set>QAbstractItemView::AllEditTriggers</set>
@@ -880,16 +880,16 @@
         <bool>true</bool>
        </property>
        <property name="dragDropMode">
-        <enum>QAbstractItemView::NoDragDrop</enum>
+        <enum>QAbstractItemView::DragDropMode::NoDragDrop</enum>
        </property>
        <property name="defaultDropAction">
-        <enum>Qt::CopyAction</enum>
+        <enum>Qt::DropAction::CopyAction</enum>
        </property>
        <property name="alternatingRowColors">
         <bool>false</bool>
        </property>
        <property name="selectionMode">
-        <enum>QAbstractItemView::SingleSelection</enum>
+        <enum>QAbstractItemView::SelectionMode::SingleSelection</enum>
        </property>
        <property name="iconSize">
         <size>
@@ -898,19 +898,19 @@
         </size>
        </property>
        <property name="textElideMode">
-        <enum>Qt::ElideMiddle</enum>
+        <enum>Qt::TextElideMode::ElideMiddle</enum>
        </property>
        <property name="movement">
-        <enum>QListView::Static</enum>
+        <enum>QListView::Movement::Static</enum>
        </property>
        <property name="isWrapping" stdset="0">
         <bool>true</bool>
        </property>
        <property name="resizeMode">
-        <enum>QListView::Fixed</enum>
+        <enum>QListView::ResizeMode::Fixed</enum>
        </property>
        <property name="layoutMode">
-        <enum>QListView::Batched</enum>
+        <enum>QListView::LayoutMode::Batched</enum>
        </property>
        <property name="spacing">
         <number>10</number>
@@ -922,7 +922,7 @@
         </size>
        </property>
        <property name="viewMode">
-        <enum>QListView::IconMode</enum>
+        <enum>QListView::ViewMode::IconMode</enum>
        </property>
        <property name="modelColumn">
         <number>0</number>
@@ -977,7 +977,7 @@
         <number>1</number>
        </property>
        <property name="orientation">
-        <enum>Qt::Horizontal</enum>
+        <enum>Qt::Orientation::Horizontal</enum>
        </property>
        <property name="invertedAppearance">
         <bool>false</bool>
@@ -986,7 +986,7 @@
         <bool>false</bool>
        </property>
        <property name="tickPosition">
-        <enum>QSlider::NoTicks</enum>
+        <enum>QSlider::TickPosition::NoTicks</enum>
        </property>
        <property name="tickInterval">
         <number>2</number>
@@ -996,7 +996,7 @@
      <item row="1" column="0" colspan="3">
       <widget class="Line" name="line">
        <property name="orientation">
-        <enum>Qt::Horizontal</enum>
+        <enum>Qt::Orientation::Horizontal</enum>
        </property>
       </widget>
      </item>
@@ -1021,7 +1021,7 @@
       </size>
      </property>
      <property name="focusPolicy">
-      <enum>Qt::StrongFocus</enum>
+      <enum>Qt::FocusPolicy::StrongFocus</enum>
      </property>
      <property name="toolTip">
       <string>Attiva/disattiva la visualizzazione dei tags</string>
@@ -1036,7 +1036,7 @@
       <number>300</number>
      </property>
      <property name="toolButtonStyle">
-      <enum>Qt::ToolButtonIconOnly</enum>
+      <enum>Qt::ToolButtonStyle::ToolButtonIconOnly</enum>
      </property>
      <property name="autoRaise">
       <bool>false</bool>
@@ -1182,7 +1182,7 @@
            <item>
             <spacer name="horizontalSpacer">
              <property name="orientation">
-              <enum>Qt::Horizontal</enum>
+              <enum>Qt::Orientation::Horizontal</enum>
              </property>
              <property name="sizeHint" stdset="0">
               <size>
@@ -1245,16 +1245,16 @@
             <bool>false</bool>
            </property>
            <property name="dragDropMode">
-            <enum>QAbstractItemView::DragDrop</enum>
+            <enum>QAbstractItemView::DragDropMode::DragDrop</enum>
            </property>
            <property name="defaultDropAction">
-            <enum>Qt::IgnoreAction</enum>
+            <enum>Qt::DropAction::IgnoreAction</enum>
            </property>
            <property name="alternatingRowColors">
             <bool>true</bool>
            </property>
            <property name="selectionMode">
-            <enum>QAbstractItemView::MultiSelection</enum>
+            <enum>QAbstractItemView::SelectionMode::MultiSelection</enum>
            </property>
            <property name="sortingEnabled">
             <bool>true</bool>
@@ -1308,7 +1308,7 @@
             <bool>true</bool>
            </property>
            <property name="focusPolicy">
-            <enum>Qt::NoFocus</enum>
+            <enum>Qt::FocusPolicy::NoFocus</enum>
            </property>
            <property name="toolTip">
             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Barra di ricerca&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -1317,7 +1317,7 @@
             <bool>false</bool>
            </property>
            <property name="features">
-            <set>QDockWidget::AllDockWidgetFeatures</set>
+            <set>QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetMovable|QDockWidget::DockWidgetFloatable</set>
            </property>
            <property name="allowedAreas">
             <set>Qt::AllDockWidgetAreas</set>
@@ -1345,10 +1345,10 @@
                   <bool>true</bool>
                  </property>
                  <property name="frameShape">
-                  <enum>QFrame::StyledPanel</enum>
+                  <enum>QFrame::Shape::StyledPanel</enum>
                  </property>
                  <property name="frameShadow">
-                  <enum>QFrame::Plain</enum>
+                  <enum>QFrame::Shadow::Plain</enum>
                  </property>
                  <property name="text">
                   <string>US</string>
@@ -1372,7 +1372,7 @@
                <item row="6" column="0">
                 <widget class="QLabel" name="label_13">
                  <property name="frameShape">
-                  <enum>QFrame::StyledPanel</enum>
+                  <enum>QFrame::Shape::StyledPanel</enum>
                  </property>
                  <property name="text">
                   <string>Nr. st.</string>
@@ -1395,10 +1395,10 @@
                   <bool>true</bool>
                  </property>
                  <property name="frameShape">
-                  <enum>QFrame::StyledPanel</enum>
+                  <enum>QFrame::Shape::StyledPanel</enum>
                  </property>
                  <property name="frameShadow">
-                  <enum>QFrame::Plain</enum>
+                  <enum>QFrame::Shadow::Plain</enum>
                  </property>
                  <property name="text">
                   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:10pt; font-weight:600;&quot;&gt;Cerca le immagini taggate&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -1418,7 +1418,7 @@
                <item row="5" column="0">
                 <widget class="QLabel" name="label_12">
                  <property name="frameShape">
-                  <enum>QFrame::StyledPanel</enum>
+                  <enum>QFrame::Shape::StyledPanel</enum>
                  </property>
                  <property name="text">
                   <string>Sigla st.</string>
@@ -1441,10 +1441,10 @@
                   <bool>true</bool>
                  </property>
                  <property name="frameShape">
-                  <enum>QFrame::StyledPanel</enum>
+                  <enum>QFrame::Shape::StyledPanel</enum>
                  </property>
                  <property name="frameShadow">
-                  <enum>QFrame::Plain</enum>
+                  <enum>QFrame::Shadow::Plain</enum>
                  </property>
                  <property name="text">
                   <string>Sito</string>
@@ -1498,10 +1498,10 @@
                   <bool>true</bool>
                  </property>
                  <property name="frameShape">
-                  <enum>QFrame::StyledPanel</enum>
+                  <enum>QFrame::Shape::StyledPanel</enum>
                  </property>
                  <property name="frameShadow">
-                  <enum>QFrame::Plain</enum>
+                  <enum>QFrame::Shadow::Plain</enum>
                  </property>
                  <property name="text">
                   <string>Area</string>
@@ -1525,7 +1525,7 @@
                <item row="8" column="0">
                 <widget class="QLabel" name="label_text_search">
                  <property name="frameShape">
-                  <enum>QFrame::StyledPanel</enum>
+                  <enum>QFrame::Shape::StyledPanel</enum>
                  </property>
                  <property name="text">
                   <string>Cerca testo</string>
@@ -1542,7 +1542,7 @@
                <item row="9" column="0">
                 <widget class="QLabel" name="label_nr_inventario">
                  <property name="frameShape">
-                  <enum>QFrame::StyledPanel</enum>
+                  <enum>QFrame::Shape::StyledPanel</enum>
                  </property>
                  <property name="text">
                   <string>Nr. Inv.</string>
@@ -1591,10 +1591,10 @@
                   <bool>true</bool>
                  </property>
                  <property name="frameShape">
-                  <enum>QFrame::StyledPanel</enum>
+                  <enum>QFrame::Shape::StyledPanel</enum>
                  </property>
                  <property name="frameShadow">
-                  <enum>QFrame::Plain</enum>
+                  <enum>QFrame::Shadow::Plain</enum>
                  </property>
                  <property name="text">
                   <string>DB Info</string>
@@ -1618,13 +1618,13 @@
                     <bool>false</bool>
                    </property>
                    <property name="contextMenuPolicy">
-                    <enum>Qt::DefaultContextMenu</enum>
+                    <enum>Qt::ContextMenuPolicy::DefaultContextMenu</enum>
                    </property>
                    <property name="frameShape">
-                    <enum>QFrame::StyledPanel</enum>
+                    <enum>QFrame::Shape::StyledPanel</enum>
                    </property>
                    <property name="frameShadow">
-                    <enum>QFrame::Plain</enum>
+                    <enum>QFrame::Shadow::Plain</enum>
                    </property>
                    <property name="text">
                     <string>1</string>
@@ -1646,13 +1646,13 @@
                     <bool>false</bool>
                    </property>
                    <property name="contextMenuPolicy">
-                    <enum>Qt::DefaultContextMenu</enum>
+                    <enum>Qt::ContextMenuPolicy::DefaultContextMenu</enum>
                    </property>
                    <property name="frameShape">
-                    <enum>QFrame::StyledPanel</enum>
+                    <enum>QFrame::Shape::StyledPanel</enum>
                    </property>
                    <property name="frameShadow">
-                    <enum>QFrame::Plain</enum>
+                    <enum>QFrame::Shadow::Plain</enum>
                    </property>
                    <property name="text">
                     <string>1</string>
@@ -1670,10 +1670,10 @@
                     </font>
                    </property>
                    <property name="frameShape">
-                    <enum>QFrame::StyledPanel</enum>
+                    <enum>QFrame::Shape::StyledPanel</enum>
                    </property>
                    <property name="frameShadow">
-                    <enum>QFrame::Plain</enum>
+                    <enum>QFrame::Shadow::Plain</enum>
                    </property>
                    <property name="text">
                     <string>record n.</string>
@@ -1694,10 +1694,10 @@
                     </font>
                    </property>
                    <property name="frameShape">
-                    <enum>QFrame::StyledPanel</enum>
+                    <enum>QFrame::Shape::StyledPanel</enum>
                    </property>
                    <property name="frameShadow">
-                    <enum>QFrame::Plain</enum>
+                    <enum>QFrame::Shadow::Plain</enum>
                    </property>
                    <property name="text">
                     <string>record tot.</string>
@@ -1722,10 +1722,10 @@
                     </font>
                    </property>
                    <property name="frameShape">
-                    <enum>QFrame::StyledPanel</enum>
+                    <enum>QFrame::Shape::StyledPanel</enum>
                    </property>
                    <property name="frameShadow">
-                    <enum>QFrame::Plain</enum>
+                    <enum>QFrame::Shadow::Plain</enum>
                    </property>
                    <property name="text">
                     <string>Status</string>
@@ -1746,10 +1746,10 @@
                     </font>
                    </property>
                    <property name="frameShape">
-                    <enum>QFrame::StyledPanel</enum>
+                    <enum>QFrame::Shape::StyledPanel</enum>
                    </property>
                    <property name="frameShadow">
-                    <enum>QFrame::Plain</enum>
+                    <enum>QFrame::Shadow::Plain</enum>
                    </property>
                    <property name="text">
                     <string>Ordinamento</string>
@@ -1794,13 +1794,13 @@
                     <bool>false</bool>
                    </property>
                    <property name="contextMenuPolicy">
-                    <enum>Qt::DefaultContextMenu</enum>
+                    <enum>Qt::ContextMenuPolicy::DefaultContextMenu</enum>
                    </property>
                    <property name="frameShape">
-                    <enum>QFrame::StyledPanel</enum>
+                    <enum>QFrame::Shape::StyledPanel</enum>
                    </property>
                    <property name="frameShadow">
-                    <enum>QFrame::Plain</enum>
+                    <enum>QFrame::Shadow::Plain</enum>
                    </property>
                    <property name="text">
                     <string/>
@@ -1836,13 +1836,13 @@
                     <bool>false</bool>
                    </property>
                    <property name="contextMenuPolicy">
-                    <enum>Qt::DefaultContextMenu</enum>
+                    <enum>Qt::ContextMenuPolicy::DefaultContextMenu</enum>
                    </property>
                    <property name="frameShape">
-                    <enum>QFrame::StyledPanel</enum>
+                    <enum>QFrame::Shape::StyledPanel</enum>
                    </property>
                    <property name="frameShadow">
-                    <enum>QFrame::Plain</enum>
+                    <enum>QFrame::Shadow::Plain</enum>
                    </property>
                    <property name="text">
                     <string/>
@@ -1912,7 +1912,7 @@
            <item row="0" column="0">
             <spacer name="horizontalSpacer_6">
              <property name="orientation">
-              <enum>Qt::Horizontal</enum>
+              <enum>Qt::Orientation::Horizontal</enum>
              </property>
              <property name="sizeHint" stdset="0">
               <size>
@@ -1985,7 +1985,7 @@
            <item>
             <spacer name="horizontalSpacer_2">
              <property name="orientation">
-              <enum>Qt::Horizontal</enum>
+              <enum>Qt::Orientation::Horizontal</enum>
              </property>
              <property name="sizeHint" stdset="0">
               <size>
@@ -2081,7 +2081,7 @@
            <item>
             <spacer name="horizontalSpacer_3">
              <property name="orientation">
-              <enum>Qt::Horizontal</enum>
+              <enum>Qt::Orientation::Horizontal</enum>
              </property>
              <property name="sizeHint" stdset="0">
               <size>
@@ -2189,7 +2189,7 @@
             <item>
              <spacer name="horizontalSpacer_5">
               <property name="orientation">
-               <enum>Qt::Horizontal</enum>
+               <enum>Qt::Orientation::Horizontal</enum>
               </property>
               <property name="sizeHint" stdset="0">
                <size>

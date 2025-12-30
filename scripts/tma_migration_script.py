@@ -20,6 +20,30 @@ from modules.db.entities.TMA import TMA
 from modules.db.entities.TMA_MATERIALI import TMA_MATERIALI
 
 
+def execute_sql(engine, sql):
+    """SQLAlchemy 2.0 compatible execute wrapper for migration script."""
+    sql_str = str(sql).strip().upper() if isinstance(sql, str) else str(sql).strip().upper()
+    is_write = sql_str.startswith(('INSERT', 'UPDATE', 'DELETE', 'DROP', 'CREATE', 'ALTER', 'TRUNCATE'))
+
+    if isinstance(sql, str):
+        sql = text(sql)
+
+    if is_write:
+        with engine.begin() as conn:
+            result = conn.execute(sql)
+            try:
+                return result.fetchall()
+            except:
+                return []
+    else:
+        with engine.connect() as conn:
+            result = conn.execute(sql)
+            try:
+                return result.fetchall()
+            except:
+                return []
+
+
 def migrate_tma_database():
     """Main migration function"""
     try:
@@ -29,23 +53,23 @@ def migrate_tma_database():
         
         # Create engine
         engine = create_engine(conn_str, echo=True)
-        metadata = MetaData(engine)
+        metadata = MetaData()
         
         # Check if we're using SQLite or PostgreSQL
         is_sqlite = 'sqlite' in conn_str.lower()
         
         # Check if old table exists
         if is_sqlite:
-            result = engine.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='tma_table'")
-            old_table_exists = result.fetchone() is not None
+            result = execute_sql(engine, "SELECT name FROM sqlite_master WHERE type='table' AND name='tma_table'")
+            old_table_exists = len(result) > 0
         else:
-            result = engine.execute("""
+            result = execute_sql(engine, """
                 SELECT EXISTS (
-                    SELECT FROM information_schema.tables 
+                    SELECT FROM information_schema.tables
                     WHERE table_name = 'tma_table'
                 )
             """)
-            old_table_exists = result.fetchone()[0]
+            old_table_exists = result[0][0] if result else False
         
         if not old_table_exists:
             print("Old tma_table not found. Creating new structure directly.")
@@ -56,12 +80,12 @@ def migrate_tma_database():
         
         # Step 1: Backup existing data
         print("Step 1: Backing up existing data...")
-        old_data = engine.execute("SELECT * FROM tma_table").fetchall()
+        old_data = execute_sql(engine, "SELECT * FROM tma_table")
         print(f"Found {len(old_data)} records to migrate")
-        
+
         # Step 2: Drop the old table
         print("Step 2: Dropping old table...")
-        engine.execute("DROP TABLE IF EXISTS tma_table")
+        execute_sql(engine, "DROP TABLE IF EXISTS tma_table")
         
         # Step 3: Create new tables (they will be created by the mapper when we import the entities)
         print("Step 3: Creating new table structure...")

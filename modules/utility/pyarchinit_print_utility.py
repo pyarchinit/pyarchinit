@@ -22,8 +22,6 @@
 
 import os
 
-from builtins import range
-from builtins import str
 from qgis.PyQt.QtCore import QRectF, pyqtSignal, QObject
 from qgis.PyQt.QtWidgets import QMessageBox, QApplication
 from qgis.core import (QgsProject,

@@ -13,15 +13,10 @@ from modules.utility.pyarchinit_OS_utility import Pyarchinit_OS_Utility
 class pyquote:
     
     
-    # connection string postgres"
-    internal_connection = Connection()
 
-    # create engine and metadata
-
-    engine = create_engine(internal_connection.conn_str(), echo=False, convert_unicode=True)
     
     #engine.connect()
-    metadata = MetaData(engine)
+    metadata = MetaData()
 
     # define tables check per verifica fill fields 20/10/2016 OK
     pyquote = Table('pyarchinit_quote', metadata,

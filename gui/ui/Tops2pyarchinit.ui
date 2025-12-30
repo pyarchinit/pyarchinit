@@ -39,7 +39,7 @@
        <bool>true</bool>
       </property>
       <property name="gridStyle">
-       <enum>Qt::DashDotDotLine</enum>
+       <enum>Qt::PenStyle::DashDotDotLine</enum>
       </property>
       <property name="sortingEnabled">
        <bool>true</bool>

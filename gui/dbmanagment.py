@@ -28,8 +28,6 @@ import sys
 import time
 import shutil
 
-from builtins import range
-from builtins import str
 from ..modules.utility.pyarchinit_OS_utility import Pyarchinit_OS_Utility
 from ..modules.utility.settings import Settings
 from ..modules.db.pyarchinit_conn_strings import Connection
@@ -533,7 +531,7 @@ class pyarchinit_dbmanagment(QDialog, MAIN_DIALOG_CLASS):
                     # time.sleep(1)
                     # barra.setValue(a)
 
-                # app.exec_()....
+                # app.exec()....
 
                 # base = base.strip()
                 # fulldir = backupdir + base
@@ -639,7 +637,7 @@ class pyarchinit_dbmanagment(QDialog, MAIN_DIALOG_CLASS):
         buttons.rejected.connect(dialog.reject)
         layout.addWidget(buttons)
 
-        if dialog.exec_() == QDialog.Accepted:
+        if dialog.exec() == QDialog.Accepted:
             if radio_new.isChecked():
                 new_name = new_db_input.text().strip()
                 if not new_name:
@@ -947,4 +945,4 @@ if __name__ == '__main__':
     app = QApplication(sys.argv)
     ui = pyarchinit_dbmanagment()
     ui.show()
-    sys.exit(app.exec_())
+    sys.exit(app.exec())

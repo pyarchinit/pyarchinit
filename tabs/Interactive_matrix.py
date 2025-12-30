@@ -28,8 +28,6 @@ import graphviz
 from graphviz import Digraph, Source
 #from networkx.drawing.nx_pydot import graphviz_layout
 
-from builtins import range
-from builtins import str
 import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
 #from networkx.drawing.nx_agraph import *
@@ -46,7 +44,7 @@ MAIN_DIALOG_CLASS, _ = loadUiType(
 
 
 class pyarchinit_Interactive_Matrix(QDialog, MAIN_DIALOG_CLASS):
-    L=QgsSettings().value("locale/userLocale")[0:2]
+    L=QgsSettings().value("locale/userLocale", "it", type=str)[:2]
     MSG_BOX_TITLE = "PyArchInit - Harrys Matrix"
     DB_MANAGER = ""
     DATA_LIST = ""
@@ -82,16 +80,16 @@ class pyarchinit_Interactive_Matrix(QDialog, MAIN_DIALOG_CLASS):
             if self.L=='it':
                 QMessageBox.warning(self, "Attenzione",
                                 "bug! Scrivere allo sviluppatore <br> Error: <br>" + str(e),
-                                QMessageBox.Ok)
+                                QMessageBox.StandardButton.Ok)
             if self.L=='it':
                 QMessageBox.warning(self, "Warnung",
                                 "bug! Schreiben Sie an den Entwickler <br> Error: <br>" + str(e),
-                                QMessageBox.Ok)
+                                QMessageBox.StandardButton.Ok)
                                 
             else:
                 QMessageBox.warning(self, "Alert",
                                 "bug! write to the developer <br> Error: <br>" + str(e),
-                                QMessageBox.Ok)                    
+                                QMessageBox.StandardButton.Ok)                    
     def urlify(self,s):
 
         # Rimuove tutti i caratteri che non sono parole (tutto tranne i numeri e le lettere)
@@ -120,15 +118,15 @@ class pyarchinit_Interactive_Matrix(QDialog, MAIN_DIALOG_CLASS):
             except (NameError, SyntaxError) as e: 
                 if self.L=='it':
                     QMessageBox.warning(self, 'ATTENZIONE','Mancano i valori unita tipo e interpretazione startigrafica nella tablewidget dei rapporti startigrafici. affinchè il matrix sia esportato correttamente devi inserirli',
-                            QMessageBox.Ok)
+                            QMessageBox.StandardButton.Ok)
                     break        
                 elif self.L=='de':
                     QMessageBox.warning(self, "Warnung", "Sie müssen den Einheitentyp und die startigraphische Interpretation im Tabellenwidget startigraphic reports eingeben",
-                                    QMessageBox.Ok)
+                                    QMessageBox.StandardButton.Ok)
                     break                
                 else:
                     QMessageBox.warning(self, "Warning", "You have to enter the unit type and startigraphic interpretation in the startigraphic reports tablewidget",
-                                    QMessageBox.Ok)           
+                                    QMessageBox.StandardButton.Ok)           
                     break
             try:
                 
@@ -172,14 +170,14 @@ class pyarchinit_Interactive_Matrix(QDialog, MAIN_DIALOG_CLASS):
                     
                     if self.L=='it':
                         QMessageBox.warning(self, 'ATTENZIONE','Mancano i valori unita tipo e interpretazione startigrafica nella tablewidget dei rapporti startigrafici. affinchè il matrix sia esportato correttamente devi inserirli',
-                                QMessageBox.Ok)
+                                QMessageBox.StandardButton.Ok)
                     elif self.L=='de':
                         QMessageBox.warning(self, "Warnung", "Sie müssen den Einheitentyp und die startigraphische Interpretation im Tabellenwidget startigraphic reports eingeben",
-                                        QMessageBox.Ok)
+                                        QMessageBox.StandardButton.Ok)
                                         
                     else:
                         QMessageBox.warning(self, "Warning", "You have to enter the unit type and startigraphic interpretation in the startigraphic reports tablewidget",
-                                        QMessageBox.Ok)                    
+                                        QMessageBox.StandardButton.Ok)                    
         sito = self.DATA_LIST[0].sito
         #area = self.DATA_LIST[1].area
         search_dict = {
@@ -247,15 +245,15 @@ class pyarchinit_Interactive_Matrix(QDialog, MAIN_DIALOG_CLASS):
         try: 
             data_plotting_2 = matrix_exp.export_matrix_2
         except Exception as e :
-            QMessageBox.information(self, "Info", str(e), QMessageBox.Ok)
+            QMessageBox.information(self, "Info", str(e), QMessageBox.StandardButton.Ok)
         finally:
             data_plotting_2 = matrix_exp.export_matrix_2
         if self.L=='it':
-            QMessageBox.information(self, "Info", "Esportazione completata", QMessageBox.Ok)
+            QMessageBox.information(self, "Info", "Esportazione completata", QMessageBox.StandardButton.Ok)
         elif self.L=='de':
-            QMessageBox.information(self, "Info", "Exportieren kompliziert", QMessageBox.Ok)
+            QMessageBox.information(self, "Info", "Exportieren kompliziert", QMessageBox.StandardButton.Ok)
         else:
-            QMessageBox.information(self, "Info", "Exportation complited", QMessageBox.Ok)    
+            QMessageBox.information(self, "Info", "Exportation complited", QMessageBox.StandardButton.Ok)    
              
         return data_plotting_2
 
@@ -295,13 +293,13 @@ class pyarchinit_Interactive_Matrix(QDialog, MAIN_DIALOG_CLASS):
 
                 if self.L == 'it':
                     QMessageBox.warning(self, "Warning", "Problema nel sistema di esportazione del Matrix:" + str(e),
-                                        QMessageBox.Ok)
+                                        QMessageBox.StandardButton.Ok)
                 elif self.L == 'de':
                     QMessageBox.warning(self, "Warnung", "Problem im Matrix-Exportsystem:" + str(e),
-                                        QMessageBox.Ok)
+                                        QMessageBox.StandardButton.Ok)
                 else:
                     QMessageBox.warning(self, "Warning", "Problem in the Matrix export system:" + str(e),
-                                        QMessageBox.Ok)
+                                        QMessageBox.StandardButton.Ok)
 
         sito = self.DATA_LIST[0].sito
         # area = self.DATA_LIST[0].area
@@ -387,7 +385,7 @@ class pyarchinit_Interactive_Matrix(QDialog, MAIN_DIALOG_CLASS):
                                      f"{affected_us}\n\nErrore: {e}\n Verrà usato il numero della fase come nome della fase."
                                      f"Per favore, inserisci la datazione estesa per questa US nella scheda periodizzazione." )
 
-                    QMessageBox.warning(self, "Errore", error_message, QMessageBox.Ok)
+                    QMessageBox.warning(self, "Errore", error_message, QMessageBox.StandardButton.Ok)
 
                     # Fallback in caso di errore
                     fase = "Fase%s" % str(fase_id)
@@ -414,17 +412,17 @@ class pyarchinit_Interactive_Matrix(QDialog, MAIN_DIALOG_CLASS):
         data_plotting = matrix_exp.export_matrix
 
         if self.L == 'it':
-            QMessageBox.information(self, "Info", "Esportazione completata", QMessageBox.Ok)
+            QMessageBox.information(self, "Info", "Esportazione completata", QMessageBox.StandardButton.Ok)
         elif self.L == 'de':
-            QMessageBox.information(self, "Info", "Exportieren kompliziert", QMessageBox.Ok)
+            QMessageBox.information(self, "Info", "Exportieren kompliziert", QMessageBox.StandardButton.Ok)
         else:
-            QMessageBox.information(self, "Info", "Exportation complited", QMessageBox.Ok)
+            QMessageBox.information(self, "Info", "Exportation complited", QMessageBox.StandardButton.Ok)
 
         return data_plotting
 
 
 class pyarchinit_view_Matrix(QDialog, MAIN_DIALOG_CLASS):
-    L = QgsSettings().value("locale/userLocale")[0:2]
+    L = QgsSettings().value("locale/userLocale", "it", type=str)[:2]
     MSG_BOX_TITLE = "PyArchInit - Harrys Matrix"
     DB_MANAGER = ""
     DATA_LIST = ""
@@ -458,16 +456,16 @@ class pyarchinit_view_Matrix(QDialog, MAIN_DIALOG_CLASS):
             if self.L == 'it':
                 QMessageBox.warning(self, "Attenzione",
                                     "bug! Scrivere allo sviluppatore <br> Error: <br>" + str(e),
-                                    QMessageBox.Ok)
+                                    QMessageBox.StandardButton.Ok)
             if self.L == 'it':
                 QMessageBox.warning(self, "Warnung",
                                     "bug! Schreiben Sie an den Entwickler <br> Error: <br>" + str(e),
-                                    QMessageBox.Ok)
+                                    QMessageBox.StandardButton.Ok)
 
             else:
                 QMessageBox.warning(self, "Alert",
                                     "bug! write to the developer <br> Error: <br>" + str(e),
-                                    QMessageBox.Ok)
+                                    QMessageBox.StandardButton.Ok)
 
     def urlify(self, s):
 
@@ -523,14 +521,14 @@ class pyarchinit_view_Matrix(QDialog, MAIN_DIALOG_CLASS):
                 if self.L == 'it':
                     QMessageBox.warning(self, "Warning",
                                         "Problema nel sistema di esportazione del Matrix:" + str(e),
-                                        QMessageBox.Ok)
+                                        QMessageBox.StandardButton.Ok)
                 elif self.L == 'de':
                     QMessageBox.warning(self, "Warnung", "Problem im Matrix-Exportsystem:" + str(e),
-                                        QMessageBox.Ok)
+                                        QMessageBox.StandardButton.Ok)
 
                 else:
                     QMessageBox.warning(self, "Warning", "Problem in the Matrix export system:" + str(e),
-                                        QMessageBox.Ok)
+                                        QMessageBox.StandardButton.Ok)
         sito = self.DATA_LIST[0].sito
         # area = self.DATA_LIST[1].area
         search_dict = {
@@ -610,7 +608,7 @@ class pyarchinit_view_Matrix(QDialog, MAIN_DIALOG_CLASS):
         return data_plotting
 
 class pyarchinit_view_Matrix_pre(QDialog, MAIN_DIALOG_CLASS):
-    L = QgsSettings().value("locale/userLocale")[0:2]
+    L = QgsSettings().value("locale/userLocale", "it", type=str)[:2]
     MSG_BOX_TITLE = "PyArchInit - Harrys Matrix"
     DB_MANAGER = ""
     DATA_LIST = ""
@@ -644,16 +642,16 @@ class pyarchinit_view_Matrix_pre(QDialog, MAIN_DIALOG_CLASS):
             if self.L == 'it':
                 QMessageBox.warning(self, "Attenzione",
                                     "bug! Scrivere allo sviluppatore <br> Error: <br>" + str(e),
-                                    QMessageBox.Ok)
+                                    QMessageBox.StandardButton.Ok)
             if self.L == 'it':
                 QMessageBox.warning(self, "Warnung",
                                     "bug! Schreiben Sie an den Entwickler <br> Error: <br>" + str(e),
-                                    QMessageBox.Ok)
+                                    QMessageBox.StandardButton.Ok)
 
             else:
                 QMessageBox.warning(self, "Alert",
                                     "bug! write to the developer <br> Error: <br>" + str(e),
-                                    QMessageBox.Ok)
+                                    QMessageBox.StandardButton.Ok)
 
     def urlify(self, s):
 
@@ -801,13 +799,13 @@ class pyarchinit_view_Matrix_pre(QDialog, MAIN_DIALOG_CLASS):
                 print(f"Errore durante la generazione della matrice per US {current_us_key}: {e}")
                 if self.L == 'it':
                     QMessageBox.warning(self, "Warning", "Problema nel sistema di esportazione del Matrix:" + str(e),
-                                        QMessageBox.Ok)
+                                        QMessageBox.StandardButton.Ok)
                 elif self.L == 'de':
                     QMessageBox.warning(self, "Warnung", "Problem im Matrix-Exportsystem:" + str(e),
-                                        QMessageBox.Ok)
+                                        QMessageBox.StandardButton.Ok)
                 else:
                     QMessageBox.warning(self, "Warning", "Problem in the Matrix export system:" + str(e),
-                                        QMessageBox.Ok)
+                                        QMessageBox.StandardButton.Ok)
         sito = self.DATA_LIST[0]['sito']
         # area = self.DATA_LIST[0].area
 

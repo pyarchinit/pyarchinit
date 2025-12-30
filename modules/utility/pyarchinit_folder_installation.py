@@ -21,7 +21,6 @@
 import os
 from os.path import expanduser
 import zipfile
-from builtins import object
 from .pyarchinit_OS_utility import Pyarchinit_OS_Utility
 
 

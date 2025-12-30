@@ -4,13 +4,13 @@
 User Management Dialog for PyArchInit Admin
 """
 
-from PyQt5.QtWidgets import (QDialog, QWidget, QVBoxLayout, QHBoxLayout, QTabWidget,
+from qgis.PyQt.QtWidgets import (QDialog, QWidget, QVBoxLayout, QHBoxLayout, QTabWidget,
                             QTableWidget, QTableWidgetItem, QPushButton,
                             QLineEdit, QComboBox, QCheckBox, QLabel,
                             QGroupBox, QMessageBox, QHeaderView, QFormLayout,
                             QTextEdit, QSplitter, QListWidget, QListWidgetItem)
-from PyQt5.QtCore import Qt, QTimer, pyqtSignal
-from PyQt5.QtGui import QBrush, QColor, QFont
+from qgis.PyQt.QtCore import Qt, QTimer, pyqtSignal
+from qgis.PyQt.QtGui import QBrush, QColor, QFont
 from qgis.core import QgsSettings
 import hashlib
 import getpass
@@ -269,7 +269,7 @@ class UserManagementDialog(QDialog):
         right_panel.setLayout(right_layout)
 
         # Add to main layout
-        splitter = QSplitter(Qt.Horizontal)
+        splitter = QSplitter(Qt.Orientation.Horizontal)
         splitter.addWidget(left_panel)
         splitter.addWidget(right_panel)
         splitter.setStretchFactor(0, 2)
@@ -476,7 +476,7 @@ class UserManagementDialog(QDialog):
                 self.users_table.setItem(i, 3, QTableWidgetItem(user[3] or ""))
 
                 active_item = QTableWidgetItem("✓" if user[4] else "✗")
-                active_item.setTextAlignment(Qt.AlignCenter)
+                active_item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
                 if not user[4]:
                     active_item.setBackground(QBrush(QColor(255, 200, 200)))
                 self.users_table.setItem(i, 4, active_item)
@@ -646,7 +646,7 @@ class UserManagementDialog(QDialog):
                 for j, value in enumerate(activity):
                     item = QTableWidgetItem(str(value) if value is not None else "")
                     if j == 6:  # Status column
-                        item.setTextAlignment(Qt.AlignCenter)
+                        item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
                         if '🔴' in str(value):
                             item.setBackground(QBrush(QColor(255, 200, 200)))
                     self.monitor_table.setItem(i, j, item)
@@ -722,7 +722,7 @@ class UserManagementDialog(QDialog):
                             item = QTableWidgetItem(str(value))
                     elif j == 4:  # Success
                         item = QTableWidgetItem("✓" if value else "✗")
-                        item.setTextAlignment(Qt.AlignCenter)
+                        item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
                         if not value:
                             item.setBackground(QBrush(QColor(255, 200, 200)))
                     else:
@@ -766,7 +766,7 @@ class UserManagementDialog(QDialog):
 
                 for j, value in enumerate(role[2:6], 2):
                     item = QTableWidgetItem("✓" if value else "✗")
-                    item.setTextAlignment(Qt.AlignCenter)
+                    item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
                     if value:
                         item.setBackground(QBrush(QColor(200, 255, 200)))
                     self.roles_table.setItem(i, j, item)

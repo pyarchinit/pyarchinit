@@ -23,10 +23,10 @@ import os
 # Import the PyQt and QGIS libraries
 try:
     from qgis.core import Qgis
-    from PyQt5.QtCore import *
-    from PyQt5.QtGui import *
-    from PyQt5.QtWidgets import *
-    from PyQt5 import uic
+    from qgis.PyQt.QtCore import *
+    from qgis.PyQt.QtGui import *
+    from qgis.PyQt.QtWidgets import *
+    from qgis.PyQt import uic
     QT_VERSION=5
     os.environ['QT_API'] = 'pyqt5'
 except:

@@ -81,13 +81,13 @@ class ImageViewer(QDialog, IMAGE_VIEWER):
 
 
 
-    def show_image(self, path, flags=Qt.KeepAspectRatioByExpanding):
+    def show_image(self, path, flags=Qt.AspectRatioMode.KeepAspectRatioByExpanding):
         """
             Displays an image at the specified path in a QGraphicsView widget.
 
             Args:
                 path (str): The path to the image file.
-                flags (Union[Qt.AspectRatioMode, Qt.Transformations], optional): The aspect ratio mode to use when displaying the image. Defaults to Qt.KeepAspectRatioByExpanding.
+                flags (Union[Qt.AspectRatioMode, Qt.Transformations], optional): The aspect ratio mode to use when displaying the image. Defaults to Qt.AspectRatioMode.KeepAspectRatioByExpanding.
 
             Returns:
                 None

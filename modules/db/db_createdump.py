@@ -18,7 +18,6 @@
  ***************************************************************************/
 """
 
-from builtins import object
 import io
 import datetime
 import traceback

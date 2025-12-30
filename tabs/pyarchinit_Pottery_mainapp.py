@@ -25,7 +25,6 @@ import subprocess
 import time
 
 import cv2
-from builtins import range
 import math
 from datetime import date
 from qgis.core import *
@@ -86,7 +85,7 @@ MAIN_DIALOG_CLASS, _ = loadUiType(
     os.path.join(os.path.dirname(__file__), os.pardir, 'gui', 'ui', 'pyarchinit_Pottery_ui.ui'))
 
 class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
-    L = QgsSettings().value("locale/userLocale")[0:2]
+    L = QgsSettings().value("locale/userLocale", "it", type=str)[:2]
     if L == 'it':
         MSG_BOX_TITLE = "PyArchInit - Scheda Ceramica"
     elif L == 'en':
@@ -294,7 +293,11 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
     LANG = {
         "IT": ['it_IT', 'IT', 'it', 'IT_IT', 'it_CH'],
         "EN": ['en_US', 'EN_US', 'en', 'EN', 'en_GB', 'en_AU', 'en_CA', 'en_NZ', 'en_IE', 'en_ZA'],
-        "DE": ['de_DE', 'de', 'DE', 'DE_DE', 'de_AT', 'de_CH']
+        "DE": ['de_DE', 'de', 'DE', 'DE_DE', 'de_AT', 'de_CH'],
+        "FR": ['fr_FR', 'fr', 'FR', 'FR_FR', 'fr_CA', 'fr_CH', 'fr_BE'],
+        "ES": ['es_ES', 'es', 'ES', 'ES_ES', 'es_MX', 'es_AR', 'es_CO'],
+        "AR": ['ar_LB', 'ar', 'AR', 'AR_LB', 'ar_SA', 'ar_EG', 'ar_AR', 'AR_AR'],
+        "CA": ['ca_ES', 'ca', 'CA', 'CA_ES'],
     }
 
 
@@ -310,7 +313,7 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
         self.mDockWidget_4.setHidden(True)
         self.mDockWidget_export.setHidden(True)
         self.setAcceptDrops(True)
-        self.iconListWidget.setDragDropMode(QAbstractItemView.DragDrop)
+        self.iconListWidget.setDragDropMode(QAbstractItemView.DragDropMode.DragDrop)
         # Dizionario per memorizzare le immagini in cache
         self.image_cache = OrderedDict()
         self.video_player=None
@@ -320,7 +323,7 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
         try:
             self.on_pushButton_connect_pressed()
         except Exception as e:
-            QMessageBox.warning(self, "Sistema di connessione", str(e),  QMessageBox.Ok)
+            QMessageBox.warning(self, "Sistema di connessione", str(e),  QMessageBox.StandardButton.Ok)
         if len(self.DATA_LIST)==0:
             self.comboBox_sito.setCurrentIndex(0)
         else:
@@ -437,7 +440,7 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
                     QMessageBox.information(self, "Message",
                                             "you must first set the path to save the thumbnails and videos. Go to system/path setting")
             else:
-                search_dict = {'id_entity': "'" + str(eval("self.DATA_LIST[i].id_rep")) + "'", 'entity_type': "'CERAMICA'"}
+                search_dict = {'id_entity': "'" + str(self.DATA_LIST[i].id_rep) + "'", 'entity_type': "'CERAMICA'"}
                 record_doc_list = self.DB_MANAGER.query_bool(search_dict, 'MEDIAVIEW')
                 for media in record_doc_list:
                     thumbnail = (thumb_path_str + media.filepath)
@@ -530,14 +533,14 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
             try:
                 if bool(data_list_foto):
                     POTTERY_index_pdf.build_index_Foto_2(data_list_foto, data_list_foto[0][0])
-                    QMessageBox.warning(self, 'Ok', "Export completed", QMessageBox.Ok)
+                    QMessageBox.warning(self, 'Ok', "Export completed", QMessageBox.StandardButton.Ok)
 
                 else:
                     QMessageBox.warning(self, 'Warning',
                                         "Pottery list photo can't to be exported, you must tag before the pics",
-                                        QMessageBox.Ok)
+                                        QMessageBox.StandardButton.Ok)
             except Exception as e:
-                QMessageBox.warning(self, 'Warning', str(e), QMessageBox.Ok)
+                QMessageBox.warning(self, 'Warning', str(e), QMessageBox.StandardButton.Ok)
 
         if self.checkBox_e_foto.isChecked():
             POTTERY_index_pdf = generate_POTTERY_pdf()
@@ -546,14 +549,14 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
             try:
                 if bool(data_list_foto):
                     POTTERY_index_pdf.build_index_Foto(data_list_foto, data_list_foto[0][0])
-                    QMessageBox.warning(self, 'Ok', "Export completed", QMessageBox.Ok)
+                    QMessageBox.warning(self, 'Ok', "Export completed", QMessageBox.StandardButton.Ok)
 
                 else:
                     QMessageBox.warning(self, 'Warniong',
                                         "Pottery list photo can't to be exported because the image are not tagged",
-                                        QMessageBox.Ok)
+                                        QMessageBox.StandardButton.Ok)
             except Exception as e:
-                QMessageBox.warning(self, 'Warning', str(e), QMessageBox.Ok)
+                QMessageBox.warning(self, 'Warning', str(e), QMessageBox.StandardButton.Ok)
 
     def setPathpdf(self):
         s = QgsSettings()
@@ -603,36 +606,36 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
         if bool(self.comboBox_sito.currentText()) and self.comboBox_sito.currentText() == sito_set_str:
 
             if self.L == 'it':
-                QMessageBox.information(self, "OK", "Sei connesso al sito: %s" % str(sito_set_str), QMessageBox.Ok)
+                QMessageBox.information(self, "OK", "Sei connesso al sito: %s" % str(sito_set_str), QMessageBox.StandardButton.Ok)
 
             elif self.L == 'de':
                 QMessageBox.information(self, "OK",
                                         "Sie sind mit der archäologischen Stätte verbunden: %s" % str(sito_set_str),
-                                        QMessageBox.Ok)
+                                        QMessageBox.StandardButton.Ok)
 
             else:
                 QMessageBox.information(self, "OK", "You are connected to the site: %s" % str(sito_set_str),
-                                        QMessageBox.Ok)
+                                        QMessageBox.StandardButton.Ok)
 
         elif sito_set_str == '':
             if self.L == 'it':
                 msg = QMessageBox.information(self, "Attenzione",
                                               "Non hai settato alcun sito. Vuoi settarne uno? click Ok altrimenti Annulla per  vedere tutti i record",
-                                              QMessageBox.Ok | QMessageBox.Cancel)
+                                              QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel)
             elif self.L == 'de':
                 msg = QMessageBox.information(self, "Achtung",
                                               "Sie haben keine archäologischen Stätten eingerichtet. Klicken Sie auf OK oder Abbrechen, um alle Datensätze zu sehen",
-                                              QMessageBox.Ok | QMessageBox.Cancel)
+                                              QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel)
             else:
                 msg = QMessageBox.information(self, "Warning",
                                               "You have not set up any archaeological site. Do you want to set one? click Ok otherwise Cancel to see all records",
-                                              QMessageBox.Ok | QMessageBox.Cancel)
-            if msg == QMessageBox.Cancel:
+                                              QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel)
+            if msg == QMessageBox.StandardButton.Cancel:
                 pass
             else:
                 dlg = pyArchInitDialog_Config(self)
                 dlg.charge_list()
-                dlg.exec_()
+                dlg.exec()
     def set_sito(self):
         # self.model_a.database().close()
         conn = Connection()
@@ -663,22 +666,22 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
 
                 QMessageBox.information(self, "Attenzione", "Non esiste questo sito: "'"' + str(
                     sito_set_str) + '"'" in questa scheda, Per favore distattiva la 'scelta sito' dalla scheda di configurazione plugin per vedere tutti i record oppure crea la scheda",
-                                        QMessageBox.Ok)
+                                        QMessageBox.StandardButton.Ok)
             elif self.L == 'de':
 
                 QMessageBox.information(self, "Warnung", "Es gibt keine solche archäologische Stätte: "'""' + str(
                     sito_set_str) + '"'" in dieser Registerkarte, Bitte deaktivieren Sie die 'Site-Wahl' in der Plugin-Konfigurationsregisterkarte, um alle Datensätze zu sehen oder die Registerkarte zu erstellen",
-                                        QMessageBox.Ok)
+                                        QMessageBox.StandardButton.Ok)
             else:
 
                 QMessageBox.information(self, "Warning", "There is no such site: "'"' + str(
                     sito_set_str) + '"'" in this tab, Please disable the 'site choice' from the plugin configuration tab to see all records or create the tab",
-                                        QMessageBox.Ok)
+                                        QMessageBox.StandardButton.Ok)
 
     def on_pushButtonQuant_pressed(self):
         dlg = QuantPanelMain(self)
         dlg.insertItems(self.QUANT_ITEMS)
-        dlg.exec_()
+        dlg.exec()
         dataset = []
         parameter1 = dlg.TYPE_QUANT
         parameters2 = dlg.ITEMS
@@ -708,7 +711,7 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
                 f.close()
                 self.plot_chart(dataset_sum, 'Frequency analisys', 'Qty')
             else:
-                QMessageBox.warning(self, "Warning", "The datas not are present",  QMessageBox.Ok)
+                QMessageBox.warning(self, "Warning", "The datas not are present",  QMessageBox.StandardButton.Ok)
     def parameter_quant_creator(self, par_list, n_rec):
         self.parameter_list = par_list
         self.record_number = n_rec
@@ -717,9 +720,10 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
             converted_parameters.append(self.CONVERSION_DICT[par])
         parameter2 = ''
         for sing_par_conv in range(len(converted_parameters)):
-            exec_str =  ('str(self.DATA_LIST[%d].%s)') % (self.record_number, converted_parameters[sing_par_conv])
+            # Use getattr for safe attribute access instead of eval
+            attr_value = str(getattr(self.DATA_LIST[self.record_number], converted_parameters[sing_par_conv]))
             paramentro = str(self.parameter_list[sing_par_conv])
-            exec_str = ' -' + paramentro[:4] + ": " + eval(exec_str)
+            exec_str = ' -' + paramentro[:4] + ": " + attr_value
             parameter2 += exec_str
         return parameter2
     def plot_chart(self, d, t, yl):
@@ -851,15 +855,15 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
                 if self.L == 'it':
                     QMessageBox.warning(self, "BENVENUTO",
                                         "Benvenuto in pyArchInit " + self.NOME_SCHEDA + ". Il database e' vuoto. Premi 'Ok' e buon lavoro!",
-                                        QMessageBox.Ok)
+                                        QMessageBox.StandardButton.Ok)
                 elif self.L == 'de':
                     QMessageBox.warning(self, "WILLKOMMEN",
                                         "WILLKOMMEN in pyArchInit" + "SE-MSE formular" + ". Die Datenbank ist leer. Tippe 'Ok' und aufgehts!",
-                                        QMessageBox.Ok)
+                                        QMessageBox.StandardButton.Ok)
                 else:
                     QMessageBox.warning(self, "WELCOME",
                                         "Welcome in pyArchInit" + "Samples SU-WSU" + ". The DB is empty. Push 'Ok' and Good Work!",
-                                        QMessageBox.Ok)
+                                        QMessageBox.StandardButton.Ok)
                 self.charge_list()
                 self.BROWSE_STATUS = 'x'
                 #self.setComboBoxEnable(["self.comboBox_area"], "True")
@@ -898,7 +902,7 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
             if self.toolButtonPreview.isChecked():
                 QMessageBox.warning(self, "Messaggio",
                                     "Modalita' Preview US attivata. Le piante delle US saranno visualizzate nella sezione Piante",
-                                    QMessageBox.Ok)
+                                    QMessageBox.StandardButton.Ok)
                 self.tabWidget.setCurrentIndex(10)  # Set the current tab to the map preview tab
                 self.loadMapPreview()
             else:
@@ -907,7 +911,7 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
             if self.toolButtonPreview.isChecked():
                 QMessageBox.warning(self, "Message",
                                     "Modalität' Preview der aktivierten SE. Die Plana der SE werden in der Auswahl der Plana visualisiert",
-                                    QMessageBox.Ok)
+                                    QMessageBox.StandardButton.Ok)
                 self.tabWidget.setCurrentIndex(10)  # Set the current tab to the map preview tab
                 self.loadMapPreview()
             else:
@@ -917,7 +921,7 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
             if self.toolButtonPreview.isChecked():
                 QMessageBox.warning(self, "Message",
                                     "Preview SU mode enabled. US plants will be displayed in the Plants section",
-                                    QMessageBox.Ok)
+                                    QMessageBox.StandardButton.Ok)
                 self.tabWidget.setCurrentIndex(10)  # Set the current tab to the map preview tab
                 self.loadMapPreview()
             else:
@@ -936,8 +940,8 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
 
         self.iconListWidget.setUniformItemSizes(True)
         self.iconListWidget.setObjectName("iconListWidget")
-        self.iconListWidget.SelectionMode()
-        self.iconListWidget.setSelectionMode(QAbstractItemView.ExtendedSelection)
+        #self.iconListWidget.SelectionMode()  # Removed for Qt6 compatibility
+        self.iconListWidget.setSelectionMode(QAbstractItemView.SelectionMode.ExtendedSelection)
         self.iconListWidget.itemDoubleClicked.connect(self.openWide_image)
 
         # Setup Statistics Tab
@@ -1067,7 +1071,7 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
         self.empty_fields()
         # Create and show the dialog
         filter_dialog = PotteryFilterDialog(self.DB_MANAGER, self)
-        result = filter_dialog.exec_()
+        result = filter_dialog.exec()
 
         if result:
             # Get the selected ID numbers and year from the dialog
@@ -1076,9 +1080,9 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
 
             if not selected_ids:
                 if self.L == 'it':
-                    QMessageBox.information(self, 'Info', "Nessun ID Number selezionato.", QMessageBox.Ok)
+                    QMessageBox.information(self, 'Info', "Nessun ID Number selezionato.", QMessageBox.StandardButton.Ok)
                 else:
-                    QMessageBox.information(self, 'Info', "No ID Number selected.", QMessageBox.Ok)
+                    QMessageBox.information(self, 'Info', "No ID Number selected.", QMessageBox.StandardButton.Ok)
                 return
 
             # Filter DATA_LIST based on selected IDs and optionally year
@@ -1112,9 +1116,9 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
                 self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
             else:
                 if self.L == 'it':
-                    QMessageBox.information(self, 'Nessun Risultato', "Nessun record corrisponde ai filtri selezionati.", QMessageBox.Ok)
+                    QMessageBox.information(self, 'Nessun Risultato', "Nessun record corrisponde ai filtri selezionati.", QMessageBox.StandardButton.Ok)
                 else:
-                    QMessageBox.information(self, 'No Results', "No records match the selected filters.", QMessageBox.Ok)
+                    QMessageBox.information(self, 'No Results', "No records match the selected filters.", QMessageBox.StandardButton.Ok)
 
     def dropEvent(self, event):
         mimeData = event.mimeData()
@@ -1130,9 +1134,9 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
                         if filetype.lower() in accepted_formats:
                             self.load_and_process_image(path)
                         else:
-                            QMessageBox.warning(self, "Error", f"Unsupported file type: {filetype}", QMessageBox.Ok)
+                            QMessageBox.warning(self, "Error", f"Unsupported file type: {filetype}", QMessageBox.StandardButton.Ok)
                 except Exception as e:
-                    QMessageBox.warning(self, "Error", f"Failed to process the file: {str(e)}", QMessageBox.Ok)
+                    QMessageBox.warning(self, "Error", f"Failed to process the file: {str(e)}", QMessageBox.StandardButton.Ok)
         super().dropEvent(event)
 
     def dragEnterEvent(self, event):
@@ -1170,7 +1174,7 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
                 # QMessageBox.warning(self, "Errore", "Warning 1 ! \n"+ str(msg),  QMessageBox.Ok)
                 return 0
         except Exception as e:
-            QMessageBox.warning(self, "Error", "Warning 2 ! \n" + str(e), QMessageBox.Ok)
+            QMessageBox.warning(self, "Error", "Warning 2 ! \n" + str(e), QMessageBox.StandardButton.Ok)
             return 0
 
     def insert_record_mediathumb(self, media_max_num_id, mediatype, filename, filename_thumb, filetype, filepath_thumb,
@@ -1204,7 +1208,7 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
                 # QMessageBox.warning(self, "Error", "warming 1 ! \n"+ str(msg),  QMessageBox.Ok)
                 return 0
         except Exception as e:
-            QMessageBox.warning(self, "Error", "Warning 2 ! \n" + str(e), QMessageBox.Ok)
+            QMessageBox.warning(self, "Error", "Warning 2 ! \n" + str(e), QMessageBox.StandardButton.Ok)
             return 0
 
     def insert_mediaToEntity_rec(self, id_entity, entity_type, table_name, id_media, filepath, media_name):
@@ -1240,10 +1244,10 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
                     msg = self.ID_TABLE + " already present into the database"
                 else:
                     msg = e
-                QMessageBox.warning(self, "Error", "Warning 1 ! \n" + str(msg), QMessageBox.Ok)
+                QMessageBox.warning(self, "Error", "Warning 1 ! \n" + str(msg), QMessageBox.StandardButton.Ok)
                 return 0
         except Exception as e:
-            QMessageBox.warning(self, "Error", "Warning 2 ! \n" + str(e), QMessageBox.Ok)
+            QMessageBox.warning(self, "Error", "Warning 2 ! \n" + str(e), QMessageBox.StandardButton.Ok)
             return 0
 
     def delete_mediaToEntity_rec(self, id_entity, entity_type, table_name, id_media, filepath, media_name):
@@ -1271,7 +1275,7 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
                 str(self.filepath),  # 5 - filepath
                 str(self.media_name))
         except Exception as e:
-            QMessageBox.warning(self, "Error", "Warning 2 ! \n" + str(e), QMessageBox.Ok)
+            QMessageBox.warning(self, "Error", "Warning 2 ! \n" + str(e), QMessageBox.StandardButton.Ok)
             return 0
 
     def generate_reperti(self):
@@ -1441,12 +1445,12 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
                             MUR.resample_images(media_max_num_id, filepath, filenameorig, thumb_resize_str,
                                                 media_resize_suffix)
                     except Exception as e:
-                        QMessageBox.warning(self, "Cucu", str(e), QMessageBox.Ok)
+                        QMessageBox.warning(self, "Cucu", str(e), QMessageBox.StandardButton.Ok)
                     self.insert_record_mediathumb(media_max_num_id, mediatype, filename, filename_thumb, filetype,
                                                   filepath_thumb, filepath_resize)
 
                     item = QListWidgetItem(str(filenameorig))
-                    item.setData(Qt.UserRole, str(media_max_num_id))
+                    item.setData(Qt.ItemDataRole.UserRole, str(media_max_num_id))
                     icon = load_icon(get_image_path(str(thumb_path_str), filepath_thumb))
                     item.setIcon(icon)
                     self.iconListWidget.addItem(item)
@@ -1461,16 +1465,16 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
                 if self.L == 'it':
                     QMessageBox.warning(self, "Warning", "controlla che il nome del file non abbia caratteri speciali",
 
-                                        QMessageBox.Ok)
+                                        QMessageBox.StandardButton.Ok)
 
                 if self.L == 'de':
 
                     QMessageBox.warning(self, "Warning", "prüfen, ob der Dateiname keine Sonderzeichen enthält",
-                                        QMessageBox.Ok)
+                                        QMessageBox.StandardButton.Ok)
 
                 else:
 
-                    QMessageBox.warning(self, "Warning", str(e), QMessageBox.Ok)
+                    QMessageBox.warning(self, "Warning", str(e), QMessageBox.StandardButton.Ok)
 
     def db_search_check(self, table_class, field, value):
         self.table_class = table_class
@@ -1566,24 +1570,24 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
 
                 msg = QMessageBox.warning(self, "Attenzione!!!",
                                           "devi selezionare prima l'immagine",
-                                          QMessageBox.Ok)
+                                          QMessageBox.StandardButton.Ok)
 
             elif self.L == 'de':
 
                 msg = QMessageBox.warning(self, "Warnung",
                                           "moet je eerst de afbeelding selecteren",
-                                          QMessageBox.Ok)
+                                          QMessageBox.StandardButton.Ok)
             else:
 
                 msg = QMessageBox.warning(self, "Warning",
                                           "you must first select an image",
-                                          QMessageBox.Ok)
+                                          QMessageBox.StandardButton.Ok)
         else:
             if self.L == 'it':
                 msg = QMessageBox.warning(self, "Warning",
                                           "Vuoi veramente cancellare i tags dalle thumbnail selezionate? \n L'azione è irreversibile",
-                                          QMessageBox.Ok | QMessageBox.Cancel)
-                if msg == QMessageBox.Cancel:
+                                          QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel)
+                if msg == QMessageBox.StandardButton.Cancel:
                     QMessageBox.warning(self, "Messaggio!!!", "Azione Annullata!")
                 else:
                     # items_selected = self.iconListWidget.selectedItems()
@@ -1599,8 +1603,8 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
             elif self.L == 'de':
                 msg = QMessageBox.warning(self, "Warning",
                                           "Wollen Sie wirklich die Tags aus den ausgewählten Miniaturbildern löschen? \n Die Aktion ist unumkehrbar",
-                                          QMessageBox.Ok | QMessageBox.Cancel)
-                if msg == QMessageBox.Cancel:
+                                          QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel)
+                if msg == QMessageBox.StandardButton.Cancel:
                     QMessageBox.warning(self, "Warnung", "Azione Annullata!")
                 else:
                     # items_selected = self.iconListWidget.selectedItems()
@@ -1617,8 +1621,8 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
             else:
                 msg = QMessageBox.warning(self, "Warning",
                                           "Do you really want to delete the tags from the selected thumbnails? \n The action is irreversible",
-                                          QMessageBox.Ok | QMessageBox.Cancel)
-                if msg == QMessageBox.Cancel:
+                                          QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel)
+                if msg == QMessageBox.StandardButton.Cancel:
                     QMessageBox.warning(self, "Warning", "Action cancelled")
                 else:
                     # items_selected = self.iconListWidget.selectedItems()
@@ -1646,7 +1650,7 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
         # Inizializza la QListWidget fuori dal ciclo
         self.new_list_widget = QListWidget()
         # ##self.new_list_widget.setFixedSize(200, 300)
-        self.new_list_widget.setSelectionMode(QAbstractItemView.SingleSelection)  # Permette selezioni multiple
+        self.new_list_widget.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)  # Permette selezioni multiple
 
         done_button = QPushButton("TAG")
 
@@ -1675,9 +1679,9 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
         self.pageLabels = []
         for i in range(1, 6):
             label = QLabel(str(i))
-            label.setAlignment(Qt.AlignCenter)
+            label.setAlignment(Qt.AlignmentFlag.AlignCenter)
             label.setMinimumWidth(30)
-            label.setFrameStyle(QFrame.Panel | QFrame.Sunken)
+            label.setFrameStyle(QFrame.Shape.Panel | QFrame.Shadow.Sunken)
             label.setMargin(2)
             label.mousePressEvent = functools.partial(self.on_page_label_clicked, i)
             self.pageLabels.append(label)
@@ -1767,7 +1771,7 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
             header_item = QListWidgetItem(
                 "Le righe selezionate in giallo indicano immagini non taggate\n Da questo strumento solo le righe selezionate gialle posso essere taggate ")
             header_item.setBackground(QColor('lightgrey'))
-            header_item.setFlags(header_item.flags() & ~Qt.ItemIsSelectable)  # rendi l'item non selezionabile
+            header_item.setFlags(header_item.flags() & ~Qt.ItemFlag.ItemIsSelectable)  # rendi l'item non selezionabile
             self.new_list_widget.addItem(header_item)
             # Aggiungi le immagini alla QListWidget
 
@@ -1795,7 +1799,7 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
                 self.image_cache.move_to_end(thumb_path)
 
                 item = QListWidgetItem(str(i.media_filename))
-                item.setData(Qt.UserRole, str(i.media_filename))
+                item.setData(Qt.ItemDataRole.UserRole, str(i.media_filename))
                 icon = load_icon(get_image_path(thumb_path_str, thumb_path))
                 item.setIcon(icon)
 
@@ -1838,7 +1842,7 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
             header_item = QListWidgetItem(
                 "Le righe selezionate in giallo indicano immagini non taggate\n Da questo strumento solo le righe selezionate gialle posso essere taggate ")
             header_item.setBackground(QColor('lightgrey'))
-            header_item.setFlags(header_item.flags() & ~Qt.ItemIsSelectable)  # rendi l'item non selezionabile
+            header_item.setFlags(header_item.flags() & ~Qt.ItemFlag.ItemIsSelectable)  # rendi l'item non selezionabile
             self.new_list_widget.addItem(header_item)
             # Aggiungi le immagini alla QListWidget
 
@@ -1879,7 +1883,7 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
                 if us_list:
                     # us_list = [g.id_entity for g in mediatoentity_data if 'US' in g.entity_type]
                     item = QListWidgetItem(str(i.media_filename))
-                    item.setData(Qt.UserRole, str(i.media_filename))
+                    item.setData(Qt.ItemDataRole.UserRole, str(i.media_filename))
                     icon = load_icon(get_image_path(thumb_path_str, thumb_path))
                     item.setIcon(icon)
 
@@ -1910,7 +1914,7 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
                 else:
                     # us_list = [g.id_entity for g in mediatoentity_data if 'US' in g.entity_type]
                     item = QListWidgetItem(str(i.media_filename))
-                    item.setData(Qt.UserRole, str(i.media_filename))
+                    item.setData(Qt.ItemDataRole.UserRole, str(i.media_filename))
                     icon = load_icon(get_image_path(thumb_path_str, thumb_path))
                     item.setIcon(icon)
 
@@ -2063,7 +2067,7 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
         # crea un nuovo QListWidgetItem
         if data:
             list_item = QListWidgetItem(data[0].media_filename)  # utilizza il nome del file come testo dell'elemento
-            list_item.setData(Qt.UserRole,data[0].media_filename)  # utilizza il nome del file come dati personalizzati dell'elemento
+            list_item.setData(Qt.ItemDataRole.UserRole,data[0].media_filename)  # utilizza il nome del file come dati personalizzati dell'elemento
 
             # crea una QIcon con l'immagine
             icon = load_icon(get_image_path(thumb_path_str, data[0].filepath))  # utilizza il percorso del file per creare l'icona
@@ -2081,9 +2085,9 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
         # if mode == 0:
         # """ if has geometry column load to map canvas """
         rec_list = self.ID_TABLE + " = " + str(
-            eval("self.DATA_LIST[int(self.REC_CORR)]." + self.ID_TABLE))
+            getattr(self.DATA_LIST[int(self.REC_CORR)], self.ID_TABLE))
         search_dict = {
-            'id_entity': "'" + str(eval("self.DATA_LIST[int(self.REC_CORR)]." + self.ID_TABLE)) + "'",
+            'id_entity': "'" + str(getattr(self.DATA_LIST[int(self.REC_CORR)], self.ID_TABLE)) + "'",
             'entity_type': "'CERAMICA'"}
         record_us_list = self.DB_MANAGER.query_bool(search_dict, 'MEDIATOENTITY')
         for i in record_us_list:
@@ -2093,7 +2097,7 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
             mediathumb_data = self.DB_MANAGER.query_bool(search_dict, "MEDIA_THUMB")
             thumb_path = str(mediathumb_data[0].filepath)
             item = QListWidgetItem(str(i.media_name))
-            item.setData(Qt.UserRole, str(i.media_name))
+            item.setData(Qt.ItemDataRole.UserRole, str(i.media_name))
             icon = load_icon(get_image_path(thumb_path_str, thumb_path))
             item.setIcon(icon)
             self.iconListWidget.addItem(item)
@@ -2118,7 +2122,7 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
 
         # Aggiungi l'item alla lista
         item = QListWidgetItem(str(filename))
-        item.setData(Qt.UserRole, str(media_max_num_id))
+        item.setData(Qt.ItemDataRole.UserRole, str(media_max_num_id))
         icon = load_icon(thumbnail_path)
         item.setIcon(icon)
         self.iconListWidget.addItem(item)
@@ -2521,7 +2525,7 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
         def show_image(file_path):
             dlg = ImageViewer(self)
             dlg.show_image(file_path)
-            dlg.exec_()
+            dlg.exec()
 
         def show_video(file_path):
             if self.video_player is None:
@@ -2540,7 +2544,7 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
             elif media_type == '3d_model':
                 self.show_3d_model(file_path)
             else:
-                QMessageBox.warning(self, "Error", f"Unsupported media type: {media_type}", QMessageBox.Ok)
+                QMessageBox.warning(self, "Error", f"Unsupported media type: {media_type}", QMessageBox.StandardButton.Ok)
 
         def query_media(search_dict, table="MEDIA_THUMB"):
             u = Utility()
@@ -2548,7 +2552,7 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
             try:
                 return self.DB_MANAGER.query_bool(search_dict, table)
             except Exception as e:
-                QMessageBox.warning(self, "Error", f"Database query failed: {str(e)}", QMessageBox.Ok)
+                QMessageBox.warning(self, "Error", f"Database query failed: {str(e)}", QMessageBox.StandardButton.Ok)
                 return None
 
         for item in items:
@@ -2576,11 +2580,11 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
                     dialog.resize(800, 600)  # Puoi modificare queste dimensioni come preferisci
 
                     # Mostra il dialog
-                    dialog.exec_()
+                    dialog.exec()
                 else:
                     show_media(file_path, media_type)
             else:
-                QMessageBox.warning(self, "Error", f"File not found: {id_orig_item}", QMessageBox.Ok)
+                QMessageBox.warning(self, "Error", f"File not found: {id_orig_item}", QMessageBox.StandardButton.Ok)
 
     def charge_list(self):
         # Get language from QgsSettings
@@ -2602,7 +2606,7 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
             if str(e) == "list.remove(x): x not in list":
                 pass
             else:
-                QMessageBox.warning(self, "Message", "Update system in site list: " + str(e), QMessageBox.Ok)
+                QMessageBox.warning(self, "Message", "Update system in site list: " + str(e), QMessageBox.StandardButton.Ok)
 
         self.comboBox_sito.clear()
         sito_vl.sort()
@@ -2764,7 +2768,7 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
             if self.toolButtonPreview.isChecked():
                 QMessageBox.warning(self, "Messaggio",
                                     "Modalita' Preview US attivata. Le piante delle US saranno visualizzate nella sezione Piante",
-                                    QMessageBox.Ok)
+                                    QMessageBox.StandardButton.Ok)
                 self.loadMapPreview()
             else:
                 self.loadMapPreview(1)
@@ -2772,7 +2776,7 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
             if self.toolButtonPreview.isChecked():
                 QMessageBox.warning(self, "Message",
                                     "Modalität' Preview der aktivierten SE. Die Plana der SE werden in der Auswahl der Plana visualisiert",
-                                    QMessageBox.Ok)
+                                    QMessageBox.StandardButton.Ok)
                 self.loadMapPreview()
             else:
                 self.loadMapPreview(1)
@@ -2780,7 +2784,7 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
             if self.toolButtonPreview.isChecked():
                 QMessageBox.warning(self, "Message",
                                     "Preview SU mode enabled. US plants will be displayed in the Plants section",
-                                    QMessageBox.Ok)
+                                    QMessageBox.StandardButton.Ok)
                 self.loadMapPreview()
             else:
                 self.loadMapPreview(1)
@@ -2791,7 +2795,7 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
         else:
             dlg = SortPanelMain(self)
             dlg.insertItems(self.SORT_ITEMS)
-            dlg.exec_()
+            dlg.exec()
 
             items,order_type = dlg.ITEMS, dlg.TYPE_ORDER
 
@@ -2805,7 +2809,7 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
 
             id_list = []
             for i in self.DATA_LIST:
-                id_list.append(eval("i." + self.ID_TABLE))
+                id_list.append(getattr(i, self.ID_TABLE))
             self.DATA_LIST = []
 
             temp_data_list = self.DB_MANAGER.query_sort(id_list, self.SORT_ITEMS_CONVERTED, self.SORT_MODE, self.MAPPER_TABLE_CLASS, self.ID_TABLE)
@@ -2830,24 +2834,22 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
 
 
     def insert_new_row(self, table_name):
-        """insert new row into a table based on table_name"""
-        cmd = table_name+".insertRow(0)"
-        eval(cmd)
-
+        """insert new row into a table based on table_name - uses getattr instead of eval"""
+        widget_name = table_name.replace('self.', '') if table_name.startswith('self.') else table_name
+        table = getattr(self, widget_name)
+        table.insertRow(0)
 
     def remove_row(self, table_name):
-        """insert new row into a table based on table_name"""
+        """Remove selected row from table - uses getattr instead of eval"""
+        widget_name = table_name.replace('self.', '') if table_name.startswith('self.') else table_name
+        table = getattr(self, widget_name)
 
-        table_row_count_cmd = ("%s.rowCount()") % (table_name)
-        table_row_count = eval(table_row_count_cmd)
-        rowSelected_cmd = ("%s.selectedIndexes()") % (table_name)
-        rowSelected = eval(rowSelected_cmd)
+        rowSelected = table.selectedIndexes()
         try:
             rowIndex = (rowSelected[1].row())
-            cmd = ("%s.removeRow(%d)") % (table_name, rowIndex)
-            eval(cmd)
+            table.removeRow(rowIndex)
         except:
-            QMessageBox.warning(self, "Messaggio", "Devi selezionare una riga",  QMessageBox.Ok)
+            QMessageBox.warning(self, "Messaggio", "Devi selezionare una riga", QMessageBox.StandardButton.Ok)
 
 
 
@@ -2931,15 +2933,15 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
                             if self.L == 'it':
                                 self.update_if(QMessageBox.warning(self, 'Errore',
                                                                    "Il record e' stato modificato. Vuoi salvare le modifiche?",
-                                                                   QMessageBox.Ok | QMessageBox.Cancel))
+                                                                   QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel))
                             elif self.L == 'de':
                                 self.update_if(QMessageBox.warning(self, 'Error',
                                                                    "Der Record wurde geändert. Möchtest du die Änderungen speichern?",
-                                                                   QMessageBox.Ok | QMessageBox.Cancel))
+                                                                   QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel))
                             else:
                                 self.update_if(QMessageBox.warning(self, 'Error',
                                                                    "The record has been changed. Do you want to save the changes?",
-                                                                   QMessageBox.Ok | QMessageBox.Cancel))
+                                                                   QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel))
                             self.empty_fields()
                             self.SORT_STATUS = "n"
                             self.label_sort.setText(self.SORTED_ITEMS[self.SORT_STATUS])
@@ -2953,11 +2955,11 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
                         else:
                             if self.L == 'it':
                                 QMessageBox.warning(self, "ATTENZIONE", "Non è stata realizzata alcuna modifica.",
-                                                    QMessageBox.Ok)
+                                                    QMessageBox.StandardButton.Ok)
                             elif self.L == 'de':
-                                QMessageBox.warning(self, "ACHTUNG", "Keine Änderung vorgenommen", QMessageBox.Ok)
+                                QMessageBox.warning(self, "ACHTUNG", "Keine Änderung vorgenommen", QMessageBox.StandardButton.Ok)
                             else:
-                                QMessageBox.warning(self, "Warning", "No changes have been made", QMessageBox.Ok)
+                                QMessageBox.warning(self, "Warning", "No changes have been made", QMessageBox.StandardButton.Ok)
         else:
             if self.data_error_check() == 0:
                 test_insert = self.insert_new_rec()
@@ -2982,11 +2984,11 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
                     self.enable_button(1)
             else:
                 if self.L == 'it':
-                    QMessageBox.warning(self, "ATTENZIONE", "Problema nell'inserimento dati", QMessageBox.Ok)
+                    QMessageBox.warning(self, "ATTENZIONE", "Problema nell'inserimento dati", QMessageBox.StandardButton.Ok)
                 elif self.L == 'de':
-                    QMessageBox.warning(self, "ACHTUNG", "Problem der Dateneingabe", QMessageBox.Ok)
+                    QMessageBox.warning(self, "ACHTUNG", "Problem der Dateneingabe", QMessageBox.StandardButton.Ok)
                 else:
-                    QMessageBox.warning(self, "Warning", "Problem with data entry", QMessageBox.Ok)
+                    QMessageBox.warning(self, "Warning", "Problem with data entry", QMessageBox.StandardButton.Ok)
 
 
     def insert_new_rec(self):
@@ -3089,14 +3091,14 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
                 e_str = str(e)
                 if e_str.__contains__("IntegrityError"):
                     msg = self.ID_TABLE + u" already present in database"
-                    QMessageBox.warning(self, "Warning", "Error"+ str(msg),  QMessageBox.Ok)
+                    QMessageBox.warning(self, "Warning", "Error"+ str(msg),  QMessageBox.StandardButton.Ok)
                 else:
                     msg = e
-                    QMessageBox.warning(self, "Error", "Insert error 1 \n"+ str(msg),  QMessageBox.Ok)
+                    QMessageBox.warning(self, "Error", "Insert error 1 \n"+ str(msg),  QMessageBox.StandardButton.Ok)
                 return 0
 
         except Exception as e:
-            QMessageBox.warning(self, "Error", "Insert error 3 \n"+str(e),  QMessageBox.Ok)
+            QMessageBox.warning(self, "Error", "Insert error 3 \n"+str(e),  QMessageBox.StandardButton.Ok)
             return 0
     #rif biblio
     # def on_pushButton_insert_row_rif_biblio_pressed(self):
@@ -3108,11 +3110,11 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
         EC = Error_check()
 
         if EC.data_is_empty(str(self.lineEdit_id_number.text())) == 0:
-            QMessageBox.warning(self, "Warning", "Site field. \n This field cannot be empty",  QMessageBox.Ok)
+            QMessageBox.warning(self, "Warning", "Site field. \n This field cannot be empty",  QMessageBox.StandardButton.Ok)
             test = 1
 
         if EC.data_is_empty(str(self.comboBox_sito.currentText())) == 0:
-            QMessageBox.warning(self, "Warning", "Site field. \n This field cannot be empty",  QMessageBox.Ok)
+            QMessageBox.warning(self, "Warning", "Site field. \n This field cannot be empty",  QMessageBox.StandardButton.Ok)
             test = 1
 
         # if EC.data_is_empty(str(self.comboBox_area.currentText())) == 0:
@@ -3140,16 +3142,16 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
             if self.L == 'it':
                 self.update_if(
                     QMessageBox.warning(self, 'Errore', "Il record e' stato modificato. Vuoi salvare le modifiche?",
-                                        QMessageBox.Ok | QMessageBox.Cancel))
+                                        QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel))
             elif self.L == 'de':
                 self.update_if(
                     QMessageBox.warning(self, 'Errore',
                                         "Der Record wurde geändert. Möchtest du die Änderungen speichern?",
-                                        QMessageBox.Ok | QMessageBox.Cancel))
+                                        QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel))
             else:
                 self.update_if(
                     QMessageBox.warning(self, "Error", "The record has been changed. You want to save the changes?",
-                                        QMessageBox.Ok | QMessageBox.Cancel))
+                                        QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel))
             return 0
             # records surf functions
 
@@ -3202,7 +3204,7 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
             self.REC_CORR = self.REC_CORR-1
             if self.REC_CORR == -1:
                 self.REC_CORR = 0
-                QMessageBox.warning(self, "Error", "You are on the first record!",  QMessageBox.Ok)
+                QMessageBox.warning(self, "Error", "You are on the first record!",  QMessageBox.StandardButton.Ok)
             else:
 
                 self.empty_fields()
@@ -3217,7 +3219,7 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
             self.REC_CORR = self.REC_CORR+1
             if self.REC_CORR >= self.REC_TOT:
                 self.REC_CORR = self.REC_CORR-1
-                QMessageBox.warning(self, "Error", "You are on the last record!",  QMessageBox.Ok)
+                QMessageBox.warning(self, "Error", "You are on the last record!",  QMessageBox.StandardButton.Ok)
             else:
 
                 self.empty_fields()
@@ -3230,19 +3232,19 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
         if self.L == 'it':
             msg = QMessageBox.warning(self, "Attenzione!!!",
                                       "Vuoi veramente eliminare il record? \n L'azione è irreversibile",
-                                      QMessageBox.Ok | QMessageBox.Cancel)
-            if msg == QMessageBox.Cancel:
+                                      QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel)
+            if msg == QMessageBox.StandardButton.Cancel:
                 QMessageBox.warning(self, "Messagio!!!", "Azione Annullata!")
             else:
                 try:
-                    id_to_delete = eval("self.DATA_LIST[self.REC_CORR]." + self.ID_TABLE)
+                    id_to_delete = getattr(self.DATA_LIST[self.REC_CORR], self.ID_TABLE)
                     self.DB_MANAGER.delete_one_record(self.TABLE_NAME, self.ID_TABLE, id_to_delete)
                     self.charge_records()  # charge records from DB
                     QMessageBox.warning(self, "Messaggio!!!", "Record eliminato!")
                 except Exception as e:
                     QMessageBox.warning(self, "Messaggio!!!", "Tipo di errore: " + str(e))
                 if not bool(self.DATA_LIST):
-                    QMessageBox.warning(self, "Attenzione", "Il database è vuoto!", QMessageBox.Ok)
+                    QMessageBox.warning(self, "Attenzione", "Il database è vuoto!", QMessageBox.StandardButton.Ok)
                     self.DATA_LIST = []
                     self.DATA_LIST_REC_CORR = []
                     self.DATA_LIST_REC_TEMP = []
@@ -3263,19 +3265,19 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
         elif self.L == 'de':
             msg = QMessageBox.warning(self, "Achtung!!!",
                                       "Willst du wirklich diesen Eintrag löschen? \n Der Vorgang ist unumkehrbar",
-                                      QMessageBox.Ok | QMessageBox.Cancel)
-            if msg == QMessageBox.Cancel:
+                                      QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel)
+            if msg == QMessageBox.StandardButton.Cancel:
                 QMessageBox.warning(self, "Message!!!", "Aktion annulliert!")
             else:
                 try:
-                    id_to_delete = eval("self.DATA_LIST[self.REC_CORR]." + self.ID_TABLE)
+                    id_to_delete = getattr(self.DATA_LIST[self.REC_CORR], self.ID_TABLE)
                     self.DB_MANAGER.delete_one_record(self.TABLE_NAME, self.ID_TABLE, id_to_delete)
                     self.charge_records()  # charge records from DB
                     QMessageBox.warning(self, "Message!!!", "Record gelöscht!")
                 except Exception as e:
                     QMessageBox.warning(self, "Messagge!!!", "Errortyp: " + str(e))
                 if not bool(self.DATA_LIST):
-                    QMessageBox.warning(self, "Attenzione", "Die Datenbank ist leer!", QMessageBox.Ok)
+                    QMessageBox.warning(self, "Attenzione", "Die Datenbank ist leer!", QMessageBox.StandardButton.Ok)
                     self.DATA_LIST = []
                     self.DATA_LIST_REC_CORR = []
                     self.DATA_LIST_REC_TEMP = []
@@ -3296,19 +3298,19 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
         else:
             msg = QMessageBox.warning(self, "Warning!!!",
                                       "Do you really want to break the record? \n Action is irreversible.",
-                                      QMessageBox.Ok | QMessageBox.Cancel)
-            if msg == QMessageBox.Cancel:
+                                      QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel)
+            if msg == QMessageBox.StandardButton.Cancel:
                 QMessageBox.warning(self, "Message!!!", "Action deleted!")
             else:
                 try:
-                    id_to_delete = eval("self.DATA_LIST[self.REC_CORR]." + self.ID_TABLE)
+                    id_to_delete = getattr(self.DATA_LIST[self.REC_CORR], self.ID_TABLE)
                     self.DB_MANAGER.delete_one_record(self.TABLE_NAME, self.ID_TABLE, id_to_delete)
                     self.charge_records()  # charge records from DB
                     QMessageBox.warning(self, "Message!!!", "Record deleted!")
                 except Exception as e:
                     QMessageBox.warning(self, "Message", "error type: " + str(e))
                 if not bool(self.DATA_LIST):
-                    QMessageBox.warning(self, "Warning", "the db is empty!", QMessageBox.Ok)
+                    QMessageBox.warning(self, "Warning", "the db is empty!", QMessageBox.StandardButton.Ok)
                     self.DATA_LIST = []
                     self.DATA_LIST_REC_CORR = []
                     self.DATA_LIST_REC_TEMP = []
@@ -3377,13 +3379,13 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
             if self.L == 'it':
                 QMessageBox.warning(self, "ATTENZIONE",
                                     "Per eseguire una nuova ricerca clicca sul pulsante 'new search' ",
-                                    QMessageBox.Ok)
+                                    QMessageBox.StandardButton.Ok)
             elif self.L == 'de':
                 QMessageBox.warning(self, "ACHTUNG", "Um eine neue Abfrage zu starten drücke  'new search' ",
-                                    QMessageBox.Ok)
+                                    QMessageBox.StandardButton.Ok)
             else:
                 QMessageBox.warning(self, "WARNING", "To perform a new search click on the 'new search' button ",
-                                    QMessageBox.Ok)
+                                    QMessageBox.StandardButton.Ok)
         else:
             if self.lineEdit_id_number.text() != "":
                 id_number = int(self.lineEdit_id_number.text())
@@ -3481,20 +3483,20 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
             search_dict = u.remove_empty_items_fr_dict(search_dict)
             if not bool(search_dict):
                 if self.L == 'it':
-                    QMessageBox.warning(self, "ATTENZIONE", "Non è stata impostata nessuna ricerca!!!", QMessageBox.Ok)
+                    QMessageBox.warning(self, "ATTENZIONE", "Non è stata impostata nessuna ricerca!!!", QMessageBox.StandardButton.Ok)
                 elif self.L == 'de':
-                    QMessageBox.warning(self, "ACHTUNG", "Keine Abfrage definiert!!!", QMessageBox.Ok)
+                    QMessageBox.warning(self, "ACHTUNG", "Keine Abfrage definiert!!!", QMessageBox.StandardButton.Ok)
                 else:
-                    QMessageBox.warning(self, " WARNING", "No search has been set!!!", QMessageBox.Ok)
+                    QMessageBox.warning(self, " WARNING", "No search has been set!!!", QMessageBox.StandardButton.Ok)
             else:
                 res = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
                 if not bool(res):
                     if self.L == 'it':
-                        QMessageBox.warning(self, "ATTENZIONE", "Non è stato trovato nessun record!", QMessageBox.Ok)
+                        QMessageBox.warning(self, "ATTENZIONE", "Non è stato trovato nessun record!", QMessageBox.StandardButton.Ok)
                     elif self.L == 'de':
-                        QMessageBox.warning(self, "ACHTUNG", "Keinen Record gefunden!", QMessageBox.Ok)
+                        QMessageBox.warning(self, "ACHTUNG", "Keinen Record gefunden!", QMessageBox.StandardButton.Ok)
                     else:
-                        QMessageBox.warning(self, "WARNING", "No record found!", QMessageBox.Ok)
+                        QMessageBox.warning(self, "WARNING", "No record found!", QMessageBox.StandardButton.Ok)
                     self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR + 1)
                     self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
                     self.BROWSE_STATUS = "b"
@@ -3543,17 +3545,17 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
                     #self.setComboBoxEnable(["self.lineEdit_us"], "True")
 
 
-                    QMessageBox.warning(self, "Message", "%s %d %s" % strings, QMessageBox.Ok)
+                    QMessageBox.warning(self, "Message", "%s %d %s" % strings, QMessageBox.StandardButton.Ok)
         self.enable_button_search(1)
 
     def update_if(self, msg):
         rec_corr = self.REC_CORR
-        if msg == QMessageBox.Ok:
+        if msg == QMessageBox.StandardButton.Ok:
             test = self.update_record()
             if test == 1:
                 id_list = []
                 for i in self.DATA_LIST:
-                    id_list.append(eval("i." + self.ID_TABLE))
+                    id_list.append(getattr(i, self.ID_TABLE))
                 self.DATA_LIST = []
                 if self.SORT_STATUS == "n":
                     temp_data_list = self.DB_MANAGER.query_sort(id_list, [self.ID_TABLE], 'asc',
@@ -3578,7 +3580,7 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
         try:
             self.DB_MANAGER.update(self.MAPPER_TABLE_CLASS,
                                    self.ID_TABLE,
-                                   [eval("int(self.DATA_LIST[self.REC_CORR]." + self.ID_TABLE + ")")],
+                                   [int(getattr(self.DATA_LIST[self.REC_CORR], self.ID_TABLE))],
                                    self.TABLE_FIELDS,
                                    self.rec_toupdate())
             return 1
@@ -3594,17 +3596,17 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
             if self.L == 'it':
                 QMessageBox.warning(self, "Messaggio",
                                     "Problema di encoding: sono stati inseriti accenti o caratteri non accettati dal database. Verrà fatta una copia dell'errore con i dati che puoi recuperare nella cartella pyarchinit_Report _Folder",
-                                    QMessageBox.Ok)
+                                    QMessageBox.StandardButton.Ok)
 
 
             elif self.L == 'de':
                 QMessageBox.warning(self, "Message",
                                     "Encoding problem: accents or characters not accepted by the database were entered. A copy of the error will be made with the data you can retrieve in the pyarchinit_Report _Folder",
-                                    QMessageBox.Ok)
+                                    QMessageBox.StandardButton.Ok)
             else:
                 QMessageBox.warning(self, "Message",
                                     "Kodierungsproblem: Es wurden Akzente oder Zeichen eingegeben, die von der Datenbank nicht akzeptiert werden. Es wird eine Kopie des Fehlers mit den Daten erstellt, die Sie im pyarchinit_Report _Ordner abrufen können",
-                                    QMessageBox.Ok)
+                                    QMessageBox.StandardButton.Ok)
 
             return 0
 
@@ -3621,7 +3623,7 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
         else:
             id_list = []
             for i in self.DB_MANAGER.query(self.MAPPER_TABLE_CLASS):
-                id_list.append(eval("i." + self.ID_TABLE))
+                id_list.append(getattr(i, self.ID_TABLE))
             temp_data_list = self.DB_MANAGER.query_sort(id_list, [self.ID_TABLE], 'asc', self.MAPPER_TABLE_CLASS,
                                                         self.ID_TABLE)
             for i in temp_data_list:
@@ -3639,52 +3641,56 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
         return year
 
     def table2dict(self, n):
+        """Convert table widget data to list - uses getattr instead of eval for security"""
         self.tablename = n
-        row = eval(self.tablename+".rowCount()")
-        col = eval(self.tablename+".columnCount()")
-        lista=[]
+        widget_name = n.replace('self.', '') if n.startswith('self.') else n
+        table = getattr(self, widget_name)
+        row = table.rowCount()
+        col = table.columnCount()
+        lista = []
         for r in range(row):
             sub_list = []
             for c in range(col):
-                value = eval(self.tablename+".item(r,c)")
+                value = table.item(r, c)
                 if value != None:
                     sub_list.append(str(value.text()))
 
-            if bool(sub_list) == True:
+            if bool(sub_list):
                 lista.append(sub_list)
 
         return lista
 
-
     def tableInsertData(self, t, d):
-        """Set the value into alls Grid"""
+        """Set the value into alls Grid - uses getattr and ast.literal_eval instead of eval"""
+        import ast
         self.table_name = t
-        self.data_list = eval(d)
-        self.data_list.sort()
+        # d can be a string representation of a list or actual list
+        if isinstance(d, str):
+            try:
+                self.data_list = ast.literal_eval(d) if d else []
+            except (ValueError, SyntaxError):
+                self.data_list = []
+        else:
+            self.data_list = d if d else []
 
-        #column table count
-        table_col_count_cmd = ("%s.columnCount()") % (self.table_name)
-        table_col_count = eval(table_col_count_cmd)
+        if self.data_list:
+            self.data_list.sort()
 
-        #clear table
-        table_clear_cmd = ("%s.clearContents()") % (self.table_name)
-        eval(table_clear_cmd)
+        # Get table widget using getattr
+        widget_name = t.replace('self.', '') if t.startswith('self.') else t
+        table = getattr(self, widget_name)
+
+        table_col_count = table.columnCount()
+        table.clearContents()
 
         for i in range(table_col_count):
-            table_rem_row_cmd = ("%s.removeRow(%d)") % (self.table_name, i)
-            eval(table_rem_row_cmd)
-
-        for i in range(len(self.data_list)):
-            self.insert_new_row(self.table_name)
+            table.removeRow(i)
 
         for row in range(len(self.data_list)):
-            cmd = ('%s.insertRow(%s)') % (self.table_name, row)
-            eval(cmd)
+            table.insertRow(row)
             for col in range(len(self.data_list[row])):
-                #item = self.comboBox_sito.setEditText(self.data_list[0][col]
                 item = QTableWidgetItem(str(self.data_list[row][col]))
-                exec_str = ('%s.setItem(%d,%d,item)') % (self.table_name,row,col)
-                eval(exec_str)
+                table.setItem(row, col, item)
 
 
 
@@ -3872,7 +3878,7 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
             if self.toolButtonPreviewMedia.isChecked() == False:
                 self.loadMediaPreview()
         except Exception as e:
-            QMessageBox.warning(self, "Error Fill Fields", str(e),  QMessageBox.Ok)
+            QMessageBox.warning(self, "Error Fill Fields", str(e),  QMessageBox.StandardButton.Ok)
 
         # Track version number and record ID for concurrency
         if hasattr(self, 'concurrency_manager'):
@@ -4019,28 +4025,30 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
             return 1
 
     def setComboBoxEditable(self, f, n):
-        field_names = f
-        value = n
-
-        for fn in field_names:
-            cmd = ('%s%s%d%s') % (fn, '.setEditable(', n, ')')
-            eval(cmd)
+        """Set editable state for widgets - uses getattr instead of eval for security"""
+        for fn in f:
+            widget_name = fn.replace('self.', '') if fn.startswith('self.') else fn
+            widget = getattr(self, widget_name, None)
+            if widget is not None:
+                widget.setEditable(bool(n))
 
     def setComboBoxEnable(self, f, v):
-        field_names = f
-        value = v
-
-        for fn in field_names:
-            cmd = ('%s%s%s%s') % (fn, '.setEnabled(', v, ')')
-            eval(cmd)
+        """Set enabled state for widgets - uses getattr instead of eval for security"""
+        for fn in f:
+            widget_name = fn.replace('self.', '') if fn.startswith('self.') else fn
+            widget = getattr(self, widget_name, None)
+            if widget is not None:
+                enabled = v.lower() == 'true' if isinstance(v, str) else bool(v)
+                widget.setEnabled(enabled)
 
     def setTableEnable(self, t, v):
-        tab_names = t
-        value = v
-
-        for tn in tab_names:
-            cmd = ('%s%s%s%s') % (tn, '.setEnabled(', v, ')')
-            eval(cmd)
+        """Set enabled state for table widgets - uses getattr instead of eval"""
+        for tn in t:
+            widget_name = tn.replace('self.', '') if tn.startswith('self.') else tn
+            widget = getattr(self, widget_name, None)
+            if widget is not None:
+                enabled = v.lower() == 'true' if isinstance(v, str) else bool(v)
+                widget.setEnabled(enabled)
 
     def testing(self, name_file, message):
         f = open(str(name_file), 'w')
@@ -4173,12 +4181,12 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
             main_layout.setSpacing(5)
 
             # Create a splitter for flexible layout - THIS IS KEY FOR RESPONSIVE DESIGN
-            splitter = QSplitter(Qt.Horizontal)
+            splitter = QSplitter(Qt.Orientation.Horizontal)
             splitter.setChildrenCollapsible(False)
 
             # ========== LEFT PANEL - Tables and Controls ==========
             left_widget = QWidget()
-            left_widget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+            left_widget.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
             left_layout = QVBoxLayout(left_widget)
             left_layout.setContentsMargins(5, 5, 5, 5)
             left_layout.setSpacing(5)
@@ -4254,12 +4262,12 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
             left_layout.addWidget(controls_widget)
 
             # Create a vertical splitter for left panel sections (tables can resize)
-            left_splitter = QSplitter(Qt.Vertical)
+            left_splitter = QSplitter(Qt.Orientation.Vertical)
             left_splitter.setChildrenCollapsible(False)
 
             # Summary table - RESPONSIVE
             summary_group = QGroupBox("Riepilogo Generale")
-            summary_group.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+            summary_group.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
             summary_layout = QVBoxLayout(summary_group)
             summary_layout.setContentsMargins(5, 5, 5, 5)
 
@@ -4267,9 +4275,9 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
             self.tableWidget_stats.setColumnCount(3)
             self.tableWidget_stats.setHorizontalHeaderLabels(["Categoria", "Conteggio", "Percentuale"])
             self.tableWidget_stats.horizontalHeader().setStretchLastSection(True)
-            self.tableWidget_stats.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+            self.tableWidget_stats.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
             self.tableWidget_stats.setAlternatingRowColors(True)
-            self.tableWidget_stats.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+            self.tableWidget_stats.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
             self.tableWidget_stats.setMinimumHeight(100)
             summary_layout.addWidget(self.tableWidget_stats)
 
@@ -4277,7 +4285,7 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
 
             # Measurements statistics table - RESPONSIVE
             measures_group = QGroupBox("Statistiche Misure")
-            measures_group.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Minimum)
+            measures_group.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
             measures_layout = QVBoxLayout(measures_group)
             measures_layout.setContentsMargins(5, 5, 5, 5)
 
@@ -4285,9 +4293,9 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
             self.tableWidget_measures.setColumnCount(5)
             self.tableWidget_measures.setHorizontalHeaderLabels(["Misura", "Min", "Max", "Media", "Mediana"])
             self.tableWidget_measures.horizontalHeader().setStretchLastSection(True)
-            self.tableWidget_measures.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+            self.tableWidget_measures.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
             self.tableWidget_measures.setAlternatingRowColors(True)
-            self.tableWidget_measures.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Minimum)
+            self.tableWidget_measures.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
             self.tableWidget_measures.setMinimumHeight(80)
             self.tableWidget_measures.setMaximumHeight(200)
             measures_layout.addWidget(self.tableWidget_measures)
@@ -4296,7 +4304,7 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
 
             # AI Report section - RESPONSIVE
             ai_group = QGroupBox("Report AI Descrittivo")
-            ai_group.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+            ai_group.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
             ai_layout = QVBoxLayout(ai_group)
             ai_layout.setContentsMargins(5, 5, 5, 5)
 
@@ -4314,7 +4322,7 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
 
             self.textEdit_ai_report = QTextEdit()
             self.textEdit_ai_report.setPlaceholderText("Il report AI verrà visualizzato qui dopo la generazione...")
-            self.textEdit_ai_report.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+            self.textEdit_ai_report.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
             self.textEdit_ai_report.setMinimumHeight(80)
             ai_layout.addWidget(self.textEdit_ai_report)
 
@@ -4332,13 +4340,13 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
             # ========== RIGHT PANEL - Chart (existing Mplwidget) ==========
             # Create a container for the chart that can resize
             right_widget = QWidget()
-            right_widget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+            right_widget.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
             right_layout = QVBoxLayout(right_widget)
             right_layout.setContentsMargins(5, 5, 5, 5)
 
             # Move existing Mplwidget to our layout
             if hasattr(self, 'widget') and self.widget is not None:
-                self.widget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+                self.widget.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
                 self.widget.setMinimumSize(300, 200)
                 right_layout.addWidget(self.widget)
 
@@ -4374,7 +4382,7 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
         try:
             sito = self.comboBox_sito.currentText()
             if not sito or sito == "Inserisci un valore":
-                QMessageBox.warning(self, "Attenzione", "Seleziona prima un sito.", QMessageBox.Ok)
+                QMessageBox.warning(self, "Attenzione", "Seleziona prima un sito.", QMessageBox.StandardButton.Ok)
                 return
 
             # Query all pottery records for the site
@@ -4382,7 +4390,7 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
             records = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
 
             if not records:
-                QMessageBox.information(self, "Info", "Nessun record trovato per questo sito.", QMessageBox.Ok)
+                QMessageBox.information(self, "Info", "Nessun record trovato per questo sito.", QMessageBox.StandardButton.Ok)
                 return
 
             # Store records for later use
@@ -4400,7 +4408,7 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
             self.generate_measurement_stats()
 
         except Exception as e:
-            QMessageBox.warning(self, "Errore", f"Errore nel calcolo statistiche: {e}", QMessageBox.Ok)
+            QMessageBox.warning(self, "Errore", f"Errore nel calcolo statistiche: {e}", QMessageBox.StandardButton.Ok)
 
     def on_stats_combo_changed(self):
         """Handle statistics type combo box change"""
@@ -5239,7 +5247,7 @@ Use well-structured paragraphs with headings for each section.
                 msg = "Berechnen Sie zuerst die Statistiken, indem Sie auf 'Statistiken aktualisieren' klicken."
             else:
                 msg = "Calculate statistics first by clicking 'Refresh Statistics'."
-            QMessageBox.warning(self, "Warning", msg, QMessageBox.Ok)
+            QMessageBox.warning(self, "Warning", msg, QMessageBox.StandardButton.Ok)
             return
 
         try:
@@ -5253,7 +5261,7 @@ Use well-structured paragraphs with headings for each section.
                     msg = "Für die Berichterstellung ist ein OpenAI API-Schlüssel erforderlich."
                 else:
                     msg = "An OpenAI API key is required to generate the report."
-                QMessageBox.warning(self, "API Key", msg, QMessageBox.Ok)
+                QMessageBox.warning(self, "API Key", msg, QMessageBox.StandardButton.Ok)
                 return
 
             # Model to use
@@ -5262,7 +5270,7 @@ Use well-structured paragraphs with headings for each section.
             # Build prompt
             prompt = self.build_statistics_prompt()
             if not prompt:
-                QMessageBox.warning(self, "Error", "Cannot build prompt.", QMessageBox.Ok)
+                QMessageBox.warning(self, "Error", "Cannot build prompt.", QMessageBox.StandardButton.Ok)
                 return
 
             # Show progress message
@@ -5285,7 +5293,7 @@ Use well-structured paragraphs with headings for each section.
                     msg = "Keine Internetverbindung verfügbar."
                 else:
                     msg = "No internet connection available."
-                QMessageBox.warning(self, "Connection", msg, QMessageBox.Ok)
+                QMessageBox.warning(self, "Connection", msg, QMessageBox.StandardButton.Ok)
                 self.textEdit_ai_report.setText("")
                 return
 
@@ -5330,7 +5338,7 @@ Use well-structured paragraphs with headings for each section.
                     self.stats_data['ai_report'] = report
 
         except Exception as e:
-            QMessageBox.warning(self, "Error", f"Error generating AI report: {e}", QMessageBox.Ok)
+            QMessageBox.warning(self, "Error", f"Error generating AI report: {e}", QMessageBox.StandardButton.Ok)
             self.textEdit_ai_report.setText("")
 
     def generate_chart_image(self, data, title, chart_type='bar'):
@@ -5382,7 +5390,7 @@ Use well-structured paragraphs with headings for each section.
                 msg = "Berechnen Sie zuerst die Statistiken."
             else:
                 msg = "Calculate statistics first by clicking 'Refresh Statistics'."
-            QMessageBox.warning(self, "Warning", msg, QMessageBox.Ok)
+            QMessageBox.warning(self, "Warning", msg, QMessageBox.StandardButton.Ok)
             return
 
         try:
@@ -5667,7 +5675,7 @@ Use well-structured paragraphs with headings for each section.
 
             QMessageBox.information(self, labels['success'],
                 labels['saved_msg'] + filename,
-                QMessageBox.Ok)
+                QMessageBox.StandardButton.Ok)
 
             # Open the file
             if platform.system() == "Windows":
@@ -5678,7 +5686,7 @@ Use well-structured paragraphs with headings for each section.
                 subprocess.Popen(["xdg-open", filename])
 
         except Exception as e:
-            QMessageBox.warning(self, "Errore", f"Errore nell'esportazione PDF: {e}", QMessageBox.Ok)
+            QMessageBox.warning(self, "Errore", f"Errore nell'esportazione PDF: {e}", QMessageBox.StandardButton.Ok)
 
     # ==================== POTTERY VISUAL SIMILARITY SEARCH ====================
 
@@ -5768,11 +5776,11 @@ Use well-structured paragraphs with headings for each section.
         # Threshold slider
         threshold_layout = QHBoxLayout()
         threshold_layout.addWidget(QLabel("Threshold:"))
-        self.slider_similarity_threshold = QSlider(Qt.Horizontal)
+        self.slider_similarity_threshold = QSlider(Qt.Orientation.Horizontal)
         self.slider_similarity_threshold.setMinimum(10)
         self.slider_similarity_threshold.setMaximum(100)
         self.slider_similarity_threshold.setValue(70)
-        self.slider_similarity_threshold.setTickPosition(QSlider.TicksBelow)
+        self.slider_similarity_threshold.setTickPosition(QSlider.TickPosition.TicksBelow)
         self.slider_similarity_threshold.setTickInterval(10)
         self.slider_similarity_threshold.valueChanged.connect(self.on_threshold_changed)
         threshold_layout.addWidget(self.slider_similarity_threshold)
@@ -5909,7 +5917,7 @@ Use well-structured paragraphs with headings for each section.
 
         # Drop zone for external images
         self.drop_zone_frame = QFrame()
-        self.drop_zone_frame.setFrameStyle(QFrame.StyledPanel | QFrame.Sunken)
+        self.drop_zone_frame.setFrameStyle(QFrame.Shape.StyledPanel | QFrame.Shadow.Sunken)
         self.drop_zone_frame.setAcceptDrops(True)
         self.drop_zone_frame.setMinimumHeight(60)
         self.drop_zone_frame.setStyleSheet("""
@@ -5925,7 +5933,7 @@ Use well-structured paragraphs with headings for each section.
         """)
         drop_zone_layout = QVBoxLayout(self.drop_zone_frame)
         self.drop_zone_label = QLabel("Drop image here to compare\nor click 'Compare External Image'")
-        self.drop_zone_label.setAlignment(Qt.AlignCenter)
+        self.drop_zone_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.drop_zone_label.setStyleSheet("color: #666; border: none; background: transparent;")
         drop_zone_layout.addWidget(self.drop_zone_label)
 
@@ -6010,7 +6018,7 @@ Use well-structured paragraphs with headings for each section.
 
     def on_auto_update_changed(self, state):
         """Handle checkbox state change for auto-update setting"""
-        enabled = state == Qt.Checked
+        enabled = state == Qt.CheckState.Checked
         # Save to settings
         s = QSettings()
         s.setValue('pyArchInit/pottery_similarity_auto_update', enabled)
@@ -6029,7 +6037,7 @@ Use well-structured paragraphs with headings for each section.
     def eventFilter(self, obj, event):
         """Handle drag & drop events for external image comparison"""
         if obj == getattr(self, 'drop_zone_frame', None):
-            if event.type() == QEvent.DragEnter:
+            if event.type() == QEvent.Type.DragEnter:
                 if event.mimeData().hasUrls():
                     # Check if any URL is an image
                     for url in event.mimeData().urls():
@@ -6047,7 +6055,7 @@ Use well-structured paragraphs with headings for each section.
                             return True
                 return False
 
-            elif event.type() == QEvent.DragLeave:
+            elif event.type() == QEvent.Type.DragLeave:
                 # Reset visual feedback
                 self.drop_zone_frame.setStyleSheet("""
                     QFrame {
@@ -6062,7 +6070,7 @@ Use well-structured paragraphs with headings for each section.
                 """)
                 return True
 
-            elif event.type() == QEvent.Drop:
+            elif event.type() == QEvent.Type.Drop:
                 # Reset visual feedback
                 self.drop_zone_frame.setStyleSheet("""
                     QFrame {
@@ -6211,20 +6219,20 @@ Use well-structured paragraphs with headings for each section.
             thumb_label = QLabel()
             pixmap = QPixmap(external_path)
             if not pixmap.isNull():
-                thumb_label.setPixmap(pixmap.scaled(100, 100, Qt.KeepAspectRatio, Qt.SmoothTransformation))
+                thumb_label.setPixmap(pixmap.scaled(100, 100, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation))
                 header_layout.addWidget(thumb_label)
 
         header_text = QLabel(f"<b>External Image:</b> {os.path.basename(external_path) if external_path else 'Unknown'}<br>"
                             f"<b>Found:</b> {len(results)} similar pottery")
-        header_text.setTextFormat(Qt.RichText)
+        header_text.setTextFormat(Qt.TextFormat.RichText)
         header_layout.addWidget(header_text)
         header_layout.addStretch()
         layout.addLayout(header_layout)
 
         # Separator
         line = QFrame()
-        line.setFrameShape(QFrame.HLine)
-        line.setFrameShadow(QFrame.Sunken)
+        line.setFrameShape(QFrame.Shape.HLine)
+        line.setFrameShadow(QFrame.Shadow.Sunken)
         layout.addWidget(line)
 
         # Results table
@@ -6234,7 +6242,7 @@ Use well-structured paragraphs with headings for each section.
             "Similarity", "ID", "Sito", "Area", "US", "Form", "Decoration", "Datazione", "Image"
         ])
         table.setRowCount(len(results))
-        table.setSelectionBehavior(QAbstractItemView.SelectRows)
+        table.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
         table.setAlternatingRowColors(True)
 
         # Column widths
@@ -6254,7 +6262,7 @@ Use well-structured paragraphs with headings for each section.
             # Similarity percentage
             sim_percent = result.get('similarity_percent', result.get('similarity', 0) * 100)
             sim_item = QTableWidgetItem(f"{sim_percent:.1f}%")
-            sim_item.setTextAlignment(Qt.AlignCenter)
+            sim_item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
             # Color code similarity
             if sim_percent >= 80:
                 sim_item.setBackground(QColor(200, 255, 200))  # Green
@@ -6337,7 +6345,7 @@ Use well-structured paragraphs with headings for each section.
             sorted_dat = sorted(datazioni.items(), key=lambda x: -x[1])
             stats_text += ", ".join([f"{d}: {c}" for d, c in sorted_dat[:5]])
             stats_label = QLabel(stats_text)
-            stats_label.setTextFormat(Qt.RichText)
+            stats_label.setTextFormat(Qt.TextFormat.RichText)
             stats_layout.addWidget(stats_label)
 
         stats_layout.addStretch()
@@ -6358,7 +6366,7 @@ Use well-structured paragraphs with headings for each section.
 
         layout.addLayout(button_layout)
 
-        dialog.exec_()
+        dialog.exec()
 
     def _show_result_image(self, result):
         """Show the matched image in a popup"""
@@ -6378,13 +6386,13 @@ Use well-structured paragraphs with headings for each section.
             pixmap = QPixmap(image_path)
             if not pixmap.isNull():
                 # Scale to reasonable size
-                scaled = pixmap.scaled(600, 600, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+                scaled = pixmap.scaled(600, 600, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
                 label.setPixmap(scaled)
             else:
                 label.setText("Could not load image")
 
             layout.addWidget(label)
-            dialog.exec_()
+            dialog.exec()
         else:
             QMessageBox.warning(self, "Image Not Found",
                 f"Could not find image file:\n{image_path or 'No path available'}")
@@ -6628,10 +6636,10 @@ Use well-structured paragraphs with headings for each section.
 
         # Image list with thumbnails
         list_widget = QListWidget()
-        list_widget.setViewMode(QListWidget.IconMode)
+        list_widget.setViewMode(QListWidget.ViewMode.IconMode)
         list_widget.setIconSize(QSize(120, 120))
         list_widget.setSpacing(10)
-        list_widget.setResizeMode(QListWidget.Adjust)
+        list_widget.setResizeMode(QListWidget.ResizeMode.Adjust)
 
         # Get config for path building
         conn = Connection()
@@ -6655,7 +6663,7 @@ Use well-structured paragraphs with headings for each section.
                     if os.path.exists(full_path):
                         pixmap = QPixmap(full_path)
                         if not pixmap.isNull():
-                            pixmap = pixmap.scaled(120, 120, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+                            pixmap = pixmap.scaled(120, 120, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
                     else:
                         pixmap = None
 
@@ -6665,7 +6673,7 @@ Use well-structured paragraphs with headings for each section.
             # Store full path in item data
             if relative_path:
                 full_path = self.similarity_engine._build_image_path(relative_path)
-                item.setData(Qt.UserRole, full_path)
+                item.setData(Qt.ItemDataRole.UserRole, full_path)
 
             list_widget.addItem(item)
 
@@ -6687,10 +6695,10 @@ Use well-structured paragraphs with headings for each section.
         if list_widget.count() > 0:
             list_widget.setCurrentRow(0)
 
-        if dialog.exec_() == QDialog.Accepted:
+        if dialog.exec() == QDialog.DialogCode.Accepted:
             selected_item = list_widget.currentItem()
             if selected_item:
-                return selected_item.data(Qt.UserRole)
+                return selected_item.data(Qt.ItemDataRole.UserRole)
         return None
 
     def on_similarity_search_complete(self, results):
@@ -6859,10 +6867,10 @@ Use well-structured paragraphs with headings for each section.
 
         # Results list with thumbnails
         list_widget = QListWidget()
-        list_widget.setViewMode(QListWidget.IconMode)
+        list_widget.setViewMode(QListWidget.ViewMode.IconMode)
         list_widget.setIconSize(QSize(150, 150))
         list_widget.setSpacing(10)
-        list_widget.setResizeMode(QListWidget.Adjust)
+        list_widget.setResizeMode(QListWidget.ResizeMode.Adjust)
         list_widget.setWordWrap(True)
 
         # Get config for Cloudinary detection
@@ -6910,16 +6918,16 @@ Use well-structured paragraphs with headings for each section.
                     # Local file
                     pixmap = QPixmap(image_path)
                     if not pixmap.isNull():
-                        pixmap = pixmap.scaled(150, 150, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+                        pixmap = pixmap.scaled(150, 150, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
 
             if pixmap and not pixmap.isNull():
                 item.setIcon(QIcon(pixmap))
 
-            item.setData(Qt.UserRole, result)
+            item.setData(Qt.ItemDataRole.UserRole, result)
             list_widget.addItem(item)
 
         # Double-click to navigate to record
-        list_widget.itemDoubleClicked.connect(lambda item: self.navigate_to_pottery(item.data(Qt.UserRole)))
+        list_widget.itemDoubleClicked.connect(lambda item: self.navigate_to_pottery(item.data(Qt.ItemDataRole.UserRole)))
 
         layout.addWidget(list_widget)
 
@@ -6962,7 +6970,7 @@ Use well-structured paragraphs with headings for each section.
 
         # Make dialog non-modal so user can interact with main form
         dialog.setModal(False)
-        dialog.setAttribute(Qt.WA_DeleteOnClose)  # Clean up when closed
+        dialog.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose)  # Clean up when closed
         dialog.show()  # Non-blocking show instead of exec_()
 
     def navigate_to_pottery(self, result_data):
@@ -7324,7 +7332,7 @@ Use well-structured paragraphs with headings for each section.
             layout.addWidget(btn_close)
 
             chart_dialog.setLayout(layout)
-            chart_dialog.exec_()
+            chart_dialog.exec()
 
         except ImportError as e:
             QMessageBox.warning(self, "Missing Library",
@@ -7346,10 +7354,10 @@ Use well-structured paragraphs with headings for each section.
             "Build Index",
             f"Build similarity index for {model_name} ({search_type})?\n\n"
             "This may take several minutes depending on the number of images.",
-            QMessageBox.Yes | QMessageBox.No
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
         )
 
-        if reply != QMessageBox.Yes:
+        if reply != QMessageBox.StandardButton.Yes:
             return
 
         # Initialize engine if needed
@@ -7421,10 +7429,10 @@ Use well-structured paragraphs with headings for each section.
             "Export Indexes",
             f"Export the following {len(index_files)} files?\n\n{file_list}\n\n"
             "These indexes can be imported on other PCs with the same database.",
-            QMessageBox.Yes | QMessageBox.No
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
         )
 
-        if reply != QMessageBox.Yes:
+        if reply != QMessageBox.StandardButton.Yes:
             return
 
         # Ask for save location
@@ -7502,10 +7510,10 @@ Use well-structured paragraphs with headings for each section.
                     "Import Indexes",
                     f"Import the following {len(contents)} files?\n\n{file_list}{warning_msg}\n\n"
                     "Make sure these indexes were created with the SAME database!",
-                    QMessageBox.Yes | QMessageBox.No
+                    QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
                 )
 
-                if reply != QMessageBox.Yes:
+                if reply != QMessageBox.StandardButton.Yes:
                     return
 
                 # Create directory if needed
@@ -7545,10 +7553,10 @@ Use well-structured paragraphs with headings for each section.
             "• Remove embeddings for deleted images\n\n"
             "Only indexes that already exist will be updated.\n"
             "(Use 'Build Index' to create new indexes)",
-            QMessageBox.Yes | QMessageBox.No
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
         )
 
-        if reply != QMessageBox.Yes:
+        if reply != QMessageBox.StandardButton.Yes:
             return
 
         # Disable buttons during update
@@ -7589,12 +7597,12 @@ Use well-structured paragraphs with headings for each section.
         """Open training dialog for KhutmML-CLIP model"""
         dialog = KhutmTrainingDialog(self.DB_MANAGER, self)
         dialog.training_complete.connect(self.on_khutm_training_complete)
-        dialog.exec_()
+        dialog.exec()
 
     def on_prepare_dataset_clicked(self):
         """Prepare dataset for KhutmML training"""
         dialog = DatasetPreparationDialog(self.DB_MANAGER, self)
-        dialog.exec_()
+        dialog.exec()
 
     def on_khutm_training_complete(self, success, message):
         """Handle training completion"""
@@ -7605,11 +7613,11 @@ Use well-structured paragraphs with headings for each section.
                 f"KhutmML-CLIP training completed successfully!\n\n{message}\n\n"
                 "Do you want to rebuild the similarity indexes now?\n\n"
                 "(This will index all pottery images with the new model)",
-                QMessageBox.Yes | QMessageBox.No,
-                QMessageBox.Yes
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                QMessageBox.StandardButton.Yes
             )
 
-            if reply == QMessageBox.Yes:
+            if reply == QMessageBox.StandardButton.Yes:
                 self.run_khutm_indexing_pipeline()
             else:
                 QMessageBox.information(self, "Training Complete",
@@ -7781,10 +7789,10 @@ Use well-structured paragraphs with headings for each section.
                 "A trained model already exists.\n\n"
                 "Do you want to replace it with the imported model?\n\n"
                 "(The existing model will be backed up)",
-                QMessageBox.Yes | QMessageBox.No,
-                QMessageBox.No
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                QMessageBox.StandardButton.No
             )
-            if reply != QMessageBox.Yes:
+            if reply != QMessageBox.StandardButton.Yes:
                 return
 
         try:
@@ -8136,9 +8144,9 @@ class KhutmTrainingDialog(QDialog):
             reply = QMessageBox.question(
                 self, "Cancel Training",
                 "Training is in progress. Are you sure you want to cancel?",
-                QMessageBox.Yes | QMessageBox.No
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
             )
-            if reply == QMessageBox.Yes:
+            if reply == QMessageBox.StandardButton.Yes:
                 try:
                     self.training_process.terminate()
                     self.training_process.wait(timeout=5)
@@ -8479,7 +8487,7 @@ class DatasetPreparationDialog(QDialog):
 
 class PotteryFilterDialog(QDialog):
     """Dialog for filtering Pottery records by ID Number and Year with checkboxes"""
-    L = QgsSettings().value("locale/userLocale")[0:2]
+    L = QgsSettings().value("locale/userLocale", "it", type=str)[:2]
 
     def __init__(self, db_manager, parent=None):
         super().__init__(parent)

@@ -12,7 +12,6 @@ class pyindividui:
     def define_table(cls, metadata):
         # Check if SQLite to handle geometry differently
         from modules.db.pyarchinit_conn_strings import Connection
-        internal_connection = Connection()
         conn_str = internal_connection.conn_str()
         
         if 'sqlite' in conn_str.lower():

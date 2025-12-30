@@ -22,8 +22,6 @@
 from __future__ import absolute_import
 import os
 import sys
-from builtins import range
-from builtins import str
 from qgis.PyQt.QtWidgets import QDialog, QMessageBox, QTableWidgetItem
 from qgis.PyQt.uic import loadUiType
 from qgis.core import QgsSettings
@@ -40,7 +38,7 @@ MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), os.par
 
 
 class pyarchinit_UT(QDialog, MAIN_DIALOG_CLASS):
-    L=QgsSettings().value("locale/userLocale")[0:2]
+    L=QgsSettings().value("locale/userLocale", "it", type=str)[:2]
     if L=='it':
         MSG_BOX_TITLE = "PyArchInit - Scheda UT"
     
@@ -393,7 +391,7 @@ class pyarchinit_UT(QDialog, MAIN_DIALOG_CLASS):
         try:
             self.on_pushButton_connect_pressed()
         except Exception as e:
-            QMessageBox.warning(self, "Connection system", str(e), QMessageBox.Ok)
+            QMessageBox.warning(self, "Connection system", str(e), QMessageBox.StandardButton.Ok)
         self.set_sito()
         self.msg_sito()
     def enable_button(self, n):
@@ -471,15 +469,15 @@ class pyarchinit_UT(QDialog, MAIN_DIALOG_CLASS):
                 
                 if self.L=='it':
                     QMessageBox.warning(self,"BENVENUTO", "Benvenuto in pyArchInit " + self.NOME_SCHEDA + ". Il database e' vuoto. Premi 'Ok' e buon lavoro!",
-                                        QMessageBox.Ok)
+                                        QMessageBox.StandardButton.Ok)
                 
                 elif self.L=='de':
                     
                     QMessageBox.warning(self,"WILLKOMMEN","WILLKOMMEN in pyArchInit" + "Munsterformular"+ ". Die Datenbank ist leer. Tippe 'Ok' und aufgehts!",
-                                        QMessageBox.Ok) 
+                                        QMessageBox.StandardButton.Ok) 
                 else:
                     QMessageBox.warning(self,"WELCOME", "Welcome in pyArchInit" + "Samples form" + ". The DB is empty. Push 'Ok' and Good Work!",
-                                        QMessageBox.Ok)    
+                                        QMessageBox.StandardButton.Ok)    
                 self.charge_list()
                 self.on_pushButton_new_rec_pressed()
         except Exception as e:
@@ -526,13 +524,13 @@ class pyarchinit_UT(QDialog, MAIN_DIALOG_CLASS):
                 pass
             else:
                 if self.L=='it':
-                    QMessageBox.warning(self, "Messaggio", "Sistema di aggiornamento lista Sito: " + str(e), QMessageBox.Ok)
+                    QMessageBox.warning(self, "Messaggio", "Sistema di aggiornamento lista Sito: " + str(e), QMessageBox.StandardButton.Ok)
                 
                 elif self.L=='de':
-                    QMessageBox.warning(self, "Nachricht", "Aktualisierungssystem für die Ausgrabungstätte: " + str(e), QMessageBox.Ok)
+                    QMessageBox.warning(self, "Nachricht", "Aktualisierungssystem für die Ausgrabungstätte: " + str(e), QMessageBox.StandardButton.Ok)
                     
                 else:
-                    QMessageBox.warning(self, "Message", "Site list update system: " + str(e), QMessageBox.Ok)
+                    QMessageBox.warning(self, "Message", "Site list update system: " + str(e), QMessageBox.StandardButton.Ok)
 
         self.comboBox_progetto.clear()
 
@@ -571,10 +569,10 @@ class pyarchinit_UT(QDialog, MAIN_DIALOG_CLASS):
         sito_set_str = sito_set['sito_set']
         
         if bool(self.comboBox_progetto.currentText()) and self.comboBox_progetto.currentText()==sito_set_str:
-            QMessageBox.information(self, "OK" ,"Sei connesso al sito: %s" % str(sito_set_str),QMessageBox.Ok) 
+            QMessageBox.information(self, "OK" ,"Sei connesso al sito: %s" % str(sito_set_str),QMessageBox.StandardButton.Ok) 
        
         elif sito_set_str=='':    
-            QMessageBox.information(self, "Attenzione" ,"Non hai settato alcun sito pertanto vedrai tutti i record se il db non è vuoto",QMessageBox.Ok) 
+            QMessageBox.information(self, "Attenzione" ,"Non hai settato alcun sito pertanto vedrai tutti i record se il db non è vuoto",QMessageBox.StandardButton.Ok) 
     
     
     def set_sito(self):
@@ -615,14 +613,14 @@ class pyarchinit_UT(QDialog, MAIN_DIALOG_CLASS):
                 pass#
                 
         except:
-            QMessageBox.information(self, "Attenzione" ,"Non esiste questo sito: "'"'+ str(sito_set_str) +'"'" in questa scheda, Per favore distattiva la 'scelta sito' dalla scheda di configurazione plugin per vedere tutti i record oppure crea la scheda",QMessageBox.Ok) 
+            QMessageBox.information(self, "Attenzione" ,"Non esiste questo sito: "'"'+ str(sito_set_str) +'"'" in questa scheda, Per favore distattiva la 'scelta sito' dalla scheda di configurazione plugin per vedere tutti i record oppure crea la scheda",QMessageBox.StandardButton.Ok) 
     def on_pushButton_sort_pressed(self):
         if self.check_record_state() == 1:
             pass
         else:
             dlg = SortPanelMain(self)
             dlg.insertItems(self.SORT_ITEMS)
-            dlg.exec_()
+            dlg.exec()
 
             items, order_type = dlg.ITEMS, dlg.TYPE_ORDER
 
@@ -635,7 +633,7 @@ class pyarchinit_UT(QDialog, MAIN_DIALOG_CLASS):
 
             id_list = []
             for i in self.DATA_LIST:
-                id_list.append(eval("i." + self.ID_TABLE))
+                id_list.append(getattr(i, self.ID_TABLE))
             self.DATA_LIST = []
 
             temp_data_list = self.DB_MANAGER.query_sort(id_list, self.SORT_ITEMS_CONVERTED, self.SORT_MODE,
@@ -667,16 +665,16 @@ class pyarchinit_UT(QDialog, MAIN_DIALOG_CLASS):
                         if self.records_equal_check() == 1:
                             if self.L=='it':
                                 self.update_if(QMessageBox.warning(self, 'Errore',
-                                                                   "Il record e' stato modificato. Vuoi salvare le modifiche?",QMessageBox.Ok | QMessageBox.Cancel))
+                                                                   "Il record e' stato modificato. Vuoi salvare le modifiche?",QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel))
                             elif self.L=='de':
                                 self.update_if(QMessageBox.warning(self, 'Error',
                                                                    "Der Record wurde geändert. Möchtest du die Änderungen speichern?",
-                                                                   QMessageBox.Ok | QMessageBox.Cancel))
+                                                                   QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel))
                                                                    
                             else:
                                 self.update_if(QMessageBox.warning(self, 'Error',
                                                                    "The record has been changed. Do you want to save the changes?",
-                                                                   QMessageBox.Ok | QMessageBox.Cancel))
+                                                                   QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel))
 
         if self.BROWSE_STATUS != "n":
             self.BROWSE_STATUS = "n"
@@ -705,27 +703,27 @@ class pyarchinit_UT(QDialog, MAIN_DIALOG_CLASS):
                 if self.records_equal_check() == 1:
                     if self.L=='it':
                         self.update_if(QMessageBox.warning(self, 'Errore',
-                                                           "Il record e' stato modificato. Vuoi salvare le modifiche?",QMessageBox.Ok | QMessageBox.Cancel))
+                                                           "Il record e' stato modificato. Vuoi salvare le modifiche?",QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel))
                     elif self.L=='de':
                         self.update_if(QMessageBox.warning(self, 'Error',
                                                            "Der Record wurde geändert. Möchtest du die Änderungen speichern?",
-                                                           QMessageBox.Ok | QMessageBox.Cancel))
+                                                           QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel))
                                                     
                     else:
                         self.update_if(QMessageBox.warning(self, 'Error',
                                                            "The record has been changed. Do you want to save the changes?",
-                                                           QMessageBox.Ok | QMessageBox.Cancel))
+                                                           QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel))
                     self.SORT_STATUS = "n"
                     self.label_sort.setText(self.SORTED_ITEMS[self.SORT_STATUS])
                     self.enable_button(1)
                     self.fill_fields(self.REC_CORR)
                 else:
                     if self.L=='it':
-                        QMessageBox.warning(self, "ATTENZIONE", "Non è stata realizzata alcuna modifica.", QMessageBox.Ok)
+                        QMessageBox.warning(self, "ATTENZIONE", "Non è stata realizzata alcuna modifica.", QMessageBox.StandardButton.Ok)
                     elif self.L=='de':
-                        QMessageBox.warning(self, "ACHTUNG", "Keine Änderung vorgenommen", QMessageBox.Ok)
+                        QMessageBox.warning(self, "ACHTUNG", "Keine Änderung vorgenommen", QMessageBox.StandardButton.Ok)
                     else:
-                        QMessageBox.warning(self, "Warning", "No changes have been made", QMessageBox.Ok) 
+                        QMessageBox.warning(self, "Warning", "No changes have been made", QMessageBox.StandardButton.Ok) 
         else:
             if self.data_error_check() == 0:
                 test_insert = self.insert_new_rec()
@@ -749,22 +747,22 @@ class pyarchinit_UT(QDialog, MAIN_DIALOG_CLASS):
                     self.enable_button(1)
                 else:
                     if self.L=='it':
-                        QMessageBox.warning(self, "ATTENZIONE", "Problema nell'inserimento dati", QMessageBox.Ok)
+                        QMessageBox.warning(self, "ATTENZIONE", "Problema nell'inserimento dati", QMessageBox.StandardButton.Ok)
                     elif self.L=='de':
-                        QMessageBox.warning(self, "ACHTUNG", "Problem der Dateneingabe", QMessageBox.Ok)
+                        QMessageBox.warning(self, "ACHTUNG", "Problem der Dateneingabe", QMessageBox.StandardButton.Ok)
                     else:
-                        QMessageBox.warning(self, "Warning", "Problem with data entry", QMessageBox.Ok) 
+                        QMessageBox.warning(self, "Warning", "Problem with data entry", QMessageBox.StandardButton.Ok) 
 
     def data_error_check(self):
         test = 0
         EC = Error_check()
         if self.L=='it':
             if EC.data_is_empty(str(self.comboBox_progetto.currentText())) == 0:
-                QMessageBox.warning(self, "ATTENZIONE", "Campo Progetto. \n Il campo non deve essere vuoto", QMessageBox.Ok)
+                QMessageBox.warning(self, "ATTENZIONE", "Campo Progetto. \n Il campo non deve essere vuoto", QMessageBox.StandardButton.Ok)
                 test = 1
 
             if EC.data_is_empty(str(self.comboBox_nr_ut.currentText())) == 0:
-                QMessageBox.warning(self, "ATTENZIONE", "Campo UT. \n Il campo non deve essere vuoto", QMessageBox.Ok)
+                QMessageBox.warning(self, "ATTENZIONE", "Campo UT. \n Il campo non deve essere vuoto", QMessageBox.StandardButton.Ok)
                 test = 1
 
             nr_ut = self.comboBox_nr_ut.currentText()
@@ -772,18 +770,18 @@ class pyarchinit_UT(QDialog, MAIN_DIALOG_CLASS):
             if nr_ut != "":
                 if EC.data_is_int(nr_ut) == 0:
                     QMessageBox.warning(self, "ATTENZIONE", "Campo Nr UT. \n Il valore deve essere di tipo numerico",
-                                        QMessageBox.Ok)
+                                        QMessageBox.StandardButton.Ok)
                     test = 1
 
             return test
             
         elif self.L=='de':
             if EC.data_is_empty(str(self.comboBox_progetto.currentText())) == 0:
-                QMessageBox.warning(self,  "ACHTUNG", " Feld Project \n Das Feld darf nicht leer sein", QMessageBox.Ok)
+                QMessageBox.warning(self,  "ACHTUNG", " Feld Project \n Das Feld darf nicht leer sein", QMessageBox.StandardButton.Ok)
                 test = 1
 
             if EC.data_is_empty(str(self.comboBox_nr_ut.currentText())) == 0:
-                QMessageBox.warning(self,  "ACHTUNG", " Feld TE \n Das Feld darf nicht leer sein", QMessageBox.Ok)
+                QMessageBox.warning(self,  "ACHTUNG", " Feld TE \n Das Feld darf nicht leer sein", QMessageBox.StandardButton.Ok)
                 test = 1
 
             nr_ut = self.comboBox_nr_ut.currentText()
@@ -791,17 +789,17 @@ class pyarchinit_UT(QDialog, MAIN_DIALOG_CLASS):
             if nr_ut != "":
                 if EC.data_is_int(nr_ut) == 0:
                     QMessageBox.warning(self, "ACHTUNG", "Feld Nr. TE \n Der Wert muss numerisch eingegeben werden",
-                                        QMessageBox.Ok)
+                                        QMessageBox.StandardButton.Ok)
                     test = 1
 
             return test
         else:
             if EC.data_is_empty(str(self.comboBox_progetto.currentText())) == 0:
-                QMessageBox.warning(self, "WARNING", "Project Field. \n The field must not be empty", QMessageBox.Ok)
+                QMessageBox.warning(self, "WARNING", "Project Field. \n The field must not be empty", QMessageBox.StandardButton.Ok)
                 test = 1
 
             if EC.data_is_empty(str(self.comboBox_nr_ut.currentText())) == 0:
-                QMessageBox.warning(self, "WARNING", "TU Field. \n The field must not be empty", QMessageBox.Ok)
+                QMessageBox.warning(self, "WARNING", "TU Field. \n The field must not be empty", QMessageBox.StandardButton.Ok)
                 test = 1
 
             nr_ut = self.comboBox_nr_ut.currentText()
@@ -809,7 +807,7 @@ class pyarchinit_UT(QDialog, MAIN_DIALOG_CLASS):
             if nr_ut != "":
                 if EC.data_is_int(nr_ut) == 0:
                     QMessageBox.warning(self, "WARNING", "TU nr. Field. \n The value must be numerical",
-                                        QMessageBox.Ok)
+                                        QMessageBox.StandardButton.Ok)
                     test = 1
 
             return test 
@@ -876,20 +874,20 @@ class pyarchinit_UT(QDialog, MAIN_DIALOG_CLASS):
                     
                     if self.L=='it':
                         msg = self.ID_TABLE + " gia' presente nel database"
-                        QMessageBox.warning(self, "Error", "Error" + str(msg), QMessageBox.Ok)
+                        QMessageBox.warning(self, "Error", "Error" + str(msg), QMessageBox.StandardButton.Ok)
                     elif self.L=='de':
                         msg = self.ID_TABLE + " bereits in der Datenbank"
-                        QMessageBox.warning(self, "Error", "Error" + str(msg), QMessageBox.Ok)  
+                        QMessageBox.warning(self, "Error", "Error" + str(msg), QMessageBox.StandardButton.Ok)  
                     else:
                         msg = self.ID_TABLE + " exist in db"
-                        QMessageBox.warning(self, "Error", "Error" + str(msg), QMessageBox.Ok)  
+                        QMessageBox.warning(self, "Error", "Error" + str(msg), QMessageBox.StandardButton.Ok)  
                 else:
                     msg = e
-                    QMessageBox.warning(self, "Error", "Error 1 \n" + str(msg), QMessageBox.Ok)
+                    QMessageBox.warning(self, "Error", "Error 1 \n" + str(msg), QMessageBox.StandardButton.Ok)
                 return 0
 
         except Exception as e:
-            QMessageBox.warning(self, "Error", "Error 2 \n" + str(e), QMessageBox.Ok)
+            QMessageBox.warning(self, "Error", "Error 2 \n" + str(e), QMessageBox.StandardButton.Ok)
             return 0
 
     def check_record_state(self):
@@ -901,15 +899,15 @@ class pyarchinit_UT(QDialog, MAIN_DIALOG_CLASS):
                 self.update_if(
                 
                     QMessageBox.warning(self, 'Errore', "Il record e' stato modificato. Vuoi salvare le modifiche?",
-                                        QMessageBox.Ok | QMessageBox.Cancel))
+                                        QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel))
             elif self.L=='de':
                 self.update_if(
                     QMessageBox.warning(self, 'Errore', "Der Record wurde geändert. Möchtest du die Änderungen speichern?",
-                                        QMessageBox.Ok | QMessageBox.Cancel))
+                                        QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel))
             else:
                 self.update_if(
                     QMessageBox.warning(self, "Error", "The record has been changed. You want to save the changes?",
-                                        QMessageBox.Ok | QMessageBox.Cancel))
+                                        QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel))
             # self.charge_records()
             return 0  # non ci sono errori di immissione
 
@@ -961,128 +959,128 @@ class pyarchinit_UT(QDialog, MAIN_DIALOG_CLASS):
         if self.records_equal_check() == 1:
             if self.L=='it':
                 self.update_if(QMessageBox.warning(self, 'Errore',
-                                                   "Il record e' stato modificato. Vuoi salvare le modifiche?",QMessageBox.Ok | QMessageBox.Cancel))
+                                                   "Il record e' stato modificato. Vuoi salvare le modifiche?",QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel))
             elif self.L=='de':
                 self.update_if(QMessageBox.warning(self, 'Error',
                                                    "Der Record wurde geändert. Möchtest du die Änderungen speichern?",
-                                                   QMessageBox.Ok | QMessageBox.Cancel))
+                                                   QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel))
                                                    
             else:
                 self.update_if(QMessageBox.warning(self, 'Error',
                                                    "The record has been changed. Do you want to save the changes?",
-                                                   QMessageBox.Ok | QMessageBox.Cancel))
+                                                   QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel))
         try:
             self.empty_fields()
             self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
             self.fill_fields(0)
             self.set_rec_counter(self.REC_TOT, self.REC_CORR + 1)
         except Exception as e:
-            QMessageBox.warning(self, "Error/", str(e), QMessageBox.Ok)
+            QMessageBox.warning(self, "Error/", str(e), QMessageBox.StandardButton.Ok)
 
     def on_pushButton_last_rec_pressed(self):
         if self.records_equal_check() == 1:
             if self.L=='it':
                 self.update_if(QMessageBox.warning(self, 'Errore',
-                                                   "Il record e' stato modificato. Vuoi salvare le modifiche?",QMessageBox.Ok | QMessageBox.Cancel))
+                                                   "Il record e' stato modificato. Vuoi salvare le modifiche?",QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel))
             elif self.L=='de':
                 self.update_if(QMessageBox.warning(self, 'Error',
                                                    "Der Record wurde geändert. Möchtest du die Änderungen speichern?",
-                                                   QMessageBox.Ok | QMessageBox.Cancel))
+                                                   QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel))
                                                    
             else:
                 self.update_if(QMessageBox.warning(self, 'Error',
                                                    "The record has been changed. Do you want to save the changes?",
-                                                   QMessageBox.Ok | QMessageBox.Cancel))
+                                                   QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel))
         try:
             self.empty_fields()
             self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), len(self.DATA_LIST) - 1
             self.fill_fields(self.REC_CORR)
             self.set_rec_counter(self.REC_TOT, self.REC_CORR + 1)
         except Exception as e:
-            QMessageBox.warning(self, "Errore", str(e), QMessageBox.Ok)
+            QMessageBox.warning(self, "Errore", str(e), QMessageBox.StandardButton.Ok)
 
     def on_pushButton_prev_rec_pressed(self):
         if self.check_record_state() == 1:
             if self.L=='it':
                 self.update_if(QMessageBox.warning(self, 'Errore',
-                                                   "Il record e' stato modificato. Vuoi salvare le modifiche?",QMessageBox.Ok | QMessageBox.Cancel))
+                                                   "Il record e' stato modificato. Vuoi salvare le modifiche?",QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel))
             elif self.L=='de':
                 self.update_if(QMessageBox.warning(self, 'Error',
                                                    "Der Record wurde geändert. Möchtest du die Änderungen speichern?",
-                                                   QMessageBox.Ok | QMessageBox.Cancel))
+                                                   QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel))
                                                    
             else:
                 self.update_if(QMessageBox.warning(self, 'Error',
                                                    "The record has been changed. Do you want to save the changes?",
-                                                   QMessageBox.Ok | QMessageBox.Cancel))
+                                                   QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel))
         else:
             self.REC_CORR = self.REC_CORR - 1
             if self.REC_CORR == -1:
                 self.REC_CORR = 0
                 if self.L=='it':
-                    QMessageBox.warning(self, "Attenzione", "Sei al primo record!", QMessageBox.Ok)
+                    QMessageBox.warning(self, "Attenzione", "Sei al primo record!", QMessageBox.StandardButton.Ok)
                 elif self.L=='de':
-                    QMessageBox.warning(self, "Achtung", "du befindest dich im ersten Datensatz!", QMessageBox.Ok)
+                    QMessageBox.warning(self, "Achtung", "du befindest dich im ersten Datensatz!", QMessageBox.StandardButton.Ok)
                 else:
-                    QMessageBox.warning(self, "Warning", "You are to the first record!", QMessageBox.Ok)
+                    QMessageBox.warning(self, "Warning", "You are to the first record!", QMessageBox.StandardButton.Ok)
             else:
                 try:
                     self.empty_fields()
                     self.fill_fields(self.REC_CORR)
                     self.set_rec_counter(self.REC_TOT, self.REC_CORR + 1)
                 except Exception as e:
-                    QMessageBox.warning(self, "Error", str(e), QMessageBox.Ok)
+                    QMessageBox.warning(self, "Error", str(e), QMessageBox.StandardButton.Ok)
 
     def on_pushButton_next_rec_pressed(self):
         if self.check_record_state() == 1:
             if self.L=='it':
                 self.update_if(QMessageBox.warning(self, 'Errore',
-                                                   "Il record e' stato modificato. Vuoi salvare le modifiche?",QMessageBox.Ok | QMessageBox.Cancel))
+                                                   "Il record e' stato modificato. Vuoi salvare le modifiche?",QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel))
             elif self.L=='de':
                 self.update_if(QMessageBox.warning(self, 'Error',
                                                    "Der Record wurde geändert. Möchtest du die Änderungen speichern?",
-                                                   QMessageBox.Ok | QMessageBox.Cancel))
+                                                   QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel))
                                                    
             else:
                 self.update_if(QMessageBox.warning(self, 'Error',
                                                    "The record has been changed. Do you want to save the changes?",
-                                                   QMessageBox.Ok | QMessageBox.Cancel))
+                                                   QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel))
         else:
             self.REC_CORR = self.REC_CORR - 1
             if self.REC_CORR == -1:
                 self.REC_CORR = 0
                 if self.L=='it':
-                    QMessageBox.warning(self, "Attenzione", "Sei al primo record!", QMessageBox.Ok)
+                    QMessageBox.warning(self, "Attenzione", "Sei al primo record!", QMessageBox.StandardButton.Ok)
                 elif self.L=='de':
-                    QMessageBox.warning(self, "Achtung", "du befindest dich im ersten Datensatz!", QMessageBox.Ok)
+                    QMessageBox.warning(self, "Achtung", "du befindest dich im ersten Datensatz!", QMessageBox.StandardButton.Ok)
                 else:
-                    QMessageBox.warning(self, "Warning", "You are to the first record!", QMessageBox.Ok)
+                    QMessageBox.warning(self, "Warning", "You are to the first record!", QMessageBox.StandardButton.Ok)
             else:
                 try:
                     self.empty_fields()
                     self.fill_fields(self.REC_CORR)
                     self.set_rec_counter(self.REC_TOT, self.REC_CORR + 1)
                 except Exception as e:
-                    QMessageBox.warning(self, "Error", str(e), QMessageBox.Ok)
+                    QMessageBox.warning(self, "Error", str(e), QMessageBox.StandardButton.Ok)
 
     def on_pushButton_delete_pressed(self):
         
         if self.L=='it':
             msg = QMessageBox.warning(self, "Attenzione!!!",
                                       "Vuoi veramente eliminare il record? \n L'azione è irreversibile",
-                                      QMessageBox.Ok | QMessageBox.Cancel)
-            if msg == QMessageBox.Cancel:
+                                      QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel)
+            if msg == QMessageBox.StandardButton.Cancel:
                 QMessageBox.warning(self, "Messagio!!!", "Azione Annullata!")
             else:
                 try:
-                    id_to_delete = eval("self.DATA_LIST[self.REC_CORR]." + self.ID_TABLE)
+                    id_to_delete = getattr(self.DATA_LIST[self.REC_CORR], self.ID_TABLE)
                     self.DB_MANAGER.delete_one_record(self.TABLE_NAME, self.ID_TABLE, id_to_delete)
                     self.charge_records()  # charge records from DB
                     QMessageBox.warning(self, "Messaggio!!!", "Record eliminato!")
                 except Exception as e:
                     QMessageBox.warning(self, "Messaggio!!!", "Tipo di errore: " + str(e))
                 if not bool(self.DATA_LIST):
-                    QMessageBox.warning(self, "Attenzione", "Il database è vuoto!", QMessageBox.Ok)
+                    QMessageBox.warning(self, "Attenzione", "Il database è vuoto!", QMessageBox.StandardButton.Ok)
                     self.DATA_LIST = []
                     self.DATA_LIST_REC_CORR = []
                     self.DATA_LIST_REC_TEMP = []
@@ -1103,19 +1101,19 @@ class pyarchinit_UT(QDialog, MAIN_DIALOG_CLASS):
         elif self.L=='de':
             msg = QMessageBox.warning(self, "Achtung!!!",
                                       "Willst du wirklich diesen Eintrag löschen? \n Der Vorgang ist unumkehrbar",
-                                      QMessageBox.Ok | QMessageBox.Cancel)
-            if msg == QMessageBox.Cancel:
+                                      QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel)
+            if msg == QMessageBox.StandardButton.Cancel:
                 QMessageBox.warning(self, "Message!!!", "Aktion annulliert!")
             else:
                 try:
-                    id_to_delete = eval("self.DATA_LIST[self.REC_CORR]." + self.ID_TABLE)
+                    id_to_delete = getattr(self.DATA_LIST[self.REC_CORR], self.ID_TABLE)
                     self.DB_MANAGER.delete_one_record(self.TABLE_NAME, self.ID_TABLE, id_to_delete)
                     self.charge_records()  # charge records from DB
                     QMessageBox.warning(self, "Message!!!", "Record gelöscht!")
                 except Exception as e:
                     QMessageBox.warning(self, "Messagge!!!", "Errortyp: " + str(e))
                 if not bool(self.DATA_LIST):
-                    QMessageBox.warning(self, "Achtung", "Die Datenbank ist leer!", QMessageBox.Ok)
+                    QMessageBox.warning(self, "Achtung", "Die Datenbank ist leer!", QMessageBox.StandardButton.Ok)
                     self.DATA_LIST = []
                     self.DATA_LIST_REC_CORR = []
                     self.DATA_LIST_REC_TEMP = []
@@ -1136,19 +1134,19 @@ class pyarchinit_UT(QDialog, MAIN_DIALOG_CLASS):
         else:
             msg = QMessageBox.warning(self, "Warning!!!",
                                       "Do you really want to break the record? \n Action is irreversible.",
-                                      QMessageBox.Ok | QMessageBox.Cancel)
-            if msg == QMessageBox.Cancel:
+                                      QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel)
+            if msg == QMessageBox.StandardButton.Cancel:
                 QMessageBox.warning(self, "Message!!!", "Action deleted!")
             else:
                 try:
-                    id_to_delete = eval("self.DATA_LIST[self.REC_CORR]." + self.ID_TABLE)
+                    id_to_delete = getattr(self.DATA_LIST[self.REC_CORR], self.ID_TABLE)
                     self.DB_MANAGER.delete_one_record(self.TABLE_NAME, self.ID_TABLE, id_to_delete)
                     self.charge_records()  # charge records from DB
                     QMessageBox.warning(self, "Message!!!", "Record deleted!")
                 except Exception as e:
                     QMessageBox.warning(self, "Message!!!", "error type: " + str(e))
                 if not bool(self.DATA_LIST):
-                    QMessageBox.warning(self, "Warning", "the db is empty!", QMessageBox.Ok)
+                    QMessageBox.warning(self, "Warning", "the db is empty!", QMessageBox.StandardButton.Ok)
                     self.DATA_LIST = []
                     self.DATA_LIST_REC_CORR = []
                     self.DATA_LIST_REC_TEMP = []
@@ -1195,13 +1193,13 @@ class pyarchinit_UT(QDialog, MAIN_DIALOG_CLASS):
         if self.BROWSE_STATUS != "f":
             if self.L=='it':
                 QMessageBox.warning(self, "ATTENZIONE", "Per eseguire una nuova ricerca clicca sul pulsante 'new search' ",
-                                    QMessageBox.Ok)
+                                    QMessageBox.StandardButton.Ok)
             elif self.L=='de':
                 QMessageBox.warning(self, "ACHTUNG", "Um eine neue Abfrage zu starten drücke  'new search' ",
-                                    QMessageBox.Ok)
+                                    QMessageBox.StandardButton.Ok)
             else:
                 QMessageBox.warning(self, "WARNING", "To perform a new search click on the 'new search' button ",
-                                    QMessageBox.Ok)
+                                    QMessageBox.StandardButton.Ok)
         else:
             if self.comboBox_nr_ut.currentText() != "":
                 nr_ut = int(self.comboBox_nr_ut.currentText())
@@ -1264,20 +1262,20 @@ class pyarchinit_UT(QDialog, MAIN_DIALOG_CLASS):
 
             if not bool(search_dict):
                 if self.L=='it':
-                    QMessageBox.warning(self, "ATTENZIONE", "Non è stata impostata nessuna ricerca!!!", QMessageBox.Ok)
+                    QMessageBox.warning(self, "ATTENZIONE", "Non è stata impostata nessuna ricerca!!!", QMessageBox.StandardButton.Ok)
                 elif self.L=='de':
-                    QMessageBox.warning(self, "ACHTUNG", "Keine Abfrage definiert!!!", QMessageBox.Ok)
+                    QMessageBox.warning(self, "ACHTUNG", "Keine Abfrage definiert!!!", QMessageBox.StandardButton.Ok)
                 else:
-                    QMessageBox.warning(self, " WARNING", "No search has been set!!!", QMessageBox.Ok)      
+                    QMessageBox.warning(self, " WARNING", "No search has been set!!!", QMessageBox.StandardButton.Ok)      
             else:
                 res = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
                 if not bool(res):
                     if self.L=='it':
-                        QMessageBox.warning(self, "ATTENZIONE", "Non è stato trovato nessun record!", QMessageBox.Ok)
+                        QMessageBox.warning(self, "ATTENZIONE", "Non è stato trovato nessun record!", QMessageBox.StandardButton.Ok)
                     elif self.L=='de':
-                        QMessageBox.warning(self, "ACHTUNG", "Keinen Record gefunden!", QMessageBox.Ok)
+                        QMessageBox.warning(self, "ACHTUNG", "Keinen Record gefunden!", QMessageBox.StandardButton.Ok)
                     else:
-                        QMessageBox.warning(self, "WARNING," "No record found!", QMessageBox.Ok)
+                        QMessageBox.warning(self, "WARNING," "No record found!", QMessageBox.StandardButton.Ok)
 
                         self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR + 1)
                         self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
@@ -1320,17 +1318,17 @@ class pyarchinit_UT(QDialog, MAIN_DIALOG_CLASS):
                     self.setComboBoxEnable(["self.comboBox_nr_ut"], "False")
                     self.setComboBoxEnable(["self.lineEdit_ut_letterale"], "False")
 
-                    QMessageBox.warning(self, "Message", "%s %d %s" % strings, QMessageBox.Ok)
+                    QMessageBox.warning(self, "Message", "%s %d %s" % strings, QMessageBox.StandardButton.Ok)
 
         self.enable_button_search(1)
 
     def update_if(self, msg):
         rec_corr = self.REC_CORR
-        if msg == QMessageBox.Ok:
+        if msg == QMessageBox.StandardButton.Ok:
             self.update_record()
             id_list = []
             for i in self.DATA_LIST:
-                id_list.append(eval("i." + self.ID_TABLE))
+                id_list.append(getattr(i, self.ID_TABLE))
             self.DATA_LIST = []
             if self.SORT_STATUS == "n":
                 temp_data_list = self.DB_MANAGER.query_sort(id_list, [self.ID_TABLE], 'asc', self.MAPPER_TABLE_CLASS,
@@ -1352,7 +1350,7 @@ class pyarchinit_UT(QDialog, MAIN_DIALOG_CLASS):
         try:
             self.DB_MANAGER.update(self.MAPPER_TABLE_CLASS,
                                    self.ID_TABLE,
-                                   [eval("int(self.DATA_LIST[self.REC_CORR]." + self.ID_TABLE + ")")],
+                                   [int(getattr(self.DATA_LIST[self.REC_CORR], self.ID_TABLE))],
                                    self.TABLE_FIELDS,
                                    self.rec_toupdate())
             return 1
@@ -1367,15 +1365,15 @@ class pyarchinit_UT(QDialog, MAIN_DIALOG_CLASS):
                     print(s, file=fh)
             if self.L=='it':
                 QMessageBox.warning(self, "Messaggio",
-                                    "Problema di encoding: sono stati inseriti accenti o caratteri non accettati dal database. Verrà fatta una copia dell'errore con i dati che puoi recuperare nella cartella pyarchinit_Report _Folder", QMessageBox.Ok)
+                                    "Problema di encoding: sono stati inseriti accenti o caratteri non accettati dal database. Verrà fatta una copia dell'errore con i dati che puoi recuperare nella cartella pyarchinit_Report _Folder", QMessageBox.StandardButton.Ok)
             
             
             elif self.L=='de':
                 QMessageBox.warning(self, "Message",
-                                    "Encoding problem: accents or characters not accepted by the database were entered. A copy of the error will be made with the data you can retrieve in the pyarchinit_Report _Folder", QMessageBox.Ok) 
+                                    "Encoding problem: accents or characters not accepted by the database were entered. A copy of the error will be made with the data you can retrieve in the pyarchinit_Report _Folder", QMessageBox.StandardButton.Ok) 
             else:
                 QMessageBox.warning(self, "Message",
-                                    "Kodierungsproblem: Es wurden Akzente oder Zeichen eingegeben, die von der Datenbank nicht akzeptiert werden. Es wird eine Kopie des Fehlers mit den Daten erstellt, die Sie im pyarchinit_Report _Ordner abrufen können", QMessageBox.Ok)       
+                                    "Kodierungsproblem: Es wurden Akzente oder Zeichen eingegeben, die von der Datenbank nicht akzeptiert werden. Es wird eine Kopie des Fehlers mit den Daten erstellt, die Sie im pyarchinit_Report _Ordner abrufen können", QMessageBox.StandardButton.Ok)       
 
     def charge_records(self):
         self.DATA_LIST = []
@@ -1386,7 +1384,7 @@ class pyarchinit_UT(QDialog, MAIN_DIALOG_CLASS):
         else:
             id_list = []
             for i in self.DB_MANAGER.query(self.MAPPER_TABLE_CLASS):
-                id_list.append(eval("i." + self.ID_TABLE))
+                id_list.append(getattr(i, self.ID_TABLE))
 
             temp_data_list = self.DB_MANAGER.query_sort(id_list, [self.ID_TABLE], 'asc', self.MAPPER_TABLE_CLASS,
                                                         self.ID_TABLE)
@@ -1401,13 +1399,14 @@ class pyarchinit_UT(QDialog, MAIN_DIALOG_CLASS):
 
     def table2dict(self, n):
         self.tablename = n
-        row = eval(self.tablename + ".rowCount()")
-        col = eval(self.tablename + ".columnCount()")
+        table = getattr(self, self.tablename.replace("self.", "") if self.tablename.startswith("self.") else self.tablename)
+        row = table.rowCount()
+        col = table.columnCount()
         lista = []
         for r in range(row):
             sub_list = []
             for c in range(col):
-                value = eval(self.tablename + ".item(r,c)")
+                value = table.item(r, c)
                 if bool(value):
                     sub_list.append(str(value.text()))
             lista.append(sub_list)
@@ -1541,7 +1540,7 @@ class pyarchinit_UT(QDialog, MAIN_DIALOG_CLASS):
             self.lineEdit_enti_tutela_vincoli.setText(self.DATA_LIST[self.rec_num].enti_tutela_vincoli)
             self.lineEdit_indagini_preliminari.setText(self.DATA_LIST[self.rec_num].indagini_preliminari)
         except Exception as e:
-            QMessageBox.warning(self, "Error", str(e), QMessageBox.Ok)
+            QMessageBox.warning(self, "Error", str(e), QMessageBox.StandardButton.Ok)
 
     def set_rec_counter(self, t, c):
         self.rec_tot = t
@@ -1611,20 +1610,18 @@ class pyarchinit_UT(QDialog, MAIN_DIALOG_CLASS):
             ##self.testing('/testrecorr.txt',str(self.DATA_LIST_REC_CORR))
 
     def setComboBoxEnable(self, f, v):
-        field_names = f
-        value = v
-
+        """Set enabled state for widgets - uses getattr instead of eval for security"""
         for fn in field_names:
             cmd = '{}{}{}{}'.format(fn, '.setEnabled(', v, ')')
             eval(cmd)
 
     def setComboBoxEditable(self, f, n):
-        field_names = f
-        value = n
-
-        for fn in field_names:
-            cmd = '{}{}{}{}'.format(fn, '.setEditable(', n, ')')
-            eval(cmd)
+        """Set editable state for widgets - uses getattr instead of eval for security"""
+        for fn in f:
+            widget_name = fn.replace('self.' , '') if fn.startswith('self.' ) else fn
+            widget = getattr(self, widget_name, None)
+            if widget is not None:
+                widget.setEditable(bool(n))
 
     def rec_toupdate(self):
         rec_to_update = self.UTILITY.pos_none_in_list(self.DATA_LIST_REC_TEMP)
@@ -1714,4 +1711,4 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)
     ui = pyarchinit_UT()
     ui.show()
-    sys.exit(app.exec_())
+    sys.exit(app.exec())

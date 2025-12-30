@@ -52,9 +52,9 @@ MAIN_DIALOG_CLASS, _ = loadUiType(
 class ZoomableGraphicsView(QGraphicsView):
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.setRenderHint(QPainter.Antialiasing)
-        self.setRenderHint(QPainter.SmoothPixmapTransform)
-        self.setDragMode(QGraphicsView.ScrollHandDrag)
+        self.setRenderHint(QPainter.RenderHint.Antialiasing)
+        self.setRenderHint(QPainter.RenderHint.SmoothPixmapTransform)
+        self.setDragMode(QGraphicsView.DragMode.ScrollHandDrag)
 
     def wheelEvent(self, event):
 
@@ -80,7 +80,7 @@ class ZoomableGraphicsView(QGraphicsView):
         self.translate(delta.x(), delta.y())
 
 class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
-    L=QgsSettings().value("locale/userLocale")[0:2]
+    L=QgsSettings().value("locale/userLocale", "it", type=str)[:2]
     MSG_BOX_TITLE = "PyArchInit - Gis Time Management"
     DB_MANAGER = ""
     DATA_LIST = ""
@@ -113,8 +113,8 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
         #self.spinBox_relative_cronology.setHidden(True)
         for layer in self.relevant_layers:
             item = QListWidgetItem(layer.name())
-            item.setFlags(item.flags() | Qt.ItemIsUserCheckable)
-            item.setCheckState(Qt.Unchecked)
+            item.setFlags(item.flags() | Qt.ItemFlag.ItemIsUserCheckable)
+            item.setCheckState(Qt.CheckState.Unchecked)
             self.listWidget.addItem(item)
         self.abort = False
 
@@ -188,7 +188,7 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
 
     def update_selected_layers(self):
         selected_layer_names = [self.listWidget.item(i).text() for i in range(self.listWidget.count()) if
-                                self.listWidget.item(i).checkState() == Qt.Checked]
+                                self.listWidget.item(i).checkState() == Qt.CheckState.Checked]
         self.selected_layers = [layer for layer in self.relevant_layers if layer.name() in selected_layer_names]
 
 
@@ -302,7 +302,7 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
                     scene.addPixmap(pixmap)
                     self.graphicsView.setScene(scene)
                     self.graphicsView.setFocus()
-                    self.graphicsView.fitInView(scene.itemsBoundingRect(), Qt.KeepAspectRatio)
+                    self.graphicsView.fitInView(scene.itemsBoundingRect(), Qt.AspectRatioMode.KeepAspectRatio)
 
 
 
@@ -416,14 +416,14 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
             
             if self.L=='it': 
                 QMessageBox.warning(self, "Alert", "Non vi sono Periodizzazioni in questo intervallo di tempo",
-                                    QMessageBox.Ok)
+                                    QMessageBox.StandardButton.Ok)
         
             elif self.L=='de': 
                 QMessageBox.warning(self, "Alert", "Es gibt keine Perioden in diesem Zeitintervall.",
-                                    QMessageBox.Ok)
+                                    QMessageBox.StandardButton.Ok)
             else: 
                 QMessageBox.warning(self, "Alert", "There are no Periods in this time interval",
-                                    QMessageBox.Ok)
+                                    QMessageBox.StandardButton.Ok)
             
         else:
             us_res = []
@@ -442,12 +442,12 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
             if not bool(us_res_dep):
                 
                 if self.L=='it':
-                    QMessageBox.warning(self, "Alert", "Non ci sono geometrie da visualizzare", QMessageBox.Ok)
+                    QMessageBox.warning(self, "Alert", "Non ci sono geometrie da visualizzare", QMessageBox.StandardButton.Ok)
 
                 elif self.L=='de':
-                    QMessageBox.warning(self, "Alert", "es gibt keine Geometrien, die angezeigt werden können", QMessageBox.Ok) 
+                    QMessageBox.warning(self, "Alert", "es gibt keine Geometrien, die angezeigt werden können", QMessageBox.StandardButton.Ok) 
                 else:
-                    QMessageBox.warning(self, "Alert", "There are no geometries to display", QMessageBox.Ok)    
+                    QMessageBox.warning(self, "Alert", "There are no geometries to display", QMessageBox.StandardButton.Ok)    
             else:
                 self.pyQGIS.charge_vector_layers(us_res_dep)
 
@@ -544,7 +544,7 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
         for name, path in templates:
             item = QListWidgetItem(f"{name}")
             item.setToolTip(f"Path: {path}")
-            item.setData(Qt.UserRole, path)  # Salva il path nell'item
+            item.setData(Qt.ItemDataRole.UserRole, path)  # Salva il path nell'item
             template_list.addItem(item)
         
         # Seleziona il primo per default
@@ -563,7 +563,7 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
         def update_info():
             current_item = template_list.currentItem()
             if current_item:
-                path = current_item.data(Qt.UserRole)
+                path = current_item.data(Qt.ItemDataRole.UserRole)
                 info_path_label.setText(f"Path: {path}")
         
         template_list.currentItemChanged.connect(update_info)
@@ -596,7 +596,7 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
         ok_btn.setDefault(True)
         
         # Esegui dialog
-        if dialog.exec_() == QDialog.Accepted:
+        if dialog.exec() == QDialog.DialogCode.Accepted:
             # Controlla se è stato selezionato un template personalizzato
             if hasattr(self, 'selected_custom_template'):
                 path = self.selected_custom_template
@@ -606,7 +606,7 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
             # Altrimenti usa quello dalla lista
             current_item = template_list.currentItem()
             if current_item:
-                return current_item.data(Qt.UserRole)
+                return current_item.data(Qt.ItemDataRole.UserRole)
         
         return None
     
@@ -790,9 +790,9 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
                 self, 
                 "File Esiste", 
                 f"Il template '{template_name}' esiste già. Sovrascrivere?",
-                QMessageBox.Yes | QMessageBox.No
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
             )
-            if reply != QMessageBox.Yes:
+            if reply != QMessageBox.StandardButton.Yes:
                 return
         
         try:
@@ -848,12 +848,12 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
             self, 
             "Modifica Template", 
             "Vuoi aprire il Layout Designer per modificare il template prima di generare l'atlas?",
-            QMessageBox.Yes | QMessageBox.No | QMessageBox.Cancel
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No | QMessageBox.StandardButton.Cancel
         )
         
-        if reply == QMessageBox.Cancel:
+        if reply == QMessageBox.StandardButton.Cancel:
             return
-        elif reply == QMessageBox.Yes:
+        elif reply == QMessageBox.StandardButton.Yes:
             # Apri il layout designer
             self.open_layout_designer()
             
@@ -862,9 +862,9 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
                 self,
                 "Continua Atlas",
                 "Hai terminato le modifiche al layout?\nProcedere con la generazione dell'atlas?",
-                QMessageBox.Yes | QMessageBox.No
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
             )
-            if proceed != QMessageBox.Yes:
+            if proceed != QMessageBox.StandardButton.Yes:
                 return
 
         max_num_order_layer = self.DB_MANAGER.max_num_id(self.MAPPER_TABLE_CLASS, "order_layer")
@@ -896,7 +896,7 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
         # Crea progress dialog per tutti gli order_layer (inclusi quelli skippati)
         progress = QProgressDialog("Generazione tavole in corso...", "Annulla", 0, total_order_layers, self)
         progress.setWindowTitle("Generazione Atlas")
-        progress.setWindowModality(Qt.NonModal)  # Non bloccare l'interfaccia
+        progress.setWindowModality(Qt.WindowModality.NonModal)  # Non bloccare l'interfaccia
         progress.setAutoClose(False)  # Non chiudere automaticamente
         progress.setAutoReset(False)  # Non reset automaticamente
         progress.show()
@@ -1077,7 +1077,7 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
             scene.addPixmap(pixmap)
             self.graphicsView.setScene(scene)
             self.graphicsView.setFocus()
-            self.graphicsView.fitInView(scene.itemsBoundingRect(), Qt.KeepAspectRatio)
+            self.graphicsView.fitInView(scene.itemsBoundingRect(), Qt.AspectRatioMode.KeepAspectRatio)
         
         # Chiudi progress bar e mostra messaggio di completamento
         progress.close()

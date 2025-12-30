@@ -31,8 +31,6 @@ import sqlalchemy as sa
 
 from sqlalchemy.event import listen
 import platform
-from builtins import range
-from builtins import str
 
 from ftplib import FTP
 
@@ -106,7 +104,7 @@ class PyArchInitLogger:
 
 class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
     progressBarUpdated = pyqtSignal(int,int)
-    L=QgsSettings().value("locale/userLocale")[0:2]
+    L=QgsSettings().value("locale/userLocale", "it", type=str)[:2]
     UTILITY=Utility()
     DB_MANAGER=""
 
@@ -277,7 +275,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 self.admin_widget = None
 
             # Create admin panel
-            from PyQt5.QtWidgets import QGroupBox, QPushButton, QVBoxLayout, QLabel, QGridLayout
+            from qgis.PyQt.QtWidgets import QGroupBox, QPushButton, QVBoxLayout, QLabel, QGridLayout
 
             # Check if we're connected and if user is admin
             if hasattr(self, 'DB_MANAGER') and self.DB_MANAGER:
@@ -460,7 +458,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                                         print("Admin widget added to Database tab")
                             else:
                                 # No layout, create one
-                                from PyQt5.QtWidgets import QVBoxLayout
+                                from qgis.PyQt.QtWidgets import QVBoxLayout
                                 new_layout = QVBoxLayout()
                                 new_layout.addWidget(admin_group)
                                 # Move existing widgets to new layout
@@ -526,7 +524,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
     def update_database_schema(self):
         """Apply all database schema updates"""
         try:
-            from PyQt5.QtWidgets import QMessageBox
+            from qgis.PyQt.QtWidgets import QMessageBox
 
             # First check if updates are needed
             if not self.check_if_updates_needed():
@@ -638,7 +636,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
     def apply_concurrency_system(self):
         """Apply concurrency system to all tables"""
         try:
-            from PyQt5.QtWidgets import QMessageBox
+            from qgis.PyQt.QtWidgets import QMessageBox
 
             # First check if concurrency is already installed
             if self.check_if_concurrency_installed():
@@ -732,7 +730,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
 
             dialog = UserManagementDialog(self.DB_MANAGER, self)
             dialog.user_changed.connect(self.on_users_changed)
-            dialog.exec_()
+            dialog.exec()
 
         except ImportError:
             QMessageBox.warning(self, "Errore", "Modulo gestione utenti non trovato!")
@@ -751,7 +749,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
 
             dialog = UserManagementDialog(self.DB_MANAGER, self)
             dialog.tabs.setCurrentIndex(2)  # Switch to Monitor tab
-            dialog.exec_()
+            dialog.exec()
 
         except Exception as e:
             QMessageBox.critical(self, "Errore", f"Errore apertura monitor: {e}")
@@ -3270,6 +3268,11 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
 
         conn = Connection()
         conn_str = conn.conn_str()
+
+        # Handle case where connection is not configured yet
+        if conn_str is None:
+            return
+
         conn_sqlite = conn.databasename()
         conn_user = conn.datauser()
         conn_host = conn.datahost()
@@ -3740,7 +3743,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         try:
             from .remote_storage_dialog import RemoteStorageDialog
             dialog = RemoteStorageDialog(self)
-            dialog.exec_()
+            dialog.exec()
         except ImportError as e:
             QMessageBox.warning(
                 self, "Remote Storage",
@@ -4124,7 +4127,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
 
                 if msg == QMessageBox.Ok:
                     # Add a small delay to ensure database is ready
-                    from PyQt5.QtCore import QTimer
+                    from qgis.PyQt.QtCore import QTimer
                     # Temporarily disconnect ALL signals to avoid any interference
                     try:
                         self.comboBox_Database.currentIndexChanged.disconnect()
@@ -4188,10 +4191,10 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         print(f"[DEBUG] select_version_sql - db_url: {masked_url}")
         sql_query_string = "SELECT current_setting('server_version_num')"
         self.engine = create_engine(db_url, connect_args={'connect_timeout': 10})
-        res = self.engine.execute(sql_query_string)
-        rows= res.fetchone()
-        vers = ''.join(rows)
-        res.close()#QMessageBox.information(self, "INFO", str(vers),QMessageBox.Ok)
+        with self.engine.connect() as conn:
+            res = conn.execute(text(sql_query_string))
+            rows = res.fetchone()
+            vers = ''.join(rows)
         return vers
 
     def on_pushButton_upd_postgres_pressed(self):

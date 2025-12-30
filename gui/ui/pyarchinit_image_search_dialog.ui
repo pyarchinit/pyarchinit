@@ -185,7 +185,7 @@
       <item>
        <widget class="QListWidget" name="listWidget_results">
         <property name="viewMode">
-         <enum>QListView::IconMode</enum>
+         <enum>QListView::ViewMode::IconMode</enum>
         </property>
         <property name="iconSize">
          <size>
@@ -194,16 +194,16 @@
          </size>
         </property>
         <property name="movement">
-         <enum>QListView::Static</enum>
+         <enum>QListView::Movement::Static</enum>
         </property>
         <property name="resizeMode">
-         <enum>QListView::Adjust</enum>
+         <enum>QListView::ResizeMode::Adjust</enum>
         </property>
         <property name="spacing">
          <number>10</number>
         </property>
         <property name="selectionMode">
-         <enum>QAbstractItemView::ExtendedSelection</enum>
+         <enum>QAbstractItemView::SelectionMode::ExtendedSelection</enum>
         </property>
        </widget>
       </item>
@@ -301,7 +301,7 @@
       <item>
        <spacer name="horizontalSpacer">
         <property name="orientation">
-         <enum>Qt::Horizontal</enum>
+         <enum>Qt::Orientation::Horizontal</enum>
         </property>
         <property name="sizeHint" stdset="0">
          <size>

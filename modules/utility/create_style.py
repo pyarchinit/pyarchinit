@@ -150,7 +150,7 @@ class USViewStyler:
         load_button = msg_box.addButton("Carica stile esistente", QMessageBox.ActionRole)
         temp_button = msg_box.addButton("Usa stile temporaneo", QMessageBox.ActionRole)
 
-        msg_box.exec_()
+        msg_box.exec()
 
         if msg_box.clickedButton() == save_button:
             return "save"

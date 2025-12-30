@@ -97,7 +97,7 @@ class PostgresDbUpdater:
                 WHERE table_name = :table_name 
                 AND column_name = :column_name
             """)
-            result = self.db_manager.engine.execute(query, {'table_name': table_name, 'column_name': column_name})
+            result = self.db_manager._execute_sql(query, {'table_name': table_name, 'column_name': column_name})
             return result.fetchone() is not None
         except Exception as e:
             self.log_message(f"Errore verificando colonna {column_name} in {table_name}: {e}")
@@ -134,7 +134,7 @@ class PostgresDbUpdater:
                 WHERE table_name = :table_name
                 AND column_name = :column_name
             """)
-            result = self.db_manager.engine.execute(query, {'table_name': table_name, 'column_name': column_name})
+            result = self.db_manager._execute_sql(query, {'table_name': table_name, 'column_name': column_name})
             row = result.fetchone()
             return row[0] if row else None
         except Exception as e:
@@ -299,7 +299,7 @@ class PostgresDbUpdater:
                 WHERE table_name = 'pyarchinit_thesaurus_sigle' 
                 AND table_schema = 'public'
             """)
-            result = self.db_manager.engine.execute(query).fetchone()
+            result = self.db_manager._execute_sql(query).fetchone()
             
             if not result:
                 self.log_message("Tabella pyarchinit_thesaurus_sigle non trovata, skip")
@@ -341,7 +341,7 @@ class PostgresDbUpdater:
                 WHERE table_name = 'pyarchinit_reperti' 
                 AND table_schema = 'public'
             """)
-            result = self.db_manager.engine.execute(query).fetchone()
+            result = self.db_manager._execute_sql(query).fetchone()
             
             if not result:
                 self.log_message("Tabella pyarchinit_reperti non trovata, skip")
@@ -370,7 +370,7 @@ class PostgresDbUpdater:
             
             # Drop existing view if any
             drop_query = text("DROP VIEW IF EXISTS pyarchinit_reperti_view CASCADE")
-            self.db_manager.engine.execute(drop_query)
+            self.db_manager._execute_sql(drop_query)
             
             # Create view with all fields including quota
             create_query = text("""
@@ -424,7 +424,7 @@ class PostgresDbUpdater:
                     a.siti = b.sito AND 
                     a.id_rep = b.numero_inventario
             """)
-            self.db_manager.engine.execute(create_query)
+            self.db_manager._execute_sql(create_query)
             
             self.log_message("Ricreata view pyarchinit_reperti_view con campo quota")
             self.updates_made.append("pyarchinit_reperti_view")
@@ -444,7 +444,7 @@ class PostgresDbUpdater:
                 WHERE table_name = 'pyarchinit_reperti_view'
                 AND column_name = 'quota'
             """)
-            result = self.db_manager.engine.execute(check_query).fetchone()
+            result = self.db_manager._execute_sql(check_query).fetchone()
             
             if not result:
                 self.log_message("Campo quota mancante nella view, ricreazione...")
@@ -466,7 +466,7 @@ class PostgresDbUpdater:
                 FROM information_schema.columns
                 WHERE table_name = 'us_table' AND table_schema = 'public'
             """)
-            result = self.db_manager.engine.execute(check_columns_query)
+            result = self.db_manager._execute_sql(check_columns_query)
             existing_us_columns = {row[0] for row in result}
 
             check_geo_columns_query = text("""
@@ -474,7 +474,7 @@ class PostgresDbUpdater:
                 FROM information_schema.columns
                 WHERE table_name = 'pyunitastratigrafiche' AND table_schema = 'public'
             """)
-            result = self.db_manager.engine.execute(check_geo_columns_query)
+            result = self.db_manager._execute_sql(check_geo_columns_query)
             existing_geo_columns = {row[0] for row in result}
 
             # Colonne obbligatorie dalla tabella geometrica
@@ -541,7 +541,7 @@ class PostgresDbUpdater:
                     pyunitastratigrafiche.us_s = us_table.us
             """
 
-            self.db_manager.engine.execute(text(create_query))
+            self.db_manager._execute_sql(text(create_query))
             self.log_message(f"View pyarchinit_us_view creata/aggiornata con successo ({len(select_parts)} colonne)")
 
         except Exception as e:
@@ -560,7 +560,7 @@ class PostgresDbUpdater:
                 FROM information_schema.columns
                 WHERE table_name = 'us_table' AND table_schema = 'public'
             """)
-            result = self.db_manager.engine.execute(check_columns_query)
+            result = self.db_manager._execute_sql(check_columns_query)
             existing_us_columns = {row[0] for row in result}
 
             check_geo_columns_query = text("""
@@ -568,7 +568,7 @@ class PostgresDbUpdater:
                 FROM information_schema.columns
                 WHERE table_name = 'pyunitastratigrafiche_usm' AND table_schema = 'public'
             """)
-            result = self.db_manager.engine.execute(check_geo_columns_query)
+            result = self.db_manager._execute_sql(check_geo_columns_query)
             existing_geo_columns = {row[0] for row in result}
 
             # Colonne obbligatorie dalla tabella geometrica USM
@@ -629,7 +629,7 @@ class PostgresDbUpdater:
                     pyunitastratigrafiche_usm.us_s = us_table.us
             """
 
-            self.db_manager.engine.execute(text(create_query))
+            self.db_manager._execute_sql(text(create_query))
             self.log_message(f"View pyarchinit_usm_view creata/aggiornata con successo ({len(select_parts)} colonne)")
 
         except Exception as e:
@@ -662,7 +662,7 @@ class PostgresDbUpdater:
                 stmt = stmt.strip()
                 if stmt and not stmt.startswith('--'):
                     try:
-                        self.db_manager.engine.execute(text(stmt))
+                        self.db_manager._execute_sql(text(stmt))
                     except Exception as stmt_error:
                         # Skip errors for already existing objects
                         if 'already exists' not in str(stmt_error).lower():
@@ -686,7 +686,7 @@ class PostgresDbUpdater:
                 WHERE table_name = 'pottery_table'
                 AND table_schema = 'public'
             """)
-            result = self.db_manager.engine.execute(query).fetchone()
+            result = self.db_manager._execute_sql(query).fetchone()
 
             if not result:
                 self.log_message("Tabella pottery_table non trovata, skip")
@@ -723,7 +723,7 @@ class PostgresDbUpdater:
                 SELECT COUNT(*) FROM pyarchinit_thesaurus_sigle
                 WHERE nome_tabella = 'Pottery' AND tipologia_sigla IN ('11.14', '11.15', '11.16')
             """)
-            result = self.db_manager.engine.execute(check_query)
+            result = self.db_manager._execute_sql(check_query)
             count = result.fetchone()[0]
 
             if count >= 30:  # Expected ~31 entries for decoration fields
@@ -783,7 +783,7 @@ class PostgresDbUpdater:
                 WHERE table_name IN ('pyarchinit_permissions', 'pyarchinit_users')
                 AND table_schema = 'public'
             """)
-            result = self.db_manager.engine.execute(check_tables)
+            result = self.db_manager._execute_sql(check_tables)
             table_count = result.fetchone()[0]
 
             if table_count < 2:
@@ -794,7 +794,7 @@ class PostgresDbUpdater:
             check_trigger = text("""
                 SELECT 1 FROM pg_event_trigger WHERE evtname = 'trg_sync_grants_on_create'
             """)
-            result = self.db_manager.engine.execute(check_trigger)
+            result = self.db_manager._execute_sql(check_trigger)
             trigger_exists = result.fetchone() is not None
 
             if trigger_exists:
@@ -850,7 +850,7 @@ class PostgresDbUpdater:
                 END;
                 $func$ LANGUAGE plpgsql
             """)
-            self.db_manager.engine.execute(func1_sql)
+            self.db_manager._execute_sql(func1_sql)
 
             # Funzione 2: sync_all_grants - sincronizza tutti i GRANT
             func2_sql = text("""
@@ -870,7 +870,7 @@ class PostgresDbUpdater:
                 END;
                 $func$ LANGUAGE plpgsql
             """)
-            self.db_manager.engine.execute(func2_sql)
+            self.db_manager._execute_sql(func2_sql)
 
             # Funzione 3: on_table_created - event trigger function
             func3_sql = text("""
@@ -894,7 +894,7 @@ class PostgresDbUpdater:
                 END;
                 $func$ LANGUAGE plpgsql
             """)
-            self.db_manager.engine.execute(func3_sql)
+            self.db_manager._execute_sql(func3_sql)
 
             # Crea l'event trigger
             create_trigger_sql = text("""
@@ -903,18 +903,18 @@ class PostgresDbUpdater:
                 WHEN TAG IN ('CREATE TABLE')
                 EXECUTE FUNCTION on_table_created()
             """)
-            self.db_manager.engine.execute(create_trigger_sql)
+            self.db_manager._execute_sql(create_trigger_sql)
 
             # Aggiungi commenti
-            self.db_manager.engine.execute(text(
+            self.db_manager._execute_sql(text(
                 "COMMENT ON FUNCTION sync_grants_for_table(TEXT) IS "
                 "'Sincronizza i GRANT PostgreSQL da pyarchinit_permissions per una tabella specifica'"
             ))
-            self.db_manager.engine.execute(text(
+            self.db_manager._execute_sql(text(
                 "COMMENT ON FUNCTION sync_all_grants() IS "
                 "'Sincronizza tutti i GRANT PostgreSQL da pyarchinit_permissions'"
             ))
-            self.db_manager.engine.execute(text(
+            self.db_manager._execute_sql(text(
                 "COMMENT ON EVENT TRIGGER trg_sync_grants_on_create IS "
                 "'Sincronizza automaticamente i GRANT quando una tabella viene creata'"
             ))
@@ -937,7 +937,7 @@ class PostgresDbUpdater:
                 WHERE table_name = 'inventario_materiali_table'
                 AND table_schema = 'public'
             """)
-            result = self.db_manager.engine.execute(query).fetchone()
+            result = self.db_manager._execute_sql(query).fetchone()
 
             if not result:
                 self.log_message("Tabella inventario_materiali_table non trovata, skip")

@@ -243,7 +243,7 @@ class TMAInventoryImportDialog:
         Returns:
             Tuple di (records aggiornati, conferma import)
         """
-        from PyQt5.QtWidgets import (QDialog, QVBoxLayout, QHBoxLayout, 
+        from qgis.PyQt.QtWidgets import (QDialog, QVBoxLayout, QHBoxLayout, 
                                      QLabel, QLineEdit, QComboBox, 
                                      QPushButton, QTableWidget, QTableWidgetItem,
                                      QDialogButtonBox, QGroupBox, QFormLayout,
@@ -319,7 +319,7 @@ class TMAInventoryImportDialog:
         
         dialog.setLayout(layout)
         
-        if dialog.exec_():
+        if dialog.exec():
             # Aggiorna tutti i record con i valori di default
             sito = self.site_edit.text() or 'DA DEFINIRE'
             location = self.location_edit.text()

@@ -8,7 +8,7 @@ import os
 import re
 import logging
 from typing import Dict, List, Any, Optional, Tuple
-from PyQt5.QtWidgets import (QDialog, QVBoxLayout, QHBoxLayout, QLabel, 
+from qgis.PyQt.QtWidgets import (QDialog, QVBoxLayout, QHBoxLayout, QLabel, 
                              QLineEdit, QComboBox, QPushButton, QTableWidget, 
                              QTableWidgetItem, QDialogButtonBox, QGroupBox, 
                              QFormLayout, QMessageBox)

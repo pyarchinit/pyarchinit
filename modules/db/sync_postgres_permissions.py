@@ -33,25 +33,25 @@ class PostgresPermissionSync:
                 SELECT 1 FROM pg_user WHERE usename = :username
             """)
 
-            result = self.db_manager.engine.execute(check_query, username=username)
+            result = self.db_manager._execute_sql(check_query, username=username)
 
             if not result.fetchone():
                 # Create user
                 create_query = text(f"""
                     CREATE USER {username} WITH PASSWORD '{password}'
                 """)
-                self.db_manager.engine.execute(create_query)
+                self.db_manager._execute_sql(create_query)
 
                 # Grant basic connection
                 grant_connect = text(f"""
                     GRANT CONNECT ON DATABASE {self.db_manager.engine.url.database} TO {username}
                 """)
-                self.db_manager.engine.execute(grant_connect)
+                self.db_manager._execute_sql(grant_connect)
 
                 grant_usage = text(f"""
                     GRANT USAGE ON SCHEMA public TO {username}
                 """)
-                self.db_manager.engine.execute(grant_usage)
+                self.db_manager._execute_sql(grant_usage)
 
                 print(f"Created PostgreSQL user: {username}")
             else:
@@ -93,7 +93,7 @@ class PostgresPermissionSync:
                 """)
 
                 try:
-                    self.db_manager.engine.execute(revoke_query)
+                    self.db_manager._execute_sql(revoke_query)
                 except:
                     pass  # Table might not exist or user might not have permissions
 
@@ -103,7 +103,7 @@ class PostgresPermissionSync:
                     GRANT {perm_str} ON {table_name} TO {username}
                 """)
 
-                self.db_manager.engine.execute(grant_query)
+                self.db_manager._execute_sql(grant_query)
 
                 # If INSERT permission, also grant USAGE on sequences
                 if can_insert:
@@ -117,12 +117,12 @@ class PostgresPermissionSync:
                         AND t.relname = '{table_name}'
                     """)
 
-                    sequences = self.db_manager.engine.execute(seq_query)
+                    sequences = self.db_manager._execute_sql(seq_query)
                     for seq in sequences:
                         grant_seq = text(f"""
                             GRANT USAGE, SELECT ON SEQUENCE {seq.sequence_name} TO {username}
                         """)
-                        self.db_manager.engine.execute(grant_seq)
+                        self.db_manager._execute_sql(grant_seq)
 
                 print(f"Granted {perm_str} on {table_name} to {username}")
             else:
@@ -131,7 +131,7 @@ class PostgresPermissionSync:
                     REVOKE ALL PRIVILEGES ON {table_name} FROM {username}
                 """)
                 try:
-                    self.db_manager.engine.execute(revoke_query)
+                    self.db_manager._execute_sql(revoke_query)
                     print(f"Revoked all permissions on {table_name} from {username}")
                 except:
                     pass
@@ -160,7 +160,7 @@ class PostgresPermissionSync:
                 WHERE u.is_active = true
             """)
 
-            result = self.db_manager.engine.execute(query)
+            result = self.db_manager._execute_sql(query)
 
             # Group permissions by user
             user_permissions = {}
@@ -224,7 +224,7 @@ class PostgresPermissionSync:
                     GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO {username};
                     GRANT ALL PRIVILEGES ON ALL FUNCTIONS IN SCHEMA public TO {username};
                 """)
-                self.db_manager.engine.execute(grant_query)
+                self.db_manager._execute_sql(grant_query)
 
             elif role == 'archeologo':
                 # Can view, insert, and update most tables
@@ -232,7 +232,7 @@ class PostgresPermissionSync:
                     GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA public TO {username};
                     GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO {username};
                 """)
-                self.db_manager.engine.execute(grant_query)
+                self.db_manager._execute_sql(grant_query)
 
             elif role == 'studente':
                 # Limited permissions - mainly view and some insert
@@ -241,14 +241,14 @@ class PostgresPermissionSync:
                     GRANT INSERT ON us_table, campioni_table TO {username};
                     GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO {username};
                 """)
-                self.db_manager.engine.execute(grant_query)
+                self.db_manager._execute_sql(grant_query)
 
             elif role == 'guest':
                 # Read-only access
                 grant_query = text(f"""
                     GRANT SELECT ON ALL TABLES IN SCHEMA public TO {username};
                 """)
-                self.db_manager.engine.execute(grant_query)
+                self.db_manager._execute_sql(grant_query)
 
             print(f"Applied {role} role permissions to {username}")
 

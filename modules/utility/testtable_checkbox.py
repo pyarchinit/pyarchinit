@@ -22,7 +22,6 @@
 
 from __future__ import print_function
 
-from builtins import range
 from qgis.PyQt.QtCore import Qt
 from qgis.PyQt.QtWidgets import QWidget, QTableWidget, QTableWidgetItem, QVBoxLayout, QApplication
 
@@ -60,4 +59,4 @@ if __name__ == '__main__':
     window = Window(6, 3)
     window.resize(350, 300)
     window.show()
-    sys.exit(app.exec_())
+    sys.exit(app.exec())

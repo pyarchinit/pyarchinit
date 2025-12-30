@@ -27,7 +27,6 @@ import os
 import tempfile
 from PIL import Image
 
-from builtins import str
 
 from ..db.pyarchinit_conn_strings import *
 

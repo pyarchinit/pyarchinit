@@ -23,8 +23,6 @@ from __future__ import absolute_import
 
 import os
 import sys
-from builtins import range
-from builtins import str
 from datetime import date
 from qgis.PyQt.QtWidgets import QDialog, QMessageBox, QInputDialog, QComboBox
 from qgis.PyQt.uic import loadUiType
@@ -48,7 +46,7 @@ MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), os.par
 
 
 class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
-    L=QgsSettings().value("locale/userLocale")[0:2]
+    L=QgsSettings().value("locale/userLocale", "it", type=str)[:2]
     if L=='it':
         MSG_BOX_TITLE = "PyArchInit - Scheda Periodizzazione"
     elif L=='en':
@@ -262,15 +260,15 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
             else:
                 if self.L=='it':
                     QMessageBox.warning(self,"BENVENUTO", "Benvenuto in pyArchInit " + self.NOME_SCHEDA + ". Il database e' vuoto. Premi 'Ok' e buon lavoro!",
-                                        QMessageBox.Ok)
+                                        QMessageBox.StandardButton.Ok)
                 
                 elif self.L=='de':
                     
                     QMessageBox.warning(self,"WILLKOMMEN","WILLKOMMEN in pyArchInit" + "individuel formular"+ ". Die Datenbank ist leer. Tippe 'Ok' und aufgehts!",
-                                        QMessageBox.Ok) 
+                                        QMessageBox.StandardButton.Ok) 
                 else:
                     QMessageBox.warning(self,"WELCOME", "Welcome in pyArchInit" + "individual form" + ". The DB is empty. Push 'Ok' and Good Work!",
-                                        QMessageBox.Ok)
+                                        QMessageBox.StandardButton.Ok)
                 self.charge_list()
                 #self.charge_list()
                 self.BROWSE_STATUS = 'x'
@@ -503,14 +501,14 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
                     "1. Update pydantic: python -m pip install --upgrade pydantic pydantic-core\n"
                     "2. Reinstall openai: python -m pip uninstall openai -y && python -m pip install openai\n\n"
                     "The rest of the plugin will continue to work normally.",
-                    QMessageBox.Ok
+                    QMessageBox.StandardButton.Ok
                 )
             else:
                 QMessageBox.warning(
                     self,
                     "Import Error",
                     f"Cannot load GPT feature:\n\n{error_msg}",
-                    QMessageBox.Ok
+                    QMessageBox.StandardButton.Ok
                 )
             return ""
         except Exception as e:
@@ -518,7 +516,7 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
                 self,
                 "Error",
                 f"An unexpected error occurred:\n\n{str(e)}",
-                QMessageBox.Ok
+                QMessageBox.StandardButton.Ok
             )
             return ""
 
@@ -540,16 +538,16 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
     def handleComboActivated(self, index):
         selected_text = self.comboBox_per_estesa.itemText(index)
         generate_text = self.contenuto(selected_text)
-        reply = QMessageBox.information(self, 'Info', generate_text, QMessageBox.Ok | QMessageBox.Cancel)
-        if reply == QMessageBox.Ok:
+        reply = QMessageBox.information(self, 'Info', generate_text, QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel)
+        if reply == QMessageBox.StandardButton.Ok:
             self.textEdit_descrizione_per.setText(generate_text)
 
     def on_suggerimenti_pressed(self):
         s = self.contenuto(self.comboBox_per_estesa.currentText())
         generate_text = s
-        QMessageBox.information(self, 'info', str(generate_text), QMessageBox.Ok | QMessageBox.Cancel)
+        QMessageBox.information(self, 'info', str(generate_text), QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel)
 
-        if QMessageBox.Ok:
+        if QMessageBox.StandardButton.Ok:
             self.textEdit_descrizione_per.setText(str(generate_text))
 
         else:
@@ -574,8 +572,8 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
                 except:
                     reply = QMessageBox.question(None, 'Warning', 'Apikey non valida' + '\n'
                                                  + 'Clicca ok per inserire la chiave',
-                                                 QMessageBox.Ok | QMessageBox.Cancel)
-                    if reply == QMessageBox.Ok:
+                                                 QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel)
+                    if reply == QMessageBox.StandardButton.Ok:
 
                         api_key, ok = QInputDialog.getText(None, 'Apikey gpt', 'Inserisci apikey valida:')
                         if ok:
@@ -623,27 +621,27 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
         if bool(self.comboBox_sito.currentText()) and self.comboBox_sito.currentText()==sito_set_str:
             
             if self.L=='it':
-                QMessageBox.information(self, "OK" ,"Sei connesso al sito: %s" % str(sito_set_str),QMessageBox.Ok) 
+                QMessageBox.information(self, "OK" ,"Sei connesso al sito: %s" % str(sito_set_str),QMessageBox.StandardButton.Ok) 
         
             elif self.L=='de':
-                QMessageBox.information(self, "OK", "Sie sind mit der archäologischen Stätte verbunden: %s" % str(sito_set_str),QMessageBox.Ok) 
+                QMessageBox.information(self, "OK", "Sie sind mit der archäologischen Stätte verbunden: %s" % str(sito_set_str),QMessageBox.StandardButton.Ok) 
                 
             else:
-                QMessageBox.information(self, "OK", "You are connected to the site: %s" % str(sito_set_str),QMessageBox.Ok)     
+                QMessageBox.information(self, "OK", "You are connected to the site: %s" % str(sito_set_str),QMessageBox.StandardButton.Ok)     
         
         elif sito_set_str=='':    
             if self.L=='it':
-                msg = QMessageBox.information(self, "Attenzione" ,"Non hai settato alcun sito. Vuoi settarne uno? click Ok altrimenti Annulla per  vedere tutti i record",QMessageBox.Ok | QMessageBox.Cancel) 
+                msg = QMessageBox.information(self, "Attenzione" ,"Non hai settato alcun sito. Vuoi settarne uno? click Ok altrimenti Annulla per  vedere tutti i record",QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel) 
             elif self.L=='de':
-                msg = QMessageBox.information(self, "Achtung", "Sie haben keine archäologischen Stätten eingerichtet. Klicken Sie auf OK oder Abbrechen, um alle Datensätze zu sehen",QMessageBox.Ok | QMessageBox.Cancel) 
+                msg = QMessageBox.information(self, "Achtung", "Sie haben keine archäologischen Stätten eingerichtet. Klicken Sie auf OK oder Abbrechen, um alle Datensätze zu sehen",QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel) 
             else:
-                msg = QMessageBox.information(self, "Warning" , "You have not set up any archaeological site. Do you want to set one? click Ok otherwise Cancel to see all records",QMessageBox.Ok | QMessageBox.Cancel) 
-            if msg == QMessageBox.Cancel:
+                msg = QMessageBox.information(self, "Warning" , "You have not set up any archaeological site. Do you want to set one? click Ok otherwise Cancel to see all records",QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel) 
+            if msg == QMessageBox.StandardButton.Cancel:
                 pass
             else: 
                 dlg = pyArchInitDialog_Config(self)
                 dlg.charge_list()
-                dlg.exec_()
+                dlg.exec()
     def set_sito(self):
         #self.model_a.database().close()
         conn = Connection()
@@ -672,13 +670,13 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
         except:
             if self.L=='it':
             
-                QMessageBox.information(self, "Attenzione" ,"Non esiste questo sito: "'"'+ str(sito_set_str) +'"'" in questa scheda, Per favore distattiva la 'scelta sito' dalla scheda di configurazione plugin per vedere tutti i record oppure crea la scheda",QMessageBox.Ok) 
+                QMessageBox.information(self, "Attenzione" ,"Non esiste questo sito: "'"'+ str(sito_set_str) +'"'" in questa scheda, Per favore distattiva la 'scelta sito' dalla scheda di configurazione plugin per vedere tutti i record oppure crea la scheda",QMessageBox.StandardButton.Ok) 
             elif self.L=='de':
             
-                QMessageBox.information(self, "Warnung" , "Es gibt keine solche archäologische Stätte: "'""'+ str(sito_set_str) +'"'" in dieser Registerkarte, Bitte deaktivieren Sie die 'Site-Wahl' in der Plugin-Konfigurationsregisterkarte, um alle Datensätze zu sehen oder die Registerkarte zu erstellen",QMessageBox.Ok) 
+                QMessageBox.information(self, "Warnung" , "Es gibt keine solche archäologische Stätte: "'""'+ str(sito_set_str) +'"'" in dieser Registerkarte, Bitte deaktivieren Sie die 'Site-Wahl' in der Plugin-Konfigurationsregisterkarte, um alle Datensätze zu sehen oder die Registerkarte zu erstellen",QMessageBox.StandardButton.Ok) 
             else:
             
-                QMessageBox.information(self, "Warning" , "There is no such site: "'"'+ str(sito_set_str) +'"'" in this tab, Please disable the 'site choice' from the plugin configuration tab to see all records or create the tab",QMessageBox.Ok)  
+                QMessageBox.information(self, "Warning" , "There is no such site: "'"'+ str(sito_set_str) +'"'" in this tab, Please disable the 'site choice' from the plugin configuration tab to see all records or create the tab",QMessageBox.StandardButton.Ok)  
     def on_pushButton_pdf_scheda_exp_pressed(self):
         if self.L=='it':    
             Periodizzazione_pdf_sheet = generate_Periodizzazione_pdf()
@@ -728,10 +726,10 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
         id_list = []
 
         for i in self.DATA_LIST:
-            id_list.append(eval("i." + self.ID_TABLE))
+            id_list.append(getattr(i, self.ID_TABLE))
         dlg.add_id_list(id_list)
 
-        dlg.exec_()
+        dlg.exec()
         """
 
     def generate_list_pdf(self):
@@ -782,7 +780,7 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
         else:
             dlg = SortPanelMain(self)
             dlg.insertItems(self.SORT_ITEMS)
-            dlg.exec_()
+            dlg.exec()
 
             items, order_type = dlg.ITEMS, dlg.TYPE_ORDER
 
@@ -795,7 +793,7 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
 
             id_list = []
             for i in self.DATA_LIST:
-                id_list.append(eval("i." + self.ID_TABLE))
+                id_list.append(getattr(i, self.ID_TABLE))
             self.DATA_LIST = []
 
             temp_data_list = self.DB_MANAGER.query_sort(id_list, self.SORT_ITEMS_CONVERTED, self.SORT_MODE,
@@ -832,16 +830,16 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
                         if self.records_equal_check() == 1:
                             if self.L=='it':
                                 self.update_if(QMessageBox.warning(self, 'Errore',
-                                "Il record e' stato modificato. Vuoi salvare le modifiche?",QMessageBox.Ok | QMessageBox.Cancel))
+                                "Il record e' stato modificato. Vuoi salvare le modifiche?",QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel))
                             elif self.L=='de':
                                 self.update_if(QMessageBox.warning(self, 'Error',
                                                                    "Der Record wurde geändert. Möchtest du die Änderungen speichern?",
-                                QMessageBox.Ok | QMessageBox.Cancel))
+                                QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel))
                                                                    
                             else:
                                 self.update_if(QMessageBox.warning(self, 'Error',
                                                                    "The record has been changed. Do you want to save the changes?",
-                                QMessageBox.Ok | QMessageBox.Cancel))
+                                QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel))
 
         if self.BROWSE_STATUS != "n":
             if bool(self.comboBox_sito.currentText()) and self.comboBox_sito.currentText()==sito_set_str:
@@ -918,27 +916,27 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
                             if self.records_equal_check() == 1:
                                 if self.L=='it':
                                     self.update_if(QMessageBox.warning(self, 'Errore',
-                                                           "Il record e' stato modificato. Vuoi salvare le modifiche?",QMessageBox.Ok | QMessageBox.Cancel))
+                                                           "Il record e' stato modificato. Vuoi salvare le modifiche?",QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel))
                                 elif self.L=='de':
                                     self.update_if(QMessageBox.warning(self, 'Error',
                                                            "Der Record wurde geändert. Möchtest du die Änderungen speichern?",
-                                                           QMessageBox.Ok | QMessageBox.Cancel))
+                                                           QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel))
                                                            
                                 else:
                                     self.update_if(QMessageBox.warning(self, 'Error',
                                                            "The record has been changed. Do you want to save the changes?",
-                                                           QMessageBox.Ok | QMessageBox.Cancel))
+                                                           QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel))
                                 self.SORT_STATUS = "n"
                                 self.label_sort.setText(self.SORTED_ITEMS[self.SORT_STATUS])
                                 self.enable_button(1)
                                 self.fill_fields(self.REC_CORR)
                             else:
                                 if self.L=='it':
-                                    QMessageBox.warning(self, "ATTENZIONE", "Non è stata realizzata alcuna modifica.", QMessageBox.Ok)
+                                    QMessageBox.warning(self, "ATTENZIONE", "Non è stata realizzata alcuna modifica.", QMessageBox.StandardButton.Ok)
                                 elif self.L=='de':
-                                    QMessageBox.warning(self, "ACHTUNG", "Keine Änderung vorgenommen", QMessageBox.Ok)
+                                    QMessageBox.warning(self, "ACHTUNG", "Keine Änderung vorgenommen", QMessageBox.StandardButton.Ok)
                                 else:
-                                    QMessageBox.warning(self, "Warning", "No changes have been made", QMessageBox.Ok)
+                                    QMessageBox.warning(self, "Warning", "No changes have been made", QMessageBox.StandardButton.Ok)
         else:
             if self.data_error_check() == 0:
                 test_insert = self.insert_new_rec()
@@ -976,23 +974,23 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
         if self.L=='it':
             # Controlli campi obbligatori
             if sito == "":
-                QMessageBox.warning(self, "ATTENZIONE", "Campo Sito obbligatorio!", QMessageBox.Ok)
+                QMessageBox.warning(self, "ATTENZIONE", "Campo Sito obbligatorio!", QMessageBox.StandardButton.Ok)
                 test = 1
 
             if periodo == "":
-                QMessageBox.warning(self, "ATTENZIONE", "Campo Periodo obbligatorio!", QMessageBox.Ok)
+                QMessageBox.warning(self, "ATTENZIONE", "Campo Periodo obbligatorio!", QMessageBox.StandardButton.Ok)
                 test = 1
             elif EC.data_is_int(periodo) == 0:
                 QMessageBox.warning(self, "ATTENZIONE", "Campo Periodo. \n Il valore deve essere di tipo numerico",
-                                    QMessageBox.Ok)
+                                    QMessageBox.StandardButton.Ok)
                 test = 1
 
             if fase == "":
-                QMessageBox.warning(self, "ATTENZIONE", "Campo Fase obbligatorio!", QMessageBox.Ok)
+                QMessageBox.warning(self, "ATTENZIONE", "Campo Fase obbligatorio!", QMessageBox.StandardButton.Ok)
                 test = 1
             elif EC.data_is_int(fase) == 0:
                 QMessageBox.warning(self, "ATTENZIONE", "Campo Fase. \n Il valore deve essere di tipo numerico",
-                                    QMessageBox.Ok)
+                                    QMessageBox.StandardButton.Ok)
                 test = 1
 
             # Controlli campi opzionali (solo se compilati)
@@ -1001,7 +999,7 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
                 if EC.data_lenght(data_estesa, 299) == 0:
                     QMessageBox.warning(self, "ATTENZIONE",
                                         "Campo Datazione estesa. \n non deve superare i 300 caratteri alfanumerici",
-                                        QMessageBox.Ok)
+                                        QMessageBox.StandardButton.Ok)
                     test = 1
 
             cron_iniz = self.lineEdit_cron_iniz.text()
@@ -1009,7 +1007,7 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
                 if EC.data_is_int(cron_iniz) == 0:
                     QMessageBox.warning(self, "ATTENZIONE",
                                         "Campo Cronologia Iniziale. \n Il valore deve essere di tipo numerico",
-                                        QMessageBox.Ok)
+                                        QMessageBox.StandardButton.Ok)
                     test = 1
 
             cron_fin = self.lineEdit_cron_fin.text()
@@ -1017,14 +1015,14 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
                 if EC.data_is_int(cron_fin) == 0:
                     QMessageBox.warning(self, "ATTENZIONE",
                                         "Campo Cronologia Finale. \n Il valore deve essere di tipo numerico",
-                                        QMessageBox.Ok)
+                                        QMessageBox.StandardButton.Ok)
                     test = 1
 
             cod_per = self.lineEdit_codice_periodo.text()
             if cod_per != "":
                 if EC.data_is_int(cod_per) == 0:
                     QMessageBox.warning(self, "ATTENZIONE",
-                                        "Campo Codice Periodo \n Il valore deve essere di tipo numerico", QMessageBox.Ok)
+                                        "Campo Codice Periodo \n Il valore deve essere di tipo numerico", QMessageBox.StandardButton.Ok)
                     test = 1
 
             return test
@@ -1032,23 +1030,23 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
         elif self.L=='de':
             # Controlli campi obbligatori
             if sito == "":
-                QMessageBox.warning(self, "ACHTUNG", "Feld Ausgrabungsstätte erforderlich!", QMessageBox.Ok)
+                QMessageBox.warning(self, "ACHTUNG", "Feld Ausgrabungsstätte erforderlich!", QMessageBox.StandardButton.Ok)
                 test = 1
 
             if periodo == "":
-                QMessageBox.warning(self, "ACHTUNG", "Feld Period erforderlich!", QMessageBox.Ok)
+                QMessageBox.warning(self, "ACHTUNG", "Feld Period erforderlich!", QMessageBox.StandardButton.Ok)
                 test = 1
             elif EC.data_is_int(periodo) == 0:
                 QMessageBox.warning(self, "ACHTUNG", "Feld period \n Der Wert muss numerisch eingegeben werden",
-                                    QMessageBox.Ok)
+                                    QMessageBox.StandardButton.Ok)
                 test = 1
 
             if fase == "":
-                QMessageBox.warning(self, "ACHTUNG", "Feld Phase erforderlich!", QMessageBox.Ok)
+                QMessageBox.warning(self, "ACHTUNG", "Feld Phase erforderlich!", QMessageBox.StandardButton.Ok)
                 test = 1
             elif EC.data_is_int(fase) == 0:
                 QMessageBox.warning(self, "ACHTUNG", "Feld Phase \n Der Wert muss numerisch eingegeben werden",
-                                    QMessageBox.Ok)
+                                    QMessageBox.StandardButton.Ok)
                 test = 1
 
             # Controlli campi opzionali (solo se compilati)
@@ -1057,27 +1055,27 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
                 if EC.data_lenght(data_estesa, 299) == 0:
                     QMessageBox.warning(self, "ACHTUNG",
                                         "Erweitertes Dating-Feld. \n darf 300 alphanumerische Zeichen nicht überschreiten",
-                                        QMessageBox.Ok)
+                                        QMessageBox.StandardButton.Ok)
                     test = 1
 
             cron_iniz = self.lineEdit_cron_iniz.text()
             if cron_iniz != "":
                 if EC.data_is_int(cron_iniz) == 0:
                     QMessageBox.warning(self, "ACHTUNG", "Feld Anfangschronologie \n Der Wert muss numerisch eingegeben werden",
-                                        QMessageBox.Ok)
+                                        QMessageBox.StandardButton.Ok)
                     test = 1
 
             cron_fin = self.lineEdit_cron_fin.text()
             if cron_fin != "":
                 if EC.data_is_int(cron_fin) == 0:
                     QMessageBox.warning(self, "ACHTUNG", "Feld Letzte Chronologie \n Der Wert muss numerisch eingegeben werden",
-                                        QMessageBox.Ok)
+                                        QMessageBox.StandardButton.Ok)
                     test = 1
 
             cod_per = self.lineEdit_codice_periodo.text()
             if cod_per != "":
                 if EC.data_is_int(cod_per) == 0:
-                    QMessageBox.warning(self, "ACHTUNG", "Feld periodencode \n Der Wert muss numerisch eingegeben werden", QMessageBox.Ok)
+                    QMessageBox.warning(self, "ACHTUNG", "Feld periodencode \n Der Wert muss numerisch eingegeben werden", QMessageBox.StandardButton.Ok)
                     test = 1
 
             return test
@@ -1085,23 +1083,23 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
         else:
             # Controlli campi obbligatori
             if sito == "":
-                QMessageBox.warning(self, "WARNING", "Site field required!", QMessageBox.Ok)
+                QMessageBox.warning(self, "WARNING", "Site field required!", QMessageBox.StandardButton.Ok)
                 test = 1
 
             if periodo == "":
-                QMessageBox.warning(self, "WARNING", "Period field required!", QMessageBox.Ok)
+                QMessageBox.warning(self, "WARNING", "Period field required!", QMessageBox.StandardButton.Ok)
                 test = 1
             elif EC.data_is_int(periodo) == 0:
                 QMessageBox.warning(self, "WARNING", "Period Field. \n The value must be numerical",
-                                    QMessageBox.Ok)
+                                    QMessageBox.StandardButton.Ok)
                 test = 1
 
             if fase == "":
-                QMessageBox.warning(self, "WARNING", "Phase field required!", QMessageBox.Ok)
+                QMessageBox.warning(self, "WARNING", "Phase field required!", QMessageBox.StandardButton.Ok)
                 test = 1
             elif EC.data_is_int(fase) == 0:
                 QMessageBox.warning(self, "WARNING", "Phase Field. \n The value must be numerical",
-                                    QMessageBox.Ok)
+                                    QMessageBox.StandardButton.Ok)
                 test = 1
 
             # Controlli campi opzionali (solo se compilati)
@@ -1109,27 +1107,27 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
             if data_estesa != "":
                 if EC.data_lenght(data_estesa, 299) == 0:
                     QMessageBox.warning(self, "WARNING", "Extended Dating Field. \n must not exceed 300 alphanumeric characters",
-                                        QMessageBox.Ok)
+                                        QMessageBox.StandardButton.Ok)
                     test = 1
 
             cron_iniz = self.lineEdit_cron_iniz.text()
             if cron_iniz != "":
                 if EC.data_is_int(cron_iniz) == 0:
                     QMessageBox.warning(self, "WARNING", "Start chron. Field. \n The value must be numerical",
-                                        QMessageBox.Ok)
+                                        QMessageBox.StandardButton.Ok)
                     test = 1
 
             cron_fin = self.lineEdit_cron_fin.text()
             if cron_fin != "":
                 if EC.data_is_int(cron_fin) == 0:
                     QMessageBox.warning(self, "WARNING", "Final chron. Field. \n The value must be numerical",
-                                        QMessageBox.Ok)
+                                        QMessageBox.StandardButton.Ok)
                     test = 1
 
             cod_per = self.lineEdit_codice_periodo.text()
             if cod_per != "":
                 if EC.data_is_int(cod_per) == 0:
-                    QMessageBox.warning(self, "WARNING", "period code Field. \n The value must be numerical", QMessageBox.Ok)
+                    QMessageBox.warning(self, "WARNING", "period code Field. \n The value must be numerical", QMessageBox.StandardButton.Ok)
                     test = 1
 
             return test
@@ -1176,20 +1174,20 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
                 if e_str.__contains__("IntegrityError"):
                     if self.L=='it':
                         msg = self.ID_TABLE + " gia' presente nel database"
-                        QMessageBox.warning(self, "Error", "Error" + str(msg), QMessageBox.Ok)
+                        QMessageBox.warning(self, "Error", "Error" + str(msg), QMessageBox.StandardButton.Ok)
                     elif self.L=='de':
                         msg = self.ID_TABLE + " bereits in der Datenbank"
-                        QMessageBox.warning(self, "Error", "Error" + str(msg), QMessageBox.Ok)
+                        QMessageBox.warning(self, "Error", "Error" + str(msg), QMessageBox.StandardButton.Ok)
                     else:
                         msg = self.ID_TABLE + " exist in db"
-                        QMessageBox.warning(self, "Error", "Error" + str(msg), QMessageBox.Ok)
+                        QMessageBox.warning(self, "Error", "Error" + str(msg), QMessageBox.StandardButton.Ok)
                 else:
                     msg = e
-                    QMessageBox.warning(self, "Error", "Error 1 \n" + str(msg), QMessageBox.Ok)
+                    QMessageBox.warning(self, "Error", "Error 1 \n" + str(msg), QMessageBox.StandardButton.Ok)
                 return 0
 
         except Exception as e:
-            QMessageBox.warning(self, "Error", "Error 2 \n" + str(e), QMessageBox.Ok)
+            QMessageBox.warning(self, "Error", "Error 2 \n" + str(e), QMessageBox.StandardButton.Ok)
             return 0
 
     def check_record_state(self):
@@ -1201,15 +1199,15 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
                 self.update_if(
                 
                     QMessageBox.warning(self, 'Errore', "Il record e' stato modificato. Vuoi salvare le modifiche?",
-                                        QMessageBox.Ok | QMessageBox.Cancel))
+                                        QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel))
             elif self.L=='de':
                 self.update_if(
                     QMessageBox.warning(self, 'Errore', "Der Record wurde geändert. Möchtest du die Änderungen speichern?",
-                                        QMessageBox.Ok | QMessageBox.Cancel))
+                                        QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel))
             else:
                 self.update_if(
                     QMessageBox.warning(self, "Error", "The record has been changed. You want to save the changes?",
-                                        QMessageBox.Ok | QMessageBox.Cancel))
+                                        QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel))
             # self.charge_records()
             return 0  # non ci sono errori di immissione
 
@@ -1245,7 +1243,7 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
                 self.fill_fields(0)
                 self.set_rec_counter(self.REC_TOT, self.REC_CORR + 1)
             except Exception as e:
-                QMessageBox.warning(self, "Error", str(e), QMessageBox.Ok)
+                QMessageBox.warning(self, "Error", str(e), QMessageBox.StandardButton.Ok)
 
     def on_pushButton_last_rec_pressed(self):
         if self.check_record_state() == 1:
@@ -1257,7 +1255,7 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
                 self.fill_fields(self.REC_CORR)
                 self.set_rec_counter(self.REC_TOT, self.REC_CORR + 1)
             except Exception as e:
-                QMessageBox.warning(self, "Error", str(e), QMessageBox.Ok)
+                QMessageBox.warning(self, "Error", str(e), QMessageBox.StandardButton.Ok)
 
     def on_pushButton_prev_rec_pressed(self):
         if self.check_record_state() == 1:
@@ -1267,18 +1265,18 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
             if self.REC_CORR == -1:
                 self.REC_CORR = 0
                 if self.L=='it':
-                    QMessageBox.warning(self, "Attenzione", "Sei al primo record!", QMessageBox.Ok)
+                    QMessageBox.warning(self, "Attenzione", "Sei al primo record!", QMessageBox.StandardButton.Ok)
                 elif self.L=='de':
-                    QMessageBox.warning(self, "Achtung", "du befindest dich im ersten Datensatz!", QMessageBox.Ok)
+                    QMessageBox.warning(self, "Achtung", "du befindest dich im ersten Datensatz!", QMessageBox.StandardButton.Ok)
                 else:
-                    QMessageBox.warning(self, "Warning", "You are to the first record!", QMessageBox.Ok)        
+                    QMessageBox.warning(self, "Warning", "You are to the first record!", QMessageBox.StandardButton.Ok)        
             else:
                 try:
                     self.empty_fields()
                     self.fill_fields(self.REC_CORR)
                     self.set_rec_counter(self.REC_TOT, self.REC_CORR + 1)
                 except Exception as e:
-                    QMessageBox.warning(self, "Error", str(e), QMessageBox.Ok)
+                    QMessageBox.warning(self, "Error", str(e), QMessageBox.StandardButton.Ok)
 
     def on_pushButton_next_rec_pressed(self):
         if self.check_record_state() == 1:
@@ -1288,37 +1286,37 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
             if self.REC_CORR >= self.REC_TOT:
                 self.REC_CORR = self.REC_CORR - 1
                 if self.L=='it':
-                    QMessageBox.warning(self, "Attenzione", "Sei all'ultimo record!", QMessageBox.Ok)
+                    QMessageBox.warning(self, "Attenzione", "Sei all'ultimo record!", QMessageBox.StandardButton.Ok)
                 elif self.L=='de':
-                    QMessageBox.warning(self, "Achtung", "du befindest dich im letzten Datensatz!", QMessageBox.Ok)
+                    QMessageBox.warning(self, "Achtung", "du befindest dich im letzten Datensatz!", QMessageBox.StandardButton.Ok)
                 else:
-                    QMessageBox.warning(self, "Error", "You are to the first record!", QMessageBox.Ok)  
+                    QMessageBox.warning(self, "Error", "You are to the first record!", QMessageBox.StandardButton.Ok)  
             else:
                 try:
                     self.empty_fields()
                     self.fill_fields(self.REC_CORR)
                     self.set_rec_counter(self.REC_TOT, self.REC_CORR + 1)
                 except Exception as e:
-                    QMessageBox.warning(self, "Error", str(e), QMessageBox.Ok)
+                    QMessageBox.warning(self, "Error", str(e), QMessageBox.StandardButton.Ok)
 
     def on_pushButton_delete_pressed(self):
         
         if self.L=='it':
             msg = QMessageBox.warning(self, "Attenzione!!!",
                                       "Vuoi veramente eliminare il record? \n L'azione è irreversibile",
-                                      QMessageBox.Ok | QMessageBox.Cancel)
-            if msg == QMessageBox.Cancel:
+                                      QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel)
+            if msg == QMessageBox.StandardButton.Cancel:
                 QMessageBox.warning(self, "Messagio!!!", "Azione Annullata!")
             else:
                 try:
-                    id_to_delete = eval("self.DATA_LIST[self.REC_CORR]." + self.ID_TABLE)
+                    id_to_delete = getattr(self.DATA_LIST[self.REC_CORR], self.ID_TABLE)
                     self.DB_MANAGER.delete_one_record(self.TABLE_NAME, self.ID_TABLE, id_to_delete)
                     self.charge_records()  # charge records from DB
                     QMessageBox.warning(self, "Messaggio!!!", "Record eliminato!")
                 except Exception as e:
                     QMessageBox.warning(self, "Messaggio!!!", "Tipo di errore: " + str(e))
                 if not bool(self.DATA_LIST):
-                    QMessageBox.warning(self, "Attenzione", "Il database è vuoto!", QMessageBox.Ok)
+                    QMessageBox.warning(self, "Attenzione", "Il database è vuoto!", QMessageBox.StandardButton.Ok)
                     self.DATA_LIST = []
                     self.DATA_LIST_REC_CORR = []
                     self.DATA_LIST_REC_TEMP = []
@@ -1339,19 +1337,19 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
         elif self.L=='de':
             msg = QMessageBox.warning(self, "Achtung!!!",
                                       "Willst du wirklich diesen Eintrag löschen? \n Der Vorgang ist unumkehrbar",
-                                      QMessageBox.Ok | QMessageBox.Cancel)
-            if msg == QMessageBox.Cancel:
+                                      QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel)
+            if msg == QMessageBox.StandardButton.Cancel:
                 QMessageBox.warning(self, "Message!!!", "Aktion annulliert!")
             else:
                 try:
-                    id_to_delete = eval("self.DATA_LIST[self.REC_CORR]." + self.ID_TABLE)
+                    id_to_delete = getattr(self.DATA_LIST[self.REC_CORR], self.ID_TABLE)
                     self.DB_MANAGER.delete_one_record(self.TABLE_NAME, self.ID_TABLE, id_to_delete)
                     self.charge_records()  # charge records from DB
                     QMessageBox.warning(self, "Message!!!", "Record gelöscht!")
                 except Exception as e:
                     QMessageBox.warning(self, "Message!!!", "Errortyp: " + str(e))
                 if not bool(self.DATA_LIST):
-                    QMessageBox.warning(self, "Warning", "Die Datenbank ist leer!", QMessageBox.Ok)
+                    QMessageBox.warning(self, "Warning", "Die Datenbank ist leer!", QMessageBox.StandardButton.Ok)
                     self.DATA_LIST = []
                     self.DATA_LIST_REC_CORR = []
                     self.DATA_LIST_REC_TEMP = []
@@ -1372,19 +1370,19 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
         else:
             msg = QMessageBox.warning(self, "Warning!!!",
                                       "Do you really want to break the record? \n Action is irreversible.",
-                                      QMessageBox.Ok | QMessageBox.Cancel)
-            if msg == QMessageBox.Cancel:
+                                      QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel)
+            if msg == QMessageBox.StandardButton.Cancel:
                 QMessageBox.warning(self, "Messagio!!!", "Action deleted!")
             else:
                 try:
-                    id_to_delete = eval("self.DATA_LIST[self.REC_CORR]." + self.ID_TABLE)
+                    id_to_delete = getattr(self.DATA_LIST[self.REC_CORR], self.ID_TABLE)
                     self.DB_MANAGER.delete_one_record(self.TABLE_NAME, self.ID_TABLE, id_to_delete)
                     self.charge_records()  # charge records from DB
                     QMessageBox.warning(self, "Message!!!", "Record deleted!")
                 except Exception as e:
                     QMessageBox.warning(self, "Message!!!", "error type: " + str(e))
                 if not bool(self.DATA_LIST):
-                    QMessageBox.warning(self, "Warning", "the db is empty!", QMessageBox.Ok)
+                    QMessageBox.warning(self, "Warning", "the db is empty!", QMessageBox.StandardButton.Ok)
                     self.DATA_LIST = []
                     self.DATA_LIST_REC_CORR = []
                     self.DATA_LIST_REC_TEMP = []
@@ -1456,13 +1454,13 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
         if self.BROWSE_STATUS != "f":
             if self.L=='it':
                 QMessageBox.warning(self, "ATTENZIONE", "Per eseguire una nuova ricerca clicca sul pulsante 'new search' ",
-                                    QMessageBox.Ok)
+                                    QMessageBox.StandardButton.Ok)
             elif self.L=='de':
                 QMessageBox.warning(self, "ACHTUNG", "Um eine neue Abfrage zu starten drücke  'new search' ",
-                                    QMessageBox.Ok)
+                                    QMessageBox.StandardButton.Ok)
             else:
                 QMessageBox.warning(self, "WARNING", "To perform a new search click on the 'new search' button ",
-                                    QMessageBox.Ok)
+                                    QMessageBox.StandardButton.Ok)
         else:
             if self.lineEdit_cron_iniz.text() != "":
                 cron_iniziale = "'" + str(self.lineEdit_cron_iniz.text()) + "'"
@@ -1503,21 +1501,21 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
             search_dict = u.remove_empty_items_fr_dict(search_dict)
             if not bool(search_dict):
                 if self.L=='it':
-                    QMessageBox.warning(self, "ATTENZIONE", "Non è stata impostata nessuna ricerca!!!", QMessageBox.Ok)
+                    QMessageBox.warning(self, "ATTENZIONE", "Non è stata impostata nessuna ricerca!!!", QMessageBox.StandardButton.Ok)
                 elif self.L=='de':
-                    QMessageBox.warning(self, "ACHTUNG", "Keine Abfrage definiert!!!", QMessageBox.Ok)
+                    QMessageBox.warning(self, "ACHTUNG", "Keine Abfrage definiert!!!", QMessageBox.StandardButton.Ok)
                 else:
-                    QMessageBox.warning(self, " WARNING", "No search has been set!!!", QMessageBox.Ok) 
+                    QMessageBox.warning(self, " WARNING", "No search has been set!!!", QMessageBox.StandardButton.Ok) 
             else:
                 res = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
                 if not bool(res):
                 
                     if self.L=='it':
-                        QMessageBox.warning(self, "ATTENZIONE", "Non e' stato trovato alcun record!", QMessageBox.Ok)
+                        QMessageBox.warning(self, "ATTENZIONE", "Non e' stato trovato alcun record!", QMessageBox.StandardButton.Ok)
                     elif self.L=='de':
-                        QMessageBox.warning(self, "ACHTUNG", "kein Eintrag gefunden!", QMessageBox.Ok)
+                        QMessageBox.warning(self, "ACHTUNG", "kein Eintrag gefunden!", QMessageBox.StandardButton.Ok)
                     else:
-                        QMessageBox.warning(self, "Warning", "The record has not been found ", QMessageBox.Ok)
+                        QMessageBox.warning(self, "Warning", "The record has not been found ", QMessageBox.StandardButton.Ok)
 
                     self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR + 1)
                     self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
@@ -1560,13 +1558,13 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
                     self.setComboBoxEnable(["self.comboBox_fase"], "False")
                     self.setComboBoxEnable(["self.textEdit_descrizione_per"], "True")
 
-                    QMessageBox.warning(self, "Messaggio", "%s %d %s" % strings, QMessageBox.Ok)
+                    QMessageBox.warning(self, "Messaggio", "%s %d %s" % strings, QMessageBox.StandardButton.Ok)
 
         self.enable_button_search(1)
 
     def on_pushButton_show_periodo_pressed(self):
         if not self.lineEdit_codice_periodo.text():
-            QMessageBox.warning(self, "Message", "Period code not add", QMessageBox.Ok)
+            QMessageBox.warning(self, "Message", "Period code not add", QMessageBox.StandardButton.Ok)
         else:
             sito_p = self.comboBox_sito.currentText()
             cont_per = self.lineEdit_codice_periodo.text()
@@ -1578,7 +1576,7 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
     def on_pushButton_all_period_pressed(self):
         #self.set_sito()
         if not self.lineEdit_codice_periodo.text():
-            QMessageBox.warning(self, "Message", "Period code not add", QMessageBox.Ok)
+            QMessageBox.warning(self, "Message", "Period code not add", QMessageBox.StandardButton.Ok)
         else:
             lista=[]
             conn = Connection()
@@ -1610,7 +1608,7 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
     def on_pushButton_all_period_usm_pressed(self):
         #self.set_sito()
         if not self.lineEdit_codice_periodo.text():
-            QMessageBox.warning(self, "Message", "Period code not add", QMessageBox.Ok)
+            QMessageBox.warning(self, "Message", "Period code not add", QMessageBox.StandardButton.Ok)
         else:
             lista=[]
             conn = Connection()
@@ -1640,12 +1638,12 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
                 print(str(e))    
     def update_if(self, msg):
         rec_corr = self.REC_CORR
-        if msg == QMessageBox.Ok:
+        if msg == QMessageBox.StandardButton.Ok:
             test = self.update_record()
             if test == 1:
                 id_list = []
                 for i in self.DATA_LIST:
-                    id_list.append(eval("i." + self.ID_TABLE))
+                    id_list.append(getattr(i, self.ID_TABLE))
                 self.DATA_LIST = []
                 if self.SORT_STATUS == "n":
                     temp_data_list = self.DB_MANAGER.query_sort(id_list, [self.ID_TABLE], 'asc',
@@ -1677,7 +1675,7 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
         else:
             id_list = []
             for i in self.DB_MANAGER.query(self.MAPPER_TABLE_CLASS):
-                id_list.append(eval("i." + self.ID_TABLE))
+                id_list.append(getattr(i, self.ID_TABLE))
 
             temp_data_list = self.DB_MANAGER.query_sort(id_list, [self.ID_TABLE], 'asc', self.MAPPER_TABLE_CLASS,
                                                         self.ID_TABLE)
@@ -1686,20 +1684,12 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
                 self.DATA_LIST.append(i)
 
     def setComboBoxEditable(self, f, n):
-        field_names = f
-        value = n
-
-        for fn in field_names:
-            cmd = '{}{}{}{}'.format(fn, '.setEditable(', n, ')')
-            eval(cmd)
-
-    def setComboBoxEnable(self, f, v):
-        field_names = f
-        value = v
-
-        for fn in field_names:
-            cmd = '{}{}{}{}'.format(fn, '.setEnabled(', v, ')')
-            eval(cmd)
+        """Set editable state for widgets - uses getattr instead of eval for security"""
+        for fn in f:
+            widget_name = fn.replace('self.' , '') if fn.startswith('self.' ) else fn
+            widget = getattr(self, widget_name, None)
+            if widget is not None:
+                widget.setEditable(bool(n))
 
     def datestrfdate(self):
         now = date.today()
@@ -1708,13 +1698,14 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
 
     def table2dict(self, n):
         self.tablename = n
-        row = eval(self.tablename + ".rowCount()")
-        col = eval(self.tablename + ".columnCount()")
+        table = getattr(self, self.tablename.replace("self.", "") if self.tablename.startswith("self.") else self.tablename)
+        row = table.rowCount()
+        col = table.columnCount()
         lista = []
         for r in range(row):
             sub_list = []
             for c in range(col):
-                value = eval(self.tablename + ".item(r,c)")
+                value = table.item(r, c)
                 if bool(value):
                     sub_list.append(str(value.text()))
             lista.append(sub_list)
@@ -1838,7 +1829,7 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
     def set_LIST_REC_CORR(self):
         self.DATA_LIST_REC_CORR = []
         for i in self.TABLE_FIELDS:
-            self.DATA_LIST_REC_CORR.append(eval("unicode(self.DATA_LIST[self.REC_CORR]." + i + ")"))
+            self.DATA_LIST_REC_CORR.append(str(getattr(self.DATA_LIST[self.REC_CORR], i)))
 
     def records_equal_check(self):
         self.set_LIST_REC_TEMP()
@@ -1853,7 +1844,7 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
         try:
             self.DB_MANAGER.update(self.MAPPER_TABLE_CLASS,
                                    self.ID_TABLE,
-                                   [eval("int(self.DATA_LIST[self.REC_CORR]." + self.ID_TABLE + ")")],
+                                   [int(getattr(self.DATA_LIST[self.REC_CORR], self.ID_TABLE))],
                                    self.TABLE_FIELDS,
                                    self.rec_toupdate())
             return 1
@@ -1868,15 +1859,15 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
                     print(s, file=fh)
             if self.L=='it':
                 QMessageBox.warning(self, "Messaggio",
-                                    "Problema di encoding: sono stati inseriti accenti o caratteri non accettati dal database. Verrà fatta una copia dell'errore con i dati che puoi recuperare nella cartella pyarchinit_Report _Folder", QMessageBox.Ok)
+                                    "Problema di encoding: sono stati inseriti accenti o caratteri non accettati dal database. Verrà fatta una copia dell'errore con i dati che puoi recuperare nella cartella pyarchinit_Report _Folder", QMessageBox.StandardButton.Ok)
             
             
             elif self.L=='de':
                 QMessageBox.warning(self, "Message",
-                                    "Encoding problem: accents or characters not accepted by the database were entered. A copy of the error will be made with the data you can retrieve in the pyarchinit_Report _Folder", QMessageBox.Ok) 
+                                    "Encoding problem: accents or characters not accepted by the database were entered. A copy of the error will be made with the data you can retrieve in the pyarchinit_Report _Folder", QMessageBox.StandardButton.Ok) 
             else:
                 QMessageBox.warning(self, "Message",
-                                    "Kodierungsproblem: Es wurden Akzente oder Zeichen eingegeben, die von der Datenbank nicht akzeptiert werden. Es wird eine Kopie des Fehlers mit den Daten erstellt, die Sie im pyarchinit_Report _Ordner abrufen können", QMessageBox.Ok)
+                                    "Kodierungsproblem: Es wurden Akzente oder Zeichen eingegeben, die von der Datenbank nicht akzeptiert werden. Es wird eine Kopie des Fehlers mit den Daten erstellt, die Sie im pyarchinit_Report _Ordner abrufen können", QMessageBox.StandardButton.Ok)
             return 0
 
     def rec_toupdate(self):
@@ -1922,7 +1913,7 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
                    db_version != self.current_record_version:
                     # Show notification
                     msg = QMessageBox()
-                    msg.setIcon(QMessageBox.Warning)
+                    msg.setIcon(QMessageBox.Icon.Warning)
                     msg.setWindowTitle("Record Modificato / Record Modified")
                     msg.setText(
                         f"Questo record è stato modificato da {last_modified_by} "
@@ -1931,9 +1922,9 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
                         f"at {last_modified_timestamp}.\n\n"
                         f"Vuoi ricaricare il record? / Do you want to reload?"
                     )
-                    msg.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
+                    msg.setStandardButtons(QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
 
-                    if msg.exec_() == QMessageBox.Yes:
+                    if msg.exec() == QMessageBox.StandardButton.Yes:
                         # Save current record position
                         current_pos = self.REC_CORR
                         # Reload records
@@ -1952,4 +1943,4 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)
     ui = pyarchinit_US()
     ui.show()
-    sys.exit(app.exec_())
+    sys.exit(app.exec())

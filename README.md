@@ -1,103 +1,178 @@
-# ![](icon.png) PyArchInit4 by Luca Mandolesi & Enzo Cocca - QGIS plugin for archaeology - #MICH
+# ![](icon.png) PyArchInit 5.0 - Qt6/PyQt6 Edition
+
 [![GitHub release](https://img.shields.io/github/release/pyarchinit/pyarchinit.svg?style=flat-square)](https://github.com/pyarchinit/pyarchinit)
 [![GitHub repo size in bytes](https://img.shields.io/github/repo-size/pyarchinit/pyarchinit.svg?style=flat-square)](https://github.com/pyarchinit/pyarchinit)
-[![HitCount](http://hits.dwyl.io/pyarchinit/pyarchinit.svg)](http://hits.dwyl.io/pyarchinit/pyarchinit)
-[![Donate to QGIS](https://img.shields.io/badge/donate%20to-QGIS-green.svg?style=flat-square)](http://qgis.org/en/site/getinvolved/donations.html)
+[![License: GPL v2](https://img.shields.io/badge/License-GPL%20v2-blue.svg)](https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html)
 
-## PyArchInit4 works with QGIS >=3.22
+**PyArchInit** is a comprehensive QGIS plugin for archaeological data management, providing tools for excavation documentation, finds management, stratigraphic analysis, and GIS integration.
 
-## Installing adding pyarchinit repository into QGIS
+## What's New in Version 5.0
 
-# Video per installazione plugin -> [Video](https://www.adarteinfo.it/archivio/pyarchinit-download/install.gif)
+This major release brings full compatibility with modern QGIS versions and includes significant technical improvements:
 
-In QGIS add this link for the master version:
+### Qt6/PyQt6 Migration
+- Full compatibility with **QGIS 3.34+** (Qt6/PyQt6)
+- Updated all Qt enums to use proper Qt6 syntax (e.g., `Qt.ItemFlag.ItemIsEnabled`)
+- Migrated all UI files to Qt6 format
+- Backward compatible with Qt5-based QGIS versions
 
-_http://pyarchinit.org/pyarchinit_repository_
+### SQLAlchemy 2.0 Compatibility
+- Updated ORM mappings using `registry()` and `@registry.mapped` decorators
+- Removed deprecated `declarative_base()` usage
+- Improved session management and connection handling
 
+### Security Improvements
+- Replaced dangerous `eval()` calls with safe `getattr()` alternatives
+- Improved input validation across all forms
+- Safe locale handling to prevent crashes
 
+### Database Improvements
+- Enhanced PostgreSQL/PostGIS support with proper SSL handling
+- Improved SQLite/Spatialite support with automatic extension loading on macOS
+- Better concurrency management for multi-user environments
 
-## Installing from zip
+### Internationalization
+- Full support for: Italian, English, German, French, Spanish, Arabic (Lebanon), Catalan
+- Improved translation loading system
+- Fixed language detection for all supported locales
 
-### Linux/Windows/MacOS
-1. Download the zip archive from GitHub
-2. Install the python packages requirements (see [Dependencies](#dependencies) paragraph)
-3. Open QGIS and then from Plugin manager use Install from ZIP to install the plugin
+## Requirements
 
+### QGIS Version
+- **Recommended:** QGIS >= 3.34 (Qt6/PyQt6)
+- **Minimum:** QGIS >= 3.22 (Qt5/PyQt5)
 
-**Note1:** _If you use PostgreSQL, we raccomend to install PostgreSQL >=9.6_
+### Database
+- **PostgreSQL** >= 12 with PostGIS extension (recommended for multi-user)
+- **SQLite** with Spatialite extension (for single-user/portable)
 
+### Python Dependencies
+Core dependencies are automatically installed on first run:
+- SQLAlchemy >= 2.0
+- reportlab
+- matplotlib
+- networkx
+- graphviz
+- pdf2docx
+- opencv-python (optional, for image processing)
+- openai/anthropic (optional, for AI features)
 
-#### Dependencies
-* SQLAlchemy
-* reportlab
-* PypeR (for R)
-* [R Software](https://www.r-project.org/)
-* [Graphviz Visualization Software](https://www.graphviz.org/)*(see note)
-* [graphviz python module](https://github.com/xflr6/graphviz)
-* matplotlib
-* pdf2docx
-* pysftp
+## Installation
 
-**Note2:** _Note for Mac_
+### From QGIS Plugin Repository (Recommended)
+1. Open QGIS
+2. Go to **Plugins > Manage and Install Plugins**
+3. Search for "pyArchInit"
+4. Click **Install**
 
-you need install Cambria font. If you don't have already installed, automatically the folder with cambria font  will open 
+### From ZIP
+1. Download the latest release from GitHub
+2. In QGIS: **Plugins > Manage and Install Plugins > Install from ZIP**
+3. Select the downloaded ZIP file
 
-you need just double-click on all file with cambria name.
-* cambria.ttc
-* Cambria.ttf
-* cambriab.ttf
-* cambriai.ttf
-* cambriaz.ttf
+### From Repository URL
+Add this URL in QGIS Plugin Manager settings:
+```
+http://pyarchinit.org/pyarchinit_repository
+```
 
-**Note3:** _Indtruction to install Graphviz on windows and OSx (first installation)_
+## Platform-Specific Notes
 
-Windows
-- Download zip file of the [last release of Graphviz (2.50)](https://www.graphviz.org/download/)
-- install .exe.
+### macOS
+- **Fonts:** Cambria font required for PDF reports. The plugin will prompt for installation on first run.
+- **Spatialite:** Install via Homebrew: `brew install libspatialite`
+- **Graphviz:** Install via Homebrew: `brew install graphviz`
 
-Mac
-- Install homwbrew via console (copy and past this): 
+### Windows
+- **Graphviz:** Download and install from [graphviz.org](https://www.graphviz.org/download/)
+- All other dependencies are installed automatically
 
-  **/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"**
-- install graphviz (copy and past this):
+### Linux
+- **Spatialite:** `sudo apt install libsqlite3-mod-spatialite`
+- **Graphviz:** `sudo apt install graphviz`
 
-  **brew install graphviz**
+## Features
 
+### Data Management Forms
+- **Site Management** - Archaeological sites and projects
+- **Stratigraphic Units (US/USM)** - Detailed stratigraphic recording
+- **Finds Inventory** - Artifact cataloging and management
+- **Structures** - Architectural features documentation
+- **Burials/Tombs** - Funerary archaeology records
+- **Samples** - Environmental and scientific samples
+- **Pottery Analysis** - Ceramic typology and quantification
+- **Periodization** - Chronological phase management
+- **Documentation** - Photo, drawing, and document management
 
-The dependencies can be installed also using the [modules_installer.py](/scripts/modules_installer.py) by running it from within a python shell:
+### GIS Integration
+- Automatic layer creation and styling
+- Spatial queries and analysis
+- Map production and printing
+- Harris Matrix generation
 
-```python modules_installer.py```
+### Reporting
+- PDF report generation for all record types
+- Customizable templates
+- Multi-language support
+- Photo integration with thumbnails
 
-### Contribute
-1. Fork ad clone the repository: ```git clone https://github.com/<user>/pyarchinit.git```
-2. Make your changes
-3. Commit to your repository: ```git commit -am 'your_message'```
-4. Create a pull request: ```git push -u origin <your_branch>```
+### AI Features (Optional)
+- GPT-powered data entry assistance
+- Automated description generation
+- Natural language database queries
 
+## Project Structure
 
-## pyArchInit is used by:
+```
+pyarchinit/
+├── gui/                    # UI dialogs and forms
+│   └── ui/                 # Qt Designer UI files
+├── modules/
+│   ├── db/                 # Database layer (SQLAlchemy)
+│   │   ├── entities/       # ORM entity classes
+│   │   └── structures/     # Table definitions
+│   ├── gis/                # QGIS/GIS integration
+│   └── utility/            # Utilities and PDF generation
+├── tabs/                   # Form controllers
+├── i18n/                   # Translations
+├── resources/              # Icons and static files
+└── scripts/                # Utility scripts
+```
 
-* Dottorato di ricerca in corso (2021) presso Ludwig Maximilian Universität
-* Progetti con X-Cavate
-* Tesi di laurea, Manuela Battaglia, Necropoli di Malignano, Sovicille (SI)
-* Tesi di Laurea, Simona Gugnali, La Necropoli di Via Arnaldo da Brescia (Rimini)
-* Parco Archeologico Paestum - Ministero della Cultura
-* Dipartimento di archeologia di Università di Salerno
-* Scavi archeologici adArte Srl circa 150 contesti
-* Scavo del quartiere tardoanitico di Portus
-* Scavo di Vicolo del Bologna a Roma centro
-* Scavo del comprensorio di S. Giovanni Bosco sull’Appia nuova
-* Scavi della Regione Lazio in Via delle Antenne, Roma
-* Ricognizioni archeologiche adArte S.R.L. 
-* Viarch adArte Srl
-* Carta Archeologica Comune di Rimini
-* Carta Archeologica Comune di Santarcangelo di Romagna
-* Scavi proprietà dell’Ente Nazionale Assistenza Biologi (ENPAB) Roma
-* Scavi di Piana S. Marco Castel del Monte (AQ)
-* Scavi del monastero di S. Scolastica, Baullo, Gagliano Aterno AQ
-* Scavi di Amiternum (AQ)
-* Scavi della villa di Poggio Gramignano, Lugnano in Teverina TR
-* Scavi della necropoli etrusca di Trocchi, Bomarzo, VT
-* Maasser el-Shouf Archaeological Project (Libano), Dott.ssa Silvia Festuccia - Dott. ssa Myriam Ziadé (UniSOB-DGA)
-* Università di Pisa - Villa dei Vetti o anche dell'Oratorio a Capraia e Limite, professor Federico Cantini
-* Università di Chieti - Castelseprio Casa Piccoli (Varese) - Prof. Vasco La Salvia, Dott. Marco Moderato
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature/my-feature`
+3. Make your changes
+4. Run tests and ensure compatibility
+5. Submit a pull request
+
+## Authors
+
+- **Luca Mandolesi** - Original author
+- **Enzo Cocca** - Lead developer and maintainer
+
+## License
+
+This project is licensed under the GNU General Public License v2.0 - see the [LICENSE](LICENSE) file for details.
+
+## Acknowledgments
+
+PyArchInit is used by numerous archaeological projects worldwide, including:
+- Ludwig Maximilian Universität München
+- Parco Archeologico Paestum - Ministero della Cultura
+- Università di Salerno - Dipartimento di Archeologia
+- Università di Pisa
+- Università di Chieti
+- adArte S.r.l. (150+ excavation contexts)
+- Maasser el-Shouf Archaeological Project (Lebanon)
+- And many more...
+
+## Support
+
+- **Documentation:** [Wiki](https://github.com/pyarchinit/pyarchinit/wiki)
+- **Issues:** [GitHub Issues](https://github.com/pyarchinit/pyarchinit/issues)
+- **Website:** [pyarchinit.org](http://pyarchinit.org)
+
+---
+*PyArchInit - Archaeological GIS Tools for QGIS*
