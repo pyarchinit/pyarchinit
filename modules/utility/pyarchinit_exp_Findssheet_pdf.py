@@ -1085,6 +1085,30 @@ class single_Finds_pdf_sheet(object):
 
             return t
 
+    def create_sheet_fr(self):
+        """French version of Finds sheet - uses English structure.
+        TODO: Add proper French translations for all labels.
+        """
+        return self.create_sheet_en()
+
+    def create_sheet_es(self):
+        """Spanish version of Finds sheet - uses English structure.
+        TODO: Add proper Spanish translations for all labels.
+        """
+        return self.create_sheet_en()
+
+    def create_sheet_ar(self):
+        """Arabic version of Finds sheet - uses English structure.
+        TODO: Add proper Arabic translations for all labels.
+        """
+        return self.create_sheet_en()
+
+    def create_sheet_ca(self):
+        """Catalan version of Finds sheet - uses English structure.
+        TODO: Add proper Catalan translations for all labels.
+        """
+        return self.create_sheet_en()
+
 
 class Box_labels_Finds_pdf_sheet(object):
     def __init__(self, data, sito):
@@ -2557,7 +2581,60 @@ class generate_reperti_pdf(object):
         f = open(filename, "wb")
         doc = SimpleDocTemplate(f)
         doc.build(elements, canvasmaker=NumberedCanvas_Findssheet)
-        f.close()   
+        f.close()
+
+    def build_Finds_sheets_fr(self, records):
+        """French version"""
+        elements = []
+        for i in range(len(records)):
+            single_finds_sheet = single_Finds_pdf_sheet(records[i])
+            elements.append(single_finds_sheet.create_sheet_fr())
+            elements.append(PageBreak())
+        filename = '{}{}{}'.format(self.PDF_path, os.sep, 'Fiche_Materiel.pdf')
+        f = open(filename, "wb")
+        doc = SimpleDocTemplate(f)
+        doc.build(elements, canvasmaker=NumberedCanvas_Findssheet)
+        f.close()
+
+    def build_Finds_sheets_es(self, records):
+        """Spanish version"""
+        elements = []
+        for i in range(len(records)):
+            single_finds_sheet = single_Finds_pdf_sheet(records[i])
+            elements.append(single_finds_sheet.create_sheet_es())
+            elements.append(PageBreak())
+        filename = '{}{}{}'.format(self.PDF_path, os.sep, 'Ficha_Materiales.pdf')
+        f = open(filename, "wb")
+        doc = SimpleDocTemplate(f)
+        doc.build(elements, canvasmaker=NumberedCanvas_Findssheet)
+        f.close()
+
+    def build_Finds_sheets_ar(self, records):
+        """Arabic version"""
+        elements = []
+        for i in range(len(records)):
+            single_finds_sheet = single_Finds_pdf_sheet(records[i])
+            elements.append(single_finds_sheet.create_sheet_ar())
+            elements.append(PageBreak())
+        filename = '{}{}{}'.format(self.PDF_path, os.sep, 'Bitaqa_Mawad.pdf')
+        f = open(filename, "wb")
+        doc = SimpleDocTemplate(f)
+        doc.build(elements, canvasmaker=NumberedCanvas_Findssheet)
+        f.close()
+
+    def build_Finds_sheets_ca(self, records):
+        """Catalan version"""
+        elements = []
+        for i in range(len(records)):
+            single_finds_sheet = single_Finds_pdf_sheet(records[i])
+            elements.append(single_finds_sheet.create_sheet_ca())
+            elements.append(PageBreak())
+        filename = '{}{}{}'.format(self.PDF_path, os.sep, 'Fitxa_Materials.pdf')
+        f = open(filename, "wb")
+        doc = SimpleDocTemplate(f)
+        doc.build(elements, canvasmaker=NumberedCanvas_Findssheet)
+        f.close()
+
     def build_index_Finds(self, records, sito):
         home = os.environ['PYARCHINIT_HOME']
 

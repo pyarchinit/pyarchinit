@@ -1149,7 +1149,7 @@ class PotteryToolsDialog(QDialog, MAIN_DIALOG_CLASS):
             self.spin_patch_size.setRange(256, 1024)
             self.spin_patch_size.setSingleStep(128)
             self.spin_patch_size.setValue(512)
-            self.spin_patch_size.setToolTip("Larger = better quality but slower")
+            self.spin_patch_size.setToolTip(self.tr("Larger = better quality but slower"))
             param_row.addWidget(self.spin_patch_size)
 
             # Overlap
@@ -1157,7 +1157,7 @@ class PotteryToolsDialog(QDialog, MAIN_DIALOG_CLASS):
             self.spin_overlap = QSpinBox()
             self.spin_overlap.setRange(0, 128)
             self.spin_overlap.setValue(64)
-            self.spin_overlap.setToolTip("Overlap between patches to reduce seams")
+            self.spin_overlap.setToolTip(self.tr("Overlap between patches to reduce seams"))
             param_row.addWidget(self.spin_overlap)
 
             # Stippling control
@@ -1165,7 +1165,7 @@ class PotteryToolsDialog(QDialog, MAIN_DIALOG_CLASS):
             self.slider_stippling = QSlider(Qt.Orientation.Horizontal)
             self.slider_stippling.setRange(0, 100)
             self.slider_stippling.setValue(50)
-            self.slider_stippling.setToolTip("Control dot pattern density")
+            self.slider_stippling.setToolTip(self.tr("Control dot pattern density"))
             param_row.addWidget(self.slider_stippling)
 
             settings_layout.addLayout(param_row)
@@ -1174,7 +1174,7 @@ class PotteryToolsDialog(QDialog, MAIN_DIALOG_CLASS):
             options_row = QHBoxLayout()
             self.check_preprocessing = QCheckBox("Preprocessing")
             self.check_preprocessing.setChecked(True)
-            self.check_preprocessing.setToolTip("Apply automatic brightness/contrast adjustment")
+            self.check_preprocessing.setToolTip(self.tr("Apply automatic brightness/contrast adjustment"))
             self.check_high_res = QCheckBox("High Resolution")
             self.check_element_extraction = QCheckBox("Extract Elements")
             self.check_svg_export = QCheckBox("Export as SVG")
@@ -1214,7 +1214,7 @@ class PotteryToolsDialog(QDialog, MAIN_DIALOG_CLASS):
             self.spin_manual_contrast.setValue(1.0)
             self.spin_manual_contrast.setSingleStep(0.1)
             self.spin_manual_contrast.setDecimals(1)
-            self.spin_manual_contrast.setToolTip("Manual contrast adjustment (1.0 = no change)")
+            self.spin_manual_contrast.setToolTip(self.tr("Manual contrast adjustment (1.0 = no change)"))
             self.spin_manual_contrast.setFixedWidth(70)
             manual_row.addWidget(self.spin_manual_contrast)
 
@@ -1225,14 +1225,14 @@ class PotteryToolsDialog(QDialog, MAIN_DIALOG_CLASS):
             self.spin_manual_brightness.setValue(1.0)
             self.spin_manual_brightness.setSingleStep(0.1)
             self.spin_manual_brightness.setDecimals(1)
-            self.spin_manual_brightness.setToolTip("Manual brightness adjustment (1.0 = no change)")
+            self.spin_manual_brightness.setToolTip(self.tr("Manual brightness adjustment (1.0 = no change)"))
             self.spin_manual_brightness.setFixedWidth(70)
             manual_row.addWidget(self.spin_manual_brightness)
 
             # Reset button
             self.btn_reset_adjustments = QPushButton("Reset")
             self.btn_reset_adjustments.setFixedWidth(50)
-            self.btn_reset_adjustments.setToolTip("Reset to default values")
+            self.btn_reset_adjustments.setToolTip(self.tr("Reset to default values"))
             self.btn_reset_adjustments.clicked.connect(self.reset_manual_adjustments)
             manual_row.addWidget(self.btn_reset_adjustments)
 
@@ -1245,7 +1245,7 @@ class PotteryToolsDialog(QDialog, MAIN_DIALOG_CLASS):
 
             self.combo_background = QComboBox()
             self.combo_background.addItems(["Keep Original", "White", "Transparent"])
-            self.combo_background.setToolTip("Background treatment for output image")
+            self.combo_background.setToolTip(self.tr("Background treatment for output image"))
             self.combo_background.setFixedWidth(120)
             bg_row.addWidget(self.combo_background)
 
@@ -1253,7 +1253,7 @@ class PotteryToolsDialog(QDialog, MAIN_DIALOG_CLASS):
             self.spin_bg_threshold = QSpinBox()
             self.spin_bg_threshold.setRange(200, 255)
             self.spin_bg_threshold.setValue(240)
-            self.spin_bg_threshold.setToolTip("Brightness threshold for background detection (higher = stricter)")
+            self.spin_bg_threshold.setToolTip(self.tr("Brightness threshold for background detection (higher = stricter)"))
             self.spin_bg_threshold.setFixedWidth(60)
             bg_row.addWidget(self.spin_bg_threshold)
 

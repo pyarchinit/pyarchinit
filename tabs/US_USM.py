@@ -211,7 +211,7 @@ class ReportGeneratorDialog(QDialog):
         streaming_layout = QHBoxLayout()
         self.streaming_checkbox = QCheckBox("Abilita streaming (generazione testo in tempo reale)")
         self.streaming_checkbox.setChecked(True)  # Enabled by default
-        self.streaming_checkbox.setToolTip("Mostra il testo mentre viene generato. Disabilita se hai problemi con GPT-5.")
+        self.streaming_checkbox.setToolTip(self.tr("Mostra il testo mentre viene generato. Disabilita se hai problemi con GPT-5."))
         streaming_layout.addWidget(self.streaming_checkbox)
         language_section.add_layout(streaming_layout)
 
@@ -4013,18 +4013,18 @@ class RAGQueryDialog(QDialog):
         # Add streaming checkbox
         self.streaming_checkbox = QCheckBox("Streaming")
         self.streaming_checkbox.setChecked(True)
-        self.streaming_checkbox.setToolTip("Abilita streaming per risposte in tempo reale")
+        self.streaming_checkbox.setToolTip(self.tr("Abilita streaming per risposte in tempo reale"))
         button_layout.addWidget(self.streaming_checkbox)
 
         # Add auto-update checkbox
         self.auto_update_checkbox = QCheckBox("Auto-aggiorna")
         self.auto_update_checkbox.setChecked(True)
-        self.auto_update_checkbox.setToolTip("Aggiorna automaticamente il RAG quando i dati cambiano")
+        self.auto_update_checkbox.setToolTip(self.tr("Aggiorna automaticamente il RAG quando i dati cambiano"))
         button_layout.addWidget(self.auto_update_checkbox)
 
         # Add refresh button to force reload vectorstore
         self.refresh_btn = QPushButton("🔄 Ricarica DB")
-        self.refresh_btn.setToolTip("Forza ricaricamento di tutte le tabelle e ricostruzione del vectorstore")
+        self.refresh_btn.setToolTip(self.tr("Forza ricaricamento di tutte le tabelle e ricostruzione del vectorstore"))
         self.refresh_btn.clicked.connect(self.force_refresh_vectorstore)
         button_layout.addWidget(self.refresh_btn)
 
@@ -4105,12 +4105,12 @@ class RAGQueryDialog(QDialog):
 
         self.show_on_canvas_checkbox = QCheckBox("Mostra su mappa principale")
         self.show_on_canvas_checkbox.setChecked(True)
-        self.show_on_canvas_checkbox.setToolTip("Evidenzia i risultati sulla mappa QGIS")
+        self.show_on_canvas_checkbox.setToolTip(self.tr("Evidenzia i risultati sulla mappa QGIS"))
         spatial_controls.addWidget(self.show_on_canvas_checkbox)
 
         self.show_dedicated_map_checkbox = QCheckBox("Finestra mappa dedicata")
         self.show_dedicated_map_checkbox.setChecked(False)
-        self.show_dedicated_map_checkbox.setToolTip("Mostra risultati in una finestra mappa separata")
+        self.show_dedicated_map_checkbox.setToolTip(self.tr("Mostra risultati in una finestra mappa separata"))
         spatial_controls.addWidget(self.show_dedicated_map_checkbox)
 
         self.zoom_to_results_button = QPushButton("Zoom ai Risultati")
@@ -4199,14 +4199,14 @@ class RAGQueryDialog(QDialog):
         self.export_pdf_button = QPushButton("Report PDF")
         self.export_pdf_button.clicked.connect(self.export_pdf_report)
         self.export_pdf_button.setEnabled(False)
-        self.export_pdf_button.setToolTip("Esporta report completo con testo, tabelle e grafici")
+        self.export_pdf_button.setToolTip(self.tr("Esporta report completo con testo, tabelle e grafici"))
         export_layout.addWidget(self.export_pdf_button)
 
         # Complete Excel button
         self.export_excel_complete_button = QPushButton("Excel Completo")
         self.export_excel_complete_button.clicked.connect(self.export_excel_complete)
         self.export_excel_complete_button.setEnabled(False)
-        self.export_excel_complete_button.setToolTip("Esporta Excel multi-foglio con tutti i dati")
+        self.export_excel_complete_button.setToolTip(self.tr("Esporta Excel multi-foglio con tutti i dati"))
         export_layout.addWidget(self.export_excel_complete_button)
 
         export_layout.addStretch()
@@ -8199,7 +8199,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             icon_path = os.path.join(icons_path, 'text2sql.png')
             if os.path.exists(icon_path):
                 self.pushButton_text2sql.setIcon(QIcon(icon_path))
-            self.pushButton_text2sql.setToolTip("Text to SQL (Ctrl+Shift+X)")
+            self.pushButton_text2sql.setToolTip(self.tr("Text to SQL (Ctrl+Shift+X)"))
 
         # pushButton_area_sito_update -> update_all_areas (Ctrl+U)
         if hasattr(self, 'pushButton_area_sito_update'):
@@ -8207,7 +8207,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             icon_path = os.path.join(icons_path, 'area_update.png')
             if os.path.exists(icon_path):
                 self.pushButton_area_sito_update.setIcon(QIcon(icon_path))
-            self.pushButton_area_sito_update.setToolTip("Aggiorna Area/Sito nei rapporti (Ctrl+U)")
+            self.pushButton_area_sito_update.setToolTip(self.tr("Aggiorna Area/Sito nei rapporti (Ctrl+U)"))
 
         # pushButton_ricerca_avanzata -> switch_search_mode (Ctrl+Shift+N)
         if hasattr(self, 'pushButton_ricerca_avanzata'):
@@ -8215,7 +8215,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             icon_path = os.path.join(icons_path, 'search_advanced.png')
             if os.path.exists(icon_path):
                 self.pushButton_ricerca_avanzata.setIcon(QIcon(icon_path))
-            self.pushButton_ricerca_avanzata.setToolTip("Ricerca Avanzata LIKE (Ctrl+Shift+N)")
+            self.pushButton_ricerca_avanzata.setToolTip(self.tr("Ricerca Avanzata LIKE (Ctrl+Shift+N)"))
 
         # pushButton_elimina__record_filtrati -> delete_all_filtered_records (Ctrl+Shift+D)
         if hasattr(self, 'pushButton_elimina__record_filtrati'):
@@ -8223,7 +8223,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             icon_path = os.path.join(icons_path, 'delete_filtered.png')
             if os.path.exists(icon_path):
                 self.pushButton_elimina__record_filtrati.setIcon(QIcon(icon_path))
-            self.pushButton_elimina__record_filtrati.setToolTip("Elimina Record Filtrati (Ctrl+Shift+D)")
+            self.pushButton_elimina__record_filtrati.setToolTip(self.tr("Elimina Record Filtrati (Ctrl+Shift+D)"))
 
         # Add RAG Query button
         try:
@@ -8239,7 +8239,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                     try:
                         parent_widget = self.pushButton_report_generator.parent()
                         self.pushButton_rag_query = QPushButton("🤖 Query AI Database")
-                        self.pushButton_rag_query.setToolTip("Interroga il database con linguaggio naturale usando GPT-5")
+                        self.pushButton_rag_query.setToolTip(self.tr("Interroga il database con linguaggio naturale usando GPT-5"))
                         self.pushButton_rag_query.setStyleSheet("""
                             QPushButton {
                                 background-color: #4CAF50;
@@ -8277,7 +8277,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                         container = QWidget()
                         layout = QVBoxLayout(container)
                         self.pushButton_rag_query = QPushButton("🤖 Query AI Database")
-                        self.pushButton_rag_query.setToolTip("Interroga il database con linguaggio naturale usando GPT-5")
+                        self.pushButton_rag_query.setToolTip(self.tr("Interroga il database con linguaggio naturale usando GPT-5"))
                         self.pushButton_rag_query.clicked.connect(self.open_rag_query_dialog)
                         layout.addWidget(self.pushButton_rag_query)
                         layout.addStretch()
@@ -15174,7 +15174,7 @@ DATABASE SCHEMA KNOWLEDGE:
         lang = "'" + lang + "'"
         if not Pyarchinit_OS_Utility.checkgraphvizinstallation():
             self.pushButton_export_matrix.setEnabled(False)
-            self.pushButton_export_matrix.setToolTip("Funzione disabilitata")
+            self.pushButton_export_matrix.setToolTip(self.tr("Funzione disabilitata"))
         self.tableWidget_rapporti.setColumnWidth(0, 120)
         self.tableWidget_rapporti.setColumnWidth(1, 80)
         self.tableWidget_rapporti.setColumnWidth(2, 30)
@@ -18087,6 +18087,74 @@ DATABASE SCHEMA KNOWLEDGE:
                             QMessageBox.warning(self, 'WARNUNG', 'Die Fotoliste kann nicht exportiert werden, da Sie keine markierten Bilder haben.',QMessageBox.StandardButton.Ok)
                 except Exception as e :
                     QMessageBox.warning(self, 'WARNUNG',str(e),QMessageBox.StandardButton.Ok)
+        elif self.L=='fr':
+            if self.checkBox_s_us.isChecked():
+                US_pdf_sheet = generate_US_pdf()
+                data_list = self.generate_list_pdf()
+                US_pdf_sheet.build_US_sheets_fr(data_list)
+                QMessageBox.warning(self, 'Ok', "Exportation terminée Fiches US", QMessageBox.StandardButton.Ok)
+            if self.checkBox_e_us.isChecked():
+                US_index_pdf = generate_US_pdf()
+                data_list = self.generate_list_pdf()
+                try:
+                    if bool(data_list):
+                        US_index_pdf.build_index_US(data_list, data_list[0][0])
+                        QMessageBox.warning(self, 'Ok', "Exportation terminée Liste US", QMessageBox.StandardButton.Ok)
+                    else:
+                        QMessageBox.warning(self, 'ATTENTION', "La liste US ne peut pas être exportée, vous devez d'abord remplir les fiches US", QMessageBox.StandardButton.Ok)
+                except Exception as e:
+                    QMessageBox.warning(self, 'ATTENTION', str(e), QMessageBox.StandardButton.Ok)
+        elif self.L=='es':
+            if self.checkBox_s_us.isChecked():
+                US_pdf_sheet = generate_US_pdf()
+                data_list = self.generate_list_pdf()
+                US_pdf_sheet.build_US_sheets_es(data_list)
+                QMessageBox.warning(self, 'Ok', "Exportación terminada Fichas UE", QMessageBox.StandardButton.Ok)
+            if self.checkBox_e_us.isChecked():
+                US_index_pdf = generate_US_pdf()
+                data_list = self.generate_list_pdf()
+                try:
+                    if bool(data_list):
+                        US_index_pdf.build_index_US(data_list, data_list[0][0])
+                        QMessageBox.warning(self, 'Ok', "Exportación terminada Lista UE", QMessageBox.StandardButton.Ok)
+                    else:
+                        QMessageBox.warning(self, 'ATENCIÓN', "La lista UE no se puede exportar, primero debe completar las fichas UE", QMessageBox.StandardButton.Ok)
+                except Exception as e:
+                    QMessageBox.warning(self, 'ATENCIÓN', str(e), QMessageBox.StandardButton.Ok)
+        elif self.L=='ar':
+            if self.checkBox_s_us.isChecked():
+                US_pdf_sheet = generate_US_pdf()
+                data_list = self.generate_list_pdf()
+                US_pdf_sheet.build_US_sheets_ar(data_list)
+                QMessageBox.warning(self, 'حسنا', "اكتمل تصدير بطاقات الوحدة الطبقية", QMessageBox.StandardButton.Ok)
+            if self.checkBox_e_us.isChecked():
+                US_index_pdf = generate_US_pdf()
+                data_list = self.generate_list_pdf()
+                try:
+                    if bool(data_list):
+                        US_index_pdf.build_index_US(data_list, data_list[0][0])
+                        QMessageBox.warning(self, 'حسنا', "اكتمل تصدير قائمة الوحدات", QMessageBox.StandardButton.Ok)
+                    else:
+                        QMessageBox.warning(self, 'تحذير', "لا يمكن تصدير القائمة، يجب ملء البطاقات أولا", QMessageBox.StandardButton.Ok)
+                except Exception as e:
+                    QMessageBox.warning(self, 'تحذير', str(e), QMessageBox.StandardButton.Ok)
+        elif self.L=='ca':
+            if self.checkBox_s_us.isChecked():
+                US_pdf_sheet = generate_US_pdf()
+                data_list = self.generate_list_pdf()
+                US_pdf_sheet.build_US_sheets_ca(data_list)
+                QMessageBox.warning(self, 'Ok', "Exportació finalitzada Fitxes UE", QMessageBox.StandardButton.Ok)
+            if self.checkBox_e_us.isChecked():
+                US_index_pdf = generate_US_pdf()
+                data_list = self.generate_list_pdf()
+                try:
+                    if bool(data_list):
+                        US_index_pdf.build_index_US(data_list, data_list[0][0])
+                        QMessageBox.warning(self, 'Ok', "Exportació finalitzada Llista UE", QMessageBox.StandardButton.Ok)
+                    else:
+                        QMessageBox.warning(self, 'ATENCIÓ', "La llista UE no es pot exportar, primer heu d'omplir les fitxes UE", QMessageBox.StandardButton.Ok)
+                except Exception as e:
+                    QMessageBox.warning(self, 'ATENCIÓ', str(e), QMessageBox.StandardButton.Ok)
     def setPathpdf(self):
         s = QgsSettings()
         dbpath = QFileDialog.getOpenFileName(

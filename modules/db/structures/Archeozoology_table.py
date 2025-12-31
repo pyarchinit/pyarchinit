@@ -4,49 +4,39 @@ Created on 19 feb 2018
 @author: Serena Sensini; Enzo Cocca <enzo.ccc@gmail.com>
 '''
 
-from sqlalchemy import Table, Column, Integer, Text, Numeric, MetaData, create_engine, UniqueConstraint
-
-from modules.db.pyarchinit_conn_strings import Connection
+from sqlalchemy import Table, Column, Integer, BigInteger, Text, Numeric, MetaData, UniqueConstraint
 
 
-# class Fauna:
+class Archeozoology_table:
 
-    # metadata = MetaData()
+    metadata = MetaData()
 
-    # # define tables
-    # fauna = Table('fauna', metadata,
-    # Column( 'id_', Integer, primary_key=True),
-    # Column( 'code', Integer),
-    # Column( 'n_rilievo', Text),
-    # Column( 'n_codice', Text),
-    # Column( 'anno', Text),
-    # Column( 'sito', Text),
-    # Column( 'quadrato', Text), 
-    # Column( 'us', Integer),
-    # Column( 'periodo', Integer),
-    # Column( 'fase', Integer), 
-    # Column( 'specie', Text),
-    # Column( 'classe', Text),
-    # Column( 'ordine', Text),
-    # Column( 'famiglia', Text),
-    # Column( 'elemnto_anat_generico', Text),
-    # Column( 'elem_specifici', Text),
-    # Column( 'taglia', Text),
-    # Column( 'eta', Text),
-    # Column( 'lato', Text),
-    # Column( 'lunghezza', Integer),
-    # Column( 'larghezza', Integer),
-    # Column( 'spessore', Integer),
-    # Column( 'porzione', Text),
-    # Column( 'peso', Numeric(12,6)),
-    # Column( 'coord_x', Numeric(12,6)),
-    # Column( 'coord_y', Numeric(12,6)),
-    # Column( 'coord_z', Numeric(12,6)),
-    # Column( 'azione', Text),
-    # Column( 'modulo_osso', Text))
+    # define tables
+    archeozoology_table = Table('archeozoology_table', metadata,
+                                Column('id_archzoo', BigInteger, primary_key=True),  # 0
+                                Column('sito', Text),  # 1
+                                Column('area', Text),  # 2
+                                Column('us', Text),  # 3
+                                Column('quadrato', Text),  # 4
+                                Column('coord_x', BigInteger),  # 5
+                                Column('coord_y', BigInteger),  # 6
+                                Column('coord_z', Numeric(12, 6)),  # 7
+                                Column('bos_bison', BigInteger),  # 8
+                                Column('calcinati', BigInteger),  # 9
+                                Column('camoscio', BigInteger),  # 10
+                                Column('capriolo', BigInteger),  # 11
+                                Column('cervo', BigInteger),  # 12
+                                Column('combusto', BigInteger),  # 13
+                                Column('coni', BigInteger),  # 14
+                                Column('pdi', BigInteger),  # 15
+                                Column('stambecco', BigInteger),  # 16
+                                Column('strie', BigInteger),  # 17
+                                Column('canidi', BigInteger),  # 18
+                                Column('ursidi', BigInteger),  # 19
+                                Column('megacero', BigInteger),  # 20
 
-    # # explicit/composite unique constraint.  'name' is optional.
-    # #UniqueConstraint('sito', 'quadrato', name='ID_archzoo_unico')
-    
+                                # explicit/composite unique constraint
+                                UniqueConstraint('sito', 'quadrato', name='ID_archzoo_unico')
+                                )
 
-    # metadata.create_all(engine)
+    # DO NOT create tables at module import time!

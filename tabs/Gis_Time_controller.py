@@ -125,13 +125,13 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
                 self.checkBox_cumulative = QCheckBox()
                 if self.L == 'it':
                     self.checkBox_cumulative.setText("Modalità Cumulativa (mostra <= livello)")
-                    self.checkBox_cumulative.setToolTip("Se attivo, mostra tutte le US fino al livello selezionato.\nSe disattivo, mostra solo le US del livello esatto.")
+                    self.checkBox_cumulative.setToolTip(self.tr("Se attivo, mostra tutte le US fino al livello selezionato.\nSe disattivo, mostra solo le US del livello esatto."))
                 elif self.L == 'de':
                     self.checkBox_cumulative.setText("Kumulativer Modus (zeige <= Ebene)")
-                    self.checkBox_cumulative.setToolTip("Wenn aktiviert, zeigt alle US bis zur ausgewählten Ebene.\nWenn deaktiviert, zeigt nur US der genauen Ebene.")
+                    self.checkBox_cumulative.setToolTip(self.tr("Wenn aktiviert, zeigt alle US bis zur ausgewählten Ebene.\nWenn deaktiviert, zeigt nur US der genauen Ebene."))
                 else:
                     self.checkBox_cumulative.setText("Cumulative Mode (show <= level)")
-                    self.checkBox_cumulative.setToolTip("If checked, shows all US up to selected level.\nIf unchecked, shows only US at exact level.")
+                    self.checkBox_cumulative.setToolTip(self.tr("If checked, shows all US up to selected level.\nIf unchecked, shows only US at exact level."))
 
                 self.checkBox_cumulative.setChecked(False)  # Default: NON cumulativo (singolo livello)
 

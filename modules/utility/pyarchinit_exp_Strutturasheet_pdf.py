@@ -1010,7 +1010,33 @@ class single_Struttura_pdf_sheet(object):
 
         t = Table(cell_schema, colWidths=50, rowHeights=None, style=table_style)
 
-        return t    
+        return t
+
+    def create_sheet_fr(self):
+        """French version of Struttura sheet - uses English structure.
+        TODO: Add proper French translations for all labels.
+        """
+        return self.create_sheet_en()
+
+    def create_sheet_es(self):
+        """Spanish version of Struttura sheet - uses English structure.
+        TODO: Add proper Spanish translations for all labels.
+        """
+        return self.create_sheet_en()
+
+    def create_sheet_ar(self):
+        """Arabic version of Struttura sheet - uses English structure.
+        TODO: Add proper Arabic translations for all labels.
+        """
+        return self.create_sheet_en()
+
+    def create_sheet_ca(self):
+        """Catalan version of Struttura sheet - uses English structure.
+        TODO: Add proper Catalan translations for all labels.
+        """
+        return self.create_sheet_en()
+
+
 class generate_struttura_pdf(object):
     HOME = os.environ['PYARCHINIT_HOME']
 
@@ -1150,6 +1176,58 @@ class generate_struttura_pdf(object):
             elements.append(single_struttura_sheet.create_sheet_en())
             elements.append(PageBreak())
         filename = '{}{}{}'.format(self.PDF_path, os.sep, 'Structure_form.pdf')
+        f = open(filename, "wb")
+        doc = SimpleDocTemplate(f)
+        doc.build(elements, canvasmaker=NumberedCanvas_STRUTTURAsheet)
+        f.close()
+
+    def build_Struttura_sheets_fr(self, records):
+        """French version"""
+        elements = []
+        for i in range(len(records)):
+            single_struttura_sheet = single_Struttura_pdf_sheet(records[i])
+            elements.append(single_struttura_sheet.create_sheet_fr())
+            elements.append(PageBreak())
+        filename = '{}{}{}'.format(self.PDF_path, os.sep, 'Fiche_Structure.pdf')
+        f = open(filename, "wb")
+        doc = SimpleDocTemplate(f)
+        doc.build(elements, canvasmaker=NumberedCanvas_STRUTTURAsheet)
+        f.close()
+
+    def build_Struttura_sheets_es(self, records):
+        """Spanish version"""
+        elements = []
+        for i in range(len(records)):
+            single_struttura_sheet = single_Struttura_pdf_sheet(records[i])
+            elements.append(single_struttura_sheet.create_sheet_es())
+            elements.append(PageBreak())
+        filename = '{}{}{}'.format(self.PDF_path, os.sep, 'Ficha_Estructura.pdf')
+        f = open(filename, "wb")
+        doc = SimpleDocTemplate(f)
+        doc.build(elements, canvasmaker=NumberedCanvas_STRUTTURAsheet)
+        f.close()
+
+    def build_Struttura_sheets_ar(self, records):
+        """Arabic version"""
+        elements = []
+        for i in range(len(records)):
+            single_struttura_sheet = single_Struttura_pdf_sheet(records[i])
+            elements.append(single_struttura_sheet.create_sheet_ar())
+            elements.append(PageBreak())
+        filename = '{}{}{}'.format(self.PDF_path, os.sep, 'Bitaqa_Buniya.pdf')
+        f = open(filename, "wb")
+        doc = SimpleDocTemplate(f)
+        doc.build(elements, canvasmaker=NumberedCanvas_STRUTTURAsheet)
+        f.close()
+
+    def build_Struttura_sheets_ca(self, records):
+        """Catalan version"""
+        elements = []
+        for i in range(len(records)):
+            single_struttura_sheet = single_Struttura_pdf_sheet(records[i])
+            elements.append(single_struttura_sheet.create_sheet_ca())
+            elements.append(PageBreak())
+        filename = '{}{}{}'.format(self.PDF_path, os.sep, 'Fitxa_Estructura.pdf')
         f = open(filename, "wb")
         doc = SimpleDocTemplate(f)
         doc.build(elements, canvasmaker=NumberedCanvas_STRUTTURAsheet)

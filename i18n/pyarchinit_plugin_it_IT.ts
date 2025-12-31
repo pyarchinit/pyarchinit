@@ -9217,6 +9217,66 @@ p, li { white-space: pre-wrap; }
         <source>Media</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <location filename="../gui/ui/UT_ui.ui" line="2331"/>
+        <source>Metodo GPS</source>
+        <translation>Metodo GPS</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/UT_ui.ui" line="2351"/>
+        <source>Precisione (m)</source>
+        <translation>Precisione (m)</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/UT_ui.ui" line="2377"/>
+        <source>Copertura vegetale</source>
+        <translation>Copertura vegetale</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/UT_ui.ui" line="2397"/>
+        <source>Condizione superficie</source>
+        <translation>Condizione superficie</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/UT_ui.ui" line="2417"/>
+        <source>Accessibilità</source>
+        <translation>Accessibilità</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/UT_ui.ui" line="2693"/>
+        <source>Tipo survey</source>
+        <translation>Tipo survey</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/UT_ui.ui" line="2713"/>
+        <source>Visibilità (%)</source>
+        <translation>Visibilità (%)</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/UT_ui.ui" line="2739"/>
+        <source>Condizioni meteo</source>
+        <translation>Condizioni meteo</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/UT_ui.ui" line="2759"/>
+        <source>Team survey</source>
+        <translation>Team survey</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/UT_ui.ui" line="2779"/>
+        <source>Doc. fotografica</source>
+        <translation>Documentazione fotografica</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/UT_ui.ui" line="2786"/>
+        <source>Presente</source>
+        <translation>Presente</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/UT_ui.ui" line="2772"/>
+        <source>Nomi membri team (separati da virgola)</source>
+        <translation>Nomi membri team (separati da virgola)</translation>
+    </message>
 </context>
 <context>
     <name>DialogView</name>

@@ -19,6 +19,7 @@ CREATE TABLE public.archeozoology_table (
     quadrato text,
     coord_x BIGINT,
     coord_y BIGINT,
+    coord_z NUMERIC(12,6),
     bos_bison BIGINT,
     calcinati BIGINT,
     camoscio BIGINT,
@@ -2408,7 +2409,19 @@ CREATE TABLE public.ut_table (
     "interpretazione_II" character varying(100),
     documentazione text,
     enti_tutela_vincoli character varying(100),
-    indagini_preliminari character varying(100)
+    indagini_preliminari character varying(100),
+    -- New survey fields (v4.9.21+)
+    visibility_percent INTEGER,
+    vegetation_coverage character varying(255),
+    gps_method character varying(100),
+    coordinate_precision REAL,
+    survey_type character varying(100),
+    surface_condition character varying(255),
+    accessibility character varying(255),
+    photo_documentation INTEGER,
+    weather_conditions character varying(255),
+    team_members text,
+    foglio_catastale character varying(100)
 );
 
 

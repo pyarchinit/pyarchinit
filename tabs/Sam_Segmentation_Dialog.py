@@ -283,7 +283,7 @@ class SamSegmentationDialog(QDialog):
         input_layout.addWidget(QLabel("Raster Layer:"), 0, 0)
         self.comboBox_raster = QgsMapLayerComboBox()
         self.comboBox_raster.setFilters(QgsMapLayerProxyModel.RasterLayer)
-        self.comboBox_raster.setToolTip("Select the orthophoto or image to segment")
+        self.comboBox_raster.setToolTip(self.tr("Select the orthophoto or image to segment"))
         input_layout.addWidget(self.comboBox_raster, 0, 1)
 
         input_group.setLayout(input_layout)
@@ -299,7 +299,7 @@ class SamSegmentationDialog(QDialog):
             "pyunitastratigrafiche",
             "pyunitastratigrafiche_usm"
         ])
-        self.comboBox_target.setToolTip("Select the target layer for polygons")
+        self.comboBox_target.setToolTip(self.tr("Select the target layer for polygons"))
         target_layout.addWidget(self.comboBox_target, 0, 1)
 
         target_group.setLayout(target_layout)
@@ -313,7 +313,7 @@ class SamSegmentationDialog(QDialog):
         attr_layout.addWidget(QLabel("Site (sito):"), 0, 0)
         self.lineEdit_site = QLineEdit()
         self.lineEdit_site.setReadOnly(True)
-        self.lineEdit_site.setToolTip("Site from configuration (read-only)")
+        self.lineEdit_site.setToolTip(self.tr("Site from configuration (read-only)"))
         self._load_site_from_config()
         attr_layout.addWidget(self.lineEdit_site, 0, 1)
 
@@ -321,7 +321,7 @@ class SamSegmentationDialog(QDialog):
         attr_layout.addWidget(QLabel("Area:"), 1, 0)
         self.lineEdit_area = QLineEdit()
         self.lineEdit_area.setPlaceholderText("e.g., 1")
-        self.lineEdit_area.setToolTip("Area number")
+        self.lineEdit_area.setToolTip(self.tr("Area number"))
         attr_layout.addWidget(self.lineEdit_area, 1, 1)
 
         # Stratigraphic Index
@@ -329,14 +329,14 @@ class SamSegmentationDialog(QDialog):
         self.spinBox_strat_index = QSpinBox()
         self.spinBox_strat_index.setRange(1, 10)
         self.spinBox_strat_index.setValue(1)
-        self.spinBox_strat_index.setToolTip("1 = stones/objects, 2 = soil/area")
+        self.spinBox_strat_index.setToolTip(self.tr("1 = stones/objects, 2 = soil/area"))
         attr_layout.addWidget(self.spinBox_strat_index, 2, 1)
 
         # Type US
         attr_layout.addWidget(QLabel("Type US:"), 3, 0)
         self.comboBox_tipo_us = QComboBox()
         self.comboBox_tipo_us.addItems(["pietra", "layer", "accumulo", "taglio"])
-        self.comboBox_tipo_us.setToolTip("Type of stratigraphic unit")
+        self.comboBox_tipo_us.setToolTip(self.tr("Type of stratigraphic unit"))
         attr_layout.addWidget(self.comboBox_tipo_us, 3, 1)
 
         attr_group.setLayout(attr_layout)
@@ -347,20 +347,20 @@ class SamSegmentationDialog(QDialog):
         mode_layout = QVBoxLayout()
 
         self.radio_auto = QRadioButton("Automatic (detect all stones)")
-        self.radio_auto.setToolTip("Automatically segment all detected objects in the visible area")
+        self.radio_auto.setToolTip(self.tr("Automatically segment all detected objects in the visible area"))
         self.radio_auto.setChecked(True)
 
         self.radio_click = QRadioButton("Click mode (click on each stone)")
-        self.radio_click.setToolTip("Click on individual stones to segment them. Right-click or press Enter when done.")
+        self.radio_click.setToolTip(self.tr("Click on individual stones to segment them. Right-click or press Enter when done."))
 
         self.radio_box = QRadioButton("Box mode (draw rectangle)")
-        self.radio_box.setToolTip("Draw a rectangle to segment all stones within that area")
+        self.radio_box.setToolTip(self.tr("Draw a rectangle to segment all stones within that area"))
 
         self.radio_polygon = QRadioButton("Polygon mode (draw freehand)")
-        self.radio_polygon.setToolTip("Draw a polygon to define the area to segment. Click vertices, right-click to finish.")
+        self.radio_polygon.setToolTip(self.tr("Draw a polygon to define the area to segment. Click vertices, right-click to finish."))
 
         self.radio_from_layer = QRadioButton("From layer (use existing polygon)")
-        self.radio_from_layer.setToolTip("Select a polygon feature from an existing layer as the area to segment")
+        self.radio_from_layer.setToolTip(self.tr("Select a polygon feature from an existing layer as the area to segment"))
 
         self.mode_group = QButtonGroup()
         self.mode_group.addButton(self.radio_auto, 1)
@@ -427,7 +427,7 @@ class SamSegmentationDialog(QDialog):
         self.lineEdit_api_key = QLineEdit()
         self.lineEdit_api_key.setPlaceholderText("Replicate API key")
         self.lineEdit_api_key.setEchoMode(QLineEdit.EchoMode.Password)
-        self.lineEdit_api_key.setToolTip("Get your API key from replicate.com or roboflow.com")
+        self.lineEdit_api_key.setToolTip(self.tr("Get your API key from replicate.com or roboflow.com"))
         self.lineEdit_api_key.setVisible(True)
         model_layout.addWidget(self.lineEdit_api_key, 1, 1)
 
@@ -445,7 +445,7 @@ class SamSegmentationDialog(QDialog):
         self.lineEdit_text_prompt = QLineEdit()
         self.lineEdit_text_prompt.setPlaceholderText("e.g., stones, pottery fragments, bones")
         self.lineEdit_text_prompt.setText("stones")
-        self.lineEdit_text_prompt.setToolTip("Describe what objects to segment (SAM-3 only)")
+        self.lineEdit_text_prompt.setToolTip(self.tr("Describe what objects to segment (SAM-3 only)"))
         self.lineEdit_text_prompt.setVisible(False)
         model_layout.addWidget(self.lineEdit_text_prompt, 3, 1)
 
@@ -466,7 +466,7 @@ class SamSegmentationDialog(QDialog):
         btn_layout = QHBoxLayout()
 
         self.btn_segment = QPushButton("Start Segmentation")
-        self.btn_segment.setToolTip("Run segmentation on the selected raster")
+        self.btn_segment.setToolTip(self.tr("Run segmentation on the selected raster"))
         self.btn_segment.clicked.connect(self.on_segment_clicked)
         btn_layout.addWidget(self.btn_segment)
 

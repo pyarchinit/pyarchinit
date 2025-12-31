@@ -220,6 +220,8 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                     entity_type = 'TOMBA'
                 elif self.radioButton_struttura.isChecked():
                     entity_type = 'STRUTTURA'
+                elif self.radioButton_ut.isChecked():
+                    entity_type = 'UT'
                 else:
                     entity_type = None
 
@@ -2724,7 +2726,17 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                                     TMA_string = ('Sito: %s - Area: %s - US: %s - Cassetta: %s') % (
                                         tma_data[0].sito, tma_data[0].area, tma_data[0].dscu, tma_data[0].cassetta)
                                     mediaToEntity_list.append(
-                                        [str(sing_res_media.id_entity), sing_res_media.entity_type, TMA_string])            
+                                        [str(sing_res_media.id_entity), sing_res_media.entity_type, TMA_string])
+                            elif sing_res_media.entity_type == 'UT':
+                                search_dict = {'id_ut': "'" + str(sing_res_media.id_entity) + "'"}
+                                u = Utility()
+                                search_dict = u.remove_empty_items_fr_dict(search_dict)
+                                ut_data = self.DB_MANAGER.query_bool(search_dict, "UT")
+                                if ut_data:
+                                    UT_string = ('Progetto: %s - Nr. UT: %s') % (
+                                        ut_data[0].progetto, ut_data[0].nr_ut)
+                                    mediaToEntity_list.append(
+                                        [str(sing_res_media.id_entity), sing_res_media.entity_type, UT_string])
             if bool(mediaToEntity_list):
                 tags_row_count = self.tableWidget_tags.rowCount()
                 for i in range(tags_row_count):

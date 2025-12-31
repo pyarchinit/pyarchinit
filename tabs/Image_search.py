@@ -52,7 +52,8 @@ class pyarchinit_Image_Search(QDialog, MAIN_DIALOG_CLASS):
         'Pottery': 'CERAMICA',
         'Materiali': 'REPERTO',
         'Tomba': 'TOMBA',
-        'Struttura': 'STRUTTURA'
+        'Struttura': 'STRUTTURA',
+        'UT': 'UT'
     }
 
     def __init__(self, iface=None, parent=None):
@@ -502,6 +503,8 @@ class pyarchinit_Image_Search(QDialog, MAIN_DIALOG_CLASS):
                 self._open_tomba_form(sito, us)  # us contains nr_scheda_taf
             elif entity_type == 'STRUTTURA':
                 self._open_struttura_form(sito, area, us)  # area=sigla, us=numero
+            elif entity_type == 'UT':
+                self._open_ut_form(sito, us)  # sito=progetto, us=nr_ut
             else:
                 QMessageBox.information(self, "Info",
                     f"Tipo entità non riconosciuto: {entity_type}")
@@ -629,6 +632,30 @@ class pyarchinit_Image_Search(QDialog, MAIN_DIALOG_CLASS):
             struttura_form.label_status.setText("Aperto da Ricerca Immagini")
         else:
             QMessageBox.information(self, "Info", f"Struttura {sigla} {numero} non trovata nel sito {sito}")
+
+    def _open_ut_form(self, progetto, nr_ut):
+        """Open UT form and navigate to record."""
+        from .UT import pyarchinit_UT
+
+        ut_form = pyarchinit_UT(self.iface)
+        ut_form.show()
+
+        search_dict = {
+            'progetto': f"'{progetto}'",
+            'nr_ut': f"'{nr_ut}'"
+        }
+
+        res = ut_form.DB_MANAGER.query_bool(search_dict, 'UT')
+        if res:
+            ut_form.DATA_LIST = res
+            ut_form.REC_TOT = len(res)
+            ut_form.REC_CORR = 0
+            ut_form.BROWSE_STATUS = "b"
+            ut_form.fill_fields(0)
+            ut_form.set_rec_counter(len(res), 1)
+            ut_form.label_status.setText("Aperto da Ricerca Immagini")
+        else:
+            QMessageBox.information(self, "Info", f"UT {nr_ut} non trovata nel progetto {progetto}")
 
     def open_image(self):
         """Open the selected image in the ImageViewer dialog."""

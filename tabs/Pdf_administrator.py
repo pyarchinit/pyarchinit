@@ -138,7 +138,7 @@ class pyarchinit_PDFAdministrator(QDialog, MAIN_DIALOG_CLASS):
         self.pushButton_sort.setEnabled(n)
 
     def connect(self):
-        from pyarchinit_conn_strings import *
+        from ..modules.db.pyarchinit_conn_strings import Connection
         conn = Connection()
         conn_str = conn.conn_str()
         try:

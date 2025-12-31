@@ -3763,8 +3763,32 @@ class single_US_pdf_sheet(object):
             t = Table(cell_schema, colWidths=colWidths, rowHeights=rowHeights, style=table_style)
 
             return t
-    
-    
+
+    def create_sheet_fr(self):
+        """French version of US sheet - uses English structure for now.
+        TODO: Add proper French translations for all labels.
+        """
+        return self.create_sheet_en()
+
+    def create_sheet_es(self):
+        """Spanish version of US sheet - uses English structure for now.
+        TODO: Add proper Spanish translations for all labels.
+        """
+        return self.create_sheet_en()
+
+    def create_sheet_ar(self):
+        """Arabic version of US sheet - uses English structure for now.
+        TODO: Add proper Arabic translations for all labels.
+        """
+        return self.create_sheet_en()
+
+    def create_sheet_ca(self):
+        """Catalan version of US sheet - uses English structure for now.
+        TODO: Add proper Catalan translations for all labels.
+        """
+        return self.create_sheet_en()
+
+
 class US_index_pdf_sheet(object):
     si_lega_a = ''
     uguale_a = ''
@@ -4784,13 +4808,105 @@ class FOTO_index_pdf_sheet_2(object):
                 ]
 
         return data
-    
+
+    def getTable_fr(self):
+        styleSheet = getSampleStyleSheet()
+        styNormal = styleSheet['Normal']
+        styNormal.spaceBefore = 20
+        styNormal.spaceAfter = 20
+        styNormal.alignment = 0  # LEFT
+        styNormal.fontSize = 7
+
+        conn = Connection()
+        thumb_path = conn.thumb_path()
+        thumb_path_str = thumb_path['thumb_path']
+        area = Paragraph("<b>Zone</b><br/>" + str(self.area), styNormal)
+        if self.unita_tipo == 'US':
+            us = Paragraph("<b>US</b><br/>" + str(self.us), styNormal)
+        else:
+            us = Paragraph("<b>USM</b><br/>" + str(self.us), styNormal)
+        foto = Paragraph("<b>ID Photo</b><br/>" + str(self.foto), styNormal)
+        d_stratigrafica = Paragraph("<b>Description</b><br/>" + str(self.d_stratigrafica), styNormal)
+        us_presenti = Paragraph("<b>US-USM présentes</b><br/>", styNormal)
+
+        data = [foto, us, area, d_stratigrafica]
+        return data
+
+    def getTable_es(self):
+        styleSheet = getSampleStyleSheet()
+        styNormal = styleSheet['Normal']
+        styNormal.spaceBefore = 20
+        styNormal.spaceAfter = 20
+        styNormal.alignment = 0  # LEFT
+        styNormal.fontSize = 7
+
+        conn = Connection()
+        thumb_path = conn.thumb_path()
+        thumb_path_str = thumb_path['thumb_path']
+        area = Paragraph("<b>Área</b><br/>" + str(self.area), styNormal)
+        if self.unita_tipo == 'UE':
+            us = Paragraph("<b>UE</b><br/>" + str(self.us), styNormal)
+        else:
+            us = Paragraph("<b>UEM</b><br/>" + str(self.us), styNormal)
+        foto = Paragraph("<b>ID Foto</b><br/>" + str(self.foto), styNormal)
+        d_stratigrafica = Paragraph("<b>Descripción</b><br/>" + str(self.d_stratigrafica), styNormal)
+        us_presenti = Paragraph("<b>UE-UEM presentes</b><br/>", styNormal)
+
+        data = [foto, us, area, d_stratigrafica]
+        return data
+
+    def getTable_ar(self):
+        styleSheet = getSampleStyleSheet()
+        styNormal = styleSheet['Normal']
+        styNormal.spaceBefore = 20
+        styNormal.spaceAfter = 20
+        styNormal.alignment = 0  # LEFT
+        styNormal.fontSize = 7
+
+        conn = Connection()
+        thumb_path = conn.thumb_path()
+        thumb_path_str = thumb_path['thumb_path']
+        area = Paragraph("<b>المنطقة</b><br/>" + str(self.area), styNormal)
+        if self.unita_tipo == 'US':
+            us = Paragraph("<b>وحدة طبقية</b><br/>" + str(self.us), styNormal)
+        else:
+            us = Paragraph("<b>وحدة طبقية جدارية</b><br/>" + str(self.us), styNormal)
+        foto = Paragraph("<b>رقم الصورة</b><br/>" + str(self.foto), styNormal)
+        d_stratigrafica = Paragraph("<b>الوصف</b><br/>" + str(self.d_stratigrafica), styNormal)
+        us_presenti = Paragraph("<b>الوحدات الطبقية الحاضرة</b><br/>", styNormal)
+
+        data = [foto, us, area, d_stratigrafica]
+        return data
+
+    def getTable_ca(self):
+        styleSheet = getSampleStyleSheet()
+        styNormal = styleSheet['Normal']
+        styNormal.spaceBefore = 20
+        styNormal.spaceAfter = 20
+        styNormal.alignment = 0  # LEFT
+        styNormal.fontSize = 7
+
+        conn = Connection()
+        thumb_path = conn.thumb_path()
+        thumb_path_str = thumb_path['thumb_path']
+        area = Paragraph("<b>Àrea</b><br/>" + str(self.area), styNormal)
+        if self.unita_tipo == 'UE':
+            us = Paragraph("<b>UE</b><br/>" + str(self.us), styNormal)
+        else:
+            us = Paragraph("<b>UEM</b><br/>" + str(self.us), styNormal)
+        foto = Paragraph("<b>ID Foto</b><br/>" + str(self.foto), styNormal)
+        d_stratigrafica = Paragraph("<b>Descripció</b><br/>" + str(self.d_stratigrafica), styNormal)
+        us_presenti = Paragraph("<b>UE-UEM presents</b><br/>", styNormal)
+
+        data = [foto, us, area, d_stratigrafica]
+        return data
+
     def makeStyles(self):
         styles = TableStyle([('GRID', (0, 0), (-1, -1), 0.0, colors.black), ('VALIGN', (0, 0), (-1, -1), 'TOP')
                              ])  # finale
 
-        return styles    
-        
+        return styles
+
 class generate_US_pdf(object):
     HOME = os.environ['PYARCHINIT_HOME']
 
@@ -4988,9 +5104,163 @@ class generate_US_pdf(object):
         doc.build(elements_us_iccd, canvasmaker=NumberedCanvas_USsheet)
 
         f.close()
-    
-    
-    
+
+    def build_US_sheets_fr(self, records):
+        home = os.environ['PYARCHINIT_HOME']
+
+        conn = Connection()
+        lo_path = conn.logo_path()
+        lo_path_str = lo_path['logo']
+        home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
+        if not bool(lo_path_str):
+            logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
+        else:
+            logo_path = lo_path_str
+        logo = Image(logo_path)
+        logo.drawHeight = 2.5 * inch * logo.drawHeight / logo.drawWidth
+        logo.drawWidth = 2.5 * inch
+        logo.hAlign = "CENTER"
+
+        elements_us_iccd = []
+        for i in range(len(records)):
+            try:
+                single_us_sheet = single_US_pdf_sheet(records[i])
+                elements_us_iccd.append(logo)
+                elements_us_iccd.append(Spacer(4, 6))
+                elements_us_iccd.append(single_us_sheet.create_sheet_fr())
+                elements_us_iccd.append(PageBreak())
+            except TypeError:
+                QMessageBox.warning(None, 'attention', f"Issue with record: {records[i]}")
+                break
+
+        dt = datetime.datetime.now()
+        filename = ('%s%s%s_%s_%s_%s_%s_%s_%s%s') % (
+            self.PDF_path, os.sep, 'Fiche_US', dt.day, dt.month, dt.year, dt.hour, dt.minute, dt.second, ".pdf")
+        f = open(filename, "wb")
+
+        doc = SimpleDocTemplate(f, pagesize=(21 * cm, 29 * cm), topMargin=10, bottomMargin=20,
+                                leftMargin=10, rightMargin=10)
+        doc.build(elements_us_iccd, canvasmaker=NumberedCanvas_USsheet)
+
+        f.close()
+
+    def build_US_sheets_es(self, records):
+        home = os.environ['PYARCHINIT_HOME']
+
+        conn = Connection()
+        lo_path = conn.logo_path()
+        lo_path_str = lo_path['logo']
+        home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
+        if not bool(lo_path_str):
+            logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
+        else:
+            logo_path = lo_path_str
+        logo = Image(logo_path)
+        logo.drawHeight = 2.5 * inch * logo.drawHeight / logo.drawWidth
+        logo.drawWidth = 2.5 * inch
+        logo.hAlign = "CENTER"
+
+        elements_us_iccd = []
+        for i in range(len(records)):
+            try:
+                single_us_sheet = single_US_pdf_sheet(records[i])
+                elements_us_iccd.append(logo)
+                elements_us_iccd.append(Spacer(4, 6))
+                elements_us_iccd.append(single_us_sheet.create_sheet_es())
+                elements_us_iccd.append(PageBreak())
+            except TypeError:
+                QMessageBox.warning(None, 'atención', f"Issue with record: {records[i]}")
+                break
+
+        dt = datetime.datetime.now()
+        filename = ('%s%s%s_%s_%s_%s_%s_%s_%s%s') % (
+            self.PDF_path, os.sep, 'Ficha_UE', dt.day, dt.month, dt.year, dt.hour, dt.minute, dt.second, ".pdf")
+        f = open(filename, "wb")
+
+        doc = SimpleDocTemplate(f, pagesize=(21 * cm, 29 * cm), topMargin=10, bottomMargin=20,
+                                leftMargin=10, rightMargin=10)
+        doc.build(elements_us_iccd, canvasmaker=NumberedCanvas_USsheet)
+
+        f.close()
+
+    def build_US_sheets_ar(self, records):
+        home = os.environ['PYARCHINIT_HOME']
+
+        conn = Connection()
+        lo_path = conn.logo_path()
+        lo_path_str = lo_path['logo']
+        home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
+        if not bool(lo_path_str):
+            logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
+        else:
+            logo_path = lo_path_str
+        logo = Image(logo_path)
+        logo.drawHeight = 2.5 * inch * logo.drawHeight / logo.drawWidth
+        logo.drawWidth = 2.5 * inch
+        logo.hAlign = "CENTER"
+
+        elements_us_iccd = []
+        for i in range(len(records)):
+            try:
+                single_us_sheet = single_US_pdf_sheet(records[i])
+                elements_us_iccd.append(logo)
+                elements_us_iccd.append(Spacer(4, 6))
+                elements_us_iccd.append(single_us_sheet.create_sheet_ar())
+                elements_us_iccd.append(PageBreak())
+            except TypeError:
+                QMessageBox.warning(None, 'تحذير', f"Issue with record: {records[i]}")
+                break
+
+        dt = datetime.datetime.now()
+        filename = ('%s%s%s_%s_%s_%s_%s_%s_%s%s') % (
+            self.PDF_path, os.sep, 'Bitaqa_US', dt.day, dt.month, dt.year, dt.hour, dt.minute, dt.second, ".pdf")
+        f = open(filename, "wb")
+
+        doc = SimpleDocTemplate(f, pagesize=(21 * cm, 29 * cm), topMargin=10, bottomMargin=20,
+                                leftMargin=10, rightMargin=10)
+        doc.build(elements_us_iccd, canvasmaker=NumberedCanvas_USsheet)
+
+        f.close()
+
+    def build_US_sheets_ca(self, records):
+        home = os.environ['PYARCHINIT_HOME']
+
+        conn = Connection()
+        lo_path = conn.logo_path()
+        lo_path_str = lo_path['logo']
+        home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
+        if not bool(lo_path_str):
+            logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
+        else:
+            logo_path = lo_path_str
+        logo = Image(logo_path)
+        logo.drawHeight = 2.5 * inch * logo.drawHeight / logo.drawWidth
+        logo.drawWidth = 2.5 * inch
+        logo.hAlign = "CENTER"
+
+        elements_us_iccd = []
+        for i in range(len(records)):
+            try:
+                single_us_sheet = single_US_pdf_sheet(records[i])
+                elements_us_iccd.append(logo)
+                elements_us_iccd.append(Spacer(4, 6))
+                elements_us_iccd.append(single_us_sheet.create_sheet_ca())
+                elements_us_iccd.append(PageBreak())
+            except TypeError:
+                QMessageBox.warning(None, 'atenció', f"Issue with record: {records[i]}")
+                break
+
+        dt = datetime.datetime.now()
+        filename = ('%s%s%s_%s_%s_%s_%s_%s_%s%s') % (
+            self.PDF_path, os.sep, 'Fitxa_UE', dt.day, dt.month, dt.year, dt.hour, dt.minute, dt.second, ".pdf")
+        f = open(filename, "wb")
+
+        doc = SimpleDocTemplate(f, pagesize=(21 * cm, 29 * cm), topMargin=10, bottomMargin=20,
+                                leftMargin=10, rightMargin=10)
+        doc.build(elements_us_iccd, canvasmaker=NumberedCanvas_USsheet)
+
+        f.close()
+
     def build_index_US(self, records, sito):
         home = os.environ['PYARCHINIT_HOME']
 
