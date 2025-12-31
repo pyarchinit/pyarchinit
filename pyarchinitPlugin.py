@@ -30,7 +30,7 @@ from qgis.core import QgsApplication, QgsSettings, QgsMessageLog, Qgis
 from qgis.PyQt.QtCore import QLocale
 
 from .pyarchinitDockWidget import PyarchinitPluginDialog
-#from .tabs.Archeozoology import pyarchinit_Archeozoology
+from .tabs.Archeozoology import pyarchinit_Archeozoology
 from .tabs.Campioni import pyarchinit_Campioni
 from .tabs.Deteta import pyarchinit_Deteta
 from .tabs.Detsesso import pyarchinit_Detsesso
@@ -76,6 +76,25 @@ class PyArchInitPlugin(object):
                    'EXPERIMENTAL': '',
                    'SITE_SET': ''
                   }
+    # Positive values for EXPERIMENTAL setting in all supported languages
+    EXPERIMENTAL_YES_VALUES = ('Si', 'Yes', 'Ja', 'Oui', 'Sí', 'نعم', 'Sì')
+
+    def is_experimental_enabled(self):
+        """Check if experimental features are enabled, regardless of language setting."""
+        return self.PARAMS_DICT.get('EXPERIMENTAL', '').strip() in self.EXPERIMENTAL_YES_VALUES
+
+    def load_config(self):
+        """Load configuration from config.cfg file into PARAMS_DICT."""
+        try:
+            cfg_rel_path = os.path.join(os.sep, 'pyarchinit_DB_folder', 'config.cfg')
+            file_path = '{}{}'.format(self.HOME, cfg_rel_path)
+            if os.path.exists(file_path):
+                with open(file_path, "r") as conf:
+                    data = conf.read()
+                    loaded_params = eval(data)
+                    self.PARAMS_DICT.update(loaded_params)
+        except Exception as e:
+            QgsMessageLog.logMessage(f"PyArchInit - Error loading config: {str(e)}", "PyArchInit", Qgis.Warning)
     # Mapping from short locale codes to full locale names used in translation files
     LOCALE_MAPPING = {
         'it': 'it_IT',
@@ -258,7 +277,10 @@ class PyArchInitPlugin(object):
             QgsMessageLog.logMessage(f"PyArchInit - Error in fix_single_sqlite_database for {db_name}: {str(e)}", "PyArchInit", Qgis.Critical)
 
     def initGui(self):
-        l=QgsSettings().value("locale/userLocale", "it", type=str)[:2] 
+        # Load configuration from config.cfg FIRST to get EXPERIMENTAL setting
+        self.load_config()
+
+        l=QgsSettings().value("locale/userLocale", "it", type=str)[:2]
         if l == 'it':
             settings = QgsSettings()
             icon_paius = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'pai_us.png'))
@@ -365,7 +387,7 @@ class PyArchInitPlugin(object):
             self.actionTomba = QAction(QIcon(icon_Tomba), "Tomba", self.iface.mainWindow())
             self.actionTomba.setWhatsThis("Tomba")
             self.actionTomba.triggered.connect(self.runTomba)
-            if self.PARAMS_DICT['EXPERIMENTAL'] == 'Si':
+            if self.is_experimental_enabled():
                 icon_Detsesso = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'iconSesso.png'))
                 self.actionDetsesso = QAction(QIcon(icon_Detsesso), "Determinazione Sesso", self.iface.mainWindow())
                 self.actionDetsesso.setWhatsThis("Determinazione del sesso")
@@ -376,12 +398,12 @@ class PyArchInitPlugin(object):
                 self.actionDeteta.triggered.connect(self.runDeteta)
             self.funeraryToolButton.addActions([self.actionSchedaind, self.actionTomba])
             self.funeraryToolButton.setDefaultAction(self.actionSchedaind)
-            if self.PARAMS_DICT['EXPERIMENTAL'] == 'Si':
+            if self.is_experimental_enabled():
                 self.funeraryToolButton.addActions([self.actionDetsesso, self.actionDeteta])
             self.toolBar.addWidget(self.funeraryToolButton)
             self.toolBar.addSeparator()
             ######  Section dedicated to the topographical research
-            #if self.PARAMS_DICT['EXPERIMENTAL'] == 'Si':
+            #if self.is_experimental_enabled():
             self.topoToolButton = QToolButton(self.toolBar)
             #self.topoToolButton.setPopupMode(QToolButton.MenuButtonPopup)
             icon_UT = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'iconUT.png'))
@@ -428,7 +450,7 @@ class PyArchInitPlugin(object):
             self.toolBar.addWidget(self.docToolButton)
             self.toolBar.addSeparator()
             ######  Section dedicated to elaborations
-            if self.PARAMS_DICT['EXPERIMENTAL'] == 'Si':
+            if self.is_experimental_enabled():
                 self.elabToolButton = QToolButton(self.toolBar)
                 self.elabToolButton.setPopupMode(QToolButton.ToolButtonPopupMode.MenuButtonPopup)
                 # add Actions elaboration
@@ -437,8 +459,12 @@ class PyArchInitPlugin(object):
                 self.actionComparision = QAction(QIcon(icon_Comparision), "Comparazione immagini", self.iface.mainWindow())
                 self.actionComparision.setWhatsThis("Comparazione immagini")
                 self.actionComparision.triggered.connect(self.runComparision)
+                icon_Archeozoology = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'iconZoo.png'))
+                self.actionArcheozoology = QAction(QIcon(icon_Archeozoology), "Archeozoologia", self.iface.mainWindow())
+                self.actionArcheozoology.setWhatsThis("Archeozoologia - Quantificazioni faunistiche")
+                self.actionArcheozoology.triggered.connect(self.runArcheozoology)
                 self.elabToolButton.addActions(
-                    [self.actionComparision, self.actionGisTimeController])
+                    [self.actionComparision, self.actionArcheozoology, self.actionGisTimeController])
                 self.elabToolButton.setDefaultAction(self.actionComparision)
                 self.toolBar.addWidget(self.elabToolButton)
                 self.toolBar.addSeparator()
@@ -514,7 +540,7 @@ class PyArchInitPlugin(object):
             self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionPer)
             self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionSchedaind)
             self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionTomba)
-            if self.PARAMS_DICT['EXPERIMENTAL'] == 'Si':
+            if self.is_experimental_enabled():
                 self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionDetsesso)
                 self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionDeteta)
             self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionUT)
@@ -524,8 +550,8 @@ class PyArchInitPlugin(object):
             self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionpdfExp)
             self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionImages_Directory_export)
             self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionGisTimeController)
-            if self.PARAMS_DICT['EXPERIMENTAL'] == 'Si':
-                #self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionArcheozoology)
+            if self.is_experimental_enabled():
+                self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionArcheozoology)
                 self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionComparision)
             self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionTops)    
             self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionPrint)
@@ -542,15 +568,15 @@ class PyArchInitPlugin(object):
             self.menu.addActions([self.actionPer, self.actionStruttura])
             self.menu.addSeparator()
             self.menu.addActions([self.actionTomba, self.actionSchedaind])
-            if self.PARAMS_DICT['EXPERIMENTAL'] == 'Si':
+            if self.is_experimental_enabled():
                 self.menu.addActions([self.actionDetsesso, self.actionDeteta])
             self.menu.addSeparator()
-            #if self.PARAMS_DICT['EXPERIMENTAL'] == 'Si':
+            #if self.is_experimental_enabled():
             self.menu.addActions([self.actionUT])
             self.menu.addActions([self.actionDocumentazione,self.actionimageViewer, self.actionpdfExp, self.actionImages_Directory_export,self.actionExcel,self.actionGisTimeController])
             self.menu.addSeparator()
-            if self.PARAMS_DICT['EXPERIMENTAL'] == 'Si':
-                self.menu.addActions([ self.actionComparision])
+            if self.is_experimental_enabled():
+                self.menu.addActions([self.actionArcheozoology, self.actionComparision])
             self.menu.addSeparator()
             self.menu.addActions([self.actionTops])
             self.menu.addSeparator()
@@ -664,7 +690,7 @@ class PyArchInitPlugin(object):
             self.actionTomba = QAction(QIcon(icon_Tomba), "Taphonomy", self.iface.mainWindow())
             self.actionTomba.setWhatsThis("Taphonomy")
             self.actionTomba.triggered.connect(self.runTomba)
-            if self.PARAMS_DICT['EXPERIMENTAL'] == 'Yes':
+            if self.is_experimental_enabled():
                 icon_Detsesso = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'iconSesso.png'))
                 self.actionDetsesso = QAction(QIcon(icon_Detsesso), "Sex determination", self.iface.mainWindow())
                 self.actionDetsesso.setWhatsThis("Sex determination")
@@ -675,12 +701,12 @@ class PyArchInitPlugin(object):
                 self.actionDeteta.triggered.connect(self.runDeteta)
             self.funeraryToolButton.addActions([self.actionSchedaind, self.actionTomba])
             self.funeraryToolButton.setDefaultAction(self.actionSchedaind)
-            if self.PARAMS_DICT['EXPERIMENTAL'] == 'Yes':
+            if self.is_experimental_enabled():
                 self.funeraryToolButton.addActions([self.actionDetsesso, self.actionDeteta])
             self.toolBar.addWidget(self.funeraryToolButton)
             self.toolBar.addSeparator()
             ######  Section dedicated to the topographical research
-            if self.PARAMS_DICT['EXPERIMENTAL'] == 'Yes':
+            if self.is_experimental_enabled():
                 self.topoToolButton = QToolButton(self.toolBar)
                 self.topoToolButton.setPopupMode(QToolButton.ToolButtonPopupMode.MenuButtonPopup)
                 icon_UT = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'iconUT.png'))
@@ -731,7 +757,7 @@ class PyArchInitPlugin(object):
             self.toolBar.addWidget(self.docToolButton)
             self.toolBar.addSeparator()
             ######  Section dedicated to elaborations
-            if self.PARAMS_DICT['EXPERIMENTAL'] == 'Yes':
+            if self.is_experimental_enabled():
                 self.elabToolButton = QToolButton(self.toolBar)
                 self.elabToolButton.setPopupMode(QToolButton.ToolButtonPopupMode.MenuButtonPopup)
                 # add Actions elaboration
@@ -743,8 +769,12 @@ class PyArchInitPlugin(object):
                 self.actionComparision = QAction(QIcon(icon_Comparision), "Image comparison", self.iface.mainWindow())
                 self.actionComparision.setWhatsThis("Image comparison")
                 self.actionComparision.triggered.connect(self.runComparision)
+                icon_Archeozoology = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'iconZoo.png'))
+                self.actionArcheozoology = QAction(QIcon(icon_Archeozoology), "Archeozoology", self.iface.mainWindow())
+                self.actionArcheozoology.setWhatsThis("Archeozoology - Faunal quantification")
+                self.actionArcheozoology.triggered.connect(self.runArcheozoology)
                 self.elabToolButton.addActions(
-                    [self.actionComparision, self.actionGisTimeController])
+                    [self.actionComparision, self.actionArcheozoology, self.actionGisTimeController])
                 self.elabToolButton.setDefaultAction(self.actionComparision)
                 self.toolBar.addWidget(self.elabToolButton)
                 self.toolBar.addSeparator()
@@ -819,7 +849,7 @@ class PyArchInitPlugin(object):
             self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionPer)
             self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionSchedaind)
             self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionTomba)
-            if self.PARAMS_DICT['EXPERIMENTAL'] == 'Yes':
+            if self.is_experimental_enabled():
                 self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionDetsesso)
                 self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionDeteta)
                 self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionUT)
@@ -829,8 +859,8 @@ class PyArchInitPlugin(object):
             self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionpdfExp)
             self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionImages_Directory_export)
             self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionGisTimeController)
-            if self.PARAMS_DICT['EXPERIMENTAL'] == 'Yes':
-                #self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionArcheozoology)
+            if self.is_experimental_enabled():
+                self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionArcheozoology)
                 self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionComparision)
 
             self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionTops)
@@ -848,15 +878,15 @@ class PyArchInitPlugin(object):
             self.menu.addActions([self.actionPer, self.actionStruttura])
             self.menu.addSeparator()
             self.menu.addActions([self.actionTomba, self.actionSchedaind])
-            if self.PARAMS_DICT['EXPERIMENTAL'] == 'Yes':
+            if self.is_experimental_enabled():
                 self.menu.addActions([self.actionDetsesso, self.actionDeteta])
             self.menu.addSeparator()
-            if self.PARAMS_DICT['EXPERIMENTAL'] == 'Yes':
+            if self.is_experimental_enabled():
                 self.menu.addActions([self.actionUT])
             self.menu.addActions([self.actionDocumentazione,self.actionimageViewer, self.actionpdfExp, self.actionImages_Directory_export, self.actionExcel])
             self.menu.addSeparator()
-            if self.PARAMS_DICT['EXPERIMENTAL'] == 'Yes':
-                self.menu.addActions([self.actionComparision, self.actionGisTimeController])
+            if self.is_experimental_enabled():
+                self.menu.addActions([self.actionArcheozoology, self.actionComparision, self.actionGisTimeController])
             self.menu.addSeparator() 
             self.menu.addActions([self.actionTops])
 
@@ -970,7 +1000,7 @@ class PyArchInitPlugin(object):
             self.actionTomba = QAction(QIcon(icon_Tomba), "Taphonomie", self.iface.mainWindow())
             self.actionTomba.setWhatsThis("Taphonomie")
             self.actionTomba.triggered.connect(self.runTomba)
-            if self.PARAMS_DICT['EXPERIMENTAL'] == 'Ja':
+            if self.is_experimental_enabled():
                 icon_Detsesso = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'iconSesso.png'))
                 self.actionDetsesso = QAction(QIcon(icon_Detsesso), "Geschlechtsbestimmung", self.iface.mainWindow())
                 self.actionDetsesso.setWhatsThis("Geschlechtsbestimmung")
@@ -981,12 +1011,12 @@ class PyArchInitPlugin(object):
                 self.actionDeteta.triggered.connect(self.runDeteta)
             self.funeraryToolButton.addActions([self.actionSchedaind, self.actionTomba])
             self.funeraryToolButton.setDefaultAction(self.actionSchedaind)
-            if self.PARAMS_DICT['EXPERIMENTAL'] == 'Ja':
+            if self.is_experimental_enabled():
                 self.funeraryToolButton.addActions([self.actionDetsesso, self.actionDeteta])
             self.toolBar.addWidget(self.funeraryToolButton)
             self.toolBar.addSeparator()
             ######  Section dedicated to the topographical research
-            if self.PARAMS_DICT['EXPERIMENTAL'] == 'Ja':
+            if self.is_experimental_enabled():
                 self.topoToolButton = QToolButton(self.toolBar)
                 self.topoToolButton.setPopupMode(QToolButton.ToolButtonPopupMode.MenuButtonPopup)
                 icon_UT = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'iconUT.png'))
@@ -1025,14 +1055,14 @@ class PyArchInitPlugin(object):
             self.actionpdfExp.triggered.connect(self.runPdfexp)
             self.docToolButton.addActions([self.actionDocumentazione,self.actionimageViewer, self.actionpdfExp, self.actionImages_Directory_export, self.actionExcel])
             self.docToolButton.setDefaultAction(self.actionDocumentazione)
-            if self.PARAMS_DICT['EXPERIMENTAL'] == 'Ja':
+            if self.is_experimental_enabled():
                 self.actionImages_Directory_export.setCheckable(True)
                 self.actionpdfExp.setCheckable(True)
                 self.actionimageViewer.setCheckable(True)
             self.toolBar.addWidget(self.docToolButton)
             self.toolBar.addSeparator()
             ######  Section dedicated to elaborations
-            if self.PARAMS_DICT['EXPERIMENTAL'] == 'Ja':
+            if self.is_experimental_enabled():
                 self.elabToolButton = QToolButton(self.toolBar)
                 self.elabToolButton.setPopupMode(QToolButton.ToolButtonPopupMode.MenuButtonPopup)
                 # add Actions elaboration
@@ -1044,8 +1074,12 @@ class PyArchInitPlugin(object):
                 self.actionComparision = QAction(QIcon(icon_Comparision), "Bildvergleich", self.iface.mainWindow())
                 self.actionComparision.setWhatsThis("Bildvergleich")
                 self.actionComparision.triggered.connect(self.runComparision)
+                icon_Archeozoology = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'iconZoo.png'))
+                self.actionArcheozoology = QAction(QIcon(icon_Archeozoology), "Archäozoologie", self.iface.mainWindow())
+                self.actionArcheozoology.setWhatsThis("Archäozoologie - Faunistische Quantifizierungen")
+                self.actionArcheozoology.triggered.connect(self.runArcheozoology)
                 self.elabToolButton.addActions(
-                    [ self.actionComparision, self.actionGisTimeController])
+                    [self.actionComparision, self.actionArcheozoology, self.actionGisTimeController])
                 self.elabToolButton.setDefaultAction(self.actionComparision)
                 self.toolBar.addWidget(self.elabToolButton)
                 self.toolBar.addSeparator()
@@ -1053,8 +1087,8 @@ class PyArchInitPlugin(object):
             self.manageToolButton = QToolButton(self.toolBar)
             self.manageToolButton.setPopupMode(QToolButton.ToolButtonPopupMode.MenuButtonPopup)
             icon_tops = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'tops.png'))
-            self.actionTops = QAction(QIcon(icon_tops), "Import data from TOPS", self.iface.mainWindow())
-            self.actionTops.setWhatsThis("Import data from TOPS")
+            self.actionTops = QAction(QIcon(icon_tops), "Daten von TOPS importieren", self.iface.mainWindow())
+            self.actionTops.setWhatsThis("Daten von TOPS importieren")
             self.actionTops.triggered.connect(self.runTops)
             self.manageToolButton.addActions(
                 [self.actionTops])
@@ -1120,7 +1154,7 @@ class PyArchInitPlugin(object):
             self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionPer)
             self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionSchedaind)
             self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionTomba)
-            if self.PARAMS_DICT['EXPERIMENTAL'] == 'Ja':
+            if self.is_experimental_enabled():
                 self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionDetsesso)
                 self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionDeteta)
                 self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionUT)
@@ -1129,8 +1163,8 @@ class PyArchInitPlugin(object):
             self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionimageViewer)
             self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionpdfExp)
             self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionImages_Directory_export)
-            if self.PARAMS_DICT['EXPERIMENTAL'] == 'Ja':
-                #self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionArcheozoology)
+            if self.is_experimental_enabled():
+                self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionArcheozoology)
                 self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionComparision)
                 self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionGisTimeController)
             self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionTops)
@@ -1148,15 +1182,15 @@ class PyArchInitPlugin(object):
             self.menu.addActions([self.actionPer, self.actionStruttura])
             self.menu.addSeparator()
             self.menu.addActions([self.actionTomba, self.actionSchedaind])
-            if self.PARAMS_DICT['EXPERIMENTAL'] == 'Ja':
+            if self.is_experimental_enabled():
                 self.menu.addActions([self.actionDetsesso, self.actionDeteta])
             self.menu.addSeparator()
-            if self.PARAMS_DICT['EXPERIMENTAL'] == 'Ja':
+            if self.is_experimental_enabled():
                 self.menu.addActions([self.actionUT])
             self.menu.addActions([self.actionDocumentazione,self.actionimageViewer, self.actionpdfExp, self.actionImages_Directory_export, self.actionExcel])
             self.menu.addSeparator()
-            if self.PARAMS_DICT['EXPERIMENTAL'] == 'Ja':
-                self.menu.addActions([ self.actionComparision, self.actionGisTimeController])
+            if self.is_experimental_enabled():
+                self.menu.addActions([self.actionArcheozoology, self.actionComparision, self.actionGisTimeController])
             self.menu.addSeparator()
             self.menu.addActions([self.actionTops])
             self.menu.addSeparator()
@@ -1270,7 +1304,7 @@ class PyArchInitPlugin(object):
             self.actionTomba = QAction(QIcon(icon_Tomba), "Taphonomy", self.iface.mainWindow())
             self.actionTomba.setWhatsThis("Taphonomy")
             self.actionTomba.triggered.connect(self.runTomba)
-            if self.PARAMS_DICT['EXPERIMENTAL'] == 'Yes':
+            if self.is_experimental_enabled():
                 icon_Detsesso = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'iconSesso.png'))
                 self.actionDetsesso = QAction(QIcon(icon_Detsesso), "Sex determination", self.iface.mainWindow())
                 self.actionDetsesso.setWhatsThis("Sex determination")
@@ -1281,12 +1315,12 @@ class PyArchInitPlugin(object):
                 self.actionDeteta.triggered.connect(self.runDeteta)
             self.funeraryToolButton.addActions([self.actionSchedaind, self.actionTomba])
             self.funeraryToolButton.setDefaultAction(self.actionSchedaind)
-            if self.PARAMS_DICT['EXPERIMENTAL'] == 'Yes':
+            if self.is_experimental_enabled():
                 self.funeraryToolButton.addActions([self.actionDetsesso, self.actionDeteta])
             self.toolBar.addWidget(self.funeraryToolButton)
             self.toolBar.addSeparator()
             ######  Section dedicated to the topographical research
-            if self.PARAMS_DICT['EXPERIMENTAL'] == 'Yes':
+            if self.is_experimental_enabled():
                 self.topoToolButton = QToolButton(self.toolBar)
                 self.topoToolButton.setPopupMode(QToolButton.ToolButtonPopupMode.MenuButtonPopup)
                 icon_UT = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'iconUT.png'))
@@ -1337,7 +1371,7 @@ class PyArchInitPlugin(object):
             self.toolBar.addWidget(self.docToolButton)
             self.toolBar.addSeparator()
             ######  Section dedicated to elaborations
-            if self.PARAMS_DICT['EXPERIMENTAL'] == 'Yes':
+            if self.is_experimental_enabled():
                 self.elabToolButton = QToolButton(self.toolBar)
                 self.elabToolButton.setPopupMode(QToolButton.ToolButtonPopupMode.MenuButtonPopup)
                 # add Actions elaboration
@@ -1349,8 +1383,12 @@ class PyArchInitPlugin(object):
                 self.actionComparision = QAction(QIcon(icon_Comparision), "Image comparison", self.iface.mainWindow())
                 self.actionComparision.setWhatsThis("Image comparison")
                 self.actionComparision.triggered.connect(self.runComparision)
+                icon_Archeozoology = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'iconZoo.png'))
+                self.actionArcheozoology = QAction(QIcon(icon_Archeozoology), "Archeozoology", self.iface.mainWindow())
+                self.actionArcheozoology.setWhatsThis("Archeozoology - Faunal quantification")
+                self.actionArcheozoology.triggered.connect(self.runArcheozoology)
                 self.elabToolButton.addActions(
-                    [self.actionComparision, self.actionGisTimeController])
+                    [self.actionComparision, self.actionArcheozoology, self.actionGisTimeController])
                 self.elabToolButton.setDefaultAction(self.actionComparision)
                 self.toolBar.addWidget(self.elabToolButton)
                 self.toolBar.addSeparator()
@@ -1425,7 +1463,7 @@ class PyArchInitPlugin(object):
             self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionPer)
             self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionSchedaind)
             self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionTomba)
-            if self.PARAMS_DICT['EXPERIMENTAL'] == 'Yes':
+            if self.is_experimental_enabled():
                 self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionDetsesso)
                 self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionDeteta)
                 self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionUT)
@@ -1435,8 +1473,8 @@ class PyArchInitPlugin(object):
             self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionpdfExp)
             self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionImages_Directory_export)
             self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionGisTimeController)
-            if self.PARAMS_DICT['EXPERIMENTAL'] == 'Yes':
-                #self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionArcheozoology)
+            if self.is_experimental_enabled():
+                self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionArcheozoology)
                 self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionComparision)
 
             self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionTops)
@@ -1454,15 +1492,15 @@ class PyArchInitPlugin(object):
             self.menu.addActions([self.actionPer, self.actionStruttura])
             self.menu.addSeparator()
             self.menu.addActions([self.actionTomba, self.actionSchedaind])
-            if self.PARAMS_DICT['EXPERIMENTAL'] == 'Yes':
+            if self.is_experimental_enabled():
                 self.menu.addActions([self.actionDetsesso, self.actionDeteta])
             self.menu.addSeparator()
-            if self.PARAMS_DICT['EXPERIMENTAL'] == 'Yes':
+            if self.is_experimental_enabled():
                 self.menu.addActions([self.actionUT])
             self.menu.addActions([self.actionDocumentazione,self.actionimageViewer, self.actionpdfExp, self.actionImages_Directory_export, self.actionExcel])
             self.menu.addSeparator()
-            if self.PARAMS_DICT['EXPERIMENTAL'] == 'Yes':
-                self.menu.addActions([self.actionComparision, self.actionGisTimeController])
+            if self.is_experimental_enabled():
+                self.menu.addActions([self.actionArcheozoology, self.actionComparision, self.actionGisTimeController])
             self.menu.addSeparator() 
             self.menu.addActions([self.actionTops])
 
@@ -1609,10 +1647,10 @@ class PyArchInitPlugin(object):
         pluginEta = pyarchinit_Deteta(self.iface)
         pluginEta.show()
         self.pluginGui = pluginEta  # save
-    # def runArcheozoology(self):
-        # pluginArchezoology = pyarchinit_Archeozoology(self.iface)
-        # pluginArchezoology.show()
-        # self.pluginGui = pluginArchezoology  # save
+    def runArcheozoology(self):
+        pluginArchezoology = pyarchinit_Archeozoology(self.iface)
+        pluginArchezoology.show()
+        self.pluginGui = pluginArchezoology  # save
     def runUT(self):
         pluginUT = pyarchinit_UT(self.iface)
         pluginUT.show()
@@ -1664,11 +1702,11 @@ class PyArchInitPlugin(object):
             self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionTomba)
             self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionDocumentazione)
             self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionExcel)
-            if self.PARAMS_DICT['EXPERIMENTAL'] == 'Si':
+            if self.is_experimental_enabled():
                 self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionDetsesso)
                 self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionDeteta)
                 self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionTomba)
-                #self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionArcheozoology)
+                self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionArcheozoology)
 
                 self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionimageViewer)
                 self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionImages_Directory_export)
@@ -1696,10 +1734,10 @@ class PyArchInitPlugin(object):
             self.iface.removeToolBarIcon(self.actionSchedaind)
             self.iface.removeToolBarIcon(self.actionDocumentazione)
             self.iface.removeToolBarIcon(self.actionExcel)
-            if self.PARAMS_DICT['EXPERIMENTAL'] == 'Si':
+            if self.is_experimental_enabled():
                 self.iface.removeToolBarIcon(self.actionDetsesso)
                 self.iface.removeToolBarIcon(self.actionDeteta)
-                #self.iface.removeToolBarIcon(self.actionArcheozoology)
+                self.iface.removeToolBarIcon(self.actionArcheozoology)
 
                 # self.iface.removeToolBarIcon(self.actionUpd)
                 self.iface.removeToolBarIcon(self.actionimageViewer)
@@ -1740,11 +1778,11 @@ class PyArchInitPlugin(object):
             self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionTomba)
             self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionDocumentazione)
             self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionExcel)
-            if self.PARAMS_DICT['EXPERIMENTAL'] == 'Yes':
+            if self.is_experimental_enabled():
                 self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionDetsesso)
                 self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionDeteta)
                 self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionTomba)
-                #self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionArcheozoology)
+                self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionArcheozoology)
                 self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionUT)
                 self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionimageViewer)
                 self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionImages_Directory_export)
@@ -1771,10 +1809,10 @@ class PyArchInitPlugin(object):
             self.iface.removeToolBarIcon(self.actionSchedaind)
             self.iface.removeToolBarIcon(self.actionDocumentazione)
             self.iface.removeToolBarIcon(self.actionExcel)
-            if self.PARAMS_DICT['EXPERIMENTAL'] == 'Yes':
+            if self.is_experimental_enabled():
                 self.iface.removeToolBarIcon(self.actionDetsesso)
                 self.iface.removeToolBarIcon(self.actionDeteta)
-                #self.iface.removeToolBarIcon(self.actionArcheozoology)
+                self.iface.removeToolBarIcon(self.actionArcheozoology)
                 self.iface.removeToolBarIcon(self.actionUT)
                 # self.iface.removeToolBarIcon(self.actionUpd)
                 self.iface.removeToolBarIcon(self.actionimageViewer)
@@ -1808,11 +1846,11 @@ class PyArchInitPlugin(object):
             self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionTomba)
             self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionDocumentazione)
             self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionExcel)
-            if self.PARAMS_DICT['EXPERIMENTAL'] == 'Ja':
+            if self.is_experimental_enabled():
                 self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionDetsesso)
                 self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionDeteta)
                 self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionTomba)
-                #self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionArcheozoology)
+                self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionArcheozoology)
                 self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionUT)
                 self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionimageViewer)
                 self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionImages_Directory_export)
@@ -1839,10 +1877,10 @@ class PyArchInitPlugin(object):
             self.iface.removeToolBarIcon(self.actionSchedaind)
             self.iface.removeToolBarIcon(self.actionDocumentazione)
             self.iface.removeToolBarIcon(self.actionExcel)
-            if self.PARAMS_DICT['EXPERIMENTAL'] == 'Ja':
+            if self.is_experimental_enabled():
                 self.iface.removeToolBarIcon(self.actionDetsesso)
                 self.iface.removeToolBarIcon(self.actionDeteta)
-                #self.iface.removeToolBarIcon(self.actionArcheozoology)
+                self.iface.removeToolBarIcon(self.actionArcheozoology)
                 self.iface.removeToolBarIcon(self.actionUT)
                 # self.iface.removeToolBarIcon(self.actionUpd)
                 self.iface.removeToolBarIcon(self.actionimageViewer)
@@ -1876,11 +1914,11 @@ class PyArchInitPlugin(object):
             self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionTomba)
             self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionDocumentazione)
             self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionExcel)
-            if self.PARAMS_DICT['EXPERIMENTAL'] == 'Yes':
+            if self.is_experimental_enabled():
                 self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionDetsesso)
                 self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionDeteta)
                 self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionTomba)
-                #self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionArcheozoology)
+                self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionArcheozoology)
                 self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionUT)
                 self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionimageViewer)
                 self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionImages_Directory_export)
@@ -1907,10 +1945,10 @@ class PyArchInitPlugin(object):
             self.iface.removeToolBarIcon(self.actionSchedaind)
             self.iface.removeToolBarIcon(self.actionDocumentazione)
             self.iface.removeToolBarIcon(self.actionExcel)
-            if self.PARAMS_DICT['EXPERIMENTAL'] == 'Yes':
+            if self.is_experimental_enabled():
                 self.iface.removeToolBarIcon(self.actionDetsesso)
                 self.iface.removeToolBarIcon(self.actionDeteta)
-                #self.iface.removeToolBarIcon(self.actionArcheozoology)
+                self.iface.removeToolBarIcon(self.actionArcheozoology)
                 self.iface.removeToolBarIcon(self.actionUT)
                 # self.iface.removeToolBarIcon(self.actionUpd)
                 self.iface.removeToolBarIcon(self.actionimageViewer)

@@ -29,7 +29,7 @@ def mapper(class_, table, **kwargs):
     """SQLAlchemy 2.0 compatible mapper using registry.map_imperatively()"""
     return mapper_registry.map_imperatively(class_, table, **kwargs)
 
-# from modules.db.entities.ARCHEOZOOLOGY import ARCHEOZOOLOGY
+from modules.db.entities.ARCHEOZOOLOGY import ARCHEOZOOLOGY
 from modules.db.entities.CAMPIONI import CAMPIONI
 from modules.db.entities.DETETA import DETETA
 from modules.db.entities.DETSESSO import DETSESSO
@@ -71,7 +71,7 @@ from modules.db.entities.TOMBA import TOMBA
 from modules.db.entities.US import US
 from modules.db.entities.US_TOIMP import US_TOIMP
 from modules.db.entities.UT import UT
-# from modules.db.structures.Archeozoology_table import Fauna
+from modules.db.structures.Archeozoology_table import Archeozoology_table
 from modules.db.structures.Campioni_table import Campioni_table
 from modules.db.structures.DETETA_table import DETETA_table
 from modules.db.structures.DETSESSO_table import DETSESSO_table
@@ -114,8 +114,8 @@ from modules.db.structures.pyunitastratigrafiche_usm import pyunitastratigrafich
 from modules.db.structures.pyus_negative import pyus_negative
 
 try:
-    # mapper
-    #mapper(ARCHEOZOOLOGY, Fauna.fauna)
+    # mapper - Archeozoology
+    mapper(ARCHEOZOOLOGY, Archeozoology_table.archeozoology_table)
 
     # mapper
     mapper(CAMPIONI, Campioni_table.campioni_table)

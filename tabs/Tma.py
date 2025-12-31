@@ -275,13 +275,13 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             # Create advanced search button
             self.pushButton_advanced_search = QPushButton()
             self.pushButton_advanced_search.setText("Ricerca Avanzata")
-            self.pushButton_advanced_search.setToolTip("Apri ricerca avanzata per US e cassette")
+            self.pushButton_advanced_search.setToolTip(self.tr("Apri ricerca avanzata per US e cassette"))
             self.pushButton_advanced_search.setMinimumHeight(28)
 
             # Create table view button
             self.pushButton_table_view = QPushButton()
             self.pushButton_table_view.setText("Vista Tabella")
-            self.pushButton_table_view.setToolTip("Passa alla vista tabella")
+            self.pushButton_table_view.setToolTip(self.tr("Passa alla vista tabella"))
             self.pushButton_table_view.setMinimumHeight(28)
 
             # Create a horizontal layout for the buttons
@@ -970,16 +970,22 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                     self.setComboBoxEnable(["self.comboBox_sito"], "False")
                     self.setComboBoxEditable(["self.comboBox_sito"], 0)
                 else:
-                    # No records for this site yet
+                    # No records for this site yet - but still set up the form
+                    self.charge_list()
+                    self.comboBox_sito.setEditText(sito_set_str)
+                    self.setComboBoxEnable(["self.comboBox_sito"], "False")
+                    self.setComboBoxEditable(["self.comboBox_sito"], 0)
+                    self.BROWSE_STATUS = "x"
+                    self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
                     if self.L == 'it':
-                        QMessageBox.information(self, "Attenzione", 
-                                                f"Non ci sono record TMA per il sito: '{sito_set_str}'. "
-                                                "Puoi crearne di nuovi o cambiare sito.",
+                        QMessageBox.information(self, "Informazione",
+                                                f"Nessun record TMA trovato per il sito: '{sito_set_str}'. "
+                                                "Puoi crearne di nuovi.",
                                                 QMessageBox.StandardButton.Ok)
                     else:
-                        QMessageBox.information(self, "Warning", 
-                                                f"There are no TMA records for site: '{sito_set_str}'. "
-                                                "You can create new ones or change site.",
+                        QMessageBox.information(self, "Information",
+                                                f"No TMA records found for site: '{sito_set_str}'. "
+                                                "You can create new ones.",
                                                 QMessageBox.StandardButton.Ok)
             else:
                 self.setComboBoxEnable(["self.comboBox_sito"], "True")
@@ -1835,7 +1841,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                     else:
                         # Create missing item
                         empty_item = QTableWidgetItem("")
-                        empty_item.setToolTip("")
+                        empty_item.setToolTip(self.tr(""))
                         self.tableWidget_materiali.setItem(row, col, empty_item)
                 
                 # Column mapping according to setup_materials_table:
@@ -2191,7 +2197,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             for col in range(self.tableWidget_materiali.columnCount()):
                 if not self.tableWidget_materiali.item(row, col):
                     empty_item = QTableWidgetItem("")
-                    empty_item.setToolTip("")
+                    empty_item.setToolTip(self.tr(""))
                     self.tableWidget_materiali.setItem(row, col, empty_item)
                     
         finally:
@@ -3050,7 +3056,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         # Range selection
         range_layout = QHBoxLayout()
         use_range = QCheckBox("Usa intervallo US (es. da US 1 a US 23)")
-        use_range.setToolTip("Attiva per cercare tutte le US in un intervallo numerico")
+        use_range.setToolTip(self.tr("Attiva per cercare tutte le US in un intervallo numerico"))
         range_layout.addWidget(use_range)
 
         range_layout.addWidget(QLabel("Da US:"))
@@ -3685,20 +3691,40 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             
             # Prepare data for PDF - pass as list [record, materials, thumbnail]
             data = [current_tma, materials, thumbnail_path]
+
+            # Generate PDF with language support
+            pdf_path = single_TMA_pdf(data, self.L)
             
-            # Generate PDF
-            tma_pdf = single_TMA_pdf(data)
-            pdf_path = tma_pdf.file_path if hasattr(tma_pdf, 'file_path') else self.PDFFOLDER
-            
+            # Multilingual success message
             if self.L == 'it':
-                QMessageBox.information(self, "Esportazione completata", 
-                                        f"Scheda TMA esportata con successo!\nFile: {pdf_path}", 
+                QMessageBox.information(self, "Esportazione completata",
+                                        f"Scheda TMA esportata con successo!\nFile: {pdf_path}",
+                                        QMessageBox.StandardButton.Ok)
+            elif self.L == 'de':
+                QMessageBox.information(self, "Export abgeschlossen",
+                                        f"TMA-Formular erfolgreich exportiert!\nDatei: {pdf_path}",
+                                        QMessageBox.StandardButton.Ok)
+            elif self.L == 'fr':
+                QMessageBox.information(self, "Exportation terminée",
+                                        f"Fiche TMA exportée avec succès!\nFichier: {pdf_path}",
+                                        QMessageBox.StandardButton.Ok)
+            elif self.L == 'es':
+                QMessageBox.information(self, "Exportación completada",
+                                        f"¡Ficha TMA exportada con éxito!\nArchivo: {pdf_path}",
+                                        QMessageBox.StandardButton.Ok)
+            elif self.L == 'ar':
+                QMessageBox.information(self, "اكتمل التصدير",
+                                        f"تم تصدير بطاقة TMA بنجاح!\nالملف: {pdf_path}",
+                                        QMessageBox.StandardButton.Ok)
+            elif self.L == 'ca':
+                QMessageBox.information(self, "Exportació completada",
+                                        f"Fitxa TMA exportada amb èxit!\nFitxer: {pdf_path}",
                                         QMessageBox.StandardButton.Ok)
             else:
-                QMessageBox.information(self, "Export completed", 
-                                        f"TMA form exported successfully!\nFile: {pdf_path}", 
+                QMessageBox.information(self, "Export completed",
+                                        f"TMA form exported successfully!\nFile: {pdf_path}",
                                         QMessageBox.StandardButton.Ok)
-            
+
             # Open the PDF file
             if platform.system() == "Windows":
                 os.startfile(pdf_path)
@@ -3706,9 +3732,18 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                 subprocess.Popen(["open", pdf_path])
             else:
                 subprocess.Popen(["xdg-open", pdf_path])
-                
+
         except Exception as e:
-            QMessageBox.warning(self, "Errore", f"Errore nell'esportazione PDF: {str(e)}", QMessageBox.StandardButton.Ok)
+            if self.L == 'it':
+                QMessageBox.warning(self, "Errore", f"Errore nell'esportazione PDF: {str(e)}", QMessageBox.StandardButton.Ok)
+            elif self.L == 'de':
+                QMessageBox.warning(self, "Fehler", f"Fehler beim PDF-Export: {str(e)}", QMessageBox.StandardButton.Ok)
+            elif self.L == 'fr':
+                QMessageBox.warning(self, "Erreur", f"Erreur d'exportation PDF: {str(e)}", QMessageBox.StandardButton.Ok)
+            elif self.L == 'es':
+                QMessageBox.warning(self, "Error", f"Error en la exportación PDF: {str(e)}", QMessageBox.StandardButton.Ok)
+            else:
+                QMessageBox.warning(self, "Error", f"PDF export error: {str(e)}", QMessageBox.StandardButton.Ok)
     
     def on_pushButton_export_tma_pdf_pressed(self):
         """Export current TMA record to PDF using the specific TMA template."""
@@ -5095,26 +5130,73 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         try:
             # Get all TMA records
             tma_list = self.DB_MANAGER.query('TMA')
-            
+
             if not tma_list:
-                QMessageBox.warning(self, "Attenzione", "Nessun record TMA trovato nel database", QMessageBox.StandardButton.Ok)
+                if self.L == 'it':
+                    QMessageBox.warning(self, "Attenzione", "Nessun record TMA trovato nel database", QMessageBox.StandardButton.Ok)
+                elif self.L == 'de':
+                    QMessageBox.warning(self, "Achtung", "Keine TMA-Datensätze in der Datenbank gefunden", QMessageBox.StandardButton.Ok)
+                else:
+                    QMessageBox.warning(self, "Warning", "No TMA records found in the database", QMessageBox.StandardButton.Ok)
                 return
-            
+
             # Generate PDF for all records
             from ..modules.utility.pyarchinit_exp_Tmasheet_pdf import generate_tma_pdf
-            
-            # Generate PDF for each TMA record
+
+            # Generate PDF for each TMA record with language support
             for tma in tma_list:
                 pdf_generator = generate_tma_pdf([tma])
-                pdf_generator.create_sheet()
-            
+                # Call the appropriate language-specific method
+                if self.L == 'it':
+                    pdf_generator.create_sheet_it()
+                elif self.L == 'de':
+                    pdf_generator.create_sheet_de()
+                elif self.L == 'en':
+                    pdf_generator.create_sheet_en()
+                elif self.L == 'fr':
+                    pdf_generator.create_sheet_fr()
+                elif self.L == 'es':
+                    pdf_generator.create_sheet_es()
+                elif self.L == 'ar':
+                    pdf_generator.create_sheet_ar()
+                elif self.L == 'ca':
+                    pdf_generator.create_sheet_ca()
+                else:
+                    pdf_generator.create_sheet_it()  # Default to Italian
+
             HOME = os.environ['PYARCHINIT_HOME']
             PDF_path = os.path.join(HOME, "pyarchinit_PDF_folder")
-            msg = f"Tutte le schede TMA esportate in:\n{PDF_path}\n\nTotale schede: {len(tma_list)}"
-            QMessageBox.information(self, "Esportazione completata", msg, QMessageBox.StandardButton.Ok)
-            
+
+            # Multilingual success message
+            if self.L == 'it':
+                msg = f"Tutte le schede TMA esportate in:\n{PDF_path}\n\nTotale schede: {len(tma_list)}"
+                QMessageBox.information(self, "Esportazione completata", msg, QMessageBox.StandardButton.Ok)
+            elif self.L == 'de':
+                msg = f"Alle TMA-Formulare exportiert nach:\n{PDF_path}\n\nGesamtzahl: {len(tma_list)}"
+                QMessageBox.information(self, "Export abgeschlossen", msg, QMessageBox.StandardButton.Ok)
+            elif self.L == 'fr':
+                msg = f"Toutes les fiches TMA exportées dans:\n{PDF_path}\n\nTotal fiches: {len(tma_list)}"
+                QMessageBox.information(self, "Exportation terminée", msg, QMessageBox.StandardButton.Ok)
+            elif self.L == 'es':
+                msg = f"Todas las fichas TMA exportadas en:\n{PDF_path}\n\nTotal fichas: {len(tma_list)}"
+                QMessageBox.information(self, "Exportación completada", msg, QMessageBox.StandardButton.Ok)
+            elif self.L == 'ar':
+                msg = f"تم تصدير جميع بطاقات TMA إلى:\n{PDF_path}\n\nإجمالي البطاقات: {len(tma_list)}"
+                QMessageBox.information(self, "اكتمل التصدير", msg, QMessageBox.StandardButton.Ok)
+            elif self.L == 'ca':
+                msg = f"Totes les fitxes TMA exportades a:\n{PDF_path}\n\nTotal fitxes: {len(tma_list)}"
+                QMessageBox.information(self, "Exportació completada", msg, QMessageBox.StandardButton.Ok)
+            else:
+                msg = f"All TMA forms exported to:\n{PDF_path}\n\nTotal forms: {len(tma_list)}"
+                QMessageBox.information(self, "Export completed", msg, QMessageBox.StandardButton.Ok)
+
         except Exception as e:
-            QMessageBox.critical(self, "Errore", f"Errore nella generazione del PDF: {str(e)}", QMessageBox.StandardButton.Ok)
+            if self.L == 'it':
+                QMessageBox.critical(self, "Errore", f"Errore nella generazione del PDF: {str(e)}", QMessageBox.StandardButton.Ok)
+            elif self.L == 'de':
+                QMessageBox.critical(self, "Fehler", f"Fehler bei der PDF-Generierung: {str(e)}", QMessageBox.StandardButton.Ok)
+            else:
+                QMessageBox.critical(self, "Error", f"Error generating PDF: {str(e)}", QMessageBox.StandardButton.Ok)
 
     def print_tma_list(self):
         """Print filtered TMA list."""

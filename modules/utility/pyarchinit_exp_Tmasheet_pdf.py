@@ -161,7 +161,47 @@ class generate_tma_pdf:
                                 leftMargin=20*mm, rightMargin=20*mm)
         
         doc.build(elements, canvasmaker=NumberedCanvas_TMAsheet)
-        
+
+    def create_sheet_it(self):
+        """Italian version - same as default create_sheet"""
+        return self.create_sheet()
+
+    def create_sheet_de(self):
+        """German version of TMA sheet - uses Italian structure.
+        TODO: Add proper German translations for all labels.
+        """
+        return self.create_sheet()
+
+    def create_sheet_en(self):
+        """English version of TMA sheet - uses Italian structure.
+        TODO: Add proper English translations for all labels.
+        """
+        return self.create_sheet()
+
+    def create_sheet_fr(self):
+        """French version of TMA sheet - uses Italian structure.
+        TODO: Add proper French translations for all labels.
+        """
+        return self.create_sheet()
+
+    def create_sheet_es(self):
+        """Spanish version of TMA sheet - uses Italian structure.
+        TODO: Add proper Spanish translations for all labels.
+        """
+        return self.create_sheet()
+
+    def create_sheet_ar(self):
+        """Arabic version of TMA sheet - uses Italian structure.
+        TODO: Add proper Arabic translations for all labels.
+        """
+        return self.create_sheet()
+
+    def create_sheet_ca(self):
+        """Catalan version of TMA sheet - uses Italian structure.
+        TODO: Add proper Catalan translations for all labels.
+        """
+        return self.create_sheet()
+
     def _create_header(self):
         """Create header with title and optional image"""
         elements = []
@@ -540,8 +580,31 @@ class generate_tma_pdf:
         return []
 
 
-def single_TMA_pdf(data):
-    """Function to generate a single TMA PDF"""
+def single_TMA_pdf(data, lang='it'):
+    """Function to generate a single TMA PDF
+
+    Args:
+        data: TMA data for the PDF
+        lang: Language code ('it', 'de', 'en', 'fr', 'es', 'ar', 'ca')
+    """
     tma_pdf = generate_tma_pdf(data)
-    tma_pdf.create_sheet()
+
+    # Call the appropriate language-specific method
+    if lang == 'it':
+        tma_pdf.create_sheet_it()
+    elif lang == 'de':
+        tma_pdf.create_sheet_de()
+    elif lang == 'en':
+        tma_pdf.create_sheet_en()
+    elif lang == 'fr':
+        tma_pdf.create_sheet_fr()
+    elif lang == 'es':
+        tma_pdf.create_sheet_es()
+    elif lang == 'ar':
+        tma_pdf.create_sheet_ar()
+    elif lang == 'ca':
+        tma_pdf.create_sheet_ca()
+    else:
+        tma_pdf.create_sheet_it()  # Default to Italian
+
     return tma_pdf.file_path

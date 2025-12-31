@@ -1200,7 +1200,19 @@ class Pyarchinit_db_management(object):
                 arg[38],
                 arg[39],
                 arg[40],
-                arg[41])
+                arg[41],
+                # New survey fields (v4.9.21+)
+                arg[42] if len(arg) > 42 else None,  # visibility_percent
+                arg[43] if len(arg) > 43 else '',    # vegetation_coverage
+                arg[44] if len(arg) > 44 else '',    # gps_method
+                arg[45] if len(arg) > 45 else None,  # coordinate_precision
+                arg[46] if len(arg) > 46 else '',    # survey_type
+                arg[47] if len(arg) > 47 else '',    # surface_condition
+                arg[48] if len(arg) > 48 else '',    # accessibility
+                arg[49] if len(arg) > 49 else 0,     # photo_documentation
+                arg[50] if len(arg) > 50 else '',    # weather_conditions
+                arg[51] if len(arg) > 51 else '',    # team_members
+                arg[52] if len(arg) > 52 else '')    # foglio_catastale
 
         return ut
 
@@ -3423,7 +3435,7 @@ class Pyarchinit_db_management(object):
         Flexible search for tagged images with optional parameters and LIKE patterns.
 
         Args:
-            entity_type: 'US', 'CERAMICA', 'REPERTO', 'TOMBA', 'STRUTTURA' or None for all
+            entity_type: 'US', 'CERAMICA', 'REPERTO', 'TOMBA', 'STRUTTURA', 'UT' or None for all
             sito: Site name (exact or LIKE pattern if use_like=True)
             area: Area (exact or LIKE pattern if use_like=True)
             us: Stratigraphic unit (exact or LIKE pattern if use_like=True)
@@ -3543,6 +3555,21 @@ class Pyarchinit_db_management(object):
                     conditions.append("b.sito LIKE '%{0}%'".format(sito.replace("'", "''")))
                 else:
                     conditions.append("b.sito = '{0}'".format(sito.replace("'", "''")))
+
+        elif entity_type == 'UT':
+            base_query = """
+                SELECT DISTINCT c.filepath, a.media_name, b.progetto, b.nr_ut
+                FROM media_to_entity_table a
+                JOIN ut_table b ON b.id_ut = a.id_entity
+                JOIN media_thumb_table c ON c.id_media = a.id_media
+                WHERE a.entity_type = 'UT'
+            """
+            if sito:
+                if use_like:
+                    conditions.append("b.progetto LIKE '%{0}%'".format(sito.replace("'", "''")))
+                else:
+                    conditions.append("b.progetto = '{0}'".format(sito.replace("'", "''")))
+
         else:
             # All entity types - generic search
             base_query = """

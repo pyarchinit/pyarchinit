@@ -22,9 +22,11 @@
 from __future__ import absolute_import
 import os
 import sys
-from qgis.PyQt.QtWidgets import QDialog, QMessageBox, QTableWidgetItem
+from qgis.PyQt.QtWidgets import QDialog, QMessageBox, QTableWidgetItem, QListWidgetItem, QAbstractItemView
+from qgis.PyQt.QtCore import Qt
 from qgis.PyQt.uic import loadUiType
 from qgis.core import QgsSettings
+from ..modules.utility.remote_image_loader import load_icon, get_image_path
 from ..modules.db.pyarchinit_conn_strings import Connection
 from ..modules.db.pyarchinit_db_manager import get_db_manager
 from ..modules.db.pyarchinit_utility import Utility
@@ -112,7 +114,19 @@ class pyarchinit_UT(QDialog, MAIN_DIALOG_CLASS):
             'Interpretazione II': 'interpretazione_II',
             'Documentazione': 'documentazione',
             'Enti tutela_vincoli': 'enti_tutela_vincoli',
-            'Indagini preliminari': 'indagini_preliminari'
+            'Indagini preliminari': 'indagini_preliminari',
+            # New survey fields (v4.9.21+)
+            'Visibilita percento': 'visibility_percent',
+            'Copertura vegetazione': 'vegetation_coverage',
+            'Metodo GPS': 'gps_method',
+            'Precisione coordinate': 'coordinate_precision',
+            'Tipo survey': 'survey_type',
+            'Condizione superficie': 'surface_condition',
+            'Accessibilita': 'accessibility',
+            'Documentazione foto': 'photo_documentation',
+            'Condizioni meteo': 'weather_conditions',
+            'Membri team': 'team_members',
+            'Foglio catastale': 'foglio_catastale'
         }
         SORT_ITEMS = [
             ID_TABLE,
@@ -156,7 +170,19 @@ class pyarchinit_UT(QDialog, MAIN_DIALOG_CLASS):
             'Interpretazione II',
             'Documentazione',
             'Enti tutela_vincoli',
-            'Indagini preliminari'
+            'Indagini preliminari',
+            # New survey fields (v4.9.21+)
+            'Visibilita percento',
+            'Copertura vegetazione',
+            'Metodo GPS',
+            'Precisione coordinate',
+            'Tipo survey',
+            'Condizione superficie',
+            'Accessibilita',
+            'Documentazione foto',
+            'Condizioni meteo',
+            'Membri team',
+            'Foglio catastale'
         ]
     elif L=='de':
         CONVERSION_DICT = {
@@ -201,7 +227,19 @@ class pyarchinit_UT(QDialog, MAIN_DIALOG_CLASS):
             'Interpretation II': 'interpretazione_II',
             'Dokumentation': 'documentazione',
             'Entitäten Schutz und Einschränkungen': 'enti_tutela_vincoli',
-            'Voruntersuchungen': 'indagini_preliminari'
+            'Voruntersuchungen': 'indagini_preliminari',
+            # New survey fields (v4.9.21+)
+            'Sichtbarkeit Prozent': 'visibility_percent',
+            'Vegetationsbedeckung': 'vegetation_coverage',
+            'GPS-Methode': 'gps_method',
+            'Koordinatengenauigkeit': 'coordinate_precision',
+            'Survey-Typ': 'survey_type',
+            'Oberflächenzustand': 'surface_condition',
+            'Erreichbarkeit': 'accessibility',
+            'Fotodokumentation': 'photo_documentation',
+            'Wetterbedingungen': 'weather_conditions',
+            'Teammitglieder': 'team_members',
+            'Katasterblatt': 'foglio_catastale'
         }
         SORT_ITEMS = [
             ID_TABLE,
@@ -245,7 +283,19 @@ class pyarchinit_UT(QDialog, MAIN_DIALOG_CLASS):
             'Interpretation II',
             'Dokumentation',
             'Entitäten Schutz und Einschränkungen',
-            'Voruntersuchungen'
+            'Voruntersuchungen',
+            # New survey fields (v4.9.21+)
+            'Sichtbarkeit Prozent',
+            'Vegetationsbedeckung',
+            'GPS-Methode',
+            'Koordinatengenauigkeit',
+            'Survey-Typ',
+            'Oberflächenzustand',
+            'Erreichbarkeit',
+            'Fotodokumentation',
+            'Wetterbedingungen',
+            'Teammitglieder',
+            'Katasterblatt'
         ]
     else:
         CONVERSION_DICT = {
@@ -290,7 +340,19 @@ class pyarchinit_UT(QDialog, MAIN_DIALOG_CLASS):
             'Interpretation II': 'interpretazione_II',
             'Documentation': 'documentazione',
             'Company fconstraints': 'enti_tutela_vincoli',
-            'Preliminary investigation': 'indagini_preliminari'
+            'Preliminary investigation': 'indagini_preliminari',
+            # New survey fields (v4.9.21+)
+            'Visibility percent': 'visibility_percent',
+            'Vegetation coverage': 'vegetation_coverage',
+            'GPS method': 'gps_method',
+            'Coordinate precision': 'coordinate_precision',
+            'Survey type': 'survey_type',
+            'Surface condition': 'surface_condition',
+            'Accessibility': 'accessibility',
+            'Photo documentation': 'photo_documentation',
+            'Weather conditions': 'weather_conditions',
+            'Team members': 'team_members',
+            'Cadastral sheet': 'foglio_catastale'
         }
         SORT_ITEMS = [
             ID_TABLE,
@@ -334,8 +396,20 @@ class pyarchinit_UT(QDialog, MAIN_DIALOG_CLASS):
             'Interpretation II',
             'Documentation',
             'Company constraints',
-            'Preliminary investigation'
-        ]   
+            'Preliminary investigation',
+            # New survey fields (v4.9.21+)
+            'Visibility percent',
+            'Vegetation coverage',
+            'GPS method',
+            'Coordinate precision',
+            'Survey type',
+            'Surface condition',
+            'Accessibility',
+            'Photo documentation',
+            'Weather conditions',
+            'Team members',
+            'Cadastral sheet'
+        ]
     TABLE_FIELDS = [
         'progetto',
         'nr_ut',
@@ -377,7 +451,19 @@ class pyarchinit_UT(QDialog, MAIN_DIALOG_CLASS):
         'interpretazione_II',
         'documentazione',
         'enti_tutela_vincoli',
-        'indagini_preliminari'
+        'indagini_preliminari',
+        # New survey fields (v4.9.21+)
+        'visibility_percent',
+        'vegetation_coverage',
+        'gps_method',
+        'coordinate_precision',
+        'survey_type',
+        'surface_condition',
+        'accessibility',
+        'photo_documentation',
+        'weather_conditions',
+        'team_members',
+        'foglio_catastale'
     ]
 
     DB_SERVER = "not defined"  ####nuovo sistema sort
@@ -388,6 +474,9 @@ class pyarchinit_UT(QDialog, MAIN_DIALOG_CLASS):
         self.pyQGIS = Pyarchinit_pyqgis(iface)
         self.setupUi(self)
         self.currentLayerId = None
+        # Media setup
+        self.setAcceptDrops(True)
+        self.iconListWidget.setDragDropMode(QAbstractItemView.DragDropMode.DragDrop)
         try:
             self.on_pushButton_connect_pressed()
         except Exception as e:
@@ -864,7 +953,19 @@ class pyarchinit_UT(QDialog, MAIN_DIALOG_CLASS):
                 str(self.lineEdit_interpretazione_II.text()),
                 str(documentazione),
                 str(self.lineEdit_enti_tutela_vincoli.text()),
-                str(self.lineEdit_indagini_preliminari.text()))
+                str(self.lineEdit_indagini_preliminari.text()),
+                # New survey fields (v4.9.21+)
+                self.spinBox_visibility_percent.value() if hasattr(self, 'spinBox_visibility_percent') else None,
+                str(self.comboBox_vegetation_coverage.currentText()) if hasattr(self, 'comboBox_vegetation_coverage') else '',
+                str(self.comboBox_gps_method.currentText()) if hasattr(self, 'comboBox_gps_method') else '',
+                self.doubleSpinBox_coordinate_precision.value() if hasattr(self, 'doubleSpinBox_coordinate_precision') else None,
+                str(self.comboBox_survey_type.currentText()) if hasattr(self, 'comboBox_survey_type') else '',
+                str(self.comboBox_surface_condition.currentText()) if hasattr(self, 'comboBox_surface_condition') else '',
+                str(self.comboBox_accessibility.currentText()) if hasattr(self, 'comboBox_accessibility') else '',
+                1 if hasattr(self, 'checkBox_photo_documentation') and self.checkBox_photo_documentation.isChecked() else 0,
+                str(self.comboBox_weather_conditions.currentText()) if hasattr(self, 'comboBox_weather_conditions') else '',
+                str(self.lineEdit_team_members.text()) if hasattr(self, 'lineEdit_team_members') else '',
+                str(self.lineEdit_foglio_catastale.text()) if hasattr(self, 'lineEdit_foglio_catastale') else '')
             try:
                 self.DB_MANAGER.insert_data_session(data)
                 return 1
@@ -1539,6 +1640,55 @@ class pyarchinit_UT(QDialog, MAIN_DIALOG_CLASS):
             self.lineEdit_interpretazione_II.setText(self.DATA_LIST[self.rec_num].interpretazione_II)
             self.lineEdit_enti_tutela_vincoli.setText(self.DATA_LIST[self.rec_num].enti_tutela_vincoli)
             self.lineEdit_indagini_preliminari.setText(self.DATA_LIST[self.rec_num].indagini_preliminari)
+
+            # New survey fields (v4.9.21+)
+            if hasattr(self.DATA_LIST[self.rec_num], 'visibility_percent'):
+                vis_pct = self.DATA_LIST[self.rec_num].visibility_percent
+                self.spinBox_visibility_percent.setValue(int(vis_pct) if vis_pct is not None else 0)
+
+            if hasattr(self.DATA_LIST[self.rec_num], 'vegetation_coverage'):
+                veg_cov = self.DATA_LIST[self.rec_num].vegetation_coverage
+                self.comboBox_vegetation_coverage.setEditText(str(veg_cov) if veg_cov else "")
+
+            if hasattr(self.DATA_LIST[self.rec_num], 'gps_method'):
+                gps_m = self.DATA_LIST[self.rec_num].gps_method
+                self.comboBox_gps_method.setEditText(str(gps_m) if gps_m else "")
+
+            if hasattr(self.DATA_LIST[self.rec_num], 'coordinate_precision'):
+                coord_prec = self.DATA_LIST[self.rec_num].coordinate_precision
+                self.doubleSpinBox_coordinate_precision.setValue(float(coord_prec) if coord_prec is not None else 0.0)
+
+            if hasattr(self.DATA_LIST[self.rec_num], 'survey_type'):
+                surv_t = self.DATA_LIST[self.rec_num].survey_type
+                self.comboBox_survey_type.setEditText(str(surv_t) if surv_t else "")
+
+            if hasattr(self.DATA_LIST[self.rec_num], 'surface_condition'):
+                surf_c = self.DATA_LIST[self.rec_num].surface_condition
+                self.comboBox_surface_condition.setEditText(str(surf_c) if surf_c else "")
+
+            if hasattr(self.DATA_LIST[self.rec_num], 'accessibility'):
+                access = self.DATA_LIST[self.rec_num].accessibility
+                self.comboBox_accessibility.setEditText(str(access) if access else "")
+
+            if hasattr(self.DATA_LIST[self.rec_num], 'photo_documentation'):
+                photo_doc = self.DATA_LIST[self.rec_num].photo_documentation
+                self.checkBox_photo_documentation.setChecked(bool(photo_doc) if photo_doc is not None else False)
+
+            if hasattr(self.DATA_LIST[self.rec_num], 'weather_conditions'):
+                weather = self.DATA_LIST[self.rec_num].weather_conditions
+                self.comboBox_weather_conditions.setEditText(str(weather) if weather else "")
+
+            if hasattr(self.DATA_LIST[self.rec_num], 'team_members'):
+                team = self.DATA_LIST[self.rec_num].team_members
+                self.lineEdit_team_members.setText(str(team) if team else "")
+
+            if hasattr(self.DATA_LIST[self.rec_num], 'foglio_catastale'):
+                foglio = self.DATA_LIST[self.rec_num].foglio_catastale
+                self.lineEdit_foglio_catastale.setText(str(foglio) if foglio else "")
+
+            # Load media preview
+            self.loadMediaPreview()
+
         except Exception as e:
             QMessageBox.warning(self, "Error", str(e), QMessageBox.StandardButton.Ok)
 
@@ -1601,7 +1751,19 @@ class pyarchinit_UT(QDialog, MAIN_DIALOG_CLASS):
             str(self.lineEdit_interpretazione_II.text()),
             str(documentazione),
             str(self.lineEdit_enti_tutela_vincoli.text()),
-            str(self.lineEdit_indagini_preliminari.text())]  # 4 - provincia
+            str(self.lineEdit_indagini_preliminari.text()),
+            # New survey fields (v4.9.21+)
+            str(self.spinBox_visibility_percent.value()) if hasattr(self, 'spinBox_visibility_percent') else '',
+            str(self.comboBox_vegetation_coverage.currentText()) if hasattr(self, 'comboBox_vegetation_coverage') else '',
+            str(self.comboBox_gps_method.currentText()) if hasattr(self, 'comboBox_gps_method') else '',
+            str(self.doubleSpinBox_coordinate_precision.value()) if hasattr(self, 'doubleSpinBox_coordinate_precision') else '',
+            str(self.comboBox_survey_type.currentText()) if hasattr(self, 'comboBox_survey_type') else '',
+            str(self.comboBox_surface_condition.currentText()) if hasattr(self, 'comboBox_surface_condition') else '',
+            str(self.comboBox_accessibility.currentText()) if hasattr(self, 'comboBox_accessibility') else '',
+            str(1 if hasattr(self, 'checkBox_photo_documentation') and self.checkBox_photo_documentation.isChecked() else 0),
+            str(self.comboBox_weather_conditions.currentText()) if hasattr(self, 'comboBox_weather_conditions') else '',
+            str(self.lineEdit_team_members.text()) if hasattr(self, 'lineEdit_team_members') else '',
+            str(self.lineEdit_foglio_catastale.text()) if hasattr(self, 'lineEdit_foglio_catastale') else '']
 
     def set_LIST_REC_CORR(self):
         self.DATA_LIST_REC_CORR = []
@@ -1639,18 +1801,23 @@ class pyarchinit_UT(QDialog, MAIN_DIALOG_CLASS):
             return 1
 
     def on_pushButton_pdf_exp_pressed(self):
-        if self.L=='it':
-            UT_pdf_sheet = generate_pdf()
-            data_list = self.generate_list_pdf()
+        UT_pdf_sheet = generate_pdf()
+        data_list = self.generate_list_pdf()
+        if self.L == 'it':
             UT_pdf_sheet.build_UT_sheets(data_list)
-        elif self.L=='de':
-            UT_pdf_sheet = generate_pdf()
-            data_list = self.generate_list_pdf()
+        elif self.L == 'de':
             UT_pdf_sheet.build_UT_sheets_de(data_list)
+        elif self.L == 'fr':
+            UT_pdf_sheet.build_UT_sheets_fr(data_list)
+        elif self.L == 'es':
+            UT_pdf_sheet.build_UT_sheets_es(data_list)
+        elif self.L == 'ar':
+            UT_pdf_sheet.build_UT_sheets_ar(data_list)
+        elif self.L == 'ca':
+            UT_pdf_sheet.build_UT_sheets_ca(data_list)
         else:
-            UT_pdf_sheet = generate_pdf()
-            data_list = self.generate_list_pdf()
-            UT_pdf_sheet.build_UT_sheets_en(data_list)  
+            UT_pdf_sheet.build_UT_sheets_en(data_list)
+
     def generate_list_pdf(self):
         data_list = []
         for i in range(len(self.DATA_LIST)):
@@ -1695,7 +1862,19 @@ class pyarchinit_UT(QDialog, MAIN_DIALOG_CLASS):
                 str(self.DATA_LIST[i].interpretazione_II),  # 21 - formazione
                 str(self.DATA_LIST[i].documentazione),  # 21 - formazione
                 str(self.DATA_LIST[i].enti_tutela_vincoli),  # 22 - conservazione
-                str(self.DATA_LIST[i].indagini_preliminari)  # 23 -
+                str(self.DATA_LIST[i].indagini_preliminari),  # 23 -
+                # New survey fields (v4.9.21+)
+                self.DATA_LIST[i].visibility_percent if hasattr(self.DATA_LIST[i], 'visibility_percent') else None,  # 41
+                str(self.DATA_LIST[i].vegetation_coverage) if hasattr(self.DATA_LIST[i], 'vegetation_coverage') and self.DATA_LIST[i].vegetation_coverage else '',  # 42
+                str(self.DATA_LIST[i].gps_method) if hasattr(self.DATA_LIST[i], 'gps_method') and self.DATA_LIST[i].gps_method else '',  # 43
+                self.DATA_LIST[i].coordinate_precision if hasattr(self.DATA_LIST[i], 'coordinate_precision') else None,  # 44
+                str(self.DATA_LIST[i].survey_type) if hasattr(self.DATA_LIST[i], 'survey_type') and self.DATA_LIST[i].survey_type else '',  # 45
+                str(self.DATA_LIST[i].surface_condition) if hasattr(self.DATA_LIST[i], 'surface_condition') and self.DATA_LIST[i].surface_condition else '',  # 46
+                str(self.DATA_LIST[i].accessibility) if hasattr(self.DATA_LIST[i], 'accessibility') and self.DATA_LIST[i].accessibility else '',  # 47
+                self.DATA_LIST[i].photo_documentation if hasattr(self.DATA_LIST[i], 'photo_documentation') else 0,  # 48
+                str(self.DATA_LIST[i].weather_conditions) if hasattr(self.DATA_LIST[i], 'weather_conditions') and self.DATA_LIST[i].weather_conditions else '',  # 49
+                str(self.DATA_LIST[i].team_members) if hasattr(self.DATA_LIST[i], 'team_members') and self.DATA_LIST[i].team_members else '',  # 50
+                str(self.DATA_LIST[i].foglio_catastale) if hasattr(self.DATA_LIST[i], 'foglio_catastale') and self.DATA_LIST[i].foglio_catastale else ''  # 51
             ])
         return data_list
 
@@ -1703,6 +1882,307 @@ class pyarchinit_UT(QDialog, MAIN_DIALOG_CLASS):
         f = open(str(name_file), 'w')
         f.write(str(message))
         f.close()
+
+    # ========== MEDIA MANAGEMENT METHODS ==========
+
+    def loadMediaPreview(self):
+        """Load media thumbnails for current record"""
+        self.iconListWidget.clear()
+        conn = Connection()
+        thumb_path = conn.thumb_path()
+        thumb_path_str = thumb_path['thumb_path']
+
+        try:
+            search_dict = {
+                'id_entity': "'" + str(getattr(self.DATA_LIST[int(self.REC_CORR)], self.ID_TABLE)) + "'",
+                'entity_type': "'UT'"
+            }
+            record_list = self.DB_MANAGER.query_bool(search_dict, 'MEDIATOENTITY')
+            for i in record_list:
+                search_dict = {'id_media': "'" + str(i.id_media) + "'"}
+                u = Utility()
+                search_dict = u.remove_empty_items_fr_dict(search_dict)
+                mediathumb_data = self.DB_MANAGER.query_bool(search_dict, "MEDIA_THUMB")
+                if mediathumb_data:
+                    thumb_path = str(mediathumb_data[0].filepath)
+                    item = QListWidgetItem(str(i.media_name))
+                    item.setData(Qt.ItemDataRole.UserRole, str(i.media_name))
+                    icon = load_icon(get_image_path(thumb_path_str, thumb_path))
+                    item.setIcon(icon)
+                    self.iconListWidget.addItem(item)
+        except Exception as e:
+            pass  # No media found or error loading
+
+    def dropEvent(self, event):
+        """Handle file drop events for media"""
+        mimeData = event.mimeData()
+        accepted_formats = ["jpg", "jpeg", "png", "tiff", "tif", "bmp", "mp4", "avi", "mov", "mkv", "flv", "obj", "stl",
+                            "ply", "fbx", "3ds"]
+
+        if mimeData.hasUrls():
+            for url in mimeData.urls():
+                try:
+                    path = url.toLocalFile()
+                    if os.path.isfile(path):
+                        filename = os.path.basename(path)
+                        filetype = filename.split(".")[-1]
+                        if filetype.lower() in accepted_formats:
+                            self.load_and_process_image(path)
+                        else:
+                            QMessageBox.warning(self, "Error", f"Unsupported file type: {filetype}", QMessageBox.StandardButton.Ok)
+                except Exception as e:
+                    QMessageBox.warning(self, "Error", f"Failed to process the file: {str(e)}", QMessageBox.StandardButton.Ok)
+        super().dropEvent(event)
+
+    def dragEnterEvent(self, event):
+        if event.mimeData().hasUrls():
+            event.acceptProposedAction()
+        else:
+            event.ignore()
+
+    def dragMoveEvent(self, event):
+        event.acceptProposedAction()
+
+    def load_and_process_image(self, path):
+        """Process and add an image to the media database"""
+        from PIL import Image as PILImage
+        import shutil
+
+        conn = Connection()
+        thumb_path = conn.thumb_path()
+        thumb_path_str = thumb_path['thumb_path']
+        thumb_resize = conn.thumb_resize()
+        thumb_resize_str = thumb_resize['thumb_resize']
+
+        filename = os.path.basename(path)
+        filetype = filename.split(".")[-1].lower()
+
+        # Determine media type
+        if filetype in ["jpg", "jpeg", "png", "tiff", "tif", "bmp"]:
+            mediatype = "image"
+        elif filetype in ["mp4", "avi", "mov", "mkv", "flv"]:
+            mediatype = "video"
+        elif filetype in ["obj", "stl", "ply", "fbx", "3ds"]:
+            mediatype = "3d_model"
+        else:
+            mediatype = "other"
+
+        # Get next media ID
+        media_max_num_id = self.DB_MANAGER.max_num_id('MEDIA', 'id_media') + 1
+
+        # Copy file to media folder
+        home = os.environ['PYARCHINIT_HOME']
+        media_path = os.path.join(home, 'pyarchinit_Media_folder')
+        if not os.path.exists(media_path):
+            os.makedirs(media_path)
+        dest_path = os.path.join(media_path, filename)
+        shutil.copy2(path, dest_path)
+
+        # Create thumbnail
+        thumb_filename = f"thumb_{media_max_num_id}_{filename}"
+        thumb_full_path = os.path.join(thumb_path_str, thumb_filename)
+        resize_full_path = os.path.join(thumb_resize_str, thumb_filename)
+
+        try:
+            if mediatype == "image":
+                img = PILImage.open(path)
+                img.thumbnail((200, 200))
+                img.save(thumb_full_path)
+                img.thumbnail((600, 600))
+                img.save(resize_full_path)
+            else:
+                # For non-image files, use a placeholder
+                thumb_full_path = ""
+                resize_full_path = ""
+        except Exception as e:
+            thumb_full_path = ""
+            resize_full_path = ""
+
+        # Insert into database
+        self.insert_record_media(mediatype, filename, filetype, dest_path)
+        if thumb_full_path:
+            self.insert_record_mediathumb(media_max_num_id, mediatype, filename, thumb_filename, filetype, thumb_full_path, resize_full_path)
+
+        # Link to current UT record
+        ut_data = self.generate_UT()
+        if ut_data:
+            for data in ut_data:
+                self.insert_mediaToEntity_rec(data[0], data[1], data[2], media_max_num_id, dest_path, filename)
+
+        # Refresh display
+        self.loadMediaPreview()
+
+    def insert_record_media(self, mediatype, filename, filetype, filepath):
+        """Insert media record into database"""
+        try:
+            data = self.DB_MANAGER.insert_media_values(
+                self.DB_MANAGER.max_num_id('MEDIA', 'id_media') + 1,
+                str(mediatype),
+                str(filename),
+                str(filetype),
+                str(filepath),
+                str('Insert description'),
+                str("['imagine']"))
+            self.DB_MANAGER.insert_data_session(data)
+            return 1
+        except Exception as e:
+            QMessageBox.warning(self, "Error", f"Warning inserting media: {str(e)}", QMessageBox.StandardButton.Ok)
+            return 0
+
+    def insert_record_mediathumb(self, media_max_num_id, mediatype, filename, filename_thumb, filetype, filepath_thumb, filepath_resize):
+        """Insert media thumbnail record into database"""
+        try:
+            data = self.DB_MANAGER.insert_mediathumb_values(
+                self.DB_MANAGER.max_num_id('MEDIA_THUMB', 'id_media_thumb') + 1,
+                str(media_max_num_id),
+                str(mediatype),
+                str(filename),
+                str(filename_thumb),
+                str(filetype),
+                str(filepath_thumb),
+                str(filepath_resize))
+            self.DB_MANAGER.insert_data_session(data)
+            return 1
+        except Exception as e:
+            QMessageBox.warning(self, "Error", f"Warning inserting media thumb: {str(e)}", QMessageBox.StandardButton.Ok)
+            return 0
+
+    def insert_mediaToEntity_rec(self, id_entity, entity_type, table_name, id_media, filepath, media_name):
+        """Link media to entity record"""
+        try:
+            data = self.DB_MANAGER.insert_media2entity_values(
+                self.DB_MANAGER.max_num_id('MEDIATOENTITY', 'id_mediaToEntity') + 1,
+                int(id_entity),
+                str(entity_type),
+                str(table_name),
+                int(id_media),
+                str(filepath),
+                str(media_name))
+            self.DB_MANAGER.insert_data_session(data)
+            return 1
+        except Exception as e:
+            if "Integrity" in str(e):
+                pass  # Already linked
+            else:
+                QMessageBox.warning(self, "Error", f"Warning linking media: {str(e)}", QMessageBox.StandardButton.Ok)
+            return 0
+
+    def delete_mediaToEntity_rec(self, id_entity, entity_type, table_name, id_media, filepath, media_name):
+        """Unlink media from entity record"""
+        try:
+            search_dict = {
+                'id_entity': "'" + str(id_entity) + "'",
+                'entity_type': "'" + str(entity_type) + "'",
+                'id_media': "'" + str(id_media) + "'"
+            }
+            records = self.DB_MANAGER.query_bool(search_dict, 'MEDIATOENTITY')
+            for rec in records:
+                self.DB_MANAGER.delete_one_record('MEDIATOENTITY', 'id_mediaToEntity', rec.id_mediaToEntity)
+            return 1
+        except Exception as e:
+            QMessageBox.warning(self, "Error", f"Warning unlinking media: {str(e)}", QMessageBox.StandardButton.Ok)
+            return 0
+
+    def on_pushButton_removetags_pressed(self):
+        """Remove tags from selected media items"""
+        def get_ut_id():
+            progetto = self.comboBox_progetto.currentText()
+            nr_ut = self.comboBox_nr_ut.currentText()
+            search_dict = {
+                'progetto': "'" + str(progetto) + "'",
+                'nr_ut': "'" + str(nr_ut) + "'"
+            }
+            j = self.DB_MANAGER.query_bool(search_dict, 'UT')
+            if j:
+                return j[0].id_ut
+            return None
+
+        items_selected = self.iconListWidget.selectedItems()
+        if not items_selected:
+            if self.L == 'it':
+                QMessageBox.warning(self, "Attenzione!!!", "Devi selezionare prima l'immagine", QMessageBox.StandardButton.Ok)
+            elif self.L == 'de':
+                QMessageBox.warning(self, "Warnung", "Sie müssen zuerst das Bild auswählen", QMessageBox.StandardButton.Ok)
+            else:
+                QMessageBox.warning(self, "Warning", "You must first select an image", QMessageBox.StandardButton.Ok)
+            return
+
+        if self.L == 'it':
+            msg = QMessageBox.warning(self, "Attenzione",
+                                      "Vuoi veramente rimuovere i tag dalle thumbnail selezionate?\nL'azione è irreversibile",
+                                      QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel)
+        elif self.L == 'de':
+            msg = QMessageBox.warning(self, "Warnung",
+                                      "Möchten Sie die Tags wirklich aus den ausgewählten Thumbnails entfernen?\nDie Aktion ist irreversibel",
+                                      QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel)
+        else:
+            msg = QMessageBox.warning(self, "Warning",
+                                      "Do you really want to remove the tags from the selected thumbnails?\nThe action is irreversible",
+                                      QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel)
+
+        if msg == QMessageBox.StandardButton.Cancel:
+            return
+
+        ut_id = get_ut_id()
+        if ut_id:
+            for item in items_selected:
+                id_orig_item = item.text()
+                self.DB_MANAGER.remove_tags_from_db_sql_scheda(ut_id, id_orig_item)
+            self.loadMediaPreview()
+
+    def on_pushButton_search_images_pressed(self):
+        """Open the Image Search dialog with pre-filled filters for current UT record."""
+        from .Image_search import pyarchinit_Image_Search
+
+        # Get current record context
+        progetto = self.comboBox_progetto.currentText() if hasattr(self, 'comboBox_progetto') else ''
+        nr_ut = self.comboBox_nr_ut.currentText() if hasattr(self, 'comboBox_nr_ut') else ''
+
+        # Open Image Search dialog
+        dialog = pyarchinit_Image_Search(self.iface, self)
+
+        # Set pre-filled filters for UT
+        dialog.comboBox_entity_type.setCurrentText('UT')
+        if progetto:
+            index = dialog.comboBox_sito.findText(progetto)
+            if index >= 0:
+                dialog.comboBox_sito.setCurrentIndex(index)
+            else:
+                dialog.comboBox_sito.setCurrentText(progetto)
+
+        dialog.show()
+
+    def generate_UT(self):
+        """Generate UT entity data for media linking"""
+        record_list = []
+        progetto = self.comboBox_progetto.currentText()
+        nr_ut = self.comboBox_nr_ut.currentText()
+
+        search_dict = {
+            'progetto': "'" + str(progetto) + "'",
+            'nr_ut': "'" + str(nr_ut) + "'"
+        }
+        try:
+            results = self.DB_MANAGER.query_bool(search_dict, 'UT')
+            for r in results:
+                record_list.append([r.id_ut, 'UT', 'ut_table'])
+        except:
+            pass
+        return record_list
+
+    def assignTags_UT(self, item):
+        """Assign media tags to UT entity"""
+        ut_list = self.generate_UT()
+        if not ut_list:
+            return
+
+        for ut_data in ut_list:
+            id_orig_item = item.text()
+            search_dict = {'filename': "'" + str(id_orig_item) + "'"}
+            media_data = self.DB_MANAGER.query_bool(search_dict, 'MEDIA')
+            if media_data:
+                self.insert_mediaToEntity_rec(ut_data[0], ut_data[1], ut_data[2], media_data[0].id_media,
+                                              media_data[0].filepath, media_data[0].filename)
 
 
 ## Class end

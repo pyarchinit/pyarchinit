@@ -1865,7 +1865,33 @@ class single_Tomba_pdf_sheet(object):
 
         t = Table(cell_schema, colWidths=50, rowHeights=None, style=table_style)
 
-        return t    
+        return t
+
+    def create_sheet_fr(self):
+        """French version of Tomba sheet - uses English structure.
+        TODO: Add proper French translations for all labels.
+        """
+        return self.create_sheet_en()
+
+    def create_sheet_es(self):
+        """Spanish version of Tomba sheet - uses English structure.
+        TODO: Add proper Spanish translations for all labels.
+        """
+        return self.create_sheet_en()
+
+    def create_sheet_ar(self):
+        """Arabic version of Tomba sheet - uses English structure.
+        TODO: Add proper Arabic translations for all labels.
+        """
+        return self.create_sheet_en()
+
+    def create_sheet_ca(self):
+        """Catalan version of Tomba sheet - uses English structure.
+        TODO: Add proper Catalan translations for all labels.
+        """
+        return self.create_sheet_en()
+
+
 class generate_tomba_pdf(object):
     L=QgsSettings().value("locale/userLocale", "it", type=str)[:2]
     HOME = os.environ['PYARCHINIT_HOME']
@@ -1909,7 +1935,60 @@ class generate_tomba_pdf(object):
         f = open(filename, "wb")
         doc = SimpleDocTemplate(f)
         doc.build(elements, canvasmaker=NumberedCanvas_TOMBAsheet)
-        f.close()   
+        f.close()
+
+    def build_Tomba_sheets_fr(self, records):
+        """French version"""
+        elements = []
+        for i in range(len(records)):
+            single_tomba_sheet = single_Tomba_pdf_sheet(records[i])
+            elements.append(single_tomba_sheet.create_sheet_fr())
+            elements.append(PageBreak())
+        filename = '{}{}{}'.format(self.PDF_path, os.sep, 'Fiche_Taphonomie.pdf')
+        f = open(filename, "wb")
+        doc = SimpleDocTemplate(f)
+        doc.build(elements, canvasmaker=NumberedCanvas_TOMBAsheet)
+        f.close()
+
+    def build_Tomba_sheets_es(self, records):
+        """Spanish version"""
+        elements = []
+        for i in range(len(records)):
+            single_tomba_sheet = single_Tomba_pdf_sheet(records[i])
+            elements.append(single_tomba_sheet.create_sheet_es())
+            elements.append(PageBreak())
+        filename = '{}{}{}'.format(self.PDF_path, os.sep, 'Ficha_Tafonomia.pdf')
+        f = open(filename, "wb")
+        doc = SimpleDocTemplate(f)
+        doc.build(elements, canvasmaker=NumberedCanvas_TOMBAsheet)
+        f.close()
+
+    def build_Tomba_sheets_ar(self, records):
+        """Arabic version"""
+        elements = []
+        for i in range(len(records)):
+            single_tomba_sheet = single_Tomba_pdf_sheet(records[i])
+            elements.append(single_tomba_sheet.create_sheet_ar())
+            elements.append(PageBreak())
+        filename = '{}{}{}'.format(self.PDF_path, os.sep, 'Bitaqa_Tafonomia.pdf')
+        f = open(filename, "wb")
+        doc = SimpleDocTemplate(f)
+        doc.build(elements, canvasmaker=NumberedCanvas_TOMBAsheet)
+        f.close()
+
+    def build_Tomba_sheets_ca(self, records):
+        """Catalan version"""
+        elements = []
+        for i in range(len(records)):
+            single_tomba_sheet = single_Tomba_pdf_sheet(records[i])
+            elements.append(single_tomba_sheet.create_sheet_ca())
+            elements.append(PageBreak())
+        filename = '{}{}{}'.format(self.PDF_path, os.sep, 'Fitxa_Tafonomia.pdf')
+        f = open(filename, "wb")
+        doc = SimpleDocTemplate(f)
+        doc.build(elements, canvasmaker=NumberedCanvas_TOMBAsheet)
+        f.close()
+
     def build_index_Tomba(self, records, sito):
 
         home = os.environ['PYARCHINIT_HOME']

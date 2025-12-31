@@ -444,7 +444,18 @@ class pyarchinit_Documentazione(QDialog, MAIN_DIALOG_CLASS):
                 for i in res:
                     self.DATA_LIST.append(i)
                 self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
-                self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]  ####darivedere
+
+                # Check if DATA_LIST is empty before accessing index 0
+                if len(self.DATA_LIST) == 0:
+                    if self.L == 'it':
+                        QMessageBox.information(self, "Informazione", f"Nessun record trovato per il sito '{sito_set_str}' in questa scheda.", QMessageBox.StandardButton.Ok)
+                    elif self.L == 'de':
+                        QMessageBox.information(self, "Information", f"Keine Datensätze für die Fundstelle '{sito_set_str}' in dieser Registerkarte gefunden.", QMessageBox.StandardButton.Ok)
+                    else:
+                        QMessageBox.information(self, "Information", f"No records found for site '{sito_set_str}' in this tab.", QMessageBox.StandardButton.Ok)
+                    return
+
+                self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
                 self.fill_fields()
                 self.BROWSE_STATUS = "b"
                 self.SORT_STATUS = "n"
@@ -452,17 +463,14 @@ class pyarchinit_Documentazione(QDialog, MAIN_DIALOG_CLASS):
                 self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR + 1)
                 self.setComboBoxEnable(["self.comboBox_sito_doc"], "False")
             else:
-                pass#
-        except:
-            if self.L=='it':
-            
-                QMessageBox.information(self, "Attenzione" ,"Non esiste questo sito: "'"'+ str(sito_set_str) +'"'" in questa scheda, Per favore distattiva la 'scelta sito' dalla scheda di configurazione plugin per vedere tutti i record oppure crea la scheda",QMessageBox.StandardButton.Ok) 
-            elif self.L=='de':
-            
-                QMessageBox.information(self, "Warnung" , "Es gibt keine solche archäologische Stätte: "'""'+ str(sito_set_str) +'"'" in dieser Registerkarte, Bitte deaktivieren Sie die 'Site-Wahl' in der Plugin-Konfigurationsregisterkarte, um alle Datensätze zu sehen oder die Registerkarte zu erstellen",QMessageBox.StandardButton.Ok) 
+                pass
+        except Exception as e:
+            if self.L == 'it':
+                QMessageBox.warning(self, "Errore", f"Errore durante il caricamento dei dati: {str(e)}", QMessageBox.StandardButton.Ok)
+            elif self.L == 'de':
+                QMessageBox.warning(self, "Fehler", f"Fehler beim Laden der Daten: {str(e)}", QMessageBox.StandardButton.Ok)
             else:
-            
-                QMessageBox.information(self, "Warning" , "There is no such site: "'"'+ str(sito_set_str) +'"'" in this tab, Please disable the 'site choice' from the plugin configuration tab to see all records or create the tab",QMessageBox.StandardButton.Ok) 
+                QMessageBox.warning(self, "Error", f"Error loading data: {str(e)}", QMessageBox.StandardButton.Ok) 
     def generate_list_pdf(self):
         data_list = []
         for i in range(len(self.DATA_LIST)):
@@ -1361,10 +1369,12 @@ class pyarchinit_Documentazione(QDialog, MAIN_DIALOG_CLASS):
             self.DATA_LIST_REC_CORR.append(str(getattr(self.DATA_LIST[self.REC_CORR], i)))
 
     def setComboBoxEnable(self, f, v):
-        """Set enabled state for widgets - uses getattr instead of eval for security"""
-        for fn in field_names:
-            cmd = '{}{}{}{}'.format(fn, '.setEnabled(', v, ')')
-            eval(cmd)
+        """Set enabled state for widgets"""
+        for fn in f:
+            widget_name = fn.replace('self.', '') if fn.startswith('self.') else fn
+            widget = getattr(self, widget_name, None)
+            if widget is not None:
+                widget.setEnabled(v == "True")
 
     def setComboBoxEditable(self, f, n):
         """Set editable state for widgets - uses getattr instead of eval for security"""

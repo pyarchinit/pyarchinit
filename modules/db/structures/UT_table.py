@@ -56,6 +56,18 @@ class UT_table:
                      Column('documentazione', Text),  # 39
                      Column('enti_tutela_vincoli', String(100)),  # 40
                      Column('indagini_preliminari', String(100)),  # 41
+                     # New survey fields (v4.9.21+)
+                     Column('visibility_percent', Integer),  # 42 - Survey visibility (0-100%)
+                     Column('vegetation_coverage', String(255)),  # 43 - Vegetation type/coverage
+                     Column('gps_method', String(100)),  # 44 - GPS method (RTK, DGPS, handheld)
+                     Column('coordinate_precision', Float),  # 45 - GPS precision in meters
+                     Column('survey_type', String(100)),  # 46 - topographic, archaeological, mixed
+                     Column('surface_condition', String(255)),  # 47 - plowed, grass, forest, etc.
+                     Column('accessibility', String(255)),  # 48 - Site accessibility
+                     Column('photo_documentation', Integer),  # 49 - Has photo doc (0/1 boolean)
+                     Column('weather_conditions', String(255)),  # 50 - Weather during survey
+                     Column('team_members', Text),  # 51 - Survey team names
+                     Column('foglio_catastale', String(100)),  # 52 - Cadastral sheet
 
                      # explicit/composite unique constraint.  'name' is optional.
                      UniqueConstraint('progetto', 'nr_ut', 'ut_letterale', name='ID_ut_unico')

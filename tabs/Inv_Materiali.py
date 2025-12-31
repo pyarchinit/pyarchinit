@@ -449,7 +449,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         except Exception as e:
             QMessageBox.warning(self, "Connection system", str(e), QMessageBox.StandardButton.Ok)
         #self.setnone()
-        self.fill_fields()
+        #self.fill_fields()  # Removed - method doesn't exist, called via set_sito()
         #self.lineEdit_num_inv.setText('')
         #self.lineEdit_num_inv.textChanged.connect(self.update)
         self.lineEdit_num_inv.textChanged.connect(self.charge_struttura)
@@ -1269,13 +1269,13 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             self.pushButton_filter_inv = QPushButton(self)
             if self.L == 'it':
                 self.pushButton_filter_inv.setText("Filtra Record")
-                self.pushButton_filter_inv.setToolTip("Filtra i record per Nr. Inventario, Nr. Reperto o Anno")
+                self.pushButton_filter_inv.setToolTip(self.tr("Filtra i record per Nr. Inventario, Nr. Reperto o Anno"))
             elif self.L == 'de':
                 self.pushButton_filter_inv.setText("Filter")
-                self.pushButton_filter_inv.setToolTip("Datensätze nach Inventarnr., Fundnr. oder Jahr filtern")
+                self.pushButton_filter_inv.setToolTip(self.tr("Datensätze nach Inventarnr., Fundnr. oder Jahr filtern"))
             else:
                 self.pushButton_filter_inv.setText("Filter Records")
-                self.pushButton_filter_inv.setToolTip("Filter records by Inventory Nr., Find Nr. or Year")
+                self.pushButton_filter_inv.setToolTip(self.tr("Filter records by Inventory Nr., Find Nr. or Year"))
 
             self.pushButton_filter_inv.setMinimumSize(QSize(80, 25))
             self.pushButton_filter_inv.setMaximumSize(QSize(120, 25))
@@ -3229,7 +3229,16 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                 for i in res:
                     self.DATA_LIST.append(i)
                 self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
-                self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]  ####darivedere
+                # Check if DATA_LIST is empty before accessing index 0
+                if len(self.DATA_LIST) == 0:
+                    if self.L=='it':
+                        QMessageBox.information(self, "Informazione", f"Nessun record trovato per il sito '{sito_set_str}' in questa scheda.", QMessageBox.StandardButton.Ok)
+                    elif self.L=='de':
+                        QMessageBox.information(self, "Information", f"Keine Datensätze für die Fundstelle '{sito_set_str}' in dieser Registerkarte gefunden.", QMessageBox.StandardButton.Ok)
+                    else:
+                        QMessageBox.information(self, "Information", f"No records found for site '{sito_set_str}' in this tab.", QMessageBox.StandardButton.Ok)
+                    return
+                self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
                 self.fill_fields()
                 self.BROWSE_STATUS = "b"
                 self.SORT_STATUS = "n"
@@ -3237,17 +3246,14 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                 self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR + 1)
                 self.setComboBoxEnable(["self.comboBox_sito"], "False")
             else:
-                pass#
-        except:
+                pass
+        except Exception as e:
             if self.L=='it':
-
-                QMessageBox.information(self, "Attenzione" ,"Non esiste questo sito: "'"'+ str(sito_set_str) +'"'" in questa scheda, Per favore distattiva la 'scelta sito' dalla scheda di configurazione plugin per vedere tutti i record oppure crea la scheda",QMessageBox.StandardButton.Ok) 
+                QMessageBox.warning(self, "Errore", f"Errore durante il caricamento dei dati: {str(e)}", QMessageBox.StandardButton.Ok)
             elif self.L=='de':
-
-                QMessageBox.information(self, "Warnung" , "Es gibt keine solche archäologische Stätte: "'""'+ str(sito_set_str) +'"'" in dieser Registerkarte, Bitte deaktivieren Sie die 'Site-Wahl' in der Plugin-Konfigurationsregisterkarte, um alle Datensätze zu sehen oder die Registerkarte zu erstellen",QMessageBox.StandardButton.Ok) 
+                QMessageBox.warning(self, "Fehler", f"Fehler beim Laden der Daten: {str(e)}", QMessageBox.StandardButton.Ok)
             else:
-
-                QMessageBox.information(self, "Warning" , "There is no such site: "'"'+ str(sito_set_str) +'"'" in this tab, Please disable the 'site choice' from the plugin configuration tab to see all records or create the tab",QMessageBox.StandardButton.Ok)  
+                QMessageBox.warning(self, "Error", f"Error loading data: {str(e)}", QMessageBox.StandardButton.Ok)  
 
     def on_pushButton_sort_pressed(self):
         if self.check_record_state() == 1:
@@ -3774,6 +3780,41 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                 except Exception as e :
                     QMessageBox.warning(self, 'Warnung',str(e),QMessageBox.StandardButton.Ok)
 
+        elif self.L=='fr':
+            if self.checkBox_s_us.isChecked():
+                US_pdf_sheet = generate_reperti_pdf()
+                data_list = self.generate_list_pdf()
+                US_pdf_sheet.build_Finds_sheets_fr(data_list)
+                QMessageBox.warning(self, 'Ok',"Exportation des fiches terminée",QMessageBox.StandardButton.Ok)
+            else:
+                pass
+
+        elif self.L=='es':
+            if self.checkBox_s_us.isChecked():
+                US_pdf_sheet = generate_reperti_pdf()
+                data_list = self.generate_list_pdf()
+                US_pdf_sheet.build_Finds_sheets_es(data_list)
+                QMessageBox.warning(self, 'Ok',"Exportación de fichas completada",QMessageBox.StandardButton.Ok)
+            else:
+                pass
+
+        elif self.L=='ar':
+            if self.checkBox_s_us.isChecked():
+                US_pdf_sheet = generate_reperti_pdf()
+                data_list = self.generate_list_pdf()
+                US_pdf_sheet.build_Finds_sheets_ar(data_list)
+                QMessageBox.warning(self, 'Ok',"اكتمل تصدير البطاقات",QMessageBox.StandardButton.Ok)
+            else:
+                pass
+
+        elif self.L=='ca':
+            if self.checkBox_s_us.isChecked():
+                US_pdf_sheet = generate_reperti_pdf()
+                data_list = self.generate_list_pdf()
+                US_pdf_sheet.build_Finds_sheets_ca(data_list)
+                QMessageBox.warning(self, 'Ok',"Exportació de fitxes completada",QMessageBox.StandardButton.Ok)
+            else:
+                pass
 
         else:
             if self.checkBox_s_us.isChecked():
@@ -5429,6 +5470,118 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                                                         self.ID_TABLE)
             for i in temp_data_list:
                 self.DATA_LIST.append(i)
+
+    def fill_fields(self, n=0):
+        self.rec_num = n
+        try:
+            if str(self.DATA_LIST[self.rec_num].numero_inventario) == 'None':
+                num_inv = ''
+            else:
+                num_inv = str(self.DATA_LIST[self.rec_num].numero_inventario)
+
+            if str(self.DATA_LIST[self.rec_num].area) == 'None':
+                area = ''
+            else:
+                area = str(self.DATA_LIST[self.rec_num].area)
+
+            if str(self.DATA_LIST[self.rec_num].us) == 'None':
+                us = ''
+            else:
+                us = str(self.DATA_LIST[self.rec_num].us)
+
+            if str(self.DATA_LIST[self.rec_num].nr_cassa) == 'None':
+                nr_cassa = ''
+            else:
+                nr_cassa = str(self.DATA_LIST[self.rec_num].nr_cassa)
+
+            if str(self.DATA_LIST[self.rec_num].forme_minime) == 'None':
+                forme_minime = ''
+            else:
+                forme_minime = str(self.DATA_LIST[self.rec_num].forme_minime)
+
+            if str(self.DATA_LIST[self.rec_num].forme_massime) == 'None':
+                forme_massime = ''
+            else:
+                forme_massime = str(self.DATA_LIST[self.rec_num].forme_massime)
+
+            if str(self.DATA_LIST[self.rec_num].totale_frammenti) == 'None':
+                totale_frammenti = ''
+            else:
+                totale_frammenti = str(self.DATA_LIST[self.rec_num].totale_frammenti)
+
+            if str(self.DATA_LIST[self.rec_num].n_reperto) == 'None':
+                n_reperto = ''
+            else:
+                n_reperto = str(self.DATA_LIST[self.rec_num].n_reperto)
+
+            self.comboBox_sito.setEditText(self.DATA_LIST[self.rec_num].sito)
+            self.lineEdit_num_inv.setText(num_inv)
+            self.comboBox_tipo_reperto.setEditText(self.DATA_LIST[self.rec_num].tipo_reperto)
+            self.comboBox_criterio_schedatura.setEditText(self.DATA_LIST[self.rec_num].criterio_schedatura)
+            self.comboBox_definizione.setEditText(self.DATA_LIST[self.rec_num].definizione)
+            self.textEdit_descrizione_reperto.setText(self.DATA_LIST[self.rec_num].descrizione)
+            self.comboBox_area.setEditText(area)
+            self.lineEdit_us.setText(us)
+            self.comboBox_lavato.setEditText(str(self.DATA_LIST[self.rec_num].lavato))
+            self.lineEdit_nr_cassa.setText(nr_cassa)
+            self.comboBox_magazzino.setEditText(str(self.DATA_LIST[self.rec_num].luogo_conservazione))
+            self.comboBox_conservazione.setEditText(str(self.DATA_LIST[self.rec_num].stato_conservazione))
+            self.comboBox_datazione.setEditText(str(self.DATA_LIST[self.rec_num].datazione_reperto))
+
+            self.tableInsertData("self.tableWidget_elementi_reperto", self.DATA_LIST[self.rec_num].elementi_reperto)
+            self.tableInsertData("self.tableWidget_misurazioni", self.DATA_LIST[self.rec_num].misurazioni)
+            self.tableInsertData("self.tableWidget_rif_biblio", self.DATA_LIST[self.rec_num].rif_biblio)
+            self.tableInsertData("self.tableWidget_tecnologie", self.DATA_LIST[self.rec_num].tecnologie)
+
+            self.lineEditFormeMin.setText(forme_minime)
+            self.lineEditFormeMax.setText(forme_massime)
+            self.lineEditTotFram.setText(totale_frammenti)
+            self.lineEditRivestimento.setText(str(self.DATA_LIST[self.rec_num].rivestimento))
+            self.lineEditCorpoCeramico.setText(str(self.DATA_LIST[self.rec_num].corpo_ceramico))
+
+            if self.DATA_LIST[self.rec_num].diametro_orlo is None:
+                self.lineEdit_diametro_orlo.setText("")
+            else:
+                self.lineEdit_diametro_orlo.setText(str(self.DATA_LIST[self.rec_num].diametro_orlo))
+
+            if self.DATA_LIST[self.rec_num].peso is None:
+                self.lineEdit_peso.setText("")
+            else:
+                self.lineEdit_peso.setText(str(self.DATA_LIST[self.rec_num].peso))
+
+            self.comboBox_tipologia.setEditText(str(self.DATA_LIST[self.rec_num].tipo))
+
+            if self.DATA_LIST[self.rec_num].eve_orlo is None:
+                self.lineEdit_eve_orlo.setText("")
+            else:
+                self.lineEdit_eve_orlo.setText(str(self.DATA_LIST[self.rec_num].eve_orlo))
+
+            self.comboBox_repertato.setEditText(str(self.DATA_LIST[self.rec_num].repertato))
+            self.comboBox_diagnostico.setEditText(str(self.DATA_LIST[self.rec_num].diagnostico))
+            self.lineEdit_n_reperto.setText(n_reperto)
+            self.comboBox_tipo_contenitore.setEditText(str(self.DATA_LIST[self.rec_num].tipo_contenitore))
+            self.comboBox_struttura.setEditText(str(self.DATA_LIST[self.rec_num].struttura))
+            self.comboBox_year.setEditText(str(self.DATA_LIST[self.rec_num].years))
+
+            if self.toolButtonPreviewMedia.isChecked():
+                self.loadMediaPreview()
+            self.loadMapPreview()
+        except:
+            pass
+
+    def set_rec_counter(self, t, c):
+        self.rec_tot = t
+        self.rec_corr = c
+        self.label_rec_tot.setText(str(self.rec_tot))
+        self.label_rec_corrente.setText(str(self.rec_corr))
+
+    def setComboBoxEnable(self, f, v):
+        """Set enabled state for widgets"""
+        for fn in f:
+            widget_name = fn.replace('self.', '') if fn.startswith('self.') else fn
+            widget = getattr(self, widget_name, None)
+            if widget is not None:
+                widget.setEnabled(v == "True")
 
     def setComboBoxEditable(self, f, n):
         """Set editable state for widgets - uses getattr instead of eval for security"""

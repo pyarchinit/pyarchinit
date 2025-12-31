@@ -257,6 +257,880 @@ class single_pottery_pdf_sheet:
         ])  #finale
         return styles
 
+    def create_sheet_it(self):
+        """Italian version of Pottery sheet"""
+        styleSheet = getSampleStyleSheet()
+        stylogo = styleSheet['Normal']
+        stylogo.spaceBefore = 20
+        stylogo.spaceAfter = 20
+        stylogo.alignment = 1  # LEFT
+        styleSheet = getSampleStyleSheet()
+        styInt = styleSheet['Normal']
+        styInt.spaceBefore = 20
+        styInt.spaceAfter = 20
+        styInt.fontSize = 8
+        styInt.alignment = 1  # LEFT
+        styleSheet = getSampleStyleSheet()
+        styNormal = styleSheet['Normal']
+        styNormal.spaceBefore = 20
+        styNormal.spaceAfter = 20
+        styNormal.fontSize = 6
+        styNormal.alignment = 0  # LEFT
+        styleSheet = getSampleStyleSheet()
+        styDescrizione = styleSheet['Normal']
+        styDescrizione.spaceBefore = 20
+        styDescrizione.spaceAfter = 20
+        styDescrizione.fontSize = 6
+        styDescrizione.alignment = 4  # Justified
+        styleSheet = getSampleStyleSheet()
+        styUnitaTipo = styleSheet['Normal']
+        styUnitaTipo.spaceBefore = 20
+        styUnitaTipo.spaceAfter = 20
+        styUnitaTipo.fontSize = 14
+        styUnitaTipo.alignment = 1  # CENTER
+        styleSheet = getSampleStyleSheet()
+        styTitoloComponenti = styleSheet['Normal']
+        styTitoloComponenti.spaceBefore = 20
+        styTitoloComponenti.spaceAfter = 20
+        styTitoloComponenti.fontSize = 6
+        styTitoloComponenti.alignment = 1  # CENTER
+        intestazione = Paragraph("<b>Ricognizione Archeologica Subacquea - SCHEDA CERAMICA<br/>" + "</b>", styInt)
+        home = os.environ['PYARCHINIT_HOME']
+        home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
+        logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.png')
+        logo = Image(logo_path)
+        logo.drawHeight = 0.5*inch*logo.drawHeight / logo.drawWidth
+        logo.drawWidth = 0.5*inch
+        logo_path2 = '{}{}{}'.format(home_DB_path, os.sep, 'logo2.png')
+        logo2 = Image(logo_path2)
+        logo2.drawHeight = 0.5*inch*logo2.drawHeight / logo2.drawWidth
+        logo2.drawWidth = 0.5*inch
+        #1 row
+        divelog_id = Paragraph("<b>ID Immersione</b><br/>"  + str(self.divelog_id), styNormal)
+        artefact_id = Paragraph("<b>ID Reperto</b><br/>"  + self.artefact_id, styNormal)
+        sito = Paragraph("<b>Sito</b><br/>"  + self.sito, styNormal)
+        area = Paragraph("<b>Area</b><br/>"  + self.area, styNormal)
+        fabric = Paragraph("<b>Inclusi</b><br/>"  + self.fabric, styNormal)
+        specific_shape = Paragraph("<b>Forma</b><br/>"  + self.specific_shape, styNormal)
+        specific_part = Paragraph("<b>Parte Specifica</b><br/>"  + self.specific_part, styNormal)
+        category = Paragraph("<b>Categoria</b><br/>"  + self.category, styNormal)
+        typology = Paragraph("<b>Tipologia</b><br/>"  + self.typology, styNormal)
+        depth = Paragraph("<b>Profondità</b><br/>"  + self.depth, styNormal)
+        retrieved = Paragraph("<b>Recuperato</b><br/>"  + self.retrieved, styNormal)
+        percent = Paragraph("<b>Percentuale inclusi</b><br/>"  + self.percent , styNormal)
+        provenience=Paragraph("<b>Provenienza</b><br/>"  + self.provenience, styNormal)
+        munsell = Paragraph("<b>Munsell Argilla</b><br/>"  + self.munsell, styNormal)
+        munsell_surf = Paragraph("<b>Munsell Superfici</b><br/>"  + self.munsell_surf, styNormal)
+        surf_trat = Paragraph("<b>Trattamento Superficie</b><br/>"  + self.surf_trat, styNormal)
+        treatment = Paragraph("<b>Conservazione</b><br/>"  + self.treatment, styNormal)
+        period = Paragraph("<b>Periodo</b><br/>"  + self.period, styNormal)
+        state = Paragraph("<b>Stato</b><br/>"  + self.state, styNormal)
+        samples = Paragraph("<b>Campioni</b><br/>"  + self.samples, styNormal)
+        diametro_max = Paragraph("<b>Diametro Max</b><br/>"  + str(self.diametro_max), styNormal)
+        diametro_rim = Paragraph("<b>Diametro Orlo</b><br/>"  + str(self.diametro_rim) , styNormal)
+        diametro_bottom = Paragraph("<b>Diametro Fondo</b><br/>"  + str(self.diametro_bottom), styNormal)
+        total_height = Paragraph("<b>Altezza Totale</b><br/>"  + str(self.total_height), styNormal)
+        preserved_height = Paragraph("<b>Altezza Conservata</b><br/>"  + str(self.preserved_height), styNormal)
+        base_height = Paragraph("<b>Altezza Base</b><br/>"  + str(self.base_height), styNormal)
+        thickmin = Paragraph("<b>Spessore Min</b><br/>"  + str(self.thickmin), styNormal)
+        thickmax = Paragraph("<b>Spessore Max</b><br/>"  + str(self.thickmax), styNormal)
+        description = Paragraph("<b>Descrizione</b><br/>"  + self.description, styNormal)
+        data_ = Paragraph("<b>Data</b><br/>"  + self.data_, styNormal)
+        anno = Paragraph("<b>Anno</b><br/>"  + str(self.anno), styNormal)
+        photographed = Paragraph("<b>Fotografato</b><br/>"  + self.photographed, styNormal)
+        drawing = Paragraph("<b>Disegno</b><br/>"  + self.drawing, styNormal)
+        wheel_made = Paragraph("<b>Tornito</b><br/>"  + self.wheel_made, styNormal)
+        #schema
+        cell_schema =  [
+                        [logo2, '01', intestazione,'03' , '04','05', '06', '07', '08', '09','10','11','12','13', '14','15',logo,'17'],
+                        [sito, '01', '02', '03', '04','05', '06', '07', '08',artefact_id,'10','11','12','13', '14','15','16','17'],
+                        [divelog_id, '01', '02', '03', '04','05', area, '07', '08', '09','10','11',anno,'13', '14','15','16','17'],
+                        [fabric, '01', '02', '03', '04','05',specific_part, '07', '08', '09','10','11',category,'13', '14','15','16','17'],
+                        [specific_shape, '01', '02', '03', '04','05',  typology, '07', '08', '09','10','11',depth,'13', '14','15','16','17'],
+                        [retrieved, '01', '02', '03', '04','05', percent, '07', '08', '09','10','11',provenience,'13', '14','15','16','17'],
+                        [munsell, '01', '02', '03', '04','05', munsell_surf, '07', '08', '09','10','11',surf_trat,'13', '14','15','16','17'],
+                        [treatment, '01', '02', '03', '04','05',period, '07', '08', '09','10','11',state,'13', '14','15','16','17'],
+                        [samples, '01', '02', '03', '04','05', photographed, '07', '08', '09','10','11',drawing,'13', '14','15',wheel_made,'17'],
+                        [diametro_max, '01', '02', '03', '04','05', diametro_rim, '07', '08', '09','10','11',diametro_bottom,'13', '14','15','16','17'],
+                        [total_height, '01', '02', '03', '04','05', preserved_height, '07', '08', '09','10','11',base_height,'13', '14','15','16','17'],
+                        [thickmin, '01', '02', '03', '04','05',thickmax , '07', '08', '09','10','11',data_,'13', '14','15','16','17'],
+                        [description, '01', '02', '03', '04','05', '06', '07', '08', '09','10','11','12','13', '14','15','16','17'],
+                        ]
+        #table style
+        table_style=[
+                    ('GRID',(0,0),(-1,-1),0.5,colors.black),
+                    ('SPAN', (0,0),(1,0)),
+                    ('SPAN', (2,0),(15,0)),
+                    ('SPAN', (16,0),(17,0)),
+                    ('SPAN', (0,1),(8,1)),
+                    ('SPAN', (9,1),(17,1)),
+                    ('SPAN', (0,2),(5,2)),
+                    ('SPAN', (6,2),(11,2)),
+                    ('SPAN', (12,2),(17,2)),
+                    ('SPAN', (0,3),(5,3)),
+                    ('SPAN', (6,3),(11,3)),
+                    ('SPAN', (12,3),(17,3)),
+                    ('SPAN', (0,4),(5,4)),
+                    ('SPAN', (6,4),(11,4)),
+                    ('SPAN', (12,4),(17,4)),
+                    ('SPAN', (0,5),(5,5)),
+                    ('SPAN', (6,5),(11,5)),
+                    ('SPAN', (12,5),(17,5)),
+                    ('SPAN', (0,6),(5,6)),
+                    ('SPAN', (6,6),(11,6)),
+                    ('SPAN', (12,6),(17,6)),
+                    ('SPAN', (0,7),(5,7)),
+                    ('SPAN', (6,7),(11,7)),
+                    ('SPAN', (12,7),(17,7)),
+                    ('SPAN', (0,8),(5,8)),
+                    ('SPAN', (6,8),(11,8)),
+                    ('SPAN', (12,8),(15,8)),
+                    ('SPAN', (16,8),(17,8)),
+                    ('SPAN', (0,9),(5,9)),
+                    ('SPAN', (6,9),(11,9)),
+                    ('SPAN', (12,9),(17,9)),
+                    ('SPAN', (0,10),(5,10)),
+                    ('SPAN', (6,10),(11,10)),
+                    ('SPAN', (12,10),(17,10)),
+                    ('SPAN', (0,11),(5,11)),
+                    ('SPAN', (6,11),(11,11)),
+                    ('SPAN', (12,11),(17,11)),
+                    ('SPAN', (0,12),(17,12)),
+                    ]
+        colWidths = (15,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30)
+        rowHeights = None
+        t = Table(cell_schema, colWidths=colWidths, rowHeights=rowHeights, style=table_style)
+        return t
+
+    def create_sheet_de(self):
+        """German version of Pottery sheet"""
+        styleSheet = getSampleStyleSheet()
+        stylogo = styleSheet['Normal']
+        stylogo.spaceBefore = 20
+        stylogo.spaceAfter = 20
+        stylogo.alignment = 1  # LEFT
+        styleSheet = getSampleStyleSheet()
+        styInt = styleSheet['Normal']
+        styInt.spaceBefore = 20
+        styInt.spaceAfter = 20
+        styInt.fontSize = 8
+        styInt.alignment = 1  # LEFT
+        styleSheet = getSampleStyleSheet()
+        styNormal = styleSheet['Normal']
+        styNormal.spaceBefore = 20
+        styNormal.spaceAfter = 20
+        styNormal.fontSize = 6
+        styNormal.alignment = 0  # LEFT
+        styleSheet = getSampleStyleSheet()
+        styDescrizione = styleSheet['Normal']
+        styDescrizione.spaceBefore = 20
+        styDescrizione.spaceAfter = 20
+        styDescrizione.fontSize = 6
+        styDescrizione.alignment = 4  # Justified
+        styleSheet = getSampleStyleSheet()
+        styUnitaTipo = styleSheet['Normal']
+        styUnitaTipo.spaceBefore = 20
+        styUnitaTipo.spaceAfter = 20
+        styUnitaTipo.fontSize = 14
+        styUnitaTipo.alignment = 1  # CENTER
+        styleSheet = getSampleStyleSheet()
+        styTitoloComponenti = styleSheet['Normal']
+        styTitoloComponenti.spaceBefore = 20
+        styTitoloComponenti.spaceAfter = 20
+        styTitoloComponenti.fontSize = 6
+        styTitoloComponenti.alignment = 1  # CENTER
+        intestazione = Paragraph("<b>Archäologische Unterwasservermessung - KERAMIK FORMULAR<br/>" + "</b>", styInt)
+        home = os.environ['PYARCHINIT_HOME']
+        home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
+        logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.png')
+        logo = Image(logo_path)
+        logo.drawHeight = 0.5*inch*logo.drawHeight / logo.drawWidth
+        logo.drawWidth = 0.5*inch
+        logo_path2 = '{}{}{}'.format(home_DB_path, os.sep, 'logo2.png')
+        logo2 = Image(logo_path2)
+        logo2.drawHeight = 0.5*inch*logo2.drawHeight / logo2.drawWidth
+        logo2.drawWidth = 0.5*inch
+        #1 row
+        divelog_id = Paragraph("<b>Tauch-ID</b><br/>"  + str(self.divelog_id), styNormal)
+        artefact_id = Paragraph("<b>Artefakt-ID</b><br/>"  + self.artefact_id, styNormal)
+        sito = Paragraph("<b>Fundort</b><br/>"  + self.sito, styNormal)
+        area = Paragraph("<b>Bereich</b><br/>"  + self.area, styNormal)
+        fabric = Paragraph("<b>Einschlüsse</b><br/>"  + self.fabric, styNormal)
+        specific_shape = Paragraph("<b>Form</b><br/>"  + self.specific_shape, styNormal)
+        specific_part = Paragraph("<b>Spezifisches Teil</b><br/>"  + self.specific_part, styNormal)
+        category = Paragraph("<b>Kategorie</b><br/>"  + self.category, styNormal)
+        typology = Paragraph("<b>Typologie</b><br/>"  + self.typology, styNormal)
+        depth = Paragraph("<b>Tiefe</b><br/>"  + self.depth, styNormal)
+        retrieved = Paragraph("<b>Geborgen</b><br/>"  + self.retrieved, styNormal)
+        percent = Paragraph("<b>Prozent Einschlüsse</b><br/>"  + self.percent , styNormal)
+        provenience=Paragraph("<b>Herkunft</b><br/>"  + self.provenience, styNormal)
+        munsell = Paragraph("<b>Munsell Ton</b><br/>"  + self.munsell, styNormal)
+        munsell_surf = Paragraph("<b>Munsell Oberfläche</b><br/>"  + self.munsell_surf, styNormal)
+        surf_trat = Paragraph("<b>Oberflächenbehandlung</b><br/>"  + self.surf_trat, styNormal)
+        treatment = Paragraph("<b>Erhaltung</b><br/>"  + self.treatment, styNormal)
+        period = Paragraph("<b>Periode</b><br/>"  + self.period, styNormal)
+        state = Paragraph("<b>Zustand</b><br/>"  + self.state, styNormal)
+        samples = Paragraph("<b>Proben</b><br/>"  + self.samples, styNormal)
+        diametro_max = Paragraph("<b>Max Durchmesser</b><br/>"  + str(self.diametro_max), styNormal)
+        diametro_rim = Paragraph("<b>Randdurchmesser</b><br/>"  + str(self.diametro_rim) , styNormal)
+        diametro_bottom = Paragraph("<b>Bodendurchmesser</b><br/>"  + str(self.diametro_bottom), styNormal)
+        total_height = Paragraph("<b>Gesamthöhe</b><br/>"  + str(self.total_height), styNormal)
+        preserved_height = Paragraph("<b>Erhaltene Höhe</b><br/>"  + str(self.preserved_height), styNormal)
+        base_height = Paragraph("<b>Basishöhe</b><br/>"  + str(self.base_height), styNormal)
+        thickmin = Paragraph("<b>Min Dicke</b><br/>"  + str(self.thickmin), styNormal)
+        thickmax = Paragraph("<b>Max Dicke</b><br/>"  + str(self.thickmax), styNormal)
+        description = Paragraph("<b>Beschreibung</b><br/>"  + self.description, styNormal)
+        data_ = Paragraph("<b>Datum</b><br/>"  + self.data_, styNormal)
+        anno = Paragraph("<b>Jahr</b><br/>"  + str(self.anno), styNormal)
+        photographed = Paragraph("<b>Fotografiert</b><br/>"  + self.photographed, styNormal)
+        drawing = Paragraph("<b>Zeichnung</b><br/>"  + self.drawing, styNormal)
+        wheel_made = Paragraph("<b>Scheibengedreht</b><br/>"  + self.wheel_made, styNormal)
+        #schema
+        cell_schema =  [
+                        [logo2, '01', intestazione,'03' , '04','05', '06', '07', '08', '09','10','11','12','13', '14','15',logo,'17'],
+                        [sito, '01', '02', '03', '04','05', '06', '07', '08',artefact_id,'10','11','12','13', '14','15','16','17'],
+                        [divelog_id, '01', '02', '03', '04','05', area, '07', '08', '09','10','11',anno,'13', '14','15','16','17'],
+                        [fabric, '01', '02', '03', '04','05',specific_part, '07', '08', '09','10','11',category,'13', '14','15','16','17'],
+                        [specific_shape, '01', '02', '03', '04','05',  typology, '07', '08', '09','10','11',depth,'13', '14','15','16','17'],
+                        [retrieved, '01', '02', '03', '04','05', percent, '07', '08', '09','10','11',provenience,'13', '14','15','16','17'],
+                        [munsell, '01', '02', '03', '04','05', munsell_surf, '07', '08', '09','10','11',surf_trat,'13', '14','15','16','17'],
+                        [treatment, '01', '02', '03', '04','05',period, '07', '08', '09','10','11',state,'13', '14','15','16','17'],
+                        [samples, '01', '02', '03', '04','05', photographed, '07', '08', '09','10','11',drawing,'13', '14','15',wheel_made,'17'],
+                        [diametro_max, '01', '02', '03', '04','05', diametro_rim, '07', '08', '09','10','11',diametro_bottom,'13', '14','15','16','17'],
+                        [total_height, '01', '02', '03', '04','05', preserved_height, '07', '08', '09','10','11',base_height,'13', '14','15','16','17'],
+                        [thickmin, '01', '02', '03', '04','05',thickmax , '07', '08', '09','10','11',data_,'13', '14','15','16','17'],
+                        [description, '01', '02', '03', '04','05', '06', '07', '08', '09','10','11','12','13', '14','15','16','17'],
+                        ]
+        #table style
+        table_style=[
+                    ('GRID',(0,0),(-1,-1),0.5,colors.black),
+                    ('SPAN', (0,0),(1,0)),
+                    ('SPAN', (2,0),(15,0)),
+                    ('SPAN', (16,0),(17,0)),
+                    ('SPAN', (0,1),(8,1)),
+                    ('SPAN', (9,1),(17,1)),
+                    ('SPAN', (0,2),(5,2)),
+                    ('SPAN', (6,2),(11,2)),
+                    ('SPAN', (12,2),(17,2)),
+                    ('SPAN', (0,3),(5,3)),
+                    ('SPAN', (6,3),(11,3)),
+                    ('SPAN', (12,3),(17,3)),
+                    ('SPAN', (0,4),(5,4)),
+                    ('SPAN', (6,4),(11,4)),
+                    ('SPAN', (12,4),(17,4)),
+                    ('SPAN', (0,5),(5,5)),
+                    ('SPAN', (6,5),(11,5)),
+                    ('SPAN', (12,5),(17,5)),
+                    ('SPAN', (0,6),(5,6)),
+                    ('SPAN', (6,6),(11,6)),
+                    ('SPAN', (12,6),(17,6)),
+                    ('SPAN', (0,7),(5,7)),
+                    ('SPAN', (6,7),(11,7)),
+                    ('SPAN', (12,7),(17,7)),
+                    ('SPAN', (0,8),(5,8)),
+                    ('SPAN', (6,8),(11,8)),
+                    ('SPAN', (12,8),(15,8)),
+                    ('SPAN', (16,8),(17,8)),
+                    ('SPAN', (0,9),(5,9)),
+                    ('SPAN', (6,9),(11,9)),
+                    ('SPAN', (12,9),(17,9)),
+                    ('SPAN', (0,10),(5,10)),
+                    ('SPAN', (6,10),(11,10)),
+                    ('SPAN', (12,10),(17,10)),
+                    ('SPAN', (0,11),(5,11)),
+                    ('SPAN', (6,11),(11,11)),
+                    ('SPAN', (12,11),(17,11)),
+                    ('SPAN', (0,12),(17,12)),
+                    ]
+        colWidths = (15,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30)
+        rowHeights = None
+        t = Table(cell_schema, colWidths=colWidths, rowHeights=rowHeights, style=table_style)
+        return t
+
+    def create_sheet_en(self):
+        """English version of Pottery sheet - same as create_sheet"""
+        return self.create_sheet()
+
+    def create_sheet_fr(self):
+        """French version of Pottery sheet"""
+        styleSheet = getSampleStyleSheet()
+        stylogo = styleSheet['Normal']
+        stylogo.spaceBefore = 20
+        stylogo.spaceAfter = 20
+        stylogo.alignment = 1  # LEFT
+        styleSheet = getSampleStyleSheet()
+        styInt = styleSheet['Normal']
+        styInt.spaceBefore = 20
+        styInt.spaceAfter = 20
+        styInt.fontSize = 8
+        styInt.alignment = 1  # LEFT
+        styleSheet = getSampleStyleSheet()
+        styNormal = styleSheet['Normal']
+        styNormal.spaceBefore = 20
+        styNormal.spaceAfter = 20
+        styNormal.fontSize = 6
+        styNormal.alignment = 0  # LEFT
+        styleSheet = getSampleStyleSheet()
+        styDescrizione = styleSheet['Normal']
+        styDescrizione.spaceBefore = 20
+        styDescrizione.spaceAfter = 20
+        styDescrizione.fontSize = 6
+        styDescrizione.alignment = 4  # Justified
+        styleSheet = getSampleStyleSheet()
+        styUnitaTipo = styleSheet['Normal']
+        styUnitaTipo.spaceBefore = 20
+        styUnitaTipo.spaceAfter = 20
+        styUnitaTipo.fontSize = 14
+        styUnitaTipo.alignment = 1  # CENTER
+        styleSheet = getSampleStyleSheet()
+        styTitoloComponenti = styleSheet['Normal']
+        styTitoloComponenti.spaceBefore = 20
+        styTitoloComponenti.spaceAfter = 20
+        styTitoloComponenti.fontSize = 6
+        styTitoloComponenti.alignment = 1  # CENTER
+        intestazione = Paragraph("<b>Prospection Archéologique Sous-marine - FICHE CÉRAMIQUE<br/>" + "</b>", styInt)
+        home = os.environ['PYARCHINIT_HOME']
+        home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
+        logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.png')
+        logo = Image(logo_path)
+        logo.drawHeight = 0.5*inch*logo.drawHeight / logo.drawWidth
+        logo.drawWidth = 0.5*inch
+        logo_path2 = '{}{}{}'.format(home_DB_path, os.sep, 'logo2.png')
+        logo2 = Image(logo_path2)
+        logo2.drawHeight = 0.5*inch*logo2.drawHeight / logo2.drawWidth
+        logo2.drawWidth = 0.5*inch
+        #1 row
+        divelog_id = Paragraph("<b>ID Plongée</b><br/>"  + str(self.divelog_id), styNormal)
+        artefact_id = Paragraph("<b>ID Artefact</b><br/>"  + self.artefact_id, styNormal)
+        sito = Paragraph("<b>Site</b><br/>"  + self.sito, styNormal)
+        area = Paragraph("<b>Zone</b><br/>"  + self.area, styNormal)
+        fabric = Paragraph("<b>Inclusions</b><br/>"  + self.fabric, styNormal)
+        specific_shape = Paragraph("<b>Forme</b><br/>"  + self.specific_shape, styNormal)
+        specific_part = Paragraph("<b>Partie Spécifique</b><br/>"  + self.specific_part, styNormal)
+        category = Paragraph("<b>Catégorie</b><br/>"  + self.category, styNormal)
+        typology = Paragraph("<b>Typologie</b><br/>"  + self.typology, styNormal)
+        depth = Paragraph("<b>Profondeur</b><br/>"  + self.depth, styNormal)
+        retrieved = Paragraph("<b>Récupéré</b><br/>"  + self.retrieved, styNormal)
+        percent = Paragraph("<b>Pourcentage inclusions</b><br/>"  + self.percent , styNormal)
+        provenience=Paragraph("<b>Provenance</b><br/>"  + self.provenience, styNormal)
+        munsell = Paragraph("<b>Munsell Argile</b><br/>"  + self.munsell, styNormal)
+        munsell_surf = Paragraph("<b>Munsell Surfaces</b><br/>"  + self.munsell_surf, styNormal)
+        surf_trat = Paragraph("<b>Traitement Surface</b><br/>"  + self.surf_trat, styNormal)
+        treatment = Paragraph("<b>Conservation</b><br/>"  + self.treatment, styNormal)
+        period = Paragraph("<b>Période</b><br/>"  + self.period, styNormal)
+        state = Paragraph("<b>État</b><br/>"  + self.state, styNormal)
+        samples = Paragraph("<b>Échantillons</b><br/>"  + self.samples, styNormal)
+        diametro_max = Paragraph("<b>Diamètre Max</b><br/>"  + str(self.diametro_max), styNormal)
+        diametro_rim = Paragraph("<b>Diamètre Bord</b><br/>"  + str(self.diametro_rim) , styNormal)
+        diametro_bottom = Paragraph("<b>Diamètre Fond</b><br/>"  + str(self.diametro_bottom), styNormal)
+        total_height = Paragraph("<b>Hauteur Totale</b><br/>"  + str(self.total_height), styNormal)
+        preserved_height = Paragraph("<b>Hauteur Conservée</b><br/>"  + str(self.preserved_height), styNormal)
+        base_height = Paragraph("<b>Hauteur Base</b><br/>"  + str(self.base_height), styNormal)
+        thickmin = Paragraph("<b>Épaisseur Min</b><br/>"  + str(self.thickmin), styNormal)
+        thickmax = Paragraph("<b>Épaisseur Max</b><br/>"  + str(self.thickmax), styNormal)
+        description = Paragraph("<b>Description</b><br/>"  + self.description, styNormal)
+        data_ = Paragraph("<b>Date</b><br/>"  + self.data_, styNormal)
+        anno = Paragraph("<b>Année</b><br/>"  + str(self.anno), styNormal)
+        photographed = Paragraph("<b>Photographié</b><br/>"  + self.photographed, styNormal)
+        drawing = Paragraph("<b>Dessin</b><br/>"  + self.drawing, styNormal)
+        wheel_made = Paragraph("<b>Tourné</b><br/>"  + self.wheel_made, styNormal)
+        #schema
+        cell_schema =  [
+                        [logo2, '01', intestazione,'03' , '04','05', '06', '07', '08', '09','10','11','12','13', '14','15',logo,'17'],
+                        [sito, '01', '02', '03', '04','05', '06', '07', '08',artefact_id,'10','11','12','13', '14','15','16','17'],
+                        [divelog_id, '01', '02', '03', '04','05', area, '07', '08', '09','10','11',anno,'13', '14','15','16','17'],
+                        [fabric, '01', '02', '03', '04','05',specific_part, '07', '08', '09','10','11',category,'13', '14','15','16','17'],
+                        [specific_shape, '01', '02', '03', '04','05',  typology, '07', '08', '09','10','11',depth,'13', '14','15','16','17'],
+                        [retrieved, '01', '02', '03', '04','05', percent, '07', '08', '09','10','11',provenience,'13', '14','15','16','17'],
+                        [munsell, '01', '02', '03', '04','05', munsell_surf, '07', '08', '09','10','11',surf_trat,'13', '14','15','16','17'],
+                        [treatment, '01', '02', '03', '04','05',period, '07', '08', '09','10','11',state,'13', '14','15','16','17'],
+                        [samples, '01', '02', '03', '04','05', photographed, '07', '08', '09','10','11',drawing,'13', '14','15',wheel_made,'17'],
+                        [diametro_max, '01', '02', '03', '04','05', diametro_rim, '07', '08', '09','10','11',diametro_bottom,'13', '14','15','16','17'],
+                        [total_height, '01', '02', '03', '04','05', preserved_height, '07', '08', '09','10','11',base_height,'13', '14','15','16','17'],
+                        [thickmin, '01', '02', '03', '04','05',thickmax , '07', '08', '09','10','11',data_,'13', '14','15','16','17'],
+                        [description, '01', '02', '03', '04','05', '06', '07', '08', '09','10','11','12','13', '14','15','16','17'],
+                        ]
+        #table style
+        table_style=[
+                    ('GRID',(0,0),(-1,-1),0.5,colors.black),
+                    ('SPAN', (0,0),(1,0)),
+                    ('SPAN', (2,0),(15,0)),
+                    ('SPAN', (16,0),(17,0)),
+                    ('SPAN', (0,1),(8,1)),
+                    ('SPAN', (9,1),(17,1)),
+                    ('SPAN', (0,2),(5,2)),
+                    ('SPAN', (6,2),(11,2)),
+                    ('SPAN', (12,2),(17,2)),
+                    ('SPAN', (0,3),(5,3)),
+                    ('SPAN', (6,3),(11,3)),
+                    ('SPAN', (12,3),(17,3)),
+                    ('SPAN', (0,4),(5,4)),
+                    ('SPAN', (6,4),(11,4)),
+                    ('SPAN', (12,4),(17,4)),
+                    ('SPAN', (0,5),(5,5)),
+                    ('SPAN', (6,5),(11,5)),
+                    ('SPAN', (12,5),(17,5)),
+                    ('SPAN', (0,6),(5,6)),
+                    ('SPAN', (6,6),(11,6)),
+                    ('SPAN', (12,6),(17,6)),
+                    ('SPAN', (0,7),(5,7)),
+                    ('SPAN', (6,7),(11,7)),
+                    ('SPAN', (12,7),(17,7)),
+                    ('SPAN', (0,8),(5,8)),
+                    ('SPAN', (6,8),(11,8)),
+                    ('SPAN', (12,8),(15,8)),
+                    ('SPAN', (16,8),(17,8)),
+                    ('SPAN', (0,9),(5,9)),
+                    ('SPAN', (6,9),(11,9)),
+                    ('SPAN', (12,9),(17,9)),
+                    ('SPAN', (0,10),(5,10)),
+                    ('SPAN', (6,10),(11,10)),
+                    ('SPAN', (12,10),(17,10)),
+                    ('SPAN', (0,11),(5,11)),
+                    ('SPAN', (6,11),(11,11)),
+                    ('SPAN', (12,11),(17,11)),
+                    ('SPAN', (0,12),(17,12)),
+                    ]
+        colWidths = (15,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30)
+        rowHeights = None
+        t = Table(cell_schema, colWidths=colWidths, rowHeights=rowHeights, style=table_style)
+        return t
+
+    def create_sheet_es(self):
+        """Spanish version of Pottery sheet"""
+        styleSheet = getSampleStyleSheet()
+        stylogo = styleSheet['Normal']
+        stylogo.spaceBefore = 20
+        stylogo.spaceAfter = 20
+        stylogo.alignment = 1  # LEFT
+        styleSheet = getSampleStyleSheet()
+        styInt = styleSheet['Normal']
+        styInt.spaceBefore = 20
+        styInt.spaceAfter = 20
+        styInt.fontSize = 8
+        styInt.alignment = 1  # LEFT
+        styleSheet = getSampleStyleSheet()
+        styNormal = styleSheet['Normal']
+        styNormal.spaceBefore = 20
+        styNormal.spaceAfter = 20
+        styNormal.fontSize = 6
+        styNormal.alignment = 0  # LEFT
+        styleSheet = getSampleStyleSheet()
+        styDescrizione = styleSheet['Normal']
+        styDescrizione.spaceBefore = 20
+        styDescrizione.spaceAfter = 20
+        styDescrizione.fontSize = 6
+        styDescrizione.alignment = 4  # Justified
+        styleSheet = getSampleStyleSheet()
+        styUnitaTipo = styleSheet['Normal']
+        styUnitaTipo.spaceBefore = 20
+        styUnitaTipo.spaceAfter = 20
+        styUnitaTipo.fontSize = 14
+        styUnitaTipo.alignment = 1  # CENTER
+        styleSheet = getSampleStyleSheet()
+        styTitoloComponenti = styleSheet['Normal']
+        styTitoloComponenti.spaceBefore = 20
+        styTitoloComponenti.spaceAfter = 20
+        styTitoloComponenti.fontSize = 6
+        styTitoloComponenti.alignment = 1  # CENTER
+        intestazione = Paragraph("<b>Prospección Arqueológica Subacuática - FICHA CERÁMICA<br/>" + "</b>", styInt)
+        home = os.environ['PYARCHINIT_HOME']
+        home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
+        logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.png')
+        logo = Image(logo_path)
+        logo.drawHeight = 0.5*inch*logo.drawHeight / logo.drawWidth
+        logo.drawWidth = 0.5*inch
+        logo_path2 = '{}{}{}'.format(home_DB_path, os.sep, 'logo2.png')
+        logo2 = Image(logo_path2)
+        logo2.drawHeight = 0.5*inch*logo2.drawHeight / logo2.drawWidth
+        logo2.drawWidth = 0.5*inch
+        #1 row
+        divelog_id = Paragraph("<b>ID Inmersión</b><br/>"  + str(self.divelog_id), styNormal)
+        artefact_id = Paragraph("<b>ID Artefacto</b><br/>"  + self.artefact_id, styNormal)
+        sito = Paragraph("<b>Sitio</b><br/>"  + self.sito, styNormal)
+        area = Paragraph("<b>Área</b><br/>"  + self.area, styNormal)
+        fabric = Paragraph("<b>Inclusiones</b><br/>"  + self.fabric, styNormal)
+        specific_shape = Paragraph("<b>Forma</b><br/>"  + self.specific_shape, styNormal)
+        specific_part = Paragraph("<b>Parte Específica</b><br/>"  + self.specific_part, styNormal)
+        category = Paragraph("<b>Categoría</b><br/>"  + self.category, styNormal)
+        typology = Paragraph("<b>Tipología</b><br/>"  + self.typology, styNormal)
+        depth = Paragraph("<b>Profundidad</b><br/>"  + self.depth, styNormal)
+        retrieved = Paragraph("<b>Recuperado</b><br/>"  + self.retrieved, styNormal)
+        percent = Paragraph("<b>Porcentaje inclusiones</b><br/>"  + self.percent , styNormal)
+        provenience=Paragraph("<b>Procedencia</b><br/>"  + self.provenience, styNormal)
+        munsell = Paragraph("<b>Munsell Arcilla</b><br/>"  + self.munsell, styNormal)
+        munsell_surf = Paragraph("<b>Munsell Superficies</b><br/>"  + self.munsell_surf, styNormal)
+        surf_trat = Paragraph("<b>Tratamiento Superficie</b><br/>"  + self.surf_trat, styNormal)
+        treatment = Paragraph("<b>Conservación</b><br/>"  + self.treatment, styNormal)
+        period = Paragraph("<b>Período</b><br/>"  + self.period, styNormal)
+        state = Paragraph("<b>Estado</b><br/>"  + self.state, styNormal)
+        samples = Paragraph("<b>Muestras</b><br/>"  + self.samples, styNormal)
+        diametro_max = Paragraph("<b>Diámetro Máx</b><br/>"  + str(self.diametro_max), styNormal)
+        diametro_rim = Paragraph("<b>Diámetro Borde</b><br/>"  + str(self.diametro_rim) , styNormal)
+        diametro_bottom = Paragraph("<b>Diámetro Fondo</b><br/>"  + str(self.diametro_bottom), styNormal)
+        total_height = Paragraph("<b>Altura Total</b><br/>"  + str(self.total_height), styNormal)
+        preserved_height = Paragraph("<b>Altura Conservada</b><br/>"  + str(self.preserved_height), styNormal)
+        base_height = Paragraph("<b>Altura Base</b><br/>"  + str(self.base_height), styNormal)
+        thickmin = Paragraph("<b>Espesor Mín</b><br/>"  + str(self.thickmin), styNormal)
+        thickmax = Paragraph("<b>Espesor Máx</b><br/>"  + str(self.thickmax), styNormal)
+        description = Paragraph("<b>Descripción</b><br/>"  + self.description, styNormal)
+        data_ = Paragraph("<b>Fecha</b><br/>"  + self.data_, styNormal)
+        anno = Paragraph("<b>Año</b><br/>"  + str(self.anno), styNormal)
+        photographed = Paragraph("<b>Fotografiado</b><br/>"  + self.photographed, styNormal)
+        drawing = Paragraph("<b>Dibujo</b><br/>"  + self.drawing, styNormal)
+        wheel_made = Paragraph("<b>Torneado</b><br/>"  + self.wheel_made, styNormal)
+        #schema
+        cell_schema =  [
+                        [logo2, '01', intestazione,'03' , '04','05', '06', '07', '08', '09','10','11','12','13', '14','15',logo,'17'],
+                        [sito, '01', '02', '03', '04','05', '06', '07', '08',artefact_id,'10','11','12','13', '14','15','16','17'],
+                        [divelog_id, '01', '02', '03', '04','05', area, '07', '08', '09','10','11',anno,'13', '14','15','16','17'],
+                        [fabric, '01', '02', '03', '04','05',specific_part, '07', '08', '09','10','11',category,'13', '14','15','16','17'],
+                        [specific_shape, '01', '02', '03', '04','05',  typology, '07', '08', '09','10','11',depth,'13', '14','15','16','17'],
+                        [retrieved, '01', '02', '03', '04','05', percent, '07', '08', '09','10','11',provenience,'13', '14','15','16','17'],
+                        [munsell, '01', '02', '03', '04','05', munsell_surf, '07', '08', '09','10','11',surf_trat,'13', '14','15','16','17'],
+                        [treatment, '01', '02', '03', '04','05',period, '07', '08', '09','10','11',state,'13', '14','15','16','17'],
+                        [samples, '01', '02', '03', '04','05', photographed, '07', '08', '09','10','11',drawing,'13', '14','15',wheel_made,'17'],
+                        [diametro_max, '01', '02', '03', '04','05', diametro_rim, '07', '08', '09','10','11',diametro_bottom,'13', '14','15','16','17'],
+                        [total_height, '01', '02', '03', '04','05', preserved_height, '07', '08', '09','10','11',base_height,'13', '14','15','16','17'],
+                        [thickmin, '01', '02', '03', '04','05',thickmax , '07', '08', '09','10','11',data_,'13', '14','15','16','17'],
+                        [description, '01', '02', '03', '04','05', '06', '07', '08', '09','10','11','12','13', '14','15','16','17'],
+                        ]
+        #table style
+        table_style=[
+                    ('GRID',(0,0),(-1,-1),0.5,colors.black),
+                    ('SPAN', (0,0),(1,0)),
+                    ('SPAN', (2,0),(15,0)),
+                    ('SPAN', (16,0),(17,0)),
+                    ('SPAN', (0,1),(8,1)),
+                    ('SPAN', (9,1),(17,1)),
+                    ('SPAN', (0,2),(5,2)),
+                    ('SPAN', (6,2),(11,2)),
+                    ('SPAN', (12,2),(17,2)),
+                    ('SPAN', (0,3),(5,3)),
+                    ('SPAN', (6,3),(11,3)),
+                    ('SPAN', (12,3),(17,3)),
+                    ('SPAN', (0,4),(5,4)),
+                    ('SPAN', (6,4),(11,4)),
+                    ('SPAN', (12,4),(17,4)),
+                    ('SPAN', (0,5),(5,5)),
+                    ('SPAN', (6,5),(11,5)),
+                    ('SPAN', (12,5),(17,5)),
+                    ('SPAN', (0,6),(5,6)),
+                    ('SPAN', (6,6),(11,6)),
+                    ('SPAN', (12,6),(17,6)),
+                    ('SPAN', (0,7),(5,7)),
+                    ('SPAN', (6,7),(11,7)),
+                    ('SPAN', (12,7),(17,7)),
+                    ('SPAN', (0,8),(5,8)),
+                    ('SPAN', (6,8),(11,8)),
+                    ('SPAN', (12,8),(15,8)),
+                    ('SPAN', (16,8),(17,8)),
+                    ('SPAN', (0,9),(5,9)),
+                    ('SPAN', (6,9),(11,9)),
+                    ('SPAN', (12,9),(17,9)),
+                    ('SPAN', (0,10),(5,10)),
+                    ('SPAN', (6,10),(11,10)),
+                    ('SPAN', (12,10),(17,10)),
+                    ('SPAN', (0,11),(5,11)),
+                    ('SPAN', (6,11),(11,11)),
+                    ('SPAN', (12,11),(17,11)),
+                    ('SPAN', (0,12),(17,12)),
+                    ]
+        colWidths = (15,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30)
+        rowHeights = None
+        t = Table(cell_schema, colWidths=colWidths, rowHeights=rowHeights, style=table_style)
+        return t
+
+    def create_sheet_ar(self):
+        """Arabic version of Pottery sheet"""
+        styleSheet = getSampleStyleSheet()
+        stylogo = styleSheet['Normal']
+        stylogo.spaceBefore = 20
+        stylogo.spaceAfter = 20
+        stylogo.alignment = 1  # LEFT
+        styleSheet = getSampleStyleSheet()
+        styInt = styleSheet['Normal']
+        styInt.spaceBefore = 20
+        styInt.spaceAfter = 20
+        styInt.fontSize = 8
+        styInt.alignment = 1  # LEFT
+        styleSheet = getSampleStyleSheet()
+        styNormal = styleSheet['Normal']
+        styNormal.spaceBefore = 20
+        styNormal.spaceAfter = 20
+        styNormal.fontSize = 6
+        styNormal.alignment = 0  # LEFT
+        styleSheet = getSampleStyleSheet()
+        styDescrizione = styleSheet['Normal']
+        styDescrizione.spaceBefore = 20
+        styDescrizione.spaceAfter = 20
+        styDescrizione.fontSize = 6
+        styDescrizione.alignment = 4  # Justified
+        styleSheet = getSampleStyleSheet()
+        styUnitaTipo = styleSheet['Normal']
+        styUnitaTipo.spaceBefore = 20
+        styUnitaTipo.spaceAfter = 20
+        styUnitaTipo.fontSize = 14
+        styUnitaTipo.alignment = 1  # CENTER
+        styleSheet = getSampleStyleSheet()
+        styTitoloComponenti = styleSheet['Normal']
+        styTitoloComponenti.spaceBefore = 20
+        styTitoloComponenti.spaceAfter = 20
+        styTitoloComponenti.fontSize = 6
+        styTitoloComponenti.alignment = 1  # CENTER
+        intestazione = Paragraph("<b>المسح الأثري تحت الماء - بطاقة الفخار<br/>" + "</b>", styInt)
+        home = os.environ['PYARCHINIT_HOME']
+        home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
+        logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.png')
+        logo = Image(logo_path)
+        logo.drawHeight = 0.5*inch*logo.drawHeight / logo.drawWidth
+        logo.drawWidth = 0.5*inch
+        logo_path2 = '{}{}{}'.format(home_DB_path, os.sep, 'logo2.png')
+        logo2 = Image(logo_path2)
+        logo2.drawHeight = 0.5*inch*logo2.drawHeight / logo2.drawWidth
+        logo2.drawWidth = 0.5*inch
+        #1 row
+        divelog_id = Paragraph("<b>رقم الغوص</b><br/>"  + str(self.divelog_id), styNormal)
+        artefact_id = Paragraph("<b>رقم القطعة</b><br/>"  + self.artefact_id, styNormal)
+        sito = Paragraph("<b>الموقع</b><br/>"  + self.sito, styNormal)
+        area = Paragraph("<b>المنطقة</b><br/>"  + self.area, styNormal)
+        fabric = Paragraph("<b>الشوائب</b><br/>"  + self.fabric, styNormal)
+        specific_shape = Paragraph("<b>الشكل</b><br/>"  + self.specific_shape, styNormal)
+        specific_part = Paragraph("<b>الجزء المحدد</b><br/>"  + self.specific_part, styNormal)
+        category = Paragraph("<b>الفئة</b><br/>"  + self.category, styNormal)
+        typology = Paragraph("<b>التصنيف</b><br/>"  + self.typology, styNormal)
+        depth = Paragraph("<b>العمق</b><br/>"  + self.depth, styNormal)
+        retrieved = Paragraph("<b>مسترجع</b><br/>"  + self.retrieved, styNormal)
+        percent = Paragraph("<b>نسبة الشوائب</b><br/>"  + self.percent , styNormal)
+        provenience=Paragraph("<b>المصدر</b><br/>"  + self.provenience, styNormal)
+        munsell = Paragraph("<b>مونسل الطين</b><br/>"  + self.munsell, styNormal)
+        munsell_surf = Paragraph("<b>مونسل السطح</b><br/>"  + self.munsell_surf, styNormal)
+        surf_trat = Paragraph("<b>معالجة السطح</b><br/>"  + self.surf_trat, styNormal)
+        treatment = Paragraph("<b>الحفظ</b><br/>"  + self.treatment, styNormal)
+        period = Paragraph("<b>الفترة</b><br/>"  + self.period, styNormal)
+        state = Paragraph("<b>الحالة</b><br/>"  + self.state, styNormal)
+        samples = Paragraph("<b>العينات</b><br/>"  + self.samples, styNormal)
+        diametro_max = Paragraph("<b>القطر الأقصى</b><br/>"  + str(self.diametro_max), styNormal)
+        diametro_rim = Paragraph("<b>قطر الحافة</b><br/>"  + str(self.diametro_rim) , styNormal)
+        diametro_bottom = Paragraph("<b>قطر القاع</b><br/>"  + str(self.diametro_bottom), styNormal)
+        total_height = Paragraph("<b>الارتفاع الكلي</b><br/>"  + str(self.total_height), styNormal)
+        preserved_height = Paragraph("<b>الارتفاع المحفوظ</b><br/>"  + str(self.preserved_height), styNormal)
+        base_height = Paragraph("<b>ارتفاع القاعدة</b><br/>"  + str(self.base_height), styNormal)
+        thickmin = Paragraph("<b>السماكة الدنيا</b><br/>"  + str(self.thickmin), styNormal)
+        thickmax = Paragraph("<b>السماكة القصوى</b><br/>"  + str(self.thickmax), styNormal)
+        description = Paragraph("<b>الوصف</b><br/>"  + self.description, styNormal)
+        data_ = Paragraph("<b>التاريخ</b><br/>"  + self.data_, styNormal)
+        anno = Paragraph("<b>السنة</b><br/>"  + str(self.anno), styNormal)
+        photographed = Paragraph("<b>مصور</b><br/>"  + self.photographed, styNormal)
+        drawing = Paragraph("<b>رسم</b><br/>"  + self.drawing, styNormal)
+        wheel_made = Paragraph("<b>مصنوع بالدولاب</b><br/>"  + self.wheel_made, styNormal)
+        #schema
+        cell_schema =  [
+                        [logo2, '01', intestazione,'03' , '04','05', '06', '07', '08', '09','10','11','12','13', '14','15',logo,'17'],
+                        [sito, '01', '02', '03', '04','05', '06', '07', '08',artefact_id,'10','11','12','13', '14','15','16','17'],
+                        [divelog_id, '01', '02', '03', '04','05', area, '07', '08', '09','10','11',anno,'13', '14','15','16','17'],
+                        [fabric, '01', '02', '03', '04','05',specific_part, '07', '08', '09','10','11',category,'13', '14','15','16','17'],
+                        [specific_shape, '01', '02', '03', '04','05',  typology, '07', '08', '09','10','11',depth,'13', '14','15','16','17'],
+                        [retrieved, '01', '02', '03', '04','05', percent, '07', '08', '09','10','11',provenience,'13', '14','15','16','17'],
+                        [munsell, '01', '02', '03', '04','05', munsell_surf, '07', '08', '09','10','11',surf_trat,'13', '14','15','16','17'],
+                        [treatment, '01', '02', '03', '04','05',period, '07', '08', '09','10','11',state,'13', '14','15','16','17'],
+                        [samples, '01', '02', '03', '04','05', photographed, '07', '08', '09','10','11',drawing,'13', '14','15',wheel_made,'17'],
+                        [diametro_max, '01', '02', '03', '04','05', diametro_rim, '07', '08', '09','10','11',diametro_bottom,'13', '14','15','16','17'],
+                        [total_height, '01', '02', '03', '04','05', preserved_height, '07', '08', '09','10','11',base_height,'13', '14','15','16','17'],
+                        [thickmin, '01', '02', '03', '04','05',thickmax , '07', '08', '09','10','11',data_,'13', '14','15','16','17'],
+                        [description, '01', '02', '03', '04','05', '06', '07', '08', '09','10','11','12','13', '14','15','16','17'],
+                        ]
+        #table style
+        table_style=[
+                    ('GRID',(0,0),(-1,-1),0.5,colors.black),
+                    ('SPAN', (0,0),(1,0)),
+                    ('SPAN', (2,0),(15,0)),
+                    ('SPAN', (16,0),(17,0)),
+                    ('SPAN', (0,1),(8,1)),
+                    ('SPAN', (9,1),(17,1)),
+                    ('SPAN', (0,2),(5,2)),
+                    ('SPAN', (6,2),(11,2)),
+                    ('SPAN', (12,2),(17,2)),
+                    ('SPAN', (0,3),(5,3)),
+                    ('SPAN', (6,3),(11,3)),
+                    ('SPAN', (12,3),(17,3)),
+                    ('SPAN', (0,4),(5,4)),
+                    ('SPAN', (6,4),(11,4)),
+                    ('SPAN', (12,4),(17,4)),
+                    ('SPAN', (0,5),(5,5)),
+                    ('SPAN', (6,5),(11,5)),
+                    ('SPAN', (12,5),(17,5)),
+                    ('SPAN', (0,6),(5,6)),
+                    ('SPAN', (6,6),(11,6)),
+                    ('SPAN', (12,6),(17,6)),
+                    ('SPAN', (0,7),(5,7)),
+                    ('SPAN', (6,7),(11,7)),
+                    ('SPAN', (12,7),(17,7)),
+                    ('SPAN', (0,8),(5,8)),
+                    ('SPAN', (6,8),(11,8)),
+                    ('SPAN', (12,8),(15,8)),
+                    ('SPAN', (16,8),(17,8)),
+                    ('SPAN', (0,9),(5,9)),
+                    ('SPAN', (6,9),(11,9)),
+                    ('SPAN', (12,9),(17,9)),
+                    ('SPAN', (0,10),(5,10)),
+                    ('SPAN', (6,10),(11,10)),
+                    ('SPAN', (12,10),(17,10)),
+                    ('SPAN', (0,11),(5,11)),
+                    ('SPAN', (6,11),(11,11)),
+                    ('SPAN', (12,11),(17,11)),
+                    ('SPAN', (0,12),(17,12)),
+                    ]
+        colWidths = (15,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30)
+        rowHeights = None
+        t = Table(cell_schema, colWidths=colWidths, rowHeights=rowHeights, style=table_style)
+        return t
+
+    def create_sheet_ca(self):
+        """Catalan version of Pottery sheet"""
+        styleSheet = getSampleStyleSheet()
+        stylogo = styleSheet['Normal']
+        stylogo.spaceBefore = 20
+        stylogo.spaceAfter = 20
+        stylogo.alignment = 1  # LEFT
+        styleSheet = getSampleStyleSheet()
+        styInt = styleSheet['Normal']
+        styInt.spaceBefore = 20
+        styInt.spaceAfter = 20
+        styInt.fontSize = 8
+        styInt.alignment = 1  # LEFT
+        styleSheet = getSampleStyleSheet()
+        styNormal = styleSheet['Normal']
+        styNormal.spaceBefore = 20
+        styNormal.spaceAfter = 20
+        styNormal.fontSize = 6
+        styNormal.alignment = 0  # LEFT
+        styleSheet = getSampleStyleSheet()
+        styDescrizione = styleSheet['Normal']
+        styDescrizione.spaceBefore = 20
+        styDescrizione.spaceAfter = 20
+        styDescrizione.fontSize = 6
+        styDescrizione.alignment = 4  # Justified
+        styleSheet = getSampleStyleSheet()
+        styUnitaTipo = styleSheet['Normal']
+        styUnitaTipo.spaceBefore = 20
+        styUnitaTipo.spaceAfter = 20
+        styUnitaTipo.fontSize = 14
+        styUnitaTipo.alignment = 1  # CENTER
+        styleSheet = getSampleStyleSheet()
+        styTitoloComponenti = styleSheet['Normal']
+        styTitoloComponenti.spaceBefore = 20
+        styTitoloComponenti.spaceAfter = 20
+        styTitoloComponenti.fontSize = 6
+        styTitoloComponenti.alignment = 1  # CENTER
+        intestazione = Paragraph("<b>Prospecció Arqueològica Subaquàtica - FITXA CERÀMICA<br/>" + "</b>", styInt)
+        home = os.environ['PYARCHINIT_HOME']
+        home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
+        logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.png')
+        logo = Image(logo_path)
+        logo.drawHeight = 0.5*inch*logo.drawHeight / logo.drawWidth
+        logo.drawWidth = 0.5*inch
+        logo_path2 = '{}{}{}'.format(home_DB_path, os.sep, 'logo2.png')
+        logo2 = Image(logo_path2)
+        logo2.drawHeight = 0.5*inch*logo2.drawHeight / logo2.drawWidth
+        logo2.drawWidth = 0.5*inch
+        #1 row
+        divelog_id = Paragraph("<b>ID Immersió</b><br/>"  + str(self.divelog_id), styNormal)
+        artefact_id = Paragraph("<b>ID Artefacte</b><br/>"  + self.artefact_id, styNormal)
+        sito = Paragraph("<b>Jaciment</b><br/>"  + self.sito, styNormal)
+        area = Paragraph("<b>Àrea</b><br/>"  + self.area, styNormal)
+        fabric = Paragraph("<b>Inclusions</b><br/>"  + self.fabric, styNormal)
+        specific_shape = Paragraph("<b>Forma</b><br/>"  + self.specific_shape, styNormal)
+        specific_part = Paragraph("<b>Part Específica</b><br/>"  + self.specific_part, styNormal)
+        category = Paragraph("<b>Categoria</b><br/>"  + self.category, styNormal)
+        typology = Paragraph("<b>Tipologia</b><br/>"  + self.typology, styNormal)
+        depth = Paragraph("<b>Profunditat</b><br/>"  + self.depth, styNormal)
+        retrieved = Paragraph("<b>Recuperat</b><br/>"  + self.retrieved, styNormal)
+        percent = Paragraph("<b>Percentatge inclusions</b><br/>"  + self.percent , styNormal)
+        provenience=Paragraph("<b>Procedència</b><br/>"  + self.provenience, styNormal)
+        munsell = Paragraph("<b>Munsell Argila</b><br/>"  + self.munsell, styNormal)
+        munsell_surf = Paragraph("<b>Munsell Superfícies</b><br/>"  + self.munsell_surf, styNormal)
+        surf_trat = Paragraph("<b>Tractament Superfície</b><br/>"  + self.surf_trat, styNormal)
+        treatment = Paragraph("<b>Conservació</b><br/>"  + self.treatment, styNormal)
+        period = Paragraph("<b>Període</b><br/>"  + self.period, styNormal)
+        state = Paragraph("<b>Estat</b><br/>"  + self.state, styNormal)
+        samples = Paragraph("<b>Mostres</b><br/>"  + self.samples, styNormal)
+        diametro_max = Paragraph("<b>Diàmetre Màx</b><br/>"  + str(self.diametro_max), styNormal)
+        diametro_rim = Paragraph("<b>Diàmetre Vora</b><br/>"  + str(self.diametro_rim) , styNormal)
+        diametro_bottom = Paragraph("<b>Diàmetre Fons</b><br/>"  + str(self.diametro_bottom), styNormal)
+        total_height = Paragraph("<b>Alçada Total</b><br/>"  + str(self.total_height), styNormal)
+        preserved_height = Paragraph("<b>Alçada Conservada</b><br/>"  + str(self.preserved_height), styNormal)
+        base_height = Paragraph("<b>Alçada Base</b><br/>"  + str(self.base_height), styNormal)
+        thickmin = Paragraph("<b>Gruix Mín</b><br/>"  + str(self.thickmin), styNormal)
+        thickmax = Paragraph("<b>Gruix Màx</b><br/>"  + str(self.thickmax), styNormal)
+        description = Paragraph("<b>Descripció</b><br/>"  + self.description, styNormal)
+        data_ = Paragraph("<b>Data</b><br/>"  + self.data_, styNormal)
+        anno = Paragraph("<b>Any</b><br/>"  + str(self.anno), styNormal)
+        photographed = Paragraph("<b>Fotografiat</b><br/>"  + self.photographed, styNormal)
+        drawing = Paragraph("<b>Dibuix</b><br/>"  + self.drawing, styNormal)
+        wheel_made = Paragraph("<b>Tornejat</b><br/>"  + self.wheel_made, styNormal)
+        #schema
+        cell_schema =  [
+                        [logo2, '01', intestazione,'03' , '04','05', '06', '07', '08', '09','10','11','12','13', '14','15',logo,'17'],
+                        [sito, '01', '02', '03', '04','05', '06', '07', '08',artefact_id,'10','11','12','13', '14','15','16','17'],
+                        [divelog_id, '01', '02', '03', '04','05', area, '07', '08', '09','10','11',anno,'13', '14','15','16','17'],
+                        [fabric, '01', '02', '03', '04','05',specific_part, '07', '08', '09','10','11',category,'13', '14','15','16','17'],
+                        [specific_shape, '01', '02', '03', '04','05',  typology, '07', '08', '09','10','11',depth,'13', '14','15','16','17'],
+                        [retrieved, '01', '02', '03', '04','05', percent, '07', '08', '09','10','11',provenience,'13', '14','15','16','17'],
+                        [munsell, '01', '02', '03', '04','05', munsell_surf, '07', '08', '09','10','11',surf_trat,'13', '14','15','16','17'],
+                        [treatment, '01', '02', '03', '04','05',period, '07', '08', '09','10','11',state,'13', '14','15','16','17'],
+                        [samples, '01', '02', '03', '04','05', photographed, '07', '08', '09','10','11',drawing,'13', '14','15',wheel_made,'17'],
+                        [diametro_max, '01', '02', '03', '04','05', diametro_rim, '07', '08', '09','10','11',diametro_bottom,'13', '14','15','16','17'],
+                        [total_height, '01', '02', '03', '04','05', preserved_height, '07', '08', '09','10','11',base_height,'13', '14','15','16','17'],
+                        [thickmin, '01', '02', '03', '04','05',thickmax , '07', '08', '09','10','11',data_,'13', '14','15','16','17'],
+                        [description, '01', '02', '03', '04','05', '06', '07', '08', '09','10','11','12','13', '14','15','16','17'],
+                        ]
+        #table style
+        table_style=[
+                    ('GRID',(0,0),(-1,-1),0.5,colors.black),
+                    ('SPAN', (0,0),(1,0)),
+                    ('SPAN', (2,0),(15,0)),
+                    ('SPAN', (16,0),(17,0)),
+                    ('SPAN', (0,1),(8,1)),
+                    ('SPAN', (9,1),(17,1)),
+                    ('SPAN', (0,2),(5,2)),
+                    ('SPAN', (6,2),(11,2)),
+                    ('SPAN', (12,2),(17,2)),
+                    ('SPAN', (0,3),(5,3)),
+                    ('SPAN', (6,3),(11,3)),
+                    ('SPAN', (12,3),(17,3)),
+                    ('SPAN', (0,4),(5,4)),
+                    ('SPAN', (6,4),(11,4)),
+                    ('SPAN', (12,4),(17,4)),
+                    ('SPAN', (0,5),(5,5)),
+                    ('SPAN', (6,5),(11,5)),
+                    ('SPAN', (12,5),(17,5)),
+                    ('SPAN', (0,6),(5,6)),
+                    ('SPAN', (6,6),(11,6)),
+                    ('SPAN', (12,6),(17,6)),
+                    ('SPAN', (0,7),(5,7)),
+                    ('SPAN', (6,7),(11,7)),
+                    ('SPAN', (12,7),(17,7)),
+                    ('SPAN', (0,8),(5,8)),
+                    ('SPAN', (6,8),(11,8)),
+                    ('SPAN', (12,8),(15,8)),
+                    ('SPAN', (16,8),(17,8)),
+                    ('SPAN', (0,9),(5,9)),
+                    ('SPAN', (6,9),(11,9)),
+                    ('SPAN', (12,9),(17,9)),
+                    ('SPAN', (0,10),(5,10)),
+                    ('SPAN', (6,10),(11,10)),
+                    ('SPAN', (12,10),(17,10)),
+                    ('SPAN', (0,11),(5,11)),
+                    ('SPAN', (6,11),(11,11)),
+                    ('SPAN', (12,11),(17,11)),
+                    ('SPAN', (0,12),(17,12)),
+                    ]
+        colWidths = (15,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30)
+        rowHeights = None
+        t = Table(cell_schema, colWidths=colWidths, rowHeights=rowHeights, style=table_style)
+        return t
+
 
 class FOTO_index_pdf_sheet_2(object):
     """PDF sheet for pottery list WITH thumbnail"""
@@ -432,6 +1306,98 @@ class generate_POTTERY_pdf:
         doc = SimpleDocTemplate(f, pagesize=A4)
         doc.build(elements, canvasmaker=NumberedCanvas_USsheet)
         f.close()
+
+    def build_POTTERY_sheets_it(self, records):
+        """Italian version"""
+        elements = []
+        for i in range(len(records)):
+            single_POTTERY_sheet = single_pottery_pdf_sheet(records[i])
+            elements.append(single_POTTERY_sheet.create_sheet_it())
+            elements.append(PageBreak())
+        filename = ('%s%s%s') % (self.PDF_path, os.sep, 'Scheda_Ceramica.pdf')
+        f = open(filename, "wb")
+        doc = SimpleDocTemplate(f, pagesize=A4)
+        doc.build(elements, canvasmaker=NumberedCanvas_USsheet)
+        f.close()
+
+    def build_POTTERY_sheets_de(self, records):
+        """German version"""
+        elements = []
+        for i in range(len(records)):
+            single_POTTERY_sheet = single_pottery_pdf_sheet(records[i])
+            elements.append(single_POTTERY_sheet.create_sheet_de())
+            elements.append(PageBreak())
+        filename = ('%s%s%s') % (self.PDF_path, os.sep, 'Keramik_Formular.pdf')
+        f = open(filename, "wb")
+        doc = SimpleDocTemplate(f, pagesize=A4)
+        doc.build(elements, canvasmaker=NumberedCanvas_USsheet)
+        f.close()
+
+    def build_POTTERY_sheets_en(self, records):
+        """English version"""
+        elements = []
+        for i in range(len(records)):
+            single_POTTERY_sheet = single_pottery_pdf_sheet(records[i])
+            elements.append(single_POTTERY_sheet.create_sheet_en())
+            elements.append(PageBreak())
+        filename = ('%s%s%s') % (self.PDF_path, os.sep, 'Pottery_Sheet.pdf')
+        f = open(filename, "wb")
+        doc = SimpleDocTemplate(f, pagesize=A4)
+        doc.build(elements, canvasmaker=NumberedCanvas_USsheet)
+        f.close()
+
+    def build_POTTERY_sheets_fr(self, records):
+        """French version"""
+        elements = []
+        for i in range(len(records)):
+            single_POTTERY_sheet = single_pottery_pdf_sheet(records[i])
+            elements.append(single_POTTERY_sheet.create_sheet_fr())
+            elements.append(PageBreak())
+        filename = ('%s%s%s') % (self.PDF_path, os.sep, 'Fiche_Ceramique.pdf')
+        f = open(filename, "wb")
+        doc = SimpleDocTemplate(f, pagesize=A4)
+        doc.build(elements, canvasmaker=NumberedCanvas_USsheet)
+        f.close()
+
+    def build_POTTERY_sheets_es(self, records):
+        """Spanish version"""
+        elements = []
+        for i in range(len(records)):
+            single_POTTERY_sheet = single_pottery_pdf_sheet(records[i])
+            elements.append(single_POTTERY_sheet.create_sheet_es())
+            elements.append(PageBreak())
+        filename = ('%s%s%s') % (self.PDF_path, os.sep, 'Ficha_Ceramica.pdf')
+        f = open(filename, "wb")
+        doc = SimpleDocTemplate(f, pagesize=A4)
+        doc.build(elements, canvasmaker=NumberedCanvas_USsheet)
+        f.close()
+
+    def build_POTTERY_sheets_ar(self, records):
+        """Arabic version"""
+        elements = []
+        for i in range(len(records)):
+            single_POTTERY_sheet = single_pottery_pdf_sheet(records[i])
+            elements.append(single_POTTERY_sheet.create_sheet_ar())
+            elements.append(PageBreak())
+        filename = ('%s%s%s') % (self.PDF_path, os.sep, 'Bitaqa_Fakhar.pdf')
+        f = open(filename, "wb")
+        doc = SimpleDocTemplate(f, pagesize=A4)
+        doc.build(elements, canvasmaker=NumberedCanvas_USsheet)
+        f.close()
+
+    def build_POTTERY_sheets_ca(self, records):
+        """Catalan version"""
+        elements = []
+        for i in range(len(records)):
+            single_POTTERY_sheet = single_pottery_pdf_sheet(records[i])
+            elements.append(single_POTTERY_sheet.create_sheet_ca())
+            elements.append(PageBreak())
+        filename = ('%s%s%s') % (self.PDF_path, os.sep, 'Fitxa_Ceramica.pdf')
+        f = open(filename, "wb")
+        doc = SimpleDocTemplate(f, pagesize=A4)
+        doc.build(elements, canvasmaker=NumberedCanvas_USsheet)
+        f.close()
+
     def build_index_POTTERY(self, records, divelog_id):
         HOME = os.environ['PYARCHINIT_HOME']
         PDF_path = '{}{}{}'.format(HOME, os.sep, "pyarchinit_PDF_folder")

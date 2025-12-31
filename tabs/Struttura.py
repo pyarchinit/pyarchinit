@@ -282,7 +282,6 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
         self.pbnOpenpdfDirectory.clicked.connect(self.openpdfDir)
         sito = self.comboBox_sito.currentText()
         self.comboBox_sito.setEditText(sito)
-        self.fill_fields()
         self.customize_GUI()
         self.set_sito()
         self.msg_sito()
@@ -1380,17 +1379,16 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
     def on_pushButton_print_pressed(self):
         if self.L=='it':
             if self.checkBox_s_us.isChecked():
-                Struttura_pdf_sheet = generate_struttura_pdf()  # deve essere importata la classe
-                data_list = self.generate_list_pdf()  # deve essere aggiunta la funzione
-                Struttura_pdf_sheet.build_Struttura_sheets(data_list)  # deve essere aggiunto il file per generare i pdf
+                Struttura_pdf_sheet = generate_struttura_pdf()
+                data_list = self.generate_list_pdf()
+                Struttura_pdf_sheet.build_Struttura_sheets(data_list)
                 QMessageBox.warning(self, 'Ok',"Esportazione terminata Schede Struttura",QMessageBox.StandardButton.Ok)
-            else:   
+            else:
                 pass
             if self.checkBox_e_us.isChecked() :
                 Struttura_index_pdf = generate_struttura_pdf()
                 data_list = self.generate_list_pdf()
-            
-                try:               
+                try:
                     if bool(data_list):
                         Struttura_index_pdf.build_index_Struttura(data_list, data_list[0][0])
                         QMessageBox.warning(self, 'Ok',"Esportazione terminata Elenco Struttura",QMessageBox.StandardButton.Ok)
@@ -1400,24 +1398,67 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
                     QMessageBox.warning(self, 'ATTENZIONE',str(e),QMessageBox.StandardButton.Ok)
             else:
                 pass
-            
-        
-        else:
+
+        elif self.L=='de':
             if self.checkBox_s_us.isChecked():
-                Struttura_pdf_sheet = generate_struttura_pdf()  # deve essere importata la classe
-                data_list = self.generate_list_pdf()  # deve essere aggiunta la funzione
-                Struttura_pdf_sheet.build_Struttura_sheets(data_list)  # deve essere aggiunto il file per generare i pdf
-                QMessageBox.warning(self, 'Ok',"Exportation Done",QMessageBox.StandardButton.Ok)
-            else:   
+                Struttura_pdf_sheet = generate_struttura_pdf()
+                data_list = self.generate_list_pdf()
+                Struttura_pdf_sheet.build_Struttura_sheets_de(data_list)
+                QMessageBox.warning(self, 'Ok', "Export beendet Struktur-Formular", QMessageBox.StandardButton.Ok)
+            else:
+                pass
+
+        elif self.L=='fr':
+            if self.checkBox_s_us.isChecked():
+                Struttura_pdf_sheet = generate_struttura_pdf()
+                data_list = self.generate_list_pdf()
+                Struttura_pdf_sheet.build_Struttura_sheets_fr(data_list)
+                QMessageBox.warning(self, 'Ok', "Exportation terminée Fiche Structure", QMessageBox.StandardButton.Ok)
+            else:
+                pass
+
+        elif self.L=='es':
+            if self.checkBox_s_us.isChecked():
+                Struttura_pdf_sheet = generate_struttura_pdf()
+                data_list = self.generate_list_pdf()
+                Struttura_pdf_sheet.build_Struttura_sheets_es(data_list)
+                QMessageBox.warning(self, 'Ok', "Exportación completada Ficha Estructura", QMessageBox.StandardButton.Ok)
+            else:
+                pass
+
+        elif self.L=='ar':
+            if self.checkBox_s_us.isChecked():
+                Struttura_pdf_sheet = generate_struttura_pdf()
+                data_list = self.generate_list_pdf()
+                Struttura_pdf_sheet.build_Struttura_sheets_ar(data_list)
+                QMessageBox.warning(self, 'Ok', "اكتمل تصدير بطاقة البنية", QMessageBox.StandardButton.Ok)
+            else:
+                pass
+
+        elif self.L=='ca':
+            if self.checkBox_s_us.isChecked():
+                Struttura_pdf_sheet = generate_struttura_pdf()
+                data_list = self.generate_list_pdf()
+                Struttura_pdf_sheet.build_Struttura_sheets_ca(data_list)
+                QMessageBox.warning(self, 'Ok', "Exportació completada Fitxa Estructura", QMessageBox.StandardButton.Ok)
+            else:
+                pass
+
+        else:  # English and other languages
+            if self.checkBox_s_us.isChecked():
+                Struttura_pdf_sheet = generate_struttura_pdf()
+                data_list = self.generate_list_pdf()
+                Struttura_pdf_sheet.build_Struttura_sheets_en(data_list)
+                QMessageBox.warning(self, 'Ok', "Export finished Structure Form", QMessageBox.StandardButton.Ok)
+            else:
                 pass
             if self.checkBox_e_us.isChecked() :
                 Struttura_index_pdf = generate_struttura_pdf()
                 data_list = self.generate_list_pdf()
-            
-                try:               
+                try:
                     if bool(data_list):
-                        Struttura_index_pdf.build_index_Struttura(data_list, data_list[0][0])
-                        QMessageBox.warning(self, 'Ok',"Exportation list done",QMessageBox.StandardButton.Ok)
+                        Struttura_index_pdf.build_index_Struttura_en(data_list, data_list[0][0])
+                        QMessageBox.warning(self, 'Ok',"Export finished Structure List",QMessageBox.StandardButton.Ok)
                     else:
                         QMessageBox.warning(self, 'Warning',"The Structure list cannot be exported you have to fill in the Structure tabs before",QMessageBox.StandardButton.Ok)
                 except Exception as e :
@@ -2003,14 +2044,12 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
                 dlg.charge_list()
                 dlg.exec()
     def set_sito(self):
-        #self.model_a.database().close()
         conn = Connection()
-        sito_set= conn.sito_set()
+        sito_set = conn.sito_set()
         sito_set_str = sito_set['sito_set']
         try:
-            if bool (sito_set_str):
-                search_dict = {
-                    'sito': "'" + str(sito_set_str) + "'"}  # 1 - Sito
+            if bool(sito_set_str):
+                search_dict = {'sito': "'" + str(sito_set_str) + "'"}
                 u = Utility()
                 search_dict = u.remove_empty_items_fr_dict(search_dict)
                 res = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
@@ -2018,7 +2057,18 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
                 for i in res:
                     self.DATA_LIST.append(i)
                 self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
-                self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]  ####darivedere
+
+                # Check if we have results before accessing DATA_LIST[0]
+                if len(self.DATA_LIST) == 0:
+                    if self.L == 'it':
+                        QMessageBox.information(self, "Attenzione", f"Il sito '{sito_set_str}' non ha record in questa scheda. Crea un nuovo record o disattiva la 'scelta sito' dalla configurazione.", QMessageBox.StandardButton.Ok)
+                    elif self.L == 'de':
+                        QMessageBox.information(self, "Warnung", f"Die Fundstelle '{sito_set_str}' hat keine Datensätze. Erstellen Sie einen neuen Datensatz oder deaktivieren Sie die 'Site-Wahl'.", QMessageBox.StandardButton.Ok)
+                    else:
+                        QMessageBox.information(self, "Warning", f"Site '{sito_set_str}' has no records in this tab. Create a new record or disable 'site choice' from configuration.", QMessageBox.StandardButton.Ok)
+                    return
+
+                self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
                 self.fill_fields()
                 self.BROWSE_STATUS = "b"
                 self.SORT_STATUS = "n"
@@ -2026,17 +2076,74 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
                 self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR + 1)
                 self.setComboBoxEnable(["self.comboBox_sito"], "False")
             else:
-                pass#
-        except:
-            if self.L=='it':
-            
-                QMessageBox.information(self, "Attenzione" ,"Non esiste questo sito: "'"'+ str(sito_set_str) +'"'" in questa scheda, Per favore distattiva la 'scelta sito' dalla scheda di configurazione plugin per vedere tutti i record oppure crea la scheda",QMessageBox.StandardButton.Ok) 
-            elif self.L=='de':
-            
-                QMessageBox.information(self, "Warnung" , "Es gibt keine solche archäologische Stätte: "'""'+ str(sito_set_str) +'"'" in dieser Registerkarte, Bitte deaktivieren Sie die 'Site-Wahl' in der Plugin-Konfigurationsregisterkarte, um alle Datensätze zu sehen oder die Registerkarte zu erstellen",QMessageBox.StandardButton.Ok) 
+                pass
+        except Exception as e:
+            if self.L == 'it':
+                QMessageBox.warning(self, "Errore", f"Errore nel caricamento del sito '{sito_set_str}':\n{str(e)}", QMessageBox.StandardButton.Ok)
+            elif self.L == 'de':
+                QMessageBox.warning(self, "Fehler", f"Fehler beim Laden der Fundstelle '{sito_set_str}':\n{str(e)}", QMessageBox.StandardButton.Ok)
             else:
-            
-                QMessageBox.information(self, "Warning" , "There is no such site: "'"'+ str(sito_set_str) +'"'" in this tab, Please disable the 'site choice' from the plugin configuration tab to see all records or create the tab",QMessageBox.StandardButton.Ok)  
+                QMessageBox.warning(self, "Error", f"Error loading site '{sito_set_str}':\n{str(e)}", QMessageBox.StandardButton.Ok)
+
+    def setComboBoxEnable(self, f, v):
+        """Set enabled state for widgets"""
+        for fn in f:
+            widget_name = fn.replace('self.', '') if fn.startswith('self.') else fn
+            widget = getattr(self, widget_name, None)
+            if widget is not None:
+                widget.setEnabled(v == "True")
+
+    def fill_fields(self, n=0):
+        self.rec_num = n
+        try:
+            self.comboBox_sito.setEditText(self.DATA_LIST[self.rec_num].sito)
+            self.comboBox_sigla_struttura.setEditText(str(self.DATA_LIST[self.rec_num].sigla_struttura))
+            self.numero_struttura.setText(str(self.DATA_LIST[self.rec_num].numero_struttura))
+            self.comboBox_categoria_struttura.setEditText(str(self.DATA_LIST[self.rec_num].categoria_struttura))
+            self.comboBox_tipologia_struttura.setEditText(str(self.DATA_LIST[self.rec_num].tipologia_struttura))
+            self.comboBox_definizione_struttura.setEditText(str(self.DATA_LIST[self.rec_num].definizione_struttura))
+            self.textEdit_descrizione_struttura.setText(self.DATA_LIST[self.rec_num].descrizione)
+            self.textEdit_interpretazione_struttura.setText(self.DATA_LIST[self.rec_num].interpretazione)
+            self.comboBox_datazione_estesa.setEditText(str(self.DATA_LIST[self.rec_num].datazione_estesa))
+
+            self.tableInsertData("self.tableWidget_materiali_impiegati", self.DATA_LIST[self.rec_num].materiali_impiegati)
+            self.tableInsertData("self.tableWidget_elementi_strutturali", self.DATA_LIST[self.rec_num].elementi_strutturali)
+            self.tableInsertData("self.tableWidget_rapporti", self.DATA_LIST[self.rec_num].rapporti_struttura)
+            self.tableInsertData("self.tableWidget_misurazioni", self.DATA_LIST[self.rec_num].misure_struttura)
+
+            if self.DATA_LIST[self.rec_num].periodo_iniziale is None:
+                self.comboBox_per_iniz.setEditText("")
+            else:
+                self.comboBox_per_iniz.setEditText(str(self.DATA_LIST[self.rec_num].periodo_iniziale))
+
+            if self.DATA_LIST[self.rec_num].fase_iniziale is None:
+                self.comboBox_fas_iniz.setEditText("")
+            else:
+                self.comboBox_fas_iniz.setEditText(str(self.DATA_LIST[self.rec_num].fase_iniziale))
+
+            if self.DATA_LIST[self.rec_num].periodo_finale is None:
+                self.comboBox_per_fin.setEditText("")
+            else:
+                self.comboBox_per_fin.setEditText(str(self.DATA_LIST[self.rec_num].periodo_finale))
+
+            if self.DATA_LIST[self.rec_num].fase_finale is None:
+                self.comboBox_fas_fin.setEditText("")
+            else:
+                self.comboBox_fas_fin.setEditText(str(self.DATA_LIST[self.rec_num].fase_finale))
+
+            if self.toolButtonPreview.isChecked():
+                self.loadMapPreview()
+            if self.toolButtonPreviewMedia.isChecked():
+                self.loadMediaPreview()
+        except:
+            pass
+
+    def set_rec_counter(self, t, c):
+        self.rec_tot = t
+        self.rec_corr = c
+        self.label_rec_tot.setText(str(self.rec_tot))
+        self.label_rec_corrente.setText(str(self.rec_corr))
+
     def charge_periodo_iniz_list(self):
         sito = str(self.comboBox_sito.currentText())
         # sitob = sito.decode('utf-8')

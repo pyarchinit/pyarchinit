@@ -652,7 +652,18 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
                 for i in res:
                     self.DATA_LIST.append(i)
                 self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
-                self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]  ####darivedere
+
+                # Check if DATA_LIST is empty before accessing index 0
+                if len(self.DATA_LIST) == 0:
+                    if self.L == 'it':
+                        QMessageBox.information(self, "Informazione", f"Nessun record trovato per il sito '{sito_set_str}' in questa scheda.", QMessageBox.StandardButton.Ok)
+                    elif self.L == 'de':
+                        QMessageBox.information(self, "Information", f"Keine Datensätze für die Fundstelle '{sito_set_str}' in dieser Registerkarte gefunden.", QMessageBox.StandardButton.Ok)
+                    else:
+                        QMessageBox.information(self, "Information", f"No records found for site '{sito_set_str}' in this tab.", QMessageBox.StandardButton.Ok)
+                    return
+
+                self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
                 self.fill_fields()
                 self.BROWSE_STATUS = "b"
                 self.SORT_STATUS = "n"
@@ -660,23 +671,14 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
                 self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR + 1)
                 self.setComboBoxEnable(["self.comboBox_sito"], "False")
             else:
-                pass  #
+                pass
         except Exception as e:
             if self.L == 'it':
-
-                QMessageBox.information(self, "Attenzione", "Non esiste questo sito: "'"' + str(
-                    sito_set_str) + '"'" in questa scheda, Per favore distattiva la 'scelta sito' dalla scheda di configurazione plugin per vedere tutti i record oppure crea la scheda",
-                                        QMessageBox.StandardButton.Ok)
+                QMessageBox.warning(self, "Errore", f"Errore durante il caricamento dei dati: {str(e)}", QMessageBox.StandardButton.Ok)
             elif self.L == 'de':
-
-                QMessageBox.information(self, "Warnung", "Es gibt keine solche archäologische Stätte: "'""' + str(
-                    sito_set_str) + '"'" in dieser Registerkarte, Bitte deaktivieren Sie die 'Site-Wahl' in der Plugin-Konfigurationsregisterkarte, um alle Datensätze zu sehen oder die Registerkarte zu erstellen",
-                                        QMessageBox.StandardButton.Ok)
+                QMessageBox.warning(self, "Fehler", f"Fehler beim Laden der Daten: {str(e)}", QMessageBox.StandardButton.Ok)
             else:
-
-                QMessageBox.information(self, "Warning", "There is no such site: "'"' + str(
-                    sito_set_str) + '"'" in this tab, Please disable the 'site choice' from the plugin configuration tab to see all records or create the tab",
-                                        QMessageBox.StandardButton.Ok)
+                QMessageBox.warning(self, "Error", f"Error loading data: {str(e)}", QMessageBox.StandardButton.Ok)
 
     def on_pushButtonQuant_pressed(self):
         dlg = QuantPanelMain(self)
@@ -969,16 +971,13 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
             self.pushButton_auto_populate_photo = QPushButton(self)
             if self.L == 'it':
                 self.pushButton_auto_populate_photo.setText("Popola Foto/Disegni")
-                self.pushButton_auto_populate_photo.setToolTip(
-                    "Auto-popola i campi Photo e Drawing dai media associati")
+                self.pushButton_auto_populate_photo.setToolTip(self.tr("Auto-popola i campi Photo e Drawing dai media associati"))
             elif self.L == 'de':
                 self.pushButton_auto_populate_photo.setText("Fotos/Zeich. füllen")
-                self.pushButton_auto_populate_photo.setToolTip(
-                    "Foto- und Zeichnungsfelder aus Medienverknüpfungen automatisch füllen")
+                self.pushButton_auto_populate_photo.setToolTip(self.tr("Foto- und Zeichnungsfelder aus Medienverknüpfungen automatisch füllen"))
             else:
                 self.pushButton_auto_populate_photo.setText("Populate Photo/Drawing")
-                self.pushButton_auto_populate_photo.setToolTip(
-                    "Auto-populate Photo and Drawing fields from media associations")
+                self.pushButton_auto_populate_photo.setToolTip(self.tr("Auto-populate Photo and Drawing fields from media associations"))
 
             # Style the button
             self.pushButton_auto_populate_photo.setMinimumSize(QSize(120, 25))
@@ -1028,13 +1027,13 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
             self.pushButton_filter_pottery = QPushButton(self)
             if self.L == 'it':
                 self.pushButton_filter_pottery.setText("Filtra ID")
-                self.pushButton_filter_pottery.setToolTip("Filtra i record per ID Number")
+                self.pushButton_filter_pottery.setToolTip(self.tr("Filtra i record per ID Number"))
             elif self.L == 'de':
                 self.pushButton_filter_pottery.setText("Filter ID")
-                self.pushButton_filter_pottery.setToolTip("Datensätze nach ID-Nummer filtern")
+                self.pushButton_filter_pottery.setToolTip(self.tr("Datensätze nach ID-Nummer filtern"))
             else:
                 self.pushButton_filter_pottery.setText("Filter ID")
-                self.pushButton_filter_pottery.setToolTip("Filter records by ID Number")
+                self.pushButton_filter_pottery.setToolTip(self.tr("Filter records by ID Number"))
 
             # Style the button to match existing buttons
             self.pushButton_filter_pottery.setMinimumSize(QSize(50, 25))
@@ -3158,19 +3157,20 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
 
 
     def on_pushButton_view_all_pressed(self):
-
         self.empty_fields()
         self.charge_records()
+        if not self.DATA_LIST:
+            if self.L == 'it':
+                QMessageBox.information(self, "Informazione", "Nessun record trovato.", QMessageBox.StandardButton.Ok)
+            else:
+                QMessageBox.information(self, "Information", "No records found.", QMessageBox.StandardButton.Ok)
+            return
+        self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
+        self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
         self.fill_fields()
         self.BROWSE_STATUS = "b"
         self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
-        if type(self.REC_CORR) == "<class 'str'>":
-            corr = 0
-        else:
-            corr = self.REC_CORR
         self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR + 1)
-        self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
-        self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
         self.SORT_STATUS = "n"
         self.label_sort.setText(self.SORTED_ITEMS[self.SORT_STATUS])
     #records surf functions
@@ -3781,7 +3781,9 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
 
     def fill_fields(self, n=0):
         self.rec_num = n
-        #QMessageBox.warning(self, "check fill fields", str(self.rec_num),  QMessageBox.Ok)
+        # Check if DATA_LIST is empty or index out of bounds
+        if not self.DATA_LIST or n >= len(self.DATA_LIST):
+            return
         try:
             self.lineEdit_id_number.setText(str(self.DATA_LIST[self.rec_num].id_number))	#3 - US
             str(self.comboBox_sito.setEditText(self.DATA_LIST[self.rec_num].sito))													#1 - Sito
@@ -5716,7 +5718,7 @@ Use well-structured paragraphs with headings for each section.
             'OpenAI (Cloud)',
             'KhutmML-CLIP (Fine-tuned)'
         ])
-        self.combo_similarity_model.setToolTip("Select embedding model for similarity search")
+        self.combo_similarity_model.setToolTip(self.tr("Select embedding model for similarity search"))
         model_layout.addWidget(self.combo_similarity_model)
         similarity_layout.addLayout(model_layout)
 
@@ -5725,7 +5727,7 @@ Use well-structured paragraphs with headings for each section.
         type_layout.addWidget(QLabel("Search Type:"))
         self.combo_similarity_type = QComboBox()
         self.combo_similarity_type.addItems(['General', 'Decoration', 'Shape'])
-        self.combo_similarity_type.setToolTip("Type of similarity to search for")
+        self.combo_similarity_type.setToolTip(self.tr("Type of similarity to search for"))
         type_layout.addWidget(self.combo_similarity_type)
         similarity_layout.addLayout(type_layout)
 
@@ -5738,15 +5740,15 @@ Use well-structured paragraphs with headings for each section.
         # Search mode radio buttons
         mode_layout = QHBoxLayout()
         self.radio_search_global = QRadioButton("Global Search")
-        self.radio_search_global.setToolTip(
+        self.radio_search_global.setToolTip(self.tr(
             "Cerca in TUTTO il database ceramiche che corrispondono alla descrizione.\n"
             "Non richiede un'immagine di partenza."
-        )
+        ))
         self.radio_search_combined = QRadioButton("Combined Search")
-        self.radio_search_combined.setToolTip(
+        self.radio_search_combined.setToolTip(self.tr(
             "Analizza l'immagine corrente con il prompt personalizzato,\n"
             "poi cerca ceramiche simili per quelle caratteristiche specifiche."
-        )
+        ))
         self.radio_search_combined.setChecked(True)  # Default to combined
         mode_layout.addWidget(QLabel("Mode:"))
         mode_layout.addWidget(self.radio_search_combined)
@@ -5760,10 +5762,10 @@ Use well-structured paragraphs with headings for each section.
         prompt_input_layout.addWidget(self.label_custom_prompt)
         self.lineEdit_custom_prompt = QLineEdit()
         self.lineEdit_custom_prompt.setPlaceholderText("Es: decorazione a bande, forma globulare, texture ruvida...")
-        self.lineEdit_custom_prompt.setToolTip(
+        self.lineEdit_custom_prompt.setToolTip(self.tr(
             "Combined: Descrivi su cosa focalizzare l'analisi dell'immagine corrente.\n"
             "Global: Descrivi le caratteristiche da cercare in tutto il database."
-        )
+        ))
         prompt_input_layout.addWidget(self.lineEdit_custom_prompt)
         prompt_layout.addLayout(prompt_input_layout)
 
@@ -5791,7 +5793,7 @@ Use well-structured paragraphs with headings for each section.
         # Filter options
         filter_layout = QHBoxLayout()
         self.chk_only_decorated = QCheckBox("Only decorated pottery")
-        self.chk_only_decorated.setToolTip("Filter results to show only pottery with decoration (exdeco or intdeco field not empty)")
+        self.chk_only_decorated.setToolTip(self.tr("Filter results to show only pottery with decoration (exdeco or intdeco field not empty)"))
         self.chk_only_decorated.setChecked(True)  # Default ON for decoration searches
         filter_layout.addWidget(self.chk_only_decorated)
         similarity_layout.addLayout(filter_layout)
@@ -5799,12 +5801,12 @@ Use well-structured paragraphs with headings for each section.
         # Advanced preprocessing options - Row 1
         preproc_layout = QHBoxLayout()
         self.chk_auto_crop = QCheckBox("Auto-crop detail")
-        self.chk_auto_crop.setToolTip("Auto-crop to region with most decoration detail")
+        self.chk_auto_crop.setToolTip(self.tr("Auto-crop to region with most decoration detail"))
         self.chk_auto_crop.setChecked(False)
         preproc_layout.addWidget(self.chk_auto_crop)
 
         self.chk_edge_preproc = QCheckBox("Edge-enhance")
-        self.chk_edge_preproc.setToolTip("Use edge-detection preprocessing (better for line decorations)")
+        self.chk_edge_preproc.setToolTip(self.tr("Use edge-detection preprocessing (better for line decorations)"))
         self.chk_edge_preproc.setChecked(False)
         preproc_layout.addWidget(self.chk_edge_preproc)
         similarity_layout.addLayout(preproc_layout)
@@ -5812,12 +5814,12 @@ Use well-structured paragraphs with headings for each section.
         # Advanced preprocessing options - Row 2 (Segmentation)
         segment_layout = QHBoxLayout()
         self.chk_segment_decoration = QCheckBox("Isolate decoration")
-        self.chk_segment_decoration.setToolTip("Segment and isolate decorated areas (mask plain clay)")
+        self.chk_segment_decoration.setToolTip(self.tr("Segment and isolate decorated areas (mask plain clay)"))
         self.chk_segment_decoration.setChecked(False)
         segment_layout.addWidget(self.chk_segment_decoration)
 
         self.chk_remove_background = QCheckBox("Remove background")
-        self.chk_remove_background.setToolTip("Remove photo background from pottery (useful for studio photos)")
+        self.chk_remove_background.setToolTip(self.tr("Remove photo background from pottery (useful for studio photos)"))
         self.chk_remove_background.setChecked(False)
         segment_layout.addWidget(self.chk_remove_background)
         similarity_layout.addLayout(segment_layout)
@@ -5825,15 +5827,15 @@ Use well-structured paragraphs with headings for each section.
         # Buttons - Row 1 (Search)
         buttons_layout = QHBoxLayout()
         self.btn_find_similar = QPushButton("Find Similar")
-        self.btn_find_similar.setToolTip("Find pottery visually similar to current record")
+        self.btn_find_similar.setToolTip(self.tr("Find pottery visually similar to current record"))
         self.btn_find_similar.clicked.connect(self.on_find_similar_clicked)
         buttons_layout.addWidget(self.btn_find_similar)
 
         self.btn_compare_external = QPushButton("Compare External Image")
-        self.btn_compare_external.setToolTip(
+        self.btn_compare_external.setToolTip(self.tr(
             "Compare an external image (not in database) against the pottery index.\n"
             "Useful for identifying unknown pottery fragments by visual similarity."
-        )
+        ))
         self.btn_compare_external.clicked.connect(self.on_compare_external_clicked)
         buttons_layout.addWidget(self.btn_compare_external)
         similarity_layout.addLayout(buttons_layout)
@@ -5841,12 +5843,12 @@ Use well-structured paragraphs with headings for each section.
         # Buttons - Row 2 (Index management)
         index_buttons_layout = QHBoxLayout()
         self.btn_build_index = QPushButton("Build Index")
-        self.btn_build_index.setToolTip("Build/rebuild similarity index for selected model (from scratch)")
+        self.btn_build_index.setToolTip(self.tr("Build/rebuild similarity index for selected model (from scratch)"))
         self.btn_build_index.clicked.connect(self.on_build_index_clicked)
         index_buttons_layout.addWidget(self.btn_build_index)
 
         self.btn_update_index = QPushButton("Update Index")
-        self.btn_update_index.setToolTip("Update existing indexes: add new, update modified, remove deleted images")
+        self.btn_update_index.setToolTip(self.tr("Update existing indexes: add new, update modified, remove deleted images"))
         self.btn_update_index.clicked.connect(self.on_update_index_clicked)
         index_buttons_layout.addWidget(self.btn_update_index)
         similarity_layout.addLayout(index_buttons_layout)
@@ -5854,12 +5856,12 @@ Use well-structured paragraphs with headings for each section.
         # Buttons - Row 2 (Import/Export)
         io_layout = QHBoxLayout()
         self.btn_export_index = QPushButton("Export Indexes")
-        self.btn_export_index.setToolTip("Export all indexes to ZIP for sharing with other PCs")
+        self.btn_export_index.setToolTip(self.tr("Export all indexes to ZIP for sharing with other PCs"))
         self.btn_export_index.clicked.connect(self.on_export_indexes_clicked)
         io_layout.addWidget(self.btn_export_index)
 
         self.btn_import_index = QPushButton("Import Indexes")
-        self.btn_import_index.setToolTip("Import indexes from ZIP (from another PC with same database)")
+        self.btn_import_index.setToolTip(self.tr("Import indexes from ZIP (from another PC with same database)"))
         self.btn_import_index.clicked.connect(self.on_import_indexes_clicked)
         io_layout.addWidget(self.btn_import_index)
         similarity_layout.addLayout(io_layout)
@@ -5867,35 +5869,35 @@ Use well-structured paragraphs with headings for each section.
         # Buttons - Row 4 (Training KhutmML)
         training_layout = QHBoxLayout()
         self.btn_train_khutm = QPushButton("Train KhutmML")
-        self.btn_train_khutm.setToolTip(
+        self.btn_train_khutm.setToolTip(self.tr(
             "Fine-tune the KhutmML-CLIP model on your pottery dataset.\n"
             "This creates a specialized model for your archaeological collection,\n"
             "improving similarity search accuracy."
-        )
+        ))
         self.btn_train_khutm.clicked.connect(self.on_train_khutm_clicked)
         training_layout.addWidget(self.btn_train_khutm)
 
         self.btn_prepare_dataset = QPushButton("Prepare Dataset")
-        self.btn_prepare_dataset.setToolTip(
+        self.btn_prepare_dataset.setToolTip(self.tr(
             "Prepare a training dataset from existing pottery images.\n"
             "Organizes images by type and creates positive/negative pairs."
-        )
+        ))
         self.btn_prepare_dataset.clicked.connect(self.on_prepare_dataset_clicked)
         training_layout.addWidget(self.btn_prepare_dataset)
 
         self.btn_export_khutm_model = QPushButton("Export Model")
-        self.btn_export_khutm_model.setToolTip(
+        self.btn_export_khutm_model.setToolTip(self.tr(
             "Export the trained KhutmML-CLIP model to a ZIP file.\n"
             "Use this to backup or share your trained model."
-        )
+        ))
         self.btn_export_khutm_model.clicked.connect(self.on_export_khutm_model_clicked)
         training_layout.addWidget(self.btn_export_khutm_model)
 
         self.btn_import_khutm_model = QPushButton("Import Model")
-        self.btn_import_khutm_model.setToolTip(
+        self.btn_import_khutm_model.setToolTip(self.tr(
             "Import a KhutmML-CLIP model from a ZIP file.\n"
             "Replaces the current trained model with the imported one."
-        )
+        ))
         self.btn_import_khutm_model.clicked.connect(self.on_import_khutm_model_clicked)
         training_layout.addWidget(self.btn_import_khutm_model)
         similarity_layout.addLayout(training_layout)
@@ -5903,10 +5905,10 @@ Use well-structured paragraphs with headings for each section.
         # Auto-update checkbox
         auto_update_layout = QHBoxLayout()
         self.checkbox_auto_update = QCheckBox("Auto-update index when images are added/removed")
-        self.checkbox_auto_update.setToolTip(
+        self.checkbox_auto_update.setToolTip(self.tr(
             "Automatically update CLIP embedding index when pottery images are added or removed.\n"
             "This keeps the similarity search index up-to-date without manual rebuild."
-        )
+        ))
         # Load saved state from settings
         s = QSettings()
         auto_update_enabled = s.value('pyArchInit/pottery_similarity_auto_update', True, type=bool)
@@ -6310,7 +6312,7 @@ Use well-structured paragraphs with headings for each section.
                 except:
                     pass
             datazione_item = QTableWidgetItem(str(datazione))
-            datazione_item.setToolTip("Chronological dating from periodizzazione")
+            datazione_item.setToolTip(self.tr("Chronological dating from periodizzazione"))
             if datazione:
                 datazione_item.setBackground(QColor(230, 230, 255))  # Light blue for dated items
             table.setItem(row, 7, datazione_item)
@@ -6356,7 +6358,7 @@ Use well-structured paragraphs with headings for each section.
         button_layout.addStretch()
 
         btn_go_to = QPushButton("Go to Selected")
-        btn_go_to.setToolTip("Navigate to the selected pottery record")
+        btn_go_to.setToolTip(self.tr("Navigate to the selected pottery record"))
         btn_go_to.clicked.connect(lambda: self._go_to_result_from_table(table, dialog))
         button_layout.addWidget(btn_go_to)
 
@@ -6946,13 +6948,13 @@ Use well-structured paragraphs with headings for each section.
 
         # Export to Excel button
         btn_export = QPushButton("Export to Excel")
-        btn_export.setToolTip("Export results to Excel with thumbnails and chart")
+        btn_export.setToolTip(self.tr("Export results to Excel with thumbnails and chart"))
         btn_export.clicked.connect(lambda: self.export_similarity_results(results, thumb_path_str, is_cloudinary))
         buttons_layout.addWidget(btn_export)
 
         # Show Chart button
         btn_chart = QPushButton("Show Chart")
-        btn_chart.setToolTip("Show similarity distribution chart")
+        btn_chart.setToolTip(self.tr("Show similarity distribution chart"))
         btn_chart.clicked.connect(lambda: self.show_similarity_chart(results))
         buttons_layout.addWidget(btn_chart)
 
@@ -7871,11 +7873,11 @@ class KhutmTrainingDialog(QDialog):
 
         self.radio_database = QRadioButton("Use pottery images from database")
         self.radio_database.setChecked(True)
-        self.radio_database.setToolTip("Uses all pottery images linked in the database for training")
+        self.radio_database.setToolTip(self.tr("Uses all pottery images linked in the database for training"))
         source_layout.addWidget(self.radio_database)
 
         self.radio_folder = QRadioButton("Use images from folder")
-        self.radio_folder.setToolTip("Select a folder with pottery images organized by category")
+        self.radio_folder.setToolTip(self.tr("Select a folder with pottery images organized by category"))
         source_layout.addWidget(self.radio_folder)
 
         folder_layout = QHBoxLayout()
@@ -7903,28 +7905,28 @@ class KhutmTrainingDialog(QDialog):
         self.spinBox_epochs = QSpinBox()
         self.spinBox_epochs.setRange(1, 100)
         self.spinBox_epochs.setValue(10)
-        self.spinBox_epochs.setToolTip("Number of training epochs (more = longer but potentially better)")
+        self.spinBox_epochs.setToolTip(self.tr("Number of training epochs (more = longer but potentially better)"))
         params_layout.addWidget(self.spinBox_epochs, 0, 1)
 
         params_layout.addWidget(QLabel("Batch Size:"), 0, 2)
         self.spinBox_batch = QSpinBox()
         self.spinBox_batch.setRange(4, 64)
         self.spinBox_batch.setValue(16)
-        self.spinBox_batch.setToolTip("Batch size (lower = less memory, higher = faster training)")
+        self.spinBox_batch.setToolTip(self.tr("Batch size (lower = less memory, higher = faster training)"))
         params_layout.addWidget(self.spinBox_batch, 0, 3)
 
         params_layout.addWidget(QLabel("Learning Rate:"), 1, 0)
         self.comboBox_lr = QComboBox()
         self.comboBox_lr.addItems(['1e-3', '1e-4', '1e-5', '5e-5'])
         self.comboBox_lr.setCurrentIndex(1)  # Default 1e-4
-        self.comboBox_lr.setToolTip("Learning rate (smaller = safer, larger = faster)")
+        self.comboBox_lr.setToolTip(self.tr("Learning rate (smaller = safer, larger = faster)"))
         params_layout.addWidget(self.comboBox_lr, 1, 1)
 
         params_layout.addWidget(QLabel("Min images per class:"), 1, 2)
         self.spinBox_min_images = QSpinBox()
         self.spinBox_min_images.setRange(2, 50)
         self.spinBox_min_images.setValue(5)
-        self.spinBox_min_images.setToolTip("Minimum images required per pottery type for training")
+        self.spinBox_min_images.setToolTip(self.tr("Minimum images required per pottery type for training"))
         params_layout.addWidget(self.spinBox_min_images, 1, 3)
 
         params_group.setLayout(params_layout)
@@ -7935,7 +7937,7 @@ class KhutmTrainingDialog(QDialog):
         output_layout = QHBoxLayout()
         self.lineEdit_output = QLineEdit()
         self.lineEdit_output.setText(os.path.expanduser('~/pyarchinit/bin/models/khutm_clip'))
-        self.lineEdit_output.setToolTip("Directory where trained model will be saved")
+        self.lineEdit_output.setToolTip(self.tr("Directory where trained model will be saved"))
         output_layout.addWidget(self.lineEdit_output)
         self.btn_browse_output = QPushButton("Browse...")
         self.btn_browse_output.clicked.connect(self.browse_output_folder)
@@ -8186,36 +8188,36 @@ class DatasetPreparationDialog(QDialog):
         group_layout = QVBoxLayout()
 
         self.radio_fabric = QRadioButton("Group by Fabric")
-        self.radio_fabric.setToolTip("Group pottery by fabric type for material similarity")
+        self.radio_fabric.setToolTip(self.tr("Group pottery by fabric type for material similarity"))
         group_layout.addWidget(self.radio_fabric)
 
         self.radio_form = QRadioButton("Group by Form")
         self.radio_form.setChecked(True)
-        self.radio_form.setToolTip("Group pottery by general form for shape similarity")
+        self.radio_form.setToolTip(self.tr("Group pottery by general form for shape similarity"))
         group_layout.addWidget(self.radio_form)
 
         self.radio_specific_form = QRadioButton("Group by Specific Form")
-        self.radio_specific_form.setToolTip("Group pottery by specific typological form for detailed shape similarity")
+        self.radio_specific_form.setToolTip(self.tr("Group pottery by specific typological form for detailed shape similarity"))
         group_layout.addWidget(self.radio_specific_form)
 
         self.radio_decoration_type = QRadioButton("Group by Decoration Type")
-        self.radio_decoration_type.setToolTip("Group pottery by decoration type (geometric, figurative, etc.)")
+        self.radio_decoration_type.setToolTip(self.tr("Group pottery by decoration type (geometric, figurative, etc.)"))
         group_layout.addWidget(self.radio_decoration_type)
 
         self.radio_decoration_motif = QRadioButton("Group by Decoration Motif")
-        self.radio_decoration_motif.setToolTip("Group pottery by decorative motif pattern")
+        self.radio_decoration_motif.setToolTip(self.tr("Group pottery by decorative motif pattern"))
         group_layout.addWidget(self.radio_decoration_motif)
 
         self.radio_decoration_combined = QRadioButton("Group by Decoration (Type+Motif+Position)")
-        self.radio_decoration_combined.setToolTip("Group pottery by combined decoration attributes for detailed pattern similarity")
+        self.radio_decoration_combined.setToolTip(self.tr("Group pottery by combined decoration attributes for detailed pattern similarity"))
         group_layout.addWidget(self.radio_decoration_combined)
 
         self.radio_ware = QRadioButton("Group by Ware")
-        self.radio_ware.setToolTip("Group pottery by ware type")
+        self.radio_ware.setToolTip(self.tr("Group pottery by ware type"))
         group_layout.addWidget(self.radio_ware)
 
         self.radio_site = QRadioButton("Group by Site")
-        self.radio_site.setToolTip("Group pottery by archaeological site")
+        self.radio_site.setToolTip(self.tr("Group pottery by archaeological site"))
         group_layout.addWidget(self.radio_site)
 
         group_box.setLayout(group_layout)

@@ -141,7 +141,7 @@ class TMAImportDialog(QDialog):
         
         # Checkbox per parser Festos (solo per DOCX)
         self.check_festos_parser = QCheckBox("Usa parser Festos per file DOCX (inventari cassette)")
-        self.check_festos_parser.setToolTip("Abilita il parser specializzato per gli inventari di Festos")
+        self.check_festos_parser.setToolTip(self.tr("Abilita il parser specializzato per gli inventari di Festos"))
         file_layout.addWidget(self.check_festos_parser)
         
         file_group.setLayout(file_layout)

@@ -2325,6 +2325,112 @@ p, li { white-space: pre-wrap; }
          </property>
         </widget>
        </item>
+       <item row="13" column="0">
+        <widget class="QLabel" name="label_gps_method">
+         <property name="text">
+          <string>Metodo GPS</string>
+         </property>
+        </widget>
+       </item>
+       <item row="13" column="1">
+        <widget class="QComboBox" name="comboBox_gps_method">
+         <property name="editable">
+          <bool>true</bool>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>22</height>
+          </size>
+         </property>
+        </widget>
+       </item>
+       <item row="13" column="2">
+        <widget class="QLabel" name="label_coordinate_precision">
+         <property name="text">
+          <string>Precisione (m)</string>
+         </property>
+        </widget>
+       </item>
+       <item row="13" column="3" colspan="2">
+        <widget class="QDoubleSpinBox" name="doubleSpinBox_coordinate_precision">
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>22</height>
+          </size>
+         </property>
+         <property name="decimals">
+          <number>2</number>
+         </property>
+         <property name="maximum">
+          <double>1000.000000000000000</double>
+         </property>
+         <property name="singleStep">
+          <double>0.100000000000000</double>
+         </property>
+        </widget>
+       </item>
+       <item row="14" column="0">
+        <widget class="QLabel" name="label_vegetation_coverage">
+         <property name="text">
+          <string>Copertura vegetale</string>
+         </property>
+        </widget>
+       </item>
+       <item row="14" column="1" colspan="2">
+        <widget class="QComboBox" name="comboBox_vegetation_coverage">
+         <property name="editable">
+          <bool>true</bool>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>22</height>
+          </size>
+         </property>
+        </widget>
+       </item>
+       <item row="14" column="3">
+        <widget class="QLabel" name="label_surface_condition">
+         <property name="text">
+          <string>Condizione superficie</string>
+         </property>
+        </widget>
+       </item>
+       <item row="14" column="4">
+        <widget class="QComboBox" name="comboBox_surface_condition">
+         <property name="editable">
+          <bool>true</bool>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>22</height>
+          </size>
+         </property>
+        </widget>
+       </item>
+       <item row="15" column="0">
+        <widget class="QLabel" name="label_accessibility">
+         <property name="text">
+          <string>Accessibilità</string>
+         </property>
+        </widget>
+       </item>
+       <item row="15" column="1" colspan="4">
+        <widget class="QComboBox" name="comboBox_accessibility">
+         <property name="editable">
+          <bool>true</bool>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>22</height>
+          </size>
+         </property>
+        </widget>
+       </item>
       </layout>
      </widget>
      <widget class="QWidget" name="tab">
@@ -2581,6 +2687,106 @@ p, li { white-space: pre-wrap; }
         <item row="1" column="0">
          <widget class="QgsDateTimeEdit" name="mDateTimeEdit"/>
         </item>
+        <item row="10" column="0">
+         <widget class="QLabel" name="label_survey_type">
+          <property name="text">
+           <string>Tipo survey</string>
+          </property>
+         </widget>
+        </item>
+        <item row="10" column="1" colspan="3">
+         <widget class="QComboBox" name="comboBox_survey_type">
+          <property name="editable">
+           <bool>true</bool>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>22</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+        <item row="11" column="0">
+         <widget class="QLabel" name="label_visibility_percent">
+          <property name="text">
+           <string>Visibilità (%)</string>
+          </property>
+         </widget>
+        </item>
+        <item row="11" column="1">
+         <widget class="QSpinBox" name="spinBox_visibility_percent">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>22</height>
+           </size>
+          </property>
+          <property name="minimum">
+           <number>0</number>
+          </property>
+          <property name="maximum">
+           <number>100</number>
+          </property>
+          <property name="singleStep">
+           <number>5</number>
+          </property>
+         </widget>
+        </item>
+        <item row="11" column="2">
+         <widget class="QLabel" name="label_weather_conditions">
+          <property name="text">
+           <string>Condizioni meteo</string>
+          </property>
+         </widget>
+        </item>
+        <item row="11" column="3">
+         <widget class="QComboBox" name="comboBox_weather_conditions">
+          <property name="editable">
+           <bool>true</bool>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>22</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+        <item row="12" column="0">
+         <widget class="QLabel" name="label_team_members">
+          <property name="text">
+           <string>Team survey</string>
+          </property>
+         </widget>
+        </item>
+        <item row="12" column="1" colspan="3">
+         <widget class="QLineEdit" name="lineEdit_team_members">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>22</height>
+           </size>
+          </property>
+          <property name="placeholderText">
+           <string>Nomi membri team (separati da virgola)</string>
+          </property>
+         </widget>
+        </item>
+        <item row="13" column="0">
+         <widget class="QLabel" name="label_photo_documentation">
+          <property name="text">
+           <string>Doc. fotografica</string>
+          </property>
+         </widget>
+        </item>
+        <item row="13" column="1">
+         <widget class="QCheckBox" name="checkBox_photo_documentation">
+          <property name="text">
+           <string>Presente</string>
+          </property>
+         </widget>
+        </item>
        </layout>
       </widget>
      </widget>
@@ -2774,6 +2980,59 @@ p, li { white-space: pre-wrap; }
       </attribute>
       <layout class="QGridLayout" name="gridLayout_8">
        <item row="0" column="0">
+        <widget class="QPushButton" name="pushButton_removetags">
+         <property name="maximumSize">
+          <size>
+           <width>25</width>
+           <height>25</height>
+          </size>
+         </property>
+         <property name="toolTip">
+          <string>Rimuovi tag dal media selezionato</string>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="icon">
+          <iconset resource="../../resources/resources.qrc">
+           <normaloff>:/icons/remove_tag.png</normaloff>:/icons/remove_tag.png</iconset>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QPushButton" name="pushButton_search_images">
+         <property name="maximumSize">
+          <size>
+           <width>25</width>
+           <height>25</height>
+          </size>
+         </property>
+         <property name="toolTip">
+          <string>Cerca e aggiungi immagini</string>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="icon">
+          <iconset resource="../../resources/resources.qrc">
+           <normaloff>:/icons/search.png</normaloff>:/icons/search.png</iconset>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="2">
+        <spacer name="horizontalSpacer_media">
+         <property name="orientation">
+          <enum>Qt::Orientation::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="1" column="0" colspan="3">
         <widget class="QListWidget" name="iconListWidget">
          <property name="maximumSize">
           <size>

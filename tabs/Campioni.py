@@ -388,14 +388,12 @@ class pyarchinit_Campioni(QDialog, MAIN_DIALOG_CLASS):
                 dlg.charge_list()
                 dlg.exec()
     def set_sito(self):
-        #self.model_a.database().close()
         conn = Connection()
-        sito_set= conn.sito_set()
+        sito_set = conn.sito_set()
         sito_set_str = sito_set['sito_set']
         try:
-            if bool (sito_set_str):
-                search_dict = {
-                    'sito': "'" + str(sito_set_str) + "'"}  # 1 - Sito
+            if bool(sito_set_str):
+                search_dict = {'sito': "'" + str(sito_set_str) + "'"}
                 u = Utility()
                 search_dict = u.remove_empty_items_fr_dict(search_dict)
                 res = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
@@ -403,7 +401,18 @@ class pyarchinit_Campioni(QDialog, MAIN_DIALOG_CLASS):
                 for i in res:
                     self.DATA_LIST.append(i)
                 self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
-                self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]  ####darivedere
+
+                # Check if we have results before accessing DATA_LIST[0]
+                if len(self.DATA_LIST) == 0:
+                    if self.L == 'it':
+                        QMessageBox.information(self, "Attenzione", f"Il sito '{sito_set_str}' non ha record in questa scheda. Crea un nuovo record o disattiva la 'scelta sito' dalla configurazione.", QMessageBox.StandardButton.Ok)
+                    elif self.L == 'de':
+                        QMessageBox.information(self, "Warnung", f"Die Fundstelle '{sito_set_str}' hat keine Datensätze. Erstellen Sie einen neuen Datensatz oder deaktivieren Sie die 'Site-Wahl'.", QMessageBox.StandardButton.Ok)
+                    else:
+                        QMessageBox.information(self, "Warning", f"Site '{sito_set_str}' has no records in this tab. Create a new record or disable 'site choice' from configuration.", QMessageBox.StandardButton.Ok)
+                    return
+
+                self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
                 self.fill_fields()
                 self.BROWSE_STATUS = "b"
                 self.SORT_STATUS = "n"
@@ -411,17 +420,14 @@ class pyarchinit_Campioni(QDialog, MAIN_DIALOG_CLASS):
                 self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR + 1)
                 self.setComboBoxEnable(["self.comboBox_sito"], "False")
             else:
-                pass#
-        except:
-            if self.L=='it':
-            
-                QMessageBox.information(self, "Attenzione" ,"Non esiste questo sito: "'"'+ str(sito_set_str) +'"'" in questa scheda, Per favore distattiva la 'scelta sito' dalla scheda di configurazione plugin per vedere tutti i record oppure crea la scheda",QMessageBox.StandardButton.Ok) 
-            elif self.L=='de':
-            
-                QMessageBox.information(self, "Warnung" , "Es gibt keine solche archäologische Stätte: "'""'+ str(sito_set_str) +'"'" in dieser Registerkarte, Bitte deaktivieren Sie die 'Site-Wahl' in der Plugin-Konfigurationsregisterkarte, um alle Datensätze zu sehen oder die Registerkarte zu erstellen",QMessageBox.StandardButton.Ok) 
+                pass
+        except Exception as e:
+            if self.L == 'it':
+                QMessageBox.warning(self, "Errore", f"Errore nel caricamento del sito '{sito_set_str}':\n{str(e)}", QMessageBox.StandardButton.Ok)
+            elif self.L == 'de':
+                QMessageBox.warning(self, "Fehler", f"Fehler beim Laden der Fundstelle '{sito_set_str}':\n{str(e)}", QMessageBox.StandardButton.Ok)
             else:
-            
-                QMessageBox.information(self, "Warning" , "There is no such site: "'"'+ str(sito_set_str) +'"'" in this tab, Please disable the 'site choice' from the plugin configuration tab to see all records or create the tab",QMessageBox.StandardButton.Ok) 
+                QMessageBox.warning(self, "Error", f"Error loading site '{sito_set_str}':\n{str(e)}", QMessageBox.StandardButton.Ok) 
 
     def on_pushButton_pdf_pressed(self):
         pass
@@ -1432,10 +1438,12 @@ class pyarchinit_Campioni(QDialog, MAIN_DIALOG_CLASS):
             self.DATA_LIST_REC_CORR.append(str(getattr(self.DATA_LIST[self.REC_CORR], i)))
 
     def setComboBoxEnable(self, f, v):
-        """Set enabled state for widgets - uses getattr instead of eval for security"""
-        for fn in field_names:
-            cmd = '{}{}{}{}'.format(fn, '.setEnabled(', v, ')')
-            eval(cmd)
+        """Set enabled state for widgets"""
+        for fn in f:
+            widget_name = fn.replace('self.', '') if fn.startswith('self.') else fn
+            widget = getattr(self, widget_name, None)
+            if widget is not None:
+                widget.setEnabled(v == "True")
 
     def setComboBoxEditable(self, f, n):
         """Set editable state for widgets - uses getattr instead of eval for security"""

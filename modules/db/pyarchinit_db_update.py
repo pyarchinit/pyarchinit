@@ -835,6 +835,60 @@ class DB_update(object):
             # self._execute("ALTER TABLE us_table ADD CONSTRAINT ID_us_unico UNIQUE (unita_tipo);")
         # except:
             # pass
+
+        ####ut_table - New survey fields (v4.9.21+)
+        log_debug("Processing ut_table")
+        table = safe_load_table("ut_table")
+        if table is not None:
+            table_column_names_list = []
+            for i in table.columns:
+                table_column_names_list.append(str(i.name))
+
+            # New survey fields for UT (Unità Topografica)
+            if not table_column_names_list.__contains__('visibility_percent'):
+                self._execute("ALTER TABLE ut_table ADD COLUMN visibility_percent INTEGER")
+
+            if not table_column_names_list.__contains__('vegetation_coverage'):
+                self._execute("ALTER TABLE ut_table ADD COLUMN vegetation_coverage VARCHAR(255)")
+
+            if not table_column_names_list.__contains__('gps_method'):
+                self._execute("ALTER TABLE ut_table ADD COLUMN gps_method VARCHAR(100)")
+
+            if not table_column_names_list.__contains__('coordinate_precision'):
+                self._execute("ALTER TABLE ut_table ADD COLUMN coordinate_precision REAL")
+
+            if not table_column_names_list.__contains__('survey_type'):
+                self._execute("ALTER TABLE ut_table ADD COLUMN survey_type VARCHAR(100)")
+
+            if not table_column_names_list.__contains__('surface_condition'):
+                self._execute("ALTER TABLE ut_table ADD COLUMN surface_condition VARCHAR(255)")
+
+            if not table_column_names_list.__contains__('accessibility'):
+                self._execute("ALTER TABLE ut_table ADD COLUMN accessibility VARCHAR(255)")
+
+            if not table_column_names_list.__contains__('photo_documentation'):
+                self._execute("ALTER TABLE ut_table ADD COLUMN photo_documentation INTEGER")
+
+            if not table_column_names_list.__contains__('weather_conditions'):
+                self._execute("ALTER TABLE ut_table ADD COLUMN weather_conditions VARCHAR(255)")
+
+            if not table_column_names_list.__contains__('team_members'):
+                self._execute("ALTER TABLE ut_table ADD COLUMN team_members TEXT")
+
+            if not table_column_names_list.__contains__('foglio_catastale'):
+                self._execute("ALTER TABLE ut_table ADD COLUMN foglio_catastale VARCHAR(100)")
+
+        ####archeozoology_table - Add coord_z if missing
+        log_debug("Processing archeozoology_table")
+        table = safe_load_table("archeozoology_table")
+        if table is not None:
+            table_column_names_list = []
+            for i in table.columns:
+                table_column_names_list.append(str(i.name))
+
+            if not table_column_names_list.__contains__('coord_z'):
+                self._execute("ALTER TABLE archeozoology_table ADD COLUMN coord_z NUMERIC(12,6)")
+
         ####pyarchinit_thesaurus_sigle
         table = safe_load_table("pyarchinit_thesaurus_sigle")
         if table is None:

@@ -188,7 +188,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             from qgis.PyQt.QtWidgets import QPushButton
             from qgis.PyQt.QtGui import QIcon
             self.pushButton_remote_storage = QPushButton("Remote Storage Config")
-            self.pushButton_remote_storage.setToolTip("Configure credentials for remote storage backends")
+            self.pushButton_remote_storage.setToolTip(self.tr("Configure credentials for remote storage backends"))
             # Add to the Path Settings groupbox layout
             if hasattr(self, 'groupBox_4') and self.groupBox_4.layout():
                 self.groupBox_4.layout().addWidget(self.pushButton_remote_storage, 9, 0, 1, 2)
@@ -343,10 +343,10 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
 
                     # Database update buttons
                     self.update_db_btn = QPushButton("🔄 Aggiorna Schema Database")
-                    self.update_db_btn.setToolTip("Applica tutte le modifiche necessarie al database (concorrenza, quota, utenti)")
+                    self.update_db_btn.setToolTip(self.tr("Applica tutte le modifiche necessarie al database (concorrenza, quota, utenti)"))
 
                     self.apply_concurrency_btn = QPushButton("🔐 Applica Sistema Concorrenza")
-                    self.apply_concurrency_btn.setToolTip("Aggiunge il sistema di concorrenza a tutte le tabelle")
+                    self.apply_concurrency_btn.setToolTip(self.tr("Aggiunge il sistema di concorrenza a tutte le tabelle"))
 
                     # Style for database update buttons
                     self.update_db_btn.setStyleSheet("""
