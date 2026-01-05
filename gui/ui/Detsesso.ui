@@ -730,7 +730,7 @@
             <bool>false</bool>
            </property>
            <property name="contextMenuPolicy">
-            <enum>Qt::ContextMenuPolicy::DefaultContextMenu</enum>
+            <enum>Qt::DefaultContextMenu</enum>
            </property>
            <property name="frameShape">
             <enum>QFrame::Shape::Box</enum>
@@ -765,7 +765,7 @@
             <bool>false</bool>
            </property>
            <property name="contextMenuPolicy">
-            <enum>Qt::ContextMenuPolicy::DefaultContextMenu</enum>
+            <enum>Qt::DefaultContextMenu</enum>
            </property>
            <property name="frameShape">
             <enum>QFrame::Shape::Box</enum>
@@ -837,7 +837,7 @@
             <bool>false</bool>
            </property>
            <property name="contextMenuPolicy">
-            <enum>Qt::ContextMenuPolicy::DefaultContextMenu</enum>
+            <enum>Qt::DefaultContextMenu</enum>
            </property>
            <property name="frameShape">
             <enum>QFrame::Shape::Box</enum>
@@ -882,7 +882,7 @@
             <bool>false</bool>
            </property>
            <property name="contextMenuPolicy">
-            <enum>Qt::ContextMenuPolicy::DefaultContextMenu</enum>
+            <enum>Qt::DefaultContextMenu</enum>
            </property>
            <property name="frameShape">
             <enum>QFrame::Shape::Box</enum>
@@ -1398,7 +1398,7 @@
           <bool>false</bool>
          </property>
          <property name="layoutDirection">
-          <enum>Qt::LayoutDirection::LeftToRight</enum>
+          <enum>Qt::LeftToRight</enum>
          </property>
          <property name="text">
           <string>2</string>
@@ -1451,7 +1451,7 @@
           <bool>false</bool>
          </property>
          <property name="layoutDirection">
-          <enum>Qt::LayoutDirection::LeftToRight</enum>
+          <enum>Qt::LeftToRight</enum>
          </property>
          <property name="text">
           <string>2</string>
@@ -1480,7 +1480,7 @@
           <bool>false</bool>
          </property>
          <property name="layoutDirection">
-          <enum>Qt::LayoutDirection::LeftToRight</enum>
+          <enum>Qt::LeftToRight</enum>
          </property>
          <property name="text">
           <string>2</string>
@@ -2076,7 +2076,7 @@ p, li { white-space: pre-wrap; }
           <bool>false</bool>
          </property>
          <property name="layoutDirection">
-          <enum>Qt::LayoutDirection::LeftToRight</enum>
+          <enum>Qt::LeftToRight</enum>
          </property>
          <property name="editable">
           <bool>true</bool>
@@ -2191,7 +2191,7 @@ p, li { white-space: pre-wrap; }
           <bool>false</bool>
          </property>
          <property name="layoutDirection">
-          <enum>Qt::LayoutDirection::LeftToRight</enum>
+          <enum>Qt::LeftToRight</enum>
          </property>
          <property name="text">
           <string>3</string>
@@ -2210,7 +2210,7 @@ p, li { white-space: pre-wrap; }
           <bool>false</bool>
          </property>
          <property name="layoutDirection">
-          <enum>Qt::LayoutDirection::LeftToRight</enum>
+          <enum>Qt::LeftToRight</enum>
          </property>
          <property name="text">
           <string>3</string>
@@ -2252,7 +2252,7 @@ p, li { white-space: pre-wrap; }
           <bool>false</bool>
          </property>
          <property name="layoutDirection">
-          <enum>Qt::LayoutDirection::LeftToRight</enum>
+          <enum>Qt::LeftToRight</enum>
          </property>
          <property name="text">
           <string>3</string>
@@ -2268,7 +2268,7 @@ p, li { white-space: pre-wrap; }
           <bool>false</bool>
          </property>
          <property name="layoutDirection">
-          <enum>Qt::LayoutDirection::LeftToRight</enum>
+          <enum>Qt::LeftToRight</enum>
          </property>
          <property name="text">
           <string>3</string>
@@ -2334,7 +2334,7 @@ p, li { white-space: pre-wrap; }
           <string>I: sviluppo negativo dei rilievi </string>
          </property>
          <property name="textFormat">
-          <enum>Qt::TextFormat::PlainText</enum>
+          <enum>Qt::PlainText</enum>
          </property>
          <property name="wordWrap">
           <bool>true</bool>

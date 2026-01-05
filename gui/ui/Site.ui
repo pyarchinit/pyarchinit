@@ -602,7 +602,7 @@
         <bool>false</bool>
        </property>
        <property name="contextMenuPolicy">
-        <enum>Qt::ContextMenuPolicy::DefaultContextMenu</enum>
+        <enum>Qt::DefaultContextMenu</enum>
        </property>
        <property name="frameShape">
         <enum>QFrame::Shape::Box</enum>
@@ -643,7 +643,7 @@
         <bool>false</bool>
        </property>
        <property name="contextMenuPolicy">
-        <enum>Qt::ContextMenuPolicy::DefaultContextMenu</enum>
+        <enum>Qt::DefaultContextMenu</enum>
        </property>
        <property name="frameShape">
         <enum>QFrame::Shape::Box</enum>
@@ -706,7 +706,7 @@
         <bool>false</bool>
        </property>
        <property name="contextMenuPolicy">
-        <enum>Qt::ContextMenuPolicy::DefaultContextMenu</enum>
+        <enum>Qt::DefaultContextMenu</enum>
        </property>
        <property name="frameShape">
         <enum>QFrame::Shape::Box</enum>
@@ -763,7 +763,7 @@
         <bool>false</bool>
        </property>
        <property name="contextMenuPolicy">
-        <enum>Qt::ContextMenuPolicy::DefaultContextMenu</enum>
+        <enum>Qt::DefaultContextMenu</enum>
        </property>
        <property name="frameShape">
         <enum>QFrame::Shape::Box</enum>
@@ -2330,7 +2330,7 @@ background-color: rgb(255, 255, 127);</string>
               </font>
              </property>
              <property name="layoutDirection">
-              <enum>Qt::LayoutDirection::LeftToRight</enum>
+              <enum>Qt::LeftToRight</enum>
              </property>
              <property name="tabPosition">
               <enum>QTabWidget::TabPosition::North</enum>

@@ -739,7 +739,7 @@
             <bool>false</bool>
            </property>
            <property name="contextMenuPolicy">
-            <enum>Qt::ContextMenuPolicy::DefaultContextMenu</enum>
+            <enum>Qt::DefaultContextMenu</enum>
            </property>
            <property name="frameShape">
             <enum>QFrame::Shape::Box</enum>
@@ -774,7 +774,7 @@
             <bool>false</bool>
            </property>
            <property name="contextMenuPolicy">
-            <enum>Qt::ContextMenuPolicy::DefaultContextMenu</enum>
+            <enum>Qt::DefaultContextMenu</enum>
            </property>
            <property name="frameShape">
             <enum>QFrame::Shape::Box</enum>
@@ -846,7 +846,7 @@
             <bool>false</bool>
            </property>
            <property name="contextMenuPolicy">
-            <enum>Qt::ContextMenuPolicy::DefaultContextMenu</enum>
+            <enum>Qt::DefaultContextMenu</enum>
            </property>
            <property name="frameShape">
             <enum>QFrame::Shape::Box</enum>
@@ -891,7 +891,7 @@
             <bool>false</bool>
            </property>
            <property name="contextMenuPolicy">
-            <enum>Qt::ContextMenuPolicy::DefaultContextMenu</enum>
+            <enum>Qt::DefaultContextMenu</enum>
            </property>
            <property name="frameShape">
             <enum>QFrame::Shape::Box</enum>

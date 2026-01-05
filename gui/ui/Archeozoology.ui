@@ -68,7 +68,7 @@
       <bool>true</bool>
      </property>
      <property name="contextMenuPolicy">
-      <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
+      <enum>Qt::NoContextMenu</enum>
      </property>
      <property name="editable">
       <bool>true</bool>
@@ -227,7 +227,7 @@
       <bool>true</bool>
      </property>
      <property name="contextMenuPolicy">
-      <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
+      <enum>Qt::NoContextMenu</enum>
      </property>
      <property name="editable">
       <bool>true</bool>
@@ -286,7 +286,7 @@
       <bool>true</bool>
      </property>
      <property name="contextMenuPolicy">
-      <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
+      <enum>Qt::NoContextMenu</enum>
      </property>
      <property name="editable">
       <bool>true</bool>
@@ -6238,7 +6238,7 @@ p, li { white-space: pre-wrap; }
       <enum>Qt::ToolButtonStyle::ToolButtonTextOnly</enum>
      </property>
      <property name="arrowType">
-      <enum>Qt::ArrowType::NoArrow</enum>
+      <enum>Qt::NoArrow</enum>
      </property>
     </widget>
     <widget class="QPushButton" name="tre_d">
@@ -6579,7 +6579,7 @@ p, li { white-space: pre-wrap; }
              <bool>false</bool>
             </property>
             <property name="contextMenuPolicy">
-             <enum>Qt::ContextMenuPolicy::DefaultContextMenu</enum>
+             <enum>Qt::DefaultContextMenu</enum>
             </property>
             <property name="frameShape">
              <enum>QFrame::Shape::Box</enum>
@@ -6607,7 +6607,7 @@ p, li { white-space: pre-wrap; }
              <bool>false</bool>
             </property>
             <property name="contextMenuPolicy">
-             <enum>Qt::ContextMenuPolicy::DefaultContextMenu</enum>
+             <enum>Qt::DefaultContextMenu</enum>
             </property>
             <property name="frameShape">
              <enum>QFrame::Shape::Box</enum>
@@ -6726,7 +6726,7 @@ p, li { white-space: pre-wrap; }
              <bool>false</bool>
             </property>
             <property name="contextMenuPolicy">
-             <enum>Qt::ContextMenuPolicy::DefaultContextMenu</enum>
+             <enum>Qt::DefaultContextMenu</enum>
             </property>
             <property name="frameShape">
              <enum>QFrame::Shape::Box</enum>
@@ -6767,7 +6767,7 @@ p, li { white-space: pre-wrap; }
              <bool>false</bool>
             </property>
             <property name="contextMenuPolicy">
-             <enum>Qt::ContextMenuPolicy::DefaultContextMenu</enum>
+             <enum>Qt::DefaultContextMenu</enum>
             </property>
             <property name="frameShape">
              <enum>QFrame::Shape::Box</enum>
@@ -6938,7 +6938,7 @@ p, li { white-space: pre-wrap; }
          <bool>true</bool>
         </property>
         <property name="contextMenuPolicy">
-         <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
+         <enum>Qt::NoContextMenu</enum>
         </property>
         <property name="editable">
          <bool>true</bool>

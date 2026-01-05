@@ -3,7 +3,7 @@
  <class>DialogP</class>
  <widget class="QDialog" name="DialogP">
   <property name="windowModality">
-   <enum>Qt::WindowModality::WindowModal</enum>
+   <enum>Qt::WindowModal</enum>
   </property>
   <property name="geometry">
    <rect>
@@ -472,7 +472,7 @@
      <item row="1" column="1">
       <widget class="QListWidget" name="listWidget_2">
        <property name="contextMenuPolicy">
-        <enum>Qt::ContextMenuPolicy::DefaultContextMenu</enum>
+        <enum>Qt::DefaultContextMenu</enum>
        </property>
        <property name="alternatingRowColors">
         <bool>true</bool>

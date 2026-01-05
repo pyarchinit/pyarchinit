@@ -3,7 +3,7 @@
  <class>DialogInteractiveMatrix</class>
  <widget class="QDialog" name="DialogInteractiveMatrix">
   <property name="windowModality">
-   <enum>Qt::WindowModality::WindowModal</enum>
+   <enum>Qt::WindowModal</enum>
   </property>
   <property name="geometry">
    <rect>

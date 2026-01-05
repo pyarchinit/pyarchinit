@@ -54,10 +54,10 @@ background-color: rgb(168, 168, 168);</string>
        </sizepolicy>
       </property>
       <property name="verticalScrollBarPolicy">
-       <enum>Qt::ScrollBarPolicy::ScrollBarAlwaysOff</enum>
+       <enum>Qt::ScrollBarAlwaysOff</enum>
       </property>
       <property name="horizontalScrollBarPolicy">
-       <enum>Qt::ScrollBarPolicy::ScrollBarAlwaysOff</enum>
+       <enum>Qt::ScrollBarAlwaysOff</enum>
       </property>
       <property name="widgetResizable">
        <bool>true</bool>
@@ -96,7 +96,7 @@ background-color: rgb(168, 168, 168);</string>
            <bool>false</bool>
           </property>
           <property name="focusPolicy">
-           <enum>Qt::FocusPolicy::TabFocus</enum>
+           <enum>Qt::TabFocus</enum>
           </property>
           <property name="autoFillBackground">
            <bool>false</bool>
@@ -116,7 +116,7 @@ selection-color: rgb(140, 140, 105);</string>
            <number>0</number>
           </property>
           <property name="elideMode">
-           <enum>Qt::TextElideMode::ElideNone</enum>
+           <enum>Qt::ElideNone</enum>
           </property>
           <property name="documentMode">
            <bool>true</bool>

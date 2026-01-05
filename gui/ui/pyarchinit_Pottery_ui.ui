@@ -3,7 +3,7 @@
  <class>DialogPottery</class>
  <widget class="QDialog" name="DialogPottery">
   <property name="windowModality">
-   <enum>Qt::WindowModality::NonModal</enum>
+   <enum>Qt::NonModal</enum>
   </property>
   <property name="geometry">
    <rect>
@@ -59,7 +59,7 @@
       <bool>true</bool>
      </property>
      <property name="contextMenuPolicy">
-      <enum>Qt::ContextMenuPolicy::DefaultContextMenu</enum>
+      <enum>Qt::DefaultContextMenu</enum>
      </property>
      <property name="styleSheet">
       <string notr="true">background-color: rgb(255, 255, 255);</string>
@@ -595,7 +595,7 @@
       <bool>true</bool>
      </property>
      <property name="contextMenuPolicy">
-      <enum>Qt::ContextMenuPolicy::DefaultContextMenu</enum>
+      <enum>Qt::DefaultContextMenu</enum>
      </property>
      <property name="styleSheet">
       <string notr="true">background-color: rgb(255, 255, 255);</string>
@@ -668,7 +668,7 @@
       <bool>true</bool>
      </property>
      <property name="contextMenuPolicy">
-      <enum>Qt::ContextMenuPolicy::DefaultContextMenu</enum>
+      <enum>Qt::DefaultContextMenu</enum>
      </property>
      <property name="styleSheet">
       <string notr="true">background-color: rgb(255, 255, 255);</string>
@@ -699,7 +699,7 @@
       <bool>true</bool>
      </property>
      <property name="contextMenuPolicy">
-      <enum>Qt::ContextMenuPolicy::DefaultContextMenu</enum>
+      <enum>Qt::DefaultContextMenu</enum>
      </property>
      <property name="styleSheet">
       <string notr="true">background-color: rgb(255, 255, 255);</string>
@@ -805,10 +805,10 @@
         <bool>false</bool>
        </property>
        <property name="toolButtonStyle">
-        <enum>Qt::ToolButtonStyle::ToolButtonIconOnly</enum>
+        <enum>Qt::ToolButtonIconOnly</enum>
        </property>
        <property name="arrowType">
-        <enum>Qt::ArrowType::NoArrow</enum>
+        <enum>Qt::NoArrow</enum>
        </property>
       </widget>
      </item>
@@ -1468,7 +1468,7 @@
               <enum>QAbstractItemView::DragDropMode::NoDragDrop</enum>
              </property>
              <property name="defaultDropAction">
-              <enum>Qt::DropAction::CopyAction</enum>
+              <enum>Qt::CopyAction</enum>
              </property>
              <property name="movement">
               <enum>QListView::Movement::Static</enum>
@@ -2566,10 +2566,10 @@
                 <enum>QFrame::Shadow::Raised</enum>
                </property>
                <property name="verticalScrollBarPolicy">
-                <enum>Qt::ScrollBarPolicy::ScrollBarAsNeeded</enum>
+                <enum>Qt::ScrollBarAsNeeded</enum>
                </property>
                <property name="horizontalScrollBarPolicy">
-                <enum>Qt::ScrollBarPolicy::ScrollBarAsNeeded</enum>
+                <enum>Qt::ScrollBarAsNeeded</enum>
                </property>
                <property name="editTriggers">
                 <set>QAbstractItemView::AnyKeyPressed|QAbstractItemView::DoubleClicked|QAbstractItemView::EditKeyPressed</set>

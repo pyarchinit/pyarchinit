@@ -565,7 +565,7 @@
             <bool>false</bool>
            </property>
            <property name="contextMenuPolicy">
-            <enum>Qt::ContextMenuPolicy::DefaultContextMenu</enum>
+            <enum>Qt::DefaultContextMenu</enum>
            </property>
            <property name="frameShape">
             <enum>QFrame::Shape::Box</enum>
@@ -601,7 +601,7 @@
             <bool>false</bool>
            </property>
            <property name="contextMenuPolicy">
-            <enum>Qt::ContextMenuPolicy::DefaultContextMenu</enum>
+            <enum>Qt::DefaultContextMenu</enum>
            </property>
            <property name="frameShape">
             <enum>QFrame::Shape::Box</enum>
@@ -677,7 +677,7 @@
             <bool>false</bool>
            </property>
            <property name="contextMenuPolicy">
-            <enum>Qt::ContextMenuPolicy::DefaultContextMenu</enum>
+            <enum>Qt::DefaultContextMenu</enum>
            </property>
            <property name="frameShape">
             <enum>QFrame::Shape::Box</enum>
@@ -725,7 +725,7 @@
             <bool>false</bool>
            </property>
            <property name="contextMenuPolicy">
-            <enum>Qt::ContextMenuPolicy::DefaultContextMenu</enum>
+            <enum>Qt::DefaultContextMenu</enum>
            </property>
            <property name="frameShape">
             <enum>QFrame::Shape::Box</enum>
@@ -1117,10 +1117,10 @@
           <bool>false</bool>
          </property>
          <property name="toolButtonStyle">
-          <enum>Qt::ToolButtonStyle::ToolButtonIconOnly</enum>
+          <enum>Qt::ToolButtonIconOnly</enum>
          </property>
          <property name="arrowType">
-          <enum>Qt::ArrowType::NoArrow</enum>
+          <enum>Qt::NoArrow</enum>
          </property>
         </widget>
        </item>
@@ -1793,10 +1793,10 @@
         <enum>QFrame::Shadow::Raised</enum>
        </property>
        <property name="verticalScrollBarPolicy">
-        <enum>Qt::ScrollBarPolicy::ScrollBarAlwaysOn</enum>
+        <enum>Qt::ScrollBarAlwaysOn</enum>
        </property>
        <property name="horizontalScrollBarPolicy">
-        <enum>Qt::ScrollBarPolicy::ScrollBarAlwaysOff</enum>
+        <enum>Qt::ScrollBarAlwaysOff</enum>
        </property>
        <property name="editTriggers">
         <set>QAbstractItemView::AnyKeyPressed|QAbstractItemView::DoubleClicked|QAbstractItemView::EditKeyPressed</set>
@@ -1896,10 +1896,10 @@
         <enum>QFrame::Shadow::Raised</enum>
        </property>
        <property name="verticalScrollBarPolicy">
-        <enum>Qt::ScrollBarPolicy::ScrollBarAlwaysOn</enum>
+        <enum>Qt::ScrollBarAlwaysOn</enum>
        </property>
        <property name="horizontalScrollBarPolicy">
-        <enum>Qt::ScrollBarPolicy::ScrollBarAlwaysOff</enum>
+        <enum>Qt::ScrollBarAlwaysOff</enum>
        </property>
        <property name="editTriggers">
         <set>QAbstractItemView::AnyKeyPressed|QAbstractItemView::DoubleClicked|QAbstractItemView::EditKeyPressed</set>

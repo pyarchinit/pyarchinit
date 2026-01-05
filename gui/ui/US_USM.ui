@@ -4,7 +4,7 @@
  <class>DialogUS</class>
  <widget class="QDialog" name="DialogUS">
   <property name="windowModality">
-   <enum>Qt::WindowModality::WindowModal</enum>
+   <enum>Qt::WindowModal</enum>
   </property>
   <property name="geometry">
    <rect>
@@ -962,7 +962,7 @@
         <bool>false</bool>
        </property>
        <property name="contextMenuPolicy">
-        <enum>Qt::ContextMenuPolicy::DefaultContextMenu</enum>
+        <enum>Qt::DefaultContextMenu</enum>
        </property>
        <property name="toolTip">
         <string>Numero record corrente</string>
@@ -1444,7 +1444,7 @@
         <bool>false</bool>
        </property>
        <property name="contextMenuPolicy">
-        <enum>Qt::ContextMenuPolicy::DefaultContextMenu</enum>
+        <enum>Qt::DefaultContextMenu</enum>
        </property>
        <property name="frameShape">
         <enum>QFrame::Shape::Box</enum>
@@ -3809,7 +3809,7 @@
         <bool>false</bool>
        </property>
        <property name="contextMenuPolicy">
-        <enum>Qt::ContextMenuPolicy::DefaultContextMenu</enum>
+        <enum>Qt::DefaultContextMenu</enum>
        </property>
        <property name="toolTip">
         <string>Numero totale dei record</string>
@@ -4291,7 +4291,7 @@
         <bool>false</bool>
        </property>
        <property name="contextMenuPolicy">
-        <enum>Qt::ContextMenuPolicy::DefaultContextMenu</enum>
+        <enum>Qt::DefaultContextMenu</enum>
        </property>
        <property name="frameShape">
         <enum>QFrame::Shape::Box</enum>
@@ -12493,7 +12493,7 @@ background-color: rgb(180, 180, 180);QgsCollapsibleGroupBoxBasic::title, QgsColl
       <number>0</number>
      </property>
      <property name="elideMode">
-      <enum>Qt::TextElideMode::ElideNone</enum>
+      <enum>Qt::ElideNone</enum>
      </property>
      <property name="documentMode">
       <bool>true</bool>
@@ -13492,10 +13492,10 @@ p, li { white-space: pre-wrap; }
             <enum>QFrame::Shadow::Raised</enum>
            </property>
            <property name="verticalScrollBarPolicy">
-            <enum>Qt::ScrollBarPolicy::ScrollBarAsNeeded</enum>
+            <enum>Qt::ScrollBarAsNeeded</enum>
            </property>
            <property name="horizontalScrollBarPolicy">
-            <enum>Qt::ScrollBarPolicy::ScrollBarAsNeeded</enum>
+            <enum>Qt::ScrollBarAsNeeded</enum>
            </property>
            <property name="sizeAdjustPolicy">
             <enum>QAbstractScrollArea::SizeAdjustPolicy::AdjustToContents</enum>
@@ -13993,10 +13993,10 @@ p, li { white-space: pre-wrap; }
             <enum>QFrame::Shadow::Raised</enum>
            </property>
            <property name="verticalScrollBarPolicy">
-            <enum>Qt::ScrollBarPolicy::ScrollBarAlwaysOn</enum>
+            <enum>Qt::ScrollBarAlwaysOn</enum>
            </property>
            <property name="horizontalScrollBarPolicy">
-            <enum>Qt::ScrollBarPolicy::ScrollBarAsNeeded</enum>
+            <enum>Qt::ScrollBarAsNeeded</enum>
            </property>
            <property name="sizeAdjustPolicy">
             <enum>QAbstractScrollArea::SizeAdjustPolicy::AdjustToContents</enum>
@@ -14189,10 +14189,10 @@ p, li { white-space: pre-wrap; }
             <enum>QFrame::Shadow::Sunken</enum>
            </property>
            <property name="verticalScrollBarPolicy">
-            <enum>Qt::ScrollBarPolicy::ScrollBarAsNeeded</enum>
+            <enum>Qt::ScrollBarAsNeeded</enum>
            </property>
            <property name="horizontalScrollBarPolicy">
-            <enum>Qt::ScrollBarPolicy::ScrollBarAsNeeded</enum>
+            <enum>Qt::ScrollBarAsNeeded</enum>
            </property>
            <property name="editTriggers">
             <set>QAbstractItemView::AnyKeyPressed|QAbstractItemView::DoubleClicked|QAbstractItemView::EditKeyPressed</set>
@@ -14763,10 +14763,10 @@ p, li { white-space: pre-wrap; }
             <enum>QFrame::Shadow::Sunken</enum>
            </property>
            <property name="verticalScrollBarPolicy">
-            <enum>Qt::ScrollBarPolicy::ScrollBarAlwaysOn</enum>
+            <enum>Qt::ScrollBarAlwaysOn</enum>
            </property>
            <property name="horizontalScrollBarPolicy">
-            <enum>Qt::ScrollBarPolicy::ScrollBarAlwaysOff</enum>
+            <enum>Qt::ScrollBarAlwaysOff</enum>
            </property>
            <property name="editTriggers">
             <set>QAbstractItemView::AnyKeyPressed|QAbstractItemView::DoubleClicked|QAbstractItemView::EditKeyPressed</set>
@@ -16260,10 +16260,10 @@ p, li { white-space: pre-wrap; }
           <enum>QFrame::Shadow::Raised</enum>
          </property>
          <property name="verticalScrollBarPolicy">
-          <enum>Qt::ScrollBarPolicy::ScrollBarAsNeeded</enum>
+          <enum>Qt::ScrollBarAsNeeded</enum>
          </property>
          <property name="horizontalScrollBarPolicy">
-          <enum>Qt::ScrollBarPolicy::ScrollBarAsNeeded</enum>
+          <enum>Qt::ScrollBarAsNeeded</enum>
          </property>
          <property name="editTriggers">
           <set>QAbstractItemView::AnyKeyPressed|QAbstractItemView::DoubleClicked|QAbstractItemView::EditKeyPressed</set>
@@ -18068,10 +18068,10 @@ p, li { white-space: pre-wrap; }
           <enum>QFrame::Shadow::Raised</enum>
          </property>
          <property name="verticalScrollBarPolicy">
-          <enum>Qt::ScrollBarPolicy::ScrollBarAsNeeded</enum>
+          <enum>Qt::ScrollBarAsNeeded</enum>
          </property>
          <property name="horizontalScrollBarPolicy">
-          <enum>Qt::ScrollBarPolicy::ScrollBarAsNeeded</enum>
+          <enum>Qt::ScrollBarAsNeeded</enum>
          </property>
          <property name="editTriggers">
           <set>QAbstractItemView::AnyKeyPressed|QAbstractItemView::DoubleClicked|QAbstractItemView::EditKeyPressed</set>
@@ -18310,10 +18310,10 @@ p, li { white-space: pre-wrap; }
           <enum>QFrame::Shadow::Raised</enum>
          </property>
          <property name="verticalScrollBarPolicy">
-          <enum>Qt::ScrollBarPolicy::ScrollBarAsNeeded</enum>
+          <enum>Qt::ScrollBarAsNeeded</enum>
          </property>
          <property name="horizontalScrollBarPolicy">
-          <enum>Qt::ScrollBarPolicy::ScrollBarAsNeeded</enum>
+          <enum>Qt::ScrollBarAsNeeded</enum>
          </property>
          <property name="editTriggers">
           <set>QAbstractItemView::AnyKeyPressed|QAbstractItemView::DoubleClicked|QAbstractItemView::EditKeyPressed</set>
@@ -18650,10 +18650,10 @@ p, li { white-space: pre-wrap; }
             <enum>QFrame::Shadow::Raised</enum>
            </property>
            <property name="verticalScrollBarPolicy">
-            <enum>Qt::ScrollBarPolicy::ScrollBarAsNeeded</enum>
+            <enum>Qt::ScrollBarAsNeeded</enum>
            </property>
            <property name="horizontalScrollBarPolicy">
-            <enum>Qt::ScrollBarPolicy::ScrollBarAsNeeded</enum>
+            <enum>Qt::ScrollBarAsNeeded</enum>
            </property>
            <property name="editTriggers">
             <set>QAbstractItemView::AnyKeyPressed|QAbstractItemView::DoubleClicked|QAbstractItemView::EditKeyPressed</set>
@@ -18705,10 +18705,10 @@ p, li { white-space: pre-wrap; }
             <enum>QFrame::Shadow::Raised</enum>
            </property>
            <property name="verticalScrollBarPolicy">
-            <enum>Qt::ScrollBarPolicy::ScrollBarAsNeeded</enum>
+            <enum>Qt::ScrollBarAsNeeded</enum>
            </property>
            <property name="horizontalScrollBarPolicy">
-            <enum>Qt::ScrollBarPolicy::ScrollBarAsNeeded</enum>
+            <enum>Qt::ScrollBarAsNeeded</enum>
            </property>
            <property name="editTriggers">
             <set>QAbstractItemView::AnyKeyPressed|QAbstractItemView::DoubleClicked|QAbstractItemView::EditKeyPressed</set>
@@ -18826,10 +18826,10 @@ p, li { white-space: pre-wrap; }
             <enum>QFrame::Shadow::Raised</enum>
            </property>
            <property name="verticalScrollBarPolicy">
-            <enum>Qt::ScrollBarPolicy::ScrollBarAsNeeded</enum>
+            <enum>Qt::ScrollBarAsNeeded</enum>
            </property>
            <property name="horizontalScrollBarPolicy">
-            <enum>Qt::ScrollBarPolicy::ScrollBarAsNeeded</enum>
+            <enum>Qt::ScrollBarAsNeeded</enum>
            </property>
            <property name="editTriggers">
             <set>QAbstractItemView::AnyKeyPressed|QAbstractItemView::DoubleClicked|QAbstractItemView::EditKeyPressed</set>
@@ -19966,7 +19966,7 @@ p, li { white-space: pre-wrap; }
           </font>
          </property>
          <property name="layoutDirection">
-          <enum>Qt::LayoutDirection::LeftToRight</enum>
+          <enum>Qt::LeftToRight</enum>
          </property>
          <property name="tabPosition">
           <enum>QTabWidget::TabPosition::North</enum>
@@ -39588,7 +39588,7 @@ QPushButton:pressed {
                        <enum>Qt::ToolButtonStyle::ToolButtonTextOnly</enum>
                       </property>
                       <property name="arrowType">
-                       <enum>Qt::ArrowType::NoArrow</enum>
+                       <enum>Qt::NoArrow</enum>
                       </property>
                      </widget>
                     </item>
@@ -39720,7 +39720,7 @@ QPushButton:pressed {
                        <bool>true</bool>
                       </property>
                       <property name="arrowType">
-                       <enum>Qt::ArrowType::NoArrow</enum>
+                       <enum>Qt::NoArrow</enum>
                       </property>
                      </widget>
                     </item>
@@ -47670,13 +47670,13 @@ QPushButton:pressed {
         <bool>false</bool>
        </property>
        <property name="toolButtonStyle">
-        <enum>Qt::ToolButtonStyle::ToolButtonIconOnly</enum>
+        <enum>Qt::ToolButtonIconOnly</enum>
        </property>
        <property name="autoRaise">
         <bool>false</bool>
        </property>
        <property name="arrowType">
-        <enum>Qt::ArrowType::NoArrow</enum>
+        <enum>Qt::NoArrow</enum>
        </property>
       </widget>
      </item>
@@ -51092,7 +51092,7 @@ QPushButton:pressed {
         <enum>Qt::ToolButtonStyle::ToolButtonTextOnly</enum>
        </property>
        <property name="arrowType">
-        <enum>Qt::ArrowType::NoArrow</enum>
+        <enum>Qt::NoArrow</enum>
        </property>
       </widget>
      </item>

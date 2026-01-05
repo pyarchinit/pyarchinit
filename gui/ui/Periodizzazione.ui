@@ -518,7 +518,7 @@
       <bool>false</bool>
      </property>
      <property name="contextMenuPolicy">
-      <enum>Qt::ContextMenuPolicy::DefaultContextMenu</enum>
+      <enum>Qt::DefaultContextMenu</enum>
      </property>
      <property name="frameShape">
       <enum>QFrame::Shape::Box</enum>
@@ -652,7 +652,7 @@
       <bool>true</bool>
      </property>
      <property name="contextMenuPolicy">
-      <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
+      <enum>Qt::NoContextMenu</enum>
      </property>
      <property name="editable">
       <bool>true</bool>
@@ -755,7 +755,7 @@
       <bool>false</bool>
      </property>
      <property name="contextMenuPolicy">
-      <enum>Qt::ContextMenuPolicy::DefaultContextMenu</enum>
+      <enum>Qt::DefaultContextMenu</enum>
      </property>
      <property name="frameShape">
       <enum>QFrame::Shape::Box</enum>
@@ -1156,7 +1156,7 @@
       <bool>false</bool>
      </property>
      <property name="contextMenuPolicy">
-      <enum>Qt::ContextMenuPolicy::DefaultContextMenu</enum>
+      <enum>Qt::DefaultContextMenu</enum>
      </property>
      <property name="frameShape">
       <enum>QFrame::Shape::Box</enum>
@@ -1463,7 +1463,7 @@
       <bool>false</bool>
      </property>
      <property name="contextMenuPolicy">
-      <enum>Qt::ContextMenuPolicy::DefaultContextMenu</enum>
+      <enum>Qt::DefaultContextMenu</enum>
      </property>
      <property name="frameShape">
       <enum>QFrame::Shape::Box</enum>
