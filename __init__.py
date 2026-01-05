@@ -26,11 +26,12 @@ from importlib.metadata import distributions
 from shlex import quote as shlex_quote
 from typing import Dict, List, Optional, Set
 
-from qgis.PyQt.QtCore import QObject, QThread, pyqtSignal
+from qgis.PyQt.QtCore import QObject, QThread, pyqtSignal, QTimer
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import (QCheckBox, QDialog, QHeaderView, QLabel,
                                  QMessageBox, QProgressBar, QPushButton,
-                                 QTableWidget, QTableWidgetItem, QVBoxLayout)
+                                 QTableWidget, QTableWidgetItem, QVBoxLayout,
+                                 QApplication)
 from qgis.core import QgsSettings
 
 from .modules.utility.pyarchinit_OS_utility import Pyarchinit_OS_Utility
@@ -276,6 +277,7 @@ class Worker(QObject):
 
     finished = pyqtSignal()  # Signal emitted when the worker is done
     progress = pyqtSignal(int)  # Signal emitted to update the progress bar
+    package_status = pyqtSignal(str)  # Signal emitted with current package name
 
     def install_packages(self, packages: List[str]) -> None:
         """
@@ -286,6 +288,7 @@ class Worker(QObject):
         """
         total = len(packages)
         for i, package in enumerate(packages):
+            self.package_status.emit(f"Installing {package}...")
             self.progress.emit(int((i + 1) / total * 100))  # Emit progress signal
             PackageManager.install(package)
 
@@ -304,6 +307,7 @@ class InstallDialog(QDialog):
         """
         super().__init__()
         self.packages = packages
+        self.splash = None
         self.initUI()
 
     def initUI(self) -> None:
@@ -337,6 +341,29 @@ class InstallDialog(QDialog):
         self.set_icon(os.path.abspath(os.path.join(os.path.dirname(__file__), "logo_pyarchinit.png")))
         self.setGeometry(300, 300, 400, 300)
 
+    def show_splash(self, message: str = "Installing dependencies...") -> None:
+        """Show the animated splash screen."""
+        try:
+            from .gui.pyarchinit_splash import PyArchInitSplash
+            self.splash = PyArchInitSplash(self, message)
+            self.splash.show()
+            QApplication.processEvents()
+        except ImportError:
+            # Fallback if splash module not available
+            self.splash = None
+
+    def update_splash_message(self, message: str) -> None:
+        """Update the splash screen message."""
+        if self.splash:
+            self.splash.set_message(message)
+            QApplication.processEvents()
+
+    def hide_splash(self) -> None:
+        """Hide the splash screen."""
+        if self.splash:
+            self.splash.close()
+            self.splash = None
+
     def set_icon(self, icon_path: str) -> None:
         """
         Set the dialog icon.
@@ -358,6 +385,9 @@ class InstallDialog(QDialog):
             self.install_button.setEnabled(False)
             self.install_button.setText("Installing...")
 
+            # Show animated splash screen
+            self.show_splash("Preparing to install packages...")
+
             # On macOS, we need to create a more reliable progress reporting
             if platform.system() == 'Darwin':
                 # Initialize progress bar
@@ -377,6 +407,7 @@ class InstallDialog(QDialog):
                 # Connect signals with extra event processing for macOS
                 self.thread.started.connect(lambda: self.worker.install_packages(selected_packages))
                 self.worker.progress.connect(self.update_progress_mac)
+                self.worker.package_status.connect(self.update_splash_message)
                 self.worker.finished.connect(self.thread.quit)
                 self.worker.finished.connect(self.worker.deleteLater)
                 self.thread.finished.connect(self.thread.deleteLater)
@@ -394,6 +425,7 @@ class InstallDialog(QDialog):
                 self.worker.finished.connect(self.worker.deleteLater)
                 self.thread.finished.connect(self.thread.deleteLater)
                 self.worker.progress.connect(self.update_progress)
+                self.worker.package_status.connect(self.update_splash_message)
                 self.worker.finished.connect(self.finish_install)
 
                 self.thread.start()
@@ -425,6 +457,17 @@ class InstallDialog(QDialog):
 
     def finish_install(self) -> None:
         """Called when installation is complete."""
+        # Update splash message before hiding
+        self.update_splash_message("Installation complete!")
+
+        # Small delay to show completion message
+        QTimer.singleShot(1000, self._complete_install)
+
+    def _complete_install(self) -> None:
+        """Complete the installation process."""
+        # Hide splash screen
+        self.hide_splash()
+
         self.progress.setValue(100)
         self.label.setText("Installation complete")
         self.install_button.setEnabled(True)
