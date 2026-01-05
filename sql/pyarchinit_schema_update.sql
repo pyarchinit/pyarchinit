@@ -3,6 +3,55 @@
 -- Aggiunge quota e sistema di concorrenza
 -- =====================================================
 
+-- 0. CREAZIONE FAUNA_TABLE SE NON ESISTE
+-- =====================================================
+CREATE TABLE IF NOT EXISTS "fauna_table" (
+    id_fauna BIGSERIAL PRIMARY KEY,
+    id_us BIGINT,
+    sito TEXT,
+    area TEXT,
+    saggio TEXT,
+    us TEXT,
+    datazione_us TEXT,
+    responsabile_scheda TEXT DEFAULT '',
+    data_compilazione DATE,
+    documentazione_fotografica TEXT DEFAULT '',
+    metodologia_recupero TEXT DEFAULT '',
+    contesto TEXT DEFAULT '',
+    descrizione_contesto TEXT DEFAULT '',
+    resti_connessione_anatomica TEXT DEFAULT '',
+    tipologia_accumulo TEXT DEFAULT '',
+    deposizione TEXT DEFAULT '',
+    numero_stimato_resti TEXT DEFAULT '',
+    numero_minimo_individui INTEGER DEFAULT 0,
+    specie TEXT DEFAULT '',
+    parti_scheletriche TEXT DEFAULT '',
+    specie_psi TEXT DEFAULT '',
+    misure_ossa TEXT DEFAULT '',
+    stato_frammentazione TEXT DEFAULT '',
+    tracce_combustione TEXT DEFAULT '',
+    combustione_altri_materiali_us BOOLEAN DEFAULT FALSE,
+    tipo_combustione TEXT DEFAULT '',
+    segni_tafonomici_evidenti TEXT DEFAULT '',
+    caratterizzazione_segni_tafonomici TEXT DEFAULT '',
+    stato_conservazione TEXT DEFAULT '',
+    alterazioni_morfologiche TEXT DEFAULT '',
+    note_terreno_giacitura TEXT DEFAULT '',
+    campionature_effettuate TEXT DEFAULT '',
+    affidabilita_stratigrafica TEXT DEFAULT '',
+    classi_reperti_associazione TEXT DEFAULT '',
+    osservazioni TEXT DEFAULT '',
+    interpretazione TEXT DEFAULT '',
+    CONSTRAINT ID_fauna_unico UNIQUE (sito, area, us, id_fauna)
+);
+
+CREATE INDEX IF NOT EXISTS idx_fauna_id_us ON fauna_table(id_us);
+CREATE INDEX IF NOT EXISTS idx_fauna_sito ON fauna_table(sito);
+CREATE INDEX IF NOT EXISTS idx_fauna_area ON fauna_table(area);
+CREATE INDEX IF NOT EXISTS idx_fauna_us ON fauna_table(us);
+CREATE INDEX IF NOT EXISTS idx_fauna_specie ON fauna_table(specie);
+CREATE INDEX IF NOT EXISTS idx_fauna_contesto ON fauna_table(contesto);
+
 -- 1. CAMPO QUOTA PER INVENTARIO MATERIALI
 -- =====================================================
 ALTER TABLE inventario_materiali_table
@@ -55,6 +104,34 @@ SELECT add_concurrency_columns('detsesso_table');
 SELECT add_concurrency_columns('deteta_table');
 SELECT add_concurrency_columns('archeozoology_table');
 SELECT add_concurrency_columns('pottery_table');
+SELECT add_concurrency_columns('fauna_table');
+SELECT add_concurrency_columns('ut_table');
+
+-- 2b. UT_TABLE NUOVI CAMPI SURVEY (v4.9.21+)
+-- =====================================================
+ALTER TABLE ut_table ADD COLUMN IF NOT EXISTS visibility_percent INTEGER;
+ALTER TABLE ut_table ADD COLUMN IF NOT EXISTS vegetation_coverage VARCHAR(255);
+ALTER TABLE ut_table ADD COLUMN IF NOT EXISTS gps_method VARCHAR(100);
+ALTER TABLE ut_table ADD COLUMN IF NOT EXISTS coordinate_precision FLOAT;
+ALTER TABLE ut_table ADD COLUMN IF NOT EXISTS survey_type VARCHAR(100);
+ALTER TABLE ut_table ADD COLUMN IF NOT EXISTS surface_condition VARCHAR(255);
+ALTER TABLE ut_table ADD COLUMN IF NOT EXISTS accessibility VARCHAR(255);
+ALTER TABLE ut_table ADD COLUMN IF NOT EXISTS photo_documentation INTEGER;
+ALTER TABLE ut_table ADD COLUMN IF NOT EXISTS weather_conditions VARCHAR(255);
+ALTER TABLE ut_table ADD COLUMN IF NOT EXISTS team_members TEXT;
+ALTER TABLE ut_table ADD COLUMN IF NOT EXISTS foglio_catastale VARCHAR(100);
+
+COMMENT ON COLUMN ut_table.visibility_percent IS 'Percentuale visibilita superficie (0-100)';
+COMMENT ON COLUMN ut_table.vegetation_coverage IS 'Copertura vegetazione';
+COMMENT ON COLUMN ut_table.gps_method IS 'Metodo GPS utilizzato';
+COMMENT ON COLUMN ut_table.coordinate_precision IS 'Precisione coordinate';
+COMMENT ON COLUMN ut_table.survey_type IS 'Tipo di ricognizione';
+COMMENT ON COLUMN ut_table.surface_condition IS 'Condizione superficie';
+COMMENT ON COLUMN ut_table.accessibility IS 'Accessibilita';
+COMMENT ON COLUMN ut_table.photo_documentation IS 'Documentazione fotografica';
+COMMENT ON COLUMN ut_table.weather_conditions IS 'Condizioni meteo';
+COMMENT ON COLUMN ut_table.team_members IS 'Membri del team';
+COMMENT ON COLUMN ut_table.foglio_catastale IS 'Foglio catastale';
 
 -- 3. SISTEMA GESTIONE UTENTI
 -- =====================================================
@@ -326,6 +403,105 @@ ALTER TABLE campioni_table
 DROP CONSTRAINT IF EXISTS campioni_unique_key;
 ALTER TABLE campioni_table
 ADD CONSTRAINT campioni_unique_key UNIQUE (sito, nr_campione);
+
+-- =====================================================
+-- UT Geometry Tables (for Territorial Units)
+-- =====================================================
+
+-- UT Point Geometry Table
+CREATE SEQUENCE IF NOT EXISTS public.pyarchinit_ut_point_gid_seq
+    START WITH 1 INCREMENT BY 1 NO MINVALUE NO MAXVALUE CACHE 1;
+
+CREATE TABLE IF NOT EXISTS public.pyarchinit_ut_point (
+    gid BIGINT DEFAULT nextval('public.pyarchinit_ut_point_gid_seq'::regclass) NOT NULL,
+    sito TEXT,
+    nr_ut INTEGER,
+    def_ut TEXT,
+    quota DOUBLE PRECISION,
+    the_geom geometry(Point),
+    data_rilevamento VARCHAR(100),
+    responsabile VARCHAR(255),
+    note TEXT,
+    CONSTRAINT pyarchinit_ut_point_pkey PRIMARY KEY (gid)
+);
+
+CREATE INDEX IF NOT EXISTS idx_pyarchinit_ut_point_geom ON public.pyarchinit_ut_point USING gist(the_geom);
+CREATE INDEX IF NOT EXISTS idx_pyarchinit_ut_point_sito ON public.pyarchinit_ut_point(sito);
+
+-- UT Line Geometry Table
+CREATE SEQUENCE IF NOT EXISTS public.pyarchinit_ut_line_gid_seq
+    START WITH 1 INCREMENT BY 1 NO MINVALUE NO MAXVALUE CACHE 1;
+
+CREATE TABLE IF NOT EXISTS public.pyarchinit_ut_line (
+    gid BIGINT DEFAULT nextval('public.pyarchinit_ut_line_gid_seq'::regclass) NOT NULL,
+    sito TEXT,
+    nr_ut INTEGER,
+    def_ut TEXT,
+    tipo_linea VARCHAR(100),
+    lunghezza DOUBLE PRECISION,
+    the_geom geometry(LineString),
+    data_rilevamento VARCHAR(100),
+    responsabile VARCHAR(255),
+    note TEXT,
+    CONSTRAINT pyarchinit_ut_line_pkey PRIMARY KEY (gid)
+);
+
+CREATE INDEX IF NOT EXISTS idx_pyarchinit_ut_line_geom ON public.pyarchinit_ut_line USING gist(the_geom);
+CREATE INDEX IF NOT EXISTS idx_pyarchinit_ut_line_sito ON public.pyarchinit_ut_line(sito);
+
+-- UT Polygon Geometry Table
+CREATE SEQUENCE IF NOT EXISTS public.pyarchinit_ut_polygon_gid_seq
+    START WITH 1 INCREMENT BY 1 NO MINVALUE NO MAXVALUE CACHE 1;
+
+CREATE TABLE IF NOT EXISTS public.pyarchinit_ut_polygon (
+    gid BIGINT DEFAULT nextval('public.pyarchinit_ut_polygon_gid_seq'::regclass) NOT NULL,
+    sito TEXT,
+    nr_ut INTEGER,
+    def_ut TEXT,
+    area_mq DOUBLE PRECISION,
+    perimetro DOUBLE PRECISION,
+    the_geom geometry(Polygon),
+    data_rilevamento VARCHAR(100),
+    responsabile VARCHAR(255),
+    note TEXT,
+    CONSTRAINT pyarchinit_ut_polygon_pkey PRIMARY KEY (gid)
+);
+
+CREATE INDEX IF NOT EXISTS idx_pyarchinit_ut_polygon_geom ON public.pyarchinit_ut_polygon USING gist(the_geom);
+CREATE INDEX IF NOT EXISTS idx_pyarchinit_ut_polygon_sito ON public.pyarchinit_ut_polygon(sito);
+
+-- UT Views
+CREATE OR REPLACE VIEW public.pyarchinit_ut_point_view AS
+SELECT p.gid, p.the_geom, p.sito, p.nr_ut, p.def_ut, p.quota, p.data_rilevamento,
+       p.responsabile AS rilevatore, p.note AS note_geometria,
+       u.id_ut, u.progetto, u.ut_letterale, u.descrizione_ut, u.interpretazione_ut
+FROM public.pyarchinit_ut_point p
+LEFT JOIN public.ut_table u ON p.sito = u.progetto AND p.nr_ut = u.nr_ut;
+
+CREATE OR REPLACE VIEW public.pyarchinit_ut_line_view AS
+SELECT l.gid, l.the_geom, l.sito, l.nr_ut, l.def_ut, l.tipo_linea, l.lunghezza,
+       l.data_rilevamento, l.responsabile AS rilevatore, l.note AS note_geometria,
+       u.id_ut, u.progetto, u.ut_letterale, u.descrizione_ut, u.interpretazione_ut
+FROM public.pyarchinit_ut_line l
+LEFT JOIN public.ut_table u ON l.sito = u.progetto AND l.nr_ut = u.nr_ut;
+
+CREATE OR REPLACE VIEW public.pyarchinit_ut_polygon_view AS
+SELECT p.gid, p.the_geom, p.sito, p.nr_ut, p.def_ut, p.area_mq, p.perimetro,
+       p.data_rilevamento, p.responsabile AS rilevatore, p.note AS note_geometria,
+       u.id_ut, u.progetto, u.ut_letterale, u.descrizione_ut, u.interpretazione_ut
+FROM public.pyarchinit_ut_polygon p
+LEFT JOIN public.ut_table u ON p.sito = u.progetto AND p.nr_ut = u.nr_ut;
+
+-- Grant permissions for UT tables
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.pyarchinit_ut_point TO PUBLIC;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.pyarchinit_ut_line TO PUBLIC;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.pyarchinit_ut_polygon TO PUBLIC;
+GRANT SELECT ON public.pyarchinit_ut_point_view TO PUBLIC;
+GRANT SELECT ON public.pyarchinit_ut_line_view TO PUBLIC;
+GRANT SELECT ON public.pyarchinit_ut_polygon_view TO PUBLIC;
+GRANT USAGE, SELECT ON SEQUENCE public.pyarchinit_ut_point_gid_seq TO PUBLIC;
+GRANT USAGE, SELECT ON SEQUENCE public.pyarchinit_ut_line_gid_seq TO PUBLIC;
+GRANT USAGE, SELECT ON SEQUENCE public.pyarchinit_ut_polygon_gid_seq TO PUBLIC;
 
 DO $$
 BEGIN

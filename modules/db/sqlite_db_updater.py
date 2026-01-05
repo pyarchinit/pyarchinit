@@ -280,6 +280,8 @@ class SQLiteDBUpdater:
             # Add missing columns to various tables
             self.update_us_table()
             self.update_site_table()
+            self.update_ut_table()
+            self.update_fauna_table()
             self.update_other_tables()
 
             # Create pottery embeddings metadata table for visual similarity search
@@ -415,10 +417,10 @@ class SQLiteDBUpdater:
         """Aggiorna la tabella site_table"""
         # Check if table exists
         self.cursor.execute("""
-            SELECT name FROM sqlite_master 
+            SELECT name FROM sqlite_master
             WHERE type='table' AND name='site_table'
         """)
-        
+
         if self.cursor.fetchone():
             self.add_column_if_missing('site_table', 'provincia', 'TEXT')
             self.add_column_if_missing('site_table', 'comune', 'TEXT')
@@ -426,7 +428,70 @@ class SQLiteDBUpdater:
             self.add_column_if_missing('site_table', 'latitudine', 'REAL')
             self.add_column_if_missing('site_table', 'longitudine', 'REAL')
             self.add_column_if_missing('site_table', 'geom', 'TEXT')
-    
+
+    def update_ut_table(self):
+        """Aggiorna la tabella ut_table con i nuovi campi survey (v4.9.21+)"""
+        if self.table_exists('ut_table'):
+            # New survey fields
+            self.add_column_if_missing('ut_table', 'visibility_percent', 'INTEGER')
+            self.add_column_if_missing('ut_table', 'vegetation_coverage', 'VARCHAR(255)')
+            self.add_column_if_missing('ut_table', 'gps_method', 'VARCHAR(100)')
+            self.add_column_if_missing('ut_table', 'coordinate_precision', 'FLOAT')
+            self.add_column_if_missing('ut_table', 'survey_type', 'VARCHAR(100)')
+            self.add_column_if_missing('ut_table', 'surface_condition', 'VARCHAR(255)')
+            self.add_column_if_missing('ut_table', 'accessibility', 'VARCHAR(255)')
+            self.add_column_if_missing('ut_table', 'photo_documentation', 'INTEGER')
+            self.add_column_if_missing('ut_table', 'weather_conditions', 'VARCHAR(255)')
+            self.add_column_if_missing('ut_table', 'team_members', 'TEXT')
+            self.add_column_if_missing('ut_table', 'foglio_catastale', 'VARCHAR(100)')
+
+    def update_fauna_table(self):
+        """Crea o aggiorna la tabella fauna_table (v4.9.21+)"""
+        if not self.table_exists('fauna_table'):
+            self.log_message("Creazione tabella fauna_table...")
+            self.cursor.execute('''
+                CREATE TABLE fauna_table (
+                    id_fauna INTEGER PRIMARY KEY AUTOINCREMENT,
+                    id_us INTEGER,
+                    sito TEXT,
+                    area TEXT,
+                    saggio TEXT,
+                    us TEXT,
+                    datazione_us TEXT,
+                    responsabile_scheda TEXT DEFAULT '',
+                    data_compilazione TEXT,
+                    documentazione_fotografica TEXT DEFAULT '',
+                    metodologia_recupero TEXT DEFAULT '',
+                    contesto TEXT DEFAULT '',
+                    descrizione_contesto TEXT DEFAULT '',
+                    resti_connessione_anatomica TEXT DEFAULT '',
+                    tipologia_accumulo TEXT DEFAULT '',
+                    deposizione TEXT DEFAULT '',
+                    numero_stimato_resti TEXT DEFAULT '',
+                    numero_minimo_individui INTEGER DEFAULT 0,
+                    specie TEXT DEFAULT '',
+                    parti_scheletriche TEXT DEFAULT '',
+                    specie_psi TEXT DEFAULT '',
+                    misure_ossa TEXT DEFAULT '',
+                    stato_frammentazione TEXT DEFAULT '',
+                    tracce_combustione TEXT DEFAULT '',
+                    combustione_altri_materiali_us INTEGER DEFAULT 0,
+                    tipo_combustione TEXT DEFAULT '',
+                    segni_tafonomici_evidenti TEXT DEFAULT '',
+                    caratterizzazione_segni_tafonomici TEXT DEFAULT '',
+                    stato_conservazione TEXT DEFAULT '',
+                    alterazioni_morfologiche TEXT DEFAULT '',
+                    note_terreno_giacitura TEXT DEFAULT '',
+                    campionature_effettuate TEXT DEFAULT '',
+                    affidabilita_stratigrafica TEXT DEFAULT '',
+                    classi_reperti_associazione TEXT DEFAULT '',
+                    osservazioni TEXT DEFAULT '',
+                    interpretazione TEXT DEFAULT '',
+                    UNIQUE (sito, area, us, id_fauna)
+                )
+            ''')
+            self.updates_made.append("CREATE TABLE fauna_table")
+
     def update_other_tables(self):
         """Aggiorna altre tabelle"""
         # inventario_materiali_table

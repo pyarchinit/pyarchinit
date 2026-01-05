@@ -474,6 +474,7 @@ class pyarchinit_UT(QDialog, MAIN_DIALOG_CLASS):
         self.pyQGIS = Pyarchinit_pyqgis(iface)
         self.setupUi(self)
         self.currentLayerId = None
+        self.HOME = os.environ['PYARCHINIT_HOME']
         # Media setup
         self.setAcceptDrops(True)
         self.iconListWidget.setDragDropMode(QAbstractItemView.DragDropMode.DragDrop)
@@ -605,7 +606,7 @@ class pyarchinit_UT(QDialog, MAIN_DIALOG_CLASS):
 
     def charge_list(self):
         # lista sito
-        sito_vl = self.UTILITY.tup_2_list_III(self.DB_MANAGER.group_by('site_table', 'progetto', 'SITE'))
+        sito_vl = self.UTILITY.tup_2_list_III(self.DB_MANAGER.group_by('site_table', 'sito', 'SITE'))
         try:
             sito_vl.remove('')
         except Exception as e:
@@ -650,6 +651,88 @@ class pyarchinit_UT(QDialog, MAIN_DIALOG_CLASS):
         self.comboBox_provincia.clear()
         self.comboBox_provincia.addItems(province_list)
 
+        # Load thesaurus values for survey comboboxes
+        self.charge_thesaurus_combos()
+
+    def charge_thesaurus_combos(self):
+        """Load thesaurus values for UT survey comboboxes"""
+        # Determine language code for thesaurus queries
+        lang_mapping = {
+            'it': "'it_IT'",
+            'de': "'de_DE'",
+            'en': "'en_US'",
+            'es': "'es_ES'",
+            'fr': "'fr_FR'",
+            'ar': "'ar_LB'",
+            'ca': "'ca_ES'"
+        }
+        lang = lang_mapping.get(self.L, "'en_US'")
+
+        # Helper function to load thesaurus values
+        def load_thesaurus(tipologia_sigla, use_sigla=False):
+            search_dict = {
+                'lingua': lang,
+                'nome_tabella': "'ut_table'",
+                'tipologia_sigla': "'" + tipologia_sigla + "'"
+            }
+            try:
+                thesaurus_data = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+                values = []
+                for item in thesaurus_data:
+                    if use_sigla:
+                        val = item.sigla.strip() if item.sigla else ''
+                    else:
+                        val = item.sigla_estesa.strip() if item.sigla_estesa else ''
+                    if val and val not in values:
+                        values.append(val)
+                values.sort()
+                return values
+            except Exception as e:
+                # If thesaurus table doesn't exist or other error, return empty list
+                return []
+
+        # 12.1 - Survey Type
+        if hasattr(self, 'comboBox_survey_type'):
+            self.comboBox_survey_type.clear()
+            survey_type_vl = load_thesaurus('12.1')
+            if survey_type_vl:
+                self.comboBox_survey_type.addItems(survey_type_vl)
+
+        # 12.2 - Vegetation Coverage
+        if hasattr(self, 'comboBox_vegetation_coverage'):
+            self.comboBox_vegetation_coverage.clear()
+            vegetation_vl = load_thesaurus('12.2')
+            if vegetation_vl:
+                self.comboBox_vegetation_coverage.addItems(vegetation_vl)
+
+        # 12.3 - GPS Method
+        if hasattr(self, 'comboBox_gps_method'):
+            self.comboBox_gps_method.clear()
+            gps_method_vl = load_thesaurus('12.3')
+            if gps_method_vl:
+                self.comboBox_gps_method.addItems(gps_method_vl)
+
+        # 12.4 - Surface Condition
+        if hasattr(self, 'comboBox_surface_condition'):
+            self.comboBox_surface_condition.clear()
+            surface_vl = load_thesaurus('12.4')
+            if surface_vl:
+                self.comboBox_surface_condition.addItems(surface_vl)
+
+        # 12.5 - Accessibility
+        if hasattr(self, 'comboBox_accessibility'):
+            self.comboBox_accessibility.clear()
+            accessibility_vl = load_thesaurus('12.5')
+            if accessibility_vl:
+                self.comboBox_accessibility.addItems(accessibility_vl)
+
+        # 12.6 - Weather Conditions
+        if hasattr(self, 'comboBox_weather_conditions'):
+            self.comboBox_weather_conditions.clear()
+            weather_vl = load_thesaurus('12.6')
+            if weather_vl:
+                self.comboBox_weather_conditions.addItems(weather_vl)
+
     # buttons functions
     def msg_sito(self):
         conn = Connection()
@@ -666,43 +749,60 @@ class pyarchinit_UT(QDialog, MAIN_DIALOG_CLASS):
     
     def set_sito(self):
         conn = Connection()
-            
-        sito_set= conn.sito_set()
+        sito_set = conn.sito_set()
         sito_set_str = sito_set['sito_set']
-        
+
         try:
-            if bool (sito_set_str):
-                
-                
-            
-           
-            
-                search_dict = {
-                    'progetto': "'" + str(sito_set_str) + "'"}  # 1 - Sito
+            if sito_set_str:
+                search_dict = {'progetto': "'" + str(sito_set_str) + "'"}  # 1 - Sito (UT uses 'progetto')
                 u = Utility()
                 search_dict = u.remove_empty_items_fr_dict(search_dict)
                 res = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
-                
-                self.DATA_LIST = []
-                for i in res:
-                    self.DATA_LIST.append(i)
-
+                self.DATA_LIST = list(res)
                 self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
-                self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]  ####darivedere
+
+                # Always set the comboBox_progetto to sito_set_str
+                if hasattr(self, 'comboBox_progetto'):
+                    self.comboBox_progetto.setEditText(sito_set_str)
+                    self.setComboBoxEnable(["self.comboBox_progetto"], "False")
+
+                if len(self.DATA_LIST) == 0:
+                    # No records found - inform user but don't raise exception
+                    if self.L == 'it':
+                        QMessageBox.information(self, "Informazione",
+                            f"Nessun record trovato per il sito '{sito_set_str}' in questa scheda.",
+                            QMessageBox.StandardButton.Ok)
+                    elif self.L == 'de':
+                        QMessageBox.information(self, "Information",
+                            f"Keine Datensätze für die Fundstelle '{sito_set_str}' in dieser Registerkarte gefunden.",
+                            QMessageBox.StandardButton.Ok)
+                    else:
+                        QMessageBox.information(self, "Information",
+                            f"No records found for site '{sito_set_str}' in this tab.",
+                            QMessageBox.StandardButton.Ok)
+                    return
+
+                self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
                 self.fill_fields()
                 self.BROWSE_STATUS = "b"
                 self.SORT_STATUS = "n"
                 self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
                 self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR + 1)
-
-                self.setComboBoxEnable(["self.comboBox_progetto"], "False")
-                
             else:
-                
-                pass#
-                
-        except:
-            QMessageBox.information(self, "Attenzione" ,"Non esiste questo sito: "'"'+ str(sito_set_str) +'"'" in questa scheda, Per favore distattiva la 'scelta sito' dalla scheda di configurazione plugin per vedere tutti i record oppure crea la scheda",QMessageBox.StandardButton.Ok) 
+                pass
+        except Exception as e:
+            if self.L == 'it':
+                QMessageBox.warning(self, "Errore",
+                                    f"Errore durante il caricamento dei dati: {str(e)}",
+                                    QMessageBox.StandardButton.Ok)
+            elif self.L == 'de':
+                QMessageBox.warning(self, "Fehler",
+                                    f"Fehler beim Laden der Daten: {str(e)}",
+                                    QMessageBox.StandardButton.Ok)
+            else:
+                QMessageBox.warning(self, "Error",
+                                    f"Error loading data: {str(e)}",
+                                    QMessageBox.StandardButton.Ok) 
     def on_pushButton_sort_pressed(self):
         if self.check_record_state() == 1:
             pass
@@ -916,7 +1016,7 @@ class pyarchinit_UT(QDialog, MAIN_DIALOG_CLASS):
                 str(self.comboBox_progetto.currentText()),
                 int(self.comboBox_nr_ut.currentText()),
                 str(self.lineEdit_ut_letterale.text()),
-                str(self.lineEdit_def_ut.text()),
+                str(self.comboBox_def_ut.currentText()),
                 str(self.textEdit_descrizione_ut.toPlainText()),
                 str(self.textEdit_interpretazione_ut.toPlainText()),
                 str(self.comboBox_nazione.currentText()),
@@ -1055,6 +1155,48 @@ class pyarchinit_UT(QDialog, MAIN_DIALOG_CLASS):
             self.label_sort.setText(self.SORTED_ITEMS["n"])
 
             # records surf functions
+
+    def on_pushButton_show_layer_pressed(self):
+        """Load UT geometry layers for current record(s)"""
+        if not self.DATA_LIST:
+            if self.L == 'it':
+                QMessageBox.warning(self, "Attenzione", "Nessun record da visualizzare sulla mappa",
+                                   QMessageBox.StandardButton.Ok)
+            elif self.L == 'de':
+                QMessageBox.warning(self, "Achtung", "Kein Datensatz zur Anzeige auf der Karte",
+                                   QMessageBox.StandardButton.Ok)
+            else:
+                QMessageBox.warning(self, "Warning", "No record to display on map",
+                                   QMessageBox.StandardButton.Ok)
+            return
+
+        try:
+            self.pyQGIS.charge_ut_layers(self.DATA_LIST)
+            if self.L == 'it':
+                QMessageBox.information(self, "Info", f"Caricati layer UT per {len(self.DATA_LIST)} record",
+                                       QMessageBox.StandardButton.Ok)
+            elif self.L == 'de':
+                QMessageBox.information(self, "Info", f"TU-Layer für {len(self.DATA_LIST)} Datensätze geladen",
+                                       QMessageBox.StandardButton.Ok)
+            else:
+                QMessageBox.information(self, "Info", f"Loaded UT layers for {len(self.DATA_LIST)} records",
+                                       QMessageBox.StandardButton.Ok)
+        except Exception as e:
+            QMessageBox.warning(self, "Error", f"Error loading UT layers: {str(e)}",
+                               QMessageBox.StandardButton.Ok)
+
+    def on_toolButtonGis_2_toggled(self, checked):
+        """Toggle GIS layer auto-loading when navigating records"""
+        if checked:
+            if self.L == 'it':
+                QMessageBox.information(self, "Info", "Caricamento automatico layer GIS attivato",
+                                       QMessageBox.StandardButton.Ok)
+            elif self.L == 'de':
+                QMessageBox.information(self, "Info", "Automatisches Laden von GIS-Layern aktiviert",
+                                       QMessageBox.StandardButton.Ok)
+            else:
+                QMessageBox.information(self, "Info", "Automatic GIS layer loading enabled",
+                                       QMessageBox.StandardButton.Ok)
 
     def on_pushButton_first_rec_pressed(self):
         if self.records_equal_check() == 1:
@@ -1321,7 +1463,7 @@ class pyarchinit_UT(QDialog, MAIN_DIALOG_CLASS):
                 self.TABLE_FIELDS[0]: "'" + str(self.comboBox_progetto.currentText()) + "'",  # 1 - Sito
                 self.TABLE_FIELDS[1]: nr_ut,  # 2 - Area
                 self.TABLE_FIELDS[2]: "'" + str(self.lineEdit_ut_letterale.text()) + "'",  # 3 - US
-                self.TABLE_FIELDS[3]: "'" + str(self.lineEdit_def_ut.text()) + "'",  # 6 - descrizione
+                self.TABLE_FIELDS[3]: "'" + str(self.comboBox_def_ut.currentText()) + "'",  # 6 - descrizione
                 self.TABLE_FIELDS[6]: "'" + str(self.comboBox_nazione.currentText()) + "'",
                 self.TABLE_FIELDS[7]: "'" + str(self.comboBox_regione.currentText()) + "'",  # 7 - interpretazione
                 self.TABLE_FIELDS[8]: "'" + str(self.comboBox_provincia.currentText()) + "'",  # 8 - periodo iniziale
@@ -1449,6 +1591,25 @@ class pyarchinit_UT(QDialog, MAIN_DIALOG_CLASS):
 
     def update_record(self):
         try:
+            # Safety check: ensure DATA_LIST is not empty and REC_CORR is valid
+            if not self.DATA_LIST:
+                if self.L == 'it':
+                    QMessageBox.warning(self, "Errore", "Nessun record da aggiornare", QMessageBox.StandardButton.Ok)
+                elif self.L == 'de':
+                    QMessageBox.warning(self, "Fehler", "Kein Datensatz zum Aktualisieren", QMessageBox.StandardButton.Ok)
+                else:
+                    QMessageBox.warning(self, "Error", "No record to update", QMessageBox.StandardButton.Ok)
+                return 0
+
+            if self.REC_CORR < 0 or self.REC_CORR >= len(self.DATA_LIST):
+                if self.L == 'it':
+                    QMessageBox.warning(self, "Errore", "Indice record non valido", QMessageBox.StandardButton.Ok)
+                elif self.L == 'de':
+                    QMessageBox.warning(self, "Fehler", "Ungültiger Datensatzindex", QMessageBox.StandardButton.Ok)
+                else:
+                    QMessageBox.warning(self, "Error", "Invalid record index", QMessageBox.StandardButton.Ok)
+                return 0
+
             self.DB_MANAGER.update(self.MAPPER_TABLE_CLASS,
                                    self.ID_TABLE,
                                    [int(getattr(self.DATA_LIST[self.REC_CORR], self.ID_TABLE))],
@@ -1467,14 +1628,12 @@ class pyarchinit_UT(QDialog, MAIN_DIALOG_CLASS):
             if self.L=='it':
                 QMessageBox.warning(self, "Messaggio",
                                     "Problema di encoding: sono stati inseriti accenti o caratteri non accettati dal database. Verrà fatta una copia dell'errore con i dati che puoi recuperare nella cartella pyarchinit_Report _Folder", QMessageBox.StandardButton.Ok)
-            
-            
             elif self.L=='de':
-                QMessageBox.warning(self, "Message",
-                                    "Encoding problem: accents or characters not accepted by the database were entered. A copy of the error will be made with the data you can retrieve in the pyarchinit_Report _Folder", QMessageBox.StandardButton.Ok) 
+                QMessageBox.warning(self, "Nachricht",
+                                    "Kodierungsproblem: Es wurden Akzente oder Zeichen eingegeben, die von der Datenbank nicht akzeptiert werden. Es wird eine Kopie des Fehlers mit den Daten erstellt, die Sie im pyarchinit_Report _Ordner abrufen können", QMessageBox.StandardButton.Ok)
             else:
                 QMessageBox.warning(self, "Message",
-                                    "Kodierungsproblem: Es wurden Akzente oder Zeichen eingegeben, die von der Datenbank nicht akzeptiert werden. Es wird eine Kopie des Fehlers mit den Daten erstellt, die Sie im pyarchinit_Report _Ordner abrufen können", QMessageBox.StandardButton.Ok)       
+                                    "Encoding problem: accents or characters not accepted by the database were entered. A copy of the error will be made with the data you can retrieve in the pyarchinit_Report _Folder", QMessageBox.StandardButton.Ok)       
 
     def charge_records(self):
         self.DATA_LIST = []
@@ -1546,7 +1705,7 @@ class pyarchinit_UT(QDialog, MAIN_DIALOG_CLASS):
         self.comboBox_progetto.setEditText("")
         self.comboBox_nr_ut.setEditText("")
         self.lineEdit_ut_letterale.clear()
-        self.lineEdit_def_ut.clear()
+        self.comboBox_def_ut.clear()
         self.textEdit_descrizione_ut.clear()
         self.textEdit_interpretazione_ut.clear()
         self.comboBox_nazione.setEditText("")
@@ -1599,7 +1758,7 @@ class pyarchinit_UT(QDialog, MAIN_DIALOG_CLASS):
             self.comboBox_progetto.setEditText(self.DATA_LIST[self.rec_num].progetto)
             self.comboBox_nr_ut.setEditText(str(self.DATA_LIST[self.rec_num].nr_ut))
             self.lineEdit_ut_letterale.setText(self.DATA_LIST[self.rec_num].ut_letterale)
-            self.lineEdit_def_ut.setText(self.DATA_LIST[self.rec_num].def_ut)
+            self.comboBox_def_ut.setCurrentText(self.DATA_LIST[self.rec_num].def_ut)
             str(self.textEdit_descrizione_ut.setText(self.DATA_LIST[self.rec_num].descrizione_ut))
             str(self.textEdit_interpretazione_ut.setText(self.DATA_LIST[self.rec_num].interpretazione_ut))
             self.comboBox_nazione.setEditText(self.DATA_LIST[self.rec_num].nazione)
@@ -1714,7 +1873,7 @@ class pyarchinit_UT(QDialog, MAIN_DIALOG_CLASS):
             str(self.comboBox_progetto.currentText()),
             str(self.comboBox_nr_ut.currentText()),
             str(self.lineEdit_ut_letterale.text()),
-            str(self.lineEdit_def_ut.text()),
+            str(self.comboBox_def_ut.currentText()),
             str(self.textEdit_descrizione_ut.toPlainText()),
             str(self.textEdit_interpretazione_ut.toPlainText()),
             str(self.comboBox_nazione.currentText()),
@@ -1767,15 +1926,20 @@ class pyarchinit_UT(QDialog, MAIN_DIALOG_CLASS):
 
     def set_LIST_REC_CORR(self):
         self.DATA_LIST_REC_CORR = []
+        # Check if DATA_LIST is empty or REC_CORR is out of range
+        if not self.DATA_LIST or self.REC_CORR < 0 or self.REC_CORR >= len(self.DATA_LIST):
+            return
         for i in self.TABLE_FIELDS:
             self.DATA_LIST_REC_CORR.append(eval("str(self.DATA_LIST[self.REC_CORR]." + i + ")"))
             ##self.testing('/testrecorr.txt',str(self.DATA_LIST_REC_CORR))
 
     def setComboBoxEnable(self, f, v):
-        """Set enabled state for widgets - uses getattr instead of eval for security"""
-        for fn in field_names:
-            cmd = '{}{}{}{}'.format(fn, '.setEnabled(', v, ')')
-            eval(cmd)
+        """Set enabled state for widgets"""
+        for fn in f:
+            widget_name = fn.replace('self.', '') if fn.startswith('self.') else fn
+            widget = getattr(self, widget_name, None)
+            if widget is not None:
+                widget.setEnabled(v == "True" or v == True)
 
     def setComboBoxEditable(self, f, n):
         """Set editable state for widgets - uses getattr instead of eval for security"""
