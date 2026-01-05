@@ -968,10 +968,10 @@
         <string>Numero record corrente</string>
        </property>
        <property name="frameShape">
-        <enum>QFrame::Shape::Box</enum>
+        <enum>QFrame::Box</enum>
        </property>
        <property name="frameShadow">
-        <enum>QFrame::Shadow::Sunken</enum>
+        <enum>QFrame::Sunken</enum>
        </property>
        <property name="text">
         <string>1</string>
@@ -1447,10 +1447,10 @@
         <enum>Qt::DefaultContextMenu</enum>
        </property>
        <property name="frameShape">
-        <enum>QFrame::Shape::Box</enum>
+        <enum>QFrame::Box</enum>
        </property>
        <property name="frameShadow">
-        <enum>QFrame::Shadow::Sunken</enum>
+        <enum>QFrame::Sunken</enum>
        </property>
        <property name="text">
         <string/>
@@ -3815,10 +3815,10 @@
         <string>Numero totale dei record</string>
        </property>
        <property name="frameShape">
-        <enum>QFrame::Shape::Box</enum>
+        <enum>QFrame::Box</enum>
        </property>
        <property name="frameShadow">
-        <enum>QFrame::Shadow::Sunken</enum>
+        <enum>QFrame::Sunken</enum>
        </property>
        <property name="text">
         <string>1</string>
@@ -4294,10 +4294,10 @@
         <enum>Qt::DefaultContextMenu</enum>
        </property>
        <property name="frameShape">
-        <enum>QFrame::Shape::Box</enum>
+        <enum>QFrame::Box</enum>
        </property>
        <property name="frameShadow">
-        <enum>QFrame::Shadow::Sunken</enum>
+        <enum>QFrame::Sunken</enum>
        </property>
        <property name="text">
         <string/>
@@ -12484,10 +12484,10 @@ background-color: rgb(180, 180, 180);QgsCollapsibleGroupBoxBasic::title, QgsColl
       <string notr="true"/>
      </property>
      <property name="tabPosition">
-      <enum>QTabWidget::TabPosition::North</enum>
+      <enum>QTabWidget::North</enum>
      </property>
      <property name="tabShape">
-      <enum>QTabWidget::TabShape::Rounded</enum>
+      <enum>QTabWidget::Rounded</enum>
      </property>
      <property name="currentIndex">
       <number>0</number>
@@ -13486,10 +13486,10 @@ p, li { white-space: pre-wrap; }
             </font>
            </property>
            <property name="frameShape">
-            <enum>QFrame::Shape::StyledPanel</enum>
+            <enum>QFrame::StyledPanel</enum>
            </property>
            <property name="frameShadow">
-            <enum>QFrame::Shadow::Raised</enum>
+            <enum>QFrame::Raised</enum>
            </property>
            <property name="verticalScrollBarPolicy">
             <enum>Qt::ScrollBarAsNeeded</enum>
@@ -13507,10 +13507,10 @@ p, li { white-space: pre-wrap; }
             <bool>true</bool>
            </property>
            <property name="selectionMode">
-            <enum>QAbstractItemView::SelectionMode::ExtendedSelection</enum>
+            <enum>QAbstractItemView::ExtendedSelection</enum>
            </property>
            <property name="selectionBehavior">
-            <enum>QAbstractItemView::SelectionBehavior::SelectRows</enum>
+            <enum>QAbstractItemView::SelectRows</enum>
            </property>
            <property name="sortingEnabled">
             <bool>true</bool>
@@ -13685,7 +13685,7 @@ p, li { white-space: pre-wrap; }
                 <bool>true</bool>
                </property>
                <property name="selectionBehavior">
-                <enum>QAbstractItemView::SelectionBehavior::SelectRows</enum>
+                <enum>QAbstractItemView::SelectRows</enum>
                </property>
                <property name="verticalScrollMode">
                 <enum>QAbstractItemView::ScrollMode::ScrollPerPixel</enum>
@@ -13990,7 +13990,7 @@ p, li { white-space: pre-wrap; }
             </font>
            </property>
            <property name="frameShadow">
-            <enum>QFrame::Shadow::Raised</enum>
+            <enum>QFrame::Raised</enum>
            </property>
            <property name="verticalScrollBarPolicy">
             <enum>Qt::ScrollBarAlwaysOn</enum>
@@ -14005,7 +14005,7 @@ p, li { white-space: pre-wrap; }
             <bool>true</bool>
            </property>
            <property name="selectionBehavior">
-            <enum>QAbstractItemView::SelectionBehavior::SelectRows</enum>
+            <enum>QAbstractItemView::SelectRows</enum>
            </property>
            <property name="sortingEnabled">
             <bool>true</bool>
@@ -14183,10 +14183,10 @@ p, li { white-space: pre-wrap; }
             </font>
            </property>
            <property name="frameShape">
-            <enum>QFrame::Shape::StyledPanel</enum>
+            <enum>QFrame::StyledPanel</enum>
            </property>
            <property name="frameShadow">
-            <enum>QFrame::Shadow::Sunken</enum>
+            <enum>QFrame::Sunken</enum>
            </property>
            <property name="verticalScrollBarPolicy">
             <enum>Qt::ScrollBarAsNeeded</enum>
@@ -14201,10 +14201,10 @@ p, li { white-space: pre-wrap; }
             <bool>true</bool>
            </property>
            <property name="selectionMode">
-            <enum>QAbstractItemView::SelectionMode::SingleSelection</enum>
+            <enum>QAbstractItemView::SingleSelection</enum>
            </property>
            <property name="selectionBehavior">
-            <enum>QAbstractItemView::SelectionBehavior::SelectRows</enum>
+            <enum>QAbstractItemView::SelectRows</enum>
            </property>
            <property name="rowCount">
             <number>1</number>
@@ -14757,10 +14757,10 @@ p, li { white-space: pre-wrap; }
             </font>
            </property>
            <property name="frameShape">
-            <enum>QFrame::Shape::StyledPanel</enum>
+            <enum>QFrame::StyledPanel</enum>
            </property>
            <property name="frameShadow">
-            <enum>QFrame::Shadow::Sunken</enum>
+            <enum>QFrame::Sunken</enum>
            </property>
            <property name="verticalScrollBarPolicy">
             <enum>Qt::ScrollBarAlwaysOn</enum>
@@ -14775,10 +14775,10 @@ p, li { white-space: pre-wrap; }
             <bool>true</bool>
            </property>
            <property name="selectionMode">
-            <enum>QAbstractItemView::SelectionMode::SingleSelection</enum>
+            <enum>QAbstractItemView::SingleSelection</enum>
            </property>
            <property name="selectionBehavior">
-            <enum>QAbstractItemView::SelectionBehavior::SelectRows</enum>
+            <enum>QAbstractItemView::SelectRows</enum>
            </property>
            <property name="rowCount">
             <number>1</number>
@@ -14846,16 +14846,16 @@ p, li { white-space: pre-wrap; }
             </font>
            </property>
            <property name="frameShadow">
-            <enum>QFrame::Shadow::Sunken</enum>
+            <enum>QFrame::Sunken</enum>
            </property>
            <property name="alternatingRowColors">
             <bool>true</bool>
            </property>
            <property name="selectionMode">
-            <enum>QAbstractItemView::SelectionMode::SingleSelection</enum>
+            <enum>QAbstractItemView::SingleSelection</enum>
            </property>
            <property name="selectionBehavior">
-            <enum>QAbstractItemView::SelectionBehavior::SelectRows</enum>
+            <enum>QAbstractItemView::SelectRows</enum>
            </property>
            <property name="rowCount">
             <number>1</number>
@@ -15852,7 +15852,7 @@ p, li { white-space: pre-wrap; }
              <string/>
             </property>
             <property name="echoMode">
-             <enum>QLineEdit::EchoMode::Normal</enum>
+             <enum>QLineEdit::Normal</enum>
             </property>
            </widget>
           </item>
@@ -16254,10 +16254,10 @@ p, li { white-space: pre-wrap; }
           </font>
          </property>
          <property name="frameShape">
-          <enum>QFrame::Shape::StyledPanel</enum>
+          <enum>QFrame::StyledPanel</enum>
          </property>
          <property name="frameShadow">
-          <enum>QFrame::Shadow::Raised</enum>
+          <enum>QFrame::Raised</enum>
          </property>
          <property name="verticalScrollBarPolicy">
           <enum>Qt::ScrollBarAsNeeded</enum>
@@ -16269,10 +16269,10 @@ p, li { white-space: pre-wrap; }
           <set>QAbstractItemView::AnyKeyPressed|QAbstractItemView::DoubleClicked|QAbstractItemView::EditKeyPressed</set>
          </property>
          <property name="selectionMode">
-          <enum>QAbstractItemView::SelectionMode::SingleSelection</enum>
+          <enum>QAbstractItemView::SingleSelection</enum>
          </property>
          <property name="selectionBehavior">
-          <enum>QAbstractItemView::SelectionBehavior::SelectRows</enum>
+          <enum>QAbstractItemView::SelectRows</enum>
          </property>
          <property name="rowCount">
           <number>1</number>
@@ -18062,10 +18062,10 @@ p, li { white-space: pre-wrap; }
           </font>
          </property>
          <property name="frameShape">
-          <enum>QFrame::Shape::StyledPanel</enum>
+          <enum>QFrame::StyledPanel</enum>
          </property>
          <property name="frameShadow">
-          <enum>QFrame::Shadow::Raised</enum>
+          <enum>QFrame::Raised</enum>
          </property>
          <property name="verticalScrollBarPolicy">
           <enum>Qt::ScrollBarAsNeeded</enum>
@@ -18080,10 +18080,10 @@ p, li { white-space: pre-wrap; }
           <bool>true</bool>
          </property>
          <property name="selectionMode">
-          <enum>QAbstractItemView::SelectionMode::SingleSelection</enum>
+          <enum>QAbstractItemView::SingleSelection</enum>
          </property>
          <property name="selectionBehavior">
-          <enum>QAbstractItemView::SelectionBehavior::SelectRows</enum>
+          <enum>QAbstractItemView::SelectRows</enum>
          </property>
          <property name="rowCount">
           <number>1</number>
@@ -18304,10 +18304,10 @@ p, li { white-space: pre-wrap; }
           </font>
          </property>
          <property name="frameShape">
-          <enum>QFrame::Shape::StyledPanel</enum>
+          <enum>QFrame::StyledPanel</enum>
          </property>
          <property name="frameShadow">
-          <enum>QFrame::Shadow::Raised</enum>
+          <enum>QFrame::Raised</enum>
          </property>
          <property name="verticalScrollBarPolicy">
           <enum>Qt::ScrollBarAsNeeded</enum>
@@ -18322,10 +18322,10 @@ p, li { white-space: pre-wrap; }
           <bool>true</bool>
          </property>
          <property name="selectionMode">
-          <enum>QAbstractItemView::SelectionMode::SingleSelection</enum>
+          <enum>QAbstractItemView::SingleSelection</enum>
          </property>
          <property name="selectionBehavior">
-          <enum>QAbstractItemView::SelectionBehavior::SelectRows</enum>
+          <enum>QAbstractItemView::SelectRows</enum>
          </property>
          <property name="rowCount">
           <number>1</number>
@@ -18644,10 +18644,10 @@ p, li { white-space: pre-wrap; }
             </font>
            </property>
            <property name="frameShape">
-            <enum>QFrame::Shape::StyledPanel</enum>
+            <enum>QFrame::StyledPanel</enum>
            </property>
            <property name="frameShadow">
-            <enum>QFrame::Shadow::Raised</enum>
+            <enum>QFrame::Raised</enum>
            </property>
            <property name="verticalScrollBarPolicy">
             <enum>Qt::ScrollBarAsNeeded</enum>
@@ -18662,10 +18662,10 @@ p, li { white-space: pre-wrap; }
             <bool>true</bool>
            </property>
            <property name="selectionMode">
-            <enum>QAbstractItemView::SelectionMode::SingleSelection</enum>
+            <enum>QAbstractItemView::SingleSelection</enum>
            </property>
            <property name="selectionBehavior">
-            <enum>QAbstractItemView::SelectionBehavior::SelectRows</enum>
+            <enum>QAbstractItemView::SelectRows</enum>
            </property>
            <property name="rowCount">
             <number>1</number>
@@ -18699,10 +18699,10 @@ p, li { white-space: pre-wrap; }
             </font>
            </property>
            <property name="frameShape">
-            <enum>QFrame::Shape::StyledPanel</enum>
+            <enum>QFrame::StyledPanel</enum>
            </property>
            <property name="frameShadow">
-            <enum>QFrame::Shadow::Raised</enum>
+            <enum>QFrame::Raised</enum>
            </property>
            <property name="verticalScrollBarPolicy">
             <enum>Qt::ScrollBarAsNeeded</enum>
@@ -18717,10 +18717,10 @@ p, li { white-space: pre-wrap; }
             <bool>true</bool>
            </property>
            <property name="selectionMode">
-            <enum>QAbstractItemView::SelectionMode::SingleSelection</enum>
+            <enum>QAbstractItemView::SingleSelection</enum>
            </property>
            <property name="selectionBehavior">
-            <enum>QAbstractItemView::SelectionBehavior::SelectRows</enum>
+            <enum>QAbstractItemView::SelectRows</enum>
            </property>
            <property name="rowCount">
             <number>1</number>
@@ -18820,10 +18820,10 @@ p, li { white-space: pre-wrap; }
             </font>
            </property>
            <property name="frameShape">
-            <enum>QFrame::Shape::StyledPanel</enum>
+            <enum>QFrame::StyledPanel</enum>
            </property>
            <property name="frameShadow">
-            <enum>QFrame::Shadow::Raised</enum>
+            <enum>QFrame::Raised</enum>
            </property>
            <property name="verticalScrollBarPolicy">
             <enum>Qt::ScrollBarAsNeeded</enum>
@@ -18838,10 +18838,10 @@ p, li { white-space: pre-wrap; }
             <bool>true</bool>
            </property>
            <property name="selectionMode">
-            <enum>QAbstractItemView::SelectionMode::SingleSelection</enum>
+            <enum>QAbstractItemView::SingleSelection</enum>
            </property>
            <property name="selectionBehavior">
-            <enum>QAbstractItemView::SelectionBehavior::SelectRows</enum>
+            <enum>QAbstractItemView::SelectRows</enum>
            </property>
            <property name="rowCount">
             <number>1</number>
@@ -19431,10 +19431,10 @@ p, li { white-space: pre-wrap; }
               </font>
              </property>
              <property name="frameShape">
-              <enum>QFrame::Shape::WinPanel</enum>
+              <enum>QFrame::WinPanel</enum>
              </property>
              <property name="frameShadow">
-              <enum>QFrame::Shadow::Sunken</enum>
+              <enum>QFrame::Sunken</enum>
              </property>
              <property name="sizeAdjustPolicy">
               <enum>QAbstractScrollArea::SizeAdjustPolicy::AdjustToContents</enum>
@@ -19455,7 +19455,7 @@ p, li { white-space: pre-wrap; }
               <bool>true</bool>
              </property>
              <property name="dragDropMode">
-              <enum>QAbstractItemView::DragDropMode::NoDragDrop</enum>
+              <enum>QAbstractItemView::NoDragDrop</enum>
              </property>
              <property name="defaultDropAction">
               <enum>Qt::DropAction::LinkAction</enum>
@@ -19464,7 +19464,7 @@ p, li { white-space: pre-wrap; }
               <bool>true</bool>
              </property>
              <property name="movement">
-              <enum>QListView::Movement::Static</enum>
+              <enum>QListView::Static</enum>
              </property>
              <property name="isWrapping" stdset="0">
               <bool>true</bool>
@@ -19969,7 +19969,7 @@ p, li { white-space: pre-wrap; }
           <enum>Qt::LeftToRight</enum>
          </property>
          <property name="tabPosition">
-          <enum>QTabWidget::TabPosition::North</enum>
+          <enum>QTabWidget::North</enum>
          </property>
          <property name="currentIndex">
           <number>0</number>
@@ -31445,7 +31445,7 @@ p, li { white-space: pre-wrap; }
                   </palette>
                  </property>
                  <property name="frameShape">
-                  <enum>QFrame::Shape::StyledPanel</enum>
+                  <enum>QFrame::StyledPanel</enum>
                  </property>
                  <property name="currentIndex">
                   <number>0</number>

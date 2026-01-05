@@ -605,10 +605,10 @@
         <enum>Qt::DefaultContextMenu</enum>
        </property>
        <property name="frameShape">
-        <enum>QFrame::Shape::Box</enum>
+        <enum>QFrame::Box</enum>
        </property>
        <property name="frameShadow">
-        <enum>QFrame::Shadow::Sunken</enum>
+        <enum>QFrame::Sunken</enum>
        </property>
        <property name="text">
         <string/>
@@ -646,10 +646,10 @@
         <enum>Qt::DefaultContextMenu</enum>
        </property>
        <property name="frameShape">
-        <enum>QFrame::Shape::Box</enum>
+        <enum>QFrame::Box</enum>
        </property>
        <property name="frameShadow">
-        <enum>QFrame::Shadow::Sunken</enum>
+        <enum>QFrame::Sunken</enum>
        </property>
        <property name="text">
         <string/>
@@ -709,10 +709,10 @@
         <enum>Qt::DefaultContextMenu</enum>
        </property>
        <property name="frameShape">
-        <enum>QFrame::Shape::Box</enum>
+        <enum>QFrame::Box</enum>
        </property>
        <property name="frameShadow">
-        <enum>QFrame::Shadow::Sunken</enum>
+        <enum>QFrame::Sunken</enum>
        </property>
        <property name="text">
         <string>1</string>
@@ -766,10 +766,10 @@
         <enum>Qt::DefaultContextMenu</enum>
        </property>
        <property name="frameShape">
-        <enum>QFrame::Shape::Box</enum>
+        <enum>QFrame::Box</enum>
        </property>
        <property name="frameShadow">
-        <enum>QFrame::Shadow::Sunken</enum>
+        <enum>QFrame::Sunken</enum>
        </property>
        <property name="text">
         <string>1</string>
@@ -1644,7 +1644,7 @@
                  <number>2147483647</number>
                 </property>
                 <property name="sizeAdjustPolicy">
-                 <enum>QComboBox::SizeAdjustPolicy::AdjustToContents</enum>
+                 <enum>QComboBox::AdjustToContents</enum>
                 </property>
                 <item>
                  <property name="text">
@@ -2333,7 +2333,7 @@ background-color: rgb(255, 255, 127);</string>
               <enum>Qt::LeftToRight</enum>
              </property>
              <property name="tabPosition">
-              <enum>QTabWidget::TabPosition::North</enum>
+              <enum>QTabWidget::North</enum>
              </property>
              <property name="currentIndex">
               <number>0</number>

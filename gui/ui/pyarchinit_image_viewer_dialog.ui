@@ -853,10 +853,10 @@
         </size>
        </property>
        <property name="frameShape">
-        <enum>QFrame::Shape::StyledPanel</enum>
+        <enum>QFrame::StyledPanel</enum>
        </property>
        <property name="frameShadow">
-        <enum>QFrame::Shadow::Sunken</enum>
+        <enum>QFrame::Sunken</enum>
        </property>
        <property name="lineWidth">
         <number>2</number>
@@ -880,7 +880,7 @@
         <bool>true</bool>
        </property>
        <property name="dragDropMode">
-        <enum>QAbstractItemView::DragDropMode::NoDragDrop</enum>
+        <enum>QAbstractItemView::NoDragDrop</enum>
        </property>
        <property name="defaultDropAction">
         <enum>Qt::CopyAction</enum>
@@ -889,7 +889,7 @@
         <bool>false</bool>
        </property>
        <property name="selectionMode">
-        <enum>QAbstractItemView::SelectionMode::SingleSelection</enum>
+        <enum>QAbstractItemView::SingleSelection</enum>
        </property>
        <property name="iconSize">
         <size>
@@ -901,7 +901,7 @@
         <enum>Qt::ElideMiddle</enum>
        </property>
        <property name="movement">
-        <enum>QListView::Movement::Static</enum>
+        <enum>QListView::Static</enum>
        </property>
        <property name="isWrapping" stdset="0">
         <bool>true</bool>
@@ -1245,7 +1245,7 @@
             <bool>false</bool>
            </property>
            <property name="dragDropMode">
-            <enum>QAbstractItemView::DragDropMode::DragDrop</enum>
+            <enum>QAbstractItemView::DragDrop</enum>
            </property>
            <property name="defaultDropAction">
             <enum>Qt::DropAction::IgnoreAction</enum>
@@ -1254,7 +1254,7 @@
             <bool>true</bool>
            </property>
            <property name="selectionMode">
-            <enum>QAbstractItemView::SelectionMode::MultiSelection</enum>
+            <enum>QAbstractItemView::MultiSelection</enum>
            </property>
            <property name="sortingEnabled">
             <bool>true</bool>
@@ -1345,10 +1345,10 @@
                   <bool>true</bool>
                  </property>
                  <property name="frameShape">
-                  <enum>QFrame::Shape::StyledPanel</enum>
+                  <enum>QFrame::StyledPanel</enum>
                  </property>
                  <property name="frameShadow">
-                  <enum>QFrame::Shadow::Plain</enum>
+                  <enum>QFrame::Plain</enum>
                  </property>
                  <property name="text">
                   <string>US</string>
@@ -1372,7 +1372,7 @@
                <item row="6" column="0">
                 <widget class="QLabel" name="label_13">
                  <property name="frameShape">
-                  <enum>QFrame::Shape::StyledPanel</enum>
+                  <enum>QFrame::StyledPanel</enum>
                  </property>
                  <property name="text">
                   <string>Nr. st.</string>
@@ -1395,10 +1395,10 @@
                   <bool>true</bool>
                  </property>
                  <property name="frameShape">
-                  <enum>QFrame::Shape::StyledPanel</enum>
+                  <enum>QFrame::StyledPanel</enum>
                  </property>
                  <property name="frameShadow">
-                  <enum>QFrame::Shadow::Plain</enum>
+                  <enum>QFrame::Plain</enum>
                  </property>
                  <property name="text">
                   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:10pt; font-weight:600;&quot;&gt;Cerca le immagini taggate&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -1418,7 +1418,7 @@
                <item row="5" column="0">
                 <widget class="QLabel" name="label_12">
                  <property name="frameShape">
-                  <enum>QFrame::Shape::StyledPanel</enum>
+                  <enum>QFrame::StyledPanel</enum>
                  </property>
                  <property name="text">
                   <string>Sigla st.</string>
@@ -1441,10 +1441,10 @@
                   <bool>true</bool>
                  </property>
                  <property name="frameShape">
-                  <enum>QFrame::Shape::StyledPanel</enum>
+                  <enum>QFrame::StyledPanel</enum>
                  </property>
                  <property name="frameShadow">
-                  <enum>QFrame::Shadow::Plain</enum>
+                  <enum>QFrame::Plain</enum>
                  </property>
                  <property name="text">
                   <string>Sito</string>
@@ -1505,10 +1505,10 @@
                   <bool>true</bool>
                  </property>
                  <property name="frameShape">
-                  <enum>QFrame::Shape::StyledPanel</enum>
+                  <enum>QFrame::StyledPanel</enum>
                  </property>
                  <property name="frameShadow">
-                  <enum>QFrame::Shadow::Plain</enum>
+                  <enum>QFrame::Plain</enum>
                  </property>
                  <property name="text">
                   <string>Area</string>
@@ -1532,7 +1532,7 @@
                <item row="8" column="0">
                 <widget class="QLabel" name="label_text_search">
                  <property name="frameShape">
-                  <enum>QFrame::Shape::StyledPanel</enum>
+                  <enum>QFrame::StyledPanel</enum>
                  </property>
                  <property name="text">
                   <string>Cerca testo</string>
@@ -1549,7 +1549,7 @@
                <item row="9" column="0">
                 <widget class="QLabel" name="label_nr_inventario">
                  <property name="frameShape">
-                  <enum>QFrame::Shape::StyledPanel</enum>
+                  <enum>QFrame::StyledPanel</enum>
                  </property>
                  <property name="text">
                   <string>Nr. Inv.</string>
@@ -1598,10 +1598,10 @@
                   <bool>true</bool>
                  </property>
                  <property name="frameShape">
-                  <enum>QFrame::Shape::StyledPanel</enum>
+                  <enum>QFrame::StyledPanel</enum>
                  </property>
                  <property name="frameShadow">
-                  <enum>QFrame::Shadow::Plain</enum>
+                  <enum>QFrame::Plain</enum>
                  </property>
                  <property name="text">
                   <string>DB Info</string>
@@ -1628,10 +1628,10 @@
                     <enum>Qt::DefaultContextMenu</enum>
                    </property>
                    <property name="frameShape">
-                    <enum>QFrame::Shape::StyledPanel</enum>
+                    <enum>QFrame::StyledPanel</enum>
                    </property>
                    <property name="frameShadow">
-                    <enum>QFrame::Shadow::Plain</enum>
+                    <enum>QFrame::Plain</enum>
                    </property>
                    <property name="text">
                     <string>1</string>
@@ -1656,10 +1656,10 @@
                     <enum>Qt::DefaultContextMenu</enum>
                    </property>
                    <property name="frameShape">
-                    <enum>QFrame::Shape::StyledPanel</enum>
+                    <enum>QFrame::StyledPanel</enum>
                    </property>
                    <property name="frameShadow">
-                    <enum>QFrame::Shadow::Plain</enum>
+                    <enum>QFrame::Plain</enum>
                    </property>
                    <property name="text">
                     <string>1</string>
@@ -1677,10 +1677,10 @@
                     </font>
                    </property>
                    <property name="frameShape">
-                    <enum>QFrame::Shape::StyledPanel</enum>
+                    <enum>QFrame::StyledPanel</enum>
                    </property>
                    <property name="frameShadow">
-                    <enum>QFrame::Shadow::Plain</enum>
+                    <enum>QFrame::Plain</enum>
                    </property>
                    <property name="text">
                     <string>record n.</string>
@@ -1701,10 +1701,10 @@
                     </font>
                    </property>
                    <property name="frameShape">
-                    <enum>QFrame::Shape::StyledPanel</enum>
+                    <enum>QFrame::StyledPanel</enum>
                    </property>
                    <property name="frameShadow">
-                    <enum>QFrame::Shadow::Plain</enum>
+                    <enum>QFrame::Plain</enum>
                    </property>
                    <property name="text">
                     <string>record tot.</string>
@@ -1729,10 +1729,10 @@
                     </font>
                    </property>
                    <property name="frameShape">
-                    <enum>QFrame::Shape::StyledPanel</enum>
+                    <enum>QFrame::StyledPanel</enum>
                    </property>
                    <property name="frameShadow">
-                    <enum>QFrame::Shadow::Plain</enum>
+                    <enum>QFrame::Plain</enum>
                    </property>
                    <property name="text">
                     <string>Status</string>
@@ -1753,10 +1753,10 @@
                     </font>
                    </property>
                    <property name="frameShape">
-                    <enum>QFrame::Shape::StyledPanel</enum>
+                    <enum>QFrame::StyledPanel</enum>
                    </property>
                    <property name="frameShadow">
-                    <enum>QFrame::Shadow::Plain</enum>
+                    <enum>QFrame::Plain</enum>
                    </property>
                    <property name="text">
                     <string>Ordinamento</string>
@@ -1804,10 +1804,10 @@
                     <enum>Qt::DefaultContextMenu</enum>
                    </property>
                    <property name="frameShape">
-                    <enum>QFrame::Shape::StyledPanel</enum>
+                    <enum>QFrame::StyledPanel</enum>
                    </property>
                    <property name="frameShadow">
-                    <enum>QFrame::Shadow::Plain</enum>
+                    <enum>QFrame::Plain</enum>
                    </property>
                    <property name="text">
                     <string/>
@@ -1846,10 +1846,10 @@
                     <enum>Qt::DefaultContextMenu</enum>
                    </property>
                    <property name="frameShape">
-                    <enum>QFrame::Shape::StyledPanel</enum>
+                    <enum>QFrame::StyledPanel</enum>
                    </property>
                    <property name="frameShadow">
-                    <enum>QFrame::Shadow::Plain</enum>
+                    <enum>QFrame::Plain</enum>
                    </property>
                    <property name="text">
                     <string/>

@@ -194,7 +194,7 @@
          </size>
         </property>
         <property name="movement">
-         <enum>QListView::Movement::Static</enum>
+         <enum>QListView::Static</enum>
         </property>
         <property name="resizeMode">
          <enum>QListView::ResizeMode::Adjust</enum>
@@ -203,7 +203,7 @@
          <number>10</number>
         </property>
         <property name="selectionMode">
-         <enum>QAbstractItemView::SelectionMode::ExtendedSelection</enum>
+         <enum>QAbstractItemView::ExtendedSelection</enum>
         </property>
        </widget>
       </item>

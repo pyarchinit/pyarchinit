@@ -933,10 +933,10 @@
             <enum>Qt::DefaultContextMenu</enum>
            </property>
            <property name="frameShape">
-            <enum>QFrame::Shape::Box</enum>
+            <enum>QFrame::Box</enum>
            </property>
            <property name="frameShadow">
-            <enum>QFrame::Shadow::Sunken</enum>
+            <enum>QFrame::Sunken</enum>
            </property>
            <property name="text">
             <string/>
@@ -969,10 +969,10 @@
             <enum>Qt::DefaultContextMenu</enum>
            </property>
            <property name="frameShape">
-            <enum>QFrame::Shape::Box</enum>
+            <enum>QFrame::Box</enum>
            </property>
            <property name="frameShadow">
-            <enum>QFrame::Shadow::Sunken</enum>
+            <enum>QFrame::Sunken</enum>
            </property>
            <property name="text">
             <string/>
@@ -1025,10 +1025,10 @@
             <enum>Qt::DefaultContextMenu</enum>
            </property>
            <property name="frameShape">
-            <enum>QFrame::Shape::Box</enum>
+            <enum>QFrame::Box</enum>
            </property>
            <property name="frameShadow">
-            <enum>QFrame::Shadow::Sunken</enum>
+            <enum>QFrame::Sunken</enum>
            </property>
            <property name="text">
             <string>1</string>
@@ -1053,10 +1053,10 @@
             <enum>Qt::DefaultContextMenu</enum>
            </property>
            <property name="frameShape">
-            <enum>QFrame::Shape::Box</enum>
+            <enum>QFrame::Box</enum>
            </property>
            <property name="frameShadow">
-            <enum>QFrame::Shadow::Sunken</enum>
+            <enum>QFrame::Sunken</enum>
            </property>
            <property name="text">
             <string>1</string>
@@ -1651,10 +1651,10 @@ p, li { white-space: pre-wrap; }
          <item row="2" column="0" colspan="3">
           <widget class="QTableWidget" name="tableWidget_rapporti">
            <property name="frameShape">
-            <enum>QFrame::Shape::StyledPanel</enum>
+            <enum>QFrame::StyledPanel</enum>
            </property>
            <property name="frameShadow">
-            <enum>QFrame::Shadow::Raised</enum>
+            <enum>QFrame::Raised</enum>
            </property>
            <property name="verticalScrollBarPolicy">
             <enum>Qt::ScrollBarAsNeeded</enum>
@@ -1738,10 +1738,10 @@ p, li { white-space: pre-wrap; }
         <item row="1" column="2">
          <widget class="QTableWidget" name="tableWidget_materiali_impiegati">
           <property name="frameShape">
-           <enum>QFrame::Shape::StyledPanel</enum>
+           <enum>QFrame::StyledPanel</enum>
           </property>
           <property name="frameShadow">
-           <enum>QFrame::Shadow::Raised</enum>
+           <enum>QFrame::Raised</enum>
           </property>
           <property name="verticalScrollBarPolicy">
            <enum>Qt::ScrollBarAlwaysOn</enum>
@@ -1857,10 +1857,10 @@ p, li { white-space: pre-wrap; }
         <item row="1" column="0" colspan="2">
          <widget class="QTableWidget" name="tableWidget_elementi_strutturali">
           <property name="frameShape">
-           <enum>QFrame::Shape::StyledPanel</enum>
+           <enum>QFrame::StyledPanel</enum>
           </property>
           <property name="frameShadow">
-           <enum>QFrame::Shadow::Raised</enum>
+           <enum>QFrame::Raised</enum>
           </property>
           <property name="verticalScrollBarPolicy">
            <enum>Qt::ScrollBarAlwaysOn</enum>
@@ -2210,10 +2210,10 @@ p, li { white-space: pre-wrap; }
        <item row="1" column="0" colspan="3">
         <widget class="QTableWidget" name="tableWidget_misurazioni">
          <property name="frameShape">
-          <enum>QFrame::Shape::StyledPanel</enum>
+          <enum>QFrame::StyledPanel</enum>
          </property>
          <property name="frameShadow">
-          <enum>QFrame::Shadow::Raised</enum>
+          <enum>QFrame::Raised</enum>
          </property>
          <property name="verticalScrollBarPolicy">
           <enum>Qt::ScrollBarAlwaysOn</enum>

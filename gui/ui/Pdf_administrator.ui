@@ -756,10 +756,10 @@
             <enum>Qt::DefaultContextMenu</enum>
            </property>
            <property name="frameShape">
-            <enum>QFrame::Shape::Box</enum>
+            <enum>QFrame::Box</enum>
            </property>
            <property name="frameShadow">
-            <enum>QFrame::Shadow::Sunken</enum>
+            <enum>QFrame::Sunken</enum>
            </property>
            <property name="text">
             <string/>
@@ -809,10 +809,10 @@
             <enum>Qt::DefaultContextMenu</enum>
            </property>
            <property name="frameShape">
-            <enum>QFrame::Shape::Box</enum>
+            <enum>QFrame::Box</enum>
            </property>
            <property name="frameShadow">
-            <enum>QFrame::Shadow::Sunken</enum>
+            <enum>QFrame::Sunken</enum>
            </property>
            <property name="text">
             <string/>
@@ -881,10 +881,10 @@
             <enum>Qt::DefaultContextMenu</enum>
            </property>
            <property name="frameShape">
-            <enum>QFrame::Shape::Box</enum>
+            <enum>QFrame::Box</enum>
            </property>
            <property name="frameShadow">
-            <enum>QFrame::Shadow::Sunken</enum>
+            <enum>QFrame::Sunken</enum>
            </property>
            <property name="text">
             <string>1</string>
@@ -926,10 +926,10 @@
             <enum>Qt::DefaultContextMenu</enum>
            </property>
            <property name="frameShape">
-            <enum>QFrame::Shape::Box</enum>
+            <enum>QFrame::Box</enum>
            </property>
            <property name="frameShadow">
-            <enum>QFrame::Shadow::Sunken</enum>
+            <enum>QFrame::Sunken</enum>
            </property>
            <property name="text">
             <string>1</string>
@@ -1077,10 +1077,10 @@
           </font>
          </property>
          <property name="frameShape">
-          <enum>QFrame::Shape::WinPanel</enum>
+          <enum>QFrame::WinPanel</enum>
          </property>
          <property name="frameShadow">
-          <enum>QFrame::Shadow::Sunken</enum>
+          <enum>QFrame::Sunken</enum>
          </property>
          <property name="lineWidth">
           <number>1</number>
@@ -1278,10 +1278,10 @@
        <item row="1" column="0" colspan="2">
         <widget class="QTableWidget" name="tableWidget_gestione_celle">
          <property name="frameShape">
-          <enum>QFrame::Shape::WinPanel</enum>
+          <enum>QFrame::WinPanel</enum>
          </property>
          <property name="frameShadow">
-          <enum>QFrame::Shadow::Sunken</enum>
+          <enum>QFrame::Sunken</enum>
          </property>
          <property name="lineWidth">
           <number>1</number>

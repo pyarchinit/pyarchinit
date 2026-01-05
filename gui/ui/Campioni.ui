@@ -516,10 +516,10 @@
             <enum>Qt::DefaultContextMenu</enum>
            </property>
            <property name="frameShape">
-            <enum>QFrame::Shape::Box</enum>
+            <enum>QFrame::Box</enum>
            </property>
            <property name="frameShadow">
-            <enum>QFrame::Shadow::Sunken</enum>
+            <enum>QFrame::Sunken</enum>
            </property>
            <property name="text">
             <string/>
@@ -551,10 +551,10 @@
             <enum>Qt::DefaultContextMenu</enum>
            </property>
            <property name="frameShape">
-            <enum>QFrame::Shape::Box</enum>
+            <enum>QFrame::Box</enum>
            </property>
            <property name="frameShadow">
-            <enum>QFrame::Shadow::Sunken</enum>
+            <enum>QFrame::Sunken</enum>
            </property>
            <property name="text">
             <string/>
@@ -623,10 +623,10 @@
             <enum>Qt::DefaultContextMenu</enum>
            </property>
            <property name="frameShape">
-            <enum>QFrame::Shape::Box</enum>
+            <enum>QFrame::Box</enum>
            </property>
            <property name="frameShadow">
-            <enum>QFrame::Shadow::Sunken</enum>
+            <enum>QFrame::Sunken</enum>
            </property>
            <property name="text">
             <string>1</string>
@@ -668,10 +668,10 @@
             <enum>Qt::DefaultContextMenu</enum>
            </property>
            <property name="frameShape">
-            <enum>QFrame::Shape::Box</enum>
+            <enum>QFrame::Box</enum>
            </property>
            <property name="frameShadow">
-            <enum>QFrame::Shadow::Sunken</enum>
+            <enum>QFrame::Sunken</enum>
            </property>
            <property name="text">
             <string>1</string>

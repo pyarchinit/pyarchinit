@@ -345,10 +345,10 @@
                 <enum>Qt::DefaultContextMenu</enum>
                </property>
                <property name="frameShape">
-                <enum>QFrame::Shape::Box</enum>
+                <enum>QFrame::Box</enum>
                </property>
                <property name="frameShadow">
-                <enum>QFrame::Shadow::Sunken</enum>
+                <enum>QFrame::Sunken</enum>
                </property>
                <property name="text">
                 <string/>
@@ -398,10 +398,10 @@
                 <enum>Qt::DefaultContextMenu</enum>
                </property>
                <property name="frameShape">
-                <enum>QFrame::Shape::Box</enum>
+                <enum>QFrame::Box</enum>
                </property>
                <property name="frameShadow">
-                <enum>QFrame::Shadow::Sunken</enum>
+                <enum>QFrame::Sunken</enum>
                </property>
                <property name="text">
                 <string/>
@@ -470,10 +470,10 @@
                 <enum>Qt::DefaultContextMenu</enum>
                </property>
                <property name="frameShape">
-                <enum>QFrame::Shape::Box</enum>
+                <enum>QFrame::Box</enum>
                </property>
                <property name="frameShadow">
-                <enum>QFrame::Shadow::Sunken</enum>
+                <enum>QFrame::Sunken</enum>
                </property>
                <property name="text">
                 <string>1</string>
@@ -515,10 +515,10 @@
                 <enum>Qt::DefaultContextMenu</enum>
                </property>
                <property name="frameShape">
-                <enum>QFrame::Shape::Box</enum>
+                <enum>QFrame::Box</enum>
                </property>
                <property name="frameShadow">
-                <enum>QFrame::Shadow::Sunken</enum>
+                <enum>QFrame::Sunken</enum>
                </property>
                <property name="text">
                 <string>1</string>
@@ -1160,7 +1160,7 @@
           <string>postgres</string>
          </property>
          <property name="echoMode">
-          <enum>QLineEdit::EchoMode::Password</enum>
+          <enum>QLineEdit::Password</enum>
          </property>
         </widget>
         <widget class="QComboBox" name="port">
@@ -2055,10 +2055,10 @@ p, li { white-space: pre-wrap; }
           <bool>false</bool>
          </property>
          <property name="frameShape">
-          <enum>QFrame::Shape::StyledPanel</enum>
+          <enum>QFrame::StyledPanel</enum>
          </property>
          <property name="frameShadow">
-          <enum>QFrame::Shadow::Sunken</enum>
+          <enum>QFrame::Sunken</enum>
          </property>
          <property name="lineWidth">
           <number>2</number>

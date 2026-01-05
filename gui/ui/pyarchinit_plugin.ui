@@ -107,10 +107,10 @@ border-color: rgb(116, 116, 87);
 selection-color: rgb(140, 140, 105);</string>
           </property>
           <property name="tabPosition">
-           <enum>QTabWidget::TabPosition::West</enum>
+           <enum>QTabWidget::West</enum>
           </property>
           <property name="tabShape">
-           <enum>QTabWidget::TabShape::Triangular</enum>
+           <enum>QTabWidget::Triangular</enum>
           </property>
           <property name="currentIndex">
            <number>0</number>
