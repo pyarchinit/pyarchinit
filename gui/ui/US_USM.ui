@@ -13498,7 +13498,7 @@ p, li { white-space: pre-wrap; }
             <enum>Qt::ScrollBarAsNeeded</enum>
            </property>
            <property name="sizeAdjustPolicy">
-            <enum>QAbstractScrollArea::SizeAdjustPolicy::AdjustToContents</enum>
+            <enum>QAbstractScrollArea::AdjustToContents</enum>
            </property>
            <property name="editTriggers">
             <set>QAbstractItemView::AnyKeyPressed|QAbstractItemView::DoubleClicked|QAbstractItemView::EditKeyPressed</set>
@@ -13679,7 +13679,7 @@ p, li { white-space: pre-wrap; }
                 <set>Qt::ImhMultiLine|Qt::ImhNoTextHandles</set>
                </property>
                <property name="sizeAdjustPolicy">
-                <enum>QAbstractScrollArea::SizeAdjustPolicy::AdjustToContents</enum>
+                <enum>QAbstractScrollArea::AdjustToContents</enum>
                </property>
                <property name="alternatingRowColors">
                 <bool>true</bool>
@@ -13999,7 +13999,7 @@ p, li { white-space: pre-wrap; }
             <enum>Qt::ScrollBarAsNeeded</enum>
            </property>
            <property name="sizeAdjustPolicy">
-            <enum>QAbstractScrollArea::SizeAdjustPolicy::AdjustToContents</enum>
+            <enum>QAbstractScrollArea::AdjustToContents</enum>
            </property>
            <property name="alternatingRowColors">
             <bool>true</bool>
@@ -14131,7 +14131,7 @@ p, li { white-space: pre-wrap; }
        <item row="0" column="0">
         <layout class="QGridLayout" name="gridLayout_14" columnstretch="0,0,0,0,0,0">
          <property name="sizeConstraint">
-          <enum>QLayout::SizeConstraint::SetDefaultConstraint</enum>
+          <enum>QLayout::SetDefaultConstraint</enum>
          </property>
          <property name="verticalSpacing">
           <number>7</number>
@@ -19437,7 +19437,7 @@ p, li { white-space: pre-wrap; }
               <enum>QFrame::Sunken</enum>
              </property>
              <property name="sizeAdjustPolicy">
-              <enum>QAbstractScrollArea::SizeAdjustPolicy::AdjustToContents</enum>
+              <enum>QAbstractScrollArea::AdjustToContents</enum>
              </property>
              <property name="editTriggers">
               <set>QAbstractItemView::AllEditTriggers</set>
@@ -19458,7 +19458,7 @@ p, li { white-space: pre-wrap; }
               <enum>QAbstractItemView::NoDragDrop</enum>
              </property>
              <property name="defaultDropAction">
-              <enum>Qt::DropAction::LinkAction</enum>
+              <enum>Qt::LinkAction</enum>
              </property>
              <property name="alternatingRowColors">
               <bool>true</bool>
@@ -39585,7 +39585,7 @@ QPushButton:pressed {
                        <bool>false</bool>
                       </property>
                       <property name="toolButtonStyle">
-                       <enum>Qt::ToolButtonStyle::ToolButtonTextOnly</enum>
+                       <enum>Qt::ToolButtonTextOnly</enum>
                       </property>
                       <property name="arrowType">
                        <enum>Qt::NoArrow</enum>
@@ -39714,7 +39714,7 @@ QPushButton:pressed {
                        </size>
                       </property>
                       <property name="toolButtonStyle">
-                       <enum>Qt::ToolButtonStyle::ToolButtonTextOnly</enum>
+                       <enum>Qt::ToolButtonTextOnly</enum>
                       </property>
                       <property name="autoRaise">
                        <bool>true</bool>
@@ -51089,7 +51089,7 @@ QPushButton:pressed {
         <bool>false</bool>
        </property>
        <property name="toolButtonStyle">
-        <enum>Qt::ToolButtonStyle::ToolButtonTextOnly</enum>
+        <enum>Qt::ToolButtonTextOnly</enum>
        </property>
        <property name="arrowType">
         <enum>Qt::NoArrow</enum>

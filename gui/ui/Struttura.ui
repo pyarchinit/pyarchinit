@@ -1663,7 +1663,7 @@ p, li { white-space: pre-wrap; }
             <enum>Qt::ScrollBarAsNeeded</enum>
            </property>
            <property name="sizeAdjustPolicy">
-            <enum>QAbstractScrollArea::SizeAdjustPolicy::AdjustToContentsOnFirstShow</enum>
+            <enum>QAbstractScrollArea::AdjustToContentsOnFirstShow</enum>
            </property>
            <property name="editTriggers">
             <set>QAbstractItemView::AnyKeyPressed|QAbstractItemView::DoubleClicked|QAbstractItemView::EditKeyPressed</set>
@@ -2284,7 +2284,7 @@ p, li { white-space: pre-wrap; }
        <item row="3" column="0" colspan="3">
         <widget class="QListWidget" name="iconListWidget">
          <property name="sizeAdjustPolicy">
-          <enum>QAbstractScrollArea::SizeAdjustPolicy::AdjustToContents</enum>
+          <enum>QAbstractScrollArea::AdjustToContents</enum>
          </property>
          <property name="uniformItemSizes">
           <bool>true</bool>

@@ -4107,7 +4107,7 @@ p, li { white-space: pre-wrap; }
           <bool>false</bool>
          </property>
          <property name="toolButtonStyle">
-          <enum>Qt::ToolButtonStyle::ToolButtonTextOnly</enum>
+          <enum>Qt::ToolButtonTextOnly</enum>
          </property>
          <property name="arrowType">
           <enum>Qt::NoArrow</enum>

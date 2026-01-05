@@ -1649,7 +1649,7 @@
         <string>Nr Individuo</string>
        </property>
        <property name="textFormat">
-        <enum>Qt::TextFormat::AutoText</enum>
+        <enum>Qt::AutoText</enum>
        </property>
        <property name="scaledContents">
         <bool>true</bool>
@@ -2157,7 +2157,7 @@ p, li { white-space: pre-wrap; }
             <enum>Qt::ScrollBarAsNeeded</enum>
            </property>
            <property name="sizeAdjustPolicy">
-            <enum>QAbstractScrollArea::SizeAdjustPolicy::AdjustToContents</enum>
+            <enum>QAbstractScrollArea::AdjustToContents</enum>
            </property>
            <property name="editTriggers">
             <set>QAbstractItemView::AnyKeyPressed|QAbstractItemView::DoubleClicked|QAbstractItemView::EditKeyPressed</set>
@@ -2553,7 +2553,7 @@ p, li { white-space: pre-wrap; }
             <bool>false</bool>
            </property>
            <property name="toolButtonStyle">
-            <enum>Qt::ToolButtonStyle::ToolButtonTextOnly</enum>
+            <enum>Qt::ToolButtonTextOnly</enum>
            </property>
            <property name="arrowType">
             <enum>Qt::NoArrow</enum>
@@ -2629,7 +2629,7 @@ p, li { white-space: pre-wrap; }
             <bool>false</bool>
            </property>
            <property name="toolButtonStyle">
-            <enum>Qt::ToolButtonStyle::ToolButtonTextOnly</enum>
+            <enum>Qt::ToolButtonTextOnly</enum>
            </property>
            <property name="arrowType">
             <enum>Qt::NoArrow</enum>

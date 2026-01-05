@@ -3056,7 +3056,7 @@ p, li { white-space: pre-wrap; }
           <enum>QFrame::Plain</enum>
          </property>
          <property name="sizeAdjustPolicy">
-          <enum>QAbstractScrollArea::SizeAdjustPolicy::AdjustToContents</enum>
+          <enum>QAbstractScrollArea::AdjustToContents</enum>
          </property>
          <property name="editTriggers">
           <set>QAbstractItemView::AllEditTriggers</set>
@@ -3077,7 +3077,7 @@ p, li { white-space: pre-wrap; }
           <enum>QAbstractItemView::NoDragDrop</enum>
          </property>
          <property name="defaultDropAction">
-          <enum>Qt::DropAction::LinkAction</enum>
+          <enum>Qt::LinkAction</enum>
          </property>
          <property name="alternatingRowColors">
           <bool>true</bool>

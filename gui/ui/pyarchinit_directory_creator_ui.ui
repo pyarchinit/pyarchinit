@@ -529,7 +529,7 @@
        </property>
        <layout class="QGridLayout" name="gridLayout">
         <property name="sizeConstraint">
-         <enum>QLayout::SizeConstraint::SetFixedSize</enum>
+         <enum>QLayout::SetFixedSize</enum>
         </property>
         <item row="7" column="0" colspan="5">
          <layout class="QHBoxLayout" name="horizontalLayout">

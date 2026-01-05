@@ -1453,7 +1453,7 @@
               <enum>QFrame::Sunken</enum>
              </property>
              <property name="sizeAdjustPolicy">
-              <enum>QAbstractScrollArea::SizeAdjustPolicy::AdjustToContents</enum>
+              <enum>QAbstractScrollArea::AdjustToContents</enum>
              </property>
              <property name="showDropIndicator" stdset="0">
               <bool>true</bool>

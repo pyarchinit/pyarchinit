@@ -475,7 +475,7 @@
    <item row="1" column="0">
     <layout class="QFormLayout" name="formLayout_3">
      <property name="fieldGrowthPolicy">
-      <enum>QFormLayout::FieldGrowthPolicy::FieldsStayAtSizeHint</enum>
+      <enum>QFormLayout::FieldsStayAtSizeHint</enum>
      </property>
      <item row="0" column="0">
       <widget class="QLabel" name="campoIDLabel">
