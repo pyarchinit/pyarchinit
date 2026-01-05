@@ -95,7 +95,7 @@
        </sizepolicy>
       </property>
       <property name="selectionBehavior">
-       <enum>QAbstractItemView::SelectionBehavior::SelectRows</enum>
+       <enum>QAbstractItemView::SelectRows</enum>
       </property>
       <property name="wordWrap">
        <bool>false</bool>

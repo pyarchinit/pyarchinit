@@ -1511,10 +1511,10 @@
           <enum>Qt::DefaultContextMenu</enum>
          </property>
          <property name="frameShape">
-          <enum>QFrame::Shape::Box</enum>
+          <enum>QFrame::Box</enum>
          </property>
          <property name="frameShadow">
-          <enum>QFrame::Shadow::Sunken</enum>
+          <enum>QFrame::Sunken</enum>
          </property>
          <property name="text">
           <string/>
@@ -1574,10 +1574,10 @@
           <enum>Qt::DefaultContextMenu</enum>
          </property>
          <property name="frameShape">
-          <enum>QFrame::Shape::Box</enum>
+          <enum>QFrame::Box</enum>
          </property>
          <property name="frameShadow">
-          <enum>QFrame::Shadow::Sunken</enum>
+          <enum>QFrame::Sunken</enum>
          </property>
          <property name="text">
           <string>1</string>
@@ -1654,10 +1654,10 @@
           <enum>Qt::DefaultContextMenu</enum>
          </property>
          <property name="frameShape">
-          <enum>QFrame::Shape::Box</enum>
+          <enum>QFrame::Box</enum>
          </property>
          <property name="frameShadow">
-          <enum>QFrame::Shadow::Sunken</enum>
+          <enum>QFrame::Sunken</enum>
          </property>
          <property name="text">
           <string>1</string>
@@ -1712,10 +1712,10 @@
           <enum>Qt::DefaultContextMenu</enum>
          </property>
          <property name="frameShape">
-          <enum>QFrame::Shape::Box</enum>
+          <enum>QFrame::Box</enum>
          </property>
          <property name="frameShadow">
-          <enum>QFrame::Shadow::Sunken</enum>
+          <enum>QFrame::Sunken</enum>
          </property>
          <property name="text">
           <string/>
@@ -2842,10 +2842,10 @@ p, li { white-space: pre-wrap; }
        <item row="1" column="0" colspan="2">
         <widget class="QTableWidget" name="tableWidget_documentazione">
          <property name="frameShape">
-          <enum>QFrame::Shape::StyledPanel</enum>
+          <enum>QFrame::StyledPanel</enum>
          </property>
          <property name="frameShadow">
-          <enum>QFrame::Shadow::Raised</enum>
+          <enum>QFrame::Raised</enum>
          </property>
          <property name="verticalScrollBarPolicy">
           <enum>Qt::ScrollBarAsNeeded</enum>
@@ -2857,10 +2857,10 @@ p, li { white-space: pre-wrap; }
           <set>QAbstractItemView::AnyKeyPressed|QAbstractItemView::DoubleClicked|QAbstractItemView::EditKeyPressed</set>
          </property>
          <property name="selectionMode">
-          <enum>QAbstractItemView::SelectionMode::SingleSelection</enum>
+          <enum>QAbstractItemView::SingleSelection</enum>
          </property>
          <property name="selectionBehavior">
-          <enum>QAbstractItemView::SelectionBehavior::SelectRows</enum>
+          <enum>QAbstractItemView::SelectRows</enum>
          </property>
          <property name="rowCount">
           <number>1</number>
@@ -2935,10 +2935,10 @@ p, li { white-space: pre-wrap; }
        <item row="1" column="0" colspan="2">
         <widget class="QTableWidget" name="tableWidget_bibliografia">
          <property name="frameShape">
-          <enum>QFrame::Shape::StyledPanel</enum>
+          <enum>QFrame::StyledPanel</enum>
          </property>
          <property name="frameShadow">
-          <enum>QFrame::Shadow::Raised</enum>
+          <enum>QFrame::Raised</enum>
          </property>
          <property name="verticalScrollBarPolicy">
           <enum>Qt::ScrollBarAsNeeded</enum>
@@ -2950,10 +2950,10 @@ p, li { white-space: pre-wrap; }
           <set>QAbstractItemView::AnyKeyPressed|QAbstractItemView::DoubleClicked|QAbstractItemView::EditKeyPressed</set>
          </property>
          <property name="selectionMode">
-          <enum>QAbstractItemView::SelectionMode::SingleSelection</enum>
+          <enum>QAbstractItemView::SingleSelection</enum>
          </property>
          <property name="selectionBehavior">
-          <enum>QAbstractItemView::SelectionBehavior::SelectRows</enum>
+          <enum>QAbstractItemView::SelectRows</enum>
          </property>
          <property name="rowCount">
           <number>1</number>
@@ -3050,10 +3050,10 @@ p, li { white-space: pre-wrap; }
           </font>
          </property>
          <property name="frameShape">
-          <enum>QFrame::Shape::NoFrame</enum>
+          <enum>QFrame::NoFrame</enum>
          </property>
          <property name="frameShadow">
-          <enum>QFrame::Shadow::Plain</enum>
+          <enum>QFrame::Plain</enum>
          </property>
          <property name="sizeAdjustPolicy">
           <enum>QAbstractScrollArea::SizeAdjustPolicy::AdjustToContents</enum>
@@ -3074,7 +3074,7 @@ p, li { white-space: pre-wrap; }
           <bool>true</bool>
          </property>
          <property name="dragDropMode">
-          <enum>QAbstractItemView::DragDropMode::NoDragDrop</enum>
+          <enum>QAbstractItemView::NoDragDrop</enum>
          </property>
          <property name="defaultDropAction">
           <enum>Qt::DropAction::LinkAction</enum>
@@ -3083,7 +3083,7 @@ p, li { white-space: pre-wrap; }
           <bool>true</bool>
          </property>
          <property name="movement">
-          <enum>QListView::Movement::Static</enum>
+          <enum>QListView::Static</enum>
          </property>
          <property name="isWrapping" stdset="0">
           <bool>true</bool>

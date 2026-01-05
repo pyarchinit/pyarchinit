@@ -641,10 +641,10 @@
       <set>Qt::ImhNone</set>
      </property>
      <property name="tabPosition">
-      <enum>QTabWidget::TabPosition::North</enum>
+      <enum>QTabWidget::North</enum>
      </property>
      <property name="tabShape">
-      <enum>QTabWidget::TabShape::Rounded</enum>
+      <enum>QTabWidget::Rounded</enum>
      </property>
      <property name="currentIndex">
       <number>0</number>
@@ -777,7 +777,7 @@
              <string/>
             </property>
             <property name="echoMode">
-             <enum>QLineEdit::EchoMode::Normal</enum>
+             <enum>QLineEdit::Normal</enum>
             </property>
             <property name="placeholderText">
              <string>dbname</string>
@@ -1205,7 +1205,7 @@
              <enum>Qt::Vertical</enum>
             </property>
             <property name="sizeType">
-             <enum>QSizePolicy::Policy::Expanding</enum>
+             <enum>QSizePolicy::Expanding</enum>
             </property>
             <property name="sizeHint" stdset="0">
              <size>
@@ -1285,7 +1285,7 @@
              <bool>true</bool>
             </property>
             <property name="dragDropMode">
-             <enum>QAbstractItemView::DragDropMode::DragDrop</enum>
+             <enum>QAbstractItemView::DragDrop</enum>
             </property>
             <property name="defaultDropAction">
              <enum>Qt::CopyAction</enum>
@@ -1294,10 +1294,10 @@
              <bool>true</bool>
             </property>
             <property name="selectionMode">
-             <enum>QAbstractItemView::SelectionMode::SingleSelection</enum>
+             <enum>QAbstractItemView::SingleSelection</enum>
             </property>
             <property name="selectionBehavior">
-             <enum>QAbstractItemView::SelectionBehavior::SelectRows</enum>
+             <enum>QAbstractItemView::SelectRows</enum>
             </property>
            </widget>
           </item>
@@ -2217,7 +2217,7 @@
             <number>10</number>
            </property>
            <property name="insertPolicy">
-            <enum>QComboBox::InsertPolicy::InsertAlphabetically</enum>
+            <enum>QComboBox::InsertAlphabetically</enum>
            </property>
            <property name="modelColumn">
             <number>0</number>
@@ -2597,7 +2597,7 @@
           <enum>Qt::LeftToRight</enum>
          </property>
          <property name="tabPosition">
-          <enum>QTabWidget::TabPosition::North</enum>
+          <enum>QTabWidget::North</enum>
          </property>
          <property name="currentIndex">
           <number>0</number>
@@ -2811,7 +2811,7 @@
             <bool>false</bool>
            </property>
            <property name="echoMode">
-            <enum>QLineEdit::EchoMode::Password</enum>
+            <enum>QLineEdit::Password</enum>
            </property>
           </widget>
          </item>

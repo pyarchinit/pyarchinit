@@ -517,7 +517,7 @@
         </size>
        </property>
        <property name="movement">
-        <enum>QListView::Movement::Static</enum>
+        <enum>QListView::Static</enum>
        </property>
        <property name="resizeMode">
         <enum>QListView::ResizeMode::Adjust</enum>
