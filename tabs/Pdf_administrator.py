@@ -573,9 +573,11 @@ class pyarchinit_PDFAdministrator(QDialog, MAIN_DIALOG_CLASS):
 
     def setComboBoxEnable(self, f, v):
         """Set enabled state for widgets - uses getattr instead of eval for security"""
-        for fn in field_names:
-            cmd = '{}{}{}{}'.format(fn, '.setEnabled(', v, ')')
-            eval(cmd)
+        for fn in f:
+            widget_name = fn.replace('self.', '') if fn.startswith('self.') else fn
+            widget = getattr(self, widget_name, None)
+            if widget is not None:
+                widget.setEnabled(v == "True" or v is True)
 
     def setComboBoxEditable(self, f, n):
         """Set editable state for widgets - uses getattr instead of eval for security"""

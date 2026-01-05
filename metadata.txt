@@ -260,4 +260,3 @@ category=Plugins
 icon=icon.png
 experimental=False
 deprecated=False
-

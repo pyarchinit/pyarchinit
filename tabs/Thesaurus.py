@@ -24,6 +24,7 @@ from __future__ import absolute_import
 
 import os
 import re
+import webbrowser
 from datetime import date, datetime
 
 import sys
@@ -357,8 +358,8 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
             uri= 'https://vast-lab.org/thesaurus/ra/vocab/index.php?ws=t&xstring='+ self.comboBox_sigla_estesa.currentText()+'&hasTopTerm=&hasNote=NA&fromDate=&termDeep=&boton=Conferma&xsearch=1#xstring'
             self.comboBox_sigla_estesa.completer().setCompletionMode(QCompleter.CompletionMode.PopupCompletion)
             self.comboBox_sigla_estesa.setInsertPolicy(QComboBox.InsertPolicy.NoInsert)
-        self.webView_adarte.load(QUrl(uri))
-        self.webView_adarte.show()
+        # Open URL in external browser since QTextBrowser doesn't support load()
+        webbrowser.open(uri)
     
 
     def  on_pushButton_import_csvthesaurus_pressed(self):
@@ -519,6 +520,8 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
         self.TABLE_DISPLAY_MAPPING = {
             'Sito': 'site_table',
             'US': 'us_table',
+            'UT': 'ut_table',
+            'Fauna': 'fauna_table',
             'Inventario Materiali': 'inventario_materiali_table',
             'Campioni': 'campioni_table',
             'Inventario Lapidei': 'inventario_lapidei_table',
@@ -742,6 +745,26 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
                 '11.14': 'Decoration Type (Tipo decorazione)',
                 '11.15': 'Decoration Motif (Motivo decorazione)',
                 '11.16': 'Decoration Position (Posizione decorazione)'
+            },
+            'ut_table': {
+                '12.1': 'Survey Type (Tipo ricognizione)',
+                '12.2': 'Vegetation Coverage (Copertura vegetazione)',
+                '12.3': 'GPS Method (Metodo GPS)',
+                '12.4': 'Surface Condition (Condizione superficie)',
+                '12.5': 'Accessibility (Accessibilità)',
+                '12.6': 'Weather Conditions (Condizioni meteo)'
+            },
+            'fauna_table': {
+                '13.1': 'Contesto (Context)',
+                '13.2': 'Metodologia Recupero (Recovery Methodology)',
+                '13.3': 'Tipologia Accumulo (Accumulation Type)',
+                '13.4': 'Deposizione (Deposition)',
+                '13.5': 'Stato Frammentazione (Fragmentation State)',
+                '13.6': 'Stato Conservazione (Conservation State)',
+                '13.7': 'Affidabilità Stratigrafica (Stratigraphic Reliability)',
+                '13.8': 'Tracce Combustione (Burning Traces)',
+                '13.9': 'Tipo Combustione (Combustion Type)',
+                '13.10': 'Connessione Anatomica (Anatomical Connection)'
             }
         }
         
@@ -1836,22 +1859,18 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
             self.label_sort.setText(self.SORTED_ITEMS[self.SORT_STATUS])
 
     def on_pushButton_sigle_pressed(self):
-        if self.L=='it':    
+        if self.L=='it':
             filepath = os.path.dirname(__file__)
             filepath = os.path.join(filepath, 'codici_it.html')
-            #os.startfile(filepath)
-            self.webView_adarte.load(QUrl.fromLocalFile(filepath))
-            self.webView_adarte.show()
-        elif self.L=='de':  
+            webbrowser.open('file://' + filepath)
+        elif self.L=='de':
             filepath = os.path.dirname(__file__)
             filepath = os.path.join(filepath, 'codici_de.html')
-            self.webView_adarte.load(QUrl.fromLocalFile(filepath))
-            self.webView_adarte.show()
+            webbrowser.open('file://' + filepath)
         else:
             filepath = os.path.dirname(__file__)
             filepath = os.path.join(filepath, 'codici_en.html')
-            self.webView_adarte.load(QUrl.fromLocalFile(filepath))
-            self.webView_adarte.show()
+            webbrowser.open('file://' + filepath)
     def on_pushButton_new_search_pressed(self):
         if self.check_record_state() == 1:
             pass
@@ -2389,9 +2408,11 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
 
     def setComboBoxEnable(self, f, v):
         """Set enabled state for widgets - uses getattr instead of eval for security"""
-        for fn in field_names:
-            cmd = '{}{}{}{}'.format(fn, '.setEnabled(', v, ')')
-            eval(cmd)
+        for fn in f:
+            widget_name = fn.replace('self.', '') if fn.startswith('self.') else fn
+            widget = getattr(self, widget_name, None)
+            if widget is not None:
+                widget.setEnabled(v == "True" or v is True)
 
     def setComboBoxEditable(self, f, n):
         """Set editable state for widgets - uses getattr instead of eval for security"""

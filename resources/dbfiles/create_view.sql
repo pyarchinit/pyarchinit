@@ -779,3 +779,132 @@ JOIN documentazione_table  ON pyarchinit_sezioni.sito::text=documentazione_table
 
 ALTER TABLE pyarchinit_sezioni_view
     OWNER TO postgres;
+
+-- =====================================================
+-- UT Geometry Tables and Views
+-- =====================================================
+
+-- UT Point Geometry Table
+CREATE SEQUENCE IF NOT EXISTS public.pyarchinit_ut_point_gid_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+CREATE TABLE IF NOT EXISTS public.pyarchinit_ut_point (
+    gid BIGINT DEFAULT nextval('public.pyarchinit_ut_point_gid_seq'::regclass) NOT NULL,
+    sito TEXT,
+    nr_ut INTEGER,
+    def_ut TEXT,
+    quota DOUBLE PRECISION,
+    the_geom geometry(Point),
+    data_rilevamento VARCHAR(100),
+    responsabile VARCHAR(255),
+    note TEXT,
+    CONSTRAINT pyarchinit_ut_point_pkey PRIMARY KEY (gid)
+);
+
+CREATE INDEX IF NOT EXISTS idx_pyarchinit_ut_point_geom ON public.pyarchinit_ut_point USING gist(the_geom);
+CREATE INDEX IF NOT EXISTS idx_pyarchinit_ut_point_sito ON public.pyarchinit_ut_point(sito);
+
+-- UT Line Geometry Table
+CREATE SEQUENCE IF NOT EXISTS public.pyarchinit_ut_line_gid_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+CREATE TABLE IF NOT EXISTS public.pyarchinit_ut_line (
+    gid BIGINT DEFAULT nextval('public.pyarchinit_ut_line_gid_seq'::regclass) NOT NULL,
+    sito TEXT,
+    nr_ut INTEGER,
+    def_ut TEXT,
+    tipo_linea VARCHAR(100),
+    lunghezza DOUBLE PRECISION,
+    the_geom geometry(LineString),
+    data_rilevamento VARCHAR(100),
+    responsabile VARCHAR(255),
+    note TEXT,
+    CONSTRAINT pyarchinit_ut_line_pkey PRIMARY KEY (gid)
+);
+
+CREATE INDEX IF NOT EXISTS idx_pyarchinit_ut_line_geom ON public.pyarchinit_ut_line USING gist(the_geom);
+CREATE INDEX IF NOT EXISTS idx_pyarchinit_ut_line_sito ON public.pyarchinit_ut_line(sito);
+
+-- UT Polygon Geometry Table
+CREATE SEQUENCE IF NOT EXISTS public.pyarchinit_ut_polygon_gid_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+CREATE TABLE IF NOT EXISTS public.pyarchinit_ut_polygon (
+    gid BIGINT DEFAULT nextval('public.pyarchinit_ut_polygon_gid_seq'::regclass) NOT NULL,
+    sito TEXT,
+    nr_ut INTEGER,
+    def_ut TEXT,
+    area_mq DOUBLE PRECISION,
+    perimetro DOUBLE PRECISION,
+    the_geom geometry(Polygon),
+    data_rilevamento VARCHAR(100),
+    responsabile VARCHAR(255),
+    note TEXT,
+    CONSTRAINT pyarchinit_ut_polygon_pkey PRIMARY KEY (gid)
+);
+
+CREATE INDEX IF NOT EXISTS idx_pyarchinit_ut_polygon_geom ON public.pyarchinit_ut_polygon USING gist(the_geom);
+CREATE INDEX IF NOT EXISTS idx_pyarchinit_ut_polygon_sito ON public.pyarchinit_ut_polygon(sito);
+
+-- UT Point View
+CREATE OR REPLACE VIEW public.pyarchinit_ut_point_view AS
+SELECT
+    p.gid, p.the_geom, p.sito, p.nr_ut, p.def_ut, p.quota, p.data_rilevamento,
+    p.responsabile AS rilevatore, p.note AS note_geometria,
+    u.id_ut, u.progetto, u.ut_letterale, u.descrizione_ut, u.interpretazione_ut,
+    u.nazione, u.regione, u.provincia, u.comune, u.frazione, u.localita,
+    u.metodo_rilievo_e_ricognizione, u.data AS data_schedatura,
+    u.responsabile AS responsabile_scheda, u.survey_type, u.visibility_percent
+FROM public.pyarchinit_ut_point p
+LEFT JOIN public.ut_table u ON p.sito = u.progetto AND p.nr_ut = u.nr_ut;
+
+ALTER VIEW public.pyarchinit_ut_point_view OWNER TO postgres;
+
+-- UT Line View
+CREATE OR REPLACE VIEW public.pyarchinit_ut_line_view AS
+SELECT
+    l.gid, l.the_geom, l.sito, l.nr_ut, l.def_ut, l.tipo_linea, l.lunghezza,
+    l.data_rilevamento, l.responsabile AS rilevatore, l.note AS note_geometria,
+    u.id_ut, u.progetto, u.ut_letterale, u.descrizione_ut, u.interpretazione_ut,
+    u.metodo_rilievo_e_ricognizione, u.data AS data_schedatura,
+    u.responsabile AS responsabile_scheda, u.survey_type
+FROM public.pyarchinit_ut_line l
+LEFT JOIN public.ut_table u ON l.sito = u.progetto AND l.nr_ut = u.nr_ut;
+
+ALTER VIEW public.pyarchinit_ut_line_view OWNER TO postgres;
+
+-- UT Polygon View
+CREATE OR REPLACE VIEW public.pyarchinit_ut_polygon_view AS
+SELECT
+    p.gid, p.the_geom, p.sito, p.nr_ut, p.def_ut, p.area_mq, p.perimetro,
+    p.data_rilevamento, p.responsabile AS rilevatore, p.note AS note_geometria,
+    u.id_ut, u.progetto, u.ut_letterale, u.descrizione_ut, u.interpretazione_ut,
+    u.metodo_rilievo_e_ricognizione, u.data AS data_schedatura,
+    u.responsabile AS responsabile_scheda, u.survey_type, u.visibility_percent
+FROM public.pyarchinit_ut_polygon p
+LEFT JOIN public.ut_table u ON p.sito = u.progetto AND p.nr_ut = u.nr_ut;
+
+ALTER VIEW public.pyarchinit_ut_polygon_view OWNER TO postgres;
+
+-- Grant permissions
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.pyarchinit_ut_point TO PUBLIC;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.pyarchinit_ut_line TO PUBLIC;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.pyarchinit_ut_polygon TO PUBLIC;
+GRANT SELECT ON public.pyarchinit_ut_point_view TO PUBLIC;
+GRANT SELECT ON public.pyarchinit_ut_line_view TO PUBLIC;
+GRANT SELECT ON public.pyarchinit_ut_polygon_view TO PUBLIC;
+GRANT USAGE, SELECT ON SEQUENCE public.pyarchinit_ut_point_gid_seq TO PUBLIC;
+GRANT USAGE, SELECT ON SEQUENCE public.pyarchinit_ut_line_gid_seq TO PUBLIC;
+GRANT USAGE, SELECT ON SEQUENCE public.pyarchinit_ut_polygon_gid_seq TO PUBLIC;

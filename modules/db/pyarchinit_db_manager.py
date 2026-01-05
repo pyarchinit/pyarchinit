@@ -448,6 +448,18 @@ class Pyarchinit_db_management(object):
         except Exception as e:
             print(f"Error ensuring TMA tables exist: {e}")
 
+        # Force creation of Fauna table
+        try:
+            self.ensure_fauna_table_exists()
+        except Exception as e:
+            print(f"Error ensuring Fauna table exists: {e}")
+
+        # Force creation of UT geometry tables
+        try:
+            self.ensure_ut_geometry_tables_exist()
+        except Exception as e:
+            print(f"Error ensuring UT geometry tables exist: {e}")
+
         # Fix macc field for SQLite databases
         try:
             self.fix_macc_field_sqlite()
@@ -491,6 +503,201 @@ class Pyarchinit_db_management(object):
 
         except Exception as e:
             print(f"Error in ensure_tma_tables_exist: {str(e)}")
+
+    def ensure_fauna_table_exists(self):
+        """Ensure Fauna table is created if it doesn't exist (works for both PostgreSQL and SQLite)"""
+        try:
+            # Import the table structure
+            from modules.db.structures.Fauna_table import Fauna_table
+            from modules.db.entities.FAUNA import FAUNA
+            from modules.db.pyarchinit_db_mapper import mapper_registry
+
+            # Force metadata creation - this works for both SQLite and PostgreSQL
+            Fauna_table.metadata.create_all(self.engine)
+
+            # Re-register the mapper if not already mapped
+            try:
+                # Check if FAUNA is already mapped
+                from sqlalchemy.orm import class_mapper
+                class_mapper(FAUNA)
+            except Exception:
+                # Not mapped, register it now
+                try:
+                    mapper_registry.map_imperatively(FAUNA, Fauna_table.fauna_table)
+                    QgsMessageLog.logMessage("PyArchInit - FAUNA mapper registered", "PyArchInit", Qgis.Info)
+                except Exception as map_error:
+                    # Already mapped or other error
+                    pass
+
+            QgsMessageLog.logMessage("PyArchInit - Fauna table ensured/created", "PyArchInit", Qgis.Info)
+
+        except Exception as e:
+            print(f"Error in ensure_fauna_table_exists: {str(e)}")
+
+    def ensure_ut_geometry_tables_exist(self):
+        """Ensure UT geometry tables and views are created if they don't exist (works for both PostgreSQL and SQLite)"""
+        try:
+            is_postgres = self.conn_str.startswith("postgresql")
+            is_sqlite = self.conn_str.startswith("sqlite")
+
+            if is_postgres:
+                # PostgreSQL/PostGIS
+                connection = self.engine.raw_connection()
+                cursor = connection.cursor()
+
+                # Check if tables exist
+                cursor.execute("""
+                    SELECT table_name FROM information_schema.tables
+                    WHERE table_schema = 'public' AND table_name = 'pyarchinit_ut_point'
+                """)
+                if not cursor.fetchone():
+                    QgsMessageLog.logMessage("PyArchInit - Creating UT geometry tables for PostgreSQL...", "PyArchInit", Qgis.Info)
+
+                    # Read and execute the PostgreSQL SQL file
+                    sql_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))),
+                                           'sql', 'add_ut_geometries.sql')
+                    if os.path.exists(sql_path):
+                        with open(sql_path, 'r', encoding='utf-8') as f:
+                            sql_script = f.read()
+                        # Split by semicolon and execute each statement
+                        for statement in sql_script.split(';'):
+                            statement = statement.strip()
+                            if statement and not statement.startswith('--'):
+                                try:
+                                    cursor.execute(statement)
+                                except Exception as stmt_e:
+                                    # Ignore errors for IF NOT EXISTS statements
+                                    pass
+                        connection.commit()
+                        QgsMessageLog.logMessage("PyArchInit - UT geometry tables created for PostgreSQL", "PyArchInit", Qgis.Info)
+                    else:
+                        QgsMessageLog.logMessage(f"PyArchInit - SQL file not found: {sql_path}", "PyArchInit", Qgis.Warning)
+                else:
+                    QgsMessageLog.logMessage("PyArchInit - UT geometry tables already exist", "PyArchInit", Qgis.Info)
+
+                cursor.close()
+                connection.close()
+
+            elif is_sqlite:
+                # SQLite/SpatiaLite
+                db_path = self.conn_str.replace("sqlite:///", "")
+                conn = sqlite3.connect(db_path)
+                cursor = conn.cursor()
+
+                # Check if tables exist
+                cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='pyarchinit_ut_point'")
+                if not cursor.fetchone():
+                    QgsMessageLog.logMessage("PyArchInit - Creating UT geometry tables for SQLite...", "PyArchInit", Qgis.Info)
+
+                    # Create tables manually for SQLite
+                    cursor.execute("""
+                        CREATE TABLE IF NOT EXISTS pyarchinit_ut_point (
+                            gid INTEGER PRIMARY KEY AUTOINCREMENT,
+                            sito TEXT,
+                            nr_ut INTEGER,
+                            def_ut TEXT,
+                            quota REAL,
+                            data_rilevamento TEXT,
+                            responsabile TEXT,
+                            note TEXT
+                        )
+                    """)
+
+                    cursor.execute("""
+                        CREATE TABLE IF NOT EXISTS pyarchinit_ut_line (
+                            gid INTEGER PRIMARY KEY AUTOINCREMENT,
+                            sito TEXT,
+                            nr_ut INTEGER,
+                            def_ut TEXT,
+                            tipo_linea TEXT,
+                            lunghezza REAL,
+                            data_rilevamento TEXT,
+                            responsabile TEXT,
+                            note TEXT
+                        )
+                    """)
+
+                    cursor.execute("""
+                        CREATE TABLE IF NOT EXISTS pyarchinit_ut_polygon (
+                            gid INTEGER PRIMARY KEY AUTOINCREMENT,
+                            sito TEXT,
+                            nr_ut INTEGER,
+                            def_ut TEXT,
+                            area_mq REAL,
+                            perimetro REAL,
+                            data_rilevamento TEXT,
+                            responsabile TEXT,
+                            note TEXT
+                        )
+                    """)
+
+                    # Try to add geometry columns if SpatiaLite is available
+                    try:
+                        conn.enable_load_extension(True)
+                        conn.execute("SELECT load_extension('mod_spatialite')")
+
+                        # Check if geometry column exists
+                        cursor.execute("PRAGMA table_info(pyarchinit_ut_point)")
+                        columns = [col[1] for col in cursor.fetchall()]
+                        if 'the_geom' not in columns:
+                            cursor.execute("SELECT AddGeometryColumn('pyarchinit_ut_point', 'the_geom', -1, 'POINT', 'XY')")
+                            cursor.execute("SELECT CreateSpatialIndex('pyarchinit_ut_point', 'the_geom')")
+
+                        cursor.execute("PRAGMA table_info(pyarchinit_ut_line)")
+                        columns = [col[1] for col in cursor.fetchall()]
+                        if 'the_geom' not in columns:
+                            cursor.execute("SELECT AddGeometryColumn('pyarchinit_ut_line', 'the_geom', -1, 'LINESTRING', 'XY')")
+                            cursor.execute("SELECT CreateSpatialIndex('pyarchinit_ut_line', 'the_geom')")
+
+                        cursor.execute("PRAGMA table_info(pyarchinit_ut_polygon)")
+                        columns = [col[1] for col in cursor.fetchall()]
+                        if 'the_geom' not in columns:
+                            cursor.execute("SELECT AddGeometryColumn('pyarchinit_ut_polygon', 'the_geom', -1, 'POLYGON', 'XY')")
+                            cursor.execute("SELECT CreateSpatialIndex('pyarchinit_ut_polygon', 'the_geom')")
+                    except Exception as spat_e:
+                        QgsMessageLog.logMessage(f"PyArchInit - SpatiaLite extension not available: {str(spat_e)}", "PyArchInit", Qgis.Warning)
+
+                    # Create views
+                    cursor.execute("DROP VIEW IF EXISTS pyarchinit_ut_point_view")
+                    cursor.execute("""
+                        CREATE VIEW IF NOT EXISTS pyarchinit_ut_point_view AS
+                        SELECT p.gid, p.the_geom, p.sito, p.nr_ut, p.def_ut, p.quota,
+                               p.data_rilevamento, p.responsabile AS rilevatore, p.note AS note_geometria,
+                               u.id_ut, u.progetto, u.ut_letterale, u.descrizione_ut, u.interpretazione_ut
+                        FROM pyarchinit_ut_point p
+                        LEFT JOIN ut_table u ON p.sito = u.progetto AND p.nr_ut = u.nr_ut
+                    """)
+
+                    cursor.execute("DROP VIEW IF EXISTS pyarchinit_ut_line_view")
+                    cursor.execute("""
+                        CREATE VIEW IF NOT EXISTS pyarchinit_ut_line_view AS
+                        SELECT l.gid, l.the_geom, l.sito, l.nr_ut, l.def_ut, l.tipo_linea, l.lunghezza,
+                               l.data_rilevamento, l.responsabile AS rilevatore, l.note AS note_geometria,
+                               u.id_ut, u.progetto, u.ut_letterale, u.descrizione_ut, u.interpretazione_ut
+                        FROM pyarchinit_ut_line l
+                        LEFT JOIN ut_table u ON l.sito = u.progetto AND l.nr_ut = u.nr_ut
+                    """)
+
+                    cursor.execute("DROP VIEW IF EXISTS pyarchinit_ut_polygon_view")
+                    cursor.execute("""
+                        CREATE VIEW IF NOT EXISTS pyarchinit_ut_polygon_view AS
+                        SELECT p.gid, p.the_geom, p.sito, p.nr_ut, p.def_ut, p.area_mq, p.perimetro,
+                               p.data_rilevamento, p.responsabile AS rilevatore, p.note AS note_geometria,
+                               u.id_ut, u.progetto, u.ut_letterale, u.descrizione_ut, u.interpretazione_ut
+                        FROM pyarchinit_ut_polygon p
+                        LEFT JOIN ut_table u ON p.sito = u.progetto AND p.nr_ut = u.nr_ut
+                    """)
+
+                    conn.commit()
+                    QgsMessageLog.logMessage("PyArchInit - UT geometry tables created for SQLite", "PyArchInit", Qgis.Info)
+                else:
+                    QgsMessageLog.logMessage("PyArchInit - UT geometry tables already exist", "PyArchInit", Qgis.Info)
+
+                conn.close()
+
+        except Exception as e:
+            print(f"Error in ensure_ut_geometry_tables_exist: {str(e)}")
+            QgsMessageLog.logMessage(f"PyArchInit - Error creating UT geometry tables: {str(e)}", "PyArchInit", Qgis.Warning)
 
     def fix_macc_field_sqlite(self):
         """Fix macc field in tma_materiali_ripetibili table for SQLite databases"""
@@ -1720,7 +1927,49 @@ class Pyarchinit_db_management(object):
                             arg[9])
 
         return campioni
-        
+
+    def insert_values_fauna(self, *arg):
+        """Istanzia la classe FAUNA da pyarchinit_db_mapper"""
+        fauna = FAUNA(
+            arg[0],   # id_fauna
+            arg[1],   # id_us
+            arg[2],   # sito
+            arg[3],   # area
+            arg[4],   # saggio
+            arg[5],   # us
+            arg[6],   # datazione_us
+            arg[7],   # responsabile_scheda
+            arg[8],   # data_compilazione
+            arg[9],   # documentazione_fotografica
+            arg[10],  # metodologia_recupero
+            arg[11],  # contesto
+            arg[12],  # descrizione_contesto
+            arg[13],  # resti_connessione_anatomica
+            arg[14],  # tipologia_accumulo
+            arg[15],  # deposizione
+            arg[16],  # numero_stimato_resti
+            arg[17],  # numero_minimo_individui
+            arg[18],  # specie
+            arg[19],  # parti_scheletriche
+            arg[20],  # specie_psi
+            arg[21],  # misure_ossa
+            arg[22],  # stato_frammentazione
+            arg[23],  # tracce_combustione
+            arg[24],  # combustione_altri_materiali_us
+            arg[25],  # tipo_combustione
+            arg[26],  # segni_tafonomici_evidenti
+            arg[27],  # caratterizzazione_segni_tafonomici
+            arg[28],  # stato_conservazione
+            arg[29],  # alterazioni_morfologiche
+            arg[30],  # note_terreno_giacitura
+            arg[31],  # campionature_effettuate
+            arg[32],  # affidabilita_stratigrafica
+            arg[33],  # classi_reperti_associazione
+            arg[34],  # osservazioni
+            arg[35]   # interpretazione
+        )
+        return fauna
+
     def insert_tma_values(self, *arg):
         """Istanzia la classe TMA da pyarchinit_db_mapper"""
         tma = TMA(int(arg[0]) if arg[0] else None,  # id - convert to int
@@ -2800,7 +3049,7 @@ class Pyarchinit_db_management(object):
         # Mappa delle classi
         class_map = {
             'US': US,
-
+            'UT': UT,
             'SITE': SITE,
             'PERIODIZZAZIONE': PERIODIZZAZIONE,
             'INVENTARIO_MATERIALI': INVENTARIO_MATERIALI,
@@ -2813,7 +3062,8 @@ class Pyarchinit_db_management(object):
             'CAMPIONI': CAMPIONI,
             'TMA': TMA,
             'DOCUMENTAZIONE': DOCUMENTAZIONE,
-            'PYARCHINIT_THESAURUS_SIGLE': PYARCHINIT_THESAURUS_SIGLE
+            'PYARCHINIT_THESAURUS_SIGLE': PYARCHINIT_THESAURUS_SIGLE,
+            'FAUNA': FAUNA
         }
 
         # Ottieni la classe corretta

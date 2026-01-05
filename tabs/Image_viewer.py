@@ -2797,19 +2797,25 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
             # QMessageBox.warning(self, "Error Fill Fields", str(e),  QMessageBox.Ok)
     def setComboBoxEnable(self, f, v):
         """Set enabled state for widgets - uses getattr instead of eval for security"""
-        for fn in field_names:
-            cmd = ('%s%s%s%s') % (fn, '.setEnabled(', v, ')')
-            eval(cmd)
+        for fn in f:
+            widget_name = fn.replace('self.', '') if fn.startswith('self.') else fn
+            widget = getattr(self, widget_name, None)
+            if widget is not None:
+                widget.setEnabled(v == "True" or v is True)
     def setComboBoxEditable(self, f, n):
         """Set editable state for widgets - uses getattr instead of eval for security"""
-        for fn in field_names:
-            cmd = '{}{}{}{}'.format(fn, '.setEditable(', n, ')')
-            eval(cmd)
+        for fn in f:
+            widget_name = fn.replace('self.', '') if fn.startswith('self.') else fn
+            widget = getattr(self, widget_name, None)
+            if widget is not None:
+                widget.setEditable(bool(n))
     def setTableEnable(self, t, v):
         """Set enabled state for table widgets - uses getattr instead of eval"""
-        for tn in tab_names:
-            cmd = ('%s%s%s%s') % (tn, '.setEnabled(', v, ')')
-            eval(cmd)
+        for tn in t:
+            widget_name = tn.replace('self.', '') if tn.startswith('self.') else tn
+            widget = getattr(self, widget_name, None)
+            if widget is not None:
+                widget.setEnabled(v == "True" or v is True)
     def set_LIST_REC_CORR(self):
         self.DATA_LIST_REC_CORR = []
         for i in self.TABLE_FIELDS:
