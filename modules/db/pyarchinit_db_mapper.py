@@ -31,6 +31,7 @@ def mapper(class_, table, **kwargs):
 
 from modules.db.entities.ARCHEOZOOLOGY import ARCHEOZOOLOGY
 from modules.db.entities.CAMPIONI import CAMPIONI
+from modules.db.entities.FAUNA import FAUNA
 from modules.db.entities.DETETA import DETETA
 from modules.db.entities.DETSESSO import DETSESSO
 from modules.db.entities.DOCUMENTAZIONE import DOCUMENTAZIONE
@@ -73,6 +74,7 @@ from modules.db.entities.US_TOIMP import US_TOIMP
 from modules.db.entities.UT import UT
 from modules.db.structures.Archeozoology_table import Archeozoology_table
 from modules.db.structures.Campioni_table import Campioni_table
+from modules.db.structures.Fauna_table import Fauna_table
 from modules.db.structures.DETETA_table import DETETA_table
 from modules.db.structures.DETSESSO_table import DETSESSO_table
 from modules.db.structures.Documentazione_table import Documentazione_table
@@ -116,6 +118,9 @@ from modules.db.structures.pyus_negative import pyus_negative
 try:
     # mapper - Archeozoology
     mapper(ARCHEOZOOLOGY, Archeozoology_table.archeozoology_table)
+
+    # mapper - Fauna
+    mapper(FAUNA, Fauna_table.fauna_table)
 
     # mapper
     mapper(CAMPIONI, Campioni_table.campioni_table)
