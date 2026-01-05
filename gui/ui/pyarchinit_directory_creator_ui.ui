@@ -3,7 +3,7 @@
  <class>Dialog_dir_exp</class>
  <widget class="QDialog" name="Dialog_dir_exp">
   <property name="windowModality">
-   <enum>Qt::WindowModality::NonModal</enum>
+   <enum>Qt::NonModal</enum>
   </property>
   <property name="enabled">
    <bool>true</bool>
@@ -495,7 +495,7 @@
            <bool>false</bool>
           </property>
           <property name="contextMenuPolicy">
-           <enum>Qt::ContextMenuPolicy::DefaultContextMenu</enum>
+           <enum>Qt::DefaultContextMenu</enum>
           </property>
           <property name="acceptDrops">
            <bool>false</bool>

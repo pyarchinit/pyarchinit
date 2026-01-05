@@ -1197,10 +1197,10 @@
             <bool>false</bool>
            </property>
            <property name="toolButtonStyle">
-            <enum>Qt::ToolButtonStyle::ToolButtonIconOnly</enum>
+            <enum>Qt::ToolButtonIconOnly</enum>
            </property>
            <property name="arrowType">
-            <enum>Qt::ArrowType::NoArrow</enum>
+            <enum>Qt::NoArrow</enum>
            </property>
           </widget>
          </item>
@@ -1321,7 +1321,7 @@
             <bool>false</bool>
            </property>
            <property name="contextMenuPolicy">
-            <enum>Qt::ContextMenuPolicy::DefaultContextMenu</enum>
+            <enum>Qt::DefaultContextMenu</enum>
            </property>
            <property name="frameShape">
             <enum>QFrame::Shape::Box</enum>
@@ -1356,7 +1356,7 @@
             <bool>false</bool>
            </property>
            <property name="contextMenuPolicy">
-            <enum>Qt::ContextMenuPolicy::DefaultContextMenu</enum>
+            <enum>Qt::DefaultContextMenu</enum>
            </property>
            <property name="frameShape">
             <enum>QFrame::Shape::Box</enum>
@@ -1428,7 +1428,7 @@
             <bool>false</bool>
            </property>
            <property name="contextMenuPolicy">
-            <enum>Qt::ContextMenuPolicy::DefaultContextMenu</enum>
+            <enum>Qt::DefaultContextMenu</enum>
            </property>
            <property name="frameShape">
             <enum>QFrame::Shape::Box</enum>
@@ -1473,7 +1473,7 @@
             <bool>false</bool>
            </property>
            <property name="contextMenuPolicy">
-            <enum>Qt::ContextMenuPolicy::DefaultContextMenu</enum>
+            <enum>Qt::DefaultContextMenu</enum>
            </property>
            <property name="frameShape">
             <enum>QFrame::Shape::Box</enum>
@@ -1640,7 +1640,7 @@
         </font>
        </property>
        <property name="layoutDirection">
-        <enum>Qt::LayoutDirection::LeftToRight</enum>
+        <enum>Qt::LeftToRight</enum>
        </property>
        <property name="lineWidth">
         <number>0</number>
@@ -1732,7 +1732,7 @@
               </font>
              </property>
              <property name="layoutDirection">
-              <enum>Qt::LayoutDirection::LeftToRight</enum>
+              <enum>Qt::LeftToRight</enum>
              </property>
              <property name="autoFillBackground">
               <bool>false</bool>
@@ -1761,7 +1761,7 @@
               </font>
              </property>
              <property name="layoutDirection">
-              <enum>Qt::LayoutDirection::LeftToRight</enum>
+              <enum>Qt::LeftToRight</enum>
              </property>
              <property name="autoFillBackground">
               <bool>false</bool>
@@ -2151,10 +2151,10 @@ p, li { white-space: pre-wrap; }
             <enum>QFrame::Shadow::Plain</enum>
            </property>
            <property name="verticalScrollBarPolicy">
-            <enum>Qt::ScrollBarPolicy::ScrollBarAsNeeded</enum>
+            <enum>Qt::ScrollBarAsNeeded</enum>
            </property>
            <property name="horizontalScrollBarPolicy">
-            <enum>Qt::ScrollBarPolicy::ScrollBarAsNeeded</enum>
+            <enum>Qt::ScrollBarAsNeeded</enum>
            </property>
            <property name="sizeAdjustPolicy">
             <enum>QAbstractScrollArea::SizeAdjustPolicy::AdjustToContents</enum>
@@ -2406,7 +2406,7 @@ p, li { white-space: pre-wrap; }
             </font>
            </property>
            <property name="layoutDirection">
-            <enum>Qt::LayoutDirection::LeftToRight</enum>
+            <enum>Qt::LeftToRight</enum>
            </property>
            <property name="autoFillBackground">
             <bool>false</bool>
@@ -2556,7 +2556,7 @@ p, li { white-space: pre-wrap; }
             <enum>Qt::ToolButtonStyle::ToolButtonTextOnly</enum>
            </property>
            <property name="arrowType">
-            <enum>Qt::ArrowType::NoArrow</enum>
+            <enum>Qt::NoArrow</enum>
            </property>
           </widget>
          </item>
@@ -2632,7 +2632,7 @@ p, li { white-space: pre-wrap; }
             <enum>Qt::ToolButtonStyle::ToolButtonTextOnly</enum>
            </property>
            <property name="arrowType">
-            <enum>Qt::ArrowType::NoArrow</enum>
+            <enum>Qt::NoArrow</enum>
            </property>
           </widget>
          </item>

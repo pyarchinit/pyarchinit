@@ -3,7 +3,7 @@
  <class>Dialog_Config</class>
  <widget class="QDialog" name="Dialog_Config">
   <property name="windowModality">
-   <enum>Qt::WindowModality::ApplicationModal</enum>
+   <enum>Qt::ApplicationModal</enum>
   </property>
   <property name="enabled">
    <bool>true</bool>
@@ -650,7 +650,7 @@
       <number>0</number>
      </property>
      <property name="elideMode">
-      <enum>Qt::TextElideMode::ElideMiddle</enum>
+      <enum>Qt::ElideMiddle</enum>
      </property>
      <property name="documentMode">
       <bool>true</bool>
@@ -715,7 +715,7 @@
             <bool>false</bool>
            </property>
            <property name="contextMenuPolicy">
-            <enum>Qt::ContextMenuPolicy::DefaultContextMenu</enum>
+            <enum>Qt::DefaultContextMenu</enum>
            </property>
            <property name="acceptDrops">
             <bool>false</bool>
@@ -820,7 +820,7 @@
              <bool>false</bool>
             </property>
             <property name="contextMenuPolicy">
-             <enum>Qt::ContextMenuPolicy::DefaultContextMenu</enum>
+             <enum>Qt::DefaultContextMenu</enum>
             </property>
             <property name="acceptDrops">
              <bool>false</bool>
@@ -1288,7 +1288,7 @@
              <enum>QAbstractItemView::DragDropMode::DragDrop</enum>
             </property>
             <property name="defaultDropAction">
-             <enum>Qt::DropAction::CopyAction</enum>
+             <enum>Qt::CopyAction</enum>
             </property>
             <property name="alternatingRowColors">
              <bool>true</bool>
@@ -1333,7 +1333,7 @@
           </size>
          </property>
          <property name="focusPolicy">
-          <enum>Qt::FocusPolicy::NoFocus</enum>
+          <enum>Qt::NoFocus</enum>
          </property>
          <property name="text">
           <string>Salva i parametri</string>
@@ -2594,7 +2594,7 @@
           </font>
          </property>
          <property name="layoutDirection">
-          <enum>Qt::LayoutDirection::LeftToRight</enum>
+          <enum>Qt::LeftToRight</enum>
          </property>
          <property name="tabPosition">
           <enum>QTabWidget::TabPosition::North</enum>
@@ -2850,7 +2850,7 @@
             <bool>true</bool>
            </property>
            <property name="cursorMoveStyle">
-            <enum>Qt::CursorMoveStyle::VisualMoveStyle</enum>
+            <enum>Qt::VisualMoveStyle</enum>
            </property>
           </widget>
          </item>

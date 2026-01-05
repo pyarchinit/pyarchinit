@@ -3,7 +3,7 @@
  <class>sortPanel</class>
  <widget class="QDialog" name="sortPanel">
   <property name="windowModality">
-   <enum>Qt::WindowModality::NonModal</enum>
+   <enum>Qt::NonModal</enum>
   </property>
   <property name="geometry">
    <rect>
@@ -567,7 +567,7 @@
    <item row="4" column="2">
     <widget class="QPushButton" name="pushButtonRight">
      <property name="focusPolicy">
-      <enum>Qt::FocusPolicy::NoFocus</enum>
+      <enum>Qt::NoFocus</enum>
      </property>
      <property name="text">
       <string/>
@@ -587,7 +587,7 @@
    <item row="5" column="2">
     <widget class="QPushButton" name="pushButtonLeft">
      <property name="focusPolicy">
-      <enum>Qt::FocusPolicy::NoFocus</enum>
+      <enum>Qt::NoFocus</enum>
      </property>
      <property name="text">
       <string/>
@@ -620,7 +620,7 @@
    <item row="7" column="4">
     <widget class="QPushButton" name="pushButtonSort">
      <property name="focusPolicy">
-      <enum>Qt::FocusPolicy::NoFocus</enum>
+      <enum>Qt::NoFocus</enum>
      </property>
      <property name="text">
       <string>Ordina</string>

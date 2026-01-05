@@ -883,7 +883,7 @@
         <enum>QAbstractItemView::DragDropMode::NoDragDrop</enum>
        </property>
        <property name="defaultDropAction">
-        <enum>Qt::DropAction::CopyAction</enum>
+        <enum>Qt::CopyAction</enum>
        </property>
        <property name="alternatingRowColors">
         <bool>false</bool>
@@ -898,7 +898,7 @@
         </size>
        </property>
        <property name="textElideMode">
-        <enum>Qt::TextElideMode::ElideMiddle</enum>
+        <enum>Qt::ElideMiddle</enum>
        </property>
        <property name="movement">
         <enum>QListView::Movement::Static</enum>
@@ -1036,7 +1036,7 @@
       <number>300</number>
      </property>
      <property name="toolButtonStyle">
-      <enum>Qt::ToolButtonStyle::ToolButtonIconOnly</enum>
+      <enum>Qt::ToolButtonIconOnly</enum>
      </property>
      <property name="autoRaise">
       <bool>false</bool>
@@ -1308,7 +1308,7 @@
             <bool>true</bool>
            </property>
            <property name="focusPolicy">
-            <enum>Qt::FocusPolicy::NoFocus</enum>
+            <enum>Qt::NoFocus</enum>
            </property>
            <property name="toolTip">
             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Barra di ricerca&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -1625,7 +1625,7 @@
                     <bool>false</bool>
                    </property>
                    <property name="contextMenuPolicy">
-                    <enum>Qt::ContextMenuPolicy::DefaultContextMenu</enum>
+                    <enum>Qt::DefaultContextMenu</enum>
                    </property>
                    <property name="frameShape">
                     <enum>QFrame::Shape::StyledPanel</enum>
@@ -1653,7 +1653,7 @@
                     <bool>false</bool>
                    </property>
                    <property name="contextMenuPolicy">
-                    <enum>Qt::ContextMenuPolicy::DefaultContextMenu</enum>
+                    <enum>Qt::DefaultContextMenu</enum>
                    </property>
                    <property name="frameShape">
                     <enum>QFrame::Shape::StyledPanel</enum>
@@ -1801,7 +1801,7 @@
                     <bool>false</bool>
                    </property>
                    <property name="contextMenuPolicy">
-                    <enum>Qt::ContextMenuPolicy::DefaultContextMenu</enum>
+                    <enum>Qt::DefaultContextMenu</enum>
                    </property>
                    <property name="frameShape">
                     <enum>QFrame::Shape::StyledPanel</enum>
@@ -1843,7 +1843,7 @@
                     <bool>false</bool>
                    </property>
                    <property name="contextMenuPolicy">
-                    <enum>Qt::ContextMenuPolicy::DefaultContextMenu</enum>
+                    <enum>Qt::DefaultContextMenu</enum>
                    </property>
                    <property name="frameShape">
                     <enum>QFrame::Shape::StyledPanel</enum>
