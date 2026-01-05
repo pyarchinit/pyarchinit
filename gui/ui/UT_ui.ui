@@ -2829,7 +2829,7 @@ p, li { white-space: pre-wrap; }
        <item row="0" column="1">
         <spacer name="horizontalSpacer_7">
          <property name="orientation">
-          <enum>Qt::Orientation::Horizontal</enum>
+          <enum>Qt::Horizontal</enum>
          </property>
          <property name="sizeHint" stdset="0">
           <size>
@@ -2922,7 +2922,7 @@ p, li { white-space: pre-wrap; }
        <item row="0" column="1">
         <spacer name="horizontalSpacer_6">
          <property name="orientation">
-          <enum>Qt::Orientation::Horizontal</enum>
+          <enum>Qt::Horizontal</enum>
          </property>
          <property name="sizeHint" stdset="0">
           <size>
@@ -3022,7 +3022,7 @@ p, li { white-space: pre-wrap; }
        <item row="0" column="2">
         <spacer name="horizontalSpacer_media">
          <property name="orientation">
-          <enum>Qt::Orientation::Horizontal</enum>
+          <enum>Qt::Horizontal</enum>
          </property>
          <property name="sizeHint" stdset="0">
           <size>

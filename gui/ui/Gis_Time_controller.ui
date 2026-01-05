@@ -561,7 +561,7 @@
             <bool>false</bool>
            </property>
            <property name="orientation">
-            <enum>Qt::Orientation::Horizontal</enum>
+            <enum>Qt::Horizontal</enum>
            </property>
            <property name="invertedAppearance">
             <bool>false</bool>
