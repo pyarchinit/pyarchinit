@@ -1828,7 +1828,7 @@
               <item row="2" column="0">
                <spacer name="horizontalSpacer">
                 <property name="orientation">
-                 <enum>Qt::Orientation::Horizontal</enum>
+                 <enum>Qt::Horizontal</enum>
                 </property>
                 <property name="sizeHint" stdset="0">
                  <size>
@@ -1979,7 +1979,7 @@ Step 3 - Riavviare Qgis e cliccare sul pulsante Run Test per verificare l'output
                 <item row="0" column="2">
                  <spacer name="horizontalSpacer_3">
                   <property name="orientation">
-                   <enum>Qt::Orientation::Horizontal</enum>
+                   <enum>Qt::Horizontal</enum>
                   </property>
                   <property name="sizeHint" stdset="0">
                    <size>
@@ -2486,7 +2486,7 @@ background-color: rgb(255, 255, 127);</string>
                     </font>
                    </property>
                    <property name="orientation">
-                    <enum>Qt::Orientation::Horizontal</enum>
+                    <enum>Qt::Horizontal</enum>
                    </property>
                   </widget>
                  </item>

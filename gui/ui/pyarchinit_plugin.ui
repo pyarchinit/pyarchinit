@@ -236,7 +236,7 @@ selection-color: rgb(140, 140, 105);</string>
                    </sizepolicy>
                   </property>
                   <property name="orientation">
-                   <enum>Qt::Orientation::Vertical</enum>
+                   <enum>Qt::Vertical</enum>
                   </property>
                  </widget>
                 </item>
@@ -249,7 +249,7 @@ selection-color: rgb(140, 140, 105);</string>
                    </sizepolicy>
                   </property>
                   <property name="orientation">
-                   <enum>Qt::Orientation::Vertical</enum>
+                   <enum>Qt::Vertical</enum>
                   </property>
                  </widget>
                 </item>
@@ -262,7 +262,7 @@ selection-color: rgb(140, 140, 105);</string>
                    </sizepolicy>
                   </property>
                   <property name="orientation">
-                   <enum>Qt::Orientation::Vertical</enum>
+                   <enum>Qt::Vertical</enum>
                   </property>
                  </widget>
                 </item>
@@ -293,7 +293,7 @@ selection-color: rgb(140, 140, 105);</string>
                    </sizepolicy>
                   </property>
                   <property name="orientation">
-                   <enum>Qt::Orientation::Vertical</enum>
+                   <enum>Qt::Vertical</enum>
                   </property>
                  </widget>
                 </item>
@@ -356,7 +356,7 @@ selection-color: rgb(140, 140, 105);</string>
                    </sizepolicy>
                   </property>
                   <property name="orientation">
-                   <enum>Qt::Orientation::Horizontal</enum>
+                   <enum>Qt::Horizontal</enum>
                   </property>
                  </widget>
                 </item>
@@ -369,7 +369,7 @@ selection-color: rgb(140, 140, 105);</string>
                    </sizepolicy>
                   </property>
                   <property name="orientation">
-                   <enum>Qt::Orientation::Horizontal</enum>
+                   <enum>Qt::Horizontal</enum>
                   </property>
                  </widget>
                 </item>
@@ -387,7 +387,7 @@ selection-color: rgb(140, 140, 105);</string>
                    </font>
                   </property>
                   <property name="orientation">
-                   <enum>Qt::Orientation::Vertical</enum>
+                   <enum>Qt::Vertical</enum>
                   </property>
                  </widget>
                 </item>
@@ -400,7 +400,7 @@ selection-color: rgb(140, 140, 105);</string>
                    </sizepolicy>
                   </property>
                   <property name="orientation">
-                   <enum>Qt::Orientation::Vertical</enum>
+                   <enum>Qt::Vertical</enum>
                   </property>
                  </widget>
                 </item>
@@ -413,7 +413,7 @@ selection-color: rgb(140, 140, 105);</string>
                    </sizepolicy>
                   </property>
                   <property name="orientation">
-                   <enum>Qt::Orientation::Vertical</enum>
+                   <enum>Qt::Vertical</enum>
                   </property>
                  </widget>
                 </item>
@@ -611,14 +611,14 @@ selection-color: rgb(140, 140, 105);</string>
                 <item row="6" column="6">
                  <widget class="Line" name="line">
                   <property name="orientation">
-                   <enum>Qt::Orientation::Horizontal</enum>
+                   <enum>Qt::Horizontal</enum>
                   </property>
                  </widget>
                 </item>
                 <item row="6" column="8">
                  <widget class="Line" name="line_2">
                   <property name="orientation">
-                   <enum>Qt::Orientation::Horizontal</enum>
+                   <enum>Qt::Horizontal</enum>
                   </property>
                  </widget>
                 </item>
@@ -631,7 +631,7 @@ selection-color: rgb(140, 140, 105);</string>
                    </sizepolicy>
                   </property>
                   <property name="orientation">
-                   <enum>Qt::Orientation::Horizontal</enum>
+                   <enum>Qt::Horizontal</enum>
                   </property>
                  </widget>
                 </item>
@@ -662,7 +662,7 @@ selection-color: rgb(140, 140, 105);</string>
                    </sizepolicy>
                   </property>
                   <property name="orientation">
-                   <enum>Qt::Orientation::Horizontal</enum>
+                   <enum>Qt::Horizontal</enum>
                   </property>
                  </widget>
                 </item>
@@ -705,7 +705,7 @@ selection-color: rgb(140, 140, 105);</string>
             <item row="1" column="0">
              <widget class="Line" name="line_26">
               <property name="orientation">
-               <enum>Qt::Orientation::Horizontal</enum>
+               <enum>Qt::Horizontal</enum>
               </property>
              </widget>
             </item>
@@ -755,7 +755,7 @@ selection-color: rgb(140, 140, 105);</string>
               <item row="1" column="0" rowspan="9">
                <widget class="Line" name="line_21">
                 <property name="orientation">
-                 <enum>Qt::Orientation::Vertical</enum>
+                 <enum>Qt::Vertical</enum>
                 </property>
                </widget>
               </item>
@@ -769,7 +769,7 @@ selection-color: rgb(140, 140, 105);</string>
               <item row="3" column="2" colspan="2">
                <widget class="Line" name="line_23">
                 <property name="orientation">
-                 <enum>Qt::Orientation::Vertical</enum>
+                 <enum>Qt::Vertical</enum>
                 </property>
                </widget>
               </item>
@@ -799,7 +799,7 @@ selection-color: rgb(140, 140, 105);</string>
               <item row="5" column="2" colspan="2">
                <widget class="Line" name="line_20">
                 <property name="orientation">
-                 <enum>Qt::Orientation::Vertical</enum>
+                 <enum>Qt::Vertical</enum>
                 </property>
                </widget>
               </item>
@@ -813,7 +813,7 @@ selection-color: rgb(140, 140, 105);</string>
               <item row="7" column="2" colspan="2">
                <widget class="Line" name="line_19">
                 <property name="orientation">
-                 <enum>Qt::Orientation::Vertical</enum>
+                 <enum>Qt::Vertical</enum>
                 </property>
                </widget>
               </item>
@@ -846,21 +846,21 @@ selection-color: rgb(140, 140, 105);</string>
               <item row="9" column="1">
                <widget class="Line" name="line_24">
                 <property name="orientation">
-                 <enum>Qt::Orientation::Horizontal</enum>
+                 <enum>Qt::Horizontal</enum>
                 </property>
                </widget>
               </item>
               <item row="0" column="1">
                <widget class="Line" name="line_22">
                 <property name="orientation">
-                 <enum>Qt::Orientation::Horizontal</enum>
+                 <enum>Qt::Horizontal</enum>
                 </property>
                </widget>
               </item>
               <item row="1" column="2">
                <widget class="Line" name="line_18">
                 <property name="orientation">
-                 <enum>Qt::Orientation::Vertical</enum>
+                 <enum>Qt::Vertical</enum>
                 </property>
                </widget>
               </item>
@@ -1022,7 +1022,7 @@ selection-color: rgb(140, 140, 105);</string>
              </rect>
             </property>
             <property name="orientation">
-             <enum>Qt::Orientation::Vertical</enum>
+             <enum>Qt::Vertical</enum>
             </property>
            </widget>
            <widget class="Line" name="line_4">
@@ -1035,7 +1035,7 @@ selection-color: rgb(140, 140, 105);</string>
              </rect>
             </property>
             <property name="orientation">
-             <enum>Qt::Orientation::Vertical</enum>
+             <enum>Qt::Vertical</enum>
             </property>
            </widget>
            <widget class="Line" name="line_3">
@@ -1048,7 +1048,7 @@ selection-color: rgb(140, 140, 105);</string>
              </rect>
             </property>
             <property name="orientation">
-             <enum>Qt::Orientation::Vertical</enum>
+             <enum>Qt::Vertical</enum>
             </property>
            </widget>
            <widget class="Line" name="line_9">
@@ -1061,7 +1061,7 @@ selection-color: rgb(140, 140, 105);</string>
              </rect>
             </property>
             <property name="orientation">
-             <enum>Qt::Orientation::Horizontal</enum>
+             <enum>Qt::Horizontal</enum>
             </property>
            </widget>
            <widget class="Line" name="line_17">
@@ -1074,7 +1074,7 @@ selection-color: rgb(140, 140, 105);</string>
              </rect>
             </property>
             <property name="orientation">
-             <enum>Qt::Orientation::Horizontal</enum>
+             <enum>Qt::Horizontal</enum>
             </property>
            </widget>
           </widget>
@@ -1130,7 +1130,7 @@ selection-color: rgb(140, 140, 105);</string>
             <item row="1" column="0">
              <widget class="Line" name="line_27">
               <property name="orientation">
-               <enum>Qt::Orientation::Horizontal</enum>
+               <enum>Qt::Horizontal</enum>
               </property>
              </widget>
             </item>

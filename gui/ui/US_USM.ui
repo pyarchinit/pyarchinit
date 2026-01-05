@@ -12751,7 +12751,7 @@ p, li { white-space: pre-wrap; }
           </font>
          </property>
          <property name="orientation">
-          <enum>Qt::Orientation::Vertical</enum>
+          <enum>Qt::Vertical</enum>
          </property>
          <property name="sizeHint" stdset="0">
           <size>
@@ -12947,7 +12947,7 @@ p, li { white-space: pre-wrap; }
             </font>
            </property>
            <property name="orientation">
-            <enum>Qt::Orientation::Horizontal</enum>
+            <enum>Qt::Horizontal</enum>
            </property>
            <property name="sizeHint" stdset="0">
             <size>
@@ -13174,7 +13174,7 @@ p, li { white-space: pre-wrap; }
             </font>
            </property>
            <property name="orientation">
-            <enum>Qt::Orientation::Horizontal</enum>
+            <enum>Qt::Horizontal</enum>
            </property>
           </widget>
          </item>
@@ -15789,7 +15789,7 @@ p, li { white-space: pre-wrap; }
              </font>
             </property>
             <property name="orientation">
-             <enum>Qt::Orientation::Vertical</enum>
+             <enum>Qt::Vertical</enum>
             </property>
             <property name="sizeHint" stdset="0">
              <size>
@@ -16351,7 +16351,7 @@ p, li { white-space: pre-wrap; }
             </font>
            </property>
            <property name="orientation">
-            <enum>Qt::Orientation::Horizontal</enum>
+            <enum>Qt::Horizontal</enum>
            </property>
            <property name="sizeHint" stdset="0">
             <size>
@@ -16449,7 +16449,7 @@ p, li { white-space: pre-wrap; }
                </font>
               </property>
               <property name="orientation">
-               <enum>Qt::Orientation::Horizontal</enum>
+               <enum>Qt::Horizontal</enum>
               </property>
               <property name="sizeHint" stdset="0">
                <size>
@@ -16509,7 +16509,7 @@ p, li { white-space: pre-wrap; }
                </font>
               </property>
               <property name="orientation">
-               <enum>Qt::Orientation::Horizontal</enum>
+               <enum>Qt::Horizontal</enum>
               </property>
               <property name="sizeHint" stdset="0">
                <size>
@@ -16581,7 +16581,7 @@ p, li { white-space: pre-wrap; }
                </font>
               </property>
               <property name="orientation">
-               <enum>Qt::Orientation::Horizontal</enum>
+               <enum>Qt::Horizontal</enum>
               </property>
               <property name="sizeHint" stdset="0">
                <size>
@@ -16603,7 +16603,7 @@ p, li { white-space: pre-wrap; }
                </font>
               </property>
               <property name="orientation">
-               <enum>Qt::Orientation::Horizontal</enum>
+               <enum>Qt::Horizontal</enum>
               </property>
               <property name="sizeHint" stdset="0">
                <size>
@@ -17932,7 +17932,7 @@ p, li { white-space: pre-wrap; }
              </font>
             </property>
             <property name="orientation">
-             <enum>Qt::Orientation::Vertical</enum>
+             <enum>Qt::Vertical</enum>
             </property>
             <property name="sizeHint" stdset="0">
              <size>
@@ -18353,7 +18353,7 @@ p, li { white-space: pre-wrap; }
           </font>
          </property>
          <property name="orientation">
-          <enum>Qt::Orientation::Vertical</enum>
+          <enum>Qt::Vertical</enum>
          </property>
          <property name="sizeHint" stdset="0">
           <size>
@@ -18375,7 +18375,7 @@ p, li { white-space: pre-wrap; }
           </font>
          </property>
          <property name="orientation">
-          <enum>Qt::Orientation::Horizontal</enum>
+          <enum>Qt::Horizontal</enum>
          </property>
          <property name="sizeHint" stdset="0">
           <size>
@@ -18869,7 +18869,7 @@ p, li { white-space: pre-wrap; }
             </font>
            </property>
            <property name="orientation">
-            <enum>Qt::Orientation::Horizontal</enum>
+            <enum>Qt::Horizontal</enum>
            </property>
            <property name="sizeHint" stdset="0">
             <size>
@@ -18961,7 +18961,7 @@ p, li { white-space: pre-wrap; }
              </font>
             </property>
             <property name="orientation">
-             <enum>Qt::Orientation::Vertical</enum>
+             <enum>Qt::Vertical</enum>
             </property>
             <property name="sizeHint" stdset="0">
              <size>
@@ -24158,7 +24158,7 @@ p, li { white-space: pre-wrap; }
                 </font>
                </property>
                <property name="orientation">
-                <enum>Qt::Orientation::Horizontal</enum>
+                <enum>Qt::Horizontal</enum>
                </property>
               </widget>
              </item>
@@ -34721,7 +34721,7 @@ p, li { white-space: pre-wrap; }
                       </palette>
                      </property>
                      <property name="orientation">
-                      <enum>Qt::Orientation::Horizontal</enum>
+                      <enum>Qt::Horizontal</enum>
                      </property>
                     </widget>
                    </item>
