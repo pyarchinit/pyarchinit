@@ -174,7 +174,7 @@
        <item>
         <widget class="QListWidget" name="listWidget_extracted">
          <property name="viewMode">
-          <enum>QListView::ViewMode::IconMode</enum>
+          <enum>QListView::IconMode</enum>
          </property>
          <property name="iconSize">
           <size>

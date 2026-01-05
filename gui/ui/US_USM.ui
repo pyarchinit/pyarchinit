@@ -13688,16 +13688,16 @@ p, li { white-space: pre-wrap; }
                 <enum>QAbstractItemView::SelectRows</enum>
                </property>
                <property name="verticalScrollMode">
-                <enum>QAbstractItemView::ScrollMode::ScrollPerPixel</enum>
+                <enum>QAbstractItemView::ScrollPerPixel</enum>
                </property>
                <property name="isWrapping" stdset="0">
                 <bool>false</bool>
                </property>
                <property name="resizeMode">
-                <enum>QListView::ResizeMode::Adjust</enum>
+                <enum>QListView::Adjust</enum>
                </property>
                <property name="layoutMode">
-                <enum>QListView::LayoutMode::SinglePass</enum>
+                <enum>QListView::SinglePass</enum>
                </property>
                <property name="uniformItemSizes">
                 <bool>false</bool>
@@ -19470,13 +19470,13 @@ p, li { white-space: pre-wrap; }
               <bool>true</bool>
              </property>
              <property name="resizeMode">
-              <enum>QListView::ResizeMode::Adjust</enum>
+              <enum>QListView::Adjust</enum>
              </property>
              <property name="layoutMode">
-              <enum>QListView::LayoutMode::Batched</enum>
+              <enum>QListView::Batched</enum>
              </property>
              <property name="viewMode">
-              <enum>QListView::ViewMode::IconMode</enum>
+              <enum>QListView::IconMode</enum>
              </property>
              <property name="modelColumn">
               <number>0</number>

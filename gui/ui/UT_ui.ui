@@ -3089,13 +3089,13 @@ p, li { white-space: pre-wrap; }
           <bool>true</bool>
          </property>
          <property name="resizeMode">
-          <enum>QListView::ResizeMode::Adjust</enum>
+          <enum>QListView::Adjust</enum>
          </property>
          <property name="layoutMode">
-          <enum>QListView::LayoutMode::Batched</enum>
+          <enum>QListView::Batched</enum>
          </property>
          <property name="viewMode">
-          <enum>QListView::ViewMode::IconMode</enum>
+          <enum>QListView::IconMode</enum>
          </property>
          <property name="modelColumn">
           <number>0</number>
