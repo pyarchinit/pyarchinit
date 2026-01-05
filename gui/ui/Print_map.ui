@@ -484,7 +484,7 @@
         </size>
        </property>
        <property name="viewMode">
-        <enum>QListView::ViewMode::IconMode</enum>
+        <enum>QListView::IconMode</enum>
        </property>
        <property name="uniformItemSizes">
         <bool>false</bool>
@@ -520,10 +520,10 @@
         <enum>QListView::Static</enum>
        </property>
        <property name="resizeMode">
-        <enum>QListView::ResizeMode::Adjust</enum>
+        <enum>QListView::Adjust</enum>
        </property>
        <property name="viewMode">
-        <enum>QListView::ViewMode::ListMode</enum>
+        <enum>QListView::ListMode</enum>
        </property>
        <property name="uniformItemSizes">
         <bool>true</bool>

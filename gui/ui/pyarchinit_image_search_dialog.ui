@@ -185,7 +185,7 @@
       <item>
        <widget class="QListWidget" name="listWidget_results">
         <property name="viewMode">
-         <enum>QListView::ViewMode::IconMode</enum>
+         <enum>QListView::IconMode</enum>
         </property>
         <property name="iconSize">
          <size>
@@ -197,7 +197,7 @@
          <enum>QListView::Static</enum>
         </property>
         <property name="resizeMode">
-         <enum>QListView::ResizeMode::Adjust</enum>
+         <enum>QListView::Adjust</enum>
         </property>
         <property name="spacing">
          <number>10</number>
