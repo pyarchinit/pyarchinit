@@ -609,8 +609,49 @@ def classFactory(iface):
     Returns:
         PyArchInitPlugin instance
     """
-    initialize_environment()
-    check_and_install_dependencies()
+    # Show splash screen during plugin loading
+    splash = None
+    try:
+        from .gui.pyarchinit_splash import PyArchInitSplash
+        splash = PyArchInitSplash(message="Loading PyArchInit...")
+        splash.show()
+        QApplication.processEvents()
+    except Exception as e:
+        print(f"Could not show splash screen: {e}")
 
-    from .pyarchinitPlugin import PyArchInitPlugin
-    return PyArchInitPlugin(iface)
+    try:
+        # Update splash message
+        if splash:
+            splash.set_message("Initializing environment...")
+            QApplication.processEvents()
+
+        initialize_environment()
+
+        # Update splash message
+        if splash:
+            splash.set_message("Checking dependencies...")
+            QApplication.processEvents()
+
+        check_and_install_dependencies()
+
+        # Update splash message
+        if splash:
+            splash.set_message("Loading plugin modules...")
+            QApplication.processEvents()
+
+        from .pyarchinitPlugin import PyArchInitPlugin
+        plugin = PyArchInitPlugin(iface)
+
+        # Update splash message before closing
+        if splash:
+            splash.set_message("PyArchInit ready!")
+            QApplication.processEvents()
+            # Small delay to show "ready" message
+            QTimer.singleShot(500, splash.close)
+
+        return plugin
+
+    except Exception as e:
+        if splash:
+            splash.close()
+        raise e
