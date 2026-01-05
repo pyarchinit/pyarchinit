@@ -23,15 +23,15 @@ class AnimatedGearWidget(QWidget):
         self.angle2 = 0  # Angle for inner gear (counter-clockwise)
         self.setMinimumSize(300, 300)
 
-        # Load the PyArchInit logo
+        # Load the PyArchInit Archeoimagineers logo
         logo_path = os.path.join(os.path.dirname(os.path.dirname(__file__)),
-                                  "resources", "icons", "IconPAI.png")
+                                  "resources", "icons", "logo_pyarchinit.png")
         if os.path.exists(logo_path):
             self.logo = QPixmap(logo_path)
         else:
-            # Fallback to main logo
+            # Fallback to IconPAI
             logo_path = os.path.join(os.path.dirname(os.path.dirname(__file__)),
-                                      "logo_pyarchinit.png")
+                                      "resources", "icons", "IconPAI.png")
             if os.path.exists(logo_path):
                 self.logo = QPixmap(logo_path)
             else:
@@ -41,10 +41,10 @@ class AnimatedGearWidget(QWidget):
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.update_animation)
 
-        # Colors
-        self.color1 = QColor("#3F51B5")  # Indigo
-        self.color2 = QColor("#FF7043")  # Deep Orange
-        self.color3 = QColor("#4CAF50")  # Green
+        # Colors matching the Archeoimagineers logo
+        self.color1 = QColor("#E65100")  # Orange (from logo gradient)
+        self.color2 = QColor("#C62828")  # Red (from logo gradient)
+        self.color3 = QColor("#8B2500")  # Dark brown-red (logo text)
 
     def start_animation(self):
         """Start the gear animation."""
@@ -79,9 +79,9 @@ class AnimatedGearWidget(QWidget):
                                    min(self.width(), self.height()) // 2 - 50,
                                    self.angle2, self.color2, 8, clockwise=False)
 
-        # Draw the logo in the center
+        # Draw the logo in the center (larger for Archeoimagineers logo)
         if self.logo:
-            logo_size = min(self.width(), self.height()) // 2 - 60
+            logo_size = min(self.width(), self.height()) // 2 - 30
             scaled_logo = self.logo.scaled(logo_size, logo_size,
                                             Qt.AspectRatioMode.KeepAspectRatio,
                                             Qt.TransformationMode.SmoothTransformation)
@@ -159,20 +159,20 @@ class PyArchInitSplash(QDialog):
             QWidget {
                 background-color: rgba(255, 255, 255, 240);
                 border-radius: 20px;
-                border: 2px solid #3F51B5;
+                border: 2px solid #E65100;
             }
         """)
         container_layout = QVBoxLayout(container)
         container_layout.setContentsMargins(20, 20, 20, 20)
 
         # Title
-        title = QLabel("PyArchInit")
+        title = QLabel("pyArchInit 5")
         title.setAlignment(Qt.AlignmentFlag.AlignCenter)
         title.setStyleSheet("""
             QLabel {
-                font-size: 24px;
+                font-size: 28px;
                 font-weight: bold;
-                color: #3F51B5;
+                color: #8B2500;
                 background: transparent;
                 border: none;
             }
