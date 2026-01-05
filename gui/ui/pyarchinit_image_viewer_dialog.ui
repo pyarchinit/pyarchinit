@@ -813,7 +813,7 @@
    <item row="1" column="0">
     <layout class="QGridLayout" name="gridLayout">
      <property name="sizeConstraint">
-      <enum>QLayout::SizeConstraint::SetDefaultConstraint</enum>
+      <enum>QLayout::SetDefaultConstraint</enum>
      </property>
      <item row="2" column="0">
       <widget class="QLabel" name="label_2">
@@ -865,7 +865,7 @@
         <number>2</number>
        </property>
        <property name="sizeAdjustPolicy">
-        <enum>QAbstractScrollArea::SizeAdjustPolicy::AdjustToContents</enum>
+        <enum>QAbstractScrollArea::AdjustToContents</enum>
        </property>
        <property name="editTriggers">
         <set>QAbstractItemView::AllEditTriggers</set>
@@ -986,7 +986,7 @@
         <bool>false</bool>
        </property>
        <property name="tickPosition">
-        <enum>QSlider::TickPosition::NoTicks</enum>
+        <enum>QSlider::NoTicks</enum>
        </property>
        <property name="tickInterval">
         <number>2</number>
@@ -1021,7 +1021,7 @@
       </size>
      </property>
      <property name="focusPolicy">
-      <enum>Qt::FocusPolicy::StrongFocus</enum>
+      <enum>Qt::StrongFocus</enum>
      </property>
      <property name="toolTip">
       <string>Attiva/disattiva la visualizzazione dei tags</string>
@@ -1248,7 +1248,7 @@
             <enum>QAbstractItemView::DragDrop</enum>
            </property>
            <property name="defaultDropAction">
-            <enum>Qt::DropAction::IgnoreAction</enum>
+            <enum>Qt::IgnoreAction</enum>
            </property>
            <property name="alternatingRowColors">
             <bool>true</bool>

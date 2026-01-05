@@ -3008,7 +3008,7 @@
             <bool>true</bool>
            </property>
            <property name="sizeAdjustPolicy">
-            <enum>QAbstractScrollArea::SizeAdjustPolicy::AdjustToContents</enum>
+            <enum>QAbstractScrollArea::AdjustToContents</enum>
            </property>
            <property name="resizeMode">
             <enum>QListView::Adjust</enum>
@@ -8781,7 +8781,7 @@
       </attribute>
       <layout class="QFormLayout" name="formLayout_2">
        <property name="fieldGrowthPolicy">
-        <enum>QFormLayout::FieldGrowthPolicy::AllNonFixedFieldsGrow</enum>
+        <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
        </property>
        <item row="0" column="1">
         <widget class="QPushButton" name="pushButtonQuant">

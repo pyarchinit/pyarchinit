@@ -1817,7 +1817,7 @@
       </attribute>
       <layout class="QFormLayout" name="formLayout">
        <property name="fieldGrowthPolicy">
-        <enum>QFormLayout::FieldGrowthPolicy::FieldsStayAtSizeHint</enum>
+        <enum>QFormLayout::FieldsStayAtSizeHint</enum>
        </property>
        <item row="1" column="1">
         <widget class="QPushButton" name="pushButton_exp_pdf_sheet">

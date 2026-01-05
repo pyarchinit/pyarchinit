@@ -881,7 +881,7 @@
          </font>
         </property>
         <property name="sizeAdjustPolicy">
-         <enum>QAbstractScrollArea::SizeAdjustPolicy::AdjustToContents</enum>
+         <enum>QAbstractScrollArea::AdjustToContents</enum>
         </property>
         <property name="autoFormatting">
          <set>QTextEdit::AutoAll</set>

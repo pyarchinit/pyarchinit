@@ -678,7 +678,7 @@
        <item row="1" column="1">
         <layout class="QHBoxLayout" name="horizontalLayout_2">
          <property name="sizeConstraint">
-          <enum>QLayout::SizeConstraint::SetMaximumSize</enum>
+          <enum>QLayout::SetMaximumSize</enum>
          </property>
          <item>
           <spacer name="horizontalSpacer">

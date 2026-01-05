@@ -462,7 +462,7 @@
    </palette>
   </property>
   <property name="contextMenuPolicy">
-   <enum>Qt::ContextMenuPolicy::CustomContextMenu</enum>
+   <enum>Qt::CustomContextMenu</enum>
   </property>
   <property name="windowTitle">
    <string>Setting matrix</string>
