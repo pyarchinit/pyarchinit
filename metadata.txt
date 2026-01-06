@@ -3,14 +3,28 @@ name=pyArchInit
 qgisMinimumVersion=3.22
 qgisMaximumVersion=4.99
 supportsQt6=True
-description=pyarchinit a tool for archaeological works
+description=pyArchInit - Complete Archaeological Data Management System for excavations, stratigraphy, finds, GIS mapping and scientific reporting
 
 version=4.9.21
 
-author=Luca Mandolesi&Enzo Cocca
+author=Luca Mandolesi & Enzo Cocca
 email=pyarchinit@gmail.com
 
-about=https://github.com/pyarchinit/pyarchinit
+about=pyArchInit is a comprehensive open-source plugin for archaeological data management within QGIS.
+    It provides tools for managing excavation data, stratigraphic units (US/USM), finds inventory,
+    tombs, periodization, and site documentation. Key features include:
+    - Stratigraphic unit management with Harris Matrix generation
+    - Archaeological finds and pottery inventory
+    - Anthropological and zooarchaeological records
+    - PDF report generation (Italian MiBACT standards)
+    - Image and media management with tagging
+    - PostgreSQL/PostGIS and SQLite/Spatialite database support
+    - AI-powered report generation and data analysis
+    - Multi-language support (IT, EN, DE, ES, FR, AR)
+
+    Developed by pyArchInit community.
+    Documentation: https://pyarchinit.github.io
+    GitHub: https://github.com/pyarchinit/pyarchinit
 
 
 tracker=https://github.com/pyarchinit/pyarchinit/issues
@@ -257,6 +271,6 @@ tags=archaeology, analysis, database, digitizing, postgres, postgis, spatialite,
 
 homepage=https://www.adarteinfo.it
 category=Plugins
-icon=icon.png
+icon=resources/icons/logo_pyarchinit.png
 experimental=False
 deprecated=False
