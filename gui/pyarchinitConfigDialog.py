@@ -870,7 +870,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             sync_layout.addWidget(profiles_group)
 
             # ========== LOCAL DATABASE GROUP ==========
-            local_group = QGroupBox(self.tr("Local Database (PostgreSQL)"))
+            local_group = QGroupBox(self.tr("Local Database"))
             local_group.setStyleSheet("""
                 QGroupBox { font-weight: bold; border: 2px solid #4CAF50; border-radius: 5px; margin-top: 8px; padding-top: 8px; }
                 QGroupBox::title { subcontrol-origin: margin; left: 10px; padding: 0 5px; }
@@ -878,32 +878,67 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             local_layout = QFormLayout()
             local_layout.setSpacing(8)
 
+            # Database type selector
+            from qgis.PyQt.QtWidgets import QComboBox, QFileDialog
+            self.sync_local_db_type = QComboBox()
+            self.sync_local_db_type.addItem("PostgreSQL", "postgres")
+            self.sync_local_db_type.addItem("SQLite/Sketelite", "sqlite")
+            self.sync_local_db_type.currentIndexChanged.connect(self._on_local_db_type_changed)
+            local_layout.addRow(self.tr("Database Type:"), self.sync_local_db_type)
+
+            # PostgreSQL fields
             self.sync_local_host = QLineEdit()
             self.sync_local_host.setText("localhost")
-            local_layout.addRow("Host:", self.sync_local_host)
+            self.sync_local_host_label = QLabel("Host:")
+            local_layout.addRow(self.sync_local_host_label, self.sync_local_host)
 
             self.sync_local_port = QSpinBox()
             self.sync_local_port.setRange(1, 65535)
             self.sync_local_port.setValue(5432)
-            local_layout.addRow(self.tr("Port:"), self.sync_local_port)
+            self.sync_local_port_label = QLabel(self.tr("Port:"))
+            local_layout.addRow(self.sync_local_port_label, self.sync_local_port)
 
             self.sync_local_database = QLineEdit()
             self.sync_local_database.setPlaceholderText(self.tr("e.g.: pyarchinit, khutm2"))
-            local_layout.addRow("Database:", self.sync_local_database)
+            self.sync_local_database_label = QLabel("Database:")
+            local_layout.addRow(self.sync_local_database_label, self.sync_local_database)
 
             self.sync_local_user = QLineEdit()
             self.sync_local_user.setText("postgres")
-            local_layout.addRow(self.tr("User:"), self.sync_local_user)
+            self.sync_local_user_label = QLabel(self.tr("User:"))
+            local_layout.addRow(self.sync_local_user_label, self.sync_local_user)
 
             self.sync_local_password = QLineEdit()
             self.sync_local_password.setEchoMode(QLineEdit.EchoMode.Password)
-            local_layout.addRow("Password:", self.sync_local_password)
+            self.sync_local_password_label = QLabel("Password:")
+            local_layout.addRow(self.sync_local_password_label, self.sync_local_password)
+
+            # SQLite fields
+            self.sync_local_sqlite_path = QLineEdit()
+            self.sync_local_sqlite_path.setPlaceholderText(self.tr("Path to SQLite database file"))
+            self.sync_local_sqlite_path_label = QLabel(self.tr("SQLite Path:"))
+
+            sqlite_path_layout = QHBoxLayout()
+            sqlite_path_layout.addWidget(self.sync_local_sqlite_path)
+            self.sync_local_sqlite_browse_btn = QPushButton("...")
+            self.sync_local_sqlite_browse_btn.setMaximumWidth(30)
+            self.sync_local_sqlite_browse_btn.clicked.connect(lambda: self._browse_sqlite_file('local'))
+            sqlite_path_layout.addWidget(self.sync_local_sqlite_browse_btn)
+
+            sqlite_path_widget = QWidget()
+            sqlite_path_widget.setLayout(sqlite_path_layout)
+            local_layout.addRow(self.sync_local_sqlite_path_label, sqlite_path_widget)
+
+            # Hide SQLite fields initially
+            self.sync_local_sqlite_path_label.setVisible(False)
+            sqlite_path_widget.setVisible(False)
+            self.sync_local_sqlite_widget = sqlite_path_widget
 
             local_group.setLayout(local_layout)
             sync_layout.addWidget(local_group)
 
             # ========== REMOTE DATABASE GROUP ==========
-            remote_group = QGroupBox(self.tr("Remote Database (Server/Cloud)"))
+            remote_group = QGroupBox(self.tr("Remote Database"))
             remote_group.setStyleSheet("""
                 QGroupBox { font-weight: bold; border: 2px solid #00BCD4; border-radius: 5px; margin-top: 8px; padding-top: 8px; }
                 QGroupBox::title { subcontrol-origin: margin; left: 10px; padding: 0 5px; }
@@ -911,27 +946,61 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             remote_layout = QFormLayout()
             remote_layout.setSpacing(8)
 
+            # Database type selector
+            self.sync_remote_db_type = QComboBox()
+            self.sync_remote_db_type.addItem("PostgreSQL", "postgres")
+            self.sync_remote_db_type.addItem("SQLite/Spatialite", "sqlite")
+            self.sync_remote_db_type.currentIndexChanged.connect(self._on_remote_db_type_changed)
+            remote_layout.addRow(self.tr("Database Type:"), self.sync_remote_db_type)
+
+            # PostgreSQL fields
             self.sync_remote_host = QLineEdit()
             self.sync_remote_host.setPlaceholderText(self.tr("e.g.: db.xxx.supabase.co or your-server.com"))
-            remote_layout.addRow("Host:", self.sync_remote_host)
+            self.sync_remote_host_label = QLabel("Host:")
+            remote_layout.addRow(self.sync_remote_host_label, self.sync_remote_host)
 
             self.sync_remote_port = QSpinBox()
             self.sync_remote_port.setRange(1, 65535)
             self.sync_remote_port.setValue(5432)
-            remote_layout.addRow(self.tr("Port:"), self.sync_remote_port)
+            self.sync_remote_port_label = QLabel(self.tr("Port:"))
+            remote_layout.addRow(self.sync_remote_port_label, self.sync_remote_port)
 
             self.sync_remote_database = QLineEdit()
             self.sync_remote_database.setText("postgres")
-            remote_layout.addRow("Database:", self.sync_remote_database)
+            self.sync_remote_database_label = QLabel("Database:")
+            remote_layout.addRow(self.sync_remote_database_label, self.sync_remote_database)
 
             self.sync_remote_user = QLineEdit()
             self.sync_remote_user.setPlaceholderText(self.tr("e.g.: postgres or postgres.xxx"))
-            remote_layout.addRow(self.tr("User:"), self.sync_remote_user)
+            self.sync_remote_user_label = QLabel(self.tr("User:"))
+            remote_layout.addRow(self.sync_remote_user_label, self.sync_remote_user)
 
             self.sync_remote_password = QLineEdit()
             self.sync_remote_password.setEchoMode(QLineEdit.EchoMode.Password)
             self.sync_remote_password.setPlaceholderText(self.tr("Remote password"))
-            remote_layout.addRow("Password:", self.sync_remote_password)
+            self.sync_remote_password_label = QLabel("Password:")
+            remote_layout.addRow(self.sync_remote_password_label, self.sync_remote_password)
+
+            # SQLite fields
+            self.sync_remote_sqlite_path = QLineEdit()
+            self.sync_remote_sqlite_path.setPlaceholderText(self.tr("Path to SQLite database file"))
+            self.sync_remote_sqlite_path_label = QLabel(self.tr("SQLite Path:"))
+
+            remote_sqlite_path_layout = QHBoxLayout()
+            remote_sqlite_path_layout.addWidget(self.sync_remote_sqlite_path)
+            self.sync_remote_sqlite_browse_btn = QPushButton("...")
+            self.sync_remote_sqlite_browse_btn.setMaximumWidth(30)
+            self.sync_remote_sqlite_browse_btn.clicked.connect(lambda: self._browse_sqlite_file('remote'))
+            remote_sqlite_path_layout.addWidget(self.sync_remote_sqlite_browse_btn)
+
+            remote_sqlite_path_widget = QWidget()
+            remote_sqlite_path_widget.setLayout(remote_sqlite_path_layout)
+            remote_layout.addRow(self.sync_remote_sqlite_path_label, remote_sqlite_path_widget)
+
+            # Hide SQLite fields initially
+            self.sync_remote_sqlite_path_label.setVisible(False)
+            remote_sqlite_path_widget.setVisible(False)
+            self.sync_remote_sqlite_widget = remote_sqlite_path_widget
 
             remote_group.setLayout(remote_layout)
             sync_layout.addWidget(remote_group)
@@ -1056,18 +1125,89 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             import traceback
             traceback.print_exc()
 
+    def _on_local_db_type_changed(self, index):
+        """Handle local database type change"""
+        db_type = self.sync_local_db_type.currentData()
+        is_postgres = (db_type == "postgres")
+
+        # Show/hide PostgreSQL fields
+        self.sync_local_host_label.setVisible(is_postgres)
+        self.sync_local_host.setVisible(is_postgres)
+        self.sync_local_port_label.setVisible(is_postgres)
+        self.sync_local_port.setVisible(is_postgres)
+        self.sync_local_database_label.setVisible(is_postgres)
+        self.sync_local_database.setVisible(is_postgres)
+        self.sync_local_user_label.setVisible(is_postgres)
+        self.sync_local_user.setVisible(is_postgres)
+        self.sync_local_password_label.setVisible(is_postgres)
+        self.sync_local_password.setVisible(is_postgres)
+
+        # Show/hide SQLite fields
+        self.sync_local_sqlite_path_label.setVisible(not is_postgres)
+        self.sync_local_sqlite_widget.setVisible(not is_postgres)
+
+    def _on_remote_db_type_changed(self, index):
+        """Handle remote database type change"""
+        db_type = self.sync_remote_db_type.currentData()
+        is_postgres = (db_type == "postgres")
+
+        # Show/hide PostgreSQL fields
+        self.sync_remote_host_label.setVisible(is_postgres)
+        self.sync_remote_host.setVisible(is_postgres)
+        self.sync_remote_port_label.setVisible(is_postgres)
+        self.sync_remote_port.setVisible(is_postgres)
+        self.sync_remote_database_label.setVisible(is_postgres)
+        self.sync_remote_database.setVisible(is_postgres)
+        self.sync_remote_user_label.setVisible(is_postgres)
+        self.sync_remote_user.setVisible(is_postgres)
+        self.sync_remote_password_label.setVisible(is_postgres)
+        self.sync_remote_password.setVisible(is_postgres)
+
+        # Show/hide SQLite fields
+        self.sync_remote_sqlite_path_label.setVisible(not is_postgres)
+        self.sync_remote_sqlite_widget.setVisible(not is_postgres)
+
+    def _browse_sqlite_file(self, target):
+        """Browse for SQLite database file"""
+        from qgis.PyQt.QtWidgets import QFileDialog
+
+        file_path, _ = QFileDialog.getOpenFileName(
+            self,
+            self.tr("Select SQLite Database"),
+            "",
+            "SQLite Database (*.sqlite *.db *.sqlite3);;All files (*.*)"
+        )
+
+        if file_path:
+            if target == 'local':
+                self.sync_local_sqlite_path.setText(file_path)
+            elif target == 'remote':
+                self.sync_remote_sqlite_path.setText(file_path)
+
     def sync_analyze_differences(self):
         """Analyze differences between local and remote databases"""
         # Get sync configuration
         local_config, remote_config = self._get_sync_configs()
 
-        if not remote_config.get('host'):
-            QMessageBox.warning(self, self.tr("Error"), self.tr("Remote host not configured."))
-            return
+        # Validate local config based on db_type
+        if local_config.get('db_type') == 'postgres':
+            if not local_config.get('database'):
+                QMessageBox.warning(self, self.tr("Error"), self.tr("Local database not configured."))
+                return
+        else:  # sqlite
+            if not local_config.get('db_path'):
+                QMessageBox.warning(self, self.tr("Error"), self.tr("Local SQLite path not configured."))
+                return
 
-        if not local_config.get('database'):
-            QMessageBox.warning(self, self.tr("Error"), self.tr("Local database not configured."))
-            return
+        # Validate remote config based on db_type
+        if remote_config.get('db_type') == 'postgres':
+            if not remote_config.get('host'):
+                QMessageBox.warning(self, self.tr("Error"), self.tr("Remote host not configured."))
+                return
+        else:  # sqlite
+            if not remote_config.get('db_path'):
+                QMessageBox.warning(self, self.tr("Error"), self.tr("Remote SQLite path not configured."))
+                return
 
         # Configure and start analysis
         self.sync_manager.configure(local_config, remote_config)
@@ -1343,33 +1483,69 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         """Save both local and remote sync credentials"""
         s = QgsSettings()
 
-        # Save local credentials
+        # Save local database type
+        local_db_type = self.sync_local_db_type.currentData() if hasattr(self, 'sync_local_db_type') else 'postgres'
+        s.setValue('pyArchInit/local_db_type', local_db_type)
+
+        # Save local PostgreSQL credentials
         s.setValue('pyArchInit/local_host', self.sync_local_host.text())
         s.setValue('pyArchInit/local_port', self.sync_local_port.value())
         s.setValue('pyArchInit/local_database', self.sync_local_database.text())
         s.setValue('pyArchInit/local_user', self.sync_local_user.text())
         s.setValue('pyArchInit/local_password', self.sync_local_password.text())
 
-        # Save remote (Supabase) credentials
+        # Save local SQLite path
+        if hasattr(self, 'sync_local_sqlite_path'):
+            s.setValue('pyArchInit/local_sqlite_path', self.sync_local_sqlite_path.text())
+
+        # Save remote database type
+        remote_db_type = self.sync_remote_db_type.currentData() if hasattr(self, 'sync_remote_db_type') else 'postgres'
+        s.setValue('pyArchInit/remote_db_type', remote_db_type)
+
+        # Save remote PostgreSQL credentials
         s.setValue('pyArchInit/remote_host', self.sync_remote_host.text())
         s.setValue('pyArchInit/remote_port', self.sync_remote_port.value())
         s.setValue('pyArchInit/remote_database', self.sync_remote_database.text())
         s.setValue('pyArchInit/remote_user', self.sync_remote_user.text())
         s.setValue('pyArchInit/remote_password', self.sync_remote_password.text())
 
+        # Save remote SQLite path
+        if hasattr(self, 'sync_remote_sqlite_path'):
+            s.setValue('pyArchInit/remote_sqlite_path', self.sync_remote_sqlite_path.text())
+
+        # Build info message based on db types
+        if local_db_type == 'postgres':
+            local_info = f"{self.sync_local_host.text()}:{self.sync_local_port.value()}/{self.sync_local_database.text()}"
+        else:
+            local_info = self.sync_local_sqlite_path.text() if hasattr(self, 'sync_local_sqlite_path') else 'N/A'
+
+        if remote_db_type == 'postgres':
+            remote_info = f"{self.sync_remote_host.text()}:{self.sync_remote_port.value()}/{self.sync_remote_database.text()}"
+        else:
+            remote_info = self.sync_remote_sqlite_path.text() if hasattr(self, 'sync_remote_sqlite_path') else 'N/A'
+
         QMessageBox.information(
             self,
-            "Configurazione Salvata",
-            "✅ Configurazione sincronizzazione salvata!\n\n"
-            f"Database Locale: {self.sync_local_host.text()}:{self.sync_local_port.value()}/{self.sync_local_database.text()}\n"
-            f"Database Supabase: {self.sync_remote_host.text()}:{self.sync_remote_port.value()}/{self.sync_remote_database.text()}"
+            self.tr("Configuration Saved"),
+            self.tr("Configuration saved successfully!\n\n"
+                    f"Local ({local_db_type.upper()}): {local_info}\n"
+                    f"Remote ({remote_db_type.upper()}): {remote_info}")
         )
 
     def _load_all_sync_credentials(self):
         """Load both local and remote sync credentials"""
         s = QgsSettings()
 
-        # Load local credentials
+        # Load local database type
+        if hasattr(self, 'sync_local_db_type'):
+            local_db_type = s.value('pyArchInit/local_db_type', 'postgres')
+            idx = self.sync_local_db_type.findData(local_db_type)
+            if idx >= 0:
+                self.sync_local_db_type.setCurrentIndex(idx)
+            # Trigger visibility update
+            self._on_local_db_type_changed(idx)
+
+        # Load local PostgreSQL credentials
         if hasattr(self, 'sync_local_host'):
             self.sync_local_host.setText(s.value('pyArchInit/local_host', 'localhost'))
         if hasattr(self, 'sync_local_port'):
@@ -1381,7 +1557,20 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         if hasattr(self, 'sync_local_password'):
             self.sync_local_password.setText(s.value('pyArchInit/local_password', ''))
 
-        # Load remote credentials
+        # Load local SQLite path
+        if hasattr(self, 'sync_local_sqlite_path'):
+            self.sync_local_sqlite_path.setText(s.value('pyArchInit/local_sqlite_path', ''))
+
+        # Load remote database type
+        if hasattr(self, 'sync_remote_db_type'):
+            remote_db_type = s.value('pyArchInit/remote_db_type', 'postgres')
+            idx = self.sync_remote_db_type.findData(remote_db_type)
+            if idx >= 0:
+                self.sync_remote_db_type.setCurrentIndex(idx)
+            # Trigger visibility update
+            self._on_remote_db_type_changed(idx)
+
+        # Load remote PostgreSQL credentials
         if hasattr(self, 'sync_remote_host'):
             self.sync_remote_host.setText(s.value('pyArchInit/remote_host', ''))
         if hasattr(self, 'sync_remote_port'):
@@ -1392,6 +1581,10 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             self.sync_remote_user.setText(s.value('pyArchInit/remote_user', ''))
         if hasattr(self, 'sync_remote_password'):
             self.sync_remote_password.setText(s.value('pyArchInit/remote_password', ''))
+
+        # Load remote SQLite path
+        if hasattr(self, 'sync_remote_sqlite_path'):
+            self.sync_remote_sqlite_path.setText(s.value('pyArchInit/remote_sqlite_path', ''))
 
     # ============================================================
     # CONNECTION PROFILES MANAGEMENT
@@ -1445,7 +1638,16 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             if profile_name in profiles:
                 profile = profiles[profile_name]
 
-                # Load local settings
+                # Load local database type
+                if hasattr(self, 'sync_local_db_type'):
+                    local_db_type = profile.get('local_db_type', 'postgres')
+                    idx = self.sync_local_db_type.findData(local_db_type)
+                    if idx >= 0:
+                        self.sync_local_db_type.setCurrentIndex(idx)
+                    # Trigger visibility update
+                    self._on_local_db_type_changed(idx)
+
+                # Load local PostgreSQL settings
                 if hasattr(self, 'sync_local_host'):
                     self.sync_local_host.setText(profile.get('local_host', 'localhost'))
                 if hasattr(self, 'sync_local_port'):
@@ -1457,7 +1659,20 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 if hasattr(self, 'sync_local_password'):
                     self.sync_local_password.setText(profile.get('local_password', ''))
 
-                # Load remote settings
+                # Load local SQLite path
+                if hasattr(self, 'sync_local_sqlite_path'):
+                    self.sync_local_sqlite_path.setText(profile.get('local_sqlite_path', ''))
+
+                # Load remote database type
+                if hasattr(self, 'sync_remote_db_type'):
+                    remote_db_type = profile.get('remote_db_type', 'postgres')
+                    idx = self.sync_remote_db_type.findData(remote_db_type)
+                    if idx >= 0:
+                        self.sync_remote_db_type.setCurrentIndex(idx)
+                    # Trigger visibility update
+                    self._on_remote_db_type_changed(idx)
+
+                # Load remote PostgreSQL settings
                 if hasattr(self, 'sync_remote_host'):
                     self.sync_remote_host.setText(profile.get('remote_host', ''))
                 if hasattr(self, 'sync_remote_port'):
@@ -1468,6 +1683,10 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                     self.sync_remote_user.setText(profile.get('remote_user', ''))
                 if hasattr(self, 'sync_remote_password'):
                     self.sync_remote_password.setText(profile.get('remote_password', ''))
+
+                # Load remote SQLite path
+                if hasattr(self, 'sync_remote_sqlite_path'):
+                    self.sync_remote_sqlite_path.setText(profile.get('remote_sqlite_path', ''))
 
                 QMessageBox.information(
                     self,
@@ -1503,16 +1722,22 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
 
         # Create profile data
         profile = {
+            # Local settings
+            'local_db_type': self.sync_local_db_type.currentData() if hasattr(self, 'sync_local_db_type') else 'postgres',
             'local_host': self.sync_local_host.text() if hasattr(self, 'sync_local_host') else 'localhost',
             'local_port': self.sync_local_port.value() if hasattr(self, 'sync_local_port') else 5432,
             'local_database': self.sync_local_database.text() if hasattr(self, 'sync_local_database') else '',
             'local_user': self.sync_local_user.text() if hasattr(self, 'sync_local_user') else 'postgres',
             'local_password': self.sync_local_password.text() if hasattr(self, 'sync_local_password') else '',
+            'local_sqlite_path': self.sync_local_sqlite_path.text() if hasattr(self, 'sync_local_sqlite_path') else '',
+            # Remote settings
+            'remote_db_type': self.sync_remote_db_type.currentData() if hasattr(self, 'sync_remote_db_type') else 'postgres',
             'remote_host': self.sync_remote_host.text() if hasattr(self, 'sync_remote_host') else '',
             'remote_port': self.sync_remote_port.value() if hasattr(self, 'sync_remote_port') else 5432,
             'remote_database': self.sync_remote_database.text() if hasattr(self, 'sync_remote_database') else 'postgres',
             'remote_user': self.sync_remote_user.text() if hasattr(self, 'sync_remote_user') else '',
             'remote_password': self.sync_remote_password.text() if hasattr(self, 'sync_remote_password') else '',
+            'remote_sqlite_path': self.sync_remote_sqlite_path.text() if hasattr(self, 'sync_remote_sqlite_path') else '',
         }
 
         # Load existing profiles
@@ -4585,23 +4810,45 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         # Get sync configuration
         local_config, remote_config = self._get_sync_configs()
 
-        if not remote_config.get('host'):
-            QMessageBox.warning(
-                self,
-                self.tr("Missing Configuration"),
-                self.tr("Remote database not configured.\n\n"
-                        "Please configure the remote connection in the settings.")
-            )
-            return
+        # Validate remote config based on db_type
+        if remote_config.get('db_type') == 'postgres':
+            if not remote_config.get('host'):
+                QMessageBox.warning(
+                    self,
+                    self.tr("Missing Configuration"),
+                    self.tr("Remote database not configured.\n\n"
+                            "Please configure the remote connection in the settings.")
+                )
+                return
+        else:  # sqlite
+            if not remote_config.get('db_path'):
+                QMessageBox.warning(
+                    self,
+                    self.tr("Missing Configuration"),
+                    self.tr("Remote SQLite path not configured.\n\n"
+                            "Please select a SQLite database file.")
+                )
+                return
 
-        if not local_config.get('database'):
-            QMessageBox.warning(
-                self,
-                self.tr("Missing Configuration"),
-                self.tr("Local database not configured.\n\n"
-                        "Please select a local database before proceeding.")
-            )
-            return
+        # Validate local config based on db_type
+        if local_config.get('db_type') == 'postgres':
+            if not local_config.get('database'):
+                QMessageBox.warning(
+                    self,
+                    self.tr("Missing Configuration"),
+                    self.tr("Local database not configured.\n\n"
+                            "Please select a local database before proceeding.")
+                )
+                return
+        else:  # sqlite
+            if not local_config.get('db_path'):
+                QMessageBox.warning(
+                    self,
+                    self.tr("Missing Configuration"),
+                    self.tr("Local SQLite path not configured.\n\n"
+                            "Please select a SQLite database file.")
+                )
+                return
 
         # Configure and start sync
         self.sync_manager.configure(local_config, remote_config)
@@ -4632,23 +4879,45 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         # Get sync configuration
         local_config, remote_config = self._get_sync_configs()
 
-        if not remote_config.get('host'):
-            QMessageBox.warning(
-                self,
-                self.tr("Missing Configuration"),
-                self.tr("Remote database not configured.\n\n"
-                        "Please configure the remote connection in the settings.")
-            )
-            return
+        # Validate remote config based on db_type
+        if remote_config.get('db_type') == 'postgres':
+            if not remote_config.get('host'):
+                QMessageBox.warning(
+                    self,
+                    self.tr("Missing Configuration"),
+                    self.tr("Remote database not configured.\n\n"
+                            "Please configure the remote connection in the settings.")
+                )
+                return
+        else:  # sqlite
+            if not remote_config.get('db_path'):
+                QMessageBox.warning(
+                    self,
+                    self.tr("Missing Configuration"),
+                    self.tr("Remote SQLite path not configured.\n\n"
+                            "Please select a SQLite database file.")
+                )
+                return
 
-        if not local_config.get('database'):
-            QMessageBox.warning(
-                self,
-                self.tr("Missing Configuration"),
-                self.tr("Local database not configured.\n\n"
-                        "Please select a local database before proceeding.")
-            )
-            return
+        # Validate local config based on db_type
+        if local_config.get('db_type') == 'postgres':
+            if not local_config.get('database'):
+                QMessageBox.warning(
+                    self,
+                    self.tr("Missing Configuration"),
+                    self.tr("Local database not configured.\n\n"
+                            "Please select a local database before proceeding.")
+                )
+                return
+        else:  # sqlite
+            if not local_config.get('db_path'):
+                QMessageBox.warning(
+                    self,
+                    self.tr("Missing Configuration"),
+                    self.tr("Local SQLite path not configured.\n\n"
+                            "Please select a SQLite database file.")
+                )
+                return
 
         # Configure and start sync
         self.sync_manager.configure(local_config, remote_config)
@@ -4660,51 +4929,79 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
 
         # Local configuration - from Supabase Sync tab fields
         local_config = {
+            'db_type': 'postgres',
             'host': 'localhost',
             'port': 5432,
             'database': '',
             'user': 'postgres',
-            'password': ''
+            'password': '',
+            'db_path': ''
         }
 
-        # Get from Supabase Sync tab UI fields
-        if hasattr(self, 'sync_local_host') and self.sync_local_host.text().strip():
-            local_config['host'] = self.sync_local_host.text().strip()
-            local_config['port'] = self.sync_local_port.value() if hasattr(self, 'sync_local_port') else 5432
-            local_config['database'] = self.sync_local_database.text().strip() if hasattr(self, 'sync_local_database') else ''
-            local_config['user'] = self.sync_local_user.text().strip() if hasattr(self, 'sync_local_user') else 'postgres'
-            local_config['password'] = self.sync_local_password.text() if hasattr(self, 'sync_local_password') else ''
+        # Get database type from UI
+        if hasattr(self, 'sync_local_db_type'):
+            local_config['db_type'] = self.sync_local_db_type.currentData() or 'postgres'
         else:
-            # Fall back to saved settings
-            local_config['host'] = s.value('pyArchInit/local_host', 'localhost')
-            local_config['port'] = int(s.value('pyArchInit/local_port', 5432))
-            local_config['database'] = s.value('pyArchInit/local_database', '')
-            local_config['user'] = s.value('pyArchInit/local_user', 'postgres')
-            local_config['password'] = s.value('pyArchInit/local_password', '')
+            local_config['db_type'] = s.value('pyArchInit/local_db_type', 'postgres')
 
-        # Remote configuration (Supabase) - from Supabase Sync tab fields
+        # Get from Supabase Sync tab UI fields
+        if local_config['db_type'] == 'postgres':
+            if hasattr(self, 'sync_local_host') and self.sync_local_host.text().strip():
+                local_config['host'] = self.sync_local_host.text().strip()
+                local_config['port'] = self.sync_local_port.value() if hasattr(self, 'sync_local_port') else 5432
+                local_config['database'] = self.sync_local_database.text().strip() if hasattr(self, 'sync_local_database') else ''
+                local_config['user'] = self.sync_local_user.text().strip() if hasattr(self, 'sync_local_user') else 'postgres'
+                local_config['password'] = self.sync_local_password.text() if hasattr(self, 'sync_local_password') else ''
+            else:
+                # Fall back to saved settings
+                local_config['host'] = s.value('pyArchInit/local_host', 'localhost')
+                local_config['port'] = int(s.value('pyArchInit/local_port', 5432))
+                local_config['database'] = s.value('pyArchInit/local_database', '')
+                local_config['user'] = s.value('pyArchInit/local_user', 'postgres')
+                local_config['password'] = s.value('pyArchInit/local_password', '')
+        else:  # sqlite
+            if hasattr(self, 'sync_local_sqlite_path') and self.sync_local_sqlite_path.text().strip():
+                local_config['db_path'] = self.sync_local_sqlite_path.text().strip()
+            else:
+                local_config['db_path'] = s.value('pyArchInit/local_sqlite_path', '')
+
+        # Remote configuration - from Supabase Sync tab fields
         remote_config = {
+            'db_type': 'postgres',
             'host': '',
             'port': 5432,
             'database': 'postgres',
             'user': '',
-            'password': ''
+            'password': '',
+            'db_path': ''
         }
 
-        # Get from Supabase Sync tab UI fields
-        if hasattr(self, 'sync_remote_host') and self.sync_remote_host.text().strip():
-            remote_config['host'] = self.sync_remote_host.text().strip()
-            remote_config['port'] = self.sync_remote_port.value() if hasattr(self, 'sync_remote_port') else 5432
-            remote_config['database'] = self.sync_remote_database.text().strip() if hasattr(self, 'sync_remote_database') else 'postgres'
-            remote_config['user'] = self.sync_remote_user.text().strip() if hasattr(self, 'sync_remote_user') else ''
-            remote_config['password'] = self.sync_remote_password.text() if hasattr(self, 'sync_remote_password') else ''
+        # Get database type from UI
+        if hasattr(self, 'sync_remote_db_type'):
+            remote_config['db_type'] = self.sync_remote_db_type.currentData() or 'postgres'
         else:
-            # Fall back to saved settings
-            remote_config['host'] = s.value('pyArchInit/remote_host', '')
-            remote_config['port'] = int(s.value('pyArchInit/remote_port', 5432))
-            remote_config['database'] = s.value('pyArchInit/remote_database', 'postgres')
-            remote_config['user'] = s.value('pyArchInit/remote_user', '')
-            remote_config['password'] = s.value('pyArchInit/remote_password', '')
+            remote_config['db_type'] = s.value('pyArchInit/remote_db_type', 'postgres')
+
+        # Get from Supabase Sync tab UI fields
+        if remote_config['db_type'] == 'postgres':
+            if hasattr(self, 'sync_remote_host') and self.sync_remote_host.text().strip():
+                remote_config['host'] = self.sync_remote_host.text().strip()
+                remote_config['port'] = self.sync_remote_port.value() if hasattr(self, 'sync_remote_port') else 5432
+                remote_config['database'] = self.sync_remote_database.text().strip() if hasattr(self, 'sync_remote_database') else 'postgres'
+                remote_config['user'] = self.sync_remote_user.text().strip() if hasattr(self, 'sync_remote_user') else ''
+                remote_config['password'] = self.sync_remote_password.text() if hasattr(self, 'sync_remote_password') else ''
+            else:
+                # Fall back to saved settings
+                remote_config['host'] = s.value('pyArchInit/remote_host', '')
+                remote_config['port'] = int(s.value('pyArchInit/remote_port', 5432))
+                remote_config['database'] = s.value('pyArchInit/remote_database', 'postgres')
+                remote_config['user'] = s.value('pyArchInit/remote_user', '')
+                remote_config['password'] = s.value('pyArchInit/remote_password', '')
+        else:  # sqlite
+            if hasattr(self, 'sync_remote_sqlite_path') and self.sync_remote_sqlite_path.text().strip():
+                remote_config['db_path'] = self.sync_remote_sqlite_path.text().strip()
+            else:
+                remote_config['db_path'] = s.value('pyArchInit/remote_sqlite_path', '')
 
         return local_config, remote_config
 

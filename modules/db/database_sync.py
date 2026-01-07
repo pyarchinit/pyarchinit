@@ -1,10 +1,11 @@
 """
-Database Sync Manager - Sincronizzazione tra database PostgreSQL locale e remoto
+Database Sync Manager - Sincronizzazione tra database PostgreSQL e/o SQLite
 
-Questo modulo permette di:
-- Lavorare in locale con PostgreSQL (veloce)
-- Sincronizzare periodicamente con un server remoto (backup/condivisione)
-- Supporta qualsiasi server PostgreSQL (Supabase, server proprio, cloud, ecc.)
+Questo modulo permette di sincronizzare dati tra:
+- PostgreSQL ↔ PostgreSQL
+- SQLite ↔ SQLite
+- PostgreSQL → SQLite
+- SQLite → PostgreSQL
 
 Utilizzo:
     sync = DatabaseSyncManager(local_conn, remote_conn)
@@ -22,9 +23,13 @@ Utilizzo:
 import os
 import subprocess
 import json
+import sqlite3
+import csv
+import io
 from datetime import datetime
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple, Any
 from dataclasses import dataclass, field
+from abc import ABC, abstractmethod
 
 from qgis.PyQt.QtCore import QObject, pyqtSignal, QThread, QCoreApplication
 from qgis.PyQt.QtWidgets import QProgressDialog, QMessageBox, QApplication
@@ -87,16 +92,14 @@ MEDIA_TABLES = [
     'media_to_us_table',
 ]
 
-# Geometric tables (PostGIS) - only actual tables, not views
-# Views are auto-generated from data and don't need to be synced
+# Geometric tables (PostGIS/Sketlite) - only actual tables, not views
 GEOMETRIC_TABLES = [
     'pyarchinit_siti',
     'pyarchinit_siti_polygonal',
     'pyarchinit_strutture_ipotesi',
 ]
 
-# Views are NOT synced - they are generated from the underlying tables
-# These are listed here for reference only
+# Views are NOT synced
 GEOMETRIC_VIEWS = [
     'pyarchinit_us_view',
     'pyarchinit_usm_view',
@@ -134,17 +137,23 @@ class TableDiff:
 @dataclass
 class SyncConfig:
     """Configuration for synchronization"""
+    # Local database settings
+    local_db_type: str = "postgres"  # "postgres" or "sqlite"
     local_host: str = "localhost"
     local_port: int = 5432
     local_database: str = ""
     local_user: str = "postgres"
     local_password: str = ""
+    local_db_path: str = ""  # For SQLite
 
+    # Remote database settings
+    remote_db_type: str = "postgres"  # "postgres" or "sqlite"
     remote_host: str = ""
     remote_port: int = 5432
     remote_database: str = "postgres"
     remote_user: str = ""
     remote_password: str = ""
+    remote_db_path: str = ""  # For SQLite
 
     # Tables to sync (default: all)
     tables_to_sync: List[str] = field(default_factory=lambda: ALL_TABLES.copy())
@@ -154,6 +163,426 @@ class SyncConfig:
     sync_thesaurus: bool = True
     sync_media: bool = True
 
+
+# ============================================================
+# DATABASE ADAPTERS
+# ============================================================
+
+class DatabaseAdapter(ABC):
+    """Abstract base class for database operations"""
+
+    @abstractmethod
+    def get_table_count(self, table: str) -> int:
+        pass
+
+    @abstractmethod
+    def get_primary_key(self, table: str) -> str:
+        pass
+
+    @abstractmethod
+    def get_record_ids(self, table: str, pk: str) -> List[str]:
+        pass
+
+    @abstractmethod
+    def get_table_columns(self, table: str) -> List[str]:
+        pass
+
+    @abstractmethod
+    def is_view(self, table: str) -> bool:
+        pass
+
+    @abstractmethod
+    def table_exists(self, table: str) -> bool:
+        pass
+
+    @abstractmethod
+    def export_records(self, table: str, columns: List[str], pk: str, ids: List[str]) -> List[List[Any]]:
+        pass
+
+    @abstractmethod
+    def import_records(self, table: str, columns: List[str], records: List[List[Any]]) -> int:
+        pass
+
+    @abstractmethod
+    def truncate_table(self, table: str) -> bool:
+        pass
+
+    @abstractmethod
+    def disable_triggers(self, table: str) -> bool:
+        pass
+
+    @abstractmethod
+    def enable_triggers(self, table: str) -> bool:
+        pass
+
+
+class PostgreSQLAdapter(DatabaseAdapter):
+    """PostgreSQL database adapter"""
+
+    def __init__(self, host: str, port: int, database: str, user: str, password: str):
+        self.host = host
+        self.port = port
+        self.database = database
+        self.user = user
+        self.password = password
+        self.env = os.environ.copy()
+        self.env['PGPASSWORD'] = password
+        self.psql = self._get_psql_path()
+
+    def _get_psql_path(self) -> str:
+        """Find psql executable"""
+        possible_paths = [
+            "/Library/PostgreSQL/17/bin/psql",
+            "/Library/PostgreSQL/16/bin/psql",
+            "/Library/PostgreSQL/15/bin/psql",
+            "/usr/local/bin/psql",
+            "/usr/bin/psql",
+            "psql"
+        ]
+        for path in possible_paths:
+            if os.path.exists(path) or path == "psql":
+                return path
+        return "psql"
+
+    def _run_query(self, query: str, timeout: int = 30) -> Tuple[bool, str]:
+        """Run a SQL query and return success status and output"""
+        cmd = [
+            self.psql, "-h", self.host, "-p", str(self.port),
+            "-U", self.user, "-d", self.database,
+            "-t", "-A", "-c", query
+        ]
+        try:
+            result = subprocess.run(cmd, capture_output=True, text=True, env=self.env, timeout=timeout)
+            return result.returncode == 0, result.stdout.strip()
+        except Exception as e:
+            return False, str(e)
+
+    def get_table_count(self, table: str) -> int:
+        success, output = self._run_query(f"SELECT COUNT(*) FROM {table};")
+        if success and output:
+            try:
+                return int(output)
+            except:
+                pass
+        return -1
+
+    def get_primary_key(self, table: str) -> str:
+        query = f"""
+            SELECT a.attname FROM pg_index i
+            JOIN pg_attribute a ON a.attrelid = i.indrelid AND a.attnum = ANY(i.indkey)
+            WHERE i.indrelid = '{table}'::regclass AND i.indisprimary;
+        """
+        success, output = self._run_query(query)
+        if success and output:
+            return output.split('\n')[0]
+        return ''
+
+    def get_record_ids(self, table: str, pk: str) -> List[str]:
+        success, output = self._run_query(f"SELECT {pk} FROM {table} ORDER BY {pk};", timeout=60)
+        if success and output:
+            return [x.strip() for x in output.split('\n') if x.strip()]
+        return []
+
+    def get_table_columns(self, table: str) -> List[str]:
+        query = f"""
+            SELECT column_name FROM information_schema.columns
+            WHERE table_name = '{table}' AND table_schema = 'public'
+            ORDER BY ordinal_position;
+        """
+        success, output = self._run_query(query)
+        if success and output:
+            return [x.strip() for x in output.split('\n') if x.strip()]
+        return []
+
+    def is_view(self, table: str) -> bool:
+        query = f"SELECT table_type FROM information_schema.tables WHERE table_name = '{table}' AND table_schema = 'public';"
+        success, output = self._run_query(query)
+        if success:
+            return 'VIEW' in output.upper()
+        return False
+
+    def table_exists(self, table: str) -> bool:
+        query = f"SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = '{table}' AND table_schema = 'public');"
+        success, output = self._run_query(query)
+        if success:
+            return output.lower() == 't'
+        return False
+
+    def export_records(self, table: str, columns: List[str], pk: str, ids: List[str]) -> List[List[Any]]:
+        """Export records as list of rows"""
+        if not ids:
+            return []
+
+        records = []
+        batch_size = 100
+
+        for batch_start in range(0, len(ids), batch_size):
+            batch_ids = ids[batch_start:batch_start + batch_size]
+            ids_str = ','.join(str(i) for i in batch_ids)
+            columns_str = ', '.join(columns)
+
+            query = f"COPY (SELECT {columns_str} FROM {table} WHERE {pk} IN ({ids_str})) TO STDOUT WITH (FORMAT csv, HEADER false, NULL '')"
+
+            cmd = [
+                self.psql, "-h", self.host, "-p", str(self.port),
+                "-U", self.user, "-d", self.database,
+                "-c", query
+            ]
+
+            try:
+                result = subprocess.run(cmd, capture_output=True, text=True, env=self.env, timeout=300)
+                if result.returncode == 0 and result.stdout.strip():
+                    reader = csv.reader(io.StringIO(result.stdout))
+                    for row in reader:
+                        records.append(row)
+            except Exception as e:
+                print(f"Export error for {table}: {e}")
+
+        return records
+
+    def import_records(self, table: str, columns: List[str], records: List[List[Any]]) -> int:
+        """Import records into table"""
+        if not records:
+            return 0
+
+        columns_str = ', '.join(columns)
+        imported = 0
+
+        # Write records to CSV string
+        output = io.StringIO()
+        writer = csv.writer(output)
+        writer.writerows(records)
+        csv_data = output.getvalue()
+
+        query = f"COPY {table} ({columns_str}) FROM STDIN WITH (FORMAT csv, HEADER false, NULL '')"
+
+        cmd = [
+            self.psql, "-h", self.host, "-p", str(self.port),
+            "-U", self.user, "-d", self.database,
+            "-c", query
+        ]
+
+        try:
+            result = subprocess.run(cmd, input=csv_data, capture_output=True, text=True, env=self.env, timeout=600)
+            if result.returncode == 0:
+                imported = len(records)
+        except Exception as e:
+            print(f"Import error for {table}: {e}")
+
+        return imported
+
+    def truncate_table(self, table: str) -> bool:
+        cmd = [
+            self.psql, "-h", self.host, "-p", str(self.port),
+            "-U", self.user, "-d", self.database,
+            "-c", f"TRUNCATE {table} CASCADE;"
+        ]
+        try:
+            result = subprocess.run(cmd, capture_output=True, env=self.env, timeout=60)
+            return result.returncode == 0
+        except:
+            return False
+
+    def disable_triggers(self, table: str) -> bool:
+        success, _ = self._run_query(f"ALTER TABLE {table} DISABLE TRIGGER ALL;")
+        return success
+
+    def enable_triggers(self, table: str) -> bool:
+        success, _ = self._run_query(f"ALTER TABLE {table} ENABLE TRIGGER ALL;")
+        return success
+
+
+class SQLiteAdapter(DatabaseAdapter):
+    """SQLite database adapter"""
+
+    def __init__(self, db_path: str):
+        self.db_path = db_path
+        if not os.path.exists(db_path):
+            raise FileNotFoundError(f"SQLite database not found: {db_path}")
+
+    def _get_connection(self) -> sqlite3.Connection:
+        """Get a new database connection"""
+        conn = sqlite3.connect(self.db_path)
+        conn.row_factory = sqlite3.Row
+        # Enable loading extensions for spatialite
+        conn.enable_load_extension(True)
+        try:
+            conn.execute("SELECT load_extension('mod_spatialite')")
+        except:
+            try:
+                conn.execute("SELECT load_extension('libspatialite')")
+            except:
+                pass  # Spatialite not available
+        return conn
+
+    def get_table_count(self, table: str) -> int:
+        try:
+            conn = self._get_connection()
+            cursor = conn.execute(f"SELECT COUNT(*) FROM {table}")
+            count = cursor.fetchone()[0]
+            conn.close()
+            return count
+        except Exception as e:
+            print(f"Count error for {table}: {e}")
+            return -1
+
+    def get_primary_key(self, table: str) -> str:
+        try:
+            conn = self._get_connection()
+            cursor = conn.execute(f"PRAGMA table_info({table})")
+            for row in cursor:
+                if row['pk'] == 1:
+                    conn.close()
+                    return row['name']
+            conn.close()
+        except Exception as e:
+            print(f"PK error for {table}: {e}")
+        return ''
+
+    def get_record_ids(self, table: str, pk: str) -> List[str]:
+        try:
+            conn = self._get_connection()
+            cursor = conn.execute(f"SELECT {pk} FROM {table} ORDER BY {pk}")
+            ids = [str(row[0]) for row in cursor]
+            conn.close()
+            return ids
+        except Exception as e:
+            print(f"Get IDs error for {table}: {e}")
+            return []
+
+    def get_table_columns(self, table: str) -> List[str]:
+        try:
+            conn = self._get_connection()
+            cursor = conn.execute(f"PRAGMA table_info({table})")
+            columns = [row['name'] for row in cursor]
+            conn.close()
+            return columns
+        except Exception as e:
+            print(f"Get columns error for {table}: {e}")
+            return []
+
+    def is_view(self, table: str) -> bool:
+        try:
+            conn = self._get_connection()
+            cursor = conn.execute(
+                "SELECT type FROM sqlite_master WHERE name = ? AND type = 'view'",
+                (table,)
+            )
+            result = cursor.fetchone() is not None
+            conn.close()
+            return result
+        except:
+            return False
+
+    def table_exists(self, table: str) -> bool:
+        try:
+            conn = self._get_connection()
+            cursor = conn.execute(
+                "SELECT name FROM sqlite_master WHERE type='table' AND name = ?",
+                (table,)
+            )
+            result = cursor.fetchone() is not None
+            conn.close()
+            return result
+        except:
+            return False
+
+    def export_records(self, table: str, columns: List[str], pk: str, ids: List[str]) -> List[List[Any]]:
+        """Export records as list of rows"""
+        if not ids:
+            return []
+
+        records = []
+        try:
+            conn = self._get_connection()
+            columns_str = ', '.join(columns)
+
+            # Process in batches
+            batch_size = 100
+            for batch_start in range(0, len(ids), batch_size):
+                batch_ids = ids[batch_start:batch_start + batch_size]
+                placeholders = ','.join('?' * len(batch_ids))
+                query = f"SELECT {columns_str} FROM {table} WHERE {pk} IN ({placeholders})"
+                cursor = conn.execute(query, batch_ids)
+                for row in cursor:
+                    records.append(list(row))
+
+            conn.close()
+        except Exception as e:
+            print(f"Export error for {table}: {e}")
+
+        return records
+
+    def import_records(self, table: str, columns: List[str], records: List[List[Any]]) -> int:
+        """Import records into table"""
+        if not records:
+            return 0
+
+        imported = 0
+        try:
+            conn = self._get_connection()
+            columns_str = ', '.join(columns)
+            placeholders = ', '.join('?' * len(columns))
+            query = f"INSERT OR REPLACE INTO {table} ({columns_str}) VALUES ({placeholders})"
+
+            for record in records:
+                try:
+                    conn.execute(query, record)
+                    imported += 1
+                except Exception as e:
+                    print(f"Insert error for {table}: {e}")
+
+            conn.commit()
+            conn.close()
+        except Exception as e:
+            print(f"Import error for {table}: {e}")
+
+        return imported
+
+    def truncate_table(self, table: str) -> bool:
+        try:
+            conn = self._get_connection()
+            conn.execute(f"DELETE FROM {table}")
+            conn.commit()
+            conn.close()
+            return True
+        except Exception as e:
+            print(f"Truncate error for {table}: {e}")
+            return False
+
+    def disable_triggers(self, table: str) -> bool:
+        # SQLite triggers are always enabled, but we can use PRAGMA
+        return True
+
+    def enable_triggers(self, table: str) -> bool:
+        return True
+
+
+def create_adapter(config: SyncConfig, is_local: bool) -> DatabaseAdapter:
+    """Factory function to create the appropriate database adapter"""
+    if is_local:
+        db_type = config.local_db_type
+        if db_type == "sqlite":
+            return SQLiteAdapter(config.local_db_path)
+        else:
+            return PostgreSQLAdapter(
+                config.local_host, config.local_port,
+                config.local_database, config.local_user, config.local_password
+            )
+    else:
+        db_type = config.remote_db_type
+        if db_type == "sqlite":
+            return SQLiteAdapter(config.remote_db_path)
+        else:
+            return PostgreSQLAdapter(
+                config.remote_host, config.remote_port,
+                config.remote_database, config.remote_user, config.remote_password
+            )
+
+
+# ============================================================
+# SYNC ANALYZER
+# ============================================================
 
 class SyncAnalyzer(QThread):
     """Thread to analyze differences between databases"""
@@ -172,17 +601,16 @@ class SyncAnalyzer(QThread):
     def run(self):
         try:
             differences = []
-            cfg = self.config
-            tables = cfg.tables_to_sync
+            tables = self.config.tables_to_sync
             total = len(tables)
 
-            psql = self._get_psql_path()
-
-            local_env = os.environ.copy()
-            local_env['PGPASSWORD'] = cfg.local_password
-
-            remote_env = os.environ.copy()
-            remote_env['PGPASSWORD'] = cfg.remote_password
+            # Create adapters
+            try:
+                local_adapter = create_adapter(self.config, is_local=True)
+                remote_adapter = create_adapter(self.config, is_local=False)
+            except Exception as e:
+                self.error.emit(f"Connection error: {str(e)}")
+                return
 
             for idx, table in enumerate(tables):
                 if self._cancelled:
@@ -194,47 +622,26 @@ class SyncAnalyzer(QThread):
                 diff = TableDiff(table_name=table)
 
                 try:
-                    # Count local records
-                    local_count = self._get_table_count(
-                        psql, cfg.local_host, cfg.local_port,
-                        cfg.local_user, cfg.local_database,
-                        table, local_env
-                    )
-                    diff.local_count = local_count
+                    # Skip views
+                    if local_adapter.is_view(table) or remote_adapter.is_view(table):
+                        continue
 
-                    # Count remote records
-                    remote_count = self._get_table_count(
-                        psql, cfg.remote_host, cfg.remote_port,
-                        cfg.remote_user, cfg.remote_database,
-                        table, remote_env
-                    )
-                    diff.remote_count = remote_count
+                    # Count records
+                    diff.local_count = local_adapter.get_table_count(table)
+                    diff.remote_count = remote_adapter.get_table_count(table)
 
-                    # Get primary key for comparison
-                    pk = self._get_primary_key(
-                        psql, cfg.local_host, cfg.local_port,
-                        cfg.local_user, cfg.local_database,
-                        table, local_env
-                    )
+                    # Get primary key
+                    pk = local_adapter.get_primary_key(table)
+                    if not pk:
+                        pk = remote_adapter.get_primary_key(table)
 
                     if pk:
                         # Get IDs from both databases
-                        local_ids = self._get_record_ids(
-                            psql, cfg.local_host, cfg.local_port,
-                            cfg.local_user, cfg.local_database,
-                            table, pk, local_env
-                        )
-                        remote_ids = self._get_record_ids(
-                            psql, cfg.remote_host, cfg.remote_port,
-                            cfg.remote_user, cfg.remote_database,
-                            table, pk, remote_env
-                        )
+                        local_ids = set(local_adapter.get_record_ids(table, pk))
+                        remote_ids = set(remote_adapter.get_record_ids(table, pk))
 
-                        local_set = set(local_ids)
-                        remote_set = set(remote_ids)
-
-                        diff.added_local = len(local_set - remote_set)
-                        diff.added_remote = len(remote_set - local_set)
+                        diff.added_local = len(local_ids - remote_ids)
+                        diff.added_remote = len(remote_ids - local_ids)
 
                 except Exception as e:
                     diff.error = str(e)[:100]
@@ -247,71 +654,10 @@ class SyncAnalyzer(QThread):
         except Exception as e:
             self.error.emit(str(e))
 
-    def _get_psql_path(self) -> str:
-        """Find psql executable"""
-        possible_paths = [
-            "/Library/PostgreSQL/17/bin/psql",
-            "/Library/PostgreSQL/16/bin/psql",
-            "/Library/PostgreSQL/15/bin/psql",
-            "/usr/local/bin/psql",
-            "/usr/bin/psql",
-            "psql"
-        ]
-        for path in possible_paths:
-            if os.path.exists(path) or path == "psql":
-                return path
-        return "psql"
 
-    def _get_table_count(self, psql, host, port, user, database, table, env) -> int:
-        """Get record count for a table"""
-        cmd = [
-            psql, "-h", host, "-p", str(port), "-U", user, "-d", database,
-            "-t", "-A", "-c", f"SELECT COUNT(*) FROM {table};"
-        ]
-        try:
-            result = subprocess.run(cmd, capture_output=True, text=True, env=env, timeout=30)
-            if result.returncode == 0:
-                return int(result.stdout.strip())
-        except:
-            pass
-        return -1
-
-    def _get_primary_key(self, psql, host, port, user, database, table, env) -> str:
-        """Get primary key column name"""
-        query = f"""
-            SELECT a.attname FROM pg_index i
-            JOIN pg_attribute a ON a.attrelid = i.indrelid AND a.attnum = ANY(i.indkey)
-            WHERE i.indrelid = '{table}'::regclass AND i.indisprimary;
-        """
-        cmd = [
-            psql, "-h", host, "-p", str(port), "-U", user, "-d", database,
-            "-t", "-A", "-c", query
-        ]
-        try:
-            result = subprocess.run(cmd, capture_output=True, text=True, env=env, timeout=30)
-            if result.returncode == 0 and result.stdout.strip():
-                return result.stdout.strip().split('\n')[0]
-        except:
-            pass
-        # Common fallbacks
-        if 'id_' in table or table.endswith('_table'):
-            return 'id_' + table.replace('_table', '').replace('pyarchinit_', '')
-        return 'gid' if table.startswith('pyarchinit_') else ''
-
-    def _get_record_ids(self, psql, host, port, user, database, table, pk, env) -> List[str]:
-        """Get all record IDs from a table"""
-        cmd = [
-            psql, "-h", host, "-p", str(port), "-U", user, "-d", database,
-            "-t", "-A", "-c", f"SELECT {pk} FROM {table} ORDER BY {pk};"
-        ]
-        try:
-            result = subprocess.run(cmd, capture_output=True, text=True, env=env, timeout=60)
-            if result.returncode == 0:
-                return [x.strip() for x in result.stdout.strip().split('\n') if x.strip()]
-        except:
-            pass
-        return []
-
+# ============================================================
+# SYNC WORKER
+# ============================================================
 
 class SyncWorker(QThread):
     """Worker thread for sync operations"""
@@ -319,24 +665,18 @@ class SyncWorker(QThread):
     finished = pyqtSignal(bool, str)
     error = pyqtSignal(str)
 
-    LOCK_TIMEOUT = 300  # 5 minutes
-
     def __init__(self, operation: str, config: SyncConfig, tables_to_sync: List[str] = None, parent=None):
         super().__init__(parent)
         self.operation = operation
         self.config = config
         self.tables_to_sync = tables_to_sync or config.tables_to_sync
         self._cancelled = False
-        self._has_lock = False
 
     def cancel(self):
         self._cancelled = True
 
     def run(self):
         try:
-            if not self._acquire_sync_lock():
-                return
-
             if self.operation == "download":
                 self._download_from_remote()
             elif self.operation == "upload":
@@ -348,190 +688,21 @@ class SyncWorker(QThread):
         except Exception as e:
             self.error.emit(str(e))
             self.finished.emit(False, str(e))
-        finally:
-            self._release_sync_lock()
-
-    def _get_pg_dump_path(self) -> str:
-        """Find pg_dump executable"""
-        possible_paths = [
-            "/Library/PostgreSQL/17/bin/pg_dump",
-            "/Library/PostgreSQL/16/bin/pg_dump",
-            "/Library/PostgreSQL/15/bin/pg_dump",
-            "/usr/local/bin/pg_dump",
-            "/usr/bin/pg_dump",
-            "pg_dump"
-        ]
-        for path in possible_paths:
-            if os.path.exists(path) or path == "pg_dump":
-                return path
-        return "pg_dump"
-
-    def _get_psql_path(self) -> str:
-        """Find psql executable"""
-        possible_paths = [
-            "/Library/PostgreSQL/17/bin/psql",
-            "/Library/PostgreSQL/16/bin/psql",
-            "/Library/PostgreSQL/15/bin/psql",
-            "/usr/local/bin/psql",
-            "/usr/bin/psql",
-            "psql"
-        ]
-        for path in possible_paths:
-            if os.path.exists(path) or path == "psql":
-                return path
-        return "psql"
-
-    def _ensure_lock_table(self, env: dict) -> bool:
-        """Create sync_lock table if it doesn't exist"""
-        cfg = self.config
-        psql = self._get_psql_path()
-
-        create_table_sql = """
-        CREATE TABLE IF NOT EXISTS pyarchinit_sync_lock (
-            id INTEGER PRIMARY KEY DEFAULT 1,
-            locked_by VARCHAR(255),
-            locked_at TIMESTAMP,
-            operation VARCHAR(50),
-            CONSTRAINT single_lock CHECK (id = 1)
-        );
-        """
-
-        cmd = [
-            psql, "-h", cfg.remote_host, "-p", str(cfg.remote_port),
-            "-U", cfg.remote_user, "-d", cfg.remote_database,
-            "-c", create_table_sql
-        ]
-
-        try:
-            result = subprocess.run(cmd, capture_output=True, text=True, env=env, timeout=30)
-            return result.returncode == 0
-        except:
-            return False
-
-    def _acquire_sync_lock(self) -> bool:
-        """Try to acquire sync lock on remote database"""
-        cfg = self.config
-        psql = self._get_psql_path()
-
-        env = os.environ.copy()
-        env['PGPASSWORD'] = cfg.remote_password
-
-        self.progress.emit(0, QCoreApplication.translate("SyncWorker", "Verifica lock sincronizzazione..."))
-
-        if not self._ensure_lock_table(env):
-            self._has_lock = True
-            return True
-
-        import socket
-        user_id = f"{cfg.local_user}@{socket.gethostname()}"
-
-        acquire_sql = f"""
-        INSERT INTO pyarchinit_sync_lock (id, locked_by, locked_at, operation)
-        VALUES (1, '{user_id}', NOW(), '{self.operation}')
-        ON CONFLICT (id) DO UPDATE
-        SET locked_by = EXCLUDED.locked_by,
-            locked_at = EXCLUDED.locked_at,
-            operation = EXCLUDED.operation
-        WHERE pyarchinit_sync_lock.locked_at < NOW() - INTERVAL '{self.LOCK_TIMEOUT} seconds'
-           OR pyarchinit_sync_lock.locked_by = '{user_id}'
-        RETURNING locked_by;
-        """
-
-        cmd = [
-            psql, "-h", cfg.remote_host, "-p", str(cfg.remote_port),
-            "-U", cfg.remote_user, "-d", cfg.remote_database,
-            "-t", "-A", "-c", acquire_sql
-        ]
-
-        try:
-            result = subprocess.run(cmd, capture_output=True, text=True, env=env, timeout=30)
-
-            if result.returncode == 0 and user_id in result.stdout:
-                self._has_lock = True
-                return True
-            else:
-                check_sql = "SELECT locked_by, locked_at, operation FROM pyarchinit_sync_lock WHERE id = 1;"
-                check_cmd = [
-                    psql, "-h", cfg.remote_host, "-p", str(cfg.remote_port),
-                    "-U", cfg.remote_user, "-d", cfg.remote_database,
-                    "-t", "-A", "-c", check_sql
-                ]
-                check_result = subprocess.run(check_cmd, capture_output=True, text=True, env=env, timeout=30)
-
-                if check_result.stdout.strip():
-                    parts = check_result.stdout.strip().split('|')
-                    locked_by = parts[0] if len(parts) > 0 else "unknown"
-                    locked_at = parts[1] if len(parts) > 1 else "unknown"
-                    operation = parts[2] if len(parts) > 2 else "unknown"
-
-                    error_msg = QCoreApplication.translate(
-                        "SyncWorker",
-                        "Synchronization blocked!\n\n"
-                        "Another user is synchronizing:\n"
-                        "• User: {0}\n"
-                        "• Started: {1}\n"
-                        "• Operation: {2}\n\n"
-                        "Please try again later."
-                    ).format(locked_by, locked_at, operation)
-
-                    self.error.emit(error_msg)
-                    self.finished.emit(False, QCoreApplication.translate("SyncWorker", "Blocked by another user"))
-                    return False
-                else:
-                    self._has_lock = True
-                    return True
-
-        except subprocess.TimeoutExpired:
-            self.error.emit(QCoreApplication.translate("SyncWorker", "Connection timeout"))
-            self.finished.emit(False, QCoreApplication.translate("SyncWorker", "Connection timeout"))
-            return False
-        except Exception as e:
-            self._has_lock = True
-            return True
-
-    def _release_sync_lock(self):
-        """Release sync lock"""
-        if not self._has_lock:
-            return
-
-        cfg = self.config
-        psql = self._get_psql_path()
-
-        env = os.environ.copy()
-        env['PGPASSWORD'] = cfg.remote_password
-
-        import socket
-        user_id = f"{cfg.local_user}@{socket.gethostname()}"
-
-        release_sql = f"DELETE FROM pyarchinit_sync_lock WHERE id = 1 AND locked_by = '{user_id}';"
-
-        cmd = [
-            psql, "-h", cfg.remote_host, "-p", str(cfg.remote_port),
-            "-U", cfg.remote_user, "-d", cfg.remote_database,
-            "-c", release_sql
-        ]
-
-        try:
-            subprocess.run(cmd, capture_output=True, text=True, env=env, timeout=30)
-        except:
-            pass
 
     def _download_from_remote(self):
         """Download data from remote to local (full sync)"""
-        cfg = self.config
         tables = self.tables_to_sync
         total = len(tables)
 
-        self.progress.emit(0, QCoreApplication.translate("SyncWorker", "Connecting to remote server..."))
+        self.progress.emit(0, QCoreApplication.translate("SyncWorker", "Connecting..."))
 
-        pg_dump = self._get_pg_dump_path()
-        psql = self._get_psql_path()
-
-        remote_env = os.environ.copy()
-        remote_env['PGPASSWORD'] = cfg.remote_password
-
-        local_env = os.environ.copy()
-        local_env['PGPASSWORD'] = cfg.local_password
+        try:
+            local_adapter = create_adapter(self.config, is_local=True)
+            remote_adapter = create_adapter(self.config, is_local=False)
+        except Exception as e:
+            self.error.emit(f"Connection error: {str(e)}")
+            self.finished.emit(False, str(e))
+            return
 
         synced = 0
         errors = 0
@@ -545,42 +716,43 @@ class SyncWorker(QThread):
             self.progress.emit(percent, QCoreApplication.translate("SyncWorker", "Downloading {0}...").format(table))
 
             try:
-                # Dump from remote
-                dump_cmd = [
-                    pg_dump, "-h", cfg.remote_host, "-p", str(cfg.remote_port),
-                    "-U", cfg.remote_user, "-d", cfg.remote_database,
-                    "-t", table, "--data-only", "--column-inserts", "--on-conflict-do-nothing"
-                ]
+                # Skip views
+                if remote_adapter.is_view(table):
+                    continue
 
-                dump_result = subprocess.run(dump_cmd, capture_output=True, text=True, env=remote_env, timeout=300)
-
-                if dump_result.returncode != 0:
+                # Check if table exists
+                if not remote_adapter.table_exists(table):
+                    continue
+                if not local_adapter.table_exists(table):
                     errors += 1
                     continue
 
-                dump_data = dump_result.stdout
-                if not dump_data.strip():
+                # Get columns and pk
+                columns = remote_adapter.get_table_columns(table)
+                pk = remote_adapter.get_primary_key(table)
+                if not columns or not pk:
+                    errors += 1
+                    continue
+
+                # Get all remote IDs
+                remote_ids = remote_adapter.get_record_ids(table, pk)
+                if not remote_ids:
                     continue
 
                 # Truncate local table
-                truncate_cmd = [
-                    psql, "-h", cfg.local_host, "-p", str(cfg.local_port),
-                    "-U", cfg.local_user, "-d", cfg.local_database,
-                    "-c", f"TRUNCATE {table} CASCADE;"
-                ]
-                subprocess.run(truncate_cmd, capture_output=True, env=local_env, timeout=60)
+                local_adapter.truncate_table(table)
 
-                # Insert data
-                insert_cmd = [
-                    psql, "-h", cfg.local_host, "-p", str(cfg.local_port),
-                    "-U", cfg.local_user, "-d", cfg.local_database
-                ]
-                subprocess.run(insert_cmd, input=dump_data, capture_output=True, text=True, env=local_env, timeout=300)
-                synced += 1
+                # Export from remote and import to local
+                records = remote_adapter.export_records(table, columns, pk, remote_ids)
+                if records:
+                    imported = local_adapter.import_records(table, columns, records)
+                    if imported > 0:
+                        synced += 1
+                    else:
+                        errors += 1
 
-            except subprocess.TimeoutExpired:
-                errors += 1
             except Exception as e:
+                print(f"Download error for {table}: {e}")
                 errors += 1
 
         self.progress.emit(100, QCoreApplication.translate("SyncWorker", "Download complete!"))
@@ -589,20 +761,18 @@ class SyncWorker(QThread):
 
     def _upload_to_remote(self):
         """Upload data from local to remote (full sync)"""
-        cfg = self.config
         tables = self.tables_to_sync
         total = len(tables)
 
-        self.progress.emit(0, QCoreApplication.translate("SyncWorker", "Connecting to remote server..."))
+        self.progress.emit(0, QCoreApplication.translate("SyncWorker", "Connecting..."))
 
-        pg_dump = self._get_pg_dump_path()
-        psql = self._get_psql_path()
-
-        local_env = os.environ.copy()
-        local_env['PGPASSWORD'] = cfg.local_password
-
-        remote_env = os.environ.copy()
-        remote_env['PGPASSWORD'] = cfg.remote_password
+        try:
+            local_adapter = create_adapter(self.config, is_local=True)
+            remote_adapter = create_adapter(self.config, is_local=False)
+        except Exception as e:
+            self.error.emit(f"Connection error: {str(e)}")
+            self.finished.emit(False, str(e))
+            return
 
         synced = 0
         errors = 0
@@ -616,42 +786,43 @@ class SyncWorker(QThread):
             self.progress.emit(percent, QCoreApplication.translate("SyncWorker", "Uploading {0}...").format(table))
 
             try:
-                # Dump from local
-                dump_cmd = [
-                    pg_dump, "-h", cfg.local_host, "-p", str(cfg.local_port),
-                    "-U", cfg.local_user, "-d", cfg.local_database,
-                    "-t", table, "--data-only", "--column-inserts"
-                ]
+                # Skip views
+                if local_adapter.is_view(table):
+                    continue
 
-                dump_result = subprocess.run(dump_cmd, capture_output=True, text=True, env=local_env, timeout=300)
-
-                if dump_result.returncode != 0:
+                # Check if table exists
+                if not local_adapter.table_exists(table):
+                    continue
+                if not remote_adapter.table_exists(table):
                     errors += 1
                     continue
 
-                dump_data = dump_result.stdout
-                if not dump_data.strip():
+                # Get columns and pk
+                columns = local_adapter.get_table_columns(table)
+                pk = local_adapter.get_primary_key(table)
+                if not columns or not pk:
+                    errors += 1
+                    continue
+
+                # Get all local IDs
+                local_ids = local_adapter.get_record_ids(table, pk)
+                if not local_ids:
                     continue
 
                 # Truncate remote table
-                truncate_cmd = [
-                    psql, "-h", cfg.remote_host, "-p", str(cfg.remote_port),
-                    "-U", cfg.remote_user, "-d", cfg.remote_database,
-                    "-c", f"TRUNCATE {table} CASCADE;"
-                ]
-                subprocess.run(truncate_cmd, capture_output=True, env=remote_env, timeout=120)
+                remote_adapter.truncate_table(table)
 
-                # Insert data
-                insert_cmd = [
-                    psql, "-h", cfg.remote_host, "-p", str(cfg.remote_port),
-                    "-U", cfg.remote_user, "-d", cfg.remote_database
-                ]
-                subprocess.run(insert_cmd, input=dump_data, capture_output=True, text=True, env=remote_env, timeout=600)
-                synced += 1
+                # Export from local and import to remote
+                records = local_adapter.export_records(table, columns, pk, local_ids)
+                if records:
+                    imported = remote_adapter.import_records(table, columns, records)
+                    if imported > 0:
+                        synced += 1
+                    else:
+                        errors += 1
 
-            except subprocess.TimeoutExpired:
-                errors += 1
             except Exception as e:
+                print(f"Upload error for {table}: {e}")
                 errors += 1
 
         self.progress.emit(100, QCoreApplication.translate("SyncWorker", "Upload complete!"))
@@ -659,24 +830,22 @@ class SyncWorker(QThread):
         self.finished.emit(True, msg)
 
     def _differential_download(self):
-        """Download only changed/new records from remote to local (preserves IDs)"""
-        cfg = self.config
+        """Download only changed/new records from remote to local"""
         tables = self.tables_to_sync
         total = len(tables)
 
         self.progress.emit(0, QCoreApplication.translate("SyncWorker", "Starting differential download..."))
 
-        psql = self._get_psql_path()
-
-        remote_env = os.environ.copy()
-        remote_env['PGPASSWORD'] = cfg.remote_password
-
-        local_env = os.environ.copy()
-        local_env['PGPASSWORD'] = cfg.local_password
+        try:
+            local_adapter = create_adapter(self.config, is_local=True)
+            remote_adapter = create_adapter(self.config, is_local=False)
+        except Exception as e:
+            self.error.emit(f"Connection error: {str(e)}")
+            self.finished.emit(False, str(e))
+            return
 
         synced = 0
         inserted = 0
-        updated = 0
         errors = 0
         error_details = []
 
@@ -689,137 +858,63 @@ class SyncWorker(QThread):
             self.progress.emit(percent, QCoreApplication.translate("SyncWorker", "Syncing {0}...").format(table))
 
             try:
-                # Check if table is a view (skip views)
-                is_view = self._is_view(psql, cfg.remote_host, cfg.remote_port,
-                                        cfg.remote_user, cfg.remote_database, table, remote_env)
-                if is_view:
+                # Skip views
+                if remote_adapter.is_view(table):
                     synced += 1
                     continue
 
-                # Check if table exists on local
-                local_exists = self._table_exists(psql, cfg.local_host, cfg.local_port,
-                                                   cfg.local_user, cfg.local_database, table, local_env)
-                if not local_exists:
+                # Check if tables exist
+                if not local_adapter.table_exists(table):
                     error_details.append(f"{table}: table does not exist locally")
                     errors += 1
                     continue
 
-                # Get primary key for this table
-                pk = self._get_primary_key(psql, cfg.local_host, cfg.local_port,
-                                           cfg.local_user, cfg.local_database, table, local_env)
+                if not remote_adapter.table_exists(table):
+                    continue
+
+                # Get columns and pk
+                columns = remote_adapter.get_table_columns(table)
+                pk = remote_adapter.get_primary_key(table)
                 if not pk:
-                    pk = 'gid' if table.startswith('pyarchinit_') else 'id'
+                    pk = local_adapter.get_primary_key(table)
+                if not columns or not pk:
+                    error_details.append(f"{table}: could not get columns or pk")
+                    errors += 1
+                    continue
 
                 # Get IDs from both databases
-                local_ids = set(self._get_record_ids(
-                    psql, cfg.local_host, cfg.local_port,
-                    cfg.local_user, cfg.local_database, table, pk, local_env
-                ))
-                remote_ids = set(self._get_record_ids(
-                    psql, cfg.remote_host, cfg.remote_port,
-                    cfg.remote_user, cfg.remote_database, table, pk, remote_env
-                ))
+                local_ids = set(local_adapter.get_record_ids(table, pk))
+                remote_ids = set(remote_adapter.get_record_ids(table, pk))
 
                 # Records only in remote (to INSERT)
-                to_insert = remote_ids - local_ids
+                to_insert = list(remote_ids - local_ids)
 
                 if not to_insert:
                     synced += 1
                     continue
 
-                # Get all columns for this table
-                columns = self._get_table_columns(psql, cfg.remote_host, cfg.remote_port,
-                                                   cfg.remote_user, cfg.remote_database, table, remote_env)
-                if not columns:
-                    error_details.append(f"{table}: could not get columns")
-                    errors += 1
-                    continue
-
-                columns_str = ', '.join(columns)
-
-                # Disable triggers on this table to prevent cascade deletes
-                disable_trigger_cmd = [
-                    psql, "-h", cfg.local_host, "-p", str(cfg.local_port),
-                    "-U", cfg.local_user, "-d", cfg.local_database,
-                    "-c", f"ALTER TABLE {table} DISABLE TRIGGER ALL;"
-                ]
-                subprocess.run(disable_trigger_cmd, capture_output=True, env=local_env, timeout=30)
-
+                # Export from remote and import to local
+                local_adapter.disable_triggers(table)
                 try:
-                    # Process in batches
-                    batch_size = 50
-                    all_ids_list = list(to_insert)
-                    table_inserted = 0
-
-                    for batch_start in range(0, len(all_ids_list), batch_size):
-                        batch_ids = all_ids_list[batch_start:batch_start + batch_size]
-                        ids_str = ','.join(str(i) for i in batch_ids)
-
-                        # Use COPY TO to export data from remote
-                        copy_query = f"COPY (SELECT {columns_str} FROM {table} WHERE {pk} IN ({ids_str})) TO STDOUT WITH (FORMAT csv, HEADER false, NULL 'NULL_VALUE_PLACEHOLDER')"
-
-                        export_cmd = [
-                            psql, "-h", cfg.remote_host, "-p", str(cfg.remote_port),
-                            "-U", cfg.remote_user, "-d", cfg.remote_database,
-                            "-t", "-A", "-c", copy_query
-                        ]
-
-                        export_result = subprocess.run(export_cmd, capture_output=True, text=True, env=remote_env, timeout=300)
-
-                        if export_result.returncode != 0:
-                            error_details.append(f"{table}: export error - {export_result.stderr[:200]}")
-                            continue
-
-                        csv_data = export_result.stdout.strip()
-                        if not csv_data:
-                            continue
-
-                        # Use COPY FROM to import data to local
-                        import_query = f"COPY {table} ({columns_str}) FROM STDIN WITH (FORMAT csv, HEADER false, NULL 'NULL_VALUE_PLACEHOLDER')"
-
-                        import_cmd = [
-                            psql, "-h", cfg.local_host, "-p", str(cfg.local_port),
-                            "-U", cfg.local_user, "-d", cfg.local_database,
-                            "-c", import_query
-                        ]
-
-                        import_result = subprocess.run(import_cmd, input=csv_data, capture_output=True, text=True, env=local_env, timeout=600)
-
-                        if import_result.returncode == 0:
-                            table_inserted += len(batch_ids)
-                        else:
-                            error_details.append(f"{table}: import error - {import_result.stderr[:200]}")
-
-                    inserted += table_inserted
-                    if table_inserted > 0:
-                        synced += 1
-
+                    records = remote_adapter.export_records(table, columns, pk, to_insert)
+                    if records:
+                        table_inserted = local_adapter.import_records(table, columns, records)
+                        inserted += table_inserted
+                        if table_inserted > 0:
+                            synced += 1
                 finally:
-                    # Re-enable triggers
-                    enable_trigger_cmd = [
-                        psql, "-h", cfg.local_host, "-p", str(cfg.local_port),
-                        "-U", cfg.local_user, "-d", cfg.local_database,
-                        "-c", f"ALTER TABLE {table} ENABLE TRIGGER ALL;"
-                    ]
-                    subprocess.run(enable_trigger_cmd, capture_output=True, env=local_env, timeout=30)
+                    local_adapter.enable_triggers(table)
 
             except Exception as e:
                 error_details.append(f"{table}: {str(e)}")
                 errors += 1
-                continue
 
         self.progress.emit(100, QCoreApplication.translate("SyncWorker", "Differential download complete!"))
 
-        if error_details:
-            import tempfile
-            log_path = os.path.join(tempfile.gettempdir(), 'pyarchinit_sync_errors.log')
-            with open(log_path, 'w') as f:
-                f.write('\n'.join(error_details))
-
         msg = QCoreApplication.translate(
             "SyncWorker",
-            "Download completed: {0} tables, {1} inserted, {2} updated, {3} errors"
-        ).format(synced, inserted, updated, errors)
+            "Download completed: {0} tables, {1} inserted, {2} errors"
+        ).format(synced, inserted, errors)
 
         if error_details and len(error_details) <= 3:
             msg += "\n" + "\n".join(error_details[:3])
@@ -827,24 +922,22 @@ class SyncWorker(QThread):
         self.finished.emit(True, msg)
 
     def _differential_upload(self):
-        """Upload only changed/new records from local to remote (preserves IDs)"""
-        cfg = self.config
+        """Upload only changed/new records from local to remote"""
         tables = self.tables_to_sync
         total = len(tables)
 
         self.progress.emit(0, QCoreApplication.translate("SyncWorker", "Starting differential upload..."))
 
-        psql = self._get_psql_path()
-
-        local_env = os.environ.copy()
-        local_env['PGPASSWORD'] = cfg.local_password
-
-        remote_env = os.environ.copy()
-        remote_env['PGPASSWORD'] = cfg.remote_password
+        try:
+            local_adapter = create_adapter(self.config, is_local=True)
+            remote_adapter = create_adapter(self.config, is_local=False)
+        except Exception as e:
+            self.error.emit(f"Connection error: {str(e)}")
+            self.finished.emit(False, str(e))
+            return
 
         synced = 0
         inserted = 0
-        updated = 0
         errors = 0
         error_details = []
 
@@ -857,230 +950,73 @@ class SyncWorker(QThread):
             self.progress.emit(percent, QCoreApplication.translate("SyncWorker", "Syncing {0}...").format(table))
 
             try:
-                # Check if table is a view (skip views)
-                is_view = self._is_view(psql, cfg.local_host, cfg.local_port,
-                                        cfg.local_user, cfg.local_database, table, local_env)
-                if is_view:
-                    # Skip views
+                # Skip views
+                if local_adapter.is_view(table):
                     synced += 1
                     continue
 
-                # Check if table exists on remote
-                remote_exists = self._table_exists(psql, cfg.remote_host, cfg.remote_port,
-                                                    cfg.remote_user, cfg.remote_database, table, remote_env)
-                if not remote_exists:
+                # Check if tables exist
+                if not local_adapter.table_exists(table):
+                    continue
+
+                if not remote_adapter.table_exists(table):
                     error_details.append(f"{table}: table does not exist on remote")
                     errors += 1
                     continue
 
-                # Get primary key for this table
-                pk = self._get_primary_key(psql, cfg.local_host, cfg.local_port,
-                                           cfg.local_user, cfg.local_database, table, local_env)
+                # Get columns and pk
+                columns = local_adapter.get_table_columns(table)
+                pk = local_adapter.get_primary_key(table)
                 if not pk:
-                    pk = 'gid' if table.startswith('pyarchinit_') else 'id'
+                    pk = remote_adapter.get_primary_key(table)
+                if not columns or not pk:
+                    error_details.append(f"{table}: could not get columns or pk")
+                    errors += 1
+                    continue
 
                 # Get IDs from both databases
-                local_ids = set(self._get_record_ids(
-                    psql, cfg.local_host, cfg.local_port,
-                    cfg.local_user, cfg.local_database, table, pk, local_env
-                ))
-                remote_ids = set(self._get_record_ids(
-                    psql, cfg.remote_host, cfg.remote_port,
-                    cfg.remote_user, cfg.remote_database, table, pk, remote_env
-                ))
+                local_ids = set(local_adapter.get_record_ids(table, pk))
+                remote_ids = set(remote_adapter.get_record_ids(table, pk))
 
                 # Records only in local (to INSERT)
-                to_insert = local_ids - remote_ids
-                # Records in both (to UPDATE - we'll skip updates for now to keep it simple)
-                # to_update = local_ids & remote_ids
+                to_insert = list(local_ids - remote_ids)
 
                 if not to_insert:
                     synced += 1
                     continue
 
-                # Get all columns for this table
-                columns = self._get_table_columns(psql, cfg.local_host, cfg.local_port,
-                                                   cfg.local_user, cfg.local_database, table, local_env)
-                if not columns:
-                    error_details.append(f"{table}: could not get columns")
-                    errors += 1
-                    continue
-
-                columns_str = ', '.join(columns)
-
-                # Disable triggers on remote table to prevent cascade deletes
-                disable_trigger_cmd = [
-                    psql, "-h", cfg.remote_host, "-p", str(cfg.remote_port),
-                    "-U", cfg.remote_user, "-d", cfg.remote_database,
-                    "-c", f"ALTER TABLE {table} DISABLE TRIGGER ALL;"
-                ]
-                subprocess.run(disable_trigger_cmd, capture_output=True, env=remote_env, timeout=30)
-
+                # Export from local and import to remote
+                remote_adapter.disable_triggers(table)
                 try:
-                    # Process in batches to avoid command line too long
-                    batch_size = 50
-                    all_ids_list = list(to_insert)
-                    table_inserted = 0
-
-                    for batch_start in range(0, len(all_ids_list), batch_size):
-                        batch_ids = all_ids_list[batch_start:batch_start + batch_size]
-                        ids_str = ','.join(str(i) for i in batch_ids)
-
-                        # Use COPY TO to export data from local
-                        copy_query = f"COPY (SELECT {columns_str} FROM {table} WHERE {pk} IN ({ids_str})) TO STDOUT WITH (FORMAT csv, HEADER false, NULL 'NULL_VALUE_PLACEHOLDER')"
-
-                        export_cmd = [
-                            psql, "-h", cfg.local_host, "-p", str(cfg.local_port),
-                            "-U", cfg.local_user, "-d", cfg.local_database,
-                            "-t", "-A", "-c", copy_query
-                        ]
-
-                        export_result = subprocess.run(export_cmd, capture_output=True, text=True, env=local_env, timeout=300)
-
-                        if export_result.returncode != 0:
-                            error_details.append(f"{table}: export error - {export_result.stderr[:200]}")
-                            continue
-
-                        csv_data = export_result.stdout.strip()
-                        if not csv_data:
-                            continue
-
-                        # Use COPY FROM to import data to remote
-                        import_query = f"COPY {table} ({columns_str}) FROM STDIN WITH (FORMAT csv, HEADER false, NULL 'NULL_VALUE_PLACEHOLDER')"
-
-                        import_cmd = [
-                            psql, "-h", cfg.remote_host, "-p", str(cfg.remote_port),
-                            "-U", cfg.remote_user, "-d", cfg.remote_database,
-                            "-c", import_query
-                        ]
-
-                        import_result = subprocess.run(import_cmd, input=csv_data, capture_output=True, text=True, env=remote_env, timeout=600)
-
-                        if import_result.returncode == 0:
-                            table_inserted += len(batch_ids)
-                        else:
-                            error_details.append(f"{table}: import error - {import_result.stderr[:200]}")
-
-                    inserted += table_inserted
-                    if table_inserted > 0:
-                        synced += 1
-
+                    records = local_adapter.export_records(table, columns, pk, to_insert)
+                    if records:
+                        table_inserted = remote_adapter.import_records(table, columns, records)
+                        inserted += table_inserted
+                        if table_inserted > 0:
+                            synced += 1
                 finally:
-                    # Re-enable triggers
-                    enable_trigger_cmd = [
-                        psql, "-h", cfg.remote_host, "-p", str(cfg.remote_port),
-                        "-U", cfg.remote_user, "-d", cfg.remote_database,
-                        "-c", f"ALTER TABLE {table} ENABLE TRIGGER ALL;"
-                    ]
-                    subprocess.run(enable_trigger_cmd, capture_output=True, env=remote_env, timeout=30)
+                    remote_adapter.enable_triggers(table)
 
             except Exception as e:
                 error_details.append(f"{table}: {str(e)}")
                 errors += 1
-                continue
 
         self.progress.emit(100, QCoreApplication.translate("SyncWorker", "Differential upload complete!"))
 
-        if error_details:
-            # Log errors to debug
-            import tempfile
-            log_path = os.path.join(tempfile.gettempdir(), 'pyarchinit_sync_errors.log')
-            with open(log_path, 'w') as f:
-                f.write('\n'.join(error_details))
-
         msg = QCoreApplication.translate(
             "SyncWorker",
-            "Upload completed: {0} tables, {1} inserted, {2} updated, {3} errors"
-        ).format(synced, inserted, updated, errors)
+            "Upload completed: {0} tables, {1} inserted, {2} errors"
+        ).format(synced, inserted, errors)
 
         if error_details and len(error_details) <= 3:
             msg += "\n" + "\n".join(error_details[:3])
 
         self.finished.emit(True, msg)
 
-    def _is_view(self, psql, host, port, user, database, table, env) -> bool:
-        """Check if a table is actually a view"""
-        query = f"SELECT table_type FROM information_schema.tables WHERE table_name = '{table}' AND table_schema = 'public';"
-        cmd = [
-            psql, "-h", host, "-p", str(port), "-U", user, "-d", database,
-            "-t", "-A", "-c", query
-        ]
-        try:
-            result = subprocess.run(cmd, capture_output=True, text=True, env=env, timeout=30)
-            if result.returncode == 0:
-                table_type = result.stdout.strip().upper()
-                return 'VIEW' in table_type
-        except:
-            pass
-        return False
 
-    def _table_exists(self, psql, host, port, user, database, table, env) -> bool:
-        """Check if a table exists in the database"""
-        query = f"SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = '{table}' AND table_schema = 'public');"
-        cmd = [
-            psql, "-h", host, "-p", str(port), "-U", user, "-d", database,
-            "-t", "-A", "-c", query
-        ]
-        try:
-            result = subprocess.run(cmd, capture_output=True, text=True, env=env, timeout=30)
-            if result.returncode == 0:
-                return result.stdout.strip().lower() == 't'
-        except:
-            pass
-        return False
-
-    def _get_table_columns(self, psql, host, port, user, database, table, env) -> List[str]:
-        """Get column names for a table"""
-        query = f"""
-            SELECT column_name FROM information_schema.columns
-            WHERE table_name = '{table}' AND table_schema = 'public'
-            ORDER BY ordinal_position;
-        """
-        cmd = [
-            psql, "-h", host, "-p", str(port), "-U", user, "-d", database,
-            "-t", "-A", "-c", query
-        ]
-        try:
-            result = subprocess.run(cmd, capture_output=True, text=True, env=env, timeout=30)
-            if result.returncode == 0:
-                return [x.strip() for x in result.stdout.strip().split('\n') if x.strip()]
-        except:
-            pass
-        return []
-
-    def _get_primary_key(self, psql, host, port, user, database, table, env) -> str:
-        """Get primary key column name"""
-        query = f"""
-            SELECT a.attname FROM pg_index i
-            JOIN pg_attribute a ON a.attrelid = i.indrelid AND a.attnum = ANY(i.indkey)
-            WHERE i.indrelid = '{table}'::regclass AND i.indisprimary;
-        """
-        cmd = [
-            psql, "-h", host, "-p", str(port), "-U", user, "-d", database,
-            "-t", "-A", "-c", query
-        ]
-        try:
-            result = subprocess.run(cmd, capture_output=True, text=True, env=env, timeout=30)
-            if result.returncode == 0 and result.stdout.strip():
-                return result.stdout.strip().split('\n')[0]
-        except:
-            pass
-        return ''
-
-    def _get_record_ids(self, psql, host, port, user, database, table, pk, env) -> List[str]:
-        """Get all record IDs from a table"""
-        cmd = [
-            psql, "-h", host, "-p", str(port), "-U", user, "-d", database,
-            "-t", "-A", "-c", f"SELECT {pk} FROM {table} ORDER BY {pk};"
-        ]
-        try:
-            result = subprocess.run(cmd, capture_output=True, text=True, env=env, timeout=60)
-            if result.returncode == 0:
-                return [x.strip() for x in result.stdout.strip().split('\n') if x.strip()]
-        except:
-            pass
-        return []
-
+# ============================================================
+# SYNC MANAGER
+# ============================================================
 
 class DatabaseSyncManager(QObject):
     """Manager for database synchronization"""
@@ -1104,16 +1040,23 @@ class DatabaseSyncManager(QObject):
     def configure(self, local_config: Dict, remote_config: Dict, tables: List[str] = None):
         """Configure sync connections"""
         self.config = SyncConfig(
+            # Local settings
+            local_db_type=local_config.get('db_type', 'postgres'),
             local_host=local_config.get('host', 'localhost'),
-            local_port=local_config.get('port', 5432),
+            local_port=int(local_config.get('port', 5432)),
             local_database=local_config.get('database', ''),
             local_user=local_config.get('user', 'postgres'),
             local_password=local_config.get('password', ''),
+            local_db_path=local_config.get('db_path', ''),
+            # Remote settings
+            remote_db_type=remote_config.get('db_type', 'postgres'),
             remote_host=remote_config.get('host', ''),
-            remote_port=remote_config.get('port', 5432),
+            remote_port=int(remote_config.get('port', 5432)),
             remote_database=remote_config.get('database', 'postgres'),
             remote_user=remote_config.get('user', ''),
             remote_password=remote_config.get('password', ''),
+            remote_db_path=remote_config.get('db_path', ''),
+            # Tables
             tables_to_sync=tables if tables else ALL_TABLES.copy()
         )
 
@@ -1135,12 +1078,7 @@ class DatabaseSyncManager(QObject):
         self.analysis_finished.emit(differences)
 
     def download_from_remote(self, tables: List[str] = None, differential: bool = False):
-        """Download from remote to local
-
-        Args:
-            tables: List of tables to sync (None = all tables)
-            differential: If True, only sync new/modified records (preserves IDs)
-        """
+        """Download from remote to local"""
         if not self.config:
             self.sync_error.emit("Configuration missing")
             return
@@ -1155,12 +1093,7 @@ class DatabaseSyncManager(QObject):
         self.worker.start()
 
     def upload_to_remote(self, tables: List[str] = None, differential: bool = False):
-        """Upload from local to remote
-
-        Args:
-            tables: List of tables to sync (None = all tables)
-            differential: If True, only sync new/modified records (preserves IDs)
-        """
+        """Upload from local to remote"""
         if not self.config:
             self.sync_error.emit("Configuration missing")
             return
@@ -1190,24 +1123,32 @@ class DatabaseSyncManager(QObject):
                (self.analyzer is not None and self.analyzer.isRunning())
 
 
+# ============================================================
+# HELPER FUNCTIONS
+# ============================================================
+
 def get_sync_config_from_settings() -> Tuple[Dict, Dict]:
     """Get sync configurations from QGIS settings"""
     s = QgsSettings()
 
     local_config = {
+        'db_type': s.value('pyArchInit/local_db_type', 'postgres'),
         'host': s.value('pyArchInit/local_host', 'localhost'),
         'port': int(s.value('pyArchInit/local_port', 5432)),
         'database': s.value('pyArchInit/local_database', ''),
         'user': s.value('pyArchInit/local_user', 'postgres'),
-        'password': s.value('pyArchInit/local_password', '')
+        'password': s.value('pyArchInit/local_password', ''),
+        'db_path': s.value('pyArchInit/local_db_path', '')
     }
 
     remote_config = {
+        'db_type': s.value('pyArchInit/remote_db_type', 'postgres'),
         'host': s.value('pyArchInit/remote_host', ''),
         'port': int(s.value('pyArchInit/remote_port', 5432)),
         'database': s.value('pyArchInit/remote_database', 'postgres'),
         'user': s.value('pyArchInit/remote_user', ''),
-        'password': s.value('pyArchInit/remote_password', '')
+        'password': s.value('pyArchInit/remote_password', ''),
+        'db_path': s.value('pyArchInit/remote_db_path', '')
     }
 
     return local_config, remote_config
@@ -1217,14 +1158,18 @@ def save_sync_config_to_settings(local_config: Dict, remote_config: Dict):
     """Save sync configurations to QGIS settings"""
     s = QgsSettings()
 
+    s.setValue('pyArchInit/local_db_type', local_config.get('db_type', 'postgres'))
     s.setValue('pyArchInit/local_host', local_config.get('host', 'localhost'))
     s.setValue('pyArchInit/local_port', local_config.get('port', 5432))
     s.setValue('pyArchInit/local_database', local_config.get('database', ''))
     s.setValue('pyArchInit/local_user', local_config.get('user', 'postgres'))
     s.setValue('pyArchInit/local_password', local_config.get('password', ''))
+    s.setValue('pyArchInit/local_db_path', local_config.get('db_path', ''))
 
+    s.setValue('pyArchInit/remote_db_type', remote_config.get('db_type', 'postgres'))
     s.setValue('pyArchInit/remote_host', remote_config.get('host', ''))
     s.setValue('pyArchInit/remote_port', remote_config.get('port', 5432))
     s.setValue('pyArchInit/remote_database', remote_config.get('database', 'postgres'))
     s.setValue('pyArchInit/remote_user', remote_config.get('user', ''))
     s.setValue('pyArchInit/remote_password', remote_config.get('password', ''))
+    s.setValue('pyArchInit/remote_db_path', remote_config.get('db_path', ''))
