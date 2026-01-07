@@ -406,14 +406,60 @@ class SQLiteAdapter(DatabaseAdapter):
         conn.row_factory = sqlite3.Row
         # Enable loading extensions for spatialite
         conn.enable_load_extension(True)
+
+        # Find and load SpatiaLite extension
+        spatialite_path = self._find_spatialite_path()
         try:
-            conn.execute("SELECT load_extension('mod_spatialite')")
+            if spatialite_path:
+                conn.execute(f"SELECT load_extension('{spatialite_path}')")
+            else:
+                conn.execute("SELECT load_extension('mod_spatialite')")
         except:
             try:
                 conn.execute("SELECT load_extension('libspatialite')")
             except:
                 pass  # Spatialite not available
         return conn
+
+    def _find_spatialite_path(self) -> Optional[str]:
+        """Find the path to mod_spatialite library"""
+        import glob
+        import platform
+
+        # First try QGIS's built-in finder
+        try:
+            from qgis.find_mod_spatialite import mod_spatialite_path
+            path = mod_spatialite_path()
+            if path and os.path.exists(path):
+                return path
+        except Exception:
+            pass
+
+        # Platform-specific paths
+        if platform.system() == 'Darwin':  # macOS
+            search_paths = (
+                glob.glob('/Applications/QGIS*.app/Contents/MacOS/lib/mod_spatialite*.so') +
+                ['/opt/homebrew/lib/mod_spatialite.dylib',
+                 '/opt/homebrew/lib/mod_spatialite.so',
+                 '/usr/local/lib/mod_spatialite.dylib',
+                 '/usr/local/lib/mod_spatialite.so',
+                 '/opt/local/lib/mod_spatialite.dylib',
+                 '/opt/local/lib/mod_spatialite.so']
+            )
+        elif platform.system() == 'Windows':
+            search_paths = ['mod_spatialite.dll']
+        else:  # Linux
+            search_paths = [
+                '/usr/lib/x86_64-linux-gnu/mod_spatialite.so',
+                '/usr/lib/mod_spatialite.so',
+                'mod_spatialite.so'
+            ]
+
+        for path in search_paths:
+            if os.path.exists(path):
+                return path
+
+        return None
 
     def get_table_count(self, table: str) -> int:
         try:
