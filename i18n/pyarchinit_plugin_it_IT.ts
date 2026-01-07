@@ -12044,4 +12044,271 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
 </context>
+<context>
+    <name>pyarchinitConfigDialog</name>
+    <message>
+        <source>Database Synchronization (Local ↔ Remote)</source>
+        <translation>Sincronizzazione Database (Locale ↔ Remoto)</translation>
+    </message>
+    <message>
+        <source>Local Database (PostgreSQL)</source>
+        <translation>Database Locale (PostgreSQL)</translation>
+    </message>
+    <message>
+        <source>Remote Database (Server/Cloud)</source>
+        <translation>Database Remoto (Server/Cloud)</translation>
+    </message>
+    <message>
+        <source>Host:</source>
+        <translation>Host:</translation>
+    </message>
+    <message>
+        <source>Port:</source>
+        <translation>Porta:</translation>
+    </message>
+    <message>
+        <source>Database:</source>
+        <translation>Database:</translation>
+    </message>
+    <message>
+        <source>User:</source>
+        <translation>Utente:</translation>
+    </message>
+    <message>
+        <source>Password:</source>
+        <translation>Password:</translation>
+    </message>
+    <message>
+        <source>Save Credentials</source>
+        <translation>Salva Credenziali</translation>
+    </message>
+    <message>
+        <source>Analyze Differences</source>
+        <translation>Analizza Differenze</translation>
+    </message>
+    <message>
+        <source>Upload to Remote</source>
+        <translation>Carica sul Remoto</translation>
+    </message>
+    <message>
+        <source>Download from Remote</source>
+        <translation>Scarica dal Remoto</translation>
+    </message>
+    <message>
+        <source>Analyzing differences...</source>
+        <translation>Analisi delle differenze...</translation>
+    </message>
+    <message>
+        <source>Analysis complete</source>
+        <translation>Analisi completata</translation>
+    </message>
+    <message>
+        <source>Error</source>
+        <translation>Errore</translation>
+    </message>
+    <message>
+        <source>Remote host not configured.</source>
+        <translation>Host remoto non configurato.</translation>
+    </message>
+    <message>
+        <source>Local database not configured.</source>
+        <translation>Database locale non configurato.</translation>
+    </message>
+    <message>
+        <source>Database Synchronization - Differences Analysis</source>
+        <translation>Sincronizzazione Database - Analisi Differenze</translation>
+    </message>
+    <message>
+        <source>Select</source>
+        <translation>Seleziona</translation>
+    </message>
+    <message>
+        <source>Table Name</source>
+        <translation>Nome Tabella</translation>
+    </message>
+    <message>
+        <source>Local</source>
+        <translation>Locale</translation>
+    </message>
+    <message>
+        <source>Remote</source>
+        <translation>Remoto</translation>
+    </message>
+    <message>
+        <source>Only Local</source>
+        <translation>Solo Locale</translation>
+    </message>
+    <message>
+        <source>Only Remote</source>
+        <translation>Solo Remoto</translation>
+    </message>
+    <message>
+        <source>Modified</source>
+        <translation>Modificati</translation>
+    </message>
+    <message>
+        <source>Status</source>
+        <translation>Stato</translation>
+    </message>
+    <message>
+        <source>Differences found</source>
+        <translation>Differenze trovate</translation>
+    </message>
+    <message>
+        <source>Synchronized</source>
+        <translation>Sincronizzato</translation>
+    </message>
+    <message>
+        <source>Select All</source>
+        <translation>Seleziona Tutto</translation>
+    </message>
+    <message>
+        <source>Select None</source>
+        <translation>Deseleziona Tutto</translation>
+    </message>
+    <message>
+        <source>Select Only Different</source>
+        <translation>Seleziona Solo Differenti</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation>Chiudi</translation>
+    </message>
+    <message>
+        <source>No Tables Selected</source>
+        <translation>Nessuna Tabella Selezionata</translation>
+    </message>
+    <message>
+        <source>Please select at least one table to synchronize.</source>
+        <translation>Seleziona almeno una tabella da sincronizzare.</translation>
+    </message>
+    <message>
+        <source>Confirm Synchronization</source>
+        <translation>Conferma Sincronizzazione</translation>
+    </message>
+    <message>
+        <source>Confirm Download</source>
+        <translation>Conferma Download</translation>
+    </message>
+    <message>
+        <source>Confirm Upload</source>
+        <translation>Conferma Upload</translation>
+    </message>
+    <message>
+        <source>Missing Configuration</source>
+        <translation>Configurazione Mancante</translation>
+    </message>
+    <message>
+        <source>Connection Profiles</source>
+        <translation>Profili di Connessione</translation>
+    </message>
+    <message>
+        <source>Saved Profiles:</source>
+        <translation>Profili Salvati:</translation>
+    </message>
+    <message>
+        <source>-- Select a profile --</source>
+        <translation>-- Seleziona un profilo --</translation>
+    </message>
+    <message>
+        <source>💾 Save</source>
+        <translation>💾 Salva</translation>
+    </message>
+    <message>
+        <source>🗑️ Delete</source>
+        <translation>🗑️ Elimina</translation>
+    </message>
+    <message>
+        <source>Save current settings as a new profile</source>
+        <translation>Salva le impostazioni correnti come nuovo profilo</translation>
+    </message>
+    <message>
+        <source>Delete the selected profile</source>
+        <translation>Elimina il profilo selezionato</translation>
+    </message>
+    <message>
+        <source>Save Connection Profile</source>
+        <translation>Salva Profilo Connessione</translation>
+    </message>
+    <message>
+        <source>Enter a name for this connection profile:</source>
+        <translation>Inserisci un nome per questo profilo di connessione:</translation>
+    </message>
+    <message>
+        <source>Profile Exists</source>
+        <translation>Profilo Esistente</translation>
+    </message>
+    <message>
+        <source>A profile named &apos;{name}&apos; already exists. Do you want to overwrite it?</source>
+        <translation>Un profilo chiamato &apos;{name}&apos; esiste già. Vuoi sovrascriverlo?</translation>
+    </message>
+    <message>
+        <source>Profile Saved</source>
+        <translation>Profilo Salvato</translation>
+    </message>
+    <message>
+        <source>No Profile Selected</source>
+        <translation>Nessun Profilo Selezionato</translation>
+    </message>
+    <message>
+        <source>Please select a profile to delete.</source>
+        <translation>Seleziona un profilo da eliminare.</translation>
+    </message>
+    <message>
+        <source>Confirm Deletion</source>
+        <translation>Conferma Eliminazione</translation>
+    </message>
+    <message>
+        <source>Profile Deleted</source>
+        <translation>Profilo Eliminato</translation>
+    </message>
+    <message>
+        <source>-- Select profile --</source>
+        <translation>-- Seleziona profilo --</translation>
+    </message>
+    <message>
+        <source>Saved:</source>
+        <translation>Salvati:</translation>
+    </message>
+    <message>
+        <source>Save current database settings as a profile</source>
+        <translation>Salva le impostazioni correnti del database come profilo</translation>
+    </message>
+    <message>
+        <source>Profile Loaded</source>
+        <translation>Profilo Caricato</translation>
+    </message>
+    <message>
+        <source>Profile &apos;{name}&apos; loaded successfully!
+
+Click &apos;Save Parameters&apos; to apply the connection.</source>
+        <translation>Profilo &apos;{name}&apos; caricato con successo!
+
+Clicca &apos;Salva Parametri&apos; per applicare la connessione.</translation>
+    </message>
+    <message>
+        <source>Enter a name for this database connection profile:</source>
+        <translation>Inserisci un nome per questo profilo di connessione al database:</translation>
+    </message>
+    <message>
+        <source>Database connection profile &apos;{name}&apos; saved successfully!
+
+Server: {server}
+Host: {host}:{port}
+Database: {database}</source>
+        <translation>Profilo di connessione al database &apos;{name}&apos; salvato con successo!
+
+Server: {server}
+Host: {host}:{port}
+Database: {database}</translation>
+    </message>
+    <message>
+        <source>Connection Profiles:</source>
+        <translation>Profili Connessione:</translation>
+    </message>
+    <message>
+        <source>Profiles:</source>
+        <translation>Profili:</translation>
+    </message>
+</context>
 </TS>

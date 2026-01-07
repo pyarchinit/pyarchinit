@@ -12726,4 +12726,271 @@ Se disattivo, mostra solo le US del livello esatto.</source><translation>Si est�
 If unchecked, shows only US at exact level.</source><translation>Si está marcado, muestra todas las UE hasta el nivel seleccionado. Si no está marcado, muestra solo las UE en el nivel exacto.</translation></message><message><source>Run segmentation on the selected raster</source><translation>Ejecutar segmentación en el ráster seleccionado</translation></message><message><source>Uses all pottery images linked in the database for training</source><translation>Utiliza todas las imágenes de cerámica vinculadas en la base de datos para el entrenamiento</translation></message><message><source>Use edge-detection preprocessing (better for line decorations)</source><translation>Usar preprocesamiento de detección de bordes (mejor para decoraciones de líneas)</translation></message><message><source>Group pottery by ware type</source><translation>Agrupar cerámica por tipo de material</translation></message><message><source>Reset to default values</source><translation>Restablecer a los valores predeterminados</translation></message><message><source>Export all indexes to ZIP for sharing with other PCs</source><translation>Exportar todos los índices a ZIP para compartir con otros PC</translation></message><message><source>Remove photo background from pottery (useful for studio photos)</source><translation>Eliminar el fondo de la foto de la cerámica (útil para fotos de estudio)</translation></message><message><source>Fine-tune the KhutmML-CLIP model on your pottery dataset.
 </source><translation>Ajusta el modelo KhutmML-CLIP en tu conjunto de datos de cerámica.</translation></message><message><source>Select a polygon feature from an existing layer as the area to segment</source><translation>Seleccione una característica de polígono de una capa existente como el área a segmentar</translation></message><message><source>Draw a rectangle to segment all stones within that area</source><translation>Dibuja un rectángulo para segmentar todas las piedras dentro de esa área.</translation></message><message><source>Attiva per cercare tutte le US in un intervallo numerico</source><translation>Activar para buscar todas las UE en un intervalo numérico</translation></message><message><source>Mostra il testo mentre viene generato. Disabilita se hai problemi con GPT-5.</source><translation>Muestra el texto mientras se genera. Desactiva si tienes problemas con GPT-5.</translation></message><message><source>Interroga il database con linguaggio naturale usando GPT-5</source><translation>Interroga la base de datos con lenguaje natural usando GPT-5</translation></message><message><source>Import a KhutmML-CLIP model from a ZIP file.
 </source><translation>Importar un modelo KhutmML-CLIP desde un archivo ZIP.</translation></message><message><source>Analizza l'immagine corrente con il prompt personalizzato,
-</source><translation>Analiza la imagen actual con el aviso personalizado.</translation></message><message><source>Brightness threshold for background detection (higher = stricter)</source><translation>Umbral de brillo para la detección de fondo (mayor = más estricto)</translation></message></context></TS>
+</source><translation>Analiza la imagen actual con el aviso personalizado.</translation></message><message><source>Brightness threshold for background detection (higher = stricter)</source><translation>Umbral de brillo para la detección de fondo (mayor = más estricto)</translation></message></context><context>
+    <name>pyarchinitConfigDialog</name>
+    <message>
+        <source>Database Synchronization (Local ↔ Remote)</source>
+        <translation>Sincronización de base de datos (Local ↔ Remoto)</translation>
+    </message>
+    <message>
+        <source>Local Database (PostgreSQL)</source>
+        <translation>Base de datos local (PostgreSQL)</translation>
+    </message>
+    <message>
+        <source>Remote Database (Server/Cloud)</source>
+        <translation>Base de datos remota (Servidor/Nube)</translation>
+    </message>
+    <message>
+        <source>Host:</source>
+        <translation>Host:</translation>
+    </message>
+    <message>
+        <source>Port:</source>
+        <translation>Puerto:</translation>
+    </message>
+    <message>
+        <source>Database:</source>
+        <translation>Base de datos:</translation>
+    </message>
+    <message>
+        <source>User:</source>
+        <translation>Usuario:</translation>
+    </message>
+    <message>
+        <source>Password:</source>
+        <translation>Contraseña:</translation>
+    </message>
+    <message>
+        <source>Save Credentials</source>
+        <translation>Guardar credenciales</translation>
+    </message>
+    <message>
+        <source>Analyze Differences</source>
+        <translation>Analizar diferencias</translation>
+    </message>
+    <message>
+        <source>Upload to Remote</source>
+        <translation>Subir al remoto</translation>
+    </message>
+    <message>
+        <source>Download from Remote</source>
+        <translation>Descargar del remoto</translation>
+    </message>
+    <message>
+        <source>Analyzing differences...</source>
+        <translation>Analizando diferencias...</translation>
+    </message>
+    <message>
+        <source>Analysis complete</source>
+        <translation>Análisis completado</translation>
+    </message>
+    <message>
+        <source>Error</source>
+        <translation>Error</translation>
+    </message>
+    <message>
+        <source>Remote host not configured.</source>
+        <translation>Host remoto no configurado.</translation>
+    </message>
+    <message>
+        <source>Local database not configured.</source>
+        <translation>Base de datos local no configurada.</translation>
+    </message>
+    <message>
+        <source>Database Synchronization - Differences Analysis</source>
+        <translation>Sincronización de base de datos - Análisis de diferencias</translation>
+    </message>
+    <message>
+        <source>Select</source>
+        <translation>Seleccionar</translation>
+    </message>
+    <message>
+        <source>Table Name</source>
+        <translation>Nombre de tabla</translation>
+    </message>
+    <message>
+        <source>Local</source>
+        <translation>Local</translation>
+    </message>
+    <message>
+        <source>Remote</source>
+        <translation>Remoto</translation>
+    </message>
+    <message>
+        <source>Only Local</source>
+        <translation>Solo local</translation>
+    </message>
+    <message>
+        <source>Only Remote</source>
+        <translation>Solo remoto</translation>
+    </message>
+    <message>
+        <source>Modified</source>
+        <translation>Modificado</translation>
+    </message>
+    <message>
+        <source>Status</source>
+        <translation>Estado</translation>
+    </message>
+    <message>
+        <source>Differences found</source>
+        <translation>Diferencias encontradas</translation>
+    </message>
+    <message>
+        <source>Synchronized</source>
+        <translation>Sincronizado</translation>
+    </message>
+    <message>
+        <source>Select All</source>
+        <translation>Seleccionar todo</translation>
+    </message>
+    <message>
+        <source>Select None</source>
+        <translation>No seleccionar ninguno</translation>
+    </message>
+    <message>
+        <source>Select Only Different</source>
+        <translation>Seleccionar solo diferentes</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation>Cerrar</translation>
+    </message>
+    <message>
+        <source>No Tables Selected</source>
+        <translation>No se seleccionaron tablas</translation>
+    </message>
+    <message>
+        <source>Please select at least one table to synchronize.</source>
+        <translation>Por favor seleccione al menos una tabla para sincronizar.</translation>
+    </message>
+    <message>
+        <source>Confirm Synchronization</source>
+        <translation>Confirmar sincronización</translation>
+    </message>
+    <message>
+        <source>Confirm Download</source>
+        <translation>Confirmar descarga</translation>
+    </message>
+    <message>
+        <source>Confirm Upload</source>
+        <translation>Confirmar subida</translation>
+    </message>
+    <message>
+        <source>Missing Configuration</source>
+        <translation>Configuración faltante</translation>
+    </message>
+    <message>
+        <source>Connection Profiles</source>
+        <translation>Perfiles de conexión</translation>
+    </message>
+    <message>
+        <source>Saved Profiles:</source>
+        <translation>Perfiles guardados:</translation>
+    </message>
+    <message>
+        <source>-- Select a profile --</source>
+        <translation>-- Seleccionar un perfil --</translation>
+    </message>
+    <message>
+        <source>💾 Save</source>
+        <translation>💾 Guardar</translation>
+    </message>
+    <message>
+        <source>🗑️ Delete</source>
+        <translation>🗑️ Eliminar</translation>
+    </message>
+    <message>
+        <source>Save current settings as a new profile</source>
+        <translation>Guardar la configuración actual como nuevo perfil</translation>
+    </message>
+    <message>
+        <source>Delete the selected profile</source>
+        <translation>Eliminar el perfil seleccionado</translation>
+    </message>
+    <message>
+        <source>Save Connection Profile</source>
+        <translation>Guardar perfil de conexión</translation>
+    </message>
+    <message>
+        <source>Enter a name for this connection profile:</source>
+        <translation>Introduzca un nombre para este perfil de conexión:</translation>
+    </message>
+    <message>
+        <source>Profile Exists</source>
+        <translation>El perfil existe</translation>
+    </message>
+    <message>
+        <source>A profile named &apos;{name}&apos; already exists. Do you want to overwrite it?</source>
+        <translation>Ya existe un perfil llamado &apos;{name}&apos;. ¿Desea sobrescribirlo?</translation>
+    </message>
+    <message>
+        <source>Profile Saved</source>
+        <translation>Perfil guardado</translation>
+    </message>
+    <message>
+        <source>No Profile Selected</source>
+        <translation>No hay perfil seleccionado</translation>
+    </message>
+    <message>
+        <source>Please select a profile to delete.</source>
+        <translation>Por favor, seleccione un perfil para eliminar.</translation>
+    </message>
+    <message>
+        <source>Confirm Deletion</source>
+        <translation>Confirmar eliminación</translation>
+    </message>
+    <message>
+        <source>Profile Deleted</source>
+        <translation>Perfil eliminado</translation>
+    </message>
+    <message>
+        <source>-- Select profile --</source>
+        <translation>-- Seleccionar perfil --</translation>
+    </message>
+    <message>
+        <source>Saved:</source>
+        <translation>Guardados:</translation>
+    </message>
+    <message>
+        <source>Save current database settings as a profile</source>
+        <translation>Guardar la configuración actual de la base de datos como perfil</translation>
+    </message>
+    <message>
+        <source>Profile Loaded</source>
+        <translation>Perfil cargado</translation>
+    </message>
+    <message>
+        <source>Profile &apos;{name}&apos; loaded successfully!
+
+Click &apos;Save Parameters&apos; to apply the connection.</source>
+        <translation>¡Perfil &apos;{name}&apos; cargado correctamente!
+
+Haga clic en &apos;Guardar parámetros&apos; para aplicar la conexión.</translation>
+    </message>
+    <message>
+        <source>Enter a name for this database connection profile:</source>
+        <translation>Introduzca un nombre para este perfil de conexión a la base de datos:</translation>
+    </message>
+    <message>
+        <source>Database connection profile &apos;{name}&apos; saved successfully!
+
+Server: {server}
+Host: {host}:{port}
+Database: {database}</source>
+        <translation>¡Perfil de conexión a la base de datos &apos;{name}&apos; guardado correctamente!
+
+Servidor: {server}
+Host: {host}:{port}
+Base de datos: {database}</translation>
+    </message>
+    <message>
+        <source>Connection Profiles:</source>
+        <translation>Perfiles de conexión:</translation>
+    </message>
+    <message>
+        <source>Profiles:</source>
+        <translation>Perfiles:</translation>
+    </message>
+</context>
+</TS>

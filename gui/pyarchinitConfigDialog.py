@@ -48,6 +48,7 @@ from qgis.core import QgsMessageLog, Qgis, QgsSettings, QgsProject, QgsDataSourc
 from modules.db.pyarchinit_conn_strings import Connection
 from modules.db.pyarchinit_db_manager import Pyarchinit_db_management
 from modules.db.pyarchinit_utility import Utility
+from modules.db.database_sync import DatabaseSyncManager, get_sync_config_from_settings, save_sync_config_to_settings
 
 from modules.db.db_createdump import CreateDatabase, RestoreSchema, DropDatabase, SchemaDump
 from modules.db.media_migration_mapper import MediaMigrationMapper
@@ -131,6 +132,12 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         # Set up the user interface from Designer.
 
         self.setupUi(self)
+
+        # Setup Supabase Sync tab
+        self.setup_supabase_sync_tab()
+
+        # Setup DB connection profiles in main settings tab
+        self.setup_db_connection_profiles()
 
         # Initialize flag to prevent database creation loop
         self.creating_database = False
@@ -276,6 +283,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
 
             # Create admin panel
             from qgis.PyQt.QtWidgets import QGroupBox, QPushButton, QVBoxLayout, QLabel, QGridLayout
+            from qgis.gui import QgsCollapsibleGroupBox
 
             # Check if we're connected and if user is admin
             if hasattr(self, 'DB_MANAGER') and self.DB_MANAGER:
@@ -334,8 +342,9 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 print(f"Admin check FINAL - Username: {username_ui}, Is admin: {is_admin}")
 
                 if is_admin:
-                    # Add admin section to the config dialog
-                    admin_group = QGroupBox("🛡️ Funzioni Amministratore")
+                    # Add admin section to the config dialog (collapsible)
+                    admin_group = QgsCollapsibleGroupBox("🛡️ Funzioni Amministratore")
+                    admin_group.setCollapsed(True)  # Start collapsed
                     admin_layout = QVBoxLayout()
 
                     # User management button
@@ -476,6 +485,1136 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
 
         except Exception as e:
             print(f"Error setting up admin features: {e}")
+
+    def setup_db_connection_profiles(self):
+        """Add connection profiles UI to the main database settings tab"""
+        try:
+            from qgis.PyQt.QtWidgets import (
+                QHBoxLayout, QLabel, QComboBox, QPushButton, QFrame, QSizePolicy
+            )
+            from qgis.PyQt.QtCore import Qt
+
+            # Check if groupBox_3 (DB Settings) exists and has a grid layout
+            if not hasattr(self, 'groupBox_3') or not self.groupBox_3.layout():
+                print("groupBox_3 or its layout not found")
+                return
+
+            grid_layout = self.groupBox_3.layout()
+
+            # Create a horizontal frame for profiles
+            profiles_frame = QFrame()
+            profiles_frame.setStyleSheet("""
+                QFrame {
+                    background-color: #E8EAF6;
+                    border: 1px solid #7B1FA2;
+                    border-radius: 4px;
+                    padding: 3px;
+                    margin-bottom: 5px;
+                }
+            """)
+            profiles_frame.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
+
+            profiles_layout = QHBoxLayout(profiles_frame)
+            profiles_layout.setContentsMargins(6, 3, 6, 3)
+            profiles_layout.setSpacing(6)
+
+            profiles_label = QLabel(self.tr("Profiles:"))
+            profiles_label.setStyleSheet("font-weight: bold; border: none; background: transparent;")
+            profiles_layout.addWidget(profiles_label)
+
+            self.db_profiles_combo = QComboBox()
+            self.db_profiles_combo.setMinimumWidth(180)
+            self.db_profiles_combo.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
+            self.db_profiles_combo.addItem(self.tr("-- Select profile --"), "")
+            self.db_profiles_combo.currentIndexChanged.connect(self._on_db_profile_selected)
+            profiles_layout.addWidget(self.db_profiles_combo)
+
+            self.db_save_profile_btn = QPushButton(self.tr("💾 Save"))
+            self.db_save_profile_btn.setStyleSheet("""
+                QPushButton { background-color: #4CAF50; color: white; font-weight: bold; padding: 4px 10px; border-radius: 3px; border: none; }
+                QPushButton:hover { background-color: #388E3C; }
+            """)
+            self.db_save_profile_btn.setToolTip(self.tr("Save current database settings as a profile"))
+            self.db_save_profile_btn.clicked.connect(self._save_db_profile)
+            profiles_layout.addWidget(self.db_save_profile_btn)
+
+            self.db_delete_profile_btn = QPushButton(self.tr("🗑️ Delete"))
+            self.db_delete_profile_btn.setStyleSheet("""
+                QPushButton { background-color: #f44336; color: white; font-weight: bold; padding: 4px 10px; border-radius: 3px; border: none; }
+                QPushButton:hover { background-color: #D32F2F; }
+            """)
+            self.db_delete_profile_btn.setToolTip(self.tr("Delete the selected profile"))
+            self.db_delete_profile_btn.clicked.connect(self._delete_db_profile)
+            profiles_layout.addWidget(self.db_delete_profile_btn)
+
+            # Insert profiles_frame at row 7 of groupBox_3's grid layout (after SSL Mode at row 6)
+            # spanning columns 0-1 (the two main columns)
+            grid_layout.addWidget(profiles_frame, 7, 0, 1, 2)  # row 7, col 0, rowspan 1, colspan 2
+
+            # Load saved profiles
+            self._load_db_profiles()
+            print("DB connection profiles added to groupBox_3")
+
+        except Exception as e:
+            print(f"Error setting up DB connection profiles: {e}")
+            import traceback
+            traceback.print_exc()
+
+    def _widget_contains(self, parent, child):
+        """Check if parent widget contains child widget"""
+        if parent == child:
+            return True
+        for c in parent.findChildren(type(child)):
+            if c == child:
+                return True
+        return False
+
+    def _load_db_profiles(self):
+        """Load saved DB connection profiles into the combo box"""
+        import json
+        s = QgsSettings()
+
+        if not hasattr(self, 'db_profiles_combo'):
+            return
+
+        # Block signals to prevent triggering selection changed
+        self.db_profiles_combo.blockSignals(True)
+
+        # Clear and add default item
+        self.db_profiles_combo.clear()
+        self.db_profiles_combo.addItem(self.tr("-- Select profile --"), "")
+
+        # Load profiles from settings
+        profiles_json = s.value('pyArchInit/db_profiles', '{}')
+        try:
+            profiles = json.loads(profiles_json)
+            for name in sorted(profiles.keys()):
+                profile = profiles[name]
+                # Create display text with connection info
+                server = profile.get('server', 'postgres')
+                db_name = profile.get('database', '?')
+                host = profile.get('host', 'localhost')
+                display = f"{name} ({server}: {db_name}@{host[:15]})"
+                self.db_profiles_combo.addItem(display, name)
+        except (json.JSONDecodeError, TypeError):
+            pass
+
+        self.db_profiles_combo.blockSignals(False)
+
+    def _on_db_profile_selected(self, index):
+        """Handle DB profile selection from combo box"""
+        import json
+
+        if index <= 0:  # "Select a profile" item
+            return
+
+        profile_name = self.db_profiles_combo.itemData(index)
+        if not profile_name:
+            return
+
+        s = QgsSettings()
+        profiles_json = s.value('pyArchInit/db_profiles', '{}')
+
+        try:
+            profiles = json.loads(profiles_json)
+            if profile_name in profiles:
+                profile = profiles[profile_name]
+
+                # Load settings into form fields
+                if hasattr(self, 'comboBox_Database'):
+                    idx = self.comboBox_Database.findText(profile.get('server', 'postgres'))
+                    if idx >= 0:
+                        self.comboBox_Database.setCurrentIndex(idx)
+                if hasattr(self, 'lineEdit_Host'):
+                    self.lineEdit_Host.setText(profile.get('host', 'localhost'))
+                if hasattr(self, 'lineEdit_Port'):
+                    self.lineEdit_Port.setText(str(profile.get('port', '5432')))
+                if hasattr(self, 'lineEdit_DBname'):
+                    self.lineEdit_DBname.setText(profile.get('database', ''))
+                if hasattr(self, 'lineEdit_User'):
+                    self.lineEdit_User.setText(profile.get('user', 'postgres'))
+                if hasattr(self, 'lineEdit_Password'):
+                    self.lineEdit_Password.setText(profile.get('password', ''))
+                if hasattr(self, 'comboBox_sslmode'):
+                    idx = self.comboBox_sslmode.findText(profile.get('sslmode', 'allow'))
+                    if idx >= 0:
+                        self.comboBox_sslmode.setCurrentIndex(idx)
+
+                QMessageBox.information(
+                    self,
+                    self.tr("Profile Loaded"),
+                    self.tr("Profile '{name}' loaded successfully!\n\nClick 'Save Parameters' to apply the connection.").format(name=profile_name)
+                )
+
+        except (json.JSONDecodeError, TypeError) as e:
+            QMessageBox.warning(self, self.tr("Error"), f"Failed to load profile: {e}")
+
+    def _save_db_profile(self):
+        """Save current database settings as a new profile"""
+        import json
+        from qgis.PyQt.QtWidgets import QInputDialog
+
+        # Get current settings
+        server = self.comboBox_Database.currentText() if hasattr(self, 'comboBox_Database') else 'postgres'
+        host = self.lineEdit_Host.text() if hasattr(self, 'lineEdit_Host') else 'localhost'
+        db_name = self.lineEdit_DBname.text() if hasattr(self, 'lineEdit_DBname') else ''
+
+        # Suggest a name based on the database
+        suggested_name = f"{db_name}-{host.split('.')[0]}" if db_name else ""
+
+        # Ask for profile name
+        name, ok = QInputDialog.getText(
+            self,
+            self.tr("Save Connection Profile"),
+            self.tr("Enter a name for this database connection profile:"),
+            text=suggested_name
+        )
+
+        if not ok or not name.strip():
+            return
+
+        name = name.strip()
+
+        # Create profile data
+        profile = {
+            'server': server,
+            'host': host,
+            'port': self.lineEdit_Port.text() if hasattr(self, 'lineEdit_Port') else '5432',
+            'database': db_name,
+            'user': self.lineEdit_User.text() if hasattr(self, 'lineEdit_User') else 'postgres',
+            'password': self.lineEdit_Password.text() if hasattr(self, 'lineEdit_Password') else '',
+            'sslmode': self.comboBox_sslmode.currentText() if hasattr(self, 'comboBox_sslmode') else 'allow',
+        }
+
+        # Load existing profiles
+        s = QgsSettings()
+        profiles_json = s.value('pyArchInit/db_profiles', '{}')
+
+        try:
+            profiles = json.loads(profiles_json)
+        except (json.JSONDecodeError, TypeError):
+            profiles = {}
+
+        # Check if profile exists
+        if name in profiles:
+            reply = QMessageBox.question(
+                self,
+                self.tr("Profile Exists"),
+                self.tr("A profile named '{name}' already exists. Do you want to overwrite it?").format(name=name),
+                QMessageBox.Yes | QMessageBox.No
+            )
+            if reply != QMessageBox.Yes:
+                return
+
+        # Save profile
+        profiles[name] = profile
+        s.setValue('pyArchInit/db_profiles', json.dumps(profiles))
+
+        # Reload profiles in combo box
+        self._load_db_profiles()
+
+        # Select the new profile
+        for i in range(self.db_profiles_combo.count()):
+            if self.db_profiles_combo.itemData(i) == name:
+                self.db_profiles_combo.setCurrentIndex(i)
+                break
+
+        QMessageBox.information(
+            self,
+            self.tr("Profile Saved"),
+            self.tr("Database connection profile '{name}' saved successfully!\n\n"
+                    "Server: {server}\n"
+                    "Host: {host}:{port}\n"
+                    "Database: {database}").format(
+                name=name,
+                server=profile['server'],
+                host=profile['host'],
+                port=profile['port'],
+                database=profile['database']
+            )
+        )
+
+    def _delete_db_profile(self):
+        """Delete the selected DB connection profile"""
+        import json
+
+        if not hasattr(self, 'db_profiles_combo'):
+            return
+
+        index = self.db_profiles_combo.currentIndex()
+        if index <= 0:
+            QMessageBox.warning(
+                self,
+                self.tr("No Profile Selected"),
+                self.tr("Please select a profile to delete.")
+            )
+            return
+
+        profile_name = self.db_profiles_combo.itemData(index)
+        if not profile_name:
+            return
+
+        # Confirm deletion
+        reply = QMessageBox.question(
+            self,
+            self.tr("Confirm Deletion"),
+            self.tr("Are you sure you want to delete the profile '{name}'?\n\nThis action cannot be undone.").format(name=profile_name),
+            QMessageBox.Yes | QMessageBox.No
+        )
+
+        if reply != QMessageBox.Yes:
+            return
+
+        # Load profiles
+        s = QgsSettings()
+        profiles_json = s.value('pyArchInit/db_profiles', '{}')
+
+        try:
+            profiles = json.loads(profiles_json)
+            if profile_name in profiles:
+                del profiles[profile_name]
+                s.setValue('pyArchInit/db_profiles', json.dumps(profiles))
+
+                # Reload profiles in combo box
+                self._load_db_profiles()
+
+                QMessageBox.information(
+                    self,
+                    self.tr("Profile Deleted"),
+                    self.tr("Profile '{name}' has been deleted.").format(name=profile_name)
+                )
+        except (json.JSONDecodeError, TypeError) as e:
+            QMessageBox.warning(self, self.tr("Error"), f"Failed to delete profile: {e}")
+
+    def setup_supabase_sync_tab(self):
+        """Setup a dedicated tab for database synchronization (supports any PostgreSQL server)"""
+        try:
+            from qgis.PyQt.QtWidgets import (
+                QWidget, QVBoxLayout, QHBoxLayout, QGroupBox, QFormLayout,
+                QLabel, QLineEdit, QPushButton, QProgressBar, QSpinBox,
+                QFrame, QSizePolicy, QSpacerItem, QScrollArea, QTableWidget,
+                QTableWidgetItem, QHeaderView, QDialog, QDialogButtonBox
+            )
+            from qgis.PyQt.QtCore import Qt
+            from qgis.PyQt.QtGui import QFont
+
+            # Create scroll area for the tab
+            scroll_area = QScrollArea()
+            scroll_area.setWidgetResizable(True)
+            scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
+
+            sync_tab = QWidget()
+            sync_layout = QVBoxLayout(sync_tab)
+            sync_layout.setSpacing(12)
+            sync_layout.setContentsMargins(15, 15, 15, 15)
+
+            # Title
+            title_label = QLabel(self.tr("Database Synchronization (Local ↔ Remote)"))
+            title_font = QFont()
+            title_font.setPointSize(13)
+            title_font.setBold(True)
+            title_label.setFont(title_font)
+            title_label.setStyleSheet("color: #1976D2; margin-bottom: 5px;")
+            sync_layout.addWidget(title_label)
+
+            # Description
+            desc_label = QLabel(self.tr(
+                "Synchronize data between your local PostgreSQL database and a remote server "
+                "(Supabase, your own server, cloud, etc.). Work locally for optimal performance, "
+                "then sync with the remote server."
+            ))
+            desc_label.setWordWrap(True)
+            desc_label.setStyleSheet("color: #666; margin-bottom: 10px; font-size: 11px;")
+            sync_layout.addWidget(desc_label)
+
+            # ========== CONNECTION PROFILES GROUP ==========
+            from qgis.PyQt.QtWidgets import QComboBox, QInputDialog
+
+            profiles_group = QGroupBox(self.tr("Connection Profiles"))
+            profiles_group.setStyleSheet("""
+                QGroupBox { font-weight: bold; border: 2px solid #9C27B0; border-radius: 5px; margin-top: 8px; padding-top: 8px; }
+                QGroupBox::title { subcontrol-origin: margin; left: 10px; padding: 0 5px; }
+            """)
+            profiles_layout = QHBoxLayout()
+            profiles_layout.setSpacing(8)
+
+            profiles_label = QLabel(self.tr("Saved Profiles:"))
+            profiles_layout.addWidget(profiles_label)
+
+            self.sync_profiles_combo = QComboBox()
+            self.sync_profiles_combo.setMinimumWidth(200)
+            self.sync_profiles_combo.addItem(self.tr("-- Select a profile --"), "")
+            self.sync_profiles_combo.currentIndexChanged.connect(self._on_profile_selected)
+            profiles_layout.addWidget(self.sync_profiles_combo)
+
+            self.sync_save_profile_btn = QPushButton(self.tr("💾 Save"))
+            self.sync_save_profile_btn.setStyleSheet("""
+                QPushButton { background-color: #4CAF50; color: white; font-weight: bold; padding: 5px 10px; border-radius: 3px; }
+                QPushButton:hover { background-color: #388E3C; }
+            """)
+            self.sync_save_profile_btn.setToolTip(self.tr("Save current settings as a new profile"))
+            self.sync_save_profile_btn.clicked.connect(self._save_connection_profile)
+            profiles_layout.addWidget(self.sync_save_profile_btn)
+
+            self.sync_delete_profile_btn = QPushButton(self.tr("🗑️ Delete"))
+            self.sync_delete_profile_btn.setStyleSheet("""
+                QPushButton { background-color: #f44336; color: white; font-weight: bold; padding: 5px 10px; border-radius: 3px; }
+                QPushButton:hover { background-color: #D32F2F; }
+            """)
+            self.sync_delete_profile_btn.setToolTip(self.tr("Delete the selected profile"))
+            self.sync_delete_profile_btn.clicked.connect(self._delete_connection_profile)
+            profiles_layout.addWidget(self.sync_delete_profile_btn)
+
+            profiles_layout.addStretch()
+            profiles_group.setLayout(profiles_layout)
+            sync_layout.addWidget(profiles_group)
+
+            # ========== LOCAL DATABASE GROUP ==========
+            local_group = QGroupBox(self.tr("Local Database (PostgreSQL)"))
+            local_group.setStyleSheet("""
+                QGroupBox { font-weight: bold; border: 2px solid #4CAF50; border-radius: 5px; margin-top: 8px; padding-top: 8px; }
+                QGroupBox::title { subcontrol-origin: margin; left: 10px; padding: 0 5px; }
+            """)
+            local_layout = QFormLayout()
+            local_layout.setSpacing(8)
+
+            self.sync_local_host = QLineEdit()
+            self.sync_local_host.setText("localhost")
+            local_layout.addRow("Host:", self.sync_local_host)
+
+            self.sync_local_port = QSpinBox()
+            self.sync_local_port.setRange(1, 65535)
+            self.sync_local_port.setValue(5432)
+            local_layout.addRow(self.tr("Port:"), self.sync_local_port)
+
+            self.sync_local_database = QLineEdit()
+            self.sync_local_database.setPlaceholderText(self.tr("e.g.: pyarchinit, khutm2"))
+            local_layout.addRow("Database:", self.sync_local_database)
+
+            self.sync_local_user = QLineEdit()
+            self.sync_local_user.setText("postgres")
+            local_layout.addRow(self.tr("User:"), self.sync_local_user)
+
+            self.sync_local_password = QLineEdit()
+            self.sync_local_password.setEchoMode(QLineEdit.EchoMode.Password)
+            local_layout.addRow("Password:", self.sync_local_password)
+
+            local_group.setLayout(local_layout)
+            sync_layout.addWidget(local_group)
+
+            # ========== REMOTE DATABASE GROUP ==========
+            remote_group = QGroupBox(self.tr("Remote Database (Server/Cloud)"))
+            remote_group.setStyleSheet("""
+                QGroupBox { font-weight: bold; border: 2px solid #00BCD4; border-radius: 5px; margin-top: 8px; padding-top: 8px; }
+                QGroupBox::title { subcontrol-origin: margin; left: 10px; padding: 0 5px; }
+            """)
+            remote_layout = QFormLayout()
+            remote_layout.setSpacing(8)
+
+            self.sync_remote_host = QLineEdit()
+            self.sync_remote_host.setPlaceholderText(self.tr("e.g.: db.xxx.supabase.co or your-server.com"))
+            remote_layout.addRow("Host:", self.sync_remote_host)
+
+            self.sync_remote_port = QSpinBox()
+            self.sync_remote_port.setRange(1, 65535)
+            self.sync_remote_port.setValue(5432)
+            remote_layout.addRow(self.tr("Port:"), self.sync_remote_port)
+
+            self.sync_remote_database = QLineEdit()
+            self.sync_remote_database.setText("postgres")
+            remote_layout.addRow("Database:", self.sync_remote_database)
+
+            self.sync_remote_user = QLineEdit()
+            self.sync_remote_user.setPlaceholderText(self.tr("e.g.: postgres or postgres.xxx"))
+            remote_layout.addRow(self.tr("User:"), self.sync_remote_user)
+
+            self.sync_remote_password = QLineEdit()
+            self.sync_remote_password.setEchoMode(QLineEdit.EchoMode.Password)
+            self.sync_remote_password.setPlaceholderText(self.tr("Remote password"))
+            remote_layout.addRow("Password:", self.sync_remote_password)
+
+            remote_group.setLayout(remote_layout)
+            sync_layout.addWidget(remote_group)
+
+            # ========== BUTTONS ROW 1: SAVE + ANALYZE ==========
+            btn_row1 = QHBoxLayout()
+
+            self.sync_save_credentials_btn = QPushButton(self.tr("Save Configuration"))
+            self.sync_save_credentials_btn.setStyleSheet("""
+                QPushButton { background-color: #607D8B; color: white; font-weight: bold; padding: 8px 15px; border-radius: 5px; }
+                QPushButton:hover { background-color: #546E7A; }
+            """)
+            self.sync_save_credentials_btn.clicked.connect(self.save_all_sync_credentials)
+            btn_row1.addWidget(self.sync_save_credentials_btn)
+
+            self.sync_analyze_btn = QPushButton(self.tr("Analyze Differences"))
+            self.sync_analyze_btn.setStyleSheet("""
+                QPushButton { background-color: #9C27B0; color: white; font-weight: bold; padding: 8px 15px; border-radius: 5px; }
+                QPushButton:hover { background-color: #7B1FA2; }
+            """)
+            self.sync_analyze_btn.setToolTip(self.tr("Compare local and remote databases to see differences"))
+            self.sync_analyze_btn.clicked.connect(self.sync_analyze_differences)
+            btn_row1.addWidget(self.sync_analyze_btn)
+
+            sync_layout.addLayout(btn_row1)
+
+            # ========== SYNC BUTTONS GROUP ==========
+            buttons_group = QGroupBox(self.tr("Synchronization Operations"))
+            buttons_group.setStyleSheet("""
+                QGroupBox { font-weight: bold; border: 2px solid #FF9800; border-radius: 5px; margin-top: 8px; padding-top: 8px; }
+            """)
+            buttons_layout = QHBoxLayout()
+            buttons_layout.setSpacing(15)
+
+            # Download button
+            self.sync_download_btn = QPushButton(self.tr("DOWNLOAD\nRemote → Local"))
+            self.sync_download_btn.setStyleSheet("""
+                QPushButton { background-color: #00BCD4; color: white; font-weight: bold; font-size: 11px; padding: 15px; border-radius: 8px; min-height: 50px; }
+                QPushButton:hover { background-color: #00ACC1; }
+                QPushButton:disabled { background-color: #BDBDBD; }
+            """)
+            self.sync_download_btn.setToolTip(self.tr(
+                "Download all data from remote server to local database.\n"
+                "WARNING: Local data will be OVERWRITTEN!"
+            ))
+            self.sync_download_btn.clicked.connect(self.sync_download_from_supabase)
+            buttons_layout.addWidget(self.sync_download_btn)
+
+            # Upload button
+            self.sync_upload_btn = QPushButton(self.tr("UPLOAD\nLocal → Remote"))
+            self.sync_upload_btn.setStyleSheet("""
+                QPushButton { background-color: #8BC34A; color: white; font-weight: bold; font-size: 11px; padding: 15px; border-radius: 8px; min-height: 50px; }
+                QPushButton:hover { background-color: #7CB342; }
+                QPushButton:disabled { background-color: #BDBDBD; }
+            """)
+            self.sync_upload_btn.setToolTip(self.tr(
+                "Upload all data from local database to remote server.\n"
+                "WARNING: Remote data will be OVERWRITTEN!"
+            ))
+            self.sync_upload_btn.clicked.connect(self.sync_upload_to_supabase)
+            buttons_layout.addWidget(self.sync_upload_btn)
+
+            buttons_group.setLayout(buttons_layout)
+            sync_layout.addWidget(buttons_group)
+
+            # ========== PROGRESS SECTION ==========
+            self.sync_progress_bar = QProgressBar()
+            self.sync_progress_bar.setVisible(False)
+            self.sync_progress_bar.setMinimum(0)
+            self.sync_progress_bar.setMaximum(100)
+            self.sync_progress_bar.setStyleSheet("""
+                QProgressBar { border: 2px solid #666; border-radius: 5px; text-align: center; height: 22px; }
+                QProgressBar::chunk { background-color: #4CAF50; }
+            """)
+            sync_layout.addWidget(self.sync_progress_bar)
+
+            self.sync_status_label = QLabel("")
+            self.sync_status_label.setWordWrap(True)
+            self.sync_status_label.setStyleSheet("color: #666; font-style: italic; padding: 3px;")
+            sync_layout.addWidget(self.sync_status_label)
+
+            # ========== WARNING ==========
+            warning_label = QLabel(self.tr(
+                "WARNING: Synchronization uses a lock system to prevent conflicts.\n"
+                "If another user is synchronizing, the operation will be blocked.\n"
+                "The lock expires automatically after 5 minutes if disconnected."
+            ))
+            warning_label.setWordWrap(True)
+            warning_label.setStyleSheet("""
+                QLabel { background-color: #FFF3E0; border: 1px solid #FF9800; border-radius: 5px; padding: 8px; color: #E65100; font-size: 10px; }
+            """)
+            sync_layout.addWidget(warning_label)
+
+            # Add spacer
+            sync_layout.addStretch()
+
+            # Set scroll area widget
+            scroll_area.setWidget(sync_tab)
+
+            # Add tab to tabWidget
+            if hasattr(self, 'tabWidget'):
+                self.tabWidget.addTab(scroll_area, self.tr("DB Sync"))
+                print("DB Sync tab added successfully")
+
+            # Load saved credentials and profiles
+            self._load_all_sync_credentials()
+            self._load_connection_profiles()
+
+            # Initialize sync manager
+            self.sync_manager = DatabaseSyncManager(self)
+            self.sync_manager.sync_started.connect(self._on_sync_started)
+            self.sync_manager.sync_progress.connect(self._on_sync_progress)
+            self.sync_manager.sync_finished.connect(self._on_sync_finished)
+            self.sync_manager.sync_error.connect(self._on_sync_error)
+            self.sync_manager.analysis_started.connect(self._on_analysis_started)
+            self.sync_manager.analysis_progress.connect(self._on_sync_progress)
+            self.sync_manager.analysis_finished.connect(self._on_analysis_finished)
+            self.sync_manager.analysis_error.connect(self._on_sync_error)
+
+        except Exception as e:
+            print(f"Error setting up DB Sync tab: {e}")
+            import traceback
+            traceback.print_exc()
+
+    def sync_analyze_differences(self):
+        """Analyze differences between local and remote databases"""
+        # Get sync configuration
+        local_config, remote_config = self._get_sync_configs()
+
+        if not remote_config.get('host'):
+            QMessageBox.warning(self, self.tr("Error"), self.tr("Remote host not configured."))
+            return
+
+        if not local_config.get('database'):
+            QMessageBox.warning(self, self.tr("Error"), self.tr("Local database not configured."))
+            return
+
+        # Configure and start analysis
+        self.sync_manager.configure(local_config, remote_config)
+        self.sync_manager.analyze_differences()
+
+    def _on_analysis_started(self):
+        """Handle analysis started"""
+        if hasattr(self, 'sync_progress_bar'):
+            self.sync_progress_bar.setVisible(True)
+            self.sync_progress_bar.setValue(0)
+        if hasattr(self, 'sync_analyze_btn'):
+            self.sync_analyze_btn.setEnabled(False)
+        if hasattr(self, 'sync_status_label'):
+            self.sync_status_label.setText(self.tr("Analyzing differences..."))
+
+    def _on_analysis_finished(self, differences):
+        """Handle analysis finished - show results dialog"""
+        if hasattr(self, 'sync_progress_bar'):
+            self.sync_progress_bar.setVisible(False)
+        if hasattr(self, 'sync_analyze_btn'):
+            self.sync_analyze_btn.setEnabled(True)
+        if hasattr(self, 'sync_status_label'):
+            self.sync_status_label.setText(self.tr("Analysis complete"))
+
+        # Show results in a dialog
+        self._show_diff_dialog(differences)
+
+    def _show_diff_dialog(self, differences):
+        """Show a dialog with the analysis results and sync options"""
+        from qgis.PyQt.QtWidgets import (
+            QDialog, QVBoxLayout, QHBoxLayout, QTableWidget, QTableWidgetItem,
+            QPushButton, QLabel, QHeaderView, QAbstractItemView, QCheckBox,
+            QGroupBox, QSplitter, QFrame
+        )
+        from qgis.PyQt.QtCore import Qt
+        from qgis.PyQt.QtGui import QColor, QFont
+
+        dialog = QDialog(self)
+        dialog.setWindowTitle(self.tr("Database Synchronization - Differences Analysis"))
+        dialog.setMinimumSize(900, 600)
+        dialog.resize(1000, 700)
+
+        main_layout = QVBoxLayout(dialog)
+
+        # Summary section
+        summary_frame = QFrame()
+        summary_frame.setStyleSheet("QFrame { background-color: #f0f0f0; border-radius: 5px; padding: 10px; }")
+        summary_layout = QVBoxLayout(summary_frame)
+
+        # Count tables with differences
+        tables_with_diffs = sum(1 for d in differences if d.added_local > 0 or d.added_remote > 0 or d.modified > 0)
+        total_local_only = sum(d.added_local for d in differences)
+        total_remote_only = sum(d.added_remote for d in differences)
+        total_modified = sum(d.modified for d in differences)
+        tables_with_errors = sum(1 for d in differences if d.error)
+
+        summary_text = self.tr(
+            "<b>Summary:</b> {total} tables analyzed, {diffs} with differences<br>"
+            "📤 Records only in local: <b>{local}</b> | "
+            "📥 Records only in remote: <b>{remote}</b> | "
+            "✏️ Modified: <b>{modified}</b>"
+        ).format(
+            total=len(differences),
+            diffs=tables_with_diffs,
+            local=total_local_only,
+            remote=total_remote_only,
+            modified=total_modified
+        )
+
+        if tables_with_errors:
+            summary_text += self.tr("<br>⚠️ <span style='color: orange;'>{errors} tables had errors</span>").format(
+                errors=tables_with_errors
+            )
+
+        summary_label = QLabel(summary_text)
+        summary_label.setWordWrap(True)
+        summary_layout.addWidget(summary_label)
+        main_layout.addWidget(summary_frame)
+
+        # Table for differences
+        table = QTableWidget()
+        table.setColumnCount(8)
+        table.setHorizontalHeaderLabels([
+            self.tr("Select"),
+            self.tr("Table Name"),
+            self.tr("Local"),
+            self.tr("Remote"),
+            self.tr("Only Local"),
+            self.tr("Only Remote"),
+            self.tr("Modified"),
+            self.tr("Status")
+        ])
+
+        # Configure table
+        table.setAlternatingRowColors(True)
+        table.setSelectionBehavior(QAbstractItemView.SelectRows)
+        table.horizontalHeader().setStretchLastSection(True)
+        table.horizontalHeader().setSectionResizeMode(1, QHeaderView.Stretch)
+        table.verticalHeader().setVisible(False)
+        table.setEditTriggers(QAbstractItemView.NoEditTriggers)
+
+        # Populate table
+        table.setRowCount(len(differences))
+        self._diff_checkboxes = []
+
+        for row, diff in enumerate(differences):
+            # Checkbox for selection
+            checkbox = QCheckBox()
+            has_diff = diff.added_local > 0 or diff.added_remote > 0 or diff.modified > 0
+            checkbox.setChecked(has_diff and not diff.error)
+            checkbox.setEnabled(not bool(diff.error))
+            self._diff_checkboxes.append(checkbox)
+
+            checkbox_widget = QWidget()
+            checkbox_layout = QHBoxLayout(checkbox_widget)
+            checkbox_layout.addWidget(checkbox)
+            checkbox_layout.setAlignment(Qt.AlignCenter)
+            checkbox_layout.setContentsMargins(0, 0, 0, 0)
+            table.setCellWidget(row, 0, checkbox_widget)
+
+            # Table name
+            name_item = QTableWidgetItem(diff.table_name)
+            name_item.setData(Qt.UserRole, diff)  # Store diff object
+            table.setItem(row, 1, name_item)
+
+            # Local count
+            table.setItem(row, 2, QTableWidgetItem(str(diff.local_count)))
+
+            # Remote count
+            table.setItem(row, 3, QTableWidgetItem(str(diff.remote_count)))
+
+            # Only local (highlight if > 0)
+            local_item = QTableWidgetItem(str(diff.added_local))
+            if diff.added_local > 0:
+                local_item.setBackground(QColor("#d4edda"))  # Light green
+                local_item.setForeground(QColor("#155724"))  # Dark green
+            table.setItem(row, 4, local_item)
+
+            # Only remote (highlight if > 0)
+            remote_item = QTableWidgetItem(str(diff.added_remote))
+            if diff.added_remote > 0:
+                remote_item.setBackground(QColor("#cce5ff"))  # Light blue
+                remote_item.setForeground(QColor("#004085"))  # Dark blue
+            table.setItem(row, 5, remote_item)
+
+            # Modified (highlight if > 0)
+            modified_item = QTableWidgetItem(str(diff.modified))
+            if diff.modified > 0:
+                modified_item.setBackground(QColor("#fff3cd"))  # Light yellow
+                modified_item.setForeground(QColor("#856404"))  # Dark yellow
+            table.setItem(row, 6, modified_item)
+
+            # Status
+            if diff.error:
+                status_item = QTableWidgetItem("⚠️ " + diff.error[:30])
+                status_item.setForeground(QColor("#dc3545"))
+            elif has_diff:
+                status_item = QTableWidgetItem(self.tr("Differences found"))
+                status_item.setForeground(QColor("#007bff"))
+            else:
+                status_item = QTableWidgetItem(self.tr("Synchronized"))
+                status_item.setForeground(QColor("#28a745"))
+            table.setItem(row, 7, status_item)
+
+        main_layout.addWidget(table)
+        self._diff_table = table
+        self._diff_data = differences
+
+        # Selection buttons
+        select_layout = QHBoxLayout()
+        select_all_btn = QPushButton(self.tr("Select All"))
+        select_all_btn.clicked.connect(lambda: self._select_all_diffs(True))
+        select_none_btn = QPushButton(self.tr("Select None"))
+        select_none_btn.clicked.connect(lambda: self._select_all_diffs(False))
+        select_diffs_btn = QPushButton(self.tr("Select Only Different"))
+        select_diffs_btn.clicked.connect(self._select_only_diffs)
+
+        select_layout.addWidget(select_all_btn)
+        select_layout.addWidget(select_none_btn)
+        select_layout.addWidget(select_diffs_btn)
+        select_layout.addStretch()
+        main_layout.addLayout(select_layout)
+
+        # Sync action buttons
+        action_frame = QFrame()
+        action_frame.setStyleSheet("QFrame { background-color: #e9ecef; border-radius: 5px; padding: 10px; }")
+        action_layout = QHBoxLayout(action_frame)
+
+        upload_btn = QPushButton(self.tr("📤 Upload to Remote (Local → Remote)"))
+        upload_btn.setStyleSheet("QPushButton { background-color: #28a745; color: white; padding: 10px 20px; font-weight: bold; }")
+        upload_btn.clicked.connect(lambda: self._sync_selected_tables(dialog, 'upload'))
+
+        download_btn = QPushButton(self.tr("📥 Download from Remote (Remote → Local)"))
+        download_btn.setStyleSheet("QPushButton { background-color: #007bff; color: white; padding: 10px 20px; font-weight: bold; }")
+        download_btn.clicked.connect(lambda: self._sync_selected_tables(dialog, 'download'))
+
+        close_btn = QPushButton(self.tr("Close"))
+        close_btn.clicked.connect(dialog.reject)
+
+        action_layout.addWidget(upload_btn)
+        action_layout.addWidget(download_btn)
+        action_layout.addStretch()
+        action_layout.addWidget(close_btn)
+
+        main_layout.addWidget(action_frame)
+
+        # Show dialog
+        dialog.exec_()
+
+    def _select_all_diffs(self, selected):
+        """Select or deselect all checkboxes"""
+        for checkbox in self._diff_checkboxes:
+            if checkbox.isEnabled():
+                checkbox.setChecked(selected)
+
+    def _select_only_diffs(self):
+        """Select only tables with differences"""
+        for i, (checkbox, diff) in enumerate(zip(self._diff_checkboxes, self._diff_data)):
+            has_diff = diff.added_local > 0 or diff.added_remote > 0 or diff.modified > 0
+            if checkbox.isEnabled():
+                checkbox.setChecked(has_diff)
+
+    def _sync_selected_tables(self, dialog, direction):
+        """Sync selected tables in the specified direction using DIFFERENTIAL sync"""
+        # Get selected tables
+        selected_tables = []
+        for i, (checkbox, diff) in enumerate(zip(self._diff_checkboxes, self._diff_data)):
+            if checkbox.isChecked():
+                selected_tables.append(diff.table_name)
+
+        if not selected_tables:
+            QMessageBox.warning(
+                dialog,
+                self.tr("No Tables Selected"),
+                self.tr("Please select at least one table to synchronize.")
+            )
+            return
+
+        # Confirm action with differential sync info
+        if direction == 'upload':
+            msg = self.tr(
+                "You are about to upload {count} table(s) from LOCAL to REMOTE.\n\n"
+                "Tables: {tables}\n\n"
+                "DIFFERENTIAL SYNC: Only new and modified records will be synced.\n"
+                "IDs will be preserved.\n\n"
+                "Continue?"
+            ).format(count=len(selected_tables), tables=", ".join(selected_tables[:5]) + ("..." if len(selected_tables) > 5 else ""))
+        else:
+            msg = self.tr(
+                "You are about to download {count} table(s) from REMOTE to LOCAL.\n\n"
+                "Tables: {tables}\n\n"
+                "DIFFERENTIAL SYNC: Only new and modified records will be synced.\n"
+                "IDs will be preserved.\n\n"
+                "Continue?"
+            ).format(count=len(selected_tables), tables=", ".join(selected_tables[:5]) + ("..." if len(selected_tables) > 5 else ""))
+
+        reply = QMessageBox.question(
+            dialog,
+            self.tr("Confirm Synchronization"),
+            msg,
+            QMessageBox.Yes | QMessageBox.No
+        )
+
+        if reply == QMessageBox.Yes:
+            dialog.accept()
+            # Start DIFFERENTIAL sync (only changed records)
+            if direction == 'upload':
+                self.sync_upload_to_supabase(tables=selected_tables, differential=True)
+            else:
+                self.sync_download_from_supabase(tables=selected_tables, differential=True)
+
+    def save_all_sync_credentials(self):
+        """Save both local and remote sync credentials"""
+        s = QgsSettings()
+
+        # Save local credentials
+        s.setValue('pyArchInit/local_host', self.sync_local_host.text())
+        s.setValue('pyArchInit/local_port', self.sync_local_port.value())
+        s.setValue('pyArchInit/local_database', self.sync_local_database.text())
+        s.setValue('pyArchInit/local_user', self.sync_local_user.text())
+        s.setValue('pyArchInit/local_password', self.sync_local_password.text())
+
+        # Save remote (Supabase) credentials
+        s.setValue('pyArchInit/remote_host', self.sync_remote_host.text())
+        s.setValue('pyArchInit/remote_port', self.sync_remote_port.value())
+        s.setValue('pyArchInit/remote_database', self.sync_remote_database.text())
+        s.setValue('pyArchInit/remote_user', self.sync_remote_user.text())
+        s.setValue('pyArchInit/remote_password', self.sync_remote_password.text())
+
+        QMessageBox.information(
+            self,
+            "Configurazione Salvata",
+            "✅ Configurazione sincronizzazione salvata!\n\n"
+            f"Database Locale: {self.sync_local_host.text()}:{self.sync_local_port.value()}/{self.sync_local_database.text()}\n"
+            f"Database Supabase: {self.sync_remote_host.text()}:{self.sync_remote_port.value()}/{self.sync_remote_database.text()}"
+        )
+
+    def _load_all_sync_credentials(self):
+        """Load both local and remote sync credentials"""
+        s = QgsSettings()
+
+        # Load local credentials
+        if hasattr(self, 'sync_local_host'):
+            self.sync_local_host.setText(s.value('pyArchInit/local_host', 'localhost'))
+        if hasattr(self, 'sync_local_port'):
+            self.sync_local_port.setValue(int(s.value('pyArchInit/local_port', 5432)))
+        if hasattr(self, 'sync_local_database'):
+            self.sync_local_database.setText(s.value('pyArchInit/local_database', ''))
+        if hasattr(self, 'sync_local_user'):
+            self.sync_local_user.setText(s.value('pyArchInit/local_user', 'postgres'))
+        if hasattr(self, 'sync_local_password'):
+            self.sync_local_password.setText(s.value('pyArchInit/local_password', ''))
+
+        # Load remote credentials
+        if hasattr(self, 'sync_remote_host'):
+            self.sync_remote_host.setText(s.value('pyArchInit/remote_host', ''))
+        if hasattr(self, 'sync_remote_port'):
+            self.sync_remote_port.setValue(int(s.value('pyArchInit/remote_port', 5432)))
+        if hasattr(self, 'sync_remote_database'):
+            self.sync_remote_database.setText(s.value('pyArchInit/remote_database', 'postgres'))
+        if hasattr(self, 'sync_remote_user'):
+            self.sync_remote_user.setText(s.value('pyArchInit/remote_user', ''))
+        if hasattr(self, 'sync_remote_password'):
+            self.sync_remote_password.setText(s.value('pyArchInit/remote_password', ''))
+
+    # ============================================================
+    # CONNECTION PROFILES MANAGEMENT
+    # ============================================================
+
+    def _load_connection_profiles(self):
+        """Load saved connection profiles into the combo box"""
+        import json
+        s = QgsSettings()
+
+        if not hasattr(self, 'sync_profiles_combo'):
+            return
+
+        # Block signals to prevent triggering selection changed
+        self.sync_profiles_combo.blockSignals(True)
+
+        # Clear and add default item
+        self.sync_profiles_combo.clear()
+        self.sync_profiles_combo.addItem(self.tr("-- Select a profile --"), "")
+
+        # Load profiles from settings
+        profiles_json = s.value('pyArchInit/sync_profiles', '{}')
+        try:
+            profiles = json.loads(profiles_json)
+            for name in sorted(profiles.keys()):
+                profile = profiles[name]
+                # Create display text with connection info
+                display = f"{name} ({profile.get('local_database', '?')} ↔ {profile.get('remote_host', '?')[:20]})"
+                self.sync_profiles_combo.addItem(display, name)
+        except (json.JSONDecodeError, TypeError):
+            pass
+
+        self.sync_profiles_combo.blockSignals(False)
+
+    def _on_profile_selected(self, index):
+        """Handle profile selection from combo box"""
+        import json
+
+        if index <= 0:  # "Select a profile" item
+            return
+
+        profile_name = self.sync_profiles_combo.itemData(index)
+        if not profile_name:
+            return
+
+        s = QgsSettings()
+        profiles_json = s.value('pyArchInit/sync_profiles', '{}')
+
+        try:
+            profiles = json.loads(profiles_json)
+            if profile_name in profiles:
+                profile = profiles[profile_name]
+
+                # Load local settings
+                if hasattr(self, 'sync_local_host'):
+                    self.sync_local_host.setText(profile.get('local_host', 'localhost'))
+                if hasattr(self, 'sync_local_port'):
+                    self.sync_local_port.setValue(int(profile.get('local_port', 5432)))
+                if hasattr(self, 'sync_local_database'):
+                    self.sync_local_database.setText(profile.get('local_database', ''))
+                if hasattr(self, 'sync_local_user'):
+                    self.sync_local_user.setText(profile.get('local_user', 'postgres'))
+                if hasattr(self, 'sync_local_password'):
+                    self.sync_local_password.setText(profile.get('local_password', ''))
+
+                # Load remote settings
+                if hasattr(self, 'sync_remote_host'):
+                    self.sync_remote_host.setText(profile.get('remote_host', ''))
+                if hasattr(self, 'sync_remote_port'):
+                    self.sync_remote_port.setValue(int(profile.get('remote_port', 5432)))
+                if hasattr(self, 'sync_remote_database'):
+                    self.sync_remote_database.setText(profile.get('remote_database', 'postgres'))
+                if hasattr(self, 'sync_remote_user'):
+                    self.sync_remote_user.setText(profile.get('remote_user', ''))
+                if hasattr(self, 'sync_remote_password'):
+                    self.sync_remote_password.setText(profile.get('remote_password', ''))
+
+                QMessageBox.information(
+                    self,
+                    self.tr("Profile Loaded"),
+                    self.tr("Profile '{name}' loaded successfully!").format(name=profile_name)
+                )
+
+        except (json.JSONDecodeError, TypeError) as e:
+            QMessageBox.warning(self, self.tr("Error"), f"Failed to load profile: {e}")
+
+    def _save_connection_profile(self):
+        """Save current connection settings as a new profile"""
+        import json
+        from qgis.PyQt.QtWidgets import QInputDialog
+
+        # Suggest a name based on the databases
+        local_db = self.sync_local_database.text() if hasattr(self, 'sync_local_database') else ''
+        remote_host = self.sync_remote_host.text() if hasattr(self, 'sync_remote_host') else ''
+        suggested_name = f"{local_db}-{remote_host.split('.')[0]}" if local_db and remote_host else ""
+
+        # Ask for profile name
+        name, ok = QInputDialog.getText(
+            self,
+            self.tr("Save Connection Profile"),
+            self.tr("Enter a name for this connection profile:"),
+            text=suggested_name
+        )
+
+        if not ok or not name.strip():
+            return
+
+        name = name.strip()
+
+        # Create profile data
+        profile = {
+            'local_host': self.sync_local_host.text() if hasattr(self, 'sync_local_host') else 'localhost',
+            'local_port': self.sync_local_port.value() if hasattr(self, 'sync_local_port') else 5432,
+            'local_database': self.sync_local_database.text() if hasattr(self, 'sync_local_database') else '',
+            'local_user': self.sync_local_user.text() if hasattr(self, 'sync_local_user') else 'postgres',
+            'local_password': self.sync_local_password.text() if hasattr(self, 'sync_local_password') else '',
+            'remote_host': self.sync_remote_host.text() if hasattr(self, 'sync_remote_host') else '',
+            'remote_port': self.sync_remote_port.value() if hasattr(self, 'sync_remote_port') else 5432,
+            'remote_database': self.sync_remote_database.text() if hasattr(self, 'sync_remote_database') else 'postgres',
+            'remote_user': self.sync_remote_user.text() if hasattr(self, 'sync_remote_user') else '',
+            'remote_password': self.sync_remote_password.text() if hasattr(self, 'sync_remote_password') else '',
+        }
+
+        # Load existing profiles
+        s = QgsSettings()
+        profiles_json = s.value('pyArchInit/sync_profiles', '{}')
+
+        try:
+            profiles = json.loads(profiles_json)
+        except (json.JSONDecodeError, TypeError):
+            profiles = {}
+
+        # Check if profile exists
+        if name in profiles:
+            reply = QMessageBox.question(
+                self,
+                self.tr("Profile Exists"),
+                self.tr("A profile named '{name}' already exists. Do you want to overwrite it?").format(name=name),
+                QMessageBox.Yes | QMessageBox.No
+            )
+            if reply != QMessageBox.Yes:
+                return
+
+        # Save profile
+        profiles[name] = profile
+        s.setValue('pyArchInit/sync_profiles', json.dumps(profiles))
+
+        # Reload profiles in combo box
+        self._load_connection_profiles()
+
+        # Select the new profile
+        for i in range(self.sync_profiles_combo.count()):
+            if self.sync_profiles_combo.itemData(i) == name:
+                self.sync_profiles_combo.setCurrentIndex(i)
+                break
+
+        QMessageBox.information(
+            self,
+            self.tr("Profile Saved"),
+            self.tr("Connection profile '{name}' saved successfully!\n\n"
+                    "Local: {local_host}:{local_port}/{local_db}\n"
+                    "Remote: {remote_host}:{remote_port}/{remote_db}").format(
+                name=name,
+                local_host=profile['local_host'],
+                local_port=profile['local_port'],
+                local_db=profile['local_database'],
+                remote_host=profile['remote_host'],
+                remote_port=profile['remote_port'],
+                remote_db=profile['remote_database']
+            )
+        )
+
+    def _delete_connection_profile(self):
+        """Delete the selected connection profile"""
+        import json
+
+        if not hasattr(self, 'sync_profiles_combo'):
+            return
+
+        index = self.sync_profiles_combo.currentIndex()
+        if index <= 0:
+            QMessageBox.warning(
+                self,
+                self.tr("No Profile Selected"),
+                self.tr("Please select a profile to delete.")
+            )
+            return
+
+        profile_name = self.sync_profiles_combo.itemData(index)
+        if not profile_name:
+            return
+
+        # Confirm deletion
+        reply = QMessageBox.question(
+            self,
+            self.tr("Confirm Deletion"),
+            self.tr("Are you sure you want to delete the profile '{name}'?\n\nThis action cannot be undone.").format(name=profile_name),
+            QMessageBox.Yes | QMessageBox.No
+        )
+
+        if reply != QMessageBox.Yes:
+            return
+
+        # Load profiles
+        s = QgsSettings()
+        profiles_json = s.value('pyArchInit/sync_profiles', '{}')
+
+        try:
+            profiles = json.loads(profiles_json)
+            if profile_name in profiles:
+                del profiles[profile_name]
+                s.setValue('pyArchInit/sync_profiles', json.dumps(profiles))
+
+                # Reload profiles in combo box
+                self._load_connection_profiles()
+
+                QMessageBox.information(
+                    self,
+                    self.tr("Profile Deleted"),
+                    self.tr("Profile '{name}' has been deleted.").format(name=profile_name)
+                )
+        except (json.JSONDecodeError, TypeError) as e:
+            QMessageBox.warning(self, self.tr("Error"), f"Failed to delete profile: {e}")
 
     def check_if_updates_needed(self):
         """Check if database updates are needed"""
@@ -3416,6 +4555,217 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         except Exception as e:
             QgsMessageLog.logMessage(f"Error checking admin status: {str(e)}", "PyArchInit", Qgis.Warning)
             return True  # Default to admin if error
+
+    # ============================================================
+    # DATABASE SYNC METHODS (Local <-> Supabase)
+    # ============================================================
+
+    def sync_download_from_supabase(self, tables=None, differential=False):
+        """Download data from remote database to local database
+
+        Args:
+            tables: Optional list of table names to sync. If None, syncs all tables.
+            differential: If True, only sync new/modified records (preserves IDs).
+        """
+        # Only show confirmation if not already confirmed (when tables is None, called from button)
+        if tables is None:
+            reply = QMessageBox.warning(
+                self,
+                self.tr("Confirm Download"),
+                self.tr("⚠️ WARNING: This operation will OVERWRITE data in your local database!\n\n"
+                        "Local data will be replaced with remote data.\n\n"
+                        "Continue?"),
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                QMessageBox.StandardButton.No
+            )
+
+            if reply != QMessageBox.StandardButton.Yes:
+                return
+
+        # Get sync configuration
+        local_config, remote_config = self._get_sync_configs()
+
+        if not remote_config.get('host'):
+            QMessageBox.warning(
+                self,
+                self.tr("Missing Configuration"),
+                self.tr("Remote database not configured.\n\n"
+                        "Please configure the remote connection in the settings.")
+            )
+            return
+
+        if not local_config.get('database'):
+            QMessageBox.warning(
+                self,
+                self.tr("Missing Configuration"),
+                self.tr("Local database not configured.\n\n"
+                        "Please select a local database before proceeding.")
+            )
+            return
+
+        # Configure and start sync
+        self.sync_manager.configure(local_config, remote_config)
+        self.sync_manager.download_from_remote(tables=tables, differential=differential)
+
+    def sync_upload_to_supabase(self, tables=None, differential=False):
+        """Upload data from local database to remote database
+
+        Args:
+            tables: Optional list of table names to sync. If None, syncs all tables.
+            differential: If True, only sync new/modified records (preserves IDs).
+        """
+        # Only show confirmation if not already confirmed (when tables is None, called from button)
+        if tables is None:
+            reply = QMessageBox.warning(
+                self,
+                self.tr("Confirm Upload"),
+                self.tr("⚠️ WARNING: This operation will OVERWRITE data on the remote server!\n\n"
+                        "Remote data will be replaced with local data.\n\n"
+                        "Continue?"),
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                QMessageBox.StandardButton.No
+            )
+
+            if reply != QMessageBox.StandardButton.Yes:
+                return
+
+        # Get sync configuration
+        local_config, remote_config = self._get_sync_configs()
+
+        if not remote_config.get('host'):
+            QMessageBox.warning(
+                self,
+                self.tr("Missing Configuration"),
+                self.tr("Remote database not configured.\n\n"
+                        "Please configure the remote connection in the settings.")
+            )
+            return
+
+        if not local_config.get('database'):
+            QMessageBox.warning(
+                self,
+                self.tr("Missing Configuration"),
+                self.tr("Local database not configured.\n\n"
+                        "Please select a local database before proceeding.")
+            )
+            return
+
+        # Configure and start sync
+        self.sync_manager.configure(local_config, remote_config)
+        self.sync_manager.upload_to_remote(tables=tables, differential=differential)
+
+    def _get_sync_configs(self):
+        """Get local and remote database configurations for sync from Supabase Sync tab"""
+        s = QgsSettings()
+
+        # Local configuration - from Supabase Sync tab fields
+        local_config = {
+            'host': 'localhost',
+            'port': 5432,
+            'database': '',
+            'user': 'postgres',
+            'password': ''
+        }
+
+        # Get from Supabase Sync tab UI fields
+        if hasattr(self, 'sync_local_host') and self.sync_local_host.text().strip():
+            local_config['host'] = self.sync_local_host.text().strip()
+            local_config['port'] = self.sync_local_port.value() if hasattr(self, 'sync_local_port') else 5432
+            local_config['database'] = self.sync_local_database.text().strip() if hasattr(self, 'sync_local_database') else ''
+            local_config['user'] = self.sync_local_user.text().strip() if hasattr(self, 'sync_local_user') else 'postgres'
+            local_config['password'] = self.sync_local_password.text() if hasattr(self, 'sync_local_password') else ''
+        else:
+            # Fall back to saved settings
+            local_config['host'] = s.value('pyArchInit/local_host', 'localhost')
+            local_config['port'] = int(s.value('pyArchInit/local_port', 5432))
+            local_config['database'] = s.value('pyArchInit/local_database', '')
+            local_config['user'] = s.value('pyArchInit/local_user', 'postgres')
+            local_config['password'] = s.value('pyArchInit/local_password', '')
+
+        # Remote configuration (Supabase) - from Supabase Sync tab fields
+        remote_config = {
+            'host': '',
+            'port': 5432,
+            'database': 'postgres',
+            'user': '',
+            'password': ''
+        }
+
+        # Get from Supabase Sync tab UI fields
+        if hasattr(self, 'sync_remote_host') and self.sync_remote_host.text().strip():
+            remote_config['host'] = self.sync_remote_host.text().strip()
+            remote_config['port'] = self.sync_remote_port.value() if hasattr(self, 'sync_remote_port') else 5432
+            remote_config['database'] = self.sync_remote_database.text().strip() if hasattr(self, 'sync_remote_database') else 'postgres'
+            remote_config['user'] = self.sync_remote_user.text().strip() if hasattr(self, 'sync_remote_user') else ''
+            remote_config['password'] = self.sync_remote_password.text() if hasattr(self, 'sync_remote_password') else ''
+        else:
+            # Fall back to saved settings
+            remote_config['host'] = s.value('pyArchInit/remote_host', '')
+            remote_config['port'] = int(s.value('pyArchInit/remote_port', 5432))
+            remote_config['database'] = s.value('pyArchInit/remote_database', 'postgres')
+            remote_config['user'] = s.value('pyArchInit/remote_user', '')
+            remote_config['password'] = s.value('pyArchInit/remote_password', '')
+
+        return local_config, remote_config
+
+    def _on_sync_started(self):
+        """Handle sync started signal"""
+        if hasattr(self, 'sync_progress_bar'):
+            self.sync_progress_bar.setVisible(True)
+            self.sync_progress_bar.setValue(0)
+        if hasattr(self, 'sync_download_btn'):
+            self.sync_download_btn.setEnabled(False)
+        if hasattr(self, 'sync_upload_btn'):
+            self.sync_upload_btn.setEnabled(False)
+        if hasattr(self, 'sync_status_label'):
+            self.sync_status_label.setText("Sincronizzazione in corso...")
+
+    def _on_sync_progress(self, percent, message):
+        """Handle sync progress signal"""
+        if hasattr(self, 'sync_progress_bar'):
+            self.sync_progress_bar.setValue(percent)
+        if hasattr(self, 'sync_status_label'):
+            self.sync_status_label.setText(message)
+        QApplication.processEvents()
+
+    def _on_sync_finished(self, success, message):
+        """Handle sync finished signal"""
+        if hasattr(self, 'sync_progress_bar'):
+            self.sync_progress_bar.setVisible(False)
+        if hasattr(self, 'sync_download_btn'):
+            self.sync_download_btn.setEnabled(True)
+        if hasattr(self, 'sync_upload_btn'):
+            self.sync_upload_btn.setEnabled(True)
+        if hasattr(self, 'sync_status_label'):
+            if success:
+                self.sync_status_label.setText("✅ " + message)
+                self.sync_status_label.setStyleSheet("color: green; font-style: italic;")
+            else:
+                self.sync_status_label.setText("❌ " + message)
+                self.sync_status_label.setStyleSheet("color: red; font-style: italic;")
+
+        if success:
+            QMessageBox.information(self, "Sincronizzazione Completata", message)
+        else:
+            QMessageBox.warning(self, "Sincronizzazione Fallita", message)
+
+    def _on_sync_error(self, error_message):
+        """Handle sync error signal"""
+        if hasattr(self, 'sync_progress_bar'):
+            self.sync_progress_bar.setVisible(False)
+        if hasattr(self, 'sync_download_btn'):
+            self.sync_download_btn.setEnabled(True)
+        if hasattr(self, 'sync_upload_btn'):
+            self.sync_upload_btn.setEnabled(True)
+        if hasattr(self, 'sync_status_label'):
+            self.sync_status_label.setText("❌ Errore: " + error_message[:50])
+            self.sync_status_label.setStyleSheet("color: red; font-style: italic;")
+
+        QMessageBox.critical(self, "Errore Sincronizzazione", error_message)
+
+    # ============================================================
+    # END DATABASE SYNC METHODS
+    # ============================================================
 
     def db_active (self):
         # Prevent recursive calls
