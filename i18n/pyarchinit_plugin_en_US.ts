@@ -1695,7 +1695,7 @@ p, li { white-space: pre-wrap; }
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;bello&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;nice&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
-</context>
+<message><source>Cerca immagini</source><translation>Search images</translation></message><message><source>Dati Fisici</source><translation>Physical Data</translation></message><message><source>Dati schedatura</source><translation>Recording data</translation></message><message><source>Definizione interpretativa</source><translation>Interpretive definition</translation></message><message><source>Ente Responsabile</source><translation>Responsible Authority</translation></message><message><source>Extended Matrix</source><translation>Extended Matrix</translation></message><message><source>Rapporti Stratigrafici</source><translation>Stratigraphic Relations</translation></message><message><source>Primo record</source><translation>First record</translation></message><message><source>Ultimo record</source><translation>Last record</translation></message><message><source>Record precedente</source><translation>Previous record</translation></message><message><source>Crea nuovo record</source><translation>Create new record</translation></message><message><source>Salva il record</source><translation>Save record</translation></message><message><source>Compilatore</source><translation>Compiler</translation></message><message><source>Diapositive</source><translation>Slides</translation></message><message><source>Negative</source><translation>Negatives</translation></message><message><source>Punto rinv.</source><translation>Find spot</translation></message><message><source>Aggiungi foto</source><translation>Add photo</translation></message><message><source>Aggiungi disegno</source><translation>Add drawing</translation></message><message><source>Rimuovi foto</source><translation>Remove photo</translation></message><message><source>Rimuovi disegno</source><translation>Remove drawing</translation></message><message><source>Aggiungi materiale</source><translation>Add material</translation></message><message><source>Rimuovi materiale</source><translation>Remove material</translation></message><message><source>Dati di scavo</source><translation>Excavation data</translation></message><message><source>Dati tecnici</source><translation>Technical data</translation></message><message><source>Identificazione e Localizzazione</source><translation>Identification and Location</translation></message><message><source>Documentazione Fotografica</source><translation>Photographic Documentation</translation></message><message><source>Documentazione Grafica</source><translation>Graphic Documentation</translation></message><message><source>Esporta etichette</source><translation>Export labels</translation></message><message><source>Lista Casse</source><translation>Box list</translation></message><message><source>TMA materiali</source><translation>TMA materials</translation></message><message><source>ICCD</source><translation>ICCD</translation></message><message><source>Magazzino</source><translation>Warehouse</translation></message><message><source>Museo</source><translation>Museum</translation></message><message><source>Suggerimenti</source><translation>Suggestions</translation></message><message><source>Map</source><translation>Map</translation></message><message><source>Sync TMA</source><translation>Sync TMA</translation></message><message><source>Cerca suggerimenti</source><translation>Search suggestions</translation></message><message><source>Posizione nel corredo</source><translation>Position in grave goods</translation></message><message><source>Posizione del corredo</source><translation>Grave goods position</translation></message><message><source>ID Individuo</source><translation>Individual ID</translation></message><message><source>ID Reperto (RA)</source><translation>Find ID (RA)</translation></message></context>
 <context>
     <name>DialogCampioni</name>
     <message>
@@ -9643,62 +9643,62 @@ p, li { white-space: pre-wrap; }
         <translation>Media</translation>
     </message>
     <message>
-        <location filename="../gui/ui/UT_ui.ui" line="2331"/>
+        <location filename="../gui/ui/UT_ui.ui" line="2331" />
         <source>Metodo GPS</source>
         <translation>GPS Method</translation>
     </message>
     <message>
-        <location filename="../gui/ui/UT_ui.ui" line="2351"/>
+        <location filename="../gui/ui/UT_ui.ui" line="2351" />
         <source>Precisione (m)</source>
         <translation>Precision (m)</translation>
     </message>
     <message>
-        <location filename="../gui/ui/UT_ui.ui" line="2377"/>
+        <location filename="../gui/ui/UT_ui.ui" line="2377" />
         <source>Copertura vegetale</source>
         <translation>Vegetation coverage</translation>
     </message>
     <message>
-        <location filename="../gui/ui/UT_ui.ui" line="2397"/>
+        <location filename="../gui/ui/UT_ui.ui" line="2397" />
         <source>Condizione superficie</source>
         <translation>Surface condition</translation>
     </message>
     <message>
-        <location filename="../gui/ui/UT_ui.ui" line="2417"/>
+        <location filename="../gui/ui/UT_ui.ui" line="2417" />
         <source>Accessibilità</source>
         <translation>Accessibility</translation>
     </message>
     <message>
-        <location filename="../gui/ui/UT_ui.ui" line="2693"/>
+        <location filename="../gui/ui/UT_ui.ui" line="2693" />
         <source>Tipo survey</source>
         <translation>Survey type</translation>
     </message>
     <message>
-        <location filename="../gui/ui/UT_ui.ui" line="2713"/>
+        <location filename="../gui/ui/UT_ui.ui" line="2713" />
         <source>Visibilità (%)</source>
         <translation>Visibility (%)</translation>
     </message>
     <message>
-        <location filename="../gui/ui/UT_ui.ui" line="2739"/>
+        <location filename="../gui/ui/UT_ui.ui" line="2739" />
         <source>Condizioni meteo</source>
         <translation>Weather conditions</translation>
     </message>
     <message>
-        <location filename="../gui/ui/UT_ui.ui" line="2759"/>
+        <location filename="../gui/ui/UT_ui.ui" line="2759" />
         <source>Team survey</source>
         <translation>Survey team</translation>
     </message>
     <message>
-        <location filename="../gui/ui/UT_ui.ui" line="2779"/>
+        <location filename="../gui/ui/UT_ui.ui" line="2779" />
         <source>Doc. fotografica</source>
         <translation>Photo documentation</translation>
     </message>
     <message>
-        <location filename="../gui/ui/UT_ui.ui" line="2786"/>
+        <location filename="../gui/ui/UT_ui.ui" line="2786" />
         <source>Presente</source>
         <translation>Present</translation>
     </message>
     <message>
-        <location filename="../gui/ui/UT_ui.ui" line="2772"/>
+        <location filename="../gui/ui/UT_ui.ui" line="2772" />
         <source>Nomi membri team (separati da virgola)</source>
         <translation>Team members names (comma separated)</translation>
     </message>
@@ -12751,8 +12751,8 @@ If unchecked, shows only US at exact level.</source><translation>If checked, sho
         <translation>Profile Exists</translation>
     </message>
     <message>
-        <source>A profile named &apos;{name}&apos; already exists. Do you want to overwrite it?</source>
-        <translation>A profile named &apos;{name}&apos; already exists. Do you want to overwrite it?</translation>
+        <source>A profile named '{name}' already exists. Do you want to overwrite it?</source>
+        <translation>A profile named '{name}' already exists. Do you want to overwrite it?</translation>
     </message>
     <message>
         <source>Profile Saved</source>
@@ -12791,24 +12791,24 @@ If unchecked, shows only US at exact level.</source><translation>If checked, sho
         <translation>Profile Loaded</translation>
     </message>
     <message>
-        <source>Profile &apos;{name}&apos; loaded successfully!
+        <source>Profile '{name}' loaded successfully!
 
-Click &apos;Save Parameters&apos; to apply the connection.</source>
-        <translation>Profile &apos;{name}&apos; loaded successfully!
+Click 'Save Parameters' to apply the connection.</source>
+        <translation>Profile '{name}' loaded successfully!
 
-Click &apos;Save Parameters&apos; to apply the connection.</translation>
+Click 'Save Parameters' to apply the connection.</translation>
     </message>
     <message>
         <source>Enter a name for this database connection profile:</source>
         <translation>Enter a name for this database connection profile:</translation>
     </message>
     <message>
-        <source>Database connection profile &apos;{name}&apos; saved successfully!
+        <source>Database connection profile '{name}' saved successfully!
 
 Server: {server}
 Host: {host}:{port}
 Database: {database}</source>
-        <translation>Database connection profile &apos;{name}&apos; saved successfully!
+        <translation>Database connection profile '{name}' saved successfully!
 
 Server: {server}
 Host: {host}:{port}
