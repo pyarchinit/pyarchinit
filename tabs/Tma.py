@@ -5474,7 +5474,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             # Create DB session using SQLAlchemy
             from sqlalchemy.orm import sessionmaker
             engine = self.DB_MANAGER.engine
-            Session = sessionmaker(bind=engine, autoflush=True, autocommit=True)
+            Session = sessionmaker(bind=engine, autoflush=True)
             session = Session()
 
             for tma_record in tma_records:
