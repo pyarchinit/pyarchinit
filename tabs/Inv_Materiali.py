@@ -5591,6 +5591,108 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             if widget is not None:
                 widget.setEditable(bool(n))
 
+    def table2dict(self, n):
+        """Convert table widget data to list - uses getattr instead of eval for security"""
+        self.tablename = n
+        # n is like 'self.tableWidget_bibliografia', extract widget name
+        widget_name = n.replace('self.', '') if n.startswith('self.') else n
+        table = getattr(self, widget_name)
+        row = table.rowCount()
+        col = table.columnCount()
+        lista = []
+        for r in range(row):
+            sub_list = []
+            for c in range(col):
+                value = table.item(r, c)
+                if value != None:
+                    sub_list.append(str(value.text()))
+            if bool(sub_list):
+                lista.append(sub_list)
+        return lista
+
+    def set_LIST_REC_TEMP(self):
+        # Handle numeric fields - convert empty strings to empty string for comparison
+        if self.lineEdit_num_inv.text() == "":
+            numero_inventario = ''
+        else:
+            numero_inventario = self.lineEdit_num_inv.text()
+
+        if self.lineEditFormeMin.text() == "":
+            forme_minime = ''
+        else:
+            forme_minime = self.lineEditFormeMin.text()
+
+        if self.lineEditFormeMax.text() == "":
+            forme_massime = ''
+        else:
+            forme_massime = self.lineEditFormeMax.text()
+
+        if self.lineEditTotFram.text() == "":
+            totale_frammenti = ''
+        else:
+            totale_frammenti = self.lineEditTotFram.text()
+
+        if self.lineEdit_n_reperto.text() == "":
+            n_reperto = ''
+        else:
+            n_reperto = self.lineEdit_n_reperto.text()
+
+        if self.lineEdit_diametro_orlo.text() == "":
+            diametro_orlo = ''
+        else:
+            diametro_orlo = self.lineEdit_diametro_orlo.text()
+
+        if self.lineEdit_peso.text() == "":
+            peso = ''
+        else:
+            peso = self.lineEdit_peso.text()
+
+        if self.lineEdit_eve_orlo.text() == "":
+            eve_orlo = ''
+        else:
+            eve_orlo = self.lineEdit_eve_orlo.text()
+
+        # TableWidgets
+        elementi_reperto = self.table2dict("self.tableWidget_elementi_reperto")
+        misurazioni = self.table2dict("self.tableWidget_misurazioni")
+        rif_biblio = self.table2dict("self.tableWidget_rif_biblio")
+        tecnologie = self.table2dict("self.tableWidget_tecnologie")
+
+        self.DATA_LIST_REC_TEMP = [
+            str(self.comboBox_sito.currentText()),                    # 0 - sito
+            str(numero_inventario),                                    # 1 - numero_inventario
+            str(self.comboBox_tipo_reperto.currentText()),            # 2 - tipo_reperto
+            str(self.comboBox_criterio_schedatura.currentText()),     # 3 - criterio_schedatura
+            str(self.comboBox_definizione.currentText()),             # 4 - definizione
+            str(self.textEdit_descrizione_reperto.toPlainText()),     # 5 - descrizione
+            str(self.comboBox_area.currentText()),                    # 6 - area
+            str(self.lineEdit_us.text()),                             # 7 - us
+            str(self.comboBox_lavato.currentText()),                  # 8 - lavato
+            str(self.lineEdit_nr_cassa.text()),                       # 9 - nr_cassa
+            str(self.comboBox_magazzino.currentText()),               # 10 - luogo_conservazione
+            str(self.comboBox_conservazione.currentText()),           # 11 - stato_conservazione
+            str(self.comboBox_datazione.currentText()),               # 12 - datazione_reperto
+            str(elementi_reperto),                                     # 13 - elementi_reperto
+            str(misurazioni),                                          # 14 - misurazioni
+            str(rif_biblio),                                           # 15 - rif_biblio
+            str(tecnologie),                                           # 16 - tecnologie
+            str(forme_minime),                                         # 17 - forme_minime
+            str(forme_massime),                                        # 18 - forme_massime
+            str(totale_frammenti),                                     # 19 - totale_frammenti
+            str(self.lineEditCorpoCeramico.text()),                   # 20 - corpo_ceramico
+            str(self.lineEditRivestimento.text()),                    # 21 - rivestimento
+            str(diametro_orlo),                                        # 22 - diametro_orlo
+            str(peso),                                                 # 23 - peso
+            str(self.comboBox_tipologia.currentText()),               # 24 - tipo
+            str(eve_orlo),                                             # 25 - eve_orlo
+            str(self.comboBox_repertato.currentText()),               # 26 - repertato
+            str(self.comboBox_diagnostico.currentText()),             # 27 - diagnostico
+            str(n_reperto),                                            # 28 - n_reperto
+            str(self.comboBox_tipo_contenitore.currentText()),        # 29 - tipo_contenitore
+            str(self.comboBox_struttura.currentText()),               # 30 - struttura
+            str(self.comboBox_year.currentText())                     # 31 - years
+        ]
+
     def set_LIST_REC_CORR(self):
         self.DATA_LIST_REC_CORR = []
         # Check if REC_CORR is within valid range
