@@ -284,6 +284,12 @@ class SQLiteDBUpdater:
             self.update_fauna_table()
             self.update_other_tables()
 
+            # Add concurrency columns for sync with PostgreSQL (v5.0+)
+            self.add_concurrency_columns()
+
+            # Create missing tables for sync compatibility
+            self.create_missing_tables()
+
             # Create pottery embeddings metadata table for visual similarity search
             self.create_pottery_embeddings_metadata_table()
 
@@ -1062,6 +1068,286 @@ class SQLiteDBUpdater:
 
         except Exception as e:
             self.log_message(f"Errore installando voci thesaurus Pottery: {e}", Qgis.Warning if QGIS_AVAILABLE else None)
+
+    def add_concurrency_columns(self):
+        """Aggiunge le colonne di concurrency per la sincronizzazione con PostgreSQL (v5.0+)"""
+        # Tabelle che necessitano delle colonne di concurrency
+        tables_with_full_concurrency = [
+            'site_table', 'us_table', 'inventario_materiali_table',
+            'periodizzazione_table', 'tomba_table', 'struttura_table',
+            'pottery_table', 'pyarchinit_thesaurus_sigle'
+        ]
+
+        tables_with_basic_concurrency = [
+            'campioni_table', 'individui_table', 'documentazione_table',
+            'archeozoology_table', 'tafonomia_table'
+        ]
+
+        # Colonne complete di concurrency
+        full_concurrency_cols = [
+            ('version_number', 'INTEGER DEFAULT 1'),
+            ('editing_by', 'TEXT'),
+            ('editing_since', 'TEXT'),
+            ('last_modified_by', 'TEXT'),
+            ('last_modified_timestamp', 'TEXT'),
+            ('audit_trail', 'TEXT')
+        ]
+
+        # Colonne base di concurrency
+        basic_concurrency_cols = [
+            ('version_number', 'INTEGER DEFAULT 1'),
+            ('editing_by', 'TEXT'),
+            ('editing_since', 'TEXT'),
+            ('audit_trail', 'TEXT')
+        ]
+
+        # Aggiungi colonne complete
+        for table in tables_with_full_concurrency:
+            if self.table_exists(table):
+                for col_name, col_type in full_concurrency_cols:
+                    self.add_column_if_missing(table, col_name, col_type)
+
+        # Aggiungi colonne base
+        for table in tables_with_basic_concurrency:
+            if self.table_exists(table):
+                for col_name, col_type in basic_concurrency_cols:
+                    self.add_column_if_missing(table, col_name, col_type)
+
+        # us_table ha anche colonne funzionali extra
+        if self.table_exists('us_table'):
+            self.add_column_if_missing('us_table', 'quantificazioni', 'TEXT')
+            self.add_column_if_missing('us_table', 'sing_doc', 'TEXT')
+            self.add_column_if_missing('us_table', 'unita_edilizie', 'TEXT')
+
+        # inventario_materiali_table ha colonne extra
+        if self.table_exists('inventario_materiali_table'):
+            self.add_column_if_missing('inventario_materiali_table', 'quota_usm', 'REAL')
+            self.add_column_if_missing('inventario_materiali_table', 'unita_misura_quota', 'TEXT')
+
+        # pottery_table ha colonne extra
+        if self.table_exists('pottery_table'):
+            self.add_column_if_missing('pottery_table', 'datazione', 'TEXT')
+
+    def create_missing_tables(self):
+        """Crea tabelle mancanti per compatibilità con PostgreSQL (v5.0+)"""
+
+        # pyarchinit_access_log
+        if not self.table_exists('pyarchinit_access_log'):
+            self.cursor.execute('''
+                CREATE TABLE pyarchinit_access_log (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    user_id INTEGER,
+                    username TEXT,
+                    action TEXT,
+                    table_accessed TEXT,
+                    operation TEXT,
+                    record_id INTEGER,
+                    ip_address TEXT,
+                    timestamp TEXT,
+                    success INTEGER,
+                    error_message TEXT
+                )
+            ''')
+            self.log_message("Creata tabella pyarchinit_access_log")
+            self.updates_made.append("CREATE TABLE pyarchinit_access_log")
+
+        # pyarchinit_audit_log
+        if not self.table_exists('pyarchinit_audit_log'):
+            self.cursor.execute('''
+                CREATE TABLE pyarchinit_audit_log (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    table_name TEXT NOT NULL,
+                    record_id INTEGER,
+                    operation TEXT NOT NULL,
+                    user_name TEXT,
+                    timestamp TEXT,
+                    old_data TEXT,
+                    new_data TEXT,
+                    changes TEXT
+                )
+            ''')
+            self.log_message("Creata tabella pyarchinit_audit_log")
+            self.updates_made.append("CREATE TABLE pyarchinit_audit_log")
+
+        # pyarchinit_sync_lock
+        if not self.table_exists('pyarchinit_sync_lock'):
+            self.cursor.execute('''
+                CREATE TABLE pyarchinit_sync_lock (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    table_name TEXT NOT NULL,
+                    record_id INTEGER NOT NULL,
+                    locked_by TEXT NOT NULL,
+                    locked_at TEXT NOT NULL,
+                    lock_type TEXT DEFAULT 'edit',
+                    expires_at TEXT
+                )
+            ''')
+            self.log_message("Creata tabella pyarchinit_sync_lock")
+            self.updates_made.append("CREATE TABLE pyarchinit_sync_lock")
+
+        # pyarchinit_users
+        if not self.table_exists('pyarchinit_users'):
+            self.cursor.execute('''
+                CREATE TABLE pyarchinit_users (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    username TEXT NOT NULL UNIQUE,
+                    password_hash TEXT NOT NULL,
+                    full_name TEXT,
+                    email TEXT,
+                    role_id INTEGER,
+                    is_active INTEGER DEFAULT 1,
+                    created_at TEXT,
+                    last_login TEXT,
+                    default_site TEXT
+                )
+            ''')
+            self.log_message("Creata tabella pyarchinit_users")
+            self.updates_made.append("CREATE TABLE pyarchinit_users")
+
+        # pyarchinit_roles
+        if not self.table_exists('pyarchinit_roles'):
+            self.cursor.execute('''
+                CREATE TABLE pyarchinit_roles (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    role_name TEXT NOT NULL UNIQUE,
+                    description TEXT,
+                    default_can_insert INTEGER DEFAULT 1,
+                    default_can_update INTEGER DEFAULT 1,
+                    default_can_delete INTEGER DEFAULT 0,
+                    default_can_view INTEGER DEFAULT 1,
+                    is_system_role INTEGER DEFAULT 0
+                )
+            ''')
+            self.log_message("Creata tabella pyarchinit_roles")
+            self.updates_made.append("CREATE TABLE pyarchinit_roles")
+
+        # pyarchinit_permissions
+        if not self.table_exists('pyarchinit_permissions'):
+            self.cursor.execute('''
+                CREATE TABLE pyarchinit_permissions (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    user_id INTEGER,
+                    table_name TEXT NOT NULL,
+                    can_insert INTEGER DEFAULT 1,
+                    can_update INTEGER DEFAULT 1,
+                    can_delete INTEGER DEFAULT 0,
+                    can_view INTEGER DEFAULT 1,
+                    site_filter TEXT,
+                    area_filter TEXT,
+                    created_at TEXT,
+                    created_by TEXT
+                )
+            ''')
+            self.log_message("Creata tabella pyarchinit_permissions")
+            self.updates_made.append("CREATE TABLE pyarchinit_permissions")
+
+        # media_to_us_table
+        if not self.table_exists('media_to_us_table'):
+            self.cursor.execute('''
+                CREATE TABLE media_to_us_table (
+                    id_mediaToUs INTEGER PRIMARY KEY AUTOINCREMENT,
+                    id_us INTEGER,
+                    sito TEXT,
+                    area TEXT,
+                    us INTEGER,
+                    id_media INTEGER,
+                    filepath TEXT
+                )
+            ''')
+            self.log_message("Creata tabella media_to_us_table")
+            self.updates_made.append("CREATE TABLE media_to_us_table")
+
+        # tma_materiali_archeologici
+        if not self.table_exists('tma_materiali_archeologici'):
+            self.cursor.execute('''
+                CREATE TABLE tma_materiali_archeologici (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    sito TEXT,
+                    area TEXT,
+                    localita TEXT,
+                    settore TEXT,
+                    inventario TEXT,
+                    ogtm TEXT,
+                    ldct TEXT,
+                    ldcn TEXT,
+                    vecchia_collocazione TEXT,
+                    cassetta TEXT,
+                    scan TEXT,
+                    saggio TEXT,
+                    vano_locus TEXT,
+                    dscd TEXT,
+                    dscu TEXT,
+                    rcgd TEXT,
+                    rcgz TEXT,
+                    aint TEXT,
+                    aind TEXT,
+                    dtzg TEXT,
+                    deso TEXT,
+                    nsc TEXT,
+                    ftap TEXT,
+                    ftan TEXT,
+                    drat TEXT,
+                    dran TEXT,
+                    draa TEXT,
+                    created_at TEXT,
+                    updated_at TEXT,
+                    created_by TEXT,
+                    updated_by TEXT,
+                    version_number INTEGER DEFAULT 1,
+                    editing_by TEXT,
+                    editing_since TEXT,
+                    last_modified_by TEXT,
+                    last_modified_timestamp TEXT,
+                    audit_trail TEXT
+                )
+            ''')
+            self.log_message("Creata tabella tma_materiali_archeologici")
+            self.updates_made.append("CREATE TABLE tma_materiali_archeologici")
+
+        # tma_materiali_ripetibili
+        if not self.table_exists('tma_materiali_ripetibili'):
+            self.cursor.execute('''
+                CREATE TABLE tma_materiali_ripetibili (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    id_tma INTEGER NOT NULL,
+                    madi TEXT,
+                    macc TEXT,
+                    macl TEXT,
+                    macp TEXT,
+                    macd TEXT,
+                    cronologia_mac TEXT,
+                    macq TEXT,
+                    peso REAL,
+                    created_at TEXT,
+                    updated_at TEXT,
+                    created_by TEXT,
+                    updated_by TEXT,
+                    version_number INTEGER DEFAULT 1,
+                    editing_by TEXT,
+                    editing_since TEXT,
+                    last_modified_by TEXT,
+                    last_modified_timestamp TEXT
+                )
+            ''')
+            self.log_message("Creata tabella tma_materiali_ripetibili")
+            self.updates_made.append("CREATE TABLE tma_materiali_ripetibili")
+
+        # pyarchinit_ripartizioni_temporali
+        if not self.table_exists('pyarchinit_ripartizioni_temporali'):
+            self.cursor.execute('''
+                CREATE TABLE pyarchinit_ripartizioni_temporali (
+                    id_periodo INTEGER PRIMARY KEY AUTOINCREMENT,
+                    sito TEXT,
+                    sigla_periodo TEXT,
+                    sigla_fase TEXT,
+                    cronologia_numerica INTEGER,
+                    cronologia_numerica_finale INTEGER,
+                    datazione_estesa_stringa TEXT,
+                    descrizione TEXT
+                )
+            ''')
+            self.log_message("Creata tabella pyarchinit_ripartizioni_temporali")
+            self.updates_made.append("CREATE TABLE pyarchinit_ripartizioni_temporali")
 
 
 def check_and_update_sqlite_db(db_path, parent=None):
