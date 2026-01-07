@@ -2131,7 +2131,7 @@ class Pyarchinit_db_management(object):
         stringa = create.read()
         create.close()
 
-        Session = sessionmaker(bind=self.engine, autoflush=True, autocommit=True)
+        Session = sessionmaker(bind=self.engine, autoflush=True)
         session = Session()
         session.begin()
         session.execute(stringa)
@@ -2146,7 +2146,7 @@ class Pyarchinit_db_management(object):
         stringa = create.read()
         create.close()
 
-        Session = sessionmaker(bind=self.engine, autoflush=True, autocommit=True)
+        Session = sessionmaker(bind=self.engine, autoflush=True)
         session = Session()
         session.begin()
         session.execute(stringa)
@@ -2296,7 +2296,7 @@ class Pyarchinit_db_management(object):
                 else:
                     filters.append(column.ilike(f'%{value}%'))
 
-        Session = sessionmaker(bind=self.engine, autoflush=True, autocommit=True)
+        Session = sessionmaker(bind=self.engine, autoflush=True)
         session = Session()
 
         # choose join_operator based on given argument
@@ -2335,7 +2335,7 @@ class Pyarchinit_db_management(object):
             query_params[key] = value
 
         try:
-            Session = sessionmaker(bind=self.engine, autoflush=True, autocommit=True)
+            Session = sessionmaker(bind=self.engine, autoflush=True)
             with Session() as session:
                 query = session.query(table).filter(and_(*conditions))
                 res = query.params(**query_params).all()
@@ -2610,7 +2610,7 @@ class Pyarchinit_db_management(object):
         #field_value_string = ", ".join([table + ".%s.like(%s)" % (k, v) for k, v in params.items()])
         """
         # self.connection()
-        Session = sessionmaker(bind=self.engine, autoflush=True, autocommit=True)
+        Session = sessionmaker(bind=self.engine, autoflush=True)
         session = Session()
         query_str = "session.query(" + table + ").filter(and_(" + field_value_string + ")).all()"
         res = eval(query_str)
@@ -2635,7 +2635,7 @@ class Pyarchinit_db_management(object):
         query_str = "session.query(" + table + ").filter(and_(" + field_value_string + ")).all()"
 
         # self.connection()
-        Session = sessionmaker(bind=self.engine, autoflush=True, autocommit=True)
+        Session = sessionmaker(bind=self.engine, autoflush=True)
         session = Session()
         session.close()
         return eval(query_str)
@@ -2661,7 +2661,7 @@ class Pyarchinit_db_management(object):
 
         query_cmd = "session.query(" + distinct_string + ").filter(and_(" + query_string + ")).distinct().order_by(" + distinct_string + ")"
         # self.connection()
-        Session = sessionmaker(bind=self.engine, autoflush=True, autocommit=True)
+        Session = sessionmaker(bind=self.engine, autoflush=True)
         session = Session()
         session.close()
         return eval(query_cmd)
@@ -2761,7 +2761,7 @@ class Pyarchinit_db_management(object):
 
         u.add_item_to_dict(changes_dict, list(zip(self.columns_name_list, update_value_list)))
 
-        Session = sessionmaker(bind=self.engine, autoflush=True, autocommit=True)
+        Session = sessionmaker(bind=self.engine, autoflush=True)
         session = Session()
         # session.query(SITE).filter(and_(SITE.id_sito == '1')).update(values = {SITE.sito:"updatetest"})
 
@@ -2982,7 +2982,7 @@ class Pyarchinit_db_management(object):
         self.value_id = value_id
         self.find_check_value = find_check_value
 
-        Session = sessionmaker(bind=self.engine, autoflush=True, autocommit=True)
+        Session = sessionmaker(bind=self.engine, autoflush=True)
         session = Session()
 
         session_exec_str = 'session.query(%s).filter(%s.%s == %s)).update(values = {"find_check": %d})' % (
@@ -2994,7 +2994,7 @@ class Pyarchinit_db_management(object):
         self.table_class_str = table_class_str
         self.find_check_value = find_check_value
 
-        Session = sessionmaker(bind=self.engine, autoflush=True, autocommit=True)
+        Session = sessionmaker(bind=self.engine, autoflush=True)
         session = Session()
 
         session_exec_str = 'session.query(%s).update(values = {"find_check": %d})' % (self.table_class_str, 0)
@@ -3015,7 +3015,7 @@ class Pyarchinit_db_management(object):
     def delete_record_by_field(self, table_name, field_name, field_value):
         """Delete records from a table where field matches value"""
         try:
-            Session = sessionmaker(bind=self.engine, autoflush=True, autocommit=True)
+            Session = sessionmaker(bind=self.engine, autoflush=True)
             session = Session()
             
             # Map table names to entity classes
@@ -3052,7 +3052,7 @@ class Pyarchinit_db_management(object):
         self.table_class = tc
         self.field_id = f
 
-        Session = sessionmaker(bind=self.engine, autoflush=True, autocommit=True)
+        Session = sessionmaker(bind=self.engine, autoflush=True)
         session = Session()
         exec_str = "session.query(func.max({}.{}))".format(self.table_class, self.field_id)
         max_id_func = eval(exec_str)
@@ -3066,7 +3066,7 @@ class Pyarchinit_db_management(object):
 
 
     def dir_query(self):
-        Session = sessionmaker(bind=self.engine, autoflush=True, autocommit=True)
+        Session = sessionmaker(bind=self.engine, autoflush=True)
         session = Session()
 
         # session.query(SITE).filter(SITE.id_sito == '1').update(values = {SITE.sito:"updatetest"})
@@ -3088,7 +3088,7 @@ class Pyarchinit_db_management(object):
             return [c.name for c in table.columns][int(s)]
 
     def query_in_idus(self, id_list):
-        Session = sessionmaker(bind=self.engine, autoflush=True, autocommit=True)
+        Session = sessionmaker(bind=self.engine, autoflush=True)
         session = Session()
         res = session.query(US).filter(US.id_us.in_(id_list)).all()
 
@@ -3144,7 +3144,7 @@ class Pyarchinit_db_management(object):
             else:
                 order_by_list.append(asc(column_attr))
 
-        Session = sessionmaker(bind=self.engine, autoflush=True, autocommit=True)
+        Session = sessionmaker(bind=self.engine, autoflush=True)
         session = Session()
 
         try:
@@ -3253,7 +3253,7 @@ class Pyarchinit_db_management(object):
         self.c = c
         self.v = v
         # self.connection()
-        Session = sessionmaker(bind=self.engine, autoflush=True, autocommit=True)
+        Session = sessionmaker(bind=self.engine, autoflush=True)
         session = Session()
 
         string = ('%s%s%s%s%s') % ('session.query(PERIODIZZAZIONE).filter_by(', self.c, "='", self.v, "')")
@@ -3271,7 +3271,7 @@ class Pyarchinit_db_management(object):
         errori = []
         avvisi = []
 
-        Session = sessionmaker(bind=self.engine, autoflush=True, autocommit=True)
+        Session = sessionmaker(bind=self.engine, autoflush=True)
         session = Session()
 
         try:
@@ -3478,7 +3478,7 @@ class Pyarchinit_db_management(object):
     #
     #     self.sito = s
     #
-    #     Session = sessionmaker(bind=self.engine, autoflush=True, autocommit=True)
+    #     Session = sessionmaker(bind=self.engine, autoflush=True)
     #     session = Session()
     #
     #     try:
@@ -4110,7 +4110,7 @@ class Pyarchinit_db_management(object):
         self.value_list = value_list
 
         # Configura la sessione
-        Session = sessionmaker(bind=self.engine, autoflush=True, autocommit=True)
+        Session = sessionmaker(bind=self.engine, autoflush=True)
         session = Session()
 
         res_list = []
@@ -4132,7 +4132,7 @@ class Pyarchinit_db_management(object):
         return res_list
     def query_in_contains(self, value_list, sitof, areaf):
         self.value_list = value_list
-        Session = sessionmaker(bind=self.engine, autoflush=True, autocommit=True)
+        Session = sessionmaker(bind=self.engine, autoflush=True)
         session = Session()
         res_list = []
         n = 500  # smaller chunk size
@@ -4151,7 +4151,7 @@ class Pyarchinit_db_management(object):
     # def query_in_contains(self, value_list, sitof, areaf):
     #     # use a copy of the list to avoid emptying the input list
     #     values = value_list[:]
-    #     Session = sessionmaker(bind=self.engine, autoflush=True, autocommit=True)
+    #     Session = sessionmaker(bind=self.engine, autoflush=True)
     #     session = Session()
     #     res_list = []
     #     n = len(values) - 1 if values else 0  # handle empty list
@@ -4171,7 +4171,7 @@ class Pyarchinit_db_management(object):
     #
     #     self.value_list = value_list
     #
-    #     Session = sessionmaker(bind=self.engine, autoflush=True, autocommit=True)
+    #     Session = sessionmaker(bind=self.engine, autoflush=True)
     #     session = Session()
     #
     #     res_list = []
@@ -4341,7 +4341,7 @@ class Pyarchinit_db_management(object):
     ##
     ##      query_string_execute = query_string_base + string_contains + '))'
     ##
-    ##      Session = sessionmaker(bind=self.engine, autoflush=True, autocommit=True)
+    ##      Session = sessionmaker(bind=self.engine, autoflush=True)
     ##      session = Session()
     ##      res = eval(query_string_execute)
     ##
@@ -4350,7 +4350,7 @@ class Pyarchinit_db_management(object):
     # def select_not_like_from_db_sql(self, sitof, areaf):
     #     # NB per funzionare con postgres è necessario che al posto di " ci sia '
     #     l=QgsSettings().value("locale/userLocale", "it", type=str)[:2]
-    #     Session = sessionmaker(bind=self.engine, autoflush=True, autocommit=True)
+    #     Session = sessionmaker(bind=self.engine, autoflush=True)
     #     session = Session()
     #
     #     if l=='it':
@@ -4374,7 +4374,7 @@ class Pyarchinit_db_management(object):
 
     def select_not_like_from_db_sql(self, sitof, areaf):
         l = QgsSettings().value("locale/userLocale", "it", type=str)[:2]
-        Session = sessionmaker(bind=self.engine, autoflush=True, autocommit=True)
+        Session = sessionmaker(bind=self.engine, autoflush=True)
         session = Session()
         res = None
 

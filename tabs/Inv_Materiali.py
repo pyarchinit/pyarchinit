@@ -5575,6 +5575,137 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         self.label_rec_tot.setText(str(self.rec_tot))
         self.label_rec_corrente.setText(str(self.rec_corr))
 
+    def insert_new_row(self, table_name):
+        """Insert new row into a table - uses getattr instead of eval for security"""
+        widget_name = table_name.replace('self.', '') if table_name.startswith('self.') else table_name
+        table = getattr(self, widget_name)
+        table.insertRow(0)
+
+    def remove_row(self, table_name):
+        """Remove selected row from a table - uses getattr instead of eval for security"""
+        widget_name = table_name.replace('self.', '') if table_name.startswith('self.') else table_name
+        table = getattr(self, widget_name)
+        rowSelected = table.selectedIndexes()
+        try:
+            rowIndex = rowSelected[1].row()
+            table.removeRow(rowIndex)
+        except:
+            if self.L == 'it':
+                QMessageBox.warning(self, "Messaggio", "Devi selezionare una riga", QMessageBox.StandardButton.Ok)
+            elif self.L == 'de':
+                QMessageBox.warning(self, "Message", "Sie müssen eine Zeile markieren.", QMessageBox.StandardButton.Ok)
+            else:
+                QMessageBox.warning(self, "Message", "You must select a row", QMessageBox.StandardButton.Ok)
+
+    def empty_fields(self):
+        elementi_reperto_row_count = self.tableWidget_elementi_reperto.rowCount()
+        misurazioni_row_count = self.tableWidget_misurazioni.rowCount()
+        rif_biblio_row_count = self.tableWidget_rif_biblio.rowCount()
+        tecnologie_row_count = self.tableWidget_tecnologie.rowCount()
+
+        self.comboBox_sito.setEditText("")  # 1 - Sito
+        self.lineEdit_num_inv.clear()  # 2 - num_inv
+        self.comboBox_tipo_reperto.setEditText("")  # 3 - tipo_reperto
+        self.comboBox_criterio_schedatura.setEditText("")  # 4 - criterio
+        self.comboBox_definizione.setEditText("")  # 5 - definizione
+        self.textEdit_descrizione_reperto.clear()  # 6 - descrizione
+        self.comboBox_area.setEditText("")  # 7 - area
+        self.lineEdit_us.clear()  # 8 - US
+        self.comboBox_lavato.setEditText("")  # 9 - lavato
+        self.lineEdit_nr_cassa.clear()  # 10 - nr_cassa
+        self.comboBox_magazzino.setEditText("")  # 11 - luogo_conservazione
+        self.comboBox_conservazione.setEditText("")  # 12 - stato conservazione
+        self.comboBox_datazione.setEditText("")  # 13 - datazione reperto
+
+        self.lineEditFormeMin.clear()
+        self.lineEditFormeMax.clear()
+        self.lineEditTotFram.clear()
+        self.lineEditRivestimento.clear()
+        self.lineEditCorpoCeramico.clear()
+
+        self.lineEdit_diametro_orlo.clear()
+        self.lineEdit_peso.clear()
+        self.comboBox_tipologia.setEditText("")
+        self.lineEdit_eve_orlo.clear()
+
+        self.comboBox_repertato.setEditText("")
+        self.comboBox_diagnostico.setEditText("")
+
+        for i in range(elementi_reperto_row_count):
+            self.tableWidget_elementi_reperto.removeRow(0)
+        self.insert_new_row("self.tableWidget_elementi_reperto")
+
+        for i in range(misurazioni_row_count):
+            self.tableWidget_misurazioni.removeRow(0)
+        self.insert_new_row("self.tableWidget_misurazioni")
+
+        for i in range(rif_biblio_row_count):
+            self.tableWidget_rif_biblio.removeRow(0)
+        self.insert_new_row("self.tableWidget_rif_biblio")
+
+        for i in range(tecnologie_row_count):
+            self.tableWidget_tecnologie.removeRow(0)
+        self.insert_new_row("self.tableWidget_tecnologie")
+
+        self.lineEdit_n_reperto.clear()
+        self.comboBox_tipo_contenitore.setEditText("")
+        self.comboBox_struttura.setEditText("")
+        self.comboBox_year.setEditText("")
+
+    def empty_fields_nosite(self):
+        elementi_reperto_row_count = self.tableWidget_elementi_reperto.rowCount()
+        misurazioni_row_count = self.tableWidget_misurazioni.rowCount()
+        rif_biblio_row_count = self.tableWidget_rif_biblio.rowCount()
+        tecnologie_row_count = self.tableWidget_tecnologie.rowCount()
+
+        self.lineEdit_num_inv.clear()  # 2 - num_inv
+        self.comboBox_tipo_reperto.setEditText("")  # 3 - tipo_reperto
+        self.comboBox_criterio_schedatura.setEditText("")  # 4 - criterio
+        self.comboBox_definizione.setEditText("")  # 5 - definizione
+        self.textEdit_descrizione_reperto.clear()  # 6 - descrizione
+        self.comboBox_area.setEditText("")  # 7 - area
+        self.lineEdit_us.clear()  # 8 - US
+        self.comboBox_lavato.setEditText("")  # 9 - lavato
+        self.lineEdit_nr_cassa.clear()  # 10 - nr_cassa
+        self.comboBox_magazzino.setEditText("")  # 11 - luogo_conservazione
+        self.comboBox_conservazione.setEditText("")  # 12 - stato conservazione
+        self.comboBox_datazione.setEditText("")  # 13 - datazione reperto
+
+        self.lineEditFormeMin.clear()
+        self.lineEditFormeMax.clear()
+        self.lineEditTotFram.clear()
+        self.lineEditRivestimento.clear()
+        self.lineEditCorpoCeramico.clear()
+
+        self.lineEdit_diametro_orlo.clear()
+        self.lineEdit_peso.clear()
+        self.comboBox_tipologia.setEditText("")
+        self.lineEdit_eve_orlo.clear()
+
+        self.comboBox_repertato.setEditText("")
+        self.comboBox_diagnostico.setEditText("")
+
+        for i in range(elementi_reperto_row_count):
+            self.tableWidget_elementi_reperto.removeRow(0)
+        self.insert_new_row("self.tableWidget_elementi_reperto")
+
+        for i in range(misurazioni_row_count):
+            self.tableWidget_misurazioni.removeRow(0)
+        self.insert_new_row("self.tableWidget_misurazioni")
+
+        for i in range(rif_biblio_row_count):
+            self.tableWidget_rif_biblio.removeRow(0)
+        self.insert_new_row("self.tableWidget_rif_biblio")
+
+        for i in range(tecnologie_row_count):
+            self.tableWidget_tecnologie.removeRow(0)
+        self.insert_new_row("self.tableWidget_tecnologie")
+
+        self.lineEdit_n_reperto.clear()
+        self.comboBox_tipo_contenitore.setEditText("")
+        self.comboBox_struttura.setEditText("")
+        self.comboBox_year.setEditText("")
+
     def setComboBoxEnable(self, f, v):
         """Set enabled state for widgets"""
         for fn in f:
@@ -5611,46 +5742,52 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         return lista
 
     def set_LIST_REC_TEMP(self):
-        # Handle numeric fields - convert empty strings to empty string for comparison
+        # Handle numeric fields - convert empty strings to None for database compatibility
         if self.lineEdit_num_inv.text() == "":
-            numero_inventario = ''
+            numero_inventario = None
         else:
             numero_inventario = self.lineEdit_num_inv.text()
 
         if self.lineEditFormeMin.text() == "":
-            forme_minime = ''
+            forme_minime = None
         else:
             forme_minime = self.lineEditFormeMin.text()
 
         if self.lineEditFormeMax.text() == "":
-            forme_massime = ''
+            forme_massime = None
         else:
             forme_massime = self.lineEditFormeMax.text()
 
         if self.lineEditTotFram.text() == "":
-            totale_frammenti = ''
+            totale_frammenti = None
         else:
             totale_frammenti = self.lineEditTotFram.text()
 
         if self.lineEdit_n_reperto.text() == "":
-            n_reperto = ''
+            n_reperto = None
         else:
             n_reperto = self.lineEdit_n_reperto.text()
 
         if self.lineEdit_diametro_orlo.text() == "":
-            diametro_orlo = ''
+            diametro_orlo = None
         else:
             diametro_orlo = self.lineEdit_diametro_orlo.text()
 
         if self.lineEdit_peso.text() == "":
-            peso = ''
+            peso = None
         else:
             peso = self.lineEdit_peso.text()
 
         if self.lineEdit_eve_orlo.text() == "":
-            eve_orlo = ''
+            eve_orlo = None
         else:
             eve_orlo = self.lineEdit_eve_orlo.text()
+
+        # Handle years as integer
+        if self.comboBox_year.currentText() == "":
+            years = None
+        else:
+            years = self.comboBox_year.currentText()
 
         # TableWidgets
         elementi_reperto = self.table2dict("self.tableWidget_elementi_reperto")
@@ -5660,7 +5797,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
 
         self.DATA_LIST_REC_TEMP = [
             str(self.comboBox_sito.currentText()),                    # 0 - sito
-            str(numero_inventario),                                    # 1 - numero_inventario
+            numero_inventario,                                         # 1 - numero_inventario (Integer)
             str(self.comboBox_tipo_reperto.currentText()),            # 2 - tipo_reperto
             str(self.comboBox_criterio_schedatura.currentText()),     # 3 - criterio_schedatura
             str(self.comboBox_definizione.currentText()),             # 4 - definizione
@@ -5676,21 +5813,21 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             str(misurazioni),                                          # 14 - misurazioni
             str(rif_biblio),                                           # 15 - rif_biblio
             str(tecnologie),                                           # 16 - tecnologie
-            str(forme_minime),                                         # 17 - forme_minime
-            str(forme_massime),                                        # 18 - forme_massime
-            str(totale_frammenti),                                     # 19 - totale_frammenti
+            forme_minime,                                              # 17 - forme_minime (Integer)
+            forme_massime,                                             # 18 - forme_massime (Integer)
+            totale_frammenti,                                          # 19 - totale_frammenti (Integer)
             str(self.lineEditCorpoCeramico.text()),                   # 20 - corpo_ceramico
             str(self.lineEditRivestimento.text()),                    # 21 - rivestimento
-            str(diametro_orlo),                                        # 22 - diametro_orlo
-            str(peso),                                                 # 23 - peso
+            diametro_orlo,                                             # 22 - diametro_orlo (Numeric)
+            peso,                                                      # 23 - peso (Numeric)
             str(self.comboBox_tipologia.currentText()),               # 24 - tipo
-            str(eve_orlo),                                             # 25 - eve_orlo
+            eve_orlo,                                                  # 25 - eve_orlo (Numeric)
             str(self.comboBox_repertato.currentText()),               # 26 - repertato
             str(self.comboBox_diagnostico.currentText()),             # 27 - diagnostico
-            str(n_reperto),                                            # 28 - n_reperto
+            n_reperto,                                                 # 28 - n_reperto (Integer)
             str(self.comboBox_tipo_contenitore.currentText()),        # 29 - tipo_contenitore
             str(self.comboBox_struttura.currentText()),               # 30 - struttura
-            str(self.comboBox_year.currentText())                     # 31 - years
+            years                                                      # 31 - years (Integer)
         ]
 
     def set_LIST_REC_CORR(self):
