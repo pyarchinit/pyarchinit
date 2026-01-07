@@ -559,6 +559,33 @@ class SQLiteAdapter(DatabaseAdapter):
 
         return records
 
+    def _get_column_types(self, table: str) -> Dict[str, str]:
+        """Get column types for a table"""
+        types = {}
+        try:
+            conn = self._get_connection()
+            cursor = conn.execute(f"PRAGMA table_info({table})")
+            for row in cursor:
+                types[row['name']] = row['type'].upper()
+            conn.close()
+        except:
+            pass
+        return types
+
+    def _convert_empty_to_null(self, columns: List[str], record: List[Any], col_types: Dict[str, str]) -> List[Any]:
+        """Convert empty strings to None for numeric columns"""
+        result = []
+        for i, (col, val) in enumerate(zip(columns, record)):
+            col_type = col_types.get(col, '')
+            # Check if column is numeric
+            is_numeric = any(t in col_type for t in ['INT', 'REAL', 'NUM', 'DECIMAL', 'FLOAT', 'DOUBLE'])
+            # Convert empty string to None for numeric columns
+            if is_numeric and val == '':
+                result.append(None)
+            else:
+                result.append(val)
+        return result
+
     def import_records(self, table: str, columns: List[str], records: List[List[Any]]) -> int:
         """Import records into table"""
         if not records:
@@ -571,9 +598,14 @@ class SQLiteAdapter(DatabaseAdapter):
             placeholders = ', '.join('?' * len(columns))
             query = f"INSERT OR REPLACE INTO {table} ({columns_str}) VALUES ({placeholders})"
 
+            # Get column types for empty string -> NULL conversion
+            col_types = self._get_column_types(table)
+
             for record in records:
                 try:
-                    conn.execute(query, record)
+                    # Convert empty strings to None for numeric columns
+                    cleaned_record = self._convert_empty_to_null(columns, record, col_types)
+                    conn.execute(query, cleaned_record)
                     imported += 1
                 except Exception as e:
                     print(f"Insert error for {table}: {e}")
