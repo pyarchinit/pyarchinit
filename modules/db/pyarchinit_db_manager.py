@@ -215,34 +215,64 @@ class Pyarchinit_db_management(object):
             traceback.print_exc()
             raise
 
-    def load_spatialite(self,dbapi_conn, connection_record):
+    def load_spatialite(self, dbapi_conn, connection_record):
         dbapi_conn.enable_load_extension(True)
 
-        if Pyarchinit_OS_Utility.isWindows()== True:
+        if Pyarchinit_OS_Utility.isWindows():
             dbapi_conn.load_extension('mod_spatialite.dll')
 
-        elif Pyarchinit_OS_Utility.isMac()== True:
+        elif Pyarchinit_OS_Utility.isMac():
             # macOS hardened apps require full path to extension
-            spatialite_paths = [
-                '/opt/homebrew/lib/mod_spatialite.dylib',
-                '/usr/local/lib/mod_spatialite.dylib',
-                '/opt/local/lib/mod_spatialite.dylib',
-            ]
             loaded = False
-            for path in spatialite_paths:
-                if os.path.exists(path):
-                    try:
-                        dbapi_conn.load_extension(path)
-                        loaded = True
-                        break
-                    except Exception:
-                        continue
+
+            # First try to use QGIS's built-in finder
+            try:
+                from qgis.find_mod_spatialite import mod_spatialite_path
+                qgis_path = mod_spatialite_path()
+                if qgis_path and os.path.exists(qgis_path):
+                    dbapi_conn.load_extension(qgis_path)
+                    loaded = True
+            except Exception:
+                pass
+
             if not loaded:
-                # Fallback - try without path (may work in some environments)
+                # Search in common paths including QGIS internal paths
+                import glob
+                spatialite_paths = [
+                    # QGIS internal paths (most common on macOS)
+                    '/Applications/QGIS.app/Contents/MacOS/lib/mod_spatialite.so',
+                    '/Applications/QGIS.app/Contents/MacOS/lib/mod_spatialite.7.so',
+                    '/Applications/QGIS-LTR.app/Contents/MacOS/lib/mod_spatialite.so',
+                    # Homebrew paths
+                    '/opt/homebrew/lib/mod_spatialite.dylib',
+                    '/opt/homebrew/lib/mod_spatialite.so',
+                    '/usr/local/lib/mod_spatialite.dylib',
+                    '/usr/local/lib/mod_spatialite.so',
+                    # MacPorts path
+                    '/opt/local/lib/mod_spatialite.dylib',
+                    '/opt/local/lib/mod_spatialite.so',
+                ]
+
+                # Also search for any QGIS version
+                qgis_patterns = glob.glob('/Applications/QGIS*.app/Contents/MacOS/lib/mod_spatialite*.so')
+                spatialite_paths = qgis_patterns + spatialite_paths
+
+                for path in spatialite_paths:
+                    if os.path.exists(path):
+                        try:
+                            dbapi_conn.load_extension(path)
+                            loaded = True
+                            break
+                        except Exception as e:
+                            continue
+
+            if not loaded:
+                # Final fallback - try without path
                 dbapi_conn.load_extension('mod_spatialite')
         else:
+            # Linux
             dbapi_conn.load_extension('mod_spatialite.so')
-        
+
         # Enable foreign keys for SQLite
         dbapi_conn.execute("PRAGMA foreign_keys=ON")
 
@@ -634,7 +664,35 @@ class Pyarchinit_db_management(object):
                     # Try to add geometry columns if SpatiaLite is available
                     try:
                         conn.enable_load_extension(True)
-                        conn.execute("SELECT load_extension('mod_spatialite')")
+                        # Find and load SpatiaLite extension
+                        spatialite_loaded = False
+                        spatialite_path = None
+
+                        # First try QGIS's built-in finder
+                        try:
+                            from qgis.find_mod_spatialite import mod_spatialite_path
+                            spatialite_path = mod_spatialite_path()
+                        except Exception:
+                            pass
+
+                        if not spatialite_path or not os.path.exists(spatialite_path):
+                            # Search in common paths
+                            import glob
+                            search_paths = (
+                                glob.glob('/Applications/QGIS*.app/Contents/MacOS/lib/mod_spatialite*.so') +
+                                ['/opt/homebrew/lib/mod_spatialite.dylib',
+                                 '/usr/local/lib/mod_spatialite.dylib',
+                                 '/opt/local/lib/mod_spatialite.dylib']
+                            )
+                            for path in search_paths:
+                                if os.path.exists(path):
+                                    spatialite_path = path
+                                    break
+
+                        if spatialite_path:
+                            conn.execute(f"SELECT load_extension('{spatialite_path}')")
+                        else:
+                            conn.execute("SELECT load_extension('mod_spatialite')")
 
                         # Check if geometry column exists
                         cursor.execute("PRAGMA table_info(pyarchinit_ut_point)")
