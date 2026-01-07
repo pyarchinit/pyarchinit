@@ -1711,7 +1711,7 @@ p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=" font-family:'MS Shell Dlg 2'; font-size:7.8pt; font-weight:400; font-style:normal;"&gt;
 &lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;"&gt;&lt;span style=" font-family:'Sans'; font-size:10pt;"&gt;إنشاء مقارنة بأربع متغيرات مع مخطط تكراري، منحنى الكثافة ومنحنى تراكمي&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
-</context>
+<message><source>Cerca immagini</source><translation>البحث عن الصور</translation></message><message><source>Dati Fisici</source><translation>البيانات الفيزيائية</translation></message><message><source>Dati schedatura</source><translation>بيانات البطاقة</translation></message><message><source>Definizione interpretativa</source><translation>التعريف التفسيري</translation></message><message><source>Ente Responsabile</source><translation>الجهة المسؤولة</translation></message><message><source>Extended Matrix</source><translation>Extended Matrix</translation></message><message><source>Rapporti Stratigrafici</source><translation>العلاقات الطبقية</translation></message><message><source>Primo record</source><translation>السجل الأول</translation></message><message><source>Ultimo record</source><translation>السجل الأخير</translation></message><message><source>Record precedente</source><translation>السجل السابق</translation></message><message><source>Crea nuovo record</source><translation>إنشاء سجل جديد</translation></message><message><source>Salva il record</source><translation>حفظ السجل</translation></message><message><source>Compilatore</source><translation>المُعِدّ</translation></message><message><source>Diapositive</source><translation>شرائح</translation></message><message><source>Negative</source><translation>سلبيات</translation></message><message><source>Punto rinv.</source><translation>نقطة العثور</translation></message><message><source>Aggiungi foto</source><translation>إضافة صورة</translation></message><message><source>Aggiungi disegno</source><translation>إضافة رسم</translation></message><message><source>Rimuovi foto</source><translation>إزالة الصورة</translation></message><message><source>Rimuovi disegno</source><translation>إزالة الرسم</translation></message><message><source>Aggiungi materiale</source><translation>إضافة مادة</translation></message><message><source>Rimuovi materiale</source><translation>إزالة المادة</translation></message><message><source>Dati di scavo</source><translation>بيانات الحفر</translation></message><message><source>Dati tecnici</source><translation>البيانات التقنية</translation></message><message><source>Identificazione e Localizzazione</source><translation>التعريف والموقع</translation></message><message><source>Documentazione Fotografica</source><translation>التوثيق الفوتوغرافي</translation></message><message><source>Documentazione Grafica</source><translation>التوثيق الرسومي</translation></message><message><source>Esporta etichette</source><translation>تصدير التسميات</translation></message><message><source>Lista Casse</source><translation>قائمة الصناديق</translation></message><message><source>TMA materiali</source><translation>مواد TMA</translation></message><message><source>ICCD</source><translation>ICCD</translation></message><message><source>Magazzino</source><translation>المخزن</translation></message><message><source>Museo</source><translation>المتحف</translation></message><message><source>Suggerimenti</source><translation>اقتراحات</translation></message><message><source>Map</source><translation>خريطة</translation></message><message><source>Sync TMA</source><translation>مزامنة TMA</translation></message><message><source>Cerca suggerimenti</source><translation>البحث عن اقتراحات</translation></message><message><source>Posizione nel corredo</source><translation>الموضع في المقتنيات</translation></message><message><source>Posizione del corredo</source><translation>موضع المقتنيات</translation></message><message><source>ID Individuo</source><translation>معرف الفرد</translation></message><message><source>ID Reperto (RA)</source><translation>معرف القطعة (RA)</translation></message></context>
 <context>
     <name>DialogCampioni</name>
     <message>
@@ -9756,62 +9756,62 @@ p, li { white-space: pre-wrap; }
         <translation>وسائط</translation>
     </message>
     <message>
-        <location filename="../gui/ui/UT_ui.ui" line="2331"/>
+        <location filename="../gui/ui/UT_ui.ui" line="2331" />
         <source>Metodo GPS</source>
         <translation>طريقة GPS</translation>
     </message>
     <message>
-        <location filename="../gui/ui/UT_ui.ui" line="2351"/>
+        <location filename="../gui/ui/UT_ui.ui" line="2351" />
         <source>Precisione (m)</source>
         <translation>الدقة (م)</translation>
     </message>
     <message>
-        <location filename="../gui/ui/UT_ui.ui" line="2377"/>
+        <location filename="../gui/ui/UT_ui.ui" line="2377" />
         <source>Copertura vegetale</source>
         <translation>الغطاء النباتي</translation>
     </message>
     <message>
-        <location filename="../gui/ui/UT_ui.ui" line="2397"/>
+        <location filename="../gui/ui/UT_ui.ui" line="2397" />
         <source>Condizione superficie</source>
         <translation>حالة السطح</translation>
     </message>
     <message>
-        <location filename="../gui/ui/UT_ui.ui" line="2417"/>
+        <location filename="../gui/ui/UT_ui.ui" line="2417" />
         <source>Accessibilità</source>
         <translation>إمكانية الوصول</translation>
     </message>
     <message>
-        <location filename="../gui/ui/UT_ui.ui" line="2693"/>
+        <location filename="../gui/ui/UT_ui.ui" line="2693" />
         <source>Tipo survey</source>
         <translation>نوع المسح</translation>
     </message>
     <message>
-        <location filename="../gui/ui/UT_ui.ui" line="2713"/>
+        <location filename="../gui/ui/UT_ui.ui" line="2713" />
         <source>Visibilità (%)</source>
         <translation>الرؤية (%)</translation>
     </message>
     <message>
-        <location filename="../gui/ui/UT_ui.ui" line="2739"/>
+        <location filename="../gui/ui/UT_ui.ui" line="2739" />
         <source>Condizioni meteo</source>
         <translation>الظروف الجوية</translation>
     </message>
     <message>
-        <location filename="../gui/ui/UT_ui.ui" line="2759"/>
+        <location filename="../gui/ui/UT_ui.ui" line="2759" />
         <source>Team survey</source>
         <translation>فريق المسح</translation>
     </message>
     <message>
-        <location filename="../gui/ui/UT_ui.ui" line="2779"/>
+        <location filename="../gui/ui/UT_ui.ui" line="2779" />
         <source>Doc. fotografica</source>
         <translation>التوثيق الفوتوغرافي</translation>
     </message>
     <message>
-        <location filename="../gui/ui/UT_ui.ui" line="2786"/>
+        <location filename="../gui/ui/UT_ui.ui" line="2786" />
         <source>Presente</source>
         <translation>موجود</translation>
     </message>
     <message>
-        <location filename="../gui/ui/UT_ui.ui" line="2772"/>
+        <location filename="../gui/ui/UT_ui.ui" line="2772" />
         <source>Nomi membri team (separati da virgola)</source>
         <translation>أسماء أعضاء الفريق (مفصولة بفواصل)</translation>
     </message>
@@ -12902,8 +12902,8 @@ If unchecked, shows only US at exact level.</source><translation>إذا تم ا�
         <translation>الملف الشخصي موجود</translation>
     </message>
     <message>
-        <source>A profile named &apos;{name}&apos; already exists. Do you want to overwrite it?</source>
-        <translation>يوجد بالفعل ملف تعريف باسم &apos;{name}&apos;. هل تريد استبداله؟</translation>
+        <source>A profile named '{name}' already exists. Do you want to overwrite it?</source>
+        <translation>يوجد بالفعل ملف تعريف باسم '{name}'. هل تريد استبداله؟</translation>
     </message>
     <message>
         <source>Profile Saved</source>
@@ -12942,24 +12942,24 @@ If unchecked, shows only US at exact level.</source><translation>إذا تم ا�
         <translation>تم تحميل الملف الشخصي</translation>
     </message>
     <message>
-        <source>Profile &apos;{name}&apos; loaded successfully!
+        <source>Profile '{name}' loaded successfully!
 
-Click &apos;Save Parameters&apos; to apply the connection.</source>
-        <translation>تم تحميل الملف الشخصي &apos;{name}&apos; بنجاح!
+Click 'Save Parameters' to apply the connection.</source>
+        <translation>تم تحميل الملف الشخصي '{name}' بنجاح!
 
-انقر على &apos;حفظ المعلمات&apos; لتطبيق الاتصال.</translation>
+انقر على 'حفظ المعلمات' لتطبيق الاتصال.</translation>
     </message>
     <message>
         <source>Enter a name for this database connection profile:</source>
         <translation>أدخل اسمًا لملف تعريف اتصال قاعدة البيانات هذا:</translation>
     </message>
     <message>
-        <source>Database connection profile &apos;{name}&apos; saved successfully!
+        <source>Database connection profile '{name}' saved successfully!
 
 Server: {server}
 Host: {host}:{port}
 Database: {database}</source>
-        <translation>تم حفظ ملف تعريف اتصال قاعدة البيانات &apos;{name}&apos; بنجاح!
+        <translation>تم حفظ ملف تعريف اتصال قاعدة البيانات '{name}' بنجاح!
 
 الخادم: {server}
 المضيف: {host}:{port}

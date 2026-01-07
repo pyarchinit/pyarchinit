@@ -1703,7 +1703,7 @@ p, li { white-space: pre-wrap; }
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;bello&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;bonic&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
-</context>
+<message><source>Cerca immagini</source><translation>Cercar imatges</translation></message><message><source>Dati Fisici</source><translation>Dades físiques</translation></message><message><source>Dati schedatura</source><translation>Dades de fitxa</translation></message><message><source>Definizione interpretativa</source><translation>Definició interpretativa</translation></message><message><source>Ente Responsabile</source><translation>Entitat responsable</translation></message><message><source>Extended Matrix</source><translation>Extended Matrix</translation></message><message><source>Rapporti Stratigrafici</source><translation>Relacions estratigràfiques</translation></message><message><source>Primo record</source><translation>Primer registre</translation></message><message><source>Ultimo record</source><translation>Últim registre</translation></message><message><source>Record precedente</source><translation>Registre anterior</translation></message><message><source>Crea nuovo record</source><translation>Crear nou registre</translation></message><message><source>Salva il record</source><translation>Desar registre</translation></message><message><source>Compilatore</source><translation>Compilador</translation></message><message><source>Diapositive</source><translation>Diapositives</translation></message><message><source>Negative</source><translation>Negatius</translation></message><message><source>Punto rinv.</source><translation>Punt troballa</translation></message><message><source>Aggiungi foto</source><translation>Afegir foto</translation></message><message><source>Aggiungi disegno</source><translation>Afegir dibuix</translation></message><message><source>Rimuovi foto</source><translation>Eliminar foto</translation></message><message><source>Rimuovi disegno</source><translation>Eliminar dibuix</translation></message><message><source>Aggiungi materiale</source><translation>Afegir material</translation></message><message><source>Rimuovi materiale</source><translation>Eliminar material</translation></message><message><source>Dati di scavo</source><translation>Dades d'excavació</translation></message><message><source>Dati tecnici</source><translation>Dades tècniques</translation></message><message><source>Identificazione e Localizzazione</source><translation>Identificació i localització</translation></message><message><source>Documentazione Fotografica</source><translation>Documentació fotogràfica</translation></message><message><source>Documentazione Grafica</source><translation>Documentació gràfica</translation></message><message><source>Esporta etichette</source><translation>Exportar etiquetes</translation></message><message><source>Lista Casse</source><translation>Llista de caixes</translation></message><message><source>TMA materiali</source><translation>TMA materials</translation></message><message><source>ICCD</source><translation>ICCD</translation></message><message><source>Magazzino</source><translation>Magatzem</translation></message><message><source>Museo</source><translation>Museu</translation></message><message><source>Suggerimenti</source><translation>Suggeriments</translation></message><message><source>Map</source><translation>Mapa</translation></message><message><source>Sync TMA</source><translation>Sincronitzar TMA</translation></message><message><source>Cerca suggerimenti</source><translation>Cercar suggeriments</translation></message><message><source>Posizione nel corredo</source><translation>Posició en l'aixovar</translation></message><message><source>Posizione del corredo</source><translation>Posició de l'aixovar</translation></message><message><source>ID Individuo</source><translation>ID Individu</translation></message><message><source>ID Reperto (RA)</source><translation>ID Troballa (RA)</translation></message></context>
 <context>
     <name>DialogCampioni</name>
     <message>
@@ -9281,62 +9281,62 @@ p, li { white-space: pre-wrap; }
         <translation>Mitjana</translation>
     </message>
     <message>
-        <location filename="../gui/ui/UT_ui.ui" line="2331"/>
+        <location filename="../gui/ui/UT_ui.ui" line="2331" />
         <source>Metodo GPS</source>
         <translation>Mètode GPS</translation>
     </message>
     <message>
-        <location filename="../gui/ui/UT_ui.ui" line="2351"/>
+        <location filename="../gui/ui/UT_ui.ui" line="2351" />
         <source>Precisione (m)</source>
         <translation>Precisió (m)</translation>
     </message>
     <message>
-        <location filename="../gui/ui/UT_ui.ui" line="2377"/>
+        <location filename="../gui/ui/UT_ui.ui" line="2377" />
         <source>Copertura vegetale</source>
         <translation>Cobertura vegetal</translation>
     </message>
     <message>
-        <location filename="../gui/ui/UT_ui.ui" line="2397"/>
+        <location filename="../gui/ui/UT_ui.ui" line="2397" />
         <source>Condizione superficie</source>
         <translation>Condició de superfície</translation>
     </message>
     <message>
-        <location filename="../gui/ui/UT_ui.ui" line="2417"/>
+        <location filename="../gui/ui/UT_ui.ui" line="2417" />
         <source>Accessibilità</source>
         <translation>Accessibilitat</translation>
     </message>
     <message>
-        <location filename="../gui/ui/UT_ui.ui" line="2693"/>
+        <location filename="../gui/ui/UT_ui.ui" line="2693" />
         <source>Tipo survey</source>
         <translation>Tipus de prospecció</translation>
     </message>
     <message>
-        <location filename="../gui/ui/UT_ui.ui" line="2713"/>
+        <location filename="../gui/ui/UT_ui.ui" line="2713" />
         <source>Visibilità (%)</source>
         <translation>Visibilitat (%)</translation>
     </message>
     <message>
-        <location filename="../gui/ui/UT_ui.ui" line="2739"/>
+        <location filename="../gui/ui/UT_ui.ui" line="2739" />
         <source>Condizioni meteo</source>
         <translation>Condicions meteorològiques</translation>
     </message>
     <message>
-        <location filename="../gui/ui/UT_ui.ui" line="2759"/>
+        <location filename="../gui/ui/UT_ui.ui" line="2759" />
         <source>Team survey</source>
         <translation>Equip de prospecció</translation>
     </message>
     <message>
-        <location filename="../gui/ui/UT_ui.ui" line="2779"/>
+        <location filename="../gui/ui/UT_ui.ui" line="2779" />
         <source>Doc. fotografica</source>
         <translation>Doc. fotogràfica</translation>
     </message>
     <message>
-        <location filename="../gui/ui/UT_ui.ui" line="2786"/>
+        <location filename="../gui/ui/UT_ui.ui" line="2786" />
         <source>Presente</source>
         <translation>Present</translation>
     </message>
     <message>
-        <location filename="../gui/ui/UT_ui.ui" line="2772"/>
+        <location filename="../gui/ui/UT_ui.ui" line="2772" />
         <source>Nomi membri team (separati da virgola)</source>
         <translation>Noms dels membres de l'equip (separats per coma)</translation>
     </message>
@@ -12285,7 +12285,7 @@ If unchecked, shows only US at exact level.</source><translation>Si està marcat
     </message>
     <message>
         <source>No Tables Selected</source>
-        <translation>No s&apos;han seleccionat taules</translation>
+        <translation>No s'han seleccionat taules</translation>
     </message>
     <message>
         <source>Please select at least one table to synchronize.</source>
@@ -12348,8 +12348,8 @@ If unchecked, shows only US at exact level.</source><translation>Si està marcat
         <translation>El perfil existeix</translation>
     </message>
     <message>
-        <source>A profile named &apos;{name}&apos; already exists. Do you want to overwrite it?</source>
-        <translation>Ja existeix un perfil anomenat &apos;{name}&apos;. Voleu sobreescriure&apos;l?</translation>
+        <source>A profile named '{name}' already exists. Do you want to overwrite it?</source>
+        <translation>Ja existeix un perfil anomenat '{name}'. Voleu sobreescriure'l?</translation>
     </message>
     <message>
         <source>Profile Saved</source>
@@ -12388,24 +12388,24 @@ If unchecked, shows only US at exact level.</source><translation>Si està marcat
         <translation>Perfil carregat</translation>
     </message>
     <message>
-        <source>Profile &apos;{name}&apos; loaded successfully!
+        <source>Profile '{name}' loaded successfully!
 
-Click &apos;Save Parameters&apos; to apply the connection.</source>
-        <translation>Perfil &apos;{name}&apos; carregat correctament!
+Click 'Save Parameters' to apply the connection.</source>
+        <translation>Perfil '{name}' carregat correctament!
 
-Feu clic a &apos;Desar paràmetres&apos; per aplicar la connexió.</translation>
+Feu clic a 'Desar paràmetres' per aplicar la connexió.</translation>
     </message>
     <message>
         <source>Enter a name for this database connection profile:</source>
         <translation>Introduïu un nom per a aquest perfil de connexió a la base de dades:</translation>
     </message>
     <message>
-        <source>Database connection profile &apos;{name}&apos; saved successfully!
+        <source>Database connection profile '{name}' saved successfully!
 
 Server: {server}
 Host: {host}:{port}
 Database: {database}</source>
-        <translation>Perfil de connexió a la base de dades &apos;{name}&apos; desat correctament!
+        <translation>Perfil de connexió a la base de dades '{name}' desat correctament!
 
 Servidor: {server}
 Host: {host}:{port}

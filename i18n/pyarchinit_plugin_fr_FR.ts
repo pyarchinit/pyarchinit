@@ -1721,7 +1721,7 @@ p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=" font-family:'MS Shell Dlg 2'; font-size:7.8pt; font-weight:400; font-style:normal;"&gt;
 &lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;"&gt;&lt;span style=" font-family:'Sans'; font-size:10pt;"&gt;Créez une comparaison à 4 variables avec histogramme de fréquence, courbe de densité et courbe cumulative&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
-</context>
+<message><source>Cerca immagini</source><translation>Rechercher images</translation></message><message><source>Dati Fisici</source><translation>Données physiques</translation></message><message><source>Dati schedatura</source><translation>Données de fiche</translation></message><message><source>Definizione interpretativa</source><translation>Définition interprétative</translation></message><message><source>Ente Responsabile</source><translation>Autorité responsable</translation></message><message><source>Extended Matrix</source><translation>Extended Matrix</translation></message><message><source>Rapporti Stratigrafici</source><translation>Relations stratigraphiques</translation></message><message><source>Primo record</source><translation>Premier enregistrement</translation></message><message><source>Ultimo record</source><translation>Dernier enregistrement</translation></message><message><source>Record precedente</source><translation>Enregistrement précédent</translation></message><message><source>Crea nuovo record</source><translation>Créer nouvel enregistrement</translation></message><message><source>Salva il record</source><translation>Enregistrer</translation></message><message><source>Compilatore</source><translation>Compilateur</translation></message><message><source>Diapositive</source><translation>Diapositives</translation></message><message><source>Negative</source><translation>Négatifs</translation></message><message><source>Punto rinv.</source><translation>Point de découverte</translation></message><message><source>Aggiungi foto</source><translation>Ajouter photo</translation></message><message><source>Aggiungi disegno</source><translation>Ajouter dessin</translation></message><message><source>Rimuovi foto</source><translation>Supprimer photo</translation></message><message><source>Rimuovi disegno</source><translation>Supprimer dessin</translation></message><message><source>Aggiungi materiale</source><translation>Ajouter matériau</translation></message><message><source>Rimuovi materiale</source><translation>Supprimer matériau</translation></message><message><source>Dati di scavo</source><translation>Données de fouille</translation></message><message><source>Dati tecnici</source><translation>Données techniques</translation></message><message><source>Identificazione e Localizzazione</source><translation>Identification et localisation</translation></message><message><source>Documentazione Fotografica</source><translation>Documentation photographique</translation></message><message><source>Documentazione Grafica</source><translation>Documentation graphique</translation></message><message><source>Esporta etichette</source><translation>Exporter étiquettes</translation></message><message><source>Lista Casse</source><translation>Liste des caisses</translation></message><message><source>TMA materiali</source><translation>TMA matériaux</translation></message><message><source>ICCD</source><translation>ICCD</translation></message><message><source>Magazzino</source><translation>Entrepôt</translation></message><message><source>Museo</source><translation>Musée</translation></message><message><source>Suggerimenti</source><translation>Suggestions</translation></message><message><source>Map</source><translation>Carte</translation></message><message><source>Sync TMA</source><translation>Synchroniser TMA</translation></message><message><source>Cerca suggerimenti</source><translation>Rechercher suggestions</translation></message><message><source>Posizione nel corredo</source><translation>Position dans le mobilier funéraire</translation></message><message><source>Posizione del corredo</source><translation>Position du mobilier</translation></message><message><source>ID Individuo</source><translation>ID Individu</translation></message><message><source>ID Reperto (RA)</source><translation>ID Objet (RA)</translation></message></context>
 <context>
     <name>DialogCampioni</name>
     <message>
@@ -9766,62 +9766,62 @@ p, li { white-space: pre-wrap; }
         <translation>Média</translation>
     </message>
     <message>
-        <location filename="../gui/ui/UT_ui.ui" line="2331"/>
+        <location filename="../gui/ui/UT_ui.ui" line="2331" />
         <source>Metodo GPS</source>
         <translation>Méthode GPS</translation>
     </message>
     <message>
-        <location filename="../gui/ui/UT_ui.ui" line="2351"/>
+        <location filename="../gui/ui/UT_ui.ui" line="2351" />
         <source>Precisione (m)</source>
         <translation>Précision (m)</translation>
     </message>
     <message>
-        <location filename="../gui/ui/UT_ui.ui" line="2377"/>
+        <location filename="../gui/ui/UT_ui.ui" line="2377" />
         <source>Copertura vegetale</source>
         <translation>Couverture végétale</translation>
     </message>
     <message>
-        <location filename="../gui/ui/UT_ui.ui" line="2397"/>
+        <location filename="../gui/ui/UT_ui.ui" line="2397" />
         <source>Condizione superficie</source>
         <translation>État de surface</translation>
     </message>
     <message>
-        <location filename="../gui/ui/UT_ui.ui" line="2417"/>
+        <location filename="../gui/ui/UT_ui.ui" line="2417" />
         <source>Accessibilità</source>
         <translation>Accessibilité</translation>
     </message>
     <message>
-        <location filename="../gui/ui/UT_ui.ui" line="2693"/>
+        <location filename="../gui/ui/UT_ui.ui" line="2693" />
         <source>Tipo survey</source>
         <translation>Type de prospection</translation>
     </message>
     <message>
-        <location filename="../gui/ui/UT_ui.ui" line="2713"/>
+        <location filename="../gui/ui/UT_ui.ui" line="2713" />
         <source>Visibilità (%)</source>
         <translation>Visibilité (%)</translation>
     </message>
     <message>
-        <location filename="../gui/ui/UT_ui.ui" line="2739"/>
+        <location filename="../gui/ui/UT_ui.ui" line="2739" />
         <source>Condizioni meteo</source>
         <translation>Conditions météo</translation>
     </message>
     <message>
-        <location filename="../gui/ui/UT_ui.ui" line="2759"/>
+        <location filename="../gui/ui/UT_ui.ui" line="2759" />
         <source>Team survey</source>
         <translation>Équipe de prospection</translation>
     </message>
     <message>
-        <location filename="../gui/ui/UT_ui.ui" line="2779"/>
+        <location filename="../gui/ui/UT_ui.ui" line="2779" />
         <source>Doc. fotografica</source>
         <translation>Doc. photographique</translation>
     </message>
     <message>
-        <location filename="../gui/ui/UT_ui.ui" line="2786"/>
+        <location filename="../gui/ui/UT_ui.ui" line="2786" />
         <source>Presente</source>
         <translation>Présent</translation>
     </message>
     <message>
-        <location filename="../gui/ui/UT_ui.ui" line="2772"/>
+        <location filename="../gui/ui/UT_ui.ui" line="2772" />
         <source>Nomi membri team (separati da virgola)</source>
         <translation>Noms des membres de l'équipe (séparés par des virgules)</translation>
     </message>
@@ -12921,8 +12921,8 @@ If unchecked, shows only US at exact level.</source><translation>Si coché, affi
         <translation>Le profil existe</translation>
     </message>
     <message>
-        <source>A profile named &apos;{name}&apos; already exists. Do you want to overwrite it?</source>
-        <translation>Un profil nommé &apos;{name}&apos; existe déjà. Voulez-vous l&apos;écraser ?</translation>
+        <source>A profile named '{name}' already exists. Do you want to overwrite it?</source>
+        <translation>Un profil nommé '{name}' existe déjà. Voulez-vous l'écraser ?</translation>
     </message>
     <message>
         <source>Profile Saved</source>
@@ -12961,24 +12961,24 @@ If unchecked, shows only US at exact level.</source><translation>Si coché, affi
         <translation>Profil chargé</translation>
     </message>
     <message>
-        <source>Profile &apos;{name}&apos; loaded successfully!
+        <source>Profile '{name}' loaded successfully!
 
-Click &apos;Save Parameters&apos; to apply the connection.</source>
-        <translation>Profil &apos;{name}&apos; chargé avec succès !
+Click 'Save Parameters' to apply the connection.</source>
+        <translation>Profil '{name}' chargé avec succès !
 
-Cliquez sur &apos;Enregistrer les paramètres&apos; pour appliquer la connexion.</translation>
+Cliquez sur 'Enregistrer les paramètres' pour appliquer la connexion.</translation>
     </message>
     <message>
         <source>Enter a name for this database connection profile:</source>
         <translation>Entrez un nom pour ce profil de connexion à la base de données :</translation>
     </message>
     <message>
-        <source>Database connection profile &apos;{name}&apos; saved successfully!
+        <source>Database connection profile '{name}' saved successfully!
 
 Server: {server}
 Host: {host}:{port}
 Database: {database}</source>
-        <translation>Profil de connexion à la base de données &apos;{name}&apos; enregistré avec succès !
+        <translation>Profil de connexion à la base de données '{name}' enregistré avec succès !
 
 Serveur : {server}
 Hôte : {host}:{port}
