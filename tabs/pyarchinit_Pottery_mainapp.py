@@ -310,6 +310,15 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
         self.iface = iface
 
         self.setupUi(self)
+
+        # Fix Qt6 label visibility - set palette with black text
+        from qgis.PyQt.QtGui import QPalette, QColor
+        palette = self.palette()
+        palette.setColor(QPalette.ColorRole.WindowText, QColor(0, 0, 0))
+        palette.setColor(QPalette.ColorRole.Text, QColor(0, 0, 0))
+        palette.setColor(QPalette.ColorRole.ButtonText, QColor(0, 0, 0))
+        self.setPalette(palette)
+
         self.mDockWidget_4.setHidden(True)
         self.mDockWidget_export.setHidden(True)
         self.setAcceptDrops(True)

@@ -27,7 +27,7 @@
     <normaloff>:/images/pottery.png</normaloff>:/images/pottery.png</iconset>
   </property>
   <property name="styleSheet">
-   <string notr="true"/>
+   <string notr="true">QLabel { color: #000000; }</string>
   </property>
   <property name="sizeGripEnabled">
    <bool>false</bool>
