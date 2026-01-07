@@ -19,6 +19,448 @@
     <height>400</height>
    </size>
   </property>
+  <property name="palette">
+   <palette>
+    <active>
+     <colorrole role="WindowText">
+      <brush brushstyle="SolidPattern">
+       <color alpha="255">
+        <red>0</red>
+        <green>0</green>
+        <blue>0</blue>
+       </color>
+      </brush>
+     </colorrole>
+     <colorrole role="Button">
+      <brush brushstyle="SolidPattern">
+       <color alpha="255">
+        <red>190</red>
+        <green>196</green>
+        <blue>189</blue>
+       </color>
+      </brush>
+     </colorrole>
+     <colorrole role="Light">
+      <brush brushstyle="SolidPattern">
+       <color alpha="255">
+        <red>255</red>
+        <green>255</green>
+        <blue>255</blue>
+       </color>
+      </brush>
+     </colorrole>
+     <colorrole role="Midlight">
+      <brush brushstyle="SolidPattern">
+       <color alpha="255">
+        <red>222</red>
+        <green>225</green>
+        <blue>222</blue>
+       </color>
+      </brush>
+     </colorrole>
+     <colorrole role="Dark">
+      <brush brushstyle="SolidPattern">
+       <color alpha="255">
+        <red>95</red>
+        <green>98</green>
+        <blue>95</blue>
+       </color>
+      </brush>
+     </colorrole>
+     <colorrole role="Mid">
+      <brush brushstyle="SolidPattern">
+       <color alpha="255">
+        <red>127</red>
+        <green>131</green>
+        <blue>126</blue>
+       </color>
+      </brush>
+     </colorrole>
+     <colorrole role="Text">
+      <brush brushstyle="SolidPattern">
+       <color alpha="255">
+        <red>0</red>
+        <green>0</green>
+        <blue>0</blue>
+       </color>
+      </brush>
+     </colorrole>
+     <colorrole role="BrightText">
+      <brush brushstyle="SolidPattern">
+       <color alpha="255">
+        <red>255</red>
+        <green>255</green>
+        <blue>255</blue>
+       </color>
+      </brush>
+     </colorrole>
+     <colorrole role="ButtonText">
+      <brush brushstyle="SolidPattern">
+       <color alpha="255">
+        <red>0</red>
+        <green>0</green>
+        <blue>0</blue>
+       </color>
+      </brush>
+     </colorrole>
+     <colorrole role="Base">
+      <brush brushstyle="SolidPattern">
+       <color alpha="255">
+        <red>255</red>
+        <green>255</green>
+        <blue>255</blue>
+       </color>
+      </brush>
+     </colorrole>
+     <colorrole role="Window">
+      <brush brushstyle="SolidPattern">
+       <color alpha="255">
+        <red>190</red>
+        <green>196</green>
+        <blue>189</blue>
+       </color>
+      </brush>
+     </colorrole>
+     <colorrole role="Shadow">
+      <brush brushstyle="SolidPattern">
+       <color alpha="255">
+        <red>0</red>
+        <green>0</green>
+        <blue>0</blue>
+       </color>
+      </brush>
+     </colorrole>
+     <colorrole role="AlternateBase">
+      <brush brushstyle="SolidPattern">
+       <color alpha="255">
+        <red>222</red>
+        <green>225</green>
+        <blue>222</blue>
+       </color>
+      </brush>
+     </colorrole>
+     <colorrole role="ToolTipBase">
+      <brush brushstyle="SolidPattern">
+       <color alpha="255">
+        <red>255</red>
+        <green>255</green>
+        <blue>220</blue>
+       </color>
+      </brush>
+     </colorrole>
+     <colorrole role="ToolTipText">
+      <brush brushstyle="SolidPattern">
+       <color alpha="255">
+        <red>0</red>
+        <green>0</green>
+        <blue>0</blue>
+       </color>
+      </brush>
+     </colorrole>
+     <colorrole role="PlaceholderText">
+      <brush brushstyle="SolidPattern">
+       <color alpha="128">
+        <red>0</red>
+        <green>0</green>
+        <blue>0</blue>
+       </color>
+      </brush>
+     </colorrole>
+    </active>
+    <inactive>
+     <colorrole role="WindowText">
+      <brush brushstyle="SolidPattern">
+       <color alpha="255">
+        <red>0</red>
+        <green>0</green>
+        <blue>0</blue>
+       </color>
+      </brush>
+     </colorrole>
+     <colorrole role="Button">
+      <brush brushstyle="SolidPattern">
+       <color alpha="255">
+        <red>190</red>
+        <green>196</green>
+        <blue>189</blue>
+       </color>
+      </brush>
+     </colorrole>
+     <colorrole role="Light">
+      <brush brushstyle="SolidPattern">
+       <color alpha="255">
+        <red>255</red>
+        <green>255</green>
+        <blue>255</blue>
+       </color>
+      </brush>
+     </colorrole>
+     <colorrole role="Midlight">
+      <brush brushstyle="SolidPattern">
+       <color alpha="255">
+        <red>222</red>
+        <green>225</green>
+        <blue>222</blue>
+       </color>
+      </brush>
+     </colorrole>
+     <colorrole role="Dark">
+      <brush brushstyle="SolidPattern">
+       <color alpha="255">
+        <red>95</red>
+        <green>98</green>
+        <blue>95</blue>
+       </color>
+      </brush>
+     </colorrole>
+     <colorrole role="Mid">
+      <brush brushstyle="SolidPattern">
+       <color alpha="255">
+        <red>127</red>
+        <green>131</green>
+        <blue>126</blue>
+       </color>
+      </brush>
+     </colorrole>
+     <colorrole role="Text">
+      <brush brushstyle="SolidPattern">
+       <color alpha="255">
+        <red>0</red>
+        <green>0</green>
+        <blue>0</blue>
+       </color>
+      </brush>
+     </colorrole>
+     <colorrole role="BrightText">
+      <brush brushstyle="SolidPattern">
+       <color alpha="255">
+        <red>255</red>
+        <green>255</green>
+        <blue>255</blue>
+       </color>
+      </brush>
+     </colorrole>
+     <colorrole role="ButtonText">
+      <brush brushstyle="SolidPattern">
+       <color alpha="255">
+        <red>0</red>
+        <green>0</green>
+        <blue>0</blue>
+       </color>
+      </brush>
+     </colorrole>
+     <colorrole role="Base">
+      <brush brushstyle="SolidPattern">
+       <color alpha="255">
+        <red>255</red>
+        <green>255</green>
+        <blue>255</blue>
+       </color>
+      </brush>
+     </colorrole>
+     <colorrole role="Window">
+      <brush brushstyle="SolidPattern">
+       <color alpha="255">
+        <red>190</red>
+        <green>196</green>
+        <blue>189</blue>
+       </color>
+      </brush>
+     </colorrole>
+     <colorrole role="Shadow">
+      <brush brushstyle="SolidPattern">
+       <color alpha="255">
+        <red>0</red>
+        <green>0</green>
+        <blue>0</blue>
+       </color>
+      </brush>
+     </colorrole>
+     <colorrole role="AlternateBase">
+      <brush brushstyle="SolidPattern">
+       <color alpha="255">
+        <red>222</red>
+        <green>225</green>
+        <blue>222</blue>
+       </color>
+      </brush>
+     </colorrole>
+     <colorrole role="ToolTipBase">
+      <brush brushstyle="SolidPattern">
+       <color alpha="255">
+        <red>255</red>
+        <green>255</green>
+        <blue>220</blue>
+       </color>
+      </brush>
+     </colorrole>
+     <colorrole role="ToolTipText">
+      <brush brushstyle="SolidPattern">
+       <color alpha="255">
+        <red>0</red>
+        <green>0</green>
+        <blue>0</blue>
+       </color>
+      </brush>
+     </colorrole>
+     <colorrole role="PlaceholderText">
+      <brush brushstyle="SolidPattern">
+       <color alpha="128">
+        <red>0</red>
+        <green>0</green>
+        <blue>0</blue>
+       </color>
+      </brush>
+     </colorrole>
+    </inactive>
+    <disabled>
+     <colorrole role="WindowText">
+      <brush brushstyle="SolidPattern">
+       <color alpha="255">
+        <red>95</red>
+        <green>98</green>
+        <blue>95</blue>
+       </color>
+      </brush>
+     </colorrole>
+     <colorrole role="Button">
+      <brush brushstyle="SolidPattern">
+       <color alpha="255">
+        <red>190</red>
+        <green>196</green>
+        <blue>189</blue>
+       </color>
+      </brush>
+     </colorrole>
+     <colorrole role="Light">
+      <brush brushstyle="SolidPattern">
+       <color alpha="255">
+        <red>255</red>
+        <green>255</green>
+        <blue>255</blue>
+       </color>
+      </brush>
+     </colorrole>
+     <colorrole role="Midlight">
+      <brush brushstyle="SolidPattern">
+       <color alpha="255">
+        <red>222</red>
+        <green>225</green>
+        <blue>222</blue>
+       </color>
+      </brush>
+     </colorrole>
+     <colorrole role="Dark">
+      <brush brushstyle="SolidPattern">
+       <color alpha="255">
+        <red>95</red>
+        <green>98</green>
+        <blue>95</blue>
+       </color>
+      </brush>
+     </colorrole>
+     <colorrole role="Mid">
+      <brush brushstyle="SolidPattern">
+       <color alpha="255">
+        <red>127</red>
+        <green>131</green>
+        <blue>126</blue>
+       </color>
+      </brush>
+     </colorrole>
+     <colorrole role="Text">
+      <brush brushstyle="SolidPattern">
+       <color alpha="255">
+        <red>95</red>
+        <green>98</green>
+        <blue>95</blue>
+       </color>
+      </brush>
+     </colorrole>
+     <colorrole role="BrightText">
+      <brush brushstyle="SolidPattern">
+       <color alpha="255">
+        <red>255</red>
+        <green>255</green>
+        <blue>255</blue>
+       </color>
+      </brush>
+     </colorrole>
+     <colorrole role="ButtonText">
+      <brush brushstyle="SolidPattern">
+       <color alpha="255">
+        <red>95</red>
+        <green>98</green>
+        <blue>95</blue>
+       </color>
+      </brush>
+     </colorrole>
+     <colorrole role="Base">
+      <brush brushstyle="SolidPattern">
+       <color alpha="255">
+        <red>190</red>
+        <green>196</green>
+        <blue>189</blue>
+       </color>
+      </brush>
+     </colorrole>
+     <colorrole role="Window">
+      <brush brushstyle="SolidPattern">
+       <color alpha="255">
+        <red>190</red>
+        <green>196</green>
+        <blue>189</blue>
+       </color>
+      </brush>
+     </colorrole>
+     <colorrole role="Shadow">
+      <brush brushstyle="SolidPattern">
+       <color alpha="255">
+        <red>0</red>
+        <green>0</green>
+        <blue>0</blue>
+       </color>
+      </brush>
+     </colorrole>
+     <colorrole role="AlternateBase">
+      <brush brushstyle="SolidPattern">
+       <color alpha="255">
+        <red>190</red>
+        <green>196</green>
+        <blue>189</blue>
+       </color>
+      </brush>
+     </colorrole>
+     <colorrole role="ToolTipBase">
+      <brush brushstyle="SolidPattern">
+       <color alpha="255">
+        <red>255</red>
+        <green>255</green>
+        <blue>220</blue>
+       </color>
+      </brush>
+     </colorrole>
+     <colorrole role="ToolTipText">
+      <brush brushstyle="SolidPattern">
+       <color alpha="255">
+        <red>0</red>
+        <green>0</green>
+        <blue>0</blue>
+       </color>
+      </brush>
+     </colorrole>
+     <colorrole role="PlaceholderText">
+      <brush brushstyle="SolidPattern">
+       <color alpha="128">
+        <red>0</red>
+        <green>0</green>
+        <blue>0</blue>
+       </color>
+      </brush>
+     </colorrole>
+    </disabled>
+   </palette>
+  </property>
   <property name="windowTitle">
    <string>pyArchInit Gestione Scavi - Scheda Ceramica</string>
   </property>
@@ -46,8 +488,8 @@
      </property>
      <property name="font">
       <font>
-       <family>.AppleSystemUIFont</family>
-       <pointsize>9</pointsize>
+       <family>Damascus</family>
+       <pointsize>11</pointsize>
        <weight>75</weight>
        <bold>true</bold>
       </font>
@@ -87,8 +529,8 @@
       <widget class="QLabel" name="label_3">
        <property name="font">
         <font>
-         <family>Times New Roman</family>
-         <pointsize>9</pointsize>
+         <family>Damascus</family>
+         <pointsize>11</pointsize>
         </font>
        </property>
        <property name="styleSheet">
@@ -103,8 +545,8 @@
       <widget class="QLabel" name="label_12">
        <property name="font">
         <font>
-         <family>MS Shell Dlg 2</family>
-         <pointsize>9</pointsize>
+         <family>Damascus</family>
+         <pointsize>11</pointsize>
          <weight>50</weight>
          <italic>false</italic>
          <bold>false</bold>
@@ -128,8 +570,8 @@
        </property>
        <property name="font">
         <font>
-         <family>.AppleSystemUIFont</family>
-         <pointsize>9</pointsize>
+         <family>Damascus</family>
+         <pointsize>11</pointsize>
          <weight>75</weight>
          <bold>true</bold>
         </font>
@@ -146,8 +588,8 @@
       <widget class="QLabel" name="label_7">
        <property name="font">
         <font>
-         <family>Times New Roman</family>
-         <pointsize>9</pointsize>
+         <family>Damascus</family>
+         <pointsize>11</pointsize>
         </font>
        </property>
        <property name="text">
@@ -159,8 +601,8 @@
       <widget class="QLabel" name="label_8">
        <property name="font">
         <font>
-         <family>MS Shell Dlg 2</family>
-         <pointsize>9</pointsize>
+         <family>Damascus</family>
+         <pointsize>11</pointsize>
          <weight>50</weight>
          <italic>false</italic>
          <bold>false</bold>
@@ -184,8 +626,8 @@
        </property>
        <property name="font">
         <font>
-         <family>.AppleSystemUIFont</family>
-         <pointsize>9</pointsize>
+         <family>Damascus</family>
+         <pointsize>11</pointsize>
          <weight>75</weight>
          <bold>true</bold>
         </font>
@@ -216,8 +658,8 @@
       <widget class="QLabel" name="label_2">
        <property name="font">
         <font>
-         <family>Times New Roman</family>
-         <pointsize>9</pointsize>
+         <family>Damascus</family>
+         <pointsize>11</pointsize>
         </font>
        </property>
        <property name="text">
@@ -229,8 +671,8 @@
       <widget class="Line" name="line_8">
        <property name="font">
         <font>
-         <family>Times New Roman</family>
-         <pointsize>9</pointsize>
+         <family>Damascus</family>
+         <pointsize>11</pointsize>
          <weight>75</weight>
          <bold>true</bold>
         </font>
@@ -244,8 +686,8 @@
       <widget class="QLineEdit" name="lineEdit_anno">
        <property name="font">
         <font>
-         <family>MS Shell Dlg 2</family>
-         <pointsize>9</pointsize>
+         <family>Damascus</family>
+         <pointsize>11</pointsize>
          <weight>50</weight>
          <italic>false</italic>
          <bold>false</bold>
@@ -263,8 +705,8 @@
       <widget class="QLabel" name="label">
        <property name="font">
         <font>
-         <family>Times New Roman</family>
-         <pointsize>9</pointsize>
+         <family>Damascus</family>
+         <pointsize>11</pointsize>
         </font>
        </property>
        <property name="text">
@@ -276,8 +718,8 @@
       <widget class="QLineEdit" name="lineEdit_box">
        <property name="font">
         <font>
-         <family>MS Shell Dlg 2</family>
-         <pointsize>9</pointsize>
+         <family>Damascus</family>
+         <pointsize>11</pointsize>
          <weight>50</weight>
          <italic>false</italic>
          <bold>false</bold>
@@ -292,8 +734,8 @@
       <widget class="QLabel" name="label_25">
        <property name="font">
         <font>
-         <family>MS Shell Dlg 2</family>
-         <pointsize>9</pointsize>
+         <family>Damascus</family>
+         <pointsize>11</pointsize>
          <weight>50</weight>
          <italic>false</italic>
          <bold>false</bold>
@@ -308,8 +750,8 @@
       <widget class="QLabel" name="label_24">
        <property name="font">
         <font>
-         <family>Times New Roman</family>
-         <pointsize>9</pointsize>
+         <family>Damascus</family>
+         <pointsize>11</pointsize>
         </font>
        </property>
        <property name="styleSheet">
@@ -333,8 +775,8 @@
        </property>
        <property name="font">
         <font>
-         <family>.AppleSystemUIFont</family>
-         <pointsize>9</pointsize>
+         <family>Damascus</family>
+         <pointsize>11</pointsize>
          <weight>75</weight>
          <bold>true</bold>
         </font>
@@ -409,8 +851,8 @@
        </property>
        <property name="font">
         <font>
-         <family>.AppleSystemUIFont</family>
-         <pointsize>9</pointsize>
+         <family>Damascus</family>
+         <pointsize>11</pointsize>
         </font>
        </property>
        <property name="styleSheet">
@@ -431,8 +873,8 @@
        </property>
        <property name="font">
         <font>
-         <family>.AppleSystemUIFont</family>
-         <pointsize>9</pointsize>
+         <family>Damascus</family>
+         <pointsize>11</pointsize>
          <weight>75</weight>
          <bold>true</bold>
         </font>
@@ -455,8 +897,8 @@
        </property>
        <property name="font">
         <font>
-         <family>.AppleSystemUIFont</family>
-         <pointsize>9</pointsize>
+         <family>Damascus</family>
+         <pointsize>11</pointsize>
          <weight>75</weight>
          <bold>true</bold>
         </font>
@@ -533,8 +975,8 @@
       <widget class="QLineEdit" name="lineEdit_bag">
        <property name="font">
         <font>
-         <family>MS Shell Dlg 2</family>
-         <pointsize>9</pointsize>
+         <family>Damascus</family>
+         <pointsize>11</pointsize>
          <weight>50</weight>
          <italic>false</italic>
          <bold>false</bold>
@@ -549,8 +991,8 @@
       <widget class="QLabel" name="id">
        <property name="font">
         <font>
-         <family>Times New Roman</family>
-         <pointsize>9</pointsize>
+         <family>Damascus</family>
+         <pointsize>11</pointsize>
         </font>
        </property>
        <property name="text">
@@ -564,8 +1006,8 @@
     <widget class="QLabel" name="label_34">
      <property name="font">
       <font>
-       <family>Times New Roman</family>
-       <pointsize>9</pointsize>
+       <family>Damascus</family>
+       <pointsize>11</pointsize>
        <weight>75</weight>
        <bold>true</bold>
       </font>
@@ -582,8 +1024,8 @@
     <widget class="QLabel" name="label_sort">
      <property name="font">
       <font>
-       <family>.AppleSystemUIFont</family>
-       <pointsize>9</pointsize>
+       <family>Damascus</family>
+       <pointsize>11</pointsize>
        <weight>75</weight>
        <bold>true</bold>
       </font>
@@ -621,8 +1063,8 @@
     <widget class="QLabel" name="label_43">
      <property name="font">
       <font>
-       <family>Times New Roman</family>
-       <pointsize>9</pointsize>
+       <family>Damascus</family>
+       <pointsize>11</pointsize>
        <weight>75</weight>
        <bold>true</bold>
       </font>
@@ -639,8 +1081,8 @@
     <widget class="QLabel" name="label_27">
      <property name="font">
       <font>
-       <family>Times New Roman</family>
-       <pointsize>9</pointsize>
+       <family>Damascus</family>
+       <pointsize>11</pointsize>
        <weight>75</weight>
        <bold>true</bold>
       </font>
@@ -657,8 +1099,8 @@
     <widget class="QLabel" name="label_rec_corrente">
      <property name="font">
       <font>
-       <family>Microsoft Sans Serif</family>
-       <pointsize>9</pointsize>
+       <family>Damascus</family>
+       <pointsize>11</pointsize>
       </font>
      </property>
      <property name="cursor">
@@ -688,8 +1130,8 @@
     <widget class="QLabel" name="label_rec_tot">
      <property name="font">
       <font>
-       <family>Microsoft Sans Serif</family>
-       <pointsize>9</pointsize>
+       <family>Damascus</family>
+       <pointsize>11</pointsize>
       </font>
      </property>
      <property name="cursor">
@@ -719,8 +1161,8 @@
     <widget class="QLabel" name="label_28">
      <property name="font">
       <font>
-       <family>Times New Roman</family>
-       <pointsize>9</pointsize>
+       <family>Damascus</family>
+       <pointsize>11</pointsize>
        <weight>75</weight>
        <bold>true</bold>
       </font>
@@ -748,8 +1190,8 @@
        </property>
        <property name="font">
         <font>
-         <family>MS Shell Dlg 2</family>
-         <pointsize>9</pointsize>
+         <family>Damascus</family>
+         <pointsize>11</pointsize>
          <weight>50</weight>
          <bold>false</bold>
         </font>
@@ -779,8 +1221,8 @@
        </property>
        <property name="font">
         <font>
-         <family>MS Shell Dlg 2</family>
-         <pointsize>9</pointsize>
+         <family>Damascus</family>
+         <pointsize>11</pointsize>
          <weight>50</weight>
          <bold>false</bold>
         </font>
@@ -822,8 +1264,8 @@
        </property>
        <property name="font">
         <font>
-         <family>MS Shell Dlg 2</family>
-         <pointsize>9</pointsize>
+         <family>Damascus</family>
+         <pointsize>11</pointsize>
          <weight>50</weight>
          <bold>false</bold>
         </font>
@@ -850,8 +1292,8 @@
        </property>
        <property name="font">
         <font>
-         <family>Times New Roman</family>
-         <pointsize>9</pointsize>
+         <family>Damascus</family>
+         <pointsize>11</pointsize>
         </font>
        </property>
        <property name="text">
@@ -882,8 +1324,8 @@
        </property>
        <property name="font">
         <font>
-         <family>MS Shell Dlg 2</family>
-         <pointsize>9</pointsize>
+         <family>Damascus</family>
+         <pointsize>11</pointsize>
          <weight>50</weight>
          <bold>false</bold>
         </font>
@@ -910,8 +1352,8 @@
        </property>
        <property name="font">
         <font>
-         <family>MS Shell Dlg 2</family>
-         <pointsize>9</pointsize>
+         <family>Damascus</family>
+         <pointsize>11</pointsize>
          <weight>50</weight>
          <bold>false</bold>
         </font>
@@ -938,8 +1380,8 @@
        </property>
        <property name="font">
         <font>
-         <family>MS Shell Dlg 2</family>
-         <pointsize>9</pointsize>
+         <family>Damascus</family>
+         <pointsize>11</pointsize>
          <weight>50</weight>
          <bold>false</bold>
         </font>
@@ -966,8 +1408,8 @@
        </property>
        <property name="font">
         <font>
-         <family>MS Shell Dlg 2</family>
-         <pointsize>9</pointsize>
+         <family>Damascus</family>
+         <pointsize>11</pointsize>
          <weight>50</weight>
          <bold>false</bold>
         </font>
@@ -994,8 +1436,8 @@
        </property>
        <property name="font">
         <font>
-         <family>MS Shell Dlg 2</family>
-         <pointsize>9</pointsize>
+         <family>Damascus</family>
+         <pointsize>11</pointsize>
          <weight>50</weight>
          <bold>false</bold>
         </font>
@@ -1022,8 +1464,8 @@
        </property>
        <property name="font">
         <font>
-         <family>MS Shell Dlg 2</family>
-         <pointsize>9</pointsize>
+         <family>Damascus</family>
+         <pointsize>11</pointsize>
          <weight>50</weight>
          <bold>false</bold>
         </font>
@@ -1053,8 +1495,8 @@
        </property>
        <property name="font">
         <font>
-         <family>MS Shell Dlg 2</family>
-         <pointsize>9</pointsize>
+         <family>Damascus</family>
+         <pointsize>11</pointsize>
          <weight>50</weight>
          <bold>false</bold>
         </font>
@@ -1088,6 +1530,12 @@
          <height>16777215</height>
         </size>
        </property>
+       <property name="font">
+        <font>
+         <family>Damascus</family>
+         <pointsize>11</pointsize>
+        </font>
+       </property>
        <property name="locale">
         <locale language="English" country="UnitedKingdom"/>
        </property>
@@ -1109,8 +1557,8 @@
        </property>
        <property name="font">
         <font>
-         <family>MS Shell Dlg 2</family>
-         <pointsize>9</pointsize>
+         <family>Damascus</family>
+         <pointsize>11</pointsize>
          <weight>50</weight>
          <bold>false</bold>
         </font>
@@ -1137,8 +1585,8 @@
        </property>
        <property name="font">
         <font>
-         <family>MS Shell Dlg 2</family>
-         <pointsize>9</pointsize>
+         <family>Damascus</family>
+         <pointsize>11</pointsize>
          <weight>50</weight>
          <bold>false</bold>
         </font>
@@ -1165,8 +1613,8 @@
        </property>
        <property name="font">
         <font>
-         <family>MS Shell Dlg 2</family>
-         <pointsize>9</pointsize>
+         <family>Damascus</family>
+         <pointsize>11</pointsize>
          <weight>50</weight>
          <bold>false</bold>
         </font>
@@ -1193,8 +1641,8 @@
        </property>
        <property name="font">
         <font>
-         <family>MS Shell Dlg 2</family>
-         <pointsize>9</pointsize>
+         <family>Damascus</family>
+         <pointsize>11</pointsize>
          <weight>50</weight>
          <bold>false</bold>
         </font>
@@ -1221,8 +1669,8 @@
        </property>
        <property name="font">
         <font>
-         <family>MS Shell Dlg 2</family>
-         <pointsize>9</pointsize>
+         <family>Damascus</family>
+         <pointsize>11</pointsize>
          <weight>50</weight>
          <bold>false</bold>
         </font>
@@ -1245,8 +1693,8 @@
     <widget class="QTabWidget" name="tabWidget">
      <property name="font">
       <font>
-       <family>MS Shell Dlg 2</family>
-       <pointsize>9</pointsize>
+       <family>Damascus</family>
+       <pointsize>11</pointsize>
        <weight>50</weight>
        <italic>false</italic>
        <bold>false</bold>
@@ -1267,8 +1715,8 @@
         <widget class="QLabel" name="label_4">
          <property name="font">
           <font>
-           <family>MS Shell Dlg 2</family>
-           <pointsize>9</pointsize>
+           <family>Damascus</family>
+           <pointsize>11</pointsize>
            <weight>50</weight>
            <italic>false</italic>
            <bold>false</bold>
@@ -1283,8 +1731,8 @@
         <widget class="QTextEdit" name="textEdit_descrip_in_deco">
          <property name="font">
           <font>
-           <family>MS Shell Dlg 2</family>
-           <pointsize>9</pointsize>
+           <family>Damascus</family>
+           <pointsize>11</pointsize>
            <weight>50</weight>
            <italic>false</italic>
            <bold>false</bold>
@@ -1299,8 +1747,8 @@
         <widget class="QTextEdit" name="textEdit_note">
          <property name="font">
           <font>
-           <family>MS Shell Dlg 2</family>
-           <pointsize>9</pointsize>
+           <family>Damascus</family>
+           <pointsize>11</pointsize>
            <weight>50</weight>
            <italic>false</italic>
            <bold>false</bold>
@@ -1315,8 +1763,8 @@
         <widget class="QTextEdit" name="textEdit_descrip_ex_deco">
          <property name="font">
           <font>
-           <family>MS Shell Dlg 2</family>
-           <pointsize>9</pointsize>
+           <family>Damascus</family>
+           <pointsize>11</pointsize>
            <weight>50</weight>
            <italic>false</italic>
            <bold>false</bold>
@@ -1331,8 +1779,8 @@
         <widget class="QLabel" name="label_5">
          <property name="font">
           <font>
-           <family>MS Shell Dlg 2</family>
-           <pointsize>9</pointsize>
+           <family>Damascus</family>
+           <pointsize>11</pointsize>
            <weight>50</weight>
            <italic>false</italic>
            <bold>false</bold>
@@ -1347,8 +1795,8 @@
         <widget class="QLabel" name="label_6">
          <property name="font">
           <font>
-           <family>MS Shell Dlg 2</family>
-           <pointsize>9</pointsize>
+           <family>Damascus</family>
+           <pointsize>11</pointsize>
            <weight>50</weight>
            <italic>false</italic>
            <bold>false</bold>
@@ -1367,6 +1815,12 @@
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
+         <property name="font">
+          <font>
+           <family>Damascus</family>
+           <pointsize>11</pointsize>
+          </font>
+         </property>
          <widget class="QWidget" name="dockWidgetContents_2">
           <layout class="QGridLayout" name="gridLayout_4">
            <item row="0" column="0">
@@ -1382,6 +1836,12 @@
                <width>20</width>
                <height>20</height>
               </size>
+             </property>
+             <property name="font">
+              <font>
+               <family>Damascus</family>
+               <pointsize>11</pointsize>
+              </font>
              </property>
              <property name="icon">
               <iconset resource="../../resources/resources.qrc">
@@ -1403,6 +1863,12 @@
                <height>20</height>
               </size>
              </property>
+             <property name="font">
+              <font>
+               <family>Damascus</family>
+               <pointsize>11</pointsize>
+              </font>
+             </property>
              <property name="icon">
               <iconset resource="../../resources/resources.qrc">
                <normaloff>:/icons/remove_tag.png</normaloff>:/icons/remove_tag.png</iconset>
@@ -1423,6 +1889,12 @@
                <height>20</height>
               </size>
              </property>
+             <property name="font">
+              <font>
+               <family>Damascus</family>
+               <pointsize>11</pointsize>
+              </font>
+             </property>
              <property name="toolTip">
               <string>Cerca immagini</string>
              </property>
@@ -1439,8 +1911,8 @@
             <widget class="QListWidget" name="iconListWidget">
              <property name="font">
               <font>
-               <family>Times New Roman</family>
-               <pointsize>9</pointsize>
+               <family>Damascus</family>
+               <pointsize>11</pointsize>
                <weight>50</weight>
                <italic>false</italic>
                <bold>false</bold>
@@ -1517,8 +1989,8 @@
         <widget class="QLabel" name="label_decoration_motif">
          <property name="font">
           <font>
-           <family>MS Shell Dlg 2</family>
-           <pointsize>9</pointsize>
+           <family>Damascus</family>
+           <pointsize>11</pointsize>
            <weight>50</weight>
            <italic>false</italic>
            <bold>false</bold>
@@ -1533,8 +2005,8 @@
         <widget class="QLabel" name="label_47">
          <property name="font">
           <font>
-           <family>MS Shell Dlg 2</family>
-           <pointsize>9</pointsize>
+           <family>Damascus</family>
+           <pointsize>11</pointsize>
            <weight>50</weight>
            <italic>false</italic>
            <bold>false</bold>
@@ -1549,8 +2021,8 @@
         <widget class="QLabel" name="label_44">
          <property name="font">
           <font>
-           <family>MS Shell Dlg 2</family>
-           <pointsize>9</pointsize>
+           <family>Damascus</family>
+           <pointsize>11</pointsize>
            <weight>50</weight>
            <italic>false</italic>
            <bold>false</bold>
@@ -1565,8 +2037,8 @@
         <widget class="QLineEdit" name="lineEdit_diametro_bottom">
          <property name="font">
           <font>
-           <family>MS Shell Dlg 2</family>
-           <pointsize>9</pointsize>
+           <family>Damascus</family>
+           <pointsize>11</pointsize>
            <weight>50</weight>
            <italic>false</italic>
            <bold>false</bold>
@@ -1581,8 +2053,8 @@
         <widget class="QLineEdit" name="lineEdit_diametro_preserved">
          <property name="font">
           <font>
-           <family>MS Shell Dlg 2</family>
-           <pointsize>9</pointsize>
+           <family>Damascus</family>
+           <pointsize>11</pointsize>
            <weight>50</weight>
            <italic>false</italic>
            <bold>false</bold>
@@ -1597,8 +2069,8 @@
         <widget class="QLineEdit" name="lineEdit_diametro_rim">
          <property name="font">
           <font>
-           <family>MS Shell Dlg 2</family>
-           <pointsize>9</pointsize>
+           <family>Damascus</family>
+           <pointsize>11</pointsize>
            <weight>50</weight>
            <italic>false</italic>
            <bold>false</bold>
@@ -1613,8 +2085,8 @@
         <widget class="QLabel" name="label_13">
          <property name="font">
           <font>
-           <family>MS Shell Dlg 2</family>
-           <pointsize>9</pointsize>
+           <family>Damascus</family>
+           <pointsize>11</pointsize>
            <weight>50</weight>
            <italic>false</italic>
            <bold>false</bold>
@@ -1629,8 +2101,8 @@
         <widget class="QComboBox" name="comboBox_form">
          <property name="font">
           <font>
-           <family>MS Shell Dlg 2</family>
-           <pointsize>9</pointsize>
+           <family>Damascus</family>
+           <pointsize>11</pointsize>
            <weight>50</weight>
            <italic>false</italic>
            <bold>false</bold>
@@ -1663,8 +2135,8 @@
         <widget class="QLineEdit" name="lineEdit_diametro_height">
          <property name="font">
           <font>
-           <family>MS Shell Dlg 2</family>
-           <pointsize>9</pointsize>
+           <family>Damascus</family>
+           <pointsize>11</pointsize>
            <weight>50</weight>
            <italic>false</italic>
            <bold>false</bold>
@@ -1679,8 +2151,8 @@
         <widget class="QLineEdit" name="lineEdit_diametro_max">
          <property name="font">
           <font>
-           <family>MS Shell Dlg 2</family>
-           <pointsize>9</pointsize>
+           <family>Damascus</family>
+           <pointsize>11</pointsize>
            <weight>50</weight>
            <italic>false</italic>
            <bold>false</bold>
@@ -1695,8 +2167,8 @@
         <widget class="QLabel" name="label_45">
          <property name="font">
           <font>
-           <family>MS Shell Dlg 2</family>
-           <pointsize>9</pointsize>
+           <family>Damascus</family>
+           <pointsize>11</pointsize>
            <weight>50</weight>
            <italic>false</italic>
            <bold>false</bold>
@@ -1711,8 +2183,8 @@
         <widget class="QLabel" name="label_46">
          <property name="font">
           <font>
-           <family>MS Shell Dlg 2</family>
-           <pointsize>9</pointsize>
+           <family>Damascus</family>
+           <pointsize>11</pointsize>
            <weight>50</weight>
            <italic>false</italic>
            <bold>false</bold>
@@ -1727,8 +2199,8 @@
         <widget class="QLabel" name="label_42">
          <property name="font">
           <font>
-           <family>MS Shell Dlg 2</family>
-           <pointsize>9</pointsize>
+           <family>Damascus</family>
+           <pointsize>11</pointsize>
            <weight>50</weight>
            <italic>false</italic>
            <bold>false</bold>
@@ -1743,8 +2215,8 @@
         <widget class="QLabel" name="label_14">
          <property name="font">
           <font>
-           <family>MS Shell Dlg 2</family>
-           <pointsize>9</pointsize>
+           <family>Damascus</family>
+           <pointsize>11</pointsize>
            <weight>50</weight>
            <italic>false</italic>
            <bold>false</bold>
@@ -1759,8 +2231,8 @@
         <widget class="QComboBox" name="comboBox_decoration_motif">
          <property name="font">
           <font>
-           <family>MS Shell Dlg 2</family>
-           <pointsize>9</pointsize>
+           <family>Damascus</family>
+           <pointsize>11</pointsize>
            <weight>50</weight>
            <italic>false</italic>
            <bold>false</bold>
@@ -1778,8 +2250,8 @@
         <widget class="QLabel" name="label_15">
          <property name="font">
           <font>
-           <family>MS Shell Dlg 2</family>
-           <pointsize>9</pointsize>
+           <family>Damascus</family>
+           <pointsize>11</pointsize>
            <weight>50</weight>
            <italic>false</italic>
            <bold>false</bold>
@@ -1794,8 +2266,8 @@
         <widget class="QLabel" name="label_19">
          <property name="font">
           <font>
-           <family>MS Shell Dlg 2</family>
-           <pointsize>9</pointsize>
+           <family>Damascus</family>
+           <pointsize>11</pointsize>
            <weight>50</weight>
            <italic>false</italic>
            <bold>false</bold>
@@ -1813,8 +2285,8 @@
          </property>
          <property name="font">
           <font>
-           <family>MS Shell Dlg 2</family>
-           <pointsize>9</pointsize>
+           <family>Damascus</family>
+           <pointsize>11</pointsize>
            <weight>50</weight>
            <italic>false</italic>
            <bold>false</bold>
@@ -1857,8 +2329,8 @@
         <widget class="QLabel" name="label_18">
          <property name="font">
           <font>
-           <family>MS Shell Dlg 2</family>
-           <pointsize>9</pointsize>
+           <family>Damascus</family>
+           <pointsize>11</pointsize>
            <weight>50</weight>
            <italic>false</italic>
            <bold>false</bold>
@@ -1873,8 +2345,8 @@
         <widget class="QComboBox" name="comboBox_percent">
          <property name="font">
           <font>
-           <family>MS Shell Dlg 2</family>
-           <pointsize>9</pointsize>
+           <family>Damascus</family>
+           <pointsize>11</pointsize>
            <weight>50</weight>
            <italic>false</italic>
            <bold>false</bold>
@@ -1917,8 +2389,8 @@
         <widget class="QLabel" name="label_16">
          <property name="font">
           <font>
-           <family>MS Shell Dlg 2</family>
-           <pointsize>9</pointsize>
+           <family>Damascus</family>
+           <pointsize>11</pointsize>
            <weight>50</weight>
            <italic>false</italic>
            <bold>false</bold>
@@ -1933,8 +2405,8 @@
         <widget class="QComboBox" name="comboBox_ware">
          <property name="font">
           <font>
-           <family>MS Shell Dlg 2</family>
-           <pointsize>9</pointsize>
+           <family>Damascus</family>
+           <pointsize>11</pointsize>
            <weight>50</weight>
            <italic>false</italic>
            <bold>false</bold>
@@ -1967,8 +2439,8 @@
         <widget class="QLabel" name="label_datazione">
          <property name="font">
           <font>
-           <family>MS Shell Dlg 2</family>
-           <pointsize>9</pointsize>
+           <family>Damascus</family>
+           <pointsize>11</pointsize>
            <weight>50</weight>
            <italic>false</italic>
            <bold>false</bold>
@@ -1983,8 +2455,8 @@
         <widget class="QLabel" name="label_22">
          <property name="font">
           <font>
-           <family>MS Shell Dlg 2</family>
-           <pointsize>9</pointsize>
+           <family>Damascus</family>
+           <pointsize>11</pointsize>
            <weight>50</weight>
            <italic>false</italic>
            <bold>false</bold>
@@ -1999,8 +2471,8 @@
         <widget class="QComboBox" name="comboBox_wheel_made">
          <property name="font">
           <font>
-           <family>MS Shell Dlg 2</family>
-           <pointsize>9</pointsize>
+           <family>Damascus</family>
+           <pointsize>11</pointsize>
            <weight>50</weight>
            <italic>false</italic>
            <bold>false</bold>
@@ -2028,8 +2500,8 @@
         <widget class="QComboBox" name="comboBox_surf_trat">
          <property name="font">
           <font>
-           <family>MS Shell Dlg 2</family>
-           <pointsize>9</pointsize>
+           <family>Damascus</family>
+           <pointsize>11</pointsize>
            <weight>50</weight>
            <italic>false</italic>
            <bold>false</bold>
@@ -2057,8 +2529,8 @@
         <widget class="QComboBox" name="comboBox_datazione">
          <property name="font">
           <font>
-           <family>MS Shell Dlg 2</family>
-           <pointsize>9</pointsize>
+           <family>Damascus</family>
+           <pointsize>11</pointsize>
            <weight>50</weight>
            <italic>false</italic>
            <bold>false</bold>
@@ -2076,8 +2548,8 @@
         <widget class="QLineEdit" name="lineEdit_drawing">
          <property name="font">
           <font>
-           <family>MS Shell Dlg 2</family>
-           <pointsize>9</pointsize>
+           <family>Damascus</family>
+           <pointsize>11</pointsize>
            <weight>50</weight>
            <italic>false</italic>
            <bold>false</bold>
@@ -2092,8 +2564,8 @@
         <widget class="QLabel" name="label_11">
          <property name="font">
           <font>
-           <family>MS Shell Dlg 2</family>
-           <pointsize>9</pointsize>
+           <family>Damascus</family>
+           <pointsize>11</pointsize>
            <weight>50</weight>
            <italic>false</italic>
            <bold>false</bold>
@@ -2108,8 +2580,8 @@
         <widget class="QLabel" name="label_10">
          <property name="font">
           <font>
-           <family>MS Shell Dlg 2</family>
-           <pointsize>9</pointsize>
+           <family>Damascus</family>
+           <pointsize>11</pointsize>
            <weight>50</weight>
            <italic>false</italic>
            <bold>false</bold>
@@ -2124,8 +2596,8 @@
         <widget class="QLineEdit" name="lineEdit_photo">
          <property name="font">
           <font>
-           <family>MS Shell Dlg 2</family>
-           <pointsize>9</pointsize>
+           <family>Damascus</family>
+           <pointsize>11</pointsize>
            <weight>50</weight>
            <italic>false</italic>
            <bold>false</bold>
@@ -2140,8 +2612,8 @@
         <widget class="QLabel" name="label_17">
          <property name="font">
           <font>
-           <family>MS Shell Dlg 2</family>
-           <pointsize>9</pointsize>
+           <family>Damascus</family>
+           <pointsize>11</pointsize>
            <weight>50</weight>
            <italic>false</italic>
            <bold>false</bold>
@@ -2156,8 +2628,8 @@
         <widget class="QComboBox" name="comboBox_fabric">
          <property name="font">
           <font>
-           <family>MS Shell Dlg 2</family>
-           <pointsize>9</pointsize>
+           <family>Damascus</family>
+           <pointsize>11</pointsize>
            <weight>50</weight>
            <italic>false</italic>
            <bold>false</bold>
@@ -2195,8 +2667,8 @@
         <widget class="QLabel" name="label_9">
          <property name="font">
           <font>
-           <family>MS Shell Dlg 2</family>
-           <pointsize>9</pointsize>
+           <family>Damascus</family>
+           <pointsize>11</pointsize>
            <weight>50</weight>
            <italic>false</italic>
            <bold>false</bold>
@@ -2211,8 +2683,8 @@
         <widget class="QComboBox" name="comboBox_munsell">
          <property name="font">
           <font>
-           <family>MS Shell Dlg 2</family>
-           <pointsize>9</pointsize>
+           <family>Damascus</family>
+           <pointsize>11</pointsize>
            <weight>50</weight>
            <italic>false</italic>
            <bold>false</bold>
@@ -2235,8 +2707,8 @@
         <widget class="QComboBox" name="comboBox_material">
          <property name="font">
           <font>
-           <family>MS Shell Dlg 2</family>
-           <pointsize>9</pointsize>
+           <family>Damascus</family>
+           <pointsize>11</pointsize>
            <weight>50</weight>
            <italic>false</italic>
            <bold>false</bold>
@@ -2254,8 +2726,8 @@
         <widget class="QLabel" name="label_23">
          <property name="font">
           <font>
-           <family>MS Shell Dlg 2</family>
-           <pointsize>9</pointsize>
+           <family>Damascus</family>
+           <pointsize>11</pointsize>
            <weight>50</weight>
            <italic>false</italic>
            <bold>false</bold>
@@ -2273,8 +2745,8 @@
          </property>
          <property name="font">
           <font>
-           <family>MS Shell Dlg 2</family>
-           <pointsize>9</pointsize>
+           <family>Damascus</family>
+           <pointsize>11</pointsize>
            <weight>50</weight>
            <italic>false</italic>
            <bold>false</bold>
@@ -2322,8 +2794,8 @@
         <widget class="QLabel" name="label_decoration_type">
          <property name="font">
           <font>
-           <family>MS Shell Dlg 2</family>
-           <pointsize>9</pointsize>
+           <family>Damascus</family>
+           <pointsize>11</pointsize>
            <weight>50</weight>
            <italic>false</italic>
            <bold>false</bold>
@@ -2338,8 +2810,8 @@
         <widget class="QLabel" name="label_decoration_position">
          <property name="font">
           <font>
-           <family>MS Shell Dlg 2</family>
-           <pointsize>9</pointsize>
+           <family>Damascus</family>
+           <pointsize>11</pointsize>
            <weight>50</weight>
            <italic>false</italic>
            <bold>false</bold>
@@ -2354,8 +2826,8 @@
         <widget class="QComboBox" name="comboBox_decoration_type">
          <property name="font">
           <font>
-           <family>MS Shell Dlg 2</family>
-           <pointsize>9</pointsize>
+           <family>Damascus</family>
+           <pointsize>11</pointsize>
            <weight>50</weight>
            <italic>false</italic>
            <bold>false</bold>
@@ -2373,8 +2845,8 @@
         <widget class="QComboBox" name="comboBox_decoration_position">
          <property name="font">
           <font>
-           <family>MS Shell Dlg 2</family>
-           <pointsize>9</pointsize>
+           <family>Damascus</family>
+           <pointsize>11</pointsize>
            <weight>50</weight>
            <italic>false</italic>
            <bold>false</bold>
@@ -2392,8 +2864,8 @@
         <widget class="QLabel" name="label_20">
          <property name="font">
           <font>
-           <family>MS Shell Dlg 2</family>
-           <pointsize>9</pointsize>
+           <family>Damascus</family>
+           <pointsize>11</pointsize>
            <weight>50</weight>
            <italic>false</italic>
            <bold>false</bold>
@@ -2408,8 +2880,8 @@
         <widget class="QLabel" name="label_21">
          <property name="font">
           <font>
-           <family>MS Shell Dlg 2</family>
-           <pointsize>9</pointsize>
+           <family>Damascus</family>
+           <pointsize>11</pointsize>
            <weight>50</weight>
            <italic>false</italic>
            <bold>false</bold>
@@ -2424,8 +2896,8 @@
         <widget class="QComboBox" name="comboBox_intdeco">
          <property name="font">
           <font>
-           <family>MS Shell Dlg 2</family>
-           <pointsize>9</pointsize>
+           <family>Damascus</family>
+           <pointsize>11</pointsize>
            <weight>50</weight>
            <italic>false</italic>
            <bold>false</bold>
@@ -2453,8 +2925,8 @@
         <widget class="QComboBox" name="comboBox_exdeco">
          <property name="font">
           <font>
-           <family>MS Shell Dlg 2</family>
-           <pointsize>9</pointsize>
+           <family>Damascus</family>
+           <pointsize>11</pointsize>
            <weight>50</weight>
            <italic>false</italic>
            <bold>false</bold>
@@ -2489,8 +2961,8 @@
         <widget class="QTabWidget" name="tabWidget_2">
          <property name="font">
           <font>
-           <family>MS Shell Dlg 2</family>
-           <pointsize>10</pointsize>
+           <family>Damascus</family>
+           <pointsize>11</pointsize>
            <weight>50</weight>
            <italic>false</italic>
            <bold>false</bold>
@@ -2631,6 +3103,12 @@
                <height>16777215</height>
               </size>
              </property>
+             <property name="font">
+              <font>
+               <family>Damascus</family>
+               <pointsize>11</pointsize>
+              </font>
+             </property>
              <property name="text">
               <string>Settings</string>
              </property>
@@ -2649,6 +3127,12 @@
                <width>0</width>
                <height>260</height>
               </size>
+             </property>
+             <property name="font">
+              <font>
+               <family>Damascus</family>
+               <pointsize>11</pointsize>
+              </font>
              </property>
              <property name="styleSheet">
               <string notr="true">background-color: rgb(239, 236, 236);</string>
@@ -2674,6 +3158,12 @@
            <height>89</height>
           </size>
          </property>
+         <property name="font">
+          <font>
+           <family>Damascus</family>
+           <pointsize>11</pointsize>
+          </font>
+         </property>
          <property name="floating">
           <bool>true</bool>
          </property>
@@ -2689,6 +3179,12 @@
              <width>281</width>
              <height>20</height>
             </rect>
+           </property>
+           <property name="font">
+            <font>
+             <family>Damascus</family>
+             <pointsize>11</pointsize>
+            </font>
            </property>
            <property name="acceptDrops">
             <bool>true</bool>
@@ -2709,6 +3205,12 @@
              <height>19</height>
             </rect>
            </property>
+           <property name="font">
+            <font>
+             <family>Damascus</family>
+             <pointsize>11</pointsize>
+            </font>
+           </property>
            <property name="text">
             <string>...</string>
            </property>
@@ -2721,6 +3223,12 @@
              <width>75</width>
              <height>23</height>
             </rect>
+           </property>
+           <property name="font">
+            <font>
+             <family>Damascus</family>
+             <pointsize>11</pointsize>
+            </font>
            </property>
            <property name="text">
             <string/>
@@ -2739,6 +3247,12 @@
              <height>16</height>
             </rect>
            </property>
+           <property name="font">
+            <font>
+             <family>Damascus</family>
+             <pointsize>11</pointsize>
+            </font>
+           </property>
            <property name="text">
             <string>PDF path</string>
            </property>
@@ -2751,6 +3265,12 @@
              <width>75</width>
              <height>23</height>
             </rect>
+           </property>
+           <property name="font">
+            <font>
+             <family>Damascus</family>
+             <pointsize>11</pointsize>
+            </font>
            </property>
            <property name="text">
             <string>Convert</string>
@@ -2777,6 +3297,12 @@
              <height>16777215</height>
             </size>
            </property>
+           <property name="font">
+            <font>
+             <family>Damascus</family>
+             <pointsize>11</pointsize>
+            </font>
+           </property>
            <property name="toolTip">
             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The &amp;quot;0&amp;quot; is the first page to convert&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
            </property>
@@ -2802,6 +3328,12 @@
              <height>16777215</height>
             </size>
            </property>
+           <property name="font">
+            <font>
+             <family>Damascus</family>
+             <pointsize>11</pointsize>
+            </font>
+           </property>
           </widget>
           <widget class="QLabel" name="label_58">
            <property name="geometry">
@@ -2811,6 +3343,12 @@
              <width>41</width>
              <height>16</height>
             </rect>
+           </property>
+           <property name="font">
+            <font>
+             <family>Damascus</family>
+             <pointsize>11</pointsize>
+            </font>
            </property>
            <property name="text">
             <string>Pagg.</string>
@@ -2825,6 +3363,12 @@
              <height>16</height>
             </rect>
            </property>
+           <property name="font">
+            <font>
+             <family>Damascus</family>
+             <pointsize>11</pointsize>
+            </font>
+           </property>
            <property name="text">
             <string>to</string>
            </property>
@@ -2834,6 +3378,12 @@
        </item>
        <item row="1" column="0">
         <widget class="QDockWidget" name="mDockWidget_export">
+         <property name="font">
+          <font>
+           <family>Damascus</family>
+           <pointsize>11</pointsize>
+          </font>
+         </property>
          <property name="floating">
           <bool>true</bool>
          </property>
@@ -2847,6 +3397,12 @@
              <height>20</height>
             </rect>
            </property>
+           <property name="font">
+            <font>
+             <family>Damascus</family>
+             <pointsize>11</pointsize>
+            </font>
+           </property>
            <property name="text">
             <string>Photo list without Thumbnail</string>
            </property>
@@ -2859,6 +3415,12 @@
              <width>178</width>
              <height>20</height>
             </rect>
+           </property>
+           <property name="font">
+            <font>
+             <family>Damascus</family>
+             <pointsize>11</pointsize>
+            </font>
            </property>
            <property name="text">
             <string>Photo list with Thumbnail</string>
@@ -2887,6 +3449,12 @@
              <width>30</width>
              <height>16777215</height>
             </size>
+           </property>
+           <property name="font">
+            <font>
+             <family>Damascus</family>
+             <pointsize>11</pointsize>
+            </font>
            </property>
            <property name="text">
             <string/>
@@ -2922,6 +3490,12 @@
              <width>100</width>
              <height>20</height>
             </size>
+           </property>
+           <property name="font">
+            <font>
+             <family>Damascus</family>
+             <pointsize>11</pointsize>
+            </font>
            </property>
            <property name="text">
             <string>Print</string>
