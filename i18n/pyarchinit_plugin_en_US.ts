@@ -12556,4 +12556,271 @@ Se disattivo, mostra solo le US del livello esatto.</source><translation>If acti
 If unchecked, shows only US at exact level.</source><translation>If checked, shows all SU up to selected level. If unchecked, shows only SU at exact level.</translation></message><message><source>Run segmentation on the selected raster</source><translation>Run segmentation on the selected raster</translation></message><message><source>Uses all pottery images linked in the database for training</source><translation>Uses all pottery images linked in the database for training</translation></message><message><source>Use edge-detection preprocessing (better for line decorations)</source><translation>Use edge-detection preprocessing (better for line decorations)</translation></message><message><source>Group pottery by ware type</source><translation>Group pottery by ware type</translation></message><message><source>Reset to default values</source><translation>Reset to default values</translation></message><message><source>Export all indexes to ZIP for sharing with other PCs</source><translation>Export all indexes to ZIP for sharing with other PCs</translation></message><message><source>Remove photo background from pottery (useful for studio photos)</source><translation>Remove photo background from pottery (useful for studio photos)</translation></message><message><source>Fine-tune the KhutmML-CLIP model on your pottery dataset.
 </source><translation>Fine-tune the KhutmML-CLIP model on your pottery dataset.</translation></message><message><source>Select a polygon feature from an existing layer as the area to segment</source><translation>Select a polygon feature from an existing layer as the area to segment</translation></message><message><source>Draw a rectangle to segment all stones within that area</source><translation>Draw a rectangle to segment all stones within that area</translation></message><message><source>Attiva per cercare tutte le US in un intervallo numerico</source><translation>Activate to search all SUs in a numerical range</translation></message><message><source>Mostra il testo mentre viene generato. Disabilita se hai problemi con GPT-5.</source><translation>Show the text while it is being generated. Disable if you have issues with GPT-5.</translation></message><message><source>Interroga il database con linguaggio naturale usando GPT-5</source><translation>Query the database with natural language using GPT-5</translation></message><message><source>Import a KhutmML-CLIP model from a ZIP file.
 </source><translation>Import a KhutmML-CLIP model from a ZIP file.</translation></message><message><source>Analizza l'immagine corrente con il prompt personalizzato,
-</source><translation>Analyze the current image with the custom prompt,</translation></message><message><source>Brightness threshold for background detection (higher = stricter)</source><translation>Brightness threshold for background detection (higher = stricter)</translation></message></context></TS>
+</source><translation>Analyze the current image with the custom prompt,</translation></message><message><source>Brightness threshold for background detection (higher = stricter)</source><translation>Brightness threshold for background detection (higher = stricter)</translation></message></context><context>
+    <name>pyarchinitConfigDialog</name>
+    <message>
+        <source>Database Synchronization (Local ↔ Remote)</source>
+        <translation>Database Synchronization (Local ↔ Remote)</translation>
+    </message>
+    <message>
+        <source>Local Database (PostgreSQL)</source>
+        <translation>Local Database (PostgreSQL)</translation>
+    </message>
+    <message>
+        <source>Remote Database (Server/Cloud)</source>
+        <translation>Remote Database (Server/Cloud)</translation>
+    </message>
+    <message>
+        <source>Host:</source>
+        <translation>Host:</translation>
+    </message>
+    <message>
+        <source>Port:</source>
+        <translation>Port:</translation>
+    </message>
+    <message>
+        <source>Database:</source>
+        <translation>Database:</translation>
+    </message>
+    <message>
+        <source>User:</source>
+        <translation>User:</translation>
+    </message>
+    <message>
+        <source>Password:</source>
+        <translation>Password:</translation>
+    </message>
+    <message>
+        <source>Save Credentials</source>
+        <translation>Save Credentials</translation>
+    </message>
+    <message>
+        <source>Analyze Differences</source>
+        <translation>Analyze Differences</translation>
+    </message>
+    <message>
+        <source>Upload to Remote</source>
+        <translation>Upload to Remote</translation>
+    </message>
+    <message>
+        <source>Download from Remote</source>
+        <translation>Download from Remote</translation>
+    </message>
+    <message>
+        <source>Analyzing differences...</source>
+        <translation>Analyzing differences...</translation>
+    </message>
+    <message>
+        <source>Analysis complete</source>
+        <translation>Analysis complete</translation>
+    </message>
+    <message>
+        <source>Error</source>
+        <translation>Error</translation>
+    </message>
+    <message>
+        <source>Remote host not configured.</source>
+        <translation>Remote host not configured.</translation>
+    </message>
+    <message>
+        <source>Local database not configured.</source>
+        <translation>Local database not configured.</translation>
+    </message>
+    <message>
+        <source>Database Synchronization - Differences Analysis</source>
+        <translation>Database Synchronization - Differences Analysis</translation>
+    </message>
+    <message>
+        <source>Select</source>
+        <translation>Select</translation>
+    </message>
+    <message>
+        <source>Table Name</source>
+        <translation>Table Name</translation>
+    </message>
+    <message>
+        <source>Local</source>
+        <translation>Local</translation>
+    </message>
+    <message>
+        <source>Remote</source>
+        <translation>Remote</translation>
+    </message>
+    <message>
+        <source>Only Local</source>
+        <translation>Only Local</translation>
+    </message>
+    <message>
+        <source>Only Remote</source>
+        <translation>Only Remote</translation>
+    </message>
+    <message>
+        <source>Modified</source>
+        <translation>Modified</translation>
+    </message>
+    <message>
+        <source>Status</source>
+        <translation>Status</translation>
+    </message>
+    <message>
+        <source>Differences found</source>
+        <translation>Differences found</translation>
+    </message>
+    <message>
+        <source>Synchronized</source>
+        <translation>Synchronized</translation>
+    </message>
+    <message>
+        <source>Select All</source>
+        <translation>Select All</translation>
+    </message>
+    <message>
+        <source>Select None</source>
+        <translation>Select None</translation>
+    </message>
+    <message>
+        <source>Select Only Different</source>
+        <translation>Select Only Different</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation>Close</translation>
+    </message>
+    <message>
+        <source>No Tables Selected</source>
+        <translation>No Tables Selected</translation>
+    </message>
+    <message>
+        <source>Please select at least one table to synchronize.</source>
+        <translation>Please select at least one table to synchronize.</translation>
+    </message>
+    <message>
+        <source>Confirm Synchronization</source>
+        <translation>Confirm Synchronization</translation>
+    </message>
+    <message>
+        <source>Confirm Download</source>
+        <translation>Confirm Download</translation>
+    </message>
+    <message>
+        <source>Confirm Upload</source>
+        <translation>Confirm Upload</translation>
+    </message>
+    <message>
+        <source>Missing Configuration</source>
+        <translation>Missing Configuration</translation>
+    </message>
+    <message>
+        <source>Connection Profiles</source>
+        <translation>Connection Profiles</translation>
+    </message>
+    <message>
+        <source>Saved Profiles:</source>
+        <translation>Saved Profiles:</translation>
+    </message>
+    <message>
+        <source>-- Select a profile --</source>
+        <translation>-- Select a profile --</translation>
+    </message>
+    <message>
+        <source>💾 Save</source>
+        <translation>💾 Save</translation>
+    </message>
+    <message>
+        <source>🗑️ Delete</source>
+        <translation>🗑️ Delete</translation>
+    </message>
+    <message>
+        <source>Save current settings as a new profile</source>
+        <translation>Save current settings as a new profile</translation>
+    </message>
+    <message>
+        <source>Delete the selected profile</source>
+        <translation>Delete the selected profile</translation>
+    </message>
+    <message>
+        <source>Save Connection Profile</source>
+        <translation>Save Connection Profile</translation>
+    </message>
+    <message>
+        <source>Enter a name for this connection profile:</source>
+        <translation>Enter a name for this connection profile:</translation>
+    </message>
+    <message>
+        <source>Profile Exists</source>
+        <translation>Profile Exists</translation>
+    </message>
+    <message>
+        <source>A profile named &apos;{name}&apos; already exists. Do you want to overwrite it?</source>
+        <translation>A profile named &apos;{name}&apos; already exists. Do you want to overwrite it?</translation>
+    </message>
+    <message>
+        <source>Profile Saved</source>
+        <translation>Profile Saved</translation>
+    </message>
+    <message>
+        <source>No Profile Selected</source>
+        <translation>No Profile Selected</translation>
+    </message>
+    <message>
+        <source>Please select a profile to delete.</source>
+        <translation>Please select a profile to delete.</translation>
+    </message>
+    <message>
+        <source>Confirm Deletion</source>
+        <translation>Confirm Deletion</translation>
+    </message>
+    <message>
+        <source>Profile Deleted</source>
+        <translation>Profile Deleted</translation>
+    </message>
+    <message>
+        <source>-- Select profile --</source>
+        <translation>-- Select profile --</translation>
+    </message>
+    <message>
+        <source>Saved:</source>
+        <translation>Saved:</translation>
+    </message>
+    <message>
+        <source>Save current database settings as a profile</source>
+        <translation>Save current database settings as a profile</translation>
+    </message>
+    <message>
+        <source>Profile Loaded</source>
+        <translation>Profile Loaded</translation>
+    </message>
+    <message>
+        <source>Profile &apos;{name}&apos; loaded successfully!
+
+Click &apos;Save Parameters&apos; to apply the connection.</source>
+        <translation>Profile &apos;{name}&apos; loaded successfully!
+
+Click &apos;Save Parameters&apos; to apply the connection.</translation>
+    </message>
+    <message>
+        <source>Enter a name for this database connection profile:</source>
+        <translation>Enter a name for this database connection profile:</translation>
+    </message>
+    <message>
+        <source>Database connection profile &apos;{name}&apos; saved successfully!
+
+Server: {server}
+Host: {host}:{port}
+Database: {database}</source>
+        <translation>Database connection profile &apos;{name}&apos; saved successfully!
+
+Server: {server}
+Host: {host}:{port}
+Database: {database}</translation>
+    </message>
+    <message>
+        <source>Connection Profiles:</source>
+        <translation>Connection Profiles:</translation>
+    </message>
+    <message>
+        <source>Profiles:</source>
+        <translation>Profiles:</translation>
+    </message>
+</context>
+</TS>

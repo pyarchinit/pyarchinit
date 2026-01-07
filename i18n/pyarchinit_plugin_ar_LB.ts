@@ -12707,4 +12707,271 @@ Se disattivo, mostra solo le US del livello esatto.</source><translation>إذا 
 If unchecked, shows only US at exact level.</source><translation>إذا تم التحديد، يعرض جميع SU حتى المستوى المحدد. إذا لم يتم التحديد، يعرض فقط SU في المستوى المحدد.</translation></message><message><source>Run segmentation on the selected raster</source><translation>تشغيل التقسيم على الصورة النقطية المحددة</translation></message><message><source>Uses all pottery images linked in the database for training</source><translation>يستخدم جميع صور الفخار المرتبطة في قاعدة البيانات للتدريب</translation></message><message><source>Use edge-detection preprocessing (better for line decorations)</source><translation>استخدم معالجة الكشف عن الحواف (أفضل للزخارف الخطية)</translation></message><message><source>Group pottery by ware type</source><translation>تجميع الفخار حسب نوع الخزف</translation></message><message><source>Reset to default values</source><translation>إعادة التعيين إلى القيم الافتراضية</translation></message><message><source>Export all indexes to ZIP for sharing with other PCs</source><translation>تصدير جميع الفهارس إلى ملف ZIP للمشاركة مع أجهزة كمبيوتر أخرى</translation></message><message><source>Remove photo background from pottery (useful for studio photos)</source><translation>إزالة خلفية الصورة من الفخار (مفيد للصور في الاستوديو)</translation></message><message><source>Fine-tune the KhutmML-CLIP model on your pottery dataset.
 </source><translation>قم بضبط نموذج KhutmML-CLIP على مجموعة بيانات الفخار الخاصة بك.</translation></message><message><source>Select a polygon feature from an existing layer as the area to segment</source><translation>اختر ميزة مضلع من طبقة موجودة كمنطقة للتقسيم</translation></message><message><source>Draw a rectangle to segment all stones within that area</source><translation>ارسم مستطيل لتقسيم جميع الأحجار داخل تلك المنطقة</translation></message><message><source>Attiva per cercare tutte le US in un intervallo numerico</source><translation>فعّل للبحث عن جميع SU في نطاق رقمي</translation></message><message><source>Mostra il testo mentre viene generato. Disabilita se hai problemi con GPT-5.</source><translation>اعرض النص أثناء إنشائه. عطّل إذا واجهت مشاكل مع GPT-5.</translation></message><message><source>Interroga il database con linguaggio naturale usando GPT-5</source><translation>استفسر عن قاعدة البيانات باستخدام اللغة الطبيعية مع GPT-5</translation></message><message><source>Import a KhutmML-CLIP model from a ZIP file.
 </source><translation>استيراد نموذج KhutmML-CLIP من ملف ZIP.</translation></message><message><source>Analizza l'immagine corrente con il prompt personalizzato,
-</source><translation>حلل الصورة الحالية باستخدام الموجه المخصص،</translation></message><message><source>Brightness threshold for background detection (higher = stricter)</source><translation>عتبة السطوع لاكتشاف الخلفية (أعلى = أكثر صرامة)</translation></message></context></TS>
+</source><translation>حلل الصورة الحالية باستخدام الموجه المخصص،</translation></message><message><source>Brightness threshold for background detection (higher = stricter)</source><translation>عتبة السطوع لاكتشاف الخلفية (أعلى = أكثر صرامة)</translation></message></context><context>
+    <name>pyarchinitConfigDialog</name>
+    <message>
+        <source>Database Synchronization (Local ↔ Remote)</source>
+        <translation>مزامنة قاعدة البيانات (محلي ↔ بعيد)</translation>
+    </message>
+    <message>
+        <source>Local Database (PostgreSQL)</source>
+        <translation>قاعدة بيانات محلية (PostgreSQL)</translation>
+    </message>
+    <message>
+        <source>Remote Database (Server/Cloud)</source>
+        <translation>قاعدة بيانات بعيدة (خادم/سحابة)</translation>
+    </message>
+    <message>
+        <source>Host:</source>
+        <translation>المضيف:</translation>
+    </message>
+    <message>
+        <source>Port:</source>
+        <translation>المنفذ:</translation>
+    </message>
+    <message>
+        <source>Database:</source>
+        <translation>قاعدة البيانات:</translation>
+    </message>
+    <message>
+        <source>User:</source>
+        <translation>المستخدم:</translation>
+    </message>
+    <message>
+        <source>Password:</source>
+        <translation>كلمة المرور:</translation>
+    </message>
+    <message>
+        <source>Save Credentials</source>
+        <translation>حفظ بيانات الاعتماد</translation>
+    </message>
+    <message>
+        <source>Analyze Differences</source>
+        <translation>تحليل الاختلافات</translation>
+    </message>
+    <message>
+        <source>Upload to Remote</source>
+        <translation>رفع إلى البعيد</translation>
+    </message>
+    <message>
+        <source>Download from Remote</source>
+        <translation>تحميل من البعيد</translation>
+    </message>
+    <message>
+        <source>Analyzing differences...</source>
+        <translation>تحليل الاختلافات...</translation>
+    </message>
+    <message>
+        <source>Analysis complete</source>
+        <translation>اكتمل التحليل</translation>
+    </message>
+    <message>
+        <source>Error</source>
+        <translation>خطأ</translation>
+    </message>
+    <message>
+        <source>Remote host not configured.</source>
+        <translation>لم يتم تكوين المضيف البعيد.</translation>
+    </message>
+    <message>
+        <source>Local database not configured.</source>
+        <translation>لم يتم تكوين قاعدة البيانات المحلية.</translation>
+    </message>
+    <message>
+        <source>Database Synchronization - Differences Analysis</source>
+        <translation>مزامنة قاعدة البيانات - تحليل الاختلافات</translation>
+    </message>
+    <message>
+        <source>Select</source>
+        <translation>تحديد</translation>
+    </message>
+    <message>
+        <source>Table Name</source>
+        <translation>اسم الجدول</translation>
+    </message>
+    <message>
+        <source>Local</source>
+        <translation>محلي</translation>
+    </message>
+    <message>
+        <source>Remote</source>
+        <translation>بعيد</translation>
+    </message>
+    <message>
+        <source>Only Local</source>
+        <translation>محلي فقط</translation>
+    </message>
+    <message>
+        <source>Only Remote</source>
+        <translation>بعيد فقط</translation>
+    </message>
+    <message>
+        <source>Modified</source>
+        <translation>معدل</translation>
+    </message>
+    <message>
+        <source>Status</source>
+        <translation>الحالة</translation>
+    </message>
+    <message>
+        <source>Differences found</source>
+        <translation>تم العثور على اختلافات</translation>
+    </message>
+    <message>
+        <source>Synchronized</source>
+        <translation>متزامن</translation>
+    </message>
+    <message>
+        <source>Select All</source>
+        <translation>تحديد الكل</translation>
+    </message>
+    <message>
+        <source>Select None</source>
+        <translation>إلغاء تحديد الكل</translation>
+    </message>
+    <message>
+        <source>Select Only Different</source>
+        <translation>تحديد المختلفة فقط</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation>إغلاق</translation>
+    </message>
+    <message>
+        <source>No Tables Selected</source>
+        <translation>لم يتم تحديد جداول</translation>
+    </message>
+    <message>
+        <source>Please select at least one table to synchronize.</source>
+        <translation>يرجى تحديد جدول واحد على الأقل للمزامنة.</translation>
+    </message>
+    <message>
+        <source>Confirm Synchronization</source>
+        <translation>تأكيد المزامنة</translation>
+    </message>
+    <message>
+        <source>Confirm Download</source>
+        <translation>تأكيد التحميل</translation>
+    </message>
+    <message>
+        <source>Confirm Upload</source>
+        <translation>تأكيد الرفع</translation>
+    </message>
+    <message>
+        <source>Missing Configuration</source>
+        <translation>تكوين مفقود</translation>
+    </message>
+    <message>
+        <source>Connection Profiles</source>
+        <translation>ملفات تعريف الاتصال</translation>
+    </message>
+    <message>
+        <source>Saved Profiles:</source>
+        <translation>الملفات المحفوظة:</translation>
+    </message>
+    <message>
+        <source>-- Select a profile --</source>
+        <translation>-- اختر ملف تعريف --</translation>
+    </message>
+    <message>
+        <source>💾 Save</source>
+        <translation>💾 حفظ</translation>
+    </message>
+    <message>
+        <source>🗑️ Delete</source>
+        <translation>🗑️ حذف</translation>
+    </message>
+    <message>
+        <source>Save current settings as a new profile</source>
+        <translation>حفظ الإعدادات الحالية كملف تعريف جديد</translation>
+    </message>
+    <message>
+        <source>Delete the selected profile</source>
+        <translation>حذف الملف الشخصي المحدد</translation>
+    </message>
+    <message>
+        <source>Save Connection Profile</source>
+        <translation>حفظ ملف تعريف الاتصال</translation>
+    </message>
+    <message>
+        <source>Enter a name for this connection profile:</source>
+        <translation>أدخل اسمًا لملف تعريف الاتصال هذا:</translation>
+    </message>
+    <message>
+        <source>Profile Exists</source>
+        <translation>الملف الشخصي موجود</translation>
+    </message>
+    <message>
+        <source>A profile named &apos;{name}&apos; already exists. Do you want to overwrite it?</source>
+        <translation>يوجد بالفعل ملف تعريف باسم &apos;{name}&apos;. هل تريد استبداله؟</translation>
+    </message>
+    <message>
+        <source>Profile Saved</source>
+        <translation>تم حفظ الملف الشخصي</translation>
+    </message>
+    <message>
+        <source>No Profile Selected</source>
+        <translation>لم يتم تحديد أي ملف تعريف</translation>
+    </message>
+    <message>
+        <source>Please select a profile to delete.</source>
+        <translation>يرجى تحديد ملف تعريف للحذف.</translation>
+    </message>
+    <message>
+        <source>Confirm Deletion</source>
+        <translation>تأكيد الحذف</translation>
+    </message>
+    <message>
+        <source>Profile Deleted</source>
+        <translation>تم حذف الملف الشخصي</translation>
+    </message>
+    <message>
+        <source>-- Select profile --</source>
+        <translation>-- اختر ملف تعريف --</translation>
+    </message>
+    <message>
+        <source>Saved:</source>
+        <translation>المحفوظة:</translation>
+    </message>
+    <message>
+        <source>Save current database settings as a profile</source>
+        <translation>حفظ إعدادات قاعدة البيانات الحالية كملف تعريف</translation>
+    </message>
+    <message>
+        <source>Profile Loaded</source>
+        <translation>تم تحميل الملف الشخصي</translation>
+    </message>
+    <message>
+        <source>Profile &apos;{name}&apos; loaded successfully!
+
+Click &apos;Save Parameters&apos; to apply the connection.</source>
+        <translation>تم تحميل الملف الشخصي &apos;{name}&apos; بنجاح!
+
+انقر على &apos;حفظ المعلمات&apos; لتطبيق الاتصال.</translation>
+    </message>
+    <message>
+        <source>Enter a name for this database connection profile:</source>
+        <translation>أدخل اسمًا لملف تعريف اتصال قاعدة البيانات هذا:</translation>
+    </message>
+    <message>
+        <source>Database connection profile &apos;{name}&apos; saved successfully!
+
+Server: {server}
+Host: {host}:{port}
+Database: {database}</source>
+        <translation>تم حفظ ملف تعريف اتصال قاعدة البيانات &apos;{name}&apos; بنجاح!
+
+الخادم: {server}
+المضيف: {host}:{port}
+قاعدة البيانات: {database}</translation>
+    </message>
+    <message>
+        <source>Connection Profiles:</source>
+        <translation>ملفات تعريف الاتصال:</translation>
+    </message>
+    <message>
+        <source>Profiles:</source>
+        <translation>الملفات الشخصية:</translation>
+    </message>
+</context>
+</TS>

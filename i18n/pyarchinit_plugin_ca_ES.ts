@@ -12153,4 +12153,271 @@ Se disattivo, mostra solo le US del livello esatto.</source><translation>Si acti
 If unchecked, shows only US at exact level.</source><translation>Si està marcat, mostra totes les UE fins al nivell seleccionat. Si no està marcat, mostra només les UE al nivell exacte.</translation></message><message><source>Run segmentation on the selected raster</source><translation>Executa la segmentació sobre el raster seleccionat</translation></message><message><source>Uses all pottery images linked in the database for training</source><translation>Utilitza totes les imatges de ceràmica enllaçades a la base de dades per a l'entrenament</translation></message><message><source>Use edge-detection preprocessing (better for line decorations)</source><translation>Utilitza el preprocessament de detecció de vores (millor per a decoracions de línies)</translation></message><message><source>Group pottery by ware type</source><translation>Agrupa ceràmica per tipus de pasta</translation></message><message><source>Reset to default values</source><translation>Restableix als valors per defecte</translation></message><message><source>Export all indexes to ZIP for sharing with other PCs</source><translation>Exporta tots els índexs a ZIP per compartir amb altres ordinadors</translation></message><message><source>Remove photo background from pottery (useful for studio photos)</source><translation>Eliminar el fons de la foto de la ceràmica (útil per a fotos d'estudi)</translation></message><message><source>Fine-tune the KhutmML-CLIP model on your pottery dataset.
 </source><translation>Ajusta el model KhutmML-CLIP al teu conjunt de dades de ceràmica.</translation></message><message><source>Select a polygon feature from an existing layer as the area to segment</source><translation>Seleccioneu una característica de polígon d'una capa existent com l'àrea a segmentar</translation></message><message><source>Draw a rectangle to segment all stones within that area</source><translation>Dibuixa un rectangle per segmentar totes les pedres dins d'aquesta àrea</translation></message><message><source>Attiva per cercare tutte le US in un intervallo numerico</source><translation>Activa per cercar totes les UE en un interval numèric</translation></message><message><source>Mostra il testo mentre viene generato. Disabilita se hai problemi con GPT-5.</source><translation>Mostra el text mentre es genera. Desactiva si tens problemes amb GPT-5.</translation></message><message><source>Interroga il database con linguaggio naturale usando GPT-5</source><translation>Consulta la base de dades amb llenguatge natural utilitzant GPT-5</translation></message><message><source>Import a KhutmML-CLIP model from a ZIP file.
 </source><translation>Importa un model KhutmML-CLIP des d'un fitxer ZIP.</translation></message><message><source>Analizza l'immagine corrente con il prompt personalizzato,
-</source><translation>Analitza la imatge actual amb el prompt personalitzat,</translation></message><message><source>Brightness threshold for background detection (higher = stricter)</source><translation>Llindar de brillantor per a la detecció de fons (més alt = més estricte)</translation></message></context></TS>
+</source><translation>Analitza la imatge actual amb el prompt personalitzat,</translation></message><message><source>Brightness threshold for background detection (higher = stricter)</source><translation>Llindar de brillantor per a la detecció de fons (més alt = més estricte)</translation></message></context><context>
+    <name>pyarchinitConfigDialog</name>
+    <message>
+        <source>Database Synchronization (Local ↔ Remote)</source>
+        <translation>Sincronització de base de dades (Local ↔ Remot)</translation>
+    </message>
+    <message>
+        <source>Local Database (PostgreSQL)</source>
+        <translation>Base de dades local (PostgreSQL)</translation>
+    </message>
+    <message>
+        <source>Remote Database (Server/Cloud)</source>
+        <translation>Base de dades remota (Servidor/Núvol)</translation>
+    </message>
+    <message>
+        <source>Host:</source>
+        <translation>Host:</translation>
+    </message>
+    <message>
+        <source>Port:</source>
+        <translation>Port:</translation>
+    </message>
+    <message>
+        <source>Database:</source>
+        <translation>Base de dades:</translation>
+    </message>
+    <message>
+        <source>User:</source>
+        <translation>Usuari:</translation>
+    </message>
+    <message>
+        <source>Password:</source>
+        <translation>Contrasenya:</translation>
+    </message>
+    <message>
+        <source>Save Credentials</source>
+        <translation>Desar credencials</translation>
+    </message>
+    <message>
+        <source>Analyze Differences</source>
+        <translation>Analitzar diferències</translation>
+    </message>
+    <message>
+        <source>Upload to Remote</source>
+        <translation>Pujar al remot</translation>
+    </message>
+    <message>
+        <source>Download from Remote</source>
+        <translation>Descarregar del remot</translation>
+    </message>
+    <message>
+        <source>Analyzing differences...</source>
+        <translation>Analitzant diferències...</translation>
+    </message>
+    <message>
+        <source>Analysis complete</source>
+        <translation>Anàlisi completada</translation>
+    </message>
+    <message>
+        <source>Error</source>
+        <translation>Error</translation>
+    </message>
+    <message>
+        <source>Remote host not configured.</source>
+        <translation>Host remot no configurat.</translation>
+    </message>
+    <message>
+        <source>Local database not configured.</source>
+        <translation>Base de dades local no configurada.</translation>
+    </message>
+    <message>
+        <source>Database Synchronization - Differences Analysis</source>
+        <translation>Sincronització de base de dades - Anàlisi de diferències</translation>
+    </message>
+    <message>
+        <source>Select</source>
+        <translation>Seleccionar</translation>
+    </message>
+    <message>
+        <source>Table Name</source>
+        <translation>Nom de la taula</translation>
+    </message>
+    <message>
+        <source>Local</source>
+        <translation>Local</translation>
+    </message>
+    <message>
+        <source>Remote</source>
+        <translation>Remot</translation>
+    </message>
+    <message>
+        <source>Only Local</source>
+        <translation>Només local</translation>
+    </message>
+    <message>
+        <source>Only Remote</source>
+        <translation>Només remot</translation>
+    </message>
+    <message>
+        <source>Modified</source>
+        <translation>Modificat</translation>
+    </message>
+    <message>
+        <source>Status</source>
+        <translation>Estat</translation>
+    </message>
+    <message>
+        <source>Differences found</source>
+        <translation>Diferències trobades</translation>
+    </message>
+    <message>
+        <source>Synchronized</source>
+        <translation>Sincronitzat</translation>
+    </message>
+    <message>
+        <source>Select All</source>
+        <translation>Seleccionar tot</translation>
+    </message>
+    <message>
+        <source>Select None</source>
+        <translation>No seleccionar cap</translation>
+    </message>
+    <message>
+        <source>Select Only Different</source>
+        <translation>Seleccionar només els diferents</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation>Tancar</translation>
+    </message>
+    <message>
+        <source>No Tables Selected</source>
+        <translation>No s&apos;han seleccionat taules</translation>
+    </message>
+    <message>
+        <source>Please select at least one table to synchronize.</source>
+        <translation>Si us plau, seleccioneu almenys una taula per sincronitzar.</translation>
+    </message>
+    <message>
+        <source>Confirm Synchronization</source>
+        <translation>Confirmar sincronització</translation>
+    </message>
+    <message>
+        <source>Confirm Download</source>
+        <translation>Confirmar descàrrega</translation>
+    </message>
+    <message>
+        <source>Confirm Upload</source>
+        <translation>Confirmar pujada</translation>
+    </message>
+    <message>
+        <source>Missing Configuration</source>
+        <translation>Configuració que falta</translation>
+    </message>
+    <message>
+        <source>Connection Profiles</source>
+        <translation>Perfils de connexió</translation>
+    </message>
+    <message>
+        <source>Saved Profiles:</source>
+        <translation>Perfils desats:</translation>
+    </message>
+    <message>
+        <source>-- Select a profile --</source>
+        <translation>-- Selecciona un perfil --</translation>
+    </message>
+    <message>
+        <source>💾 Save</source>
+        <translation>💾 Desar</translation>
+    </message>
+    <message>
+        <source>🗑️ Delete</source>
+        <translation>🗑️ Eliminar</translation>
+    </message>
+    <message>
+        <source>Save current settings as a new profile</source>
+        <translation>Desar la configuració actual com a nou perfil</translation>
+    </message>
+    <message>
+        <source>Delete the selected profile</source>
+        <translation>Eliminar el perfil seleccionat</translation>
+    </message>
+    <message>
+        <source>Save Connection Profile</source>
+        <translation>Desar perfil de connexió</translation>
+    </message>
+    <message>
+        <source>Enter a name for this connection profile:</source>
+        <translation>Introduïu un nom per a aquest perfil de connexió:</translation>
+    </message>
+    <message>
+        <source>Profile Exists</source>
+        <translation>El perfil existeix</translation>
+    </message>
+    <message>
+        <source>A profile named &apos;{name}&apos; already exists. Do you want to overwrite it?</source>
+        <translation>Ja existeix un perfil anomenat &apos;{name}&apos;. Voleu sobreescriure&apos;l?</translation>
+    </message>
+    <message>
+        <source>Profile Saved</source>
+        <translation>Perfil desat</translation>
+    </message>
+    <message>
+        <source>No Profile Selected</source>
+        <translation>No hi ha cap perfil seleccionat</translation>
+    </message>
+    <message>
+        <source>Please select a profile to delete.</source>
+        <translation>Si us plau, seleccioneu un perfil per eliminar.</translation>
+    </message>
+    <message>
+        <source>Confirm Deletion</source>
+        <translation>Confirmar eliminació</translation>
+    </message>
+    <message>
+        <source>Profile Deleted</source>
+        <translation>Perfil eliminat</translation>
+    </message>
+    <message>
+        <source>-- Select profile --</source>
+        <translation>-- Seleccionar perfil --</translation>
+    </message>
+    <message>
+        <source>Saved:</source>
+        <translation>Desats:</translation>
+    </message>
+    <message>
+        <source>Save current database settings as a profile</source>
+        <translation>Desar la configuració actual de la base de dades com a perfil</translation>
+    </message>
+    <message>
+        <source>Profile Loaded</source>
+        <translation>Perfil carregat</translation>
+    </message>
+    <message>
+        <source>Profile &apos;{name}&apos; loaded successfully!
+
+Click &apos;Save Parameters&apos; to apply the connection.</source>
+        <translation>Perfil &apos;{name}&apos; carregat correctament!
+
+Feu clic a &apos;Desar paràmetres&apos; per aplicar la connexió.</translation>
+    </message>
+    <message>
+        <source>Enter a name for this database connection profile:</source>
+        <translation>Introduïu un nom per a aquest perfil de connexió a la base de dades:</translation>
+    </message>
+    <message>
+        <source>Database connection profile &apos;{name}&apos; saved successfully!
+
+Server: {server}
+Host: {host}:{port}
+Database: {database}</source>
+        <translation>Perfil de connexió a la base de dades &apos;{name}&apos; desat correctament!
+
+Servidor: {server}
+Host: {host}:{port}
+Base de dades: {database}</translation>
+    </message>
+    <message>
+        <source>Connection Profiles:</source>
+        <translation>Perfils de connexió:</translation>
+    </message>
+    <message>
+        <source>Profiles:</source>
+        <translation>Perfils:</translation>
+    </message>
+</context>
+</TS>
