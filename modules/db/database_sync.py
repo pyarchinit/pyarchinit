@@ -773,10 +773,18 @@ class SyncWorker(QThread):
                     errors += 1
                     continue
 
-                # Get columns and pk
-                columns = remote_adapter.get_table_columns(table)
+                # Get columns and pk from both databases
+                remote_columns = remote_adapter.get_table_columns(table)
+                local_columns = local_adapter.get_table_columns(table)
                 pk = remote_adapter.get_primary_key(table)
-                if not columns or not pk:
+                if not remote_columns or not local_columns or not pk:
+                    errors += 1
+                    continue
+
+                # Use only columns that exist in BOTH databases (preserving remote column order)
+                local_columns_set = set(local_columns)
+                columns = [c for c in remote_columns if c in local_columns_set]
+                if not columns:
                     errors += 1
                     continue
 
@@ -843,10 +851,18 @@ class SyncWorker(QThread):
                     errors += 1
                     continue
 
-                # Get columns and pk
-                columns = local_adapter.get_table_columns(table)
+                # Get columns and pk from both databases
+                local_columns = local_adapter.get_table_columns(table)
+                remote_columns = remote_adapter.get_table_columns(table)
                 pk = local_adapter.get_primary_key(table)
-                if not columns or not pk:
+                if not local_columns or not remote_columns or not pk:
+                    errors += 1
+                    continue
+
+                # Use only columns that exist in BOTH databases (preserving local column order)
+                remote_columns_set = set(remote_columns)
+                columns = [c for c in local_columns if c in remote_columns_set]
+                if not columns:
                     errors += 1
                     continue
 
@@ -918,13 +934,23 @@ class SyncWorker(QThread):
                 if not remote_adapter.table_exists(table):
                     continue
 
-                # Get columns and pk
-                columns = remote_adapter.get_table_columns(table)
+                # Get columns and pk from both databases
+                remote_columns = remote_adapter.get_table_columns(table)
+                local_columns = local_adapter.get_table_columns(table)
                 pk = remote_adapter.get_primary_key(table)
                 if not pk:
                     pk = local_adapter.get_primary_key(table)
-                if not columns or not pk:
+                if not remote_columns or not local_columns or not pk:
                     error_details.append(f"{table}: could not get columns or pk")
+                    errors += 1
+                    continue
+
+                # Use only columns that exist in BOTH databases (preserving remote column order)
+                local_columns_set = set(local_columns)
+                columns = [c for c in remote_columns if c in local_columns_set]
+
+                if not columns:
+                    error_details.append(f"{table}: no common columns between databases")
                     errors += 1
                     continue
 
@@ -1010,13 +1036,23 @@ class SyncWorker(QThread):
                     errors += 1
                     continue
 
-                # Get columns and pk
-                columns = local_adapter.get_table_columns(table)
+                # Get columns and pk from both databases
+                local_columns = local_adapter.get_table_columns(table)
+                remote_columns = remote_adapter.get_table_columns(table)
                 pk = local_adapter.get_primary_key(table)
                 if not pk:
                     pk = remote_adapter.get_primary_key(table)
-                if not columns or not pk:
+                if not local_columns or not remote_columns or not pk:
                     error_details.append(f"{table}: could not get columns or pk")
+                    errors += 1
+                    continue
+
+                # Use only columns that exist in BOTH databases (preserving local column order)
+                remote_columns_set = set(remote_columns)
+                columns = [c for c in local_columns if c in remote_columns_set]
+
+                if not columns:
+                    error_details.append(f"{table}: no common columns between databases")
                     errors += 1
                     continue
 
