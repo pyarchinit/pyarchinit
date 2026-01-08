@@ -2409,44 +2409,32 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         #else:
             #QMessageBox.warning(self, "Warning", "No valid images selected for analysis.", QMessageBox.Ok)
 
-    def loadMediaPreview(self, mode=0):
+    def loadMediaPreview(self):
         self.iconListWidget.clear()
         conn = Connection()
-
         thumb_path = conn.thumb_path()
         thumb_path_str = thumb_path['thumb_path']
-        if mode == 0:
-            """ if has geometry column load to map canvas """
-            try:
-                if not self.DATA_LIST or self.REC_CORR >= len(self.DATA_LIST):
-                    return
-
-                # Get id directly without using eval
-                if hasattr(self.DATA_LIST[int(self.REC_CORR)], self.ID_TABLE):
-                    id_val = getattr(self.DATA_LIST[int(self.REC_CORR)], self.ID_TABLE)
-                    rec_list = self.ID_TABLE + " = " + str(id_val)
-                    search_dict = {
-                        'id_entity': "'" + str(id_val) + "'",
-                        'entity_type': "'REPERTO'"}
-                    record_us_list = self.DB_MANAGER.query_bool(search_dict, 'MEDIATOENTITY')
-                    for i in record_us_list:
-                        search_dict = {'id_media': "'" + str(i.id_media) + "'"}
-
-                        u = Utility()
-                        search_dict = u.remove_empty_items_fr_dict(search_dict)
-                        mediathumb_data = self.DB_MANAGER.query_bool(search_dict, "MEDIA_THUMB")
-                        thumb_path = str(mediathumb_data[0].filepath)
-
-                        item = QListWidgetItem(str(i.media_name))
-
-                        item.setData(Qt.ItemDataRole.UserRole, str(i.media_name))
-                        icon = load_icon(get_image_path(thumb_path_str, thumb_path))
-                        item.setIcon(icon)
-                        self.iconListWidget.addItem(item)
-            except Exception as e:
-                QMessageBox.warning(self, "Error", str(e), QMessageBox.StandardButton.Ok)
-        elif mode == 1:
-            self.iconListWidget.clear()
+        # if mode == 0:
+        # """ if has geometry column load to map canvas """
+        rec_list = self.ID_TABLE + " = " + str(
+            getattr(self.DATA_LIST[int(self.REC_CORR)], self.ID_TABLE))
+        search_dict = {
+            'id_entity': "'" + str(getattr(self.DATA_LIST[int(self.REC_CORR)], self.ID_TABLE)) + "'",
+            'entity_type': "'REPERTO'"}
+        record_us_list = self.DB_MANAGER.query_bool(search_dict, 'MEDIATOENTITY')
+        for i in record_us_list:
+            search_dict = {'id_media': "'" + str(i.id_media) + "'"}
+            u = Utility()
+            search_dict = u.remove_empty_items_fr_dict(search_dict)
+            mediathumb_data = self.DB_MANAGER.query_bool(search_dict, "MEDIA_THUMB")
+            thumb_path = str(mediathumb_data[0].filepath)
+            item = QListWidgetItem(str(i.media_name))
+            item.setData(Qt.ItemDataRole.UserRole, str(i.media_name))
+            icon = load_icon(get_image_path(thumb_path_str, thumb_path))
+            item.setIcon(icon)
+            self.iconListWidget.addItem(item)
+        # elif mode == 1:
+        # self.iconListWidget.clear()
 
     def load_and_process_3d_model(self, filepath):
         filename = os.path.basename(filepath)
@@ -3295,32 +3283,6 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             self.label_sort.setText(self.SORTED_ITEMS[self.SORT_STATUS])
             self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR + 1)
             self.fill_fields()
-
-    def on_toolButtonPreviewMedia_toggled(self):
-        if self.L=='it':
-            if self.toolButtonPreviewMedia.isChecked():
-                QMessageBox.warning(self, "Messaggio",
-                                    "Modalita' Preview Media US attivata. Le immagini delle US saranno visualizzate nella sezione Media",
-                                    QMessageBox.StandardButton.Ok)
-                self.loadMediaPreview()
-            else:
-                self.loadMediaPreview(1)
-        elif self.L=='de':
-            if self.toolButtonPreviewMedia.isChecked():
-                QMessageBox.warning(self, "Message",
-                                    "Modalität' Preview Media SE aktiviert. Die Bilder der SE werden in der Preview media Auswahl visualisiert",
-                                    QMessageBox.StandardButton.Ok)
-                self.loadMediaPreview()
-            else:
-                self.loadMediaPreview(1)
-        else:
-            if self.toolButtonPreviewMedia.isChecked():
-                QMessageBox.warning(self, "Message",
-                                    "SU Media Preview mode enabled. US images will be displayed in the Media section",
-                                    QMessageBox.StandardButton.Ok)
-                self.loadMediaPreview()
-            else:
-                self.loadMediaPreview(1) 
 
     def on_pushButton_new_rec_pressed(self):
         conn = Connection()
@@ -4716,10 +4678,8 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
             self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
             self.label_sort.setText(self.SORTED_ITEMS["n"])
-            if self.toolButtonPreviewMedia.isChecked():
-                self.loadMediaPreview(1)
 
-                # records surf functions
+            # records surf functions
 
     def on_pushButton_first_rec_pressed(self):
         if self.check_record_state() == 1:
