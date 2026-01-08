@@ -5563,7 +5563,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             self.comboBox_struttura.setEditText(str(self.DATA_LIST[self.rec_num].struttura))
             self.comboBox_year.setEditText(str(self.DATA_LIST[self.rec_num].years))
 
-            if self.toolButtonPreviewMedia.isChecked():
+            if self.toolButtonPreviewMedia.isChecked() == False:
                 self.loadMediaPreview()
             self.loadMapPreview()
         except:

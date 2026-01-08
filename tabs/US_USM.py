@@ -23187,9 +23187,9 @@ DATABASE SCHEMA KNOWLEDGE:
             # gestione tool
             if self.toolButtonPreview.isChecked():
                 self.loadMapPreview()
-            if self.toolButtonPreviewMedia.isChecked():
+            if self.toolButtonPreviewMedia.isChecked() == False:
                 self.loadMediaPreview()
-            
+
             # Sync TM, RA and N fields automatically
             self.sync_tm_from_tma()
             self.charge_insert_ra()
