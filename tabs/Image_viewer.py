@@ -2669,7 +2669,7 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                                 u = Utility()
                                 search_dict = u.remove_empty_items_fr_dict(search_dict)
                                 us_data = self.DB_MANAGER.query_bool(search_dict, "US")
-                                US_string = ('Sito: %s - Area: %s - US: %d') % (
+                                US_string = ('Sito: %s - Area: %s - US: %s') % (
                                     us_data[0].sito, us_data[0].area, us_data[0].us)
                                 ##              #else
                                 mediaToEntity_list.append(
