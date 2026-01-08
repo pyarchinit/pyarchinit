@@ -2409,32 +2409,44 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         #else:
             #QMessageBox.warning(self, "Warning", "No valid images selected for analysis.", QMessageBox.Ok)
 
-    def loadMediaPreview(self):
+    def loadMediaPreview(self, mode=0):
         self.iconListWidget.clear()
         conn = Connection()
+
         thumb_path = conn.thumb_path()
         thumb_path_str = thumb_path['thumb_path']
-        # if mode == 0:
-        # """ if has geometry column load to map canvas """
-        rec_list = self.ID_TABLE + " = " + str(
-            getattr(self.DATA_LIST[int(self.REC_CORR)], self.ID_TABLE))
-        search_dict = {
-            'id_entity': "'" + str(getattr(self.DATA_LIST[int(self.REC_CORR)], self.ID_TABLE)) + "'",
-            'entity_type': "'REPERTO'"}
-        record_us_list = self.DB_MANAGER.query_bool(search_dict, 'MEDIATOENTITY')
-        for i in record_us_list:
-            search_dict = {'id_media': "'" + str(i.id_media) + "'"}
-            u = Utility()
-            search_dict = u.remove_empty_items_fr_dict(search_dict)
-            mediathumb_data = self.DB_MANAGER.query_bool(search_dict, "MEDIA_THUMB")
-            thumb_path = str(mediathumb_data[0].filepath)
-            item = QListWidgetItem(str(i.media_name))
-            item.setData(Qt.ItemDataRole.UserRole, str(i.media_name))
-            icon = load_icon(get_image_path(thumb_path_str, thumb_path))
-            item.setIcon(icon)
-            self.iconListWidget.addItem(item)
-        # elif mode == 1:
-        # self.iconListWidget.clear()
+        if mode == 0:
+            """ if has geometry column load to map canvas """
+            try:
+                if not self.DATA_LIST or self.REC_CORR >= len(self.DATA_LIST):
+                    return
+
+                # Get id directly without using eval
+                if hasattr(self.DATA_LIST[int(self.REC_CORR)], self.ID_TABLE):
+                    id_val = getattr(self.DATA_LIST[int(self.REC_CORR)], self.ID_TABLE)
+                    rec_list = self.ID_TABLE + " = " + str(id_val)
+                    search_dict = {
+                        'id_entity': "'" + str(id_val) + "'",
+                        'entity_type': "'REPERTO'"}
+                    record_us_list = self.DB_MANAGER.query_bool(search_dict, 'MEDIATOENTITY')
+                    for i in record_us_list:
+                        search_dict = {'id_media': "'" + str(i.id_media) + "'"}
+
+                        u = Utility()
+                        search_dict = u.remove_empty_items_fr_dict(search_dict)
+                        mediathumb_data = self.DB_MANAGER.query_bool(search_dict, "MEDIA_THUMB")
+                        thumb_path = str(mediathumb_data[0].filepath)
+
+                        item = QListWidgetItem(str(i.media_name))
+
+                        item.setData(Qt.ItemDataRole.UserRole, str(i.media_name))
+                        icon = load_icon(get_image_path(thumb_path_str, thumb_path))
+                        item.setIcon(icon)
+                        self.iconListWidget.addItem(item)
+            except Exception as e:
+                pass  # Silently handle errors to avoid popup spam
+        elif mode == 1:
+            self.iconListWidget.clear()
 
     def load_and_process_3d_model(self, filepath):
         filename = os.path.basename(filepath)
