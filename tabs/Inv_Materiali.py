@@ -21,6 +21,7 @@
 """
 from __future__ import absolute_import
 
+import ast
 import math
 import traceback
 from datetime import date, datetime
@@ -69,6 +70,7 @@ from ..gui.pyarchinitConfigDialog import pyArchInitDialog_Config
 from ..modules.utility.remote_image_loader import load_icon, get_image_path, initialize as init_remote_loader
 MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), os.pardir, 'gui', 'ui', 'Inv_Materiali.ui'))
 
+print("[INV_MATERIALI] *** Module loaded - DEBUG version 2026-01-08 ***")
 
 class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
     L=QgsSettings().value("locale/userLocale", "it", type=str)[:2]
@@ -2412,23 +2414,28 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
     def loadMediaPreview(self, mode=0):
         self.iconListWidget.clear()
         conn = Connection()
-
         thumb_path = conn.thumb_path()
         thumb_path_str = thumb_path['thumb_path']
         if mode == 0:
             """ if has geometry column load to map canvas """
             try:
                 if not self.DATA_LIST or self.REC_CORR >= len(self.DATA_LIST):
+                    print(f"[MEDIA DEBUG] No DATA_LIST or REC_CORR out of range")
                     return
+
+                print(f"[MEDIA DEBUG] REC_CORR={self.REC_CORR}, ID_TABLE={self.ID_TABLE}")
 
                 # Get id directly without using eval
                 if hasattr(self.DATA_LIST[int(self.REC_CORR)], self.ID_TABLE):
                     id_val = getattr(self.DATA_LIST[int(self.REC_CORR)], self.ID_TABLE)
+                    print(f"[MEDIA DEBUG] id_val={id_val}")
                     rec_list = self.ID_TABLE + " = " + str(id_val)
                     search_dict = {
                         'id_entity': "'" + str(id_val) + "'",
                         'entity_type': "'REPERTO'"}
+                    print(f"[MEDIA DEBUG] search_dict={search_dict}")
                     record_us_list = self.DB_MANAGER.query_bool(search_dict, 'MEDIATOENTITY')
+                    print(f"[MEDIA DEBUG] Found {len(record_us_list)} media records")
                     for i in record_us_list:
                         search_dict = {'id_media': "'" + str(i.id_media) + "'"}
 
@@ -2436,6 +2443,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                         search_dict = u.remove_empty_items_fr_dict(search_dict)
                         mediathumb_data = self.DB_MANAGER.query_bool(search_dict, "MEDIA_THUMB")
                         thumb_path = str(mediathumb_data[0].filepath)
+                        print(f"[MEDIA DEBUG] thumb_path={thumb_path}, thumb_path_str={thumb_path_str}")
 
                         item = QListWidgetItem(str(i.media_name))
 
@@ -2443,8 +2451,10 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                         icon = load_icon(get_image_path(thumb_path_str, thumb_path))
                         item.setIcon(icon)
                         self.iconListWidget.addItem(item)
+                else:
+                    print(f"[MEDIA DEBUG] DATA_LIST has no attribute {self.ID_TABLE}")
             except Exception as e:
-                pass  # Silently handle errors to avoid popup spam
+                print(f"[MEDIA DEBUG] Exception: {e}")
         elif mode == 1:
             self.iconListWidget.clear()
 
@@ -5444,6 +5454,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                 self.DATA_LIST.append(i)
 
     def fill_fields(self, n=0):
+        print(f"[FILL_FIELDS DEBUG] *** fill_fields called with n={n} ***")
         self.rec_num = n
         try:
             if str(self.DATA_LIST[self.rec_num].numero_inventario) == 'None':
@@ -5535,17 +5546,64 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             self.comboBox_struttura.setEditText(str(self.DATA_LIST[self.rec_num].struttura))
             self.comboBox_year.setEditText(str(self.DATA_LIST[self.rec_num].years))
 
+            print(f"[FILL_FIELDS DEBUG] About to check toolButtonPreviewMedia")
+            print(f"[FILL_FIELDS DEBUG] isChecked={self.toolButtonPreviewMedia.isChecked()}")
             if self.toolButtonPreviewMedia.isChecked() == False:
+                print(f"[FILL_FIELDS DEBUG] Calling loadMediaPreview()")
                 self.loadMediaPreview()
+            else:
+                print(f"[FILL_FIELDS DEBUG] Button is checked, skipping media preview")
             self.loadMapPreview()
-        except:
-            pass
+        except Exception as e:
+            print(f"[FILL_FIELDS DEBUG] Exception in fill_fields: {e}")
+            import traceback
+            traceback.print_exc()
 
     def set_rec_counter(self, t, c):
         self.rec_tot = t
         self.rec_corr = c
         self.label_rec_tot.setText(str(self.rec_tot))
         self.label_rec_corrente.setText(str(self.rec_corr))
+
+    def tableInsertData(self, t, d):
+        """Set the value into alls Grid - uses getattr instead of eval for security"""
+        self.table_name = t
+        # Handle empty or None data safely
+        if not d or d == 'None' or d == '':
+            self.data_list = []
+        else:
+            try:
+                # Use ast.literal_eval for safer parsing
+                self.data_list = ast.literal_eval(d) if isinstance(d, str) else d
+            except (ValueError, SyntaxError):
+                # If parsing fails, try to handle as empty list
+                self.data_list = []
+
+        if isinstance(self.data_list, list):
+            self.data_list.sort()
+        else:
+            self.data_list = []
+
+        # Get table widget using getattr
+        widget_name = t.replace('self.', '') if t.startswith('self.') else t
+        table = getattr(self, widget_name)
+
+        table_col_count = table.columnCount()
+        table.clearContents()
+
+        for i in range(table_col_count):
+            table.removeRow(i)
+
+        for row in range(len(self.data_list)):
+            table.insertRow(row)
+            for col in range(len(self.data_list[row])):
+                item = QTableWidgetItem(str(self.data_list[row][col]))
+                table.setItem(row, col, item)
+
+        max_row_num = len(self.data_list)
+        value = table.item(max_row_num, 1)
+        if value == '':
+            table.removeRow(max_row_num)
 
     def insert_new_row(self, table_name):
         """Insert new row into a table - uses getattr instead of eval for security"""
