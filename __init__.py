@@ -124,40 +124,62 @@ class PackageManager:
         """
         Get the path to QGIS Python on Windows (standalone installation).
 
-        Checks for:
-        - QGIS PR (latest release)
-        - QGIS LTR (Long Term Release)
+        Dynamically scans for all QGIS versions from 3.22 to 4.x.
+        Supports both PR (latest) and LTR (Long Term Release) versions.
 
         Returns:
-            Path to python.exe or 'python' if not found
+            Path to python.exe or sys.executable if not found
         """
         if platform.system() != 'Windows':
             return sys.executable
 
-        # Common QGIS installation paths on Windows
-        program_files = os.environ.get('PROGRAMFILES', 'C:\\Program Files')
+        qgis_paths = []
 
-        # Possible QGIS installations (PR and LTR versions)
-        qgis_paths = [
-            # Standard installations
-            os.path.join(program_files, 'QGIS 3.40', 'apps', 'Python312', 'python.exe'),  # PR
-            os.path.join(program_files, 'QGIS 3.34', 'apps', 'Python312', 'python.exe'),  # LTR
-            os.path.join(program_files, 'QGIS 3.38', 'apps', 'Python312', 'python.exe'),
-            os.path.join(program_files, 'QGIS 3.36', 'apps', 'Python39', 'python.exe'),
-            os.path.join(program_files, 'QGIS 3.32', 'apps', 'Python39', 'python.exe'),
-            os.path.join(program_files, 'QGIS 3.28', 'apps', 'Python39', 'python.exe'),  # Previous LTR
-            # Generic paths
-            os.path.join(program_files, 'QGIS', 'apps', 'Python312', 'python.exe'),
-            os.path.join(program_files, 'QGIS', 'apps', 'Python39', 'python.exe'),
-        ]
-
-        # Also check QGIS_PREFIX_PATH environment variable
+        # Priority 1: Use QGIS_PREFIX_PATH environment variable (most reliable)
         qgis_prefix = os.environ.get('QGIS_PREFIX_PATH')
         if qgis_prefix:
             # QGIS_PREFIX_PATH points to apps/qgis, so go up two levels
             base_path = os.path.dirname(os.path.dirname(qgis_prefix))
-            for py_ver in ['Python312', 'Python311', 'Python310', 'Python39']:
-                qgis_paths.insert(0, os.path.join(base_path, 'apps', py_ver, 'python.exe'))
+            # Check all Python versions from newest to oldest
+            for py_ver in ['Python313', 'Python312', 'Python311', 'Python310', 'Python39', 'Python38']:
+                qgis_paths.append(os.path.join(base_path, 'apps', py_ver, 'python.exe'))
+
+        # Priority 2: Scan Program Files for all QGIS installations
+        program_files_dirs = [
+            os.environ.get('PROGRAMFILES', 'C:\\Program Files'),
+            os.environ.get('PROGRAMFILES(X86)', 'C:\\Program Files (x86)'),
+        ]
+
+        # Python versions used by different QGIS releases
+        python_versions = ['Python313', 'Python312', 'Python311', 'Python310', 'Python39', 'Python38']
+
+        for program_files in program_files_dirs:
+            if not os.path.exists(program_files):
+                continue
+
+            # Scan for QGIS directories
+            try:
+                for item in os.listdir(program_files):
+                    # Match QGIS 3.x, QGIS 4.x, QGIS-LTR, QGIS-PR, or just QGIS
+                    if item.upper().startswith('QGIS'):
+                        qgis_dir = os.path.join(program_files, item)
+                        if os.path.isdir(qgis_dir):
+                            apps_dir = os.path.join(qgis_dir, 'apps')
+                            if os.path.exists(apps_dir):
+                                # Check for Python in apps folder
+                                for py_ver in python_versions:
+                                    python_path = os.path.join(apps_dir, py_ver, 'python.exe')
+                                    if python_path not in qgis_paths:
+                                        qgis_paths.append(python_path)
+            except (PermissionError, OSError):
+                continue
+
+        # Priority 3: Generic QGIS paths
+        for program_files in program_files_dirs:
+            for py_ver in python_versions:
+                generic_path = os.path.join(program_files, 'QGIS', 'apps', py_ver, 'python.exe')
+                if generic_path not in qgis_paths:
+                    qgis_paths.append(generic_path)
 
         # Try to find existing Python installation
         for path in qgis_paths:
