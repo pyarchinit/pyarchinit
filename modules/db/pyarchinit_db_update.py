@@ -79,14 +79,17 @@ class DB_update(object):
             # - duplicate column name (SQLite)
             # - table already exists
             error_str = str(e).lower()
-            ignorable_errors = [
-                'duplicate column',
-                'already exists',
-                'duplicate key',
-                'column "' in error_str and '" of relation' in error_str and 'already exists' in error_str,
-            ]
 
-            if any(err in error_str if isinstance(err, str) else err for err in ignorable_errors):
+            # Check for ignorable errors
+            is_ignorable = (
+                'duplicate column' in error_str or
+                'already exists' in error_str or
+                'duplicate key' in error_str or
+                'duplicatecolumn' in error_str or  # psycopg2 error class name
+                ('column' in error_str and 'exists' in error_str)
+            )
+
+            if is_ignorable:
                 # Silently ignore - column/table already exists
                 return ResultWrapper([])
             else:
@@ -486,15 +489,15 @@ class DB_update(object):
             if not table_column_names_list.__contains__('provincia'):
                 self._execute("ALTER TABLE site_table ADD COLUMN provincia varchar DEFAULT 'inserici un valore' ")
 
-        if not table_column_names_list.__contains__('definizione_sito'):
-            self._execute(
-                "ALTER TABLE site_table ADD COLUMN definizione_sito varchar DEFAULT 'inserici un valore' ")
+            if not table_column_names_list.__contains__('definizione_sito'):
+                self._execute(
+                    "ALTER TABLE site_table ADD COLUMN definizione_sito varchar DEFAULT 'inserici un valore' ")
 
-        if not table_column_names_list.__contains__('sito_path'):
-            self._execute("ALTER TABLE site_table ADD COLUMN sito_path varchar DEFAULT 'inserisci path' ")
+            if not table_column_names_list.__contains__('sito_path'):
+                self._execute("ALTER TABLE site_table ADD COLUMN sito_path varchar DEFAULT 'inserisci path' ")
 
-        if not table_column_names_list.__contains__('find_check'):
-            self._execute("ALTER TABLE site_table ADD COLUMN find_check BIGINT DEFAULT 0")
+            if not table_column_names_list.__contains__('find_check'):
+                self._execute("ALTER TABLE site_table ADD COLUMN find_check BIGINT DEFAULT 0")
 
         ####US_table
         table = safe_load_table("us_table")
