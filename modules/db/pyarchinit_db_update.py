@@ -80,13 +80,52 @@ class DB_update(object):
             # - table already exists
             error_str = str(e).lower()
 
-            # Check for ignorable errors
+            # Check for ignorable errors in all supported languages
+            # English
             is_ignorable = (
                 'duplicate column' in error_str or
                 'already exists' in error_str or
                 'duplicate key' in error_str or
                 'duplicatecolumn' in error_str or  # psycopg2 error class name
                 ('column' in error_str and 'exists' in error_str)
+            )
+            # Italian (it_IT)
+            is_ignorable = is_ignorable or (
+                'esiste già' in error_str or
+                'colonna duplicata' in error_str or
+                ('colonna' in error_str and 'esiste' in error_str)
+            )
+            # German (de_DE)
+            is_ignorable = is_ignorable or (
+                'existiert bereits' in error_str or
+                'doppelte spalte' in error_str or
+                'spalte bereits vorhanden' in error_str or
+                ('spalte' in error_str and 'existiert' in error_str)
+            )
+            # Spanish (es_ES)
+            is_ignorable = is_ignorable or (
+                'ya existe' in error_str or
+                'columna duplicada' in error_str or
+                ('columna' in error_str and 'existe' in error_str)
+            )
+            # French (fr_FR)
+            is_ignorable = is_ignorable or (
+                'existe déjà' in error_str or
+                'colonne en double' in error_str or
+                'colonne dupliquée' in error_str or
+                ('colonne' in error_str and 'existe' in error_str)
+            )
+            # Catalan (ca_ES)
+            is_ignorable = is_ignorable or (
+                'ja existeix' in error_str or
+                'columna duplicada' in error_str or
+                ('columna' in error_str and 'existeix' in error_str)
+            )
+            # Portuguese (common in some installations)
+            is_ignorable = is_ignorable or (
+                'já existe' in error_str or
+                'coluna duplicada' in error_str or
+                ('coluna' in error_str and 'existe' in error_str)
             )
 
             if is_ignorable:
