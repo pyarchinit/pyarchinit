@@ -23,7 +23,6 @@ import shutil
 import subprocess
 import sys
 from importlib.metadata import distributions
-from shlex import quote as shlex_quote
 from typing import Dict, List, Optional, Set
 
 from qgis.PyQt.QtCore import QObject, QThread, pyqtSignal, QTimer
@@ -246,7 +245,7 @@ class PackageManager:
                                    stdout=subprocess.PIPE, stderr=subprocess.PIPE)
                     # Then install the requested version
                     subprocess.run(
-                        [python_executable, "-m", "pip", "install", "--force-reinstall", shlex_quote(package)],
+                        [python_executable, "-m", "pip", "install", "--force-reinstall", package],
                         stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
                     break
                 except Exception as e:
@@ -254,6 +253,7 @@ class PackageManager:
             return
 
         # Regular installation process
+        # Note: Don't use shlex_quote() with subprocess list - Python handles escaping automatically
         if PackageManager.is_ubuntu():
             ubuntu_package = PackageManager.get_ubuntu_package_name(package)
             try:
@@ -261,29 +261,29 @@ class PackageManager:
                                check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             except subprocess.CalledProcessError:
                 print(f"Failed to install {ubuntu_package} via apt. Falling back to pip.")
-                subprocess.run([sys.executable, "-m", "pip", "install", shlex_quote(package)],
+                subprocess.run([sys.executable, "-m", "pip", "install", package],
                                check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         elif platform.system() == 'Windows' and PackageManager.is_osgeo4w():
             # OSGeo4W installation - use the batch file wrapper
             python_executable = PackageManager.get_osgeo4w_python()
-            subprocess.run([python_executable, "-m", "pip", "install", shlex_quote(package)],
+            subprocess.run([python_executable, "-m", "pip", "install", package],
                            stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True, shell=True)
         elif platform.system() == 'Windows':
             # Standalone QGIS installation (PR or LTR)
             python_executable = PackageManager.get_windows_qgis_python()
             try:
                 # First try without --user (for system-wide QGIS installation)
-                subprocess.run([python_executable, "-m", "pip", "install", shlex_quote(package)],
+                subprocess.run([python_executable, "-m", "pip", "install", package],
                                stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True, shell=True)
             except subprocess.CalledProcessError:
                 # If that fails, try with --user flag
-                subprocess.run([python_executable, "-m", "pip", "install", shlex_quote(package), "--user"],
+                subprocess.run([python_executable, "-m", "pip", "install", package, "--user"],
                                stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True, shell=True)
         elif platform.system() == 'Darwin':
             for qgis_type in ['standard', 'ltr']:
                 try:
                     python_executable = os.path.join(QGIS_PATHS[qgis_type], 'bin', 'python3')
-                    subprocess.run([python_executable, "-m", "pip", "install", shlex_quote(package)],
+                    subprocess.run([python_executable, "-m", "pip", "install", package],
                                    stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
                     break
                 except Exception as e:
