@@ -241,13 +241,14 @@ class PyArchInitSplash(QDialog):
     and a status message.
     """
 
-    def __init__(self, parent=None, message="Loading PyArchInit..."):
+    def __init__(self, parent=None, message="Loading PyArchInit...", modal=False):
         super().__init__(parent)
         self.setWindowFlags(Qt.WindowType.FramelessWindowHint |
                            Qt.WindowType.WindowStaysOnTopHint |
                            Qt.WindowType.Dialog)
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
-        self.setModal(True)
+        # Non-modal by default to allow other dialogs (like package installation) to appear
+        self.setModal(modal)
 
         self.init_ui(message)
 
