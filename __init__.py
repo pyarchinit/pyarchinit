@@ -120,6 +120,54 @@ class PackageManager:
         return sys.executable
 
     @staticmethod
+    def get_windows_qgis_python() -> str:
+        """
+        Get the path to QGIS Python on Windows (standalone installation).
+
+        Checks for:
+        - QGIS PR (latest release)
+        - QGIS LTR (Long Term Release)
+
+        Returns:
+            Path to python.exe or 'python' if not found
+        """
+        if platform.system() != 'Windows':
+            return sys.executable
+
+        # Common QGIS installation paths on Windows
+        program_files = os.environ.get('PROGRAMFILES', 'C:\\Program Files')
+
+        # Possible QGIS installations (PR and LTR versions)
+        qgis_paths = [
+            # Standard installations
+            os.path.join(program_files, 'QGIS 3.40', 'apps', 'Python312', 'python.exe'),  # PR
+            os.path.join(program_files, 'QGIS 3.34', 'apps', 'Python312', 'python.exe'),  # LTR
+            os.path.join(program_files, 'QGIS 3.38', 'apps', 'Python312', 'python.exe'),
+            os.path.join(program_files, 'QGIS 3.36', 'apps', 'Python39', 'python.exe'),
+            os.path.join(program_files, 'QGIS 3.32', 'apps', 'Python39', 'python.exe'),
+            os.path.join(program_files, 'QGIS 3.28', 'apps', 'Python39', 'python.exe'),  # Previous LTR
+            # Generic paths
+            os.path.join(program_files, 'QGIS', 'apps', 'Python312', 'python.exe'),
+            os.path.join(program_files, 'QGIS', 'apps', 'Python39', 'python.exe'),
+        ]
+
+        # Also check QGIS_PREFIX_PATH environment variable
+        qgis_prefix = os.environ.get('QGIS_PREFIX_PATH')
+        if qgis_prefix:
+            # QGIS_PREFIX_PATH points to apps/qgis, so go up two levels
+            base_path = os.path.dirname(os.path.dirname(qgis_prefix))
+            for py_ver in ['Python312', 'Python311', 'Python310', 'Python39']:
+                qgis_paths.insert(0, os.path.join(base_path, 'apps', py_ver, 'python.exe'))
+
+        # Try to find existing Python installation
+        for path in qgis_paths:
+            if os.path.exists(path):
+                return path
+
+        # Fallback: use sys.executable (the Python running QGIS)
+        return sys.executable
+
+    @staticmethod
     def is_ubuntu() -> bool:
         """Check if running on Ubuntu."""
         return platform.system() == 'Linux' and 'Ubuntu' in platform.version()
@@ -194,13 +242,21 @@ class PackageManager:
                 subprocess.run([sys.executable, "-m", "pip", "install", shlex_quote(package)],
                                check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         elif platform.system() == 'Windows' and PackageManager.is_osgeo4w():
+            # OSGeo4W installation - use the batch file wrapper
             python_executable = PackageManager.get_osgeo4w_python()
             subprocess.run([python_executable, "-m", "pip", "install", shlex_quote(package)],
                            stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True, shell=True)
         elif platform.system() == 'Windows':
-            python_executable = 'python'
-            subprocess.run([python_executable, "-m", "pip", "install", shlex_quote(package), "--user"],
-                           stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True, shell=True)
+            # Standalone QGIS installation (PR or LTR)
+            python_executable = PackageManager.get_windows_qgis_python()
+            try:
+                # First try without --user (for system-wide QGIS installation)
+                subprocess.run([python_executable, "-m", "pip", "install", shlex_quote(package)],
+                               stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True, shell=True)
+            except subprocess.CalledProcessError:
+                # If that fails, try with --user flag
+                subprocess.run([python_executable, "-m", "pip", "install", shlex_quote(package), "--user"],
+                               stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True, shell=True)
         elif platform.system() == 'Darwin':
             for qgis_type in ['standard', 'ltr']:
                 try:
@@ -556,9 +612,13 @@ def initialize_environment() -> None:
     PackageManager.remove_opencv_directories()
 
 
-def check_and_install_dependencies() -> None:
-    """Check and install missing dependencies."""
-    s = QgsSettings()
+def get_missing_packages() -> List[str]:
+    """
+    Check which packages are missing.
+
+    Returns:
+        List of missing packages
+    """
     requirements_path = os.path.join(os.path.dirname(__file__), 'requirements.txt')
     missing_packages = PackageManager.check_required_packages(requirements_path)
 
@@ -580,6 +640,19 @@ def check_and_install_dependencies() -> None:
             pillow_version = "Pillow>=9.0.0"
             if pillow_version not in missing_packages:
                 missing_packages.append(pillow_version)
+
+    return missing_packages
+
+
+def check_and_install_dependencies(splash=None) -> None:
+    """
+    Check and install missing dependencies.
+
+    Args:
+        splash: Optional splash screen (kept for backward compatibility, not used)
+    """
+    s = QgsSettings()
+    missing_packages = get_missing_packages()
 
     if missing_packages:
         show_install_dialog(missing_packages)
@@ -609,7 +682,19 @@ def classFactory(iface):
     Returns:
         PyArchInitPlugin instance
     """
-    # Show splash screen during plugin loading
+    # STEP 1: Check for missing packages FIRST (before showing splash)
+    # This allows the install dialog to appear without being blocked by splash
+    missing_packages = get_missing_packages()
+
+    if missing_packages:
+        # Show install dialog BEFORE splash screen
+        print(f"PyArchInit: {len(missing_packages)} packages need to be installed...")
+        show_install_dialog(missing_packages)
+        # Mark as installed
+        s = QgsSettings()
+        s.setValue('pyArchInit/dependenciesInstalled', True)
+
+    # STEP 2: Now show splash screen for the rest of the loading
     splash = None
     try:
         from .gui.pyarchinit_splash import PyArchInitSplash
@@ -626,13 +711,6 @@ def classFactory(iface):
             QApplication.processEvents()
 
         initialize_environment()
-
-        # Update splash message
-        if splash:
-            splash.set_message("Checking dependencies...")
-            QApplication.processEvents()
-
-        check_and_install_dependencies()
 
         # Update splash message
         if splash:
