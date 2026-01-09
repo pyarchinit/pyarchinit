@@ -31,7 +31,7 @@ faiss-cpu>=1.13.2
 qrcode>=8.2
 s3dgraphy>=0.1.25
 # R Integration for Archeozoology (optional - requires R installed)
-pyper>=1.1.2
+#pyper>=1.1.2
 # Remote Storage Backends (optional - install only if using remote storage)
 cloudinary>=1.44.1
 google-auth>=2.45.0
