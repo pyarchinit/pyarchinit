@@ -114,7 +114,8 @@ class DB_update(object):
         def safe_load_table(table_name):
             """Carica una tabella gestendo errori di encoding UTF-8"""
             try:
-                return Table(table_name, self.metadata, autoload=True)
+                # SQLAlchemy 2.0: use autoload_with instead of autoload=True
+                return Table(table_name, self.metadata, autoload_with=self.engine)
             except UnicodeDecodeError as e:
                 QMessageBox.warning(None, "Errore Encoding",
                                   f"Errore di encoding UTF-8 nella tabella {table_name}.\n"
@@ -229,7 +230,8 @@ class DB_update(object):
         ####pottery_table
         log_debug("Processing pottery_table")
         try:
-            table = Table("pottery_table", self.metadata, autoload=True)
+            # SQLAlchemy 2.0: use autoload_with instead of autoload=True
+            table = Table("pottery_table", self.metadata, autoload_with=self.engine)
             log_debug("pottery_table loaded successfully")
 
             table_column_names_list = []
@@ -2295,7 +2297,8 @@ class DB_update(object):
         def safe_load_table(table_name):
             """Load a table handling encoding errors"""
             try:
-                return Table(table_name, self.metadata, autoload=True)
+                # SQLAlchemy 2.0: use autoload_with instead of autoload=True
+                return Table(table_name, self.metadata, autoload_with=self.engine)
             except Exception:
                 return None
 
